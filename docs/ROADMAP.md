@@ -40,7 +40,8 @@ operator remains a separately proven correctness kernel.
   explicit capacity and transactional overflow
 - CPU/Metal frictional PGS contact block with warm-start cache
 - Independent projected-gradient exact-cone oracle
-- Globalized semismooth-Newton exact-cone quality solver
+- Safeguarded semismooth-Newton exact-cone quality solver with nonmonotone GLL
+  globalization, Gauss-Newton retry, and projected-gradient safety fallback
 - Transactional CPU rigid-body world pipeline
 - Pinned, COM-consistent 29-DoF G1 model data
 - Throughput-island partitioning with an explicit 128-contact limit for each

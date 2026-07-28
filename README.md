@@ -46,9 +46,11 @@ linked or called at runtime.
 - Pointer-free constraint IR v2 with canonical validation, v1 contact
   adaptation, one timestep/material evaluator shared by quality and
   throughput consumers, and a solver-independent exact-cone residual
-- Three contact paths: independent FP64 exact-cone reference, globalized FP64
-  semismooth Newton quality solve, and a CPU/Metal fixed-budget PGS block; the
-  throughput block has a hard 128-contact limit per connected island
+- Three contact paths: independent FP64 exact-cone reference, a safeguarded
+  FP64 semismooth-Newton quality solve with four-merit GLL globalization,
+  Gauss-Newton retry, and projected-gradient safety fallback, plus a
+  CPU/Metal fixed-budget PGS block; the throughput block has a hard
+  128-contact limit per connected island
 - Transactional CPU rigid-body world step composing motion, collision,
   materials, warm starts, contact solve, and configuration integration for
   maximal-coordinate free bodies
@@ -59,9 +61,10 @@ linked or called at runtime.
 - Open, pinned dVRK-style Patient Side Manipulator research model with a true
   prismatic insertion axis, eight driven coordinates, exact serial
   remote-center geometry, Classic Large Needle Driver, independent jaws, and
-  18 executable primitive colliders; a validated seven-target policy map
-  expands one logical aperture into symmetric physical jaw commands with
-  tangent closure and a monotonically increasing distal surface gap
+  20 executable primitive colliders, including four 0.35 mm distal teeth at
+  0.8 mm longitudinal pitch; a validated seven-target policy map expands one
+  logical aperture into symmetric physical jaw commands with tangent closure
+  and a monotonically increasing distal surface gap
 - Procedural GS-21-scale curved needle, training ring, and peg-board assets
   with stable compound colliders and geometry-derived mass, COM, inertia, and
   semantic grasp/tip zones; source facts and research defaults remain
@@ -76,9 +79,11 @@ linked or called at runtime.
   solves them with active joint stops in one exact-cone island, and persists
   generation-safe world-space warm starts
 - Physics-owned PSM needle pickup from a six-button static cradle: open-jaw
-  approach, legal computed-torque closure, support load transfer, bilateral
-  dwell evidence, fixture clearance, and an 8 mm lift against gravity are
-  verified without a weld, teleport, or hidden attachment
+  approach, legal computed-torque closure on needle segment 17, support load
+  transfer, and an 8 mm off-COM lift are verified without a weld, teleport,
+  or hidden attachment. Bilateral shape-17 load persists for all 2,000 lift
+  frames; the finite jaw patch is load-bearing for 1,859 frames with a
+  1,395-frame continuous run while resisting an 8.407 µN·m gravity moment
 - Correctness-first generic Metal articulation operator for fixed/floating
   trees, exercised on actual 30-body/35-velocity G1: poses, analytic point
   Jacobians, `Jᵀp`, checked mass factorization, and `M⁻¹Jᵀp`, with
@@ -99,10 +104,10 @@ The throughput contact kernel is PGS rather than TGS, and any connected island
 above 128 contacts fails explicitly rather than spilling. Cylinder support is
 currently cylinder/plane only, so G1 shoulder cylinders remain disabled.
 Metal manifold persistence, LBVH, convex/mesh/heightfield geometry, CCD,
-multi-articulation islands, rolling/torsional contact resistance and finite
-surgical jaw patches, the full joint/loop constraint language, importers,
-rendering, sensors, tissue/thread mechanics, and qualified differentiability
-remain open. The dated
+multi-articulation islands, rolling/torsional contact resistance, calibrated
+surgical jaw surfaces and generic force-closure certification, the full
+joint/loop constraint language, importers, rendering, sensors, tissue/thread
+mechanics, and qualified differentiability remain open. The dated
 requirements and claim rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
 

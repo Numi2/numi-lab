@@ -46,12 +46,23 @@ constexpr std::array<std::uint32_t, 3> kSupportNeedleShapes{
 };
 constexpr std::size_t kSupportButtonCount =
     2u * kSupportNeedleShapes.size();
+constexpr std::array<std::uint32_t, 2> kJawAToothShapes{
+    15u,
+    18u,
+};
+constexpr std::array<std::uint32_t, 2> kJawBToothShapes{
+    17u,
+    19u,
+};
 constexpr double kSupportRadius = 0.00125;
 constexpr double kInitialSupportPenetration = 1.0e-6;
 constexpr double kSupportRadialOffset = 0.00035;
-constexpr double kOpenJawCoordinate = 0.025;
+constexpr double kOpenJawCoordinate = 0.080;
+constexpr double kPickupJawCoordinate = 0.045;
 constexpr double kApproachDistance = 0.004;
 constexpr double kLiftDistance = 0.0085;
+constexpr std::uint32_t kDistributedContactsPerJaw = 2u;
+constexpr double kDistributedContactSpan = 4.0e-4;
 
 void require(const bool condition, const std::string& message) {
     if (!condition) {
@@ -77,6 +88,14 @@ Vec3 operator*(const Vec3 value, const double scale) {
 
 double dot(const Vec3 left, const Vec3 right) {
     return left.x * right.x + left.y * right.y + left.z * right.z;
+}
+
+Vec3 cross(const Vec3 left, const Vec3 right) {
+    return {
+        left.y * right.z - left.z * right.y,
+        left.z * right.x - left.x * right.z,
+        left.x * right.y - left.y * right.x,
+    };
 }
 
 double norm(const Vec3 value) {
@@ -186,8 +205,10 @@ Vec3 jawMidpoint(
     require(diagnostics.succeeded(), "PSM jaw kinematics failed");
     return (
         articulatedShapeCenter(kinematics, model.shapes[15u]) +
-        articulatedShapeCenter(kinematics, model.shapes[17u])
-    ) * 0.5;
+        articulatedShapeCenter(kinematics, model.shapes[17u]) +
+        articulatedShapeCenter(kinematics, model.shapes[18u]) +
+        articulatedShapeCenter(kinematics, model.shapes[19u])
+    ) * 0.25;
 }
 
 MRBodyStateGPU dynamicNeedleState(
@@ -284,16 +305,16 @@ metalrobo::ArticulatedRigidWorldConfig worldConfig() {
     config.collision.contact.contact.penetrationSlop = 1.0e-6;
     config.collision.contact.contact.maxDepenetrationVelocity = 0.5;
     config.collision.contact.contactCapacity = 512u;
-    config.collision.contact.qualityTangentialRegularization = 1.0e-4;
+    config.collision.contact.qualityTangentialRegularization = 1.0e-3;
     config.jointLimits.activationDistance = 0.0015;
     config.jointLimits.recoveryFraction = 0.1;
     config.jointLimits.maximumRecoverySpeed = 0.5;
     config.jointLimits.regularization = 1.0e-8;
     config.quality.maximumIterations = 4000u;
     config.quality.kktTolerance = 2.0e-5;
-    // Each cradle button owns a distinct static body, so one retained witness
-    // per body pair preserves every independent support and each jaw pinch.
-    config.maximumContactsPerBodyPair = 1u;
+    // Each cradle button owns a distinct static body. Two spatially diverse
+    // witnesses per jaw preserve both rows of the finite contact patch.
+    config.maximumContactsPerBodyPair = 2u;
     config.grasp = {
         .enabled = true,
         .jawBodyA = 7u,
@@ -303,6 +324,8 @@ metalrobo::ArticulatedRigidWorldConfig worldConfig() {
         .maximumTangentialSlipSpeed = 0.05,
         .maximumOpposingNormalDot = -0.1,
         .requiredConsecutiveSteps = 10u,
+        .minimumContactCountPerJaw = 1u,
+        .minimumContactSpanPerJaw = 0.0,
     };
     return config;
 }
@@ -649,8 +672,8 @@ int main() {
                 .motionType = MR_MOTION_DYNAMIC,
             });
         require(
-            needle.metadata.graspShapeBegin <= 14u &&
-                14u < needle.metadata.graspShapeEnd,
+            needle.metadata.graspShapeBegin <= 17u &&
+                17u < needle.metadata.graspShapeEnd,
             "canonical grasp shape left the authored grasp zone"
         );
         for (const std::uint32_t shape : kSupportNeedleShapes) {
@@ -673,16 +696,26 @@ int main() {
             model.defaultQ.end()
         );
         std::vector<double> zeroV(model.world.nv, 0.0);
-        placementQ[6u] = -0.018;
-        placementQ[7u] = 0.018;
+        placementQ[6u] = -kPickupJawCoordinate;
+        placementQ[7u] = kPickupJawCoordinate;
         const Vec3 pickupMidpoint =
             jawMidpoint(model, placementQ, zeroV, config.dynamics);
-        const std::uint32_t graspShapeIndex = 14u;
+        const std::uint32_t graspShapeIndex = 17u;
+        const Vec3 graspOffset =
+            vector(needle.rigid.shapes[
+                graspShapeIndex
+            ].localPosition);
+        const double horizontalGraspOffset =
+            std::hypot(graspOffset.x, graspOffset.y);
+        require(
+            horizontalGraspOffset > 2.5e-3,
+            "selected needle grasp is not materially off COM"
+        );
+        const double nominalGravitationalMoment =
+            needle.rigid.massKg * 9.81 * horizontalGraspOffset;
         const Vec3 needlePosition =
             pickupMidpoint -
-            vector(
-                needle.rigid.shapes[graspShapeIndex].localPosition
-            );
+            graspOffset;
 
         std::vector<MRBodyPropertiesGPU> rigidProperties;
         rigidProperties.reserve(1u + kSupportButtonCount);
@@ -777,8 +810,14 @@ int main() {
         std::uint32_t maximumSupportContacts = 0u;
         std::uint32_t settleSupportFrames = 0u;
         std::uint32_t qualifiedFrames = 0u;
+        std::uint32_t qualifiedTargetShapeFrames = 0u;
+        std::uint32_t distributedPatchFrames = 0u;
+        std::uint32_t distributedPatchLiftFrames = 0u;
+        std::uint32_t distributedPatchLiftRun = 0u;
+        std::uint32_t maximumDistributedPatchLiftRun = 0u;
         std::uint32_t graspedFrames = 0u;
         std::uint32_t graspedLiftFrames = 0u;
+        std::uint32_t targetShapeLiftFrames = 0u;
         std::uint32_t graspedLiftRun = 0u;
         std::uint32_t maximumGraspedLiftRun = 0u;
         bool finalLiftGrasped = false;
@@ -793,11 +832,25 @@ int main() {
         std::uint32_t maximumArticulatedPrescribedContacts = 0u;
         std::uint32_t maximumDynamicDynamicContacts = 0u;
         std::uint32_t maximumDynamicPrescribedContacts = 0u;
+        std::uint32_t maximumSolverIterations = 0u;
+        std::uint32_t maximumSolverNewtonSteps = 0u;
+        std::uint32_t maximumSolverGaussNewtonSteps = 0u;
+        std::uint32_t maximumSolverProjectedGradientSteps = 0u;
+        std::uint32_t maximumSolverBacktracks = 0u;
+        std::uint32_t maximumJawAContactCount = 0u;
+        std::uint32_t maximumJawBContactCount = 0u;
+        std::uint32_t minimumLiftJawAContactCount = 0u;
+        std::uint32_t minimumLiftJawBContactCount = 0u;
+        bool observedLiftGraspEvidence = false;
         double maximumNormalImpulse = 0.0;
         double settleMaximumNormalImpulse = 0.0;
         double maximumKkt = 0.0;
         double maximumPenetration = 0.0;
         double maximumGraspSlip = 0.0;
+        double maximumJawAContactSpan = 0.0;
+        double maximumJawBContactSpan = 0.0;
+        double minimumLiftJawAContactSpan = 0.0;
+        double minimumLiftJawBContactSpan = 0.0;
 
         constexpr std::uint32_t settleSteps = 50u;
         constexpr std::uint32_t approachSteps = 180u;
@@ -916,6 +969,16 @@ int main() {
                         std::to_string(
                             diagnostics.coupledSolve.quality.
                                 projectedGradientFallbackSteps
+                        ) +
+                        " backtracks=" +
+                        std::to_string(
+                            diagnostics.coupledSolve.quality.
+                                lineSearchBacktracks
+                        ) +
+                        " lipschitz=" +
+                        std::to_string(
+                            diagnostics.coupledSolve.quality.
+                                lipschitzBound
                         )
                 );
                 const std::uint32_t supportContacts =
@@ -952,6 +1015,30 @@ int main() {
                     maximumWarmMatches,
                     diagnostics.matchedContactWarmStarts
                 );
+                maximumSolverIterations = std::max(
+                    maximumSolverIterations,
+                    diagnostics.coupledSolve.quality.iterations
+                );
+                maximumSolverNewtonSteps = std::max(
+                    maximumSolverNewtonSteps,
+                    diagnostics.coupledSolve.quality.
+                        semismoothNewtonSteps
+                );
+                maximumSolverGaussNewtonSteps = std::max(
+                    maximumSolverGaussNewtonSteps,
+                    diagnostics.coupledSolve.quality.
+                        gaussNewtonFallbackSteps
+                );
+                maximumSolverProjectedGradientSteps = std::max(
+                    maximumSolverProjectedGradientSteps,
+                    diagnostics.coupledSolve.quality.
+                        projectedGradientFallbackSteps
+                );
+                maximumSolverBacktracks = std::max(
+                    maximumSolverBacktracks,
+                    diagnostics.coupledSolve.quality.
+                        lineSearchBacktracks
+                );
                 maximumNormalImpulse = std::max(
                     maximumNormalImpulse,
                     diagnostics.maximumNormalImpulse
@@ -969,21 +1056,114 @@ int main() {
                 const auto* grasp =
                     needleGraspEvidence(diagnostics);
                 if (grasp != nullptr) {
+                    const bool targetShapeOnly =
+                        grasp->jawAMinimumSceneShape ==
+                            graspShapeIndex &&
+                        grasp->jawAMaximumSceneShape ==
+                            graspShapeIndex &&
+                        grasp->jawBMinimumSceneShape ==
+                            graspShapeIndex &&
+                        grasp->jawBMaximumSceneShape ==
+                            graspShapeIndex;
+                    const bool distributedPatch =
+                        grasp->qualifiedThisStep &&
+                        grasp->jawAContactCount >=
+                            kDistributedContactsPerJaw &&
+                        grasp->jawBContactCount >=
+                            kDistributedContactsPerJaw &&
+                        grasp->jawAContactSpan >=
+                            kDistributedContactSpan &&
+                        grasp->jawBContactSpan >=
+                            kDistributedContactSpan &&
+                        grasp->jawAMinimumArticulatedShape ==
+                            kJawAToothShapes.front() &&
+                        grasp->jawAMaximumArticulatedShape ==
+                            kJawAToothShapes.back() &&
+                        grasp->jawBMinimumArticulatedShape ==
+                            kJawBToothShapes.front() &&
+                        grasp->jawBMaximumArticulatedShape ==
+                            kJawBToothShapes.back();
+                    maximumJawAContactCount = std::max(
+                        maximumJawAContactCount,
+                        grasp->jawAContactCount
+                    );
+                    maximumJawBContactCount = std::max(
+                        maximumJawBContactCount,
+                        grasp->jawBContactCount
+                    );
+                    maximumJawAContactSpan = std::max(
+                        maximumJawAContactSpan,
+                        grasp->jawAContactSpan
+                    );
+                    maximumJawBContactSpan = std::max(
+                        maximumJawBContactSpan,
+                        grasp->jawBContactSpan
+                    );
+                    if (phase == Phase::lift) {
+                        if (!observedLiftGraspEvidence) {
+                            minimumLiftJawAContactCount =
+                                grasp->jawAContactCount;
+                            minimumLiftJawBContactCount =
+                                grasp->jawBContactCount;
+                            minimumLiftJawAContactSpan =
+                                grasp->jawAContactSpan;
+                            minimumLiftJawBContactSpan =
+                                grasp->jawBContactSpan;
+                            observedLiftGraspEvidence = true;
+                        } else {
+                            minimumLiftJawAContactCount = std::min(
+                                minimumLiftJawAContactCount,
+                                grasp->jawAContactCount
+                            );
+                            minimumLiftJawBContactCount = std::min(
+                                minimumLiftJawBContactCount,
+                                grasp->jawBContactCount
+                            );
+                            minimumLiftJawAContactSpan = std::min(
+                                minimumLiftJawAContactSpan,
+                                grasp->jawAContactSpan
+                            );
+                            minimumLiftJawBContactSpan = std::min(
+                                minimumLiftJawBContactSpan,
+                                grasp->jawBContactSpan
+                            );
+                        }
+                    }
                     maximumGraspSlip = std::max(
                         maximumGraspSlip,
                         grasp->maximumTangentialSlipSpeed
                     );
                     if (grasp->qualifiedThisStep) {
                         ++qualifiedFrames;
+                        if (targetShapeOnly) {
+                            ++qualifiedTargetShapeFrames;
+                        }
                         if (phase == Phase::settle ||
                             phase == Phase::approach) {
                             ++precloseQualifiedFrames;
                         }
                     }
+                    if (distributedPatch) {
+                        ++distributedPatchFrames;
+                        if (phase == Phase::lift) {
+                            ++distributedPatchLiftFrames;
+                            ++distributedPatchLiftRun;
+                            maximumDistributedPatchLiftRun =
+                                std::max(
+                                    maximumDistributedPatchLiftRun,
+                                    distributedPatchLiftRun
+                                );
+                        }
+                    } else if (phase == Phase::lift) {
+                        distributedPatchLiftRun = 0u;
+                    }
                     if (grasp->grasped) {
                         ++graspedFrames;
                         if (phase == Phase::lift) {
                             ++graspedLiftFrames;
+                            if (targetShapeOnly) {
+                                ++targetShapeLiftFrames;
+                            }
                         }
                     }
                     if (grasp->jawAContact ||
@@ -1103,11 +1283,24 @@ int main() {
             vector(rigidBodies[0u].position);
         const Quaternion liftStartNeedleOrientation =
             quaternion(rigidBodies[0u].orientation);
+        const Vec3 liftStartWorldGraspOffset = rotate(
+            liftStartNeedleOrientation,
+            graspOffset
+        );
+        const double liftStartGravitationalMoment = norm(cross(
+            liftStartWorldGraspOffset,
+            Vec3{0.0, 0.0, -needle.rigid.massKg * 9.81}
+        ));
         const Vec3 liftStartJawMidpoint =
             jawMidpoint(model, q, v, config.dynamics);
         require(
             supportsAtLiftStart > 0u &&
+                liftStartGravitationalMoment > 6.0e-6 &&
                 qualifiedFrames >=
+                    config.grasp.requiredConsecutiveSteps &&
+                qualifiedTargetShapeFrames >=
+                    config.grasp.requiredConsecutiveSteps &&
+                distributedPatchFrames >=
                     config.grasp.requiredConsecutiveSteps &&
                 graspedFrames > 0u,
             "closure did not transfer load from supported needle "
@@ -1115,12 +1308,26 @@ int main() {
                 std::to_string(supportsAtLiftStart) +
                 " qualified_frames=" +
                 std::to_string(qualifiedFrames) +
+                " target_shape_frames=" +
+                std::to_string(qualifiedTargetShapeFrames) +
+                " distributed_frames=" +
+                std::to_string(distributedPatchFrames) +
+                " gravity_moment=" +
+                std::to_string(liftStartGravitationalMoment) +
                 " grasped_frames=" +
                 std::to_string(graspedFrames) +
                 " q6=" + std::to_string(q[6u]) +
                 " q7=" + std::to_string(q[7u]) +
                 " v6=" + std::to_string(v[6u]) +
                 " v7=" + std::to_string(v[7u]) +
+                " jaw_a_count=" +
+                std::to_string(maximumJawAContactCount) +
+                " jaw_b_count=" +
+                std::to_string(maximumJawBContactCount) +
+                " jaw_a_span=" +
+                std::to_string(maximumJawAContactSpan) +
+                " jaw_b_span=" +
+                std::to_string(maximumJawBContactSpan) +
                 " slip=" + std::to_string(maximumGraspSlip) +
                 " robot_fixture_max=" +
                 std::to_string(
@@ -1207,19 +1414,47 @@ int main() {
         require(
             finalLiftGrasped &&
                 graspedLiftFrames == liftSteps &&
+                targetShapeLiftFrames == liftSteps &&
+                distributedPatchLiftFrames >=
+                    9u * liftSteps / 10u &&
+                maximumDistributedPatchLiftRun >=
+                    liftSteps / 2u &&
                 maximumGraspedLiftRun == liftSteps &&
-                needleLift.z > 1.0e-3 &&
-                jawTravel > 2.0e-3 &&
-                needleAlongJaw > 1.0e-3 &&
-                followRatio > 0.35 &&
+                observedLiftGraspEvidence &&
+                minimumLiftJawAContactCount >=
+                    config.grasp.minimumContactCountPerJaw &&
+                minimumLiftJawBContactCount >=
+                    config.grasp.minimumContactCountPerJaw &&
+                minimumLiftJawAContactSpan >=
+                    config.grasp.minimumContactSpanPerJaw &&
+                minimumLiftJawBContactSpan >=
+                    config.grasp.minimumContactSpanPerJaw &&
+                needleLift.z > 7.0e-3 &&
+                jawTravel > 7.0e-3 &&
+                needleAlongJaw > 7.0e-3 &&
+                followRatio > 0.9 &&
                 orientationDrift < 0.35,
             "needle did not remain grasped while following the lift: "
             "grasped_lift_frames=" +
                 std::to_string(graspedLiftFrames) +
                 " grasped_lift_run=" +
                 std::to_string(maximumGraspedLiftRun) +
+                " target_shape_lift_frames=" +
+                std::to_string(targetShapeLiftFrames) +
+                " distributed_lift_frames=" +
+                std::to_string(distributedPatchLiftFrames) +
+                " distributed_lift_run=" +
+                std::to_string(maximumDistributedPatchLiftRun) +
                 " final_grasp=" +
                 std::to_string(finalLiftGrasped) +
+                " jaw_a_count_min=" +
+                std::to_string(minimumLiftJawAContactCount) +
+                " jaw_b_count_min=" +
+                std::to_string(minimumLiftJawBContactCount) +
+                " jaw_a_span_min=" +
+                std::to_string(minimumLiftJawAContactSpan) +
+                " jaw_b_span_min=" +
+                std::to_string(minimumLiftJawBContactSpan) +
                 " dz=" + std::to_string(needleLift.z) +
                 " jaw_travel=" + std::to_string(jawTravel) +
                 " along=" + std::to_string(needleAlongJaw) +
@@ -1232,6 +1467,82 @@ int main() {
         const std::vector<double> vBefore = v;
         const std::vector<MRBodyStateGPU> rigidBefore = rigidBodies;
         const metalrobo::ArticulatedRigidWorldCache cacheBefore = cache;
+        metalrobo::ArticulatedRigidWorldConfig invalidMultiplicity =
+            config;
+        invalidMultiplicity.maximumContactsPerBodyPair = 1u;
+        invalidMultiplicity.grasp.minimumContactCountPerJaw = 2u;
+        const auto multiplicityRejected =
+            metalrobo::stepArticulatedRigidWorldCpu(
+                model,
+                0u,
+                q,
+                v,
+                std::vector<double>(v.size(), 0.0),
+                {},
+                rigidProperties,
+                rigidBodies,
+                rigidShapes,
+                rigidMaterials,
+                {},
+                invalidMultiplicity,
+                cache
+            );
+        require(
+            !multiplicityRejected.succeeded() &&
+                multiplicityRejected.failure ==
+                    metalrobo::ArticulatedRigidWorldFailure::
+                        invalidConfiguration &&
+                q == qBefore &&
+                v == vBefore &&
+                rigidBodies.size() == rigidBefore.size() &&
+                std::memcmp(
+                    rigidBodies.data(),
+                    rigidBefore.data(),
+                    rigidBodies.size() *
+                        sizeof(MRBodyStateGPU)
+                ) == 0 &&
+                sameCache(cache, cacheBefore),
+            "grasp multiplicity/collision-cap mismatch was not "
+            "rejected transactionally"
+        );
+        metalrobo::ArticulatedRigidWorldConfig impossibleSpan =
+            config;
+        impossibleSpan.grasp.minimumContactSpanPerJaw =
+            kDistributedContactSpan;
+        const auto spanRejected =
+            metalrobo::stepArticulatedRigidWorldCpu(
+                model,
+                0u,
+                q,
+                v,
+                std::vector<double>(v.size(), 0.0),
+                {},
+                rigidProperties,
+                rigidBodies,
+                rigidShapes,
+                rigidMaterials,
+                {},
+                impossibleSpan,
+                cache
+            );
+        require(
+            !spanRejected.succeeded() &&
+                spanRejected.failure ==
+                    metalrobo::ArticulatedRigidWorldFailure::
+                        invalidConfiguration &&
+                q == qBefore &&
+                v == vBefore &&
+                rigidBodies.size() == rigidBefore.size() &&
+                std::memcmp(
+                    rigidBodies.data(),
+                    rigidBefore.data(),
+                    rigidBodies.size() *
+                        sizeof(MRBodyStateGPU)
+                ) == 0 &&
+                sameCache(cache, cacheBefore),
+            "positive grasp span with one witness was not rejected "
+            "transactionally"
+        );
         std::vector<double> invalidForce(v.size(), 0.0);
         invalidForce[0u] =
             std::numeric_limits<double>::quiet_NaN();
@@ -1273,6 +1584,12 @@ int main() {
             << " steps=" << cache.step
             << " support_buttons=" << kSupportButtonCount
             << " support_triangle_margin=" << triangleMargin
+            << " grasp_offset_mm="
+            << horizontalGraspOffset * 1000.0
+            << " gravity_moment_unm="
+            << liftStartGravitationalMoment * 1.0e6
+            << " nominal_gravity_moment_unm="
+            << nominalGravitationalMoment * 1.0e6
             << " support_contacts_max=" << maximumSupportContacts
             << " supports_at_lift=" << supportsAtLiftStart
             << " support_free_run=" << maximumSupportFreeRun
@@ -1287,14 +1604,60 @@ int main() {
             << " dynamic_prescribed_max="
             << maximumDynamicPrescribedContacts
             << " warm_matches_max=" << maximumWarmMatches
+            << " solver_iterations_max="
+            << maximumSolverIterations
+            << " solver_newton_max="
+            << maximumSolverNewtonSteps
+            << " solver_gauss_newton_max="
+            << maximumSolverGaussNewtonSteps
+            << " solver_pg_max="
+            << maximumSolverProjectedGradientSteps
+            << " solver_backtracks_max="
+            << maximumSolverBacktracks
             << " normal_impulse_max=" << maximumNormalImpulse
             << " qualified_frames=" << qualifiedFrames
+            << " qualified_target_shape_frames="
+            << qualifiedTargetShapeFrames
+            << " distributed_patch_frames="
+            << distributedPatchFrames
             << " preclose_touch_frames="
             << prematureJawContactFrames
             << " grasped_frames=" << graspedFrames
             << " grasped_lift_frames=" << graspedLiftFrames
+            << " target_shape_lift_frames="
+            << targetShapeLiftFrames
+            << " distributed_patch_lift_frames="
+            << distributedPatchLiftFrames
+            << " distributed_patch_lift_run="
+            << maximumDistributedPatchLiftRun
             << " grasped_lift_run=" << maximumGraspedLiftRun
             << " final_grasp=" << finalLiftGrasped
+            << " jaw_a_contacts_min_lift="
+            << minimumLiftJawAContactCount
+            << " jaw_b_contacts_min_lift="
+            << minimumLiftJawBContactCount
+            << " jaw_a_contacts_max="
+            << maximumJawAContactCount
+            << " jaw_b_contacts_max="
+            << maximumJawBContactCount
+            << " jaw_a_span_min_lift_mm="
+            << minimumLiftJawAContactSpan * 1000.0
+            << " jaw_b_span_min_lift_mm="
+            << minimumLiftJawBContactSpan * 1000.0
+            << " jaw_a_span_max_mm="
+            << maximumJawAContactSpan * 1000.0
+            << " jaw_b_span_max_mm="
+            << maximumJawBContactSpan * 1000.0
+            << " distributed_count_threshold="
+            << kDistributedContactsPerJaw
+            << " distributed_span_threshold_mm="
+            << kDistributedContactSpan * 1000.0
+            << " jaw_a_tooth_shapes="
+            << kJawAToothShapes.front() << ","
+            << kJawAToothShapes.back()
+            << " jaw_b_tooth_shapes="
+            << kJawBToothShapes.front() << ","
+            << kJawBToothShapes.back()
             << " needle_lift_mm=" << needleLift.z * 1000.0
             << " jaw_travel_mm=" << jawTravel * 1000.0
             << " follow_ratio=" << followRatio
@@ -1304,7 +1667,8 @@ int main() {
             << " grasp_slip_max=" << maximumGraspSlip
             << " penetration_max_mm=" << maximumPenetration * 1000.0
             << " kkt_max=" << maximumKkt
-            << " grasp_shape=14"
+            << " target_grasp_shape=17"
+            << " observed_load_bearing_shape=17"
             << " controller=computed_torque"
             << " no_weld=yes"
             << " ccd=conservative_discrete"

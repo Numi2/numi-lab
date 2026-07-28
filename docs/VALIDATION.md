@@ -248,7 +248,11 @@ currently execute.
 The quality solver accepts the physical contact-space Delassus operator
 `W = J M^-1 J'`, free contact velocity, evaluated targets, warm impulses, and
 strictly positive per-row regularization. It solves exact circular Coulomb
-cones with a globalized FP64 semismooth Newton method.
+cones with a safeguarded FP64 semismooth Newton method. A four-entry
+Grippo-Lampariello-Lucidi merit window avoids microscopic monotone-Armijo
+steps while cone active sets change. Direct Newton gets twelve line-search
+attempts; if it is not accepted, the regularized Gauss-Newton direction gets
+the full search budget before the projected-gradient safety step.
 
 The physical `W` is checked independently for symmetry and positive
 semidefiniteness before material regularization is added. This prevents a
@@ -256,6 +260,12 @@ negative physical mode from being hidden by an SPD regularized Hessian.
 Exactly zero and nonzero rank-deficient PSD operators are accepted. A
 scale-aware eigenvalue tolerance accepts a mode inside the contract and
 rejects one outside it, including a dense tiny-indefinite Schur tail.
+
+Residual and certificate norms use scaled sum-of-squares, and natural-map
+normalization combines magnitudes through binary exponents. A frictionless
+scalar regression with finite `1e200` velocity and regularization therefore
+returns the analytic unit impulse instead of overflowing a denominator and
+falsely accepting zero impulse.
 
 Clean Release result:
 
@@ -277,7 +287,7 @@ rank_deficient_psd=yes
 nonzero_rank_deficient_psd=yes
 psd_tolerance_contract=yes
 permutation_impulse_error=5.958796e-16
-warm_iterations=0 explicit_failure=yes finite=yes
+warm_iterations=0 explicit_failure=yes extreme_scale=yes finite=yes
 ```
 
 The quality path materializes the small contact Hessian used by direct Newton.
@@ -415,68 +425,91 @@ The supported pickup probe is deliberately stronger. A six-button cradle uses
 three independently owned static support pairs at needle segments 6, 9, and
 25; their triangle contains the needle COM with positive barycentric margin.
 The PSM starts 4 mm away with open jaws, approaches without premature contact,
-closes through legal computed-torque control on authored grasp segment 14,
-dwells until bilateral evidence qualifies, then lifts 8.5 mm. Success requires
-support unloading, a long support-free interval, geometric fixture clearance,
-no robot/fixture collision, persistent bilateral grasp, needle motion along
-the jaw trajectory, bounded lift-relative rotation, exact-cone KKT quality,
-and byte-for-byte rollback of all state/cache streams after an injected
-non-finite force. There is no weld, attachment, teleport, or collision filter
-between the robot and cradle.
+and closes four 0.35 mm teeth through legal computed-torque control on
+authored grasp segment 17. The two tooth rows on each jaw are separated by
+0.8 mm along the jaw axis; their actual load-bearing needle contact points are
+about 0.449 mm apart.
+
+Segment 17 is 4.833 mm from the needle COM. Its lift-start world orientation
+produces an 8.407 µN·m gravity moment, so this is an observed off-COM load
+case rather than a nominal placement claim. Success requires bilateral
+load-bearing contacts on segment 17 in all 2,000 lift steps, distributed
+two-contact-per-jaw evidence with at least 0.4 mm span in at least 90% of lift
+steps and a continuous run covering at least half the lift, support unloading,
+a long support-free interval, geometric fixture clearance, no robot/fixture
+collision, needle motion along the jaw trajectory, bounded lift-relative
+rotation, exact-cone KKT quality, and byte-for-byte rollback of all
+state/cache streams after an injected non-finite force. There is no weld,
+attachment, teleport, or collision filter between the robot and cradle.
 
 Apple M4 Release result:
 
 ```text
 articulated_rigid_collision
-  articulated_shapes=18 rigid_shapes=32 contacts=3
-  warm_matches=3 penetration=7.99998830448e-05
-  normal_impulse=3.993108591e-05
+  articulated_shapes=20 rigid_shapes=32 contacts=4
+  warm_matches=4 penetration=0.00103302716552
+  normal_impulse=1.84515996103e-05
   island_contacts=2 dynamic_dynamic=1 dynamic_prescribed=1
   island_warm_matches=2 status=ok
 
 articulated_rigid_world
   steps=300 contacts_max=3
-  mixed_limit_impulse=0.00725237826725
-  warm_matches_max=3 normal_impulse_max=0.00200235862363
+  mixed_limit_impulse=0.00725238423535
+  warm_matches_max=3 normal_impulse_max=0.00215094446817
   grasp_frames=298
-  needle_displacement_mm=1.98490709271
-  needle_lift_mm=0.39269948751
-  needle_dz_mm=0.405609607697
-  jaw_travel_mm=2.71308366851
-  kkt_max=9.97174307304e-06
-  grasp_slip_max=0.0371493546244
-  grasp_identity_reset=pass rollback=pass status=ok
+  needle_displacement_mm=1.86475768885
+  needle_lift_mm=0.395209689216
+  needle_dz_mm=0.407338142395
+  jaw_travel_mm=2.71564290541
+  kkt_max=9.82853245044e-06
+  grasp_slip_max=0.0332524969239
+  grasp_identity_reset=pass grasp_dwell_saturation=pass
+  rollback=pass status=ok
 
 supported_needle_pickup
   steps=3030 support_buttons=6
+  grasp_offset_mm=4.83317104204 gravity_moment_unm=8.40712343562
   support_triangle_margin=0.27617782522 support_contacts_max=6
-  supports_at_lift=1 support_free_run=910
-  fixture_clearance_mm=2.68754563194
-  art_dynamic_max=2 art_prescribed_max=0
-  dynamic_prescribed_max=6 warm_matches_max=8
-  preclose_touch_frames=0 grasped_lift_frames=2000
+  supports_at_lift=1 support_free_run=1979
+  fixture_clearance_mm=8.0316551143
+  art_dynamic_max=4 art_prescribed_max=0
+  dynamic_prescribed_max=7 warm_matches_max=7
+  solver_iterations_max=1491 solver_gauss_newton_max=339
+  qualified_target_shape_frames=2269
+  grasped_lift_frames=2000 target_shape_lift_frames=2000
+  distributed_patch_lift_frames=1859
+  distributed_patch_lift_run=1395
+  jaw_a_contacts_max=2 jaw_b_contacts_max=2
+  jaw_a_span_max_mm=0.449077938205
+  jaw_b_span_max_mm=0.449132972612
+  jaw_a_tooth_shapes=15,18 jaw_b_tooth_shapes=17,19
   grasped_lift_run=2000 final_grasp=1
-  needle_lift_mm=8.01363587379 jaw_travel_mm=8.07919540224
-  follow_ratio=0.991972507352
-  orientation_drift_rad=0.260530941127
-  kkt_max=1.99856112637e-05
+  needle_lift_mm=8.06483626366 jaw_travel_mm=8.07909451418
+  follow_ratio=0.998283892038
+  orientation_drift_rad=0.00674117703419
+  kkt_max=2.00466672669e-05
+  observed_load_bearing_shape=17
   controller=computed_torque no_weld=yes
   ccd=conservative_discrete rollback=pass status=ok
 ```
 
-The general world preserves all assembled witnesses by default. These needle
-probes explicitly reduce near-duplicate compound witnesses to the deepest
-contact per canonical endpoint-body pair before the small dense solve. The
-trajectory probe replaces one rigid-shape generation after a qualified grasp
-and proves dwell resets instead of transferring to the replacement.
+The general world preserves all assembled witnesses by default. A probe may
+explicitly cap a canonical endpoint-body pair: reduction retains the deepest
+witness first, then fills the cap with deterministic maximin world-space
+separation and stable-key tie breaking. The trajectory probe uses one witness
+per pair; the supported pickup uses two so both longitudinal tooth rows remain
+available. Replacing one rigid-shape generation after a qualified grasp proves
+dwell resets instead of transferring to the replacement.
 
-This milestone validates conservative-discrete supported pickup, not
-high-speed approach CCD. The current three-row point contact has no rolling or
-torsional resistance; the COM-near pickup is stable, but arbitrary off-COM
-needle grasp needs a finite multi-point jaw patch or an explicitly calibrated
-torsional model. Puncture, tissue, thread, cutting, biomechanics, clinical
-claims, multiple articulations, and a batched device-resident Metal
-composition remain outside this result.
+This milestone validates conservative-discrete, distributed contact pickup
+for this segment-17 off-COM gravity load, not high-speed approach CCD or
+generic six-dimensional force closure. Each retained witness still has only
+normal plus two exact Coulomb tangent rows; no rolling or torsional friction
+is synthesized. The tooth geometry is an explicit research default, not a
+calibrated Large Needle Driver surface. Arbitrary needle orientations,
+puncture, tissue, thread, cutting, biomechanics, clinical claims, multiple
+articulations, and a batched device-resident Metal composition remain outside
+this result.
 
 ## Generic Metal articulated operator
 
@@ -782,8 +815,8 @@ convergence.
   stability beyond the focused dynamic-dynamic and supported-pickup cases
 - Implicit drives and coupled set-valued joint stiction
 - Articulated self-collision, loop constraints, and unsupported pair classes
-- Finite surgical jaw contact patches plus rolling/torsional resistance for
-  arbitrary off-COM needle grasps
+- Calibrated surgical jaw surfaces, rolling/torsional resistance, and generic
+  grasp-wrench/force-closure certification beyond the tested segment-17 load
 - GPU persistent-manifold refresh/reduction, production segmented LBVH,
   convex/mesh/heightfield collision, and certified CCD
 - Matrix-free Newton-PCG for large exact-cone quality islands

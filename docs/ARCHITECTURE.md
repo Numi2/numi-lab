@@ -142,27 +142,40 @@ at least one dynamic body. In one step it:
 
 The grasp classifier is evidence only. It requires compressive impulses on
 both configured jaws, opposing normals, sufficient friction, bounded
-post-solve tangential slip, and consecutive qualifying steps. It never creates
-a weld, attachment, or hidden force. Grasp dwell is keyed by the model, jaw
-configuration, thresholds, rigid slot, and participating shape generations,
-so it cannot carry across a replaced object or changed grasp definition.
+post-solve tangential slip, and consecutive qualifying steps. Callers may
+also require distinct load-bearing stable contact keys per jaw and a minimum
+same-jaw world-space span. Diagnostics expose those counts, spans, and the
+inclusive scene/articulated shape ranges actually carrying load. It never
+creates a weld, attachment, or hidden force. Grasp dwell is keyed by the
+model, jaw configuration, thresholds, rigid slot, and participating shape
+generations, so it cannot carry across a replaced object or changed grasp
+definition.
 The physical default preserves assembled witnesses. A caller may explicitly
-request deterministic deepest-point conditioning per canonical endpoint-body
-pair; the needle probes use one witness per pair so adjacent compound needle
-segments do not dominate the small dense solve. Contact warm-start identity
-includes endpoint kind, source body/shape/feature, slot generation, motion
-type, and articulation index, so replacement or dynamic/prescribed role
-changes cannot inherit stale impulses.
+request deterministic conditioning per canonical endpoint-body pair. The
+reducer retains the deepest witness first, then chooses remaining witnesses
+by deterministic maximin world-space separation. The supported pickup keeps
+two per jaw/object pair so the longitudinal tooth rows survive reduction.
+Contact warm-start identity includes endpoint kind, source
+body/shape/feature, slot generation, motion type, and articulation index, so
+replacement or dynamic/prescribed role changes cannot inherit stale impulses.
 
 The supported pickup probe settles the procedural needle on six independently
-owned static support bodies, approaches with open jaws, closes on an authored
-COM-near grasp-zone segment, transfers load, and clears the fixture during an
-8 mm lift. Grasp classification remains evidence only and rollback includes
-all mixed-body state and cache streams.
+owned static support bodies, approaches with open jaws, and closes four
+research-default distal teeth around authored segment 17. That segment is
+4.833 mm from the needle COM and carries an 8.407 µN·m gravity moment at lift
+start. Bilateral load-bearing shape-17 contact persists through all 2,000 lift
+steps; two spatially separated contacts per jaw with at least 0.4 mm span are
+observed in 1,859 steps, including a 1,395-step continuous run. The needle
+clears the fixture and follows 99.8% of the 8 mm jaw motion with 0.0068 rad
+lift-relative rotation. This certifies a distributed, wrench-bearing grasp
+for this load case, not generic six-dimensional force closure. Grasp
+classification remains evidence only and rollback includes all mixed-body
+state and cache streams.
 
 The current mixed world is CPU FP64, contains one articulation, and uses
-three-row point Coulomb contacts. Multiple articulations, finite jaw-patch
-and rolling/torsional resistance, CCD/conservative substepping, and a
+three-row point Coulomb contacts at each retained witness. Multiple
+articulations, calibrated jaw surfaces, generic grasp-wrench certification,
+rolling/torsional resistance, CCD/conservative substepping, and a
 device-resident Metal composition remain open. The supported pickup therefore
 uses a slow conservative-discrete approach/lift and makes no high-speed
 time-of-impact claim.
@@ -258,8 +271,11 @@ are not silently dropped. Metal dispatch construction must provide the same
 island partition. Size buckets and spill/replay remain future work.
 
 The solver portfolio also includes an independent FP64 projected-gradient
-exact-cone oracle and a globalized FP64 semismooth-Newton quality solver. The
-throughput path remains PGS, not TGS.
+exact-cone oracle and a safeguarded FP64 semismooth-Newton quality solver. Its
+four-entry GLL merit window permits productive active-cone transitions,
+Newton searches that need more than twelve trials are discarded, and the
+existing regularized Gauss-Newton direction receives a full line search
+before projected-gradient fallback. The throughput path remains PGS, not TGS.
 
 ## API, memory, and synchronization
 

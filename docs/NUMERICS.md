@@ -143,8 +143,10 @@ The contact portfolio has three distinct numerical contracts:
 
 - an independent FP64 accelerated projected-gradient exact circular-cone
   oracle;
-- a globalized FP64 semismooth-Newton quality solve with KKT and cone
-  diagnostics, accepting either a legacy dense oracle problem or a
+- a safeguarded FP64 semismooth-Newton quality solve with overflow-safe
+  residual/KKT scaling, a four-merit GLL globalization, bounded direct-Newton
+  search, Gauss-Newton retry, projected-gradient safety fallback, and
+  KKT/cone diagnostics, accepting either a legacy dense oracle problem or a
   production contact-space Delassus problem;
 - a fixed-budget CPU/Metal PGS throughput block with normal, coupled
   two-tangent radial projection, torsional friction, and warm starts.

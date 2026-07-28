@@ -349,15 +349,24 @@ constexpr std::array<ShapeSource, kSurgicalPSMShapeCount> kShapes{{
     // At q=0 the two authored jaw surfaces are tangent on the center plane.
     // With the -Y joint axes above, ORBIT's [-q,+q] convention then opens the
     // jaws monotonically instead of driving the primitive tips through one
-    // another.
+    // another. The four 0.35 mm spheres form a deliberately research-default
+    // finite contact patch: two proud teeth per jaw, separated along the jaw's
+    // longitudinal Z axis. That separation supplies a real contact moment arm
+    // around a transversely held needle instead of duplicating one point
+    // contact. This is executable collision geometry, not a calibrated LND
+    // tooth profile.
     {7u, MR_SHAPE_CAPSULE, {0.0013, 0.0, 0.011}, kYToZ,
      {0.0013, 0.010, 0.0}, 0.0113},
-    {7u, MR_SHAPE_SPHERE, {0.0015, 0.0, 0.022}, kIdentity,
-     {0.0015, 0.0, 0.0}, 0.0015},
+    {7u, MR_SHAPE_SPHERE, {0.00035, 0.0, 0.02160}, kIdentity,
+     {0.00035, 0.0, 0.0}, 0.00035},
     {8u, MR_SHAPE_CAPSULE, {-0.0013, 0.0, 0.011}, kYToZ,
      {0.0013, 0.010, 0.0}, 0.0113},
-    {8u, MR_SHAPE_SPHERE, {-0.0015, 0.0, 0.022}, kIdentity,
-     {0.0015, 0.0, 0.0}, 0.0015},
+    {8u, MR_SHAPE_SPHERE, {-0.00035, 0.0, 0.02160}, kIdentity,
+     {0.00035, 0.0, 0.0}, 0.00035},
+    {7u, MR_SHAPE_SPHERE, {0.00035, 0.0, 0.02240}, kIdentity,
+     {0.00035, 0.0, 0.0}, 0.00035},
+    {8u, MR_SHAPE_SPHERE, {-0.00035, 0.0, 0.02240}, kIdentity,
+     {0.00035, 0.0, 0.0}, 0.00035},
 }};
 
 constexpr std::array<float, kSurgicalPSMJointCount> kDefaultQ{{

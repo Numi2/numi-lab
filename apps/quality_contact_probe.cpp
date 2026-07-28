@@ -235,6 +235,38 @@ int main() {
                 "contact-space and dense quality paths disagree"
             );
         }
+        // A naive dot/sqrt norm overflows on the finite 1e200 linear term,
+        // turns the natural-residual normalization into infinity, and can
+        // falsely accept lambda=0. The exact scalar solution is lambda=1.
+        metalrobo::ContactSpaceConicProblem extremeScaleProblem;
+        extremeScaleProblem.delassus.assign(9u, 0.0);
+        extremeScaleProblem.freeContactVelocity = {
+            -1.0e200, 0.0, 0.0,
+        };
+        metalrobo::ContactConicBlock extremeScaleContact;
+        extremeScaleContact.regularization = {
+            1.0e200, 1.0, 1.0,
+        };
+        extremeScaleContact.friction = 0.0;
+        extremeScaleProblem.contacts.push_back(
+            extremeScaleContact
+        );
+        const auto extremeScaleResult =
+            metalrobo::solveQualityContactSpaceProblem(
+                extremeScaleProblem
+            );
+        if (!extremeScaleResult.converged() ||
+            extremeScaleResult.impulses.size() != 3u ||
+            std::abs(extremeScaleResult.impulses[0] - 1.0) >
+                1.0e-12 ||
+            extremeScaleResult.maximumDualConeViolation >
+                1.0e-12 ||
+            extremeScaleResult.scaledKktCertificate >
+                1.0e-12) {
+            throw std::runtime_error(
+                "extreme finite scaling produced a false KKT result"
+            );
+        }
         metalrobo::ContactSpaceConicProblem indefinitePhysicalOperator =
             makeContactSpaceProblem(problem);
         std::ranges::fill(
@@ -612,6 +644,7 @@ int main() {
                   << permutationImpulseError
                   << " warm_iterations=" << warm.iterations
                   << " explicit_failure=yes"
+                  << " extreme_scale=yes"
                   << " finite=yes\n";
         return 0;
     } catch (const std::exception& error) {

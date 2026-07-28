@@ -40,6 +40,11 @@ struct ArticulatedRigidGraspConfig {
     double maximumTangentialSlipSpeed = 0.02;
     double maximumOpposingNormalDot = -0.2;
     std::uint32_t requiredConsecutiveSteps = 3u;
+    // Distinct, load-bearing stable contact keys per jaw and their maximum
+    // world-space separation. Defaults preserve the legacy point-pinch
+    // classifier; finite jaw patches can require a nonzero wrench lever arm.
+    std::uint32_t minimumContactCountPerJaw = 1u;
+    double minimumContactSpanPerJaw = 0.0;
 };
 
 struct ArticulatedRigidWorldConfig {
@@ -107,10 +112,26 @@ struct ArticulatedRigidGraspEvidence {
     bool qualifiedThisStep = false;
     bool grasped = false;
     std::uint32_t consecutiveQualifiedSteps = 0u;
+    // Counts are deduplicated by full stable contact key. Spans are the
+    // maximum pairwise world-space distance within each jaw's witnesses.
+    std::uint32_t jawAContactCount = 0u;
+    std::uint32_t jawBContactCount = 0u;
     double jawANormalImpulse = 0.0;
     double jawBNormalImpulse = 0.0;
     double jawAFriction = 0.0;
     double jawBFriction = 0.0;
+    double jawAContactSpan = 0.0;
+    double jawBContactSpan = 0.0;
+    // Inclusive scene and articulated-shape bounds over each jaw's distinct
+    // load-bearing witnesses. MR_INVALID_INDEX means no such witness.
+    std::uint32_t jawAMinimumSceneShape = MR_INVALID_INDEX;
+    std::uint32_t jawAMaximumSceneShape = MR_INVALID_INDEX;
+    std::uint32_t jawBMinimumSceneShape = MR_INVALID_INDEX;
+    std::uint32_t jawBMaximumSceneShape = MR_INVALID_INDEX;
+    std::uint32_t jawAMinimumArticulatedShape = MR_INVALID_INDEX;
+    std::uint32_t jawAMaximumArticulatedShape = MR_INVALID_INDEX;
+    std::uint32_t jawBMinimumArticulatedShape = MR_INVALID_INDEX;
+    std::uint32_t jawBMaximumArticulatedShape = MR_INVALID_INDEX;
     double normalDot = 1.0;
     double maximumTangentialSlipSpeed = 0.0;
 };

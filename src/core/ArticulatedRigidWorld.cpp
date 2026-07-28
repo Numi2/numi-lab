@@ -62,6 +62,43 @@ double norm(const Vec3 value) {
     return std::sqrt(dot(value, value));
 }
 
+double distance(const Vec3 left, const Vec3 right) {
+    const Vec3 difference{
+        left.x - right.x,
+        left.y - right.y,
+        left.z - right.z,
+    };
+    return norm(difference);
+}
+
+using StableContactKey = std::array<std::uint64_t, 13>;
+
+StableContactKey stableContactKey(
+    const ArticulatedRigidIslandContactKey& key
+) {
+    return {
+        key.articulationIndex,
+        static_cast<std::uint32_t>(key.endpointA.kind),
+        key.endpointA.bodyIndex,
+        key.endpointA.shapeIndex,
+        key.endpointA.feature,
+        key.endpointA.slotGeneration,
+        key.endpointA.motionType,
+        static_cast<std::uint32_t>(key.endpointB.kind),
+        key.endpointB.bodyIndex,
+        key.endpointB.shapeIndex,
+        key.endpointB.feature,
+        key.endpointB.slotGeneration,
+        key.endpointB.motionType,
+    };
+}
+
+std::uint64_t canonicalDoubleBits(const double value) {
+    return std::bit_cast<std::uint64_t>(
+        value == 0.0 ? 0.0 : value
+    );
+}
+
 MRStepStatusCode codeForDynamics(
     const ArticulatedDynamicsStatus status
 ) {
@@ -203,7 +240,14 @@ bool validGraspConfig(
         config.maximumOpposingNormalDot >= -1.0 &&
         config.maximumOpposingNormalDot <= 1.0 &&
         finite(config.maximumOpposingNormalDot) &&
-        config.requiredConsecutiveSteps > 0u;
+        config.requiredConsecutiveSteps > 0u &&
+        config.minimumContactCountPerJaw > 0u &&
+        config.minimumContactSpanPerJaw >= 0.0 &&
+        finite(config.minimumContactSpanPerJaw) &&
+        (
+            config.minimumContactSpanPerJaw == 0.0 ||
+            config.minimumContactCountPerJaw >= 2u
+        );
 }
 
 bool validCache(
@@ -295,6 +339,7 @@ std::uint64_t graspIdentity(
         return 0u;
     }
     std::uint64_t hash = 1469598103934665603ull;
+    hashIdentityWord(hash, 0x4752415350000002ull);
     for (const unsigned char character : model.name) {
         hash ^= character;
         hash *= 1099511628211ull;
@@ -306,25 +351,26 @@ std::uint64_t graspIdentity(
     hashIdentityWord(hash, config.jawBodyB);
     hashIdentityWord(
         hash,
-        std::bit_cast<std::uint64_t>(config.minimumNormalImpulse)
+        canonicalDoubleBits(config.minimumNormalImpulse)
     );
     hashIdentityWord(
         hash,
-        std::bit_cast<std::uint64_t>(config.minimumFriction)
+        canonicalDoubleBits(config.minimumFriction)
     );
     hashIdentityWord(
         hash,
-        std::bit_cast<std::uint64_t>(
-            config.maximumTangentialSlipSpeed
-        )
+        canonicalDoubleBits(config.maximumTangentialSlipSpeed)
     );
     hashIdentityWord(
         hash,
-        std::bit_cast<std::uint64_t>(
-            config.maximumOpposingNormalDot
-        )
+        canonicalDoubleBits(config.maximumOpposingNormalDot)
     );
     hashIdentityWord(hash, config.requiredConsecutiveSteps);
+    hashIdentityWord(hash, config.minimumContactCountPerJaw);
+    hashIdentityWord(
+        hash,
+        canonicalDoubleBits(config.minimumContactSpanPerJaw)
+    );
     for (std::size_t shapeIndex = 0u;
          shapeIndex < model.shapes.size();
          ++shapeIndex) {
@@ -405,6 +451,18 @@ bool reduceBodyPairContacts(
         collision.contacts.size() != collision.metadata.size()) {
         return false;
     }
+    if (std::ranges::any_of(
+            collision.metadata,
+            [](const ArticulatedRigidIslandContactMetadata& item) {
+                return
+                    !finite(item.contactPointWorld[0]) ||
+                    !finite(item.contactPointWorld[1]) ||
+                    !finite(item.contactPointWorld[2]) ||
+                    !finite(item.effectiveSeparation);
+            }
+        )) {
+        return false;
+    }
     if (collision.contacts.size() <= maximumPerPair) {
         return true;
     }
@@ -433,91 +491,116 @@ bool reduceBodyPairContacts(
             endpointB[1],
         };
     };
-    std::vector<std::size_t> ranked(collision.contacts.size());
-    for (std::size_t index = 0u; index < ranked.size(); ++index) {
-        ranked[index] = index;
+    const auto stableCandidateLess = [&](const std::size_t left,
+                                         const std::size_t right) {
+        const auto leftKey =
+            stableContactKey(collision.metadata[left].key);
+        const auto rightKey =
+            stableContactKey(collision.metadata[right].key);
+        if (leftKey != rightKey) {
+            return leftKey < rightKey;
+        }
+        return left < right;
+    };
+    const auto distanceSquared = [&collision](
+        const std::size_t left,
+        const std::size_t right
+    ) {
+        const std::array<double, 3>& a =
+            collision.metadata[left].contactPointWorld;
+        const std::array<double, 3>& b =
+            collision.metadata[right].contactPointWorld;
+        const double dx = a[0] - b[0];
+        const double dy = a[1] - b[1];
+        const double dz = a[2] - b[2];
+        return dx * dx + dy * dy + dz * dz;
+    };
+
+    std::vector<std::size_t> grouped(collision.contacts.size());
+    for (std::size_t index = 0u; index < grouped.size(); ++index) {
+        grouped[index] = index;
     }
     std::ranges::sort(
-        ranked,
+        grouped,
         [&](const std::size_t left, const std::size_t right) {
-            const ArticulatedRigidIslandContactMetadata& leftMetadata =
-                collision.metadata[left];
-            const ArticulatedRigidIslandContactMetadata& rightMetadata =
-                collision.metadata[right];
-            const auto leftPair = canonicalPair(leftMetadata);
-            const auto rightPair = canonicalPair(rightMetadata);
+            const auto leftPair =
+                canonicalPair(collision.metadata[left]);
+            const auto rightPair =
+                canonicalPair(collision.metadata[right]);
             if (leftPair != rightPair) {
                 return leftPair < rightPair;
             }
-            if (leftMetadata.effectiveSeparation !=
-                rightMetadata.effectiveSeparation) {
-                return leftMetadata.effectiveSeparation <
-                    rightMetadata.effectiveSeparation;
-            }
-            const ArticulatedRigidIslandContactKey& leftKey =
-                leftMetadata.key;
-            const ArticulatedRigidIslandContactKey& rightKey =
-                rightMetadata.key;
-            return std::array<std::uint64_t, 8>{
-                leftKey.endpointA.shapeIndex,
-                leftKey.endpointA.feature,
-                leftKey.endpointA.slotGeneration,
-                leftKey.endpointA.motionType,
-                leftKey.endpointB.shapeIndex,
-                leftKey.endpointB.feature,
-                leftKey.endpointB.slotGeneration,
-                leftKey.endpointB.motionType,
-            } < std::array{
-                static_cast<std::uint64_t>(
-                    rightKey.endpointA.shapeIndex
-                ),
-                static_cast<std::uint64_t>(
-                    rightKey.endpointA.feature
-                ),
-                static_cast<std::uint64_t>(
-                    rightKey.endpointA.slotGeneration
-                ),
-                static_cast<std::uint64_t>(
-                    rightKey.endpointA.motionType
-                ),
-                static_cast<std::uint64_t>(
-                    rightKey.endpointB.shapeIndex
-                ),
-                static_cast<std::uint64_t>(
-                    rightKey.endpointB.feature
-                ),
-                static_cast<std::uint64_t>(
-                    rightKey.endpointB.slotGeneration
-                ),
-                static_cast<std::uint64_t>(
-                    rightKey.endpointB.motionType
-                ),
-            };
+            return stableCandidateLess(left, right);
         }
     );
 
     std::vector<std::size_t> retained;
     retained.reserve(collision.contacts.size());
-    std::array<std::uint64_t, 4> previousPair{
-        std::numeric_limits<std::uint64_t>::max(),
-        std::numeric_limits<std::uint64_t>::max(),
-        std::numeric_limits<std::uint64_t>::max(),
-        std::numeric_limits<std::uint64_t>::max(),
-    };
-    std::uint32_t retainedForPair = 0u;
-    for (const std::size_t candidate : ranked) {
-        const ArticulatedRigidIslandContactMetadata& metadata =
-            collision.metadata[candidate];
-        const std::array<std::uint64_t, 4> pair =
-            canonicalPair(metadata);
-        if (pair != previousPair) {
-            previousPair = pair;
-            retainedForPair = 0u;
+    std::size_t pairBegin = 0u;
+    while (pairBegin < grouped.size()) {
+        const auto pair =
+            canonicalPair(collision.metadata[grouped[pairBegin]]);
+        std::size_t pairEnd = pairBegin + 1u;
+        while (pairEnd < grouped.size() &&
+               canonicalPair(collision.metadata[grouped[pairEnd]]) ==
+                   pair) {
+            ++pairEnd;
         }
-        if (retainedForPair < maximumPerPair) {
-            retained.push_back(candidate);
-            ++retainedForPair;
+
+        std::vector<std::size_t> candidates(
+            grouped.begin() + static_cast<std::ptrdiff_t>(pairBegin),
+            grouped.begin() + static_cast<std::ptrdiff_t>(pairEnd)
+        );
+        const auto deepest = std::ranges::min_element(
+            candidates,
+            [&](const std::size_t left, const std::size_t right) {
+                const double leftSeparation =
+                    collision.metadata[left].effectiveSeparation;
+                const double rightSeparation =
+                    collision.metadata[right].effectiveSeparation;
+                if (leftSeparation != rightSeparation) {
+                    return leftSeparation < rightSeparation;
+                }
+                return stableCandidateLess(left, right);
+            }
+        );
+        retained.push_back(*deepest);
+        candidates.erase(deepest);
+
+        const std::size_t retainCount = std::min(
+            candidates.size() + 1u,
+            static_cast<std::size_t>(maximumPerPair)
+        );
+        std::vector<std::size_t> pairRetained{retained.back()};
+        pairRetained.reserve(retainCount);
+        while (pairRetained.size() < retainCount) {
+            auto best = candidates.begin();
+            double bestMinimumDistance = -1.0;
+            for (auto candidate = candidates.begin();
+                 candidate != candidates.end();
+                 ++candidate) {
+                double minimumDistance =
+                    std::numeric_limits<double>::infinity();
+                for (const std::size_t selected : pairRetained) {
+                    minimumDistance = std::min(
+                        minimumDistance,
+                        distanceSquared(*candidate, selected)
+                    );
+                }
+                if (minimumDistance > bestMinimumDistance ||
+                    (
+                        minimumDistance == bestMinimumDistance &&
+                        stableCandidateLess(*candidate, *best)
+                    )) {
+                    best = candidate;
+                    bestMinimumDistance = minimumDistance;
+                }
+            }
+            pairRetained.push_back(*best);
+            retained.push_back(*best);
+            candidates.erase(best);
         }
+        pairBegin = pairEnd;
     }
     std::ranges::sort(retained);
     std::vector<CoupledArticulatedRigidIslandContact> contacts;
@@ -786,6 +869,18 @@ bool updateGraspEvidence(
     evidence.resize(rigidBodyCount);
     std::vector<Vec3> normalA(rigidBodyCount);
     std::vector<Vec3> normalB(rigidBodyCount);
+    std::vector<std::vector<std::size_t>>
+        loadBearingContactsA(rigidBodyCount);
+    std::vector<std::vector<std::size_t>>
+        loadBearingContactsB(rigidBodyCount);
+    std::vector<std::size_t> representativeA(
+        rigidBodyCount,
+        std::numeric_limits<std::size_t>::max()
+    );
+    std::vector<std::size_t> representativeB(
+        rigidBodyCount,
+        std::numeric_limits<std::size_t>::max()
+    );
     std::vector<std::uint64_t> identities(rigidBodyCount, 0u);
     for (std::size_t body = 0u; body < rigidBodyCount; ++body) {
         evidence[body].rigidBody =
@@ -847,17 +942,102 @@ bool updateGraspEvidence(
         const double normalSign = articulatedA ? 1.0 : -1.0;
         const Vec3 objectNormal =
             normalSign * vector(contact.normal);
+        const Vec3 contactPoint =
+            vector(collision.metadata[contactIndex].contactPointWorld);
+        if (!finite(contactPoint.x) ||
+            !finite(contactPoint.y) ||
+            !finite(contactPoint.z)) {
+            return false;
+        }
+        const bool loadBearing =
+            normalImpulse > 0.0 &&
+            normalImpulse >= config.minimumNormalImpulse &&
+            contact.friction >= config.minimumFriction &&
+            slip <= config.maximumTangentialSlipSpeed;
+        const std::uint32_t sceneShape =
+            articulatedA
+            ? collision.metadata[contactIndex].key.
+                endpointB.shapeIndex
+            : collision.metadata[contactIndex].key.
+                endpointA.shapeIndex;
+        const std::uint32_t articulatedShape =
+            articulatedA
+            ? collision.metadata[contactIndex].key.
+                endpointA.shapeIndex
+            : collision.metadata[contactIndex].key.
+                endpointB.shapeIndex;
+        const auto includeShapeRange =
+            [](std::uint32_t& minimum,
+               std::uint32_t& maximum,
+               const std::uint32_t shape) {
+                if (minimum == MR_INVALID_INDEX) {
+                    minimum = shape;
+                    maximum = shape;
+                } else {
+                    minimum = std::min(minimum, shape);
+                    maximum = std::max(maximum, shape);
+                }
+            };
+        const auto appendUniqueContact =
+            [&](std::vector<std::size_t>& indices) {
+                const bool duplicate = std::ranges::any_of(
+                    indices,
+                    [&](const std::size_t prior) {
+                        return collision.metadata[prior].key ==
+                            collision.metadata[contactIndex].key;
+                    }
+                );
+                if (!duplicate) {
+                    indices.push_back(contactIndex);
+                }
+            };
+        const auto strongerRepresentative =
+            [&](const double previousImpulse,
+                const std::size_t previousIndex) {
+                return
+                    normalImpulse > previousImpulse ||
+                    (
+                        normalImpulse == previousImpulse &&
+                        previousIndex !=
+                            std::numeric_limits<std::size_t>::max() &&
+                        stableContactKey(
+                            collision.metadata[contactIndex].key
+                        ) <
+                            stableContactKey(
+                                collision.metadata[previousIndex].key
+                            )
+                    );
+            };
         if (articulated.body == config.jawBodyA) {
             item.maximumTangentialSlipSpeed = std::max(
                 item.maximumTangentialSlipSpeed,
                 slip
             );
-            if (normalImpulse > item.jawANormalImpulse) {
+            if (loadBearing) {
+                appendUniqueContact(
+                    loadBearingContactsA[scene.body]
+                );
+                includeShapeRange(
+                    item.jawAMinimumSceneShape,
+                    item.jawAMaximumSceneShape,
+                    sceneShape
+                );
+                includeShapeRange(
+                    item.jawAMinimumArticulatedShape,
+                    item.jawAMaximumArticulatedShape,
+                    articulatedShape
+                );
+            }
+            if (strongerRepresentative(
+                    item.jawANormalImpulse,
+                    representativeA[scene.body]
+                )) {
                 item.jawAContact = true;
                 item.jawANormalImpulse = normalImpulse;
                 item.jawAFriction =
                     contact.friction;
                 normalA[scene.body] = objectNormal;
+                representativeA[scene.body] = contactIndex;
             }
         }
         if (articulated.body == config.jawBodyB) {
@@ -865,12 +1045,31 @@ bool updateGraspEvidence(
                 item.maximumTangentialSlipSpeed,
                 slip
             );
-            if (normalImpulse > item.jawBNormalImpulse) {
+            if (loadBearing) {
+                appendUniqueContact(
+                    loadBearingContactsB[scene.body]
+                );
+                includeShapeRange(
+                    item.jawBMinimumSceneShape,
+                    item.jawBMaximumSceneShape,
+                    sceneShape
+                );
+                includeShapeRange(
+                    item.jawBMinimumArticulatedShape,
+                    item.jawBMaximumArticulatedShape,
+                    articulatedShape
+                );
+            }
+            if (strongerRepresentative(
+                    item.jawBNormalImpulse,
+                    representativeB[scene.body]
+                )) {
                 item.jawBContact = true;
                 item.jawBNormalImpulse = normalImpulse;
                 item.jawBFriction =
                     contact.friction;
                 normalB[scene.body] = objectNormal;
+                representativeB[scene.body] = contactIndex;
             }
         }
     }
@@ -881,6 +1080,50 @@ bool updateGraspEvidence(
             MR_MOTION_DYNAMIC) {
             continue;
         }
+        const auto maximumSpan =
+            [&](const std::span<const std::size_t> contacts) {
+                double result = 0.0;
+                for (std::size_t first = 0u;
+                     first < contacts.size();
+                     ++first) {
+                    for (std::size_t second = first + 1u;
+                         second < contacts.size();
+                         ++second) {
+                        result = std::max(
+                            result,
+                            distance(
+                                vector(
+                                    collision.metadata[
+                                        contacts[first]
+                                    ].contactPointWorld
+                                ),
+                                vector(
+                                    collision.metadata[
+                                        contacts[second]
+                                    ].contactPointWorld
+                                )
+                            )
+                        );
+                    }
+                }
+                return result;
+            };
+        if (loadBearingContactsA[body].size() >
+                std::numeric_limits<std::uint32_t>::max() ||
+            loadBearingContactsB[body].size() >
+                std::numeric_limits<std::uint32_t>::max()) {
+            return false;
+        }
+        item.jawAContactCount = static_cast<std::uint32_t>(
+            loadBearingContactsA[body].size()
+        );
+        item.jawBContactCount = static_cast<std::uint32_t>(
+            loadBearingContactsB[body].size()
+        );
+        item.jawAContactSpan =
+            maximumSpan(loadBearingContactsA[body]);
+        item.jawBContactSpan =
+            maximumSpan(loadBearingContactsB[body]);
         if (item.jawAContact && item.jawBContact) {
             const double denominator =
                 norm(normalA[body]) * norm(normalB[body]);
@@ -901,7 +1144,15 @@ bool updateGraspEvidence(
             item.jawBFriction >= config.minimumFriction &&
             item.maximumTangentialSlipSpeed <=
                 config.maximumTangentialSlipSpeed &&
-            item.normalDot <= config.maximumOpposingNormalDot;
+            item.normalDot <= config.maximumOpposingNormalDot &&
+            item.jawAContactCount >=
+                config.minimumContactCountPerJaw &&
+            item.jawBContactCount >=
+                config.minimumContactCountPerJaw &&
+            item.jawAContactSpan >=
+                config.minimumContactSpanPerJaw &&
+            item.jawBContactSpan >=
+                config.minimumContactSpanPerJaw;
 
         auto cached = std::ranges::find_if(
             cache.graspEvidence,
@@ -914,11 +1165,13 @@ bool updateGraspEvidence(
             consecutive = 1u;
             if (cached != cache.graspEvidence.end() &&
                 cached->identity == identities[body] &&
-                cached->lastSeenStep == previousStep &&
-                cached->consecutiveQualifiedSteps <
-                    std::numeric_limits<std::uint32_t>::max()) {
+                cached->lastSeenStep == previousStep) {
                 consecutive =
-                    cached->consecutiveQualifiedSteps + 1u;
+                    cached->consecutiveQualifiedSteps;
+                if (consecutive <
+                    std::numeric_limits<std::uint32_t>::max()) {
+                    ++consecutive;
+                }
             }
         }
         item.consecutiveQualifiedSteps = consecutive;
@@ -986,6 +1239,11 @@ ArticulatedRigidWorldStepDiagnostics stepArticulatedRigidWorldCpu(
         rigidShapes.empty() ||
         rigidMaterials.empty() ||
         config.maximumContactsPerBodyPair == 0u ||
+        (
+            config.grasp.enabled &&
+            config.maximumContactsPerBodyPair <
+                config.grasp.minimumContactCountPerJaw
+        ) ||
         (!rigidWrenches.empty() &&
          rigidWrenches.size() != rigidBodies.size()) ||
         !validGraspConfig(model, config.grasp) ||

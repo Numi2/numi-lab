@@ -13,7 +13,7 @@ namespace metalrobo {
 
 inline constexpr std::size_t kSurgicalPSMBodyCount = 9u;
 inline constexpr std::size_t kSurgicalPSMJointCount = 8u;
-inline constexpr std::size_t kSurgicalPSMShapeCount = 18u;
+inline constexpr std::size_t kSurgicalPSMShapeCount = 20u;
 inline constexpr std::size_t kSurgicalPSMJawCount = 2u;
 inline constexpr std::size_t kSurgicalPSMArmDofCount = 6u;
 inline constexpr std::size_t

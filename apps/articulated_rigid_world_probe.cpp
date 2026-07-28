@@ -684,7 +684,8 @@ int main() {
         );
         require(
             maximumKkt < 1.1e-5,
-            "composed exact-cone KKT certificate is too large"
+            "composed exact-cone KKT certificate is too large: " +
+                std::to_string(maximumKkt)
         );
         require(
             graspFrames > 0u,
@@ -701,6 +702,71 @@ int main() {
             cache.graspEvidence.size() == 1u &&
                 cache.graspEvidence[0].grasped,
             "final grasp cache is missing qualified needle evidence"
+        );
+        std::vector<double> saturatedQ = q;
+        std::vector<double> saturatedV = v;
+        auto saturatedRigid = rigidBodies;
+        auto saturatedCache = cache;
+        saturatedCache.graspEvidence[0].
+            consecutiveQualifiedSteps =
+                std::numeric_limits<std::uint32_t>::max();
+        std::vector<double> saturatedForce = gravityCompensation(
+            model,
+            saturatedQ,
+            saturatedV,
+            config.dynamics
+        );
+        saturatedForce[2] +=
+            800.0 * (insertionTarget - saturatedQ[2]) -
+            40.0 * saturatedV[2];
+        saturatedForce[6] = std::clamp(
+            saturatedForce[6] +
+                4.0 * (0.0 - saturatedQ[6]) -
+                0.04 * saturatedV[6],
+            -0.1,
+            0.1
+        );
+        saturatedForce[7] = std::clamp(
+            saturatedForce[7] +
+                4.0 * (0.0 - saturatedQ[7]) -
+                0.04 * saturatedV[7],
+            -0.1,
+            0.1
+        );
+        const auto saturatedStep =
+            metalrobo::stepArticulatedRigidWorldCpu(
+                model,
+                0u,
+                saturatedQ,
+                saturatedV,
+                saturatedForce,
+                {},
+                std::span<const MRBodyPropertiesGPU>(
+                    &needle.rigid.body,
+                    1u
+                ),
+                saturatedRigid,
+                needle.rigid.shapes,
+                std::span<const MRMaterialGPU>(
+                    &needleMaterial,
+                    1u
+                ),
+                {},
+                config,
+                saturatedCache
+            );
+        require(
+            saturatedStep.succeeded() &&
+                saturatedStep.graspEvidence.size() == 1u &&
+                saturatedStep.graspEvidence[0].qualifiedThisStep &&
+                saturatedStep.graspEvidence[0].grasped &&
+                saturatedStep.graspEvidence[0].
+                    consecutiveQualifiedSteps ==
+                    std::numeric_limits<std::uint32_t>::max() &&
+                saturatedCache.graspEvidence[0].
+                    consecutiveQualifiedSteps ==
+                    std::numeric_limits<std::uint32_t>::max(),
+            "qualified grasp dwell did not saturate at UINT32_MAX"
         );
         const std::uint64_t priorGraspIdentity =
             cache.graspEvidence[0].identity;
@@ -850,6 +916,7 @@ int main() {
             << " kkt_max=" << maximumKkt
             << " grasp_slip_max=" << maximumGraspSlip
             << " grasp_identity_reset=pass"
+            << " grasp_dwell_saturation=pass"
             << " rollback=pass"
             << " status=ok\n";
         return 0;

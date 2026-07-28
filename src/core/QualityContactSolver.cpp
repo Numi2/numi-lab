@@ -57,7 +57,89 @@ double dot(
 }
 
 double norm(const std::span<const double> value) {
-    return std::sqrt(dot(value, value));
+    // Scaled sum-of-squares avoids overflowing on finite vectors whose norm
+    // is representable (for example, a single 1e200 entry). Returning
+    // infinity when the mathematical norm itself is not representable lets
+    // callers fail explicitly instead of manufacturing a zero scaled
+    // residual from an infinite normalization denominator.
+    double scale = 0.0;
+    double scaledSquares = 1.0;
+    for (const double entry : value) {
+        const double magnitude = std::abs(entry);
+        if (!std::isfinite(magnitude)) {
+            return magnitude;
+        }
+        if (magnitude == 0.0) {
+            continue;
+        }
+        if (scale < magnitude) {
+            const double ratio = scale / magnitude;
+            scaledSquares =
+                1.0 + scaledSquares * ratio * ratio;
+            scale = magnitude;
+        } else {
+            const double ratio = magnitude / scale;
+            scaledSquares += ratio * ratio;
+        }
+    }
+    return scale == 0.0
+        ? 0.0
+        : scale * std::sqrt(scaledSquares);
+}
+
+double positiveProductRatio(
+    const double numeratorA,
+    const double numeratorB,
+    const double denominatorA,
+    const double denominatorB = 1.0
+) {
+    if (!(numeratorA >= 0.0) ||
+        !(numeratorB >= 0.0) ||
+        !(denominatorA > 0.0) ||
+        !(denominatorB > 0.0) ||
+        !std::isfinite(numeratorA) ||
+        !std::isfinite(numeratorB) ||
+        !std::isfinite(denominatorA) ||
+        !std::isfinite(denominatorB)) {
+        return std::numeric_limits<double>::infinity();
+    }
+    if (numeratorA == 0.0 || numeratorB == 0.0) {
+        return 0.0;
+    }
+
+    int numeratorAExponent = 0;
+    int numeratorBExponent = 0;
+    int denominatorAExponent = 0;
+    int denominatorBExponent = 0;
+    const double numeratorAMantissa =
+        std::frexp(numeratorA, &numeratorAExponent);
+    const double numeratorBMantissa =
+        std::frexp(numeratorB, &numeratorBExponent);
+    const double denominatorAMantissa =
+        std::frexp(denominatorA, &denominatorAExponent);
+    const double denominatorBMantissa =
+        std::frexp(denominatorB, &denominatorBExponent);
+    double mantissa =
+        (numeratorAMantissa * numeratorBMantissa) /
+        (denominatorAMantissa * denominatorBMantissa);
+    int mantissaExponent = 0;
+    mantissa = std::frexp(mantissa, &mantissaExponent);
+    const int exponent =
+        numeratorAExponent +
+        numeratorBExponent -
+        denominatorAExponent -
+        denominatorBExponent +
+        mantissaExponent;
+    return std::scalbn(mantissa, exponent);
+}
+
+bool finiteSquare(const double value, double& square) {
+    if (!(value >= 0.0) || !std::isfinite(value) ||
+        value > std::sqrt(std::numeric_limits<double>::max())) {
+        return false;
+    }
+    square = value * value;
+    return std::isfinite(square);
 }
 
 bool finite(const std::span<const double> values) {
@@ -769,9 +851,12 @@ NaturalMap evaluateNaturalMap(
             value[index] - result.projected[index];
     }
     result.residualNorm = norm(result.residual);
-    result.scaledResidual =
-        result.residualNorm /
-        (gamma * (1.0 + norm(problem.compactLinear)));
+    const double linearNorm = norm(problem.compactLinear);
+    result.scaledResidual = positiveProductRatio(
+        result.residualNorm,
+        problem.lipschitz,
+        1.0 + linearNorm
+    );
     return result;
 }
 
@@ -1059,9 +1144,17 @@ void fillCertificate(
     const double dualScaled =
         solution.maximumDualConeViolation /
         (1.0 + dualNorm);
+    const double normProduct = impulseNorm * dualNorm;
     const double complementarityScaled =
-        std::abs(solution.complementarityGap) /
-        (1.0 + impulseNorm * dualNorm);
+        std::isfinite(normProduct)
+        ? std::abs(solution.complementarityGap) /
+            (1.0 + normProduct)
+        : positiveProductRatio(
+            std::abs(solution.complementarityGap),
+            1.0,
+            impulseNorm,
+            dualNorm
+        );
     solution.scaledKktCertificate = std::max({
         solution.scaledNaturalResidual,
         primalScaled,
@@ -1120,6 +1213,15 @@ QualityContactSolution solvePreparedQualityProblem(
     }
 
     bool converged = false;
+    // Grippo-Lampariello-Lucidi nonmonotone globalization. A short merit
+    // window lets semismooth directions cross neighboring cone regions
+    // without accepting the microscopic steps produced by a strictly
+    // monotone Armijo test on ill-conditioned, redundant contact patches.
+    constexpr std::size_t meritWindow = 4u;
+    constexpr std::uint32_t maximumNewtonLineSearchAttempts = 12u;
+    std::array<double, meritWindow> meritHistory{};
+    std::size_t meritHistoryCount = 0u;
+    std::size_t meritHistoryCursor = 0u;
     for (std::uint32_t iteration = 0u;
          iteration < config.maximumIterations;
          ++iteration) {
@@ -1165,6 +1267,36 @@ QualityContactSolution solvePreparedQualityProblem(
             value = std::move(projected);
             continue;
         }
+        double residualNormSquared = 0.0;
+        if (!finiteSquare(
+                natural.residualNorm,
+                residualNormSquared
+            )) {
+            solution.code = MR_STEP_NONFINITE_RESULT;
+            solution.failure =
+                "natural residual norm is too large for globalization";
+            fillCertificate(
+                contacts,
+                prepared,
+                value,
+                gamma,
+                solution
+            );
+            return solution;
+        }
+        const double merit = 0.5 * residualNormSquared;
+        meritHistory[meritHistoryCursor] = merit;
+        meritHistoryCursor =
+            (meritHistoryCursor + 1u) % meritWindow;
+        meritHistoryCount = std::min(
+            meritHistoryCount + 1u,
+            meritWindow
+        );
+        const double referenceMerit = *std::max_element(
+            meritHistory.begin(),
+            meritHistory.begin() +
+                static_cast<std::ptrdiff_t>(meritHistoryCount)
+        );
 
         const std::vector<double> derivative =
             generalizedJacobian(
@@ -1198,17 +1330,90 @@ QualityContactSolution solvePreparedQualityProblem(
             );
             slope = dot(natural.residual, derivativeDirection);
             if (!std::isfinite(slope) ||
-                slope >=
-                    -1.0e-8 *
-                    natural.residualNorm *
-                    natural.residualNorm) {
+                slope >= -1.0e-8 * residualNormSquared) {
                 newtonDirection = false;
             }
         }
 
-        bool usedGaussNewton = false;
-        if (!newtonDirection) {
-            usedGaussNewton = gaussNewtonDirection(
+        const auto directionSlope =
+            [&](const std::span<const double> candidateDirection) {
+                const std::vector<double> derivativeDirection =
+                    multiply(
+                        derivative,
+                        prepared.dimension,
+                        prepared.dimension,
+                        candidateDirection
+                    );
+                return dot(
+                    natural.residual,
+                    derivativeDirection
+                );
+            };
+        bool accepted = false;
+        const auto lineSearchDirection =
+            [&](const std::span<const double> candidateDirection,
+                const double candidateSlope,
+                const std::uint32_t maximumTrials,
+                const bool semismoothNewton) {
+                double step = 1.0;
+                for (std::uint32_t lineSearch = 0u;
+                     lineSearch < maximumTrials;
+                     ++lineSearch) {
+                    std::vector<double> candidate = value;
+                    for (std::size_t index = 0u;
+                         index < candidate.size();
+                         ++index) {
+                        candidate[index] +=
+                            step * candidateDirection[index];
+                    }
+                    const NaturalMap candidateNatural =
+                        evaluateNaturalMap(
+                            prepared,
+                            candidate,
+                            gamma,
+                            false
+                        );
+                    double candidateResidualNormSquared = 0.0;
+                    const bool finiteCandidateMerit = finiteSquare(
+                        candidateNatural.residualNorm,
+                        candidateResidualNormSquared
+                    );
+                    const double candidateMerit =
+                        0.5 * candidateResidualNormSquared;
+                    if (finiteCandidateMerit &&
+                        candidateMerit <=
+                            referenceMerit +
+                            config.armijoCoefficient *
+                                step * candidateSlope) {
+                        value = std::move(candidate);
+                        if (semismoothNewton) {
+                            ++solution.semismoothNewtonSteps;
+                        } else {
+                            ++solution.gaussNewtonFallbackSteps;
+                        }
+                        return true;
+                    }
+                    step *= 0.5;
+                    ++solution.lineSearchBacktracks;
+                }
+                return false;
+            };
+
+        if (newtonDirection) {
+            const std::uint32_t maximumNewtonTrials = std::min(
+                config.maximumLineSearchIterations,
+                maximumNewtonLineSearchAttempts
+            );
+            accepted = lineSearchDirection(
+                direction,
+                slope,
+                maximumNewtonTrials,
+                true
+            );
+        }
+
+        if (!accepted) {
+            bool usedGaussNewton = gaussNewtonDirection(
                 derivative,
                 natural.residual,
                 config.gaussNewtonRegularization,
@@ -1216,64 +1421,18 @@ QualityContactSolution solvePreparedQualityProblem(
                 direction
             );
             if (usedGaussNewton) {
-                const std::vector<double> derivativeDirection =
-                    multiply(
-                        derivative,
-                        prepared.dimension,
-                        prepared.dimension,
-                        direction
-                    );
-                slope = dot(
-                    natural.residual,
-                    derivativeDirection
-                );
+                slope = directionSlope(direction);
                 if (!std::isfinite(slope) || !(slope < 0.0)) {
                     usedGaussNewton = false;
                 }
             }
-        }
-
-        bool accepted = false;
-        if (newtonDirection || usedGaussNewton) {
-            const double merit =
-                0.5 * natural.residualNorm * natural.residualNorm;
-            double step = 1.0;
-            for (std::uint32_t lineSearch = 0u;
-                 lineSearch <
-                    config.maximumLineSearchIterations;
-                 ++lineSearch) {
-                std::vector<double> candidate = value;
-                for (std::size_t index = 0;
-                     index < candidate.size();
-                     ++index) {
-                    candidate[index] += step * direction[index];
-                }
-                const NaturalMap candidateNatural =
-                    evaluateNaturalMap(
-                        prepared,
-                        candidate,
-                        gamma,
-                        false
-                    );
-                const double candidateMerit =
-                    0.5 *
-                    candidateNatural.residualNorm *
-                    candidateNatural.residualNorm;
-                if (std::isfinite(candidateMerit) &&
-                    candidateMerit <=
-                        merit +
-                        config.armijoCoefficient * step * slope) {
-                    value = std::move(candidate);
-                    accepted = true;
-                    if (newtonDirection) {
-                        ++solution.semismoothNewtonSteps;
-                    } else {
-                        ++solution.gaussNewtonFallbackSteps;
-                    }
-                    break;
-                }
-                step *= 0.5;
-                ++solution.lineSearchBacktracks;
+            if (usedGaussNewton) {
+                accepted = lineSearchDirection(
+                    direction,
+                    slope,
+                    config.maximumLineSearchIterations,
+                    false
+                );
             }
         }
 

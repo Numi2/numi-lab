@@ -63,9 +63,10 @@ struct QualityContactSolution {
 //   F(x) = x - Pi_K(x - gamma (Q x + c)),
 //
 // after mapping every friction cone to a standard Lorentz cone. It uses the
-// analytic generalized derivative of the Lorentz projection, an Armijo
-// globalization, a regularized semismooth Gauss-Newton descent fallback, and
-// a globally convergent projected-gradient fallback.
+// analytic generalized derivative of the Lorentz projection, a four-merit
+// GLL nonmonotone Armijo globalization, a safeguarded regularized
+// semismooth Gauss-Newton descent fallback, and a globally convergent
+// projected-gradient fallback.
 //
 // The reported dual-cone feasibility and per-contact conic inner product are
 // the correct complementarity certificate for Coulomb contact. A separate
