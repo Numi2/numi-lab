@@ -133,6 +133,9 @@ kernel void mr_mlx_prepare_contact_world(
     device float* workingEffort [[buffer(8)]],
     device MRMetalWorldStatusGPU* statuses [[buffer(9)]],
     device MRConvexQueryCacheGPU* nextPairCache [[buffer(10)]],
+    device const MRWorldGPU& world [[buffer(11)]],
+    device const MRArticulationGPU* articulations [[buffer(12)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(13)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -151,15 +154,73 @@ kernel void mr_mlx_prepare_contact_world(
         float4(3.402823466e+38f, 0.0f, 0.0f, 0.0f);
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
+    const MRArticulationGPU articulation =
+        articulations[dispatch.articulationIndex];
     for (uint coordinate = 0u; coordinate < dispatch.nq;
          ++coordinate) {
         checkpointQ[qBase + coordinate] = q[qBase + coordinate];
     }
     for (uint coordinate = 0u; coordinate < dispatch.nv;
          ++coordinate) {
-        checkpointV[vBase + coordinate] = v[vBase + coordinate];
-        workingEffort[vBase + coordinate] =
-            actions[vBase + coordinate];
+        const float velocity = v[vBase + coordinate];
+        checkpointV[vBase + coordinate] = velocity;
+        float command = actions[vBase + coordinate];
+        if ((dispatch.flags &
+             MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u) {
+            device const MRDofPropertiesGPU& dof =
+                dofs[articulation.vOffset + coordinate];
+            command = 0.0f;
+            if ((dof.flags & MR_DOF_FLAG_DRIVE) != 0u &&
+                dof.qIndex != MR_INVALID_INDEX &&
+                dof.qIndex >= articulation.qOffset &&
+                dof.qIndex <
+                    articulation.qOffset + articulation.nq) {
+                const uint localQ =
+                    dof.qIndex - articulation.qOffset;
+                float target = actions[vBase + coordinate];
+                if ((dof.flags &
+                     MR_DOF_FLAG_POSITION_LIMIT) != 0u) {
+                    target = clamp(
+                        target,
+                        dof.limits.x,
+                        dof.limits.y
+                    );
+                }
+                const float timestep =
+                    world.gravityAndTimestep.w;
+                command =
+                    dof.drive.x *
+                        (
+                            target -
+                            q[qBase + localQ] -
+                            timestep * velocity
+                        ) -
+                    dof.drive.y * velocity;
+                const float dryFriction = dof.drive.w;
+                if (dryFriction > 0.0f) {
+                    if (abs(velocity) > 1.0e-4f) {
+                        command -=
+                            copysign(dryFriction, velocity);
+                    } else {
+                        command -= clamp(
+                            command,
+                            -dryFriction,
+                            dryFriction
+                        );
+                    }
+                }
+                if ((dof.flags &
+                     MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
+                    dof.limits.w > 0.0f) {
+                    command = clamp(
+                        command,
+                        -dof.limits.w,
+                        dof.limits.w
+                    );
+                }
+            }
+        }
+        workingEffort[vBase + coordinate] = command;
     }
     const uint cacheBase =
         environment * contactDispatch.convexCacheStride;

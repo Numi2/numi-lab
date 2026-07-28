@@ -8,7 +8,7 @@ linked or called at runtime.
 
 ## Executable v0.4 engine spine
 
-- ABI-v2, pointer-free CPU/Metal model with separate `nq`/`nv`, fixed and
+- ABI-v3, pointer-free CPU/Metal model with separate `nq`/`nv`, fixed and
   floating roots, bodies, joints, one authoritative record per DoF, shapes,
   materials, contacts, and explicit capacities
 - FP64 free-body dynamics plus matching Metal symplectic and implicit-midpoint
@@ -107,6 +107,18 @@ linked or called at runtime.
   pulls compact packets because MLX's active encoder does not expose indirect
   dispatch. Policy inference, physics, reward/termination, GAE, rollout
   storage, and PPO updates have a NumPy-free MLX path
+- Literal hybrid-CCD event splitting on standalone Metal and MLX: each
+  microstep repeatedly advances to the earliest deterministic TOI cluster,
+  solves it with impact-only restitution, and continues the unused time.
+  Event state, manifolds, and pair caches remain transactional, and an
+  uncertified remainder fails instead of silently losing time
+- Pure-MLX G1 contact rollout and PPO path using implicit position drives,
+  floating-root acceleration/load/contact-count sensor evidence, and
+  transactional resets; rough terrain executes through the authoritative
+  cooked static-mesh BVH4 contact path
+- Contact-capable MLX PSM scene with the generic dynamic curved-needle asset,
+  exact-CCD shape flags, persistent contact state, and a pure-array logical
+  aperture-to-independent-jaw target map
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication
@@ -122,15 +134,16 @@ This is a serious numerical foundation, not yet a complete MuJoCo/PhysX
 replacement. The device graph now has compact analytic/SAT/GJK/mesh queues,
 Wave32 8/16/32-contact cohorts, deterministic tiled spill beyond 256
 constraints, exact elliptic friction, private placement heaps, robust
-cylinder/convex GJK-MPR-EPA, static mesh BVH4 traversal, hybrid CCD event
-certification, and a contact-capable MLX primitive. Hybrid CCD currently
-certifies, orders, and clusters impacts while speculative TGS consumes the
-complete microstep; literal TOI advance/solve/continue state is present in ABI
-v3 but the repeated event-time solve is still being integrated. Heightfields,
-implicit drives/joint-limit IR, multi-articulation islands, calibrated
-rolling/torsional resistance, importers, rendering, sensors, thread/tissue
-mechanics, and qualified differentiability remain open. The dated
-requirements and claim rules are in
+cylinder/convex GJK-MPR-EPA, static mesh BVH4 traversal, literal hybrid-CCD
+advance/solve/continue, and a contact-capable MLX primitive. Contact graph ABI
+v4 carries the event-time and persistent-worker contract while ConstraintIR
+remains ABI v2. Implicit position drives and joint-boundary projection are
+executable. The 40,000-step/s Franka contact gate, trained 60-second G1
+standing gate, dedicated tiled heightfields, multi-articulation islands,
+patch rolling/torsional solve, complete joint/equality ConstraintIR,
+importers, rendering breadth, thread/tissue mechanics, a Metal quality solver,
+and qualified differentiation remain open. The dated requirements and claim
+rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
 
 ## Build
@@ -195,10 +208,11 @@ physics substeps per control step. Its three-substep FP64/Metal parity case
 had maximum q error `5.753e-7`, v error `4.745e-8`, and scaled acceleration
 error `1.982e-6`; same-build replay was bitwise. These are free-motion
 composition numbers, not external-engine results. The 1,024-environment
-Franka-plus-dynamic-cube TGS probe measured 30,940 GPU and 30,169 wall
+Franka-plus-dynamic-cube TGS probe most recently measured 32,178 GPU and
+31,346 wall
 control-steps/s with two active contacts, a 32-contact capacity class, and a
-96.2 MB retained arena. That is below the 40,000 release gate; the gate remains
-open and a 32-active-contact saturation run is still required. The earlier
+246.1 MB retained arena. That is below the 40,000 release gate; the gate
+remains open and a 32-active-contact saturation run is still required. The earlier
 clean v0.4 validation run of the original fixed-base Franka slice measured
 216,313 environment control-steps/s at 1,024
 environments on a 24 GB, 10-GPU-core Apple M4, with four physics substeps per

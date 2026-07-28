@@ -344,6 +344,35 @@ def step(
             ),
         )
 
+    if world.floating_root:
+        valid_contacts = contacts.mask.astype(mx.float32)
+        normal_load = (
+            mx.sum(
+                contacts.values[:, :, 7] * valid_contacts,
+                axis=-1,
+                keepdims=True,
+            )
+            / float(world.control_timestep)
+        )
+        active_contact_count = mx.sum(
+            valid_contacts,
+            axis=-1,
+            keepdims=True,
+        )
+        sensors = mx.concatenate(
+            (
+                acceleration[:, :6],
+                normal_load,
+                active_contact_count,
+            ),
+            axis=-1,
+        )
+    else:
+        sensors = mx.zeros(
+            (environment_count, 0),
+            dtype=mx.float32,
+        )
+
     return StepOutput(
         next_state=next_state,
         observations=mx.concatenate(
@@ -351,10 +380,7 @@ def step(
             axis=-1,
         ),
         contacts=contacts,
-        sensors=mx.zeros(
-            (environment_count, 0),
-            dtype=mx.float32,
-        ),
+        sensors=sensors,
         status=status,
         physics_error=status[:, 0] != 0,
         acceleration=acceleration,

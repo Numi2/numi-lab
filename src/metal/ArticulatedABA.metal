@@ -246,13 +246,30 @@ inline void setFailure(
     status.failingIndex = failingIndex;
 }
 
+inline float effectiveArmature(
+    device const MRDofPropertiesGPU& dof,
+    const uint dispatchFlags,
+    const float timestep
+) {
+    float value = dof.drive.z;
+    if ((dispatchFlags & MR_ABA_IMPLICIT_DRIVES) != 0u &&
+        (dof.flags & MR_DOF_FLAG_DRIVE) != 0u) {
+        value +=
+            timestep * dof.drive.y +
+            timestep * timestep * dof.drive.x;
+    }
+    return value;
+}
+
 inline bool validDispatch(
     device const MRWorldGPU& world,
     device const MRABADispatchGPU& dispatch,
     thread MRABAStatusGPU& status
 ) {
     constexpr uint knownFlags =
-        MR_ABA_HAS_BODY_WRENCHES | MR_ABA_APPLY_BODY_DAMPING;
+        MR_ABA_HAS_BODY_WRENCHES |
+        MR_ABA_APPLY_BODY_DAMPING |
+        MR_ABA_IMPLICIT_DRIVES;
     if (world.abiVersion != MR_ENGINE_ABI_VERSION ||
         dispatch.articulationIndex >= world.articulationCount ||
         dispatch.environmentCount == 0u ||
@@ -932,12 +949,18 @@ kernel void MR_ABA_KERNEL_NAME(
                 rootMatrixBase +
                 (3u + axis) * 6u +
                 (3u + axis)
-            ] += dofs[articulation.vOffset + axis].drive.z;
+            ] += effectiveArmature(
+                dofs[articulation.vOffset + axis],
+                dispatch.flags,
+                world.gravityAndTimestep.w
+            );
             articulatedInertia[
                 rootMatrixBase + axis * 6u + axis
-            ] += dofs[
-                articulation.vOffset + 3u + axis
-            ].drive.z;
+            ] += effectiveArmature(
+                dofs[articulation.vOffset + 3u + axis],
+                dispatch.flags,
+                world.gravityAndTimestep.w
+            );
             articulatedBias[rootLocal * 6u + axis] -=
                 environmentEffort[3u + axis];
             articulatedBias[
@@ -1032,7 +1055,11 @@ kernel void MR_ABA_KERNEL_NAME(
                     motionLinear[localBody],
                     projectedLinear
                 ) +
-                dofs[articulation.vOffset + localV].drive.z;
+                effectiveArmature(
+                    dofs[articulation.vOffset + localV],
+                    dispatch.flags,
+                    world.gravityAndTimestep.w
+                );
             float maximumInertia = 0.0f;
             for (uint entry = 0u; entry < 36u; ++entry) {
                 maximumInertia = max(

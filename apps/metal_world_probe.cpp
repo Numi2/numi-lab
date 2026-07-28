@@ -690,6 +690,58 @@ int main() {
                 firstDiagnostics.failedStepCount == 0u,
             "MetalWorld did not publish complete step accounting"
         );
+
+        // High-gain model drives are integrated through M+hD+h^2K in ABA,
+        // not converted into an unstable explicit torque.
+        OwnedBatch driveBatch{
+            .environmentCount = 1u,
+            .controlStepCount = 120u,
+        };
+        driveBatch.initialQ = franka.defaultQ;
+        driveBatch.initialV.assign(compiled.nv(), 0.0f);
+        driveBatch.initialQ[0] += 0.2f;
+        driveBatch.efforts.resize(
+            driveBatch.controlStepCount * compiled.nv()
+        );
+        for (std::size_t step = 0u;
+             step < driveBatch.controlStepCount;
+             ++step) {
+            for (std::size_t dof = 0u;
+                 dof < compiled.nv();
+                 ++dof) {
+                const MRDofPropertiesGPU& properties =
+                    franka.dofs[dof];
+                driveBatch.efforts[
+                    step * compiled.nv() + dof
+                ] = properties.qIndex != MR_INVALID_INDEX
+                    ? franka.defaultQ[properties.qIndex]
+                    : 0.0f;
+            }
+        }
+        metalrobo::MetalWorldStepConfig driveConfig = stepConfig;
+        driveConfig.physicsSubsteps = 1u;
+        driveConfig.actuationMode =
+            metalrobo::MetalWorldActuationMode::
+                implicitPositionDrive;
+        metalrobo::MetalWorldContext driveContext;
+        metalrobo::MetalWorldResult driven;
+        const auto driveDiagnostics = driveContext.run(
+            compiled,
+            driveBatch.view(),
+            driveConfig,
+            driven
+        );
+        requireSuccess(
+            driveDiagnostics,
+            "implicit position-drive rollout"
+        );
+        require(
+            std::abs(
+                driven.finalQ[0] - franka.defaultQ[0]
+            ) < 0.12f,
+            "implicit position drive did not reduce Franka error"
+        );
+
         const CPUOracle cpu =
             runCPUOracle(franka, small, stepConfig);
         const Parity parity = compareCPU(first, cpu);

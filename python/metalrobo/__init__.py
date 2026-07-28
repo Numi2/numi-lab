@@ -25,6 +25,11 @@ from .mlx_ppo import (
     MLXRolloutCollector,
     MLXRolloutState,
 )
+from .mlx_locomotion import (
+    MLXG1PPOTrainer,
+    MLXG1RolloutCollector,
+)
+from .mlx_surgical import psm_physical_position_targets
 from .ppo import ActorCritic, PPOConfig, PPOTrainer
 
 __all__ = [
@@ -33,6 +38,8 @@ __all__ = [
     "FrankaEnv",
     "MetalRoboError",
     "MLXCompiledWorld",
+    "MLXG1PPOTrainer",
+    "MLXG1RolloutCollector",
     "MetalWorldCapacityProfile",
     "MLXPPOTrainer",
     "MLXRolloutBatch",
@@ -49,6 +56,7 @@ __all__ = [
     "compile_world",
     "initial_state",
     "library_version",
+    "psm_physical_position_targets",
     "step",
 ]
 

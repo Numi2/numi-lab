@@ -427,7 +427,8 @@ inline bool validDispatch(
          ~(
              MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS |
              MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
-             MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY
+             MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY |
+             MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES
          )) != 0u ||
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u &&
@@ -1192,11 +1193,21 @@ kernel void mr_articulated_operator(
         }
     }
     // Armature is generalized-coordinate inertia, independent of whether a
-    // drive is enabled. Add it before factorization so diagnostic M and the
-    // impulse response use exactly the same physical operator.
+    // drive is enabled. Implicit-drive mode adds h D + h^2 K so contact
+    // response uses the same effective operator as ABA.
     for (uint dof = 0u; dof < articulation.nv; ++dof) {
-        const float armature =
-            dofs[articulation.vOffset + dof].drive.z;
+        device const MRDofPropertiesGPU& properties =
+            dofs[articulation.vOffset + dof];
+        float armature = properties.drive.z;
+        if ((dispatch.flags &
+             MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES) != 0u &&
+            (properties.flags & MR_DOF_FLAG_DRIVE) != 0u) {
+            const float timestep =
+                world.gravityAndTimestep.w;
+            armature +=
+                timestep * properties.drive.y +
+                timestep * timestep * properties.drive.x;
+        }
         const uint diagonal =
             dof * MR_ARTICULATED_OPERATOR_MAX_DOFS + dof;
         const float value = factor[diagonal] + armature;

@@ -207,8 +207,17 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> colliderProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> sweptProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> ccdPipeline = nil;
+    __strong id<MTLComputePipelineState> ccdEventInitializePipeline = nil;
+    __strong id<MTLComputePipelineState> ccdEventPreparePipeline = nil;
     __strong id<MTLComputePipelineState> ccdEventSelectPipeline = nil;
     __strong id<MTLComputePipelineState> ccdEventFinalizePipeline = nil;
+    __strong id<MTLComputePipelineState> eventArticulationPipeline = nil;
+    __strong id<MTLComputePipelineState> eventScenePredictionPipeline = nil;
+    __strong id<MTLComputePipelineState> eventBodyOverlayPipeline = nil;
+    __strong id<MTLComputePipelineState> jointLimitPipeline = nil;
+    __strong id<MTLComputePipelineState> eventColliderProjectionPipeline = nil;
+    __strong id<MTLComputePipelineState> inactiveEventRestorePipeline = nil;
+    __strong id<MTLComputePipelineState> eventSegmentPublishPipeline = nil;
     __strong id<MTLComputePipelineState> pairFlagPipeline = nil;
     __strong id<MTLComputePipelineState> scanBlocksPipeline = nil;
     __strong id<MTLComputePipelineState> scanAddPipeline = nil;
@@ -1528,6 +1537,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "unknown MetalWorld solver mode"
         );
     }
+    if (config.actuationMode !=
+            MetalWorldActuationMode::effort &&
+        config.actuationMode !=
+            MetalWorldActuationMode::implicitPositionDrive) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "unknown MetalWorld actuation mode"
+        );
+    }
     const bool contactMode =
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
     if (!std::isfinite(config.timestepSeconds) ||
@@ -1642,6 +1661,13 @@ MetalWorldDiagnostics validateAndBuildLayout(
              ? static_cast<mr_u32>(
                    MR_METAL_WORLD_HAS_RESETS
                )
+             : 0u) |
+        (config.actuationMode ==
+                 MetalWorldActuationMode::
+                     implicitPositionDrive
+             ? static_cast<mr_u32>(
+                   MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES
+               )
              : 0u);
     dispatch.nq = articulation.nq;
     dispatch.nv = articulation.nv;
@@ -1720,11 +1746,19 @@ MetalWorldDiagnostics validateAndBuildLayout(
     MRABADispatchGPU& aba = layout.abaDispatch;
     aba.articulationIndex = world.articulationIndex();
     aba.environmentCount = dispatch.environmentCount;
-    aba.flags = config.applyBodyDamping
-        ? static_cast<mr_u32>(
-              MR_ABA_APPLY_BODY_DAMPING
-          )
-        : 0u;
+    aba.flags =
+        (config.applyBodyDamping
+             ? static_cast<mr_u32>(
+                   MR_ABA_APPLY_BODY_DAMPING
+               )
+             : 0u) |
+        (config.actuationMode ==
+                 MetalWorldActuationMode::
+                     implicitPositionDrive
+             ? static_cast<mr_u32>(
+                   MR_ABA_IMPLICIT_DRIVES
+               )
+             : 0u);
     aba.qStride = articulation.nq;
     aba.vStride = articulation.nv;
     aba.effortStride = articulation.nv;
@@ -2481,8 +2515,17 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> colliderProjection = nil;
     __strong id<MTLComputePipelineState> sweptProjection = nil;
     __strong id<MTLComputePipelineState> ccd = nil;
+    __strong id<MTLComputePipelineState> ccdEventInitialize = nil;
+    __strong id<MTLComputePipelineState> ccdEventPrepare = nil;
     __strong id<MTLComputePipelineState> ccdEventSelect = nil;
     __strong id<MTLComputePipelineState> ccdEventFinalize = nil;
+    __strong id<MTLComputePipelineState> eventArticulation = nil;
+    __strong id<MTLComputePipelineState> eventScenePrediction = nil;
+    __strong id<MTLComputePipelineState> eventBodyOverlay = nil;
+    __strong id<MTLComputePipelineState> jointLimits = nil;
+    __strong id<MTLComputePipelineState> eventColliderProjection = nil;
+    __strong id<MTLComputePipelineState> inactiveEventRestore = nil;
+    __strong id<MTLComputePipelineState> eventSegmentPublish = nil;
     __strong id<MTLComputePipelineState> pairFlags = nil;
     __strong id<MTLComputePipelineState> scanBlocks = nil;
     __strong id<MTLComputePipelineState> scanAdd = nil;
@@ -2539,10 +2582,37 @@ MetalWorldDiagnostics initializeContext(
         @"mr_world_project_swept_colliders"
     );
     ccd = createContactPipeline(@"mr_world_resolve_ccd");
+    ccdEventInitialize = createContactPipeline(
+        @"mr_world_initialize_ccd_event_state"
+    );
+    ccdEventPrepare = createContactPipeline(
+        @"mr_world_prepare_ccd_event_pass"
+    );
     ccdEventSelect =
         createContactPipeline(@"mr_world_select_ccd_event_state");
     ccdEventFinalize =
         createContactPipeline(@"mr_world_finalize_ccd_event_state");
+    eventArticulation = createContactPipeline(
+        @"mr_world_materialize_event_articulation"
+    );
+    eventScenePrediction = createContactPipeline(
+        @"mr_world_predict_scene_event"
+    );
+    eventBodyOverlay = createContactPipeline(
+        @"mr_world_overlay_event_articulation_bodies"
+    );
+    jointLimits = createContactPipeline(
+        @"mr_world_project_joint_limits"
+    );
+    eventColliderProjection = createContactPipeline(
+        @"mr_world_project_event_colliders"
+    );
+    inactiveEventRestore = createContactPipeline(
+        @"mr_world_restore_inactive_event_candidate"
+    );
+    eventSegmentPublish = createContactPipeline(
+        @"mr_world_publish_event_segment"
+    );
     pairFlags =
         createContactPipeline(@"mr_world_flag_eligible_pairs");
     scanBlocks =
@@ -2621,8 +2691,17 @@ MetalWorldDiagnostics initializeContext(
         colliderProjection == nil ||
         sweptProjection == nil ||
         ccd == nil ||
+        ccdEventInitialize == nil ||
+        ccdEventPrepare == nil ||
         ccdEventSelect == nil ||
         ccdEventFinalize == nil ||
+        eventArticulation == nil ||
+        eventScenePrediction == nil ||
+        eventBodyOverlay == nil ||
+        jointLimits == nil ||
+        eventColliderProjection == nil ||
+        inactiveEventRestore == nil ||
+        eventSegmentPublish == nil ||
         pairFlags == nil ||
         scanBlocks == nil ||
         scanAdd == nil ||
@@ -2683,8 +2762,17 @@ MetalWorldDiagnostics initializeContext(
         colliderProjection.maxTotalThreadsPerThreadgroup == 0u ||
         sweptProjection.maxTotalThreadsPerThreadgroup == 0u ||
         ccd.maxTotalThreadsPerThreadgroup == 0u ||
+        ccdEventInitialize.maxTotalThreadsPerThreadgroup == 0u ||
+        ccdEventPrepare.maxTotalThreadsPerThreadgroup == 0u ||
         ccdEventSelect.maxTotalThreadsPerThreadgroup == 0u ||
         ccdEventFinalize.maxTotalThreadsPerThreadgroup == 0u ||
+        eventArticulation.maxTotalThreadsPerThreadgroup == 0u ||
+        eventScenePrediction.maxTotalThreadsPerThreadgroup == 0u ||
+        eventBodyOverlay.maxTotalThreadsPerThreadgroup == 0u ||
+        jointLimits.maxTotalThreadsPerThreadgroup == 0u ||
+        eventColliderProjection.maxTotalThreadsPerThreadgroup == 0u ||
+        inactiveEventRestore.maxTotalThreadsPerThreadgroup == 0u ||
+        eventSegmentPublish.maxTotalThreadsPerThreadgroup == 0u ||
         pairFlags.maxTotalThreadsPerThreadgroup == 0u ||
         scanBlocks.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
@@ -2779,8 +2867,17 @@ MetalWorldDiagnostics initializeContext(
     context.colliderProjectionPipeline = colliderProjection;
     context.sweptProjectionPipeline = sweptProjection;
     context.ccdPipeline = ccd;
+    context.ccdEventInitializePipeline = ccdEventInitialize;
+    context.ccdEventPreparePipeline = ccdEventPrepare;
     context.ccdEventSelectPipeline = ccdEventSelect;
     context.ccdEventFinalizePipeline = ccdEventFinalize;
+    context.eventArticulationPipeline = eventArticulation;
+    context.eventScenePredictionPipeline = eventScenePrediction;
+    context.eventBodyOverlayPipeline = eventBodyOverlay;
+    context.jointLimitPipeline = jointLimits;
+    context.eventColliderProjectionPipeline = eventColliderProjection;
+    context.inactiveEventRestorePipeline = inactiveEventRestore;
+    context.eventSegmentPublishPipeline = eventSegmentPublish;
     context.pairFlagPipeline = pairFlags;
     context.scanBlocksPipeline = scanBlocks;
     context.scanAddPipeline = scanAdd;
@@ -3624,7 +3721,13 @@ void uploadBatch(
     factorDispatch.pointCount =
         layout.contactDispatch.pointQueryStride;
     factorDispatch.flags =
-        MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR;
+        MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
+        (
+            (layout.dispatch.flags &
+             MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u
+            ? MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES
+            : 0u
+        );
     factorDispatch.pointStride = factorDispatch.pointCount;
     factorDispatch.pointWorldStride = factorDispatch.pointCount;
     factorDispatch.massMatrixStride =
@@ -3796,7 +3899,10 @@ bool encodeContactThreadKernel(
     const NSUInteger passArgument,
     const std::size_t environmentCount,
     const bool indirectDispatch = false,
-    const NSUInteger indirectOffset = 0u
+    const NSUInteger indirectOffset = 0u,
+    const void* secondaryBytes = nullptr,
+    const NSUInteger secondaryLength = 0u,
+    const NSUInteger secondaryArgument = 0u
 ) {
     id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
@@ -3814,6 +3920,11 @@ bool encodeContactThreadKernel(
         [encoder setBytes:pass
                    length:sizeof(*pass)
                   atIndex:passArgument];
+    }
+    if (secondaryBytes != nullptr && secondaryLength != 0u) {
+        [encoder setBytes:secondaryBytes
+                   length:secondaryLength
+                  atIndex:secondaryArgument];
     }
     if (indirectDispatch) {
         [encoder
@@ -4574,6 +4685,15 @@ bool encodePrepare(
     [encoder setBuffer:context.buffers[kEnvironmentStatuses]
                  offset:0u
                 atIndex:11u];
+    [encoder setBuffer:context.buffers[kWorld]
+                 offset:0u
+                atIndex:12u];
+    [encoder setBuffer:context.buffers[kArticulations]
+                 offset:0u
+                atIndex:13u];
+    [encoder setBuffer:context.buffers[kDofs]
+                 offset:0u
+                atIndex:14u];
     dispatchWorldThreads(
         encoder,
         context.preparePipeline,
@@ -5340,6 +5460,806 @@ bool encodeWave32ContactSolve(
     );
 }
 
+bool encodeContactCollisionAndSolve(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const MRMetalWorldPassGPU& solverPass,
+    const std::size_t factorQ,
+    const std::size_t sourceManifoldHeaders,
+    const std::size_t sourceManifoldPoints,
+    const std::size_t sourceManifoldCounts,
+    const bool useWave32,
+    const mr_u32 activePairClassMask,
+    const mr_u32 solverIterationCount,
+    const bool enableDistributed,
+    const std::size_t environmentCount,
+    const std::size_t islandWorkCount,
+    const std::size_t tileWorkCount,
+    const std::size_t pairFlagThreadCount
+) {
+    return
+        encodeClassCompactedPairNarrowphase(
+            context,
+            commandBuffer,
+            pairFlagThreadCount,
+            activePairClassMask
+        ) &&
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.collisionCompilePipeline,
+            @"MetalWorld collision/manifold/IR compile",
+            {
+                {0u, kContactDispatch},
+                {1u, kShapes},
+                {2u, kMaterials},
+                {3u, kCurrentBodies},
+                {4u, kArticulations},
+                {5u, kEligiblePairs},
+                {6u, sourceManifoldCounts},
+                {7u, sourceManifoldHeaders},
+                {8u, sourceManifoldPoints},
+                {9u, kCandidatePairs},
+                {10u, kRawContacts},
+                {11u, kRawPairIndices},
+                {12u, kCandidateManifoldHeaders},
+                {13u, kCandidateManifoldPoints},
+                {14u, kCandidateManifoldCounts},
+                {15u, kContacts},
+                {16u, kContactMetadata},
+                {17u, kIRBlocks},
+                {18u, kIREndpoints},
+                {19u, kIRRows},
+                {20u, kIRCones},
+                {21u, kPointQueries},
+                {22u, kContactStatuses},
+                {24u, kProjectedColliders},
+                {25u, kPairOverlapFlags},
+                {26u, kPairRawCounts},
+                {27u, kPairRawContactStaging},
+                {28u, kCandidateConvexCaches},
+                {29u, kCCDPairs},
+            },
+            &pass,
+            23u,
+            environmentCount
+        ) &&
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.factorDispatchPipeline,
+            @"MetalWorld active point-query reduction",
+            {
+                {0u, kContactDispatch},
+                {1u, kContactStatuses},
+                {2u, kOperatorFactorDispatch},
+                {3u, kActiveIndirectDispatch},
+            },
+            nullptr,
+            0u,
+            1u
+        ) &&
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.pointQueryTailPipeline,
+            @"MetalWorld point-query tail fill",
+            {
+                {0u, kContactDispatch},
+                {1u, kOperatorFactorDispatch},
+                {2u, kArticulations},
+                {3u, kContactStatuses},
+                {4u, kPointQueries},
+            },
+            nullptr,
+            0u,
+            environmentCount,
+            true,
+            sizeof(MRIndirectDispatchArgumentsGPU)
+        ) &&
+        encodeArticulatedOperator(
+            context,
+            commandBuffer,
+            kOperatorFactorDispatch,
+            factorQ,
+            kPointQueries,
+            kBodyPoses,
+            environmentCount,
+            @"MetalWorld articulated factor/Jacobians",
+            true
+        ) &&
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.evaluateIRPipeline,
+            @"MetalWorld ConstraintIR evaluation",
+            {
+                {0u, kContactDispatch},
+                {1u, kContacts},
+                {2u, kContacts},
+                {3u, kIRBlocks},
+                {4u, kIRRows},
+                {5u, kIRCones},
+                {6u, kCandidateBodies},
+                {7u, kCandidateV},
+                {8u, kPointJacobians},
+                {9u, kOperatorStatuses},
+                {10u, kEvaluatedRows},
+                {11u, kEvaluatedCones},
+                {12u, kFactorCaches},
+                {13u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount,
+            true,
+            sizeof(MRIndirectDispatchArgumentsGPU)
+        ) &&
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.islandPipeline,
+            @"MetalWorld mixed contact islands",
+            {
+                {0u, kContactDispatch},
+                {1u, kCandidateBodies},
+                {2u, kContacts},
+                {3u, kIRBlocks},
+                {4u, kIslands},
+                {5u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount,
+            true,
+            sizeof(MRIndirectDispatchArgumentsGPU)
+        ) &&
+        (
+            useWave32
+            ? encodeWave32ContactSolve(
+                  context,
+                  commandBuffer,
+                  solverPass,
+                  solverIterationCount,
+                  enableDistributed,
+                  environmentCount,
+                  islandWorkCount,
+                  tileWorkCount
+              )
+            : encodeContactThreadKernel(
+                  context,
+                  commandBuffer,
+                  context.contactSolvePipeline,
+                  @"MetalWorld exact-cone contact solve",
+                  {
+                      {0u, kContactDispatch},
+                      {1u, kFactorMatrix},
+                      {2u, kPointJacobians},
+                      {3u, kCandidateV},
+                      {4u, kCandidateBodies},
+                      {5u, kContacts},
+                      {6u, kContactMetadata},
+                      {7u, kEvaluatedRows},
+                      {8u, kEvaluatedCones},
+                      {9u, kResponseColumns},
+                      {10u, kCandidateManifoldPoints},
+                      {11u, kContactStatuses},
+                  },
+                  &solverPass,
+                  12u,
+                  environmentCount,
+                  true,
+                  sizeof(MRIndirectDispatchArgumentsGPU)
+              )
+        );
+}
+
+bool encodeHybridContactSubstep(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    id<MTLComputePipelineState> abaPipeline,
+    const MRMetalWorldPassGPU& pass,
+    const bool finalPhysicsSubstep,
+    const std::size_t sourceQ,
+    const std::size_t sourceV,
+    const std::size_t destinationQ,
+    const std::size_t destinationV,
+    const std::size_t sourceScene,
+    const std::size_t destinationScene,
+    const std::size_t sourceManifoldHeaders,
+    const std::size_t sourceManifoldPoints,
+    const std::size_t sourceManifoldCounts,
+    const std::size_t destinationManifoldHeaders,
+    const std::size_t destinationManifoldPoints,
+    const std::size_t destinationManifoldCounts,
+    const bool useWave32,
+    const mr_u32 activePairClassMask,
+    const mr_u32 solverIterationCount,
+    const bool enableDistributed,
+    const mr_u32 eventPassCount,
+    const std::size_t environmentCount,
+    const std::size_t islandWorkCount,
+    const std::size_t tileWorkCount,
+    const std::size_t colliderThreadCount,
+    const std::size_t pairFlagThreadCount
+) {
+    MRMetalWorldPassGPU solverPass = pass;
+    solverPass.reserved0 = finalPhysicsSubstep ? 1u : 0u;
+    if (!encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.ccdEventInitializePipeline,
+            @"MetalWorld initialize CCD event cursor",
+            {
+                {0u, kContactDispatch},
+                {1u, kCCDEventStatesA},
+                {2u, kCCDEventStatesB},
+                {3u, kCCDImpactClusters},
+                {4u, kContactStatuses},
+            },
+            &pass,
+            5u,
+            environmentCount
+        )) {
+        return false;
+    }
+
+    std::size_t eventSourceQ = sourceQ;
+    std::size_t eventSourceV = sourceV;
+    std::size_t eventSourceScene = sourceScene;
+    std::size_t eventSourceHeaders = sourceManifoldHeaders;
+    std::size_t eventSourcePoints = sourceManifoldPoints;
+    std::size_t eventSourceCounts = sourceManifoldCounts;
+    std::size_t eventDestinationQ = destinationQ;
+    std::size_t eventDestinationV = destinationV;
+    std::size_t eventDestinationScene = destinationScene;
+    std::size_t eventDestinationHeaders =
+        destinationManifoldHeaders;
+    std::size_t eventDestinationPoints =
+        destinationManifoldPoints;
+    std::size_t eventDestinationCounts =
+        destinationManifoldCounts;
+    std::size_t eventStateIn = kCCDEventStatesA;
+    std::size_t eventStateOut = kCCDEventStatesB;
+    const mr_u32 remainingMode = MR_CCD_SEGMENT_REMAINING;
+    const mr_u32 selectedMode = MR_CCD_SEGMENT_SELECTED;
+
+    for (mr_u32 eventPass = 0u;
+         eventPass < eventPassCount;
+         ++eventPass) {
+        if ((eventPass != 0u &&
+             !encodeContactThreadKernel(
+                 context,
+                 commandBuffer,
+                 context.ccdEventPreparePipeline,
+                 @"MetalWorld prepare active CCD environments",
+                 {
+                     {0u, kContactDispatch},
+                     {1u, eventStateIn},
+                     {2u, kContactStatuses},
+                 },
+                 nullptr,
+                 0u,
+                 environmentCount
+             )) ||
+            !encodeABA(
+                context,
+                commandBuffer,
+                abaPipeline,
+                eventSourceQ,
+                eventSourceV,
+                environmentCount
+            ) ||
+            !encodeArticulatedOperator(
+                context,
+                commandBuffer,
+                kOperatorKinematicsDispatch,
+                eventSourceQ,
+                kPointQueries,
+                kBodyPoses,
+                environmentCount,
+                @"MetalWorld event-source articulation kinematics",
+                false
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.bodyProjectionPipeline,
+                @"MetalWorld event-source body projection",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kArticulations},
+                    {2u, kBodies},
+                    {3u, kSceneBodyIndices},
+                    {4u, kBodyPoses},
+                    {5u, kOperatorStatuses},
+                    {6u, eventSourceScene},
+                    {7u, kCurrentBodies},
+                    {8u, kContactStatuses},
+                },
+                nullptr,
+                0u,
+                environmentCount
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.eventArticulationPipeline,
+                @"MetalWorld remaining-time articulation prediction",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kArticulations},
+                    {2u, kJoints},
+                    {3u, eventSourceQ},
+                    {4u, eventSourceV},
+                    {5u, kCandidateAcceleration},
+                    {6u, eventStateIn},
+                    {7u, kCandidateQ},
+                    {8u, kCandidateV},
+                    {9u, kABAStatuses},
+                    {10u, kContactStatuses},
+                },
+                nullptr,
+                0u,
+                environmentCount,
+                false,
+                0u,
+                &remainingMode,
+                sizeof(remainingMode),
+                11u
+            ) ||
+            !encodeArticulatedOperator(
+                context,
+                commandBuffer,
+                kOperatorKinematicsDispatch,
+                kCandidateQ,
+                kPointQueries,
+                kFutureBodyPoses,
+                environmentCount,
+                @"MetalWorld remaining-time articulation prediction",
+                false
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.eventScenePredictionPipeline,
+                @"MetalWorld remaining-time scene prediction",
+                {
+                    {0u, kWorld},
+                    {1u, kContactDispatch},
+                    {2u, kBodies},
+                    {3u, kSceneBodyIndices},
+                    {4u, kCurrentBodies},
+                    {5u, eventStateIn},
+                    {6u, kCandidateBodies},
+                    {7u, kContactStatuses},
+                },
+                nullptr,
+                0u,
+                environmentCount,
+                false,
+                0u,
+                &remainingMode,
+                sizeof(remainingMode),
+                8u
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.sweptProjectionPipeline,
+                @"MetalWorld event swept collider projection",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kShapes},
+                    {2u, kArticulations},
+                    {3u, kCurrentBodies},
+                    {4u, kCandidateBodies},
+                    {5u, kFutureBodyPoses},
+                    {6u, kCandidateV},
+                    {7u, kGeometryHeaders},
+                    {8u, kProjectedColliders},
+                    {9u, kFutureProjectedColliders},
+                    {10u, kContactStatuses},
+                    {11u, eventStateIn},
+                },
+                nullptr,
+                0u,
+                colliderThreadCount
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.pairFlagPipeline,
+                @"MetalWorld swept broadphase flags",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kShapes},
+                    {2u, kEligiblePairs},
+                    {3u, kProjectedColliders},
+                    {4u, kPairOverlapFlags},
+                },
+                nullptr,
+                0u,
+                pairFlagThreadCount
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.ccdPipeline,
+                @"MetalWorld exact CCD candidate query",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kShapes},
+                    {2u, kEligiblePairs},
+                    {3u, kPairOverlapFlags},
+                    {4u, kProjectedColliders},
+                    {5u, kFutureProjectedColliders},
+                    {6u, kGeometryHeaders},
+                    {7u, kGeometryVertices},
+                    {8u, kMeshBvhNodes},
+                    {9u, kMeshTriangles},
+                    {10u, kCCDPairs},
+                    {11u, kContactStatuses},
+                    {12u, eventStateIn},
+                },
+                nullptr,
+                0u,
+                environmentCount
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.ccdEventSelectPipeline,
+                @"MetalWorld deterministic CCD event cluster",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kCCDPairs},
+                    {2u, eventStateIn},
+                    {3u, eventStateOut},
+                    {4u, kCCDImpactClusters},
+                    {5u, kContactStatuses},
+                },
+                &pass,
+                6u,
+                environmentCount,
+                false,
+                0u,
+                &eventPass,
+                sizeof(eventPass),
+                7u
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.eventArticulationPipeline,
+                @"MetalWorld selected-TOI articulation advance",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kArticulations},
+                    {2u, kJoints},
+                    {3u, eventSourceQ},
+                    {4u, eventSourceV},
+                    {5u, kCandidateAcceleration},
+                    {6u, eventStateOut},
+                    {7u, kCandidateQ},
+                    {8u, kCandidateV},
+                    {9u, kABAStatuses},
+                    {10u, kContactStatuses},
+                },
+                nullptr,
+                0u,
+                environmentCount,
+                false,
+                0u,
+                &selectedMode,
+                sizeof(selectedMode),
+                11u
+            ) ||
+            !encodeArticulatedOperator(
+                context,
+                commandBuffer,
+                kOperatorKinematicsDispatch,
+                kCandidateQ,
+                kPointQueries,
+                kBodyPoses,
+                environmentCount,
+                @"MetalWorld selected-TOI articulation kinematics",
+                false
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.eventScenePredictionPipeline,
+                @"MetalWorld selected-TOI scene advance",
+                {
+                    {0u, kWorld},
+                    {1u, kContactDispatch},
+                    {2u, kBodies},
+                    {3u, kSceneBodyIndices},
+                    {4u, kCurrentBodies},
+                    {5u, eventStateOut},
+                    {6u, kCandidateBodies},
+                    {7u, kContactStatuses},
+                },
+                nullptr,
+                0u,
+                environmentCount,
+                false,
+                0u,
+                &selectedMode,
+                sizeof(selectedMode),
+                8u
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.eventBodyOverlayPipeline,
+                @"MetalWorld selected-TOI articulation overlay",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kArticulations},
+                    {2u, kBodies},
+                    {3u, kBodyPoses},
+                    {4u, kOperatorStatuses},
+                    {5u, kCandidateBodies},
+                    {6u, kContactStatuses},
+                },
+                nullptr,
+                0u,
+                environmentCount
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.eventColliderProjectionPipeline,
+                @"MetalWorld selected-TOI collider projection",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kShapes},
+                    {2u, kGeometryHeaders},
+                    {3u, kCandidateBodies},
+                    {4u, kProjectedColliders},
+                    {5u, kContactStatuses},
+                },
+                nullptr,
+                0u,
+                colliderThreadCount
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.pairFlagPipeline,
+                @"MetalWorld selected-TOI broadphase flags",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kShapes},
+                    {2u, kEligiblePairs},
+                    {3u, kProjectedColliders},
+                    {4u, kPairOverlapFlags},
+                },
+                nullptr,
+                0u,
+                pairFlagThreadCount
+            ) ||
+            !encodeContactCollisionAndSolve(
+                context,
+                commandBuffer,
+                pass,
+                solverPass,
+                kCandidateQ,
+                eventSourceHeaders,
+                eventSourcePoints,
+                eventSourceCounts,
+                useWave32,
+                activePairClassMask,
+                solverIterationCount,
+                enableDistributed,
+                environmentCount,
+                islandWorkCount,
+                tileWorkCount,
+                pairFlagThreadCount
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.jointLimitPipeline,
+                @"MetalWorld selected-TOI joint limits",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kArticulations},
+                    {2u, kDofs},
+                    {3u, eventSourceQ},
+                    {4u, kCandidateQ},
+                    {5u, kCandidateV},
+                    {6u, kContactStatuses},
+                },
+                nullptr,
+                0u,
+                environmentCount,
+                false,
+                0u,
+                &selectedMode,
+                sizeof(selectedMode),
+                7u
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.inactiveEventRestorePipeline,
+                @"MetalWorld restore finished CCD environments",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kArticulations},
+                    {2u, kSceneBodyIndices},
+                    {3u, eventSourceQ},
+                    {4u, eventSourceV},
+                    {5u, eventSourceScene},
+                    {6u, eventSourceHeaders},
+                    {7u, eventSourcePoints},
+                    {8u, eventSourceCounts},
+                    {9u, kCandidateQ},
+                    {10u, kCandidateV},
+                    {11u, kCandidateBodies},
+                    {12u, kCandidateManifoldHeaders},
+                    {13u, kCandidateManifoldPoints},
+                    {14u, kCandidateManifoldCounts},
+                    {15u, kContactStatuses},
+                },
+                nullptr,
+                0u,
+                environmentCount
+            ) ||
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.ccdEventFinalizePipeline,
+                @"MetalWorld CCD event-time closeout",
+                {
+                    {0u, kContactDispatch},
+                    {1u, eventStateOut},
+                    {2u, kContactStatuses},
+                },
+                nullptr,
+                0u,
+                environmentCount,
+                false,
+                0u,
+                &eventPass,
+                sizeof(eventPass),
+                3u
+            )) {
+            return false;
+        }
+
+        const bool finalEventPass =
+            eventPass + 1u == eventPassCount;
+        if (!finalEventPass) {
+            if (!encodeContactThreadKernel(
+                    context,
+                    commandBuffer,
+                    context.eventSegmentPublishPipeline,
+                    @"MetalWorld publish accepted CCD segment",
+                    {
+                        {0u, kContactDispatch},
+                        {1u, kArticulations},
+                        {2u, kSceneBodyIndices},
+                        {3u, eventSourceQ},
+                        {4u, eventSourceV},
+                        {5u, eventSourceScene},
+                        {6u, eventSourceHeaders},
+                        {7u, eventSourcePoints},
+                        {8u, eventSourceCounts},
+                        {9u, kCandidateQ},
+                        {10u, kCandidateV},
+                        {11u, kCandidateBodies},
+                        {12u, kCandidateManifoldHeaders},
+                        {13u, kCandidateManifoldPoints},
+                        {14u, kCandidateManifoldCounts},
+                        {15u, kContactStatuses},
+                        {16u, eventDestinationQ},
+                        {17u, eventDestinationV},
+                        {18u, eventDestinationScene},
+                        {19u, eventDestinationHeaders},
+                        {20u, eventDestinationPoints},
+                        {21u, eventDestinationCounts},
+                    },
+                    nullptr,
+                    0u,
+                    environmentCount
+                )) {
+                return false;
+            }
+            std::swap(eventSourceQ, eventDestinationQ);
+            std::swap(eventSourceV, eventDestinationV);
+            std::swap(eventSourceScene, eventDestinationScene);
+            std::swap(
+                eventSourceHeaders,
+                eventDestinationHeaders
+            );
+            std::swap(
+                eventSourcePoints,
+                eventDestinationPoints
+            );
+            std::swap(
+                eventSourceCounts,
+                eventDestinationCounts
+            );
+            std::swap(eventStateIn, eventStateOut);
+        }
+    }
+
+    if (!encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.contactLatchPipeline,
+            @"MetalWorld contact failure latch",
+            {
+                {0u, kWorldDispatch},
+                {2u, kContactStatuses},
+                {3u, kEnvironmentStatuses},
+            },
+            &pass,
+            1u,
+            environmentCount
+        ) ||
+        !encodeCommit(
+            context,
+            commandBuffer,
+            pass,
+            destinationQ,
+            destinationV,
+            environmentCount
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.contactCommitPipeline,
+            @"MetalWorld contact transactional commit",
+            {
+                {0u, kWorldDispatch},
+                {1u, kContactDispatch},
+                {3u, kEnvironmentStatuses},
+                {4u, kSceneBodyIndices},
+                {5u, kCandidateBodies},
+                {6u, kCheckpointSceneBodies},
+                {7u, destinationScene},
+                {8u, kCandidateManifoldHeaders},
+                {9u, kCandidateManifoldPoints},
+                {10u, kCandidateManifoldCounts},
+                {11u, kCheckpointManifoldHeaders},
+                {12u, kCheckpointManifoldPoints},
+                {13u, kCheckpointManifoldCounts},
+                {14u, destinationManifoldHeaders},
+                {15u, destinationManifoldPoints},
+                {16u, destinationManifoldCounts},
+            },
+            &pass,
+            2u,
+            environmentCount
+        )) {
+        return false;
+    }
+    return !finalPhysicsSubstep ||
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.convexCachePublishPipeline,
+            @"MetalWorld transactional convex-cache publication",
+            {
+                {0u, kContactDispatch},
+                {1u, kEligiblePairs},
+                {2u, kPairOverlapFlags},
+                {3u, kContactStatuses},
+                {4u, kCandidateConvexCaches},
+                {5u, kConvexCaches},
+            },
+            nullptr,
+            0u,
+            pairFlagThreadCount
+        );
+}
+
 bool encodeContactSubstep(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -5370,7 +6290,26 @@ bool encodeContactSubstep(
 ) {
     MRMetalWorldPassGPU solverPass = pass;
     solverPass.reserved0 = finalPhysicsSubstep ? 1u : 0u;
-    if (!encodeArticulatedOperator(
+    const mr_u32 eventPass = 0u;
+    const mr_u32 stateNotIntegrated = 0u;
+    if ((useHybridCCD &&
+         !encodeContactThreadKernel(
+             context,
+             commandBuffer,
+             context.ccdEventInitializePipeline,
+             @"MetalWorld initialize CCD event cursor",
+             {
+                 {0u, kContactDispatch},
+                 {1u, kCCDEventStatesA},
+                 {2u, kCCDEventStatesB},
+                 {3u, kCCDImpactClusters},
+                 {4u, kContactStatuses},
+             },
+             &pass,
+             5u,
+             environmentCount
+         )) ||
+        !encodeArticulatedOperator(
             context,
             commandBuffer,
             kOperatorKinematicsDispatch,
@@ -5448,6 +6387,7 @@ bool encodeContactSubstep(
                 {8u, kProjectedColliders},
                 {9u, kFutureProjectedColliders},
                 {10u, kContactStatuses},
+                {11u, kCCDEventStatesA},
             },
             nullptr,
             0u,
@@ -5488,6 +6428,7 @@ bool encodeContactSubstep(
                  {9u, kMeshTriangles},
                  {10u, kCCDPairs},
                  {11u, kContactStatuses},
+                 {12u, kCCDEventStatesA},
              },
              nullptr,
              0u,
@@ -5509,7 +6450,12 @@ bool encodeContactSubstep(
              },
              &pass,
              6u,
-             environmentCount
+             environmentCount,
+             false,
+             0u,
+             &eventPass,
+             sizeof(eventPass),
+             7u
          )) ||
         !encodeClassCompactedPairNarrowphase(
             context,
@@ -5686,6 +6632,29 @@ bool encodeContactSubstep(
         !encodeContactThreadKernel(
             context,
             commandBuffer,
+            context.jointLimitPipeline,
+            @"MetalWorld constrained joint limits",
+            {
+                {0u, kContactDispatch},
+                {1u, kArticulations},
+                {2u, kDofs},
+                {3u, sourceQ},
+                {4u, kCandidateQ},
+                {5u, kCandidateV},
+                {6u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount,
+            false,
+            0u,
+            &stateNotIntegrated,
+            sizeof(stateNotIntegrated),
+            7u
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
             context.contactIntegratePipeline,
             @"MetalWorld constrained integration",
             {
@@ -5717,7 +6686,12 @@ bool encodeContactSubstep(
              },
              nullptr,
              0u,
-             environmentCount
+             environmentCount,
+             false,
+             0u,
+             &eventPass,
+             sizeof(eventPass),
+             3u
          )) ||
         !encodeContactThreadKernel(
             context,
@@ -6255,7 +7229,20 @@ MetalWorldDiagnostics validateAndPublish(
                         std::move(diagnostics),
                         MetalWorldHostStatus::internalFailure,
                         "failed GPU step violated rollback or "
-                        "failure-accounting semantics"
+                        "failure-accounting semantics: status=" +
+                            std::to_string(status.code) +
+                            " aba=" +
+                            std::to_string(status.abaCode) +
+                            " successful_substeps=" +
+                            std::to_string(
+                                status.successfulSubsteps
+                            ) +
+                            " failing_substep=" +
+                            std::to_string(
+                                status.failingSubstep
+                            ) +
+                            " failing_index=" +
+                            std::to_string(status.failingIndex)
                     );
                 }
                 if (diagnostics.failedStepCount == 0u) {
@@ -7345,7 +8332,13 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                      physicsSubstep < config.physicsSubsteps;
                      ++physicsSubstep) {
                     pass.physicsSubstep = physicsSubstep;
-                    const bool encodedABA = encodeABA(
+                    const bool useHybridContact =
+                        contactMode &&
+                        config.ccdMode ==
+                            MetalWorldCCDMode::hybrid;
+                    const bool encodedABA =
+                        useHybridContact ||
+                        encodeABA(
                             *selectedState,
                             commandBuffer,
                             selectedABAPipeline,
@@ -7354,7 +8347,56 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                             batch.environmentCount
                         );
                     const bool encodedPublication =
-                        contactMode
+                        useHybridContact
+                        ? encodeHybridContactSubstep(
+                              *selectedState,
+                              commandBuffer,
+                              selectedABAPipeline,
+                              pass,
+                              physicsSubstep + 1u ==
+                                  config.physicsSubsteps,
+                              sourceQ,
+                              sourceV,
+                              destinationQ,
+                              destinationV,
+                              sourceScene,
+                              destinationScene,
+                              sourceManifoldHeaders,
+                              sourceManifoldPoints,
+                              sourceManifoldCounts,
+                              destinationManifoldHeaders,
+                              destinationManifoldPoints,
+                              destinationManifoldCounts,
+                              config.solverMode ==
+                                  MetalWorldSolverMode::
+                                      throughputTGS,
+                              activePairClassMask,
+                              config.velocityIterations +
+                                  (
+                                      physicsSubstep + 1u ==
+                                              config.physicsSubsteps
+                                      ? config.finalVelocityIterations
+                                      : 0u
+                                  ),
+                              diagnostics.layout.contactDispatch
+                                      .constraintCapacity > 256u,
+                              config.maxCCDAdvanceSolvePasses,
+                              batch.environmentCount,
+                              diagnostics.layout
+                                  .islandWorkElements,
+                              diagnostics.layout
+                                  .contactTileElements,
+                              requirements.entries[
+                                  kProjectedColliders
+                              ].logicalElements,
+                              std::max<std::size_t>(
+                                  requirements.entries[
+                                      kPairOverlapFlags
+                                  ].logicalElements,
+                                  1u
+                              )
+                          )
+                        : contactMode
                         ? encodeContactSubstep(
                               *selectedState,
                               commandBuffer,
@@ -7381,8 +8423,7 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                                       .contactDispatch.flags &
                                   MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS
                               ) != 0u,
-                              config.ccdMode ==
-                                  MetalWorldCCDMode::hybrid,
+                              false,
                               config.velocityIterations +
                                   (
                                       physicsSubstep + 1u ==

@@ -89,10 +89,12 @@ output = step(
 stable IDs, counts, and masks.
 Reset masks and randomized reset state are explicit MLX inputs.
 
-The active-encoder primitive supports contact-free Franka/G1 ABA plus the
-Franka dynamic-cube contact scene through the same device graph. No NumPy or
-ctypes fallback is reachable. JVP, VJP, and `vmap` are deliberately
-unsupported in this tranche.
+The active-encoder primitive supports Franka, G1, and PSM through the same
+device graph. Available contact scenes include dynamic cube/ground,
+authoritative cooked-BVH4 rough terrain, and a dynamic curved needle for PSM.
+Hybrid mode performs literal multi-event TOI advance/solve/continue inside
+the active encoder. No NumPy or ctypes fallback is reachable. JVP, VJP, and
+`vmap` are deliberately unsupported in this tranche.
 
 ## MLX-native PPO
 
@@ -112,9 +114,12 @@ inside `mx.compile`; bounded lazy chunks use `mx.async_eval`. Blocking
 evaluation occurs only at declared rollout/logging, optimizer, and checkpoint
 boundaries.
 
-The packaged trainer remains the `franka_joint_stabilization_v1` baseline.
-Contact policies can wrap the pure `step()` transition with MLX reward,
-termination, and reset logic inside `mx.compile`.
+The packaged CLI trainer remains the `franka_joint_stabilization_v1`
+baseline. `MLXG1RolloutCollector` and `MLXG1PPOTrainer` provide the
+contact-capable floating-base locomotion path; the policy, implicit targets,
+physics, reward, termination, reset, GAE, and updates remain MLX arrays.
+Contact policies can also wrap the pure `step()` transition with task-specific
+MLX reward and curriculum logic inside `mx.compile`.
 
 ## Debug compatibility path
 

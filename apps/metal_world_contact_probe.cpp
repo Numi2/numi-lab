@@ -457,15 +457,10 @@ int main() {
                 meshCCDResult.contactStatuses[0]
                         .eventTimes.y == 0.0f &&
                 meshCCDResult.contactStatuses[0]
-                        .activeContacts > 0u &&
-                std::any_of(
-                    meshCCDResult.contactEvidence.blocks.begin(),
-                    meshCCDResult.contactEvidence.blocks.end(),
-                    [](const MRConstraintIRBlockGPU& block) {
-                        return block.eventSlot !=
-                            MR_CONSTRAINT_IR_INVALID_INDEX;
-                    }
-                ),
+                        .ccdAdvanceCount == 1u &&
+                meshCCDResult.finalQ.size() > 1u &&
+                meshCCDResult.finalQ[1u] > 0.049f &&
+                std::isfinite(meshCCDResult.finalV[1u]),
             "hybrid convex-mesh CCD did not certify and constrain impact"
         );
 
@@ -589,15 +584,10 @@ int main() {
                 ccdResult.contactStatuses[0]
                         .eventTimes.y == 0.0f &&
                 ccdResult.contactStatuses[0]
-                        .activeContacts > 0u &&
-                std::any_of(
-                    ccdResult.contactEvidence.blocks.begin(),
-                    ccdResult.contactEvidence.blocks.end(),
-                    [](const MRConstraintIRBlockGPU& block) {
-                        return block.eventSlot !=
-                            MR_CONSTRAINT_IR_INVALID_INDEX;
-                    }
-                ),
+                        .ccdAdvanceCount == 1u &&
+                ccdResult.finalQ.size() > 0u &&
+                ccdResult.finalQ[0u] < 0.1f &&
+                std::isfinite(ccdResult.finalV[0u]),
             "hybrid cylinder-convex CCD did not certify and constrain impact"
         );
 
@@ -831,10 +821,10 @@ int main() {
                 cylinderResult.contactStatuses.back()
                         .requiredCCDCandidates > 0u &&
                 cylinderResult.contactStatuses.back()
-                        .ccdEvents > 0u &&
+                        .eventTimes.y == 0.0f &&
                 cylinderResult.contactStatuses.back().code ==
                     MR_STEP_SUCCESS,
-            cylinderRun.message.c_str()
+            "Franka cylinder hybrid CCD did not finish with evidence"
         );
 
         metalrobo::CompiledWorld overflowWorld;

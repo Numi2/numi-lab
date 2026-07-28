@@ -29,6 +29,11 @@ enum class MetalWorldSolverMode : std::uint32_t {
     throughputTGS = 2u,
 };
 
+enum class MetalWorldActuationMode : std::uint32_t {
+    effort = 0u,
+    implicitPositionDrive = 1u,
+};
+
 enum class MetalWorldCCDMode : std::uint32_t {
     disabled = MR_WORLD_CCD_DISABLED,
     speculative = MR_WORLD_CCD_SPECULATIVE,
@@ -198,6 +203,11 @@ struct MetalWorldStepConfig {
     std::uint32_t physicsSubsteps = 1u;
     MetalWorldSolverMode solverMode =
         MetalWorldSolverMode::throughputTGS;
+    // In effort mode, MetalWorldBatch::efforts is generalized effort. In
+    // implicitPositionDrive mode it is the desired position per scalar
+    // driven DoF; floating-root and unactuated entries are ignored.
+    MetalWorldActuationMode actuationMode =
+        MetalWorldActuationMode::effort;
     std::uint32_t velocityIterations = 1u;
     std::uint32_t finalVelocityIterations = 1u;
     MetalWorldCCDMode ccdMode = MetalWorldCCDMode::speculative;

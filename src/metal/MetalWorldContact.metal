@@ -58,6 +58,43 @@ inline bool normalizedQuaternion(
     return finite4(output);
 }
 
+inline float eventSegmentDuration(
+    device const MRCCDEventStateGPU& state,
+    const uint mode
+) {
+    return max(
+        mode == MR_CCD_SEGMENT_SELECTED
+        ? state.time.w
+        : state.time.y,
+        0.0f
+    );
+}
+
+inline bool integrateQuaternion(
+    const float4 source,
+    const float3 angularVelocity,
+    const float timestep,
+    thread float4& output
+) {
+    const float3 rotationVector =
+        timestep * angularVelocity;
+    const float angle = length(rotationVector);
+    const float halfAngle = 0.5f * angle;
+    const float scale = angle > 1.0e-6f
+        ? sin(halfAngle) / angle
+        : 0.5f - angle * angle / 48.0f;
+    return normalizedQuaternion(
+        quaternionMultiply(
+            float4(
+                rotationVector * scale,
+                cos(halfAngle)
+            ),
+            source
+        ),
+        output
+    );
+}
+
 inline Mat3 bodyInverseInertia(
     device const MRBodyPropertiesGPU& body
 ) {
@@ -392,6 +429,91 @@ inline void applySceneImpulse(
         stateInverseInertia(body),
         cross(lever, impulse)
     );
+}
+
+// Matrix-free normal response from one source contact impulse at another
+// target contact. This is one scalar of J_i M^-1 J_j^T, assembled directly
+// from the shared articulation factor response and any shared free body.
+// Wave32 uses its absolute row sum for a deterministic block-Jacobi
+// relaxation, preventing simultaneous coplanar contacts from each applying a
+// full stopping impulse and oscillating as a patch.
+inline float normalCrossContactResponse(
+    const uint targetConstraint,
+    const uint sourceConstraint,
+    device const MRContactConstraintGPU& target,
+    device const MRContactConstraintGPU& source,
+    const float3 targetNormal,
+    const float3 sourceNormal,
+    device const MRBodyStateGPU* bodies,
+    device const float* pointJacobians,
+    const uint pointJacobianBase,
+    device const float* responseColumns,
+    const uint responseBase,
+    const uint nv,
+    const uint articulationIndex
+) {
+    const bool targetArticulatedA =
+        bodies[target.bodyA].flagsAndIndices[1] ==
+            articulationIndex;
+    const bool targetArticulatedB =
+        bodies[target.bodyB].flagsAndIndices[1] ==
+            articulationIndex;
+    float response = 0.0f;
+    for (uint dof = 0u; dof < nv; ++dof) {
+        response += dot(
+            targetNormal,
+            combinedJacobianColumn(
+                pointJacobians,
+                pointJacobianBase,
+                targetConstraint,
+                dof,
+                nv,
+                targetArticulatedA,
+                targetArticulatedB
+            )
+        ) * responseColumns[
+            responseBase +
+            (sourceConstraint * 3u) * nv +
+            dof
+        ];
+    }
+
+    const uint targetBodies[2] = {
+        target.bodyA,
+        target.bodyB,
+    };
+    const float targetSigns[2] = {-1.0f, 1.0f};
+    const uint sourceBodies[2] = {
+        source.bodyA,
+        source.bodyB,
+    };
+    const float sourceSigns[2] = {-1.0f, 1.0f};
+    for (uint targetEndpoint = 0u;
+         targetEndpoint < 2u;
+         ++targetEndpoint) {
+        const uint bodyIndex = targetBodies[targetEndpoint];
+        device const MRBodyStateGPU& body = bodies[bodyIndex];
+        if (!dynamicSceneEndpoint(body, articulationIndex)) {
+            continue;
+        }
+        for (uint sourceEndpoint = 0u;
+             sourceEndpoint < 2u;
+             ++sourceEndpoint) {
+            if (sourceBodies[sourceEndpoint] != bodyIndex) {
+                continue;
+            }
+            response += targetSigns[targetEndpoint] * dot(
+                targetNormal,
+                scenePointResponse(
+                    body,
+                    target.pointAndSeparation.xyz,
+                    sourceSigns[sourceEndpoint] *
+                        sourceNormal
+                )
+            );
+        }
+    }
+    return response;
 }
 
 inline float3 projectFrictionCone(
@@ -861,9 +983,9 @@ kernel void mr_world_predict_scene(
     const float timestep = dispatch.timestepAndBias.x;
     for (uint localScene = 0u;
          localScene < dispatch.sceneBodyCount;
-         ++localScene) {
+        ++localScene) {
         const uint globalBody = sceneBodyIndices[localScene];
-        device MRBodyStateGPU& state =
+        MRBodyStateGPU state =
             candidateBodies[bodyBase + globalBody];
         device const MRBodyPropertiesGPU& properties =
             bodyProperties[globalBody];
@@ -894,6 +1016,368 @@ kernel void mr_world_predict_scene(
             statuses[environment] = status;
             return;
         }
+        candidateBodies[bodyBase + globalBody] = state;
+    }
+}
+
+// Re-materializes ABA's acceleration at the duration owned by the current CCD
+// cursor. ABA factorization/acceleration is timestep independent in the
+// present explicit-drive path, so this avoids rerunning dynamics merely to
+// replace the full-microstep integration produced by the generic ABA kernel.
+kernel void mr_world_materialize_event_articulation(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRJointDescriptorGPU* joints [[buffer(2)]],
+    device const float* sourceQ [[buffer(3)]],
+    device const float* sourceV [[buffer(4)]],
+    device const float* acceleration [[buffer(5)]],
+    device const MRCCDEventStateGPU* eventStates [[buffer(6)]],
+    device float* candidateQ [[buffer(7)]],
+    device float* candidateV [[buffer(8)]],
+    device MRABAStatusGPU* abaStatuses [[buffer(9)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(10)]],
+    constant uint& mode [[buffer(11)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU contactStatus =
+        statuses[environment];
+    MRABAStatusGPU abaStatus = abaStatuses[environment];
+    if (contactStatus.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const MRArticulationGPU articulation =
+        articulations[dispatch.articulationIndex];
+    const float timestep = eventSegmentDuration(
+        eventStates[environment],
+        mode
+    );
+    const uint qBase = environment * articulation.nq;
+    const uint vBase = environment * articulation.nv;
+    for (uint localQ = 0u;
+         localQ < articulation.nq;
+         ++localQ) {
+        candidateQ[qBase + localQ] =
+            sourceQ[qBase + localQ];
+    }
+    for (uint localV = 0u;
+         localV < articulation.nv;
+         ++localV) {
+        const float value =
+            sourceV[vBase + localV] +
+            timestep * acceleration[vBase + localV];
+        if (!isfinite(value)) {
+            abaStatus.code = MR_ABA_NONFINITE_RESULT;
+            abaStatus.failingIndex = localV;
+            contactStatus.code = MR_STEP_NONFINITE_RESULT;
+            contactStatus.firstFailingConstraint = localV;
+            abaStatuses[environment] = abaStatus;
+            statuses[environment] = contactStatus;
+            return;
+        }
+        candidateV[vBase + localV] = value;
+    }
+    if (articulation.rootType == MR_ROOT_FLOATING) {
+        candidateQ[qBase + 0u] =
+            sourceQ[qBase + 0u] +
+            timestep * candidateV[vBase + 0u];
+        candidateQ[qBase + 1u] =
+            sourceQ[qBase + 1u] +
+            timestep * candidateV[vBase + 1u];
+        candidateQ[qBase + 2u] =
+            sourceQ[qBase + 2u] +
+            timestep * candidateV[vBase + 2u];
+        float4 orientation;
+        if (!integrateQuaternion(
+                float4(
+                    sourceQ[qBase + 3u],
+                    sourceQ[qBase + 4u],
+                    sourceQ[qBase + 5u],
+                    sourceQ[qBase + 6u]
+                ),
+                float3(
+                    candidateV[vBase + 3u],
+                    candidateV[vBase + 4u],
+                    candidateV[vBase + 5u]
+                ),
+                timestep,
+                orientation
+            )) {
+            abaStatus.code = MR_ABA_NONFINITE_RESULT;
+            abaStatus.failingIndex = 3u;
+            contactStatus.code = MR_STEP_NONFINITE_RESULT;
+            contactStatus.firstFailingConstraint = 3u;
+            abaStatuses[environment] = abaStatus;
+            statuses[environment] = contactStatus;
+            return;
+        }
+        candidateQ[qBase + 3u] = orientation.x;
+        candidateQ[qBase + 4u] = orientation.y;
+        candidateQ[qBase + 5u] = orientation.z;
+        candidateQ[qBase + 6u] = orientation.w;
+    }
+    for (uint localJoint = 0u;
+         localJoint < articulation.jointCount;
+         ++localJoint) {
+        const MRJointDescriptorGPU joint =
+            joints[articulation.firstJoint + localJoint];
+        if (joint.nv != 1u) {
+            continue;
+        }
+        const uint localQ =
+            joint.qOffset - articulation.qOffset;
+        const uint localV =
+            joint.vOffset - articulation.vOffset;
+        candidateQ[qBase + localQ] =
+            sourceQ[qBase + localQ] +
+            timestep * candidateV[vBase + localV];
+    }
+}
+
+// Predicts free/kinematic scene state over either the remaining CCD interval
+// or the selected TOI duration. Selected mode also advances pose so a
+// following discrete projection observes the literal event configuration.
+kernel void mr_world_predict_scene_event(
+    device const MRWorldGPU& world [[buffer(0)]],
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(1)]],
+    device const MRBodyPropertiesGPU* bodyProperties [[buffer(2)]],
+    device const uint* sceneBodyIndices [[buffer(3)]],
+    device const MRBodyStateGPU* currentBodies [[buffer(4)]],
+    device const MRCCDEventStateGPU* eventStates [[buffer(5)]],
+    device MRBodyStateGPU* candidateBodies [[buffer(6)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
+    constant uint& mode [[buffer(8)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const float timestep = eventSegmentDuration(
+        eventStates[environment],
+        mode
+    );
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    for (uint body = 0u; body < dispatch.bodyCount; ++body) {
+        candidateBodies[bodyBase + body] =
+            currentBodies[bodyBase + body];
+    }
+    for (uint localScene = 0u;
+         localScene < dispatch.sceneBodyCount;
+         ++localScene) {
+        const uint globalBody = sceneBodyIndices[localScene];
+        MRBodyStateGPU state =
+            candidateBodies[bodyBase + globalBody];
+        device const MRBodyPropertiesGPU& properties =
+            bodyProperties[globalBody];
+        if (properties.motionType == MR_MOTION_STATIC) {
+            continue;
+        }
+        if (properties.motionType == MR_MOTION_DYNAMIC) {
+            const float linearScale = exp(
+                -timestep *
+                    properties.dampingAndSpeedLimits.x
+            );
+            const float angularScale = exp(
+                -timestep *
+                    properties.dampingAndSpeedLimits.y
+            );
+            state.linearVelocityAndInverseMass.xyz =
+                linearScale *
+                    state.linearVelocityAndInverseMass.xyz +
+                timestep * world.gravityAndTimestep.xyz;
+            state.angularVelocity.xyz *= angularScale;
+        }
+        if (mode == MR_CCD_SEGMENT_SELECTED) {
+            state.position.xyz +=
+                timestep *
+                state.linearVelocityAndInverseMass.xyz;
+            state.position.w = 1.0f;
+            float4 orientation;
+            if (!integrateQuaternion(
+                    state.orientation,
+                    state.angularVelocity.xyz,
+                    timestep,
+                    orientation
+                )) {
+                MRMetalWorldContactStatusGPU status =
+                    statuses[environment];
+                status.code = MR_STEP_NONFINITE_RESULT;
+                status.firstFailingConstraint = globalBody;
+                statuses[environment] = status;
+                return;
+            }
+            state.orientation = orientation;
+            if (!writeWorldInverseInertia(
+                    state,
+                    properties,
+                    orientation
+                )) {
+                MRMetalWorldContactStatusGPU status =
+                    statuses[environment];
+                status.code = MR_STEP_NONFINITE_RESULT;
+                status.firstFailingConstraint = globalBody;
+                statuses[environment] = status;
+                return;
+            }
+        }
+        if (!finite4(state.position) ||
+            !finite4(state.orientation) ||
+            !finite4(state.linearVelocityAndInverseMass) ||
+            !finite4(state.angularVelocity)) {
+            MRMetalWorldContactStatusGPU status =
+                statuses[environment];
+            status.code = MR_STEP_NONFINITE_RESULT;
+            status.firstFailingConstraint = globalBody;
+            statuses[environment] = status;
+            return;
+        }
+        candidateBodies[bodyBase + globalBody] = state;
+    }
+}
+
+// Overlays articulation poses at a selected event time onto the already
+// advanced scene-body array.  Keeping this separate from
+// mr_world_build_body_states avoids repacking the compact scene state between
+// literal CCD segments.
+kernel void mr_world_overlay_event_articulation_bodies(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRBodyPropertiesGPU* bodyProperties [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device const MRArticulatedOperatorStatusGPU* operatorStatuses
+        [[buffer(4)]],
+    device MRBodyStateGPU* eventBodies [[buffer(5)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(6)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    const MRArticulatedOperatorStatusGPU operatorStatus =
+        operatorStatuses[environment];
+    if (status.code != MR_STEP_SUCCESS ||
+        operatorStatus.code != MR_ARTICULATED_OPERATOR_SUCCESS) {
+        if (status.code == MR_STEP_SUCCESS) {
+            status.code = mapOperatorStatus(operatorStatus.code);
+            status.firstFailingConstraint =
+                operatorStatus.failingIndex;
+            statuses[environment] = status;
+        }
+        return;
+    }
+    const MRArticulationGPU articulation =
+        articulations[dispatch.articulationIndex];
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    const uint poseBase =
+        environment * articulation.bodyCount;
+    for (uint localBody = 0u;
+         localBody < articulation.bodyCount;
+         ++localBody) {
+        const uint globalBody =
+            articulation.firstBody + localBody;
+        const MRArticulatedBodyPoseGPU pose =
+            bodyPoses[poseBase + localBody];
+        MRBodyStateGPU state = {};
+        state.position = pose.position;
+        state.orientation = pose.orientation;
+        state.linearVelocityAndInverseMass.w = 0.0f;
+        state.flagsAndIndices[0] =
+            bodyProperties[globalBody].motionType;
+        state.flagsAndIndices[1] = dispatch.articulationIndex;
+        state.flagsAndIndices[2] = globalBody;
+        state.flagsAndIndices[3] = 0u;
+        eventBodies[bodyBase + globalBody] = state;
+    }
+}
+
+// Enforces scalar position/velocity limits on the constrained candidate.
+// Before ordinary integration it clips velocity to the admissible one-step
+// interval; selected-TOI mode repairs a roundoff-scale boundary crossing and
+// removes only the outward velocity component.
+kernel void mr_world_project_joint_limits(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(2)]],
+    device const float* sourceQ [[buffer(3)]],
+    device float* candidateQ [[buffer(4)]],
+    device float* candidateV [[buffer(5)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(6)]],
+    constant uint& stateAlreadyIntegrated [[buffer(7)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const MRArticulationGPU articulation =
+        articulations[dispatch.articulationIndex];
+    const uint qBase = environment * articulation.nq;
+    const uint vBase = environment * articulation.nv;
+    const float timestep = max(
+        dispatch.ccdMode == MR_WORLD_CCD_HYBRID
+            ? statuses[environment].eventTimes.w
+            : dispatch.timestepAndBias.x,
+        1.0e-8f
+    );
+    for (uint localV = 0u;
+         localV < articulation.nv;
+         ++localV) {
+        device const MRDofPropertiesGPU& dof =
+            dofs[articulation.vOffset + localV];
+        float velocity = candidateV[vBase + localV];
+        if ((dof.flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u) {
+            velocity = clamp(
+                velocity,
+                -dof.limits.z,
+                dof.limits.z
+            );
+        }
+        if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
+            dof.qIndex != MR_INVALID_INDEX &&
+            dof.qIndex >= articulation.qOffset &&
+            dof.qIndex <
+                articulation.qOffset + articulation.nq) {
+            const uint localQ =
+                dof.qIndex - articulation.qOffset;
+            if (stateAlreadyIntegrated != 0u) {
+                float position = candidateQ[qBase + localQ];
+                if (position < dof.limits.x) {
+                    position = dof.limits.x;
+                    velocity = max(velocity, 0.0f);
+                } else if (position > dof.limits.y) {
+                    position = dof.limits.y;
+                    velocity = min(velocity, 0.0f);
+                }
+                candidateQ[qBase + localQ] = position;
+            } else {
+                const float position =
+                    sourceQ[qBase + localQ];
+                const float minimumVelocity =
+                    (dof.limits.x - position) / timestep;
+                const float maximumVelocity =
+                    (dof.limits.y - position) / timestep;
+                velocity = clamp(
+                    velocity,
+                    minimumVelocity,
+                    maximumVelocity
+                );
+            }
+        }
+        if (!isfinite(velocity)) {
+            MRMetalWorldContactStatusGPU status =
+                statuses[environment];
+            status.code = MR_STEP_NONFINITE_RESULT;
+            status.firstFailingConstraint = localV;
+            statuses[environment] = status;
+            return;
+        }
+        candidateV[vBase + localV] = velocity;
     }
 }
 
@@ -1051,7 +1535,16 @@ kernel void mr_world_evaluate_constraint_ir(
     const uint pointJacobianBase =
         environment *
         (dispatch.pointQueryStride * 3u * dispatch.nv);
-    const float timestep = dispatch.timestepAndBias.x;
+    const float timestep =
+        dispatch.ccdMode == MR_WORLD_CCD_HYBRID
+        ? max(
+              status.eventTimes.w,
+              max(
+                  dispatch.ccdParameters.y,
+                  1.0e-8f
+              )
+          )
+        : dispatch.timestepAndBias.x;
     for (uint localConstraint = 0u;
          localConstraint < status.requiredConstraints;
          ++localConstraint) {
@@ -1184,11 +1677,22 @@ kernel void mr_world_evaluate_constraint_ir(
             evaluated.direction = source.direction;
             evaluated.targetVelocity =
                 source.targetVelocity + stabilization;
-            evaluated.regularization = max(
-                source.compliance / (timestep * timestep) +
-                    source.dissipation / timestep,
-                0.0f
-            );
+            const bool exactImpactNormal =
+                localRow == 0u &&
+                dispatch.ccdMode == MR_WORLD_CCD_HYBRID &&
+                block.eventSlot !=
+                    MR_CONSTRAINT_IR_INVALID_INDEX &&
+                (block.flags &
+                 MR_CONSTRAINT_IR_BLOCK_NEW_IMPACT) != 0u;
+            evaluated.regularization =
+                exactImpactNormal
+                ? 0.0f
+                : max(
+                      source.compliance /
+                          (timestep * timestep) +
+                          source.dissipation / timestep,
+                      0.0f
+                  );
             evaluated.impulseLower = source.impulseLower;
             evaluated.impulseUpper = source.impulseUpper;
             evaluated.sourcePositionError =
@@ -1637,74 +2141,69 @@ kernel void mr_world_select_solver_cohort(
     device MRWorkQueueHeaderGPU& header =
         headers[MR_WORLD_WORK_SOLVER];
     const uint count = header.count;
-    uint requiredWidth = 8u;
-    for (uint workSlot = lane;
-         workSlot < count;
-         workSlot += MR_WAVE32_CONTACTS_PER_TILE) {
-        const MRIslandWorkGPU work = compactWork[workSlot];
-        const bool distributed =
-            (work.flags & MR_ISLAND_WORK_DISTRIBUTED) != 0u;
-        const uint width =
-            !distributed &&
-            work.dofClass <= 8u &&
-            work.constraintCount <= 8u
-            ? 8u
-            : !distributed &&
-              work.dofClass <= 16u &&
-              work.constraintCount <= 16u
-            ? 16u
-            : MR_WAVE32_CONTACTS_PER_TILE;
-        requiredWidth = max(requiredWidth, width);
+    if (lane != 0u) {
+        return;
     }
-    requiredWidth = simd_max(requiredWidth);
-    if (lane == 0u) {
+
+    // Preserve the scan-ordered island stream while allowing each packet to
+    // select its own compact cohort width. A large island therefore no longer
+    // forces unrelated 8/16-contact islands in the same heterogeneous batch
+    // onto one-island Wave32 packets. Packet construction is a tiny
+    // invocation-local scheduling pass; the expensive solve remains fully
+    // SIMD32 and persistent-worker claim order remains physically irrelevant.
+    uint workSlot = 0u;
+    uint packetSlot = 0u;
+    uint observedWidths = 0u;
+    while (workSlot < count) {
+        const MRIslandWorkGPU firstWork =
+            compactWork[workSlot];
+        const bool firstDistributed =
+            (firstWork.flags &
+             MR_ISLAND_WORK_DISTRIBUTED) != 0u;
         const uint cohortWidth =
-            count != 0u &&
-            requiredWidth <= 8u &&
-            (count & 3u) == 0u
+            !firstDistributed &&
+            firstWork.dofClass <= 8u &&
+            firstWork.constraintCount <= 8u
             ? 8u
-            : count != 0u &&
-              requiredWidth <= 16u &&
-              (count & 1u) == 0u
+            : !firstDistributed &&
+              firstWork.dofClass <= 16u &&
+              firstWork.constraintCount <= 16u
             ? 16u
             : MR_WAVE32_CONTACTS_PER_TILE;
         const uint cohortsPerGroup =
             MR_WAVE32_CONTACTS_PER_TILE / cohortWidth;
-        header.reserved0 = cohortWidth;
-        header.indirect.threadgroupsX =
-            count / cohortsPerGroup;
-    }
-    threadgroup_barrier(mem_flags::mem_device);
-
-    // Freeze the scan-ordered compact island stream into immutable packets
-    // in the same one-SIMDgroup pass that chooses the homogeneous cohort.
-    // Worker atomics may claim packets in any order without changing keys.
-    const uint cohortWidth = header.reserved0;
-    const uint cohortsPerGroup =
-        MR_WAVE32_CONTACTS_PER_TILE / cohortWidth;
-    for (uint packetSlot = lane;
-         packetSlot < header.indirect.threadgroupsX;
-         packetSlot += MR_WAVE32_CONTACTS_PER_TILE) {
-        const uint firstWork = packetSlot * cohortsPerGroup;
-        const uint validCohorts = min(
-            cohortsPerGroup,
-            header.count - firstWork
-        );
         MRWaveWorkPacketGPU packet = {};
         packet.islandSlots = uint4(MR_INVALID_INDEX);
         packet.stableKeyLow = uint4(MR_INVALID_INDEX);
         packet.stableKeyHigh = uint4(MR_INVALID_INDEX);
-        for (uint cohort = 0u;
-             cohort < validCohorts;
-             ++cohort) {
-            const uint workSlot = firstWork + cohort;
+        uint validCohorts = 0u;
+        while (validCohorts < cohortsPerGroup &&
+               workSlot < count) {
             const MRIslandWorkGPU work =
                 compactWork[workSlot];
-            packet.islandSlots[cohort] = workSlot;
-            packet.stableKeyLow[cohort] =
+            const bool distributed =
+                (work.flags &
+                 MR_ISLAND_WORK_DISTRIBUTED) != 0u;
+            const uint width =
+                !distributed &&
+                work.dofClass <= 8u &&
+                work.constraintCount <= 8u
+                ? 8u
+                : !distributed &&
+                  work.dofClass <= 16u &&
+                  work.constraintCount <= 16u
+                ? 16u
+                : MR_WAVE32_CONTACTS_PER_TILE;
+            if (width != cohortWidth) {
+                break;
+            }
+            packet.islandSlots[validCohorts] = workSlot;
+            packet.stableKeyLow[validCohorts] =
                 work.islandIndex;
-            packet.stableKeyHigh[cohort] =
+            packet.stableKeyHigh[validCohorts] =
                 work.environment;
+            ++validCohorts;
+            ++workSlot;
         }
         packet.metadata = uint4(
             cohortWidth,
@@ -1712,8 +2211,17 @@ kernel void mr_world_select_solver_cohort(
             0u,
             0u
         );
-        packets[packetSlot] = packet;
+        packets[packetSlot++] = packet;
+        observedWidths |=
+            cohortWidth == 8u
+            ? MR_WORLD_QUEUE_COHORT_8
+            : cohortWidth == 16u
+            ? MR_WORLD_QUEUE_COHORT_16
+            : 0u;
     }
+    header.reserved0 = 0u;
+    header.indirect.threadgroupsX = packetSlot;
+    header.flags |= observedWidths;
 }
 
 kernel void mr_world_flag_distributed_islands(
@@ -2665,6 +3173,38 @@ uint waveCohortMinimum(
     return value;
 }
 
+inline bool waveIslandContainsBody(
+    thread const MRIslandWorkGPU& work,
+    const uint bodyIndex,
+    device const MRContactConstraintGPU* contacts,
+    const uint constraintBase,
+    device const MRContactTileGPU* tiles,
+    const uint tileBase,
+    device const uint* tileConstraintIndices
+) {
+    for (uint localTile = 0u;
+         localTile < work.tileCount;
+         ++localTile) {
+        const MRContactTileGPU tile =
+            tiles[tileBase + work.firstTile + localTile];
+        for (uint slot = 0u;
+             slot < tile.constraintCount;
+             ++slot) {
+            const uint localConstraint =
+                tileConstraintIndices[
+                    constraintBase + tile.partialOffset + slot
+                ];
+            device const MRContactConstraintGPU& contact =
+                contacts[constraintBase + localConstraint];
+            if (contact.bodyA == bodyIndex ||
+                contact.bodyB == bodyIndex) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // Shared packet body. Standalone Metal obtains packet slots through indirect
 // dispatch while MLX uses a fixed worker grid that repeatedly claims slots
 // from the invocation-local queue cursor.
@@ -3054,6 +3594,15 @@ inline void mrWorldWave32SolvePacket(
         if (!dynamicSceneEndpoint(
                 body,
                 dispatch.articulationIndex
+            ) ||
+            !waveIslandContainsBody(
+                work,
+                bodyIndex,
+                contacts,
+                constraintBase,
+                tiles,
+                tileBase,
+                tileConstraintIndices
             )) {
             continue;
         }
@@ -3168,18 +3717,83 @@ inline void mrWorldWave32SolvePacket(
                 preconditioners[
                     constraintBase + localConstraint
                 ];
-            float3 candidate = previous + float3(
+            float3 proposed = previous + float3(
                 dot(preconditioner.row0.xyz, rhs),
                 dot(preconditioner.row1.xyz, rhs),
                 dot(preconditioner.row2.xyz, rhs)
             );
-            candidate = projectFrictionCone(
-                candidate,
+            proposed = projectFrictionCone(
+                proposed,
                 evaluatedCones[
                     constraintBase + localConstraint
                 ]
             );
-            const float3 delta = candidate - previous;
+            float absoluteNormalRowSum = 0.0f;
+            float diagonalNormalResponse = 0.0f;
+            for (uint sourceTile = 0u;
+                 sourceTile < work.tileCount;
+                 ++sourceTile) {
+                const MRContactTileGPU source =
+                    tiles[
+                        tileBase + work.firstTile + sourceTile
+                    ];
+                for (uint sourceSlot = 0u;
+                     sourceSlot < source.constraintCount;
+                     ++sourceSlot) {
+                    const uint sourceConstraint =
+                        tileConstraintIndices[
+                            constraintBase +
+                            source.partialOffset +
+                            sourceSlot
+                        ];
+                    device const MRContactConstraintGPU&
+                        sourceContact =
+                            contacts[
+                                constraintBase +
+                                sourceConstraint
+                            ];
+                    const float3 sourceNormal =
+                        evaluatedRows[
+                            rowBase +
+                            3u * sourceConstraint
+                        ].direction.xyz;
+                    const float crossResponse =
+                        normalCrossContactResponse(
+                            localConstraint,
+                            sourceConstraint,
+                            contact,
+                            sourceContact,
+                            localRows[0].direction.xyz,
+                            sourceNormal,
+                            bodies,
+                            pointJacobians,
+                            pointJacobianBase,
+                            responseColumns,
+                            responseBase,
+                            dispatch.nv,
+                            dispatch.articulationIndex
+                        );
+                    absoluteNormalRowSum += abs(crossResponse);
+                    if (sourceConstraint == localConstraint) {
+                        diagonalNormalResponse =
+                            abs(crossResponse) +
+                            localRows[0].regularization;
+                    }
+                }
+            }
+            const float relaxation =
+                absoluteNormalRowSum >
+                    max(diagonalNormalResponse, kMatrixFloor)
+                ? clamp(
+                      diagonalNormalResponse /
+                          absoluteNormalRowSum,
+                      1.0f / 32.0f,
+                      1.0f
+                  )
+                : 1.0f;
+            const float3 delta =
+                relaxation * (proposed - previous);
+            const float3 candidate = previous + delta;
             if (!finite3(candidate) || !finite3(delta)) {
                 localFailure = MR_STEP_NONFINITE_RESULT;
                 localFailureConstraint = min(
@@ -3258,6 +3872,15 @@ inline void mrWorldWave32SolvePacket(
             if (!dynamicSceneEndpoint(
                     body,
                     dispatch.articulationIndex
+                ) ||
+                !waveIslandContainsBody(
+                    work,
+                    bodyIndex,
+                    contacts,
+                    constraintBase,
+                    tiles,
+                    tileBase,
+                    tileConstraintIndices
                 )) {
                 continue;
             }
@@ -3542,7 +4165,8 @@ kernel void mr_world_wave32_solve_persistent(
     device const MRWaveWorkPacketGPU* workPackets [[buffer(20)]],
     const uint lane [[thread_index_in_simdgroup]]
 ) {
-    threadgroup uint claimedPacket;
+    constexpr uint kPacketClaimBatch = 4u;
+    threadgroup uint claimedPacketBase;
     threadgroup uint failureCodes[
         MR_WAVE32_CONTACTS_PER_TILE
     ];
@@ -3572,49 +4196,59 @@ kernel void mr_world_wave32_solve_persistent(
     threadgroup_barrier(mem_flags::mem_threadgroup);
     while (true) {
         if (lane == 0u) {
-            claimedPacket = atomic_fetch_add_explicit(
+            claimedPacketBase = atomic_fetch_add_explicit(
                 cursor,
-                1u,
+                kPacketClaimBatch,
                 memory_order_relaxed
             );
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
-        const uint packetSlot = claimedPacket;
-        if (packetSlot >= header.indirect.threadgroupsX) {
+        if (claimedPacketBase >=
+            header.indirect.threadgroupsX) {
             break;
         }
-        mrWorldWave32SolvePacket(
-            dispatch,
-            factors,
-            pointJacobians,
-            candidateV,
-            candidateBodies,
-            contacts,
-            contactMetadata,
-            evaluatedRows,
-            evaluatedCones,
-            responseColumns,
-            candidateManifoldPoints,
-            statuses,
-            islandWork,
-            tiles,
-            tileConstraintIndices,
-            impulseDeltas,
-            preconditioners,
-            waveStatuses,
-            workHeaders,
-            workPackets,
-            pass,
-            packetSlot,
-            lane,
-            failureCodes,
-            failureConstraints,
-            sharedFailure
-        );
-        threadgroup_barrier(
-            mem_flags::mem_device |
-            mem_flags::mem_threadgroup
-        );
+        for (uint localPacket = 0u;
+             localPacket < kPacketClaimBatch;
+             ++localPacket) {
+            const uint packetSlot =
+                claimedPacketBase + localPacket;
+            if (packetSlot >=
+                header.indirect.threadgroupsX) {
+                break;
+            }
+            mrWorldWave32SolvePacket(
+                dispatch,
+                factors,
+                pointJacobians,
+                candidateV,
+                candidateBodies,
+                contacts,
+                contactMetadata,
+                evaluatedRows,
+                evaluatedCones,
+                responseColumns,
+                candidateManifoldPoints,
+                statuses,
+                islandWork,
+                tiles,
+                tileConstraintIndices,
+                impulseDeltas,
+                preconditioners,
+                waveStatuses,
+                workHeaders,
+                workPackets,
+                pass,
+                packetSlot,
+                lane,
+                failureCodes,
+                failureConstraints,
+                sharedFailure
+            );
+            threadgroup_barrier(
+                mem_flags::mem_device |
+                mem_flags::mem_threadgroup
+            );
+        }
     }
 }
 
@@ -3657,16 +4291,14 @@ kernel void mr_world_reduce_wave32_status(
     }
     status.solverIterations = iterations;
     status.residuals = residuals;
-    const uint cohortWidth =
-        workHeaders[MR_WORLD_WORK_SOLVER].reserved0;
     const MRWorkQueueHeaderGPU solverHeader =
         workHeaders[MR_WORLD_WORK_SOLVER];
     status.queueFlags |=
-        cohortWidth == 8u
-        ? MR_WORLD_QUEUE_COHORT_8
-        : cohortWidth == 16u
-        ? MR_WORLD_QUEUE_COHORT_16
-        : 0u;
+        solverHeader.flags &
+        (
+            MR_WORLD_QUEUE_COHORT_8 |
+            MR_WORLD_QUEUE_COHORT_16
+        );
     if ((solverHeader.flags &
          MR_WORLD_QUEUE_PERSISTENT_WORKER) != 0u) {
         status.queueFlags |=
@@ -3677,11 +4309,17 @@ kernel void mr_world_reduce_wave32_status(
             status.workerHighWater,
             solverHeader.indirect.threadgroupsX
         );
+        const uint roundedPacketClaims =
+            (
+                solverHeader.indirect.threadgroupsX + 3u
+            ) & ~3u;
         status.workerEmptyPulls =
             solverHeader.workerCursor >
-                    solverHeader.indirect.threadgroupsX
-            ? solverHeader.workerCursor -
-                solverHeader.indirect.threadgroupsX
+                    roundedPacketClaims
+            ? (
+                  solverHeader.workerCursor -
+                  roundedPacketClaims
+              ) / 4u
             : 0u;
     }
     if (residuals.w > 0.0f) {
@@ -4315,6 +4953,187 @@ kernel void mr_world_latch_contact_status(
             ? contact.firstFailingConstraint
             : contact.firstFailingPair;
         worldStatuses[environment] = status;
+    }
+}
+
+// Finished environments are masked with MR_STEP_FIXED_BUDGET_COMPLETE while
+// later statically encoded event passes run. Restore their source state into
+// the ordinary candidate buffers so the final transactional commit remains
+// branch-free and never publishes stale scratch.
+kernel void mr_world_restore_inactive_event_candidate(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const uint* sceneBodyIndices [[buffer(2)]],
+    device const float* sourceQ [[buffer(3)]],
+    device const float* sourceV [[buffer(4)]],
+    device const MRBodyStateGPU* sourceScene [[buffer(5)]],
+    device const MRManifoldHeaderGPU* sourceHeaders [[buffer(6)]],
+    device const MRManifoldPointGPU* sourcePoints [[buffer(7)]],
+    device const uint* sourceCounts [[buffer(8)]],
+    device float* candidateQ [[buffer(9)]],
+    device float* candidateV [[buffer(10)]],
+    device MRBodyStateGPU* candidateBodies [[buffer(11)]],
+    device MRManifoldHeaderGPU* candidateHeaders [[buffer(12)]],
+    device MRManifoldPointGPU* candidatePoints [[buffer(13)]],
+    device uint* candidateCounts [[buffer(14)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(15)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        statuses[environment].code !=
+            MR_STEP_FIXED_BUDGET_COMPLETE) {
+        return;
+    }
+    const MRArticulationGPU articulation =
+        articulations[dispatch.articulationIndex];
+    const uint qBase = environment * articulation.nq;
+    const uint vBase = environment * articulation.nv;
+    for (uint coordinate = 0u;
+         coordinate < articulation.nq;
+         ++coordinate) {
+        candidateQ[qBase + coordinate] =
+            sourceQ[qBase + coordinate];
+    }
+    for (uint coordinate = 0u;
+         coordinate < articulation.nv;
+         ++coordinate) {
+        candidateV[vBase + coordinate] =
+            sourceV[vBase + coordinate];
+    }
+    const uint sceneBase =
+        environment * dispatch.sceneBodyStride;
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    for (uint localScene = 0u;
+         localScene < dispatch.sceneBodyCount;
+         ++localScene) {
+        candidateBodies[
+            bodyBase + sceneBodyIndices[localScene]
+        ] = sourceScene[sceneBase + localScene];
+    }
+    const uint manifoldBase =
+        environment * dispatch.manifoldStride;
+    const uint pointBase =
+        manifoldBase *
+        MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+    candidateCounts[environment] =
+        sourceCounts[environment];
+    for (uint manifold = 0u;
+         manifold < dispatch.manifoldCapacity;
+         ++manifold) {
+        candidateHeaders[manifoldBase + manifold] =
+            sourceHeaders[manifoldBase + manifold];
+        for (uint point = 0u;
+             point <
+                 MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+             ++point) {
+            const uint index =
+                pointBase +
+                manifold *
+                    MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
+                point;
+            candidatePoints[index] = sourcePoints[index];
+        }
+    }
+}
+
+// Advances the private event-state ping-pong between statically encoded TOI
+// passes. Failed candidates copy their last accepted input, preserving the
+// control-step checkpoint for the final public rollback.
+kernel void mr_world_publish_event_segment(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const uint* sceneBodyIndices [[buffer(2)]],
+    device const float* sourceQ [[buffer(3)]],
+    device const float* sourceV [[buffer(4)]],
+    device const MRBodyStateGPU* sourceScene [[buffer(5)]],
+    device const MRManifoldHeaderGPU* sourceHeaders [[buffer(6)]],
+    device const MRManifoldPointGPU* sourcePoints [[buffer(7)]],
+    device const uint* sourceCounts [[buffer(8)]],
+    device const float* candidateQ [[buffer(9)]],
+    device const float* candidateV [[buffer(10)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(11)]],
+    device const MRManifoldHeaderGPU* candidateHeaders [[buffer(12)]],
+    device const MRManifoldPointGPU* candidatePoints [[buffer(13)]],
+    device const uint* candidateCounts [[buffer(14)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(15)]],
+    device float* destinationQ [[buffer(16)]],
+    device float* destinationV [[buffer(17)]],
+    device MRBodyStateGPU* destinationScene [[buffer(18)]],
+    device MRManifoldHeaderGPU* destinationHeaders [[buffer(19)]],
+    device MRManifoldPointGPU* destinationPoints [[buffer(20)]],
+    device uint* destinationCounts [[buffer(21)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const bool publish =
+        statuses[environment].code == MR_STEP_SUCCESS;
+    const MRArticulationGPU articulation =
+        articulations[dispatch.articulationIndex];
+    const uint qBase = environment * articulation.nq;
+    const uint vBase = environment * articulation.nv;
+    for (uint coordinate = 0u;
+         coordinate < articulation.nq;
+         ++coordinate) {
+        destinationQ[qBase + coordinate] =
+            publish
+            ? candidateQ[qBase + coordinate]
+            : sourceQ[qBase + coordinate];
+    }
+    for (uint coordinate = 0u;
+         coordinate < articulation.nv;
+         ++coordinate) {
+        destinationV[vBase + coordinate] =
+            publish
+            ? candidateV[vBase + coordinate]
+            : sourceV[vBase + coordinate];
+    }
+    const uint sceneBase =
+        environment * dispatch.sceneBodyStride;
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    for (uint localScene = 0u;
+         localScene < dispatch.sceneBodyCount;
+         ++localScene) {
+        destinationScene[sceneBase + localScene] =
+            publish
+            ? candidateBodies[
+                  bodyBase + sceneBodyIndices[localScene]
+              ]
+            : sourceScene[sceneBase + localScene];
+    }
+    const uint manifoldBase =
+        environment * dispatch.manifoldStride;
+    const uint pointBase =
+        manifoldBase *
+        MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+    destinationCounts[environment] =
+        publish
+        ? candidateCounts[environment]
+        : sourceCounts[environment];
+    for (uint manifold = 0u;
+         manifold < dispatch.manifoldCapacity;
+         ++manifold) {
+        destinationHeaders[manifoldBase + manifold] =
+            publish
+            ? candidateHeaders[manifoldBase + manifold]
+            : sourceHeaders[manifoldBase + manifold];
+        for (uint point = 0u;
+             point <
+                 MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+             ++point) {
+            const uint index =
+                pointBase +
+                manifold *
+                    MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
+                point;
+            destinationPoints[index] =
+                publish
+                ? candidatePoints[index]
+                : sourcePoints[index];
+        }
     }
 }
 

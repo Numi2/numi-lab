@@ -5320,6 +5320,7 @@ kernel void mr_world_project_swept_colliders(
     device MRProjectedColliderGPU* projectedColliders [[buffer(8)]],
     device MRProjectedColliderGPU* futureProjectedColliders [[buffer(9)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(10)]],
+    device const MRCCDEventStateGPU* eventStates [[buffer(11)]],
     const uint threadIndex [[thread_position_in_grid]]
 ) {
     if (dispatch.shapeCount == 0u) {
@@ -5370,6 +5371,10 @@ kernel void mr_world_project_swept_colliders(
     const bool hasFutureKinematics =
         (dispatch.flags &
          MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS) != 0u;
+    const float segmentDuration =
+        dispatch.ccdMode == MR_WORLD_CCD_HYBRID
+        ? max(eventStates[environment].time.y, 0.0f)
+        : dispatch.timestepAndBias.x;
     if (dispatch.ccdMode == MR_WORLD_CCD_DISABLED ||
         source.shapeType == MR_SHAPE_PLANE ||
         currentBody.flagsAndIndices[0] == MR_MOTION_STATIC) {
@@ -5397,10 +5402,10 @@ kernel void mr_world_project_swept_colliders(
                 abs(candidateV[velocityBase + dof]);
         }
         const float envelope = min(
-            dispatch.timestepAndBias.x *
+            segmentDuration *
                 generalizedSpeed *
                 max(sweepRadius, 0.25f),
-            dispatch.timestepAndBias.x *
+            segmentDuration *
                 dispatch.ccdParameters.w
         );
         const float speculativeMargin =
@@ -5445,14 +5450,13 @@ kernel void mr_world_project_swept_colliders(
         const MRBodyStateGPU candidate =
             candidateBodies[bodyBase + source.bodyIndex];
         if (candidate.flagsAndIndices[0] != MR_MOTION_STATIC) {
-            const float timestep = dispatch.timestepAndBias.x;
             futureBodyPosition +=
-                timestep *
+                segmentDuration *
                 candidate.linearVelocityAndInverseMass.xyz;
             futureBodyRotation = integrateWorldQuaternion(
                 currentBody.orientation,
                 candidate.angularVelocity.xyz,
-                timestep
+                segmentDuration
             );
         }
     }
@@ -5509,7 +5513,7 @@ kernel void mr_world_project_swept_colliders(
                                   orientationCosine));
     const float envelope = min(
         translation + rotationalChord,
-        dispatch.timestepAndBias.x *
+        segmentDuration *
             dispatch.ccdParameters.w
     );
     const float speculativeMargin =
@@ -5527,6 +5531,62 @@ kernel void mr_world_project_swept_colliders(
         speculativeMargin;
     projected.statusAndFlags.z =
         as_type<uint>(speculativeMargin);
+}
+
+// Projects the already-advanced event configuration without adding a second
+// speculative sweep. Literal CCD uses this after advancing to the selected
+// TOI so narrowphase witnesses and manifold anchors belong to the impact
+// configuration rather than the beginning of the remaining interval.
+kernel void mr_world_project_event_colliders(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRGeometryHeaderGPU* geometryHeaders [[buffer(2)]],
+    device const MRBodyStateGPU* eventBodies [[buffer(3)]],
+    device MRProjectedColliderGPU* projectedColliders [[buffer(4)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(5)]],
+    const uint threadIndex [[thread_position_in_grid]]
+) {
+    if (dispatch.shapeCount == 0u) {
+        return;
+    }
+    const uint environment =
+        threadIndex / dispatch.shapeCount;
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const uint collider =
+        threadIndex - environment * dispatch.shapeCount;
+    const uint projectedIndex =
+        environment * dispatch.shapeCount + collider;
+    if (statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    WorldShape shape = {};
+    uint projectionFailure = MR_STEP_SUCCESS;
+    const bool projectedSuccessfully = makeWorldShape(
+        collider,
+        shapes,
+        geometryHeaders,
+        eventBodies +
+            environment * dispatch.bodyStateStride,
+        dispatch.bodyCount,
+        shape,
+        projectionFailure
+    );
+    MRProjectedColliderGPU projected =
+        projectedCollider(shape, projectionFailure);
+    projected.statusAndFlags.w = shapes[collider].flags;
+    projected.statusAndFlags.z = 0u;
+    projectedColliders[projectedIndex] = projected;
+    if (!projectedSuccessfully) {
+        MRMetalWorldContactStatusGPU status =
+            statuses[environment];
+        status.code = projectionFailure;
+        status.firstFailingPair = collider;
+        status.firstFailingStableKeyLow = collider;
+        status.firstFailingStableKeyHigh = environment;
+        statuses[environment] = status;
+    }
 }
 
 float4 shortestNlerp(
@@ -5991,7 +6051,8 @@ MRCCDPairGPU resolveCCDPair(
     device const float4* geometryVertices,
     device const MRMeshBVHNodeGPU* meshNodes,
     device const MRMeshTriangleGPU* meshTriangles,
-    device const MRMetalWorldContactDispatchGPU& dispatch
+    device const MRMetalWorldContactDispatchGPU& dispatch,
+    const float timestep
 ) {
     MRCCDPairGPU record = {};
     record.environment = environment;
@@ -6012,7 +6073,6 @@ MRCCDPairGPU resolveCCDPair(
         futureProjected[pair.colliderA];
     device const MRProjectedColliderGPU& endB =
         futureProjected[pair.colliderB];
-    const float timestep = dispatch.timestepAndBias.x;
     const float tolerance = dispatch.ccdParameters.y;
     const float motionA =
         length(
@@ -6063,9 +6123,11 @@ MRCCDPairGPU resolveCCDPair(
     record.intervalAndDistance.z = query.separation;
     record.normalAndIteration.xyz = query.normal;
     if (query.separation <= tolerance) {
-        record.flags |=
-            MR_CCD_PAIR_START_OVERLAP |
-            MR_CCD_PAIR_HAS_IMPACT;
+        // Existing/touching contacts are resolved by the discrete manifold
+        // solve at the current event configuration. Treating every resting
+        // pair as a zero-time event would consume the split budget forever
+        // even after the impact velocity has been removed.
+        record.flags |= MR_CCD_PAIR_START_OVERLAP;
         record.intervalAndDistance.x = 0.0f;
         record.intervalAndDistance.y = 0.0f;
         return record;
@@ -6239,6 +6301,7 @@ kernel void mr_world_resolve_ccd(
     device const MRMeshTriangleGPU* meshTriangles [[buffer(9)]],
     device MRCCDPairGPU* candidates [[buffer(10)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(11)]],
+    device const MRCCDEventStateGPU* eventStates [[buffer(12)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -6255,6 +6318,10 @@ kernel void mr_world_resolve_ccd(
         environment * dispatch.eligiblePairCount;
     const uint candidateBase =
         environment * dispatch.ccdCandidateCapacity;
+    const float timestep = max(
+        eventStates[environment].time.y,
+        0.0f
+    );
     uint candidateCount = 0u;
     uint eventCount = 0u;
     uint storedEventCount = 0u;
@@ -6286,7 +6353,8 @@ kernel void mr_world_resolve_ccd(
             geometryVertices,
             meshNodes,
             meshTriangles,
-            dispatch
+            dispatch,
+            timestep
         );
         const bool hasImpact =
             (record.flags & MR_CCD_PAIR_HAS_IMPACT) != 0u;
@@ -6337,8 +6405,11 @@ kernel void mr_world_resolve_ccd(
         candidates[candidateBase + insertion] = record;
         ++storedEventCount;
     }
-    status.requiredCCDCandidates = candidateCount;
-    status.requiredCCDEvents = eventCount;
+    status.requiredCCDCandidates = max(
+        status.requiredCCDCandidates,
+        candidateCount
+    );
+    status.requiredCCDEvents += eventCount;
     status.ccdCandidates = min(
         candidateCount,
         dispatch.ccdCandidateCapacity
@@ -6395,27 +6466,24 @@ kernel void mr_world_resolve_ccd(
     statuses[environment] = status;
 }
 
-// Materializes the sorted CCD prefix into the world-graph ABI's transient
-// event cursor and simultaneous-impact record. The current graph consumes
-// the certified remainder through speculative TGS; the same state is the
-// input to the bounded literal advance/solve passes.
-kernel void mr_world_select_ccd_event_state(
+kernel void mr_world_initialize_ccd_event_state(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const MRCCDPairGPU* candidates [[buffer(1)]],
-    device MRCCDEventStateGPU* eventStatesA [[buffer(2)]],
-    device MRCCDEventStateGPU* eventStatesB [[buffer(3)]],
-    device MRCCDImpactClusterGPU* clusters [[buffer(4)]],
-    device MRMetalWorldContactStatusGPU* statuses [[buffer(5)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(6)]],
+    device MRCCDEventStateGPU* eventStatesA [[buffer(1)]],
+    device MRCCDEventStateGPU* eventStatesB [[buffer(2)]],
+    device MRCCDImpactClusterGPU* clusters [[buffer(3)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(4)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(5)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
         return;
     }
-    MRMetalWorldContactStatusGPU status = statuses[environment];
     MRCCDEventStateGPU state = {};
     state.environment = environment;
-    state.flags = MR_CCD_EVENT_ACTIVE;
+    state.flags =
+        dispatch.ccdMode == MR_WORLD_CCD_HYBRID
+        ? MR_CCD_EVENT_ACTIVE
+        : MR_CCD_EVENT_FINISHED;
     state.generation =
         pass.physicsSubstep *
         dispatch.maxCCDAdvanceSolvePasses;
@@ -6427,6 +6495,12 @@ kernel void mr_world_select_ccd_event_state(
         0.0f,
         dispatch.timestepAndBias.x
     );
+    state.cluster = uint4(
+        MR_INVALID_INDEX,
+        0u,
+        0u,
+        0u
+    );
     MRCCDImpactClusterGPU cluster = {};
     cluster.environment = environment;
     cluster.generation = state.generation;
@@ -6434,25 +6508,136 @@ kernel void mr_world_select_ccd_event_state(
     cluster.stableKeyLow = MR_INVALID_INDEX;
     cluster.stableKeyHigh = MR_INVALID_INDEX;
     cluster.interval = float4(
-        1.0f,
-        1.0f,
-        1.0f,
+        dispatch.timestepAndBias.x,
+        dispatch.timestepAndBias.x,
+        dispatch.timestepAndBias.x,
         dispatch.ccdEventParameters.x
     );
+    eventStatesA[environment] = state;
+    eventStatesB[environment] = state;
+    clusters[environment] = cluster;
 
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    status.ccdAdvanceCount = 0u;
+    status.clusteredCCDImpacts = 0u;
+    status.zeroTimeCCDReplays = 0u;
+    status.speculativeRemainderUses = 0u;
+    status.eventGeneration = state.generation;
+    status.firstFailingEventKeyLow = MR_INVALID_INDEX;
+    status.firstFailingEventKeyHigh = MR_INVALID_INDEX;
+    status.requiredCCDCandidates = 0u;
+    status.requiredCCDEvents = 0u;
+    status.reservedEvent0 = 0u;
+    status.reservedEvent1 = 0u;
+    status.eventTimes = float4(
+        0.0f,
+        dispatch.timestepAndBias.x,
+        dispatch.timestepAndBias.x,
+        dispatch.timestepAndBias.x
+    );
+    statuses[environment] = status;
+}
+
+// Marks already-finished environments with a private in-graph sentinel. All
+// existing contact kernels already ignore non-success records, so a fixed
+// MLX grid can encode every event pass without mutating finished worlds.
+kernel void mr_world_prepare_ccd_event_pass(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRCCDEventStateGPU* eventStates [[buffer(1)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(2)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const MRCCDEventStateGPU state = eventStates[environment];
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if ((state.flags & MR_CCD_EVENT_FAILED) != 0u) {
+        return;
+    }
+    if ((state.flags & MR_CCD_EVENT_FINISHED) != 0u) {
+        if (status.code == MR_STEP_SUCCESS) {
+            status.code = MR_STEP_FIXED_BUDGET_COMPLETE;
+        }
+    } else if (status.code == MR_STEP_FIXED_BUDGET_COMPLETE) {
+        status.code = MR_STEP_SUCCESS;
+    }
+    statuses[environment] = status;
+}
+
+// Materializes the sorted CCD prefix into the next transient event cursor.
+// Candidate intervals and selected duration are physical seconds relative to
+// the current cursor's remaining interval.
+kernel void mr_world_select_ccd_event_state(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRCCDPairGPU* candidates [[buffer(1)]],
+    device const MRCCDEventStateGPU* eventStatesA [[buffer(2)]],
+    device MRCCDEventStateGPU* eventStatesB [[buffer(3)]],
+    device MRCCDImpactClusterGPU* clusters [[buffer(4)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(5)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(6)]],
+    constant uint& eventPass [[buffer(7)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    const MRCCDEventStateGPU previous =
+        eventStatesA[environment];
+    MRCCDEventStateGPU state = previous;
+    MRCCDImpactClusterGPU cluster = {};
+    cluster.environment = environment;
+    cluster.generation = previous.generation;
+    cluster.firstEventSlot = MR_INVALID_INDEX;
+    cluster.stableKeyLow = MR_INVALID_INDEX;
+    cluster.stableKeyHigh = MR_INVALID_INDEX;
+    cluster.interval = float4(
+        previous.time.y,
+        previous.time.y,
+        previous.time.y,
+        dispatch.ccdEventParameters.x
+    );
     if (status.code != MR_STEP_SUCCESS ||
-        dispatch.ccdMode != MR_WORLD_CCD_HYBRID) {
-        state.flags =
-            status.code == MR_STEP_SUCCESS
-            ? MR_CCD_EVENT_FINISHED
-            : MR_CCD_EVENT_FAILED;
-        eventStatesA[environment] = state;
+        dispatch.ccdMode != MR_WORLD_CCD_HYBRID ||
+        (previous.flags & MR_CCD_EVENT_ACTIVE) == 0u) {
+        if (status.code != MR_STEP_SUCCESS &&
+            status.code != MR_STEP_FIXED_BUDGET_COMPLETE) {
+            state.flags |= MR_CCD_EVENT_FAILED;
+        }
         eventStatesB[environment] = state;
         clusters[environment] = cluster;
         status.eventGeneration = state.generation;
         statuses[environment] = status;
         return;
     }
+    state.flags &=
+        ~static_cast<uint>(
+            MR_CCD_EVENT_FINISHED |
+            MR_CCD_EVENT_HAS_IMPACT |
+            MR_CCD_EVENT_SPECULATIVE_REMAINDER |
+            MR_CCD_EVENT_ZERO_TIME_REPLAY
+        );
+    state.flags |= MR_CCD_EVENT_ACTIVE;
+    state.generation =
+        pass.physicsSubstep *
+            dispatch.maxCCDAdvanceSolvePasses +
+        eventPass;
+    state.time.w = max(previous.time.y, 0.0f);
+    state.cluster = uint4(
+        MR_INVALID_INDEX,
+        0u,
+        0u,
+        0u
+    );
+    status.reservedEvent0 = 0u;
+    cluster.generation = state.generation;
+    cluster.interval = float4(
+        state.time.y,
+        state.time.y,
+        state.time.y,
+        dispatch.ccdEventParameters.x
+    );
 
     const uint storedEvents = min(
         status.ccdEvents,
@@ -6468,7 +6653,7 @@ kernel void mr_world_select_ccd_event_state(
         const float earliest = clamp(
             first.intervalAndDistance.x,
             0.0f,
-            1.0f
+            state.time.y
         );
         const float tolerance = max(
             dispatch.ccdEventParameters.x,
@@ -6495,8 +6680,7 @@ kernel void mr_world_select_ccd_event_state(
         state.simultaneousEventCount = clustered;
         state.lastStableKeyLow = first.stableKeyLow;
         state.lastStableKeyHigh = first.stableKeyHigh;
-        state.time.w =
-            earliest * dispatch.timestepAndBias.x;
+        state.time.w = earliest;
         state.cluster = uint4(
             0u,
             clustered,
@@ -6514,24 +6698,30 @@ kernel void mr_world_select_ccd_event_state(
             first.intervalAndDistance.y,
             tolerance
         );
-        status.clusteredCCDImpacts = clustered;
-        status.eventTimes.z = state.time.w;
+        status.reservedEvent0 = clustered;
+        status.clusteredCCDImpacts += clustered;
+        status.eventTimes.z = min(
+            status.eventTimes.z,
+            state.time.w
+        );
         status.eventTimes.w = state.time.w;
+    } else {
+        status.eventTimes.w = state.time.y;
     }
-    eventStatesA[environment] = state;
     eventStatesB[environment] = state;
     clusters[environment] = cluster;
     status.eventGeneration = state.generation;
     statuses[environment] = status;
 }
 
-// Current compatibility closeout: speculative TGS consumes every remaining
-// second and records that fact explicitly. Literal event passes replace this
-// closeout by updating the same cursor after each accepted advance.
+// Accepts the duration materialized and solved by one literal event pass.
+// Remaining time stays active for the next statically encoded pass. A pass
+// budget can never silently discard time.
 kernel void mr_world_finalize_ccd_event_state(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device MRCCDEventStateGPU* eventStates [[buffer(1)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(2)]],
+    constant uint& eventPass [[buffer(3)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -6539,23 +6729,83 @@ kernel void mr_world_finalize_ccd_event_state(
     }
     MRMetalWorldContactStatusGPU status = statuses[environment];
     MRCCDEventStateGPU state = eventStates[environment];
+    if (status.code == MR_STEP_FIXED_BUDGET_COMPLETE &&
+        (state.flags & MR_CCD_EVENT_FINISHED) != 0u) {
+        status.code = MR_STEP_SUCCESS;
+        status.eventTimes.x = state.time.z;
+        status.eventTimes.y = state.time.y;
+        statuses[environment] = status;
+        return;
+    }
     if (status.code != MR_STEP_SUCCESS) {
         state.flags |= MR_CCD_EVENT_FAILED;
         eventStates[environment] = state;
         return;
     }
-    if (dispatch.ccdMode == MR_WORLD_CCD_HYBRID &&
-        (state.flags & MR_CCD_EVENT_HAS_IMPACT) != 0u &&
-        state.splitCount == 0u) {
-        state.flags |=
-            MR_CCD_EVENT_SPECULATIVE_REMAINDER;
-        status.speculativeRemainderUses += 1u;
+    const float fullTolerance = max(
+        dispatch.ccdEventParameters.y,
+        dispatch.ccdParameters.y
+    );
+    const float selected = clamp(
+        state.time.w,
+        0.0f,
+        state.time.y
+    );
+    const bool hasImpact =
+        (state.flags & MR_CCD_EVENT_HAS_IMPACT) != 0u;
+    if (hasImpact) {
+        ++state.splitCount;
+        ++status.ccdAdvanceCount;
+        if (selected <= fullTolerance) {
+            state.flags |= MR_CCD_EVENT_ZERO_TIME_REPLAY;
+            ++state.zeroTimeReplayCount;
+            ++status.zeroTimeCCDReplays;
+            if (state.zeroTimeReplayCount >
+                dispatch.maxCCDZeroTimeReplays) {
+                status.code = MR_STEP_DID_NOT_CONVERGE;
+                status.firstFailingEventKeyLow =
+                    state.lastStableKeyLow;
+                status.firstFailingEventKeyHigh =
+                    state.lastStableKeyHigh;
+                state.flags |= MR_CCD_EVENT_FAILED;
+            }
+        } else {
+            state.zeroTimeReplayCount = 0u;
+        }
+        state.time.x += selected;
+        state.time.z += selected;
+        state.time.y = max(state.time.y - selected, 0.0f);
+        if (status.code == MR_STEP_SUCCESS &&
+            state.time.y <= fullTolerance) {
+            state.time.y = 0.0f;
+            state.flags &=
+                ~static_cast<uint>(MR_CCD_EVENT_ACTIVE);
+            state.flags |= MR_CCD_EVENT_FINISHED;
+        }
+    } else {
+        state.time.x += state.time.y;
+        state.time.z += state.time.y;
+        state.time.y = 0.0f;
+        state.flags &=
+            ~static_cast<uint>(MR_CCD_EVENT_ACTIVE);
+        state.flags |= MR_CCD_EVENT_FINISHED;
     }
-    state.flags &= ~static_cast<uint>(MR_CCD_EVENT_ACTIVE);
-    state.flags |= MR_CCD_EVENT_FINISHED;
-    state.time.x = dispatch.timestepAndBias.x;
-    state.time.y = 0.0f;
-    state.time.z = dispatch.timestepAndBias.x;
+    if (status.code == MR_STEP_SUCCESS &&
+        (state.flags & MR_CCD_EVENT_ACTIVE) != 0u &&
+        eventPass + 1u >=
+            dispatch.maxCCDAdvanceSolvePasses) {
+        status.code =
+            MR_STEP_CCD_EVENT_BUDGET_EXHAUSTED;
+        status.firstFailingEventKeyLow =
+            state.lastStableKeyLow;
+        status.firstFailingEventKeyHigh =
+            state.lastStableKeyHigh;
+        status.firstFailingStableKeyLow =
+            state.lastStableKeyLow;
+        status.firstFailingStableKeyHigh =
+            state.lastStableKeyHigh;
+        state.flags |= MR_CCD_EVENT_FAILED;
+    }
     status.eventTimes.x = state.time.z;
     status.eventTimes.y = state.time.y;
     eventStates[environment] = state;
@@ -7419,7 +7669,7 @@ kernel void mr_world_collide_compile(
         uint pairEventSlot = MR_CONSTRAINT_IR_INVALID_INDEX;
         if (dispatch.ccdMode == MR_WORLD_CCD_HYBRID) {
             const uint storedEvents = min(
-                status.ccdEvents,
+                status.reservedEvent0,
                 min(
                     dispatch.ccdCandidateCapacity,
                     dispatch.ccdEventCapacity

@@ -16,7 +16,8 @@ inline bool validWorldDispatch(
         MR_METAL_WORLD_DETERMINISTIC |
         MR_METAL_WORLD_HAS_RESETS |
         MR_METAL_WORLD_FREE_MOTION_ONLY |
-        MR_METAL_WORLD_CONTACTS;
+        MR_METAL_WORLD_CONTACTS |
+        MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES;
     const uint modeFlags =
         dispatch.flags &
         (MR_METAL_WORLD_FREE_MOTION_ONLY |
@@ -102,6 +103,9 @@ kernel void mr_metal_world_prepare(
     device float* checkpointV [[buffer(9)]],
     device float* workingEffort [[buffer(10)]],
     device MRMetalWorldStatusGPU* statuses [[buffer(11)]],
+    device const MRWorldGPU& world [[buffer(12)]],
+    device const MRArticulationGPU* articulations [[buffer(13)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(14)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -136,6 +140,8 @@ kernel void mr_metal_world_prepare(
         ] != 0u;
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
+    const MRArticulationGPU articulation =
+        articulations[dispatch.articulationIndex];
     for (uint coordinate = 0u;
          coordinate < dispatch.nq;
          ++coordinate) {
@@ -153,14 +159,75 @@ kernel void mr_metal_world_prepare(
             : stateV[vBase + coordinate];
         stateV[vBase + coordinate] = value;
         checkpointV[vBase + coordinate] = value;
-        workingEffort[
-            environment * dispatch.effortEnvironmentStride +
-            coordinate
-        ] = effortTrajectory[
+        float command = effortTrajectory[
             pass.controlStep * dispatch.effortStepStride +
             environment * dispatch.effortEnvironmentStride +
             coordinate
         ];
+        if ((dispatch.flags &
+             MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u) {
+            device const MRDofPropertiesGPU& dof =
+                dofs[articulation.vOffset + coordinate];
+            command = 0.0f;
+            if ((dof.flags & MR_DOF_FLAG_DRIVE) != 0u &&
+                dof.qIndex != MR_INVALID_INDEX &&
+                dof.qIndex >= articulation.qOffset &&
+                dof.qIndex <
+                    articulation.qOffset + articulation.nq) {
+                const uint localQ =
+                    dof.qIndex - articulation.qOffset;
+                float target = effortTrajectory[
+                    pass.controlStep * dispatch.effortStepStride +
+                    environment *
+                        dispatch.effortEnvironmentStride +
+                    coordinate
+                ];
+                if ((dof.flags &
+                     MR_DOF_FLAG_POSITION_LIMIT) != 0u) {
+                    target = clamp(
+                        target,
+                        dof.limits.x,
+                        dof.limits.y
+                    );
+                }
+                const float timestep =
+                    world.gravityAndTimestep.w;
+                command =
+                    dof.drive.x *
+                        (
+                            target -
+                            stateQ[qBase + localQ] -
+                            timestep * value
+                        ) -
+                    dof.drive.y * value;
+                const float dryFriction = dof.drive.w;
+                if (dryFriction > 0.0f) {
+                    if (abs(value) > 1.0e-4f) {
+                        command -=
+                            copysign(dryFriction, value);
+                    } else {
+                        command -= clamp(
+                            command,
+                            -dryFriction,
+                            dryFriction
+                        );
+                    }
+                }
+                if ((dof.flags &
+                     MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
+                    dof.limits.w > 0.0f) {
+                    command = clamp(
+                        command,
+                        -dof.limits.w,
+                        dof.limits.w
+                    );
+                }
+            }
+        }
+        workingEffort[
+            environment * dispatch.effortEnvironmentStride +
+            coordinate
+        ] = command;
     }
     statuses[environment] = status;
 }

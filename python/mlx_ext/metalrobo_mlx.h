@@ -25,7 +25,10 @@ public:
         std::uint32_t physicsSubsteps,
         bool applyBodyDamping,
         std::uint32_t environmentCapacity,
+        MetalWorldActuationMode actuationMode,
         MetalWorldSolverMode solverMode,
+        std::uint32_t velocityIterations,
+        std::uint32_t finalVelocityIterations,
         MetalWorldCCDMode ccdMode,
         std::uint32_t maxCCDAdvanceSolvePasses,
         std::uint32_t maxCCDZeroTimeReplays,
@@ -43,7 +46,11 @@ public:
     [[nodiscard]] std::uint32_t physicsSubsteps() const noexcept;
     [[nodiscard]] bool applyBodyDamping() const noexcept;
     [[nodiscard]] std::uint32_t environmentCapacity() const noexcept;
+    [[nodiscard]] MetalWorldActuationMode actuationMode() const noexcept;
     [[nodiscard]] MetalWorldSolverMode solverMode() const noexcept;
+    [[nodiscard]] std::uint32_t velocityIterations() const noexcept;
+    [[nodiscard]] std::uint32_t
+    finalVelocityIterations() const noexcept;
     [[nodiscard]] MetalWorldCCDMode ccdMode() const noexcept;
     [[nodiscard]] std::uint32_t
     maxCCDAdvanceSolvePasses() const noexcept;
@@ -66,8 +73,12 @@ private:
     std::uint32_t physicsSubsteps_ = 0u;
     bool applyBodyDamping_ = true;
     std::uint32_t environmentCapacity_ = 0u;
+    MetalWorldActuationMode actuationMode_ =
+        MetalWorldActuationMode::effort;
     MetalWorldSolverMode solverMode_ =
         MetalWorldSolverMode::freeMotionABA;
+    std::uint32_t velocityIterations_ = 1u;
+    std::uint32_t finalVelocityIterations_ = 1u;
     MetalWorldCCDMode ccdMode_ = MetalWorldCCDMode::disabled;
     std::uint32_t maxCCDAdvanceSolvePasses_ =
         MR_CCD_DEFAULT_ADVANCE_SOLVE_PASSES;
@@ -88,7 +99,10 @@ private:
     float controlTimestep,
     std::uint32_t physicsSubsteps,
     bool applyBodyDamping,
+    const std::string& actuationMode,
     const std::string& solverMode,
+    std::uint32_t velocityIterations,
+    std::uint32_t finalVelocityIterations,
     const std::string& ccdMode,
     std::uint32_t maxCCDAdvanceSolvePasses,
     std::uint32_t maxCCDZeroTimeReplays,

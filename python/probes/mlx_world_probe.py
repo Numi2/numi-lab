@@ -5,16 +5,20 @@ from __future__ import annotations
 
 import json
 import math
+import struct
 
 import mlx.core as mx
 
 from metalrobo import (
     ActorCritic,
+    MLXG1RolloutCollector,
     MLXPPOTrainer,
     MLXRolloutCollector,
     PPOConfig,
+    SceneBodyState,
     compile_world,
     initial_state,
+    psm_physical_position_targets,
     step,
 )
 from metalrobo._mlx_ext import _debug_cpu_step
@@ -22,6 +26,12 @@ from metalrobo._mlx_ext import _debug_cpu_step
 STATUS_QUEUE_FLAGS = 35
 STATUS_WORKER_PACKETS = 40
 STATUS_WORKER_EMPTY_PULLS = 41
+STATUS_CCD_ADVANCES = 36
+STATUS_CLUSTERED_IMPACTS = 37
+STATUS_CCD_ZERO_TIME_REPLAYS = 38
+STATUS_EVENT_CONSUMED_TIME = 56
+STATUS_EVENT_REMAINING_TIME = 57
+STATUS_MESH_CANDIDATES = 27
 PERSISTENT_WORKER_FLAG = 1 << 27
 
 
@@ -39,6 +49,10 @@ def maximum_error(
         (abs(a - b) for a, b in zip(left, right)),
         default=0.0,
     )
+
+
+def status_float(word: int) -> float:
+    return struct.unpack("f", struct.pack("I", int(word)))[0]
 
 
 def main() -> None:
@@ -219,6 +233,210 @@ def main() -> None:
         "MLX persistent manifold state did not survive a horizon",
     )
 
+    ccd_world = compile_world(
+        "franka",
+        scene="cube_ground",
+        environment_capacity=1,
+        solver_mode="throughput_tgs",
+        ccd_mode="hybrid",
+        physics_substeps=1,
+        velocity_iterations=8,
+        final_velocity_iterations=4,
+    )
+    ccd_initial = initial_state(ccd_world, 1)
+    ccd_initial = ccd_initial._replace(
+        scene_bodies=SceneBodyState(
+            position=mx.array(
+                [[[2.0, 0.0, -1.5, 1.0],
+                  [0.0, 0.0, -2.0, 1.0]]],
+                dtype=mx.float32,
+            ),
+            orientation=ccd_initial.scene_bodies.orientation,
+            linear_velocity=mx.array(
+                [[[0.0, 0.0, -60.0, 0.0],
+                  [0.0, 0.0, 0.0, 0.0]]],
+                dtype=mx.float32,
+            ),
+            angular_velocity=(
+                ccd_initial.scene_bodies.angular_velocity
+            ),
+        )
+    )
+    ccd_result = mx.compile(
+        lambda world_state: step(
+            ccd_world,
+            world_state,
+            mx.zeros(
+                (1, ccd_world.nv),
+                dtype=mx.float32,
+            ),
+        )
+    )(ccd_initial)
+    mx.eval(ccd_result)
+    ccd_status = ccd_result.status[0].tolist()
+    require(
+        ccd_status[0] == 0
+        and ccd_status[STATUS_CCD_ADVANCES] == 1
+        and ccd_status[STATUS_CLUSTERED_IMPACTS] == 1
+        and ccd_status[STATUS_CCD_ZERO_TIME_REPLAYS] == 0
+        and abs(
+            status_float(
+                ccd_status[STATUS_EVENT_CONSUMED_TIME]
+            )
+            - ccd_world.control_timestep
+        ) < 2.0e-6
+        and status_float(
+            ccd_status[STATUS_EVENT_REMAINING_TIME]
+        ) == 0.0
+        and float(
+            ccd_result.next_state.scene_bodies.position[
+                0, 0, 2
+            ].item()
+        ) > -1.999
+        and float(
+            ccd_result.next_state.scene_bodies.linear_velocity[
+                0, 0, 2
+            ].item()
+        ) > 0.0,
+        "MLX literal TOI advance/solve/continue lost time or tunneled",
+    )
+
+    g1_contact_world = compile_world(
+        "g1",
+        scene="ground",
+        environment_capacity=2,
+        actuation_mode="implicit_position",
+        solver_mode="throughput_tgs",
+        ccd_mode="speculative",
+        physics_substeps=2,
+        velocity_iterations=2,
+        final_velocity_iterations=1,
+    )
+    g1_policy = ActorCritic(
+        g1_contact_world.nq + g1_contact_world.nv,
+        g1_contact_world.nv - 6,
+        (32, 32),
+    )
+    mx.eval(g1_policy.parameters())
+    g1_collector = MLXG1RolloutCollector(
+        g1_contact_world,
+        g1_policy,
+        2,
+        gamma=0.99,
+        gae_lambda=0.95,
+        chunk_size=2,
+        maximum_episode_steps=8,
+    )
+    g1_rollout_state, g1_rollout = g1_collector.collect(
+        g1_collector.initial(),
+        4,
+    )
+    mx.eval(g1_rollout_state, g1_rollout)
+    require(
+        g1_rollout.observations.shape == (4, 2, 71)
+        and g1_rollout.latents.shape == (4, 2, 29)
+        and int(
+            mx.sum(
+                g1_rollout.physics_errors.astype(mx.uint32)
+            ).item()
+        )
+        == 0
+        and all(
+            math.isfinite(value)
+            for value in g1_rollout.rewards.reshape((-1,)).tolist()
+        ),
+        "G1 contact PPO rollout left MLX or produced invalid physics",
+    )
+
+    terrain_world = compile_world(
+        "g1",
+        scene="terrain",
+        environment_capacity=1,
+        actuation_mode="implicit_position",
+        solver_mode="throughput_tgs",
+        ccd_mode="speculative",
+        physics_substeps=2,
+        velocity_iterations=2,
+        final_velocity_iterations=1,
+    )
+    terrain_state = initial_state(terrain_world, 1)
+    terrain_target = mx.concatenate(
+        (
+            mx.zeros((6,), dtype=mx.float32),
+            mx.array(
+                terrain_world.default_q[7:],
+                dtype=mx.float32,
+            ),
+        )
+    )[None]
+    compiled_terrain_step = mx.compile(
+        lambda world_state: step(
+            terrain_world,
+            world_state,
+            terrain_target,
+        )
+    )
+    terrain_result = None
+    for _ in range(20):
+        terrain_result = compiled_terrain_step(terrain_state)
+        terrain_state = terrain_result.next_state
+    assert terrain_result is not None
+    mx.eval(terrain_result)
+    require(
+        terrain_result.status[0, 0].item() == 0
+        and terrain_result.status[
+            0, STATUS_MESH_CANDIDATES
+        ].item()
+        > 0
+        and terrain_result.contacts.counts[0].item() > 0,
+        "cooked BVH4 terrain did not reach the MLX contact solver",
+    )
+
+    psm_world = compile_world(
+        "psm",
+        scene="needle",
+        environment_capacity=2,
+        actuation_mode="implicit_position",
+        solver_mode="throughput_tgs",
+        ccd_mode="hybrid",
+        physics_substeps=4,
+        velocity_iterations=4,
+        final_velocity_iterations=2,
+    )
+    psm_state = initial_state(psm_world, 2)
+    psm_logical_default = mx.array(
+        [
+            *psm_world.default_q[:6],
+            (
+                psm_world.default_q[7]
+                - psm_world.default_q[6]
+            ),
+        ],
+        dtype=mx.float32,
+    )
+    psm_actions = psm_physical_position_targets(
+        mx.broadcast_to(psm_logical_default, (2, 7))
+    )
+    psm_result = mx.compile(
+        lambda world_state, actions: step(
+            psm_world,
+            world_state,
+            actions,
+        )
+    )(psm_state, psm_actions)
+    mx.eval(psm_result)
+    require(
+        psm_actions.shape == (2, 8)
+        and psm_result.status[:, 0].tolist() == [0, 0]
+        and min(psm_result.contacts.counts.tolist()) > 0
+        and min(
+            psm_result.next_state.solver_cache
+                .manifold_counts.tolist()
+        )
+        > 0,
+        "PSM plus dynamic curved needle did not execute in MLX",
+    )
+
     autodiff_rejected = False
     try:
         gradient = mx.grad(
@@ -329,6 +547,19 @@ def main() -> None:
                         STATUS_WORKER_PACKETS,
                     ].item()
                 ),
+                "literal_ccd_advances":
+                    ccd_status[STATUS_CCD_ADVANCES],
+                "g1_contact_rollout_shape": list(
+                    g1_rollout.observations.shape
+                ),
+                "terrain_mesh_candidates": int(
+                    terrain_result.status[
+                        0,
+                        STATUS_MESH_CANDIDATES,
+                    ].item()
+                ),
+                "psm_needle_contacts":
+                    psm_result.contacts.counts.tolist(),
             },
             separators=(",", ":"),
         )

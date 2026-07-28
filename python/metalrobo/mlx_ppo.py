@@ -381,10 +381,12 @@ class MLXPPOTrainer:
             physics_substeps=physics_substeps,
             metallib_path=metallib_path or "",
         )
-        observation_size = self.world.nq + self.world.nv
+        self.task_name = "franka_joint_stabilization_v1"
+        self.observation_size = self.world.nq + self.world.nv
+        self.action_size = self.world.nv
         self.model = ActorCritic(
-            observation_size,
-            self.world.nv,
+            self.observation_size,
+            self.action_size,
             config.hidden_sizes,
             config.initial_log_std,
         )
@@ -597,7 +599,7 @@ class MLXPPOTrainer:
                 "iteration": iteration,
                 "environment_steps": self.environment_steps,
                 "backend": "mlx_active_encoder",
-                "task": "franka_joint_stabilization_v1",
+                "task": self.task_name,
                 "rollout_seconds": rollout_seconds,
                 "rollout_env_steps_per_second": (
                     added_steps
@@ -649,11 +651,11 @@ class MLXPPOTrainer:
         state = {
             "format_version": 2,
             "backend": "mlx_active_encoder",
-            "task": "franka_joint_stabilization_v1",
+            "task": self.task_name,
             "iteration": self.iteration,
             "environment_steps": self.environment_steps,
-            "observation_size": self.world.nq + self.world.nv,
-            "action_size": self.world.nv,
+            "observation_size": self.observation_size,
+            "action_size": self.action_size,
             "physics_substeps": self.world.physics_substeps,
             "ppo_config": asdict(self.config),
         }
@@ -676,17 +678,13 @@ class MLXPPOTrainer:
         if (
             state.get("format_version") != 2
             or state.get("backend") != "mlx_active_encoder"
-            or state.get("task")
-            != "franka_joint_stabilization_v1"
+            or state.get("task") != self.task_name
         ):
             raise ValueError(
                 "checkpoint is not an MLX active-encoder "
                 "Franka stabilization checkpoint"
             )
-        expected = (
-            self.world.nq + self.world.nv,
-            self.world.nv,
-        )
+        expected = (self.observation_size, self.action_size)
         actual = (
             state.get("observation_size"),
             state.get("action_size"),

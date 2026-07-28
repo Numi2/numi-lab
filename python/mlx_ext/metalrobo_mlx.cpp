@@ -3,6 +3,9 @@
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/Franka.hpp"
 #include "metalrobo/G1.hpp"
+#include "metalrobo/GeometryCooker.hpp"
+#include "metalrobo/SurgicalAssets.hpp"
+#include "metalrobo/SurgicalPSM.hpp"
 
 #include "mlx/allocator.h"
 #include "mlx/backend/metal/device.h"
@@ -228,7 +231,10 @@ MLXCompiledWorld::MLXCompiledWorld(
     const std::uint32_t physicsSubsteps,
     const bool applyBodyDamping,
     const std::uint32_t environmentCapacity,
+    const MetalWorldActuationMode actuationMode,
     const MetalWorldSolverMode solverMode,
+    const std::uint32_t velocityIterations,
+    const std::uint32_t finalVelocityIterations,
     const MetalWorldCCDMode ccdMode,
     const std::uint32_t maxCCDAdvanceSolvePasses,
     const std::uint32_t maxCCDZeroTimeReplays,
@@ -241,7 +247,10 @@ MLXCompiledWorld::MLXCompiledWorld(
       physicsSubsteps_(physicsSubsteps),
       applyBodyDamping_(applyBodyDamping),
       environmentCapacity_(environmentCapacity),
+      actuationMode_(actuationMode),
       solverMode_(solverMode),
+      velocityIterations_(velocityIterations),
+      finalVelocityIterations_(finalVelocityIterations),
       ccdMode_(ccdMode),
       maxCCDAdvanceSolvePasses_(maxCCDAdvanceSolvePasses),
       maxCCDZeroTimeReplays_(maxCCDZeroTimeReplays),
@@ -271,8 +280,22 @@ std::uint32_t MLXCompiledWorld::environmentCapacity() const noexcept {
     return environmentCapacity_;
 }
 
+MetalWorldActuationMode
+MLXCompiledWorld::actuationMode() const noexcept {
+    return actuationMode_;
+}
+
 MetalWorldSolverMode MLXCompiledWorld::solverMode() const noexcept {
     return solverMode_;
+}
+
+std::uint32_t MLXCompiledWorld::velocityIterations() const noexcept {
+    return velocityIterations_;
+}
+
+std::uint32_t
+MLXCompiledWorld::finalVelocityIterations() const noexcept {
+    return finalVelocityIterations_;
 }
 
 MetalWorldCCDMode MLXCompiledWorld::ccdMode() const noexcept {
@@ -490,6 +513,15 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_build_body_states",
         "mr_world_predict_scene",
         "mr_world_project_swept_colliders",
+        "mr_world_initialize_ccd_event_state",
+        "mr_world_prepare_ccd_event_pass",
+        "mr_world_materialize_event_articulation",
+        "mr_world_predict_scene_event",
+        "mr_world_overlay_event_articulation_bodies",
+        "mr_world_project_joint_limits",
+        "mr_world_project_event_colliders",
+        "mr_world_restore_inactive_event_candidate",
+        "mr_world_publish_event_segment",
         "mr_world_flag_eligible_pairs",
         "mr_world_resolve_ccd",
         "mr_world_select_ccd_event_state",
@@ -588,7 +620,10 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
     const float controlTimestep,
     const std::uint32_t physicsSubsteps,
     const bool applyBodyDamping,
+    const std::string& requestedActuationMode,
     const std::string& requestedSolverMode,
+    const std::uint32_t velocityIterations,
+    const std::uint32_t finalVelocityIterations,
     const std::string& requestedCCDMode,
     const std::uint32_t maxCCDAdvanceSolvePasses,
     const std::uint32_t maxCCDZeroTimeReplays,
@@ -600,11 +635,14 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         !(controlTimestep > 0.0f) ||
         physicsSubsteps == 0u ||
         physicsSubsteps > 128u ||
-        environmentCapacity == 0u) {
+        environmentCapacity == 0u ||
+        velocityIterations == 0u ||
+        velocityIterations > 128u ||
+        finalVelocityIterations > 128u) {
         throw std::invalid_argument(
             "control_timestep must be finite and positive and "
             "physics_substeps must be in [1, 128], with a positive "
-            "environment_capacity"
+            "environment_capacity and valid solver iterations"
         );
     }
     if (maxCCDAdvanceSolvePasses == 0u ||
@@ -625,9 +663,24 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         model = makeFrankaPandaEngineModel();
     } else if (modelName == "g1") {
         model = makeUnitreeG1EngineModel();
+    } else if (modelName == "psm") {
+        model = makeDvrkPsmLargeNeedleDriverEngineModel();
     } else {
         throw std::invalid_argument(
-            "model must be 'franka' or 'g1'"
+            "model must be 'franka', 'g1', or 'psm'"
+        );
+    }
+
+    MetalWorldActuationMode actuationMode;
+    if (requestedActuationMode == "effort") {
+        actuationMode = MetalWorldActuationMode::effort;
+    } else if (requestedActuationMode == "implicit_position") {
+        actuationMode =
+            MetalWorldActuationMode::implicitPositionDrive;
+    } else {
+        throw std::invalid_argument(
+            "actuation_mode must be 'effort' or "
+            "'implicit_position'"
         );
     }
 
@@ -657,13 +710,40 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         );
     }
 
+    const bool addCube =
+        scene == "cube" ||
+        scene == "cube_ground" ||
+        scene == "cube_terrain";
+    const bool addGround =
+        scene == "ground" || scene == "cube_ground";
+    const bool addTerrain =
+        scene == "terrain" || scene == "cube_terrain";
+    const bool addNeedle = scene == "needle";
+    if (!scene.empty() &&
+        scene != "none" &&
+        !addCube &&
+        !addGround &&
+        !addTerrain &&
+        !addNeedle) {
+        throw std::invalid_argument(
+            "scene must be 'none', 'cube', 'ground', 'terrain', "
+            "'needle', 'cube_ground', or 'cube_terrain'"
+        );
+    }
+    if (addNeedle && modelName != "psm") {
+        throw std::invalid_argument(
+            "the needle scene requires model='psm'"
+        );
+    }
+    if ((addCube || addGround || addTerrain || addNeedle) &&
+        solverMode == MetalWorldSolverMode::freeMotionABA) {
+        throw std::invalid_argument(
+            "contact scenes require a contact solver mode"
+        );
+    }
+
     std::vector<MRBodyStateGPU> defaultSceneBodies;
-    if (scene == "cube") {
-        if (solverMode == MetalWorldSolverMode::freeMotionABA) {
-            throw std::invalid_argument(
-                "scene='cube' requires a contact solver mode"
-            );
-        }
+    if (addCube) {
         constexpr float inertia = 1.0f / 600.0f;
         constexpr float inverseInertia = 600.0f;
         MRBodyPropertiesGPU body{};
@@ -691,6 +771,10 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         cube.bodyIndex = cubeBody;
         cube.shapeType = MR_SHAPE_BOX;
         cube.materialIndex = 0u;
+        cube.flags =
+            ccdMode == MetalWorldCCDMode::hybrid
+            ? MR_SHAPE_FLAG_ENABLE_CCD
+            : 0u;
         cube.collisionGroup = 1u;
         cube.collisionMask = ~0u;
         cube.slotGeneration = 1u;
@@ -760,9 +844,256 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             cubeState.position = {0.0f, 0.0f, 0.1f, 1.0f};
         }
         defaultSceneBodies.push_back(cubeState);
-    } else if (scene != "none" && !scene.empty()) {
+    }
+    if (addGround) {
+        MRBodyPropertiesGPU ground{};
+        ground.articulationIndex = MR_INVALID_INDEX;
+        ground.parentBody = MR_INVALID_INDEX;
+        ground.inboundJoint = MR_INVALID_INDEX;
+        ground.motionType = MR_MOTION_STATIC;
+        ground.dampingAndSpeedLimits =
+            {0.0f, 0.0f, 1.0e6f, 1.0e6f};
+        const std::uint32_t groundBody =
+            static_cast<std::uint32_t>(model.bodies.size());
+        model.bodies.push_back(ground);
+
+        MRShapeGPU plane{};
+        plane.bodyIndex = groundBody;
+        plane.shapeType = MR_SHAPE_PLANE;
+        plane.materialIndex = 0u;
+        plane.collisionGroup = 1u;
+        plane.collisionMask = ~0u;
+        plane.slotGeneration = 1u;
+        plane.localPosition.w = 1.0f;
+        // The collision plane's authored normal is +Y. Robotics models are
+        // Z-up, so rotate +Y onto +Z.
+        constexpr float kSqrtHalf = 0.7071067811865476f;
+        plane.localRotation = {
+            kSqrtHalf,
+            0.0f,
+            0.0f,
+            kSqrtHalf,
+        };
+        model.shapes.push_back(plane);
+        model.world.bodyCount =
+            static_cast<std::uint32_t>(model.bodies.size());
+        model.world.shapeCount =
+            static_cast<std::uint32_t>(model.shapes.size());
+
+        MRBodyStateGPU groundState{};
+        groundState.position.w = 1.0f;
+        groundState.orientation.w = 1.0f;
+        groundState.flagsAndIndices[0] = MR_MOTION_STATIC;
+        groundState.flagsAndIndices[1] = MR_INVALID_INDEX;
+        groundState.flagsAndIndices[2] = groundBody;
+        defaultSceneBodies.push_back(groundState);
+    }
+    if (addTerrain) {
+        constexpr std::uint32_t side = 17u;
+        constexpr float spacing = 0.25f;
+        constexpr float halfWidth =
+            0.5f * spacing * static_cast<float>(side - 1u);
+        std::vector<mr_float4> vertices;
+        vertices.reserve(side * side);
+        for (std::uint32_t y = 0u; y < side; ++y) {
+            for (std::uint32_t x = 0u; x < side; ++x) {
+                const float px =
+                    -halfWidth + spacing * static_cast<float>(x);
+                const float py =
+                    -halfWidth + spacing * static_cast<float>(y);
+                const float height =
+                    0.035f *
+                        std::sin(1.7f * px) *
+                        std::sin(1.3f * py) +
+                    0.015f *
+                        std::sin(3.1f * px) *
+                        std::sin(2.3f * py);
+                vertices.push_back({px, py, height, 1.0f});
+            }
+        }
+        std::vector<std::uint32_t> indices;
+        indices.reserve(
+            6u * (side - 1u) * (side - 1u)
+        );
+        for (std::uint32_t y = 0u; y + 1u < side; ++y) {
+            for (std::uint32_t x = 0u; x + 1u < side; ++x) {
+                const std::uint32_t v00 = y * side + x;
+                const std::uint32_t v10 = v00 + 1u;
+                const std::uint32_t v01 = v00 + side;
+                const std::uint32_t v11 = v01 + 1u;
+                indices.insert(
+                    indices.end(),
+                    {v00, v10, v11, v00, v11, v01}
+                );
+            }
+        }
+        const GeometryCookResult cooked =
+            cookTriangleMeshGeometry(
+                model,
+                vertices,
+                indices
+            );
+        if (!cooked.succeeded()) {
+            throw std::runtime_error(
+                "could not cook MLX terrain: " + cooked.message
+            );
+        }
+
+        MRBodyPropertiesGPU terrain{};
+        terrain.articulationIndex = MR_INVALID_INDEX;
+        terrain.parentBody = MR_INVALID_INDEX;
+        terrain.inboundJoint = MR_INVALID_INDEX;
+        terrain.motionType = MR_MOTION_STATIC;
+        terrain.dampingAndSpeedLimits =
+            {0.0f, 0.0f, 1.0e6f, 1.0e6f};
+        const std::uint32_t terrainBody =
+            static_cast<std::uint32_t>(model.bodies.size());
+        model.bodies.push_back(terrain);
+
+        MRShapeGPU mesh{};
+        mesh.bodyIndex = terrainBody;
+        mesh.shapeType = MR_SHAPE_TRIANGLE_MESH;
+        mesh.materialIndex = 0u;
+        mesh.collisionGroup = 1u;
+        mesh.collisionMask = ~0u;
+        mesh.slotGeneration = 1u;
+        mesh.localPosition.w = 1.0f;
+        mesh.localRotation.w = 1.0f;
+        mesh.dimensions = {1.0f, 1.0f, 1.0f, 0.0f};
+        mesh.contactRestAndBoundingRadius =
+            {0.002f, 0.0f, 3.0f, 0.0f};
+        mesh.geometryOffset = cooked.geometryIndex;
+        mesh.geometryCount = 1u;
+        model.shapes.push_back(mesh);
+        model.world.bodyCount =
+            static_cast<std::uint32_t>(model.bodies.size());
+        model.world.shapeCount =
+            static_cast<std::uint32_t>(model.shapes.size());
+
+        MRBodyStateGPU terrainState{};
+        terrainState.position.w = 1.0f;
+        terrainState.orientation.w = 1.0f;
+        terrainState.flagsAndIndices[0] = MR_MOTION_STATIC;
+        terrainState.flagsAndIndices[1] = MR_INVALID_INDEX;
+        terrainState.flagsAndIndices[2] = terrainBody;
+        defaultSceneBodies.push_back(terrainState);
+    }
+    if (addNeedle) {
+        const std::uint32_t needleBody =
+            static_cast<std::uint32_t>(model.bodies.size());
+        const std::uint32_t needleMaterial =
+            static_cast<std::uint32_t>(model.materials.size());
+        CurvedSutureNeedleAsset needle =
+            makeCurvedSutureNeedleAsset({
+                .bodyIndex = needleBody,
+                .materialIndex = needleMaterial,
+                .slotGenerationBase = 700001u,
+                .collisionGroup = 1u,
+                .collisionMask = ~0u,
+                .motionType = MR_MOTION_DYNAMIC,
+            });
+        if (ccdMode == MetalWorldCCDMode::hybrid) {
+            for (MRShapeGPU& shape : needle.rigid.shapes) {
+                shape.flags |= MR_SHAPE_FLAG_ENABLE_CCD;
+            }
+        }
+
+        constexpr std::uint32_t jawShapeIndex = 15u;
+        if (jawShapeIndex >= model.shapes.size()) {
+            throw std::runtime_error(
+                "PSM jaw collision geometry is incomplete"
+            );
+        }
+        const MRShapeGPU jawShape = model.shapes[jawShapeIndex];
+        const ArticulatedPointQuery jawQuery{
+            .bodyIndex = jawShape.bodyIndex,
+            .localPoint = {
+                jawShape.localPosition.x,
+                jawShape.localPosition.y,
+                jawShape.localPosition.z,
+            },
+        };
+        std::vector<double> q64(
+            model.defaultQ.begin(),
+            model.defaultQ.end()
+        );
+        std::vector<double> v64(
+            model.defaultV.begin(),
+            model.defaultV.end()
+        );
+        ArticulatedPointKinematics jawKinematics{};
+        std::vector<double> jawJacobian(
+            3u * model.articulations.front().nv
+        );
+        const auto jawStatus =
+            computeArticulatedPointJacobians(
+                model,
+                0u,
+                q64,
+                v64,
+                std::span{&jawQuery, 1u},
+                std::span{&jawKinematics, 1u},
+                jawJacobian
+            );
+        if (!jawStatus.succeeded()) {
+            throw std::runtime_error(
+                "could not place the MLX surgical needle"
+            );
+        }
+        const std::uint32_t graspShapeIndex =
+            (
+                needle.metadata.graspShapeBegin +
+                needle.metadata.graspShapeEnd
+            ) / 2u;
+        if (graspShapeIndex >= needle.rigid.shapes.size()) {
+            throw std::runtime_error(
+                "surgical needle grasp geometry is incomplete"
+            );
+        }
+        const MRShapeGPU graspShape =
+            needle.rigid.shapes[graspShapeIndex];
+        const float centerDistance =
+            jawShape.dimensions.x +
+            graspShape.dimensions.x +
+            2.0e-4f;
+
+        model.bodies.push_back(needle.rigid.body);
+        model.materials.push_back(needle.rigid.material);
+        model.shapes.insert(
+            model.shapes.end(),
+            needle.rigid.shapes.begin(),
+            needle.rigid.shapes.end()
+        );
+        model.world.bodyCount =
+            static_cast<std::uint32_t>(model.bodies.size());
+        model.world.materialCount =
+            static_cast<std::uint32_t>(model.materials.size());
+        model.world.shapeCount =
+            static_cast<std::uint32_t>(model.shapes.size());
+
+        MRBodyStateGPU needleState{};
+        needleState.position = {
+            static_cast<float>(jawKinematics.position[0]) +
+                centerDistance -
+                graspShape.localPosition.x,
+            static_cast<float>(jawKinematics.position[1]) -
+                graspShape.localPosition.y,
+            static_cast<float>(jawKinematics.position[2]) -
+                graspShape.localPosition.z,
+            1.0f,
+        };
+        needleState.orientation.w = 1.0f;
+        needleState.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+        needleState.flagsAndIndices[1] = MR_INVALID_INDEX;
+        needleState.flagsAndIndices[2] = needleBody;
+        defaultSceneBodies.push_back(needleState);
+    }
+    if (actuationMode ==
+            MetalWorldActuationMode::implicitPositionDrive &&
+        defaultSceneBodies.empty()) {
         throw std::invalid_argument(
-            "scene must be 'none' or 'cube'"
+            "MLX implicit_position currently requires a contact "
+            "scene so it executes through WorldStepPrimitive"
         );
     }
     CompiledWorld compiled;
@@ -784,18 +1115,30 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             modelName == "franka" ? 32u : 64u;
         capacityProfile = {
             .candidatePairs =
-                modelName == "franka" ? 64u : 128u,
+                modelName == "franka"
+                ? 64u
+                : modelName == "psm"
+                ? 256u
+                : 128u,
             .rawContacts = 2u * contactCapacity,
             .manifolds = contactCapacity,
             .constraintBlocks = contactCapacity,
             .constraintRows = 3u * contactCapacity,
             .islands = 2u,
             .hardConvexPairs =
-                modelName == "franka" ? 64u : 128u,
+                modelName == "franka"
+                ? 64u
+                : modelName == "psm"
+                ? 256u
+                : 128u,
             .meshTriangleCandidates = 4u * contactCapacity,
             .solverTiles =
-                (
-                    contactCapacity +
+                // One articulation island and one free-body island may both
+                // be non-empty. The worst distribution puts one contact in
+                // the smaller island and all remaining contacts in the
+                // larger one.
+                1u + (
+                    contactCapacity - 1u +
                     MR_WAVE32_CONTACTS_PER_TILE - 1u
                 ) / MR_WAVE32_CONTACTS_PER_TILE,
             .spillRows =
@@ -806,9 +1149,20 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
                   )
                 : 0u,
             .ccdCandidates =
-                modelName == "franka" ? 64u : 128u,
+                modelName == "franka"
+                ? 64u
+                : modelName == "psm"
+                ? 256u
+                : 128u,
             .ccdEvents = MR_CCD_DEFAULT_MAX_EVENTS,
         };
+        if (addTerrain) {
+            capacityProfile.meshTriangleCandidates =
+                std::max<std::uint32_t>(
+                    capacityProfile.meshTriangleCandidates,
+                    4096u
+                );
+        }
     }
     const auto diagnostics =
         compileMetalWorld(
@@ -840,7 +1194,10 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         physicsSubsteps,
         applyBodyDamping,
         environmentCapacity,
+        actuationMode,
         solverMode,
+        velocityIterations,
+        finalVelocityIterations,
         ccdMode,
         maxCCDAdvanceSolvePasses,
         maxCCDZeroTimeReplays,
@@ -1560,6 +1917,50 @@ void WorldStepPrimitive::eval_gpu(
     mx::array qPingB = makeTemporary(qShape, mx::float32);
     mx::array vPingA = makeTemporary(vShape, mx::float32);
     mx::array vPingB = makeTemporary(vShape, mx::float32);
+    mx::array eventQPingA = makeTemporary(qShape, mx::float32);
+    mx::array eventQPingB = makeTemporary(qShape, mx::float32);
+    mx::array eventVPingA = makeTemporary(vShape, mx::float32);
+    mx::array eventVPingB = makeTemporary(vShape, mx::float32);
+    mx::array eventScenePingA =
+        rawRecords.template operator()<MRBodyStateGPU>(
+            static_cast<std::size_t>(environments) *
+            sceneCount
+        );
+    mx::array eventScenePingB =
+        rawRecords.template operator()<MRBodyStateGPU>(
+            static_cast<std::size_t>(environments) *
+            sceneCount
+        );
+    mx::array eventManifoldHeadersA =
+        rawRecords.template operator()<MRManifoldHeaderGPU>(
+            static_cast<std::size_t>(environments) *
+            manifoldCapacity
+        );
+    mx::array eventManifoldHeadersB =
+        rawRecords.template operator()<MRManifoldHeaderGPU>(
+            static_cast<std::size_t>(environments) *
+            manifoldCapacity
+        );
+    mx::array eventManifoldPointsA =
+        rawRecords.template operator()<MRManifoldPointGPU>(
+            static_cast<std::size_t>(environments) *
+            manifoldCapacity *
+            MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY
+        );
+    mx::array eventManifoldPointsB =
+        rawRecords.template operator()<MRManifoldPointGPU>(
+            static_cast<std::size_t>(environments) *
+            manifoldCapacity *
+            MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY
+        );
+    mx::array eventManifoldCountsA =
+        rawRecords.template operator()<std::uint32_t>(
+            environments
+        );
+    mx::array eventManifoldCountsB =
+        rawRecords.template operator()<std::uint32_t>(
+            environments
+        );
     mx::array manifoldHeadersA =
         rawRecords.template operator()<MRManifoldHeaderGPU>(
             static_cast<std::size_t>(environments) *
@@ -1862,6 +2263,13 @@ void WorldStepPrimitive::eval_gpu(
             world_->applyBodyDamping()
             ? MR_METAL_WORLD_APPLY_BODY_DAMPING
             : 0u
+        ) |
+        (
+            world_->actuationMode() ==
+                MetalWorldActuationMode::
+                    implicitPositionDrive
+            ? MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES
+            : 0u
         );
     worldDispatch.nq = nq;
     worldDispatch.nv = nv;
@@ -1916,8 +2324,10 @@ void WorldStepPrimitive::eval_gpu(
         contactDispatch.flags |=
             MR_METAL_WORLD_CONTACT_WAVE32;
     }
-    contactDispatch.velocityIterations = 1u;
-    contactDispatch.finalVelocityIterations = 1u;
+    contactDispatch.velocityIterations =
+        world_->velocityIterations();
+    contactDispatch.finalVelocityIterations =
+        world_->finalVelocityIterations();
     contactDispatch.hardConvexCapacity =
         capacity.hardConvexPairs;
     contactDispatch.meshCandidateCapacity =
@@ -1993,9 +2403,18 @@ void WorldStepPrimitive::eval_gpu(
     abaDispatch.articulationIndex = compiled.articulationIndex();
     abaDispatch.environmentCount = environments;
     abaDispatch.flags =
-        world_->applyBodyDamping()
-        ? MR_ABA_APPLY_BODY_DAMPING
-        : 0u;
+        (
+            world_->applyBodyDamping()
+            ? MR_ABA_APPLY_BODY_DAMPING
+            : 0u
+        ) |
+        (
+            world_->actuationMode() ==
+                MetalWorldActuationMode::
+                    implicitPositionDrive
+            ? MR_ABA_IMPLICIT_DRIVES
+            : 0u
+        );
     abaDispatch.qStride = nq;
     abaDispatch.vStride = nv;
     abaDispatch.effortStride = nv;
@@ -2016,7 +2435,14 @@ void WorldStepPrimitive::eval_gpu(
         kinematicsDispatch;
     factorDispatch.pointCount = pointStride;
     factorDispatch.flags =
-        MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR;
+        MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
+        (
+            world_->actuationMode() ==
+                MetalWorldActuationMode::
+                    implicitPositionDrive
+            ? MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES
+            : 0u
+        );
     factorDispatch.pointStride = pointStride;
     factorDispatch.pointWorldStride = pointStride;
     factorDispatch.massMatrixStride = nv * nv;
@@ -2078,6 +2504,9 @@ void WorldStepPrimitive::eval_gpu(
     outputArray(workingEffort, 8);
     outputArray(worldStatuses, 9);
     outputArray(outputs[9], 10);
+    immutable(kImmutableWorld, 11);
+    immutable(kImmutableArticulations, 12);
+    immutable(kImmutableDofs, 13);
     dispatchThreads(
         environments,
         resources.kernel("mr_mlx_prepare_contact_world")
@@ -2283,7 +2712,64 @@ void WorldStepPrimitive::eval_gpu(
         pass.physicsSubstep = substep;
         MRMetalWorldPassGPU solverPass = pass;
         solverPass.reserved0 = finalSubstep ? 1u : 0u;
+        const bool hybridCCD =
+            world_->ccdMode() == MetalWorldCCDMode::hybrid;
+        const std::uint32_t eventPassCount =
+            hybridCCD
+            ? world_->maxCCDAdvanceSolvePasses()
+            : 1u;
+        const mx::array* eventSourceQ = sourceQ;
+        const mx::array* eventSourceV = sourceV;
+        const mx::array* eventSourceScene = sourceScene;
+        const mx::array* eventSourceHeaders = sourceHeaders;
+        const mx::array* eventSourcePoints = sourcePoints;
+        const mx::array* eventSourceCounts = sourceCounts;
+        mx::array* eventDestinationQ = &eventQPingA;
+        mx::array* eventDestinationV = &eventVPingA;
+        mx::array* eventDestinationScene = &eventScenePingA;
+        mx::array* eventDestinationHeaders =
+            &eventManifoldHeadersA;
+        mx::array* eventDestinationPoints =
+            &eventManifoldPointsA;
+        mx::array* eventDestinationCounts =
+            &eventManifoldCountsA;
+        mx::array* eventStateIn = &ccdEventStatesA;
+        mx::array* eventStateOut = &ccdEventStatesB;
+        if (hybridCCD) {
+            setPhysicsKernel(
+                "mr_world_initialize_ccd_event_state"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            outputArray(ccdEventStatesA, 1);
+            outputArray(ccdEventStatesB, 2);
+            outputArray(ccdImpactClusters, 3);
+            outputArray(outputs[11], 4);
+            encoder.set_bytes(pass, 5);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_initialize_ccd_event_state"
+                )
+            );
+        }
 
+        for (std::uint32_t eventPass = 0u;
+             eventPass < eventPassCount;
+             ++eventPass) {
+        if (hybridCCD && eventPass != 0u) {
+            setPhysicsKernel(
+                "mr_world_prepare_ccd_event_pass"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            inputArray(*eventStateIn, 1);
+            outputArray(outputs[11], 2);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_prepare_ccd_event_pass"
+                )
+            );
+        }
         encoder.set_compute_pipeline_state(resources.abaKernel);
         immutable(kImmutableWorld, 0);
         immutable(kImmutableArticulations, 1);
@@ -2291,8 +2777,8 @@ void WorldStepPrimitive::eval_gpu(
         immutable(kImmutableDofs, 3);
         immutable(kImmutableBodies, 4);
         encoder.set_bytes(abaDispatch, 5);
-        inputArray(*sourceQ, 6);
-        inputArray(*sourceV, 7);
+        inputArray(*eventSourceQ, 6);
+        inputArray(*eventSourceV, 7);
         inputArray(workingEffort, 8);
         immutable(kImmutableEmptyWrench, 9);
         outputArray(candidateAcceleration, 10);
@@ -2312,7 +2798,7 @@ void WorldStepPrimitive::eval_gpu(
         immutable(kImmutableDofs, 3);
         immutable(kImmutableBodies, 4);
         encoder.set_bytes(kinematicsDispatch, 5);
-        inputArray(*sourceQ, 6);
+        inputArray(*eventSourceQ, 6);
         inputArray(pointQueries, 7);
         outputArray(bodyPoses, 8);
         outputArray(pointWorld, 9);
@@ -2326,6 +2812,32 @@ void WorldStepPrimitive::eval_gpu(
             MTL::Size(kOperatorThreads, 1u, 1u)
         );
         encoder.barrier();
+
+        if (hybridCCD) {
+            const std::uint32_t remainingMode =
+                MR_CCD_SEGMENT_REMAINING;
+            setPhysicsKernel(
+                "mr_world_materialize_event_articulation"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            immutable(kImmutableArticulations, 1);
+            immutable(kImmutableJoints, 2);
+            inputArray(*eventSourceQ, 3);
+            inputArray(*eventSourceV, 4);
+            inputArray(candidateAcceleration, 5);
+            inputArray(*eventStateIn, 6);
+            outputArray(candidateQ, 7);
+            outputArray(candidateV, 8);
+            outputArray(abaStatuses, 9);
+            outputArray(outputs[11], 10);
+            encoder.set_bytes(remainingMode, 11);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_materialize_event_articulation"
+                )
+            );
+        }
 
         if (futureKinematics) {
             setPhysicsKernel("mr_articulated_operator");
@@ -2358,7 +2870,7 @@ void WorldStepPrimitive::eval_gpu(
         immutable(kImmutableSceneBodyIndices, 3);
         inputArray(bodyPoses, 4);
         inputArray(operatorStatuses, 5);
-        inputArray(*sourceScene, 6);
+        inputArray(*eventSourceScene, 6);
         outputArray(currentBodies, 7);
         outputArray(outputs[11], 8);
         dispatchThreads(
@@ -2366,18 +2878,39 @@ void WorldStepPrimitive::eval_gpu(
             resources.kernel("mr_world_build_body_states")
         );
 
-        setPhysicsKernel("mr_world_predict_scene");
-        immutable(kImmutableWorld, 0);
-        encoder.set_bytes(contactDispatch, 1);
-        immutable(kImmutableBodies, 2);
-        immutable(kImmutableSceneBodyIndices, 3);
-        inputArray(currentBodies, 4);
-        outputArray(candidateBodies, 5);
-        outputArray(outputs[11], 6);
-        dispatchThreads(
-            environments,
-            resources.kernel("mr_world_predict_scene")
-        );
+        if (hybridCCD) {
+            const std::uint32_t remainingMode =
+                MR_CCD_SEGMENT_REMAINING;
+            setPhysicsKernel("mr_world_predict_scene_event");
+            immutable(kImmutableWorld, 0);
+            encoder.set_bytes(contactDispatch, 1);
+            immutable(kImmutableBodies, 2);
+            immutable(kImmutableSceneBodyIndices, 3);
+            inputArray(currentBodies, 4);
+            inputArray(*eventStateIn, 5);
+            outputArray(candidateBodies, 6);
+            outputArray(outputs[11], 7);
+            encoder.set_bytes(remainingMode, 8);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_predict_scene_event"
+                )
+            );
+        } else {
+            setPhysicsKernel("mr_world_predict_scene");
+            immutable(kImmutableWorld, 0);
+            encoder.set_bytes(contactDispatch, 1);
+            immutable(kImmutableBodies, 2);
+            immutable(kImmutableSceneBodyIndices, 3);
+            inputArray(currentBodies, 4);
+            outputArray(candidateBodies, 5);
+            outputArray(outputs[11], 6);
+            dispatchThreads(
+                environments,
+                resources.kernel("mr_world_predict_scene")
+            );
+        }
 
         setPhysicsKernel("mr_world_project_swept_colliders");
         encoder.set_bytes(contactDispatch, 0);
@@ -2391,6 +2924,7 @@ void WorldStepPrimitive::eval_gpu(
         outputArray(projected, 8);
         outputArray(futureProjected, 9);
         outputArray(outputs[11], 10);
+        inputArray(*eventStateIn, 11);
         dispatchThreads(
             static_cast<std::size_t>(environments) *
                 shapeCount,
@@ -2424,6 +2958,7 @@ void WorldStepPrimitive::eval_gpu(
             immutable(kImmutableMeshTriangles, 9);
             outputArray(ccdPairs, 10);
             outputArray(outputs[11], 11);
+            inputArray(*eventStateIn, 12);
             dispatchThreads(
                 environments,
                 resources.kernel("mr_world_resolve_ccd")
@@ -2434,15 +2969,126 @@ void WorldStepPrimitive::eval_gpu(
             );
             encoder.set_bytes(contactDispatch, 0);
             inputArray(ccdPairs, 1);
-            outputArray(ccdEventStatesA, 2);
-            outputArray(ccdEventStatesB, 3);
+            inputArray(*eventStateIn, 2);
+            outputArray(*eventStateOut, 3);
             outputArray(ccdImpactClusters, 4);
             outputArray(outputs[11], 5);
             encoder.set_bytes(pass, 6);
+            encoder.set_bytes(eventPass, 7);
             dispatchThreads(
                 environments,
                 resources.kernel(
                     "mr_world_select_ccd_event_state"
+                )
+            );
+
+            const std::uint32_t selectedMode =
+                MR_CCD_SEGMENT_SELECTED;
+            setPhysicsKernel(
+                "mr_world_materialize_event_articulation"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            immutable(kImmutableArticulations, 1);
+            immutable(kImmutableJoints, 2);
+            inputArray(*eventSourceQ, 3);
+            inputArray(*eventSourceV, 4);
+            inputArray(candidateAcceleration, 5);
+            inputArray(*eventStateOut, 6);
+            outputArray(candidateQ, 7);
+            outputArray(candidateV, 8);
+            outputArray(abaStatuses, 9);
+            outputArray(outputs[11], 10);
+            encoder.set_bytes(selectedMode, 11);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_materialize_event_articulation"
+                )
+            );
+
+            setPhysicsKernel("mr_articulated_operator");
+            immutable(kImmutableWorld, 0);
+            immutable(kImmutableArticulations, 1);
+            immutable(kImmutableJoints, 2);
+            immutable(kImmutableDofs, 3);
+            immutable(kImmutableBodies, 4);
+            encoder.set_bytes(kinematicsDispatch, 5);
+            inputArray(candidateQ, 6);
+            inputArray(pointQueries, 7);
+            outputArray(bodyPoses, 8);
+            outputArray(pointWorld, 9);
+            outputArray(factor, 10);
+            outputArray(pointJacobians, 11);
+            outputArray(generalizedImpulse, 12);
+            outputArray(deltaVelocity, 13);
+            outputArray(operatorStatuses, 14);
+            encoder.dispatch_threadgroups(
+                MTL::Size(environments, 1u, 1u),
+                MTL::Size(kOperatorThreads, 1u, 1u)
+            );
+            encoder.barrier();
+
+            setPhysicsKernel("mr_world_predict_scene_event");
+            immutable(kImmutableWorld, 0);
+            encoder.set_bytes(contactDispatch, 1);
+            immutable(kImmutableBodies, 2);
+            immutable(kImmutableSceneBodyIndices, 3);
+            inputArray(currentBodies, 4);
+            inputArray(*eventStateOut, 5);
+            outputArray(candidateBodies, 6);
+            outputArray(outputs[11], 7);
+            encoder.set_bytes(selectedMode, 8);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_predict_scene_event"
+                )
+            );
+
+            setPhysicsKernel(
+                "mr_world_overlay_event_articulation_bodies"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            immutable(kImmutableArticulations, 1);
+            immutable(kImmutableBodies, 2);
+            inputArray(bodyPoses, 3);
+            inputArray(operatorStatuses, 4);
+            outputArray(candidateBodies, 5);
+            outputArray(outputs[11], 6);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_overlay_event_articulation_bodies"
+                )
+            );
+
+            setPhysicsKernel(
+                "mr_world_project_event_colliders"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            immutable(kImmutableShapes, 1);
+            immutable(kImmutableGeometryHeaders, 2);
+            inputArray(candidateBodies, 3);
+            outputArray(projected, 4);
+            outputArray(outputs[11], 5);
+            dispatchThreads(
+                static_cast<std::size_t>(environments) *
+                    shapeCount,
+                resources.kernel(
+                    "mr_world_project_event_colliders"
+                )
+            );
+
+            setPhysicsKernel("mr_world_flag_eligible_pairs");
+            encoder.set_bytes(contactDispatch, 0);
+            immutable(kImmutableShapes, 1);
+            immutable(kImmutableEligiblePairs, 2);
+            inputArray(projected, 3);
+            outputArray(pairFlags, 4);
+            dispatchThreads(
+                std::max<std::size_t>(pairFlagCount, 1u),
+                resources.kernel(
+                    "mr_world_flag_eligible_pairs"
                 )
             );
         }
@@ -2587,12 +3233,15 @@ void WorldStepPrimitive::eval_gpu(
         encoder.set_bytes(contactDispatch, 0);
         immutable(kImmutableShapes, 1);
         immutable(kImmutableMaterials, 2);
-        inputArray(currentBodies, 3);
+        inputArray(
+            hybridCCD ? candidateBodies : currentBodies,
+            3
+        );
         immutable(kImmutableArticulations, 4);
         immutable(kImmutableEligiblePairs, 5);
-        inputArray(*sourceCounts, 6);
-        inputArray(*sourceHeaders, 7);
-        inputArray(*sourcePoints, 8);
+        inputArray(*eventSourceCounts, 6);
+        inputArray(*eventSourceHeaders, 7);
+        inputArray(*eventSourcePoints, 8);
         outputArray(candidatePairs, 9);
         outputArray(rawContacts, 10);
         outputArray(rawPairIndices, 11);
@@ -2649,7 +3298,10 @@ void WorldStepPrimitive::eval_gpu(
         immutable(kImmutableDofs, 3);
         immutable(kImmutableBodies, 4);
         inputArray(operatorDispatch, 5);
-        inputArray(*sourceQ, 6);
+        inputArray(
+            hybridCCD ? candidateQ : *eventSourceQ,
+            6
+        );
         inputArray(pointQueries, 7);
         outputArray(bodyPoses, 8);
         outputArray(pointWorld, 9);
@@ -3057,37 +3709,144 @@ void WorldStepPrimitive::eval_gpu(
             );
         }
 
-        setPhysicsKernel("mr_world_integrate_contact_state");
+        const std::uint32_t stateAlreadyIntegrated =
+            hybridCCD ? 1u : 0u;
+        setPhysicsKernel("mr_world_project_joint_limits");
         encoder.set_bytes(contactDispatch, 0);
         immutable(kImmutableArticulations, 1);
-        immutable(kImmutableJoints, 2);
-        immutable(kImmutableBodies, 3);
-        immutable(kImmutableSceneBodyIndices, 4);
-        inputArray(*sourceQ, 5);
-        inputArray(candidateV, 6);
-        outputArray(candidateQ, 7);
-        outputArray(candidateBodies, 8);
-        outputArray(outputs[11], 9);
+        immutable(kImmutableDofs, 2);
+        inputArray(*eventSourceQ, 3);
+        outputArray(candidateQ, 4);
+        outputArray(candidateV, 5);
+        outputArray(outputs[11], 6);
+        encoder.set_bytes(stateAlreadyIntegrated, 7);
         dispatchThreads(
             environments,
             resources.kernel(
-                "mr_world_integrate_contact_state"
+                "mr_world_project_joint_limits"
             )
         );
 
-        if (world_->ccdMode() == MetalWorldCCDMode::hybrid) {
+        if (!hybridCCD) {
+            setPhysicsKernel("mr_world_integrate_contact_state");
+            encoder.set_bytes(contactDispatch, 0);
+            immutable(kImmutableArticulations, 1);
+            immutable(kImmutableJoints, 2);
+            immutable(kImmutableBodies, 3);
+            immutable(kImmutableSceneBodyIndices, 4);
+            inputArray(*eventSourceQ, 5);
+            inputArray(candidateV, 6);
+            outputArray(candidateQ, 7);
+            outputArray(candidateBodies, 8);
+            outputArray(outputs[11], 9);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_integrate_contact_state"
+                )
+            );
+        } else {
+            setPhysicsKernel(
+                "mr_world_restore_inactive_event_candidate"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            immutable(kImmutableArticulations, 1);
+            immutable(kImmutableSceneBodyIndices, 2);
+            inputArray(*eventSourceQ, 3);
+            inputArray(*eventSourceV, 4);
+            inputArray(*eventSourceScene, 5);
+            inputArray(*eventSourceHeaders, 6);
+            inputArray(*eventSourcePoints, 7);
+            inputArray(*eventSourceCounts, 8);
+            outputArray(candidateQ, 9);
+            outputArray(candidateV, 10);
+            outputArray(candidateBodies, 11);
+            outputArray(candidateManifoldHeaders, 12);
+            outputArray(candidateManifoldPoints, 13);
+            outputArray(candidateManifoldCounts, 14);
+            inputArray(outputs[11], 15);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_restore_inactive_event_candidate"
+                )
+            );
+
             setPhysicsKernel(
                 "mr_world_finalize_ccd_event_state"
             );
             encoder.set_bytes(contactDispatch, 0);
-            outputArray(ccdEventStatesB, 1);
+            outputArray(*eventStateOut, 1);
             outputArray(outputs[11], 2);
+            encoder.set_bytes(eventPass, 3);
             dispatchThreads(
                 environments,
                 resources.kernel(
                     "mr_world_finalize_ccd_event_state"
                 )
             );
+
+            if (eventPass + 1u < eventPassCount) {
+                setPhysicsKernel(
+                    "mr_world_publish_event_segment"
+                );
+                encoder.set_bytes(contactDispatch, 0);
+                immutable(kImmutableArticulations, 1);
+                immutable(kImmutableSceneBodyIndices, 2);
+                inputArray(*eventSourceQ, 3);
+                inputArray(*eventSourceV, 4);
+                inputArray(*eventSourceScene, 5);
+                inputArray(*eventSourceHeaders, 6);
+                inputArray(*eventSourcePoints, 7);
+                inputArray(*eventSourceCounts, 8);
+                inputArray(candidateQ, 9);
+                inputArray(candidateV, 10);
+                inputArray(candidateBodies, 11);
+                inputArray(candidateManifoldHeaders, 12);
+                inputArray(candidateManifoldPoints, 13);
+                inputArray(candidateManifoldCounts, 14);
+                inputArray(outputs[11], 15);
+                outputArray(*eventDestinationQ, 16);
+                outputArray(*eventDestinationV, 17);
+                outputArray(*eventDestinationScene, 18);
+                outputArray(*eventDestinationHeaders, 19);
+                outputArray(*eventDestinationPoints, 20);
+                outputArray(*eventDestinationCounts, 21);
+                dispatchThreads(
+                    environments,
+                    resources.kernel(
+                        "mr_world_publish_event_segment"
+                    )
+                );
+                eventSourceQ = eventDestinationQ;
+                eventSourceV = eventDestinationV;
+                eventSourceScene = eventDestinationScene;
+                eventSourceHeaders = eventDestinationHeaders;
+                eventSourcePoints = eventDestinationPoints;
+                eventSourceCounts = eventDestinationCounts;
+                const bool destinationWasA =
+                    eventDestinationQ == &eventQPingA;
+                eventDestinationQ = destinationWasA
+                    ? &eventQPingB
+                    : &eventQPingA;
+                eventDestinationV = destinationWasA
+                    ? &eventVPingB
+                    : &eventVPingA;
+                eventDestinationScene = destinationWasA
+                    ? &eventScenePingB
+                    : &eventScenePingA;
+                eventDestinationHeaders = destinationWasA
+                    ? &eventManifoldHeadersB
+                    : &eventManifoldHeadersA;
+                eventDestinationPoints = destinationWasA
+                    ? &eventManifoldPointsB
+                    : &eventManifoldPointsA;
+                eventDestinationCounts = destinationWasA
+                    ? &eventManifoldCountsB
+                    : &eventManifoldCountsA;
+                std::swap(eventStateIn, eventStateOut);
+            }
+        }
         }
 
         setPhysicsKernel("mr_world_latch_contact_status");

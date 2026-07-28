@@ -131,6 +131,16 @@ NB_MODULE(_mlx_ext, module) {
             }
         )
         .def_prop_ro(
+            "floating_root",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                const auto& articulations =
+                    world.world().model().articulations;
+                return !articulations.empty() &&
+                    articulations.front().rootType ==
+                        MR_ROOT_FLOATING;
+            }
+        )
+        .def_prop_ro(
             "manifold_capacity",
             [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
                 return world.world().capacities().manifolds;
@@ -294,6 +304,16 @@ NB_MODULE(_mlx_ext, module) {
             }
         )
         .def_prop_ro(
+            "velocity_iterations",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                velocityIterations
+        )
+        .def_prop_ro(
+            "final_velocity_iterations",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                finalVelocityIterations
+        )
+        .def_prop_ro(
             "ccd_mode",
             [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
                 switch (world.ccdMode()) {
@@ -305,6 +325,16 @@ NB_MODULE(_mlx_ext, module) {
                         return "hybrid";
                 }
                 return "unsupported";
+            }
+        )
+        .def_prop_ro(
+            "actuation_mode",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.actuationMode() ==
+                    metalrobo::MetalWorldActuationMode::
+                        implicitPositionDrive
+                    ? "implicit_position"
+                    : "effort";
             }
         )
         .def_prop_ro(
@@ -335,7 +365,10 @@ NB_MODULE(_mlx_ext, module) {
         "control_timestep"_a = 1.0f / 60.0f,
         "physics_substeps"_a = 4u,
         "apply_body_damping"_a = true,
+        "actuation_mode"_a = "effort",
         "solver_mode"_a = "free_motion_aba",
+        "velocity_iterations"_a = 1u,
+        "final_velocity_iterations"_a = 1u,
         "ccd_mode"_a = "speculative",
         "max_ccd_advance_solve_passes"_a =
             MR_CCD_DEFAULT_ADVANCE_SOLVE_PASSES,

@@ -43,7 +43,7 @@
 // a command-buffer completion or CPU-visible intermediate state.
 #define MR_METAL_WORLD_ABI_VERSION 3u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
-#define MR_METAL_WORLD_CONTACT_ABI_VERSION 3u
+#define MR_METAL_WORLD_CONTACT_ABI_VERSION 4u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
 #define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
 #define MR_WAVE32_CONTACTS_PER_TILE 32u
@@ -442,6 +442,9 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // Computes and publishes body poses without assembling/factorizing M.
     // pointCount must be zero. This is the collider-projection fast path.
     MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY = 1u << 2u,
+    // Adds h D + h^2 K to generalized drive inertia. The matching
+    // acceleration RHS is prepared from position targets by MetalWorld.
+    MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES = 1u << 3u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.
@@ -518,6 +521,7 @@ enum MRABAStatusCode : mr_u32 {
 enum MRABAFlags : mr_u32 {
     MR_ABA_HAS_BODY_WRENCHES = 1u << 0u,
     MR_ABA_APPLY_BODY_DAMPING = 1u << 1u,
+    MR_ABA_IMPLICIT_DRIVES = 1u << 2u,
 };
 
 // One dispatch advances a compact environment-major batch for one immutable
@@ -617,6 +621,10 @@ enum MRMetalWorldFlags : mr_u32 {
     // Enables the device-resident collision/manifold/constraint/island graph.
     // Exactly one of CONTACTS and FREE_MOTION_ONLY is set.
     MR_METAL_WORLD_CONTACTS = 1u << 4u,
+    // The action stream carries desired generalized positions. Root and
+    // unactuated coordinates are ignored; driven scalar joints use the
+    // model's stiffness/damping in an implicit acceleration solve.
+    MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES = 1u << 5u,
 };
 
 // Immutable strides and dimensions for one environment-major rollout.
@@ -911,6 +919,13 @@ enum MRCCDEventStateFlags : mr_u32 {
     MR_CCD_EVENT_FAILED = 1u << 5u,
 };
 
+enum MRCCDSegmentMode : mr_u32 {
+    // Predict over all time still owned by the current event cursor.
+    MR_CCD_SEGMENT_REMAINING = 0u,
+    // Materialize only the duration selected by the current TOI pass.
+    MR_CCD_SEGMENT_SELECTED = 1u,
+};
+
 // Transient per-environment event cursor. It is initialized for every
 // physical microstep and ping-ponged only inside the submission; it is not
 // semantic WorldState and never crosses the MLX API.
@@ -932,7 +947,8 @@ typedef struct MR_ALIGN16 MRCCDEventStateGPU {
 } MRCCDEventStateGPU;
 
 // Deterministic simultaneous-impact cluster selected from the sorted CCD
-// candidate prefix. TOI is normalized over the current remaining interval.
+// candidate prefix. Every interval component is in physical seconds relative
+// to the current event state, never normalized time.
 typedef struct MR_ALIGN16 MRCCDImpactClusterGPU {
     mr_u32 environment;
     mr_u32 firstEventSlot;
