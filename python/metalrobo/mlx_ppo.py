@@ -681,8 +681,8 @@ class MLXPPOTrainer:
             or state.get("task") != self.task_name
         ):
             raise ValueError(
-                "checkpoint is not an MLX active-encoder "
-                "Franka stabilization checkpoint"
+                "checkpoint task does not match this MLX "
+                f"active-encoder trainer ({self.task_name})"
             )
         expected = (self.observation_size, self.action_size)
         actual = (

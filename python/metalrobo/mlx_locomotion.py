@@ -442,13 +442,18 @@ class MLXG1PPOTrainer(MLXPPOTrainer):
         physics_substeps: int = 4,
         velocity_iterations: int = 2,
         final_velocity_iterations: int = 1,
+        scene: str = "ground",
     ) -> None:
         config.validate()
+        if scene not in {"ground", "terrain"}:
+            raise ValueError(
+                "G1 PPO scene must be 'ground' or 'terrain'"
+            )
         self.config = config
         mx.random.seed(config.seed)
         self.world = compile_world(
             "g1",
-            scene="ground",
+            scene=scene,
             environment_capacity=config.environment_count,
             actuation_mode="implicit_position",
             solver_mode="throughput_tgs",
@@ -458,7 +463,11 @@ class MLXG1PPOTrainer(MLXPPOTrainer):
             final_velocity_iterations=final_velocity_iterations,
             metallib_path=metallib_path or "",
         )
-        self.task_name = "g1_flat_ground_standing_v1"
+        self.task_name = (
+            "g1_flat_ground_standing_v1"
+            if scene == "ground"
+            else "g1_rough_mesh_standing_v1"
+        )
         self.observation_size = self.world.nq + self.world.nv
         self.action_size = self.world.nv - 6
         self.model = ActorCritic(

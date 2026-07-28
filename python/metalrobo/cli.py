@@ -12,6 +12,7 @@ from typing import Sequence
 import numpy as np
 
 from .env import FrankaEnv
+from .mlx_locomotion import MLXG1PPOTrainer
 from .mlx_ppo import MLXPPOTrainer
 from .ppo import (
     PPOConfig,
@@ -40,6 +41,16 @@ def _train_parser(parser: argparse.ArgumentParser) -> None:
             "NumPy/ctypes validation adapter"
         ),
     )
+    parser.add_argument(
+        "--task",
+        choices=(
+            "franka-stabilization",
+            "g1-standing",
+            "g1-terrain",
+        ),
+        default="franka-stabilization",
+        help="device-resident MLX task to train",
+    )
     parser.add_argument("--iterations", type=int, default=1000)
     parser.add_argument("--rollout-steps", type=int, default=64)
     parser.add_argument("--update-epochs", type=int, default=4)
@@ -60,7 +71,7 @@ def _train_parser(parser: argparse.ArgumentParser) -> None:
     )
     parser.add_argument("--initial-log-std", type=float, default=-0.5)
     parser.add_argument("--no-anneal-lr", action="store_true")
-    parser.add_argument("--checkpoint-dir", default="runs/franka")
+    parser.add_argument("--checkpoint-dir")
     parser.add_argument("--checkpoint-interval", type=int, default=10)
     parser.add_argument("--resume", type=Path)
     parser.add_argument(
@@ -72,7 +83,7 @@ def _train_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--maximum-episode-steps",
         type=int,
-        default=256,
+        help="task horizon; defaults to 256 for Franka and 1200 for G1",
     )
     parser.add_argument(
         "--physics-substeps",
@@ -122,6 +133,27 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def run_train(args: argparse.Namespace) -> int:
+    if (
+        args.backend != "mlx"
+        and args.task != "franka-stabilization"
+    ):
+        raise ValueError(
+            "G1 tasks require --backend mlx; the ctypes adapter "
+            "is Franka-only"
+        )
+    g1_task = args.task in {"g1-standing", "g1-terrain"}
+    maximum_episode_steps = (
+        args.maximum_episode_steps
+        if args.maximum_episode_steps is not None
+        else (1_200 if g1_task else 256)
+    )
+    checkpoint_directory = args.checkpoint_dir or (
+        "runs/g1-terrain"
+        if args.task == "g1-terrain"
+        else "runs/g1-standing"
+        if args.task == "g1-standing"
+        else "runs/franka"
+    )
     config = PPOConfig(
         environment_count=args.envs,
         rollout_steps=args.rollout_steps,
@@ -141,7 +173,7 @@ def run_train(args: argparse.Namespace) -> int:
         anneal_learning_rate=not args.no_anneal_lr,
         seed=args.seed,
         checkpoint_interval=args.checkpoint_interval,
-        checkpoint_directory=args.checkpoint_dir,
+        checkpoint_directory=checkpoint_directory,
     )
     if args.backend == "mlx":
         if args.library:
@@ -149,13 +181,27 @@ def run_train(args: argparse.Namespace) -> int:
                 "--library applies only to --backend ctypes-debug; "
                 "the MLX primitive links the compiled engine directly"
             )
-        trainer = MLXPPOTrainer(
-            config,
-            metallib_path=args.metallib,
-            rollout_chunk_size=args.rollout_chunk_size,
-            maximum_episode_steps=args.maximum_episode_steps,
-            physics_substeps=args.physics_substeps,
-        )
+        if g1_task:
+            trainer = MLXG1PPOTrainer(
+                config,
+                metallib_path=args.metallib,
+                rollout_chunk_size=args.rollout_chunk_size,
+                maximum_episode_steps=maximum_episode_steps,
+                physics_substeps=args.physics_substeps,
+                scene=(
+                    "terrain"
+                    if args.task == "g1-terrain"
+                    else "ground"
+                ),
+            )
+        else:
+            trainer = MLXPPOTrainer(
+                config,
+                metallib_path=args.metallib,
+                rollout_chunk_size=args.rollout_chunk_size,
+                maximum_episode_steps=maximum_episode_steps,
+                physics_substeps=args.physics_substeps,
+            )
     else:
         trainer = PPOTrainer(
             config,

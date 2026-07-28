@@ -106,6 +106,20 @@ metalrobo train \
   --rollout-chunk-size 16 \
   --iterations 1000 \
   --checkpoint-dir runs/franka-stabilization
+
+metalrobo train \
+  --backend mlx \
+  --task g1-standing \
+  --envs 2048 \
+  --rollout-steps 64 \
+  --iterations 1000
+
+metalrobo train \
+  --backend mlx \
+  --task g1-terrain \
+  --envs 1024 \
+  --rollout-steps 64 \
+  --iterations 1000
 ```
 
 Policy inference, effort mapping, physics, rewards, termination/reset, GAE,
@@ -114,12 +128,12 @@ inside `mx.compile`; bounded lazy chunks use `mx.async_eval`. Blocking
 evaluation occurs only at declared rollout/logging, optimizer, and checkpoint
 boundaries.
 
-The packaged CLI trainer remains the `franka_joint_stabilization_v1`
-baseline. `MLXG1RolloutCollector` and `MLXG1PPOTrainer` provide the
-contact-capable floating-base locomotion path; the policy, implicit targets,
-physics, reward, termination, reset, GAE, and updates remain MLX arrays.
-Contact policies can also wrap the pure `step()` transition with task-specific
-MLX reward and curriculum logic inside `mx.compile`.
+The CLI exposes `franka-stabilization`, `g1-standing`, and `g1-terrain`.
+`MLXG1RolloutCollector` and `MLXG1PPOTrainer` provide the contact-capable
+floating-base path; the policy, implicit targets, physics, reward,
+termination, reset, GAE, and updates remain MLX arrays. Contact policies can
+also wrap the pure `step()` transition with task-specific MLX reward and
+curriculum logic inside `mx.compile`.
 
 ## Debug compatibility path
 
