@@ -41,6 +41,12 @@ set(METALROBO_BROADPHASE_SOURCE
 set(METALROBO_ARTICULATED_OPERATOR_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedOperator.metal"
 )
+set(METALROBO_ARTICULATED_ABA_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedABA.metal"
+)
+set(METALROBO_ARTICULATED_INVERSE_MASS_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ArticulatedInverseMass.metal"
+)
 set(METALROBO_PHYSICS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboPhysics.air"
 )
@@ -58,6 +64,12 @@ set(METALROBO_BROADPHASE_AIR
 )
 set(METALROBO_ARTICULATED_OPERATOR_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedOperator.air"
+)
+set(METALROBO_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboArticulatedABA.air"
+)
+set(METALROBO_ARTICULATED_INVERSE_MASS_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboArticulatedInverseMass.air"
 )
 set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 
@@ -100,6 +112,18 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
             -o "${METALROBO_ARTICULATED_OPERATOR_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
+            -o "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
     COMMAND xcrun -sdk macosx metallib
             "${METALROBO_PHYSICS_AIR}"
             "${METALROBO_CONSTRAINT_AIR}"
@@ -107,6 +131,8 @@ add_custom_command(
             "${METALROBO_COLLISION_AIR}"
             "${METALROBO_BROADPHASE_AIR}"
             "${METALROBO_ARTICULATED_OPERATOR_AIR}"
+            "${METALROBO_ARTICULATED_ABA_AIR}"
+            "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
             -o "${METALROBO_METALLIB}"
     DEPENDS
         "${METALROBO_PHYSICS_SOURCE}"
@@ -115,6 +141,8 @@ add_custom_command(
         "${METALROBO_COLLISION_SOURCE}"
         "${METALROBO_BROADPHASE_SOURCE}"
         "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
+        "${METALROBO_ARTICULATED_ABA_SOURCE}"
+        "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
     VERBATIM
@@ -127,6 +155,7 @@ add_library(
     SHARED
     src/core/Model.cpp
     src/core/Franka.cpp
+    src/core/FrankaEngine.cpp
     src/core/CpuDynamics.cpp
     src/core/EngineModel.cpp
     src/core/G1.cpp
@@ -134,7 +163,9 @@ add_library(
     src/core/FreeBodyDynamics.cpp
     src/core/ArticulatedDynamics.cpp
     src/core/ArticulatedActuation.cpp
+    src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp
+    src/core/ArticulatedMixedConstraints.cpp
     src/core/ArticulatedCollision.cpp
     src/core/ArticulatedWorld.cpp
     src/core/ConstraintIR.cpp
@@ -143,6 +174,8 @@ add_library(
     src/core/ConstraintSolver.cpp
     src/core/RigidBodyWorld.cpp
     src/metal/MetalArticulatedOperator.mm
+    src/metal/MetalArticulatedABA.mm
+    src/metal/MetalArticulatedInverseMass.mm
     src/metal/MetalRuntime.mm
     src/c_api.cpp
 )
@@ -231,6 +264,22 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(
+    metalrobo_franka_engine_model_probe
+    apps/franka_engine_model_probe.cpp
+)
+target_link_libraries(
+    metalrobo_franka_engine_model_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_franka_engine_model_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 add_executable(metalrobo_collision_probe apps/collision_probe.cpp)
 target_link_libraries(metalrobo_collision_probe PRIVATE metalrobo)
 set_target_properties(
@@ -287,6 +336,22 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_articulated_joint_limits_probe
+    apps/articulated_joint_limits_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_joint_limits_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_joint_limits_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
     metalrobo_articulated_contact_probe
     apps/articulated_contact_probe.cpp
 )
@@ -297,6 +362,22 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_articulated_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_mixed_constraints_probe
+    apps/articulated_mixed_constraints_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_mixed_constraints_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_mixed_constraints_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
@@ -539,6 +620,76 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_articulated_aba_gpu_probe
+    apps/articulated_aba_gpu_probe.mm
+)
+add_dependencies(
+    metalrobo_articulated_aba_gpu_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_articulated_aba_gpu_probe
+    PRIVATE
+        METALROBO_ABA_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_articulated_aba_gpu_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_articulated_aba_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_articulated_aba_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    apps/articulated_inverse_mass_gpu_probe.mm
+)
+add_dependencies(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    PRIVATE
+        METALROBO_INVERSE_MASS_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_articulated_inverse_mass_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
     metalrobo_articulated_operator_host_probe
     apps/articulated_operator_host_probe.cpp
 )
@@ -549,6 +700,54 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_articulated_operator_host_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_operator_context_probe
+    apps/articulated_operator_context_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_operator_context_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_operator_context_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_aba_host_probe
+    apps/articulated_aba_host_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_aba_host_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_aba_host_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_inverse_mass_host_probe
+    apps/articulated_inverse_mass_host_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_inverse_mass_host_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_inverse_mass_host_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

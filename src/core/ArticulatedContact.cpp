@@ -322,8 +322,7 @@ ArticulatedContactDiagnostics buildArticulatedContactProblem(
             contacts.size(),
             nv
         );
-    if (contacts.empty() ||
-        contacts.size() >
+    if (contacts.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         freeVelocity.size() != nv) {
         diagnostics.status =
@@ -407,23 +406,26 @@ ArticulatedContactDiagnostics buildArticulatedContactProblem(
         queries.size() * 3u * nv,
         0.0
     );
-    const ArticulatedDynamicsDiagnostics kinematicsDiagnostics =
-        computeArticulatedPointJacobians(
-            model,
-            articulationIndex,
-            q,
-            freeVelocity,
-            queries,
-            queryKinematics,
-            queryJacobians,
-            config
-        );
-    if (!kinematicsDiagnostics.succeeded()) {
-        diagnostics.status =
-            ArticulatedContactStatus::dynamicsFailure;
-        diagnostics.dynamicsStatus =
-            kinematicsDiagnostics.status;
-        return diagnostics;
+    if (!queries.empty()) {
+        const ArticulatedDynamicsDiagnostics
+            kinematicsDiagnostics =
+                computeArticulatedPointJacobians(
+                    model,
+                    articulationIndex,
+                    q,
+                    freeVelocity,
+                    queries,
+                    queryKinematics,
+                    queryJacobians,
+                    config
+                );
+        if (!kinematicsDiagnostics.succeeded()) {
+            diagnostics.status =
+                ArticulatedContactStatus::dynamicsFailure;
+            diagnostics.dynamicsStatus =
+                kinematicsDiagnostics.status;
+            return diagnostics;
+        }
     }
 
     std::vector<double> massMatrix(nv * nv, 0.0);

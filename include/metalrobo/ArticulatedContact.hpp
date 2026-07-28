@@ -100,8 +100,10 @@ struct ArticulatedContactDiagnostics {
 // Delassus operator transactionally. When
 // buildDenseInverseCompatibilityAdapter is true, it additionally materializes
 // M^-1 for independent legacy/oracle solvers. Production paths should pass
-// false. freeVelocity is the unconstrained generalized velocity at which the
-// velocity-level contact problem is solved.
+// false. An empty contact span produces a validated factor-only problem for
+// limit-only or other generalized unilateral rows without inventing a dummy
+// contact. freeVelocity is the unconstrained generalized velocity at which
+// the velocity-level problem is solved.
 [[nodiscard]] ArticulatedContactDiagnostics
 buildArticulatedContactProblem(
     const EngineModel& model,

@@ -66,6 +66,7 @@ metalrobo::ArticulatedWorldConfig makeConfig() {
     config.constraintAdapter.stictionTransitionVelocity = 1.0e-3F;
     config.constraintEvaluation.timestep =
         config.dynamics.timestep;
+    config.jointLimits.timestep = config.dynamics.timestep;
     config.constraintEvaluation.penetrationSlop = 1.0e-4;
     config.constraintEvaluation.maximumDepenetrationVelocity = 2.0;
     config.constraintEvaluation.minimumTimeConstantRatio = 2.0;
@@ -135,12 +136,23 @@ MRShapeGPU makeGroundPlane() {
 std::vector<double> loweredG1Configuration(
     const metalrobo::EngineModel& model,
     const metalrobo::ArticulatedDynamicsConfig& dynamics,
-    const double desiredPenetration
+    const double desiredPenetration,
+    const std::span<const double> initialConfiguration = {}
 ) {
-    std::vector<double> q(
-        model.defaultQ.begin(),
-        model.defaultQ.end()
+    require(
+        initialConfiguration.empty() ||
+            initialConfiguration.size() == model.defaultQ.size(),
+        "initial G1 configuration has wrong dimension"
     );
+    std::vector<double> q;
+    if (initialConfiguration.empty()) {
+        q.assign(model.defaultQ.begin(), model.defaultQ.end());
+    } else {
+        q.assign(
+            initialConfiguration.begin(),
+            initialConfiguration.end()
+        );
+    }
     const std::vector<double> zeroVelocity(
         model.articulations[0].nv,
         0.0
@@ -303,6 +315,244 @@ int main() {
             "composed no-contact step differs from free dynamics"
         );
 
+        // The policy-facing controlled step must be exactly the manual
+        // actuation -> generalized-force composition, including saturation
+        // and passive loss, while retaining world transactionality.
+        metalrobo::ArticulatedWorldConfig controlledConfig =
+            makeConfig();
+        std::vector<double> controlledInitialQ(
+            model.defaultQ.begin(),
+            model.defaultQ.end()
+        );
+        controlledInitialQ[2] += 1.0;
+        std::vector<double> controlledInitialV(nv, 0.0);
+        controlledInitialV[6] = 0.05;
+        std::vector<metalrobo::ArticulatedDofCommand> commands(nv);
+        for (std::size_t localV = 6u; localV < nv; ++localV) {
+            const MRArticulationGPU& articulation =
+                model.articulations[0];
+            const MRDofPropertiesGPU& dof =
+                model.dofs[articulation.vOffset + localV];
+            require(
+                dof.qIndex != MR_INVALID_INDEX &&
+                    dof.qIndex >= articulation.qOffset &&
+                    dof.qIndex - articulation.qOffset <
+                        controlledInitialQ.size(),
+                "G1 actuator lost scalar configuration coordinate"
+            );
+            commands[localV].mode =
+                metalrobo::ArticulatedActuationMode::modelPD;
+            commands[localV].desiredPosition =
+                controlledInitialQ[
+                    dof.qIndex - articulation.qOffset
+                ];
+        }
+        commands[6].feedForward = 2.0;
+
+        metalrobo::ArticulatedActuationResult manualActuation;
+        const auto manualActuationDiagnostics =
+            metalrobo::evaluateArticulatedActuation(
+                model,
+                0u,
+                controlledInitialQ,
+                controlledInitialV,
+                commands,
+                manualActuation,
+                controlledConfig.actuation
+            );
+        require(
+            manualActuationDiagnostics.succeeded(),
+            "manual G1 actuation evaluation failed"
+        );
+
+        std::vector<double> manualQ = controlledInitialQ;
+        std::vector<double> manualV = controlledInitialV;
+        std::vector<double> controlledQ = controlledInitialQ;
+        std::vector<double> controlledV = controlledInitialV;
+        metalrobo::ArticulatedWorldCache manualCache;
+        metalrobo::ArticulatedWorldCache controlledCache;
+        const auto manualWorldDiagnostics =
+            metalrobo::stepArticulatedWorldCpu(
+                model,
+                0u,
+                manualQ,
+                manualV,
+                manualActuation.generalizedEffort,
+                {},
+                {},
+                {},
+                controlledConfig,
+                manualCache
+            );
+        const auto controlledDiagnostics =
+            metalrobo::stepControlledArticulatedWorldCpu(
+                model,
+                0u,
+                controlledQ,
+                controlledV,
+                commands,
+                {},
+                {},
+                {},
+                controlledConfig,
+                controlledCache
+            );
+        require(
+            manualWorldDiagnostics.succeeded() &&
+                controlledDiagnostics.succeeded() &&
+                controlledDiagnostics.actuation.succeeded() &&
+                controlledDiagnostics.actuation.dofCount == nv &&
+                manualQ == controlledQ &&
+                manualV == controlledV &&
+                manualCache.step == controlledCache.step,
+            "controlled world differs from manual actuation composition"
+        );
+
+        std::vector<double> rejectedQ = controlledInitialQ;
+        std::vector<double> rejectedV = controlledInitialV;
+        metalrobo::ArticulatedWorldCache rejectedCache;
+        const std::vector<double> rejectedQBefore = rejectedQ;
+        const std::vector<double> rejectedVBefore = rejectedV;
+        std::vector<metalrobo::ArticulatedDofCommand>
+            rejectedCommands = commands;
+        rejectedCommands[0].mode =
+            metalrobo::ArticulatedActuationMode::effort;
+        rejectedCommands[0].feedForward = 1.0;
+        const auto rejectedDiagnostics =
+            metalrobo::stepControlledArticulatedWorldCpu(
+                model,
+                0u,
+                rejectedQ,
+                rejectedV,
+                rejectedCommands,
+                {},
+                {},
+                {},
+                controlledConfig,
+                rejectedCache
+            );
+        require(
+            !rejectedDiagnostics.succeeded() &&
+                rejectedDiagnostics.failure ==
+                    metalrobo::ArticulatedWorldFailure::actuation &&
+                rejectedDiagnostics.actuation.status ==
+                    metalrobo::ArticulatedActuationStatus::
+                        rootActuationForbidden &&
+                rejectedQ == rejectedQBefore &&
+                rejectedV == rejectedVBefore &&
+                rejectedCache.step == 0u,
+            "rejected controlled step published state"
+        );
+
+        // A policy step approaching a G1 position stop must generate a
+        // unilateral impulse, not clamp q after integration. With no contact,
+        // this also exercises the factor-only mixed-constraint path.
+        metalrobo::ArticulatedWorldConfig limitConfig =
+            makeConfig();
+        std::vector<double> limitQ(
+            model.defaultQ.begin(),
+            model.defaultQ.end()
+        );
+        limitQ[2] += 1.0;
+        std::vector<double> limitV(nv, 0.0);
+        const MRArticulationGPU& g1 = model.articulations[0];
+        const std::size_t limitLocalV = 6u;
+        const MRDofPropertiesGPU& limitDof =
+            model.dofs[g1.vOffset + limitLocalV];
+        require(
+            (limitDof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
+                limitDof.qIndex >= g1.qOffset,
+            "selected G1 DoF lost its position limit"
+        );
+        const std::size_t limitLocalQ =
+            limitDof.qIndex - g1.qOffset;
+        const double lowerLimit = limitDof.limits.x;
+        limitQ[limitLocalQ] = lowerLimit + 5.0e-4;
+        limitV[limitLocalV] = -1.0;
+        const std::vector<double> limitQBefore = limitQ;
+        metalrobo::ArticulatedWorldCache limitCache;
+        const auto limitDiagnostics =
+            metalrobo::stepArticulatedWorldCpu(
+                model,
+                0u,
+                limitQ,
+                limitV,
+                zeroForce,
+                {},
+                {},
+                {},
+                limitConfig,
+                limitCache
+            );
+        require(
+            limitDiagnostics.succeeded() &&
+                limitDiagnostics.contactCount == 0u &&
+                limitDiagnostics.jointLimitCount > 0u &&
+                limitDiagnostics.mixedSolver.succeeded() &&
+                limitDiagnostics.mixedSolver
+                        .finalFactorApplications == 1u &&
+                limitDiagnostics.maximumJointLimitImpulse > 0.0 &&
+                limitQ[limitLocalQ] >= lowerLimit - 1.0e-10 &&
+                limitQ[limitLocalQ] != lowerLimit &&
+                limitQBefore[limitLocalQ] > lowerLimit,
+            "G1 joint stop was not enforced by an impulse code=" +
+                std::to_string(limitDiagnostics.code) +
+                " failure=" +
+                std::to_string(
+                    static_cast<std::uint32_t>(
+                        limitDiagnostics.failure
+                    )
+                ) +
+                " rows=" +
+                std::to_string(
+                    limitDiagnostics.jointLimitCount
+                ) +
+                " impulse=" +
+                std::to_string(
+                    limitDiagnostics.maximumJointLimitImpulse
+                ) +
+                " q=" + std::to_string(limitQ[limitLocalQ]) +
+                " lower=" + std::to_string(lowerLimit)
+        );
+
+        metalrobo::ArticulatedWorldConfig unsupportedLimitConfig =
+            limitConfig;
+        unsupportedLimitConfig.solverType =
+            MR_SOLVER_REFERENCE_FP64;
+        std::vector<double> unsupportedLimitQ = limitQBefore;
+        std::vector<double> unsupportedLimitV(nv, 0.0);
+        unsupportedLimitV[limitLocalV] = -1.0;
+        const std::vector<double> unsupportedLimitQBefore =
+            unsupportedLimitQ;
+        const std::vector<double> unsupportedLimitVBefore =
+            unsupportedLimitV;
+        metalrobo::ArticulatedWorldCache unsupportedLimitCache;
+        const auto unsupportedLimitDiagnostics =
+            metalrobo::stepArticulatedWorldCpu(
+                model,
+                0u,
+                unsupportedLimitQ,
+                unsupportedLimitV,
+                zeroForce,
+                {},
+                {},
+                {},
+                unsupportedLimitConfig,
+                unsupportedLimitCache
+            );
+        require(
+            !unsupportedLimitDiagnostics.succeeded() &&
+                unsupportedLimitDiagnostics.code ==
+                    MR_STEP_UNSUPPORTED &&
+                unsupportedLimitDiagnostics.failure ==
+                    metalrobo::ArticulatedWorldFailure::
+                        mixedConstraintSolver &&
+                unsupportedLimitQ == unsupportedLimitQBefore &&
+                unsupportedLimitV == unsupportedLimitVBefore &&
+                unsupportedLimitCache.step == 0u,
+            "unsupported reference limit solve published state"
+        );
+
         // A late configuration-limit failure occurs after prediction and
         // collision. It must not publish q, v, or either cache.
         metalrobo::ArticulatedWorldConfig rollbackConfig =
@@ -380,6 +630,54 @@ int main() {
         const std::array<MRShapeGPU, 1> groundShape{
             makeGroundPlane(),
         };
+
+        // Exercise the actual composed monolithic path: collision contacts
+        // and an active G1 stop share one Delassus matrix and one factor
+        // application. The common contact residual is checked afterwards.
+        std::vector<double> mixedSeed(
+            model.defaultQ.begin(),
+            model.defaultQ.end()
+        );
+        mixedSeed[limitLocalQ] = lowerLimit + 5.0e-4;
+        std::vector<double> mixedQ =
+            loweredG1Configuration(
+                model,
+                contactConfig.dynamics,
+                desiredPenetration,
+                mixedSeed
+            );
+        std::vector<double> mixedV(nv, 0.0);
+        mixedV[2] = -0.25;
+        mixedV[limitLocalV] = -1.0;
+        metalrobo::ArticulatedWorldCache mixedCache;
+        const auto mixedDiagnostics =
+            metalrobo::stepArticulatedWorldCpu(
+                model,
+                0u,
+                mixedQ,
+                mixedV,
+                zeroForce,
+                {},
+                staticGround,
+                groundShape,
+                contactConfig,
+                mixedCache
+            );
+        require(
+            mixedDiagnostics.succeeded() &&
+                mixedDiagnostics.contactCount > 0u &&
+                mixedDiagnostics.jointLimitCount > 0u &&
+                mixedDiagnostics.mixedSolver.succeeded() &&
+                mixedDiagnostics.mixedSolver.contactCount > 0u &&
+                mixedDiagnostics.mixedSolver.limitRowCount > 0u &&
+                mixedDiagnostics.mixedSolver
+                        .finalFactorApplications == 1u &&
+                mixedDiagnostics.constraintResidual.succeeded() &&
+                mixedDiagnostics.constraintResidual.withinTolerance(
+                    contactConfig.constraintResidual
+                ),
+            "monolithic G1 contact+limit world step failed"
+        );
 
         // Identical initial states and caches must replay bit-for-bit.
         std::vector<double> qualityQ = contactInitialQ;
@@ -605,6 +903,10 @@ int main() {
             << kinematicDiagnostics.adaptation
                 .maximumKinematicTargetCompensation
             << " deterministic=yes"
+            << " controlled_policy_step=yes"
+            << " controlled_rollback=yes"
+            << " joint_limit_impulse=yes"
+            << " mixed_contact_limits=yes"
             << " late_rollback=yes"
             << " overflow_rollback=yes"
             << " status=ok\n";

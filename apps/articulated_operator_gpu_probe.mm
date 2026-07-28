@@ -131,7 +131,8 @@ MetalResult runMetal(
     const std::vector<
         std::vector<MRArticulatedPointImpulseGPU>
     >& environmentPoints,
-    const mr_u32 dispatchReserved0 = 0u
+    const mr_u32 dispatchReserved0 = 0u,
+    const bool writeDiagnosticMass = true
 ) {
     @autoreleasepool {
         require(
@@ -165,8 +166,9 @@ MetalResult runMetal(
         dispatch.environmentCount =
             static_cast<mr_u32>(environmentCount);
         dispatch.pointCount = static_cast<mr_u32>(pointCount);
-        dispatch.flags =
-            MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS;
+        dispatch.flags = writeDiagnosticMass
+            ? MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS
+            : 0u;
         dispatch.qStride = articulation.nq;
         dispatch.pointStride = dispatch.pointCount;
         dispatch.bodyPoseStride = articulation.bodyCount;
@@ -396,7 +398,7 @@ MetalResult runMetal(
         [encoder setBuffer:statusBuffer offset:0 atIndex:14];
         [encoder
             dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
-            threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
         [encoder endEncoding];
 
         const auto start = std::chrono::steady_clock::now();
@@ -1159,6 +1161,40 @@ int main() {
             "G1 Metal replay was not bitwise deterministic"
         );
 
+        constexpr std::size_t throughputEnvironmentCount = 1024u;
+        std::vector<std::vector<float>> throughputQ(
+            throughputEnvironmentCount
+        );
+        std::vector<
+            std::vector<MRArticulatedPointImpulseGPU>
+        > throughputPoints(throughputEnvironmentCount);
+        for (std::size_t environment = 0u;
+             environment < throughputEnvironmentCount;
+             ++environment) {
+            const std::size_t source = environment % g1Q.size();
+            throughputQ[environment] = g1Q[source];
+            throughputPoints[environment] = g1Points[source];
+        }
+        const MetalResult throughputGpu =
+            runMetal(
+                g1,
+                throughputQ,
+                throughputPoints,
+                0u,
+                false
+            );
+        require(
+            std::all_of(
+                throughputGpu.statuses.begin(),
+                throughputGpu.statuses.end(),
+                [](const MRArticulatedOperatorStatusGPU& status) {
+                    return status.code ==
+                        MR_ARTICULATED_OPERATOR_SUCCESS;
+                }
+            ),
+            "parallel G1 throughput batch failed"
+        );
+
         auto invalidPoints = freePoints;
         invalidPoints[0][0].bodyIndex = MR_INVALID_INDEX;
         const MetalResult invalidGpu =
@@ -1297,6 +1333,19 @@ int main() {
             << " transactional_failure=yes"
             << " armature_canary=yes"
             << " inertia_validation_parity=yes\n";
+        std::cout
+            << "  G1 throughput: environments="
+            << throughputEnvironmentCount
+            << " threadgroup_lanes=32"
+            << " diagnostic_mass=no"
+            << " elapsed_ms=" << throughputGpu.elapsedMilliseconds
+            << " environments_per_s="
+            << (
+                1000.0 *
+                static_cast<double>(throughputEnvironmentCount) /
+                throughputGpu.elapsedMilliseconds
+            )
+            << '\n';
         return 0;
     } catch (const std::exception& error) {
         std::cerr

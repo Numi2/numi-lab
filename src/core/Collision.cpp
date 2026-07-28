@@ -770,6 +770,22 @@ std::optional<std::uint32_t> pairClass(
          typeB == MR_SHAPE_CYLINDER)) {
         return collisionPairCylinderPlane;
     }
+    if ((typeA == MR_SHAPE_SPHERE &&
+         typeB == MR_SHAPE_CAPSULE) ||
+        (typeA == MR_SHAPE_CAPSULE &&
+         typeB == MR_SHAPE_SPHERE)) {
+        return collisionPairSphereCapsule;
+    }
+    if (typeA == MR_SHAPE_CAPSULE &&
+        typeB == MR_SHAPE_CAPSULE) {
+        return collisionPairCapsuleCapsule;
+    }
+    if ((typeA == MR_SHAPE_SPHERE &&
+         typeB == MR_SHAPE_BOX) ||
+        (typeA == MR_SHAPE_BOX &&
+         typeB == MR_SHAPE_SPHERE)) {
+        return collisionPairSphereBox;
+    }
     return std::nullopt;
 }
 
@@ -1116,6 +1132,262 @@ Vec3 coincidentNormal(
     return result;
 }
 
+Vec3 stableSegmentNormal(
+    const Vec3 directionA,
+    const Vec3 directionB,
+    const std::uint32_t colliderA,
+    const std::uint32_t colliderB
+) {
+    const Vec3 crossed = cross(directionA, directionB);
+    if (lengthSquared(crossed) > kTiny) {
+        return normalized(crossed);
+    }
+
+    const Vec3 direction =
+        lengthSquared(directionA) > kTiny
+        ? normalized(directionA)
+        : (
+              lengthSquared(directionB) > kTiny
+              ? normalized(directionB)
+              : Vec3{}
+          );
+    if (lengthSquared(direction) <= kTiny) {
+        return coincidentNormal(colliderA, colliderB);
+    }
+
+    const Vec3 absoluteDirection = absolute(direction);
+    Vec3 reference;
+    if (absoluteDirection.x <= absoluteDirection.y &&
+        absoluteDirection.x <= absoluteDirection.z) {
+        reference = {1.0, 0.0, 0.0};
+    } else if (absoluteDirection.y <= absoluteDirection.z) {
+        reference = {0.0, 1.0, 0.0};
+    } else {
+        reference = {0.0, 0.0, 1.0};
+    }
+    Vec3 result = normalized(cross(direction, reference));
+    if (((colliderA * 73856093u) ^
+         (colliderB * 19349663u)) & 4u) {
+        result = -result;
+    }
+    return result;
+}
+
+struct SegmentClosestPoint {
+    Vec3 point{};
+    double parameter = 0.0;
+};
+
+SegmentClosestPoint closestPointOnSegment(
+    const Vec3 point,
+    const Vec3 endpoint0,
+    const Vec3 endpoint1
+) {
+    const Vec3 segment = endpoint1 - endpoint0;
+    const double squaredLength = lengthSquared(segment);
+    if (!(squaredLength > kTiny)) {
+        return {endpoint0, 0.0};
+    }
+    const double parameter = std::clamp(
+        dot(point - endpoint0, segment) / squaredLength,
+        0.0,
+        1.0
+    );
+    return {
+        endpoint0 + segment * parameter,
+        parameter,
+    };
+}
+
+struct SegmentPairClosestPoints {
+    Vec3 pointA{};
+    Vec3 pointB{};
+    double parameterA = 0.0;
+    double parameterB = 0.0;
+};
+
+SegmentPairClosestPoints closestPointsOnSegments(
+    const Vec3 endpointA0,
+    const Vec3 endpointA1,
+    const Vec3 endpointB0,
+    const Vec3 endpointB1
+) {
+    const Vec3 directionA = endpointA1 - endpointA0;
+    const Vec3 directionB = endpointB1 - endpointB0;
+    const Vec3 offset = endpointA0 - endpointB0;
+    const double squaredA = lengthSquared(directionA);
+    const double squaredB = lengthSquared(directionB);
+    const double projectedA = dot(directionA, offset);
+    const double projectedB = dot(directionB, offset);
+
+    double parameterA = 0.0;
+    double parameterB = 0.0;
+    if (!(squaredA > kTiny) && !(squaredB > kTiny)) {
+        return {
+            endpointA0,
+            endpointB0,
+            0.0,
+            0.0,
+        };
+    }
+    if (!(squaredA > kTiny)) {
+        parameterB = std::clamp(
+            projectedB / squaredB,
+            0.0,
+            1.0
+        );
+    } else {
+        const double crossProjection =
+            dot(directionA, directionB);
+        if (!(squaredB > kTiny)) {
+            parameterA = std::clamp(
+                -projectedA / squaredA,
+                0.0,
+                1.0
+            );
+        } else {
+            const double denominator =
+                squaredA * squaredB -
+                crossProjection * crossProjection;
+            if (denominator > kTiny * squaredA * squaredB) {
+                parameterA = std::clamp(
+                    (
+                        crossProjection * projectedB -
+                        projectedA * squaredB
+                    ) /
+                        denominator,
+                    0.0,
+                    1.0
+                );
+            }
+            parameterB =
+                (
+                    crossProjection * parameterA +
+                    projectedB
+                ) /
+                squaredB;
+            if (parameterB < 0.0) {
+                parameterB = 0.0;
+                parameterA = std::clamp(
+                    -projectedA / squaredA,
+                    0.0,
+                    1.0
+                );
+            } else if (parameterB > 1.0) {
+                parameterB = 1.0;
+                parameterA = std::clamp(
+                    (
+                        crossProjection - projectedA
+                    ) /
+                        squaredA,
+                    0.0,
+                    1.0
+                );
+            }
+        }
+    }
+    return {
+        endpointA0 + directionA * parameterA,
+        endpointB0 + directionB * parameterB,
+        parameterA,
+        parameterB,
+    };
+}
+
+std::uint32_t capsuleFeature(const double parameter) {
+    if (parameter <= 0.0) {
+        return 0u;
+    }
+    return parameter >= 1.0 ? 1u : 2u;
+}
+
+struct SphereBoxWitness {
+    Vec3 normal{};
+    Vec3 boxPoint{};
+    double separation = 0.0;
+    std::uint32_t boxFeature = 0u;
+};
+
+SphereBoxWitness sphereBoxWitness(
+    const WorldShape& sphere,
+    const WorldShape& box
+) {
+    const Vec3 localCenter = inverseRotate(
+        box.rotation,
+        sphere.center - box.center
+    );
+    Vec3 closest{
+        std::clamp(
+            localCenter.x,
+            -box.halfExtents.x,
+            box.halfExtents.x
+        ),
+        std::clamp(
+            localCenter.y,
+            -box.halfExtents.y,
+            box.halfExtents.y
+        ),
+        std::clamp(
+            localCenter.z,
+            -box.halfExtents.z,
+            box.halfExtents.z
+        ),
+    };
+    const Vec3 localDelta = closest - localCenter;
+    const double distance = length(localDelta);
+
+    SphereBoxWitness result;
+    if (distance > kTiny) {
+        const Vec3 localNormal = localDelta / distance;
+        result.normal = rotate(box.rotation, localNormal);
+        result.separation = distance - sphere.radius;
+        const auto region = [](const double coordinate,
+                               const double halfExtent) {
+            if (coordinate < -halfExtent) {
+                return 0u;
+            }
+            return coordinate > halfExtent ? 2u : 1u;
+        };
+        result.boxFeature =
+            region(localCenter.x, box.halfExtents.x) +
+            3u * region(localCenter.y, box.halfExtents.y) +
+            9u * region(localCenter.z, box.halfExtents.z);
+    } else {
+        const std::array distances{
+            box.halfExtents.x - std::abs(localCenter.x),
+            box.halfExtents.y - std::abs(localCenter.y),
+            box.halfExtents.z - std::abs(localCenter.z),
+        };
+        std::uint32_t axis = 0u;
+        if (distances[1] < distances[axis]) {
+            axis = 1u;
+        }
+        if (distances[2] < distances[axis]) {
+            axis = 2u;
+        }
+        const double coordinate = component(localCenter, axis);
+        const double sign = coordinate >= 0.0 ? 1.0 : -1.0;
+        Vec3 outward{};
+        if (axis == 0u) {
+            outward.x = sign;
+            closest.x = sign * box.halfExtents.x;
+        } else if (axis == 1u) {
+            outward.y = sign;
+            closest.y = sign * box.halfExtents.y;
+        } else {
+            outward.z = sign;
+            closest.z = sign * box.halfExtents.z;
+        }
+        result.normal = rotate(box.rotation, -outward);
+        result.separation = -distances[axis] - sphere.radius;
+        result.boxFeature =
+            27u + 2u * axis + (sign > 0.0 ? 1u : 0u);
+    }
+    result.boxPoint =
+        box.center + rotate(box.rotation, closest);
+    return result;
+}
+
 struct ContactBatch {
     std::array<MRRawContactGPU, 8> contacts{};
     std::uint32_t count = 0;
@@ -1188,6 +1460,122 @@ ContactBatch generateContacts(
                 featureKey(MR_SHAPE_SPHERE, 0u),
                 featureKey(MR_SHAPE_SPHERE, 0u)
             );
+            result.count = 1u;
+        }
+        return result;
+    }
+
+    if (pair.flags == collisionPairSphereCapsule) {
+        const bool sphereIsA = shapeA.type == MR_SHAPE_SPHERE;
+        const WorldShape& sphere = sphereIsA ? shapeA : shapeB;
+        const WorldShape& capsule = sphereIsA ? shapeB : shapeA;
+        const SegmentClosestPoint closest =
+            closestPointOnSegment(
+                sphere.center,
+                capsule.capsuleEndpoint0,
+                capsule.capsuleEndpoint1
+            );
+        const Vec3 delta = closest.point - sphere.center;
+        const double centerDistance = length(delta);
+        const Vec3 normal =
+            centerDistance > kTiny
+            ? delta / centerDistance
+            : stableSegmentNormal(
+                  capsule.capsuleEndpoint1 -
+                      capsule.capsuleEndpoint0,
+                  {},
+                  sphere.index,
+                  capsule.index
+              );
+        const double separation =
+            centerDistance - sphere.radius - capsule.radius;
+        if (separation <= contactDistance) {
+            MRRawContactGPU contact = makeRawContact(
+                normal,
+                separation,
+                sphere.center + normal * sphere.radius,
+                closest.point - normal * capsule.radius,
+                featureKey(MR_SHAPE_SPHERE, 0u),
+                featureKey(
+                    MR_SHAPE_CAPSULE,
+                    capsuleFeature(closest.parameter)
+                )
+            );
+            if (!sphereIsA) {
+                contact = swappedContact(contact);
+            }
+            result.contacts[0] = contact;
+            result.count = 1u;
+        }
+        return result;
+    }
+
+    if (pair.flags == collisionPairCapsuleCapsule) {
+        const SegmentPairClosestPoints closest =
+            closestPointsOnSegments(
+                shapeA.capsuleEndpoint0,
+                shapeA.capsuleEndpoint1,
+                shapeB.capsuleEndpoint0,
+                shapeB.capsuleEndpoint1
+            );
+        const Vec3 delta = closest.pointB - closest.pointA;
+        const double centerDistance = length(delta);
+        const Vec3 normal =
+            centerDistance > kTiny
+            ? delta / centerDistance
+            : stableSegmentNormal(
+                  shapeA.capsuleEndpoint1 -
+                      shapeA.capsuleEndpoint0,
+                  shapeB.capsuleEndpoint1 -
+                      shapeB.capsuleEndpoint0,
+                  pair.colliderA,
+                  pair.colliderB
+              );
+        const double separation =
+            centerDistance - shapeA.radius - shapeB.radius;
+        if (separation <= contactDistance) {
+            result.contacts[0] = makeRawContact(
+                normal,
+                separation,
+                closest.pointA + normal * shapeA.radius,
+                closest.pointB - normal * shapeB.radius,
+                featureKey(
+                    MR_SHAPE_CAPSULE,
+                    capsuleFeature(closest.parameterA)
+                ),
+                featureKey(
+                    MR_SHAPE_CAPSULE,
+                    capsuleFeature(closest.parameterB)
+                )
+            );
+            result.count = 1u;
+        }
+        return result;
+    }
+
+    if (pair.flags == collisionPairSphereBox) {
+        const bool sphereIsA = shapeA.type == MR_SHAPE_SPHERE;
+        const WorldShape& sphere = sphereIsA ? shapeA : shapeB;
+        const WorldShape& box = sphereIsA ? shapeB : shapeA;
+        const SphereBoxWitness witness =
+            sphereBoxWitness(sphere, box);
+        if (witness.separation <= contactDistance) {
+            MRRawContactGPU contact = makeRawContact(
+                witness.normal,
+                witness.separation,
+                sphere.center +
+                    witness.normal * sphere.radius,
+                witness.boxPoint,
+                featureKey(MR_SHAPE_SPHERE, 0u),
+                featureKey(
+                    MR_SHAPE_BOX,
+                    witness.boxFeature
+                )
+            );
+            if (!sphereIsA) {
+                contact = swappedContact(contact);
+            }
+            result.contacts[0] = contact;
             result.count = 1u;
         }
         return result;

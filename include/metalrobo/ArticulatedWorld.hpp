@@ -1,6 +1,8 @@
 #pragma once
 
+#include "metalrobo/ArticulatedActuation.hpp"
 #include "metalrobo/ArticulatedCollision.hpp"
+#include "metalrobo/ArticulatedMixedConstraints.hpp"
 #include "metalrobo/QualityContactSolver.hpp"
 #include "metalrobo/RigidBodyWorld.hpp"
 
@@ -12,7 +14,9 @@ namespace metalrobo {
 enum class ArticulatedWorldFailure : std::uint32_t {
     none = 0u,
     invalidConfiguration,
+    actuation,
     freeDynamics,
+    jointLimitCompilation,
     collisionStateProjection,
     collision,
     contactAssembly,
@@ -23,6 +27,7 @@ enum class ArticulatedWorldFailure : std::uint32_t {
     contactOperator,
     contactSpaceAdapter,
     contactSolver,
+    mixedConstraintSolver,
     impulseApplication,
     solverVelocityMismatch,
     residualEvaluation,
@@ -34,6 +39,8 @@ enum class ArticulatedWorldFailure : std::uint32_t {
 // solver. Throughput solvers are deliberately not accepted here.
 struct ArticulatedWorldConfig {
     ArticulatedDynamicsConfig dynamics{};
+    ArticulatedActuationConfig actuation{};
+    ArticulatedJointLimitConfig jointLimits{};
     CollisionConfig collision{
         .capacities = {
             .pairCapacity = MR_MAX_CONTACTS_PER_SOLVER_BATCH,
@@ -73,7 +80,9 @@ struct ArticulatedWorldCache {
 struct ArticulatedWorldStepDiagnostics {
     MRStepStatusCode code = MR_STEP_SUCCESS;
     ArticulatedWorldFailure failure = ArticulatedWorldFailure::none;
+    ArticulatedActuationDiagnostics actuation{};
     ArticulatedDynamicsDiagnostics freeDynamics{};
+    ArticulatedJointLimitDiagnostics jointLimitCompilation{};
     ArticulatedDynamicsDiagnostics collisionKinematics{};
     CollisionDiagnostics collision{};
     ContactAssemblyDiagnostics assembly{};
@@ -85,14 +94,17 @@ struct ArticulatedWorldStepDiagnostics {
     ArticulatedContactDiagnostics contactSpaceAdapter{};
     QualityContactSolution qualitySolver{};
     ReferenceConicSolution referenceSolver{};
+    ArticulatedMixedConstraintDiagnostics mixedSolver{};
     ArticulatedContactDiagnostics impulseApplication{};
     ArticulatedDynamicsDiagnostics postSolveKinematics{};
     ConstraintIRResidualReport constraintResidual{};
     ArticulatedDynamicsDiagnostics integration{};
     std::uint32_t contactCount = 0u;
+    std::uint32_t jointLimitCount = 0u;
     std::uint64_t semanticFingerprint = 0u;
     double maximumPenetration = 0.0;
     double maximumNormalImpulse = 0.0;
+    double maximumJointLimitImpulse = 0.0;
     double maximumVelocityCorrection = 0.0;
     double solverVelocityRelativeDisagreement = 0.0;
 
@@ -119,8 +131,10 @@ struct ArticulatedWorldStepDiagnostics {
 // `environmentShapes` use body indices local to `environmentBodies`; they are
 // appended after model.shapes and remapped internally. Their material indices
 // reference model.materials. Environment bodies must be static or kinematic,
-// have zero inverse mass, and have no articulation/link binding. Exclusions
-// index the combined collider sequence [model shapes, environment shapes].
+// have zero inverse mass, and have no articulation/link binding. Colliders on
+// bodies connected by one model joint are excluded automatically; caller
+// exclusions are merged with that model-derived set and index the combined
+// collider sequence [model shapes, environment shapes].
 //
 // Constraint evaluation is the only place that chooses restitution,
 // static/dynamic friction, stabilization, or discrete regularization. The
@@ -135,6 +149,30 @@ stepArticulatedWorldCpu(
     std::span<double> q,
     std::span<double> v,
     std::span<const double> generalizedForce,
+    std::span<const ArticulatedBodyWrench> externalWrenches,
+    std::span<const MRBodyStateGPU> environmentBodies,
+    std::span<const MRShapeGPU> environmentShapes,
+    const ArticulatedWorldConfig& config,
+    ArticulatedWorldCache& cache,
+    std::span<const CollisionPairExclusion> exclusions = {}
+);
+
+// Policy-facing controlled step. Commands are evaluated against the same
+// immutable per-DoF metadata used by dynamics, including drive gains, effort
+// saturation, armature, and passive dry friction. The resulting generalized
+// effort is fed directly into the transactional world step.
+//
+// Root commands must remain disabled. Base disturbances belong in
+// externalWrenches rather than bypassing the actuator model. If actuation or
+// any later world stage fails, q, v, caches, and caller-owned commands remain
+// unchanged.
+[[nodiscard]] ArticulatedWorldStepDiagnostics
+stepControlledArticulatedWorldCpu(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<double> q,
+    std::span<double> v,
+    std::span<const ArticulatedDofCommand> commands,
     std::span<const ArticulatedBodyWrench> externalWrenches,
     std::span<const MRBodyStateGPU> environmentBodies,
     std::span<const MRShapeGPU> environmentShapes,

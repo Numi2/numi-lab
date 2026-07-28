@@ -12,6 +12,9 @@ constant uint kPairSpherePlane = 2u;
 constant uint kPairCapsulePlane = 3u;
 constant uint kPairBoxPlane = 4u;
 constant uint kPairCylinderPlane = 5u;
+constant uint kPairSphereCapsule = 6u;
+constant uint kPairCapsuleCapsule = 7u;
+constant uint kPairSphereBox = 8u;
 constant float kCylinderAlignmentTolerance = 1.0e-6f;
 constant uint kCylinderNegativeCapRingBase = 0u;
 constant uint kCylinderPositiveCapRingBase = 4u;
@@ -157,6 +160,16 @@ float3 quaternionRotate(const float4 quaternion, const float3 value) {
         cross(vector, twiceCross);
 }
 
+float3 quaternionInverseRotate(
+    const float4 quaternion,
+    const float3 value
+) {
+    return quaternionRotate(
+        float4(-quaternion.xyz, quaternion.w),
+        value
+    );
+}
+
 bool checkedQuaternion(const float4 input, thread float4& output) {
     if (!canonicalFloat4(input)) {
         return false;
@@ -204,6 +217,22 @@ uint supportedPairClass(const uint typeA, const uint typeB) {
         (typeA == MR_SHAPE_PLANE &&
          typeB == MR_SHAPE_CYLINDER)) {
         return kPairCylinderPlane;
+    }
+    if ((typeA == MR_SHAPE_SPHERE &&
+         typeB == MR_SHAPE_CAPSULE) ||
+        (typeA == MR_SHAPE_CAPSULE &&
+         typeB == MR_SHAPE_SPHERE)) {
+        return kPairSphereCapsule;
+    }
+    if (typeA == MR_SHAPE_CAPSULE &&
+        typeB == MR_SHAPE_CAPSULE) {
+        return kPairCapsuleCapsule;
+    }
+    if ((typeA == MR_SHAPE_SPHERE &&
+         typeB == MR_SHAPE_BOX) ||
+        (typeA == MR_SHAPE_BOX &&
+         typeB == MR_SHAPE_SPHERE)) {
+        return kPairSphereBox;
     }
     return 0u;
 }
@@ -625,6 +654,243 @@ float3 coincidentNormal(
     return result;
 }
 
+float3 stableSegmentNormal(
+    const float3 directionA,
+    const float3 directionB,
+    const uint colliderA,
+    const uint colliderB
+) {
+    const float3 crossed = cross(directionA, directionB);
+    if (dot(crossed, crossed) > kTiny) {
+        return normalize(crossed);
+    }
+
+    float3 direction = float3(0.0f);
+    if (dot(directionA, directionA) > kTiny) {
+        direction = normalize(directionA);
+    } else if (dot(directionB, directionB) > kTiny) {
+        direction = normalize(directionB);
+    } else {
+        return coincidentNormal(colliderA, colliderB);
+    }
+
+    const float3 absoluteDirection = abs(direction);
+    float3 reference;
+    if (absoluteDirection.x <= absoluteDirection.y &&
+        absoluteDirection.x <= absoluteDirection.z) {
+        reference = float3(1.0f, 0.0f, 0.0f);
+    } else if (absoluteDirection.y <= absoluteDirection.z) {
+        reference = float3(0.0f, 1.0f, 0.0f);
+    } else {
+        reference = float3(0.0f, 0.0f, 1.0f);
+    }
+    float3 result = normalize(cross(direction, reference));
+    if (((colliderA * 73856093u) ^
+         (colliderB * 19349663u)) & 4u) {
+        result = -result;
+    }
+    return result;
+}
+
+struct SegmentClosestPoint {
+    float3 point;
+    float parameter;
+};
+
+SegmentClosestPoint closestPointOnSegment(
+    const float3 point,
+    const float3 endpoint0,
+    const float3 endpoint1
+) {
+    const float3 segment = endpoint1 - endpoint0;
+    const float squaredLength = dot(segment, segment);
+    if (!(squaredLength > kTiny)) {
+        return {endpoint0, 0.0f};
+    }
+    const float parameter = clamp(
+        dot(point - endpoint0, segment) / squaredLength,
+        0.0f,
+        1.0f
+    );
+    return {
+        endpoint0 + segment * parameter,
+        parameter,
+    };
+}
+
+struct SegmentPairClosestPoints {
+    float3 pointA;
+    float3 pointB;
+    float parameterA;
+    float parameterB;
+};
+
+SegmentPairClosestPoints closestPointsOnSegments(
+    const float3 endpointA0,
+    const float3 endpointA1,
+    const float3 endpointB0,
+    const float3 endpointB1
+) {
+    const float3 directionA = endpointA1 - endpointA0;
+    const float3 directionB = endpointB1 - endpointB0;
+    const float3 offset = endpointA0 - endpointB0;
+    const float squaredA = dot(directionA, directionA);
+    const float squaredB = dot(directionB, directionB);
+    const float projectedA = dot(directionA, offset);
+    const float projectedB = dot(directionB, offset);
+
+    float parameterA = 0.0f;
+    float parameterB = 0.0f;
+    if (!(squaredA > kTiny) && !(squaredB > kTiny)) {
+        return {endpointA0, endpointB0, 0.0f, 0.0f};
+    }
+    if (!(squaredA > kTiny)) {
+        parameterB = clamp(
+            projectedB / squaredB,
+            0.0f,
+            1.0f
+        );
+    } else {
+        const float crossProjection =
+            dot(directionA, directionB);
+        if (!(squaredB > kTiny)) {
+            parameterA = clamp(
+                -projectedA / squaredA,
+                0.0f,
+                1.0f
+            );
+        } else {
+            const float denominator =
+                squaredA * squaredB -
+                crossProjection * crossProjection;
+            if (denominator > kTiny * squaredA * squaredB) {
+                parameterA = clamp(
+                    (
+                        crossProjection * projectedB -
+                        projectedA * squaredB
+                    ) /
+                        denominator,
+                    0.0f,
+                    1.0f
+                );
+            }
+            parameterB =
+                (
+                    crossProjection * parameterA +
+                    projectedB
+                ) /
+                squaredB;
+            if (parameterB < 0.0f) {
+                parameterB = 0.0f;
+                parameterA = clamp(
+                    -projectedA / squaredA,
+                    0.0f,
+                    1.0f
+                );
+            } else if (parameterB > 1.0f) {
+                parameterB = 1.0f;
+                parameterA = clamp(
+                    (
+                        crossProjection - projectedA
+                    ) /
+                        squaredA,
+                    0.0f,
+                    1.0f
+                );
+            }
+        }
+    }
+    return {
+        endpointA0 + directionA * parameterA,
+        endpointB0 + directionB * parameterB,
+        parameterA,
+        parameterB,
+    };
+}
+
+uint capsuleFeature(const float parameter) {
+    if (parameter <= 0.0f) {
+        return 0u;
+    }
+    return parameter >= 1.0f ? 1u : 2u;
+}
+
+struct SphereBoxWitness {
+    float3 normal;
+    float3 boxPoint;
+    float separation;
+    uint boxFeature;
+};
+
+uint boxRegion(
+    const float coordinate,
+    const float halfExtent
+) {
+    if (coordinate < -halfExtent) {
+        return 0u;
+    }
+    return coordinate > halfExtent ? 2u : 1u;
+}
+
+SphereBoxWitness sphereBoxWitness(
+    const thread WorldShape& sphere,
+    const thread WorldShape& box
+) {
+    const float3 localCenter = quaternionInverseRotate(
+        box.rotation,
+        sphere.center - box.center
+    );
+    float3 closest = clamp(
+        localCenter,
+        -box.halfExtents,
+        box.halfExtents
+    );
+    const float3 localDelta = closest - localCenter;
+    const float distance = length(localDelta);
+
+    SphereBoxWitness result{};
+    if (distance > kTiny) {
+        const float3 localNormal = localDelta / distance;
+        result.normal =
+            quaternionRotate(box.rotation, localNormal);
+        result.separation = distance - sphere.radius;
+        result.boxFeature =
+            boxRegion(localCenter.x, box.halfExtents.x) +
+            3u * boxRegion(
+                localCenter.y,
+                box.halfExtents.y
+            ) +
+            9u * boxRegion(
+                localCenter.z,
+                box.halfExtents.z
+            );
+    } else {
+        const float3 distances =
+            box.halfExtents - abs(localCenter);
+        uint axis = 0u;
+        if (distances.y < distances[axis]) {
+            axis = 1u;
+        }
+        if (distances.z < distances[axis]) {
+            axis = 2u;
+        }
+        const float coordinate = localCenter[axis];
+        const float sign = coordinate >= 0.0f ? 1.0f : -1.0f;
+        float3 outward = float3(0.0f);
+        outward[axis] = sign;
+        closest[axis] = sign * box.halfExtents[axis];
+        result.normal =
+            quaternionRotate(box.rotation, -outward);
+        result.separation =
+            -distances[axis] - sphere.radius;
+        result.boxFeature =
+            27u + 2u * axis + (sign > 0.0f ? 1u : 0u);
+    }
+    result.boxPoint =
+        box.center + quaternionRotate(box.rotation, closest);
+    return result;
+}
+
 uint featureKey(const uint shapeType, const uint localFeature) {
     return ((shapeType & 0x0fu) << 28u) |
         (localFeature & 0x0fffffffu);
@@ -724,6 +990,126 @@ ContactBatch generateContacts(
             featureKey(MR_SHAPE_SPHERE, 0u)
         );
         result.count = 1u;
+        return result;
+    }
+
+    if (pairClass == kPairSphereCapsule) {
+        const bool sphereIsA = shapeA.type == MR_SHAPE_SPHERE;
+        const thread WorldShape& sphere =
+            sphereIsA ? shapeA : shapeB;
+        const thread WorldShape& capsule =
+            sphereIsA ? shapeB : shapeA;
+        const SegmentClosestPoint closest =
+            closestPointOnSegment(
+                sphere.center,
+                capsule.capsuleEndpoint0,
+                capsule.capsuleEndpoint1
+            );
+        const float3 delta = closest.point - sphere.center;
+        const float centerDistance = length(delta);
+        const float3 normal =
+            centerDistance > kTiny
+            ? delta / centerDistance
+            : stableSegmentNormal(
+                  capsule.capsuleEndpoint1 -
+                      capsule.capsuleEndpoint0,
+                  float3(0.0f),
+                  sphere.index,
+                  capsule.index
+              );
+        const float separation =
+            centerDistance - sphere.radius - capsule.radius;
+        if (separation <= acceptedContactDistance) {
+            MRRawContactGPU contact = makeContact(
+                normal,
+                separation,
+                sphere.center + normal * sphere.radius,
+                closest.point - normal * capsule.radius,
+                featureKey(MR_SHAPE_SPHERE, 0u),
+                featureKey(
+                    MR_SHAPE_CAPSULE,
+                    capsuleFeature(closest.parameter)
+                )
+            );
+            if (!sphereIsA) {
+                contact = swappedContact(contact);
+            }
+            result.contacts[0] = contact;
+            result.count = 1u;
+        }
+        return result;
+    }
+
+    if (pairClass == kPairCapsuleCapsule) {
+        const SegmentPairClosestPoints closest =
+            closestPointsOnSegments(
+                shapeA.capsuleEndpoint0,
+                shapeA.capsuleEndpoint1,
+                shapeB.capsuleEndpoint0,
+                shapeB.capsuleEndpoint1
+            );
+        const float3 delta = closest.pointB - closest.pointA;
+        const float centerDistance = length(delta);
+        const float3 normal =
+            centerDistance > kTiny
+            ? delta / centerDistance
+            : stableSegmentNormal(
+                  shapeA.capsuleEndpoint1 -
+                      shapeA.capsuleEndpoint0,
+                  shapeB.capsuleEndpoint1 -
+                      shapeB.capsuleEndpoint0,
+                  colliderA,
+                  colliderB
+              );
+        const float separation =
+            centerDistance - shapeA.radius - shapeB.radius;
+        if (separation <= acceptedContactDistance) {
+            result.contacts[0] = makeContact(
+                normal,
+                separation,
+                closest.pointA + normal * shapeA.radius,
+                closest.pointB - normal * shapeB.radius,
+                featureKey(
+                    MR_SHAPE_CAPSULE,
+                    capsuleFeature(closest.parameterA)
+                ),
+                featureKey(
+                    MR_SHAPE_CAPSULE,
+                    capsuleFeature(closest.parameterB)
+                )
+            );
+            result.count = 1u;
+        }
+        return result;
+    }
+
+    if (pairClass == kPairSphereBox) {
+        const bool sphereIsA = shapeA.type == MR_SHAPE_SPHERE;
+        const thread WorldShape& sphere =
+            sphereIsA ? shapeA : shapeB;
+        const thread WorldShape& box =
+            sphereIsA ? shapeB : shapeA;
+        const SphereBoxWitness witness =
+            sphereBoxWitness(sphere, box);
+        if (witness.separation <= acceptedContactDistance) {
+            MRRawContactGPU contact = makeContact(
+                witness.normal,
+                witness.separation,
+                sphere.center +
+                    witness.normal * sphere.radius,
+                witness.boxPoint,
+                featureKey(MR_SHAPE_SPHERE, 0u),
+                featureKey(
+                    MR_SHAPE_BOX,
+                    witness.boxFeature
+                )
+            );
+            if (!sphereIsA) {
+                contact = swappedContact(contact);
+            }
+            result.contacts[0] = contact;
+            result.count = 1u;
+        }
         return result;
     }
 

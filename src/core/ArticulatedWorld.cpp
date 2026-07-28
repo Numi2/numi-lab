@@ -169,6 +169,84 @@ MRStepStatusCode codeForConstraintIR(
     return MR_STEP_NONFINITE_RESULT;
 }
 
+MRStepStatusCode codeForActuation(
+    const ArticulatedActuationStatus status
+) {
+    switch (status) {
+    case ArticulatedActuationStatus::success:
+        return MR_STEP_SUCCESS;
+    case ArticulatedActuationStatus::nonfiniteResult:
+        return MR_STEP_NONFINITE_RESULT;
+    case ArticulatedActuationStatus::invalidConfiguration:
+    case ArticulatedActuationStatus::invalidArticulation:
+    case ArticulatedActuationStatus::invalidDimensions:
+    case ArticulatedActuationStatus::nonfiniteInput:
+    case ArticulatedActuationStatus::invalidDofMetadata:
+    case ArticulatedActuationStatus::invalidCommandMode:
+    case ArticulatedActuationStatus::invalidCommandSemantics:
+    case ArticulatedActuationStatus::rootActuationForbidden:
+    case ArticulatedActuationStatus::unactuatedDof:
+    case ArticulatedActuationStatus::missingEffortLimit:
+    case ArticulatedActuationStatus::missingModelDrive:
+    case ArticulatedActuationStatus::positionCoordinateUnavailable:
+        return MR_STEP_NONFINITE_INPUT;
+    }
+    return MR_STEP_NONFINITE_RESULT;
+}
+
+MRStepStatusCode codeForJointLimits(
+    const ArticulatedJointLimitStatus status
+) {
+    switch (status) {
+    case ArticulatedJointLimitStatus::success:
+        return MR_STEP_SUCCESS;
+    case ArticulatedJointLimitStatus::capacityExceeded:
+        return MR_STEP_CONSTRAINT_CAPACITY_OVERFLOW;
+    case ArticulatedJointLimitStatus::factorizationFailure:
+        return MR_STEP_FACTORIZATION_FAILED;
+    case ArticulatedJointLimitStatus::didNotConverge:
+        return MR_STEP_DID_NOT_CONVERGE;
+    case ArticulatedJointLimitStatus::nonfiniteResult:
+        return MR_STEP_NONFINITE_RESULT;
+    case ArticulatedJointLimitStatus::invalidConfiguration:
+    case ArticulatedJointLimitStatus::invalidArticulation:
+    case ArticulatedJointLimitStatus::invalidDimensions:
+    case ArticulatedJointLimitStatus::nonfiniteInput:
+    case ArticulatedJointLimitStatus::invalidDofMetadata:
+    case ArticulatedJointLimitStatus::dynamicsFailure:
+    case ArticulatedJointLimitStatus::invalidProblem:
+    case ArticulatedJointLimitStatus::invalidWarmStart:
+    case ArticulatedJointLimitStatus::invalidImpulse:
+    case ArticulatedJointLimitStatus::solverFailure:
+        return MR_STEP_NONFINITE_INPUT;
+    }
+    return MR_STEP_NONFINITE_RESULT;
+}
+
+MRStepStatusCode codeForMixedConstraints(
+    const ArticulatedMixedConstraintStatus status
+) {
+    switch (status) {
+    case ArticulatedMixedConstraintStatus::success:
+        return MR_STEP_SUCCESS;
+    case ArticulatedMixedConstraintStatus::factorizationFailure:
+        return MR_STEP_FACTORIZATION_FAILED;
+    case ArticulatedMixedConstraintStatus::didNotConverge:
+        return MR_STEP_DID_NOT_CONVERGE;
+    case ArticulatedMixedConstraintStatus::solverFailure:
+    case ArticulatedMixedConstraintStatus::nonfiniteResult:
+    case ArticulatedMixedConstraintStatus::inconsistentOperator:
+        return MR_STEP_NONFINITE_RESULT;
+    case ArticulatedMixedConstraintStatus::invalidConfiguration:
+    case ArticulatedMixedConstraintStatus::invalidDimensions:
+    case ArticulatedMixedConstraintStatus::invalidContactProblem:
+    case ArticulatedMixedConstraintStatus::invalidLimitRow:
+    case ArticulatedMixedConstraintStatus::nonfiniteInput:
+        return MR_STEP_NONFINITE_INPUT;
+    }
+    return MR_STEP_NONFINITE_RESULT;
+}
+
 ArticulatedWorldStepDiagnostics fail(
     ArticulatedWorldStepDiagnostics diagnostics,
     const MRStepStatusCode code,
@@ -412,6 +490,8 @@ ArticulatedWorldStepDiagnostics stepArticulatedWorldCpu(
             ArticulatedIntegrator::symplecticEuler ||
         config.dynamics.timestep !=
             config.constraintEvaluation.timestep ||
+        config.dynamics.timestep !=
+            config.jointLimits.timestep ||
         !(
             config.constraintEvaluation.minimumRegularization >
             0.0
@@ -551,13 +631,56 @@ ArticulatedWorldStepDiagnostics stepArticulatedWorldCpu(
         shapes.push_back(remapped);
     }
 
+    // Directly connected links share a joint volume by construction. Treat
+    // their colliders as one kinematic neighborhood unless the model grows an
+    // explicit per-pair self-collision policy. Without this model-derived
+    // filter, truthful link geometry (notably Franka's collision spheres)
+    // creates large internal impulses at valid configurations. Caller
+    // exclusions remain authoritative additions in the combined collider
+    // index space.
+    std::vector<CollisionPairExclusion> collisionExclusions(
+        exclusions.begin(),
+        exclusions.end()
+    );
+    for (std::size_t localJoint = 0u;
+         localJoint < articulation.jointCount;
+         ++localJoint) {
+        const MRJointDescriptorGPU& joint =
+            model.joints[
+                static_cast<std::size_t>(
+                    articulation.firstJoint
+                ) + localJoint
+            ];
+        for (std::size_t shapeA = 0u;
+             shapeA < model.shapes.size();
+             ++shapeA) {
+            if (model.shapes[shapeA].bodyIndex !=
+                joint.parentBody) {
+                continue;
+            }
+            for (std::size_t shapeB = 0u;
+                 shapeB < model.shapes.size();
+                 ++shapeB) {
+                if (model.shapes[shapeB].bodyIndex ==
+                    joint.childBody) {
+                    collisionExclusions.push_back({
+                        .colliderA =
+                            static_cast<std::uint32_t>(shapeA),
+                        .colliderB =
+                            static_cast<std::uint32_t>(shapeB),
+                    });
+                }
+            }
+        }
+    }
+
     ArticulatedWorldCache workingCache = cache;
     const CollisionFrame collision = collideCpuReference(
         shapes,
         states,
         config.collision,
         workingCache.manifolds,
-        exclusions
+        collisionExclusions
     );
     diagnostics.collision = collision.diagnostics;
     if (!collision.succeeded()) {
@@ -591,6 +714,36 @@ ArticulatedWorldStepDiagnostics stepArticulatedWorldCpu(
     ++workingCache.step;
     workingCache.impulses.beginStep(workingCache.step);
     workingCache.impulses.seed(assembly.constraints);
+
+    std::vector<ArticulatedJointLimitRow> jointLimitRows;
+    diagnostics.jointLimitCompilation =
+        compileArticulatedJointLimitRows(
+            model,
+            articulationIndex,
+            q,
+            freeVelocity,
+            jointLimitRows,
+            config.jointLimits
+        );
+    diagnostics.jointLimitCount =
+        static_cast<std::uint32_t>(jointLimitRows.size());
+    if (!diagnostics.jointLimitCompilation.succeeded()) {
+        return fail(
+            diagnostics,
+            codeForJointLimits(
+                diagnostics.jointLimitCompilation.status
+            ),
+            ArticulatedWorldFailure::jointLimitCompilation
+        );
+    }
+    if (!jointLimitRows.empty() &&
+        config.solverType != MR_SOLVER_QUALITY_NEWTON) {
+        return fail(
+            diagnostics,
+            MR_STEP_UNSUPPORTED,
+            ArticulatedWorldFailure::mixedConstraintSolver
+        );
+    }
 
     std::vector<double> correctedVelocity = freeVelocity;
     if (!assembly.constraints.empty()) {
@@ -727,35 +880,73 @@ ArticulatedWorldStepDiagnostics stepArticulatedWorldCpu(
 
         std::span<const double> impulses;
         std::span<const double> solverVelocity;
+        ArticulatedMixedConstraintSolution mixedSolution;
+        bool mixedImpulseApplied = false;
         if (config.solverType == MR_SOLVER_QUALITY_NEWTON) {
-            ContactSpaceConicProblem contactSpace;
-            diagnostics.contactSpaceAdapter =
-                buildArticulatedContactSpaceProblem(
-                    contactProblem,
-                    freeVelocity,
-                    contactSpace
-                );
-            if (!diagnostics.contactSpaceAdapter.succeeded()) {
-                return fail(
-                    diagnostics,
-                    MR_STEP_NONFINITE_RESULT,
-                    ArticulatedWorldFailure::contactSpaceAdapter
-                );
+            if (!jointLimitRows.empty()) {
+                mixedSolution =
+                    solveArticulatedMixedConstraints(
+                        contactProblem,
+                        freeVelocity,
+                        jointLimitRows,
+                        config.quality
+                    );
+                diagnostics.mixedSolver =
+                    mixedSolution.diagnostics;
+                if (!mixedSolution.converged()) {
+                    return fail(
+                        diagnostics,
+                        codeForMixedConstraints(
+                            diagnostics.mixedSolver.status
+                        ),
+                        ArticulatedWorldFailure::
+                            mixedConstraintSolver
+                    );
+                }
+                impulses = mixedSolution.contactImpulses;
+                solverVelocity = mixedSolution.contactVelocity;
+                correctedVelocity =
+                    mixedSolution.generalizedVelocity;
+                mixedImpulseApplied = true;
+                for (const double impulse :
+                     mixedSolution.limitImpulses) {
+                    diagnostics.maximumJointLimitImpulse =
+                        std::max(
+                            diagnostics.maximumJointLimitImpulse,
+                            std::abs(impulse)
+                        );
+                }
+            } else {
+                ContactSpaceConicProblem contactSpace;
+                diagnostics.contactSpaceAdapter =
+                    buildArticulatedContactSpaceProblem(
+                        contactProblem,
+                        freeVelocity,
+                        contactSpace
+                    );
+                if (!diagnostics.contactSpaceAdapter.succeeded()) {
+                    return fail(
+                        diagnostics,
+                        MR_STEP_NONFINITE_RESULT,
+                        ArticulatedWorldFailure::
+                            contactSpaceAdapter
+                    );
+                }
+                diagnostics.qualitySolver =
+                    solveQualityContactSpaceProblem(
+                        contactSpace,
+                        config.quality
+                    );
+                if (!diagnostics.qualitySolver.converged()) {
+                    return fail(
+                        diagnostics,
+                        diagnostics.qualitySolver.code,
+                        ArticulatedWorldFailure::contactSolver
+                    );
+                }
+                impulses = diagnostics.qualitySolver.impulses;
+                solverVelocity = diagnostics.qualitySolver.velocity;
             }
-            diagnostics.qualitySolver =
-                solveQualityContactSpaceProblem(
-                    contactSpace,
-                    config.quality
-                );
-            if (!diagnostics.qualitySolver.converged()) {
-                return fail(
-                    diagnostics,
-                    diagnostics.qualitySolver.code,
-                    ArticulatedWorldFailure::contactSolver
-                );
-            }
-            impulses = diagnostics.qualitySolver.impulses;
-            solverVelocity = diagnostics.qualitySolver.velocity;
         } else {
             diagnostics.referenceSolver =
                 solveReferenceConicProblem(
@@ -773,18 +964,20 @@ ArticulatedWorldStepDiagnostics stepArticulatedWorldCpu(
             solverVelocity = diagnostics.referenceSolver.velocity;
         }
 
-        diagnostics.impulseApplication =
-            applyArticulatedContactImpulses(
-                contactProblem,
-                impulses,
-                correctedVelocity
-            );
-        if (!diagnostics.impulseApplication.succeeded()) {
-            return fail(
-                diagnostics,
-                MR_STEP_FACTORIZATION_FAILED,
-                ArticulatedWorldFailure::impulseApplication
-            );
+        if (!mixedImpulseApplied) {
+            diagnostics.impulseApplication =
+                applyArticulatedContactImpulses(
+                    contactProblem,
+                    impulses,
+                    correctedVelocity
+                );
+            if (!diagnostics.impulseApplication.succeeded()) {
+                return fail(
+                    diagnostics,
+                    MR_STEP_FACTORIZATION_FAILED,
+                    ArticulatedWorldFailure::impulseApplication
+                );
+            }
         }
         diagnostics.maximumVelocityCorrection =
             maximumDifference(correctedVelocity, freeVelocity);
@@ -953,6 +1146,58 @@ ArticulatedWorldStepDiagnostics stepArticulatedWorldCpu(
                 ArticulatedWorldFailure::residualEvaluation
             );
         }
+    } else if (!jointLimitRows.empty()) {
+        ArticulatedContactProblem factorOnlyProblem;
+        diagnostics.contactOperator =
+            buildArticulatedContactProblem(
+                model,
+                articulationIndex,
+                q,
+                freeVelocity,
+                {},
+                factorOnlyProblem,
+                config.dynamics,
+                false
+            );
+        if (!diagnostics.contactOperator.succeeded()) {
+            return fail(
+                diagnostics,
+                diagnostics.contactOperator.status ==
+                        ArticulatedContactStatus::
+                            factorizationFailure
+                    ? MR_STEP_FACTORIZATION_FAILED
+                    : MR_STEP_NONFINITE_RESULT,
+                ArticulatedWorldFailure::contactOperator
+            );
+        }
+        ArticulatedMixedConstraintSolution mixed =
+            solveArticulatedMixedConstraints(
+                factorOnlyProblem,
+                freeVelocity,
+                jointLimitRows,
+                config.quality
+            );
+        diagnostics.mixedSolver = mixed.diagnostics;
+        if (!mixed.converged()) {
+            return fail(
+                diagnostics,
+                codeForMixedConstraints(
+                    diagnostics.mixedSolver.status
+                ),
+                ArticulatedWorldFailure::mixedConstraintSolver
+            );
+        }
+        correctedVelocity = std::move(
+            mixed.generalizedVelocity
+        );
+        diagnostics.maximumVelocityCorrection =
+            maximumDifference(correctedVelocity, freeVelocity);
+        for (const double impulse : mixed.limitImpulses) {
+            diagnostics.maximumJointLimitImpulse = std::max(
+                diagnostics.maximumJointLimitImpulse,
+                std::abs(impulse)
+            );
+        }
     }
 
     workingCache.impulses.commit(assembly.constraints);
@@ -982,6 +1227,58 @@ ArticulatedWorldStepDiagnostics stepArticulatedWorldCpu(
     diagnostics.code = MR_STEP_SUCCESS;
     diagnostics.failure = ArticulatedWorldFailure::none;
     return diagnostics;
+}
+
+ArticulatedWorldStepDiagnostics stepControlledArticulatedWorldCpu(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const std::span<double> q,
+    const std::span<double> v,
+    const std::span<const ArticulatedDofCommand> commands,
+    const std::span<const ArticulatedBodyWrench> externalWrenches,
+    const std::span<const MRBodyStateGPU> environmentBodies,
+    const std::span<const MRShapeGPU> environmentShapes,
+    const ArticulatedWorldConfig& config,
+    ArticulatedWorldCache& cache,
+    const std::span<const CollisionPairExclusion> exclusions
+) {
+    ArticulatedWorldStepDiagnostics diagnostics;
+    diagnostics.adaptation.articulationIndex = articulationIndex;
+
+    ArticulatedActuationResult actuation;
+    diagnostics.actuation = evaluateArticulatedActuation(
+        model,
+        articulationIndex,
+        q,
+        v,
+        commands,
+        actuation,
+        config.actuation
+    );
+    if (!diagnostics.actuation.succeeded()) {
+        return fail(
+            diagnostics,
+            codeForActuation(diagnostics.actuation.status),
+            ArticulatedWorldFailure::actuation
+        );
+    }
+
+    ArticulatedWorldStepDiagnostics world =
+        stepArticulatedWorldCpu(
+            model,
+            articulationIndex,
+            q,
+            v,
+            actuation.generalizedEffort,
+            externalWrenches,
+            environmentBodies,
+            environmentShapes,
+            config,
+            cache,
+            exclusions
+        );
+    world.actuation = diagnostics.actuation;
+    return world;
 }
 
 } // namespace metalrobo

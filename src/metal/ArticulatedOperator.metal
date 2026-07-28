@@ -728,7 +728,6 @@ inline bool buildKinematics(
     threadgroup float4* bodyRotation,
     threadgroup float3* jointPosition,
     threadgroup float3* jointAxis,
-    threadgroup uint* inboundJoint,
     threadgroup uchar* known,
     thread MRArticulatedOperatorStatusGPU& status
 ) {
@@ -929,11 +928,11 @@ inline bool validatePoints(
 
 } // namespace
 
-// Generic batched articulated reference operator. One threadgroup owns one
-// environment and lane zero executes a deterministic dense factor solve. This
-// is the first correctness-first Metal operator for arbitrary fixed/floating
-// trees; future throughput kernels can parallelize its algebra without
-// changing the ABI or replacing the factor solve with an explicit inverse.
+// Generic batched articulated operator. One threadgroup owns one environment.
+// Model/kinematic validation, Cholesky, and publication remain lane-zero
+// ordered so their status and transactional semantics stay exact. Dense mass
+// assembly is independent per symmetric matrix entry and is distributed over
+// the group; every entry retains the same deterministic body-order reduction.
 kernel void mr_articulated_operator(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
@@ -951,12 +950,14 @@ kernel void mr_articulated_operator(
     device float* deltaVelocity [[buffer(13)]],
     device MRArticulatedOperatorStatusGPU* statuses [[buffer(14)]],
     uint environment [[threadgroup_position_in_grid]],
-    uint lane [[thread_index_in_threadgroup]]
+    uint lane [[thread_index_in_threadgroup]],
+    uint threadsPerThreadgroup [[threads_per_threadgroup]]
 ) {
-    if (lane != 0u || environment >= dispatch.environmentCount) {
+    if (environment >= dispatch.environmentCount) {
         return;
     }
 
+    threadgroup uint initializationSucceeded;
     threadgroup float3 bodyPosition[
         MR_ARTICULATED_OPERATOR_MAX_BODIES
     ];
@@ -998,77 +999,123 @@ kernel void mr_articulated_operator(
     status.articulationIndex = dispatch.articulationIndex;
     status.failingIndex = MR_INVALID_INDEX;
 
+    if (lane == 0u) {
+        initializationSucceeded = 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
     device const MRWorldGPU& world = worlds[0];
-    if (!validDispatch(world, dispatch, status)) {
-        statuses[environment] = status;
+    if (lane == 0u) {
+        initializationSucceeded =
+            validDispatch(world, dispatch, status) ? 1u : 0u;
+        if (initializationSucceeded == 0u) {
+            statuses[environment] = status;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (initializationSucceeded == 0u) {
         return;
     }
+
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
-    status.bodyCount = articulation.bodyCount;
-    status.nq = articulation.nq;
-    status.nv = articulation.nv;
-    status.pointCount = dispatch.pointCount;
-
-    if (!validModelAndLayout(
-            world,
-            articulation,
-            joints,
-            dofs,
-            bodies,
-            dispatch,
-            inboundJoint,
-            parentLocal,
-            known,
-            status
-        )) {
-        statuses[environment] = status;
+    device const float* environmentQ =
+        q + environment * dispatch.qStride;
+    if (lane == 0u) {
+        status.bodyCount = articulation.bodyCount;
+        status.nq = articulation.nq;
+        status.nv = articulation.nv;
+        status.pointCount = dispatch.pointCount;
+        initializationSucceeded =
+            validModelAndLayout(
+                world,
+                articulation,
+                joints,
+                dofs,
+                bodies,
+                dispatch,
+                inboundJoint,
+                parentLocal,
+                known,
+                status
+            ) &&
+            buildKinematics(
+                articulation,
+                joints,
+                environmentQ,
+                bodyPosition,
+                bodyRotation,
+                jointPosition,
+                jointAxis,
+                known,
+                status
+            ) &&
+            validatePoints(
+                environment,
+                articulation,
+                dispatch,
+                points,
+                status
+            )
+            ? 1u
+            : 0u;
+        if (initializationSucceeded == 0u) {
+            statuses[environment] = status;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (initializationSucceeded == 0u) {
         return;
     }
 
-    device const float* environmentQ =
-        q + environment * dispatch.qStride;
-    if (!buildKinematics(
+    // A lower-triangular entry owns both symmetric destinations, so there are
+    // no write races. The reduction inside massElement intentionally remains
+    // serial and body ordered, preserving the previous bit pattern.
+    const uint packedEntryCount =
+        articulation.nv * (articulation.nv + 1u) / 2u;
+    for (uint packedEntry = lane;
+         packedEntry < packedEntryCount;
+         packedEntry += threadsPerThreadgroup) {
+        uint row = 0u;
+        uint rowStart = 0u;
+        while (packedEntry >= rowStart + row + 1u) {
+            rowStart += row + 1u;
+            ++row;
+        }
+        const uint column = packedEntry - rowStart;
+        const float value = massElement(
+            row,
+            column,
             articulation,
             joints,
-            environmentQ,
+            bodies,
             bodyPosition,
             bodyRotation,
             jointPosition,
             jointAxis,
             inboundJoint,
-            known,
-            status
-        ) ||
-        !validatePoints(
-            environment,
-            articulation,
-            dispatch,
-            points,
-            status
-        )) {
-        statuses[environment] = status;
+            parentLocal
+        );
+        factor[
+            row * MR_ARTICULATED_OPERATOR_MAX_DOFS + column
+        ] = value;
+        factor[
+            column * MR_ARTICULATED_OPERATOR_MAX_DOFS + row
+        ] = value;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane != 0u) {
         return;
     }
 
+    // Lane zero performs the deterministic validation/max reduction before
+    // mutating the assembled matrix into its Cholesky factor.
     float maximumMass = 0.0f;
     for (uint row = 0u; row < articulation.nv; ++row) {
-        for (uint column = 0u;
-             column <= row;
-             ++column) {
-            const float value = massElement(
-                row,
-                column,
-                articulation,
-                joints,
-                bodies,
-                bodyPosition,
-                bodyRotation,
-                jointPosition,
-                jointAxis,
-                inboundJoint,
-                parentLocal
-            );
+        for (uint column = 0u; column <= row; ++column) {
+            const float value = factor[
+                row * MR_ARTICULATED_OPERATOR_MAX_DOFS + column
+            ];
             if (!isfinite(value)) {
                 setFailure(
                     status,
@@ -1078,12 +1125,6 @@ kernel void mr_articulated_operator(
                 statuses[environment] = status;
                 return;
             }
-            factor[
-                row * MR_ARTICULATED_OPERATOR_MAX_DOFS + column
-            ] = value;
-            factor[
-                column * MR_ARTICULATED_OPERATOR_MAX_DOFS + row
-            ] = value;
             maximumMass = max(maximumMass, abs(value));
         }
     }

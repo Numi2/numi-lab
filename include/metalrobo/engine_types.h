@@ -27,6 +27,13 @@
 // Versioned FP32 backward-error gate for M * deltaV = J^T * impulse.
 // A finite but inaccurate factor solve is a failure, never publishable state.
 #define MR_ARTICULATED_OPERATOR_MAX_RELATIVE_RESIDUAL 0.00003f
+// The O(n) articulated-body kernel uses fixed-size threadgroup scratch for
+// one tree per 32-lane threadgroup. These are explicit ABI capacities rather
+// than silent implementation assumptions.
+#define MR_ARTICULATED_ABA_MAX_BODIES 32u
+#define MR_ARTICULATED_ABA_MAX_DOFS 40u
+#define MR_ARTICULATED_ABA_MAX_Q 41u
+#define MR_ARTICULATED_INVERSE_MASS_MAX_RHS 3u
 // Authored collision coordinates, local offsets, primitive dimensions, and
 // contact/rest/bounding-radius values use this direct-input domain. With
 // normalized rotations, every supported finite primitive derived from these
@@ -383,6 +390,113 @@ typedef struct MR_ALIGN16 MRArticulatedOperatorStatusGPU {
     mr_float4 diagnostics;
 } MRArticulatedOperatorStatusGPU;
 
+enum MRABAStatusCode : mr_u32 {
+    MR_ABA_SUCCESS = 0u,
+    MR_ABA_INVALID_DISPATCH = 1u,
+    MR_ABA_INVALID_MODEL = 2u,
+    MR_ABA_NONFINITE_INPUT = 3u,
+    MR_ABA_FACTORIZATION_FAILED = 4u,
+    MR_ABA_NONFINITE_RESULT = 5u,
+    MR_ABA_INVALID_QUATERNION = 6u,
+    MR_ABA_UNSUPPORTED_TOPOLOGY = 7u,
+};
+
+enum MRABAFlags : mr_u32 {
+    MR_ABA_HAS_BODY_WRENCHES = 1u << 0u,
+    MR_ABA_APPLY_BODY_DAMPING = 1u << 1u,
+};
+
+// One dispatch advances a compact environment-major batch for one immutable
+// articulation. Every stride is measured in elements, never bytes. The
+// checked public host API derives compact strides and owns all bound storage.
+typedef struct MR_ALIGN16 MRABADispatchGPU {
+    mr_u32 articulationIndex;
+    mr_u32 environmentCount;
+    mr_u32 flags;
+    mr_u32 reserved0;
+
+    mr_u32 qStride;
+    mr_u32 vStride;
+    mr_u32 effortStride;
+    mr_u32 wrenchStride;
+
+    mr_u32 accelerationStride;
+    mr_u32 nextVStride;
+    mr_u32 nextQStride;
+    mr_u32 reserved1;
+} MRABADispatchGPU;
+
+// World-frame force and torque about a body's center of mass. Records are
+// articulation-local within each environment-major wrench block.
+typedef struct MR_ALIGN16 MRABABodyWrenchGPU {
+    mr_float4 force;
+    mr_float4 torque;
+} MRABABodyWrenchGPU;
+
+typedef struct MR_ALIGN16 MRABAStatusGPU {
+    mr_u32 code;
+    mr_u32 environment;
+    mr_u32 articulationIndex;
+    mr_u32 failingIndex;
+
+    mr_u32 bodyCount;
+    mr_u32 nq;
+    mr_u32 nv;
+    mr_u32 flags;
+
+    // Minimum/maximum factor pivot, maximum absolute acceleration, and root
+    // quaternion norm error. Only successful records guarantee finite values.
+    mr_float4 diagnostics;
+} MRABAStatusGPU;
+
+enum MRInverseMassStatusCode : mr_u32 {
+    MR_INVERSE_MASS_SUCCESS = 0u,
+    MR_INVERSE_MASS_INVALID_DISPATCH = 1u,
+    MR_INVERSE_MASS_INVALID_MODEL = 2u,
+    MR_INVERSE_MASS_NONFINITE_INPUT = 3u,
+    MR_INVERSE_MASS_FACTORIZATION_FAILED = 4u,
+    MR_INVERSE_MASS_NONFINITE_RESULT = 5u,
+    MR_INVERSE_MASS_INVALID_QUATERNION = 6u,
+    MR_INVERSE_MASS_UNSUPPORTED_TOPOLOGY = 7u,
+};
+
+// Applies one immutable articulation's generalized inverse mass to one to
+// three right-hand sides per environment. All strides are float element
+// counts. Each environment contains rhsCount vectors separated by
+// rhsVectorStride/outputVectorStride.
+typedef struct MR_ALIGN16 MRInverseMassDispatchGPU {
+    mr_u32 articulationIndex;
+    mr_u32 environmentCount;
+    mr_u32 rhsCount;
+    mr_u32 reserved0;
+
+    mr_u32 qStride;
+    mr_u32 rhsEnvironmentStride;
+    mr_u32 rhsVectorStride;
+    mr_u32 outputEnvironmentStride;
+
+    mr_u32 outputVectorStride;
+    mr_u32 reserved1;
+    mr_u32 reserved2;
+    mr_u32 reserved3;
+} MRInverseMassDispatchGPU;
+
+typedef struct MR_ALIGN16 MRInverseMassStatusGPU {
+    mr_u32 code;
+    mr_u32 environment;
+    mr_u32 articulationIndex;
+    mr_u32 failingIndex;
+
+    mr_u32 bodyCount;
+    mr_u32 nq;
+    mr_u32 nv;
+    mr_u32 rhsCount;
+
+    // Minimum/maximum factor pivot, maximum absolute output, and maximum
+    // absolute input. Only successful records guarantee finite values.
+    mr_float4 diagnostics;
+} MRInverseMassStatusGPU;
+
 typedef struct MR_ALIGN16 MRMaterialGPU {
     // Static/dynamic coefficients; effective rolling/torsional lengths (m).
     mr_float4 friction;
@@ -576,6 +690,11 @@ static_assert(sizeof(MRArticulatedPointImpulseGPU) == 48);
 static_assert(sizeof(MRArticulatedBodyPoseGPU) == 32);
 static_assert(sizeof(MRArticulatedPointWorldGPU) == 16);
 static_assert(sizeof(MRArticulatedOperatorStatusGPU) == 48);
+static_assert(sizeof(MRABADispatchGPU) == 48);
+static_assert(sizeof(MRABABodyWrenchGPU) == 32);
+static_assert(sizeof(MRABAStatusGPU) == 48);
+static_assert(sizeof(MRInverseMassDispatchGPU) == 48);
+static_assert(sizeof(MRInverseMassStatusGPU) == 48);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);
 static_assert(sizeof(MRShapeGPU) % 16 == 0);
 static_assert(sizeof(MRAabbGPU) == 32);

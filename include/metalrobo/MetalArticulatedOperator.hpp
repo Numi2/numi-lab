@@ -4,11 +4,17 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <span>
 #include <string>
 #include <vector>
 
 namespace metalrobo {
+
+namespace detail {
+struct MetalArticulatedOperatorContextState;
+struct MetalArticulatedOperatorSubmissionState;
+} // namespace detail
 
 // Packed, environment-major input for the synchronous Metal articulated
 // operator. q contains environmentCount * articulation.nq floats. points
@@ -50,6 +56,7 @@ enum class MetalArticulatedOperatorHostStatus : std::uint32_t {
     metalCommandFailure,
     gpuEnvironmentFailure,
     internalFailure,
+    contextBusy,
 };
 
 // The host always derives compact strides; callers cannot smuggle unchecked
@@ -107,6 +114,110 @@ struct MetalArticulatedOperatorDiagnostics {
     [[nodiscard]] bool succeeded() const noexcept {
         return status == MetalArticulatedOperatorHostStatus::success;
     }
+};
+
+// Lifetime counters for a reusable operator context. retainedBufferBytes is
+// the physical capacity of the grow-only Metal buffer arena; an individual
+// result layout continues to report only that batch's required bytes.
+struct MetalArticulatedOperatorContextStats {
+    std::uint64_t pipelineCreationCount = 0u;
+    std::uint64_t bufferAllocationCount = 0u;
+    std::uint64_t bufferGrowthCount = 0u;
+    std::uint64_t submissionCount = 0u;
+    std::uint64_t completedSubmissionCount = 0u;
+    std::size_t retainedBufferBytes = 0u;
+    bool hasInFlightSubmission = false;
+};
+
+class MetalArticulatedOperatorContext;
+
+// A committed Metal batch. submit() copies all caller-owned spans before
+// returning, so their storage can immediately be reused. wait() may be called
+// once and transactionally publishes the completed typed result. Destroying a
+// live submission waits for the GPU and discards its result, making context
+// and submission destruction safe in either order.
+class MetalArticulatedOperatorSubmission {
+public:
+    MetalArticulatedOperatorSubmission() noexcept;
+    ~MetalArticulatedOperatorSubmission();
+
+    MetalArticulatedOperatorSubmission(
+        MetalArticulatedOperatorSubmission&& other
+    ) noexcept;
+    MetalArticulatedOperatorSubmission& operator=(
+        MetalArticulatedOperatorSubmission&& other
+    ) noexcept;
+
+    MetalArticulatedOperatorSubmission(
+        const MetalArticulatedOperatorSubmission&
+    ) = delete;
+    MetalArticulatedOperatorSubmission& operator=(
+        const MetalArticulatedOperatorSubmission&
+    ) = delete;
+
+    [[nodiscard]] bool valid() const noexcept;
+
+    [[nodiscard]] MetalArticulatedOperatorDiagnostics wait(
+        MetalArticulatedOperatorResult& result
+    );
+
+private:
+    friend class MetalArticulatedOperatorContext;
+    std::unique_ptr<
+        detail::MetalArticulatedOperatorSubmissionState
+    > state_;
+};
+
+// Reusable execution context for steady-state simulation. Device discovery,
+// metallib loading, command-queue creation, and pipeline compilation happen at
+// most once. Its 15-buffer arena is reused and grows geometrically as batch
+// sizes increase. Calls are thread-safe, but a context deliberately admits
+// only one in-flight submission because every batch shares the same arena;
+// independent contexts provide safe overlap when multiple queues are useful.
+class MetalArticulatedOperatorContext {
+public:
+    explicit MetalArticulatedOperatorContext(
+        MetalArticulatedOperatorConfig config = {}
+    );
+    ~MetalArticulatedOperatorContext();
+
+    MetalArticulatedOperatorContext(
+        MetalArticulatedOperatorContext&& other
+    ) noexcept;
+    MetalArticulatedOperatorContext& operator=(
+        MetalArticulatedOperatorContext&& other
+    ) noexcept;
+
+    MetalArticulatedOperatorContext(
+        const MetalArticulatedOperatorContext&
+    ) = delete;
+    MetalArticulatedOperatorContext& operator=(
+        const MetalArticulatedOperatorContext&
+    ) = delete;
+
+    // Encodes and commits without waiting for GPU completion. Host validation,
+    // capacity growth, and all input copies are complete before this returns.
+    // submission must be empty and remains unchanged on rejection.
+    [[nodiscard]] MetalArticulatedOperatorDiagnostics submit(
+        const EngineModel& model,
+        const MetalArticulatedOperatorInput& input,
+        MetalArticulatedOperatorSubmission& submission
+    );
+
+    // Convenience synchronous path using submit() followed by wait().
+    [[nodiscard]] MetalArticulatedOperatorDiagnostics run(
+        const EngineModel& model,
+        const MetalArticulatedOperatorInput& input,
+        MetalArticulatedOperatorResult& result
+    );
+
+    [[nodiscard]] MetalArticulatedOperatorContextStats stats()
+        const noexcept;
+
+private:
+    std::shared_ptr<
+        detail::MetalArticulatedOperatorContextState
+    > state_;
 };
 
 // Executes one synchronous command buffer. The EngineModel and every layout,
