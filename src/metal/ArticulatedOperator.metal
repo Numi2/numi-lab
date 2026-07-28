@@ -337,11 +337,16 @@ inline MotionColumn bodyMotionForDof(
             joints[globalJoint];
         if (joint.nv == 1u &&
             joint.vOffset - articulation.vOffset == dof) {
-            result.angular = jointAxis[cursor];
-            result.linear = cross(
-                result.angular,
-                bodyPosition[localBody] - jointPosition[cursor]
-            );
+            if (joint.jointType == MR_JOINT_PRISMATIC) {
+                result.linear = jointAxis[cursor];
+            } else {
+                result.angular = jointAxis[cursor];
+                result.linear = cross(
+                    result.angular,
+                    bodyPosition[localBody] -
+                        jointPosition[cursor]
+                );
+            }
             return result;
         }
         cursor = parentLocal[cursor];
@@ -549,7 +554,8 @@ inline bool validModelAndLayout(
         uint jointNq = 0u;
         uint jointNv = 0u;
         if (joint.jointType == MR_JOINT_REVOLUTE ||
-            joint.jointType == MR_JOINT_CONTINUOUS) {
+            joint.jointType == MR_JOINT_CONTINUOUS ||
+            joint.jointType == MR_JOINT_PRISMATIC) {
             jointNq = 1u;
             jointNv = 1u;
         } else if (joint.jointType != MR_JOINT_FIXED) {
@@ -807,6 +813,7 @@ inline bool buildKinematics(
             float4 motionRotation =
                 float4(0.0f, 0.0f, 0.0f, 1.0f);
             float3 axisInJoint = float3(1.0f, 0.0f, 0.0f);
+            float jointCoordinate = 0.0f;
             if (joint.nv == 1u) {
                 const float axisMagnitude =
                     length(joint.axis0.xyz);
@@ -821,10 +828,14 @@ inline bool buildKinematics(
                     );
                     return false;
                 }
-                motionRotation = axisAngleQuaternion(
-                    axisInJoint,
-                    q[localQ]
-                );
+                jointCoordinate = q[localQ];
+                if (joint.jointType == MR_JOINT_REVOLUTE ||
+                    joint.jointType == MR_JOINT_CONTINUOUS) {
+                    motionRotation = axisAngleQuaternion(
+                        axisInJoint,
+                        jointCoordinate
+                    );
+                }
             }
 
             const float4 candidateRotation = quaternionMultiply(
@@ -848,16 +859,19 @@ inline bool buildKinematics(
                 return false;
             }
             bodyRotation[localChild] = checkedChildRotation;
+            jointAxis[localChild] = quaternionRotate(
+                parentToJointRotation,
+                axisInJoint
+            );
             jointPosition[localChild] =
                 bodyPosition[localParent] +
                 quaternionRotate(
                     bodyRotation[localParent],
                     joint.parentAnchor.xyz
-                );
-            jointAxis[localChild] = quaternionRotate(
-                parentToJointRotation,
-                axisInJoint
-            );
+                ) +
+                (joint.jointType == MR_JOINT_PRISMATIC
+                    ? jointAxis[localChild] * jointCoordinate
+                    : float3(0.0f));
             bodyPosition[localChild] =
                 jointPosition[localChild] -
                 quaternionRotate(

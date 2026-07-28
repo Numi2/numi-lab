@@ -32,7 +32,8 @@ The canonical `metalrobo::EngineModel` is the forward architecture:
 - fixed or floating roots and packed articulation-local coordinate ranges;
 - strict global `q`/`v` ownership plus limits, drive parameters, dry friction,
   and physical armature for every generalized velocity coordinate;
-- the compiled COM-consistent, 29-DoF Unitree G1 model.
+- the compiled COM-consistent, 29-DoF Unitree G1 model;
+- a fixed-root dVRK-style PSM research model with true prismatic insertion.
 
 Canonical rigid-body translation and linear velocity are measured at the
 center of mass. Orientation remains the body/link-frame orientation. Joint
@@ -40,8 +41,8 @@ anchors are therefore stored relative to each body's COM. A floating root uses
 world COM `xyz` plus quaternion `xyzw` in `q`, and world COM linear velocity
 plus world angular velocity in `v`.
 
-There is no URDF, MJCF, or OpenUSD importer yet. Franka and G1 are compiled
-in-house model definitions with pinned provenance.
+There is no URDF, MJCF, or OpenUSD importer yet. Franka, G1, and the surgical
+PSM are compiled in-house model definitions with pinned provenance.
 
 ## Execution planes
 
@@ -63,8 +64,8 @@ canonical G1 model or the generic contact solver.
 
 ### Generalized articulated CPU reference
 
-`ArticulatedDynamics` is an FP64 implementation for fixed or floating
-trees with revolute, continuous, and fixed joints. It uses:
+`ArticulatedDynamics` is an FP64 implementation for fixed or floating trees
+with revolute, continuous, prismatic, and fixed joints. It uses:
 
 - a world-coordinate composite-rigid-body recursion to assemble the dense
   generalized mass matrix;
@@ -98,8 +99,33 @@ foot-sphere contacts. Every output and persistent cache is published only
 after the full step succeeds. Explicit model/custom PD and effort commands are
 executable through the separate transactional actuation evaluator and can
 feed this world's generalized-force input. Coupled implicit drives,
-set-valued stiction, joint-limit impulses, dynamic free objects, multiple
+set-valued stiction, a composed dynamic-free-object timestep, multiple
 articulations, and self collision remain open.
+
+### Surgical research slice
+
+`makeDvrkPsmLargeNeedleDriverEngineModel` compiles a nine-body,
+eight-coordinate serial remote-center equivalent of the dVRK Classic PSM. Its
+insertion axis is a real prismatic joint in the CPU reference, Metal mass
+operator, Metal inverse-mass action, and Metal ABA. The two jaws remain
+separate physical coordinates and colliders. A validated seven-target policy
+map expands one total angular aperture into symmetric jaw commands without
+pretending to implement the missing tendon/transmission dynamics or replacing
+contact by an attachment. The authored distal jaw surfaces are tangent at zero
+logical aperture and separate monotonically across the allowed range.
+
+`SurgicalAssets` procedurally builds a GS-21-scale half-circle needle, a
+training ring, and a peg board. Compound capsules carry stable segment IDs and
+the needle records swage, grasp, taper, and tip arc zones. Mass, COM, and
+inertia are derived from explicit geometry and named research density/profile
+defaults. These are rigid research/training assets: there is no suture strand,
+tissue, puncture, cutting, biomechanical, or clinical model.
+
+The focused coupled articulation/rigid contact operator can exchange
+equal-and-opposite contact impulses between one articulation and dynamic rigid
+objects. It is not yet the complete transactional lift world: collision
+adaptation, free prediction, joint limits, grasp evidence, CCD, integration,
+and persistent caches still need to be composed into one island step.
 
 ### Generic maximal-coordinate rigid-body world
 
@@ -128,8 +154,8 @@ The canonical ABI is also consumed by focused Metal kernels:
 - a parallel deterministic micro broadphase using flag, two-level exclusive
   scan, and canonical scatter without global append atomics;
 - a deterministic one-thread `O(n²)` collision correctness kernel for
-  sphere/sphere, sphere/plane, capsule/plane, box/plane, and
-  cylinder/plane;
+  sphere/sphere, sphere/plane, capsule/plane, box/plane, cylinder/plane,
+  sphere/capsule, capsule/capsule, and sphere/box;
 - a correctness-first generic fixed/floating articulation operator for body
   poses, point Jacobians, mass, `Jᵀp`, and factor-solved `M⁻¹Jᵀp`, exercised
   on actual 35-velocity G1 with authoritative armature;
@@ -165,12 +191,13 @@ driven from the IR; unimplemented rolling/adhesion semantics fail explicitly.
 ## Collision and contact boundary
 
 The CPU collision reference implements deterministic sweep-and-prune,
-sphere/sphere, sphere/plane, capsule/plane, and box/plane witnesses, stable
-features, oriented cylinder/plane, and persistent four-point manifold
-reduction. The Metal collision kernel implements those same five pair classes
-and matches CPU witness geometry in its focused probe. Other cylinder pairs,
-general capsule/box pairs, convex GJK/EPA/MPR, triangle mesh, heightfield, SDF,
-and deformable geometry are not executable production paths.
+sphere/sphere, sphere/plane, capsule/plane, box/plane, cylinder/plane,
+sphere/capsule, capsule/capsule, and sphere/box witnesses, stable features,
+and persistent four-point manifold reduction. The Metal collision kernel
+implements the same eight pair classes and matches CPU witness geometry in
+its focused probe. Other cylinder pairs, general capsule/box pairs, convex
+GJK/EPA/MPR, triangle mesh, heightfield, SDF, and deformable geometry are not
+executable production paths.
 
 There is no continuous collision detection. Neither conservative advancement,
 time-of-impact island stepping, nor speculative CCD is implemented.

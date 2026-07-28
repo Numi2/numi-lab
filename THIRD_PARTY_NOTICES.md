@@ -1,9 +1,10 @@
 # Third-party notices
 
-MetalRobo's engine implementation is original work. The pinned Unitree G1
-compiled-model constants in `src/core/G1.cpp` are adapted from the sources
-identified below. These notices do not imply endorsement by Unitree Robotics,
-the Isaac Lab Project, or their contributors.
+MetalRobo's engine implementation is original work. Pinned robot and task
+model constants are adapted from the sources identified below. These notices
+do not imply endorsement by Franka Robotics, Unitree Robotics, the Isaac Lab
+Project, the ORBIT-Surgical Project, JHU, Intuitive Surgical, Medtronic, or
+their contributors.
 
 ## Franka model data
 
@@ -69,3 +70,62 @@ upstream repository also contains an Apache-2.0 `LICENCE`; the exact
 provenance and boundary are recorded in `docs/G1_SPEC.md`. MetalRobo keeps the
 training preset named and separate from the physical Unitree asset so it is
 not presented as hardware truth.
+
+## ORBIT-Surgical PSM model data
+
+The topology, body masses, joint limits, reset state, and named actuator
+preset in `src/core/SurgicalPSM.cpp` are adapted from ORBIT-Surgical commit
+`6e47534f7d412e4be523116f250c992a63146883`, specifically `psm_col.usd` and
+`orbit/surgical/assets/psm.py`. The fixed 0.1 kg tooltip mass is folded into
+its moving yaw parent; its combined inertia is an explicitly documented
+MetalRobo approximation because the USD does not author those tensors. No
+upstream mesh is redistributed.
+
+Copyright (c) 2024, The ORBIT-Surgical Project Developers.
+
+All rights reserved.
+
+SPDX-License-Identifier: BSD-3-Clause
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+The JHU dVRK Classic PSM and Large Needle Driver definitions at
+`sawIntuitiveResearchKit` commit
+`53a401d014e5ef8a7d5e3ad05f0680084507662c` supply controller/kinematic
+records for the Classic shaft and wrist and are also used to cross-check the
+serial model. Their repository points to the CISST Software License Agreement
+at
+<https://github.com/jhu-cisst/cisst/blob/7e95680b9461009b745567f382d1b498eabc046b/license.txt>.
+The complete agreement and required attribution preface are retained in
+`licenses/CISST_LICENSE.txt`. MetalRobo does not redistribute JHU source or
+mesh assets.
+
+## GS-21 product facts
+
+The procedural needle uses the Medtronic GS-21 catalog facts “37 mm,”
+“half-circle,” and “taper.” All cross-section, density, tip/swage profile,
+contact, and grasp-zone values are separately labelled MetalRobo research
+defaults. No Medtronic mesh, artwork, documentation, or software is
+redistributed.

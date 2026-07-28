@@ -635,7 +635,8 @@ ArticulatedDynamicsStatus buildTopology(
         std::uint32_t expectedJointNq = 0u;
         std::uint32_t expectedJointNv = 0u;
         if (joint.jointType == MR_JOINT_REVOLUTE ||
-            joint.jointType == MR_JOINT_CONTINUOUS) {
+            joint.jointType == MR_JOINT_CONTINUOUS ||
+            joint.jointType == MR_JOINT_PRISMATIC) {
             expectedJointNq = 1u;
             expectedJointNv = 1u;
         } else if (joint.jointType != MR_JOINT_FIXED) {
@@ -927,6 +928,7 @@ ArticulatedDynamicsStatus buildKinematics(
             parent.rotation * parentJointRotation;
         Vec3 axisJoint{1.0, 0.0, 0.0};
         Mat3 motionRotation = identityMatrix();
+        double jointPosition = 0.0;
         double jointRate = 0.0;
         double jointAcceleration = 0.0;
         if (joint.nv == 1u) {
@@ -936,7 +938,12 @@ ArticulatedDynamicsStatus buildKinematics(
                 joint.qOffset - articulation.qOffset;
             const std::size_t vIndex =
                 joint.vOffset - articulation.vOffset;
-            motionRotation = rotationAroundAxis(axisJoint, q[qIndex]);
+            jointPosition = q[qIndex];
+            if (joint.jointType == MR_JOINT_REVOLUTE ||
+                joint.jointType == MR_JOINT_CONTINUOUS) {
+                motionRotation =
+                    rotationAroundAxis(axisJoint, jointPosition);
+            }
             if (!v.empty()) {
                 jointRate = v[vIndex];
             }
@@ -948,10 +955,15 @@ ArticulatedDynamicsStatus buildKinematics(
         child.rotation =
             parentToJoint * motionRotation *
             transpose(childJointRotation);
+        child.inboundJointAxis = parentToJoint * axisJoint;
         child.inboundJointPosition =
             parent.originPosition +
-            parent.rotation * xyz(joint.parentAnchor);
-        child.inboundJointAxis = parentToJoint * axisJoint;
+            parent.rotation * xyz(joint.parentAnchor) +
+            (
+                joint.jointType == MR_JOINT_PRISMATIC
+                    ? child.inboundJointAxis * jointPosition
+                    : Vec3{}
+            );
         const Vec3 childAnchorWorld =
             child.rotation * xyz(joint.childAnchor);
         child.originPosition =
@@ -961,28 +973,46 @@ ArticulatedDynamicsStatus buildKinematics(
             child.inboundJointPosition - parent.originPosition;
         const Vec3 jointLinearVelocity =
             parent.originLinearVelocity +
-            cross(parent.angularVelocity, parentToJointVector);
-        child.angularVelocity =
-            parent.angularVelocity +
-            child.inboundJointAxis * jointRate;
+            cross(parent.angularVelocity, parentToJointVector) +
+            (
+                joint.jointType == MR_JOINT_PRISMATIC
+                    ? child.inboundJointAxis * jointRate
+                    : Vec3{}
+            );
+        child.angularVelocity = parent.angularVelocity;
+        if (joint.jointType == MR_JOINT_REVOLUTE ||
+            joint.jointType == MR_JOINT_CONTINUOUS) {
+            child.angularVelocity +=
+                child.inboundJointAxis * jointRate;
+        }
         child.originLinearVelocity =
             jointLinearVelocity -
             cross(child.angularVelocity, childAnchorWorld);
 
-        const Vec3 jointLinearAcceleration =
+        Vec3 jointLinearAcceleration =
             parent.originLinearAcceleration +
             cross(parent.angularAcceleration, parentToJointVector) +
             cross(
                 parent.angularVelocity,
                 cross(parent.angularVelocity, parentToJointVector)
             );
-        child.angularAcceleration =
-            parent.angularAcceleration +
-            child.inboundJointAxis * jointAcceleration +
-            cross(
-                parent.angularVelocity,
-                child.inboundJointAxis
-            ) * jointRate;
+        child.angularAcceleration = parent.angularAcceleration;
+        if (joint.jointType == MR_JOINT_REVOLUTE ||
+            joint.jointType == MR_JOINT_CONTINUOUS) {
+            child.angularAcceleration +=
+                child.inboundJointAxis * jointAcceleration +
+                cross(
+                    parent.angularVelocity,
+                    child.inboundJointAxis
+                ) * jointRate;
+        } else if (joint.jointType == MR_JOINT_PRISMATIC) {
+            jointLinearAcceleration +=
+                child.inboundJointAxis * jointAcceleration +
+                cross(
+                    parent.angularVelocity,
+                    child.inboundJointAxis
+                ) * (2.0 * jointRate);
+        }
         child.originLinearAcceleration =
             jointLinearAcceleration -
             cross(child.angularAcceleration, childAnchorWorld) -
@@ -1081,13 +1111,18 @@ std::vector<SpatialMotion> bodyJacobian(
                 joint.vOffset - articulation.vOffset;
             const Vec3 axis =
                 kinematics[localCursor].inboundJointAxis;
-            jacobian[velocityIndex].angular = axis;
-            jacobian[velocityIndex].linear =
-                cross(
-                    axis,
-                    body.centerOfMassPosition -
-                        kinematics[localCursor].inboundJointPosition
-                );
+            if (joint.jointType == MR_JOINT_PRISMATIC) {
+                jacobian[velocityIndex].linear = axis;
+            } else {
+                jacobian[velocityIndex].angular = axis;
+                jacobian[velocityIndex].linear =
+                    cross(
+                        axis,
+                        body.centerOfMassPosition -
+                            kinematics[localCursor].
+                                inboundJointPosition
+                    );
+            }
         }
         cursor = joint.parentBody;
     }
@@ -1514,13 +1549,18 @@ ArticulatedDynamicsDiagnostics assembleMassMatrix(
                 kinematics[localParent].centerOfMassPosition
         );
         if (joint.nv == 1u) {
-            jointMotionSubspace[localBody].angular =
-                kinematics[localBody].inboundJointAxis;
-            jointMotionSubspace[localBody].linear = cross(
-                kinematics[localBody].inboundJointAxis,
-                kinematics[localBody].centerOfMassPosition -
-                    kinematics[localBody].inboundJointPosition
-            );
+            if (joint.jointType == MR_JOINT_PRISMATIC) {
+                jointMotionSubspace[localBody].linear =
+                    kinematics[localBody].inboundJointAxis;
+            } else {
+                jointMotionSubspace[localBody].angular =
+                    kinematics[localBody].inboundJointAxis;
+                jointMotionSubspace[localBody].linear = cross(
+                    kinematics[localBody].inboundJointAxis,
+                    kinematics[localBody].centerOfMassPosition -
+                        kinematics[localBody].inboundJointPosition
+                );
+            }
         }
     }
 

@@ -528,25 +528,26 @@ int main() {
             "nonfinite rejection was not transactional"
         );
 
-        auto unsupported = g1;
-        unsupported.joints[0].jointType = MR_JOINT_PRISMATIC;
+        auto prismatic = g1;
+        prismatic.joints[0].jointType = MR_JOINT_PRISMATIC;
         std::string reason;
         require(
-            unsupported.valid(&reason),
-            "unsupported topology canary is invalid: " + reason
+            prismatic.valid(&reason),
+            "prismatic topology canary is invalid: " + reason
         );
-        const auto unsupportedDiagnostics = context.run(
-            unsupported,
+        metalrobo::MetalArticulatedInverseMassResult
+            prismaticResult;
+        const auto prismaticDiagnostics = context.run(
+            prismatic,
             small.input(),
-            sentinel
+            prismaticResult
         );
         require(
-            unsupportedDiagnostics.status ==
-                    metalrobo::
-                        MetalArticulatedInverseMassHostStatus::
-                            unsupportedTopology &&
-                samePayload(first, sentinel),
-            "unsupported topology escaped host validation"
+            prismaticDiagnostics.succeeded() &&
+                prismaticResult.output.size() ==
+                    small.environmentCount * small.rhsCount *
+                        g1.world.nv,
+            "prismatic inverse-mass topology did not execute"
         );
 
         auto tinyPivot =

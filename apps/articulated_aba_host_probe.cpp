@@ -670,21 +670,21 @@ int main() {
             "ABA wrench rejection was not transactional"
         );
 
-        auto unsupported = g1;
-        unsupported.joints[0].jointType = MR_JOINT_PRISMATIC;
+        auto prismatic = g1;
+        prismatic.joints[0].jointType = MR_JOINT_PRISMATIC;
         require(
-            unsupported.valid(&reason),
-            "unsupported topology canary is not a valid model: " +
+            prismatic.valid(&reason),
+            "prismatic topology canary is not a valid model: " +
                 reason
         );
-        const auto unsupportedDiagnostics =
-            context.run(unsupported, small.input(), sentinel);
+        metalrobo::MetalArticulatedABAResult prismaticResult;
+        const auto prismaticDiagnostics =
+            context.run(prismatic, small.input(), prismaticResult);
         require(
-            unsupportedDiagnostics.status ==
-                    metalrobo::MetalArticulatedABAHostStatus::
-                        unsupportedTopology &&
-                samePayload(first, sentinel),
-            "unsupported ABA topology escaped the host gate"
+            prismaticDiagnostics.succeeded() &&
+                prismaticResult.acceleration.size() ==
+                    small.environmentCount * g1.world.nv,
+            "prismatic ABA topology did not execute"
         );
 
         auto tinyPivot =

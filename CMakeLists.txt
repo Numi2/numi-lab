@@ -159,12 +159,15 @@ add_library(
     src/core/CpuDynamics.cpp
     src/core/EngineModel.cpp
     src/core/G1.cpp
+    src/core/SurgicalPSM.cpp
+    src/core/SurgicalAssets.cpp
     src/core/Collision.cpp
     src/core/FreeBodyDynamics.cpp
     src/core/ArticulatedDynamics.cpp
     src/core/ArticulatedActuation.cpp
     src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp
+    src/core/CoupledArticulatedRigidContact.cpp
     src/core/ArticulatedMixedConstraints.cpp
     src/core/ArticulatedCollision.cpp
     src/core/ArticulatedWorld.cpp
@@ -753,6 +756,76 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(
+    metalrobo_surgical_psm_probe
+    apps/surgical_psm_probe.cpp
+)
+target_link_libraries(
+    metalrobo_surgical_psm_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_surgical_psm_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_assets_probe
+    apps/surgical_assets_probe.cpp
+)
+target_link_libraries(
+    metalrobo_surgical_assets_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_surgical_assets_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_surgical_metal_operator_probe
+    apps/surgical_metal_operator_probe.cpp
+)
+target_link_libraries(
+    metalrobo_surgical_metal_operator_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_surgical_metal_operator_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_coupled_articulated_rigid_contact_probe
+    apps/coupled_articulated_rigid_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_coupled_articulated_rigid_contact_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_coupled_articulated_rigid_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 install(TARGETS metalrobo metalrobo_bench)
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)
+install(
+    FILES
+        THIRD_PARTY_NOTICES.md
+        licenses/CISST_LICENSE.txt
+    DESTINATION share/metalrobo
+)

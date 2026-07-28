@@ -116,10 +116,10 @@ struct ArticulatedPointKinematics {
 // coordinates relative to each body's COM (not its URDF link-frame origin).
 //
 // Supported production-independent reference topology is a tree with a fixed
-// or floating root and revolute, continuous, or fixed joints. The computation
-// is FP64. The dense mass matrix is assembled by a world-coordinate composite
-// rigid-body recursion, while velocity/gravity bias is evaluated by recursive
-// Newton-Euler kinematics.
+// or floating root and revolute, prismatic, continuous, or fixed joints. The
+// computation is FP64. The dense mass matrix is assembled by a world-coordinate
+// composite rigid-body recursion, while velocity/gravity bias is evaluated by
+// recursive Newton-Euler kinematics.
 //
 // The following two queries expose that same analytic tree recursion to
 // constraint layers. Results are transactional. Point Jacobians are packed

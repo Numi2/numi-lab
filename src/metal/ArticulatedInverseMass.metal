@@ -395,7 +395,8 @@ kernel void mr_articulated_inverse_mass(
         }
         const bool scalarJoint =
             joint.jointType == MR_JOINT_REVOLUTE ||
-            joint.jointType == MR_JOINT_CONTINUOUS;
+            joint.jointType == MR_JOINT_CONTINUOUS ||
+            joint.jointType == MR_JOINT_PRISMATIC;
         const bool fixedJoint =
             joint.jointType == MR_JOINT_FIXED;
         if ((!scalarJoint && !fixedJoint) ||
@@ -669,14 +670,19 @@ kernel void mr_articulated_inverse_mass(
         float3 axisInJoint = float3(1.0f, 0.0f, 0.0f);
         float4 motionRotation =
             float4(0.0f, 0.0f, 0.0f, 1.0f);
+        float jointCoordinate = 0.0f;
         if (joint.nv == 1u) {
             axisInJoint = normalize(joint.axis0.xyz);
             const uint localQ =
                 joint.qOffset - articulation.qOffset;
-            motionRotation = axisAngleQuaternion(
-                axisInJoint,
-                environmentQ[localQ]
-            );
+            jointCoordinate = environmentQ[localQ];
+            if (joint.jointType == MR_JOINT_REVOLUTE ||
+                joint.jointType == MR_JOINT_CONTINUOUS) {
+                motionRotation = axisAngleQuaternion(
+                    axisInJoint,
+                    jointCoordinate
+                );
+            }
         }
         float4 checkedChildRotation;
         if (!normalizedQuaternion(
@@ -699,16 +705,21 @@ kernel void mr_articulated_inverse_mass(
             return;
         }
         bodyRotation[localChild] = checkedChildRotation;
+        const float3 jointAxis = quaternionRotate(
+            parentToJointRotation,
+            axisInJoint
+        );
+        const bool prismatic =
+            joint.jointType == MR_JOINT_PRISMATIC;
         const float3 jointPosition =
             bodyPosition[localParent] +
             quaternionRotate(
                 bodyRotation[localParent],
                 joint.parentAnchor.xyz
-            );
-        const float3 jointAxis = quaternionRotate(
-            parentToJointRotation,
-            axisInJoint
-        );
+            ) +
+            (prismatic
+                ? jointAxis * jointCoordinate
+                : float3(0.0f));
         const float3 childAnchor = quaternionRotate(
             bodyRotation[localChild],
             joint.childAnchor.xyz
@@ -719,11 +730,15 @@ kernel void mr_articulated_inverse_mass(
             bodyPosition[localChild] -
             bodyPosition[localParent];
         motionAngular[localChild] =
-            joint.nv == 1u ? jointAxis : float3(0.0f);
-        motionLinear[localChild] =
-            joint.nv == 1u
-                ? -cross(jointAxis, childAnchor)
+            joint.nv == 1u && !prismatic
+                ? jointAxis
                 : float3(0.0f);
+        motionLinear[localChild] =
+            prismatic
+                ? jointAxis
+                : (joint.nv == 1u
+                    ? -cross(jointAxis, childAnchor)
+                    : float3(0.0f));
         if (!finite3(bodyPosition[localChild]) ||
             !finite4(bodyRotation[localChild]) ||
             !finite3(motionAngular[localChild]) ||

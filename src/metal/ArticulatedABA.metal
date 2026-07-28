@@ -461,7 +461,8 @@ kernel void mr_articulated_aba_step(
         }
         const bool scalarJoint =
             joint.jointType == MR_JOINT_REVOLUTE ||
-            joint.jointType == MR_JOINT_CONTINUOUS;
+            joint.jointType == MR_JOINT_CONTINUOUS ||
+            joint.jointType == MR_JOINT_PRISMATIC;
         const bool fixedJoint =
             joint.jointType == MR_JOINT_FIXED;
         if ((!scalarJoint && !fixedJoint) ||
@@ -667,6 +668,7 @@ kernel void mr_articulated_aba_step(
         float3 axisInJoint = float3(1.0f, 0.0f, 0.0f);
         float4 motionRotation =
             float4(0.0f, 0.0f, 0.0f, 1.0f);
+        float jointCoordinate = 0.0f;
         float jointRate = 0.0f;
         if (joint.nv == 1u) {
             axisInJoint = normalize(joint.axis0.xyz);
@@ -674,10 +676,14 @@ kernel void mr_articulated_aba_step(
                 joint.qOffset - articulation.qOffset;
             const uint localV =
                 joint.vOffset - articulation.vOffset;
-            motionRotation = axisAngleQuaternion(
-                axisInJoint,
-                environmentQ[localQ]
-            );
+            jointCoordinate = environmentQ[localQ];
+            if (joint.jointType == MR_JOINT_REVOLUTE ||
+                joint.jointType == MR_JOINT_CONTINUOUS) {
+                motionRotation = axisAngleQuaternion(
+                    axisInJoint,
+                    jointCoordinate
+                );
+            }
             jointRate = environmentV[localV];
         }
         float4 checkedChildRotation;
@@ -701,16 +707,21 @@ kernel void mr_articulated_aba_step(
             return;
         }
         bodyRotation[localChild] = checkedChildRotation;
+        const float3 jointAxis = quaternionRotate(
+            parentToJointRotation,
+            axisInJoint
+        );
+        const bool prismatic =
+            joint.jointType == MR_JOINT_PRISMATIC;
         const float3 jointPosition =
             bodyPosition[localParent] +
             quaternionRotate(
                 bodyRotation[localParent],
                 joint.parentAnchor.xyz
-            );
-        const float3 jointAxis = quaternionRotate(
-            parentToJointRotation,
-            axisInJoint
-        );
+            ) +
+            (prismatic
+                ? jointAxis * jointCoordinate
+                : float3(0.0f));
         const float3 childAnchor = quaternionRotate(
             bodyRotation[localChild],
             joint.childAnchor.xyz
@@ -724,26 +735,42 @@ kernel void mr_articulated_aba_step(
             jointPosition - bodyPosition[localParent];
         angularVelocity[localChild] =
             angularVelocity[localParent] +
-            jointAxis * jointRate;
+            (!prismatic && joint.nv == 1u
+                ? jointAxis * jointRate
+                : float3(0.0f));
         linearVelocity[localChild] =
             linearVelocity[localParent] +
             cross(
                 angularVelocity[localParent],
                 parentToJoint
-            ) -
+            ) +
+            (prismatic
+                ? jointAxis * jointRate
+                : float3(0.0f)) -
             cross(
                 angularVelocity[localChild],
                 childAnchor
             );
         motionAngular[localChild] =
-            joint.nv == 1u ? jointAxis : float3(0.0f);
-        motionLinear[localChild] =
-            joint.nv == 1u
-                ? -cross(jointAxis, childAnchor)
+            joint.nv == 1u && !prismatic
+                ? jointAxis
                 : float3(0.0f);
+        motionLinear[localChild] =
+            prismatic
+                ? jointAxis
+                : (joint.nv == 1u
+                    ? -cross(jointAxis, childAnchor)
+                    : float3(0.0f));
         biasAngular[localChild] =
-            joint.nv == 1u
+            joint.nv == 1u && !prismatic
                 ? cross(
+                    angularVelocity[localParent],
+                    jointAxis
+                ) * jointRate
+                : float3(0.0f);
+        const float3 prismaticCoriolis =
+            prismatic
+                ? 2.0f * cross(
                     angularVelocity[localParent],
                     jointAxis
                 ) * jointRate
@@ -755,7 +782,8 @@ kernel void mr_articulated_aba_step(
                     angularVelocity[localParent],
                     parentToJoint
                 )
-            ) -
+            ) +
+            prismaticCoriolis -
             cross(biasAngular[localChild], childAnchor) -
             cross(
                 angularVelocity[localChild],

@@ -13,11 +13,12 @@ linked or called at runtime.
   materials, contacts, and explicit capacities
 - FP64 free-body dynamics plus matching Metal symplectic and implicit-midpoint
   kernels, including gyroscopic motion and SO(3) quaternion integration
-- Generalized CPU FP64 articulated dynamics for fixed or floating trees:
-  world-coordinate CRBA plus Cholesky, RNEA bias/inverse dynamics, external
-  COM wrenches, and transactional SO(3) integration; the actual 29-DoF G1
-  topology passes forward/inverse consistency; per-DoF armature is included
-  consistently in CRBA, RNEA, energy, contact, and impulse response
+- Generalized CPU FP64 articulated dynamics for fixed or floating trees with
+  revolute, continuous, prismatic, and fixed joints: world-coordinate CRBA
+  plus Cholesky, RNEA bias/inverse dynamics, external COM wrenches, and
+  transactional SO(3) integration; the actual 29-DoF G1 topology passes
+  forward/inverse consistency; per-DoF armature is included consistently in
+  CRBA, RNEA, energy, contact, and impulse response
 - Transactional articulated actuation with disabled, model-PD, custom-PD,
   and effort modes; effort clamping precedes passive loss, continuous-joint
   PD uses shortest-angle error, and near-zero dry friction is explicitly a
@@ -55,6 +56,20 @@ linked or called at runtime.
   COM-centred joint anchors, 12 official primitive records, authoritative
   per-DoF limits, named RL Lab drive/armature data, foot frames, and IMUs;
   eight foot spheres are executable
+- Open, pinned dVRK-style Patient Side Manipulator research model with a true
+  prismatic insertion axis, eight driven coordinates, exact serial
+  remote-center geometry, Classic Large Needle Driver, independent jaws, and
+  18 executable primitive colliders; a validated seven-target policy map
+  expands one logical aperture into symmetric physical jaw commands with
+  tangent closure and a monotonically increasing distal surface gap
+- Procedural GS-21-scale curved needle, training ring, and peg-board assets
+  with stable compound colliders and geometry-derived mass, COM, inertia, and
+  semantic grasp/tip zones; source facts and research defaults remain
+  explicitly separated
+- FP64 two-way articulation/free-object contact operator with analytic
+  articulated point Jacobians, block-structured inverse mass, and exact
+  circular Coulomb solve; the real procedural needle and PSM jaw exchange a
+  deterministic contact impulse without an artificial grasp weld
 - Correctness-first generic Metal articulation operator for fixed/floating
   trees, exercised on actual 30-body/35-velocity G1: poses, analytic point
   Jacobians, `Jᵀp`, checked mass factorization, and `M⁻¹Jᵀp`, with
@@ -75,9 +90,10 @@ The throughput contact kernel is PGS rather than TGS, and any connected island
 above 128 contacts fails explicitly rather than spilling. Cylinder support is
 currently cylinder/plane only, so G1 shoulder cylinders remain disabled.
 Metal manifold persistence, LBVH, convex/mesh/heightfield geometry, CCD,
-multi-articulation/free-object islands, the complete joint/loop constraint
-language, importers, rendering, sensors, and qualified differentiability
-remain open. The dated requirements and claim rules are in
+complete time-stepped multi-articulation/free-object islands, the full
+joint/loop constraint language, importers, rendering, sensors, tissue/thread
+mechanics, and qualified differentiability remain open. The dated
+requirements and claim rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
 
 ## Build
@@ -93,6 +109,10 @@ cmake --build build
 ./build/bin/metalrobo_articulated_world_probe
 ./build/bin/metalrobo_articulated_operator_gpu_probe
 ./build/bin/metalrobo_articulated_operator_host_probe
+./build/bin/metalrobo_surgical_psm_probe
+./build/bin/metalrobo_surgical_assets_probe
+./build/bin/metalrobo_surgical_metal_operator_probe
+./build/bin/metalrobo_coupled_articulated_rigid_contact_probe
 ./build/bin/metalrobo_g1_collision_contact_probe
 ./build/bin/metalrobo_free_body_gpu_probe
 ./build/bin/metalrobo_collision_gpu_probe

@@ -38,6 +38,33 @@ fixed-link inertial folding, inverse-tensor calculation, runtime ABI, solvers,
 collision implementation, and Metal kernels are MetalRobo implementation
 work.
 
+The dVRK-style surgical PSM research model is pinned to:
+
+- `orbit-surgical/orbit-surgical` commit
+  `6e47534f7d412e4be523116f250c992a63146883`
+- Source records `psm_col.usd` and
+  `orbit/surgical/assets/psm.py`
+- Upstream BSD-3-Clause license:
+  <https://github.com/orbit-surgical/orbit-surgical/blob/6e47534f7d412e4be523116f250c992a63146883/LICENCE>
+- JHU Classic shaft/wrist controller records and kinematic cross-check at
+  `jhu-dvrk/sawIntuitiveResearchKit` commit
+  `53a401d014e5ef8a7d5e3ad05f0680084507662c`, using `PSM.json` and
+  `LARGE_NEEDLE_DRIVER_400006.json`
+
+The serial remote-center construction, COM conversion, primitive collision
+decomposition, approximate inertias, and independent jaw coordinates are
+MetalRobo research representations rather than hardware calibration. The
+upstream fixed 0.1 kg `psm_tool_tip_link` is folded into its 0.1 kg moving yaw
+parent; because the USD authors no inertia tensor for either prim, the
+combined COM and tensor use a documented point-mass/parallel-axis
+approximation in the canonical serial frame.
+
+The procedural curved needle uses the official Medtronic GS-21 product facts
+of a 37 mm, half-circle taper needle. Cross-section, density, tip/swage
+profile, contact material, and grasp-zone values are named research defaults.
+The training ring and peg-board dimensions are also research defaults. No
+third-party needle mesh is redistributed.
+
 Algorithm references used for the independent articulated-body
 implementation:
 

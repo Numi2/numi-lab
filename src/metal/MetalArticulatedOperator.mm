@@ -252,9 +252,10 @@ bool supportedTopology(
         }
         if (joint.jointType != MR_JOINT_REVOLUTE &&
             joint.jointType != MR_JOINT_CONTINUOUS &&
+            joint.jointType != MR_JOINT_PRISMATIC &&
             joint.jointType != MR_JOINT_FIXED) {
             reason =
-                "Metal articulated operator supports revolute, "
+                "Metal articulated operator supports revolute, prismatic, "
                 "continuous, and fixed joints";
             return false;
         }
