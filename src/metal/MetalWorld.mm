@@ -695,6 +695,7 @@ std::uint64_t fingerprint(const EngineModel& model) {
     hashVector(hash, model.convexHalfEdges);
     hashVector(hash, model.meshBvhNodes);
     hashVector(hash, model.meshTriangles);
+    hashVector(hash, model.collisionExclusions);
     hashValue(hash, model.constraintProgram.abiVersion);
     hashVector(hash, model.constraintProgram.blocks);
     hashVector(hash, model.constraintProgram.endpoints);
@@ -7560,6 +7561,36 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 staged.sceneBodyIndices_.push_back(body);
             }
         }
+        const auto collisionExcluded = [&staged](
+            const std::uint32_t colliderA,
+            const std::uint32_t colliderB
+        ) {
+            const std::uint64_t key =
+                (static_cast<std::uint64_t>(colliderA) << 32u) |
+                colliderB;
+            const auto& exclusions =
+                staged.model_.collisionExclusions;
+            const auto found = std::lower_bound(
+                exclusions.begin(),
+                exclusions.end(),
+                key,
+                [](const CollisionPairExclusion& exclusion,
+                   const std::uint64_t candidate) {
+                    const std::uint64_t exclusionKey =
+                        (
+                            static_cast<std::uint64_t>(
+                                exclusion.colliderA
+                            ) << 32u
+                        ) |
+                        exclusion.colliderB;
+                    return exclusionKey < candidate;
+                }
+            );
+            return
+                found != exclusions.end() &&
+                found->colliderA == colliderA &&
+                found->colliderB == colliderB;
+        };
         for (std::uint32_t colliderA = 0u;
              colliderA < staged.model_.shapes.size();
              ++colliderA) {
@@ -7577,6 +7608,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 if ((shapeB.flags &
                      MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
                     shapeA.bodyIndex == shapeB.bodyIndex ||
+                    collisionExcluded(colliderA, colliderB) ||
                     (shapeA.collisionGroup &
                      shapeB.collisionMask) == 0u ||
                     (shapeB.collisionGroup &

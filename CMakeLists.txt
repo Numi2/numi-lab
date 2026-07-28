@@ -21,6 +21,7 @@ find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
 find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
+find_package(LibXml2 REQUIRED)
 
 set(METALROBO_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
 set(METALROBO_PHYSICS_SOURCE
@@ -237,6 +238,7 @@ add_library(
     src/core/WorldCompiler.cpp
     src/core/WorldPack.cpp
     src/core/EpisodeTwinCompiler.cpp
+    src/core/RobotDescriptionCooker.cpp
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
     src/core/SurgicalPSM.cpp
@@ -298,6 +300,7 @@ target_link_libraries(
         "${METAL_FRAMEWORK}"
         "${QUARTZCORE_FRAMEWORK}"
         "${ACCELERATE_FRAMEWORK}"
+        LibXml2::LibXml2
 )
 set_target_properties(
     metalrobo
@@ -500,6 +503,22 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_multi_articulated_world_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_robot_description_cooker_probe
+    apps/robot_description_cooker_probe.cpp
+)
+target_link_libraries(
+    metalrobo_robot_description_cooker_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_robot_description_cooker_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

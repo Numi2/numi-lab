@@ -1,5 +1,6 @@
 #pragma once
 
+#include "metalrobo/Collision.hpp"
 #include "metalrobo/ConstraintIR.hpp"
 #include "metalrobo/engine_types.h"
 
@@ -33,6 +34,10 @@ struct EngineModel {
     std::vector<MRConvexHalfEdgeGPU> convexHalfEdges;
     std::vector<MRMeshBVHNodeGPU> meshBvhNodes;
     std::vector<MRMeshTriangleGPU> meshTriangles;
+    // Canonical collider-index pairs removed before broadphase compilation.
+    // SRDF disabled-collision pairs and calibrated task exclusions live here
+    // so every runtime and world-pack fingerprint sees identical filtering.
+    std::vector<CollisionPairExclusion> collisionExclusions;
     // Immutable authored mechanism program. Contact blocks remain dynamic,
     // while limits, equality/loop rows, gears, tendons, RCM constraints, and
     // calibrated bounded friction travel with the model and world pack.

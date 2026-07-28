@@ -872,6 +872,33 @@ bool EngineModel::valid(std::string* reason) const {
         }
     }
 
+    std::uint64_t previousExclusion = 0u;
+    bool havePreviousExclusion = false;
+    for (const CollisionPairExclusion& exclusion :
+         collisionExclusions) {
+        if (exclusion.colliderA >= exclusion.colliderB ||
+            exclusion.colliderB >= shapes.size()) {
+            return fail(
+                reason,
+                "collision exclusion indices are invalid"
+            );
+        }
+        const std::uint64_t key =
+            (static_cast<std::uint64_t>(
+                 exclusion.colliderA
+             ) << 32u) |
+            exclusion.colliderB;
+        if (havePreviousExclusion &&
+            key <= previousExclusion) {
+            return fail(
+                reason,
+                "collision exclusions are not canonical"
+            );
+        }
+        previousExclusion = key;
+        havePreviousExclusion = true;
+    }
+
     for (const ConstraintIRBlock& block :
          constraintProgram.blocks) {
         for (std::uint32_t local = 0u;

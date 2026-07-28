@@ -401,6 +401,7 @@ void writeEngineModel(
     writer.podVector(model.convexHalfEdges);
     writer.podVector(model.meshBvhNodes);
     writer.podVector(model.meshTriangles);
+    writer.podVector(model.collisionExclusions);
     writer.pod(model.constraintProgram.abiVersion);
     writer.podVector(model.constraintProgram.blocks);
     writer.podVector(model.constraintProgram.endpoints);
@@ -430,6 +431,7 @@ bool readEngineModel(
         reader.podVector(model.convexHalfEdges) &&
         reader.podVector(model.meshBvhNodes) &&
         reader.podVector(model.meshTriangles) &&
+        reader.podVector(model.collisionExclusions) &&
         reader.pod(model.constraintProgram.abiVersion) &&
         reader.podVector(model.constraintProgram.blocks) &&
         reader.podVector(model.constraintProgram.endpoints) &&

@@ -219,6 +219,9 @@ void appendEngineModel(HashBuilder& hash, const EngineModel& model) {
     hash.appendSpan<MRConvexHalfEdgeGPU>(model.convexHalfEdges);
     hash.appendSpan<MRMeshBVHNodeGPU>(model.meshBvhNodes);
     hash.appendSpan<MRMeshTriangleGPU>(model.meshTriangles);
+    hash.appendSpan<CollisionPairExclusion>(
+        model.collisionExclusions
+    );
     hash.appendScalar(model.constraintProgram.abiVersion);
     hash.appendSpan<ConstraintIRBlock>(
         model.constraintProgram.blocks
