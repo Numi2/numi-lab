@@ -62,6 +62,21 @@ capacity overflow never reallocates inside the primitive: the raw fixed-shape
 status reports the exact required stage counts and the affected environment
 keeps its input state.
 
+Wave32 worker occupancy is fixed when the world is compiled. The device
+profile supplies the default; `wave_worker_groups=32|64|96|128` is an explicit
+override. Measure candidates outside rollout execution:
+
+```sh
+metalrobo tune-workers \
+  --model franka \
+  --scene cube \
+  --envs 1024 \
+  --steps 32
+```
+
+The command creates one fixed world per candidate, reports wall throughput,
+and never autotunes inside `mx.compile`.
+
 `WorldState` is an explicit PyTree containing q/v, scene-body state, and solver
 cache. Contact worlds are compiled explicitly:
 

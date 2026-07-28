@@ -105,7 +105,9 @@ linked or called at runtime.
   isolated transactional rollback, no CPU fallback, and explicit autodiff
   rejection. The Wave32 solver uses a fixed worker grid that persistently
   pulls compact packets because MLX's active encoder does not expose indirect
-  dispatch. Policy inference, physics, reward/termination, GAE, rollout
+  dispatch. Worker-grid occupancy is selected before lazy execution from a
+  device profile or an explicit 32/64/96/128 benchmark override. Policy
+  inference, physics, reward/termination, GAE, rollout
   storage, and PPO updates have a NumPy-free MLX path
 - Literal hybrid-CCD event splitting on standalone Metal and MLX: each
   microstep repeatedly advances to the earliest deterministic TOI cluster,
@@ -224,6 +226,13 @@ environments on a 24 GB, 10-GPU-core Apple M4, with four physics substeps per
 control step. That is a local legacy-path result, not generic G1 throughput or
 a cross-engine benchmark. See
 [validation](docs/VALIDATION.md) for exact commands and boundaries.
+
+The explicit MLX worker-grid benchmark on the same Apple M4 measured 38,526,
+38,608, 38,883, and 38,835 wall environment-steps/s for 32, 64, 96, and 128
+groups respectively over eight 1,024-environment Franka-cube steps with four
+physics substeps. The measured registry profile therefore selects 96 groups.
+This short occupancy comparison is not a sustained thermal result and does
+not close the 40,000-step/s gate.
 
 ## Design and research
 

@@ -179,11 +179,16 @@ MetalDeviceTuningProfile tuningProfile(
             break;
         }
     }
-    // Apple9/10 covers the current M3/M4-class occupancy profile. The worker
-    // grid is fixed before lazy evaluation; no rollout-time autotuning or
-    // synchronization is permitted.
+    // The local 10-core Apple M4 was measured explicitly across
+    // 32/64/96/128 groups on 2026-07-28; 96 won the 1,024-environment
+    // Franka contact workload. Other Apple9/10 devices retain the
+    // conservative profile until measured. The grid is fixed before lazy
+    // evaluation; no rollout-time autotuning or synchronization is allowed.
+    constexpr std::uint64_t measuredM4RegistryID = 4294968246ull;
     profile.waveWorkerGroupCount =
-        profile.appleGPUFamily >= 9u ? 64u : 32u;
+        profile.registryID == measuredM4RegistryID
+        ? 96u
+        : profile.appleGPUFamily >= 9u ? 64u : 32u;
     return profile;
 }
 
@@ -239,6 +244,7 @@ MLXCompiledWorld::MLXCompiledWorld(
     const std::uint32_t maxCCDAdvanceSolvePasses,
     const std::uint32_t maxCCDZeroTimeReplays,
     const float ccdSimultaneousTolerance,
+    const std::uint32_t waveWorkerGroups,
     std::vector<MRBodyStateGPU> defaultSceneBodies,
     std::string metallibPath
 )
@@ -255,6 +261,7 @@ MLXCompiledWorld::MLXCompiledWorld(
       maxCCDAdvanceSolvePasses_(maxCCDAdvanceSolvePasses),
       maxCCDZeroTimeReplays_(maxCCDZeroTimeReplays),
       ccdSimultaneousTolerance_(ccdSimultaneousTolerance),
+      waveWorkerGroups_(waveWorkerGroups),
       defaultSceneBodies_(std::move(defaultSceneBodies)),
       metallibPath_(std::move(metallibPath)) {}
 
@@ -314,6 +321,11 @@ MLXCompiledWorld::maxCCDZeroTimeReplays() const noexcept {
 
 float MLXCompiledWorld::ccdSimultaneousTolerance() const noexcept {
     return ccdSimultaneousTolerance_;
+}
+
+std::uint32_t
+MLXCompiledWorld::waveWorkerGroups() const noexcept {
+    return waveWorkerGroups_;
 }
 
 const std::vector<MRBodyStateGPU>&
@@ -397,6 +409,10 @@ MetalResources& MLXCompiledWorld::resources(
     auto staged = std::make_unique<MetalResources>();
     staged->device = &device;
     staged->tuning = tuningProfile(device);
+    if (waveWorkerGroups_ != 0u) {
+        staged->tuning.waveWorkerGroupCount =
+            waveWorkerGroups_;
+    }
     staged->buffers.reserve(15u);
     staged->buffers.push_back(
         immutableBuffer(&worldRecord, 1u)
@@ -628,6 +644,7 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
     const std::uint32_t maxCCDAdvanceSolvePasses,
     const std::uint32_t maxCCDZeroTimeReplays,
     const float ccdSimultaneousTolerance,
+    const std::uint32_t waveWorkerGroups,
     const std::string& requestedMetallibPath,
     mx::StreamOrDevice stream
 ) {
@@ -656,6 +673,15 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             "max_ccd_advance_solve_passes and "
             "max_ccd_zero_time_replays exceed the compiled limits, "
             "or ccd_simultaneous_tolerance is not positive"
+        );
+    }
+    if (waveWorkerGroups != 0u &&
+        waveWorkerGroups != 32u &&
+        waveWorkerGroups != 64u &&
+        waveWorkerGroups != 96u &&
+        waveWorkerGroups != 128u) {
+        throw std::invalid_argument(
+            "wave_worker_groups must be 0, 32, 64, 96, or 128"
         );
     }
     EngineModel model;
@@ -1202,6 +1228,7 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         maxCCDAdvanceSolvePasses,
         maxCCDZeroTimeReplays,
         ccdSimultaneousTolerance,
+        waveWorkerGroups,
         std::move(defaultSceneBodies),
         std::move(metallibPath)
     );

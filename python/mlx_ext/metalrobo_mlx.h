@@ -33,6 +33,7 @@ public:
         std::uint32_t maxCCDAdvanceSolvePasses,
         std::uint32_t maxCCDZeroTimeReplays,
         float ccdSimultaneousTolerance,
+        std::uint32_t waveWorkerGroups,
         std::vector<MRBodyStateGPU> defaultSceneBodies,
         std::string metallibPath
     );
@@ -57,6 +58,7 @@ public:
     [[nodiscard]] std::uint32_t
     maxCCDZeroTimeReplays() const noexcept;
     [[nodiscard]] float ccdSimultaneousTolerance() const noexcept;
+    [[nodiscard]] std::uint32_t waveWorkerGroups() const noexcept;
     [[nodiscard]] const std::vector<MRBodyStateGPU>&
     defaultSceneBodies() const noexcept;
     [[nodiscard]] const std::string& metallibPath() const noexcept;
@@ -85,6 +87,7 @@ private:
     std::uint32_t maxCCDZeroTimeReplays_ =
         MR_CCD_DEFAULT_ZERO_TIME_REPLAYS;
     float ccdSimultaneousTolerance_ = 1.0e-5f;
+    std::uint32_t waveWorkerGroups_ = 0u;
     std::vector<MRBodyStateGPU> defaultSceneBodies_;
     std::string metallibPath_;
     std::mutex resourceMutex_;
@@ -107,6 +110,7 @@ private:
     std::uint32_t maxCCDAdvanceSolvePasses,
     std::uint32_t maxCCDZeroTimeReplays,
     float ccdSimultaneousTolerance,
+    std::uint32_t waveWorkerGroups,
     const std::string& metallibPath,
     mx::StreamOrDevice stream = {}
 );

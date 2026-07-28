@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import sys
 import time
@@ -15,6 +16,7 @@ from .env import FrankaEnv
 from .mlx_locomotion import MLXG1PPOTrainer
 from .mlx_ppo import MLXPPOTrainer
 from .mlx_surgical import MLXPSMNeedlePPOTrainer
+from .mlx_world import compile_world, initial_state, step
 from .ppo import (
     PPOConfig,
     PPOTrainer,
@@ -119,6 +121,30 @@ def _rollout_parser(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def _worker_tuning_parser(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--envs", type=int, default=1024)
+    parser.add_argument("--metallib")
+    parser.add_argument(
+        "--model",
+        choices=("franka", "g1", "psm"),
+        default="franka",
+    )
+    parser.add_argument(
+        "--scene",
+        choices=("cube", "ground", "terrain", "needle"),
+        default="cube",
+    )
+    parser.add_argument("--steps", type=int, default=32)
+    parser.add_argument("--warmup-steps", type=int, default=4)
+    parser.add_argument("--physics-substeps", type=int, default=4)
+    parser.add_argument(
+        "--candidates",
+        type=int,
+        nargs="+",
+        default=(32, 64, 96, 128),
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="metalrobo",
@@ -131,6 +157,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _rollout_parser(
         subparsers.add_parser("rollout", help="evaluate a saved policy")
+    )
+    _worker_tuning_parser(
+        subparsers.add_parser(
+            "tune-workers",
+            help="measure fixed MLX Wave32 worker-grid choices",
+        )
     )
     return parser
 
@@ -345,6 +377,157 @@ def run_rollout(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_worker_tuning(args: argparse.Namespace) -> int:
+    if (
+        args.envs <= 0
+        or args.steps <= 0
+        or args.warmup_steps < 0
+        or args.physics_substeps <= 0
+    ):
+        raise ValueError(
+            "envs, steps, and physics-substeps must be positive; "
+            "warmup-steps cannot be negative"
+        )
+    allowed = {32, 64, 96, 128}
+    candidates = tuple(dict.fromkeys(args.candidates))
+    if not candidates or any(value not in allowed for value in candidates):
+        raise ValueError(
+            "worker candidates must be selected from 32, 64, 96, 128"
+        )
+    valid_scene = {
+        "franka": {"cube", "ground", "terrain"},
+        "g1": {"ground", "terrain"},
+        "psm": {"needle"},
+    }
+    if args.scene not in valid_scene[args.model]:
+        raise ValueError(
+            f"scene {args.scene!r} is not valid for model "
+            f"{args.model!r}"
+        )
+
+    import mlx.core as mx
+
+    device = mx.device_info()
+    reports: list[dict[str, float | int]] = []
+    for worker_groups in candidates:
+        implicit = args.model in {"g1", "psm"}
+        world = compile_world(
+            args.model,
+            scene=args.scene,
+            environment_capacity=args.envs,
+            actuation_mode=(
+                "implicit_position" if implicit else "effort"
+            ),
+            solver_mode="throughput_tgs",
+            ccd_mode=(
+                "hybrid" if args.model == "psm" else "speculative"
+            ),
+            physics_substeps=args.physics_substeps,
+            wave_worker_groups=worker_groups,
+            metallib_path=args.metallib or "",
+        )
+        state = initial_state(world, args.envs)
+        if args.model == "g1":
+            actions = mx.concatenate(
+                (
+                    mx.zeros((args.envs, 6), dtype=mx.float32),
+                    mx.broadcast_to(
+                        mx.array(
+                            world.default_q[7:],
+                            dtype=mx.float32,
+                        ),
+                        (args.envs, world.nv - 6),
+                    ),
+                ),
+                axis=-1,
+            )
+        elif args.model == "psm":
+            actions = mx.broadcast_to(
+                mx.array(world.default_q, dtype=mx.float32),
+                (args.envs, world.nv),
+            )
+        else:
+            actions = mx.zeros(
+                (args.envs, world.nv),
+                dtype=mx.float32,
+            )
+
+        def advance(current, current_actions):
+            output = step(world, current, current_actions)
+            return output.next_state, output.physics_error
+
+        compiled_advance = mx.compile(advance)
+        physics_error = mx.zeros((args.envs,), dtype=mx.bool_)
+        for _ in range(args.warmup_steps):
+            state, step_error = compiled_advance(state, actions)
+            physics_error = physics_error | step_error
+        mx.eval(state, physics_error)
+
+        physics_error = mx.zeros((args.envs,), dtype=mx.bool_)
+        started = time.perf_counter()
+        for _ in range(args.steps):
+            state, step_error = compiled_advance(state, actions)
+            physics_error = physics_error | step_error
+            mx.async_eval(
+                state.q,
+                state.solver_cache.manifold_counts,
+            )
+        mx.eval(state, physics_error)
+        elapsed = time.perf_counter() - started
+        error_count = int(
+            mx.sum(physics_error.astype(mx.uint32)).item()
+        )
+        if error_count:
+            raise RuntimeError(
+                f"{worker_groups} worker groups produced "
+                f"{error_count} failed environments"
+            )
+        environment_steps = args.envs * args.steps
+        reports.append(
+            {
+                "worker_groups": worker_groups,
+                "wall_seconds": elapsed,
+                "environment_steps_per_second":
+                    environment_steps / max(elapsed, 1e-9),
+            }
+        )
+        del compiled_advance, state, actions, world
+        gc.collect()
+
+    best = max(
+        reports,
+        key=lambda report: report[
+            "environment_steps_per_second"
+        ],
+    )
+    print(
+        json.dumps(
+            {
+                "benchmark": "mlx_wave32_worker_grid",
+                "device": device.get("device_name", "unknown"),
+                "architecture": device.get(
+                    "architecture",
+                    "unknown",
+                ),
+                "model": args.model,
+                "scene": args.scene,
+                "environments": args.envs,
+                "steps": args.steps,
+                "physics_substeps": args.physics_substeps,
+                "results": reports,
+                "recommended_worker_groups":
+                    best["worker_groups"],
+                "scope": (
+                    "explicit wall-throughput benchmark; "
+                    "never runs inside lazy rollout execution"
+                ),
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
@@ -354,6 +537,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return run_benchmark(args)
         if args.command == "rollout":
             return run_rollout(args)
+        if args.command == "tune-workers":
+            return run_worker_tuning(args)
         raise AssertionError(f"unhandled command: {args.command}")
     except (OSError, RuntimeError, ValueError) as error:
         print(f"metalrobo: {error}", file=sys.stderr)

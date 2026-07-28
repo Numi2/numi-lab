@@ -338,6 +338,11 @@ NB_MODULE(_mlx_ext, module) {
             }
         )
         .def_prop_ro(
+            "wave_worker_groups",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                waveWorkerGroups
+        )
+        .def_prop_ro(
             "contact_supported",
             [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
                 return world.solverMode() !=
@@ -375,6 +380,7 @@ NB_MODULE(_mlx_ext, module) {
         "max_ccd_zero_time_replays"_a =
             MR_CCD_DEFAULT_ZERO_TIME_REPLAYS,
         "ccd_simultaneous_tolerance"_a = 1.0e-5f,
+        "wave_worker_groups"_a = 0u,
         "metallib_path"_a = "",
         "stream"_a = nb::none(),
         "Compile an immutable Franka or G1 world for MLX."
