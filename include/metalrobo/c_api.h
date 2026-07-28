@@ -61,6 +61,14 @@ typedef struct MRWorldFamilyStatsC {
 MR_API const char* mr_version(void);
 MR_API const char* mr_last_error(void);
 
+// Compile an Apple-native capture manifest into a portable MRWorldPack.
+// artifact_store_path may be null to place the CAS beside the output pack.
+MR_API int mr_compile_episode_manifest(
+    const char* manifest_path,
+    const char* output_pack_path,
+    const char* artifact_store_path
+);
+
 MR_API MRRuntimeHandle* mr_create_franka(
     uint32_t environment_count,
     uint64_t seed,

@@ -24,6 +24,93 @@ physical representations are selected independently for each task-relevant
 part of a world. MetalRobo does not force a Gaussian background, articulated
 robot, rigid object, and future deformable object into one geometry type.
 
+## Episode capture and artifact graph
+
+`EpisodeTwinCompiler` is the executable real-to-sim entry point. Its versioned
+capture manifest accepts ARKit/LiDAR, synchronized RGB-D and robot telemetry,
+ROS bags, libfranka logs, CAD/URDF bundles, or ordinary video. Each stream
+retains its timestamp domain and may carry camera intrinsics, distortion, and
+the measured sensor pose.
+
+The compiler runs the same artifact graph for every adapter:
+
+```mermaid
+flowchart LR
+    A["Capture streams"] --> B["Content-addressed ingest"]
+    B --> C["Frame selection"]
+    C --> D["Entity discovery"]
+    D --> E["Segmentation"]
+    E --> F["Geometry + pose tracks"]
+    F --> G["Physical priors"]
+    G --> H["Replay assembly"]
+    H --> I["Replay alignment"]
+    I --> J["MRWorldPack"]
+```
+
+Files and directory assets are SHA-256 addressed under
+`objects/sha256`. A stage receipt is keyed by the seed world, engine model,
+all upstream content hashes, declared products, and the IDs and versions of
+supporting providers. Compatible work resumes without recomputing earlier
+stages. Provider outputs are imported before they enter `EpisodeTwin`, so a
+bounded VLM decision, deterministic segmentation, reconstruction, calibration,
+or batched fitting tool has the same provenance and invalidation semantics.
+
+The initial registered assembler is `franka_pick_place`; the C++ provider and
+manifest APIs are not tied to that robot. The JSON contract lives in
+`schemas/capture_manifest.schema.json`. A minimal synchronized capture is:
+
+```json
+{
+  "schema_version": 1,
+  "id": "cell_a_pick_place",
+  "adapter": "rgbd_robot_telemetry",
+  "engine_model": "franka_pick_place",
+  "world_program": "franka_pick_place",
+  "seed_world": "franka_pick_place",
+  "streams": [
+    {
+      "id": "fixed_rgbd",
+      "kind": "rgbd",
+      "sensor_id": "fixed_rgbd",
+      "path": "fixed-camera.capture",
+      "rate_hz": 30,
+      "calibration": {
+        "width": 1280,
+        "height": 720,
+        "intrinsics": [915.2, 914.8, 640.0, 360.0]
+      }
+    },
+    {
+      "id": "franka_state",
+      "kind": "robot_telemetry",
+      "path": "robot-state.parquet",
+      "rate_hz": 1000
+    }
+  ]
+}
+```
+
+Compile it directly:
+
+```bash
+build/bin/metalrobo_episode_compile \
+  capture.json worlds/cell-a.mrworld \
+  --store worlds/cell-a.artifacts
+```
+
+or from Python:
+
+```python
+from metalrobo import compile_episode_manifest, PackedWorldFamily
+
+pack = compile_episode_manifest(
+    "capture.json",
+    "worlds/cell-a.mrworld",
+    artifact_store_path="worlds/cell-a.artifacts",
+)
+worlds = PackedWorldFamily(pack, capacity=4096)
+```
+
 ## Implemented compiler spine
 
 `EpisodeTwin` is the persistent artifact graph for one physical task. It owns
@@ -213,15 +300,16 @@ flowchart LR
     H --> A
 ```
 
-The current code establishes the compiler, portable pack, runnable hand scene,
-resident family sampling, physics-reset materialization, and a zero-copy MLX
-state bridge. Asset pose variation already changes the executed scene state.
-Per-body physical and per-articulation controller override streams are
-materialized and exposed; consuming those override streams inside every
-contact/drive kernel is the next solver slice. Hybrid Gaussian/mesh RGB-D,
-capture reconstruction, replay fitting, rods, shells, and soft volumes remain
-separate compiler/runtime modules behind the representation enums already
-present in the ABI.
+The current code establishes the resumable episodic artifact graph, Apple
+capture-manifest loader, content-addressed store, compiler provider boundary,
+portable pack, runnable hand scene, resident family sampling, physics-reset
+materialization, and a zero-copy MLX state bridge. Asset pose variation already
+changes the executed scene state. Per-body physical and per-articulation
+controller override streams are materialized and exposed; consuming those
+override streams inside every contact/drive kernel is the next solver slice.
+Native segmentation/reconstruction providers, hybrid Gaussian/mesh RGB-D,
+replay fitting, rods, shells, and soft volumes remain separate modules behind
+the provider and representation interfaces already present in the ABI.
 
 ## Main implementation files
 
@@ -230,6 +318,10 @@ present in the ABI.
 - `src/core/WorldCompiler.cpp`
 - `include/metalrobo/WorldPack.hpp`
 - `src/core/WorldPack.cpp`
+- `include/metalrobo/EpisodeTwinCompiler.hpp`
+- `src/core/EpisodeTwinCompiler.cpp`
+- `src/apple/CaptureManifestJSON.mm`
+- `schemas/capture_manifest.schema.json`
 - `include/metalrobo/MetalWorldFamily.hpp`
 - `src/metal/MetalWorldFamily.mm`
 - `src/metal/WorldCompiler.metal`

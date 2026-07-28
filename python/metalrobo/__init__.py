@@ -1,6 +1,7 @@
 """MetalRobo's native Python and MLX reinforcement-learning interface."""
 
 from .env import FrankaEnv
+from .episode import compile_episode_manifest
 from .native import (
     MetalRoboError,
     NativeRuntime,
@@ -64,6 +65,7 @@ __all__ = [
     "StepOutput",
     "WorldState",
     "compile_world",
+    "compile_episode_manifest",
     "initial_state",
     "initial_state_from_world_family",
     "library_version",

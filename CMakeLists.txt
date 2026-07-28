@@ -221,6 +221,7 @@ add_library(
     src/core/EngineModel.cpp
     src/core/WorldCompiler.cpp
     src/core/WorldPack.cpp
+    src/core/EpisodeTwinCompiler.cpp
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
     src/core/SurgicalPSM.cpp
@@ -242,6 +243,7 @@ add_library(
     src/core/QualityContactSolver.cpp
     src/core/ConstraintSolver.cpp
     src/core/RigidBodyWorld.cpp
+    src/apple/CaptureManifestJSON.mm
     src/metal/MetalArticulatedOperator.mm
     src/metal/MetalArticulatedABA.mm
     src/metal/MetalArticulatedInverseMass.mm
@@ -1048,9 +1050,43 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
-install(TARGETS metalrobo metalrobo_bench metalrobo_world_pack)
+add_executable(
+    metalrobo_episode_compile
+    apps/episode_twin_compile.cpp
+)
+target_link_libraries(
+    metalrobo_episode_compile
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_episode_compile
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_episode_compile
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+install(
+    TARGETS
+        metalrobo
+        metalrobo_bench
+        metalrobo_world_pack
+        metalrobo_episode_compile
+)
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)
+install(
+    FILES schemas/capture_manifest.schema.json
+    DESTINATION share/metalrobo/schemas
+)
 install(
     FILES
         THIRD_PARTY_NOTICES.md

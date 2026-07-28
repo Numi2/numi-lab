@@ -184,6 +184,13 @@ class _Bindings:
         self.lib.mr_last_error.argtypes = []
         self.lib.mr_last_error.restype = ct.c_char_p
 
+        self.lib.mr_compile_episode_manifest.argtypes = [
+            ct.c_char_p,
+            ct.c_char_p,
+            ct.c_char_p,
+        ]
+        self.lib.mr_compile_episode_manifest.restype = ct.c_int
+
         self.lib.mr_create_franka.argtypes = [
             ct.c_uint32,
             ct.c_uint64,

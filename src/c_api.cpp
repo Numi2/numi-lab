@@ -1,5 +1,6 @@
 #include "metalrobo/c_api.h"
 
+#include "metalrobo/EpisodeTwinCompiler.hpp"
 #include "metalrobo/Franka.hpp"
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
@@ -8,6 +9,7 @@
 #include "metalrobo/WorldPack.hpp"
 
 #include <exception>
+#include <filesystem>
 #include <memory>
 #include <span>
 #include <stdexcept>
@@ -81,6 +83,78 @@ const char* mr_version(void) {
 
 const char* mr_last_error(void) {
     return gLastError.c_str();
+}
+
+int mr_compile_episode_manifest(
+    const char* manifest_path,
+    const char* output_pack_path,
+    const char* artifact_store_path
+) {
+    if (manifest_path == nullptr || manifest_path[0] == '\0' ||
+        output_pack_path == nullptr || output_pack_path[0] == '\0') {
+        gLastError =
+            "manifest_path and output_pack_path must be nonempty.";
+        return -1;
+    }
+    return translateErrors([&] {
+        metalrobo::CaptureManifest manifest;
+        const metalrobo::EpisodeTwinCompilerResult loaded =
+            metalrobo::loadCaptureManifestJSON(
+                manifest_path,
+                manifest
+            );
+        if (!loaded.succeeded()) {
+            throw std::runtime_error(
+                std::string{"capture manifest load failed ["} +
+                metalrobo::episodeTwinCompilerStatusName(loaded.status) +
+                "]: " + loaded.message
+            );
+        }
+        if (manifest.engineModelId != "franka_pick_place" ||
+            manifest.worldProgramId != "franka_pick_place") {
+            throw std::runtime_error(
+                "capture manifest references an unregistered engine "
+                "model or world program"
+            );
+        }
+
+        const std::filesystem::path outputPath{output_pack_path};
+        metalrobo::EpisodeTwinCompilerConfig config;
+        config.artifactStore =
+            artifact_store_path != nullptr &&
+                artifact_store_path[0] != '\0'
+            ? std::filesystem::path{artifact_store_path}
+            : outputPath.parent_path() /
+                (outputPath.stem().string() + ".artifacts");
+        metalrobo::EpisodeTwinCompiler compiler{std::move(config)};
+        metalrobo::CompiledEpisodeTwin compiled;
+        const metalrobo::EpisodeTwinCompilerResult result =
+            compiler.compile(
+                manifest,
+                metalrobo::makeFrankaPickPlaceEngineModel(),
+                metalrobo::makeFrankaPickPlaceWorldProgram(),
+                compiled
+            );
+        if (!result.succeeded()) {
+            throw std::runtime_error(
+                std::string{"episode twin compilation failed ["} +
+                metalrobo::episodeTwinCompilerStatusName(result.status) +
+                "]: " + result.message
+            );
+        }
+        const metalrobo::WorldPackResult written =
+            metalrobo::writeWorldPack(
+                compiled.worldPack,
+                outputPath
+            );
+        if (!written.succeeded()) {
+            throw std::runtime_error(
+                std::string{"world-pack write failed ["} +
+                metalrobo::worldPackStatusName(written.status) +
+                "]: " + written.message
+            );
+        }
+    });
 }
 
 MRRuntimeHandle* mr_create_franka(

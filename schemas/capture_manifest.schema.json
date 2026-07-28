@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metalrobo.dev/schemas/capture_manifest.schema.json",
+  "title": "MetalRobo episodic capture manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "adapter",
+    "engine_model",
+    "world_program",
+    "seed_world",
+    "streams"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "$ref": "#/$defs/id"
+    },
+    "adapter": {
+      "enum": [
+        "arkit",
+        "rgbd_robot_telemetry",
+        "ros_bag",
+        "libfranka_log",
+        "cad_urdf",
+        "video"
+      ]
+    },
+    "coordinate_convention": {
+      "type": "string",
+      "minLength": 1,
+      "default": "x-forward,y-left,z-up"
+    },
+    "engine_model": {
+      "$ref": "#/$defs/id"
+    },
+    "world_program": {
+      "$ref": "#/$defs/id"
+    },
+    "seed_world": {
+      "$ref": "#/$defs/id"
+    },
+    "source_root": {
+      "type": "string"
+    },
+    "streams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/stream"
+      }
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/product"
+      },
+      "default": []
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^(sha256:)?[A-Fa-f0-9]{64}$"
+    },
+    "time": {
+      "type": "number",
+      "minimum": 0
+    },
+    "float4": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "calibration": {
+      "type": "object",
+      "additionalProperties": false,
+      "dependentRequired": {
+        "width": [
+          "height"
+        ],
+        "height": [
+          "width"
+        ],
+        "position": [
+          "orientation"
+        ],
+        "orientation": [
+          "position"
+        ]
+      },
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "intrinsics": {
+          "$ref": "#/$defs/float4"
+        },
+        "distortion": {
+          "$ref": "#/$defs/float4"
+        },
+        "position": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "orientation": {
+          "$ref": "#/$defs/float4"
+        }
+      }
+    },
+    "stream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "path"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "rgb",
+            "depth",
+            "rgbd",
+            "video",
+            "camera_calibration",
+            "camera_poses",
+            "robot_telemetry",
+            "robot_commands",
+            "gripper_state",
+            "force_torque",
+            "cad",
+            "urdf"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "asset_id": {
+          "type": "string"
+        },
+        "sensor_id": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "timestamp_domain": {
+          "type": "string",
+          "minLength": 1,
+          "default": "monotonic"
+        },
+        "start_seconds": {
+          "$ref": "#/$defs/time"
+        },
+        "end_seconds": {
+          "$ref": "#/$defs/time"
+        },
+        "rate_hz": {
+          "type": "number",
+          "minimum": 0
+        },
+        "calibration": {
+          "$ref": "#/$defs/calibration"
+        }
+      }
+    },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "stage",
+        "kind",
+        "producer",
+        "path"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "stage": {
+          "enum": [
+            "ingest",
+            "select_frames",
+            "discover_entities",
+            "segment",
+            "reconstruct_geometry",
+            "track_poses",
+            "infer_physics",
+            "assemble_replay",
+            "align_replay",
+            "publish"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "capture",
+            "camera_calibration",
+            "entity_graph",
+            "segmentation",
+            "geometry",
+            "appearance",
+            "pose_track",
+            "physical_prior",
+            "robot_trajectory",
+            "interaction_trace",
+            "replay"
+          ]
+        },
+        "producer": {
+          "enum": [
+            "measured",
+            "deterministic_tool",
+            "agent_decision",
+            "authored"
+          ]
+        },
+        "asset_id": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "start_seconds": {
+          "$ref": "#/$defs/time"
+        },
+        "end_seconds": {
+          "$ref": "#/$defs/time"
+        }
+      }
+    }
+  }
+}
