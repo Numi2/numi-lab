@@ -244,6 +244,7 @@ add_library(
     src/core/SurgicalPSM.cpp
     src/core/SurgicalAssets.cpp
     src/core/SurgicalWorld.cpp
+    src/core/DiscreteElasticRod.cpp
     src/core/Collision.cpp
     src/core/FreeBodyDynamics.cpp
     src/core/ArticulatedDynamics.cpp
@@ -536,6 +537,22 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_dual_psm_world_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_discrete_elastic_rod_probe
+    apps/discrete_elastic_rod_probe.cpp
+)
+target_link_libraries(
+    metalrobo_discrete_elastic_rod_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_discrete_elastic_rod_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
