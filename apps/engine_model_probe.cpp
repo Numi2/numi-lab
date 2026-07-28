@@ -38,6 +38,26 @@ int main() {
         }
 
         broken = model;
+        broken.dofs[3].qIndex = 3u;
+        if (broken.valid(&reason) ||
+            reason !=
+                "floating-root DoF ownership or properties are invalid") {
+            throw std::runtime_error(
+                "quaternion-rate scalar mapping was not rejected"
+            );
+        }
+
+        broken = model;
+        broken.dofs[0].flags |= MR_DOF_FLAG_ACTUATED;
+        if (broken.valid(&reason) ||
+            reason !=
+                "floating-root DoF ownership or properties are invalid") {
+            throw std::runtime_error(
+                "implicitly actuated floating root was not rejected"
+            );
+        }
+
+        broken = model;
         broken.articulations[0].qOffset =
             std::numeric_limits<mr_u32>::max();
         broken.articulations[0].nq = 1u;
@@ -58,6 +78,8 @@ int main() {
             << " root=floating"
             << " free_body=yes"
             << " invalid_quaternion_rejected=yes"
+            << " dof_mapping_rejected=yes"
+            << " passive_root_enforced=yes"
             << " capacity_preflight=yes"
             << " wrapping_range_rejected=yes\n";
         return 0;

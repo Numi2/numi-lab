@@ -22,12 +22,36 @@ struct DenseContactBlock {
     double friction = 0.7;
 };
 
+// Solver-neutral contact parameters after kinematics and material semantics
+// have been evaluated. Unlike DenseContactBlock this record carries no
+// generalized Jacobian and is suitable for a precomputed Delassus operator.
+struct ContactConicBlock {
+    std::array<double, 3> targetVelocity{};
+    std::array<double, 3> regularization{};
+    std::array<double, 3> warmImpulse{};
+    double friction = 0.7;
+};
+
 struct DenseConicProblem {
     std::uint32_t nv = 0;
     // Row-major symmetric positive-definite inverse mass operator.
     std::vector<double> inverseMass;
     std::vector<double> freeVelocity;
     std::vector<DenseContactBlock> contacts;
+};
+
+// Contact-space formulation:
+//
+//   Q = W + R,  W = J M^-1 J'
+//   c = J v_free - v_target.
+//
+// `delassus` is the unregularized row-major W and
+// `freeContactVelocity` is J*v_free. This avoids materializing M^-1 merely to
+// reconstruct a contact Hessian that an articulated operator already owns.
+struct ContactSpaceConicProblem {
+    std::vector<double> delassus;
+    std::vector<double> freeContactVelocity;
+    std::vector<ContactConicBlock> contacts;
 };
 
 struct ReferenceConicSolverConfig {

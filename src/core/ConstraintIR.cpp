@@ -959,6 +959,151 @@ ConstraintIRDiagnostics validateConstraintIR(const ConstraintIR& ir) {
     return {};
 }
 
+ConstraintIRVelocityResult computeConstraintIRWorldPointVelocities(
+    const ConstraintIR& ir,
+    const std::span<const MRBodyStateGPU> bodyStates
+) {
+    ConstraintIRVelocityResult result;
+    result.diagnostics = validateConstraintIR(ir);
+    if (!result.diagnostics.succeeded()) {
+        return result;
+    }
+
+    const auto validBodyState = [](const MRBodyStateGPU& state) {
+        return
+            state.flagsAndIndices[0] <= MR_MOTION_DYNAMIC &&
+            finite(state.position) &&
+            finite(state.linearVelocityAndInverseMass) &&
+            finite(state.angularVelocity) &&
+            state.linearVelocityAndInverseMass.w >= 0.0F &&
+            (
+                state.flagsAndIndices[0] == MR_MOTION_DYNAMIC
+                ? state.linearVelocityAndInverseMass.w > 0.0F
+                : state.linearVelocityAndInverseMass.w == 0.0F
+            );
+    };
+    const auto velocityAtWorldPoint = [](
+        const MRBodyStateGPU& state,
+        const Vec3 point
+    ) {
+        if (state.flagsAndIndices[0] == MR_MOTION_STATIC) {
+            return Vec3{};
+        }
+        const Vec3 center = xyz(state.position);
+        const Vec3 radius{
+            point.x - center.x,
+            point.y - center.y,
+            point.z - center.z,
+        };
+        const Vec3 rotational =
+            cross(xyz(state.angularVelocity), radius);
+        const Vec3 linear =
+            xyz(state.linearVelocityAndInverseMass);
+        return Vec3{
+            linear.x + rotational.x,
+            linear.y + rotational.y,
+            linear.z + rotational.z,
+        };
+    };
+    const auto angularVelocity = [](
+        const MRBodyStateGPU& state
+    ) {
+        return
+            state.flagsAndIndices[0] == MR_MOTION_STATIC
+            ? Vec3{}
+            : xyz(state.angularVelocity);
+    };
+
+    std::vector<float> working(ir.rows.size(), 0.0F);
+    for (std::uint32_t blockIndex = 0u;
+         blockIndex < ir.blocks.size();
+         ++blockIndex) {
+        const ConstraintIRBlock& block = ir.blocks[blockIndex];
+        if (block.type != MR_CONSTRAINT_CONTACT ||
+            (block.dimension != 3u && block.dimension != 4u) ||
+            block.endpointCount != 2u) {
+            result.diagnostics = failure(
+                ConstraintIRStatus::unsupportedSemantics,
+                "world-point velocity evaluation supports contact blocks only",
+                blockIndex
+            );
+            return result;
+        }
+        const ConstraintIREndpoint& endpointA =
+            ir.endpoints[block.endpointOffset];
+        const ConstraintIREndpoint& endpointB =
+            ir.endpoints[block.endpointOffset + 1u];
+        if (endpointA.jacobianKind !=
+                constraintIRJacobianWorldPoint ||
+            endpointB.jacobianKind !=
+                constraintIRJacobianWorldPoint) {
+            result.diagnostics = failure(
+                ConstraintIRStatus::unsupportedSemantics,
+                "constraint endpoint is not a world-point Jacobian",
+                blockIndex
+            );
+            return result;
+        }
+        if (endpointA.objectIndex >= bodyStates.size() ||
+            endpointB.objectIndex >= bodyStates.size() ||
+            !validBodyState(bodyStates[endpointA.objectIndex]) ||
+            !validBodyState(bodyStates[endpointB.objectIndex])) {
+            result.diagnostics = failure(
+                ConstraintIRStatus::invalidEvaluationInput,
+                "constraint endpoint body state is invalid",
+                blockIndex
+            );
+            return result;
+        }
+
+        const MRBodyStateGPU& bodyA =
+            bodyStates[endpointA.objectIndex];
+        const MRBodyStateGPU& bodyB =
+            bodyStates[endpointB.objectIndex];
+        const Vec3 velocityA =
+            velocityAtWorldPoint(bodyA, xyz(endpointA.anchor));
+        const Vec3 velocityB =
+            velocityAtWorldPoint(bodyB, xyz(endpointB.anchor));
+        const Vec3 relativeLinear{
+            velocityB.x - velocityA.x,
+            velocityB.y - velocityA.y,
+            velocityB.z - velocityA.z,
+        };
+        const Vec3 omegaA = angularVelocity(bodyA);
+        const Vec3 omegaB = angularVelocity(bodyB);
+        const Vec3 relativeAngular{
+            omegaB.x - omegaA.x,
+            omegaB.y - omegaA.y,
+            omegaB.z - omegaA.z,
+        };
+
+        for (std::uint32_t local = 0u;
+             local < block.dimension;
+             ++local) {
+            const Vec3 direction =
+                xyz(ir.rows[block.rowOffset + local].direction);
+            const double velocity = dot(
+                direction,
+                local == 3u ? relativeAngular : relativeLinear
+            );
+            if (!representableAsFloat(velocity)) {
+                result.diagnostics = failure(
+                    ConstraintIRStatus::nonfiniteData,
+                    "constraint relative velocity is outside FP32",
+                    blockIndex,
+                    block.rowOffset + local
+                );
+                return result;
+            }
+            working[block.rowOffset + local] =
+                static_cast<float>(velocity);
+        }
+    }
+
+    result.relativeVelocities = std::move(working);
+    return result;
+}
+
 ConstraintIREvaluationResult evaluateConstraintIR(
     const ConstraintIR& ir,
     const ConstraintIREvaluationInput& input,
@@ -974,11 +1119,13 @@ ConstraintIREvaluationResult evaluateConstraintIR(
         !finite(config.maximumDepenetrationVelocity) ||
         !finite(config.minimumTimeConstantRatio) ||
         !finite(config.stictionTransitionVelocity) ||
+        !finite(config.minimumRegularization) ||
         config.timestep <= 0.0 ||
         config.penetrationSlop < 0.0 ||
         config.maximumDepenetrationVelocity < 0.0 ||
         config.minimumTimeConstantRatio < 0.0 ||
-        config.stictionTransitionVelocity < 0.0) {
+        config.stictionTransitionVelocity < 0.0 ||
+        config.minimumRegularization < 0.0) {
         result.diagnostics = failure(
             ConstraintIRStatus::invalidEvaluationConfig,
             "constraint evaluation configuration is invalid"
@@ -1163,9 +1310,11 @@ ConstraintIREvaluationResult evaluateConstraintIR(
                 }
             }
 
-            const double regularization =
+            const double regularization = std::max(
                 static_cast<double>(source.compliance) / (h * h) +
-                static_cast<double>(source.dissipation) / h;
+                    static_cast<double>(source.dissipation) / h,
+                config.minimumRegularization
+            );
             const double target =
                 static_cast<double>(source.targetVelocity) +
                 stabilization;
@@ -1376,7 +1525,7 @@ bool evaluatedConeValid(const EvaluatedConstraintIRCone& cone) {
         (effectiveIsStatic || effectiveIsDynamic);
 }
 
-ConstraintIRDiagnostics validateConstraintIREvaluationView(
+ConstraintIRDiagnostics validateConstraintIREvaluationViewImpl(
     const ConstraintIREvaluationView& view
 ) {
     constexpr std::size_t maximum =
@@ -1719,6 +1868,12 @@ ConstraintIRDiagnostics validateConstraintIREvaluationView(
 
 } // namespace
 
+ConstraintIRDiagnostics validateConstraintIREvaluationView(
+    const ConstraintIREvaluationView& view
+) {
+    return validateConstraintIREvaluationViewImpl(view);
+}
+
 bool ConstraintIRResidualReport::withinTolerance(
     const ConstraintIRResidualConfig& config
 ) const noexcept {
@@ -1760,7 +1915,7 @@ ConstraintIRResidualReport evaluateConstraintIRResidual(
         return report;
     }
     const ConstraintIRDiagnostics viewDiagnostics =
-        validateConstraintIREvaluationView(semantics);
+        validateConstraintIREvaluationViewImpl(semantics);
     if (!viewDiagnostics.succeeded()) {
         report.status = ConstraintIRStatus::invalidResidualInput;
         report.message = viewDiagnostics.message;
@@ -2074,10 +2229,12 @@ ConstraintIRV1AdapterResult adaptV1ContactsToConstraintIR(
     }
 
     ConstraintIR working;
+    std::vector<std::uint32_t> sourceConstraintWorking;
     std::vector<float> preSolveWorking;
     working.blocks.reserve(contacts.size());
     working.endpoints.reserve(2u * contacts.size());
     working.cones.reserve(contacts.size());
+    sourceConstraintWorking.reserve(contacts.size());
 
     for (const std::uint32_t sourceIndex : order) {
         const MRContactConstraintGPU& contact =
@@ -2106,6 +2263,7 @@ ConstraintIRV1AdapterResult adaptV1ContactsToConstraintIR(
         block.coneIndex =
             static_cast<std::uint32_t>(working.cones.size());
         working.blocks.push_back(block);
+        sourceConstraintWorking.push_back(sourceIndex);
 
         ConstraintIREndpoint endpointA{};
         endpointA.objectIndex = contact.bodyA;
@@ -2207,6 +2365,8 @@ ConstraintIRV1AdapterResult adaptV1ContactsToConstraintIR(
         return result;
     }
     result.ir = std::move(working);
+    result.sourceConstraintIndices =
+        std::move(sourceConstraintWorking);
     result.preSolveVelocities = std::move(preSolveWorking);
     return result;
 }

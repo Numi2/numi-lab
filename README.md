@@ -6,26 +6,40 @@ to the MuJoCo and NVIDIA simulation/training stacks, with Franka first and
 Unitree G1 second. MLX is the learning backend. No external physics engine is
 linked or called at runtime.
 
-## Executable v0.3 engine spine
+## Executable v0.4 engine spine
 
-- Versioned, pointer-free CPU/Metal ABI with separate `nq`/`nv`, fixed and
-  floating roots, bodies, joints, shapes, materials, contacts, and capacities
+- ABI-v2, pointer-free CPU/Metal model with separate `nq`/`nv`, fixed and
+  floating roots, bodies, joints, one authoritative record per DoF, shapes,
+  materials, contacts, and explicit capacities
 - FP64 free-body dynamics plus matching Metal symplectic and implicit-midpoint
   kernels, including gyroscopic motion and SO(3) quaternion integration
 - Generalized CPU FP64 articulated dynamics for fixed or floating trees:
   world-coordinate CRBA plus Cholesky, RNEA bias/inverse dynamics, external
   COM wrenches, and transactional SO(3) integration; the actual 29-DoF G1
-  topology passes forward/inverse consistency
+  topology passes forward/inverse consistency; per-DoF armature is included
+  consistently in CRBA, RNEA, energy, contact, and impulse response
+- Transactional articulated actuation with disabled, model-PD, custom-PD,
+  and effort modes; effort clamping precedes passive loss, continuous-joint
+  PD uses shortest-angle error, and near-zero dry friction is explicitly a
+  controller-local approximation rather than falsely claimed full stiction
 - Analytic articulated COM poses, twists, point Jacobians, `J`/`Jᵀ` actions,
   and factor-solve `J M⁻¹ Jᵀ` contact response; an exact-cone two-foot solve
   executes on the actual 35-velocity G1 without finite differencing
-- Transactional common-contact-to-articulation adapter with endpoint/basis
-  swaps, kinematic target compensation, and compliance conversion; real CPU
-  collision/manifolds feed eight G1 foot contacts into the generalized solve
+- Transactional composed CPU articulation step: free dynamics, collision,
+  manifolds, canonical ConstraintIR compilation/evaluation, exact-cone solve,
+  factor-backed impulse application, common residual, and SO(3) integration;
+  real G1 ground contact executes end to end with atomic state/cache rollback
+- Evaluated-contact-to-articulation adapter consumes one fingerprinted
+  material/timestep decision, including endpoint/basis swaps and kinematic
+  compensation; no solver is allowed to re-derive contact semantics
+- Production quality contact solves consume physical `J M⁻¹ Jᵀ` and return
+  contact velocity without materializing dense `M⁻¹`; the independent FP64
+  oracle retains an explicit checked compatibility adapter
 - Deterministic FP64 collision with sweep-and-prune, analytic primitive pairs,
   stable features, and persistent four-point manifolds
 - Correct Metal collision baseline with analytic sphere/sphere,
-  sphere/plane, capsule/plane, and box/plane witnesses
+  sphere/plane, capsule/plane, box/plane, and oriented cylinder/plane
+  witnesses
 - Parallel deterministic Metal micro broadphase using flag, two-level
   exclusive scan, and canonical scatter with no global append atomic
 - Pointer-free constraint IR v2 with canonical validation, v1 contact
@@ -38,19 +52,30 @@ linked or called at runtime.
   materials, warm starts, contact solve, and configuration integration for
   maximal-coordinate free bodies
 - Pinned 29-DoF Unitree G1 model with floating COM root, full inertias,
-  COM-centred joint anchors, 12 official primitive records, limits, drives,
-  foot frames, and IMUs; eight foot spheres are executable and four shoulder
-  cylinders are explicitly disabled pending cylinder narrowphase
+  COM-centred joint anchors, 12 official primitive records, authoritative
+  per-DoF limits, named RL Lab drive/armature data, foot frames, and IMUs;
+  eight foot spheres are executable
+- Correctness-first generic Metal articulation operator for fixed/floating
+  trees, exercised on actual 30-body/35-velocity G1: poses, analytic point
+  Jacobians, `Jᵀp`, checked mass factorization, and `M⁻¹Jᵀp`, with
+  deterministic replay and transactional rejection
+- Checked public Metal host boundary with owned compact buffers, overflow and
+  32-bit shader-address preflight, device memory limits, typed zero-length
+  bindings, per-environment statuses, and atomic result publication
 - Existing batched Metal Franka ABA/reach environment and MLX PPO path
 
 This is a serious numerical foundation, not yet a complete MuJoCo/PhysX
-replacement. The new parallel Metal broadphase and expanded one-thread
-narrowphase are focused, separately proven components rather than an assembled
-batched world. The throughput contact kernel is PGS rather than TGS, and any
-connected island above 128 contacts fails explicitly rather than spilling.
-The generalized CPU articulated-contact operator is not yet a batched Metal
-articulated step or locomotion environment. Metal manifold persistence,
-LBVH, convex/mesh/heightfield geometry, CCD, the complete joint/loop constraint
+replacement. The generic Metal articulation kernel is a lane-zero
+correctness path, not the final parallel throughput implementation, and it is
+not yet composed with GPU collision/contact into a device-resident world. Its
+checked public wrapper is synchronous and currently rebuilds Metal resources
+per call; persistent pipelines, reusable buffers, and asynchronous encoding
+are still required for RL throughput.
+The throughput contact kernel is PGS rather than TGS, and any connected island
+above 128 contacts fails explicitly rather than spilling. Cylinder support is
+currently cylinder/plane only, so G1 shoulder cylinders remain disabled.
+Metal manifold persistence, LBVH, convex/mesh/heightfield geometry, CCD,
+multi-articulation/free-object islands, the complete joint/loop constraint
 language, importers, rendering, sensors, and qualified differentiability
 remain open. The dated requirements and claim rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
@@ -63,7 +88,11 @@ cmake --build build
 ./build/bin/metalrobo_cpu_probe
 ./build/bin/metalrobo_parity_probe
 ./build/bin/metalrobo_articulated_dynamics_probe
+./build/bin/metalrobo_articulated_actuation_probe
 ./build/bin/metalrobo_articulated_contact_probe
+./build/bin/metalrobo_articulated_world_probe
+./build/bin/metalrobo_articulated_operator_gpu_probe
+./build/bin/metalrobo_articulated_operator_host_probe
 ./build/bin/metalrobo_g1_collision_contact_probe
 ./build/bin/metalrobo_free_body_gpu_probe
 ./build/bin/metalrobo_collision_gpu_probe
@@ -92,16 +121,17 @@ metalrobo train \
 The native engine has no third-party physics dependency. Factual robot model
 data retains its upstream notices in
 [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md). Python training requires Python
-3.10+, NumPy, and MLX. A clean v0.2 build of the original fixed-base Franka
-slice measured 195,900 environment control-steps/s at 1,024 environments; an
-earlier local run reached 218k/s at 4,096 environments on a 24 GB,
-10-GPU-core Apple M4, with four physics substeps per control step. Those are
-local results, not cross-engine benchmarks. See
+3.10+, NumPy, and MLX. The clean v0.4 validation run of the original
+fixed-base Franka slice measured 216,313 environment control-steps/s at 1,024
+environments on a 24 GB, 10-GPU-core Apple M4, with four physics substeps per
+control step. That is a local legacy-path result, not generic G1 throughput or
+a cross-engine benchmark. See
 [validation](docs/VALIDATION.md) for exact commands and boundaries.
 
 ## Design and research
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [v0.4 transactional generalized architecture](docs/V04_TRANSACTIONAL_ARCHITECTURE.md)
 - [v0.3 operator-first architecture](docs/V03_OPERATOR_ARCHITECTURE.md)
 - [State-of-the-art acceptance target](docs/ENGINE_TARGET.md)
 - [Production collision design](docs/COLLISION_PIPELINE.md)

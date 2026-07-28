@@ -28,22 +28,6 @@ Vec3 vector(const std::array<double, 3>& value) {
     return {value[0], value[1], value[2]};
 }
 
-Vec3 operator-(const Vec3 left, const Vec3 right) {
-    return {
-        left.x - right.x,
-        left.y - right.y,
-        left.z - right.z,
-    };
-}
-
-Vec3 operator*(const Vec3 value, const double scale) {
-    return {
-        value.x * scale,
-        value.y * scale,
-        value.z * scale,
-    };
-}
-
 double dot(const Vec3 left, const Vec3 right) {
     return
         left.x * right.x +
@@ -108,26 +92,41 @@ bool makeFrame(
     ContactFrame& frame
 ) {
     const Vec3 inputNormal = vector(contact.normal);
-    const Vec3 inputTangent = vector(contact.tangentU);
-    if (!finite(inputNormal) || !finite(inputTangent)) {
+    const Vec3 inputTangentU = vector(contact.tangentU);
+    const Vec3 inputTangentV = vector(contact.tangentV);
+    if (!finite(inputNormal) ||
+        !finite(inputTangentU) ||
+        !finite(inputTangentV)) {
         return false;
     }
     const double normalLength = norm(inputNormal);
-    if (!(normalLength > 1.0e-12) || !finite(normalLength)) {
+    const double tangentULength = norm(inputTangentU);
+    const double tangentVLength = norm(inputTangentV);
+    constexpr double directionTolerance = 2.0e-4;
+    constexpr double orthogonalityTolerance = 4.0e-4;
+    constexpr double handednessTolerance = 6.0e-4;
+    if (!finite(normalLength) ||
+        !finite(tangentULength) ||
+        !finite(tangentVLength) ||
+        std::abs(normalLength - 1.0) > directionTolerance ||
+        std::abs(tangentULength - 1.0) > directionTolerance ||
+        std::abs(tangentVLength - 1.0) > directionTolerance ||
+        std::abs(dot(inputNormal, inputTangentU)) >
+            orthogonalityTolerance ||
+        std::abs(dot(inputNormal, inputTangentV)) >
+            orthogonalityTolerance ||
+        std::abs(dot(inputTangentU, inputTangentV)) >
+            orthogonalityTolerance ||
+        std::abs(
+            dot(cross(inputNormal, inputTangentU), inputTangentV) -
+                1.0
+        ) > handednessTolerance) {
         return false;
     }
-    frame.normal = inputNormal * (1.0 / normalLength);
-    const Vec3 tangentProjection =
-        inputTangent -
-        frame.normal * dot(frame.normal, inputTangent);
-    const double tangentLength = norm(tangentProjection);
-    if (!(tangentLength > 1.0e-12) || !finite(tangentLength)) {
-        return false;
-    }
-    frame.tangentU = tangentProjection * (1.0 / tangentLength);
-    frame.tangentV = cross(frame.normal, frame.tangentU);
-    return finite(frame.tangentV) &&
-        std::abs(norm(frame.tangentV) - 1.0) <= 1.0e-12;
+    frame.normal = inputNormal;
+    frame.tangentU = inputTangentU;
+    frame.tangentV = inputTangentV;
+    return true;
 }
 
 struct CholeskyFactor {
@@ -310,7 +309,8 @@ ArticulatedContactDiagnostics buildArticulatedContactProblem(
     const std::span<const double> freeVelocity,
     const std::span<const ArticulatedContact> contacts,
     ArticulatedContactProblem& problem,
-    const ArticulatedDynamicsConfig& config
+    const ArticulatedDynamicsConfig& config,
+    const bool buildDenseInverseCompatibilityAdapter
 ) {
     const std::size_t nv =
         articulationIndex < model.articulations.size()
@@ -450,61 +450,64 @@ ArticulatedContactDiagnostics buildArticulatedContactProblem(
     diagnostics.minimumCholeskyPivot = factor.minimumPivot;
     diagnostics.maximumCholeskyPivot = factor.maximumPivot;
 
-    std::vector<double> inverseMass(nv * nv, 0.0);
     std::vector<double> right(nv, 0.0);
     std::vector<double> column;
-    for (std::size_t sourceColumn = 0u;
-         sourceColumn < nv;
-         ++sourceColumn) {
-        std::ranges::fill(right, 0.0);
-        right[sourceColumn] = 1.0;
-        if (!solve(factor, right, column)) {
+    std::vector<double> inverseMass;
+    if (buildDenseInverseCompatibilityAdapter) {
+        inverseMass.assign(nv * nv, 0.0);
+        for (std::size_t sourceColumn = 0u;
+             sourceColumn < nv;
+             ++sourceColumn) {
+            std::ranges::fill(right, 0.0);
+            right[sourceColumn] = 1.0;
+            if (!solve(factor, right, column)) {
+                diagnostics.status =
+                    ArticulatedContactStatus::factorizationFailure;
+                return diagnostics;
+            }
+            for (std::size_t row = 0u; row < nv; ++row) {
+                inverseMass[row * nv + sourceColumn] = column[row];
+            }
+        }
+        for (std::size_t row = 0u; row < nv; ++row) {
+            for (std::size_t columnIndex = row + 1u;
+                 columnIndex < nv;
+                 ++columnIndex) {
+                const double symmetric = 0.5 * (
+                    inverseMass[row * nv + columnIndex] +
+                    inverseMass[columnIndex * nv + row]
+                );
+                inverseMass[row * nv + columnIndex] = symmetric;
+                inverseMass[columnIndex * nv + row] = symmetric;
+            }
+        }
+        for (std::size_t row = 0u; row < nv; ++row) {
+            for (std::size_t columnIndex = 0u;
+                 columnIndex < nv;
+                 ++columnIndex) {
+                double value = 0.0;
+                for (std::size_t inner = 0u; inner < nv; ++inner) {
+                    value +=
+                        massMatrix[row * nv + inner] *
+                        inverseMass[inner * nv + columnIndex];
+                }
+                diagnostics.maximumDenseInverseAdapterResidual = std::max(
+                    diagnostics.maximumDenseInverseAdapterResidual,
+                    std::abs(
+                        value -
+                        (row == columnIndex ? 1.0 : 0.0)
+                    )
+                );
+            }
+        }
+        if (!finite(
+                diagnostics.maximumDenseInverseAdapterResidual
+            ) ||
+            diagnostics.maximumDenseInverseAdapterResidual > 1.0e-9) {
             diagnostics.status =
                 ArticulatedContactStatus::factorizationFailure;
             return diagnostics;
         }
-        for (std::size_t row = 0u; row < nv; ++row) {
-            inverseMass[row * nv + sourceColumn] = column[row];
-        }
-    }
-    for (std::size_t row = 0u; row < nv; ++row) {
-        for (std::size_t columnIndex = row + 1u;
-             columnIndex < nv;
-             ++columnIndex) {
-            const double symmetric = 0.5 * (
-                inverseMass[row * nv + columnIndex] +
-                inverseMass[columnIndex * nv + row]
-            );
-            inverseMass[row * nv + columnIndex] = symmetric;
-            inverseMass[columnIndex * nv + row] = symmetric;
-        }
-    }
-    for (std::size_t row = 0u; row < nv; ++row) {
-        for (std::size_t columnIndex = 0u;
-             columnIndex < nv;
-             ++columnIndex) {
-            double value = 0.0;
-            for (std::size_t inner = 0u; inner < nv; ++inner) {
-                value +=
-                    massMatrix[row * nv + inner] *
-                    inverseMass[inner * nv + columnIndex];
-            }
-            diagnostics.maximumDenseInverseAdapterResidual = std::max(
-                diagnostics.maximumDenseInverseAdapterResidual,
-                std::abs(
-                    value -
-                    (row == columnIndex ? 1.0 : 0.0)
-                )
-            );
-        }
-    }
-    if (!finite(
-            diagnostics.maximumDenseInverseAdapterResidual
-        ) ||
-        diagnostics.maximumDenseInverseAdapterResidual > 1.0e-9) {
-        diagnostics.status =
-            ArticulatedContactStatus::factorizationFailure;
-        return diagnostics;
     }
 
     const std::size_t rowCount = 3u * contacts.size();
@@ -517,7 +520,7 @@ ArticulatedContactDiagnostics buildArticulatedContactProblem(
     );
     DenseConicProblem conic;
     conic.nv = static_cast<std::uint32_t>(nv);
-    conic.inverseMass = inverseMass;
+    conic.inverseMass = std::move(inverseMass);
     conic.freeVelocity.assign(
         freeVelocity.begin(),
         freeVelocity.end()
@@ -672,7 +675,7 @@ ArticulatedContactDiagnostics buildArticulatedContactProblem(
             ArticulatedContactStatus::factorizationFailure;
         return diagnostics;
     }
-    if (!finite(inverseMass) || !finite(jacobian) ||
+    if (!finite(conic.inverseMass) || !finite(jacobian) ||
         !finite(delassus)) {
         diagnostics.status =
             ArticulatedContactStatus::nonfiniteResult;
@@ -690,7 +693,74 @@ ArticulatedContactDiagnostics buildArticulatedContactProblem(
     result.delassus = std::move(delassus);
     result.pointA = std::move(pointA);
     result.pointB = std::move(pointB);
+    diagnostics.materializedDenseInverse =
+        buildDenseInverseCompatibilityAdapter;
     problem = std::move(result);
+    return diagnostics;
+}
+
+ArticulatedContactDiagnostics buildArticulatedContactSpaceProblem(
+    const ArticulatedContactProblem& articulated,
+    const std::span<const double> freeVelocity,
+    ContactSpaceConicProblem& contactSpace
+) {
+    const std::size_t contactCount = articulated.contactCount;
+    const std::size_t rowCount = 3u * contactCount;
+    ArticulatedContactDiagnostics diagnostics = diagnosticsFor(
+        articulated.articulationIndex,
+        contactCount,
+        articulated.nv
+    );
+    if (!operatorStructurallyValid(articulated) ||
+        freeVelocity.size() != articulated.nv ||
+        articulated.conic.contacts.size() != contactCount) {
+        diagnostics.status =
+            ArticulatedContactStatus::invalidDimensions;
+        return diagnostics;
+    }
+    if (!finite(freeVelocity)) {
+        diagnostics.status =
+            ArticulatedContactStatus::nonfiniteInput;
+        return diagnostics;
+    }
+
+    ContactSpaceConicProblem result;
+    result.delassus = articulated.delassus;
+    result.freeContactVelocity.assign(rowCount, 0.0);
+    diagnostics = applyArticulatedContactJacobian(
+        articulated,
+        freeVelocity,
+        result.freeContactVelocity
+    );
+    if (!diagnostics.succeeded()) {
+        return diagnostics;
+    }
+    result.contacts.reserve(contactCount);
+    for (const DenseContactBlock& source :
+         articulated.conic.contacts) {
+        if (!finite(source.targetVelocity) ||
+            !finite(source.regularization) ||
+            !finite(source.warmImpulse) ||
+            !finite(source.friction) ||
+            !(source.friction >= 0.0) ||
+            !std::ranges::all_of(
+                source.regularization,
+                [](const double value) {
+                    return finite(value) && value > 0.0;
+                }
+            )) {
+            diagnostics.status =
+                ArticulatedContactStatus::invalidContact;
+            return diagnostics;
+        }
+        result.contacts.push_back({
+            source.targetVelocity,
+            source.regularization,
+            source.warmImpulse,
+            source.friction,
+        });
+    }
+    contactSpace = std::move(result);
     return diagnostics;
 }
 

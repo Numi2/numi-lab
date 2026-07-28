@@ -22,6 +22,7 @@ enum CollisionPairClass : std::uint32_t {
     collisionPairSpherePlane = 2u,
     collisionPairCapsulePlane = 3u,
     collisionPairBoxPlane = 4u,
+    collisionPairCylinderPlane = 5u,
 };
 
 struct CollisionCapacities {

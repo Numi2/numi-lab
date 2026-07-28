@@ -11,6 +11,14 @@ constant uint kPairSphereSphere = 1u;
 constant uint kPairSpherePlane = 2u;
 constant uint kPairCapsulePlane = 3u;
 constant uint kPairBoxPlane = 4u;
+constant uint kPairCylinderPlane = 5u;
+constant float kCylinderAlignmentTolerance = 1.0e-6f;
+constant uint kCylinderNegativeCapRingBase = 0u;
+constant uint kCylinderPositiveCapRingBase = 4u;
+constant uint kCylinderNegativeSideRim = 8u;
+constant uint kCylinderPositiveSideRim = 9u;
+constant uint kCylinderNegativeGeneralRim = 10u;
+constant uint kCylinderPositiveGeneralRim = 11u;
 
 struct WorldShape {
     uint index;
@@ -24,8 +32,12 @@ struct WorldShape {
     float3 halfExtents;
     float3 capsuleEndpoint0;
     float3 capsuleEndpoint1;
+    float3 cylinderAxis;
+    float3 cylinderBasisX;
+    float3 cylinderBasisZ;
     float3 planeNormal;
     float radius;
+    float halfLength;
     float contactOffset;
 };
 
@@ -106,7 +118,10 @@ float worldShapeScale(const thread WorldShape& shape) {
                     shape.capsuleEndpoint1
                 )
             ),
-            max(abs(shape.radius), abs(shape.contactOffset))
+            max(
+                max(abs(shape.radius), abs(shape.halfLength)),
+                abs(shape.contactOffset)
+            )
         )
     );
 }
@@ -183,6 +198,12 @@ uint supportedPairClass(const uint typeA, const uint typeB) {
         (typeA == MR_SHAPE_PLANE &&
          typeB == MR_SHAPE_BOX)) {
         return kPairBoxPlane;
+    }
+    if ((typeA == MR_SHAPE_CYLINDER &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeA == MR_SHAPE_PLANE &&
+         typeB == MR_SHAPE_CYLINDER)) {
+        return kPairCylinderPlane;
     }
     return 0u;
 }
@@ -291,7 +312,11 @@ bool makeWorldShape(
     output.halfExtents = float3(0.0f);
     output.capsuleEndpoint0 = float3(0.0f);
     output.capsuleEndpoint1 = float3(0.0f);
+    output.cylinderAxis = float3(0.0f);
+    output.cylinderBasisX = float3(0.0f);
+    output.cylinderBasisZ = float3(0.0f);
     output.planeNormal = float3(0.0f);
+    output.halfLength = 0.0f;
 
     if (!collisionDomain(output.center) ||
         !finiteFloat4(output.rotation)) {
@@ -304,6 +329,7 @@ bool makeWorldShape(
     if (shape.shapeType != MR_SHAPE_SPHERE &&
         shape.shapeType != MR_SHAPE_CAPSULE &&
         shape.shapeType != MR_SHAPE_BOX &&
+        shape.shapeType != MR_SHAPE_CYLINDER &&
         shape.shapeType != MR_SHAPE_PLANE) {
         failureCode = MR_STEP_UNSUPPORTED;
         return false;
@@ -393,6 +419,83 @@ bool makeWorldShape(
         output.upper = output.center + extent;
         inflateFiniteBounds(output);
         if (!collisionDomain(output.lower) ||
+            !collisionDomain(output.upper)) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        return true;
+    }
+
+    if (shape.shapeType == MR_SHAPE_CYLINDER) {
+        output.radius = shape.dimensions.x;
+        output.halfLength = shape.dimensions.y;
+        if (output.radius < MR_MIN_COLLISION_EXTENT ||
+            output.halfLength < MR_MIN_COLLISION_EXTENT) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+
+        output.cylinderAxis = quaternionRotate(
+            output.rotation,
+            float3(0.0f, 1.0f, 0.0f)
+        );
+        const float axisSquared =
+            dot(output.cylinderAxis, output.cylinderAxis);
+        if (!(axisSquared > kTiny) || !isfinite(axisSquared)) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        output.cylinderAxis *= rsqrt(axisSquared);
+
+        output.cylinderBasisX = quaternionRotate(
+            output.rotation,
+            float3(1.0f, 0.0f, 0.0f)
+        );
+        output.cylinderBasisX -=
+            output.cylinderAxis *
+            dot(output.cylinderAxis, output.cylinderBasisX);
+        const float basisXSquared = dot(
+            output.cylinderBasisX,
+            output.cylinderBasisX
+        );
+        if (!(basisXSquared > kTiny) ||
+            !isfinite(basisXSquared)) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        output.cylinderBasisX *= rsqrt(basisXSquared);
+
+        output.cylinderBasisZ = cross(
+            output.cylinderBasisX,
+            output.cylinderAxis
+        );
+        const float basisZSquared = dot(
+            output.cylinderBasisZ,
+            output.cylinderBasisZ
+        );
+        if (!(basisZSquared > kTiny) ||
+            !isfinite(basisZSquared)) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        output.cylinderBasisZ *= rsqrt(basisZSquared);
+
+        const float3 radialExtent = sqrt(max(
+            float3(0.0f),
+            float3(1.0f) -
+                output.cylinderAxis * output.cylinderAxis
+        )) * output.radius;
+        const float3 extent =
+            abs(output.cylinderAxis) * output.halfLength +
+            radialExtent +
+            output.contactOffset;
+        output.lower = output.center - extent;
+        output.upper = output.center + extent;
+        inflateFiniteBounds(output);
+        if (!finiteFloat3(output.cylinderAxis) ||
+            !finiteFloat3(output.cylinderBasisX) ||
+            !finiteFloat3(output.cylinderBasisZ) ||
+            !collisionDomain(output.lower) ||
             !collisionDomain(output.upper)) {
             failureCode = MR_STEP_NONFINITE_INPUT;
             return false;
@@ -668,6 +771,178 @@ ContactBatch generateContacts(
                     featureKey(MR_SHAPE_CAPSULE, endpoint)
                 );
             }
+        }
+        return result;
+    }
+
+    if (pairClass == kPairCylinderPlane) {
+        const float3 axis = finiteShape.cylinderAxis;
+        const float axialProjection =
+            dot(plane.planeNormal, axis);
+        // Project through the orthonormal disk basis. This preserves the
+        // first-order tilt and keeps the witness in the represented disk plane
+        // when `n - axis * dot(n, axis)` would cancel in FP32.
+        const float radialX = dot(
+            plane.planeNormal,
+            finiteShape.cylinderBasisX
+        );
+        const float radialZ = dot(
+            plane.planeNormal,
+            finiteShape.cylinderBasisZ
+        );
+        const float3 radialProjection =
+            finiteShape.cylinderBasisX * radialX +
+            finiteShape.cylinderBasisZ * radialZ;
+        const float radialSquared =
+            max(0.0f, radialX * radialX + radialZ * radialZ);
+
+        if (radialSquared <=
+            kCylinderAlignmentTolerance *
+                kCylinderAlignmentTolerance) {
+            const bool positiveCap = axialProjection < 0.0f;
+            const float3 capCenter =
+                finiteShape.center +
+                axis *
+                    (positiveCap
+                        ? finiteShape.halfLength
+                        : -finiteShape.halfLength);
+            const uint featureBase =
+                positiveCap
+                ? kCylinderPositiveCapRingBase
+                : kCylinderNegativeCapRingBase;
+            for (uint point = 0u; point < 4u; ++point) {
+                float3 direction;
+                if (point == 0u) {
+                    direction = finiteShape.cylinderBasisX;
+                } else if (point == 1u) {
+                    direction = -finiteShape.cylinderBasisX;
+                } else if (point == 2u) {
+                    direction = finiteShape.cylinderBasisZ;
+                } else {
+                    direction = -finiteShape.cylinderBasisZ;
+                }
+                const float3 surface =
+                    capCenter +
+                    direction * finiteShape.radius;
+                const float separation =
+                    dot(
+                        plane.planeNormal,
+                        surface - plane.center
+                    );
+                if (separation <= acceptedContactDistance) {
+                    appendFinitePlaneContact(
+                        result,
+                        colliderA,
+                        plane,
+                        surface,
+                        separation,
+                        featureKey(
+                            MR_SHAPE_CYLINDER,
+                            featureBase + point
+                        )
+                    );
+                }
+            }
+            // Fixed ring axes alone are not conservative for a small
+            // arbitrary-azimuth tilt. Add the exact resolved support
+            // direction so a shallow rim impact cannot fall between samples.
+            // Do not reuse the geometry-length epsilon for this dimensionless
+            // direction. A tiny tilt times a large valid radius can still be
+            // a material support displacement. Values that underflow to zero
+            // are already below the FP32 collision-query resolution.
+            if (radialSquared > 0.0f) {
+                const float3 radialDirection =
+                    -radialProjection * rsqrt(radialSquared);
+                const float3 surface =
+                    capCenter +
+                    radialDirection * finiteShape.radius;
+                const float separation =
+                    dot(
+                        plane.planeNormal,
+                        surface - plane.center
+                    );
+                if (separation <= acceptedContactDistance) {
+                    appendFinitePlaneContact(
+                        result,
+                        colliderA,
+                        plane,
+                        surface,
+                        separation,
+                        featureKey(
+                            MR_SHAPE_CYLINDER,
+                            positiveCap
+                                ? kCylinderPositiveGeneralRim
+                                : kCylinderNegativeGeneralRim
+                        )
+                    );
+                }
+            }
+            return result;
+        }
+
+        const float3 radialDirection =
+            -radialProjection * rsqrt(radialSquared);
+        if (abs(axialProjection) <=
+            kCylinderAlignmentTolerance) {
+            for (uint point = 0u; point < 2u; ++point) {
+                const bool positiveCap = point != 0u;
+                const float3 capCenter =
+                    finiteShape.center +
+                    axis *
+                        (positiveCap
+                            ? finiteShape.halfLength
+                            : -finiteShape.halfLength);
+                const float3 surface =
+                    capCenter +
+                    radialDirection * finiteShape.radius;
+                const float separation =
+                    dot(
+                        plane.planeNormal,
+                        surface - plane.center
+                    );
+                if (separation <= acceptedContactDistance) {
+                    appendFinitePlaneContact(
+                        result,
+                        colliderA,
+                        plane,
+                        surface,
+                        separation,
+                        featureKey(
+                            MR_SHAPE_CYLINDER,
+                            positiveCap
+                                ? kCylinderPositiveSideRim
+                                : kCylinderNegativeSideRim
+                        )
+                    );
+                }
+            }
+            return result;
+        }
+
+        const bool positiveCap = axialProjection < 0.0f;
+        const float3 surface =
+            finiteShape.center +
+            axis *
+                (positiveCap
+                    ? finiteShape.halfLength
+                    : -finiteShape.halfLength) +
+            radialDirection * finiteShape.radius;
+        const float separation =
+            dot(plane.planeNormal, surface - plane.center);
+        if (separation <= acceptedContactDistance) {
+            appendFinitePlaneContact(
+                result,
+                colliderA,
+                plane,
+                surface,
+                separation,
+                featureKey(
+                    MR_SHAPE_CYLINDER,
+                    positiveCap
+                        ? kCylinderPositiveGeneralRim
+                        : kCylinderNegativeGeneralRim
+                )
+            );
         }
         return result;
     }

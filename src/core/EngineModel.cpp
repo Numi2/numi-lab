@@ -132,6 +132,90 @@ std::pair<mr_u32, mr_u32> expectedJointCoordinates(const mr_u32 type) {
     }
 }
 
+constexpr mr_u32 kKnownDofFlags =
+    MR_DOF_FLAG_ROOT |
+    MR_DOF_FLAG_ACTUATED |
+    MR_DOF_FLAG_POSITION_LIMIT |
+    MR_DOF_FLAG_VELOCITY_LIMIT |
+    MR_DOF_FLAG_EFFORT_LIMIT |
+    MR_DOF_FLAG_DRIVE;
+
+bool zero(const mr_float4 value) {
+    return value.x == 0.0f && value.y == 0.0f &&
+        value.z == 0.0f && value.w == 0.0f;
+}
+
+mr_u32 expectedJointQIndex(
+    const MRJointDescriptorGPU& joint,
+    const mr_u32 localDof
+) {
+    switch (joint.jointType) {
+    case MR_JOINT_REVOLUTE:
+    case MR_JOINT_PRISMATIC:
+    case MR_JOINT_CONTINUOUS:
+    case MR_JOINT_PLANAR:
+        return joint.qOffset + localDof;
+    case MR_JOINT_FREE:
+        return localDof < 3u
+            ? joint.qOffset + localDof
+            : MR_INVALID_INDEX;
+    case MR_JOINT_SPHERICAL:
+    case MR_JOINT_FIXED:
+    default:
+        return MR_INVALID_INDEX;
+    }
+}
+
+bool validDofParameters(
+    const MRDofPropertiesGPU& dof,
+    const bool root,
+    const mr_u32 jointType
+) {
+    if (!finite(dof.limits) || !finite(dof.drive) ||
+        dof.reserved0 != 0u || dof.reserved1 != 0u ||
+        (dof.flags & ~kKnownDofFlags) != 0u ||
+        dof.drive.x < 0.0f || dof.drive.y < 0.0f ||
+        dof.drive.z < 0.0f || dof.drive.w < 0.0f) {
+        return false;
+    }
+    if (root) {
+        return dof.flags == MR_DOF_FLAG_ROOT &&
+            zero(dof.limits) && zero(dof.drive);
+    }
+    if ((dof.flags & MR_DOF_FLAG_ROOT) != 0u) {
+        return false;
+    }
+    const bool actuated =
+        (dof.flags & MR_DOF_FLAG_ACTUATED) != 0u;
+    const bool positionLimited =
+        (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u;
+    const bool velocityLimited =
+        (dof.flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u;
+    const bool effortLimited =
+        (dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u;
+    const bool driven =
+        (dof.flags & MR_DOF_FLAG_DRIVE) != 0u;
+    if ((!actuated && (effortLimited || driven)) ||
+        (driven && !actuated) ||
+        (!driven && (dof.drive.x != 0.0f ||
+                     dof.drive.y != 0.0f)) ||
+        (positionLimited &&
+         (dof.qIndex == MR_INVALID_INDEX ||
+          jointType == MR_JOINT_CONTINUOUS ||
+          dof.limits.x > dof.limits.y)) ||
+        (!positionLimited &&
+         (dof.limits.x != 0.0f || dof.limits.y != 0.0f)) ||
+        (velocityLimited
+             ? !(dof.limits.z > 0.0f)
+             : dof.limits.z != 0.0f) ||
+        (effortLimited
+             ? !(dof.limits.w > 0.0f)
+             : dof.limits.w != 0.0f)) {
+        return false;
+    }
+    return true;
+}
+
 bool normalizedQuaternion(
     std::span<const float> q,
     const std::size_t offset
@@ -181,6 +265,7 @@ bool EngineModel::valid(std::string* reason) const {
     if (world.bodyCount != bodies.size() ||
         world.articulationCount != articulations.size() ||
         world.jointCount != joints.size() ||
+        world.nv != dofs.size() ||
         world.shapeCount != shapes.size() ||
         world.materialCount != materials.size() ||
         world.nq != defaultQ.size() || world.nv != defaultV.size()) {
@@ -278,6 +363,31 @@ bool EngineModel::valid(std::string* reason) const {
             expectedNv > vEnd - vBegin) {
             return fail(reason, "articulation root coordinates exceed owner");
         }
+        for (std::size_t localDof = 0u;
+             localDof < rootNv;
+             ++localDof) {
+            const std::size_t globalV = vBegin + localDof;
+            const MRDofPropertiesGPU& dof = dofs[globalV];
+            const mr_u32 expectedQ =
+                localDof < 3u
+                    ? static_cast<mr_u32>(qBegin + localDof)
+                    : MR_INVALID_INDEX;
+            if (dof.articulationIndex != articulationIndex ||
+                dof.jointIndex != MR_INVALID_INDEX ||
+                dof.qIndex != expectedQ ||
+                dof.vIndex != globalV ||
+                dof.localDof != localDof ||
+                !validDofParameters(
+                    dof,
+                    true,
+                    MR_JOINT_FREE
+                )) {
+                return fail(
+                    reason,
+                    "floating-root DoF ownership or properties are invalid"
+                );
+            }
+        }
         std::vector<mr_u32> childOwner(
             articulation.bodyCount,
             MR_INVALID_INDEX
@@ -332,6 +442,40 @@ bool EngineModel::valid(std::string* reason) const {
                 static_cast<std::size_t>(joint.vOffset) !=
                     vBegin + expectedNv) {
                 return fail(reason, "joint generalized offsets are not packed");
+            }
+            for (mr_u32 localDof = 0u;
+                 localDof < joint.nv;
+                 ++localDof) {
+                const mr_u32 globalV =
+                    joint.vOffset + localDof;
+                const MRDofPropertiesGPU& dof = dofs[globalV];
+                if (dof.articulationIndex != articulationIndex ||
+                    dof.jointIndex != jointIndex ||
+                    dof.qIndex !=
+                        expectedJointQIndex(joint, localDof) ||
+                    dof.vIndex != globalV ||
+                    dof.localDof != localDof ||
+                    !validDofParameters(
+                        dof,
+                        false,
+                        joint.jointType
+                    )) {
+                    return fail(
+                        reason,
+                        "joint DoF ownership or properties are invalid"
+                    );
+                }
+                if (((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
+                     (defaultQ[dof.qIndex] < dof.limits.x ||
+                      defaultQ[dof.qIndex] > dof.limits.y)) ||
+                    ((dof.flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u &&
+                     std::abs(defaultV[dof.vIndex]) >
+                         dof.limits.z)) {
+                    return fail(
+                        reason,
+                        "default generalized state violates DoF limits"
+                    );
+                }
             }
             if (!finite(joint.axis0) ||
                 !finite(joint.axis1) ||
@@ -652,6 +796,20 @@ EngineModel makeFreeSphereEngineModel() {
     freeBody.vOffset = 0u;
     freeBody.nv = 6u;
     model.articulations.push_back(freeBody);
+
+    model.dofs.reserve(6u);
+    for (mr_u32 localDof = 0u; localDof < 6u; ++localDof) {
+        MRDofPropertiesGPU dof{};
+        dof.articulationIndex = 0u;
+        dof.jointIndex = MR_INVALID_INDEX;
+        dof.qIndex = localDof < 3u
+            ? localDof
+            : MR_INVALID_INDEX;
+        dof.vIndex = localDof;
+        dof.localDof = localDof;
+        dof.flags = MR_DOF_FLAG_ROOT;
+        model.dofs.push_back(dof);
+    }
 
     MRBodyPropertiesGPU floor{};
     floor.articulationIndex = MR_INVALID_INDEX;

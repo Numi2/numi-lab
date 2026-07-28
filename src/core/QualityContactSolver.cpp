@@ -1,5 +1,10 @@
 #include "metalrobo/QualityContactSolver.hpp"
 
+#ifndef ACCELERATE_NEW_LAPACK
+#define ACCELERATE_NEW_LAPACK
+#endif
+#include <Accelerate/Accelerate.h>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -91,6 +96,21 @@ bool positiveDefinite(
     const std::span<const double> matrix,
     const std::size_t dimension
 ) {
+    if (dimension == 0u ||
+        matrix.size() != dimension * dimension ||
+        !finite(matrix)) {
+        return false;
+    }
+    double matrixScale = 0.0;
+    for (const double value : matrix) {
+        matrixScale = std::max(matrixScale, std::abs(value));
+    }
+    if (!(matrixScale > 0.0) || !std::isfinite(matrixScale)) {
+        return false;
+    }
+    const double pivotThreshold =
+        64.0 * std::numeric_limits<double>::epsilon() *
+        static_cast<double>(dimension) * matrixScale;
     std::vector<double> factor(matrix.begin(), matrix.end());
     for (std::size_t column = 0; column < dimension; ++column) {
         for (std::size_t row = column; row < dimension; ++row) {
@@ -100,13 +120,179 @@ bool positiveDefinite(
                     factor[column * dimension + inner];
             }
             if (row == column) {
-                if (!(value > 1.0e-15) || !std::isfinite(value)) {
+                if (!(value > pivotThreshold) ||
+                    !std::isfinite(value)) {
                     return false;
                 }
                 factor[row * dimension + column] = std::sqrt(value);
             } else {
                 factor[row * dimension + column] =
                     value / factor[column * dimension + column];
+            }
+        }
+    }
+    return true;
+}
+
+bool positiveSemidefinite(
+    const std::span<const double> matrix,
+    const std::size_t dimension
+) {
+    if (dimension == 0u ||
+        matrix.size() != dimension * dimension ||
+        !finite(matrix)) {
+        return false;
+    }
+    double matrixScale = 0.0;
+    for (const double value : matrix) {
+        matrixScale = std::max(matrixScale, std::abs(value));
+    }
+    if (matrixScale == 0.0) {
+        return true;
+    }
+    if (!std::isfinite(matrixScale)) {
+        return false;
+    }
+
+    // Symmetric diagonal-pivoted Cholesky/Schur validation. Pivoting avoids
+    // treating a harmless zero leading diagonal as a factorization failure,
+    // while the terminal Schur-block check rejects indefinite off-diagonal
+    // structure that positive contact regularization could otherwise mask.
+    const double tolerance =
+        256.0 * std::numeric_limits<double>::epsilon() *
+        static_cast<double>(dimension) * matrixScale;
+    const auto minimumEigenvalue = [&matrix, dimension](
+        double& minimum
+    ) {
+        if (dimension >
+            static_cast<std::size_t>(
+                std::numeric_limits<__LAPACK_int>::max()
+            )) {
+            return false;
+        }
+        const __LAPACK_int order =
+            static_cast<__LAPACK_int>(dimension);
+        const __LAPACK_int leadingDimension = order;
+        const char noVectors = 'N';
+        const char upperTriangle = 'U';
+        std::vector<double> working(matrix.begin(), matrix.end());
+        std::vector<double> eigenvalues(dimension, 0.0);
+        double workspaceQuery = 0.0;
+        __LAPACK_int workspaceSize = -1;
+        __LAPACK_int info = 0;
+        dsyev_(
+            &noVectors,
+            &upperTriangle,
+            &order,
+            working.data(),
+            &leadingDimension,
+            eigenvalues.data(),
+            &workspaceQuery,
+            &workspaceSize,
+            &info
+        );
+        if (info != 0 ||
+            !std::isfinite(workspaceQuery) ||
+            workspaceQuery < 1.0 ||
+            workspaceQuery >
+                static_cast<double>(
+                    std::numeric_limits<__LAPACK_int>::max()
+                )) {
+            return false;
+        }
+        workspaceSize = static_cast<__LAPACK_int>(
+            std::ceil(workspaceQuery)
+        );
+        std::vector<double> workspace(
+            static_cast<std::size_t>(workspaceSize),
+            0.0
+        );
+        dsyev_(
+            &noVectors,
+            &upperTriangle,
+            &order,
+            working.data(),
+            &leadingDimension,
+            eigenvalues.data(),
+            workspace.data(),
+            &workspaceSize,
+            &info
+        );
+        if (info != 0 || !finite(eigenvalues)) {
+            return false;
+        }
+        minimum = eigenvalues.front();
+        return std::isfinite(minimum);
+    };
+
+    std::vector<double> schur(matrix.begin(), matrix.end());
+    std::vector<double> column(dimension, 0.0);
+    for (std::size_t pivotIndex = 0u;
+         pivotIndex < dimension;
+         ++pivotIndex) {
+        std::size_t selected = pivotIndex;
+        for (std::size_t candidate = pivotIndex + 1u;
+             candidate < dimension;
+             ++candidate) {
+            if (schur[candidate * dimension + candidate] >
+                schur[selected * dimension + selected]) {
+                selected = candidate;
+            }
+        }
+        if (selected != pivotIndex) {
+            for (std::size_t columnIndex = 0u;
+                 columnIndex < dimension;
+                 ++columnIndex) {
+                std::swap(
+                    schur[pivotIndex * dimension + columnIndex],
+                    schur[selected * dimension + columnIndex]
+                );
+            }
+            for (std::size_t rowIndex = 0u;
+                 rowIndex < dimension;
+                 ++rowIndex) {
+                std::swap(
+                    schur[rowIndex * dimension + pivotIndex],
+                    schur[rowIndex * dimension + selected]
+                );
+            }
+        }
+
+        const double pivot =
+            schur[pivotIndex * dimension + pivotIndex];
+        if (!std::isfinite(pivot) || pivot < -tolerance) {
+            return false;
+        }
+        if (pivot <= tolerance) {
+            // A tiny dense Schur tail cannot be certified elementwise:
+            // O(n) individually small off-diagonals may still form a
+            // materially negative eigenmode. Use Accelerate's symmetric
+            // eigensolver only for this rank-deficient/ambiguous case.
+            double minimum = 0.0;
+            return minimumEigenvalue(minimum) &&
+                minimum >= -tolerance;
+        }
+
+        for (std::size_t row = pivotIndex + 1u;
+             row < dimension;
+             ++row) {
+            column[row] =
+                schur[row * dimension + pivotIndex];
+        }
+        for (std::size_t row = pivotIndex + 1u;
+             row < dimension;
+             ++row) {
+            for (std::size_t columnIndex = row;
+                 columnIndex < dimension;
+                 ++columnIndex) {
+                const double value =
+                    schur[row * dimension + columnIndex] -
+                    column[row] * column[columnIndex] / pivot;
+                if (!std::isfinite(value)) {
+                    return false;
+                }
+                schur[row * dimension + columnIndex] = value;
+                schur[columnIndex * dimension + row] = value;
             }
         }
     }
@@ -191,6 +377,154 @@ bool validProblem(
     return true;
 }
 
+bool validProblem(
+    const ContactSpaceConicProblem& problem,
+    const QualityContactSolverConfig& config,
+    std::string& failure
+) {
+    const std::size_t dimension = 3u * problem.contacts.size();
+    if (problem.contacts.empty() ||
+        problem.delassus.size() != dimension * dimension ||
+        problem.freeContactVelocity.size() != dimension) {
+        failure = "contact-space problem dimensions are inconsistent";
+        return false;
+    }
+    if (config.maximumIterations == 0u ||
+        config.maximumLineSearchIterations == 0u ||
+        !(config.kktTolerance > 0.0) ||
+        !(config.armijoCoefficient > 0.0 &&
+          config.armijoCoefficient < 0.5) ||
+        !(config.factorizationPivotTolerance > 0.0) ||
+        !(config.gaussNewtonRegularization > 0.0) ||
+        !std::isfinite(config.kktTolerance) ||
+        !std::isfinite(config.armijoCoefficient) ||
+        !std::isfinite(config.factorizationPivotTolerance) ||
+        !std::isfinite(config.gaussNewtonRegularization) ||
+        !finite(problem.delassus) ||
+        !finite(problem.freeContactVelocity)) {
+        failure = "contact-space solver input is invalid or non-finite";
+        return false;
+    }
+    for (std::size_t row = 0u; row < dimension; ++row) {
+        for (std::size_t column = 0u;
+             column < dimension;
+             ++column) {
+            const double left =
+                problem.delassus[row * dimension + column];
+            const double right =
+                problem.delassus[column * dimension + row];
+            const double scale =
+                1.0 + std::max(std::abs(left), std::abs(right));
+            if (std::abs(left - right) > 1.0e-12 * scale) {
+                failure = "Delassus operator is not symmetric";
+                return false;
+            }
+        }
+    }
+    if (!positiveSemidefinite(problem.delassus, dimension)) {
+        failure = "Delassus operator is not positive semidefinite";
+        return false;
+    }
+    for (const ContactConicBlock& contact : problem.contacts) {
+        if (!finite(contact.targetVelocity) ||
+            !finite(contact.regularization) ||
+            !finite(contact.warmImpulse) ||
+            !(contact.friction >= 0.0) ||
+            !std::isfinite(contact.friction) ||
+            !std::ranges::all_of(
+                contact.regularization,
+                [](const double value) {
+                    return value > 0.0 && std::isfinite(value);
+                }
+            )) {
+            failure = "contact-space material data is invalid";
+            return false;
+        }
+    }
+    return true;
+}
+
+template <typename ContactContainer>
+void finishPrepared(
+    PreparedProblem& prepared,
+    const ContactContainer& contacts
+) {
+    const std::size_t full = prepared.fullDimension;
+    for (std::size_t contact = 0;
+         contact < contacts.size();
+         ++contact) {
+        const double friction = contacts[contact].friction;
+        const std::size_t offset = prepared.variables.size();
+        if (friction > 0.0) {
+            prepared.blocks.push_back({offset, 3u, contact});
+            prepared.variables.push_back({
+                3u * contact,
+                1.0 / friction,
+            });
+            prepared.variables.push_back({
+                3u * contact + 1u,
+                1.0,
+            });
+            prepared.variables.push_back({
+                3u * contact + 2u,
+                1.0,
+            });
+        } else {
+            // K_0 = { (lambda_n, 0, 0) | lambda_n >= 0 }.
+            prepared.blocks.push_back({offset, 1u, contact});
+            prepared.variables.push_back({3u * contact, 1.0});
+        }
+    }
+
+    prepared.dimension = prepared.variables.size();
+    prepared.compactHessian.assign(
+        prepared.dimension * prepared.dimension,
+        0.0
+    );
+    prepared.compactLinear.assign(prepared.dimension, 0.0);
+    prepared.compactWarm.assign(prepared.dimension, 0.0);
+    for (std::size_t row = 0; row < prepared.dimension; ++row) {
+        const CompactVariable& rowVariable = prepared.variables[row];
+        prepared.compactLinear[row] =
+            rowVariable.lambdaScale *
+            prepared.linear[rowVariable.fullIndex];
+        prepared.compactWarm[row] =
+            contacts[rowVariable.fullIndex / 3u]
+                .warmImpulse[rowVariable.fullIndex % 3u] /
+            rowVariable.lambdaScale;
+        for (std::size_t column = 0;
+             column < prepared.dimension;
+             ++column) {
+            const CompactVariable& columnVariable =
+                prepared.variables[column];
+            prepared.compactHessian[
+                row * prepared.dimension + column
+            ] =
+                rowVariable.lambdaScale *
+                prepared.hessian[
+                    rowVariable.fullIndex * full +
+                    columnVariable.fullIndex
+                ] *
+                columnVariable.lambdaScale;
+        }
+    }
+
+    prepared.lipschitz = 0.0;
+    for (std::size_t row = 0; row < prepared.dimension; ++row) {
+        double rowSum = 0.0;
+        for (std::size_t column = 0;
+             column < prepared.dimension;
+             ++column) {
+            rowSum += std::abs(
+                prepared.compactHessian[
+                    row * prepared.dimension + column
+                ]
+            );
+        }
+        prepared.lipschitz = std::max(prepared.lipschitz, rowSum);
+    }
+}
+
 PreparedProblem prepare(const DenseConicProblem& problem) {
     PreparedProblem prepared;
     prepared.nv = problem.nv;
@@ -258,79 +592,31 @@ PreparedProblem prepare(const DenseConicProblem& problem) {
         prepared.hessian[row * full + row] += regularization[row];
     }
 
-    for (std::size_t contact = 0;
+    finishPrepared(prepared, problem.contacts);
+    return prepared;
+}
+
+PreparedProblem prepare(const ContactSpaceConicProblem& problem) {
+    PreparedProblem prepared;
+    prepared.fullDimension = 3u * problem.contacts.size();
+    prepared.linear.assign(prepared.fullDimension, 0.0);
+    prepared.hessian = problem.delassus;
+    for (std::size_t contact = 0u;
          contact < problem.contacts.size();
          ++contact) {
-        const double friction = problem.contacts[contact].friction;
-        const std::size_t offset = prepared.variables.size();
-        if (friction > 0.0) {
-            prepared.blocks.push_back({offset, 3u, contact});
-            prepared.variables.push_back({
-                3u * contact,
-                1.0 / friction,
-            });
-            prepared.variables.push_back({
-                3u * contact + 1u,
-                1.0,
-            });
-            prepared.variables.push_back({
-                3u * contact + 2u,
-                1.0,
-            });
-        } else {
-            // K_0 = { (lambda_n, 0, 0) | lambda_n >= 0 }.
-            prepared.blocks.push_back({offset, 1u, contact});
-            prepared.variables.push_back({3u * contact, 1.0});
+        const ContactConicBlock& block =
+            problem.contacts[contact];
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            const std::size_t row = 3u * contact + axis;
+            prepared.linear[row] =
+                problem.freeContactVelocity[row] -
+                block.targetVelocity[axis];
+            prepared.hessian[
+                row * prepared.fullDimension + row
+            ] += block.regularization[axis];
         }
     }
-
-    prepared.dimension = prepared.variables.size();
-    prepared.compactHessian.assign(
-        prepared.dimension * prepared.dimension,
-        0.0
-    );
-    prepared.compactLinear.assign(prepared.dimension, 0.0);
-    prepared.compactWarm.assign(prepared.dimension, 0.0);
-    for (std::size_t row = 0; row < prepared.dimension; ++row) {
-        const CompactVariable& rowVariable = prepared.variables[row];
-        prepared.compactLinear[row] =
-            rowVariable.lambdaScale *
-            prepared.linear[rowVariable.fullIndex];
-        prepared.compactWarm[row] =
-            problem.contacts[rowVariable.fullIndex / 3u]
-                .warmImpulse[rowVariable.fullIndex % 3u] /
-            rowVariable.lambdaScale;
-        for (std::size_t column = 0;
-             column < prepared.dimension;
-             ++column) {
-            const CompactVariable& columnVariable =
-                prepared.variables[column];
-            prepared.compactHessian[
-                row * prepared.dimension + column
-            ] =
-                rowVariable.lambdaScale *
-                prepared.hessian[
-                    rowVariable.fullIndex * full +
-                    columnVariable.fullIndex
-                ] *
-                columnVariable.lambdaScale;
-        }
-    }
-
-    prepared.lipschitz = 0.0;
-    for (std::size_t row = 0; row < prepared.dimension; ++row) {
-        double rowSum = 0.0;
-        for (std::size_t column = 0;
-             column < prepared.dimension;
-             ++column) {
-            rowSum += std::abs(
-                prepared.compactHessian[
-                    row * prepared.dimension + column
-                ]
-            );
-        }
-        prepared.lipschitz = std::max(prepared.lipschitz, rowSum);
-    }
+    finishPrepared(prepared, problem.contacts);
     return prepared;
 }
 
@@ -673,8 +959,9 @@ std::vector<double> toFullImpulses(
     return full;
 }
 
+template <typename ContactContainer>
 void fillCertificate(
-    const DenseConicProblem& input,
+    const ContactContainer& contacts,
     const PreparedProblem& problem,
     const std::span<const double> compact,
     const double gamma,
@@ -703,7 +990,7 @@ void fillCertificate(
     solution.maximumFrictionlessNormalComplementarityResidual = 0.0;
     solution.complementarityGap = 0.0;
     for (std::size_t contact = 0;
-         contact < input.contacts.size();
+         contact < contacts.size();
          ++contact) {
         const std::size_t offset = 3u * contact;
         const double normal = solution.impulses[offset];
@@ -711,7 +998,7 @@ void fillCertificate(
             solution.impulses[offset + 1u],
             solution.impulses[offset + 2u]
         );
-        const double friction = input.contacts[contact].friction;
+        const double friction = contacts[contact].friction;
         solution.maximumNormalImpulseViolation = std::max(
             solution.maximumNormalImpulseViolation,
             std::max(-normal, 0.0)
@@ -786,46 +1073,15 @@ void fillCertificate(
         problem.linear,
         solution.impulses
     );
-
-    solution.velocity = input.freeVelocity;
-    std::vector<double> generalizedImpulse(problem.nv, 0.0);
-    for (std::size_t row = 0;
-         row < problem.fullDimension;
-         ++row) {
-        for (std::size_t column = 0;
-             column < problem.nv;
-             ++column) {
-            generalizedImpulse[column] +=
-                problem.jacobian[row * problem.nv + column] *
-                solution.impulses[row];
-        }
-    }
-    const std::vector<double> velocityDelta = multiply(
-        input.inverseMass,
-        problem.nv,
-        problem.nv,
-        generalizedImpulse
-    );
-    for (std::size_t index = 0;
-         index < problem.nv;
-         ++index) {
-        solution.velocity[index] += velocityDelta[index];
-    }
 }
 
-} // namespace
-
-QualityContactSolution solveQualityContactProblem(
-    const DenseConicProblem& problem,
+template <typename ContactContainer>
+QualityContactSolution solvePreparedQualityProblem(
+    const PreparedProblem& prepared,
+    const ContactContainer& contacts,
     const QualityContactSolverConfig& config
 ) {
     QualityContactSolution solution;
-    if (!validProblem(problem, config, solution.failure)) {
-        solution.code = MR_STEP_NONFINITE_INPUT;
-        return solution;
-    }
-
-    const PreparedProblem prepared = prepare(problem);
     if (!finite(prepared.hessian) ||
         !finite(prepared.linear) ||
         !finite(prepared.compactHessian) ||
@@ -880,7 +1136,7 @@ QualityContactSolution solveQualityContactProblem(
             solution.failure =
                 "natural residual became non-finite";
             fillCertificate(
-                problem,
+                contacts,
                 prepared,
                 value,
                 gamma,
@@ -1032,14 +1288,13 @@ QualityContactSolution solveQualityContactProblem(
     }
 
     fillCertificate(
-        problem,
+        contacts,
         prepared,
         value,
         gamma,
         solution
     );
-    if (!finite(solution.velocity) ||
-        !finite(solution.impulses) ||
+    if (!finite(solution.impulses) ||
         !std::isfinite(solution.objective) ||
         !std::isfinite(solution.scaledKktCertificate)) {
         solution.code = MR_STEP_NONFINITE_RESULT;
@@ -1057,6 +1312,108 @@ QualityContactSolution solveQualityContactProblem(
         solution.failure =
             "globalized semismooth Newton iteration limit reached "
             "before the KKT certificate met tolerance";
+    }
+    return solution;
+}
+
+} // namespace
+
+QualityContactSolution solveQualityContactProblem(
+    const DenseConicProblem& problem,
+    const QualityContactSolverConfig& config
+) {
+    QualityContactSolution solution;
+    if (!validProblem(problem, config, solution.failure)) {
+        solution.code = MR_STEP_NONFINITE_INPUT;
+        return solution;
+    }
+
+    const PreparedProblem prepared = prepare(problem);
+    solution = solvePreparedQualityProblem(
+        prepared,
+        problem.contacts,
+        config
+    );
+    if (solution.impulses.size() != prepared.fullDimension) {
+        return solution;
+    }
+
+    std::vector<double> generalizedImpulse(problem.nv, 0.0);
+    for (std::size_t contact = 0u;
+         contact < problem.contacts.size();
+         ++contact) {
+        const DenseContactBlock& block = problem.contacts[contact];
+        const std::array<std::span<const double>, 3u> rows{
+            block.normalJacobian,
+            block.tangentUJacobian,
+            block.tangentVJacobian,
+        };
+        for (std::size_t axis = 0u; axis < rows.size(); ++axis) {
+            const double impulse = solution.impulses[
+                3u * contact + axis
+            ];
+            for (std::size_t column = 0u;
+                 column < problem.nv;
+                 ++column) {
+                generalizedImpulse[column] +=
+                    rows[axis][column] * impulse;
+            }
+        }
+    }
+    solution.velocity = problem.freeVelocity;
+    const std::vector<double> velocityDelta = multiply(
+        problem.inverseMass,
+        problem.nv,
+        problem.nv,
+        generalizedImpulse
+    );
+    for (std::size_t index = 0u; index < problem.nv; ++index) {
+        solution.velocity[index] += velocityDelta[index];
+    }
+    if (!finite(solution.velocity)) {
+        solution.code = MR_STEP_NONFINITE_RESULT;
+        solution.failure =
+            "generalized post-impulse velocity is non-finite";
+    }
+    return solution;
+}
+
+QualityContactSolution solveQualityContactSpaceProblem(
+    const ContactSpaceConicProblem& problem,
+    const QualityContactSolverConfig& config
+) {
+    QualityContactSolution solution;
+    if (!validProblem(problem, config, solution.failure)) {
+        solution.code = MR_STEP_NONFINITE_INPUT;
+        return solution;
+    }
+
+    const PreparedProblem prepared = prepare(problem);
+    solution = solvePreparedQualityProblem(
+        prepared,
+        problem.contacts,
+        config
+    );
+    if (solution.impulses.size() != prepared.fullDimension) {
+        return solution;
+    }
+
+    solution.velocity = problem.freeContactVelocity;
+    const std::vector<double> contactVelocityDelta = multiply(
+        problem.delassus,
+        prepared.fullDimension,
+        prepared.fullDimension,
+        solution.impulses
+    );
+    for (std::size_t index = 0u;
+         index < prepared.fullDimension;
+         ++index) {
+        solution.velocity[index] += contactVelocityDelta[index];
+    }
+    if (!finite(solution.velocity)) {
+        solution.code = MR_STEP_NONFINITE_RESULT;
+        solution.failure =
+            "contact-space post-impulse velocity is non-finite";
     }
     return solution;
 }

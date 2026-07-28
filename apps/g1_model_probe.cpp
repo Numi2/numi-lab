@@ -185,9 +185,35 @@ int main() {
 
         require(
             model.defaultQ.size() == 36u &&
-                model.defaultV.size() == 35u,
+                model.defaultV.size() == 35u &&
+                model.dofs.size() == 35u,
             "reset-state dimensions are incorrect"
         );
+        for (std::size_t localDof = 0u;
+             localDof < 6u;
+             ++localDof) {
+            const MRDofPropertiesGPU& dof = model.dofs[localDof];
+            require(
+                dof.articulationIndex == 0u &&
+                    dof.jointIndex == MR_INVALID_INDEX &&
+                    dof.qIndex ==
+                        (localDof < 3u
+                             ? localDof
+                             : MR_INVALID_INDEX) &&
+                    dof.vIndex == localDof &&
+                    dof.localDof == localDof &&
+                    dof.flags == MR_DOF_FLAG_ROOT &&
+                    dof.limits.x == 0.0f &&
+                    dof.limits.y == 0.0f &&
+                    dof.limits.z == 0.0f &&
+                    dof.limits.w == 0.0f &&
+                    dof.drive.x == 0.0f &&
+                    dof.drive.y == 0.0f &&
+                    dof.drive.z == 0.0f &&
+                    dof.drive.w == 0.0f,
+                "floating-root DoF is not explicitly passive"
+            );
+        }
         require(
                 close(model.defaultQ[0], 0.0) &&
                 close(model.defaultQ[1], 0.0) &&
@@ -215,6 +241,10 @@ int main() {
             const MRJointDescriptorGPU& joint = model.joints[index];
             const metalrobo::G1JointLimit& limit =
                 metadata.jointLimits[index];
+            const metalrobo::G1RLLabJointDrive& drive =
+                metadata.rlLabDrives[index];
+            const MRDofPropertiesGPU& dof =
+                model.dofs[6u + index];
             require(
                 limit.name == kExpectedJointNames[index],
                 "joint name does not match Unitree SDK order"
@@ -222,6 +252,30 @@ int main() {
             require(
                 metadata.rlLabDrives[index].name == limit.name,
                 "RL drive order diverges from SDK joint order"
+            );
+            require(
+                dof.articulationIndex == 0u &&
+                    dof.jointIndex == index &&
+                    dof.qIndex == 7u + index &&
+                    dof.vIndex == 6u + index &&
+                    dof.localDof == 0u &&
+                    dof.flags ==
+                        (
+                            MR_DOF_FLAG_ACTUATED |
+                            MR_DOF_FLAG_POSITION_LIMIT |
+                            MR_DOF_FLAG_VELOCITY_LIMIT |
+                            MR_DOF_FLAG_EFFORT_LIMIT |
+                            MR_DOF_FLAG_DRIVE
+                        ) &&
+                    close(dof.limits.x, limit.lowerPosition) &&
+                    close(dof.limits.y, limit.upperPosition) &&
+                    close(dof.limits.z, limit.maximumVelocity) &&
+                    close(dof.limits.w, limit.maximumEffort) &&
+                    close(dof.drive.x, drive.stiffness) &&
+                    close(dof.drive.y, drive.damping) &&
+                    close(dof.drive.z, drive.armature) &&
+                    dof.drive.w == 0.0f,
+                "compiled per-DoF limits or drive are incorrect"
             );
             require(
                 joint.parentBody == limit.parentBody &&

@@ -148,6 +148,33 @@ MRShapeGPU makeBoxShape(
     return result;
 }
 
+MRShapeGPU makeCylinderShape(
+    const std::uint32_t body,
+    const float radius,
+    const float halfLength,
+    const mr_float4 localRotation,
+    const float contactOffset = 0.02f
+) {
+    MRShapeGPU result = makeShape(
+        body,
+        MR_SHAPE_CYLINDER,
+        radius
+    );
+    result.localRotation = localRotation;
+    result.dimensions =
+        f4(radius, halfLength, 0.0f, 0.0f);
+    result.contactRestAndBoundingRadius = f4(
+        contactOffset,
+        0.0f,
+        std::sqrt(
+            radius * radius +
+            halfLength * halfLength
+        ),
+        0.0f
+    );
+    return result;
+}
+
 Scene makeScene() {
     Scene scene;
     scene.bodies = {
@@ -232,7 +259,7 @@ Scene makeScene() {
         ),
         makeShape(
             15u,
-            MR_SHAPE_CYLINDER,
+            MR_SHAPE_CONVEX,
             0.25f,
             4u,
             4u
@@ -252,6 +279,253 @@ Scene makeScene() {
         gpu.colliderB = exclusion.colliderB;
         scene.gpuExclusions.push_back(gpu);
     }
+    return scene;
+}
+
+Scene makeCylinderScene() {
+    constexpr float sineQuarterTurn =
+        0.7071067811865475244f;
+    constexpr float sineEighthTurn =
+        0.3826834323650897717f;
+    constexpr float cosineEighthTurn =
+        0.9238795325112867561f;
+    constexpr float radius = 0.30f;
+    constexpr float halfLength = 0.60f;
+    constexpr float tiltedVerticalExtent =
+        (radius + halfLength) * sineQuarterTurn;
+
+    Scene scene;
+    scene.bodies = {
+        makeBody(0.0f, 0.0f, 0.0f, MR_MOTION_STATIC),
+        makeBody(-3.0f, 0.55f, 0.0f, MR_MOTION_DYNAMIC),
+        makeBody(-1.0f, 0.55f, 0.0f, MR_MOTION_DYNAMIC),
+        makeBody(1.0f, 0.25f, 0.0f, MR_MOTION_DYNAMIC),
+        makeBody(
+            3.0f,
+            tiltedVerticalExtent - 0.05f,
+            0.0f,
+            MR_MOTION_DYNAMIC
+        ),
+    };
+    // Exercise transform composition, not only shape-local rotation.
+    scene.bodies[4].orientation = f4(
+        0.0f,
+        0.0f,
+        -sineEighthTurn,
+        cosineEighthTurn
+    );
+    scene.shapes = {
+        makeShape(0u, MR_SHAPE_PLANE, 0.0f),
+        makeCylinderShape(
+            1u,
+            radius,
+            halfLength,
+            f4(0.0f, 0.0f, 0.0f, 1.0f)
+        ),
+        makeCylinderShape(
+            2u,
+            radius,
+            halfLength,
+            f4(1.0f, 0.0f, 0.0f, 0.0f)
+        ),
+        makeCylinderShape(
+            3u,
+            radius,
+            halfLength,
+            f4(
+                0.0f,
+                0.0f,
+                -sineQuarterTurn,
+                sineQuarterTurn
+            )
+        ),
+        makeCylinderShape(
+            4u,
+            radius,
+            halfLength,
+            f4(0.0f, 0.0f, 0.0f, 1.0f)
+        ),
+    };
+    return scene;
+}
+
+Scene makeCylinderFirstScene() {
+    Scene scene;
+    scene.bodies = {
+        makeBody(-3.0f, 0.55f, 0.0f, MR_MOTION_DYNAMIC),
+        makeBody(0.0f, 0.0f, 0.0f, MR_MOTION_STATIC),
+    };
+    scene.shapes = {
+        makeCylinderShape(
+            0u,
+            0.30f,
+            0.60f,
+            f4(0.0f, 0.0f, 0.0f, 1.0f)
+        ),
+        makeShape(1u, MR_SHAPE_PLANE, 0.0f),
+    };
+    return scene;
+}
+
+Scene makeCylinderOrientationSweepScene() {
+    constexpr std::uint32_t cylinderCount = 32u;
+    constexpr double pi = 3.14159265358979323846;
+    Scene scene;
+    scene.bodies.reserve(cylinderCount + 1u);
+    scene.shapes.reserve(cylinderCount + 1u);
+    scene.bodies.push_back(
+        makeBody(0.0f, 0.0f, 0.0f, MR_MOTION_STATIC)
+    );
+    scene.shapes.push_back(
+        makeShape(0u, MR_SHAPE_PLANE, 0.0f)
+    );
+    for (std::uint32_t index = 0u;
+         index < cylinderCount;
+         ++index) {
+        const double angle =
+            pi * static_cast<double>(index) /
+            static_cast<double>(cylinderCount - 1u);
+        const double bodyAngle =
+            index % 3u == 0u ? 0.4 * angle : angle;
+        const double localAngle =
+            index % 3u == 0u ? 0.6 * angle : 0.0;
+        const std::uint32_t body =
+            static_cast<std::uint32_t>(scene.bodies.size());
+        scene.bodies.push_back(makeBody(
+            2.0f * static_cast<float>(index % 8u),
+            0.0f,
+            2.0f * static_cast<float>(index / 8u),
+            MR_MOTION_DYNAMIC
+        ));
+        scene.bodies.back().orientation = f4(
+            0.0f,
+            0.0f,
+            -static_cast<float>(std::sin(0.5 * bodyAngle)),
+            static_cast<float>(std::cos(0.5 * bodyAngle))
+        );
+        const float radius =
+            0.10f + 0.01f * static_cast<float>(index % 7u);
+        const float halfLength =
+            0.15f + 0.02f * static_cast<float>(index % 5u);
+        scene.shapes.push_back(makeCylinderShape(
+            body,
+            radius,
+            halfLength,
+            f4(
+                0.0f,
+                0.0f,
+                -static_cast<float>(
+                    std::sin(0.5 * localAngle)
+                ),
+                static_cast<float>(
+                    std::cos(0.5 * localAngle)
+                )
+            ),
+            0.005f +
+                0.001f * static_cast<float>(index % 4u)
+        ));
+    }
+    return scene;
+}
+
+Scene makeCylinderNearCapRegressionScene() {
+    // A tiny arbitrary-azimuth tilt stays inside the cap-manifold branch, but
+    // its exact support direction lies between all four fixed ring axes.
+    // The cap center is separated while the true rim support penetrates. All
+    // four fixed ring samples remain separated, so this is a direct regression
+    // for conservative support rather than a generous contact-distance test.
+    constexpr double angle = 9.0e-7;
+    constexpr double inverseRootTwo =
+        0.7071067811865475244;
+    constexpr double radius = 1.0;
+    constexpr double halfLength = 0.5;
+    constexpr double capCenterSeparation = 7.5e-7;
+    const double halfAngle = 0.5 * angle;
+
+    Scene scene;
+    scene.bodies = {
+        makeBody(0.0f, 0.0f, 0.0f, MR_MOTION_STATIC),
+        makeBody(
+            0.0f,
+            static_cast<float>(
+                halfLength * std::cos(angle) +
+                capCenterSeparation
+            ),
+            0.0f,
+            MR_MOTION_DYNAMIC
+        ),
+    };
+    scene.shapes = {
+        makeShape(0u, MR_SHAPE_PLANE, 0.0f),
+        makeCylinderShape(
+            1u,
+            static_cast<float>(radius),
+            static_cast<float>(halfLength),
+            f4(
+                static_cast<float>(
+                    -inverseRootTwo * std::sin(halfAngle)
+                ),
+                0.0f,
+                static_cast<float>(
+                    inverseRootTwo * std::sin(halfAngle)
+                ),
+                static_cast<float>(std::cos(halfAngle))
+            ),
+            0.0f
+        ),
+    };
+    scene.shapes[0].contactRestAndBoundingRadius.x = 0.0f;
+    return scene;
+}
+
+Scene makeCylinderNearCapSubEpsilonRegressionScene() {
+    // This tilt has radialSquared below the engine's general geometry epsilon.
+    // Radius amplification still makes its exact support physically material:
+    // the true rim penetrates by 1e-5 while every fixed cardinal ring sample
+    // is separated. Direction normalization must therefore use a zero test,
+    // not a geometry-length threshold.
+    constexpr double angle = 8.0e-8;
+    constexpr double inverseRootTwo =
+        0.7071067811865475244;
+    constexpr double radius = 1000.0;
+    constexpr double halfLength = 0.5;
+    constexpr double penetration = 1.0e-5;
+    const double halfAngle = 0.5 * angle;
+
+    Scene scene;
+    scene.bodies = {
+        makeBody(0.0f, 0.0f, 0.0f, MR_MOTION_STATIC),
+        makeBody(
+            0.0f,
+            static_cast<float>(
+                halfLength * std::cos(angle) +
+                radius * std::sin(angle) -
+                penetration
+            ),
+            0.0f,
+            MR_MOTION_DYNAMIC
+        ),
+    };
+    scene.shapes = {
+        makeShape(0u, MR_SHAPE_PLANE, 0.0f),
+        makeCylinderShape(
+            1u,
+            static_cast<float>(radius),
+            static_cast<float>(halfLength),
+            f4(
+                static_cast<float>(
+                    -inverseRootTwo * std::sin(halfAngle)
+                ),
+                0.0f,
+                static_cast<float>(
+                    inverseRootTwo * std::sin(halfAngle)
+                ),
+                static_cast<float>(std::cos(halfAngle))
+            ),
+            0.0f
+        ),
+    };
+    scene.shapes[0].contactRestAndBoundingRadius.x = 0.0f;
     return scene;
 }
 
@@ -823,6 +1097,600 @@ bool sameSuccessfulRun(
             right.contactPairIndices;
 }
 
+double verifyCylinderPrimitive(
+    const std::uint32_t environment
+) {
+    const Scene scene = makeCylinderScene();
+    metalrobo::CollisionConfig config;
+    config.environment = environment;
+    config.capacities = {
+        .pairCapacity = 8u,
+        .rawContactCapacity = 16u,
+        .manifoldCapacity = 8u,
+    };
+    metalrobo::PersistentManifoldCache cache;
+    const metalrobo::CollisionFrame cpu =
+        metalrobo::collideCpuReference(
+            scene.shapes,
+            scene.bodies,
+            config,
+            cache,
+            scene.exclusions
+        );
+    require(
+        cpu.succeeded() &&
+            cpu.pairs.size() == 4u &&
+            cpu.rawContacts.size() == 11u &&
+            cpu.manifoldHeaders.size() == 4u,
+        "CPU cylinder orientation corpus changed topology"
+    );
+    const MetalRun gpu = collideOnMetal(
+        scene,
+        environment,
+        8u,
+        16u
+    );
+    require(
+        gpu.status.code == MR_STEP_SUCCESS &&
+            gpu.status.requiredPairs == 4u &&
+            gpu.status.requiredContacts == 11u &&
+            gpu.unusedOutputSlotsUntouched,
+        "Metal cylinder orientation corpus changed topology"
+    );
+    const double witnessError = compareWithCpu(cpu, gpu);
+
+    for (const MRCandidatePairGPU& pair : gpu.pairs) {
+        require(
+            pair.colliderA == 0u &&
+                pair.colliderB >= 1u &&
+                pair.colliderB <= 4u &&
+                pair.flags ==
+                    metalrobo::collisionPairCylinderPlane,
+            "cylinder/plane pair classification is invalid"
+        );
+    }
+
+    const std::array<std::vector<std::uint32_t>, 4>
+        expectedLocalFeatures{{
+            {0u, 1u, 2u, 3u},
+            {4u, 5u, 6u, 7u},
+            {8u, 9u},
+            {10u},
+        }};
+    for (std::uint32_t cylinder = 1u;
+         cylinder <= 4u;
+         ++cylinder) {
+        const std::vector<MRRawContactGPU> contacts =
+            contactsForPair(gpu, 0u, cylinder);
+        const auto& expected =
+            expectedLocalFeatures[cylinder - 1u];
+        require(
+            contacts.size() == expected.size() &&
+                manifoldPointCount(cpu, 0u, cylinder) ==
+                    expected.size(),
+            "cylinder support feature cardinality is wrong"
+        );
+        for (std::size_t point = 0u;
+             point < contacts.size();
+             ++point) {
+            require(
+                contacts[point].featureAndFlags[0] ==
+                    expectedFeature(MR_SHAPE_PLANE, 0u) &&
+                    contacts[point].featureAndFlags[1] ==
+                        expectedFeature(
+                            MR_SHAPE_CYLINDER,
+                            expected[point]
+                        ) &&
+                    std::abs(
+                        contacts[point]
+                                .normalAndSeparation.w +
+                            0.05f
+                    ) <= 4.0e-6f,
+                "cylinder feature ID or exact separation is wrong"
+            );
+        }
+    }
+
+    const std::vector<MRRawContactGPU> sideContacts =
+        contactsForPair(gpu, 0u, 3u);
+    require(
+        sideContacts[0].pointBWorld.x <
+                sideContacts[1].pointBWorld.x &&
+            std::abs(
+                sideContacts[1].pointBWorld.x -
+                    sideContacts[0].pointBWorld.x -
+                    1.2f
+            ) <= 5.0e-6f,
+        "cylinder side rim endpoints are not deterministically ordered"
+    );
+
+    const auto verifyAabb =
+        [&](const std::uint32_t shapeIndex,
+            const std::array<double, 3>& center,
+            const std::array<double, 3>& extent) {
+            const MRAabbGPU& aabb = cpu.worldAabbs[shapeIndex];
+            const std::array<double, 3> lower{
+                aabb.lower.x,
+                aabb.lower.y,
+                aabb.lower.z,
+            };
+            const std::array<double, 3> upper{
+                aabb.upper.x,
+                aabb.upper.y,
+                aabb.upper.z,
+            };
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                const double exactLower =
+                    center[axis] - extent[axis];
+                const double exactUpper =
+                    center[axis] + extent[axis];
+                require(
+                    lower[axis] <= exactLower &&
+                        upper[axis] >= exactUpper &&
+                        exactLower - lower[axis] <= 3.0e-4 &&
+                        upper[axis] - exactUpper <= 3.0e-4,
+                    "oriented cylinder AABB is inward or needlessly loose"
+                    " shape=" + std::to_string(shapeIndex) +
+                    " axis=" + std::to_string(axis) +
+                    " lower=" + std::to_string(lower[axis]) +
+                    " exact_lower=" +
+                        std::to_string(exactLower) +
+                    " upper=" + std::to_string(upper[axis]) +
+                    " exact_upper=" +
+                        std::to_string(exactUpper)
+                );
+            }
+        };
+    constexpr double radius = 0.30;
+    constexpr double halfLength = 0.60;
+    constexpr double offset = 0.02;
+    constexpr double inverseRootTwo =
+        0.7071067811865475244;
+    verifyAabb(
+        1u,
+        {-3.0, 0.55, 0.0},
+        {radius + offset, halfLength + offset, radius + offset}
+    );
+    verifyAabb(
+        2u,
+        {-1.0, 0.55, 0.0},
+        {radius + offset, halfLength + offset, radius + offset}
+    );
+    verifyAabb(
+        3u,
+        {1.0, 0.25, 0.0},
+        {halfLength + offset, radius + offset, radius + offset}
+    );
+    const double tiltedExtent =
+        (radius + halfLength) * inverseRootTwo + offset;
+    verifyAabb(
+        4u,
+        {3.0, tiltedExtent - offset - 0.05, 0.0},
+        {tiltedExtent, tiltedExtent, radius + offset}
+    );
+
+    const MetalRun replay = collideOnMetal(
+        scene,
+        environment,
+        8u,
+        16u
+    );
+    require(
+        sameSuccessfulRun(gpu, replay),
+        "cylinder Metal replay is not bit deterministic"
+    );
+    const MetalRun exact = collideOnMetal(
+        scene,
+        environment,
+        gpu.status.requiredPairs,
+        gpu.status.requiredContacts
+    );
+    require(
+        sameSuccessfulRun(gpu, exact) &&
+            exact.unusedOutputSlotsUntouched,
+        "exact cylinder capacities are not deterministic"
+    );
+    const MetalRun pairOverflow = collideOnMetal(
+        scene,
+        environment,
+        gpu.status.requiredPairs - 1u,
+        16u
+    );
+    const MetalRun contactOverflow = collideOnMetal(
+        scene,
+        environment,
+        8u,
+        gpu.status.requiredContacts - 1u
+    );
+    require(
+        pairOverflow.status.code ==
+                MR_STEP_PAIR_CAPACITY_OVERFLOW &&
+            pairOverflow.outputBuffersUntouched &&
+            contactOverflow.status.code ==
+                MR_STEP_CONTACT_CAPACITY_OVERFLOW &&
+            contactOverflow.outputBuffersUntouched,
+        "cylinder capacity failure was not transactional"
+    );
+
+    const std::vector<metalrobo::PersistentManifold>
+        cacheSnapshot(cache.entries().begin(), cache.entries().end());
+    metalrobo::CollisionConfig cpuOverflowConfig = config;
+    cpuOverflowConfig.capacities.rawContactCapacity = 10u;
+    const metalrobo::CollisionFrame cpuOverflow =
+        metalrobo::collideCpuReference(
+            scene.shapes,
+            scene.bodies,
+            cpuOverflowConfig,
+            cache,
+            scene.exclusions
+        );
+    require(
+        cpuOverflow.diagnostics.code ==
+                MR_STEP_CONTACT_CAPACITY_OVERFLOW &&
+            cpuOverflow.worldAabbs.empty() &&
+            sameBytes<metalrobo::PersistentManifold>(
+                cache.entries(),
+                cacheSnapshot
+            ),
+        "CPU cylinder overflow mutated frame payload or manifold cache"
+    );
+
+    const Scene reverseScene = makeCylinderFirstScene();
+    metalrobo::PersistentManifoldCache reverseCache;
+    const metalrobo::CollisionFrame reverseCpu =
+        metalrobo::collideCpuReference(
+            reverseScene.shapes,
+            reverseScene.bodies,
+            config,
+            reverseCache,
+            reverseScene.exclusions
+        );
+    const MetalRun reverseGpu = collideOnMetal(
+        reverseScene,
+        environment,
+        2u,
+        5u
+    );
+    require(
+        reverseCpu.succeeded() &&
+            reverseGpu.status.code == MR_STEP_SUCCESS,
+        "reversed cylinder/plane endpoint order failed"
+    );
+    (void) compareWithCpu(reverseCpu, reverseGpu);
+    const std::vector<MRRawContactGPU> reverseContacts =
+        contactsForPair(reverseGpu, 0u, 1u);
+    const std::vector<MRRawContactGPU> forwardContacts =
+        contactsForPair(gpu, 0u, 1u);
+    require(
+        reverseContacts.size() == 4u &&
+            forwardContacts.size() == 4u,
+        "reversed cylinder cap lost witnesses"
+    );
+    for (std::size_t point = 0u;
+         point < reverseContacts.size();
+         ++point) {
+        require(
+            reverseContacts[point].featureAndFlags[0] ==
+                    expectedFeature(
+                        MR_SHAPE_CYLINDER,
+                        static_cast<std::uint32_t>(point)
+                    ) &&
+                reverseContacts[point].featureAndFlags[1] ==
+                    expectedFeature(MR_SHAPE_PLANE, 0u) &&
+                reverseContacts[point].normalAndSeparation.y <
+                    -0.99999f &&
+                componentError(
+                    reverseContacts[point].pointAWorld,
+                    forwardContacts[point].pointBWorld
+                ) <= kWitnessTolerance &&
+                componentError(
+                    reverseContacts[point].pointBWorld,
+                    forwardContacts[point].pointAWorld
+                ) <= kWitnessTolerance,
+            "cylinder/plane endpoint swap changed geometry or features"
+        );
+    }
+
+    const auto requireCylinderRejected =
+        [&](Scene invalid, const std::string& label) {
+            metalrobo::PersistentManifoldCache invalidCache;
+            const metalrobo::CollisionFrame invalidCpu =
+                metalrobo::collideCpuReference(
+                    invalid.shapes,
+                    invalid.bodies,
+                    config,
+                    invalidCache,
+                    invalid.exclusions
+                );
+            const MetalRun invalidGpu = collideOnMetal(
+                invalid,
+                environment,
+                8u,
+                16u
+            );
+            require(
+                invalidCpu.diagnostics.code ==
+                        MR_STEP_NONFINITE_INPUT &&
+                    invalidCpu.worldAabbs.empty() &&
+                    invalidCpu.pairs.empty() &&
+                    invalidCache.size() == 0u &&
+                    invalidGpu.status.code ==
+                        MR_STEP_NONFINITE_INPUT &&
+                    invalidGpu.outputBuffersUntouched,
+                label
+            );
+        };
+
+    Scene zeroRadius = scene;
+    zeroRadius.shapes[1].dimensions.x = 0.0f;
+    requireCylinderRejected(
+        std::move(zeroRadius),
+        "zero cylinder radius was not rejected transactionally"
+    );
+    Scene zeroHalfLength = scene;
+    zeroHalfLength.shapes[1].dimensions.y = 0.0f;
+    requireCylinderRejected(
+        std::move(zeroHalfLength),
+        "zero cylinder half length was not rejected transactionally"
+    );
+    Scene subnormalHalfLength = scene;
+    subnormalHalfLength.shapes[1].dimensions.y =
+        std::numeric_limits<float>::denorm_min();
+    requireCylinderRejected(
+        std::move(subnormalHalfLength),
+        "subnormal cylinder half length was not rejected"
+    );
+    Scene nonfiniteHalfLength = scene;
+    nonfiniteHalfLength.shapes[1].dimensions.y =
+        std::numeric_limits<float>::quiet_NaN();
+    requireCylinderRejected(
+        std::move(nonfiniteHalfLength),
+        "non-finite cylinder half length was not rejected"
+    );
+    Scene outOfDomainRadius = scene;
+    outOfDomainRadius.shapes[1].dimensions.x =
+        std::nextafter(
+            MR_MAX_COLLISION_INPUT_COORDINATE,
+            std::numeric_limits<float>::infinity()
+        );
+    requireCylinderRejected(
+        std::move(outOfDomainRadius),
+        "out-of-domain cylinder radius was not rejected"
+    );
+    Scene invalidQuaternion = scene;
+    invalidQuaternion.shapes[1].localRotation =
+        f4(0.0f, 0.0f, 0.0f, 0.0f);
+    requireCylinderRejected(
+        std::move(invalidQuaternion),
+        "invalid cylinder quaternion was not rejected"
+    );
+
+    Scene disabledMalformed = scene;
+    disabledMalformed.shapes[1].flags =
+        MR_SHAPE_FLAG_SIMULATION_DISABLED;
+    disabledMalformed.shapes[1].dimensions =
+        f4(0.0f, 0.0f, 0.0f, 0.0f);
+    metalrobo::PersistentManifoldCache disabledCache;
+    const metalrobo::CollisionFrame disabledCpu =
+        metalrobo::collideCpuReference(
+            disabledMalformed.shapes,
+            disabledMalformed.bodies,
+            config,
+            disabledCache,
+            disabledMalformed.exclusions
+        );
+    const MetalRun disabledGpu = collideOnMetal(
+        disabledMalformed,
+        environment,
+        8u,
+        16u
+    );
+    require(
+        disabledCpu.succeeded() &&
+            disabledGpu.status.code == MR_STEP_SUCCESS &&
+            !shapeAppearsInPair(disabledCpu.pairs, 1u) &&
+            !shapeAppearsInPair(disabledGpu.pairs, 1u),
+        "disabled cylinder incorrectly required active dimensions"
+    );
+
+    const Scene sweepScene =
+        makeCylinderOrientationSweepScene();
+    metalrobo::CollisionConfig sweepConfig = config;
+    sweepConfig.capacities = {
+        .pairCapacity = 64u,
+        .rawContactCapacity = 128u,
+        .manifoldCapacity = 64u,
+    };
+    metalrobo::PersistentManifoldCache sweepCache;
+    const metalrobo::CollisionFrame sweepCpu =
+        metalrobo::collideCpuReference(
+            sweepScene.shapes,
+            sweepScene.bodies,
+            sweepConfig,
+            sweepCache,
+            sweepScene.exclusions
+        );
+    const MetalRun sweepGpu = collideOnMetal(
+        sweepScene,
+        environment,
+        64u,
+        128u
+    );
+    require(
+        sweepCpu.succeeded() &&
+            sweepCpu.pairs.size() == 32u &&
+            sweepGpu.status.code == MR_STEP_SUCCESS &&
+            sweepGpu.status.requiredPairs == 32u,
+        "cylinder orientation sweep changed broadphase topology"
+    );
+    const double sweepWitnessError =
+        compareWithCpu(sweepCpu, sweepGpu);
+    const MetalRun sweepReplay = collideOnMetal(
+        sweepScene,
+        environment,
+        64u,
+        128u
+    );
+    require(
+        sameSuccessfulRun(sweepGpu, sweepReplay),
+        "cylinder orientation sweep is not bit deterministic"
+    );
+
+    const Scene nearCapScene =
+        makeCylinderNearCapRegressionScene();
+    metalrobo::CollisionConfig nearCapConfig = config;
+    nearCapConfig.capacities = {
+        .pairCapacity = 2u,
+        .rawContactCapacity = 8u,
+        .manifoldCapacity = 2u,
+    };
+    metalrobo::PersistentManifoldCache nearCapCache;
+    const metalrobo::CollisionFrame nearCapCpu =
+        metalrobo::collideCpuReference(
+            nearCapScene.shapes,
+            nearCapScene.bodies,
+            nearCapConfig,
+            nearCapCache,
+            nearCapScene.exclusions
+        );
+    const MetalRun nearCapGpu = collideOnMetal(
+        nearCapScene,
+        environment,
+        2u,
+        8u
+    );
+    constexpr std::uint32_t exactNearCapFeature = 10u;
+    const std::uint32_t packedNearCapFeature =
+        expectedFeature(
+            MR_SHAPE_CYLINDER,
+            exactNearCapFeature
+        );
+    const auto cpuExact = std::ranges::find_if(
+        nearCapCpu.rawContacts,
+        [packedNearCapFeature](const MRRawContactGPU& contact) {
+            return contact.featureAndFlags[1] ==
+                packedNearCapFeature;
+        }
+    );
+    const std::vector<MRRawContactGPU> nearCapGpuContacts =
+        contactsForPair(nearCapGpu, 0u, 1u);
+    const auto gpuExact = std::ranges::find_if(
+        nearCapGpuContacts,
+        [packedNearCapFeature](const MRRawContactGPU& contact) {
+            return contact.featureAndFlags[1] ==
+                packedNearCapFeature;
+        }
+    );
+    require(
+        nearCapCpu.succeeded() &&
+            nearCapCpu.pairs.size() == 1u &&
+            nearCapCpu.rawContacts.size() == 1u &&
+            cpuExact != nearCapCpu.rawContacts.end() &&
+            nearCapGpu.status.code == MR_STEP_SUCCESS &&
+            nearCapGpu.status.requiredPairs == 1u &&
+            gpuExact != nearCapGpuContacts.end() &&
+            cpuExact->normalAndSeparation.w < 0.0f,
+        "near-cap arbitrary-azimuth cylinder support was missed"
+    );
+    const double nearCapWitnessError = std::max(
+        componentError(
+            cpuExact->pointAWorld,
+            gpuExact->pointAWorld
+        ),
+        std::max(
+            componentError(
+                cpuExact->pointBWorld,
+                gpuExact->pointBWorld
+            ),
+            componentError(
+                cpuExact->normalAndSeparation,
+                gpuExact->normalAndSeparation
+            )
+        )
+    );
+    require(
+        nearCapWitnessError <= kWitnessTolerance,
+        "near-cap exact cylinder witness diverged on Metal"
+    );
+
+    const Scene subEpsilonScene =
+        makeCylinderNearCapSubEpsilonRegressionScene();
+    metalrobo::PersistentManifoldCache subEpsilonCache;
+    const metalrobo::CollisionFrame subEpsilonCpu =
+        metalrobo::collideCpuReference(
+            subEpsilonScene.shapes,
+            subEpsilonScene.bodies,
+            nearCapConfig,
+            subEpsilonCache,
+            subEpsilonScene.exclusions
+        );
+    const MetalRun subEpsilonGpu = collideOnMetal(
+        subEpsilonScene,
+        environment,
+        2u,
+        8u
+    );
+    const auto subEpsilonCpuExact = std::ranges::find_if(
+        subEpsilonCpu.rawContacts,
+        [packedNearCapFeature](const MRRawContactGPU& contact) {
+            return contact.featureAndFlags[1] ==
+                packedNearCapFeature;
+        }
+    );
+    const std::vector<MRRawContactGPU> subEpsilonGpuContacts =
+        contactsForPair(subEpsilonGpu, 0u, 1u);
+    const auto subEpsilonGpuExact = std::ranges::find_if(
+        subEpsilonGpuContacts,
+        [packedNearCapFeature](const MRRawContactGPU& contact) {
+            return contact.featureAndFlags[1] ==
+                packedNearCapFeature;
+        }
+    );
+    const float subEpsilonCpuSeparation =
+        subEpsilonCpuExact != subEpsilonCpu.rawContacts.end()
+        ? subEpsilonCpuExact->normalAndSeparation.w
+        : std::numeric_limits<float>::infinity();
+    const float subEpsilonGpuSeparation =
+        subEpsilonGpuExact != subEpsilonGpuContacts.end()
+        ? subEpsilonGpuExact->normalAndSeparation.w
+        : std::numeric_limits<float>::infinity();
+    require(
+        subEpsilonCpu.succeeded() &&
+            subEpsilonCpu.pairs.size() == 1u &&
+            subEpsilonCpuExact !=
+                subEpsilonCpu.rawContacts.end() &&
+            subEpsilonCpuSeparation < 0.0f &&
+            subEpsilonGpu.status.code == MR_STEP_SUCCESS &&
+            subEpsilonGpu.status.requiredPairs == 1u &&
+            subEpsilonGpuExact !=
+                subEpsilonGpuContacts.end() &&
+            subEpsilonGpuSeparation < 0.0f,
+        "sub-epsilon cylinder tilt lost its amplified exact support"
+        " cpu_status=" +
+            std::to_string(subEpsilonCpu.diagnostics.code) +
+            " cpu_pairs=" +
+            std::to_string(subEpsilonCpu.pairs.size()) +
+            " cpu_contacts=" +
+            std::to_string(subEpsilonCpu.rawContacts.size()) +
+            " cpu_separation=" +
+            std::to_string(subEpsilonCpuSeparation) +
+            " gpu_status=" +
+            std::to_string(subEpsilonGpu.status.code) +
+            " gpu_pairs=" +
+            std::to_string(subEpsilonGpu.status.requiredPairs) +
+            " gpu_contacts=" +
+            std::to_string(subEpsilonGpuContacts.size()) +
+            " gpu_separation=" +
+            std::to_string(subEpsilonGpuSeparation)
+    );
+
+    return std::max({
+        witnessError,
+        sweepWitnessError,
+        nearCapWitnessError,
+    });
+}
+
 } // namespace
 
 int main() {
@@ -914,6 +1782,8 @@ int main() {
         );
         const double maximumWitnessError =
             compareWithCpu(cpu, first);
+        const double cylinderWitnessError =
+            verifyCylinderPrimitive(environment + 1u);
 
         require(
             containsPair(first.pairs, 2u, 3u) &&
@@ -1462,6 +2332,12 @@ int main() {
                   << manifoldPointCount(cpu, 14u, 15u)
                   << " max_witness_error="
                   << maximumWitnessError
+                  << " cylinder_max_witness_error="
+                  << cylinderWitnessError
+                  << " cylinder_cap_side_rim=yes"
+                  << " cylinder_endpoint_order=yes"
+                  << " cylinder_aabb_tight=yes"
+                  << " cylinder_adversarial=yes"
                   << " canonical_filters=yes"
                   << " stable_features=yes"
                   << " deterministic_replay=yes"

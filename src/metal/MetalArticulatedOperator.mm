@@ -1,0 +1,1244 @@
+#import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
+
+#include "metalrobo/MetalArticulatedOperator.hpp"
+
+#include <dlfcn.h>
+
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <filesystem>
+#include <limits>
+#include <new>
+#include <string>
+#include <system_error>
+#include <utility>
+
+#ifndef METALROBO_DEFAULT_METALLIB
+#define METALROBO_DEFAULT_METALLIB ""
+#endif
+
+namespace metalrobo {
+namespace {
+
+constexpr std::size_t kRawBufferCount = 15u;
+constexpr float kQuaternionHostTolerance = 1.9e-5f;
+constexpr std::uint64_t kShaderAddressableElements =
+    static_cast<std::uint64_t>(
+        std::numeric_limits<mr_u32>::max()
+    ) + 1u;
+const char kMetalRoboImageAnchor = 0;
+
+struct BufferRequirement {
+    const char* label = "";
+    std::size_t logicalElements = 0u;
+    std::size_t logicalBytes = 0u;
+    std::size_t allocationBytes = 0u;
+};
+
+struct RequiredBuffers {
+    std::array<BufferRequirement, kRawBufferCount> entries{};
+};
+
+std::string nsString(NSString* value) {
+    if (value == nil || value.UTF8String == nullptr) {
+        return {};
+    }
+    return std::string{value.UTF8String};
+}
+
+std::string describeError(NSError* error) {
+    if (error == nil) {
+        return "unknown Metal error";
+    }
+    std::string result = nsString(error.localizedDescription);
+    if (result.empty()) {
+        result = nsString(error.description);
+    }
+    return result.empty() ? "unknown Metal error" : result;
+}
+
+bool regularFile(const std::filesystem::path& path) {
+    std::error_code error;
+    return std::filesystem::is_regular_file(path, error) &&
+        !error;
+}
+
+std::string defaultMetallibPath() {
+    Dl_info image{};
+    if (dladdr(&kMetalRoboImageAnchor, &image) != 0 &&
+        image.dli_fname != nullptr) {
+        const std::filesystem::path libraryDirectory =
+            std::filesystem::path(image.dli_fname).parent_path();
+        const std::array candidates{
+            libraryDirectory /
+                "metalrobo/MetalRobo.metallib",
+            libraryDirectory.parent_path() /
+                "shaders/MetalRobo.metallib",
+        };
+        for (const std::filesystem::path& candidate :
+             candidates) {
+            if (regularFile(candidate)) {
+                return candidate.string();
+            }
+        }
+    }
+
+    const std::filesystem::path configured{
+        METALROBO_DEFAULT_METALLIB
+    };
+    return regularFile(configured)
+        ? configured.string()
+        : std::string{};
+}
+
+MetalArticulatedOperatorDiagnostics reject(
+    MetalArticulatedOperatorDiagnostics diagnostics,
+    const MetalArticulatedOperatorHostStatus status,
+    std::string message
+) {
+    diagnostics.status = status;
+    diagnostics.message = std::move(message);
+    return diagnostics;
+}
+
+bool checkedMultiply(
+    const std::size_t left,
+    const std::size_t right,
+    std::size_t& result
+) {
+    if (left != 0u &&
+        right > std::numeric_limits<std::size_t>::max() / left) {
+        return false;
+    }
+    result = left * right;
+    return true;
+}
+
+bool checkedAdd(
+    const std::size_t left,
+    const std::size_t right,
+    std::size_t& result
+) {
+    if (right >
+        std::numeric_limits<std::size_t>::max() - left) {
+        return false;
+    }
+    result = left + right;
+    return true;
+}
+
+template <typename T>
+bool makeRequirement(
+    const char* label,
+    const std::size_t logicalElements,
+    BufferRequirement& result
+) {
+    std::size_t logicalBytes = 0u;
+    if (!checkedMultiply(
+            logicalElements,
+            sizeof(T),
+            logicalBytes
+        )) {
+        return false;
+    }
+    result.label = label;
+    result.logicalElements = logicalElements;
+    result.logicalBytes = logicalBytes;
+    result.allocationBytes =
+        logicalBytes == 0u ? sizeof(T) : logicalBytes;
+    return result.allocationBytes <=
+        std::numeric_limits<NSUInteger>::max();
+}
+
+bool finite(const mr_float4 value) {
+    return std::isfinite(value.x) &&
+        std::isfinite(value.y) &&
+        std::isfinite(value.z) &&
+        std::isfinite(value.w);
+}
+
+bool supportedTopology(
+    const EngineModel& model,
+    const MRArticulationGPU& articulation,
+    std::string& reason
+) {
+    if (articulation.bodyCount == 0u ||
+        articulation.bodyCount >
+            MR_ARTICULATED_OPERATOR_MAX_BODIES ||
+        articulation.nv == 0u ||
+        articulation.nv >
+            MR_ARTICULATED_OPERATOR_MAX_DOFS) {
+        reason =
+            "articulation exceeds the Metal operator body/DoF bucket";
+        return false;
+    }
+    const std::size_t jointEnd =
+        static_cast<std::size_t>(articulation.firstJoint) +
+        articulation.jointCount;
+    for (std::size_t jointIndex = articulation.firstJoint;
+         jointIndex < jointEnd;
+         ++jointIndex) {
+        const MRJointDescriptorGPU& joint = model.joints[jointIndex];
+        if (joint.flags != 0u) {
+            reason =
+                "Metal articulated joints require zero reserved flags";
+            return false;
+        }
+        if (joint.jointType != MR_JOINT_REVOLUTE &&
+            joint.jointType != MR_JOINT_CONTINUOUS &&
+            joint.jointType != MR_JOINT_FIXED) {
+            reason =
+                "Metal articulated operator supports revolute, "
+                "continuous, and fixed joints";
+            return false;
+        }
+    }
+    const std::size_t bodyEnd =
+        static_cast<std::size_t>(articulation.firstBody) +
+        articulation.bodyCount;
+    for (std::size_t bodyIndex = articulation.firstBody;
+         bodyIndex < bodyEnd;
+         ++bodyIndex) {
+        if (model.bodies[bodyIndex].motionType !=
+            MR_MOTION_DYNAMIC) {
+            reason =
+                "every body owned by a Metal articulation must be dynamic";
+            return false;
+        }
+    }
+    return true;
+}
+
+bool validQ(
+    const MRArticulationGPU& articulation,
+    const std::size_t environmentCount,
+    const std::span<const float> q
+) {
+    for (const float value : q) {
+        if (!std::isfinite(value)) {
+            return false;
+        }
+    }
+    if (articulation.rootType != MR_ROOT_FLOATING) {
+        return true;
+    }
+    for (std::size_t environment = 0u;
+         environment < environmentCount;
+         ++environment) {
+        const std::size_t base =
+            environment * articulation.nq + 3u;
+        const float x = q[base + 0u];
+        const float y = q[base + 1u];
+        const float z = q[base + 2u];
+        const float w = q[base + 3u];
+        const float normSquared =
+            x * x + y * y + z * z + w * w;
+        if (!(normSquared > 1.0e-12f) ||
+            !std::isfinite(normSquared)) {
+            return false;
+        }
+        const float norm = std::sqrt(normSquared);
+        if (!std::isfinite(norm) ||
+            std::abs(norm - 1.0f) >
+                kQuaternionHostTolerance) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool validPoints(
+    const MRArticulationGPU& articulation,
+    const std::span<const MRArticulatedPointImpulseGPU> points
+) {
+    const std::uint64_t bodyEnd =
+        static_cast<std::uint64_t>(articulation.firstBody) +
+        articulation.bodyCount;
+    for (const MRArticulatedPointImpulseGPU& point : points) {
+        if (point.bodyIndex < articulation.firstBody ||
+            static_cast<std::uint64_t>(point.bodyIndex) >= bodyEnd ||
+            point.flags != 0u ||
+            point.reserved0 != 0u ||
+            point.reserved1 != 0u ||
+            !finite(point.localPoint) ||
+            !finite(point.worldImpulse) ||
+            point.localPoint.w != 0.0f ||
+            point.worldImpulse.w != 0.0f) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool buildRequirements(
+    const EngineModel& model,
+    const MetalArticulatedOperatorLayout& layout,
+    RequiredBuffers& requirements,
+    std::size_t& totalAllocatedBytes
+) {
+    std::size_t jointElements =
+        std::max<std::size_t>(model.joints.size(), 1u);
+    if (!makeRequirement<MRWorldGPU>(
+            "world",
+            1u,
+            requirements.entries[0]
+        ) ||
+        !makeRequirement<MRArticulationGPU>(
+            "articulations",
+            model.articulations.size(),
+            requirements.entries[1]
+        ) ||
+        !makeRequirement<MRJointDescriptorGPU>(
+            "joints",
+            jointElements,
+            requirements.entries[2]
+        ) ||
+        !makeRequirement<MRDofPropertiesGPU>(
+            "DoF properties",
+            model.dofs.size(),
+            requirements.entries[3]
+        ) ||
+        !makeRequirement<MRBodyPropertiesGPU>(
+            "body properties",
+            model.bodies.size(),
+            requirements.entries[4]
+        ) ||
+        !makeRequirement<MRArticulatedOperatorDispatchGPU>(
+            "dispatch",
+            1u,
+            requirements.entries[5]
+        ) ||
+        !makeRequirement<float>(
+            "q",
+            layout.qElements,
+            requirements.entries[6]
+        ) ||
+        !makeRequirement<MRArticulatedPointImpulseGPU>(
+            "point queries",
+            layout.pointElements,
+            requirements.entries[7]
+        ) ||
+        !makeRequirement<MRArticulatedBodyPoseGPU>(
+            "body poses",
+            layout.bodyPoseElements,
+            requirements.entries[8]
+        ) ||
+        !makeRequirement<MRArticulatedPointWorldGPU>(
+            "point world",
+            layout.pointWorldElements,
+            requirements.entries[9]
+        ) ||
+        !makeRequirement<float>(
+            "diagnostic mass",
+            layout.massMatrixElements,
+            requirements.entries[10]
+        ) ||
+        !makeRequirement<float>(
+            "point Jacobians",
+            layout.pointJacobianElements,
+            requirements.entries[11]
+        ) ||
+        !makeRequirement<float>(
+            "generalized impulse",
+            layout.generalizedElements,
+            requirements.entries[12]
+        ) ||
+        !makeRequirement<float>(
+            "delta velocity",
+            layout.generalizedElements,
+            requirements.entries[13]
+        ) ||
+        !makeRequirement<MRArticulatedOperatorStatusGPU>(
+            "statuses",
+            layout.statusElements,
+            requirements.entries[14]
+        )) {
+        return false;
+    }
+
+    totalAllocatedBytes = 0u;
+    for (const BufferRequirement& requirement :
+         requirements.entries) {
+        if (!checkedAdd(
+                totalAllocatedBytes,
+                requirement.allocationBytes,
+                totalAllocatedBytes
+            )) {
+            return false;
+        }
+    }
+    return true;
+}
+
+MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
+    const EngineModel& model,
+    const MetalArticulatedOperatorInput& input,
+    const MetalArticulatedOperatorConfig& config,
+    RequiredBuffers& requirements
+) {
+    MetalArticulatedOperatorDiagnostics diagnostics{};
+
+    std::string modelReason;
+    if (!model.valid(&modelReason)) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidModel,
+            "invalid EngineModel: " + modelReason
+        );
+    }
+    if (input.articulationIndex >=
+        model.articulations.size()) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "articulation index is outside the canonical model"
+        );
+    }
+    if (input.environmentCount == 0u) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "environmentCount must be greater than zero"
+        );
+    }
+    if (input.environmentCount >
+        std::numeric_limits<mr_u32>::max()) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+            "environmentCount does not fit the GPU dispatch ABI"
+        );
+    }
+    if (input.pointCount >
+            MR_ARTICULATED_OPERATOR_MAX_POINTS ||
+        input.pointCount >
+            std::numeric_limits<mr_u32>::max()) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::capacityOverflow,
+            "pointCount exceeds the articulated operator bucket"
+        );
+    }
+
+    const MRArticulationGPU& articulation =
+        model.articulations[input.articulationIndex];
+    std::string topologyReason;
+    if (!supportedTopology(
+            model,
+            articulation,
+            topologyReason
+        )) {
+        const bool capacity =
+            articulation.bodyCount >
+                MR_ARTICULATED_OPERATOR_MAX_BODIES ||
+            articulation.nv >
+                MR_ARTICULATED_OPERATOR_MAX_DOFS;
+        return reject(
+            std::move(diagnostics),
+            capacity
+                ? MetalArticulatedOperatorHostStatus::
+                      capacityOverflow
+                : MetalArticulatedOperatorHostStatus::
+                      unsupportedTopology,
+            std::move(topologyReason)
+        );
+    }
+
+    MetalArticulatedOperatorLayout layout{};
+    MRArticulatedOperatorDispatchGPU& dispatch =
+        layout.dispatch;
+    dispatch.articulationIndex = input.articulationIndex;
+    dispatch.environmentCount =
+        static_cast<mr_u32>(input.environmentCount);
+    dispatch.pointCount =
+        static_cast<mr_u32>(input.pointCount);
+    dispatch.flags =
+        config.writeDiagnosticMassMatrix
+            ? MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS
+            : 0u;
+    dispatch.qStride = articulation.nq;
+    dispatch.pointStride = dispatch.pointCount;
+    dispatch.bodyPoseStride = articulation.bodyCount;
+    dispatch.pointWorldStride = dispatch.pointCount;
+    dispatch.generalizedStride = articulation.nv;
+
+    std::size_t massStride = 0u;
+    std::size_t jacobianStride = 0u;
+    if (!checkedMultiply(
+            articulation.nv,
+            articulation.nv,
+            massStride
+        ) ||
+        !checkedMultiply(
+            input.pointCount,
+            3u,
+            jacobianStride
+        ) ||
+        !checkedMultiply(
+            jacobianStride,
+            articulation.nv,
+            jacobianStride
+        ) ||
+        massStride > std::numeric_limits<mr_u32>::max() ||
+        jacobianStride > std::numeric_limits<mr_u32>::max()) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+            "derived GPU stride overflow"
+        );
+    }
+    dispatch.massMatrixStride =
+        config.writeDiagnosticMassMatrix
+            ? static_cast<mr_u32>(massStride)
+            : 0u;
+    dispatch.pointJacobianStride =
+        static_cast<mr_u32>(jacobianStride);
+
+    if (!checkedMultiply(
+            input.environmentCount,
+            dispatch.qStride,
+            layout.qElements
+        ) ||
+        !checkedMultiply(
+            input.environmentCount,
+            dispatch.pointStride,
+            layout.pointElements
+        ) ||
+        !checkedMultiply(
+            input.environmentCount,
+            dispatch.bodyPoseStride,
+            layout.bodyPoseElements
+        ) ||
+        !checkedMultiply(
+            input.environmentCount,
+            dispatch.pointWorldStride,
+            layout.pointWorldElements
+        ) ||
+        !checkedMultiply(
+            input.environmentCount,
+            dispatch.massMatrixStride,
+            layout.massMatrixElements
+        ) ||
+        !checkedMultiply(
+            input.environmentCount,
+            dispatch.pointJacobianStride,
+            layout.pointJacobianElements
+        ) ||
+        !checkedMultiply(
+            input.environmentCount,
+            dispatch.generalizedStride,
+            layout.generalizedElements
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+            "derived GPU element-count overflow"
+        );
+    }
+    layout.statusElements = input.environmentCount;
+
+    const auto exceedsShaderAddressing =
+        [](const std::size_t elements) {
+            return static_cast<std::uint64_t>(elements) >
+                kShaderAddressableElements;
+        };
+    if (exceedsShaderAddressing(layout.qElements) ||
+        exceedsShaderAddressing(layout.pointElements) ||
+        exceedsShaderAddressing(layout.bodyPoseElements) ||
+        exceedsShaderAddressing(layout.pointWorldElements) ||
+        exceedsShaderAddressing(layout.massMatrixElements) ||
+        exceedsShaderAddressing(
+            layout.pointJacobianElements
+        ) ||
+        exceedsShaderAddressing(layout.generalizedElements) ||
+        exceedsShaderAddressing(layout.statusElements)) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+            "compact buffer exceeds the shader's 32-bit element "
+            "addressing contract"
+        );
+    }
+
+    std::size_t totalAllocatedBytes = 0u;
+    if (!buildRequirements(
+            model,
+            layout,
+            requirements,
+            totalAllocatedBytes
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+            "required Metal buffer byte-count overflow"
+        );
+    }
+    layout.qBytes = requirements.entries[6].logicalBytes;
+    layout.pointBytes = requirements.entries[7].logicalBytes;
+    layout.bodyPoseBytes =
+        requirements.entries[8].logicalBytes;
+    layout.pointWorldBytes =
+        requirements.entries[9].logicalBytes;
+    layout.massMatrixBytes =
+        requirements.entries[10].logicalBytes;
+    layout.pointJacobianBytes =
+        requirements.entries[11].logicalBytes;
+    layout.generalizedBytes =
+        requirements.entries[12].logicalBytes;
+    layout.statusBytes =
+        requirements.entries[14].logicalBytes;
+    layout.totalAllocatedBytes = totalAllocatedBytes;
+    diagnostics.layout = layout;
+
+    if (input.q.size() != layout.qElements ||
+        input.points.size() != layout.pointElements) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "packed q or point-query span has the wrong element count"
+        );
+    }
+    if (!validQ(
+            articulation,
+            input.environmentCount,
+            input.q
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::nonfiniteInput,
+            "q contains a non-finite value or invalid root quaternion"
+        );
+    }
+    if (!validPoints(articulation, input.points)) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidPointQuery,
+            "point query is non-finite, reserved, or outside articulation"
+        );
+    }
+    return diagnostics;
+}
+
+id<MTLBuffer> makeInputBuffer(
+    id<MTLDevice> device,
+    const void* source,
+    const BufferRequirement& requirement,
+    NSString* label
+) {
+    id<MTLBuffer> result = nil;
+    if (requirement.logicalBytes != 0u) {
+        result = [device
+            newBufferWithBytes:source
+                        length:static_cast<NSUInteger>(
+                            requirement.allocationBytes
+                        )
+                       options:MTLResourceStorageModeShared];
+    } else {
+        result = [device
+            newBufferWithLength:static_cast<NSUInteger>(
+                requirement.allocationBytes
+            )
+                       options:MTLResourceStorageModeShared];
+        if (result != nil && result.contents != nullptr) {
+            std::memset(
+                result.contents,
+                0,
+                requirement.allocationBytes
+            );
+        }
+    }
+    result.label = label;
+    return result;
+}
+
+id<MTLBuffer> makeOutputBuffer(
+    id<MTLDevice> device,
+    const BufferRequirement& requirement,
+    NSString* label
+) {
+    id<MTLBuffer> result = [device
+        newBufferWithLength:static_cast<NSUInteger>(
+            requirement.allocationBytes
+        )
+                   options:MTLResourceStorageModeShared];
+    if (result != nil && result.contents != nullptr) {
+        std::memset(
+            result.contents,
+            0,
+            requirement.allocationBytes
+        );
+    }
+    result.label = label;
+    return result;
+}
+
+bool validBuffer(
+    id<MTLBuffer> buffer,
+    const BufferRequirement& requirement
+) {
+    return buffer != nil &&
+        buffer.contents != nullptr &&
+        buffer.length >= requirement.allocationBytes;
+}
+
+template <typename T>
+void copyOutput(
+    std::vector<T>& destination,
+    id<MTLBuffer> source
+) {
+    if (!destination.empty()) {
+        std::memcpy(
+            destination.data(),
+            source.contents,
+            destination.size() * sizeof(T)
+        );
+    }
+}
+
+bool finitePayload(
+    const MetalArticulatedOperatorResult& result
+) {
+    return
+        std::all_of(
+            result.bodyPoses.begin(),
+            result.bodyPoses.end(),
+            [](const MRArticulatedBodyPoseGPU& pose) {
+                return finite(pose.position) &&
+                    finite(pose.orientation);
+            }
+        ) &&
+        std::all_of(
+            result.pointWorld.begin(),
+            result.pointWorld.end(),
+            [](const MRArticulatedPointWorldGPU& point) {
+                return finite(point.position);
+            }
+        ) &&
+        std::all_of(
+            result.diagnosticMassMatrix.begin(),
+            result.diagnosticMassMatrix.end(),
+            [](const float value) {
+                return std::isfinite(value);
+            }
+        ) &&
+        std::all_of(
+            result.pointJacobians.begin(),
+            result.pointJacobians.end(),
+            [](const float value) {
+                return std::isfinite(value);
+            }
+        ) &&
+        std::all_of(
+            result.generalizedImpulse.begin(),
+            result.generalizedImpulse.end(),
+            [](const float value) {
+                return std::isfinite(value);
+            }
+        ) &&
+        std::all_of(
+            result.deltaVelocity.begin(),
+            result.deltaVelocity.end(),
+            [](const float value) {
+                return std::isfinite(value);
+            }
+        );
+}
+
+} // namespace
+
+MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
+    const EngineModel& model,
+    const MetalArticulatedOperatorInput& input,
+    MetalArticulatedOperatorResult& result,
+    const MetalArticulatedOperatorConfig& config
+) {
+    RequiredBuffers requirements{};
+    MetalArticulatedOperatorDiagnostics diagnostics{};
+    try {
+        diagnostics = validateAndBuildLayout(
+            model,
+            input,
+            config,
+            requirements
+        );
+        if (!diagnostics.succeeded()) {
+            return diagnostics;
+        }
+
+        const MetalArticulatedOperatorLayout layout =
+            diagnostics.layout;
+
+        MetalArticulatedOperatorResult staged{};
+        MRJointDescriptorGPU emptyJoint{};
+        MRArticulatedPointImpulseGPU emptyPoint{};
+
+        @autoreleasepool {
+            std::string metallibPath = config.metallibPath;
+            if (metallibPath.empty()) {
+                metallibPath = defaultMetallibPath();
+            }
+            if (metallibPath.empty()) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metallibUnavailable,
+                    "no articulated-operator metallib path is available"
+                );
+            }
+
+            id<MTLDevice> device =
+                MTLCreateSystemDefaultDevice();
+            if (device == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalDeviceUnavailable,
+                    "no Metal-capable device is available"
+                );
+            }
+            diagnostics.deviceName = nsString(device.name);
+            if (!device.hasUnifiedMemory) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalDeviceUnsupported,
+                    "articulated operator requires unified-memory Metal"
+                );
+            }
+            for (const BufferRequirement& requirement :
+                 requirements.entries) {
+                if (requirement.allocationBytes >
+                    device.maxBufferLength) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::
+                            metalBufferFailure,
+                        std::string(requirement.label) +
+                            " exceeds device.maxBufferLength"
+                    );
+                }
+            }
+            const std::uint64_t recommendedWorkingSet =
+                device.recommendedMaxWorkingSetSize;
+            if (recommendedWorkingSet != 0u &&
+                static_cast<std::uint64_t>(
+                    layout.totalAllocatedBytes
+                ) > recommendedWorkingSet) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalBufferFailure,
+                    "aggregate articulated buffers exceed "
+                    "device.recommendedMaxWorkingSetSize"
+                );
+            }
+
+            id<MTLCommandQueue> queue =
+                [device newCommandQueue];
+            if (queue == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalDeviceUnavailable,
+                    "failed to create a Metal command queue"
+                );
+            }
+            queue.label =
+                @"MetalRobo articulated operator queue";
+
+            NSString* path = [NSString
+                stringWithUTF8String:metallibPath.c_str()];
+            if (path == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metallibUnavailable,
+                    "metallib path is not valid UTF-8"
+                );
+            }
+            NSError* error = nil;
+            id<MTLLibrary> library = [device
+                newLibraryWithURL:[NSURL fileURLWithPath:path]
+                            error:&error];
+            if (library == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalLibraryFailure,
+                    "failed to load metallib: " +
+                        describeError(error)
+                );
+            }
+            id<MTLFunction> function = [library
+                newFunctionWithName:@"mr_articulated_operator"];
+            if (function == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalLibraryFailure,
+                    "metallib does not contain the articulated operator"
+                );
+            }
+            error = nil;
+            id<MTLComputePipelineState> pipeline = [device
+                newComputePipelineStateWithFunction:function
+                                               error:&error];
+            if (pipeline == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalPipelineFailure,
+                    "failed to create articulated pipeline: " +
+                        describeError(error)
+                );
+            }
+            if (pipeline.maxTotalThreadsPerThreadgroup < 1u ||
+                pipeline.staticThreadgroupMemoryLength >
+                    device.maxThreadgroupMemoryLength) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalDeviceUnsupported,
+                    "device cannot execute the articulated threadgroup"
+                );
+            }
+
+            id<MTLBuffer> buffers[kRawBufferCount] = {};
+            buffers[0] = makeInputBuffer(
+                device,
+                &model.world,
+                requirements.entries[0],
+                @"articulated world"
+            );
+            buffers[1] = makeInputBuffer(
+                device,
+                model.articulations.data(),
+                requirements.entries[1],
+                @"articulation descriptors"
+            );
+            buffers[2] = makeInputBuffer(
+                device,
+                model.joints.empty()
+                    ? static_cast<const void*>(&emptyJoint)
+                    : static_cast<const void*>(
+                          model.joints.data()
+                      ),
+                requirements.entries[2],
+                @"joint descriptors"
+            );
+            buffers[3] = makeInputBuffer(
+                device,
+                model.dofs.data(),
+                requirements.entries[3],
+                @"DoF properties"
+            );
+            buffers[4] = makeInputBuffer(
+                device,
+                model.bodies.data(),
+                requirements.entries[4],
+                @"body properties"
+            );
+            buffers[5] = makeInputBuffer(
+                device,
+                &layout.dispatch,
+                requirements.entries[5],
+                @"articulated dispatch"
+            );
+            buffers[6] = makeInputBuffer(
+                device,
+                input.q.data(),
+                requirements.entries[6],
+                @"articulated q"
+            );
+            buffers[7] = makeInputBuffer(
+                device,
+                input.points.empty()
+                    ? static_cast<const void*>(&emptyPoint)
+                    : static_cast<const void*>(input.points.data()),
+                requirements.entries[7],
+                @"point impulses"
+            );
+            buffers[8] = makeOutputBuffer(
+                device,
+                requirements.entries[8],
+                @"body pose output"
+            );
+            buffers[9] = makeOutputBuffer(
+                device,
+                requirements.entries[9],
+                @"point world output"
+            );
+            buffers[10] = makeOutputBuffer(
+                device,
+                requirements.entries[10],
+                @"diagnostic mass output"
+            );
+            buffers[11] = makeOutputBuffer(
+                device,
+                requirements.entries[11],
+                @"point Jacobian output"
+            );
+            buffers[12] = makeOutputBuffer(
+                device,
+                requirements.entries[12],
+                @"generalized impulse output"
+            );
+            buffers[13] = makeOutputBuffer(
+                device,
+                requirements.entries[13],
+                @"delta velocity output"
+            );
+            buffers[14] = makeOutputBuffer(
+                device,
+                requirements.entries[14],
+                @"articulated status output"
+            );
+
+            for (std::size_t index = 0u;
+                 index < kRawBufferCount;
+                 ++index) {
+                if (!validBuffer(
+                        buffers[index],
+                        requirements.entries[index]
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::
+                            metalBufferFailure,
+                        std::string("Metal buffer allocation/length "
+                                    "check failed for ") +
+                            requirements.entries[index].label
+                    );
+                }
+            }
+
+            id<MTLCommandBuffer> commandBuffer =
+                [queue commandBuffer];
+            if (commandBuffer == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalCommandFailure,
+                    "failed to create Metal command buffer"
+                );
+            }
+            commandBuffer.label =
+                @"MetalRobo articulated operator";
+            id<MTLComputeCommandEncoder> encoder =
+                [commandBuffer computeCommandEncoder];
+            if (encoder == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalCommandFailure,
+                    "failed to create Metal compute encoder"
+                );
+            }
+            [encoder setComputePipelineState:pipeline];
+            for (NSUInteger index = 0u;
+                 index < kRawBufferCount;
+                 ++index) {
+                [encoder
+                    setBuffer:buffers[index]
+                       offset:0u
+                      atIndex:index];
+            }
+            [encoder
+                dispatchThreadgroups:MTLSizeMake(
+                    static_cast<NSUInteger>(
+                        input.environmentCount
+                    ),
+                    1u,
+                    1u
+                )
+                threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+            [encoder endEncoding];
+
+            const auto start =
+                std::chrono::steady_clock::now();
+            diagnostics.dispatched = true;
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            const auto end =
+                std::chrono::steady_clock::now();
+            diagnostics.elapsedMilliseconds =
+                std::chrono::duration<double, std::milli>(
+                    end - start
+                ).count();
+            if (commandBuffer.status !=
+                MTLCommandBufferStatusCompleted) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        metalCommandFailure,
+                    "Metal articulated command failed: " +
+                        describeError(commandBuffer.error)
+                );
+            }
+
+            // Allocate the host-side transactional snapshot only after the
+            // device has accepted every individual and aggregate buffer and
+            // the command has completed. Until this point result is untouched.
+            staged.layout = layout;
+            staged.bodyPoses.resize(layout.bodyPoseElements);
+            staged.pointWorld.resize(layout.pointWorldElements);
+            staged.diagnosticMassMatrix.resize(
+                layout.massMatrixElements
+            );
+            staged.pointJacobians.resize(
+                layout.pointJacobianElements
+            );
+            staged.generalizedImpulse.resize(
+                layout.generalizedElements
+            );
+            staged.deltaVelocity.resize(
+                layout.generalizedElements
+            );
+            staged.statuses.resize(layout.statusElements);
+            copyOutput(staged.bodyPoses, buffers[8]);
+            copyOutput(staged.pointWorld, buffers[9]);
+            copyOutput(
+                staged.diagnosticMassMatrix,
+                buffers[10]
+            );
+            copyOutput(staged.pointJacobians, buffers[11]);
+            copyOutput(
+                staged.generalizedImpulse,
+                buffers[12]
+            );
+            copyOutput(staged.deltaVelocity, buffers[13]);
+            copyOutput(staged.statuses, buffers[14]);
+        }
+
+        for (std::size_t environment = 0u;
+             environment < staged.statuses.size();
+             ++environment) {
+            const MRArticulatedOperatorStatusGPU& status =
+                staged.statuses[environment];
+            const MRArticulationGPU& articulation =
+                model.articulations[input.articulationIndex];
+            if (status.environment != environment ||
+                status.articulationIndex !=
+                    input.articulationIndex ||
+                status.code >
+                    MR_ARTICULATED_OPERATOR_ACCURACY_FAILED) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::
+                        internalFailure,
+                    "GPU returned a malformed articulated status record"
+                );
+            }
+            if (status.code ==
+                MR_ARTICULATED_OPERATOR_SUCCESS) {
+                if (status.bodyCount !=
+                        articulation.bodyCount ||
+                    status.nq != articulation.nq ||
+                    status.nv != articulation.nv ||
+                    status.pointCount != input.pointCount ||
+                    !finite(status.diagnostics)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::
+                            internalFailure,
+                        "GPU success status has invalid dimensions or "
+                        "diagnostics"
+                    );
+                }
+                ++diagnostics.successfulEnvironmentCount;
+            } else {
+                if (diagnostics.failedEnvironmentCount == 0u) {
+                    diagnostics.firstFailingEnvironment =
+                        static_cast<std::uint32_t>(environment);
+                    diagnostics.firstGPUStatusCode = status.code;
+                }
+                ++diagnostics.failedEnvironmentCount;
+            }
+        }
+        if (!finitePayload(staged)) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::
+                    internalFailure,
+                "GPU batch contained non-finite typed payload"
+            );
+        }
+
+        result = std::move(staged);
+        diagnostics.published = true;
+        if (diagnostics.failedEnvironmentCount != 0u) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::
+                    gpuEnvironmentFailure,
+                "one or more GPU environments rejected execution"
+            );
+        }
+        diagnostics.status =
+            MetalArticulatedOperatorHostStatus::success;
+        diagnostics.message.clear();
+        return diagnostics;
+    } catch (const std::bad_alloc&) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalBufferFailure,
+            "host allocation failed while staging Metal buffers"
+        );
+    } catch (const std::exception& exception) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::internalFailure,
+            exception.what()
+        );
+    }
+}
+
+const char* metalArticulatedOperatorHostStatusName(
+    const MetalArticulatedOperatorHostStatus status
+) noexcept {
+    switch (status) {
+    case MetalArticulatedOperatorHostStatus::success:
+        return "success";
+    case MetalArticulatedOperatorHostStatus::invalidModel:
+        return "invalid_model";
+    case MetalArticulatedOperatorHostStatus::unsupportedTopology:
+        return "unsupported_topology";
+    case MetalArticulatedOperatorHostStatus::invalidDimensions:
+        return "invalid_dimensions";
+    case MetalArticulatedOperatorHostStatus::capacityOverflow:
+        return "capacity_overflow";
+    case MetalArticulatedOperatorHostStatus::arithmeticOverflow:
+        return "arithmetic_overflow";
+    case MetalArticulatedOperatorHostStatus::nonfiniteInput:
+        return "nonfinite_input";
+    case MetalArticulatedOperatorHostStatus::invalidPointQuery:
+        return "invalid_point_query";
+    case MetalArticulatedOperatorHostStatus::metallibUnavailable:
+        return "metallib_unavailable";
+    case MetalArticulatedOperatorHostStatus::metalDeviceUnavailable:
+        return "metal_device_unavailable";
+    case MetalArticulatedOperatorHostStatus::metalDeviceUnsupported:
+        return "metal_device_unsupported";
+    case MetalArticulatedOperatorHostStatus::metalLibraryFailure:
+        return "metal_library_failure";
+    case MetalArticulatedOperatorHostStatus::metalPipelineFailure:
+        return "metal_pipeline_failure";
+    case MetalArticulatedOperatorHostStatus::metalBufferFailure:
+        return "metal_buffer_failure";
+    case MetalArticulatedOperatorHostStatus::metalCommandFailure:
+        return "metal_command_failure";
+    case MetalArticulatedOperatorHostStatus::gpuEnvironmentFailure:
+        return "gpu_environment_failure";
+    case MetalArticulatedOperatorHostStatus::internalFailure:
+        return "internal_failure";
+    }
+    return "unknown";
+}
+
+} // namespace metalrobo

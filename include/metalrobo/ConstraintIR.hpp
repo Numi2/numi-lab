@@ -222,6 +222,10 @@ struct ConstraintIREvaluationConfig {
     // The evaluator clamps tau to at least this multiple of the local step.
     double minimumTimeConstantRatio = 2.0;
     double stictionTransitionVelocity = 1.0e-3;
+    // Consumer-independent diagonal floor applied after compliance/h^2 and
+    // dissipation/h are evaluated. Set this once at the semantic boundary so
+    // quality and throughput solvers cannot invent different regularization.
+    double minimumRegularization = 0.0;
 };
 
 struct ConstraintIREvaluationInput {
@@ -334,9 +338,39 @@ struct ConstraintIREvaluationView {
     ConstraintIRConsumer consumer
 ) noexcept;
 
+// Validates the complete evaluated stream, including canonical packing,
+// contact frames, warm-start feasibility, and the semantic fingerprint.
+// Solvers and adapters should call this at trust boundaries rather than
+// independently reinterpreting individual records.
+[[nodiscard]] ConstraintIRDiagnostics
+validateConstraintIREvaluationView(
+    const ConstraintIREvaluationView& view
+);
+
 [[nodiscard]] std::uint64_t fingerprintConstraintSemantics(
     const EvaluatedConstraintIR& evaluated
 ) noexcept;
+
+struct ConstraintIRVelocityResult {
+    ConstraintIRDiagnostics diagnostics{};
+    // J*v in IR row order.
+    std::vector<float> relativeVelocities;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return diagnostics.succeeded();
+    }
+};
+
+// Computes contact J*v directly from canonical MRBodyStateGPU records for IR
+// whose endpoints are world-point Jacobians. Linear rows use
+// dot(direction, v_B(point_B) - v_A(point_A)); a fourth contact row uses the
+// relative angular velocity for torsion. Other constraint/Jacobian kinds are
+// rejected explicitly. The result is transactional.
+[[nodiscard]] ConstraintIRVelocityResult
+computeConstraintIRWorldPointVelocities(
+    const ConstraintIR& ir,
+    std::span<const MRBodyStateGPU> bodyStates
+);
 
 struct ConstraintIRResidualConfig {
     // Natural-map step in the scaled constraint metric. Residuals are divided
@@ -393,6 +427,8 @@ struct ConstraintIRV1AdapterConfig {
 struct ConstraintIRV1AdapterResult {
     ConstraintIRDiagnostics diagnostics{};
     ConstraintIR ir;
+    // Maps canonical block order back to the input v1 contact span.
+    std::vector<std::uint32_t> sourceConstraintIndices;
     // Packed in row order. Tangential entries equal their authored surface
     // targets because v1 does not retain pre-solve tangential body velocity.
     std::vector<float> preSolveVelocities;

@@ -482,6 +482,68 @@ ArticulatedDynamicsStatus validateConfig(
     return ArticulatedDynamicsStatus::success;
 }
 
+constexpr mr_u32 kKnownArticulatedDofFlags =
+    MR_DOF_FLAG_ROOT |
+    MR_DOF_FLAG_ACTUATED |
+    MR_DOF_FLAG_POSITION_LIMIT |
+    MR_DOF_FLAG_VELOCITY_LIMIT |
+    MR_DOF_FLAG_EFFORT_LIMIT |
+    MR_DOF_FLAG_DRIVE;
+
+bool zeroDofVector(const mr_float4 value) {
+    return value.x == 0.0f && value.y == 0.0f &&
+        value.z == 0.0f && value.w == 0.0f;
+}
+
+bool validDofDynamicsParameters(
+    const MRDofPropertiesGPU& dof,
+    const bool root,
+    const mr_u32 jointType
+) {
+    if (!finite(dof.limits) || !finite(dof.drive) ||
+        dof.reserved0 != 0u || dof.reserved1 != 0u ||
+        (dof.flags & ~kKnownArticulatedDofFlags) != 0u ||
+        dof.drive.x < 0.0f || dof.drive.y < 0.0f ||
+        dof.drive.z < 0.0f || dof.drive.w < 0.0f) {
+        return false;
+    }
+    if (root) {
+        return dof.flags == MR_DOF_FLAG_ROOT &&
+            zeroDofVector(dof.limits) &&
+            zeroDofVector(dof.drive);
+    }
+    if ((dof.flags & MR_DOF_FLAG_ROOT) != 0u) {
+        return false;
+    }
+    const bool actuated =
+        (dof.flags & MR_DOF_FLAG_ACTUATED) != 0u;
+    const bool positionLimited =
+        (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u;
+    const bool velocityLimited =
+        (dof.flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u;
+    const bool effortLimited =
+        (dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u;
+    const bool driven =
+        (dof.flags & MR_DOF_FLAG_DRIVE) != 0u;
+    return
+        (actuated || (!effortLimited && !driven)) &&
+        (!driven || actuated) &&
+        (driven ||
+         (dof.drive.x == 0.0f && dof.drive.y == 0.0f)) &&
+        (!positionLimited ||
+         (dof.qIndex != MR_INVALID_INDEX &&
+          jointType != MR_JOINT_CONTINUOUS &&
+          dof.limits.x <= dof.limits.y)) &&
+        (positionLimited ||
+         (dof.limits.x == 0.0f && dof.limits.y == 0.0f)) &&
+        (velocityLimited
+             ? dof.limits.z > 0.0f
+             : dof.limits.z == 0.0f) &&
+        (effortLimited
+             ? dof.limits.w > 0.0f
+             : dof.limits.w == 0.0f);
+}
+
 ArticulatedDynamicsStatus buildTopology(
     const EngineModel& model,
     const std::uint32_t articulationIndex,
@@ -507,6 +569,9 @@ ArticulatedDynamicsStatus buildTopology(
         articulation.firstJoint > model.joints.size() ||
         articulation.jointCount >
             model.joints.size() - articulation.firstJoint ||
+        articulation.vOffset > model.dofs.size() ||
+        articulation.nv >
+            model.dofs.size() - articulation.vOffset ||
         articulation.rootBody < articulation.firstBody ||
         articulation.rootBody >=
             articulation.firstBody + articulation.bodyCount ||
@@ -525,6 +590,30 @@ ArticulatedDynamicsStatus buildTopology(
     std::vector<std::uint8_t> childOwned(articulation.bodyCount, 0u);
     std::uint32_t expectedNq = topology.rootQCount;
     std::uint32_t expectedNv = topology.rootVCount;
+
+    for (std::uint32_t localDof = 0u;
+         localDof < topology.rootVCount;
+         ++localDof) {
+        const mr_u32 globalV =
+            articulation.vOffset + localDof;
+        const mr_u32 expectedQ =
+            localDof < 3u
+                ? articulation.qOffset + localDof
+                : MR_INVALID_INDEX;
+        const MRDofPropertiesGPU& dof = model.dofs[globalV];
+        if (dof.articulationIndex != articulationIndex ||
+            dof.jointIndex != MR_INVALID_INDEX ||
+            dof.qIndex != expectedQ ||
+            dof.vIndex != globalV ||
+            dof.localDof != localDof ||
+            !validDofDynamicsParameters(
+                dof,
+                true,
+                MR_JOINT_FREE
+            )) {
+            return ArticulatedDynamicsStatus::invalidModel;
+        }
+    }
 
     for (std::uint32_t localJoint = 0u;
          localJoint < articulation.jointCount;
@@ -554,6 +643,10 @@ ArticulatedDynamicsStatus buildTopology(
         }
         if (joint.nq != expectedJointNq ||
             joint.nv != expectedJointNv ||
+            expectedNq > articulation.nq ||
+            expectedJointNq > articulation.nq - expectedNq ||
+            expectedNv > articulation.nv ||
+            expectedJointNv > articulation.nv - expectedNv ||
             joint.qOffset != articulation.qOffset + expectedNq ||
             joint.vOffset != articulation.vOffset + expectedNv ||
             !finite(joint.parentAnchor) ||
@@ -565,6 +658,20 @@ ArticulatedDynamicsStatus buildTopology(
         if (expectedJointNv == 1u) {
             const Vec3 axis = xyz(joint.axis0);
             if (!finite(axis) || !(norm(axis) > 1.0e-12)) {
+                return ArticulatedDynamicsStatus::invalidModel;
+            }
+            const MRDofPropertiesGPU& dof =
+                model.dofs[joint.vOffset];
+            if (dof.articulationIndex != articulationIndex ||
+                dof.jointIndex != globalJoint ||
+                dof.qIndex != joint.qOffset ||
+                dof.vIndex != joint.vOffset ||
+                dof.localDof != 0u ||
+                !validDofDynamicsParameters(
+                    dof,
+                    false,
+                    joint.jointType
+                )) {
                 return ArticulatedDynamicsStatus::invalidModel;
             }
         }
@@ -1533,6 +1640,18 @@ ArticulatedDynamicsDiagnostics assembleMassMatrix(
             }
         }
     }
+    // Rotor/armature inertia is generalized-coordinate inertia. It belongs
+    // directly on M's diagonal, so every downstream factor solve (forward
+    // dynamics, contact effective mass, and impulse response) observes the
+    // same physical operator.
+    for (std::size_t localDof = 0u;
+         localDof < dofCount;
+         ++localDof) {
+        const MRDofPropertiesGPU& dof =
+            model.dofs[articulation.vOffset + localDof];
+        massMatrix[localDof * dofCount + localDof] +=
+            static_cast<double>(dof.drive.z);
+    }
     if (!finiteSpan(massMatrix)) {
         diagnostics.status =
             ArticulatedDynamicsStatus::nonfiniteResult;
@@ -1653,6 +1772,19 @@ ArticulatedDynamicsDiagnostics inverseDynamicsInternal(
             generalizedForce[dof] +=
                 spatialDot(jacobian[dof], requiredWrench);
         }
+    }
+    const MRArticulationGPU& articulation =
+        *topology.articulation;
+    for (std::size_t localDof = 0u;
+         localDof < generalizedForce.size();
+         ++localDof) {
+        generalizedForce[localDof] +=
+            static_cast<double>(
+                model.dofs[
+                    articulation.vOffset + localDof
+                ].drive.z
+            ) *
+            generalizedAcceleration[localDof];
     }
     if (!finiteSpan(generalizedForce)) {
         diagnostics.status =
@@ -2485,6 +2617,79 @@ ArticulatedDynamicsDiagnostics integrateArticulatedState(
     return diagnostics;
 }
 
+ArticulatedDynamicsDiagnostics integrateArticulatedConfiguration(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const std::span<double> q,
+    const std::span<const double> velocity,
+    const ArticulatedDynamicsConfig& config
+) {
+    Topology topology;
+    ArticulatedDynamicsDiagnostics diagnostics = preflight(
+        model,
+        articulationIndex,
+        q,
+        velocity,
+        {},
+        {},
+        config,
+        topology
+    );
+    if (!diagnostics.succeeded()) {
+        return diagnostics;
+    }
+
+    std::vector<double> candidate;
+    const ArticulatedDynamicsStatus integrationStatus =
+        integrateConfiguration(
+            model,
+            topology,
+            q,
+            velocity,
+            config.timestep,
+            candidate
+        );
+    if (integrationStatus != ArticulatedDynamicsStatus::success) {
+        diagnostics.status = integrationStatus;
+        return diagnostics;
+    }
+
+    double quaternionNormError = 0.0;
+    const ArticulatedDynamicsStatus stateStatus = validateState(
+        model,
+        topology,
+        candidate,
+        velocity,
+        {},
+        {},
+        config,
+        quaternionNormError
+    );
+    if (stateStatus != ArticulatedDynamicsStatus::success) {
+        diagnostics.status = stateStatus;
+        return diagnostics;
+    }
+    std::vector<BodyKinematics> kinematics;
+    const ArticulatedDynamicsStatus kinematicsStatus =
+        buildKinematics(
+            model,
+            topology,
+            candidate,
+            velocity,
+            {},
+            config.enforceBodySpeedLimits,
+            kinematics
+        );
+    if (kinematicsStatus != ArticulatedDynamicsStatus::success) {
+        diagnostics.status = kinematicsStatus;
+        return diagnostics;
+    }
+
+    diagnostics.quaternionNormError = quaternionNormError;
+    std::ranges::copy(candidate, q.begin());
+    return diagnostics;
+}
+
 ArticulatedDynamicsDiagnostics computeArticulatedInvariants(
     const EngineModel& model,
     const std::uint32_t articulationIndex,
@@ -2563,6 +2768,17 @@ ArticulatedDynamicsDiagnostics computeArticulatedInvariants(
             dot(gravity, bodyKinematics.centerOfMassPosition);
         linearMomentum += bodyLinearMomentum;
         angularMomentum += bodyAngularMomentum;
+    }
+    const MRArticulationGPU& articulation =
+        *topology.articulation;
+    for (std::size_t localDof = 0u;
+         localDof < v.size();
+         ++localDof) {
+        const double armature = model.dofs[
+            articulation.vOffset + localDof
+        ].drive.z;
+        result.kineticEnergy +=
+            0.5 * armature * v[localDof] * v[localDof];
     }
     result.totalEnergy =
         result.kineticEnergy + result.potentialEnergy;

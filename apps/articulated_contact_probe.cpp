@@ -31,6 +31,32 @@ mr_float4 f4(
     };
 }
 
+MRDofPropertiesGPU rootDof(const std::uint32_t localDof) {
+    MRDofPropertiesGPU result{};
+    result.articulationIndex = 0u;
+    result.jointIndex = MR_INVALID_INDEX;
+    result.qIndex = localDof < 3u
+        ? localDof
+        : MR_INVALID_INDEX;
+    result.vIndex = localDof;
+    result.localDof = localDof;
+    result.flags = MR_DOF_FLAG_ROOT;
+    return result;
+}
+
+MRDofPropertiesGPU passiveJointDof(
+    const std::uint32_t jointIndex,
+    const std::uint32_t qIndex,
+    const std::uint32_t vIndex
+) {
+    MRDofPropertiesGPU result{};
+    result.articulationIndex = 0u;
+    result.jointIndex = jointIndex;
+    result.qIndex = qIndex;
+    result.vIndex = vIndex;
+    return result;
+}
+
 MRBodyPropertiesGPU body(
     const std::uint32_t parent,
     const std::uint32_t inboundJoint,
@@ -72,6 +98,11 @@ metalrobo::EngineModel makeFreeBodyModel() {
     articulation.vOffset = 0u;
     articulation.nv = 6u;
     model.articulations.push_back(articulation);
+    for (std::uint32_t localDof = 0u;
+         localDof < 6u;
+         ++localDof) {
+        model.dofs.push_back(rootDof(localDof));
+    }
     model.bodies.push_back(body(
         MR_INVALID_INDEX,
         MR_INVALID_INDEX,
@@ -132,6 +163,7 @@ metalrobo::EngineModel makePendulumModel(
     joint.parentRotation = f4(0.0, 0.0, 0.0, 1.0);
     joint.childRotation = f4(0.0, 0.0, 0.0, 1.0);
     model.joints.push_back(joint);
+    model.dofs.push_back(passiveJointDof(0u, 0u, 0u));
     model.defaultQ = {0.0f};
     model.defaultV = {0.0f};
     return model;
@@ -308,6 +340,7 @@ int main() {
             freePointKinematics.position;
         freeContact.normal = {0.0, 0.0, -1.0};
         freeContact.tangentU = {1.0, 0.0, 0.0};
+        freeContact.tangentV = {0.0, -1.0, 0.0};
         freeContact.regularization = {
             1.0e-12,
             1.0e-12,
@@ -324,7 +357,8 @@ int main() {
                 freeV,
                 std::span(&freeContact, 1u),
                 freeProblem,
-                config
+                config,
+                true
             );
         require(
             contactDiagnostics.succeeded() &&
@@ -339,6 +373,44 @@ int main() {
                 freeProblem.conic.contacts[0].warmImpulse ==
                     freeContact.warmImpulse,
             "free-body contact construction failed"
+        );
+
+        // A validated evaluated-IR frame may carry small FP32 norm error.
+        // The generalized adapter must preserve those fingerprinted
+        // coordinates verbatim instead of silently re-orthonormalizing them.
+        metalrobo::ArticulatedContact fingerprintedFrameContact =
+            freeContact;
+        constexpr double frameScale = 1.0001;
+        fingerprintedFrameContact.normal =
+            {0.0, 0.0, -frameScale};
+        fingerprintedFrameContact.tangentV =
+            {0.0, -frameScale, 0.0};
+        metalrobo::ArticulatedContactProblem fingerprintedFrameProblem;
+        contactDiagnostics =
+            metalrobo::buildArticulatedContactProblem(
+                freeModel,
+                0u,
+                freeQ,
+                freeV,
+                std::span(&fingerprintedFrameContact, 1u),
+                fingerprintedFrameProblem,
+                config
+            );
+        require(
+            contactDiagnostics.succeeded() &&
+                std::abs(
+                    fingerprintedFrameProblem.contactJacobian[2] -
+                    frameScale * freeProblem.contactJacobian[2]
+                ) < 2.0e-15 &&
+                std::abs(
+                    fingerprintedFrameProblem.contactJacobian[
+                        2u * freeModel.articulations[0].nv + 1u
+                    ] -
+                    frameScale * freeProblem.contactJacobian[
+                        2u * freeModel.articulations[0].nv + 1u
+                    ]
+                ) < 2.0e-15,
+            "fingerprinted contact frame was reinterpreted"
         );
 
         const std::array<std::array<double, 3>, 3> frame{{
@@ -486,6 +558,11 @@ int main() {
             0.0,
         };
         pendulumContact.tangentU = {0.0, 0.0, 1.0};
+        pendulumContact.tangentV = {
+            std::cos(pendulumAngle),
+            std::sin(pendulumAngle),
+            0.0,
+        };
         pendulumContact.regularization = {
             1.0e-12,
             1.0e-12,
@@ -500,7 +577,8 @@ int main() {
                 pendulumV,
                 std::span(&pendulumContact, 1u),
                 pendulumProblem,
-                config
+                config,
+                true
             );
         require(
             contactDiagnostics.succeeded(),
@@ -522,6 +600,78 @@ int main() {
                 std::abs(pendulumProblem.delassus[4]) < 1.0e-15 &&
                 std::abs(pendulumProblem.delassus[8]) < 1.0e-15,
             "pendulum analytic Delassus failed"
+        );
+
+        // Armature must propagate through the retained mass factor into both
+        // Delassus and the matrix-free impulse response.
+        metalrobo::EngineModel armoredPendulum = pendulum;
+        armoredPendulum.dofs[0].drive.z = 0.37f;
+        metalrobo::ArticulatedContactProblem armoredPendulumProblem;
+        contactDiagnostics =
+            metalrobo::buildArticulatedContactProblem(
+                armoredPendulum,
+                0u,
+                pendulumQ,
+                pendulumV,
+                std::span(&pendulumContact, 1u),
+                armoredPendulumProblem,
+                config,
+                true
+            );
+        require(
+            contactDiagnostics.succeeded(),
+            "armature contact construction failed"
+        );
+        const double armature =
+            armoredPendulum.dofs[0].drive.z;
+        const double barePendulumInertia =
+            pendulumInertia +
+            pendulumMass *
+                pendulumLength * pendulumLength;
+        const double expectedArmoredDelassus =
+            pendulumLength * pendulumLength /
+            (barePendulumInertia + armature);
+        const double armatureDelassusError = std::abs(
+            armoredPendulumProblem.delassus[0] -
+            expectedArmoredDelassus
+        );
+        const std::array<double, 3> normalImpulse{1.0, 0.0, 0.0};
+        std::array<double, 1> barePendulumVelocityDelta{};
+        std::array<double, 1> armoredPendulumVelocityDelta{};
+        std::array<double, 3> barePendulumContactDelta{};
+        std::array<double, 3> armoredPendulumContactDelta{};
+        const auto bareImpulseDiagnostics =
+            metalrobo::computeArticulatedContactImpulseResponse(
+                pendulumProblem,
+                normalImpulse,
+                barePendulumVelocityDelta,
+                barePendulumContactDelta
+            );
+        const auto armoredImpulseDiagnostics =
+            metalrobo::computeArticulatedContactImpulseResponse(
+                armoredPendulumProblem,
+                normalImpulse,
+                armoredPendulumVelocityDelta,
+                armoredPendulumContactDelta
+            );
+        const double armatureImpulseRatio =
+            armoredPendulumVelocityDelta[0] /
+            barePendulumVelocityDelta[0];
+        const double expectedArmatureImpulseRatio =
+            barePendulumInertia /
+            (barePendulumInertia + armature);
+        const double armatureImpulseRatioError = std::abs(
+            armatureImpulseRatio -
+            expectedArmatureImpulseRatio
+        );
+        require(
+            bareImpulseDiagnostics.succeeded() &&
+                armoredImpulseDiagnostics.succeeded() &&
+                armatureDelassusError < 2.0e-8 &&
+                armatureImpulseRatioError < 2.0e-8 &&
+                armoredPendulumProblem.delassus[0] <
+                    pendulumProblem.delassus[0],
+            "armature did not change contact effective mass consistently"
         );
 
         // Actual pinned G1: prove body-pose/point consistency, floating-base
@@ -735,6 +885,7 @@ int main() {
                 footKinematics[foot].position;
             footContacts[foot].normal = {0.0, 0.0, -1.0};
             footContacts[foot].tangentU = {1.0, 0.0, 0.0};
+            footContacts[foot].tangentV = {0.0, -1.0, 0.0};
             footContacts[foot].regularization = {
                 1.0e-8,
                 1.0e-8,
@@ -751,7 +902,8 @@ int main() {
                 g1FreeVelocity,
                 footContacts,
                 g1Problem,
-                config
+                config,
+                true
             );
         const auto g1BuildDiagnostics = contactDiagnostics;
         require(
@@ -946,6 +1098,10 @@ int main() {
             << pendulumJacobianError
             << " pendulum_delassus_error="
             << pendulumDelassusError
+            << " armature_delassus_error="
+            << armatureDelassusError
+            << " armature_impulse_ratio_error="
+            << armatureImpulseRatioError
             << " g1_pose_error=" << g1PoseError
             << " g1_jv_error=" << g1VelocityIdentityError
             << " g1_base_column_error=" << g1FloatingColumnError
@@ -962,6 +1118,7 @@ int main() {
             << g1SolverVelocityError
             << " g1_quality_kkt="
             << solution.scaledKktCertificate
+            << " frame_semantics=verbatim"
             << " transactionality=yes"
             << " status=ok\n";
         return 0;

@@ -77,4 +77,13 @@ struct QualityContactSolution {
     const QualityContactSolverConfig& config = {}
 );
 
+// Solves the identical exact-cone objective from a precomputed physical
+// Delassus operator. `solution.velocity` is the post-impulse contact velocity
+// J*v_next (not a generalized velocity); impulses and every certificate have
+// the same meaning as solveQualityContactProblem.
+[[nodiscard]] QualityContactSolution solveQualityContactSpaceProblem(
+    const ContactSpaceConicProblem& problem,
+    const QualityContactSolverConfig& config = {}
+);
+
 } // namespace metalrobo

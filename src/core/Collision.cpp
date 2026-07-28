@@ -443,6 +443,9 @@ struct WorldShape {
     Vec3 halfExtents{};
     Vec3 capsuleEndpoint0{};
     Vec3 capsuleEndpoint1{};
+    Vec3 cylinderAxis{};
+    Vec3 cylinderBasisX{};
+    Vec3 cylinderBasisZ{};
     Vec3 planeNormal{};
     double radius = 0.0;
     double halfLength = 0.0;
@@ -456,6 +459,7 @@ bool supportedShapeType(const std::uint32_t type) {
         type == MR_SHAPE_SPHERE ||
         type == MR_SHAPE_CAPSULE ||
         type == MR_SHAPE_BOX ||
+        type == MR_SHAPE_CYLINDER ||
         type == MR_SHAPE_PLANE;
 }
 
@@ -664,6 +668,54 @@ std::optional<WorldShape> makeWorldShape(
             };
         lower = result.center - extent;
         upper = result.center + extent;
+    } else if (shape.shapeType == MR_SHAPE_CYLINDER) {
+        result.radius = shape.dimensions.x;
+        result.halfLength = shape.dimensions.y;
+        if (result.radius <
+                static_cast<double>(MR_MIN_COLLISION_EXTENT) ||
+            result.halfLength <
+                static_cast<double>(MR_MIN_COLLISION_EXTENT)) {
+            return std::nullopt;
+        }
+
+        result.cylinderAxis = normalized(
+            rotate(result.rotation, {0.0, 1.0, 0.0})
+        );
+        Vec3 basisX =
+            rotate(result.rotation, {1.0, 0.0, 0.0});
+        basisX = basisX -
+            result.cylinderAxis *
+                dot(result.cylinderAxis, basisX);
+        result.cylinderBasisX = normalized(basisX);
+        result.cylinderBasisZ = normalized(
+            cross(result.cylinderBasisX, result.cylinderAxis)
+        );
+        if (lengthSquared(result.cylinderAxis) <= kTiny ||
+            lengthSquared(result.cylinderBasisX) <= kTiny ||
+            lengthSquared(result.cylinderBasisZ) <= kTiny) {
+            return std::nullopt;
+        }
+
+        const auto componentExtent =
+            [&](const double axisComponent) {
+                return
+                    std::abs(axisComponent) *
+                        result.halfLength +
+                    std::sqrt(std::max(
+                        0.0,
+                        1.0 -
+                            axisComponent * axisComponent
+                    )) *
+                        result.radius +
+                    result.contactOffset;
+            };
+        const Vec3 extent{
+            componentExtent(result.cylinderAxis.x),
+            componentExtent(result.cylinderAxis.y),
+            componentExtent(result.cylinderAxis.z),
+        };
+        lower = result.center - extent;
+        upper = result.center + extent;
     } else {
         result.planeNormal = normalized(
             rotate(result.rotation, {0.0, 1.0, 0.0})
@@ -711,6 +763,12 @@ std::optional<std::uint32_t> pairClass(
         (typeA == MR_SHAPE_PLANE &&
          typeB == MR_SHAPE_BOX)) {
         return collisionPairBoxPlane;
+    }
+    if ((typeA == MR_SHAPE_CYLINDER &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeA == MR_SHAPE_PLANE &&
+         typeB == MR_SHAPE_CYLINDER)) {
+        return collisionPairCylinderPlane;
     }
     return std::nullopt;
 }
@@ -1091,6 +1149,21 @@ ContactBatch generateContacts(
     const MRCandidatePairGPU& pair,
     std::span<const WorldShape> worldShapes
 ) {
+    // Cylinder support-feature classification is deliberately geometric,
+    // rather than based on the authored quaternion. A cap face contributes a
+    // four-point ring, a side face contributes its two cap-rim endpoints, and
+    // a general orientation has one extremal rim point. The tolerance only
+    // recognizes numerically exact face alignments; it is not a contact slop.
+    constexpr double cylinderAlignmentTolerance = 1.0e-6;
+    constexpr double cylinderAlignmentToleranceSquared =
+        cylinderAlignmentTolerance * cylinderAlignmentTolerance;
+    constexpr std::uint32_t cylinderNegativeCapRingBase = 0u;
+    constexpr std::uint32_t cylinderPositiveCapRingBase = 4u;
+    constexpr std::uint32_t cylinderNegativeSideRim = 8u;
+    constexpr std::uint32_t cylinderPositiveSideRim = 9u;
+    constexpr std::uint32_t cylinderNegativeGeneralRim = 10u;
+    constexpr std::uint32_t cylinderPositiveGeneralRim = 11u;
+
     ContactBatch result;
     const WorldShape& shapeA = worldShapes[pair.colliderA];
     const WorldShape& shapeB = worldShapes[pair.colliderB];
@@ -1167,6 +1240,181 @@ ContactBatch generateContacts(
                     featureKey(MR_SHAPE_CAPSULE, endpoint)
                 );
             }
+        }
+        return result;
+    }
+
+    if (pair.flags == collisionPairCylinderPlane) {
+        const Vec3 axis = finiteShape.cylinderAxis;
+        const double axialProjection =
+            dot(plane.planeNormal, axis);
+        // Project through the authored orthonormal disk basis. The
+        // algebraically equivalent `n - axis * dot(n, axis)` loses its
+        // second-order axial component when n and axis are nearly parallel.
+        // Basis coefficients retain the first-order tilt, guarantee that the
+        // witness lies in the represented disk plane, and avoid subtracting
+        // values near one.
+        const double radialX = dot(
+            plane.planeNormal,
+            finiteShape.cylinderBasisX
+        );
+        const double radialZ = dot(
+            plane.planeNormal,
+            finiteShape.cylinderBasisZ
+        );
+        const Vec3 radialProjection =
+            finiteShape.cylinderBasisX * radialX +
+            finiteShape.cylinderBasisZ * radialZ;
+        const double radialSquared =
+            std::max(0.0, radialX * radialX + radialZ * radialZ);
+
+        if (radialSquared <=
+            cylinderAlignmentToleranceSquared) {
+            const bool positiveCap = axialProjection < 0.0;
+            const Vec3 capCenter =
+                finiteShape.center +
+                axis *
+                    (positiveCap
+                        ? finiteShape.halfLength
+                        : -finiteShape.halfLength);
+            const std::array<Vec3, 4> directions{
+                finiteShape.cylinderBasisX,
+                -finiteShape.cylinderBasisX,
+                finiteShape.cylinderBasisZ,
+                -finiteShape.cylinderBasisZ,
+            };
+            const std::uint32_t featureBase =
+                positiveCap
+                ? cylinderPositiveCapRingBase
+                : cylinderNegativeCapRingBase;
+            for (std::uint32_t point = 0u;
+                 point < directions.size();
+                 ++point) {
+                const Vec3 surface =
+                    capCenter +
+                    directions[point] * finiteShape.radius;
+                const double separation = dot(
+                    plane.planeNormal,
+                    surface - plane.center
+                );
+                if (separation <= contactDistance) {
+                    appendFinitePlaneContact(
+                        result,
+                        pair,
+                        plane,
+                        surface,
+                        separation,
+                        featureKey(
+                            MR_SHAPE_CYLINDER,
+                            featureBase + point
+                        )
+                    );
+                }
+            }
+            // The four ring samples provide a stable cap manifold, but at a
+            // small nonzero tilt none of those authored axes is guaranteed to
+            // be the true support direction. Always add the exact extremal
+            // rim witness when the radial direction is numerically resolved;
+            // otherwise a shallow arbitrary-azimuth impact can be missed.
+            // `radialSquared` is a direction measure, not a length scale.
+            // Reusing the general geometry epsilon here creates a
+            // non-conservative angular band that can be amplified by a large
+            // (but valid) radius. Every resolved nonzero projection has an
+            // exact support direction.
+            if (radialSquared > 0.0) {
+                const Vec3 radialDirection =
+                    -radialProjection / std::sqrt(radialSquared);
+                const Vec3 surface =
+                    capCenter +
+                    radialDirection * finiteShape.radius;
+                const double separation = dot(
+                    plane.planeNormal,
+                    surface - plane.center
+                );
+                if (separation <= contactDistance) {
+                    appendFinitePlaneContact(
+                        result,
+                        pair,
+                        plane,
+                        surface,
+                        separation,
+                        featureKey(
+                            MR_SHAPE_CYLINDER,
+                            positiveCap
+                                ? cylinderPositiveGeneralRim
+                                : cylinderNegativeGeneralRim
+                        )
+                    );
+                }
+            }
+            return result;
+        }
+
+        const Vec3 radialDirection =
+            -radialProjection / std::sqrt(radialSquared);
+        if (std::abs(axialProjection) <=
+            cylinderAlignmentTolerance) {
+            const std::array<Vec3, 2> capCenters{
+                finiteShape.center -
+                    axis * finiteShape.halfLength,
+                finiteShape.center +
+                    axis * finiteShape.halfLength,
+            };
+            const std::array<std::uint32_t, 2> features{
+                cylinderNegativeSideRim,
+                cylinderPositiveSideRim,
+            };
+            for (std::uint32_t point = 0u;
+                 point < capCenters.size();
+                 ++point) {
+                const Vec3 surface =
+                    capCenters[point] +
+                    radialDirection * finiteShape.radius;
+                const double separation = dot(
+                    plane.planeNormal,
+                    surface - plane.center
+                );
+                if (separation <= contactDistance) {
+                    appendFinitePlaneContact(
+                        result,
+                        pair,
+                        plane,
+                        surface,
+                        separation,
+                        featureKey(
+                            MR_SHAPE_CYLINDER,
+                            features[point]
+                        )
+                    );
+                }
+            }
+            return result;
+        }
+
+        const bool positiveCap = axialProjection < 0.0;
+        const Vec3 surface =
+            finiteShape.center +
+            axis *
+                (positiveCap
+                    ? finiteShape.halfLength
+                    : -finiteShape.halfLength) +
+            radialDirection * finiteShape.radius;
+        const double separation =
+            dot(plane.planeNormal, surface - plane.center);
+        if (separation <= contactDistance) {
+            appendFinitePlaneContact(
+                result,
+                pair,
+                plane,
+                surface,
+                separation,
+                featureKey(
+                    MR_SHAPE_CYLINDER,
+                    positiveCap
+                        ? cylinderPositiveGeneralRim
+                        : cylinderNegativeGeneralRim
+                )
+            );
         }
         return result;
     }

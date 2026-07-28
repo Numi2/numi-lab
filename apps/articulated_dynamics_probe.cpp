@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -27,6 +28,32 @@ mr_float4 f4(
         static_cast<float>(z),
         static_cast<float>(w),
     };
+}
+
+MRDofPropertiesGPU rootDof(const std::uint32_t localDof) {
+    MRDofPropertiesGPU result{};
+    result.articulationIndex = 0u;
+    result.jointIndex = MR_INVALID_INDEX;
+    result.qIndex = localDof < 3u
+        ? localDof
+        : MR_INVALID_INDEX;
+    result.vIndex = localDof;
+    result.localDof = localDof;
+    result.flags = MR_DOF_FLAG_ROOT;
+    return result;
+}
+
+MRDofPropertiesGPU passiveJointDof(
+    const std::uint32_t jointIndex,
+    const std::uint32_t qIndex,
+    const std::uint32_t vIndex
+) {
+    MRDofPropertiesGPU result{};
+    result.articulationIndex = 0u;
+    result.jointIndex = jointIndex;
+    result.qIndex = qIndex;
+    result.vIndex = vIndex;
+    return result;
 }
 
 mr_float4 quaternionFromRpy(
@@ -93,6 +120,11 @@ metalrobo::EngineModel makeFreeBodyModel() {
     articulation.vOffset = 0u;
     articulation.nv = 6u;
     model.articulations.push_back(articulation);
+    for (std::uint32_t localDof = 0u;
+         localDof < 6u;
+         ++localDof) {
+        model.dofs.push_back(rootDof(localDof));
+    }
     model.bodies.push_back(body(
         MR_INVALID_INDEX,
         MR_INVALID_INDEX,
@@ -150,6 +182,7 @@ metalrobo::EngineModel makePendulumModel(const double length) {
     joint.parentRotation = f4(0.0, 0.0, 0.0, 1.0);
     joint.childRotation = f4(0.0, 0.0, 0.0, 1.0);
     model.joints.push_back(joint);
+    model.dofs.push_back(passiveJointDof(0u, 0u, 0u));
     model.defaultQ = {0.0f};
     model.defaultV = {0.0f};
     return model;
@@ -170,6 +203,11 @@ metalrobo::EngineModel makeFloatingChainModel() {
     articulation.vOffset = 0u;
     articulation.nv = 8u;
     model.articulations.push_back(articulation);
+    for (std::uint32_t localDof = 0u;
+         localDof < 6u;
+         ++localDof) {
+        model.dofs.push_back(rootDof(localDof));
+    }
     model.bodies.push_back(body(
         MR_INVALID_INDEX,
         MR_INVALID_INDEX,
@@ -206,6 +244,7 @@ metalrobo::EngineModel makeFloatingChainModel() {
     joint0.parentRotation = quaternionFromRpy(0.08, -0.12, 0.04);
     joint0.childRotation = quaternionFromRpy(-0.03, 0.06, 0.02);
     model.joints.push_back(joint0);
+    model.dofs.push_back(passiveJointDof(0u, 7u, 6u));
 
     MRJointDescriptorGPU joint1{};
     joint1.parentBody = 1u;
@@ -221,6 +260,7 @@ metalrobo::EngineModel makeFloatingChainModel() {
     joint1.parentRotation = quaternionFromRpy(-0.07, 0.02, 0.11);
     joint1.childRotation = quaternionFromRpy(0.04, -0.05, 0.03);
     model.joints.push_back(joint1);
+    model.dofs.push_back(passiveJointDof(1u, 8u, 7u));
     model.defaultQ = {
         0.1f, -0.2f, 0.4f,
         0.0f, 0.0f, 0.0f, 1.0f,
@@ -669,6 +709,219 @@ int main() {
             "G1 forward/inverse consistency exceeded tolerance"
         );
 
+        // Deterministic-random acceptance: armature must be the exact same
+        // generalized inertia in CRBA, RNEA, invariants, and every state.
+        metalrobo::EngineModel zeroArmatureG1 = g1;
+        for (MRDofPropertiesGPU& dof : zeroArmatureG1.dofs) {
+            dof.drive.z = 0.0f;
+        }
+        std::mt19937_64 armatureGenerator{0x4d4554414c524f42ull};
+        std::uniform_real_distribution<double> signedUnit(-1.0, 1.0);
+        std::uniform_real_distribution<double> positiveUnit(0.0, 1.0);
+        double armatureMassError = 0.0;
+        double armatureInverseError = 0.0;
+        double armatureEnergyError = 0.0;
+        constexpr std::size_t armatureSamples = 12u;
+        for (std::size_t sample = 0u;
+             sample < armatureSamples;
+             ++sample) {
+            metalrobo::EngineModel armedG1 = zeroArmatureG1;
+            for (std::size_t dof = 6u;
+                 dof < armedG1.dofs.size();
+                 ++dof) {
+                armedG1.dofs[dof].drive.z = static_cast<float>(
+                    0.001 + 0.249 * positiveUnit(armatureGenerator)
+                );
+            }
+
+            std::vector<double> sampleQ(
+                armedG1.defaultQ.begin(),
+                armedG1.defaultQ.end()
+            );
+            sampleQ[0] = 0.2 * signedUnit(armatureGenerator);
+            sampleQ[1] = 0.2 * signedUnit(armatureGenerator);
+            sampleQ[2] += 0.1 * signedUnit(armatureGenerator);
+            std::array<double, 4> rootQuaternion{
+                signedUnit(armatureGenerator),
+                signedUnit(armatureGenerator),
+                signedUnit(armatureGenerator),
+                signedUnit(armatureGenerator),
+            };
+            double quaternionMagnitude = 0.0;
+            for (const double value : rootQuaternion) {
+                quaternionMagnitude += value * value;
+            }
+            quaternionMagnitude = std::sqrt(quaternionMagnitude);
+            for (std::size_t axis = 0u; axis < 4u; ++axis) {
+                sampleQ[3u + axis] =
+                    rootQuaternion[axis] / quaternionMagnitude;
+            }
+            for (std::size_t dof = 6u;
+                 dof < armedG1.dofs.size();
+                 ++dof) {
+                const MRDofPropertiesGPU& properties =
+                    armedG1.dofs[dof];
+                const double midpoint =
+                    0.5 * (
+                        static_cast<double>(properties.limits.x) +
+                        properties.limits.y
+                    );
+                const double halfRange =
+                    0.5 * (
+                        static_cast<double>(properties.limits.y) -
+                        properties.limits.x
+                    );
+                sampleQ[properties.qIndex] =
+                    midpoint +
+                    0.7 * halfRange *
+                        signedUnit(armatureGenerator);
+            }
+            std::vector<double> sampleV(35u, 0.0);
+            std::vector<double> sampleAcceleration(35u, 0.0);
+            for (std::size_t dof = 0u; dof < 35u; ++dof) {
+                sampleV[dof] =
+                    1.7 * signedUnit(armatureGenerator);
+                sampleAcceleration[dof] =
+                    3.1 * signedUnit(armatureGenerator);
+            }
+
+            std::vector<double> massWithArmature(35u * 35u, 0.0);
+            std::vector<double> massWithoutArmature(35u * 35u, 0.0);
+            const auto massWithDiagnostics =
+                metalrobo::computeArticulatedMassMatrix(
+                    armedG1,
+                    0u,
+                    sampleQ,
+                    massWithArmature,
+                    g1Config
+                );
+            const auto massWithoutDiagnostics =
+                metalrobo::computeArticulatedMassMatrix(
+                    zeroArmatureG1,
+                    0u,
+                    sampleQ,
+                    massWithoutArmature,
+                    g1Config
+                );
+            require(
+                massWithDiagnostics.succeeded() &&
+                    massWithoutDiagnostics.succeeded(),
+                "randomized armature mass-matrix evaluation failed"
+            );
+            for (std::size_t row = 0u; row < 35u; ++row) {
+                for (std::size_t column = 0u;
+                     column < 35u;
+                     ++column) {
+                    const double expected =
+                        row == column
+                            ? static_cast<double>(
+                                  armedG1.dofs[row].drive.z
+                              )
+                            : 0.0;
+                    armatureMassError = std::max(
+                        armatureMassError,
+                        std::abs(
+                            massWithArmature[row * 35u + column] -
+                            massWithoutArmature[row * 35u + column] -
+                            expected
+                        )
+                    );
+                }
+            }
+
+            std::vector<double> tauWithArmature(35u, 0.0);
+            std::vector<double> tauWithoutArmature(35u, 0.0);
+            const auto inverseWithDiagnostics =
+                metalrobo::computeArticulatedInverseDynamics(
+                    armedG1,
+                    0u,
+                    sampleQ,
+                    sampleV,
+                    sampleAcceleration,
+                    {},
+                    tauWithArmature,
+                    g1Config
+                );
+            const auto inverseWithoutDiagnostics =
+                metalrobo::computeArticulatedInverseDynamics(
+                    zeroArmatureG1,
+                    0u,
+                    sampleQ,
+                    sampleV,
+                    sampleAcceleration,
+                    {},
+                    tauWithoutArmature,
+                    g1Config
+                );
+            require(
+                inverseWithDiagnostics.succeeded() &&
+                    inverseWithoutDiagnostics.succeeded(),
+                "randomized armature inverse-dynamics evaluation failed"
+            );
+            for (std::size_t dof = 0u; dof < 35u; ++dof) {
+                armatureInverseError = std::max(
+                    armatureInverseError,
+                    std::abs(
+                        tauWithArmature[dof] -
+                        tauWithoutArmature[dof] -
+                        static_cast<double>(
+                            armedG1.dofs[dof].drive.z
+                        ) *
+                        sampleAcceleration[dof]
+                    )
+                );
+            }
+
+            metalrobo::ArticulatedInvariants invariantsWithArmature;
+            metalrobo::ArticulatedInvariants invariantsWithoutArmature;
+            const auto energyWithDiagnostics =
+                metalrobo::computeArticulatedInvariants(
+                    armedG1,
+                    0u,
+                    sampleQ,
+                    sampleV,
+                    invariantsWithArmature,
+                    g1Config
+                );
+            const auto energyWithoutDiagnostics =
+                metalrobo::computeArticulatedInvariants(
+                    zeroArmatureG1,
+                    0u,
+                    sampleQ,
+                    sampleV,
+                    invariantsWithoutArmature,
+                    g1Config
+                );
+            require(
+                energyWithDiagnostics.succeeded() &&
+                    energyWithoutDiagnostics.succeeded(),
+                "randomized armature invariant evaluation failed"
+            );
+            double expectedEnergyDelta = 0.0;
+            for (std::size_t dof = 0u; dof < 35u; ++dof) {
+                expectedEnergyDelta +=
+                    0.5 *
+                    static_cast<double>(
+                        armedG1.dofs[dof].drive.z
+                    ) *
+                    sampleV[dof] * sampleV[dof];
+            }
+            armatureEnergyError = std::max(
+                armatureEnergyError,
+                std::abs(
+                    invariantsWithArmature.kineticEnergy -
+                    invariantsWithoutArmature.kineticEnergy -
+                    expectedEnergyDelta
+                )
+            );
+        }
+        require(
+            armatureMassError < 5.0e-13 &&
+                armatureInverseError < 5.0e-13 &&
+                armatureEnergyError < 5.0e-13,
+            "randomized armature operator identities exceeded tolerance"
+        );
+
         // Unforced floating-chain implicit midpoint conservation.
         std::vector<double> driftQ = chainQ;
         std::vector<double> driftV = chainV;
@@ -789,6 +1042,10 @@ int main() {
             << " g1_nq=" << g1.world.nq
             << " g1_nv=" << g1.world.nv
             << " g1_forward_inverse_error=" << g1ForwardInverseError
+            << " armature_mass_error=" << armatureMassError
+            << " armature_inverse_error=" << armatureInverseError
+            << " armature_energy_error=" << armatureEnergyError
+            << " armature_samples=" << armatureSamples
             << " energy_drift=" << relativeEnergyDrift
             << " linear_momentum_drift="
             << relativeLinearMomentumDrift

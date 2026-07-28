@@ -28,12 +28,19 @@ hard threshold. Accepted geometry is then promoted for the FP64 narrowphase.
 
 Every CPU reference path validates dimensions and finite inputs before
 publication. Capacity, factorization, convergence, and unsupported-feature
-failures have explicit status codes. The composed CPU collision/world paths
-are transactional: state and persistent caches remain unchanged when a step
-fails. The bounded Metal contact kernel backs up the dynamic velocities and
-contact records it can mutate, then restores them after an arithmetic failure.
+failures have explicit status codes. The composed CPU maximal-coordinate and
+one-articulation world paths are transactional: state and persistent caches
+remain unchanged when a step fails. The bounded Metal contact kernel backs up
+the dynamic velocities and contact records it can mutate, then restores them
+after an arithmetic failure.
 A fully composed production Metal world still requires versioned
 input/output buffers at the dispatch orchestration layer.
+The standalone generic articulated operator does have a checked synchronous
+host boundary: it derives compact strides, caps every environment-major stream
+at the shader's 32-bit element-address limit, checks actual Metal allocation
+lengths and working-set guidance, binds typed zero-length dummies, and
+publishes typed results/statuses transactionally. It is a correctness API, not
+the final persistent asynchronous rollout path.
 
 ## Articulated dynamics
 
@@ -46,17 +53,33 @@ revolute, continuous, and fixed joints. It:
 - computes velocity, gyroscopic, gravity, damping, and external-wrench terms
   through recursive Newton-Euler kinematics and analytic generalized-force
   projection;
+- treats per-DoF armature as generalized inertia in CRBA, RNEA, invariant
+  energy, contact effective mass, and impulse response;
 - integrates with symplectic Euler or a converged implicit-midpoint solve;
 - composes floating orientation with the SO(3) exponential of world angular
   velocity.
+
+The FP64 articulated-actuation evaluator consumes the same immutable per-DoF
+stream. It supports disabled, named-model PD, command-local PD, and direct
+effort modes; forbids floating-root actuation; evaluates feed-forward plus PD;
+uses the shortest signed modulo-\(2\pi\) error for continuous joints; clamps
+actuator effort before applying passive dry friction; and publishes results
+transactionally. Moving Coulomb friction strictly opposes velocity. Inside
+the configured near-zero-speed band it can cancel only the local actuator
+load, because gravity, bias, external, and contact loads are not inputs to
+this evaluator. That branch is a controller-local approximation, not a
+complete set-valued stiction solve.
 
 Optional coordinate and body-speed limits are validation boundaries. They
 reject an invalid state transactionally; they are not yet unilateral
 joint-limit constraints that generate impulses. The actual G1 topology passes
 the internal FP64 analytical and forward/inverse probes. Analytic point
 Jacobians and a retained CRBA factor now provide `J`, `Jᵀ`, and
-`J M⁻¹ Jᵀ` contact actions, including a two-foot G1 quality solve. A complete
-articulated timestep and generalized Metal implementation remain open.
+`J M⁻¹ Jᵀ` contact actions. The transactional CPU world composes this with
+collision, evaluated ConstraintIR, exact-cone contact, the common residual,
+and integration for G1 ground contact. A correctness-first Metal operator
+executes the same G1 mass/Jacobian/impulse equations, but a batched parallel
+Metal timestep remains open.
 
 The original Franka runtime is separate. Its Metal path runs a linear-time
 FP32 articulated-body algorithm, and its older FP64 reduced-dynamics oracle
@@ -78,7 +101,8 @@ The CPU collision oracle uses FP64 sweep-and-prune, analytic primitive
 witnesses, stable feature identifiers, and deterministic four-point manifold
 reduction. The Metal collision path is currently an FP32, one-thread `O(n²)`
 correctness narrowphase baseline for sphere/sphere, sphere/plane,
-capsule/plane, and box/plane. A separate deterministic parallel micro
+capsule/plane, box/plane, and oriented cylinder/plane. A separate
+deterministic parallel micro
 broadphase uses flag/scan/scatter without global append atomics. The two are
 not yet a production LBVH/manifold stream, and Metal does not perform
 persistent-manifold refresh.
@@ -120,7 +144,8 @@ The contact portfolio has three distinct numerical contracts:
 - an independent FP64 accelerated projected-gradient exact circular-cone
   oracle;
 - a globalized FP64 semismooth-Newton quality solve with KKT and cone
-  diagnostics;
+  diagnostics, accepting either a legacy dense oracle problem or a
+  production contact-space Delassus problem;
 - a fixed-budget CPU/Metal PGS throughput block with normal, coupled
   two-tangent radial projection, torsional friction, and warm starts.
 
@@ -136,6 +161,13 @@ coefficient. A material with distinct static and dynamic coefficients,
 torsional/rolling friction, or a hard impulse cap returns `MR_STEP_UNSUPPORTED`
 transactionally instead of changing material semantics when solver mode
 changes. A shared convex stiction model remains open.
+
+The reduced-coordinate quality path constructs the physical contact-space
+operator `W = J M⁻¹ Jᵀ` with checked factor solves. It does not materialize
+`M⁻¹`. Solver-reported contact velocity is compared with `J` applied to the
+independently factor-corrected generalized velocity before the common
+ConstraintIR residual can accept the step. The dense inverse adapter exists
+only for the independent FP64 oracle.
 
 Metal contact dispatch validates inputs and capacities before its in-place
 solve and rolls back touched dynamic velocities, impulses, and warm-start

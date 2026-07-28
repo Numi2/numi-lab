@@ -30,8 +30,10 @@ enum class ArticulatedContactStatus : std::uint32_t {
 // localPointB is instead the witness position in world coordinates. normal
 // points A->B in world coordinates, matching DenseContactBlock and
 // MRContactConstraintGPU.
-// tangentU need only be nonzero and nonparallel to normal: construction
-// orthonormalizes it and derives tangentV = normal x tangentU.
+// The full right-handed frame is explicit and consumed verbatim. Construction
+// validates near-unit, near-orthogonal axes but never normalizes or
+// Gram-Schmidts them; evaluated ConstraintIR targets, impulses, fingerprints,
+// Jacobians, and residuals therefore remain in identical coordinates.
 struct ArticulatedContact {
     std::uint32_t bodyA = 0u;
     std::uint32_t bodyB = kArticulatedStaticWorld;
@@ -39,6 +41,7 @@ struct ArticulatedContact {
     std::array<double, 3> localPointB{};
     std::array<double, 3> normal{0.0, 0.0, -1.0};
     std::array<double, 3> tangentU{1.0, 0.0, 0.0};
+    std::array<double, 3> tangentV{0.0, -1.0, 0.0};
     // Packed normal, tangent-u, tangent-v.
     std::array<double, 3> targetVelocity{};
     // Strictly positive diagonal impulse regularization/compliance.
@@ -57,10 +60,10 @@ struct ArticulatedContact {
 // response solves M delta_v = J' lambda and does not multiply a materialized
 // inverse. delassus is the physical, unregularized J M^-1 J' matrix.
 //
-// DenseConicProblem currently requires a dense inverseMass field, so `conic`
-// carries a compatibility adapter for ReferenceConicSolver and
-// QualityContactSolver. It is not the intended production representation.
-// Solver regularization remains in each DenseContactBlock.
+// `conic` owns the contact data used by solver adapters. Its dense inverseMass
+// is populated only when the explicit oracle-compatibility path is requested;
+// production contact-space solves leave it empty. Solver regularization
+// remains in each DenseContactBlock.
 struct ArticulatedContactProblem {
     std::uint32_t articulationIndex = 0u;
     std::uint32_t nv = 0u;
@@ -86,16 +89,19 @@ struct ArticulatedContactDiagnostics {
     double maximumDenseInverseAdapterResidual = 0.0;
     double maximumDelassusAsymmetry = 0.0;
     double maximumActionResidual = 0.0;
+    bool materializedDenseInverse = false;
 
     [[nodiscard]] bool succeeded() const noexcept {
         return status == ArticulatedContactStatus::success;
     }
 };
 
-// Builds analytic point Jacobians, a CRBA mass factor, contact Delassus, and
-// the DenseConicProblem compatibility adapter transactionally. freeVelocity
-// is the unconstrained generalized velocity at which the velocity-level
-// contact problem is solved.
+// Builds analytic point Jacobians, a CRBA mass factor, and the physical
+// Delassus operator transactionally. When
+// buildDenseInverseCompatibilityAdapter is true, it additionally materializes
+// M^-1 for independent legacy/oracle solvers. Production paths should pass
+// false. freeVelocity is the unconstrained generalized velocity at which the
+// velocity-level contact problem is solved.
 [[nodiscard]] ArticulatedContactDiagnostics
 buildArticulatedContactProblem(
     const EngineModel& model,
@@ -104,7 +110,18 @@ buildArticulatedContactProblem(
     std::span<const double> freeVelocity,
     std::span<const ArticulatedContact> contacts,
     ArticulatedContactProblem& problem,
-    const ArticulatedDynamicsConfig& config = {}
+    const ArticulatedDynamicsConfig& config = {},
+    bool buildDenseInverseCompatibilityAdapter = false
+);
+
+// Adapts the retained Jacobian and Delassus operator to the exact-cone
+// contact-space formulation without constructing or consuming a dense
+// generalized inverse. The destination is published only on success.
+[[nodiscard]] ArticulatedContactDiagnostics
+buildArticulatedContactSpaceProblem(
+    const ArticulatedContactProblem& articulated,
+    std::span<const double> freeVelocity,
+    ContactSpaceConicProblem& contactSpace
 );
 
 // Transactional matrix-free-style actions over the retained analytic

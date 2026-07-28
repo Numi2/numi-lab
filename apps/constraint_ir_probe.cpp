@@ -95,7 +95,9 @@ void requireFailedAndEmpty(
         label + " returned an unexpected status"
     );
     require(
-        result.ir.empty() && result.preSolveVelocities.empty(),
+        result.ir.empty() &&
+            result.sourceConstraintIndices.empty() &&
+            result.preSolveVelocities.empty(),
         label + " published a partial payload"
     );
 }
@@ -153,7 +155,9 @@ int main() {
             adapted.ir.endpoints.size() == 4u &&
             adapted.ir.rows.size() == 7u &&
             adapted.ir.cones.size() == 2u &&
-            adapted.ir.warmImpulses.size() == 7u,
+            adapted.ir.warmImpulses.size() == 7u &&
+            adapted.sourceConstraintIndices ==
+                std::vector<std::uint32_t>({1u, 0u}),
             "adapted stream counts are wrong"
         );
         require(
@@ -174,6 +178,65 @@ int main() {
             lowBlock.dimension == 3u &&
             highBlock.dimension == 4u,
             "adapter did not preserve torsional dimensionality"
+        );
+
+        // Canonical J*v evaluation must follow sorted IR order while binding
+        // back to the original bodies. Put every COM at the contact point so
+        // the first three rows are simple linear differences; the fourth row
+        // proves torsional angular evaluation.
+        std::array<MRBodyStateGPU, 4> bodyStates{};
+        for (MRBodyStateGPU& state : bodyStates) {
+            state.position = {
+                0.25F, 0.50F, -0.125F, 1.0F,
+            };
+            state.orientation = {0.0F, 0.0F, 0.0F, 1.0F};
+            state.linearVelocityAndInverseMass.w = 1.0F;
+            state.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+        }
+        bodyStates[0].linearVelocityAndInverseMass =
+            {1.0F, 2.0F, 3.0F, 1.0F};
+        bodyStates[1].linearVelocityAndInverseMass =
+            {4.0F, 6.0F, 8.0F, 1.0F};
+        bodyStates[2].linearVelocityAndInverseMass =
+            {-2.0F, 1.0F, 7.0F, 1.0F};
+        bodyStates[3].linearVelocityAndInverseMass =
+            {3.0F, 9.0F, 11.0F, 1.0F};
+        bodyStates[2].angularVelocity =
+            {0.0F, -2.0F, 0.0F, 0.0F};
+        bodyStates[3].angularVelocity =
+            {0.0F, 3.0F, 0.0F, 0.0F};
+        const auto bodyVelocity =
+            metalrobo::computeConstraintIRWorldPointVelocities(
+                adapted.ir,
+                bodyStates
+            );
+        require(
+            bodyVelocity.succeeded() &&
+            near(
+                bodyVelocity.relativeVelocities[
+                    lowBlock.rowOffset
+                ],
+                4.0
+            ) &&
+            near(
+                bodyVelocity.relativeVelocities[
+                    lowBlock.rowOffset + 1u
+                ],
+                5.0
+            ) &&
+            near(
+                bodyVelocity.relativeVelocities[
+                    lowBlock.rowOffset + 2u
+                ],
+                3.0
+            ) &&
+            near(
+                bodyVelocity.relativeVelocities[
+                    highBlock.rowOffset + 3u
+                ],
+                5.0
+            ),
+            "world-point ConstraintIR J*v evaluation is incorrect"
         );
 
         std::vector<float> relative(adapted.ir.rows.size(), 0.0F);

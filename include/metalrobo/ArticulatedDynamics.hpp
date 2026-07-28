@@ -195,6 +195,21 @@ integrateArticulatedState(
     const ArticulatedDynamicsConfig& config = {}
 );
 
+// Advances only q from an already-computed generalized velocity. No force,
+// bias, mass-matrix, or acceleration evaluation occurs and v is never
+// modified. Floating roots use the same world-angular-velocity SO(3)
+// exponential convention as integrateArticulatedState. The candidate
+// configuration and resulting body kinematics are fully validated before q
+// is published, so failure is transactional.
+[[nodiscard]] ArticulatedDynamicsDiagnostics
+integrateArticulatedConfiguration(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<double> q,
+    std::span<const double> velocity,
+    const ArticulatedDynamicsConfig& config = {}
+);
+
 [[nodiscard]] ArticulatedDynamicsDiagnostics
 computeArticulatedInvariants(
     const EngineModel& model,

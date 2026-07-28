@@ -684,7 +684,8 @@ const G1ModelMetadata& unitreeG1Metadata() noexcept {
 
 EngineModel makeUnitreeG1EngineModel() {
     EngineModel model;
-    model.name = std::string{unitreeG1Metadata().modelName};
+    const G1ModelMetadata& metadata = unitreeG1Metadata();
+    model.name = std::string{metadata.modelName};
     model.world.abiVersion = MR_ENGINE_ABI_VERSION;
     model.world.bodyCount = static_cast<mr_u32>(kUnitreeG1BodyCount);
     model.world.articulationCount = 1u;
@@ -728,6 +729,52 @@ EngineModel makeUnitreeG1EngineModel() {
         model.joints.push_back(
             makeJoint(kJoints[index], static_cast<std::uint32_t>(index))
         );
+    }
+
+    model.dofs.reserve(35u);
+    for (mr_u32 localDof = 0u; localDof < 6u; ++localDof) {
+        MRDofPropertiesGPU dof{};
+        dof.articulationIndex = 0u;
+        dof.jointIndex = MR_INVALID_INDEX;
+        dof.qIndex = localDof < 3u
+            ? localDof
+            : MR_INVALID_INDEX;
+        dof.vIndex = localDof;
+        dof.localDof = localDof;
+        dof.flags = MR_DOF_FLAG_ROOT;
+        model.dofs.push_back(dof);
+    }
+    for (std::size_t index = 0u;
+         index < kUnitreeG1JointCount;
+         ++index) {
+        const G1JointLimit& limit = metadata.jointLimits[index];
+        const G1RLLabJointDrive& drive =
+            metadata.rlLabDrives[index];
+        MRDofPropertiesGPU dof{};
+        dof.articulationIndex = 0u;
+        dof.jointIndex = static_cast<mr_u32>(index);
+        dof.qIndex = 7u + static_cast<mr_u32>(index);
+        dof.vIndex = 6u + static_cast<mr_u32>(index);
+        dof.localDof = 0u;
+        dof.flags =
+            MR_DOF_FLAG_ACTUATED |
+            MR_DOF_FLAG_POSITION_LIMIT |
+            MR_DOF_FLAG_VELOCITY_LIMIT |
+            MR_DOF_FLAG_EFFORT_LIMIT |
+            MR_DOF_FLAG_DRIVE;
+        dof.limits = f4(
+            limit.lowerPosition,
+            limit.upperPosition,
+            limit.maximumVelocity,
+            limit.maximumEffort
+        );
+        dof.drive = f4(
+            drive.stiffness,
+            drive.damping,
+            drive.armature,
+            0.0f
+        );
+        model.dofs.push_back(dof);
     }
 
     MRMaterialGPU material{};

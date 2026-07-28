@@ -44,7 +44,7 @@ bool requireHandle(const MRRuntimeHandle* handle) {
 extern "C" {
 
 const char* mr_version(void) {
-    return "0.3.0";
+    return "0.4.0";
 }
 
 const char* mr_last_error(void) {

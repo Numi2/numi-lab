@@ -9,13 +9,24 @@
 
 #include "metalrobo/gpu_types.h"
 
-#define MR_ENGINE_ABI_VERSION 1u
+#define MR_ENGINE_ABI_VERSION 2u
 #define MR_INVALID_INDEX 0xffffffffu
 #define MR_MAX_CONTACTS_PER_SOLVER_BATCH 128u
 #define MR_MAX_BODIES_PER_SOLVER_BATCH \
     (2u * MR_MAX_CONTACTS_PER_SOLVER_BATCH)
 #define MR_BROADPHASE_SCAN_BLOCK_SIZE 256u
 #define MR_MAX_BROADPHASE_SCAN_BLOCKS 256u
+// Generic articulated-operator capacities are intentionally independent of
+// the Franka-era MR_MAX_DOF/MR_MAX_LINKS compatibility path. They cover the
+// floating-base Unitree G1 (30 bodies, 35 velocity coordinates) with room for
+// larger trees while keeping one dense FP32 Cholesky factor inside Apple GPU
+// threadgroup memory.
+#define MR_ARTICULATED_OPERATOR_MAX_BODIES 64u
+#define MR_ARTICULATED_OPERATOR_MAX_DOFS 64u
+#define MR_ARTICULATED_OPERATOR_MAX_POINTS 16u
+// Versioned FP32 backward-error gate for M * deltaV = J^T * impulse.
+// A finite but inaccurate factor solve is a failure, never publishable state.
+#define MR_ARTICULATED_OPERATOR_MAX_RELATIVE_RESIDUAL 0.00003f
 // Authored collision coordinates, local offsets, primitive dimensions, and
 // contact/rest/bounding-radius values use this direct-input domain. With
 // normalized rotations, every supported finite primitive derived from these
@@ -118,6 +129,17 @@ enum MRShapeFlags : mr_u32 {
     MR_SHAPE_FLAG_SIMULATION_DISABLED = 1u << 0u,
 };
 
+enum MRDofFlags : mr_u32 {
+    // Root coordinates are never implicitly actuated. Floating-root records
+    // carry this flag alone and keep every limit/drive value exactly zero.
+    MR_DOF_FLAG_ROOT = 1u << 0u,
+    MR_DOF_FLAG_ACTUATED = 1u << 1u,
+    MR_DOF_FLAG_POSITION_LIMIT = 1u << 2u,
+    MR_DOF_FLAG_VELOCITY_LIMIT = 1u << 3u,
+    MR_DOF_FLAG_EFFORT_LIMIT = 1u << 4u,
+    MR_DOF_FLAG_DRIVE = 1u << 5u,
+};
+
 typedef struct MR_ALIGN16 MRWorldGPU {
     mr_u32 abiVersion;
     mr_u32 bodyCount;
@@ -186,6 +208,36 @@ typedef struct MR_ALIGN16 MRJointDescriptorGPU {
     mr_float4 childRotation;
 } MRJointDescriptorGPU;
 
+// One authoritative record per global generalized-velocity coordinate.
+// Records are stored in global v order; vIndex is repeated deliberately so
+// malformed streams fail validation instead of silently changing ownership.
+// qIndex is MR_INVALID_INDEX when a velocity coordinate has no one-to-one
+// scalar configuration coordinate (floating/spherical quaternion rates).
+typedef struct MR_ALIGN16 MRDofPropertiesGPU {
+    mr_u32 articulationIndex;
+    mr_u32 jointIndex;
+    mr_u32 qIndex;
+    mr_u32 vIndex;
+
+    mr_u32 localDof;
+    mr_u32 flags;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+
+    // lower position, upper position, maximum velocity, maximum effort.
+    // An inactive limit has both its flag and corresponding value(s) zero.
+    // These limits are authoritative metadata; this record does not imply
+    // post-step clamping or an actuator/limit constraint implementation.
+    mr_float4 limits;
+    // stiffness, damping, armature inertia, dry-friction loss.
+    // Armature is physical generalized inertia and is independent of whether
+    // a drive is enabled. The generic dynamics operators consume armature;
+    // the explicit CPU articulated-actuation evaluator consumes named-model
+    // gains and dry friction. The generic Metal operator does not yet execute
+    // the actuation law.
+    mr_float4 drive;
+} MRDofPropertiesGPU;
+
 typedef struct MR_ALIGN16 MRBodyPropertiesGPU {
     mr_u32 articulationIndex;
     mr_u32 parentBody;
@@ -251,6 +303,85 @@ typedef struct MR_ALIGN16 MRFreeBodyStatusGPU {
     // nonlinear residual, quaternion norm error, angular speed, reserved.
     mr_float4 diagnostics;
 } MRFreeBodyStatusGPU;
+
+enum MRArticulatedOperatorStatusCode : mr_u32 {
+    MR_ARTICULATED_OPERATOR_SUCCESS = 0u,
+    MR_ARTICULATED_OPERATOR_INVALID_DISPATCH = 1u,
+    MR_ARTICULATED_OPERATOR_CAPACITY_OVERFLOW = 2u,
+    MR_ARTICULATED_OPERATOR_INVALID_MODEL = 3u,
+    MR_ARTICULATED_OPERATOR_UNSUPPORTED_TOPOLOGY = 4u,
+    MR_ARTICULATED_OPERATOR_NONFINITE_INPUT = 5u,
+    MR_ARTICULATED_OPERATOR_FACTORIZATION_FAILED = 6u,
+    MR_ARTICULATED_OPERATOR_NONFINITE_RESULT = 7u,
+    MR_ARTICULATED_OPERATOR_ACCURACY_FAILED = 8u,
+};
+
+enum MRArticulatedOperatorFlags : mr_u32 {
+    // The dense mass matrix is diagnostic/reference output. Runtime impulse
+    // response always factor-solves M * deltaV = J^T * impulse and never
+    // forms or applies an explicit inverse.
+    MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS = 1u << 0u,
+};
+
+// One dispatch describes a batch of states for one immutable articulation.
+// q and point records are environment-major. All stride fields are element
+// counts, never bytes. q stores articulation-local generalized coordinates.
+typedef struct MR_ALIGN16 MRArticulatedOperatorDispatchGPU {
+    mr_u32 articulationIndex;
+    mr_u32 environmentCount;
+    mr_u32 pointCount;
+    mr_u32 flags;
+
+    mr_u32 qStride;
+    mr_u32 pointStride;
+    mr_u32 bodyPoseStride;
+    mr_u32 pointWorldStride;
+
+    mr_u32 massMatrixStride;
+    mr_u32 pointJacobianStride;
+    mr_u32 generalizedStride;
+    mr_u32 reserved0;
+} MRArticulatedOperatorDispatchGPU;
+
+// A world impulse applied at a COM-relative body point. bodyIndex is global
+// in MRWorldGPU. Query flags and reserved words must currently be zero.
+typedef struct MR_ALIGN16 MRArticulatedPointImpulseGPU {
+    mr_u32 bodyIndex;
+    mr_u32 flags;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+
+    mr_float4 localPoint;
+    mr_float4 worldImpulse;
+} MRArticulatedPointImpulseGPU;
+
+typedef struct MR_ALIGN16 MRArticulatedBodyPoseGPU {
+    // xyz = body COM world position.
+    mr_float4 position;
+    // Normalized body-to-world quaternion xyzw.
+    mr_float4 orientation;
+} MRArticulatedBodyPoseGPU;
+
+typedef struct MR_ALIGN16 MRArticulatedPointWorldGPU {
+    // xyz = queried point in world coordinates.
+    mr_float4 position;
+} MRArticulatedPointWorldGPU;
+
+typedef struct MR_ALIGN16 MRArticulatedOperatorStatusGPU {
+    mr_u32 code;
+    mr_u32 environment;
+    mr_u32 articulationIndex;
+    mr_u32 failingIndex;
+
+    mr_u32 bodyCount;
+    mr_u32 nq;
+    mr_u32 nv;
+    mr_u32 pointCount;
+
+    // minimum Cholesky pivot, maximum pivot, relative solve residual, and
+    // maximum absolute mass-matrix entry.
+    mr_float4 diagnostics;
+} MRArticulatedOperatorStatusGPU;
 
 typedef struct MR_ALIGN16 MRMaterialGPU {
     // Static/dynamic coefficients; effective rolling/torsional lengths (m).
@@ -430,11 +561,21 @@ typedef struct MR_ALIGN16 MRSolverStatusGPU {
 static_assert(sizeof(MRWorldGPU) % 16 == 0);
 static_assert(sizeof(MRArticulationGPU) % 16 == 0);
 static_assert(sizeof(MRJointDescriptorGPU) % 16 == 0);
+static_assert(sizeof(MRDofPropertiesGPU) == 64);
+static_assert(alignof(MRDofPropertiesGPU) == 16);
+static_assert(__builtin_offsetof(MRDofPropertiesGPU, localDof) == 16);
+static_assert(__builtin_offsetof(MRDofPropertiesGPU, limits) == 32);
+static_assert(__builtin_offsetof(MRDofPropertiesGPU, drive) == 48);
 static_assert(sizeof(MRBodyPropertiesGPU) % 16 == 0);
 static_assert(sizeof(MRBodyStateGPU) % 16 == 0);
 static_assert(sizeof(MRBodyWrenchGPU) == 32);
 static_assert(sizeof(MRFreeBodyBatchGPU) % 16 == 0);
 static_assert(sizeof(MRFreeBodyStatusGPU) % 16 == 0);
+static_assert(sizeof(MRArticulatedOperatorDispatchGPU) == 48);
+static_assert(sizeof(MRArticulatedPointImpulseGPU) == 48);
+static_assert(sizeof(MRArticulatedBodyPoseGPU) == 32);
+static_assert(sizeof(MRArticulatedPointWorldGPU) == 16);
+static_assert(sizeof(MRArticulatedOperatorStatusGPU) == 48);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);
 static_assert(sizeof(MRShapeGPU) % 16 == 0);
 static_assert(sizeof(MRAabbGPU) == 32);

@@ -4,18 +4,22 @@ Research snapshot: **2026-07-28**. This is the engineering contract for the
 engine MetalRobo is intended to become. It is not a description of the current
 implementation.
 
-MetalRobo v0.3 is an executable engine spine: fixed-base batched Franka ABA,
-a generic floating-root `nq != nv` model, CPU FP64 CRBA/RNEA forward and
-inverse articulated dynamics (including the pinned G1), CPU/Metal free-body
-integration, deterministic primitive collision and persistent manifolds,
-exact-cone reference/quality contact solvers, a CPU/Metal fixed-budget PGS
-block, a transactional CPU maximal-coordinate world, analytic FP64
-articulated-contact operators exercised on G1, four Metal primitive pair
-classes, and a deterministic parallel Metal micro broadphase. It still lacks
-a complete articulated timestep, a production LBVH/manifold pipeline, convex
-and mesh narrowphase, CCD, loop/joint/limit constraints in the common solver,
-importers, and qualified physics derivatives. It must not currently be called
-a complete or state-of-the-art physics engine.
+MetalRobo v0.4 is an executable engine spine: fixed-base batched Franka ABA;
+an ABI-v2 floating-root `nq != nv` model with authoritative per-DoF
+armature/limit/drive data; CPU FP64 CRBA/RNEA/contact; a transactional
+one-articulation CPU timestep exercised on real G1 ground contact; a
+transactional FP64 G1 actuation evaluator with explicit preset provenance;
+contact-space exact-cone quality solve with no production dense inverse;
+CPU/Metal free-body integration; five CPU/Metal primitive pair classes;
+deterministic manifolds and a parallel Metal micro broadphase; and a
+correctness-first generic Metal mass/Jacobian/impulse operator exercised on
+actual G1, plus a checked transactional host encoder for that operator. It
+still lacks a persistent asynchronous batched parallel composed Metal
+timestep, a production LBVH/manifold pipeline, general
+cylinder/convex/mesh narrowphase, CCD, loop/joint-limit constraints in the
+common solver, multi-articulation islands, importers, and qualified physics
+derivatives. It must not currently be called a complete or state-of-the-art
+physics engine.
 
 The target in this document is narrower and more testable than “everything in
 Isaac Sim”: a **state-of-the-art robotics rigid-body engine on Apple GPUs**.

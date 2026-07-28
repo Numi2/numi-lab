@@ -10,6 +10,7 @@
 #include <limits>
 #include <numeric>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -59,6 +60,81 @@ metalrobo::DenseConicProblem makeCoupledProblem() {
         problem.contacts.push_back(std::move(contact));
     }
     return problem;
+}
+
+metalrobo::ContactSpaceConicProblem makeContactSpaceProblem(
+    const metalrobo::DenseConicProblem& dense
+) {
+    const std::size_t dimension = 3u * dense.contacts.size();
+    metalrobo::ContactSpaceConicProblem result;
+    result.delassus.assign(dimension * dimension, 0.0);
+    result.freeContactVelocity.assign(dimension, 0.0);
+    result.contacts.reserve(dense.contacts.size());
+
+    std::vector<const std::vector<double>*> rows;
+    rows.reserve(dimension);
+    for (const auto& contact : dense.contacts) {
+        rows.push_back(&contact.normalJacobian);
+        rows.push_back(&contact.tangentUJacobian);
+        rows.push_back(&contact.tangentVJacobian);
+        result.contacts.push_back({
+            contact.targetVelocity,
+            contact.regularization,
+            contact.warmImpulse,
+            contact.friction,
+        });
+    }
+    for (std::size_t row = 0u; row < dimension; ++row) {
+        for (std::size_t dof = 0u; dof < dense.nv; ++dof) {
+            result.freeContactVelocity[row] +=
+                (*rows[row])[dof] * dense.freeVelocity[dof];
+        }
+        for (std::size_t column = 0u;
+             column < dimension;
+             ++column) {
+            for (std::size_t leftDof = 0u;
+                 leftDof < dense.nv;
+                 ++leftDof) {
+                for (std::size_t rightDof = 0u;
+                     rightDof < dense.nv;
+                     ++rightDof) {
+                    result.delassus[row * dimension + column] +=
+                        (*rows[row])[leftDof] *
+                        dense.inverseMass[
+                            leftDof * dense.nv + rightDof
+                        ] *
+                        (*rows[column])[rightDof];
+                }
+            }
+        }
+    }
+    return result;
+}
+
+std::vector<double> contactVelocity(
+    const metalrobo::DenseConicProblem& problem,
+    const std::vector<double>& generalizedVelocity
+) {
+    std::vector<double> result(3u * problem.contacts.size(), 0.0);
+    for (std::size_t contact = 0u;
+         contact < problem.contacts.size();
+         ++contact) {
+        const auto& block = problem.contacts[contact];
+        const std::array<const std::vector<double>*, 3u> rows{
+            &block.normalJacobian,
+            &block.tangentUJacobian,
+            &block.tangentVJacobian,
+        };
+        for (std::size_t axis = 0u; axis < rows.size(); ++axis) {
+            for (std::size_t dof = 0u;
+                 dof < generalizedVelocity.size();
+                 ++dof) {
+                result[3u * contact + axis] +=
+                    (*rows[axis])[dof] * generalizedVelocity[dof];
+            }
+        }
+    }
+    return result;
 }
 
 double distance(
@@ -135,6 +211,211 @@ int main() {
         if (!quality.converged()) {
             throw std::runtime_error(
                 "quality solve failed: " + quality.failure
+            );
+        }
+        const auto contactSpace =
+            metalrobo::solveQualityContactSpaceProblem(
+                makeContactSpaceProblem(problem),
+                qualityConfig
+            );
+        const double contactSpaceImpulseError = relativeDistance(
+            contactSpace.impulses,
+            quality.impulses
+        );
+        const double contactSpaceVelocityError = relativeDistance(
+            contactSpace.velocity,
+            contactVelocity(problem, quality.velocity)
+        );
+        if (!contactSpace.converged() ||
+            contactSpaceImpulseError > 2.0e-12 ||
+            contactSpaceVelocityError > 2.0e-12 ||
+            std::abs(contactSpace.objective - quality.objective) >
+                2.0e-12 * (1.0 + std::abs(quality.objective))) {
+            throw std::runtime_error(
+                "contact-space and dense quality paths disagree"
+            );
+        }
+        metalrobo::ContactSpaceConicProblem indefinitePhysicalOperator =
+            makeContactSpaceProblem(problem);
+        std::ranges::fill(
+            indefinitePhysicalOperator.delassus,
+            0.0
+        );
+        // Regularization keeps the total Hessian positive, so only an
+        // independent physical-W PSD gate catches this malformed operator.
+        indefinitePhysicalOperator.delassus[0] = -1.0e-4;
+        const auto indefinitePhysicalResult =
+            metalrobo::solveQualityContactSpaceProblem(
+                indefinitePhysicalOperator,
+                qualityConfig
+            );
+        if (indefinitePhysicalResult.code !=
+                MR_STEP_NONFINITE_INPUT ||
+            indefinitePhysicalResult.failure.find(
+                "positive semidefinite"
+            ) == std::string::npos) {
+            throw std::runtime_error(
+                "indefinite physical Delassus operator was accepted"
+            );
+        }
+        metalrobo::ContactSpaceConicProblem zeroPhysicalOperator =
+            makeContactSpaceProblem(problem);
+        std::ranges::fill(zeroPhysicalOperator.delassus, 0.0);
+        const auto zeroPhysicalResult =
+            metalrobo::solveQualityContactSpaceProblem(
+                zeroPhysicalOperator,
+                qualityConfig
+            );
+        if (!zeroPhysicalResult.converged()) {
+            throw std::runtime_error(
+                "rank-deficient positive-semidefinite Delassus was rejected"
+            );
+        }
+
+        const std::size_t contactDimension =
+            zeroPhysicalOperator.freeContactVelocity.size();
+        metalrobo::ContactSpaceConicProblem rankOnePhysicalOperator =
+            zeroPhysicalOperator;
+        std::vector<double> rankOneVector(contactDimension, 0.0);
+        for (std::size_t contact = 0u;
+             contact < rankOnePhysicalOperator.contacts.size();
+             ++contact) {
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                rankOnePhysicalOperator.freeContactVelocity[
+                    3u * contact + axis
+                ] = rankOnePhysicalOperator.contacts[contact]
+                        .targetVelocity[axis];
+            }
+        }
+        for (std::size_t index = 0u;
+             index < contactDimension;
+             ++index) {
+            rankOneVector[index] =
+                (index % 2u == 0u ? 1.0 : -1.0) *
+                (0.25 + 0.07 * static_cast<double>(index));
+        }
+        for (std::size_t row = 0u;
+             row < contactDimension;
+             ++row) {
+            for (std::size_t column = 0u;
+                 column < contactDimension;
+                 ++column) {
+                rankOnePhysicalOperator.delassus[
+                    row * contactDimension + column
+                ] = rankOneVector[row] * rankOneVector[column];
+            }
+        }
+        const auto rankOnePhysicalResult =
+            metalrobo::solveQualityContactSpaceProblem(
+                rankOnePhysicalOperator,
+                qualityConfig
+            );
+        metalrobo::ContactSpaceConicProblem
+            permutedRankOnePhysicalOperator =
+                rankOnePhysicalOperator;
+        for (std::size_t row = 0u;
+             row < contactDimension;
+             ++row) {
+            for (std::size_t column = 0u;
+                 column < contactDimension;
+                 ++column) {
+                permutedRankOnePhysicalOperator.delassus[
+                    row * contactDimension + column
+                ] = rankOnePhysicalOperator.delassus[
+                    (contactDimension - 1u - row) *
+                            contactDimension +
+                        (contactDimension - 1u - column)
+                ];
+            }
+        }
+        const auto permutedRankOnePhysicalResult =
+            metalrobo::solveQualityContactSpaceProblem(
+                permutedRankOnePhysicalOperator,
+                qualityConfig
+            );
+        if (!rankOnePhysicalResult.converged() ||
+            !permutedRankOnePhysicalResult.converged()) {
+            throw std::runtime_error(
+                "nonzero rank-deficient PSD Delassus was rejected: " +
+                rankOnePhysicalResult.failure + " / " +
+                permutedRankOnePhysicalResult.failure
+            );
+        }
+
+        const double psdTolerance =
+            256.0 * std::numeric_limits<double>::epsilon() *
+            static_cast<double>(contactDimension);
+        metalrobo::ContactSpaceConicProblem
+            withinPsdTolerance = rankOnePhysicalOperator;
+        std::ranges::fill(withinPsdTolerance.delassus, 0.0);
+        withinPsdTolerance.delassus[0] = 1.0;
+        withinPsdTolerance.delassus[
+            (contactDimension - 1u) * contactDimension +
+            (contactDimension - 1u)
+        ] = -0.5 * psdTolerance;
+        const auto withinPsdToleranceResult =
+            metalrobo::solveQualityContactSpaceProblem(
+                withinPsdTolerance,
+                qualityConfig
+            );
+        if (!withinPsdToleranceResult.converged()) {
+            throw std::runtime_error(
+                "Delassus eigenvalue inside PSD tolerance was rejected"
+            );
+        }
+        metalrobo::ContactSpaceConicProblem
+            outsidePsdTolerance = withinPsdTolerance;
+        outsidePsdTolerance.delassus[
+            (contactDimension - 1u) * contactDimension +
+            (contactDimension - 1u)
+        ] = -2.0 * psdTolerance;
+        const auto outsidePsdToleranceResult =
+            metalrobo::solveQualityContactSpaceProblem(
+                outsidePsdTolerance,
+                qualityConfig
+            );
+        if (outsidePsdToleranceResult.code !=
+                MR_STEP_NONFINITE_INPUT ||
+            outsidePsdToleranceResult.failure.find(
+                "positive semidefinite"
+            ) == std::string::npos) {
+            throw std::runtime_error(
+                "Delassus eigenvalue outside PSD tolerance was accepted"
+            );
+        }
+
+        metalrobo::ContactSpaceConicProblem denseTinyIndefinite =
+            zeroPhysicalOperator;
+        denseTinyIndefinite.delassus[0] = 1.0;
+        for (std::size_t row = 1u;
+             row < contactDimension;
+             ++row) {
+            denseTinyIndefinite.delassus[
+                row * contactDimension + row
+            ] = 0.5 * psdTolerance;
+            for (std::size_t column = 1u;
+                 column < row;
+                 ++column) {
+                denseTinyIndefinite.delassus[
+                    row * contactDimension + column
+                ] = -7.0 * psdTolerance;
+                denseTinyIndefinite.delassus[
+                    column * contactDimension + row
+                ] = -7.0 * psdTolerance;
+            }
+        }
+        const auto denseTinyIndefiniteResult =
+            metalrobo::solveQualityContactSpaceProblem(
+                denseTinyIndefinite,
+                qualityConfig
+            );
+        if (denseTinyIndefiniteResult.code !=
+                MR_STEP_NONFINITE_INPUT ||
+            denseTinyIndefiniteResult.failure.find(
+                "positive semidefinite"
+            ) == std::string::npos) {
+            throw std::runtime_error(
+                "dense tiny-indefinite Delassus tail was accepted"
             );
         }
 
@@ -319,6 +600,14 @@ int main() {
                       .maximumFrictionlessNormalComplementarityResidual
                   << " reference_impulse_error="
                   << referenceImpulseError
+                  << " contact_space_impulse_error="
+                  << contactSpaceImpulseError
+                  << " contact_space_velocity_error="
+                  << contactSpaceVelocityError
+                  << " delassus_psd_gate=yes"
+                  << " rank_deficient_psd=yes"
+                  << " nonzero_rank_deficient_psd=yes"
+                  << " psd_tolerance_contract=yes"
                   << " permutation_impulse_error="
                   << permutationImpulseError
                   << " warm_iterations=" << warm.iterations

@@ -119,14 +119,28 @@ Scene makeScene() {
         scene.bodies.push_back(
             makeBody(x, 0.24f, z, MR_MOTION_DYNAMIC)
         );
-        scene.shapes.push_back(
-            makeShape(
-                bodyIndex,
-                MR_SHAPE_SPHERE,
-                f4(0.25f, 0.0f, 0.0f, 0.0f),
-                0.25f
-            )
-        );
+        if (index == 45u) {
+            scene.shapes.push_back(
+                makeShape(
+                    bodyIndex,
+                    MR_SHAPE_CYLINDER,
+                    f4(0.20f, 0.30f, 0.0f, 0.0f),
+                    std::sqrt(
+                        0.20f * 0.20f +
+                        0.30f * 0.30f
+                    )
+                )
+            );
+        } else {
+            scene.shapes.push_back(
+                makeShape(
+                    bodyIndex,
+                    MR_SHAPE_SPHERE,
+                    f4(0.25f, 0.0f, 0.0f, 0.0f),
+                    0.25f
+                )
+            );
+        }
     }
 
     const std::uint32_t capsuleBody =
@@ -164,7 +178,7 @@ Scene makeScene() {
     );
     MRShapeGPU disabled = makeShape(
         disabledBody,
-        MR_SHAPE_CYLINDER,
+        MR_SHAPE_CONVEX,
         f4(0.20f, 0.30f, 0.0f, 0.0f),
         0.50f
     );
@@ -746,6 +760,20 @@ int main() {
             !cpu.pairs.empty(),
             "probe scene produced no candidate pairs"
         );
+        require(
+            std::ranges::any_of(
+                cpu.pairs,
+                [](const MRCandidatePairGPU& pair) {
+                    return
+                        pair.colliderA == 0u &&
+                        pair.colliderB == 46u &&
+                        pair.flags ==
+                            metalrobo::
+                                collisionPairCylinderPlane;
+                }
+            ),
+            "CPU broadphase omitted the cylinder/plane class"
+        );
 
         const MetalRun first = broadphaseOnMetal(
             scene,
@@ -1223,6 +1251,7 @@ int main() {
             << " scan_blocks=" << scanBlockCount
             << " candidate_pairs=" << exactCapacity
             << " cpu_parity=yes"
+            << " cylinder_plane=yes"
             << " deterministic=yes"
             << " exact_capacity=yes"
             << " zero_pair_worlds=yes"

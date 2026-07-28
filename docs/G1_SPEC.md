@@ -194,8 +194,14 @@ implements:
 
 `tau_command = tau_ff + kp * (q_des - q) + kd * (dq_des - dq)`
 
-MetalRobo should implement that command law and then clamp the result to the
-selected model's effort range. `mode = 1` means enabled and `mode = 0` means
+MetalRobo's FP64 articulated-actuation evaluator implements that command law
+and then clamps the actuator contribution to the selected model's effort
+range before passive dry friction is added. It provides disabled, named-model
+PD, command-local PD, and direct-effort modes; floating-root coordinates
+cannot be actuated. Continuous-joint position error uses the shortest signed
+modulo-\(2\pi\) displacement. Near-zero dry friction is explicitly a
+controller-local cancellation approximation, not a complete coupled
+set-valued stiction model. `mode = 1` means enabled and `mode = 0` means
 disabled in the official SDK example. The example publishes at 2 ms. Its
 particular Kp/Kd values are an example controller, not motor constants.
 
@@ -231,9 +237,12 @@ gains:
 - ankle: Kp 40, Kd 2;
 - shoulder, elbow, and all wrists: Kp 40, Kd 1.
 
-The selected URDF itself supplies no armature or controller gains. Keep these
-values in a named training configuration rather than baking them into the
-physical asset.
+The selected URDF itself supplies no armature or controller gains.
+`makeUnitreeG1EngineModel()` currently selects the explicitly named
+`unitree_rl_lab_4960b84` dynamics preset and compiles its Kp/Kd/armature into
+the per-DoF stream alongside the separate URDF limits. Code and validation
+must keep that preset identity visible; these values are not reclassified as
+URDF or hardware facts.
 
 An official RL Lab-compatible reset pose uses pelvis link-origin position
 `(0, 0, 0.8)`, zero joint velocities, and zero joint positions except:
@@ -267,8 +276,10 @@ The URDF declares 36 collision elements:
 
 The current compiled model retains all 12 primitive records. The eight foot
 spheres participate in simulation; the four shoulder cylinders carry
-`MR_SHAPE_FLAG_SIMULATION_DISABLED` until cylinder narrowphase is implemented.
-They must not be silently treated as working collision geometry.
+`MR_SHAPE_FLAG_SIMULATION_DISABLED`. Generic cylinder/plane narrowphase now
+exists, but G1 cannot enable these shapes until the required cylinder
+self-collision pair classes and exclusions are executable. They must not be
+silently treated as complete collision geometry.
 
 The shoulder-pitch cylinders have radius 0.03 m and length 0.05 m, centered at
 `(0, ±0.04, -0.01)` with RPY `(0, π/2, 0)`. The shoulder-roll cylinders have
@@ -297,9 +308,9 @@ bottom surface of their 5 mm radius. Label these as derived frames, not
 official Unitree frames. A foot contact signal is the sum (or maximum, when
 explicitly requested by a task) of impulses from its four sphere colliders.
 
-The current MetalRobo ABI can represent the eight spheres exactly, but cannot
-represent STL collision meshes or finite cylinders exactly. The first
-locomotion target should:
+The current MetalRobo ABI represents the eight spheres and finite cylinders
+exactly, but not STL collision meshes. For cylinders, only cylinder/plane
+collision is executable today. The first locomotion target should:
 
 1. preserve the eight official foot spheres exactly;
 2. add explicitly provenance-marked MetalRobo box/capsule proxies for gross
@@ -378,13 +389,18 @@ The first compiled G1 asset is internally consistent when it has:
 - separate floating-root state (`nq = 36`, `nv = 35` conceptually);
 - folded mass 33.34114202 kg;
 - full off-diagonal inertia terms retained;
-- URDF effort/velocity limits, with compatibility overrides named;
+- an authoritative per-DoF stream containing URDF effort/velocity/position
+  limits plus separately identified preset armature and gains;
+- executable feed-forward/model-PD/custom-PD/direct-effort semantics with
+  effort saturation and transactional rejection;
 - exact eight foot spheres and derived sole frames clearly labeled;
 - two IMU frames and no falsely claimed hardware contact sensor;
 - `mode_machine = 5` and `mode_pr = 0` metadata;
 - a redistribution notice for any copied Unitree model data or meshes.
 
-These are model-ingestion facts, not a claim of dynamics parity, actuator
-identification, or sim-to-real safety. Contact material, motor delay,
+These are model-ingestion and command-law facts, not actuator identification
+or sim-to-real safety. The named RL Lab armature and gains reproduce a
+training preset; they are not identified motor physics. Contact material,
+motor delay,
 friction, compliance, backlash, thermal limits, battery effects, and
 controller frequency variation require separate calibration.

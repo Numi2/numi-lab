@@ -15,6 +15,9 @@ struct EngineModel {
     MRWorldGPU world{};
     std::vector<MRArticulationGPU> articulations;
     std::vector<MRJointDescriptorGPU> joints;
+    // Exactly one authoritative record per generalized velocity coordinate,
+    // stored in global v order.
+    std::vector<MRDofPropertiesGPU> dofs;
     std::vector<MRBodyPropertiesGPU> bodies;
     std::vector<MRShapeGPU> shapes;
     std::vector<MRMaterialGPU> materials;

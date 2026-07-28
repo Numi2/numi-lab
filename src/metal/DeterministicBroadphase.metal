@@ -11,6 +11,7 @@ constant uint kPairSphereSphere = 1u;
 constant uint kPairSpherePlane = 2u;
 constant uint kPairCapsulePlane = 3u;
 constant uint kPairBoxPlane = 4u;
+constant uint kPairCylinderPlane = 5u;
 
 bool finite4(const float4 value) {
     return all(isfinite(value));
@@ -134,6 +135,12 @@ uint pairClass(const uint typeA, const uint typeB) {
          typeB == MR_SHAPE_BOX)) {
         return kPairBoxPlane;
     }
+    if ((typeA == MR_SHAPE_CYLINDER &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeA == MR_SHAPE_PLANE &&
+         typeB == MR_SHAPE_CYLINDER)) {
+        return kPairCylinderPlane;
+    }
     return 0u;
 }
 
@@ -142,6 +149,7 @@ bool supportedShapeType(const uint type) {
         type == MR_SHAPE_SPHERE ||
         type == MR_SHAPE_CAPSULE ||
         type == MR_SHAPE_BOX ||
+        type == MR_SHAPE_CYLINDER ||
         type == MR_SHAPE_PLANE;
 }
 
@@ -151,7 +159,8 @@ bool validActiveDimensions(const MRShapeGPU shape) {
             shape.dimensions.x >=
                 MR_MIN_COLLISION_EXTENT;
     }
-    if (shape.shapeType == MR_SHAPE_CAPSULE) {
+    if (shape.shapeType == MR_SHAPE_CAPSULE ||
+        shape.shapeType == MR_SHAPE_CYLINDER) {
         return
             shape.dimensions.x >=
                 MR_MIN_COLLISION_EXTENT &&

@@ -1,6 +1,18 @@
 # Validation record
 
-Snapshot: 2026-07-28.
+Snapshot: 2026-07-28, v0.4 development milestone.
+
+## Evidence status
+
+The v0.4 numbers below are from a fresh out-of-tree Release build on an Apple
+M4. C++, Objective-C++, and all Metal shaders compiled cleanly; C++ and
+Objective-C++ warnings were errors. All 21 probe executables passed from the
+same source state. A second full out-of-tree build with AddressSanitizer and
+UndefinedBehaviorSanitizer also compiled and passed all 21 probes.
+
+A local pass establishes only the stated executable contract. It does not
+establish external-simulator agreement, long-horizon robot stability, contact
+differentiability, or performance superiority.
 
 ## Machine and toolchain
 
@@ -10,56 +22,564 @@ Snapshot: 2026-07-28.
 - Apple clang 21.0.0
 - MLX 0.26.5 on `Device(gpu, 0)`
 - NumPy 2.2.5
-- CMake Release build with four 240 Hz physics substeps per 60 Hz control step
+- CMake 4.0.1 Release configuration
 
-## Clean native build
+## Final clean Release gate
+
+The completed clean gate started outside every existing build directory:
 
 ```sh
-metalrobo_check_dir=$(mktemp -d /tmp/metalrobo-clean-build.XXXXXX)
+metalrobo_check_dir=$(mktemp -d /tmp/metalrobo-v04-clean.XXXXXX)
 cmake -S . -B "$metalrobo_check_dir" -G Ninja \
-  -DCMAKE_BUILD_TYPE=Release
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CXX_FLAGS=-Werror \
+  -DCMAKE_OBJCXX_FLAGS=-Werror
 cmake --build "$metalrobo_check_dir" -j 8
+
+for probe in "$metalrobo_check_dir"/bin/metalrobo_*_probe; do
+  "$probe"
+done
 ```
 
-The C++, Objective-C++, Metal 4 shaders, dynamic library, and configured native
-probes compiled without warnings.
+The native/Python version boundary also returned
+`python=0.4.0 native=0.4.0`.
 
-## Dynamics evidence
+### Install/consumer gate
+
+`cmake --install` was exercised into a fresh temporary prefix. An external
+C++23 consumer compiled against only the installed headers and dylib, then ran
+the checked G1 Metal host probe successfully. This verifies that the public
+operator discovers the co-installed `lib/metalrobo/MetalRobo.metallib`
+instead of depending on its build-tree path. The installed
+`metalrobo_bench` also launched through its relative install RPATH.
+
+### Sanitizer gate
+
+The second clean build used
+`-fsanitize=address,undefined -fno-omit-frame-pointer -Werror` for C++ and
+Objective-C++, plus sanitizer linker flags. Every probe passed with
+`halt_on_error=1`. LeakSanitizer is not supported by this Apple sanitizer
+runtime, so this result covers AddressSanitizer memory safety and undefined
+behavior, not leak detection.
+
+## Generalized articulated dynamics and armature
 
 ```sh
-./build/bin/metalrobo_cpu_probe
-./build/bin/metalrobo_parity_probe
+./build/bin/metalrobo_articulated_dynamics_probe
 ```
 
-The FP64 CPU reference completed 600 control steps / 2,400 physics steps with
-deterministic reset, finite state, bounded effort and velocity, and all seven
-joints inside their limits.
+The generalized CPU reference uses FP64 intermediates, world-coordinate CRBA,
+checked Cholesky factorization, and recursive Newton-Euler inverse/bias
+dynamics. It supports fixed or floating trees made from revolute, continuous,
+and fixed joints. Floating state is deliberately `nq != nv`: root COM
+position plus quaternion in `q`, and world linear plus angular COM velocity
+in `v`.
 
-The Metal ABA and CPU reduced dynamics were initialized from the exact same
-state and advanced through one control step:
+ABI v2 supplies one canonical `MRDofPropertiesGPU` record per generalized
+velocity. Armature is treated as physical generalized inertia:
+
+- CRBA adds it to the mass diagonal;
+- RNEA adds `armature * qdd`;
+- kinetic-energy evaluation includes it;
+- forward dynamics, contact response, and impulse response factor the same
+  operator;
+- the generic Metal operator consumes the same per-DoF stream.
+
+Clean Release result:
+
+```text
+articulated=cpu_fp64_crba_rnea
+free_body_error=4.440892e-16
+pendulum_error=5.329071e-15
+forward_inverse_error=8.881784e-16
+mass_symmetry_error=0
+min_mass_pivot=3.025828e-01
+g1_com_anchors=yes g1_nq=36 g1_nv=35
+g1_forward_inverse_error=3.526346e-14
+armature_mass_error=1.110223e-16
+armature_inverse_error=1.764403e-15
+armature_energy_error=1.776357e-14
+armature_samples=12
+energy_drift=5.569560e-11
+linear_momentum_drift=8.940619e-10
+angular_momentum_drift=2.019079e-09
+q_norm_error=0
+midpoint_iterations=2 midpoint_residual=5.532438e-17
+limit_rejection=transactional nonfinite_rejection=transactional
+finite=yes
+```
+
+This establishes analytical checks, forward/inverse consistency, conservation
+checks, and armature propagation through the actual G1 topology. It does not
+establish agreement with an external engine. Authored joint limits are
+validated model data; they are not yet compiled into limit impulses.
+
+## Transactional articulated actuation
+
+```sh
+./build/bin/metalrobo_articulated_actuation_probe
+```
+
+`evaluateArticulatedActuation` supports four explicit per-DoF modes:
+`disabled`, `modelPD`, `customPD`, and `effort`. It evaluates feed-forward plus
+PD, uses the shortest signed angle for continuous joints, clamps actuator
+effort before passive dry friction, forbids floating-root actuation, rejects
+semantically active fields in inactive modes, and publishes only after the
+entire command stream is valid.
+
+Clean Release result:
+
+```text
+articulated_actuation=cpu_fp64
+model_pd=12.25 custom_pd=1.65 effort_clamped=88
+saturation_excess=264 moving_friction=-3
+stiction_generalized=0 continuous_seam=0.2
+offset_q=7 offset_v=6
+replay=bitwise transaction=pass status=ok
+```
+
+The near-zero dry-friction behavior is intentionally a local controller
+approximation. It cancels only the local actuator load up to the authored
+friction magnitude. Gravity, bias, external wrench, and contact loads are not
+available to this evaluator, so this is not coupled set-valued stiction. The
+evaluator can supply the composed world's generalized-force input; implicit
+drives and coupled stiction are not embedded in the world step.
+
+## Analytic articulated contact and exact frames
+
+```sh
+./build/bin/metalrobo_articulated_contact_probe
+```
+
+The FP64 contact operator evaluates body COM poses/twists and analytic point
+Jacobians, retains the checked mass Cholesky factor, and applies impulses as
+`J' -> solve(M) -> J`. The production contact-space path never forms or
+multiplies a dense generalized inverse. A dense inverse remains an explicit,
+checked compatibility artifact for the independent reference oracle only.
+
+Each articulated contact carries a complete right-handed
+`normal/tangentU/tangentV` frame. The validator checks finite, near-unit, and
+near-orthogonal input, but deliberately does not normalize or Gram-Schmidt it.
+The accepted frame is consumed verbatim by Jacobian construction, evaluated
+targets and impulses, semantic fingerprinting, and residual evaluation. This
+prevents hidden coordinate changes between compiler, solver, cache, and
+acceptance gate.
+
+Clean Release result:
+
+```text
+articulated_contact=analytic_fp64
+free_jv_error=2.775558e-17
+free_delassus_error=1.110223e-16
+free_impulse_error=5.551115e-17
+pendulum_jacobian_error=1.778273e-08
+pendulum_delassus_error=7.793282e-09
+armature_delassus_error=8.910624e-09
+armature_impulse_ratio_error=6.512499e-09
+g1_pose_error=1.734723e-18
+g1_jv_error=5.551115e-17
+g1_base_column_error=0
+g1_tree_sparsity_error=0
+g1_delassus_symmetry=0
+g1_dense_adapter_residual=1.674285e-14
+g1_reciprocity=0
+g1_jacobian_adjoint=5.637851e-18
+g1_solver_velocity_error=8.881784e-15
+g1_quality_kkt=7.664994e-16
+frame_semantics=verbatim transactionality=yes status=ok
+```
+
+The pendulum tolerance is limited by FP32 canonical model constants; the
+operator and oracle computations are FP64.
+
+## Evaluated ConstraintIR semantics
+
+```sh
+./build/bin/metalrobo_constraint_ir_probe
+```
+
+ConstraintIR ABI v2 validates fixed-layout streams, stable-key ordering,
+endpoint and range ownership, exact contact frames, cones, and warm starts
+before publication. Its evaluator is the only timestep-dependent semantic
+authority. It selects:
+
+- stabilization and restitution targets;
+- static versus dynamic friction;
+- compliance, dissipation, and discrete regularization;
+- feasible warm-start projection;
+- cone and row activation;
+- a fingerprint over the evaluated program.
+
+Quality and throughput views reference the same evaluated row/cone buffers and
+fingerprint. The articulated adapter consumes that evaluated view rather than
+re-deriving material or target rules. The common residual is evaluated from
+the same program after impulse application.
+
+Clean Release result:
+
+```text
+constraint_ir=abi_v2
+blocks=2 rows=7 endpoints=4 cones=2
+fingerprint=603214807485541855
+shared_buffers=yes
+restitution_target=1.149999976
+regularization=0.2299999893
+equilibrium_residual=0
+adversarial_cone_violation=0.1499999985
+coupled_torsion_residual=2.309401127
+projected_warm_normal=1.200000048
+projected_warm_tangent=0.6000000238
+adversarial_checks=16 transactional=yes status=ok
+```
+
+The nonzero adversarial cone and torsion values are intentional analytical
+violation regressions, not accepted-equilibrium residuals. The current
+three-row articulated exact-cone adapter rejects rolling, torsion, adhesion,
+anisotropy, hard impulse caps, and zero-regularization blocks rather than
+silently approximating them. The ABI can describe more than this adapter can
+currently execute.
+
+## Exact-cone contact-space quality solve and physical PSD gate
+
+```sh
+./build/bin/metalrobo_quality_contact_probe
+```
+
+The quality solver accepts the physical contact-space Delassus operator
+`W = J M^-1 J'`, free contact velocity, evaluated targets, warm impulses, and
+strictly positive per-row regularization. It solves exact circular Coulomb
+cones with a globalized FP64 semismooth Newton method.
+
+The physical `W` is checked independently for symmetry and positive
+semidefiniteness before material regularization is added. This prevents a
+negative physical mode from being hidden by an SPD regularized Hessian.
+Exactly zero and nonzero rank-deficient PSD operators are accepted. A
+scale-aware eigenvalue tolerance accepts a mode inside the contract and
+rejects one outside it, including a dense tiny-indefinite Schur tail.
+
+Clean Release result:
+
+```text
+solver=quality_fp64_semismooth_newton
+contacts=4 iterations=6 reference_iterations=386
+newton_steps=6 gauss_newton_fallbacks=0
+projected_gradient_fallbacks=0
+kkt=1.513167e-12
+primal_cone_violation=9.464532e-18
+dual_cone_violation=3.768652e-12
+contact_complementarity=1.665117e-12
+frictionless_normal_complementarity=0
+reference_impulse_error=4.741880e-10
+contact_space_impulse_error=7.560244e-15
+contact_space_velocity_error=2.396976e-15
+delassus_psd_gate=yes
+rank_deficient_psd=yes
+nonzero_rank_deficient_psd=yes
+psd_tolerance_contract=yes
+permutation_impulse_error=5.958796e-16
+warm_iterations=0 explicit_failure=yes finite=yes
+```
+
+The quality path materializes the small contact Hessian used by direct Newton.
+It does not materialize `M^-1`. Large quality islands still require a
+matrix-free Newton-PCG implementation.
+
+## Collision-generated G1 contact adapter
+
+```sh
+./build/bin/metalrobo_g1_collision_contact_probe
+```
+
+This boundary probe starts with actual G1 body state, executes deterministic
+collision and persistent-manifold assembly against a z-up plane, compiles and
+evaluates ConstraintIR, adapts its fingerprinted rows, and solves through the
+factor-backed generalized operator:
+
+```text
+g1_collision_contact=cpu_to_generalized_fp64
+root_lowering=1.629781e-02
+raw_contacts=8 manifolds=8 constraints=8 adapted=8
+penetration_max=5.000198e-04
+target_normal_max=1.920095e-02
+solved_normal_min=1.919900e-02
+operator_velocity_error=1.873501e-15
+reconstructed_point_error=1.862645e-09
+free_jv_parity_error=0
+quality_kkt=8.428597e-16
+endpoint_swap_error=0
+target_rule_error=2.775558e-17
+compliance_regularization_error=0
+kinematic_compensation_error=2.682209e-09
+capacity_transactional=yes tiny_timestep_rejected=yes
+cross_articulation_rejected=yes
+unbound_dynamic_rejected=yes
+strict_constraint_flags=yes status=ok
+```
+
+This proves the geometry-to-generalized boundary with real collision contacts,
+not hand-authored sole rows. The complete configuration transaction is covered
+by the next probe.
+
+## Composed transactional ArticulatedWorld
+
+```sh
+./build/bin/metalrobo_articulated_world_probe
+```
+
+`stepArticulatedWorldCpu` now composes one complete symplectic generalized
+timestep:
+
+```text
+validate
+  -> FP64 free dynamics
+  -> articulated body-state projection
+  -> collision and private persistent-manifold update
+  -> canonical ConstraintIR compilation
+  -> one evaluated semantic program
+  -> fingerprinted articulated-contact adaptation
+  -> J, checked mass factor, and physical W
+  -> exact circular-Coulomb solve
+  -> factor-backed impulse application
+  -> independent solver-velocity agreement check
+  -> common ConstraintIR residual
+  -> configuration integration
+  -> atomic state/cache publication
+```
+
+Any failure leaves `q`, `v`, manifold cache, impulse cache, and cache step
+unchanged. The quality path does not materialize a dense generalized inverse.
+The projected-gradient reference path may build its explicitly checked dense
+compatibility adapter for differential validation.
+
+Clean Release result:
+
+```text
+articulated_world=cpu_transactional model=g1
+free_q_error=0 free_v_error=0
+contacts=8 max_normal_impulse=1.063735408
+velocity_correction=1.893145902
+factor_contact_velocity_error=2.184953887e-16
+semantic_fingerprint=3121490046967162423
+common_residual=8.184883882e-10
+quality_reference_q_error=5.551115123e-17
+quality_reference_v_error=5.906462385e-15
+kinematic_compensation=0.200000003
+deterministic=yes late_rollback=yes
+overflow_rollback=yes status=ok
+```
+
+The probe includes free-flight parity, real G1 foot contact, quality/reference
+differential comparison, moving-kinematic-ground compensation, deterministic
+replay, late integration rollback, and pair-capacity rollback.
+
+This world currently admits exactly one executable articulation plus static or
+kinematic environment bodies. It is not a multi-articulation island solver,
+does not admit dynamic free environment objects, and does not yet include
+joint-limit impulses, self-collision, implicit drives, or a fully composed
+Metal timestep.
+
+## Generic Metal articulated operator
+
+```sh
+./build/bin/metalrobo_articulated_operator_gpu_probe
+```
+
+The Metal correctness operator consumes canonical articulation, body, joint,
+and per-DoF records plus environment-major configurations and point-impulse
+queries. For fixed or floating revolute trees within its declared capacity it
+computes body COM poses, queried world points, analytic point Jacobians, a
+diagnostic dense mass matrix, `J' p`, and factor-backed `M^-1 J' p`.
+
+Clean Release Apple M4 result:
+
+```text
+floating 6-DoF analytic:
+  pose=0 orientation=1.789394e-09 point=1.902070e-08
+  mass=1.697124e-09 J=1.078162e-08 JTp=3.518265e-08
+  dv=2.662635e-07 equation_residual=2.662635e-08
+
+fixed 1-DoF analytic:
+  pose=5.936634e-09 orientation=1.289274e-08
+  point=3.878424e-09 mass=1.035631e-08
+  J=3.878424e-09 JTp=6.517712e-09
+  dv=3.059345e-09 equation_residual=2.615740e-09
+
+Unitree G1 3-env x 35-DoF:
+  pose=5.426786e-07 orientation=1.139133e-07
+  point=5.587429e-07 mass=5.103648e-06
+  J=5.401164e-07 JTp=2.294779e-06
+  dv=3.682954e-05 equation_residual=1.044466e-05
+  status_backward_error=4.794357e-11
+
+G1 topology:
+  bodies=30 joints=29 nq=36 nv=35 point_impulses=4
+  deterministic_replay=yes transactional_failure=yes
+  armature_canary=yes inertia_validation_parity=yes
+```
+
+This first implementation deliberately executes a lane-zero correctness path.
+Its diagnostic dense `M` is not a production throughput representation, and
+its timing is not a benchmark. It establishes real Metal execution of the G1
+operator, not a device-resident dynamics/collision/solve/integration loop.
+
+### Checked public host API
+
+`runMetalArticulatedOperator` now provides typed inputs/results and derives the
+raw kernel layout internally. It checks the canonical model, topology,
+dimensions, arithmetic, the shader's 32-bit element-address ceiling,
+capacities, finite values, point ownership, each actual Metal buffer length,
+the device's per-buffer and aggregate working-set guidance, pipeline creation,
+command completion, and per-environment GPU status. It owns all 15 compact
+buffers, so callers cannot introduce aliases, offsets, or short raw bindings.
+Predispatch failure leaves the caller's result bit-for-bit unchanged; after
+dispatch, a batch and its status stream publish together.
+
+```sh
+./build/bin/metalrobo_articulated_operator_host_probe
+```
+
+Clean Release result:
+
+```text
+articulated_operator_host=metal device="Apple M4"
+environments=2 q_elements=72 point_elements=4
+mass_elements=2450 jacobian_elements=420
+allocated_bytes=26008
+replay=bitwise offset_articulation=pass predispatch_canaries=7
+empty_buffers=pass gpu_status_publication=pass status=ok
+```
+
+The offset differential duplicates G1 as articulation 1 and proves that
+nonzero articulation, body, joint, `q`, and `v` offsets produce byte-identical
+physics payloads to the zero-offset model.
+
+The seven predispatch canaries cover one-short packed `q` and point spans,
+host-size overflow, shader-address overflow, declared point capacity, an
+invalid canonical model, and invalid point ownership without dispatch or
+result mutation. The zero-point/mass-disabled case proves that logically
+empty streams receive typed dummy bindings. A deliberately non-finite derived
+GPU result proves that completed environment failures publish the typed status
+stream while leaving failed payload slots zeroed. Host latency is
+intentionally omitted because this synchronous correctness wrapper recreates
+its Metal context and allocations; it is not a throughput benchmark.
+
+## Collision, manifolds, and the fifth pair class
+
+```sh
+./build/bin/metalrobo_collision_probe
+./build/bin/metalrobo_collision_gpu_probe
+./build/bin/metalrobo_deterministic_broadphase_probe
+```
+
+CPU FP64 and Metal FP32 now share five supported analytic pair classes:
+
+1. sphere/sphere;
+2. sphere/plane;
+3. capsule/plane;
+4. box/plane;
+5. cylinder/plane.
+
+Oriented cylinder AABBs and cylinder/plane witnesses are implemented on both
+backends. Deterministic feature selection emits a four-point cap ring for a
+parallel supporting cap, two ordered side-rim endpoints for a plane-parallel
+axis, and one extremal rim point for the general tilted case. Collider-order
+reversal, stable features, outward AABBs, exact capacity behavior, malformed
+input rejection, and CPU/Metal witness parity are executable gates.
+
+Clean Release CPU collision result:
+
+```text
+collision=cpu_fp64 pairs=6 raw_contacts=13 manifolds=6
+sap_corpus_pairs=29 false_negatives=0 pair_classes=5
+stable_ids=yes persistent_refresh=yes manifold_reduction=8_to_4
+canonical_filters=yes overflow_transactional=yes finite=yes
+```
+
+Clean Release Metal narrowphase result:
+
+```text
+device="Apple M4" broadphase=metal_o_n2_baseline
+shapes=17 pairs=9 raw_contacts=16
+capsule_endpoint_contacts=2
+box_raw_contacts=8 box_manifold_contacts=4
+max_witness_error=8.195639e-08
+cylinder_max_witness_error=9.536743e-07
+cylinder_cap_side_rim=yes
+cylinder_endpoint_order=yes
+cylinder_aabb_tight=yes cylinder_adversarial=yes
+canonical_filters=yes stable_features=yes
+deterministic_replay=yes overflow_transactional=yes
+finite_validation=yes strict_shape_flags=yes
+strict_exclusions=yes strict_body_stream=yes
+error_precedence=yes derived_transform_validation=yes
+bounded_collision_domain=yes subnormal_policy=yes
+quaternion_boundary_parity=yes zero_shape_world=yes
+disabled_unsupported_skipped=yes status=ok
+```
+
+Clean Release deterministic flag/scan/scatter broadphase result:
+
+```text
+device=Apple M4 broadphase=metal_parallel_flag_scan_scatter
+shapes=50 logical_pairs=1225 scan_blocks=5 candidate_pairs=47
+cpu_parity=yes cylinder_plane=yes deterministic=yes
+exact_capacity=yes zero_pair_worlds=yes
+overflow_transactional=yes nonfinite_transactional=yes
+shape_validation_transactional=yes strict_body_stream=yes
+error_precedence=yes derived_transform_validation=yes
+bounded_collision_domain=yes subnormal_policy=yes
+quaternion_boundary_parity=yes unsupported_transactional=yes
+global_append_atomics=none status=ok
+```
+
+This is cylinder/plane support, not generic cylinder collision.
+Cylinder/sphere, cylinder/capsule, cylinder/box, cylinder/cylinder, convex,
+mesh, heightfield, and CCD remain unsupported. The G1 shoulder cylinders stay
+simulation-disabled because the other required pair and self-collision
+semantics do not exist yet—not because cylinder/plane is missing.
+
+The `O(n²)` Metal pair enumeration remains the generic correctness baseline.
+The parallel scan probe is a micro-broadphase component, not a completed LBVH,
+GPU manifold-persistence path, or throughput result.
+
+## Pinned G1 compilation
+
+```sh
+./build/bin/metalrobo_g1_model_probe
+```
+
+Clean Release result:
+
+```text
+model="unitree_g1_29dof_rev_1_0"
+mode_machine=5 mode_pr=0
+bodies=30 joints=29 nq=36 nv=35
+root_com_z=0.72396994 mass_kg=33.34114204
+primitive_shapes=12 executable_shapes=8 foot_spheres=8
+imus=2 max_inverse_error=1.02104631e-07 status=ok
+```
+
+The model retains factual URDF limits separately from the named Unitree RL Lab
+drive/armature preset. Eight foot spheres are executable. Four shoulder
+cylinders remain present but simulation-disabled for the collision-coverage
+reason stated above.
+
+## Additional clean component evidence
+
+### Original Franka Metal runtime
+
+The clean probe initialized the FP64 CPU reference and fixed-base Franka Metal
+ABA from the same state and advanced one control step:
 
 ```text
 max_q_error_rad=9.313226e-10
 max_qd_error_rad_s=3.278255e-07
 ```
 
-This narrow probe detects joint-frame, spatial-transform, gravity, drive, and
-integration disagreement. It does not establish long-horizon equivalence or
-contact accuracy against an independent simulator.
+This is evidence for the original fixed-base Franka environment, not the
+generic G1 world.
 
-A separate randomized Franka Metal soak advanced 1,024 environments for 1,000
-control steps: 1,024,000 environment-steps total. Observations, rewards, body
-positions, and body quaternions remained finite; maximum quaternion norm error
-was `1.19e-7`. Terminal events include success and the 600-step horizon, so
-their count is not a non-finite-state count. This is evidence for the original
-fixed-base Franka runtime, not G1.
-
-## Generic free-body dynamics
-
-```sh
-./build/bin/metalrobo_free_body_probe
-./build/bin/metalrobo_free_body_gpu_probe
-```
+### Generic free-body dynamics
 
 The FP64 implicit-midpoint oracle advanced a torque-free anisotropic body for
 10,000 steps at 1 kHz:
@@ -71,8 +591,8 @@ max_newton_iterations=2
 max_residual=8.295525e-16
 ```
 
-The Apple M4 Metal probe covers static, kinematic, and anisotropic dynamic
-bodies under both integrators:
+The Apple M4 Metal probe covered static, kinematic, and anisotropic dynamic
+bodies under implicit-midpoint and symplectic integrators:
 
 ```text
 implicit_max_error=2.384186e-07
@@ -80,252 +600,13 @@ symplectic_max_error=2.384186e-07
 energy_drift=4.951812e-08
 angular_momentum_drift=2.890093e-08
 midpoint_iterations=2
-motion_contract=yes
-range_preflight=yes
+motion_contract=yes range_preflight=yes
 ```
 
-These are focused convention/conservation probes, not a claim of high-order
-accuracy under contact.
+### Throughput PGS and maximal-coordinate world
 
-## Generalized articulated CPU reference
-
-```sh
-./build/bin/metalrobo_articulated_dynamics_probe
-```
-
-The generalized reference uses FP64 intermediates, an actual
-world-coordinate composite-rigid-body recursion, dense Cholesky, and
-recursive Newton-Euler bias/inverse dynamics. It accepts fixed or floating
-trees with revolute, continuous, or fixed joints. Floating state is
-`nq != nv`: root COM position plus quaternion in `q`, and world linear plus
-angular COM velocity in `v`. External forces and torques are applied at body
-COMs.
-
-The probe covers an analytical anisotropic free body with external wrench and
-gravity, an analytical one-link pendulum, an eight-velocity floating chain,
-the compiled branched 30-body/29-joint G1 topology, transactional
-limit/non-finite rejection, and a 400-step unforced implicit-midpoint
-conservation run:
-
-```text
-free_body_error=4.440892e-16
-pendulum_error=5.329071e-15
-forward_inverse_error=8.881784e-16
-mass_symmetry_error=0
-g1_forward_inverse_error=7.170653e-14
-energy_drift=5.569560e-11
-linear_momentum_drift=8.940619e-10
-angular_momentum_drift=2.019079e-09
-q_norm_error=0
-midpoint_iterations=2
-```
-
-This establishes internal analytical and forward/inverse consistency for the
-CPU reference, including the actual G1 topology and inertial records. It does
-not establish agreement with an external simulator, long-horizon G1
-stability, or Metal G1 execution. The reference is not yet wired into a
-complete composed articulated timestep.
-
-## Analytic articulated contact
-
-```sh
-./build/bin/metalrobo_articulated_contact_probe
-```
-
-The FP64 layer evaluates COM poses/twists and batched point Jacobians
-analytically, retains the checked CRBA Cholesky factor, and applies contact
-impulses as `Jᵀ -> solve(M) -> J`. It does not use configuration finite
-differences or multiply a dense inverse in the impulse-response path. A dense
-inverse is still produced only as a compatibility adapter for the current
-FP64 conic solvers.
-
-The probe covers a floating anisotropic body at an off-COM point, a fixed
-pendulum with a closed-form Jacobian/effective mass, and two simultaneous sole
-contacts on the actual G1:
-
-```text
-free_jv_error=2.775558e-17
-free_delassus_error=1.110223e-16
-pendulum_jacobian_error=1.778273e-08
-g1_jv_error=5.551115e-17
-g1_base_column_error=0
-g1_tree_sparsity_error=0
-g1_delassus_symmetry=0
-g1_jacobian_adjoint=5.637851e-18
-g1_dense_adapter_residual=5.814700e-14
-g1_solver_velocity_error=5.329071e-15
-g1_quality_kkt=2.543264e-16
-transactionality=yes
-```
-
-The pendulum tolerance is limited by the engine model's FP32 ABI constants;
-the computations are FP64. This proves the generalized contact operator and
-solver connection, not a full G1 contact trajectory or Metal execution.
-
-```sh
-./build/bin/metalrobo_g1_collision_contact_probe
-```
-
-This second probe closes the geometry-to-generalized-impulse boundary. It
-generates analytic body poses/twists, runs the real FP64 collision and
-persistent-manifold path against a z-up ground plane, performs common material
-assembly, adapts the resulting constraints, and solves them through the
-factor-backed G1 operator:
-
-```text
-root_lowering=1.629781e-02
-raw_contacts=8 manifolds=8 constraints=8 adapted=8
-penetration_max=5.000198e-04
-target_normal_max=1.920095e-02
-solved_normal_min=1.919900e-02
-operator_velocity_error=6.661338e-15
-reconstructed_point_error=1.862645e-09
-free_jv_parity_error=0
-quality_kkt=4.317683e-15
-endpoint_swap_error=0
-target_rule_error=2.775558e-17
-compliance_regularization_error=0
-kinematic_compensation_error=2.682209e-09
-capacity_transactional=yes tiny_timestep_rejected=yes
-cross_articulation_rejected=yes unbound_dynamic_rejected=yes
-strict_constraint_flags=yes
-```
-
-This is real collision-generated G1 contact, not hand-authored sole rows. It
-still stops before configuration integration and does not include G1 drives,
-limits, self-collision, Metal execution, or a locomotion rollout.
-
-## Collision and manifolds
-
-```sh
-./build/bin/metalrobo_collision_probe
-./build/bin/metalrobo_collision_gpu_probe
-```
-
-The FP64 path generated deterministic sweep-and-prune pairs, analytic
-sphere/sphere plus sphere/capsule/box-to-plane witnesses, and persistent
-four-point manifolds. The corpus reported 29 SAP pairs with zero false
-negatives, stable IDs, `8_to_4` deterministic manifold reduction, canonical
-filters, and transactional overflow.
-
-The Metal correctness baseline matched sorted CPU witnesses for all four
-currently supported pair classes:
-
-```text
-shapes=17 pairs=9 raw_contacts=16
-capsule_endpoint_contacts=2
-box_raw_contacts=8 box_manifold_contacts=4
-max_witness_error=8.195639e-08
-canonical_filters=yes stable_features=yes deterministic_replay=yes
-overflow_transactional=yes finite_validation=yes
-strict_shape_flags=yes strict_exclusions=yes
-strict_body_stream=yes error_precedence=yes
-derived_transform_validation=yes quaternion_boundary_parity=yes
-bounded_collision_domain=yes subnormal_policy=yes
-zero_shape_world=yes
-disabled_unsupported_skipped=yes
-```
-
-An adversarial numerical audit then targeted the exact places where a naïve
-FP64-oracle/FP32-device parity contract fails:
-
-```text
-derived-domain cases=30000 cpu_metal_status_mismatch=0
-quaternion-boundary cases=30000 cpu_metal_status_mismatch=0
-conservative-aabb cases=300000 inward_bounds=0
-contact-threshold cases=40000 cpu_pairs_missing_on_metal=0
-cpu_contacts_missing_on_metal=0 metal_extra_contacts=19952
-max_extra_contact_gap=1.68085e-05
-max_declared_pad_fraction=0.093316
-```
-
-The threshold corpus deliberately places every scene within three FP32 ULPs
-of contact creation. Extra Metal contacts there are the specified
-conservative behavior, not exact-topology parity: a device contact may be
-published inside the scale-aware roundoff band, but an FP64 oracle contact
-may not be lost. Outside that band, the normal witness tolerances apply.
-
-The separate parallel micro-broadphase probe executes a deterministic
-flag/two-level-scan/scatter stream with no global append atomic:
-
-```sh
-./build/bin/metalrobo_deterministic_broadphase_probe
-```
-
-```text
-shapes=50 logical_pairs=1225 scan_blocks=5 candidate_pairs=47
-cpu_parity=yes deterministic=yes exact_capacity=yes
-zero_pair_worlds=yes
-overflow_transactional=yes nonfinite_transactional=yes
-shape_validation_transactional=yes strict_body_stream=yes
-error_precedence=yes derived_transform_validation=yes
-bounded_collision_domain=yes subnormal_policy=yes
-quaternion_boundary_parity=yes
-unsupported_transactional=yes
-global_append_atomics=none
-```
-
-The narrowphase baseline remains deliberately one-thread `O(n²)`. The
-parallel broadphase result is a correctness/integration probe, not a throughput
-benchmark or a completed LBVH/manifold pipeline.
-
-## Shared constraint semantics
-
-```sh
-./build/bin/metalrobo_constraint_ir_probe
-```
-
-The ABI-v2 CPU reference validates fixed-layout streams, stable-key ordering,
-dense range ownership, frames, cones, and warm starts before publication. The
-ABI-v1 contact adapter is transactional. Quality and throughput views share
-the exact evaluated row/cone buffers and semantic fingerprint; only a later
-numerical dispatch may differ.
-
-```text
-blocks=2 rows=7 endpoints=4 cones=2
-shared_buffers=yes
-restitution_target=1.149999976
-regularization=0.2299999893
-equilibrium_residual=0
-adversarial_cone_violation=0.1499999985
-coupled_torsion_residual=2.309401127
-projected_warm_normal=1.200000048
-projected_warm_tangent=0.6000000238
-adversarial_checks=16 transactional=yes
-```
-
-The nonzero cone and torsion values are deliberate analytical violation
-regressions, not residuals of an accepted equilibrium. The torsion case checks
-the exact joint projection of normal, two tangents, and torsion rather than an
-independent clamp. The projected warm values prove that a static-friction
-cache is made feasible again when slip selects the narrower dynamic cone.
-Malformed/stale public views, noncanonical contact bounds, and arbitrarily
-small residual projection steps are rejected. Rolling and adhesion are
-explicitly rejected until their shared semantics are implemented. Existing
-production solvers do not yet consume this IR.
-
-## Contact solver portfolio
-
-```sh
-./build/bin/metalrobo_reference_conic_probe
-./build/bin/metalrobo_quality_contact_probe
-./build/bin/metalrobo_contact_gpu_probe
-```
-
-The independent accelerated projected-gradient oracle reached an exact-cone
-optimality residual of `4.939340e-12`. The globalized FP64 semismooth-Newton
-quality path solved a coupled four-contact problem in six iterations:
-
-```text
-kkt=1.513167e-12
-primal_cone_violation=9.464532e-18
-dual_cone_violation=3.768652e-12
-reference_impulse_error=4.741880e-10
-permutation_impulse_error=5.958796e-16
-warm_iterations=0
-```
-
-The fixed-budget CPU/Metal PGS block agreed on a coupled two-contact stack:
+The clean fixed-budget CPU/Metal PGS probe agreed on a coupled two-contact
+stack:
 
 ```text
 max_linear_error=7.450581e-08
@@ -336,116 +617,72 @@ momentum_xy_error=2.215217e-07
 arithmetic_rollback=yes
 ```
 
-The PGS block uses radial friction projection and is neither TGS nor the
-exact effective-mass-metric quality solve. One throughput solver dispatch is
-hard-limited to 128 contacts. The composed CPU world partitions independent
-constraint islands before dispatch, so the operative ceiling is 128 contacts
-for any one connected island; an oversized connected island reports explicit
-capacity overflow. The current Metal kernel has the same per-dispatch limit,
-and its caller must provide the island partition.
+The PGS block uses radial friction projection. It is not TGS and is not the
+exact-cone effective-mass quality solve. Its hard limit remains 128 contacts
+per connected island/dispatch.
 
-The Metal contact kernel preflights validation and capacity errors and backs
-up only touched dynamic velocities plus contact impulses/flags. The
-`arithmetic_rollback` case forces the second warm-start impulse to overflow
-after the first contact has already mutated state, then verifies exact body
-and contact restoration. Static endpoints are excluded from backup/restore so
-independent islands can share static geometry without a write race.
-
-## Composed rigid-body world
-
-```sh
-./build/bin/metalrobo_rigid_body_world_probe
-```
-
-The transactional CPU pipeline held a two-sphere stack for 1,200 steps with
-two persistent warm-started contacts and deterministic bitwise replay. The
-same pipeline ran 240 steps through the semismooth quality solver:
+The transactional maximal-coordinate CPU world held a two-sphere stack for
+1,200 steps and ran a 240-step semismooth quality path:
 
 ```text
 penetration_max=0
 bottom_y=0.5 top_y=1.5
 quality_kkt_max=4.812123e-17
 manifold_constraints=4
-rest_offsets=yes
-island_batched_contacts=129
+rest_offsets=yes island_batched_contacts=129
 quality_friction_rejection=transactional
 overflow_transactional=yes
 ```
 
-This validates composition and signs for a narrow maximal-coordinate scene.
-The world advances independent rigid bodies through free motion and resolves
-their contacts; it does not invoke the generalized articulated CRBA/RNEA
-path. It is not an articulated-contact or impact/CCD benchmark.
+That world is independent-body evidence; it does not replace the new
+generalized `ArticulatedWorld`.
 
-## Pinned G1 compilation
-
-```sh
-./build/bin/metalrobo_g1_model_probe
-```
-
-The compiled mode-machine-5 model contains 30 dynamic bodies, 29 joints,
-`nq=36`, `nv=35`, 33.34114204 kg total mass, 12 official primitive records,
-two IMUs, full positive-definite inertia tensors, COM-centred runtime anchors,
-and a COM root reset at `z=0.72396994`. Eight foot spheres are executable; the
-four shoulder cylinders are retained but simulation-disabled until cylinder
-narrowphase exists.
-
-## Native throughput
-
-```sh
-./build/bin/metalrobo_bench --envs 256  --steps 500
-./build/bin/metalrobo_bench --envs 1024 --steps 500
-./build/bin/metalrobo_bench --envs 4096 --steps 200
-```
+### Original native runtime throughput
 
 | Environments | Environment control-steps/s | Last GPU control step |
 | ---: | ---: | ---: |
-| 256 | 139,939 | 1.210 ms |
-| 1,024 | 195,900 | 4.381 ms |
-| 4,096 | 218,110 | 18.158 ms |
+| 1,024 | 216,313 | 4.382 ms |
 
-Each environment control-step includes four complete ABA/contact/integration
-substeps plus observation, reward, termination, and pose work. Results are one
-local machine snapshot; the 1,024 row is the final clean v0.2 run and the
-other rows are earlier runs on the same machine. This is not a cross-engine
-benchmark. The host submits synchronously and the C++ benchmark also fills
-actions and reads rewards on the CPU.
+The clean run executed 1,000 control steps. Each environment control step
+included four Franka ABA/contact/integration substeps plus observation, reward,
+termination, and pose work. This is a local original-runtime result, not a
+cross-engine benchmark and not generic G1 throughput.
 
-## Real MLX PPO update
+### MLX PPO integration smoke
 
-```sh
-PYTHONPATH=python python3 -m metalrobo train \
-  --envs 1024 \
-  --rollout-steps 32 \
-  --iterations 1 \
-  --update-epochs 2 \
-  --minibatch-size 8192 \
-  --hidden-sizes 128 128 \
-  --checkpoint-dir /tmp/metalrobo-final-ppo-smoke
+The clean one-iteration MLX smoke used 64 environments, eight rollout steps,
+one update epoch, and two minibatch updates. It collected 512 transitions,
+reported finite loss, KL, entropy, and gradient metrics, and wrote a resumable
+checkpoint:
+
+```text
+rollout_env_steps_per_second=16757.67
+loss=13.30460 policy_loss=-0.001923 value_loss=26.61305
+entropy=6.43332 approx_kl=0.0006036 clip_fraction=0
+gradient_norm=8.91533 minibatch_updates=2
 ```
 
-This collected 32,768 transitions, executed eight clipped PPO minibatch
-updates on MLX, reported finite loss/KL/gradient metrics, and wrote
-`checkpoint-000001` with model, optimizer, and run state. Rollout collection
-measured 117,645 environment-steps/s in that combined Python/MLX run.
+This establishes integration and checkpoint publication only, not policy
+convergence.
 
 ## What remains unvalidated
 
-- Trajectory/contact comparison against a pinned MuJoCo or Genesis Franka
-  scene
-- Parallel Metal broadphase/narrowphase performance and integration; the
-  current scan broadphase and generic narrowphase are focused correctness
-  components
-- Metal persistent-manifold refresh/reduction; the executable persistence
-  path is CPU
-- Cylinder and general capsule/box Metal narrowphase,
-  convex/mesh/heightfield collision, articulated self-collision, and CCD
-- A complete generalized articulated timestep composing free motion,
-  collision/manifold refresh, limits/drives, solve, and configuration update
-- Batched Metal floating-articulation execution and long-horizon G1 dynamics
+- Trajectory/contact comparison against pinned MuJoCo, Genesis, or another
+  independent simulator
+- A batched parallel device-resident Metal world step; the current generic
+  operator is a lane-zero correctness path and its public host wrapper is
+  synchronous with per-call resource creation
+- Long-horizon controlled G1 contact stability, locomotion learning, and RL
+  throughput
+- Multi-articulation and mixed dynamic-body islands
+- Implicit drives, coupled set-valued joint stiction, and joint-limit impulses
+- Articulated self-collision, loop constraints, and unsupported pair classes
+- GPU persistent-manifold refresh/reduction, production segmented LBVH,
+  convex/mesh/heightfield collision, and certified CCD
+- Matrix-free Newton-PCG for large exact-cone quality islands
 - Connected throughput islands above 128 contacts and production spill/replay
-- TGS; the current throughput solver is correctly identified as PGS
-- Learned-policy convergence beyond a one-iteration integration run
-- Cross-machine performance and reproducibility
-- G1 locomotion training; the physical model is compiled but not yet wired to
-  a batched Metal environment
+- TGS; the current throughput solver is PGS
+- Qualified derivatives through impact, friction-regime, and active-set
+  changes
+- Cross-machine performance/reproducibility and any superiority claim over
+  MuJoCo, Genesis, or NVIDIA simulators

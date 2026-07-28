@@ -224,7 +224,7 @@ private:
         }
         if (!device_.hasUnifiedMemory) {
             throw std::runtime_error(
-                "MetalRobo v0.3 requires an Apple-silicon GPU with unified "
+                "MetalRobo v0.4 requires an Apple-silicon GPU with unified "
                 "memory; selected device is '" + nsString(device_.name) + "'"
             );
         }

@@ -161,6 +161,7 @@ double contactError(
         maximumError(left.localPointB, right.localPointB),
         maximumError(left.normal, right.normal),
         maximumError(left.tangentU, right.tangentU),
+        maximumError(left.tangentV, right.tangentV),
         maximumError(
             left.targetVelocity,
             right.targetVelocity
@@ -415,7 +416,8 @@ int main() {
                 freeVelocity,
                 adaptation.contacts,
                 problem,
-                dynamicsConfig
+                dynamicsConfig,
+                true
             );
         require(
             contactDiagnostics.succeeded(),
@@ -485,7 +487,11 @@ int main() {
                 adaptation.contacts[contact].tangentU[1],
                 adaptation.contacts[contact].tangentU[2],
             };
-            const Vec3 tangentV = cross(normal, tangentU);
+            const Vec3 tangentV{
+                adaptation.contacts[contact].tangentV[0],
+                adaptation.contacts[contact].tangentV[1],
+                adaptation.contacts[contact].tangentV[2],
+            };
             const std::array<Vec3, 3> directions{
                 normal,
                 tangentU,

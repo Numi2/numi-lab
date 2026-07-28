@@ -244,7 +244,7 @@ ArticulatedCollisionResult failure(
     diagnostics.code = code;
     diagnostics.failure = reason;
     diagnostics.failedConstraintIndex = constraintIndex;
-    return {diagnostics, {}, {}};
+    return {diagnostics, {}, {}, {}};
 }
 
 std::optional<ArticulatedCollisionFailure> bindEndpoint(
@@ -607,6 +607,7 @@ ArticulatedCollisionResult adaptArticulatedContactConstraints(
         ));
         result.normal = array(adaptedNormal);
         result.tangentU = array(adaptedTangentU);
+        result.tangentV = array(adaptedTangentV);
         result.targetVelocity = {
             dot(adaptedTarget, adaptedNormal),
             dot(adaptedTarget, adaptedTangentU),
@@ -721,6 +722,368 @@ ArticulatedCollisionResult adaptArticulatedContactConstraints(
     result.diagnostics = diagnostics;
     result.contacts = std::move(adapted);
     result.sourceConstraintIndices = std::move(sourceIndices);
+    return result;
+}
+
+ArticulatedCollisionResult adaptEvaluatedArticulatedContacts(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const ConstraintIREvaluationView& semantics,
+    const std::span<const MRBodyStateGPU> bodyStates,
+    const std::uint32_t contactCapacity
+) {
+    ArticulatedCollisionDiagnostics diagnostics;
+    diagnostics.articulationIndex = articulationIndex;
+    diagnostics.inputConstraintCount =
+        static_cast<std::uint32_t>(std::min<std::size_t>(
+            semantics.blocks.size(),
+            std::numeric_limits<std::uint32_t>::max()
+        ));
+    diagnostics.semanticFingerprint =
+        semantics.semanticFingerprint;
+
+    const auto failBlock = [&diagnostics](
+        const MRStepStatusCode code,
+        const ArticulatedCollisionFailure reason,
+        const std::uint32_t blockIndex = MR_INVALID_INDEX
+    ) {
+        ArticulatedCollisionResult result;
+        diagnostics.code = code;
+        diagnostics.failure = reason;
+        diagnostics.failedBlockIndex = blockIndex;
+        result.diagnostics = diagnostics;
+        return result;
+    };
+
+    const ConstraintIRDiagnostics semanticDiagnostics =
+        validateConstraintIREvaluationView(semantics);
+    if (!semanticDiagnostics.succeeded()) {
+        return failBlock(
+            MR_STEP_NONFINITE_INPUT,
+            ArticulatedCollisionFailure::invalidConstraint,
+            semanticDiagnostics.blockIndex
+        );
+    }
+    if (articulationIndex >= model.articulations.size()) {
+        return failBlock(
+            MR_STEP_NONFINITE_INPUT,
+            ArticulatedCollisionFailure::invalidConfiguration
+        );
+    }
+    const MRArticulationGPU& articulation =
+        model.articulations[articulationIndex];
+    if (articulation.firstBody > model.bodies.size() ||
+        articulation.bodyCount >
+            model.bodies.size() - articulation.firstBody ||
+        articulation.bodyCount == 0u) {
+        return failBlock(
+            MR_STEP_NONFINITE_INPUT,
+            ArticulatedCollisionFailure::invalidConfiguration
+        );
+    }
+
+    std::uint64_t activeCount = 0u;
+    for (std::uint32_t blockIndex = 0u;
+         blockIndex < semantics.blocks.size();
+         ++blockIndex) {
+        const ConstraintIRBlock& block =
+            semantics.blocks[blockIndex];
+        if ((block.flags & constraintIRBlockDisabled) != 0u) {
+            continue;
+        }
+        if (block.type != MR_CONSTRAINT_CONTACT) {
+            return failBlock(
+                MR_STEP_UNSUPPORTED,
+                ArticulatedCollisionFailure::
+                    unsupportedContactSemantics,
+                blockIndex
+            );
+        }
+        ++activeCount;
+    }
+    diagnostics.requiredContactCount =
+        static_cast<std::uint32_t>(std::min<std::uint64_t>(
+            activeCount,
+            std::numeric_limits<std::uint32_t>::max()
+        ));
+    if (activeCount > contactCapacity) {
+        return failBlock(
+            MR_STEP_CONSTRAINT_CAPACITY_OVERFLOW,
+            ArticulatedCollisionFailure::capacityOverflow
+        );
+    }
+
+    std::vector<ArticulatedContact> adapted;
+    std::vector<std::uint32_t> sourceBlocks;
+    adapted.reserve(static_cast<std::size_t>(activeCount));
+    sourceBlocks.reserve(static_cast<std::size_t>(activeCount));
+
+    for (std::uint32_t blockIndex = 0u;
+         blockIndex < semantics.blocks.size();
+         ++blockIndex) {
+        const ConstraintIRBlock& block =
+            semantics.blocks[blockIndex];
+        if ((block.flags & constraintIRBlockDisabled) != 0u) {
+            continue;
+        }
+        const EvaluatedConstraintIRCone& cone =
+            semantics.cones[block.coneIndex];
+        if (block.dimension != 3u ||
+            cone.effectiveFrictionU !=
+                cone.effectiveFrictionV ||
+            cone.rollingLength != 0.0F ||
+            cone.torsionalLength != 0.0F ||
+            cone.adhesionImpulse != 0.0F ||
+            cone.maximumNormalImpulse != 0.0F) {
+            return failBlock(
+                MR_STEP_UNSUPPORTED,
+                ArticulatedCollisionFailure::
+                    unsupportedContactSemantics,
+                blockIndex
+            );
+        }
+        const ConstraintIREndpoint& endpointA =
+            semantics.endpoints[block.endpointOffset];
+        const ConstraintIREndpoint& endpointB =
+            semantics.endpoints[block.endpointOffset + 1u];
+        if (endpointA.jacobianKind !=
+                constraintIRJacobianWorldPoint ||
+            endpointB.jacobianKind !=
+                constraintIRJacobianWorldPoint ||
+            endpointA.objectIndex >= bodyStates.size() ||
+            endpointB.objectIndex >= bodyStates.size()) {
+            return failBlock(
+                MR_STEP_UNSUPPORTED,
+                ArticulatedCollisionFailure::
+                    unsupportedContactSemantics,
+                blockIndex
+            );
+        }
+
+        const MRBodyStateGPU& stateA =
+            bodyStates[endpointA.objectIndex];
+        const MRBodyStateGPU& stateB =
+            bodyStates[endpointB.objectIndex];
+        EndpointBinding bindingA;
+        EndpointBinding bindingB;
+        if (const auto bindingFailure = bindEndpoint(
+                model,
+                articulation,
+                articulationIndex,
+                stateA,
+                bindingA
+            );
+            bindingFailure.has_value()) {
+            return failBlock(
+                codeForBindingFailure(*bindingFailure),
+                *bindingFailure,
+                blockIndex
+            );
+        }
+        if (const auto bindingFailure = bindEndpoint(
+                model,
+                articulation,
+                articulationIndex,
+                stateB,
+                bindingB
+            );
+            bindingFailure.has_value()) {
+            return failBlock(
+                codeForBindingFailure(*bindingFailure),
+                *bindingFailure,
+                blockIndex
+            );
+        }
+        if (!bindingA.articulated && !bindingB.articulated) {
+            return failBlock(
+                MR_STEP_UNSUPPORTED,
+                ArticulatedCollisionFailure::invalidBodyBinding,
+                blockIndex
+            );
+        }
+        if (bindingA.articulated && bindingB.articulated &&
+            bindingA.modelBody == bindingB.modelBody) {
+            return failBlock(
+                MR_STEP_UNSUPPORTED,
+                ArticulatedCollisionFailure::invalidConstraint,
+                blockIndex
+            );
+        }
+
+        const EvaluatedConstraintIRRow& normalRow =
+            semantics.rows[block.rowOffset];
+        const EvaluatedConstraintIRRow& tangentURow =
+            semantics.rows[block.rowOffset + 1u];
+        const EvaluatedConstraintIRRow& tangentVRow =
+            semantics.rows[block.rowOffset + 2u];
+        if (!(normalRow.regularization > 0.0F) ||
+            !(tangentURow.regularization > 0.0F) ||
+            !(tangentVRow.regularization > 0.0F)) {
+            return failBlock(
+                MR_STEP_UNSUPPORTED,
+                ArticulatedCollisionFailure::
+                    unsupportedContactSemantics,
+                blockIndex
+            );
+        }
+
+        const Vec3 originalNormal = xyz(normalRow.direction);
+        const Vec3 originalTangentU = xyz(tangentURow.direction);
+        const Vec3 originalTangentV = xyz(tangentVRow.direction);
+        const double handedness = dot(
+            cross(originalNormal, originalTangentU),
+            originalTangentV
+        );
+        if (!finite(handedness) ||
+            std::abs(handedness - 1.0) > 6.0e-4) {
+            return failBlock(
+                MR_STEP_NONFINITE_INPUT,
+                ArticulatedCollisionFailure::invalidConstraint,
+                blockIndex
+            );
+        }
+
+        const Vec3 pointA = xyz(endpointA.anchor);
+        const Vec3 pointB = xyz(endpointB.anchor);
+        Vec3 nonDynamicRelative{};
+        if (!bindingA.articulated) {
+            nonDynamicRelative =
+                nonDynamicRelative -
+                pointVelocity(stateA, pointA);
+        }
+        if (!bindingB.articulated) {
+            nonDynamicRelative =
+                nonDynamicRelative +
+                pointVelocity(stateB, pointB);
+        }
+        diagnostics.maximumKinematicTargetCompensation = std::max(
+            diagnostics.maximumKinematicTargetCompensation,
+            norm(nonDynamicRelative)
+        );
+
+        std::array<double, 3> dynamicTarget{
+            static_cast<double>(normalRow.targetVelocity) -
+                dot(nonDynamicRelative, originalNormal),
+            static_cast<double>(tangentURow.targetVelocity) -
+                dot(nonDynamicRelative, originalTangentU),
+            static_cast<double>(tangentVRow.targetVelocity) -
+                dot(nonDynamicRelative, originalTangentV),
+        };
+        std::array<double, 3> warmImpulse{
+            semantics.warmImpulses[block.impulseOffset],
+            semantics.warmImpulses[block.impulseOffset + 1u],
+            semantics.warmImpulses[block.impulseOffset + 2u],
+        };
+
+        const bool swapped = !bindingA.articulated;
+        if (swapped) {
+            // n'=-n, u'=u, v'=n'x u'=-v and the desired relative
+            // velocity/impulse vector also changes sign.
+            dynamicTarget[1] = -dynamicTarget[1];
+            warmImpulse[1] = -warmImpulse[1];
+        }
+
+        const MRBodyStateGPU& articulatedStateA =
+            swapped ? stateB : stateA;
+        const EndpointBinding& articulatedBindingA =
+            swapped ? bindingB : bindingA;
+        const Vec3 articulatedPointA =
+            swapped ? pointB : pointA;
+        const auto rotationA =
+            checkedQuaternion(articulatedStateA.orientation);
+        if (!rotationA.has_value()) {
+            return failBlock(
+                MR_STEP_NONFINITE_INPUT,
+                ArticulatedCollisionFailure::invalidBodyBinding,
+                blockIndex
+            );
+        }
+
+        ArticulatedContact result;
+        result.bodyA = articulatedBindingA.modelBody;
+        result.localPointA = array(inverseRotate(
+            *rotationA,
+            articulatedPointA - xyz(articulatedStateA.position)
+        ));
+        result.normal = array(
+            swapped ? -originalNormal : originalNormal
+        );
+        result.tangentU = array(originalTangentU);
+        result.tangentV = array(
+            swapped ? -originalTangentV : originalTangentV
+        );
+        result.targetVelocity = dynamicTarget;
+        result.regularization = {
+            normalRow.regularization,
+            tangentURow.regularization,
+            tangentVRow.regularization,
+        };
+        result.warmImpulse = warmImpulse;
+        result.friction = cone.effectiveFrictionU;
+
+        if (!swapped && bindingB.articulated) {
+            const auto rotationB =
+                checkedQuaternion(stateB.orientation);
+            if (!rotationB.has_value()) {
+                return failBlock(
+                    MR_STEP_NONFINITE_INPUT,
+                    ArticulatedCollisionFailure::invalidBodyBinding,
+                    blockIndex
+                );
+            }
+            result.bodyB = bindingB.modelBody;
+            result.localPointB = array(inverseRotate(
+                *rotationB,
+                pointB - xyz(stateB.position)
+            ));
+        } else {
+            result.bodyB = kArticulatedStaticWorld;
+            result.localPointB = array(
+                swapped ? pointA : pointB
+            );
+        }
+
+        const auto finiteArray = [](const auto& values) {
+            return std::ranges::all_of(
+                values,
+                [](const double value) {
+                    return finite(value);
+                }
+            );
+        };
+        if (!finiteArray(result.localPointA) ||
+            !finiteArray(result.localPointB) ||
+            !finiteArray(result.normal) ||
+            !finiteArray(result.tangentU) ||
+            !finiteArray(result.targetVelocity) ||
+            !finiteArray(result.regularization) ||
+            !finiteArray(result.warmImpulse) ||
+            !finite(result.friction) ||
+            result.friction < 0.0) {
+            return failBlock(
+                MR_STEP_NONFINITE_RESULT,
+                ArticulatedCollisionFailure::nonfiniteResult,
+                blockIndex
+            );
+        }
+
+        diagnostics.maximumNormalTargetVelocity = std::max(
+            diagnostics.maximumNormalTargetVelocity,
+            std::abs(result.targetVelocity[0])
+        );
+        if (swapped) {
+            ++diagnostics.swappedEndpointCount;
+        }
+        adapted.push_back(result);
+        sourceBlocks.push_back(blockIndex);
+    }
+
+    diagnostics.adaptedContactCount =
+        static_cast<std::uint32_t>(adapted.size());
+    ArticulatedCollisionResult result;
+    result.diagnostics = diagnostics;
+    result.contacts = std::move(adapted);
+    result.sourceBlockIndices = std::move(sourceBlocks);
     return result;
 }
 

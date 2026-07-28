@@ -97,6 +97,7 @@ PrimaryScene makePrimaryScene() {
             f4(0.0f, 0.0f, sineHalfTurn, sineHalfTurn)
         ),
         makeBody(3.0f, 0.45f, 0.0f, MR_MOTION_DYNAMIC),
+        makeBody(5.0f, 0.45f, 0.0f, MR_MOTION_DYNAMIC),
     };
     result.shapes = {
         makeShape(0u, MR_SHAPE_PLANE, f4(0.0f, 0.0f, 0.0f), 100u),
@@ -104,6 +105,12 @@ PrimaryScene makePrimaryScene() {
         makeShape(2u, MR_SHAPE_SPHERE, f4(0.5f, 0.0f, 0.0f), 102u),
         makeShape(3u, MR_SHAPE_CAPSULE, f4(0.35f, 0.55f, 0.0f), 103u),
         makeShape(4u, MR_SHAPE_BOX, f4(0.5f, 0.5f, 0.5f), 104u),
+        makeShape(
+            5u,
+            MR_SHAPE_CYLINDER,
+            f4(0.30f, 0.50f, 0.0f),
+            105u
+        ),
     };
     return result;
 }
@@ -262,21 +269,21 @@ void verifyPrimaryTopology(
     const metalrobo::CollisionFrame& frame
 ) {
     require(frame.succeeded(), "primary collision frame failed");
-    require(frame.worldAabbs.size() == 5u, "missing world AABBs");
-    require(frame.pairs.size() == 5u, "unexpected primary pair count");
+    require(frame.worldAabbs.size() == 6u, "missing world AABBs");
+    require(frame.pairs.size() == 6u, "unexpected primary pair count");
     require(
-        frame.rawContacts.size() == 9u,
+        frame.rawContacts.size() == 13u,
         "unexpected primary raw-contact count"
     );
     require(
-        frame.manifoldHeaders.size() == 5u &&
-            frame.manifoldPoints.size() == 20u,
+        frame.manifoldHeaders.size() == 6u &&
+            frame.manifoldPoints.size() == 24u,
         "unexpected primary manifold layout"
     );
     require(
-        frame.diagnostics.requiredPairs == 5u &&
-            frame.diagnostics.requiredRawContacts == 9u &&
-            frame.diagnostics.requiredManifolds == 5u,
+        frame.diagnostics.requiredPairs == 6u &&
+            frame.diagnostics.requiredRawContacts == 13u &&
+            frame.diagnostics.requiredManifolds == 6u,
         "primary preflight requirements are wrong"
     );
 
@@ -285,12 +292,13 @@ void verifyPrimaryTopology(
         {0u, 2u},
         {0u, 3u},
         {0u, 4u},
+        {0u, 5u},
         {1u, 2u},
     };
     require(pairSet(frame) == expected, "primary pair identities changed");
 
-    std::array<bool, 5> pairClassSeen{};
-    std::array<std::uint32_t, 5> contactsPerPair{};
+    std::array<bool, 6> pairClassSeen{};
+    std::array<std::uint32_t, 6> contactsPerPair{};
     for (std::size_t pairIndex = 0;
          pairIndex < frame.pairs.size();
          ++pairIndex) {
@@ -298,7 +306,8 @@ void verifyPrimaryTopology(
         require(
             pair.environment == 7u &&
                 pair.flags >= metalrobo::collisionPairSphereSphere &&
-                pair.flags <= metalrobo::collisionPairBoxPlane,
+                pair.flags <=
+                    metalrobo::collisionPairCylinderPlane,
             "pair metadata is invalid"
         );
         pairClassSeen[pair.flags] = true;
@@ -311,7 +320,8 @@ void verifyPrimaryTopology(
         pairClassSeen[metalrobo::collisionPairSphereSphere] &&
             pairClassSeen[metalrobo::collisionPairSpherePlane] &&
             pairClassSeen[metalrobo::collisionPairCapsulePlane] &&
-            pairClassSeen[metalrobo::collisionPairBoxPlane],
+            pairClassSeen[metalrobo::collisionPairBoxPlane] &&
+            pairClassSeen[metalrobo::collisionPairCylinderPlane],
         "not every analytic pair class was exercised"
     );
 
@@ -322,7 +332,10 @@ void verifyPrimaryTopology(
         std::uint32_t expectedCount = 1u;
         if (pair.flags == metalrobo::collisionPairCapsulePlane) {
             expectedCount = 2u;
-        } else if (pair.flags == metalrobo::collisionPairBoxPlane) {
+        } else if (
+            pair.flags == metalrobo::collisionPairBoxPlane ||
+            pair.flags == metalrobo::collisionPairCylinderPlane
+        ) {
             expectedCount = 4u;
         }
         require(
@@ -441,7 +454,7 @@ void verifyFilters(
     require(excluded.succeeded(), "excluded collision frame failed");
     require(
         !containsPair(excluded, 1u, 2u) &&
-            excluded.pairs.size() == 4u,
+            excluded.pairs.size() == 5u,
         "reversed exclusion was not canonicalized"
     );
 
@@ -770,7 +783,7 @@ int main() {
         );
         verifyPrimaryTopology(first);
         require(
-            first.diagnostics.newPoints == 9u &&
+            first.diagnostics.newPoints == 13u &&
                 first.diagnostics.refreshedPoints == 0u,
             "first collision frame did not build fresh manifolds"
         );
@@ -784,7 +797,7 @@ int main() {
         verifyPrimaryTopology(second);
         verifyStableTopology(first, second);
         require(
-            second.diagnostics.refreshedPoints == 9u &&
+            second.diagnostics.refreshedPoints == 13u &&
                 second.diagnostics.newPoints == 0u,
             "persistent manifold refresh was not reused"
         );
@@ -801,7 +814,7 @@ int main() {
             << " manifolds=" << second.manifoldHeaders.size()
             << " sap_corpus_pairs=" << corpusPairs
             << " false_negatives=0"
-            << " pair_classes=4"
+            << " pair_classes=5"
             << " stable_ids=yes"
             << " persistent_refresh=yes"
             << " manifold_reduction=8_to_4"

@@ -5,13 +5,14 @@
 This document is the implementation contract for MetalRobo's production
 collision detector. It is a design target, not a claim about the current
 vertical slice. The current FP64 CPU path has deterministic sweep-and-prune,
-four analytic pair classes, and persistent four-point manifolds. Metal has the
-same sphere/sphere, sphere/plane, capsule/plane, and box/plane pair classes,
-plus a separately proven deterministic micro all-pairs count/scan/scatter
-broadphase. That broadphase has an explicit 65,536-logical-pair bound and is
-not yet assembled with GPU manifold persistence. None of the LBVH, general
-convex, mesh, heightfield, SDF, or CCD work below should be described as
-shipped until its corresponding milestone is measured.
+five analytic pair classes, and persistent four-point manifolds. Metal has the
+same sphere/sphere, sphere/plane, capsule/plane, box/plane, and
+cylinder/plane pair classes, plus a separately proven deterministic micro
+all-pairs count/scan/scatter broadphase. That broadphase has an explicit
+65,536-logical-pair bound and is not yet assembled with GPU manifold
+persistence. None of the LBVH, general convex, mesh, heightfield, SDF, or CCD
+work below should be described as shipped until its corresponding milestone
+is measured.
 
 The target is a headless, GPU-resident collision system for thousands of
 logically isolated robotics environments on Apple silicon. It must serve both
@@ -179,7 +180,7 @@ new physical state.
 ### GPU record contracts
 
 These logical records are each a multiple of 16 bytes. They are illustrative
-of the generic engine ABI introduced as `MR_ENGINE_ABI_VERSION == 1`; their
+of the generic engine ABI currently at `MR_ENGINE_ABI_VERSION == 2`; their
 definitions must live in one C++/Metal shared header with compile-time size
 and offset checks.
 

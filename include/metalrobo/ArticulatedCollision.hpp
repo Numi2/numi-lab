@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/ArticulatedContact.hpp"
+#include "metalrobo/ConstraintIR.hpp"
 #include "metalrobo/ConstraintSolver.hpp"
 
 #include <cstdint>
@@ -42,6 +43,8 @@ struct ArticulatedCollisionDiagnostics {
     std::uint32_t adaptedContactCount = 0u;
     std::uint32_t swappedEndpointCount = 0u;
     std::uint32_t failedConstraintIndex = MR_INVALID_INDEX;
+    std::uint32_t failedBlockIndex = MR_INVALID_INDEX;
+    std::uint64_t semanticFingerprint = 0u;
     double maximumKinematicTargetCompensation = 0.0;
     double maximumNormalTargetVelocity = 0.0;
 
@@ -55,6 +58,8 @@ struct ArticulatedCollisionResult {
     std::vector<ArticulatedContact> contacts;
     // Maps each output contact back to the common constraint span.
     std::vector<std::uint32_t> sourceConstraintIndices;
+    // Maps each output contact back to an evaluated ConstraintIR block.
+    std::vector<std::uint32_t> sourceBlockIndices;
 
     [[nodiscard]] bool succeeded() const noexcept {
         return diagnostics.succeeded();
@@ -82,6 +87,27 @@ adaptArticulatedContactConstraints(
     std::span<const MRContactConstraintGPU> constraints,
     std::span<const MRBodyStateGPU> bodyStates,
     const ArticulatedCollisionAdapterConfig& config = {}
+);
+
+// Consumes the already-evaluated ConstraintIR stream without re-deriving
+// timestep-dependent targets, restitution, stiction selection, compliance,
+// or warm-start projection. This is the authoritative quality-path adapter.
+//
+// The current exact-cone articulated solver supports active three-row,
+// uncapped, isotropic contact blocks. Torsion, rolling, adhesion, anisotropy,
+// scalar constraints, and zero-regularization rows are rejected explicitly.
+// World-point endpoints bind through the supplied collision body states.
+//
+// The semantic fingerprint is validated before any output is produced and is
+// echoed in diagnostics. On failure all result vectors are empty.
+[[nodiscard]] ArticulatedCollisionResult
+adaptEvaluatedArticulatedContacts(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    const ConstraintIREvaluationView& semantics,
+    std::span<const MRBodyStateGPU> bodyStates,
+    std::uint32_t contactCapacity =
+        MR_MAX_CONTACTS_PER_SOLVER_BATCH
 );
 
 } // namespace metalrobo
