@@ -10,6 +10,7 @@ typedef uint mr_u32;
 typedef int mr_i32;
 typedef ulong mr_u64;
 typedef float4 mr_float4;
+typedef uint4 mr_uint4;
 #else
 #include <stdint.h>
 #define MR_ALIGN16 alignas(16)
@@ -22,6 +23,12 @@ typedef struct MR_ALIGN16 mr_float4 {
     float z;
     float w;
 } mr_float4;
+typedef struct MR_ALIGN16 mr_uint4 {
+    uint32_t x;
+    uint32_t y;
+    uint32_t z;
+    uint32_t w;
+} mr_uint4;
 #endif
 
 #define MR_MAX_DOF 32u
@@ -123,6 +130,7 @@ typedef struct MR_ALIGN16 MRStepUniformsGPU {
 
 #ifndef __METAL_VERSION__
 static_assert(sizeof(mr_float4) == 16);
+static_assert(sizeof(mr_uint4) == 16);
 static_assert(sizeof(MRModelGPU) % 16 == 0);
 static_assert(sizeof(MRJointGPU) % 16 == 0);
 static_assert(sizeof(MRLinkGPU) % 16 == 0);

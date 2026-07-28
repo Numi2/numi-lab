@@ -18,14 +18,17 @@ struct CollisionPairExclusion {
 };
 
 enum CollisionPairClass : std::uint32_t {
-    collisionPairSphereSphere = 1u,
-    collisionPairSpherePlane = 2u,
-    collisionPairCapsulePlane = 3u,
-    collisionPairBoxPlane = 4u,
-    collisionPairCylinderPlane = 5u,
-    collisionPairSphereCapsule = 6u,
-    collisionPairCapsuleCapsule = 7u,
-    collisionPairSphereBox = 8u,
+    collisionPairSphereSphere = MR_COLLISION_PAIR_SPHERE_SPHERE,
+    collisionPairSpherePlane = MR_COLLISION_PAIR_SPHERE_PLANE,
+    collisionPairCapsulePlane = MR_COLLISION_PAIR_CAPSULE_PLANE,
+    collisionPairBoxPlane = MR_COLLISION_PAIR_BOX_PLANE,
+    collisionPairCylinderPlane = MR_COLLISION_PAIR_CYLINDER_PLANE,
+    collisionPairSphereCapsule = MR_COLLISION_PAIR_SPHERE_CAPSULE,
+    collisionPairCapsuleCapsule = MR_COLLISION_PAIR_CAPSULE_CAPSULE,
+    collisionPairSphereBox = MR_COLLISION_PAIR_SPHERE_BOX,
+    collisionPairCapsuleBox = MR_COLLISION_PAIR_CAPSULE_BOX,
+    collisionPairBoxBox = MR_COLLISION_PAIR_BOX_BOX,
+    collisionPairConvex = MR_COLLISION_PAIR_CONVEX,
 };
 
 struct CollisionCapacities {

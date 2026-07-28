@@ -799,14 +799,27 @@ int main() {
 
         const auto warmStats = context.stats();
         require(
-            warmStats.pipelineCreationCount == 5u &&
+            warmStats.pipelineCreationCount == 21u &&
                 warmStats.modelUploadCount == 1u &&
-                warmStats.bufferAllocationCount == 27u &&
+                warmStats.bufferAllocationCount == 81u &&
                 warmStats.bufferGrowthCount == 0u &&
                 warmStats.submissionCount == 1u &&
                 warmStats.completedSubmissionCount == 1u &&
                 !warmStats.hasInFlightSubmission,
-            "cold MetalWorld resource counters are inconsistent"
+            "cold MetalWorld resource counters are inconsistent: pipelines=" +
+                std::to_string(warmStats.pipelineCreationCount) +
+                " uploads=" +
+                std::to_string(warmStats.modelUploadCount) +
+                " allocations=" +
+                std::to_string(warmStats.bufferAllocationCount) +
+                " growths=" +
+                std::to_string(warmStats.bufferGrowthCount) +
+                " submissions=" +
+                std::to_string(warmStats.submissionCount) +
+                " completed=" +
+                std::to_string(
+                    warmStats.completedSubmissionCount
+                )
         );
 
         metalrobo::MetalWorldResult replay;
@@ -821,7 +834,7 @@ int main() {
         );
         require(
             samePayload(first, replay) &&
-                context.stats().pipelineCreationCount == 5u &&
+                context.stats().pipelineCreationCount == 21u &&
                 context.stats().modelUploadCount == 1u &&
                 context.stats().bufferAllocationCount ==
                     warmStats.bufferAllocationCount,
@@ -934,7 +947,7 @@ int main() {
         );
         auto unsupportedConfig = stepConfig;
         unsupportedConfig.solverMode =
-            metalrobo::MetalWorldSolverMode::throughputPGS;
+            static_cast<metalrobo::MetalWorldSolverMode>(99u);
         const auto unsupported = context.run(
             compiled,
             small.view(),
@@ -946,7 +959,7 @@ int main() {
                     metalrobo::MetalWorldHostStatus::
                         unsupportedSolverMode &&
                 samePayload(first, sentinel),
-            "reserved contact mode did not fail closed"
+            "unknown solver mode did not fail closed"
         );
         auto subnormalTimestep = stepConfig;
         subnormalTimestep.timestepSeconds =
@@ -1276,7 +1289,7 @@ int main() {
             << " grow_only=pass"
             << " host_transaction=pass"
             << " no_host_sync_between_control_steps=yes"
-            << " contact_graph=deferred"
+                  << " contact_graph=device_resident"
             << " status=ok\n";
         return 0;
     } catch (const std::exception& exception) {

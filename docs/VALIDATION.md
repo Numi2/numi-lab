@@ -10,10 +10,13 @@ Objective-C++ warnings were errors. All 21 probe executables passed from the
 same source state. A second full out-of-tree build with AddressSanitizer and
 UndefinedBehaviorSanitizer also compiled and passed all 21 probes.
 
-The later persistent-MetalWorld tranche was built with warnings as errors and
-passed its focused parity, determinism, async ownership, rollback, allocation,
-and throughput probe. Its new result is recorded separately below; historical
-v0.4 component numbers are retained rather than being rewritten.
+The later device-resident contact/MLX tranche built 38 native probes from one
+source state; all 38 passed, followed by the MLX extension probe. Its new
+result is recorded separately below; historical v0.4 component numbers are
+retained rather than being rewritten. The earlier sanitizer statement applies
+to the v0.4 source state only and is not silently extended to this tranche.
+A fresh out-of-tree Release build with C++ and Objective-C++ warnings promoted
+to errors then passed all 38 native probes.
 
 A local pass establishes only the stated executable contract. It does not
 establish external-simulator agreement, long-horizon robot stability, contact
@@ -25,7 +28,7 @@ differentiability, or performance superiority.
 - Apple M4: 10 CPU cores, 10 GPU cores, 24 GB unified memory
 - macOS 26.6, Metal 4
 - Apple clang 21.0.0
-- MLX 0.26.5 on `Device(gpu, 0)`
+- MLX 0.32.0 on `Device(gpu, 0)`
 - NumPy 2.2.5
 - CMake 4.0.1 Release configuration
 
@@ -657,13 +660,18 @@ its Metal context and allocations; it is not a throughput benchmark.
 ./build/bin/metalrobo_deterministic_broadphase_probe
 ```
 
-CPU FP64 and Metal FP32 now share five supported analytic pair classes:
+CPU FP64 and Metal FP32 now share ten supported analytic/SAT pair classes:
 
 1. sphere/sphere;
 2. sphere/plane;
 3. capsule/plane;
 4. box/plane;
-5. cylinder/plane.
+5. cylinder/plane;
+6. sphere/capsule;
+7. capsule/capsule;
+8. sphere/box;
+9. capsule/box;
+10. box/box.
 
 Oriented cylinder AABBs and cylinder/plane witnesses are implemented on both
 backends. Deterministic feature selection emits a four-point cap ring for a
@@ -676,7 +684,9 @@ Clean Release CPU collision result:
 
 ```text
 collision=cpu_fp64 pairs=6 raw_contacts=13 manifolds=6
-sap_corpus_pairs=29 false_negatives=0 pair_classes=5
+sap_corpus_pairs=29 false_negatives=0 pair_classes=10
+sphere_capsule_order=yes capsule_capsule_adversarial=yes
+sphere_box_adversarial=yes capsule_box_adversarial=yes box_box_sat=yes
 stable_ids=yes persistent_refresh=yes manifold_reduction=8_to_4
 canonical_filters=yes overflow_transactional=yes finite=yes
 ```
@@ -690,6 +700,12 @@ capsule_endpoint_contacts=2
 box_raw_contacts=8 box_manifold_contacts=4
 max_witness_error=8.195639e-08
 cylinder_max_witness_error=9.536743e-07
+capsule_pair_max_witness_error=8.940697e-08
+sphere_box_max_witness_error=1.788139e-07
+capsule_box_box_max_witness_error=9.536743e-07
+pair_classes=10
+sphere_capsule_order=yes capsule_capsule_adversarial=yes
+sphere_box_adversarial=yes capsule_box_adversarial=yes box_box_sat=yes
 cylinder_cap_side_rim=yes
 cylinder_endpoint_order=yes
 cylinder_aabb_tight=yes cylinder_adversarial=yes
@@ -718,11 +734,13 @@ quaternion_boundary_parity=yes unsupported_transactional=yes
 global_append_atomics=none status=ok
 ```
 
-This is cylinder/plane support, not generic cylinder collision.
+This is still cylinder/plane support, not generic cylinder collision.
 Cylinder/sphere, cylinder/capsule, cylinder/box, cylinder/cylinder, convex,
-mesh, heightfield, and CCD remain unsupported. The G1 shoulder cylinders stay
-simulation-disabled because the other required pair and self-collision
-semantics do not exist yet—not because cylinder/plane is missing.
+mesh, heightfield, and CCD remain unsupported. Box/box uses deterministic SAT
+plus vertex/support witnesses; complete clipped face manifolds remain open.
+The G1 shoulder cylinders stay simulation-disabled because the other required
+pair and self-collision semantics do not exist yet—not because
+cylinder/plane is missing.
 
 The `O(n²)` Metal pair enumeration remains the generic correctness baseline.
 The parallel scan probe is a micro-broadphase component, not a completed LBVH,
@@ -838,31 +856,66 @@ included four Franka ABA/contact/integration substeps plus observation, reward,
 termination, and pose work. This is a local original-runtime result, not a
 cross-engine benchmark and not generic G1 throughput.
 
-### MLX PPO integration smoke
+### Device-resident contact world and MLX active encoder
 
-The clean one-iteration MLX smoke used 64 environments, eight rollout steps,
-one update epoch, and two minibatch updates. It collected 512 transitions,
-reported finite loss, KL, entropy, and gradient metrics, and wrote a resumable
-checkpoint:
+The current Release probes are:
 
 ```text
-rollout_env_steps_per_second=16757.67
-loss=13.30460 policy_loss=-0.001923 value_loss=26.61305
-entropy=6.43332 approx_kl=0.0006036 clip_fraction=0
-gradient_norm=8.91533 minibatch_updates=2
+metal_world_contact=ok environments=4 steps=12
+retained_manifolds=1 franka_cube_contacts=2
+isolated_overflow_required_raw=2
+large_pair_stream=66049
+large_pair_tail_contacts=1
+throughput_envs=1024
+throughput_gpu_steps_per_s=30940.4
+throughput_wall_steps_per_s=30169.4
+gpu_batch_step_p50_ms=33.179 gpu_batch_step_p95_ms=33.398
+wall_batch_step_p50_ms=34.101 wall_batch_step_p95_ms=34.184
+throughput_active_contacts=2
+high_water_pairs=3 high_water_raw=2 high_water_manifolds=2
+high_water_constraints=2 high_water_rows=6 high_water_islands=1
+high_water_spill=0 retained_bytes=96187408 thermal=nominal
+release_gate_40k=open
+
+metal_world=metal device="Apple M4"
+throughput_batch=4096 throughput_horizon=16
+pipeline_creations=21
+gpu_control_steps_per_s=221219 wall_control_steps_per_s=218616
+gpu_p50_ms=296.347 gpu_p95_ms=296.835
+wall_p50_ms=299.626 wall_p95_ms=301.784 thermal=nominal
+replay=bitwise rollback=pass contact_graph=device_resident status=ok
+
+{"mlx_world":"ok","mlx_version":"0.32.0",
+"franka_environments":8,"g1_environments":4,
+"compiled_policy_physics_reward":true,"deterministic_replays":100,
+"isolated_failure_code":2,"fp64_max_q_error":8.003553e-11,
+"fp64_max_v_error":7.450581e-09,"rollout_shape":[8,8,14],
+"ppo_updates":2,"numpy_step_conversions":0,
+"autodiff_rejected":true,"contact_supported":false}
 ```
 
-This establishes integration and checkpoint publication only, not policy
-convergence.
+The contact performance case uses an explicit 32-contact capacity class and
+starts every environment with the same dynamic 1 kg cube touching Franka; the
+observed high water is two active contacts. It is therefore real mixed-contact
+execution, but not a 32-active-contact saturation result. Both measured rates
+remain below the 40,000 control-steps/s release gate, which stays open. The
+96.2 MB figure is the persistent Metal arena retained by the benchmark
+context, not total process or MLX memory. The MLX probe proves the
+active-encoder free-motion path and optimizer integration, not contact
+training or policy convergence.
 
 ## What remains unvalidated
 
 - Trajectory/contact comparison against pinned MuJoCo, Genesis, or another
   independent simulator
-- A contact-composed batched Metal world and level-parallel tree kernel. The
-  free-motion MetalWorld graph is persistent, asynchronous, and
-  device-resident across one submitted horizon, but still uses lane-zero ABA
-  recursion and host-vector publication at ticket completion
+- A level-parallel ABA tree kernel and compacted SIMD32 narrowphase/manifold/
+  island/solve graph. Collider projection and eligible-pair flags are already
+  parallel, and active factor/contact stages use indirect zero-work dispatch,
+  but the deterministic compiler and compact solver remain one thread per
+  environment
+- Promotion of scene-body/manifold/contact state to the MLX active-encoder
+  primitive; the current MLX primitive deliberately supports free-motion ABA
+  only
 - Long-horizon controlled G1 contact stability, locomotion learning, and RL
   throughput
 - Multi-articulation islands and long-horizon/large-island mixed-scene
@@ -871,11 +924,11 @@ convergence.
 - Articulated self-collision, loop constraints, and unsupported pair classes
 - Calibrated surgical jaw surfaces, rolling/torsional resistance, and generic
   grasp-wrench/force-closure certification beyond the tested segment-17 load
-- GPU persistent-manifold refresh/reduction, production segmented LBVH,
-  convex/mesh/heightfield collision, and certified CCD
+- Production segmented LBVH, non-plane cylinders, convex GJK/MPR/EPA,
+  clipped box-face manifolds, mesh/heightfield collision, and certified CCD
 - Matrix-free Newton-PCG for large exact-cone quality islands
-- Connected throughput islands above 128 contacts and production spill/replay
-- TGS; the current throughput solver is PGS
+- Tiled spill/replay beyond the current 512-constraint point-query bucket
+- Quality/throughput task-level closure for the landed temporal TGS
 - Qualified derivatives through impact, friction-regime, and active-set
   changes
 - Cross-machine performance/reproducibility and any superiority claim over

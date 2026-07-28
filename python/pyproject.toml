@@ -1,5 +1,10 @@
 [build-system]
-requires = ["setuptools>=69"]
+requires = [
+    "setuptools>=69",
+    "cmake>=3.27",
+    "nanobind>=2.13,<3",
+    "mlx>=0.32,<0.33",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,7 +15,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.26",
-    "mlx>=0.26.5; platform_system == 'Darwin' and platform_machine == 'arm64'",
+    "mlx>=0.32,<0.33; platform_system == 'Darwin' and platform_machine == 'arm64'",
 ]
 
 [project.scripts]
@@ -23,4 +28,4 @@ metalrobo-rollout = "metalrobo.cli:rollout_main"
 packages = ["metalrobo"]
 
 [tool.setuptools.package-data]
-metalrobo = ["py.typed"]
+metalrobo = ["*.so", "*.dylib", "*.metallib", "py.typed"]

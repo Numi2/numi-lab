@@ -88,6 +88,7 @@ struct CapsulePairScene {
 };
 
 using SphereBoxScene = CapsulePairScene;
+using CapsuleBoxBoxScene = CapsulePairScene;
 
 PrimaryScene makePrimaryScene() {
     constexpr float sineHalfTurn = 0.7071067811865475f;
@@ -366,6 +367,90 @@ SphereBoxScene makeSphereBoxScene() {
         makeBody(25.0f, 0.0f, 0.0f, MR_MOTION_DYNAMIC),
         box(f4(0.50f, 0.60f, 0.70f)),
         1u << 5u
+    );
+    return result;
+}
+
+CapsuleBoxBoxScene makeCapsuleBoxBoxScene() {
+    constexpr float sineEighthTurn = 0.3826834323650898f;
+    constexpr float cosineEighthTurn = 0.9238795325112867f;
+    CapsuleBoxBoxScene result;
+
+    auto appendPair = [&](
+        const MRBodyStateGPU bodyA,
+        MRShapeGPU shapeA,
+        const MRBodyStateGPU bodyB,
+        MRShapeGPU shapeB,
+        const std::uint32_t group
+    ) {
+        const std::uint32_t bodyAIndex =
+            static_cast<std::uint32_t>(result.bodies.size());
+        shapeA.bodyIndex = bodyAIndex;
+        shapeB.bodyIndex = bodyAIndex + 1u;
+        shapeA.collisionGroup = group;
+        shapeA.collisionMask = group;
+        shapeB.collisionGroup = group;
+        shapeB.collisionMask = group;
+        shapeA.slotGeneration = 800u + bodyAIndex;
+        shapeB.slotGeneration = 801u + bodyAIndex;
+        result.bodies.push_back(bodyA);
+        result.bodies.push_back(bodyB);
+        result.shapes.push_back(shapeA);
+        result.shapes.push_back(shapeB);
+    };
+    const auto capsule = [] {
+        return makeShape(
+            0u,
+            MR_SHAPE_CAPSULE,
+            f4(0.20f, 0.60f, 0.0f),
+            0u,
+            0.0f
+        );
+    };
+    const auto box = [] {
+        return makeShape(
+            0u,
+            MR_SHAPE_BOX,
+            f4(0.50f, 0.50f, 0.50f),
+            0u,
+            0.0f
+        );
+    };
+
+    appendPair(
+        makeBody(0.68f, 0.0f, 0.0f, MR_MOTION_DYNAMIC),
+        capsule(),
+        makeBody(0.0f, 0.0f, 0.0f, MR_MOTION_DYNAMIC),
+        box(),
+        1u << 0u
+    );
+    appendPair(
+        makeBody(5.0f, 0.0f, 0.0f, MR_MOTION_DYNAMIC),
+        box(),
+        makeBody(5.68f, 0.0f, 0.0f, MR_MOTION_DYNAMIC),
+        capsule(),
+        1u << 1u
+    );
+    appendPair(
+        makeBody(10.0f, 0.0f, 0.0f, MR_MOTION_DYNAMIC),
+        box(),
+        makeBody(10.8f, 0.0f, 0.0f, MR_MOTION_DYNAMIC),
+        box(),
+        1u << 2u
+    );
+    MRShapeGPU rotatedBox = box();
+    rotatedBox.localRotation = f4(
+        0.0f,
+        sineEighthTurn,
+        0.0f,
+        cosineEighthTurn
+    );
+    appendPair(
+        makeBody(15.0f, 0.0f, 0.0f, MR_MOTION_DYNAMIC),
+        box(),
+        makeBody(15.65f, 0.0f, 0.0f, MR_MOTION_DYNAMIC),
+        rotatedBox,
+        1u << 3u
     );
     return result;
 }
@@ -1271,6 +1356,70 @@ void verifySphereBoxPrimitive() {
     );
 }
 
+void verifyCapsuleBoxAndBoxBoxPrimitives() {
+    const CapsuleBoxBoxScene scene =
+        makeCapsuleBoxBoxScene();
+    metalrobo::CollisionConfig config = ampleConfig();
+    config.environment = 15u;
+    config.capacities = {
+        .pairCapacity = 8u,
+        .rawContactCapacity = 32u,
+        .manifoldCapacity = 8u,
+    };
+    metalrobo::PersistentManifoldCache cache;
+    const auto first = metalrobo::collideCpuReference(
+        scene.shapes,
+        scene.bodies,
+        config,
+        cache
+    );
+    require(
+        first.succeeded() &&
+            first.pairs.size() == 4u &&
+            first.rawContacts.size() >= 4u &&
+            first.manifoldHeaders.size() == 4u,
+        "capsule/box and box/box topology is wrong"
+    );
+    verifyWitnesses(first);
+    for (std::uint32_t pairIndex = 0u;
+         pairIndex < first.pairs.size();
+         ++pairIndex) {
+        const auto& pair = first.pairs[pairIndex];
+        const auto contacts = contactsForPair(
+            first,
+            pair.colliderA,
+            pair.colliderB
+        );
+        require(
+            !contacts.empty() &&
+                pair.flags ==
+                    (pairIndex < 2u
+                         ? metalrobo::collisionPairCapsuleBox
+                         : metalrobo::collisionPairBoxBox),
+            "capsule/box or box/box pair class/contact is wrong"
+        );
+    }
+    const auto second = metalrobo::collideCpuReference(
+        scene.shapes,
+        scene.bodies,
+        config,
+        cache
+    );
+    const bool sameContacts =
+        first.rawContacts.size() == second.rawContacts.size() &&
+        std::equal(
+            first.rawContacts.begin(),
+            first.rawContacts.end(),
+            second.rawContacts.begin(),
+            sameRawContact
+        );
+    require(
+        second.succeeded() &&
+            sameContacts,
+        "capsule/box or box/box deterministic replay changed witnesses"
+    );
+}
+
 bool aabbOverlap(const MRAabbGPU& left, const MRAabbGPU& right) {
     return
         left.lower.x <= right.upper.x &&
@@ -1529,6 +1678,7 @@ int main() {
         verifyFourPointReduction();
         verifyCapsulePairPrimitives();
         verifySphereBoxPrimitive();
+        verifyCapsuleBoxAndBoxBoxPrimitives();
         const std::size_t corpusPairs =
             verifySweepAndPruneCorpus();
         verifyTransactionalOverflow(scene, config, cache, second);
@@ -1540,10 +1690,12 @@ int main() {
             << " manifolds=" << second.manifoldHeaders.size()
             << " sap_corpus_pairs=" << corpusPairs
             << " false_negatives=0"
-            << " pair_classes=8"
+            << " pair_classes=10"
             << " sphere_capsule_order=yes"
             << " capsule_capsule_adversarial=yes"
             << " sphere_box_adversarial=yes"
+            << " capsule_box_adversarial=yes"
+            << " box_box_sat=yes"
             << " stable_ids=yes"
             << " persistent_refresh=yes"
             << " manifold_reduction=8_to_4"

@@ -425,7 +425,23 @@ inline bool validDispatch(
         dispatch.pointCount > MR_ARTICULATED_OPERATOR_MAX_POINTS ||
         dispatch.reserved0 != 0u ||
         (dispatch.flags &
-         ~MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u) {
+         ~(
+             MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS |
+             MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
+             MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY
+         )) != 0u ||
+        ((dispatch.flags &
+          MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u &&
+         (dispatch.flags &
+          MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR) != 0u) ||
+        ((dispatch.flags &
+          MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY) != 0u &&
+         (dispatch.pointCount != 0u ||
+          (dispatch.flags &
+           (
+               MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS |
+               MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR
+           )) != 0u))) {
         setFailure(
             status,
             MR_ARTICULATED_OPERATOR_INVALID_DISPATCH,
@@ -661,7 +677,10 @@ inline bool validModelAndLayout(
             dispatch.pointCount * 3u * articulation.nv ||
         dispatch.generalizedStride < articulation.nv ||
         ((dispatch.flags &
-          MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u &&
+          (
+              MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS |
+              MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR
+          )) != 0u &&
          dispatch.massMatrixStride <
             articulation.nv * articulation.nv)) {
         setFailure(
@@ -1079,6 +1098,36 @@ kernel void mr_articulated_operator(
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (initializationSucceeded == 0u) {
+        return;
+    }
+
+    if ((dispatch.flags &
+         MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY) != 0u) {
+        if (lane == 0u) {
+            const uint poseBase =
+                environment * dispatch.bodyPoseStride;
+            for (uint localBody = 0u;
+                 localBody < articulation.bodyCount;
+                 ++localBody) {
+                if (!finite3(bodyPosition[localBody]) ||
+                    !finite4(bodyRotation[localBody])) {
+                    setFailure(
+                        status,
+                        MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+                        articulation.firstBody + localBody
+                    );
+                    statuses[environment] = status;
+                    return;
+                }
+                MRArticulatedBodyPoseGPU pose;
+                pose.position =
+                    float4(bodyPosition[localBody], 1.0f);
+                pose.orientation = bodyRotation[localBody];
+                bodyPoses[poseBase + localBody] = pose;
+            }
+            status.diagnostics = float4(0.0f);
+            statuses[environment] = status;
+        }
         return;
     }
 
@@ -1604,6 +1653,25 @@ kernel void mr_articulated_operator(
                 diagnosticMassMatrix[
                     massBase + row * articulation.nv + column
                 ] = value;
+            }
+        }
+    } else if ((dispatch.flags &
+                MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR) != 0u) {
+        const uint factorBase =
+            environment * dispatch.massMatrixStride;
+        for (uint row = 0u; row < articulation.nv; ++row) {
+            for (uint column = 0u;
+                 column < articulation.nv;
+                 ++column) {
+                diagnosticMassMatrix[
+                    factorBase + row * articulation.nv + column
+                ] = column <= row
+                    ? factor[
+                          row *
+                              MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                          column
+                      ]
+                    : 0.0f;
             }
         }
     }

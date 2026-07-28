@@ -8,6 +8,7 @@
 // batches; a connected island above this limit returns an explicit overflow.
 
 #include "metalrobo/gpu_types.h"
+#include "metalrobo/constraint_ir_shared.h"
 
 #define MR_ENGINE_ABI_VERSION 2u
 #define MR_INVALID_INDEX 0xffffffffu
@@ -23,7 +24,7 @@
 // threadgroup memory.
 #define MR_ARTICULATED_OPERATOR_MAX_BODIES 64u
 #define MR_ARTICULATED_OPERATOR_MAX_DOFS 64u
-#define MR_ARTICULATED_OPERATOR_MAX_POINTS 16u
+#define MR_ARTICULATED_OPERATOR_MAX_POINTS 1024u
 // Versioned FP32 backward-error gate for M * deltaV = J^T * impulse.
 // A finite but inaccurate factor solve is a failure, never publishable state.
 #define MR_ARTICULATED_OPERATOR_MAX_RELATIVE_RESIDUAL 0.00003f
@@ -39,6 +40,9 @@
 // a command-buffer completion or CPU-visible intermediate state.
 #define MR_METAL_WORLD_ABI_VERSION 1u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
+#define MR_METAL_WORLD_CONTACT_ABI_VERSION 1u
+#define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
+#define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
 // Authored collision coordinates, local offsets, primitive dimensions, and
 // contact/rest/bounding-radius values use this direct-input domain. With
 // normalized rotations, every supported finite primitive derived from these
@@ -93,6 +97,21 @@ enum MRConstraintType : mr_u32 {
     MR_CONSTRAINT_GEAR = 5u,
     MR_CONSTRAINT_TENDON = 6u,
     MR_CONSTRAINT_DRY_FRICTION = 7u,
+};
+
+enum MRCollisionPairClass : mr_u32 {
+    MR_COLLISION_PAIR_UNSUPPORTED = 0u,
+    MR_COLLISION_PAIR_SPHERE_SPHERE = 1u,
+    MR_COLLISION_PAIR_SPHERE_PLANE = 2u,
+    MR_COLLISION_PAIR_CAPSULE_PLANE = 3u,
+    MR_COLLISION_PAIR_BOX_PLANE = 4u,
+    MR_COLLISION_PAIR_CYLINDER_PLANE = 5u,
+    MR_COLLISION_PAIR_SPHERE_CAPSULE = 6u,
+    MR_COLLISION_PAIR_CAPSULE_CAPSULE = 7u,
+    MR_COLLISION_PAIR_SPHERE_BOX = 8u,
+    MR_COLLISION_PAIR_CAPSULE_BOX = 9u,
+    MR_COLLISION_PAIR_BOX_BOX = 10u,
+    MR_COLLISION_PAIR_CONVEX = 11u,
 };
 
 enum MRFrictionConeType : mr_u32 {
@@ -333,6 +352,13 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // response always factor-solves M * deltaV = J^T * impulse and never
     // forms or applies an explicit inverse.
     MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS = 1u << 0u,
+    // Publishes the lower-triangular Cholesky factor in the mass-matrix
+    // output buffer. Upper-triangular entries are zero. This is the reusable
+    // device-side factor cache consumed by the contact world.
+    MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR = 1u << 1u,
+    // Computes and publishes body poses without assembling/factorizing M.
+    // pointCount must be zero. This is the collider-projection fast path.
+    MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY = 1u << 2u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.
@@ -454,6 +480,34 @@ typedef struct MR_ALIGN16 MRABAStatusGPU {
     mr_float4 diagnostics;
 } MRABAStatusGPU;
 
+// MLX-native transactional wrapper around one or more ABA microsteps. The
+// custom primitive passes state and effort as MLX arrays, encodes into MLX's
+// active Metal command encoder, and publishes the candidate only when the ABA
+// status for every preceding microstep is valid.
+typedef struct MR_ALIGN16 MRMLXWorldStepDispatchGPU {
+    mr_u32 environmentCount;
+    mr_u32 nq;
+    mr_u32 nv;
+    mr_u32 physicsSubstep;
+
+    mr_u32 physicsSubsteps;
+    mr_u32 articulationIndex;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+} MRMLXWorldStepDispatchGPU;
+
+typedef struct MR_ALIGN16 MRMLXWorldStepStatusGPU {
+    mr_u32 code;
+    mr_u32 abaCode;
+    mr_u32 failingSubstep;
+    mr_u32 failingIndex;
+
+    mr_u32 successfulSubsteps;
+    mr_u32 requiredCapacity;
+    mr_u32 flags;
+    mr_u32 reserved0;
+} MRMLXWorldStepStatusGPU;
+
 enum MRMetalWorldFlags : mr_u32 {
     MR_METAL_WORLD_APPLY_BODY_DAMPING = 1u << 0u,
     MR_METAL_WORLD_DETERMINISTIC = 1u << 1u,
@@ -462,6 +516,9 @@ enum MRMetalWorldFlags : mr_u32 {
     // transactional state publication, reset, and observation capture. The
     // flag prevents it from being mistaken for the future contact graph.
     MR_METAL_WORLD_FREE_MOTION_ONLY = 1u << 3u,
+    // Enables the device-resident collision/manifold/constraint/island graph.
+    // Exactly one of CONTACTS and FREE_MOTION_ONLY is set.
+    MR_METAL_WORLD_CONTACTS = 1u << 4u,
 };
 
 // Immutable strides and dimensions for one environment-major rollout.
@@ -515,6 +572,166 @@ typedef struct MR_ALIGN16 MRMetalWorldStatusGPU {
     // root-quaternion norm error across successfully committed substeps.
     mr_float4 diagnostics;
 } MRMetalWorldStatusGPU;
+
+enum MRMetalWorldContactFlags : mr_u32 {
+    MR_METAL_WORLD_CONTACT_DETERMINISTIC = 1u << 0u,
+    MR_METAL_WORLD_CONTACT_WARM_START = 1u << 1u,
+    MR_METAL_WORLD_CONTACT_CAPTURE_EVIDENCE = 1u << 2u,
+    MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS = 1u << 3u,
+};
+
+// One stable, cooker-produced pair. The pair stream is canonical collider
+// order and already applies static exclusions and collision masks. pairClass
+// is the narrowphase class; zero is an explicit unsupported class.
+typedef struct MR_ALIGN16 MRCompiledCollisionPairGPU {
+    mr_u32 colliderA;
+    mr_u32 colliderB;
+    mr_u32 pairClass;
+    mr_u32 flags;
+} MRCompiledCollisionPairGPU;
+
+// Fixed capacities and strides for the contact graph. Every stride is in
+// elements, never bytes. Dynamic counts remain GPU-resident.
+typedef struct MR_ALIGN16 MRMetalWorldContactDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 environmentCount;
+    mr_u32 articulationIndex;
+    mr_u32 solverType;
+
+    mr_u32 bodyCount;
+    mr_u32 sceneBodyCount;
+    mr_u32 shapeCount;
+    mr_u32 eligiblePairCount;
+
+    mr_u32 pairCapacity;
+    mr_u32 rawContactCapacity;
+    mr_u32 manifoldCapacity;
+    mr_u32 constraintCapacity;
+
+    mr_u32 rowCapacity;
+    mr_u32 islandCapacity;
+    mr_u32 sceneBodyStride;
+    mr_u32 bodyStateStride;
+
+    mr_u32 pairStride;
+    mr_u32 rawContactStride;
+    mr_u32 manifoldStride;
+    mr_u32 constraintStride;
+
+    mr_u32 rowStride;
+    mr_u32 islandStride;
+    mr_u32 pointQueryStride;
+    mr_u32 factorStride;
+
+    mr_u32 nv;
+    mr_u32 flags;
+    mr_u32 velocityIterations;
+    mr_u32 finalVelocityIterations;
+
+    // timestep, penetration slop, maximum depenetration speed, warm scale.
+    mr_float4 timestepAndBias;
+    // separation break, tangential break, merge distance, normal cosine.
+    mr_float4 manifoldThresholds;
+} MRMetalWorldContactDispatchGPU;
+
+// Layout-compatible with MTLDispatchThreadgroupsIndirectArguments. The final
+// word is adjacent device evidence and is not consumed by Metal's indirect
+// dispatch command.
+typedef struct MR_ALIGN16 MRIndirectDispatchArgumentsGPU {
+    mr_u32 threadgroupsX;
+    mr_u32 threadgroupsY;
+    mr_u32 threadgroupsZ;
+    mr_u32 activeCount;
+} MRIndirectDispatchArgumentsGPU;
+
+// Environment-major immutable-for-one-microstep collider projection. This
+// record is produced once per collider, then reused by broadphase and
+// narrowphase instead of reconstructing shape frames for every eligible pair.
+typedef struct MR_ALIGN16 MRProjectedColliderGPU {
+    // projection status, simulation-disabled flag, reserved, reserved.
+    mr_uint4 statusAndFlags;
+    // xyz center, w radius.
+    mr_float4 centerAndRadius;
+    mr_float4 rotation;
+    // xyz lower AABB, w half length.
+    mr_float4 lowerAndHalfLength;
+    // xyz upper AABB, w contact offset.
+    mr_float4 upperAndContactOffset;
+} MRProjectedColliderGPU;
+
+// Solver/contact metadata for one active manifold point. Anchors are
+// COM-relative body-local points. Query slots are deterministic:
+// 2*constraint and 2*constraint+1.
+typedef struct MR_ALIGN16 MRContactPointMetaGPU {
+    mr_u32 colliderA;
+    mr_u32 colliderB;
+    mr_u32 manifoldIndex;
+    mr_u32 pointIndex;
+
+    mr_float4 localAnchorA;
+    mr_float4 localAnchorB;
+} MRContactPointMetaGPU;
+
+typedef struct MR_ALIGN16 MRContactIslandGPU {
+    mr_u32 environment;
+    mr_u32 stableRoot;
+    mr_u32 firstConstraint;
+    mr_u32 constraintCount;
+
+    mr_u32 dynamicNodeCount;
+    mr_u32 flags;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+} MRContactIslandGPU;
+
+typedef struct MR_ALIGN16 MRArticulationFactorCacheGPU {
+    mr_u32 environment;
+    mr_u32 articulationIndex;
+    mr_u32 nv;
+    mr_u32 generation;
+
+    mr_u32 code;
+    mr_u32 failingIndex;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+
+    // Minimum pivot, maximum pivot, relative residual, maximum mass entry.
+    mr_float4 diagnostics;
+} MRArticulationFactorCacheGPU;
+
+// Per-environment evidence. Counts are exact even when a capacity overflows;
+// candidate physical/manifold state is then discarded transactionally.
+typedef struct MR_ALIGN16 MRMetalWorldContactStatusGPU {
+    mr_u32 code;
+    mr_u32 environment;
+    mr_u32 controlStep;
+    mr_u32 physicsSubstep;
+
+    mr_u32 requiredPairs;
+    mr_u32 requiredRawContacts;
+    mr_u32 requiredManifolds;
+    mr_u32 requiredConstraints;
+
+    mr_u32 requiredRows;
+    mr_u32 requiredIslands;
+    mr_u32 activePairs;
+    mr_u32 activeContacts;
+
+    mr_u32 retainedPoints;
+    mr_u32 newPoints;
+    mr_u32 islandCount;
+    mr_u32 spillRows;
+
+    mr_u32 firstFailingPair;
+    mr_u32 firstFailingConstraint;
+    mr_u32 solverIterations;
+    mr_u32 flags;
+
+    // impulse delta, normal residual, cone violation, factor residual.
+    mr_float4 residuals;
+    // manifold retention, maximum penetration, minimum pivot, maximum pivot.
+    mr_float4 diagnostics;
+} MRMetalWorldContactStatusGPU;
 
 enum MRInverseMassStatusCode : mr_u32 {
     MR_INVERSE_MASS_SUCCESS = 0u,
@@ -760,9 +977,19 @@ static_assert(sizeof(MRArticulatedOperatorStatusGPU) == 48);
 static_assert(sizeof(MRABADispatchGPU) == 48);
 static_assert(sizeof(MRABABodyWrenchGPU) == 32);
 static_assert(sizeof(MRABAStatusGPU) == 48);
+static_assert(sizeof(MRMLXWorldStepDispatchGPU) == 32);
+static_assert(sizeof(MRMLXWorldStepStatusGPU) == 32);
 static_assert(sizeof(MRMetalWorldDispatchGPU) == 64);
 static_assert(sizeof(MRMetalWorldPassGPU) == 16);
 static_assert(sizeof(MRMetalWorldStatusGPU) == 48);
+static_assert(sizeof(MRCompiledCollisionPairGPU) == 16);
+static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 144);
+static_assert(sizeof(MRIndirectDispatchArgumentsGPU) == 16);
+static_assert(sizeof(MRProjectedColliderGPU) == 80);
+static_assert(sizeof(MRContactPointMetaGPU) == 48);
+static_assert(sizeof(MRContactIslandGPU) == 32);
+static_assert(sizeof(MRArticulationFactorCacheGPU) == 48);
+static_assert(sizeof(MRMetalWorldContactStatusGPU) == 112);
 static_assert(sizeof(MRInverseMassDispatchGPU) == 48);
 static_assert(sizeof(MRInverseMassStatusGPU) == 48);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);

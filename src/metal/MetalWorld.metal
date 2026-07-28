@@ -15,7 +15,12 @@ inline bool validWorldDispatch(
         MR_METAL_WORLD_APPLY_BODY_DAMPING |
         MR_METAL_WORLD_DETERMINISTIC |
         MR_METAL_WORLD_HAS_RESETS |
-        MR_METAL_WORLD_FREE_MOTION_ONLY;
+        MR_METAL_WORLD_FREE_MOTION_ONLY |
+        MR_METAL_WORLD_CONTACTS;
+    const uint modeFlags =
+        dispatch.flags &
+        (MR_METAL_WORLD_FREE_MOTION_ONLY |
+         MR_METAL_WORLD_CONTACTS);
     return
         dispatch.abiVersion == MR_METAL_WORLD_ABI_VERSION &&
         dispatch.environmentCount > 0u &&
@@ -39,7 +44,8 @@ inline bool validWorldDispatch(
         dispatch.accelerationStepStride >=
             dispatch.environmentCount * dispatch.nv &&
         (dispatch.flags & ~knownFlags) == 0u &&
-        (dispatch.flags & MR_METAL_WORLD_FREE_MOTION_ONLY) != 0u;
+        (modeFlags == MR_METAL_WORLD_FREE_MOTION_ONLY ||
+         modeFlags == MR_METAL_WORLD_CONTACTS);
 }
 
 inline uint mapABAStatus(const uint code) {

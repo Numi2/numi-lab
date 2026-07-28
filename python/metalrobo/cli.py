@@ -12,6 +12,7 @@ from typing import Sequence
 import numpy as np
 
 from .env import FrankaEnv
+from .mlx_ppo import MLXPPOTrainer
 from .ppo import (
     PPOConfig,
     PPOTrainer,
@@ -30,6 +31,15 @@ def _runtime_arguments(parser: argparse.ArgumentParser) -> None:
 
 def _train_parser(parser: argparse.ArgumentParser) -> None:
     _runtime_arguments(parser)
+    parser.add_argument(
+        "--backend",
+        choices=("mlx", "ctypes-debug"),
+        default="mlx",
+        help=(
+            "MLX active-encoder physics (default) or the legacy "
+            "NumPy/ctypes validation adapter"
+        ),
+    )
     parser.add_argument("--iterations", type=int, default=1000)
     parser.add_argument("--rollout-steps", type=int, default=64)
     parser.add_argument("--update-epochs", type=int, default=4)
@@ -53,6 +63,22 @@ def _train_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--checkpoint-dir", default="runs/franka")
     parser.add_argument("--checkpoint-interval", type=int, default=10)
     parser.add_argument("--resume", type=Path)
+    parser.add_argument(
+        "--rollout-chunk-size",
+        type=int,
+        default=16,
+        help="bounded lazy MLX steps before mx.async_eval",
+    )
+    parser.add_argument(
+        "--maximum-episode-steps",
+        type=int,
+        default=256,
+    )
+    parser.add_argument(
+        "--physics-substeps",
+        type=int,
+        default=4,
+    )
 
 
 def _benchmark_parser(parser: argparse.ArgumentParser) -> None:
@@ -117,9 +143,25 @@ def run_train(args: argparse.Namespace) -> int:
         checkpoint_interval=args.checkpoint_interval,
         checkpoint_directory=args.checkpoint_dir,
     )
-    trainer = PPOTrainer(
-        config, library_path=args.library, metallib_path=args.metallib
-    )
+    if args.backend == "mlx":
+        if args.library:
+            raise ValueError(
+                "--library applies only to --backend ctypes-debug; "
+                "the MLX primitive links the compiled engine directly"
+            )
+        trainer = MLXPPOTrainer(
+            config,
+            metallib_path=args.metallib,
+            rollout_chunk_size=args.rollout_chunk_size,
+            maximum_episode_steps=args.maximum_episode_steps,
+            physics_substeps=args.physics_substeps,
+        )
+    else:
+        trainer = PPOTrainer(
+            config,
+            library_path=args.library,
+            metallib_path=args.metallib,
+        )
     checkpoint = trainer.train(resume=args.resume)
     print(json.dumps({"checkpoint": str(checkpoint.resolve())}))
     return 0

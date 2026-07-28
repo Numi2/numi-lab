@@ -216,25 +216,25 @@ The canonical ABI is also consumed by focused Metal kernels:
   scan, and canonical scatter without global append atomics;
 - a deterministic one-thread `O(n²)` collision correctness kernel for
   sphere/sphere, sphere/plane, capsule/plane, box/plane, cylinder/plane,
-  sphere/capsule, capsule/capsule, and sphere/box;
+  sphere/capsule, capsule/capsule, sphere/box, capsule/box, and box/box;
 - a correctness-first generic fixed/floating articulation operator for body
   poses, point Jacobians, mass, `Jᵀp`, and factor-solved `M⁻¹Jᵀp`, exercised
   on actual 35-velocity G1 with authoritative armature;
 - a persistent environment-major Metal world graph that caches one compiled
-  articulation and advances a complete action horizon through reset, ABA,
-  transactional ping-pong state, and observation capture in one asynchronous
-  command buffer;
+  articulation plus scene bodies and advances a complete action horizon
+  through ABA, collider projection, persistent manifolds, ConstraintIR, mixed
+  contact islands, TGS/PGS, transactional integration, and observation capture
+  in one asynchronous command buffer;
+- an MLX 0.32 custom primitive using MLX-owned arrays and MLX's active Metal
+  encoder for compiled Franka/G1 free-motion ABA;
 - the fixed-budget contact PGS block.
 
-The free-motion ABA stages are assembled into a batched generic GPU world;
-collision/contact stages are not. GPU collider projection, manifold
-persistence/reduction, segmented LBVH, parallel narrowphase, and a parallel
-articulated tree/contact implementation remain open. The ABA recursion still
-executes its deterministic O(n) path in lane zero. Its measured
-environment-control-step throughput is valid for the exact free-motion graph,
-but must not be represented as contact-world or level-parallel tree
-throughput. The current micro broadphase has an explicit 65,536-logical-pair
-scan bound.
+The device-resident contact transaction is assembled, but its collision,
+manifold, island, and solver passes still execute one deterministic thread per
+environment. SIMD32 queues, indirect dispatch, segmented LBVH, private heaps,
+and a level-parallel articulated tree remain open. The measured
+environment-control-step throughput is valid for the free-motion graph and
+must not be represented as contact throughput.
 
 The forward architecture is operator-first: every constraint type compiles to
 one semantic program, every dynamics backend exposes a free-motion solve
@@ -259,29 +259,30 @@ driven from the IR; unimplemented rolling/adhesion semantics fail explicitly.
 
 The CPU collision reference implements deterministic sweep-and-prune,
 sphere/sphere, sphere/plane, capsule/plane, box/plane, cylinder/plane,
-sphere/capsule, capsule/capsule, and sphere/box witnesses, stable features,
-and persistent four-point manifold reduction. The Metal collision kernel
-implements the same eight pair classes and matches CPU witness geometry in
-its focused probe. Other cylinder pairs, general capsule/box pairs, convex
+sphere/capsule, capsule/capsule, sphere/box, capsule/box, and SAT box/box
+witnesses, stable features, and persistent four-point manifold reduction. The
+Metal collision kernel implements the same ten pair classes and matches CPU
+witness geometry in its focused probe. Other cylinder pairs, convex
 GJK/EPA/MPR, triangle mesh, heightfield, SDF, and deformable geometry are not
-executable production paths.
+executable production paths. Box/box face clipping remains incomplete.
 
 There is no continuous collision detection. Neither conservative advancement,
 time-of-impact island stepping, nor speculative CCD is implemented.
 
-The throughput PGS kernel has a hard capacity of 128 contacts per dispatch.
-The composed CPU world partitions independent connected constraint islands
-before dispatch, making 128 contacts the current limit for any one connected
-island. A larger connected island returns explicit capacity overflow; contacts
-are not silently dropped. Metal dispatch construction must provide the same
-island partition. Size buckets and spill/replay remain future work.
+The legacy focused PGS kernel has a 128-contact dispatch capacity. The
+persistent Metal world does not use that ceiling: its current point-query
+bucket accepts 512 contact constraints, builds mixed islands, and reports
+exact per-environment overflow without publishing partial state. Size buckets
+and tiled spill/replay remain future work.
 
 The solver portfolio also includes an independent FP64 projected-gradient
 exact-cone oracle and a safeguarded FP64 semismooth-Newton quality solver. Its
 four-entry GLL merit window permits productive active-cone transitions,
 Newton searches that need more than twelve trials are discarded, and the
 existing regularized Gauss-Newton direction receives a full line search
-before projected-gradient fallback. The throughput path remains PGS, not TGS.
+before projected-gradient fallback. The persistent world has temporal
+microstep relinearization and coupled exact-cone TGS/PGS modes; task-level
+quality closure and throughput optimization remain open.
 
 ## API, memory, and synchronization
 
@@ -291,8 +292,8 @@ before projected-gradient fallback. The throughput path remains PGS, not TGS.
 - Canonical engine, collision, solver, world, G1, and articulated-reference
   APIs are currently C++ interfaces; they are not all surfaced through the C
   ABI.
-- The Python package exposes stable read-only NumPy views and an MLX PPO
-  learner.
+- The Python package exposes the NumPy/ctypes task only as a debug adapter and
+  a separate MLX active-encoder physics/PPO path.
 
 All current Metal runtime buffers use Apple-silicon shared storage. The legacy
 C API `step` completes its command buffer before returning shared views. The
@@ -300,18 +301,20 @@ canonical Metal world instead encodes every requested control step and
 physics substep before a single commit, returns a live ticket immediately,
 and waits only when its final result is requested or discarded. No
 CPU-visible intermediate count or state participates in that horizon. The
-ticket still copies final output into C++ vectors, and the PPO path still
-materializes MLX arrays, so physics and learning are not yet one MLX command
-graph.
+ticket still copies final standalone output into C++ vectors. Free-motion
+physics and learning can share one MLX lazy graph; contact state is not yet
+promoted to that adapter. The standalone contact path projects colliders and
+evaluates compiled-pair overlap flags in flattened parallel queues;
+narrowphase/manifold compilation and the compact island solver remain
+environment-owned serial kernels.
 
 The generic articulated operator's public host API owns its compact buffer
 table and preflights checked element/byte arithmetic, the shader's 32-bit
 address ceiling, actual `MTLBuffer.length`, per-buffer device limits, and the
 aggregate recommended working set before encoding. Its result and typed GPU
 status stream publish atomically. Its focused wrapper remains synchronous.
-`MetalWorldContext` is the persistent rollout scheduler: it owns five cached
-pipelines (including small/G1 ABA capacity buckets), immutable-model
-fingerprinting, a 27-buffer grow-only arena, one
+`MetalWorldContext` is the persistent rollout scheduler: it owns twenty-one
+cached pipelines, immutable-model fingerprinting, a typed grow-only arena, one
 in-flight ownership gate, asynchronous ticket lifetime, and whole-control-step
 rollback. See [METAL_WORLD](METAL_WORLD.md).
 

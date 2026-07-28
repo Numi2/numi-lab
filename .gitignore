@@ -9,5 +9,6 @@ __pycache__/
 .pytest_cache/
 *.metallib
 *.air
+*.so
 *.dSYM/
 compile_commands.json

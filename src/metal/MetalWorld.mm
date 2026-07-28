@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
+#include <initializer_list>
 #include <limits>
 #include <memory>
 #include <mutex>
@@ -29,8 +30,9 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 27u;
+constexpr std::size_t kRawBufferCount = 81u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
+constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
 constexpr mr_u32 kSmallABAMaxBodies = 12u;
 constexpr mr_u32 kSmallABAMaxDofs = 16u;
@@ -73,6 +75,60 @@ enum BufferIndex : std::size_t {
     kEnvironmentStatuses = 24u,
     kCheckpointQ = 25u,
     kCheckpointV = 26u,
+    kShapes = 27u,
+    kMaterials = 28u,
+    kSceneBodyIndices = 29u,
+    kEligiblePairs = 30u,
+    kContactDispatch = 31u,
+    kOperatorKinematicsDispatch = 32u,
+    kOperatorFactorDispatch = 33u,
+    kInitialSceneBodies = 34u,
+    kResetSceneBodies = 35u,
+    kKinematicTargets = 36u,
+    kSceneBodiesA = 37u,
+    kSceneBodiesB = 38u,
+    kCheckpointSceneBodies = 39u,
+    kBodyPoses = 40u,
+    kPointWorld = 41u,
+    kFactorMatrix = 42u,
+    kPointJacobians = 43u,
+    kGeneralizedImpulse = 44u,
+    kDeltaVelocity = 45u,
+    kOperatorStatuses = 46u,
+    kCurrentBodies = 47u,
+    kCandidateBodies = 48u,
+    kManifoldHeadersA = 49u,
+    kManifoldPointsA = 50u,
+    kManifoldCountsA = 51u,
+    kManifoldHeadersB = 52u,
+    kManifoldPointsB = 53u,
+    kManifoldCountsB = 54u,
+    kCandidateManifoldHeaders = 55u,
+    kCandidateManifoldPoints = 56u,
+    kCandidateManifoldCounts = 57u,
+    kCheckpointManifoldHeaders = 58u,
+    kCheckpointManifoldPoints = 59u,
+    kCheckpointManifoldCounts = 60u,
+    kCandidatePairs = 61u,
+    kRawContacts = 62u,
+    kRawPairIndices = 63u,
+    kContacts = 64u,
+    kContactMetadata = 65u,
+    kIRBlocks = 66u,
+    kIREndpoints = 67u,
+    kIRRows = 68u,
+    kIRCones = 69u,
+    kPointQueries = 70u,
+    kEvaluatedRows = 71u,
+    kEvaluatedCones = 72u,
+    kFactorCaches = 73u,
+    kIslands = 74u,
+    kResponseColumns = 75u,
+    kContactStatuses = 76u,
+    kPublicContactStatuses = 77u,
+    kActiveIndirectDispatch = 78u,
+    kProjectedColliders = 79u,
+    kPairOverlapFlags = 80u,
 };
 
 struct BufferRequirement {
@@ -106,6 +162,22 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> preparePipeline = nil;
     __strong id<MTLComputePipelineState> commitPipeline = nil;
     __strong id<MTLComputePipelineState> capturePipeline = nil;
+    __strong id<MTLComputePipelineState> operatorPipeline = nil;
+    __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
+    __strong id<MTLComputePipelineState> bodyProjectionPipeline = nil;
+    __strong id<MTLComputePipelineState> scenePredictionPipeline = nil;
+    __strong id<MTLComputePipelineState> colliderProjectionPipeline = nil;
+    __strong id<MTLComputePipelineState> pairFlagPipeline = nil;
+    __strong id<MTLComputePipelineState> collisionCompilePipeline = nil;
+    __strong id<MTLComputePipelineState> factorDispatchPipeline = nil;
+    __strong id<MTLComputePipelineState> pointQueryTailPipeline = nil;
+    __strong id<MTLComputePipelineState> evaluateIRPipeline = nil;
+    __strong id<MTLComputePipelineState> islandPipeline = nil;
+    __strong id<MTLComputePipelineState> contactSolvePipeline = nil;
+    __strong id<MTLComputePipelineState> contactIntegratePipeline = nil;
+    __strong id<MTLComputePipelineState> contactLatchPipeline = nil;
+    __strong id<MTLComputePipelineState> contactCommitPipeline = nil;
+    __strong id<MTLComputePipelineState> contactCapturePipeline = nil;
     __strong id<MTLBuffer> buffers[kRawBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
     std::uint64_t boundModelFingerprint = 0u;
@@ -139,6 +211,12 @@ struct MetalWorldSubmissionState {
     MRArticulationGPU articulation{};
     std::size_t finalQBuffer = kStateQA;
     std::size_t finalVBuffer = kStateVA;
+    std::size_t finalSceneBuffer = kSceneBodiesA;
+    std::size_t finalManifoldHeaderBuffer = kManifoldHeadersA;
+    std::size_t finalManifoldPointBuffer = kManifoldPointsA;
+    std::size_t finalManifoldCountBuffer = kManifoldCountsA;
+    bool contactMode = false;
+    bool captureContactEvidence = false;
     bool ownsInFlight = false;
 };
 
@@ -300,6 +378,67 @@ bool finiteFloats(const std::span<const float> values) {
     );
 }
 
+bool validSceneStates(
+    const CompiledWorld& world,
+    const std::size_t environmentCount,
+    const std::span<const MRBodyStateGPU> states
+) {
+    if (states.empty() && world.sceneBodyCount() == 0u) {
+        return true;
+    }
+    if (states.size() !=
+        environmentCount * world.sceneBodyCount()) {
+        return false;
+    }
+    for (std::size_t environment = 0u;
+         environment < environmentCount;
+         ++environment) {
+        std::size_t localScene = 0u;
+        for (std::uint32_t globalBody = 0u;
+             globalBody < world.model().bodies.size();
+             ++globalBody) {
+            if (world.model().bodies[globalBody].articulationIndex !=
+                MR_INVALID_INDEX) {
+                continue;
+            }
+            const MRBodyPropertiesGPU& properties =
+                world.model().bodies[globalBody];
+            const MRBodyStateGPU& state =
+                states[
+                    environment * world.sceneBodyCount() +
+                    localScene
+                ];
+            const double quaternionNormSquared =
+                static_cast<double>(state.orientation.x) *
+                    state.orientation.x +
+                static_cast<double>(state.orientation.y) *
+                    state.orientation.y +
+                static_cast<double>(state.orientation.z) *
+                    state.orientation.z +
+                static_cast<double>(state.orientation.w) *
+                    state.orientation.w;
+            if (!finite(state.position) ||
+                !finite(state.orientation) ||
+                !finite(state.linearVelocityAndInverseMass) ||
+                !finite(state.angularVelocity) ||
+                !finite(state.inverseInertiaWorldRow0) ||
+                !finite(state.inverseInertiaWorldRow1) ||
+                !finite(state.inverseInertiaWorldRow2) ||
+                !(quaternionNormSquared > 1.0e-12) ||
+                std::abs(std::sqrt(quaternionNormSquared) - 1.0) >
+                    kQuaternionHostTolerance ||
+                state.flagsAndIndices[0] != properties.motionType ||
+                state.flagsAndIndices[1] != MR_INVALID_INDEX ||
+                (state.flagsAndIndices[2] != globalBody &&
+                 state.flagsAndIndices[2] != MR_INVALID_INDEX)) {
+                return false;
+            }
+            ++localScene;
+        }
+    }
+    return true;
+}
+
 bool supportedTopology(
     const EngineModel& model,
     const MRArticulationGPU& articulation,
@@ -448,6 +587,80 @@ std::uint64_t fingerprint(const EngineModel& model) {
     return hash == 0u ? 1u : hash;
 }
 
+std::uint32_t compiledPairClass(
+    const std::uint32_t typeA,
+    const std::uint32_t typeB
+) {
+    if (typeA == MR_SHAPE_SPHERE &&
+        typeB == MR_SHAPE_SPHERE) {
+        return MR_COLLISION_PAIR_SPHERE_SPHERE;
+    }
+    if ((typeA == MR_SHAPE_SPHERE &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeB == MR_SHAPE_SPHERE &&
+         typeA == MR_SHAPE_PLANE)) {
+        return MR_COLLISION_PAIR_SPHERE_PLANE;
+    }
+    if ((typeA == MR_SHAPE_CAPSULE &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeB == MR_SHAPE_CAPSULE &&
+         typeA == MR_SHAPE_PLANE)) {
+        return MR_COLLISION_PAIR_CAPSULE_PLANE;
+    }
+    if ((typeA == MR_SHAPE_BOX &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeB == MR_SHAPE_BOX &&
+         typeA == MR_SHAPE_PLANE)) {
+        return MR_COLLISION_PAIR_BOX_PLANE;
+    }
+    if ((typeA == MR_SHAPE_CYLINDER &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeB == MR_SHAPE_CYLINDER &&
+         typeA == MR_SHAPE_PLANE)) {
+        return MR_COLLISION_PAIR_CYLINDER_PLANE;
+    }
+    if ((typeA == MR_SHAPE_SPHERE &&
+         typeB == MR_SHAPE_CAPSULE) ||
+        (typeB == MR_SHAPE_SPHERE &&
+         typeA == MR_SHAPE_CAPSULE)) {
+        return MR_COLLISION_PAIR_SPHERE_CAPSULE;
+    }
+    if (typeA == MR_SHAPE_CAPSULE &&
+        typeB == MR_SHAPE_CAPSULE) {
+        return MR_COLLISION_PAIR_CAPSULE_CAPSULE;
+    }
+    if ((typeA == MR_SHAPE_SPHERE &&
+         typeB == MR_SHAPE_BOX) ||
+        (typeB == MR_SHAPE_SPHERE &&
+         typeA == MR_SHAPE_BOX)) {
+        return MR_COLLISION_PAIR_SPHERE_BOX;
+    }
+    if ((typeA == MR_SHAPE_CAPSULE &&
+         typeB == MR_SHAPE_BOX) ||
+        (typeB == MR_SHAPE_CAPSULE &&
+         typeA == MR_SHAPE_BOX)) {
+        return MR_COLLISION_PAIR_CAPSULE_BOX;
+    }
+    if (typeA == MR_SHAPE_BOX &&
+        typeB == MR_SHAPE_BOX) {
+        return MR_COLLISION_PAIR_BOX_BOX;
+    }
+    return MR_COLLISION_PAIR_UNSUPPORTED;
+}
+
+std::uint64_t compiledFingerprint(
+    const EngineModel& model,
+    const MetalWorldCapacityProfile& capacities,
+    const std::vector<std::uint32_t>& sceneBodyIndices,
+    const std::vector<MRCompiledCollisionPairGPU>& eligiblePairs
+) {
+    std::uint64_t hash = fingerprint(model);
+    hashValue(hash, capacities);
+    hashVector(hash, sceneBodyIndices);
+    hashVector(hash, eligiblePairs);
+    return hash == 0u ? 1u : hash;
+}
+
 bool buildRequirements(
     const CompiledWorld& world,
     const MetalWorldLayout& layout,
@@ -461,6 +674,12 @@ bool buildRequirements(
         layout.resetMaskElements;
     const std::size_t resetQElements = layout.resetQElements;
     const std::size_t resetVElements = layout.resetVElements;
+    const std::size_t environments =
+        layout.dispatch.environmentCount;
+    const std::size_t contactEnvironments =
+        (layout.dispatch.flags & MR_METAL_WORLD_CONTACTS) != 0u
+        ? environments
+        : 0u;
     if (!makeRequirement<MRWorldGPU>(
             "runtime world",
             1u,
@@ -599,6 +818,367 @@ bool buildRequirements(
         return false;
     }
 
+    const MRMetalWorldContactDispatchGPU& contact =
+        layout.contactDispatch;
+    std::size_t bodyPoseElements = 0u;
+    std::size_t bodyStateElements = 0u;
+    std::size_t projectedColliderElements = 0u;
+    std::size_t eligiblePairFlagElements = 0u;
+    std::size_t pairElements = 0u;
+    std::size_t rawContactElements = 0u;
+    std::size_t pointQueryElements = 0u;
+    std::size_t factorElements = 0u;
+    std::size_t pointJacobianElements = 0u;
+    std::size_t endpointElements = 0u;
+    std::size_t coneElements = 0u;
+    std::size_t responseElements = 0u;
+    if (!checkedMultiply(
+            contactEnvironments,
+            world.bodyCount(),
+            bodyPoseElements
+        ) ||
+        !checkedMultiply(
+            contactEnvironments,
+            model.bodies.size(),
+            bodyStateElements
+        ) ||
+        !checkedMultiply(
+            contactEnvironments,
+            model.shapes.size(),
+            projectedColliderElements
+        ) ||
+        !checkedMultiply(
+            contactEnvironments,
+            world.eligiblePairCount(),
+            eligiblePairFlagElements
+        ) ||
+        !checkedMultiply(
+            contactEnvironments,
+            contact.pairStride,
+            pairElements
+        ) ||
+        !checkedMultiply(
+            contactEnvironments,
+            contact.rawContactStride,
+            rawContactElements
+        ) ||
+        !checkedMultiply(
+            contactEnvironments,
+            contact.pointQueryStride,
+            pointQueryElements
+        ) ||
+        !checkedMultiply(
+            contactEnvironments,
+            contact.factorStride,
+            factorElements
+        ) ||
+        !checkedMultiply(
+            pointQueryElements,
+            3u * static_cast<std::size_t>(contact.nv),
+            pointJacobianElements
+        ) ||
+        !checkedMultiply(
+            layout.contactConstraintElements,
+            2u,
+            endpointElements
+        ) ||
+        !checkedMultiply(
+            contactEnvironments,
+            contact.constraintStride,
+            coneElements
+        ) ||
+        !checkedMultiply(
+            layout.contactConstraintElements,
+            3u * static_cast<std::size_t>(contact.nv),
+            responseElements
+        )) {
+        return false;
+    }
+    const std::size_t immutableShapeElements =
+        std::max<std::size_t>(model.shapes.size(), 1u);
+    const std::size_t immutableMaterialElements =
+        std::max<std::size_t>(model.materials.size(), 1u);
+    const std::size_t immutableSceneIndexElements =
+        std::max<std::size_t>(world.sceneBodyCount(), 1u);
+    const std::size_t immutablePairElements =
+        std::max<std::size_t>(world.eligiblePairCount(), 1u);
+    if (!makeRequirement<MRShapeGPU>(
+            "shapes",
+            immutableShapeElements,
+            requirements.entries[kShapes]
+        ) ||
+        !makeRequirement<MRMaterialGPU>(
+            "materials",
+            immutableMaterialElements,
+            requirements.entries[kMaterials]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "scene body indices",
+            immutableSceneIndexElements,
+            requirements.entries[kSceneBodyIndices]
+        ) ||
+        !makeRequirement<MRCompiledCollisionPairGPU>(
+            "eligible collision pairs",
+            immutablePairElements,
+            requirements.entries[kEligiblePairs]
+        ) ||
+        !makeRequirement<MRMetalWorldContactDispatchGPU>(
+            "contact dispatch",
+            1u,
+            requirements.entries[kContactDispatch]
+        ) ||
+        !makeRequirement<MRArticulatedOperatorDispatchGPU>(
+            "kinematics operator dispatch",
+            1u,
+            requirements.entries[kOperatorKinematicsDispatch]
+        ) ||
+        !makeRequirement<MRArticulatedOperatorDispatchGPU>(
+            "factor operator dispatch",
+            1u,
+            requirements.entries[kOperatorFactorDispatch]
+        ) ||
+        !makeRequirement<MRIndirectDispatchArgumentsGPU>(
+            "active contact indirect dispatch arguments",
+            contactEnvironments == 0u ? 0u : 2u,
+            requirements.entries[kActiveIndirectDispatch]
+        ) ||
+        !makeRequirement<MRBodyStateGPU>(
+            "initial scene bodies",
+            layout.initialSceneBodyElements,
+            requirements.entries[kInitialSceneBodies]
+        ) ||
+        !makeRequirement<MRBodyStateGPU>(
+            "reset scene bodies",
+            layout.resetSceneBodyElements,
+            requirements.entries[kResetSceneBodies]
+        ) ||
+        !makeRequirement<MRBodyStateGPU>(
+            "kinematic targets",
+            layout.kinematicTargetElements,
+            requirements.entries[kKinematicTargets]
+        ) ||
+        !makeRequirement<MRBodyStateGPU>(
+            "scene bodies A",
+            layout.initialSceneBodyElements,
+            requirements.entries[kSceneBodiesA]
+        ) ||
+        !makeRequirement<MRBodyStateGPU>(
+            "scene bodies B",
+            layout.initialSceneBodyElements,
+            requirements.entries[kSceneBodiesB]
+        ) ||
+        !makeRequirement<MRBodyStateGPU>(
+            "checkpoint scene bodies",
+            layout.initialSceneBodyElements,
+            requirements.entries[kCheckpointSceneBodies]
+        ) ||
+        !makeRequirement<MRArticulatedBodyPoseGPU>(
+            "articulation body poses",
+            bodyPoseElements,
+            requirements.entries[kBodyPoses]
+        ) ||
+        !makeRequirement<MRArticulatedPointWorldGPU>(
+            "articulated point world",
+            pointQueryElements,
+            requirements.entries[kPointWorld]
+        ) ||
+        !makeRequirement<float>(
+            "articulation factor matrix",
+            factorElements,
+            requirements.entries[kFactorMatrix]
+        ) ||
+        !makeRequirement<float>(
+            "point Jacobians",
+            pointJacobianElements,
+            requirements.entries[kPointJacobians]
+        ) ||
+        !makeRequirement<float>(
+            "generalized impulse",
+            contactEnvironments == 0u
+                ? 0u
+                : layout.initialVElements,
+            requirements.entries[kGeneralizedImpulse]
+        ) ||
+        !makeRequirement<float>(
+            "operator delta velocity",
+            contactEnvironments == 0u
+                ? 0u
+                : layout.initialVElements,
+            requirements.entries[kDeltaVelocity]
+        ) ||
+        !makeRequirement<MRArticulatedOperatorStatusGPU>(
+            "articulated operator statuses",
+            contactEnvironments,
+            requirements.entries[kOperatorStatuses]
+        ) ||
+        !makeRequirement<MRBodyStateGPU>(
+            "current global body states",
+            bodyStateElements,
+            requirements.entries[kCurrentBodies]
+        ) ||
+        !makeRequirement<MRBodyStateGPU>(
+            "candidate global body states",
+            bodyStateElements,
+            requirements.entries[kCandidateBodies]
+        ) ||
+        !makeRequirement<MRProjectedColliderGPU>(
+            "projected colliders and AABBs",
+            projectedColliderElements,
+            requirements.entries[kProjectedColliders]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "eligible-pair overlap flags",
+            eligiblePairFlagElements,
+            requirements.entries[kPairOverlapFlags]
+        ) ||
+        !makeRequirement<MRManifoldHeaderGPU>(
+            "manifold headers A",
+            layout.manifoldHeaderElements,
+            requirements.entries[kManifoldHeadersA]
+        ) ||
+        !makeRequirement<MRManifoldPointGPU>(
+            "manifold points A",
+            layout.manifoldPointElements,
+            requirements.entries[kManifoldPointsA]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "manifold counts A",
+            contactEnvironments,
+            requirements.entries[kManifoldCountsA]
+        ) ||
+        !makeRequirement<MRManifoldHeaderGPU>(
+            "manifold headers B",
+            layout.manifoldHeaderElements,
+            requirements.entries[kManifoldHeadersB]
+        ) ||
+        !makeRequirement<MRManifoldPointGPU>(
+            "manifold points B",
+            layout.manifoldPointElements,
+            requirements.entries[kManifoldPointsB]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "manifold counts B",
+            contactEnvironments,
+            requirements.entries[kManifoldCountsB]
+        ) ||
+        !makeRequirement<MRManifoldHeaderGPU>(
+            "candidate manifold headers",
+            layout.manifoldHeaderElements,
+            requirements.entries[kCandidateManifoldHeaders]
+        ) ||
+        !makeRequirement<MRManifoldPointGPU>(
+            "candidate manifold points",
+            layout.manifoldPointElements,
+            requirements.entries[kCandidateManifoldPoints]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "candidate manifold counts",
+            contactEnvironments,
+            requirements.entries[kCandidateManifoldCounts]
+        ) ||
+        !makeRequirement<MRManifoldHeaderGPU>(
+            "checkpoint manifold headers",
+            layout.manifoldHeaderElements,
+            requirements.entries[kCheckpointManifoldHeaders]
+        ) ||
+        !makeRequirement<MRManifoldPointGPU>(
+            "checkpoint manifold points",
+            layout.manifoldPointElements,
+            requirements.entries[kCheckpointManifoldPoints]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "checkpoint manifold counts",
+            contactEnvironments,
+            requirements.entries[kCheckpointManifoldCounts]
+        ) ||
+        !makeRequirement<MRCandidatePairGPU>(
+            "candidate pairs",
+            pairElements,
+            requirements.entries[kCandidatePairs]
+        ) ||
+        !makeRequirement<MRRawContactGPU>(
+            "raw contacts",
+            rawContactElements,
+            requirements.entries[kRawContacts]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "raw contact pair indices",
+            rawContactElements,
+            requirements.entries[kRawPairIndices]
+        ) ||
+        !makeRequirement<MRContactConstraintGPU>(
+            "contact constraints",
+            layout.contactConstraintElements,
+            requirements.entries[kContacts]
+        ) ||
+        !makeRequirement<MRContactPointMetaGPU>(
+            "contact metadata",
+            layout.contactConstraintElements,
+            requirements.entries[kContactMetadata]
+        ) ||
+        !makeRequirement<MRConstraintIRBlockGPU>(
+            "ConstraintIR blocks",
+            layout.contactConstraintElements,
+            requirements.entries[kIRBlocks]
+        ) ||
+        !makeRequirement<MRConstraintIREndpointGPU>(
+            "ConstraintIR endpoints",
+            endpointElements,
+            requirements.entries[kIREndpoints]
+        ) ||
+        !makeRequirement<MRConstraintIRRowGPU>(
+            "ConstraintIR rows",
+            layout.constraintRowElements,
+            requirements.entries[kIRRows]
+        ) ||
+        !makeRequirement<MRConstraintIRConeGPU>(
+            "ConstraintIR cones",
+            coneElements,
+            requirements.entries[kIRCones]
+        ) ||
+        !makeRequirement<MRArticulatedPointImpulseGPU>(
+            "articulated point queries",
+            pointQueryElements,
+            requirements.entries[kPointQueries]
+        ) ||
+        !makeRequirement<MREvaluatedConstraintIRRowGPU>(
+            "evaluated ConstraintIR rows",
+            layout.constraintRowElements,
+            requirements.entries[kEvaluatedRows]
+        ) ||
+        !makeRequirement<MREvaluatedConstraintIRConeGPU>(
+            "evaluated ConstraintIR cones",
+            coneElements,
+            requirements.entries[kEvaluatedCones]
+        ) ||
+        !makeRequirement<MRArticulationFactorCacheGPU>(
+            "articulation factor cache",
+            contactEnvironments,
+            requirements.entries[kFactorCaches]
+        ) ||
+        !makeRequirement<MRContactIslandGPU>(
+            "contact islands",
+            layout.islandElements,
+            requirements.entries[kIslands]
+        ) ||
+        !makeRequirement<float>(
+            "contact response columns",
+            responseElements,
+            requirements.entries[kResponseColumns]
+        ) ||
+        !makeRequirement<MRMetalWorldContactStatusGPU>(
+            "contact statuses",
+            contactEnvironments,
+            requirements.entries[kContactStatuses]
+        ) ||
+        !makeRequirement<MRMetalWorldContactStatusGPU>(
+            "public contact statuses",
+            layout.contactStatusElements,
+            requirements.entries[kPublicContactStatuses]
+        )) {
+        return false;
+    }
+
     totalRequiredBytes = 0u;
     for (const BufferRequirement& requirement :
          requirements.entries) {
@@ -628,24 +1208,43 @@ MetalWorldDiagnostics validateAndBuildLayout(
         );
     }
     if (config.solverMode !=
-        MetalWorldSolverMode::freeMotionABA) {
+            MetalWorldSolverMode::freeMotionABA &&
+        config.solverMode !=
+            MetalWorldSolverMode::throughputPGS &&
+        config.solverMode !=
+            MetalWorldSolverMode::throughputTGS) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedSolverMode,
-            "contact PGS/TGS are reserved but not executable in "
-            "MetalWorld ABI v1"
+            "unknown MetalWorld solver mode"
         );
     }
+    const bool contactMode =
+        config.solverMode != MetalWorldSolverMode::freeMotionABA;
     if (!std::isfinite(config.timestepSeconds) ||
         !(config.timestepSeconds > 0.0f) ||
         config.physicsSubsteps == 0u ||
         config.physicsSubsteps >
-            MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS) {
+            MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS ||
+        (contactMode &&
+         (config.velocityIterations == 0u ||
+          config.velocityIterations > 128u ||
+          config.finalVelocityIterations > 128u)) ||
+        !std::isfinite(config.manifoldBreakingSeparation) ||
+        !std::isfinite(config.manifoldBreakingTangential) ||
+        !std::isfinite(config.manifoldMergeDistance) ||
+        !std::isfinite(config.manifoldNormalCosine) ||
+        config.manifoldBreakingSeparation < 0.0f ||
+        config.manifoldBreakingTangential < 0.0f ||
+        config.manifoldMergeDistance < 0.0f ||
+        config.manifoldNormalCosine < -1.0f ||
+        config.manifoldNormalCosine > 1.0f) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
             "timestepSeconds must be finite and positive and "
-            "physicsSubsteps must be in the supported range"
+            "physicsSubsteps, solver iterations, or manifold "
+            "thresholds are outside the supported range"
         );
     }
     const float substepTimestep =
@@ -691,7 +1290,13 @@ MetalWorldDiagnostics validateAndBuildLayout(
     dispatch.controlStepCount =
         static_cast<mr_u32>(batch.controlStepCount);
     dispatch.physicsSubsteps = config.physicsSubsteps;
-    dispatch.flags = MR_METAL_WORLD_FREE_MOTION_ONLY |
+    dispatch.flags = (
+        contactMode
+            ? static_cast<mr_u32>(MR_METAL_WORLD_CONTACTS)
+            : static_cast<mr_u32>(
+                  MR_METAL_WORLD_FREE_MOTION_ONLY
+              )
+        ) |
         (config.applyBodyDamping
              ? static_cast<mr_u32>(
                    MR_METAL_WORLD_APPLY_BODY_DAMPING
@@ -712,8 +1317,24 @@ MetalWorldDiagnostics validateAndBuildLayout(
     dispatch.qStride = articulation.nq;
     dispatch.vStride = articulation.nv;
     dispatch.effortEnvironmentStride = articulation.nv;
+    const std::size_t observationEnvironmentStride =
+        static_cast<std::size_t>(articulation.nq) +
+        articulation.nv +
+        (contactMode
+             ? 13u * static_cast<std::size_t>(
+                   world.sceneBodyCount()
+               )
+             : 0u);
+    if (observationEnvironmentStride >
+        std::numeric_limits<mr_u32>::max()) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::arithmeticOverflow,
+            "observation environment stride exceeds the GPU ABI"
+        );
+    }
     dispatch.observationEnvironmentStride =
-        articulation.nq + articulation.nv;
+        static_cast<mr_u32>(observationEnvironmentStride);
 
     std::size_t effortStepStride = 0u;
     std::size_t resetMaskStepStride = 0u;
@@ -781,6 +1402,76 @@ MetalWorldDiagnostics validateAndBuildLayout(
     aba.nextVStride = articulation.nv;
     aba.nextQStride = articulation.nq;
 
+    MRMetalWorldContactDispatchGPU& contact =
+        layout.contactDispatch;
+    contact.abiVersion = MR_METAL_WORLD_CONTACT_ABI_VERSION;
+    contact.environmentCount = dispatch.environmentCount;
+    contact.articulationIndex = world.articulationIndex();
+    contact.solverType =
+        config.solverMode == MetalWorldSolverMode::throughputPGS
+        ? MR_SOLVER_THROUGHPUT_PGS
+        : MR_SOLVER_THROUGHPUT_TGS;
+    contact.bodyCount =
+        static_cast<mr_u32>(world.model().bodies.size());
+    contact.sceneBodyCount = world.sceneBodyCount();
+    contact.shapeCount = world.colliderCount();
+    contact.eligiblePairCount = world.eligiblePairCount();
+    contact.pairCapacity = world.capacities().candidatePairs;
+    contact.rawContactCapacity = world.capacities().rawContacts;
+    contact.manifoldCapacity = world.capacities().manifolds;
+    contact.constraintCapacity =
+        world.capacities().constraintBlocks;
+    contact.rowCapacity = world.capacities().constraintRows;
+    contact.islandCapacity = world.capacities().islands;
+    contact.sceneBodyStride = world.sceneBodyCount();
+    contact.bodyStateStride = contact.bodyCount;
+    contact.pairStride = contact.pairCapacity;
+    contact.rawContactStride = contact.rawContactCapacity;
+    contact.manifoldStride = contact.manifoldCapacity;
+    contact.constraintStride = contact.constraintCapacity;
+    contact.rowStride = contact.rowCapacity;
+    contact.islandStride = contact.islandCapacity;
+    contact.pointQueryStride =
+        2u * contact.constraintCapacity;
+    contact.factorStride = articulation.nv * articulation.nv;
+    contact.nv = articulation.nv;
+    contact.flags =
+        (config.deterministic
+             ? static_cast<mr_u32>(
+                   MR_METAL_WORLD_CONTACT_DETERMINISTIC
+               )
+             : 0u) |
+        (config.warmStart
+             ? static_cast<mr_u32>(
+                   MR_METAL_WORLD_CONTACT_WARM_START
+               )
+             : 0u) |
+        (config.captureContactEvidence
+             ? static_cast<mr_u32>(
+                   MR_METAL_WORLD_CONTACT_CAPTURE_EVIDENCE
+               )
+             : 0u) |
+        (!batch.kinematicTargets.empty()
+             ? static_cast<mr_u32>(
+                   MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS
+               )
+             : 0u);
+    contact.velocityIterations = config.velocityIterations;
+    contact.finalVelocityIterations =
+        config.finalVelocityIterations;
+    contact.timestepAndBias = {
+        substepTimestep,
+        world.model().world.solverScales.w,
+        world.model().world.solverScales.z,
+        config.warmStart ? 1.0f : 0.0f,
+    };
+    contact.manifoldThresholds = {
+        config.manifoldBreakingSeparation,
+        config.manifoldBreakingTangential,
+        config.manifoldMergeDistance,
+        config.manifoldNormalCosine,
+    };
+
     if (!checkedMultiply(
             batch.environmentCount,
             articulation.nq,
@@ -828,6 +1519,65 @@ MetalWorldDiagnostics validateAndBuildLayout(
     layout.resetVElements = batch.resetMasks.empty()
         ? 0u
         : layout.initialVElements;
+    if (contactMode) {
+        if (!checkedMultiply(
+                batch.environmentCount,
+                world.sceneBodyCount(),
+                layout.initialSceneBodyElements
+            ) ||
+            !checkedMultiply(
+                batch.controlStepCount,
+                batch.environmentCount,
+                layout.contactStatusElements
+            ) ||
+            !checkedMultiply(
+                batch.environmentCount,
+                contact.manifoldStride,
+                layout.manifoldHeaderElements
+            ) ||
+            !checkedMultiply(
+                layout.manifoldHeaderElements,
+                MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY,
+                layout.manifoldPointElements
+            ) ||
+            !checkedMultiply(
+                batch.environmentCount,
+                contact.constraintStride,
+                layout.contactConstraintElements
+            ) ||
+            !checkedMultiply(
+                batch.environmentCount,
+                contact.rowStride,
+                layout.constraintRowElements
+            ) ||
+            !checkedMultiply(
+                batch.environmentCount,
+                contact.islandStride,
+                layout.islandElements
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::arithmeticOverflow,
+                "derived contact-world element-count overflow"
+            );
+        }
+        layout.resetSceneBodyElements =
+            batch.resetMasks.empty()
+            ? 0u
+            : layout.initialSceneBodyElements;
+        if (!batch.kinematicTargets.empty() &&
+            !checkedMultiply(
+                batch.controlStepCount,
+                layout.initialSceneBodyElements,
+                layout.kinematicTargetElements
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::arithmeticOverflow,
+                "kinematic-target element-count overflow"
+            );
+        }
+    }
 
     const std::array shaderElementCounts{
         world.model().articulations.size(),
@@ -843,6 +1593,15 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.observationElements,
         layout.accelerationElements,
         layout.statusElements,
+        layout.initialSceneBodyElements,
+        layout.resetSceneBodyElements,
+        layout.kinematicTargetElements,
+        layout.contactStatusElements,
+        layout.manifoldHeaderElements,
+        layout.manifoldPointElements,
+        layout.contactConstraintElements,
+        layout.constraintRowElements,
+        layout.islandElements,
     };
     if (std::any_of(
             shaderElementCounts.begin(),
@@ -878,16 +1637,32 @@ MetalWorldDiagnostics validateAndBuildLayout(
 
     if (batch.initialQ.size() != layout.initialQElements ||
         batch.initialV.size() != layout.initialVElements ||
-        batch.efforts.size() != layout.effortElements) {
+        batch.efforts.size() != layout.effortElements ||
+        batch.initialSceneBodies.size() !=
+            layout.initialSceneBodyElements ||
+        batch.kinematicTargets.size() !=
+            layout.kinematicTargetElements) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
-            "initial q/v or effort trajectory has the wrong "
+            "initial state, effort, or kinematic trajectory has the wrong "
             "packed element count"
         );
     }
+    if (!contactMode &&
+        (!batch.initialSceneBodies.empty() ||
+         !batch.resetSceneBodies.empty() ||
+         !batch.kinematicTargets.empty())) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "scene-body inputs require a contact solver mode"
+        );
+    }
     if (batch.resetMasks.empty()) {
-        if (!batch.resetQ.empty() || !batch.resetV.empty()) {
+        if (!batch.resetQ.empty() ||
+            !batch.resetV.empty() ||
+            !batch.resetSceneBodies.empty()) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldHostStatus::invalidReset,
@@ -897,7 +1672,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
     } else if (
         batch.resetMasks.size() != layout.resetMaskElements ||
         batch.resetQ.size() != layout.resetQElements ||
-        batch.resetV.size() != layout.resetVElements) {
+        batch.resetV.size() != layout.resetVElements ||
+        batch.resetSceneBodies.size() !=
+            layout.resetSceneBodyElements) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidReset,
@@ -945,6 +1722,47 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "reset state is non-finite or has an invalid "
             "floating-root quaternion"
         );
+    }
+    if (contactMode &&
+        (!validSceneStates(
+             world,
+             batch.environmentCount,
+             batch.initialSceneBodies
+         ) ||
+         (!batch.resetMasks.empty() &&
+          !validSceneStates(
+              world,
+              batch.environmentCount,
+              batch.resetSceneBodies
+          )))) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::nonfiniteInput,
+            "scene-body state is non-finite, has an invalid "
+            "quaternion, or does not match compiled body identity"
+        );
+    }
+    if (contactMode && !batch.kinematicTargets.empty()) {
+        const std::size_t stateCount =
+            layout.initialSceneBodyElements;
+        for (std::size_t controlStep = 0u;
+             controlStep < batch.controlStepCount;
+             ++controlStep) {
+            if (!validSceneStates(
+                    world,
+                    batch.environmentCount,
+                    batch.kinematicTargets.subspan(
+                        controlStep * stateCount,
+                        stateCount
+                    )
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::nonfiniteInput,
+                    "kinematic target state is invalid"
+                );
+            }
+        }
     }
     return diagnostics;
 }
@@ -1190,6 +2008,91 @@ MetalWorldDiagnostics initializeContext(
         );
     }
 
+    __strong id<MTLComputePipelineState> operatorPipeline = nil;
+    __strong id<MTLComputePipelineState> contactPrepare = nil;
+    __strong id<MTLComputePipelineState> bodyProjection = nil;
+    __strong id<MTLComputePipelineState> scenePrediction = nil;
+    __strong id<MTLComputePipelineState> colliderProjection = nil;
+    __strong id<MTLComputePipelineState> pairFlags = nil;
+    __strong id<MTLComputePipelineState> collisionCompile = nil;
+    __strong id<MTLComputePipelineState> factorDispatch = nil;
+    __strong id<MTLComputePipelineState> pointQueryTail = nil;
+    __strong id<MTLComputePipelineState> evaluateIR = nil;
+    __strong id<MTLComputePipelineState> islands = nil;
+    __strong id<MTLComputePipelineState> contactSolve = nil;
+    __strong id<MTLComputePipelineState> contactIntegrate = nil;
+    __strong id<MTLComputePipelineState> contactLatch = nil;
+    __strong id<MTLComputePipelineState> contactCommit = nil;
+    __strong id<MTLComputePipelineState> contactCapture = nil;
+    auto createContactPipeline = [&](
+        NSString* functionName
+    ) {
+        error = nil;
+        return makePipeline(
+            device,
+            library,
+            functionName,
+            &error
+        );
+    };
+    operatorPipeline =
+        createContactPipeline(@"mr_articulated_operator");
+    contactPrepare =
+        createContactPipeline(@"mr_world_prepare_contact_step");
+    bodyProjection =
+        createContactPipeline(@"mr_world_build_body_states");
+    scenePrediction =
+        createContactPipeline(@"mr_world_predict_scene");
+    colliderProjection =
+        createContactPipeline(@"mr_world_project_colliders");
+    pairFlags =
+        createContactPipeline(@"mr_world_flag_eligible_pairs");
+    collisionCompile =
+        createContactPipeline(@"mr_world_collide_compile");
+    factorDispatch = createContactPipeline(
+        @"mr_world_finalize_factor_dispatch"
+    );
+    pointQueryTail = createContactPipeline(
+        @"mr_world_fill_point_query_tail"
+    );
+    evaluateIR =
+        createContactPipeline(@"mr_world_evaluate_constraint_ir");
+    islands =
+        createContactPipeline(@"mr_world_build_contact_islands");
+    contactSolve =
+        createContactPipeline(@"mr_world_solve_contact_islands");
+    contactIntegrate =
+        createContactPipeline(@"mr_world_integrate_contact_state");
+    contactLatch =
+        createContactPipeline(@"mr_world_latch_contact_status");
+    contactCommit =
+        createContactPipeline(@"mr_world_commit_contact_state");
+    contactCapture =
+        createContactPipeline(@"mr_world_capture_contact");
+    if (operatorPipeline == nil ||
+        contactPrepare == nil ||
+        bodyProjection == nil ||
+        scenePrediction == nil ||
+        colliderProjection == nil ||
+        pairFlags == nil ||
+        collisionCompile == nil ||
+        factorDispatch == nil ||
+        pointQueryTail == nil ||
+        evaluateIR == nil ||
+        islands == nil ||
+        contactSolve == nil ||
+        contactIntegrate == nil ||
+        contactLatch == nil ||
+        contactCommit == nil ||
+        contactCapture == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create device-resident contact pipeline: " +
+                describeError(error)
+        );
+    }
+
     if (aba.maxTotalThreadsPerThreadgroup <
             kABAThreadsPerThreadgroup ||
         smallABA.maxTotalThreadsPerThreadgroup <
@@ -1198,9 +2101,32 @@ MetalWorldDiagnostics initializeContext(
             device.maxThreadgroupMemoryLength ||
         smallABA.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
+        operatorPipeline.maxTotalThreadsPerThreadgroup <
+            kOperatorThreadsPerThreadgroup ||
+        operatorPipeline.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
         prepare.maxTotalThreadsPerThreadgroup == 0u ||
         commit.maxTotalThreadsPerThreadgroup == 0u ||
-        capture.maxTotalThreadsPerThreadgroup == 0u) {
+        capture.maxTotalThreadsPerThreadgroup == 0u ||
+        contactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
+        bodyProjection.maxTotalThreadsPerThreadgroup == 0u ||
+        scenePrediction.maxTotalThreadsPerThreadgroup == 0u ||
+        colliderProjection.maxTotalThreadsPerThreadgroup == 0u ||
+        pairFlags.maxTotalThreadsPerThreadgroup == 0u ||
+        collisionCompile.maxTotalThreadsPerThreadgroup == 0u ||
+        factorDispatch.maxTotalThreadsPerThreadgroup == 0u ||
+        pointQueryTail.maxTotalThreadsPerThreadgroup <
+            kWorldThreadsPerThreadgroup ||
+        evaluateIR.maxTotalThreadsPerThreadgroup <
+            kWorldThreadsPerThreadgroup ||
+        islands.maxTotalThreadsPerThreadgroup <
+            kWorldThreadsPerThreadgroup ||
+        contactSolve.maxTotalThreadsPerThreadgroup <
+            kWorldThreadsPerThreadgroup ||
+        contactIntegrate.maxTotalThreadsPerThreadgroup == 0u ||
+        contactLatch.maxTotalThreadsPerThreadgroup == 0u ||
+        contactCommit.maxTotalThreadsPerThreadgroup == 0u ||
+        contactCapture.maxTotalThreadsPerThreadgroup == 0u) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::metalDeviceUnsupported,
@@ -1216,8 +2142,24 @@ MetalWorldDiagnostics initializeContext(
     context.preparePipeline = prepare;
     context.commitPipeline = commit;
     context.capturePipeline = capture;
+    context.operatorPipeline = operatorPipeline;
+    context.contactPreparePipeline = contactPrepare;
+    context.bodyProjectionPipeline = bodyProjection;
+    context.scenePredictionPipeline = scenePrediction;
+    context.colliderProjectionPipeline = colliderProjection;
+    context.pairFlagPipeline = pairFlags;
+    context.collisionCompilePipeline = collisionCompile;
+    context.factorDispatchPipeline = factorDispatch;
+    context.pointQueryTailPipeline = pointQueryTail;
+    context.evaluateIRPipeline = evaluateIR;
+    context.islandPipeline = islands;
+    context.contactSolvePipeline = contactSolve;
+    context.contactIntegratePipeline = contactIntegrate;
+    context.contactLatchPipeline = contactLatch;
+    context.contactCommitPipeline = contactCommit;
+    context.contactCapturePipeline = contactCapture;
     context.initialized = true;
-    context.stats.pipelineCreationCount += 5u;
+    context.stats.pipelineCreationCount += 21u;
     return diagnostics;
 }
 
@@ -1363,7 +2305,11 @@ MetalWorldDiagnostics ensureBufferArena(
         context.capacities[index] = proposed[index];
         immutableBufferReplaced =
             immutableBufferReplaced ||
-            (index >= kArticulations && index <= kBodies);
+            (index >= kArticulations && index <= kBodies) ||
+            index == kShapes ||
+            index == kMaterials ||
+            index == kSceneBodyIndices ||
+            index == kEligiblePairs;
     }
     if (immutableBufferReplaced) {
         context.boundModelFingerprint = 0u;
@@ -1446,6 +2392,54 @@ void uploadBatch(
                 requirements.entries[index]
             );
         }
+        MRShapeGPU emptyShape{};
+        MRMaterialGPU emptyMaterial{};
+        mr_u32 emptySceneIndex = 0u;
+        MRCompiledCollisionPairGPU emptyPair{};
+        const std::array<std::pair<std::size_t, const void*>, 4u>
+            contactSources{{
+                {
+                    kShapes,
+                    model.shapes.empty()
+                        ? static_cast<const void*>(&emptyShape)
+                        : static_cast<const void*>(
+                              model.shapes.data()
+                          ),
+                },
+                {
+                    kMaterials,
+                    model.materials.empty()
+                        ? static_cast<const void*>(&emptyMaterial)
+                        : static_cast<const void*>(
+                              model.materials.data()
+                          ),
+                },
+                {
+                    kSceneBodyIndices,
+                    world.sceneBodyIndices().empty()
+                        ? static_cast<const void*>(
+                              &emptySceneIndex
+                          )
+                        : static_cast<const void*>(
+                              world.sceneBodyIndices().data()
+                          ),
+                },
+                {
+                    kEligiblePairs,
+                    world.eligiblePairs().empty()
+                        ? static_cast<const void*>(&emptyPair)
+                        : static_cast<const void*>(
+                              world.eligiblePairs().data()
+                          ),
+                },
+            }};
+        for (const auto& [index, source] : contactSources) {
+            copyToBuffer(
+                context.buffers[index],
+                source,
+                requirements.entries[index]
+            );
+        }
         context.boundModelFingerprint = world.fingerprint();
         ++context.stats.modelUploadCount;
     }
@@ -1490,8 +2484,66 @@ void uploadBatch(
         &layout.dispatch,
         requirements.entries[kWorldDispatch]
     );
+    copyToBuffer(
+        context.buffers[kContactDispatch],
+        &layout.contactDispatch,
+        requirements.entries[kContactDispatch]
+    );
+    MRArticulatedOperatorDispatchGPU kinematicsDispatch{};
+    kinematicsDispatch.articulationIndex =
+        world.articulationIndex();
+    kinematicsDispatch.environmentCount =
+        layout.dispatch.environmentCount;
+    kinematicsDispatch.flags =
+        MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY;
+    kinematicsDispatch.qStride = layout.dispatch.qStride;
+    kinematicsDispatch.bodyPoseStride = world.bodyCount();
+    kinematicsDispatch.generalizedStride =
+        layout.dispatch.nv;
+    MRArticulatedOperatorDispatchGPU factorDispatch =
+        kinematicsDispatch;
+    factorDispatch.pointCount =
+        layout.contactDispatch.pointQueryStride;
+    factorDispatch.flags =
+        MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR;
+    factorDispatch.pointStride = factorDispatch.pointCount;
+    factorDispatch.pointWorldStride = factorDispatch.pointCount;
+    factorDispatch.massMatrixStride =
+        layout.contactDispatch.factorStride;
+    factorDispatch.pointJacobianStride =
+        factorDispatch.pointCount * 3u * layout.dispatch.nv;
+    copyToBuffer(
+        context.buffers[kOperatorKinematicsDispatch],
+        &kinematicsDispatch,
+        requirements.entries[kOperatorKinematicsDispatch]
+    );
+    copyToBuffer(
+        context.buffers[kOperatorFactorDispatch],
+        &factorDispatch,
+        requirements.entries[kOperatorFactorDispatch]
+    );
+    copyToBuffer(
+        context.buffers[kInitialSceneBodies],
+        batch.initialSceneBodies.data(),
+        requirements.entries[kInitialSceneBodies]
+    );
+    copyToBuffer(
+        context.buffers[kSceneBodiesA],
+        batch.initialSceneBodies.data(),
+        requirements.entries[kSceneBodiesA]
+    );
+    copyToBuffer(
+        context.buffers[kResetSceneBodies],
+        batch.resetSceneBodies.data(),
+        requirements.entries[kResetSceneBodies]
+    );
+    copyToBuffer(
+        context.buffers[kKinematicTargets],
+        batch.kinematicTargets.data(),
+        requirements.entries[kKinematicTargets]
+    );
 
-    const std::array<std::size_t, 13u> scratch{
+    const std::array scratch{
         kWorkingEffort,
         kBodyWrenchPlaceholder,
         kCandidateAcceleration,
@@ -1505,6 +2557,49 @@ void uploadBatch(
         kPublicStatuses,
         kEnvironmentStatuses,
         kCheckpointQ,
+        kSceneBodiesB,
+        kCheckpointSceneBodies,
+        kBodyPoses,
+        kPointWorld,
+        kFactorMatrix,
+        kPointJacobians,
+        kGeneralizedImpulse,
+        kDeltaVelocity,
+        kOperatorStatuses,
+        kCurrentBodies,
+        kCandidateBodies,
+        kManifoldHeadersA,
+        kManifoldPointsA,
+        kManifoldCountsA,
+        kManifoldHeadersB,
+        kManifoldPointsB,
+        kManifoldCountsB,
+        kCandidateManifoldHeaders,
+        kCandidateManifoldPoints,
+        kCandidateManifoldCounts,
+        kCheckpointManifoldHeaders,
+        kCheckpointManifoldPoints,
+        kCheckpointManifoldCounts,
+        kCandidatePairs,
+        kRawContacts,
+        kRawPairIndices,
+        kContacts,
+        kContactMetadata,
+        kIRBlocks,
+        kIREndpoints,
+        kIRRows,
+        kIRCones,
+        kPointQueries,
+        kEvaluatedRows,
+        kEvaluatedCones,
+        kFactorCaches,
+        kIslands,
+        kResponseColumns,
+        kContactStatuses,
+        kPublicContactStatuses,
+        kActiveIndirectDispatch,
+        kProjectedColliders,
+        kPairOverlapFlags,
     };
     for (const std::size_t index : scratch) {
         zeroBuffer(
@@ -1545,7 +2640,127 @@ void dispatchWorldThreads(
             worldThreadWidth(pipeline),
             1u,
             1u
-        )];
+    )];
+}
+
+struct MetalBufferBinding {
+    NSUInteger argument = 0u;
+    std::size_t buffer = 0u;
+};
+
+bool encodeContactThreadKernel(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    id<MTLComputePipelineState> pipeline,
+    NSString* label,
+    const std::initializer_list<MetalBufferBinding> bindings,
+    const MRMetalWorldPassGPU* pass,
+    const NSUInteger passArgument,
+    const std::size_t environmentCount,
+    const bool indirectDispatch = false,
+    const NSUInteger indirectOffset = 0u
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = label;
+    [encoder setComputePipelineState:pipeline];
+    for (const MetalBufferBinding& binding : bindings) {
+        [encoder setBuffer:context.buffers[binding.buffer]
+                     offset:0u
+                    atIndex:binding.argument];
+    }
+    if (pass != nullptr) {
+        [encoder setBytes:pass
+                   length:sizeof(*pass)
+                  atIndex:passArgument];
+    }
+    if (indirectDispatch) {
+        [encoder
+            dispatchThreadgroupsWithIndirectBuffer:
+                context.buffers[kActiveIndirectDispatch]
+            indirectBufferOffset:indirectOffset
+            threadsPerThreadgroup:MTLSizeMake(
+                kWorldThreadsPerThreadgroup,
+                1u,
+                1u
+            )];
+    } else {
+        dispatchWorldThreads(
+            encoder,
+            pipeline,
+            environmentCount
+        );
+    }
+    [encoder endEncoding];
+    return true;
+}
+
+bool encodeArticulatedOperator(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t dispatchBuffer,
+    const std::size_t qBuffer,
+    const std::size_t pointBuffer,
+    const std::size_t environmentCount,
+    NSString* label,
+    const bool indirectDispatch
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = label;
+    [encoder setComputePipelineState:context.operatorPipeline];
+    const std::array<std::size_t, 15u> buffers{{
+        kWorld,
+        kArticulations,
+        kJoints,
+        kDofs,
+        kBodies,
+        dispatchBuffer,
+        qBuffer,
+        pointBuffer,
+        kBodyPoses,
+        kPointWorld,
+        kFactorMatrix,
+        kPointJacobians,
+        kGeneralizedImpulse,
+        kDeltaVelocity,
+        kOperatorStatuses,
+    }};
+    for (NSUInteger argument = 0u;
+         argument < buffers.size();
+         ++argument) {
+        [encoder setBuffer:context.buffers[buffers[argument]]
+                     offset:0u
+                    atIndex:argument];
+    }
+    const MTLSize threadgroupSize = MTLSizeMake(
+        kOperatorThreadsPerThreadgroup,
+        1u,
+        1u
+    );
+    if (indirectDispatch) {
+        [encoder
+            dispatchThreadgroupsWithIndirectBuffer:
+                context.buffers[kActiveIndirectDispatch]
+            indirectBufferOffset:0u
+            threadsPerThreadgroup:threadgroupSize];
+    } else {
+        [encoder
+            dispatchThreadgroups:MTLSizeMake(
+                static_cast<NSUInteger>(environmentCount),
+                1u,
+                1u
+            )
+            threadsPerThreadgroup:threadgroupSize];
+    }
+    [encoder endEncoding];
+    return true;
 }
 
 bool encodePrepare(
@@ -1779,6 +2994,397 @@ bool encodeCapture(
     return true;
 }
 
+bool encodeContactControlPrepare(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t sourceScene,
+    const std::size_t sourceManifoldHeaders,
+    const std::size_t sourceManifoldPoints,
+    const std::size_t sourceManifoldCounts,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.contactPreparePipeline,
+        @"MetalWorld contact checkpoint/reset",
+        {
+            {0u, kWorldDispatch},
+            {1u, kContactDispatch},
+            {3u, kResetMasks},
+            {4u, kResetSceneBodies},
+            {5u, kKinematicTargets},
+            {6u, kBodies},
+            {7u, kSceneBodyIndices},
+            {8u, sourceScene},
+            {9u, kCheckpointSceneBodies},
+            {10u, sourceManifoldHeaders},
+            {11u, sourceManifoldPoints},
+            {12u, sourceManifoldCounts},
+            {13u, kCheckpointManifoldHeaders},
+            {14u, kCheckpointManifoldPoints},
+            {15u, kCheckpointManifoldCounts},
+            {16u, kContactStatuses},
+        },
+        &pass,
+        2u,
+        environmentCount
+    );
+}
+
+bool encodeContactSubstep(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const bool finalPhysicsSubstep,
+    const std::size_t sourceQ,
+    const std::size_t destinationQ,
+    const std::size_t destinationV,
+    const std::size_t sourceScene,
+    const std::size_t destinationScene,
+    const std::size_t sourceManifoldHeaders,
+    const std::size_t sourceManifoldPoints,
+    const std::size_t sourceManifoldCounts,
+    const std::size_t destinationManifoldHeaders,
+    const std::size_t destinationManifoldPoints,
+    const std::size_t destinationManifoldCounts,
+    const std::size_t environmentCount,
+    const std::size_t colliderThreadCount,
+    const std::size_t pairFlagThreadCount
+) {
+    MRMetalWorldPassGPU solverPass = pass;
+    solverPass.reserved0 = finalPhysicsSubstep ? 1u : 0u;
+    if (!encodeArticulatedOperator(
+            context,
+            commandBuffer,
+            kOperatorKinematicsDispatch,
+            sourceQ,
+            kPointQueries,
+            environmentCount,
+            @"MetalWorld articulation kinematics",
+            false
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.bodyProjectionPipeline,
+            @"MetalWorld body/collider projection",
+            {
+                {0u, kContactDispatch},
+                {1u, kArticulations},
+                {2u, kBodies},
+                {3u, kSceneBodyIndices},
+                {4u, kBodyPoses},
+                {5u, kOperatorStatuses},
+                {6u, sourceScene},
+                {7u, kCurrentBodies},
+                {8u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.scenePredictionPipeline,
+            @"MetalWorld scene prediction",
+            {
+                {0u, kWorld},
+                {1u, kContactDispatch},
+                {2u, kBodies},
+                {3u, kSceneBodyIndices},
+                {4u, kCurrentBodies},
+                {5u, kCandidateBodies},
+                {6u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.colliderProjectionPipeline,
+            @"MetalWorld collider transform/AABB projection",
+            {
+                {0u, kContactDispatch},
+                {1u, kShapes},
+                {2u, kCurrentBodies},
+                {3u, kProjectedColliders},
+            },
+            nullptr,
+            0u,
+            colliderThreadCount
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.pairFlagPipeline,
+            @"MetalWorld compiled-pair broadphase flags",
+            {
+                {0u, kContactDispatch},
+                {1u, kShapes},
+                {2u, kEligiblePairs},
+                {3u, kProjectedColliders},
+                {4u, kPairOverlapFlags},
+            },
+            nullptr,
+            0u,
+            pairFlagThreadCount
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.collisionCompilePipeline,
+            @"MetalWorld collision/manifold/IR compile",
+            {
+                {0u, kContactDispatch},
+                {1u, kShapes},
+                {2u, kMaterials},
+                {3u, kCurrentBodies},
+                {4u, kArticulations},
+                {5u, kEligiblePairs},
+                {6u, sourceManifoldCounts},
+                {7u, sourceManifoldHeaders},
+                {8u, sourceManifoldPoints},
+                {9u, kCandidatePairs},
+                {10u, kRawContacts},
+                {11u, kRawPairIndices},
+                {12u, kCandidateManifoldHeaders},
+                {13u, kCandidateManifoldPoints},
+                {14u, kCandidateManifoldCounts},
+                {15u, kContacts},
+                {16u, kContactMetadata},
+                {17u, kIRBlocks},
+                {18u, kIREndpoints},
+                {19u, kIRRows},
+                {20u, kIRCones},
+                {21u, kPointQueries},
+                {22u, kContactStatuses},
+                {24u, kProjectedColliders},
+                {25u, kPairOverlapFlags},
+            },
+            &pass,
+            23u,
+            environmentCount
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.factorDispatchPipeline,
+            @"MetalWorld active point-query reduction",
+            {
+                {0u, kContactDispatch},
+                {1u, kContactStatuses},
+                {2u, kOperatorFactorDispatch},
+                {3u, kActiveIndirectDispatch},
+            },
+            nullptr,
+            0u,
+            1u
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.pointQueryTailPipeline,
+            @"MetalWorld point-query tail fill",
+            {
+                {0u, kContactDispatch},
+                {1u, kOperatorFactorDispatch},
+                {2u, kArticulations},
+                {3u, kContactStatuses},
+                {4u, kPointQueries},
+            },
+            nullptr,
+            0u,
+            environmentCount,
+            true,
+            sizeof(MRIndirectDispatchArgumentsGPU)
+        ) ||
+        !encodeArticulatedOperator(
+            context,
+            commandBuffer,
+            kOperatorFactorDispatch,
+            sourceQ,
+            kPointQueries,
+            environmentCount,
+            @"MetalWorld articulated factor/Jacobians",
+            true
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.evaluateIRPipeline,
+            @"MetalWorld ConstraintIR evaluation",
+            {
+                {0u, kContactDispatch},
+                {1u, kContacts},
+                {2u, kContacts},
+                {3u, kIRBlocks},
+                {4u, kIRRows},
+                {5u, kIRCones},
+                {6u, kCandidateBodies},
+                {7u, kCandidateV},
+                {8u, kPointJacobians},
+                {9u, kOperatorStatuses},
+                {10u, kEvaluatedRows},
+                {11u, kEvaluatedCones},
+                {12u, kFactorCaches},
+                {13u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount,
+            true,
+            sizeof(MRIndirectDispatchArgumentsGPU)
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.islandPipeline,
+            @"MetalWorld mixed contact islands",
+            {
+                {0u, kContactDispatch},
+                {1u, kCandidateBodies},
+                {2u, kContacts},
+                {3u, kIRBlocks},
+                {4u, kIslands},
+                {5u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount,
+            true,
+            sizeof(MRIndirectDispatchArgumentsGPU)
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.contactSolvePipeline,
+            @"MetalWorld exact-cone contact solve",
+            {
+                {0u, kContactDispatch},
+                {1u, kFactorMatrix},
+                {2u, kPointJacobians},
+                {3u, kCandidateV},
+                {4u, kCandidateBodies},
+                {5u, kContacts},
+                {6u, kContactMetadata},
+                {7u, kEvaluatedRows},
+                {8u, kEvaluatedCones},
+                {9u, kResponseColumns},
+                {10u, kCandidateManifoldPoints},
+                {11u, kContactStatuses},
+            },
+            &solverPass,
+            12u,
+            environmentCount,
+            true,
+            sizeof(MRIndirectDispatchArgumentsGPU)
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.contactIntegratePipeline,
+            @"MetalWorld constrained integration",
+            {
+                {0u, kContactDispatch},
+                {1u, kArticulations},
+                {2u, kJoints},
+                {3u, kBodies},
+                {4u, kSceneBodyIndices},
+                {5u, sourceQ},
+                {6u, kCandidateV},
+                {7u, kCandidateQ},
+                {8u, kCandidateBodies},
+                {9u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.contactLatchPipeline,
+            @"MetalWorld contact failure latch",
+            {
+                {0u, kWorldDispatch},
+                {2u, kContactStatuses},
+                {3u, kEnvironmentStatuses},
+            },
+            &pass,
+            1u,
+            environmentCount
+        ) ||
+        !encodeCommit(
+            context,
+            commandBuffer,
+            pass,
+            destinationQ,
+            destinationV,
+            environmentCount
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.contactCommitPipeline,
+            @"MetalWorld contact transactional commit",
+            {
+                {0u, kWorldDispatch},
+                {1u, kContactDispatch},
+                {3u, kEnvironmentStatuses},
+                {4u, kSceneBodyIndices},
+                {5u, kCandidateBodies},
+                {6u, kCheckpointSceneBodies},
+                {7u, destinationScene},
+                {8u, kCandidateManifoldHeaders},
+                {9u, kCandidateManifoldPoints},
+                {10u, kCandidateManifoldCounts},
+                {11u, kCheckpointManifoldHeaders},
+                {12u, kCheckpointManifoldPoints},
+                {13u, kCheckpointManifoldCounts},
+                {14u, destinationManifoldHeaders},
+                {15u, destinationManifoldPoints},
+                {16u, destinationManifoldCounts},
+            },
+            &pass,
+            2u,
+            environmentCount
+        )) {
+        return false;
+    }
+    return true;
+}
+
+bool encodeContactCapture(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t sceneState,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.contactCapturePipeline,
+        @"MetalWorld contact observation/status capture",
+        {
+            {0u, kWorldDispatch},
+            {1u, kContactDispatch},
+            {3u, sceneState},
+            {4u, kContactStatuses},
+            {5u, kObservations},
+            {6u, kPublicContactStatuses},
+        },
+        &pass,
+        2u,
+        environmentCount
+    );
+}
+
 template <typename T>
 void copyOutput(
     std::vector<T>& destination,
@@ -1830,8 +3436,29 @@ MetalWorldDiagnostics validateAndPublish(
 ) {
     const MRMetalWorldDispatchGPU& dispatch =
         diagnostics.layout.dispatch;
+    const bool contactMode =
+        (dispatch.flags & MR_METAL_WORLD_CONTACTS) != 0u;
+    const MRMetalWorldContactDispatchGPU& contactDispatch =
+        diagnostics.layout.contactDispatch;
     const std::size_t observationWidth =
-        static_cast<std::size_t>(dispatch.nq) + dispatch.nv;
+        dispatch.observationEnvironmentStride;
+    staged.environmentStatuses.resize(
+        dispatch.environmentCount
+    );
+    std::vector<std::uint64_t> retainedPointTotals(
+        dispatch.environmentCount,
+        0u
+    );
+    std::vector<std::uint64_t> observedPointTotals(
+        dispatch.environmentCount,
+        0u
+    );
+    for (std::uint32_t environment = 0u;
+         environment < dispatch.environmentCount;
+         ++environment) {
+        staged.environmentStatuses[environment].environment =
+            environment;
+    }
     for (std::size_t controlStep = 0u;
          controlStep < dispatch.controlStepCount;
          ++controlStep) {
@@ -1843,6 +3470,10 @@ MetalWorldDiagnostics validateAndPublish(
                 environment;
             const MRMetalWorldStatusGPU& status =
                 staged.statuses[statusIndex];
+            const MRMetalWorldContactStatusGPU* contactStatus =
+                contactMode
+                ? &staged.contactStatuses[statusIndex]
+                : nullptr;
             if (status.environment != environment ||
                 status.controlStep != controlStep ||
                 status.code > MR_STEP_UNSUPPORTED ||
@@ -1857,6 +3488,165 @@ MetalWorldDiagnostics validateAndPublish(
                     MetalWorldHostStatus::internalFailure,
                     "GPU returned a malformed MetalWorld status record"
                 );
+            }
+            if (contactStatus != nullptr &&
+                (
+                    contactStatus->environment != environment ||
+                    contactStatus->controlStep != controlStep ||
+                    contactStatus->physicsSubstep >=
+                        dispatch.physicsSubsteps ||
+                    contactStatus->code > MR_STEP_UNSUPPORTED ||
+                    !finite(contactStatus->residuals) ||
+                    !finite(contactStatus->diagnostics) ||
+                    contactStatus->activePairs >
+                        contactStatus->requiredPairs ||
+                    contactStatus->activeContacts >
+                        contactStatus->requiredConstraints ||
+                    contactStatus->islandCount >
+                        contactStatus->requiredIslands
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::internalFailure,
+                    "GPU returned a malformed contact-world status record"
+                );
+            }
+            MetalWorldStatus& summary =
+                staged.environmentStatuses[environment];
+            if (status.code == MR_STEP_SUCCESS) {
+                ++summary.successfulControlSteps;
+            } else {
+                ++summary.failedControlSteps;
+                if (summary.code == MR_STEP_SUCCESS) {
+                    summary.code = status.code;
+                    summary.firstFailingControlStep =
+                        static_cast<std::uint32_t>(controlStep);
+                    if (contactStatus != nullptr) {
+                        summary.firstFailingPair =
+                            contactStatus->firstFailingPair;
+                        summary.firstFailingConstraint =
+                            contactStatus
+                                ->firstFailingConstraint;
+                        if (summary.firstFailingPair !=
+                            MR_INVALID_INDEX) {
+                            summary.firstFailingStableKey =
+                                summary.firstFailingPair;
+                        } else if (
+                            summary.firstFailingConstraint !=
+                            MR_INVALID_INDEX
+                        ) {
+                            summary.firstFailingStableKey =
+                                (std::uint64_t{1} << 63u) |
+                                summary.firstFailingConstraint;
+                        }
+                    }
+                }
+            }
+            if (contactStatus != nullptr) {
+                auto updateMaximum = [](
+                    std::uint32_t& target,
+                    const std::uint32_t value
+                ) {
+                    target = std::max(target, value);
+                };
+                updateMaximum(
+                    summary.required.candidatePairs,
+                    contactStatus->requiredPairs
+                );
+                updateMaximum(
+                    summary.required.rawContacts,
+                    contactStatus->requiredRawContacts
+                );
+                updateMaximum(
+                    summary.required.manifolds,
+                    contactStatus->requiredManifolds
+                );
+                updateMaximum(
+                    summary.required.constraintBlocks,
+                    contactStatus->requiredConstraints
+                );
+                updateMaximum(
+                    summary.required.constraintRows,
+                    contactStatus->requiredRows
+                );
+                updateMaximum(
+                    summary.required.islands,
+                    contactStatus->requiredIslands
+                );
+                updateMaximum(
+                    summary.required.spillRows,
+                    contactStatus->spillRows
+                );
+                updateMaximum(
+                    summary.highWater.candidatePairs,
+                    std::min(
+                        contactStatus->activePairs,
+                        contactDispatch.pairCapacity
+                    )
+                );
+                updateMaximum(
+                    summary.highWater.rawContacts,
+                    std::min(
+                        contactStatus->requiredRawContacts,
+                        contactDispatch.rawContactCapacity
+                    )
+                );
+                updateMaximum(
+                    summary.highWater.manifolds,
+                    std::min(
+                        contactStatus->requiredManifolds,
+                        contactDispatch.manifoldCapacity
+                    )
+                );
+                updateMaximum(
+                    summary.highWater.constraintBlocks,
+                    std::min(
+                        contactStatus->activeContacts,
+                        contactDispatch.constraintCapacity
+                    )
+                );
+                updateMaximum(
+                    summary.highWater.constraintRows,
+                    std::min(
+                        contactStatus->requiredRows,
+                        contactDispatch.rowCapacity
+                    )
+                );
+                updateMaximum(
+                    summary.highWater.islands,
+                    std::min(
+                        contactStatus->islandCount,
+                        contactDispatch.islandCapacity
+                    )
+                );
+                updateMaximum(
+                    summary.highWater.spillRows,
+                    contactStatus->spillRows
+                );
+                updateMaximum(
+                    summary.maximumSolverIterations,
+                    contactStatus->solverIterations
+                );
+                const std::array residuals{
+                    contactStatus->residuals.x,
+                    contactStatus->residuals.y,
+                    contactStatus->residuals.z,
+                    contactStatus->residuals.w,
+                };
+                for (std::size_t index = 0u;
+                     index < residuals.size();
+                     ++index) {
+                    summary.maximumResiduals[index] = std::max(
+                        summary.maximumResiduals[index],
+                        std::abs(residuals[index])
+                    );
+                }
+                retainedPointTotals[environment] +=
+                    contactStatus->retainedPoints;
+                observedPointTotals[environment] +=
+                    static_cast<std::uint64_t>(
+                        contactStatus->retainedPoints
+                    ) + contactStatus->newPoints;
             }
             const std::size_t observationBase =
                 controlStep * dispatch.observationStepStride +
@@ -1881,6 +3671,22 @@ MetalWorldDiagnostics validateAndPublish(
                 if (status.successfulSubsteps !=
                         dispatch.physicsSubsteps ||
                     status.abaCode != MR_ABA_SUCCESS ||
+                    (contactStatus != nullptr &&
+                     (
+                         contactStatus->code != MR_STEP_SUCCESS ||
+                         contactStatus->requiredPairs >
+                             contactDispatch.pairCapacity ||
+                         contactStatus->requiredRawContacts >
+                             contactDispatch.rawContactCapacity ||
+                         contactStatus->requiredManifolds >
+                             contactDispatch.manifoldCapacity ||
+                         contactStatus->requiredConstraints >
+                             contactDispatch.constraintCapacity ||
+                         contactStatus->requiredRows >
+                             contactDispatch.rowCapacity ||
+                         contactStatus->requiredIslands >
+                             contactDispatch.islandCapacity
+                     )) ||
                     status.failingSubstep != MR_INVALID_INDEX ||
                     status.failingIndex != MR_INVALID_INDEX ||
                     !finiteRange(
@@ -1899,7 +3705,10 @@ MetalWorldDiagnostics validateAndPublish(
             } else {
                 if (status.successfulSubsteps >=
                         dispatch.physicsSubsteps ||
-                    status.abaCode == MR_ABA_SUCCESS ||
+                    (!contactMode &&
+                     status.abaCode == MR_ABA_SUCCESS) ||
+                    (contactStatus != nullptr &&
+                     contactStatus->code == MR_STEP_SUCCESS) ||
                     status.failingSubstep >=
                         dispatch.physicsSubsteps ||
                     !zeroRange(
@@ -1925,6 +3734,20 @@ MetalWorldDiagnostics validateAndPublish(
             }
         }
     }
+    for (std::size_t environment = 0u;
+         environment < dispatch.environmentCount;
+         ++environment) {
+        staged.environmentStatuses[environment]
+            .manifoldRetention =
+            observedPointTotals[environment] == 0u
+            ? 1.0f
+            : static_cast<float>(
+                  retainedPointTotals[environment]
+              ) /
+                static_cast<float>(
+                    observedPointTotals[environment]
+                );
+    }
 
     if (!finiteFloats(staged.finalQ) ||
         !finiteFloats(staged.finalV)) {
@@ -1932,6 +3755,28 @@ MetalWorldDiagnostics validateAndPublish(
             std::move(diagnostics),
             MetalWorldHostStatus::internalFailure,
             "GPU published a non-finite final MetalWorld state"
+        );
+    }
+    if (contactMode &&
+        !std::all_of(
+            staged.finalSceneBodies.begin(),
+            staged.finalSceneBodies.end(),
+            [](const MRBodyStateGPU& state) {
+                return finite(state.position) &&
+                    finite(state.orientation) &&
+                    finite(
+                        state.linearVelocityAndInverseMass
+                    ) &&
+                    finite(state.angularVelocity) &&
+                    finite(state.inverseInertiaWorldRow0) &&
+                    finite(state.inverseInertiaWorldRow1) &&
+                    finite(state.inverseInertiaWorldRow2);
+            }
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::internalFailure,
+            "GPU published a non-finite final scene-body state"
         );
     }
     const std::size_t lastStep =
@@ -2012,6 +3857,44 @@ std::uint32_t CompiledWorld::bodyCount() const noexcept {
         : 0u;
 }
 
+std::uint32_t CompiledWorld::sceneBodyCount() const noexcept {
+    return valid()
+        ? static_cast<std::uint32_t>(sceneBodyIndices_.size())
+        : 0u;
+}
+
+std::uint32_t CompiledWorld::colliderCount() const noexcept {
+    return valid()
+        ? static_cast<std::uint32_t>(model_.shapes.size())
+        : 0u;
+}
+
+std::uint32_t CompiledWorld::eligiblePairCount() const noexcept {
+    return valid()
+        ? static_cast<std::uint32_t>(eligiblePairs_.size())
+        : 0u;
+}
+
+std::span<const std::uint32_t>
+CompiledWorld::sceneBodyIndices() const noexcept {
+    return sceneBodyIndices_;
+}
+
+std::span<const MRCompiledCollisionPairGPU>
+CompiledWorld::eligiblePairs() const noexcept {
+    return eligiblePairs_;
+}
+
+const MetalWorldCapacityProfile& CompiledWorld::capacities()
+    const noexcept {
+    return capacities_;
+}
+
+const MetalWorldCapacityProfile&
+CompiledWorld::minimumCapacities() const noexcept {
+    return minimumCapacities_;
+}
+
 MetalWorldCapacityClass CompiledWorld::capacityClass()
     const noexcept {
     return capacityClass_;
@@ -2024,7 +3907,8 @@ std::uint64_t CompiledWorld::fingerprint() const noexcept {
 MetalWorldCompileDiagnostics compileMetalWorld(
     const EngineModel& model,
     const std::uint32_t articulationIndex,
-    CompiledWorld& compiled
+    CompiledWorld& compiled,
+    const MetalWorldCapacityProfile& requestedCapacities
 ) {
     MetalWorldCompileDiagnostics diagnostics{};
     try {
@@ -2080,7 +3964,202 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 articulation.nq <= kSmallABAMaxQ
             ? MetalWorldCapacityClass::compactABA12
             : MetalWorldCapacityClass::fullABA32;
-        staged.fingerprint_ = fingerprint(staged.model_);
+
+        for (std::uint32_t body = 0u;
+             body < staged.model_.bodies.size();
+             ++body) {
+            if (staged.model_.bodies[body].articulationIndex ==
+                MR_INVALID_INDEX) {
+                staged.sceneBodyIndices_.push_back(body);
+            }
+        }
+        for (std::uint32_t colliderA = 0u;
+             colliderA < staged.model_.shapes.size();
+             ++colliderA) {
+            const MRShapeGPU& shapeA =
+                staged.model_.shapes[colliderA];
+            if ((shapeA.flags &
+                 MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u) {
+                continue;
+            }
+            for (std::uint32_t colliderB = colliderA + 1u;
+                 colliderB < staged.model_.shapes.size();
+                 ++colliderB) {
+                const MRShapeGPU& shapeB =
+                    staged.model_.shapes[colliderB];
+                if ((shapeB.flags &
+                     MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+                    shapeA.bodyIndex == shapeB.bodyIndex ||
+                    (shapeA.collisionGroup &
+                     shapeB.collisionMask) == 0u ||
+                    (shapeB.collisionGroup &
+                     shapeA.collisionMask) == 0u) {
+                    continue;
+                }
+                const MRBodyPropertiesGPU& bodyA =
+                    staged.model_.bodies[shapeA.bodyIndex];
+                const MRBodyPropertiesGPU& bodyB =
+                    staged.model_.bodies[shapeB.bodyIndex];
+                if (bodyA.motionType != MR_MOTION_DYNAMIC &&
+                    bodyB.motionType != MR_MOTION_DYNAMIC) {
+                    continue;
+                }
+                // Directly joint-connected links are a canonical cooker
+                // exclusion. Solving their intentionally overlapping
+                // collision proxies creates rank-deficient self constraints
+                // and fights the authored joint.
+                if (bodyA.articulationIndex != MR_INVALID_INDEX &&
+                    bodyA.articulationIndex ==
+                        bodyB.articulationIndex &&
+                    (bodyA.parentBody == shapeB.bodyIndex ||
+                     bodyB.parentBody == shapeA.bodyIndex)) {
+                    continue;
+                }
+                staged.eligiblePairs_.push_back({
+                    .colliderA = colliderA,
+                    .colliderB = colliderB,
+                    .pairClass = compiledPairClass(
+                        shapeA.shapeType,
+                        shapeB.shapeType
+                    ),
+                    .flags = 0u,
+                });
+            }
+        }
+
+        const auto inferred = [](
+            const std::uint32_t requested,
+            const std::uint32_t fallback
+        ) {
+            return requested == 0u ? fallback : requested;
+        };
+        const std::uint64_t eligibleCount =
+            staged.eligiblePairs_.size();
+        const std::uint32_t eligibleU32 =
+            static_cast<std::uint32_t>(eligibleCount);
+        const std::uint32_t defaultRaw =
+            static_cast<std::uint32_t>(
+                std::min<std::uint64_t>(
+                    std::max<std::uint64_t>(
+                        staged.model_.world.contactCapacity,
+                        MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR *
+                            eligibleCount
+                    ),
+                    std::numeric_limits<std::uint32_t>::max()
+                )
+            );
+        const std::uint32_t defaultConstraints =
+            static_cast<std::uint32_t>(
+                std::min<std::uint64_t>(
+                    std::max<std::uint64_t>(
+                        staged.model_.world.contactCapacity,
+                        4u * eligibleCount
+                    ),
+                    MR_ARTICULATED_OPERATOR_MAX_POINTS / 2u
+                )
+            );
+        staged.capacities_.candidatePairs = inferred(
+            requestedCapacities.candidatePairs,
+            std::max(
+                staged.model_.world.pairCapacity,
+                eligibleU32
+            )
+        );
+        staged.capacities_.rawContacts = inferred(
+            requestedCapacities.rawContacts,
+            defaultRaw
+        );
+        staged.capacities_.manifolds = inferred(
+            requestedCapacities.manifolds,
+            std::max(
+                staged.model_.world.contactCapacity,
+                eligibleU32
+            )
+        );
+        staged.capacities_.constraintBlocks = inferred(
+            requestedCapacities.constraintBlocks,
+            defaultConstraints
+        );
+        const std::uint64_t requiredRows =
+            3ull * staged.capacities_.constraintBlocks;
+        if (requiredRows >
+            std::numeric_limits<std::uint32_t>::max()) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::arithmeticOverflow,
+                "contact row capacity overflows the GPU ABI"
+            );
+        }
+        staged.capacities_.constraintRows = inferred(
+            requestedCapacities.constraintRows,
+            static_cast<std::uint32_t>(requiredRows)
+        );
+        staged.capacities_.islands = inferred(
+            requestedCapacities.islands,
+            std::max(
+                staged.model_.world.islandCapacity,
+                static_cast<std::uint32_t>(
+                    std::min<std::size_t>(
+                        staged.model_.bodies.size(),
+                        MR_ARTICULATED_OPERATOR_MAX_BODIES
+                    )
+                )
+            )
+        );
+        staged.capacities_.spillRows =
+            requestedCapacities.spillRows;
+        staged.minimumCapacities_ = {
+            .candidatePairs = eligibleU32,
+            .rawContacts = defaultRaw,
+            .manifolds = std::max(
+                staged.model_.world.contactCapacity,
+                eligibleU32
+            ),
+            .constraintBlocks = defaultConstraints,
+            .constraintRows = 3u * defaultConstraints,
+            .islands = std::max(
+                staged.model_.world.islandCapacity,
+                static_cast<std::uint32_t>(
+                    std::min<std::size_t>(
+                        staged.model_.bodies.size(),
+                        MR_ARTICULATED_OPERATOR_MAX_BODIES
+                    )
+                )
+            ),
+            .spillRows = 0u,
+        };
+        if (staged.capacities_.candidatePairs == 0u ||
+            staged.capacities_.rawContacts == 0u ||
+            staged.capacities_.manifolds == 0u ||
+            staged.capacities_.constraintBlocks == 0u ||
+            staged.capacities_.constraintBlocks >
+                MR_ARTICULATED_OPERATOR_MAX_POINTS / 2u ||
+            staged.capacities_.constraintRows <
+                requiredRows ||
+            staged.capacities_.islands == 0u ||
+            staged.model_.bodies.size() >
+                MR_ARTICULATED_OPERATOR_MAX_BODIES ||
+            staged.model_.shapes.size() >
+                std::numeric_limits<std::uint32_t>::max() ||
+            staged.sceneBodyIndices_.size() >
+                std::numeric_limits<std::uint32_t>::max() ||
+            staged.eligiblePairs_.size() >
+                std::numeric_limits<std::uint32_t>::max()) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::capacityOverflow,
+                "contact capacity profile is empty, internally "
+                "inconsistent, or exceeds the current "
+                "64-body/512-contact bucket"
+            );
+        }
+
+        staged.fingerprint_ = compiledFingerprint(
+            staged.model_,
+            staged.capacities_,
+            staged.sceneBodyIndices_,
+            staged.eligiblePairs_
+        );
         diagnostics.fingerprint = staged.fingerprint_;
         compiled = std::move(staged);
         diagnostics.status = MetalWorldHostStatus::success;
@@ -2176,6 +4255,55 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             staged.statuses.resize(
                 staged.layout.statusElements
             );
+            if (pending->contactMode) {
+                staged.finalSceneBodies.resize(
+                    staged.layout.initialSceneBodyElements
+                );
+                staged.contactStatuses.resize(
+                    staged.layout.contactStatusElements
+                );
+                if (pending->captureContactEvidence) {
+                    auto& evidence = staged.contactEvidence;
+                    evidence.manifoldHeaders.resize(
+                        staged.layout.manifoldHeaderElements
+                    );
+                    evidence.manifoldPoints.resize(
+                        staged.layout.manifoldPointElements
+                    );
+                    evidence.manifoldCounts.resize(
+                        staged.layout.dispatch.environmentCount
+                    );
+                    evidence.contacts.resize(
+                        staged.layout.contactConstraintElements
+                    );
+                    evidence.contactMetadata.resize(
+                        staged.layout.contactConstraintElements
+                    );
+                    evidence.blocks.resize(
+                        staged.layout.contactConstraintElements
+                    );
+                    evidence.endpoints.resize(
+                        2u *
+                            staged.layout
+                                .contactConstraintElements
+                    );
+                    evidence.rows.resize(
+                        staged.layout.constraintRowElements
+                    );
+                    evidence.cones.resize(
+                        staged.layout.contactConstraintElements
+                    );
+                    evidence.evaluatedRows.resize(
+                        staged.layout.constraintRowElements
+                    );
+                    evidence.evaluatedCones.resize(
+                        staged.layout.contactConstraintElements
+                    );
+                    evidence.islands.resize(
+                        staged.layout.islandElements
+                    );
+                }
+            }
             const auto& buffers = pending->context->buffers;
             copyOutput(
                 staged.finalQ,
@@ -2197,6 +4325,73 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 staged.statuses,
                 buffers[kPublicStatuses]
             );
+            if (pending->contactMode) {
+                copyOutput(
+                    staged.finalSceneBodies,
+                    buffers[pending->finalSceneBuffer]
+                );
+                copyOutput(
+                    staged.contactStatuses,
+                    buffers[kPublicContactStatuses]
+                );
+                if (pending->captureContactEvidence) {
+                    auto& evidence = staged.contactEvidence;
+                    copyOutput(
+                        evidence.manifoldHeaders,
+                        buffers[
+                            pending->finalManifoldHeaderBuffer
+                        ]
+                    );
+                    copyOutput(
+                        evidence.manifoldPoints,
+                        buffers[
+                            pending->finalManifoldPointBuffer
+                        ]
+                    );
+                    copyOutput(
+                        evidence.manifoldCounts,
+                        buffers[
+                            pending->finalManifoldCountBuffer
+                        ]
+                    );
+                    copyOutput(
+                        evidence.contacts,
+                        buffers[kContacts]
+                    );
+                    copyOutput(
+                        evidence.contactMetadata,
+                        buffers[kContactMetadata]
+                    );
+                    copyOutput(
+                        evidence.blocks,
+                        buffers[kIRBlocks]
+                    );
+                    copyOutput(
+                        evidence.endpoints,
+                        buffers[kIREndpoints]
+                    );
+                    copyOutput(
+                        evidence.rows,
+                        buffers[kIRRows]
+                    );
+                    copyOutput(
+                        evidence.cones,
+                        buffers[kIRCones]
+                    );
+                    copyOutput(
+                        evidence.evaluatedRows,
+                        buffers[kEvaluatedRows]
+                    );
+                    copyOutput(
+                        evidence.evaluatedCones,
+                        buffers[kEvaluatedCones]
+                    );
+                    copyOutput(
+                        evidence.islands,
+                        buffers[kIslands]
+                    );
+                }
+            }
         }
 
         return validateAndPublish(
@@ -2324,6 +4519,23 @@ MetalWorldDiagnostics MetalWorldContext::submit(
             std::size_t sourceV = kStateVA;
             std::size_t destinationQ = kStateQB;
             std::size_t destinationV = kStateVB;
+            const bool contactMode =
+                config.solverMode !=
+                    MetalWorldSolverMode::freeMotionABA;
+            std::size_t sourceScene = kSceneBodiesA;
+            std::size_t destinationScene = kSceneBodiesB;
+            std::size_t sourceManifoldHeaders =
+                kManifoldHeadersA;
+            std::size_t sourceManifoldPoints =
+                kManifoldPointsA;
+            std::size_t sourceManifoldCounts =
+                kManifoldCountsA;
+            std::size_t destinationManifoldHeaders =
+                kManifoldHeadersB;
+            std::size_t destinationManifoldPoints =
+                kManifoldPointsB;
+            std::size_t destinationManifoldCounts =
+                kManifoldCountsB;
             for (std::uint32_t controlStep = 0u;
                  controlStep <
                      diagnostics.layout.dispatch.controlStepCount;
@@ -2345,35 +4557,98 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                         "failed to encode MetalWorld prepare pass"
                     );
                 }
+                if (contactMode &&
+                    !encodeContactControlPrepare(
+                        *state_,
+                        commandBuffer,
+                        pass,
+                        sourceScene,
+                        sourceManifoldHeaders,
+                        sourceManifoldPoints,
+                        sourceManifoldCounts,
+                        batch.environmentCount
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode contact checkpoint/reset pass"
+                    );
+                }
 
                 for (std::uint32_t physicsSubstep = 0u;
                      physicsSubstep < config.physicsSubsteps;
                      ++physicsSubstep) {
                     pass.physicsSubstep = physicsSubstep;
-                    if (!encodeABA(
+                    const bool encodedABA = encodeABA(
                             *state_,
                             commandBuffer,
                             selectedABAPipeline,
                             sourceQ,
                             sourceV,
                             batch.environmentCount
-                        ) ||
-                        !encodeCommit(
-                            *state_,
-                            commandBuffer,
-                            pass,
-                            destinationQ,
-                            destinationV,
-                            batch.environmentCount
-                        )) {
+                        );
+                    const bool encodedPublication =
+                        contactMode
+                        ? encodeContactSubstep(
+                              *state_,
+                              commandBuffer,
+                              pass,
+                              physicsSubstep + 1u ==
+                                  config.physicsSubsteps,
+                              sourceQ,
+                              destinationQ,
+                              destinationV,
+                              sourceScene,
+                              destinationScene,
+                              sourceManifoldHeaders,
+                              sourceManifoldPoints,
+                              sourceManifoldCounts,
+                              destinationManifoldHeaders,
+                              destinationManifoldPoints,
+                              destinationManifoldCounts,
+                              batch.environmentCount,
+                              requirements.entries[
+                                  kProjectedColliders
+                              ].logicalElements,
+                              std::max<std::size_t>(
+                                  requirements.entries[
+                                      kPairOverlapFlags
+                                  ].logicalElements,
+                                  1u
+                              )
+                          )
+                        : encodeCommit(
+                              *state_,
+                              commandBuffer,
+                              pass,
+                              destinationQ,
+                              destinationV,
+                              batch.environmentCount
+                          );
+                    if (!encodedABA || !encodedPublication) {
                         return reject(
                             std::move(diagnostics),
                             MetalWorldHostStatus::metalCommandFailure,
-                            "failed to encode MetalWorld ABA/commit pass"
+                            "failed to encode MetalWorld substep graph"
                         );
                     }
                     std::swap(sourceQ, destinationQ);
                     std::swap(sourceV, destinationV);
+                    if (contactMode) {
+                        std::swap(sourceScene, destinationScene);
+                        std::swap(
+                            sourceManifoldHeaders,
+                            destinationManifoldHeaders
+                        );
+                        std::swap(
+                            sourceManifoldPoints,
+                            destinationManifoldPoints
+                        );
+                        std::swap(
+                            sourceManifoldCounts,
+                            destinationManifoldCounts
+                        );
+                    }
                 }
 
                 pass.physicsSubstep = MR_INVALID_INDEX;
@@ -2384,7 +4659,15 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                         sourceQ,
                         sourceV,
                         batch.environmentCount
-                    )) {
+                    ) ||
+                    (contactMode &&
+                     !encodeContactCapture(
+                         *state_,
+                         commandBuffer,
+                         pass,
+                         sourceScene,
+                         batch.environmentCount
+                     ))) {
                     return reject(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalCommandFailure,
@@ -2407,6 +4690,16 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                 ];
             pending->finalQBuffer = sourceQ;
             pending->finalVBuffer = sourceV;
+            pending->finalSceneBuffer = sourceScene;
+            pending->finalManifoldHeaderBuffer =
+                sourceManifoldHeaders;
+            pending->finalManifoldPointBuffer =
+                sourceManifoldPoints;
+            pending->finalManifoldCountBuffer =
+                sourceManifoldCounts;
+            pending->contactMode = contactMode;
+            pending->captureContactEvidence =
+                config.captureContactEvidence;
             pending->start = std::chrono::steady_clock::now();
             pending->ownsInFlight = true;
 

@@ -4,13 +4,16 @@
 
 This document is the implementation contract for MetalRobo's production
 collision detector. It is a design target, not a claim about the current
-vertical slice. The current FP64 CPU path has deterministic sweep-and-prune,
-five analytic pair classes, and persistent four-point manifolds. Metal has the
-same sphere/sphere, sphere/plane, capsule/plane, box/plane, and
-cylinder/plane pair classes, plus a separately proven deterministic micro
-all-pairs count/scan/scatter broadphase. That broadphase has an explicit
-65,536-logical-pair bound and is not yet assembled with GPU manifold
-persistence. None of the LBVH, general convex, mesh, heightfield, SDF, or CCD
+vertical slice. The FP64 CPU and Metal paths now have ten analytic/SAT pair
+classes through capsule/box and box/box, plus persistent four-point manifolds.
+The persistent Metal world consumes a compiled eligible-pair stream directly,
+so cloned RL scenes are no longer limited by the old 65,536-logical-pair scan
+helper. A separate deterministic count/scan/scatter micro-broadphase remains
+available as an oracle. The composed contact pass projects colliders and
+evaluates eligible-pair overlap flags in flattened parallel queues, then
+consumes accepted pairs serially per environment for narrowphase and manifold
+compilation. It is not the final compacted indirect SIMD32 pipeline. None of
+the LBVH, general convex, non-plane cylinder, mesh, heightfield, SDF, or CCD
 work below should be described as shipped until its corresponding milestone
 is measured.
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/constraint_ir_shared.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -16,127 +17,56 @@ namespace metalrobo {
 // a later Metal header can adopt the same layouts without inheriting STL
 // containers. The vectors below own packed streams; records contain offsets,
 // never pointers.
-inline constexpr std::uint32_t kConstraintIRAbiVersion = 2u;
+inline constexpr std::uint32_t kConstraintIRAbiVersion =
+    MR_CONSTRAINT_IR_ABI_VERSION;
 inline constexpr std::uint32_t kConstraintIRInvalidIndex =
-    MR_INVALID_INDEX;
-inline constexpr float kConstraintIRUnbounded = 3.402823466e+38F;
+    MR_CONSTRAINT_IR_INVALID_INDEX;
+inline constexpr float kConstraintIRUnbounded =
+    MR_CONSTRAINT_IR_UNBOUNDED;
 
 enum ConstraintIRBlockFlags : std::uint32_t {
-    constraintIRBlockNewImpact = MR_CONSTRAINT_FLAG_NEW_IMPACT,
-    constraintIRBlockWarmStarted = MR_CONSTRAINT_FLAG_WARM_STARTED,
-    constraintIRBlockDisabled = MR_CONSTRAINT_FLAG_DISABLED,
+    constraintIRBlockNewImpact = MR_CONSTRAINT_IR_BLOCK_NEW_IMPACT,
+    constraintIRBlockWarmStarted =
+        MR_CONSTRAINT_IR_BLOCK_WARM_STARTED,
+    constraintIRBlockDisabled = MR_CONSTRAINT_IR_BLOCK_DISABLED,
 };
 
 enum ConstraintIRRowFlags : std::uint32_t {
-    constraintIRRowPositionStabilized = 1u << 0u,
-    constraintIRRowUnilateral = 1u << 1u,
-    constraintIRRowContactNormal = 1u << 2u,
-    constraintIRRowContactTangent = 1u << 3u,
-    constraintIRRowContactTorsion = 1u << 4u,
+    constraintIRRowPositionStabilized =
+        MR_CONSTRAINT_IR_ROW_POSITION_STABILIZED,
+    constraintIRRowUnilateral = MR_CONSTRAINT_IR_ROW_UNILATERAL,
+    constraintIRRowContactNormal =
+        MR_CONSTRAINT_IR_ROW_CONTACT_NORMAL,
+    constraintIRRowContactTangent =
+        MR_CONSTRAINT_IR_ROW_CONTACT_TANGENT,
+    constraintIRRowContactTorsion =
+        MR_CONSTRAINT_IR_ROW_CONTACT_TORSION,
 };
 
 enum ConstraintIREndpointRole : std::uint32_t {
-    constraintIREndpointA = 0u,
-    constraintIREndpointB = 1u,
-    constraintIREndpointWorld = 2u,
+    constraintIREndpointA = MR_CONSTRAINT_IR_ENDPOINT_A,
+    constraintIREndpointB = MR_CONSTRAINT_IR_ENDPOINT_B,
+    constraintIREndpointWorld = MR_CONSTRAINT_IR_ENDPOINT_WORLD,
 };
 
 enum ConstraintIRJacobianKind : std::uint32_t {
     // Anchor is already a world point. This is used by the v1 compatibility
     // adapter because MRContactConstraintGPU does not retain local anchors.
-    constraintIRJacobianWorldPoint = 0u,
-    constraintIRJacobianBodyLocalPoint = 1u,
-    constraintIRJacobianGeneralized = 2u,
-    constraintIRJacobianAngular = 3u,
+    constraintIRJacobianWorldPoint =
+        MR_CONSTRAINT_IR_JACOBIAN_WORLD_POINT,
+    constraintIRJacobianBodyLocalPoint =
+        MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT,
+    constraintIRJacobianGeneralized =
+        MR_CONSTRAINT_IR_JACOBIAN_GENERALIZED,
+    constraintIRJacobianAngular =
+        MR_CONSTRAINT_IR_JACOBIAN_ANGULAR,
 };
 
-struct alignas(16) ConstraintIRStableKey {
-    std::uint32_t words[4]{};
-};
-
-struct alignas(16) ConstraintIRBlock {
-    ConstraintIRStableKey key{};
-
-    std::uint32_t type = MR_CONSTRAINT_CONTACT;
-    std::uint32_t dimension = 0u;
-    std::uint32_t flags = 0u;
-    std::uint32_t islandIndex = 0u;
-
-    std::uint32_t endpointOffset = 0u;
-    std::uint32_t endpointCount = 0u;
-    std::uint32_t rowOffset = 0u;
-    std::uint32_t impulseOffset = 0u;
-
-    std::uint32_t coneIndex = kConstraintIRInvalidIndex;
-    std::uint32_t eventSlot = kConstraintIRInvalidIndex;
-    std::uint32_t reserved0 = 0u;
-    std::uint32_t reserved1 = 0u;
-};
-
-struct alignas(16) ConstraintIREndpoint {
-    std::uint32_t objectIndex = kConstraintIRInvalidIndex;
-    std::uint32_t articulationIndex = kConstraintIRInvalidIndex;
-    std::uint32_t linkIndex = kConstraintIRInvalidIndex;
-    std::uint32_t role = constraintIREndpointWorld;
-
-    std::uint32_t jacobianKind = constraintIRJacobianWorldPoint;
-    std::uint32_t flags = 0u;
-    std::uint32_t reserved0 = 0u;
-    std::uint32_t reserved1 = 0u;
-
-    mr_float4 anchor{};
-    mr_float4 axis{};
-};
-
-// A row stores continuous semantics. Timestep-dependent targets and
-// regularization are derived by evaluateConstraintIR; solvers must not
-// reinterpret these fields independently.
-struct alignas(16) ConstraintIRRow {
-    // World direction for spatial rows. Abstract generalized rows may use 0.
-    mr_float4 direction{};
-
-    float positionError = 0.0F;
-    float targetVelocity = 0.0F;
-    float compliance = 0.0F;
-    float dissipation = 0.0F;
-
-    float timeConstant = 0.01F;
-    float dampingRatio = 1.0F;
-    // Contact rows use one canonical redundant encoding so row-driven and
-    // cone-driven consumers cannot disagree: the normal is [0, cone cap] (or
-    // [0, kConstraintIRUnbounded] when uncapped), while tangent and torsion
-    // rows are [-kConstraintIRUnbounded, kConstraintIRUnbounded]. The coupled
-    // cone remains the executable friction limit.
-    float impulseLower = -kConstraintIRUnbounded;
-    float impulseUpper = kConstraintIRUnbounded;
-
-    std::uint32_t flags = 0u;
-    std::uint32_t reserved0 = 0u;
-    std::uint32_t reserved1 = 0u;
-    std::uint32_t reserved2 = 0u;
-};
-
-// Elliptic Coulomb data is solver-neutral. The first implementation supports
-// exact normal + two-axis friction and optional torsion. Rolling and adhesion
-// fields are reserved in the executable semantics and rejected explicitly
-// until corresponding rows/projections exist.
-struct alignas(16) ConstraintIRCone {
-    float staticFrictionU = 0.0F;
-    float staticFrictionV = 0.0F;
-    float dynamicFrictionU = 0.0F;
-    float dynamicFrictionV = 0.0F;
-
-    float rollingLength = 0.0F;
-    float torsionalLength = 0.0F;
-    float restitution = 0.0F;
-    float restitutionThreshold = 0.0F;
-
-    float adhesionImpulse = 0.0F;
-    // Zero means unbounded, matching MRContactConstraintGPU::response.w.
-    float maximumNormalImpulse = 0.0F;
-    float stictionTransitionVelocity = 1.0e-3F;
-    float reserved = 0.0F;
-};
+using ConstraintIRStableKey = MRConstraintIRStableKeyGPU;
+using ConstraintIRBlock = MRConstraintIRBlockGPU;
+using ConstraintIREndpoint = MRConstraintIREndpointGPU;
+using ConstraintIRRow = MRConstraintIRRowGPU;
+using ConstraintIRCone = MRConstraintIRConeGPU;
 
 static_assert(sizeof(ConstraintIRStableKey) == 16u);
 static_assert(sizeof(ConstraintIRBlock) == 64u);
@@ -236,44 +166,8 @@ struct ConstraintIREvaluationInput {
     std::span<const float> preSolveVelocities{};
 };
 
-struct alignas(16) EvaluatedConstraintIRRow {
-    mr_float4 direction{};
-
-    float targetVelocity = 0.0F;
-    // R = compliance / h^2 + dissipation / h.
-    float regularization = 0.0F;
-    float impulseLower = -kConstraintIRUnbounded;
-    float impulseUpper = kConstraintIRUnbounded;
-
-    float sourcePositionError = 0.0F;
-    float stabilizationVelocity = 0.0F;
-    float sourceTargetVelocity = 0.0F;
-    float relativeVelocity = 0.0F;
-
-    float preSolveVelocity = 0.0F;
-    float reserved0 = 0.0F;
-    float reserved1 = 0.0F;
-    float reserved2 = 0.0F;
-};
-
-struct alignas(16) EvaluatedConstraintIRCone {
-    float effectiveFrictionU = 0.0F;
-    float effectiveFrictionV = 0.0F;
-    float staticFrictionU = 0.0F;
-    float staticFrictionV = 0.0F;
-
-    float dynamicFrictionU = 0.0F;
-    float dynamicFrictionV = 0.0F;
-    float rollingLength = 0.0F;
-    float torsionalLength = 0.0F;
-
-    // Applied bounce speed, zero when restitution did not activate.
-    float restitutionVelocity = 0.0F;
-    float restitutionThreshold = 0.0F;
-    float adhesionImpulse = 0.0F;
-    // Zero retains the ABI convention "unbounded".
-    float maximumNormalImpulse = 0.0F;
-};
+using EvaluatedConstraintIRRow = MREvaluatedConstraintIRRowGPU;
+using EvaluatedConstraintIRCone = MREvaluatedConstraintIRConeGPU;
 
 static_assert(sizeof(EvaluatedConstraintIRRow) == 64u);
 static_assert(sizeof(EvaluatedConstraintIRCone) == 48u);

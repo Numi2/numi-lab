@@ -50,6 +50,9 @@ set(METALROBO_ARTICULATED_INVERSE_MASS_SOURCE
 set(METALROBO_WORLD_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalWorld.metal"
 )
+set(METALROBO_WORLD_CONTACT_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalWorldContact.metal"
+)
 set(METALROBO_PHYSICS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboPhysics.air"
 )
@@ -79,6 +82,9 @@ set(METALROBO_ARTICULATED_INVERSE_MASS_AIR
 )
 set(METALROBO_WORLD_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboWorld.air"
+)
+set(METALROBO_WORLD_CONTACT_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboWorldContact.air"
 )
 set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 
@@ -149,6 +155,12 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_WORLD_SOURCE}"
             -o "${METALROBO_WORLD_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_WORLD_CONTACT_SOURCE}"
+            -o "${METALROBO_WORLD_CONTACT_AIR}"
     COMMAND xcrun -sdk macosx metallib
             "${METALROBO_PHYSICS_AIR}"
             "${METALROBO_CONSTRAINT_AIR}"
@@ -160,6 +172,7 @@ add_custom_command(
             "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
             "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_WORLD_AIR}"
+            "${METALROBO_WORLD_CONTACT_AIR}"
             -o "${METALROBO_METALLIB}"
     DEPENDS
         "${METALROBO_PHYSICS_SOURCE}"
@@ -171,8 +184,10 @@ add_custom_command(
         "${METALROBO_ARTICULATED_ABA_SOURCE}"
         "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
         "${METALROBO_WORLD_SOURCE}"
+        "${METALROBO_WORLD_CONTACT_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
     VERBATIM
 )
 
@@ -256,6 +271,22 @@ add_executable(metalrobo_bench apps/benchmark.cpp)
 target_link_libraries(metalrobo_bench PRIVATE metalrobo)
 set_target_properties(
     metalrobo_bench
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
+    metalrobo_metal_world_contact_probe
+    apps/metal_world_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_metal_world_contact_probe
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_metal_world_contact_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

@@ -120,6 +120,26 @@ double component(const Vec3 value, const std::uint32_t axis) {
     return axis == 1u ? value.y : value.z;
 }
 
+void setComponent(
+    Vec3& value,
+    const std::uint32_t axis,
+    const double componentValue
+) {
+    if (axis == 0u) {
+        value.x = componentValue;
+    } else if (axis == 1u) {
+        value.y = componentValue;
+    } else {
+        value.z = componentValue;
+    }
+}
+
+Vec3 axisVector(const std::uint32_t axis) {
+    Vec3 result{};
+    setComponent(result, axis, 1.0);
+    return result;
+}
+
 bool finite(const mr_float4 value) {
     return
         std::isfinite(value.x) &&
@@ -786,6 +806,16 @@ std::optional<std::uint32_t> pairClass(
          typeB == MR_SHAPE_SPHERE)) {
         return collisionPairSphereBox;
     }
+    if ((typeA == MR_SHAPE_CAPSULE &&
+         typeB == MR_SHAPE_BOX) ||
+        (typeA == MR_SHAPE_BOX &&
+         typeB == MR_SHAPE_CAPSULE)) {
+        return collisionPairCapsuleBox;
+    }
+    if (typeA == MR_SHAPE_BOX &&
+        typeB == MR_SHAPE_BOX) {
+        return collisionPairBoxBox;
+    }
     return std::nullopt;
 }
 
@@ -1308,6 +1338,15 @@ struct SphereBoxWitness {
     std::uint32_t boxFeature = 0u;
 };
 
+struct CapsuleBoxWitness {
+    Vec3 normal{};
+    Vec3 capsulePoint{};
+    Vec3 boxPoint{};
+    double separation = 0.0;
+    double capsuleParameter = 0.0;
+    std::uint32_t boxFeature = 0u;
+};
+
 SphereBoxWitness sphereBoxWitness(
     const WorldShape& sphere,
     const WorldShape& box
@@ -1388,6 +1427,264 @@ SphereBoxWitness sphereBoxWitness(
     return result;
 }
 
+void considerCapsuleBoxCandidate(
+    const Vec3 segmentPoint,
+    const Vec3 boxPoint,
+    const double parameter,
+    const std::uint32_t feature,
+    double& bestSquared,
+    Vec3& bestSegmentPoint,
+    Vec3& bestBoxPoint,
+    double& bestParameter,
+    std::uint32_t& bestFeature
+) {
+    const double squared =
+        lengthSquared(boxPoint - segmentPoint);
+    const double tolerance =
+        1.0e-12 *
+        (1.0 + std::max(bestSquared, squared));
+    if (!std::isfinite(bestSquared) ||
+        squared < bestSquared - tolerance ||
+        (std::abs(squared - bestSquared) <= tolerance &&
+         feature < bestFeature)) {
+        bestSquared = squared;
+        bestSegmentPoint = segmentPoint;
+        bestBoxPoint = boxPoint;
+        bestParameter = parameter;
+        bestFeature = feature;
+    }
+}
+
+CapsuleBoxWitness capsuleBoxWitness(
+    const WorldShape& capsule,
+    const WorldShape& box
+) {
+    const Vec3 segment0 = inverseRotate(
+        box.rotation,
+        capsule.capsuleEndpoint0 - box.center
+    );
+    const Vec3 segment1 = inverseRotate(
+        box.rotation,
+        capsule.capsuleEndpoint1 - box.center
+    );
+    const Vec3 direction = segment1 - segment0;
+
+    double enter = 0.0;
+    double exit = 1.0;
+    bool intersects = true;
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+        const double directionComponent =
+            component(direction, axis);
+        const double startComponent =
+            component(segment0, axis);
+        const double halfExtent =
+            component(box.halfExtents, axis);
+        if (std::abs(directionComponent) <= kTiny) {
+            if (startComponent < -halfExtent ||
+                startComponent > halfExtent) {
+                intersects = false;
+            }
+            continue;
+        }
+        double first =
+            (-halfExtent - startComponent) /
+            directionComponent;
+        double second =
+            (halfExtent - startComponent) /
+            directionComponent;
+        if (first > second) {
+            std::swap(first, second);
+        }
+        enter = std::max(enter, first);
+        exit = std::min(exit, second);
+        if (enter > exit) {
+            intersects = false;
+        }
+    }
+
+    CapsuleBoxWitness result;
+    if (intersects) {
+        result.capsuleParameter =
+            std::clamp(0.5 * (enter + exit), 0.0, 1.0);
+        const Vec3 core =
+            segment0 + direction * result.capsuleParameter;
+        const std::array distances{
+            box.halfExtents.x - std::abs(core.x),
+            box.halfExtents.y - std::abs(core.y),
+            box.halfExtents.z - std::abs(core.z),
+        };
+        std::uint32_t axis = 0u;
+        if (distances[1] < distances[axis]) {
+            axis = 1u;
+        }
+        if (distances[2] < distances[axis]) {
+            axis = 2u;
+        }
+        const double sign =
+            component(core, axis) >= 0.0 ? 1.0 : -1.0;
+        Vec3 outward{};
+        setComponent(outward, axis, sign);
+        Vec3 localBoxPoint = core;
+        setComponent(
+            localBoxPoint,
+            axis,
+            sign * component(box.halfExtents, axis)
+        );
+        const Vec3 localNormal = -outward;
+        result.normal =
+            rotate(box.rotation, localNormal);
+        result.capsulePoint =
+            box.center +
+            rotate(
+                box.rotation,
+                core + localNormal * capsule.radius
+            );
+        result.boxPoint =
+            box.center +
+            rotate(box.rotation, localBoxPoint);
+        result.separation =
+            -distances[axis] - capsule.radius;
+        result.boxFeature =
+            27u + 2u * axis + (sign > 0.0 ? 1u : 0u);
+        return result;
+    }
+
+    double bestSquared =
+        std::numeric_limits<double>::infinity();
+    Vec3 bestSegmentPoint{};
+    Vec3 bestBoxPoint{};
+    double bestParameter = 0.0;
+    std::uint32_t bestFeature =
+        std::numeric_limits<std::uint32_t>::max();
+    for (std::uint32_t endpoint = 0u;
+         endpoint < 2u;
+         ++endpoint) {
+        const Vec3 segmentPoint =
+            endpoint == 0u ? segment0 : segment1;
+        const Vec3 boxPoint{
+            std::clamp(
+                segmentPoint.x,
+                -box.halfExtents.x,
+                box.halfExtents.x
+            ),
+            std::clamp(
+                segmentPoint.y,
+                -box.halfExtents.y,
+                box.halfExtents.y
+            ),
+            std::clamp(
+                segmentPoint.z,
+                -box.halfExtents.z,
+                box.halfExtents.z
+            ),
+        };
+        considerCapsuleBoxCandidate(
+            segmentPoint,
+            boxPoint,
+            static_cast<double>(endpoint),
+            endpoint,
+            bestSquared,
+            bestSegmentPoint,
+            bestBoxPoint,
+            bestParameter,
+            bestFeature
+        );
+    }
+    std::uint32_t edgeFeature = 2u;
+    for (std::uint32_t varyingAxis = 0u;
+         varyingAxis < 3u;
+         ++varyingAxis) {
+        const std::uint32_t fixedAxis0 =
+            (varyingAxis + 1u) % 3u;
+        const std::uint32_t fixedAxis1 =
+            (varyingAxis + 2u) % 3u;
+        for (std::uint32_t signs = 0u;
+             signs < 4u;
+             ++signs) {
+            Vec3 edge0{};
+            Vec3 edge1{};
+            setComponent(
+                edge0,
+                varyingAxis,
+                -component(box.halfExtents, varyingAxis)
+            );
+            setComponent(
+                edge1,
+                varyingAxis,
+                component(box.halfExtents, varyingAxis)
+            );
+            const double sign0 =
+                (signs & 1u) == 0u ? -1.0 : 1.0;
+            const double sign1 =
+                (signs & 2u) == 0u ? -1.0 : 1.0;
+            setComponent(
+                edge0,
+                fixedAxis0,
+                sign0 * component(box.halfExtents, fixedAxis0)
+            );
+            setComponent(
+                edge1,
+                fixedAxis0,
+                component(edge0, fixedAxis0)
+            );
+            setComponent(
+                edge0,
+                fixedAxis1,
+                sign1 * component(box.halfExtents, fixedAxis1)
+            );
+            setComponent(
+                edge1,
+                fixedAxis1,
+                component(edge0, fixedAxis1)
+            );
+            const SegmentPairClosestPoints closest =
+                closestPointsOnSegments(
+                    segment0,
+                    segment1,
+                    edge0,
+                    edge1
+                );
+            considerCapsuleBoxCandidate(
+                closest.pointA,
+                closest.pointB,
+                closest.parameterA,
+                edgeFeature,
+                bestSquared,
+                bestSegmentPoint,
+                bestBoxPoint,
+                bestParameter,
+                bestFeature
+            );
+            ++edgeFeature;
+        }
+    }
+    const double distance =
+        std::sqrt(std::max(bestSquared, 0.0));
+    const Vec3 localNormal =
+        distance > kTiny
+        ? (bestBoxPoint - bestSegmentPoint) / distance
+        : inverseRotate(
+              box.rotation,
+              coincidentNormal(capsule.index, box.index)
+          );
+    result.normal =
+        rotate(box.rotation, localNormal);
+    result.capsulePoint =
+        box.center +
+        rotate(
+            box.rotation,
+            bestSegmentPoint +
+                localNormal * capsule.radius
+        );
+    result.boxPoint =
+        box.center +
+        rotate(box.rotation, bestBoxPoint);
+    result.separation = distance - capsule.radius;
+    result.capsuleParameter = bestParameter;
+    result.boxFeature = 64u + bestFeature;
+    return result;
+}
+
 struct ContactBatch {
     std::array<MRRawContactGPU, 8> contacts{};
     std::uint32_t count = 0;
@@ -1415,6 +1712,247 @@ void appendFinitePlaneContact(
         contact = swappedContact(contact);
     }
     result.contacts[result.count++] = contact;
+}
+
+Vec3 boxAxis(
+    const WorldShape& box,
+    const std::uint32_t axis
+) {
+    return rotate(box.rotation, axisVector(axis));
+}
+
+double boxProjectionRadius(
+    const WorldShape& box,
+    const Vec3 axis
+) {
+    return
+        std::abs(dot(axis, boxAxis(box, 0u))) *
+            box.halfExtents.x +
+        std::abs(dot(axis, boxAxis(box, 1u))) *
+            box.halfExtents.y +
+        std::abs(dot(axis, boxAxis(box, 2u))) *
+            box.halfExtents.z;
+}
+
+Vec3 boxVertex(
+    const WorldShape& box,
+    const std::uint32_t vertexIndex
+) {
+    const Vec3 local{
+        (vertexIndex & 1u) == 0u
+            ? -box.halfExtents.x
+            : box.halfExtents.x,
+        (vertexIndex & 2u) == 0u
+            ? -box.halfExtents.y
+            : box.halfExtents.y,
+        (vertexIndex & 4u) == 0u
+            ? -box.halfExtents.z
+            : box.halfExtents.z,
+    };
+    return box.center + rotate(box.rotation, local);
+}
+
+bool pointInsideInflatedBox(
+    const Vec3 point,
+    const WorldShape& box,
+    const double inflation
+) {
+    const Vec3 local = inverseRotate(
+        box.rotation,
+        point - box.center
+    );
+    return
+        std::abs(local.x) <= box.halfExtents.x + inflation &&
+        std::abs(local.y) <= box.halfExtents.y + inflation &&
+        std::abs(local.z) <= box.halfExtents.z + inflation;
+}
+
+Vec3 boxSupport(
+    const WorldShape& box,
+    const Vec3 direction
+) {
+    Vec3 result = box.center;
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+        const Vec3 basis = boxAxis(box, axis);
+        result = result +
+            basis *
+                (dot(direction, basis) >= 0.0
+                     ? component(box.halfExtents, axis)
+                     : -component(box.halfExtents, axis));
+    }
+    return result;
+}
+
+void appendBoxBoxContact(
+    ContactBatch& result,
+    const Vec3 normal,
+    const double separation,
+    const Vec3 pointA,
+    const Vec3 pointB,
+    const std::uint32_t featureA,
+    const std::uint32_t featureB
+) {
+    if (result.count >= result.contacts.size()) {
+        return;
+    }
+    result.contacts[result.count++] = makeRawContact(
+        normal,
+        separation,
+        pointA,
+        pointB,
+        featureKey(MR_SHAPE_BOX, featureA),
+        featureKey(MR_SHAPE_BOX, featureB)
+    );
+}
+
+ContactBatch boxBoxContacts(
+    const MRCandidatePairGPU& pair,
+    const WorldShape& boxA,
+    const WorldShape& boxB,
+    const double acceptedContactDistance
+) {
+    ContactBatch result;
+    std::array<Vec3, 15> axes{};
+    std::uint32_t axisCount = 0u;
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+        axes[axisCount++] = boxAxis(boxA, axis);
+    }
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+        axes[axisCount++] = boxAxis(boxB, axis);
+    }
+    for (std::uint32_t axisA = 0u;
+         axisA < 3u;
+         ++axisA) {
+        for (std::uint32_t axisB = 0u;
+             axisB < 3u;
+             ++axisB) {
+            const Vec3 crossed = cross(
+                boxAxis(boxA, axisA),
+                boxAxis(boxB, axisB)
+            );
+            const double squared = lengthSquared(crossed);
+            if (squared > 1.0e-24) {
+                axes[axisCount++] =
+                    crossed / std::sqrt(squared);
+            }
+        }
+    }
+
+    const Vec3 centerDelta = boxB.center - boxA.center;
+    double bestSeparation =
+        -std::numeric_limits<double>::infinity();
+    Vec3 bestNormal =
+        coincidentNormal(pair.colliderA, pair.colliderB);
+    std::uint32_t bestAxis = 0u;
+    for (std::uint32_t axisIndex = 0u;
+         axisIndex < axisCount;
+         ++axisIndex) {
+        Vec3 axis = axes[axisIndex];
+        const double projection = dot(centerDelta, axis);
+        if (projection < 0.0 ||
+            (projection == 0.0 &&
+             dot(axis, bestNormal) < 0.0)) {
+            axis = -axis;
+        }
+        const double separation =
+            std::abs(projection) -
+            boxProjectionRadius(boxA, axis) -
+            boxProjectionRadius(boxB, axis);
+        if (separation > acceptedContactDistance) {
+            return result;
+        }
+        const double tieTolerance =
+            1.0e-12 *
+            (1.0 +
+             std::max(
+                 std::abs(bestSeparation),
+                 std::abs(separation)
+             ));
+        if (!std::isfinite(bestSeparation) ||
+            separation > bestSeparation + tieTolerance ||
+            (std::abs(separation - bestSeparation) <=
+                 tieTolerance &&
+             axisIndex < bestAxis)) {
+            bestSeparation = separation;
+            bestNormal = axis;
+            bestAxis = axisIndex;
+        }
+    }
+
+    const double radiusA =
+        boxProjectionRadius(boxA, bestNormal);
+    const double radiusB =
+        boxProjectionRadius(boxB, bestNormal);
+    const double nearPlaneB =
+        dot(boxB.center, bestNormal) - radiusB;
+    const double farPlaneA =
+        dot(boxA.center, bestNormal) + radiusA;
+    for (std::uint32_t vertexIndex = 0u;
+         vertexIndex < 8u;
+         ++vertexIndex) {
+        const Vec3 pointA = boxVertex(boxA, vertexIndex);
+        if (!pointInsideInflatedBox(
+                pointA,
+                boxB,
+                acceptedContactDistance
+            )) {
+            continue;
+        }
+        const double separation =
+            nearPlaneB - dot(pointA, bestNormal);
+        if (separation <= acceptedContactDistance) {
+            appendBoxBoxContact(
+                result,
+                bestNormal,
+                separation,
+                pointA,
+                pointA + bestNormal * separation,
+                vertexIndex,
+                128u + bestAxis
+            );
+        }
+    }
+    for (std::uint32_t vertexIndex = 0u;
+         vertexIndex < 8u;
+         ++vertexIndex) {
+        const Vec3 pointB = boxVertex(boxB, vertexIndex);
+        if (!pointInsideInflatedBox(
+                pointB,
+                boxA,
+                acceptedContactDistance
+            )) {
+            continue;
+        }
+        const double separation =
+            dot(pointB, bestNormal) - farPlaneA;
+        if (separation <= acceptedContactDistance) {
+            appendBoxBoxContact(
+                result,
+                bestNormal,
+                separation,
+                pointB - bestNormal * separation,
+                pointB,
+                128u + bestAxis,
+                vertexIndex
+            );
+        }
+    }
+    if (result.count == 0u) {
+        const Vec3 pointA =
+            boxSupport(boxA, bestNormal);
+        const Vec3 pointB =
+            boxSupport(boxB, -bestNormal);
+        appendBoxBoxContact(
+            result,
+            bestNormal,
+            dot(pointB - pointA, bestNormal),
+            pointA,
+            pointB,
+            256u + bestAxis,
+            256u + bestAxis
+        );
+    }
+    return result;
 }
 
 ContactBatch generateContacts(
@@ -1579,6 +2117,50 @@ ContactBatch generateContacts(
             result.count = 1u;
         }
         return result;
+    }
+
+    if (pair.flags == collisionPairCapsuleBox) {
+        const bool capsuleIsA =
+            shapeA.type == MR_SHAPE_CAPSULE;
+        const WorldShape& capsule =
+            capsuleIsA ? shapeA : shapeB;
+        const WorldShape& box =
+            capsuleIsA ? shapeB : shapeA;
+        const CapsuleBoxWitness witness =
+            capsuleBoxWitness(capsule, box);
+        if (witness.separation <= contactDistance) {
+            MRRawContactGPU contact = makeRawContact(
+                witness.normal,
+                witness.separation,
+                witness.capsulePoint,
+                witness.boxPoint,
+                featureKey(
+                    MR_SHAPE_CAPSULE,
+                    capsuleFeature(
+                        witness.capsuleParameter
+                    )
+                ),
+                featureKey(
+                    MR_SHAPE_BOX,
+                    witness.boxFeature
+                )
+            );
+            if (!capsuleIsA) {
+                contact = swappedContact(contact);
+            }
+            result.contacts[0] = contact;
+            result.count = 1u;
+        }
+        return result;
+    }
+
+    if (pair.flags == collisionPairBoxBox) {
+        return boxBoxContacts(
+            pair,
+            shapeA,
+            shapeB,
+            contactDistance
+        );
     }
 
     const WorldShape& plane =

@@ -38,8 +38,9 @@ linked or called at runtime.
   oracle retains an explicit checked compatibility adapter
 - Deterministic FP64 collision with sweep-and-prune, analytic primitive pairs,
   stable features, and persistent four-point manifolds
-- Correct Metal collision baseline with analytic sphere/sphere,
-  sphere/plane, capsule/plane, box/plane, and oriented cylinder/plane
+- CPU/Metal analytic collision for sphere/sphere, sphere/plane,
+  capsule/plane, box/plane, oriented cylinder/plane, sphere/capsule,
+  capsule/capsule, sphere/box, capsule/box, and deterministic SAT box/box
   witnesses
 - Parallel deterministic Metal micro broadphase using flag, two-level
   exclusive scan, and canonical scatter with no global append atomic
@@ -49,8 +50,7 @@ linked or called at runtime.
 - Three contact paths: independent FP64 exact-cone reference, a safeguarded
   FP64 semismooth-Newton quality solve with four-merit GLL globalization,
   Gauss-Newton retry, and projected-gradient safety fallback, plus a
-  CPU/Metal fixed-budget PGS block; the throughput block has a hard
-  128-contact limit per connected island
+  CPU/Metal fixed-budget PGS block
 - Transactional CPU rigid-body world step composing motion, collision,
   materials, warm starts, contact solve, and configuration integration for
   maximal-coordinate free bodies
@@ -88,39 +88,42 @@ linked or called at runtime.
   trees, exercised on actual 30-body/35-velocity G1: poses, analytic point
   Jacobians, `Jᵀp`, checked mass factorization, and `M⁻¹Jᵀp`, with
   deterministic replay and transactional rejection
-- Persistent `MetalWorldContext` for one compiled canonical articulation:
-  immutable model buffers and five pipelines are cached, a 27-buffer
-  grow-only arena is reused, and one asynchronous command buffer advances an
-  entire environment-major control horizon through reset, ABA substeps,
-  transactional ping-pong commit, and q/v/acceleration observation capture.
-  A failed GPU substep rolls that environment back to its control-step
-  checkpoint while unrelated environments continue; no CPU-visible
-  intermediate count or command-buffer wait occurs between encoded control
-  steps
+- Persistent `MetalWorldContext` for one compiled articulation plus arbitrary
+  dynamic/kinematic/static scene bodies: twenty-one pipelines and a typed
+  grow-only arena compose ABA, body/collider projection, precompiled-pair
+  broadphase, analytic narrowphase, persistent manifolds, canonical
+  ConstraintIR, mixed islands, coupled exact-cone PGS/TGS, constrained
+  integration, observations, and transactional publication in one
+  asynchronous command buffer. A failed environment restores q/v, scene
+  bodies, and manifolds while unrelated environments continue
+- Exact per-environment capacity requirements, high-water counts, manifold
+  retention, solver residuals, and stable first-failure indices, plus optional
+  fixed-capacity contact/ConstraintIR/island evidence
+- MLX 0.32 active-encoder custom primitive for Franka/G1 free-motion ABA with
+  explicit PyTree state, MLX-owned output/scratch buffers, `mx.compile`,
+  isolated transactional rollback, no CPU fallback, and explicit autodiff
+  rejection. Policy inference, physics, reward/termination, GAE, rollout
+  storage, and PPO updates have a NumPy-free MLX path
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication
 - Existing batched Metal Franka ABA/reach environment and MLX PPO path
 
 This is a serious numerical foundation, not yet a complete MuJoCo/PhysX
-replacement. The first generic Metal world graph is persistent and
-asynchronous, but deliberately advertises
-`MetalWorldSolverMode::freeMotionABA`: it has not yet composed collider
-projection, GPU collision/manifolds, contact solve, rewards, or MLX-owned
-buffers. Its ABA implementation is still the deterministic lane-zero
-correctness path rather than the final level-parallel tree kernel. The public
-ticket publishes host vectors only after the whole rollout completes, so this
-is device-resident physics across one submitted horizon—not yet a fused
-physics/learner command stream.
-The throughput contact kernel is PGS rather than TGS, and any connected island
-above 128 contacts fails explicitly rather than spilling. Cylinder support is
-currently cylinder/plane only, so G1 shoulder cylinders remain disabled.
-Metal manifold persistence, LBVH, convex/mesh/heightfield geometry, CCD,
-multi-articulation islands, rolling/torsional contact resistance, calibrated
-surgical jaw surfaces and generic force-closure certification, the full
-joint/loop constraint language, importers, rendering, sensors, tissue/thread
-mechanics, and qualified differentiability remain open. The dated
-requirements and claim rules are in
+replacement. Collider projection and compiled-pair overlap flags are parallel,
+but narrowphase/manifold compilation, island construction, and solving remain
+a correctness-first one-thread-per-environment composition. Compacted SIMD32
+queues, private heaps, spill kernels, and performance-sized island bucketing
+remain open. The current articulated
+point bucket is 512 constraints, with exact transactional overflow rather than
+the planned tiled spill/replay. Box/box has SAT witnesses but not complete face
+clipping; non-plane cylinder pairs, GJK/MPR/EPA, mesh/heightfield traversal,
+and CCD remain open. The MLX primitive currently exposes free-motion ABA only
+and rejects contact state, so the standalone contact graph is not yet a fused
+physics/learner path. Implicit drives/joint-limit IR, multi-articulation
+islands, calibrated rolling/torsional resistance, importers, rendering,
+sensors, thread/tissue mechanics, and qualified differentiability also remain
+open. The dated requirements and claim rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
 
 ## Build
@@ -137,6 +140,7 @@ cmake --build build
 ./build/bin/metalrobo_articulated_operator_gpu_probe
 ./build/bin/metalrobo_articulated_operator_host_probe
 ./build/bin/metalrobo_metal_world_probe
+./build/bin/metalrobo_metal_world_contact_probe
 ./build/bin/metalrobo_surgical_psm_probe
 ./build/bin/metalrobo_surgical_assets_probe
 ./build/bin/metalrobo_surgical_metal_operator_probe
@@ -159,10 +163,11 @@ CMake build tree by default.
 
 ```sh
 python3 -m pip install -e python
-
-metalrobo benchmark --envs 1024 --steps 500
+cd python
+python3 probes/mlx_world_probe.py
 
 metalrobo train \
+  --backend mlx \
   --envs 1024 \
   --rollout-steps 32 \
   --iterations 1000 \
@@ -172,14 +177,19 @@ metalrobo train \
 The native engine has no third-party physics dependency. Factual robot model
 data retains its upstream notices in
 [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md). Python training requires Python
-3.10+, NumPy, and MLX. On the local 10-GPU-core Apple M4, the new canonical
-Franka Metal-world gate measured 242,100 device-timestamped and 239,771
+3.10+, MLX 0.32 for the device-native path, and NumPy only for the legacy
+debug adapter. On the local 10-GPU-core Apple M4, the current canonical
+Franka Metal-world gate measured 221,219 device-timestamped and 218,616
 end-to-end wall-timed
 control-steps/s for 4,096 environments over a 16-step horizon, with four
 physics substeps per control step. Its three-substep FP64/Metal parity case
 had maximum q error `5.753e-7`, v error `4.745e-8`, and scaled acceleration
 error `1.982e-6`; same-build replay was bitwise. These are free-motion
-composition numbers, not contact or external-engine results. The earlier
+composition numbers, not external-engine results. The 1,024-environment
+Franka-plus-dynamic-cube TGS probe measured 30,940 GPU and 30,169 wall
+control-steps/s with two active contacts, a 32-contact capacity class, and a
+96.2 MB retained arena. That is below the 40,000 release gate; the gate remains
+open and a 32-active-contact saturation run is still required. The earlier
 clean v0.4 validation run of the original fixed-base Franka slice measured
 216,313 environment control-steps/s at 1,024
 environments on a 24 GB, 10-GPU-core Apple M4, with four physics substeps per
