@@ -29,7 +29,11 @@ from .mlx_locomotion import (
     MLXG1PPOTrainer,
     MLXG1RolloutCollector,
 )
-from .mlx_surgical import psm_physical_position_targets
+from .mlx_surgical import (
+    MLXPSMNeedlePPOTrainer,
+    MLXPSMNeedleRolloutCollector,
+    psm_physical_position_targets,
+)
 from .ppo import ActorCritic, PPOConfig, PPOTrainer
 
 __all__ = [
@@ -40,6 +44,8 @@ __all__ = [
     "MLXCompiledWorld",
     "MLXG1PPOTrainer",
     "MLXG1RolloutCollector",
+    "MLXPSMNeedlePPOTrainer",
+    "MLXPSMNeedleRolloutCollector",
     "MetalWorldCapacityProfile",
     "MLXPPOTrainer",
     "MLXRolloutBatch",

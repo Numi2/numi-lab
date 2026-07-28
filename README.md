@@ -118,7 +118,9 @@ linked or called at runtime.
   cooked static-mesh BVH4 contact path
 - Contact-capable MLX PSM scene with the generic dynamic curved-needle asset,
   exact-CCD shape flags, persistent contact state, and a pure-array logical
-  aperture-to-independent-jaw target map
+  aperture-to-independent-jaw target map; a physics-owned needle hold/lift
+  PPO task scores measured rigid-body pose and contact evidence without a
+  weld or hidden grasp state
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication

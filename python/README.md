@@ -120,6 +120,13 @@ metalrobo train \
   --envs 1024 \
   --rollout-steps 64 \
   --iterations 1000
+
+metalrobo train \
+  --backend mlx \
+  --task psm-needle \
+  --envs 1024 \
+  --rollout-steps 64 \
+  --iterations 1000
 ```
 
 Policy inference, effort mapping, physics, rewards, termination/reset, GAE,
@@ -128,12 +135,13 @@ inside `mx.compile`; bounded lazy chunks use `mx.async_eval`. Blocking
 evaluation occurs only at declared rollout/logging, optimizer, and checkpoint
 boundaries.
 
-The CLI exposes `franka-stabilization`, `g1-standing`, and `g1-terrain`.
-`MLXG1RolloutCollector` and `MLXG1PPOTrainer` provide the contact-capable
-floating-base path; the policy, implicit targets, physics, reward,
-termination, reset, GAE, and updates remain MLX arrays. Contact policies can
-also wrap the pure `step()` transition with task-specific MLX reward and
-curriculum logic inside `mx.compile`.
+The CLI exposes `franka-stabilization`, `g1-standing`, `g1-terrain`, and
+`psm-needle`. The G1 and PSM collectors provide contact-capable task paths;
+the policy, implicit targets, physics, reward, termination, reset, GAE, and
+updates remain MLX arrays. The PSM task scores the measured dynamic needle
+pose and contact evidence and never creates a weld or hidden grasp state.
+Contact policies can also wrap the pure `step()` transition with task-specific
+MLX reward and curriculum logic inside `mx.compile`.
 
 ## Debug compatibility path
 

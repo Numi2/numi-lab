@@ -14,6 +14,7 @@ import numpy as np
 from .env import FrankaEnv
 from .mlx_locomotion import MLXG1PPOTrainer
 from .mlx_ppo import MLXPPOTrainer
+from .mlx_surgical import MLXPSMNeedlePPOTrainer
 from .ppo import (
     PPOConfig,
     PPOTrainer,
@@ -47,6 +48,7 @@ def _train_parser(parser: argparse.ArgumentParser) -> None:
             "franka-stabilization",
             "g1-standing",
             "g1-terrain",
+            "psm-needle",
         ),
         default="franka-stabilization",
         help="device-resident MLX task to train",
@@ -138,20 +140,23 @@ def run_train(args: argparse.Namespace) -> int:
         and args.task != "franka-stabilization"
     ):
         raise ValueError(
-            "G1 tasks require --backend mlx; the ctypes adapter "
-            "is Franka-only"
+            "G1 and PSM tasks require --backend mlx; the ctypes "
+            "adapter is Franka-only"
         )
     g1_task = args.task in {"g1-standing", "g1-terrain"}
+    psm_task = args.task == "psm-needle"
     maximum_episode_steps = (
         args.maximum_episode_steps
         if args.maximum_episode_steps is not None
-        else (1_200 if g1_task else 256)
+        else (1_200 if g1_task else 400 if psm_task else 256)
     )
     checkpoint_directory = args.checkpoint_dir or (
         "runs/g1-terrain"
         if args.task == "g1-terrain"
         else "runs/g1-standing"
         if args.task == "g1-standing"
+        else "runs/psm-needle"
+        if psm_task
         else "runs/franka"
     )
     config = PPOConfig(
@@ -193,6 +198,14 @@ def run_train(args: argparse.Namespace) -> int:
                     if args.task == "g1-terrain"
                     else "ground"
                 ),
+            )
+        elif psm_task:
+            trainer = MLXPSMNeedlePPOTrainer(
+                config,
+                metallib_path=args.metallib,
+                rollout_chunk_size=args.rollout_chunk_size,
+                maximum_episode_steps=maximum_episode_steps,
+                physics_substeps=args.physics_substeps,
             )
         else:
             trainer = MLXPPOTrainer(

@@ -73,7 +73,7 @@ prototype.
 - **Landed task plumbing:** implicit position drives, joint-boundary
   projection, floating-root acceleration/contact evidence, a pure-MLX G1
   contact PPO collector, cooked-BVH4 rough terrain, and an MLX PSM plus
-  dynamic curved-needle scene
+  dynamic curved-needle hold/lift PPO task with physics-owned contact
 - Replace the remaining lane-zero ABA body recursion with a level-parallel
   batched tree implementation and multiple simultaneous right-hand sides
 - Compile complete unilateral joint-limit warm starts and equality/loop
