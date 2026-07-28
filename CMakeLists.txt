@@ -30,6 +30,9 @@ set(METALROBO_PHYSICS_SOURCE
 set(METALROBO_CONSTRAINT_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ConstraintSolver.metal"
 )
+set(METALROBO_QUALITY_CONTACT_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalQualityContactSolver.metal"
+)
 set(METALROBO_FREE_BODY_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/FreeBodyDynamics.metal"
 )
@@ -65,6 +68,9 @@ set(METALROBO_PHYSICS_AIR
 )
 set(METALROBO_CONSTRAINT_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboConstraintSolver.air"
+)
+set(METALROBO_QUALITY_CONTACT_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboQualityContactSolver.air"
 )
 set(METALROBO_FREE_BODY_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboFreeBodyDynamics.air"
@@ -116,6 +122,13 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_CONSTRAINT_SOURCE}"
             -o "${METALROBO_CONSTRAINT_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_QUALITY_CONTACT_SOURCE}"
+            -o "${METALROBO_QUALITY_CONTACT_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -190,6 +203,7 @@ add_custom_command(
     COMMAND xcrun -sdk macosx metallib
             "${METALROBO_PHYSICS_AIR}"
             "${METALROBO_CONSTRAINT_AIR}"
+            "${METALROBO_QUALITY_CONTACT_AIR}"
             "${METALROBO_FREE_BODY_AIR}"
             "${METALROBO_COLLISION_AIR}"
             "${METALROBO_BROADPHASE_AIR}"
@@ -205,6 +219,7 @@ add_custom_command(
     DEPENDS
         "${METALROBO_PHYSICS_SOURCE}"
         "${METALROBO_CONSTRAINT_SOURCE}"
+        "${METALROBO_QUALITY_CONTACT_SOURCE}"
         "${METALROBO_FREE_BODY_SOURCE}"
         "${METALROBO_COLLISION_SOURCE}"
         "${METALROBO_BROADPHASE_SOURCE}"
@@ -218,6 +233,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/quality_solver_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/world_compiler_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hybrid_renderer_types.h"
     VERBATIM
@@ -268,6 +284,7 @@ add_library(
     src/metal/MetalArticulatedOperator.mm
     src/metal/MetalArticulatedABA.mm
     src/metal/MetalArticulatedInverseMass.mm
+    src/metal/MetalQualityContactSolver.mm
     src/metal/MetalWorld.mm
     src/metal/MetalWorldFamily.mm
     src/metal/MetalHybridRenderer.mm
@@ -570,6 +587,24 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_engine_model_composer_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_metal_quality_contact_probe
+    apps/metal_quality_contact_probe.mm
+)
+target_link_libraries(
+    metalrobo_metal_quality_contact_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_metal_quality_contact_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
