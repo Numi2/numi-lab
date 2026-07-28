@@ -1,0 +1,1783 @@
+#include "metalrobo/Collision.hpp"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <optional>
+#include <span>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+namespace metalrobo {
+
+struct CollisionCacheAccess {
+    static const std::vector<PersistentManifold>& read(
+        const PersistentManifoldCache& cache
+    ) {
+        return cache.entries_;
+    }
+
+    static void commit(
+        PersistentManifoldCache& cache,
+        std::vector<PersistentManifold> entries
+    ) {
+        cache.entries_ = std::move(entries);
+    }
+};
+
+void PersistentManifoldCache::clear() noexcept {
+    entries_.clear();
+}
+
+std::span<const PersistentManifold>
+PersistentManifoldCache::entries() const noexcept {
+    return entries_;
+}
+
+std::size_t PersistentManifoldCache::size() const noexcept {
+    return entries_.size();
+}
+
+namespace {
+
+constexpr double kTiny = 1.0e-14;
+constexpr double kQuaternionTolerance = 1.0e-5;
+
+struct Vec3 {
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+};
+
+Vec3 operator+(const Vec3 a, const Vec3 b) {
+    return {a.x + b.x, a.y + b.y, a.z + b.z};
+}
+
+Vec3 operator-(const Vec3 a, const Vec3 b) {
+    return {a.x - b.x, a.y - b.y, a.z - b.z};
+}
+
+Vec3 operator-(const Vec3 value) {
+    return {-value.x, -value.y, -value.z};
+}
+
+Vec3 operator*(const Vec3 value, const double scale) {
+    return {value.x * scale, value.y * scale, value.z * scale};
+}
+
+Vec3 operator*(const double scale, const Vec3 value) {
+    return value * scale;
+}
+
+Vec3 operator/(const Vec3 value, const double scale) {
+    return value * (1.0 / scale);
+}
+
+double dot(const Vec3 a, const Vec3 b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+Vec3 cross(const Vec3 a, const Vec3 b) {
+    return {
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x,
+    };
+}
+
+double lengthSquared(const Vec3 value) {
+    return dot(value, value);
+}
+
+double length(const Vec3 value) {
+    return std::sqrt(lengthSquared(value));
+}
+
+Vec3 normalized(const Vec3 value) {
+    const double magnitude = length(value);
+    if (!(magnitude > kTiny)) {
+        return {};
+    }
+    return value / magnitude;
+}
+
+Vec3 absolute(const Vec3 value) {
+    return {
+        std::abs(value.x),
+        std::abs(value.y),
+        std::abs(value.z),
+    };
+}
+
+double component(const Vec3 value, const std::uint32_t axis) {
+    if (axis == 0u) {
+        return value.x;
+    }
+    return axis == 1u ? value.y : value.z;
+}
+
+bool finite(const double value) {
+    return std::isfinite(value);
+}
+
+bool finite(const Vec3 value) {
+    return finite(value.x) && finite(value.y) && finite(value.z);
+}
+
+bool finite(const mr_float4 value) {
+    return
+        std::isfinite(value.x) &&
+        std::isfinite(value.y) &&
+        std::isfinite(value.z) &&
+        std::isfinite(value.w);
+}
+
+Vec3 xyz(const mr_float4 value) {
+    return {value.x, value.y, value.z};
+}
+
+struct Quaternion {
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+    double w = 1.0;
+};
+
+double normSquared(const Quaternion value) {
+    return
+        value.x * value.x +
+        value.y * value.y +
+        value.z * value.z +
+        value.w * value.w;
+}
+
+std::optional<Quaternion> checkedQuaternion(const mr_float4 value) {
+    if (!finite(value)) {
+        return std::nullopt;
+    }
+    Quaternion result{value.x, value.y, value.z, value.w};
+    const double squared = normSquared(result);
+    if (!(squared > kTiny) ||
+        std::abs(squared - 1.0) > kQuaternionTolerance) {
+        return std::nullopt;
+    }
+    const double inverseNorm = 1.0 / std::sqrt(squared);
+    result.x *= inverseNorm;
+    result.y *= inverseNorm;
+    result.z *= inverseNorm;
+    result.w *= inverseNorm;
+    return result;
+}
+
+Quaternion conjugate(const Quaternion value) {
+    return {-value.x, -value.y, -value.z, value.w};
+}
+
+Quaternion multiply(const Quaternion left, const Quaternion right) {
+    return {
+        left.w * right.x + right.w * left.x +
+            left.y * right.z - left.z * right.y,
+        left.w * right.y + right.w * left.y +
+            left.z * right.x - left.x * right.z,
+        left.w * right.z + right.w * left.z +
+            left.x * right.y - left.y * right.x,
+        left.w * right.w -
+            left.x * right.x -
+            left.y * right.y -
+            left.z * right.z,
+    };
+}
+
+Vec3 rotate(const Quaternion q, const Vec3 value) {
+    const Vec3 vector{q.x, q.y, q.z};
+    const Vec3 twiceCross = 2.0 * cross(vector, value);
+    return value + q.w * twiceCross + cross(vector, twiceCross);
+}
+
+Vec3 inverseRotate(const Quaternion q, const Vec3 value) {
+    return rotate(conjugate(q), value);
+}
+
+mr_float4 pointFloat4(const Vec3 value) {
+    return {
+        static_cast<float>(value.x),
+        static_cast<float>(value.y),
+        static_cast<float>(value.z),
+        1.0f,
+    };
+}
+
+mr_float4 vectorFloat4(const Vec3 value, const float w = 0.0f) {
+    return {
+        static_cast<float>(value.x),
+        static_cast<float>(value.y),
+        static_cast<float>(value.z),
+        w,
+    };
+}
+
+float outwardLower(const double value) {
+    float result = static_cast<float>(value);
+    if (!std::isfinite(result)) {
+        return result;
+    }
+    if (static_cast<double>(result) > value) {
+        result = std::nextafter(
+            result,
+            -std::numeric_limits<float>::infinity()
+        );
+    }
+    return result;
+}
+
+float outwardUpper(const double value) {
+    float result = static_cast<float>(value);
+    if (!std::isfinite(result)) {
+        return result;
+    }
+    if (static_cast<double>(result) < value) {
+        result = std::nextafter(
+            result,
+            std::numeric_limits<float>::infinity()
+        );
+    }
+    return result;
+}
+
+MRAabbGPU makeAabb(const Vec3 lower, const Vec3 upper) {
+    return {
+        {
+            outwardLower(lower.x),
+            outwardLower(lower.y),
+            outwardLower(lower.z),
+            0.0f,
+        },
+        {
+            outwardUpper(upper.x),
+            outwardUpper(upper.y),
+            outwardUpper(upper.z),
+            0.0f,
+        },
+    };
+}
+
+MRAabbGPU planeAabb() {
+    constexpr float maximum = std::numeric_limits<float>::max();
+    return {
+        {-maximum, -maximum, -maximum, 0.0f},
+        {maximum, maximum, maximum, 0.0f},
+    };
+}
+
+bool finiteAabb(const MRAabbGPU& aabb) {
+    return
+        finite(aabb.lower) &&
+        finite(aabb.upper) &&
+        aabb.lower.x <= aabb.upper.x &&
+        aabb.lower.y <= aabb.upper.y &&
+        aabb.lower.z <= aabb.upper.z;
+}
+
+double aabbLower(
+    const MRAabbGPU& aabb,
+    const std::uint32_t axis
+) {
+    if (axis == 0u) {
+        return aabb.lower.x;
+    }
+    return axis == 1u ? aabb.lower.y : aabb.lower.z;
+}
+
+double aabbUpper(
+    const MRAabbGPU& aabb,
+    const std::uint32_t axis
+) {
+    if (axis == 0u) {
+        return aabb.upper.x;
+    }
+    return axis == 1u ? aabb.upper.y : aabb.upper.z;
+}
+
+bool aabbOverlap(const MRAabbGPU& a, const MRAabbGPU& b) {
+    return
+        a.lower.x <= b.upper.x && a.upper.x >= b.lower.x &&
+        a.lower.y <= b.upper.y && a.upper.y >= b.lower.y &&
+        a.lower.z <= b.upper.z && a.upper.z >= b.lower.z;
+}
+
+struct WorldShape {
+    std::uint32_t index = 0;
+    std::uint32_t type = MR_SHAPE_SPHERE;
+    std::uint32_t body = 0;
+    std::uint32_t generation = 0;
+    bool disabled = false;
+    Vec3 center{};
+    Quaternion rotation{};
+    Vec3 halfExtents{};
+    Vec3 capsuleEndpoint0{};
+    Vec3 capsuleEndpoint1{};
+    Vec3 planeNormal{};
+    double radius = 0.0;
+    double halfLength = 0.0;
+    double contactOffset = 0.0;
+    double restOffset = 0.0;
+    MRAabbGPU aabb{};
+};
+
+bool supportedShapeType(const std::uint32_t type) {
+    return
+        type == MR_SHAPE_SPHERE ||
+        type == MR_SHAPE_CAPSULE ||
+        type == MR_SHAPE_BOX ||
+        type == MR_SHAPE_PLANE;
+}
+
+std::optional<WorldShape> makeWorldShape(
+    const std::uint32_t index,
+    const MRShapeGPU& shape,
+    std::span<const MRBodyStateGPU> bodies
+) {
+    if (shape.bodyIndex >= bodies.size() ||
+        !finite(shape.localPosition) ||
+        !finite(shape.localRotation) ||
+        !finite(shape.dimensions) ||
+        !finite(shape.contactRestAndBoundingRadius) ||
+        shape.contactRestAndBoundingRadius.x < 0.0f ||
+        shape.contactRestAndBoundingRadius.x <
+            shape.contactRestAndBoundingRadius.y ||
+        shape.contactRestAndBoundingRadius.z < 0.0f) {
+        return std::nullopt;
+    }
+
+    const MRBodyStateGPU& body = bodies[shape.bodyIndex];
+    if (!finite(body.position) ||
+        !finite(body.orientation) ||
+        body.flagsAndIndices[0] > MR_MOTION_DYNAMIC) {
+        return std::nullopt;
+    }
+    const auto bodyRotation = checkedQuaternion(body.orientation);
+    const auto localRotation = checkedQuaternion(shape.localRotation);
+    if (!bodyRotation.has_value() || !localRotation.has_value()) {
+        return std::nullopt;
+    }
+
+    WorldShape result;
+    result.index = index;
+    result.type = shape.shapeType;
+    result.body = shape.bodyIndex;
+    result.generation = shape.slotGeneration;
+    result.disabled =
+        (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u;
+    result.rotation = multiply(*bodyRotation, *localRotation);
+    result.center =
+        xyz(body.position) +
+        rotate(*bodyRotation, xyz(shape.localPosition));
+    result.contactOffset = shape.contactRestAndBoundingRadius.x;
+    result.restOffset = shape.contactRestAndBoundingRadius.y;
+
+    if (result.disabled) {
+        result.aabb = {};
+        return result;
+    }
+    if (!supportedShapeType(shape.shapeType)) {
+        return std::nullopt;
+    }
+
+    Vec3 lower{};
+    Vec3 upper{};
+    if (shape.shapeType == MR_SHAPE_SPHERE) {
+        result.radius = shape.dimensions.x;
+        if (!(result.radius > 0.0)) {
+            return std::nullopt;
+        }
+        const Vec3 extent{
+            result.radius + result.contactOffset,
+            result.radius + result.contactOffset,
+            result.radius + result.contactOffset,
+        };
+        lower = result.center - extent;
+        upper = result.center + extent;
+    } else if (shape.shapeType == MR_SHAPE_CAPSULE) {
+        result.radius = shape.dimensions.x;
+        result.halfLength = shape.dimensions.y;
+        if (!(result.radius > 0.0) ||
+            !(result.halfLength > 0.0)) {
+            return std::nullopt;
+        }
+        const Vec3 axis = rotate(
+            result.rotation,
+            {0.0, result.halfLength, 0.0}
+        );
+        result.capsuleEndpoint0 = result.center - axis;
+        result.capsuleEndpoint1 = result.center + axis;
+        const double expansion =
+            result.radius + result.contactOffset;
+        const Vec3 extent{expansion, expansion, expansion};
+        lower = {
+            std::min(
+                result.capsuleEndpoint0.x,
+                result.capsuleEndpoint1.x
+            ),
+            std::min(
+                result.capsuleEndpoint0.y,
+                result.capsuleEndpoint1.y
+            ),
+            std::min(
+                result.capsuleEndpoint0.z,
+                result.capsuleEndpoint1.z
+            ),
+        };
+        upper = {
+            std::max(
+                result.capsuleEndpoint0.x,
+                result.capsuleEndpoint1.x
+            ),
+            std::max(
+                result.capsuleEndpoint0.y,
+                result.capsuleEndpoint1.y
+            ),
+            std::max(
+                result.capsuleEndpoint0.z,
+                result.capsuleEndpoint1.z
+            ),
+        };
+        lower = lower - extent;
+        upper = upper + extent;
+    } else if (shape.shapeType == MR_SHAPE_BOX) {
+        result.halfExtents = xyz(shape.dimensions);
+        if (!(result.halfExtents.x > 0.0) ||
+            !(result.halfExtents.y > 0.0) ||
+            !(result.halfExtents.z > 0.0)) {
+            return std::nullopt;
+        }
+        const Vec3 basisX =
+            rotate(result.rotation, {1.0, 0.0, 0.0});
+        const Vec3 basisY =
+            rotate(result.rotation, {0.0, 1.0, 0.0});
+        const Vec3 basisZ =
+            rotate(result.rotation, {0.0, 0.0, 1.0});
+        const Vec3 extent =
+            absolute(basisX) * result.halfExtents.x +
+            absolute(basisY) * result.halfExtents.y +
+            absolute(basisZ) * result.halfExtents.z +
+            Vec3{
+                result.contactOffset,
+                result.contactOffset,
+                result.contactOffset,
+            };
+        lower = result.center - extent;
+        upper = result.center + extent;
+    } else {
+        result.planeNormal = normalized(
+            rotate(result.rotation, {0.0, 1.0, 0.0})
+        );
+        if (lengthSquared(result.planeNormal) <= kTiny) {
+            return std::nullopt;
+        }
+        result.aabb = planeAabb();
+        return result;
+    }
+
+    if (!finite(lower) || !finite(upper)) {
+        return std::nullopt;
+    }
+    result.aabb = makeAabb(lower, upper);
+    if (!finiteAabb(result.aabb)) {
+        return std::nullopt;
+    }
+    return result;
+}
+
+std::optional<std::uint32_t> pairClass(
+    const std::uint32_t typeA,
+    const std::uint32_t typeB
+) {
+    if (typeA == MR_SHAPE_SPHERE &&
+        typeB == MR_SHAPE_SPHERE) {
+        return collisionPairSphereSphere;
+    }
+    if ((typeA == MR_SHAPE_SPHERE &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeA == MR_SHAPE_PLANE &&
+         typeB == MR_SHAPE_SPHERE)) {
+        return collisionPairSpherePlane;
+    }
+    if ((typeA == MR_SHAPE_CAPSULE &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeA == MR_SHAPE_PLANE &&
+         typeB == MR_SHAPE_CAPSULE)) {
+        return collisionPairCapsulePlane;
+    }
+    if ((typeA == MR_SHAPE_BOX &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeA == MR_SHAPE_PLANE &&
+         typeB == MR_SHAPE_BOX)) {
+        return collisionPairBoxPlane;
+    }
+    return std::nullopt;
+}
+
+std::uint64_t pairKey(
+    const std::uint32_t shapeA,
+    const std::uint32_t shapeB
+) {
+    const std::uint32_t low = std::min(shapeA, shapeB);
+    const std::uint32_t high = std::max(shapeA, shapeB);
+    return
+        (static_cast<std::uint64_t>(low) << 32u) |
+        static_cast<std::uint64_t>(high);
+}
+
+std::vector<std::uint64_t> canonicalExclusions(
+    std::span<const CollisionPairExclusion> exclusions,
+    const std::size_t shapeCount
+) {
+    std::vector<std::uint64_t> result;
+    result.reserve(exclusions.size());
+    for (const CollisionPairExclusion exclusion : exclusions) {
+        if (exclusion.colliderA == exclusion.colliderB ||
+            exclusion.colliderA >= shapeCount ||
+            exclusion.colliderB >= shapeCount) {
+            continue;
+        }
+        result.push_back(pairKey(
+            exclusion.colliderA,
+            exclusion.colliderB
+        ));
+    }
+    std::ranges::sort(result);
+    result.erase(
+        std::unique(result.begin(), result.end()),
+        result.end()
+    );
+    return result;
+}
+
+bool pairPassesFilter(
+    const std::uint32_t shapeIndexA,
+    const std::uint32_t shapeIndexB,
+    std::span<const MRShapeGPU> shapes,
+    std::span<const MRBodyStateGPU> bodies,
+    std::span<const std::uint64_t> exclusions
+) {
+    if (shapeIndexA == shapeIndexB) {
+        return false;
+    }
+    const MRShapeGPU& shapeA = shapes[shapeIndexA];
+    const MRShapeGPU& shapeB = shapes[shapeIndexB];
+    if ((shapeA.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+        (shapeB.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+        shapeA.bodyIndex == shapeB.bodyIndex ||
+        (shapeA.collisionGroup & shapeB.collisionMask) == 0u ||
+        (shapeB.collisionGroup & shapeA.collisionMask) == 0u ||
+        !pairClass(shapeA.shapeType, shapeB.shapeType).has_value()) {
+        return false;
+    }
+    const std::uint32_t motionA =
+        bodies[shapeA.bodyIndex].flagsAndIndices[0];
+    const std::uint32_t motionB =
+        bodies[shapeB.bodyIndex].flagsAndIndices[0];
+    if (motionA != MR_MOTION_DYNAMIC &&
+        motionB != MR_MOTION_DYNAMIC) {
+        return false;
+    }
+    return !std::ranges::binary_search(
+        exclusions,
+        pairKey(shapeIndexA, shapeIndexB)
+    );
+}
+
+bool planeMayOverlap(
+    const WorldShape& plane,
+    const WorldShape& finiteShape
+) {
+    const MRAabbGPU& aabb = finiteShape.aabb;
+    const Vec3 center{
+        0.5 * (
+            static_cast<double>(aabb.lower.x) +
+            aabb.upper.x
+        ),
+        0.5 * (
+            static_cast<double>(aabb.lower.y) +
+            aabb.upper.y
+        ),
+        0.5 * (
+            static_cast<double>(aabb.lower.z) +
+            aabb.upper.z
+        ),
+    };
+    const Vec3 half{
+        0.5 * (
+            static_cast<double>(aabb.upper.x) -
+            aabb.lower.x
+        ),
+        0.5 * (
+            static_cast<double>(aabb.upper.y) -
+            aabb.lower.y
+        ),
+        0.5 * (
+            static_cast<double>(aabb.upper.z) -
+            aabb.lower.z
+        ),
+    };
+    const double minimumSignedDistance =
+        dot(plane.planeNormal, center - plane.center) -
+        dot(absolute(plane.planeNormal), half);
+    return minimumSignedDistance <= plane.contactOffset;
+}
+
+std::uint32_t broadphaseAxis(
+    std::span<const WorldShape> worldShapes
+) {
+    Vec3 lower{
+        std::numeric_limits<double>::infinity(),
+        std::numeric_limits<double>::infinity(),
+        std::numeric_limits<double>::infinity(),
+    };
+    Vec3 upper{
+        -std::numeric_limits<double>::infinity(),
+        -std::numeric_limits<double>::infinity(),
+        -std::numeric_limits<double>::infinity(),
+    };
+    bool foundFiniteShape = false;
+    for (const WorldShape& shape : worldShapes) {
+        if (shape.disabled || shape.type == MR_SHAPE_PLANE) {
+            continue;
+        }
+        foundFiniteShape = true;
+        lower.x = std::min(
+            lower.x,
+            static_cast<double>(shape.aabb.lower.x)
+        );
+        lower.y = std::min(
+            lower.y,
+            static_cast<double>(shape.aabb.lower.y)
+        );
+        lower.z = std::min(
+            lower.z,
+            static_cast<double>(shape.aabb.lower.z)
+        );
+        upper.x = std::max(
+            upper.x,
+            static_cast<double>(shape.aabb.upper.x)
+        );
+        upper.y = std::max(
+            upper.y,
+            static_cast<double>(shape.aabb.upper.y)
+        );
+        upper.z = std::max(
+            upper.z,
+            static_cast<double>(shape.aabb.upper.z)
+        );
+    }
+    if (!foundFiniteShape) {
+        return 0u;
+    }
+    const Vec3 extent = upper - lower;
+    std::uint32_t axis = 0u;
+    if (extent.y > extent.x) {
+        axis = 1u;
+    }
+    if (extent.z > component(extent, axis)) {
+        axis = 2u;
+    }
+    return axis;
+}
+
+template <typename Callback>
+void forEachBroadphasePair(
+    std::span<const MRShapeGPU> shapes,
+    std::span<const MRBodyStateGPU> bodies,
+    std::span<const WorldShape> worldShapes,
+    std::span<const std::uint64_t> exclusions,
+    const std::uint32_t axis,
+    Callback&& callback
+) {
+    struct Proxy {
+        std::uint32_t shape = 0;
+        double lower = 0.0;
+        double upper = 0.0;
+    };
+
+    std::vector<Proxy> proxies;
+    proxies.reserve(worldShapes.size());
+    for (const WorldShape& shape : worldShapes) {
+        if (shape.disabled || shape.type == MR_SHAPE_PLANE) {
+            continue;
+        }
+        proxies.push_back({
+            shape.index,
+            aabbLower(shape.aabb, axis),
+            aabbUpper(shape.aabb, axis),
+        });
+    }
+    std::ranges::sort(
+        proxies,
+        [](const Proxy& left, const Proxy& right) {
+            return std::tie(left.lower, left.upper, left.shape) <
+                std::tie(right.lower, right.upper, right.shape);
+        }
+    );
+
+    std::vector<Proxy> active;
+    active.reserve(proxies.size());
+    for (const Proxy proxy : proxies) {
+        active.erase(
+            std::remove_if(
+                active.begin(),
+                active.end(),
+                [proxy](const Proxy candidate) {
+                    return candidate.upper < proxy.lower;
+                }
+            ),
+            active.end()
+        );
+
+        for (const Proxy candidate : active) {
+            const std::uint32_t colliderA =
+                std::min(candidate.shape, proxy.shape);
+            const std::uint32_t colliderB =
+                std::max(candidate.shape, proxy.shape);
+            if (!aabbOverlap(
+                    worldShapes[colliderA].aabb,
+                    worldShapes[colliderB].aabb
+                ) ||
+                !pairPassesFilter(
+                    colliderA,
+                    colliderB,
+                    shapes,
+                    bodies,
+                    exclusions
+                )) {
+                continue;
+            }
+            callback(
+                colliderA,
+                colliderB,
+                *pairClass(
+                    shapes[colliderA].shapeType,
+                    shapes[colliderB].shapeType
+                )
+            );
+        }
+        active.push_back(proxy);
+    }
+
+    for (const WorldShape& plane : worldShapes) {
+        if (plane.disabled || plane.type != MR_SHAPE_PLANE) {
+            continue;
+        }
+        for (const WorldShape& finiteShape : worldShapes) {
+            if (finiteShape.disabled ||
+                finiteShape.type == MR_SHAPE_PLANE ||
+                !planeMayOverlap(plane, finiteShape)) {
+                continue;
+            }
+            const std::uint32_t colliderA =
+                std::min(plane.index, finiteShape.index);
+            const std::uint32_t colliderB =
+                std::max(plane.index, finiteShape.index);
+            if (!pairPassesFilter(
+                    colliderA,
+                    colliderB,
+                    shapes,
+                    bodies,
+                    exclusions
+                )) {
+                continue;
+            }
+            callback(
+                colliderA,
+                colliderB,
+                *pairClass(
+                    shapes[colliderA].shapeType,
+                    shapes[colliderB].shapeType
+                )
+            );
+        }
+    }
+}
+
+std::uint32_t featureKey(
+    const std::uint32_t shapeType,
+    const std::uint32_t localFeature
+) {
+    return
+        ((shapeType & 0x0fu) << 28u) |
+        (localFeature & 0x0fffffffu);
+}
+
+MRRawContactGPU makeRawContact(
+    const Vec3 normal,
+    const double separation,
+    const Vec3 pointA,
+    const Vec3 pointB,
+    const std::uint32_t featureA,
+    const std::uint32_t featureB
+) {
+    MRRawContactGPU result{};
+    result.normalAndSeparation = vectorFloat4(
+        normal,
+        static_cast<float>(separation)
+    );
+    result.pointAWorld = pointFloat4(pointA);
+    result.pointBWorld = pointFloat4(pointB);
+    result.featureAndFlags[0] = featureA;
+    result.featureAndFlags[1] = featureB;
+    result.featureAndFlags[2] = 0u;
+    result.featureAndFlags[3] = 0u;
+    return result;
+}
+
+MRRawContactGPU swappedContact(const MRRawContactGPU& input) {
+    MRRawContactGPU result = input;
+    result.normalAndSeparation.x = -input.normalAndSeparation.x;
+    result.normalAndSeparation.y = -input.normalAndSeparation.y;
+    result.normalAndSeparation.z = -input.normalAndSeparation.z;
+    result.pointAWorld = input.pointBWorld;
+    result.pointBWorld = input.pointAWorld;
+    result.featureAndFlags[0] = input.featureAndFlags[1];
+    result.featureAndFlags[1] = input.featureAndFlags[0];
+    return result;
+}
+
+Vec3 coincidentNormal(
+    const std::uint32_t colliderA,
+    const std::uint32_t colliderB
+) {
+    const std::uint32_t hash =
+        colliderA * 73856093u ^ colliderB * 19349663u;
+    Vec3 result{};
+    const std::uint32_t axis = hash % 3u;
+    const double sign = (hash & 4u) == 0u ? 1.0 : -1.0;
+    if (axis == 0u) {
+        result.x = sign;
+    } else if (axis == 1u) {
+        result.y = sign;
+    } else {
+        result.z = sign;
+    }
+    return result;
+}
+
+struct ContactBatch {
+    std::array<MRRawContactGPU, 8> contacts{};
+    std::uint32_t count = 0;
+};
+
+void appendFinitePlaneContact(
+    ContactBatch& result,
+    const MRCandidatePairGPU& pair,
+    const WorldShape& plane,
+    const Vec3 finiteSurfacePoint,
+    const double separation,
+    const std::uint32_t finiteFeature
+) {
+    const Vec3 planePoint =
+        finiteSurfacePoint - plane.planeNormal * separation;
+    MRRawContactGPU contact = makeRawContact(
+        -plane.planeNormal,
+        separation,
+        finiteSurfacePoint,
+        planePoint,
+        finiteFeature,
+        featureKey(MR_SHAPE_PLANE, 0u)
+    );
+    if (pair.colliderA == plane.index) {
+        contact = swappedContact(contact);
+    }
+    result.contacts[result.count++] = contact;
+}
+
+ContactBatch generateContacts(
+    const MRCandidatePairGPU& pair,
+    std::span<const WorldShape> worldShapes
+) {
+    ContactBatch result;
+    const WorldShape& shapeA = worldShapes[pair.colliderA];
+    const WorldShape& shapeB = worldShapes[pair.colliderB];
+    const double contactDistance =
+        shapeA.contactOffset + shapeB.contactOffset;
+
+    if (pair.flags == collisionPairSphereSphere) {
+        const Vec3 delta = shapeB.center - shapeA.center;
+        const double centerDistance = length(delta);
+        const Vec3 normal =
+            centerDistance > kTiny
+            ? delta / centerDistance
+            : coincidentNormal(pair.colliderA, pair.colliderB);
+        const double separation =
+            centerDistance - shapeA.radius - shapeB.radius;
+        if (separation <= contactDistance) {
+            result.contacts[0] = makeRawContact(
+                normal,
+                separation,
+                shapeA.center + normal * shapeA.radius,
+                shapeB.center - normal * shapeB.radius,
+                featureKey(MR_SHAPE_SPHERE, 0u),
+                featureKey(MR_SHAPE_SPHERE, 0u)
+            );
+            result.count = 1u;
+        }
+        return result;
+    }
+
+    const WorldShape& plane =
+        shapeA.type == MR_SHAPE_PLANE ? shapeA : shapeB;
+    const WorldShape& finiteShape =
+        shapeA.type == MR_SHAPE_PLANE ? shapeB : shapeA;
+
+    if (pair.flags == collisionPairSpherePlane) {
+        const Vec3 surface =
+            finiteShape.center -
+            plane.planeNormal * finiteShape.radius;
+        const double separation =
+            dot(plane.planeNormal, surface - plane.center);
+        if (separation <= contactDistance) {
+            appendFinitePlaneContact(
+                result,
+                pair,
+                plane,
+                surface,
+                separation,
+                featureKey(MR_SHAPE_SPHERE, 0u)
+            );
+        }
+        return result;
+    }
+
+    if (pair.flags == collisionPairCapsulePlane) {
+        const std::array<Vec3, 2> endpoints{
+            finiteShape.capsuleEndpoint0,
+            finiteShape.capsuleEndpoint1,
+        };
+        for (std::uint32_t endpoint = 0u;
+             endpoint < endpoints.size();
+             ++endpoint) {
+            const Vec3 surface =
+                endpoints[endpoint] -
+                plane.planeNormal * finiteShape.radius;
+            const double separation =
+                dot(plane.planeNormal, surface - plane.center);
+            if (separation <= contactDistance) {
+                appendFinitePlaneContact(
+                    result,
+                    pair,
+                    plane,
+                    surface,
+                    separation,
+                    featureKey(MR_SHAPE_CAPSULE, endpoint)
+                );
+            }
+        }
+        return result;
+    }
+
+    for (std::uint32_t vertex = 0u; vertex < 8u; ++vertex) {
+        const Vec3 local{
+            (vertex & 1u) != 0u
+                ? finiteShape.halfExtents.x
+                : -finiteShape.halfExtents.x,
+            (vertex & 2u) != 0u
+                ? finiteShape.halfExtents.y
+                : -finiteShape.halfExtents.y,
+            (vertex & 4u) != 0u
+                ? finiteShape.halfExtents.z
+                : -finiteShape.halfExtents.z,
+        };
+        const Vec3 world =
+            finiteShape.center +
+            rotate(finiteShape.rotation, local);
+        const double separation =
+            dot(plane.planeNormal, world - plane.center);
+        if (separation <= contactDistance) {
+            appendFinitePlaneContact(
+                result,
+                pair,
+                plane,
+                world,
+                separation,
+                featureKey(MR_SHAPE_BOX, vertex)
+            );
+        }
+    }
+    return result;
+}
+
+bool rawContactFinite(const MRRawContactGPU& contact) {
+    return
+        finite(contact.normalAndSeparation) &&
+        finite(contact.pointAWorld) &&
+        finite(contact.pointBWorld) &&
+        std::abs(
+            length(xyz(contact.normalAndSeparation)) - 1.0
+        ) <= 2.0e-5;
+}
+
+std::tuple<std::uint32_t, std::uint32_t, std::uint32_t>
+manifoldKey(const PersistentManifold& manifold) {
+    return {
+        manifold.header.pairAndCount[0],
+        manifold.header.pairAndCount[1],
+        manifold.header.pairAndCount[2],
+    };
+}
+
+const PersistentManifold* findOldManifold(
+    std::span<const PersistentManifold> oldEntries,
+    const MRCandidatePairGPU& pair,
+    const WorldShape& shapeA,
+    const WorldShape& shapeB
+) {
+    const auto target = std::tuple{
+        pair.environment,
+        pair.colliderA,
+        pair.colliderB,
+    };
+    const auto iterator = std::lower_bound(
+        oldEntries.begin(),
+        oldEntries.end(),
+        target,
+        [](const PersistentManifold& manifold, const auto& key) {
+            return manifoldKey(manifold) < key;
+        }
+    );
+    if (iterator == oldEntries.end() ||
+        manifoldKey(*iterator) != target ||
+        iterator->header.generationsAndFlags[0] !=
+            shapeA.generation ||
+        iterator->header.generationsAndFlags[1] !=
+            shapeB.generation) {
+        return nullptr;
+    }
+    return &*iterator;
+}
+
+Vec3 bodyLocalPoint(
+    const MRBodyStateGPU& body,
+    const Quaternion bodyRotation,
+    const Vec3 worldPoint
+) {
+    return inverseRotate(
+        bodyRotation,
+        worldPoint - xyz(body.position)
+    );
+}
+
+Vec3 bodyWorldPoint(
+    const MRBodyStateGPU& body,
+    const Quaternion bodyRotation,
+    const mr_float4 localPoint
+) {
+    return
+        xyz(body.position) +
+        rotate(bodyRotation, xyz(localPoint));
+}
+
+void stableBasis(
+    const Vec3 normal,
+    Vec3& tangentU,
+    Vec3& tangentV
+) {
+    const Vec3 absNormal = absolute(normal);
+    Vec3 reference;
+    if (absNormal.x <= absNormal.y &&
+        absNormal.x <= absNormal.z) {
+        reference = {1.0, 0.0, 0.0};
+    } else if (absNormal.y <= absNormal.z) {
+        reference = {0.0, 1.0, 0.0};
+    } else {
+        reference = {0.0, 0.0, 1.0};
+    }
+    tangentU = normalized(cross(reference, normal));
+    tangentV = cross(normal, tangentU);
+}
+
+struct ManifoldCandidate {
+    MRManifoldPointGPU point{};
+    Vec3 worldPoint{};
+    double separation = 0.0;
+    double tangentialDrift = 0.0;
+};
+
+std::uint64_t candidateFeatureKey(const ManifoldCandidate& candidate) {
+    return
+        (static_cast<std::uint64_t>(
+            candidate.point.featureAndLife[0]
+        ) << 32u) |
+        candidate.point.featureAndLife[1];
+}
+
+bool betterScore(
+    const double score,
+    const std::uint64_t feature,
+    const double bestScore,
+    const std::uint64_t bestFeature
+) {
+    constexpr double tolerance = 1.0e-18;
+    return
+        score > bestScore + tolerance ||
+        (
+            std::abs(score - bestScore) <= tolerance &&
+            feature < bestFeature
+        );
+}
+
+std::vector<ManifoldCandidate> reduceManifold(
+    std::vector<ManifoldCandidate> candidates,
+    const Vec3 normal
+) {
+    std::ranges::sort(
+        candidates,
+        [](const ManifoldCandidate& left,
+           const ManifoldCandidate& right) {
+            return std::tie(
+                left.separation,
+                left.point.featureAndLife[0],
+                left.point.featureAndLife[1]
+            ) <
+                std::tie(
+                    right.separation,
+                    right.point.featureAndLife[0],
+                    right.point.featureAndLife[1]
+                );
+        }
+    );
+    if (candidates.size() <= 4u) {
+        std::ranges::sort(
+            candidates,
+            [](const ManifoldCandidate& left,
+               const ManifoldCandidate& right) {
+                return candidateFeatureKey(left) <
+                    candidateFeatureKey(right);
+            }
+        );
+        return candidates;
+    }
+
+    std::vector<std::size_t> selected;
+    selected.reserve(4);
+    selected.push_back(0u);
+
+    const auto alreadySelected =
+        [&selected](const std::size_t index) {
+            return std::ranges::find(selected, index) !=
+                selected.end();
+        };
+
+    auto selectMaximum =
+        [&](const auto& scoreFunction) {
+            std::size_t best = candidates.size();
+            double bestScore = -1.0;
+            std::uint64_t bestFeature =
+                std::numeric_limits<std::uint64_t>::max();
+            for (std::size_t index = 0;
+                 index < candidates.size();
+                 ++index) {
+                if (alreadySelected(index)) {
+                    continue;
+                }
+                const double score = scoreFunction(index);
+                const std::uint64_t feature =
+                    candidateFeatureKey(candidates[index]);
+                if (betterScore(
+                        score,
+                        feature,
+                        bestScore,
+                        bestFeature
+                    )) {
+                    best = index;
+                    bestScore = score;
+                    bestFeature = feature;
+                }
+            }
+            if (best != candidates.size()) {
+                selected.push_back(best);
+            }
+        };
+
+    selectMaximum([&](const std::size_t index) {
+        const Vec3 delta =
+            candidates[index].worldPoint -
+            candidates[selected[0]].worldPoint;
+        const Vec3 tangent = delta - normal * dot(delta, normal);
+        return lengthSquared(tangent);
+    });
+
+    selectMaximum([&](const std::size_t index) {
+        if (selected.size() < 2u) {
+            return 0.0;
+        }
+        const Vec3 a =
+            candidates[selected[1]].worldPoint -
+            candidates[selected[0]].worldPoint;
+        const Vec3 b =
+            candidates[index].worldPoint -
+            candidates[selected[0]].worldPoint;
+        return std::abs(dot(cross(a, b), normal));
+    });
+
+    selectMaximum([&](const std::size_t index) {
+        double minimumDistance =
+            std::numeric_limits<double>::infinity();
+        for (const std::size_t chosen : selected) {
+            const Vec3 delta =
+                candidates[index].worldPoint -
+                candidates[chosen].worldPoint;
+            const Vec3 tangent =
+                delta - normal * dot(delta, normal);
+            minimumDistance = std::min(
+                minimumDistance,
+                lengthSquared(tangent)
+            );
+        }
+        return minimumDistance;
+    });
+
+    std::vector<ManifoldCandidate> reduced;
+    reduced.reserve(selected.size());
+    for (const std::size_t index : selected) {
+        reduced.push_back(candidates[index]);
+    }
+    std::ranges::sort(
+        reduced,
+        [](const ManifoldCandidate& left,
+           const ManifoldCandidate& right) {
+            return candidateFeatureKey(left) <
+                candidateFeatureKey(right);
+        }
+    );
+    return reduced;
+}
+
+bool sameFeatures(
+    const ManifoldCandidate& candidate,
+    const MRRawContactGPU& contact
+) {
+    return
+        candidate.point.featureAndLife[0] ==
+            contact.featureAndFlags[0] &&
+        candidate.point.featureAndLife[1] ==
+            contact.featureAndFlags[1];
+}
+
+bool buildManifold(
+    const MRCandidatePairGPU& pair,
+    std::span<const MRRawContactGPU> rawContacts,
+    std::span<const MRBodyStateGPU> bodies,
+    std::span<const WorldShape> worldShapes,
+    const CollisionConfig& config,
+    std::span<const PersistentManifold> oldEntries,
+    PersistentManifold& output,
+    CollisionDiagnostics& diagnostics
+) {
+    if (rawContacts.empty()) {
+        return false;
+    }
+
+    const WorldShape& shapeA = worldShapes[pair.colliderA];
+    const WorldShape& shapeB = worldShapes[pair.colliderB];
+    const MRBodyStateGPU& bodyA = bodies[shapeA.body];
+    const MRBodyStateGPU& bodyB = bodies[shapeB.body];
+    const auto bodyRotationA = checkedQuaternion(bodyA.orientation);
+    const auto bodyRotationB = checkedQuaternion(bodyB.orientation);
+    if (!bodyRotationA.has_value() || !bodyRotationB.has_value()) {
+        return false;
+    }
+
+    const auto deepest = std::min_element(
+        rawContacts.begin(),
+        rawContacts.end(),
+        [](const MRRawContactGPU& left,
+           const MRRawContactGPU& right) {
+            return std::tie(
+                left.normalAndSeparation.w,
+                left.featureAndFlags[0],
+                left.featureAndFlags[1]
+            ) <
+                std::tie(
+                    right.normalAndSeparation.w,
+                    right.featureAndFlags[0],
+                    right.featureAndFlags[1]
+                );
+        }
+    );
+    const Vec3 normalWorld =
+        normalized(xyz(deepest->normalAndSeparation));
+    if (lengthSquared(normalWorld) <= kTiny) {
+        return false;
+    }
+
+    const PersistentManifold* old = findOldManifold(
+        oldEntries,
+        pair,
+        shapeA,
+        shapeB
+    );
+    std::vector<ManifoldCandidate> candidates;
+    candidates.reserve(12u);
+
+    bool oldNormalCompatible = false;
+    if (old != nullptr && old->header.pairAndCount[3] <= 4u) {
+        const Vec3 oldNormalWorld = normalized(
+            rotate(
+                *bodyRotationA,
+                xyz(old->header.normalAndAge)
+            )
+        );
+        oldNormalCompatible =
+            dot(oldNormalWorld, normalWorld) >=
+            config.manifoldNormalCosine;
+        if (oldNormalCompatible) {
+            for (std::uint32_t pointIndex = 0u;
+                 pointIndex < old->header.pairAndCount[3];
+                 ++pointIndex) {
+                const MRManifoldPointGPU& oldPoint =
+                    old->points[pointIndex];
+                const Vec3 pointAWorld = bodyWorldPoint(
+                    bodyA,
+                    *bodyRotationA,
+                    oldPoint.localAnchorA
+                );
+                const Vec3 pointBWorld = bodyWorldPoint(
+                    bodyB,
+                    *bodyRotationB,
+                    oldPoint.localAnchorB
+                );
+                const Vec3 delta = pointBWorld - pointAWorld;
+                const double separation = dot(delta, normalWorld);
+                const Vec3 tangentDelta =
+                    delta - normalWorld * separation;
+                const double tangentialDrift =
+                    length(tangentDelta);
+                if (separation >
+                        config.manifoldBreakingSeparation ||
+                    tangentialDrift >
+                        config.manifoldBreakingTangential) {
+                    continue;
+                }
+
+                ManifoldCandidate candidate;
+                candidate.point = oldPoint;
+                candidate.point.featureAndLife[2] =
+                    oldPoint.featureAndLife[2] ==
+                        std::numeric_limits<std::uint32_t>::max()
+                    ? oldPoint.featureAndLife[2]
+                    : oldPoint.featureAndLife[2] + 1u;
+                candidate.worldPoint =
+                    0.5 * (pointAWorld + pointBWorld);
+                candidate.separation = separation;
+                candidate.tangentialDrift = tangentialDrift;
+                candidates.push_back(candidate);
+                ++diagnostics.refreshedPoints;
+            }
+        }
+    }
+
+    const double mergeDistanceSquared =
+        config.manifoldMergeDistance *
+        config.manifoldMergeDistance;
+    for (const MRRawContactGPU& contact : rawContacts) {
+        const Vec3 pointAWorld = xyz(contact.pointAWorld);
+        const Vec3 pointBWorld = xyz(contact.pointBWorld);
+        const Vec3 localA = bodyLocalPoint(
+            bodyA,
+            *bodyRotationA,
+            pointAWorld
+        );
+        const Vec3 localB = bodyLocalPoint(
+            bodyB,
+            *bodyRotationB,
+            pointBWorld
+        );
+
+        auto match = std::find_if(
+            candidates.begin(),
+            candidates.end(),
+            [&contact](const ManifoldCandidate& candidate) {
+                return sameFeatures(candidate, contact);
+            }
+        );
+        if (match == candidates.end()) {
+            match = std::find_if(
+                candidates.begin(),
+                candidates.end(),
+                [&](const ManifoldCandidate& candidate) {
+                    return
+                        lengthSquared(
+                            xyz(candidate.point.localAnchorA) -
+                            localA
+                        ) +
+                        lengthSquared(
+                            xyz(candidate.point.localAnchorB) -
+                            localB
+                        ) <= 2.0 * mergeDistanceSquared;
+                }
+            );
+        }
+
+        if (match == candidates.end()) {
+            ManifoldCandidate candidate;
+            candidate.point.localAnchorA = pointFloat4(localA);
+            candidate.point.localAnchorB = pointFloat4(localB);
+            candidate.point.featureAndLife[0] =
+                contact.featureAndFlags[0];
+            candidate.point.featureAndLife[1] =
+                contact.featureAndFlags[1];
+            candidate.point.featureAndLife[2] = 0u;
+            candidate.point.featureAndLife[3] =
+                contact.featureAndFlags[3];
+            candidate.worldPoint =
+                0.5 * (pointAWorld + pointBWorld);
+            candidate.separation =
+                contact.normalAndSeparation.w;
+            candidates.push_back(candidate);
+            ++diagnostics.newPoints;
+        } else {
+            match->point.localAnchorA = pointFloat4(localA);
+            match->point.localAnchorB = pointFloat4(localB);
+            match->point.featureAndLife[0] =
+                contact.featureAndFlags[0];
+            match->point.featureAndLife[1] =
+                contact.featureAndFlags[1];
+            match->point.featureAndLife[3] =
+                contact.featureAndFlags[3];
+            match->worldPoint =
+                0.5 * (pointAWorld + pointBWorld);
+            match->separation =
+                contact.normalAndSeparation.w;
+            match->tangentialDrift = 0.0;
+        }
+    }
+
+    candidates = reduceManifold(
+        std::move(candidates),
+        normalWorld
+    );
+    if (candidates.empty()) {
+        return false;
+    }
+
+    output = {};
+    output.header.pairAndCount[0] = pair.environment;
+    output.header.pairAndCount[1] = pair.colliderA;
+    output.header.pairAndCount[2] = pair.colliderB;
+    output.header.pairAndCount[3] =
+        static_cast<std::uint32_t>(candidates.size());
+    output.header.generationsAndFlags[0] = shapeA.generation;
+    output.header.generationsAndFlags[1] = shapeB.generation;
+    output.header.generationsAndFlags[2] = 0u;
+    output.header.generationsAndFlags[3] = 0u;
+
+    const Vec3 normalLocalA =
+        inverseRotate(*bodyRotationA, normalWorld);
+    Vec3 tangentWorld;
+    Vec3 bitangentWorld;
+    stableBasis(normalWorld, tangentWorld, bitangentWorld);
+    const Vec3 tangentLocalA =
+        inverseRotate(*bodyRotationA, tangentWorld);
+    const float age =
+        old != nullptr && oldNormalCompatible
+        ? std::min(
+            old->header.normalAndAge.w + 1.0f,
+            static_cast<float>(
+                std::numeric_limits<std::uint16_t>::max()
+            )
+        )
+        : 0.0f;
+    output.header.normalAndAge =
+        vectorFloat4(normalLocalA, age);
+
+    double breakingMetric = 0.0;
+    for (const ManifoldCandidate& candidate : candidates) {
+        breakingMetric = std::max(
+            breakingMetric,
+            std::max(
+                std::max(candidate.separation, 0.0),
+                candidate.tangentialDrift
+            )
+        );
+    }
+    output.header.tangentAndMetric = vectorFloat4(
+        tangentLocalA,
+        static_cast<float>(breakingMetric)
+    );
+    for (std::size_t point = 0; point < candidates.size(); ++point) {
+        output.points[point] = candidates[point].point;
+    }
+    return true;
+}
+
+CollisionFrame failureFrame(const CollisionDiagnostics& diagnostics) {
+    CollisionFrame result;
+    result.diagnostics = diagnostics;
+    return result;
+}
+
+bool validConfig(const CollisionConfig& config) {
+    return
+        std::isfinite(config.manifoldBreakingSeparation) &&
+        std::isfinite(config.manifoldBreakingTangential) &&
+        std::isfinite(config.manifoldMergeDistance) &&
+        std::isfinite(config.manifoldNormalCosine) &&
+        config.manifoldBreakingSeparation >= 0.0 &&
+        config.manifoldBreakingTangential >= 0.0 &&
+        config.manifoldMergeDistance >= 0.0 &&
+        config.manifoldNormalCosine >= -1.0 &&
+        config.manifoldNormalCosine <= 1.0;
+}
+
+} // namespace
+
+CollisionFrame collideCpuReference(
+    std::span<const MRShapeGPU> shapes,
+    std::span<const MRBodyStateGPU> bodies,
+    const CollisionConfig& config,
+    PersistentManifoldCache& cache,
+    std::span<const CollisionPairExclusion> exclusions
+) {
+    CollisionDiagnostics diagnostics;
+    if (!validConfig(config) ||
+        shapes.size() >
+            std::numeric_limits<std::uint32_t>::max()) {
+        diagnostics.code = MR_STEP_NONFINITE_INPUT;
+        return failureFrame(diagnostics);
+    }
+
+    std::vector<WorldShape> worldShapes;
+    worldShapes.reserve(shapes.size());
+    for (std::uint32_t shapeIndex = 0u;
+         shapeIndex < shapes.size();
+         ++shapeIndex) {
+        const auto world = makeWorldShape(
+            shapeIndex,
+            shapes[shapeIndex],
+            bodies
+        );
+        if (!world.has_value()) {
+            diagnostics.code =
+                supportedShapeType(shapes[shapeIndex].shapeType)
+                ? MR_STEP_NONFINITE_INPUT
+                : MR_STEP_UNSUPPORTED;
+            return failureFrame(diagnostics);
+        }
+        worldShapes.push_back(*world);
+    }
+
+    const std::vector<std::uint64_t> exclusionKeys =
+        canonicalExclusions(exclusions, shapes.size());
+    diagnostics.broadphaseAxis = broadphaseAxis(worldShapes);
+
+    std::uint64_t pairCount = 0u;
+    forEachBroadphasePair(
+        shapes,
+        bodies,
+        worldShapes,
+        exclusionKeys,
+        diagnostics.broadphaseAxis,
+        [&](std::uint32_t, std::uint32_t, std::uint32_t) {
+            if (pairCount !=
+                std::numeric_limits<std::uint64_t>::max()) {
+                ++pairCount;
+            }
+        }
+    );
+    diagnostics.requiredPairs = pairCount;
+    if (pairCount > config.capacities.pairCapacity) {
+        diagnostics.code = MR_STEP_PAIR_CAPACITY_OVERFLOW;
+        return failureFrame(diagnostics);
+    }
+
+    std::vector<MRCandidatePairGPU> pairs;
+    pairs.reserve(static_cast<std::size_t>(pairCount));
+    forEachBroadphasePair(
+        shapes,
+        bodies,
+        worldShapes,
+        exclusionKeys,
+        diagnostics.broadphaseAxis,
+        [&](const std::uint32_t colliderA,
+            const std::uint32_t colliderB,
+            const std::uint32_t flags) {
+            pairs.push_back({
+                config.environment,
+                colliderA,
+                colliderB,
+                flags,
+            });
+        }
+    );
+    std::ranges::sort(
+        pairs,
+        [](const MRCandidatePairGPU& left,
+           const MRCandidatePairGPU& right) {
+            return std::tie(
+                left.environment,
+                left.colliderA,
+                left.colliderB
+            ) <
+                std::tie(
+                    right.environment,
+                    right.colliderA,
+                    right.colliderB
+                );
+        }
+    );
+    pairs.erase(
+        std::unique(
+            pairs.begin(),
+            pairs.end(),
+            [](const MRCandidatePairGPU& left,
+               const MRCandidatePairGPU& right) {
+                return
+                    left.environment == right.environment &&
+                    left.colliderA == right.colliderA &&
+                    left.colliderB == right.colliderB;
+            }
+        ),
+        pairs.end()
+    );
+    diagnostics.requiredPairs = pairs.size();
+
+    std::vector<std::uint32_t> contactCounts(pairs.size(), 0u);
+    std::uint64_t rawContactCount = 0u;
+    std::uint64_t manifoldCount = 0u;
+    for (std::size_t pairIndex = 0;
+         pairIndex < pairs.size();
+         ++pairIndex) {
+        const ContactBatch batch = generateContacts(
+            pairs[pairIndex],
+            worldShapes
+        );
+        contactCounts[pairIndex] = batch.count;
+        if (batch.count > 0u) {
+            ++manifoldCount;
+        }
+        if (rawContactCount >
+            std::numeric_limits<std::uint64_t>::max() -
+                batch.count) {
+            diagnostics.code = MR_STEP_CONTACT_CAPACITY_OVERFLOW;
+            diagnostics.requiredRawContacts =
+                std::numeric_limits<std::uint64_t>::max();
+            return failureFrame(diagnostics);
+        }
+        rawContactCount += batch.count;
+    }
+    diagnostics.requiredRawContacts = rawContactCount;
+    diagnostics.requiredManifolds = manifoldCount;
+    if (rawContactCount >
+        config.capacities.rawContactCapacity) {
+        diagnostics.code = MR_STEP_CONTACT_CAPACITY_OVERFLOW;
+        return failureFrame(diagnostics);
+    }
+    if (manifoldCount >
+        config.capacities.manifoldCapacity) {
+        diagnostics.code = MR_STEP_MANIFOLD_CAPACITY_OVERFLOW;
+        return failureFrame(diagnostics);
+    }
+
+    std::vector<MRRawContactGPU> rawContacts;
+    std::vector<std::uint32_t> rawContactPairIndices;
+    rawContacts.reserve(static_cast<std::size_t>(rawContactCount));
+    rawContactPairIndices.reserve(
+        static_cast<std::size_t>(rawContactCount)
+    );
+    std::vector<std::size_t> pairContactOffsets(
+        pairs.size() + 1u,
+        0u
+    );
+    for (std::size_t pairIndex = 0;
+         pairIndex < pairs.size();
+         ++pairIndex) {
+        pairContactOffsets[pairIndex] = rawContacts.size();
+        const ContactBatch batch = generateContacts(
+            pairs[pairIndex],
+            worldShapes
+        );
+        if (batch.count != contactCounts[pairIndex]) {
+            diagnostics.code = MR_STEP_NONFINITE_RESULT;
+            return failureFrame(diagnostics);
+        }
+        for (std::uint32_t contactIndex = 0u;
+             contactIndex < batch.count;
+             ++contactIndex) {
+            if (!rawContactFinite(batch.contacts[contactIndex])) {
+                diagnostics.code = MR_STEP_NONFINITE_RESULT;
+                return failureFrame(diagnostics);
+            }
+            rawContacts.push_back(batch.contacts[contactIndex]);
+            rawContactPairIndices.push_back(
+                static_cast<std::uint32_t>(pairIndex)
+            );
+        }
+    }
+    pairContactOffsets.back() = rawContacts.size();
+
+    const std::span<const PersistentManifold> oldEntries =
+        CollisionCacheAccess::read(cache);
+    std::vector<PersistentManifold> nextEntries;
+    nextEntries.reserve(static_cast<std::size_t>(manifoldCount));
+    for (std::size_t pairIndex = 0;
+         pairIndex < pairs.size();
+         ++pairIndex) {
+        const std::size_t begin = pairContactOffsets[pairIndex];
+        const std::size_t end = pairContactOffsets[pairIndex + 1u];
+        if (begin == end) {
+            continue;
+        }
+        PersistentManifold manifold;
+        if (!buildManifold(
+                pairs[pairIndex],
+                std::span(rawContacts).subspan(
+                    begin,
+                    end - begin
+                ),
+                bodies,
+                worldShapes,
+                config,
+                oldEntries,
+                manifold,
+                diagnostics
+            )) {
+            diagnostics.code = MR_STEP_NONFINITE_RESULT;
+            return failureFrame(diagnostics);
+        }
+        nextEntries.push_back(manifold);
+    }
+    if (nextEntries.size() != manifoldCount) {
+        diagnostics.code = MR_STEP_NONFINITE_RESULT;
+        return failureFrame(diagnostics);
+    }
+
+    std::vector<MRAabbGPU> aabbs;
+    aabbs.reserve(worldShapes.size());
+    for (const WorldShape& shape : worldShapes) {
+        aabbs.push_back(shape.aabb);
+    }
+
+    CollisionFrame result;
+    result.diagnostics = diagnostics;
+    result.worldAabbs = std::move(aabbs);
+    result.pairs = std::move(pairs);
+    result.rawContacts = std::move(rawContacts);
+    result.rawContactPairIndices =
+        std::move(rawContactPairIndices);
+    result.manifoldHeaders.reserve(nextEntries.size());
+    result.manifoldPoints.reserve(nextEntries.size() * 4u);
+    for (const PersistentManifold& manifold : nextEntries) {
+        result.manifoldHeaders.push_back(manifold.header);
+        result.manifoldPoints.insert(
+            result.manifoldPoints.end(),
+            manifold.points.begin(),
+            manifold.points.end()
+        );
+    }
+    CollisionCacheAccess::commit(cache, std::move(nextEntries));
+    return result;
+}
+
+} // namespace metalrobo

@@ -2,72 +2,152 @@
 
 ## Product boundary
 
-MetalRobo owns the physics implementation, compiled model, runtime, GPU memory,
-task execution, and public APIs. The initial release is macOS 26 / Metal 4
-only. A Python package drives learning through MLX, while the engine itself is
-C++23 plus Objective-C++ and Metal Shading Language.
+MetalRobo owns the physics implementation, compiled model, runtime, GPU
+memory, task execution, and public APIs. The current target is Apple silicon
+macOS 26 / Metal 4. A Python package drives learning through MLX; the engine is
+C++23, Objective-C++, and Metal Shading Language. No external physics engine
+is linked or called at runtime.
 
-The headless training path is the product core. Rendering is an optional
-consumer of body-pose buffers and must not add work to headless steps.
+The headless training path is the product core. Rendering is a future consumer
+of body-pose buffers, not part of the current physics step.
 
-## Immutable model and batched state
+## Two model generations
 
-`metalrobo::Model` is compiled once into fixed-capacity GPU records:
+Version 0.2 contains a working compatibility runtime and a canonical engine
+spine. They coexist; they are not yet one fully integrated execution path.
 
-- `MRModelGPU`: counts, timestep, gravity, ground, task and reward constants.
-- `MRJointGPU`: topology, joint frame, limits, drive and armature.
-- `MRLinkGPU`: mass, center of mass and full symmetric inertia.
-- `MRColliderGPU`: link-local primitive shape and contact material.
+The compatibility `metalrobo::Model` owns the original fixed-base Franka
+layout:
 
-Mutable runtime buffers are structure-of-arrays batches with environment as
-the outer dimension. Model topology never changes during a rollout. Resetting
-an environment changes only its row of state.
+- `MRModelGPU`, `MRJointGPU`, `MRLinkGPU`, and `MRColliderGPU`;
+- fixed capacities of 32 DoF, 33 links, and 64 colliders;
+- one batched Metal ABA/reach-task runtime used by the C API and MLX PPO path.
 
-Version 0.1 reserves 32 DoF, 33 links, and 64 colliders per compiled model.
-Joints are stored in parent-before-child order and can form a fixed-base tree;
-Franka uses a 7-DoF chain inside that format. The capacities cover G1's 29
-actuated joints, while its floating root will use dedicated pose/twist state
-rather than consuming joint slots.
+The canonical `metalrobo::EngineModel` is the forward architecture:
 
-## One control step
+- versioned, pointer-free `MRWorldGPU`, articulation, joint, body, shape, and
+  material records;
+- explicit counts, offsets, capacities, and status codes;
+- separate generalized configuration and velocity dimensions (`nq != nv`);
+- fixed or floating roots and packed articulation-local coordinate ranges;
+- the compiled COM-consistent, 29-DoF Unitree G1 model.
 
-The native runtime executes this order without per-environment host loops:
+Canonical rigid-body translation and linear velocity are measured at the
+center of mass. Orientation remains the body/link-frame orientation. Joint
+anchors are therefore stored relative to each body's COM. A floating root uses
+world COM `xyz` plus quaternion `xyzw` in `q`, and world COM linear velocity
+plus world angular velocity in `v`.
 
-1. Decode normalized actions into joint targets and bounded actuator efforts.
+There is no URDF, MJCF, or OpenUSD importer yet. Franka and G1 are compiled
+in-house model definitions with pinned provenance.
+
+## Execution planes
+
+### Batched Metal Franka runtime
+
+The original production slice runs one fixed-base Franka environment per
+threadgroup:
+
+1. Decode normalized actions into bounded joint targets and efforts.
 2. Build joint transforms and spatial velocities.
-3. Detect primitive contacts and assemble external spatial forces.
-4. Run reduced-coordinate articulated-body forward dynamics.
-5. Apply joint limits and integrate each physics substep.
-6. Compute body poses, observations, reward and termination.
-7. Reset terminated rows and sample their next targets on the device.
+3. Assemble the existing primitive ground-contact forces.
+4. Run FP32 articulated-body forward dynamics.
+5. Apply limits and integrate four physics substeps per control step.
+6. Compute body poses, observations, reward, termination, and device reset.
 
-One Metal threadgroup owns one environment and uses fixed threadgroup scratch.
-The first implementation dispatches 32 lanes but keeps recursion on lane zero
-within that group; parallelism is across environments. The ABI allows later
-SIMD-parallel spatial-matrix work without changing task code.
+Parallelism is primarily across environments. This is the path behind the
+published local throughput and PPO smoke results. It does not execute the
+canonical G1 model or the generic contact solver.
 
-## API layers
+### Generalized articulated CPU reference
 
-- `metalrobo::Runtime` is the native C++ ownership boundary.
-- `c_api.h` is the stable, exception-free ABI for Python, Swift, and other
-  languages.
-- The Python package exposes NumPy views over shared result buffers and an MLX
-  PPO learner.
-- Future MLX custom primitives will schedule physics and policy operations on
-  one Metal stream. The C ABI remains useful for applications and debugging.
+`ArticulatedDynamics` is a separate FP64 reference for fixed or floating
+trees with revolute, continuous, and fixed joints. It uses:
 
-## Memory and synchronization
+- a world-coordinate composite-rigid-body recursion to assemble the dense
+  generalized mass matrix;
+- Cholesky for forward dynamics;
+- recursive Newton-Euler kinematics for bias and inverse dynamics;
+- gravity, body damping, and external world-frame wrenches about body COMs;
+- symplectic Euler or converged implicit midpoint integration with an SO(3)
+  exponential update for the floating quaternion.
 
-All runtime buffers use Apple-silicon shared storage. That avoids PCIe copies,
-but it does not remove synchronization: the C API's `step` completes the
-submitted command buffer before returning its shared views.
+The reference executes the actual 30-body/29-joint G1 topology and passes
+forward/inverse and conservation probes. It is not batched Metal code and is
+not yet coupled to collision, contact impulses, joint-limit constraints,
+drives, or the composed world step.
 
-The Python wrapper exposes those buffers as stable, read-only NumPy views.
-The current PPO path then materializes MLX arrays for policy work, so v0.1 is
-not a fused physics/learner command stream. That boundary is deliberately
-visible rather than described as zero-copy end-to-end training.
+### Generic maximal-coordinate rigid-body world
 
-Allocation is preflighted against both
+`stepRigidBodyWorldCpu` is the currently composed generic contact world. Every
+dynamic object has an independent six-velocity maximal-coordinate
+`MRBodyStateGPU`; articulated generalized coordinates do not enter this
+pipeline.
+
+The transactional CPU step performs:
+
+1. Free-body unconstrained velocity prediction.
+2. CPU sweep-and-prune collision and persistent-manifold refresh.
+3. Material mixing and contact-constraint assembly.
+4. Warm start and either the throughput PGS block or FP64 quality solve.
+5. COM position and SO(3) orientation integration.
+
+On reported failure, body state and persistent caches are unchanged. This
+pipeline validates contact composition for free rigid bodies only. Calling it
+an articulated G1 simulator would be incorrect.
+
+### Generic Metal components
+
+The canonical ABI is also consumed by focused Metal kernels:
+
+- symplectic and implicit-midpoint free-body integration;
+- a deterministic one-thread `O(n²)` collision correctness kernel for
+  sphere/sphere and sphere/plane;
+- the fixed-budget contact PGS block.
+
+These kernels have CPU/Metal parity probes, but they are not yet assembled
+into a batched generic GPU world. GPU manifold persistence/reduction,
+parallel broadphase/narrowphase, and articulated inverse-mass application are
+open work.
+
+## Collision and contact boundary
+
+The CPU collision reference implements deterministic sweep-and-prune,
+sphere/sphere, sphere/plane, capsule/plane, and box/plane witnesses, stable
+features, and persistent four-point manifold reduction. The Metal collision
+kernel implements only the sphere pairs above. Cylinder, general capsule/box
+pairs, convex GJK/EPA/MPR, triangle mesh, heightfield, SDF, and deformable
+geometry are not executable production paths.
+
+There is no continuous collision detection. Neither conservative advancement,
+time-of-impact island stepping, nor speculative CCD is implemented.
+
+The throughput PGS kernel has a hard capacity of 128 contacts per dispatch.
+The composed CPU world partitions independent connected constraint islands
+before dispatch, making 128 contacts the current limit for any one connected
+island. A larger connected island returns explicit capacity overflow; contacts
+are not silently dropped. Metal dispatch construction must provide the same
+island partition. Size buckets and spill/replay remain future work.
+
+The solver portfolio also includes an independent FP64 projected-gradient
+exact-cone oracle and a globalized FP64 semismooth-Newton quality solver. The
+throughput path remains PGS, not TGS.
+
+## API, memory, and synchronization
+
+- `metalrobo::Runtime` and `c_api.h` expose the original Franka runtime.
+- Canonical engine, collision, solver, world, G1, and articulated-reference
+  APIs are currently C++ interfaces; they are not all surfaced through the C
+  ABI.
+- The Python package exposes stable read-only NumPy views and an MLX PPO
+  learner.
+
+All current Metal runtime buffers use Apple-silicon shared storage. This
+avoids PCIe copies but not synchronization: the C API `step` completes its
+command buffer before returning shared views. The PPO path then materializes
+MLX arrays, so v0.2 is not a fused physics/learner command stream.
+
+Allocation is preflighted against
 `MTLDevice.recommendedMaxWorkingSetSize` and `MTLDevice.maxBufferLength`.
-Training must leave room in the unified pool for MLX policy parameters,
-rollout storage, macOS, and an optional viewer.
+Training must leave unified-memory headroom for MLX parameters, rollout
+storage, macOS, and a future viewer.

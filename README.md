@@ -1,29 +1,48 @@
 # MetalRobo
 
-MetalRobo is a Metal-native robotics simulation and reinforcement-learning
-runtime for Apple silicon. The first vertical slice targets thousands of
-parallel Franka Panda environments on one Mac GPU; Unitree G1 is the next
-articulation target.
+MetalRobo is a C++23/Metal robotics physics and reinforcement-learning runtime
+for Apple silicon. It is being built as a standalone, GPU-native alternative
+to the MuJoCo and NVIDIA simulation/training stacks, with Franka first and
+Unitree G1 second. MLX is the learning backend. No external physics engine is
+linked or called at runtime.
 
-The engine is being built from a native C++23 model/runtime core,
-Objective-C++ Metal host, and hand-written Metal Shading Language kernels.
-MLX is the primary learning backend. No external physics engine is used at
-runtime.
+## Executable v0.2 engine spine
 
-## Working v0.1 slice
+- Versioned, pointer-free CPU/Metal ABI with separate `nq`/`nv`, fixed and
+  floating roots, bodies, joints, shapes, materials, contacts, and capacities
+- FP64 free-body dynamics plus matching Metal symplectic and implicit-midpoint
+  kernels, including gyroscopic motion and SO(3) quaternion integration
+- Generalized CPU FP64 articulated dynamics for fixed or floating trees:
+  world-coordinate CRBA plus Cholesky, RNEA bias/inverse dynamics, external
+  COM wrenches, and transactional SO(3) integration; the actual 29-DoF G1
+  topology passes forward/inverse consistency
+- Deterministic FP64 collision with sweep-and-prune, analytic primitive pairs,
+  stable features, and persistent four-point manifolds
+- Correct Metal collision baseline with capacity preflight and analytic
+  sphere/sphere and sphere/plane witnesses
+- Three contact paths: independent FP64 exact-cone reference, globalized FP64
+  semismooth Newton quality solve, and a CPU/Metal fixed-budget PGS block; the
+  throughput block has a hard 128-contact limit per connected island
+- Transactional CPU rigid-body world step composing motion, collision,
+  materials, warm starts, contact solve, and configuration integration for
+  maximal-coordinate free bodies
+- Pinned 29-DoF Unitree G1 model with floating COM root, full inertias,
+  COM-centred joint anchors, 12 official primitive records, limits, drives,
+  foot frames, and IMUs; eight foot spheres are executable and four shoulder
+  cylinders are explicitly disabled pending cylinder narrowphase
+- Existing batched Metal Franka ABA/reach environment and MLX PPO path
 
-- Reduced-coordinate articulated-body dynamics on Metal
-- Batched sphere/capsule contacts against a ground plane
-- Effort-bounded PD joint actuation and hard/soft joint limits
-- Device-resident resets, observations, rewards, and termination
-- Franka 7-DoF reach environment
-- Native C ABI and Python/MLX PPO training
-- FP64 CPU reference and a CPU/Metal convention probe
-
-This is not yet a MuJoCo replacement for general manipulation. Version 0.1
-has fixed-base trees and compliant ground contact; free bodies, pair/self
-collision, a frictional constraint solver, importers, rendering, and sensors
-are explicit next milestones.
+This is a serious numerical foundation, not yet a complete MuJoCo/PhysX
+replacement. The current Metal collision kernel is a deterministic one-thread
+`O(n²)` correctness baseline, the throughput contact kernel is PGS rather than
+TGS, and any connected island above 128 contacts fails explicitly rather than
+spilling. The generalized CPU articulated solver is not yet coupled to the
+maximal-coordinate contact world, and G1 is not connected to a batched Metal
+articulated step or locomotion environment. Metal manifold persistence,
+parallel broadphase/narrowphase, convex/mesh/heightfield geometry, CCD,
+articulated joint/contact constraints, importers, rendering, sensors, and full
+differentiability remain open. The dated requirements and claim rules are in
+[ENGINE_TARGET](docs/ENGINE_TARGET.md).
 
 ## Build
 
@@ -32,6 +51,11 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ./build/bin/metalrobo_cpu_probe
 ./build/bin/metalrobo_parity_probe
+./build/bin/metalrobo_articulated_dynamics_probe
+./build/bin/metalrobo_free_body_gpu_probe
+./build/bin/metalrobo_collision_gpu_probe
+./build/bin/metalrobo_quality_contact_probe
+./build/bin/metalrobo_rigid_body_world_probe
 ./build/bin/metalrobo_bench --envs 1024 --steps 1000
 ```
 
@@ -50,15 +74,22 @@ metalrobo train \
   --minibatch-size 8192
 ```
 
-The native engine has no third-party physics dependency. Python training
-requires Python 3.10+, NumPy, and MLX. A 24 GB 10-core Apple M4 development
-machine measured about 201k environment control-steps/s at 1,024 environments
-and 218k/s at 4,096 environments, with four physics substeps per control step.
-See [validation](docs/VALIDATION.md) for the exact commands and boundaries.
+The native engine has no third-party physics dependency. Factual robot model
+data retains its upstream notices in
+[THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md). Python training requires Python
+3.10+, NumPy, and MLX. A clean v0.2 build of the original fixed-base Franka
+slice measured 195,900 environment control-steps/s at 1,024 environments; an
+earlier local run reached 218k/s at 4,096 environments on a 24 GB,
+10-GPU-core Apple M4, with four physics substeps per control step. Those are
+local results, not cross-engine benchmarks. See
+[validation](docs/VALIDATION.md) for exact commands and boundaries.
 
 ## Design and research
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [State-of-the-art acceptance target](docs/ENGINE_TARGET.md)
+- [Production collision design](docs/COLLISION_PIPELINE.md)
+- [Pinned G1 specification](docs/G1_SPEC.md)
 - [Numerical contract](docs/NUMERICS.md)
 - [Competitor landscape](docs/LANDSCAPE.md)
 - [Heavy-lifting roadmap](docs/ROADMAP.md)

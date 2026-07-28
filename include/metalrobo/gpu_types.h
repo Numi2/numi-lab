@@ -34,6 +34,12 @@ enum MRShapeType : mr_u32 {
     MR_SHAPE_SPHERE = 0u,
     MR_SHAPE_CAPSULE = 1u,
     MR_SHAPE_BOX = 2u,
+    MR_SHAPE_PLANE = 3u,
+    MR_SHAPE_CYLINDER = 4u,
+    MR_SHAPE_CONVEX = 5u,
+    MR_SHAPE_TRIANGLE_MESH = 6u,
+    MR_SHAPE_HEIGHTFIELD = 7u,
+    MR_SHAPE_SDF = 8u,
 };
 
 typedef struct MR_ALIGN16 MRModelGPU {

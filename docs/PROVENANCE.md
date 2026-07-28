@@ -17,6 +17,27 @@ from Franka Robotics' official `franka_description` package:
 The primitive collision spheres are a MetalRobo approximation of the upstream
 coarse link geometry; no upstream mesh is copied into this repository.
 
+The Unitree G1 topology, transforms, mass properties, joint limits, official
+primitive colliders, and IMU frames are factual model data adapted from:
+
+- `unitreerobotics/unitree_ros`
+- Pinned commit `aa0f5c68b5aba347bad409e71b6430407da758d7`
+- `robots/g1_description/g1_29dof_rev_1_0.{urdf,xml}`
+- Upstream BSD-3-Clause license:
+  <https://github.com/unitreerobotics/unitree_ros/blob/aa0f5c68b5aba347bad409e71b6430407da758d7/LICENSE>
+
+The named G1 reset/PD/armature training preset is adapted from the pinned
+Unitree RL Lab file documented in [G1_SPEC](G1_SPEC.md). That file carries an
+Isaac Lab BSD-3-Clause SPDX notice; the containing repository license is
+Apache-2.0. Full retained notices and the exact boundary are in
+[THIRD_PARTY_NOTICES](../THIRD_PARTY_NOTICES.md).
+
+All imported G1 link-frame joint origins and primitive positions are compiled
+into MetalRobo's COM-centred runtime coordinates. This coordinate conversion,
+fixed-link inertial folding, inverse-tensor calculation, runtime ABI, solvers,
+collision implementation, and Metal kernels are MetalRobo implementation
+work.
+
 Algorithm references used for the independent articulated-body
 implementation:
 
