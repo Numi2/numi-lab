@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metalrobo"
+version = "0.1.0"
+description = "Python and MLX reinforcement-learning frontend for MetalRobo"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "mlx>=0.26.5; platform_system == 'Darwin' and platform_machine == 'arm64'",
+]
+
+[project.scripts]
+metalrobo = "metalrobo.cli:main"
+metalrobo-train = "metalrobo.cli:train_main"
+metalrobo-benchmark = "metalrobo.cli:benchmark_main"
+metalrobo-rollout = "metalrobo.cli:rollout_main"
+
+[tool.setuptools]
+packages = ["metalrobo"]
+
+[tool.setuptools.package-data]
+metalrobo = ["py.typed"]

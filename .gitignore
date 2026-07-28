@@ -1,0 +1,13 @@
+.DS_Store
+.build/
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.metallib
+*.air
+*.dSYM/
+compile_commands.json
