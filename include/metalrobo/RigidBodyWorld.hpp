@@ -15,7 +15,17 @@ namespace metalrobo {
 // It deliberately composes the same collision/contact records consumed by
 // Metal instead of hiding a second physics convention in a test harness.
 struct RigidBodyWorldConfig {
-    FreeBodyIntegratorConfig freeMotion{};
+    // A constrained split step presently supports symplectic Euler only.
+    // Implicit midpoint needs its midpoint configuration increment carried
+    // across the impulse phase rather than reconstructed from endpoint
+    // velocity.
+    FreeBodyIntegratorConfig freeMotion{
+        .timestep = 1.0 / 1000.0,
+        .gravity = {0.0f, -9.81f, 0.0f, 0.0f},
+        .integrator = FreeBodyIntegrator::symplecticEuler,
+        .nonlinearIterations = 12u,
+        .nonlinearTolerance = 1.0e-12,
+    };
     CollisionConfig collision{};
     ContactSolverConfig contact{};
     QualityContactSolverConfig quality{};

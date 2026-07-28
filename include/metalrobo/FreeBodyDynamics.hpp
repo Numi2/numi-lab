@@ -43,4 +43,32 @@ struct FreeBodyIntegratorDiagnostics {
     const FreeBodyIntegratorConfig& config
 );
 
+// Predicts force-, gravity-, damping-, and gyroscopic-response velocities
+// without advancing configuration. The returned angular velocity is expressed
+// in the current world frame and inverseInertiaWorld remains evaluated at the
+// current pose. This is the reusable free-motion phase for a constrained
+// semi-implicit step.
+//
+// The operation is transactional: states are unchanged on failure.
+// A caller that later uses integrateFreeBodyConfigurations must select
+// symplecticEuler. Reconstructing an implicit-midpoint pose update from only
+// the endpoint velocity is not equivalent to the full midpoint integrator.
+[[nodiscard]] FreeBodyIntegratorDiagnostics predictFreeBodyVelocities(
+    std::span<const MRBodyPropertiesGPU> properties,
+    std::span<MRBodyStateGPU> states,
+    std::span<const BodyWrench> wrenches,
+    const FreeBodyIntegratorConfig& config
+);
+
+// Advances pose once from already-solved velocities and refreshes world-frame
+// inverse inertia. No force, damping, or gyroscopic velocity update is applied.
+// Static bodies remain fixed; dynamic and kinematic bodies use their authored
+// world-frame velocities. The operation is transactional.
+[[nodiscard]] FreeBodyIntegratorDiagnostics
+integrateFreeBodyConfigurations(
+    std::span<const MRBodyPropertiesGPU> properties,
+    std::span<MRBodyStateGPU> states,
+    double timestep
+);
+
 } // namespace metalrobo

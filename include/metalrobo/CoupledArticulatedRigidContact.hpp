@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/ArticulatedJointLimits.hpp"
 #include "metalrobo/QualityContactSolver.hpp"
 
 #include <array>
@@ -17,6 +18,7 @@ enum class CoupledArticulatedRigidContactStatus : std::uint32_t {
     invalidDimensions,
     invalidRigidBody,
     invalidContact,
+    invalidJointLimit,
     nonfiniteInput,
     dynamicsFailure,
     factorizationFailure,
@@ -74,6 +76,7 @@ struct CoupledArticulatedRigidContactDiagnostics {
     std::uint32_t articulationNv = 0u;
     std::uint32_t rigidBodyCount = 0u;
     std::uint32_t contactCount = 0u;
+    std::uint32_t jointLimitCount = 0u;
     double minimumArticulationCholeskyPivot = 0.0;
     double maximumArticulationCholeskyPivot = 0.0;
     double maximumArticulationInverseResidual = 0.0;
@@ -82,7 +85,13 @@ struct CoupledArticulatedRigidContactDiagnostics {
     double maximumContactVelocityConsistencyError = 0.0;
     std::vector<double> freeContactVelocity;
     std::vector<double> postContactVelocity;
+    std::vector<double> freeJointLimitVelocity;
+    std::vector<double> postJointLimitVelocity;
+    // Contact impulses retain the legacy packed [normal, u, v] layout.
     std::vector<double> impulses;
+    std::vector<double> contactImpulses;
+    // One normal impulse per scalar joint-limit row.
+    std::vector<double> jointLimitImpulses;
     std::string failure;
 
     [[nodiscard]] bool succeeded() const noexcept {
@@ -91,7 +100,7 @@ struct CoupledArticulatedRigidContactDiagnostics {
     }
 };
 
-// Solves one coupled CPU FP64 contact island transactionally:
+// Solves one coupled CPU FP64 contact/limit island transactionally:
 //
 //   M^-1 = block_diag(
 //       M_articulation(q)^-1,
@@ -100,6 +109,9 @@ struct CoupledArticulatedRigidContactDiagnostics {
 //   )
 //
 // with analytic articulated point Jacobians and exact circular Coulomb cones.
+// Optional articulation joint limits are embedded in the same solve as
+// frictionless unilateral cone blocks, preserving all contact-limit cross
+// terms through the combined inverse-mass operator.
 // The independent rigid states provide pose, free velocity, inverse mass, and
 // world inverse inertia. Every rigid state must be dynamic and unbound from an
 // articulation.
@@ -122,7 +134,9 @@ solveCoupledArticulatedRigidContactsCpu(
     std::span<double> postArticulationVelocity,
     std::span<CoupledRigidBodyVelocity> postRigidVelocities,
     const ArticulatedDynamicsConfig& dynamicsConfig = {},
-    const QualityContactSolverConfig& solverConfig = {}
+    const QualityContactSolverConfig& solverConfig = {},
+    std::span<const ArticulatedJointLimitRow> jointLimitRows = {},
+    std::span<const double> jointLimitWarmImpulses = {}
 );
 
 } // namespace metalrobo

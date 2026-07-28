@@ -353,7 +353,8 @@ CoupledArticulatedRigidContactDiagnostics diagnosticsFor(
     const std::uint32_t articulationIndex,
     const std::size_t nv,
     const std::size_t rigidBodyCount,
-    const std::size_t contactCount
+    const std::size_t contactCount,
+    const std::size_t jointLimitCount
 ) {
     CoupledArticulatedRigidContactDiagnostics result;
     result.articulationIndex = articulationIndex;
@@ -370,6 +371,11 @@ CoupledArticulatedRigidContactDiagnostics diagnosticsFor(
     result.contactCount =
         static_cast<std::uint32_t>(std::min<std::size_t>(
             contactCount,
+            std::numeric_limits<std::uint32_t>::max()
+        ));
+    result.jointLimitCount =
+        static_cast<std::uint32_t>(std::min<std::size_t>(
+            jointLimitCount,
             std::numeric_limits<std::uint32_t>::max()
         ));
     return result;
@@ -397,7 +403,9 @@ solveCoupledArticulatedRigidContactsCpu(
     const std::span<double> postArticulationVelocity,
     const std::span<CoupledRigidBodyVelocity> postRigidVelocities,
     const ArticulatedDynamicsConfig& dynamicsConfig,
-    const QualityContactSolverConfig& solverConfig
+    const QualityContactSolverConfig& solverConfig,
+    const std::span<const ArticulatedJointLimitRow> jointLimitRows,
+    const std::span<const double> jointLimitWarmImpulses
 ) {
     const std::size_t nq =
         articulationIndex < model.articulations.size()
@@ -412,7 +420,8 @@ solveCoupledArticulatedRigidContactsCpu(
             articulationIndex,
             nv,
             rigidBodies.size(),
-            contacts.size()
+            contacts.size(),
+            jointLimitRows.size()
         );
 
     if (articulationIndex >= model.articulations.size()) {
@@ -427,22 +436,32 @@ solveCoupledArticulatedRigidContactsCpu(
         std::numeric_limits<std::size_t>::max();
     const bool combinedDimensionFits =
         rigidBodies.size() <= (maximumSize - nv) / 6u;
-    const bool contactRowsFit =
-        contacts.size() <= maximumSize / 3u;
+    const bool blockCountFits =
+        contacts.size() <=
+            maximumSize - jointLimitRows.size();
+    const std::size_t blockCount = blockCountFits
+        ? contacts.size() + jointLimitRows.size()
+        : 0u;
+    const bool constraintRowsFit =
+        blockCountFits && blockCount <= maximumSize / 3u;
     const std::size_t combinedNv = combinedDimensionFits
         ? nv + 6u * rigidBodies.size()
         : 0u;
-    const std::size_t contactRows = contactRowsFit
+    const std::size_t constraintRows = constraintRowsFit
+        ? 3u * blockCount
+        : 0u;
+    const std::size_t contactRows =
+        contacts.size() <= maximumSize / 3u
         ? 3u * contacts.size()
         : 0u;
     const bool matrixDimensionsFit =
         combinedDimensionFits &&
-        contactRowsFit &&
+        constraintRowsFit &&
         combinedNv > 0u &&
         combinedNv <= maximumSize / combinedNv &&
-        contactRows > 0u &&
-        contactRows <= maximumSize / combinedNv &&
-        contactRows <= maximumSize / contactRows &&
+        constraintRows > 0u &&
+        constraintRows <= maximumSize / combinedNv &&
+        constraintRows <= maximumSize / constraintRows &&
         (nv == 0u || contactRows <= maximumSize / nv);
     std::string modelFailure;
     if (!model.valid(&modelFailure)) {
@@ -455,14 +474,18 @@ solveCoupledArticulatedRigidContactsCpu(
     }
     if (nv == 0u ||
         rigidBodies.empty() ||
-        contacts.empty() ||
+        blockCount == 0u ||
         !matrixDimensionsFit ||
         rigidBodies.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         contacts.size() >
             std::numeric_limits<std::uint32_t>::max() ||
+        jointLimitRows.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
         q.size() != nq ||
         freeArticulationVelocity.size() != nv ||
+        (!jointLimitWarmImpulses.empty() &&
+         jointLimitWarmImpulses.size() != jointLimitRows.size()) ||
         postArticulationVelocity.size() != nv ||
         postRigidVelocities.size() != rigidBodies.size() ||
         combinedNv >
@@ -474,7 +497,15 @@ solveCoupledArticulatedRigidContactsCpu(
         );
         return diagnostics;
     }
-    if (!finite(q) || !finite(freeArticulationVelocity)) {
+    if (!finite(q) ||
+        !finite(freeArticulationVelocity) ||
+        !finite(jointLimitWarmImpulses) ||
+        std::ranges::any_of(
+            jointLimitWarmImpulses,
+            [](const double impulse) {
+                return impulse < 0.0;
+            }
+        )) {
         fail(
             diagnostics,
             CoupledArticulatedRigidContactStatus::nonfiniteInput,
@@ -563,6 +594,94 @@ solveCoupledArticulatedRigidContactsCpu(
         });
     }
 
+    for (std::size_t limitIndex = 0u;
+         limitIndex < jointLimitRows.size();
+         ++limitIndex) {
+        const ArticulatedJointLimitRow& row =
+            jointLimitRows[limitIndex];
+        const bool lower =
+            row.side == ArticulatedJointLimitSide::lower;
+        const bool upper =
+            row.side == ArticulatedJointLimitSide::upper;
+        const std::uint64_t expectedGlobalV =
+            static_cast<std::uint64_t>(articulation.vOffset) +
+            row.localVIndex;
+        const std::uint64_t expectedGlobalQ =
+            static_cast<std::uint64_t>(articulation.qOffset) +
+            row.localQIndex;
+        const bool metadataIndexValid =
+            row.localVIndex < nv &&
+            row.localQIndex < nq &&
+            expectedGlobalV < model.dofs.size() &&
+            expectedGlobalV <=
+                std::numeric_limits<std::uint32_t>::max() &&
+            expectedGlobalQ <=
+                std::numeric_limits<std::uint32_t>::max();
+        const MRDofPropertiesGPU* dof = metadataIndexValid
+            ? &model.dofs[
+                static_cast<std::size_t>(expectedGlobalV)
+            ]
+            : nullptr;
+        const double expectedFreeVelocity =
+            row.direction *
+            freeArticulationVelocity[
+                std::min<std::size_t>(row.localVIndex, nv - 1u)
+            ];
+        const double expectedPositionLimit = dof == nullptr
+            ? 0.0
+            : static_cast<double>(
+                lower ? dof->limits.x : dof->limits.y
+            );
+        const double expectedGap =
+            dof == nullptr || row.localQIndex >= q.size()
+            ? 0.0
+            : (
+                lower
+                ? q[row.localQIndex] - expectedPositionLimit
+                : expectedPositionLimit - q[row.localQIndex]
+            );
+        const double velocityScale =
+            1.0 + std::abs(expectedFreeVelocity);
+        if (row.localVIndex >= nv ||
+            row.localQIndex >= nq ||
+            (!lower && !upper) ||
+            (lower && row.direction != 1.0) ||
+            (upper && row.direction != -1.0) ||
+            dof == nullptr ||
+            dof->articulationIndex != articulationIndex ||
+            dof->vIndex != row.globalVIndex ||
+            dof->qIndex != row.globalQIndex ||
+            row.globalVIndex != expectedGlobalV ||
+            row.globalQIndex != expectedGlobalQ ||
+            (dof->flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u ||
+            row.stableKey !=
+                2u * expectedGlobalV + (lower ? 0u : 1u) ||
+            row.positionLimit != expectedPositionLimit ||
+            !finite(row.positionLimit) ||
+            !finite(row.gap) ||
+            !finite(row.freeNormalVelocity) ||
+            !finite(row.targetVelocity) ||
+            !finite(row.regularization) ||
+            !(row.regularization > 0.0) ||
+            std::abs(
+                row.freeNormalVelocity - expectedFreeVelocity
+            ) > 1.0e-12 * velocityScale ||
+            std::abs(row.gap - expectedGap) >
+                1.0e-12 *
+                (1.0 + std::abs(expectedGap)) ||
+            (limitIndex > 0u &&
+             jointLimitRows[limitIndex - 1u].stableKey >=
+                 row.stableKey)) {
+            fail(
+                diagnostics,
+                CoupledArticulatedRigidContactStatus::invalidJointLimit,
+                "joint-limit row is non-canonical or inconsistent "
+                "with the free articulation velocity"
+            );
+            return diagnostics;
+        }
+    }
+
     std::vector<ArticulatedPointKinematics> articulatedPoints(
         contacts.size()
     );
@@ -570,25 +689,28 @@ solveCoupledArticulatedRigidContactsCpu(
         contacts.size() * 3u * nv,
         0.0
     );
-    const ArticulatedDynamicsDiagnostics kinematicsDiagnostics =
-        computeArticulatedPointJacobians(
-            model,
-            articulationIndex,
-            q,
-            freeArticulationVelocity,
-            articulatedQueries,
-            articulatedPoints,
-            articulatedJacobians,
-            dynamicsConfig
-        );
-    if (!kinematicsDiagnostics.succeeded()) {
-        diagnostics.dynamicsStatus = kinematicsDiagnostics.status;
-        fail(
-            diagnostics,
-            CoupledArticulatedRigidContactStatus::dynamicsFailure,
-            "articulated point kinematics failed"
-        );
-        return diagnostics;
+    if (!contacts.empty()) {
+        const ArticulatedDynamicsDiagnostics kinematicsDiagnostics =
+            computeArticulatedPointJacobians(
+                model,
+                articulationIndex,
+                q,
+                freeArticulationVelocity,
+                articulatedQueries,
+                articulatedPoints,
+                articulatedJacobians,
+                dynamicsConfig
+            );
+        if (!kinematicsDiagnostics.succeeded()) {
+            diagnostics.dynamicsStatus =
+                kinematicsDiagnostics.status;
+            fail(
+                diagnostics,
+                CoupledArticulatedRigidContactStatus::dynamicsFailure,
+                "articulated point kinematics failed"
+            );
+            return diagnostics;
+        }
     }
 
     std::vector<double> articulationMass(nv * nv, 0.0);
@@ -754,10 +876,10 @@ solveCoupledArticulatedRigidContactsCpu(
         conic.freeVelocity.push_back(body.angularVelocity.y);
         conic.freeVelocity.push_back(body.angularVelocity.z);
     }
-    conic.contacts.resize(contacts.size());
+    conic.contacts.resize(blockCount);
 
-    std::vector<double> contactJacobian(
-        contactRows * combinedNv,
+    std::vector<double> constraintJacobian(
+        constraintRows * combinedNv,
         0.0
     );
     diagnostics.freeContactVelocity.assign(contactRows, 0.0);
@@ -794,7 +916,7 @@ solveCoupledArticulatedRigidContactsCpu(
             const std::size_t row =
                 3u * contactIndex + axisIndex;
             std::span<double> jacobianRow(
-                contactJacobian.data() + row * combinedNv,
+                constraintJacobian.data() + row * combinedNv,
                 combinedNv
             );
             for (std::size_t dof = 0u; dof < nv; ++dof) {
@@ -835,6 +957,50 @@ solveCoupledArticulatedRigidContactsCpu(
         block.friction = contact.friction;
     }
 
+    diagnostics.freeJointLimitVelocity.assign(
+        jointLimitRows.size(),
+        0.0
+    );
+    for (std::size_t limitIndex = 0u;
+         limitIndex < jointLimitRows.size();
+         ++limitIndex) {
+        const ArticulatedJointLimitRow& limit =
+            jointLimitRows[limitIndex];
+        const std::size_t blockIndex =
+            contacts.size() + limitIndex;
+        const std::size_t row = 3u * blockIndex;
+        DenseContactBlock& block = conic.contacts[blockIndex];
+        block.normalJacobian.assign(combinedNv, 0.0);
+        block.tangentUJacobian.assign(combinedNv, 0.0);
+        block.tangentVJacobian.assign(combinedNv, 0.0);
+        block.normalJacobian[limit.localVIndex] =
+            limit.direction;
+        constraintJacobian[
+            row * combinedNv + limit.localVIndex
+        ] = limit.direction;
+        block.targetVelocity = {
+            limit.targetVelocity,
+            0.0,
+            0.0,
+        };
+        block.regularization = {
+            limit.regularization,
+            limit.regularization,
+            limit.regularization,
+        };
+        block.warmImpulse = {
+            jointLimitWarmImpulses.empty()
+                ? 0.0
+                : jointLimitWarmImpulses[limitIndex],
+            0.0,
+            0.0,
+        };
+        block.friction = 0.0;
+        diagnostics.freeJointLimitVelocity[limitIndex] =
+            limit.direction *
+            conic.freeVelocity[limit.localVIndex];
+    }
+
     diagnostics.quality =
         solveQualityContactProblem(conic, solverConfig);
     if (!diagnostics.quality.converged()) {
@@ -847,7 +1013,7 @@ solveCoupledArticulatedRigidContactsCpu(
         return diagnostics;
     }
     if (diagnostics.quality.velocity.size() != combinedNv ||
-        diagnostics.quality.impulses.size() != contactRows ||
+        diagnostics.quality.impulses.size() != constraintRows ||
         !finite(diagnostics.quality.velocity) ||
         !finite(diagnostics.quality.impulses)) {
         fail(
@@ -859,10 +1025,10 @@ solveCoupledArticulatedRigidContactsCpu(
     }
 
     std::vector<double> generalizedImpulse(combinedNv, 0.0);
-    for (std::size_t row = 0u; row < contactRows; ++row) {
+    for (std::size_t row = 0u; row < constraintRows; ++row) {
         for (std::size_t dof = 0u; dof < combinedNv; ++dof) {
             generalizedImpulse[dof] +=
-                contactJacobian[row * combinedNv + dof] *
+                constraintJacobian[row * combinedNv + dof] *
                 diagnostics.quality.impulses[row];
         }
     }
@@ -890,14 +1056,14 @@ solveCoupledArticulatedRigidContactsCpu(
     for (std::size_t row = 0u; row < contactRows; ++row) {
         for (std::size_t dof = 0u; dof < combinedNv; ++dof) {
             diagnostics.postContactVelocity[row] +=
-                contactJacobian[row * combinedNv + dof] *
+                constraintJacobian[row * combinedNv + dof] *
                 diagnostics.quality.velocity[dof];
         }
         double predicted =
             diagnostics.freeContactVelocity[row];
         for (std::size_t dof = 0u; dof < combinedNv; ++dof) {
             predicted +=
-                contactJacobian[row * combinedNv + dof] *
+                constraintJacobian[row * combinedNv + dof] *
                 (
                     reconstructedVelocity[dof] -
                     conic.freeVelocity[dof]
@@ -910,6 +1076,39 @@ solveCoupledArticulatedRigidContactsCpu(
                 diagnostics.postContactVelocity[row]
             )
         );
+    }
+    diagnostics.postJointLimitVelocity.assign(
+        jointLimitRows.size(),
+        0.0
+    );
+    for (std::size_t limitIndex = 0u;
+         limitIndex < jointLimitRows.size();
+         ++limitIndex) {
+        const std::size_t row =
+            3u * (contacts.size() + limitIndex);
+        for (std::size_t dof = 0u; dof < combinedNv; ++dof) {
+            diagnostics.postJointLimitVelocity[limitIndex] +=
+                constraintJacobian[row * combinedNv + dof] *
+                diagnostics.quality.velocity[dof];
+        }
+        double predicted =
+            diagnostics.freeJointLimitVelocity[limitIndex];
+        for (std::size_t dof = 0u; dof < combinedNv; ++dof) {
+            predicted +=
+                constraintJacobian[row * combinedNv + dof] *
+                (
+                    reconstructedVelocity[dof] -
+                    conic.freeVelocity[dof]
+                );
+        }
+        diagnostics.maximumContactVelocityConsistencyError =
+            std::max(
+                diagnostics.maximumContactVelocityConsistencyError,
+                std::abs(
+                    predicted -
+                    diagnostics.postJointLimitVelocity[limitIndex]
+                )
+            );
     }
     if (!finite(diagnostics.maximumVelocityReconstructionError) ||
         !finite(
@@ -964,7 +1163,38 @@ solveCoupledArticulatedRigidContactsCpu(
         return diagnostics;
     }
 
-    diagnostics.impulses = diagnostics.quality.impulses;
+    diagnostics.contactImpulses.assign(
+        diagnostics.quality.impulses.begin(),
+        diagnostics.quality.impulses.begin() +
+            static_cast<std::ptrdiff_t>(contactRows)
+    );
+    diagnostics.impulses = diagnostics.contactImpulses;
+    diagnostics.jointLimitImpulses.assign(
+        jointLimitRows.size(),
+        0.0
+    );
+    for (std::size_t limitIndex = 0u;
+         limitIndex < jointLimitRows.size();
+         ++limitIndex) {
+        const std::size_t offset =
+            3u * (contacts.size() + limitIndex);
+        diagnostics.jointLimitImpulses[limitIndex] =
+            diagnostics.quality.impulses[offset];
+        if (std::abs(
+                diagnostics.quality.impulses[offset + 1u]
+            ) > 1.0e-12 ||
+            std::abs(
+                diagnostics.quality.impulses[offset + 2u]
+            ) > 1.0e-12) {
+            fail(
+                diagnostics,
+                CoupledArticulatedRigidContactStatus::nonfiniteResult,
+                "frictionless joint-limit block produced a "
+                "tangential impulse"
+            );
+            return diagnostics;
+        }
+    }
     diagnostics.failure.clear();
     diagnostics.status =
         CoupledArticulatedRigidContactStatus::success;

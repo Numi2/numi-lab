@@ -70,6 +70,12 @@ linked or called at runtime.
   articulated point Jacobians, block-structured inverse mass, and exact
   circular Coulomb solve; the real procedural needle and PSM jaw exchange a
   deterministic contact impulse without an artificial grasp weld
+- Transactional PSM/free-object CPU world that separates force prediction
+  from configuration integration, generates real jaw/needle manifolds,
+  solves contact and active joint stops in one exact-cone island, persists
+  world-space contact and limit warm starts, and publishes physics-derived
+  two-jaw grasp evidence without changing the dynamics; the actual needle
+  follows a commanded PSM lift against gravity
 - Correctness-first generic Metal articulation operator for fixed/floating
   trees, exercised on actual 30-body/35-velocity G1: poses, analytic point
   Jacobians, `Jᵀp`, checked mass factorization, and `M⁻¹Jᵀp`, with
@@ -90,9 +96,10 @@ The throughput contact kernel is PGS rather than TGS, and any connected island
 above 128 contacts fails explicitly rather than spilling. Cylinder support is
 currently cylinder/plane only, so G1 shoulder cylinders remain disabled.
 Metal manifold persistence, LBVH, convex/mesh/heightfield geometry, CCD,
-complete time-stepped multi-articulation/free-object islands, the full
-joint/loop constraint language, importers, rendering, sensors, tissue/thread
-mechanics, and qualified differentiability remain open. The dated
+multi-articulation islands, support/fixture and rigid-rigid contacts inside
+the new articulated/free-object world, the full joint/loop constraint
+language, importers, rendering, sensors, tissue/thread mechanics, and
+qualified differentiability remain open. The dated
 requirements and claim rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
 
@@ -113,6 +120,8 @@ cmake --build build
 ./build/bin/metalrobo_surgical_assets_probe
 ./build/bin/metalrobo_surgical_metal_operator_probe
 ./build/bin/metalrobo_coupled_articulated_rigid_contact_probe
+./build/bin/metalrobo_articulated_rigid_collision_probe
+./build/bin/metalrobo_articulated_rigid_world_probe
 ./build/bin/metalrobo_g1_collision_contact_probe
 ./build/bin/metalrobo_free_body_gpu_probe
 ./build/bin/metalrobo_collision_gpu_probe

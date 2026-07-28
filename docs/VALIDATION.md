@@ -373,10 +373,65 @@ differential comparison, moving-kinematic-ground compensation, deterministic
 replay, late integration rollback, and pair-capacity rollback.
 
 This world currently admits exactly one executable articulation plus static or
-kinematic environment bodies. It is not a multi-articulation island solver,
-does not admit dynamic free environment objects, and does not yet include
-joint-limit impulses, self-collision, implicit drives, or a fully composed
-Metal timestep.
+kinematic environment bodies. It is not a multi-articulation island solver
+and does not admit dynamic free environment objects. It does include active
+position-stop impulses in the same solve as contact, but still has no
+self-collision, implicit drives, or fully composed Metal timestep.
+
+## Transactional PSM and dynamic-needle world
+
+```sh
+./build/bin/metalrobo_articulated_rigid_collision_probe
+./build/bin/metalrobo_articulated_rigid_world_probe
+```
+
+This focused CPU FP64 path uses the actual nine-body PSM and procedural
+GS-21-scale needle. Rigid free motion is split into velocity prediction and
+configuration-only integration. Cross-system collision generates real
+manifolds; contact and active PSM stops enter one block inverse-mass,
+exact-cone solve; and contact/manifold/limit caches publish only with the
+integrated state. Warm contact impulses are stored in world coordinates and
+reprojected into the refreshed contact frame.
+
+The trajectory probe closes both physical jaw coordinates around a grasp-zone
+needle segment, holds for 100 steps, and commands the prismatic insertion axis
+for 200 steps. No weld or attachment is created. Grasp status is derived from
+two compressive jaw impulses, opposing normals, friction, post-solve slip, and
+three-step dwell. A separate actual-PSM case activates an authored position
+stop during two-jaw needle contact, proving contact and limit impulses coexist
+in the monolithic solve and that the scalar limit warm start rematches on the
+next step.
+
+Apple M4 Release result from the current 35-probe regression run:
+
+```text
+articulated_rigid_collision
+  articulated_shapes=18 rigid_shapes=32 contacts=3
+  warm_matches=3 penetration=7.99998830448e-05
+  normal_impulse=3.993108591e-05 status=ok
+
+articulated_rigid_world
+  steps=300 contacts_max=3
+  mixed_limit_impulse=0.00725237826725
+  warm_matches_max=3 normal_impulse_max=0.00200235862363
+  grasp_frames=298
+  needle_displacement_mm=1.98493021092
+  needle_lift_mm=0.392729130117
+  needle_dz_mm=0.405639410019
+  jaw_travel_mm=2.71308363215
+  kkt_max=1.00363481351e-05
+  grasp_slip_max=0.0371493546244
+  grasp_identity_reset=pass rollback=pass status=ok
+```
+
+The general world preserves all assembled witnesses by default. This probe
+explicitly reduces near-duplicate needle compound witnesses to the deepest
+contact per articulated/rigid body pair before its small dense solve. It also
+replaces one rigid-shape generation after a qualified grasp and proves dwell
+resets instead of transferring to the replacement. This milestone does not
+validate approach CCD, needle/support contact, rigid-rigid contact, puncture,
+tissue, thread, cutting, biomechanics, or any clinical claim. The composed
+world is not yet executed as a batched device-resident Metal step.
 
 ## Generic Metal articulated operator
 
@@ -631,11 +686,15 @@ quality_kkt_max=4.812123e-17
 manifold_constraints=4
 rest_offsets=yes island_batched_contacts=129
 quality_friction_rejection=transactional
+implicit_midpoint_split=unsupported
 overflow_transactional=yes
 ```
 
 That world is independent-body evidence; it does not replace the new
-generalized `ArticulatedWorld`.
+generalized `ArticulatedWorld`. Constrained split worlds currently accept
+symplectic Euler only; implicit midpoint is explicitly rejected because its
+configuration increment cannot be reconstructed exactly from the post-contact
+endpoint velocity alone.
 
 ### Original native runtime throughput
 
@@ -674,8 +733,9 @@ convergence.
   synchronous with per-call resource creation
 - Long-horizon controlled G1 contact stability, locomotion learning, and RL
   throughput
-- Multi-articulation and mixed dynamic-body islands
-- Implicit drives, coupled set-valued joint stiction, and joint-limit impulses
+- Multi-articulation islands and mixed islands containing dynamic-dynamic or
+  dynamic-static support contacts
+- Implicit drives and coupled set-valued joint stiction
 - Articulated self-collision, loop constraints, and unsupported pair classes
 - GPU persistent-manifold refresh/reduction, production segmented LBVH,
   convex/mesh/heightfield collision, and certified CCD

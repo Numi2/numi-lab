@@ -98,9 +98,10 @@ environment bodies. Actual G1 ground contact produces and solves all eight
 foot-sphere contacts. Every output and persistent cache is published only
 after the full step succeeds. Explicit model/custom PD and effort commands are
 executable through the separate transactional actuation evaluator and can
-feed this world's generalized-force input. Coupled implicit drives,
-set-valued stiction, a composed dynamic-free-object timestep, multiple
-articulations, and self collision remain open.
+feed this world's generalized-force input. Active position stops are compiled
+into the same contact-space solve, so contact/limit cross terms are retained.
+Coupled implicit drives, set-valued stiction, multiple articulations, and self
+collision remain open.
 
 ### Surgical research slice
 
@@ -121,11 +122,37 @@ inertia are derived from explicit geometry and named research density/profile
 defaults. These are rigid research/training assets: there is no suture strand,
 tissue, puncture, cutting, biomechanical, or clinical model.
 
-The focused coupled articulation/rigid contact operator can exchange
-equal-and-opposite contact impulses between one articulation and dynamic rigid
-objects. It is not yet the complete transactional lift world: collision
-adaptation, free prediction, joint limits, grasp evidence, CCD, integration,
-and persistent caches still need to be composed into one island step.
+`stepArticulatedRigidWorldCpu` is the first transactional mixed
+articulation/free-object world. For exactly one articulation and one or more
+independent dynamic rigid bodies, it:
+
+1. predicts articulated and rigid free velocities without advancing pose;
+2. generates actual cross-system collision manifolds and contact semantics;
+3. compiles active articulated position stops;
+4. solves contact and stops simultaneously through one block inverse-mass
+   operator and exact circular Coulomb cones;
+5. integrates every configuration exactly once; and
+6. atomically publishes state, manifolds, world-space contact warm starts,
+   scalar limit warm starts, and dwell-filtered grasp evidence.
+
+The grasp classifier is evidence only. It requires compressive impulses on
+both configured jaws, opposing normals, sufficient friction, bounded
+post-solve tangential slip, and consecutive qualifying steps. It never creates
+a weld, attachment, or hidden force. Grasp dwell is keyed by the model, jaw
+configuration, thresholds, rigid slot, and participating shape generations,
+so it cannot carry across a replaced object or changed grasp definition.
+The physical default preserves all assembled contact witnesses. A caller may
+explicitly request deterministic deepest-point conditioning per
+articulated/rigid body pair; the needle probe uses this opt-in to keep
+near-duplicate compound witnesses from dominating its small dense island.
+
+The current mixed world deliberately handles only articulation-to-dynamic
+rigid contacts. Rigid-rigid contacts, static support/fixture contacts in the
+same island, multiple articulations, CCD/conservative substepping, and a
+device-resident Metal composition remain open. The sub-millimetre needle can
+therefore tunnel during a fast approach, and the current pickup probe begins
+from a valid two-jaw contact placement rather than claiming approach
+robustness.
 
 ### Generic maximal-coordinate rigid-body world
 
@@ -145,6 +172,14 @@ The transactional CPU step performs:
 On reported failure, body state and persistent caches are unchanged. This
 pipeline validates contact composition for free rigid bodies only. Calling it
 an articulated G1 simulator would be incorrect.
+
+Its public free-motion implementation now exposes separate velocity
+prediction and configuration-only integration phases. The mixed surgical
+world reuses those phases so gravity, damping, gyroscopic response, and pose
+advancement are each applied exactly once around the coupled impulse solve.
+Constrained split worlds currently require symplectic Euler. Implicit
+midpoint is rejected rather than silently reconstructing its midpoint pose
+increment from an endpoint velocity.
 
 ### Generic Metal components
 

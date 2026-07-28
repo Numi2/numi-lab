@@ -473,9 +473,28 @@ FreeBodyIntegratorDiagnostics integrateFreeBodies(
         if (motionType == MR_MOTION_DYNAMIC) {
             const BodyWrench wrench =
                 wrenches.empty() ? BodyWrench{} : wrenches[index];
+            const double stateInverseMass =
+                state.linearVelocityAndInverseMass.w;
+            const double propertyInverseMass =
+                body.massAndInverseMass.y;
+            const double inverseMassScale =
+                1.0 + std::max(
+                    std::abs(stateInverseMass),
+                    std::abs(propertyInverseMass)
+                );
             if (!(state.linearVelocityAndInverseMass.w > 0.0f) ||
                 !(body.massAndInverseMass.x > 0.0f) ||
                 !(body.massAndInverseMass.y > 0.0f) ||
+                std::abs(
+                    stateInverseMass - propertyInverseMass
+                ) > 8.0 *
+                    std::numeric_limits<float>::epsilon() *
+                    inverseMassScale ||
+                std::abs(
+                    static_cast<double>(body.massAndInverseMass.x) *
+                        propertyInverseMass -
+                    1.0
+                ) > 2.0e-5 ||
                 !finite(wrench.force) ||
                 !finite(wrench.torque)) {
                 diagnostics.code = MR_STEP_NONFINITE_INPUT;
@@ -688,6 +707,191 @@ FreeBodyIntegratorDiagnostics integrateFreeBodies(
         }
         ++diagnostics.bodiesIntegrated;
     }
+    std::copy(working.begin(), working.end(), states.begin());
+    return diagnostics;
+}
+
+FreeBodyIntegratorDiagnostics predictFreeBodyVelocities(
+    const std::span<const MRBodyPropertiesGPU> properties,
+    const std::span<MRBodyStateGPU> states,
+    const std::span<const BodyWrench> wrenches,
+    const FreeBodyIntegratorConfig& config
+) {
+    std::vector<MRBodyStateGPU> working(states.begin(), states.end());
+    FreeBodyIntegratorDiagnostics diagnostics = integrateFreeBodies(
+        properties,
+        working,
+        wrenches,
+        config
+    );
+    if (!diagnostics.succeeded()) {
+        return diagnostics;
+    }
+
+    for (std::size_t index = 0u; index < working.size(); ++index) {
+        const MRBodyStateGPU& original = states[index];
+        MRBodyStateGPU& predicted = working[index];
+        const std::uint32_t motionType =
+            original.flagsAndIndices[0];
+        if (motionType == MR_MOTION_STATIC) {
+            continue;
+        }
+        if (motionType == MR_MOTION_KINEMATIC) {
+            predicted = original;
+            continue;
+        }
+
+        const Quaternion oldOrientation = normalized({
+            original.orientation.x,
+            original.orientation.y,
+            original.orientation.z,
+            original.orientation.w,
+        });
+        const Quaternion predictedOrientation = normalized({
+            predicted.orientation.x,
+            predicted.orientation.y,
+            predicted.orientation.z,
+            predicted.orientation.w,
+        });
+        const Mat3 oldRotation = rotationMatrix(oldOrientation);
+        const Mat3 predictedRotation =
+            rotationMatrix(predictedOrientation);
+        const Vec3 omegaBody =
+            transpose(predictedRotation) *
+            xyz(predicted.angularVelocity);
+        const Vec3 angularVelocityWorld =
+            oldRotation * omegaBody;
+        if (!finite(angularVelocityWorld) ||
+            !representableAsFloat(angularVelocityWorld)) {
+            diagnostics.code = MR_STEP_NONFINITE_RESULT;
+            return diagnostics;
+        }
+
+        predicted.position = original.position;
+        predicted.orientation = original.orientation;
+        predicted.angularVelocity = f4(angularVelocityWorld);
+        if (!writeInverseInertiaWorld(
+                predicted,
+                matrix(
+                    properties[index].inverseInertiaRow0,
+                    properties[index].inverseInertiaRow1,
+                    properties[index].inverseInertiaRow2
+                ),
+                oldOrientation
+            )) {
+            diagnostics.code = MR_STEP_NONFINITE_RESULT;
+            return diagnostics;
+        }
+    }
+
+    std::copy(working.begin(), working.end(), states.begin());
+    return diagnostics;
+}
+
+FreeBodyIntegratorDiagnostics integrateFreeBodyConfigurations(
+    const std::span<const MRBodyPropertiesGPU> properties,
+    const std::span<MRBodyStateGPU> states,
+    const double timestep
+) {
+    FreeBodyIntegratorDiagnostics diagnostics;
+    if (properties.size() != states.size() ||
+        !(timestep > 0.0) ||
+        !std::isfinite(timestep)) {
+        diagnostics.code = MR_STEP_NONFINITE_INPUT;
+        return diagnostics;
+    }
+
+    std::vector<MRBodyStateGPU> working(states.begin(), states.end());
+    for (std::size_t index = 0u; index < working.size(); ++index) {
+        const MRBodyPropertiesGPU& body = properties[index];
+        MRBodyStateGPU& state = working[index];
+        const std::uint32_t motionType = state.flagsAndIndices[0];
+        if (motionType > MR_MOTION_DYNAMIC ||
+            body.motionType != motionType ||
+            !finite(state.position) ||
+            !finite(state.orientation) ||
+            !finite(state.linearVelocityAndInverseMass) ||
+            !finite(state.angularVelocity) ||
+            !finite(body.inverseInertiaRow0) ||
+            !finite(body.inverseInertiaRow1) ||
+            !finite(body.inverseInertiaRow2)) {
+            diagnostics.code = MR_STEP_NONFINITE_INPUT;
+            return diagnostics;
+        }
+        if (motionType == MR_MOTION_STATIC) {
+            continue;
+        }
+
+        const double orientationNormSquared =
+            static_cast<double>(state.orientation.x) *
+                state.orientation.x +
+            static_cast<double>(state.orientation.y) *
+                state.orientation.y +
+            static_cast<double>(state.orientation.z) *
+                state.orientation.z +
+            static_cast<double>(state.orientation.w) *
+                state.orientation.w;
+        if (!(orientationNormSquared > 1.0e-15) ||
+            !std::isfinite(orientationNormSquared)) {
+            diagnostics.code = MR_STEP_NONFINITE_INPUT;
+            return diagnostics;
+        }
+
+        const Quaternion oldOrientation = normalized({
+            state.orientation.x,
+            state.orientation.y,
+            state.orientation.z,
+            state.orientation.w,
+        });
+        const Mat3 oldRotation = rotationMatrix(oldOrientation);
+        const Vec3 linearVelocity =
+            xyz(state.linearVelocityAndInverseMass);
+        const Vec3 angularVelocityWorld =
+            xyz(state.angularVelocity);
+        const Vec3 omegaBody =
+            transpose(oldRotation) * angularVelocityWorld;
+        const Vec3 position =
+            xyz(state.position) + linearVelocity * timestep;
+        const Quaternion orientation = normalized(
+            oldOrientation *
+            exponentialQuaternion(omegaBody * timestep)
+        );
+        if (!finite(position) ||
+            !std::isfinite(orientation.x) ||
+            !std::isfinite(orientation.y) ||
+            !std::isfinite(orientation.z) ||
+            !std::isfinite(orientation.w) ||
+            !representableAsFloat(position) ||
+            !representableAsFloat(orientation.x) ||
+            !representableAsFloat(orientation.y) ||
+            !representableAsFloat(orientation.z) ||
+            !representableAsFloat(orientation.w)) {
+            diagnostics.code = MR_STEP_NONFINITE_RESULT;
+            return diagnostics;
+        }
+
+        state.position = f4(position, 1.0f);
+        state.orientation = {
+            static_cast<float>(orientation.x),
+            static_cast<float>(orientation.y),
+            static_cast<float>(orientation.z),
+            static_cast<float>(orientation.w),
+        };
+        if (!writeInverseInertiaWorld(
+                state,
+                matrix(
+                    body.inverseInertiaRow0,
+                    body.inverseInertiaRow1,
+                    body.inverseInertiaRow2
+                ),
+                orientation
+            )) {
+            diagnostics.code = MR_STEP_NONFINITE_RESULT;
+            return diagnostics;
+        }
+        ++diagnostics.bodiesIntegrated;
+    }
+
     std::copy(working.begin(), working.end(), states.begin());
     return diagnostics;
 }

@@ -168,6 +168,8 @@ add_library(
     src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp
     src/core/CoupledArticulatedRigidContact.cpp
+    src/core/ArticulatedRigidCollision.cpp
+    src/core/ArticulatedRigidWorld.cpp
     src/core/ArticulatedMixedConstraints.cpp
     src/core/ArticulatedCollision.cpp
     src/core/ArticulatedWorld.cpp
@@ -815,6 +817,38 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_coupled_articulated_rigid_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_rigid_collision_probe
+    apps/articulated_rigid_collision_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_rigid_collision_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_rigid_collision_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_articulated_rigid_world_probe
+    apps/articulated_rigid_world_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_rigid_world_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_rigid_world_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

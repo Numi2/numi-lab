@@ -454,6 +454,35 @@ void verifyQualityRejectsDivergentFriction() {
     );
 }
 
+void verifyImplicitMidpointSplitRejected() {
+    Scene scene = makeScene();
+    const auto original = scene.states;
+    auto config = makeConfig();
+    config.freeMotion.integrator =
+        metalrobo::FreeBodyIntegrator::implicitMidpoint;
+    metalrobo::RigidBodyWorldCache cache;
+    const auto diagnostics = metalrobo::stepRigidBodyWorldCpu(
+        scene.properties,
+        scene.states,
+        scene.shapes,
+        scene.materials,
+        scene.wrenches,
+        config,
+        cache
+    );
+    require(
+        diagnostics.code == MR_STEP_UNSUPPORTED,
+        "constrained split silently approximated implicit midpoint"
+    );
+    require(
+        sameStates(scene.states, original) &&
+            cache.step == 0u &&
+            cache.manifolds.entries().empty() &&
+            cache.impulses.size() == 0u,
+        "implicit-midpoint rejection mutated world state or cache"
+    );
+}
+
 } // namespace
 
 int main() {
@@ -501,6 +530,7 @@ int main() {
         verifyReducedManifoldAssemblyAndRestOffset();
         verifySceneLevelIslandBatching();
         verifyQualityRejectsDivergentFriction();
+        verifyImplicitMidpointSplitRejected();
 
         std::cout << std::scientific << std::setprecision(6)
                   << "pipeline=cpu_rigid_world"
@@ -526,6 +556,7 @@ int main() {
                   << " rest_offsets=yes"
                   << " island_batched_contacts=129"
                   << " quality_friction_rejection=transactional"
+                  << " implicit_midpoint_split=unsupported"
                   << " deterministic=yes"
                   << " overflow_transactional=yes"
                   << " status=ok\n";

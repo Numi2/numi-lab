@@ -82,17 +82,6 @@ bool finite4(const mr_float4 value) {
         std::isfinite(value.z) && std::isfinite(value.w);
 }
 
-bool representableAsFloat(const double value) {
-    return std::isfinite(value) &&
-        std::abs(value) <= std::numeric_limits<float>::max();
-}
-
-bool representableAsFloat(const Vec3 value) {
-    return representableAsFloat(value.x) &&
-        representableAsFloat(value.y) &&
-        representableAsFloat(value.z);
-}
-
 bool finiteMaterial(const MRMaterialGPU& material) {
     return finite4(material.friction) &&
         finite4(material.response) &&
@@ -127,40 +116,6 @@ Quaternion normalized(const Quaternion value) {
     };
 }
 
-Quaternion operator*(const Quaternion left, const Quaternion right) {
-    return {
-        left.w * right.x + left.x * right.w + left.y * right.z -
-            left.z * right.y,
-        left.w * right.y - left.x * right.z + left.y * right.w +
-            left.z * right.x,
-        left.w * right.z + left.x * right.y - left.y * right.x +
-            left.z * right.w,
-        left.w * right.w - left.x * right.x - left.y * right.y -
-            left.z * right.z,
-    };
-}
-
-Quaternion exponentialQuaternion(const Vec3 rotationVector) {
-    const double angle = norm(rotationVector);
-    if (angle < 1.0e-10) {
-        const double angleSquared = angle * angle;
-        return normalized({
-            rotationVector.x * (0.5 - angleSquared / 48.0),
-            rotationVector.y * (0.5 - angleSquared / 48.0),
-            rotationVector.z * (0.5 - angleSquared / 48.0),
-            1.0 - angleSquared / 8.0,
-        });
-    }
-    const double halfAngle = 0.5 * angle;
-    const double scale = std::sin(halfAngle) / angle;
-    return {
-        rotationVector.x * scale,
-        rotationVector.y * scale,
-        rotationVector.z * scale,
-        std::cos(halfAngle),
-    };
-}
-
 Mat3 rotationMatrix(const Quaternion input) {
     const Quaternion q = normalized(input);
     const double xx = q.x * q.x;
@@ -177,29 +132,6 @@ Mat3 rotationMatrix(const Quaternion input) {
         {2.0 * (xy + zw), 1.0 - 2.0 * (xx + zz), 2.0 * (yz - xw)},
         {2.0 * (xz - yw), 2.0 * (yz + xw), 1.0 - 2.0 * (xx + yy)},
     }};
-}
-
-Mat3 transpose(const Mat3& value) {
-    Mat3 result{};
-    for (std::size_t row = 0; row < 3u; ++row) {
-        for (std::size_t column = 0; column < 3u; ++column) {
-            result.m[row][column] = value.m[column][row];
-        }
-    }
-    return result;
-}
-
-Mat3 operator*(const Mat3& left, const Mat3& right) {
-    Mat3 result{};
-    for (std::size_t row = 0; row < 3u; ++row) {
-        for (std::size_t column = 0; column < 3u; ++column) {
-            for (std::size_t inner = 0; inner < 3u; ++inner) {
-                result.m[row][column] +=
-                    left.m[row][inner] * right.m[inner][column];
-            }
-        }
-    }
-    return result;
 }
 
 Vec3 operator*(const Mat3& matrix, const Vec3 value) {
@@ -230,49 +162,6 @@ Mat3 matrix(
 
 Quaternion quaternion(const mr_float4 value) {
     return normalized({value.x, value.y, value.z, value.w});
-}
-
-bool writeInverseInertiaWorld(
-    MRBodyStateGPU& state,
-    const MRBodyPropertiesGPU& properties,
-    const Quaternion orientation
-) {
-    const Mat3 rotation = rotationMatrix(orientation);
-    const Mat3 inverseBody = matrix(
-        properties.inverseInertiaRow0,
-        properties.inverseInertiaRow1,
-        properties.inverseInertiaRow2
-    );
-    const Mat3 inverseWorld =
-        rotation * inverseBody * transpose(rotation);
-    for (std::size_t row = 0u; row < 3u; ++row) {
-        for (std::size_t column = 0u; column < 3u; ++column) {
-            if (!representableAsFloat(
-                    inverseWorld.m[row][column]
-                )) {
-                return false;
-            }
-        }
-    }
-    state.inverseInertiaWorldRow0 = {
-        static_cast<float>(inverseWorld.m[0][0]),
-        static_cast<float>(inverseWorld.m[0][1]),
-        static_cast<float>(inverseWorld.m[0][2]),
-        0.0f,
-    };
-    state.inverseInertiaWorldRow1 = {
-        static_cast<float>(inverseWorld.m[1][0]),
-        static_cast<float>(inverseWorld.m[1][1]),
-        static_cast<float>(inverseWorld.m[1][2]),
-        0.0f,
-    };
-    state.inverseInertiaWorldRow2 = {
-        static_cast<float>(inverseWorld.m[2][0]),
-        static_cast<float>(inverseWorld.m[2][1]),
-        static_cast<float>(inverseWorld.m[2][2]),
-        0.0f,
-    };
-    return true;
 }
 
 Vec3 pointVelocity(
@@ -658,105 +547,6 @@ ContactSolverDiagnostics solveThroughputIslands(
     return aggregate;
 }
 
-void restorePoseAndRotatePredictedVelocity(
-    const std::span<const MRBodyStateGPU> original,
-    const std::span<MRBodyStateGPU> predicted
-) {
-    for (std::size_t index = 0u; index < predicted.size(); ++index) {
-        if (original[index].flagsAndIndices[0] ==
-            MR_MOTION_KINEMATIC) {
-            predicted[index].position = original[index].position;
-            predicted[index].orientation = original[index].orientation;
-            predicted[index].linearVelocityAndInverseMass =
-                original[index].linearVelocityAndInverseMass;
-            predicted[index].angularVelocity =
-                original[index].angularVelocity;
-            predicted[index].inverseInertiaWorldRow0 =
-                original[index].inverseInertiaWorldRow0;
-            predicted[index].inverseInertiaWorldRow1 =
-                original[index].inverseInertiaWorldRow1;
-            predicted[index].inverseInertiaWorldRow2 =
-                original[index].inverseInertiaWorldRow2;
-            continue;
-        }
-        const Quaternion oldOrientation =
-            quaternion(original[index].orientation);
-        const Quaternion predictedOrientation =
-            quaternion(predicted[index].orientation);
-        const Mat3 oldRotation = rotationMatrix(oldOrientation);
-        const Mat3 predictedRotation =
-            rotationMatrix(predictedOrientation);
-        const Vec3 omegaBody =
-            transpose(predictedRotation) *
-            xyz(predicted[index].angularVelocity);
-        predicted[index].position = original[index].position;
-        predicted[index].orientation = original[index].orientation;
-        predicted[index].angularVelocity =
-            f4(oldRotation * omegaBody);
-        predicted[index].inverseInertiaWorldRow0 =
-            original[index].inverseInertiaWorldRow0;
-        predicted[index].inverseInertiaWorldRow1 =
-            original[index].inverseInertiaWorldRow1;
-        predicted[index].inverseInertiaWorldRow2 =
-            original[index].inverseInertiaWorldRow2;
-    }
-}
-
-bool integrateConfigurations(
-    const std::span<const MRBodyPropertiesGPU> properties,
-    const std::span<MRBodyStateGPU> states,
-    const double timestep
-) {
-    for (std::size_t index = 0u; index < states.size(); ++index) {
-        MRBodyStateGPU& state = states[index];
-        const std::uint32_t motion = state.flagsAndIndices[0];
-        if (motion == MR_MOTION_STATIC) {
-            continue;
-        }
-        const Quaternion oldOrientation =
-            quaternion(state.orientation);
-        const Mat3 oldRotation = rotationMatrix(oldOrientation);
-        const Vec3 omegaBody =
-            transpose(oldRotation) * xyz(state.angularVelocity);
-        const Vec3 position =
-            xyz(state.position) +
-            xyz(state.linearVelocityAndInverseMass) * timestep;
-        const Quaternion orientation = normalized(
-            oldOrientation *
-            exponentialQuaternion(omegaBody * timestep)
-        );
-        if (!std::isfinite(position.x) ||
-            !std::isfinite(position.y) ||
-            !std::isfinite(position.z) ||
-            !std::isfinite(orientation.x) ||
-            !std::isfinite(orientation.y) ||
-            !std::isfinite(orientation.z) ||
-            !std::isfinite(orientation.w) ||
-            !representableAsFloat(position) ||
-            !representableAsFloat(orientation.x) ||
-            !representableAsFloat(orientation.y) ||
-            !representableAsFloat(orientation.z) ||
-            !representableAsFloat(orientation.w)) {
-            return false;
-        }
-        state.position = f4(position, 1.0f);
-        state.orientation = {
-            static_cast<float>(orientation.x),
-            static_cast<float>(orientation.y),
-            static_cast<float>(orientation.z),
-            static_cast<float>(orientation.w),
-        };
-        if (!writeInverseInertiaWorld(
-                state,
-                properties[index],
-                orientation
-            )) {
-            return false;
-        }
-    }
-    return true;
-}
-
 } // namespace
 
 ContactAssemblyResult assembleContactConstraints(
@@ -982,6 +772,13 @@ RigidBodyStepDiagnostics stepRigidBodyWorldCpu(
         diagnostics.code = MR_STEP_NONFINITE_INPUT;
         return diagnostics;
     }
+    if (config.freeMotion.integrator !=
+        FreeBodyIntegrator::symplecticEuler) {
+        // A post-contact endpoint velocity is insufficient to reconstruct
+        // the full implicit-midpoint position/orientation increment.
+        diagnostics.code = MR_STEP_UNSUPPORTED;
+        return diagnostics;
+    }
     if (std::ranges::any_of(
             properties,
             [](const MRBodyPropertiesGPU& body) {
@@ -997,7 +794,7 @@ RigidBodyStepDiagnostics stepRigidBodyWorldCpu(
 
     std::vector<MRBodyStateGPU> working(states.begin(), states.end());
     RigidBodyWorldCache workingCache = cache;
-    diagnostics.freeMotion = integrateFreeBodies(
+    diagnostics.freeMotion = predictFreeBodyVelocities(
         properties,
         working,
         wrenches,
@@ -1007,8 +804,6 @@ RigidBodyStepDiagnostics stepRigidBodyWorldCpu(
         diagnostics.code = diagnostics.freeMotion.code;
         return diagnostics;
     }
-    restorePoseAndRotatePredictedVelocity(states, working);
-
     diagnostics.collision = {};
     CollisionFrame collision = collideCpuReference(
         shapes,
@@ -1096,12 +891,14 @@ RigidBodyStepDiagnostics stepRigidBodyWorldCpu(
     workingCache.impulses.commit(assembly.constraints);
     workingCache.impulses.prune(8u);
 
-    if (!integrateConfigurations(
+    const FreeBodyIntegratorDiagnostics configurationIntegration =
+        integrateFreeBodyConfigurations(
             properties,
             working,
             config.freeMotion.timestep
-        )) {
-        diagnostics.code = MR_STEP_NONFINITE_RESULT;
+        );
+    if (!configurationIntegration.succeeded()) {
+        diagnostics.code = configurationIntegration.code;
         return diagnostics;
     }
 
