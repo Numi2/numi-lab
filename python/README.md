@@ -72,6 +72,9 @@ world = compile_world(
     environment_capacity=1024,
     solver_mode="throughput_tgs",
     ccd_mode="hybrid",
+    max_ccd_advance_solve_passes=4,
+    max_ccd_zero_time_replays=2,
+    ccd_simultaneous_tolerance=1.0e-5,
 )
 state = initial_state(world, 1024)
 output = step(

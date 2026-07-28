@@ -337,6 +337,11 @@ NB_MODULE(_mlx_ext, module) {
         "apply_body_damping"_a = true,
         "solver_mode"_a = "free_motion_aba",
         "ccd_mode"_a = "speculative",
+        "max_ccd_advance_solve_passes"_a =
+            MR_CCD_DEFAULT_ADVANCE_SOLVE_PASSES,
+        "max_ccd_zero_time_replays"_a =
+            MR_CCD_DEFAULT_ZERO_TIME_REPLAYS,
+        "ccd_simultaneous_tolerance"_a = 1.0e-5f,
         "metallib_path"_a = "",
         "stream"_a = nb::none(),
         "Compile an immutable Franka or G1 world for MLX."

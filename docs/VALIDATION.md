@@ -864,25 +864,28 @@ The current Release probes are:
 metal_world_contact=ok environments=4 steps=12
 retained_manifolds=1 franka_cube_contacts=2
 isolated_overflow_required_raw=2
-large_pair_stream=66049
-large_pair_tail_contacts=1
+large_pair_stream=66049 large_pair_tail_contacts=1
+mesh_candidates=2 mesh_ccd_events=1
+cylinder_convex_ccd_events=1
+tile33=33 tile96=96 tile257=257 tile513=513
+tile257_spill_rows=675 tile513_spill_rows=1443
 throughput_envs=1024
-throughput_gpu_steps_per_s=30940.4
-throughput_wall_steps_per_s=30169.4
-gpu_batch_step_p50_ms=33.179 gpu_batch_step_p95_ms=33.398
-wall_batch_step_p50_ms=34.101 wall_batch_step_p95_ms=34.184
+throughput_gpu_steps_per_s=33297.9
+throughput_wall_steps_per_s=32148.7
+gpu_batch_step_p50_ms=30.8742 gpu_batch_step_p95_ms=31.1237
+wall_batch_step_p50_ms=31.6722 wall_batch_step_p95_ms=32.9228
 throughput_active_contacts=2
+wave_cohort=8
 high_water_pairs=3 high_water_raw=2 high_water_manifolds=2
 high_water_constraints=2 high_water_rows=6 high_water_islands=1
-high_water_spill=0 retained_bytes=96187408 thermal=nominal
+high_water_spill=0 retained_bytes=246061852 thermal=nominal
 release_gate_40k=open
 
-metal_world=metal device="Apple M4"
+metal_world=metal device="Apple M4" abi=3
 throughput_batch=4096 throughput_horizon=16
-pipeline_creations=21
-gpu_control_steps_per_s=221219 wall_control_steps_per_s=218616
-gpu_p50_ms=296.347 gpu_p95_ms=296.835
-wall_p50_ms=299.626 wall_p95_ms=301.784 thermal=nominal
+gpu_control_steps_per_s=244191 wall_control_steps_per_s=240281
+gpu_p50_ms=268.074 gpu_p95_ms=269.537
+wall_p50_ms=272.975 wall_p95_ms=274.349 thermal=nominal
 replay=bitwise rollback=pass contact_graph=device_resident status=ok
 
 {"mlx_world":"ok","mlx_version":"0.32.0",
@@ -891,7 +894,9 @@ replay=bitwise rollback=pass contact_graph=device_resident status=ok
 "isolated_failure_code":2,"fp64_max_q_error":8.003553e-11,
 "fp64_max_v_error":7.450581e-09,"rollout_shape":[8,8,14],
 "ppo_updates":2,"numpy_step_conversions":0,
-"autodiff_rejected":true,"contact_supported":false}
+"autodiff_rejected":true,"contact_world_supported":true,
+"contact_blocks":[2,2,2,2],"contact_cache_explicit":true,
+"persistent_wave32_packets":1}
 ```
 
 The contact performance case uses an explicit 32-contact capacity class and
@@ -899,35 +904,40 @@ starts every environment with the same dynamic 1 kg cube touching Franka; the
 observed high water is two active contacts. It is therefore real mixed-contact
 execution, but not a 32-active-contact saturation result. Both measured rates
 remain below the 40,000 control-steps/s release gate, which stays open. The
-96.2 MB figure is the persistent Metal arena retained by the benchmark
-context, not total process or MLX memory. The MLX probe proves the
-active-encoder free-motion path and optimizer integration, not contact
-training or policy convergence.
+246 MB figure is the persistent Metal arena retained by the benchmark
+context, not total process or MLX memory. The MLX probe now proves the
+active-encoder contact graph, explicit manifold/pair-cache state, immutable
+Wave32 packet generation, fixed-grid persistent packet pulling, and optimizer
+integration. It does not prove policy convergence.
+
+Hybrid CCD currently performs deterministic conservative advancement, orders
+the event prefix, clusters simultaneous impacts, and reports explicit
+speculative-remainder use through ABI-v3 event cursors. It still solves that
+certified remainder as one speculative TGS interval. Literal repeated
+TOI advance/impact-solve/continue splitting is therefore not yet release
+evidence.
 
 ## What remains unvalidated
 
 - Trajectory/contact comparison against pinned MuJoCo, Genesis, or another
   independent simulator
-- A level-parallel ABA tree kernel and compacted SIMD32 narrowphase/manifold/
-  island/solve graph. Collider projection and eligible-pair flags are already
-  parallel, and active factor/contact stages use indirect zero-work dispatch,
-  but the deterministic compiler and compact solver remain one thread per
-  environment
-- Promotion of scene-body/manifold/contact state to the MLX active-encoder
-  primitive; the current MLX primitive deliberately supports free-motion ABA
-  only
+- Literal bounded multi-event TOI advance/solve/continue splitting, including
+  zero-time impact replay and event-budget rollback
+- A measured 32-active-contact saturation result and the 40,000 control-step/s
+  Franka-plus-object gate on M4
+- Per-complexity solver queues instead of the current homogeneous cohort
+  selection used by cloned RL batches
 - Long-horizon controlled G1 contact stability, locomotion learning, and RL
   throughput
 - Multi-articulation islands and long-horizon/large-island mixed-scene
   stability beyond the focused dynamic-dynamic and supported-pickup cases
-- Implicit drives and coupled set-valued joint stiction
+- GPU ConstraintIR joint limits, implicit drives, equality/loop blocks, patch
+  rolling/torsional resistance, and force/torque sensors
 - Articulated self-collision, loop constraints, and unsupported pair classes
 - Calibrated surgical jaw surfaces, rolling/torsional resistance, and generic
   grasp-wrench/force-closure certification beyond the tested segment-17 load
-- Production segmented LBVH, non-plane cylinders, convex GJK/MPR/EPA,
-  clipped box-face manifolds, mesh/heightfield collision, and certified CCD
+- Production segmented LBVH and heightfield collision
 - Matrix-free Newton-PCG for large exact-cone quality islands
-- Tiled spill/replay beyond the current 512-constraint point-query bucket
 - Quality/throughput task-level closure for the landed temporal TGS
 - Qualified derivatives through impact, friction-regime, and active-set
   changes

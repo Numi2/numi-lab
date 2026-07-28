@@ -202,6 +202,10 @@ struct MetalWorldStepConfig {
     std::uint32_t finalVelocityIterations = 1u;
     MetalWorldCCDMode ccdMode = MetalWorldCCDMode::speculative;
     std::uint32_t maxCCDEvents = MR_CCD_DEFAULT_MAX_EVENTS;
+    std::uint32_t maxCCDAdvanceSolvePasses =
+        MR_CCD_DEFAULT_ADVANCE_SOLVE_PASSES;
+    std::uint32_t maxCCDZeroTimeReplays =
+        MR_CCD_DEFAULT_ZERO_TIME_REPLAYS;
     std::uint32_t maxConservativeAdvancementIterations = 16u;
     bool applyBodyDamping = true;
     bool deterministic = true;
@@ -213,6 +217,7 @@ struct MetalWorldStepConfig {
     float manifoldNormalCosine = 0.95f;
     float ccdMinimumAdvance = 1.0e-5f;
     float ccdTimeTolerance = 1.0e-5f;
+    float ccdSimultaneousTolerance = 1.0e-5f;
     float speculativeMarginScale = 1.0f;
     float ccdSpeedEnvelope = 1.0e4f;
 };
@@ -262,6 +267,9 @@ struct MetalWorldLayout {
     std::size_t contactTileElements = 0u;
     std::size_t convexCacheElements = 0u;
     std::size_t ccdPairElements = 0u;
+    std::size_t ccdEventStateElements = 0u;
+    std::size_t ccdImpactClusterElements = 0u;
+    std::size_t waveWorkPacketElements = 0u;
     MetalWorldMemoryPlan memoryPlan{};
     std::size_t totalRequiredBytes = 0u;
 };
@@ -319,6 +327,11 @@ struct MetalWorldStatus {
     float manifoldRetention = 1.0f;
     std::uint32_t hardConvexFallbacks = 0u;
     std::uint32_t unresolvedCCDCount = 0u;
+    std::uint32_t maximumCCDAdvanceCount = 0u;
+    std::uint32_t maximumClusteredCCDImpacts = 0u;
+    std::uint32_t maximumZeroTimeCCDReplays = 0u;
+    std::uint32_t maximumWorkerPackets = 0u;
+    float maximumUnconsumedCCDTime = 0.0f;
     std::array<float, 4> maximumResiduals{};
 };
 

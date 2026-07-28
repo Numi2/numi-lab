@@ -19,6 +19,11 @@ from metalrobo import (
 )
 from metalrobo._mlx_ext import _debug_cpu_step
 
+STATUS_QUEUE_FLAGS = 35
+STATUS_WORKER_PACKETS = 40
+STATUS_WORKER_EMPTY_PULLS = 41
+PERSISTENT_WORKER_FLAG = 1 << 27
+
 
 def require(condition: bool, message: str) -> None:
     if not condition:
@@ -174,6 +179,28 @@ def main() -> None:
         "MLX contact world did not publish fixed-shape evidence",
     )
     require(
+        all(
+            int(row[STATUS_QUEUE_FLAGS]) &
+            PERSISTENT_WORKER_FLAG
+            for row in contact_first.status.tolist()
+        )
+        and int(
+            contact_first.status[
+                0,
+                STATUS_WORKER_PACKETS,
+            ].item()
+        )
+        == 1
+        and int(
+            contact_first.status[
+                0,
+                STATUS_WORKER_EMPTY_PULLS,
+            ].item()
+        )
+        > 0,
+        "MLX Wave32 did not execute through the persistent worker queue",
+    )
+    require(
         contact_first.next_state.q.tolist()
         == contact_replay.next_state.q.tolist()
         and contact_first.contacts.stable_ids.tolist()
@@ -296,6 +323,12 @@ def main() -> None:
                 "contact_blocks":
                     contact_first.contacts.counts.tolist(),
                 "contact_cache_explicit": True,
+                "persistent_wave32_packets": int(
+                    contact_first.status[
+                        0,
+                        STATUS_WORKER_PACKETS,
+                    ].item()
+                ),
             },
             separators=(",", ":"),
         )

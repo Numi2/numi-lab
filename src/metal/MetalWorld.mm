@@ -30,7 +30,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 107u;
+constexpr std::size_t kRawBufferCount = 111u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -159,6 +159,10 @@ enum BufferIndex : std::size_t {
     kFutureBodyPoses = 104u,
     kFutureProjectedColliders = 105u,
     kCandidateConvexCaches = 106u,
+    kCCDEventStatesA = 107u,
+    kCCDEventStatesB = 108u,
+    kCCDImpactClusters = 109u,
+    kWaveWorkPackets = 110u,
 };
 
 struct BufferRequirement {
@@ -203,6 +207,8 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> colliderProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> sweptProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> ccdPipeline = nil;
+    __strong id<MTLComputePipelineState> ccdEventSelectPipeline = nil;
+    __strong id<MTLComputePipelineState> ccdEventFinalizePipeline = nil;
     __strong id<MTLComputePipelineState> pairFlagPipeline = nil;
     __strong id<MTLComputePipelineState> scanBlocksPipeline = nil;
     __strong id<MTLComputePipelineState> scanAddPipeline = nil;
@@ -1388,6 +1394,26 @@ bool buildRequirements(
             layout.ccdPairElements,
             requirements.entries[kCCDPairs]
         ) ||
+        !makeRequirement<MRCCDEventStateGPU>(
+            "CCD event states A",
+            layout.ccdEventStateElements,
+            requirements.entries[kCCDEventStatesA]
+        ) ||
+        !makeRequirement<MRCCDEventStateGPU>(
+            "CCD event states B",
+            layout.ccdEventStateElements,
+            requirements.entries[kCCDEventStatesB]
+        ) ||
+        !makeRequirement<MRCCDImpactClusterGPU>(
+            "CCD impact clusters",
+            layout.ccdImpactClusterElements,
+            requirements.entries[kCCDImpactClusters]
+        ) ||
+        !makeRequirement<MRWaveWorkPacketGPU>(
+            "Wave32 work packets",
+            layout.waveWorkPacketElements,
+            requirements.entries[kWaveWorkPackets]
+        ) ||
         !makeRequirement<MRGeometryHeaderGPU>(
             "geometry headers",
             std::max<std::size_t>(
@@ -1519,6 +1545,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         !std::isfinite(config.manifoldNormalCosine) ||
         !std::isfinite(config.ccdMinimumAdvance) ||
         !std::isfinite(config.ccdTimeTolerance) ||
+        !std::isfinite(config.ccdSimultaneousTolerance) ||
         !std::isfinite(config.speculativeMarginScale) ||
         !std::isfinite(config.ccdSpeedEnvelope) ||
         config.manifoldBreakingSeparation < 0.0f ||
@@ -1528,10 +1555,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.manifoldNormalCosine > 1.0f ||
         config.ccdMinimumAdvance <= 0.0f ||
         config.ccdTimeTolerance <= 0.0f ||
+        config.ccdSimultaneousTolerance <= 0.0f ||
         config.speculativeMarginScale < 0.0f ||
         config.ccdSpeedEnvelope <= 0.0f ||
         config.maxCCDEvents == 0u ||
         config.maxCCDEvents > MR_CCD_MAX_EVENTS ||
+        config.maxCCDAdvanceSolvePasses == 0u ||
+        config.maxCCDAdvanceSolvePasses >
+            MR_CCD_MAX_ADVANCE_SOLVE_PASSES ||
+        config.maxCCDZeroTimeReplays >
+            MR_CCD_MAX_ZERO_TIME_REPLAYS ||
         config.maxConservativeAdvancementIterations == 0u ||
         config.maxConservativeAdvancementIterations > 128u ||
         (config.ccdMode != MetalWorldCCDMode::disabled &&
@@ -1780,6 +1813,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
         )
     );
     contact.convexCacheStride = contact.eligiblePairCount;
+    contact.maxCCDAdvanceSolvePasses =
+        config.maxCCDAdvanceSolvePasses;
+    contact.maxCCDZeroTimeReplays =
+        config.maxCCDZeroTimeReplays;
+    contact.waveWorkerGroupCount = 64u;
     contact.flags |= MR_METAL_WORLD_CONTACT_WAVE32;
     if (config.ccdMode != MetalWorldCCDMode::disabled) {
         contact.flags |= MR_METAL_WORLD_CONTACT_CCD;
@@ -1814,6 +1852,12 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.ccdTimeTolerance,
         config.speculativeMarginScale,
         config.ccdSpeedEnvelope,
+    };
+    contact.ccdEventParameters = {
+        config.ccdSimultaneousTolerance,
+        config.ccdTimeTolerance,
+        0.0f,
+        0.0f,
     };
 
     if (!checkedMultiply(
@@ -1930,6 +1974,21 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 batch.environmentCount,
                 contact.ccdCandidateCapacity,
                 layout.ccdPairElements
+            ) ||
+            !checkedMultiply(
+                batch.environmentCount,
+                1u,
+                layout.ccdEventStateElements
+            ) ||
+            !checkedMultiply(
+                batch.environmentCount,
+                1u,
+                layout.ccdImpactClusterElements
+            ) ||
+            !checkedMultiply(
+                batch.environmentCount,
+                contact.islandCapacity,
+                layout.waveWorkPacketElements
             )) {
             return reject(
                 std::move(diagnostics),
@@ -1987,6 +2046,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.contactTileElements,
         layout.convexCacheElements,
         layout.ccdPairElements,
+        layout.ccdEventStateElements,
+        layout.ccdImpactClusterElements,
+        layout.waveWorkPacketElements,
     };
     if (std::any_of(
             shaderElementCounts.begin(),
@@ -2419,6 +2481,8 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> colliderProjection = nil;
     __strong id<MTLComputePipelineState> sweptProjection = nil;
     __strong id<MTLComputePipelineState> ccd = nil;
+    __strong id<MTLComputePipelineState> ccdEventSelect = nil;
+    __strong id<MTLComputePipelineState> ccdEventFinalize = nil;
     __strong id<MTLComputePipelineState> pairFlags = nil;
     __strong id<MTLComputePipelineState> scanBlocks = nil;
     __strong id<MTLComputePipelineState> scanAdd = nil;
@@ -2475,6 +2539,10 @@ MetalWorldDiagnostics initializeContext(
         @"mr_world_project_swept_colliders"
     );
     ccd = createContactPipeline(@"mr_world_resolve_ccd");
+    ccdEventSelect =
+        createContactPipeline(@"mr_world_select_ccd_event_state");
+    ccdEventFinalize =
+        createContactPipeline(@"mr_world_finalize_ccd_event_state");
     pairFlags =
         createContactPipeline(@"mr_world_flag_eligible_pairs");
     scanBlocks =
@@ -2553,6 +2621,8 @@ MetalWorldDiagnostics initializeContext(
         colliderProjection == nil ||
         sweptProjection == nil ||
         ccd == nil ||
+        ccdEventSelect == nil ||
+        ccdEventFinalize == nil ||
         pairFlags == nil ||
         scanBlocks == nil ||
         scanAdd == nil ||
@@ -2613,6 +2683,8 @@ MetalWorldDiagnostics initializeContext(
         colliderProjection.maxTotalThreadsPerThreadgroup == 0u ||
         sweptProjection.maxTotalThreadsPerThreadgroup == 0u ||
         ccd.maxTotalThreadsPerThreadgroup == 0u ||
+        ccdEventSelect.maxTotalThreadsPerThreadgroup == 0u ||
+        ccdEventFinalize.maxTotalThreadsPerThreadgroup == 0u ||
         pairFlags.maxTotalThreadsPerThreadgroup == 0u ||
         scanBlocks.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
@@ -2707,6 +2779,8 @@ MetalWorldDiagnostics initializeContext(
     context.colliderProjectionPipeline = colliderProjection;
     context.sweptProjectionPipeline = sweptProjection;
     context.ccdPipeline = ccd;
+    context.ccdEventSelectPipeline = ccdEventSelect;
+    context.ccdEventFinalizePipeline = ccdEventFinalize;
     context.pairFlagPipeline = pairFlags;
     context.scanBlocksPipeline = scanBlocks;
     context.scanAddPipeline = scanAdd;
@@ -2817,6 +2891,10 @@ bool privateTransientBuffer(const std::size_t index) {
     case kWave32IslandStatuses:
     case kCandidateConvexCaches:
     case kCCDPairs:
+    case kCCDEventStatesA:
+    case kCCDEventStatesB:
+    case kCCDImpactClusters:
+    case kWaveWorkPackets:
     case kPairRawContactStaging:
     case kWave32Preconditioners:
     case kIslandWorkDense:
@@ -4814,6 +4892,9 @@ bool encodeWave32ContactSolve(
     [cohort setBuffer:context.buffers[kWorkQueueHeaders]
                offset:0u
               atIndex:1u];
+    [cohort setBuffer:context.buffers[kWaveWorkPackets]
+               offset:0u
+              atIndex:2u];
     [cohort
         dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
         threadsPerThreadgroup:MTLSizeMake(
@@ -5198,6 +5279,9 @@ bool encodeWave32ContactSolve(
     [wave setBytes:&solverPass
             length:sizeof(solverPass)
            atIndex:19u];
+    [wave setBuffer:context.buffers[kWaveWorkPackets]
+             offset:0u
+            atIndex:20u];
     [wave
         dispatchThreadgroupsWithIndirectBuffer:
             context.buffers[kWorkQueueHeaders]
@@ -5409,6 +5493,24 @@ bool encodeContactSubstep(
              0u,
              environmentCount
          )) ||
+        (useHybridCCD &&
+         !encodeContactThreadKernel(
+             context,
+             commandBuffer,
+             context.ccdEventSelectPipeline,
+             @"MetalWorld deterministic CCD event cluster",
+             {
+                 {0u, kContactDispatch},
+                 {1u, kCCDPairs},
+                 {2u, kCCDEventStatesA},
+                 {3u, kCCDEventStatesB},
+                 {4u, kCCDImpactClusters},
+                 {5u, kContactStatuses},
+             },
+             &pass,
+             6u,
+             environmentCount
+         )) ||
         !encodeClassCompactedPairNarrowphase(
             context,
             commandBuffer,
@@ -5602,6 +5704,21 @@ bool encodeContactSubstep(
             0u,
             environmentCount
         ) ||
+        (useHybridCCD &&
+         !encodeContactThreadKernel(
+             context,
+             commandBuffer,
+             context.ccdEventFinalizePipeline,
+             @"MetalWorld CCD event-time closeout",
+             {
+                 {0u, kContactDispatch},
+                 {1u, kCCDEventStatesB},
+                 {2u, kContactStatuses},
+             },
+             nullptr,
+             0u,
+             environmentCount
+         )) ||
         !encodeContactThreadKernel(
             context,
             commandBuffer,
@@ -5816,6 +5933,7 @@ MetalWorldDiagnostics validateAndPublish(
                         MR_STEP_STATUS_COUNT ||
                     !finite(contactStatus->residuals) ||
                     !finite(contactStatus->diagnostics) ||
+                    !finite(contactStatus->eventTimes) ||
                     contactStatus->activePairs >
                         contactStatus->requiredPairs ||
                     contactStatus->activeContacts >
@@ -6019,6 +6137,26 @@ MetalWorldDiagnostics validateAndPublish(
                 summary.unresolvedCCDCount = std::max(
                     summary.unresolvedCCDCount,
                     contactStatus->unresolvedCCDCount
+                );
+                updateMaximum(
+                    summary.maximumCCDAdvanceCount,
+                    contactStatus->ccdAdvanceCount
+                );
+                updateMaximum(
+                    summary.maximumClusteredCCDImpacts,
+                    contactStatus->clusteredCCDImpacts
+                );
+                updateMaximum(
+                    summary.maximumZeroTimeCCDReplays,
+                    contactStatus->zeroTimeCCDReplays
+                );
+                updateMaximum(
+                    summary.maximumWorkerPackets,
+                    contactStatus->workerPackets
+                );
+                summary.maximumUnconsumedCCDTime = std::max(
+                    summary.maximumUnconsumedCCDTime,
+                    std::abs(contactStatus->eventTimes.y)
                 );
                 updateMaximum(
                     summary.maximumSolverIterations,

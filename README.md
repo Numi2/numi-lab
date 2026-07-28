@@ -100,9 +100,12 @@ linked or called at runtime.
   retention, solver residuals, and stable first-failure indices, plus optional
   fixed-capacity contact/ConstraintIR/island evidence
 - MLX 0.32 active-encoder custom primitive for Franka/G1 free-motion ABA with
-  explicit PyTree state, MLX-owned output/scratch buffers, `mx.compile`,
+  the same contact graph used by standalone Metal, explicit PyTree
+  manifold/convex caches, MLX-owned output/scratch buffers, `mx.compile`,
   isolated transactional rollback, no CPU fallback, and explicit autodiff
-  rejection. Policy inference, physics, reward/termination, GAE, rollout
+  rejection. The Wave32 solver uses a fixed worker grid that persistently
+  pulls compact packets because MLX's active encoder does not expose indirect
+  dispatch. Policy inference, physics, reward/termination, GAE, rollout
   storage, and PPO updates have a NumPy-free MLX path
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
@@ -110,20 +113,18 @@ linked or called at runtime.
 - Existing batched Metal Franka ABA/reach environment and MLX PPO path
 
 This is a serious numerical foundation, not yet a complete MuJoCo/PhysX
-replacement. Collider projection and compiled-pair overlap flags are parallel,
-but narrowphase/manifold compilation, island construction, and solving remain
-a correctness-first one-thread-per-environment composition. Compacted SIMD32
-queues, private heaps, spill kernels, and performance-sized island bucketing
-remain open. The current articulated
-point bucket is 512 constraints, with exact transactional overflow rather than
-the planned tiled spill/replay. Box/box has SAT witnesses but not complete face
-clipping; non-plane cylinder pairs, GJK/MPR/EPA, mesh/heightfield traversal,
-and CCD remain open. The MLX primitive currently exposes free-motion ABA only
-and rejects contact state, so the standalone contact graph is not yet a fused
-physics/learner path. Implicit drives/joint-limit IR, multi-articulation
-islands, calibrated rolling/torsional resistance, importers, rendering,
-sensors, thread/tissue mechanics, and qualified differentiability also remain
-open. The dated requirements and claim rules are in
+replacement. The device graph now has compact analytic/SAT/GJK/mesh queues,
+Wave32 8/16/32-contact cohorts, deterministic tiled spill beyond 256
+constraints, exact elliptic friction, private placement heaps, robust
+cylinder/convex GJK-MPR-EPA, static mesh BVH4 traversal, hybrid CCD event
+certification, and a contact-capable MLX primitive. Hybrid CCD currently
+certifies, orders, and clusters impacts while speculative TGS consumes the
+complete microstep; literal TOI advance/solve/continue state is present in ABI
+v3 but the repeated event-time solve is still being integrated. Heightfields,
+implicit drives/joint-limit IR, multi-articulation islands, calibrated
+rolling/torsional resistance, importers, rendering, sensors, thread/tissue
+mechanics, and qualified differentiability remain open. The dated
+requirements and claim rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
 
 ## Build

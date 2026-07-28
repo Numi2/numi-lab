@@ -96,32 +96,32 @@ fallback. Warm-start impulses remain a coupled normal/tangent triplet.
 
 ## Current capacity and execution boundary
 
-The current production-shaped vertical slice removes the legacy 128-contact
-island ceiling, but it is not the final throughput architecture:
+The production-shaped contact graph now includes:
 
-- the configured compact bucket accepts up to 512 manifold-point constraints
-  because the current articulated point-operator ABI exposes 1,024 query
-  slots;
-- oversized requirements report exact counts and roll back the affected
-  environment; tiled spill storage is represented in the public capacity/status
-  ABI but is not yet executed;
-- `minimumCapacities()` reports conservative compiled worst cases, while an
-  explicitly smaller runtime profile is legal and produces exact
-  transactional overflow evidence rather than failing compilation;
-- collider projection and eligible-pair overlap tests use flattened parallel
-  queues. Narrowphase, manifold construction, island union, and solve
-  currently use one deterministic thread per environment. This proves the
-  device-resident transaction and mixed response semantics, not the final
-  compacted SIMD32 throughput design;
-- immutable and scratch buffers still use the checked shared arena. Private
-  heaps, staged uploads, residency sets, indirect queues, and counter heaps are
-  the next optimization after the numerical graph is stable.
+- stable count/scan/scatter pair and island queues;
+- Wave32 exact-cone 8/16/32-contact cohorts;
+- deterministic 32-contact tiles, single-group spill through 256 contacts,
+  and stable distributed reductions beyond 256;
+- private immutable, persistent-state, and transient placement heaps in the
+  standalone three-slot submission ring;
+- exact capacity reporting and per-environment transactional rollback;
+- persistent MLX Wave32 workers that pull compact packets from an
+  invocation-local cursor while standalone Metal consumes the same queue
+  through indirect dispatch. The MLX resource bundle selects its fixed worker
+  grid from a registry-ID/Apple-GPU-family tuning profile before lazy
+  execution; Apple9/10 devices currently use 64 worker groups.
 
-Implemented analytic pair classes are sphere/sphere, sphere/plane,
-capsule/plane, box/plane, cylinder/plane, sphere/capsule, capsule/capsule,
-sphere/box, capsule/box, and SAT box/box. Box/box currently uses deterministic
-SAT plus inside-vertex/support witnesses rather than full face clipping.
-Non-plane cylinder pairs and general convex GJK/MPR/EPA are not implemented.
+Analytic/SAT paths cover the inexpensive primitive pairs. Exact cylinder
+support, robust GJK with MPR/EPA fallback, cooked convex patches, and static or
+kinematic mesh BVH4 traversal cover remaining convex and mesh pairs.
+Heightfields and dynamic concave shapes remain unsupported.
+
+Hybrid CCD computes deterministic, capacity-bounded event intervals for
+analytic, support-mapped, and convex-mesh paths. ABI v3 carries event cursors,
+simultaneous-impact clusters, split budgets, zero-time replay limits, consumed
+time, and first failing event keys. The current step clusters certified events
+and uses speculative TGS to consume the complete microstep; literal repeated
+TOI advance/solve/continue publication remains the next collision milestone.
 
 ## MLX active-encoder adapter
 

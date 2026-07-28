@@ -41,9 +41,9 @@
 // Versioned first generic Metal-world graph. One submission may encode many
 // control steps, each with a bounded number of ABA physics substeps, without
 // a command-buffer completion or CPU-visible intermediate state.
-#define MR_METAL_WORLD_ABI_VERSION 2u
+#define MR_METAL_WORLD_ABI_VERSION 3u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
-#define MR_METAL_WORLD_CONTACT_ABI_VERSION 2u
+#define MR_METAL_WORLD_CONTACT_ABI_VERSION 3u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
 #define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
 #define MR_WAVE32_CONTACTS_PER_TILE 32u
@@ -64,6 +64,10 @@
 #define MR_MESH_BVH_INVALID_ESCAPE 0x007fffffu
 #define MR_CCD_DEFAULT_MAX_EVENTS 4u
 #define MR_CCD_MAX_EVENTS 16u
+#define MR_CCD_DEFAULT_ADVANCE_SOLVE_PASSES 4u
+#define MR_CCD_MAX_ADVANCE_SOLVE_PASSES 8u
+#define MR_CCD_DEFAULT_ZERO_TIME_REPLAYS 2u
+#define MR_CCD_MAX_ZERO_TIME_REPLAYS 8u
 // Authored collision coordinates, local offsets, primitive dimensions, and
 // contact/rest/bounding-radius values use this direct-input domain. With
 // normalized rotations, every supported finite primitive derived from these
@@ -211,6 +215,7 @@ enum MRWorldWorkClass : mr_u32 {
 };
 
 enum MRWorldQueueFlags : mr_u32 {
+    MR_WORLD_QUEUE_PERSISTENT_WORKER = 1u << 27u,
     MR_WORLD_QUEUE_COHORT_8 = 1u << 28u,
     MR_WORLD_QUEUE_COHORT_16 = 1u << 29u,
 };
@@ -739,12 +744,19 @@ typedef struct MR_ALIGN16 MRMetalWorldContactDispatchGPU {
     mr_u32 queueStride;
     mr_u32 convexCacheStride;
 
+    mr_u32 maxCCDAdvanceSolvePasses;
+    mr_u32 maxCCDZeroTimeReplays;
+    mr_u32 waveWorkerGroupCount;
+    mr_u32 reservedEvent0;
+
     // timestep, penetration slop, maximum depenetration speed, warm scale.
     mr_float4 timestepAndBias;
     // separation break, tangential break, merge distance, normal cosine.
     mr_float4 manifoldThresholds;
     // minimum advancement, TOI tolerance, speculative scale, speed envelope.
     mr_float4 ccdParameters;
+    // simultaneous TOI tolerance, full-time tolerance, reserved, reserved.
+    mr_float4 ccdEventParameters;
 } MRMetalWorldContactDispatchGPU;
 
 // Layout-compatible with MTLDispatchThreadgroupsIndirectArguments. The final
@@ -814,6 +826,18 @@ typedef struct MR_ALIGN16 MRIslandWorkGPU {
     mr_u32 flags;
 } MRIslandWorkGPU;
 
+// Stable SIMD32 packet. The first four island slots form four wave8 cohorts,
+// the first two form two wave16 cohorts, and the first slot owns wave32 or
+// spill work. Packet construction is scan ordered; worker atomics only claim
+// these immutable records.
+typedef struct MR_ALIGN16 MRWaveWorkPacketGPU {
+    mr_uint4 islandSlots;
+    mr_uint4 stableKeyLow;
+    mr_uint4 stableKeyHigh;
+    // x cohort width, y valid cohort count, z event generation, w phase.
+    mr_uint4 metadata;
+} MRWaveWorkPacketGPU;
+
 enum MRIslandWorkFlags : mr_u32 {
     MR_ISLAND_WORK_VALID = 1u << 0u,
     MR_ISLAND_WORK_HAS_ARTICULATION = 1u << 1u,
@@ -877,6 +901,52 @@ enum MRCCDPairFlags : mr_u32 {
     MR_CCD_PAIR_CONSERVATIVE_ADVANCEMENT = 1u << 6u,
     MR_CCD_PAIR_UNRESOLVED = 1u << 7u,
 };
+
+enum MRCCDEventStateFlags : mr_u32 {
+    MR_CCD_EVENT_ACTIVE = 1u << 0u,
+    MR_CCD_EVENT_FINISHED = 1u << 1u,
+    MR_CCD_EVENT_HAS_IMPACT = 1u << 2u,
+    MR_CCD_EVENT_SPECULATIVE_REMAINDER = 1u << 3u,
+    MR_CCD_EVENT_ZERO_TIME_REPLAY = 1u << 4u,
+    MR_CCD_EVENT_FAILED = 1u << 5u,
+};
+
+// Transient per-environment event cursor. It is initialized for every
+// physical microstep and ping-ponged only inside the submission; it is not
+// semantic WorldState and never crosses the MLX API.
+typedef struct MR_ALIGN16 MRCCDEventStateGPU {
+    mr_u32 environment;
+    mr_u32 splitCount;
+    mr_u32 simultaneousEventCount;
+    mr_u32 zeroTimeReplayCount;
+
+    mr_u32 flags;
+    mr_u32 generation;
+    mr_u32 lastStableKeyLow;
+    mr_u32 lastStableKeyHigh;
+
+    // x absolute time, y remaining time, z consumed time, w selected TOI.
+    mr_float4 time;
+    // x first event slot, y event count, z speculative-safe, w reserved.
+    mr_uint4 cluster;
+} MRCCDEventStateGPU;
+
+// Deterministic simultaneous-impact cluster selected from the sorted CCD
+// candidate prefix. TOI is normalized over the current remaining interval.
+typedef struct MR_ALIGN16 MRCCDImpactClusterGPU {
+    mr_u32 environment;
+    mr_u32 firstEventSlot;
+    mr_u32 eventCount;
+    mr_u32 generation;
+
+    mr_u32 stableKeyLow;
+    mr_u32 stableKeyHigh;
+    mr_u32 flags;
+    mr_u32 reserved0;
+
+    // x selected TOI, y lower bound, z upper bound, w tolerance.
+    mr_float4 interval;
+} MRCCDImpactClusterGPU;
 
 // Environment-major immutable-for-one-microstep collider projection. This
 // record is produced once per collider, then reused by broadphase and
@@ -981,10 +1051,27 @@ typedef struct MR_ALIGN16 MRMetalWorldContactStatusGPU {
     mr_u32 unresolvedCCDCount;
     mr_u32 queueFlags;
 
+    mr_u32 ccdAdvanceCount;
+    mr_u32 clusteredCCDImpacts;
+    mr_u32 zeroTimeCCDReplays;
+    mr_u32 speculativeRemainderUses;
+
+    mr_u32 workerPackets;
+    mr_u32 workerEmptyPulls;
+    mr_u32 workerHighWater;
+    mr_u32 eventGeneration;
+
+    mr_u32 firstFailingEventKeyLow;
+    mr_u32 firstFailingEventKeyHigh;
+    mr_u32 reservedEvent0;
+    mr_u32 reservedEvent1;
+
     // impulse delta, normal residual, cone violation, factor residual.
     mr_float4 residuals;
     // manifold retention, maximum penetration, minimum pivot, maximum pivot.
     mr_float4 diagnostics;
+    // consumed time, remaining time, earliest TOI, selected TOI.
+    mr_float4 eventTimes;
 } MRMetalWorldContactStatusGPU;
 
 enum MRInverseMassStatusCode : mr_u32 {
@@ -1310,21 +1397,24 @@ static_assert(sizeof(MRMetalWorldDispatchGPU) == 64);
 static_assert(sizeof(MRMetalWorldPassGPU) == 16);
 static_assert(sizeof(MRMetalWorldStatusGPU) == 48);
 static_assert(sizeof(MRCompiledCollisionPairGPU) == 16);
-static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 208);
+static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 240);
 static_assert(sizeof(MRIndirectDispatchArgumentsGPU) == 16);
 static_assert(sizeof(MRWorkQueueHeaderGPU) == 64);
 static_assert(sizeof(MRScanLevelGPU) == 32);
 static_assert(sizeof(MRPairWorkGPU) == 32);
 static_assert(sizeof(MRIslandWorkGPU) == 32);
+static_assert(sizeof(MRWaveWorkPacketGPU) == 64);
 static_assert(sizeof(MRContactTileGPU) == 32);
 static_assert(sizeof(MRWave32PreconditionerGPU) == 48);
 static_assert(sizeof(MRWave32IslandStatusGPU) == 32);
 static_assert(sizeof(MRCCDPairGPU) == 64);
+static_assert(sizeof(MRCCDEventStateGPU) == 64);
+static_assert(sizeof(MRCCDImpactClusterGPU) == 48);
 static_assert(sizeof(MRProjectedColliderGPU) == 80);
 static_assert(sizeof(MRContactPointMetaGPU) == 48);
 static_assert(sizeof(MRContactIslandGPU) == 32);
 static_assert(sizeof(MRArticulationFactorCacheGPU) == 48);
-static_assert(sizeof(MRMetalWorldContactStatusGPU) == 176);
+static_assert(sizeof(MRMetalWorldContactStatusGPU) == 240);
 static_assert(sizeof(MRInverseMassDispatchGPU) == 48);
 static_assert(sizeof(MRInverseMassStatusGPU) == 48);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);

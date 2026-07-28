@@ -147,8 +147,46 @@ void validateInput(
 
 } // namespace
 
+struct MetalDeviceTuningProfile {
+    std::uint64_t registryID = 0u;
+    std::uint32_t appleGPUFamily = 0u;
+    std::uint32_t waveWorkerGroupCount = 32u;
+};
+
+MetalDeviceTuningProfile tuningProfile(
+    mx::metal::Device& device
+) {
+    MetalDeviceTuningProfile profile{};
+    MTL::Device* metalDevice = device.mtl_device();
+    if (metalDevice == nullptr) {
+        return profile;
+    }
+    profile.registryID = metalDevice->registryID();
+    for (std::uint32_t family = 10u;
+         family != 0u;
+         --family) {
+        const auto candidate = static_cast<MTL::GPUFamily>(
+            static_cast<std::uint32_t>(
+                MTL::GPUFamilyApple1
+            ) +
+            family - 1u
+        );
+        if (metalDevice->supportsFamily(candidate)) {
+            profile.appleGPUFamily = family;
+            break;
+        }
+    }
+    // Apple9/10 covers the current M3/M4-class occupancy profile. The worker
+    // grid is fixed before lazy evaluation; no rollout-time autotuning or
+    // synchronization is permitted.
+    profile.waveWorkerGroupCount =
+        profile.appleGPUFamily >= 9u ? 64u : 32u;
+    return profile;
+}
+
 struct MetalResources {
     mx::metal::Device* device = nullptr;
+    MetalDeviceTuningProfile tuning{};
     std::vector<mx::allocator::Buffer> buffers;
     MTL::ComputePipelineState* abaKernel = nullptr;
     MTL::ComputePipelineState* commitKernel = nullptr;
@@ -192,6 +230,9 @@ MLXCompiledWorld::MLXCompiledWorld(
     const std::uint32_t environmentCapacity,
     const MetalWorldSolverMode solverMode,
     const MetalWorldCCDMode ccdMode,
+    const std::uint32_t maxCCDAdvanceSolvePasses,
+    const std::uint32_t maxCCDZeroTimeReplays,
+    const float ccdSimultaneousTolerance,
     std::vector<MRBodyStateGPU> defaultSceneBodies,
     std::string metallibPath
 )
@@ -202,6 +243,9 @@ MLXCompiledWorld::MLXCompiledWorld(
       environmentCapacity_(environmentCapacity),
       solverMode_(solverMode),
       ccdMode_(ccdMode),
+      maxCCDAdvanceSolvePasses_(maxCCDAdvanceSolvePasses),
+      maxCCDZeroTimeReplays_(maxCCDZeroTimeReplays),
+      ccdSimultaneousTolerance_(ccdSimultaneousTolerance),
       defaultSceneBodies_(std::move(defaultSceneBodies)),
       metallibPath_(std::move(metallibPath)) {}
 
@@ -233,6 +277,20 @@ MetalWorldSolverMode MLXCompiledWorld::solverMode() const noexcept {
 
 MetalWorldCCDMode MLXCompiledWorld::ccdMode() const noexcept {
     return ccdMode_;
+}
+
+std::uint32_t
+MLXCompiledWorld::maxCCDAdvanceSolvePasses() const noexcept {
+    return maxCCDAdvanceSolvePasses_;
+}
+
+std::uint32_t
+MLXCompiledWorld::maxCCDZeroTimeReplays() const noexcept {
+    return maxCCDZeroTimeReplays_;
+}
+
+float MLXCompiledWorld::ccdSimultaneousTolerance() const noexcept {
+    return ccdSimultaneousTolerance_;
 }
 
 const std::vector<MRBodyStateGPU>&
@@ -315,6 +373,7 @@ MetalResources& MLXCompiledWorld::resources(
 
     auto staged = std::make_unique<MetalResources>();
     staged->device = &device;
+    staged->tuning = tuningProfile(device);
     staged->buffers.reserve(15u);
     staged->buffers.push_back(
         immutableBuffer(&worldRecord, 1u)
@@ -433,6 +492,8 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_project_swept_colliders",
         "mr_world_flag_eligible_pairs",
         "mr_world_resolve_ccd",
+        "mr_world_select_ccd_event_state",
+        "mr_world_finalize_ccd_event_state",
         "mr_world_scan_blocks",
         "mr_world_scan_add_block_offsets",
         "mr_world_flag_pair_work_class",
@@ -454,6 +515,7 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_flag_distributed_tiles",
         "mr_world_scatter_distributed_tile_queue",
         "mr_world_wave32_solve",
+        "mr_world_wave32_solve_persistent",
         "mr_world_wave32_distributed_prepare",
         "mr_world_wave32_distributed_delta",
         "mr_world_wave32_distributed_reduce",
@@ -498,8 +560,9 @@ MetalResources& MLXCompiledWorld::resources(
         staged->kernels.at(
             "mr_world_narrowphase_pair_queue"
         );
-    const auto* wave32Solve =
-        staged->kernels.at("mr_world_wave32_solve");
+    const auto* wave32Solve = staged->kernels.at(
+        "mr_world_wave32_solve_persistent"
+    );
     const auto* solverCohort =
         staged->kernels.at("mr_world_select_solver_cohort");
     if (pairNarrowphase->threadExecutionWidth() !=
@@ -527,6 +590,9 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
     const bool applyBodyDamping,
     const std::string& requestedSolverMode,
     const std::string& requestedCCDMode,
+    const std::uint32_t maxCCDAdvanceSolvePasses,
+    const std::uint32_t maxCCDZeroTimeReplays,
+    const float ccdSimultaneousTolerance,
     const std::string& requestedMetallibPath,
     mx::StreamOrDevice stream
 ) {
@@ -539,6 +605,19 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             "control_timestep must be finite and positive and "
             "physics_substeps must be in [1, 128], with a positive "
             "environment_capacity"
+        );
+    }
+    if (maxCCDAdvanceSolvePasses == 0u ||
+        maxCCDAdvanceSolvePasses >
+            MR_CCD_MAX_ADVANCE_SOLVE_PASSES ||
+        maxCCDZeroTimeReplays >
+            MR_CCD_MAX_ZERO_TIME_REPLAYS ||
+        !std::isfinite(ccdSimultaneousTolerance) ||
+        !(ccdSimultaneousTolerance > 0.0f)) {
+        throw std::invalid_argument(
+            "max_ccd_advance_solve_passes and "
+            "max_ccd_zero_time_replays exceed the compiled limits, "
+            "or ccd_simultaneous_tolerance is not positive"
         );
     }
     EngineModel model;
@@ -763,6 +842,9 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         environmentCapacity,
         solverMode,
         ccdMode,
+        maxCCDAdvanceSolvePasses,
+        maxCCDZeroTimeReplays,
+        ccdSimultaneousTolerance,
         std::move(defaultSceneBodies),
         std::move(metallibPath)
     );
@@ -1712,6 +1794,10 @@ void WorldStepPrimitive::eval_gpu(
         rawRecords.template operator()<MRIslandWorkGPU>(
             2u * islandWorkCount
         );
+    mx::array waveWorkPackets =
+        rawRecords.template operator()<MRWaveWorkPacketGPU>(
+            islandWorkCount
+        );
     mx::array contactTiles =
         rawRecords.template operator()<MRContactTileGPU>(
             2u * static_cast<std::size_t>(environments) *
@@ -1746,6 +1832,18 @@ void WorldStepPrimitive::eval_gpu(
         rawRecords.template operator()<MRCCDPairGPU>(
             static_cast<std::size_t>(environments) *
             capacity.ccdCandidates
+        );
+    mx::array ccdEventStatesA =
+        rawRecords.template operator()<MRCCDEventStateGPU>(
+            environments
+        );
+    mx::array ccdEventStatesB =
+        rawRecords.template operator()<MRCCDEventStateGPU>(
+            environments
+        );
+    mx::array ccdImpactClusters =
+        rawRecords.template operator()<MRCCDImpactClusterGPU>(
+            environments
         );
 
     encoder.add_temporaries(std::move(retainedTemporaries));
@@ -1837,6 +1935,12 @@ void WorldStepPrimitive::eval_gpu(
         MR_WORLD_WORK_CLASS_COUNT;
     contactDispatch.queueStride = queueStride;
     contactDispatch.convexCacheStride = pairCount;
+    contactDispatch.maxCCDAdvanceSolvePasses =
+        world_->maxCCDAdvanceSolvePasses();
+    contactDispatch.maxCCDZeroTimeReplays =
+        world_->maxCCDZeroTimeReplays();
+    contactDispatch.waveWorkerGroupCount =
+        resources.tuning.waveWorkerGroupCount;
     if (world_->ccdMode() != MetalWorldCCDMode::disabled) {
         contactDispatch.flags |= MR_METAL_WORLD_CONTACT_CCD;
     }
@@ -1868,6 +1972,12 @@ void WorldStepPrimitive::eval_gpu(
         {0.02f, 0.02f, 0.002f, 0.95f};
     contactDispatch.ccdParameters =
         {1.0e-5f, 1.0e-5f, 1.0f, 1.0e4f};
+    contactDispatch.ccdEventParameters = {
+        world_->ccdSimultaneousTolerance(),
+        1.0e-5f,
+        0.0f,
+        0.0f,
+    };
 
     MRMLXContactAdapterDispatchGPU adapterDispatch{};
     adapterDispatch.environmentCount = environments;
@@ -2318,6 +2428,23 @@ void WorldStepPrimitive::eval_gpu(
                 environments,
                 resources.kernel("mr_world_resolve_ccd")
             );
+
+            setPhysicsKernel(
+                "mr_world_select_ccd_event_state"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            inputArray(ccdPairs, 1);
+            outputArray(ccdEventStatesA, 2);
+            outputArray(ccdEventStatesB, 3);
+            outputArray(ccdImpactClusters, 4);
+            outputArray(outputs[11], 5);
+            encoder.set_bytes(pass, 6);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_select_ccd_event_state"
+                )
+            );
         }
 
         const std::size_t pairWorkers =
@@ -2611,6 +2738,7 @@ void WorldStepPrimitive::eval_gpu(
             setPhysicsKernel("mr_world_select_solver_cohort");
             inputArray(compactIslandWork, 0);
             outputArray(workHeaders, 1);
+            outputArray(waveWorkPackets, 2);
             encoder.dispatch_threadgroups(
                 MTL::Size(1u, 1u, 1u),
                 MTL::Size(
@@ -2696,7 +2824,7 @@ void WorldStepPrimitive::eval_gpu(
                         tileWorkCount,
                         1u
                     ),
-                    64u
+                    resources.tuning.waveWorkerGroupCount
                 );
             const std::size_t distributedIslandWorkers =
                 std::min<std::size_t>(
@@ -2825,7 +2953,9 @@ void WorldStepPrimitive::eval_gpu(
                 }
             }
 
-            setPhysicsKernel("mr_world_wave32_solve");
+            setPhysicsKernel(
+                "mr_world_wave32_solve_persistent"
+            );
             encoder.set_bytes(contactDispatch, 0);
             inputArray(factor, 1);
             inputArray(pointJacobians, 2);
@@ -2846,8 +2976,21 @@ void WorldStepPrimitive::eval_gpu(
             outputArray(waveStatuses, 17);
             inputArray(workHeaders, 18);
             encoder.set_bytes(solverPass, 19);
+            inputArray(waveWorkPackets, 20);
+            const std::size_t persistentWaveWorkers =
+                std::min<std::size_t>(
+                    std::max<std::size_t>(
+                        islandWorkCount,
+                        1u
+                    ),
+                    64u
+                );
             encoder.dispatch_threadgroups(
-                MTL::Size(islandWorkCount, 1u, 1u),
+                MTL::Size(
+                    persistentWaveWorkers,
+                    1u,
+                    1u
+                ),
                 MTL::Size(
                     MR_WAVE32_CONTACTS_PER_TILE,
                     1u,
@@ -2931,6 +3074,21 @@ void WorldStepPrimitive::eval_gpu(
                 "mr_world_integrate_contact_state"
             )
         );
+
+        if (world_->ccdMode() == MetalWorldCCDMode::hybrid) {
+            setPhysicsKernel(
+                "mr_world_finalize_ccd_event_state"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            outputArray(ccdEventStatesB, 1);
+            outputArray(outputs[11], 2);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_finalize_ccd_event_state"
+                )
+            );
+        }
 
         setPhysicsKernel("mr_world_latch_contact_status");
         encoder.set_bytes(worldDispatch, 0);

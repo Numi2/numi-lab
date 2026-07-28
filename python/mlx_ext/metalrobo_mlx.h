@@ -27,6 +27,9 @@ public:
         std::uint32_t environmentCapacity,
         MetalWorldSolverMode solverMode,
         MetalWorldCCDMode ccdMode,
+        std::uint32_t maxCCDAdvanceSolvePasses,
+        std::uint32_t maxCCDZeroTimeReplays,
+        float ccdSimultaneousTolerance,
         std::vector<MRBodyStateGPU> defaultSceneBodies,
         std::string metallibPath
     );
@@ -42,6 +45,11 @@ public:
     [[nodiscard]] std::uint32_t environmentCapacity() const noexcept;
     [[nodiscard]] MetalWorldSolverMode solverMode() const noexcept;
     [[nodiscard]] MetalWorldCCDMode ccdMode() const noexcept;
+    [[nodiscard]] std::uint32_t
+    maxCCDAdvanceSolvePasses() const noexcept;
+    [[nodiscard]] std::uint32_t
+    maxCCDZeroTimeReplays() const noexcept;
+    [[nodiscard]] float ccdSimultaneousTolerance() const noexcept;
     [[nodiscard]] const std::vector<MRBodyStateGPU>&
     defaultSceneBodies() const noexcept;
     [[nodiscard]] const std::string& metallibPath() const noexcept;
@@ -61,6 +69,11 @@ private:
     MetalWorldSolverMode solverMode_ =
         MetalWorldSolverMode::freeMotionABA;
     MetalWorldCCDMode ccdMode_ = MetalWorldCCDMode::disabled;
+    std::uint32_t maxCCDAdvanceSolvePasses_ =
+        MR_CCD_DEFAULT_ADVANCE_SOLVE_PASSES;
+    std::uint32_t maxCCDZeroTimeReplays_ =
+        MR_CCD_DEFAULT_ZERO_TIME_REPLAYS;
+    float ccdSimultaneousTolerance_ = 1.0e-5f;
     std::vector<MRBodyStateGPU> defaultSceneBodies_;
     std::string metallibPath_;
     std::mutex resourceMutex_;
@@ -77,6 +90,9 @@ private:
     bool applyBodyDamping,
     const std::string& solverMode,
     const std::string& ccdMode,
+    std::uint32_t maxCCDAdvanceSolvePasses,
+    std::uint32_t maxCCDZeroTimeReplays,
+    float ccdSimultaneousTolerance,
     const std::string& metallibPath,
     mx::StreamOrDevice stream = {}
 );

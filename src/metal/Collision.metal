@@ -5144,6 +5144,12 @@ inline bool finiteContactDispatch(
         dispatch.ccdMode <= MR_WORLD_CCD_HYBRID &&
         dispatch.maxCCDEvents > 0u &&
         dispatch.maxCCDEvents <= MR_CCD_MAX_EVENTS &&
+        dispatch.maxCCDAdvanceSolvePasses > 0u &&
+        dispatch.maxCCDAdvanceSolvePasses <=
+            MR_CCD_MAX_ADVANCE_SOLVE_PASSES &&
+        dispatch.maxCCDZeroTimeReplays <=
+            MR_CCD_MAX_ZERO_TIME_REPLAYS &&
+        dispatch.waveWorkerGroupCount > 0u &&
         dispatch.maxConservativeAdvancementIterations > 0u &&
         dispatch.rowCapacity >=
             3u * dispatch.constraintCapacity &&
@@ -5163,7 +5169,10 @@ inline bool finiteContactDispatch(
         all(dispatch.ccdParameters.xyz >= 0.0f) &&
         dispatch.ccdParameters.x > 0.0f &&
         dispatch.ccdParameters.y > 0.0f &&
-        dispatch.ccdParameters.w > 0.0f;
+        dispatch.ccdParameters.w > 0.0f &&
+        finiteFloat4(dispatch.ccdEventParameters) &&
+        dispatch.ccdEventParameters.x > 0.0f &&
+        dispatch.ccdEventParameters.y > 0.0f;
 }
 
 } // namespace
@@ -6379,7 +6388,177 @@ kernel void mr_world_resolve_ccd(
         status.firstFailingStableKeyLow =
             status.firstFailingPair;
         status.firstFailingStableKeyHigh = environment;
+        status.firstFailingEventKeyLow =
+            status.firstFailingPair;
+        status.firstFailingEventKeyHigh = environment;
     }
+    statuses[environment] = status;
+}
+
+// Materializes the sorted CCD prefix into the world-graph ABI's transient
+// event cursor and simultaneous-impact record. The current graph consumes
+// the certified remainder through speculative TGS; the same state is the
+// input to the bounded literal advance/solve passes.
+kernel void mr_world_select_ccd_event_state(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRCCDPairGPU* candidates [[buffer(1)]],
+    device MRCCDEventStateGPU* eventStatesA [[buffer(2)]],
+    device MRCCDEventStateGPU* eventStatesB [[buffer(3)]],
+    device MRCCDImpactClusterGPU* clusters [[buffer(4)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(5)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(6)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    MRCCDEventStateGPU state = {};
+    state.environment = environment;
+    state.flags = MR_CCD_EVENT_ACTIVE;
+    state.generation =
+        pass.physicsSubstep *
+        dispatch.maxCCDAdvanceSolvePasses;
+    state.lastStableKeyLow = MR_INVALID_INDEX;
+    state.lastStableKeyHigh = MR_INVALID_INDEX;
+    state.time = float4(
+        0.0f,
+        dispatch.timestepAndBias.x,
+        0.0f,
+        dispatch.timestepAndBias.x
+    );
+    MRCCDImpactClusterGPU cluster = {};
+    cluster.environment = environment;
+    cluster.generation = state.generation;
+    cluster.firstEventSlot = MR_INVALID_INDEX;
+    cluster.stableKeyLow = MR_INVALID_INDEX;
+    cluster.stableKeyHigh = MR_INVALID_INDEX;
+    cluster.interval = float4(
+        1.0f,
+        1.0f,
+        1.0f,
+        dispatch.ccdEventParameters.x
+    );
+
+    if (status.code != MR_STEP_SUCCESS ||
+        dispatch.ccdMode != MR_WORLD_CCD_HYBRID) {
+        state.flags =
+            status.code == MR_STEP_SUCCESS
+            ? MR_CCD_EVENT_FINISHED
+            : MR_CCD_EVENT_FAILED;
+        eventStatesA[environment] = state;
+        eventStatesB[environment] = state;
+        clusters[environment] = cluster;
+        status.eventGeneration = state.generation;
+        statuses[environment] = status;
+        return;
+    }
+
+    const uint storedEvents = min(
+        status.ccdEvents,
+        min(
+            dispatch.ccdCandidateCapacity,
+            dispatch.ccdEventCapacity
+        )
+    );
+    if (storedEvents != 0u) {
+        const uint candidateBase =
+            environment * dispatch.ccdCandidateCapacity;
+        const MRCCDPairGPU first = candidates[candidateBase];
+        const float earliest = clamp(
+            first.intervalAndDistance.x,
+            0.0f,
+            1.0f
+        );
+        const float tolerance = max(
+            dispatch.ccdEventParameters.x,
+            max(
+                dispatch.ccdParameters.y,
+                8.0f * abs(
+                    nextafter(earliest, 2.0f) - earliest
+                )
+            )
+        );
+        uint clustered = 0u;
+        for (uint eventSlot = 0u;
+             eventSlot < storedEvents;
+             ++eventSlot) {
+            const MRCCDPairGPU event =
+                candidates[candidateBase + eventSlot];
+            if (event.intervalAndDistance.x >
+                earliest + tolerance) {
+                break;
+            }
+            ++clustered;
+        }
+        state.flags |= MR_CCD_EVENT_HAS_IMPACT;
+        state.simultaneousEventCount = clustered;
+        state.lastStableKeyLow = first.stableKeyLow;
+        state.lastStableKeyHigh = first.stableKeyHigh;
+        state.time.w =
+            earliest * dispatch.timestepAndBias.x;
+        state.cluster = uint4(
+            0u,
+            clustered,
+            status.unresolvedCCDCount == 0u ? 1u : 0u,
+            0u
+        );
+        cluster.firstEventSlot = 0u;
+        cluster.eventCount = clustered;
+        cluster.stableKeyLow = first.stableKeyLow;
+        cluster.stableKeyHigh = first.stableKeyHigh;
+        cluster.flags = MR_CCD_EVENT_HAS_IMPACT;
+        cluster.interval = float4(
+            earliest,
+            first.intervalAndDistance.x,
+            first.intervalAndDistance.y,
+            tolerance
+        );
+        status.clusteredCCDImpacts = clustered;
+        status.eventTimes.z = state.time.w;
+        status.eventTimes.w = state.time.w;
+    }
+    eventStatesA[environment] = state;
+    eventStatesB[environment] = state;
+    clusters[environment] = cluster;
+    status.eventGeneration = state.generation;
+    statuses[environment] = status;
+}
+
+// Current compatibility closeout: speculative TGS consumes every remaining
+// second and records that fact explicitly. Literal event passes replace this
+// closeout by updating the same cursor after each accepted advance.
+kernel void mr_world_finalize_ccd_event_state(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device MRCCDEventStateGPU* eventStates [[buffer(1)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(2)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    MRCCDEventStateGPU state = eventStates[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        state.flags |= MR_CCD_EVENT_FAILED;
+        eventStates[environment] = state;
+        return;
+    }
+    if (dispatch.ccdMode == MR_WORLD_CCD_HYBRID &&
+        (state.flags & MR_CCD_EVENT_HAS_IMPACT) != 0u &&
+        state.splitCount == 0u) {
+        state.flags |=
+            MR_CCD_EVENT_SPECULATIVE_REMAINDER;
+        status.speculativeRemainderUses += 1u;
+    }
+    state.flags &= ~static_cast<uint>(MR_CCD_EVENT_ACTIVE);
+    state.flags |= MR_CCD_EVENT_FINISHED;
+    state.time.x = dispatch.timestepAndBias.x;
+    state.time.y = 0.0f;
+    state.time.z = dispatch.timestepAndBias.x;
+    status.eventTimes.x = state.time.z;
+    status.eventTimes.y = state.time.y;
+    eventStates[environment] = state;
     statuses[environment] = status;
 }
 

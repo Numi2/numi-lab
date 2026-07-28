@@ -636,6 +636,8 @@ kernel void mr_world_prepare_contact_step(
     status.physicsSubstep = MR_INVALID_INDEX;
     status.firstFailingPair = MR_INVALID_INDEX;
     status.firstFailingConstraint = MR_INVALID_INDEX;
+    status.firstFailingEventKeyLow = MR_INVALID_INDEX;
+    status.firstFailingEventKeyHigh = MR_INVALID_INDEX;
 
     const bool hasResets =
         (worldDispatch.flags & MR_METAL_WORLD_HAS_RESETS) != 0u;
@@ -868,17 +870,15 @@ kernel void mr_world_predict_scene(
         if (properties.motionType != MR_MOTION_DYNAMIC) {
             continue;
         }
-        const float linearScale = max(
-            0.0f,
-            1.0f -
-                timestep *
-                    properties.dampingAndSpeedLimits.x
+        // Exponential damping is invariant under event-time splitting:
+        // exp(-d * h0) * exp(-d * h1) == exp(-d * (h0 + h1)).
+        const float linearScale = exp(
+            -timestep *
+                properties.dampingAndSpeedLimits.x
         );
-        const float angularScale = max(
-            0.0f,
-            1.0f -
-                timestep *
-                    properties.dampingAndSpeedLimits.y
+        const float angularScale = exp(
+            -timestep *
+                properties.dampingAndSpeedLimits.y
         );
         state.linearVelocityAndInverseMass.xyz =
             linearScale *
@@ -1631,6 +1631,7 @@ kernel void mr_world_scatter_island_queue(
 kernel void mr_world_select_solver_cohort(
     device const MRIslandWorkGPU* compactWork [[buffer(0)]],
     device MRWorkQueueHeaderGPU* headers [[buffer(1)]],
+    device MRWaveWorkPacketGPU* packets [[buffer(2)]],
     const uint lane [[thread_index_in_simdgroup]]
 ) {
     device MRWorkQueueHeaderGPU& header =
@@ -1656,24 +1657,63 @@ kernel void mr_world_select_solver_cohort(
         requiredWidth = max(requiredWidth, width);
     }
     requiredWidth = simd_max(requiredWidth);
-    if (lane != 0u) {
-        return;
+    if (lane == 0u) {
+        const uint cohortWidth =
+            count != 0u &&
+            requiredWidth <= 8u &&
+            (count & 3u) == 0u
+            ? 8u
+            : count != 0u &&
+              requiredWidth <= 16u &&
+              (count & 1u) == 0u
+            ? 16u
+            : MR_WAVE32_CONTACTS_PER_TILE;
+        const uint cohortsPerGroup =
+            MR_WAVE32_CONTACTS_PER_TILE / cohortWidth;
+        header.reserved0 = cohortWidth;
+        header.indirect.threadgroupsX =
+            count / cohortsPerGroup;
     }
-    const uint cohortWidth =
-        count != 0u &&
-        requiredWidth <= 8u &&
-        (count & 3u) == 0u
-        ? 8u
-        : count != 0u &&
-          requiredWidth <= 16u &&
-          (count & 1u) == 0u
-        ? 16u
-        : MR_WAVE32_CONTACTS_PER_TILE;
+    threadgroup_barrier(mem_flags::mem_device);
+
+    // Freeze the scan-ordered compact island stream into immutable packets
+    // in the same one-SIMDgroup pass that chooses the homogeneous cohort.
+    // Worker atomics may claim packets in any order without changing keys.
+    const uint cohortWidth = header.reserved0;
     const uint cohortsPerGroup =
         MR_WAVE32_CONTACTS_PER_TILE / cohortWidth;
-    header.reserved0 = cohortWidth;
-    header.indirect.threadgroupsX =
-        count / cohortsPerGroup;
+    for (uint packetSlot = lane;
+         packetSlot < header.indirect.threadgroupsX;
+         packetSlot += MR_WAVE32_CONTACTS_PER_TILE) {
+        const uint firstWork = packetSlot * cohortsPerGroup;
+        const uint validCohorts = min(
+            cohortsPerGroup,
+            header.count - firstWork
+        );
+        MRWaveWorkPacketGPU packet = {};
+        packet.islandSlots = uint4(MR_INVALID_INDEX);
+        packet.stableKeyLow = uint4(MR_INVALID_INDEX);
+        packet.stableKeyHigh = uint4(MR_INVALID_INDEX);
+        for (uint cohort = 0u;
+             cohort < validCohorts;
+             ++cohort) {
+            const uint workSlot = firstWork + cohort;
+            const MRIslandWorkGPU work =
+                compactWork[workSlot];
+            packet.islandSlots[cohort] = workSlot;
+            packet.stableKeyLow[cohort] =
+                work.islandIndex;
+            packet.stableKeyHigh[cohort] =
+                work.environment;
+        }
+        packet.metadata = uint4(
+            cohortWidth,
+            validCohorts,
+            0u,
+            0u
+        );
+        packets[packetSlot] = packet;
+    }
 }
 
 kernel void mr_world_flag_distributed_islands(
@@ -2625,49 +2665,53 @@ uint waveCohortMinimum(
     return value;
 }
 
-// One SIMD32 group owns one full mixed-contact island or a deterministic
-// packet of two/four homogeneous compact islands. Within a packet, contiguous
-// 16/8-lane cohorts own independent islands. A cohort lane owns one coupled
-// normal/tangent block in each tile, then cooperatively assembles a single
-// articulation/free-body velocity update without atomics.
-kernel void mr_world_wave32_solve(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const float* factors [[buffer(1)]],
-    device const float* pointJacobians [[buffer(2)]],
-    device float* candidateV [[buffer(3)]],
-    device MRBodyStateGPU* candidateBodies [[buffer(4)]],
-    device MRContactConstraintGPU* contacts [[buffer(5)]],
-    device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
-    device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
-    device float* responseColumns [[buffer(9)]],
-    device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(11)]],
-    device const MRIslandWorkGPU* islandWork [[buffer(12)]],
-    device const MRContactTileGPU* tiles [[buffer(13)]],
-    device const uint* tileConstraintIndices [[buffer(14)]],
-    device float4* impulseDeltas [[buffer(15)]],
-    device MRWave32PreconditionerGPU* preconditioners [[buffer(16)]],
-    device MRWave32IslandStatusGPU* waveStatuses [[buffer(17)]],
-    device const MRWorkQueueHeaderGPU* workHeaders [[buffer(18)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(19)]],
-    const uint packetSlot [[threadgroup_position_in_grid]],
-    const uint lane [[thread_index_in_simdgroup]]
+// Shared packet body. Standalone Metal obtains packet slots through indirect
+// dispatch while MLX uses a fixed worker grid that repeatedly claims slots
+// from the invocation-local queue cursor.
+inline void mrWorldWave32SolvePacket(
+    device const MRMetalWorldContactDispatchGPU& dispatch,
+    device const float* factors,
+    device const float* pointJacobians,
+    device float* candidateV,
+    device MRBodyStateGPU* candidateBodies,
+    device MRContactConstraintGPU* contacts,
+    device const MRContactPointMetaGPU* contactMetadata,
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows,
+    device const MREvaluatedConstraintIRConeGPU* evaluatedCones,
+    device float* responseColumns,
+    device MRManifoldPointGPU* candidateManifoldPoints,
+    device const MRMetalWorldContactStatusGPU* statuses,
+    device const MRIslandWorkGPU* islandWork,
+    device const MRContactTileGPU* tiles,
+    device const uint* tileConstraintIndices,
+    device float4* impulseDeltas,
+    device MRWave32PreconditionerGPU* preconditioners,
+    device MRWave32IslandStatusGPU* waveStatuses,
+    device const MRWorkQueueHeaderGPU* workHeaders,
+    device const MRWaveWorkPacketGPU* workPackets,
+    constant MRMetalWorldPassGPU& pass,
+    const uint packetSlot,
+    const uint lane,
+    threadgroup uint* failureCodes,
+    threadgroup uint* failureConstraints,
+    threadgroup uint* sharedFailure
 ) {
     const MRWorkQueueHeaderGPU workHeader =
         workHeaders[MR_WORLD_WORK_SOLVER];
+    const MRWaveWorkPacketGPU packet =
+        workPackets[packetSlot];
     const uint cohortWidth =
-        workHeader.reserved0 == 8u ||
-        workHeader.reserved0 == 16u
-        ? workHeader.reserved0
+        packet.metadata.x == 8u ||
+        packet.metadata.x == 16u
+        ? packet.metadata.x
         : MR_WAVE32_CONTACTS_PER_TILE;
-    const uint cohortsPerGroup =
-        MR_WAVE32_CONTACTS_PER_TILE / cohortWidth;
     const uint cohortIndex = lane / cohortWidth;
     const uint localLane =
         lane - cohortIndex * cohortWidth;
-    const uint workSlot =
-        packetSlot * cohortsPerGroup + cohortIndex;
+    if (cohortIndex >= packet.metadata.y) {
+        return;
+    }
+    const uint workSlot = packet.islandSlots[cohortIndex];
     if (workSlot >= workHeader.count) {
         return;
     }
@@ -2687,7 +2731,9 @@ kernel void mr_world_wave32_solve(
     }
     if ((work.flags & MR_ISLAND_WORK_VALID) == 0u ||
         work.environment != environment ||
-        work.islandIndex != islandIndex) {
+        work.islandIndex != islandIndex ||
+        packet.stableKeyLow[cohortIndex] != islandIndex ||
+        packet.stableKeyHigh[cohortIndex] != environment) {
         return;
     }
     if ((work.flags & MR_ISLAND_WORK_DISTRIBUTED) != 0u) {
@@ -2719,13 +2765,6 @@ kernel void mr_world_wave32_solve(
     device MRBodyStateGPU* bodies =
         candidateBodies + bodyBase;
 
-    threadgroup uint failureCodes[
-        MR_WAVE32_CONTACTS_PER_TILE
-    ];
-    threadgroup uint failureConstraints[
-        MR_WAVE32_CONTACTS_PER_TILE
-    ];
-    threadgroup uint sharedFailure[4u];
     uint localFailure = MR_STEP_SUCCESS;
     uint localFailureConstraint = MR_INVALID_INDEX;
     float laneMaximumDelta = 0.0f;
@@ -3408,6 +3447,177 @@ kernel void mr_world_wave32_solve(
     }
 }
 
+// One SIMD32 group owns one full mixed-contact island or a deterministic
+// packet of two/four homogeneous compact islands. Within a packet, contiguous
+// 16/8-lane cohorts own independent islands. A cohort lane owns one coupled
+// normal/tangent block in each tile, then cooperatively assembles a single
+// articulation/free-body velocity update without atomics.
+kernel void mr_world_wave32_solve(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const float* factors [[buffer(1)]],
+    device const float* pointJacobians [[buffer(2)]],
+    device float* candidateV [[buffer(3)]],
+    device MRBodyStateGPU* candidateBodies [[buffer(4)]],
+    device MRContactConstraintGPU* contacts [[buffer(5)]],
+    device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
+    device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
+    device float* responseColumns [[buffer(9)]],
+    device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(11)]],
+    device const MRIslandWorkGPU* islandWork [[buffer(12)]],
+    device const MRContactTileGPU* tiles [[buffer(13)]],
+    device const uint* tileConstraintIndices [[buffer(14)]],
+    device float4* impulseDeltas [[buffer(15)]],
+    device MRWave32PreconditionerGPU* preconditioners [[buffer(16)]],
+    device MRWave32IslandStatusGPU* waveStatuses [[buffer(17)]],
+    device const MRWorkQueueHeaderGPU* workHeaders [[buffer(18)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(19)]],
+    device const MRWaveWorkPacketGPU* workPackets [[buffer(20)]],
+    const uint packetSlot [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    threadgroup uint failureCodes[
+        MR_WAVE32_CONTACTS_PER_TILE
+    ];
+    threadgroup uint failureConstraints[
+        MR_WAVE32_CONTACTS_PER_TILE
+    ];
+    threadgroup uint sharedFailure[4u];
+    mrWorldWave32SolvePacket(
+        dispatch,
+        factors,
+        pointJacobians,
+        candidateV,
+        candidateBodies,
+        contacts,
+        contactMetadata,
+        evaluatedRows,
+        evaluatedCones,
+        responseColumns,
+        candidateManifoldPoints,
+        statuses,
+        islandWork,
+        tiles,
+        tileConstraintIndices,
+        impulseDeltas,
+        preconditioners,
+        waveStatuses,
+        workHeaders,
+        workPackets,
+        pass,
+        packetSlot,
+        lane,
+        failureCodes,
+        failureConstraints,
+        sharedFailure
+    );
+}
+
+// MLX cannot issue an indirect dispatch through its active encoder. A bounded
+// occupancy-sized grid therefore remains resident and claims deterministic
+// packet slots through one relaxed atomic per packet. Packet writes are
+// disjoint, so claim order cannot affect physical ordering or replay hashes.
+kernel void mr_world_wave32_solve_persistent(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const float* factors [[buffer(1)]],
+    device const float* pointJacobians [[buffer(2)]],
+    device float* candidateV [[buffer(3)]],
+    device MRBodyStateGPU* candidateBodies [[buffer(4)]],
+    device MRContactConstraintGPU* contacts [[buffer(5)]],
+    device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
+    device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
+    device float* responseColumns [[buffer(9)]],
+    device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(11)]],
+    device const MRIslandWorkGPU* islandWork [[buffer(12)]],
+    device const MRContactTileGPU* tiles [[buffer(13)]],
+    device const uint* tileConstraintIndices [[buffer(14)]],
+    device float4* impulseDeltas [[buffer(15)]],
+    device MRWave32PreconditionerGPU* preconditioners [[buffer(16)]],
+    device MRWave32IslandStatusGPU* waveStatuses [[buffer(17)]],
+    device MRWorkQueueHeaderGPU* workHeaders [[buffer(18)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(19)]],
+    device const MRWaveWorkPacketGPU* workPackets [[buffer(20)]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    threadgroup uint claimedPacket;
+    threadgroup uint failureCodes[
+        MR_WAVE32_CONTACTS_PER_TILE
+    ];
+    threadgroup uint failureConstraints[
+        MR_WAVE32_CONTACTS_PER_TILE
+    ];
+    threadgroup uint sharedFailure[4u];
+    device MRWorkQueueHeaderGPU& header =
+        workHeaders[MR_WORLD_WORK_SOLVER];
+    device atomic_uint* cursor =
+        reinterpret_cast<device atomic_uint*>(
+            &header.workerCursor
+        );
+    if (lane == 0u) {
+        device atomic_uint* flags =
+            reinterpret_cast<device atomic_uint*>(
+                &header.flags
+            );
+        atomic_fetch_or_explicit(
+            flags,
+            static_cast<uint>(
+                MR_WORLD_QUEUE_PERSISTENT_WORKER
+            ),
+            memory_order_relaxed
+        );
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    while (true) {
+        if (lane == 0u) {
+            claimedPacket = atomic_fetch_add_explicit(
+                cursor,
+                1u,
+                memory_order_relaxed
+            );
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        const uint packetSlot = claimedPacket;
+        if (packetSlot >= header.indirect.threadgroupsX) {
+            break;
+        }
+        mrWorldWave32SolvePacket(
+            dispatch,
+            factors,
+            pointJacobians,
+            candidateV,
+            candidateBodies,
+            contacts,
+            contactMetadata,
+            evaluatedRows,
+            evaluatedCones,
+            responseColumns,
+            candidateManifoldPoints,
+            statuses,
+            islandWork,
+            tiles,
+            tileConstraintIndices,
+            impulseDeltas,
+            preconditioners,
+            waveStatuses,
+            workHeaders,
+            workPackets,
+            pass,
+            packetSlot,
+            lane,
+            failureCodes,
+            failureConstraints,
+            sharedFailure
+        );
+        threadgroup_barrier(
+            mem_flags::mem_device |
+            mem_flags::mem_threadgroup
+        );
+    }
+}
+
 // Environment-level reduction is deliberately separate from the island
 // kernels: islands never contend on status publication and failed
 // environments remain transactionally isolated.
@@ -3449,12 +3659,31 @@ kernel void mr_world_reduce_wave32_status(
     status.residuals = residuals;
     const uint cohortWidth =
         workHeaders[MR_WORLD_WORK_SOLVER].reserved0;
+    const MRWorkQueueHeaderGPU solverHeader =
+        workHeaders[MR_WORLD_WORK_SOLVER];
     status.queueFlags |=
         cohortWidth == 8u
         ? MR_WORLD_QUEUE_COHORT_8
         : cohortWidth == 16u
         ? MR_WORLD_QUEUE_COHORT_16
         : 0u;
+    if ((solverHeader.flags &
+         MR_WORLD_QUEUE_PERSISTENT_WORKER) != 0u) {
+        status.queueFlags |=
+            MR_WORLD_QUEUE_PERSISTENT_WORKER;
+        status.workerPackets =
+            solverHeader.indirect.threadgroupsX;
+        status.workerHighWater = max(
+            status.workerHighWater,
+            solverHeader.indirect.threadgroupsX
+        );
+        status.workerEmptyPulls =
+            solverHeader.workerCursor >
+                    solverHeader.indirect.threadgroupsX
+            ? solverHeader.workerCursor -
+                solverHeader.indirect.threadgroupsX
+            : 0u;
+    }
     if (residuals.w > 0.0f) {
         status.queueFlags |=
             MR_ISLAND_WORK_STIFF_REPLAY;
@@ -4050,6 +4279,8 @@ kernel void mr_world_integrate_contact_state(
         }
         state = updatedState;
     }
+    status.eventTimes.x = timestep;
+    status.eventTimes.y = 0.0f;
     statuses[environment] = status;
 }
 

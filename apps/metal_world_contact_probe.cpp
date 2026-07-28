@@ -446,7 +446,16 @@ int main() {
                 meshCCDResult.contactStatuses[0]
                         .requiredCCDEvents == 1u &&
                 meshCCDResult.contactStatuses[0]
+                        .clusteredCCDImpacts == 1u &&
+                meshCCDResult.contactStatuses[0]
                         .unresolvedCCDCount == 0u &&
+                std::abs(
+                    meshCCDResult.contactStatuses[0]
+                        .eventTimes.x -
+                    meshCCDConfig.timestepSeconds
+                ) < 1.0e-7f &&
+                meshCCDResult.contactStatuses[0]
+                        .eventTimes.y == 0.0f &&
                 meshCCDResult.contactStatuses[0]
                         .activeContacts > 0u &&
                 std::any_of(
@@ -569,7 +578,16 @@ int main() {
                 ccdResult.contactStatuses[0]
                         .requiredCCDEvents == 1u &&
                 ccdResult.contactStatuses[0]
+                        .clusteredCCDImpacts == 1u &&
+                ccdResult.contactStatuses[0]
                         .unresolvedCCDCount == 0u &&
+                std::abs(
+                    ccdResult.contactStatuses[0]
+                        .eventTimes.x -
+                    ccdConfig.timestepSeconds
+                ) < 1.0e-7f &&
+                ccdResult.contactStatuses[0]
+                        .eventTimes.y == 0.0f &&
                 ccdResult.contactStatuses[0]
                         .activeContacts > 0u &&
                 std::any_of(
