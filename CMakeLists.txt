@@ -235,6 +235,7 @@ add_library(
     src/core/FrankaWorld.cpp
     src/core/CpuDynamics.cpp
     src/core/EngineModel.cpp
+    src/core/EngineModelComposer.cpp
     src/core/WorldCompiler.cpp
     src/core/WorldPack.cpp
     src/core/EpisodeTwinCompiler.cpp
@@ -553,6 +554,22 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_discrete_elastic_rod_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_engine_model_composer_probe
+    apps/engine_model_composer_probe.cpp
+)
+target_link_libraries(
+    metalrobo_engine_model_composer_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_engine_model_composer_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
