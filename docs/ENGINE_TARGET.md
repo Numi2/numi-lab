@@ -13,9 +13,11 @@ contact-space exact-cone quality solve with no production dense inverse;
 CPU/Metal free-body integration; five CPU/Metal primitive pair classes;
 deterministic manifolds and a parallel Metal micro broadphase; and a
 correctness-first generic Metal mass/Jacobian/impulse operator exercised on
-actual G1, plus a checked transactional host encoder for that operator. It
-still lacks a persistent asynchronous batched parallel composed Metal
-timestep, a production LBVH/manifold pipeline, general
+actual G1, plus a checked transactional host encoder for that operator; and a
+persistent asynchronous environment-major graph for compiled-articulation
+free motion, reset, transactional state, and observation capture. It still
+lacks the parallel tree/contact stages of a fully composed Metal timestep, a
+production LBVH/manifold pipeline, general
 cylinder/convex/mesh narrowphase, CCD, loop/joint-limit constraints in the
 common solver, multi-articulation islands, importers, and qualified physics
 derivatives. It must not currently be called a complete or state-of-the-art

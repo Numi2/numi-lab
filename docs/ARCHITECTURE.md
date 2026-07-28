@@ -220,15 +220,21 @@ The canonical ABI is also consumed by focused Metal kernels:
 - a correctness-first generic fixed/floating articulation operator for body
   poses, point Jacobians, mass, `Jᵀp`, and factor-solved `M⁻¹Jᵀp`, exercised
   on actual 35-velocity G1 with authoritative armature;
+- a persistent environment-major Metal world graph that caches one compiled
+  articulation and advances a complete action horizon through reset, ABA,
+  transactional ping-pong state, and observation capture in one asynchronous
+  command buffer;
 - the fixed-budget contact PGS block.
 
-These kernels have CPU/Metal parity probes, but they are not yet assembled
-into a batched generic GPU world. GPU manifold persistence/reduction,
-segmented LBVH, parallel narrowphase, and a parallel articulated tree
-implementation are open work. The first generic articulation kernel executes
-its dense correctness path in lane zero and must not be represented as a
-throughput result. The current micro broadphase has an explicit
-65,536-logical-pair scan bound.
+The free-motion ABA stages are assembled into a batched generic GPU world;
+collision/contact stages are not. GPU collider projection, manifold
+persistence/reduction, segmented LBVH, parallel narrowphase, and a parallel
+articulated tree/contact implementation remain open. The ABA recursion still
+executes its deterministic O(n) path in lane zero. Its measured
+environment-control-step throughput is valid for the exact free-motion graph,
+but must not be represented as contact-world or level-parallel tree
+throughput. The current micro broadphase has an explicit 65,536-logical-pair
+scan bound.
 
 The forward architecture is operator-first: every constraint type compiles to
 one semantic program, every dynamics backend exposes a free-motion solve
@@ -280,23 +286,34 @@ before projected-gradient fallback. The throughput path remains PGS, not TGS.
 ## API, memory, and synchronization
 
 - `metalrobo::Runtime` and `c_api.h` expose the original Franka runtime.
+- `CompiledWorld`, `MetalWorldContext`, and `MetalWorldSubmission` expose the
+  first canonical persistent/asynchronous C++ rollout boundary.
 - Canonical engine, collision, solver, world, G1, and articulated-reference
   APIs are currently C++ interfaces; they are not all surfaced through the C
   ABI.
 - The Python package exposes stable read-only NumPy views and an MLX PPO
   learner.
 
-All current Metal runtime buffers use Apple-silicon shared storage. This
-avoids PCIe copies but not synchronization: the C API `step` completes its
-command buffer before returning shared views. The PPO path then materializes
-MLX arrays, so v0.4 is not a fused physics/learner command stream.
+All current Metal runtime buffers use Apple-silicon shared storage. The legacy
+C API `step` completes its command buffer before returning shared views. The
+canonical Metal world instead encodes every requested control step and
+physics substep before a single commit, returns a live ticket immediately,
+and waits only when its final result is requested or discarded. No
+CPU-visible intermediate count or state participates in that horizon. The
+ticket still copies final output into C++ vectors, and the PPO path still
+materializes MLX arrays, so physics and learning are not yet one MLX command
+graph.
 
 The generic articulated operator's public host API owns its compact buffer
 table and preflights checked element/byte arithmetic, the shader's 32-bit
 address ceiling, actual `MTLBuffer.length`, per-buffer device limits, and the
 aggregate recommended working set before encoding. Its result and typed GPU
-status stream publish atomically. This correctness wrapper is synchronous and
-recreates resources per call; it is not the persistent rollout scheduler.
+status stream publish atomically. Its focused wrapper remains synchronous.
+`MetalWorldContext` is the persistent rollout scheduler: it owns five cached
+pipelines (including small/G1 ABA capacity buckets), immutable-model
+fingerprinting, a 27-buffer grow-only arena, one
+in-flight ownership gate, asynchronous ticket lifetime, and whole-control-step
+rollback. See [METAL_WORLD](METAL_WORLD.md).
 
 Allocation is preflighted against
 `MTLDevice.recommendedMaxWorkingSetSize` and `MTLDevice.maxBufferLength`.

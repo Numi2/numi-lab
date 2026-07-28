@@ -34,6 +34,11 @@
 #define MR_ARTICULATED_ABA_MAX_DOFS 40u
 #define MR_ARTICULATED_ABA_MAX_Q 41u
 #define MR_ARTICULATED_INVERSE_MASS_MAX_RHS 3u
+// Versioned first generic Metal-world graph. One submission may encode many
+// control steps, each with a bounded number of ABA physics substeps, without
+// a command-buffer completion or CPU-visible intermediate state.
+#define MR_METAL_WORLD_ABI_VERSION 1u
+#define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
 // Authored collision coordinates, local offsets, primitive dimensions, and
 // contact/rest/bounding-radius values use this direct-input domain. With
 // normalized rotations, every supported finite primitive derived from these
@@ -449,6 +454,68 @@ typedef struct MR_ALIGN16 MRABAStatusGPU {
     mr_float4 diagnostics;
 } MRABAStatusGPU;
 
+enum MRMetalWorldFlags : mr_u32 {
+    MR_METAL_WORLD_APPLY_BODY_DAMPING = 1u << 0u,
+    MR_METAL_WORLD_DETERMINISTIC = 1u << 1u,
+    MR_METAL_WORLD_HAS_RESETS = 1u << 2u,
+    // This first graph intentionally composes free articulated motion,
+    // transactional state publication, reset, and observation capture. The
+    // flag prevents it from being mistaken for the future contact graph.
+    MR_METAL_WORLD_FREE_MOTION_ONLY = 1u << 3u,
+};
+
+// Immutable strides and dimensions for one environment-major rollout.
+// Effort and output streams are control-step major. Every stride is measured
+// in elements, never bytes.
+typedef struct MR_ALIGN16 MRMetalWorldDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 articulationIndex;
+    mr_u32 environmentCount;
+    mr_u32 controlStepCount;
+
+    mr_u32 physicsSubsteps;
+    mr_u32 flags;
+    mr_u32 nq;
+    mr_u32 nv;
+
+    mr_u32 qStride;
+    mr_u32 vStride;
+    mr_u32 effortEnvironmentStride;
+    mr_u32 observationEnvironmentStride;
+
+    mr_u32 effortStepStride;
+    mr_u32 resetMaskStepStride;
+    mr_u32 observationStepStride;
+    mr_u32 accelerationStepStride;
+} MRMetalWorldDispatchGPU;
+
+// Small pass record copied into the command stream for prepare, transactional
+// commit, and capture kernels. MR_INVALID_INDEX denotes a non-substep pass.
+typedef struct MR_ALIGN16 MRMetalWorldPassGPU {
+    mr_u32 controlStep;
+    mr_u32 physicsSubstep;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+} MRMetalWorldPassGPU;
+
+// One record is reused while a control step executes, then copied to the
+// public status stream. SuccessfulSubsteps counts committed state updates.
+typedef struct MR_ALIGN16 MRMetalWorldStatusGPU {
+    mr_u32 code;
+    mr_u32 environment;
+    mr_u32 controlStep;
+    mr_u32 successfulSubsteps;
+
+    mr_u32 abaCode;
+    mr_u32 failingSubstep;
+    mr_u32 failingIndex;
+    mr_u32 flags;
+
+    // Minimum/maximum ABA pivot, maximum absolute acceleration, and maximum
+    // root-quaternion norm error across successfully committed substeps.
+    mr_float4 diagnostics;
+} MRMetalWorldStatusGPU;
+
 enum MRInverseMassStatusCode : mr_u32 {
     MR_INVERSE_MASS_SUCCESS = 0u,
     MR_INVERSE_MASS_INVALID_DISPATCH = 1u,
@@ -693,6 +760,9 @@ static_assert(sizeof(MRArticulatedOperatorStatusGPU) == 48);
 static_assert(sizeof(MRABADispatchGPU) == 48);
 static_assert(sizeof(MRABABodyWrenchGPU) == 32);
 static_assert(sizeof(MRABAStatusGPU) == 48);
+static_assert(sizeof(MRMetalWorldDispatchGPU) == 64);
+static_assert(sizeof(MRMetalWorldPassGPU) == 16);
+static_assert(sizeof(MRMetalWorldStatusGPU) == 48);
 static_assert(sizeof(MRInverseMassDispatchGPU) == 48);
 static_assert(sizeof(MRInverseMassStatusGPU) == 48);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);

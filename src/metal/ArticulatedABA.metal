@@ -6,13 +6,27 @@ using namespace metal;
 
 namespace {
 
+#ifndef MR_ABA_COMPILED_MAX_BODIES
+#define MR_ABA_COMPILED_MAX_BODIES \
+    MR_ARTICULATED_ABA_MAX_BODIES
+#endif
+#ifndef MR_ABA_COMPILED_MAX_DOFS
+#define MR_ABA_COMPILED_MAX_DOFS MR_ARTICULATED_ABA_MAX_DOFS
+#endif
+#ifndef MR_ABA_COMPILED_MAX_Q
+#define MR_ABA_COMPILED_MAX_Q MR_ARTICULATED_ABA_MAX_Q
+#endif
+#ifndef MR_ABA_KERNEL_NAME
+#define MR_ABA_KERNEL_NAME mr_articulated_aba_step
+#endif
+
 constant float kQuaternionTolerance = 2.0e-5f;
 constant float kQuaternionMinimum = 1.0e-12f;
 constant float kFloatEpsilon = 1.1920928955078125e-7f;
 constant float kAbsolutePivotFloor = 1.0e-12f;
-constant uint kABAMaxBodies = MR_ARTICULATED_ABA_MAX_BODIES;
-constant uint kABAMaxDofs = MR_ARTICULATED_ABA_MAX_DOFS;
-constant uint kABAMaxQ = MR_ARTICULATED_ABA_MAX_Q;
+constant uint kABAMaxBodies = MR_ABA_COMPILED_MAX_BODIES;
+constant uint kABAMaxDofs = MR_ABA_COMPILED_MAX_DOFS;
+constant uint kABAMaxQ = MR_ABA_COMPILED_MAX_Q;
 
 } // namespace
 
@@ -264,7 +278,7 @@ inline bool validDispatch(
 // is lane-zero ordered: tree traversal and sibling accumulation therefore
 // have a single deterministic owner and require no atomics. The ABI and
 // scratch layout permit level-parallel traversal without changing results.
-kernel void mr_articulated_aba_step(
+kernel void MR_ABA_KERNEL_NAME(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
     device const MRJointDescriptorGPU* joints [[buffer(2)]],

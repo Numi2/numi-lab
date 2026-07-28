@@ -5,7 +5,8 @@ The normative capability and accuracy gates live in
 Items in S0 are executable foundations, not an integrated simulator claim.
 The composed CPU path now advances one reduced-coordinate articulation
 against static/kinematic environment geometry; the generic Metal articulation
-operator remains a separately proven correctness kernel.
+operator is now composed into the first persistent, batched free-motion world
+graph. Contact composition remains the next S1 boundary.
 
 ## S0 — Working foundations
 
@@ -49,11 +50,20 @@ operator remains a separately proven correctness kernel.
 
 ## S1 — Generalized articulated execution
 
-- Replace the lane-zero dense Metal reference with batched parallel
-  floating-base tree actions and multiple simultaneous right-hand sides;
-  cache pipelines and use reusable/ping-pong buffers with asynchronous encode
+- **Landed first tranche:** `CompiledWorld`, persistent five-pipeline
+  `MetalWorldContext`, 27-buffer grow-only arena, immutable-model caching,
+  multi-control-step asynchronous submission, reset/checkpoint semantics,
+  ping-pong substep state, typed per-environment status, full control-step
+  rollback, observation capture, and bitwise replay. The 4,096-environment
+  Franka free-motion gate exceeds 150,000 control-steps/s on the development
+  Apple M4
+- Replace the remaining lane-zero ABA body recursion with a level-parallel
+  batched tree implementation and multiple simultaneous right-hand sides
 - Compose Metal articulated motion, collision, manifolds, constraint
   evaluation, solve, residual, and integration without host synchronization
+- Expose the composed graph as an MLX custom primitive with MLX-owned
+  action/observation buffers; the current asynchronous ticket remains
+  device-resident only inside one submitted horizon
 - Compile G1 joint limits into ConstraintIR, add self-collision exclusions,
   compose actuation, coupled stiction/implicit drives, and IMU paths
 - Extend the CPU transaction to multiple articulations and dynamic free

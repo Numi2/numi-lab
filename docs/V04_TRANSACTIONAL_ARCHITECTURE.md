@@ -164,6 +164,12 @@ implementation must use parallel tree traversals, batched right-hand sides, a
 persistent cached context, reusable/ping-pong buffers, and a composed
 asynchronous device-resident command stream without changing these semantics.
 
+The first part of that successor is now executable in
+[METAL_WORLD](METAL_WORLD.md): pipelines/model buffers persist, q/v use
+transactional ping-pong plus a control-step checkpoint, and a complete
+free-motion horizon is one asynchronous command buffer. Parallel tree
+traversal, right-hand-side fusion, and contact composition remain open.
+
 ## Cylinder geometry without a fake generic-convex claim
 
 CPU FP64 and Metal FP32 now implement oriented cylinder AABBs and
@@ -199,7 +205,9 @@ them cannot introduce unsupported self-collision or pair semantics.
 
 It does **not** yet prove:
 
-- a batched, parallel, device-resident Metal world step;
+- a contact-composed, level-parallel, MLX-buffer-native Metal world step; the
+  successor free-motion graph is batched and device-resident within a
+  submitted horizon;
 - long-horizon G1 locomotion stability or RL throughput;
 - coupled implicit drives, set-valued joint stiction, joint-limit impulses,
   loop constraints, and self collision;
@@ -214,8 +222,8 @@ It does **not** yet prove:
    multiple right-hand sides and no dense diagnostic matrix in ordinary use.
 2. Compose the landed actuation evaluator into batched worlds, add implicit
    drive/stiction blocks, and compile joint limits into ConstraintIR.
-3. Build multi-articulation/free-object islands and device-resident work
-   tickets.
+3. Extend the landed free-motion work tickets to
+   multi-articulation/free-object islands.
 4. Add deterministic GPU manifold refresh/reduction, segmented LBVH, convex
    support mapping, mesh/heightfield collision, and certified CCD intervals.
 5. Implement exact-block temporal substeps for throughput and matrix-free

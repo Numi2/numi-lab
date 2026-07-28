@@ -88,18 +88,30 @@ linked or called at runtime.
   trees, exercised on actual 30-body/35-velocity G1: poses, analytic point
   Jacobians, `Jᵀp`, checked mass factorization, and `M⁻¹Jᵀp`, with
   deterministic replay and transactional rejection
+- Persistent `MetalWorldContext` for one compiled canonical articulation:
+  immutable model buffers and five pipelines are cached, a 27-buffer
+  grow-only arena is reused, and one asynchronous command buffer advances an
+  entire environment-major control horizon through reset, ABA substeps,
+  transactional ping-pong commit, and q/v/acceleration observation capture.
+  A failed GPU substep rolls that environment back to its control-step
+  checkpoint while unrelated environments continue; no CPU-visible
+  intermediate count or command-buffer wait occurs between encoded control
+  steps
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication
 - Existing batched Metal Franka ABA/reach environment and MLX PPO path
 
 This is a serious numerical foundation, not yet a complete MuJoCo/PhysX
-replacement. The generic Metal articulation kernel is a lane-zero
-correctness path, not the final parallel throughput implementation, and it is
-not yet composed with GPU collision/contact into a device-resident world. Its
-checked public wrapper is synchronous and currently rebuilds Metal resources
-per call; persistent pipelines, reusable buffers, and asynchronous encoding
-are still required for RL throughput.
+replacement. The first generic Metal world graph is persistent and
+asynchronous, but deliberately advertises
+`MetalWorldSolverMode::freeMotionABA`: it has not yet composed collider
+projection, GPU collision/manifolds, contact solve, rewards, or MLX-owned
+buffers. Its ABA implementation is still the deterministic lane-zero
+correctness path rather than the final level-parallel tree kernel. The public
+ticket publishes host vectors only after the whole rollout completes, so this
+is device-resident physics across one submitted horizon—not yet a fused
+physics/learner command stream.
 The throughput contact kernel is PGS rather than TGS, and any connected island
 above 128 contacts fails explicitly rather than spilling. Cylinder support is
 currently cylinder/plane only, so G1 shoulder cylinders remain disabled.
@@ -124,6 +136,7 @@ cmake --build build
 ./build/bin/metalrobo_articulated_world_probe
 ./build/bin/metalrobo_articulated_operator_gpu_probe
 ./build/bin/metalrobo_articulated_operator_host_probe
+./build/bin/metalrobo_metal_world_probe
 ./build/bin/metalrobo_surgical_psm_probe
 ./build/bin/metalrobo_surgical_assets_probe
 ./build/bin/metalrobo_surgical_metal_operator_probe
@@ -159,8 +172,16 @@ metalrobo train \
 The native engine has no third-party physics dependency. Factual robot model
 data retains its upstream notices in
 [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md). Python training requires Python
-3.10+, NumPy, and MLX. The clean v0.4 validation run of the original
-fixed-base Franka slice measured 216,313 environment control-steps/s at 1,024
+3.10+, NumPy, and MLX. On the local 10-GPU-core Apple M4, the new canonical
+Franka Metal-world gate measured 242,100 device-timestamped and 239,771
+end-to-end wall-timed
+control-steps/s for 4,096 environments over a 16-step horizon, with four
+physics substeps per control step. Its three-substep FP64/Metal parity case
+had maximum q error `5.753e-7`, v error `4.745e-8`, and scaled acceleration
+error `1.982e-6`; same-build replay was bitwise. These are free-motion
+composition numbers, not contact or external-engine results. The earlier
+clean v0.4 validation run of the original fixed-base Franka slice measured
+216,313 environment control-steps/s at 1,024
 environments on a 24 GB, 10-GPU-core Apple M4, with four physics substeps per
 control step. That is a local legacy-path result, not generic G1 throughput or
 a cross-engine benchmark. See
@@ -169,6 +190,7 @@ a cross-engine benchmark. See
 ## Design and research
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Persistent Metal world graph](docs/METAL_WORLD.md)
 - [v0.4 transactional generalized architecture](docs/V04_TRANSACTIONAL_ARCHITECTURE.md)
 - [v0.3 operator-first architecture](docs/V03_OPERATOR_ARCHITECTURE.md)
 - [State-of-the-art acceptance target](docs/ENGINE_TARGET.md)

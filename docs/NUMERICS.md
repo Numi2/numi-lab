@@ -33,14 +33,23 @@ one-articulation world paths are transactional: state and persistent caches
 remain unchanged when a step fails. The bounded Metal contact kernel backs up
 the dynamic velocities and contact records it can mutate, then restores them
 after an arithmetic failure.
-A fully composed production Metal world still requires versioned
-input/output buffers at the dispatch orchestration layer.
-The standalone generic articulated operator does have a checked synchronous
-host boundary: it derives compact strides, caps every environment-major stream
-at the shader's 32-bit element-address limit, checks actual Metal allocation
-lengths and working-set guidance, binds typed zero-length dummies, and
-publishes typed results/statuses transactionally. It is a correctness API, not
-the final persistent asynchronous rollout path.
+A fully contact-composed production Metal world remains open, but the
+free-motion orchestration layer now has versioned dispatch/status buffers.
+The standalone generic articulated operator retains its checked synchronous
+host boundary. `MetalWorldContext` adds derived compact horizon strides,
+32-bit element-address limits, actual allocation and working-set checks,
+typed zero-length bindings, cached immutable topology, a grow-only arena, and
+asynchronous multi-control-step execution.
+
+Each control step takes an immutable q/v checkpoint after applying its reset.
+ABA produces candidate state only. A successful substep is copied into the
+accepted ping-pong state; the first failed substep latches its typed failure
+and all remaining passes restore the checkpoint. Failed observations are
+finite checkpoint state and their acceleration is exactly zero. Host
+validation or malformed GPU output leaves the caller's previous result
+unchanged. This is per-environment transactionality across one device
+horizon; collision manifolds and impulses are not yet members of that
+transaction.
 
 ## Articulated dynamics
 
@@ -81,10 +90,11 @@ and integration for G1 ground contact. A correctness-first Metal operator
 executes the same G1 mass/Jacobian/impulse equations, but a batched parallel
 Metal timestep remains open.
 
-The original Franka runtime is separate. Its Metal path runs a linear-time
-FP32 articulated-body algorithm, and its older FP64 reduced-dynamics oracle
-provides a one-control-step convention check. Agreement there is not a
-bitwise-equivalence or external-accuracy promise.
+The original Franka runtime remains a separate compatibility API. The
+canonical Metal world now reuses the generic FP32 articulated-body kernel and
+checks multi-step q/v/acceleration against the FP64 generalized oracle. On the
+same device and build its complete output/status stream replays bitwise.
+Neither internal agreement is an external-simulator accuracy promise.
 
 ## Free-body integration
 
@@ -188,7 +198,8 @@ and deterministic replay where stated. They do not yet establish:
 - convex, mesh, heightfield, or deformable collision accuracy;
 - CCD or high-speed impact accuracy;
 - long-horizon G1 locomotion stability;
-- production generic Metal throughput.
+- production generic Metal contact throughput. Free-motion canonical
+  Metal-world throughput is now measured separately.
 
 The dated acceptance thresholds for making broader claims are defined in
 [ENGINE_TARGET](ENGINE_TARGET.md).

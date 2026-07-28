@@ -1,6 +1,6 @@
 # Validation record
 
-Snapshot: 2026-07-28, v0.4 development milestone.
+Snapshot: 2026-07-28, v0.4 development milestone plus MetalWorld ABI v1.
 
 ## Evidence status
 
@@ -9,6 +9,11 @@ M4. C++, Objective-C++, and all Metal shaders compiled cleanly; C++ and
 Objective-C++ warnings were errors. All 21 probe executables passed from the
 same source state. A second full out-of-tree build with AddressSanitizer and
 UndefinedBehaviorSanitizer also compiled and passed all 21 probes.
+
+The later persistent-MetalWorld tranche was built with warnings as errors and
+passed its focused parity, determinism, async ownership, rollback, allocation,
+and throughput probe. Its new result is recorded separately below; historical
+v0.4 component numbers are retained rather than being rewritten.
 
 A local pass establishes only the stated executable contract. It does not
 establish external-simulator agreement, long-horizon robot stability, contact
@@ -23,6 +28,54 @@ differentiability, or performance superiority.
 - MLX 0.26.5 on `Device(gpu, 0)`
 - NumPy 2.2.5
 - CMake 4.0.1 Release configuration
+
+## Persistent MetalWorld ABI v1
+
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target metalrobo_metal_world_probe -j 8
+./build/bin/metalrobo_metal_world_probe
+```
+
+The probe compiles the canonical Franka model, advances seven control steps
+with three physics substeps and per-environment resets, and compares every
+captured q/v/acceleration against the FP64 generalized dynamics oracle. It
+then verifies same-device bitwise replay, asynchronous input snapshotting,
+the one-in-flight arena gate, transactional host rejection, grow-only
+capacity reuse, and an injected ABA factorization failure that must restore
+the entire control-step checkpoint.
+
+The performance case uses 4,096 Franka environments and a 16-control-step
+horizon with four physics substeps. Five measured samples follow one warmup.
+Device time is taken from Metal's command-buffer GPU start/end timestamps;
+wall time also includes host validation, input copies and encoding, final
+wait, result allocation, and output copies. The hard gate applies to both.
+
+```text
+metal_world=metal
+device="Apple M4"
+abi=1 graph=free_motion_aba
+environments=4 control_steps=7 physics_substeps=3
+q_error=5.7526e-07
+v_error=4.74513e-08
+acceleration_scaled_error=1.98164e-06
+throughput_batch=4096 throughput_horizon=16
+gpu_control_steps_per_s=242100
+wall_control_steps_per_s=239771
+gpu_p50_ms=270.531 gpu_p95_ms=271.123
+wall_p50_ms=273.413 wall_p95_ms=273.683 thermal=nominal
+replay=bitwise async=pass input_snapshot=pass busy_gate=pass
+reset=pass rollback=pass g1_free_motion=pass
+capacity_bucket_equivalence=bitwise grow_only=pass host_transaction=pass
+no_host_sync_between_control_steps=yes contact_graph=deferred status=ok
+```
+
+The floating-base G1 canary (two environments, four control steps, two
+substeps) had q/v/scaled-acceleration errors of `1.3234e-7`, `8.04595e-8`,
+and `1.28661e-5`. This passes the declared 150,000 control-steps/s Franka
+free-space gate on this machine. It does not exercise a free object, contacts,
+rewards, or MLX zero-copy interoperability; those stages are explicitly
+absent from ABI v1.
 
 ## Final clean Release gate
 
@@ -806,9 +859,10 @@ convergence.
 
 - Trajectory/contact comparison against pinned MuJoCo, Genesis, or another
   independent simulator
-- A batched parallel device-resident Metal world step; the current generic
-  operator is a lane-zero correctness path and its public host wrapper is
-  synchronous with per-call resource creation
+- A contact-composed batched Metal world and level-parallel tree kernel. The
+  free-motion MetalWorld graph is persistent, asynchronous, and
+  device-resident across one submitted horizon, but still uses lane-zero ABA
+  recursion and host-vector publication at ticket completion
 - Long-horizon controlled G1 contact stability, locomotion learning, and RL
   throughput
 - Multi-articulation islands and long-horizon/large-island mixed-scene
