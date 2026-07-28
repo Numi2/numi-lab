@@ -253,6 +253,7 @@ add_library(
     src/core/ArticulatedMixedConstraints.cpp
     src/core/ArticulatedCollision.cpp
     src/core/ArticulatedWorld.cpp
+    src/core/MultiArticulatedWorld.cpp
     src/core/ConstraintIR.cpp
     src/core/ReferenceConicSolver.cpp
     src/core/QualityContactSolver.cpp
@@ -483,6 +484,22 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_articulated_mixed_constraints_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_multi_articulated_world_probe
+    apps/multi_articulated_world_probe.cpp
+)
+target_link_libraries(
+    metalrobo_multi_articulated_world_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_multi_articulated_world_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
