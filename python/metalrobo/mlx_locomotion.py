@@ -63,6 +63,10 @@ class MLXG1RolloutCollector:
             0.3,
             0.5,
         ),
+        reset_root_xy_range: float = 0.015,
+        reset_root_yaw_range: float = 0.08,
+        reset_joint_range: float = 0.025,
+        reset_velocity_range: float = 0.05,
     ) -> None:
         if environment_count <= 0:
             raise ValueError("environment_count must be positive")
@@ -94,6 +98,18 @@ class MLXG1RolloutCollector:
             command_scales,
             dtype=mx.float32,
         )
+        for name, value in (
+            ("reset_root_xy_range", reset_root_xy_range),
+            ("reset_root_yaw_range", reset_root_yaw_range),
+            ("reset_joint_range", reset_joint_range),
+            ("reset_velocity_range", reset_velocity_range),
+        ):
+            if value < 0.0:
+                raise ValueError(f"{name} cannot be negative")
+        self.reset_root_xy_range = float(reset_root_xy_range)
+        self.reset_root_yaw_range = float(reset_root_yaw_range)
+        self.reset_joint_range = float(reset_joint_range)
+        self.reset_velocity_range = float(reset_velocity_range)
         self.action_size = int(world.nv) - 6
         self.default_state = initial_state(
             world,
@@ -108,6 +124,47 @@ class MLXG1RolloutCollector:
             self._policy_physics_reward,
             inputs=self.model.state,
         )
+
+    def _randomized_reset_qv(
+        self,
+    ) -> tuple[mx.array, mx.array]:
+        root_xy = mx.random.uniform(
+            low=-self.reset_root_xy_range,
+            high=self.reset_root_xy_range,
+            shape=(self.environment_count, 2),
+        )
+        root_yaw = mx.random.uniform(
+            low=-self.reset_root_yaw_range,
+            high=self.reset_root_yaw_range,
+            shape=(self.environment_count, 1),
+        )
+        half_yaw = 0.5 * root_yaw
+        joint_offset = mx.random.uniform(
+            low=-self.reset_joint_range,
+            high=self.reset_joint_range,
+            shape=(self.environment_count, self.world.nq - 7),
+        )
+        default_q = self.default_state.q
+        reset_q = mx.concatenate(
+            (
+                default_q[:, :2] + root_xy,
+                default_q[:, 2:3],
+                mx.zeros(
+                    (self.environment_count, 2),
+                    dtype=mx.float32,
+                ),
+                mx.sin(half_yaw),
+                mx.cos(half_yaw),
+                default_q[:, 7:] + joint_offset,
+            ),
+            axis=-1,
+        )
+        reset_v = self.default_state.v + mx.random.uniform(
+            low=-self.reset_velocity_range,
+            high=self.reset_velocity_range,
+            shape=(self.environment_count, self.world.nv),
+        )
+        return reset_q, reset_v
 
     def _observations(
         self,
@@ -401,6 +458,7 @@ class MLXG1RolloutCollector:
                 )
                 * self.command_scales
             )
+            reset_q, reset_v = self._randomized_reset_qv()
             result = self._compiled_step(
                 current.q,
                 current.v,
@@ -412,8 +470,8 @@ class MLXG1RolloutCollector:
                 reset_commands,
                 self.default_q,
                 self.default_joint_targets,
-                self.default_state.q,
-                self.default_state.v,
+                reset_q,
+                reset_v,
                 *self.default_state.scene_bodies,
                 *self.default_state.solver_cache,
             )

@@ -145,7 +145,9 @@ boundaries.
 The CLI exposes `franka-stabilization`, `g1-standing`, `g1-command`,
 `g1-terrain`, and `psm-needle`. G1 command tasks carry episodic planar/yaw
 commands inside the compiled observation and resample them on transactional
-reset. The G1 and PSM collectors provide contact-capable task paths;
+reset. Reset root position/yaw, joint pose, and generalized velocity are also
+randomized as MLX arrays without changing immutable model parameters. The G1
+and PSM collectors provide contact-capable task paths;
 the policy, implicit targets, physics, reward, termination, reset, GAE, and
 updates remain MLX arrays. The PSM task scores the measured dynamic needle
 pose and contact evidence and never creates a weld or hidden grasp state.

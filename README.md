@@ -115,8 +115,9 @@ linked or called at runtime.
 - Pure-MLX G1 contact rollout and PPO path using implicit position drives,
   floating-root acceleration/load/contact-count sensor evidence, and
   transactional resets; episodic planar/yaw commands remain in the compiled
-  observation/reset graph, and rough terrain executes through the
-  authoritative cooked static-mesh BVH4 contact path
+  observation/reset graph, root/joint/velocity reset randomization remains
+  device-native, and rough terrain executes through the authoritative cooked
+  static-mesh BVH4 contact path
 - Contact-capable MLX PSM scene with the generic dynamic curved-needle asset,
   exact-CCD shape flags, persistent contact state, and a pure-array logical
   aperture-to-independent-jaw target map; a physics-owned needle hold/lift
