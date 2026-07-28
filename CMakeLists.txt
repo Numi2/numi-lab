@@ -252,6 +252,7 @@ add_library(
     src/core/CpuDynamics.cpp
     src/core/EngineModel.cpp
     src/core/EngineModelComposer.cpp
+    src/core/ParallelABASchedule.cpp
     src/core/WorldCompiler.cpp
     src/core/WorldPack.cpp
     src/core/EpisodeTwinCompiler.cpp
@@ -523,6 +524,30 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_multi_articulated_world_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_parallel_aba_schedule_probe
+    apps/parallel_aba_schedule_probe.cpp
+)
+target_link_libraries(
+    metalrobo_parallel_aba_schedule_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_parallel_aba_schedule_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_parallel_aba_schedule_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
