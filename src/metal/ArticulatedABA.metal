@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/parallel_aba_shared.h"
 
 using namespace metal;
 
@@ -301,18 +302,59 @@ kernel void MR_ABA_KERNEL_NAME(
     device const MRJointDescriptorGPU* joints [[buffer(2)]],
     device const MRDofPropertiesGPU* dofs [[buffer(3)]],
     device const MRBodyPropertiesGPU* bodies [[buffer(4)]],
-    device const MRABADispatchGPU& dispatch [[buffer(5)]],
-    device const float* q [[buffer(6)]],
-    device const float* v [[buffer(7)]],
-    device const float* effort [[buffer(8)]],
-    device const MRABABodyWrenchGPU* bodyWrenches [[buffer(9)]],
-    device float* accelerationOutput [[buffer(10)]],
-    device float* nextVOutput [[buffer(11)]],
-    device float* nextQOutput [[buffer(12)]],
-    device MRABAStatusGPU* statuses [[buffer(13)]],
+#ifdef MR_ABA_MULTI_ARTICULATION
+    device const MRMultiABADispatchGPU* dispatchInputs [[buffer(5)]],
+#else
+    device const MRABADispatchGPU& dispatchInput [[buffer(5)]],
+#endif
+    device const float* qInput [[buffer(6)]],
+    device const float* vInput [[buffer(7)]],
+    device const float* effortInput [[buffer(8)]],
+    device const MRABABodyWrenchGPU* bodyWrenchInput [[buffer(9)]],
+    device float* accelerationOutputBase [[buffer(10)]],
+    device float* nextVOutputBase [[buffer(11)]],
+    device float* nextQOutputBase [[buffer(12)]],
+    device MRABAStatusGPU* statusOutput [[buffer(13)]],
+#ifdef MR_ABA_MULTI_ARTICULATION
+    uint2 workPosition [[threadgroup_position_in_grid]],
+#else
     uint environment [[threadgroup_position_in_grid]],
+#endif
     uint lane [[thread_index_in_threadgroup]]
 ) {
+#ifdef MR_ABA_MULTI_ARTICULATION
+    const uint environment = workPosition.x;
+    const uint articulationWork = workPosition.y;
+    device const MRMultiABADispatchGPU& multiDispatch =
+        dispatchInputs[articulationWork];
+    device const MRABADispatchGPU& dispatch =
+        multiDispatch.dispatch;
+    device const float* q = qInput + multiDispatch.qBase;
+    device const float* v = vInput + multiDispatch.vBase;
+    device const float* effort =
+        effortInput + multiDispatch.effortBase;
+    device const MRABABodyWrenchGPU* bodyWrenches =
+        bodyWrenchInput + multiDispatch.wrenchBase;
+    device float* accelerationOutput =
+        accelerationOutputBase + multiDispatch.accelerationBase;
+    device float* nextVOutput =
+        nextVOutputBase + multiDispatch.nextVBase;
+    device float* nextQOutput =
+        nextQOutputBase + multiDispatch.nextQBase;
+    device MRABAStatusGPU* statuses =
+        statusOutput + multiDispatch.statusBase;
+#else
+    device const MRABADispatchGPU& dispatch = dispatchInput;
+    device const float* q = qInput;
+    device const float* v = vInput;
+    device const float* effort = effortInput;
+    device const MRABABodyWrenchGPU* bodyWrenches =
+        bodyWrenchInput;
+    device float* accelerationOutput = accelerationOutputBase;
+    device float* nextVOutput = nextVOutputBase;
+    device float* nextQOutput = nextQOutputBase;
+    device MRABAStatusGPU* statuses = statusOutput;
+#endif
     if (lane != 0u || environment >= dispatch.environmentCount) {
         return;
     }

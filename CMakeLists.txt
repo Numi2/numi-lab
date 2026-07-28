@@ -90,6 +90,9 @@ set(METALROBO_ARTICULATED_ABA_AIR
 set(METALROBO_ARTICULATED_ABA_SMALL_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedABASmall.air"
 )
+set(METALROBO_MULTI_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMultiArticulatedABA.air"
+)
 set(METALROBO_ARTICULATED_INVERSE_MASS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedInverseMass.air"
 )
@@ -174,6 +177,14 @@ add_custom_command(
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_ABA_KERNEL_NAME=mr_multi_articulated_aba_step
+            -DMR_ABA_MULTI_ARTICULATION=1
+            -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
             -o "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
     COMMAND xcrun -sdk macosx metal
@@ -210,6 +221,7 @@ add_custom_command(
             "${METALROBO_ARTICULATED_OPERATOR_AIR}"
             "${METALROBO_ARTICULATED_ABA_AIR}"
             "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
+            "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
             "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_WORLD_AIR}"
             "${METALROBO_WORLD_CONTACT_AIR}"
@@ -234,6 +246,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/quality_solver_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/parallel_aba_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/world_compiler_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hybrid_renderer_types.h"
     VERBATIM
@@ -284,6 +297,7 @@ add_library(
     src/apple/CaptureManifestJSON.mm
     src/metal/MetalArticulatedOperator.mm
     src/metal/MetalArticulatedABA.mm
+    src/metal/MetalMultiArticulatedABA.mm
     src/metal/MetalArticulatedInverseMass.mm
     src/metal/MetalQualityContactSolver.mm
     src/metal/MetalWorld.mm
@@ -548,6 +562,24 @@ target_compile_options(
 )
 set_target_properties(
     metalrobo_parallel_aba_schedule_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_multi_articulated_aba_gpu_probe
+    apps/multi_articulated_aba_gpu_probe.mm
+)
+target_link_libraries(
+    metalrobo_multi_articulated_aba_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_multi_articulated_aba_gpu_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

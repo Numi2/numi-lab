@@ -1,6 +1,6 @@
 #pragma once
 
-#include "metalrobo/gpu_types.h"
+#include "metalrobo/engine_types.h"
 
 #define MR_PARALLEL_ABA_SCHEDULE_ABI_VERSION 1u
 
@@ -56,6 +56,23 @@ typedef struct MR_ALIGN16 MRParallelABAParentReductionGPU {
     mr_u32 stableOrdinal;
 } MRParallelABAParentReductionGPU;
 
+// One grid-Y work item. Base offsets make a single environment-major global
+// q/v/state allocation addressable without rebasing buffers between
+// articulations or exposing an intermediate count to the host.
+typedef struct MR_ALIGN16 MRMultiABADispatchGPU {
+    MRABADispatchGPU dispatch;
+
+    mr_u32 qBase;
+    mr_u32 vBase;
+    mr_u32 effortBase;
+    mr_u32 wrenchBase;
+
+    mr_u32 accelerationBase;
+    mr_u32 nextVBase;
+    mr_u32 nextQBase;
+    mr_u32 statusBase;
+} MRMultiABADispatchGPU;
+
 #ifdef __cplusplus
 static_assert(sizeof(MRParallelABAArticulationGPU) == 80);
 static_assert(alignof(MRParallelABAArticulationGPU) == 16);
@@ -63,4 +80,6 @@ static_assert(sizeof(MRParallelABALevelGPU) == 16);
 static_assert(alignof(MRParallelABALevelGPU) == 16);
 static_assert(sizeof(MRParallelABAParentReductionGPU) == 16);
 static_assert(alignof(MRParallelABAParentReductionGPU) == 16);
+static_assert(sizeof(MRMultiABADispatchGPU) == 80);
+static_assert(alignof(MRMultiABADispatchGPU) == 16);
 #endif
