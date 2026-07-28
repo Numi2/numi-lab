@@ -154,7 +154,11 @@ void appendAsset(HashBuilder& hash, const WorldAsset& asset) {
     hash.appendScalar(asset.payloadScale);
     hash.appendScalar(asset.renderAlternative);
     hash.appendScalar(asset.collisionAlternative);
+    hash.appendScalar(asset.articulationIndex);
     hash.appendString(asset.topologyCohort);
+    hash.appendSpan<std::uint32_t>(asset.bodyIndices);
+    hash.appendSpan<std::uint32_t>(asset.shapeIndices);
+    hash.appendSpan<std::uint32_t>(asset.materialIndices);
     const std::uint64_t anchorCount = asset.anchors.size();
     hash.appendScalar(anchorCount);
     for (const SemanticAnchor& anchor : asset.anchors) {
@@ -731,11 +735,22 @@ bool WorldTemplate::valid(std::string* reason) const {
     if (!engineModel.valid(&engineReason)) {
         return fail(reason, "world template engine model: " + engineReason);
     }
-    if (assets.empty()) {
+    if (assets.empty() || assetBindings.size() != assets.size()) {
         return fail(reason, "world template has no assets");
     }
     std::unordered_set<std::string> assetIds;
-    for (const WorldAsset& asset : assets) {
+    std::vector<std::uint32_t> bodyOwners(
+        engineModel.bodies.size(),
+        MR_INVALID_INDEX
+    );
+    std::vector<std::uint32_t> shapeOwners(
+        engineModel.shapes.size(),
+        MR_INVALID_INDEX
+    );
+    for (std::uint32_t assetIndex = 0u;
+         assetIndex < assets.size();
+         ++assetIndex) {
+        const WorldAsset& asset = assets[assetIndex];
         if (!validAsset(asset, reason)) {
             return false;
         }
@@ -747,6 +762,139 @@ bool WorldTemplate::valid(std::string* reason) const {
                 asset.topologyCohort
             ) == topologyCohorts.end()) {
             return fail(reason, "asset references an unknown topology cohort");
+        }
+        const auto cohort = std::ranges::find(
+            topologyCohorts,
+            asset.topologyCohort
+        );
+        if (asset.articulationIndex != MR_INVALID_INDEX &&
+            asset.articulationIndex >=
+                engineModel.articulations.size()) {
+            return fail(reason, "asset references an unknown articulation");
+        }
+        if (asset.dynamics == MR_WORLD_DYNAMICS_ARTICULATED &&
+            asset.articulationIndex == MR_INVALID_INDEX) {
+            return fail(
+                reason,
+                "articulated asset has no engine articulation binding"
+            );
+        }
+        if ((asset.role == MR_WORLD_ASSET_ROBOT ||
+             asset.role == MR_WORLD_ASSET_MANIPULATED) &&
+            asset.bodyIndices.empty()) {
+            return fail(reason, "task-relevant asset has no engine body");
+        }
+        for (const std::uint32_t bodyIndex : asset.bodyIndices) {
+            if (bodyIndex >= engineModel.bodies.size() ||
+                bodyOwners[bodyIndex] != MR_INVALID_INDEX) {
+                return fail(
+                    reason,
+                    "asset body binding is invalid or multiply owned"
+                );
+            }
+            const MRBodyPropertiesGPU& body =
+                engineModel.bodies[bodyIndex];
+            if ((asset.dynamics == MR_WORLD_DYNAMICS_ARTICULATED &&
+                 body.articulationIndex !=
+                     asset.articulationIndex) ||
+                (asset.dynamics != MR_WORLD_DYNAMICS_ARTICULATED &&
+                 body.articulationIndex != MR_INVALID_INDEX) ||
+                (asset.dynamics == MR_WORLD_DYNAMICS_STATIC &&
+                 body.motionType != MR_MOTION_STATIC) ||
+                (asset.dynamics == MR_WORLD_DYNAMICS_KINEMATIC &&
+                 body.motionType != MR_MOTION_KINEMATIC) ||
+                (asset.dynamics == MR_WORLD_DYNAMICS_RIGID &&
+                 body.motionType != MR_MOTION_DYNAMIC)) {
+                return fail(
+                    reason,
+                    "asset dynamics and engine body binding disagree"
+                );
+            }
+            bodyOwners[bodyIndex] = assetIndex;
+        }
+        for (const std::uint32_t shapeIndex : asset.shapeIndices) {
+            if (shapeIndex >= engineModel.shapes.size() ||
+                shapeOwners[shapeIndex] != MR_INVALID_INDEX ||
+                std::ranges::find(
+                    asset.bodyIndices,
+                    engineModel.shapes[shapeIndex].bodyIndex
+                ) == asset.bodyIndices.end()) {
+                return fail(
+                    reason,
+                    "asset shape binding is invalid or multiply owned"
+                );
+            }
+            shapeOwners[shapeIndex] = assetIndex;
+        }
+        for (const std::uint32_t materialIndex :
+             asset.materialIndices) {
+            if (materialIndex >= engineModel.materials.size()) {
+                return fail(reason, "asset material binding is invalid");
+            }
+        }
+
+        const MRWorldAssetBindingGPU& binding =
+            assetBindings[assetIndex];
+        const auto validBindingRange = [this](
+            const std::uint32_t offset,
+            const std::uint32_t count
+        ) {
+            return offset <= bindingIndices.size() &&
+                count <= bindingIndices.size() - offset;
+        };
+        if (binding.identity.x != assetIndex ||
+            binding.identity.y != asset.role ||
+            binding.identity.z != asset.render ||
+            binding.identity.w != asset.collision ||
+            binding.dynamics.x != asset.dynamics ||
+            binding.dynamics.y != asset.articulationIndex ||
+            binding.dynamics.z !=
+                static_cast<std::uint32_t>(
+                    cohort - topologyCohorts.begin()
+                ) ||
+            binding.dynamics.w != 0u ||
+            binding.geometryRanges.y != asset.bodyIndices.size() ||
+            binding.geometryRanges.w != asset.shapeIndices.size() ||
+            binding.materialRangeAndAlternatives.y !=
+                asset.materialIndices.size() ||
+            binding.materialRangeAndAlternatives.z !=
+                asset.renderAlternative ||
+            binding.materialRangeAndAlternatives.w !=
+                asset.collisionAlternative ||
+            !validBindingRange(
+                binding.geometryRanges.x,
+                binding.geometryRanges.y
+            ) ||
+            !validBindingRange(
+                binding.geometryRanges.z,
+                binding.geometryRanges.w
+            ) ||
+            !validBindingRange(
+                binding.materialRangeAndAlternatives.x,
+                binding.materialRangeAndAlternatives.y
+            ) ||
+            !std::equal(
+                asset.bodyIndices.begin(),
+                asset.bodyIndices.end(),
+                bindingIndices.begin() +
+                    binding.geometryRanges.x
+            ) ||
+            !std::equal(
+                asset.shapeIndices.begin(),
+                asset.shapeIndices.end(),
+                bindingIndices.begin() +
+                    binding.geometryRanges.z
+            ) ||
+            !std::equal(
+                asset.materialIndices.begin(),
+                asset.materialIndices.end(),
+                bindingIndices.begin() +
+                    binding.materialRangeAndAlternatives.x
+            )) {
+            return fail(
+                reason,
+                "compiled asset binding does not match its world asset"
+            );
         }
     }
     std::unordered_set<std::string> sensorIds;
@@ -949,6 +1097,58 @@ WorldCompileResult compileEpisodeTwin(
             ) == candidate.topologyCohorts.end()) {
             candidate.topologyCohorts.push_back(asset.topologyCohort);
         }
+    }
+    for (std::uint32_t assetIndex = 0u;
+         assetIndex < candidate.assets.size();
+         ++assetIndex) {
+        const WorldAsset& asset = candidate.assets[assetIndex];
+        const auto cohort = std::ranges::find(
+            candidate.topologyCohorts,
+            asset.topologyCohort
+        );
+        const auto appendIndices = [&candidate](
+            const std::vector<std::uint32_t>& values
+        ) {
+            const std::uint32_t offset =
+                static_cast<std::uint32_t>(
+                    candidate.bindingIndices.size()
+                );
+            candidate.bindingIndices.insert(
+                candidate.bindingIndices.end(),
+                values.begin(),
+                values.end()
+            );
+            return std::pair{
+                offset,
+                static_cast<std::uint32_t>(values.size()),
+            };
+        };
+        const auto bodies = appendIndices(asset.bodyIndices);
+        const auto shapes = appendIndices(asset.shapeIndices);
+        const auto materials = appendIndices(asset.materialIndices);
+        candidate.assetBindings.push_back({
+            {
+                assetIndex,
+                asset.role,
+                asset.render,
+                asset.collision,
+            },
+            {
+                asset.dynamics,
+                asset.articulationIndex,
+                static_cast<std::uint32_t>(
+                    cohort - candidate.topologyCohorts.begin()
+                ),
+                0u,
+            },
+            {bodies.first, bodies.second, shapes.first, shapes.second},
+            {
+                materials.first,
+                materials.second,
+                asset.renderAlternative,
+                asset.collisionAlternative,
+            },
+        });
     }
     candidate.capabilities =
         computeCapabilities(candidate.assets, candidate.sensors);

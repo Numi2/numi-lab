@@ -1,5 +1,9 @@
 #include "metalrobo/FrankaWorld.hpp"
 
+#include "metalrobo/Franka.hpp"
+
+#include <cmath>
+#include <stdexcept>
 #include <string>
 #include <utility>
 
@@ -41,6 +45,91 @@ VariationParameter uniformVariation(
     return result;
 }
 
+MRBodyPropertiesGPU sceneBody(
+    const std::uint32_t motionType,
+    const float mass,
+    const mr_float4 halfExtents
+) {
+    MRBodyPropertiesGPU body{};
+    body.articulationIndex = MR_INVALID_INDEX;
+    body.parentBody = MR_INVALID_INDEX;
+    body.inboundJoint = MR_INVALID_INDEX;
+    body.motionType = motionType;
+    if (motionType == MR_MOTION_DYNAMIC) {
+        const float x = 2.0f * halfExtents.x;
+        const float y = 2.0f * halfExtents.y;
+        const float z = 2.0f * halfExtents.z;
+        const float ixx = mass * (y * y + z * z) / 12.0f;
+        const float iyy = mass * (x * x + z * z) / 12.0f;
+        const float izz = mass * (x * x + y * y) / 12.0f;
+        body.massAndInverseMass =
+            {mass, 1.0f / mass, 0.0f, 0.0f};
+        body.inertiaRow0 = {ixx, 0.0f, 0.0f, 0.0f};
+        body.inertiaRow1 = {0.0f, iyy, 0.0f, 0.0f};
+        body.inertiaRow2 = {0.0f, 0.0f, izz, 0.0f};
+        body.inverseInertiaRow0 =
+            {1.0f / ixx, 0.0f, 0.0f, 0.0f};
+        body.inverseInertiaRow1 =
+            {0.0f, 1.0f / iyy, 0.0f, 0.0f};
+        body.inverseInertiaRow2 =
+            {0.0f, 0.0f, 1.0f / izz, 0.0f};
+        body.dampingAndSpeedLimits =
+            {0.02f, 0.02f, 10.0f, 50.0f};
+    } else {
+        body.dampingAndSpeedLimits =
+            {0.0f, 0.0f, 1.0e6f, 1.0e6f};
+    }
+    return body;
+}
+
+MRShapeGPU sceneBox(
+    const std::uint32_t body,
+    const std::uint32_t material,
+    const mr_float4 halfExtents,
+    const std::uint32_t generation
+) {
+    MRShapeGPU shape{};
+    shape.bodyIndex = body;
+    shape.shapeType = MR_SHAPE_BOX;
+    shape.materialIndex = material;
+    shape.collisionGroup = 1u;
+    shape.collisionMask = ~0u;
+    shape.slotGeneration = generation;
+    shape.localPosition.w = 1.0f;
+    shape.localRotation.w = 1.0f;
+    shape.dimensions = halfExtents;
+    shape.contactRestAndBoundingRadius = {
+        0.001f,
+        0.0f,
+        std::sqrt(
+            halfExtents.x * halfExtents.x +
+            halfExtents.y * halfExtents.y +
+            halfExtents.z * halfExtents.z
+        ),
+        0.0f,
+    };
+    return shape;
+}
+
+MRBodyStateGPU sceneState(
+    const std::uint32_t body,
+    const std::uint32_t motionType,
+    const mr_float4 position
+) {
+    MRBodyStateGPU state{};
+    state.position = {
+        position.x,
+        position.y,
+        position.z,
+        1.0f,
+    };
+    state.orientation.w = 1.0f;
+    state.flagsAndIndices[0] = motionType;
+    state.flagsAndIndices[1] = MR_INVALID_INDEX;
+    state.flagsAndIndices[2] = body;
+    return state;
+}
+
 } // namespace
 
 EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
@@ -54,6 +143,9 @@ EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
         MR_WORLD_COLLISION_TRIANGLE_MESH,
         MR_WORLD_DYNAMICS_STATIC
     );
+    background.bodyIndices = {12u};
+    background.shapeIndices = {33u};
+    background.materialIndices = {2u};
     WorldAsset robot = makeAsset(
         "franka",
         MR_WORLD_ASSET_ROBOT,
@@ -61,6 +153,14 @@ EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
         MR_WORLD_COLLISION_PRIMITIVES,
         MR_WORLD_DYNAMICS_ARTICULATED
     );
+    robot.articulationIndex = 0u;
+    for (std::uint32_t body = 0u; body < 11u; ++body) {
+        robot.bodyIndices.push_back(body);
+    }
+    for (std::uint32_t shape = 0u; shape < 32u; ++shape) {
+        robot.shapeIndices.push_back(shape);
+    }
+    robot.materialIndices = {0u, 1u};
     WorldAsset object = makeAsset(
         "pick_object",
         MR_WORLD_ASSET_MANIPULATED,
@@ -68,6 +168,9 @@ EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
         MR_WORLD_COLLISION_CONVEX,
         MR_WORLD_DYNAMICS_RIGID
     );
+    object.bodyIndices = {11u};
+    object.shapeIndices = {32u};
+    object.materialIndices = {2u};
     object.initialPose.position = {0.50f, 0.0f, 0.025f, 0.0f};
     WorldAsset target = makeAsset(
         "target_fixture",
@@ -76,6 +179,9 @@ EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
         MR_WORLD_COLLISION_TRIANGLE_MESH,
         MR_WORLD_DYNAMICS_STATIC
     );
+    target.bodyIndices = {13u};
+    target.shapeIndices = {34u};
+    target.materialIndices = {2u};
     target.initialPose.position = {0.45f, 0.25f, 0.0f, 0.0f};
     target.anchors.push_back({
         "place_pose",
@@ -93,6 +199,10 @@ EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
         MR_WORLD_COLLISION_CONVEX,
         MR_WORLD_DYNAMICS_RIGID
     );
+    clutter.bodyIndices = {14u};
+    clutter.shapeIndices = {35u};
+    clutter.materialIndices = {2u};
+    clutter.initialPose.position = {0.35f, -0.25f, 0.03f, 0.0f};
     episode.assets = {
         std::move(background),
         std::move(robot),
@@ -150,6 +260,120 @@ EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
         15.0,
     };
     return episode;
+}
+
+EngineModel makeFrankaPickPlaceEngineModel() {
+    EngineModel model = makeFrankaPandaHandEngineModel();
+    model.name = "franka_fer_hand_pick_place_world_v1";
+
+    MRMaterialGPU sceneMaterial = model.materials.front();
+    sceneMaterial.friction = {0.7f, 0.6f, 0.0f, 0.0f};
+    sceneMaterial.response = {0.05f, 0.15f, 0.0f, 0.0f};
+    model.materials.push_back(sceneMaterial);
+
+    model.bodies.push_back(sceneBody(
+        MR_MOTION_DYNAMIC,
+        0.10f,
+        {0.025f, 0.025f, 0.025f, 0.0f}
+    ));
+    model.bodies.push_back(sceneBody(
+        MR_MOTION_STATIC,
+        0.0f,
+        {}
+    ));
+    model.bodies.push_back(sceneBody(
+        MR_MOTION_STATIC,
+        0.0f,
+        {}
+    ));
+    model.bodies.push_back(sceneBody(
+        MR_MOTION_DYNAMIC,
+        0.08f,
+        {0.03f, 0.03f, 0.03f, 0.0f}
+    ));
+
+    model.shapes.push_back(sceneBox(
+        11u,
+        2u,
+        {0.025f, 0.025f, 0.025f, 0.0f},
+        1001u
+    ));
+    MRShapeGPU ground{};
+    ground.bodyIndex = 12u;
+    ground.shapeType = MR_SHAPE_PLANE;
+    ground.materialIndex = 2u;
+    // Support surfaces collide with free objects but not the fixed-base
+    // robot mount. Robot/object interaction remains enabled.
+    ground.collisionGroup = 4u;
+    ground.collisionMask = 1u;
+    ground.slotGeneration = 1002u;
+    ground.localPosition.w = 1.0f;
+    constexpr float kSqrtHalf = 0.7071067811865476f;
+    ground.localRotation = {
+        kSqrtHalf,
+        0.0f,
+        0.0f,
+        kSqrtHalf,
+    };
+    model.shapes.push_back(ground);
+    MRShapeGPU target = sceneBox(
+        13u,
+        2u,
+        {0.06f, 0.06f, 0.004f, 0.0f},
+        1003u
+    );
+    target.collisionGroup = 4u;
+    target.collisionMask = 1u;
+    model.shapes.push_back(target);
+    model.shapes.push_back(sceneBox(
+        14u,
+        2u,
+        {0.03f, 0.03f, 0.03f, 0.0f},
+        1004u
+    ));
+
+    model.world.bodyCount =
+        static_cast<std::uint32_t>(model.bodies.size());
+    model.world.shapeCount =
+        static_cast<std::uint32_t>(model.shapes.size());
+    model.world.materialCount =
+        static_cast<std::uint32_t>(model.materials.size());
+    model.world.pairCapacity = 256u;
+    model.world.contactCapacity = 128u;
+    model.world.constraintCapacity = 256u;
+    model.world.islandCapacity = 8u;
+    std::string reason;
+    if (!model.valid(&reason)) {
+        throw std::logic_error(
+            "Franka pick-place model compilation failed: " + reason
+        );
+    }
+    return model;
+}
+
+std::vector<MRBodyStateGPU> makeFrankaPickPlaceSceneState() {
+    return {
+        sceneState(
+            11u,
+            MR_MOTION_DYNAMIC,
+            {0.50f, 0.0f, 0.025f, 0.0f}
+        ),
+        sceneState(
+            12u,
+            MR_MOTION_STATIC,
+            {0.0f, 0.0f, 0.0f, 0.0f}
+        ),
+        sceneState(
+            13u,
+            MR_MOTION_STATIC,
+            {0.45f, 0.25f, 0.0f, 0.0f}
+        ),
+        sceneState(
+            14u,
+            MR_MOTION_DYNAMIC,
+            {0.35f, -0.25f, 0.03f, 0.0f}
+        ),
+    };
 }
 
 WorldProgram makeFrankaPickPlaceWorldProgram() {

@@ -9,6 +9,8 @@
 
 namespace metalrobo {
 
+struct MRWorldPack;
+
 namespace detail {
 struct MetalWorldFamilyContextState;
 } // namespace detail
@@ -44,16 +46,25 @@ struct MetalWorldFamilyLayout {
     std::uint32_t appearanceCountPerInstance = 0u;
     std::uint32_t variationCount = 0u;
     std::uint32_t categoricalValueCount = 0u;
+    std::uint32_t assetBindingCount = 0u;
+    std::uint32_t bindingIndexCount = 0u;
+    std::uint32_t primaryArticulationIndex = MR_INVALID_INDEX;
+    std::uint32_t nq = 0u;
+    std::uint32_t nv = 0u;
+    std::uint32_t bodyCount = 0u;
+    std::uint32_t sceneBodyCount = 0u;
+    std::uint32_t articulationCount = 0u;
     std::size_t immutablePrivateBytes = 0u;
     std::size_t instancePrivateBytes = 0u;
     std::size_t assetPrivateBytes = 0u;
     std::size_t sensorPrivateBytes = 0u;
     std::size_t appearancePrivateBytes = 0u;
+    std::size_t physicsResetPrivateBytes = 0u;
 
     [[nodiscard]] std::size_t totalPrivateBytes() const noexcept {
         return immutablePrivateBytes + instancePrivateBytes +
             assetPrivateBytes + sensorPrivateBytes +
-            appearancePrivateBytes;
+            appearancePrivateBytes + physicsResetPrivateBytes;
     }
 };
 
@@ -84,6 +95,28 @@ enum class MetalWorldFamilyBuffer : std::uint32_t {
     assetInstances = 1u,
     sensorInstances = 2u,
     appearanceInstances = 3u,
+    assetBindings = 4u,
+    bindingIndices = 5u,
+    resetQ = 6u,
+    resetV = 7u,
+    resetSceneBodies = 8u,
+    bodyParameters = 9u,
+    controllerParameters = 10u,
+};
+
+struct MetalWorldFamilyPhysicsBatch {
+    std::uint32_t instanceCount = 0u;
+    std::uint32_t primaryArticulationIndex = MR_INVALID_INDEX;
+    std::uint32_t nq = 0u;
+    std::uint32_t nv = 0u;
+    std::uint32_t bodyCount = 0u;
+    std::uint32_t sceneBodyCount = 0u;
+    std::uint32_t articulationCount = 0u;
+    std::vector<float> resetQ;
+    std::vector<float> resetV;
+    std::vector<MRBodyStateGPU> resetSceneBodies;
+    std::vector<MRWorldBodyParametersGPU> bodyParameters;
+    std::vector<MRWorldControllerParametersGPU> controllerParameters;
 };
 
 // Persistent GPU-resident storage for one topology-compatible WorldFamily.
@@ -111,6 +144,10 @@ public:
         const WorldFamily& family,
         std::uint32_t capacity
     );
+    [[nodiscard]] MetalWorldFamilyDiagnostics compile(
+        const MRWorldPack& pack,
+        std::uint32_t capacity
+    );
 
     // Samples directly into private Metal buffers and leaves them resident for
     // physics, rendering, sensor, and policy stages encoded afterward.
@@ -123,6 +160,9 @@ public:
     // consume nativeBuffer() and never call readback().
     [[nodiscard]] MetalWorldFamilyDiagnostics readback(
         WorldInstanceBatch& output
+    );
+    [[nodiscard]] MetalWorldFamilyDiagnostics readbackPhysics(
+        MetalWorldFamilyPhysicsBatch& output
     );
 
     [[nodiscard]] MetalWorldFamilyLayout layout() const noexcept;

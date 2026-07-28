@@ -40,6 +40,14 @@ typedef struct MRWorldFamilyLayoutC {
     uint32_t appearance_count_per_instance;
     uint32_t variation_count;
     uint32_t categorical_value_count;
+    uint32_t asset_binding_count;
+    uint32_t binding_index_count;
+    uint32_t primary_articulation_index;
+    uint32_t nq;
+    uint32_t nv;
+    uint32_t body_count;
+    uint32_t scene_body_count;
+    uint32_t articulation_count;
     size_t retained_private_bytes;
 } MRWorldFamilyLayoutC;
 
@@ -90,6 +98,11 @@ mr_create_franka_pick_place_world_family(
     uint32_t capacity,
     const char* metallib_path
 );
+MR_API MRWorldFamilyHandle* mr_load_world_family_pack(
+    const char* pack_path,
+    uint32_t capacity,
+    const char* metallib_path
+);
 MR_API void mr_world_family_destroy(MRWorldFamilyHandle* handle);
 MR_API int mr_world_family_sample(
     MRWorldFamilyHandle* handle,
@@ -106,8 +119,10 @@ MR_API MRWorldFamilyStatsC mr_world_family_stats(
 MR_API const char* mr_world_family_device_name(
     const MRWorldFamilyHandle* handle
 );
-// buffer_kind: 0 headers, 1 assets, 2 sensors, 3 appearances. The returned
-// value is a borrowed id<MTLBuffer> and is intended for native extensions.
+// buffer_kind: 0 headers, 1 assets, 2 sensors, 3 appearances, 4 immutable
+// asset bindings, 5 immutable binding-index arena, 6 reset q, 7 reset v,
+// 8 scene-body resets, 9 body parameters, 10 controller parameters. The
+// returned value is a borrowed id<MTLBuffer> for native graph composition.
 MR_API void* mr_world_family_native_buffer(
     const MRWorldFamilyHandle* handle,
     uint32_t buffer_kind

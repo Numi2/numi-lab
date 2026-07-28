@@ -8,7 +8,7 @@ hidden native singleton.
 
 from __future__ import annotations
 
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import mlx.core as mx
 
@@ -17,6 +17,7 @@ from ._mlx_ext import (  # type: ignore[attr-defined]
     MetalWorldCapacityProfile,
     aba_step as _aba_step,
     compile_world,
+    world_family_state as _world_family_state,
     world_step as _world_step,
 )
 
@@ -188,6 +189,102 @@ def initial_state(
         q=q,
         v=v,
         scene_bodies=scene,
+        solver_cache=solver_cache,
+    )
+
+def initial_state_from_world_family(
+    world: MLXCompiledWorld,
+    family: Any,
+    *,
+    stream: mx.Stream | mx.Device | None = None,
+) -> WorldState:
+    """Import the latest sampled family reset directly on the Apple GPU.
+
+    ``family`` is a sampled ``FrankaPickPlaceWorldFamily``. Its private Metal
+    reset buffers are retained by the lazy MLX primitive until evaluation, so
+    this path performs no NumPy conversion or CPU readback.
+    """
+
+    layout = family.layout
+    environment_count = int(layout.active_instance_count)
+    if environment_count <= 0:
+        raise ValueError("sample the world family before importing its state")
+    expected = (
+        int(world.nq),
+        int(world.nv),
+        int(world.body_count) + int(world.scene_body_count),
+        int(world.scene_body_count),
+    )
+    actual = (
+        int(layout.nq),
+        int(layout.nv),
+        int(layout.body_count),
+        int(layout.scene_body_count),
+    )
+    if actual != expected:
+        raise ValueError(
+            "world-family topology does not match the compiled MLX world"
+        )
+    buffers = family.device_buffers
+    generation = int(family.stats.sample_count)
+    (
+        q,
+        v,
+        position,
+        orientation,
+        linear_velocity,
+        angular_velocity,
+    ) = _world_family_state(
+        world,
+        int(buffers.reset_q),
+        int(buffers.reset_v),
+        int(buffers.reset_scene_bodies),
+        environment_count,
+        generation,
+        stream=stream,
+    )
+
+    manifold_count = int(world.manifold_capacity)
+    solver_cache = SolverCache(
+        manifold_headers=mx.zeros(
+            (
+                environment_count,
+                manifold_count,
+                int(world.manifold_header_words),
+            ),
+            dtype=mx.uint32,
+        ),
+        manifold_points=mx.zeros(
+            (
+                environment_count,
+                manifold_count,
+                int(world.manifold_point_capacity),
+                int(world.manifold_point_words),
+            ),
+            dtype=mx.uint32,
+        ),
+        manifold_counts=mx.zeros(
+            (environment_count,),
+            dtype=mx.uint32,
+        ),
+        pair_cache=mx.zeros(
+            (
+                environment_count,
+                int(world.pair_cache_capacity),
+                int(world.pair_cache_words),
+            ),
+            dtype=mx.uint32,
+        ),
+    )
+    return WorldState(
+        q=q,
+        v=v,
+        scene_bodies=SceneBodyState(
+            position,
+            orientation,
+            linear_velocity,
+            angular_velocity,
+        ),
         solver_cache=solver_cache,
     )
 
@@ -404,5 +501,6 @@ __all__ = [
     "WorldState",
     "compile_world",
     "initial_state",
+    "initial_state_from_world_family",
     "step",
 ]

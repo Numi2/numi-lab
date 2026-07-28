@@ -13,7 +13,7 @@ int main() {
         const metalrobo::WorldCompileResult twinResult =
             metalrobo::compileEpisodeTwin(
                 metalrobo::makeFrankaPickPlaceEpisodeTwin(),
-                metalrobo::makeFrankaPandaEngineModel(),
+                metalrobo::makeFrankaPickPlaceEngineModel(),
                 worldTemplate
             );
         if (!twinResult.succeeded()) {
@@ -61,6 +61,13 @@ int main() {
                  metalrobo::MetalWorldFamilyBuffer::assetInstances,
                  metalrobo::MetalWorldFamilyBuffer::sensorInstances,
                  metalrobo::MetalWorldFamilyBuffer::appearanceInstances,
+                 metalrobo::MetalWorldFamilyBuffer::assetBindings,
+                 metalrobo::MetalWorldFamilyBuffer::bindingIndices,
+                 metalrobo::MetalWorldFamilyBuffer::resetQ,
+                 metalrobo::MetalWorldFamilyBuffer::resetV,
+                 metalrobo::MetalWorldFamilyBuffer::resetSceneBodies,
+                 metalrobo::MetalWorldFamilyBuffer::bodyParameters,
+                 metalrobo::MetalWorldFamilyBuffer::controllerParameters,
              }) {
             if (context.nativeBuffer(buffer) == nullptr) {
                 throw std::runtime_error(
@@ -94,6 +101,63 @@ int main() {
                 "GPU object configurations collapsed"
             );
         }
+        metalrobo::MetalWorldFamilyPhysicsBatch physics;
+        const auto physicsReadback =
+            context.readbackPhysics(physics);
+        if (!physicsReadback.succeeded()) {
+            throw std::runtime_error(
+                std::string{
+                    metalrobo::metalWorldFamilyStatusName(
+                        physicsReadback.status
+                    )
+                } + ": " + physicsReadback.message
+            );
+        }
+        if (physics.primaryArticulationIndex != 0u ||
+            physics.nq != 9u || physics.nv != 9u ||
+            physics.bodyCount != 15u ||
+            physics.sceneBodyCount != 4u ||
+            physics.articulationCount != 1u ||
+            physics.resetSceneBodies.size() !=
+                kWorldCount * physics.sceneBodyCount ||
+            std::abs(
+                physics.resetSceneBodies.front().position.x -
+                firstObjectX
+            ) > 1.0e-6f ||
+            std::abs(
+                physics.resetSceneBodies[
+                    (kWorldCount - 1u) *
+                    physics.sceneBodyCount
+                ].position.x -
+                lastObjectX
+            ) > 1.0e-6f) {
+            throw std::runtime_error(
+                "GPU physics resets do not match sampled assets"
+            );
+        }
+        const auto& firstObjectParameters =
+            physics.bodyParameters[11u];
+        if (firstObjectParameters.identity.x != objectIndex ||
+            std::abs(
+                firstObjectParameters.physical.y -
+                batch.assets[objectIndex].physical.y
+            ) > 1.0e-6f) {
+            throw std::runtime_error(
+                "GPU body parameters do not match asset physics"
+            );
+        }
+        const std::uint32_t robotIndex =
+            worldTemplate.assetIndex("franka");
+        if (physics.controllerParameters.front().identity.x !=
+                robotIndex ||
+            std::abs(
+                physics.controllerParameters.front().controller.z -
+                batch.assets[robotIndex].controller.z
+            ) > 1.0e-6f) {
+            throw std::runtime_error(
+                "GPU controller parameters do not match robot state"
+            );
+        }
 
         const metalrobo::MetalWorldFamilyStats stats =
             context.stats();
@@ -106,6 +170,7 @@ int main() {
             << " sample_ms=" << sample.elapsedMilliseconds
             << " explicit_readback_ms="
             << readback.elapsedMilliseconds
+            << " physics_resets=yes"
             << " gpu_resident=yes\n";
         return 0;
     } catch (const std::exception& error) {

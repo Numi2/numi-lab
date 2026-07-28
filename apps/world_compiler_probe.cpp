@@ -35,7 +35,7 @@ int main() {
         const metalrobo::WorldCompileResult twinResult =
             metalrobo::compileEpisodeTwin(
                 episode,
-                metalrobo::makeFrankaPandaEngineModel(),
+                metalrobo::makeFrankaPickPlaceEngineModel(),
                 worldTemplate
             );
         if (!twinResult.succeeded()) {

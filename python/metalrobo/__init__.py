@@ -17,8 +17,10 @@ from .mlx_world import (
     WorldState,
     compile_world,
     initial_state,
+    initial_state_from_world_family,
     step,
 )
+from .worlds import FrankaPickPlaceWorldFamily, PackedWorldFamily
 from .mlx_ppo import (
     MLXPPOTrainer,
     MLXRolloutBatch,
@@ -40,6 +42,7 @@ __all__ = [
     "ActorCritic",
     "ContactEvidence",
     "FrankaEnv",
+    "FrankaPickPlaceWorldFamily",
     "MetalRoboError",
     "MLXCompiledWorld",
     "MLXG1PPOTrainer",
@@ -54,6 +57,7 @@ __all__ = [
     "NativeRuntime",
     "PPOConfig",
     "PPOTrainer",
+    "PackedWorldFamily",
     "RuntimeStats",
     "SceneBodyState",
     "SolverCache",
@@ -61,6 +65,7 @@ __all__ = [
     "WorldState",
     "compile_world",
     "initial_state",
+    "initial_state_from_world_family",
     "library_version",
     "psm_physical_position_targets",
     "step",

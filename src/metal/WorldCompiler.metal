@@ -1,5 +1,6 @@
 #include <metal_stdlib>
 
+#include "metalrobo/engine_types.h"
 #include "metalrobo/world_compiler_types.h"
 
 using namespace metal;
@@ -366,6 +367,143 @@ kernel void mr_world_family_sample(
                 appearances[firstAppearance + targetIndex];
             applyAppearanceVariation(appearance, target, value.scalar);
             appearances[firstAppearance + targetIndex] = appearance;
+        }
+    }
+}
+
+// Resolves semantic WorldAsset bindings into the exact packed state consumed
+// by MetalWorld. One thread owns one environment, so resets can be regenerated
+// independently without atomics or host-side per-environment work.
+kernel void mr_world_family_materialize_physics(
+    const device float* baseQ [[buffer(0)]],
+    const device float* baseV [[buffer(1)]],
+    const device MRBodyStateGPU* baseSceneBodies [[buffer(2)]],
+    const device uint* bodyToScene [[buffer(3)]],
+    const device MRWorldAssetBindingGPU* bindings [[buffer(4)]],
+    const device uint* bindingIndices [[buffer(5)]],
+    const device MRWorldAssetInstanceGPU* assets [[buffer(6)]],
+    constant MRWorldFamilyMaterializeUniformsGPU& uniforms [[buffer(7)]],
+    device float* resetQ [[buffer(8)]],
+    device float* resetV [[buffer(9)]],
+    device MRBodyStateGPU* resetSceneBodies [[buffer(10)]],
+    device MRWorldBodyParametersGPU* bodyParameters [[buffer(11)]],
+    device MRWorldControllerParametersGPU*
+        controllerParameters [[buffer(12)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= uniforms.stateCounts.x ||
+        uniforms.identity.x != MR_WORLD_COMPILER_ABI_VERSION) {
+        return;
+    }
+
+    const uint nq = uniforms.stateCounts.y;
+    const uint nv = uniforms.stateCounts.z;
+    const uint sceneBodyCount = uniforms.stateCounts.w;
+    const uint bodyCount = uniforms.topology.x;
+    const uint articulationCount = uniforms.topology.y;
+    const uint assetCount = uniforms.topology.z;
+    const uint assetBase = environment * assetCount;
+
+    for (uint coordinate = 0u; coordinate < nq; ++coordinate) {
+        resetQ[environment * nq + coordinate] = baseQ[coordinate];
+    }
+    for (uint coordinate = 0u; coordinate < nv; ++coordinate) {
+        resetV[environment * nv + coordinate] = baseV[coordinate];
+    }
+    for (uint localScene = 0u;
+         localScene < sceneBodyCount;
+         ++localScene) {
+        resetSceneBodies[
+            environment * sceneBodyCount + localScene
+        ] = baseSceneBodies[localScene];
+    }
+    for (uint body = 0u; body < bodyCount; ++body) {
+        MRWorldBodyParametersGPU parameters = {};
+        parameters.physical = float4(1.0f);
+        parameters.identity = uint4(
+            MR_INVALID_INDEX,
+            MR_WORLD_DYNAMICS_STATIC,
+            0u,
+            0u
+        );
+        bodyParameters[environment * bodyCount + body] = parameters;
+    }
+    for (uint articulation = 0u;
+         articulation < articulationCount;
+         ++articulation) {
+        MRWorldControllerParametersGPU parameters = {};
+        parameters.controller = float4(1.0f, 1.0f, 0.0f, 1.0f);
+        parameters.identity = uint4(
+            MR_INVALID_INDEX,
+            articulation,
+            0u,
+            0u
+        );
+        controllerParameters[
+            environment * articulationCount + articulation
+        ] = parameters;
+    }
+
+    for (uint assetIndex = 0u;
+         assetIndex < assetCount;
+         ++assetIndex) {
+        const MRWorldAssetBindingGPU binding = bindings[assetIndex];
+        const MRWorldAssetInstanceGPU asset =
+            assets[assetBase + assetIndex];
+        const uint firstBody = binding.geometryRanges.x;
+        const uint boundBodyCount = binding.geometryRanges.y;
+        for (uint localBody = 0u;
+             localBody < boundBodyCount;
+             ++localBody) {
+            const uint body = bindingIndices[firstBody + localBody];
+            if (body >= bodyCount) {
+                continue;
+            }
+            MRWorldBodyParametersGPU parameters = {};
+            parameters.physical = asset.physical;
+            parameters.identity = uint4(
+                assetIndex,
+                binding.dynamics.x,
+                0u,
+                0u
+            );
+            bodyParameters[
+                environment * bodyCount + body
+            ] = parameters;
+
+            const uint localScene = bodyToScene[body];
+            if (localScene >= sceneBodyCount) {
+                continue;
+            }
+            MRBodyStateGPU state =
+                baseSceneBodies[localScene];
+            state.position = float4(
+                asset.positionAndScale.xyz,
+                1.0f
+            );
+            state.orientation = normalize(asset.orientation);
+            state.linearVelocityAndInverseMass =
+                float4(asset.linearVelocity.xyz, 0.0f);
+            state.angularVelocity =
+                float4(asset.angularVelocity.xyz, 0.0f);
+            resetSceneBodies[
+                environment * sceneBodyCount + localScene
+            ] = state;
+        }
+
+        const uint articulation = binding.dynamics.y;
+        if (articulation < articulationCount) {
+            MRWorldControllerParametersGPU parameters = {};
+            parameters.controller = asset.controller;
+            parameters.identity = uint4(
+                assetIndex,
+                articulation,
+                0u,
+                0u
+            );
+            controllerParameters[
+                environment * articulationCount + articulation
+            ] = parameters;
         }
     }
 }

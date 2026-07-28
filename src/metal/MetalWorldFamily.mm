@@ -2,12 +2,14 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/MetalWorldFamily.hpp"
+#include "metalrobo/WorldPack.hpp"
 
 #include <dlfcn.h>
 
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -38,11 +40,23 @@ struct FamilyBuffers {
     __strong id<MTLBuffer> baseAppearances = nil;
     __strong id<MTLBuffer> variations = nil;
     __strong id<MTLBuffer> categoricalValues = nil;
+    __strong id<MTLBuffer> assetBindings = nil;
+    __strong id<MTLBuffer> bindingIndices = nil;
+    __strong id<MTLBuffer> baseQ = nil;
+    __strong id<MTLBuffer> baseV = nil;
+    __strong id<MTLBuffer> baseSceneBodies = nil;
+    __strong id<MTLBuffer> bodyToScene = nil;
     __strong id<MTLBuffer> uniforms = nil;
+    __strong id<MTLBuffer> materializeUniforms = nil;
     __strong id<MTLBuffer> instances = nil;
     __strong id<MTLBuffer> assets = nil;
     __strong id<MTLBuffer> sensors = nil;
     __strong id<MTLBuffer> appearances = nil;
+    __strong id<MTLBuffer> resetQ = nil;
+    __strong id<MTLBuffer> resetV = nil;
+    __strong id<MTLBuffer> resetSceneBodies = nil;
+    __strong id<MTLBuffer> bodyParameters = nil;
+    __strong id<MTLBuffer> controllerParameters = nil;
 };
 
 std::string nsString(NSString* value) {
@@ -222,6 +236,7 @@ struct MetalWorldFamilyContextState {
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> pipeline = nil;
+    __strong id<MTLComputePipelineState> materializePipeline = nil;
     FamilyBuffers buffers{};
     MetalWorldFamilyLayout layout{};
     MetalWorldFamilyStats stats{};
@@ -318,7 +333,29 @@ MetalWorldFamilyDiagnostics initialize(
             std::move(diagnostics),
             MetalWorldFamilyStatus::metalPipelineFailure,
             "failed to create world-family pipeline: " +
-                describeError(error)
+            describeError(error)
+        );
+    }
+    id<MTLFunction> materializeFunction = [library
+        newFunctionWithName:@"mr_world_family_materialize_physics"];
+    if (materializeFunction == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldFamilyStatus::metalLibraryFailure,
+            "metallib does not contain "
+            "mr_world_family_materialize_physics"
+        );
+    }
+    error = nil;
+    id<MTLComputePipelineState> materializePipeline = [device
+        newComputePipelineStateWithFunction:materializeFunction
+                                       error:&error];
+    if (materializePipeline == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldFamilyStatus::metalPipelineFailure,
+            "failed to create world-family physics materialization "
+            "pipeline: " + describeError(error)
         );
     }
 
@@ -326,6 +363,7 @@ MetalWorldFamilyDiagnostics initialize(
     state.queue = queue;
     state.library = library;
     state.pipeline = pipeline;
+    state.materializePipeline = materializePipeline;
     state.initialized = true;
     return diagnostics;
 }
@@ -379,6 +417,104 @@ bool validateFamily(
             return false;
         }
     }
+    return true;
+}
+
+struct PhysicsBase {
+    std::uint32_t primaryArticulation = MR_INVALID_INDEX;
+    std::vector<float> q;
+    std::vector<float> v;
+    std::vector<MRBodyStateGPU> sceneBodies;
+    std::vector<std::uint32_t> bodyToScene;
+};
+
+bool buildPhysicsBase(
+    const WorldTemplate& worldTemplate,
+    PhysicsBase& output,
+    std::string& reason
+) {
+    const std::uint32_t robotAsset =
+        worldTemplate.assetIndex(worldTemplate.task.robotAssetId);
+    if (robotAsset == MR_INVALID_INDEX) {
+        reason = "task robot asset is missing";
+        return false;
+    }
+    const WorldAsset& robot = worldTemplate.assets[robotAsset];
+    if (robot.articulationIndex == MR_INVALID_INDEX ||
+        robot.articulationIndex >=
+            worldTemplate.engineModel.articulations.size()) {
+        reason = "task robot has no executable articulation";
+        return false;
+    }
+    const EngineModel& model = worldTemplate.engineModel;
+    const MRArticulationGPU& articulation =
+        model.articulations[robot.articulationIndex];
+    if (articulation.qOffset > model.defaultQ.size() ||
+        articulation.nq > model.defaultQ.size() -
+            articulation.qOffset ||
+        articulation.vOffset > model.defaultV.size() ||
+        articulation.nv > model.defaultV.size() -
+            articulation.vOffset) {
+        reason = "task robot reset range is invalid";
+        return false;
+    }
+
+    PhysicsBase staged;
+    staged.primaryArticulation = robot.articulationIndex;
+    staged.q.assign(
+        model.defaultQ.begin() + articulation.qOffset,
+        model.defaultQ.begin() + articulation.qOffset +
+            articulation.nq
+    );
+    staged.v.assign(
+        model.defaultV.begin() + articulation.vOffset,
+        model.defaultV.begin() + articulation.vOffset +
+            articulation.nv
+    );
+    staged.bodyToScene.assign(
+        model.bodies.size(),
+        MR_INVALID_INDEX
+    );
+    for (std::uint32_t body = 0u;
+         body < model.bodies.size();
+         ++body) {
+        const MRBodyPropertiesGPU& properties = model.bodies[body];
+        if (properties.articulationIndex != MR_INVALID_INDEX) {
+            continue;
+        }
+        staged.bodyToScene[body] =
+            static_cast<std::uint32_t>(staged.sceneBodies.size());
+        MRBodyStateGPU state{};
+        state.position.w = 1.0f;
+        state.orientation.w = 1.0f;
+        state.flagsAndIndices[0] = properties.motionType;
+        state.flagsAndIndices[1] = MR_INVALID_INDEX;
+        state.flagsAndIndices[2] = body;
+        staged.sceneBodies.push_back(state);
+    }
+    for (const WorldAsset& asset : worldTemplate.assets) {
+        for (const std::uint32_t body : asset.bodyIndices) {
+            if (body >= staged.bodyToScene.size()) {
+                reason = "asset body mapping exceeds physics topology";
+                return false;
+            }
+            const std::uint32_t localScene =
+                staged.bodyToScene[body];
+            if (localScene == MR_INVALID_INDEX) {
+                continue;
+            }
+            MRBodyStateGPU& state =
+                staged.sceneBodies[localScene];
+            state.position = {
+                asset.initialPose.position.x,
+                asset.initialPose.position.y,
+                asset.initialPose.position.z,
+                1.0f,
+            };
+            state.orientation = asset.initialPose.orientation;
+        }
+    }
+    output = std::move(staged);
     return true;
 }
 
@@ -443,11 +579,17 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             family.worldTemplate.sensors.size();
         const std::size_t appearanceCount =
             family.worldTemplate.appearances.size();
+        const std::size_t bodyCount =
+            family.worldTemplate.engineModel.bodies.size();
+        const std::size_t articulationCount =
+            family.worldTemplate.engineModel.articulations.size();
         constexpr std::size_t addressLimit =
             std::numeric_limits<std::uint32_t>::max();
         if (assetCount > addressLimit ||
             sensorCount > addressLimit ||
             appearanceCount > addressLimit ||
+            bodyCount > addressLimit ||
+            articulationCount > addressLimit ||
             family.program.variations.size() > addressLimit ||
             family.program.categoricalValues.size() > addressLimit ||
             capacity > addressLimit /
@@ -489,6 +631,40 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
                 "immutable world base is invalid: " + batchReason
             );
         }
+        PhysicsBase physicsBase;
+        if (!buildPhysicsBase(
+                family.worldTemplate,
+                physicsBase,
+                batchReason
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::invalidFamily,
+                "failed to compile physics reset base: " +
+                    batchReason
+            );
+        }
+        if (physicsBase.sceneBodies.size() > addressLimit ||
+            capacity > addressLimit /
+                std::max<std::size_t>(bodyCount, 1u) ||
+            capacity > addressLimit /
+                std::max<std::size_t>(articulationCount, 1u) ||
+            capacity > addressLimit /
+                std::max<std::size_t>(physicsBase.q.size(), 1u) ||
+            capacity > addressLimit /
+                std::max<std::size_t>(physicsBase.v.size(), 1u) ||
+            capacity > addressLimit /
+                std::max<std::size_t>(
+                    physicsBase.sceneBodies.size(),
+                    1u
+                )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::capacityOverflow,
+                "world-family physics streams exceed 32-bit GPU "
+                "addressing"
+            );
+        }
 
         MetalWorldFamilyLayout layout;
         layout.capacity = capacity;
@@ -504,16 +680,49 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
         layout.categoricalValueCount = static_cast<std::uint32_t>(
             family.program.categoricalValues.size()
         );
+        layout.assetBindingCount = static_cast<std::uint32_t>(
+            family.worldTemplate.assetBindings.size()
+        );
+        layout.bindingIndexCount = static_cast<std::uint32_t>(
+            family.worldTemplate.bindingIndices.size()
+        );
+        layout.primaryArticulationIndex =
+            physicsBase.primaryArticulation;
+        layout.nq = static_cast<std::uint32_t>(physicsBase.q.size());
+        layout.nv = static_cast<std::uint32_t>(physicsBase.v.size());
+        layout.bodyCount = static_cast<std::uint32_t>(bodyCount);
+        layout.sceneBodyCount = static_cast<std::uint32_t>(
+            physicsBase.sceneBodies.size()
+        );
+        layout.articulationCount = static_cast<std::uint32_t>(
+            articulationCount
+        );
 
         std::size_t baseAssetBytes = 0u;
         std::size_t baseSensorBytes = 0u;
         std::size_t baseAppearanceBytes = 0u;
         std::size_t variationBytes = 0u;
         std::size_t categoricalBytes = 0u;
+        std::size_t assetBindingBytes = 0u;
+        std::size_t bindingIndexBytes = 0u;
+        std::size_t baseQBytes = 0u;
+        std::size_t baseVBytes = 0u;
+        std::size_t baseSceneBodyBytes = 0u;
+        std::size_t bodyToSceneBytes = 0u;
         std::size_t instanceElements = 0u;
         std::size_t assetElements = 0u;
         std::size_t sensorElements = 0u;
         std::size_t appearanceElements = 0u;
+        std::size_t resetQElements = 0u;
+        std::size_t resetVElements = 0u;
+        std::size_t resetSceneBodyElements = 0u;
+        std::size_t bodyParameterElements = 0u;
+        std::size_t controllerParameterElements = 0u;
+        std::size_t resetQBytes = 0u;
+        std::size_t resetVBytes = 0u;
+        std::size_t resetSceneBodyBytes = 0u;
+        std::size_t bodyParameterBytes = 0u;
+        std::size_t controllerParameterBytes = 0u;
         if (!checkedByteCount<MRWorldAssetInstanceGPU>(
                 base.assets.size(),
                 baseAssetBytes
@@ -534,6 +743,30 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
                 family.program.categoricalValues.size(),
                 categoricalBytes
             ) ||
+            !checkedByteCount<MRWorldAssetBindingGPU>(
+                family.worldTemplate.assetBindings.size(),
+                assetBindingBytes
+            ) ||
+            !checkedByteCount<std::uint32_t>(
+                family.worldTemplate.bindingIndices.size(),
+                bindingIndexBytes
+            ) ||
+            !checkedByteCount<float>(
+                physicsBase.q.size(),
+                baseQBytes
+            ) ||
+            !checkedByteCount<float>(
+                physicsBase.v.size(),
+                baseVBytes
+            ) ||
+            !checkedByteCount<MRBodyStateGPU>(
+                physicsBase.sceneBodies.size(),
+                baseSceneBodyBytes
+            ) ||
+            !checkedByteCount<std::uint32_t>(
+                physicsBase.bodyToScene.size(),
+                bodyToSceneBytes
+            ) ||
             !checkedMultiply(capacity, 1u, instanceElements) ||
             !checkedMultiply(capacity, assetCount, assetElements) ||
             !checkedMultiply(capacity, sensorCount, sensorElements) ||
@@ -541,6 +774,31 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
                 capacity,
                 appearanceCount,
                 appearanceElements
+            ) ||
+            !checkedMultiply(
+                capacity,
+                physicsBase.q.size(),
+                resetQElements
+            ) ||
+            !checkedMultiply(
+                capacity,
+                physicsBase.v.size(),
+                resetVElements
+            ) ||
+            !checkedMultiply(
+                capacity,
+                physicsBase.sceneBodies.size(),
+                resetSceneBodyElements
+            ) ||
+            !checkedMultiply(
+                capacity,
+                bodyCount,
+                bodyParameterElements
+            ) ||
+            !checkedMultiply(
+                capacity,
+                articulationCount,
+                controllerParameterElements
             ) ||
             !checkedByteCount<MRWorldInstanceHeaderGPU>(
                 instanceElements,
@@ -557,6 +815,26 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             !checkedByteCount<MRWorldAppearanceInstanceGPU>(
                 appearanceElements,
                 layout.appearancePrivateBytes
+            ) ||
+            !checkedByteCount<float>(
+                resetQElements,
+                resetQBytes
+            ) ||
+            !checkedByteCount<float>(
+                resetVElements,
+                resetVBytes
+            ) ||
+            !checkedByteCount<MRBodyStateGPU>(
+                resetSceneBodyElements,
+                resetSceneBodyBytes
+            ) ||
+            !checkedByteCount<MRWorldBodyParametersGPU>(
+                bodyParameterElements,
+                bodyParameterBytes
+            ) ||
+            !checkedByteCount<MRWorldControllerParametersGPU>(
+                controllerParameterElements,
+                controllerParameterBytes
             )) {
             return reject(
                 std::move(diagnostics),
@@ -566,7 +844,12 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
         }
         layout.immutablePrivateBytes =
             baseAssetBytes + baseSensorBytes + baseAppearanceBytes +
-            variationBytes + categoricalBytes;
+            variationBytes + categoricalBytes + assetBindingBytes +
+            bindingIndexBytes + baseQBytes + baseVBytes +
+            baseSceneBodyBytes + bodyToSceneBytes;
+        layout.physicsResetPrivateBytes =
+            resetQBytes + resetVBytes + resetSceneBodyBytes +
+            bodyParameterBytes + controllerParameterBytes;
         const std::size_t maxBufferLength = static_cast<std::size_t>(
             state_->device.maxBufferLength
         );
@@ -578,7 +861,18 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             baseSensorBytes > maxBufferLength ||
             baseAppearanceBytes > maxBufferLength ||
             variationBytes > maxBufferLength ||
-            categoricalBytes > maxBufferLength) {
+            categoricalBytes > maxBufferLength ||
+            assetBindingBytes > maxBufferLength ||
+            bindingIndexBytes > maxBufferLength ||
+            baseQBytes > maxBufferLength ||
+            baseVBytes > maxBufferLength ||
+            baseSceneBodyBytes > maxBufferLength ||
+            bodyToSceneBytes > maxBufferLength ||
+            resetQBytes > maxBufferLength ||
+            resetVBytes > maxBufferLength ||
+            resetSceneBodyBytes > maxBufferLength ||
+            bodyParameterBytes > maxBufferLength ||
+            controllerParameterBytes > maxBufferLength) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldFamilyStatus::metalBufferFailure,
@@ -613,10 +907,45 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             categoricalBytes,
             @"MetalRobo categorical values"
         );
+        candidate.assetBindings = makePrivateBuffer(
+            state_->device,
+            assetBindingBytes,
+            @"MetalRobo world asset bindings"
+        );
+        candidate.bindingIndices = makePrivateBuffer(
+            state_->device,
+            bindingIndexBytes,
+            @"MetalRobo world binding indices"
+        );
+        candidate.baseQ = makePrivateBuffer(
+            state_->device,
+            baseQBytes,
+            @"MetalRobo world-family base q"
+        );
+        candidate.baseV = makePrivateBuffer(
+            state_->device,
+            baseVBytes,
+            @"MetalRobo world-family base v"
+        );
+        candidate.baseSceneBodies = makePrivateBuffer(
+            state_->device,
+            baseSceneBodyBytes,
+            @"MetalRobo world-family base scene bodies"
+        );
+        candidate.bodyToScene = makePrivateBuffer(
+            state_->device,
+            bodyToSceneBytes,
+            @"MetalRobo world-family body-to-scene map"
+        );
         candidate.uniforms = makeSharedBuffer(
             state_->device,
             sizeof(MRWorldFamilySampleUniformsGPU),
             @"MetalRobo world-family uniforms"
+        );
+        candidate.materializeUniforms = makeSharedBuffer(
+            state_->device,
+            sizeof(MRWorldFamilyMaterializeUniformsGPU),
+            @"MetalRobo world-family physics uniforms"
         );
         candidate.instances = makePrivateBuffer(
             state_->device,
@@ -638,16 +967,53 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             layout.appearancePrivateBytes,
             @"MetalRobo world appearance instances"
         );
+        candidate.resetQ = makePrivateBuffer(
+            state_->device,
+            resetQBytes,
+            @"MetalRobo world-family reset q"
+        );
+        candidate.resetV = makePrivateBuffer(
+            state_->device,
+            resetVBytes,
+            @"MetalRobo world-family reset v"
+        );
+        candidate.resetSceneBodies = makePrivateBuffer(
+            state_->device,
+            resetSceneBodyBytes,
+            @"MetalRobo world-family reset scene bodies"
+        );
+        candidate.bodyParameters = makePrivateBuffer(
+            state_->device,
+            bodyParameterBytes,
+            @"MetalRobo world-family body parameters"
+        );
+        candidate.controllerParameters = makePrivateBuffer(
+            state_->device,
+            controllerParameterBytes,
+            @"MetalRobo world-family controller parameters"
+        );
         if (candidate.baseAssets == nil ||
             candidate.baseSensors == nil ||
             candidate.baseAppearances == nil ||
             candidate.variations == nil ||
             candidate.categoricalValues == nil ||
+            candidate.assetBindings == nil ||
+            candidate.bindingIndices == nil ||
+            candidate.baseQ == nil ||
+            candidate.baseV == nil ||
+            candidate.baseSceneBodies == nil ||
+            candidate.bodyToScene == nil ||
             candidate.uniforms == nil ||
+            candidate.materializeUniforms == nil ||
             candidate.instances == nil ||
             candidate.assets == nil ||
             candidate.sensors == nil ||
-            candidate.appearances == nil) {
+            candidate.appearances == nil ||
+            candidate.resetQ == nil ||
+            candidate.resetV == nil ||
+            candidate.resetSceneBodies == nil ||
+            candidate.bodyParameters == nil ||
+            candidate.controllerParameters == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldFamilyStatus::metalBufferFailure,
@@ -686,11 +1052,55 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             },
             @"MetalRobo upload categorical values"
         );
+        id<MTLBuffer> uploadAssetBindings = makeUploadBuffer(
+            state_->device,
+            std::span<const MRWorldAssetBindingGPU>{
+                family.worldTemplate.assetBindings
+            },
+            @"MetalRobo upload asset bindings"
+        );
+        id<MTLBuffer> uploadBindingIndices = makeUploadBuffer(
+            state_->device,
+            std::span<const std::uint32_t>{
+                family.worldTemplate.bindingIndices
+            },
+            @"MetalRobo upload binding indices"
+        );
+        id<MTLBuffer> uploadBaseQ = makeUploadBuffer(
+            state_->device,
+            std::span<const float>{physicsBase.q},
+            @"MetalRobo upload base q"
+        );
+        id<MTLBuffer> uploadBaseV = makeUploadBuffer(
+            state_->device,
+            std::span<const float>{physicsBase.v},
+            @"MetalRobo upload base v"
+        );
+        id<MTLBuffer> uploadBaseSceneBodies = makeUploadBuffer(
+            state_->device,
+            std::span<const MRBodyStateGPU>{
+                physicsBase.sceneBodies
+            },
+            @"MetalRobo upload base scene bodies"
+        );
+        id<MTLBuffer> uploadBodyToScene = makeUploadBuffer(
+            state_->device,
+            std::span<const std::uint32_t>{
+                physicsBase.bodyToScene
+            },
+            @"MetalRobo upload body-to-scene map"
+        );
         if (uploadBaseAssets == nil ||
             uploadBaseSensors == nil ||
             uploadBaseAppearances == nil ||
             uploadVariations == nil ||
-            uploadCategorical == nil) {
+            uploadCategorical == nil ||
+            uploadAssetBindings == nil ||
+            uploadBindingIndices == nil ||
+            uploadBaseQ == nil ||
+            uploadBaseV == nil ||
+            uploadBaseSceneBodies == nil ||
+            uploadBodyToScene == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldFamilyStatus::metalBufferFailure,
@@ -749,6 +1159,36 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             uploadCategorical,
             candidate.categoricalValues,
             categoricalBytes
+        );
+        copyUpload(
+            uploadAssetBindings,
+            candidate.assetBindings,
+            assetBindingBytes
+        );
+        copyUpload(
+            uploadBindingIndices,
+            candidate.bindingIndices,
+            bindingIndexBytes
+        );
+        copyUpload(
+            uploadBaseQ,
+            candidate.baseQ,
+            baseQBytes
+        );
+        copyUpload(
+            uploadBaseV,
+            candidate.baseV,
+            baseVBytes
+        );
+        copyUpload(
+            uploadBaseSceneBodies,
+            candidate.baseSceneBodies,
+            baseSceneBodyBytes
+        );
+        copyUpload(
+            uploadBodyToScene,
+            candidate.bodyToScene,
+            bodyToSceneBytes
         );
         [blit endEncoding];
         [command commit];
@@ -847,6 +1287,30 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
             &uniforms,
             sizeof(uniforms)
         );
+        MRWorldFamilyMaterializeUniformsGPU materializeUniforms{};
+        materializeUniforms.stateCounts = {
+            instanceCount,
+            state_->layout.nq,
+            state_->layout.nv,
+            state_->layout.sceneBodyCount,
+        };
+        materializeUniforms.topology = {
+            state_->layout.bodyCount,
+            state_->layout.articulationCount,
+            state_->layout.assetCountPerInstance,
+            state_->layout.primaryArticulationIndex,
+        };
+        materializeUniforms.identity = {
+            MR_WORLD_COMPILER_ABI_VERSION,
+            0u,
+            0u,
+            0u,
+        };
+        std::memcpy(
+            state_->buffers.materializeUniforms.contents,
+            &materializeUniforms,
+            sizeof(materializeUniforms)
+        );
 
         const auto start = std::chrono::steady_clock::now();
         id<MTLCommandBuffer> command =
@@ -906,6 +1370,81 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
                 1u
             )];
         [encoder endEncoding];
+
+        id<MTLComputeCommandEncoder> materializeEncoder =
+            [command computeCommandEncoder];
+        if (materializeEncoder == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::metalCommandFailure,
+                "failed to create world-family physics materialization "
+                "encoder"
+            );
+        }
+        materializeEncoder.label =
+            @"MetalRobo materialize family physics";
+        [materializeEncoder
+            setComputePipelineState:state_->materializePipeline];
+        [materializeEncoder setBuffer:state_->buffers.baseQ
+                              offset:0u
+                             atIndex:0u];
+        [materializeEncoder setBuffer:state_->buffers.baseV
+                              offset:0u
+                             atIndex:1u];
+        [materializeEncoder
+            setBuffer:state_->buffers.baseSceneBodies
+               offset:0u
+              atIndex:2u];
+        [materializeEncoder setBuffer:state_->buffers.bodyToScene
+                              offset:0u
+                             atIndex:3u];
+        [materializeEncoder setBuffer:state_->buffers.assetBindings
+                              offset:0u
+                             atIndex:4u];
+        [materializeEncoder setBuffer:state_->buffers.bindingIndices
+                              offset:0u
+                             atIndex:5u];
+        [materializeEncoder setBuffer:state_->buffers.assets
+                              offset:0u
+                             atIndex:6u];
+        [materializeEncoder
+            setBuffer:state_->buffers.materializeUniforms
+               offset:0u
+              atIndex:7u];
+        [materializeEncoder setBuffer:state_->buffers.resetQ
+                              offset:0u
+                             atIndex:8u];
+        [materializeEncoder setBuffer:state_->buffers.resetV
+                              offset:0u
+                             atIndex:9u];
+        [materializeEncoder
+            setBuffer:state_->buffers.resetSceneBodies
+               offset:0u
+              atIndex:10u];
+        [materializeEncoder
+            setBuffer:state_->buffers.bodyParameters
+               offset:0u
+              atIndex:11u];
+        [materializeEncoder
+            setBuffer:state_->buffers.controllerParameters
+               offset:0u
+              atIndex:12u];
+        const NSUInteger materializeThreadsPerGroup =
+            std::min<NSUInteger>(
+                state_->materializePipeline.maxTotalThreadsPerThreadgroup,
+                std::max<NSUInteger>(
+                    state_->materializePipeline.threadExecutionWidth,
+                    32u
+                )
+            );
+        [materializeEncoder
+            dispatchThreads:MTLSizeMake(instanceCount, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                materializeThreadsPerGroup,
+                1u,
+                1u
+            )];
+        [materializeEncoder endEncoding];
         [command commit];
         [command waitUntilCompleted];
         const auto end = std::chrono::steady_clock::now();
@@ -934,6 +1473,21 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
             exception.what()
         );
     }
+}
+
+MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
+    const MRWorldPack& pack,
+    const std::uint32_t capacity
+) {
+    std::string reason;
+    if (!pack.valid(&reason)) {
+        return reject(
+            {},
+            MetalWorldFamilyStatus::invalidFamily,
+            "invalid MRWorldPack: " + reason
+        );
+    }
+    return compile(pack.family, capacity);
 }
 
 MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readback(
@@ -1107,6 +1661,205 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readback(
     }
 }
 
+MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readbackPhysics(
+    MetalWorldFamilyPhysicsBatch& output
+) {
+    MetalWorldFamilyDiagnostics diagnostics;
+    if (state_ == nullptr) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldFamilyStatus::internalFailure,
+            "world-family context has no state"
+        );
+    }
+    try {
+        const std::lock_guard lock(state_->mutex);
+        diagnostics.familyFingerprint = state_->familyFingerprint;
+        diagnostics.deviceName = nsString(state_->device.name);
+        diagnostics.layout = state_->layout;
+        if (!state_->compiled ||
+            state_->layout.activeInstanceCount == 0u) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::notCompiled,
+                "sample the compiled world family before physics "
+                "readback"
+            );
+        }
+
+        const std::size_t instanceCount =
+            state_->layout.activeInstanceCount;
+        const std::size_t qElements =
+            instanceCount * state_->layout.nq;
+        const std::size_t vElements =
+            instanceCount * state_->layout.nv;
+        const std::size_t sceneElements =
+            instanceCount * state_->layout.sceneBodyCount;
+        const std::size_t bodyElements =
+            instanceCount * state_->layout.bodyCount;
+        const std::size_t controllerElements =
+            instanceCount * state_->layout.articulationCount;
+
+        MetalWorldFamilyPhysicsBatch staged;
+        staged.instanceCount =
+            static_cast<std::uint32_t>(instanceCount);
+        staged.primaryArticulationIndex =
+            state_->layout.primaryArticulationIndex;
+        staged.nq = state_->layout.nq;
+        staged.nv = state_->layout.nv;
+        staged.bodyCount = state_->layout.bodyCount;
+        staged.sceneBodyCount = state_->layout.sceneBodyCount;
+        staged.articulationCount =
+            state_->layout.articulationCount;
+        staged.resetQ.resize(qElements);
+        staged.resetV.resize(vElements);
+        staged.resetSceneBodies.resize(sceneElements);
+        staged.bodyParameters.resize(bodyElements);
+        staged.controllerParameters.resize(controllerElements);
+
+        const auto makeReadback = [this](
+            const std::size_t bytes,
+            NSString* label
+        ) {
+            return makeSharedBuffer(state_->device, bytes, label);
+        };
+        id<MTLBuffer> qReadback = makeReadback(
+            qElements * sizeof(float),
+            @"MetalRobo physics q readback"
+        );
+        id<MTLBuffer> vReadback = makeReadback(
+            vElements * sizeof(float),
+            @"MetalRobo physics v readback"
+        );
+        id<MTLBuffer> sceneReadback = makeReadback(
+            sceneElements * sizeof(MRBodyStateGPU),
+            @"MetalRobo physics scene readback"
+        );
+        id<MTLBuffer> bodyReadback = makeReadback(
+            bodyElements * sizeof(MRWorldBodyParametersGPU),
+            @"MetalRobo body-parameter readback"
+        );
+        id<MTLBuffer> controllerReadback = makeReadback(
+            controllerElements *
+                sizeof(MRWorldControllerParametersGPU),
+            @"MetalRobo controller-parameter readback"
+        );
+        if (qReadback == nil || vReadback == nil ||
+            sceneReadback == nil || bodyReadback == nil ||
+            controllerReadback == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::metalBufferFailure,
+                "failed to allocate physics readback buffers"
+            );
+        }
+
+        id<MTLCommandBuffer> command =
+            [state_->queue commandBuffer];
+        id<MTLBlitCommandEncoder> blit =
+            [command blitCommandEncoder];
+        if (command == nil || blit == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::metalCommandFailure,
+                "failed to create physics readback command"
+            );
+        }
+        const auto copyOutput = ^(
+            id<MTLBuffer> source,
+            id<MTLBuffer> destination,
+            const std::size_t bytes
+        ) {
+            if (bytes != 0u) {
+                [blit copyFromBuffer:source
+                       sourceOffset:0u
+                           toBuffer:destination
+                  destinationOffset:0u
+                               size:static_cast<NSUInteger>(bytes)];
+            }
+        };
+        copyOutput(
+            state_->buffers.resetQ,
+            qReadback,
+            qElements * sizeof(float)
+        );
+        copyOutput(
+            state_->buffers.resetV,
+            vReadback,
+            vElements * sizeof(float)
+        );
+        copyOutput(
+            state_->buffers.resetSceneBodies,
+            sceneReadback,
+            sceneElements * sizeof(MRBodyStateGPU)
+        );
+        copyOutput(
+            state_->buffers.bodyParameters,
+            bodyReadback,
+            bodyElements * sizeof(MRWorldBodyParametersGPU)
+        );
+        copyOutput(
+            state_->buffers.controllerParameters,
+            controllerReadback,
+            controllerElements *
+                sizeof(MRWorldControllerParametersGPU)
+        );
+        [blit endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        if (command.status != MTLCommandBufferStatusCompleted) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::metalCommandFailure,
+                "physics readback failed: " +
+                    describeError(command.error)
+            );
+        }
+        copySharedBuffer(staged.resetQ, qReadback);
+        copySharedBuffer(staged.resetV, vReadback);
+        copySharedBuffer(staged.resetSceneBodies, sceneReadback);
+        copySharedBuffer(staged.bodyParameters, bodyReadback);
+        copySharedBuffer(
+            staged.controllerParameters,
+            controllerReadback
+        );
+        const auto finiteFloat = [](const float value) {
+            return std::isfinite(value);
+        };
+        if (!std::all_of(
+                staged.resetQ.begin(),
+                staged.resetQ.end(),
+                finiteFloat
+            ) ||
+            !std::all_of(
+                staged.resetV.begin(),
+                staged.resetV.end(),
+                finiteFloat
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::metalCommandFailure,
+                "GPU produced non-finite physics reset coordinates"
+            );
+        }
+        output = std::move(staged);
+        state_->stats.readbackCount += 1u;
+        return diagnostics;
+    } catch (const std::bad_alloc&) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldFamilyStatus::metalBufferFailure,
+            "host allocation failed during physics readback"
+        );
+    } catch (const std::exception& exception) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldFamilyStatus::internalFailure,
+            exception.what()
+        );
+    }
+}
+
 MetalWorldFamilyLayout MetalWorldFamilyContext::layout() const noexcept {
     if (state_ == nullptr) {
         return {};
@@ -1155,6 +1908,27 @@ void* MetalWorldFamilyContext::nativeBuffer(
             break;
         case MetalWorldFamilyBuffer::appearanceInstances:
             selected = state_->buffers.appearances;
+            break;
+        case MetalWorldFamilyBuffer::assetBindings:
+            selected = state_->buffers.assetBindings;
+            break;
+        case MetalWorldFamilyBuffer::bindingIndices:
+            selected = state_->buffers.bindingIndices;
+            break;
+        case MetalWorldFamilyBuffer::resetQ:
+            selected = state_->buffers.resetQ;
+            break;
+        case MetalWorldFamilyBuffer::resetV:
+            selected = state_->buffers.resetV;
+            break;
+        case MetalWorldFamilyBuffer::resetSceneBodies:
+            selected = state_->buffers.resetSceneBodies;
+            break;
+        case MetalWorldFamilyBuffer::bodyParameters:
+            selected = state_->buffers.bodyParameters;
+            break;
+        case MetalWorldFamilyBuffer::controllerParameters:
+            selected = state_->buffers.controllerParameters;
             break;
         }
         return (__bridge void*)selected;

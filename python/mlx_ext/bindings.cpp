@@ -416,6 +416,19 @@ NB_MODULE(_mlx_ext, module) {
         "Encode a complete contact step into MLX's active Metal encoder."
     );
     module.def(
+        "world_family_state",
+        &metalrobo::mlx_ext::worldFamilyState,
+        "world"_a,
+        "reset_q_buffer"_a,
+        "reset_v_buffer"_a,
+        "reset_scene_bodies_buffer"_a,
+        "environment_count"_a,
+        "generation"_a,
+        nb::kw_only(),
+        "stream"_a = nb::none(),
+        "Import GPU-resident world-family resets into MLX arrays."
+    );
+    module.def(
         "_debug_cpu_step",
         &metalrobo::mlx_ext::debugCPUStep,
         "world"_a,

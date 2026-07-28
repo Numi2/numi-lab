@@ -189,6 +189,31 @@ typedef struct MR_ALIGN16 MRWorldVariationGPU {
     mr_uint4 random;
 } MRWorldVariationGPU;
 
+typedef struct MR_ALIGN16 MRWorldAssetBindingGPU {
+    // template asset, semantic role, render representation, collision rep.
+    mr_uint4 identity;
+    // dynamics representation, articulation, topology cohort, flags.
+    mr_uint4 dynamics;
+    // body-index arena offset/count, shape-index arena offset/count.
+    mr_uint4 geometryRanges;
+    // material-index arena offset/count, render alternative, collision alt.
+    mr_uint4 materialRangeAndAlternatives;
+} MRWorldAssetBindingGPU;
+
+typedef struct MR_ALIGN16 MRWorldBodyParametersGPU {
+    // mass, friction, restitution, and damping scales for this body.
+    mr_float4 physical;
+    // owning asset, dynamics representation, flags, reserved.
+    mr_uint4 identity;
+} MRWorldBodyParametersGPU;
+
+typedef struct MR_ALIGN16 MRWorldControllerParametersGPU {
+    // gain scale, damping scale, latency seconds, payload scale.
+    mr_float4 controller;
+    // owning asset, articulation, flags, reserved.
+    mr_uint4 identity;
+} MRWorldControllerParametersGPU;
+
 typedef struct MR_ALIGN16 MRWorldFamilySampleUniformsGPU {
     // environment count, asset count, sensor count, appearance count.
     mr_uint4 counts;
@@ -198,11 +223,24 @@ typedef struct MR_ALIGN16 MRWorldFamilySampleUniformsGPU {
     mr_uint4 identity;
 } MRWorldFamilySampleUniformsGPU;
 
+typedef struct MR_ALIGN16 MRWorldFamilyMaterializeUniformsGPU {
+    // environment count, primary articulation nq/nv, scene-body count.
+    mr_uint4 stateCounts;
+    // body count, articulation count, asset count, primary articulation.
+    mr_uint4 topology;
+    // compiler ABI version and reserved fields.
+    mr_uint4 identity;
+} MRWorldFamilyMaterializeUniformsGPU;
+
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MRWorldInstanceHeaderGPU) == 48u);
 static_assert(sizeof(MRWorldAssetInstanceGPU) == 112u);
 static_assert(sizeof(MRWorldSensorInstanceGPU) == 96u);
 static_assert(sizeof(MRWorldAppearanceInstanceGPU) == 48u);
 static_assert(sizeof(MRWorldVariationGPU) == 64u);
+static_assert(sizeof(MRWorldAssetBindingGPU) == 64u);
+static_assert(sizeof(MRWorldBodyParametersGPU) == 32u);
+static_assert(sizeof(MRWorldControllerParametersGPU) == 32u);
 static_assert(sizeof(MRWorldFamilySampleUniformsGPU) == 48u);
+static_assert(sizeof(MRWorldFamilyMaterializeUniformsGPU) == 48u);
 #endif

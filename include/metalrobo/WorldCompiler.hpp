@@ -76,7 +76,11 @@ struct WorldAsset {
     float payloadScale = 1.0f;
     std::uint32_t renderAlternative = 0u;
     std::uint32_t collisionAlternative = 0u;
+    std::uint32_t articulationIndex = MR_INVALID_INDEX;
     std::string topologyCohort = "default";
+    std::vector<std::uint32_t> bodyIndices;
+    std::vector<std::uint32_t> shapeIndices;
+    std::vector<std::uint32_t> materialIndices;
     std::vector<SemanticAnchor> anchors;
 };
 
@@ -137,6 +141,8 @@ struct WorldTemplate {
     std::vector<WorldAsset> assets;
     std::vector<SensorSpec> sensors;
     std::vector<AppearanceSpec> appearances;
+    std::vector<MRWorldAssetBindingGPU> assetBindings;
+    std::vector<std::uint32_t> bindingIndices;
     std::vector<EpisodeArtifact> artifacts;
     TaskSpec task;
     std::vector<std::string> topologyCohorts;

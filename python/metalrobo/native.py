@@ -42,6 +42,14 @@ class _WorldFamilyLayoutC(ct.Structure):
         ("appearance_count_per_instance", ct.c_uint32),
         ("variation_count", ct.c_uint32),
         ("categorical_value_count", ct.c_uint32),
+        ("asset_binding_count", ct.c_uint32),
+        ("binding_index_count", ct.c_uint32),
+        ("primary_articulation_index", ct.c_uint32),
+        ("nq", ct.c_uint32),
+        ("nv", ct.c_uint32),
+        ("body_count", ct.c_uint32),
+        ("scene_body_count", ct.c_uint32),
+        ("articulation_count", ct.c_uint32),
         ("retained_private_bytes", ct.c_size_t),
     ]
 
@@ -225,6 +233,12 @@ class _Bindings:
             ct.c_char_p,
         ]
         self.lib.mr_create_franka_pick_place_world_family.restype = ct.c_void_p
+        self.lib.mr_load_world_family_pack.argtypes = [
+            ct.c_char_p,
+            ct.c_uint32,
+            ct.c_char_p,
+        ]
+        self.lib.mr_load_world_family_pack.restype = ct.c_void_p
         self.lib.mr_world_family_destroy.argtypes = [ct.c_void_p]
         self.lib.mr_world_family_destroy.restype = None
         self.lib.mr_world_family_sample.argtypes = [

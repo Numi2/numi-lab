@@ -5,6 +5,7 @@
 #include "metalrobo/MetalWorldFamily.hpp"
 #include "metalrobo/Model.hpp"
 #include "metalrobo/Runtime.hpp"
+#include "metalrobo/WorldPack.hpp"
 
 #include <exception>
 #include <memory>
@@ -240,7 +241,7 @@ MRWorldFamilyHandle* mr_create_franka_pick_place_world_family(
         const metalrobo::WorldCompileResult twin =
             metalrobo::compileEpisodeTwin(
                 metalrobo::makeFrankaPickPlaceEpisodeTwin(),
-                metalrobo::makeFrankaPandaEngineModel(),
+                metalrobo::makeFrankaPickPlaceEngineModel(),
                 worldTemplate
             );
         if (!twin.succeeded()) {
@@ -277,6 +278,55 @@ MRWorldFamilyHandle* mr_create_franka_pick_place_world_family(
             throw worldFamilyError("world-family compile", diagnostics);
         }
         handle->family = std::move(family);
+        handle->deviceName = diagnostics.deviceName;
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
+MRWorldFamilyHandle* mr_load_world_family_pack(
+    const char* pack_path,
+    const uint32_t capacity,
+    const char* metallib_path
+) {
+    if (pack_path == nullptr || pack_path[0] == '\0') {
+        gLastError = "world-pack path must be nonempty.";
+        return nullptr;
+    }
+    if (capacity == 0u) {
+        gLastError = "world-family capacity must be greater than zero.";
+        return nullptr;
+    }
+
+    MRWorldFamilyHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        metalrobo::MRWorldPack pack;
+        const metalrobo::WorldPackResult loaded =
+            metalrobo::readWorldPack(pack_path, pack);
+        if (!loaded.succeeded()) {
+            throw std::runtime_error(
+                std::string{"world-pack load failed ["} +
+                metalrobo::worldPackStatusName(loaded.status) +
+                "]: " + loaded.message
+            );
+        }
+        metalrobo::MetalWorldFamilyConfig config;
+        if (metallib_path != nullptr) {
+            config.metallibPath = metallib_path;
+        }
+        auto handle = std::make_unique<MRWorldFamilyHandle>();
+        handle->context = metalrobo::MetalWorldFamilyContext{
+            std::move(config)
+        };
+        const metalrobo::MetalWorldFamilyDiagnostics diagnostics =
+            handle->context.compile(pack, capacity);
+        if (!diagnostics.succeeded()) {
+            throw worldFamilyError(
+                "packed world-family compile",
+                diagnostics
+            );
+        }
+        handle->family = std::move(pack.family);
         handle->deviceName = diagnostics.deviceName;
         result = handle.release();
     });
@@ -342,6 +392,15 @@ MRWorldFamilyLayoutC mr_world_family_layout(
     result.variation_count = layout.variationCount;
     result.categorical_value_count =
         layout.categoricalValueCount;
+    result.asset_binding_count = layout.assetBindingCount;
+    result.binding_index_count = layout.bindingIndexCount;
+    result.primary_articulation_index =
+        layout.primaryArticulationIndex;
+    result.nq = layout.nq;
+    result.nv = layout.nv;
+    result.body_count = layout.bodyCount;
+    result.scene_body_count = layout.sceneBodyCount;
+    result.articulation_count = layout.articulationCount;
     result.retained_private_bytes = layout.totalPrivateBytes();
     return result;
 }
@@ -376,8 +435,8 @@ void* mr_world_family_native_buffer(
     const MRWorldFamilyHandle* handle,
     const uint32_t buffer_kind
 ) {
-    if (!requireWorldFamilyHandle(handle) || buffer_kind > 3u) {
-        if (buffer_kind > 3u) {
+    if (!requireWorldFamilyHandle(handle) || buffer_kind > 10u) {
+        if (buffer_kind > 10u) {
             gLastError = "world-family buffer kind is invalid.";
         }
         return nullptr;

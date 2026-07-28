@@ -29,6 +29,53 @@ uint mapABAStatus(const uint code) {
 
 } // namespace
 
+// Zero-copy semantic adapter from the private world-family reset arena to
+// MLX's explicit WorldState arrays. Sampling occurs before this dispatch;
+// only the state layout changes here.
+kernel void mr_mlx_import_world_family_state(
+    constant MRMLXContactAdapterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* resetQ [[buffer(1)]],
+    device const float* resetV [[buffer(2)]],
+    device const MRBodyStateGPU* resetSceneBodies [[buffer(3)]],
+    device float* q [[buffer(4)]],
+    device float* v [[buffer(5)]],
+    device float4* positions [[buffer(6)]],
+    device float4* orientations [[buffer(7)]],
+    device float4* linearVelocities [[buffer(8)]],
+    device float4* angularVelocities [[buffer(9)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    for (uint coordinate = 0u;
+         coordinate < dispatch.nq;
+         ++coordinate) {
+        q[environment * dispatch.nq + coordinate] =
+            resetQ[environment * dispatch.nq + coordinate];
+    }
+    for (uint coordinate = 0u;
+         coordinate < dispatch.nv;
+         ++coordinate) {
+        v[environment * dispatch.nv + coordinate] =
+            resetV[environment * dispatch.nv + coordinate];
+    }
+    const uint sceneBase =
+        environment * dispatch.sceneBodyCount;
+    for (uint body = 0u;
+         body < dispatch.sceneBodyCount;
+         ++body) {
+        const MRBodyStateGPU state =
+            resetSceneBodies[sceneBase + body];
+        positions[sceneBase + body] = state.position;
+        orientations[sceneBase + body] = state.orientation;
+        linearVelocities[sceneBase + body] =
+            state.linearVelocityAndInverseMass;
+        angularVelocities[sceneBase + body] =
+            state.angularVelocity;
+    }
+}
+
 // Transactional publication adapter for the MLX custom primitive. q/v inputs
 // are the immutable control-step checkpoint. A failed microstep restores that
 // checkpoint, zeros acceleration, and leaves the failure latched for every

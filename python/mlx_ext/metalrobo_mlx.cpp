@@ -2,6 +2,7 @@
 
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/Franka.hpp"
+#include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/G1.hpp"
 #include "metalrobo/GeometryCooker.hpp"
 #include "metalrobo/SurgicalAssets.hpp"
@@ -579,6 +580,7 @@ MetalResources& MLXCompiledWorld::resources(
         );
     }
     const std::vector<std::string> adapterKernels{
+        "mr_mlx_import_world_family_state",
         "mr_mlx_prepare_contact_world",
         "mr_mlx_commit_pair_cache",
         "mr_mlx_initialize_operator_dispatch",
@@ -685,8 +687,11 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         );
     }
     EngineModel model;
+    const bool addPickPlace = scene == "pick_place";
     if (modelName == "franka") {
-        model = makeFrankaPandaEngineModel();
+        model = addPickPlace
+            ? makeFrankaPickPlaceEngineModel()
+            : makeFrankaPandaEngineModel();
     } else if (modelName == "g1") {
         model = makeUnitreeG1EngineModel();
     } else if (modelName == "psm") {
@@ -750,10 +755,17 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         !addCube &&
         !addGround &&
         !addTerrain &&
-        !addNeedle) {
+        !addNeedle &&
+        !addPickPlace) {
         throw std::invalid_argument(
             "scene must be 'none', 'cube', 'ground', 'terrain', "
-            "'needle', 'cube_ground', or 'cube_terrain'"
+            "'needle', 'pick_place', 'cube_ground', or "
+            "'cube_terrain'"
+        );
+    }
+    if (addPickPlace && modelName != "franka") {
+        throw std::invalid_argument(
+            "the pick_place scene requires model='franka'"
         );
     }
     if (addNeedle && modelName != "psm") {
@@ -761,7 +773,8 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             "the needle scene requires model='psm'"
         );
     }
-    if ((addCube || addGround || addTerrain || addNeedle) &&
+    if ((addCube || addGround || addTerrain || addNeedle ||
+         addPickPlace) &&
         solverMode == MetalWorldSolverMode::freeMotionABA) {
         throw std::invalid_argument(
             "contact scenes require a contact solver mode"
@@ -769,6 +782,9 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
     }
 
     std::vector<MRBodyStateGPU> defaultSceneBodies;
+    if (addPickPlace) {
+        defaultSceneBodies = makeFrankaPickPlaceSceneState();
+    }
     if (addCube) {
         constexpr float inertia = 1.0f / 600.0f;
         constexpr float inverseInertia = 600.0f;
@@ -1138,10 +1154,16 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         capacityProfile.ccdEvents != 0u;
     if (!defaultSceneBodies.empty() && !hasExplicitCapacity) {
         const std::uint32_t contactCapacity =
-            modelName == "franka" ? 32u : 64u;
+            addPickPlace
+            ? 128u
+            : modelName == "franka"
+            ? 32u
+            : 64u;
         capacityProfile = {
             .candidatePairs =
-                modelName == "franka"
+                addPickPlace
+                ? 256u
+                : modelName == "franka"
                 ? 64u
                 : modelName == "psm"
                 ? 256u
@@ -1150,9 +1172,11 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             .manifolds = contactCapacity,
             .constraintBlocks = contactCapacity,
             .constraintRows = 3u * contactCapacity,
-            .islands = 2u,
+            .islands = addPickPlace ? 8u : 2u,
             .hardConvexPairs =
-                modelName == "franka"
+                addPickPlace
+                ? 256u
+                : modelName == "franka"
                 ? 64u
                 : modelName == "psm"
                 ? 256u
@@ -1175,7 +1199,9 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
                   )
                 : 0u,
             .ccdCandidates =
-                modelName == "franka"
+                addPickPlace
+                ? 256u
+                : modelName == "franka"
                 ? 64u
                 : modelName == "psm"
                 ? 256u
@@ -1495,6 +1521,88 @@ std::vector<mx::array> worldStep(
         },
         primitive,
         inputs
+    );
+}
+
+std::vector<mx::array> worldFamilyState(
+    const std::shared_ptr<MLXCompiledWorld>& world,
+    const std::uintptr_t resetQBuffer,
+    const std::uintptr_t resetVBuffer,
+    const std::uintptr_t resetSceneBodiesBuffer,
+    const std::uint32_t environmentCount,
+    const std::uint64_t generation,
+    mx::StreamOrDevice stream
+) {
+    if (world == nullptr ||
+        resetQBuffer == 0u ||
+        resetVBuffer == 0u ||
+        resetSceneBodiesBuffer == 0u) {
+        throw std::invalid_argument(
+            "world-family state requires a compiled world and "
+            "non-null Metal reset buffers"
+        );
+    }
+    if (environmentCount == 0u ||
+        environmentCount > world->environmentCapacity()) {
+        throw std::invalid_argument(
+            "world-family environment count exceeds the compiled "
+            "MLX world capacity"
+        );
+    }
+    const auto sceneBodyCount =
+        static_cast<mx::ShapeElem>(
+            world->world().sceneBodyCount()
+        );
+    if (sceneBodyCount == 0) {
+        throw std::invalid_argument(
+            "world-family state requires a contact-capable scene"
+        );
+    }
+    const mx::Shape qShape{
+        static_cast<mx::ShapeElem>(environmentCount),
+        static_cast<mx::ShapeElem>(world->world().nq()),
+    };
+    const mx::Shape vShape{
+        static_cast<mx::ShapeElem>(environmentCount),
+        static_cast<mx::ShapeElem>(world->world().nv()),
+    };
+    const mx::Shape sceneShape{
+        static_cast<mx::ShapeElem>(environmentCount),
+        sceneBodyCount,
+        4,
+    };
+    const auto selectedStream = mx::to_stream(stream);
+    const auto primitive =
+        std::make_shared<WorldFamilyStatePrimitive>(
+            selectedStream,
+            world,
+            reinterpret_cast<MTL::Buffer*>(resetQBuffer),
+            reinterpret_cast<MTL::Buffer*>(resetVBuffer),
+            reinterpret_cast<MTL::Buffer*>(
+                resetSceneBodiesBuffer
+            ),
+            environmentCount,
+            generation
+        );
+    return mx::array::make_arrays(
+        {
+            qShape,
+            vShape,
+            sceneShape,
+            sceneShape,
+            sceneShape,
+            sceneShape,
+        },
+        {
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+        },
+        primitive,
+        {}
     );
 }
 
@@ -4011,6 +4119,142 @@ bool WorldStepPrimitive::is_equivalent(
         dynamic_cast<const WorldStepPrimitive*>(&other);
     return typed != nullptr &&
         typed->world_.get() == world_.get();
+}
+
+WorldFamilyStatePrimitive::WorldFamilyStatePrimitive(
+    mx::Stream stream,
+    std::shared_ptr<MLXCompiledWorld> world,
+    MTL::Buffer* resetQ,
+    MTL::Buffer* resetV,
+    MTL::Buffer* resetSceneBodies,
+    const std::uint32_t environmentCount,
+    const std::uint64_t generation
+)
+    : mx::Primitive(stream),
+      world_(std::move(world)),
+      resetQ_(resetQ),
+      resetV_(resetV),
+      resetSceneBodies_(resetSceneBodies),
+      environmentCount_(environmentCount),
+      generation_(generation) {
+    resetQ_->retain();
+    resetV_->retain();
+    resetSceneBodies_->retain();
+}
+
+WorldFamilyStatePrimitive::~WorldFamilyStatePrimitive() {
+    resetQ_->release();
+    resetV_->release();
+    resetSceneBodies_->release();
+}
+
+void WorldFamilyStatePrimitive::eval_cpu(
+    const std::vector<mx::array>&,
+    std::vector<mx::array>&
+) {
+    throw std::runtime_error(
+        "MetalRobo world-family state has no MLX CPU fallback"
+    );
+}
+
+void WorldFamilyStatePrimitive::eval_gpu(
+    const std::vector<mx::array>& inputs,
+    std::vector<mx::array>& outputs
+) {
+    if (!inputs.empty() || outputs.size() != 6u) {
+        throw std::runtime_error(
+            "MetalRobo world-family primitive received an invalid graph"
+        );
+    }
+    auto& streamValue = stream();
+    auto& device = mx::metal::device(streamValue.device);
+    MetalResources& resources = world_->resources(device);
+    auto& encoder =
+        mx::metal::get_command_encoder(streamValue);
+    for (mx::array& output : outputs) {
+        output.set_data(mx::allocator::malloc(output.nbytes()));
+    }
+
+    MRMLXContactAdapterDispatchGPU dispatch{};
+    dispatch.environmentCount = environmentCount_;
+    dispatch.sceneBodyCount = world_->world().sceneBodyCount();
+    dispatch.bodyStateStride = world_->world().bodyCount();
+    dispatch.nq = world_->world().nq();
+    dispatch.nv = world_->world().nv();
+
+    encoder.set_compute_pipeline_state(
+        resources.kernel("mr_mlx_import_world_family_state")
+    );
+    encoder.set_bytes(dispatch, 0);
+    encoder.set_buffer(resetQ_, 1);
+    encoder.set_buffer(resetV_, 2);
+    encoder.set_buffer(resetSceneBodies_, 3);
+    encoder.set_output_array(outputs[0], 4);
+    encoder.set_output_array(outputs[1], 5);
+    encoder.set_output_array(outputs[2], 6);
+    encoder.set_output_array(outputs[3], 7);
+    encoder.set_output_array(outputs[4], 8);
+    encoder.set_output_array(outputs[5], 9);
+    const auto threadgroupSize = std::min<std::uint32_t>(
+        kWorldThreads,
+        resources.kernel(
+            "mr_mlx_import_world_family_state"
+        )->maxTotalThreadsPerThreadgroup()
+    );
+    encoder.dispatch_threads(
+        MTL::Size(environmentCount_, 1u, 1u),
+        MTL::Size(threadgroupSize, 1u, 1u)
+    );
+}
+
+std::vector<mx::array> WorldFamilyStatePrimitive::jvp(
+    const std::vector<mx::array>&,
+    const std::vector<mx::array>&,
+    const std::vector<int>&
+) {
+    throw std::runtime_error(
+        "MetalRobo world-family state does not implement JVP"
+    );
+}
+
+std::vector<mx::array> WorldFamilyStatePrimitive::vjp(
+    const std::vector<mx::array>&,
+    const std::vector<mx::array>&,
+    const std::vector<int>&,
+    const std::vector<mx::array>&
+) {
+    throw std::runtime_error(
+        "MetalRobo world-family state does not implement VJP"
+    );
+}
+
+std::pair<std::vector<mx::array>, std::vector<int>>
+WorldFamilyStatePrimitive::vmap(
+    const std::vector<mx::array>&,
+    const std::vector<int>&
+) {
+    throw std::runtime_error(
+        "MetalRobo world families use the native batch axis; "
+        "vmap is not supported"
+    );
+}
+
+const char* WorldFamilyStatePrimitive::name() const {
+    return "MetalRoboWorldFamilyState";
+}
+
+bool WorldFamilyStatePrimitive::is_equivalent(
+    const mx::Primitive& other
+) const {
+    const auto* typed =
+        dynamic_cast<const WorldFamilyStatePrimitive*>(&other);
+    return typed != nullptr &&
+        typed->world_.get() == world_.get() &&
+        typed->resetQ_ == resetQ_ &&
+        typed->resetV_ == resetV_ &&
+        typed->resetSceneBodies_ == resetSceneBodies_ &&
+        typed->environmentCount_ == environmentCount_ &&
+        typed->generation_ == generation_;
 }
 
 } // namespace metalrobo::mlx_ext

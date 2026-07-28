@@ -215,10 +215,12 @@ add_library(
     src/core/Model.cpp
     src/core/Franka.cpp
     src/core/FrankaEngine.cpp
+    src/core/FrankaHand.cpp
     src/core/FrankaWorld.cpp
     src/core/CpuDynamics.cpp
     src/core/EngineModel.cpp
     src/core/WorldCompiler.cpp
+    src/core/WorldPack.cpp
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
     src/core/SurgicalPSM.cpp
@@ -1022,7 +1024,31 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
-install(TARGETS metalrobo metalrobo_bench)
+add_executable(
+    metalrobo_world_pack
+    apps/world_pack_tool.cpp
+)
+target_link_libraries(
+    metalrobo_world_pack
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_world_pack
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_world_pack
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+install(TARGETS metalrobo metalrobo_bench metalrobo_world_pack)
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)
 install(

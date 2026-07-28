@@ -71,6 +71,14 @@ class WorldFamilyLayout:
     appearance_count_per_instance: int
     variation_count: int
     categorical_value_count: int
+    asset_binding_count: int
+    binding_index_count: int
+    primary_articulation_index: int
+    nq: int
+    nv: int
+    body_count: int
+    scene_body_count: int
+    articulation_count: int
     retained_private_bytes: int
 
 
@@ -90,6 +98,13 @@ class WorldFamilyDeviceBuffers:
     asset_instances: int
     sensor_instances: int
     appearance_instances: int
+    asset_bindings: int
+    binding_indices: int
+    reset_q: int
+    reset_v: int
+    reset_scene_bodies: int
+    body_parameters: int
+    controller_parameters: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -138,6 +153,21 @@ class FrankaPickPlaceWorldFamily:
         library_path: str | os.PathLike[str] | None = None,
         metallib_path: str | os.PathLike[str] | None = None,
     ) -> None:
+        self._initialize(
+            capacity,
+            library_path=library_path,
+            metallib_path=metallib_path,
+            pack_path=None,
+        )
+
+    def _initialize(
+        self,
+        capacity: int,
+        *,
+        library_path: str | os.PathLike[str] | None,
+        metallib_path: str | os.PathLike[str] | None,
+        pack_path: str | os.PathLike[str] | None,
+    ) -> None:
         if not 1 <= int(capacity) <= np.iinfo(np.uint32).max:
             raise ValueError("capacity must fit in a nonzero uint32")
         self._bindings = _load_bindings(library_path)
@@ -151,15 +181,28 @@ class FrankaPickPlaceWorldFamily:
             if self.metallib_path is not None
             else None
         )
-        self._handle = (
-            self._bindings.lib.mr_create_franka_pick_place_world_family(
+        if pack_path is None:
+            handle = (
+                self._bindings.lib.mr_create_franka_pick_place_world_family(
+                    ct.c_uint32(capacity),
+                    encoded_metallib,
+                )
+            )
+        else:
+            resolved_pack = Path(pack_path).expanduser().resolve()
+            if not resolved_pack.is_file():
+                raise FileNotFoundError(
+                    f"MRWorldPack does not exist: {resolved_pack}"
+                )
+            handle = self._bindings.lib.mr_load_world_family_pack(
+                os.fsencode(resolved_pack),
                 ct.c_uint32(capacity),
                 encoded_metallib,
             )
-        )
+        self._handle = handle
         if not self._handle:
             raise MetalRoboError(
-                "Could not create Franka world family: "
+                "Could not create world family: "
                 f"{self._bindings.last_error()}"
             )
 
@@ -192,6 +235,16 @@ class FrankaPickPlaceWorldFamily:
             ),
             variation_count=int(native.variation_count),
             categorical_value_count=int(native.categorical_value_count),
+            asset_binding_count=int(native.asset_binding_count),
+            binding_index_count=int(native.binding_index_count),
+            primary_articulation_index=int(
+                native.primary_articulation_index
+            ),
+            nq=int(native.nq),
+            nv=int(native.nv),
+            body_count=int(native.body_count),
+            scene_body_count=int(native.scene_body_count),
+            articulation_count=int(native.articulation_count),
             retained_private_bytes=int(native.retained_private_bytes),
         )
 
@@ -220,7 +273,7 @@ class FrankaPickPlaceWorldFamily:
                 )
                 or 0
             )
-            for kind in range(4)
+            for kind in range(11)
         )
         if not all(addresses):
             raise MetalRoboError(
@@ -309,3 +362,22 @@ class FrankaPickPlaceWorldFamily:
             self.close()
         except Exception:
             pass
+
+
+class PackedWorldFamily(FrankaPickPlaceWorldFamily):
+    """Load and sample a reusable ``MRWorldPack`` on the Apple GPU."""
+
+    def __init__(
+        self,
+        pack_path: str | os.PathLike[str],
+        capacity: int = 4096,
+        *,
+        library_path: str | os.PathLike[str] | None = None,
+        metallib_path: str | os.PathLike[str] | None = None,
+    ) -> None:
+        self._initialize(
+            capacity,
+            library_path=library_path,
+            metallib_path=metallib_path,
+            pack_path=pack_path,
+        )
