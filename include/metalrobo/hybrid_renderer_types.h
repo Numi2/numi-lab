@@ -1,0 +1,60 @@
+#pragma once
+
+#include "metalrobo/gpu_types.h"
+
+#define MR_HYBRID_RENDERER_ABI_VERSION 1u
+#define MR_HYBRID_TILE_SIZE 16u
+#define MR_HYBRID_MAX_GAUSSIANS_PER_TILE 256u
+
+enum {
+    MR_HYBRID_GAUSSIAN_ASSET_LOCAL = 0u,
+    MR_HYBRID_GAUSSIAN_BODY_LOCAL = 1u,
+    MR_HYBRID_GAUSSIAN_WORLD = 2u,
+};
+
+typedef struct MR_ALIGN16 MRHybridGaussianGPU {
+    // xyz mean in the binding frame, w base opacity.
+    mr_float4 meanAndOpacity;
+    // xyz standard deviation in metres, w LOD importance.
+    mr_float4 scaleAndImportance;
+    // xyzw Gaussian orientation in the binding frame.
+    mr_float4 orientation;
+    // linear RGB and optional emissive scale.
+    mr_float4 colorAndEmission;
+    // asset index, body index, semantic label, binding mode.
+    mr_uint4 binding;
+} MRHybridGaussianGPU;
+
+typedef struct MR_ALIGN16 MRHybridProjectedGaussianGPU {
+    // pixel center x/y, camera-space depth, three-sigma pixel radius.
+    mr_float4 centerDepthRadius;
+    // inverse screen covariance xx, xy, yy, and three-sigma bound.
+    mr_float4 conicAndBounds;
+    // linear RGB and opacity.
+    mr_float4 colorAndOpacity;
+    // semantic label, source Gaussian, flags, reserved.
+    mr_uint4 identity;
+} MRHybridProjectedGaussianGPU;
+
+typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
+    // active environments, Gaussian count, assets/world, sensors/world.
+    mr_uint4 counts;
+    // image width/height and tile grid width/height.
+    mr_uint4 image;
+    // selected camera, max Gaussians/tile, tile size, ABI version.
+    mr_uint4 render;
+    // clear RGB and clear depth.
+    mr_float4 clearColorAndDepth;
+} MRHybridRenderUniformsGPU;
+
+#ifndef __METAL_VERSION__
+#include <cstddef>
+#include <type_traits>
+
+static_assert(std::is_trivially_copyable_v<MRHybridGaussianGPU>);
+static_assert(std::is_trivially_copyable_v<MRHybridProjectedGaussianGPU>);
+static_assert(std::is_trivially_copyable_v<MRHybridRenderUniformsGPU>);
+static_assert(sizeof(MRHybridGaussianGPU) == 80u);
+static_assert(sizeof(MRHybridProjectedGaussianGPU) == 64u);
+static_assert(sizeof(MRHybridRenderUniformsGPU) == 64u);
+#endif

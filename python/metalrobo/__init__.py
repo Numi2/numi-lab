@@ -2,6 +2,17 @@
 
 from .env import FrankaEnv
 from .episode import compile_episode_manifest
+from .hybrid_renderer import (
+    GAUSSIAN_ASSET_LOCAL,
+    GAUSSIAN_BODY_LOCAL,
+    GAUSSIAN_WORLD,
+    HYBRID_GAUSSIAN_DTYPE,
+    HybridObservationDeviceBuffers,
+    HybridObservationRenderer,
+    HybridObservationSnapshot,
+    HybridRendererLayout,
+    make_asset_gaussians,
+)
 from .native import (
     MetalRoboError,
     NativeRuntime,
@@ -44,6 +55,14 @@ __all__ = [
     "ContactEvidence",
     "FrankaEnv",
     "FrankaPickPlaceWorldFamily",
+    "GAUSSIAN_ASSET_LOCAL",
+    "GAUSSIAN_BODY_LOCAL",
+    "GAUSSIAN_WORLD",
+    "HYBRID_GAUSSIAN_DTYPE",
+    "HybridObservationDeviceBuffers",
+    "HybridObservationRenderer",
+    "HybridObservationSnapshot",
+    "HybridRendererLayout",
     "MetalRoboError",
     "MLXCompiledWorld",
     "MLXG1PPOTrainer",
@@ -69,6 +88,7 @@ __all__ = [
     "initial_state",
     "initial_state_from_world_family",
     "library_version",
+    "make_asset_gaussians",
     "psm_physical_position_targets",
     "step",
 ]

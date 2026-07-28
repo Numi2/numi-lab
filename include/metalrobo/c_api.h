@@ -19,6 +19,7 @@ extern "C" {
 
 typedef struct MRRuntimeHandle MRRuntimeHandle;
 typedef struct MRWorldFamilyHandle MRWorldFamilyHandle;
+typedef struct MRHybridRendererHandle MRHybridRendererHandle;
 typedef struct MRWorldInstanceHeaderGPU MRWorldInstanceHeaderGPU;
 typedef struct MRWorldAssetInstanceGPU MRWorldAssetInstanceGPU;
 typedef struct MRWorldSensorInstanceGPU MRWorldSensorInstanceGPU;
@@ -57,6 +58,27 @@ typedef struct MRWorldFamilyStatsC {
     uint64_t readback_count;
     double last_sample_milliseconds;
 } MRWorldFamilyStatsC;
+
+typedef struct MRHybridRendererLayoutC {
+    uint32_t capacity;
+    uint32_t active_environment_count;
+    uint32_t width;
+    uint32_t height;
+    uint32_t tile_count_x;
+    uint32_t tile_count_y;
+    uint32_t gaussian_count;
+    uint32_t maximum_gaussians_per_tile;
+    size_t retained_private_bytes;
+    double last_render_milliseconds;
+} MRHybridRendererLayoutC;
+
+typedef struct MRHybridGaussianC {
+    float mean_and_opacity[4];
+    float scale_and_importance[4];
+    float orientation[4];
+    float color_and_emission[4];
+    uint32_t binding[4];
+} MRHybridGaussianC;
 
 MR_API const char* mr_version(void);
 MR_API const char* mr_last_error(void);
@@ -144,6 +166,51 @@ MR_API const MRWorldSensorInstanceGPU*
 mr_world_family_sensor_instances(const MRWorldFamilyHandle* handle);
 MR_API const MRWorldAppearanceInstanceGPU*
 mr_world_family_appearance_instances(const MRWorldFamilyHandle* handle);
+
+MR_API MRHybridRendererHandle* mr_hybrid_renderer_create(
+    const MRHybridGaussianC* gaussians,
+    size_t gaussian_count,
+    uint32_t asset_count,
+    uint32_t capacity,
+    uint32_t width,
+    uint32_t height,
+    const char* metallib_path
+);
+MR_API void mr_hybrid_renderer_destroy(
+    MRHybridRendererHandle* handle
+);
+MR_API int mr_hybrid_renderer_render(
+    MRHybridRendererHandle* handle,
+    const MRWorldFamilyHandle* worlds,
+    uint32_t environment_count,
+    uint32_t camera_index
+);
+MR_API int mr_hybrid_renderer_readback(
+    MRHybridRendererHandle* handle
+);
+MR_API MRHybridRendererLayoutC mr_hybrid_renderer_layout(
+    const MRHybridRendererHandle* handle
+);
+MR_API const char* mr_hybrid_renderer_device_name(
+    const MRHybridRendererHandle* handle
+);
+// buffer_kind: 0 RGB float4, 1 depth float, 2 segmentation uint,
+// 3 projected Gaussian records, 4 per-world tile overflow counts.
+// Returned values borrow id<MTLBuffer>.
+MR_API void* mr_hybrid_renderer_native_buffer(
+    const MRHybridRendererHandle* handle,
+    uint32_t buffer_kind
+);
+// Readback pointers remain valid until the next renderer readback or destroy.
+MR_API const float* mr_hybrid_renderer_rgb(
+    const MRHybridRendererHandle* handle
+);
+MR_API const float* mr_hybrid_renderer_depth(
+    const MRHybridRendererHandle* handle
+);
+MR_API const uint32_t* mr_hybrid_renderer_segmentation(
+    const MRHybridRendererHandle* handle
+);
 
 #ifdef __cplusplus
 }

@@ -3,13 +3,16 @@
 #include "metalrobo/EpisodeTwinCompiler.hpp"
 #include "metalrobo/Franka.hpp"
 #include "metalrobo/FrankaWorld.hpp"
+#include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
 #include "metalrobo/Model.hpp"
 #include "metalrobo/Runtime.hpp"
 #include "metalrobo/WorldPack.hpp"
 
+#include <cstring>
 #include <exception>
 #include <filesystem>
+#include <limits>
 #include <memory>
 #include <span>
 #include <stdexcept>
@@ -27,6 +30,17 @@ struct MRWorldFamilyHandle {
     std::string deviceName;
     double lastSampleMilliseconds = 0.0;
 };
+
+struct MRHybridRendererHandle {
+    metalrobo::MetalHybridRenderer renderer;
+    metalrobo::HybridObservationBatch readback;
+    std::string deviceName;
+    std::uint32_t activeEnvironmentCount = 0u;
+    double lastRenderMilliseconds = 0.0;
+};
+
+static_assert(sizeof(MRHybridGaussianC) == 80u);
+static_assert(sizeof(MRHybridGaussianGPU) == 80u);
 
 namespace {
 
@@ -59,6 +73,16 @@ bool requireWorldFamilyHandle(const MRWorldFamilyHandle* handle) {
         return true;
     }
     gLastError = "MetalRobo world-family handle is null.";
+    return false;
+}
+
+bool requireHybridRendererHandle(
+    const MRHybridRendererHandle* handle
+) {
+    if (handle != nullptr) {
+        return true;
+    }
+    gLastError = "MetalRobo hybrid renderer handle is null.";
     return false;
 }
 
@@ -559,6 +583,235 @@ mr_world_family_appearance_instances(
         return nullptr;
     }
     return handle->readback.appearances.data();
+}
+
+MRHybridRendererHandle* mr_hybrid_renderer_create(
+    const MRHybridGaussianC* gaussians,
+    const size_t gaussian_count,
+    const uint32_t asset_count,
+    const uint32_t capacity,
+    const uint32_t width,
+    const uint32_t height,
+    const char* metallib_path
+) {
+    if (gaussians == nullptr || gaussian_count == 0u ||
+        gaussian_count >
+            std::numeric_limits<std::uint32_t>::max() ||
+        asset_count == 0u || capacity == 0u ||
+        width == 0u || height == 0u) {
+        gLastError =
+            "hybrid renderer scene, dimensions, and capacity "
+            "must be nonempty.";
+        return nullptr;
+    }
+    MRHybridRendererHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        metalrobo::HybridGaussianScene scene;
+        scene.id = "c_api_hybrid_scene";
+        scene.assetCount = asset_count;
+        scene.gaussians.resize(gaussian_count);
+        for (std::size_t index = 0u;
+             index < gaussian_count;
+             ++index) {
+            const MRHybridGaussianC& source = gaussians[index];
+            MRHybridGaussianGPU& destination =
+                scene.gaussians[index];
+            std::memcpy(
+                &destination.meanAndOpacity,
+                source.mean_and_opacity,
+                sizeof(source.mean_and_opacity)
+            );
+            std::memcpy(
+                &destination.scaleAndImportance,
+                source.scale_and_importance,
+                sizeof(source.scale_and_importance)
+            );
+            std::memcpy(
+                &destination.orientation,
+                source.orientation,
+                sizeof(source.orientation)
+            );
+            std::memcpy(
+                &destination.colorAndEmission,
+                source.color_and_emission,
+                sizeof(source.color_and_emission)
+            );
+            std::memcpy(
+                &destination.binding,
+                source.binding,
+                sizeof(source.binding)
+            );
+        }
+        metalrobo::MetalHybridRendererConfig config;
+        config.width = width;
+        config.height = height;
+        if (metallib_path != nullptr) {
+            config.metallibPath = metallib_path;
+        }
+        auto handle = std::make_unique<MRHybridRendererHandle>();
+        handle->renderer = metalrobo::MetalHybridRenderer{
+            std::move(config)
+        };
+        const metalrobo::MetalHybridRendererDiagnostics diagnostics =
+            handle->renderer.compile(scene, capacity);
+        if (!diagnostics.succeeded()) {
+            throw std::runtime_error(
+                std::string{"hybrid renderer compile failed ["} +
+                metalrobo::metalHybridRendererStatusName(
+                    diagnostics.status
+                ) + "]: " + diagnostics.message
+            );
+        }
+        handle->deviceName = diagnostics.deviceName;
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
+void mr_hybrid_renderer_destroy(MRHybridRendererHandle* handle) {
+    delete handle;
+}
+
+int mr_hybrid_renderer_render(
+    MRHybridRendererHandle* handle,
+    const MRWorldFamilyHandle* worlds,
+    const uint32_t environment_count,
+    const uint32_t camera_index
+) {
+    if (!requireHybridRendererHandle(handle) ||
+        !requireWorldFamilyHandle(worlds)) {
+        return -1;
+    }
+    return translateErrors([&] {
+        const metalrobo::MetalHybridRendererDiagnostics diagnostics =
+            handle->renderer.render(
+                worlds->context,
+                environment_count,
+                camera_index
+            );
+        if (!diagnostics.succeeded()) {
+            throw std::runtime_error(
+                std::string{"hybrid render failed ["} +
+                metalrobo::metalHybridRendererStatusName(
+                    diagnostics.status
+                ) + "]: " + diagnostics.message
+            );
+        }
+        handle->activeEnvironmentCount = environment_count;
+        handle->lastRenderMilliseconds =
+            diagnostics.elapsedMilliseconds;
+    });
+}
+
+int mr_hybrid_renderer_readback(
+    MRHybridRendererHandle* handle
+) {
+    if (!requireHybridRendererHandle(handle)) {
+        return -1;
+    }
+    return translateErrors([&] {
+        metalrobo::HybridObservationBatch candidate;
+        const metalrobo::MetalHybridRendererDiagnostics diagnostics =
+            handle->renderer.readback(candidate);
+        if (!diagnostics.succeeded()) {
+            throw std::runtime_error(
+                std::string{"hybrid readback failed ["} +
+                metalrobo::metalHybridRendererStatusName(
+                    diagnostics.status
+                ) + "]: " + diagnostics.message
+            );
+        }
+        handle->readback = std::move(candidate);
+    });
+}
+
+MRHybridRendererLayoutC mr_hybrid_renderer_layout(
+    const MRHybridRendererHandle* handle
+) {
+    MRHybridRendererLayoutC result{};
+    if (!requireHybridRendererHandle(handle)) {
+        return result;
+    }
+    const metalrobo::MetalHybridRendererLayout layout =
+        handle->renderer.layout();
+    result.capacity = layout.capacity;
+    result.active_environment_count =
+        handle->activeEnvironmentCount;
+    result.width = layout.width;
+    result.height = layout.height;
+    result.tile_count_x = layout.tileCountX;
+    result.tile_count_y = layout.tileCountY;
+    result.gaussian_count = layout.gaussianCount;
+    result.maximum_gaussians_per_tile =
+        layout.maximumGaussiansPerTile;
+    result.retained_private_bytes = layout.retainedPrivateBytes;
+    result.last_render_milliseconds =
+        handle->lastRenderMilliseconds;
+    return result;
+}
+
+const char* mr_hybrid_renderer_device_name(
+    const MRHybridRendererHandle* handle
+) {
+    if (!requireHybridRendererHandle(handle)) {
+        return "";
+    }
+    return handle->deviceName.c_str();
+}
+
+void* mr_hybrid_renderer_native_buffer(
+    const MRHybridRendererHandle* handle,
+    const uint32_t buffer_kind
+) {
+    if (!requireHybridRendererHandle(handle) ||
+        buffer_kind >
+            static_cast<std::uint32_t>(
+                metalrobo::MetalHybridRendererBuffer::
+                    tileOverflowCounts
+            )) {
+        if (handle != nullptr) {
+            gLastError =
+                "hybrid renderer buffer kind is invalid.";
+        }
+        return nullptr;
+    }
+    return handle->renderer.nativeBuffer(
+        static_cast<metalrobo::MetalHybridRendererBuffer>(
+            buffer_kind
+        )
+    );
+}
+
+const float* mr_hybrid_renderer_rgb(
+    const MRHybridRendererHandle* handle
+) {
+    if (!requireHybridRendererHandle(handle) ||
+        handle->readback.rgb.empty()) {
+        return nullptr;
+    }
+    return reinterpret_cast<const float*>(
+        handle->readback.rgb.data()
+    );
+}
+
+const float* mr_hybrid_renderer_depth(
+    const MRHybridRendererHandle* handle
+) {
+    if (!requireHybridRendererHandle(handle) ||
+        handle->readback.depth.empty()) {
+        return nullptr;
+    }
+    return handle->readback.depth.data();
+}
+
+const uint32_t* mr_hybrid_renderer_segmentation(
+    const MRHybridRendererHandle* handle
+) {
+    if (!requireHybridRendererHandle(handle) ||
+        handle->readback.segmentation.empty()) {
+        return nullptr;
+    }
+    return handle->readback.segmentation.data();
 }
 
 } // extern "C"

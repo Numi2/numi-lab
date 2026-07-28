@@ -189,6 +189,58 @@ walks assets or environments.
 MLX extensions. `readback()` and `readbackPhysics()` are explicit inspection
 operations and are not part of the training loop.
 
+## Native hybrid observation renderer
+
+`MetalHybridRenderer` is the first executable observation backend. It consumes
+sampled `MRWorldInstanceHeaderGPU`, asset, sensor, and appearance buffers
+directly from `MetalWorldFamilyContext`; no environment state is repacked on
+the CPU. Gaussian fields are uploaded once and remain in private storage.
+
+The Metal 4 path currently:
+
+1. transforms asset-local or world-space Gaussians into each sampled world;
+2. composes the parent asset and sensor pose into a world camera;
+3. projects oriented anisotropic 3D covariance into a screen-space conic with
+   sampled focal scale and radial/tangential distortion;
+4. bins splats into 16×16 tiles with bounded atomic append;
+5. bitonic-sorts each tile front-to-back in threadgroup memory;
+6. accumulates Gaussian transmittance and writes RGB, metric depth, and
+   semantic segmentation;
+7. applies sampled exposure, white balance, saturation, contrast, RGB noise,
+   depth noise, and depth dropout.
+
+RGB, depth, segmentation, projected-splat, and per-world tile-overflow buffers
+stay private and are available as borrowed `id<MTLBuffer>` handles for MLX
+graph composition. Readback is an explicit diagnostic boundary. A tile that
+exceeds its compiled splat capacity increments a device-resident counter
+instead of silently hiding the condition.
+
+```python
+from metalrobo import (
+    FrankaPickPlaceWorldFamily,
+    HybridObservationRenderer,
+    make_asset_gaussians,
+)
+
+splats = make_asset_gaussians(
+    means, scales, colors, asset_indices, semantic_labels
+)
+with FrankaPickPlaceWorldFamily(256) as worlds:
+    worlds.sample(256, seed=1)
+    with HybridObservationRenderer(
+        splats,
+        asset_count=5,
+        capacity=256,
+    ) as renderer:
+        renderer.render(worlds, camera_index=0)
+        device_buffers = renderer.device_buffers
+```
+
+This first backend establishes the batch/tile/camera/output ABI and rigid asset
+motion. Body-local Gaussian bindings are reserved in the shared ABI; consuming
+articulated link poses, deformable four-node skinning, mesh depth/normals and
+shadow compositing are the next renderer layers.
+
 ## Runnable anchor world and portable packs
 
 The first executable topology is the FER Panda plus official Franka Hand, one
@@ -307,9 +359,10 @@ materialization, and a zero-copy MLX state bridge. Asset pose variation already
 changes the executed scene state. Per-body physical and per-articulation
 controller override streams are materialized and exposed; consuming those
 override streams inside every contact/drive kernel is the next solver slice.
-Native segmentation/reconstruction providers, hybrid Gaussian/mesh RGB-D,
-replay fitting, rods, shells, and soft volumes remain separate modules behind
-the provider and representation interfaces already present in the ABI.
+Native segmentation/reconstruction providers, articulated/deformable splat
+motion, mesh depth/normals/shadow compositing, replay fitting, rods, shells,
+and soft volumes remain separate modules behind the provider and
+representation interfaces already present in the ABI.
 
 ## Main implementation files
 
@@ -322,6 +375,11 @@ the provider and representation interfaces already present in the ABI.
 - `src/core/EpisodeTwinCompiler.cpp`
 - `src/apple/CaptureManifestJSON.mm`
 - `schemas/capture_manifest.schema.json`
+- `include/metalrobo/MetalHybridRenderer.hpp`
+- `include/metalrobo/hybrid_renderer_types.h`
+- `src/metal/MetalHybridRenderer.mm`
+- `src/metal/HybridRenderer.metal`
+- `python/metalrobo/hybrid_renderer.py`
 - `include/metalrobo/MetalWorldFamily.hpp`
 - `src/metal/MetalWorldFamily.mm`
 - `src/metal/WorldCompiler.metal`

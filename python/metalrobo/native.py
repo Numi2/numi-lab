@@ -63,6 +63,21 @@ class _WorldFamilyStatsC(ct.Structure):
     ]
 
 
+class _HybridRendererLayoutC(ct.Structure):
+    _fields_ = [
+        ("capacity", ct.c_uint32),
+        ("active_environment_count", ct.c_uint32),
+        ("width", ct.c_uint32),
+        ("height", ct.c_uint32),
+        ("tile_count_x", ct.c_uint32),
+        ("tile_count_y", ct.c_uint32),
+        ("gaussian_count", ct.c_uint32),
+        ("maximum_gaussians_per_tile", ct.c_uint32),
+        ("retained_private_bytes", ct.c_size_t),
+        ("last_render_milliseconds", ct.c_double),
+    ]
+
+
 @dataclass(frozen=True, slots=True)
 class RuntimeStats:
     """A snapshot of native runtime counters."""
@@ -276,6 +291,51 @@ class _Bindings:
             function = getattr(self.lib, name)
             function.argtypes = [ct.c_void_p]
             function.restype = ct.c_void_p
+
+        self.lib.mr_hybrid_renderer_create.argtypes = [
+            ct.c_void_p,
+            ct.c_size_t,
+            ct.c_uint32,
+            ct.c_uint32,
+            ct.c_uint32,
+            ct.c_uint32,
+            ct.c_char_p,
+        ]
+        self.lib.mr_hybrid_renderer_create.restype = ct.c_void_p
+        self.lib.mr_hybrid_renderer_destroy.argtypes = [ct.c_void_p]
+        self.lib.mr_hybrid_renderer_destroy.restype = None
+        self.lib.mr_hybrid_renderer_render.argtypes = [
+            ct.c_void_p,
+            ct.c_void_p,
+            ct.c_uint32,
+            ct.c_uint32,
+        ]
+        self.lib.mr_hybrid_renderer_render.restype = ct.c_int
+        self.lib.mr_hybrid_renderer_readback.argtypes = [ct.c_void_p]
+        self.lib.mr_hybrid_renderer_readback.restype = ct.c_int
+        self.lib.mr_hybrid_renderer_layout.argtypes = [ct.c_void_p]
+        self.lib.mr_hybrid_renderer_layout.restype = (
+            _HybridRendererLayoutC
+        )
+        self.lib.mr_hybrid_renderer_device_name.argtypes = [
+            ct.c_void_p
+        ]
+        self.lib.mr_hybrid_renderer_device_name.restype = ct.c_char_p
+        self.lib.mr_hybrid_renderer_native_buffer.argtypes = [
+            ct.c_void_p,
+            ct.c_uint32,
+        ]
+        self.lib.mr_hybrid_renderer_native_buffer.restype = ct.c_void_p
+        self.lib.mr_hybrid_renderer_rgb.argtypes = [ct.c_void_p]
+        self.lib.mr_hybrid_renderer_rgb.restype = ct.POINTER(ct.c_float)
+        self.lib.mr_hybrid_renderer_depth.argtypes = [ct.c_void_p]
+        self.lib.mr_hybrid_renderer_depth.restype = ct.POINTER(ct.c_float)
+        self.lib.mr_hybrid_renderer_segmentation.argtypes = [
+            ct.c_void_p
+        ]
+        self.lib.mr_hybrid_renderer_segmentation.restype = ct.POINTER(
+            ct.c_uint32
+        )
 
     def last_error(self) -> str:
         return _decode(self.lib.mr_last_error()) or "unknown native error"
