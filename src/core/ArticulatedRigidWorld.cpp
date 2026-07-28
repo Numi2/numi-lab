@@ -216,7 +216,7 @@ bool validCache(
         const ArticulatedRigidContactCacheEntry& entry =
             cache.contactImpulses[index];
         if (!std::ranges::all_of(
-                entry.warmStart.worldImpulseOnRigid,
+                entry.warmStart.worldImpulseOnB,
                 finite
             ) ||
             entry.lastSeenStep > cache.step) {
@@ -398,7 +398,7 @@ bool publishRigidVelocities(
 }
 
 bool reduceBodyPairContacts(
-    ArticulatedRigidCollisionResult& collision,
+    ArticulatedRigidIslandCollisionResult& collision,
     const std::uint32_t maximumPerPair
 ) {
     if (maximumPerPair == 0u ||
@@ -408,6 +408,31 @@ bool reduceBodyPairContacts(
     if (collision.contacts.size() <= maximumPerPair) {
         return true;
     }
+    const auto canonicalPair = [](
+        const ArticulatedRigidIslandContactMetadata& metadata
+    ) {
+        std::array<std::uint64_t, 2> endpointA{
+            static_cast<std::uint32_t>(
+                metadata.key.endpointA.kind
+            ),
+            metadata.key.endpointA.bodyIndex,
+        };
+        std::array<std::uint64_t, 2> endpointB{
+            static_cast<std::uint32_t>(
+                metadata.key.endpointB.kind
+            ),
+            metadata.key.endpointB.bodyIndex,
+        };
+        if (endpointB < endpointA) {
+            std::swap(endpointA, endpointB);
+        }
+        return std::array<std::uint64_t, 4>{
+            endpointA[0],
+            endpointA[1],
+            endpointB[0],
+            endpointB[1],
+        };
+    };
     std::vector<std::size_t> ranked(collision.contacts.size());
     for (std::size_t index = 0u; index < ranked.size(); ++index) {
         ranked[index] = index;
@@ -415,18 +440,12 @@ bool reduceBodyPairContacts(
     std::ranges::sort(
         ranked,
         [&](const std::size_t left, const std::size_t right) {
-            const ArticulatedRigidContactMetadata& leftMetadata =
+            const ArticulatedRigidIslandContactMetadata& leftMetadata =
                 collision.metadata[left];
-            const ArticulatedRigidContactMetadata& rightMetadata =
+            const ArticulatedRigidIslandContactMetadata& rightMetadata =
                 collision.metadata[right];
-            const auto leftPair = std::pair{
-                leftMetadata.articulatedBodyIndex,
-                leftMetadata.rigidBodyIndex,
-            };
-            const auto rightPair = std::pair{
-                rightMetadata.articulatedBodyIndex,
-                rightMetadata.rigidBodyIndex,
-            };
+            const auto leftPair = canonicalPair(leftMetadata);
+            const auto rightPair = canonicalPair(rightMetadata);
             if (leftPair != rightPair) {
                 return leftPair < rightPair;
             }
@@ -435,34 +454,62 @@ bool reduceBodyPairContacts(
                 return leftMetadata.effectiveSeparation <
                     rightMetadata.effectiveSeparation;
             }
-            const ArticulatedRigidContactKey& leftKey =
+            const ArticulatedRigidIslandContactKey& leftKey =
                 leftMetadata.key;
-            const ArticulatedRigidContactKey& rightKey =
+            const ArticulatedRigidIslandContactKey& rightKey =
                 rightMetadata.key;
-            return std::array{
-                leftKey.pairKey,
-                leftKey.featureKey,
+            return std::array<std::uint64_t, 8>{
+                leftKey.endpointA.shapeIndex,
+                leftKey.endpointA.feature,
+                leftKey.endpointA.slotGeneration,
+                leftKey.endpointA.motionType,
+                leftKey.endpointB.shapeIndex,
+                leftKey.endpointB.feature,
+                leftKey.endpointB.slotGeneration,
+                leftKey.endpointB.motionType,
             } < std::array{
-                rightKey.pairKey,
-                rightKey.featureKey,
+                static_cast<std::uint64_t>(
+                    rightKey.endpointA.shapeIndex
+                ),
+                static_cast<std::uint64_t>(
+                    rightKey.endpointA.feature
+                ),
+                static_cast<std::uint64_t>(
+                    rightKey.endpointA.slotGeneration
+                ),
+                static_cast<std::uint64_t>(
+                    rightKey.endpointA.motionType
+                ),
+                static_cast<std::uint64_t>(
+                    rightKey.endpointB.shapeIndex
+                ),
+                static_cast<std::uint64_t>(
+                    rightKey.endpointB.feature
+                ),
+                static_cast<std::uint64_t>(
+                    rightKey.endpointB.slotGeneration
+                ),
+                static_cast<std::uint64_t>(
+                    rightKey.endpointB.motionType
+                ),
             };
         }
     );
 
     std::vector<std::size_t> retained;
     retained.reserve(collision.contacts.size());
-    std::pair<std::uint32_t, std::uint32_t> previousPair{
-        MR_INVALID_INDEX,
-        MR_INVALID_INDEX,
+    std::array<std::uint64_t, 4> previousPair{
+        std::numeric_limits<std::uint64_t>::max(),
+        std::numeric_limits<std::uint64_t>::max(),
+        std::numeric_limits<std::uint64_t>::max(),
+        std::numeric_limits<std::uint64_t>::max(),
     };
     std::uint32_t retainedForPair = 0u;
     for (const std::size_t candidate : ranked) {
-        const ArticulatedRigidContactMetadata& metadata =
+        const ArticulatedRigidIslandContactMetadata& metadata =
             collision.metadata[candidate];
-        const std::pair pair{
-            metadata.articulatedBodyIndex,
-            metadata.rigidBodyIndex,
-        };
+        const std::array<std::uint64_t, 4> pair =
+            canonicalPair(metadata);
         if (pair != previousPair) {
             previousPair = pair;
             retainedForPair = 0u;
@@ -473,8 +520,8 @@ bool reduceBodyPairContacts(
         }
     }
     std::ranges::sort(retained);
-    std::vector<CoupledArticulatedRigidContact> contacts;
-    std::vector<ArticulatedRigidContactMetadata> metadata;
+    std::vector<CoupledArticulatedRigidIslandContact> contacts;
+    std::vector<ArticulatedRigidIslandContactMetadata> metadata;
     contacts.reserve(retained.size());
     metadata.reserve(retained.size());
     for (const std::size_t index : retained) {
@@ -485,6 +532,34 @@ bool reduceBodyPairContacts(
     collision.metadata = std::move(metadata);
     collision.diagnostics.contactCount =
         static_cast<std::uint32_t>(collision.contacts.size());
+    collision.diagnostics.articulatedDynamicContactCount = 0u;
+    collision.diagnostics.articulatedPrescribedContactCount = 0u;
+    collision.diagnostics.dynamicDynamicContactCount = 0u;
+    collision.diagnostics.dynamicPrescribedContactCount = 0u;
+    for (const ArticulatedRigidIslandContactMetadata& item :
+         collision.metadata) {
+        switch (item.pairClass) {
+        case ArticulatedRigidIslandPairClass::
+            articulatedDynamicScene:
+            ++collision.diagnostics.
+                articulatedDynamicContactCount;
+            break;
+        case ArticulatedRigidIslandPairClass::
+            articulatedPrescribedScene:
+            ++collision.diagnostics.
+                articulatedPrescribedContactCount;
+            break;
+        case ArticulatedRigidIslandPairClass::
+            dynamicSceneDynamicScene:
+            ++collision.diagnostics.dynamicDynamicContactCount;
+            break;
+        case ArticulatedRigidIslandPairClass::
+            dynamicScenePrescribedScene:
+            ++collision.diagnostics.
+                dynamicPrescribedContactCount;
+            break;
+        }
+    }
     return true;
 }
 
@@ -537,10 +612,11 @@ double maximumVelocityDifference(
     return maximum;
 }
 
-std::vector<ArticulatedRigidContactWarmStart> activeContactWarmStarts(
+std::vector<ArticulatedRigidIslandContactWarmStart>
+activeContactWarmStarts(
     const ArticulatedRigidWorldCache& cache
 ) {
-    std::vector<ArticulatedRigidContactWarmStart> result;
+    std::vector<ArticulatedRigidIslandContactWarmStart> result;
     result.reserve(cache.contactImpulses.size());
     for (const ArticulatedRigidContactCacheEntry& entry :
          cache.contactImpulses) {
@@ -578,7 +654,7 @@ std::vector<double> activeJointLimitWarmStarts(
 
 bool updateContactCache(
     ArticulatedRigidWorldCache& cache,
-    const ArticulatedRigidCollisionResult& collision,
+    const ArticulatedRigidIslandCollisionResult& collision,
     const std::span<const double> impulses,
     const std::uint64_t step,
     const std::uint64_t maximumAge
@@ -590,7 +666,7 @@ bool updateContactCache(
     for (std::size_t index = 0u;
          index < collision.contacts.size();
          ++index) {
-        const CoupledArticulatedRigidContact& contact =
+        const CoupledArticulatedRigidIslandContact& contact =
             collision.contacts[index];
         const std::size_t offset = 3u * index;
         const Vec3 worldImpulse =
@@ -602,9 +678,9 @@ bool updateContactCache(
             !finite(worldImpulse.z)) {
             return false;
         }
-        ArticulatedRigidContactWarmStart warm{
+        ArticulatedRigidIslandContactWarmStart warm{
             .key = collision.metadata[index].key,
-            .worldImpulseOnRigid = {
+            .worldImpulseOnB = {
                 worldImpulse.x,
                 worldImpulse.y,
                 worldImpulse.z,
@@ -684,7 +760,7 @@ bool updateJointLimitCache(
 bool updateGraspEvidence(
     ArticulatedRigidWorldCache& cache,
     const EngineModel& model,
-    const ArticulatedRigidCollisionResult& collision,
+    const ArticulatedRigidIslandCollisionResult& collision,
     const CoupledArticulatedRigidContactDiagnostics& solve,
     const ArticulatedRigidGraspConfig& config,
     const std::span<const MRBodyStateGPU> rigidBodies,
@@ -714,6 +790,10 @@ bool updateGraspEvidence(
     for (std::size_t body = 0u; body < rigidBodyCount; ++body) {
         evidence[body].rigidBody =
             static_cast<std::uint32_t>(body);
+        if (rigidBodies[body].flagsAndIndices[0] !=
+            MR_MOTION_DYNAMIC) {
+            continue;
+        }
         identities[body] = graspIdentity(
             model,
             config,
@@ -729,10 +809,28 @@ bool updateGraspEvidence(
     for (std::size_t contactIndex = 0u;
          contactIndex < collision.contacts.size();
          ++contactIndex) {
-        const ArticulatedRigidContactMetadata& metadata =
-            collision.metadata[contactIndex];
-        if (metadata.rigidBodyIndex >= rigidBodyCount) {
+        const CoupledArticulatedRigidIslandContact& contact =
+            collision.contacts[contactIndex];
+        const bool articulatedA =
+            contact.endpointA.kind ==
+                CoupledContactEndpointKind::articulated;
+        const bool articulatedB =
+            contact.endpointB.kind ==
+                CoupledContactEndpointKind::articulated;
+        if (articulatedA == articulatedB) {
+            continue;
+        }
+        const CoupledContactEndpoint& articulated =
+            articulatedA ? contact.endpointA : contact.endpointB;
+        const CoupledContactEndpoint& scene =
+            articulatedA ? contact.endpointB : contact.endpointA;
+        if (scene.kind != CoupledContactEndpointKind::sceneBody ||
+            scene.body >= rigidBodyCount) {
             return false;
+        }
+        if (rigidBodies[scene.body].flagsAndIndices[0] !=
+            MR_MOTION_DYNAMIC) {
+            continue;
         }
         const std::size_t offset = 3u * contactIndex;
         const double normalImpulse =
@@ -745,8 +843,11 @@ bool updateGraspEvidence(
             return false;
         }
         ArticulatedRigidGraspEvidence& item =
-            evidence[metadata.rigidBodyIndex];
-        if (metadata.articulatedBodyIndex == config.jawBodyA) {
+            evidence[scene.body];
+        const double normalSign = articulatedA ? 1.0 : -1.0;
+        const Vec3 objectNormal =
+            normalSign * vector(contact.normal);
+        if (articulated.body == config.jawBodyA) {
             item.maximumTangentialSlipSpeed = std::max(
                 item.maximumTangentialSlipSpeed,
                 slip
@@ -755,12 +856,11 @@ bool updateGraspEvidence(
                 item.jawAContact = true;
                 item.jawANormalImpulse = normalImpulse;
                 item.jawAFriction =
-                    collision.contacts[contactIndex].friction;
-                normalA[metadata.rigidBodyIndex] =
-                    vector(collision.contacts[contactIndex].normal);
+                    contact.friction;
+                normalA[scene.body] = objectNormal;
             }
         }
-        if (metadata.articulatedBodyIndex == config.jawBodyB) {
+        if (articulated.body == config.jawBodyB) {
             item.maximumTangentialSlipSpeed = std::max(
                 item.maximumTangentialSlipSpeed,
                 slip
@@ -769,15 +869,18 @@ bool updateGraspEvidence(
                 item.jawBContact = true;
                 item.jawBNormalImpulse = normalImpulse;
                 item.jawBFriction =
-                    collision.contacts[contactIndex].friction;
-                normalB[metadata.rigidBodyIndex] =
-                    vector(collision.contacts[contactIndex].normal);
+                    contact.friction;
+                normalB[scene.body] = objectNormal;
             }
         }
     }
 
     for (std::size_t body = 0u; body < evidence.size(); ++body) {
         ArticulatedRigidGraspEvidence& item = evidence[body];
+        if (rigidBodies[body].flagsAndIndices[0] !=
+            MR_MOTION_DYNAMIC) {
+            continue;
+        }
         if (item.jawAContact && item.jawBContact) {
             const double denominator =
                 norm(normalA[body]) * norm(normalB[body]);
@@ -874,6 +977,12 @@ ArticulatedRigidWorldStepDiagnostics stepArticulatedRigidWorldCpu(
         cache.step == std::numeric_limits<std::uint64_t>::max() ||
         rigidProperties.empty() ||
         rigidProperties.size() != rigidBodies.size() ||
+        std::ranges::none_of(
+            rigidProperties,
+            [](const MRBodyPropertiesGPU& body) {
+                return body.motionType == MR_MOTION_DYNAMIC;
+            }
+        ) ||
         rigidShapes.empty() ||
         rigidMaterials.empty() ||
         config.maximumContactsPerBodyPair == 0u ||
@@ -899,7 +1008,7 @@ ArticulatedRigidWorldStepDiagnostics stepArticulatedRigidWorldCpu(
             [](const MRBodyPropertiesGPU& body) {
                 return
                     body.articulationIndex != MR_INVALID_INDEX ||
-                    body.motionType != MR_MOTION_DYNAMIC;
+                    body.motionType > MR_MOTION_DYNAMIC;
             }
         )) {
         return fail(
@@ -973,15 +1082,15 @@ ArticulatedRigidWorldStepDiagnostics stepArticulatedRigidWorldCpu(
 
     ArticulatedRigidWorldCache workingCache = cache;
     const std::uint64_t nextStep = cache.step + 1u;
-    const std::vector<ArticulatedRigidContactWarmStart>
+    const std::vector<ArticulatedRigidIslandContactWarmStart>
         contactWarmStarts = activeContactWarmStarts(cache);
     ArticulatedRigidCollisionConfig collisionConfig =
         config.collision;
     collisionConfig.dynamics = config.dynamics;
     collisionConfig.contact.contact.timestep =
         config.dynamics.timestep;
-    ArticulatedRigidCollisionResult collision =
-        collideArticulatedRigidContactsCpu(
+    ArticulatedRigidIslandCollisionResult collision =
+        collideArticulatedRigidIslandContactsCpu(
             model,
             articulationIndex,
             q,
@@ -996,6 +1105,14 @@ ArticulatedRigidWorldStepDiagnostics stepArticulatedRigidWorldCpu(
     diagnostics.collision = collision.diagnostics;
     diagnostics.contactCount =
         static_cast<std::uint32_t>(collision.contacts.size());
+    diagnostics.articulatedDynamicContactCount =
+        collision.diagnostics.articulatedDynamicContactCount;
+    diagnostics.articulatedPrescribedContactCount =
+        collision.diagnostics.articulatedPrescribedContactCount;
+    diagnostics.dynamicDynamicContactCount =
+        collision.diagnostics.dynamicDynamicContactCount;
+    diagnostics.dynamicPrescribedContactCount =
+        collision.diagnostics.dynamicPrescribedContactCount;
     diagnostics.maximumPenetration =
         collision.diagnostics.maximumPenetration;
     diagnostics.matchedContactWarmStarts =
@@ -1007,8 +1124,6 @@ ArticulatedRigidWorldStepDiagnostics stepArticulatedRigidWorldCpu(
             ArticulatedRigidWorldFailure::collision
         );
     }
-    const std::size_t unreducedContactCount =
-        collision.contacts.size();
     if (!reduceBodyPairContacts(
             collision,
             config.maximumContactsPerBodyPair
@@ -1019,23 +1134,24 @@ ArticulatedRigidWorldStepDiagnostics stepArticulatedRigidWorldCpu(
             ArticulatedRigidWorldFailure::collision
         );
     }
-    if (collision.contacts.size() != unreducedContactCount) {
-        collision.diagnostics.matchedWarmStartCount = 0u;
-        for (const ArticulatedRigidContactMetadata& metadata :
-             collision.metadata) {
-            if (std::ranges::any_of(
-                    contactWarmStarts,
-                    [&](const ArticulatedRigidContactWarmStart& warm) {
-                        return warm.key == metadata.key;
-                    }
-                )) {
-                ++collision.diagnostics.matchedWarmStartCount;
+    collision.diagnostics.matchedWarmStartCount =
+        static_cast<std::uint32_t>(std::ranges::count_if(
+            collision.metadata,
+            [](const ArticulatedRigidIslandContactMetadata& item) {
+                return item.warmStartMatched;
             }
-        }
-    }
+        ));
     diagnostics.collision = collision.diagnostics;
     diagnostics.contactCount =
         static_cast<std::uint32_t>(collision.contacts.size());
+    diagnostics.articulatedDynamicContactCount =
+        collision.diagnostics.articulatedDynamicContactCount;
+    diagnostics.articulatedPrescribedContactCount =
+        collision.diagnostics.articulatedPrescribedContactCount;
+    diagnostics.dynamicDynamicContactCount =
+        collision.diagnostics.dynamicDynamicContactCount;
+    diagnostics.dynamicPrescribedContactCount =
+        collision.diagnostics.dynamicPrescribedContactCount;
     diagnostics.matchedContactWarmStarts =
         collision.diagnostics.matchedWarmStartCount;
 
@@ -1089,7 +1205,7 @@ ArticulatedRigidWorldStepDiagnostics stepArticulatedRigidWorldCpu(
 
     if (!collision.contacts.empty() || !limitRows.empty()) {
         diagnostics.coupledSolve =
-            solveCoupledArticulatedRigidContactsCpu(
+            solveCoupledArticulatedRigidIslandCpu(
                 model,
                 articulationIndex,
                 q,

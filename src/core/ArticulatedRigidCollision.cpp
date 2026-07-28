@@ -60,6 +60,22 @@ struct SourcePoint {
     std::array<double, 3> localWitnessRigid{};
 };
 
+struct IslandSourcePoint {
+    std::uint64_t collisionPairKey = 0u;
+    std::uint64_t collisionFeatureKey = 0u;
+    ShapeBinding bindingA{};
+    ShapeBinding bindingB{};
+    std::uint32_t generationA = 0u;
+    std::uint32_t generationB = 0u;
+    std::uint32_t featureA = 0u;
+    std::uint32_t featureB = 0u;
+    std::uint32_t manifold = 0u;
+    std::uint32_t point = 0u;
+    std::uint32_t lifetime = 0u;
+    std::array<double, 3> localWitnessA{};
+    std::array<double, 3> localWitnessB{};
+};
+
 bool finite(const double value) {
     return std::isfinite(value);
 }
@@ -100,6 +116,65 @@ Vec3 operator-(const Vec3 left, const Vec3 right) {
         left.y - right.y,
         left.z - right.z,
     };
+}
+
+Vec3 operator+(const Vec3 left, const Vec3 right) {
+    return {
+        left.x + right.x,
+        left.y + right.y,
+        left.z + right.z,
+    };
+}
+
+Vec3 operator*(const Vec3 value, const double scale) {
+    return {
+        value.x * scale,
+        value.y * scale,
+        value.z * scale,
+    };
+}
+
+double dot(const Vec3 left, const Vec3 right) {
+    return
+        left.x * right.x +
+        left.y * right.y +
+        left.z * right.z;
+}
+
+Vec3 cross(const Vec3 left, const Vec3 right) {
+    return {
+        left.y * right.z - left.z * right.y,
+        left.z * right.x - left.x * right.z,
+        left.x * right.y - left.y * right.x,
+    };
+}
+
+double norm(const Vec3 value) {
+    return std::sqrt(dot(value, value));
+}
+
+std::pair<Vec3, Vec3> contactBasis(const Vec3 unitNormal) {
+    const Vec3 absolute{
+        std::abs(unitNormal.x),
+        std::abs(unitNormal.y),
+        std::abs(unitNormal.z),
+    };
+    Vec3 reference;
+    if (absolute.x <= absolute.y &&
+        absolute.x <= absolute.z) {
+        reference = {1.0, 0.0, 0.0};
+    } else if (absolute.y <= absolute.z) {
+        reference = {0.0, 1.0, 0.0};
+    } else {
+        reference = {0.0, 0.0, 1.0};
+    }
+    const Vec3 tangent = cross(reference, unitNormal);
+    const double tangentLength = norm(tangent);
+    if (!(tangentLength > 0.0) || !finite(tangentLength)) {
+        return {};
+    }
+    const Vec3 tangentU = tangent * (1.0 / tangentLength);
+    return {tangentU, cross(unitNormal, tangentU)};
 }
 
 Vec3 operator*(const Mat3& matrix, const Vec3 value) {
@@ -325,6 +400,28 @@ bool validRigidBody(const MRBodyStateGPU& body) {
         positiveDefiniteInverseInertia(body);
 }
 
+bool validSceneBody(const MRBodyStateGPU& body) {
+    Quaternion orientation;
+    const std::uint32_t motion = body.flagsAndIndices[0];
+    if (motion > MR_MOTION_DYNAMIC ||
+        body.flagsAndIndices[1] != MR_INVALID_INDEX ||
+        !finite(body.position) ||
+        !finite(body.linearVelocityAndInverseMass) ||
+        !finite(body.angularVelocity) ||
+        !finite(body.inverseInertiaWorldRow0) ||
+        !finite(body.inverseInertiaWorldRow1) ||
+        !finite(body.inverseInertiaWorldRow2) ||
+        !checkedQuaternion(body.orientation, orientation)) {
+        return false;
+    }
+    if (motion == MR_MOTION_DYNAMIC) {
+        return
+            body.linearVelocityAndInverseMass.w > 0.0f &&
+            positiveDefiniteInverseInertia(body);
+    }
+    return body.linearVelocityAndInverseMass.w == 0.0f;
+}
+
 MRStepStatusCode dynamicsCode(
     const ArticulatedDynamicsStatus status
 ) {
@@ -360,6 +457,20 @@ ArticulatedRigidCollisionResult fail(
     diagnostics.code = code;
     diagnostics.failure = std::move(reason);
     ArticulatedRigidCollisionResult result;
+    result.diagnostics = std::move(diagnostics);
+    return result;
+}
+
+ArticulatedRigidIslandCollisionResult failIsland(
+    ArticulatedRigidIslandCollisionDiagnostics diagnostics,
+    const ArticulatedRigidCollisionStatus status,
+    const MRStepStatusCode code,
+    std::string reason
+) {
+    diagnostics.status = status;
+    diagnostics.code = code;
+    diagnostics.failure = std::move(reason);
+    ArticulatedRigidIslandCollisionResult result;
     result.diagnostics = std::move(diagnostics);
     return result;
 }
@@ -514,6 +625,19 @@ ArticulatedRigidContactKey publicKey(
             source.articulatedGeneration,
         .rigidGeneration = source.rigidGeneration,
     };
+}
+
+bool islandSourcePointLess(
+    const IslandSourcePoint& left,
+    const IslandSourcePoint& right
+) {
+    return std::tie(
+        left.collisionPairKey,
+        left.collisionFeatureKey
+    ) < std::tie(
+        right.collisionPairKey,
+        right.collisionFeatureKey
+    );
 }
 
 } // namespace
@@ -1275,6 +1399,864 @@ collideArticulatedRigidContactsCpu(
     manifoldCache = std::move(workingCache);
 
     ArticulatedRigidCollisionResult result;
+    result.diagnostics = std::move(diagnostics);
+    result.contacts = std::move(contacts);
+    result.metadata = std::move(metadata);
+    return result;
+}
+
+ArticulatedRigidIslandCollisionResult
+collideArticulatedRigidIslandContactsCpu(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const std::span<const double> q,
+    const std::span<const double> v,
+    const std::span<const MRShapeGPU> sceneShapes,
+    const std::span<const MRMaterialGPU> sceneMaterials,
+    const std::span<const MRBodyStateGPU> sceneBodies,
+    PersistentManifoldCache& manifoldCache,
+    const ArticulatedRigidCollisionConfig& config,
+    const std::span<
+        const ArticulatedRigidIslandContactWarmStart
+    > warmStarts
+) {
+    ArticulatedRigidIslandCollisionDiagnostics diagnostics;
+    diagnostics.articulationIndex = articulationIndex;
+    diagnostics.sceneShapeCount =
+        static_cast<std::uint32_t>(std::min<std::size_t>(
+            sceneShapes.size(),
+            std::numeric_limits<std::uint32_t>::max()
+        ));
+    diagnostics.suppliedWarmStartCount =
+        static_cast<std::uint32_t>(std::min<std::size_t>(
+            warmStarts.size(),
+            std::numeric_limits<std::uint32_t>::max()
+        ));
+
+    std::string modelFailure;
+    if (articulationIndex >= model.articulations.size() ||
+        !model.valid(&modelFailure)) {
+        return failIsland(
+            diagnostics,
+            ArticulatedRigidCollisionStatus::invalidModel,
+            MR_STEP_NONFINITE_INPUT,
+            articulationIndex >= model.articulations.size()
+                ? "articulation index is outside the compiled model"
+                : "compiled engine model is invalid: " + modelFailure
+        );
+    }
+    const MRArticulationGPU& articulation =
+        model.articulations[articulationIndex];
+    const std::size_t maximumSize =
+        std::numeric_limits<std::size_t>::max();
+    const double timestepSquared =
+        config.contact.contact.timestep *
+        config.contact.contact.timestep;
+    if (q.size() != articulation.nq ||
+        v.size() != articulation.nv ||
+        sceneShapes.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
+        sceneMaterials.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
+        sceneBodies.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
+        warmStarts.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
+        articulation.bodyCount >
+            maximumSize - sceneBodies.size() ||
+        !(config.contact.contact.timestep > 0.0) ||
+        !finite(config.contact.contact.timestep) ||
+        !(timestepSquared > 0.0) ||
+        !finite(timestepSquared) ||
+        config.contact.contact.errorReduction < 0.0 ||
+        !finite(config.contact.contact.errorReduction) ||
+        config.contact.contact.penetrationSlop < 0.0 ||
+        !finite(config.contact.contact.penetrationSlop) ||
+        config.contact.contact.maxDepenetrationVelocity < 0.0 ||
+        !finite(
+            config.contact.contact.maxDepenetrationVelocity
+        ) ||
+        !(config.contact.qualityTangentialRegularization > 0.0) ||
+        !finite(
+            config.contact.qualityTangentialRegularization
+        )) {
+        return failIsland(
+            diagnostics,
+            ArticulatedRigidCollisionStatus::invalidDimensions,
+            MR_STEP_NONFINITE_INPUT,
+            "articulated, scene, or contact dimensions/configuration "
+            "are inconsistent"
+        );
+    }
+    for (std::size_t body = 0u;
+         body < sceneBodies.size();
+         ++body) {
+        if (!validSceneBody(sceneBodies[body])) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::invalidRigidBody,
+                MR_STEP_NONFINITE_INPUT,
+                "scene body " + std::to_string(body) +
+                    " is not a finite independent dynamic, static, "
+                    "or kinematic body"
+            );
+        }
+    }
+    for (std::size_t shape = 0u;
+         shape < sceneShapes.size();
+         ++shape) {
+        if (sceneShapes[shape].bodyIndex >= sceneBodies.size() ||
+            sceneShapes[shape].materialIndex >=
+                sceneMaterials.size() ||
+            sceneShapes[shape].slotGeneration == 0u) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::invalidRigidShape,
+                MR_STEP_NONFINITE_INPUT,
+                "scene shape " + std::to_string(shape) +
+                    " has an invalid body, material, or zero generation"
+            );
+        }
+    }
+    for (std::size_t warm = 0u;
+         warm < warmStarts.size();
+         ++warm) {
+        if (!finite(warmStarts[warm].worldImpulseOnB)) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::invalidWarmStart,
+                MR_STEP_NONFINITE_INPUT,
+                "warm-start impulse " + std::to_string(warm) +
+                    " is non-finite"
+            );
+        }
+        for (std::size_t previous = 0u;
+             previous < warm;
+             ++previous) {
+            if (warmStarts[previous].key ==
+                warmStarts[warm].key) {
+                return failIsland(
+                    diagnostics,
+                    ArticulatedRigidCollisionStatus::invalidWarmStart,
+                    MR_STEP_NONFINITE_INPUT,
+                    "warm-start keys must be unique"
+                );
+            }
+        }
+    }
+
+    std::vector<ArticulatedBodyKinematics> bodyKinematics(
+        articulation.bodyCount
+    );
+    diagnostics.kinematics =
+        computeArticulatedBodyKinematics(
+            model,
+            articulationIndex,
+            q,
+            v,
+            bodyKinematics,
+            config.dynamics
+        );
+    if (!diagnostics.kinematics.succeeded()) {
+        return failIsland(
+            diagnostics,
+            ArticulatedRigidCollisionStatus::kinematicsFailure,
+            dynamicsCode(diagnostics.kinematics.status),
+            "articulated body kinematics failed"
+        );
+    }
+
+    std::vector<MRBodyStateGPU> collisionBodies(
+        static_cast<std::size_t>(articulation.bodyCount) +
+            sceneBodies.size()
+    );
+    for (const ArticulatedBodyKinematics& body :
+         bodyKinematics) {
+        if (body.bodyIndex < articulation.firstBody ||
+            body.bodyIndex >=
+                articulation.firstBody +
+                    articulation.bodyCount ||
+            !writeArticulatedState(
+                model,
+                articulationIndex,
+                body,
+                collisionBodies[
+                    body.bodyIndex - articulation.firstBody
+                ]
+            )) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::nonfiniteResult,
+                MR_STEP_NONFINITE_RESULT,
+                "articulated collision-state projection failed"
+            );
+        }
+    }
+    std::ranges::copy(
+        sceneBodies,
+        collisionBodies.begin() + articulation.bodyCount
+    );
+
+    std::vector<MRShapeGPU> collisionShapes;
+    std::vector<ShapeBinding> shapeBindings;
+    std::vector<MRMaterialGPU> collisionMaterials;
+    std::vector<std::uint32_t> articulatedMaterialMap(
+        model.materials.size(),
+        MR_INVALID_INDEX
+    );
+    std::vector<std::uint32_t> sceneMaterialMap(
+        sceneMaterials.size(),
+        MR_INVALID_INDEX
+    );
+    if (model.shapes.size() >
+        maximumSize - sceneShapes.size()) {
+        return failIsland(
+            diagnostics,
+            ArticulatedRigidCollisionStatus::invalidDimensions,
+            MR_STEP_NONFINITE_INPUT,
+            "combined shape stream size overflows"
+        );
+    }
+    collisionShapes.reserve(
+        model.shapes.size() + sceneShapes.size()
+    );
+    shapeBindings.reserve(
+        model.shapes.size() + sceneShapes.size()
+    );
+
+    const auto appendMaterial = [&collisionMaterials](
+        const MRMaterialGPU& material,
+        std::uint32_t& mapped
+    ) -> bool {
+        if (mapped != MR_INVALID_INDEX) {
+            return true;
+        }
+        if (collisionMaterials.size() >=
+            std::numeric_limits<std::uint32_t>::max()) {
+            return false;
+        }
+        mapped = static_cast<std::uint32_t>(
+            collisionMaterials.size()
+        );
+        collisionMaterials.push_back(material);
+        return true;
+    };
+
+    const std::uint64_t bodyBegin = articulation.firstBody;
+    const std::uint64_t bodyEnd =
+        bodyBegin + articulation.bodyCount;
+    for (std::size_t shapeIndex = 0u;
+         shapeIndex < model.shapes.size();
+         ++shapeIndex) {
+        const MRShapeGPU& source = model.shapes[shapeIndex];
+        if (source.bodyIndex < bodyBegin ||
+            source.bodyIndex >= bodyEnd) {
+            continue;
+        }
+        if (source.materialIndex >= model.materials.size() ||
+            source.slotGeneration == 0u ||
+            !appendMaterial(
+                model.materials[source.materialIndex],
+                articulatedMaterialMap[source.materialIndex]
+            )) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::invalidModel,
+                MR_STEP_NONFINITE_INPUT,
+                "articulated collision shape material or "
+                "generation is invalid"
+            );
+        }
+        MRShapeGPU rebased = source;
+        rebased.bodyIndex =
+            source.bodyIndex - articulation.firstBody;
+        rebased.materialIndex =
+            articulatedMaterialMap[source.materialIndex];
+        collisionShapes.push_back(rebased);
+        shapeBindings.push_back({
+            .articulated = true,
+            .sourceShape =
+                static_cast<std::uint32_t>(shapeIndex),
+            .sourceBody = source.bodyIndex,
+        });
+    }
+    const std::size_t articulatedShapeCount =
+        collisionShapes.size();
+    diagnostics.articulatedShapeCount =
+        static_cast<std::uint32_t>(articulatedShapeCount);
+
+    for (std::size_t shapeIndex = 0u;
+         shapeIndex < sceneShapes.size();
+         ++shapeIndex) {
+        const MRShapeGPU& source = sceneShapes[shapeIndex];
+        if (!appendMaterial(
+                sceneMaterials[source.materialIndex],
+                sceneMaterialMap[source.materialIndex]
+            )) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::invalidDimensions,
+                MR_STEP_NONFINITE_INPUT,
+                "combined material stream exceeds index capacity"
+            );
+        }
+        MRShapeGPU rebased = source;
+        const std::size_t rebasedBody =
+            static_cast<std::size_t>(articulation.bodyCount) +
+            source.bodyIndex;
+        if (rebasedBody >
+            std::numeric_limits<std::uint32_t>::max()) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::invalidDimensions,
+                MR_STEP_NONFINITE_INPUT,
+                "combined body stream exceeds index capacity"
+            );
+        }
+        rebased.bodyIndex =
+            static_cast<std::uint32_t>(rebasedBody);
+        rebased.materialIndex =
+            sceneMaterialMap[source.materialIndex];
+        collisionShapes.push_back(rebased);
+        shapeBindings.push_back({
+            .articulated = false,
+            .sourceShape =
+                static_cast<std::uint32_t>(shapeIndex),
+            .sourceBody = source.bodyIndex,
+        });
+    }
+    if (collisionShapes.size() >
+        std::numeric_limits<std::uint32_t>::max()) {
+        return failIsland(
+            diagnostics,
+            ArticulatedRigidCollisionStatus::invalidDimensions,
+            MR_STEP_NONFINITE_INPUT,
+            "combined shape stream exceeds index capacity"
+        );
+    }
+
+    if (articulatedShapeCount > 1u &&
+        articulatedShapeCount - 1u >
+            maximumSize / articulatedShapeCount) {
+        return failIsland(
+            diagnostics,
+            ArticulatedRigidCollisionStatus::invalidDimensions,
+            MR_STEP_NONFINITE_INPUT,
+            "articulation exclusion count overflow"
+        );
+    }
+    const std::size_t articulatedExclusions =
+        articulatedShapeCount > 1u
+        ? articulatedShapeCount *
+            (articulatedShapeCount - 1u) / 2u
+        : 0u;
+    std::vector<CollisionPairExclusion> exclusions;
+    exclusions.reserve(articulatedExclusions);
+    for (std::uint32_t first = 0u;
+         first < articulatedShapeCount;
+         ++first) {
+        for (std::uint32_t second = first + 1u;
+             second < articulatedShapeCount;
+             ++second) {
+            exclusions.push_back({first, second});
+        }
+    }
+
+    PersistentManifoldCache workingCache = manifoldCache;
+    const CollisionFrame collision = collideCpuReference(
+        collisionShapes,
+        collisionBodies,
+        config.collision,
+        workingCache,
+        exclusions
+    );
+    diagnostics.collision = collision.diagnostics;
+    if (!collision.succeeded()) {
+        return failIsland(
+            diagnostics,
+            ArticulatedRigidCollisionStatus::collisionFailure,
+            collision.diagnostics.code,
+            "full-scene collision generation failed"
+        );
+    }
+
+    ContactAssemblyResult assembly = assembleContactConstraints(
+        collision,
+        collisionShapes,
+        collisionMaterials,
+        collisionBodies,
+        config.contact.contactCapacity
+    );
+    diagnostics.assembly = assembly.diagnostics;
+    diagnostics.maximumPenetration =
+        assembly.diagnostics.maximumPenetration;
+    if (!assembly.diagnostics.succeeded()) {
+        return failIsland(
+            diagnostics,
+            ArticulatedRigidCollisionStatus::
+                contactAssemblyFailure,
+            assembly.diagnostics.code,
+            "common contact assembly failed"
+        );
+    }
+    for (const MRContactConstraintGPU& contact :
+         assembly.constraints) {
+        if (contact.friction.z != 0.0f ||
+            contact.friction.w != 0.0f) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::
+                    contactAdaptationFailure,
+                MR_STEP_UNSUPPORTED,
+                "rolling or torsional friction is unsupported by "
+                "the mixed exact-cone contact"
+            );
+        }
+    }
+
+    if (collision.manifoldPoints.size() !=
+        4u * collision.manifoldHeaders.size()) {
+        return failIsland(
+            diagnostics,
+            ArticulatedRigidCollisionStatus::nonfiniteResult,
+            MR_STEP_NONFINITE_RESULT,
+            "collision manifold payload dimensions changed"
+        );
+    }
+    std::vector<IslandSourcePoint> sourcePoints;
+    sourcePoints.reserve(assembly.constraints.size());
+    for (std::size_t manifold = 0u;
+         manifold < collision.manifoldHeaders.size();
+         ++manifold) {
+        const MRManifoldHeaderGPU& header =
+            collision.manifoldHeaders[manifold];
+        const std::uint32_t colliderA =
+            header.pairAndCount[1];
+        const std::uint32_t colliderB =
+            header.pairAndCount[2];
+        const std::uint32_t pointCount =
+            header.pairAndCount[3];
+        if (colliderA >= shapeBindings.size() ||
+            colliderB >= shapeBindings.size() ||
+            pointCount == 0u ||
+            pointCount > 4u ||
+            (
+                shapeBindings[colliderA].articulated &&
+                shapeBindings[colliderB].articulated
+            )) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::nonfiniteResult,
+                MR_STEP_NONFINITE_RESULT,
+                "collision emitted a malformed or self-articulation "
+                "manifold"
+            );
+        }
+        const MRShapeGPU& shapeA = collisionShapes[colliderA];
+        const MRShapeGPU& shapeB = collisionShapes[colliderB];
+        for (std::uint32_t pointIndex = 0u;
+             pointIndex < pointCount;
+             ++pointIndex) {
+            const MRManifoldPointGPU& point =
+                collision.manifoldPoints[
+                    manifold * 4u + pointIndex
+                ];
+            IslandSourcePoint source;
+            source.collisionPairKey =
+                packedKey(colliderA, colliderB);
+            source.collisionFeatureKey =
+                packedKey(
+                    point.featureAndLife[0],
+                    point.featureAndLife[1]
+                );
+            source.bindingA = shapeBindings[colliderA];
+            source.bindingB = shapeBindings[colliderB];
+            source.generationA = shapeA.slotGeneration;
+            source.generationB = shapeB.slotGeneration;
+            source.featureA = point.featureAndLife[0];
+            source.featureB = point.featureAndLife[1];
+            source.manifold =
+                static_cast<std::uint32_t>(manifold);
+            source.point = pointIndex;
+            source.lifetime = point.featureAndLife[2];
+            source.localWitnessA = {
+                point.localAnchorA.x,
+                point.localAnchorA.y,
+                point.localAnchorA.z,
+            };
+            source.localWitnessB = {
+                point.localAnchorB.x,
+                point.localAnchorB.y,
+                point.localAnchorB.z,
+            };
+            sourcePoints.push_back(source);
+        }
+    }
+    std::ranges::sort(sourcePoints, islandSourcePointLess);
+    if (sourcePoints.size() != assembly.constraints.size()) {
+        return failIsland(
+            diagnostics,
+            ArticulatedRigidCollisionStatus::nonfiniteResult,
+            MR_STEP_NONFINITE_RESULT,
+            "manifold/source contact count mismatch"
+        );
+    }
+    for (std::size_t contactIndex = 0u;
+         contactIndex < sourcePoints.size();
+         ++contactIndex) {
+        const IslandSourcePoint& source =
+            sourcePoints[contactIndex];
+        const MRContactConstraintGPU& contact =
+            assembly.constraints[contactIndex];
+        if (source.collisionPairKey != contact.pairKey ||
+            source.collisionFeatureKey != contact.featureKey ||
+            (
+                contactIndex > 0u &&
+                source.collisionPairKey ==
+                    sourcePoints[contactIndex - 1u].
+                        collisionPairKey &&
+                source.collisionFeatureKey ==
+                    sourcePoints[contactIndex - 1u].
+                        collisionFeatureKey
+            )) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::nonfiniteResult,
+                MR_STEP_NONFINITE_RESULT,
+                "manifold keys are ambiguous or disagree with "
+                "common contact assembly"
+            );
+        }
+    }
+
+    const auto combinedBodyIndex =
+        [&](const ShapeBinding& binding) -> std::size_t {
+            return binding.articulated
+                ? binding.sourceBody - articulation.firstBody
+                : static_cast<std::size_t>(
+                    articulation.bodyCount
+                ) + binding.sourceBody;
+        };
+    const auto endpointKind =
+        [](const ShapeBinding& binding) {
+            return binding.articulated
+                ? CoupledContactEndpointKind::articulated
+                : CoupledContactEndpointKind::sceneBody;
+        };
+    const auto endpointMotion =
+        [&](const ShapeBinding& binding) {
+            return binding.articulated
+                ? static_cast<std::uint32_t>(MR_MOTION_DYNAMIC)
+                : sceneBodies[binding.sourceBody].
+                    flagsAndIndices[0];
+        };
+
+    std::vector<CoupledArticulatedRigidIslandContact> contacts;
+    std::vector<ArticulatedRigidIslandContactMetadata> metadata;
+    contacts.reserve(assembly.constraints.size());
+    metadata.reserve(assembly.constraints.size());
+    for (std::size_t contactIndex = 0u;
+         contactIndex < assembly.constraints.size();
+         ++contactIndex) {
+        const MRContactConstraintGPU& commonContact =
+            assembly.constraints[contactIndex];
+        const IslandSourcePoint& source =
+            sourcePoints[contactIndex];
+        const std::size_t bodyAIndex =
+            combinedBodyIndex(source.bindingA);
+        const std::size_t bodyBIndex =
+            combinedBodyIndex(source.bindingB);
+        if (bodyAIndex >= collisionBodies.size() ||
+            bodyBIndex >= collisionBodies.size() ||
+            commonContact.bodyA != bodyAIndex ||
+            commonContact.bodyB != bodyBIndex) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::nonfiniteResult,
+                MR_STEP_NONFINITE_RESULT,
+                "contact body bindings disagree with collision sources"
+            );
+        }
+        const std::uint32_t motionA =
+            endpointMotion(source.bindingA);
+        const std::uint32_t motionB =
+            endpointMotion(source.bindingB);
+        ArticulatedRigidIslandPairClass pairClass;
+        if (source.bindingA.articulated !=
+            source.bindingB.articulated) {
+            const std::uint32_t sceneMotion =
+                source.bindingA.articulated
+                ? motionB
+                : motionA;
+            if (sceneMotion == MR_MOTION_DYNAMIC) {
+                pairClass =
+                    ArticulatedRigidIslandPairClass::
+                        articulatedDynamicScene;
+                ++diagnostics.articulatedDynamicContactCount;
+            } else {
+                pairClass =
+                    ArticulatedRigidIslandPairClass::
+                        articulatedPrescribedScene;
+                ++diagnostics.articulatedPrescribedContactCount;
+            }
+        } else if (!source.bindingA.articulated &&
+                   !source.bindingB.articulated) {
+            const bool dynamicA =
+                motionA == MR_MOTION_DYNAMIC;
+            const bool dynamicB =
+                motionB == MR_MOTION_DYNAMIC;
+            if (dynamicA && dynamicB) {
+                pairClass =
+                    ArticulatedRigidIslandPairClass::
+                        dynamicSceneDynamicScene;
+                ++diagnostics.dynamicDynamicContactCount;
+            } else if (dynamicA != dynamicB) {
+                pairClass =
+                    ArticulatedRigidIslandPairClass::
+                        dynamicScenePrescribedScene;
+                ++diagnostics.dynamicPrescribedContactCount;
+            } else {
+                return failIsland(
+                    diagnostics,
+                    ArticulatedRigidCollisionStatus::nonfiniteResult,
+                    MR_STEP_NONFINITE_RESULT,
+                    "collision emitted a prescribed-prescribed contact"
+                );
+            }
+        } else {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::nonfiniteResult,
+                MR_STEP_NONFINITE_RESULT,
+                "collision emitted an articulation self-contact"
+            );
+        }
+
+        Quaternion orientationA;
+        Quaternion orientationB;
+        if (!checkedQuaternion(
+                collisionBodies[bodyAIndex].orientation,
+                orientationA
+            ) ||
+            !checkedQuaternion(
+                collisionBodies[bodyBIndex].orientation,
+                orientationB
+            )) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::nonfiniteResult,
+                MR_STEP_NONFINITE_RESULT,
+                "contact endpoint orientation changed after validation"
+            );
+        }
+        const Vec3 worldPoint =
+            vector(commonContact.pointAndSeparation);
+        const Vec3 localPointA = inverseRotate(
+            orientationA,
+            worldPoint -
+                vector(collisionBodies[bodyAIndex].position)
+        );
+        const Vec3 localPointB = inverseRotate(
+            orientationB,
+            worldPoint -
+                vector(collisionBodies[bodyBIndex].position)
+        );
+
+        Vec3 normal = vector(commonContact.normal);
+        const double normalLength = norm(normal);
+        if (!(normalLength > 0.0) ||
+            !finite(normalLength)) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::nonfiniteResult,
+                MR_STEP_NONFINITE_RESULT,
+                "assembled contact normal is invalid"
+            );
+        }
+        normal = normal * (1.0 / normalLength);
+        const auto [tangentU, tangentV] =
+            contactBasis(normal);
+        const Vec3 surfaceTarget =
+            vector(
+                commonContact.
+                    targetVelocityAndPreSolveNormal
+            );
+        const double penetration = std::min(
+            static_cast<double>(
+                commonContact.pointAndSeparation.w
+            ) + config.contact.contact.penetrationSlop,
+            0.0
+        );
+        const double positional = std::min(
+            config.contact.contact.maxDepenetrationVelocity,
+            -config.contact.contact.errorReduction *
+                penetration /
+                config.contact.contact.timestep
+        );
+        double restitution = 0.0;
+        if ((commonContact.flags &
+             MR_CONSTRAINT_FLAG_NEW_IMPACT) != 0u &&
+            commonContact.targetVelocityAndPreSolveNormal.w <
+                -commonContact.response.y) {
+            restitution =
+                -static_cast<double>(
+                    commonContact.response.x
+                ) *
+                commonContact.
+                    targetVelocityAndPreSolveNormal.w;
+        }
+        const double normalTarget =
+            dot(surfaceTarget, normal) +
+            std::max(positional, restitution);
+        const Vec3 physicalTarget =
+            surfaceTarget +
+            normal * (
+                normalTarget -
+                dot(surfaceTarget, normal)
+            );
+        const double normalRegularization =
+            static_cast<double>(commonContact.response.z) /
+                timestepSquared +
+            config.contact.qualityTangentialRegularization;
+
+        CoupledArticulatedRigidIslandContact contact;
+        contact.endpointA = {
+            .kind = endpointKind(source.bindingA),
+            .body = source.bindingA.sourceBody,
+            .localPoint = array(localPointA),
+        };
+        contact.endpointB = {
+            .kind = endpointKind(source.bindingB),
+            .body = source.bindingB.sourceBody,
+            .localPoint = array(localPointB),
+        };
+        contact.normal = array(normal);
+        contact.tangentU = array(tangentU);
+        contact.tangentV = array(tangentV);
+        contact.targetVelocity = {
+            dot(physicalTarget, normal),
+            dot(physicalTarget, tangentU),
+            dot(physicalTarget, tangentV),
+        };
+        contact.regularization = {
+            normalRegularization,
+            config.contact.qualityTangentialRegularization,
+            config.contact.qualityTangentialRegularization,
+        };
+        contact.friction = commonContact.friction.y;
+
+        ArticulatedRigidIslandContactKey key;
+        key.articulationIndex = articulationIndex;
+        key.endpointA = {
+            .kind = endpointKind(source.bindingA),
+            .bodyIndex = source.bindingA.sourceBody,
+            .shapeIndex = source.bindingA.sourceShape,
+            .feature = source.featureA,
+            .slotGeneration = source.generationA,
+            .motionType = motionA,
+        };
+        key.endpointB = {
+            .kind = endpointKind(source.bindingB),
+            .bodyIndex = source.bindingB.sourceBody,
+            .shapeIndex = source.bindingB.sourceShape,
+            .feature = source.featureB,
+            .slotGeneration = source.generationB,
+            .motionType = motionB,
+        };
+        bool warmStartMatched = false;
+        if (source.lifetime > 0u &&
+            (commonContact.flags &
+             MR_CONSTRAINT_FLAG_NEW_IMPACT) == 0u) {
+            for (const ArticulatedRigidIslandContactWarmStart&
+                     warm : warmStarts) {
+                if (!(warm.key == key)) {
+                    continue;
+                }
+                const Vec3 impulse =
+                    vector(warm.worldImpulseOnB);
+                contact.warmImpulse = {
+                    dot(impulse, normal),
+                    dot(impulse, tangentU),
+                    dot(impulse, tangentV),
+                };
+                ++diagnostics.matchedWarmStartCount;
+                warmStartMatched = true;
+                break;
+            }
+        }
+
+        ArticulatedRigidIslandContactMetadata item;
+        item.key = key;
+        item.pairClass = pairClass;
+        item.manifoldIndex = source.manifold;
+        item.manifoldPointIndex = source.point;
+        item.lifetime = source.lifetime;
+        item.warmStartMatched = warmStartMatched;
+        item.collisionPairKey = source.collisionPairKey;
+        item.collisionFeatureKey =
+            source.collisionFeatureKey;
+        item.contactPointWorld = array(worldPoint);
+        item.localWitnessA = source.localWitnessA;
+        item.localWitnessB = source.localWitnessB;
+        item.effectiveSeparation =
+            commonContact.pointAndSeparation.w;
+
+        if (!finite(contact.endpointA.localPoint) ||
+            !finite(contact.endpointB.localPoint) ||
+            !finite(contact.normal) ||
+            !finite(contact.tangentU) ||
+            !finite(contact.tangentV) ||
+            !finite(contact.targetVelocity) ||
+            !finite(contact.regularization) ||
+            !finite(contact.warmImpulse) ||
+            !finite(contact.friction) ||
+            contact.friction < 0.0 ||
+            !std::ranges::all_of(
+                contact.regularization,
+                [](const double value) {
+                    return finite(value) && value > 0.0;
+                }
+            ) ||
+            !finite(item.contactPointWorld) ||
+            !finite(item.localWitnessA) ||
+            !finite(item.localWitnessB) ||
+            !finite(item.effectiveSeparation)) {
+            return failIsland(
+                diagnostics,
+                ArticulatedRigidCollisionStatus::nonfiniteResult,
+                MR_STEP_NONFINITE_RESULT,
+                "contact or contact metadata is non-finite"
+            );
+        }
+        contacts.push_back(contact);
+        metadata.push_back(item);
+    }
+
+    for (std::size_t index = 0u;
+         index < metadata.size();
+         ++index) {
+        for (std::size_t previous = 0u;
+             previous < index;
+             ++previous) {
+            if (metadata[previous].key == metadata[index].key) {
+                return failIsland(
+                    diagnostics,
+                    ArticulatedRigidCollisionStatus::nonfiniteResult,
+                    MR_STEP_NONFINITE_RESULT,
+                    "full-scene contact keys must be unique"
+                );
+            }
+        }
+    }
+
+    diagnostics.contactCount =
+        static_cast<std::uint32_t>(contacts.size());
+    diagnostics.status =
+        ArticulatedRigidCollisionStatus::success;
+    diagnostics.code = MR_STEP_SUCCESS;
+    manifoldCache = std::move(workingCache);
+
+    ArticulatedRigidIslandCollisionResult result;
     result.diagnostics = std::move(diagnostics);
     result.contacts = std::move(contacts);
     result.metadata = std::move(metadata);

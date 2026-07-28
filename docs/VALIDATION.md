@@ -378,20 +378,29 @@ and does not admit dynamic free environment objects. It does include active
 position-stop impulses in the same solve as contact, but still has no
 self-collision, implicit drives, or fully composed Metal timestep.
 
-## Transactional PSM and dynamic-needle world
+## Transactional mixed PSM scene and supported needle pickup
 
 ```sh
 ./build/bin/metalrobo_articulated_rigid_collision_probe
 ./build/bin/metalrobo_articulated_rigid_world_probe
+./build/bin/metalrobo_supported_needle_pickup_probe
 ```
 
 This focused CPU FP64 path uses the actual nine-body PSM and procedural
-GS-21-scale needle. Rigid free motion is split into velocity prediction and
-configuration-only integration. Cross-system collision generates real
-manifolds; contact and active PSM stops enter one block inverse-mass,
-exact-cone solve; and contact/manifold/limit caches publish only with the
-integrated state. Warm contact impulses are stored in world coordinates and
-reprojected into the refreshed contact frame.
+GS-21-scale needle. The generic mixed endpoint operator compacts only dynamic
+scene bodies into six-velocity blocks; static and kinematic point velocities
+remain prescribed. One collision stream emits
+articulation-dynamic, articulation-prescribed, dynamic-dynamic, and
+dynamic-prescribed contacts. Contact plus active PSM stops enter one block
+inverse-mass exact-cone solve, and state/manifold/contact/limit/grasp caches
+publish only with the integrated state. Warm contact impulses are stored in
+world coordinates on canonical endpoint B and reprojected into each refreshed
+frame.
+
+The collision probe keeps the legacy PSM/needle compatibility path and adds a
+full-scene case containing a dynamic-dynamic sphere pair and a
+dynamic-moving-kinematic pair. Both pair classes enter the generic solve, the
+kinematic output velocity is preserved, and both warm starts rematch.
 
 The trajectory probe closes both physical jaw coordinates around a grasp-zone
 needle segment, holds for 100 steps, and commands the prismatic insertion axis
@@ -402,36 +411,72 @@ stop during two-jaw needle contact, proving contact and limit impulses coexist
 in the monolithic solve and that the scalar limit warm start rematches on the
 next step.
 
-Apple M4 Release result from the current 35-probe regression run:
+The supported pickup probe is deliberately stronger. A six-button cradle uses
+three independently owned static support pairs at needle segments 6, 9, and
+25; their triangle contains the needle COM with positive barycentric margin.
+The PSM starts 4 mm away with open jaws, approaches without premature contact,
+closes through legal computed-torque control on authored grasp segment 14,
+dwells until bilateral evidence qualifies, then lifts 8.5 mm. Success requires
+support unloading, a long support-free interval, geometric fixture clearance,
+no robot/fixture collision, persistent bilateral grasp, needle motion along
+the jaw trajectory, bounded lift-relative rotation, exact-cone KKT quality,
+and byte-for-byte rollback of all state/cache streams after an injected
+non-finite force. There is no weld, attachment, teleport, or collision filter
+between the robot and cradle.
+
+Apple M4 Release result:
 
 ```text
 articulated_rigid_collision
   articulated_shapes=18 rigid_shapes=32 contacts=3
   warm_matches=3 penetration=7.99998830448e-05
-  normal_impulse=3.993108591e-05 status=ok
+  normal_impulse=3.993108591e-05
+  island_contacts=2 dynamic_dynamic=1 dynamic_prescribed=1
+  island_warm_matches=2 status=ok
 
 articulated_rigid_world
   steps=300 contacts_max=3
   mixed_limit_impulse=0.00725237826725
   warm_matches_max=3 normal_impulse_max=0.00200235862363
   grasp_frames=298
-  needle_displacement_mm=1.98493021092
-  needle_lift_mm=0.392729130117
-  needle_dz_mm=0.405639410019
-  jaw_travel_mm=2.71308363215
-  kkt_max=1.00363481351e-05
+  needle_displacement_mm=1.98490709271
+  needle_lift_mm=0.39269948751
+  needle_dz_mm=0.405609607697
+  jaw_travel_mm=2.71308366851
+  kkt_max=9.97174307304e-06
   grasp_slip_max=0.0371493546244
   grasp_identity_reset=pass rollback=pass status=ok
+
+supported_needle_pickup
+  steps=3030 support_buttons=6
+  support_triangle_margin=0.27617782522 support_contacts_max=6
+  supports_at_lift=1 support_free_run=910
+  fixture_clearance_mm=2.68754563194
+  art_dynamic_max=2 art_prescribed_max=0
+  dynamic_prescribed_max=6 warm_matches_max=8
+  preclose_touch_frames=0 grasped_lift_frames=2000
+  grasped_lift_run=2000 final_grasp=1
+  needle_lift_mm=8.01363587379 jaw_travel_mm=8.07919540224
+  follow_ratio=0.991972507352
+  orientation_drift_rad=0.260530941127
+  kkt_max=1.99856112637e-05
+  controller=computed_torque no_weld=yes
+  ccd=conservative_discrete rollback=pass status=ok
 ```
 
-The general world preserves all assembled witnesses by default. This probe
-explicitly reduces near-duplicate needle compound witnesses to the deepest
-contact per articulated/rigid body pair before its small dense solve. It also
-replaces one rigid-shape generation after a qualified grasp and proves dwell
-resets instead of transferring to the replacement. This milestone does not
-validate approach CCD, needle/support contact, rigid-rigid contact, puncture,
-tissue, thread, cutting, biomechanics, or any clinical claim. The composed
-world is not yet executed as a batched device-resident Metal step.
+The general world preserves all assembled witnesses by default. These needle
+probes explicitly reduce near-duplicate compound witnesses to the deepest
+contact per canonical endpoint-body pair before the small dense solve. The
+trajectory probe replaces one rigid-shape generation after a qualified grasp
+and proves dwell resets instead of transferring to the replacement.
+
+This milestone validates conservative-discrete supported pickup, not
+high-speed approach CCD. The current three-row point contact has no rolling or
+torsional resistance; the COM-near pickup is stable, but arbitrary off-COM
+needle grasp needs a finite multi-point jaw patch or an explicitly calibrated
+torsional model. Puncture, tissue, thread, cutting, biomechanics, clinical
+claims, multiple articulations, and a batched device-resident Metal
+composition remain outside this result.
 
 ## Generic Metal articulated operator
 
@@ -733,10 +778,12 @@ convergence.
   synchronous with per-call resource creation
 - Long-horizon controlled G1 contact stability, locomotion learning, and RL
   throughput
-- Multi-articulation islands and mixed islands containing dynamic-dynamic or
-  dynamic-static support contacts
+- Multi-articulation islands and long-horizon/large-island mixed-scene
+  stability beyond the focused dynamic-dynamic and supported-pickup cases
 - Implicit drives and coupled set-valued joint stiction
 - Articulated self-collision, loop constraints, and unsupported pair classes
+- Finite surgical jaw contact patches plus rolling/torsional resistance for
+  arbitrary off-COM needle grasps
 - GPU persistent-manifold refresh/reduction, production segmented LBVH,
   convex/mesh/heightfield collision, and certified CCD
 - Matrix-free Newton-PCG for large exact-cone quality islands

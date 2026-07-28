@@ -26,6 +26,48 @@ enum class CoupledArticulatedRigidContactStatus : std::uint32_t {
     nonfiniteResult,
 };
 
+enum class CoupledContactEndpointKind : std::uint32_t {
+    articulated = 0u,
+    sceneBody = 1u,
+};
+
+// One endpoint of a mixed articulated/maximal-coordinate contact. `body`
+// indexes EngineModel::bodies for articulated endpoints and the sceneBodies
+// span for sceneBody endpoints. localPoint is COM-relative in body axes.
+struct CoupledContactEndpoint {
+    CoupledContactEndpointKind kind =
+        CoupledContactEndpointKind::sceneBody;
+    std::uint32_t body = 0u;
+    std::array<double, 3> localPoint{};
+};
+
+// Canonical velocity-level contact for one mixed island. normal points A -> B
+// in world coordinates and the physical relative velocity is
+//
+//   v_contact = frame' * (v_B(point_B) - v_A(point_A)).
+//
+// targetVelocity is the desired *physical* relative velocity. Static and
+// kinematic scene endpoints have no generalized degree of freedom; the solver
+// subtracts their prescribed point-velocity contribution from the target
+// exactly once. Every contact must contain at least one articulated or dynamic
+// scene endpoint. Two articulated endpoints are deliberately outside this
+// first mixed-island contract.
+struct CoupledArticulatedRigidIslandContact {
+    CoupledContactEndpoint endpointA{};
+    CoupledContactEndpoint endpointB{};
+    std::array<double, 3> normal{0.0, 0.0, 1.0};
+    std::array<double, 3> tangentU{1.0, 0.0, 0.0};
+    std::array<double, 3> tangentV{0.0, 1.0, 0.0};
+    std::array<double, 3> targetVelocity{};
+    std::array<double, 3> regularization{
+        1.0e-10,
+        1.0e-10,
+        1.0e-10,
+    };
+    std::array<double, 3> warmImpulse{};
+    double friction = 0.7;
+};
+
 // One velocity-level contact between a body owned by the selected
 // articulation and an independent maximal-coordinate rigid body.
 //
@@ -75,6 +117,8 @@ struct CoupledArticulatedRigidContactDiagnostics {
     std::uint32_t articulationIndex = 0u;
     std::uint32_t articulationNv = 0u;
     std::uint32_t rigidBodyCount = 0u;
+    std::uint32_t dynamicRigidBodyCount = 0u;
+    std::uint32_t prescribedRigidBodyCount = 0u;
     std::uint32_t contactCount = 0u;
     std::uint32_t jointLimitCount = 0u;
     double minimumArticulationCholeskyPivot = 0.0;
@@ -100,6 +144,29 @@ struct CoupledArticulatedRigidContactDiagnostics {
     }
 };
 
+// Generic mixed-island solve. sceneBodies may contain independent dynamic,
+// static, and kinematic bodies. Only dynamic scene bodies receive six
+// generalized coordinates; static/kinematic point velocities are prescribed
+// inputs and their output velocities are copied through unchanged.
+//
+// The output spans are transactional: neither is modified until every model,
+// endpoint, mass, limit, solve, and reconstruction gate succeeds.
+[[nodiscard]] CoupledArticulatedRigidContactDiagnostics
+solveCoupledArticulatedRigidIslandCpu(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> q,
+    std::span<const double> freeArticulationVelocity,
+    std::span<const MRBodyStateGPU> sceneBodies,
+    std::span<const CoupledArticulatedRigidIslandContact> contacts,
+    std::span<double> postArticulationVelocity,
+    std::span<CoupledRigidBodyVelocity> postSceneBodyVelocities,
+    const ArticulatedDynamicsConfig& dynamicsConfig = {},
+    const QualityContactSolverConfig& solverConfig = {},
+    std::span<const ArticulatedJointLimitRow> jointLimitRows = {},
+    std::span<const double> jointLimitWarmImpulses = {}
+);
+
 // Solves one coupled CPU FP64 contact/limit island transactionally:
 //
 //   M^-1 = block_diag(
@@ -115,6 +182,10 @@ struct CoupledArticulatedRigidContactDiagnostics {
 // The independent rigid states provide pose, free velocity, inverse mass, and
 // world inverse inertia. Every rigid state must be dynamic and unbound from an
 // articulation.
+//
+// This compatibility entry point translates every legacy record into an
+// articulated-A/dynamic-scene-B island contact and delegates to
+// solveCoupledArticulatedRigidIslandCpu().
 //
 // postArticulationVelocity and postRigidVelocities are separate outputs and
 // are not modified unless model/state/contact validation, CRBA factorization,

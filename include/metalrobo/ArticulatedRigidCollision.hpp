@@ -121,6 +121,104 @@ struct ArticulatedRigidCollisionResult {
     }
 };
 
+enum class ArticulatedRigidIslandPairClass : std::uint32_t {
+    articulatedDynamicScene = 0u,
+    articulatedPrescribedScene,
+    dynamicSceneDynamicScene,
+    dynamicScenePrescribedScene,
+};
+
+// Canonical source identity for one endpoint of a full-scene contact.
+// Articulated shape/body indices address EngineModel; scene indices address
+// the caller's external spans. Motion type is repeated deliberately so a
+// dynamic/prescribed role change cannot inherit an incompatible warm start.
+struct ArticulatedRigidIslandContactEndpointKey {
+    CoupledContactEndpointKind kind =
+        CoupledContactEndpointKind::sceneBody;
+    std::uint32_t bodyIndex = 0u;
+    std::uint32_t shapeIndex = 0u;
+    std::uint32_t feature = 0u;
+    std::uint32_t slotGeneration = 0u;
+    std::uint32_t motionType = MR_MOTION_STATIC;
+
+    bool operator==(
+        const ArticulatedRigidIslandContactEndpointKey&
+    ) const = default;
+};
+
+// Endpoint order follows the deterministic combined collision stream:
+// selected articulation shapes in EngineModel order, followed by scene
+// shapes in caller order. It never depends on broadphase traversal order.
+struct ArticulatedRigidIslandContactKey {
+    std::uint32_t articulationIndex = 0u;
+    ArticulatedRigidIslandContactEndpointKey endpointA{};
+    ArticulatedRigidIslandContactEndpointKey endpointB{};
+
+    bool operator==(
+        const ArticulatedRigidIslandContactKey&
+    ) const = default;
+};
+
+// World-space impulse acting on canonical endpoint B. Persisting a physical
+// vector rather than tangent coordinates makes warm starts frame-rotation
+// safe. Duplicate keys and non-finite impulses are rejected transactionally.
+struct ArticulatedRigidIslandContactWarmStart {
+    ArticulatedRigidIslandContactKey key{};
+    std::array<double, 3> worldImpulseOnB{};
+};
+
+// Exactly index-aligned with ArticulatedRigidIslandCollisionResult::contacts.
+struct ArticulatedRigidIslandContactMetadata {
+    ArticulatedRigidIslandContactKey key{};
+    ArticulatedRigidIslandPairClass pairClass =
+        ArticulatedRigidIslandPairClass::articulatedDynamicScene;
+    std::uint32_t manifoldIndex = 0u;
+    std::uint32_t manifoldPointIndex = 0u;
+    std::uint32_t lifetime = 0u;
+    bool warmStartMatched = false;
+    std::uint64_t collisionPairKey = 0u;
+    std::uint64_t collisionFeatureKey = 0u;
+    std::array<double, 3> contactPointWorld{};
+    std::array<double, 3> localWitnessA{};
+    std::array<double, 3> localWitnessB{};
+    double effectiveSeparation = 0.0;
+};
+
+struct ArticulatedRigidIslandCollisionDiagnostics {
+    ArticulatedRigidCollisionStatus status =
+        ArticulatedRigidCollisionStatus::success;
+    MRStepStatusCode code = MR_STEP_SUCCESS;
+    ArticulatedDynamicsDiagnostics kinematics{};
+    CollisionDiagnostics collision{};
+    ContactAssemblyDiagnostics assembly{};
+    std::uint32_t articulationIndex = 0u;
+    std::uint32_t articulatedShapeCount = 0u;
+    std::uint32_t sceneShapeCount = 0u;
+    std::uint32_t contactCount = 0u;
+    std::uint32_t articulatedDynamicContactCount = 0u;
+    std::uint32_t articulatedPrescribedContactCount = 0u;
+    std::uint32_t dynamicDynamicContactCount = 0u;
+    std::uint32_t dynamicPrescribedContactCount = 0u;
+    std::uint32_t suppliedWarmStartCount = 0u;
+    std::uint32_t matchedWarmStartCount = 0u;
+    double maximumPenetration = 0.0;
+    std::string failure;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == ArticulatedRigidCollisionStatus::success;
+    }
+};
+
+struct ArticulatedRigidIslandCollisionResult {
+    ArticulatedRigidIslandCollisionDiagnostics diagnostics{};
+    std::vector<CoupledArticulatedRigidIslandContact> contacts;
+    std::vector<ArticulatedRigidIslandContactMetadata> metadata;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return diagnostics.succeeded();
+    }
+};
+
 // Generates collision contacts between one articulation and independent
 // dynamic rigid bodies:
 //
@@ -155,6 +253,39 @@ collideArticulatedRigidContactsCpu(
     PersistentManifoldCache& manifoldCache,
     const ArticulatedRigidCollisionConfig& config = {},
     std::span<const ArticulatedRigidContactWarmStart> warmStarts = {}
+);
+
+// Generates every executable contact in one scene containing exactly one
+// selected articulation plus independent external bodies. Scene bodies may be
+// dynamic, static, or kinematic. Only articulation-articulation pairs are
+// explicitly excluded; the shared collision oracle rejects same-body and
+// prescribed-prescribed pairs, leaving these four supported classes:
+//
+//   articulation-dynamic, articulation-prescribed,
+//   dynamic-dynamic, and dynamic-prescribed.
+//
+// Each output uses the generic mixed-island endpoint contract. targetVelocity
+// is the desired physical A-to-B relative velocity; prescribed scene velocity
+// is intentionally not pre-compensated because the mixed solver subtracts it
+// exactly once. Dynamic friction is selected for the current one-coefficient
+// exact cone. Rolling and torsional friction fail explicitly.
+//
+// sceneShapes index sceneBodies and sceneMaterials locally. Combined collider
+// order and all public source keys are deterministic. Publication is fully
+// transactional: on failure contacts and metadata are empty and
+// manifoldCache is unchanged.
+[[nodiscard]] ArticulatedRigidIslandCollisionResult
+collideArticulatedRigidIslandContactsCpu(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> q,
+    std::span<const double> v,
+    std::span<const MRShapeGPU> sceneShapes,
+    std::span<const MRMaterialGPU> sceneMaterials,
+    std::span<const MRBodyStateGPU> sceneBodies,
+    PersistentManifoldCache& manifoldCache,
+    const ArticulatedRigidCollisionConfig& config = {},
+    std::span<const ArticulatedRigidIslandContactWarmStart> warmStarts = {}
 );
 
 } // namespace metalrobo

@@ -854,6 +854,22 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(
+    metalrobo_supported_needle_pickup_probe
+    apps/supported_needle_pickup_probe.cpp
+)
+target_link_libraries(
+    metalrobo_supported_needle_pickup_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_supported_needle_pickup_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 install(TARGETS metalrobo metalrobo_bench)
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)

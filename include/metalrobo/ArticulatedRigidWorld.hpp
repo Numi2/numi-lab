@@ -70,7 +70,7 @@ struct ArticulatedRigidWorldConfig {
 };
 
 struct ArticulatedRigidContactCacheEntry {
-    ArticulatedRigidContactWarmStart warmStart{};
+    ArticulatedRigidIslandContactWarmStart warmStart{};
     std::uint64_t lastSeenStep = 0u;
 };
 
@@ -122,12 +122,16 @@ struct ArticulatedRigidWorldStepDiagnostics {
     ArticulatedActuationDiagnostics actuation{};
     ArticulatedDynamicsDiagnostics articulatedFreeDynamics{};
     FreeBodyIntegratorDiagnostics rigidFreeDynamics{};
-    ArticulatedRigidCollisionDiagnostics collision{};
+    ArticulatedRigidIslandCollisionDiagnostics collision{};
     ArticulatedJointLimitDiagnostics jointLimitCompilation{};
     CoupledArticulatedRigidContactDiagnostics coupledSolve{};
     ArticulatedDynamicsDiagnostics articulatedIntegration{};
     FreeBodyIntegratorDiagnostics rigidIntegration{};
     std::uint32_t contactCount = 0u;
+    std::uint32_t articulatedDynamicContactCount = 0u;
+    std::uint32_t articulatedPrescribedContactCount = 0u;
+    std::uint32_t dynamicDynamicContactCount = 0u;
+    std::uint32_t dynamicPrescribedContactCount = 0u;
     std::uint32_t jointLimitCount = 0u;
     std::uint32_t matchedContactWarmStarts = 0u;
     std::uint32_t matchedJointLimitWarmStarts = 0u;
@@ -144,15 +148,18 @@ struct ArticulatedRigidWorldStepDiagnostics {
 };
 
 // One transactional semi-implicit step for exactly one articulation and one
-// or more independent dynamic rigid bodies:
+// or more independent scene bodies. Scene bodies may be dynamic, static, or
+// kinematic, but at least one must be dynamic:
 //
-//   articulated + rigid free-velocity prediction
-//   -> collision-generated cross-system contacts
+//   articulated + scene free/prescribed velocity prediction
+//   -> one collision stream for articulation-scene and scene-scene pairs
 //   -> simultaneous exact-cone contact + joint-limit solve
-//   -> one articulation and rigid configuration integration
+//   -> one articulation and scene configuration integration
 //
-// rigidShapes index rigidBodies and rigidMaterials locally. q, v, rigidBodies,
-// every cache stream, and the cache step are unchanged on any failure.
+// rigidShapes index rigidBodies and rigidMaterials locally. Static and
+// kinematic endpoints contribute their prescribed point velocity but receive
+// no solver degrees of freedom. q, v, rigidBodies, every cache stream, and the
+// cache step are unchanged on any failure.
 [[nodiscard]] ArticulatedRigidWorldStepDiagnostics
 stepArticulatedRigidWorldCpu(
     const EngineModel& model,

@@ -269,8 +269,8 @@ bool sameContactCache(
     for (std::size_t index = 0u; index < left.size(); ++index) {
         if (!(left[index].warmStart.key ==
                 right[index].warmStart.key) ||
-            left[index].warmStart.worldImpulseOnRigid !=
-                right[index].warmStart.worldImpulseOnRigid ||
+            left[index].warmStart.worldImpulseOnB !=
+                right[index].warmStart.worldImpulseOnB ||
             left[index].lastSeenStep != right[index].lastSeenStep) {
             return false;
         }

@@ -116,7 +116,7 @@ double norm(const Vec3 value) {
 }
 
 bool makeFrame(
-    const CoupledArticulatedRigidContact& contact,
+    const CoupledArticulatedRigidIslandContact& contact,
     ContactFrame& frame
 ) {
     const Vec3 normal = vector(contact.normal);
@@ -188,6 +188,20 @@ Vec3 rotate(const Quaternion q, const Vec3 value) {
     const Vec3 imaginary{q.x, q.y, q.z};
     const Vec3 doubled = 2.0 * cross(imaginary, value);
     return value + q.w * doubled + cross(imaginary, doubled);
+}
+
+Vec3 scenePointVelocity(
+    const MRBodyStateGPU& body,
+    const Quaternion orientation,
+    const std::array<double, 3>& localPoint
+) {
+    if (body.flagsAndIndices[0] == MR_MOTION_STATIC) {
+        return {};
+    }
+    const Vec3 arm = rotate(orientation, vector(localPoint));
+    return
+        vector(body.linearVelocityAndInverseMass) +
+        cross(vector(body.angularVelocity), arm);
 }
 
 CholeskyFactor factorize(
@@ -393,15 +407,15 @@ void fail(
 } // namespace
 
 CoupledArticulatedRigidContactDiagnostics
-solveCoupledArticulatedRigidContactsCpu(
+solveCoupledArticulatedRigidIslandCpu(
     const EngineModel& model,
     const std::uint32_t articulationIndex,
     const std::span<const double> q,
     const std::span<const double> freeArticulationVelocity,
-    const std::span<const MRBodyStateGPU> rigidBodies,
-    const std::span<const CoupledArticulatedRigidContact> contacts,
+    const std::span<const MRBodyStateGPU> sceneBodies,
+    const std::span<const CoupledArticulatedRigidIslandContact> contacts,
     const std::span<double> postArticulationVelocity,
-    const std::span<CoupledRigidBodyVelocity> postRigidVelocities,
+    const std::span<CoupledRigidBodyVelocity> postSceneBodyVelocities,
     const ArticulatedDynamicsConfig& dynamicsConfig,
     const QualityContactSolverConfig& solverConfig,
     const std::span<const ArticulatedJointLimitRow> jointLimitRows,
@@ -419,7 +433,7 @@ solveCoupledArticulatedRigidContactsCpu(
         diagnosticsFor(
             articulationIndex,
             nv,
-            rigidBodies.size(),
+            sceneBodies.size(),
             contacts.size(),
             jointLimitRows.size()
         );
@@ -434,8 +448,29 @@ solveCoupledArticulatedRigidContactsCpu(
     }
     const std::size_t maximumSize =
         std::numeric_limits<std::size_t>::max();
+    const std::size_t dynamicSceneBodyCount =
+        static_cast<std::size_t>(std::ranges::count_if(
+            sceneBodies,
+            [](const MRBodyStateGPU& body) {
+                return body.flagsAndIndices[0] == MR_MOTION_DYNAMIC;
+            }
+        ));
+    diagnostics.dynamicRigidBodyCount =
+        static_cast<std::uint32_t>(
+            std::min<std::size_t>(
+                dynamicSceneBodyCount,
+                std::numeric_limits<std::uint32_t>::max()
+            )
+        );
+    diagnostics.prescribedRigidBodyCount =
+        static_cast<std::uint32_t>(
+            std::min<std::size_t>(
+                sceneBodies.size() - dynamicSceneBodyCount,
+                std::numeric_limits<std::uint32_t>::max()
+            )
+        );
     const bool combinedDimensionFits =
-        rigidBodies.size() <= (maximumSize - nv) / 6u;
+        dynamicSceneBodyCount <= (maximumSize - nv) / 6u;
     const bool blockCountFits =
         contacts.size() <=
             maximumSize - jointLimitRows.size();
@@ -445,7 +480,7 @@ solveCoupledArticulatedRigidContactsCpu(
     const bool constraintRowsFit =
         blockCountFits && blockCount <= maximumSize / 3u;
     const std::size_t combinedNv = combinedDimensionFits
-        ? nv + 6u * rigidBodies.size()
+        ? nv + 6u * dynamicSceneBodyCount
         : 0u;
     const std::size_t constraintRows = constraintRowsFit
         ? 3u * blockCount
@@ -473,10 +508,9 @@ solveCoupledArticulatedRigidContactsCpu(
         return diagnostics;
     }
     if (nv == 0u ||
-        rigidBodies.empty() ||
         blockCount == 0u ||
         !matrixDimensionsFit ||
-        rigidBodies.size() >
+        sceneBodies.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         contacts.size() >
             std::numeric_limits<std::uint32_t>::max() ||
@@ -487,7 +521,7 @@ solveCoupledArticulatedRigidContactsCpu(
         (!jointLimitWarmImpulses.empty() &&
          jointLimitWarmImpulses.size() != jointLimitRows.size()) ||
         postArticulationVelocity.size() != nv ||
-        postRigidVelocities.size() != rigidBodies.size() ||
+        postSceneBodyVelocities.size() != sceneBodies.size() ||
         combinedNv >
             std::numeric_limits<std::uint32_t>::max()) {
         fail(
@@ -514,38 +548,64 @@ solveCoupledArticulatedRigidContactsCpu(
         return diagnostics;
     }
 
-    std::vector<Quaternion> rigidOrientations(rigidBodies.size());
-    std::vector<std::array<double, 9>> rigidInverseInertias(
-        rigidBodies.size()
+    std::vector<Quaternion> sceneOrientations(sceneBodies.size());
+    std::vector<std::array<double, 9>> sceneInverseInertias(
+        sceneBodies.size()
     );
+    std::vector<std::uint32_t> sceneToDynamic(
+        sceneBodies.size(),
+        MR_INVALID_INDEX
+    );
+    std::vector<std::uint32_t> dynamicToScene;
+    dynamicToScene.reserve(dynamicSceneBodyCount);
     for (std::size_t bodyIndex = 0u;
-         bodyIndex < rigidBodies.size();
+         bodyIndex < sceneBodies.size();
          ++bodyIndex) {
-        const MRBodyStateGPU& body = rigidBodies[bodyIndex];
+        const MRBodyStateGPU& body = sceneBodies[bodyIndex];
+        const std::uint32_t motion = body.flagsAndIndices[0];
         const double inverseMass =
             body.linearVelocityAndInverseMass.w;
-        if (body.flagsAndIndices[0] != MR_MOTION_DYNAMIC ||
+        if (motion > MR_MOTION_DYNAMIC ||
             body.flagsAndIndices[1] != MR_INVALID_INDEX ||
             !finite(vector(body.position)) ||
             !finite(vector(body.linearVelocityAndInverseMass)) ||
             !finite(vector(body.angularVelocity)) ||
+            !finite(vector(body.inverseInertiaWorldRow0)) ||
+            !finite(vector(body.inverseInertiaWorldRow1)) ||
+            !finite(vector(body.inverseInertiaWorldRow2)) ||
             !finite(inverseMass) ||
-            !(inverseMass > 0.0) ||
             !quaternion(
                 body.orientation,
-                rigidOrientations[bodyIndex]
+                sceneOrientations[bodyIndex]
             ) ||
-            !validInverseInertia(
-                body,
-                rigidInverseInertias[bodyIndex]
+            (
+                motion == MR_MOTION_DYNAMIC &&
+                (
+                    !(inverseMass > 0.0) ||
+                    !validInverseInertia(
+                        body,
+                        sceneInverseInertias[bodyIndex]
+                    )
+                )
+            ) ||
+            (
+                motion != MR_MOTION_DYNAMIC &&
+                inverseMass != 0.0
             )) {
             fail(
                 diagnostics,
                 CoupledArticulatedRigidContactStatus::invalidRigidBody,
-                "rigid body must be finite, dynamic, independent, "
-                "unit-oriented, and have positive-definite inverse mass"
+                "scene body must be finite, independent, unit-oriented, "
+                "and carry mass only when dynamic"
             );
             return diagnostics;
+        }
+        if (motion == MR_MOTION_DYNAMIC) {
+            sceneToDynamic[bodyIndex] =
+                static_cast<std::uint32_t>(dynamicToScene.size());
+            dynamicToScene.push_back(
+                static_cast<std::uint32_t>(bodyIndex)
+            );
         }
     }
 
@@ -557,18 +617,59 @@ solveCoupledArticulatedRigidContactsCpu(
     std::vector<ContactFrame> frames(contacts.size());
     std::vector<ArticulatedPointQuery> articulatedQueries;
     articulatedQueries.reserve(contacts.size());
+    std::vector<std::uint32_t> articulatedQueryForContact(
+        contacts.size(),
+        MR_INVALID_INDEX
+    );
     for (std::size_t contactIndex = 0u;
          contactIndex < contacts.size();
          ++contactIndex) {
-        const CoupledArticulatedRigidContact& contact =
+        const CoupledArticulatedRigidIslandContact& contact =
             contacts[contactIndex];
-        const std::uint64_t articulatedBody =
-            contact.articulatedBody;
-        if (articulatedBody < firstBody ||
-            articulatedBody >= bodyEnd ||
-            contact.rigidBody >= rigidBodies.size() ||
-            !finite(contact.localPointArticulated) ||
-            !finite(contact.localPointRigid) ||
+        const auto validEndpoint =
+            [&](const CoupledContactEndpoint& endpoint) {
+                if (!finite(endpoint.localPoint)) {
+                    return false;
+                }
+                if (endpoint.kind ==
+                    CoupledContactEndpointKind::articulated) {
+                    return endpoint.body >= firstBody &&
+                        endpoint.body < bodyEnd;
+                }
+                if (endpoint.kind ==
+                    CoupledContactEndpointKind::sceneBody) {
+                    return endpoint.body < sceneBodies.size();
+                }
+                return false;
+            };
+        const bool articulatedA =
+            contact.endpointA.kind ==
+                CoupledContactEndpointKind::articulated;
+        const bool articulatedB =
+            contact.endpointB.kind ==
+                CoupledContactEndpointKind::articulated;
+        const bool dynamicA =
+            articulatedA ||
+            (
+                validEndpoint(contact.endpointA) &&
+                sceneBodies[contact.endpointA.body].
+                    flagsAndIndices[0] == MR_MOTION_DYNAMIC
+            );
+        const bool dynamicB =
+            articulatedB ||
+            (
+                validEndpoint(contact.endpointB) &&
+                sceneBodies[contact.endpointB.body].
+                    flagsAndIndices[0] == MR_MOTION_DYNAMIC
+            );
+        if (!validEndpoint(contact.endpointA) ||
+            !validEndpoint(contact.endpointB) ||
+            (articulatedA && articulatedB) ||
+            (
+                contact.endpointA.kind == contact.endpointB.kind &&
+                contact.endpointA.body == contact.endpointB.body
+            ) ||
+            (!dynamicA && !dynamicB) ||
             !finite(contact.targetVelocity) ||
             !finite(contact.regularization) ||
             !finite(contact.warmImpulse) ||
@@ -588,10 +689,20 @@ solveCoupledArticulatedRigidContactsCpu(
             );
             return diagnostics;
         }
-        articulatedQueries.push_back({
-            contact.articulatedBody,
-            contact.localPointArticulated,
-        });
+        if (articulatedA || articulatedB) {
+            const CoupledContactEndpoint& endpoint =
+                articulatedA
+                ? contact.endpointA
+                : contact.endpointB;
+            articulatedQueryForContact[contactIndex] =
+                static_cast<std::uint32_t>(
+                    articulatedQueries.size()
+                );
+            articulatedQueries.push_back({
+                endpoint.body,
+                endpoint.localPoint,
+            });
+        }
     }
 
     for (std::size_t limitIndex = 0u;
@@ -683,13 +794,13 @@ solveCoupledArticulatedRigidContactsCpu(
     }
 
     std::vector<ArticulatedPointKinematics> articulatedPoints(
-        contacts.size()
+        articulatedQueries.size()
     );
     std::vector<double> articulatedJacobians(
-        contacts.size() * 3u * nv,
+        articulatedQueries.size() * 3u * nv,
         0.0
     );
-    if (!contacts.empty()) {
+    if (!articulatedQueries.empty()) {
         const ArticulatedDynamicsDiagnostics kinematicsDiagnostics =
             computeArticulatedPointJacobians(
                 model,
@@ -809,12 +920,14 @@ solveCoupledArticulatedRigidContactsCpu(
         return diagnostics;
     }
 
-    for (std::size_t bodyIndex = 0u;
-         bodyIndex < rigidBodies.size();
-         ++bodyIndex) {
-        const std::size_t offset = nv + 6u * bodyIndex;
+    for (std::size_t dynamicIndex = 0u;
+         dynamicIndex < dynamicToScene.size();
+         ++dynamicIndex) {
+        const std::uint32_t bodyIndex =
+            dynamicToScene[dynamicIndex];
+        const std::size_t offset = nv + 6u * dynamicIndex;
         const double inverseMassValue =
-            rigidBodies[bodyIndex].linearVelocityAndInverseMass.w;
+            sceneBodies[bodyIndex].linearVelocityAndInverseMass.w;
         for (std::size_t axis = 0u; axis < 3u; ++axis) {
             inverseMass[
                 (offset + axis) * combinedNv + offset + axis
@@ -827,7 +940,7 @@ solveCoupledArticulatedRigidContactsCpu(
                 inverseMass[
                     (offset + 3u + row) * combinedNv +
                     offset + 3u + column
-                ] = rigidInverseInertias[bodyIndex][
+                ] = sceneInverseInertias[bodyIndex][
                     row * 3u + column
                 ];
             }
@@ -862,7 +975,8 @@ solveCoupledArticulatedRigidContactsCpu(
         freeArticulationVelocity.begin(),
         freeArticulationVelocity.end()
     );
-    for (const MRBodyStateGPU& body : rigidBodies) {
+    for (const std::uint32_t bodyIndex : dynamicToScene) {
+        const MRBodyStateGPU& body = sceneBodies[bodyIndex];
         conic.freeVelocity.push_back(
             body.linearVelocityAndInverseMass.x
         );
@@ -882,18 +996,16 @@ solveCoupledArticulatedRigidContactsCpu(
         constraintRows * combinedNv,
         0.0
     );
+    std::vector<double> prescribedContactVelocity(
+        contactRows,
+        0.0
+    );
     diagnostics.freeContactVelocity.assign(contactRows, 0.0);
     for (std::size_t contactIndex = 0u;
          contactIndex < contacts.size();
          ++contactIndex) {
-        const CoupledArticulatedRigidContact& contact =
+        const CoupledArticulatedRigidIslandContact& contact =
             contacts[contactIndex];
-        const std::size_t rigidOffset =
-            nv + 6u * contact.rigidBody;
-        const Vec3 rigidArm = rotate(
-            rigidOrientations[contact.rigidBody],
-            vector(contact.localPointRigid)
-        );
         const std::array<Vec3, 3> axes{
             frames[contactIndex].normal,
             frames[contactIndex].tangentU,
@@ -919,39 +1031,108 @@ solveCoupledArticulatedRigidContactsCpu(
                 constraintJacobian.data() + row * combinedNv,
                 combinedNv
             );
-            for (std::size_t dof = 0u; dof < nv; ++dof) {
-                const std::size_t pointBase =
-                    contactIndex * 3u * nv;
-                const Vec3 articulatedColumn{
-                    articulatedJacobians[
-                        pointBase + 0u * nv + dof
-                    ],
-                    articulatedJacobians[
-                        pointBase + 1u * nv + dof
-                    ],
-                    articulatedJacobians[
-                        pointBase + 2u * nv + dof
-                    ],
+            const std::array<const CoupledContactEndpoint*, 2>
+                endpoints{
+                    &contact.endpointA,
+                    &contact.endpointB,
                 };
-                jacobianRow[dof] =
-                    -dot(axis, articulatedColumn);
+            const std::array<double, 2> signs{-1.0, 1.0};
+            Vec3 prescribedRelative{};
+            for (std::size_t endpointIndex = 0u;
+                 endpointIndex < endpoints.size();
+                 ++endpointIndex) {
+                const CoupledContactEndpoint& endpoint =
+                    *endpoints[endpointIndex];
+                const double sign = signs[endpointIndex];
+                if (endpoint.kind ==
+                    CoupledContactEndpointKind::articulated) {
+                    const std::uint32_t queryIndex =
+                        articulatedQueryForContact[contactIndex];
+                    if (queryIndex == MR_INVALID_INDEX ||
+                        queryIndex >= articulatedQueries.size()) {
+                        fail(
+                            diagnostics,
+                            CoupledArticulatedRigidContactStatus::
+                                nonfiniteResult,
+                            "articulated endpoint lost its point query"
+                        );
+                        return diagnostics;
+                    }
+                    const std::size_t pointBase =
+                        static_cast<std::size_t>(queryIndex) *
+                        3u * nv;
+                    for (std::size_t dof = 0u;
+                         dof < nv;
+                         ++dof) {
+                        const Vec3 articulatedColumn{
+                            articulatedJacobians[
+                                pointBase + 0u * nv + dof
+                            ],
+                            articulatedJacobians[
+                                pointBase + 1u * nv + dof
+                            ],
+                            articulatedJacobians[
+                                pointBase + 2u * nv + dof
+                            ],
+                        };
+                        jacobianRow[dof] +=
+                            sign * dot(axis, articulatedColumn);
+                    }
+                    continue;
+                }
+
+                const std::uint32_t bodyIndex = endpoint.body;
+                const MRBodyStateGPU& body =
+                    sceneBodies[bodyIndex];
+                const std::uint32_t dynamicIndex =
+                    sceneToDynamic[bodyIndex];
+                if (dynamicIndex == MR_INVALID_INDEX) {
+                    prescribedRelative =
+                        prescribedRelative +
+                        sign * scenePointVelocity(
+                            body,
+                            sceneOrientations[bodyIndex],
+                            endpoint.localPoint
+                        );
+                    continue;
+                }
+
+                const std::size_t bodyOffset =
+                    nv + 6u * dynamicIndex;
+                jacobianRow[bodyOffset + 0u] +=
+                    sign * axis.x;
+                jacobianRow[bodyOffset + 1u] +=
+                    sign * axis.y;
+                jacobianRow[bodyOffset + 2u] +=
+                    sign * axis.z;
+                const Vec3 arm = rotate(
+                    sceneOrientations[bodyIndex],
+                    vector(endpoint.localPoint)
+                );
+                const Vec3 angularColumn =
+                    sign * cross(arm, axis);
+                jacobianRow[bodyOffset + 3u] +=
+                    angularColumn.x;
+                jacobianRow[bodyOffset + 4u] +=
+                    angularColumn.y;
+                jacobianRow[bodyOffset + 5u] +=
+                    angularColumn.z;
             }
-            jacobianRow[rigidOffset + 0u] = axis.x;
-            jacobianRow[rigidOffset + 1u] = axis.y;
-            jacobianRow[rigidOffset + 2u] = axis.z;
-            const Vec3 angularColumn = cross(rigidArm, axis);
-            jacobianRow[rigidOffset + 3u] = angularColumn.x;
-            jacobianRow[rigidOffset + 4u] = angularColumn.y;
-            jacobianRow[rigidOffset + 5u] = angularColumn.z;
             std::ranges::copy(jacobianRow, blockRows[axisIndex].begin());
+            prescribedContactVelocity[row] =
+                dot(prescribedRelative, axis);
             for (std::size_t dof = 0u;
                  dof < combinedNv;
                  ++dof) {
                 diagnostics.freeContactVelocity[row] +=
                     jacobianRow[dof] * conic.freeVelocity[dof];
             }
+            diagnostics.freeContactVelocity[row] +=
+                prescribedContactVelocity[row];
+            block.targetVelocity[axisIndex] =
+                contact.targetVelocity[axisIndex] -
+                prescribedContactVelocity[row];
         }
-        block.targetVelocity = contact.targetVelocity;
         block.regularization = contact.regularization;
         block.warmImpulse = contact.warmImpulse;
         block.friction = contact.friction;
@@ -1054,6 +1235,8 @@ solveCoupledArticulatedRigidContactsCpu(
 
     diagnostics.postContactVelocity.assign(contactRows, 0.0);
     for (std::size_t row = 0u; row < contactRows; ++row) {
+        diagnostics.postContactVelocity[row] =
+            prescribedContactVelocity[row];
         for (std::size_t dof = 0u; dof < combinedNv; ++dof) {
             diagnostics.postContactVelocity[row] +=
                 constraintJacobian[row * combinedNv + dof] *
@@ -1130,12 +1313,27 @@ solveCoupledArticulatedRigidContactsCpu(
             static_cast<std::ptrdiff_t>(nv)
     );
     std::vector<CoupledRigidBodyVelocity> candidateRigid(
-        rigidBodies.size()
+        sceneBodies.size()
     );
     for (std::size_t bodyIndex = 0u;
-         bodyIndex < rigidBodies.size();
+         bodyIndex < sceneBodies.size();
          ++bodyIndex) {
-        const std::size_t offset = nv + 6u * bodyIndex;
+        candidateRigid[bodyIndex].linear = {
+            sceneBodies[bodyIndex].linearVelocityAndInverseMass.x,
+            sceneBodies[bodyIndex].linearVelocityAndInverseMass.y,
+            sceneBodies[bodyIndex].linearVelocityAndInverseMass.z,
+        };
+        candidateRigid[bodyIndex].angular = {
+            sceneBodies[bodyIndex].angularVelocity.x,
+            sceneBodies[bodyIndex].angularVelocity.y,
+            sceneBodies[bodyIndex].angularVelocity.z,
+        };
+        const std::uint32_t dynamicIndex =
+            sceneToDynamic[bodyIndex];
+        if (dynamicIndex == MR_INVALID_INDEX) {
+            continue;
+        }
+        const std::size_t offset = nv + 6u * dynamicIndex;
         candidateRigid[bodyIndex].linear = {
             diagnostics.quality.velocity[offset + 0u],
             diagnostics.quality.velocity[offset + 1u],
@@ -1204,9 +1402,63 @@ solveCoupledArticulatedRigidContactsCpu(
     );
     std::ranges::copy(
         candidateRigid,
-        postRigidVelocities.begin()
+        postSceneBodyVelocities.begin()
     );
     return diagnostics;
+}
+
+CoupledArticulatedRigidContactDiagnostics
+solveCoupledArticulatedRigidContactsCpu(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const std::span<const double> q,
+    const std::span<const double> freeArticulationVelocity,
+    const std::span<const MRBodyStateGPU> rigidBodies,
+    const std::span<const CoupledArticulatedRigidContact> contacts,
+    const std::span<double> postArticulationVelocity,
+    const std::span<CoupledRigidBodyVelocity> postRigidVelocities,
+    const ArticulatedDynamicsConfig& dynamicsConfig,
+    const QualityContactSolverConfig& solverConfig,
+    const std::span<const ArticulatedJointLimitRow> jointLimitRows,
+    const std::span<const double> jointLimitWarmImpulses
+) {
+    std::vector<CoupledArticulatedRigidIslandContact> islandContacts;
+    islandContacts.reserve(contacts.size());
+    for (const CoupledArticulatedRigidContact& contact : contacts) {
+        islandContacts.push_back({
+            .endpointA = {
+                .kind = CoupledContactEndpointKind::articulated,
+                .body = contact.articulatedBody,
+                .localPoint = contact.localPointArticulated,
+            },
+            .endpointB = {
+                .kind = CoupledContactEndpointKind::sceneBody,
+                .body = contact.rigidBody,
+                .localPoint = contact.localPointRigid,
+            },
+            .normal = contact.normal,
+            .tangentU = contact.tangentU,
+            .tangentV = contact.tangentV,
+            .targetVelocity = contact.targetVelocity,
+            .regularization = contact.regularization,
+            .warmImpulse = contact.warmImpulse,
+            .friction = contact.friction,
+        });
+    }
+    return solveCoupledArticulatedRigidIslandCpu(
+        model,
+        articulationIndex,
+        q,
+        freeArticulationVelocity,
+        rigidBodies,
+        islandContacts,
+        postArticulationVelocity,
+        postRigidVelocities,
+        dynamicsConfig,
+        solverConfig,
+        jointLimitRows,
+        jointLimitWarmImpulses
+    );
 }
 
 } // namespace metalrobo

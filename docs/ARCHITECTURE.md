@@ -122,15 +122,20 @@ inertia are derived from explicit geometry and named research density/profile
 defaults. These are rigid research/training assets: there is no suture strand,
 tissue, puncture, cutting, biomechanical, or clinical model.
 
-`stepArticulatedRigidWorldCpu` is the first transactional mixed
-articulation/free-object world. For exactly one articulation and one or more
-independent dynamic rigid bodies, it:
+`stepArticulatedRigidWorldCpu` is the transactional mixed
+articulation/maximal-coordinate world. It accepts exactly one articulation
+and an external scene containing dynamic, static, and kinematic bodies, with
+at least one dynamic body. In one step it:
 
-1. predicts articulated and rigid free velocities without advancing pose;
-2. generates actual cross-system collision manifolds and contact semantics;
+1. predicts articulated and dynamic-body free velocities without advancing
+   pose while preserving static/kinematic point velocities;
+2. generates one deterministic collision stream for
+   articulation-dynamic, articulation-prescribed, dynamic-dynamic, and
+   dynamic-prescribed pairs;
 3. compiles active articulated position stops;
 4. solves contact and stops simultaneously through one block inverse-mass
-   operator and exact circular Coulomb cones;
+   operator and exact circular Coulomb cones, compacting only dynamic scene
+   bodies into solver coordinates;
 5. integrates every configuration exactly once; and
 6. atomically publishes state, manifolds, world-space contact warm starts,
    scalar limit warm starts, and dwell-filtered grasp evidence.
@@ -141,18 +146,26 @@ post-solve tangential slip, and consecutive qualifying steps. It never creates
 a weld, attachment, or hidden force. Grasp dwell is keyed by the model, jaw
 configuration, thresholds, rigid slot, and participating shape generations,
 so it cannot carry across a replaced object or changed grasp definition.
-The physical default preserves all assembled contact witnesses. A caller may
-explicitly request deterministic deepest-point conditioning per
-articulated/rigid body pair; the needle probe uses this opt-in to keep
-near-duplicate compound witnesses from dominating its small dense island.
+The physical default preserves assembled witnesses. A caller may explicitly
+request deterministic deepest-point conditioning per canonical endpoint-body
+pair; the needle probes use one witness per pair so adjacent compound needle
+segments do not dominate the small dense solve. Contact warm-start identity
+includes endpoint kind, source body/shape/feature, slot generation, motion
+type, and articulation index, so replacement or dynamic/prescribed role
+changes cannot inherit stale impulses.
 
-The current mixed world deliberately handles only articulation-to-dynamic
-rigid contacts. Rigid-rigid contacts, static support/fixture contacts in the
-same island, multiple articulations, CCD/conservative substepping, and a
-device-resident Metal composition remain open. The sub-millimetre needle can
-therefore tunnel during a fast approach, and the current pickup probe begins
-from a valid two-jaw contact placement rather than claiming approach
-robustness.
+The supported pickup probe settles the procedural needle on six independently
+owned static support bodies, approaches with open jaws, closes on an authored
+COM-near grasp-zone segment, transfers load, and clears the fixture during an
+8 mm lift. Grasp classification remains evidence only and rollback includes
+all mixed-body state and cache streams.
+
+The current mixed world is CPU FP64, contains one articulation, and uses
+three-row point Coulomb contacts. Multiple articulations, finite jaw-patch
+and rolling/torsional resistance, CCD/conservative substepping, and a
+device-resident Metal composition remain open. The supported pickup therefore
+uses a slow conservative-discrete approach/lift and makes no high-speed
+time-of-impact claim.
 
 ### Generic maximal-coordinate rigid-body world
 

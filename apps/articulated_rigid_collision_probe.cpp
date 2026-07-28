@@ -162,6 +162,69 @@ MRBodyStateGPU makeNeedleState(
     return result;
 }
 
+MRBodyStateGPU makeSphereBody(
+    const Vec3 position,
+    const Vec3 velocity,
+    const std::uint32_t motionType,
+    const std::uint32_t generation
+) {
+    MRBodyStateGPU result{};
+    result.position = f4(position, 1.0);
+    result.orientation = f4({0.0, 0.0, 0.0}, 1.0);
+    result.linearVelocityAndInverseMass = f4(
+        velocity,
+        motionType == MR_MOTION_DYNAMIC ? 1.0 : 0.0
+    );
+    result.angularVelocity = f4({0.0, 0.0, 0.0});
+    if (motionType == MR_MOTION_DYNAMIC) {
+        result.inverseInertiaWorldRow0 =
+            {10.0F, 0.0F, 0.0F, 0.0F};
+        result.inverseInertiaWorldRow1 =
+            {0.0F, 10.0F, 0.0F, 0.0F};
+        result.inverseInertiaWorldRow2 =
+            {0.0F, 0.0F, 10.0F, 0.0F};
+    }
+    result.flagsAndIndices[0] = motionType;
+    result.flagsAndIndices[1] = MR_INVALID_INDEX;
+    result.flagsAndIndices[2] = generation;
+    return result;
+}
+
+MRShapeGPU makeSphereShape(
+    const std::uint32_t body,
+    const std::uint32_t generation
+) {
+    MRShapeGPU result{};
+    result.bodyIndex = body;
+    result.shapeType = MR_SHAPE_SPHERE;
+    result.materialIndex = 0u;
+    result.collisionGroup = 1u;
+    result.collisionMask = ~0u;
+    result.slotGeneration = generation;
+    result.localPosition = f4({0.0, 0.0, 0.0}, 1.0);
+    result.localRotation = f4({0.0, 0.0, 0.0}, 1.0);
+    result.dimensions = {
+        0.5F,
+        0.0F,
+        0.0F,
+        0.0F,
+    };
+    result.contactRestAndBoundingRadius = {
+        0.0F,
+        0.0F,
+        0.5F,
+        0.0F,
+    };
+    return result;
+}
+
+MRMaterialGPU makeSphereMaterial() {
+    MRMaterialGPU result{};
+    result.friction = {0.6F, 0.5F, 0.0F, 0.0F};
+    result.response = {0.0F, 0.05F, 1.0e-8F, 0.0F};
+    return result;
+}
+
 std::vector<metalrobo::ArticulatedRigidContactWarmStart>
 makeWarmStarts(
     const metalrobo::ArticulatedRigidCollisionResult& collision
@@ -497,6 +560,132 @@ int main() {
             "duplicate warm key violated transactionality"
         );
 
+        const std::array<MRBodyStateGPU, 3> sceneBodies{{
+            makeSphereBody(
+                {10.0, 0.0, 0.0},
+                {0.5, 0.0, 0.0},
+                MR_MOTION_DYNAMIC,
+                51001u
+            ),
+            makeSphereBody(
+                {10.9, 0.0, 0.0},
+                {0.0, 0.0, 0.0},
+                MR_MOTION_DYNAMIC,
+                51002u
+            ),
+            makeSphereBody(
+                {11.8, 0.0, 0.0},
+                {-0.1, 0.0, 0.0},
+                MR_MOTION_KINEMATIC,
+                51003u
+            ),
+        }};
+        const std::array<MRShapeGPU, 3> sceneShapes{{
+            makeSphereShape(0u, 61001u),
+            makeSphereShape(1u, 61002u),
+            makeSphereShape(2u, 61003u),
+        }};
+        const std::array<MRMaterialGPU, 1> sceneMaterials{{
+            makeSphereMaterial(),
+        }};
+        metalrobo::PersistentManifoldCache islandCache;
+        const auto island =
+            metalrobo::collideArticulatedRigidIslandContactsCpu(
+                model,
+                0u,
+                q,
+                velocity,
+                sceneShapes,
+                sceneMaterials,
+                sceneBodies,
+                islandCache,
+                config
+            );
+        require(
+            island.succeeded() &&
+                island.contacts.size() == 2u &&
+                island.diagnostics.dynamicDynamicContactCount == 1u &&
+                island.diagnostics.dynamicPrescribedContactCount == 1u &&
+                island.diagnostics.articulatedDynamicContactCount == 0u &&
+                island.diagnostics.articulatedPrescribedContactCount == 0u,
+            "full-scene adapter did not emit both rigid pair classes"
+        );
+        std::vector<
+            metalrobo::ArticulatedRigidIslandContactWarmStart>
+            islandWarmStarts;
+        islandWarmStarts.reserve(island.contacts.size());
+        for (const auto& metadata : island.metadata) {
+            islandWarmStarts.push_back({
+                .key = metadata.key,
+                .worldImpulseOnB = {1.0e-5, 0.0, 0.0},
+            });
+        }
+        const auto warmedIsland =
+            metalrobo::collideArticulatedRigidIslandContactsCpu(
+                model,
+                0u,
+                q,
+                velocity,
+                sceneShapes,
+                sceneMaterials,
+                sceneBodies,
+                islandCache,
+                config,
+                islandWarmStarts
+            );
+        require(
+            warmedIsland.succeeded() &&
+                warmedIsland.diagnostics.matchedWarmStartCount ==
+                    warmedIsland.contacts.size(),
+            "full-scene warm starts did not rematch"
+        );
+
+        std::vector<double> islandPostArticulation(
+            model.world.nv,
+            -99.0
+        );
+        std::array<metalrobo::CoupledRigidBodyVelocity, 3>
+            islandPostScene{};
+        metalrobo::QualityContactSolverConfig islandSolverConfig;
+        islandSolverConfig.maximumIterations = 1000u;
+        islandSolverConfig.kktTolerance = 1.0e-9;
+        const auto islandSolve =
+            metalrobo::solveCoupledArticulatedRigidIslandCpu(
+                model,
+                0u,
+                q,
+                velocity,
+                sceneBodies,
+                warmedIsland.contacts,
+                islandPostArticulation,
+                islandPostScene,
+                {},
+                islandSolverConfig
+            );
+        require(
+            islandSolve.succeeded() &&
+                islandSolve.dynamicRigidBodyCount == 2u &&
+                islandSolve.prescribedRigidBodyCount == 1u &&
+                islandSolve.impulses.size() == 6u &&
+                std::ranges::all_of(
+                    islandPostArticulation,
+                    [](const double item) {
+                        return std::abs(item) < 1.0e-12;
+                    }
+                ) &&
+                std::abs(
+                    islandPostScene[2u].linear[0u] + 0.1
+                ) < 1.0e-7 &&
+                std::abs(islandPostScene[2u].linear[1u]) <
+                    1.0e-12 &&
+                std::abs(islandPostScene[2u].linear[2u]) <
+                    1.0e-12 &&
+                islandPostScene[2u].angular ==
+                    std::array<double, 3>{0.0, 0.0, 0.0},
+            "generic mixed solver did not consume both rigid pair classes: " +
+                islandSolve.failure
+        );
+
         std::cout
             << std::setprecision(12)
             << "articulated_rigid_collision"
@@ -512,6 +701,13 @@ int main() {
             << first.diagnostics.maximumPenetration
             << " normal_impulse=" << solve.impulses[0]
             << " cache_entries=" << cache.size()
+            << " island_contacts=" << island.contacts.size()
+            << " dynamic_dynamic="
+            << island.diagnostics.dynamicDynamicContactCount
+            << " dynamic_prescribed="
+            << island.diagnostics.dynamicPrescribedContactCount
+            << " island_warm_matches="
+            << warmedIsland.diagnostics.matchedWarmStartCount
             << " status=ok\n";
         return 0;
     } catch (const std::exception& exception) {
