@@ -436,6 +436,11 @@ def main() -> None:
         > 0,
         "PSM plus dynamic curved needle did not execute in MLX",
     )
+    require(
+        psm_result.sensors.shape == (2, 8)
+        and min(psm_result.sensors[:, 7].tolist()) > 0.0,
+        "fixed-base PSM did not publish common contact sensors",
+    )
 
     autodiff_rejected = False
     try:

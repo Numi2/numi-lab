@@ -344,7 +344,7 @@ def step(
             ),
         )
 
-    if world.floating_root:
+    if world.floating_root or world.contact_supported:
         valid_contacts = contacts.mask.astype(mx.float32)
         normal_load = (
             mx.sum(
@@ -361,7 +361,14 @@ def step(
         )
         sensors = mx.concatenate(
             (
-                acceleration[:, :6],
+                (
+                    acceleration[:, :6]
+                    if world.floating_root
+                    else mx.zeros(
+                        (environment_count, 6),
+                        dtype=mx.float32,
+                    )
+                ),
                 normal_load,
                 active_contact_count,
             ),

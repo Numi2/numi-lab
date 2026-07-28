@@ -122,7 +122,8 @@ linked or called at runtime.
   exact-CCD shape flags, persistent contact state, and a pure-array logical
   aperture-to-independent-jaw target map; a physics-owned needle hold/lift
   PPO task scores measured rigid-body pose and contact evidence without a
-  weld or hidden grasp state
+  weld or hidden grasp state. Fixed- and floating-base contact worlds share
+  an eight-channel acceleration/load/contact sensor summary
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication

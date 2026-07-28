@@ -86,7 +86,9 @@ output = step(
 
 `StepOutput` contains next state, observations, typed status,
 `physics_error`, acceleration, and fixed-capacity contact evidence with
-stable IDs, counts, and masks.
+stable IDs, counts, and masks. Every contact world also returns the common
+eight-channel sensor summary: floating-root linear/angular acceleration (zero
+for fixed-base robots), aggregate normal load, and active-contact count.
 Reset masks and randomized reset state are explicit MLX inputs.
 
 The active-encoder primitive supports Franka, G1, and PSM through the same
