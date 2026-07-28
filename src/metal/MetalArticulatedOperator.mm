@@ -484,6 +484,14 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             "pointCount does not fit the GPU dispatch ABI"
         );
     }
+    if (input.pointCount >
+        MR_ARTICULATED_OPERATOR_MAX_POINTS) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::capacityOverflow,
+            "pointCount exceeds the compiled operator capacity"
+        );
+    }
 
     const MRArticulationGPU& articulation =
         model.articulations[input.articulationIndex];
