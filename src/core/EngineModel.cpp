@@ -296,6 +296,22 @@ bool EngineModel::valid(std::string* reason) const {
         })) {
         return fail(reason, "default generalized state is non-finite");
     }
+    const ConstraintIRDiagnostics constraintDiagnostics =
+        validateConstraintIR(constraintProgram);
+    if (!constraintDiagnostics.succeeded()) {
+        return fail(
+            reason,
+            "constraint program is invalid: " +
+                constraintDiagnostics.message
+        );
+    }
+    if (constraintProgram.blocks.size() >
+        world.constraintCapacity) {
+        return fail(
+            reason,
+            "constraint program exceeds the world block capacity"
+        );
+    }
 
     std::vector<std::uint8_t> bodyOwner(bodies.size(), 0u);
     std::vector<std::uint8_t> qOwner(defaultQ.size(), 0u);
@@ -853,6 +869,66 @@ bool EngineModel::valid(std::string* reason) const {
             }
         } else if (shape.geometryCount != 0u) {
             return fail(reason, "primitive shape references cooked geometry");
+        }
+    }
+
+    for (const ConstraintIRBlock& block :
+         constraintProgram.blocks) {
+        for (std::uint32_t local = 0u;
+             local < block.endpointCount;
+             ++local) {
+            const ConstraintIREndpoint& endpoint =
+                constraintProgram.endpoints[
+                    block.endpointOffset + local
+                ];
+            if (endpoint.jacobianKind ==
+                constraintIRJacobianGeneralized) {
+                if (endpoint.objectIndex >= dofs.size() ||
+                    endpoint.articulationIndex >=
+                        articulations.size() ||
+                    dofs[endpoint.objectIndex]
+                            .articulationIndex !=
+                        endpoint.articulationIndex) {
+                    return fail(
+                        reason,
+                        "constraint generalized endpoint ownership "
+                        "is invalid"
+                    );
+                }
+                if ((endpoint.flags &
+                     constraintIREndpointQIndexValid) != 0u) {
+                    const MRArticulationGPU& owner =
+                        articulations[
+                            endpoint.articulationIndex
+                        ];
+                    if (endpoint.linkIndex < owner.qOffset ||
+                        endpoint.linkIndex >=
+                            owner.qOffset + owner.nq) {
+                        return fail(
+                            reason,
+                            "constraint generalized q endpoint "
+                            "is outside its articulation"
+                        );
+                    }
+                }
+                continue;
+            }
+            if (endpoint.role != constraintIREndpointWorld &&
+                endpoint.objectIndex >= bodies.size()) {
+                return fail(
+                    reason,
+                    "constraint spatial endpoint body is invalid"
+                );
+            }
+            if (endpoint.articulationIndex != MR_INVALID_INDEX &&
+                endpoint.articulationIndex >=
+                    articulations.size()) {
+                return fail(
+                    reason,
+                    "constraint spatial endpoint articulation "
+                    "is invalid"
+                );
+            }
         }
     }
 

@@ -401,6 +401,12 @@ void writeEngineModel(
     writer.podVector(model.convexHalfEdges);
     writer.podVector(model.meshBvhNodes);
     writer.podVector(model.meshTriangles);
+    writer.pod(model.constraintProgram.abiVersion);
+    writer.podVector(model.constraintProgram.blocks);
+    writer.podVector(model.constraintProgram.endpoints);
+    writer.podVector(model.constraintProgram.rows);
+    writer.podVector(model.constraintProgram.cones);
+    writer.podVector(model.constraintProgram.warmImpulses);
     writer.podVector(model.defaultQ);
     writer.podVector(model.defaultV);
     writer.string(model.name);
@@ -424,6 +430,12 @@ bool readEngineModel(
         reader.podVector(model.convexHalfEdges) &&
         reader.podVector(model.meshBvhNodes) &&
         reader.podVector(model.meshTriangles) &&
+        reader.pod(model.constraintProgram.abiVersion) &&
+        reader.podVector(model.constraintProgram.blocks) &&
+        reader.podVector(model.constraintProgram.endpoints) &&
+        reader.podVector(model.constraintProgram.rows) &&
+        reader.podVector(model.constraintProgram.cones) &&
+        reader.podVector(model.constraintProgram.warmImpulses) &&
         reader.podVector(model.defaultQ) &&
         reader.podVector(model.defaultV) &&
         reader.string(model.name);

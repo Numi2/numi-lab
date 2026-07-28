@@ -695,6 +695,12 @@ std::uint64_t fingerprint(const EngineModel& model) {
     hashVector(hash, model.convexHalfEdges);
     hashVector(hash, model.meshBvhNodes);
     hashVector(hash, model.meshTriangles);
+    hashValue(hash, model.constraintProgram.abiVersion);
+    hashVector(hash, model.constraintProgram.blocks);
+    hashVector(hash, model.constraintProgram.endpoints);
+    hashVector(hash, model.constraintProgram.rows);
+    hashVector(hash, model.constraintProgram.cones);
+    hashVector(hash, model.constraintProgram.warmImpulses);
     hashVector(hash, model.defaultQ);
     hashVector(hash, model.defaultV);
     hashValue(hash, model.name.size());
@@ -7632,6 +7638,14 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             staged.eligiblePairs_.size();
         const std::uint32_t eligibleU32 =
             static_cast<std::uint32_t>(eligibleCount);
+        const std::uint32_t authoredBlockCount =
+            static_cast<std::uint32_t>(
+                staged.model_.constraintProgram.blocks.size()
+            );
+        const std::uint32_t authoredRowCount =
+            static_cast<std::uint32_t>(
+                staged.model_.constraintProgram.rows.size()
+            );
         const std::uint64_t pointJacobianWordsPerConstraint =
             6ull * staged.model_.articulations[articulationIndex].nv;
         const std::uint32_t maximumConstraintCapacity =
@@ -7641,6 +7655,14 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                   std::numeric_limits<std::uint32_t>::max() /
                   pointJacobianWordsPerConstraint
               );
+        if (authoredBlockCount > maximumConstraintCapacity) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::capacityOverflow,
+                "authored mechanism program exceeds Metal "
+                "constraint addressing"
+            );
+        }
         const std::uint32_t defaultRaw =
             static_cast<std::uint32_t>(
                 std::max<std::uint64_t>(
@@ -7652,15 +7674,19 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                     )
                 )
             );
-        const std::uint32_t defaultConstraints =
+        const std::uint32_t defaultContactConstraints =
             static_cast<std::uint32_t>(
-                std::max<std::uint64_t>(
-                    1u,
-                    std::min<std::uint64_t>(
-                        4u * eligibleCount,
-                        maximumConstraintCapacity
-                    )
+                std::min<std::uint64_t>(
+                    4u * eligibleCount,
+                    maximumConstraintCapacity -
+                        authoredBlockCount
                 )
+            );
+        const std::uint32_t defaultConstraints =
+            std::max<std::uint32_t>(
+                authoredBlockCount +
+                    defaultContactConstraints,
+                1u
             );
         staged.capacities_.candidatePairs = inferred(
             requestedCapacities.candidatePairs,
@@ -7678,8 +7704,21 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             requestedCapacities.constraintBlocks,
             defaultConstraints
         );
+        if (staged.capacities_.constraintBlocks <
+            authoredBlockCount) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::capacityOverflow,
+                "constraint block capacity cannot hold the "
+                "authored mechanism program"
+            );
+        }
         const std::uint64_t requiredRows =
-            3ull * staged.capacities_.constraintBlocks;
+            authoredRowCount +
+            3ull * (
+                staged.capacities_.constraintBlocks -
+                authoredBlockCount
+            );
         if (requiredRows >
             std::numeric_limits<std::uint32_t>::max()) {
             return rejectCompile(
@@ -7750,7 +7789,11 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             .rawContacts = defaultRaw,
             .manifolds = std::max(eligibleU32, 1u),
             .constraintBlocks = defaultConstraints,
-            .constraintRows = 3u * defaultConstraints,
+            .constraintRows =
+                authoredRowCount +
+                3u * (
+                    defaultConstraints - authoredBlockCount
+                ),
             .islands = std::max(
                 staged.model_.world.islandCapacity,
                 static_cast<std::uint32_t>(

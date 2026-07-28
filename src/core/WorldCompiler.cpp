@@ -219,6 +219,22 @@ void appendEngineModel(HashBuilder& hash, const EngineModel& model) {
     hash.appendSpan<MRConvexHalfEdgeGPU>(model.convexHalfEdges);
     hash.appendSpan<MRMeshBVHNodeGPU>(model.meshBvhNodes);
     hash.appendSpan<MRMeshTriangleGPU>(model.meshTriangles);
+    hash.appendScalar(model.constraintProgram.abiVersion);
+    hash.appendSpan<ConstraintIRBlock>(
+        model.constraintProgram.blocks
+    );
+    hash.appendSpan<ConstraintIREndpoint>(
+        model.constraintProgram.endpoints
+    );
+    hash.appendSpan<ConstraintIRRow>(
+        model.constraintProgram.rows
+    );
+    hash.appendSpan<ConstraintIRCone>(
+        model.constraintProgram.cones
+    );
+    hash.appendSpan<float>(
+        model.constraintProgram.warmImpulses
+    );
     hash.appendSpan<float>(model.defaultQ);
     hash.appendSpan<float>(model.defaultV);
 }

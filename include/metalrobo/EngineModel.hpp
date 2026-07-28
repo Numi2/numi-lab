@@ -1,5 +1,6 @@
 #pragma once
 
+#include "metalrobo/ConstraintIR.hpp"
 #include "metalrobo/engine_types.h"
 
 #include <cstdint>
@@ -32,6 +33,10 @@ struct EngineModel {
     std::vector<MRConvexHalfEdgeGPU> convexHalfEdges;
     std::vector<MRMeshBVHNodeGPU> meshBvhNodes;
     std::vector<MRMeshTriangleGPU> meshTriangles;
+    // Immutable authored mechanism program. Contact blocks remain dynamic,
+    // while limits, equality/loop rows, gears, tendons, RCM constraints, and
+    // calibrated bounded friction travel with the model and world pack.
+    ConstraintIR constraintProgram;
     std::vector<float> defaultQ;
     std::vector<float> defaultV;
     std::string name;
