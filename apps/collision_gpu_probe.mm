@@ -2546,6 +2546,16 @@ int main() {
             pairCapacity,
             contactCapacity
         );
+        if (first.status.code != MR_STEP_SUCCESS) {
+            std::cerr
+                << "collision_baseline_code="
+                << first.status.code
+                << " required_pairs="
+                << first.status.requiredPairs
+                << " required_contacts="
+                << first.status.requiredContacts
+                << '\n';
+        }
         require(
             first.status.code == MR_STEP_SUCCESS,
             "Metal collision baseline did not succeed"

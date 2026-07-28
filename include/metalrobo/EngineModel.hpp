@@ -2,6 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -21,6 +22,16 @@ struct EngineModel {
     std::vector<MRBodyPropertiesGPU> bodies;
     std::vector<MRShapeGPU> shapes;
     std::vector<MRMaterialGPU> materials;
+    // Cooker-owned immutable geometry arenas. MRShapeGPU::geometryOffset
+    // indexes geometryHeaders; every nested offset is relative to the
+    // corresponding typed arena below.
+    std::vector<MRGeometryHeaderGPU> geometryHeaders;
+    std::vector<mr_float4> geometryVertices;
+    std::vector<std::uint32_t> geometryIndices;
+    std::vector<MRConvexFaceGPU> convexFaces;
+    std::vector<MRConvexHalfEdgeGPU> convexHalfEdges;
+    std::vector<MRMeshBVHNodeGPU> meshBvhNodes;
+    std::vector<MRMeshTriangleGPU> meshTriangles;
     std::vector<float> defaultQ;
     std::vector<float> defaultV;
     std::string name;

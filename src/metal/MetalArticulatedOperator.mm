@@ -477,13 +477,11 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         );
     }
     if (input.pointCount >
-            MR_ARTICULATED_OPERATOR_MAX_POINTS ||
-        input.pointCount >
-            std::numeric_limits<mr_u32>::max()) {
+        std::numeric_limits<mr_u32>::max()) {
         return reject(
             std::move(diagnostics),
-            MetalArticulatedOperatorHostStatus::capacityOverflow,
-            "pointCount exceeds the articulated operator bucket"
+            MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+            "pointCount does not fit the GPU dispatch ABI"
         );
     }
 

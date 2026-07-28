@@ -24,6 +24,10 @@ public:
         float controlTimestep,
         std::uint32_t physicsSubsteps,
         bool applyBodyDamping,
+        std::uint32_t environmentCapacity,
+        MetalWorldSolverMode solverMode,
+        MetalWorldCCDMode ccdMode,
+        std::vector<MRBodyStateGPU> defaultSceneBodies,
         std::string metallibPath
     );
     ~MLXCompiledWorld();
@@ -35,11 +39,17 @@ public:
     [[nodiscard]] float controlTimestep() const noexcept;
     [[nodiscard]] std::uint32_t physicsSubsteps() const noexcept;
     [[nodiscard]] bool applyBodyDamping() const noexcept;
+    [[nodiscard]] std::uint32_t environmentCapacity() const noexcept;
+    [[nodiscard]] MetalWorldSolverMode solverMode() const noexcept;
+    [[nodiscard]] MetalWorldCCDMode ccdMode() const noexcept;
+    [[nodiscard]] const std::vector<MRBodyStateGPU>&
+    defaultSceneBodies() const noexcept;
     [[nodiscard]] const std::string& metallibPath() const noexcept;
     [[nodiscard]] std::vector<float> defaultQ() const;
     [[nodiscard]] std::vector<float> defaultV() const;
     [[nodiscard]] std::vector<float> effortLimits() const;
 
+    void prepareStream(mx::StreamOrDevice stream = {});
     MetalResources& resources(mx::metal::Device& device);
 
 private:
@@ -47,6 +57,11 @@ private:
     float controlTimestep_ = 0.0f;
     std::uint32_t physicsSubsteps_ = 0u;
     bool applyBodyDamping_ = true;
+    std::uint32_t environmentCapacity_ = 0u;
+    MetalWorldSolverMode solverMode_ =
+        MetalWorldSolverMode::freeMotionABA;
+    MetalWorldCCDMode ccdMode_ = MetalWorldCCDMode::disabled;
+    std::vector<MRBodyStateGPU> defaultSceneBodies_;
     std::string metallibPath_;
     std::mutex resourceMutex_;
     std::unique_ptr<MetalResources> resources_;
@@ -54,10 +69,16 @@ private:
 
 [[nodiscard]] std::shared_ptr<MLXCompiledWorld> compileWorld(
     const std::string& model,
+    const std::string& scene,
+    std::uint32_t environmentCapacity,
+    MetalWorldCapacityProfile capacityProfile,
     float controlTimestep,
     std::uint32_t physicsSubsteps,
     bool applyBodyDamping,
-    const std::string& metallibPath
+    const std::string& solverMode,
+    const std::string& ccdMode,
+    const std::string& metallibPath,
+    mx::StreamOrDevice stream = {}
 );
 
 [[nodiscard]] std::vector<mx::array> abaStep(
@@ -65,6 +86,22 @@ private:
     const mx::array& q,
     const mx::array& v,
     const mx::array& effort,
+    mx::StreamOrDevice stream = {}
+);
+
+[[nodiscard]] std::vector<mx::array> worldStep(
+    const std::shared_ptr<MLXCompiledWorld>& world,
+    const mx::array& q,
+    const mx::array& v,
+    const mx::array& effort,
+    const mx::array& scenePosition,
+    const mx::array& sceneOrientation,
+    const mx::array& sceneLinearVelocity,
+    const mx::array& sceneAngularVelocity,
+    const mx::array& manifoldHeaders,
+    const mx::array& manifoldPoints,
+    const mx::array& manifoldCounts,
+    const mx::array& pairCache,
     mx::StreamOrDevice stream = {}
 );
 
@@ -80,6 +117,47 @@ private:
 class ABAWorldStepPrimitive final : public mx::Primitive {
 public:
     ABAWorldStepPrimitive(
+        mx::Stream stream,
+        std::shared_ptr<MLXCompiledWorld> world
+    );
+
+    void eval_cpu(
+        const std::vector<mx::array>& inputs,
+        std::vector<mx::array>& outputs
+    ) override;
+    void eval_gpu(
+        const std::vector<mx::array>& inputs,
+        std::vector<mx::array>& outputs
+    ) override;
+
+    std::vector<mx::array> jvp(
+        const std::vector<mx::array>& primals,
+        const std::vector<mx::array>& tangents,
+        const std::vector<int>& argnums
+    ) override;
+    std::vector<mx::array> vjp(
+        const std::vector<mx::array>& primals,
+        const std::vector<mx::array>& cotangents,
+        const std::vector<int>& argnums,
+        const std::vector<mx::array>& outputs
+    ) override;
+    std::pair<std::vector<mx::array>, std::vector<int>> vmap(
+        const std::vector<mx::array>& inputs,
+        const std::vector<int>& axes
+    ) override;
+
+    [[nodiscard]] const char* name() const override;
+    [[nodiscard]] bool is_equivalent(
+        const mx::Primitive& other
+    ) const override;
+
+private:
+    std::shared_ptr<MLXCompiledWorld> world_;
+};
+
+class WorldStepPrimitive final : public mx::Primitive {
+public:
+    WorldStepPrimitive(
         mx::Stream stream,
         std::shared_ptr<MLXCompiledWorld> world
     );

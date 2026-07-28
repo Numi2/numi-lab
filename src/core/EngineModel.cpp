@@ -723,11 +723,86 @@ bool EngineModel::valid(std::string* reason) const {
         }
     }
 
+    const auto validRange = [](
+        const std::uint32_t offset,
+        const std::uint32_t count,
+        const std::size_t size
+    ) {
+        return static_cast<std::uint64_t>(offset) + count <= size;
+    };
+    for (const MRGeometryHeaderGPU& geometry : geometryHeaders) {
+        const std::uint32_t knownFlags =
+            MR_GEOMETRY_FLAG_CLOSED |
+            MR_GEOMETRY_FLAG_CONVEX |
+            MR_GEOMETRY_FLAG_TWO_SIDED |
+            MR_GEOMETRY_FLAG_QUANTIZED_BVH;
+        if ((geometry.kind != MR_GEOMETRY_CONVEX &&
+             geometry.kind != MR_GEOMETRY_TRIANGLE_MESH) ||
+            (geometry.flags & ~knownFlags) != 0u ||
+            !finite(geometry.localLower) ||
+            !finite(geometry.localUpper) ||
+            geometry.localLower.x > geometry.localUpper.x ||
+            geometry.localLower.y > geometry.localUpper.y ||
+            geometry.localLower.z > geometry.localUpper.z ||
+            !validRange(
+                geometry.vertexOffset,
+                geometry.vertexCount,
+                geometryVertices.size()
+            ) ||
+            !validRange(
+                geometry.indexOffset,
+                geometry.indexCount,
+                geometryIndices.size()
+            ) ||
+            !validRange(
+                geometry.faceOffset,
+                geometry.faceCount,
+                convexFaces.size()
+            ) ||
+            !validRange(
+                geometry.halfEdgeOffset,
+                geometry.halfEdgeCount,
+                convexHalfEdges.size()
+            ) ||
+            !validRange(
+                geometry.bvhOffset,
+                geometry.bvhCount,
+                meshBvhNodes.size()
+            ) ||
+            !validRange(
+                geometry.triangleOffset,
+                geometry.triangleCount,
+                meshTriangles.size()
+            )) {
+            return fail(reason, "geometry arena range or bounds are invalid");
+        }
+        if (geometry.kind == MR_GEOMETRY_CONVEX &&
+            (geometry.vertexCount < 4u ||
+             geometry.faceCount < 4u ||
+             geometry.halfEdgeCount < 12u)) {
+            return fail(reason, "convex geometry is incomplete");
+        }
+        if (geometry.kind == MR_GEOMETRY_TRIANGLE_MESH &&
+            (geometry.triangleCount == 0u ||
+             geometry.bvhCount == 0u)) {
+            return fail(reason, "triangle mesh has no cooked BVH");
+        }
+    }
+    for (const mr_float4& vertex : geometryVertices) {
+        if (!finite(vertex)) {
+            return fail(reason, "geometry vertex is nonfinite");
+        }
+    }
+
     for (const MRShapeGPU& shape : shapes) {
+        const std::uint32_t knownShapeFlags =
+            MR_SHAPE_FLAG_SIMULATION_DISABLED |
+            MR_SHAPE_FLAG_ENABLE_CCD |
+            MR_SHAPE_FLAG_MESH_TWO_SIDED;
         if (shape.bodyIndex >= bodies.size() ||
             shape.shapeType > MR_SHAPE_SDF ||
             shape.materialIndex >= materials.size() ||
-            (shape.flags & ~MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+            (shape.flags & ~knownShapeFlags) != 0u ||
             !finite(shape.localPosition) || !finite(shape.localRotation) ||
             !finite(shape.dimensions) ||
             !finite(shape.contactRestAndBoundingRadius) ||
@@ -758,6 +833,26 @@ bool EngineModel::valid(std::string* reason) const {
              (shape.dimensions.x <= 0.0f || shape.dimensions.y <= 0.0f ||
               shape.dimensions.z <= 0.0f))) {
             return fail(reason, "primitive shape dimensions are invalid");
+        }
+        if (shape.shapeType == MR_SHAPE_CONVEX ||
+            shape.shapeType == MR_SHAPE_TRIANGLE_MESH) {
+            if (shape.geometryCount != 1u ||
+                shape.dimensions.x <= 0.0f ||
+                shape.dimensions.y <= 0.0f ||
+                shape.dimensions.z <= 0.0f ||
+                shape.geometryOffset >= geometryHeaders.size()) {
+                return fail(reason, "shape has no cooked geometry");
+            }
+            const MRGeometryHeaderGPU& geometry =
+                geometryHeaders[shape.geometryOffset];
+            if ((shape.shapeType == MR_SHAPE_CONVEX &&
+                 geometry.kind != MR_GEOMETRY_CONVEX) ||
+                (shape.shapeType == MR_SHAPE_TRIANGLE_MESH &&
+                 geometry.kind != MR_GEOMETRY_TRIANGLE_MESH)) {
+                return fail(reason, "shape and geometry kinds disagree");
+            }
+        } else if (shape.geometryCount != 0u) {
+            return fail(reason, "primitive shape references cooked geometry");
         }
     }
 

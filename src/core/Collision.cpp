@@ -490,7 +490,11 @@ bool validShapeRecord(
     if (shape.bodyIndex >= bodies.size()) {
         return false;
     }
-    if ((shape.flags & ~MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+    constexpr std::uint32_t knownShapeFlags =
+        MR_SHAPE_FLAG_SIMULATION_DISABLED |
+        MR_SHAPE_FLAG_ENABLE_CCD |
+        MR_SHAPE_FLAG_MESH_TWO_SIDED;
+    if ((shape.flags & ~knownShapeFlags) != 0u ||
         !collisionInputDomainXyz(shape.localPosition) ||
         !finite(shape.localRotation) ||
         !collisionInputDomainXyz(shape.dimensions) ||

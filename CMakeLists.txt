@@ -112,6 +112,7 @@ add_custom_command(
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
+            -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_COLLISION_SOURCE}"
             -o "${METALROBO_COLLISION_AIR}"
@@ -201,6 +202,7 @@ add_library(
     src/core/FrankaEngine.cpp
     src/core/CpuDynamics.cpp
     src/core/EngineModel.cpp
+    src/core/GeometryCooker.cpp
     src/core/G1.cpp
     src/core/SurgicalPSM.cpp
     src/core/SurgicalAssets.cpp

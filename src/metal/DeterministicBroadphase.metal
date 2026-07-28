@@ -423,7 +423,12 @@ kernel void mr_broadphase_preflight(
         const MRAabbGPU aabb = aabbs[shapeIndex];
         float4 localRotation;
         if (shape.bodyIndex >= dispatch.bodyCount ||
-            (shape.flags & ~MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+            (shape.flags &
+             ~(
+                 MR_SHAPE_FLAG_SIMULATION_DISABLED |
+                 MR_SHAPE_FLAG_ENABLE_CCD |
+                 MR_SHAPE_FLAG_MESH_TWO_SIDED
+             )) != 0u ||
             !collisionInputDomainXyz(shape.localPosition) ||
             !checkedQuaternion(
                 shape.localRotation,

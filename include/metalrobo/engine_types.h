@@ -10,7 +10,7 @@
 #include "metalrobo/gpu_types.h"
 #include "metalrobo/constraint_ir_shared.h"
 
-#define MR_ENGINE_ABI_VERSION 2u
+#define MR_ENGINE_ABI_VERSION 3u
 #define MR_INVALID_INDEX 0xffffffffu
 #define MR_MAX_CONTACTS_PER_SOLVER_BATCH 128u
 #define MR_MAX_BODIES_PER_SOLVER_BATCH \
@@ -24,6 +24,9 @@
 // threadgroup memory.
 #define MR_ARTICULATED_OPERATOR_MAX_BODIES 64u
 #define MR_ARTICULATED_OPERATOR_MAX_DOFS 64u
+// Retained as the legacy standalone operator's recommended allocation class.
+// It is not a runtime limit: checked GPU strides and caller-provided storage
+// now determine the point/contact capacity.
 #define MR_ARTICULATED_OPERATOR_MAX_POINTS 1024u
 // Versioned FP32 backward-error gate for M * deltaV = J^T * impulse.
 // A finite but inaccurate factor solve is a failure, never publishable state.
@@ -38,11 +41,29 @@
 // Versioned first generic Metal-world graph. One submission may encode many
 // control steps, each with a bounded number of ABA physics substeps, without
 // a command-buffer completion or CPU-visible intermediate state.
-#define MR_METAL_WORLD_ABI_VERSION 1u
+#define MR_METAL_WORLD_ABI_VERSION 2u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
-#define MR_METAL_WORLD_CONTACT_ABI_VERSION 1u
+#define MR_METAL_WORLD_CONTACT_ABI_VERSION 2u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
 #define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
+#define MR_WAVE32_CONTACTS_PER_TILE 32u
+#define MR_WAVE32_ROWS_PER_TILE \
+    (3u * MR_WAVE32_CONTACTS_PER_TILE)
+#define MR_WAVE32_DISTRIBUTED_TILE_THRESHOLD 8u
+#define MR_WORLD_QUEUE_THREADS_PER_THREADGROUP 64u
+#define MR_CONVEX_SIMPLEX_CAPACITY 4u
+#define MR_GJK_MAX_ITERATIONS 32u
+#define MR_EPA_MAX_ITERATIONS 48u
+#define MR_EPA_VERTEX_CAPACITY 64u
+#define MR_EPA_FACE_CAPACITY 128u
+#define MR_MESH_BVH_BRANCHING 4u
+#define MR_MESH_BVH_LEAF_BIT 0x80000000u
+#define MR_MESH_BVH_LEAF_COUNT_MASK 0x000000ffu
+#define MR_MESH_BVH_ESCAPE_SHIFT 8u
+#define MR_MESH_BVH_ESCAPE_MASK 0x7fffff00u
+#define MR_MESH_BVH_INVALID_ESCAPE 0x007fffffu
+#define MR_CCD_DEFAULT_MAX_EVENTS 4u
+#define MR_CCD_MAX_EVENTS 16u
 // Authored collision coordinates, local offsets, primitive dimensions, and
 // contact/rest/bounding-radius values use this direct-input domain. With
 // normalized rotations, every supported finite primitive derived from these
@@ -112,6 +133,7 @@ enum MRCollisionPairClass : mr_u32 {
     MR_COLLISION_PAIR_CAPSULE_BOX = 9u,
     MR_COLLISION_PAIR_BOX_BOX = 10u,
     MR_COLLISION_PAIR_CONVEX = 11u,
+    MR_COLLISION_PAIR_MESH = 12u,
 };
 
 enum MRFrictionConeType : mr_u32 {
@@ -146,6 +168,8 @@ enum MRStepStatusCode : mr_u32 {
     MR_STEP_FACTORIZATION_FAILED = 10u,
     MR_STEP_DID_NOT_CONVERGE = 11u,
     MR_STEP_UNSUPPORTED = 12u,
+    MR_STEP_CCD_CAPACITY_OVERFLOW = 13u,
+    MR_STEP_STATUS_COUNT = 14u,
 };
 
 enum MRConstraintFlags : mr_u32 {
@@ -158,6 +182,60 @@ enum MRShapeFlags : mr_u32 {
     // Retain factual/cooked geometry in the model while excluding it from
     // simulation until its narrowphase is executable.
     MR_SHAPE_FLAG_SIMULATION_DISABLED = 1u << 0u,
+    // Enables exact event CCD for pairs containing this shape. Swept AABBs
+    // and speculative constraints remain available without this flag.
+    MR_SHAPE_FLAG_ENABLE_CCD = 1u << 1u,
+    // Triangle meshes are one-sided unless this bit is authored.
+    MR_SHAPE_FLAG_MESH_TWO_SIDED = 1u << 2u,
+};
+
+enum MRRawContactFlags : mr_u32 {
+    // featureAndFlags[3] lower bits carry a cooked material index when set.
+    MR_RAW_CONTACT_MATERIAL_OVERRIDE = 1u << 31u,
+    MR_RAW_CONTACT_MATERIAL_INDEX_MASK = 0x7fffffffu,
+};
+
+enum MRWorldWorkClass : mr_u32 {
+    MR_WORLD_WORK_ANALYTIC = 0u,
+    MR_WORLD_WORK_SAT_CLIP = 1u,
+    MR_WORLD_WORK_PRIMITIVE_GJK = 2u,
+    MR_WORLD_WORK_HULL_GJK = 3u,
+    MR_WORLD_WORK_HARD_CONVEX = 4u,
+    MR_WORLD_WORK_MESH = 5u,
+    MR_WORLD_WORK_MANIFOLD = 6u,
+    MR_WORLD_WORK_SOLVER = 7u,
+    MR_WORLD_WORK_SOLVER_SPILL = 8u,
+    MR_WORLD_WORK_CCD = 9u,
+    MR_WORLD_WORK_SOLVER_DISTRIBUTED = 10u,
+    MR_WORLD_WORK_CLASS_COUNT = 11u,
+};
+
+enum MRWorldQueueFlags : mr_u32 {
+    MR_WORLD_QUEUE_COHORT_8 = 1u << 28u,
+    MR_WORLD_QUEUE_COHORT_16 = 1u << 29u,
+};
+
+enum MRWorldCCDMode : mr_u32 {
+    MR_WORLD_CCD_DISABLED = 0u,
+    MR_WORLD_CCD_SPECULATIVE = 1u,
+    MR_WORLD_CCD_HYBRID = 2u,
+};
+
+enum MRScanFlags : mr_u32 {
+    MR_SCAN_BOOLEAN_INPUT = 1u << 0u,
+};
+
+enum MRGeometryKind : mr_u32 {
+    MR_GEOMETRY_NONE = 0u,
+    MR_GEOMETRY_CONVEX = 1u,
+    MR_GEOMETRY_TRIANGLE_MESH = 2u,
+};
+
+enum MRGeometryFlags : mr_u32 {
+    MR_GEOMETRY_FLAG_CLOSED = 1u << 0u,
+    MR_GEOMETRY_FLAG_CONVEX = 1u << 1u,
+    MR_GEOMETRY_FLAG_TWO_SIDED = 1u << 2u,
+    MR_GEOMETRY_FLAG_QUANTIZED_BVH = 1u << 3u,
 };
 
 enum MRDofFlags : mr_u32 {
@@ -508,6 +586,21 @@ typedef struct MR_ALIGN16 MRMLXWorldStepStatusGPU {
     mr_u32 reserved0;
 } MRMLXWorldStepStatusGPU;
 
+// Fixed-shape semantic adapter used by the MLX contact primitive. Physics
+// state itself remains in the canonical world/contact ABI; this record only
+// describes MLX array extents.
+typedef struct MR_ALIGN16 MRMLXContactAdapterDispatchGPU {
+    mr_u32 environmentCount;
+    mr_u32 sceneBodyCount;
+    mr_u32 bodyStateStride;
+    mr_u32 contactCapacity;
+
+    mr_u32 manifoldCapacity;
+    mr_u32 eligiblePairCount;
+    mr_u32 nq;
+    mr_u32 nv;
+} MRMLXContactAdapterDispatchGPU;
+
 enum MRMetalWorldFlags : mr_u32 {
     MR_METAL_WORLD_APPLY_BODY_DAMPING = 1u << 0u,
     MR_METAL_WORLD_DETERMINISTIC = 1u << 1u,
@@ -578,6 +671,9 @@ enum MRMetalWorldContactFlags : mr_u32 {
     MR_METAL_WORLD_CONTACT_WARM_START = 1u << 1u,
     MR_METAL_WORLD_CONTACT_CAPTURE_EVIDENCE = 1u << 2u,
     MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS = 1u << 3u,
+    MR_METAL_WORLD_CONTACT_WAVE32 = 1u << 4u,
+    MR_METAL_WORLD_CONTACT_CCD = 1u << 5u,
+    MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS = 1u << 6u,
 };
 
 // One stable, cooker-produced pair. The pair stream is canonical collider
@@ -628,10 +724,27 @@ typedef struct MR_ALIGN16 MRMetalWorldContactDispatchGPU {
     mr_u32 velocityIterations;
     mr_u32 finalVelocityIterations;
 
+    mr_u32 hardConvexCapacity;
+    mr_u32 meshCandidateCapacity;
+    mr_u32 solverTileCapacity;
+    mr_u32 spillRowCapacity;
+
+    mr_u32 ccdCandidateCapacity;
+    mr_u32 ccdEventCapacity;
+    mr_u32 ccdMode;
+    mr_u32 maxCCDEvents;
+
+    mr_u32 maxConservativeAdvancementIterations;
+    mr_u32 workQueueClassCount;
+    mr_u32 queueStride;
+    mr_u32 convexCacheStride;
+
     // timestep, penetration slop, maximum depenetration speed, warm scale.
     mr_float4 timestepAndBias;
     // separation break, tangential break, merge distance, normal cosine.
     mr_float4 manifoldThresholds;
+    // minimum advancement, TOI tolerance, speculative scale, speed envelope.
+    mr_float4 ccdParameters;
 } MRMetalWorldContactDispatchGPU;
 
 // Layout-compatible with MTLDispatchThreadgroupsIndirectArguments. The final
@@ -643,6 +756,127 @@ typedef struct MR_ALIGN16 MRIndirectDispatchArgumentsGPU {
     mr_u32 threadgroupsZ;
     mr_u32 activeCount;
 } MRIndirectDispatchArgumentsGPU;
+
+// One header per work class. Count and requirement are produced by stable
+// scans. workerCursor is used only by the MLX persistent-worker adapter;
+// standalone dispatch consumes indirect directly.
+typedef struct MR_ALIGN16 MRWorkQueueHeaderGPU {
+    mr_u32 count;
+    mr_u32 capacity;
+    mr_u32 required;
+    mr_u32 workClass;
+
+    mr_u32 firstStableKeyLow;
+    mr_u32 firstStableKeyHigh;
+    mr_u32 overflow;
+    mr_u32 workerCursor;
+
+    MRIndirectDispatchArgumentsGPU indirect;
+    mr_u32 flags;
+    mr_u32 scanLevelCount;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+} MRWorkQueueHeaderGPU;
+
+typedef struct MR_ALIGN16 MRScanLevelGPU {
+    mr_u32 elementCount;
+    mr_u32 blockCount;
+    mr_u32 inputOffset;
+    mr_u32 outputOffset;
+
+    mr_u32 blockSumOffset;
+    mr_u32 parentOffset;
+    mr_u32 workClass;
+    mr_u32 flags;
+} MRScanLevelGPU;
+
+typedef struct MR_ALIGN16 MRPairWorkGPU {
+    mr_u32 environment;
+    mr_u32 compiledPair;
+    mr_u32 cacheSlot;
+    mr_u32 workClass;
+
+    mr_u32 stableKeyLow;
+    mr_u32 stableKeyHigh;
+    mr_u32 flags;
+    mr_u32 reserved;
+} MRPairWorkGPU;
+
+typedef struct MR_ALIGN16 MRIslandWorkGPU {
+    mr_u32 environment;
+    mr_u32 islandIndex;
+    mr_u32 firstConstraint;
+    mr_u32 constraintCount;
+
+    mr_u32 firstTile;
+    mr_u32 tileCount;
+    mr_u32 dofClass;
+    mr_u32 flags;
+} MRIslandWorkGPU;
+
+enum MRIslandWorkFlags : mr_u32 {
+    MR_ISLAND_WORK_VALID = 1u << 0u,
+    MR_ISLAND_WORK_HAS_ARTICULATION = 1u << 1u,
+    MR_ISLAND_WORK_SPILL = 1u << 2u,
+    MR_ISLAND_WORK_DISTRIBUTED = 1u << 3u,
+    MR_ISLAND_WORK_STIFF_REPLAY = 1u << 4u,
+};
+
+typedef struct MR_ALIGN16 MRContactTileGPU {
+    mr_u32 environment;
+    mr_u32 islandIndex;
+    mr_u32 firstConstraint;
+    mr_u32 constraintCount;
+
+    mr_u32 nextTile;
+    mr_u32 partialOffset;
+    mr_u32 flags;
+    mr_u32 reserved;
+} MRContactTileGPU;
+
+typedef struct MR_ALIGN16 MRWave32PreconditionerGPU {
+    // xyz are rows of the inverse coupled normal/tangent response.
+    mr_float4 row0;
+    mr_float4 row1;
+    mr_float4 row2;
+} MRWave32PreconditionerGPU;
+
+typedef struct MR_ALIGN16 MRWave32IslandStatusGPU {
+    mr_u32 code;
+    mr_u32 environment;
+    mr_u32 islandIndex;
+    mr_u32 iterations;
+
+    // impulse delta, normal residual, cone violation, stiffness indicator.
+    mr_float4 residuals;
+} MRWave32IslandStatusGPU;
+
+typedef struct MR_ALIGN16 MRCCDPairGPU {
+    mr_u32 environment;
+    mr_u32 compiledPair;
+    mr_u32 colliderA;
+    mr_u32 colliderB;
+
+    // x lower TOI, y upper TOI, z current distance, w closing-speed bound.
+    mr_float4 intervalAndDistance;
+    // xyz separating/impact normal; w current iteration.
+    mr_float4 normalAndIteration;
+    mr_u32 stableKeyLow;
+    mr_u32 stableKeyHigh;
+    mr_u32 flags;
+    mr_u32 status;
+} MRCCDPairGPU;
+
+enum MRCCDPairFlags : mr_u32 {
+    MR_CCD_PAIR_VALID = 1u << 0u,
+    MR_CCD_PAIR_START_OVERLAP = 1u << 1u,
+    MR_CCD_PAIR_HAS_IMPACT = 1u << 2u,
+    MR_CCD_PAIR_SPECULATIVE_FALLBACK = 1u << 3u,
+    MR_CCD_PAIR_MESH = 1u << 4u,
+    MR_CCD_PAIR_ANALYTIC = 1u << 5u,
+    MR_CCD_PAIR_CONSERVATIVE_ADVANCEMENT = 1u << 6u,
+    MR_CCD_PAIR_UNRESOLVED = 1u << 7u,
+};
 
 // Environment-major immutable-for-one-microstep collider projection. This
 // record is produced once per collider, then reused by broadphase and
@@ -727,6 +961,26 @@ typedef struct MR_ALIGN16 MRMetalWorldContactStatusGPU {
     mr_u32 solverIterations;
     mr_u32 flags;
 
+    mr_u32 requiredHardConvexPairs;
+    mr_u32 requiredMeshCandidates;
+    mr_u32 requiredSolverTiles;
+    mr_u32 requiredSpillRows;
+
+    mr_u32 requiredCCDCandidates;
+    mr_u32 requiredCCDEvents;
+    mr_u32 hardConvexPairs;
+    mr_u32 meshCandidates;
+
+    mr_u32 solverTiles;
+    mr_u32 ccdCandidates;
+    mr_u32 ccdEvents;
+    mr_u32 hardFallbacks;
+
+    mr_u32 firstFailingStableKeyLow;
+    mr_u32 firstFailingStableKeyHigh;
+    mr_u32 unresolvedCCDCount;
+    mr_u32 queueFlags;
+
     // impulse delta, normal residual, cone violation, factor residual.
     mr_float4 residuals;
     // manifold retention, maximum penetration, minimum pivot, maximum pivot.
@@ -789,6 +1043,78 @@ typedef struct MR_ALIGN16 MRMaterialGPU {
     // contact skin width, adhesion impulse cap, reserved, reserved.
     mr_float4 geometry;
 } MRMaterialGPU;
+
+// Immutable cooker output. All offsets address the corresponding typed
+// EngineModel arena; no device pointer is stored in the ABI.
+typedef struct MR_ALIGN16 MRGeometryHeaderGPU {
+    mr_u32 kind;
+    mr_u32 flags;
+    mr_u32 vertexOffset;
+    mr_u32 vertexCount;
+
+    mr_u32 indexOffset;
+    mr_u32 indexCount;
+    mr_u32 faceOffset;
+    mr_u32 faceCount;
+
+    mr_u32 halfEdgeOffset;
+    mr_u32 halfEdgeCount;
+    mr_u32 bvhOffset;
+    mr_u32 bvhCount;
+
+    mr_u32 triangleOffset;
+    mr_u32 triangleCount;
+    mr_u32 materialOffset;
+    mr_u32 materialCount;
+
+    mr_float4 localLower;
+    mr_float4 localUpper;
+} MRGeometryHeaderGPU;
+
+typedef struct MR_ALIGN16 MRConvexFaceGPU {
+    // xyz = outward unit normal, w = plane offset dot(n, x).
+    mr_float4 plane;
+    mr_u32 firstHalfEdge;
+    mr_u32 halfEdgeCount;
+    mr_u32 featureKey;
+    mr_u32 reserved;
+} MRConvexFaceGPU;
+
+typedef struct MR_ALIGN16 MRConvexHalfEdgeGPU {
+    mr_u32 originVertex;
+    mr_u32 twinHalfEdge;
+    mr_u32 nextHalfEdge;
+    mr_u32 faceIndex;
+} MRConvexHalfEdgeGPU;
+
+// Four-child, stackless mesh node. Child bounds are uint16 coordinates
+// packed in uint4 records and are conservatively decompressed against the
+// geometry header bounds. childMeta encodes leaf counts and escape links.
+typedef struct MR_ALIGN16 MRMeshBVHNodeGPU {
+    mr_uint4 quantizedLower[MR_MESH_BVH_BRANCHING];
+    mr_uint4 quantizedUpper[MR_MESH_BVH_BRANCHING];
+    mr_uint4 childIndices;
+    mr_uint4 childMeta;
+} MRMeshBVHNodeGPU;
+
+typedef struct MR_ALIGN16 MRMeshTriangleGPU {
+    // xyz are vertex indices; w is the stable triangle feature ID.
+    mr_uint4 verticesAndFeature;
+    // xyz are adjacent triangle indices or MR_INVALID_INDEX; w is edge mask.
+    mr_uint4 adjacencyAndEdges;
+    // x material, y flags, z/w reserved.
+    mr_uint4 materialAndFlags;
+} MRMeshTriangleGPU;
+
+// Explicit persistent support/simplex cache. It is semantic state for MLX:
+// callers carry it between pure primitive invocations.
+typedef struct MR_ALIGN16 MRConvexQueryCacheGPU {
+    mr_float4 separatingAxisAndDistance;
+    mr_uint4 supportA;
+    mr_uint4 supportB;
+    mr_float4 barycentricWeights;
+    mr_uint4 featureAndStatus;
+} MRConvexQueryCacheGPU;
 
 typedef struct MR_ALIGN16 MRShapeGPU {
     mr_u32 bodyIndex;
@@ -979,20 +1305,35 @@ static_assert(sizeof(MRABABodyWrenchGPU) == 32);
 static_assert(sizeof(MRABAStatusGPU) == 48);
 static_assert(sizeof(MRMLXWorldStepDispatchGPU) == 32);
 static_assert(sizeof(MRMLXWorldStepStatusGPU) == 32);
+static_assert(sizeof(MRMLXContactAdapterDispatchGPU) == 32);
 static_assert(sizeof(MRMetalWorldDispatchGPU) == 64);
 static_assert(sizeof(MRMetalWorldPassGPU) == 16);
 static_assert(sizeof(MRMetalWorldStatusGPU) == 48);
 static_assert(sizeof(MRCompiledCollisionPairGPU) == 16);
-static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 144);
+static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 208);
 static_assert(sizeof(MRIndirectDispatchArgumentsGPU) == 16);
+static_assert(sizeof(MRWorkQueueHeaderGPU) == 64);
+static_assert(sizeof(MRScanLevelGPU) == 32);
+static_assert(sizeof(MRPairWorkGPU) == 32);
+static_assert(sizeof(MRIslandWorkGPU) == 32);
+static_assert(sizeof(MRContactTileGPU) == 32);
+static_assert(sizeof(MRWave32PreconditionerGPU) == 48);
+static_assert(sizeof(MRWave32IslandStatusGPU) == 32);
+static_assert(sizeof(MRCCDPairGPU) == 64);
 static_assert(sizeof(MRProjectedColliderGPU) == 80);
 static_assert(sizeof(MRContactPointMetaGPU) == 48);
 static_assert(sizeof(MRContactIslandGPU) == 32);
 static_assert(sizeof(MRArticulationFactorCacheGPU) == 48);
-static_assert(sizeof(MRMetalWorldContactStatusGPU) == 112);
+static_assert(sizeof(MRMetalWorldContactStatusGPU) == 176);
 static_assert(sizeof(MRInverseMassDispatchGPU) == 48);
 static_assert(sizeof(MRInverseMassStatusGPU) == 48);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);
+static_assert(sizeof(MRGeometryHeaderGPU) == 96);
+static_assert(sizeof(MRConvexFaceGPU) == 32);
+static_assert(sizeof(MRConvexHalfEdgeGPU) == 16);
+static_assert(sizeof(MRMeshBVHNodeGPU) == 160);
+static_assert(sizeof(MRMeshTriangleGPU) == 48);
+static_assert(sizeof(MRConvexQueryCacheGPU) == 80);
 static_assert(sizeof(MRShapeGPU) % 16 == 0);
 static_assert(sizeof(MRAabbGPU) == 32);
 static_assert(sizeof(MRCandidatePairGPU) == 16);

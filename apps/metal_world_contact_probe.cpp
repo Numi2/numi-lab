@@ -1,9 +1,11 @@
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/Franka.hpp"
+#include "metalrobo/GeometryCooker.hpp"
 #include "metalrobo/MetalWorld.hpp"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -208,6 +210,49 @@ int main() {
             ),
             "resting sphere never produced a device contact"
         );
+        metalrobo::MetalWorldContext asynchronousContext(
+            metalrobo::MetalWorldConfig{
+                .maximumInFlightSubmissions = 3u,
+            }
+        );
+        std::array<metalrobo::MetalWorldSubmission, 3u>
+            asynchronousSubmissions;
+        for (auto& ticket : asynchronousSubmissions) {
+            const auto submitted = asynchronousContext.submit(
+                world,
+                batch,
+                config,
+                ticket
+            );
+            require(
+                submitted.succeeded() && ticket.valid(),
+                "three-slot asynchronous submission failed"
+            );
+        }
+        metalrobo::MetalWorldSubmission saturatedTicket;
+        const auto saturatedSubmission =
+            asynchronousContext.submit(
+                world,
+                batch,
+                config,
+                saturatedTicket
+            );
+        require(
+            saturatedSubmission.status ==
+                    metalrobo::MetalWorldHostStatus::contextBusy &&
+                !saturatedTicket.valid(),
+            "asynchronous ring did not report exact saturation"
+        );
+        for (auto& ticket : asynchronousSubmissions) {
+            metalrobo::MetalWorldResult asynchronousResult;
+            const auto completed = ticket.wait(
+                asynchronousResult
+            );
+            require(
+                completed.succeeded(),
+                "asynchronous arena slot did not publish"
+            );
+        }
         std::uint64_t retainedPoints = 0u;
         std::uint64_t observedPoints = 0u;
         for (std::size_t step = 1u;
@@ -256,6 +301,286 @@ int main() {
                 first.finalV == replay.finalV &&
                 first.observations == replay.observations,
             "deterministic contact replay diverged"
+        );
+
+        metalrobo::EngineModel meshModel =
+            metalrobo::makeFreeSphereEngineModel();
+        const std::array<mr_float4, 4u> floorVertices{{
+            f4(-2.0f, 0.0f, -2.0f, 1.0f),
+            f4(2.0f, 0.0f, -2.0f, 1.0f),
+            f4(2.0f, 0.0f, 2.0f, 1.0f),
+            f4(-2.0f, 0.0f, 2.0f, 1.0f),
+        }};
+        const std::array<std::uint32_t, 6u> floorIndices{{
+            0u, 2u, 1u,
+            0u, 3u, 2u,
+        }};
+        const auto cookedFloor =
+            metalrobo::cookTriangleMeshGeometry(
+                meshModel,
+                floorVertices,
+                floorIndices
+            );
+        require(
+            cookedFloor.succeeded(),
+            cookedFloor.message.c_str()
+        );
+        MRShapeGPU& floorShape = meshModel.shapes.front();
+        floorShape.shapeType = MR_SHAPE_TRIANGLE_MESH;
+        floorShape.geometryOffset = cookedFloor.geometryIndex;
+        floorShape.geometryCount = 1u;
+        floorShape.dimensions = f4(1.0f, 1.0f, 1.0f);
+        floorShape.contactRestAndBoundingRadius =
+            f4(0.01f, 0.0f, 3.0f);
+        metalrobo::CompiledWorld meshWorld;
+        const auto meshCompiled = metalrobo::compileMetalWorld(
+            meshModel,
+            0u,
+            meshWorld
+        );
+        require(
+            meshCompiled.succeeded() &&
+                meshWorld.geometryHeaders().size() == 1u &&
+                meshWorld.geometryHeaders()[0].bvhCount > 0u &&
+                meshWorld.eligiblePairs()[0].pairClass ==
+                    MR_COLLISION_PAIR_MESH,
+            "cooked mesh world compilation failed"
+        );
+        metalrobo::MetalWorldResult meshResult;
+        const auto meshRun = context.run(
+            meshWorld,
+            batch,
+            config,
+            meshResult
+        );
+        if (!meshRun.succeeded() ||
+            meshResult.contactStatuses.empty() ||
+            meshResult.contactStatuses.back().activeContacts == 0u) {
+            std::cerr
+                << "mesh_status="
+                << meshRun.firstGPUStatusCode
+                << " environment="
+                << meshRun.firstFailingEnvironment
+                << " step="
+                << meshRun.firstFailingControlStep;
+            if (!meshResult.contactStatuses.empty()) {
+                const auto& failed =
+                    meshResult.contactStatuses.back();
+                std::cerr
+                    << " contact_code=" << failed.code
+                    << " pair=" << failed.firstFailingPair
+                    << " constraint="
+                    << failed.firstFailingConstraint
+                    << " active=" << failed.activeContacts
+                    << " pairs=" << failed.requiredPairs
+                    << " raw=" << failed.requiredRawContacts
+                    << " manifolds="
+                    << failed.requiredManifolds;
+            }
+            std::cerr << '\n';
+        }
+        require(
+            meshRun.succeeded() &&
+                meshResult.contactStatuses.back()
+                        .activeContacts > 0u &&
+                meshResult.contactStatuses.back()
+                        .requiredMeshCandidates > 0u,
+            meshRun.message.c_str()
+        );
+
+        // Exact convex-mesh CCD uses the same stackless BVH candidates but
+        // advances against the actual sphere/triangle witnesses rather than
+        // a mesh-wide or body-wide bounding sphere.
+        meshModel.shapes.back().flags |=
+            MR_SHAPE_FLAG_ENABLE_CCD;
+        metalrobo::CompiledWorld meshCCDWorld;
+        const auto meshCCDCompiled =
+            metalrobo::compileMetalWorld(
+                meshModel,
+                0u,
+                meshCCDWorld
+            );
+        require(
+            meshCCDCompiled.succeeded(),
+            "cooked mesh CCD world compilation failed"
+        );
+        std::vector<float> meshCCDQ = meshModel.defaultQ;
+        meshCCDQ[1] = 0.5f;
+        std::vector<float> meshCCDV = meshModel.defaultV;
+        meshCCDV[1] = -60.0f;
+        const std::vector<float> meshCCDEffort(
+            meshCCDWorld.nv(),
+            0.0f
+        );
+        const std::vector<MRBodyStateGPU> meshCCDScene{
+            groundState(),
+        };
+        const metalrobo::MetalWorldBatch meshCCDBatch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = meshCCDQ,
+            .initialV = meshCCDV,
+            .efforts = meshCCDEffort,
+            .initialSceneBodies = meshCCDScene,
+        };
+        metalrobo::MetalWorldStepConfig meshCCDConfig = config;
+        meshCCDConfig.timestepSeconds = 1.0f / 60.0f;
+        meshCCDConfig.physicsSubsteps = 1u;
+        meshCCDConfig.ccdMode =
+            metalrobo::MetalWorldCCDMode::hybrid;
+        meshCCDConfig.maxConservativeAdvancementIterations =
+            32u;
+        meshCCDConfig.captureContactEvidence = true;
+        metalrobo::MetalWorldResult meshCCDResult;
+        const auto meshCCDRun = context.run(
+            meshCCDWorld,
+            meshCCDBatch,
+            meshCCDConfig,
+            meshCCDResult
+        );
+        require(
+            meshCCDRun.succeeded() &&
+                meshCCDResult.contactStatuses.size() == 1u &&
+                meshCCDResult.contactStatuses[0]
+                        .requiredCCDCandidates == 1u &&
+                meshCCDResult.contactStatuses[0]
+                        .requiredCCDEvents == 1u &&
+                meshCCDResult.contactStatuses[0]
+                        .unresolvedCCDCount == 0u &&
+                meshCCDResult.contactStatuses[0]
+                        .activeContacts > 0u &&
+                std::any_of(
+                    meshCCDResult.contactEvidence.blocks.begin(),
+                    meshCCDResult.contactEvidence.blocks.end(),
+                    [](const MRConstraintIRBlockGPU& block) {
+                        return block.eventSlot !=
+                            MR_CONSTRAINT_IR_INVALID_INDEX;
+                    }
+                ),
+            "hybrid convex-mesh CCD did not certify and constrain impact"
+        );
+
+        // One fast cylinder crossing a cooked convex closes the support-map,
+        // robust GJK/MPR/EPA, swept broadphase, and exact-event CCD path in a
+        // single device graph.
+        metalrobo::EngineModel ccdModel =
+            metalrobo::makeFreeSphereEngineModel();
+        const std::array<mr_float4, 8u> convexVertices{{
+            f4(-0.05f, -0.08f, -0.08f, 1.0f),
+            f4(0.05f, -0.08f, -0.08f, 1.0f),
+            f4(0.05f, 0.08f, -0.08f, 1.0f),
+            f4(-0.05f, 0.08f, -0.08f, 1.0f),
+            f4(-0.05f, -0.08f, 0.08f, 1.0f),
+            f4(0.05f, -0.08f, 0.08f, 1.0f),
+            f4(0.05f, 0.08f, 0.08f, 1.0f),
+            f4(-0.05f, 0.08f, 0.08f, 1.0f),
+        }};
+        const std::array<std::uint32_t, 36u> convexIndices{{
+            0u, 2u, 1u, 0u, 3u, 2u,
+            4u, 5u, 6u, 4u, 6u, 7u,
+            0u, 1u, 5u, 0u, 5u, 4u,
+            1u, 2u, 6u, 1u, 6u, 5u,
+            2u, 3u, 7u, 2u, 7u, 6u,
+            3u, 0u, 4u, 3u, 4u, 7u,
+        }};
+        const auto cookedConvex =
+            metalrobo::cookConvexGeometry(
+                ccdModel,
+                convexVertices,
+                convexIndices
+            );
+        require(
+            cookedConvex.succeeded(),
+            cookedConvex.message.c_str()
+        );
+        MRShapeGPU& convexShape = ccdModel.shapes.front();
+        convexShape.shapeType = MR_SHAPE_CONVEX;
+        convexShape.geometryOffset =
+            cookedConvex.geometryIndex;
+        convexShape.geometryCount = 1u;
+        convexShape.dimensions = f4(1.0f, 1.0f, 1.0f);
+        convexShape.contactRestAndBoundingRadius =
+            f4(0.002f, 0.0f, 0.13f);
+        MRShapeGPU& ccdCylinderShape = ccdModel.shapes.back();
+        ccdCylinderShape.shapeType = MR_SHAPE_CYLINDER;
+        ccdCylinderShape.flags = MR_SHAPE_FLAG_ENABLE_CCD;
+        ccdCylinderShape.dimensions =
+            f4(0.025f, 0.06f, 0.0f);
+        ccdCylinderShape.contactRestAndBoundingRadius =
+            f4(0.002f, 0.0f, 0.066f);
+        ccdModel.world.gravityAndTimestep =
+            f4(0.0f, 0.0f, 0.0f, 1.0f / 60.0f);
+
+        metalrobo::CompiledWorld ccdWorld;
+        const auto ccdCompiled =
+            metalrobo::compileMetalWorld(
+                ccdModel,
+                0u,
+                ccdWorld
+            );
+        require(
+            ccdCompiled.succeeded() &&
+                ccdWorld.eligiblePairs().size() == 1u &&
+                ccdWorld.eligiblePairs()[0].pairClass ==
+                    MR_COLLISION_PAIR_CONVEX,
+            "cylinder-convex CCD world compilation failed"
+        );
+        std::vector<float> ccdQ = ccdModel.defaultQ;
+        ccdQ[0] = -0.25f;
+        ccdQ[1] = 0.0f;
+        std::vector<float> ccdV = ccdModel.defaultV;
+        ccdV[0] = 30.0f;
+        const std::vector<float> ccdEffort(
+            ccdWorld.nv(),
+            0.0f
+        );
+        const std::vector<MRBodyStateGPU> ccdScene{
+            groundState(),
+        };
+        const metalrobo::MetalWorldBatch ccdBatch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = ccdQ,
+            .initialV = ccdV,
+            .efforts = ccdEffort,
+            .initialSceneBodies = ccdScene,
+        };
+        metalrobo::MetalWorldStepConfig ccdConfig = config;
+        ccdConfig.timestepSeconds = 1.0f / 60.0f;
+        ccdConfig.physicsSubsteps = 1u;
+        ccdConfig.velocityIterations = 2u;
+        ccdConfig.finalVelocityIterations = 1u;
+        ccdConfig.ccdMode =
+            metalrobo::MetalWorldCCDMode::hybrid;
+        ccdConfig.maxConservativeAdvancementIterations = 32u;
+        ccdConfig.captureContactEvidence = true;
+        metalrobo::MetalWorldResult ccdResult;
+        const auto ccdRun = context.run(
+            ccdWorld,
+            ccdBatch,
+            ccdConfig,
+            ccdResult
+        );
+        require(
+            ccdRun.succeeded() &&
+                ccdResult.contactStatuses.size() == 1u &&
+                ccdResult.contactStatuses[0]
+                        .requiredCCDCandidates == 1u &&
+                ccdResult.contactStatuses[0]
+                        .requiredCCDEvents == 1u &&
+                ccdResult.contactStatuses[0]
+                        .unresolvedCCDCount == 0u &&
+                ccdResult.contactStatuses[0]
+                        .activeContacts > 0u &&
+                std::any_of(
+                    ccdResult.contactEvidence.blocks.begin(),
+                    ccdResult.contactEvidence.blocks.end(),
+                    [](const MRConstraintIRBlockGPU& block) {
+                        return block.eventSlot !=
+                            MR_CONSTRAINT_IR_INVALID_INDEX;
+                    }
+                ),
+            "hybrid cylinder-convex CCD did not certify and constrain impact"
         );
 
         metalrobo::EngineModel franka =
@@ -442,6 +767,56 @@ int main() {
                 }
             ),
             "Franka-plus-cube graph did not compile a mixed contact"
+        );
+
+        metalrobo::EngineModel cylinderModel = franka;
+        MRShapeGPU& cylinderShape = cylinderModel.shapes.back();
+        cylinderShape.shapeType = MR_SHAPE_CYLINDER;
+        cylinderShape.dimensions =
+            f4(0.05f, 0.05f, 0.0f, 0.0f);
+        cylinderShape.contactRestAndBoundingRadius =
+            f4(0.002f, 0.0f, 0.07071068f, 0.0f);
+        cylinderShape.flags |= MR_SHAPE_FLAG_ENABLE_CCD;
+        metalrobo::CompiledWorld cylinderWorld;
+        const auto cylinderCompiled =
+            metalrobo::compileMetalWorld(
+                cylinderModel,
+                0u,
+                cylinderWorld
+            );
+        require(
+            cylinderCompiled.succeeded() &&
+                std::any_of(
+                    cylinderWorld.eligiblePairs().begin(),
+                    cylinderWorld.eligiblePairs().end(),
+                    [](const MRCompiledCollisionPairGPU& pair) {
+                        return pair.pairClass ==
+                            MR_COLLISION_PAIR_CONVEX;
+                    }
+                ),
+            "Franka-plus-cylinder convex world compilation failed"
+        );
+        metalrobo::MetalWorldResult cylinderResult;
+        metalrobo::MetalWorldStepConfig cylinderConfig = config;
+        cylinderConfig.ccdMode =
+            metalrobo::MetalWorldCCDMode::hybrid;
+        const auto cylinderRun = context.run(
+            cylinderWorld,
+            frankaBatch,
+            cylinderConfig,
+            cylinderResult
+        );
+        require(
+            cylinderRun.succeeded() &&
+                cylinderResult.contactStatuses.back()
+                        .activeContacts > 0u &&
+                cylinderResult.contactStatuses.back()
+                        .requiredCCDCandidates > 0u &&
+                cylinderResult.contactStatuses.back()
+                        .ccdEvents > 0u &&
+                cylinderResult.contactStatuses.back().code ==
+                    MR_STEP_SUCCESS,
+            cylinderRun.message.c_str()
         );
 
         metalrobo::CompiledWorld overflowWorld;
@@ -700,6 +1075,153 @@ int main() {
             "large device pair stream missed its final eligible pair"
         );
 
+        const auto runTileProbe = [&](
+            const std::uint32_t activeContacts
+        ) {
+            metalrobo::EngineModel tileModel =
+                metalrobo::makeFreeSphereEngineModel();
+            const MRShapeGPU tileSphere =
+                tileModel.shapes.back();
+            tileModel.shapes.clear();
+            tileModel.shapes.reserve(2u * activeContacts);
+            for (std::uint32_t body = 0u; body < 2u; ++body) {
+                for (std::uint32_t local = 0u;
+                     local < activeContacts;
+                     ++local) {
+                    MRShapeGPU shape = tileSphere;
+                    shape.bodyIndex = body;
+                    shape.slotGeneration =
+                        body * activeContacts + local + 1u;
+                    shape.localPosition.x =
+                        0.05f * static_cast<float>(local);
+                    shape.dimensions.x = 0.01f;
+                    shape.contactRestAndBoundingRadius =
+                        f4(0.001f, 0.0f, 0.01f);
+                    tileModel.shapes.push_back(shape);
+                }
+            }
+            tileModel.world.shapeCount =
+                static_cast<std::uint32_t>(
+                    tileModel.shapes.size()
+                );
+            const std::uint32_t requiredTiles =
+                (
+                    activeContacts +
+                    MR_WAVE32_CONTACTS_PER_TILE - 1u
+                ) / MR_WAVE32_CONTACTS_PER_TILE;
+            const std::uint32_t requiredSpillRows =
+                activeContacts > MR_WAVE32_CONTACTS_PER_TILE
+                ? 3u * (
+                      activeContacts -
+                      MR_WAVE32_CONTACTS_PER_TILE
+                  )
+                : 0u;
+            metalrobo::CompiledWorld tileWorld;
+            const auto tileCompiled =
+                metalrobo::compileMetalWorld(
+                    tileModel,
+                    0u,
+                    tileWorld,
+                    metalrobo::MetalWorldCapacityProfile{
+                        .candidatePairs = activeContacts,
+                        .rawContacts = activeContacts,
+                        .manifolds = activeContacts,
+                        .constraintBlocks = activeContacts,
+                        .constraintRows = 3u * activeContacts,
+                        .islands = 2u,
+                        .solverTiles = requiredTiles,
+                        .spillRows = requiredSpillRows,
+                    }
+                );
+            require(
+                tileCompiled.succeeded(),
+                "Wave32 tile world compilation failed"
+            );
+            std::vector<float> tileQ = tileModel.defaultQ;
+            tileQ[1] = 0.0f;
+            const std::vector<float> tileEffort(
+                tileWorld.nv(),
+                0.0f
+            );
+            const std::vector<MRBodyStateGPU> tileScene{
+                groundState(),
+            };
+            const metalrobo::MetalWorldBatch tileBatch{
+                .environmentCount = 1u,
+                .controlStepCount = 1u,
+                .initialQ = tileQ,
+                .initialV = tileModel.defaultV,
+                .efforts = tileEffort,
+                .initialSceneBodies = tileScene,
+            };
+            metalrobo::MetalWorldStepConfig tileConfig = config;
+            tileConfig.physicsSubsteps = 1u;
+            tileConfig.velocityIterations = 1u;
+            tileConfig.finalVelocityIterations = 0u;
+            tileConfig.captureContactEvidence = false;
+            tileConfig.ccdMode =
+                metalrobo::MetalWorldCCDMode::disabled;
+            metalrobo::MetalWorldContext tileContext;
+            metalrobo::MetalWorldResult tileResult;
+            const auto tileRun = tileContext.run(
+                tileWorld,
+                tileBatch,
+                tileConfig,
+                tileResult
+            );
+            require(
+                tileRun.succeeded() &&
+                    tileResult.contactStatuses.size() == 1u,
+                "Wave32 tiled contact solve failed"
+            );
+            const auto& tileStatus =
+                tileResult.contactStatuses.front();
+            if (tileStatus.activeContacts != activeContacts ||
+                tileStatus.requiredSolverTiles !=
+                    requiredTiles ||
+                tileStatus.requiredSpillRows !=
+                    requiredSpillRows ||
+                tileStatus.spillRows != requiredSpillRows) {
+                std::cerr
+                    << "tile_probe_contacts=" << activeContacts
+                    << " active=" << tileStatus.activeContacts
+                    << " pairs=" << tileStatus.requiredPairs
+                    << " raw="
+                    << tileStatus.requiredRawContacts
+                    << " manifolds="
+                    << tileStatus.requiredManifolds
+                    << " constraints="
+                    << tileStatus.requiredConstraints
+                    << " tiles="
+                    << tileStatus.requiredSolverTiles
+                    << " expected_tiles=" << requiredTiles
+                    << " spill="
+                    << tileStatus.requiredSpillRows
+                    << " expected_spill="
+                    << requiredSpillRows
+                    << " constraint_cap="
+                    << tileWorld.capacities().constraintBlocks
+                    << " pair_cap="
+                    << tileWorld.capacities().candidatePairs
+                    << " code=" << tileStatus.code
+                    << '\n';
+            }
+            require(
+                tileStatus.activeContacts == activeContacts &&
+                    tileStatus.requiredSolverTiles ==
+                        requiredTiles &&
+                tileStatus.requiredSpillRows ==
+                        requiredSpillRows &&
+                    (
+                        activeContacts <= 256u ||
+                        (tileStatus.queueFlags &
+                         MR_ISLAND_WORK_DISTRIBUTED) != 0u
+                    ) &&
+                    tileStatus.spillRows == requiredSpillRows,
+                "Wave32 tile/spill accounting diverged"
+            );
+            return tileStatus;
+        };
         constexpr std::size_t throughputEnvironments = 1024u;
         constexpr std::size_t throughputSteps = 4u;
         metalrobo::CompiledWorld throughputWorld;
@@ -871,13 +1393,20 @@ int main() {
             );
         }
         std::uint32_t throughputActiveContacts = 0u;
+        std::uint32_t throughputQueueFlags = 0u;
         for (const auto& status :
              throughputResult.contactStatuses) {
             throughputActiveContacts = std::max(
                 throughputActiveContacts,
                 status.activeContacts
             );
+            throughputQueueFlags |= status.queueFlags;
         }
+        require(
+            (throughputQueueFlags &
+             MR_WORLD_QUEUE_COHORT_8) != 0u,
+            "Franka compact islands did not use 8-lane cohorts"
+        );
         const double gpuBatchStepP50 =
             percentile(gpuMilliseconds, 0.50) /
             static_cast<double>(throughputSteps);
@@ -894,6 +1423,11 @@ int main() {
             gpuStepsPerSecond >= 40000.0 &&
             wallStepsPerSecond >= 40000.0;
 
+        const auto tile33 = runTileProbe(33u);
+        const auto tile96 = runTileProbe(96u);
+        const auto tile257 = runTileProbe(257u);
+        const auto tile513 = runTileProbe(513u);
+
         std::cout
             << "metal_world_contact=ok"
             << " environments=" << environmentCount
@@ -902,6 +1436,7 @@ int main() {
             << firstDiagnostics.gpuElapsedMilliseconds
             << " retained_manifolds="
             << first.contactStatuses.back().retainedPoints
+            << " async_slots=3"
             << " franka_cube_contacts="
             << frankaStatus.activeContacts
             << " isolated_overflow_required_raw="
@@ -915,6 +1450,23 @@ int main() {
             << " large_pair_tail_contacts="
             << largePairResult.contactStatuses[0]
                    .activeContacts
+            << " mesh_candidates="
+            << meshResult.contactStatuses.back()
+                   .requiredMeshCandidates
+            << " mesh_ccd_events="
+            << meshCCDResult.contactStatuses[0]
+                   .requiredCCDEvents
+            << " cylinder_convex_ccd_events="
+            << ccdResult.contactStatuses[0]
+                   .requiredCCDEvents
+            << " tile33=" << tile33.activeContacts
+            << " tile96=" << tile96.activeContacts
+            << " tile257=" << tile257.activeContacts
+            << " tile257_spill_rows="
+            << tile257.requiredSpillRows
+            << " tile513=" << tile513.activeContacts
+            << " tile513_spill_rows="
+            << tile513.requiredSpillRows
             << " throughput_envs="
             << throughputEnvironments
             << " throughput_gpu_steps_per_s="
@@ -931,6 +1483,7 @@ int main() {
             << wallBatchStepP95
             << " throughput_active_contacts="
             << throughputActiveContacts
+            << " wave_cohort=8"
             << " high_water_pairs="
             << highWater.candidatePairs
             << " high_water_raw=" << highWater.rawContacts

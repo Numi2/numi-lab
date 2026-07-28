@@ -8,7 +8,10 @@ from .native import (
     library_version,
 )
 from .mlx_world import (
+    ContactEvidence,
     MLXCompiledWorld,
+    MetalWorldCapacityProfile,
+    SceneBodyState,
     SolverCache,
     StepOutput,
     WorldState,
@@ -26,9 +29,11 @@ from .ppo import ActorCritic, PPOConfig, PPOTrainer
 
 __all__ = [
     "ActorCritic",
+    "ContactEvidence",
     "FrankaEnv",
     "MetalRoboError",
     "MLXCompiledWorld",
+    "MetalWorldCapacityProfile",
     "MLXPPOTrainer",
     "MLXRolloutBatch",
     "MLXRolloutCollector",
@@ -37,6 +42,7 @@ __all__ = [
     "PPOConfig",
     "PPOTrainer",
     "RuntimeStats",
+    "SceneBodyState",
     "SolverCache",
     "StepOutput",
     "WorldState",

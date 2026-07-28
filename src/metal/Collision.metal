@@ -24,6 +24,9 @@ constant uint kCylinderNegativeSideRim = 8u;
 constant uint kCylinderPositiveSideRim = 9u;
 constant uint kCylinderNegativeGeneralRim = 10u;
 constant uint kCylinderPositiveGeneralRim = 11u;
+// Internal support-mapped query shape. It never crosses the public ABI:
+// center/halfExtents/capsuleEndpoint{0,1} carry the triangle centroid/C/A/B.
+constant uint kQueryTriangleShape = 0xfffffffdu;
 
 struct WorldShape {
     uint index;
@@ -44,6 +47,8 @@ struct WorldShape {
     float radius;
     float halfLength;
     float contactOffset;
+    float3 scale;
+    uint geometryIndex;
 };
 
 bool finiteFloat4(const float4 value) {
@@ -125,7 +130,13 @@ float worldShapeScale(const thread WorldShape& shape) {
             ),
             max(
                 max(abs(shape.radius), abs(shape.halfLength)),
-                abs(shape.contactOffset)
+                max(
+                    abs(shape.contactOffset),
+                    max(
+                        maximumAbsoluteComponent(shape.lower),
+                        maximumAbsoluteComponent(shape.upper)
+                    )
+                )
             )
         )
     );
@@ -257,7 +268,12 @@ bool validWorldShapeRecord(
 ) {
     const MRShapeGPU shape = shapes[index];
     if (shape.bodyIndex >= bodyCount ||
-        (shape.flags & ~MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+        (shape.flags &
+         ~(
+             MR_SHAPE_FLAG_SIMULATION_DISABLED |
+             MR_SHAPE_FLAG_ENABLE_CCD |
+             MR_SHAPE_FLAG_MESH_TWO_SIDED
+         )) != 0u ||
         !collisionInputDomainXyz(shape.localPosition) ||
         !finiteFloat4(shape.localRotation) ||
         !collisionInputDomainXyz(shape.dimensions) ||
@@ -298,6 +314,7 @@ bool validWorldShapeRecord(
 bool makeWorldShape(
     const uint index,
     device const MRShapeGPU* shapes,
+    device const MRGeometryHeaderGPU* geometryHeaders,
     device const MRBodyStateGPU* bodies,
     const uint bodyCount,
     thread WorldShape& output,
@@ -305,7 +322,12 @@ bool makeWorldShape(
 ) {
     const MRShapeGPU shape = shapes[index];
     if (shape.bodyIndex >= bodyCount ||
-        (shape.flags & ~MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+        (shape.flags &
+         ~(
+             MR_SHAPE_FLAG_SIMULATION_DISABLED |
+             MR_SHAPE_FLAG_ENABLE_CCD |
+             MR_SHAPE_FLAG_MESH_TWO_SIDED
+         )) != 0u ||
         !collisionInputDomainXyz(shape.localPosition) ||
         !finiteFloat4(shape.localRotation) ||
         !collisionInputDomainXyz(shape.dimensions) ||
@@ -347,6 +369,8 @@ bool makeWorldShape(
         quaternionRotate(bodyRotation, shape.localPosition.xyz);
     output.contactOffset =
         shape.contactRestAndBoundingRadius.x;
+    output.scale = shape.dimensions.xyz;
+    output.geometryIndex = shape.geometryOffset;
     output.radius = 0.0f;
     output.lower = float3(0.0f);
     output.upper = float3(0.0f);
@@ -371,9 +395,76 @@ bool makeWorldShape(
         shape.shapeType != MR_SHAPE_CAPSULE &&
         shape.shapeType != MR_SHAPE_BOX &&
         shape.shapeType != MR_SHAPE_CYLINDER &&
-        shape.shapeType != MR_SHAPE_PLANE) {
+        shape.shapeType != MR_SHAPE_PLANE &&
+        shape.shapeType != MR_SHAPE_CONVEX &&
+        shape.shapeType != MR_SHAPE_TRIANGLE_MESH) {
         failureCode = MR_STEP_UNSUPPORTED;
         return false;
+    }
+
+    if (shape.shapeType == MR_SHAPE_CONVEX ||
+        shape.shapeType == MR_SHAPE_TRIANGLE_MESH) {
+        if (shape.geometryCount != 1u ||
+            !all(shape.dimensions.xyz >=
+                 float3(MR_MIN_COLLISION_EXTENT))) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        const MRGeometryHeaderGPU geometry =
+            geometryHeaders[shape.geometryOffset];
+        const uint expectedKind =
+            shape.shapeType == MR_SHAPE_CONVEX
+            ? MR_GEOMETRY_CONVEX
+            : MR_GEOMETRY_TRIANGLE_MESH;
+        if (geometry.kind != expectedKind ||
+            !collisionInputDomainXyz(geometry.localLower) ||
+            !collisionInputDomainXyz(geometry.localUpper) ||
+            any(geometry.localUpper.xyz <
+                geometry.localLower.xyz)) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        const float3 localCenter =
+            0.5f *
+            (geometry.localLower.xyz +
+             geometry.localUpper.xyz) *
+            shape.dimensions.xyz;
+        const float3 localHalf =
+            0.5f *
+            (geometry.localUpper.xyz -
+             geometry.localLower.xyz) *
+            shape.dimensions.xyz;
+        const float3 boundsCenter =
+            output.center +
+            quaternionRotate(output.rotation, localCenter);
+        const float3 basisX = quaternionRotate(
+            output.rotation,
+            float3(1.0f, 0.0f, 0.0f)
+        );
+        const float3 basisY = quaternionRotate(
+            output.rotation,
+            float3(0.0f, 1.0f, 0.0f)
+        );
+        const float3 basisZ = quaternionRotate(
+            output.rotation,
+            float3(0.0f, 0.0f, 1.0f)
+        );
+        const float3 extent =
+            abs(basisX) * localHalf.x +
+            abs(basisY) * localHalf.y +
+            abs(basisZ) * localHalf.z +
+            output.contactOffset;
+        output.lower = boundsCenter - extent;
+        output.upper = boundsCenter + extent;
+        output.radius =
+            shape.contactRestAndBoundingRadius.z;
+        inflateFiniteBounds(output);
+        if (!collisionDomain(output.lower) ||
+            !collisionDomain(output.upper)) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        return true;
     }
 
     if (shape.shapeType == MR_SHAPE_SPHERE) {
@@ -403,6 +494,7 @@ bool makeWorldShape(
             failureCode = MR_STEP_NONFINITE_INPUT;
             return false;
         }
+        output.halfLength = halfLength;
         const float3 axis = quaternionRotate(
             output.rotation,
             float3(0.0f, halfLength, 0.0f)
@@ -562,6 +654,38 @@ bool makeWorldShape(
     return true;
 }
 
+// Compatibility path for the standalone primitive collision oracle. Cooked
+// geometry is executed by the world graph, whose projection kernel binds the
+// immutable geometry arena explicitly.
+bool makeWorldShape(
+    const uint index,
+    device const MRShapeGPU* shapes,
+    device const MRBodyStateGPU* bodies,
+    const uint bodyCount,
+    thread WorldShape& output,
+    thread uint& failureCode
+) {
+    if ((shapes[index].flags &
+         MR_SHAPE_FLAG_SIMULATION_DISABLED) == 0u &&
+        (shapes[index].shapeType == MR_SHAPE_CONVEX ||
+         shapes[index].shapeType ==
+             MR_SHAPE_TRIANGLE_MESH)) {
+        failureCode = MR_STEP_UNSUPPORTED;
+        return false;
+    }
+    device const MRGeometryHeaderGPU* emptyGeometry =
+        nullptr;
+    return makeWorldShape(
+        index,
+        shapes,
+        emptyGeometry,
+        bodies,
+        bodyCount,
+        output,
+        failureCode
+    );
+}
+
 MRProjectedColliderGPU projectedCollider(
     const thread WorldShape& shape,
     const uint status
@@ -605,6 +729,8 @@ bool loadProjectedCollider(
     shape.halfLength = projected.lowerAndHalfLength.w;
     shape.upper = projected.upperAndContactOffset.xyz;
     shape.contactOffset = projected.upperAndContactOffset.w;
+    shape.scale = source.dimensions.xyz;
+    shape.geometryIndex = source.geometryOffset;
     shape.halfExtents = float3(0.0f);
     shape.capsuleEndpoint0 = float3(0.0f);
     shape.capsuleEndpoint1 = float3(0.0f);
@@ -1577,6 +1703,2211 @@ ContactBatch boxBoxContacts(
             256u + bestAxis,
             256u + bestAxis
         );
+    }
+    return result;
+}
+
+struct ConvexSupportPoint {
+    float3 minkowski;
+    float3 pointA;
+    float3 pointB;
+    uint featureA;
+    uint featureB;
+};
+
+struct ConvexQueryResult {
+    uint status;
+    uint iterations;
+    uint fallback;
+    uint reserved;
+    float3 normal;
+    float separation;
+    float3 pointA;
+    float3 pointB;
+    uint featureA;
+    uint featureB;
+};
+
+struct EPAFace {
+    uint a;
+    uint b;
+    uint c;
+    uint active;
+    float3 normal;
+    float distance;
+};
+
+float3 deterministicDirection(const uint stableKey) {
+    const uint axis = stableKey % 3u;
+    float3 result = float3(0.0f);
+    result[axis] = (stableKey & 4u) == 0u ? 1.0f : -1.0f;
+    return result;
+}
+
+bool supportWorldShape(
+    const thread WorldShape& shape,
+    device const MRShapeGPU& source,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    const float3 requestedDirection,
+    thread float3& point,
+    thread uint& feature
+) {
+    float3 direction = requestedDirection;
+    const float directionSquared = dot(direction, direction);
+    if (!(directionSquared > kTiny) ||
+        !isfinite(directionSquared)) {
+        direction = deterministicDirection(shape.index);
+    } else {
+        direction *= rsqrt(directionSquared);
+    }
+    if (shape.type == kQueryTriangleShape) {
+        const float3 triangleVertices[3] = {
+            shape.capsuleEndpoint0,
+            shape.capsuleEndpoint1,
+            shape.halfExtents,
+        };
+        uint bestVertex = 0u;
+        float bestProjection = dot(
+            triangleVertices[0],
+            direction
+        );
+        for (uint vertexIndex = 1u;
+             vertexIndex < 3u;
+             ++vertexIndex) {
+            const float projection = dot(
+                triangleVertices[vertexIndex],
+                direction
+            );
+            if (projection > bestProjection ||
+                (projection == bestProjection &&
+                 vertexIndex < bestVertex)) {
+                bestProjection = projection;
+                bestVertex = vertexIndex;
+            }
+        }
+        point = triangleVertices[bestVertex];
+        feature = featureKey(
+            MR_SHAPE_TRIANGLE_MESH,
+            3u * shape.index + bestVertex
+        );
+        return true;
+    }
+    if (shape.type == MR_SHAPE_SPHERE) {
+        point = shape.center + direction * shape.radius;
+        feature = featureKey(MR_SHAPE_SPHERE, 0u);
+        return true;
+    }
+    if (shape.type == MR_SHAPE_CAPSULE) {
+        const float projection = dot(
+            direction,
+            shape.capsuleEndpoint1 -
+                shape.capsuleEndpoint0
+        );
+        const bool positive = projection >= 0.0f;
+        point =
+            (positive
+                 ? shape.capsuleEndpoint1
+                 : shape.capsuleEndpoint0) +
+            direction * shape.radius;
+        feature = featureKey(
+            MR_SHAPE_CAPSULE,
+            positive ? 1u : 0u
+        );
+        return true;
+    }
+    if (shape.type == MR_SHAPE_BOX) {
+        const float3 localDirection =
+            quaternionInverseRotate(
+                shape.rotation,
+                direction
+            );
+        uint vertexIndex = 0u;
+        float3 localPoint = -shape.halfExtents;
+        if (localDirection.x >= 0.0f) {
+            vertexIndex |= 1u;
+            localPoint.x = shape.halfExtents.x;
+        }
+        if (localDirection.y >= 0.0f) {
+            vertexIndex |= 2u;
+            localPoint.y = shape.halfExtents.y;
+        }
+        if (localDirection.z >= 0.0f) {
+            vertexIndex |= 4u;
+            localPoint.z = shape.halfExtents.z;
+        }
+        point =
+            shape.center +
+            quaternionRotate(shape.rotation, localPoint);
+        feature = featureKey(MR_SHAPE_BOX, vertexIndex);
+        return true;
+    }
+    if (shape.type == MR_SHAPE_CYLINDER) {
+        const float axial =
+            dot(direction, shape.cylinderAxis);
+        const float3 radial =
+            direction - shape.cylinderAxis * axial;
+        const float radialSquared = dot(radial, radial);
+        const float3 radialDirection =
+            radialSquared > kTiny
+            ? radial * rsqrt(radialSquared)
+            : shape.cylinderBasisX;
+        const bool positiveCap = axial >= 0.0f;
+        point =
+            shape.center +
+            shape.cylinderAxis *
+                (positiveCap
+                     ? shape.halfLength
+                     : -shape.halfLength) +
+            radialDirection * shape.radius;
+        uint localFeature =
+            positiveCap
+            ? kCylinderPositiveGeneralRim
+            : kCylinderNegativeGeneralRim;
+        if (abs(axial) <= kCylinderAlignmentTolerance) {
+            const float basisX = dot(
+                radialDirection,
+                shape.cylinderBasisX
+            );
+            const float basisZ = dot(
+                radialDirection,
+                shape.cylinderBasisZ
+            );
+            const uint sector =
+                abs(basisX) >= abs(basisZ)
+                ? (basisX >= 0.0f ? 0u : 1u)
+                : (basisZ >= 0.0f ? 2u : 3u);
+            localFeature = 32u + sector;
+        } else if (radialSquared <= kTiny) {
+            localFeature = positiveCap ? 17u : 16u;
+        }
+        feature = featureKey(
+            MR_SHAPE_CYLINDER,
+            localFeature
+        );
+        return finiteFloat3(point);
+    }
+    if (shape.type == MR_SHAPE_CONVEX) {
+        const MRGeometryHeaderGPU geometry =
+            geometryHeaders[source.geometryOffset];
+        if (geometry.kind != MR_GEOMETRY_CONVEX ||
+            geometry.vertexCount == 0u) {
+            return false;
+        }
+        const float3 localDirection =
+            quaternionInverseRotate(
+                shape.rotation,
+                direction
+            );
+        float bestProjection = -INFINITY;
+        uint bestVertex = 0u;
+        float3 bestPoint = float3(0.0f);
+        for (uint vertexIndex = 0u;
+             vertexIndex < geometry.vertexCount;
+             ++vertexIndex) {
+            const float3 localPoint =
+                geometryVertices[
+                    geometry.vertexOffset + vertexIndex
+                ].xyz * source.dimensions.xyz;
+            const float projection =
+                dot(localPoint, localDirection);
+            if (projection > bestProjection ||
+                (projection == bestProjection &&
+                 vertexIndex < bestVertex)) {
+                bestProjection = projection;
+                bestVertex = vertexIndex;
+                bestPoint = localPoint;
+            }
+        }
+        point =
+            shape.center +
+            quaternionRotate(shape.rotation, bestPoint);
+        feature = featureKey(MR_SHAPE_CONVEX, bestVertex);
+        return finiteFloat3(point);
+    }
+    return false;
+}
+
+bool supportMinkowski(
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    const float3 direction,
+    thread ConvexSupportPoint& result
+) {
+    if (!supportWorldShape(
+            shapeA,
+            sourceA,
+            geometryHeaders,
+            geometryVertices,
+            direction,
+            result.pointA,
+            result.featureA
+        ) ||
+        !supportWorldShape(
+            shapeB,
+            sourceB,
+            geometryHeaders,
+            geometryVertices,
+            -direction,
+            result.pointB,
+            result.featureB
+        )) {
+        return false;
+    }
+    result.minkowski = result.pointA - result.pointB;
+    return finiteFloat3(result.minkowski);
+}
+
+float3 closestTriangleWeights(
+    const float3 a,
+    const float3 b,
+    const float3 c,
+    thread float3& weights
+) {
+    const float3 ab = b - a;
+    const float3 ac = c - a;
+    const float3 ap = -a;
+    const float d1 = dot(ab, ap);
+    const float d2 = dot(ac, ap);
+    if (d1 <= 0.0f && d2 <= 0.0f) {
+        weights = float3(1.0f, 0.0f, 0.0f);
+        return a;
+    }
+    const float3 bp = -b;
+    const float d3 = dot(ab, bp);
+    const float d4 = dot(ac, bp);
+    if (d3 >= 0.0f && d4 <= d3) {
+        weights = float3(0.0f, 1.0f, 0.0f);
+        return b;
+    }
+    const float vc = d1 * d4 - d3 * d2;
+    if (vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f) {
+        const float denominator = d1 - d3;
+        const float v = denominator > kTiny
+            ? d1 / denominator
+            : 0.0f;
+        weights = float3(1.0f - v, v, 0.0f);
+        return a + ab * v;
+    }
+    const float3 cp = -c;
+    const float d5 = dot(ab, cp);
+    const float d6 = dot(ac, cp);
+    if (d6 >= 0.0f && d5 <= d6) {
+        weights = float3(0.0f, 0.0f, 1.0f);
+        return c;
+    }
+    const float vb = d5 * d2 - d1 * d6;
+    if (vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f) {
+        const float denominator = d2 - d6;
+        const float w = denominator > kTiny
+            ? d2 / denominator
+            : 0.0f;
+        weights = float3(1.0f - w, 0.0f, w);
+        return a + ac * w;
+    }
+    const float va = d3 * d6 - d5 * d4;
+    if (va <= 0.0f &&
+        (d4 - d3) >= 0.0f &&
+        (d5 - d6) >= 0.0f) {
+        const float denominator =
+            (d4 - d3) + (d5 - d6);
+        const float w = denominator > kTiny
+            ? (d4 - d3) / denominator
+            : 0.0f;
+        weights = float3(0.0f, 1.0f - w, w);
+        return b + (c - b) * w;
+    }
+    const float denominator = va + vb + vc;
+    if (!(abs(denominator) > kTiny) ||
+        !isfinite(denominator)) {
+        weights = float3(1.0f, 0.0f, 0.0f);
+        return a;
+    }
+    const float reciprocal = 1.0f / denominator;
+    const float v = vb * reciprocal;
+    const float w = vc * reciprocal;
+    weights = float3(1.0f - v - w, v, w);
+    return a + ab * v + ac * w;
+}
+
+float2 exactTwoSum(const float a, const float b) {
+    const float sum = a + b;
+    const float recoveredB = sum - a;
+    const float error =
+        (a - (sum - recoveredB)) +
+        (b - recoveredB);
+    return float2(sum, error);
+}
+
+float2 exactTwoProduct(const float a, const float b) {
+    const float product = a * b;
+    return float2(product, fma(a, b, -product));
+}
+
+float2 compensatedDifference(
+    const float2 lhs,
+    const float2 rhs
+) {
+    const float2 leading = exactTwoSum(lhs.x, -rhs.x);
+    return float2(
+        leading.x,
+        leading.y + lhs.y - rhs.y
+    );
+}
+
+float2 compensatedCrossComponent(
+    const float a,
+    const float b,
+    const float c,
+    const float d
+) {
+    return compensatedDifference(
+        exactTwoProduct(a, b),
+        exactTwoProduct(c, d)
+    );
+}
+
+float compensatedTripleProduct(
+    const float3 a,
+    const float3 b,
+    const float3 c
+) {
+    // A twofold FP32 scalar triple product is reserved for ambiguous
+    // simplex predicates. FMA captures each product residual, then exact
+    // two-sums retain the low components through the final reduction.
+    const float2 crossX = compensatedCrossComponent(
+        b.y,
+        c.z,
+        b.z,
+        c.y
+    );
+    const float2 crossY = compensatedCrossComponent(
+        b.z,
+        c.x,
+        b.x,
+        c.z
+    );
+    const float2 crossZ = compensatedCrossComponent(
+        b.x,
+        c.y,
+        b.y,
+        c.x
+    );
+    float2 termX = exactTwoProduct(a.x, crossX.x);
+    float2 termY = exactTwoProduct(a.y, crossY.x);
+    float2 termZ = exactTwoProduct(a.z, crossZ.x);
+    termX.y += a.x * crossX.y;
+    termY.y += a.y * crossY.y;
+    termZ.y += a.z * crossZ.y;
+    const float2 sumXY = exactTwoSum(termX.x, termY.x);
+    const float2 sumXYZ = exactTwoSum(sumXY.x, termZ.x);
+    return sumXYZ.x +
+        (
+            sumXY.y +
+            sumXYZ.y +
+            termX.y +
+            termY.y +
+            termZ.y
+        );
+}
+
+void compressSimplex(
+    thread ConvexSupportPoint* simplex,
+    thread uint& count,
+    thread float* weights
+) {
+    ConvexSupportPoint compact[4];
+    float compactWeights[4];
+    uint compactCount = 0u;
+    uint best = 0u;
+    for (uint index = 1u; index < count; ++index) {
+        if (weights[index] > weights[best]) {
+            best = index;
+        }
+    }
+    for (uint index = 0u; index < count; ++index) {
+        if (weights[index] > 1.0e-7f) {
+            compact[compactCount] = simplex[index];
+            compactWeights[compactCount] = weights[index];
+            ++compactCount;
+        }
+    }
+    if (compactCount == 0u) {
+        compact[0] = simplex[best];
+        compactWeights[0] = 1.0f;
+        compactCount = 1u;
+    }
+    float total = 0.0f;
+    for (uint index = 0u; index < compactCount; ++index) {
+        total += compactWeights[index];
+    }
+    const float reciprocal =
+        total > kTiny ? 1.0f / total : 1.0f;
+    count = compactCount;
+    for (uint index = 0u; index < compactCount; ++index) {
+        simplex[index] = compact[index];
+        weights[index] =
+            compactWeights[index] * reciprocal;
+    }
+}
+
+bool closestSimplex(
+    thread ConvexSupportPoint* simplex,
+    thread uint& count,
+    thread float* weights,
+    thread float3& closest
+) {
+    if (count == 1u) {
+        weights[0] = 1.0f;
+        closest = simplex[0].minkowski;
+        return false;
+    }
+    if (count == 2u) {
+        const float3 a = simplex[0].minkowski;
+        const float3 edge =
+            simplex[1].minkowski - a;
+        const float denominator = dot(edge, edge);
+        const float t = denominator > kTiny
+            ? clamp(-dot(a, edge) / denominator, 0.0f, 1.0f)
+            : 0.0f;
+        weights[0] = 1.0f - t;
+        weights[1] = t;
+        closest = a + edge * t;
+        compressSimplex(simplex, count, weights);
+        return false;
+    }
+    if (count == 3u) {
+        float3 triangleWeights;
+        closest = closestTriangleWeights(
+            simplex[0].minkowski,
+            simplex[1].minkowski,
+            simplex[2].minkowski,
+            triangleWeights
+        );
+        weights[0] = triangleWeights.x;
+        weights[1] = triangleWeights.y;
+        weights[2] = triangleWeights.z;
+        compressSimplex(simplex, count, weights);
+        return false;
+    }
+
+    const float3 a = simplex[0].minkowski;
+    const float3 ab = simplex[1].minkowski - a;
+    const float3 ac = simplex[2].minkowski - a;
+    const float3 ad = simplex[3].minkowski - a;
+    const float determinant =
+        compensatedTripleProduct(ab, ac, ad);
+    if (abs(determinant) > kTiny &&
+        isfinite(determinant)) {
+        const float reciprocal = 1.0f / determinant;
+        const float u =
+            compensatedTripleProduct(-a, ac, ad) *
+            reciprocal;
+        const float v =
+            compensatedTripleProduct(ab, -a, ad) *
+            reciprocal;
+        const float w =
+            compensatedTripleProduct(ab, ac, -a) *
+            reciprocal;
+        const float base = 1.0f - u - v - w;
+        const float tolerance = -2.0e-6f;
+        if (base >= tolerance &&
+            u >= tolerance &&
+            v >= tolerance &&
+            w >= tolerance) {
+            weights[0] = base;
+            weights[1] = u;
+            weights[2] = v;
+            weights[3] = w;
+            closest = float3(0.0f);
+            return true;
+        }
+    }
+
+    const uint3 faces[4] = {
+        uint3(0u, 1u, 2u),
+        uint3(0u, 3u, 1u),
+        uint3(0u, 2u, 3u),
+        uint3(1u, 3u, 2u),
+    };
+    float bestDistance = INFINITY;
+    float4 bestWeights = float4(0.0f);
+    float3 bestPoint = float3(0.0f);
+    for (uint face = 0u; face < 4u; ++face) {
+        float3 triangleWeights;
+        const float3 point = closestTriangleWeights(
+            simplex[faces[face].x].minkowski,
+            simplex[faces[face].y].minkowski,
+            simplex[faces[face].z].minkowski,
+            triangleWeights
+        );
+        const float distance = dot(point, point);
+        if (distance < bestDistance) {
+            bestDistance = distance;
+            bestPoint = point;
+            bestWeights = float4(0.0f);
+            bestWeights[faces[face].x] = triangleWeights.x;
+            bestWeights[faces[face].y] = triangleWeights.y;
+            bestWeights[faces[face].z] = triangleWeights.z;
+        }
+    }
+    closest = bestPoint;
+    for (uint index = 0u; index < 4u; ++index) {
+        weights[index] = bestWeights[index];
+    }
+    compressSimplex(simplex, count, weights);
+    return false;
+}
+
+void simplexWitness(
+    thread const ConvexSupportPoint* simplex,
+    const uint count,
+    thread const float* weights,
+    thread float3& pointA,
+    thread float3& pointB,
+    thread uint& featureA,
+    thread uint& featureB
+) {
+    pointA = float3(0.0f);
+    pointB = float3(0.0f);
+    uint best = 0u;
+    for (uint index = 0u; index < count; ++index) {
+        pointA += simplex[index].pointA * weights[index];
+        pointB += simplex[index].pointB * weights[index];
+        if (weights[index] > weights[best]) {
+            best = index;
+        }
+    }
+    featureA = simplex[best].featureA;
+    featureB = simplex[best].featureB;
+}
+
+bool gjkDistance(
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    thread ConvexSupportPoint* simplex,
+    thread uint& simplexCount,
+    thread float* weights,
+    const float3 cachedDirection,
+    thread ConvexQueryResult& result
+) {
+    const float queryScale =
+        max(worldShapeScale(shapeA), worldShapeScale(shapeB)) +
+        1.0f;
+    const float tolerance =
+        32.0f * 1.1920929e-7f * queryScale;
+    float3 direction = cachedDirection;
+    if (!finiteFloat3(direction) ||
+        dot(direction, direction) <= kTiny) {
+        direction = shapeB.center - shapeA.center;
+    }
+    if (dot(direction, direction) <= kTiny) {
+        direction = deterministicDirection(
+            shapeA.index * 65537u + shapeB.index
+        );
+    }
+    simplexCount = 1u;
+    if (!supportMinkowski(
+            shapeA,
+            shapeB,
+            sourceA,
+            sourceB,
+            geometryHeaders,
+            geometryVertices,
+            direction,
+            simplex[0]
+        )) {
+        result.status = MR_STEP_UNSUPPORTED;
+        return false;
+    }
+    weights[0] = 1.0f;
+    float3 closest = simplex[0].minkowski;
+    float previousDistanceSquared = INFINITY;
+    for (uint iteration = 0u;
+         iteration < MR_GJK_MAX_ITERATIONS;
+         ++iteration) {
+        result.iterations = iteration + 1u;
+        const float distanceSquared = dot(closest, closest);
+        if (distanceSquared <= tolerance * tolerance) {
+            result.status = MR_STEP_SUCCESS;
+            result.separation = -0.0f;
+            return true;
+        }
+        direction = -closest;
+        ConvexSupportPoint candidate;
+        if (!supportMinkowski(
+                shapeA,
+                shapeB,
+                sourceA,
+                sourceB,
+                geometryHeaders,
+                geometryVertices,
+                direction,
+                candidate
+            )) {
+            result.status = MR_STEP_UNSUPPORTED;
+            return false;
+        }
+        bool duplicate = false;
+        for (uint index = 0u;
+             index < simplexCount;
+             ++index) {
+            duplicate =
+                duplicate ||
+                dot(
+                    candidate.minkowski -
+                        simplex[index].minkowski,
+                    candidate.minkowski -
+                        simplex[index].minkowski
+                ) <= tolerance * tolerance;
+        }
+        const float supportAdvance =
+            dot(candidate.minkowski, direction) -
+            dot(closest, direction);
+        if (duplicate ||
+            supportAdvance <=
+                tolerance * max(length(direction), 1.0f)) {
+            simplexWitness(
+                simplex,
+                simplexCount,
+                weights,
+                result.pointA,
+                result.pointB,
+                result.featureA,
+                result.featureB
+            );
+            const float3 witnessDelta =
+                result.pointB - result.pointA;
+            const float witnessDistance =
+                length(witnessDelta);
+            result.normal =
+                witnessDistance > tolerance
+                ? witnessDelta / witnessDistance
+                : normalize(direction);
+            result.separation = witnessDistance;
+            result.status = MR_STEP_SUCCESS;
+            return false;
+        }
+        simplex[simplexCount++] = candidate;
+        if (closestSimplex(
+                simplex,
+                simplexCount,
+                weights,
+                closest
+            )) {
+            result.status = MR_STEP_SUCCESS;
+            result.separation = -0.0f;
+            return true;
+        }
+        const float updatedDistanceSquared =
+            dot(closest, closest);
+        if (previousDistanceSquared < INFINITY &&
+            previousDistanceSquared - updatedDistanceSquared <=
+                tolerance * tolerance) {
+            simplexWitness(
+                simplex,
+                simplexCount,
+                weights,
+                result.pointA,
+                result.pointB,
+                result.featureA,
+                result.featureB
+            );
+            const float3 witnessDelta =
+                result.pointB - result.pointA;
+            const float witnessDistance =
+                length(witnessDelta);
+            result.normal =
+                witnessDistance > tolerance
+                ? witnessDelta / witnessDistance
+                : normalize(direction);
+            result.separation = witnessDistance;
+            result.status = MR_STEP_SUCCESS;
+            return false;
+        }
+        previousDistanceSquared = updatedDistanceSquared;
+    }
+    result.status = MR_STEP_DID_NOT_CONVERGE;
+    return false;
+}
+
+bool makeEPAFace(
+    thread const ConvexSupportPoint* vertices,
+    const uint a,
+    const uint b,
+    const uint c,
+    thread EPAFace& face
+) {
+    float3 normal = cross(
+        vertices[b].minkowski -
+            vertices[a].minkowski,
+        vertices[c].minkowski -
+            vertices[a].minkowski
+    );
+    const float normalSquared = dot(normal, normal);
+    if (!(normalSquared > kTiny) ||
+        !isfinite(normalSquared)) {
+        return false;
+    }
+    normal *= rsqrt(normalSquared);
+    uint second = b;
+    uint third = c;
+    float distance =
+        dot(normal, vertices[a].minkowski);
+    if (distance < 0.0f) {
+        normal = -normal;
+        distance = -distance;
+        second = c;
+        third = b;
+    }
+    face.a = a;
+    face.b = second;
+    face.c = third;
+    face.active = 1u;
+    face.normal = normal;
+    face.distance = distance;
+    return isfinite(distance);
+}
+
+void addHorizonEdge(
+    thread uint* edgeA,
+    thread uint* edgeB,
+    thread uint& edgeCount,
+    const uint a,
+    const uint b
+) {
+    for (uint edge = 0u; edge < edgeCount; ++edge) {
+        if (edgeA[edge] == b && edgeB[edge] == a) {
+            --edgeCount;
+            edgeA[edge] = edgeA[edgeCount];
+            edgeB[edge] = edgeB[edgeCount];
+            return;
+        }
+    }
+    if (edgeCount < 3u * MR_EPA_FACE_CAPACITY) {
+        edgeA[edgeCount] = a;
+        edgeB[edgeCount] = b;
+        ++edgeCount;
+    }
+}
+
+bool epaPenetration(
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    thread ConvexSupportPoint* seed,
+    thread uint& seedCount,
+    thread ConvexQueryResult& result
+) {
+    ConvexSupportPoint vertices[MR_EPA_VERTEX_CAPACITY];
+    uint vertexCount = seedCount;
+    for (uint index = 0u; index < seedCount; ++index) {
+        vertices[index] = seed[index];
+    }
+    const float3 seedDirections[6] = {
+        float3(1.0f, 0.0f, 0.0f),
+        float3(0.0f, 1.0f, 0.0f),
+        float3(0.0f, 0.0f, 1.0f),
+        float3(-1.0f, 0.0f, 0.0f),
+        float3(0.0f, -1.0f, 0.0f),
+        float3(0.0f, 0.0f, -1.0f),
+    };
+    for (uint directionIndex = 0u;
+         vertexCount < 4u && directionIndex < 6u;
+         ++directionIndex) {
+        ConvexSupportPoint candidate;
+        if (!supportMinkowski(
+                shapeA,
+                shapeB,
+                sourceA,
+                sourceB,
+                geometryHeaders,
+                geometryVertices,
+                seedDirections[directionIndex],
+                candidate
+            )) {
+            return false;
+        }
+        bool duplicate = false;
+        for (uint existing = 0u;
+             existing < vertexCount;
+             ++existing) {
+            duplicate =
+                duplicate ||
+                dot(
+                    candidate.minkowski -
+                        vertices[existing].minkowski,
+                    candidate.minkowski -
+                        vertices[existing].minkowski
+                ) <= 1.0e-12f;
+        }
+        if (!duplicate) {
+            vertices[vertexCount++] = candidate;
+        }
+    }
+    if (vertexCount < 4u) {
+        return false;
+    }
+
+    EPAFace faces[MR_EPA_FACE_CAPACITY];
+    for (uint face = 0u;
+         face < MR_EPA_FACE_CAPACITY;
+         ++face) {
+        faces[face].active = 0u;
+    }
+    const uint3 initialFaces[4] = {
+        uint3(0u, 1u, 2u),
+        uint3(0u, 3u, 1u),
+        uint3(0u, 2u, 3u),
+        uint3(1u, 3u, 2u),
+    };
+    uint faceCount = 0u;
+    for (uint face = 0u; face < 4u; ++face) {
+        if (makeEPAFace(
+                vertices,
+                initialFaces[face].x,
+                initialFaces[face].y,
+                initialFaces[face].z,
+                faces[faceCount]
+            )) {
+            ++faceCount;
+        }
+    }
+    if (faceCount < 4u) {
+        return false;
+    }
+
+    const float queryScale =
+        max(worldShapeScale(shapeA), worldShapeScale(shapeB)) +
+        1.0f;
+    const float tolerance =
+        64.0f * 1.1920929e-7f * queryScale;
+    uint bestFace = MR_INVALID_INDEX;
+    for (uint iteration = 0u;
+         iteration < MR_EPA_MAX_ITERATIONS;
+         ++iteration) {
+        float bestDistance = INFINITY;
+        bestFace = MR_INVALID_INDEX;
+        for (uint face = 0u; face < faceCount; ++face) {
+            if (faces[face].active != 0u &&
+                (faces[face].distance < bestDistance ||
+                 (faces[face].distance == bestDistance &&
+                  face < bestFace))) {
+                bestDistance = faces[face].distance;
+                bestFace = face;
+            }
+        }
+        if (bestFace == MR_INVALID_INDEX) {
+            return false;
+        }
+        ConvexSupportPoint candidate;
+        if (!supportMinkowski(
+                shapeA,
+                shapeB,
+                sourceA,
+                sourceB,
+                geometryHeaders,
+                geometryVertices,
+                faces[bestFace].normal,
+                candidate
+            )) {
+            return false;
+        }
+        const float supportDistance = dot(
+            faces[bestFace].normal,
+            candidate.minkowski
+        );
+        bool duplicate = false;
+        for (uint vertexIndex = 0u;
+             vertexIndex < vertexCount;
+             ++vertexIndex) {
+            duplicate =
+                duplicate ||
+                dot(
+                    candidate.minkowski -
+                        vertices[vertexIndex].minkowski,
+                    candidate.minkowski -
+                        vertices[vertexIndex].minkowski
+                ) <= tolerance * tolerance;
+        }
+        if (duplicate ||
+            supportDistance - bestDistance <= tolerance) {
+            const EPAFace face = faces[bestFace];
+            float3 barycentric;
+            closestTriangleWeights(
+                vertices[face.a].minkowski,
+                vertices[face.b].minkowski,
+                vertices[face.c].minkowski,
+                barycentric
+            );
+            result.pointA =
+                vertices[face.a].pointA * barycentric.x +
+                vertices[face.b].pointA * barycentric.y +
+                vertices[face.c].pointA * barycentric.z;
+            result.pointB =
+                vertices[face.a].pointB * barycentric.x +
+                vertices[face.b].pointB * barycentric.y +
+                vertices[face.c].pointB * barycentric.z;
+            uint featureVertex = face.a;
+            if (barycentric.y > barycentric.x) {
+                featureVertex = face.b;
+            }
+            if (barycentric.z >
+                (featureVertex == face.a
+                     ? barycentric.x
+                     : barycentric.y)) {
+                featureVertex = face.c;
+            }
+            result.featureA =
+                vertices[featureVertex].featureA;
+            result.featureB =
+                vertices[featureVertex].featureB;
+            result.normal = -face.normal;
+            result.separation = -bestDistance;
+            result.status = MR_STEP_SUCCESS;
+            // Distinguish the expensive certified penetration path from
+            // ordinary cached GJK and the conservative MPR witness.
+            result.fallback = 3u;
+            result.iterations += iteration + 1u;
+            return
+                finiteFloat3(result.pointA) &&
+                finiteFloat3(result.pointB) &&
+                finiteFloat3(result.normal) &&
+                isfinite(result.separation);
+        }
+        if (vertexCount >= MR_EPA_VERTEX_CAPACITY) {
+            return false;
+        }
+        const uint newVertex = vertexCount++;
+        vertices[newVertex] = candidate;
+        uint edgeA[3u * MR_EPA_FACE_CAPACITY];
+        uint edgeB[3u * MR_EPA_FACE_CAPACITY];
+        uint edgeCount = 0u;
+        for (uint face = 0u; face < faceCount; ++face) {
+            if (faces[face].active == 0u ||
+                dot(
+                    faces[face].normal,
+                    candidate.minkowski -
+                        vertices[faces[face].a].minkowski
+                ) <= tolerance) {
+                continue;
+            }
+            addHorizonEdge(
+                edgeA,
+                edgeB,
+                edgeCount,
+                faces[face].a,
+                faces[face].b
+            );
+            addHorizonEdge(
+                edgeA,
+                edgeB,
+                edgeCount,
+                faces[face].b,
+                faces[face].c
+            );
+            addHorizonEdge(
+                edgeA,
+                edgeB,
+                edgeCount,
+                faces[face].c,
+                faces[face].a
+            );
+            faces[face].active = 0u;
+        }
+        if (edgeCount == 0u) {
+            return false;
+        }
+        for (uint edge = 0u; edge < edgeCount; ++edge) {
+            uint destination = MR_INVALID_INDEX;
+            for (uint face = 0u;
+                 face < faceCount;
+                 ++face) {
+                if (faces[face].active == 0u) {
+                    destination = face;
+                    break;
+                }
+            }
+            if (destination == MR_INVALID_INDEX) {
+                if (faceCount >= MR_EPA_FACE_CAPACITY) {
+                    return false;
+                }
+                destination = faceCount++;
+            }
+            if (!makeEPAFace(
+                    vertices,
+                    edgeA[edge],
+                    edgeB[edge],
+                    newVertex,
+                    faces[destination]
+                )) {
+                faces[destination].active = 0u;
+            }
+        }
+    }
+    return false;
+}
+
+float3 shapeInteriorPoint(
+    const thread WorldShape& shape,
+    device const MRShapeGPU& source,
+    device const MRGeometryHeaderGPU* geometryHeaders
+) {
+    if (shape.type != MR_SHAPE_CONVEX) {
+        return shape.center;
+    }
+    const MRGeometryHeaderGPU geometry =
+        geometryHeaders[source.geometryOffset];
+    const float3 localInterior =
+        0.5f *
+        (geometry.localLower.xyz + geometry.localUpper.xyz) *
+        source.dimensions.xyz;
+    return shape.center +
+        quaternionRotate(shape.rotation, localInterior);
+}
+
+bool normalizedPortalDirection(
+    thread const ConvexSupportPoint* portal,
+    thread float3& direction
+) {
+    direction = cross(
+        portal[2].minkowski - portal[1].minkowski,
+        portal[3].minkowski - portal[1].minkowski
+    );
+    const float squared = dot(direction, direction);
+    if (!(squared > kTiny) || !isfinite(squared)) {
+        return false;
+    }
+    direction *= rsqrt(squared);
+    return true;
+}
+
+void expandMPRPortal(
+    thread ConvexSupportPoint* portal,
+    const thread ConvexSupportPoint& candidate
+) {
+    const float3 candidateCrossCenter = cross(
+        candidate.minkowski,
+        portal[0].minkowski
+    );
+    if (dot(
+            portal[1].minkowski,
+            candidateCrossCenter
+        ) > 0.0f) {
+        if (dot(
+                portal[2].minkowski,
+                candidateCrossCenter
+            ) > 0.0f) {
+            portal[1] = candidate;
+        } else {
+            portal[3] = candidate;
+        }
+    } else if (dot(
+                   portal[3].minkowski,
+                   candidateCrossCenter
+               ) > 0.0f) {
+        portal[2] = candidate;
+    } else {
+        portal[1] = candidate;
+    }
+}
+
+bool mprPortalWitness(
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    thread const ConvexSupportPoint* portal,
+    thread ConvexQueryResult& result
+) {
+    float3 weights;
+    const float3 closest = closestTriangleWeights(
+        portal[1].minkowski,
+        portal[2].minkowski,
+        portal[3].minkowski,
+        weights
+    );
+    result.pointA =
+        portal[1].pointA * weights.x +
+        portal[2].pointA * weights.y +
+        portal[3].pointA * weights.z;
+    result.pointB =
+        portal[1].pointB * weights.x +
+        portal[2].pointB * weights.y +
+        portal[3].pointB * weights.z;
+    uint featureVertex = 1u;
+    float featureWeight = weights.x;
+    if (weights.y > featureWeight) {
+        featureVertex = 2u;
+        featureWeight = weights.y;
+    }
+    if (weights.z > featureWeight) {
+        featureVertex = 3u;
+    }
+    result.featureA = portal[featureVertex].featureA;
+    result.featureB = portal[featureVertex].featureB;
+
+    float3 direction = closest;
+    float distance = length(direction);
+    if (!(distance > kTiny)) {
+        direction = shapeB.center - shapeA.center;
+        distance = length(direction);
+    }
+    if (!(distance > kTiny)) {
+        direction = deterministicDirection(
+            shapeA.index * 65537u + shapeB.index
+        );
+    } else {
+        direction /= distance;
+    }
+    const float centerOrientation =
+        dot(direction, shapeB.center - shapeA.center);
+    if (centerOrientation < 0.0f) {
+        direction = -direction;
+    }
+    float separation = dot(
+        result.pointB - result.pointA,
+        direction
+    );
+    if (separation > 0.0f) {
+        direction = -direction;
+        separation = -separation;
+    }
+    result.status = MR_STEP_SUCCESS;
+    result.fallback = 1u;
+    result.normal = direction;
+    // This path is entered only after an ambiguous/overlap GJK result.
+    // Never turn a capacity/degeneracy fallback into silent separation.
+    result.separation = min(separation, -0.0f);
+    return
+        finiteFloat3(result.pointA) &&
+        finiteFloat3(result.pointB) &&
+        finiteFloat3(result.normal) &&
+        isfinite(result.separation);
+}
+
+bool mprConservativeWitness(
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    thread ConvexQueryResult& result
+) {
+    ConvexSupportPoint portal[4];
+    portal[0] = {};
+    portal[0].pointA = shapeInteriorPoint(
+        shapeA,
+        sourceA,
+        geometryHeaders
+    );
+    portal[0].pointB = shapeInteriorPoint(
+        shapeB,
+        sourceB,
+        geometryHeaders
+    );
+    portal[0].minkowski =
+        portal[0].pointA - portal[0].pointB;
+    const float queryScale =
+        max(worldShapeScale(shapeA), worldShapeScale(shapeB)) +
+        1.0f;
+    const float tolerance =
+        64.0f * 1.1920929e-7f * queryScale;
+    if (dot(
+            portal[0].minkowski,
+            portal[0].minkowski
+        ) <= tolerance * tolerance) {
+        portal[0].minkowski +=
+            deterministicDirection(
+                shapeA.index * 65537u + shapeB.index
+            ) * tolerance;
+    }
+
+    float3 direction = -portal[0].minkowski;
+    direction *= rsqrt(dot(direction, direction));
+    if (!supportMinkowski(
+            shapeA,
+            shapeB,
+            sourceA,
+            sourceB,
+            geometryHeaders,
+            geometryVertices,
+            direction,
+            portal[1]
+        ) ||
+        dot(portal[1].minkowski, direction) < -tolerance) {
+        return false;
+    }
+    direction = cross(
+        portal[0].minkowski,
+        portal[1].minkowski
+    );
+    float directionSquared = dot(direction, direction);
+    if (!(directionSquared > tolerance * tolerance)) {
+        portal[2] = portal[1];
+        portal[3] = portal[1];
+        return mprPortalWitness(
+            shapeA,
+            shapeB,
+            portal,
+            result
+        );
+    }
+    direction *= rsqrt(directionSquared);
+    if (!supportMinkowski(
+            shapeA,
+            shapeB,
+            sourceA,
+            sourceB,
+            geometryHeaders,
+            geometryVertices,
+            direction,
+            portal[2]
+        ) ||
+        dot(portal[2].minkowski, direction) < -tolerance) {
+        return false;
+    }
+
+    direction = cross(
+        portal[1].minkowski - portal[0].minkowski,
+        portal[2].minkowski - portal[0].minkowski
+    );
+    directionSquared = dot(direction, direction);
+    if (!(directionSquared > tolerance * tolerance)) {
+        portal[3] = portal[2];
+        return mprPortalWitness(
+            shapeA,
+            shapeB,
+            portal,
+            result
+        );
+    }
+    direction *= rsqrt(directionSquared);
+    if (dot(direction, portal[0].minkowski) > 0.0f) {
+        const ConvexSupportPoint swap = portal[1];
+        portal[1] = portal[2];
+        portal[2] = swap;
+        direction = -direction;
+    }
+
+    bool discovered = false;
+    for (uint iteration = 0u;
+         iteration < MR_GJK_MAX_ITERATIONS;
+         ++iteration) {
+        ++result.iterations;
+        if (!supportMinkowski(
+                shapeA,
+                shapeB,
+                sourceA,
+                sourceB,
+                geometryHeaders,
+                geometryVertices,
+                direction,
+                portal[3]
+            ) ||
+            dot(portal[3].minkowski, direction) <
+                -tolerance) {
+            return false;
+        }
+        const float side13 = dot(
+            cross(
+                portal[1].minkowski,
+                portal[3].minkowski
+            ),
+            portal[0].minkowski
+        );
+        if (side13 < -tolerance) {
+            portal[2] = portal[3];
+        } else {
+            const float side32 = dot(
+                cross(
+                    portal[3].minkowski,
+                    portal[2].minkowski
+                ),
+                portal[0].minkowski
+            );
+            if (side32 < -tolerance) {
+                portal[1] = portal[3];
+            } else {
+                discovered = true;
+                break;
+            }
+        }
+        direction = cross(
+            portal[1].minkowski -
+                portal[0].minkowski,
+            portal[2].minkowski -
+                portal[0].minkowski
+        );
+        directionSquared = dot(direction, direction);
+        if (!(directionSquared > tolerance * tolerance)) {
+            portal[3] = portal[2];
+            return mprPortalWitness(
+                shapeA,
+                shapeB,
+                portal,
+                result
+            );
+        }
+        direction *= rsqrt(directionSquared);
+    }
+    if (!discovered) {
+        return false;
+    }
+
+    for (uint iteration = 0u;
+         iteration < MR_EPA_MAX_ITERATIONS;
+         ++iteration) {
+        ++result.iterations;
+        if (!normalizedPortalDirection(
+                portal,
+                direction
+            )) {
+            return mprPortalWitness(
+                shapeA,
+                shapeB,
+                portal,
+                result
+            );
+        }
+        ConvexSupportPoint candidate;
+        if (!supportMinkowski(
+                shapeA,
+                shapeB,
+                sourceA,
+                sourceB,
+                geometryHeaders,
+                geometryVertices,
+                direction,
+                candidate
+            )) {
+            return false;
+        }
+        const float candidateProjection =
+            dot(candidate.minkowski, direction);
+        const float portalProjection = min(
+            dot(portal[1].minkowski, direction),
+            min(
+                dot(portal[2].minkowski, direction),
+                dot(portal[3].minkowski, direction)
+            )
+        );
+        if (candidateProjection - portalProjection <=
+                tolerance ||
+            iteration + 1u == MR_EPA_MAX_ITERATIONS) {
+            return mprPortalWitness(
+                shapeA,
+                shapeB,
+                portal,
+                result
+            );
+        }
+        expandMPRPortal(portal, candidate);
+    }
+    return false;
+}
+
+float3 contactPatchTangent(const float3 normal) {
+    const float3 absoluteNormal = abs(normal);
+    const float3 reference =
+        absoluteNormal.x <= absoluteNormal.y &&
+            absoluteNormal.x <= absoluteNormal.z
+        ? float3(1.0f, 0.0f, 0.0f)
+        : absoluteNormal.y <= absoluteNormal.z
+            ? float3(0.0f, 1.0f, 0.0f)
+            : float3(0.0f, 0.0f, 1.0f);
+    return normalize(cross(normal, reference));
+}
+
+void appendSupportPatchPoint(
+    thread ContactBatch& result,
+    const float3 normal,
+    const float separation,
+    const float3 pointA,
+    const float3 pointB,
+    const uint featureA,
+    const uint featureB,
+    const float duplicateToleranceSquared
+) {
+    for (uint index = 0u; index < result.count; ++index) {
+        const float3 deltaA =
+            result.contacts[index].pointAWorld.xyz - pointA;
+        const float3 deltaB =
+            result.contacts[index].pointBWorld.xyz - pointB;
+        if (dot(deltaA, deltaA) <=
+                duplicateToleranceSquared &&
+            dot(deltaB, deltaB) <=
+                duplicateToleranceSquared) {
+            return;
+        }
+    }
+    if (result.count >=
+        MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR) {
+        return;
+    }
+    result.contacts[result.count++] = makeContact(
+        normal,
+        separation,
+        pointA,
+        pointB,
+        featureA,
+        featureB
+    );
+}
+
+void appendSupportMappedPatch(
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    const thread ConvexQueryResult& query,
+    thread ContactBatch& result
+) {
+    const bool cylinderA = shapeA.type == MR_SHAPE_CYLINDER;
+    const bool cylinderB = shapeB.type == MR_SHAPE_CYLINDER;
+    const bool convexA = shapeA.type == MR_SHAPE_CONVEX;
+    const bool convexB = shapeB.type == MR_SHAPE_CONVEX;
+    if (!cylinderA && !cylinderB && !convexA && !convexB) {
+        return;
+    }
+    const float queryScale =
+        max(worldShapeScale(shapeA), worldShapeScale(shapeB)) +
+        1.0f;
+    const float duplicateTolerance =
+        32.0f * 1.1920929e-7f * queryScale;
+    const float duplicateToleranceSquared =
+        duplicateTolerance * duplicateTolerance;
+    const float perturbation = 2.0e-4f;
+    const bool sampleA =
+        cylinderA || (!cylinderB && convexA);
+    const thread WorldShape& sampledShape =
+        sampleA ? shapeA : shapeB;
+    device const MRShapeGPU& sampledSource =
+        sampleA ? sourceA : sourceB;
+    const float3 supportNormal =
+        sampleA ? query.normal : -query.normal;
+
+    float3 sampleDirections[4];
+    uint sampleCount = 0u;
+    if (sampledShape.type == MR_SHAPE_CYLINDER) {
+        const float axialAlignment = abs(
+            dot(supportNormal, sampledShape.cylinderAxis)
+        );
+        if (axialAlignment >= 0.95f) {
+            sampleDirections[0] =
+                sampledShape.cylinderBasisX;
+            sampleDirections[1] =
+                -sampledShape.cylinderBasisX;
+            sampleDirections[2] =
+                sampledShape.cylinderBasisZ;
+            sampleDirections[3] =
+                -sampledShape.cylinderBasisZ;
+            sampleCount = 4u;
+        } else if (axialAlignment <= 0.20f) {
+            sampleDirections[0] =
+                sampledShape.cylinderAxis;
+            sampleDirections[1] =
+                -sampledShape.cylinderAxis;
+            sampleCount = 2u;
+        }
+    } else {
+        const float3 tangent =
+            contactPatchTangent(query.normal);
+        const float3 bitangent =
+            cross(query.normal, tangent);
+        sampleDirections[0] = tangent;
+        sampleDirections[1] = -tangent;
+        sampleDirections[2] = bitangent;
+        sampleDirections[3] = -bitangent;
+        sampleCount = 4u;
+    }
+
+    for (uint sample = 0u;
+         sample < sampleCount;
+         ++sample) {
+        float3 point;
+        uint feature = 0u;
+        if (!supportWorldShape(
+                sampledShape,
+                sampledSource,
+                geometryHeaders,
+                geometryVertices,
+                supportNormal +
+                    perturbation * sampleDirections[sample],
+                point,
+                feature
+            )) {
+            continue;
+        }
+        const float3 pointA =
+            sampleA
+            ? point
+            : point - query.normal * query.separation;
+        const float3 pointB =
+            sampleA
+            ? point + query.normal * query.separation
+            : point;
+        appendSupportPatchPoint(
+            result,
+            query.normal,
+            query.separation,
+            pointA,
+            pointB,
+            sampleA ? feature : query.featureA,
+            sampleA ? query.featureB : feature,
+            duplicateToleranceSquared
+        );
+    }
+}
+
+ContactBatch supportMappedContacts(
+    const uint colliderA,
+    const uint colliderB,
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    const float3 cachedDirection,
+    thread ConvexQueryResult& query
+) {
+    ContactBatch result = {};
+    const float acceptedContactDistance =
+        shapeA.contactOffset +
+        shapeB.contactOffset +
+        pairQueryPadding(shapeA, shapeB);
+    if (shapeA.type == MR_SHAPE_PLANE ||
+        shapeB.type == MR_SHAPE_PLANE) {
+        const thread WorldShape& plane =
+            shapeA.type == MR_SHAPE_PLANE ? shapeA : shapeB;
+        const thread WorldShape& finiteShape =
+            shapeA.type == MR_SHAPE_PLANE ? shapeB : shapeA;
+        device const MRShapeGPU& finiteSource =
+            shapeA.type == MR_SHAPE_PLANE ? sourceB : sourceA;
+        float3 surface;
+        uint feature = 0u;
+        if (!supportWorldShape(
+                finiteShape,
+                finiteSource,
+                geometryHeaders,
+                geometryVertices,
+                -plane.planeNormal,
+                surface,
+                feature
+            )) {
+            query.status = MR_STEP_UNSUPPORTED;
+            return result;
+        }
+        const float separation = dot(
+            plane.planeNormal,
+            surface - plane.center
+        );
+        query.status = MR_STEP_SUCCESS;
+        query.normal =
+            colliderA == plane.index
+            ? plane.planeNormal
+            : -plane.planeNormal;
+        query.separation = separation;
+        if (separation <= acceptedContactDistance) {
+            appendFinitePlaneContact(
+                result,
+                colliderA,
+                plane,
+                surface,
+                separation,
+                feature
+            );
+            query.pointA = result.contacts[0].pointAWorld.xyz;
+            query.pointB = result.contacts[0].pointBWorld.xyz;
+            query.featureA =
+                result.contacts[0].featureAndFlags[0];
+            query.featureB =
+                result.contacts[0].featureAndFlags[1];
+        }
+        return result;
+    }
+
+    ConvexSupportPoint simplex[4];
+    float weights[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    uint simplexCount = 0u;
+    const bool overlap = gjkDistance(
+        shapeA,
+        shapeB,
+        sourceA,
+        sourceB,
+        geometryHeaders,
+        geometryVertices,
+        simplex,
+        simplexCount,
+        weights,
+        cachedDirection,
+        query
+    );
+    if (query.status != MR_STEP_SUCCESS &&
+        query.status != MR_STEP_DID_NOT_CONVERGE) {
+        return result;
+    }
+    if (overlap) {
+        if (!epaPenetration(
+                shapeA,
+                shapeB,
+                sourceA,
+                sourceB,
+                geometryHeaders,
+                geometryVertices,
+                simplex,
+                simplexCount,
+                query
+            ) &&
+            !mprConservativeWitness(
+                shapeA,
+                shapeB,
+                sourceA,
+                sourceB,
+                geometryHeaders,
+                geometryVertices,
+                query
+            )) {
+            query.status = MR_STEP_DID_NOT_CONVERGE;
+            return result;
+        }
+    } else if (query.status == MR_STEP_DID_NOT_CONVERGE) {
+        if (!mprConservativeWitness(
+                shapeA,
+                shapeB,
+                sourceA,
+                sourceB,
+                geometryHeaders,
+                geometryVertices,
+                query
+            )) {
+            return result;
+        }
+    }
+    if (query.separation <= acceptedContactDistance) {
+        result.contacts[0] = makeContact(
+            query.normal,
+            query.separation,
+            query.pointA,
+            query.pointB,
+            query.featureA,
+            query.featureB
+        );
+        result.count = 1u;
+        appendSupportMappedPatch(
+            shapeA,
+            shapeB,
+            sourceA,
+            sourceB,
+            geometryHeaders,
+            geometryVertices,
+            query,
+            result
+        );
+    }
+    return result;
+}
+
+uint uint4Component(const uint4 value, const uint index) {
+    return index == 0u ? value.x :
+        index == 1u ? value.y :
+        index == 2u ? value.z : value.w;
+}
+
+void finiteBoundsInMeshLocal(
+    const thread WorldShape& finiteShape,
+    const thread WorldShape& mesh,
+    thread float3& lower,
+    thread float3& upper
+) {
+    lower = float3(INFINITY);
+    upper = float3(-INFINITY);
+    for (uint corner = 0u; corner < 8u; ++corner) {
+        const float3 world = float3(
+            (corner & 1u) != 0u
+                ? finiteShape.upper.x
+                : finiteShape.lower.x,
+            (corner & 2u) != 0u
+                ? finiteShape.upper.y
+                : finiteShape.lower.y,
+            (corner & 4u) != 0u
+                ? finiteShape.upper.z
+                : finiteShape.lower.z
+        );
+        const float3 local =
+            quaternionInverseRotate(
+                mesh.rotation,
+                world - mesh.center
+            ) / mesh.scale;
+        lower = min(lower, local);
+        upper = max(upper, local);
+    }
+}
+
+float3 dequantizedMeshBound(
+    const uint4 quantized,
+    const MRGeometryHeaderGPU geometry
+) {
+    const float3 normalized =
+        float3(quantized.xyz) * (1.0f / 65535.0f);
+    return geometry.localLower.xyz +
+        normalized *
+        (geometry.localUpper.xyz -
+         geometry.localLower.xyz);
+}
+
+bool meshAabbOverlap(
+    const float3 queryLower,
+    const float3 queryUpper,
+    const float3 childLower,
+    const float3 childUpper
+) {
+    return
+        all(queryLower <= childUpper) &&
+        all(queryUpper >= childLower);
+}
+
+void insertMeshContact(
+    thread ContactBatch& contacts,
+    const thread MRRawContactGPU& candidate
+) {
+    if (contacts.count <
+        MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR) {
+        contacts.contacts[contacts.count++] = candidate;
+        return;
+    }
+    uint worst = 0u;
+    for (uint index = 1u;
+         index < contacts.count;
+         ++index) {
+        const MRRawContactGPU current =
+            contacts.contacts[index];
+        const MRRawContactGPU selected =
+            contacts.contacts[worst];
+        if (current.normalAndSeparation.w >
+                selected.normalAndSeparation.w ||
+            (current.normalAndSeparation.w ==
+                 selected.normalAndSeparation.w &&
+             current.featureAndFlags[1] >
+                 selected.featureAndFlags[1])) {
+            worst = index;
+        }
+    }
+    if (candidate.normalAndSeparation.w <
+            contacts.contacts[worst]
+                .normalAndSeparation.w ||
+        (candidate.normalAndSeparation.w ==
+             contacts.contacts[worst]
+                 .normalAndSeparation.w &&
+         candidate.featureAndFlags[1] <
+             contacts.contacts[worst]
+                 .featureAndFlags[1])) {
+        contacts.contacts[worst] = candidate;
+    }
+}
+
+void convexTriangleContact(
+    const bool meshIsA,
+    const thread WorldShape& finiteShape,
+    const thread WorldShape& mesh,
+    device const MRShapeGPU& finiteSource,
+    device const MRShapeGPU& meshSource,
+    const MRMeshTriangleGPU triangle,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    thread ContactBatch& contacts
+) {
+    const float3 localA =
+        geometryVertices[
+            triangle.verticesAndFeature.x
+        ].xyz * mesh.scale;
+    const float3 localB =
+        geometryVertices[
+            triangle.verticesAndFeature.y
+        ].xyz * mesh.scale;
+    const float3 localC =
+        geometryVertices[
+            triangle.verticesAndFeature.z
+        ].xyz * mesh.scale;
+    const float3 a =
+        mesh.center +
+        quaternionRotate(mesh.rotation, localA);
+    const float3 b =
+        mesh.center +
+        quaternionRotate(mesh.rotation, localB);
+    const float3 c =
+        mesh.center +
+        quaternionRotate(mesh.rotation, localC);
+    float3 normal = cross(b - a, c - a);
+    const float normalSquared = dot(normal, normal);
+    if (!(normalSquared > kTiny)) {
+        return;
+    }
+    normal *= rsqrt(normalSquared);
+    const float centerSide =
+        dot(normal, finiteShape.center - a);
+    const bool twoSided =
+        (meshSource.flags &
+         MR_SHAPE_FLAG_MESH_TWO_SIDED) != 0u;
+    if (!twoSided && centerSide < 0.0f) {
+        return;
+    }
+    if (twoSided && centerSide < 0.0f) {
+        normal = -normal;
+    }
+
+    if (finiteShape.type == MR_SHAPE_SPHERE) {
+        float3 sphereBarycentric;
+        const float3 relativeClosest =
+            closestTriangleWeights(
+                a - finiteShape.center,
+                b - finiteShape.center,
+                c - finiteShape.center,
+                sphereBarycentric
+            );
+        const float centerDistance = length(relativeClosest);
+        const float3 finiteToMeshNormal =
+            centerDistance > kTiny
+            ? relativeClosest / centerDistance
+            : -normal;
+        const float separation =
+            centerDistance - finiteShape.radius;
+        const float acceptedDistance =
+            finiteShape.contactOffset +
+            mesh.contactOffset +
+            pairQueryPadding(finiteShape, mesh);
+        if (separation > acceptedDistance) {
+            return;
+        }
+        uint edge = MR_INVALID_INDEX;
+        if (sphereBarycentric.z <= 1.0e-5f) {
+            edge = 0u;
+        } else if (sphereBarycentric.x <= 1.0e-5f) {
+            edge = 1u;
+        } else if (sphereBarycentric.y <= 1.0e-5f) {
+            edge = 2u;
+        }
+        if (edge != MR_INVALID_INDEX &&
+            (triangle.adjacencyAndEdges.w &
+             (1u << edge)) == 0u) {
+            return;
+        }
+        MRRawContactGPU contact = makeContact(
+            finiteToMeshNormal,
+            separation,
+            finiteShape.center +
+                finiteToMeshNormal * finiteShape.radius,
+            finiteShape.center + relativeClosest,
+            featureKey(MR_SHAPE_SPHERE, 0u),
+            featureKey(
+                MR_SHAPE_TRIANGLE_MESH,
+                triangle.verticesAndFeature.w
+            )
+        );
+        contact.featureAndFlags[3] =
+            MR_RAW_CONTACT_MATERIAL_OVERRIDE |
+            (
+                triangle.materialAndFlags.x &
+                MR_RAW_CONTACT_MATERIAL_INDEX_MASK
+            );
+        if (meshIsA) {
+            contact = swappedContact(contact);
+        }
+        insertMeshContact(contacts, contact);
+        return;
+    }
+
+    float3 planeFinitePoint;
+    uint planeFiniteFeature = 0u;
+    if (!supportWorldShape(
+            finiteShape,
+            finiteSource,
+            geometryHeaders,
+            geometryVertices,
+            -normal,
+            planeFinitePoint,
+            planeFiniteFeature
+        )) {
+        return;
+    }
+    float3 planeBarycentric;
+    const float3 planeRelativeClosest =
+        closestTriangleWeights(
+            a - planeFinitePoint,
+            b - planeFinitePoint,
+            c - planeFinitePoint,
+            planeBarycentric
+        );
+    const float acceptedDistance =
+        finiteShape.contactOffset +
+        mesh.contactOffset +
+        pairQueryPadding(finiteShape, mesh);
+
+    float3 finitePoint = planeFinitePoint;
+    float3 trianglePoint =
+        planeFinitePoint + planeRelativeClosest;
+    float3 finiteToMeshNormal = -normal;
+    float separation = dot(
+        normal,
+        planeFinitePoint - a
+    );
+    uint finiteFeature = planeFiniteFeature;
+    float3 witnessBarycentric = planeBarycentric;
+    const bool insideFace =
+        all(planeBarycentric > float3(1.0e-5f));
+    if (!insideFace) {
+        // Edge/vertex cases require the full finite-shape support function.
+        // Query the zero-thickness triangle with cached-free certified GJK
+        // instead of approximating the finite body by one plane support.
+        WorldShape triangleShape = {};
+        triangleShape.index =
+            triangle.verticesAndFeature.w;
+        triangleShape.type = kQueryTriangleShape;
+        triangleShape.center = (a + b + c) / 3.0f;
+        triangleShape.capsuleEndpoint0 = a;
+        triangleShape.capsuleEndpoint1 = b;
+        triangleShape.halfExtents = c;
+        triangleShape.lower = min(a, min(b, c));
+        triangleShape.upper = max(a, max(b, c));
+        triangleShape.contactOffset = mesh.contactOffset;
+        triangleShape.scale = float3(1.0f);
+
+        ConvexSupportPoint simplex[4];
+        float weights[4] = {
+            0.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+        };
+        uint simplexCount = 0u;
+        ConvexQueryResult query = {};
+        query.status = MR_STEP_SUCCESS;
+        const bool overlap = gjkDistance(
+            finiteShape,
+            triangleShape,
+            finiteSource,
+            meshSource,
+            geometryHeaders,
+            geometryVertices,
+            simplex,
+            simplexCount,
+            weights,
+            -normal,
+            query
+        );
+        if (query.status == MR_STEP_SUCCESS && !overlap) {
+            finitePoint = query.pointA;
+            trianglePoint = query.pointB;
+            finiteToMeshNormal = query.normal;
+            separation = query.separation;
+            finiteFeature = query.featureA;
+            closestTriangleWeights(
+                a - trianglePoint,
+                b - trianglePoint,
+                c - trianglePoint,
+                witnessBarycentric
+            );
+        } else {
+            const float distance =
+                length(planeRelativeClosest);
+            separation = distance;
+            if (distance > kTiny) {
+                finiteToMeshNormal =
+                    planeRelativeClosest / distance;
+            }
+        }
+    }
+    if (separation > acceptedDistance) {
+        return;
+    }
+    uint edge = MR_INVALID_INDEX;
+    if (witnessBarycentric.z <= 1.0e-5f) {
+        edge = 0u;
+    } else if (witnessBarycentric.x <= 1.0e-5f) {
+        edge = 1u;
+    } else if (witnessBarycentric.y <= 1.0e-5f) {
+        edge = 2u;
+    }
+    if (edge != MR_INVALID_INDEX &&
+        (triangle.adjacencyAndEdges.w &
+         (1u << edge)) == 0u) {
+        return;
+    }
+    MRRawContactGPU contact = makeContact(
+        finiteToMeshNormal,
+        separation,
+        finitePoint,
+        trianglePoint,
+        finiteFeature,
+        featureKey(
+            MR_SHAPE_TRIANGLE_MESH,
+            triangle.verticesAndFeature.w
+        )
+    );
+    contact.featureAndFlags[3] =
+        MR_RAW_CONTACT_MATERIAL_OVERRIDE |
+        (
+            triangle.materialAndFlags.x &
+            MR_RAW_CONTACT_MATERIAL_INDEX_MASK
+        );
+    if (meshIsA) {
+        contact = swappedContact(contact);
+    }
+    insertMeshContact(contacts, contact);
+}
+
+ContactBatch meshContacts(
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    device const MRMeshBVHNodeGPU* meshNodes,
+    device const MRMeshTriangleGPU* meshTriangles,
+    thread uint& triangleCandidates
+) {
+    ContactBatch result = {};
+    const bool meshIsA =
+        shapeA.type == MR_SHAPE_TRIANGLE_MESH;
+    const thread WorldShape& mesh =
+        meshIsA ? shapeA : shapeB;
+    const thread WorldShape& finiteShape =
+        meshIsA ? shapeB : shapeA;
+    device const MRShapeGPU& meshSource =
+        meshIsA ? sourceA : sourceB;
+    device const MRShapeGPU& finiteSource =
+        meshIsA ? sourceB : sourceA;
+    if (finiteShape.type == MR_SHAPE_TRIANGLE_MESH) {
+        return result;
+    }
+    const MRGeometryHeaderGPU geometry =
+        geometryHeaders[meshSource.geometryOffset];
+    if (geometry.kind != MR_GEOMETRY_TRIANGLE_MESH ||
+        geometry.bvhCount == 0u) {
+        return result;
+    }
+    float3 queryLower;
+    float3 queryUpper;
+    finiteBoundsInMeshLocal(
+        finiteShape,
+        mesh,
+        queryLower,
+        queryUpper
+    );
+    uint cursor = 0u;
+    uint visits = 0u;
+    const uint maximumVisits =
+        geometry.bvhCount * MR_MESH_BVH_BRANCHING;
+    while (cursor != MR_MESH_BVH_INVALID_ESCAPE &&
+           visits++ < maximumVisits) {
+        const uint nodeIndex =
+            cursor / MR_MESH_BVH_BRANCHING;
+        const uint slot =
+            cursor -
+            nodeIndex * MR_MESH_BVH_BRANCHING;
+        if (nodeIndex >= geometry.bvhCount) {
+            break;
+        }
+        const MRMeshBVHNodeGPU node =
+            meshNodes[geometry.bvhOffset + nodeIndex];
+        const uint metadata =
+            uint4Component(node.childMeta, slot);
+        const uint escape =
+            (metadata & MR_MESH_BVH_ESCAPE_MASK) >>
+            MR_MESH_BVH_ESCAPE_SHIFT;
+        const uint child =
+            uint4Component(node.childIndices, slot);
+        if (child == MR_INVALID_INDEX) {
+            cursor = escape;
+            continue;
+        }
+        const float3 childLower =
+            dequantizedMeshBound(
+                node.quantizedLower[slot],
+                geometry
+            );
+        const float3 childUpper =
+            dequantizedMeshBound(
+                node.quantizedUpper[slot],
+                geometry
+            );
+        if (!meshAabbOverlap(
+                queryLower,
+                queryUpper,
+                childLower,
+                childUpper
+            )) {
+            cursor = escape;
+            continue;
+        }
+        if ((metadata & MR_MESH_BVH_LEAF_BIT) == 0u) {
+            cursor = child * MR_MESH_BVH_BRANCHING;
+            continue;
+        }
+        const uint triangleCount =
+            metadata & MR_MESH_BVH_LEAF_COUNT_MASK;
+        for (uint triangle = 0u;
+             triangle < triangleCount;
+             ++triangle) {
+            if (triangleCandidates != 0xffffffffu) {
+                ++triangleCandidates;
+            }
+            convexTriangleContact(
+                meshIsA,
+                finiteShape,
+                mesh,
+                finiteSource,
+                meshSource,
+                meshTriangles[
+                    geometry.triangleOffset +
+                    child + triangle
+                ],
+                geometryHeaders,
+                geometryVertices,
+                result
+            );
+        }
+        cursor = escape;
+    }
+    // The cooked BVH is conservative, but retain a deterministic exhaustive
+    // replay when quantized traversal produced no triangle candidate. This is
+    // a GPU-only robustness path for extremely thin or zero-extent mesh axes,
+    // not a second full-mesh pass for ordinary separated candidates.
+    if (triangleCandidates == 0u) {
+        for (uint triangle = 0u;
+             triangle < geometry.triangleCount;
+             ++triangle) {
+            if (triangleCandidates != 0xffffffffu) {
+                ++triangleCandidates;
+            }
+            convexTriangleContact(
+                meshIsA,
+                finiteShape,
+                mesh,
+                finiteSource,
+                meshSource,
+                meshTriangles[
+                    geometry.triangleOffset + triangle
+                ],
+                geometryHeaders,
+                geometryVertices,
+                result
+            );
+        }
     }
     return result;
 }
@@ -2785,7 +5116,10 @@ inline bool finiteContactDispatch(
         MR_METAL_WORLD_CONTACT_DETERMINISTIC |
         MR_METAL_WORLD_CONTACT_WARM_START |
         MR_METAL_WORLD_CONTACT_CAPTURE_EVIDENCE |
-        MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS;
+        MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS |
+        MR_METAL_WORLD_CONTACT_WAVE32 |
+        MR_METAL_WORLD_CONTACT_CCD |
+        MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS;
     return
         dispatch.abiVersion ==
             MR_METAL_WORLD_CONTACT_ABI_VERSION &&
@@ -2803,6 +5137,14 @@ inline bool finiteContactDispatch(
         dispatch.pointQueryStride >=
             2u * dispatch.constraintCapacity &&
         dispatch.factorStride >= dispatch.nv * dispatch.nv &&
+        dispatch.workQueueClassCount ==
+            MR_WORLD_WORK_CLASS_COUNT &&
+        dispatch.queueStride >= dispatch.islandCapacity &&
+        dispatch.solverTileCapacity > 0u &&
+        dispatch.ccdMode <= MR_WORLD_CCD_HYBRID &&
+        dispatch.maxCCDEvents > 0u &&
+        dispatch.maxCCDEvents <= MR_CCD_MAX_EVENTS &&
+        dispatch.maxConservativeAdvancementIterations > 0u &&
         dispatch.rowCapacity >=
             3u * dispatch.constraintCapacity &&
         dispatch.nv > 0u &&
@@ -2816,7 +5158,12 @@ inline bool finiteContactDispatch(
         finiteFloat4(dispatch.manifoldThresholds) &&
         all(dispatch.manifoldThresholds.xyz >= 0.0f) &&
         dispatch.manifoldThresholds.w >= -1.0f &&
-        dispatch.manifoldThresholds.w <= 1.0f;
+        dispatch.manifoldThresholds.w <= 1.0f &&
+        finiteFloat4(dispatch.ccdParameters) &&
+        all(dispatch.ccdParameters.xyz >= 0.0f) &&
+        dispatch.ccdParameters.x > 0.0f &&
+        dispatch.ccdParameters.y > 0.0f &&
+        dispatch.ccdParameters.w > 0.0f;
 }
 
 } // namespace
@@ -2829,6 +5176,7 @@ kernel void mr_world_project_colliders(
     device const MRShapeGPU* shapes [[buffer(1)]],
     device const MRBodyStateGPU* bodies [[buffer(2)]],
     device MRProjectedColliderGPU* projectedColliders [[buffer(3)]],
+    device const MRGeometryHeaderGPU* geometryHeaders [[buffer(4)]],
     const uint threadIndex [[thread_position_in_grid]]
 ) {
     if (dispatch.shapeCount == 0u) {
@@ -2847,6 +5195,7 @@ kernel void mr_world_project_colliders(
     const bool projected = makeWorldShape(
         collider,
         shapes,
+        geometryHeaders,
         bodies + environment * dispatch.bodyStateStride,
         dispatch.bodyCount,
         worldShape,
@@ -2866,6 +5215,1172 @@ kernel void mr_world_project_colliders(
         worldShape,
         MR_STEP_SUCCESS
     );
+}
+
+float shapeSweepRadius(
+    const MRShapeGPU source,
+    const MRProjectedColliderGPU projected
+) {
+    float radius =
+        source.contactRestAndBoundingRadius.z;
+    if (radius > 0.0f && isfinite(radius)) {
+        return radius;
+    }
+    if (source.shapeType == MR_SHAPE_SPHERE) {
+        return source.dimensions.x;
+    }
+    if (source.shapeType == MR_SHAPE_CAPSULE) {
+        return source.dimensions.x + source.dimensions.y;
+    }
+    if (source.shapeType == MR_SHAPE_BOX) {
+        return length(source.dimensions.xyz);
+    }
+    if (source.shapeType == MR_SHAPE_CYLINDER) {
+        return length(
+            float2(source.dimensions.x, source.dimensions.y)
+        );
+    }
+    return length(
+        0.5f *
+        (
+            projected.upperAndContactOffset.xyz -
+            projected.lowerAndHalfLength.xyz
+        )
+    );
+}
+
+float4 integrateWorldQuaternion(
+    const float4 orientation,
+    const float3 angularVelocity,
+    const float timestep
+) {
+    const float angularSpeed = length(angularVelocity);
+    if (!(angularSpeed > 1.0e-8f) || !(timestep > 0.0f)) {
+        return orientation;
+    }
+    const float halfAngle = 0.5f * angularSpeed * timestep;
+    const float4 delta = float4(
+        angularVelocity / angularSpeed * sin(halfAngle),
+        cos(halfAngle)
+    );
+    const float4 candidate =
+        quaternionMultiply(delta, orientation);
+    return candidate * rsqrt(dot(candidate, candidate));
+}
+
+MRProjectedColliderGPU looseProjectedCollider(
+    const MRShapeGPU source,
+    const MRProjectedColliderGPU current,
+    const float3 center,
+    const float4 rotation,
+    const float sweepRadius
+) {
+    MRProjectedColliderGPU result = current;
+    result.statusAndFlags.z = 0u;
+    result.statusAndFlags.w = source.flags;
+    result.centerAndRadius.xyz = center;
+    result.rotation = rotation;
+    result.upperAndContactOffset.w =
+        source.contactRestAndBoundingRadius.x;
+    if (source.shapeType != MR_SHAPE_PLANE) {
+        const float extent =
+            max(
+                sweepRadius,
+                source.contactRestAndBoundingRadius.x
+            ) +
+            source.contactRestAndBoundingRadius.x;
+        result.lowerAndHalfLength.xyz = center - extent;
+        result.upperAndContactOffset.xyz = center + extent;
+    }
+    return result;
+}
+
+// Produces an unconstrained end transform and turns the current collider
+// record into a conservative swept/speculative record. Articulation motion is
+// taken from ABA's candidate q through a second kinematics projection rather
+// than guessed from a dense or host-visible velocity representation.
+kernel void mr_world_project_swept_colliders(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRArticulationGPU* articulations [[buffer(2)]],
+    device const MRBodyStateGPU* currentBodies [[buffer(3)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(4)]],
+    device const MRArticulatedBodyPoseGPU* futureBodyPoses [[buffer(5)]],
+    device const float* candidateV [[buffer(6)]],
+    device const MRGeometryHeaderGPU* geometryHeaders [[buffer(7)]],
+    device MRProjectedColliderGPU* projectedColliders [[buffer(8)]],
+    device MRProjectedColliderGPU* futureProjectedColliders [[buffer(9)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(10)]],
+    const uint threadIndex [[thread_position_in_grid]]
+) {
+    if (dispatch.shapeCount == 0u) {
+        return;
+    }
+    const uint environment =
+        threadIndex / dispatch.shapeCount;
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const uint collider =
+        threadIndex - environment * dispatch.shapeCount;
+    const uint projectedIndex =
+        environment * dispatch.shapeCount + collider;
+    const MRShapeGPU source = shapes[collider];
+    WorldShape currentShape = {};
+    uint projectionFailure = MR_STEP_SUCCESS;
+    const bool projectedSuccessfully = makeWorldShape(
+        collider,
+        shapes,
+        geometryHeaders,
+        currentBodies +
+            environment * dispatch.bodyStateStride,
+        dispatch.bodyCount,
+        currentShape,
+        projectionFailure
+    );
+    MRProjectedColliderGPU initialProjection =
+        projectedCollider(currentShape, projectionFailure);
+    projectedColliders[projectedIndex] = initialProjection;
+    device MRProjectedColliderGPU& projected =
+        projectedColliders[projectedIndex];
+    if (statuses[environment].code != MR_STEP_SUCCESS ||
+        !projectedSuccessfully) {
+        futureProjectedColliders[projectedIndex] = projected;
+        return;
+    }
+    projected.statusAndFlags.w = source.flags;
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    const MRBodyStateGPU currentBody =
+        currentBodies[bodyBase + source.bodyIndex];
+    const MRArticulationGPU articulation =
+        articulations[dispatch.articulationIndex];
+    const bool articulated =
+        currentBody.flagsAndIndices[1] ==
+        dispatch.articulationIndex;
+    const bool hasFutureKinematics =
+        (dispatch.flags &
+         MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS) != 0u;
+    if (dispatch.ccdMode == MR_WORLD_CCD_DISABLED ||
+        source.shapeType == MR_SHAPE_PLANE ||
+        currentBody.flagsAndIndices[0] == MR_MOTION_STATIC) {
+        projected.statusAndFlags.z = 0u;
+        futureProjectedColliders[projectedIndex] = projected;
+        return;
+    }
+
+    // Most RL contacts use speculative CCD without opting into exact event
+    // casts. For articulated links, rebuilding an approximate future pose
+    // from a zero link velocity adds work but no information. Inflate the
+    // current bound directly from the generalized-speed envelope instead.
+    // Exact-CCD colliders continue through the future-FK path below.
+    const bool exactArticulatedCCD =
+        articulated &&
+        hasFutureKinematics &&
+        (source.flags & MR_SHAPE_FLAG_ENABLE_CCD) != 0u;
+    if (articulated && !exactArticulatedCCD) {
+        const float sweepRadius =
+            shapeSweepRadius(source, projected);
+        const uint velocityBase = environment * dispatch.nv;
+        float generalizedSpeed = 0.0f;
+        for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+            generalizedSpeed +=
+                abs(candidateV[velocityBase + dof]);
+        }
+        const float envelope = min(
+            dispatch.timestepAndBias.x *
+                generalizedSpeed *
+                max(sweepRadius, 0.25f),
+            dispatch.timestepAndBias.x *
+                dispatch.ccdParameters.w
+        );
+        const float speculativeMargin =
+            dispatch.ccdParameters.z * envelope;
+        projected.lowerAndHalfLength.xyz -=
+            speculativeMargin;
+        projected.upperAndContactOffset.xyz +=
+            speculativeMargin;
+        projected.upperAndContactOffset.w =
+            source.contactRestAndBoundingRadius.x +
+            speculativeMargin;
+        projected.statusAndFlags.z =
+            speculativeMargin > 0.0f ? 1u : 0u;
+        futureProjectedColliders[projectedIndex] = projected;
+        return;
+    }
+
+    float3 futureBodyPosition = currentBody.position.xyz;
+    float4 futureBodyRotation = currentBody.orientation;
+    if (articulated && hasFutureKinematics) {
+        if (source.bodyIndex < articulation.firstBody ||
+            source.bodyIndex >=
+                articulation.firstBody + articulation.bodyCount) {
+            MRMetalWorldContactStatusGPU status =
+                statuses[environment];
+            status.code = MR_STEP_UNSUPPORTED;
+            status.firstFailingPair = collider;
+            statuses[environment] = status;
+            futureProjectedColliders[projectedIndex] = projected;
+            return;
+        }
+        const uint localBody =
+            source.bodyIndex - articulation.firstBody;
+        const MRArticulatedBodyPoseGPU futurePose =
+            futureBodyPoses[
+                environment * articulation.bodyCount +
+                localBody
+            ];
+        futureBodyPosition = futurePose.position.xyz;
+        futureBodyRotation = futurePose.orientation;
+    } else {
+        const MRBodyStateGPU candidate =
+            candidateBodies[bodyBase + source.bodyIndex];
+        if (candidate.flagsAndIndices[0] != MR_MOTION_STATIC) {
+            const float timestep = dispatch.timestepAndBias.x;
+            futureBodyPosition +=
+                timestep *
+                candidate.linearVelocityAndInverseMass.xyz;
+            futureBodyRotation = integrateWorldQuaternion(
+                currentBody.orientation,
+                candidate.angularVelocity.xyz,
+                timestep
+            );
+        }
+    }
+    float4 localRotation;
+    float4 normalizedFutureBodyRotation;
+    if (!checkedQuaternion(
+            source.localRotation,
+            localRotation
+        ) ||
+        !checkedQuaternion(
+            futureBodyRotation,
+            normalizedFutureBodyRotation
+        )) {
+        MRMetalWorldContactStatusGPU status =
+            statuses[environment];
+        status.code = MR_STEP_NONFINITE_RESULT;
+        status.firstFailingPair = collider;
+        statuses[environment] = status;
+        futureProjectedColliders[projectedIndex] = projected;
+        return;
+    }
+    const float3 futureCenter =
+        futureBodyPosition +
+        quaternionRotate(
+            normalizedFutureBodyRotation,
+            source.localPosition.xyz
+        );
+    float4 futureRotation = quaternionMultiply(
+        normalizedFutureBodyRotation,
+        localRotation
+    );
+    futureRotation *= rsqrt(dot(futureRotation, futureRotation));
+    const float sweepRadius =
+        shapeSweepRadius(source, projected);
+    MRProjectedColliderGPU future = looseProjectedCollider(
+        source,
+        projected,
+        futureCenter,
+        futureRotation,
+        sweepRadius
+    );
+    futureProjectedColliders[projectedIndex] = future;
+
+    const float translation =
+        length(futureCenter - projected.centerAndRadius.xyz);
+    const float orientationCosine = clamp(
+        abs(dot(projected.rotation, futureRotation)),
+        0.0f,
+        1.0f
+    );
+    const float rotationalChord =
+        2.0f * sweepRadius *
+        sqrt(max(0.0f, 1.0f - orientationCosine *
+                                  orientationCosine));
+    const float envelope = min(
+        translation + rotationalChord,
+        dispatch.timestepAndBias.x *
+            dispatch.ccdParameters.w
+    );
+    const float speculativeMargin =
+        dispatch.ccdParameters.z * envelope;
+    projected.lowerAndHalfLength.xyz = min(
+        projected.lowerAndHalfLength.xyz,
+        future.lowerAndHalfLength.xyz
+    ) - speculativeMargin;
+    projected.upperAndContactOffset.xyz = max(
+        projected.upperAndContactOffset.xyz,
+        future.upperAndContactOffset.xyz
+    ) + speculativeMargin;
+    projected.upperAndContactOffset.w =
+        source.contactRestAndBoundingRadius.x +
+        speculativeMargin;
+    projected.statusAndFlags.z =
+        as_type<uint>(speculativeMargin);
+}
+
+float4 shortestNlerp(
+    const float4 start,
+    float4 end,
+    const float alpha
+) {
+    if (dot(start, end) < 0.0f) {
+        end = -end;
+    }
+    const float4 value = mix(start, end, alpha);
+    return value * rsqrt(dot(value, value));
+}
+
+WorldShape interpolatedCCDShape(
+    const uint collider,
+    device const MRShapeGPU& source,
+    device const MRProjectedColliderGPU& startProjected,
+    device const MRProjectedColliderGPU& endProjected,
+    const float alpha
+) {
+    WorldShape shape = {};
+    uint failure = MR_STEP_SUCCESS;
+    loadProjectedCollider(
+        collider,
+        source,
+        startProjected,
+        shape,
+        failure
+    );
+    shape.center = mix(
+        startProjected.centerAndRadius.xyz,
+        endProjected.centerAndRadius.xyz,
+        alpha
+    );
+    shape.rotation = shortestNlerp(
+        startProjected.rotation,
+        endProjected.rotation,
+        alpha
+    );
+    shape.contactOffset =
+        source.contactRestAndBoundingRadius.x;
+    const float bound = shapeSweepRadius(source, startProjected) +
+        shape.contactOffset;
+    shape.lower = shape.center - bound;
+    shape.upper = shape.center + bound;
+    if (shape.type == MR_SHAPE_CAPSULE) {
+        shape.halfLength = source.dimensions.y;
+        const float3 axis = quaternionRotate(
+            shape.rotation,
+            float3(0.0f, shape.halfLength, 0.0f)
+        );
+        shape.capsuleEndpoint0 = shape.center - axis;
+        shape.capsuleEndpoint1 = shape.center + axis;
+    } else if (shape.type == MR_SHAPE_BOX) {
+        shape.halfExtents = source.dimensions.xyz;
+    } else if (shape.type == MR_SHAPE_CYLINDER) {
+        shape.halfLength = source.dimensions.y;
+        shape.cylinderAxis = normalize(quaternionRotate(
+            shape.rotation,
+            float3(0.0f, 1.0f, 0.0f)
+        ));
+        shape.cylinderBasisX = normalize(quaternionRotate(
+            shape.rotation,
+            float3(1.0f, 0.0f, 0.0f)
+        ));
+        shape.cylinderBasisZ = normalize(cross(
+            shape.cylinderBasisX,
+            shape.cylinderAxis
+        ));
+    } else if (shape.type == MR_SHAPE_PLANE) {
+        shape.planeNormal = normalize(quaternionRotate(
+            shape.rotation,
+            float3(0.0f, 1.0f, 0.0f)
+        ));
+    }
+    return shape;
+}
+
+__attribute__((noinline))
+void updateMeshConvexDistance(
+    const bool meshIsA,
+    const thread WorldShape& finiteShape,
+    const thread WorldShape& mesh,
+    device const MRShapeGPU& finiteSource,
+    device const MRShapeGPU& meshSource,
+    const bool twoSided,
+    const MRMeshTriangleGPU triangle,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    thread bool& found,
+    thread float& bestSeparation,
+    thread float3& bestNormal,
+    thread float3& bestFinitePoint,
+    thread float3& bestMeshPoint,
+    thread uint& bestFeature
+) {
+    const float3 a = mesh.center + quaternionRotate(
+        mesh.rotation,
+        geometryVertices[
+            triangle.verticesAndFeature.x
+        ].xyz * mesh.scale
+    );
+    const float3 b = mesh.center + quaternionRotate(
+        mesh.rotation,
+        geometryVertices[
+            triangle.verticesAndFeature.y
+        ].xyz * mesh.scale
+    );
+    const float3 c = mesh.center + quaternionRotate(
+        mesh.rotation,
+        geometryVertices[
+            triangle.verticesAndFeature.z
+        ].xyz * mesh.scale
+    );
+    float3 faceNormal = cross(b - a, c - a);
+    const float faceLengthSquared =
+        dot(faceNormal, faceNormal);
+    if (!(faceLengthSquared > kTiny)) {
+        return;
+    }
+    faceNormal *= rsqrt(faceLengthSquared);
+    const float side =
+        dot(faceNormal, finiteShape.center - a);
+    if (!twoSided && side < 0.0f) {
+        return;
+    }
+
+    WorldShape triangleShape = {};
+    triangleShape.index = triangle.verticesAndFeature.w;
+    triangleShape.type = kQueryTriangleShape;
+    triangleShape.center = (a + b + c) / 3.0f;
+    triangleShape.capsuleEndpoint0 = a;
+    triangleShape.capsuleEndpoint1 = b;
+    triangleShape.halfExtents = c;
+    triangleShape.lower = min(a, min(b, c));
+    triangleShape.upper = max(a, max(b, c));
+    triangleShape.contactOffset = 0.0f;
+    triangleShape.scale = float3(1.0f);
+    ConvexQueryResult exact = {};
+    supportMappedContacts(
+        finiteShape.index,
+        triangleShape.index,
+        finiteShape,
+        triangleShape,
+        finiteSource,
+        meshSource,
+        geometryHeaders,
+        geometryVertices,
+        -faceNormal,
+        exact
+    );
+    if (exact.status != MR_STEP_SUCCESS ||
+        !isfinite(exact.separation) ||
+        !finiteFloat3(exact.normal) ||
+        !finiteFloat3(exact.pointA) ||
+        !finiteFloat3(exact.pointB)) {
+        return;
+    }
+    const float separation = exact.separation;
+    if (!found ||
+        separation < bestSeparation ||
+        (separation == bestSeparation &&
+         triangle.verticesAndFeature.w < bestFeature)) {
+        found = true;
+        bestSeparation = separation;
+        bestNormal = exact.normal;
+        bestFinitePoint = exact.pointA;
+        bestMeshPoint = exact.pointB;
+        bestFeature = triangle.verticesAndFeature.w;
+    }
+    static_cast<void>(meshIsA);
+}
+
+__attribute__((noinline))
+bool meshConvexDistance(
+    const bool meshIsA,
+    const thread WorldShape& finiteShape,
+    const thread WorldShape& mesh,
+    device const MRProjectedColliderGPU& finiteSweptProjected,
+    device const MRShapeGPU& finiteSource,
+    device const MRShapeGPU& meshSource,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    device const MRMeshBVHNodeGPU* meshNodes,
+    device const MRMeshTriangleGPU* meshTriangles,
+    thread ConvexQueryResult& query
+) {
+    const MRGeometryHeaderGPU geometry =
+        geometryHeaders[mesh.geometryIndex];
+    bool found = false;
+    float bestSeparation = INFINITY;
+    float3 bestNormal = float3(0.0f, 1.0f, 0.0f);
+    float3 bestFinitePoint = finiteShape.center;
+    float3 bestMeshPoint = finiteShape.center;
+    uint bestFeature = 0u;
+    const bool twoSided =
+        (meshSource.flags &
+         MR_SHAPE_FLAG_MESH_TWO_SIDED) != 0u;
+
+    WorldShape sweptFinite = finiteShape;
+    sweptFinite.lower =
+        finiteSweptProjected.lowerAndHalfLength.xyz;
+    sweptFinite.upper =
+        finiteSweptProjected.upperAndContactOffset.xyz;
+    float3 queryLower;
+    float3 queryUpper;
+    finiteBoundsInMeshLocal(
+        sweptFinite,
+        mesh,
+        queryLower,
+        queryUpper
+    );
+    uint cursor = 0u;
+    uint visits = 0u;
+    const uint maximumVisits =
+        geometry.bvhCount * MR_MESH_BVH_BRANCHING;
+    while (cursor != MR_MESH_BVH_INVALID_ESCAPE &&
+           visits++ < maximumVisits) {
+        const uint nodeIndex =
+            cursor / MR_MESH_BVH_BRANCHING;
+        const uint slot =
+            cursor - nodeIndex * MR_MESH_BVH_BRANCHING;
+        if (nodeIndex >= geometry.bvhCount) {
+            break;
+        }
+        const MRMeshBVHNodeGPU node =
+            meshNodes[geometry.bvhOffset + nodeIndex];
+        const uint metadata =
+            uint4Component(node.childMeta, slot);
+        const uint escape =
+            (metadata & MR_MESH_BVH_ESCAPE_MASK) >>
+            MR_MESH_BVH_ESCAPE_SHIFT;
+        const uint child =
+            uint4Component(node.childIndices, slot);
+        if (child == MR_INVALID_INDEX ||
+            !meshAabbOverlap(
+                queryLower,
+                queryUpper,
+                dequantizedMeshBound(
+                    node.quantizedLower[slot],
+                    geometry
+                ),
+                dequantizedMeshBound(
+                    node.quantizedUpper[slot],
+                    geometry
+                )
+            )) {
+            cursor = escape;
+            continue;
+        }
+        if ((metadata & MR_MESH_BVH_LEAF_BIT) == 0u) {
+            cursor = child * MR_MESH_BVH_BRANCHING;
+            continue;
+        }
+        const uint triangleCount =
+            metadata & MR_MESH_BVH_LEAF_COUNT_MASK;
+        for (uint triangle = 0u;
+             triangle < triangleCount;
+             ++triangle) {
+            updateMeshConvexDistance(
+                meshIsA,
+                finiteShape,
+                mesh,
+                finiteSource,
+                meshSource,
+                twoSided,
+                meshTriangles[
+                    geometry.triangleOffset +
+                    child + triangle
+                ],
+                geometryHeaders,
+                geometryVertices,
+                found,
+                bestSeparation,
+                bestNormal,
+                bestFinitePoint,
+                bestMeshPoint,
+                bestFeature
+            );
+        }
+        cursor = escape;
+    }
+    // Quantization is outward conservative, but a malformed/zero-extent
+    // authored axis must still degrade to deterministic GPU traversal rather
+    // than an unresolved host fallback.
+    if (!found) {
+        for (uint localTriangle = 0u;
+             localTriangle < geometry.triangleCount;
+             ++localTriangle) {
+            updateMeshConvexDistance(
+                meshIsA,
+                finiteShape,
+                mesh,
+                finiteSource,
+                meshSource,
+                twoSided,
+                meshTriangles[
+                    geometry.triangleOffset + localTriangle
+                ],
+                geometryHeaders,
+                geometryVertices,
+                found,
+                bestSeparation,
+                bestNormal,
+                bestFinitePoint,
+                bestMeshPoint,
+                bestFeature
+            );
+        }
+    }
+    if (!found) {
+        return false;
+    }
+    query = {};
+    query.status = MR_STEP_SUCCESS;
+    query.fallback = 2u;
+    query.separation = bestSeparation;
+    query.normal = meshIsA ? -bestNormal : bestNormal;
+    query.pointA =
+        meshIsA
+        ? bestMeshPoint
+        : bestFinitePoint;
+    query.pointB =
+        meshIsA
+        ? bestFinitePoint
+        : bestMeshPoint;
+    query.featureA =
+        meshIsA
+        ? featureKey(MR_SHAPE_TRIANGLE_MESH, bestFeature)
+        : featureKey(finiteShape.type, 0u);
+    query.featureB =
+        meshIsA
+        ? featureKey(finiteShape.type, 0u)
+        : featureKey(MR_SHAPE_TRIANGLE_MESH, bestFeature);
+    return true;
+}
+
+bool ccdDistanceAtAlpha(
+    const uint colliderA,
+    const uint colliderB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRProjectedColliderGPU& startA,
+    device const MRProjectedColliderGPU& startB,
+    device const MRProjectedColliderGPU& endA,
+    device const MRProjectedColliderGPU& endB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    device const MRMeshBVHNodeGPU* meshNodes,
+    device const MRMeshTriangleGPU* meshTriangles,
+    const float alpha,
+    thread ConvexQueryResult& query
+) {
+    const WorldShape shapeA = interpolatedCCDShape(
+        colliderA,
+        sourceA,
+        startA,
+        endA,
+        alpha
+    );
+    const WorldShape shapeB = interpolatedCCDShape(
+        colliderB,
+        sourceB,
+        startB,
+        endB,
+        alpha
+    );
+    if (shapeA.type == MR_SHAPE_TRIANGLE_MESH ||
+        shapeB.type == MR_SHAPE_TRIANGLE_MESH) {
+        const bool meshIsA =
+            shapeA.type == MR_SHAPE_TRIANGLE_MESH;
+        return meshConvexDistance(
+            meshIsA,
+            meshIsA ? shapeB : shapeA,
+            meshIsA ? shapeA : shapeB,
+            meshIsA ? startB : startA,
+            meshIsA ? sourceB : sourceA,
+            meshIsA ? sourceA : sourceB,
+            geometryHeaders,
+            geometryVertices,
+            meshNodes,
+            meshTriangles,
+            query
+        );
+    }
+    supportMappedContacts(
+        colliderA,
+        colliderB,
+        shapeA,
+        shapeB,
+        sourceA,
+        sourceB,
+        geometryHeaders,
+        geometryVertices,
+        float3(0.0f),
+        query
+    );
+    return query.status == MR_STEP_SUCCESS;
+}
+
+bool speculativeEnvelopeCoversCCDPair(
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRProjectedColliderGPU& startA,
+    device const MRProjectedColliderGPU& startB,
+    device const MRProjectedColliderGPU& endA,
+    device const MRProjectedColliderGPU& endB,
+    const float tolerance
+) {
+    const float orientationA = clamp(
+        abs(dot(startA.rotation, endA.rotation)),
+        0.0f,
+        1.0f
+    );
+    const float orientationB = clamp(
+        abs(dot(startB.rotation, endB.rotation)),
+        0.0f,
+        1.0f
+    );
+    const float motionA =
+        length(
+            endA.centerAndRadius.xyz -
+            startA.centerAndRadius.xyz
+        ) +
+        2.0f * shapeSweepRadius(sourceA, startA) *
+            sqrt(max(
+                0.0f,
+                1.0f - orientationA * orientationA
+            ));
+    const float motionB =
+        length(
+            endB.centerAndRadius.xyz -
+            startB.centerAndRadius.xyz
+        ) +
+        2.0f * shapeSweepRadius(sourceB, startB) *
+            sqrt(max(
+                0.0f,
+                1.0f - orientationB * orientationB
+            ));
+    const float marginA =
+        as_type<float>(startA.statusAndFlags.z);
+    const float marginB =
+        as_type<float>(startB.statusAndFlags.z);
+    return
+        isfinite(motionA) &&
+        isfinite(motionB) &&
+        isfinite(marginA) &&
+        isfinite(marginB) &&
+        marginA + tolerance >= motionA &&
+        marginB + tolerance >= motionB;
+}
+
+MRCCDPairGPU resolveCCDPair(
+    const uint environment,
+    const uint compiledPair,
+    const MRCompiledCollisionPairGPU pair,
+    device const MRShapeGPU* shapes,
+    device const MRProjectedColliderGPU* currentProjected,
+    device const MRProjectedColliderGPU* futureProjected,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    device const MRMeshBVHNodeGPU* meshNodes,
+    device const MRMeshTriangleGPU* meshTriangles,
+    device const MRMetalWorldContactDispatchGPU& dispatch
+) {
+    MRCCDPairGPU record = {};
+    record.environment = environment;
+    record.compiledPair = compiledPair;
+    record.colliderA = pair.colliderA;
+    record.colliderB = pair.colliderB;
+    record.stableKeyLow = compiledPair;
+    record.stableKeyHigh = environment;
+    record.flags = MR_CCD_PAIR_VALID;
+    record.status = MR_STEP_SUCCESS;
+    device const MRShapeGPU& sourceA = shapes[pair.colliderA];
+    device const MRShapeGPU& sourceB = shapes[pair.colliderB];
+    device const MRProjectedColliderGPU& startA =
+        currentProjected[pair.colliderA];
+    device const MRProjectedColliderGPU& startB =
+        currentProjected[pair.colliderB];
+    device const MRProjectedColliderGPU& endA =
+        futureProjected[pair.colliderA];
+    device const MRProjectedColliderGPU& endB =
+        futureProjected[pair.colliderB];
+    const float timestep = dispatch.timestepAndBias.x;
+    const float tolerance = dispatch.ccdParameters.y;
+    const float motionA =
+        length(
+            endA.centerAndRadius.xyz -
+            startA.centerAndRadius.xyz
+        ) +
+        as_type<float>(startA.statusAndFlags.z);
+    const float motionB =
+        length(
+            endB.centerAndRadius.xyz -
+            startB.centerAndRadius.xyz
+        ) +
+        as_type<float>(startB.statusAndFlags.z);
+    const float totalMotion = max(
+        motionA + motionB,
+        tolerance
+    );
+    record.intervalAndDistance.w =
+        min(
+            totalMotion / max(timestep, kTiny),
+            dispatch.ccdParameters.w
+        );
+
+    ConvexQueryResult query = {};
+    if (!ccdDistanceAtAlpha(
+            pair.colliderA,
+            pair.colliderB,
+            sourceA,
+            sourceB,
+            startA,
+            startB,
+            endA,
+            endB,
+            geometryHeaders,
+            geometryVertices,
+            meshNodes,
+            meshTriangles,
+            0.0f,
+            query
+        )) {
+        record.flags |= MR_CCD_PAIR_UNRESOLVED;
+        record.status =
+            query.status == MR_STEP_SUCCESS
+            ? MR_STEP_DID_NOT_CONVERGE
+            : query.status;
+        return record;
+    }
+    record.intervalAndDistance.z = query.separation;
+    record.normalAndIteration.xyz = query.normal;
+    if (query.separation <= tolerance) {
+        record.flags |=
+            MR_CCD_PAIR_START_OVERLAP |
+            MR_CCD_PAIR_HAS_IMPACT;
+        record.intervalAndDistance.x = 0.0f;
+        record.intervalAndDistance.y = 0.0f;
+        return record;
+    }
+
+    if (sourceA.shapeType == MR_SHAPE_SPHERE &&
+        sourceB.shapeType == MR_SHAPE_SPHERE) {
+        record.flags |= MR_CCD_PAIR_ANALYTIC;
+        const float3 startRelative =
+            startB.centerAndRadius.xyz -
+            startA.centerAndRadius.xyz;
+        const float3 deltaRelative =
+            (
+                endB.centerAndRadius.xyz -
+                startB.centerAndRadius.xyz
+            ) -
+            (
+                endA.centerAndRadius.xyz -
+                startA.centerAndRadius.xyz
+            );
+        const float radius =
+            sourceA.dimensions.x + sourceB.dimensions.x;
+        const float aa = dot(deltaRelative, deltaRelative);
+        const float bb = 2.0f *
+            dot(startRelative, deltaRelative);
+        const float cc =
+            dot(startRelative, startRelative) -
+            radius * radius;
+        const float discriminant = bb * bb - 4.0f * aa * cc;
+        if (aa > kTiny && discriminant >= 0.0f) {
+            const float alpha =
+                (-bb - sqrt(discriminant)) / (2.0f * aa);
+            if (alpha >= 0.0f && alpha <= 1.0f) {
+                record.flags |= MR_CCD_PAIR_HAS_IMPACT;
+                record.intervalAndDistance.x =
+                    alpha * timestep;
+                record.intervalAndDistance.y =
+                    alpha * timestep;
+                const float3 relativeAtImpact =
+                    startRelative + alpha * deltaRelative;
+                record.normalAndIteration.xyz =
+                    length(relativeAtImpact) > kTiny
+                    ? normalize(relativeAtImpact)
+                    : coincidentNormal(
+                          pair.colliderA,
+                          pair.colliderB
+                      );
+            }
+        }
+        return record;
+    }
+
+    if (sourceA.shapeType == MR_SHAPE_TRIANGLE_MESH ||
+        sourceB.shapeType == MR_SHAPE_TRIANGLE_MESH) {
+        record.flags |= MR_CCD_PAIR_MESH;
+    } else {
+        record.flags |=
+            MR_CCD_PAIR_CONSERVATIVE_ADVANCEMENT;
+    }
+    float alpha = 0.0f;
+    const float minimumAlpha = min(
+        1.0f,
+        dispatch.ccdParameters.x /
+            max(timestep, kTiny)
+    );
+    float previousAlpha = 0.0f;
+    bool resolved = false;
+    bool queryFailed = false;
+    for (uint iteration = 0u;
+         iteration <
+             dispatch.maxConservativeAdvancementIterations;
+         ++iteration) {
+        record.normalAndIteration.w = float(iteration + 1u);
+        if (query.separation <= tolerance) {
+            resolved = true;
+            record.flags |= MR_CCD_PAIR_HAS_IMPACT;
+            record.intervalAndDistance.x =
+                previousAlpha * timestep;
+            record.intervalAndDistance.y =
+                alpha * timestep;
+            record.normalAndIteration.xyz = query.normal;
+            break;
+        }
+        const float advancement = max(
+            (query.separation - tolerance) / totalMotion,
+            minimumAlpha
+        );
+        previousAlpha = alpha;
+        alpha += advancement;
+        if (alpha > 1.0f) {
+            resolved = true;
+            break;
+        }
+        if (!ccdDistanceAtAlpha(
+                pair.colliderA,
+                pair.colliderB,
+                sourceA,
+                sourceB,
+                startA,
+                startB,
+                endA,
+                endB,
+                geometryHeaders,
+                geometryVertices,
+                meshNodes,
+                meshTriangles,
+                alpha,
+                query
+            )) {
+            queryFailed = true;
+            break;
+        }
+    }
+    if (!resolved) {
+        record.flags |= MR_CCD_PAIR_UNRESOLVED;
+        if (!queryFailed &&
+            speculativeEnvelopeCoversCCDPair(
+                sourceA,
+                sourceB,
+                startA,
+                startB,
+                endA,
+                endB,
+                tolerance
+            )) {
+            record.flags |=
+                MR_CCD_PAIR_SPECULATIVE_FALLBACK;
+        }
+        record.status = MR_STEP_DID_NOT_CONVERGE;
+    }
+    return record;
+}
+
+bool ccdEventPrecedes(
+    const MRCCDPairGPU lhs,
+    const MRCCDPairGPU rhs
+) {
+    // TOIs are finite and non-negative by construction, so their IEEE bit
+    // ordering is the ordered-float ordering. Stable keys are the final
+    // deterministic tie break for simultaneous impacts.
+    const uint lhsTOI = as_type<uint>(
+        max(lhs.intervalAndDistance.x, 0.0f)
+    );
+    const uint rhsTOI = as_type<uint>(
+        max(rhs.intervalAndDistance.x, 0.0f)
+    );
+    if (lhsTOI != rhsTOI) {
+        return lhsTOI < rhsTOI;
+    }
+    if (lhs.stableKeyHigh != rhs.stableKeyHigh) {
+        return lhs.stableKeyHigh < rhs.stableKeyHigh;
+    }
+    return lhs.stableKeyLow < rhs.stableKeyLow;
+}
+
+// Exact CCD is intentionally a rare per-environment pass. It consumes the
+// stable compiled-pair stream, writes fixed per-environment segments with
+// impact events first in deterministic TOI/key order, and leaves the broad
+// speculative constraints authoritative if conservative advancement cannot
+// certify an interval.
+kernel void mr_world_resolve_ccd(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(2)]],
+    device const uint* overlapFlags [[buffer(3)]],
+    device const MRProjectedColliderGPU* projectedColliders [[buffer(4)]],
+    device const MRProjectedColliderGPU* futureProjectedColliders [[buffer(5)]],
+    device const MRGeometryHeaderGPU* geometryHeaders [[buffer(6)]],
+    device const float4* geometryVertices [[buffer(7)]],
+    device const MRMeshBVHNodeGPU* meshNodes [[buffer(8)]],
+    device const MRMeshTriangleGPU* meshTriangles [[buffer(9)]],
+    device MRCCDPairGPU* candidates [[buffer(10)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(11)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.ccdMode != MR_WORLD_CCD_HYBRID) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const uint projectionBase =
+        environment * dispatch.shapeCount;
+    const uint overlapBase =
+        environment * dispatch.eligiblePairCount;
+    const uint candidateBase =
+        environment * dispatch.ccdCandidateCapacity;
+    uint candidateCount = 0u;
+    uint eventCount = 0u;
+    uint storedEventCount = 0u;
+    uint unresolvedCount = 0u;
+    uint unsafeUnresolvedCount = 0u;
+    uint firstOverflow = MR_INVALID_INDEX;
+    uint firstUnsafe = MR_INVALID_INDEX;
+    for (uint compiledPair = 0u;
+         compiledPair < dispatch.eligiblePairCount;
+         ++compiledPair) {
+        const MRCompiledCollisionPairGPU pair =
+            eligiblePairs[compiledPair];
+        const MRShapeGPU sourceA = shapes[pair.colliderA];
+        const MRShapeGPU sourceB = shapes[pair.colliderB];
+        if (overlapFlags[overlapBase + compiledPair] != 1u ||
+            ((sourceA.flags | sourceB.flags) &
+             MR_SHAPE_FLAG_ENABLE_CCD) == 0u) {
+            continue;
+        }
+        const uint destination = candidateCount++;
+        MRCCDPairGPU record = resolveCCDPair(
+            environment,
+            compiledPair,
+            pair,
+            shapes,
+            projectedColliders + projectionBase,
+            futureProjectedColliders + projectionBase,
+            geometryHeaders,
+            geometryVertices,
+            meshNodes,
+            meshTriangles,
+            dispatch
+        );
+        const bool hasImpact =
+            (record.flags & MR_CCD_PAIR_HAS_IMPACT) != 0u;
+        if (hasImpact) {
+            ++eventCount;
+        }
+        if ((record.flags & MR_CCD_PAIR_UNRESOLVED) != 0u) {
+            ++unresolvedCount;
+            if ((record.flags &
+                 MR_CCD_PAIR_SPECULATIVE_FALLBACK) == 0u) {
+                ++unsafeUnresolvedCount;
+                firstUnsafe = min(
+                    firstUnsafe,
+                    compiledPair
+                );
+            }
+        }
+        if (destination >= dispatch.ccdCandidateCapacity) {
+            if (firstOverflow == MR_INVALID_INDEX) {
+                firstOverflow = compiledPair;
+            }
+            continue;
+        }
+        if (!hasImpact) {
+            candidates[candidateBase + destination] = record;
+            continue;
+        }
+
+        // Exact CCD is rare and capped. A deterministic in-place insertion
+        // keeps the event prefix ordered without a second global sort or an
+        // atomic append. Non-events retain compiled-pair order after it.
+        uint insertion = storedEventCount;
+        while (insertion > 0u &&
+               ccdEventPrecedes(
+                   record,
+                   candidates[
+                       candidateBase + insertion - 1u
+                   ]
+               )) {
+            --insertion;
+        }
+        for (uint move = destination;
+             move > insertion;
+             --move) {
+            candidates[candidateBase + move] =
+                candidates[candidateBase + move - 1u];
+        }
+        candidates[candidateBase + insertion] = record;
+        ++storedEventCount;
+    }
+    status.requiredCCDCandidates = candidateCount;
+    status.requiredCCDEvents = eventCount;
+    status.ccdCandidates = min(
+        candidateCount,
+        dispatch.ccdCandidateCapacity
+    );
+    status.ccdEvents = min(
+        eventCount,
+        min(
+            dispatch.ccdEventCapacity,
+            dispatch.maxCCDEvents
+        )
+    );
+    status.unresolvedCCDCount = unresolvedCount;
+    if (eventCount > dispatch.maxCCDEvents) {
+        status.queueFlags |=
+            1u << MR_WORLD_WORK_CCD;
+    }
+    if (candidateCount > dispatch.ccdCandidateCapacity) {
+        status.code = MR_STEP_CCD_CAPACITY_OVERFLOW;
+        status.firstFailingPair = firstOverflow;
+        status.firstFailingStableKeyLow = firstOverflow;
+        status.firstFailingStableKeyHigh = environment;
+    } else if (eventCount > dispatch.maxCCDEvents) {
+        status.code = MR_STEP_CCD_EVENT_BUDGET_EXHAUSTED;
+        const uint budgetEvent = dispatch.maxCCDEvents;
+        status.firstFailingPair =
+            budgetEvent < storedEventCount
+            ? candidates[
+                  candidateBase + budgetEvent
+              ].compiledPair
+            : firstOverflow;
+    } else if (eventCount > dispatch.ccdEventCapacity) {
+        status.code = MR_STEP_CCD_CAPACITY_OVERFLOW;
+        const uint overflowEvent =
+            dispatch.ccdEventCapacity;
+        status.firstFailingPair =
+            overflowEvent < storedEventCount
+            ? candidates[
+                  candidateBase + overflowEvent
+              ].compiledPair
+            : firstOverflow;
+    } else if (unsafeUnresolvedCount != 0u) {
+        status.code = MR_STEP_DID_NOT_CONVERGE;
+        status.firstFailingPair = firstUnsafe;
+    }
+    if (status.code != MR_STEP_SUCCESS &&
+        status.firstFailingPair != MR_INVALID_INDEX) {
+        status.firstFailingStableKeyLow =
+            status.firstFailingPair;
+        status.firstFailingStableKeyHigh = environment;
+    }
+    statuses[environment] = status;
 }
 
 // Executes the compiled-pair broadphase as a flat environment-major queue.
@@ -2932,6 +6447,648 @@ kernel void mr_world_flag_eligible_pairs(
     ] = flag;
 }
 
+// Generic arbitrary-length exclusive scan building block. The host encodes
+// as many levels as the configured element count requires; no intermediate
+// count becomes CPU-visible.
+kernel void mr_world_scan_blocks(
+    device const uint* input [[buffer(0)]],
+    device uint* output [[buffer(1)]],
+    device uint* blockSums [[buffer(2)]],
+    constant MRScanLevelGPU& level [[buffer(3)]],
+    const uint globalIndex [[thread_position_in_grid]],
+    const uint localIndex [[thread_index_in_threadgroup]],
+    const uint blockIndex [[threadgroup_position_in_grid]]
+) {
+    threadgroup uint values[MR_BROADPHASE_SCAN_BLOCK_SIZE];
+    uint value = 0u;
+    if (globalIndex < level.elementCount) {
+        value = input[level.inputOffset + globalIndex];
+        if ((level.flags & MR_SCAN_BOOLEAN_INPUT) != 0u) {
+            value = value == 1u ? 1u : 0u;
+        }
+    }
+    values[localIndex] = value;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = 1u;
+         stride < MR_BROADPHASE_SCAN_BLOCK_SIZE;
+         stride <<= 1u) {
+        const uint addend =
+            localIndex >= stride
+            ? values[localIndex - stride]
+            : 0u;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        values[localIndex] += addend;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (globalIndex < level.elementCount) {
+        output[level.outputOffset + globalIndex] =
+            values[localIndex] - value;
+    }
+    if (localIndex + 1u == MR_BROADPHASE_SCAN_BLOCK_SIZE &&
+        blockIndex < level.blockCount) {
+        blockSums[level.blockSumOffset + blockIndex] =
+            values[localIndex];
+    }
+}
+
+// Adds recursively-scanned parent block offsets while descending the scan
+// hierarchy.
+kernel void mr_world_scan_add_block_offsets(
+    device uint* output [[buffer(0)]],
+    device const uint* parentOffsets [[buffer(1)]],
+    constant MRScanLevelGPU& level [[buffer(2)]],
+    const uint globalIndex [[thread_position_in_grid]]
+) {
+    if (globalIndex >= level.elementCount) {
+        return;
+    }
+    const uint blockIndex =
+        globalIndex / MR_BROADPHASE_SCAN_BLOCK_SIZE;
+    output[level.outputOffset + globalIndex] +=
+        parentOffsets[level.parentOffset + blockIndex];
+}
+
+inline uint worldPairWorkClass(
+    const MRCompiledCollisionPairGPU pair,
+    device const MRShapeGPU* shapes
+) {
+    if (pair.pairClass == MR_COLLISION_PAIR_BOX_BOX) {
+        return MR_WORLD_WORK_SAT_CLIP;
+    }
+    if (pair.pairClass == MR_COLLISION_PAIR_MESH) {
+        return MR_WORLD_WORK_MESH;
+    }
+    if (pair.pairClass == MR_COLLISION_PAIR_CONVEX) {
+        return
+            shapes[pair.colliderA].shapeType == MR_SHAPE_CONVEX ||
+            shapes[pair.colliderB].shapeType == MR_SHAPE_CONVEX
+            ? MR_WORLD_WORK_HULL_GJK
+            : MR_WORLD_WORK_PRIMITIVE_GJK;
+    }
+    return MR_WORLD_WORK_ANALYTIC;
+}
+
+// Builds one class-specific boolean stream from the broadphase result.
+// Running this only for classes present in immutable compiled topology keeps
+// homogeneous RL scenes cheap while preventing algorithm-divergent lanes.
+kernel void mr_world_flag_pair_work_class(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(2)]],
+    device const uint* overlapFlags [[buffer(3)]],
+    device uint* classFlags [[buffer(4)]],
+    constant uint4& classConfig [[buffer(5)]],
+    const uint globalIndex [[thread_position_in_grid]]
+) {
+    const uint total =
+        dispatch.environmentCount * dispatch.eligiblePairCount;
+    if (globalIndex >= total) {
+        return;
+    }
+    const uint compiledPair =
+        globalIndex % dispatch.eligiblePairCount;
+    classFlags[globalIndex] =
+        overlapFlags[globalIndex] == 1u &&
+        worldPairWorkClass(
+            eligiblePairs[compiledPair],
+            shapes
+        ) == classConfig.x
+        ? 1u
+        : 0u;
+}
+
+// Stable scatter from the environment-major overlap stream into one compact
+// class-partitioned pair queue. Atomics never determine placement: class
+// order is fixed, and each class retains environment/stable-pair order.
+kernel void mr_world_scatter_pair_queue(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(2)]],
+    device const uint* classFlags [[buffer(3)]],
+    device const uint* offsets [[buffer(4)]],
+    device MRPairWorkGPU* queue [[buffer(5)]],
+    device MRWorkQueueHeaderGPU* headers [[buffer(6)]],
+    constant uint4& classConfig [[buffer(7)]],
+    const uint globalIndex [[thread_position_in_grid]]
+) {
+    const uint total =
+        dispatch.environmentCount * dispatch.eligiblePairCount;
+    const uint workClass = classConfig.x;
+    const uint activeClassMask = classConfig.y;
+    ulong classBaseWide = 0u;
+    for (uint previousClass = 0u;
+         previousClass < workClass;
+         ++previousClass) {
+        if ((activeClassMask &
+             (1u << previousClass)) != 0u) {
+            classBaseWide +=
+                static_cast<ulong>(
+                    headers[previousClass].required
+                );
+        }
+    }
+    const uint capacity =
+        dispatch.environmentCount * dispatch.pairCapacity;
+    const uint classBase = static_cast<uint>(
+        min(classBaseWide, static_cast<ulong>(capacity))
+    );
+    const uint classCount =
+        total == 0u
+        ? 0u
+        : offsets[total - 1u] +
+            (classFlags[total - 1u] == 1u ? 1u : 0u);
+    const uint available = capacity - classBase;
+    const uint residentCount = min(classCount, available);
+    if (globalIndex == 0u) {
+        device MRWorkQueueHeaderGPU& header =
+            headers[workClass];
+        header = {};
+        header.count = residentCount;
+        header.capacity = available;
+        header.required = classCount;
+        header.workClass = workClass;
+        header.overflow =
+            classCount > available ? 1u : 0u;
+        header.indirect.threadgroupsX =
+            (
+                header.count +
+                MR_WORLD_QUEUE_THREADS_PER_THREADGROUP - 1u
+            ) / MR_WORLD_QUEUE_THREADS_PER_THREADGROUP;
+        header.indirect.threadgroupsY = 1u;
+        header.indirect.threadgroupsZ = 1u;
+        header.indirect.activeCount = header.count;
+        header.reserved0 = classBase;
+    }
+    if (globalIndex >= total ||
+        classFlags[globalIndex] != 1u) {
+        return;
+    }
+    const uint classOffset = offsets[globalIndex];
+    if (classOffset >= residentCount) {
+        if (classOffset == residentCount) {
+            const uint environment =
+                globalIndex / dispatch.eligiblePairCount;
+            const uint compiledPair =
+                globalIndex -
+                environment * dispatch.eligiblePairCount;
+            headers[workClass].firstStableKeyLow =
+                compiledPair;
+            headers[workClass].firstStableKeyHigh =
+                environment;
+        }
+        return;
+    }
+    const uint destination = classBase + classOffset;
+    const uint environment =
+        globalIndex / dispatch.eligiblePairCount;
+    const uint compiledPair =
+        globalIndex - environment * dispatch.eligiblePairCount;
+    MRPairWorkGPU work = {};
+    work.environment = environment;
+    work.compiledPair = compiledPair;
+    work.cacheSlot =
+        environment * dispatch.convexCacheStride + compiledPair;
+    work.workClass = workClass;
+    work.stableKeyLow = compiledPair;
+    work.stableKeyHigh = environment;
+    queue[destination] = work;
+}
+
+// SIMD-dense narrowphase. One lane consumes one compact work item and writes
+// a deterministic per-compiled-pair staging span, so queue scheduling cannot
+// change manifold or ConstraintIR order.
+kernel void mr_world_narrowphase_pair_queue(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(2)]],
+    device const MRProjectedColliderGPU* projectedColliders [[buffer(3)]],
+    device const MRPairWorkGPU* queue [[buffer(4)]],
+    device MRWorkQueueHeaderGPU* headers [[buffer(5)]],
+    device MRRawContactGPU* pairRawContacts [[buffer(6)]],
+    device uint* pairRawCounts [[buffer(7)]],
+    constant uint4& classConfig [[buffer(8)]],
+    const uint workerIndex [[thread_position_in_grid]],
+    const uint workerCount [[threads_per_grid]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    const uint workClass = classConfig.x;
+    const MRWorkQueueHeaderGPU header = headers[workClass];
+    const uint stride = max(workerCount, 1u);
+    device atomic_uint* workerCursor =
+        reinterpret_cast<device atomic_uint*>(
+            &headers[workClass].workerCursor
+        );
+    for (uint iteration = 0u;; ++iteration) {
+        uint queueIndex = 0u;
+        if (classConfig.z != 0u) {
+            uint claimedBase = 0u;
+            if (lane == 0u) {
+                claimedBase = atomic_fetch_add_explicit(
+                    workerCursor,
+                    MR_WAVE32_CONTACTS_PER_TILE,
+                    memory_order_relaxed
+                );
+            }
+            claimedBase =
+                simd_broadcast_first(claimedBase);
+            if (claimedBase >= header.count) {
+                break;
+            }
+            queueIndex = claimedBase + lane;
+            if (queueIndex >= header.count) {
+                continue;
+            }
+        } else {
+            const ulong linearIndex =
+                static_cast<ulong>(workerIndex) +
+                static_cast<ulong>(iteration) * stride;
+            if (linearIndex >= header.count) {
+                break;
+            }
+            queueIndex = static_cast<uint>(linearIndex);
+        }
+        const MRPairWorkGPU work =
+            queue[header.reserved0 + queueIndex];
+        if (work.environment >= dispatch.environmentCount ||
+            work.compiledPair >= dispatch.eligiblePairCount ||
+            work.workClass != workClass ||
+            (workClass != MR_WORLD_WORK_ANALYTIC &&
+             workClass != MR_WORLD_WORK_SAT_CLIP)) {
+            continue;
+        }
+        const MRCompiledCollisionPairGPU pair =
+            eligiblePairs[work.compiledPair];
+        const uint projectionBase =
+            work.environment * dispatch.shapeCount;
+        WorldShape shapeA;
+        WorldShape shapeB;
+        uint failureCode = MR_STEP_SUCCESS;
+        if (!loadProjectedCollider(
+                pair.colliderA,
+                shapes[pair.colliderA],
+                projectedColliders[
+                    projectionBase + pair.colliderA
+                ],
+                shapeA,
+                failureCode
+            ) ||
+            !loadProjectedCollider(
+                pair.colliderB,
+                shapes[pair.colliderB],
+                projectedColliders[
+                    projectionBase + pair.colliderB
+                ],
+                shapeB,
+                failureCode
+            )) {
+            pairRawCounts[
+                work.environment *
+                    dispatch.eligiblePairCount +
+                work.compiledPair
+            ] = 0x80000000u | failureCode;
+            continue;
+        }
+        const ContactBatch contacts = generateContacts(
+            pair.colliderA,
+            pair.colliderB,
+            pair.pairClass,
+            shapeA,
+            shapeB
+        );
+        const uint stagingBase =
+            (
+                work.environment *
+                    dispatch.eligiblePairCount +
+                work.compiledPair
+            ) * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+        uint count = contacts.count;
+        for (uint index = 0u;
+             index < contacts.count;
+             ++index) {
+            if (!finiteContact(contacts.contacts[index])) {
+                count =
+                    0x80000000u | MR_STEP_NONFINITE_RESULT;
+                break;
+            }
+            pairRawContacts[stagingBase + index] =
+                contacts.contacts[index];
+        }
+        pairRawCounts[
+            work.environment * dispatch.eligiblePairCount +
+            work.compiledPair
+        ] = count;
+    }
+}
+
+kernel void mr_world_narrowphase_convex_queue(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(2)]],
+    device const MRProjectedColliderGPU* projectedColliders [[buffer(3)]],
+    device const MRPairWorkGPU* queue [[buffer(4)]],
+    device MRWorkQueueHeaderGPU* headers [[buffer(5)]],
+    device const MRGeometryHeaderGPU* geometryHeaders [[buffer(6)]],
+    device const float4* geometryVertices [[buffer(7)]],
+    device MRRawContactGPU* pairRawContacts [[buffer(8)]],
+    device uint* pairRawCounts [[buffer(9)]],
+    device const MRConvexQueryCacheGPU* previousCaches
+        [[buffer(10)]],
+    device MRConvexQueryCacheGPU* candidateCaches
+        [[buffer(11)]],
+    constant uint4& classConfig [[buffer(12)]],
+    const uint workerIndex [[thread_position_in_grid]],
+    const uint workerCount [[threads_per_grid]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    const uint workClass = classConfig.x;
+    const MRWorkQueueHeaderGPU header = headers[workClass];
+    const uint stride = max(workerCount, 1u);
+    device atomic_uint* workerCursor =
+        reinterpret_cast<device atomic_uint*>(
+            &headers[workClass].workerCursor
+        );
+    for (uint iteration = 0u;; ++iteration) {
+        uint queueIndex = 0u;
+        if (classConfig.z != 0u) {
+            uint claimedBase = 0u;
+            if (lane == 0u) {
+                claimedBase = atomic_fetch_add_explicit(
+                    workerCursor,
+                    MR_WAVE32_CONTACTS_PER_TILE,
+                    memory_order_relaxed
+                );
+            }
+            claimedBase =
+                simd_broadcast_first(claimedBase);
+            if (claimedBase >= header.count) {
+                break;
+            }
+            queueIndex = claimedBase + lane;
+            if (queueIndex >= header.count) {
+                continue;
+            }
+        } else {
+            const ulong linearIndex =
+                static_cast<ulong>(workerIndex) +
+                static_cast<ulong>(iteration) * stride;
+            if (linearIndex >= header.count) {
+                break;
+            }
+            queueIndex = static_cast<uint>(linearIndex);
+        }
+        const MRPairWorkGPU work =
+            queue[header.reserved0 + queueIndex];
+        if (work.environment >= dispatch.environmentCount ||
+            work.compiledPair >= dispatch.eligiblePairCount ||
+            work.workClass != workClass ||
+            (workClass != MR_WORLD_WORK_PRIMITIVE_GJK &&
+             workClass != MR_WORLD_WORK_HULL_GJK &&
+             workClass != MR_WORLD_WORK_HARD_CONVEX)) {
+            continue;
+        }
+        const MRCompiledCollisionPairGPU pair =
+            eligiblePairs[work.compiledPair];
+        const uint projectionBase =
+            work.environment * dispatch.shapeCount;
+        WorldShape shapeA;
+        WorldShape shapeB;
+        uint failureCode = MR_STEP_SUCCESS;
+        if (!loadProjectedCollider(
+                pair.colliderA,
+                shapes[pair.colliderA],
+                projectedColliders[
+                    projectionBase + pair.colliderA
+                ],
+                shapeA,
+                failureCode
+            ) ||
+            !loadProjectedCollider(
+                pair.colliderB,
+                shapes[pair.colliderB],
+                projectedColliders[
+                    projectionBase + pair.colliderB
+                ],
+                shapeB,
+                failureCode
+            )) {
+            pairRawCounts[
+                work.environment *
+                    dispatch.eligiblePairCount +
+                work.compiledPair
+            ] = 0x80000000u | failureCode;
+            continue;
+        }
+
+        ConvexQueryResult query = {};
+        query.status = MR_STEP_SUCCESS;
+        const MRConvexQueryCacheGPU previousCache =
+            previousCaches[work.cacheSlot];
+        const float3 cachedDirection =
+            previousCache.featureAndStatus.x ==
+                    MR_STEP_SUCCESS
+            ? previousCache.separatingAxisAndDistance.xyz
+            : float3(0.0f);
+        const ContactBatch contacts = supportMappedContacts(
+            pair.colliderA,
+            pair.colliderB,
+            shapeA,
+            shapeB,
+            shapes[pair.colliderA],
+            shapes[pair.colliderB],
+            geometryHeaders,
+            geometryVertices,
+            cachedDirection,
+            query
+        );
+        MRConvexQueryCacheGPU cache = {};
+        cache.separatingAxisAndDistance =
+            float4(query.normal, query.separation);
+        cache.supportA = uint4(
+            query.featureA,
+            query.featureB,
+            query.iterations,
+            query.fallback
+        );
+        cache.featureAndStatus = uint4(
+            query.status,
+            work.workClass,
+            work.stableKeyLow,
+            work.stableKeyHigh
+        );
+        candidateCaches[work.cacheSlot] = cache;
+
+        const uint countIndex =
+            work.environment * dispatch.eligiblePairCount +
+            work.compiledPair;
+        if (query.status != MR_STEP_SUCCESS) {
+            pairRawCounts[countIndex] =
+                0x80000000u | query.status;
+            continue;
+        }
+        const uint stagingBase =
+            countIndex *
+            MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+        uint count = contacts.count;
+        for (uint index = 0u;
+             index < contacts.count;
+             ++index) {
+            if (!finiteContact(contacts.contacts[index])) {
+                count =
+                    0x80000000u |
+                    MR_STEP_NONFINITE_RESULT;
+                break;
+            }
+            pairRawContacts[stagingBase + index] =
+                contacts.contacts[index];
+        }
+        pairRawCounts[countIndex] = count;
+    }
+}
+
+kernel void mr_world_narrowphase_mesh_queue(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(2)]],
+    device const MRProjectedColliderGPU* projectedColliders [[buffer(3)]],
+    device const MRPairWorkGPU* queue [[buffer(4)]],
+    device MRWorkQueueHeaderGPU* headers [[buffer(5)]],
+    device const MRGeometryHeaderGPU* geometryHeaders [[buffer(6)]],
+    device const float4* geometryVertices [[buffer(7)]],
+    device const MRMeshBVHNodeGPU* meshNodes [[buffer(8)]],
+    device const MRMeshTriangleGPU* meshTriangles [[buffer(9)]],
+    device MRRawContactGPU* pairRawContacts [[buffer(10)]],
+    device uint* pairRawCounts [[buffer(11)]],
+    device MRConvexQueryCacheGPU* caches [[buffer(12)]],
+    constant uint4& classConfig [[buffer(13)]],
+    const uint workerIndex [[thread_position_in_grid]],
+    const uint workerCount [[threads_per_grid]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    const uint workClass = classConfig.x;
+    const MRWorkQueueHeaderGPU header = headers[workClass];
+    const uint stride = max(workerCount, 1u);
+    device atomic_uint* workerCursor =
+        reinterpret_cast<device atomic_uint*>(
+            &headers[workClass].workerCursor
+        );
+    for (uint iteration = 0u;; ++iteration) {
+        uint queueIndex = 0u;
+        if (classConfig.z != 0u) {
+            uint claimedBase = 0u;
+            if (lane == 0u) {
+                claimedBase = atomic_fetch_add_explicit(
+                    workerCursor,
+                    MR_WAVE32_CONTACTS_PER_TILE,
+                    memory_order_relaxed
+                );
+            }
+            claimedBase =
+                simd_broadcast_first(claimedBase);
+            if (claimedBase >= header.count) {
+                break;
+            }
+            queueIndex = claimedBase + lane;
+            if (queueIndex >= header.count) {
+                continue;
+            }
+        } else {
+            const ulong linearIndex =
+                static_cast<ulong>(workerIndex) +
+                static_cast<ulong>(iteration) * stride;
+            if (linearIndex >= header.count) {
+                break;
+            }
+            queueIndex = static_cast<uint>(linearIndex);
+        }
+        const MRPairWorkGPU work =
+            queue[header.reserved0 + queueIndex];
+        if (work.environment >= dispatch.environmentCount ||
+            work.compiledPair >= dispatch.eligiblePairCount ||
+            work.workClass != workClass ||
+            workClass != MR_WORLD_WORK_MESH) {
+            continue;
+        }
+        const MRCompiledCollisionPairGPU pair =
+            eligiblePairs[work.compiledPair];
+        const uint projectionBase =
+            work.environment * dispatch.shapeCount;
+        WorldShape shapeA;
+        WorldShape shapeB;
+        uint failureCode = MR_STEP_SUCCESS;
+        if (!loadProjectedCollider(
+                pair.colliderA,
+                shapes[pair.colliderA],
+                projectedColliders[
+                    projectionBase + pair.colliderA
+                ],
+                shapeA,
+                failureCode
+            ) ||
+            !loadProjectedCollider(
+                pair.colliderB,
+                shapes[pair.colliderB],
+                projectedColliders[
+                    projectionBase + pair.colliderB
+                ],
+                shapeB,
+                failureCode
+            )) {
+            pairRawCounts[
+                work.environment *
+                    dispatch.eligiblePairCount +
+                work.compiledPair
+            ] = 0x80000000u | failureCode;
+            continue;
+        }
+        uint triangleCandidates = 0u;
+        const ContactBatch contacts = meshContacts(
+            shapeA,
+            shapeB,
+            shapes[pair.colliderA],
+            shapes[pair.colliderB],
+            geometryHeaders,
+            geometryVertices,
+            meshNodes,
+            meshTriangles,
+            triangleCandidates
+        );
+        MRConvexQueryCacheGPU cache = {};
+        cache.supportA = uint4(
+            0u,
+            0u,
+            triangleCandidates,
+            2u
+        );
+        cache.featureAndStatus = uint4(
+            MR_STEP_SUCCESS,
+            work.workClass,
+            work.stableKeyLow,
+            work.stableKeyHigh
+        );
+        caches[work.cacheSlot] = cache;
+        const uint countIndex =
+            work.environment * dispatch.eligiblePairCount +
+            work.compiledPair;
+        const uint stagingBase =
+            countIndex *
+            MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+        uint count = contacts.count;
+        for (uint index = 0u;
+             index < contacts.count;
+             ++index) {
+            if (!finiteContact(contacts.contacts[index])) {
+                count =
+                    0x80000000u |
+                    MR_STEP_NONFINITE_RESULT;
+                break;
+            }
+            pairRawContacts[stagingBase + index] =
+                contacts.contacts[index];
+        }
+        pairRawCounts[countIndex] = count;
+    }
+}
+
 // Deterministic environment-major collision/manifold/ConstraintIR compiler.
 // One thread owns one cloned environment. This deliberately favors the small,
 // stable eligible-pair streams common in batched robot RL; dynamic counts and
@@ -2964,6 +7121,12 @@ kernel void mr_world_collide_compile(
     device const MRProjectedColliderGPU* projectedColliders
         [[buffer(24)]],
     device const uint* pairOverlapFlags [[buffer(25)]],
+    device const uint* pairRawCounts [[buffer(26)]],
+    device const MRRawContactGPU* pairRawContactStaging
+        [[buffer(27)]],
+    device const MRConvexQueryCacheGPU* convexCaches
+        [[buffer(28)]],
+    device const MRCCDPairGPU* ccdPairs [[buffer(29)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -2979,6 +7142,11 @@ kernel void mr_world_collide_compile(
     status.physicsSubstep = pass.physicsSubstep;
     status.firstFailingPair = MR_INVALID_INDEX;
     status.firstFailingConstraint = MR_INVALID_INDEX;
+    status.requiredHardConvexPairs = 0u;
+    status.requiredMeshCandidates = 0u;
+    status.hardConvexPairs = 0u;
+    status.meshCandidates = 0u;
+    status.hardFallbacks = 0u;
     if (!finiteContactDispatch(dispatch) ||
         pass.physicsSubstep >=
             MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS) {
@@ -3005,6 +7173,8 @@ kernel void mr_world_collide_compile(
     const uint endpointBase = 2u * constraintBase;
     const uint queryBase =
         environment * dispatch.pointQueryStride;
+    const uint ccdBase =
+        environment * dispatch.ccdCandidateCapacity;
     const uint rootBody =
         articulations[dispatch.articulationIndex].rootBody;
     device const MRProjectedColliderGPU*
@@ -3035,6 +7205,11 @@ kernel void mr_world_collide_compile(
     uint firstRawOverflowPair = MR_INVALID_INDEX;
     uint firstManifoldOverflowPair = MR_INVALID_INDEX;
     uint firstConstraintOverflow = MR_INVALID_INDEX;
+    uint requiredHardConvexPairs = 0u;
+    uint requiredMeshCandidates = 0u;
+    uint hardFallbacks = 0u;
+    uint firstHardConvexOverflowPair = MR_INVALID_INDEX;
+    uint firstMeshOverflowPair = MR_INVALID_INDEX;
 
     device const MRBodyStateGPU* environmentBodies =
         bodies + bodyBase;
@@ -3061,6 +7236,83 @@ kernel void mr_world_collide_compile(
         }
         if (overlapFlag == 0u) {
             continue;
+        }
+        uint pairEventSlot = MR_CONSTRAINT_IR_INVALID_INDEX;
+        if (dispatch.ccdMode == MR_WORLD_CCD_HYBRID) {
+            const uint storedEvents = min(
+                status.ccdEvents,
+                min(
+                    dispatch.ccdCandidateCapacity,
+                    dispatch.ccdEventCapacity
+                )
+            );
+            for (uint eventSlot = 0u;
+                 eventSlot < storedEvents;
+                 ++eventSlot) {
+                const MRCCDPairGPU event =
+                    ccdPairs[ccdBase + eventSlot];
+                if (event.compiledPair == eligibleIndex &&
+                    (event.flags &
+                     MR_CCD_PAIR_HAS_IMPACT) != 0u) {
+                    pairEventSlot = eventSlot;
+                    break;
+                }
+            }
+        }
+
+        const uint workClass =
+            worldPairWorkClass(compiled, shapes);
+        if (workClass == MR_WORLD_WORK_PRIMITIVE_GJK ||
+            workClass == MR_WORLD_WORK_HULL_GJK ||
+            workClass == MR_WORLD_WORK_HARD_CONVEX ||
+            workClass == MR_WORLD_WORK_MESH) {
+            const MRConvexQueryCacheGPU queryCache =
+                convexCaches[
+                    environment * dispatch.convexCacheStride +
+                    eligibleIndex
+                ];
+            const uint fallback = queryCache.supportA.w;
+            if (workClass == MR_WORLD_WORK_MESH) {
+                const uint previousMeshRequirement =
+                    requiredMeshCandidates;
+                const uint triangleCandidates =
+                    queryCache.supportA.z;
+                requiredMeshCandidates =
+                    triangleCandidates >
+                        0xffffffffu - requiredMeshCandidates
+                    ? 0xffffffffu
+                    : requiredMeshCandidates +
+                        triangleCandidates;
+                if (firstMeshOverflowPair ==
+                        MR_INVALID_INDEX &&
+                    (
+                        previousMeshRequirement >
+                            dispatch.meshCandidateCapacity ||
+                        triangleCandidates >
+                            dispatch.meshCandidateCapacity -
+                                min(
+                                    previousMeshRequirement,
+                                    dispatch.meshCandidateCapacity
+                                )
+                    )) {
+                    firstMeshOverflowPair = eligibleIndex;
+                }
+            } else if (fallback == 1u || fallback == 3u) {
+                if (requiredHardConvexPairs != 0xffffffffu) {
+                    ++requiredHardConvexPairs;
+                }
+                if (fallback == 1u &&
+                    hardFallbacks != 0xffffffffu) {
+                    ++hardFallbacks;
+                }
+                if (firstHardConvexOverflowPair ==
+                        MR_INVALID_INDEX &&
+                    requiredHardConvexPairs >
+                        dispatch.hardConvexCapacity) {
+                    firstHardConvexOverflowPair =
+                        eligibleIndex;
+                }
+            }
         }
 
         device const MRProjectedColliderGPU& projectedA =
@@ -3101,13 +7353,37 @@ kernel void mr_world_collide_compile(
             firstPairOverflow = eligibleIndex;
         }
 
-        const ContactBatch raw = generateContacts(
-            compiled.colliderA,
-            compiled.colliderB,
-            compiled.pairClass,
-            shapeA,
-            shapeB
-        );
+        ContactBatch raw = {};
+        const uint stagedCount =
+            pairRawCounts[
+                environment * dispatch.eligiblePairCount +
+                eligibleIndex
+            ];
+        if ((stagedCount & 0x80000000u) != 0u) {
+            status.code = stagedCount & 0x7fffffffu;
+            status.firstFailingPair = eligibleIndex;
+            break;
+        }
+        if (stagedCount >
+            MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR) {
+            status.code = MR_STEP_NONFINITE_RESULT;
+            status.firstFailingPair = eligibleIndex;
+            break;
+        }
+        raw.count = stagedCount;
+        const uint stagedBase =
+            (
+                environment * dispatch.eligiblePairCount +
+                eligibleIndex
+            ) * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+        for (uint stagedIndex = 0u;
+             stagedIndex < stagedCount;
+             ++stagedIndex) {
+            raw.contacts[stagedIndex] =
+                pairRawContactStaging[
+                    stagedBase + stagedIndex
+                ];
+        }
         for (uint rawIndex = 0u;
              rawIndex < raw.count;
              ++rawIndex) {
@@ -3211,10 +7487,6 @@ kernel void mr_world_collide_compile(
 
         const MRShapeGPU sourceA = shapes[compiled.colliderA];
         const MRShapeGPU sourceB = shapes[compiled.colliderB];
-        const MRMaterialGPU materialA =
-            materials[sourceA.materialIndex];
-        const MRMaterialGPU materialB =
-            materials[sourceB.materialIndex];
         device const MRBodyStateGPU& bodyA =
             environmentBodies[sourceA.bodyIndex];
         device const MRBodyStateGPU& bodyB =
@@ -3260,6 +7532,29 @@ kernel void mr_world_collide_compile(
             }
             const MRManifoldPointGPU manifoldPoint =
                 manifoldPoints[pointIndex];
+            uint materialIndexA = sourceA.materialIndex;
+            uint materialIndexB = sourceB.materialIndex;
+            const uint materialOverride =
+                manifoldPoint.featureAndLife[3];
+            if ((materialOverride &
+                 MR_RAW_CONTACT_MATERIAL_OVERRIDE) != 0u) {
+                const uint cookedMaterial =
+                    materialOverride &
+                    MR_RAW_CONTACT_MATERIAL_INDEX_MASK;
+                if (sourceA.shapeType ==
+                    MR_SHAPE_TRIANGLE_MESH) {
+                    materialIndexA = cookedMaterial;
+                } else if (
+                    sourceB.shapeType ==
+                    MR_SHAPE_TRIANGLE_MESH
+                ) {
+                    materialIndexB = cookedMaterial;
+                }
+            }
+            const MRMaterialGPU materialA =
+                materials[materialIndexA];
+            const MRMaterialGPU materialB =
+                materials[materialIndexB];
             const float3 pointAWorld = worldPointFromAnchor(
                 bodyA,
                 rotationA,
@@ -3290,7 +7585,9 @@ kernel void mr_world_collide_compile(
             contact.bodyA = sourceA.bodyIndex;
             contact.bodyB = sourceB.bodyIndex;
             contact.flags =
-                manifoldPoint.featureAndLife[2] == 0u
+                pairEventSlot !=
+                        MR_CONSTRAINT_IR_INVALID_INDEX ||
+                    manifoldPoint.featureAndLife[2] == 0u
                 ? MR_CONSTRAINT_FLAG_NEW_IMPACT
                 : MR_CONSTRAINT_FLAG_WARM_STARTED;
             contact.islandIndex = MR_INVALID_INDEX;
@@ -3363,7 +7660,7 @@ kernel void mr_world_collide_compile(
             block.rowOffset = 3u * currentConstraint;
             block.impulseOffset = 3u * currentConstraint;
             block.coneIndex = currentConstraint;
-            block.eventSlot = MR_CONSTRAINT_IR_INVALID_INDEX;
+            block.eventSlot = pairEventSlot;
             blocks[outputConstraint] = block;
 
             MRConstraintIREndpointGPU endpointA = {};
@@ -3401,7 +7698,16 @@ kernel void mr_world_collide_compile(
                     float4(directions[localRow], 0.0f);
                 row.positionError =
                     localRow == 0u ? effectiveSeparation : 0.0f;
-                row.targetVelocity = 0.0f;
+                // A positive-separation speculative contact only removes the
+                // portion of closing velocity that would cross the surface
+                // during this microstep. Resting/penetrating contacts retain
+                // the ordinary zero normal target.
+                row.targetVelocity =
+                    localRow == 0u &&
+                    effectiveSeparation > 0.0f
+                    ? -effectiveSeparation /
+                        dispatch.timestepAndBias.x
+                    : 0.0f;
                 row.compliance =
                     localRow == 0u
                     ? materialA.response.z +
@@ -3475,6 +7781,19 @@ kernel void mr_world_collide_compile(
         constraintCount > 0x55555555u
         ? 0xffffffffu
         : 3u * constraintCount;
+    status.requiredHardConvexPairs =
+        requiredHardConvexPairs;
+    status.requiredMeshCandidates =
+        requiredMeshCandidates;
+    status.hardConvexPairs = min(
+        requiredHardConvexPairs,
+        dispatch.hardConvexCapacity
+    );
+    status.meshCandidates = min(
+        requiredMeshCandidates,
+        dispatch.meshCandidateCapacity
+    );
+    status.hardFallbacks = hardFallbacks;
     status.activePairs = pairCount;
     status.activeContacts = constraintCount;
     status.retainedPoints = retainedPoints;
@@ -3503,7 +7822,28 @@ kernel void mr_world_collide_compile(
                 firstConstraintOverflow != MR_INVALID_INDEX
                 ? firstConstraintOverflow
                 : dispatch.constraintCapacity;
+        } else if (
+            requiredHardConvexPairs >
+                dispatch.hardConvexCapacity
+        ) {
+            status.code = MR_STEP_CONTACT_CAPACITY_OVERFLOW;
+            status.firstFailingPair =
+                firstHardConvexOverflowPair;
+        } else if (
+            requiredMeshCandidates >
+                dispatch.meshCandidateCapacity
+        ) {
+            status.code = MR_STEP_CONTACT_CAPACITY_OVERFLOW;
+            status.firstFailingPair =
+                firstMeshOverflowPair;
         }
+    }
+    if (status.firstFailingPair != MR_INVALID_INDEX &&
+        status.firstFailingStableKeyLow == 0u &&
+        status.firstFailingStableKeyHigh == 0u) {
+        status.firstFailingStableKeyLow =
+            status.firstFailingPair;
+        status.firstFailingStableKeyHigh = environment;
     }
     candidateManifoldCounts[environment] =
         status.code == MR_STEP_SUCCESS ? manifoldCount : 0u;

@@ -422,7 +422,6 @@ inline bool validDispatch(
     if (world.abiVersion != MR_ENGINE_ABI_VERSION ||
         dispatch.articulationIndex >= world.articulationCount ||
         dispatch.environmentCount == 0u ||
-        dispatch.pointCount > MR_ARTICULATED_OPERATOR_MAX_POINTS ||
         dispatch.reserved0 != 0u ||
         (dispatch.flags &
          ~(
@@ -673,8 +672,9 @@ inline bool validModelAndLayout(
         dispatch.pointStride < dispatch.pointCount ||
         dispatch.bodyPoseStride < articulation.bodyCount ||
         dispatch.pointWorldStride < dispatch.pointCount ||
-        dispatch.pointJacobianStride <
-            dispatch.pointCount * 3u * articulation.nv ||
+        static_cast<ulong>(dispatch.pointJacobianStride) <
+            static_cast<ulong>(dispatch.pointCount) * 3ul *
+                static_cast<ulong>(articulation.nv) ||
         dispatch.generalizedStride < articulation.nv ||
         ((dispatch.flags &
           (

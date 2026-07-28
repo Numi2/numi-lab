@@ -28,9 +28,23 @@ CLI `--metallib` option.
 
 ```python
 import mlx.core as mx
-from metalrobo import compile_world, initial_state, step
+from metalrobo import (
+    MetalWorldCapacityProfile,
+    compile_world,
+    initial_state,
+    step,
+)
 
-world = compile_world("franka", physics_substeps=4)
+profile = MetalWorldCapacityProfile()
+profile.constraint_blocks = 32
+profile.constraint_rows = 96
+profile.solver_tiles = 1
+world = compile_world(
+    "franka",
+    physics_substeps=4,
+    capacity_profile=profile,
+    stream=mx.default_stream(mx.gpu),
+)
 state = initial_state(world, 1024)
 actions = mx.zeros((1024, world.nv), dtype=mx.float32)
 
@@ -41,14 +55,41 @@ output = compiled_step(state, actions)
 mx.async_eval(output.next_state, output.observations)
 ```
 
+`compile_world()` eagerly prepares its immutable pipelines/resources on the
+selected Metal stream before lazy compilation. Call
+`world.prepare_stream(stream)` explicitly before using another stream. A
+capacity overflow never reallocates inside the primitive: the raw fixed-shape
+status reports the exact required stage counts and the affected environment
+keeps its input state.
+
 `WorldState` is an explicit PyTree containing q/v, scene-body state, and solver
-cache. `StepOutput` contains next state, observations, fixed-shape
-contact/sensor arrays, typed status, `physics_error`, and acceleration.
+cache. Contact worlds are compiled explicitly:
+
+```python
+world = compile_world(
+    "franka",
+    scene="cube",
+    environment_capacity=1024,
+    solver_mode="throughput_tgs",
+    ccd_mode="hybrid",
+)
+state = initial_state(world, 1024)
+output = step(
+    world,
+    state,
+    mx.zeros((1024, world.nv), dtype=mx.float32),
+)
+```
+
+`StepOutput` contains next state, observations, typed status,
+`physics_error`, acceleration, and fixed-capacity contact evidence with
+stable IDs, counts, and masks.
 Reset masks and randomized reset state are explicit MLX inputs.
 
-The current active-encoder primitive supports contact-free Franka and G1 ABA.
-It rejects non-empty scene/contact state instead of silently using ctypes.
-JVP, VJP, and `vmap` are deliberately unsupported in this tranche.
+The active-encoder primitive supports contact-free Franka/G1 ABA plus the
+Franka dynamic-cube contact scene through the same device graph. No NumPy or
+ctypes fallback is reachable. JVP, VJP, and `vmap` are deliberately
+unsupported in this tranche.
 
 ## MLX-native PPO
 
@@ -68,9 +109,9 @@ inside `mx.compile`; bounded lazy chunks use `mx.async_eval`. Blocking
 evaluation occurs only at declared rollout/logging, optimizer, and checkpoint
 boundaries.
 
-This first task is `franka_joint_stabilization_v1`, not contact manipulation.
-Contact PPO becomes valid only when the standalone contact graph is promoted
-to the active-encoder adapter.
+The packaged trainer remains the `franka_joint_stabilization_v1` baseline.
+Contact policies can wrap the pure `step()` transition with MLX reward,
+termination, and reset logic inside `mx.compile`.
 
 ## Debug compatibility path
 

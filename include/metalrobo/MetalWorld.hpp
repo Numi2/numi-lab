@@ -15,6 +15,7 @@ namespace metalrobo {
 
 namespace detail {
 struct MetalWorldContextState;
+struct MetalWorldContextPool;
 struct MetalWorldSubmissionState;
 } // namespace detail
 
@@ -26,6 +27,12 @@ enum class MetalWorldSolverMode : std::uint32_t {
     freeMotionABA = 0u,
     throughputPGS = 1u,
     throughputTGS = 2u,
+};
+
+enum class MetalWorldCCDMode : std::uint32_t {
+    disabled = MR_WORLD_CCD_DISABLED,
+    speculative = MR_WORLD_CCD_SPECULATIVE,
+    hybrid = MR_WORLD_CCD_HYBRID,
 };
 
 enum class MetalWorldCapacityClass : std::uint32_t {
@@ -45,7 +52,12 @@ struct MetalWorldCapacityProfile {
     std::uint32_t constraintBlocks = 0u;
     std::uint32_t constraintRows = 0u;
     std::uint32_t islands = 0u;
+    std::uint32_t hardConvexPairs = 0u;
+    std::uint32_t meshTriangleCandidates = 0u;
+    std::uint32_t solverTiles = 0u;
     std::uint32_t spillRows = 0u;
+    std::uint32_t ccdCandidates = 0u;
+    std::uint32_t ccdEvents = 0u;
 };
 
 enum class MetalWorldHostStatus : std::uint32_t {
@@ -101,6 +113,20 @@ public:
         const noexcept;
     [[nodiscard]] std::span<const MRCompiledCollisionPairGPU>
     eligiblePairs() const noexcept;
+    [[nodiscard]] std::span<const MRGeometryHeaderGPU>
+    geometryHeaders() const noexcept;
+    [[nodiscard]] std::span<const mr_float4>
+    geometryVertices() const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t>
+    geometryIndices() const noexcept;
+    [[nodiscard]] std::span<const MRConvexFaceGPU>
+    convexFaces() const noexcept;
+    [[nodiscard]] std::span<const MRConvexHalfEdgeGPU>
+    convexHalfEdges() const noexcept;
+    [[nodiscard]] std::span<const MRMeshBVHNodeGPU>
+    meshBvhNodes() const noexcept;
+    [[nodiscard]] std::span<const MRMeshTriangleGPU>
+    meshTriangles() const noexcept;
     [[nodiscard]] const MetalWorldCapacityProfile& capacities()
         const noexcept;
     [[nodiscard]] const MetalWorldCapacityProfile&
@@ -174,6 +200,9 @@ struct MetalWorldStepConfig {
         MetalWorldSolverMode::throughputTGS;
     std::uint32_t velocityIterations = 1u;
     std::uint32_t finalVelocityIterations = 1u;
+    MetalWorldCCDMode ccdMode = MetalWorldCCDMode::speculative;
+    std::uint32_t maxCCDEvents = MR_CCD_DEFAULT_MAX_EVENTS;
+    std::uint32_t maxConservativeAdvancementIterations = 16u;
     bool applyBodyDamping = true;
     bool deterministic = true;
     bool warmStart = true;
@@ -182,12 +211,26 @@ struct MetalWorldStepConfig {
     float manifoldBreakingTangential = 0.02f;
     float manifoldMergeDistance = 0.002f;
     float manifoldNormalCosine = 0.95f;
+    float ccdMinimumAdvance = 1.0e-5f;
+    float ccdTimeTolerance = 1.0e-5f;
+    float speculativeMarginScale = 1.0f;
+    float ccdSpeedEnvelope = 1.0e4f;
 };
 
 struct MetalWorldConfig {
     // Empty discovers the co-installed metallib relative to the loaded
     // MetalRobo dylib, with the configured build-tree path as fallback.
     std::string metallibPath;
+    bool preferPrivateHeaps = true;
+    std::uint32_t maximumInFlightSubmissions = 3u;
+};
+
+struct MetalWorldMemoryPlan {
+    std::size_t immutablePrivateBytes = 0u;
+    std::size_t persistentStatePrivateBytes = 0u;
+    std::size_t transientPrivateBytes = 0u;
+    std::size_t sharedBoundaryBytes = 0u;
+    std::size_t peakAliasedBytes = 0u;
 };
 
 struct MetalWorldLayout {
@@ -212,6 +255,14 @@ struct MetalWorldLayout {
     std::size_t contactConstraintElements = 0u;
     std::size_t constraintRowElements = 0u;
     std::size_t islandElements = 0u;
+    std::size_t workQueueHeaderElements = 0u;
+    std::size_t pairWorkElements = 0u;
+    std::size_t pairRawStagingElements = 0u;
+    std::size_t islandWorkElements = 0u;
+    std::size_t contactTileElements = 0u;
+    std::size_t convexCacheElements = 0u;
+    std::size_t ccdPairElements = 0u;
+    MetalWorldMemoryPlan memoryPlan{};
     std::size_t totalRequiredBytes = 0u;
 };
 
@@ -229,6 +280,8 @@ struct MetalWorldContactEvidence {
     std::vector<MREvaluatedConstraintIRRowGPU> evaluatedRows;
     std::vector<MREvaluatedConstraintIRConeGPU> evaluatedCones;
     std::vector<MRContactIslandGPU> islands;
+    std::vector<MRIslandWorkGPU> islandWork;
+    std::vector<MRContactTileGPU> contactTiles;
 };
 
 struct MetalWorldStageCounts {
@@ -238,7 +291,12 @@ struct MetalWorldStageCounts {
     std::uint32_t constraintBlocks = 0u;
     std::uint32_t constraintRows = 0u;
     std::uint32_t islands = 0u;
+    std::uint32_t hardConvexPairs = 0u;
+    std::uint32_t meshTriangleCandidates = 0u;
+    std::uint32_t solverTiles = 0u;
     std::uint32_t spillRows = 0u;
+    std::uint32_t ccdCandidates = 0u;
+    std::uint32_t ccdEvents = 0u;
 };
 
 // Horizon aggregate for one environment. Required counts retain exact
@@ -259,6 +317,8 @@ struct MetalWorldStatus {
     MetalWorldStageCounts required{};
     MetalWorldStageCounts highWater{};
     float manifoldRetention = 1.0f;
+    std::uint32_t hardConvexFallbacks = 0u;
+    std::uint32_t unresolvedCCDCount = 0u;
     std::array<float, 4> maximumResiduals{};
 };
 
@@ -311,6 +371,9 @@ struct MetalWorldContextStats {
     std::uint64_t submissionCount = 0u;
     std::uint64_t completedSubmissionCount = 0u;
     std::size_t retainedBufferBytes = 0u;
+    MetalWorldMemoryPlan memoryPlan{};
+    std::uint32_t queriedThreadExecutionWidth = 0u;
+    bool usingPrivateHeaps = false;
     bool hasInFlightSubmission = false;
 };
 
@@ -345,8 +408,9 @@ private:
 };
 
 // Persistent checked executor. Pipeline creation and immutable-model upload
-// are cached; the shared arena grows geometrically and never shrinks. One
-// batch may be in flight because submissions reuse this arena.
+// are cached; each private placement-heap slot grows geometrically and never
+// shrinks. Slots are reserved without waiting, so up to the configured ring
+// size can execute asynchronously.
 class MetalWorldContext {
 public:
     explicit MetalWorldContext(MetalWorldConfig config = {});
@@ -375,7 +439,7 @@ public:
     [[nodiscard]] MetalWorldContextStats stats() const noexcept;
 
 private:
-    std::shared_ptr<detail::MetalWorldContextState> state_;
+    std::shared_ptr<detail::MetalWorldContextPool> pool_;
 };
 
 [[nodiscard]] const char* metalWorldHostStatusName(

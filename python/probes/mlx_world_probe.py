@@ -138,6 +138,60 @@ def main() -> None:
         "compiled G1 step failed",
     )
 
+    contact_world = compile_world(
+        "franka",
+        scene="cube",
+        environment_capacity=4,
+        solver_mode="throughput_tgs",
+        ccd_mode="hybrid",
+        physics_substeps=2,
+    )
+    contact_initial = initial_state(contact_world, 4)
+    contact_actions = mx.zeros(
+        (4, contact_world.nv),
+        dtype=mx.float32,
+    )
+    compiled_contact_step = mx.compile(
+        lambda world_state, actions: step(
+            contact_world,
+            world_state,
+            actions,
+        )
+    )
+    contact_first = compiled_contact_step(
+        contact_initial,
+        contact_actions,
+    )
+    contact_replay = compiled_contact_step(
+        contact_initial,
+        contact_actions,
+    )
+    mx.eval(contact_first, contact_replay)
+    require(
+        contact_first.status[:, 0].tolist() == [0] * 4
+        and contact_first.contacts.counts.tolist() == [2] * 4
+        and int(mx.sum(contact_first.contacts.mask).item()) == 8,
+        "MLX contact world did not publish fixed-shape evidence",
+    )
+    require(
+        contact_first.next_state.q.tolist()
+        == contact_replay.next_state.q.tolist()
+        and contact_first.contacts.stable_ids.tolist()
+        == contact_replay.contacts.stable_ids.tolist(),
+        "MLX contact replay was not deterministic",
+    )
+    contact_second = compiled_contact_step(
+        contact_first.next_state,
+        contact_actions,
+    )
+    mx.eval(contact_second)
+    require(
+        contact_second.status[:, 0].tolist() == [0] * 4
+        and contact_second.next_state.solver_cache
+            .manifold_counts.tolist() == [2] * 4,
+        "MLX persistent manifold state did not survive a horizon",
+    )
+
     autodiff_rejected = False
     try:
         gradient = mx.grad(
@@ -237,6 +291,11 @@ def main() -> None:
                 "numpy_step_conversions": 0,
                 "autodiff_rejected": autodiff_rejected,
                 "contact_supported": frank.contact_supported,
+                "contact_world_supported":
+                    contact_world.contact_supported,
+                "contact_blocks":
+                    contact_first.contacts.counts.tolist(),
+                "contact_cache_explicit": True,
             },
             separators=(",", ":"),
         )
