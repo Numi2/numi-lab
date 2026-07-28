@@ -33,6 +33,28 @@ class _RuntimeStatsC(ct.Structure):
     ]
 
 
+class _WorldFamilyLayoutC(ct.Structure):
+    _fields_ = [
+        ("capacity", ct.c_uint32),
+        ("active_instance_count", ct.c_uint32),
+        ("asset_count_per_instance", ct.c_uint32),
+        ("sensor_count_per_instance", ct.c_uint32),
+        ("appearance_count_per_instance", ct.c_uint32),
+        ("variation_count", ct.c_uint32),
+        ("categorical_value_count", ct.c_uint32),
+        ("retained_private_bytes", ct.c_size_t),
+    ]
+
+
+class _WorldFamilyStatsC(ct.Structure):
+    _fields_ = [
+        ("compile_count", ct.c_uint64),
+        ("sample_count", ct.c_uint64),
+        ("readback_count", ct.c_uint64),
+        ("last_sample_milliseconds", ct.c_double),
+    ]
+
+
 @dataclass(frozen=True, slots=True)
 class RuntimeStats:
     """A snapshot of native runtime counters."""
@@ -197,6 +219,42 @@ class _Bindings:
         self.lib.mr_stats.restype = _RuntimeStatsC
         self.lib.mr_device_name.argtypes = [ct.c_void_p]
         self.lib.mr_device_name.restype = ct.c_char_p
+
+        self.lib.mr_create_franka_pick_place_world_family.argtypes = [
+            ct.c_uint32,
+            ct.c_char_p,
+        ]
+        self.lib.mr_create_franka_pick_place_world_family.restype = ct.c_void_p
+        self.lib.mr_world_family_destroy.argtypes = [ct.c_void_p]
+        self.lib.mr_world_family_destroy.restype = None
+        self.lib.mr_world_family_sample.argtypes = [
+            ct.c_void_p,
+            ct.c_uint32,
+            ct.c_uint64,
+        ]
+        self.lib.mr_world_family_sample.restype = ct.c_int
+        self.lib.mr_world_family_readback.argtypes = [ct.c_void_p]
+        self.lib.mr_world_family_readback.restype = ct.c_int
+        self.lib.mr_world_family_layout.argtypes = [ct.c_void_p]
+        self.lib.mr_world_family_layout.restype = _WorldFamilyLayoutC
+        self.lib.mr_world_family_stats.argtypes = [ct.c_void_p]
+        self.lib.mr_world_family_stats.restype = _WorldFamilyStatsC
+        self.lib.mr_world_family_device_name.argtypes = [ct.c_void_p]
+        self.lib.mr_world_family_device_name.restype = ct.c_char_p
+        self.lib.mr_world_family_native_buffer.argtypes = [
+            ct.c_void_p,
+            ct.c_uint32,
+        ]
+        self.lib.mr_world_family_native_buffer.restype = ct.c_void_p
+        for name in (
+            "mr_world_family_instance_headers",
+            "mr_world_family_asset_instances",
+            "mr_world_family_sensor_instances",
+            "mr_world_family_appearance_instances",
+        ):
+            function = getattr(self.lib, name)
+            function.argtypes = [ct.c_void_p]
+            function.restype = ct.c_void_p
 
     def last_error(self) -> str:
         return _decode(self.lib.mr_last_error()) or "unknown native error"

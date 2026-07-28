@@ -111,6 +111,12 @@ linked or called at runtime.
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication
 - Existing batched Metal Franka ABA/reach environment and MLX PPO path
+- Episodic-twin world compiler with independent semantic, render, collision,
+  dynamics, and variation representations; a canonical Franka pick-and-place
+  program covers appearance, object configuration, clutter, physics,
+  robot/controller state, and cameras. A persistent Metal family context
+  samples 4,096 compact worlds directly into private GPU buffers and exposes
+  them to native/MLX graph stages without per-environment Python work
 
 This is a serious numerical foundation, not yet a complete MuJoCo/PhysX
 replacement. The device graph now has compact analytic/SAT/GJK/mesh queues,
@@ -149,6 +155,8 @@ cmake --build build
 ./build/bin/metalrobo_articulated_rigid_collision_probe
 ./build/bin/metalrobo_articulated_rigid_world_probe
 ./build/bin/metalrobo_supported_needle_pickup_probe
+./build/bin/metalrobo_world_compiler_probe
+./build/bin/metalrobo_metal_world_family_probe
 ./build/bin/metalrobo_g1_collision_contact_probe
 ./build/bin/metalrobo_free_body_gpu_probe
 ./build/bin/metalrobo_collision_gpu_probe
@@ -202,6 +210,7 @@ a cross-engine benchmark. See
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Persistent Metal world graph](docs/METAL_WORLD.md)
+- [Real-to-sim world compiler and GPU world families](docs/WORLD_ENGINE.md)
 - [v0.4 transactional generalized architecture](docs/V04_TRANSACTIONAL_ARCHITECTURE.md)
 - [v0.3 operator-first architecture](docs/V03_OPERATOR_ARCHITECTURE.md)
 - [State-of-the-art acceptance target](docs/ENGINE_TARGET.md)

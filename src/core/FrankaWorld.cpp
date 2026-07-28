@@ -1,0 +1,219 @@
+#include "metalrobo/FrankaWorld.hpp"
+
+#include <string>
+#include <utility>
+
+namespace metalrobo {
+namespace {
+
+WorldAsset makeAsset(
+    std::string id,
+    const MRWorldAssetRole role,
+    const MRWorldRenderRepresentation render,
+    const MRWorldCollisionRepresentation collision,
+    const MRWorldDynamicsRepresentation dynamics
+) {
+    WorldAsset result;
+    result.id = std::move(id);
+    result.semanticClass = result.id;
+    result.role = role;
+    result.render = render;
+    result.collision = collision;
+    result.dynamics = dynamics;
+    return result;
+}
+
+VariationParameter uniformVariation(
+    std::string id,
+    const MRWorldVariationAxis axis,
+    const MRWorldVariationTarget target,
+    std::string targetId,
+    const float lower,
+    const float upper
+) {
+    VariationParameter result;
+    result.id = std::move(id);
+    result.axis = axis;
+    result.distribution = MR_WORLD_DISTRIBUTION_UNIFORM;
+    result.target = target;
+    result.targetId = std::move(targetId);
+    result.parameters = {lower, upper, 0.0f, 0.0f};
+    return result;
+}
+
+} // namespace
+
+EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
+    EpisodeTwin episode;
+    episode.id = "franka_pick_place_anchor_v1";
+
+    WorldAsset background = makeAsset(
+        "workspace",
+        MR_WORLD_ASSET_BACKGROUND,
+        MR_WORLD_RENDER_GAUSSIAN_FIELD,
+        MR_WORLD_COLLISION_TRIANGLE_MESH,
+        MR_WORLD_DYNAMICS_STATIC
+    );
+    WorldAsset robot = makeAsset(
+        "franka",
+        MR_WORLD_ASSET_ROBOT,
+        MR_WORLD_RENDER_GAUSSIAN_FIELD,
+        MR_WORLD_COLLISION_PRIMITIVES,
+        MR_WORLD_DYNAMICS_ARTICULATED
+    );
+    WorldAsset object = makeAsset(
+        "pick_object",
+        MR_WORLD_ASSET_MANIPULATED,
+        MR_WORLD_RENDER_MESH_PBR,
+        MR_WORLD_COLLISION_CONVEX,
+        MR_WORLD_DYNAMICS_RIGID
+    );
+    object.initialPose.position = {0.50f, 0.0f, 0.025f, 0.0f};
+    WorldAsset target = makeAsset(
+        "target_fixture",
+        MR_WORLD_ASSET_FIXTURE,
+        MR_WORLD_RENDER_MESH_PBR,
+        MR_WORLD_COLLISION_TRIANGLE_MESH,
+        MR_WORLD_DYNAMICS_STATIC
+    );
+    target.initialPose.position = {0.45f, 0.25f, 0.0f, 0.0f};
+    target.anchors.push_back({
+        "place_pose",
+        {
+            {0.0f, 0.0f, 0.025f, 0.0f},
+            {0.0f, 0.0f, 0.0f, 1.0f},
+        },
+        0.025f,
+        0u,
+    });
+    WorldAsset clutter = makeAsset(
+        "clutter",
+        MR_WORLD_ASSET_CLUTTER,
+        MR_WORLD_RENDER_MESH_PBR,
+        MR_WORLD_COLLISION_CONVEX,
+        MR_WORLD_DYNAMICS_RIGID
+    );
+    episode.assets = {
+        std::move(background),
+        std::move(robot),
+        std::move(object),
+        std::move(target),
+        std::move(clutter),
+    };
+
+    SensorSpec fixedCamera;
+    fixedCamera.id = "fixed_rgbd";
+    fixedCamera.parentAssetId = "workspace";
+    fixedCamera.kind = MR_WORLD_SENSOR_RGBD;
+    fixedCamera.localPose.position = {0.8f, -0.6f, 0.8f, 0.0f};
+    fixedCamera.width = 160u;
+    fixedCamera.height = 120u;
+    fixedCamera.intrinsics = {140.0f, 140.0f, 80.0f, 60.0f};
+
+    SensorSpec wristCamera = fixedCamera;
+    wristCamera.id = "wrist_rgbd";
+    wristCamera.parentAssetId = "franka";
+    wristCamera.localPose.position = {0.0f, 0.0f, 0.08f, 0.0f};
+    episode.sensors = {
+        std::move(fixedCamera),
+        std::move(wristCamera),
+    };
+    episode.artifacts = {
+        {
+            "capture",
+            EpisodeArtifactKind::capture,
+            EpisodeArtifactProducer::measured,
+            "",
+            "capture://franka-pick-place",
+            "sha256:capture",
+            0.0,
+            15.0,
+        },
+        {
+            "trajectory",
+            EpisodeArtifactKind::robotTrajectory,
+            EpisodeArtifactProducer::measured,
+            "franka",
+            "trajectory://franka",
+            "sha256:trajectory",
+            0.0,
+            15.0,
+        },
+    };
+    episode.task = {
+        "pick_place",
+        "franka",
+        "pick_object",
+        "target_fixture",
+        "place_pose",
+        0.05,
+        15.0,
+    };
+    return episode;
+}
+
+WorldProgram makeFrankaPickPlaceWorldProgram() {
+    WorldProgram program;
+    program.id = "systematic_pick_place_family_v1";
+    program.variations = {
+        uniformVariation(
+            "exposure",
+            MR_WORLD_VARIATION_APPEARANCE,
+            MR_WORLD_TARGET_APPEARANCE_EXPOSURE,
+            "default",
+            -1.5f,
+            1.5f
+        ),
+        uniformVariation(
+            "object_x",
+            MR_WORLD_VARIATION_OBJECT_CONFIGURATION,
+            MR_WORLD_TARGET_ASSET_POSITION_X,
+            "pick_object",
+            -0.15f,
+            0.15f
+        ),
+        uniformVariation(
+            "object_y",
+            MR_WORLD_VARIATION_OBJECT_CONFIGURATION,
+            MR_WORLD_TARGET_ASSET_POSITION_Y,
+            "pick_object",
+            -0.15f,
+            0.15f
+        ),
+        uniformVariation(
+            "friction",
+            MR_WORLD_VARIATION_PHYSICS,
+            MR_WORLD_TARGET_ASSET_FRICTION_SCALE,
+            "pick_object",
+            0.5f,
+            1.5f
+        ),
+        uniformVariation(
+            "robot_latency",
+            MR_WORLD_VARIATION_ROBOT_STATE,
+            MR_WORLD_TARGET_ROBOT_LATENCY_SECONDS,
+            "franka",
+            0.0f,
+            0.025f
+        ),
+        uniformVariation(
+            "camera_yaw",
+            MR_WORLD_VARIATION_CAMERA,
+            MR_WORLD_TARGET_SENSOR_ORIENTATION_YAW,
+            "fixed_rgbd",
+            -0.15f,
+            0.15f
+        ),
+    };
+    VariationParameter clutter;
+    clutter.id = "clutter_set";
+    clutter.axis = MR_WORLD_VARIATION_CLUTTER;
+    clutter.distribution = MR_WORLD_DISTRIBUTION_CATEGORICAL;
+    clutter.target = MR_WORLD_TARGET_CLUTTER_SET;
+    clutter.targetId = "clutter";
+    clutter.categoricalValues = {0u, 1u, 2u, 3u};
+    program.variations.push_back(std::move(clutter));
+    return program;
+}
+
+} // namespace metalrobo

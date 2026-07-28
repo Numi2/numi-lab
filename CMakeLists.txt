@@ -53,6 +53,9 @@ set(METALROBO_WORLD_SOURCE
 set(METALROBO_WORLD_CONTACT_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalWorldContact.metal"
 )
+set(METALROBO_WORLD_COMPILER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/WorldCompiler.metal"
+)
 set(METALROBO_PHYSICS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboPhysics.air"
 )
@@ -85,6 +88,9 @@ set(METALROBO_WORLD_AIR
 )
 set(METALROBO_WORLD_CONTACT_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboWorldContact.air"
+)
+set(METALROBO_WORLD_COMPILER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboWorldCompiler.air"
 )
 set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 
@@ -162,6 +168,12 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_WORLD_CONTACT_SOURCE}"
             -o "${METALROBO_WORLD_CONTACT_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_WORLD_COMPILER_SOURCE}"
+            -o "${METALROBO_WORLD_COMPILER_AIR}"
     COMMAND xcrun -sdk macosx metallib
             "${METALROBO_PHYSICS_AIR}"
             "${METALROBO_CONSTRAINT_AIR}"
@@ -174,6 +186,7 @@ add_custom_command(
             "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_WORLD_AIR}"
             "${METALROBO_WORLD_CONTACT_AIR}"
+            "${METALROBO_WORLD_COMPILER_AIR}"
             -o "${METALROBO_METALLIB}"
     DEPENDS
         "${METALROBO_PHYSICS_SOURCE}"
@@ -186,9 +199,11 @@ add_custom_command(
         "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
         "${METALROBO_WORLD_SOURCE}"
         "${METALROBO_WORLD_CONTACT_SOURCE}"
+        "${METALROBO_WORLD_COMPILER_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/world_compiler_types.h"
     VERBATIM
 )
 
@@ -200,8 +215,10 @@ add_library(
     src/core/Model.cpp
     src/core/Franka.cpp
     src/core/FrankaEngine.cpp
+    src/core/FrankaWorld.cpp
     src/core/CpuDynamics.cpp
     src/core/EngineModel.cpp
+    src/core/WorldCompiler.cpp
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
     src/core/SurgicalPSM.cpp
@@ -227,6 +244,7 @@ add_library(
     src/metal/MetalArticulatedABA.mm
     src/metal/MetalArticulatedInverseMass.mm
     src/metal/MetalWorld.mm
+    src/metal/MetalWorldFamily.mm
     src/metal/MetalRuntime.mm
     src/c_api.cpp
 )
@@ -951,6 +969,54 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_supported_needle_pickup_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_world_compiler_probe
+    apps/world_compiler_probe.cpp
+)
+target_link_libraries(
+    metalrobo_world_compiler_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_world_compiler_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_world_compiler_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_metal_world_family_probe
+    apps/metal_world_family_probe.cpp
+)
+target_link_libraries(
+    metalrobo_metal_world_family_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_metal_world_family_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_metal_world_family_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
