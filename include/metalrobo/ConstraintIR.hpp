@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string>
 #include <type_traits>
@@ -62,6 +63,13 @@ enum ConstraintIRJacobianKind : std::uint32_t {
         MR_CONSTRAINT_IR_JACOBIAN_ANGULAR,
 };
 
+enum ConstraintIREndpointFlags : std::uint32_t {
+    constraintIREndpointRowMask =
+        MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK,
+    constraintIREndpointQIndexValid =
+        MR_CONSTRAINT_IR_ENDPOINT_Q_INDEX_VALID,
+};
+
 using ConstraintIRStableKey = MRConstraintIRStableKeyGPU;
 using ConstraintIRBlock = MRConstraintIRBlockGPU;
 using ConstraintIREndpoint = MRConstraintIREndpointGPU;
@@ -99,6 +107,21 @@ struct ConstraintIR {
     }
 };
 
+// One temporary authored block consumed by compileConstraintIR(). Payload
+// spans only need to remain alive for the call. Compilation copies, key-sorts,
+// densely packs, validates, and publishes a new canonical transaction.
+struct ConstraintIRSourceBlock {
+    ConstraintIRStableKey key{};
+    std::uint32_t type = MR_CONSTRAINT_BILATERAL;
+    std::uint32_t flags = 0u;
+    std::uint32_t islandIndex = 0u;
+    std::uint32_t eventSlot = kConstraintIRInvalidIndex;
+    std::span<const ConstraintIREndpoint> endpoints{};
+    std::span<const ConstraintIRRow> rows{};
+    std::optional<ConstraintIRCone> cone{};
+    std::span<const float> warmImpulses{};
+};
+
 enum class ConstraintIRStatus : std::uint32_t {
     success = 0u,
     invalidAbiVersion,
@@ -128,6 +151,17 @@ struct ConstraintIRDiagnostics {
     }
 };
 
+struct ConstraintIRCompilationResult {
+    ConstraintIRDiagnostics diagnostics{};
+    ConstraintIR ir;
+    // Canonical block index -> authored source index.
+    std::vector<std::uint32_t> sourceBlockIndices;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return diagnostics.succeeded();
+    }
+};
+
 [[nodiscard]] bool constraintIRKeyLess(
     const ConstraintIRStableKey& left,
     const ConstraintIRStableKey& right
@@ -144,6 +178,27 @@ struct ConstraintIRDiagnostics {
 [[nodiscard]] ConstraintIRDiagnostics validateConstraintIR(
     const ConstraintIR& ir
 );
+
+// Canonical compiler for every ConstraintIR block type. It is intentionally
+// independent from collision so capture/world cookers can author limits,
+// equality rows, gears, tendons, and calibration constraints into the same
+// stream used by contact.
+[[nodiscard]] ConstraintIRCompilationResult compileConstraintIR(
+    std::span<const ConstraintIRSourceBlock> sources
+);
+
+// Constructs one sparse generalized-Jacobian term. The signed coefficient is
+// multiplied by generalizedVelocity[globalVIndex] and accumulated into
+// localRow. globalQIndex may be invalid for tangent coordinates without a
+// one-to-one scalar configuration coordinate.
+[[nodiscard]] ConstraintIREndpoint
+makeConstraintIRGeneralizedEndpoint(
+    std::uint32_t articulationIndex,
+    std::uint32_t globalQIndex,
+    std::uint32_t globalVIndex,
+    std::uint32_t localRow,
+    float coefficient
+) noexcept;
 
 struct ConstraintIREvaluationConfig {
     double timestep = 1.0 / 240.0;
@@ -264,6 +319,15 @@ struct ConstraintIRVelocityResult {
 computeConstraintIRWorldPointVelocities(
     const ConstraintIR& ir,
     std::span<const MRBodyStateGPU> bodyStates
+);
+
+// Executes non-spatial sparse generalized blocks directly from the global
+// generalized-velocity vector. Contacts and body-point/angular endpoints are
+// rejected explicitly so callers cannot accidentally omit kinematic terms.
+[[nodiscard]] ConstraintIRVelocityResult
+computeConstraintIRGeneralizedVelocities(
+    const ConstraintIR& ir,
+    std::span<const float> generalizedVelocity
 );
 
 struct ConstraintIRResidualConfig {

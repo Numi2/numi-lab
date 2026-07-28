@@ -44,6 +44,18 @@ enum MRConstraintIRJacobianKind : mr_u32 {
     MR_CONSTRAINT_IR_JACOBIAN_ANGULAR = 3u,
 };
 
+// GENERALIZED endpoints are sparse Jacobian terms. objectIndex is the global
+// generalized-velocity index, articulationIndex owns that coordinate, axis.x
+// is the signed coefficient, and the low bits of flags select the local row
+// within the block. When Q_INDEX_VALID is set, linkIndex stores the matching
+// global scalar configuration index; otherwise linkIndex is invalid. This
+// convention represents limits, gears/mimics, tendons, drives, and bounded
+// joint friction without a dense Jacobian or another ABI record.
+enum MRConstraintIREndpointFlags : mr_u32 {
+    MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK = 0x000000ffu,
+    MR_CONSTRAINT_IR_ENDPOINT_Q_INDEX_VALID = 1u << 8u,
+};
+
 typedef struct MR_ALIGN16 MRConstraintIRStableKeyGPU {
     mr_u32 words[4];
 } MRConstraintIRStableKeyGPU;

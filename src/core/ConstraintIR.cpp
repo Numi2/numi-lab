@@ -26,6 +26,9 @@ constexpr std::uint32_t kKnownRowFlags =
     constraintIRRowContactNormal |
     constraintIRRowContactTangent |
     constraintIRRowContactTorsion;
+constexpr std::uint32_t kKnownEndpointFlags =
+    constraintIREndpointRowMask |
+    constraintIREndpointQIndexValid;
 constexpr double kDirectionTolerance = 2.0e-4;
 constexpr double kOrthogonalityTolerance = 4.0e-4;
 constexpr double kWarmStartTolerance = 2.0e-5;
@@ -136,6 +139,36 @@ bool knownEndpointRole(const std::uint32_t role) {
 
 bool knownJacobianKind(const std::uint32_t kind) {
     return kind <= constraintIRJacobianAngular;
+}
+
+bool generalizedEndpointValid(
+    const ConstraintIREndpoint& endpoint,
+    const std::uint32_t blockDimension
+) {
+    const std::uint32_t localRow =
+        endpoint.flags & constraintIREndpointRowMask;
+    const bool qIndexValid =
+        (endpoint.flags &
+         constraintIREndpointQIndexValid) != 0u;
+    return
+        (endpoint.flags & ~kKnownEndpointFlags) == 0u &&
+        localRow < blockDimension &&
+        endpoint.objectIndex != kConstraintIRInvalidIndex &&
+        endpoint.articulationIndex != kConstraintIRInvalidIndex &&
+        (
+            qIndexValid
+            ? endpoint.linkIndex != kConstraintIRInvalidIndex
+            : endpoint.linkIndex == kConstraintIRInvalidIndex
+        ) &&
+        finite(endpoint.axis.x) &&
+        endpoint.axis.x != 0.0F &&
+        endpoint.axis.y == 0.0F &&
+        endpoint.axis.z == 0.0F &&
+        endpoint.axis.w == 0.0F &&
+        endpoint.anchor.x == 0.0F &&
+        endpoint.anchor.y == 0.0F &&
+        endpoint.anchor.z == 0.0F &&
+        endpoint.anchor.w == 0.0F;
 }
 
 bool rangeFits(
@@ -672,6 +705,18 @@ ConstraintIRDiagnostics validateConstraintIR(const ConstraintIR& ir) {
                     blockIndex
                 );
             }
+            if (endpoint.jacobianKind ==
+                    constraintIRJacobianGeneralized &&
+                !generalizedEndpointValid(
+                    endpoint,
+                    block.dimension
+                )) {
+                return failure(
+                    ConstraintIRStatus::invalidEndpoint,
+                    "sparse generalized endpoint is invalid",
+                    blockIndex
+                );
+            }
         }
         if (isContact) {
             const ConstraintIREndpoint& endpointA =
@@ -959,6 +1004,180 @@ ConstraintIRDiagnostics validateConstraintIR(const ConstraintIR& ir) {
     return {};
 }
 
+ConstraintIRCompilationResult compileConstraintIR(
+    const std::span<const ConstraintIRSourceBlock> sources
+) {
+    ConstraintIRCompilationResult result;
+    if (sources.size() >
+        std::numeric_limits<std::uint32_t>::max()) {
+        result.diagnostics = failure(
+            ConstraintIRStatus::invalidCount,
+            "authored constraint block count exceeds ABI capacity"
+        );
+        return result;
+    }
+
+    std::vector<std::uint32_t> order(sources.size());
+    std::iota(order.begin(), order.end(), 0u);
+    std::stable_sort(
+        order.begin(),
+        order.end(),
+        [&sources](
+            const std::uint32_t left,
+            const std::uint32_t right
+        ) {
+            return constraintIRKeyLess(
+                sources[left].key,
+                sources[right].key
+            );
+        }
+    );
+
+    ConstraintIR staged;
+    staged.blocks.reserve(sources.size());
+    result.sourceBlockIndices.reserve(sources.size());
+    for (const std::uint32_t sourceIndex : order) {
+        const ConstraintIRSourceBlock& source =
+            sources[sourceIndex];
+        if (source.rows.empty() ||
+            source.rows.size() > 6u ||
+            source.warmImpulses.size() !=
+                source.rows.size() ||
+            source.endpoints.size() >
+                std::numeric_limits<std::uint32_t>::max()) {
+            result.diagnostics = failure(
+                ConstraintIRStatus::invalidCount,
+                "authored constraint payload count is invalid",
+                sourceIndex
+            );
+            return result;
+        }
+        const bool isContact =
+            source.type == MR_CONSTRAINT_CONTACT;
+        if ((isContact && !source.cone.has_value()) ||
+            (!isContact && source.cone.has_value())) {
+            result.diagnostics = failure(
+                ConstraintIRStatus::invalidBlock,
+                "authored cone ownership does not match block type",
+                sourceIndex
+            );
+            return result;
+        }
+        const auto offsetFits = [](
+            const std::size_t current,
+            const std::size_t additional
+        ) {
+            return
+                current <=
+                    std::numeric_limits<std::uint32_t>::max() &&
+                additional <=
+                    std::numeric_limits<std::uint32_t>::max() -
+                        current;
+        };
+        if (!offsetFits(
+                staged.endpoints.size(),
+                source.endpoints.size()
+            ) ||
+            !offsetFits(staged.rows.size(), source.rows.size()) ||
+            !offsetFits(
+                staged.warmImpulses.size(),
+                source.warmImpulses.size()
+            ) ||
+            (source.cone.has_value() &&
+             staged.cones.size() >=
+                 std::numeric_limits<std::uint32_t>::max())) {
+            result.diagnostics = failure(
+                ConstraintIRStatus::invalidCount,
+                "authored constraint payload exceeds ABI offsets",
+                sourceIndex
+            );
+            return result;
+        }
+
+        ConstraintIRBlock block{};
+        block.key = source.key;
+        block.type = source.type;
+        block.dimension =
+            static_cast<std::uint32_t>(source.rows.size());
+        block.flags = source.flags;
+        block.islandIndex = source.islandIndex;
+        block.endpointOffset =
+            static_cast<std::uint32_t>(
+                staged.endpoints.size()
+            );
+        block.endpointCount =
+            static_cast<std::uint32_t>(
+                source.endpoints.size()
+            );
+        block.rowOffset =
+            static_cast<std::uint32_t>(staged.rows.size());
+        block.impulseOffset =
+            static_cast<std::uint32_t>(
+                staged.warmImpulses.size()
+            );
+        block.coneIndex = source.cone.has_value()
+            ? static_cast<std::uint32_t>(
+                  staged.cones.size()
+              )
+            : kConstraintIRInvalidIndex;
+        block.eventSlot = source.eventSlot;
+        staged.blocks.push_back(block);
+        staged.endpoints.insert(
+            staged.endpoints.end(),
+            source.endpoints.begin(),
+            source.endpoints.end()
+        );
+        staged.rows.insert(
+            staged.rows.end(),
+            source.rows.begin(),
+            source.rows.end()
+        );
+        if (source.cone.has_value()) {
+            staged.cones.push_back(*source.cone);
+        }
+        staged.warmImpulses.insert(
+            staged.warmImpulses.end(),
+            source.warmImpulses.begin(),
+            source.warmImpulses.end()
+        );
+        result.sourceBlockIndices.push_back(sourceIndex);
+    }
+
+    result.diagnostics = validateConstraintIR(staged);
+    if (!result.diagnostics.succeeded()) {
+        result.sourceBlockIndices.clear();
+        return result;
+    }
+    result.ir = std::move(staged);
+    return result;
+}
+
+ConstraintIREndpoint makeConstraintIRGeneralizedEndpoint(
+    const std::uint32_t articulationIndex,
+    const std::uint32_t globalQIndex,
+    const std::uint32_t globalVIndex,
+    const std::uint32_t localRow,
+    const float coefficient
+) noexcept {
+    ConstraintIREndpoint endpoint{};
+    endpoint.objectIndex = globalVIndex;
+    endpoint.articulationIndex = articulationIndex;
+    endpoint.linkIndex = globalQIndex;
+    endpoint.role = coefficient < 0.0F
+        ? constraintIREndpointA
+        : constraintIREndpointB;
+    endpoint.jacobianKind =
+        constraintIRJacobianGeneralized;
+    endpoint.flags =
+        localRow & constraintIREndpointRowMask;
+    if (globalQIndex != kConstraintIRInvalidIndex) {
+        endpoint.flags |=
+            constraintIREndpointQIndexValid;
+    }
+    endpoint.axis = {coefficient, 0.0F, 0.0F, 0.0F};
+    return endpoint;
+}
+
 ConstraintIRVelocityResult computeConstraintIRWorldPointVelocities(
     const ConstraintIR& ir,
     const std::span<const MRBodyStateGPU> bodyStates
@@ -1100,6 +1319,85 @@ ConstraintIRVelocityResult computeConstraintIRWorldPointVelocities(
         }
     }
 
+    result.relativeVelocities = std::move(working);
+    return result;
+}
+
+ConstraintIRVelocityResult computeConstraintIRGeneralizedVelocities(
+    const ConstraintIR& ir,
+    const std::span<const float> generalizedVelocity
+) {
+    ConstraintIRVelocityResult result;
+    result.diagnostics = validateConstraintIR(ir);
+    if (!result.diagnostics.succeeded()) {
+        return result;
+    }
+    if (!std::ranges::all_of(
+            generalizedVelocity,
+            [](const float value) {
+                return finite(value);
+            }
+        )) {
+        result.diagnostics = failure(
+            ConstraintIRStatus::invalidEvaluationInput,
+            "generalized velocity contains non-finite data"
+        );
+        return result;
+    }
+
+    std::vector<double> accumulated(ir.rows.size(), 0.0);
+    for (std::uint32_t blockIndex = 0u;
+         blockIndex < ir.blocks.size();
+         ++blockIndex) {
+        const ConstraintIRBlock& block = ir.blocks[blockIndex];
+        if (block.type == MR_CONSTRAINT_CONTACT) {
+            result.diagnostics = failure(
+                ConstraintIRStatus::unsupportedSemantics,
+                "generalized velocity evaluation excludes contact blocks",
+                blockIndex
+            );
+            return result;
+        }
+        for (std::uint32_t local = 0u;
+             local < block.endpointCount;
+             ++local) {
+            const ConstraintIREndpoint& endpoint =
+                ir.endpoints[block.endpointOffset + local];
+            if (endpoint.jacobianKind !=
+                    constraintIRJacobianGeneralized ||
+                endpoint.objectIndex >=
+                    generalizedVelocity.size()) {
+                result.diagnostics = failure(
+                    ConstraintIRStatus::invalidEvaluationInput,
+                    "generalized endpoint coordinate is unavailable",
+                    blockIndex
+                );
+                return result;
+            }
+            const std::uint32_t localRow =
+                endpoint.flags &
+                constraintIREndpointRowMask;
+            accumulated[block.rowOffset + localRow] +=
+                static_cast<double>(endpoint.axis.x) *
+                generalizedVelocity[endpoint.objectIndex];
+        }
+    }
+
+    std::vector<float> working(ir.rows.size(), 0.0F);
+    for (std::uint32_t row = 0u;
+         row < accumulated.size();
+         ++row) {
+        if (!representableAsFloat(accumulated[row])) {
+            result.diagnostics = failure(
+                ConstraintIRStatus::nonfiniteData,
+                "generalized relative velocity is outside FP32",
+                kConstraintIRInvalidIndex,
+                row
+            );
+            return result;
+        }
+        working[row] = static_cast<float>(accumulated[row]);
+    }
     result.relativeVelocities = std::move(working);
     return result;
 }
@@ -1648,6 +1946,18 @@ ConstraintIRDiagnostics validateConstraintIREvaluationViewImpl(
                 return failure(
                     ConstraintIRStatus::invalidResidualInput,
                     "evaluated endpoint data is invalid",
+                    blockIndex
+                );
+            }
+            if (endpoint.jacobianKind ==
+                    constraintIRJacobianGeneralized &&
+                !generalizedEndpointValid(
+                    endpoint,
+                    block.dimension
+                )) {
+                return failure(
+                    ConstraintIRStatus::invalidResidualInput,
+                    "evaluated sparse generalized endpoint is invalid",
                     blockIndex
                 );
             }

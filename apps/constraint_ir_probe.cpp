@@ -767,6 +767,160 @@ int main() {
             ++adversarialChecks;
         }
 
+        // Compile non-contact mechanism semantics through the same canonical
+        // IR transaction. Sparse generalized endpoints cover a unilateral
+        // stop, a two-coordinate gear/mimic row, and bounded dry friction.
+        metalrobo::ConstraintIRRow limitRow{};
+        limitRow.positionError = -2.5e-3F;
+        limitRow.timeConstant = 0.02F;
+        limitRow.impulseLower = 0.0F;
+        limitRow.flags =
+            metalrobo::constraintIRRowPositionStabilized |
+            metalrobo::constraintIRRowUnilateral;
+        const std::array<metalrobo::ConstraintIREndpoint, 1>
+            limitEndpoints{
+                metalrobo::makeConstraintIRGeneralizedEndpoint(
+                    0u,
+                    1u,
+                    1u,
+                    0u,
+                    -1.0F
+                ),
+            };
+        const std::array<metalrobo::ConstraintIRRow, 1>
+            limitRows{limitRow};
+        const std::array<float, 1> limitWarm{0.125F};
+
+        metalrobo::ConstraintIRRow gearRow{};
+        gearRow.positionError = 1.0e-3F;
+        gearRow.timeConstant = 0.03F;
+        gearRow.flags =
+            metalrobo::constraintIRRowPositionStabilized;
+        const std::array<metalrobo::ConstraintIREndpoint, 2>
+            gearEndpoints{
+                metalrobo::makeConstraintIRGeneralizedEndpoint(
+                    0u,
+                    0u,
+                    0u,
+                    0u,
+                    2.0F
+                ),
+                metalrobo::makeConstraintIRGeneralizedEndpoint(
+                    0u,
+                    2u,
+                    2u,
+                    0u,
+                    -1.0F
+                ),
+            };
+        const std::array<metalrobo::ConstraintIRRow, 1>
+            gearRows{gearRow};
+        const std::array<float, 1> gearWarm{0.0F};
+
+        metalrobo::ConstraintIRRow frictionRow{};
+        frictionRow.impulseLower = -0.4F;
+        frictionRow.impulseUpper = 0.4F;
+        const std::array<metalrobo::ConstraintIREndpoint, 1>
+            frictionEndpoints{
+                metalrobo::makeConstraintIRGeneralizedEndpoint(
+                    0u,
+                    metalrobo::kConstraintIRInvalidIndex,
+                    2u,
+                    0u,
+                    1.0F
+                ),
+            };
+        const std::array<metalrobo::ConstraintIRRow, 1>
+            frictionRows{frictionRow};
+        const std::array<float, 1> frictionWarm{-0.1F};
+
+        // Deliberately authored out of key order.
+        const std::array<metalrobo::ConstraintIRSourceBlock, 3>
+            mechanismSources{
+                metalrobo::ConstraintIRSourceBlock{
+                    .key = {{30u, 0u, 0u, 0u}},
+                    .type = MR_CONSTRAINT_LIMIT,
+                    .islandIndex = 2u,
+                    .endpoints = limitEndpoints,
+                    .rows = limitRows,
+                    .warmImpulses = limitWarm,
+                },
+                metalrobo::ConstraintIRSourceBlock{
+                    .key = {{10u, 0u, 0u, 0u}},
+                    .type = MR_CONSTRAINT_GEAR,
+                    .islandIndex = 2u,
+                    .endpoints = gearEndpoints,
+                    .rows = gearRows,
+                    .warmImpulses = gearWarm,
+                },
+                metalrobo::ConstraintIRSourceBlock{
+                    .key = {{20u, 0u, 0u, 0u}},
+                    .type = MR_CONSTRAINT_DRY_FRICTION,
+                    .islandIndex = 2u,
+                    .endpoints = frictionEndpoints,
+                    .rows = frictionRows,
+                    .warmImpulses = frictionWarm,
+                },
+            };
+        const auto mechanism =
+            metalrobo::compileConstraintIR(mechanismSources);
+        require(
+            mechanism.succeeded() &&
+            mechanism.ir.blocks.size() == 3u &&
+            mechanism.ir.rows.size() == 3u &&
+            mechanism.ir.endpoints.size() == 4u &&
+            mechanism.ir.cones.empty() &&
+            mechanism.sourceBlockIndices ==
+                std::vector<std::uint32_t>({1u, 2u, 0u}),
+            "typed generalized constraint compilation failed"
+        );
+        const std::array<float, 3> mechanismVelocity{
+            0.5F,
+            -0.2F,
+            1.5F,
+        };
+        const auto mechanismRelative =
+            metalrobo::computeConstraintIRGeneralizedVelocities(
+                mechanism.ir,
+                mechanismVelocity
+            );
+        require(
+            mechanismRelative.succeeded() &&
+            mechanismRelative.relativeVelocities.size() == 3u &&
+            near(mechanismRelative.relativeVelocities[0], -0.5) &&
+            near(mechanismRelative.relativeVelocities[1], 1.5) &&
+            near(mechanismRelative.relativeVelocities[2], 0.2),
+            "sparse generalized Jacobian action is incorrect"
+        );
+        const auto evaluatedMechanism =
+            metalrobo::evaluateConstraintIR(
+                mechanism.ir,
+                {mechanismRelative.relativeVelocities, {}},
+                evaluationConfig
+            );
+        require(
+            evaluatedMechanism.succeeded() &&
+            evaluatedMechanism.evaluated.cones.empty() &&
+            evaluatedMechanism.evaluated.rows.size() == 3u,
+            "generalized mechanisms did not share semantic evaluation"
+        );
+        {
+            auto duplicateSources = mechanismSources;
+            duplicateSources[0].key = duplicateSources[1].key;
+            const auto failed =
+                metalrobo::compileConstraintIR(duplicateSources);
+            require(
+                !failed.succeeded() &&
+                failed.diagnostics.status ==
+                    metalrobo::ConstraintIRStatus::
+                        nonCanonicalOrder &&
+                failed.ir.empty() &&
+                failed.sourceBlockIndices.empty(),
+                "failed generalized compilation published payload"
+            );
+            ++adversarialChecks;
+        }
+
         // The adversarial copies above must not mutate the accepted source.
         require(
             metalrobo::validateConstraintIR(adapted.ir).succeeded(),
@@ -796,6 +950,8 @@ int main() {
                   << projectedWarmNormal
                   << " projected_warm_tangent="
                   << projectedWarmTangent
+                  << " mechanism_blocks="
+                  << mechanism.ir.blocks.size()
                   << " adversarial_checks="
                   << adversarialChecks
                   << " transactional=yes"
