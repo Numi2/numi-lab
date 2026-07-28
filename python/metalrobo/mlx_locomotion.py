@@ -57,6 +57,12 @@ class MLXG1RolloutCollector:
         chunk_size: int = 16,
         maximum_episode_steps: int = 1_200,
         action_scale: float = 0.35,
+        command_tracking: bool = False,
+        command_scales: tuple[float, float, float] = (
+            0.5,
+            0.3,
+            0.5,
+        ),
     ) -> None:
         if environment_count <= 0:
             raise ValueError("environment_count must be positive")
@@ -83,6 +89,11 @@ class MLXG1RolloutCollector:
         self.chunk_size = chunk_size
         self.maximum_episode_steps = maximum_episode_steps
         self.action_scale = float(action_scale)
+        self.command_tracking = bool(command_tracking)
+        self.command_scales = mx.array(
+            command_scales,
+            dtype=mx.float32,
+        )
         self.action_size = int(world.nv) - 6
         self.default_state = initial_state(
             world,
@@ -98,14 +109,36 @@ class MLXG1RolloutCollector:
             inputs=self.model.state,
         )
 
-    @staticmethod
-    def _observations(state: WorldState) -> mx.array:
-        return mx.concatenate((state.q, state.v), axis=-1)
+    def _observations(
+        self,
+        state: WorldState,
+        commands: mx.array,
+    ) -> mx.array:
+        components = [state.q, state.v]
+        if self.command_tracking:
+            components.append(commands)
+        return mx.concatenate(components, axis=-1)
 
     def initial(self) -> MLXRolloutState:
+        commands = (
+            mx.random.uniform(
+                low=-1.0,
+                high=1.0,
+                shape=(self.environment_count, 3),
+            )
+            * self.command_scales
+            if self.command_tracking
+            else mx.zeros(
+                (self.environment_count, 3),
+                dtype=mx.float32,
+            )
+        )
         return MLXRolloutState(
             world=self.default_state,
-            observations=self._observations(self.default_state),
+            observations=self._observations(
+                self.default_state,
+                commands,
+            ),
             episode_steps=mx.zeros(
                 (self.environment_count,),
                 dtype=mx.uint32,
@@ -127,6 +160,7 @@ class MLXG1RolloutCollector:
         observations: mx.array,
         episode_steps: mx.array,
         noise: mx.array,
+        reset_commands: mx.array,
         default_q: mx.array,
         default_joint_targets: mx.array,
         reset_q: mx.array,
@@ -220,10 +254,30 @@ class MLXG1RolloutCollector:
             0.0,
             1.0,
         )
+        commands = (
+            observations[:, -3:]
+            if self.command_tracking
+            else mx.zeros(
+                (self.environment_count, 3),
+                dtype=mx.float32,
+            )
+        )
+        command_error = (
+            mx.square(candidate.v[:, 0] - commands[:, 0])
+            + mx.square(candidate.v[:, 1] - commands[:, 1])
+            + 0.25
+            * mx.square(candidate.v[:, 5] - commands[:, 2])
+        )
+        tracking_reward = (
+            mx.exp(-2.0 * command_error)
+            if self.command_tracking
+            else mx.zeros_like(command_error)
+        )
         reward = (
             1.5 * mx.clip(upright, 0.0, 1.0)
             + mx.exp(-20.0 * mx.square(height_error))
             + 0.2 * support
+            + tracking_reward
             - 0.25 * planar_velocity
             - 0.05 * vertical_velocity
             - 0.02 * angular_velocity
@@ -287,9 +341,19 @@ class MLXG1RolloutCollector:
             mx.zeros_like(next_episode_steps),
             next_episode_steps,
         )
-        next_observations = mx.concatenate(
-            (next_q, next_v),
-            axis=-1,
+        next_commands = _select_environment(
+            done,
+            reset_commands,
+            commands,
+        )
+        next_observations = self._observations(
+            WorldState(
+                q=next_q,
+                v=next_v,
+                scene_bodies=SceneBodyState(*next_scene),
+                solver_cache=SolverCache(*next_cache),
+            ),
+            next_commands,
         )
         return (
             next_q,
@@ -329,6 +393,14 @@ class MLXG1RolloutCollector:
             noise = mx.random.normal(
                 (self.environment_count, self.action_size)
             )
+            reset_commands = (
+                mx.random.uniform(
+                    low=-1.0,
+                    high=1.0,
+                    shape=(self.environment_count, 3),
+                )
+                * self.command_scales
+            )
             result = self._compiled_step(
                 current.q,
                 current.v,
@@ -337,6 +409,7 @@ class MLXG1RolloutCollector:
                 observations,
                 episode_steps,
                 noise,
+                reset_commands,
                 self.default_q,
                 self.default_joint_targets,
                 self.default_state.q,
@@ -443,6 +516,7 @@ class MLXG1PPOTrainer(MLXPPOTrainer):
         velocity_iterations: int = 2,
         final_velocity_iterations: int = 1,
         scene: str = "ground",
+        command_tracking: bool = False,
     ) -> None:
         config.validate()
         if scene not in {"ground", "terrain"}:
@@ -464,11 +538,14 @@ class MLXG1PPOTrainer(MLXPPOTrainer):
             metallib_path=metallib_path or "",
         )
         self.task_name = (
-            "g1_flat_ground_standing_v1"
-            if scene == "ground"
-            else "g1_rough_mesh_standing_v1"
+            f"g1_{'flat_ground' if scene == 'ground' else 'rough_mesh'}_"
+            f"{'command_tracking' if command_tracking else 'standing'}_v1"
         )
-        self.observation_size = self.world.nq + self.world.nv
+        self.observation_size = (
+            self.world.nq
+            + self.world.nv
+            + (3 if command_tracking else 0)
+        )
         self.action_size = self.world.nv - 6
         self.model = ActorCritic(
             self.observation_size,
@@ -490,6 +567,7 @@ class MLXG1PPOTrainer(MLXPPOTrainer):
             gae_lambda=config.gae_lambda,
             chunk_size=rollout_chunk_size,
             maximum_episode_steps=maximum_episode_steps,
+            command_tracking=command_tracking,
         )
         self.rollout_state = self.collector.initial()
         self.iteration = 0

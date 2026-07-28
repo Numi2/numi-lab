@@ -116,6 +116,13 @@ metalrobo train \
 
 metalrobo train \
   --backend mlx \
+  --task g1-command \
+  --envs 2048 \
+  --rollout-steps 64 \
+  --iterations 1000
+
+metalrobo train \
+  --backend mlx \
   --task g1-terrain \
   --envs 1024 \
   --rollout-steps 64 \
@@ -135,8 +142,10 @@ inside `mx.compile`; bounded lazy chunks use `mx.async_eval`. Blocking
 evaluation occurs only at declared rollout/logging, optimizer, and checkpoint
 boundaries.
 
-The CLI exposes `franka-stabilization`, `g1-standing`, `g1-terrain`, and
-`psm-needle`. The G1 and PSM collectors provide contact-capable task paths;
+The CLI exposes `franka-stabilization`, `g1-standing`, `g1-command`,
+`g1-terrain`, and `psm-needle`. G1 command tasks carry episodic planar/yaw
+commands inside the compiled observation and resample them on transactional
+reset. The G1 and PSM collectors provide contact-capable task paths;
 the policy, implicit targets, physics, reward, termination, reset, GAE, and
 updates remain MLX arrays. The PSM task scores the measured dynamic needle
 pose and contact evidence and never creates a weld or hidden grasp state.

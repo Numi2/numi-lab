@@ -47,6 +47,7 @@ def _train_parser(parser: argparse.ArgumentParser) -> None:
         choices=(
             "franka-stabilization",
             "g1-standing",
+            "g1-command",
             "g1-terrain",
             "psm-needle",
         ),
@@ -143,7 +144,11 @@ def run_train(args: argparse.Namespace) -> int:
             "G1 and PSM tasks require --backend mlx; the ctypes "
             "adapter is Franka-only"
         )
-    g1_task = args.task in {"g1-standing", "g1-terrain"}
+    g1_task = args.task in {
+        "g1-standing",
+        "g1-command",
+        "g1-terrain",
+    }
     psm_task = args.task == "psm-needle"
     maximum_episode_steps = (
         args.maximum_episode_steps
@@ -155,6 +160,8 @@ def run_train(args: argparse.Namespace) -> int:
         if args.task == "g1-terrain"
         else "runs/g1-standing"
         if args.task == "g1-standing"
+        else "runs/g1-command"
+        if args.task == "g1-command"
         else "runs/psm-needle"
         if psm_task
         else "runs/franka"
@@ -197,6 +204,9 @@ def run_train(args: argparse.Namespace) -> int:
                     "terrain"
                     if args.task == "g1-terrain"
                     else "ground"
+                ),
+                command_tracking=(
+                    args.task in {"g1-command", "g1-terrain"}
                 ),
             )
         elif psm_task:
