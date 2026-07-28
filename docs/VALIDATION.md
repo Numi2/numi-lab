@@ -122,9 +122,78 @@ midpoint_iterations=2
 
 This establishes internal analytical and forward/inverse consistency for the
 CPU reference, including the actual G1 topology and inertial records. It does
-not establish agreement with an external simulator, articulated contact,
-long-horizon G1 stability, or Metal G1 execution. The reference is not yet
-wired into the composed rigid-body world.
+not establish agreement with an external simulator, long-horizon G1
+stability, or Metal G1 execution. The reference is not yet wired into a
+complete composed articulated timestep.
+
+## Analytic articulated contact
+
+```sh
+./build/bin/metalrobo_articulated_contact_probe
+```
+
+The FP64 layer evaluates COM poses/twists and batched point Jacobians
+analytically, retains the checked CRBA Cholesky factor, and applies contact
+impulses as `Jᵀ -> solve(M) -> J`. It does not use configuration finite
+differences or multiply a dense inverse in the impulse-response path. A dense
+inverse is still produced only as a compatibility adapter for the current
+FP64 conic solvers.
+
+The probe covers a floating anisotropic body at an off-COM point, a fixed
+pendulum with a closed-form Jacobian/effective mass, and two simultaneous sole
+contacts on the actual G1:
+
+```text
+free_jv_error=2.775558e-17
+free_delassus_error=1.110223e-16
+pendulum_jacobian_error=1.778273e-08
+g1_jv_error=5.551115e-17
+g1_base_column_error=0
+g1_tree_sparsity_error=0
+g1_delassus_symmetry=0
+g1_jacobian_adjoint=5.637851e-18
+g1_dense_adapter_residual=5.814700e-14
+g1_solver_velocity_error=5.329071e-15
+g1_quality_kkt=2.543264e-16
+transactionality=yes
+```
+
+The pendulum tolerance is limited by the engine model's FP32 ABI constants;
+the computations are FP64. This proves the generalized contact operator and
+solver connection, not a full G1 contact trajectory or Metal execution.
+
+```sh
+./build/bin/metalrobo_g1_collision_contact_probe
+```
+
+This second probe closes the geometry-to-generalized-impulse boundary. It
+generates analytic body poses/twists, runs the real FP64 collision and
+persistent-manifold path against a z-up ground plane, performs common material
+assembly, adapts the resulting constraints, and solves them through the
+factor-backed G1 operator:
+
+```text
+root_lowering=1.629781e-02
+raw_contacts=8 manifolds=8 constraints=8 adapted=8
+penetration_max=5.000198e-04
+target_normal_max=1.920095e-02
+solved_normal_min=1.919900e-02
+operator_velocity_error=6.661338e-15
+reconstructed_point_error=1.862645e-09
+free_jv_parity_error=0
+quality_kkt=4.317683e-15
+endpoint_swap_error=0
+target_rule_error=2.775558e-17
+compliance_regularization_error=0
+kinematic_compensation_error=2.682209e-09
+capacity_transactional=yes tiny_timestep_rejected=yes
+cross_articulation_rejected=yes unbound_dynamic_rejected=yes
+strict_constraint_flags=yes
+```
+
+This is real collision-generated G1 contact, not hand-authored sole rows. It
+still stops before configuration integration and does not include G1 drives,
+limits, self-collision, Metal execution, or a locomotion rollout.
 
 ## Collision and manifolds
 
@@ -139,17 +208,101 @@ four-point manifolds. The corpus reported 29 SAP pairs with zero false
 negatives, stable IDs, `8_to_4` deterministic manifold reduction, canonical
 filters, and transactional overflow.
 
-The Metal correctness baseline matched sorted CPU sphere pairs/witnesses:
+The Metal correctness baseline matched sorted CPU witnesses for all four
+currently supported pair classes:
 
 ```text
-shapes=13 pairs=7 raw_contacts=6
-max_witness_error=5.960464e-08
+shapes=17 pairs=9 raw_contacts=16
+capsule_endpoint_contacts=2
+box_raw_contacts=8 box_manifold_contacts=4
+max_witness_error=8.195639e-08
 canonical_filters=yes stable_features=yes deterministic_replay=yes
 overflow_transactional=yes finite_validation=yes
+strict_shape_flags=yes strict_exclusions=yes
+strict_body_stream=yes error_precedence=yes
+derived_transform_validation=yes quaternion_boundary_parity=yes
+bounded_collision_domain=yes subnormal_policy=yes
+zero_shape_world=yes
+disabled_unsupported_skipped=yes
 ```
 
-This Metal kernel is deliberately one-thread `O(n²)` and is not a production
-GPU broadphase throughput result.
+An adversarial numerical audit then targeted the exact places where a naïve
+FP64-oracle/FP32-device parity contract fails:
+
+```text
+derived-domain cases=30000 cpu_metal_status_mismatch=0
+quaternion-boundary cases=30000 cpu_metal_status_mismatch=0
+conservative-aabb cases=300000 inward_bounds=0
+contact-threshold cases=40000 cpu_pairs_missing_on_metal=0
+cpu_contacts_missing_on_metal=0 metal_extra_contacts=19952
+max_extra_contact_gap=1.68085e-05
+max_declared_pad_fraction=0.093316
+```
+
+The threshold corpus deliberately places every scene within three FP32 ULPs
+of contact creation. Extra Metal contacts there are the specified
+conservative behavior, not exact-topology parity: a device contact may be
+published inside the scale-aware roundoff band, but an FP64 oracle contact
+may not be lost. Outside that band, the normal witness tolerances apply.
+
+The separate parallel micro-broadphase probe executes a deterministic
+flag/two-level-scan/scatter stream with no global append atomic:
+
+```sh
+./build/bin/metalrobo_deterministic_broadphase_probe
+```
+
+```text
+shapes=50 logical_pairs=1225 scan_blocks=5 candidate_pairs=47
+cpu_parity=yes deterministic=yes exact_capacity=yes
+zero_pair_worlds=yes
+overflow_transactional=yes nonfinite_transactional=yes
+shape_validation_transactional=yes strict_body_stream=yes
+error_precedence=yes derived_transform_validation=yes
+bounded_collision_domain=yes subnormal_policy=yes
+quaternion_boundary_parity=yes
+unsupported_transactional=yes
+global_append_atomics=none
+```
+
+The narrowphase baseline remains deliberately one-thread `O(n²)`. The
+parallel broadphase result is a correctness/integration probe, not a throughput
+benchmark or a completed LBVH/manifold pipeline.
+
+## Shared constraint semantics
+
+```sh
+./build/bin/metalrobo_constraint_ir_probe
+```
+
+The ABI-v2 CPU reference validates fixed-layout streams, stable-key ordering,
+dense range ownership, frames, cones, and warm starts before publication. The
+ABI-v1 contact adapter is transactional. Quality and throughput views share
+the exact evaluated row/cone buffers and semantic fingerprint; only a later
+numerical dispatch may differ.
+
+```text
+blocks=2 rows=7 endpoints=4 cones=2
+shared_buffers=yes
+restitution_target=1.149999976
+regularization=0.2299999893
+equilibrium_residual=0
+adversarial_cone_violation=0.1499999985
+coupled_torsion_residual=2.309401127
+projected_warm_normal=1.200000048
+projected_warm_tangent=0.6000000238
+adversarial_checks=16 transactional=yes
+```
+
+The nonzero cone and torsion values are deliberate analytical violation
+regressions, not residuals of an accepted equilibrium. The torsion case checks
+the exact joint projection of normal, two tangents, and torsion rather than an
+independent clamp. The projected warm values prove that a static-friction
+cache is made feasible again when slip selects the narrower dynamic cone.
+Malformed/stale public views, noncanonical contact bounds, and arbitrarily
+small residual projection steps are rejected. Rolling and adhesion are
+explicitly rejected until their shared semantics are implemented. Existing
+production solvers do not yet consume this IR.
 
 ## Contact solver portfolio
 
@@ -280,14 +433,15 @@ measured 117,645 environment-steps/s in that combined Python/MLX run.
 
 - Trajectory/contact comparison against a pinned MuJoCo or Genesis Franka
   scene
-- Parallel Metal broadphase/narrowphase performance; the current generic GPU
-  collision path is a correctness baseline
+- Parallel Metal broadphase/narrowphase performance and integration; the
+  current scan broadphase and generic narrowphase are focused correctness
+  components
 - Metal persistent-manifold refresh/reduction; the executable persistence
   path is CPU
-- Capsule/box/cylinder Metal narrowphase, convex/mesh/heightfield collision,
-  articulated self-collision, and CCD
-- Coupling the generalized CPU articulated solver to the composed contact
-  world
+- Cylinder and general capsule/box Metal narrowphase,
+  convex/mesh/heightfield collision, articulated self-collision, and CCD
+- A complete generalized articulated timestep composing free motion,
+  collision/manifold refresh, limits/drives, solve, and configuration update
 - Batched Metal floating-articulation execution and long-horizon G1 dynamics
 - Connected throughput islands above 128 contacts and production spill/replay
 - TGS; the current throughput solver is correctly identified as PGS

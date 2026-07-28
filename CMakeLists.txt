@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     MetalRobo
-    VERSION 0.2.0
+    VERSION 0.3.0
     DESCRIPTION "Metal-native robotics simulation and reinforcement learning"
     LANGUAGES C CXX OBJCXX
 )
 
 if(NOT APPLE)
-    message(FATAL_ERROR "MetalRobo 0.2 targets Apple Silicon macOS.")
+    message(FATAL_ERROR "MetalRobo 0.3 targets Apple Silicon macOS.")
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -34,6 +34,9 @@ set(METALROBO_FREE_BODY_SOURCE
 set(METALROBO_COLLISION_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Collision.metal"
 )
+set(METALROBO_BROADPHASE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/DeterministicBroadphase.metal"
+)
 set(METALROBO_PHYSICS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboPhysics.air"
 )
@@ -45,6 +48,9 @@ set(METALROBO_FREE_BODY_AIR
 )
 set(METALROBO_COLLISION_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboCollision.air"
+)
+set(METALROBO_BROADPHASE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboDeterministicBroadphase.air"
 )
 set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 
@@ -75,17 +81,25 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_COLLISION_SOURCE}"
             -o "${METALROBO_COLLISION_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_BROADPHASE_SOURCE}"
+            -o "${METALROBO_BROADPHASE_AIR}"
     COMMAND xcrun -sdk macosx metallib
             "${METALROBO_PHYSICS_AIR}"
             "${METALROBO_CONSTRAINT_AIR}"
             "${METALROBO_FREE_BODY_AIR}"
             "${METALROBO_COLLISION_AIR}"
+            "${METALROBO_BROADPHASE_AIR}"
             -o "${METALROBO_METALLIB}"
     DEPENDS
         "${METALROBO_PHYSICS_SOURCE}"
         "${METALROBO_CONSTRAINT_SOURCE}"
         "${METALROBO_FREE_BODY_SOURCE}"
         "${METALROBO_COLLISION_SOURCE}"
+        "${METALROBO_BROADPHASE_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
     VERBATIM
@@ -104,6 +118,9 @@ add_library(
     src/core/Collision.cpp
     src/core/FreeBodyDynamics.cpp
     src/core/ArticulatedDynamics.cpp
+    src/core/ArticulatedContact.cpp
+    src/core/ArticulatedCollision.cpp
+    src/core/ConstraintIR.cpp
     src/core/ReferenceConicSolver.cpp
     src/core/QualityContactSolver.cpp
     src/core/ConstraintSolver.cpp
@@ -232,6 +249,38 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+add_executable(
+    metalrobo_articulated_contact_probe
+    apps/articulated_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_articulated_contact_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_articulated_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_g1_collision_contact_probe
+    apps/g1_collision_contact_probe.cpp
+)
+target_link_libraries(
+    metalrobo_g1_collision_contact_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_g1_collision_contact_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
 target_link_libraries(metalrobo_rigid_body_world_probe PRIVATE metalrobo)
 set_target_properties(
     metalrobo_rigid_body_world_probe
@@ -259,6 +308,22 @@ set_target_properties(
 target_link_libraries(metalrobo_reference_conic_probe PRIVATE metalrobo)
 set_target_properties(
     metalrobo_reference_conic_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_constraint_ir_probe
+    apps/constraint_ir_probe.cpp
+)
+target_link_libraries(
+    metalrobo_constraint_ir_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_constraint_ir_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
@@ -346,6 +411,41 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_collision_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_deterministic_broadphase_probe
+    apps/deterministic_broadphase_probe.mm
+)
+add_dependencies(
+    metalrobo_deterministic_broadphase_probe
+    metalrobo_shaders
+)
+target_compile_definitions(
+    metalrobo_deterministic_broadphase_probe
+    PRIVATE
+        METALROBO_DEFAULT_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    metalrobo_deterministic_broadphase_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+)
+target_link_libraries(
+    metalrobo_deterministic_broadphase_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_deterministic_broadphase_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

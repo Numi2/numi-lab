@@ -22,7 +22,9 @@ Metal physics is FP32 because Metal shaders do not provide native `double`.
 The canonical ABI and compiled robot inertial records are FP32. CPU reference
 paths promote those records and evaluate dynamics, collision, and quality
 solver intermediates in FP64; promotion does not recover precision absent
-from the compiled record.
+from the compiled record. Collision admission uses direct FP32 source-field
+checks rather than comparing independently rounded derived bounds at the same
+hard threshold. Accepted geometry is then promoted for the FP64 narrowphase.
 
 Every CPU reference path validates dimensions and finite inputs before
 publication. Capacity, factorization, convergence, and unsupported-feature
@@ -51,8 +53,10 @@ revolute, continuous, and fixed joints. It:
 Optional coordinate and body-speed limits are validation boundaries. They
 reject an invalid state transactionally; they are not yet unilateral
 joint-limit constraints that generate impulses. The actual G1 topology passes
-the internal FP64 analytical and forward/inverse probes, but this reference is
-not coupled to contact and has no generalized Metal implementation.
+the internal FP64 analytical and forward/inverse probes. Analytic point
+Jacobians and a retained CRBA factor now provide `J`, `Jᵀ`, and
+`J M⁻¹ Jᵀ` contact actions, including a two-foot G1 quality solve. A complete
+articulated timestep and generalized Metal implementation remain open.
 
 The original Franka runtime is separate. Its Metal path runs a linear-time
 FP32 articulated-body algorithm, and its older FP64 reduced-dynamics oracle
@@ -73,8 +77,39 @@ time-of-impact handling.
 The CPU collision oracle uses FP64 sweep-and-prune, analytic primitive
 witnesses, stable feature identifiers, and deterministic four-point manifold
 reduction. The Metal collision path is currently an FP32, one-thread `O(n²)`
-correctness baseline for sphere/sphere and sphere/plane. It is not a parallel
-broadphase and does not perform GPU persistent-manifold refresh.
+correctness narrowphase baseline for sphere/sphere, sphere/plane,
+capsule/plane, and box/plane. A separate deterministic parallel micro
+broadphase uses flag/scan/scatter without global append atomics. The two are
+not yet a production LBVH/manifold stream, and Metal does not perform
+persistent-manifold refresh.
+
+The executable collision ABI has two deliberate numerical domains. Authored
+body/local positions, primitive dimensions, and contact/rest/bounding-radius
+fields must lie in `[-100,000, 100,000]` metres. Derived transforms and finite
+AABBs have a separate `[-1,000,000, 1,000,000]` metre sanity domain. For
+normalized supported primitives, the first domain proves a derived bound
+below roughly `5.5 * 100,000` metres, leaving deterministic slack instead of
+placing backend-specific FP32/FP64 arithmetic on an admission boundary.
+Active non-plane dimensions must be at least `1e-9` metres. Nonzero FP32
+subnormals are rejected from collision records and external AABBs by raw-bit
+classification, so Metal flush-to-zero cannot change acceptance. Larger
+worlds must rebase each environment. These checks apply before shape-type
+classification and use the same status policy on CPU and Metal.
+
+Quaternion scale is not physical. Collision records admit canonical finite
+components when `max(abs(q))` is in `[0.25, 1.001]`, then normalize. This
+direct component contract admits every unit orientation and modest authored
+drift without putting a hard decision on an FMA-sensitive `dot(q,q)`
+tolerance.
+
+Broadphase bounds are conservative, not nearest-rounded. CPU bounds start
+from FP64 geometry, receive a scale-aware `64 * FLT_EPSILON` outward pad, and
+are cast with directed `nextafter` correction. Metal applies the same
+scale-aware outward pad. Contact eligibility on Metal uses a matching
+roundoff band, making the GPU result a conservative superset near an exact
+FP32/FP64 threshold. Contacts outside that band must agree within witness
+tolerances; inside it, bounded speculative contacts are permitted but missing
+an oracle contact is not.
 
 No CCD algorithm is implemented. Fast bodies can therefore tunnel; substeps
 are not a semantic substitute for conservative advancement, speculative CCD,
@@ -115,7 +150,7 @@ component parity, finite behavior, conservation on narrow unforced scenes,
 and deterministic replay where stated. They do not yet establish:
 
 - trajectory/contact agreement with a pinned external simulator;
-- articulated contact or joint-limit impulse accuracy;
+- external articulated-contact accuracy and joint-limit impulses;
 - convex, mesh, heightfield, or deformable collision accuracy;
 - CCD or high-speed impact accuracy;
 - long-horizon G1 locomotion stability;

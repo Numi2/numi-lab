@@ -306,6 +306,59 @@ Mat3 rotationMatrix(const Quaternion input) {
     }};
 }
 
+Quaternion quaternionFromRotationMatrix(const Mat3& rotation) {
+    Quaternion result{};
+    const double trace =
+        rotation.m[0][0] + rotation.m[1][1] + rotation.m[2][2];
+    if (trace > 0.0) {
+        const double scale = 2.0 * std::sqrt(trace + 1.0);
+        result.w = 0.25 * scale;
+        result.x = (rotation.m[2][1] - rotation.m[1][2]) / scale;
+        result.y = (rotation.m[0][2] - rotation.m[2][0]) / scale;
+        result.z = (rotation.m[1][0] - rotation.m[0][1]) / scale;
+    } else if (rotation.m[0][0] > rotation.m[1][1] &&
+               rotation.m[0][0] > rotation.m[2][2]) {
+        const double scale = 2.0 * std::sqrt(
+            1.0 + rotation.m[0][0] -
+            rotation.m[1][1] - rotation.m[2][2]
+        );
+        result.w = (rotation.m[2][1] - rotation.m[1][2]) / scale;
+        result.x = 0.25 * scale;
+        result.y = (rotation.m[0][1] + rotation.m[1][0]) / scale;
+        result.z = (rotation.m[0][2] + rotation.m[2][0]) / scale;
+    } else if (rotation.m[1][1] > rotation.m[2][2]) {
+        const double scale = 2.0 * std::sqrt(
+            1.0 + rotation.m[1][1] -
+            rotation.m[0][0] - rotation.m[2][2]
+        );
+        result.w = (rotation.m[0][2] - rotation.m[2][0]) / scale;
+        result.x = (rotation.m[0][1] + rotation.m[1][0]) / scale;
+        result.y = 0.25 * scale;
+        result.z = (rotation.m[1][2] + rotation.m[2][1]) / scale;
+    } else {
+        const double scale = 2.0 * std::sqrt(
+            1.0 + rotation.m[2][2] -
+            rotation.m[0][0] - rotation.m[1][1]
+        );
+        result.w = (rotation.m[1][0] - rotation.m[0][1]) / scale;
+        result.x = (rotation.m[0][2] + rotation.m[2][0]) / scale;
+        result.y = (rotation.m[1][2] + rotation.m[2][1]) / scale;
+        result.z = 0.25 * scale;
+    }
+    result = normalized(result);
+    // q and -q represent the same pose. Canonicalizing the sign keeps public
+    // kinematics deterministic across algebraically equivalent branches.
+    if (result.w < 0.0) {
+        result = {
+            -result.x,
+            -result.y,
+            -result.z,
+            -result.w,
+        };
+    }
+    return result;
+}
+
 Mat3 rotationAroundAxis(const Vec3 inputAxis, const double angle) {
     const Vec3 axis = inputAxis / norm(inputAxis);
     const double c = std::cos(angle);
@@ -1689,6 +1742,238 @@ void mergeFactorizationDiagnostics(
 }
 
 } // namespace
+
+ArticulatedDynamicsDiagnostics computeArticulatedBodyKinematics(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const std::span<const double> q,
+    const std::span<const double> v,
+    const std::span<ArticulatedBodyKinematics> bodyKinematics,
+    const ArticulatedDynamicsConfig& config
+) {
+    Topology topology;
+    ArticulatedDynamicsDiagnostics diagnostics = preflight(
+        model,
+        articulationIndex,
+        q,
+        v,
+        {},
+        {},
+        config,
+        topology
+    );
+    if (!diagnostics.succeeded()) {
+        return diagnostics;
+    }
+    if (bodyKinematics.size() != topology.articulation->bodyCount) {
+        diagnostics.status =
+            ArticulatedDynamicsStatus::invalidDimensions;
+        return diagnostics;
+    }
+
+    std::vector<BodyKinematics> internal;
+    const ArticulatedDynamicsStatus kinematicsStatus =
+        buildKinematics(
+            model,
+            topology,
+            q,
+            v,
+            {},
+            config.enforceBodySpeedLimits,
+            internal
+        );
+    if (kinematicsStatus != ArticulatedDynamicsStatus::success) {
+        diagnostics.status = kinematicsStatus;
+        return diagnostics;
+    }
+
+    std::vector<ArticulatedBodyKinematics> result(
+        topology.articulation->bodyCount
+    );
+    for (std::size_t localBody = 0u;
+         localBody < result.size();
+         ++localBody) {
+        const BodyKinematics& source = internal[localBody];
+        const Quaternion orientation =
+            quaternionFromRotationMatrix(source.rotation);
+        ArticulatedBodyKinematics& destination = result[localBody];
+        destination.bodyIndex =
+            topology.articulation->firstBody +
+            static_cast<std::uint32_t>(localBody);
+        destination.centerOfMassPosition = {
+            source.centerOfMassPosition.x,
+            source.centerOfMassPosition.y,
+            source.centerOfMassPosition.z,
+        };
+        destination.orientation = {
+            orientation.x,
+            orientation.y,
+            orientation.z,
+            orientation.w,
+        };
+        destination.linearVelocity = {
+            source.centerOfMassLinearVelocity.x,
+            source.centerOfMassLinearVelocity.y,
+            source.centerOfMassLinearVelocity.z,
+        };
+        destination.angularVelocity = {
+            source.angularVelocity.x,
+            source.angularVelocity.y,
+            source.angularVelocity.z,
+        };
+        if (!finite(source.centerOfMassPosition) ||
+            !finite(source.centerOfMassLinearVelocity) ||
+            !finite(source.angularVelocity) ||
+            !finite(orientation)) {
+            diagnostics.status =
+                ArticulatedDynamicsStatus::nonfiniteResult;
+            return diagnostics;
+        }
+    }
+    std::ranges::copy(result, bodyKinematics.begin());
+    return diagnostics;
+}
+
+ArticulatedDynamicsDiagnostics computeArticulatedPointJacobians(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const std::span<const double> q,
+    const std::span<const double> v,
+    const std::span<const ArticulatedPointQuery> points,
+    const std::span<ArticulatedPointKinematics> pointKinematics,
+    const std::span<double> pointJacobiansRowMajor,
+    const ArticulatedDynamicsConfig& config
+) {
+    Topology topology;
+    ArticulatedDynamicsDiagnostics diagnostics = preflight(
+        model,
+        articulationIndex,
+        q,
+        v,
+        {},
+        {},
+        config,
+        topology
+    );
+    if (!diagnostics.succeeded()) {
+        return diagnostics;
+    }
+    const std::size_t dofCount = topology.articulation->nv;
+    if (points.size() >
+        std::numeric_limits<std::size_t>::max() /
+            std::max<std::size_t>(3u * dofCount, 1u) ||
+        pointKinematics.size() != points.size() ||
+        pointJacobiansRowMajor.size() !=
+            points.size() * 3u * dofCount) {
+        diagnostics.status =
+            ArticulatedDynamicsStatus::invalidDimensions;
+        return diagnostics;
+    }
+
+    for (const ArticulatedPointQuery& point : points) {
+        if (point.bodyIndex < topology.articulation->firstBody ||
+            point.bodyIndex >=
+                topology.articulation->firstBody +
+                    topology.articulation->bodyCount ||
+            !std::ranges::all_of(
+                point.localPoint,
+                [](const double value) {
+                    return finite(value);
+                }
+            )) {
+            diagnostics.status =
+                point.bodyIndex < topology.articulation->firstBody ||
+                    point.bodyIndex >=
+                        topology.articulation->firstBody +
+                            topology.articulation->bodyCount
+                ? ArticulatedDynamicsStatus::invalidModel
+                : ArticulatedDynamicsStatus::nonfiniteInput;
+            return diagnostics;
+        }
+    }
+
+    std::vector<BodyKinematics> internal;
+    const ArticulatedDynamicsStatus kinematicsStatus =
+        buildKinematics(
+            model,
+            topology,
+            q,
+            v,
+            {},
+            config.enforceBodySpeedLimits,
+            internal
+        );
+    if (kinematicsStatus != ArticulatedDynamicsStatus::success) {
+        diagnostics.status = kinematicsStatus;
+        return diagnostics;
+    }
+
+    std::vector<ArticulatedPointKinematics> result(points.size());
+    std::vector<double> jacobians(
+        points.size() * 3u * dofCount,
+        0.0
+    );
+    for (std::size_t pointIndex = 0u;
+         pointIndex < points.size();
+         ++pointIndex) {
+        const ArticulatedPointQuery& query = points[pointIndex];
+        const std::size_t localBody =
+            query.bodyIndex - topology.articulation->firstBody;
+        const BodyKinematics& body = internal[localBody];
+        const Vec3 localPoint{
+            query.localPoint[0],
+            query.localPoint[1],
+            query.localPoint[2],
+        };
+        const Vec3 centerToPoint = body.rotation * localPoint;
+        const Vec3 position =
+            body.centerOfMassPosition + centerToPoint;
+        const Vec3 velocity =
+            body.centerOfMassLinearVelocity +
+            cross(body.angularVelocity, centerToPoint);
+        result[pointIndex].position = {
+            position.x,
+            position.y,
+            position.z,
+        };
+        result[pointIndex].linearVelocity = {
+            velocity.x,
+            velocity.y,
+            velocity.z,
+        };
+
+        const std::vector<SpatialMotion> bodyJ =
+            bodyJacobian(model, topology, internal, query.bodyIndex);
+        for (std::size_t dof = 0u; dof < dofCount; ++dof) {
+            const Vec3 pointColumn =
+                bodyJ[dof].linear +
+                cross(bodyJ[dof].angular, centerToPoint);
+            jacobians[
+                (pointIndex * 3u + 0u) * dofCount + dof
+            ] = pointColumn.x;
+            jacobians[
+                (pointIndex * 3u + 1u) * dofCount + dof
+            ] = pointColumn.y;
+            jacobians[
+                (pointIndex * 3u + 2u) * dofCount + dof
+            ] = pointColumn.z;
+        }
+        if (!finite(position) || !finite(velocity)) {
+            diagnostics.status =
+                ArticulatedDynamicsStatus::nonfiniteResult;
+            return diagnostics;
+        }
+    }
+    if (!finiteSpan(jacobians)) {
+        diagnostics.status =
+            ArticulatedDynamicsStatus::nonfiniteResult;
+        return diagnostics;
+    }
+
+    std::ranges::copy(result, pointKinematics.begin());
+    std::ranges::copy(jacobians, pointJacobiansRowMajor.begin());
+    return diagnostics;
+}
 
 ArticulatedDynamicsDiagnostics computeArticulatedMassMatrix(
     const EngineModel& model,

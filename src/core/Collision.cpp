@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -45,7 +46,6 @@ std::size_t PersistentManifoldCache::size() const noexcept {
 namespace {
 
 constexpr double kTiny = 1.0e-14;
-constexpr double kQuaternionTolerance = 1.0e-5;
 
 struct Vec3 {
     double x = 0.0;
@@ -120,20 +120,64 @@ double component(const Vec3 value, const std::uint32_t axis) {
     return axis == 1u ? value.y : value.z;
 }
 
-bool finite(const double value) {
-    return std::isfinite(value);
-}
-
-bool finite(const Vec3 value) {
-    return finite(value.x) && finite(value.y) && finite(value.z);
-}
-
 bool finite(const mr_float4 value) {
     return
         std::isfinite(value.x) &&
         std::isfinite(value.y) &&
         std::isfinite(value.z) &&
         std::isfinite(value.w);
+}
+
+bool canonicalFloat(const float value) {
+    if (!std::isfinite(value)) {
+        return false;
+    }
+    const std::uint32_t bits =
+        std::bit_cast<std::uint32_t>(value);
+    const std::uint32_t exponent = bits & 0x7f800000u;
+    const std::uint32_t mantissa = bits & 0x007fffffu;
+    return exponent != 0u || mantissa == 0u;
+}
+
+bool canonicalFloat4(const mr_float4 value) {
+    return
+        canonicalFloat(value.x) &&
+        canonicalFloat(value.y) &&
+        canonicalFloat(value.z) &&
+        canonicalFloat(value.w);
+}
+
+bool collisionDomainXyz(const mr_float4 value) {
+    return
+        canonicalFloat4(value) &&
+        std::abs(value.x) <= MR_MAX_COLLISION_COORDINATE &&
+        std::abs(value.y) <= MR_MAX_COLLISION_COORDINATE &&
+        std::abs(value.z) <= MR_MAX_COLLISION_COORDINATE;
+}
+
+bool collisionInputDomainXyz(const mr_float4 value) {
+    return
+        canonicalFloat4(value) &&
+        std::abs(value.x) <=
+            MR_MAX_COLLISION_INPUT_COORDINATE &&
+        std::abs(value.y) <=
+            MR_MAX_COLLISION_INPUT_COORDINATE &&
+        std::abs(value.z) <=
+            MR_MAX_COLLISION_INPUT_COORDINATE;
+}
+
+bool collisionDomain(const double value) {
+    return
+        std::isfinite(value) &&
+        std::abs(value) <=
+            static_cast<double>(MR_MAX_COLLISION_COORDINATE);
+}
+
+bool collisionDomain(const Vec3 value) {
+    return
+        collisionDomain(value.x) &&
+        collisionDomain(value.y) &&
+        collisionDomain(value.z);
 }
 
 Vec3 xyz(const mr_float4 value) {
@@ -147,30 +191,95 @@ struct Quaternion {
     double w = 1.0;
 };
 
-double normSquared(const Quaternion value) {
-    return
+std::optional<mr_float4> checkedQuaternionFloat(
+    const mr_float4 value
+) {
+    if (!canonicalFloat4(value)) {
+        return std::nullopt;
+    }
+    const float maximumComponent = std::max({
+        std::abs(value.x),
+        std::abs(value.y),
+        std::abs(value.z),
+        std::abs(value.w),
+    });
+    if (maximumComponent <
+            MR_MIN_QUATERNION_MAX_COMPONENT ||
+        maximumComponent >
+            MR_MAX_QUATERNION_MAX_COMPONENT) {
+        return std::nullopt;
+    }
+    const float squared =
         value.x * value.x +
         value.y * value.y +
         value.z * value.z +
         value.w * value.w;
+    const float inverseNorm = 1.0f / std::sqrt(squared);
+    const mr_float4 result{
+        value.x * inverseNorm,
+        value.y * inverseNorm,
+        value.z * inverseNorm,
+        value.w * inverseNorm,
+    };
+    return finite(result)
+        ? std::optional<mr_float4>{result}
+        : std::nullopt;
 }
 
-std::optional<Quaternion> checkedQuaternion(const mr_float4 value) {
-    if (!finite(value)) {
-        return std::nullopt;
-    }
-    Quaternion result{value.x, value.y, value.z, value.w};
-    const double squared = normSquared(result);
-    if (!(squared > kTiny) ||
-        std::abs(squared - 1.0) > kQuaternionTolerance) {
-        return std::nullopt;
-    }
-    const double inverseNorm = 1.0 / std::sqrt(squared);
-    result.x *= inverseNorm;
-    result.y *= inverseNorm;
-    result.z *= inverseNorm;
-    result.w *= inverseNorm;
-    return result;
+Quaternion quaternionFromCanonicalFloat(
+    const mr_float4 value
+) {
+    return {
+        static_cast<double>(value.x),
+        static_cast<double>(value.y),
+        static_cast<double>(value.z),
+        static_cast<double>(value.w),
+    };
+}
+
+mr_float4 multiplyFloatQuaternion(
+    const mr_float4 left,
+    const mr_float4 right
+) {
+    return {
+        left.w * right.x + right.w * left.x +
+            left.y * right.z - left.z * right.y,
+        left.w * right.y + right.w * left.y +
+            left.z * right.x - left.x * right.z,
+        left.w * right.z + right.w * left.z +
+            left.x * right.y - left.y * right.x,
+        left.w * right.w -
+            left.x * right.x -
+            left.y * right.y -
+            left.z * right.z,
+    };
+}
+
+mr_float4 rotateFloatVector(
+    const mr_float4 quaternion,
+    const mr_float4 value
+) {
+    const float twiceCrossX =
+        2.0f *
+        (quaternion.y * value.z - quaternion.z * value.y);
+    const float twiceCrossY =
+        2.0f *
+        (quaternion.z * value.x - quaternion.x * value.z);
+    const float twiceCrossZ =
+        2.0f *
+        (quaternion.x * value.y - quaternion.y * value.x);
+    return {
+        value.x + quaternion.w * twiceCrossX +
+            quaternion.y * twiceCrossZ -
+            quaternion.z * twiceCrossY,
+        value.y + quaternion.w * twiceCrossY +
+            quaternion.z * twiceCrossX -
+            quaternion.x * twiceCrossZ,
+        value.z + quaternion.w * twiceCrossZ +
+            quaternion.x * twiceCrossY -
+            quaternion.y * twiceCrossX,
+        0.0f,
+    };
 }
 
 Quaternion conjugate(const Quaternion value) {
@@ -249,17 +358,31 @@ float outwardUpper(const double value) {
 }
 
 MRAabbGPU makeAabb(const Vec3 lower, const Vec3 upper) {
+    const Vec3 padding{
+        (std::max(std::abs(lower.x), std::abs(upper.x)) + 1.0) *
+            static_cast<double>(
+                MR_COLLISION_AABB_RELATIVE_PAD
+            ),
+        (std::max(std::abs(lower.y), std::abs(upper.y)) + 1.0) *
+            static_cast<double>(
+                MR_COLLISION_AABB_RELATIVE_PAD
+            ),
+        (std::max(std::abs(lower.z), std::abs(upper.z)) + 1.0) *
+            static_cast<double>(
+                MR_COLLISION_AABB_RELATIVE_PAD
+            ),
+    };
     return {
         {
-            outwardLower(lower.x),
-            outwardLower(lower.y),
-            outwardLower(lower.z),
+            outwardLower(lower.x - padding.x),
+            outwardLower(lower.y - padding.y),
+            outwardLower(lower.z - padding.z),
             0.0f,
         },
         {
-            outwardUpper(upper.x),
-            outwardUpper(upper.y),
-            outwardUpper(upper.z),
+            outwardUpper(upper.x + padding.x),
+            outwardUpper(upper.y + padding.y),
+            outwardUpper(upper.z + padding.z),
             0.0f,
         },
     };
@@ -275,8 +398,8 @@ MRAabbGPU planeAabb() {
 
 bool finiteAabb(const MRAabbGPU& aabb) {
     return
-        finite(aabb.lower) &&
-        finite(aabb.upper) &&
+        collisionDomainXyz(aabb.lower) &&
+        collisionDomainXyz(aabb.upper) &&
         aabb.lower.x <= aabb.upper.x &&
         aabb.lower.y <= aabb.upper.y &&
         aabb.lower.z <= aabb.upper.z;
@@ -336,20 +459,57 @@ bool supportedShapeType(const std::uint32_t type) {
         type == MR_SHAPE_PLANE;
 }
 
+bool validShapeRecord(
+    const MRShapeGPU& shape,
+    std::span<const MRBodyStateGPU> bodies
+) {
+    if (shape.bodyIndex >= bodies.size()) {
+        return false;
+    }
+    if ((shape.flags & ~MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+        !collisionInputDomainXyz(shape.localPosition) ||
+        !finite(shape.localRotation) ||
+        !collisionInputDomainXyz(shape.dimensions) ||
+        !collisionInputDomainXyz(
+            shape.contactRestAndBoundingRadius
+        ) ||
+        shape.contactRestAndBoundingRadius.x < 0.0f ||
+        shape.contactRestAndBoundingRadius.x <
+            shape.contactRestAndBoundingRadius.y ||
+        shape.contactRestAndBoundingRadius.z < 0.0f) {
+        return false;
+    }
+    const auto bodyRotation =
+        checkedQuaternionFloat(
+            bodies[shape.bodyIndex].orientation
+        );
+    const auto localRotation =
+        checkedQuaternionFloat(shape.localRotation);
+    if (!bodyRotation.has_value() ||
+        !localRotation.has_value()) {
+        return false;
+    }
+    const mr_float4 worldRotation =
+        multiplyFloatQuaternion(*bodyRotation, *localRotation);
+    const mr_float4 rotatedLocal =
+        rotateFloatVector(*bodyRotation, shape.localPosition);
+    const mr_float4 worldCenter{
+        bodies[shape.bodyIndex].position.x + rotatedLocal.x,
+        bodies[shape.bodyIndex].position.y + rotatedLocal.y,
+        bodies[shape.bodyIndex].position.z + rotatedLocal.z,
+        1.0f,
+    };
+    return
+        finite(worldRotation) &&
+        collisionDomainXyz(worldCenter);
+}
+
 std::optional<WorldShape> makeWorldShape(
     const std::uint32_t index,
     const MRShapeGPU& shape,
     std::span<const MRBodyStateGPU> bodies
 ) {
-    if (shape.bodyIndex >= bodies.size() ||
-        !finite(shape.localPosition) ||
-        !finite(shape.localRotation) ||
-        !finite(shape.dimensions) ||
-        !finite(shape.contactRestAndBoundingRadius) ||
-        shape.contactRestAndBoundingRadius.x < 0.0f ||
-        shape.contactRestAndBoundingRadius.x <
-            shape.contactRestAndBoundingRadius.y ||
-        shape.contactRestAndBoundingRadius.z < 0.0f) {
+    if (!validShapeRecord(shape, bodies)) {
         return std::nullopt;
     }
 
@@ -359,9 +519,36 @@ std::optional<WorldShape> makeWorldShape(
         body.flagsAndIndices[0] > MR_MOTION_DYNAMIC) {
         return std::nullopt;
     }
-    const auto bodyRotation = checkedQuaternion(body.orientation);
-    const auto localRotation = checkedQuaternion(shape.localRotation);
-    if (!bodyRotation.has_value() || !localRotation.has_value()) {
+    const auto bodyRotationFloat =
+        checkedQuaternionFloat(body.orientation);
+    const auto localRotationFloat =
+        checkedQuaternionFloat(shape.localRotation);
+    if (!bodyRotationFloat.has_value() ||
+        !localRotationFloat.has_value()) {
+        return std::nullopt;
+    }
+    const Quaternion bodyRotation =
+        quaternionFromCanonicalFloat(*bodyRotationFloat);
+    const Quaternion localRotation =
+        quaternionFromCanonicalFloat(*localRotationFloat);
+    const mr_float4 worldRotationFloat =
+        multiplyFloatQuaternion(
+            *bodyRotationFloat,
+            *localRotationFloat
+        );
+    const mr_float4 rotatedLocalFloat =
+        rotateFloatVector(
+            *bodyRotationFloat,
+            shape.localPosition
+        );
+    const mr_float4 worldCenterFloat{
+        body.position.x + rotatedLocalFloat.x,
+        body.position.y + rotatedLocalFloat.y,
+        body.position.z + rotatedLocalFloat.z,
+        0.0f,
+    };
+    if (!canonicalFloat4(worldRotationFloat) ||
+        !collisionDomainXyz(worldCenterFloat)) {
         return std::nullopt;
     }
 
@@ -372,10 +559,10 @@ std::optional<WorldShape> makeWorldShape(
     result.generation = shape.slotGeneration;
     result.disabled =
         (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u;
-    result.rotation = multiply(*bodyRotation, *localRotation);
+    result.rotation = multiply(bodyRotation, localRotation);
     result.center =
         xyz(body.position) +
-        rotate(*bodyRotation, xyz(shape.localPosition));
+        rotate(bodyRotation, xyz(shape.localPosition));
     result.contactOffset = shape.contactRestAndBoundingRadius.x;
     result.restOffset = shape.contactRestAndBoundingRadius.y;
 
@@ -391,7 +578,8 @@ std::optional<WorldShape> makeWorldShape(
     Vec3 upper{};
     if (shape.shapeType == MR_SHAPE_SPHERE) {
         result.radius = shape.dimensions.x;
-        if (!(result.radius > 0.0)) {
+        if (result.radius <
+            static_cast<double>(MR_MIN_COLLISION_EXTENT)) {
             return std::nullopt;
         }
         const Vec3 extent{
@@ -404,8 +592,10 @@ std::optional<WorldShape> makeWorldShape(
     } else if (shape.shapeType == MR_SHAPE_CAPSULE) {
         result.radius = shape.dimensions.x;
         result.halfLength = shape.dimensions.y;
-        if (!(result.radius > 0.0) ||
-            !(result.halfLength > 0.0)) {
+        if (result.radius <
+                static_cast<double>(MR_MIN_COLLISION_EXTENT) ||
+            result.halfLength <
+                static_cast<double>(MR_MIN_COLLISION_EXTENT)) {
             return std::nullopt;
         }
         const Vec3 axis = rotate(
@@ -449,9 +639,12 @@ std::optional<WorldShape> makeWorldShape(
         upper = upper + extent;
     } else if (shape.shapeType == MR_SHAPE_BOX) {
         result.halfExtents = xyz(shape.dimensions);
-        if (!(result.halfExtents.x > 0.0) ||
-            !(result.halfExtents.y > 0.0) ||
-            !(result.halfExtents.z > 0.0)) {
+        if (result.halfExtents.x <
+                static_cast<double>(MR_MIN_COLLISION_EXTENT) ||
+            result.halfExtents.y <
+                static_cast<double>(MR_MIN_COLLISION_EXTENT) ||
+            result.halfExtents.z <
+                static_cast<double>(MR_MIN_COLLISION_EXTENT)) {
             return std::nullopt;
         }
         const Vec3 basisX =
@@ -482,7 +675,8 @@ std::optional<WorldShape> makeWorldShape(
         return result;
     }
 
-    if (!finite(lower) || !finite(upper)) {
+    if (!collisionDomain(lower) ||
+        !collisionDomain(upper)) {
         return std::nullopt;
     }
     result.aabb = makeAabb(lower, upper);
@@ -1283,11 +1477,18 @@ bool buildManifold(
     const WorldShape& shapeB = worldShapes[pair.colliderB];
     const MRBodyStateGPU& bodyA = bodies[shapeA.body];
     const MRBodyStateGPU& bodyB = bodies[shapeB.body];
-    const auto bodyRotationA = checkedQuaternion(bodyA.orientation);
-    const auto bodyRotationB = checkedQuaternion(bodyB.orientation);
-    if (!bodyRotationA.has_value() || !bodyRotationB.has_value()) {
+    const auto bodyRotationAFloat =
+        checkedQuaternionFloat(bodyA.orientation);
+    const auto bodyRotationBFloat =
+        checkedQuaternionFloat(bodyB.orientation);
+    if (!bodyRotationAFloat.has_value() ||
+        !bodyRotationBFloat.has_value()) {
         return false;
     }
+    const Quaternion bodyRotationA =
+        quaternionFromCanonicalFloat(*bodyRotationAFloat);
+    const Quaternion bodyRotationB =
+        quaternionFromCanonicalFloat(*bodyRotationBFloat);
 
     const auto deepest = std::min_element(
         rawContacts.begin(),
@@ -1325,7 +1526,7 @@ bool buildManifold(
     if (old != nullptr && old->header.pairAndCount[3] <= 4u) {
         const Vec3 oldNormalWorld = normalized(
             rotate(
-                *bodyRotationA,
+                bodyRotationA,
                 xyz(old->header.normalAndAge)
             )
         );
@@ -1340,12 +1541,12 @@ bool buildManifold(
                     old->points[pointIndex];
                 const Vec3 pointAWorld = bodyWorldPoint(
                     bodyA,
-                    *bodyRotationA,
+                    bodyRotationA,
                     oldPoint.localAnchorA
                 );
                 const Vec3 pointBWorld = bodyWorldPoint(
                     bodyB,
-                    *bodyRotationB,
+                    bodyRotationB,
                     oldPoint.localAnchorB
                 );
                 const Vec3 delta = pointBWorld - pointAWorld;
@@ -1386,12 +1587,12 @@ bool buildManifold(
         const Vec3 pointBWorld = xyz(contact.pointBWorld);
         const Vec3 localA = bodyLocalPoint(
             bodyA,
-            *bodyRotationA,
+            bodyRotationA,
             pointAWorld
         );
         const Vec3 localB = bodyLocalPoint(
             bodyB,
-            *bodyRotationB,
+            bodyRotationB,
             pointBWorld
         );
 
@@ -1474,12 +1675,12 @@ bool buildManifold(
     output.header.generationsAndFlags[3] = 0u;
 
     const Vec3 normalLocalA =
-        inverseRotate(*bodyRotationA, normalWorld);
+        inverseRotate(bodyRotationA, normalWorld);
     Vec3 tangentWorld;
     Vec3 bitangentWorld;
     stableBasis(normalWorld, tangentWorld, bitangentWorld);
     const Vec3 tangentLocalA =
-        inverseRotate(*bodyRotationA, tangentWorld);
+        inverseRotate(bodyRotationA, tangentWorld);
     const float age =
         old != nullptr && oldNormalCompatible
         ? std::min(
@@ -1546,6 +1747,30 @@ CollisionFrame collideCpuReference(
             std::numeric_limits<std::uint32_t>::max()) {
         diagnostics.code = MR_STEP_NONFINITE_INPUT;
         return failureFrame(diagnostics);
+    }
+    for (const MRBodyStateGPU& body : bodies) {
+        if (!collisionInputDomainXyz(body.position) ||
+            !finite(body.orientation) ||
+            body.flagsAndIndices[0] > MR_MOTION_DYNAMIC ||
+            !checkedQuaternionFloat(
+                body.orientation
+            ).has_value()) {
+            diagnostics.code = MR_STEP_NONFINITE_INPUT;
+            return failureFrame(diagnostics);
+        }
+    }
+    for (const CollisionPairExclusion exclusion : exclusions) {
+        if (exclusion.colliderA >= shapes.size() ||
+            exclusion.colliderB >= shapes.size()) {
+            diagnostics.code = MR_STEP_NONFINITE_INPUT;
+            return failureFrame(diagnostics);
+        }
+    }
+    for (const MRShapeGPU& shape : shapes) {
+        if (!validShapeRecord(shape, bodies)) {
+            diagnostics.code = MR_STEP_NONFINITE_INPUT;
+            return failureFrame(diagnostics);
+        }
     }
 
     std::vector<WorldShape> worldShapes;

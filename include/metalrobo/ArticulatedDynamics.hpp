@@ -84,6 +84,28 @@ struct ArticulatedInvariants {
     std::array<double, 3> angularMomentum{};
 };
 
+// Public FP64 kinematics records use the same COM-centred convention as the
+// engine ABI. Orientation is body-to-world quaternion xyzw; twists are
+// expressed in world coordinates and linear velocity is evaluated at COM.
+struct ArticulatedBodyKinematics {
+    std::uint32_t bodyIndex = 0u;
+    std::array<double, 3> centerOfMassPosition{};
+    std::array<double, 4> orientation{0.0, 0.0, 0.0, 1.0};
+    std::array<double, 3> linearVelocity{};
+    std::array<double, 3> angularVelocity{};
+};
+
+// localPoint is relative to the body's COM and expressed in body axes.
+struct ArticulatedPointQuery {
+    std::uint32_t bodyIndex = 0u;
+    std::array<double, 3> localPoint{};
+};
+
+struct ArticulatedPointKinematics {
+    std::array<double, 3> position{};
+    std::array<double, 3> linearVelocity{};
+};
+
 // Generalized-coordinate convention:
 //   floating q = world root-COM xyz, body-to-world quaternion xyzw,
 //                followed by joint coordinates;
@@ -98,6 +120,34 @@ struct ArticulatedInvariants {
 // is FP64. The dense mass matrix is assembled by a world-coordinate composite
 // rigid-body recursion, while velocity/gravity bias is evaluated by recursive
 // Newton-Euler kinematics.
+//
+// The following two queries expose that same analytic tree recursion to
+// constraint layers. Results are transactional. Point Jacobians are packed
+// query-major, then xyz row, then generalized-velocity column:
+//   jacobian[(query * 3 + axis) * nv + dof].
+// No configuration perturbation or finite differencing is used.
+[[nodiscard]] ArticulatedDynamicsDiagnostics
+computeArticulatedBodyKinematics(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> q,
+    std::span<const double> v,
+    std::span<ArticulatedBodyKinematics> bodyKinematics,
+    const ArticulatedDynamicsConfig& config = {}
+);
+
+[[nodiscard]] ArticulatedDynamicsDiagnostics
+computeArticulatedPointJacobians(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> q,
+    std::span<const double> v,
+    std::span<const ArticulatedPointQuery> points,
+    std::span<ArticulatedPointKinematics> pointKinematics,
+    std::span<double> pointJacobiansRowMajor,
+    const ArticulatedDynamicsConfig& config = {}
+);
+
 [[nodiscard]] ArticulatedDynamicsDiagnostics
 computeArticulatedMassMatrix(
     const EngineModel& model,

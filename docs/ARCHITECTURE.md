@@ -13,7 +13,7 @@ of body-pose buffers, not part of the current physics step.
 
 ## Two model generations
 
-Version 0.2 contains a working compatibility runtime and a canonical engine
+Version 0.3 contains a working compatibility runtime and a canonical engine
 spine. They coexist; they are not yet one fully integrated execution path.
 
 The compatibility `metalrobo::Model` owns the original fixed-base Franka
@@ -73,9 +73,19 @@ trees with revolute, continuous, and fixed joints. It uses:
   exponential update for the floating quaternion.
 
 The reference executes the actual 30-body/29-joint G1 topology and passes
-forward/inverse and conservation probes. It is not batched Metal code and is
-not yet coupled to collision, contact impulses, joint-limit constraints,
-drives, or the composed world step.
+forward/inverse and conservation probes. Its analytic kinematics layer exposes
+COM poses/twists and batch point Jacobians without configuration
+perturbations. `ArticulatedContact` retains a checked CRBA Cholesky factor and
+implements `J`, `Jᵀ`, and `J M⁻¹ Jᵀ` actions; the actual 35-velocity G1 passes
+a two-foot exact-cone quality solve. A transactional adapter now converts the
+common collision/contact ABI into articulated contacts, including endpoint
+and cached-impulse basis swaps, static/kinematic velocity compensation, and
+material-compliance conversion. The real CPU collision/manifold path produces
+and solves all eight G1 foot-sphere contacts. The dense inverse required by the
+current FP64 solver API is explicitly a compatibility adapter, not the
+intended Metal representation. This path is not yet batched Metal code or a
+complete composed articulated world with free-motion integration, joint
+limits, and drives.
 
 ### Generic maximal-coordinate rigid-body world
 
@@ -101,23 +111,45 @@ an articulated G1 simulator would be incorrect.
 The canonical ABI is also consumed by focused Metal kernels:
 
 - symplectic and implicit-midpoint free-body integration;
+- a parallel deterministic micro broadphase using flag, two-level exclusive
+  scan, and canonical scatter without global append atomics;
 - a deterministic one-thread `O(n²)` collision correctness kernel for
-  sphere/sphere and sphere/plane;
+  sphere/sphere, sphere/plane, capsule/plane, and box/plane;
 - the fixed-budget contact PGS block.
 
 These kernels have CPU/Metal parity probes, but they are not yet assembled
 into a batched generic GPU world. GPU manifold persistence/reduction,
-parallel broadphase/narrowphase, and articulated inverse-mass application are
-open work.
+segmented LBVH, parallel narrowphase, and Metal articulated inverse-mass
+application are open work. The current micro broadphase has an explicit
+65,536-logical-pair scan bound.
+
+The forward architecture is operator-first: every constraint type compiles to
+one semantic program, every dynamics backend exposes a free-motion solve
+action, collision stages are deterministic streams, and numerical methods are
+selected per island while sharing one residual oracle. The concrete decisions
+and their implementation boundary are in
+[V03_OPERATOR_ARCHITECTURE](V03_OPERATOR_ARCHITECTURE.md).
+
+The first `ConstraintIR` CPU reference is executable. Its ABI-v2 records are
+fixed-layout, 16-byte aligned, pointer-free, stable-key sorted, and
+range-validated. An adapter converts ABI-v1 contact blocks transactionally.
+One evaluator owns stabilization, restitution, compliance/dissipation
+regularization, and static/dynamic friction selection; quality and throughput
+views reference the same evaluated buffers and semantic fingerprint. A common
+residual implements scalar KKT and exact capped elliptic
+normal/tangent/torsion projection. Current production solvers are not yet
+driven from this IR, and unimplemented rolling/adhesion semantics fail
+explicitly.
 
 ## Collision and contact boundary
 
 The CPU collision reference implements deterministic sweep-and-prune,
 sphere/sphere, sphere/plane, capsule/plane, and box/plane witnesses, stable
 features, and persistent four-point manifold reduction. The Metal collision
-kernel implements only the sphere pairs above. Cylinder, general capsule/box
-pairs, convex GJK/EPA/MPR, triangle mesh, heightfield, SDF, and deformable
-geometry are not executable production paths.
+kernel implements those same four pair classes and matches CPU witness
+geometry in its focused probe. Cylinder, general capsule/box pairs, convex
+GJK/EPA/MPR, triangle mesh, heightfield, SDF, and deformable geometry are not
+executable production paths.
 
 There is no continuous collision detection. Neither conservative advancement,
 time-of-impact island stepping, nor speculative CCD is implemented.
@@ -145,7 +177,7 @@ throughput path remains PGS, not TGS.
 All current Metal runtime buffers use Apple-silicon shared storage. This
 avoids PCIe copies but not synchronization: the C API `step` completes its
 command buffer before returning shared views. The PPO path then materializes
-MLX arrays, so v0.2 is not a fused physics/learner command stream.
+MLX arrays, so v0.3 is not a fused physics/learner command stream.
 
 Allocation is preflighted against
 `MTLDevice.recommendedMaxWorkingSetSize` and `MTLDevice.maxBufferLength`.

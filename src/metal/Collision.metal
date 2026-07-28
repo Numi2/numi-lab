@@ -6,10 +6,11 @@ using namespace metal;
 
 namespace {
 
-constant float kQuaternionTolerance = 1.0e-5f;
 constant float kTiny = 1.0e-14f;
 constant uint kPairSphereSphere = 1u;
 constant uint kPairSpherePlane = 2u;
+constant uint kPairCapsulePlane = 3u;
+constant uint kPairBoxPlane = 4u;
 
 struct WorldShape {
     uint index;
@@ -20,6 +21,9 @@ struct WorldShape {
     float4 rotation;
     float3 lower;
     float3 upper;
+    float3 halfExtents;
+    float3 capsuleEndpoint0;
+    float3 capsuleEndpoint1;
     float3 planeNormal;
     float radius;
     float contactOffset;
@@ -31,6 +35,89 @@ bool finiteFloat4(const float4 value) {
 
 bool finiteFloat3(const float3 value) {
     return all(isfinite(value));
+}
+
+bool canonicalFloat(const float value) {
+    const uint bits = as_type<uint>(value);
+    const uint exponent = bits & 0x7f800000u;
+    const uint mantissa = bits & 0x007fffffu;
+    return
+        isfinite(value) &&
+        (exponent != 0u || mantissa == 0u);
+}
+
+bool canonicalFloat4(const float4 value) {
+    return
+        canonicalFloat(value.x) &&
+        canonicalFloat(value.y) &&
+        canonicalFloat(value.z) &&
+        canonicalFloat(value.w);
+}
+
+bool collisionDomain(const float3 value) {
+    return
+        canonicalFloat(value.x) &&
+        canonicalFloat(value.y) &&
+        canonicalFloat(value.z) &&
+        all(abs(value) <=
+            float3(MR_MAX_COLLISION_COORDINATE));
+}
+
+bool collisionInputDomain(const float3 value) {
+    return
+        canonicalFloat(value.x) &&
+        canonicalFloat(value.y) &&
+        canonicalFloat(value.z) &&
+        all(abs(value) <=
+            float3(MR_MAX_COLLISION_INPUT_COORDINATE));
+}
+
+bool collisionInputDomainXyz(const float4 value) {
+    return
+        canonicalFloat4(value) &&
+        collisionInputDomain(value.xyz);
+}
+
+float maximumAbsoluteComponent(const float3 value) {
+    return max(max(abs(value.x), abs(value.y)), abs(value.z));
+}
+
+void inflateFiniteBounds(thread WorldShape& shape) {
+    const float3 scale =
+        max(abs(shape.lower), abs(shape.upper)) + 1.0f;
+    const float3 padding =
+        scale * MR_COLLISION_AABB_RELATIVE_PAD;
+    shape.lower -= padding;
+    shape.upper += padding;
+}
+
+float worldShapeScale(const thread WorldShape& shape) {
+    return max(
+        max(
+            maximumAbsoluteComponent(shape.center),
+            maximumAbsoluteComponent(shape.halfExtents)
+        ),
+        max(
+            max(
+                maximumAbsoluteComponent(
+                    shape.capsuleEndpoint0
+                ),
+                maximumAbsoluteComponent(
+                    shape.capsuleEndpoint1
+                )
+            ),
+            max(abs(shape.radius), abs(shape.contactOffset))
+        )
+    );
+}
+
+float pairQueryPadding(
+    const thread WorldShape& left,
+    const thread WorldShape& right
+) {
+    return
+        (max(worldShapeScale(left), worldShapeScale(right)) + 1.0f) *
+        MR_COLLISION_QUERY_RELATIVE_PAD;
 }
 
 float4 quaternionMultiply(const float4 left, const float4 right) {
@@ -56,14 +143,20 @@ float3 quaternionRotate(const float4 quaternion, const float3 value) {
 }
 
 bool checkedQuaternion(const float4 input, thread float4& output) {
-    if (!finiteFloat4(input)) {
+    if (!canonicalFloat4(input)) {
+        return false;
+    }
+    const float maximumComponent = max(
+        max(abs(input.x), abs(input.y)),
+        max(abs(input.z), abs(input.w))
+    );
+    if (maximumComponent <
+            MR_MIN_QUATERNION_MAX_COMPONENT ||
+        maximumComponent >
+            MR_MAX_QUATERNION_MAX_COMPONENT) {
         return false;
     }
     const float squared = dot(input, input);
-    if (!(squared > kTiny) ||
-        abs(squared - 1.0f) > kQuaternionTolerance) {
-        return false;
-    }
     output = input * rsqrt(squared);
     return finiteFloat4(output);
 }
@@ -79,7 +172,65 @@ uint supportedPairClass(const uint typeA, const uint typeB) {
          typeB == MR_SHAPE_SPHERE)) {
         return kPairSpherePlane;
     }
+    if ((typeA == MR_SHAPE_CAPSULE &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeA == MR_SHAPE_PLANE &&
+         typeB == MR_SHAPE_CAPSULE)) {
+        return kPairCapsulePlane;
+    }
+    if ((typeA == MR_SHAPE_BOX &&
+         typeB == MR_SHAPE_PLANE) ||
+        (typeA == MR_SHAPE_PLANE &&
+         typeB == MR_SHAPE_BOX)) {
+        return kPairBoxPlane;
+    }
     return 0u;
+}
+
+bool validWorldShapeRecord(
+    const uint index,
+    device const MRShapeGPU* shapes,
+    device const MRBodyStateGPU* bodies,
+    const uint bodyCount
+) {
+    const MRShapeGPU shape = shapes[index];
+    if (shape.bodyIndex >= bodyCount ||
+        (shape.flags & ~MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+        !collisionInputDomainXyz(shape.localPosition) ||
+        !finiteFloat4(shape.localRotation) ||
+        !collisionInputDomainXyz(shape.dimensions) ||
+        !collisionInputDomainXyz(
+            shape.contactRestAndBoundingRadius
+        ) ||
+        shape.contactRestAndBoundingRadius.x < 0.0f ||
+        shape.contactRestAndBoundingRadius.x <
+            shape.contactRestAndBoundingRadius.y ||
+        shape.contactRestAndBoundingRadius.z < 0.0f) {
+        return false;
+    }
+    float4 bodyRotation;
+    float4 localRotation;
+    if (!checkedQuaternion(
+            bodies[shape.bodyIndex].orientation,
+            bodyRotation
+        ) ||
+        !checkedQuaternion(
+            shape.localRotation,
+            localRotation
+        )) {
+        return false;
+    }
+    const float4 worldRotation =
+        quaternionMultiply(bodyRotation, localRotation);
+    const float3 worldCenter =
+        bodies[shape.bodyIndex].position.xyz +
+        quaternionRotate(
+            bodyRotation,
+            shape.localPosition.xyz
+        );
+    return
+        finiteFloat4(worldRotation) &&
+        collisionDomain(worldCenter);
 }
 
 bool makeWorldShape(
@@ -92,10 +243,13 @@ bool makeWorldShape(
 ) {
     const MRShapeGPU shape = shapes[index];
     if (shape.bodyIndex >= bodyCount ||
-        !finiteFloat4(shape.localPosition) ||
+        (shape.flags & ~MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u ||
+        !collisionInputDomainXyz(shape.localPosition) ||
         !finiteFloat4(shape.localRotation) ||
-        !finiteFloat4(shape.dimensions) ||
-        !finiteFloat4(shape.contactRestAndBoundingRadius) ||
+        !collisionInputDomainXyz(shape.dimensions) ||
+        !collisionInputDomainXyz(
+            shape.contactRestAndBoundingRadius
+        ) ||
         shape.contactRestAndBoundingRadius.x < 0.0f ||
         shape.contactRestAndBoundingRadius.x <
             shape.contactRestAndBoundingRadius.y ||
@@ -105,7 +259,7 @@ bool makeWorldShape(
     }
 
     const MRBodyStateGPU body = bodies[shape.bodyIndex];
-    if (!finiteFloat4(body.position) ||
+    if (!collisionInputDomainXyz(body.position) ||
         !finiteFloat4(body.orientation) ||
         body.flagsAndIndices[0] > MR_MOTION_DYNAMIC) {
         failureCode = MR_STEP_NONFINITE_INPUT;
@@ -134,9 +288,12 @@ bool makeWorldShape(
     output.radius = 0.0f;
     output.lower = float3(0.0f);
     output.upper = float3(0.0f);
+    output.halfExtents = float3(0.0f);
+    output.capsuleEndpoint0 = float3(0.0f);
+    output.capsuleEndpoint1 = float3(0.0f);
     output.planeNormal = float3(0.0f);
 
-    if (!finiteFloat3(output.center) ||
+    if (!collisionDomain(output.center) ||
         !finiteFloat4(output.rotation)) {
         failureCode = MR_STEP_NONFINITE_INPUT;
         return false;
@@ -145,6 +302,8 @@ bool makeWorldShape(
         return true;
     }
     if (shape.shapeType != MR_SHAPE_SPHERE &&
+        shape.shapeType != MR_SHAPE_CAPSULE &&
+        shape.shapeType != MR_SHAPE_BOX &&
         shape.shapeType != MR_SHAPE_PLANE) {
         failureCode = MR_STEP_UNSUPPORTED;
         return false;
@@ -152,7 +311,7 @@ bool makeWorldShape(
 
     if (shape.shapeType == MR_SHAPE_SPHERE) {
         output.radius = shape.dimensions.x;
-        if (!(output.radius > 0.0f)) {
+        if (output.radius < MR_MIN_COLLISION_EXTENT) {
             failureCode = MR_STEP_NONFINITE_INPUT;
             return false;
         }
@@ -160,8 +319,81 @@ bool makeWorldShape(
             output.radius + output.contactOffset;
         output.lower = output.center - expansion;
         output.upper = output.center + expansion;
-        if (!finiteFloat3(output.lower) ||
-            !finiteFloat3(output.upper)) {
+        inflateFiniteBounds(output);
+        if (!collisionDomain(output.lower) ||
+            !collisionDomain(output.upper)) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        return true;
+    }
+
+    if (shape.shapeType == MR_SHAPE_CAPSULE) {
+        output.radius = shape.dimensions.x;
+        const float halfLength = shape.dimensions.y;
+        if (output.radius < MR_MIN_COLLISION_EXTENT ||
+            halfLength < MR_MIN_COLLISION_EXTENT) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        const float3 axis = quaternionRotate(
+            output.rotation,
+            float3(0.0f, halfLength, 0.0f)
+        );
+        output.capsuleEndpoint0 = output.center - axis;
+        output.capsuleEndpoint1 = output.center + axis;
+        const float expansion =
+            output.radius + output.contactOffset;
+        output.lower = min(
+            output.capsuleEndpoint0,
+            output.capsuleEndpoint1
+        ) - expansion;
+        output.upper = max(
+            output.capsuleEndpoint0,
+            output.capsuleEndpoint1
+        ) + expansion;
+        inflateFiniteBounds(output);
+        if (!collisionDomain(output.capsuleEndpoint0) ||
+            !collisionDomain(output.capsuleEndpoint1) ||
+            !collisionDomain(output.lower) ||
+            !collisionDomain(output.upper)) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        return true;
+    }
+
+    if (shape.shapeType == MR_SHAPE_BOX) {
+        output.halfExtents = shape.dimensions.xyz;
+        if (!all(
+                output.halfExtents >=
+                    float3(MR_MIN_COLLISION_EXTENT)
+            )) {
+            failureCode = MR_STEP_NONFINITE_INPUT;
+            return false;
+        }
+        const float3 basisX = quaternionRotate(
+            output.rotation,
+            float3(1.0f, 0.0f, 0.0f)
+        );
+        const float3 basisY = quaternionRotate(
+            output.rotation,
+            float3(0.0f, 1.0f, 0.0f)
+        );
+        const float3 basisZ = quaternionRotate(
+            output.rotation,
+            float3(0.0f, 0.0f, 1.0f)
+        );
+        const float3 extent =
+            abs(basisX) * output.halfExtents.x +
+            abs(basisY) * output.halfExtents.y +
+            abs(basisZ) * output.halfExtents.z +
+            output.contactOffset;
+        output.lower = output.center - extent;
+        output.upper = output.center + extent;
+        inflateFiniteBounds(output);
+        if (!collisionDomain(output.lower) ||
+            !collisionDomain(output.upper)) {
             failureCode = MR_STEP_NONFINITE_INPUT;
             return false;
         }
@@ -217,15 +449,18 @@ bool aabbOverlap(
 
 bool planeMayOverlap(
     const thread WorldShape& plane,
-    const thread WorldShape& sphere
+    const thread WorldShape& finiteShape
 ) {
-    const float3 center = 0.5f * (sphere.lower + sphere.upper);
+    const float3 center =
+        0.5f * (finiteShape.lower + finiteShape.upper);
     const float3 halfExtent =
-        0.5f * (sphere.upper - sphere.lower);
+        0.5f * (finiteShape.upper - finiteShape.lower);
     const float minimumSignedDistance =
         dot(plane.planeNormal, center - plane.center) -
         dot(abs(plane.planeNormal), halfExtent);
-    return minimumSignedDistance <= plane.contactOffset;
+    return minimumSignedDistance <=
+        plane.contactOffset +
+        pairQueryPadding(plane, finiteShape);
 }
 
 bool pairPassesFilter(
@@ -269,9 +504,9 @@ bool pairPassesFilter(
     }
     const thread WorldShape& plane =
         shapeA.type == MR_SHAPE_PLANE ? shapeA : shapeB;
-    const thread WorldShape& sphere =
-        shapeA.type == MR_SHAPE_SPHERE ? shapeA : shapeB;
-    return planeMayOverlap(plane, sphere);
+    const thread WorldShape& finiteShape =
+        shapeA.type == MR_SHAPE_PLANE ? shapeB : shapeA;
+    return planeMayOverlap(plane, finiteShape);
 }
 
 float3 coincidentNormal(
@@ -325,16 +560,47 @@ MRRawContactGPU swappedContact(
     return result;
 }
 
-bool generateContact(
+struct ContactBatch {
+    MRRawContactGPU contacts[8];
+    uint count;
+};
+
+void appendFinitePlaneContact(
+    thread ContactBatch& result,
+    const uint colliderA,
+    const thread WorldShape& plane,
+    const float3 finiteSurfacePoint,
+    const float separation,
+    const uint finiteFeature
+) {
+    const float3 planePoint =
+        finiteSurfacePoint - plane.planeNormal * separation;
+    MRRawContactGPU contact = makeContact(
+        -plane.planeNormal,
+        separation,
+        finiteSurfacePoint,
+        planePoint,
+        finiteFeature,
+        featureKey(MR_SHAPE_PLANE, 0u)
+    );
+    if (colliderA == plane.index) {
+        contact = swappedContact(contact);
+    }
+    result.contacts[result.count++] = contact;
+}
+
+ContactBatch generateContacts(
     const uint colliderA,
     const uint colliderB,
     const uint pairClass,
     const thread WorldShape& shapeA,
-    const thread WorldShape& shapeB,
-    thread MRRawContactGPU& contact
+    const thread WorldShape& shapeB
 ) {
+    ContactBatch result{};
     const float contactDistance =
         shapeA.contactOffset + shapeB.contactOffset;
+    const float acceptedContactDistance =
+        contactDistance + pairQueryPadding(shapeA, shapeB);
     if (pairClass == kPairSphereSphere) {
         const float3 delta = shapeB.center - shapeA.center;
         const float centerDistance = length(delta);
@@ -343,10 +609,10 @@ bool generateContact(
             : coincidentNormal(colliderA, colliderB);
         const float separation = centerDistance -
             shapeA.radius - shapeB.radius;
-        if (separation > contactDistance) {
-            return false;
+        if (separation > acceptedContactDistance) {
+            return result;
         }
-        contact = makeContact(
+        result.contacts[0] = makeContact(
             normal,
             separation,
             shapeA.center + normal * shapeA.radius,
@@ -354,32 +620,89 @@ bool generateContact(
             featureKey(MR_SHAPE_SPHERE, 0u),
             featureKey(MR_SHAPE_SPHERE, 0u)
         );
-        return true;
+        result.count = 1u;
+        return result;
     }
 
     const thread WorldShape& plane =
         shapeA.type == MR_SHAPE_PLANE ? shapeA : shapeB;
-    const thread WorldShape& sphere =
-        shapeA.type == MR_SHAPE_SPHERE ? shapeA : shapeB;
-    const float3 surface =
-        sphere.center - plane.planeNormal * sphere.radius;
-    const float separation =
-        dot(plane.planeNormal, surface - plane.center);
-    if (separation > contactDistance) {
-        return false;
+    const thread WorldShape& finiteShape =
+        shapeA.type == MR_SHAPE_PLANE ? shapeB : shapeA;
+
+    if (pairClass == kPairSpherePlane) {
+        const float3 surface =
+            finiteShape.center -
+            plane.planeNormal * finiteShape.radius;
+        const float separation =
+            dot(plane.planeNormal, surface - plane.center);
+        if (separation <= acceptedContactDistance) {
+            appendFinitePlaneContact(
+                result,
+                colliderA,
+                plane,
+                surface,
+                separation,
+                featureKey(MR_SHAPE_SPHERE, 0u)
+            );
+        }
+        return result;
     }
-    contact = makeContact(
-        -plane.planeNormal,
-        separation,
-        surface,
-        surface - plane.planeNormal * separation,
-        featureKey(MR_SHAPE_SPHERE, 0u),
-        featureKey(MR_SHAPE_PLANE, 0u)
-    );
-    if (colliderA == plane.index) {
-        contact = swappedContact(contact);
+
+    if (pairClass == kPairCapsulePlane) {
+        for (uint endpoint = 0u; endpoint < 2u; ++endpoint) {
+            const float3 capsuleEndpoint = endpoint == 0u
+                ? finiteShape.capsuleEndpoint0
+                : finiteShape.capsuleEndpoint1;
+            const float3 surface =
+                capsuleEndpoint -
+                plane.planeNormal * finiteShape.radius;
+            const float separation =
+                dot(plane.planeNormal, surface - plane.center);
+            if (separation <= acceptedContactDistance) {
+                appendFinitePlaneContact(
+                    result,
+                    colliderA,
+                    plane,
+                    surface,
+                    separation,
+                    featureKey(MR_SHAPE_CAPSULE, endpoint)
+                );
+            }
+        }
+        return result;
     }
-    return true;
+
+    for (uint boxVertex = 0u;
+         boxVertex < 8u;
+         ++boxVertex) {
+        const float3 local = float3(
+            (boxVertex & 1u) != 0u
+                ? finiteShape.halfExtents.x
+                : -finiteShape.halfExtents.x,
+            (boxVertex & 2u) != 0u
+                ? finiteShape.halfExtents.y
+                : -finiteShape.halfExtents.y,
+            (boxVertex & 4u) != 0u
+                ? finiteShape.halfExtents.z
+                : -finiteShape.halfExtents.z
+        );
+        const float3 world =
+            finiteShape.center +
+            quaternionRotate(finiteShape.rotation, local);
+        const float separation =
+            dot(plane.planeNormal, world - plane.center);
+        if (separation <= acceptedContactDistance) {
+            appendFinitePlaneContact(
+                result,
+                colliderA,
+                plane,
+                world,
+                separation,
+                featureKey(MR_SHAPE_BOX, boxVertex)
+            );
+        }
+    }
+    return result;
 }
 
 bool finiteContact(const thread MRRawContactGPU& contact) {
@@ -424,6 +747,50 @@ kernel void mr_collide_baseline(
 
     MRSolverStatusGPU status{};
     status.code = MR_STEP_SUCCESS;
+
+    for (uint bodyIndex = 0u;
+         bodyIndex < bodyCount;
+         ++bodyIndex) {
+        const MRBodyStateGPU body = bodies[bodyIndex];
+        float4 bodyRotation;
+        if (body.flagsAndIndices[0] > MR_MOTION_DYNAMIC ||
+            !collisionInputDomainXyz(body.position) ||
+            !checkedQuaternion(
+                body.orientation,
+                bodyRotation
+            )) {
+            status.code = MR_STEP_NONFINITE_INPUT;
+            outputStatus[0] = status;
+            return;
+        }
+    }
+
+    for (uint exclusionIndex = 0u;
+         exclusionIndex < exclusionCount;
+         ++exclusionIndex) {
+        const MRCandidatePairGPU exclusion =
+            exclusions[exclusionIndex];
+        if (exclusion.colliderA >= shapeCount ||
+            exclusion.colliderB >= shapeCount) {
+            status.code = MR_STEP_NONFINITE_INPUT;
+            outputStatus[0] = status;
+            return;
+        }
+    }
+    // Canonical error precedence: validate every common record and derived
+    // FP32 transform before any active shape is type-classified.
+    for (uint shape = 0u; shape < shapeCount; ++shape) {
+        if (!validWorldShapeRecord(
+                shape,
+                shapes,
+                bodies,
+                bodyCount
+            )) {
+            status.code = MR_STEP_NONFINITE_INPUT;
+            outputStatus[0] = status;
+            return;
+        }
+    }
 
     uint failureCode = MR_STEP_SUCCESS;
     for (uint shape = 0u; shape < shapeCount; ++shape) {
@@ -491,21 +858,27 @@ kernel void mr_collide_baseline(
                 continue;
             }
             ++requiredPairs;
-            MRRawContactGPU contact;
-            if (generateContact(
-                    colliderA,
-                    colliderB,
-                    pairClass,
-                    shapeA,
-                    shapeB,
-                    contact
-                )) {
-                if (!finiteContact(contact)) {
+            const ContactBatch batch = generateContacts(
+                colliderA,
+                colliderB,
+                pairClass,
+                shapeA,
+                shapeB
+            );
+            for (uint batchIndex = 0u;
+                 batchIndex < batch.count;
+                 ++batchIndex) {
+                if (!finiteContact(batch.contacts[batchIndex])) {
                     status.code = MR_STEP_NONFINITE_RESULT;
                     outputStatus[0] = status;
                     return;
                 }
-                ++requiredContacts;
+            }
+            if (requiredContacts >
+                ~ulong(0) - ulong(batch.count)) {
+                requiredContacts = ~ulong(0);
+            } else {
+                requiredContacts += ulong(batch.count);
             }
         }
     }
@@ -580,16 +953,18 @@ kernel void mr_collide_baseline(
             pair.flags = pairClass;
             outputPairs[pairIndex] = pair;
 
-            MRRawContactGPU contact;
-            if (generateContact(
-                    colliderA,
-                    colliderB,
-                    pairClass,
-                    shapeA,
-                    shapeB,
-                    contact
-                )) {
-                outputContacts[contactIndex] = contact;
+            const ContactBatch batch = generateContacts(
+                colliderA,
+                colliderB,
+                pairClass,
+                shapeA,
+                shapeB
+            );
+            for (uint batchIndex = 0u;
+                 batchIndex < batch.count;
+                 ++batchIndex) {
+                outputContacts[contactIndex] =
+                    batch.contacts[batchIndex];
                 outputContactPairIndices[contactIndex] = pairIndex;
                 ++contactIndex;
             }

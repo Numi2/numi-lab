@@ -4,10 +4,14 @@
 
 This document is the implementation contract for MetalRobo's production
 collision detector. It is a design target, not a claim about the current
-vertical slice. The current runtime only applies compliant sphere/capsule
-contacts against one ground plane. None of the LBVH, general pair generation,
-persistent-manifold, convex, mesh, heightfield, SDF, or CCD work below should
-be described as shipped until its corresponding milestone is measured.
+vertical slice. The current FP64 CPU path has deterministic sweep-and-prune,
+four analytic pair classes, and persistent four-point manifolds. Metal has the
+same sphere/sphere, sphere/plane, capsule/plane, and box/plane pair classes,
+plus a separately proven deterministic micro all-pairs count/scan/scatter
+broadphase. That broadphase has an explicit 65,536-logical-pair bound and is
+not yet assembled with GPU manifold persistence. None of the LBVH, general
+convex, mesh, heightfield, SDF, or CCD work below should be described as
+shipped until its corresponding milestone is measured.
 
 The target is a headless, GPU-resident collision system for thousands of
 logically isolated robotics environments on Apple silicon. It must serve both
@@ -28,9 +32,13 @@ consume the manifolds described here.
 
 ## Non-negotiable conventions
 
-All geometry uses SI units and FP32 on Metal. CPU references evaluate the same
-queries in FP64. World and body quaternions are `(x, y, z, w)`. A collider has
-a fixed local transform relative to its body.
+All geometry uses SI units and FP32 on Metal. CPU references evaluate
+accepted narrowphase queries in FP64. Authored inputs use a smaller direct
+domain than derived transforms, so independently rounded derived values never
+sit on the admission boundary. Conservative bounds and Metal contact
+eligibility include a documented scale-aware roundoff band. World and body
+quaternions are `(x, y, z, w)`. A collider has a fixed local transform
+relative to its body.
 
 For an ordered pair `(A, B)`:
 
@@ -261,8 +269,9 @@ later path requests them.
 - plane: it is not inserted into a finite dynamic broad phase.
 
 Every finite bound is expanded by the pair-independent collider
-`contactOffset` plus `broadphaseSlop`. The narrow phase still applies the
-sum of both colliders' contact offsets exactly.
+`contactOffset`, configured `broadphaseSlop`, and the ABI's scale-aware
+roundoff pad. The narrow phase applies the sum of both colliders' contact
+offsets plus only the documented numerical ambiguity band.
 
 For speculative contact and CCD, a swept bound covers both endpoint AABBs and
 an angular-motion expansion:
@@ -285,6 +294,10 @@ and the diagnostic records the first body and collider.
 World-scale handling is explicit:
 
 - normal robotics scenes use a configured environment AABB;
+- the current executable ABI rejects authored collision fields outside
+  `[-100,000, 100,000]` metres, derived finite geometry outside
+  `[-1,000,000, 1,000,000]` metres, active finite extents below `1e-9`
+  metres, and nonzero subnormal collision scalars;
 - Morton coordinates outside it are clamped, but exact AABBs remain
   unchanged, so clamping affects tree quality rather than correctness;
 - a degenerate configured axis maps to its midpoint;

@@ -4,16 +4,18 @@ Research snapshot: **2026-07-28**. This is the engineering contract for the
 engine MetalRobo is intended to become. It is not a description of the current
 implementation.
 
-MetalRobo v0.2 is an executable engine spine: fixed-base batched Franka ABA,
+MetalRobo v0.3 is an executable engine spine: fixed-base batched Franka ABA,
 a generic floating-root `nq != nv` model, CPU FP64 CRBA/RNEA forward and
 inverse articulated dynamics (including the pinned G1), CPU/Metal free-body
 integration, deterministic primitive collision and persistent manifolds,
 exact-cone reference/quality contact solvers, a CPU/Metal fixed-budget PGS
-block, and a transactional CPU maximal-coordinate world. It still lacks
-floating articulated contact, production parallel Metal collision, convex and
-mesh narrowphase, CCD, loop/joint/limit constraints in the common solver,
-importers, and physics derivatives. It must not currently be called a complete
-or state-of-the-art physics engine.
+block, a transactional CPU maximal-coordinate world, analytic FP64
+articulated-contact operators exercised on G1, four Metal primitive pair
+classes, and a deterministic parallel Metal micro broadphase. It still lacks
+a complete articulated timestep, a production LBVH/manifold pipeline, convex
+and mesh narrowphase, CCD, loop/joint/limit constraints in the common solver,
+importers, and qualified physics derivatives. It must not currently be called
+a complete or state-of-the-art physics engine.
 
 The target in this document is narrower and more testable than “everything in
 Isaac Sim”: a **state-of-the-art robotics rigid-body engine on Apple GPUs**.

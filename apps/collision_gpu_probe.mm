@@ -94,6 +94,60 @@ MRShapeGPU makeShape(
     return result;
 }
 
+MRShapeGPU makeCapsuleShape(
+    const std::uint32_t body,
+    const float radius,
+    const float halfLength,
+    const std::uint32_t group,
+    const std::uint32_t mask,
+    const mr_float4 localRotation
+) {
+    MRShapeGPU result = makeShape(
+        body,
+        MR_SHAPE_CAPSULE,
+        radius,
+        group,
+        mask
+    );
+    result.localRotation = localRotation;
+    result.dimensions =
+        f4(radius, halfLength, 0.0f, 0.0f);
+    result.contactRestAndBoundingRadius =
+        f4(0.02f, 0.0f, radius + halfLength, 0.0f);
+    return result;
+}
+
+MRShapeGPU makeBoxShape(
+    const std::uint32_t body,
+    const float halfX,
+    const float halfY,
+    const float halfZ,
+    const std::uint32_t group,
+    const std::uint32_t mask,
+    const mr_float4 localRotation
+) {
+    MRShapeGPU result = makeShape(
+        body,
+        MR_SHAPE_BOX,
+        1.0f,
+        group,
+        mask
+    );
+    result.localRotation = localRotation;
+    result.dimensions = f4(halfX, halfY, halfZ, 0.0f);
+    result.contactRestAndBoundingRadius = f4(
+        0.02f,
+        0.0f,
+        std::sqrt(
+            halfX * halfX +
+            halfY * halfY +
+            halfZ * halfZ
+        ),
+        0.0f
+    );
+    return result;
+}
+
 Scene makeScene() {
     Scene scene;
     scene.bodies = {
@@ -109,6 +163,10 @@ Scene makeScene() {
         makeBody(9.00f, 0.45f, 0.0f, MR_MOTION_DYNAMIC),
         makeBody(9.50f, 0.45f, 0.0f, MR_MOTION_DYNAMIC),
         makeBody(11.00f, 2.00f, 0.0f, MR_MOTION_DYNAMIC),
+        makeBody(13.00f, 0.20f, 0.0f, MR_MOTION_DYNAMIC),
+        makeBody(15.00f, 0.00f, 0.0f, MR_MOTION_DYNAMIC),
+        makeBody(0.00f, 0.00f, 0.0f, MR_MOTION_STATIC),
+        makeBody(17.00f, 0.00f, 0.0f, MR_MOTION_DYNAMIC),
     };
     scene.shapes = {
         makeShape(0u, MR_SHAPE_PLANE, 0.0f),
@@ -138,12 +196,54 @@ Scene makeScene() {
             1u,
             f4(0.2f, 0.0f, 0.0f, 1.0f)
         ),
+        makeCapsuleShape(
+            12u,
+            0.25f,
+            0.50f,
+            4u,
+            4u,
+            f4(
+                0.0f,
+                0.0f,
+                0.7071067811865476f,
+                0.7071067811865476f
+            )
+        ),
+        makeBoxShape(
+            13u,
+            0.35f,
+            0.01f,
+            0.25f,
+            4u,
+            4u,
+            f4(
+                0.0f,
+                0.25881904510252074f,
+                0.0f,
+                0.9659258262890683f
+            )
+        ),
+        makeShape(
+            14u,
+            MR_SHAPE_PLANE,
+            0.0f,
+            4u,
+            4u
+        ),
+        makeShape(
+            15u,
+            MR_SHAPE_CYLINDER,
+            0.25f,
+            4u,
+            4u
+        ),
     };
+    scene.shapes.back().flags =
+        MR_SHAPE_FLAG_SIMULATION_DISABLED;
     scene.exclusions = {
         {2u, 1u},
         {1u, 2u},
         {12u, 12u},
-        {99u, 100u},
     };
     scene.gpuExclusions.reserve(scene.exclusions.size());
     for (const auto exclusion : scene.exclusions) {
@@ -181,19 +281,29 @@ id<MTLBuffer> makeBuffer(
     NSString* label
 ) {
     require(
-        data != nullptr && count > 0u,
-        "attempted to allocate an empty Metal buffer"
-    );
-    require(
         count <= std::numeric_limits<NSUInteger>::max() / sizeof(T),
         "Metal buffer byte count overflow"
     );
-    const NSUInteger byteCount =
-        static_cast<NSUInteger>(count * sizeof(T));
-    id<MTLBuffer> buffer =
-        [device newBufferWithBytes:data
-                           length:byteCount
-                          options:MTLResourceStorageModeShared];
+    require(
+        count == 0u || data != nullptr,
+        "non-empty Metal buffer has null source data"
+    );
+    id<MTLBuffer> buffer = nil;
+    if (count == 0u) {
+        buffer = [device
+            newBufferWithLength:sizeof(T)
+                        options:MTLResourceStorageModeShared];
+        if (buffer != nil) {
+            std::memset(buffer.contents, 0, sizeof(T));
+        }
+    } else {
+        const NSUInteger byteCount =
+            static_cast<NSUInteger>(count * sizeof(T));
+        buffer = [device
+            newBufferWithBytes:data
+                        length:byteCount
+                       options:MTLResourceStorageModeShared];
+    }
     require(
         buffer != nil,
         "failed to allocate Metal buffer '" + nsString(label) + "'"
@@ -631,6 +741,66 @@ bool pairHasContact(
     return false;
 }
 
+std::vector<MRRawContactGPU> contactsForPair(
+    const MetalRun& run,
+    const std::uint32_t colliderA,
+    const std::uint32_t colliderB
+) {
+    std::vector<MRRawContactGPU> result;
+    for (std::size_t contactIndex = 0u;
+         contactIndex < run.contactPairIndices.size();
+         ++contactIndex) {
+        const std::uint32_t pairIndex =
+            run.contactPairIndices[contactIndex];
+        require(
+            pairIndex < run.pairs.size(),
+            "Metal contact references an invalid pair"
+        );
+        const MRCandidatePairGPU& pair = run.pairs[pairIndex];
+        if (pair.colliderA == colliderA &&
+            pair.colliderB == colliderB) {
+            result.push_back(run.contacts[contactIndex]);
+        }
+    }
+    return result;
+}
+
+std::uint32_t manifoldPointCount(
+    const metalrobo::CollisionFrame& frame,
+    const std::uint32_t colliderA,
+    const std::uint32_t colliderB
+) {
+    for (const MRManifoldHeaderGPU& header :
+         frame.manifoldHeaders) {
+        if (header.pairAndCount[1] == colliderA &&
+            header.pairAndCount[2] == colliderB) {
+            return header.pairAndCount[3];
+        }
+    }
+    return 0u;
+}
+
+bool shapeAppearsInPair(
+    const std::span<const MRCandidatePairGPU> pairs,
+    const std::uint32_t collider
+) {
+    return std::ranges::any_of(
+        pairs,
+        [=](const MRCandidatePairGPU& pair) {
+            return pair.colliderA == collider ||
+                pair.colliderB == collider;
+        }
+    );
+}
+
+std::uint32_t expectedFeature(
+    const std::uint32_t shapeType,
+    const std::uint32_t localFeature
+) {
+    return ((shapeType & 0x0fu) << 28u) |
+        (localFeature & 0x0fffffffu);
+}
+
 bool sameSuccessfulRun(
     const MetalRun& left,
     const MetalRun& right
@@ -658,6 +828,35 @@ bool sameSuccessfulRun(
 int main() {
     try {
         constexpr std::uint32_t environment = 23u;
+        const Scene emptyScene;
+        metalrobo::CollisionConfig emptyConfig;
+        emptyConfig.environment = environment;
+        metalrobo::PersistentManifoldCache emptyCache;
+        const metalrobo::CollisionFrame emptyCpu =
+            metalrobo::collideCpuReference(
+                emptyScene.shapes,
+                emptyScene.bodies,
+                emptyConfig,
+                emptyCache,
+                emptyScene.exclusions
+            );
+        const MetalRun emptyMetal = collideOnMetal(
+            emptyScene,
+            environment,
+            0u,
+            0u
+        );
+        require(
+            emptyCpu.succeeded() &&
+                emptyCpu.pairs.empty() &&
+                emptyCpu.rawContacts.empty() &&
+                emptyMetal.status.code == MR_STEP_SUCCESS &&
+                emptyMetal.status.requiredPairs == 0u &&
+                emptyMetal.status.requiredContacts == 0u &&
+                emptyMetal.outputBuffersUntouched,
+            "zero-shape CPU/Metal collision world diverged"
+        );
+
         const Scene scene = makeScene();
 
         metalrobo::CollisionConfig cpuConfig;
@@ -747,6 +946,77 @@ int main() {
             !containsPair(first.pairs, 0u, 6u),
             "static/static filtering was ignored"
         );
+        require(
+            containsPair(first.pairs, 13u, 15u),
+            "capsule/plane analytic pair was not emitted"
+        );
+        require(
+            containsPair(first.pairs, 14u, 15u),
+            "box/plane analytic pair was not emitted"
+        );
+
+        const std::vector<MRRawContactGPU> capsuleContacts =
+            contactsForPair(first, 13u, 15u);
+        require(
+            capsuleContacts.size() == 2u,
+            "horizontal capsule did not emit both endpoint witnesses"
+        );
+        for (std::uint32_t endpoint = 0u;
+             endpoint < capsuleContacts.size();
+             ++endpoint) {
+            require(
+                capsuleContacts[endpoint].featureAndFlags[0] ==
+                    expectedFeature(
+                        MR_SHAPE_CAPSULE,
+                        endpoint
+                    ) &&
+                    capsuleContacts[endpoint]
+                            .featureAndFlags[1] ==
+                        expectedFeature(MR_SHAPE_PLANE, 0u),
+                "capsule endpoint features were not stable and ordered"
+            );
+        }
+        require(
+            std::abs(
+                capsuleContacts[0].normalAndSeparation.w -
+                capsuleContacts[1].normalAndSeparation.w
+            ) <= 2.0e-6f &&
+                std::abs(
+                    capsuleContacts[0].pointAWorld.x -
+                    capsuleContacts[1].pointAWorld.x
+                ) >= 0.99f,
+            "equal-depth capsule endpoint degeneracy was mishandled"
+        );
+
+        const std::vector<MRRawContactGPU> boxContacts =
+            contactsForPair(first, 14u, 15u);
+        require(
+            boxContacts.size() == 8u,
+            "box/plane did not preserve all eight raw corner witnesses"
+        );
+        for (std::uint32_t boxVertex = 0u;
+             boxVertex < boxContacts.size();
+             ++boxVertex) {
+            require(
+                boxContacts[boxVertex].featureAndFlags[0] ==
+                    expectedFeature(
+                        MR_SHAPE_BOX,
+                        boxVertex
+                    ) &&
+                    boxContacts[boxVertex]
+                            .featureAndFlags[1] ==
+                        expectedFeature(MR_SHAPE_PLANE, 0u),
+                "box corner features were not stable and ordered"
+            );
+        }
+        require(
+            manifoldPointCount(cpu, 14u, 15u) == 4u,
+            "CPU manifold did not reduce eight box witnesses to four"
+        );
+        require(
+            !shapeAppearsInPair(first.pairs, 16u),
+            "simulation-disabled unsupported geometry entered pairs"
+        );
 
         const MetalRun replay = collideOnMetal(
             scene,
@@ -757,6 +1027,17 @@ int main() {
         require(
             sameSuccessfulRun(first, replay),
             "Metal collision replay was not bit deterministic"
+        );
+        const MetalRun exactCapacity = collideOnMetal(
+            scene,
+            environment,
+            first.status.requiredPairs,
+            first.status.requiredContacts
+        );
+        require(
+            sameSuccessfulRun(first, exactCapacity) &&
+                exactCapacity.unusedOutputSlotsUntouched,
+            "exact declared capacities did not succeed deterministically"
         );
 
         require(
@@ -814,6 +1095,358 @@ int main() {
             "non-finite input did not fail transactionally"
         );
 
+        Scene invalidCapsule = scene;
+        invalidCapsule.shapes[13].dimensions.y = 0.0f;
+        const MetalRun invalidCapsuleResult = collideOnMetal(
+            invalidCapsule,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            invalidCapsuleResult.status.code ==
+                MR_STEP_NONFINITE_INPUT &&
+                invalidCapsuleResult.outputBuffersUntouched,
+            "degenerate capsule dimensions did not fail transactionally"
+        );
+
+        Scene invalidFlags = scene;
+        invalidFlags.shapes[1].flags = 1u << 31u;
+        metalrobo::PersistentManifoldCache invalidFlagsCache;
+        const metalrobo::CollisionFrame invalidFlagsCpu =
+            metalrobo::collideCpuReference(
+                invalidFlags.shapes,
+                invalidFlags.bodies,
+                cpuConfig,
+                invalidFlagsCache,
+                invalidFlags.exclusions
+            );
+        const MetalRun invalidFlagsMetal = collideOnMetal(
+            invalidFlags,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            invalidFlagsCpu.diagnostics.code ==
+                MR_STEP_NONFINITE_INPUT &&
+                invalidFlagsCpu.pairs.empty() &&
+                invalidFlagsMetal.status.code ==
+                    MR_STEP_NONFINITE_INPUT &&
+                invalidFlagsMetal.outputBuffersUntouched,
+            "unknown shape flags did not fail consistently"
+        );
+
+        Scene invalidExclusion = scene;
+        const std::uint32_t invalidCollider =
+            static_cast<std::uint32_t>(
+                invalidExclusion.shapes.size()
+            );
+        invalidExclusion.exclusions.push_back(
+            {0u, invalidCollider}
+        );
+        invalidExclusion.gpuExclusions.push_back(
+            {
+                environment,
+                0u,
+                invalidCollider,
+                0u
+            }
+        );
+        metalrobo::PersistentManifoldCache
+            invalidExclusionCache;
+        const metalrobo::CollisionFrame invalidExclusionCpu =
+            metalrobo::collideCpuReference(
+                invalidExclusion.shapes,
+                invalidExclusion.bodies,
+                cpuConfig,
+                invalidExclusionCache,
+                invalidExclusion.exclusions
+            );
+        const MetalRun invalidExclusionMetal = collideOnMetal(
+            invalidExclusion,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            invalidExclusionCpu.diagnostics.code ==
+                MR_STEP_NONFINITE_INPUT &&
+                invalidExclusionCpu.pairs.empty() &&
+                invalidExclusionMetal.status.code ==
+                    MR_STEP_NONFINITE_INPUT &&
+                invalidExclusionMetal.outputBuffersUntouched,
+            "out-of-range exclusions did not fail consistently"
+        );
+
+        Scene invalidUnusedBody = scene;
+        MRBodyStateGPU unusedBody =
+            makeBody(0.0f, 0.0f, 0.0f, MR_MOTION_DYNAMIC);
+        unusedBody.orientation =
+            f4(0.0f, 0.0f, 0.0f, 0.0f);
+        invalidUnusedBody.bodies.push_back(unusedBody);
+        metalrobo::PersistentManifoldCache
+            invalidUnusedBodyCache;
+        const metalrobo::CollisionFrame invalidUnusedBodyCpu =
+            metalrobo::collideCpuReference(
+                invalidUnusedBody.shapes,
+                invalidUnusedBody.bodies,
+                cpuConfig,
+                invalidUnusedBodyCache,
+                invalidUnusedBody.exclusions
+            );
+        const MetalRun invalidUnusedBodyMetal = collideOnMetal(
+            invalidUnusedBody,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            invalidUnusedBodyCpu.diagnostics.code ==
+                MR_STEP_NONFINITE_INPUT &&
+                invalidUnusedBodyCpu.pairs.empty() &&
+                invalidUnusedBodyMetal.status.code ==
+                    MR_STEP_NONFINITE_INPUT &&
+                invalidUnusedBodyMetal.outputBuffersUntouched,
+            "malformed unused body did not fail consistently"
+        );
+
+        Scene malformedUnsupported = scene;
+        malformedUnsupported.shapes[16].flags = 0u;
+        malformedUnsupported.shapes[16].dimensions.x =
+            std::numeric_limits<float>::quiet_NaN();
+        metalrobo::PersistentManifoldCache
+            malformedUnsupportedCache;
+        const metalrobo::CollisionFrame malformedUnsupportedCpu =
+            metalrobo::collideCpuReference(
+                malformedUnsupported.shapes,
+                malformedUnsupported.bodies,
+                cpuConfig,
+                malformedUnsupportedCache,
+                malformedUnsupported.exclusions
+            );
+        const MetalRun malformedUnsupportedMetal = collideOnMetal(
+            malformedUnsupported,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            malformedUnsupportedCpu.diagnostics.code ==
+                MR_STEP_NONFINITE_INPUT &&
+                malformedUnsupportedCpu.pairs.empty() &&
+                malformedUnsupportedMetal.status.code ==
+                    MR_STEP_NONFINITE_INPUT &&
+                malformedUnsupportedMetal.outputBuffersUntouched,
+            "malformed unsupported shape error precedence diverged"
+        );
+
+        Scene globalPrecedence = scene;
+        globalPrecedence.shapes[0].shapeType =
+            MR_SHAPE_CYLINDER;
+        globalPrecedence.shapes[1].dimensions.x =
+            std::numeric_limits<float>::quiet_NaN();
+        metalrobo::PersistentManifoldCache
+            globalPrecedenceCache;
+        const metalrobo::CollisionFrame globalPrecedenceCpu =
+            metalrobo::collideCpuReference(
+                globalPrecedence.shapes,
+                globalPrecedence.bodies,
+                cpuConfig,
+                globalPrecedenceCache,
+                globalPrecedence.exclusions
+            );
+        const MetalRun globalPrecedenceMetal = collideOnMetal(
+            globalPrecedence,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            globalPrecedenceCpu.diagnostics.code ==
+                MR_STEP_NONFINITE_INPUT &&
+                globalPrecedenceCpu.pairs.empty() &&
+                globalPrecedenceMetal.status.code ==
+                    MR_STEP_NONFINITE_INPUT &&
+                globalPrecedenceMetal.outputBuffersUntouched,
+            "global common-record error precedence diverged"
+        );
+
+        Scene derivedOverflow = scene;
+        const std::uint32_t disabledBody =
+            derivedOverflow.shapes[16].bodyIndex;
+        derivedOverflow.bodies[disabledBody].position.x =
+            std::numeric_limits<float>::max();
+        derivedOverflow.shapes[16].localPosition.x =
+            std::numeric_limits<float>::max();
+        metalrobo::PersistentManifoldCache
+            derivedOverflowCache;
+        const metalrobo::CollisionFrame derivedOverflowCpu =
+            metalrobo::collideCpuReference(
+                derivedOverflow.shapes,
+                derivedOverflow.bodies,
+                cpuConfig,
+                derivedOverflowCache,
+                derivedOverflow.exclusions
+            );
+        const MetalRun derivedOverflowMetal = collideOnMetal(
+            derivedOverflow,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            derivedOverflowCpu.diagnostics.code ==
+                MR_STEP_NONFINITE_INPUT &&
+                derivedOverflowCpu.pairs.empty() &&
+                derivedOverflowMetal.status.code ==
+                    MR_STEP_NONFINITE_INPUT &&
+                derivedOverflowMetal.outputBuffersUntouched,
+            "derived FP32 transform overflow was not rejected"
+        );
+
+        Scene extremeExtent = scene;
+        extremeExtent.shapes[1].dimensions.x =
+            std::numeric_limits<float>::max();
+        extremeExtent.shapes[1]
+            .contactRestAndBoundingRadius.x = 1.0e30f;
+        metalrobo::PersistentManifoldCache extremeExtentCache;
+        const metalrobo::CollisionFrame extremeExtentCpu =
+            metalrobo::collideCpuReference(
+                extremeExtent.shapes,
+                extremeExtent.bodies,
+                cpuConfig,
+                extremeExtentCache,
+                extremeExtent.exclusions
+            );
+        const MetalRun extremeExtentMetal = collideOnMetal(
+            extremeExtent,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            extremeExtentCpu.diagnostics.code ==
+                MR_STEP_NONFINITE_INPUT &&
+                extremeExtentCpu.pairs.empty() &&
+                extremeExtentMetal.status.code ==
+                    MR_STEP_NONFINITE_INPUT &&
+                extremeExtentMetal.outputBuffersUntouched,
+            "out-of-domain finite extent was accepted"
+        );
+
+        Scene subnormalDimension = scene;
+        subnormalDimension.shapes[1].dimensions.x =
+            std::numeric_limits<float>::denorm_min();
+        metalrobo::PersistentManifoldCache
+            subnormalDimensionCache;
+        const metalrobo::CollisionFrame subnormalDimensionCpu =
+            metalrobo::collideCpuReference(
+                subnormalDimension.shapes,
+                subnormalDimension.bodies,
+                cpuConfig,
+                subnormalDimensionCache,
+                subnormalDimension.exclusions
+            );
+        const MetalRun subnormalDimensionMetal = collideOnMetal(
+            subnormalDimension,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            subnormalDimensionCpu.diagnostics.code ==
+                MR_STEP_NONFINITE_INPUT &&
+                subnormalDimensionCpu.pairs.empty() &&
+                subnormalDimensionMetal.status.code ==
+                    MR_STEP_NONFINITE_INPUT &&
+                subnormalDimensionMetal.outputBuffersUntouched,
+            "subnormal active dimension was accepted"
+        );
+
+        Scene subnormalOffset = scene;
+        subnormalOffset.shapes[1]
+            .contactRestAndBoundingRadius.x =
+                -std::numeric_limits<float>::denorm_min();
+        metalrobo::PersistentManifoldCache
+            subnormalOffsetCache;
+        const metalrobo::CollisionFrame subnormalOffsetCpu =
+            metalrobo::collideCpuReference(
+                subnormalOffset.shapes,
+                subnormalOffset.bodies,
+                cpuConfig,
+                subnormalOffsetCache,
+                subnormalOffset.exclusions
+            );
+        const MetalRun subnormalOffsetMetal = collideOnMetal(
+            subnormalOffset,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            subnormalOffsetCpu.diagnostics.code ==
+                MR_STEP_NONFINITE_INPUT &&
+                subnormalOffsetCpu.pairs.empty() &&
+                subnormalOffsetMetal.status.code ==
+                    MR_STEP_NONFINITE_INPUT &&
+                subnormalOffsetMetal.outputBuffersUntouched,
+            "signed subnormal contact offset was accepted"
+        );
+
+        Scene quaternionBoundary = scene;
+        const std::uint32_t boundaryBody =
+            quaternionBoundary.shapes[16].bodyIndex;
+        quaternionBoundary.bodies[boundaryBody].orientation =
+            f4(
+                0.72941094636917114,
+                0.61207860708236694,
+                -0.0090453298762440681,
+                -0.30533197522163391
+            );
+        metalrobo::PersistentManifoldCache
+            quaternionBoundaryCache;
+        const metalrobo::CollisionFrame quaternionBoundaryCpu =
+            metalrobo::collideCpuReference(
+                quaternionBoundary.shapes,
+                quaternionBoundary.bodies,
+                cpuConfig,
+                quaternionBoundaryCache,
+                quaternionBoundary.exclusions
+            );
+        const MetalRun quaternionBoundaryMetal = collideOnMetal(
+            quaternionBoundary,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            quaternionBoundaryCpu.succeeded() &&
+                quaternionBoundaryCpu.pairs.size() ==
+                    cpu.pairs.size() &&
+                quaternionBoundaryMetal.status.code ==
+                    MR_STEP_SUCCESS &&
+                quaternionBoundaryMetal.status.requiredPairs ==
+                    first.status.requiredPairs &&
+                quaternionBoundaryMetal.status.requiredContacts ==
+                    first.status.requiredContacts,
+            "FP32 quaternion acceptance boundary diverged"
+        );
+
+        Scene activeUnsupported = scene;
+        activeUnsupported.shapes[16].flags = 0u;
+        const MetalRun unsupportedResult = collideOnMetal(
+            activeUnsupported,
+            environment,
+            pairCapacity,
+            contactCapacity
+        );
+        require(
+            unsupportedResult.status.code == MR_STEP_UNSUPPORTED &&
+                unsupportedResult.outputBuffersUntouched,
+            "active unsupported geometry did not fail transactionally"
+        );
+
         std::cout << std::scientific << std::setprecision(6)
                   << "device=\"" << first.deviceName << "\""
                   << " broadphase=metal_o_n2_baseline"
@@ -821,6 +1454,12 @@ int main() {
                   << " pairs=" << first.status.requiredPairs
                   << " raw_contacts="
                   << first.status.requiredContacts
+                  << " capsule_endpoint_contacts="
+                  << capsuleContacts.size()
+                  << " box_raw_contacts="
+                  << boxContacts.size()
+                  << " box_manifold_contacts="
+                  << manifoldPointCount(cpu, 14u, 15u)
                   << " max_witness_error="
                   << maximumWitnessError
                   << " canonical_filters=yes"
@@ -828,6 +1467,16 @@ int main() {
                   << " deterministic_replay=yes"
                   << " overflow_transactional=yes"
                   << " finite_validation=yes"
+                  << " strict_shape_flags=yes"
+                  << " strict_exclusions=yes"
+                  << " strict_body_stream=yes"
+                  << " error_precedence=yes"
+                  << " derived_transform_validation=yes"
+                  << " bounded_collision_domain=yes"
+                  << " subnormal_policy=yes"
+                  << " quaternion_boundary_parity=yes"
+                  << " zero_shape_world=yes"
+                  << " disabled_unsupported_skipped=yes"
                   << " status=ok\n";
         return 0;
     } catch (const std::exception& error) {

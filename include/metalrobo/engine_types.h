@@ -14,6 +14,31 @@
 #define MR_MAX_CONTACTS_PER_SOLVER_BATCH 128u
 #define MR_MAX_BODIES_PER_SOLVER_BATCH \
     (2u * MR_MAX_CONTACTS_PER_SOLVER_BATCH)
+#define MR_BROADPHASE_SCAN_BLOCK_SIZE 256u
+#define MR_MAX_BROADPHASE_SCAN_BLOCKS 256u
+// Authored collision coordinates, local offsets, primitive dimensions, and
+// contact/rest/bounding-radius values use this direct-input domain. With
+// normalized rotations, every supported finite primitive derived from these
+// records remains well inside MR_MAX_COLLISION_COORDINATE. This intentional
+// 10x gap prevents CPU/Metal rounding from becoming an admission decision.
+#define MR_MAX_COLLISION_INPUT_COORDINATE 100000.0f
+// Derived transforms and finite AABBs use this larger execution domain.
+// Larger worlds use per-environment origin rebasing.
+#define MR_MAX_COLLISION_COORDINATE 1000000.0f
+// Metal bounds are inflated to cover FP32 transform/normalization and
+// expression-order error. Broadphase false positives are permitted; inward
+// bounds and false negatives are not.
+#define MR_COLLISION_AABB_RELATIVE_PAD 0.00000762939453125f
+#define MR_COLLISION_QUERY_RELATIVE_PAD 0.00000762939453125f
+// Quaternion scale carries no physical meaning. Admission uses direct
+// component bounds rather than a backend-sensitive dot-product tolerance,
+// then normalizes. Every unit quaternion has a maximum component >= 0.5.
+#define MR_MIN_QUATERNION_MAX_COMPONENT 0.25f
+#define MR_MAX_QUATERNION_MAX_COMPONENT 1.001f
+// Non-plane active geometry below one nanometre is outside the robotics
+// collision contract. This also keeps Metal's flush-to-zero mode from
+// changing whether a positive authored extent exists.
+#define MR_MIN_COLLISION_EXTENT 0.000000001f
 
 enum MRMotionType : mr_u32 {
     MR_MOTION_STATIC = 0u,
@@ -185,7 +210,8 @@ typedef struct MR_ALIGN16 MRBodyPropertiesGPU {
 typedef struct MR_ALIGN16 MRBodyStateGPU {
     // xyz = COM position in world coordinates.
     mr_float4 position;
-    // Unit quaternion (x, y, z, w), body-to-world.
+    // Normalizable quaternion (x, y, z, w), body-to-world. Collision
+    // canonicalizes it under the shared component-domain contract.
     mr_float4 orientation;
     // xyz = world linear velocity at COM; w = inverse mass.
     mr_float4 linearVelocityAndInverseMass;
@@ -253,6 +279,7 @@ typedef struct MR_ALIGN16 MRShapeGPU {
 
     // Position relative to the body's COM-centred state origin.
     mr_float4 localPosition;
+    // Normalizable local quaternion under the same collision contract.
     mr_float4 localRotation;
     // Sphere: x=radius. Capsule/cylinder: x=radius, y=half length.
     // Box: xyz=half extents. Mesh/convex: xyz=local scale.
@@ -272,6 +299,29 @@ typedef struct MR_ALIGN16 MRCandidatePairGPU {
     mr_u32 colliderB;
     mr_u32 flags;
 } MRCandidatePairGPU;
+
+// Deterministic flag/scan/emit broadphase dispatch. `logicalPairCount` is
+// shapeCount * (shapeCount - 1) / 2 and `scanBlockCount` is its ceiling
+// division by MR_BROADPHASE_SCAN_BLOCK_SIZE. Current block-sum scan capacity
+// is explicit; larger scenes must be partitioned or use a recursive scan.
+typedef struct MR_ALIGN16 MRBroadphaseDispatchGPU {
+    mr_u32 shapeCount;
+    mr_u32 bodyCount;
+    mr_u32 logicalPairCount;
+    mr_u32 scanBlockCount;
+
+    mr_u32 pairCapacity;
+    mr_u32 exclusionCount;
+    mr_u32 environment;
+    mr_u32 flags;
+} MRBroadphaseDispatchGPU;
+
+typedef struct MR_ALIGN16 MRBroadphaseStatusGPU {
+    mr_u32 code;
+    mr_u32 requiredPairs;
+    mr_u32 emittedPairs;
+    mr_u32 logicalPairs;
+} MRBroadphaseStatusGPU;
 
 // Transient geometric witness record. The solver consumes a separately
 // reduced MRContactConstraintGPU so manifold refresh never loses surface data.
@@ -389,6 +439,8 @@ static_assert(sizeof(MRMaterialGPU) % 16 == 0);
 static_assert(sizeof(MRShapeGPU) % 16 == 0);
 static_assert(sizeof(MRAabbGPU) == 32);
 static_assert(sizeof(MRCandidatePairGPU) == 16);
+static_assert(sizeof(MRBroadphaseDispatchGPU) == 32);
+static_assert(sizeof(MRBroadphaseStatusGPU) == 16);
 static_assert(sizeof(MRRawContactGPU) == 64);
 static_assert(sizeof(MRManifoldHeaderGPU) == 64);
 static_assert(sizeof(MRManifoldPointGPU) == 64);
