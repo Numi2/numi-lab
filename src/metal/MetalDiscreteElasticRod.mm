@@ -953,6 +953,11 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             : config.tool.outerIterations;
         dispatch.rodMaterialIndex =
             config.tool.rodMaterialIndex;
+        dispatch.rodNodeBase = 0u;
+        dispatch.rodEdgeBase = 0u;
+        dispatch.toolPairBase = 0u;
+        dispatch.toolPairWorldStride =
+            dispatch.toolPairCount;
         if (!toolPairs.empty()) {
             dispatch.flags |=
                 MR_ROD_GPU_FLAG_TOOL_COLLISION;

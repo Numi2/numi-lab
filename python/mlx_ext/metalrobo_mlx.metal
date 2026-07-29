@@ -2,6 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/generalized_constraint_shared.h"
+#include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/r2s2r_types.h"
 #include "metalrobo/world_compiler_types.h"
 
@@ -301,6 +302,7 @@ kernel void mr_mlx_prepare_contact_world(
     device const MRArticulationGPU* articulations [[buffer(12)]],
     device const MRDofPropertiesGPU* dofs [[buffer(13)]],
     device const float4* controllerParameters [[buffer(14)]],
+    device uint* resetMasks [[buffer(15)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -319,13 +321,11 @@ kernel void mr_mlx_prepare_contact_world(
         float4(3.402823466e+38f, 0.0f, 0.0f, 0.0f);
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
-    const MRArticulationGPU articulation =
-        articulations[dispatch.articulationIndex];
-    const float4 controller =
-        controllerParameters[
-            environment * world.articulationCount +
-            dispatch.articulationIndex
-        ];
+    // Reset selection is already represented by mx.where before this
+    // primitive. The native reset mask must nevertheless be initialized:
+    // leaving invocation-local MLX storage undefined would make the
+    // checkpoint kernels nondeterministic.
+    resetMasks[environment] = 0u;
     for (uint coordinate = 0u; coordinate < dispatch.nq;
          ++coordinate) {
         checkpointQ[qBase + coordinate] = q[qBase + coordinate];
@@ -338,15 +338,19 @@ kernel void mr_mlx_prepare_contact_world(
         if ((dispatch.flags &
              MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u) {
             device const MRDofPropertiesGPU& dof =
-                dofs[articulation.vOffset + coordinate];
+                dofs[coordinate];
             command = 0.0f;
-            if ((dof.flags & MR_DOF_FLAG_DRIVE) != 0u &&
+            if (dof.articulationIndex <
+                    world.articulationCount &&
+                (dof.flags & MR_DOF_FLAG_DRIVE) != 0u &&
                 dof.qIndex != MR_INVALID_INDEX &&
-                dof.qIndex >= articulation.qOffset &&
-                dof.qIndex <
-                    articulation.qOffset + articulation.nq) {
-                const uint localQ =
-                    dof.qIndex - articulation.qOffset;
+                dof.qIndex < dispatch.nq) {
+                const float4 controller =
+                    controllerParameters[
+                        environment *
+                            world.articulationCount +
+                        dof.articulationIndex
+                    ];
                 float target = actions[vBase + coordinate];
                 if ((dof.flags &
                      MR_DOF_FLAG_POSITION_LIMIT) != 0u) {
@@ -359,10 +363,10 @@ kernel void mr_mlx_prepare_contact_world(
                 const float timestep =
                     world.gravityAndTimestep.w;
                 command =
-                    dof.drive.x * controller.x *
+                        dof.drive.x * controller.x *
                         (
                             target -
-                            q[qBase + localQ] -
+                            q[qBase + dof.qIndex] -
                             timestep * velocity
                         ) -
                     dof.drive.y * controller.y * velocity;
@@ -545,6 +549,83 @@ kernel void mr_mlx_initialize_operator_dispatch(
     if (index == 0u) {
         destination[0] = source;
     }
+}
+
+// Builds invocation-sized articulation packets on MLX's active encoder.
+// The compiled topology supplies offsets while the lazy batch supplies the
+// environment count, so no host upload or hidden synchronization is needed
+// when the same immutable world is called with a smaller batch.
+kernel void mr_mlx_initialize_world_articulation_dispatches(
+    device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(0)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(1)]],
+    device const MRArticulationGPU* articulations [[buffer(2)]],
+    constant uint& abaFlags [[buffer(3)]],
+    device MRMultiABADispatchGPU* abaDispatches [[buffer(4)]],
+    device MRArticulatedOperatorDispatchGPU*
+        kinematicsDispatches [[buffer(5)]],
+    device MRArticulatedOperatorDispatchGPU*
+        factorDispatches [[buffer(6)]],
+    const uint owner [[thread_position_in_grid]]
+) {
+    if (owner >= contactDispatch.articulationCount) {
+        return;
+    }
+    const MRArticulationGPU articulation = articulations[owner];
+
+    MRMultiABADispatchGPU aba = {};
+    aba.dispatch.articulationIndex = owner;
+    aba.dispatch.environmentCount = worldDispatch.environmentCount;
+    aba.dispatch.flags = abaFlags;
+    aba.dispatch.qStride = worldDispatch.qStride;
+    aba.dispatch.vStride = worldDispatch.vStride;
+    aba.dispatch.effortStride =
+        worldDispatch.effortEnvironmentStride;
+    aba.dispatch.wrenchStride = 0u;
+    aba.dispatch.accelerationStride = worldDispatch.vStride;
+    aba.dispatch.nextVStride = worldDispatch.vStride;
+    aba.dispatch.nextQStride = worldDispatch.qStride;
+    aba.qBase = articulation.qOffset;
+    aba.vBase = articulation.vOffset;
+    aba.effortBase = articulation.vOffset;
+    aba.wrenchBase = 0u;
+    aba.accelerationBase = articulation.vOffset;
+    aba.nextVBase = articulation.vOffset;
+    aba.nextQBase = articulation.qOffset;
+    aba.statusBase =
+        owner * worldDispatch.environmentCount;
+    abaDispatches[owner] = aba;
+
+    MRArticulatedOperatorDispatchGPU kinematics = {};
+    kinematics.articulationIndex = owner;
+    kinematics.environmentCount = worldDispatch.environmentCount;
+    kinematics.flags =
+        MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY;
+    kinematics.qStride = worldDispatch.qStride;
+    kinematics.bodyPoseStride = contactDispatch.bodyCount;
+    kinematics.generalizedStride = worldDispatch.vStride;
+    kinematicsDispatches[owner] = kinematics;
+
+    MRArticulatedOperatorDispatchGPU factor = kinematics;
+    factor.pointCount = contactDispatch.pointQueryStride;
+    factor.flags =
+        MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
+        (
+            (worldDispatch.flags &
+             MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u
+            ? MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES
+            : 0u
+        );
+    factor.pointStride = contactDispatch.pointQueryStride;
+    factor.pointWorldStride =
+        contactDispatch.pointQueryStride;
+    factor.massMatrixStride =
+        articulation.nv * articulation.nv;
+    factor.pointJacobianStride =
+        contactDispatch.pointQueryStride *
+        3u * articulation.nv;
+    factor.generalizedStride = worldDispatch.vStride;
+    factorDispatches[owner] = factor;
 }
 
 kernel void mr_mlx_pack_scene_state(

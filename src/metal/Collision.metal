@@ -5152,9 +5152,17 @@ inline bool finiteContactDispatch(
         dispatch.maxCCDZeroTimeReplays <=
             MR_CCD_MAX_ZERO_TIME_REPLAYS &&
         dispatch.waveWorkerGroupCount > 0u &&
+        dispatch.articulationCount > 0u &&
+        dispatch.dynamicNodeCount > 0u &&
+        dispatch.dynamicNodeCount <=
+            MR_WORLD_MAX_DYNAMIC_NODES &&
+        dispatch.islandNodeReferenceCapacity >=
+            dispatch.dynamicNodeCount &&
+        dispatch.islandConstraintReferenceCapacity >=
+            dispatch.constraintCapacity &&
+        dispatch.operatorVelocityCapacity >= dispatch.nv &&
         dispatch.maxConservativeAdvancementIterations > 0u &&
-        dispatch.rowCapacity >=
-            3u * dispatch.constraintCapacity &&
+        dispatch.rowCapacity > 0u &&
         dispatch.nv > 0u &&
         dispatch.velocityIterations > 0u &&
         (
@@ -5373,11 +5381,17 @@ kernel void mr_world_project_swept_colliders(
         environment * dispatch.bodyStateStride;
     const MRBodyStateGPU currentBody =
         currentBodies[bodyBase + source.bodyIndex];
-    const MRArticulationGPU articulation =
-        articulations[dispatch.articulationIndex];
+    const uint articulationOwner =
+        currentBody.flagsAndIndices[1];
     const bool articulated =
-        currentBody.flagsAndIndices[1] ==
-        dispatch.articulationIndex;
+        articulationOwner != MR_INVALID_INDEX &&
+        articulationOwner < dispatch.articulationCount;
+    const MRArticulationGPU articulation =
+        articulations[
+            articulated
+            ? articulationOwner
+            : dispatch.articulationIndex
+        ];
     const bool hasFutureKinematics =
         (dispatch.flags &
          MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS) != 0u;
@@ -5405,11 +5419,20 @@ kernel void mr_world_project_swept_colliders(
     if (articulated && !exactArticulatedCCD) {
         const float sweepRadius =
             shapeSweepRadius(source, projected);
-        const uint velocityBase = environment * dispatch.nv;
+        const uint velocityBase =
+            environment * dispatch.vStride;
         float generalizedSpeed = 0.0f;
-        for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+        for (uint localDof = 0u;
+             localDof < articulation.nv;
+             ++localDof) {
             generalizedSpeed +=
-                abs(candidateV[velocityBase + dof]);
+                abs(
+                    candidateV[
+                        velocityBase +
+                        articulation.vOffset +
+                        localDof
+                    ]
+                );
         }
         const float envelope = min(
             segmentDuration *
@@ -5447,12 +5470,10 @@ kernel void mr_world_project_swept_colliders(
             futureProjectedColliders[projectedIndex] = projected;
             return;
         }
-        const uint localBody =
-            source.bodyIndex - articulation.firstBody;
         const MRArticulatedBodyPoseGPU futurePose =
             futureBodyPoses[
-                environment * articulation.bodyCount +
-                localBody
+                environment * dispatch.bodyCount +
+                source.bodyIndex
             ];
         futureBodyPosition = futurePose.position.xyz;
         futureBodyRotation = futurePose.orientation;
@@ -8582,8 +8603,22 @@ kernel void mr_world_scan_manifold_ir(
     if (statuses[environment].code != MR_STEP_SUCCESS) {
         return;
     }
-    uint4 totals0 = uint4(0u);
-    uint4 totals1 = uint4(0u);
+    // The immutable mechanism program owns the canonical prefix. Dynamic
+    // rigid manifolds and rod witnesses append after it, so every later stage
+    // sees one ConstraintIR stream and stable offsets irrespective of how
+    // collision work was scheduled.
+    uint4 totals0 = uint4(
+        0u,
+        0u,
+        0u,
+        dispatch.authoredConstraintCount
+    );
+    uint4 totals1 = uint4(
+        3u * dispatch.authoredConstraintCount,
+        2u * dispatch.authoredConstraintCount,
+        2u * dispatch.authoredConstraintCount,
+        0u
+    );
     uint retained = 0u;
     uint fresh = 0u;
     uint hard = 0u;
@@ -8830,7 +8865,9 @@ kernel void mr_world_scan_manifold_ir(
             status.firstFailingPair = firstMeshOverflow;
         }
     }
-    if (status.firstFailingPair != MR_INVALID_INDEX) {
+    if (status.firstFailingPair != MR_INVALID_INDEX &&
+        status.firstFailingStableKeyLow == 0u &&
+        status.firstFailingStableKeyHigh == 0u) {
         status.firstFailingStableKeyLow =
             status.firstFailingPair;
         status.firstFailingStableKeyHigh = environment;
@@ -8922,6 +8959,7 @@ inline MRConstraintEndpointRuntimeGPU
 worldEndpointRuntime(
     const MRBodyStateGPU body,
     const uint bodyIndex,
+    const uint dynamicNode,
     const uint queryIndex,
     const float4 localAnchor
 ) {
@@ -8936,7 +8974,7 @@ worldEndpointRuntime(
     const uint motion = body.flagsAndIndices[0];
     const uint articulation = body.flagsAndIndices[1];
     if (articulation != MR_INVALID_INDEX) {
-        runtime.dynamicNode = articulation;
+        runtime.dynamicNode = dynamicNode;
         runtime.ownerKind =
             MR_CONSTRAINT_IR_OWNER_ARTICULATION;
         runtime.ownerIndex = articulation;
@@ -8953,10 +8991,7 @@ worldEndpointRuntime(
             motion == MR_MOTION_STATIC
             ? MR_CONSTRAINT_IR_INVALID_INDEX
             : bodyIndex;
-        runtime.dynamicNode =
-            motion == MR_MOTION_DYNAMIC
-            ? bodyIndex
-            : MR_CONSTRAINT_IR_INVALID_INDEX;
+        runtime.dynamicNode = dynamicNode;
         runtime.flags =
             motion == MR_MOTION_DYNAMIC
             ? MR_CONSTRAINT_IR_RUNTIME_DYNAMIC
@@ -8988,6 +9023,7 @@ kernel void mr_world_scatter_manifold_ir(
     device MRConstraintIRRowGPU* rows [[buffer(15)]],
     device MRConstraintIRConeGPU* cones [[buffer(16)]],
     device MRArticulatedPointImpulseGPU* pointQueries [[buffer(17)]],
+    device const uint* bodyDynamicNodes [[buffer(18)]],
     const uint flatPoint [[thread_position_in_grid]]
 ) {
     const uint pointsPerEnvironment =
@@ -9206,20 +9242,23 @@ kernel void mr_world_scatter_manifold_ir(
     endpoints[endpointAIndex] = endpointA;
     endpoints[endpointBIndex] = endpointB;
 
+    const uint localQueryA = 2u * currentConstraint;
+    const uint localQueryB = localQueryA + 1u;
     const uint queryBase =
         environment * dispatch.pointQueryStride;
-    const uint queryAIndex =
-        queryBase + 2u * currentConstraint;
-    const uint queryBIndex = queryAIndex + 1u;
+    const uint queryAIndex = queryBase + localQueryA;
+    const uint queryBIndex = queryBase + localQueryB;
     endpointRuntime[endpointAIndex] = worldEndpointRuntime(
         bodyA,
         sourceA.bodyIndex,
+        bodyDynamicNodes[sourceA.bodyIndex],
         queryAIndex,
         manifoldPoint.localAnchorA
     );
     endpointRuntime[endpointBIndex] = worldEndpointRuntime(
         bodyB,
         sourceB.bodyIndex,
+        bodyDynamicNodes[sourceB.bodyIndex],
         queryBIndex,
         manifoldPoint.localAnchorB
     );
@@ -9284,23 +9323,30 @@ kernel void mr_world_scatter_manifold_ir(
     cone.stictionTransitionVelocity = 1.0e-3f;
     cones[outputConstraint] = cone;
 
-    MRArticulatedPointImpulseGPU dummyQuery = {};
-    dummyQuery.bodyIndex =
-        articulations[dispatch.articulationIndex].rootBody;
-    MRArticulatedPointImpulseGPU queryA = dummyQuery;
-    MRArticulatedPointImpulseGPU queryB = dummyQuery;
-    if (bodyA.flagsAndIndices[1] ==
-        dispatch.articulationIndex) {
+    const uint ownerA = bodyA.flagsAndIndices[1];
+    const uint ownerB = bodyB.flagsAndIndices[1];
+    if (ownerA != MR_INVALID_INDEX &&
+        ownerA < dispatch.articulationCount) {
+        MRArticulatedPointImpulseGPU queryA = {};
         queryA.bodyIndex = sourceA.bodyIndex;
         queryA.localPoint = manifoldPoint.localAnchorA;
+        const uint ownerQueryA =
+            (ownerA * dispatch.environmentCount + environment) *
+                dispatch.pointQueryStride +
+            localQueryA;
+        pointQueries[ownerQueryA] = queryA;
     }
-    if (bodyB.flagsAndIndices[1] ==
-        dispatch.articulationIndex) {
+    if (ownerB != MR_INVALID_INDEX &&
+        ownerB < dispatch.articulationCount) {
+        MRArticulatedPointImpulseGPU queryB = {};
         queryB.bodyIndex = sourceB.bodyIndex;
         queryB.localPoint = manifoldPoint.localAnchorB;
+        const uint ownerQueryB =
+            (ownerB * dispatch.environmentCount + environment) *
+                dispatch.pointQueryStride +
+            localQueryB;
+        pointQueries[ownerQueryB] = queryB;
     }
-    pointQueries[queryAIndex] = queryA;
-    pointQueries[queryBIndex] = queryB;
 }
 
 // Procedural rod edges enter the same certified primitive/convex/mesh query
@@ -9336,9 +9382,14 @@ kernel void mr_rod_tool_narrowphase(
         flatPair / dispatch.toolPairCount;
     const uint pairIndex =
         flatPair - environment * dispatch.toolPairCount;
+    const uint globalPair =
+        dispatch.toolPairBase + pairIndex;
+    const uint flatWorldPair =
+        environment * dispatch.toolPairWorldStride +
+        globalPair;
     const uint witnessBase =
-        flatPair * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
-    pairContactCounts[flatPair] = 0u;
+        flatWorldPair * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    pairContactCounts[flatWorldPair] = 0u;
     for (uint slot = 0u;
          slot < MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
          ++slot) {
@@ -9348,20 +9399,26 @@ kernel void mr_rod_tool_narrowphase(
         return;
     }
 
-    const MRRodToolPairGPU pair = toolPairs[pairIndex];
+    const MRRodToolPairGPU pair = toolPairs[globalPair];
     if ((pair.flags & MR_ROD_TOOL_PAIR_VALID) == 0u ||
-        pair.rodCollider >= dispatch.edgeCount ||
+        pair.rodCollider < dispatch.rodEdgeBase ||
+        pair.rodCollider >=
+            dispatch.rodEdgeBase + dispatch.edgeCount ||
         pair.rigidCollider >= dispatch.toolShapeCount) {
-        pairContactCounts[flatPair] =
+        pairContactCounts[flatWorldPair] =
             0x80000000u | MR_ROD_GPU_INVALID_DISPATCH;
         return;
     }
     const MRRodColliderGPU rod =
         rodColliders[pair.rodCollider];
-    if (rod.nodeA >= dispatch.nodeCount ||
-        rod.nodeB >= dispatch.nodeCount ||
+    if (rod.nodeA < dispatch.rodNodeBase ||
+        rod.nodeB < dispatch.rodNodeBase ||
+        rod.nodeA >=
+            dispatch.rodNodeBase + dispatch.nodeCount ||
+        rod.nodeB >=
+            dispatch.rodNodeBase + dispatch.nodeCount ||
         rod.nodeA == rod.nodeB) {
-        pairContactCounts[flatPair] =
+        pairContactCounts[flatWorldPair] =
             0x80000000u | MR_ROD_GPU_INVALID_DISPATCH;
         return;
     }
@@ -9378,7 +9435,7 @@ kernel void mr_rod_tool_narrowphase(
     if (!(edgeLengthSquared > 1.0e-20f) ||
         !finiteFloat3(endpointA) ||
         !finiteFloat3(endpointB)) {
-        pairContactCounts[flatPair] =
+        pairContactCounts[flatWorldPair] =
             0x80000000u | MR_ROD_GPU_DEGENERATE_GEOMETRY;
         return;
     }
@@ -9390,7 +9447,7 @@ kernel void mr_rod_tool_narrowphase(
         !(contactOffset >= 0.0f) ||
         !isfinite(radius) ||
         !isfinite(contactOffset)) {
-        pairContactCounts[flatPair] =
+        pairContactCounts[flatWorldPair] =
             0x80000000u | MR_ROD_GPU_INVALID_DISPATCH;
         return;
     }
@@ -9423,7 +9480,7 @@ kernel void mr_rod_tool_narrowphase(
             toolShape,
             failure
         )) {
-        pairContactCounts[flatPair] =
+        pairContactCounts[flatWorldPair] =
             0x80000000u |
             (
                 failure == MR_STEP_NONFINITE_INPUT
@@ -9479,7 +9536,7 @@ kernel void mr_rod_tool_narrowphase(
         );
         if (query.status != MR_STEP_SUCCESS &&
             query.status != MR_STEP_DID_NOT_CONVERGE) {
-            pairContactCounts[flatPair] =
+            pairContactCounts[flatWorldPair] =
                 0x80000000u |
                 MR_ROD_GPU_NONFINITE_RESULT;
             return;
@@ -9505,7 +9562,7 @@ kernel void mr_rod_tool_narrowphase(
         const MRRawContactGPU raw =
             batch.contacts[contactIndex];
         if (!finiteContact(raw)) {
-            pairContactCounts[flatPair] =
+            pairContactCounts[flatWorldPair] =
                 0x80000000u |
                 MR_ROD_GPU_NONFINITE_RESULT;
             return;
@@ -9584,7 +9641,7 @@ kernel void mr_rod_tool_narrowphase(
                     ];
                 if ((previous.featuresAndFlags.w &
                      MR_ROD_TOOL_WITNESS_VALID) != 0u &&
-                    previous.identity.y == pairIndex &&
+                    previous.identity.y == globalPair &&
                     previous.featuresAndFlags.x ==
                         selected.point.featureAndLife[0] &&
                     previous.featuresAndFlags.y ==
@@ -9634,7 +9691,7 @@ kernel void mr_rod_tool_narrowphase(
         MRRodToolWitnessGPU witness = {};
         witness.identity = uint4(
             environment,
-            pairIndex,
+            globalPair,
             pair.rodCollider,
             pair.rigidCollider
         );
@@ -9693,5 +9750,524 @@ kernel void mr_rod_tool_narrowphase(
         witness.impulses = warmImpulse;
         outputWitnesses[witnessBase + slot] = witness;
     }
-    pairContactCounts[flatPair] = count;
+    pairContactCounts[flatWorldPair] = count;
+}
+
+// Appends the already feature-reduced rod witnesses after the rigid manifold
+// prefix. One SIMD32 group owns one environment and scans pair-owned witness
+// slots in stable (pair, feature-slot) order. No atomic selects semantic
+// output order and a short arena prevents all rod IR writes for that
+// environment.
+kernel void mr_world_scan_rod_contact_ir(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* pairContactCounts [[buffer(1)]],
+    device const MRRodToolWitnessGPU* witnesses [[buffer(2)]],
+    device uint* witnessConstraintOffsets [[buffer(3)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(4)]],
+    const uint environment [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        lane >= MR_SIMD_WIDTH ||
+        dispatch.rodToolPairCount == 0u ||
+        statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const uint witnessStride =
+        dispatch.rodToolPairCount *
+        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint witnessBase = environment * witnessStride;
+    const uint pairBase =
+        environment * dispatch.rodToolPairCount;
+    uint running = 0u;
+    uint firstErrorPair = MR_INVALID_INDEX;
+    uint firstErrorCode = MR_STEP_SUCCESS;
+    float maximumPenetration = 0.0f;
+    const uint rigidConstraintBase =
+        statuses[environment].requiredConstraints;
+
+    for (uint tile = 0u;
+         tile < witnessStride;
+         tile += MR_SIMD_WIDTH) {
+        const uint localWitness = tile + lane;
+        const bool inRange = localWitness < witnessStride;
+        const uint pair =
+            inRange
+            ? localWitness /
+                MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR
+            : 0u;
+        const uint slot =
+            inRange
+            ? localWitness %
+                MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR
+            : 0u;
+        const uint encodedCount =
+            inRange
+            ? pairContactCounts[pairBase + pair]
+            : 0u;
+        const bool failed =
+            inRange &&
+            slot == 0u &&
+            (encodedCount & 0x80000000u) != 0u;
+        const uint count =
+            encodedCount & 0x7fffffffu;
+        MRRodToolWitnessGPU witness = {};
+        if (inRange &&
+            slot < min(
+                count,
+                uint(MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR)
+            )) {
+            witness = witnesses[
+                witnessBase + localWitness
+            ];
+        }
+        const bool valid =
+            inRange &&
+            !failed &&
+            count <= MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR &&
+            slot < count &&
+            (witness.featuresAndFlags.w &
+             MR_ROD_TOOL_WITNESS_VALID) != 0u;
+        const uint prefix =
+            simd_prefix_exclusive_sum(valid ? 1u : 0u);
+        if (inRange) {
+            witnessConstraintOffsets[
+                witnessBase + localWitness
+            ] = valid
+                ? rigidConstraintBase + running + prefix
+                : MR_INVALID_INDEX;
+        }
+        const uint tileCount = simd_sum(valid ? 1u : 0u);
+        const uint errorPair = failed
+            ? pair
+            : MR_INVALID_INDEX;
+        const uint tileFirstError = simd_min(errorPair);
+        const float penetration = valid
+            ? max(-witness.toolPointAndSeparation.w, 0.0f)
+            : 0.0f;
+        const float tilePenetration = simd_max(penetration);
+        if (lane == 0u) {
+            if (firstErrorPair == MR_INVALID_INDEX &&
+                tileFirstError != MR_INVALID_INDEX) {
+                firstErrorPair = tileFirstError;
+                const uint rodCode =
+                    pairContactCounts[
+                        pairBase + tileFirstError
+                    ] & 0x7fffffffu;
+                firstErrorCode =
+                    rodCode == MR_ROD_GPU_NONFINITE_RESULT
+                    ? MR_STEP_NONFINITE_RESULT
+                    : (
+                        rodCode ==
+                                MR_ROD_GPU_DEGENERATE_GEOMETRY
+                        ? MR_STEP_NONFINITE_INPUT
+                        : MR_STEP_UNSUPPORTED
+                    );
+            }
+            running += tileCount;
+            maximumPenetration = max(
+                maximumPenetration,
+                tilePenetration
+            );
+        }
+        running = simd_broadcast(running, 0u);
+    }
+    if (lane != 0u) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    const ulong requiredConstraints =
+        static_cast<ulong>(rigidConstraintBase) +
+        static_cast<ulong>(running);
+    const ulong requiredRows =
+        static_cast<ulong>(status.requiredRows) +
+        3ul * static_cast<ulong>(running);
+    status.requiredConstraints = static_cast<uint>(
+        min(requiredConstraints, 0xfffffffful)
+    );
+    status.requiredRows = static_cast<uint>(
+        min(requiredRows, 0xfffffffful)
+    );
+    status.activeContacts = status.requiredConstraints;
+    status.newPoints =
+        running > 0xffffffffu - status.newPoints
+        ? 0xffffffffu
+        : status.newPoints + running;
+    status.diagnostics.y = max(
+        status.diagnostics.y,
+        maximumPenetration
+    );
+    if (firstErrorPair != MR_INVALID_INDEX) {
+        status.code = firstErrorCode;
+        status.firstFailingPair =
+            0x80000000u | firstErrorPair;
+        status.firstFailingStableKeyLow = firstErrorPair;
+        status.firstFailingStableKeyHigh =
+            0x524f4400u | environment;
+    } else if (
+        requiredConstraints > dispatch.constraintCapacity ||
+        requiredRows > dispatch.rowCapacity ||
+        2ul * requiredConstraints >
+            dispatch.pointQueryStride) {
+        status.code = MR_STEP_CONSTRAINT_CAPACITY_OVERFLOW;
+        status.firstFailingConstraint =
+            rigidConstraintBase +
+            min(
+                running,
+                dispatch.constraintCapacity >
+                        rigidConstraintBase
+                    ? dispatch.constraintCapacity -
+                        rigidConstraintBase
+                    : 0u
+            );
+    }
+    statuses[environment] = status;
+}
+
+kernel void mr_world_scatter_rod_contact_ir(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRRodColliderGPU* rodColliders [[buffer(1)]],
+    device const MRRodToolPairGPU* toolPairs [[buffer(2)]],
+    device const MRShapeGPU* shapes [[buffer(3)]],
+    device const MRMaterialGPU* materials [[buffer(4)]],
+    device const MRBodyStateGPU* bodies [[buffer(5)]],
+    device const uint* pairContactCounts [[buffer(6)]],
+    device const MRRodToolWitnessGPU* witnesses [[buffer(7)]],
+    device const uint* witnessConstraintOffsets [[buffer(8)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(9)]],
+    device MRContactConstraintGPU* contacts [[buffer(10)]],
+    device MRContactPointMetaGPU* contactMetadata [[buffer(11)]],
+    device MRConstraintIRBlockGPU* blocks [[buffer(12)]],
+    device MRConstraintIREndpointGPU* endpoints [[buffer(13)]],
+    device MRConstraintEndpointRuntimeGPU* endpointRuntime [[buffer(14)]],
+    device MRConstraintIRRowGPU* rows [[buffer(15)]],
+    device MRConstraintIRConeGPU* cones [[buffer(16)]],
+    device MRArticulatedPointImpulseGPU* pointQueries [[buffer(17)]],
+    device const uint* bodyDynamicNodes [[buffer(18)]],
+    device uint* constraintWitnessIndices [[buffer(19)]],
+    const uint flatWitness [[thread_position_in_grid]]
+) {
+    const uint witnessStride =
+        dispatch.rodToolPairCount *
+        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint witnessDomain =
+        dispatch.environmentCount * witnessStride;
+    if (flatWitness >= witnessDomain ||
+        witnessStride == 0u) {
+        return;
+    }
+    const uint environment = flatWitness / witnessStride;
+    if (statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const uint localWitness =
+        flatWitness - environment * witnessStride;
+    const uint pairIndex =
+        localWitness / MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint slot =
+        localWitness % MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint pairCount =
+        pairContactCounts[
+            environment * dispatch.rodToolPairCount +
+            pairIndex
+        ];
+    const uint currentConstraint =
+        witnessConstraintOffsets[flatWitness];
+    if (slot >= pairCount ||
+        currentConstraint == MR_INVALID_INDEX ||
+        currentConstraint >= dispatch.constraintCapacity) {
+        return;
+    }
+    const MRRodToolWitnessGPU witness =
+        witnesses[flatWitness];
+    if ((witness.featuresAndFlags.w &
+         MR_ROD_TOOL_WITNESS_VALID) == 0u) {
+        return;
+    }
+    const MRRodToolPairGPU pair = toolPairs[pairIndex];
+    const MRRodColliderGPU rod =
+        rodColliders[pair.rodCollider];
+    const MRShapeGPU toolShape = shapes[pair.rigidCollider];
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    device const MRBodyStateGPU& toolBody =
+        bodies[bodyBase + toolShape.bodyIndex];
+    float4 toolRotation;
+    if (!checkedQuaternion(
+            toolBody.orientation,
+            toolRotation
+        )) {
+        return;
+    }
+    const float4 toolLocalAnchor = localAnchorFromWorld(
+        toolBody,
+        toolRotation,
+        witness.toolPointAndSeparation.xyz
+    );
+    const float3 normal = normalize(
+        witness.normalAndPreSolveVelocity.xyz
+    );
+    float3 tangentU =
+        witness.tangentUAndTwistJacobian.xyz;
+    tangentU -= normal * dot(tangentU, normal);
+    tangentU =
+        dot(tangentU, tangentU) > 1.0e-12f
+        ? normalize(tangentU)
+        : stableTangent(normal);
+    const float3 tangentV = cross(normal, tangentU);
+    const MRMaterialGPU rodMaterial =
+        materials[witness.materialAndGeneration.x];
+    const MRMaterialGPU toolMaterial =
+        materials[witness.materialAndGeneration.y];
+    const uint outputConstraint =
+        environment * dispatch.constraintStride +
+        currentConstraint;
+    const uint toolBodyIndex = toolShape.bodyIndex;
+
+    MRContactConstraintGPU contact = {};
+    // Legacy rigid-only evaluators see a finite boundary record, while the
+    // rod flag and endpoint sidecar select the exact typed operator.
+    contact.bodyA = toolBodyIndex;
+    contact.bodyB = toolBodyIndex;
+    contact.flags =
+        MR_CONSTRAINT_FLAG_ROD_ENDPOINT |
+        (
+            (witness.featuresAndFlags.w &
+             MR_ROD_TOOL_WITNESS_NEW_IMPACT) != 0u
+            ? MR_CONSTRAINT_FLAG_NEW_IMPACT
+            : MR_CONSTRAINT_FLAG_WARM_STARTED
+        );
+    contact.islandIndex = MR_INVALID_INDEX;
+    contact.pairKey =
+        (static_cast<ulong>(
+             dispatch.shapeCount + pair.rodCollider
+         ) << 32u) |
+        static_cast<ulong>(pair.rigidCollider);
+    contact.featureKey =
+        (static_cast<ulong>(witness.featuresAndFlags.x)
+         << 32u) |
+        static_cast<ulong>(witness.featuresAndFlags.y);
+    contact.pointAndSeparation = float4(
+        0.5f * (
+            witness.rodPointAndWeight.xyz +
+            witness.toolPointAndSeparation.xyz
+        ),
+        witness.toolPointAndSeparation.w
+    );
+    contact.normal = float4(normal, 0.0f);
+    contact.friction = float4(
+        geometricMean(
+            rodMaterial.friction.x,
+            toolMaterial.friction.x
+        ),
+        geometricMean(
+            rodMaterial.friction.y,
+            toolMaterial.friction.y
+        ),
+        geometricMean(
+            rodMaterial.friction.z,
+            toolMaterial.friction.z
+        ),
+        geometricMean(
+            rodMaterial.friction.w,
+            toolMaterial.friction.w
+        )
+    );
+    contact.response = float4(
+        max(rodMaterial.response.x, toolMaterial.response.x),
+        max(rodMaterial.response.y, toolMaterial.response.y),
+        rodMaterial.response.z + toolMaterial.response.z,
+        0.0f
+    );
+    contact.targetVelocityAndPreSolveNormal =
+        float4(
+            0.0f,
+            0.0f,
+            0.0f,
+            witness.normalAndPreSolveVelocity.w
+        );
+    contact.impulses =
+        (dispatch.flags &
+         MR_METAL_WORLD_CONTACT_WARM_START) != 0u
+        ? witness.impulses
+        : float4(0.0f);
+    contacts[outputConstraint] = contact;
+
+    MRContactPointMetaGPU metadata = {};
+    metadata.colliderA =
+        dispatch.shapeCount + pair.rodCollider;
+    metadata.colliderB = pair.rigidCollider;
+    metadata.manifoldIndex = MR_INVALID_INDEX;
+    metadata.pointIndex = slot;
+    metadata.localAnchorA = float4(
+        witness.radialAndTwistJacobianV.xyz,
+        witness.rodPointAndWeight.w
+    );
+    metadata.localAnchorB = toolLocalAnchor;
+    contactMetadata[outputConstraint] = metadata;
+
+    MRConstraintIRBlockGPU block = {};
+    block.key.words[0] =
+        dispatch.shapeCount + pair.rodCollider;
+    block.key.words[1] = pair.rigidCollider;
+    block.key.words[2] = witness.featuresAndFlags.x;
+    block.key.words[3] = witness.featuresAndFlags.y;
+    block.type = MR_CONSTRAINT_CONTACT;
+    block.dimension = 3u;
+    block.flags = contact.flags;
+    block.islandIndex = MR_INVALID_INDEX;
+    block.endpointOffset = 2u * currentConstraint;
+    block.endpointCount = 2u;
+    block.rowOffset = 3u * currentConstraint;
+    block.impulseOffset = 3u * currentConstraint;
+    block.coneIndex = currentConstraint;
+    block.eventSlot = MR_CONSTRAINT_IR_INVALID_INDEX;
+    block.reserved0 = flatWitness;
+    blocks[outputConstraint] = block;
+    constraintWitnessIndices[outputConstraint] = flatWitness;
+
+    const uint endpointBase =
+        2u * environment * dispatch.constraintStride;
+    const uint endpointAIndex =
+        endpointBase + 2u * currentConstraint;
+    const uint endpointBIndex = endpointAIndex + 1u;
+    MRConstraintIREndpointGPU endpointA = {};
+    endpointA.objectIndex = rod.rodIndex;
+    endpointA.articulationIndex =
+        MR_CONSTRAINT_IR_INVALID_INDEX;
+    endpointA.linkIndex = rod.edgeIndex;
+    endpointA.role = MR_CONSTRAINT_IR_ENDPOINT_A;
+    endpointA.jacobianKind =
+        MR_CONSTRAINT_IR_JACOBIAN_ROD_EDGE;
+    endpointA.anchor = float4(
+        witness.radialAndTwistJacobianV.xyz,
+        witness.rodPointAndWeight.w
+    );
+    endpointA.axis = float4(tangentU, 0.0f);
+    MRConstraintIREndpointGPU endpointB = {};
+    endpointB.objectIndex = toolBodyIndex;
+    endpointB.articulationIndex =
+        toolBody.flagsAndIndices[1];
+    endpointB.linkIndex = toolBody.flagsAndIndices[2];
+    endpointB.role = MR_CONSTRAINT_IR_ENDPOINT_B;
+    endpointB.jacobianKind =
+        MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT;
+    endpointB.anchor = toolLocalAnchor;
+    endpoints[endpointAIndex] = endpointA;
+    endpoints[endpointBIndex] = endpointB;
+
+    MRConstraintEndpointRuntimeGPU rodRuntime = {};
+    rodRuntime.dynamicNode = rod.flagsAndExclusions.y;
+    rodRuntime.ownerKind =
+        MR_CONSTRAINT_IR_OWNER_ROD_EDGE;
+    rodRuntime.ownerIndex = rod.rodIndex;
+    rodRuntime.elementIndex = rod.edgeIndex;
+    rodRuntime.queryIndex =
+        MR_CONSTRAINT_IR_INVALID_INDEX;
+    rodRuntime.secondaryIndex = rod.nodeB;
+    rodRuntime.twistIndex = rod.edgeIndex;
+    rodRuntime.flags =
+        MR_CONSTRAINT_IR_RUNTIME_DYNAMIC |
+        MR_CONSTRAINT_IR_RUNTIME_HAS_TWIST;
+    rodRuntime.weights = float4(
+        1.0f - witness.rodPointAndWeight.w,
+        witness.rodPointAndWeight.w,
+        0.0f,
+        0.0f
+    );
+    rodRuntime.localAnchorOrRadial =
+        float4(
+            witness.radialAndTwistJacobianV.xyz,
+            0.0f
+        );
+    endpointRuntime[endpointAIndex] = rodRuntime;
+
+    const uint localQueryB =
+        2u * currentConstraint + 1u;
+    const uint queryBase =
+        environment * dispatch.pointQueryStride;
+    endpointRuntime[endpointBIndex] = worldEndpointRuntime(
+        toolBody,
+        toolBodyIndex,
+        bodyDynamicNodes[toolBodyIndex],
+        queryBase + localQueryB,
+        toolLocalAnchor
+    );
+
+    const uint rowBase =
+        environment * dispatch.rowStride +
+        3u * currentConstraint;
+    const float3 directions[3] = {
+        normal,
+        tangentU,
+        tangentV,
+    };
+    for (uint localRow = 0u;
+         localRow < 3u;
+         ++localRow) {
+        MRConstraintIRRowGPU row = {};
+        row.direction = float4(directions[localRow], 0.0f);
+        row.positionError =
+            localRow == 0u
+            ? witness.toolPointAndSeparation.w
+            : 0.0f;
+        row.targetVelocity =
+            localRow == 0u &&
+            witness.toolPointAndSeparation.w > 0.0f
+            ? -witness.toolPointAndSeparation.w /
+                dispatch.timestepAndBias.x
+            : 0.0f;
+        row.compliance =
+            localRow == 0u
+            ? rodMaterial.response.z +
+                toolMaterial.response.z
+            : 0.0f;
+        row.dissipation =
+            localRow == 0u
+            ? rodMaterial.response.w +
+                toolMaterial.response.w
+            : 0.0f;
+        row.timeConstant =
+            2.0f * dispatch.timestepAndBias.x;
+        row.dampingRatio = 1.0f;
+        row.impulseLower =
+            localRow == 0u
+            ? 0.0f
+            : -MR_CONSTRAINT_IR_UNBOUNDED;
+        row.impulseUpper = MR_CONSTRAINT_IR_UNBOUNDED;
+        row.flags =
+            localRow == 0u
+            ? (
+                MR_CONSTRAINT_IR_ROW_POSITION_STABILIZED |
+                MR_CONSTRAINT_IR_ROW_UNILATERAL |
+                MR_CONSTRAINT_IR_ROW_CONTACT_NORMAL
+            )
+            : MR_CONSTRAINT_IR_ROW_CONTACT_TANGENT;
+        rows[rowBase + localRow] = row;
+    }
+
+    MRConstraintIRConeGPU cone = {};
+    cone.staticFrictionU = contact.friction.x;
+    cone.staticFrictionV = contact.friction.x;
+    cone.dynamicFrictionU = contact.friction.y;
+    cone.dynamicFrictionV = contact.friction.y;
+    cone.rollingLength = contact.friction.z;
+    cone.torsionalLength = contact.friction.w;
+    cone.restitution = contact.response.x;
+    cone.restitutionThreshold = contact.response.y;
+    cone.stictionTransitionVelocity = 1.0e-3f;
+    cones[outputConstraint] = cone;
+
+    const uint owner = toolBody.flagsAndIndices[1];
+    if (owner != MR_INVALID_INDEX &&
+        owner < dispatch.articulationCount) {
+        MRArticulatedPointImpulseGPU query = {};
+        query.bodyIndex = toolBodyIndex;
+        query.localPoint = toolLocalAnchor;
+        const uint ownerQuery =
+            (owner * dispatch.environmentCount + environment) *
+                dispatch.pointQueryStride +
+            localQueryB;
+        pointQueries[ownerQuery] = query;
+    }
 }

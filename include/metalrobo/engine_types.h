@@ -41,9 +41,9 @@
 // Versioned first generic Metal-world graph. One submission may encode many
 // control steps, each with a bounded number of ABA physics substeps, without
 // a command-buffer completion or CPU-visible intermediate state.
-#define MR_METAL_WORLD_ABI_VERSION 4u
+#define MR_METAL_WORLD_ABI_VERSION 5u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
-#define MR_METAL_WORLD_CONTACT_ABI_VERSION 5u
+#define MR_METAL_WORLD_CONTACT_ABI_VERSION 7u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
 #define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
 #define MR_WAVE32_CONTACTS_PER_TILE 32u
@@ -51,6 +51,7 @@
     (3u * MR_WAVE32_CONTACTS_PER_TILE)
 #define MR_WAVE32_DISTRIBUTED_TILE_THRESHOLD 8u
 #define MR_WORLD_QUEUE_THREADS_PER_THREADGROUP 64u
+#define MR_WORLD_MAX_DYNAMIC_NODES 256u
 #define MR_CONVEX_SIMPLEX_CAPACITY 4u
 #define MR_GJK_MAX_ITERATIONS 32u
 #define MR_EPA_MAX_ITERATIONS 48u
@@ -180,6 +181,14 @@ enum MRConstraintFlags : mr_u32 {
     MR_CONSTRAINT_FLAG_NEW_IMPACT = 1u << 0u,
     MR_CONSTRAINT_FLAG_WARM_STARTED = 1u << 1u,
     MR_CONSTRAINT_FLAG_DISABLED = 1u << 2u,
+    // At least one endpoint is a procedural rod edge. ConstraintIR remains
+    // byte-for-byte unchanged; this bit selects the typed endpoint operator.
+    MR_CONSTRAINT_FLAG_ROD_ENDPOINT = 1u << 3u,
+    // Runtime block was seeded from the immutable mechanism program and
+    // evaluates sparse generalized-coordinate endpoints rather than a
+    // spatial contact point. These blocks share ConstraintIR, islands, and
+    // the quality product-cone solver, but are excluded from contact tiles.
+    MR_CONSTRAINT_FLAG_GENERALIZED = 1u << 4u,
 };
 
 enum MRShapeFlags : mr_u32 {
@@ -761,7 +770,31 @@ typedef struct MR_ALIGN16 MRMetalWorldContactDispatchGPU {
     mr_u32 maxCCDAdvanceSolvePasses;
     mr_u32 maxCCDZeroTimeReplays;
     mr_u32 waveWorkerGroupCount;
-    mr_u32 reservedEvent0;
+    mr_u32 rodToolPairCount;
+
+    mr_u32 articulationCount;
+    mr_u32 dynamicNodeCount;
+    mr_u32 islandNodeReferenceCapacity;
+    mr_u32 islandConstraintReferenceCapacity;
+
+    mr_u32 rodCount;
+    mr_u32 rodNodeCount;
+    mr_u32 rodEdgeCount;
+    mr_u32 operatorVelocityCapacity;
+
+    mr_u32 nq;
+    mr_u32 qStride;
+    mr_u32 vStride;
+    mr_u32 rodContactOuterIterations;
+
+    // Immutable mechanism prefix. Runtime contact compilation appends after
+    // these blocks, retaining fixed three-row/two-endpoint slots per block so
+    // contact, rod, and generalized records share one capacity/addressing
+    // scheme without host-visible counts.
+    mr_u32 authoredConstraintCount;
+    mr_u32 authoredEndpointCount;
+    mr_u32 authoredRowCount;
+    mr_u32 authoredConeCount;
 
     // timestep, penetration slop, maximum depenetration speed, warm scale.
     mr_float4 timestepAndBias;
@@ -858,6 +891,10 @@ enum MRIslandWorkFlags : mr_u32 {
     MR_ISLAND_WORK_SPILL = 1u << 2u,
     MR_ISLAND_WORK_DISTRIBUTED = 1u << 3u,
     MR_ISLAND_WORK_STIFF_REPLAY = 1u << 4u,
+    // The island owns at least one deforming rod dynamic node. Wave32 uses
+    // this bit to select the typed endpoint operator and to assign unique
+    // lane ownership to nodal and twist velocity updates.
+    MR_ISLAND_WORK_HAS_ROD = 1u << 5u,
 };
 
 typedef struct MR_ALIGN16 MRContactTileGPU {
@@ -1022,6 +1059,65 @@ typedef struct MR_ALIGN16 MRManifoldIRScatterGPU {
     mr_uint4 reserved;
 } MRManifoldIRScatterGPU;
 
+// Canonical dynamic endpoint represented in the heterogeneous island graph.
+// One articulation tree, one maximal-coordinate free body, or one connected
+// rod component owns exactly one node. Static and kinematic endpoints never
+// allocate nodes. Semantic q/v and rod arrays remain environment-major; the
+// velocity offsets below address the immutable flattened world layout.
+enum MRWorldDynamicNodeKind : mr_u32 {
+    MR_WORLD_DYNAMIC_NODE_ARTICULATION = 0u,
+    MR_WORLD_DYNAMIC_NODE_FREE_BODY = 1u,
+    MR_WORLD_DYNAMIC_NODE_ROD = 2u,
+};
+
+enum MRWorldDynamicNodeFlags : mr_u32 {
+    MR_WORLD_DYNAMIC_NODE_VALID = 1u << 0u,
+    MR_WORLD_DYNAMIC_NODE_FLOATING = 1u << 1u,
+    MR_WORLD_DYNAMIC_NODE_SLEEPING = 1u << 2u,
+    MR_WORLD_DYNAMIC_NODE_HAS_IMPLICIT_FACTOR = 1u << 3u,
+};
+
+typedef struct MR_ALIGN16 MRWorldDynamicNodeGPU {
+    mr_u32 environment;
+    mr_u32 stableId;
+    mr_u32 kind;
+    mr_u32 ownerIndex;
+
+    mr_u32 velocityOffset;
+    mr_u32 velocityCount;
+    mr_u32 configurationOffset;
+    mr_u32 configurationCount;
+
+    mr_u32 factorIndex;
+    mr_u32 generation;
+    mr_u32 operatorBucket;
+    mr_u32 flags;
+
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+    mr_u32 reserved2;
+    mr_u32 reserved3;
+} MRWorldDynamicNodeGPU;
+
+// Stable compact reference emitted after deterministic island root
+// construction. localVelocityOffset is relative to the island's gathered
+// generalized-velocity vector; dynamicNode addresses the immutable node table.
+typedef struct MR_ALIGN16 MRIslandNodeRefGPU {
+    mr_u32 dynamicNode;
+    mr_u32 localVelocityOffset;
+    mr_u32 velocityCount;
+    mr_u32 factorIndex;
+} MRIslandNodeRefGPU;
+
+// ConstraintIR blocks remain canonical and are never physically reordered.
+// Islands therefore compact references rather than copying semantic records.
+typedef struct MR_ALIGN16 MRIslandConstraintRefGPU {
+    mr_u32 blockIndex;
+    mr_u32 rowOffset;
+    mr_u32 rowCount;
+    mr_u32 flags;
+} MRIslandConstraintRefGPU;
+
 typedef struct MR_ALIGN16 MRContactIslandGPU {
     mr_u32 environment;
     mr_u32 stableRoot;
@@ -1030,8 +1126,18 @@ typedef struct MR_ALIGN16 MRContactIslandGPU {
 
     mr_u32 dynamicNodeCount;
     mr_u32 flags;
-    mr_u32 reserved0;
-    mr_u32 reserved1;
+    mr_u32 firstNode;
+    mr_u32 firstRow;
+
+    mr_u32 generalizedVelocityOffset;
+    mr_u32 generalizedVelocityCount;
+    mr_u32 articulationNodeCount;
+    mr_u32 freeBodyNodeCount;
+
+    mr_u32 rodNodeCount;
+    mr_u32 operatorBucket;
+    mr_u32 generation;
+    mr_u32 reserved;
 } MRContactIslandGPU;
 
 typedef struct MR_ALIGN16 MRArticulationFactorCacheGPU {
@@ -1454,7 +1560,7 @@ static_assert(sizeof(MRMetalWorldDispatchGPU) == 64);
 static_assert(sizeof(MRMetalWorldPassGPU) == 16);
 static_assert(sizeof(MRMetalWorldStatusGPU) == 48);
 static_assert(sizeof(MRCompiledCollisionPairGPU) == 16);
-static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 240);
+static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 304);
 static_assert(sizeof(MRIndirectDispatchArgumentsGPU) == 16);
 static_assert(sizeof(MRWorkQueueHeaderGPU) == 64);
 static_assert(sizeof(MRScanLevelGPU) == 32);
@@ -1470,7 +1576,10 @@ static_assert(sizeof(MRCCDImpactClusterGPU) == 48);
 static_assert(sizeof(MRProjectedColliderGPU) == 80);
 static_assert(sizeof(MRContactPointMetaGPU) == 48);
 static_assert(sizeof(MRManifoldIRScatterGPU) == 128);
-static_assert(sizeof(MRContactIslandGPU) == 32);
+static_assert(sizeof(MRWorldDynamicNodeGPU) == 64);
+static_assert(sizeof(MRIslandNodeRefGPU) == 16);
+static_assert(sizeof(MRIslandConstraintRefGPU) == 16);
+static_assert(sizeof(MRContactIslandGPU) == 64);
 static_assert(sizeof(MRArticulationFactorCacheGPU) == 48);
 static_assert(sizeof(MRMetalWorldContactStatusGPU) == 288);
 static_assert(sizeof(MRInverseMassDispatchGPU) == 48);

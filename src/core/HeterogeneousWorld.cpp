@@ -697,6 +697,18 @@ composeHeterogeneousWorld(
                 staged.sceneBodyIndices.push_back(body);
             }
         }
+        // Scene state is composed in component order, which is also the
+        // canonical non-articulated body order produced by the model
+        // composer. Rebase the optional identity field to the composed global
+        // body index so the persistent world can validate and consume the
+        // state without accepting stale component-local identities.
+        for (std::size_t localScene = 0u;
+             localScene < staged.defaultSceneBodies.size();
+             ++localScene) {
+            staged.defaultSceneBodies[localScene]
+                .flagsAndIndices[2] =
+                staged.sceneBodyIndices[localScene];
+        }
         staged.fingerprint =
             heterogeneousWorldFingerprint(staged);
         std::string reason;

@@ -47,6 +47,7 @@ class SolverCache(NamedTuple):
     manifold_points: mx.array
     manifold_counts: mx.array
     pair_cache: mx.array
+    rod_witnesses: mx.array
 
 
 class WorldState(NamedTuple):
@@ -280,6 +281,14 @@ def initial_state(
                 ),
                 dtype=mx.uint32,
             ),
+            rod_witnesses=mx.zeros(
+                (
+                    environment_count,
+                    int(world.rod_witness_capacity),
+                    int(world.rod_witness_words),
+                ),
+                dtype=mx.uint32,
+            ),
         )
     else:
         empty_u32 = mx.zeros(
@@ -287,6 +296,7 @@ def initial_state(
             dtype=mx.uint32,
         )
         solver_cache = SolverCache(
+            empty_u32,
             empty_u32,
             empty_u32,
             empty_u32,
@@ -397,6 +407,14 @@ def sampled_state_from_world_family(
                 environment_count,
                 int(world.pair_cache_capacity),
                 int(world.pair_cache_words),
+            ),
+            dtype=mx.uint32,
+        ),
+        rod_witnesses=mx.zeros(
+            (
+                environment_count,
+                int(world.rod_witness_capacity),
+                int(world.rod_witness_words),
             ),
             dtype=mx.uint32,
         ),
@@ -593,12 +611,6 @@ def step(
         )
 
     environment_count = int(q.shape[0])
-    if int(world.rod_count) != 0:
-        raise NotImplementedError(
-            "nonzero RodState execution is not yet connected to the "
-            "persistent MLX graph; use the standalone two-way "
-            "thread-tool executor instead of silently dropping rod state"
-        )
     if body_parameters is None:
         body_parameters = mx.ones(
             (
@@ -632,6 +644,11 @@ def step(
             next_manifold_points,
             next_manifold_counts,
             next_pair_cache,
+            next_rod_position,
+            next_rod_velocity,
+            next_rod_twist,
+            next_rod_twist_rate,
+            next_rod_witnesses,
             acceleration,
             status,
             contact_values,
@@ -651,6 +668,11 @@ def step(
             cache.manifold_points,
             cache.manifold_counts,
             cache.pair_cache,
+            rods.position,
+            rods.velocity,
+            rods.twist,
+            rods.twist_rate,
+            cache.rod_witnesses,
             body_parameters,
             controller_parameters,
             stream=stream,
@@ -664,12 +686,18 @@ def step(
                 next_linear_velocity,
                 next_angular_velocity,
             ),
-            rods=rods,
+            rods=RodState(
+                next_rod_position,
+                next_rod_velocity,
+                next_rod_twist,
+                next_rod_twist_rate,
+            ),
             solver_cache=SolverCache(
                 next_manifold_headers,
                 next_manifold_points,
                 next_manifold_counts,
                 next_pair_cache,
+                next_rod_witnesses,
             ),
         )
         contacts = ContactEvidence(

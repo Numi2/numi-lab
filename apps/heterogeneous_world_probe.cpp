@@ -1,6 +1,7 @@
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalMultiArticulatedContact.hpp"
 #include "metalrobo/MetalMultiArticulatedConstraints.hpp"
+#include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MultiArticulatedWorld.hpp"
 
@@ -63,6 +64,251 @@ int main() {
                 world.rods.size() == 1u &&
                 world.rods[0].rigidBindings[0].bodyIndex == 0u,
             "heterogeneous owned streams changed"
+        );
+
+        // The persistent world must own all articulation and rod state in
+        // one transaction. This free-motion slice intentionally exercises
+        // lifetime/reset/publication before contact coupling below.
+        metalrobo::CompiledWorld persistentWorld;
+        const auto persistentCompile =
+            metalrobo::compileMetalWorld(
+                world,
+                persistentWorld
+            );
+        require(
+            persistentCompile.succeeded() &&
+                persistentWorld.articulationCount() == 2u &&
+                persistentWorld.rodCount() == 1u,
+            "persistent heterogeneous MetalWorld did not compile: " +
+                persistentCompile.message
+        );
+        const std::vector<float> persistentEffort(
+            world.model.world.nv,
+            0.0f
+        );
+        const metalrobo::MetalWorldBatch persistentBatch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = world.model.defaultQ,
+            .initialV = world.model.defaultV,
+            .efforts = persistentEffort,
+        };
+        metalrobo::MetalWorldStepConfig persistentConfig;
+        persistentConfig.solverMode =
+            metalrobo::MetalWorldSolverMode::freeMotionABA;
+        persistentConfig.timestepSeconds = 1.0f / 1000.0f;
+        persistentConfig.physicsSubsteps = 1u;
+        persistentConfig.ccdMode =
+            metalrobo::MetalWorldCCDMode::disabled;
+        metalrobo::MetalWorldContext persistentContext;
+        metalrobo::MetalWorldResult persistentResult;
+        const auto persistentRun = persistentContext.run(
+            persistentWorld,
+            persistentBatch,
+            persistentConfig,
+            persistentResult
+        );
+        require(
+            persistentRun.succeeded() &&
+                persistentResult.finalRodNodes.size() ==
+                    persistentWorld.rodNodeCount() &&
+                persistentResult.finalRodEdges.size() ==
+                    persistentWorld.rodEdgeCount() &&
+                persistentResult.statuses.size() == 1u &&
+                persistentResult.statuses[0].code ==
+                    MR_STEP_SUCCESS &&
+                persistentResult.finalRodNodes[4]
+                        .position.z <
+                    persistentWorld.defaultRodNodes()[4]
+                        .position.z,
+            "persistent multi-articulation rod step failed: " +
+                persistentRun.message
+        );
+
+        // Exercise the same persistent state through the composed contact
+        // graph. Even when this authored reset has no active rigid contact,
+        // the fixed-capacity factor/Jacobian pass must execute both PSM
+        // trees, assemble the global operator, and publish the rod in the
+        // same transaction.
+        const metalrobo::MetalWorldBatch persistentContactBatch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = world.model.defaultQ,
+            .initialV = world.model.defaultV,
+            .efforts = persistentEffort,
+            .initialSceneBodies = world.defaultSceneBodies,
+        };
+        metalrobo::MetalWorldStepConfig
+            persistentContactConfig = persistentConfig;
+        persistentContactConfig.solverMode =
+            metalrobo::MetalWorldSolverMode::throughputTGS;
+        persistentContactConfig.captureContactEvidence = true;
+        metalrobo::MetalWorldResult persistentContactResult;
+        const auto persistentContactRun =
+            persistentContext.run(
+                persistentWorld,
+                persistentContactBatch,
+                persistentContactConfig,
+                persistentContactResult
+            );
+        std::size_t persistentRodConstraints = 0u;
+        bool persistentRodEndpoint = false;
+        bool persistentRodIsland = false;
+        if (!persistentContactResult.contactStatuses.empty()) {
+            const std::size_t constraintCount =
+                persistentContactResult.contactStatuses[0]
+                    .requiredConstraints;
+            for (std::size_t constraint = 0u;
+                 constraint < constraintCount &&
+                 constraint <
+                     persistentContactResult
+                         .contactEvidence.blocks.size();
+                 ++constraint) {
+                const auto& block =
+                    persistentContactResult
+                        .contactEvidence.blocks[constraint];
+                if ((block.flags &
+                     MR_CONSTRAINT_IR_BLOCK_ROD_ENDPOINT) ==
+                    0u) {
+                    continue;
+                }
+                ++persistentRodConstraints;
+                const std::size_t endpoint =
+                    block.endpointOffset;
+                persistentRodEndpoint =
+                    persistentRodEndpoint ||
+                    (
+                        endpoint <
+                            persistentContactResult
+                                .contactEvidence
+                                .endpointRuntime.size() &&
+                        persistentContactResult
+                                .contactEvidence
+                                .endpointRuntime[endpoint]
+                                .ownerKind ==
+                            MR_CONSTRAINT_IR_OWNER_ROD_EDGE
+                    );
+            }
+            const std::size_t islandCount =
+                persistentContactResult.contactStatuses[0]
+                    .islandCount;
+            for (std::size_t island = 0u;
+                 island < islandCount &&
+                 island <
+                     persistentContactResult
+                         .contactEvidence.islands.size();
+                 ++island) {
+                persistentRodIsland =
+                    persistentRodIsland ||
+                    persistentContactResult
+                            .contactEvidence.islands[island]
+                            .rodNodeCount != 0u;
+            }
+        }
+        require(
+            persistentContactRun.succeeded() &&
+                persistentContactResult.statuses.size() == 1u &&
+                persistentContactResult.statuses[0].code ==
+                    MR_STEP_SUCCESS &&
+                persistentContactResult.finalQ.size() ==
+                    world.model.defaultQ.size() &&
+                persistentContactResult.finalRodNodes.size() ==
+                    persistentWorld.rodNodeCount() &&
+                persistentRodConstraints != 0u &&
+                persistentRodEndpoint &&
+                persistentRodIsland,
+            "persistent composed multi-articulation contact step failed: " +
+                persistentContactRun.message +
+                (
+                    persistentContactResult.statuses.empty()
+                    ? std::string{}
+                    : " code=" +
+                          std::to_string(
+                              persistentContactResult.statuses[0]
+                                  .code
+                          ) +
+                          " failing=" +
+                          std::to_string(
+                              persistentContactResult.statuses[0]
+                                  .failingIndex
+                          )
+                ) +
+                (
+                    persistentContactResult.contactStatuses.empty()
+                    ? std::string{}
+                    : " contact=" +
+                          std::to_string(
+                              persistentContactResult
+                                  .contactStatuses[0]
+                                  .code
+                          ) +
+                          " pair=" +
+                          std::to_string(
+                              persistentContactResult
+                                  .contactStatuses[0]
+                                  .firstFailingPair
+                          ) +
+                          " constraint=" +
+                          std::to_string(
+                              persistentContactResult
+                                  .contactStatuses[0]
+                                  .firstFailingConstraint
+                          ) +
+                          " required=" +
+                          std::to_string(
+                              persistentContactResult
+                                  .contactStatuses[0]
+                                  .requiredConstraints
+                          ) +
+                          " stable=" +
+                          std::to_string(
+                              persistentContactResult
+                                  .contactStatuses[0]
+                                  .firstFailingStableKeyLow
+                          ) +
+                          "/" +
+                          std::to_string(
+                              persistentContactResult
+                                  .contactStatuses[0]
+                                  .firstFailingStableKeyHigh
+                          )
+                ) +
+                " shape0=" +
+                std::to_string(
+                    world.model.shapes[0].shapeType
+                ) +
+                "/" +
+                std::to_string(
+                    world.model.shapes[0].bodyIndex
+                ) +
+                "/" +
+                std::to_string(world.model.shapes[0].flags) +
+                " pair0=" +
+                std::to_string(
+                    persistentWorld.eligiblePairs()[0].colliderA
+                ) +
+                "/" +
+                std::to_string(
+                    persistentWorld.eligiblePairs()[0].colliderB
+                ) +
+                "/" +
+                std::to_string(
+                    persistentWorld.eligiblePairs()[0].pairClass
+                ) +
+                " shapeB=" +
+                std::to_string(
+                    world.model.shapes[
+                        persistentWorld.eligiblePairs()[0]
+                            .colliderB
+                    ].shapeType
+                ) +
+                "/" +
+                std::to_string(
+                    world.model.shapes[
+                        persistentWorld.eligiblePairs()[0]
+                            .colliderB
+                    ].flags
+                )
         );
 
         metalrobo::CompiledMetalMultiArticulatedProgram program;
@@ -551,6 +797,13 @@ int main() {
             << " colliders=" << world.model.shapes.size()
             << " constraint_rows=" << program.rowCount()
             << " rods=" << world.rods.size()
+            << " persistent_rod_nodes="
+            << persistentResult.finalRodNodes.size()
+            << " composed_constraints="
+            << persistentContactResult.contactStatuses[0]
+                   .requiredConstraints
+            << " rod_constraints="
+            << persistentRodConstraints
             << " contact_nv=" << psmNeedleProblem.nv
             << " needle_contact_impulses="
             << psmNeedleSolution.impulses[0] << "/"

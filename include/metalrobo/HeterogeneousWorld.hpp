@@ -12,7 +12,7 @@
 
 namespace metalrobo {
 
-inline constexpr std::uint32_t kHeterogeneousWorldFormatVersion = 3u;
+inline constexpr std::uint32_t kHeterogeneousWorldFormatVersion = 4u;
 
 struct HeterogeneousWorldComponent {
     const EngineModel* model = nullptr;

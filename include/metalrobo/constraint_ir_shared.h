@@ -21,6 +21,11 @@ enum MRConstraintIRBlockFlags : mr_u32 {
     MR_CONSTRAINT_IR_BLOCK_NEW_IMPACT = 1u << 0u,
     MR_CONSTRAINT_IR_BLOCK_WARM_STARTED = 1u << 1u,
     MR_CONSTRAINT_IR_BLOCK_DISABLED = 1u << 2u,
+    MR_CONSTRAINT_IR_BLOCK_ROD_ENDPOINT = 1u << 3u,
+    // Runtime-only normalized mechanism block. Cooked ConstraintIR v2
+    // records remain byte-identical; the world seeding kernel adds this bit
+    // after expanding sparse authored records into fixed GPU slots.
+    MR_CONSTRAINT_IR_BLOCK_GENERALIZED = 1u << 4u,
 };
 
 enum MRConstraintIRRowFlags : mr_u32 {

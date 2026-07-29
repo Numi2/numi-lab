@@ -1254,6 +1254,69 @@ inline bool factorAndSolveDirect(
     return scalars[8] == 1.0f;
 }
 
+// Node dynamics are block diagonal across articulations, maximal bodies, and
+// connected rods. A deterministic symmetric Gauss-Seidel application keeps
+// all of each node's retained off-diagonal dynamics in the PCG
+// preconditioner. Unlike scalar Jacobi this captures the rod band and the
+// articulated tree factor without adding contact-space storage. The
+// (D+L) D^-1 (D+U) construction is SPD whenever A is SPD.
+inline bool applyDynamicsSSORPreconditioner(
+    device const float* dynamics,
+    threadgroup const float* residual,
+    threadgroup float* output,
+    const uint nv,
+    const float pivotFloor,
+    threadgroup float* scalars,
+    const uint lane
+) {
+    if (lane == 0u) {
+        bool valid = true;
+        for (uint row = 0u; row < nv && valid; ++row) {
+            const float diagonal =
+                dynamics[row * nv + row];
+            float value = residual[row];
+            for (uint column = 0u;
+                 column < row;
+                 ++column) {
+                value = fma(
+                    -dynamics[row * nv + column],
+                    output[column],
+                    value
+                );
+            }
+            valid =
+                diagonal > pivotFloor &&
+                isfinite(diagonal) &&
+                isfinite(value);
+            output[row] =
+                valid ? value / diagonal : 0.0f;
+        }
+        for (uint reverse = 0u;
+             reverse < nv && valid;
+             ++reverse) {
+            const uint row = nv - 1u - reverse;
+            const float diagonal =
+                dynamics[row * nv + row];
+            float value = diagonal * output[row];
+            for (uint column = row + 1u;
+                 column < nv;
+                 ++column) {
+                value = fma(
+                    -dynamics[row * nv + column],
+                    output[column],
+                    value
+                );
+            }
+            valid = isfinite(value);
+            output[row] =
+                valid ? value / diagonal : 0.0f;
+        }
+        scalars[11] = valid ? 1.0f : 0.0f;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    return scalars[11] == 1.0f;
+}
+
 } // namespace
 
 inline void mrUnifiedQualitySolveProblem(
@@ -1665,14 +1728,24 @@ inline void mrUnifiedQualitySolveProblem(
                         }
                     }
                 }
-                preconditioner[dof] =
-                    1.0f /
-                    max(diagonal, dispatch.numerics.y);
+                preconditioner[dof] = diagonal;
                 direction[dof] = 0.0f;
                 cgResidual[dof] = -gradient[dof];
-                cgPreconditioned[dof] =
-                    preconditioner[dof] *
-                    cgResidual[dof];
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            directionValid =
+                applyDynamicsSSORPreconditioner(
+                    dynamics,
+                    cgResidual,
+                    cgPreconditioned,
+                    nv,
+                    dispatch.numerics.y,
+                    scalars,
+                    lane
+                );
+            for (uint dof = lane;
+                 dof < nv;
+                 dof += kWidth) {
                 cgDirection[dof] =
                     cgPreconditioned[dof];
             }
@@ -1696,7 +1769,7 @@ inline void mrUnifiedQualitySolveProblem(
             const float targetSquared =
                 forcing * forcing *
                 max(gradientNormSquared, 1.0e-24f);
-            directionValid =
+            directionValid = directionValid &&
                 isfinite(rz) && rz >= 0.0f;
             uint pcgIterations = 0u;
             for (; directionValid &&
@@ -1752,13 +1825,23 @@ inline void mrUnifiedQualitySolveProblem(
                         cgAction[dof],
                         cgResidual[dof]
                     );
-                    cgPreconditioned[dof] =
-                        preconditioner[dof] *
-                        cgResidual[dof];
                 }
                 threadgroup_barrier(
                     mem_flags::mem_threadgroup
                 );
+                directionValid =
+                    applyDynamicsSSORPreconditioner(
+                        dynamics,
+                        cgResidual,
+                        cgPreconditioned,
+                        nv,
+                        dispatch.numerics.y,
+                        scalars,
+                        lane
+                    );
+                if (!directionValid) {
+                    break;
+                }
                 const float nextRz = groupDot(
                     cgResidual,
                     cgPreconditioned,
@@ -1864,12 +1947,29 @@ inline void mrUnifiedQualitySolveProblem(
                 false,
                 lane
             );
-            if (candidateValid &&
+            const float objectiveRoundoff =
+                32.0f * kFloatEpsilon *
+                max(abs(scalars[0]), 1.0f);
+            const bool residualFilterAccepted =
+                candidateValid &&
                 candidateScalars[0] <=
-                    scalars[0] +
-                    dispatch.tolerances.z *
-                        stepLength *
-                        directionalDerivative) {
+                    scalars[0] + objectiveRoundoff &&
+                candidateScalars[1] <
+                    (1.0f - 1.0e-3f) * scalars[1] &&
+                candidateScalars[2] <=
+                    max(
+                        scalars[2],
+                        dispatch.tolerances.y
+                    ) + objectiveRoundoff;
+            if (candidateValid &&
+                (
+                    candidateScalars[0] <=
+                        scalars[0] +
+                        dispatch.tolerances.z *
+                            stepLength *
+                            directionalDerivative ||
+                    residualFilterAccepted
+                )) {
                 accepted = true;
                 objectiveChange =
                     candidateScalars[0] - scalars[0];
@@ -1943,12 +2043,31 @@ inline void mrUnifiedQualitySolveProblem(
                             false,
                             lane
                         );
-                    if (candidateValid &&
+                    const float objectiveRoundoff =
+                        32.0f * kFloatEpsilon *
+                        max(abs(scalars[0]), 1.0f);
+                    const bool residualFilterAccepted =
+                        candidateValid &&
                         candidateScalars[0] <=
                             scalars[0] +
-                            dispatch.tolerances.z *
-                                stepLength *
-                                directionalDerivative) {
+                                objectiveRoundoff &&
+                        candidateScalars[1] <
+                            (1.0f - 1.0e-3f) *
+                                scalars[1] &&
+                        candidateScalars[2] <=
+                            max(
+                                scalars[2],
+                                dispatch.tolerances.y
+                            ) + objectiveRoundoff;
+                    if (candidateValid &&
+                        (
+                            candidateScalars[0] <=
+                                scalars[0] +
+                                dispatch.tolerances.z *
+                                    stepLength *
+                                    directionalDerivative ||
+                            residualFilterAccepted
+                        )) {
                         accepted = true;
                         objectiveChange =
                             candidateScalars[0] -
@@ -2124,20 +2243,16 @@ struct MRUnifiedQualityThreadgroupWorkspace {
     float candidateVelocity[kMaxV];
     float direction[kMaxV];
     float gradient[kMaxV];
-    float candidateGradient[kMaxV];
+    // State evaluation, PCG, and line search never consume these phases
+    // concurrently. Reusing the same Wave32-owned storage keeps the 384-DoF
+    // articulated/body/rod bucket below Apple GPU threadgroup-memory limits.
     float dynamicsAction[kMaxV];
-    float candidateDynamicsAction[kMaxV];
     float constraintAction[kMaxV];
-    float candidateConstraintAction[kMaxV];
-    float cgResidual[kMaxV];
-    float cgPreconditioned[kMaxV];
     float cgDirection[kMaxV];
     float cgAction[kMaxV];
     float preconditioner[kMaxV];
     float rowVelocity[kMaxRows];
-    float candidateRowVelocity[kMaxRows];
     float impulses[kMaxRows];
-    float candidateImpulses[kMaxRows];
     float rowWork[kMaxRows];
     float rowAction[kMaxRows];
     float scalars[16];
@@ -2183,20 +2298,20 @@ inline void mrUnifiedQualitySolveWithWorkspace(
         workspace.candidateVelocity,
         workspace.direction,
         workspace.gradient,
-        workspace.candidateGradient,
+        workspace.cgDirection,
         workspace.dynamicsAction,
-        workspace.candidateDynamicsAction,
+        workspace.cgAction,
         workspace.constraintAction,
-        workspace.candidateConstraintAction,
-        workspace.cgResidual,
-        workspace.cgPreconditioned,
+        workspace.preconditioner,
+        workspace.dynamicsAction,
+        workspace.constraintAction,
         workspace.cgDirection,
         workspace.cgAction,
         workspace.preconditioner,
         workspace.rowVelocity,
-        workspace.candidateRowVelocity,
+        workspace.rowWork,
         workspace.impulses,
-        workspace.candidateImpulses,
+        workspace.rowAction,
         workspace.rowWork,
         workspace.rowAction,
         workspace.scalars,

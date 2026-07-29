@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_ROD_GPU_ABI_VERSION 4u
+#define MR_ROD_GPU_ABI_VERSION 6u
 #define MR_ROD_GPU_MAX_NODES 128u
 #define MR_ROD_GPU_MAX_ATTACHMENTS 8u
 #define MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR 4u
@@ -40,7 +40,7 @@ typedef struct MR_ALIGN16 MRRodColliderGPU {
 
     // radius, contact offset, rest offset, conservative bounding radius.
     mr_float4 radiusAndOffsets;
-    // flags, exclusion begin, exclusion count, reserved.
+    // flags, typed dynamic-node index, exclusion count, reserved.
     mr_uint4 flagsAndExclusions;
 } MRRodColliderGPU;
 
@@ -102,6 +102,30 @@ typedef struct MR_ALIGN16 MRRodEdgeStateGPU {
     mr_float4 twistAndRate;
 } MRRodEdgeStateGPU;
 
+// Reusable implicit free-motion factor owned by one connected rod component.
+// Numerical blocks live in stream-local private arenas; this record is the
+// stable descriptor and diagnostic sidecar consumed by both TGS and quality.
+typedef struct MR_ALIGN16 MRRodFactorCacheGPU {
+    mr_u32 environment;
+    mr_u32 rodIndex;
+    mr_u32 velocityOffset;
+    mr_u32 velocityCount;
+
+    mr_u32 firstBlock;
+    mr_u32 blockCount;
+    mr_u32 blockWidth;
+    mr_u32 generation;
+
+    mr_u32 code;
+    mr_u32 failingElement;
+    mr_u32 projectedCurvatureCount;
+    mr_u32 flags;
+
+    // Minimum pivot, maximum pivot, relative factor residual, and maximum
+    // projected negative curvature.
+    mr_float4 diagnostics;
+} MRRodFactorCacheGPU;
+
 typedef struct MR_ALIGN16 MRRodGPUDispatch {
     mr_u32 abiVersion;
     mr_u32 environmentCount;
@@ -122,6 +146,15 @@ typedef struct MR_ALIGN16 MRRodGPUDispatch {
     mr_u32 toolContactStride;
     mr_u32 toolContactIterations;
     mr_u32 rodMaterialIndex;
+
+    // Flattened heterogeneous-world bases. Standalone rod programs use zero
+    // bases and toolPairWorldStride == toolPairCount. Persistent worlds bind
+    // global rod/node/edge/pair arenas without pointer rebasing or host-side
+    // staging between rods.
+    mr_u32 rodNodeBase;
+    mr_u32 rodEdgeBase;
+    mr_u32 toolPairBase;
+    mr_u32 toolPairWorldStride;
 
     // xyz gravity, w timestep.
     mr_float4 gravityAndTimestep;
@@ -178,7 +211,7 @@ typedef struct MR_ALIGN16 MRRodGPUStatus {
 } MRRodGPUStatus;
 
 #ifdef __cplusplus
-static_assert(sizeof(MRRodGPUDispatch) == 144);
+static_assert(sizeof(MRRodGPUDispatch) == 160);
 static_assert(alignof(MRRodGPUDispatch) == 16);
 static_assert(sizeof(MRRodGPUAttachment) == 48);
 static_assert(alignof(MRRodGPUAttachment) == 16);
@@ -195,4 +228,6 @@ static_assert(sizeof(MRRodToolWitnessGPU) == 144);
 static_assert(alignof(MRRodToolWitnessGPU) == 16);
 static_assert(sizeof(MRRodNodeStateGPU) == 32);
 static_assert(sizeof(MRRodEdgeStateGPU) == 16);
+static_assert(sizeof(MRRodFactorCacheGPU) == 64);
+static_assert(alignof(MRRodFactorCacheGPU) == 16);
 #endif

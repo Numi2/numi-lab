@@ -208,6 +208,20 @@ NB_MODULE(_mlx_ext, module) {
             }
         )
         .def_prop_ro(
+            "rod_witness_capacity",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().rodToolPairs().size() *
+                    MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+            }
+        )
+        .def_prop_ro(
+            "rod_witness_words",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld&) {
+                return sizeof(MRRodToolWitnessGPU) /
+                    sizeof(std::uint32_t);
+            }
+        )
+        .def_prop_ro(
             "floating_root",
             [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
                 const auto& articulations =
@@ -656,6 +670,11 @@ NB_MODULE(_mlx_ext, module) {
         "manifold_points"_a,
         "manifold_counts"_a,
         "pair_cache"_a,
+        "rod_positions"_a,
+        "rod_velocities"_a,
+        "rod_twists"_a,
+        "rod_twist_rates"_a,
+        "rod_witness_cache"_a,
         "body_parameters"_a,
         "controller_parameters"_a,
         nb::kw_only(),

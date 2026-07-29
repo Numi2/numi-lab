@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/rod_gpu_shared.h"
 
 using namespace metal;
 
@@ -63,6 +64,23 @@ inline uint mapABAStatus(const uint code) {
     case MR_ABA_INVALID_DISPATCH:
     case MR_ABA_INVALID_MODEL:
     case MR_ABA_UNSUPPORTED_TOPOLOGY:
+    default:
+        return MR_STEP_UNSUPPORTED;
+    }
+}
+
+inline uint mapRodStatus(const uint code) {
+    switch (code) {
+    case MR_ROD_GPU_SUCCESS:
+        return MR_STEP_SUCCESS;
+    case MR_ROD_GPU_INVALID_DISPATCH:
+        return MR_STEP_UNSUPPORTED;
+    case MR_ROD_GPU_DEGENERATE_GEOMETRY:
+        return MR_STEP_DID_NOT_CONVERGE;
+    case MR_ROD_GPU_NONFINITE_RESULT:
+        return MR_STEP_NONFINITE_RESULT;
+    case MR_ROD_GPU_DID_NOT_CONVERGE:
+        return MR_STEP_DID_NOT_CONVERGE;
     default:
         return MR_STEP_UNSUPPORTED;
     }
@@ -140,8 +158,6 @@ kernel void mr_metal_world_prepare(
         ] != 0u;
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
-    const MRArticulationGPU articulation =
-        articulations[dispatch.articulationIndex];
     for (uint coordinate = 0u;
          coordinate < dispatch.nq;
          ++coordinate) {
@@ -167,15 +183,11 @@ kernel void mr_metal_world_prepare(
         if ((dispatch.flags &
              MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u) {
             device const MRDofPropertiesGPU& dof =
-                dofs[articulation.vOffset + coordinate];
+                dofs[coordinate];
             command = 0.0f;
             if ((dof.flags & MR_DOF_FLAG_DRIVE) != 0u &&
                 dof.qIndex != MR_INVALID_INDEX &&
-                dof.qIndex >= articulation.qOffset &&
-                dof.qIndex <
-                    articulation.qOffset + articulation.nq) {
-                const uint localQ =
-                    dof.qIndex - articulation.qOffset;
+                dof.qIndex < dispatch.nq) {
                 float target = effortTrajectory[
                     pass.controlStep * dispatch.effortStepStride +
                     environment *
@@ -196,7 +208,7 @@ kernel void mr_metal_world_prepare(
                     dof.drive.x *
                         (
                             target -
-                            stateQ[qBase + localQ] -
+                            stateQ[qBase + dof.qIndex] -
                             timestep * value
                         ) -
                     dof.drive.y * value;
@@ -246,6 +258,7 @@ kernel void mr_metal_world_commit(
     device MRMetalWorldStatusGPU* statuses [[buffer(7)]],
     device const float* checkpointQ [[buffer(8)]],
     device const float* checkpointV [[buffer(9)]],
+    device const MRWorldGPU& world [[buffer(10)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -253,33 +266,80 @@ kernel void mr_metal_world_commit(
     }
 
     MRMetalWorldStatusGPU status = statuses[environment];
-    const MRABAStatusGPU aba = abaStatuses[environment];
     const bool validPass =
         validWorldDispatch(dispatch) &&
+        world.abiVersion == MR_ENGINE_ABI_VERSION &&
+        world.articulationCount > 0u &&
         pass.controlStep < dispatch.controlStepCount &&
         pass.physicsSubstep < dispatch.physicsSubsteps &&
         pass.reserved0 == 0u &&
         pass.reserved1 == 0u;
-    const bool validABARecord =
-        aba.environment == environment &&
-        aba.articulationIndex == dispatch.articulationIndex &&
-        aba.code <= MR_ABA_UNSUPPORTED_TOPOLOGY;
+    bool validABARecord = validPass;
+    bool allABASucceeded = validPass;
+    uint failureCode = MR_ABA_SUCCESS;
+    uint failureIndex = MR_INVALID_INDEX;
+    float4 abaDiagnostics =
+        float4(kFloatMaximum, 0.0f, 0.0f, 0.0f);
+    for (uint articulation = 0u;
+         articulation < world.articulationCount;
+         ++articulation) {
+        const MRABAStatusGPU aba =
+            abaStatuses[
+                articulation * dispatch.environmentCount +
+                environment
+            ];
+        const bool validRecord =
+            aba.environment == environment &&
+            aba.articulationIndex == articulation &&
+            aba.code <= MR_ABA_UNSUPPORTED_TOPOLOGY;
+        validABARecord = validABARecord && validRecord;
+        allABASucceeded =
+            allABASucceeded &&
+            validRecord &&
+            aba.code == MR_ABA_SUCCESS;
+        if (failureCode == MR_ABA_SUCCESS &&
+            (!validRecord ||
+             aba.code != MR_ABA_SUCCESS)) {
+            failureCode = validRecord
+                ? aba.code
+                : uint(MR_ABA_INVALID_DISPATCH);
+            failureIndex = validRecord
+                ? aba.failingIndex
+                : MR_INVALID_INDEX;
+        }
+        if (validRecord && aba.code == MR_ABA_SUCCESS) {
+            abaDiagnostics.x = min(
+                abaDiagnostics.x,
+                aba.diagnostics.x
+            );
+            abaDiagnostics.y = max(
+                abaDiagnostics.y,
+                aba.diagnostics.y
+            );
+            abaDiagnostics.z = max(
+                abaDiagnostics.z,
+                aba.diagnostics.z
+            );
+            abaDiagnostics.w = max(
+                abaDiagnostics.w,
+                aba.diagnostics.w
+            );
+        }
+    }
     const bool commitCandidate =
-        validPass &&
         status.code == MR_STEP_SUCCESS &&
-        validABARecord &&
-        aba.code == MR_ABA_SUCCESS;
+        allABASucceeded;
 
     if (!commitCandidate && status.code == MR_STEP_SUCCESS) {
         status.code = validPass && validABARecord
-            ? mapABAStatus(aba.code)
+            ? mapABAStatus(failureCode)
             : MR_STEP_UNSUPPORTED;
         status.abaCode = validABARecord
-            ? aba.code
+            ? failureCode
             : static_cast<uint>(MR_ABA_INVALID_DISPATCH);
         status.failingSubstep = pass.physicsSubstep;
         status.failingIndex = validABARecord
-            ? aba.failingIndex
+            ? failureIndex
             : MR_INVALID_INDEX;
     }
 
@@ -302,23 +362,23 @@ kernel void mr_metal_world_commit(
 
     if (commitCandidate) {
         if (status.successfulSubsteps == 0u) {
-            status.diagnostics = aba.diagnostics;
+            status.diagnostics = abaDiagnostics;
         } else {
             status.diagnostics.x = min(
                 status.diagnostics.x,
-                aba.diagnostics.x
+                abaDiagnostics.x
             );
             status.diagnostics.y = max(
                 status.diagnostics.y,
-                aba.diagnostics.y
+                abaDiagnostics.y
             );
             status.diagnostics.z = max(
                 status.diagnostics.z,
-                aba.diagnostics.z
+                abaDiagnostics.z
             );
             status.diagnostics.w = max(
                 status.diagnostics.w,
-                aba.diagnostics.w
+                abaDiagnostics.w
             );
         }
         ++status.successfulSubsteps;
@@ -392,4 +452,282 @@ kernel void mr_metal_world_capture(
         environment
     ] = status;
     statuses[environment] = status;
+}
+
+// Rod mechanics are semantic world state, not native-object state. These
+// kernels bridge the explicit packed node/edge PyTree representation to the
+// existing SIMD32 DER cohort without any host staging or hidden singleton.
+kernel void mr_world_prepare_rod_state(
+    device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(0)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(1)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(2)]],
+    device const uint* resetMasks [[buffer(3)]],
+    device const MRRodNodeStateGPU* resetNodes [[buffer(4)]],
+    device const MRRodEdgeStateGPU* resetEdges [[buffer(5)]],
+    device MRRodNodeStateGPU* stateNodes [[buffer(6)]],
+    device MRRodEdgeStateGPU* stateEdges [[buffer(7)]],
+    device MRRodNodeStateGPU* checkpointNodes [[buffer(8)]],
+    device MRRodEdgeStateGPU* checkpointEdges [[buffer(9)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= worldDispatch.environmentCount ||
+        pass.controlStep >= worldDispatch.controlStepCount ||
+        pass.physicsSubstep != MR_INVALID_INDEX) {
+        return;
+    }
+    const bool hasResets =
+        (worldDispatch.flags & MR_METAL_WORLD_HAS_RESETS) != 0u;
+    const bool applyReset =
+        hasResets &&
+        resetMasks[
+            pass.controlStep *
+                worldDispatch.resetMaskStepStride +
+            environment
+        ] != 0u;
+    const uint nodeBase =
+        environment * contactDispatch.rodNodeCount;
+    for (uint node = 0u;
+         node < contactDispatch.rodNodeCount;
+         ++node) {
+        const MRRodNodeStateGPU value = applyReset
+            ? resetNodes[nodeBase + node]
+            : stateNodes[nodeBase + node];
+        stateNodes[nodeBase + node] = value;
+        checkpointNodes[nodeBase + node] = value;
+    }
+    const uint edgeBase =
+        environment * contactDispatch.rodEdgeCount;
+    for (uint edge = 0u;
+         edge < contactDispatch.rodEdgeCount;
+         ++edge) {
+        const MRRodEdgeStateGPU value = applyReset
+            ? resetEdges[edgeBase + edge]
+            : stateEdges[edgeBase + edge];
+        stateEdges[edgeBase + edge] = value;
+        checkpointEdges[edgeBase + edge] = value;
+    }
+}
+
+kernel void mr_world_prepare_rod_contact_cache(
+    device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(0)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(1)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(2)]],
+    device const uint* resetMasks [[buffer(3)]],
+    device const MRRodToolWitnessGPU* published [[buffer(4)]],
+    device MRRodToolWitnessGPU* checkpoint [[buffer(5)]],
+    device MRRodToolWitnessGPU* candidate [[buffer(6)]],
+    const uint flatWitness [[thread_position_in_grid]]
+) {
+    const uint witnessStride =
+        contactDispatch.rodToolPairCount *
+        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint witnessCount =
+        worldDispatch.environmentCount * witnessStride;
+    if (flatWitness >= witnessCount ||
+        pass.controlStep >= worldDispatch.controlStepCount ||
+        pass.physicsSubstep != MR_INVALID_INDEX) {
+        return;
+    }
+    const uint environment =
+        witnessStride == 0u
+        ? 0u
+        : flatWitness / witnessStride;
+    const bool applyReset =
+        (worldDispatch.flags & MR_METAL_WORLD_HAS_RESETS) != 0u &&
+        resetMasks[
+            pass.controlStep *
+                worldDispatch.resetMaskStepStride +
+            environment
+        ] != 0u;
+    MRRodToolWitnessGPU value = {};
+    if (!applyReset) {
+        value = published[flatWitness];
+    }
+    checkpoint[flatWitness] = value;
+    candidate[flatWitness] = value;
+}
+
+kernel void mr_world_pack_rod_state(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRRodNodeStateGPU* nodes [[buffer(1)]],
+    device const MRRodEdgeStateGPU* edges [[buffer(2)]],
+    device float4* positions [[buffer(3)]],
+    device float4* velocities [[buffer(4)]],
+    device float* twists [[buffer(5)]],
+    device float* twistRates [[buffer(6)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const uint nodeBase =
+        environment * dispatch.rodNodeCount;
+    for (uint node = 0u;
+         node < dispatch.rodNodeCount;
+         ++node) {
+        const MRRodNodeStateGPU state =
+            nodes[nodeBase + node];
+        positions[nodeBase + node] = state.position;
+        velocities[nodeBase + node] = state.velocity;
+    }
+    const uint edgeBase =
+        environment * dispatch.rodEdgeCount;
+    for (uint edge = 0u;
+         edge < dispatch.rodEdgeCount;
+         ++edge) {
+        const float4 state =
+            edges[edgeBase + edge].twistAndRate;
+        twists[edgeBase + edge] = state.x;
+        twistRates[edgeBase + edge] = state.y;
+    }
+}
+
+kernel void mr_world_unpack_rod_state(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* positions [[buffer(1)]],
+    device const float4* velocities [[buffer(2)]],
+    device const float* twists [[buffer(3)]],
+    device const float* twistRates [[buffer(4)]],
+    device MRRodNodeStateGPU* nodes [[buffer(5)]],
+    device MRRodEdgeStateGPU* edges [[buffer(6)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const uint nodeBase =
+        environment * dispatch.rodNodeCount;
+    for (uint node = 0u;
+         node < dispatch.rodNodeCount;
+         ++node) {
+        MRRodNodeStateGPU state;
+        state.position = positions[nodeBase + node];
+        state.velocity = velocities[nodeBase + node];
+        nodes[nodeBase + node] = state;
+    }
+    const uint edgeBase =
+        environment * dispatch.rodEdgeCount;
+    for (uint edge = 0u;
+         edge < dispatch.rodEdgeCount;
+         ++edge) {
+        MRRodEdgeStateGPU state;
+        state.twistAndRate = float4(
+            twists[edgeBase + edge],
+            twistRates[edgeBase + edge],
+            0.0f,
+            0.0f
+        );
+        edges[edgeBase + edge] = state;
+    }
+}
+
+kernel void mr_world_latch_rod_status(
+    device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(0)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(1)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(2)]],
+    device const MRRodGPUStatus* rodStatuses [[buffer(3)]],
+    device MRMetalWorldStatusGPU* statuses [[buffer(4)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= worldDispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    for (uint rod = 0u;
+         rod < contactDispatch.rodCount;
+         ++rod) {
+        const MRRodGPUStatus rodStatus =
+            rodStatuses[
+                rod * worldDispatch.environmentCount +
+                environment
+            ];
+        if (rodStatus.environment != environment ||
+            rodStatus.code != MR_ROD_GPU_SUCCESS) {
+            status.code =
+                rodStatus.environment == environment
+                ? mapRodStatus(rodStatus.code)
+                : uint(MR_STEP_UNSUPPORTED);
+            status.failingSubstep = pass.physicsSubstep;
+            status.failingIndex =
+                rodStatus.environment == environment
+                ? rodStatus.failingIndex
+                : MR_INVALID_INDEX;
+            statuses[environment] = status;
+            return;
+        }
+    }
+}
+
+kernel void mr_world_commit_rod_state(
+    device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(0)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(1)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(2)]],
+    device const MRMetalWorldStatusGPU* statuses [[buffer(3)]],
+    device const MRRodNodeStateGPU* candidateNodes [[buffer(4)]],
+    device const MRRodEdgeStateGPU* candidateEdges [[buffer(5)]],
+    device const MRRodNodeStateGPU* checkpointNodes [[buffer(6)]],
+    device const MRRodEdgeStateGPU* checkpointEdges [[buffer(7)]],
+    device MRRodNodeStateGPU* destinationNodes [[buffer(8)]],
+    device MRRodEdgeStateGPU* destinationEdges [[buffer(9)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= worldDispatch.environmentCount) {
+        return;
+    }
+    const bool publish =
+        pass.physicsSubstep < worldDispatch.physicsSubsteps &&
+        statuses[environment].code == MR_STEP_SUCCESS;
+    const uint nodeBase =
+        environment * contactDispatch.rodNodeCount;
+    for (uint node = 0u;
+         node < contactDispatch.rodNodeCount;
+         ++node) {
+        destinationNodes[nodeBase + node] = publish
+            ? candidateNodes[nodeBase + node]
+            : checkpointNodes[nodeBase + node];
+    }
+    const uint edgeBase =
+        environment * contactDispatch.rodEdgeCount;
+    for (uint edge = 0u;
+         edge < contactDispatch.rodEdgeCount;
+         ++edge) {
+        destinationEdges[edgeBase + edge] = publish
+            ? candidateEdges[edgeBase + edge]
+            : checkpointEdges[edgeBase + edge];
+    }
+}
+
+kernel void mr_world_commit_rod_contact_cache(
+    device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(0)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(1)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(2)]],
+    device const MRMetalWorldStatusGPU* statuses [[buffer(3)]],
+    device const MRRodToolWitnessGPU* candidate [[buffer(4)]],
+    device const MRRodToolWitnessGPU* checkpoint [[buffer(5)]],
+    device MRRodToolWitnessGPU* destination [[buffer(6)]],
+    const uint flatWitness [[thread_position_in_grid]]
+) {
+    const uint witnessStride =
+        contactDispatch.rodToolPairCount *
+        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint witnessCount =
+        worldDispatch.environmentCount * witnessStride;
+    if (flatWitness >= witnessCount || witnessStride == 0u) {
+        return;
+    }
+    const uint environment = flatWitness / witnessStride;
+    const bool publish =
+        pass.physicsSubstep < worldDispatch.physicsSubsteps &&
+        statuses[environment].code == MR_STEP_SUCCESS;
+    destination[flatWitness] = publish
+        ? candidate[flatWitness]
+        : checkpoint[flatWitness];
 }

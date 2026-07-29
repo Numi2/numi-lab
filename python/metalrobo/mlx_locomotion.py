@@ -214,6 +214,7 @@ class MLXG1RolloutCollector:
         manifold_points: mx.array,
         manifold_counts: mx.array,
         pair_cache: mx.array,
+        rod_witnesses: mx.array,
         observations: mx.array,
         episode_steps: mx.array,
         noise: mx.array,
@@ -230,6 +231,7 @@ class MLXG1RolloutCollector:
         reset_manifold_points: mx.array,
         reset_manifold_counts: mx.array,
         reset_pair_cache: mx.array,
+        reset_rod_witnesses: mx.array,
     ) -> tuple[mx.array, ...]:
         mean, value = self.model(observations)
         log_std = mx.clip(self.model.log_std, -5.0, 2.0)
@@ -270,6 +272,7 @@ class MLXG1RolloutCollector:
                 manifold_points,
                 manifold_counts,
                 pair_cache,
+                rod_witnesses,
             ),
         )
         physics = step(self.world, current, actions)
@@ -385,6 +388,7 @@ class MLXG1RolloutCollector:
             reset_manifold_points,
             reset_manifold_counts,
             reset_pair_cache,
+            reset_rod_witnesses,
         )
         next_cache = [
             _select_environment(done, reset, value)
@@ -482,16 +486,16 @@ class MLXG1RolloutCollector:
                 v=result[1],
                 scene_bodies=SceneBodyState(*result[2:6]),
                 rods=self.default_state.rods,
-                solver_cache=SolverCache(*result[6:10]),
+                solver_cache=SolverCache(*result[6:11]),
             )
-            observations = result[10]
-            episode_steps = result[11]
-            latent = result[12]
-            log_probability = result[13]
-            value = result[14]
-            reward = result[15]
-            done = result[16]
-            physics_error = result[17]
+            observations = result[11]
+            episode_steps = result[12]
+            latent = result[13]
+            log_probability = result[14]
+            value = result[15]
+            reward = result[16]
+            done = result[17]
+            physics_error = result[18]
             stored_observations.append(policy_observations)
             stored_latents.append(latent)
             stored_log_probabilities.append(log_probability)

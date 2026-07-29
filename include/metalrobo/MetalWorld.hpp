@@ -2,6 +2,7 @@
 
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
+#include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/rod_gpu_shared.h"
 #include "metalrobo/unified_quality_shared.h"
 
@@ -36,7 +37,7 @@ enum class MetalWorldSolverMode : std::uint32_t {
 struct MetalWorldQualityConfig {
     std::uint32_t maximumNewtonIterations = 20u;
     std::uint32_t maximumPCGIterations = 128u;
-    std::uint32_t maximumLineSearchIterations = 8u;
+    std::uint32_t maximumLineSearchIterations = 16u;
     std::uint32_t directMaximumGeneralizedVelocities = 64u;
     std::uint32_t directMaximumRows = 256u;
     float optimalityTolerance = 1.0e-5f;
@@ -90,6 +91,11 @@ struct MetalWorldCapacityProfile {
     std::uint32_t qualityRows = 0u;
     std::uint32_t qualityKrylovVectors = 0u;
     std::uint32_t qualityDirectTiles = 0u;
+    std::uint32_t dynamicNodes = 0u;
+    std::uint32_t islandNodeReferences = 0u;
+    std::uint32_t islandConstraintReferences = 0u;
+    std::uint32_t rodFactorBlocks = 0u;
+    std::uint32_t operatorVelocityElements = 0u;
 };
 
 enum class MetalWorldHostStatus : std::uint32_t {
@@ -124,10 +130,10 @@ struct MetalWorldCompileDiagnostics {
     }
 };
 
-// Immutable validated snapshot consumed by MetalWorldContext. The current
-// capability advances exactly one selected articulation plus dynamic,
-// kinematic, and static scene bodies. Accessors expose facts without
-// permitting fingerprint forgery.
+// Immutable validated snapshot consumed by MetalWorldContext. Every
+// articulation tree, free body, and connected rod component has one stable
+// dynamic-node record. Accessors expose facts without permitting fingerprint
+// forgery.
 class CompiledWorld {
 public:
     CompiledWorld() = default;
@@ -135,6 +141,7 @@ public:
     [[nodiscard]] bool valid() const noexcept;
     [[nodiscard]] const EngineModel& model() const noexcept;
     [[nodiscard]] std::uint32_t articulationIndex() const noexcept;
+    [[nodiscard]] std::uint32_t articulationCount() const noexcept;
     [[nodiscard]] std::uint32_t nq() const noexcept;
     [[nodiscard]] std::uint32_t nv() const noexcept;
     [[nodiscard]] std::uint32_t bodyCount() const noexcept;
@@ -178,6 +185,18 @@ public:
     defaultRodEdges() const noexcept;
     [[nodiscard]] std::span<const HeterogeneousRodProgram>
     rodPrograms() const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t>
+    articulationQOffsets() const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t>
+    articulationVOffsets() const noexcept;
+    [[nodiscard]] std::span<const MRWorldDynamicNodeGPU>
+    dynamicNodes() const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t>
+    bodyDynamicNodes() const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t>
+    sceneBodyDynamicNodes() const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t>
+    rodDynamicNodes() const noexcept;
     [[nodiscard]] const MetalWorldCapacityProfile& capacities()
         const noexcept;
     [[nodiscard]] const MetalWorldCapacityProfile&
@@ -216,6 +235,12 @@ private:
     std::vector<MRRodNodeStateGPU> defaultRodNodes_;
     std::vector<MRRodEdgeStateGPU> defaultRodEdges_;
     std::vector<HeterogeneousRodProgram> rodPrograms_;
+    std::vector<std::uint32_t> articulationQOffsets_;
+    std::vector<std::uint32_t> articulationVOffsets_;
+    std::vector<MRWorldDynamicNodeGPU> dynamicNodes_;
+    std::vector<std::uint32_t> bodyDynamicNodes_;
+    std::vector<std::uint32_t> sceneBodyDynamicNodes_;
+    std::vector<std::uint32_t> rodDynamicNodes_;
     std::uint64_t fingerprint_ = 0u;
 };
 
@@ -325,6 +350,11 @@ struct MetalWorldMemoryPlan {
 struct MetalWorldLayout {
     MRMetalWorldDispatchGPU dispatch{};
     MRABADispatchGPU abaDispatch{};
+    std::vector<MRMultiABADispatchGPU> abaDispatches;
+    std::vector<MRArticulatedOperatorDispatchGPU>
+        kinematicsDispatches;
+    std::vector<MRArticulatedOperatorDispatchGPU>
+        factorDispatches;
     MRMetalWorldContactDispatchGPU contactDispatch{};
     MRUnifiedQualityDispatchGPU qualityDispatch{};
     std::size_t initialQElements = 0u;
@@ -339,6 +369,7 @@ struct MetalWorldLayout {
     std::size_t observationElements = 0u;
     std::size_t accelerationElements = 0u;
     std::size_t statusElements = 0u;
+    std::size_t articulationStatusElements = 0u;
     std::size_t contactStatusElements = 0u;
     std::size_t manifoldHeaderElements = 0u;
     std::size_t manifoldPointElements = 0u;
@@ -359,6 +390,15 @@ struct MetalWorldLayout {
     std::size_t endpointRuntimeElements = 0u;
     std::size_t rodNodeStateElements = 0u;
     std::size_t rodEdgeStateElements = 0u;
+    std::size_t resetRodNodeStateElements = 0u;
+    std::size_t resetRodEdgeStateElements = 0u;
+    std::size_t dynamicNodeElements = 0u;
+    std::size_t islandNodeReferenceElements = 0u;
+    std::size_t islandConstraintReferenceElements = 0u;
+    std::size_t rodFactorCacheElements = 0u;
+    std::size_t operatorVelocityElements = 0u;
+    std::size_t rodBendStateElements = 0u;
+    std::size_t rodStatusElements = 0u;
     MetalWorldMemoryPlan memoryPlan{};
     std::size_t totalRequiredBytes = 0u;
 };
@@ -378,6 +418,8 @@ struct MetalWorldContactEvidence {
     std::vector<MREvaluatedConstraintIRRowGPU> evaluatedRows;
     std::vector<MREvaluatedConstraintIRConeGPU> evaluatedCones;
     std::vector<MRContactIslandGPU> islands;
+    std::vector<MRIslandNodeRefGPU> islandNodes;
+    std::vector<MRIslandConstraintRefGPU> islandConstraints;
     std::vector<MRIslandWorkGPU> islandWork;
     std::vector<MRContactTileGPU> contactTiles;
 };
@@ -405,6 +447,11 @@ struct MetalWorldStageCounts {
     std::uint32_t qualityRows = 0u;
     std::uint32_t qualityKrylovVectors = 0u;
     std::uint32_t qualityDirectTiles = 0u;
+    std::uint32_t dynamicNodes = 0u;
+    std::uint32_t islandNodeReferences = 0u;
+    std::uint32_t islandConstraintReferences = 0u;
+    std::uint32_t rodFactorBlocks = 0u;
+    std::uint32_t operatorVelocityElements = 0u;
 };
 
 // Horizon aggregate for one environment. Required counts retain exact

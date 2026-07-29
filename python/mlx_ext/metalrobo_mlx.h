@@ -205,6 +205,11 @@ generalizedConstraintStep(
     const mx::array& manifoldPoints,
     const mx::array& manifoldCounts,
     const mx::array& pairCache,
+    const mx::array& rodPositions,
+    const mx::array& rodVelocities,
+    const mx::array& rodTwists,
+    const mx::array& rodTwistRates,
+    const mx::array& rodWitnessCache,
     const mx::array& bodyParameters,
     const mx::array& controllerParameters,
     mx::StreamOrDevice stream = {}

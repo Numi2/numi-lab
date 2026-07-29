@@ -187,6 +187,7 @@ class MLXPSMNeedleRolloutCollector:
         manifold_points: mx.array,
         manifold_counts: mx.array,
         pair_cache: mx.array,
+        rod_witnesses: mx.array,
         observations: mx.array,
         episode_steps: mx.array,
         noise: mx.array,
@@ -203,6 +204,7 @@ class MLXPSMNeedleRolloutCollector:
         reset_manifold_points: mx.array,
         reset_manifold_counts: mx.array,
         reset_pair_cache: mx.array,
+        reset_rod_witnesses: mx.array,
     ) -> tuple[mx.array, ...]:
         mean, value = self.model(observations)
         log_std = mx.clip(self.model.log_std, -5.0, 2.0)
@@ -234,6 +236,7 @@ class MLXPSMNeedleRolloutCollector:
                 manifold_points,
                 manifold_counts,
                 pair_cache,
+                rod_witnesses,
             ),
         )
         physics = step(self.world, current, actions)
@@ -310,6 +313,7 @@ class MLXPSMNeedleRolloutCollector:
                     reset_manifold_points,
                     reset_manifold_counts,
                     reset_pair_cache,
+                    reset_rod_witnesses,
                 ),
                 candidate.solver_cache,
                 strict=True,
@@ -391,17 +395,17 @@ class MLXPSMNeedleRolloutCollector:
                 v=result[1],
                 scene_bodies=SceneBodyState(*result[2:6]),
                 rods=self.default_state.rods,
-                solver_cache=SolverCache(*result[6:10]),
+                solver_cache=SolverCache(*result[6:11]),
             )
-            observations = result[10]
-            episode_steps = result[11]
+            observations = result[11]
+            episode_steps = result[12]
             stored_observations.append(policy_observations)
-            stored_latents.append(result[12])
-            stored_log_probabilities.append(result[13])
-            stored_values.append(result[14])
-            stored_rewards.append(result[15])
-            stored_dones.append(result[16])
-            stored_errors.append(result[17])
+            stored_latents.append(result[13])
+            stored_log_probabilities.append(result[14])
+            stored_values.append(result[15])
+            stored_rewards.append(result[16])
+            stored_dones.append(result[17])
+            stored_errors.append(result[18])
             if (index + 1) % self.chunk_size == 0:
                 mx.async_eval(
                     current.q,

@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/rod_gpu_shared.h"
 #include "metalrobo/unified_quality_shared.h"
 
 using namespace metal;
@@ -298,7 +299,8 @@ inline bool sceneEndpoint(
     device const MRBodyStateGPU& body,
     const uint articulationIndex
 ) {
-    return body.flagsAndIndices[1] != articulationIndex;
+    (void)articulationIndex;
+    return body.flagsAndIndices[1] == MR_INVALID_INDEX;
 }
 
 inline bool dynamicSceneEndpoint(
@@ -494,11 +496,11 @@ inline float normalCrossContactResponse(
     const uint articulationIndex
 ) {
     const bool targetArticulatedA =
-        bodies[target.bodyA].flagsAndIndices[1] ==
-            articulationIndex;
+        bodies[target.bodyA].flagsAndIndices[1] !=
+            MR_INVALID_INDEX;
     const bool targetArticulatedB =
-        bodies[target.bodyB].flagsAndIndices[1] ==
-            articulationIndex;
+        bodies[target.bodyB].flagsAndIndices[1] !=
+            MR_INVALID_INDEX;
     float response = 0.0f;
     for (uint dof = 0u; dof < nv; ++dof) {
         response += dot(
@@ -560,6 +562,35 @@ inline float normalCrossContactResponse(
 inline float3 projectFrictionCone(
     const float3 impulse,
     device const MREvaluatedConstraintIRConeGPU& cone
+) {
+    float3 projected = impulse;
+    projected.x = max(projected.x, 0.0f);
+    if (cone.maximumNormalImpulse > 0.0f) {
+        projected.x = min(
+            projected.x,
+            cone.maximumNormalImpulse
+        );
+    }
+    const float limitU =
+        cone.effectiveFrictionU * projected.x;
+    const float limitV =
+        cone.effectiveFrictionV * projected.x;
+    if (!(limitU > 0.0f) || !(limitV > 0.0f)) {
+        projected.yz = float2(0.0f);
+        return projected;
+    }
+    const float normalizedSquared =
+        (projected.y * projected.y) / (limitU * limitU) +
+        (projected.z * projected.z) / (limitV * limitV);
+    if (normalizedSquared > 1.0f) {
+        projected.yz *= rsqrt(normalizedSquared);
+    }
+    return projected;
+}
+
+inline float3 projectFrictionCone(
+    const float3 impulse,
+    thread const MREvaluatedConstraintIRConeGPU& cone
 ) {
     float3 projected = impulse;
     projected.x = max(projected.x, 0.0f);
@@ -652,9 +683,9 @@ inline float3 relativePointVelocity(
     device const MRBodyStateGPU& bodyA = bodies[contact.bodyA];
     device const MRBodyStateGPU& bodyB = bodies[contact.bodyB];
     const bool articulatedA =
-        bodyA.flagsAndIndices[1] == articulationIndex;
+        bodyA.flagsAndIndices[1] != MR_INVALID_INDEX;
     const bool articulatedB =
-        bodyB.flagsAndIndices[1] == articulationIndex;
+        bodyB.flagsAndIndices[1] != MR_INVALID_INDEX;
     float3 relative = float3(0.0f);
     if (articulatedA) {
         relative -= articulatedPointVelocity(
@@ -734,6 +765,428 @@ inline void applyContactDelta(
             impulse
         );
     }
+}
+
+inline float3 rodSurfaceVelocity(
+    device const MRRodNodeStateGPU& nodeA,
+    device const MRRodNodeStateGPU& nodeB,
+    device const MRRodEdgeStateGPU& edgeState,
+    const float weight,
+    const float3 radial,
+    const float radius
+) {
+    const float3 edge =
+        nodeB.position.xyz - nodeA.position.xyz;
+    const float lengthSquared = dot(edge, edge);
+    if (!(lengthSquared > 1.0e-20f)) {
+        return float3(0.0f);
+    }
+    const float length = sqrt(lengthSquared);
+    const float3 tangent = edge / length;
+    const float3 deltaVelocity =
+        nodeB.velocity.xyz - nodeA.velocity.xyz;
+    const float3 tangentRate =
+        (
+            deltaVelocity -
+            tangent * dot(tangent, deltaVelocity)
+        ) / length;
+    const float3 angularVelocity =
+        cross(tangent, tangentRate) +
+        edgeState.twistAndRate.y * tangent;
+    return
+        mix(
+            nodeA.velocity.xyz,
+            nodeB.velocity.xyz,
+            weight
+        ) +
+        cross(angularVelocity, radius * radial);
+}
+
+inline float3 rodSurfaceResponse(
+    device const MRRodNodeStateGPU& sourceA,
+    device const MRRodNodeStateGPU& sourceB,
+    device const MRRodEdgeStateGPU& sourceEdge,
+    const float inverseMassA,
+    const float inverseMassB,
+    const float inverseTwistInertia,
+    const float weight,
+    const float3 radial,
+    const float radius,
+    const float3 impulse
+) {
+    (void)sourceEdge;
+    const float3 edge =
+        sourceB.position.xyz - sourceA.position.xyz;
+    const float lengthSquared = dot(edge, edge);
+    if (!(lengthSquared > 1.0e-20f)) {
+        return float3(0.0f);
+    }
+    const float length = sqrt(lengthSquared);
+    const float3 tangent = edge / length;
+    const float3 surfaceRadius = radius * radial;
+    const float3 angularImpulse =
+        cross(surfaceRadius, impulse);
+    const float3 bendTranspose =
+        (
+            cross(angularImpulse, tangent) -
+            tangent *
+                dot(
+                    tangent,
+                    cross(angularImpulse, tangent)
+                )
+        ) / length;
+    const float3 deltaA =
+        inverseMassA *
+        ((1.0f - weight) * impulse - bendTranspose);
+    const float3 deltaB =
+        inverseMassB *
+        (weight * impulse + bendTranspose);
+    const float3 deltaDifference = deltaB - deltaA;
+    const float3 tangentRate =
+        (
+            deltaDifference -
+            tangent * dot(tangent, deltaDifference)
+        ) / length;
+    const float twistRate =
+        inverseTwistInertia *
+        dot(cross(tangent, surfaceRadius), impulse);
+    return
+        mix(deltaA, deltaB, weight) +
+        cross(
+            cross(tangent, tangentRate) +
+                twistRate * tangent,
+            surfaceRadius
+        );
+}
+
+inline float3 rodToolJacobianColumn(
+    device const float* pointJacobians,
+    const uint pointJacobianBase,
+    const uint localConstraint,
+    const uint dof,
+    const uint nv
+) {
+    const uint query = 2u * localConstraint + 1u;
+    return float3(
+        pointJacobians[
+            pointJacobianBase +
+            (query * 3u + 0u) * nv + dof
+        ],
+        pointJacobians[
+            pointJacobianBase +
+            (query * 3u + 1u) * nv + dof
+        ],
+        pointJacobians[
+            pointJacobianBase +
+            (query * 3u + 2u) * nv + dof
+        ]
+    );
+}
+
+inline float3 sceneCrossPointResponse(
+    device const MRBodyStateGPU& body,
+    const float3 targetPoint,
+    const float3 sourcePoint,
+    const float3 sourceImpulse
+) {
+    if (body.flagsAndIndices[0] != MR_MOTION_DYNAMIC) {
+        return float3(0.0f);
+    }
+    const float3 angularDelta = multiply(
+        stateInverseInertia(body),
+        cross(
+            sourcePoint - body.position.xyz,
+            sourceImpulse
+        )
+    );
+    return
+        body.linearVelocityAndInverseMass.w * sourceImpulse +
+        cross(
+            angularDelta,
+            targetPoint - body.position.xyz
+        );
+}
+
+inline bool typedRodConstraint(
+    device const MRContactConstraintGPU& contact
+) {
+    return
+        (contact.flags & MR_CONSTRAINT_FLAG_ROD_ENDPOINT) !=
+        0u;
+}
+
+inline float3 typedArticulationJacobianColumn(
+    const uint localConstraint,
+    device const MRContactConstraintGPU& contact,
+    device const MRBodyStateGPU* bodies,
+    device const float* pointJacobians,
+    const uint pointJacobianBase,
+    const uint dof,
+    const uint nv,
+    device const MRRodToolWitnessGPU* rodWitnesses,
+    device const uint* constraintWitnessIndices,
+    const uint constraintBase
+) {
+    if (typedRodConstraint(contact)) {
+        const uint witnessIndex =
+            constraintWitnessIndices[
+                constraintBase + localConstraint
+            ];
+        if (witnessIndex == MR_INVALID_INDEX) {
+            return float3(0.0f);
+        }
+        const MRRodToolWitnessGPU witness =
+            rodWitnesses[witnessIndex];
+        device const MRBodyStateGPU& tool =
+            bodies[witness.featuresAndFlags.z];
+        return
+            tool.flagsAndIndices[1] != MR_INVALID_INDEX
+            ? rodToolJacobianColumn(
+                  pointJacobians,
+                  pointJacobianBase,
+                  localConstraint,
+                  dof,
+                  nv
+              )
+            : float3(0.0f);
+    }
+    const bool articulatedA =
+        bodies[contact.bodyA].flagsAndIndices[1] !=
+        MR_INVALID_INDEX;
+    const bool articulatedB =
+        bodies[contact.bodyB].flagsAndIndices[1] !=
+        MR_INVALID_INDEX;
+    return combinedJacobianColumn(
+        pointJacobians,
+        pointJacobianBase,
+        localConstraint,
+        dof,
+        nv,
+        articulatedA,
+        articulatedB
+    );
+}
+
+inline float3 typedRelativePointVelocity(
+    const uint localConstraint,
+    device const MRContactConstraintGPU& contact,
+    device const MRBodyStateGPU* bodies,
+    const uint articulationIndex,
+    device const float* pointJacobians,
+    const uint pointJacobianBase,
+    const uint nv,
+    device const float* articulationVelocity,
+    device const MRRodNodeStateGPU* rodNodes,
+    device const MRRodEdgeStateGPU* rodEdges,
+    device const MRRodColliderGPU* rodColliders,
+    device const MRRodToolWitnessGPU* rodWitnesses,
+    device const uint* constraintWitnessIndices,
+    const uint constraintBase
+) {
+    if (!typedRodConstraint(contact)) {
+        return relativePointVelocity(
+            localConstraint,
+            contact,
+            bodies,
+            articulationIndex,
+            pointJacobians,
+            pointJacobianBase,
+            nv,
+            articulationVelocity
+        );
+    }
+    const uint witnessIndex =
+        constraintWitnessIndices[
+            constraintBase + localConstraint
+        ];
+    if (witnessIndex == MR_INVALID_INDEX) {
+        return float3(0.0f);
+    }
+    const MRRodToolWitnessGPU witness =
+        rodWitnesses[witnessIndex];
+    const MRRodColliderGPU collider =
+        rodColliders[witness.identity.z];
+    device const MRBodyStateGPU& tool =
+        bodies[witness.featuresAndFlags.z];
+    const float3 toolVelocity =
+        tool.flagsAndIndices[1] != MR_INVALID_INDEX
+        ? articulatedPointVelocity(
+              pointJacobians,
+              pointJacobianBase,
+              2u * localConstraint + 1u,
+              nv,
+              articulationVelocity
+          )
+        : pointVelocity(
+              tool,
+              witness.toolPointAndSeparation.xyz
+          );
+    const float3 rodVelocity = rodSurfaceVelocity(
+        rodNodes[collider.nodeA],
+        rodNodes[collider.nodeB],
+        rodEdges[collider.edgeIndex],
+        witness.rodPointAndWeight.w,
+        witness.radialAndTwistJacobianV.xyz,
+        collider.radiusAndOffsets.x
+    );
+    return toolVelocity - rodVelocity;
+}
+
+inline float3 rodNodeImpulseVelocityDelta(
+    const MRRodColliderGPU collider,
+    const MRRodToolWitnessGPU witness,
+    device const MRRodNodeStateGPU* rodNodes,
+    device const float* inverseRodMasses,
+    const uint nodeIndex,
+    const float3 rodImpulse
+) {
+    if (nodeIndex != collider.nodeA &&
+        nodeIndex != collider.nodeB) {
+        return float3(0.0f);
+    }
+    const float3 edge =
+        rodNodes[collider.nodeB].position.xyz -
+        rodNodes[collider.nodeA].position.xyz;
+    const float lengthSquared = dot(edge, edge);
+    if (!(lengthSquared > 1.0e-20f)) {
+        return float3(0.0f);
+    }
+    const float length = sqrt(lengthSquared);
+    const float3 tangent = edge / length;
+    const float3 surfaceRadius =
+        collider.radiusAndOffsets.x *
+        witness.radialAndTwistJacobianV.xyz;
+    const float3 angularImpulse =
+        cross(surfaceRadius, rodImpulse);
+    const float3 crossed =
+        cross(angularImpulse, tangent);
+    const float3 bendTranspose =
+        (
+            crossed - tangent * dot(tangent, crossed)
+        ) / length;
+    const float weight = witness.rodPointAndWeight.w;
+    const float3 force =
+        nodeIndex == collider.nodeA
+        ? (1.0f - weight) * rodImpulse - bendTranspose
+        : weight * rodImpulse + bendTranspose;
+    return inverseRodMasses[nodeIndex] * force;
+}
+
+inline float rodTwistImpulseVelocityDelta(
+    const MRRodColliderGPU collider,
+    const MRRodToolWitnessGPU witness,
+    device const MRRodNodeStateGPU* rodNodes,
+    device const float* inverseRodTwistInertias,
+    const uint edgeIndex,
+    const float3 rodImpulse
+) {
+    if (edgeIndex != collider.edgeIndex) {
+        return 0.0f;
+    }
+    const float3 edge =
+        rodNodes[collider.nodeB].position.xyz -
+        rodNodes[collider.nodeA].position.xyz;
+    const float lengthSquared = dot(edge, edge);
+    if (!(lengthSquared > 1.0e-20f)) {
+        return 0.0f;
+    }
+    const float3 tangent =
+        edge * rsqrt(lengthSquared);
+    const float3 surfaceRadius =
+        collider.radiusAndOffsets.x *
+        witness.radialAndTwistJacobianV.xyz;
+    return
+        inverseRodTwistInertias[edgeIndex] *
+        dot(
+            cross(tangent, surfaceRadius),
+            rodImpulse
+        );
+}
+
+// Exact frozen-geometry rod part of J_i A^-1 J_j^T. Only shared nodal and
+// twist coordinates contribute, so adjacent procedural capsules couple
+// without atomics or a materialized rod Delassus matrix.
+inline float rodCrossContactResponse(
+    const MRRodColliderGPU targetCollider,
+    const MRRodToolWitnessGPU targetWitness,
+    const MRRodColliderGPU sourceCollider,
+    const MRRodToolWitnessGPU sourceWitness,
+    device const MRRodNodeStateGPU* rodNodes,
+    device const float* inverseRodMasses,
+    device const float* inverseRodTwistInertias,
+    const float3 targetDirection,
+    const float3 sourceDirection
+) {
+    const float3 sourceRodImpulse = -sourceDirection;
+    float3 targetDeltaA = float3(0.0f);
+    float3 targetDeltaB = float3(0.0f);
+    const uint sourceNodes[2] = {
+        sourceCollider.nodeA,
+        sourceCollider.nodeB,
+    };
+    for (uint sourceNode = 0u;
+         sourceNode < 2u;
+         ++sourceNode) {
+        const uint node = sourceNodes[sourceNode];
+        const float3 delta = rodNodeImpulseVelocityDelta(
+            sourceCollider,
+            sourceWitness,
+            rodNodes,
+            inverseRodMasses,
+            node,
+            sourceRodImpulse
+        );
+        if (node == targetCollider.nodeA) {
+            targetDeltaA += delta;
+        }
+        if (node == targetCollider.nodeB) {
+            targetDeltaB += delta;
+        }
+    }
+    const float3 targetEdge =
+        rodNodes[targetCollider.nodeB].position.xyz -
+        rodNodes[targetCollider.nodeA].position.xyz;
+    const float lengthSquared = dot(targetEdge, targetEdge);
+    if (!(lengthSquared > 1.0e-20f)) {
+        return 0.0f;
+    }
+    const float length = sqrt(lengthSquared);
+    const float3 tangent = targetEdge / length;
+    const float3 deltaDifference =
+        targetDeltaB - targetDeltaA;
+    const float3 tangentRate =
+        (
+            deltaDifference -
+            tangent * dot(tangent, deltaDifference)
+        ) / length;
+    const float twistRate =
+        targetCollider.edgeIndex ==
+            sourceCollider.edgeIndex
+        ? rodTwistImpulseVelocityDelta(
+              sourceCollider,
+              sourceWitness,
+              rodNodes,
+              inverseRodTwistInertias,
+              sourceCollider.edgeIndex,
+              sourceRodImpulse
+          )
+        : 0.0f;
+    const float3 targetSurfaceRadius =
+        targetCollider.radiusAndOffsets.x *
+        targetWitness.radialAndTwistJacobianV.xyz;
+    const float3 surfaceDelta =
+        mix(
+            targetDeltaA,
+            targetDeltaB,
+            targetWitness.rodPointAndWeight.w
+        ) +
+        cross(
+            cross(tangent, tangentRate) +
+                twistRate * tangent,
+            targetSurfaceRadius
+        );
+    // Relative velocity is v_tool - v_rod.
+    return dot(targetDirection, -surfaceDelta);
 }
 
 inline uint findRoot(thread uint* parents, uint node) {
@@ -905,42 +1358,54 @@ kernel void mr_world_build_body_states(
         return;
     }
     MRMetalWorldContactStatusGPU status = statuses[environment];
-    const MRArticulatedOperatorStatusGPU operatorStatus =
-        operatorStatuses[environment];
-    if (status.code != MR_STEP_SUCCESS ||
-        operatorStatus.code !=
-            MR_ARTICULATED_OPERATOR_SUCCESS) {
-        if (status.code == MR_STEP_SUCCESS) {
-            status.code = mapOperatorStatus(operatorStatus.code);
-            status.firstFailingConstraint =
-                operatorStatus.failingIndex;
-            statuses[environment] = status;
-        }
+    if (status.code != MR_STEP_SUCCESS) {
         return;
     }
-    const MRArticulationGPU articulation =
-        articulations[dispatch.articulationIndex];
     const uint bodyBase =
         environment * dispatch.bodyStateStride;
     const uint poseBase =
-        environment * articulation.bodyCount;
-    for (uint localBody = 0u;
-         localBody < articulation.bodyCount;
-         ++localBody) {
-        const uint globalBody =
-            articulation.firstBody + localBody;
-        const MRArticulatedBodyPoseGPU pose =
-            bodyPoses[poseBase + localBody];
-        MRBodyStateGPU state = {};
-        state.position = pose.position;
-        state.orientation = pose.orientation;
-        state.linearVelocityAndInverseMass.w = 0.0f;
-        state.flagsAndIndices[0] =
-            bodyProperties[globalBody].motionType;
-        state.flagsAndIndices[1] = dispatch.articulationIndex;
-        state.flagsAndIndices[2] = globalBody;
-        state.flagsAndIndices[3] = 0u;
-        bodyStates[bodyBase + globalBody] = state;
+        environment * dispatch.bodyCount;
+    for (uint owner = 0u;
+         owner < dispatch.articulationCount;
+         ++owner) {
+        const MRArticulatedOperatorStatusGPU operatorStatus =
+            operatorStatuses[
+                owner * dispatch.environmentCount +
+                environment
+            ];
+        if (operatorStatus.code !=
+                MR_ARTICULATED_OPERATOR_SUCCESS) {
+            status.code = mapOperatorStatus(
+                operatorStatus.code
+            );
+            status.firstFailingConstraint =
+                operatorStatus.failingIndex;
+            status.firstFailingStableKeyLow =
+                operatorStatus.code;
+            status.firstFailingStableKeyHigh = owner;
+            statuses[environment] = status;
+            return;
+        }
+        const MRArticulationGPU articulation =
+            articulations[owner];
+        for (uint localBody = 0u;
+             localBody < articulation.bodyCount;
+             ++localBody) {
+            const uint globalBody =
+                articulation.firstBody + localBody;
+            const MRArticulatedBodyPoseGPU pose =
+                bodyPoses[poseBase + globalBody];
+            MRBodyStateGPU state = {};
+            state.position = pose.position;
+            state.orientation = pose.orientation;
+            state.linearVelocityAndInverseMass.w = 0.0f;
+            state.flagsAndIndices[0] =
+                bodyProperties[globalBody].motionType;
+            state.flagsAndIndices[1] = owner;
+            state.flagsAndIndices[2] = globalBody;
+            state.flagsAndIndices[3] = 0u;
+            bodyStates[bodyBase + globalBody] = state;
+        }
     }
 
     const uint sceneBase =
@@ -1104,95 +1569,112 @@ kernel void mr_world_materialize_event_articulation(
     }
     MRMetalWorldContactStatusGPU contactStatus =
         statuses[environment];
-    MRABAStatusGPU abaStatus = abaStatuses[environment];
     if (contactStatus.code != MR_STEP_SUCCESS) {
         return;
     }
-    const MRArticulationGPU articulation =
-        articulations[dispatch.articulationIndex];
     const float timestep = eventSegmentDuration(
         eventStates[environment],
         mode
     );
-    const uint qBase = environment * articulation.nq;
-    const uint vBase = environment * articulation.nv;
-    for (uint localQ = 0u;
-         localQ < articulation.nq;
-         ++localQ) {
-        candidateQ[qBase + localQ] =
-            sourceQ[qBase + localQ];
+    const uint qBase = environment * dispatch.qStride;
+    const uint vBase = environment * dispatch.vStride;
+    for (uint coordinate = 0u;
+         coordinate < dispatch.nq;
+         ++coordinate) {
+        candidateQ[qBase + coordinate] =
+            sourceQ[qBase + coordinate];
     }
-    for (uint localV = 0u;
-         localV < articulation.nv;
-         ++localV) {
-        const float value =
-            sourceV[vBase + localV] +
-            timestep * acceleration[vBase + localV];
-        if (!isfinite(value)) {
-            abaStatus.code = MR_ABA_NONFINITE_RESULT;
-            abaStatus.failingIndex = localV;
-            contactStatus.code = MR_STEP_NONFINITE_RESULT;
-            contactStatus.firstFailingConstraint = localV;
-            abaStatuses[environment] = abaStatus;
-            statuses[environment] = contactStatus;
-            return;
+    for (uint owner = 0u;
+         owner < dispatch.articulationCount;
+         ++owner) {
+        const MRArticulationGPU articulation =
+            articulations[owner];
+        const uint abaStatusIndex =
+            owner * dispatch.environmentCount + environment;
+        MRABAStatusGPU abaStatus =
+            abaStatuses[abaStatusIndex];
+        for (uint localV = 0u;
+             localV < articulation.nv;
+             ++localV) {
+            const uint globalV =
+                articulation.vOffset + localV;
+            const float value =
+                sourceV[vBase + globalV] +
+                timestep * acceleration[vBase + globalV];
+            if (!isfinite(value)) {
+                abaStatus.code = MR_ABA_NONFINITE_RESULT;
+                abaStatus.failingIndex = globalV;
+                contactStatus.code =
+                    MR_STEP_NONFINITE_RESULT;
+                contactStatus.firstFailingConstraint =
+                    globalV;
+                abaStatuses[abaStatusIndex] = abaStatus;
+                statuses[environment] = contactStatus;
+                return;
+            }
+            candidateV[vBase + globalV] = value;
         }
-        candidateV[vBase + localV] = value;
-    }
-    if (articulation.rootType == MR_ROOT_FLOATING) {
-        candidateQ[qBase + 0u] =
-            sourceQ[qBase + 0u] +
-            timestep * candidateV[vBase + 0u];
-        candidateQ[qBase + 1u] =
-            sourceQ[qBase + 1u] +
-            timestep * candidateV[vBase + 1u];
-        candidateQ[qBase + 2u] =
-            sourceQ[qBase + 2u] +
-            timestep * candidateV[vBase + 2u];
-        float4 orientation;
-        if (!integrateQuaternion(
-                float4(
-                    sourceQ[qBase + 3u],
-                    sourceQ[qBase + 4u],
-                    sourceQ[qBase + 5u],
-                    sourceQ[qBase + 6u]
-                ),
-                float3(
-                    candidateV[vBase + 3u],
-                    candidateV[vBase + 4u],
-                    candidateV[vBase + 5u]
-                ),
-                timestep,
-                orientation
-            )) {
-            abaStatus.code = MR_ABA_NONFINITE_RESULT;
-            abaStatus.failingIndex = 3u;
-            contactStatus.code = MR_STEP_NONFINITE_RESULT;
-            contactStatus.firstFailingConstraint = 3u;
-            abaStatuses[environment] = abaStatus;
-            statuses[environment] = contactStatus;
-            return;
+        const uint articulationQ =
+            qBase + articulation.qOffset;
+        const uint articulationV =
+            vBase + articulation.vOffset;
+        if (articulation.rootType == MR_ROOT_FLOATING) {
+            candidateQ[articulationQ + 0u] =
+                sourceQ[articulationQ + 0u] +
+                timestep * candidateV[articulationV + 0u];
+            candidateQ[articulationQ + 1u] =
+                sourceQ[articulationQ + 1u] +
+                timestep * candidateV[articulationV + 1u];
+            candidateQ[articulationQ + 2u] =
+                sourceQ[articulationQ + 2u] +
+                timestep * candidateV[articulationV + 2u];
+            float4 orientation;
+            if (!integrateQuaternion(
+                    float4(
+                        sourceQ[articulationQ + 3u],
+                        sourceQ[articulationQ + 4u],
+                        sourceQ[articulationQ + 5u],
+                        sourceQ[articulationQ + 6u]
+                    ),
+                    float3(
+                        candidateV[articulationV + 3u],
+                        candidateV[articulationV + 4u],
+                        candidateV[articulationV + 5u]
+                    ),
+                    timestep,
+                    orientation
+                )) {
+                abaStatus.code = MR_ABA_NONFINITE_RESULT;
+                abaStatus.failingIndex =
+                    articulation.vOffset + 3u;
+                contactStatus.code =
+                    MR_STEP_NONFINITE_RESULT;
+                contactStatus.firstFailingConstraint =
+                    articulation.vOffset + 3u;
+                abaStatuses[abaStatusIndex] = abaStatus;
+                statuses[environment] = contactStatus;
+                return;
+            }
+            candidateQ[articulationQ + 3u] = orientation.x;
+            candidateQ[articulationQ + 4u] = orientation.y;
+            candidateQ[articulationQ + 5u] = orientation.z;
+            candidateQ[articulationQ + 6u] = orientation.w;
         }
-        candidateQ[qBase + 3u] = orientation.x;
-        candidateQ[qBase + 4u] = orientation.y;
-        candidateQ[qBase + 5u] = orientation.z;
-        candidateQ[qBase + 6u] = orientation.w;
-    }
-    for (uint localJoint = 0u;
-         localJoint < articulation.jointCount;
-         ++localJoint) {
-        const MRJointDescriptorGPU joint =
-            joints[articulation.firstJoint + localJoint];
-        if (joint.nv != 1u) {
-            continue;
+        for (uint localJoint = 0u;
+             localJoint < articulation.jointCount;
+             ++localJoint) {
+            const MRJointDescriptorGPU joint =
+                joints[
+                    articulation.firstJoint + localJoint
+                ];
+            if (joint.nv != 1u) {
+                continue;
+            }
+            candidateQ[qBase + joint.qOffset] =
+                sourceQ[qBase + joint.qOffset] +
+                timestep *
+                    candidateV[vBase + joint.vOffset];
         }
-        const uint localQ =
-            joint.qOffset - articulation.qOffset;
-        const uint localV =
-            joint.vOffset - articulation.vOffset;
-        candidateQ[qBase + localQ] =
-            sourceQ[qBase + localQ] +
-            timestep * candidateV[vBase + localV];
     }
 }
 
@@ -1318,41 +1800,51 @@ kernel void mr_world_overlay_event_articulation_bodies(
         return;
     }
     MRMetalWorldContactStatusGPU status = statuses[environment];
-    const MRArticulatedOperatorStatusGPU operatorStatus =
-        operatorStatuses[environment];
-    if (status.code != MR_STEP_SUCCESS ||
-        operatorStatus.code != MR_ARTICULATED_OPERATOR_SUCCESS) {
-        if (status.code == MR_STEP_SUCCESS) {
-            status.code = mapOperatorStatus(operatorStatus.code);
-            status.firstFailingConstraint =
-                operatorStatus.failingIndex;
-            statuses[environment] = status;
-        }
+    if (status.code != MR_STEP_SUCCESS) {
         return;
     }
-    const MRArticulationGPU articulation =
-        articulations[dispatch.articulationIndex];
     const uint bodyBase =
         environment * dispatch.bodyStateStride;
     const uint poseBase =
-        environment * articulation.bodyCount;
-    for (uint localBody = 0u;
-         localBody < articulation.bodyCount;
-         ++localBody) {
-        const uint globalBody =
-            articulation.firstBody + localBody;
-        const MRArticulatedBodyPoseGPU pose =
-            bodyPoses[poseBase + localBody];
-        MRBodyStateGPU state = {};
-        state.position = pose.position;
-        state.orientation = pose.orientation;
-        state.linearVelocityAndInverseMass.w = 0.0f;
-        state.flagsAndIndices[0] =
-            bodyProperties[globalBody].motionType;
-        state.flagsAndIndices[1] = dispatch.articulationIndex;
-        state.flagsAndIndices[2] = globalBody;
-        state.flagsAndIndices[3] = 0u;
-        eventBodies[bodyBase + globalBody] = state;
+        environment * dispatch.bodyCount;
+    for (uint owner = 0u;
+         owner < dispatch.articulationCount;
+         ++owner) {
+        const MRArticulatedOperatorStatusGPU operatorStatus =
+            operatorStatuses[
+                owner * dispatch.environmentCount +
+                environment
+            ];
+        if (operatorStatus.code !=
+                MR_ARTICULATED_OPERATOR_SUCCESS) {
+            status.code = mapOperatorStatus(
+                operatorStatus.code
+            );
+            status.firstFailingConstraint =
+                operatorStatus.failingIndex;
+            statuses[environment] = status;
+            return;
+        }
+        const MRArticulationGPU articulation =
+            articulations[owner];
+        for (uint localBody = 0u;
+             localBody < articulation.bodyCount;
+             ++localBody) {
+            const uint globalBody =
+                articulation.firstBody + localBody;
+            const MRArticulatedBodyPoseGPU pose =
+                bodyPoses[poseBase + globalBody];
+            MRBodyStateGPU state = {};
+            state.position = pose.position;
+            state.orientation = pose.orientation;
+            state.linearVelocityAndInverseMass.w = 0.0f;
+            state.flagsAndIndices[0] =
+                bodyProperties[globalBody].motionType;
+            state.flagsAndIndices[1] = owner;
+            state.flagsAndIndices[2] = globalBody;
+            state.flagsAndIndices[3] = 0u;
+            eventBodies[bodyBase + globalBody] = state;
+        }
     }
 }
 
@@ -1375,69 +1867,77 @@ kernel void mr_world_project_joint_limits(
         statuses[environment].code != MR_STEP_SUCCESS) {
         return;
     }
-    const MRArticulationGPU articulation =
-        articulations[dispatch.articulationIndex];
-    const uint qBase = environment * articulation.nq;
-    const uint vBase = environment * articulation.nv;
+    const uint qBase = environment * dispatch.qStride;
+    const uint vBase = environment * dispatch.vStride;
     const float timestep = max(
         dispatch.ccdMode == MR_WORLD_CCD_HYBRID
             ? statuses[environment].eventTimes.w
             : dispatch.timestepAndBias.x,
         1.0e-8f
     );
-    for (uint localV = 0u;
-         localV < articulation.nv;
-         ++localV) {
-        device const MRDofPropertiesGPU& dof =
-            dofs[articulation.vOffset + localV];
-        float velocity = candidateV[vBase + localV];
-        if ((dof.flags & MR_DOF_FLAG_VELOCITY_LIMIT) != 0u) {
-            velocity = clamp(
-                velocity,
-                -dof.limits.z,
-                dof.limits.z
-            );
-        }
-        if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
-            dof.qIndex != MR_INVALID_INDEX &&
-            dof.qIndex >= articulation.qOffset &&
-            dof.qIndex <
-                articulation.qOffset + articulation.nq) {
-            const uint localQ =
-                dof.qIndex - articulation.qOffset;
-            if (stateAlreadyIntegrated != 0u) {
-                float position = candidateQ[qBase + localQ];
-                if (position < dof.limits.x) {
-                    position = dof.limits.x;
-                    velocity = max(velocity, 0.0f);
-                } else if (position > dof.limits.y) {
-                    position = dof.limits.y;
-                    velocity = min(velocity, 0.0f);
-                }
-                candidateQ[qBase + localQ] = position;
-            } else {
-                const float position =
-                    sourceQ[qBase + localQ];
-                const float minimumVelocity =
-                    (dof.limits.x - position) / timestep;
-                const float maximumVelocity =
-                    (dof.limits.y - position) / timestep;
+    for (uint owner = 0u;
+         owner < dispatch.articulationCount;
+         ++owner) {
+        const MRArticulationGPU articulation =
+            articulations[owner];
+        for (uint localV = 0u;
+             localV < articulation.nv;
+             ++localV) {
+            const uint globalV =
+                articulation.vOffset + localV;
+            device const MRDofPropertiesGPU& dof =
+                dofs[globalV];
+            float velocity = candidateV[vBase + globalV];
+            if ((dof.flags &
+                 MR_DOF_FLAG_VELOCITY_LIMIT) != 0u) {
                 velocity = clamp(
                     velocity,
-                    minimumVelocity,
-                    maximumVelocity
+                    -dof.limits.z,
+                    dof.limits.z
                 );
             }
+            if ((dof.flags &
+                 MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
+                dof.qIndex != MR_INVALID_INDEX &&
+                dof.qIndex >= articulation.qOffset &&
+                dof.qIndex <
+                    articulation.qOffset + articulation.nq) {
+                const uint globalQ = dof.qIndex;
+                if (stateAlreadyIntegrated != 0u) {
+                    float position =
+                        candidateQ[qBase + globalQ];
+                    if (position < dof.limits.x) {
+                        position = dof.limits.x;
+                        velocity = max(velocity, 0.0f);
+                    } else if (position > dof.limits.y) {
+                        position = dof.limits.y;
+                        velocity = min(velocity, 0.0f);
+                    }
+                    candidateQ[qBase + globalQ] = position;
+                } else {
+                    const float position =
+                        sourceQ[qBase + globalQ];
+                    const float minimumVelocity =
+                        (dof.limits.x - position) / timestep;
+                    const float maximumVelocity =
+                        (dof.limits.y - position) / timestep;
+                    velocity = clamp(
+                        velocity,
+                        minimumVelocity,
+                        maximumVelocity
+                    );
+                }
+            }
+            if (!isfinite(velocity)) {
+                MRMetalWorldContactStatusGPU status =
+                    statuses[environment];
+                status.code = MR_STEP_NONFINITE_RESULT;
+                status.firstFailingConstraint = globalV;
+                statuses[environment] = status;
+                return;
+            }
+            candidateV[vBase + globalV] = velocity;
         }
-        if (!isfinite(velocity)) {
-            MRMetalWorldContactStatusGPU status =
-                statuses[environment];
-            status.code = MR_STEP_NONFINITE_RESULT;
-            status.firstFailingConstraint = localV;
-            statuses[environment] = status;
-            return;
-        }
-        candidateV[vBase + localV] = velocity;
     }
 }
 
@@ -1478,7 +1978,12 @@ kernel void mr_world_finalize_factor_dispatch(
         2u * maximumConstraints,
         contactDispatch.pointQueryStride
     );
-    operatorDispatch[0].pointCount = activePointCount;
+    for (uint owner = 0u;
+         owner < contactDispatch.articulationCount;
+         ++owner) {
+        operatorDispatch[owner].pointCount =
+            activePointCount;
+    }
     MRIndirectDispatchArgumentsGPU arguments = {};
     arguments.threadgroupsX =
         activePointCount == 0u
@@ -1536,6 +2041,399 @@ kernel void mr_world_fill_point_query_tail(
     }
 }
 
+// Initializes the articulation-major point-query tensor before canonical
+// manifold scatter. Each articulation receives a valid root-body query in
+// every fixed-capacity slot; the scatter kernel overwrites only endpoints
+// actually owned by that articulation. This lets every articulation operator
+// run over one fixed packet shape without host-visible contact counts.
+kernel void mr_world_initialize_multi_articulation_queries(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device MRArticulatedPointImpulseGPU* pointQueries [[buffer(2)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(3)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    for (uint owner = 0u;
+         owner < dispatch.articulationCount;
+         ++owner) {
+        MRArticulatedPointImpulseGPU dummy = {};
+        dummy.bodyIndex = articulations[owner].rootBody;
+        const uint base =
+            (owner * dispatch.environmentCount + environment) *
+            dispatch.pointQueryStride;
+        for (uint point = 0u;
+             point < dispatch.pointQueryStride;
+             ++point) {
+            pointQueries[base + point] = dummy;
+        }
+    }
+}
+
+// Composes articulation-local Cholesky factors and analytic point Jacobians
+// into the world-global generalized-velocity layout. The factor is block
+// diagonal because disconnected articulation trees have no inertial
+// cross-terms; constraints create coupling through the shared Jacobian and
+// island solve. Staging is articulation-major and compact in each local nv.
+kernel void mr_world_compose_multi_articulation_operator(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRArticulatedOperatorDispatchGPU* operatorDispatches
+        [[buffer(2)]],
+    device const MRArticulatedOperatorStatusGPU* operatorStatuses
+        [[buffer(3)]],
+    device const float* factorStaging [[buffer(4)]],
+    device const float* jacobianStaging [[buffer(5)]],
+    device float* factorMatrix [[buffer(6)]],
+    device float* pointJacobians [[buffer(7)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(8)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    for (uint owner = 0u;
+         owner < dispatch.articulationCount;
+         ++owner) {
+        const MRArticulatedOperatorStatusGPU localStatus =
+            operatorStatuses[
+                owner * dispatch.environmentCount + environment
+            ];
+        if (localStatus.code !=
+                MR_ARTICULATED_OPERATOR_SUCCESS) {
+            status.code = mapOperatorStatus(localStatus.code);
+            status.firstFailingConstraint =
+                localStatus.failingIndex;
+            statuses[environment] = status;
+            return;
+        }
+    }
+
+    const uint factorBase =
+        environment * dispatch.factorStride;
+    for (uint entry = 0u;
+         entry < dispatch.nv * dispatch.nv;
+         ++entry) {
+        factorMatrix[factorBase + entry] = 0.0f;
+    }
+    const uint rowCount =
+        dispatch.pointQueryStride * 3u;
+    const uint jacobianBase =
+        environment * rowCount * dispatch.nv;
+    for (uint entry = 0u;
+         entry < rowCount * dispatch.nv;
+         ++entry) {
+        pointJacobians[jacobianBase + entry] = 0.0f;
+    }
+
+    ulong factorPrefix = 0ul;
+    ulong jacobianPrefix = 0ul;
+    for (uint owner = 0u;
+         owner < dispatch.articulationCount;
+         ++owner) {
+        const MRArticulationGPU articulation =
+            articulations[owner];
+        const MRArticulatedOperatorDispatchGPU localDispatch =
+            operatorDispatches[owner];
+        const ulong localFactorStride =
+            static_cast<ulong>(articulation.nv) *
+            static_cast<ulong>(articulation.nv);
+        const ulong localJacobianStride =
+            static_cast<ulong>(rowCount) *
+            static_cast<ulong>(articulation.nv);
+        const ulong localFactorBase =
+            factorPrefix +
+            static_cast<ulong>(environment) *
+                localFactorStride;
+        const ulong localJacobianBase =
+            jacobianPrefix +
+            static_cast<ulong>(environment) *
+                localJacobianStride;
+        if (localDispatch.massMatrixStride !=
+                localFactorStride ||
+            localDispatch.pointJacobianStride !=
+                localJacobianStride ||
+            articulation.vOffset + articulation.nv >
+                dispatch.nv) {
+            status.code = MR_STEP_UNSUPPORTED;
+            status.firstFailingConstraint = owner;
+            statuses[environment] = status;
+            return;
+        }
+        for (uint row = 0u;
+             row < articulation.nv;
+             ++row) {
+            for (uint column = 0u;
+                 column < articulation.nv;
+                 ++column) {
+                factorMatrix[
+                    factorBase +
+                    (articulation.vOffset + row) *
+                        dispatch.nv +
+                    articulation.vOffset + column
+                ] = factorStaging[
+                    localFactorBase +
+                    static_cast<ulong>(row) *
+                        articulation.nv +
+                    column
+                ];
+            }
+        }
+        for (uint row = 0u; row < rowCount; ++row) {
+            for (uint column = 0u;
+                 column < articulation.nv;
+                 ++column) {
+                pointJacobians[
+                    jacobianBase +
+                    row * dispatch.nv +
+                    articulation.vOffset + column
+                ] = jacobianStaging[
+                    localJacobianBase +
+                    static_cast<ulong>(row) *
+                        articulation.nv +
+                    column
+                ];
+            }
+        }
+        factorPrefix +=
+            static_cast<ulong>(dispatch.environmentCount) *
+            localFactorStride;
+        jacobianPrefix +=
+            static_cast<ulong>(dispatch.environmentCount) *
+            localJacobianStride;
+    }
+    statuses[environment] = status;
+}
+
+// Expands the immutable mechanism program into the fixed-capacity runtime
+// prefix. The source remains canonical ConstraintIR v2; normalization to two
+// endpoint and three row slots happens only in invocation-local storage so
+// collision and rod scatter can append without a second offset domain.
+kernel void mr_world_seed_authored_constraint_ir(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRConstraintIRBlockGPU* sourceBlocks [[buffer(1)]],
+    device const MRConstraintIREndpointGPU* sourceEndpoints [[buffer(2)]],
+    device const MRConstraintIRRowGPU* sourceRows [[buffer(3)]],
+    device const MRConstraintIRConeGPU* sourceCones [[buffer(4)]],
+    device const float* sourceWarmImpulses [[buffer(5)]],
+    device const MRWorldDynamicNodeGPU* dynamicNodes [[buffer(6)]],
+    device MRContactConstraintGPU* contacts [[buffer(7)]],
+    device MRContactPointMetaGPU* metadata [[buffer(8)]],
+    device MRConstraintIRBlockGPU* blocks [[buffer(9)]],
+    device MRConstraintIREndpointGPU* endpoints [[buffer(10)]],
+    device MRConstraintEndpointRuntimeGPU* endpointRuntime [[buffer(11)]],
+    device MRConstraintIRRowGPU* rows [[buffer(12)]],
+    device MRConstraintIRConeGPU* cones [[buffer(13)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(14)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.authoredConstraintCount == 0u) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    if (dispatch.authoredConstraintCount >
+            dispatch.constraintCapacity ||
+        3ul * dispatch.authoredConstraintCount >
+            dispatch.rowCapacity ||
+        dispatch.authoredEndpointCount >
+            2u * dispatch.authoredConstraintCount) {
+        status.code = MR_STEP_CONSTRAINT_CAPACITY_OVERFLOW;
+        status.requiredConstraints =
+            dispatch.authoredConstraintCount;
+        status.requiredRows =
+            3u * dispatch.authoredConstraintCount;
+        statuses[environment] = status;
+        return;
+    }
+
+    const uint constraintBase =
+        environment * dispatch.constraintStride;
+    const uint endpointBase =
+        2u * environment * dispatch.constraintStride;
+    const uint rowBase =
+        environment * dispatch.rowStride;
+    for (uint localBlock = 0u;
+         localBlock < dispatch.authoredConstraintCount;
+         ++localBlock) {
+        const MRConstraintIRBlockGPU source =
+            sourceBlocks[localBlock];
+        if (source.dimension == 0u ||
+            source.dimension > 3u ||
+            source.endpointCount == 0u ||
+            source.endpointCount > 2u ||
+            source.endpointOffset + source.endpointCount >
+                dispatch.authoredEndpointCount ||
+            source.rowOffset + source.dimension >
+                dispatch.authoredRowCount ||
+            (
+                source.coneIndex !=
+                    MR_CONSTRAINT_IR_INVALID_INDEX &&
+                source.coneIndex >= dispatch.authoredConeCount
+            )) {
+            status.code = MR_STEP_UNSUPPORTED;
+            status.firstFailingConstraint = localBlock;
+            status.firstFailingStableKeyLow =
+                source.key.words[0];
+            status.firstFailingStableKeyHigh =
+                source.key.words[1];
+            statuses[environment] = status;
+            return;
+        }
+
+        const uint outputConstraint =
+            constraintBase + localBlock;
+        MRConstraintIRBlockGPU runtime = source;
+        runtime.flags |=
+            MR_CONSTRAINT_IR_BLOCK_GENERALIZED;
+        runtime.islandIndex = MR_INVALID_INDEX;
+        runtime.endpointOffset = 2u * localBlock;
+        runtime.endpointCount = 2u;
+        runtime.rowOffset = 3u * localBlock;
+        runtime.impulseOffset = 3u * localBlock;
+        runtime.coneIndex = localBlock;
+        blocks[outputConstraint] = runtime;
+
+        MRContactConstraintGPU compatibility = {};
+        compatibility.bodyA = MR_INVALID_INDEX;
+        compatibility.bodyB = MR_INVALID_INDEX;
+        compatibility.flags =
+            MR_CONSTRAINT_FLAG_GENERALIZED |
+            (
+                (source.flags &
+                 MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u
+                ? MR_CONSTRAINT_FLAG_DISABLED
+                : 0u
+            );
+        compatibility.islandIndex = MR_INVALID_INDEX;
+        compatibility.pairKey =
+            (static_cast<ulong>(source.key.words[0]) << 32u) |
+            source.key.words[1];
+        compatibility.featureKey =
+            (static_cast<ulong>(source.key.words[2]) << 32u) |
+            source.key.words[3];
+        for (uint localRow = 0u;
+             localRow < source.dimension;
+             ++localRow) {
+            compatibility.impulses[localRow] =
+                sourceWarmImpulses[
+                    source.impulseOffset + localRow
+                ];
+        }
+        contacts[outputConstraint] = compatibility;
+        MRContactPointMetaGPU emptyMetadata = {};
+        emptyMetadata.colliderA = MR_INVALID_INDEX;
+        emptyMetadata.colliderB = MR_INVALID_INDEX;
+        emptyMetadata.manifoldIndex = MR_INVALID_INDEX;
+        emptyMetadata.pointIndex = MR_INVALID_INDEX;
+        metadata[outputConstraint] = emptyMetadata;
+
+        for (uint slot = 0u; slot < 2u; ++slot) {
+            const uint destination =
+                endpointBase + 2u * localBlock + slot;
+            MRConstraintIREndpointGPU endpoint = {};
+            endpoint.objectIndex =
+                MR_CONSTRAINT_IR_INVALID_INDEX;
+            endpoint.articulationIndex =
+                MR_CONSTRAINT_IR_INVALID_INDEX;
+            endpoint.linkIndex =
+                MR_CONSTRAINT_IR_INVALID_INDEX;
+            endpoint.role = MR_CONSTRAINT_IR_ENDPOINT_WORLD;
+            endpoint.jacobianKind =
+                MR_CONSTRAINT_IR_JACOBIAN_WORLD_POINT;
+            MRConstraintEndpointRuntimeGPU binding = {};
+            binding.dynamicNode =
+                MR_CONSTRAINT_IR_INVALID_INDEX;
+            binding.ownerKind =
+                MR_CONSTRAINT_IR_OWNER_WORLD;
+            binding.ownerIndex =
+                MR_CONSTRAINT_IR_INVALID_INDEX;
+            binding.elementIndex =
+                MR_CONSTRAINT_IR_INVALID_INDEX;
+            binding.queryIndex =
+                MR_CONSTRAINT_IR_INVALID_INDEX;
+            binding.secondaryIndex =
+                MR_CONSTRAINT_IR_INVALID_INDEX;
+            binding.twistIndex =
+                MR_CONSTRAINT_IR_INVALID_INDEX;
+            if (slot < source.endpointCount) {
+                endpoint = sourceEndpoints[
+                    source.endpointOffset + slot
+                ];
+                if (endpoint.jacobianKind !=
+                        MR_CONSTRAINT_IR_JACOBIAN_GENERALIZED ||
+                    endpoint.articulationIndex >=
+                        dispatch.articulationCount ||
+                    endpoint.objectIndex >= dispatch.nv) {
+                    status.code = MR_STEP_UNSUPPORTED;
+                    status.firstFailingConstraint =
+                        localBlock;
+                    statuses[environment] = status;
+                    return;
+                }
+                uint dynamicNode =
+                    MR_CONSTRAINT_IR_INVALID_INDEX;
+                for (uint node = 0u;
+                     node < dispatch.dynamicNodeCount;
+                     ++node) {
+                    const MRWorldDynamicNodeGPU candidate =
+                        dynamicNodes[node];
+                    if (candidate.kind ==
+                            MR_WORLD_DYNAMIC_NODE_ARTICULATION &&
+                        candidate.ownerIndex ==
+                            endpoint.articulationIndex) {
+                        dynamicNode = node;
+                        break;
+                    }
+                }
+                if (dynamicNode ==
+                    MR_CONSTRAINT_IR_INVALID_INDEX) {
+                    status.code = MR_STEP_UNSUPPORTED;
+                    status.firstFailingConstraint =
+                        localBlock;
+                    statuses[environment] = status;
+                    return;
+                }
+                binding.dynamicNode = dynamicNode;
+                binding.ownerKind =
+                    MR_CONSTRAINT_IR_OWNER_ARTICULATION;
+                binding.ownerIndex =
+                    endpoint.articulationIndex;
+                binding.elementIndex = endpoint.objectIndex;
+                binding.flags =
+                    MR_CONSTRAINT_IR_RUNTIME_DYNAMIC;
+            }
+            endpoints[destination] = endpoint;
+            endpointRuntime[destination] = binding;
+        }
+
+        for (uint slot = 0u; slot < 3u; ++slot) {
+            MRConstraintIRRowGPU row = {};
+            if (slot < source.dimension) {
+                row = sourceRows[source.rowOffset + slot];
+            }
+            rows[rowBase + 3u * localBlock + slot] = row;
+        }
+        MRConstraintIRConeGPU cone = {};
+        if (source.coneIndex !=
+            MR_CONSTRAINT_IR_INVALID_INDEX) {
+            cone = sourceCones[source.coneIndex];
+        }
+        cones[outputConstraint] = cone;
+    }
+    statuses[environment] = status;
+}
+
 // Evaluates the canonical IR at the current microstep after point Jacobians
 // and free velocities are available.
 kernel void mr_world_evaluate_constraint_ir(
@@ -1553,6 +2451,7 @@ kernel void mr_world_evaluate_constraint_ir(
     device MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(11)]],
     device MRArticulationFactorCacheGPU* factorCaches [[buffer(12)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(13)]],
+    device const MRConstraintIREndpointGPU* endpoints [[buffer(14)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -1562,28 +2461,54 @@ kernel void mr_world_evaluate_constraint_ir(
     if (status.code != MR_STEP_SUCCESS) {
         return;
     }
-    const MRArticulatedOperatorStatusGPU operatorStatus =
-        operatorStatuses[environment];
-    MRArticulationFactorCacheGPU cache = {};
-    cache.environment = environment;
-    cache.articulationIndex = dispatch.articulationIndex;
-    cache.nv = dispatch.nv;
-    cache.generation = status.physicsSubstep;
-    cache.code = operatorStatus.code;
-    cache.failingIndex = operatorStatus.failingIndex;
-    cache.diagnostics = operatorStatus.diagnostics;
-    factorCaches[environment] = cache;
-    if (operatorStatus.code !=
-        MR_ARTICULATED_OPERATOR_SUCCESS) {
-        status.code = mapOperatorStatus(operatorStatus.code);
-        status.firstFailingConstraint =
-            operatorStatus.failingIndex;
-        statuses[environment] = status;
-        return;
+    float minimumPivot = INFINITY;
+    float maximumPivot = 0.0f;
+    float maximumFactorResidual = 0.0f;
+    for (uint owner = 0u;
+         owner < dispatch.articulationCount;
+         ++owner) {
+        const uint statusIndex =
+            owner * dispatch.environmentCount + environment;
+        const MRArticulatedOperatorStatusGPU operatorStatus =
+            operatorStatuses[statusIndex];
+        MRArticulationFactorCacheGPU cache = {};
+        cache.environment = environment;
+        cache.articulationIndex = owner;
+        cache.nv = operatorStatus.nv;
+        cache.generation = status.physicsSubstep;
+        cache.code = operatorStatus.code;
+        cache.failingIndex = operatorStatus.failingIndex;
+        cache.diagnostics = operatorStatus.diagnostics;
+        factorCaches[statusIndex] = cache;
+        if (operatorStatus.code !=
+            MR_ARTICULATED_OPERATOR_SUCCESS) {
+            status.code = mapOperatorStatus(
+                operatorStatus.code
+            );
+            status.firstFailingConstraint =
+                operatorStatus.failingIndex;
+            statuses[environment] = status;
+            return;
+        }
+        minimumPivot = min(
+            minimumPivot,
+            operatorStatus.diagnostics.x
+        );
+        maximumPivot = max(
+            maximumPivot,
+            operatorStatus.diagnostics.y
+        );
+        maximumFactorResidual = max(
+            maximumFactorResidual,
+            operatorStatus.diagnostics.z
+        );
     }
-    status.diagnostics.z = operatorStatus.diagnostics.x;
-    status.diagnostics.w = operatorStatus.diagnostics.y;
-    status.residuals.w = operatorStatus.diagnostics.z;
+    status.diagnostics.z =
+        dispatch.articulationCount == 0u
+        ? 0.0f
+        : minimumPivot;
+    status.diagnostics.w = maximumPivot;
+    status.residuals.w = maximumFactorResidual;
 
     const uint constraintBase =
         environment * dispatch.constraintStride;
@@ -1614,32 +2539,80 @@ kernel void mr_world_evaluate_constraint_ir(
             contacts[constraintIndex];
         const MRConstraintIRBlockGPU block =
             blocks[constraintIndex];
-        const float3 relative = relativePointVelocity(
-            localConstraint,
-            contact,
-            candidateBodies + bodyBase,
-            dispatch.articulationIndex,
-            pointJacobians,
-            pointJacobianBase,
-            dispatch.nv,
-            candidateV + velocityBase
-        );
-        float relativeRows[3];
-        for (uint localRow = 0u;
-             localRow < 3u;
-             ++localRow) {
-            relativeRows[localRow] = dot(
-                rows[
-                    rowBase + block.rowOffset + localRow
-                ].direction.xyz,
-                relative
+        const bool generalized =
+            (block.flags &
+             MR_CONSTRAINT_IR_BLOCK_GENERALIZED) != 0u;
+        float relativeRows[3] = {
+            0.0f,
+            0.0f,
+            0.0f,
+        };
+        if (generalized) {
+            const uint endpointBase =
+                2u * environment *
+                    dispatch.constraintStride +
+                block.endpointOffset;
+            for (uint endpointIndex = 0u;
+                 endpointIndex < block.endpointCount;
+                 ++endpointIndex) {
+                const MRConstraintIREndpointGPU endpoint =
+                    endpoints[endpointBase + endpointIndex];
+                if (endpoint.role ==
+                    MR_CONSTRAINT_IR_ENDPOINT_WORLD) {
+                    continue;
+                }
+                const uint localRow =
+                    endpoint.flags &
+                    MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK;
+                if (endpoint.jacobianKind !=
+                        MR_CONSTRAINT_IR_JACOBIAN_GENERALIZED ||
+                    endpoint.objectIndex >= dispatch.nv ||
+                    localRow >= block.dimension ||
+                    localRow >= 3u) {
+                    status.code = MR_STEP_UNSUPPORTED;
+                    status.firstFailingConstraint =
+                        localConstraint;
+                    statuses[environment] = status;
+                    return;
+                }
+                relativeRows[localRow] = fma(
+                    endpoint.axis.x,
+                    candidateV[
+                        velocityBase + endpoint.objectIndex
+                    ],
+                    relativeRows[localRow]
+                );
+            }
+        } else {
+            const float3 relative = relativePointVelocity(
+                localConstraint,
+                contact,
+                candidateBodies + bodyBase,
+                dispatch.articulationIndex,
+                pointJacobians,
+                pointJacobianBase,
+                dispatch.nv,
+                candidateV + velocityBase
             );
+            for (uint localRow = 0u;
+                 localRow < 3u;
+                 ++localRow) {
+                relativeRows[localRow] = dot(
+                    rows[
+                        rowBase + block.rowOffset + localRow
+                    ].direction.xyz,
+                    relative
+                );
+            }
         }
         const MRConstraintIRConeGPU sourceCone =
             cones[constraintIndex];
-        const float slip = length(
-            float2(relativeRows[1], relativeRows[2])
-        );
+        const float slip = generalized
+            ? 0.0f
+            : length(float2(
+                  relativeRows[1],
+                  relativeRows[2]
+              ));
         const bool staticRegion =
             slip <= max(
                 1.0e-3f,
@@ -1707,18 +2680,23 @@ kernel void mr_world_evaluate_constraint_ir(
                     1.0f +
                     2.0f * source.dampingRatio * ratio +
                     ratio * ratio;
-                stabilization = max(
+                stabilization =
                     -timestep * positionError /
-                        (tau * tau * denominator),
-                    0.0f
-                );
-                stabilization = clamp(
-                    stabilization,
-                    0.0f,
-                    dispatch.timestepAndBias.z
-                );
+                    (tau * tau * denominator);
+                stabilization = generalized
+                    ? clamp(
+                          stabilization,
+                          -dispatch.timestepAndBias.z,
+                          dispatch.timestepAndBias.z
+                      )
+                    : clamp(
+                          max(stabilization, 0.0f),
+                          0.0f,
+                          dispatch.timestepAndBias.z
+                      );
             }
-            if (localRow == 0u &&
+            if (!generalized &&
+                localRow == 0u &&
                 (block.flags &
                  MR_CONSTRAINT_IR_BLOCK_NEW_IMPACT) != 0u) {
                 const float incoming =
@@ -1788,8 +2766,10 @@ kernel void mr_world_evaluate_constraint_ir(
     statuses[environment] = status;
 }
 
-// Deterministic minimum-root union/find over the selected articulation and
-// free dynamic bodies.
+// Deterministic minimum-root union/find over immutable typed dynamic nodes.
+// Articulation links map to their tree node, free bodies to individual nodes,
+// and every connected rod component to one node. Static and kinematic bodies
+// map to MR_INVALID_INDEX and remain boundary endpoints.
 kernel void mr_world_build_contact_islands(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device const MRBodyStateGPU* bodies [[buffer(1)]],
@@ -1797,6 +2777,13 @@ kernel void mr_world_build_contact_islands(
     device MRConstraintIRBlockGPU* blocks [[buffer(3)]],
     device MRContactIslandGPU* islands [[buffer(4)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(5)]],
+    device const MRWorldDynamicNodeGPU* dynamicNodes [[buffer(6)]],
+    device const uint* bodyDynamicNodes [[buffer(7)]],
+    device const MRConstraintEndpointRuntimeGPU* endpointRuntime
+        [[buffer(8)]],
+    device MRIslandNodeRefGPU* islandNodeReferences [[buffer(9)]],
+    device MRIslandConstraintRefGPU*
+        islandConstraintReferences [[buffer(10)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -1806,10 +2793,11 @@ kernel void mr_world_build_contact_islands(
     if (status.code != MR_STEP_SUCCESS) {
         return;
     }
-    if (dispatch.bodyCount >
-        MR_ARTICULATED_OPERATOR_MAX_BODIES) {
+    if (dispatch.dynamicNodeCount == 0u ||
+        dispatch.dynamicNodeCount >
+            MR_WORLD_MAX_DYNAMIC_NODES) {
         status.code = MR_STEP_ISLAND_CAPACITY_OVERFLOW;
-        status.requiredIslands = dispatch.bodyCount;
+        status.requiredIslands = dispatch.dynamicNodeCount;
         statuses[environment] = status;
         return;
     }
@@ -1820,52 +2808,53 @@ kernel void mr_world_build_contact_islands(
         return;
     }
 
-    uint parents[MR_ARTICULATED_OPERATOR_MAX_BODIES + 1u];
-    bool active[MR_ARTICULATED_OPERATOR_MAX_BODIES + 1u];
-    for (uint node = 0u; node <= dispatch.bodyCount; ++node) {
+    uint parents[MR_WORLD_MAX_DYNAMIC_NODES];
+    bool active[MR_WORLD_MAX_DYNAMIC_NODES];
+    for (uint node = 0u;
+         node < dispatch.dynamicNodeCount;
+         ++node) {
         parents[node] = node;
         active[node] = false;
     }
-    active[0] = true;
-    const uint bodyBase =
-        environment * dispatch.bodyStateStride;
     const uint constraintBase =
         environment * dispatch.constraintStride;
+    const uint endpointBase =
+        2u * environment * dispatch.constraintStride;
     const uint islandBase =
         environment * dispatch.islandStride;
-    for (uint body = 0u; body < dispatch.bodyCount; ++body) {
-        device const MRBodyStateGPU& state =
-            bodies[bodyBase + body];
-        if (state.flagsAndIndices[1] !=
-                dispatch.articulationIndex &&
-            state.flagsAndIndices[0] == MR_MOTION_DYNAMIC) {
-            active[body + 1u] = true;
-        }
-    }
-
     for (uint localConstraint = 0u;
          localConstraint < status.requiredConstraints;
          ++localConstraint) {
-        device const MRContactConstraintGPU& contact =
-            contacts[constraintBase + localConstraint];
-        device const MRBodyStateGPU& bodyA =
-            bodies[bodyBase + contact.bodyA];
-        device const MRBodyStateGPU& bodyB =
-            bodies[bodyBase + contact.bodyB];
+        const MRConstraintIRBlockGPU block =
+            blocks[constraintBase + localConstraint];
+        const uint runtimeA =
+            endpointBase + block.endpointOffset;
+        const uint runtimeB =
+            runtimeA + min(block.endpointCount, 2u) - 1u;
+        if (block.endpointCount == 0u ||
+            block.endpointOffset >=
+                2u * dispatch.constraintCapacity ||
+            runtimeB >=
+                endpointBase +
+                    2u * dispatch.constraintCapacity) {
+            status.code = MR_STEP_UNSUPPORTED;
+            status.firstFailingConstraint = localConstraint;
+            statuses[environment] = status;
+            return;
+        }
         const uint nodeA =
-            bodyA.flagsAndIndices[1] ==
-                dispatch.articulationIndex
-            ? 0u
-            : bodyA.flagsAndIndices[0] == MR_MOTION_DYNAMIC
-                ? contact.bodyA + 1u
-                : MR_INVALID_INDEX;
+            endpointRuntime[runtimeA].dynamicNode;
         const uint nodeB =
-            bodyB.flagsAndIndices[1] ==
-                dispatch.articulationIndex
-            ? 0u
-            : bodyB.flagsAndIndices[0] == MR_MOTION_DYNAMIC
-                ? contact.bodyB + 1u
-                : MR_INVALID_INDEX;
+            endpointRuntime[runtimeB].dynamicNode;
+        if ((nodeA != MR_INVALID_INDEX &&
+             nodeA >= dispatch.dynamicNodeCount) ||
+            (nodeB != MR_INVALID_INDEX &&
+             nodeB >= dispatch.dynamicNodeCount)) {
+            status.code = MR_STEP_UNSUPPORTED;
+            status.firstFailingConstraint = localConstraint;
+            statuses[environment] = status;
+            return;
+        }
         if (nodeA == MR_INVALID_INDEX &&
             nodeB == MR_INVALID_INDEX) {
             status.code = MR_STEP_UNSUPPORTED;
@@ -1874,15 +2863,23 @@ kernel void mr_world_build_contact_islands(
             statuses[environment] = status;
             return;
         }
+        if (nodeA != MR_INVALID_INDEX) {
+            active[nodeA] = true;
+        }
+        if (nodeB != MR_INVALID_INDEX) {
+            active[nodeB] = true;
+        }
         if (nodeA != MR_INVALID_INDEX &&
             nodeB != MR_INVALID_INDEX) {
             unionRoots(parents, nodeA, nodeB);
         }
     }
 
-    uint roots[MR_ARTICULATED_OPERATOR_MAX_BODIES + 1u];
+    uint roots[MR_WORLD_MAX_DYNAMIC_NODES];
     uint rootCount = 0u;
-    for (uint node = 0u; node <= dispatch.bodyCount; ++node) {
+    for (uint node = 0u;
+         node < dispatch.dynamicNodeCount;
+         ++node) {
         if (!active[node]) {
             continue;
         }
@@ -1907,41 +2904,114 @@ kernel void mr_world_build_contact_islands(
         record.environment = environment;
         record.stableRoot = roots[island];
         record.firstConstraint = MR_INVALID_INDEX;
+        record.firstNode = MR_INVALID_INDEX;
+        record.firstRow = MR_INVALID_INDEX;
+        record.generation = 1u;
         islands[islandBase + island] = record;
     }
-    for (uint node = 0u; node <= dispatch.bodyCount; ++node) {
+
+    const uint nodeReferenceBase =
+        environment *
+        dispatch.islandNodeReferenceCapacity;
+    uint nodeReferenceCursor = 0u;
+    uint velocityCursor = 0u;
+    for (uint node = 0u;
+         node < dispatch.dynamicNodeCount;
+         ++node) {
         if (!active[node]) {
             continue;
         }
         const uint root = findRoot(parents, node);
         for (uint island = 0u; island < rootCount; ++island) {
             if (roots[island] == root) {
-                ++islands[
-                    islandBase + island
-                ].dynamicNodeCount;
+                device MRContactIslandGPU& record =
+                    islands[islandBase + island];
+                const MRWorldDynamicNodeGPU dynamic =
+                    dynamicNodes[node];
+                if ((dynamic.flags &
+                     MR_WORLD_DYNAMIC_NODE_VALID) == 0u ||
+                    dynamic.stableId != node ||
+                    dynamic.velocityCount == 0u ||
+                    nodeReferenceCursor >=
+                        dispatch.islandNodeReferenceCapacity) {
+                    status.code =
+                        MR_STEP_ISLAND_CAPACITY_OVERFLOW;
+                    status.requiredIslands =
+                        max(
+                            status.requiredIslands,
+                            nodeReferenceCursor + 1u
+                        );
+                    statuses[environment] = status;
+                    return;
+                }
+                if (record.firstNode == MR_INVALID_INDEX) {
+                    record.firstNode = nodeReferenceCursor;
+                    record.generalizedVelocityOffset =
+                        velocityCursor;
+                }
+                MRIslandNodeRefGPU reference = {};
+                reference.dynamicNode = node;
+                reference.localVelocityOffset =
+                    record.generalizedVelocityCount;
+                reference.velocityCount =
+                    dynamic.velocityCount;
+                reference.factorIndex = dynamic.factorIndex;
+                islandNodeReferences[
+                    nodeReferenceBase + nodeReferenceCursor
+                ] = reference;
+                ++nodeReferenceCursor;
+                ++record.dynamicNodeCount;
+                record.generalizedVelocityCount +=
+                    dynamic.velocityCount;
+                velocityCursor += dynamic.velocityCount;
+                record.operatorBucket = max(
+                    record.operatorBucket,
+                    dynamic.operatorBucket
+                );
+                if (dynamic.kind ==
+                    MR_WORLD_DYNAMIC_NODE_ARTICULATION) {
+                    ++record.articulationNodeCount;
+                } else if (
+                    dynamic.kind ==
+                    MR_WORLD_DYNAMIC_NODE_FREE_BODY
+                ) {
+                    ++record.freeBodyNodeCount;
+                } else if (
+                    dynamic.kind == MR_WORLD_DYNAMIC_NODE_ROD
+                ) {
+                    ++record.rodNodeCount;
+                } else {
+                    status.code = MR_STEP_UNSUPPORTED;
+                    statuses[environment] = status;
+                    return;
+                }
                 break;
             }
         }
     }
+
+    const uint constraintReferenceBase =
+        environment *
+        dispatch.islandConstraintReferenceCapacity;
+    uint constraintReferenceCursor = 0u;
     for (uint localConstraint = 0u;
          localConstraint < status.requiredConstraints;
          ++localConstraint) {
         device MRContactConstraintGPU& contact =
             contacts[constraintBase + localConstraint];
-        device const MRBodyStateGPU& bodyA =
-            bodies[bodyBase + contact.bodyA];
-        device const MRBodyStateGPU& bodyB =
-            bodies[bodyBase + contact.bodyB];
-        uint node =
-            bodyA.flagsAndIndices[1] ==
-                dispatch.articulationIndex
-            ? 0u
-            : bodyA.flagsAndIndices[0] == MR_MOTION_DYNAMIC
-                ? contact.bodyA + 1u
-                : bodyB.flagsAndIndices[1] ==
-                      dispatch.articulationIndex
-                    ? 0u
-                    : contact.bodyB + 1u;
+        const MRConstraintIRBlockGPU block =
+            blocks[constraintBase + localConstraint];
+        const uint runtimeA =
+            endpointBase + block.endpointOffset;
+        const uint runtimeB =
+            runtimeA + min(block.endpointCount, 2u) - 1u;
+        const uint nodeA =
+            endpointRuntime[runtimeA].dynamicNode;
+        const uint nodeB =
+            endpointRuntime[runtimeB].dynamicNode;
+        const uint node = nodeA != MR_INVALID_INDEX
+            ? nodeA
+            : nodeB;
         const uint root = findRoot(parents, node);
         for (uint island = 0u; island < rootCount; ++island) {
             if (roots[island] != root) {
@@ -1952,11 +3022,42 @@ kernel void mr_world_build_contact_islands(
                 .islandIndex = island;
             device MRContactIslandGPU& record =
                 islands[islandBase + island];
+            if (constraintReferenceCursor >=
+                dispatch.islandConstraintReferenceCapacity) {
+                status.code =
+                    MR_STEP_CONSTRAINT_CAPACITY_OVERFLOW;
+                status.requiredConstraints =
+                    max(
+                        status.requiredConstraints,
+                        constraintReferenceCursor + 1u
+                    );
+                statuses[environment] = status;
+                return;
+            }
+            MRIslandConstraintRefGPU reference = {};
+            reference.blockIndex = localConstraint;
+            reference.rowOffset =
+                blocks[
+                    constraintBase + localConstraint
+                ].rowOffset;
+            reference.rowCount =
+                blocks[
+                    constraintBase + localConstraint
+                ].dimension;
+            islandConstraintReferences[
+                constraintReferenceBase +
+                constraintReferenceCursor
+            ] = reference;
             record.firstConstraint = min(
                 record.firstConstraint,
                 localConstraint
             );
+            record.firstRow = min(
+                record.firstRow,
+                reference.rowOffset
+            );
             ++record.constraintCount;
+            ++constraintReferenceCursor;
             break;
         }
     }
@@ -2002,8 +3103,7 @@ kernel void mr_world_build_contact_tiles(
         return;
     }
 
-    const uint bodyBase =
-        environment * dispatch.bodyStateStride;
+    (void)bodies;
     const uint constraintBase =
         environment * dispatch.constraintStride;
     const uint tileBase =
@@ -2017,13 +3117,21 @@ kernel void mr_world_build_contact_tiles(
         const MRContactIslandGPU island =
             islands[islandBase + islandIndex];
         const uint islandIndexStart = constraintIndexCursor;
-        bool hasArticulation = false;
+        const bool hasArticulation =
+            island.articulationNodeCount != 0u;
+        const bool hasRod = island.rodNodeCount != 0u;
+        uint generalizedConstraintCount = 0u;
         for (uint localConstraint = 0u;
              localConstraint < status.requiredConstraints;
              ++localConstraint) {
             const MRContactConstraintGPU contact =
                 contacts[constraintBase + localConstraint];
             if (contact.islandIndex != islandIndex) {
+                continue;
+            }
+            if ((contact.flags &
+                 MR_CONSTRAINT_FLAG_GENERALIZED) != 0u) {
+                ++generalizedConstraintCount;
                 continue;
             }
             if (constraintIndexCursor <
@@ -2033,23 +3141,21 @@ kernel void mr_world_build_contact_tiles(
                 ] = localConstraint;
             }
             ++constraintIndexCursor;
-            hasArticulation =
-                hasArticulation ||
-                bodies[bodyBase + contact.bodyA]
-                        .flagsAndIndices[1] ==
-                    dispatch.articulationIndex ||
-                bodies[bodyBase + contact.bodyB]
-                        .flagsAndIndices[1] ==
-                    dispatch.articulationIndex;
         }
         const uint packedCount =
             constraintIndexCursor - islandIndexStart;
-        if (packedCount != island.constraintCount) {
+        if (packedCount + generalizedConstraintCount !=
+            island.constraintCount) {
             status.code = MR_STEP_NONFINITE_RESULT;
             status.firstFailingConstraint =
                 island.firstConstraint;
             statuses[environment] = status;
             return;
+        }
+        if (packedCount == 0u) {
+            islandWork[islandBase + islandIndex] = {};
+            islandWorkFlags[islandBase + islandIndex] = 0u;
+            continue;
         }
         const uint tileCount =
             (packedCount + MR_WAVE32_CONTACTS_PER_TILE - 1u) /
@@ -2062,19 +3168,27 @@ kernel void mr_world_build_contact_tiles(
         work.firstTile = tileCursor;
         work.tileCount = tileCount;
         work.dofClass =
-            dispatch.nv <= 8u ? 8u :
-            dispatch.nv <= 16u ? 16u : 32u;
+            island.operatorBucket <= 8u ? 8u :
+            island.operatorBucket <= 16u ? 16u :
+            32u;
         work.flags = MR_ISLAND_WORK_VALID |
             (hasArticulation
                  ? MR_ISLAND_WORK_HAS_ARTICULATION
                  : 0u) |
+            (hasRod
+                 ? MR_ISLAND_WORK_HAS_ROD
+                 : 0u) |
             (packedCount > MR_WAVE32_CONTACTS_PER_TILE
                  ? MR_ISLAND_WORK_SPILL
                  : 0u) |
-            (packedCount > 256u
+            // The distributed rigid path uses three grid-wide phases.
+            // Rod islands instead stream arbitrarily many stable tiles in
+            // one owning SIMDgroup so nodal/twist writes retain a unique
+            // owner without atomics or a second semantic solver.
+            (packedCount > 256u && !hasRod
                  ? MR_ISLAND_WORK_DISTRIBUTED
                  : 0u);
-        if (packedCount > 256u) {
+        if (packedCount > 256u && !hasRod) {
             status.queueFlags |=
                 MR_ISLAND_WORK_DISTRIBUTED;
         }
@@ -2522,11 +3636,11 @@ kernel void mr_world_wave32_distributed_prepare(
         device const MRBodyStateGPU* bodies =
             candidateBodies + bodyBase;
         const bool articulatedA =
-            bodies[contact.bodyA].flagsAndIndices[1] ==
-                dispatch.articulationIndex;
+            bodies[contact.bodyA].flagsAndIndices[1] !=
+                MR_INVALID_INDEX;
         const bool articulatedB =
-            bodies[contact.bodyB].flagsAndIndices[1] ==
-                dispatch.articulationIndex;
+            bodies[contact.bodyB].flagsAndIndices[1] !=
+                MR_INVALID_INDEX;
 
         uint failure = MR_STEP_SUCCESS;
         float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
@@ -3265,6 +4379,153 @@ inline bool waveIslandContainsBody(
     return false;
 }
 
+inline float typedNormalCrossContactResponse(
+    const uint targetConstraint,
+    const uint sourceConstraint,
+    device const MRContactConstraintGPU& target,
+    device const MRContactConstraintGPU& source,
+    const float3 targetNormal,
+    const float3 sourceNormal,
+    device const MRBodyStateGPU* bodies,
+    device const float* pointJacobians,
+    const uint pointJacobianBase,
+    device const float* responseColumns,
+    const uint responseBase,
+    const uint nv,
+    const uint articulationIndex,
+    device const MRRodNodeStateGPU* rodNodes,
+    device const float* inverseRodMasses,
+    device const float* inverseRodTwistInertias,
+    device const MRRodColliderGPU* rodColliders,
+    device const MRRodToolWitnessGPU* rodWitnesses,
+    device const uint* constraintWitnessIndices,
+    const uint constraintBase
+) {
+    float response = 0.0f;
+    for (uint dof = 0u; dof < nv; ++dof) {
+        response += dot(
+            targetNormal,
+            typedArticulationJacobianColumn(
+                targetConstraint,
+                target,
+                bodies,
+                pointJacobians,
+                pointJacobianBase,
+                dof,
+                nv,
+                rodWitnesses,
+                constraintWitnessIndices,
+                constraintBase
+            )
+        ) * responseColumns[
+            responseBase +
+            (sourceConstraint * 3u) * nv +
+            dof
+        ];
+    }
+
+    const bool targetRod = typedRodConstraint(target);
+    const bool sourceRod = typedRodConstraint(source);
+    MRRodToolWitnessGPU targetWitness = {};
+    MRRodToolWitnessGPU sourceWitness = {};
+    if (targetRod) {
+        targetWitness = rodWitnesses[
+            constraintWitnessIndices[
+                constraintBase + targetConstraint
+            ]
+        ];
+    }
+    if (sourceRod) {
+        sourceWitness = rodWitnesses[
+            constraintWitnessIndices[
+                constraintBase + sourceConstraint
+            ]
+        ];
+    }
+
+    const uint targetEndpointCount = targetRod ? 1u : 2u;
+    const uint sourceEndpointCount = sourceRod ? 1u : 2u;
+    for (uint targetEndpoint = 0u;
+         targetEndpoint < targetEndpointCount;
+         ++targetEndpoint) {
+        const uint targetBody =
+            targetRod
+            ? targetWitness.featuresAndFlags.z
+            : targetEndpoint == 0u
+            ? target.bodyA
+            : target.bodyB;
+        const float targetSign =
+            targetRod
+            ? 1.0f
+            : targetEndpoint == 0u
+            ? -1.0f
+            : 1.0f;
+        const float3 targetPoint =
+            targetRod
+            ? targetWitness.toolPointAndSeparation.xyz
+            : target.pointAndSeparation.xyz;
+        device const MRBodyStateGPU& body =
+            bodies[targetBody];
+        if (!dynamicSceneEndpoint(body, articulationIndex)) {
+            continue;
+        }
+        for (uint sourceEndpoint = 0u;
+             sourceEndpoint < sourceEndpointCount;
+             ++sourceEndpoint) {
+            const uint sourceBody =
+                sourceRod
+                ? sourceWitness.featuresAndFlags.z
+                : sourceEndpoint == 0u
+                ? source.bodyA
+                : source.bodyB;
+            if (sourceBody != targetBody) {
+                continue;
+            }
+            const float sourceSign =
+                sourceRod
+                ? 1.0f
+                : sourceEndpoint == 0u
+                ? -1.0f
+                : 1.0f;
+            const float3 sourcePoint =
+                sourceRod
+                ? sourceWitness.toolPointAndSeparation.xyz
+                : source.pointAndSeparation.xyz;
+            response += targetSign * dot(
+                targetNormal,
+                sceneCrossPointResponse(
+                    body,
+                    targetPoint,
+                    sourcePoint,
+                    sourceSign * sourceNormal
+                )
+            );
+        }
+    }
+
+    if (targetRod && sourceRod) {
+        const MRRodColliderGPU targetCollider =
+            rodColliders[targetWitness.identity.z];
+        const MRRodColliderGPU sourceCollider =
+            rodColliders[sourceWitness.identity.z];
+        if (targetCollider.rodIndex ==
+            sourceCollider.rodIndex) {
+            response += rodCrossContactResponse(
+                targetCollider,
+                targetWitness,
+                sourceCollider,
+                sourceWitness,
+                rodNodes,
+                inverseRodMasses,
+                inverseRodTwistInertias,
+                targetNormal,
+                sourceNormal
+            );
+        }
+    }
+    return response;
+}
+
 // Shared packet body. Standalone Metal obtains packet slots through indirect
 // dispatch while MLX uses a fixed worker grid that repeatedly claims slots
 // from the invocation-local queue cursor.
@@ -3289,6 +4550,13 @@ inline void mrWorldWave32SolvePacket(
     device MRWave32IslandStatusGPU* waveStatuses,
     device const MRWorkQueueHeaderGPU* workHeaders,
     device const MRWaveWorkPacketGPU* workPackets,
+    device MRRodNodeStateGPU* candidateRodNodes,
+    device MRRodEdgeStateGPU* candidateRodEdges,
+    device const float* inverseRodMasses,
+    device const float* inverseRodTwistInertias,
+    device const MRRodColliderGPU* rodColliders,
+    device MRRodToolWitnessGPU* rodWitnesses,
+    device const uint* constraintWitnessIndices,
     constant MRMetalWorldPassGPU& pass,
     const uint packetSlot,
     const uint lane,
@@ -3364,6 +4632,12 @@ inline void mrWorldWave32SolvePacket(
         candidateV + velocityBase;
     device MRBodyStateGPU* bodies =
         candidateBodies + bodyBase;
+    device MRRodNodeStateGPU* rodNodes =
+        candidateRodNodes +
+        environment * dispatch.rodNodeCount;
+    device MRRodEdgeStateGPU* rodEdges =
+        candidateRodEdges +
+        environment * dispatch.rodEdgeCount;
 
     uint localFailure = MR_STEP_SUCCESS;
     uint localFailureConstraint = MR_INVALID_INDEX;
@@ -3390,11 +4664,11 @@ inline void mrWorldWave32SolvePacket(
         device MRContactConstraintGPU& contact =
             contacts[constraintBase + localConstraint];
         const bool articulatedA =
-            bodies[contact.bodyA].flagsAndIndices[1] ==
-                dispatch.articulationIndex;
+            bodies[contact.bodyA].flagsAndIndices[1] !=
+                MR_INVALID_INDEX;
         const bool articulatedB =
-            bodies[contact.bodyB].flagsAndIndices[1] ==
-                dispatch.articulationIndex;
+            bodies[contact.bodyB].flagsAndIndices[1] !=
+                MR_INVALID_INDEX;
         float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
         float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
         float solution[MR_ARTICULATED_ABA_MAX_DOFS];
@@ -4157,6 +5431,13 @@ kernel void mr_world_wave32_solve(
     device const MRWorkQueueHeaderGPU* workHeaders [[buffer(18)]],
     constant MRMetalWorldPassGPU& pass [[buffer(19)]],
     device const MRWaveWorkPacketGPU* workPackets [[buffer(20)]],
+    device MRRodNodeStateGPU* candidateRodNodes [[buffer(21)]],
+    device MRRodEdgeStateGPU* candidateRodEdges [[buffer(22)]],
+    device const float* inverseRodMasses [[buffer(23)]],
+    device const float* inverseRodTwistInertias [[buffer(24)]],
+    device const MRRodColliderGPU* rodColliders [[buffer(25)]],
+    device MRRodToolWitnessGPU* rodWitnesses [[buffer(26)]],
+    device const uint* constraintWitnessIndices [[buffer(27)]],
     const uint packetSlot [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_simdgroup]]
 ) {
@@ -4188,6 +5469,13 @@ kernel void mr_world_wave32_solve(
         waveStatuses,
         workHeaders,
         workPackets,
+        candidateRodNodes,
+        candidateRodEdges,
+        inverseRodMasses,
+        inverseRodTwistInertias,
+        rodColliders,
+        rodWitnesses,
+        constraintWitnessIndices,
         pass,
         packetSlot,
         lane,
@@ -4223,6 +5511,13 @@ kernel void mr_world_wave32_solve_persistent(
     device MRWorkQueueHeaderGPU* workHeaders [[buffer(18)]],
     constant MRMetalWorldPassGPU& pass [[buffer(19)]],
     device const MRWaveWorkPacketGPU* workPackets [[buffer(20)]],
+    device MRRodNodeStateGPU* candidateRodNodes [[buffer(21)]],
+    device MRRodEdgeStateGPU* candidateRodEdges [[buffer(22)]],
+    device const float* inverseRodMasses [[buffer(23)]],
+    device const float* inverseRodTwistInertias [[buffer(24)]],
+    device const MRRodColliderGPU* rodColliders [[buffer(25)]],
+    device MRRodToolWitnessGPU* rodWitnesses [[buffer(26)]],
+    device const uint* constraintWitnessIndices [[buffer(27)]],
     const uint lane [[thread_index_in_simdgroup]]
 ) {
     constexpr uint kPacketClaimBatch = 4u;
@@ -4297,6 +5592,13 @@ kernel void mr_world_wave32_solve_persistent(
                 waveStatuses,
                 workHeaders,
                 workPackets,
+                candidateRodNodes,
+                candidateRodEdges,
+                inverseRodMasses,
+                inverseRodTwistInertias,
+                rodColliders,
+                rodWitnesses,
+                constraintWitnessIndices,
                 pass,
                 packetSlot,
                 lane,
@@ -4389,6 +5691,211 @@ kernel void mr_world_reduce_wave32_status(
     statuses[environment] = status;
 }
 
+// Ordered sparse generalized blocks share the composed block-diagonal
+// articulation factor and canonical ConstraintIR stream. Contact/rod blocks
+// are handled by Wave32; this pass closes limits/equalities/gears/tendons
+// without routing through the compatibility multi-articulation solver.
+kernel void mr_world_solve_generalized_constraints(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const float* factors [[buffer(1)]],
+    device float* candidateV [[buffer(2)]],
+    device MRContactConstraintGPU* contacts [[buffer(3)]],
+    device const MRConstraintIRBlockGPU* blocks [[buffer(4)]],
+    device const MRConstraintIREndpointGPU* endpoints [[buffer(5)]],
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(6)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(8)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.authoredConstraintCount == 0u) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS ||
+        dispatch.nv > MR_ARTICULATED_ABA_MAX_DOFS) {
+        return;
+    }
+    const uint constraintBase =
+        environment * dispatch.constraintStride;
+    const uint endpointBase =
+        2u * environment * dispatch.constraintStride;
+    const uint rowBase =
+        environment * dispatch.rowStride;
+    const uint velocityBase = environment * dispatch.nv;
+    const uint factorBase =
+        environment * dispatch.factorStride;
+    device float* velocity =
+        candidateV + velocityBase;
+    float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
+    float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
+    float solution[MR_ARTICULATED_ABA_MAX_DOFS];
+    float maximumResidual = 0.0f;
+    const uint iterations = max(
+        dispatch.velocityIterations +
+            (pass.reserved0 != 0u
+                 ? dispatch.finalVelocityIterations
+                 : 0u),
+        1u
+    );
+
+    for (uint iteration = 0u;
+         iteration < iterations;
+         ++iteration) {
+        for (uint localConstraint = 0u;
+             localConstraint <
+                 min(
+                     status.requiredConstraints,
+                     dispatch.authoredConstraintCount
+                 );
+             ++localConstraint) {
+            const uint constraintIndex =
+                constraintBase + localConstraint;
+            device MRContactConstraintGPU& compatibility =
+                contacts[constraintIndex];
+            const MRConstraintIRBlockGPU block =
+                blocks[constraintIndex];
+            if ((block.flags &
+                 MR_CONSTRAINT_IR_BLOCK_GENERALIZED) == 0u ||
+                (block.flags &
+                 MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u) {
+                continue;
+            }
+            for (uint localRow = 0u;
+                 localRow < block.dimension;
+                 ++localRow) {
+                for (uint dof = 0u;
+                     dof < dispatch.nv;
+                     ++dof) {
+                    rightHandSide[dof] = 0.0f;
+                    intermediate[dof] = 0.0f;
+                    solution[dof] = 0.0f;
+                }
+                for (uint endpointIndex = 0u;
+                     endpointIndex < block.endpointCount;
+                     ++endpointIndex) {
+                    const MRConstraintIREndpointGPU endpoint =
+                        endpoints[
+                            endpointBase +
+                            block.endpointOffset +
+                            endpointIndex
+                        ];
+                    if (endpoint.role ==
+                        MR_CONSTRAINT_IR_ENDPOINT_WORLD) {
+                        continue;
+                    }
+                    const uint endpointRow =
+                        endpoint.flags &
+                        MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK;
+                    if (endpoint.jacobianKind !=
+                            MR_CONSTRAINT_IR_JACOBIAN_GENERALIZED ||
+                        endpoint.objectIndex >= dispatch.nv ||
+                        endpointRow >= block.dimension) {
+                        status.code = MR_STEP_UNSUPPORTED;
+                        status.firstFailingConstraint =
+                            localConstraint;
+                        statuses[environment] = status;
+                        return;
+                    }
+                    if (endpointRow == localRow) {
+                        rightHandSide[
+                            endpoint.objectIndex
+                        ] += endpoint.axis.x;
+                    }
+                }
+                if (!solveCholesky(
+                        factors,
+                        factorBase,
+                        dispatch.nv,
+                        rightHandSide,
+                        intermediate,
+                        solution
+                    )) {
+                    status.code =
+                        MR_STEP_FACTORIZATION_FAILED;
+                    status.firstFailingConstraint =
+                        localConstraint;
+                    statuses[environment] = status;
+                    return;
+                }
+                float response = 0.0f;
+                float relative = 0.0f;
+                for (uint dof = 0u;
+                     dof < dispatch.nv;
+                     ++dof) {
+                    response = fma(
+                        rightHandSide[dof],
+                        solution[dof],
+                        response
+                    );
+                    relative = fma(
+                        rightHandSide[dof],
+                        velocity[dof],
+                        relative
+                    );
+                }
+                const MREvaluatedConstraintIRRowGPU row =
+                    evaluatedRows[
+                        rowBase + block.rowOffset + localRow
+                    ];
+                response += row.regularization;
+                if (!(response > 1.0e-12f) ||
+                    !isfinite(response) ||
+                    !isfinite(relative)) {
+                    status.code =
+                        MR_STEP_FACTORIZATION_FAILED;
+                    status.firstFailingConstraint =
+                        localConstraint;
+                    statuses[environment] = status;
+                    return;
+                }
+                const float previous =
+                    compatibility.impulses[localRow];
+                const float residual =
+                    relative - row.targetVelocity +
+                    row.regularization * previous;
+                const float proposed = clamp(
+                    previous - residual / response,
+                    row.impulseLower,
+                    row.impulseUpper
+                );
+                const float delta = proposed - previous;
+                if (!isfinite(proposed) ||
+                    !isfinite(delta)) {
+                    status.code = MR_STEP_NONFINITE_RESULT;
+                    status.firstFailingConstraint =
+                        localConstraint;
+                    statuses[environment] = status;
+                    return;
+                }
+                compatibility.impulses[localRow] = proposed;
+                for (uint dof = 0u;
+                     dof < dispatch.nv;
+                     ++dof) {
+                    velocity[dof] = fma(
+                        solution[dof],
+                        delta,
+                        velocity[dof]
+                    );
+                }
+                maximumResidual = max(
+                    maximumResidual,
+                    abs(residual)
+                );
+            }
+        }
+    }
+    status.solverIterations = max(
+        status.solverIterations,
+        iterations
+    );
+    status.residuals.y = max(
+        status.residuals.y,
+        maximumResidual
+    );
+    statuses[environment] = status;
+}
+
 // Exact-cone block PGS/TGS velocity solve for one articulation plus arbitrary
 // free rigid bodies. The articulation Cholesky factor is reused for all three
 // RHS of every contact; no dense inverse is formed.
@@ -4468,12 +5975,19 @@ kernel void mr_world_solve_contact_islands(
          ++localConstraint) {
         device const MRContactConstraintGPU& contact =
             contacts[constraintBase + localConstraint];
+        if ((contact.flags &
+             (
+                 MR_CONSTRAINT_FLAG_ROD_ENDPOINT |
+                 MR_CONSTRAINT_FLAG_GENERALIZED
+             )) != 0u) {
+            continue;
+        }
         const bool articulatedA =
-            bodies[contact.bodyA].flagsAndIndices[1] ==
-                dispatch.articulationIndex;
+            bodies[contact.bodyA].flagsAndIndices[1] !=
+                MR_INVALID_INDEX;
         const bool articulatedB =
-            bodies[contact.bodyB].flagsAndIndices[1] ==
-                dispatch.articulationIndex;
+            bodies[contact.bodyB].flagsAndIndices[1] !=
+                MR_INVALID_INDEX;
         for (uint axis = 0u; axis < 3u; ++axis) {
             const float3 direction =
                 evaluatedRows[
@@ -4529,6 +6043,13 @@ kernel void mr_world_solve_contact_islands(
              ++localConstraint) {
             device MRContactConstraintGPU& contact =
                 contacts[constraintBase + localConstraint];
+            if ((contact.flags &
+                 (
+                     MR_CONSTRAINT_FLAG_ROD_ENDPOINT |
+                     MR_CONSTRAINT_FLAG_GENERALIZED
+                 )) != 0u) {
+                continue;
+            }
             const float3 warm = projectFrictionCone(
                 contact.impulses.xyz,
                 evaluatedCones[
@@ -4566,6 +6087,13 @@ kernel void mr_world_solve_contact_islands(
              ++localConstraint) {
             device MRContactConstraintGPU& contact =
                 contacts[constraintBase + localConstraint];
+            if ((contact.flags &
+                 (
+                     MR_CONSTRAINT_FLAG_ROD_ENDPOINT |
+                     MR_CONSTRAINT_FLAG_GENERALIZED
+                 )) != 0u) {
+                continue;
+            }
             device const MREvaluatedConstraintIRRowGPU* localRows =
                 evaluatedRows +
                 rowBase + 3u * localConstraint;
@@ -4579,11 +6107,11 @@ kernel void mr_world_solve_contact_islands(
             device const MRBodyStateGPU& bodyB =
                 bodies[contact.bodyB];
             const bool articulatedA =
-                bodyA.flagsAndIndices[1] ==
-                    dispatch.articulationIndex;
+                bodyA.flagsAndIndices[1] !=
+                    MR_INVALID_INDEX;
             const bool articulatedB =
-                bodyB.flagsAndIndices[1] ==
-                    dispatch.articulationIndex;
+                bodyB.flagsAndIndices[1] !=
+                    MR_INVALID_INDEX;
 
             float effective[3][3];
             for (uint row = 0u; row < 3u; ++row) {
@@ -4730,6 +6258,13 @@ kernel void mr_world_solve_contact_islands(
          ++localConstraint) {
         device MRContactConstraintGPU& contact =
             contacts[constraintBase + localConstraint];
+        if ((contact.flags &
+             (
+                 MR_CONSTRAINT_FLAG_ROD_ENDPOINT |
+                 MR_CONSTRAINT_FLAG_GENERALIZED
+             )) != 0u) {
+            continue;
+        }
         device const MREvaluatedConstraintIRRowGPU* localRows =
             evaluatedRows +
             rowBase + 3u * localConstraint;
@@ -4815,6 +6350,554 @@ kernel void mr_world_solve_contact_islands(
     statuses[environment] = status;
 }
 
+inline void rodSurfaceImpulseTranspose(
+    device MRRodNodeStateGPU& nodeA,
+    device MRRodNodeStateGPU& nodeB,
+    device MRRodEdgeStateGPU& edgeState,
+    const float inverseMassA,
+    const float inverseMassB,
+    const float inverseTwistInertia,
+    const float weight,
+    const float3 radial,
+    const float radius,
+    const float3 impulse
+) {
+    const float3 edge =
+        nodeB.position.xyz - nodeA.position.xyz;
+    const float lengthSquared = dot(edge, edge);
+    if (!(lengthSquared > 1.0e-20f)) {
+        return;
+    }
+    const float length = sqrt(lengthSquared);
+    const float3 tangent = edge / length;
+    const float3 surfaceRadius = radius * radial;
+    const float3 angularImpulse =
+        cross(surfaceRadius, impulse);
+    const float3 bendTranspose =
+        (
+            cross(angularImpulse, tangent) -
+            tangent *
+                dot(
+                    tangent,
+                    cross(angularImpulse, tangent)
+                )
+        ) / length;
+    const float3 forceA =
+        (1.0f - weight) * impulse - bendTranspose;
+    const float3 forceB =
+        weight * impulse + bendTranspose;
+    nodeA.velocity.xyz += inverseMassA * forceA;
+    nodeB.velocity.xyz += inverseMassB * forceB;
+    edgeState.twistAndRate.y +=
+        inverseTwistInertia *
+        dot(cross(tangent, surfaceRadius), impulse);
+}
+
+// Ordered rod blocks consume the same IR, rows, cones, factor cache and
+// articulation Jacobians as Wave32. The current rod solveA is the positive
+// diagonal of the implicit DER operator; the endpoint Jacobian and transpose
+// are exact for the frozen microstep, including bending-frame and twist
+// surface velocity. Replacing solveA with the retained band factor therefore
+// does not change contact semantics or island composition.
+kernel void mr_world_solve_rod_contact_constraints(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const float* factors [[buffer(1)]],
+    device const float* pointJacobians [[buffer(2)]],
+    device float* candidateV [[buffer(3)]],
+    device MRBodyStateGPU* candidateBodies [[buffer(4)]],
+    device MRRodNodeStateGPU* candidateRodNodes [[buffer(5)]],
+    device MRRodEdgeStateGPU* candidateRodEdges [[buffer(6)]],
+    device const float* inverseRodMasses [[buffer(7)]],
+    device const float* inverseRodTwistInertias [[buffer(8)]],
+    device const MRRodColliderGPU* rodColliders [[buffer(9)]],
+    device MRContactConstraintGPU* contacts [[buffer(10)]],
+    device const MRConstraintIRBlockGPU* blocks [[buffer(11)]],
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(12)]],
+    device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(13)]],
+    device float* responseColumns [[buffer(14)]],
+    device MRRodToolWitnessGPU* witnesses [[buffer(15)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(16)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(17)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS ||
+        dispatch.rodToolPairCount == 0u ||
+        dispatch.nv > MR_ARTICULATED_ABA_MAX_DOFS) {
+        return;
+    }
+    const uint constraintBase =
+        environment * dispatch.constraintStride;
+    const uint rowBase =
+        environment * dispatch.rowStride;
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    const uint nodeBase =
+        environment * dispatch.rodNodeCount;
+    const uint edgeBase =
+        environment * dispatch.rodEdgeCount;
+    const uint velocityBase = environment * dispatch.nv;
+    const uint factorBase =
+        environment * dispatch.factorStride;
+    const uint pointJacobianBase =
+        environment *
+        (dispatch.pointQueryStride * 3u * dispatch.nv);
+    const uint responseBase =
+        environment *
+        (dispatch.constraintStride * 3u * dispatch.nv);
+    float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
+    float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
+    float solution[MR_ARTICULATED_ABA_MAX_DOFS];
+    device float* articulationVelocity =
+        candidateV + velocityBase;
+    device MRBodyStateGPU* bodies =
+        candidateBodies + bodyBase;
+
+    // Cache articulation response columns for the tool endpoint. Rod and
+    // maximal-body responses remain direct matrix-free operations.
+    for (uint localConstraint = 0u;
+         localConstraint < status.requiredConstraints;
+         ++localConstraint) {
+        device const MRContactConstraintGPU& contact =
+            contacts[constraintBase + localConstraint];
+        if ((contact.flags &
+             MR_CONSTRAINT_FLAG_ROD_ENDPOINT) == 0u) {
+            continue;
+        }
+        const MRConstraintIRBlockGPU block =
+            blocks[constraintBase + localConstraint];
+        const MRRodToolWitnessGPU witness =
+            witnesses[block.reserved0];
+        device const MRBodyStateGPU& tool =
+            bodies[witness.featuresAndFlags.z];
+        const bool articulated =
+            tool.flagsAndIndices[1] != MR_INVALID_INDEX;
+        for (uint axis = 0u; axis < 3u; ++axis) {
+            const float3 direction =
+                evaluatedRows[
+                    rowBase + block.rowOffset + axis
+                ].direction.xyz;
+            for (uint dof = 0u;
+                 dof < dispatch.nv;
+                 ++dof) {
+                rightHandSide[dof] =
+                    articulated
+                    ? dot(
+                          direction,
+                          rodToolJacobianColumn(
+                              pointJacobians,
+                              pointJacobianBase,
+                              localConstraint,
+                              dof,
+                              dispatch.nv
+                          )
+                      )
+                    : 0.0f;
+                intermediate[dof] = 0.0f;
+                solution[dof] = 0.0f;
+            }
+            if (articulated &&
+                !solveCholesky(
+                    factors,
+                    factorBase,
+                    dispatch.nv,
+                    rightHandSide,
+                    intermediate,
+                    solution
+                )) {
+                status.code = MR_STEP_FACTORIZATION_FAILED;
+                status.firstFailingConstraint =
+                    localConstraint;
+                statuses[environment] = status;
+                return;
+            }
+            for (uint dof = 0u;
+                 dof < dispatch.nv;
+                 ++dof) {
+                responseColumns[
+                    responseBase +
+                    (localConstraint * 3u + axis) *
+                        dispatch.nv +
+                    dof
+                ] = solution[dof];
+            }
+        }
+    }
+
+    float maximumImpulseDelta = 0.0f;
+    const uint outerIterations = max(
+        dispatch.rodContactOuterIterations,
+        1u
+    );
+    for (uint iteration = 0u;
+         iteration < outerIterations;
+         ++iteration) {
+        for (uint localConstraint = 0u;
+             localConstraint < status.requiredConstraints;
+             ++localConstraint) {
+            device MRContactConstraintGPU& contact =
+                contacts[constraintBase + localConstraint];
+            if ((contact.flags &
+                 MR_CONSTRAINT_FLAG_ROD_ENDPOINT) == 0u) {
+                continue;
+            }
+            const MRConstraintIRBlockGPU block =
+                blocks[constraintBase + localConstraint];
+            device MRRodToolWitnessGPU& witness =
+                witnesses[block.reserved0];
+            const uint rodColliderIndex =
+                witness.identity.z;
+            device const MRRodColliderGPU& collider =
+                rodColliders[rodColliderIndex];
+            device MRRodNodeStateGPU& nodeA =
+                candidateRodNodes[
+                    nodeBase + collider.nodeA
+                ];
+            device MRRodNodeStateGPU& nodeB =
+                candidateRodNodes[
+                    nodeBase + collider.nodeB
+                ];
+            device MRRodEdgeStateGPU& rodEdge =
+                candidateRodEdges[
+                    edgeBase + collider.edgeIndex
+                ];
+            device MRBodyStateGPU& tool =
+                bodies[witness.featuresAndFlags.z];
+            const float weight =
+                witness.rodPointAndWeight.w;
+            const float3 radial =
+                witness.radialAndTwistJacobianV.xyz;
+            const float radius =
+                collider.radiusAndOffsets.x;
+            const bool articulated =
+                tool.flagsAndIndices[1] != MR_INVALID_INDEX;
+            const float3 directions[3] = {
+                evaluatedRows[
+                    rowBase + block.rowOffset + 0u
+                ].direction.xyz,
+                evaluatedRows[
+                    rowBase + block.rowOffset + 1u
+                ].direction.xyz,
+                evaluatedRows[
+                    rowBase + block.rowOffset + 2u
+                ].direction.xyz,
+            };
+            if (iteration == 0u) {
+                MREvaluatedConstraintIRConeGPU warmCone =
+                    evaluatedCones[
+                        constraintBase + localConstraint
+                    ];
+                const float3 warm =
+                    projectFrictionCone(
+                        contact.impulses.xyz,
+                        warmCone
+                    );
+                const float3 warmImpulse =
+                    directions[0] * warm.x +
+                    directions[1] * warm.y +
+                    directions[2] * warm.z;
+                rodSurfaceImpulseTranspose(
+                    nodeA,
+                    nodeB,
+                    rodEdge,
+                    inverseRodMasses[collider.nodeA],
+                    inverseRodMasses[collider.nodeB],
+                    inverseRodTwistInertias[
+                        collider.edgeIndex
+                    ],
+                    weight,
+                    radial,
+                    radius,
+                    -warmImpulse
+                );
+                if (articulated) {
+                    for (uint dof = 0u;
+                         dof < dispatch.nv;
+                         ++dof) {
+                        articulationVelocity[dof] +=
+                            responseColumns[
+                                responseBase +
+                                (
+                                    localConstraint * 3u +
+                                    0u
+                                ) * dispatch.nv +
+                                dof
+                            ] * warm.x +
+                            responseColumns[
+                                responseBase +
+                                (
+                                    localConstraint * 3u +
+                                    1u
+                                ) * dispatch.nv +
+                                dof
+                            ] * warm.y +
+                            responseColumns[
+                                responseBase +
+                                (
+                                    localConstraint * 3u +
+                                    2u
+                                ) * dispatch.nv +
+                                dof
+                            ] * warm.z;
+                    }
+                } else {
+                    applySceneImpulse(
+                        tool,
+                        witness.toolPointAndSeparation.xyz,
+                        warmImpulse
+                    );
+                }
+                contact.impulses.xyz = warm;
+            }
+            const float3 rodVelocity =
+                rodSurfaceVelocity(
+                    nodeA,
+                    nodeB,
+                    rodEdge,
+                    weight,
+                    radial,
+                    radius
+                );
+            const float3 toolVelocity =
+                articulated
+                ? articulatedPointVelocity(
+                      pointJacobians,
+                      pointJacobianBase,
+                      2u * localConstraint + 1u,
+                      dispatch.nv,
+                      articulationVelocity
+                  )
+                : pointVelocity(
+                      tool,
+                      witness.toolPointAndSeparation.xyz
+                  );
+            const float3 relative =
+                toolVelocity - rodVelocity;
+            const float relativeRows[3] = {
+                dot(directions[0], relative),
+                dot(directions[1], relative),
+                dot(directions[2], relative),
+            };
+
+            float effective[3][3];
+            for (uint row = 0u; row < 3u; ++row) {
+                for (uint column = 0u;
+                     column < 3u;
+                     ++column) {
+                    const float3 rodResponse =
+                        rodSurfaceResponse(
+                            nodeA,
+                            nodeB,
+                            rodEdge,
+                            inverseRodMasses[
+                                collider.nodeA
+                            ],
+                            inverseRodMasses[
+                                collider.nodeB
+                            ],
+                            inverseRodTwistInertias[
+                                collider.edgeIndex
+                            ],
+                            weight,
+                            radial,
+                            radius,
+                            directions[column]
+                        );
+                    float3 toolResponse =
+                        float3(0.0f);
+                    if (articulated) {
+                        for (uint dof = 0u;
+                             dof < dispatch.nv;
+                             ++dof) {
+                            toolResponse +=
+                                rodToolJacobianColumn(
+                                    pointJacobians,
+                                    pointJacobianBase,
+                                    localConstraint,
+                                    dof,
+                                    dispatch.nv
+                                ) *
+                                responseColumns[
+                                    responseBase +
+                                    (
+                                        localConstraint * 3u +
+                                        column
+                                    ) * dispatch.nv +
+                                    dof
+                                ];
+                        }
+                    } else {
+                        toolResponse = scenePointResponse(
+                            tool,
+                            witness.toolPointAndSeparation.xyz,
+                            directions[column]
+                        );
+                    }
+                    float value = dot(
+                        directions[row],
+                        toolResponse + rodResponse
+                    );
+                    if (row == column) {
+                        value +=
+                            evaluatedRows[
+                                rowBase +
+                                block.rowOffset + row
+                            ].regularization;
+                    }
+                    effective[row][column] = value;
+                }
+            }
+            float inverse[3][3];
+            if (!invert3x3(effective, inverse)) {
+                status.code = MR_STEP_FACTORIZATION_FAILED;
+                status.firstFailingConstraint =
+                    localConstraint;
+                statuses[environment] = status;
+                return;
+            }
+            const float3 previous = contact.impulses.xyz;
+            float target[3];
+            for (uint row = 0u; row < 3u; ++row) {
+                const MREvaluatedConstraintIRRowGPU evaluated =
+                    evaluatedRows[
+                        rowBase + block.rowOffset + row
+                    ];
+                target[row] = evaluated.targetVelocity;
+                if (row == 0u &&
+                    iteration == 0u &&
+                    (contact.flags &
+                     MR_CONSTRAINT_FLAG_NEW_IMPACT) != 0u &&
+                    witness
+                            .normalAndPreSolveVelocity.w <
+                        -evaluatedCones[
+                             constraintBase +
+                             localConstraint
+                         ].restitutionThreshold) {
+                    target[row] = max(
+                        target[row],
+                        -contact.response.x *
+                            witness
+                                .normalAndPreSolveVelocity.w
+                    );
+                }
+            }
+            float rhs[3];
+            for (uint row = 0u; row < 3u; ++row) {
+                rhs[row] =
+                    target[row] -
+                    relativeRows[row] -
+                    evaluatedRows[
+                        rowBase + block.rowOffset + row
+                    ].regularization *
+                        previous[row];
+            }
+            float3 proposed = previous;
+            for (uint row = 0u; row < 3u; ++row) {
+                for (uint column = 0u;
+                     column < 3u;
+                     ++column) {
+                    proposed[row] +=
+                        inverse[row][column] * rhs[column];
+                }
+            }
+            MREvaluatedConstraintIRConeGPU cone =
+                evaluatedCones[
+                    constraintBase + localConstraint
+                ];
+            const float slip =
+                length(float2(relativeRows[1], relativeRows[2]));
+            cone.effectiveFrictionU =
+                slip <= 1.0e-3f
+                ? cone.staticFrictionU
+                : cone.dynamicFrictionU;
+            cone.effectiveFrictionV =
+                slip <= 1.0e-3f
+                ? cone.staticFrictionV
+                : cone.dynamicFrictionV;
+            proposed = projectFrictionCone(proposed, cone);
+            const float3 delta = proposed - previous;
+            if (!finite3(proposed) || !finite3(delta)) {
+                status.code = MR_STEP_NONFINITE_RESULT;
+                status.firstFailingConstraint =
+                    localConstraint;
+                statuses[environment] = status;
+                return;
+            }
+            const float3 worldImpulse =
+                directions[0] * delta.x +
+                directions[1] * delta.y +
+                directions[2] * delta.z;
+            rodSurfaceImpulseTranspose(
+                nodeA,
+                nodeB,
+                rodEdge,
+                inverseRodMasses[collider.nodeA],
+                inverseRodMasses[collider.nodeB],
+                inverseRodTwistInertias[
+                    collider.edgeIndex
+                ],
+                weight,
+                radial,
+                radius,
+                -worldImpulse
+            );
+            if (articulated) {
+                for (uint dof = 0u;
+                     dof < dispatch.nv;
+                     ++dof) {
+                    articulationVelocity[dof] +=
+                        responseColumns[
+                            responseBase +
+                            (localConstraint * 3u + 0u) *
+                                dispatch.nv +
+                            dof
+                        ] * delta.x +
+                        responseColumns[
+                            responseBase +
+                            (localConstraint * 3u + 1u) *
+                                dispatch.nv +
+                            dof
+                        ] * delta.y +
+                        responseColumns[
+                            responseBase +
+                            (localConstraint * 3u + 2u) *
+                                dispatch.nv +
+                            dof
+                        ] * delta.z;
+                }
+            } else {
+                applySceneImpulse(
+                    tool,
+                    witness.toolPointAndSeparation.xyz,
+                    worldImpulse
+                );
+            }
+            contact.impulses.xyz = proposed;
+            witness.impulses.xyz = proposed;
+            maximumImpulseDelta = max(
+                maximumImpulseDelta,
+                max(
+                    abs(delta.x),
+                    max(abs(delta.y), abs(delta.z))
+                )
+            );
+        }
+    }
+    status.residuals.x = max(
+        status.residuals.x,
+        maximumImpulseDelta
+    );
+    status.solverIterations = max(
+        status.solverIterations,
+        outerIterations
+    );
+    (void)pass;
+    statuses[environment] = status;
+}
+
 // Integrates only after constrained velocities are available.
 kernel void mr_world_integrate_contact_state(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
@@ -4836,75 +6919,83 @@ kernel void mr_world_integrate_contact_state(
     if (status.code != MR_STEP_SUCCESS) {
         return;
     }
-    const MRArticulationGPU articulation =
-        articulations[dispatch.articulationIndex];
     const float timestep = dispatch.timestepAndBias.x;
-    const uint qBase = environment * articulation.nq;
-    const uint vBase = environment * articulation.nv;
-    for (uint q = 0u; q < articulation.nq; ++q) {
+    const uint qBase = environment * dispatch.qStride;
+    const uint vBase = environment * dispatch.vStride;
+    for (uint q = 0u; q < dispatch.nq; ++q) {
         candidateQ[qBase + q] = sourceQ[qBase + q];
     }
-    if (articulation.rootType == MR_ROOT_FLOATING) {
-        candidateQ[qBase + 0u] =
-            sourceQ[qBase + 0u] +
-            timestep * candidateV[vBase + 0u];
-        candidateQ[qBase + 1u] =
-            sourceQ[qBase + 1u] +
-            timestep * candidateV[vBase + 1u];
-        candidateQ[qBase + 2u] =
-            sourceQ[qBase + 2u] +
-            timestep * candidateV[vBase + 2u];
-        const float3 rotationVector =
-            timestep * float3(
-                candidateV[vBase + 3u],
-                candidateV[vBase + 4u],
-                candidateV[vBase + 5u]
+    for (uint owner = 0u;
+         owner < dispatch.articulationCount;
+         ++owner) {
+        const MRArticulationGPU articulation =
+            articulations[owner];
+        const uint articulationQ =
+            qBase + articulation.qOffset;
+        const uint articulationV =
+            vBase + articulation.vOffset;
+        if (articulation.rootType == MR_ROOT_FLOATING) {
+            candidateQ[articulationQ + 0u] =
+                sourceQ[articulationQ + 0u] +
+                timestep * candidateV[articulationV + 0u];
+            candidateQ[articulationQ + 1u] =
+                sourceQ[articulationQ + 1u] +
+                timestep * candidateV[articulationV + 1u];
+            candidateQ[articulationQ + 2u] =
+                sourceQ[articulationQ + 2u] +
+                timestep * candidateV[articulationV + 2u];
+            const float3 rotationVector =
+                timestep * float3(
+                    candidateV[articulationV + 3u],
+                    candidateV[articulationV + 4u],
+                    candidateV[articulationV + 5u]
+                );
+            const float angle = length(rotationVector);
+            const float halfAngle = 0.5f * angle;
+            const float scale = angle > 1.0e-6f
+                ? sin(halfAngle) / angle
+                : 0.5f - angle * angle / 48.0f;
+            const float4 increment = float4(
+                rotationVector * scale,
+                cos(halfAngle)
             );
-        const float angle = length(rotationVector);
-        const float halfAngle = 0.5f * angle;
-        const float scale = angle > 1.0e-6f
-            ? sin(halfAngle) / angle
-            : 0.5f - angle * angle / 48.0f;
-        const float4 increment = float4(
-            rotationVector * scale,
-            cos(halfAngle)
-        );
-        float4 orientation;
-        if (!normalizedQuaternion(
-                quaternionMultiply(
-                    increment,
-                    float4(
-                        sourceQ[qBase + 3u],
-                        sourceQ[qBase + 4u],
-                        sourceQ[qBase + 5u],
-                        sourceQ[qBase + 6u]
-                    )
-                ),
-                orientation
-            )) {
-            status.code = MR_STEP_NONFINITE_RESULT;
-            status.firstFailingConstraint = 3u;
-            statuses[environment] = status;
-            return;
+            float4 orientation;
+            if (!normalizedQuaternion(
+                    quaternionMultiply(
+                        increment,
+                        float4(
+                            sourceQ[articulationQ + 3u],
+                            sourceQ[articulationQ + 4u],
+                            sourceQ[articulationQ + 5u],
+                            sourceQ[articulationQ + 6u]
+                        )
+                    ),
+                    orientation
+                )) {
+                status.code = MR_STEP_NONFINITE_RESULT;
+                status.firstFailingConstraint =
+                    articulation.qOffset + 3u;
+                statuses[environment] = status;
+                return;
+            }
+            candidateQ[articulationQ + 3u] = orientation.x;
+            candidateQ[articulationQ + 4u] = orientation.y;
+            candidateQ[articulationQ + 5u] = orientation.z;
+            candidateQ[articulationQ + 6u] = orientation.w;
         }
-        candidateQ[qBase + 3u] = orientation.x;
-        candidateQ[qBase + 4u] = orientation.y;
-        candidateQ[qBase + 5u] = orientation.z;
-        candidateQ[qBase + 6u] = orientation.w;
-    }
-    for (uint localJoint = 0u;
-         localJoint < articulation.jointCount;
-         ++localJoint) {
-        const MRJointDescriptorGPU joint =
-            joints[articulation.firstJoint + localJoint];
-        if (joint.nv == 1u) {
-            const uint localQ =
-                joint.qOffset - articulation.qOffset;
-            const uint localV =
-                joint.vOffset - articulation.vOffset;
-            candidateQ[qBase + localQ] =
-                sourceQ[qBase + localQ] +
-                timestep * candidateV[vBase + localV];
+        for (uint localJoint = 0u;
+             localJoint < articulation.jointCount;
+             ++localJoint) {
+            const MRJointDescriptorGPU joint =
+                joints[
+                    articulation.firstJoint + localJoint
+                ];
+            if (joint.nv == 1u) {
+                candidateQ[qBase + joint.qOffset] =
+                    sourceQ[qBase + joint.qOffset] +
+                    timestep *
+                        candidateV[vBase + joint.vOffset];
+            }
         }
     }
 
@@ -5044,18 +7135,17 @@ kernel void mr_world_restore_inactive_event_candidate(
             MR_STEP_FIXED_BUDGET_COMPLETE) {
         return;
     }
-    const MRArticulationGPU articulation =
-        articulations[dispatch.articulationIndex];
-    const uint qBase = environment * articulation.nq;
-    const uint vBase = environment * articulation.nv;
+    (void)articulations;
+    const uint qBase = environment * dispatch.qStride;
+    const uint vBase = environment * dispatch.vStride;
     for (uint coordinate = 0u;
-         coordinate < articulation.nq;
+         coordinate < dispatch.nq;
          ++coordinate) {
         candidateQ[qBase + coordinate] =
             sourceQ[qBase + coordinate];
     }
     for (uint coordinate = 0u;
-         coordinate < articulation.nv;
+         coordinate < dispatch.nv;
          ++coordinate) {
         candidateV[vBase + coordinate] =
             sourceV[vBase + coordinate];
@@ -5130,12 +7220,11 @@ kernel void mr_world_publish_event_segment(
     }
     const bool publish =
         statuses[environment].code == MR_STEP_SUCCESS;
-    const MRArticulationGPU articulation =
-        articulations[dispatch.articulationIndex];
-    const uint qBase = environment * articulation.nq;
-    const uint vBase = environment * articulation.nv;
+    (void)articulations;
+    const uint qBase = environment * dispatch.qStride;
+    const uint vBase = environment * dispatch.vStride;
     for (uint coordinate = 0u;
-         coordinate < articulation.nq;
+         coordinate < dispatch.nq;
          ++coordinate) {
         destinationQ[qBase + coordinate] =
             publish
@@ -5143,7 +7232,7 @@ kernel void mr_world_publish_event_segment(
             : sourceQ[qBase + coordinate];
     }
     for (uint coordinate = 0u;
-         coordinate < articulation.nv;
+         coordinate < dispatch.nv;
          ++coordinate) {
         destinationV[vBase + coordinate] =
             publish
@@ -5373,11 +7462,11 @@ inline bool qualityContactResponseDiagonal(
     float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
     float solution[MR_ARTICULATED_ABA_MAX_DOFS];
     const bool articulatedA =
-        bodies[contact.bodyA].flagsAndIndices[1] ==
-            dispatch.articulationIndex;
+        bodies[contact.bodyA].flagsAndIndices[1] !=
+            MR_INVALID_INDEX;
     const bool articulatedB =
-        bodies[contact.bodyB].flagsAndIndices[1] ==
-            dispatch.articulationIndex;
+        bodies[contact.bodyB].flagsAndIndices[1] !=
+            MR_INVALID_INDEX;
     for (uint dof = 0u; dof < dispatch.nv; ++dof) {
         rightHandSide[dof] = dot(
             direction,
@@ -5443,9 +7532,104 @@ inline bool qualityContactResponseDiagonal(
     return isfinite(diagonal);
 }
 
+inline bool qualityRodContactResponseDiagonal(
+    device const MRMetalWorldContactDispatchGPU& dispatch,
+    const uint localConstraint,
+    const float3 direction,
+    device const MRBodyStateGPU* bodies,
+    device const float* factorMatrices,
+    const uint factorBase,
+    device const float* pointJacobians,
+    const uint pointJacobianBase,
+    device const MRRodNodeStateGPU* rodNodes,
+    device const MRRodEdgeStateGPU* rodEdges,
+    device const float* inverseRodMasses,
+    device const float* inverseRodTwistInertias,
+    device const MRRodColliderGPU* rodColliders,
+    const MRRodToolWitnessGPU witness,
+    thread float& diagonal
+) {
+    const MRRodColliderGPU collider =
+        rodColliders[witness.identity.z];
+    device const MRRodNodeStateGPU& nodeA =
+        rodNodes[collider.nodeA];
+    device const MRRodNodeStateGPU& nodeB =
+        rodNodes[collider.nodeB];
+    device const MRRodEdgeStateGPU& edge =
+        rodEdges[collider.edgeIndex];
+    const float3 rodResponse = rodSurfaceResponse(
+        nodeA,
+        nodeB,
+        edge,
+        inverseRodMasses[collider.nodeA],
+        inverseRodMasses[collider.nodeB],
+        inverseRodTwistInertias[collider.edgeIndex],
+        witness.rodPointAndWeight.w,
+        witness.radialAndTwistJacobianV.xyz,
+        collider.radiusAndOffsets.x,
+        direction
+    );
+    float response = dot(direction, rodResponse);
+
+    device const MRBodyStateGPU& tool =
+        bodies[witness.featuresAndFlags.z];
+    if (tool.flagsAndIndices[1] != MR_INVALID_INDEX) {
+        float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
+        float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
+        float solution[MR_ARTICULATED_ABA_MAX_DOFS];
+        for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+            rightHandSide[dof] = dot(
+                direction,
+                rodToolJacobianColumn(
+                    pointJacobians,
+                    pointJacobianBase,
+                    localConstraint,
+                    dof,
+                    dispatch.nv
+                )
+            );
+            intermediate[dof] = 0.0f;
+            solution[dof] = 0.0f;
+        }
+        if (!solveCholesky(
+                factorMatrices,
+                factorBase,
+                dispatch.nv,
+                rightHandSide,
+                intermediate,
+                solution
+            )) {
+            return false;
+        }
+        for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+            response = fma(
+                rightHandSide[dof],
+                solution[dof],
+                response
+            );
+        }
+    } else if (dynamicSceneEndpoint(
+                   tool,
+                   dispatch.articulationIndex
+               )) {
+        response += dot(
+            direction,
+            scenePointResponse(
+                tool,
+                witness.toolPointAndSeparation.xyz,
+                direction
+            )
+        );
+    }
+    diagonal = max(response, 0.0f);
+    return isfinite(diagonal);
+}
+
 // Adapts evaluated ConstraintIR contact blocks to the common primal product
 // cone operator. The generalized coordinate order is articulation velocity
-// followed by six world-frame coordinates for every compiled scene body.
+// followed by six world-frame coordinates for every compiled scene body,
+// three translational coordinates per rod node, and one twist coordinate per
+// rod edge.
 // Static/kinematic scene slots receive identity dynamics and zero Jacobians,
 // keeping the fixed MLX shape SPD without allowing a boundary body to move.
 kernel void mr_world_prepare_unified_quality(
@@ -5472,6 +7656,17 @@ kernel void mr_world_prepare_unified_quality(
     device float* freeVelocities [[buffer(17)]],
     device float* warmVelocities [[buffer(18)]],
     device float* warmImpulses [[buffer(19)]],
+    device const MRRodNodeStateGPU* candidateRodNodes [[buffer(20)]],
+    device const MRRodEdgeStateGPU* candidateRodEdges [[buffer(21)]],
+    device const float* inverseRodMasses [[buffer(22)]],
+    device const float* inverseRodTwistInertias [[buffer(23)]],
+    device const MRRodColliderGPU* rodColliders [[buffer(24)]],
+    device const MRRodToolWitnessGPU* rodWitnesses [[buffer(25)]],
+    device const uint* rodConstraintWitnessIndices [[buffer(26)]],
+    device const float* rodRestLengths [[buffer(27)]],
+    device const float* rodStretchStiffness [[buffer(28)]],
+    device const float* rodBendStiffness [[buffer(29)]],
+    device const float* rodTwistStiffness [[buffer(30)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_simdgroup]]
 ) {
@@ -5481,8 +7676,12 @@ kernel void mr_world_prepare_unified_quality(
     }
     MRMetalWorldContactStatusGPU contactStatus =
         statuses[environment];
+    const uint sceneNv = 6u * dispatch.sceneBodyCount;
+    const uint rodNodeVelocityBase = dispatch.nv + sceneNv;
+    const uint rodTwistVelocityBase =
+        rodNodeVelocityBase + 3u * dispatch.rodNodeCount;
     const uint totalNv =
-        dispatch.nv + 6u * dispatch.sceneBodyCount;
+        rodTwistVelocityBase + dispatch.rodEdgeCount;
     const bool validDispatch =
         contactStatus.code == MR_STEP_SUCCESS &&
         qualityDispatch.abiVersion ==
@@ -5491,15 +7690,21 @@ kernel void mr_world_prepare_unified_quality(
             dispatch.environmentCount &&
         qualityDispatch.generalizedVelocityCount == totalNv &&
         qualityDispatch.rowCount ==
-            3u * dispatch.constraintCapacity &&
-        qualityDispatch.blockCount ==
+            3u * qualityDispatch.blockCount &&
+        qualityDispatch.blockCount <=
             dispatch.constraintCapacity &&
+        contactStatus.requiredConstraints <=
+            qualityDispatch.blockCount &&
         qualityDispatch.blockStride >=
-            dispatch.constraintCapacity;
+            qualityDispatch.blockCount;
     if (!validDispatch) {
         if (lane == 0u &&
             contactStatus.code == MR_STEP_SUCCESS) {
-            contactStatus.code = MR_STEP_UNSUPPORTED;
+            contactStatus.code =
+                contactStatus.requiredConstraints >
+                        qualityDispatch.blockCount
+                ? MR_STEP_CONSTRAINT_CAPACITY_OVERFLOW
+                : MR_STEP_UNSUPPORTED;
             statuses[environment] = contactStatus;
         }
         return;
@@ -5530,7 +7735,7 @@ kernel void mr_world_prepare_unified_quality(
         float value = 0.0f;
         if (dof < dispatch.nv) {
             value = candidateV[velocityBase + dof];
-        } else {
+        } else if (dof < rodNodeVelocityBase) {
             const uint sceneCoordinate = dof - dispatch.nv;
             const uint localScene = sceneCoordinate / 6u;
             const uint component =
@@ -5543,6 +7748,24 @@ kernel void mr_world_prepare_unified_quality(
                 component < 3u
                 ? body.linearVelocityAndInverseMass[component]
                 : body.angularVelocity[component - 3u];
+        } else if (dof < rodTwistVelocityBase) {
+            const uint rodCoordinate =
+                dof - rodNodeVelocityBase;
+            const uint node = rodCoordinate / 3u;
+            const uint component =
+                rodCoordinate - 3u * node;
+            const MRRodNodeStateGPU state =
+                candidateRodNodes[
+                    environment * dispatch.rodNodeCount + node
+                ];
+            value = state.velocity[component];
+        } else {
+            const uint edge = dof - rodTwistVelocityBase;
+            const MRRodEdgeStateGPU state =
+                candidateRodEdges[
+                    environment * dispatch.rodEdgeCount + edge
+                ];
+            value = state.twistAndRate.y;
         }
         freeVelocities[vectorBase + dof] = value;
         warmVelocities[vectorBase + dof] = value;
@@ -5575,7 +7798,9 @@ kernel void mr_world_prepare_unified_quality(
             }
         } else if (
             row >= dispatch.nv &&
-            column >= dispatch.nv
+            column >= dispatch.nv &&
+            row < rodNodeVelocityBase &&
+            column < rodNodeVelocityBase
         ) {
             const uint rowSceneCoordinate =
                 row - dispatch.nv;
@@ -5635,6 +7860,193 @@ kernel void mr_world_prepare_unified_quality(
                         : 0.0f;
                 }
             }
+        } else if (
+            row >= rodNodeVelocityBase &&
+            column >= rodNodeVelocityBase &&
+            row < rodTwistVelocityBase &&
+            column < rodTwistVelocityBase
+        ) {
+            const uint rowCoordinate =
+                row - rodNodeVelocityBase;
+            const uint columnCoordinate =
+                column - rodNodeVelocityBase;
+            const uint rowNode = rowCoordinate / 3u;
+            const uint columnNode = columnCoordinate / 3u;
+            const uint rowComponent =
+                rowCoordinate - 3u * rowNode;
+            const uint columnComponent =
+                columnCoordinate - 3u * columnNode;
+            if (rowNode == columnNode &&
+                rowComponent == columnComponent) {
+                const float inverseMass =
+                    inverseRodMasses[rowNode];
+                value =
+                    inverseMass > 0.0f
+                    ? 1.0f / inverseMass
+                    : 1.0e8f;
+            }
+            const float timestepSquared =
+                dispatch.timestepAndBias.x *
+                dispatch.timestepAndBias.x;
+            for (uint edge = 0u;
+                 edge < dispatch.rodEdgeCount;
+                 ++edge) {
+                const MRRodColliderGPU collider =
+                    rodColliders[edge];
+                const int rowSign =
+                    rowNode == collider.nodeA
+                    ? -1
+                    : rowNode == collider.nodeB
+                    ? 1
+                    : 0;
+                const int columnSign =
+                    columnNode == collider.nodeA
+                    ? -1
+                    : columnNode == collider.nodeB
+                    ? 1
+                    : 0;
+                if (rowSign == 0 || columnSign == 0) {
+                    continue;
+                }
+                const float3 edgeVector =
+                    candidateRodNodes[
+                        environment * dispatch.rodNodeCount +
+                        collider.nodeB
+                    ].position.xyz -
+                    candidateRodNodes[
+                        environment * dispatch.rodNodeCount +
+                        collider.nodeA
+                    ].position.xyz;
+                const float lengthSquared =
+                    dot(edgeVector, edgeVector);
+                if (!(lengthSquared > 1.0e-20f)) {
+                    localFailure = true;
+                    continue;
+                }
+                const float3 tangent =
+                    edgeVector * rsqrt(lengthSquared);
+                const float restLength = max(
+                    rodRestLengths[edge],
+                    1.0e-6f
+                );
+                const float stiffness =
+                    timestepSquared *
+                    max(rodStretchStiffness[edge], 0.0f) /
+                    restLength;
+                value +=
+                    float(rowSign * columnSign) *
+                    stiffness *
+                    tangent[rowComponent] *
+                    tangent[columnComponent];
+            }
+            for (uint firstEdge = 0u;
+                 firstEdge + 1u < dispatch.rodEdgeCount;
+                 ++firstEdge) {
+                const MRRodColliderGPU first =
+                    rodColliders[firstEdge];
+                const MRRodColliderGPU second =
+                    rodColliders[firstEdge + 1u];
+                if (first.rodIndex != second.rodIndex ||
+                    first.nodeB != second.nodeA) {
+                    continue;
+                }
+                const uint nodes[3] = {
+                    first.nodeA,
+                    first.nodeB,
+                    second.nodeB,
+                };
+                const int coefficients[3] = {1, -2, 1};
+                int rowCoefficient = 0;
+                int columnCoefficient = 0;
+                for (uint local = 0u; local < 3u; ++local) {
+                    if (rowNode == nodes[local]) {
+                        rowCoefficient = coefficients[local];
+                    }
+                    if (columnNode == nodes[local]) {
+                        columnCoefficient =
+                            coefficients[local];
+                    }
+                }
+                if (rowCoefficient == 0 ||
+                    columnCoefficient == 0 ||
+                    rowComponent != columnComponent) {
+                    continue;
+                }
+                const uint bendIndex =
+                    firstEdge - first.rodIndex;
+                const float meanRest = max(
+                    0.5f * (
+                        rodRestLengths[firstEdge] +
+                        rodRestLengths[firstEdge + 1u]
+                    ),
+                    1.0e-6f
+                );
+                const float stiffness =
+                    timestepSquared *
+                    max(rodBendStiffness[bendIndex], 0.0f) /
+                    (meanRest * meanRest * meanRest);
+                value +=
+                    float(
+                        rowCoefficient *
+                        columnCoefficient
+                    ) * stiffness;
+            }
+        } else if (
+            row >= rodTwistVelocityBase &&
+            column >= rodTwistVelocityBase
+        ) {
+            const uint rowEdge = row - rodTwistVelocityBase;
+            const uint columnEdge =
+                column - rodTwistVelocityBase;
+            if (rowEdge == columnEdge) {
+                const float inverseInertia =
+                    inverseRodTwistInertias[rowEdge];
+                value =
+                    inverseInertia > 0.0f
+                    ? 1.0f / inverseInertia
+                    : 1.0e8f;
+            }
+            for (uint firstEdge = 0u;
+                 firstEdge + 1u < dispatch.rodEdgeCount;
+                 ++firstEdge) {
+                if (rodColliders[firstEdge].rodIndex !=
+                    rodColliders[firstEdge + 1u].rodIndex) {
+                    continue;
+                }
+                const int rowSign =
+                    rowEdge == firstEdge
+                    ? -1
+                    : rowEdge == firstEdge + 1u
+                    ? 1
+                    : 0;
+                const int columnSign =
+                    columnEdge == firstEdge
+                    ? -1
+                    : columnEdge == firstEdge + 1u
+                    ? 1
+                    : 0;
+                if (rowSign == 0 || columnSign == 0) {
+                    continue;
+                }
+                const uint bendIndex =
+                    firstEdge -
+                    rodColliders[firstEdge].rodIndex;
+                const float restLength = max(
+                    0.5f * (
+                        rodRestLengths[firstEdge] +
+                        rodRestLengths[firstEdge + 1u]
+                    ),
+                    1.0e-6f
+                );
+                value +=
+                    float(rowSign * columnSign) *
+                    dispatch.timestepAndBias.x *
+                    dispatch.timestepAndBias.x *
+                    max(
+                        rodTwistStiffness[bendIndex],
+                        0.0f
+                    ) / restLength;
+            }
         }
         dynamicsMatrices[dynamicsBase + entry] = value;
         localFailure =
@@ -5642,9 +8054,9 @@ kernel void mr_world_prepare_unified_quality(
     }
 
     for (uint localConstraint = lane;
-         localConstraint < dispatch.constraintCapacity;
+         localConstraint < qualityDispatch.blockCount;
          localConstraint += 32u) {
-        const bool active =
+        bool active =
             localConstraint <
                 contactStatus.requiredConstraints;
         MRUnifiedQualityBlockGPU qualityBlock = {};
@@ -5707,18 +8119,50 @@ kernel void mr_world_prepare_unified_quality(
                         3u * localConstraint +
                         axis
                     ].direction.xyz;
-                if (!qualityContactResponseDiagonal(
-                        dispatch,
-                        localConstraint,
-                        contact,
-                        direction,
-                        candidateBodies + bodyBase,
-                        factorMatrices,
-                        factorBase,
-                        pointJacobians,
-                        pointJacobianBase,
-                        responseDiagonal[axis]
-                    )) {
+                const bool rodContact =
+                    (contact.flags &
+                     MR_CONSTRAINT_FLAG_ROD_ENDPOINT) != 0u;
+                const bool responseValid =
+                    rodContact
+                    ? qualityRodContactResponseDiagonal(
+                          dispatch,
+                          localConstraint,
+                          direction,
+                          candidateBodies + bodyBase,
+                          factorMatrices,
+                          factorBase,
+                          pointJacobians,
+                          pointJacobianBase,
+                          candidateRodNodes +
+                              environment *
+                                  dispatch.rodNodeCount,
+                          candidateRodEdges +
+                              environment *
+                                  dispatch.rodEdgeCount,
+                          inverseRodMasses,
+                          inverseRodTwistInertias,
+                          rodColliders,
+                          rodWitnesses[
+                              rodConstraintWitnessIndices[
+                                  constraintBase +
+                                  localConstraint
+                              ]
+                          ],
+                          responseDiagonal[axis]
+                      )
+                    : qualityContactResponseDiagonal(
+                          dispatch,
+                          localConstraint,
+                          contact,
+                          direction,
+                          candidateBodies + bodyBase,
+                          factorMatrices,
+                          factorBase,
+                          pointJacobians,
+                          pointJacobianBase,
+                          responseDiagonal[axis]
+                      );
+                if (!responseValid) {
                     localFailure = true;
                 }
             }
@@ -5809,22 +8253,173 @@ kernel void mr_world_prepare_unified_quality(
         const uint axis = row - 3u * localConstraint;
         float coefficient = 0.0f;
         if (localConstraint <
-            contactStatus.requiredConstraints) {
+                contactStatus.requiredConstraints) {
             const MRContactConstraintGPU contact =
                 contacts[constraintBase + localConstraint];
             const float3 direction =
                 evaluatedRows[rowBase + row].direction.xyz;
-            if (dof < dispatch.nv) {
+            const bool rodContact =
+                (contact.flags &
+                 MR_CONSTRAINT_FLAG_ROD_ENDPOINT) != 0u;
+            if (rodContact) {
+                const uint flatWitness =
+                    rodConstraintWitnessIndices[
+                        constraintBase + localConstraint
+                    ];
+                const MRRodToolWitnessGPU witness =
+                    rodWitnesses[flatWitness];
+                const MRRodColliderGPU collider =
+                    rodColliders[witness.identity.z];
+                if (dof < dispatch.nv) {
+                    coefficient = dot(
+                        direction,
+                        rodToolJacobianColumn(
+                            pointJacobians,
+                            pointJacobianBase,
+                            localConstraint,
+                            dof,
+                            dispatch.nv
+                        )
+                    );
+                } else if (dof < rodNodeVelocityBase) {
+                    const uint sceneCoordinate =
+                        dof - dispatch.nv;
+                    const uint localScene =
+                        sceneCoordinate / 6u;
+                    const uint component =
+                        sceneCoordinate -
+                        6u * localScene;
+                    const uint globalBody =
+                        sceneBodyIndices[localScene];
+                    device const MRBodyStateGPU& body =
+                        candidateBodies[
+                            bodyBase + globalBody
+                        ];
+                    if (globalBody ==
+                            witness.featuresAndFlags.z &&
+                        body.flagsAndIndices[0] ==
+                            MR_MOTION_DYNAMIC) {
+                        if (component < 3u) {
+                            coefficient =
+                                direction[component];
+                        } else {
+                            const float3 lever =
+                                witness
+                                    .toolPointAndSeparation
+                                    .xyz -
+                                body.position.xyz;
+                            coefficient =
+                                cross(lever, direction)[
+                                    component - 3u
+                                ];
+                        }
+                    }
+                } else if (dof < rodTwistVelocityBase) {
+                    const uint rodCoordinate =
+                        dof - rodNodeVelocityBase;
+                    const uint node = rodCoordinate / 3u;
+                    const uint component =
+                        rodCoordinate - 3u * node;
+                    const float weight =
+                        witness.rodPointAndWeight.w;
+                    const float3 edgeVector =
+                        candidateRodNodes[
+                            environment *
+                                dispatch.rodNodeCount +
+                            collider.nodeB
+                        ].position.xyz -
+                        candidateRodNodes[
+                            environment *
+                                dispatch.rodNodeCount +
+                            collider.nodeA
+                        ].position.xyz;
+                    const float lengthSquared =
+                        dot(edgeVector, edgeVector);
+                    if (lengthSquared > 1.0e-20f) {
+                        const float length =
+                            sqrt(lengthSquared);
+                        const float3 tangent =
+                            edgeVector / length;
+                        const float3 surfaceRadius =
+                            collider.radiusAndOffsets.x *
+                            witness
+                                .radialAndTwistJacobianV
+                                .xyz;
+                        const float3 angularImpulse =
+                            cross(surfaceRadius, direction);
+                        const float3 bendTranspose =
+                            (
+                                cross(
+                                    angularImpulse,
+                                    tangent
+                                ) -
+                                tangent *
+                                    dot(
+                                        tangent,
+                                        cross(
+                                            angularImpulse,
+                                            tangent
+                                        )
+                                    )
+                            ) / length;
+                        const float3 nodeForce =
+                            node == collider.nodeA
+                            ? (1.0f - weight) *
+                                  direction -
+                                  bendTranspose
+                            : node == collider.nodeB
+                            ? weight * direction +
+                                  bendTranspose
+                            : float3(0.0f);
+                        coefficient = -nodeForce[component];
+                    }
+                } else {
+                    const uint edge =
+                        dof - rodTwistVelocityBase;
+                    if (edge == collider.edgeIndex) {
+                        const float3 edgeVector =
+                            candidateRodNodes[
+                                environment *
+                                    dispatch.rodNodeCount +
+                                collider.nodeB
+                            ].position.xyz -
+                            candidateRodNodes[
+                                environment *
+                                    dispatch.rodNodeCount +
+                                collider.nodeA
+                            ].position.xyz;
+                        const float lengthSquared =
+                            dot(edgeVector, edgeVector);
+                        if (lengthSquared > 1.0e-20f) {
+                            const float3 tangent =
+                                edgeVector *
+                                rsqrt(lengthSquared);
+                            const float3 surfaceRadius =
+                                collider.radiusAndOffsets.x *
+                                witness
+                                    .radialAndTwistJacobianV
+                                    .xyz;
+                            coefficient = -dot(
+                                cross(
+                                    tangent,
+                                    surfaceRadius
+                                ),
+                                direction
+                            );
+                        }
+                    }
+                }
+            } else if (dof < dispatch.nv) {
                 const bool articulatedA =
                     candidateBodies[
                         bodyBase + contact.bodyA
-                    ].flagsAndIndices[1] ==
-                        dispatch.articulationIndex;
+                    ].flagsAndIndices[1] !=
+                        MR_INVALID_INDEX;
                 const bool articulatedB =
                     candidateBodies[
                         bodyBase + contact.bodyB
-                    ].flagsAndIndices[1] ==
-                        dispatch.articulationIndex;
+                    ].flagsAndIndices[1] !=
+                        MR_INVALID_INDEX;
                 coefficient = dot(
                     direction,
                     combinedJacobianColumn(
@@ -5837,7 +8432,7 @@ kernel void mr_world_prepare_unified_quality(
                         articulatedB
                     )
                 );
-            } else {
+            } else if (dof < rodNodeVelocityBase) {
                 const uint sceneCoordinate =
                     dof - dispatch.nv;
                 const uint localScene =
@@ -5921,8 +8516,12 @@ kernel void mr_world_reconstruct_unified_quality_warm_start(
     }
     MRMetalWorldContactStatusGPU contactStatus =
         statuses[environment];
-    const uint totalNv =
+    const uint rodVelocityBase =
         dispatch.nv + 6u * dispatch.sceneBodyCount;
+    const uint totalNv =
+        rodVelocityBase +
+        3u * dispatch.rodNodeCount +
+        dispatch.rodEdgeCount;
     const bool validDispatch =
         contactStatus.code == MR_STEP_SUCCESS &&
         dispatch.nv <= MR_ARTICULATED_ABA_MAX_DOFS &&
@@ -6092,10 +8691,36 @@ kernel void mr_world_reconstruct_unified_quality_warm_start(
             valid = valid && isfinite(value);
         }
     }
+    // The retained rod operator is banded. A diagonal solve is used only to
+    // construct the optional persistent-impulse starting point; Newton/PCG
+    // still sees every off-diagonal rod term in A and therefore converges to
+    // the identical primal objective.
+    for (uint dof = rodVelocityBase;
+         valid && dof < totalNv;
+         ++dof) {
+        const float diagonal = dynamicsMatrices[
+            dynamicsBase + dof * totalNv + dof
+        ];
+        if (!(diagonal > qualityDispatch.numerics.y) ||
+            !isfinite(diagonal)) {
+            valid = false;
+            break;
+        }
+        const float value =
+            freeVelocities[vectorBase + dof] +
+            generalizedImpulse[dof] / diagonal;
+        warmVelocities[vectorBase + dof] = value;
+        valid = isfinite(value);
+    }
     if (!valid) {
-        contactStatus.code = MR_STEP_FACTORIZATION_FAILED;
-        contactStatus.firstFailingConstraint = 0u;
-        statuses[environment] = contactStatus;
+        // The persistent-impulse reconstruction is only the second of two
+        // primal starting points. A singular or badly scaled cached start
+        // must not reject a valid free-velocity problem; deterministically
+        // fall back to v* and let the quality solver evaluate that objective.
+        for (uint dof = 0u; dof < totalNv; ++dof) {
+            warmVelocities[vectorBase + dof] =
+                freeVelocities[vectorBase + dof];
+        }
     }
 }
 
@@ -6191,6 +8816,10 @@ kernel void mr_world_apply_unified_quality(
     device MRManifoldPointGPU* candidateManifoldPoints
         [[buffer(10)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(11)]],
+    device MRRodNodeStateGPU* candidateRodNodes [[buffer(12)]],
+    device MRRodEdgeStateGPU* candidateRodEdges [[buffer(13)]],
+    device MRRodToolWitnessGPU* rodWitnesses [[buffer(14)]],
+    device const uint* rodConstraintWitnessIndices [[buffer(15)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -6280,6 +8909,35 @@ kernel void mr_world_apply_unified_quality(
             qualityVelocities[offset + 5u]
         );
     }
+    const uint rodVelocityBase =
+        vectorBase +
+        dispatch.nv +
+        6u * dispatch.sceneBodyCount;
+    const uint rodNodeBase =
+        environment * dispatch.rodNodeCount;
+    for (uint node = 0u;
+         node < dispatch.rodNodeCount;
+         ++node) {
+        const uint offset = rodVelocityBase + 3u * node;
+        candidateRodNodes[rodNodeBase + node].velocity.xyz =
+            float3(
+                qualityVelocities[offset + 0u],
+                qualityVelocities[offset + 1u],
+                qualityVelocities[offset + 2u]
+            );
+    }
+    const uint rodEdgeBase =
+        environment * dispatch.rodEdgeCount;
+    const uint rodTwistBase =
+        rodVelocityBase + 3u * dispatch.rodNodeCount;
+    for (uint edge = 0u;
+         edge < dispatch.rodEdgeCount;
+         ++edge) {
+        candidateRodEdges[
+            rodEdgeBase + edge
+        ].twistAndRate.y =
+            qualityVelocities[rodTwistBase + edge];
+    }
     const uint constraintBase =
         environment * dispatch.constraintStride;
     const uint manifoldPointBase =
@@ -6302,15 +8960,26 @@ kernel void mr_world_apply_unified_quality(
         device MRContactConstraintGPU& contact =
             contacts[constraintBase + localConstraint];
         contact.impulses.xyz = impulse;
-        const MRContactPointMetaGPU metadata =
-            contactMetadata[constraintBase + localConstraint];
-        const uint point =
-            manifoldPointBase +
-            metadata.manifoldIndex *
-                MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
-            metadata.pointIndex;
-        candidateManifoldPoints[point].impulses.xyz =
-            impulse;
+        if ((contact.flags &
+             MR_CONSTRAINT_FLAG_ROD_ENDPOINT) != 0u) {
+            rodWitnesses[
+                rodConstraintWitnessIndices[
+                    constraintBase + localConstraint
+                ]
+            ].impulses.xyz = impulse;
+        } else {
+            const MRContactPointMetaGPU metadata =
+                contactMetadata[
+                    constraintBase + localConstraint
+                ];
+            const uint point =
+                manifoldPointBase +
+                metadata.manifoldIndex *
+                    MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
+                metadata.pointIndex;
+            candidateManifoldPoints[point].impulses.xyz =
+                impulse;
+        }
     }
     contactStatus.solverIterations =
         quality.newtonIterations;
