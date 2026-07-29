@@ -73,6 +73,23 @@ typedef struct MR_ALIGN16 MRMultiABADispatchGPU {
     mr_u32 statusBase;
 } MRMultiABADispatchGPU;
 
+// One grid-Y packet for block-diagonal multi-articulation inverse-mass
+// application. The nested dispatch retains the single-articulation ABI while
+// the bases address one environment-major global q/RHS/output allocation.
+typedef struct MR_ALIGN16 MRMultiInverseMassDispatchGPU {
+    MRInverseMassDispatchGPU dispatch;
+
+    mr_u32 qBase;
+    mr_u32 rhsBase;
+    mr_u32 outputBase;
+    mr_u32 statusBase;
+
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+    mr_u32 reserved2;
+    mr_u32 reserved3;
+} MRMultiInverseMassDispatchGPU;
+
 #ifdef __cplusplus
 static_assert(sizeof(MRParallelABAArticulationGPU) == 80);
 static_assert(alignof(MRParallelABAArticulationGPU) == 16);
@@ -82,4 +99,6 @@ static_assert(sizeof(MRParallelABAParentReductionGPU) == 16);
 static_assert(alignof(MRParallelABAParentReductionGPU) == 16);
 static_assert(sizeof(MRMultiABADispatchGPU) == 80);
 static_assert(alignof(MRMultiABADispatchGPU) == 16);
+static_assert(sizeof(MRMultiInverseMassDispatchGPU) == 80);
+static_assert(alignof(MRMultiInverseMassDispatchGPU) == 16);
 #endif

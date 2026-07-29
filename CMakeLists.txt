@@ -103,6 +103,9 @@ set(METALROBO_DISCRETE_ELASTIC_ROD_AIR
 set(METALROBO_ARTICULATED_INVERSE_MASS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedInverseMass.air"
 )
+set(METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMultiArticulatedInverseMass.air"
+)
 set(METALROBO_WORLD_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboWorld.air"
 )
@@ -205,6 +208,14 @@ add_custom_command(
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_INVERSE_MASS_KERNEL_NAME=mr_multi_articulated_inverse_mass
+            -DMR_INVERSE_MASS_MULTI_ARTICULATION=1
+            -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
+            -o "${METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_WORLD_SOURCE}"
             -o "${METALROBO_WORLD_AIR}"
     COMMAND xcrun -sdk macosx metal
@@ -238,6 +249,7 @@ add_custom_command(
             "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
             "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
             "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
+            "${METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_WORLD_AIR}"
             "${METALROBO_WORLD_CONTACT_AIR}"
             "${METALROBO_WORLD_COMPILER_AIR}"
@@ -320,6 +332,7 @@ add_library(
     src/metal/MetalMultiArticulatedABA.mm
     src/metal/MetalDiscreteElasticRod.mm
     src/metal/MetalArticulatedInverseMass.mm
+    src/metal/MetalMultiArticulatedInverseMass.mm
     src/metal/MetalQualityContactSolver.mm
     src/metal/MetalWorld.mm
     src/metal/MetalWorldFamily.mm
@@ -602,6 +615,24 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_multi_articulated_aba_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_multi_articulated_inverse_mass_gpu_probe
+    apps/multi_articulated_inverse_mass_gpu_probe.mm
+)
+target_link_libraries(
+    metalrobo_multi_articulated_inverse_mass_gpu_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_multi_articulated_inverse_mass_gpu_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

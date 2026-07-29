@@ -1,8 +1,17 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/parallel_aba_shared.h"
 
 using namespace metal;
+
+#ifndef MR_INVERSE_MASS_KERNEL_NAME
+#define MR_INVERSE_MASS_KERNEL_NAME mr_articulated_inverse_mass
+#endif
+
+#ifndef MR_INVERSE_MASS_MULTI_ARTICULATION
+#define MR_INVERSE_MASS_MULTI_ARTICULATION 0
+#endif
 
 namespace {
 
@@ -234,20 +243,46 @@ inline bool validVectorStrides(
 // sweeps while environments execute in parallel. The articulated-inertia
 // factorization is shared by every RHS and output is published only after all
 // RHS vectors pass finite checks.
-kernel void mr_articulated_inverse_mass(
+kernel void MR_INVERSE_MASS_KERNEL_NAME(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
     device const MRJointDescriptorGPU* joints [[buffer(2)]],
     device const MRDofPropertiesGPU* dofs [[buffer(3)]],
     device const MRBodyPropertiesGPU* bodies [[buffer(4)]],
-    device const MRInverseMassDispatchGPU& dispatch [[buffer(5)]],
+#if MR_INVERSE_MASS_MULTI_ARTICULATION
+    device const MRMultiInverseMassDispatchGPU* dispatches [[buffer(5)]],
+#else
+    device const MRInverseMassDispatchGPU* dispatches [[buffer(5)]],
+#endif
     device const float* q [[buffer(6)]],
     device const float* rightHandSides [[buffer(7)]],
     device float* output [[buffer(8)]],
     device MRInverseMassStatusGPU* statuses [[buffer(9)]],
-    uint environment [[threadgroup_position_in_grid]],
+    uint2 packet [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
+    const uint environment = packet.x;
+#if MR_INVERSE_MASS_MULTI_ARTICULATION
+    const MRMultiInverseMassDispatchGPU work =
+        dispatches[packet.y];
+    const MRInverseMassDispatchGPU dispatch = work.dispatch;
+    const uint qStreamBase = work.qBase;
+    const uint rhsStreamBase = work.rhsBase;
+    const uint outputStreamBase = work.outputBase;
+    const uint statusIndex = work.statusBase + environment;
+    const bool validWorkRecord =
+        work.reserved0 == 0u &&
+        work.reserved1 == 0u &&
+        work.reserved2 == 0u &&
+        work.reserved3 == 0u;
+#else
+    const MRInverseMassDispatchGPU dispatch = dispatches[0];
+    const uint qStreamBase = 0u;
+    const uint rhsStreamBase = 0u;
+    const uint outputStreamBase = 0u;
+    const uint statusIndex = environment;
+    const bool validWorkRecord = true;
+#endif
     if (lane != 0u || environment >= dispatch.environmentCount) {
         return;
     }
@@ -280,7 +315,8 @@ kernel void mr_articulated_inverse_mass(
     status.rhsCount = dispatch.rhsCount;
 
     device const MRWorldGPU& world = worlds[0];
-    if (world.abiVersion != MR_ENGINE_ABI_VERSION ||
+    if (!validWorkRecord ||
+        world.abiVersion != MR_ENGINE_ABI_VERSION ||
         dispatch.articulationIndex >= world.articulationCount ||
         dispatch.environmentCount == 0u ||
         dispatch.rhsCount == 0u ||
@@ -294,7 +330,7 @@ kernel void mr_articulated_inverse_mass(
             MR_INVERSE_MASS_INVALID_DISPATCH,
             MR_INVALID_INDEX
         );
-        statuses[environment] = status;
+        statuses[statusIndex] = status;
         return;
     }
 
@@ -346,7 +382,7 @@ kernel void mr_articulated_inverse_mass(
                 : MR_INVERSE_MASS_INVALID_MODEL,
             MR_INVALID_INDEX
         );
-        statuses[environment] = status;
+        statuses[statusIndex] = status;
         return;
     }
 
@@ -390,7 +426,7 @@ kernel void mr_articulated_inverse_mass(
                 MR_INVERSE_MASS_INVALID_MODEL,
                 globalJoint
             );
-            statuses[environment] = status;
+            statuses[statusIndex] = status;
             return;
         }
         const bool scalarJoint =
@@ -411,7 +447,7 @@ kernel void mr_articulated_inverse_mass(
                     : MR_INVERSE_MASS_INVALID_MODEL,
                 globalJoint
             );
-            statuses[environment] = status;
+            statuses[statusIndex] = status;
             return;
         }
         if (scalarJoint) {
@@ -424,7 +460,7 @@ kernel void mr_articulated_inverse_mass(
                     MR_INVERSE_MASS_INVALID_MODEL,
                     globalJoint
                 );
-                statuses[environment] = status;
+                statuses[statusIndex] = status;
                 return;
             }
             device const MRDofPropertiesGPU& dof =
@@ -440,7 +476,7 @@ kernel void mr_articulated_inverse_mass(
                     MR_INVERSE_MASS_INVALID_MODEL,
                     joint.vOffset
                 );
-                statuses[environment] = status;
+                statuses[statusIndex] = status;
                 return;
             }
         }
@@ -452,7 +488,7 @@ kernel void mr_articulated_inverse_mass(
                 MR_INVERSE_MASS_UNSUPPORTED_TOPOLOGY,
                 joint.childBody
             );
-            statuses[environment] = status;
+            statuses[statusIndex] = status;
             return;
         }
         inboundJoint[localChild] = globalJoint;
@@ -469,7 +505,7 @@ kernel void mr_articulated_inverse_mass(
             MR_INVERSE_MASS_INVALID_MODEL,
             MR_INVALID_INDEX
         );
-        statuses[environment] = status;
+        statuses[statusIndex] = status;
         return;
     }
 
@@ -489,7 +525,7 @@ kernel void mr_articulated_inverse_mass(
                 MR_INVERSE_MASS_INVALID_MODEL,
                 globalV
             );
-            statuses[environment] = status;
+            statuses[statusIndex] = status;
             return;
         }
         if (articulation.rootType == MR_ROOT_FLOATING &&
@@ -506,7 +542,7 @@ kernel void mr_articulated_inverse_mass(
                     MR_INVERSE_MASS_INVALID_MODEL,
                     globalV
                 );
-                statuses[environment] = status;
+                statuses[statusIndex] = status;
                 return;
             }
         }
@@ -548,11 +584,12 @@ kernel void mr_articulated_inverse_mass(
             MR_INVERSE_MASS_UNSUPPORTED_TOPOLOGY,
             MR_INVALID_INDEX
         );
-        statuses[environment] = status;
+        statuses[statusIndex] = status;
         return;
     }
 
-    const uint qBase = environment * dispatch.qStride;
+    const uint qBase =
+        qStreamBase + environment * dispatch.qStride;
     device const float* environmentQ = q + qBase;
     for (uint localQ = 0u;
          localQ < articulation.nq;
@@ -563,12 +600,13 @@ kernel void mr_articulated_inverse_mass(
                 MR_INVERSE_MASS_NONFINITE_INPUT,
                 localQ
             );
-            statuses[environment] = status;
+            statuses[statusIndex] = status;
             return;
         }
     }
     float maximumInput = 0.0f;
     const uint rhsEnvironmentBase =
+        rhsStreamBase +
         environment * dispatch.rhsEnvironmentStride;
     for (uint rhsIndex = 0u;
          rhsIndex < dispatch.rhsCount;
@@ -587,7 +625,7 @@ kernel void mr_articulated_inverse_mass(
                     MR_INVERSE_MASS_NONFINITE_INPUT,
                     rhsIndex * articulation.nv + localV
                 );
-                statuses[environment] = status;
+                statuses[statusIndex] = status;
                 return;
             }
             maximumInput = max(maximumInput, abs(value));
@@ -616,7 +654,7 @@ kernel void mr_articulated_inverse_mass(
                 MR_INVERSE_MASS_INVALID_QUATERNION,
                 0u
             );
-            statuses[environment] = status;
+            statuses[statusIndex] = status;
             return;
         }
         bodyPosition[rootLocal] = float3(
@@ -659,7 +697,7 @@ kernel void mr_articulated_inverse_mass(
                 MR_INVERSE_MASS_INVALID_MODEL,
                 globalJoint
             );
-            statuses[environment] = status;
+            statuses[statusIndex] = status;
             return;
         }
         const float4 parentToJointRotation =
@@ -701,7 +739,7 @@ kernel void mr_articulated_inverse_mass(
                 MR_INVERSE_MASS_NONFINITE_RESULT,
                 articulation.firstBody + localChild
             );
-            statuses[environment] = status;
+            statuses[statusIndex] = status;
             return;
         }
         bodyRotation[localChild] = checkedChildRotation;
@@ -748,7 +786,7 @@ kernel void mr_articulated_inverse_mass(
                 MR_INVERSE_MASS_NONFINITE_RESULT,
                 articulation.firstBody + localChild
             );
-            statuses[environment] = status;
+            statuses[statusIndex] = status;
             return;
         }
     }
@@ -783,7 +821,7 @@ kernel void mr_articulated_inverse_mass(
                 MR_INVERSE_MASS_INVALID_MODEL,
                 globalBody
             );
-            statuses[environment] = status;
+            statuses[statusIndex] = status;
             return;
         }
         const uint matrixBase = localBody * 36u;
@@ -919,7 +957,7 @@ kernel void mr_articulated_inverse_mass(
                     denominator,
                     maximumInertia
                 );
-                statuses[environment] = status;
+                statuses[statusIndex] = status;
                 return;
             }
             jointDenominator[localBody] = denominator;
@@ -1021,7 +1059,7 @@ kernel void mr_articulated_inverse_mass(
                             value,
                             maximumRootInertia
                         );
-                        statuses[environment] = status;
+                        statuses[statusIndex] = status;
                         return;
                     }
                     const float pivot = sqrt(value);
@@ -1272,7 +1310,7 @@ kernel void mr_articulated_inverse_mass(
                     MR_INVERSE_MASS_NONFINITE_RESULT,
                     rhsIndex * articulation.nv + localV
                 );
-                statuses[environment] = status;
+                statuses[statusIndex] = status;
                 return;
             }
             maximumOutput = max(maximumOutput, abs(value));
@@ -1280,6 +1318,7 @@ kernel void mr_articulated_inverse_mass(
     }
 
     const uint outputEnvironmentBase =
+        outputStreamBase +
         environment * dispatch.outputEnvironmentStride;
     for (uint rhsIndex = 0u;
          rhsIndex < dispatch.rhsCount;
@@ -1302,5 +1341,5 @@ kernel void mr_articulated_inverse_mass(
         maximumOutput,
         maximumInput
     );
-    statuses[environment] = status;
+    statuses[statusIndex] = status;
 }
