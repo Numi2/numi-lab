@@ -712,6 +712,8 @@ makeDualDvrkPsmNeedleThreadWorld(
         static_cast<float>(inverseWorld[8])
     );
     needleState.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+    needleState.flagsAndIndices[1] = MR_INVALID_INDEX;
+    needleState.flagsAndIndices[2] = 0u;
 
     staged.threadModel = makeStraightSutureRod(
         config.threadNodeCount,

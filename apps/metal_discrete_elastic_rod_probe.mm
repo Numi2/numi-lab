@@ -1,5 +1,5 @@
+#include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalDiscreteElasticRod.hpp"
-#include "metalrobo/SurgicalWorld.hpp"
 
 #include <array>
 #include <cmath>
@@ -34,15 +34,24 @@ int main() {
         metalrobo::DualPsmNeedleThreadWorldConfig worldConfig;
         worldConfig.threadNodeCount = 9u;
         worldConfig.threadLengthM = 0.12;
-        const metalrobo::DualPsmNeedleThreadWorld world =
-            metalrobo::makeDualDvrkPsmNeedleThreadWorld(
-                worldConfig
-            );
+        metalrobo::HeterogeneousWorld world;
+        const auto worldDiagnostics =
+            metalrobo::
+                makeDualDvrkPsmNeedleThreadHeterogeneousWorld(
+                    world,
+                    worldConfig
+                );
+        require(
+            worldDiagnostics.succeeded(),
+            "heterogeneous needle-thread world did not cook"
+        );
+        const metalrobo::HeterogeneousRodProgram& thread =
+            world.rods[0];
         const metalrobo::DiscreteElasticRodModel& model =
-            world.threadModel;
+            thread.model;
         std::vector<metalrobo::DiscreteElasticRodState> states(
             environmentCount,
-            world.threadState
+            thread.defaultState
         );
         std::vector<metalrobo::DiscreteElasticRodEnergy> before(
             environmentCount
@@ -52,7 +61,7 @@ int main() {
         );
         std::vector<MRBodyStateGPU> rigidBodies(
             environmentCount,
-            world.needleState
+            world.defaultSceneBodies[0]
         );
         for (std::size_t environment = 0u;
              environment < environmentCount;
@@ -75,13 +84,13 @@ int main() {
                 "initial rod energy is invalid"
             );
             attachments[environment] =
-                world.attachments[0];
+                thread.attachments[0];
         }
         const std::array<
             metalrobo::DiscreteRodRigidAttachmentBinding,
             1
         > rigidBindings{{
-            world.rigidBindings[0],
+            thread.rigidBindings[0],
         }};
 
         metalrobo::MetalDiscreteElasticRodConfig config;

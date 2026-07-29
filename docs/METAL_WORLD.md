@@ -170,6 +170,17 @@ The standalone host currently submits this three-kernel graph and publishes
 rod and rigid output together. Promotion into the MLX `WorldStepPrimitive`,
 thread self/tool contact, and strong coupled rod/rigid iterations remain open.
 
+`HeterogeneousWorld` is the owned compilation boundary above those executors.
+It composes `EngineModel` instances transactionally, records the exact global
+body indices represented by the environment-major scene-state tensor, owns
+DER reset/binding sidecars, validates anchor agreement at the reset pose, and
+fingerprints every topology, state and sidecar byte. The canonical surgical
+factory produces two PSM articulations plus one dynamic compound needle and
+one swage-bound rod. Static generalized rows can already run through the
+multi-articulation Metal/MLX primitive and the rod/needle graph consumes the
+same bundle. Dynamic contact rows spanning more than one articulation are not
+yet admitted into the shared `MetalWorld` contact graph.
+
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training
 default is the MLX-native Franka joint-stabilization task.

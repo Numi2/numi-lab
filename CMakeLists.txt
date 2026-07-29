@@ -323,6 +323,7 @@ add_library(
     src/core/SurgicalPSM.cpp
     src/core/SurgicalAssets.cpp
     src/core/SurgicalWorld.cpp
+    src/core/HeterogeneousWorld.cpp
     src/core/DiscreteElasticRod.cpp
     src/core/Collision.cpp
     src/core/FreeBodyDynamics.cpp
@@ -751,6 +752,22 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_engine_model_composer_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_heterogeneous_world_probe
+    apps/heterogeneous_world_probe.cpp
+)
+target_link_libraries(
+    metalrobo_heterogeneous_world_probe
+    PRIVATE
+        metalrobo
+)
+set_target_properties(
+    metalrobo_heterogeneous_world_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

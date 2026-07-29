@@ -126,6 +126,10 @@ prototype.
   physically parameterized DER stretch/bend/twist, geometry-derived swage
   binding, fixed-slot attachment reaction evidence, and same-command-buffer
   equal/opposite needle wrench with transactional publication
+- **Landed heterogeneous ownership tranche:** one fingerprinted executable
+  bundle now owns composed robot/free-body topology, scene reset states, rod
+  models/states and rigid bindings; the dual-PSM/needle/thread factory feeds
+  the existing multi-articulation compiler and Metal DER path directly
 - Generalize the shared contact island graph to articulation-articulation
   contacts and loop blocks; the multi-articulation ABA/ConstraintIR primitive
   itself is already executable on standalone Metal and MLX

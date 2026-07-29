@@ -131,6 +131,11 @@ linked or called at runtime.
   emits fixed-slot impulse/force evidence, and an equal-and-opposite wrench is
   applied to the dynamic needle in the same command buffer. Rod and rigid
   candidates publish transactionally; no weld or hidden thread force exists
+- Owned heterogeneous executable bundles combine canonical multi-articulation
+  topology, exact unarticulated scene-body reset packing, DER sidecars and
+  rigid bindings under one deterministic fingerprint. The dual-PSM,
+  curved-needle and thread factory compiles to two articulations, one dynamic
+  scene body and one swage-bound rod without reconstructing state ad hoc
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication
@@ -187,6 +192,7 @@ cmake --build build
 ./build/bin/metalrobo_dual_psm_world_probe
 ./build/bin/metalrobo_discrete_elastic_rod_probe
 ./build/bin/metalrobo_metal_discrete_elastic_rod_probe
+./build/bin/metalrobo_heterogeneous_world_probe
 ./build/bin/metalrobo_coupled_articulated_rigid_contact_probe
 ./build/bin/metalrobo_articulated_rigid_collision_probe
 ./build/bin/metalrobo_articulated_rigid_world_probe
