@@ -2082,26 +2082,11 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             capacityProfile.meshTriangleCandidates,
             4u * contactCapacity
         );
-        // One articulation island and one free-body island may both be
-        // non-empty. The worst distribution puts one contact in the smaller
-        // island and all remaining contacts in the larger one.
-        fill(
-            capacityProfile.solverTiles,
-            1u + (
-                capacityProfile.constraintBlocks - 1u +
-                MR_WAVE32_CONTACTS_PER_TILE - 1u
-            ) / MR_WAVE32_CONTACTS_PER_TILE
-        );
-        fill(
-            capacityProfile.spillRows,
-            capacityProfile.constraintBlocks >
-                    MR_WAVE32_CONTACTS_PER_TILE
-            ? 3u * (
-                  capacityProfile.constraintBlocks -
-                  MR_WAVE32_CONTACTS_PER_TILE
-              )
-            : 0u
-        );
+        // Solver-tile and spill capacities remain zero here so the
+        // authoritative CompiledWorld graph derives them from the actual
+        // articulation/free-body topology and authored-constraint prefix.
+        // Duplicating that inference in the MLX wrapper previously lagged
+        // pick-place's second dynamic object and under-reserved its arena.
         fill(capacityProfile.ccdCandidates, pairCapacity);
         fill(
             capacityProfile.ccdEvents,

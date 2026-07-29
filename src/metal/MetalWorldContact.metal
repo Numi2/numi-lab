@@ -4329,6 +4329,7 @@ kernel void mr_world_build_contact_tiles(
         environment * dispatch.solverTileCapacity;
     uint tileCursor = 0u;
     uint constraintIndexCursor = 0u;
+    uint generalizedConstraintCursor = 0u;
     ulong requiredSpillRows = 0u;
     for (uint islandIndex = 0u;
          islandIndex < status.islandCount;
@@ -4371,6 +4372,8 @@ kernel void mr_world_build_contact_tiles(
             statuses[environment] = status;
             return;
         }
+        generalizedConstraintCursor +=
+            generalizedConstraintCount;
         if (packedCount == 0u) {
             islandWork[islandBase + islandIndex] = {};
             islandWorkFlags[islandBase + islandIndex] = 0u;
@@ -4387,8 +4390,8 @@ kernel void mr_world_build_contact_tiles(
         work.firstTile = tileCursor;
         work.tileCount = tileCount;
         work.dofClass =
-            island.generalizedVelocityCount <= 8u ? 8u :
-            island.generalizedVelocityCount <= 16u ? 16u :
+            island.operatorBucket <= 8u ? 8u :
+            island.operatorBucket <= 16u ? 16u :
             32u;
         work.flags = MR_ISLAND_WORK_VALID |
             (hasArticulation
@@ -4470,7 +4473,9 @@ kernel void mr_world_build_contact_tiles(
         status.requiredSpillRows,
         dispatch.spillRowCapacity
     );
-    if (constraintIndexCursor != status.requiredConstraints ||
+    if (constraintIndexCursor +
+            generalizedConstraintCursor !=
+            status.requiredConstraints ||
         tileCursor > dispatch.solverTileCapacity ||
         requiredSpillRows > dispatch.spillRowCapacity) {
         status.code = MR_STEP_CONSTRAINT_CAPACITY_OVERFLOW;
@@ -4534,39 +4539,94 @@ kernel void mr_world_select_solver_cohort(
     device MRWorkQueueHeaderGPU& header =
         headers[MR_WORLD_WORK_SOLVER];
     const uint count = header.count;
-    // The packet solver uses threadgroup barriers for its shared failure and
-    // response reductions. Every packet must therefore keep all SIMD32 lanes
-    // live until those barriers complete. Compact 8/16-lane packets with an
-    // under-filled final cohort let inactive lanes return early and could
-    // deadlock the integrated GPU. One island per SIMD32 packet is both
-    // barrier-uniform and cheap to construct: the SIMD group builds 32 packets
-    // concurrently instead of routing the complete queue through lane zero.
+    uint requiredWidth = 8u;
     for (uint workSlot = lane;
          workSlot < count;
          workSlot += MR_WAVE32_CONTACTS_PER_TILE) {
         const MRIslandWorkGPU work = compactWork[workSlot];
+        const bool distributed =
+            (work.flags & MR_ISLAND_WORK_DISTRIBUTED) != 0u;
+        const uint width =
+            !distributed &&
+            work.dofClass <= 8u &&
+            work.constraintCount <= 8u
+            ? 8u
+            : !distributed &&
+              work.dofClass <= 16u &&
+              work.constraintCount <= 16u
+            ? 16u
+            : MR_WAVE32_CONTACTS_PER_TILE;
+        requiredWidth = max(requiredWidth, width);
+    }
+    requiredWidth = simd_max(requiredWidth);
+    if (lane == 0u) {
+        // The packet solver contains SIMDgroup-wide barriers. Select a compact
+        // width only when the entire scan-ordered topology cohort is
+        // homogeneous and divides into complete packets; otherwise every
+        // island receives a full SIMD32 group. No inactive cohort can then
+        // diverge around a barrier.
+        const uint cohortWidth =
+            count != 0u &&
+            requiredWidth <= 8u &&
+            (count & 3u) == 0u
+            ? 8u
+            : count != 0u &&
+              requiredWidth <= 16u &&
+              (count & 1u) == 0u
+            ? 16u
+            : MR_WAVE32_CONTACTS_PER_TILE;
+        const uint cohortsPerPacket =
+            MR_WAVE32_CONTACTS_PER_TILE / cohortWidth;
+        const uint packetCount =
+            count / cohortsPerPacket;
+        header.reserved0 = cohortWidth;
+        header.indirect.threadgroupsX = packetCount;
+        header.indirect.activeCount = packetCount;
+        header.flags &=
+            ~(MR_WORLD_QUEUE_COHORT_8 |
+              MR_WORLD_QUEUE_COHORT_16);
+        header.flags |=
+            cohortWidth == 8u
+            ? MR_WORLD_QUEUE_COHORT_8
+            : cohortWidth == 16u
+            ? MR_WORLD_QUEUE_COHORT_16
+            : 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+
+    const uint cohortWidth = header.reserved0;
+    const uint cohortsPerPacket =
+        MR_WAVE32_CONTACTS_PER_TILE / cohortWidth;
+    const uint packetCount =
+        header.indirect.threadgroupsX;
+    for (uint packetSlot = lane;
+         packetSlot < packetCount;
+         packetSlot += MR_WAVE32_CONTACTS_PER_TILE) {
+        const uint firstWork =
+            packetSlot * cohortsPerPacket;
         MRWaveWorkPacketGPU packet = {};
         packet.islandSlots = uint4(MR_INVALID_INDEX);
         packet.stableKeyLow = uint4(MR_INVALID_INDEX);
         packet.stableKeyHigh = uint4(MR_INVALID_INDEX);
-        packet.islandSlots[0] = workSlot;
-        packet.stableKeyLow[0] = work.islandIndex;
-        packet.stableKeyHigh[0] = work.environment;
+        for (uint cohort = 0u;
+             cohort < cohortsPerPacket;
+             ++cohort) {
+            const uint sourceSlot = firstWork + cohort;
+            const MRIslandWorkGPU work =
+                compactWork[sourceSlot];
+            packet.islandSlots[cohort] = sourceSlot;
+            packet.stableKeyLow[cohort] =
+                work.islandIndex;
+            packet.stableKeyHigh[cohort] =
+                work.environment;
+        }
         packet.metadata = uint4(
-            MR_WAVE32_CONTACTS_PER_TILE,
-            1u,
+            cohortWidth,
+            cohortsPerPacket,
             0u,
             0u
         );
-        packets[workSlot] = packet;
-    }
-    threadgroup_barrier(mem_flags::mem_device);
-    if (lane == 0u) {
-        header.reserved0 = MR_WAVE32_CONTACTS_PER_TILE;
-        header.indirect.threadgroupsX = count;
-        header.flags &=
-            ~(MR_WORLD_QUEUE_COHORT_8 |
-              MR_WORLD_QUEUE_COHORT_16);
+        packets[packetSlot] = packet;
     }
 }
 
@@ -5574,6 +5634,7 @@ inline bool waveIslandContainsBody(
 inline float typedNormalCrossContactResponse(
     const uint targetConstraint,
     const uint sourceConstraint,
+    const uint sourceAxis,
     device const MRContactConstraintGPU& target,
     device const MRContactConstraintGPU& source,
     const float3 targetNormal,
@@ -5611,7 +5672,7 @@ inline float typedNormalCrossContactResponse(
             )
         ) * responseColumns[
             responseBase +
-            (sourceConstraint * 3u) * nv +
+            (sourceConstraint * 3u + sourceAxis) * nv +
             dof
         ];
     }
@@ -6269,6 +6330,7 @@ inline void mrWorldWave32SolvePacket(
                 float value = typedNormalCrossContactResponse(
                     localConstraint,
                     localConstraint,
+                    column,
                     contact,
                     contact,
                     directions[row],
@@ -6674,6 +6736,7 @@ inline void mrWorldWave32SolvePacket(
                         typedNormalCrossContactResponse(
                             localConstraint,
                             sourceConstraint,
+                            0u,
                             contact,
                             sourceContact,
                             localRows[0].direction.xyz,

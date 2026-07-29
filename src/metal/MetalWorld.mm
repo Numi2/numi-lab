@@ -580,6 +580,71 @@ bool checkedAdd(
     return true;
 }
 
+std::uint32_t contactConstraintCapacity(
+    const std::uint32_t constraintCapacity,
+    const std::size_t authoredConstraintCount
+) {
+    const std::uint64_t authored = std::min<std::uint64_t>(
+        authoredConstraintCount,
+        constraintCapacity
+    );
+    return static_cast<std::uint32_t>(
+        static_cast<std::uint64_t>(constraintCapacity) -
+        authored
+    );
+}
+
+std::uint32_t requiredSolverTileCapacity(
+    const std::uint32_t constraintCapacity,
+    const std::size_t authoredConstraintCount,
+    const std::uint32_t islandCapacity,
+    const std::size_t dynamicNodeCount
+) {
+    const std::uint32_t contacts = contactConstraintCapacity(
+        constraintCapacity,
+        authoredConstraintCount
+    );
+    if (contacts == 0u) {
+        // The contact dispatch ABI intentionally keeps a valid empty tile
+        // arena so authored-only worlds use the same persistent graph.
+        return 1u;
+    }
+    const std::uint32_t nonemptyIslands =
+        std::min<std::uint32_t>(
+            contacts,
+            std::min<std::uint32_t>(
+                islandCapacity,
+                static_cast<std::uint32_t>(
+                    std::min<std::size_t>(
+                        dynamicNodeCount,
+                        std::numeric_limits<std::uint32_t>::max()
+                    )
+                )
+            )
+        );
+    // For C constraints distributed across K nonempty islands, the maximum
+    // sum of ceil(c_i / 32) is K + floor((C - K) / 32).
+    return std::max<std::uint32_t>(
+        1u,
+        nonemptyIslands +
+            (contacts - nonemptyIslands) /
+                MR_WAVE32_CONTACTS_PER_TILE
+    );
+}
+
+std::uint32_t requiredSpillRowCapacity(
+    const std::uint32_t constraintCapacity,
+    const std::size_t authoredConstraintCount
+) {
+    const std::uint32_t contacts = contactConstraintCapacity(
+        constraintCapacity,
+        authoredConstraintCount
+    );
+    return contacts > MR_WAVE32_CONTACTS_PER_TILE
+        ? 3u * (contacts - MR_WAVE32_CONTACTS_PER_TILE)
+        : 0u;
+}
+
 template <typename T>
 bool makeRequirement(
     const char* label,
@@ -11669,20 +11734,21 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             defaultRaw
         );
         const std::uint32_t minimumSolverTiles =
-            (
-                staged.capacities_.constraintBlocks +
-                MR_WAVE32_CONTACTS_PER_TILE - 1u
-            ) / MR_WAVE32_CONTACTS_PER_TILE;
+            requiredSolverTileCapacity(
+                staged.capacities_.constraintBlocks,
+                authoredBlockCount,
+                staged.capacities_.islands,
+                staged.dynamicNodes_.size()
+            );
         staged.capacities_.solverTiles = inferred(
             requestedCapacities.solverTiles,
             minimumSolverTiles
         );
         const std::uint32_t defaultSpillRows =
-            requiredRows > MR_WAVE32_ROWS_PER_TILE
-            ? static_cast<std::uint32_t>(
-                  requiredRows - MR_WAVE32_ROWS_PER_TILE
-              )
-            : 0u;
+            requiredSpillRowCapacity(
+                staged.capacities_.constraintBlocks,
+                authoredBlockCount
+            );
         staged.capacities_.spillRows = inferred(
             requestedCapacities.spillRows,
             defaultSpillRows
@@ -12700,26 +12766,45 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                   .meshTriangleCandidates
             : requestedCapacities.meshTriangleCandidates;
         const std::uint32_t solverTiles =
-            (
-                staged.capacities_.constraintBlocks +
-                MR_WAVE32_CONTACTS_PER_TILE - 1u
-            ) / MR_WAVE32_CONTACTS_PER_TILE;
+            requiredSolverTileCapacity(
+                staged.capacities_.constraintBlocks,
+                staged.model_.constraintProgram.blocks.size(),
+                staged.capacities_.islands,
+                staged.dynamicNodes_.size()
+            );
+        if (requestedCapacities.solverTiles != 0u &&
+            requestedCapacities.solverTiles < solverTiles) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::capacityOverflow,
+                "solver-tile capacity is below the heterogeneous "
+                "topology minimum"
+            );
+        }
         staged.minimumCapacities_.solverTiles = solverTiles;
-        staged.capacities_.solverTiles = std::max(
-            staged.capacities_.solverTiles,
-            solverTiles
-        );
+        staged.capacities_.solverTiles =
+            requestedCapacities.solverTiles == 0u
+            ? solverTiles
+            : requestedCapacities.solverTiles;
         const std::uint32_t spillRows =
-            staged.capacities_.constraintRows >
-                MR_WAVE32_ROWS_PER_TILE
-            ? staged.capacities_.constraintRows -
-                MR_WAVE32_ROWS_PER_TILE
-            : 0u;
+            requiredSpillRowCapacity(
+                staged.capacities_.constraintBlocks,
+                staged.model_.constraintProgram.blocks.size()
+            );
+        if (requestedCapacities.spillRows != 0u &&
+            requestedCapacities.spillRows < spillRows) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::capacityOverflow,
+                "spill-row capacity is below the heterogeneous "
+                "topology minimum"
+            );
+        }
         staged.minimumCapacities_.spillRows = spillRows;
-        staged.capacities_.spillRows = std::max(
-            staged.capacities_.spillRows,
-            spillRows
-        );
+        staged.capacities_.spillRows =
+            requestedCapacities.spillRows == 0u
+            ? spillRows
+            : requestedCapacities.spillRows;
         if (staged.dynamicNodes_.size() >
             MR_WORLD_MAX_DYNAMIC_NODES) {
             return rejectCompile(
