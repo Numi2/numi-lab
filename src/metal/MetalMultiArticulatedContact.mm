@@ -45,7 +45,7 @@ struct PointArenaSlice {
 
 struct Prepared {
     MetalMultiArticulatedContactLayout layout;
-    ParallelABASchedule schedule;
+    const ParallelABASchedule* schedule = nullptr;
     std::vector<MRMultiContactGPU> contacts;
     std::vector<MRMultiContactEndpointsGPU> endpoints;
     std::vector<std::uint32_t> sceneVelocityOffsets;
@@ -380,6 +380,7 @@ bool validSceneBody(
 
 MetalMultiArticulatedContactDiagnostics prepare(
     const EngineModel& model,
+    const ParallelABASchedule& schedule,
     const MetalMultiArticulatedContactInput& input,
     const MetalMultiArticulatedContactConfig& config,
     Prepared& output
@@ -479,17 +480,7 @@ MetalMultiArticulatedContactDiagnostics prepare(
     }
 
     Prepared staged;
-    const ParallelABAScheduleDiagnostics scheduleDiagnostics =
-        compileParallelABASchedule(model, staged.schedule);
-    if (!scheduleDiagnostics.succeeded()) {
-        return reject(
-            std::move(diagnostics),
-            MetalMultiArticulatedContactStatus::
-                unsupportedTopology,
-            "parallel ABA schedule compilation failed: " +
-                scheduleDiagnostics.message
-        );
-    }
+    staged.schedule = &schedule;
     staged.sceneVelocityOffsets.assign(
         input.sceneBodyCount,
         MR_INVALID_INDEX
@@ -1125,35 +1116,35 @@ MetalMultiArticulatedContactDiagnostics prepare(
         ) &&
         MR_ADD_BUFFER(
             MRParallelABAArticulationGPU,
-            staged.schedule.articulations.size()
+            staged.schedule->articulations.size()
         ) &&
         MR_ADD_BUFFER(
             MRParallelABALevelGPU,
-            staged.schedule.levels.size()
+            staged.schedule->levels.size()
         ) &&
         MR_ADD_BUFFER(
             MRParallelABAParentReductionGPU,
-            staged.schedule.parentReductions.size()
+            staged.schedule->parentReductions.size()
         ) &&
         MR_ADD_BUFFER(
             std::uint32_t,
-            staged.schedule.levelBodies.size()
+            staged.schedule->levelBodies.size()
         ) &&
         MR_ADD_BUFFER(
             std::uint32_t,
-            staged.schedule.parentLocal.size()
+            staged.schedule->parentLocal.size()
         ) &&
         MR_ADD_BUFFER(
             std::uint32_t,
-            staged.schedule.inboundJoint.size()
+            staged.schedule->inboundJoint.size()
         ) &&
         MR_ADD_BUFFER(
             std::uint32_t,
-            staged.schedule.childOffsets.size()
+            staged.schedule->childOffsets.size()
         ) &&
         MR_ADD_BUFFER(
             std::uint32_t,
-            staged.schedule.childIndices.size()
+            staged.schedule->childIndices.size()
         ) &&
         MR_ADD_BUFFER(float, staged.layout.delassusElements) &&
         MR_ADD_BUFFER(float, staged.layout.rowElements) &&
@@ -1207,9 +1198,10 @@ void copyBuffer(
 
 } // namespace
 
-MetalMultiArticulatedContactDiagnostics
-solveMetalMultiArticulatedContacts(
+static MetalMultiArticulatedContactDiagnostics
+solveMetalMultiArticulatedContactsImpl(
     const EngineModel& model,
+    const ParallelABASchedule& schedule,
     const MetalMultiArticulatedContactInput& input,
     MetalMultiArticulatedContactResult& output,
     const MetalMultiArticulatedContactConfig& config
@@ -1219,6 +1211,7 @@ solveMetalMultiArticulatedContacts(
     try {
         diagnostics = prepare(
             model,
+            schedule,
             input,
             config,
             prepared
@@ -1471,7 +1464,7 @@ solveMetalMultiArticulatedContacts(
                 device, inverseStatusElements
             );
         const ParallelABASchedule& schedule =
-            prepared.schedule;
+            *prepared.schedule;
         id<MTLBuffer> scheduleArticulationBuffer = inputBuffer(
             device,
             schedule.articulations.data(),
@@ -2006,6 +1999,7 @@ solveMetalMultiArticulatedContacts(
         );
         staged.impulses.resize(layout.rowElements);
         staged.delassus.resize(layout.delassusElements);
+        staged.freeContactVelocity.resize(layout.rowElements);
         staged.statuses.resize(input.environmentCount);
         staged.pointStatuses.resize(pointStatusElements);
         staged.inverseMassStatuses.resize(
@@ -2017,6 +2011,10 @@ solveMetalMultiArticulatedContacts(
         copyBuffer(staged.nextVelocity, nextVelocityBuffer);
         copyBuffer(staged.impulses, physicalImpulseBuffer);
         copyBuffer(staged.delassus, delassusBuffer);
+        copyBuffer(
+            staged.freeContactVelocity,
+            freeContactBuffer
+        );
         copyBuffer(staged.statuses, statusBuffer);
         copyBuffer(staged.pointStatuses, pointStatusBuffer);
         copyBuffer(
@@ -2071,6 +2069,12 @@ solveMetalMultiArticulatedContacts(
                  [](const float value) {
                      return finite(value);
                  }
+             ) ||
+             !std::ranges::all_of(
+                 staged.freeContactVelocity,
+                 [](const float value) {
+                     return finite(value);
+                 }
              ))) {
             return reject(
                 std::move(diagnostics),
@@ -2091,6 +2095,55 @@ solveMetalMultiArticulatedContacts(
         }
         return diagnostics;
     }
+}
+
+MetalMultiArticulatedContactDiagnostics
+solveMetalMultiArticulatedContacts(
+    const EngineModel& model,
+    const MetalMultiArticulatedContactInput& input,
+    MetalMultiArticulatedContactResult& output,
+    const MetalMultiArticulatedContactConfig& config
+) {
+    CompiledMetalMultiArticulatedContactProgram program;
+    auto diagnostics =
+        compileMetalMultiArticulatedContactProgram(
+            model,
+            program
+        );
+    if (!diagnostics.succeeded()) {
+        return diagnostics;
+    }
+    return solveMetalMultiArticulatedContactsImpl(
+        program.model(),
+        program.abaSchedule(),
+        input,
+        output,
+        config
+    );
+}
+
+MetalMultiArticulatedContactDiagnostics
+solveMetalMultiArticulatedContacts(
+    const CompiledMetalMultiArticulatedContactProgram& program,
+    const MetalMultiArticulatedContactInput& input,
+    MetalMultiArticulatedContactResult& output,
+    const MetalMultiArticulatedContactConfig& config
+) {
+    MetalMultiArticulatedContactDiagnostics diagnostics;
+    if (!program.valid()) {
+        return reject(
+            std::move(diagnostics),
+            MetalMultiArticulatedContactStatus::invalidModel,
+            "compiled Metal contact program is invalid"
+        );
+    }
+    return solveMetalMultiArticulatedContactsImpl(
+        program.model(),
+        program.abaSchedule(),
+        input,
+        output,
+        config
+    );
 }
 
 const char* metalMultiArticulatedContactStatusName(

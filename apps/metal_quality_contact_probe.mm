@@ -123,7 +123,10 @@ int main() {
                 gpu.gpuStatus.diagnostics.x <=
                     1.1f *
                     gpuConfig.convergenceTolerance &&
-                gpu.gpuStatus.diagnostics.z < 2.0e-5f,
+                gpu.gpuStatus.diagnostics.z < 2.0e-5f &&
+                gpu.gpuStatus.diagnostics.w <=
+                    MR_METAL_QUALITY_FP32_KKT_MULTIPLIER *
+                    gpuConfig.convergenceTolerance,
             "Metal semismooth quality result disagrees with FP64 oracle"
         );
 
@@ -159,6 +162,7 @@ int main() {
             << gpu.gpuStatus.diagnostics.x
             << " cone_violation="
             << gpu.gpuStatus.diagnostics.z
+            << " kkt=" << gpu.gpuStatus.diagnostics.w
             << " impulse_error=" << impulseError
             << " velocity_error=" << velocityError
             << " transactional=yes\n";

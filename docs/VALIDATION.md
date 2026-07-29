@@ -343,6 +343,25 @@ environment rolls back only that environment while the other three publish
 normally; a rejected pre-dispatch input leaves the previously accepted host
 result unchanged.
 
+The canonical heterogeneous surgical probe also compiles the two PSMs and
+dynamic needle once, then reuses that immutable program for a 34-DoF Metal
+contact solve:
+
+```text
+contact_nv=34
+needle_contact_impulses=0.875982/0.875982
+metal_contact_error=7.06555e-05
+metal_kkt=0.000291094
+cold_start_rejected=yes
+```
+
+The persistent-manifold warm start agrees with the FP64 generalized velocity
+and impulse payload. With warm starts explicitly disabled, this deliberately
+ill-conditioned free-base contact does not satisfy the FP32 KKT certificate;
+the quality stage reports `DID_NOT_CONVERGE` and the environment velocity is
+rolled back. Before the KKT certificate was added, the step-size-scaled
+natural residual could incorrectly accept a zero impulse on this case.
+
 Clean Release result:
 
 ```text

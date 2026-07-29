@@ -6,6 +6,7 @@
 #define MR_METAL_QUALITY_MAX_CONTACTS 32u
 #define MR_METAL_QUALITY_MAX_DIMENSION \
     (3u * MR_METAL_QUALITY_MAX_CONTACTS)
+#define MR_METAL_QUALITY_FP32_KKT_MULTIPLIER 16.0f
 
 enum MRMetalQualityStatusCode : mr_u32 {
     MR_METAL_QUALITY_SUCCESS = 0u,
@@ -48,7 +49,8 @@ typedef struct MR_ALIGN16 MRMetalQualityStatusGPU {
     mr_u32 reserved0;
     mr_u32 reserved1;
 
-    // scaled natural residual, merit, cone violation, objective.
+    // scaled natural residual, merit, cone violation, normalized primal-dual
+    // KKT certificate.
     mr_float4 diagnostics;
 } MRMetalQualityStatusGPU;
 

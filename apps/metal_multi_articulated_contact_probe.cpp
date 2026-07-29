@@ -204,10 +204,25 @@ int main() {
         config.quality.maximumCGIterations = 128u;
         config.quality.convergenceTolerance = 3.0e-5F;
 
+        metalrobo::CompiledMetalMultiArticulatedContactProgram
+            program;
+        const auto compiled =
+            metalrobo::
+                compileMetalMultiArticulatedContactProgram(
+                    model,
+                    program
+                );
+        require(
+            compiled.succeeded() &&
+                compiled.published &&
+                program.valid() &&
+                program.fingerprint() != 0u,
+            "Metal contact program did not compile"
+        );
         metalrobo::MetalMultiArticulatedContactResult gpu;
         const auto diagnostics =
             metalrobo::solveMetalMultiArticulatedContacts(
-                model,
+                program,
                 input,
                 gpu,
                 config
@@ -375,7 +390,7 @@ int main() {
         metalrobo::MetalMultiArticulatedContactResult replay;
         const auto replayDiagnostics =
             metalrobo::solveMetalMultiArticulatedContacts(
-                model,
+                program,
                 input,
                 replay,
                 config
@@ -401,7 +416,7 @@ int main() {
         invalid.contactCount = 0u;
         const auto rejected =
             metalrobo::solveMetalMultiArticulatedContacts(
-                model,
+                program,
                 invalid,
                 sentinel,
                 config
@@ -429,7 +444,7 @@ int main() {
         metalrobo::MetalMultiArticulatedContactResult partial;
         const auto injectedDiagnostics =
             metalrobo::solveMetalMultiArticulatedContacts(
-                model,
+                program,
                 injected,
                 partial,
                 config
@@ -485,6 +500,7 @@ int main() {
             << gpu.layout.dispatch.sceneBodyCount
             << " total_nv=" << gpu.layout.dispatch.totalNv
             << " rows=" << gpu.layout.dispatch.rowCount
+            << " program=" << program.fingerprint()
             << " impulse=" << gpu.impulses[0]
             << " max_velocity=" << maximumVelocity
             << " oracle_error=" << maximumOracleError

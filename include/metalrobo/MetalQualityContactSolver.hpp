@@ -63,7 +63,8 @@ struct MetalQualityContactDiagnostics {
 // Every friction coefficient must be strictly positive in this first compact
 // kernel. The host maps anisotropic physical cone coordinates into standard
 // Lorentz blocks, while output impulses and velocities retain physical units.
-// Publication is transactional.
+// Success requires both the semismooth natural-map residual and a normalized
+// primal/dual/complementarity KKT certificate. Publication is transactional.
 [[nodiscard]] MetalQualityContactDiagnostics
 solveMetalQualityContactSpace(
     const ContactSpaceConicProblem& problem,

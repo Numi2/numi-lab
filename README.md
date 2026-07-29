@@ -146,7 +146,10 @@ linked or called at runtime.
   maximal-coordinate scene-body response, physical Delassus construction and
   the exact-cone quality solve in one command buffer. Its first device probe
   couples two articulations and a dynamic body in one 18-DoF island with
-  deterministic replay and per-environment transactional rollback
+  deterministic replay and per-environment transactional rollback. An
+  immutable compiled contact program cooks the parallel-ABA frontier schedule
+  once; the canonical dual-PSM/needle world executes as a 34-DoF Metal island
+  and agrees with its FP64 oracle
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication

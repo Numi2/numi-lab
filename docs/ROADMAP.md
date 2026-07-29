@@ -93,7 +93,12 @@ prototype.
   spanning multiple articulations, dynamic scene-body 6D blocks and
   static/kinematic boundaries now flow through one Metal command buffer into
   the exact-cone quality solver, with deterministic replay and isolated
-  per-environment rollback
+  per-environment rollback. Immutable model/frontier compilation is reusable,
+  and the dual-PSM/needle bundle executes as a 34-DoF device island
+- **Landed quality certification hardening:** Metal cone success requires both
+  the semismooth natural residual and an explicit normalized primal/dual/
+  complementarity KKT certificate; stiff cold starts fail rather than
+  publishing a false zero-impulse solution
 - Move the actuation/free-motion ABA step itself from lane-zero recursion onto
   the cooked frontiers, then reuse its per-microstep factor cache across
   actuation, generalized constraints, and contact response

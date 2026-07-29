@@ -329,6 +329,7 @@ add_library(
     src/core/EngineModelComposer.cpp
     src/core/ParallelABASchedule.cpp
     src/core/CompiledMetalMultiArticulatedProgram.cpp
+    src/core/CompiledMetalMultiArticulatedContactProgram.cpp
     src/core/WorldCompiler.cpp
     src/core/WorldPack.cpp
     src/core/EpisodeTwinCompiler.cpp

@@ -206,6 +206,17 @@ is not yet the persistent private-buffer runtime. The remaining shared-world
 work is manifold-endpoint scatter plus promotion of this encoder sequence
 into the persistent `MetalWorld` and MLX active-encoder contexts.
 
+`CompiledMetalMultiArticulatedContactProgram` snapshots the immutable model
+and deterministic parallel-ABA frontier schedule once, so repeated submissions
+do not recook tree topology. The dual-PSM/needle heterogeneous bundle uses this
+path as a 34-DoF island and matches the FP64 contact solution within `7.1e-5`.
+The Metal quality solver now certifies both its scaled natural map and a
+normalized primal-cone, dual-cone and complementarity KKT residual. This
+prevents a stiff operator's small projected-gradient step from making a zero
+impulse look converged. A cold, ill-conditioned solve that cannot meet the
+FP32 certificate fails transactionally; persistent manifold warm starts
+converge and expose the achieved KKT value.
+
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training
 default is the MLX-native Franka joint-stabilization task.

@@ -1,4 +1,5 @@
 #include "metalrobo/HeterogeneousWorld.hpp"
+#include "metalrobo/MetalMultiArticulatedContact.hpp"
 #include "metalrobo/MetalMultiArticulatedConstraints.hpp"
 #include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MultiArticulatedWorld.hpp"
@@ -131,6 +132,11 @@ int main() {
         leftContact.normal = {1.0, 0.0, 0.0};
         leftContact.tangentU = {0.0, 1.0, 0.0};
         leftContact.tangentV = {0.0, 0.0, 1.0};
+        leftContact.regularization = {
+            1.0e-6,
+            1.0e-6,
+            1.0e-6,
+        };
         metalrobo::MultiArticulatedIslandContact rightContact =
             leftContact;
         rightContact.endpointA = {
@@ -184,11 +190,243 @@ int main() {
                 psmNeedleSolution.impulses[0] > 0.0 &&
                 psmNeedleSolution.impulses[3] > 0.0 &&
                 psmNeedleSolution.quality.velocity[0] >
-                    -1.0e-8 &&
+                    -2.0e-6 &&
                 psmNeedleSolution.quality.velocity[3] >
-                    -1.0e-8,
+                    -2.0e-6,
             "dual PSM and needle did not enter one coupled "
-            "exact-cone island"
+            "exact-cone island: build=" +
+                std::to_string(contactBuild.succeeded()) +
+                " solve=" +
+                std::to_string(contactSolve.succeeded()) +
+                " impulses=" +
+                (
+                    psmNeedleSolution.impulses.size() >= 4u
+                    ? std::to_string(
+                          psmNeedleSolution.impulses[0]
+                      ) +
+                          "/" +
+                          std::to_string(
+                              psmNeedleSolution.impulses[3]
+                          )
+                    : std::string{"missing"}
+                )
+        );
+
+        metalrobo::CompiledMetalMultiArticulatedContactProgram
+            contactProgram;
+        const auto contactProgramDiagnostics =
+            metalrobo::
+                compileMetalMultiArticulatedContactProgram(
+                    world.model,
+                    contactProgram
+                );
+        require(
+            contactProgramDiagnostics.succeeded() &&
+                contactProgram.valid(),
+            "heterogeneous Metal contact program did not compile"
+        );
+        const std::vector<float> q32(q.begin(), q.end());
+        const std::vector<float> v32(v.begin(), v.end());
+        auto metalPsmContacts = psmNeedleContacts;
+        for (std::size_t contact = 0u;
+             contact < metalPsmContacts.size();
+             ++contact) {
+            for (std::size_t row = 0u; row < 3u; ++row) {
+                metalPsmContacts[contact].warmImpulse[row] =
+                    psmNeedleSolution.impulses[
+                        3u * contact + row
+                    ];
+            }
+        }
+        metalrobo::MetalMultiArticulatedContactInput metalInput;
+        metalInput.environmentCount = 1u;
+        metalInput.contactCount = psmNeedleContacts.size();
+        metalInput.sceneBodyCount =
+            world.defaultSceneBodies.size();
+        metalInput.q = q32;
+        metalInput.freeArticulationVelocity = v32;
+        metalInput.sceneBodies = world.defaultSceneBodies;
+        metalInput.contacts = metalPsmContacts;
+        metalrobo::MetalMultiArticulatedContactConfig
+            metalConfig;
+        metalConfig.quality.maximumNewtonIterations = 64u;
+        metalConfig.quality.maximumCGIterations = 128u;
+        metalConfig.quality.convergenceTolerance = 3.0e-5F;
+        metalrobo::MetalMultiArticulatedContactResult
+            metalContact;
+        const auto metalContactDiagnostics =
+            metalrobo::solveMetalMultiArticulatedContacts(
+                contactProgram,
+                metalInput,
+                metalContact,
+                metalConfig
+            );
+        require(
+            metalContactDiagnostics.succeeded() &&
+                metalContact.layout.dispatch.totalNv ==
+                    psmNeedleProblem.nv,
+            "dual PSM/needle Metal contact graph failed: " +
+                metalContactDiagnostics.message +
+                (
+                    metalContact.qualityStatuses.empty()
+                    ? std::string{}
+                    : " quality=" +
+                          std::to_string(
+                              metalContact.qualityStatuses[0]
+                                  .code
+                          ) +
+                          ":" +
+                          std::to_string(
+                              metalContact.qualityStatuses[0]
+                                  .diagnostics.x
+                          ) +
+                          "/" +
+                          std::to_string(
+                              metalContact.qualityStatuses[0]
+                                  .diagnostics.w
+                          ) +
+                          " iterations=" +
+                          std::to_string(
+                              metalContact.qualityStatuses[0]
+                                  .newtonIterations
+                          ) +
+                          "/" +
+                          std::to_string(
+                              metalContact.qualityStatuses[0]
+                                  .cgIterations
+                          ) +
+                          " fallbacks=" +
+                          std::to_string(
+                              metalContact.qualityStatuses[0]
+                                  .projectedGradientFallbacks
+                          )
+                )
+        );
+        double maximumMetalContactError = 0.0;
+        double maximumMetalDelassusError = 0.0;
+        for (std::size_t index = 0u;
+             index < psmNeedleProblem.conic.delassus.size();
+             ++index) {
+            maximumMetalDelassusError = std::max(
+                maximumMetalDelassusError,
+                std::abs(
+                    psmNeedleProblem.conic.delassus[index] -
+                    metalContact.delassus[index]
+                )
+            );
+        }
+        for (std::size_t index = 0u;
+             index < psmNeedleSolution.impulses.size();
+             ++index) {
+            maximumMetalContactError = std::max(
+                maximumMetalContactError,
+                std::abs(
+                    psmNeedleSolution.impulses[index] -
+                    metalContact.impulses[index]
+                )
+            );
+        }
+        for (std::size_t index = 0u;
+             index <
+                 psmNeedleSolution.generalizedVelocity.size();
+             ++index) {
+            maximumMetalContactError = std::max(
+                maximumMetalContactError,
+                std::abs(
+                    psmNeedleSolution.generalizedVelocity[
+                        index
+                    ] -
+                    metalContact.nextVelocity[index]
+                )
+            );
+        }
+        require(
+            maximumMetalContactError < 3.0e-3,
+            "dual PSM/needle Metal contact disagrees with FP64: " +
+                std::to_string(maximumMetalContactError) +
+                " W=" +
+                std::to_string(maximumMetalDelassusError) +
+                " impulses=" +
+                std::to_string(psmNeedleSolution.impulses[0]) +
+                "/" +
+                std::to_string(metalContact.impulses[0]) +
+                "," +
+                std::to_string(psmNeedleSolution.impulses[3]) +
+                "/" +
+                std::to_string(metalContact.impulses[3]) +
+                " free=" +
+                std::to_string(
+                    psmNeedleProblem.conic
+                        .freeContactVelocity[0]
+                ) +
+                "/" +
+                std::to_string(
+                    metalContact.freeContactVelocity[0]
+                ) +
+                "," +
+                std::to_string(
+                    psmNeedleProblem.conic
+                        .freeContactVelocity[3]
+                ) +
+                "/" +
+                std::to_string(
+                    metalContact.freeContactVelocity[3]
+                ) +
+                " Wn=" +
+                std::to_string(
+                    psmNeedleProblem.conic.delassus[0]
+                ) +
+                "/" +
+                std::to_string(metalContact.delassus[0]) +
+                "," +
+                std::to_string(
+                    psmNeedleProblem.conic.delassus[
+                        3u * 6u + 3u
+                    ]
+                ) +
+                "/" +
+                std::to_string(
+                    metalContact.delassus[3u * 6u + 3u]
+                ) +
+                " quality=" +
+                std::to_string(
+                    metalContact.qualityStatuses[0].code
+                ) +
+                ":" +
+                std::to_string(
+                    metalContact.qualityStatuses[0]
+                        .diagnostics.x
+                )
+        );
+        auto coldConfig = metalConfig;
+        coldConfig.quality.enableWarmStart = false;
+        metalrobo::MetalMultiArticulatedContactResult
+            coldContact;
+        const auto coldDiagnostics =
+            metalrobo::solveMetalMultiArticulatedContacts(
+                contactProgram,
+                metalInput,
+                coldContact,
+                coldConfig
+            );
+        require(
+            !coldDiagnostics.succeeded() &&
+                coldDiagnostics.status ==
+                    metalrobo::
+                        MetalMultiArticulatedContactStatus::
+                            gpuEnvironmentFailure &&
+                coldDiagnostics.published &&
+                coldContact.statuses[0].code ==
+                    MR_MULTI_CONTACT_QUALITY_FAILED &&
+                coldContact.qualityStatuses[0].code ==
+                    MR_METAL_QUALITY_DID_NOT_CONVERGE &&
+                std::equal(
+                    v32.begin(),
+                    v32.end(),
+                    coldContact.nextVelocity.begin()
+                ),
+            "ill-conditioned cold quality solve was not rejected "
+            "transactionally"
         );
 
         metalrobo::HeterogeneousRodProgram rod = world.rods[0];
@@ -268,10 +506,15 @@ int main() {
             << " needle_contact_impulses="
             << psmNeedleSolution.impulses[0] << "/"
             << psmNeedleSolution.impulses[3]
+            << " metal_contact_error="
+            << maximumMetalContactError
+            << " metal_kkt="
+            << metalContact.qualityStatuses[0].diagnostics.w
             << " fingerprint=" << world.fingerprint
             << " swage_force_n="
             << norm(reactions[0].averageForceOnTarget)
-            << " deterministic=yes transactional=yes\n";
+            << " deterministic=yes transactional=yes"
+            << " cold_start_rejected=yes\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr

@@ -194,6 +194,34 @@ inline void evaluateNaturalResidual(
         groupDot(value, value, dimension, lane);
     const float valueMatrixValue =
         groupDot(value, matrixAction, dimension, lane);
+    const float gradientSquared =
+        groupDot(
+            matrixAction,
+            matrixAction,
+            dimension,
+            lane
+        );
+    float primalViolation = 0.0f;
+    float dualViolation = 0.0f;
+    if (lane < contactCount) {
+        const uint offset = 3u * lane;
+        primalViolation = max(
+            length(float2(
+                value[offset + 1u],
+                value[offset + 2u]
+            )) - value[offset],
+            0.0f
+        );
+        dualViolation = max(
+            length(float2(
+                matrixAction[offset + 1u],
+                matrixAction[offset + 2u]
+            )) - matrixAction[offset],
+            0.0f
+        );
+    }
+    primalViolation = simd_max(primalViolation);
+    dualViolation = simd_max(dualViolation);
     if (lane == 0u) {
         // matrixAction is Q*x+c, hence x'(Q*x+c) - 0.5*x'Q*x
         // is recovered below after a second Q*x dot in the caller when
@@ -203,6 +231,18 @@ inline void evaluateNaturalResidual(
             sqrt(max(residualSquared, 0.0f)) /
             (1.0f + sqrt(max(valueSquared, 0.0f)));
         scalars[2] = valueMatrixValue;
+        const float valueNorm =
+            sqrt(max(valueSquared, 0.0f));
+        const float gradientNorm =
+            sqrt(max(gradientSquared, 0.0f));
+        scalars[3] = max(
+            max(
+                primalViolation / (1.0f + valueNorm),
+                dualViolation / (1.0f + gradientNorm)
+            ),
+            abs(valueMatrixValue) /
+                (1.0f + valueNorm * gradientNorm)
+        );
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
 }
@@ -501,7 +541,10 @@ kernel void mr_quality_contact_solve(
             gamma,
             lane
         );
-        if (scalars[1] <= dispatch.tolerances.x) {
+        if (scalars[1] <= dispatch.tolerances.x &&
+            scalars[3] <=
+                MR_METAL_QUALITY_FP32_KKT_MULTIPLIER *
+                    dispatch.tolerances.x) {
             if (lane == 0u) {
                 converged = 1u;
                 status.newtonIterations = newton;
@@ -760,7 +803,10 @@ kernel void mr_quality_contact_solve(
     );
     const float coneViolation =
         maximumConeViolation(value, contactCount, lane);
-    if (scalars[1] <= dispatch.tolerances.x) {
+    if (scalars[1] <= dispatch.tolerances.x &&
+        scalars[3] <=
+            MR_METAL_QUALITY_FP32_KKT_MULTIPLIER *
+                dispatch.tolerances.x) {
         if (lane == 0u) {
             converged = 1u;
         }
@@ -798,7 +844,7 @@ kernel void mr_quality_contact_solve(
             scalars[1],
             scalars[0],
             coneViolation,
-            0.0f
+            scalars[3]
         );
         statuses[problem] = status;
     }

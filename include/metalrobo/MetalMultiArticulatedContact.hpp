@@ -2,6 +2,7 @@
 
 #include "metalrobo/MetalQualityContactSolver.hpp"
 #include "metalrobo/MultiArticulatedContact.hpp"
+#include "metalrobo/ParallelABASchedule.hpp"
 #include "metalrobo/multi_contact_shared.h"
 #include "metalrobo/parallel_aba_shared.h"
 
@@ -12,6 +13,33 @@
 #include <vector>
 
 namespace metalrobo {
+
+struct MetalMultiArticulatedContactDiagnostics;
+
+// Immutable articulation topology and frontier schedule shared by standalone
+// Metal and the upcoming MLX encoder adapter. Model validation and schedule
+// cooking happen once rather than inside every contact submission.
+class CompiledMetalMultiArticulatedContactProgram {
+public:
+    CompiledMetalMultiArticulatedContactProgram() = default;
+
+    [[nodiscard]] bool valid() const noexcept;
+    [[nodiscard]] const EngineModel& model() const noexcept;
+    [[nodiscard]] const ParallelABASchedule& abaSchedule()
+        const noexcept;
+    [[nodiscard]] std::uint64_t fingerprint() const noexcept;
+
+private:
+    friend MetalMultiArticulatedContactDiagnostics
+    compileMetalMultiArticulatedContactProgram(
+        const EngineModel&,
+        CompiledMetalMultiArticulatedContactProgram&
+    );
+
+    EngineModel model_;
+    ParallelABASchedule schedule_;
+    std::uint64_t fingerprint_ = 0u;
+};
 
 struct MetalMultiArticulatedContactInput {
     std::size_t environmentCount = 0u;
@@ -80,6 +108,7 @@ struct MetalMultiArticulatedContactResult {
     std::vector<float> nextVelocity;
     std::vector<float> impulses;
     std::vector<float> delassus;
+    std::vector<float> freeContactVelocity;
     std::vector<MRMultiContactStatusGPU> statuses;
     std::vector<MRArticulatedOperatorStatusGPU>
         pointStatuses;
@@ -107,6 +136,14 @@ struct MetalMultiArticulatedContactDiagnostics {
     }
 };
 
+// Transactionally validates and snapshots a multi-articulation model and its
+// deterministic frontier schedule. Failure leaves output unchanged.
+[[nodiscard]] MetalMultiArticulatedContactDiagnostics
+compileMetalMultiArticulatedContactProgram(
+    const EngineModel& model,
+    CompiledMetalMultiArticulatedContactProgram& output
+);
+
 // Executes point-Jacobian projection, global row assembly, articulated and
 // 6D scene-body inverse response, Delassus construction, exact-cone Metal
 // quality solve, and transactional velocity publication in one command
@@ -114,6 +151,15 @@ struct MetalMultiArticulatedContactDiagnostics {
 [[nodiscard]] MetalMultiArticulatedContactDiagnostics
 solveMetalMultiArticulatedContacts(
     const EngineModel& model,
+    const MetalMultiArticulatedContactInput& input,
+    MetalMultiArticulatedContactResult& output,
+    const MetalMultiArticulatedContactConfig& config = {}
+);
+
+// Reuses the immutable model and parallel-ABA schedule cooked above.
+[[nodiscard]] MetalMultiArticulatedContactDiagnostics
+solveMetalMultiArticulatedContacts(
+    const CompiledMetalMultiArticulatedContactProgram& program,
     const MetalMultiArticulatedContactInput& input,
     MetalMultiArticulatedContactResult& output,
     const MetalMultiArticulatedContactConfig& config = {}
