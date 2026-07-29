@@ -151,9 +151,13 @@ encoder; dual PSM and heterogeneous dual-PSM-plus-G1 graphs are executable
 without a secondary command buffer or CPU fallback. Its inverse-ABA path
 executes forward/reverse body frontiers across SIMD32 and uses deterministic
 parent-owned sibling reductions, sharing one factorization across each RHS
-packet. The force/actuation ABA step still needs the same frontier conversion;
-full multi-articulation collision/island composition remains the next
-shared-world boundary.
+packet. The same primitive can select a GPU semismooth-Newton quality path
+for scalar bounded ConstraintIR rows; it uses diagonally scaled natural maps,
+normal-equation CG, safeguarded line search, and physical residual
+certification. Exact contact-cone unification and direct ABA Hessian-vector
+products remain open. The force/actuation ABA step still needs the same
+frontier conversion; full multi-articulation collision/island composition
+remains the next shared-world boundary.
 
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training

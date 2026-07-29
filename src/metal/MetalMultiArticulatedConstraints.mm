@@ -142,11 +142,22 @@ bool validConfiguration(
     const MetalMultiArticulatedConstraintConfig& config
 ) {
     return
+        (config.solverMode ==
+             MetalGeneralizedConstraintSolverMode::throughputPGS ||
+         config.solverMode ==
+             MetalGeneralizedConstraintSolverMode::
+                 qualitySemismoothNewton) &&
         config.solverIterations > 0u &&
+        config.qualityCGIterations > 0u &&
+        config.qualityLineSearchIterations > 0u &&
         std::isfinite(config.convergenceTolerance) &&
         config.convergenceTolerance > 0.0f &&
         std::isfinite(config.diagonalFloor) &&
         config.diagonalFloor > 0.0f &&
+        std::isfinite(
+            config.qualityNormalEquationRegularization
+        ) &&
+        config.qualityNormalEquationRegularization > 0.0f &&
         representableFloat(config.evaluation.timestep) &&
         config.evaluation.timestep > 0.0 &&
         representableFloat(
@@ -529,6 +540,14 @@ MetalMultiArticulatedConstraintDiagnostics prepareConstraintBatch(
         static_cast<std::uint32_t>(inverseWorkCount);
     layout.dispatch.solverIterations =
         config.solverIterations;
+    if (config.solverMode ==
+        MetalGeneralizedConstraintSolverMode::
+            qualitySemismoothNewton) {
+        layout.dispatch.reserved0 =
+            config.qualityCGIterations;
+        layout.dispatch.reserved1 =
+            config.qualityLineSearchIterations;
+    }
     layout.dispatch.evaluation0 = {
         static_cast<float>(config.evaluation.timestep),
         static_cast<float>(config.evaluation.penetrationSlop),
@@ -545,7 +564,7 @@ MetalMultiArticulatedConstraintDiagnostics prepareConstraintBatch(
         ),
         config.convergenceTolerance,
         config.diagonalFloor,
-        0.0f,
+        config.qualityNormalEquationRegularization,
     };
 
     PreparedConstraintBatch staged;
@@ -884,6 +903,14 @@ solveMetalMultiArticulatedConstraints(
             static_cast<std::uint32_t>(inverseWorkCount);
         layout.dispatch.solverIterations =
             config.solverIterations;
+        if (config.solverMode ==
+            MetalGeneralizedConstraintSolverMode::
+                qualitySemismoothNewton) {
+            layout.dispatch.reserved0 =
+                config.qualityCGIterations;
+            layout.dispatch.reserved1 =
+                config.qualityLineSearchIterations;
+        }
         layout.dispatch.evaluation0 = {
             static_cast<float>(config.evaluation.timestep),
             static_cast<float>(
@@ -903,7 +930,7 @@ solveMetalMultiArticulatedConstraints(
             ),
             config.convergenceTolerance,
             config.diagonalFloor,
-            0.0f,
+            config.qualityNormalEquationRegularization,
         };
 
         std::vector<float> rhs(layout.responseElements);
@@ -1096,10 +1123,16 @@ solveMetalMultiArticulatedConstraints(
             );
         }
         error = nil;
+        NSString* solveFunctionName =
+            config.solverMode ==
+                MetalGeneralizedConstraintSolverMode::
+                    qualitySemismoothNewton
+            ? @"mr_generalized_constraint_quality_solve"
+            : @"mr_generalized_constraint_solve";
         id<MTLComputePipelineState> solvePipeline = pipeline(
             device,
             library,
-            @"mr_generalized_constraint_solve",
+            solveFunctionName,
             &error
         );
         if (solvePipeline == nil) {
@@ -1671,10 +1704,16 @@ MetalMultiArticulatedConstraintDiagnostics initializeContext(
         );
     }
     error = nil;
+    NSString* solveFunctionName =
+        context.config.solverMode ==
+            MetalGeneralizedConstraintSolverMode::
+                qualitySemismoothNewton
+        ? @"mr_generalized_constraint_quality_solve"
+        : @"mr_generalized_constraint_solve";
     id<MTLComputePipelineState> solve = pipeline(
         device,
         library,
-        @"mr_generalized_constraint_solve",
+        solveFunctionName,
         &error
     );
     if (solve == nil) {

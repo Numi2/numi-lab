@@ -166,6 +166,7 @@ private:
 > compileMultiArticulatedProgram(
     const std::string& model,
     std::uint32_t environmentCapacity,
+    const std::string& solverMode,
     std::uint32_t solverIterations,
     float convergenceTolerance,
     float timestep,

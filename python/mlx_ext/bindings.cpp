@@ -472,6 +472,7 @@ NB_MODULE(_mlx_ext, module) {
         "model"_a = "dual_psm",
         nb::kw_only(),
         "environment_capacity"_a = 256u,
+        "solver_mode"_a = "throughput_pgs",
         "solver_iterations"_a = 192u,
         "convergence_tolerance"_a = 5.0e-5f,
         "timestep"_a = 1.0e-3f,

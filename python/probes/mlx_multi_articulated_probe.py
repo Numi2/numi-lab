@@ -76,6 +76,62 @@ def main() -> None:
         "MLX generalized replay is not bitwise deterministic",
     )
 
+    quality_program = compile_program(
+        "dual_psm_g1",
+        environment_capacity=environments,
+        solver_mode="quality_semismooth_newton",
+        solver_iterations=128,
+        convergence_tolerance=5.0e-5,
+    )
+
+    @mx.compile
+    def compiled_quality_step(
+        q_value: mx.array,
+        velocity_value: mx.array,
+    ) -> tuple[mx.array, mx.array, mx.array]:
+        output = step(
+            quality_program,
+            q_value,
+            velocity_value,
+        )
+        return output
+
+    quality_velocity, quality_impulses, quality_status = (
+        compiled_quality_step(q, free_velocity)
+    )
+    mx.eval(
+        quality_velocity,
+        quality_impulses,
+        quality_status,
+    )
+    quality_rows = quality_status.tolist()
+    require(
+        all(row[0] == 0 for row in quality_rows)
+        and float(mx.max(mx.abs(quality_impulses)).item()) > 0.0
+        and float(
+            mx.max(mx.abs(quality_velocity - free_velocity)).item()
+        )
+        > 0.0,
+        "MLX semismooth quality solve failed",
+    )
+    quality_replay = compiled_quality_step(q, free_velocity)
+    mx.eval(*quality_replay)
+    require(
+        all(
+            bool(mx.array_equal(left, right).item())
+            for left, right in zip(
+                (
+                    quality_velocity,
+                    quality_impulses,
+                    quality_status,
+                ),
+                quality_replay,
+                strict=True,
+            )
+        ),
+        "MLX semismooth quality replay is not deterministic",
+    )
+
     invalid_location = (
         (mx.arange(environments)[:, None] == 0)
         & (mx.arange(program.nq)[None, :] == 3)
@@ -119,6 +175,7 @@ def main() -> None:
         f"fingerprint={program.fingerprint}",
         "compiled=yes",
         "active_encoder=yes",
+        "quality_semismooth=yes",
         "deterministic=yes",
         f"isolated_failure_code={failure_rows[0][0]}",
         "transactional=yes",

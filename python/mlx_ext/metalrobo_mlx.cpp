@@ -942,7 +942,11 @@ MLXCompiledMultiArticulatedProgram::resources(
         physicsLibrary
     );
     staged->solveKernel = device.get_kernel(
-        "mr_generalized_constraint_solve",
+        config_.solverMode ==
+                MetalGeneralizedConstraintSolverMode::
+                    qualitySemismoothNewton
+            ? "mr_generalized_constraint_quality_solve"
+            : "mr_generalized_constraint_solve",
         physicsLibrary
     );
     auto* adapterLibrary = device.get_library(
@@ -1603,6 +1607,7 @@ std::shared_ptr<MLXCompiledMultiArticulatedProgram>
 compileMultiArticulatedProgram(
     const std::string& modelName,
     const std::uint32_t environmentCapacity,
+    const std::string& requestedSolverMode,
     const std::uint32_t solverIterations,
     const float convergenceTolerance,
     const float timestep,
@@ -1664,6 +1669,20 @@ compileMultiArticulatedProgram(
         );
     }
     MetalMultiArticulatedConstraintConfig config;
+    if (requestedSolverMode == "throughput_pgs") {
+        config.solverMode =
+            MetalGeneralizedConstraintSolverMode::throughputPGS;
+    } else if (requestedSolverMode ==
+               "quality_semismooth_newton") {
+        config.solverMode =
+            MetalGeneralizedConstraintSolverMode::
+                qualitySemismoothNewton;
+    } else {
+        throw std::invalid_argument(
+            "multi-articulation solver_mode must be "
+            "'throughput_pgs' or 'quality_semismooth_newton'"
+        );
+    }
     config.solverIterations = solverIterations;
     config.convergenceTolerance = convergenceTolerance;
     config.evaluation.timestep = timestep;
@@ -2609,6 +2628,14 @@ void GeneralizedConstraintStepPrimitive::eval_gpu(
         resources.inverseWorkCount;
     dispatch.solverIterations =
         program_->config().solverIterations;
+    if (program_->config().solverMode ==
+        MetalGeneralizedConstraintSolverMode::
+            qualitySemismoothNewton) {
+        dispatch.reserved0 =
+            program_->config().qualityCGIterations;
+        dispatch.reserved1 =
+            program_->config().qualityLineSearchIterations;
+    }
     dispatch.evaluation0 = {
         static_cast<float>(
             program_->config().evaluation.timestep
@@ -2632,7 +2659,8 @@ void GeneralizedConstraintStepPrimitive::eval_gpu(
         ),
         program_->config().convergenceTolerance,
         program_->config().diagonalFloor,
-        0.0f,
+        program_->config().
+            qualityNormalEquationRegularization,
     };
 
     encoder.set_compute_pipeline_state(

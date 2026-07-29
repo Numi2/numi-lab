@@ -125,6 +125,7 @@ from metalrobo import (
 program = compile_multi_articulated_program(
     "dual_psm_g1",
     environment_capacity=256,
+    solver_mode="quality_semismooth_newton",
 )
 q = mx.broadcast_to(
     mx.array(program.default_q, dtype=mx.float32),
@@ -142,7 +143,10 @@ Inverse-ABA factorization and application use SIMD32 level frontiers with
 stable parent-owned sibling reductions; no dense generalized inverse is
 formed. Failure is isolated per environment: velocity rolls back to the
 explicit input, impulses are zero, and the typed status remains visible.
-Supported compositions are `dual_psm` and `dual_psm_g1`.
+`solver_mode` accepts `throughput_pgs` or
+`quality_semismooth_newton`; the latter uses GPU natural-map Newton/CG with
+line-search safeguards for scalar bounded rows. Supported compositions are
+`dual_psm` and `dual_psm_g1`.
 
 ## MLX-native PPO
 

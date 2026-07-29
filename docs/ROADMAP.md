@@ -132,8 +132,13 @@ prototype.
 
 ## S5 — Quality, learning, and platform
 
-- Add matrix-free Metal semismooth Newton with ABA Hessian-vector products,
-  block-PCG, line search, and residual certificates
+- **Landed generalized-quality tranche:** GPU semismooth Newton for scalar
+  bilateral/unilateral/bounded ConstraintIR, diagonally scaled natural maps,
+  normal-equation CG, safeguarded line search, projected-gradient fallback,
+  and physical residual certification on standalone and MLX graphs
+- Replace the materialized contact-space Delassus in quality mode with direct
+  ABA Hessian-vector products and block-PCG, then unify exact cone and scalar
+  active-set blocks in one island quality solve
 - Add implicit-adjoint MLX JVP/VJP only with explicit validity masks across
   topology, clipping, sleeping, and CCD event changes
 

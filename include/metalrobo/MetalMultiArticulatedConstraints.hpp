@@ -75,11 +75,21 @@ struct MetalMultiArticulatedConstraintInput {
     std::span<const float> freeVelocity{};
 };
 
+enum class MetalGeneralizedConstraintSolverMode : std::uint32_t {
+    throughputPGS = 0u,
+    qualitySemismoothNewton = 1u,
+};
+
 struct MetalMultiArticulatedConstraintConfig {
     ConstraintIREvaluationConfig evaluation{};
+    MetalGeneralizedConstraintSolverMode solverMode =
+        MetalGeneralizedConstraintSolverMode::throughputPGS;
     std::uint32_t solverIterations = 128u;
+    std::uint32_t qualityCGIterations = 96u;
+    std::uint32_t qualityLineSearchIterations = 16u;
     float convergenceTolerance = 2.0e-5f;
     float diagonalFloor = 1.0e-12f;
+    float qualityNormalEquationRegularization = 1.0e-8f;
     std::string metallibPath;
 };
 

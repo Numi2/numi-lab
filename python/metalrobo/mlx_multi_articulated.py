@@ -23,6 +23,7 @@ def compile_program(
     model: str = "dual_psm",
     *,
     environment_capacity: int = 256,
+    solver_mode: str = "throughput_pgs",
     solver_iterations: int = 192,
     convergence_tolerance: float = 5.0e-5,
     timestep: float = 1.0e-3,
@@ -34,6 +35,7 @@ def compile_program(
     return compile_multi_articulated_program(
         model,
         environment_capacity=environment_capacity,
+        solver_mode=solver_mode,
         solver_iterations=solver_iterations,
         convergence_tolerance=convergence_tolerance,
         timestep=timestep,

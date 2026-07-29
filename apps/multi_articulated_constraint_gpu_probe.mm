@@ -351,6 +351,47 @@ int main() {
                 !completedStats.hasInFlightSubmission,
             "persistent result did not exercise chunked inverse mass"
         );
+        auto qualityConfig = config;
+        qualityConfig.solverMode =
+            metalrobo::MetalGeneralizedConstraintSolverMode::
+                qualitySemismoothNewton;
+        qualityConfig.solverIterations = 128u;
+        qualityConfig.qualityCGIterations = 96u;
+        qualityConfig.qualityLineSearchIterations = 16u;
+        metalrobo::MetalMultiArticulatedConstraintContext
+            qualityContext(program, qualityConfig);
+        metalrobo::MetalMultiArticulatedConstraintResult
+            qualityResult;
+        const auto qualityDiagnostics =
+            qualityContext.run(input, qualityResult);
+        if (!qualityDiagnostics.succeeded() ||
+            !qualityDiagnostics.published ||
+            qualityResult.nextVelocity.size() !=
+                freeVelocity.size() ||
+            qualityResult.impulses.size() !=
+                environmentCount * rowCount) {
+            throw std::runtime_error(
+                "Metal generalized quality solve failed: " +
+                qualityDiagnostics.message +
+                " code=" +
+                std::to_string(
+                    qualityDiagnostics.firstGPUStatusCode
+                ) +
+                " row=" +
+                std::to_string(
+                    qualityDiagnostics.firstFailingRow
+                ) +
+                " throughput_diag=[" +
+                std::to_string(
+                    result.statuses.front().diagnostics.z
+                ) +
+                "," +
+                std::to_string(
+                    result.statuses.front().diagnostics.w
+                ) +
+                "]"
+            );
+        }
         const MRArticulationGPU& observer =
             model.articulations.back();
         for (std::size_t environment = 0u;
@@ -364,6 +405,8 @@ int main() {
                     observer.vOffset + local;
                 require(
                     result.nextVelocity[index] ==
+                        freeVelocity[index] &&
+                    qualityResult.nextVelocity[index] ==
                         freeVelocity[index],
                     "uncoupled G1 velocity changed"
                 );
@@ -371,6 +414,7 @@ int main() {
         }
 
         double maximumResidual = 0.0;
+        double maximumQualityResidual = 0.0;
         double maximumCrossVelocity = 0.0;
         for (std::size_t environment = 0u;
              environment < environmentCount;
@@ -393,8 +437,19 @@ int main() {
                         model.world.nv,
                     }
                 );
+            const auto qualityPost =
+                metalrobo::computeConstraintIRGeneralizedVelocities(
+                    model.constraintProgram,
+                    std::span{
+                        qualityResult.nextVelocity.data() +
+                            environment * model.world.nv,
+                        model.world.nv,
+                    }
+                );
             require(
-                free.succeeded() && post.succeeded(),
+                free.succeeded() &&
+                    post.succeeded() &&
+                    qualityPost.succeeded(),
                 "failed to evaluate generalized velocity evidence"
             );
             const auto evaluated = metalrobo::evaluateConstraintIR(
@@ -431,6 +486,28 @@ int main() {
                 maximumResidual,
                 residual.maximumNaturalResidual
             );
+            const auto qualityResidual =
+                metalrobo::evaluateConstraintIRResidual(
+                    metalrobo::makeConstraintIREvaluationView(
+                        evaluated.evaluated,
+                        metalrobo::ConstraintIRConsumer::quality
+                    ),
+                    qualityPost.relativeVelocities,
+                    std::span{
+                        qualityResult.impulses.data() +
+                            environment * rowCount,
+                        rowCount,
+                    },
+                    residualConfig
+                );
+            require(
+                qualityResidual.succeeded(),
+                "failed to evaluate generalized quality KKT evidence"
+            );
+            maximumQualityResidual = std::max(
+                maximumQualityResidual,
+                qualityResidual.maximumNaturalResidual
+            );
             for (std::size_t row = 0u;
                  row < rowCount;
                  ++row) {
@@ -449,11 +526,14 @@ int main() {
             }
         }
         if (maximumResidual > 2.0e-4 ||
+            maximumQualityResidual > 2.0e-4 ||
             maximumCrossVelocity > 2.0e-4) {
             throw std::runtime_error(
                 "cross-articulation constraints missed the KKT "
                 "gate residual=" +
                 std::to_string(maximumResidual) +
+                " quality_residual=" +
+                std::to_string(maximumQualityResidual) +
                 " cross_velocity=" +
                 std::to_string(maximumCrossVelocity)
             );
@@ -520,6 +600,8 @@ int main() {
             << result.layout.inverseMassDispatches.size() *
                 environmentCount
             << " max_natural_residual=" << maximumResidual
+            << " max_quality_residual="
+            << maximumQualityResidual
             << " max_cross_velocity=" << maximumCrossVelocity
             << " elapsed_ms=" << diagnostics.elapsedMilliseconds
             << " deterministic=yes transactional=yes\n";
