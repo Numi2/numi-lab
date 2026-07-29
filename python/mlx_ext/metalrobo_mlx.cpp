@@ -1,12 +1,14 @@
 #include "metalrobo_mlx.h"
 
 #include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/EngineModelComposer.hpp"
 #include "metalrobo/Franka.hpp"
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/G1.hpp"
 #include "metalrobo/GeometryCooker.hpp"
 #include "metalrobo/SurgicalAssets.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
+#include "metalrobo/SurgicalWorld.hpp"
 
 #include "mlx/allocator.h"
 #include "mlx/backend/metal/device.h"
@@ -39,6 +41,11 @@ constexpr std::uint32_t kABAStatusWords =
     sizeof(MRABAStatusGPU) / sizeof(std::uint32_t);
 constexpr std::uint32_t kContactStatusWords =
     sizeof(MRMetalWorldContactStatusGPU) / sizeof(std::uint32_t);
+constexpr std::uint32_t kGeneralizedStatusWords =
+    sizeof(MRGeneralizedConstraintStatusGPU) /
+    sizeof(std::uint32_t);
+constexpr std::uint32_t kInverseMassStatusWords =
+    sizeof(MRInverseMassStatusGPU) / sizeof(std::uint32_t);
 constexpr std::uint32_t kManifoldHeaderWords =
     sizeof(MRManifoldHeaderGPU) / sizeof(std::uint32_t);
 constexpr std::uint32_t kManifoldPointWords =
@@ -65,6 +72,19 @@ enum ImmutableBufferIndex : std::size_t {
     kImmutableGeometryVertices = 11u,
     kImmutableMeshNodes = 12u,
     kImmutableMeshTriangles = 13u,
+};
+
+enum GeneralizedImmutableBufferIndex : std::size_t {
+    kGeneralizedWorld = 0u,
+    kGeneralizedArticulations = 1u,
+    kGeneralizedJoints = 2u,
+    kGeneralizedDofs = 3u,
+    kGeneralizedBodies = 4u,
+    kGeneralizedRows = 5u,
+    kGeneralizedWarmImpulses = 6u,
+    kGeneralizedJacobian = 7u,
+    kGeneralizedInverseDispatches = 8u,
+    kGeneralizedRhs = 9u,
 };
 
 std::string currentBinaryDirectory() {
@@ -149,6 +169,82 @@ void validateInput(
     }
 }
 
+std::vector<MRMultiInverseMassDispatchGPU>
+generalizedInverseDispatches(
+    const CompiledMetalMultiArticulatedProgram& program,
+    const std::uint32_t environments
+) {
+    const EngineModel& model = program.model();
+    const std::size_t rowCount = program.rowCount();
+    std::vector<MRMultiInverseMassDispatchGPU> result;
+    result.reserve(
+        program.rowChunkOffsets().size() *
+        model.articulations.size()
+    );
+    for (std::size_t chunk = 0u;
+         chunk < program.rowChunkOffsets().size();
+         ++chunk) {
+        const std::uint32_t rowBegin =
+            program.rowChunkOffsets()[chunk];
+        const std::uint32_t rowCountInChunk =
+            program.rowChunkCounts()[chunk];
+        for (std::uint32_t articulationIndex = 0u;
+             articulationIndex < model.articulations.size();
+             ++articulationIndex) {
+            const MRArticulationGPU& articulation =
+                model.articulations[articulationIndex];
+            MRMultiInverseMassDispatchGPU work{};
+            work.dispatch.articulationIndex =
+                articulationIndex;
+            work.dispatch.environmentCount = environments;
+            work.dispatch.rhsCount = rowCountInChunk;
+            work.dispatch.qStride = model.world.nq;
+            work.dispatch.rhsEnvironmentStride =
+                static_cast<std::uint32_t>(
+                    rowCount * model.world.nv
+                );
+            work.dispatch.rhsVectorStride = model.world.nv;
+            work.dispatch.outputEnvironmentStride =
+                work.dispatch.rhsEnvironmentStride;
+            work.dispatch.outputVectorStride = model.world.nv;
+            work.qBase = articulation.qOffset;
+            work.rhsBase =
+                rowBegin * model.world.nv +
+                articulation.vOffset;
+            work.outputBase = work.rhsBase;
+            work.statusBase =
+                static_cast<std::uint32_t>(
+                    result.size() * environments
+                );
+            result.push_back(work);
+        }
+    }
+    return result;
+}
+
+std::vector<float> generalizedRhs(
+    const CompiledMetalMultiArticulatedProgram& program,
+    const std::uint32_t environments
+) {
+    const auto jacobian = program.generalizedJacobian();
+    std::vector<float> result(
+        static_cast<std::size_t>(environments) *
+        jacobian.size()
+    );
+    for (std::uint32_t environment = 0u;
+         environment < environments;
+         ++environment) {
+        std::copy(
+            jacobian.begin(),
+            jacobian.end(),
+            result.begin() +
+                static_cast<std::size_t>(environment) *
+                    jacobian.size()
+        );
+    }
+    return result;
+}
+
 } // namespace
 
 struct MetalDeviceTuningProfile {
@@ -228,6 +324,30 @@ struct MetalResources {
             );
         }
         return found->second;
+    }
+};
+
+struct MetalGeneralizedResources {
+    mx::metal::Device* device = nullptr;
+    std::vector<mx::allocator::Buffer> buffers;
+    MTL::ComputePipelineState* inverseKernel = nullptr;
+    MTL::ComputePipelineState* delassusKernel = nullptr;
+    MTL::ComputePipelineState* solveKernel = nullptr;
+    MTL::ComputePipelineState* commitKernel = nullptr;
+    std::uint32_t inverseWorkCount = 0u;
+
+    ~MetalGeneralizedResources() {
+        for (const auto buffer : buffers) {
+            mx::allocator::free(buffer);
+        }
+    }
+
+    [[nodiscard]] MTL::Buffer* buffer(
+        const std::size_t index
+    ) const {
+        return static_cast<MTL::Buffer*>(
+            const_cast<void*>(buffers.at(index).ptr())
+        );
     }
 };
 
@@ -626,6 +746,179 @@ MetalResources& MLXCompiledWorld::resources(
         throw std::runtime_error(
             "MLX contact physics requires a queried Metal SIMD "
             "execution width of 32"
+        );
+    }
+    resources_ = std::move(staged);
+    return *resources_;
+}
+
+MLXCompiledMultiArticulatedProgram::
+    MLXCompiledMultiArticulatedProgram(
+        CompiledMetalMultiArticulatedProgram program,
+        const std::uint32_t environmentCapacity,
+        MetalMultiArticulatedConstraintConfig config,
+        std::string metallibPath
+    )
+    : program_(std::move(program)),
+      environmentCapacity_(environmentCapacity),
+      config_(std::move(config)),
+      metallibPath_(std::move(metallibPath)) {}
+
+MLXCompiledMultiArticulatedProgram::
+    ~MLXCompiledMultiArticulatedProgram() = default;
+
+const CompiledMetalMultiArticulatedProgram&
+MLXCompiledMultiArticulatedProgram::program() const noexcept {
+    return program_;
+}
+
+std::uint32_t
+MLXCompiledMultiArticulatedProgram::environmentCapacity()
+    const noexcept {
+    return environmentCapacity_;
+}
+
+const MetalMultiArticulatedConstraintConfig&
+MLXCompiledMultiArticulatedProgram::config() const noexcept {
+    return config_;
+}
+
+const std::string&
+MLXCompiledMultiArticulatedProgram::metallibPath()
+    const noexcept {
+    return metallibPath_;
+}
+
+std::vector<float>
+MLXCompiledMultiArticulatedProgram::defaultQ() const {
+    return program_.model().defaultQ;
+}
+
+std::vector<float>
+MLXCompiledMultiArticulatedProgram::defaultV() const {
+    return program_.model().defaultV;
+}
+
+void MLXCompiledMultiArticulatedProgram::prepareStream(
+    mx::StreamOrDevice stream
+) {
+    const auto selectedStream = mx::to_stream(stream);
+    auto& device = mx::metal::device(selectedStream.device);
+    static_cast<void>(resources(device));
+}
+
+MetalGeneralizedResources&
+MLXCompiledMultiArticulatedProgram::resources(
+    mx::metal::Device& device
+) {
+    const std::lock_guard lock(resourceMutex_);
+    if (resources_ != nullptr) {
+        if (resources_->device != &device) {
+            throw std::runtime_error(
+                "compiled multi-articulation program cannot "
+                "migrate between Metal devices"
+            );
+        }
+        return *resources_;
+    }
+    if (!program_.valid() || environmentCapacity_ == 0u) {
+        throw std::runtime_error(
+            "compiled multi-articulation MLX program is invalid"
+        );
+    }
+
+    const EngineModel& model = program_.model();
+    const auto inverseDispatches =
+        generalizedInverseDispatches(
+            program_,
+            environmentCapacity_
+        );
+    const auto rhs = generalizedRhs(
+        program_,
+        environmentCapacity_
+    );
+    MRJointDescriptorGPU emptyJoint{};
+
+    auto staged =
+        std::make_unique<MetalGeneralizedResources>();
+    staged->device = &device;
+    staged->inverseWorkCount =
+        static_cast<std::uint32_t>(
+            inverseDispatches.size()
+        );
+    staged->buffers.reserve(10u);
+    staged->buffers.push_back(
+        immutableBuffer(&model.world, 1u)
+    );
+    staged->buffers.push_back(immutableBuffer(
+        model.articulations.data(),
+        model.articulations.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        model.joints.empty()
+            ? &emptyJoint
+            : model.joints.data(),
+        std::max<std::size_t>(model.joints.size(), 1u)
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        model.dofs.data(),
+        model.dofs.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        model.bodies.data(),
+        model.bodies.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        model.constraintProgram.rows.data(),
+        program_.rowCount()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        model.constraintProgram.warmImpulses.data(),
+        program_.rowCount()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        program_.generalizedJacobian().data(),
+        program_.generalizedJacobian().size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        inverseDispatches.data(),
+        inverseDispatches.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        rhs.data(),
+        rhs.size()
+    ));
+
+    auto* physicsLibrary =
+        device.get_library("MetalRobo", metallibPath_);
+    staged->inverseKernel = device.get_kernel(
+        "mr_multi_articulated_inverse_mass",
+        physicsLibrary
+    );
+    staged->delassusKernel = device.get_kernel(
+        "mr_generalized_constraint_delassus",
+        physicsLibrary
+    );
+    staged->solveKernel = device.get_kernel(
+        "mr_generalized_constraint_solve",
+        physicsLibrary
+    );
+    auto* adapterLibrary = device.get_library(
+        "MetalRoboMLX",
+        currentBinaryDirectory()
+    );
+    staged->commitKernel = device.get_kernel(
+        "mr_mlx_commit_generalized_constraints",
+        adapterLibrary
+    );
+    if (staged->inverseKernel == nullptr ||
+        staged->delassusKernel == nullptr ||
+        staged->solveKernel == nullptr ||
+        staged->commitKernel == nullptr ||
+        staged->inverseKernel->threadExecutionWidth() != 32u ||
+        staged->solveKernel->threadExecutionWidth() != 32u) {
+        throw std::runtime_error(
+            "MLX generalized constraints require SIMD32 pipelines"
         );
     }
     resources_ = std::move(staged);
@@ -1262,6 +1555,173 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
     );
     world->prepareStream(stream);
     return world;
+}
+
+std::shared_ptr<MLXCompiledMultiArticulatedProgram>
+compileMultiArticulatedProgram(
+    const std::string& modelName,
+    const std::uint32_t environmentCapacity,
+    const std::uint32_t solverIterations,
+    const float convergenceTolerance,
+    const float timestep,
+    const std::string& requestedMetallibPath,
+    mx::StreamOrDevice stream
+) {
+    if (environmentCapacity == 0u ||
+        solverIterations == 0u ||
+        !std::isfinite(convergenceTolerance) ||
+        !(convergenceTolerance > 0.0f) ||
+        !std::isfinite(timestep) ||
+        !(timestep > 0.0f)) {
+        throw std::invalid_argument(
+            "multi-articulation MLX capacities and solver "
+            "configuration must be positive and finite"
+        );
+    }
+
+    const DualPsmWorld dual = makeDualDvrkPsmWorld();
+    EngineModel model;
+    if (modelName == "dual_psm") {
+        model = dual.model;
+    } else if (modelName == "dual_psm_g1") {
+        const EngineModel g1 = makeUnitreeG1EngineModel();
+        const std::array components{
+            EngineModelComponent{
+                .model = &dual.model,
+                .instanceId = "dual_psm_cell",
+            },
+            EngineModelComponent{
+                .model = &g1,
+                .instanceId = "g1_observer",
+            },
+        };
+        const auto composed = composeEngineModels(
+            components,
+            model
+        );
+        if (!composed.succeeded()) {
+            throw std::runtime_error(
+                "could not compose MLX multi-articulation model: " +
+                composed.message
+            );
+        }
+    } else {
+        throw std::invalid_argument(
+            "multi-articulation model must be 'dual_psm' or "
+            "'dual_psm_g1'"
+        );
+    }
+
+    CompiledMetalMultiArticulatedProgram compiled;
+    const auto compiledDiagnostics =
+        compileMetalMultiArticulatedProgram(model, compiled);
+    if (!compiledDiagnostics.succeeded()) {
+        throw std::runtime_error(
+            "could not compile MLX multi-articulation program: " +
+            compiledDiagnostics.message
+        );
+    }
+    MetalMultiArticulatedConstraintConfig config;
+    config.solverIterations = solverIterations;
+    config.convergenceTolerance = convergenceTolerance;
+    config.evaluation.timestep = timestep;
+    config.evaluation.minimumRegularization = 1.0e-7;
+
+    std::string metallibPath = requestedMetallibPath;
+    if (metallibPath.empty()) {
+        metallibPath = METALROBO_DEFAULT_METALLIB;
+    }
+    if (metallibPath.empty() ||
+        !std::filesystem::is_regular_file(metallibPath)) {
+        throw std::invalid_argument(
+            "MetalRobo.metallib was not found; pass metallib_path"
+        );
+    }
+    auto program = std::make_shared<
+        MLXCompiledMultiArticulatedProgram
+    >(
+        std::move(compiled),
+        environmentCapacity,
+        std::move(config),
+        std::move(metallibPath)
+    );
+    program->prepareStream(stream);
+    return program;
+}
+
+std::vector<mx::array> generalizedConstraintStep(
+    const std::shared_ptr<
+        MLXCompiledMultiArticulatedProgram
+    >& program,
+    const mx::array& q,
+    const mx::array& freeVelocity,
+    mx::StreamOrDevice stream
+) {
+    if (program == nullptr) {
+        throw std::invalid_argument(
+            "program must be an MLXCompiledMultiArticulatedProgram"
+        );
+    }
+    const auto& compiled = program->program();
+    const auto environments =
+        static_cast<mx::ShapeElem>(
+            program->environmentCapacity()
+        );
+    const mx::Shape qShape{
+        environments,
+        static_cast<mx::ShapeElem>(
+            compiled.model().world.nq
+        ),
+    };
+    const mx::Shape vShape{
+        environments,
+        static_cast<mx::ShapeElem>(
+            compiled.model().world.nv
+        ),
+    };
+    validateInput(q, qShape, "q");
+    validateInput(
+        freeVelocity,
+        vShape,
+        "free_velocity"
+    );
+
+    const auto selectedStream = mx::to_stream(stream);
+    const std::vector<mx::array> inputs{
+        mx::contiguous(q, false, selectedStream),
+        mx::contiguous(
+            freeVelocity,
+            false,
+            selectedStream
+        ),
+    };
+    const auto primitive = std::make_shared<
+        GeneralizedConstraintStepPrimitive
+    >(selectedStream, program);
+    return mx::array::make_arrays(
+        {
+            vShape,
+            {
+                environments,
+                static_cast<mx::ShapeElem>(
+                    compiled.rowCount()
+                ),
+            },
+            {
+                environments,
+                static_cast<mx::ShapeElem>(
+                    kGeneralizedStatusWords
+                ),
+            },
+        },
+        {
+            mx::float32,
+            mx::float32,
+            mx::uint32,
+        },
+        primitive,
+        inputs
+    );
 }
 
 std::vector<mx::array> abaStep(
@@ -1998,6 +2458,300 @@ bool ABAWorldStepPrimitive::is_equivalent(
         dynamic_cast<const ABAWorldStepPrimitive*>(&other);
     return typed != nullptr &&
         typed->world_.get() == world_.get();
+}
+
+GeneralizedConstraintStepPrimitive::
+    GeneralizedConstraintStepPrimitive(
+        mx::Stream stream,
+        std::shared_ptr<
+            MLXCompiledMultiArticulatedProgram
+        > program
+    )
+    : mx::Primitive(stream),
+      program_(std::move(program)) {}
+
+void GeneralizedConstraintStepPrimitive::eval_cpu(
+    const std::vector<mx::array>&,
+    std::vector<mx::array>&
+) {
+    throw std::runtime_error(
+        "MetalRobo generalized constraints have no MLX CPU fallback"
+    );
+}
+
+void GeneralizedConstraintStepPrimitive::eval_gpu(
+    const std::vector<mx::array>& inputs,
+    std::vector<mx::array>& outputs
+) {
+    if (inputs.size() != 2u || outputs.size() != 3u) {
+        throw std::runtime_error(
+            "generalized constraint primitive received an "
+            "invalid graph"
+        );
+    }
+    auto& streamValue = stream();
+    auto& device = mx::metal::device(streamValue.device);
+    MetalGeneralizedResources& resources =
+        program_->resources(device);
+    auto& encoder =
+        mx::metal::get_command_encoder(streamValue);
+    for (mx::array& output : outputs) {
+        output.set_data(mx::allocator::malloc(output.nbytes()));
+    }
+
+    const auto& compiled = program_->program();
+    const EngineModel& model = compiled.model();
+    const std::uint32_t environments =
+        program_->environmentCapacity();
+    const std::uint32_t rows = compiled.rowCount();
+    const std::uint32_t nv = model.world.nv;
+    const std::size_t inverseStatusCount =
+        static_cast<std::size_t>(
+            resources.inverseWorkCount
+        ) * environments;
+    mx::array response = temporary(
+        {
+            static_cast<mx::ShapeElem>(environments),
+            static_cast<mx::ShapeElem>(rows),
+            static_cast<mx::ShapeElem>(nv),
+        },
+        mx::float32
+    );
+    mx::array inverseStatuses = temporary(
+        {
+            static_cast<mx::ShapeElem>(
+                inverseStatusCount
+            ),
+            static_cast<mx::ShapeElem>(
+                kInverseMassStatusWords
+            ),
+        },
+        mx::uint32
+    );
+    mx::array delassus = temporary(
+        {
+            static_cast<mx::ShapeElem>(environments),
+            static_cast<mx::ShapeElem>(rows),
+            static_cast<mx::ShapeElem>(rows),
+        },
+        mx::float32
+    );
+    mx::array candidateVelocity = temporary(
+        outputs[0].shape(),
+        mx::float32
+    );
+    mx::array candidateImpulses = temporary(
+        outputs[1].shape(),
+        mx::float32
+    );
+    mx::array candidateStatuses = temporary(
+        outputs[2].shape(),
+        mx::uint32
+    );
+    encoder.add_temporaries({
+        response,
+        inverseStatuses,
+        delassus,
+        candidateVelocity,
+        candidateImpulses,
+        candidateStatuses,
+    });
+
+    MRGeneralizedConstraintDispatchGPU dispatch{};
+    dispatch.abiVersion =
+        MR_GENERALIZED_CONSTRAINT_ABI_VERSION;
+    dispatch.environmentCount = environments;
+    dispatch.nv = nv;
+    dispatch.rowCount = rows;
+    dispatch.inverseWorkCount =
+        resources.inverseWorkCount;
+    dispatch.solverIterations =
+        program_->config().solverIterations;
+    dispatch.evaluation0 = {
+        static_cast<float>(
+            program_->config().evaluation.timestep
+        ),
+        static_cast<float>(
+            program_->config().evaluation.penetrationSlop
+        ),
+        static_cast<float>(
+            program_->config().evaluation
+                .maximumDepenetrationVelocity
+        ),
+        static_cast<float>(
+            program_->config().evaluation
+                .minimumTimeConstantRatio
+        ),
+    };
+    dispatch.evaluation1 = {
+        static_cast<float>(
+            program_->config().evaluation
+                .minimumRegularization
+        ),
+        program_->config().convergenceTolerance,
+        program_->config().diagonalFloor,
+        0.0f,
+    };
+
+    encoder.set_compute_pipeline_state(
+        resources.inverseKernel
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedWorld),
+        0
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedArticulations),
+        1
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedJoints),
+        2
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedDofs),
+        3
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedBodies),
+        4
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedInverseDispatches),
+        5
+    );
+    encoder.set_input_array(inputs[0], 6);
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedRhs),
+        7
+    );
+    encoder.set_output_array(response, 8);
+    encoder.set_output_array(inverseStatuses, 9);
+    encoder.dispatch_threadgroups(
+        MTL::Size(
+            environments,
+            resources.inverseWorkCount,
+            1u
+        ),
+        MTL::Size(32u, 1u, 1u)
+    );
+    encoder.barrier();
+
+    encoder.set_compute_pipeline_state(
+        resources.delassusKernel
+    );
+    encoder.set_bytes(dispatch, 0);
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedJacobian),
+        1
+    );
+    encoder.set_input_array(response, 2);
+    encoder.set_output_array(delassus, 3);
+    encoder.dispatch_threads(
+        MTL::Size(rows, rows, environments),
+        MTL::Size(8u, 8u, 1u)
+    );
+    encoder.barrier();
+
+    encoder.set_compute_pipeline_state(
+        resources.solveKernel
+    );
+    encoder.set_bytes(dispatch, 0);
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedRows),
+        1
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedWarmImpulses),
+        2
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedJacobian),
+        3
+    );
+    encoder.set_input_array(inputs[1], 4);
+    encoder.set_input_array(response, 5);
+    encoder.set_input_array(inverseStatuses, 6);
+    encoder.set_input_array(delassus, 7);
+    encoder.set_output_array(candidateImpulses, 8);
+    encoder.set_output_array(candidateVelocity, 9);
+    encoder.set_output_array(candidateStatuses, 10);
+    encoder.dispatch_threadgroups(
+        MTL::Size(environments, 1u, 1u),
+        MTL::Size(32u, 1u, 1u)
+    );
+    encoder.barrier();
+
+    encoder.set_compute_pipeline_state(
+        resources.commitKernel
+    );
+    encoder.set_bytes(dispatch, 0);
+    encoder.set_input_array(inputs[1], 1);
+    encoder.set_input_array(candidateVelocity, 2);
+    encoder.set_input_array(candidateImpulses, 3);
+    encoder.set_input_array(candidateStatuses, 4);
+    encoder.set_output_array(outputs[0], 5);
+    encoder.set_output_array(outputs[1], 6);
+    encoder.set_output_array(outputs[2], 7);
+    const auto commitWidth = std::min<std::uint32_t>(
+        environments,
+        static_cast<std::uint32_t>(
+            resources.commitKernel
+                ->maxTotalThreadsPerThreadgroup()
+        )
+    );
+    encoder.dispatch_threads(
+        MTL::Size(environments, 1u, 1u),
+        MTL::Size(commitWidth, 1u, 1u)
+    );
+}
+
+std::vector<mx::array>
+GeneralizedConstraintStepPrimitive::jvp(
+    const std::vector<mx::array>&,
+    const std::vector<mx::array>&,
+    const std::vector<int>&
+) {
+    throw std::runtime_error(
+        "MetalRobo generalized constraints do not implement JVP"
+    );
+}
+
+std::vector<mx::array>
+GeneralizedConstraintStepPrimitive::vjp(
+    const std::vector<mx::array>&,
+    const std::vector<mx::array>&,
+    const std::vector<int>&,
+    const std::vector<mx::array>&
+) {
+    throw std::runtime_error(
+        "MetalRobo generalized constraints do not implement VJP"
+    );
+}
+
+std::pair<std::vector<mx::array>, std::vector<int>>
+GeneralizedConstraintStepPrimitive::vmap(
+    const std::vector<mx::array>&,
+    const std::vector<int>&
+) {
+    throw std::runtime_error(
+        "MetalRobo generalized constraints use the native batch "
+        "axis; vmap is unsupported"
+    );
+}
+
+const char* GeneralizedConstraintStepPrimitive::name() const {
+    return "MetalRoboGeneralizedConstraintStep";
+}
+
+bool GeneralizedConstraintStepPrimitive::is_equivalent(
+    const mx::Primitive& other
+) const {
+    const auto* typed = dynamic_cast<
+        const GeneralizedConstraintStepPrimitive*
+    >(&other);
+    return typed != nullptr &&
+        typed->program_.get() == program_.get();
 }
 
 WorldStepPrimitive::WorldStepPrimitive(

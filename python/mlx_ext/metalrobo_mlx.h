@@ -1,5 +1,6 @@
 #pragma once
 
+#include "metalrobo/MetalMultiArticulatedConstraints.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/r2s2r_types.h"
 #include "metalrobo/world_compiler_types.h"
@@ -18,6 +19,7 @@ namespace mx = mlx::core;
 namespace metalrobo::mlx_ext {
 
 struct MetalResources;
+struct MetalGeneralizedResources;
 
 class MLXCompiledWorld {
 public:
@@ -96,6 +98,48 @@ private:
     std::unique_ptr<MetalResources> resources_;
 };
 
+class MLXCompiledMultiArticulatedProgram {
+public:
+    MLXCompiledMultiArticulatedProgram(
+        CompiledMetalMultiArticulatedProgram program,
+        std::uint32_t environmentCapacity,
+        MetalMultiArticulatedConstraintConfig config,
+        std::string metallibPath
+    );
+    ~MLXCompiledMultiArticulatedProgram();
+
+    MLXCompiledMultiArticulatedProgram(
+        const MLXCompiledMultiArticulatedProgram&
+    ) = delete;
+    MLXCompiledMultiArticulatedProgram& operator=(
+        const MLXCompiledMultiArticulatedProgram&
+    ) = delete;
+
+    [[nodiscard]] const CompiledMetalMultiArticulatedProgram&
+    program() const noexcept;
+    [[nodiscard]] std::uint32_t environmentCapacity()
+        const noexcept;
+    [[nodiscard]] const MetalMultiArticulatedConstraintConfig&
+    config() const noexcept;
+    [[nodiscard]] const std::string& metallibPath()
+        const noexcept;
+    [[nodiscard]] std::vector<float> defaultQ() const;
+    [[nodiscard]] std::vector<float> defaultV() const;
+
+    void prepareStream(mx::StreamOrDevice stream = {});
+    MetalGeneralizedResources& resources(
+        mx::metal::Device& device
+    );
+
+private:
+    CompiledMetalMultiArticulatedProgram program_;
+    std::uint32_t environmentCapacity_ = 0u;
+    MetalMultiArticulatedConstraintConfig config_{};
+    std::string metallibPath_;
+    std::mutex resourceMutex_;
+    std::unique_ptr<MetalGeneralizedResources> resources_;
+};
+
 [[nodiscard]] std::shared_ptr<MLXCompiledWorld> compileWorld(
     const std::string& model,
     const std::string& scene,
@@ -114,6 +158,28 @@ private:
     float ccdSimultaneousTolerance,
     std::uint32_t waveWorkerGroups,
     const std::string& metallibPath,
+    mx::StreamOrDevice stream = {}
+);
+
+[[nodiscard]] std::shared_ptr<
+    MLXCompiledMultiArticulatedProgram
+> compileMultiArticulatedProgram(
+    const std::string& model,
+    std::uint32_t environmentCapacity,
+    std::uint32_t solverIterations,
+    float convergenceTolerance,
+    float timestep,
+    const std::string& metallibPath,
+    mx::StreamOrDevice stream = {}
+);
+
+[[nodiscard]] std::vector<mx::array>
+generalizedConstraintStep(
+    const std::shared_ptr<
+        MLXCompiledMultiArticulatedProgram
+    >& program,
+    const mx::array& q,
+    const mx::array& freeVelocity,
     mx::StreamOrDevice stream = {}
 );
 
@@ -251,6 +317,50 @@ public:
 
 private:
     std::shared_ptr<MLXCompiledWorld> world_;
+};
+
+class GeneralizedConstraintStepPrimitive final
+    : public mx::Primitive {
+public:
+    GeneralizedConstraintStepPrimitive(
+        mx::Stream stream,
+        std::shared_ptr<
+            MLXCompiledMultiArticulatedProgram
+        > program
+    );
+
+    void eval_cpu(
+        const std::vector<mx::array>& inputs,
+        std::vector<mx::array>& outputs
+    ) override;
+    void eval_gpu(
+        const std::vector<mx::array>& inputs,
+        std::vector<mx::array>& outputs
+    ) override;
+    std::vector<mx::array> jvp(
+        const std::vector<mx::array>& primals,
+        const std::vector<mx::array>& tangents,
+        const std::vector<int>& argnums
+    ) override;
+    std::vector<mx::array> vjp(
+        const std::vector<mx::array>& primals,
+        const std::vector<mx::array>& cotangents,
+        const std::vector<int>& argnums,
+        const std::vector<mx::array>& outputs
+    ) override;
+    std::pair<std::vector<mx::array>, std::vector<int>> vmap(
+        const std::vector<mx::array>& inputs,
+        const std::vector<int>& axes
+    ) override;
+    [[nodiscard]] const char* name() const override;
+    [[nodiscard]] bool is_equivalent(
+        const mx::Primitive& other
+    ) const override;
+
+private:
+    std::shared_ptr<
+        MLXCompiledMultiArticulatedProgram
+    > program_;
 };
 
 class WorldFamilyStatePrimitive final : public mx::Primitive {

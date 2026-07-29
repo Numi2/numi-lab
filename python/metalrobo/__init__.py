@@ -41,6 +41,12 @@ from .mlx_world import (
     step,
     step_sampled_world_family,
 )
+from .mlx_multi_articulated import (
+    GeneralizedConstraintOutput,
+    MLXCompiledMultiArticulatedProgram,
+    compile_program as compile_multi_articulated_program,
+    step as step_multi_articulated,
+)
 from .worlds import (
     FrankaPickPlaceWorldFamily,
     PackedWorldFamily,
@@ -123,7 +129,9 @@ __all__ = [
     "HybridObservationRenderer",
     "HybridObservationSnapshot",
     "HybridRendererLayout",
+    "GeneralizedConstraintOutput",
     "MetalRoboError",
+    "MLXCompiledMultiArticulatedProgram",
     "MLXCompiledWorld",
     "MLXFamilyRolloutBatch",
     "MLXFamilyRolloutState",
@@ -158,6 +166,7 @@ __all__ = [
     "WorldState",
     "WorldPhysicalParameters",
     "compile_world",
+    "compile_multi_articulated_program",
     "compile_episode_manifest",
     "accumulate_episode_evidence",
     "compile_feedback_regions",
@@ -177,6 +186,7 @@ __all__ = [
     "reset_episode_accumulator",
     "sampled_state_from_world_family",
     "step",
+    "step_multi_articulated",
     "step_sampled_world_family",
 ]
 

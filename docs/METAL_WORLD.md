@@ -143,10 +143,13 @@ reset into one lazy graph; rollout storage and GAE are MLX arrays.
 `mx.async_eval` bounds rollout chunks, while blocking evaluation is restricted
 to declared rollout/logging and optimizer/checkpoint boundaries.
 
-The active-encoder primitive currently exposes **free-motion ABA only** for
-Franka and G1. It rejects non-empty scene/contact state instead of silently
-falling back to ctypes. The standalone contact graph must be moved behind the
-same encoder adapter before contact training can be called MLX-native.
+The active-encoder world primitive exposes free-motion and contact-capable
+Franka, G1, and PSM scenes, including persistent Wave32 work pulling and
+literal event-time CCD. A separate fixed-capacity generalized-constraint
+primitive consumes the cooked multi-articulation program on the same active
+encoder; dual PSM and heterogeneous dual-PSM-plus-G1 graphs are executable
+without a secondary command buffer or CPU fallback. Full multi-articulation
+collision/island composition remains the next shared-world boundary.
 
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training
@@ -161,6 +164,7 @@ default is the MLX-native Franka joint-stabilization task.
 cd python
 python3 setup.py build_ext --inplace
 python3 probes/mlx_world_probe.py
+python3 probes/mlx_multi_articulated_probe.py
 ```
 
 The contact probe covers a resting sphere/plane cache, greater than 99 percent

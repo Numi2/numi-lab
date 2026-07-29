@@ -95,6 +95,7 @@ if(MLX_BUILD_METAL)
             ${MLX_INCLUDE_DIRS}
         DEPS
             "${METALROBO_ROOT}/include/metalrobo/engine_types.h"
+            "${METALROBO_ROOT}/include/metalrobo/generalized_constraint_shared.h"
             "${METALROBO_ROOT}/include/metalrobo/gpu_types.h"
         OUTPUT_DIRECTORY
             "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"

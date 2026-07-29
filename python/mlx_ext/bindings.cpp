@@ -370,6 +370,75 @@ NB_MODULE(_mlx_ext, module) {
             "Prepare immutable Metal resources for an MLX stream."
         );
 
+    nb::class_<
+        metalrobo::mlx_ext::
+            MLXCompiledMultiArticulatedProgram
+    >(
+        module,
+        "MLXCompiledMultiArticulatedProgram"
+    )
+        .def_prop_ro(
+            "nq",
+            [](const metalrobo::mlx_ext::
+                   MLXCompiledMultiArticulatedProgram& program) {
+                return program.program().model().world.nq;
+            }
+        )
+        .def_prop_ro(
+            "nv",
+            [](const metalrobo::mlx_ext::
+                   MLXCompiledMultiArticulatedProgram& program) {
+                return program.program().model().world.nv;
+            }
+        )
+        .def_prop_ro(
+            "row_count",
+            [](const metalrobo::mlx_ext::
+                   MLXCompiledMultiArticulatedProgram& program) {
+                return program.program().rowCount();
+            }
+        )
+        .def_prop_ro(
+            "articulation_count",
+            [](const metalrobo::mlx_ext::
+                   MLXCompiledMultiArticulatedProgram& program) {
+                return program.program()
+                    .model().articulations.size();
+            }
+        )
+        .def_prop_ro(
+            "environment_capacity",
+            &metalrobo::mlx_ext::
+                MLXCompiledMultiArticulatedProgram::
+                    environmentCapacity
+        )
+        .def_prop_ro(
+            "fingerprint",
+            [](const metalrobo::mlx_ext::
+                   MLXCompiledMultiArticulatedProgram& program) {
+                return program.program().fingerprint();
+            }
+        )
+        .def_prop_ro(
+            "default_q",
+            &metalrobo::mlx_ext::
+                MLXCompiledMultiArticulatedProgram::
+                    defaultQ
+        )
+        .def_prop_ro(
+            "default_v",
+            &metalrobo::mlx_ext::
+                MLXCompiledMultiArticulatedProgram::
+                    defaultV
+        )
+        .def(
+            "prepare_stream",
+            &metalrobo::mlx_ext::
+                MLXCompiledMultiArticulatedProgram::
+                    prepareStream,
+            "stream"_a = nb::none()
+        );
+
     module.def(
         "compile_world",
         &metalrobo::mlx_ext::compileWorld,
@@ -396,6 +465,29 @@ NB_MODULE(_mlx_ext, module) {
         "metallib_path"_a = "",
         "stream"_a = nb::none(),
         "Compile an immutable Franka or G1 world for MLX."
+    );
+    module.def(
+        "compile_multi_articulated_program",
+        &metalrobo::mlx_ext::compileMultiArticulatedProgram,
+        "model"_a = "dual_psm",
+        nb::kw_only(),
+        "environment_capacity"_a = 256u,
+        "solver_iterations"_a = 192u,
+        "convergence_tolerance"_a = 5.0e-5f,
+        "timestep"_a = 1.0e-3f,
+        "metallib_path"_a = "",
+        "stream"_a = nb::none(),
+        "Cook a fixed-capacity multi-articulation MLX program."
+    );
+    module.def(
+        "generalized_constraint_step",
+        &metalrobo::mlx_ext::generalizedConstraintStep,
+        "program"_a,
+        "q"_a,
+        "free_velocity"_a,
+        nb::kw_only(),
+        "stream"_a = nb::none(),
+        "Encode multi-articulation constraints into MLX's active encoder."
     );
     module.def(
         "aba_step",

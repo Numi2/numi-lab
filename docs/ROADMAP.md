@@ -75,6 +75,11 @@ prototype.
   standing/planar/yaw-command PPO collector, cooked-BVH4 rough terrain, and
   device-native reset-state randomization, plus an MLX PSM dynamic
   curved-needle hold/lift PPO task with physics-owned contact
+- **Landed generalized multi-articulation tranche:** deterministic cooked ABA
+  schedules/Jacobians/row packets, matrix-free Metal inverse-mass and
+  Delassus assembly, residual-certified bounded solve, a persistent
+  asynchronous standalone context, and a transactional MLX active-encoder
+  primitive demonstrated on dual PSM plus G1
 - Replace the remaining lane-zero ABA body recursion with a level-parallel
   batched tree implementation and multiple simultaneous right-hand sides
 - Compile complete unilateral joint-limit warm starts and equality/loop

@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/generalized_constraint_shared.h"
 #include "metalrobo/r2s2r_types.h"
 #include "metalrobo/world_compiler_types.h"
 
@@ -219,6 +220,64 @@ kernel void mr_mlx_world_commit_aba(
     }
     if (publishCandidate) {
         ++status.successfulSubsteps;
+    }
+    statuses[environment] = status;
+}
+
+// Transactional publication for the generalized multi-articulation graph.
+// A failed environment retains its explicit free velocity and publishes zero
+// impulses, while the typed failure record remains visible to MLX.
+kernel void mr_mlx_commit_generalized_constraints(
+    constant MRGeneralizedConstraintDispatchGPU&
+        dispatch [[buffer(0)]],
+    device const float* freeVelocity [[buffer(1)]],
+    device const float* candidateVelocity [[buffer(2)]],
+    device const float* candidateImpulses [[buffer(3)]],
+    device const MRGeneralizedConstraintStatusGPU*
+        candidateStatuses [[buffer(4)]],
+    device float* nextVelocity [[buffer(5)]],
+    device float* impulses [[buffer(6)]],
+    device MRGeneralizedConstraintStatusGPU*
+        statuses [[buffer(7)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRGeneralizedConstraintStatusGPU status =
+        candidateStatuses[environment];
+    const bool valid =
+        status.environment == environment &&
+        status.code <=
+            MR_GENERALIZED_CONSTRAINT_NONFINITE_RESULT;
+    if (!valid) {
+        status = {};
+        status.code =
+            MR_GENERALIZED_CONSTRAINT_INVALID_DISPATCH;
+        status.environment = environment;
+        status.failingRow = MR_INVALID_INDEX;
+        status.failingInverseWork = MR_INVALID_INDEX;
+        status.inverseMassCode = MR_INVERSE_MASS_SUCCESS;
+    }
+    const bool publish =
+        valid &&
+        status.code == MR_GENERALIZED_CONSTRAINT_SUCCESS;
+    const uint velocityBase = environment * dispatch.nv;
+    for (uint coordinate = 0u;
+         coordinate < dispatch.nv;
+         ++coordinate) {
+        nextVelocity[velocityBase + coordinate] =
+            publish
+            ? candidateVelocity[velocityBase + coordinate]
+            : freeVelocity[velocityBase + coordinate];
+    }
+    const uint impulseBase =
+        environment * dispatch.rowCount;
+    for (uint row = 0u;
+         row < dispatch.rowCount;
+         ++row) {
+        impulses[impulseBase + row] =
+            publish ? candidateImpulses[impulseBase + row] : 0.0f;
     }
     statuses[environment] = status;
 }

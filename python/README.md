@@ -113,6 +113,35 @@ Hybrid mode performs literal multi-event TOI advance/solve/continue inside
 the active encoder. No NumPy or ctypes fallback is reachable. JVP, VJP, and
 `vmap` are deliberately unsupported in this tranche.
 
+Multi-articulation generalized constraints use a second pure-array primitive
+over the same active Metal encoder:
+
+```python
+from metalrobo import (
+    compile_multi_articulated_program,
+    step_multi_articulated,
+)
+
+program = compile_multi_articulated_program(
+    "dual_psm_g1",
+    environment_capacity=256,
+)
+q = mx.broadcast_to(
+    mx.array(program.default_q, dtype=mx.float32),
+    (256, program.nq),
+)
+v = mx.zeros((256, program.nv), dtype=mx.float32)
+next_v, impulses, status = mx.compile(
+    lambda q, v: step_multi_articulated(program, q, v)
+)(q, v)
+```
+
+The cooked ABA topology, generalized Jacobian, row chunks, inverse-mass
+packets, and repeated right-hand sides are immutable device resources.
+Failure is isolated per environment: velocity rolls back to the explicit
+input, impulses are zero, and the typed status remains visible. Supported
+compositions are `dual_psm` and `dual_psm_g1`.
+
 ## MLX-native PPO
 
 ```sh
