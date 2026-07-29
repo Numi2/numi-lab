@@ -8106,6 +8106,12 @@ bool encodeWave32ContactSolve(
                  offset:0u
                 atIndex:21u + argument];
     }
+    [wave setBuffer:context.buffers[kRodFactorCaches]
+             offset:0u
+            atIndex:28u];
+    [wave setBuffer:context.buffers[kOperatorVelocityArena]
+             offset:0u
+            atIndex:29u];
     [wave
         dispatchThreadgroupsWithIndirectBuffer:
             context.buffers[kWorkQueueHeaders]
@@ -9231,7 +9237,7 @@ bool encodeUnifiedQualitySolve(
     [prepare
         setComputePipelineState:
             context.qualityPreparePipeline];
-    const std::array<std::size_t, 32u> prepareBuffers{{
+    const std::array<std::size_t, 29u> prepareBuffers{{
         kContactDispatch,
         kQualityDispatch,
         kSceneBodyIndices,
@@ -9259,10 +9265,8 @@ bool encodeUnifiedQualitySolve(
         kRodColliders,
         kCandidateRodWitnesses,
         kRodConstraintWitnessIndices,
-        kRodRestLengths,
-        kRodStretchStiffness,
-        kRodBendStiffness,
-        kRodTwistStiffness,
+        kRodFactorCaches,
+        kOperatorVelocityArena,
     }};
     for (NSUInteger argument = 0u;
          argument < prepareBuffers.size();

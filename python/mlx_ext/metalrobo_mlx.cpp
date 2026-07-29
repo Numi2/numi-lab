@@ -6301,10 +6301,8 @@ void WorldStepPrimitive::eval_gpu(
             immutable(kImmutableRodColliders, 24);
             inputArray(candidateRodWitnesses, 25);
             inputArray(rodConstraintWitnessIndices, 26);
-            immutable(kImmutableRodRestLengths, 27);
-            immutable(kImmutableRodStretchStiffness, 28);
-            immutable(kImmutableRodBendStiffness, 29);
-            immutable(kImmutableRodTwistStiffness, 30);
+            inputArray(rodFactorCaches, 27);
+            inputArray(rodOperatorArena, 28);
             encoder.dispatch_threadgroups(
                 MTL::Size(environments, 1u, 1u),
                 MTL::Size(MR_SIMD_WIDTH, 1u, 1u)
@@ -6707,6 +6705,8 @@ void WorldStepPrimitive::eval_gpu(
             immutable(kImmutableRodColliders, 25);
             outputArray(candidateRodWitnesses, 26);
             inputArray(rodConstraintWitnessIndices, 27);
+            inputArray(rodFactorCaches, 28);
+            outputArray(rodOperatorArena, 29);
             const std::size_t persistentWaveWorkers =
                 std::min<std::size_t>(
                     std::max<std::size_t>(
