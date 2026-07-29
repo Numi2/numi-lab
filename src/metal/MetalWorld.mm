@@ -5829,7 +5829,7 @@ void uploadBatch(
         kRawContacts,
         kRawPairIndices,
         kContacts,
-        kContactMetadata,
+        kIREndpoints,
         kIRBlocks,
         kIREndpoints,
         kIRRows,
@@ -8092,6 +8092,7 @@ bool encodeParallelManifoldCompile(
     const std::size_t sourceManifoldHeaders,
     const std::size_t sourceManifoldPoints,
     const std::size_t sourceManifoldCounts,
+    const std::size_t candidateRodNodes,
     const std::size_t environmentCount,
     const std::size_t pairFlagThreadCount,
     const std::size_t rodWitnessThreadCount
@@ -8223,6 +8224,9 @@ bool encodeParallelManifoldCompile(
                 {12u, kIRRows},
                 {13u, kIRCones},
                 {14u, kContactStatuses},
+                {15u, kBodyDynamicNodes},
+                {16u, kCandidateBodies},
+                {17u, candidateRodNodes},
             },
             nullptr,
             0u,
@@ -8380,6 +8384,7 @@ bool encodeContactCollisionAndSolve(
             sourceManifoldHeaders,
             sourceManifoldPoints,
             sourceManifoldCounts,
+            kRodNodesB,
             environmentCount,
             pairFlagThreadCount,
             0u
@@ -8449,6 +8454,7 @@ bool encodeContactCollisionAndSolve(
                 {12u, kFactorCaches},
                 {13u, kContactStatuses},
                 {14u, kIREndpoints},
+                {15u, kRodNodesB},
             },
             nullptr,
             0u,
@@ -9146,7 +9152,7 @@ bool encodeUnifiedQualitySolve(
     [prepare
         setComputePipelineState:
             context.qualityPreparePipeline];
-    const std::array<std::size_t, 31u> prepareBuffers{{
+    const std::array<std::size_t, 32u> prepareBuffers{{
         kContactDispatch,
         kQualityDispatch,
         kSceneBodyIndices,
@@ -9591,6 +9597,7 @@ bool encodeContactSubstep(
             sourceManifoldHeaders,
             sourceManifoldPoints,
             sourceManifoldCounts,
+            candidateRodNodes,
             environmentCount,
             pairFlagThreadCount,
             environmentCount *
@@ -9662,6 +9669,7 @@ bool encodeContactSubstep(
                 {12u, kFactorCaches},
                 {13u, kContactStatuses},
                 {14u, kIREndpoints},
+                {15u, candidateRodNodes},
             },
             nullptr,
             0u,
@@ -9767,6 +9775,9 @@ bool encodeContactSubstep(
                     {5u, kIREndpoints},
                     {6u, kEvaluatedRows},
                     {7u, kContactStatuses},
+                    {9u, kCandidateBodies},
+                    {10u, candidateRodNodes},
+                    {11u, kRodInverseMasses},
                 },
                 &solverPass,
                 8u,
@@ -11463,6 +11474,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         std::uint64_t rodCCDPairCount = 0u;
         std::uint64_t rodHardPairCount = 0u;
         std::uint64_t rodMeshPairCount = 0u;
+        std::uint64_t rodAttachmentConstraintCount = 0u;
         std::uint64_t rodVelocityCursor =
             staged.minimumCapacities_
                 .qualityGeneralizedVelocities;
@@ -11535,18 +11547,144 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             for (std::size_t attachment = 0u;
                  attachment < program.attachments.size();
                  ++attachment) {
+                const DiscreteRodAttachment& attachmentRecord =
+                    program.attachments[attachment];
                 const auto& binding =
                     program.rigidBindings[attachment];
+                const std::uint32_t globalNode =
+                    nodeOffset + attachmentRecord.nodeIndex;
+                const std::uint32_t globalBody =
+                    binding.bodyIndex ==
+                            kDiscreteRodNoRigidBody
+                    ? MR_INVALID_INDEX
+                    : world.sceneBodyIndices[binding.bodyIndex];
+                for (std::uint32_t axis = 0u;
+                     axis < 3u;
+                     ++axis) {
+                    const std::uint32_t endpointOffset =
+                        static_cast<std::uint32_t>(
+                            staged.model_.constraintProgram
+                                .endpoints.size()
+                        );
+                    const std::uint32_t rowOffset =
+                        static_cast<std::uint32_t>(
+                            staged.model_.constraintProgram
+                                .rows.size()
+                        );
+
+                    MRConstraintIRBlockGPU block{};
+                    block.key.words[0] = 0x52415454u;
+                    block.key.words[1] = rodIndex;
+                    block.key.words[2] =
+                        static_cast<std::uint32_t>(attachment);
+                    block.key.words[3] = axis;
+                    block.type = MR_CONSTRAINT_BILATERAL;
+                    block.dimension = 1u;
+                    block.flags =
+                        MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT;
+                    block.islandIndex = MR_INVALID_INDEX;
+                    block.endpointOffset = endpointOffset;
+                    block.endpointCount = 2u;
+                    block.rowOffset = rowOffset;
+                    block.impulseOffset = rowOffset;
+                    block.coneIndex =
+                        MR_CONSTRAINT_IR_INVALID_INDEX;
+                    block.eventSlot =
+                        MR_CONSTRAINT_IR_INVALID_INDEX;
+
+                    MRConstraintIREndpointGPU rodEndpoint{};
+                    rodEndpoint.objectIndex = globalNode;
+                    rodEndpoint.articulationIndex = rodIndex;
+                    rodEndpoint.linkIndex =
+                        MR_CONSTRAINT_IR_INVALID_INDEX;
+                    rodEndpoint.role =
+                        MR_CONSTRAINT_IR_ENDPOINT_A;
+                    rodEndpoint.jacobianKind =
+                        MR_CONSTRAINT_IR_JACOBIAN_ROD_NODE;
+
+                    MRConstraintIREndpointGPU targetEndpoint{};
+                    targetEndpoint.objectIndex = globalBody;
+                    targetEndpoint.articulationIndex =
+                        MR_CONSTRAINT_IR_INVALID_INDEX;
+                    targetEndpoint.linkIndex =
+                        MR_CONSTRAINT_IR_INVALID_INDEX;
+                    targetEndpoint.role =
+                        globalBody == MR_INVALID_INDEX
+                        ? MR_CONSTRAINT_IR_ENDPOINT_WORLD
+                        : MR_CONSTRAINT_IR_ENDPOINT_B;
+                    targetEndpoint.jacobianKind =
+                        globalBody == MR_INVALID_INDEX
+                        ? MR_CONSTRAINT_IR_JACOBIAN_WORLD_POINT
+                        : MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT;
+                    targetEndpoint.anchor = {
+                        static_cast<float>(
+                            globalBody == MR_INVALID_INDEX
+                            ? attachmentRecord.targetPosition[0]
+                            : binding.localAnchor[0]
+                        ),
+                        static_cast<float>(
+                            globalBody == MR_INVALID_INDEX
+                            ? attachmentRecord.targetPosition[1]
+                            : binding.localAnchor[1]
+                        ),
+                        static_cast<float>(
+                            globalBody == MR_INVALID_INDEX
+                            ? attachmentRecord.targetPosition[2]
+                            : binding.localAnchor[2]
+                        ),
+                        1.0f,
+                    };
+
+                    MRConstraintIRRowGPU row{};
+                    row.direction = {
+                        axis == 0u ? 1.0f : 0.0f,
+                        axis == 1u ? 1.0f : 0.0f,
+                        axis == 2u ? 1.0f : 0.0f,
+                        0.0f,
+                    };
+                    row.positionError = 0.0f;
+                    row.targetVelocity =
+                        globalBody == MR_INVALID_INDEX
+                        ? static_cast<float>(
+                              attachmentRecord
+                                  .targetVelocity[axis]
+                          )
+                        : 0.0f;
+                    row.compliance = static_cast<float>(
+                        attachmentRecord.compliance
+                    );
+                    row.timeConstant = std::max(
+                        static_cast<float>(
+                            2.0 * program.stepConfig.timestep
+                        ),
+                        1.0e-5f
+                    );
+                    row.dampingRatio = 1.0f;
+                    row.impulseLower =
+                        -MR_CONSTRAINT_IR_UNBOUNDED;
+                    row.impulseUpper =
+                        MR_CONSTRAINT_IR_UNBOUNDED;
+                    row.flags =
+                        MR_CONSTRAINT_IR_ROW_POSITION_STABILIZED;
+
+                    staged.model_.constraintProgram.blocks
+                        .push_back(block);
+                    staged.model_.constraintProgram.endpoints
+                        .push_back(rodEndpoint);
+                    staged.model_.constraintProgram.endpoints
+                        .push_back(targetEndpoint);
+                    staged.model_.constraintProgram.rows
+                        .push_back(row);
+                    staged.model_.constraintProgram.warmImpulses
+                        .push_back(0.0f);
+                    ++rodAttachmentConstraintCount;
+                }
                 if (binding.bodyIndex ==
                     kDiscreteRodNoRigidBody) {
                     continue;
                 }
-                const std::uint32_t globalBody =
-                    world.sceneBodyIndices[
-                        binding.bodyIndex
-                    ];
                 const std::uint32_t node =
-                    program.attachments[attachment].nodeIndex;
+                    attachmentRecord.nodeIndex;
                 if (node > 0u) {
                     attachmentExclusions.emplace(
                         node - 1u,
@@ -11759,7 +11897,8 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         const std::uint64_t rodRaw =
             rodPairCount *
             MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
-        const std::uint64_t rodConstraints = rodRaw;
+        const std::uint64_t rodConstraints =
+            rodRaw + rodAttachmentConstraintCount;
         const std::uint64_t rodRows = 3u * rodConstraints;
         const std::uint64_t rodEndpoints =
             2u * rodConstraints;
@@ -12102,6 +12241,22 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         hashVector(hash, staged.defaultRodEdges_);
         hashVector(hash, staged.dynamicNodes_);
         hashVector(hash, staged.rodDynamicNodes_);
+        hashVector(
+            hash,
+            staged.model_.constraintProgram.blocks
+        );
+        hashVector(
+            hash,
+            staged.model_.constraintProgram.endpoints
+        );
+        hashVector(
+            hash,
+            staged.model_.constraintProgram.rows
+        );
+        hashVector(
+            hash,
+            staged.model_.constraintProgram.warmImpulses
+        );
         hashValue(hash, staged.capacities_);
         staged.fingerprint_ = hash == 0u ? 1u : hash;
         diagnostics.fingerprint = staged.fingerprint_;

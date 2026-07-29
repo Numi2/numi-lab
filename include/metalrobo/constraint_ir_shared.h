@@ -26,6 +26,9 @@ enum MRConstraintIRBlockFlags : mr_u32 {
     // records remain byte-identical; the world seeding kernel adds this bit
     // after expanding sparse authored records into fixed GPU slots.
     MR_CONSTRAINT_IR_BLOCK_GENERALIZED = 1u << 4u,
+    // Typed rod-node to rigid/world anchor. It is normalized as three scalar
+    // blocks so throughput and quality modes consume the same product cone.
+    MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT = 1u << 5u,
 };
 
 enum MRConstraintIRRowFlags : mr_u32 {
@@ -52,6 +55,9 @@ enum MRConstraintIRJacobianKind : mr_u32 {
     // binds the two rod nodes, interpolation weights, and optional material
     // twist coordinate for applyJ/applyJT.
     MR_CONSTRAINT_IR_JACOBIAN_ROD_EDGE = 4u,
+    // Translational endpoint at one material node. objectIndex is the
+    // flattened rod-node index and articulationIndex names the rod component.
+    MR_CONSTRAINT_IR_JACOBIAN_ROD_NODE = 5u,
 };
 
 // GENERALIZED endpoints are sparse Jacobian terms. objectIndex is the global
@@ -111,6 +117,7 @@ enum MRConstraintIREndpointOwnerKind : mr_u32 {
     MR_CONSTRAINT_IR_OWNER_ARTICULATION = 1u,
     MR_CONSTRAINT_IR_OWNER_FREE_BODY = 2u,
     MR_CONSTRAINT_IR_OWNER_ROD_EDGE = 3u,
+    MR_CONSTRAINT_IR_OWNER_ROD_NODE = 4u,
 };
 
 enum MRConstraintIREndpointRuntimeFlags : mr_u32 {

@@ -82,6 +82,40 @@ int main() {
             "persistent heterogeneous MetalWorld did not compile: " +
                 persistentCompile.message
         );
+        const auto& compiledProgram =
+            persistentWorld.model().constraintProgram;
+        require(
+            compiledProgram.blocks.size() == 17u &&
+                persistentWorld.dynamicNodes().size() == 4u &&
+                persistentWorld.minimumCapacities()
+                        .constraintBlocks >=
+                    17u,
+            "persistent cooker did not promote the swage attachment "
+            "into the common constraint graph"
+        );
+        for (std::size_t blockIndex = 14u;
+             blockIndex < 17u;
+             ++blockIndex) {
+            const auto& block =
+                compiledProgram.blocks[blockIndex];
+            require(
+                block.dimension == 1u &&
+                    block.endpointCount == 2u &&
+                    (block.flags &
+                     MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT) !=
+                        0u &&
+                    compiledProgram.endpoints[
+                        block.endpointOffset
+                    ].jacobianKind ==
+                        MR_CONSTRAINT_IR_JACOBIAN_ROD_NODE &&
+                    compiledProgram.endpoints[
+                        block.endpointOffset + 1u
+                    ].jacobianKind ==
+                        MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT,
+                "cooked swage row is not a typed rod/body scalar "
+                "ConstraintIR block"
+            );
+        }
         const std::vector<float> persistentEffort(
             world.model.world.nv,
             0.0f

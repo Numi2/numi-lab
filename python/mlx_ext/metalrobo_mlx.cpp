@@ -5961,6 +5961,9 @@ void WorldStepPrimitive::eval_gpu(
         outputArray(irRows, 12);
         outputArray(irCones, 13);
         outputArray(outputs[16], 14);
+        immutable(kImmutableBodyDynamicNodes, 15);
+        inputArray(candidateBodies, 16);
+        inputArray(candidateRodNodes, 17);
         dispatchThreads(
             environments,
             resources.kernel(
@@ -6170,6 +6173,7 @@ void WorldStepPrimitive::eval_gpu(
         outputArray(factorCaches, 12);
         outputArray(outputs[16], 13);
         inputArray(irEndpoints, 14);
+        inputArray(candidateRodNodes, 15);
         dispatchThreads(
             environments,
             resources.kernel("mr_world_evaluate_constraint_ir")
@@ -6202,7 +6206,7 @@ void WorldStepPrimitive::eval_gpu(
             inputArray(candidateV, 5);
             inputArray(candidateBodies, 6);
             inputArray(contacts, 7);
-            inputArray(contactMetadata, 8);
+            inputArray(irEndpoints, 8);
             inputArray(irBlocks, 9);
             inputArray(evaluatedRows, 10);
             inputArray(evaluatedCones, 11);
@@ -6755,6 +6759,9 @@ void WorldStepPrimitive::eval_gpu(
             inputArray(evaluatedRows, 6);
             outputArray(outputs[16], 7);
             encoder.set_bytes(solverPass, 8);
+            outputArray(candidateBodies, 9);
+            outputArray(candidateRodNodes, 10);
+            immutable(kImmutableRodInverseMasses, 11);
             dispatchThreads(
                 environments,
                 resources.kernel(
