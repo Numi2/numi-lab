@@ -167,8 +167,12 @@ impulse at the dynamic needle anchor without floating-point atomics. The
 public dual-PSM needle/thread factory derives its binding from the curved
 needle's rear swage geometry and initializes the thread in world coordinates.
 The standalone host currently submits this three-kernel graph and publishes
-rod and rigid output together. Promotion into the MLX `WorldStepPrimitive`,
-thread self/tool contact, and strong coupled rod/rigid iterations remain open.
+rod and rigid output together. Non-adjacent edges are now radius-correct
+capsules: closest witnesses, coincident normals, four-node inverse-mass
+response, and contact refresh run inside every DER sweep on FP64 and Metal.
+The versioned heterogeneous rod program owns and fingerprints this policy.
+Promotion into the MLX `WorldStepPrimitive`, thread-tool witness generation,
+and strong coupled rod/rigid iterations remain open.
 
 `HeterogeneousWorld` is the owned compilation boundary above those executors.
 It composes `EngineModel` instances transactionally, records the exact global

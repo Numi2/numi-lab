@@ -316,6 +316,223 @@ inline void projectAttachment(
     );
 }
 
+struct RodClosestSegments {
+    float first;
+    float second;
+    float3 delta;
+    float distance;
+};
+
+inline bool closestRodSegments(
+    const float3 firstA,
+    const float3 firstB,
+    const float3 secondA,
+    const float3 secondB,
+    thread RodClosestSegments& result
+) {
+    const float3 firstDirection = firstB - firstA;
+    const float3 secondDirection = secondB - secondA;
+    const float3 offset = firstA - secondA;
+    const float firstLengthSquared =
+        dot(firstDirection, firstDirection);
+    const float secondLengthSquared =
+        dot(secondDirection, secondDirection);
+    if (!(firstLengthSquared > 1.0e-20f) ||
+        !(secondLengthSquared > 1.0e-20f)) {
+        return false;
+    }
+    const float firstOffset =
+        dot(firstDirection, offset);
+    const float secondOffset =
+        dot(secondDirection, offset);
+    const float coupling =
+        dot(firstDirection, secondDirection);
+    const float denominator =
+        firstLengthSquared * secondLengthSquared -
+        coupling * coupling;
+    result.first =
+        denominator >
+            1.0e-7f * firstLengthSquared *
+                secondLengthSquared
+        ? clamp(
+              (
+                  coupling * secondOffset -
+                  firstOffset * secondLengthSquared
+              ) / denominator,
+              0.0f,
+              1.0f
+          )
+        : 0.0f;
+    const float secondNumerator =
+        coupling * result.first + secondOffset;
+    if (secondNumerator < 0.0f) {
+        result.second = 0.0f;
+        result.first = clamp(
+            -firstOffset / firstLengthSquared,
+            0.0f,
+            1.0f
+        );
+    } else if (secondNumerator >
+               secondLengthSquared) {
+        result.second = 1.0f;
+        result.first = clamp(
+            (
+                coupling - firstOffset
+            ) / firstLengthSquared,
+            0.0f,
+            1.0f
+        );
+    } else {
+        result.second =
+            secondNumerator / secondLengthSquared;
+    }
+    const float3 firstPoint =
+        firstA + result.first * firstDirection;
+    const float3 secondPoint =
+        secondA + result.second * secondDirection;
+    result.delta = secondPoint - firstPoint;
+    result.distance = length(result.delta);
+    return isfinite(result.first) &&
+        isfinite(result.second) &&
+        finite3(result.delta) &&
+        isfinite(result.distance);
+}
+
+inline float3 stableSelfContactNormal(
+    const float3 firstDirection,
+    const float3 secondDirection,
+    const uint firstEdge,
+    const uint secondEdge
+) {
+    float3 normal = cross(
+        firstDirection,
+        secondDirection
+    );
+    if (dot(normal, normal) <= 1.0e-20f) {
+        const float3 tangent = normalize(firstDirection);
+        const float3 absoluteTangent = abs(tangent);
+        const float3 axis =
+            absoluteTangent.x <= absoluteTangent.y &&
+                absoluteTangent.x <= absoluteTangent.z
+            ? float3(1.0f, 0.0f, 0.0f)
+            : (
+                absoluteTangent.y <= absoluteTangent.z
+                ? float3(0.0f, 1.0f, 0.0f)
+                : float3(0.0f, 0.0f, 1.0f)
+            );
+        normal = axis - tangent * dot(axis, tangent);
+    }
+    normal = normalize(normal);
+    return ((firstEdge ^ secondEdge) & 1u) != 0u
+        ? -normal
+        : normal;
+}
+
+inline void projectSelfContact(
+    const uint firstEdge,
+    const uint secondEdge,
+    const MRRodGPUDispatch dispatch,
+    device const float* inverseMasses,
+    threadgroup float3* positions,
+    threadgroup atomic_uint& failure,
+    threadgroup atomic_uint& maximumErrorBits,
+    threadgroup atomic_uint& maximumCorrectionBits,
+    threadgroup atomic_uint& maximumPenetrationBits,
+    threadgroup atomic_uint& projectedContactCount
+) {
+    RodClosestSegments closest;
+    if (!closestRodSegments(
+            positions[firstEdge],
+            positions[firstEdge + 1u],
+            positions[secondEdge],
+            positions[secondEdge + 1u],
+            closest
+        )) {
+        recordFailure(
+            failure,
+            MR_ROD_GPU_DEGENERATE_GEOMETRY
+        );
+        return;
+    }
+    const float contactDistance =
+        2.0f * dispatch.selfCollision.x +
+        dispatch.selfCollision.y;
+    const float penetration =
+        contactDistance - closest.distance;
+    if (!(penetration > 0.0f)) {
+        return;
+    }
+    const float3 firstDirection =
+        positions[firstEdge + 1u] -
+        positions[firstEdge];
+    const float3 secondDirection =
+        positions[secondEdge + 1u] -
+        positions[secondEdge];
+    const float3 normal = closest.distance > 1.0e-10f
+        ? closest.delta / closest.distance
+        : stableSelfContactNormal(
+              firstDirection,
+              secondDirection,
+              firstEdge,
+              secondEdge
+          );
+    const float4 weights = float4(
+        1.0f - closest.first,
+        closest.first,
+        1.0f - closest.second,
+        closest.second
+    );
+    const uint4 nodes = uint4(
+        firstEdge,
+        firstEdge + 1u,
+        secondEdge,
+        secondEdge + 1u
+    );
+    float denominator = 0.0f;
+    for (uint slot = 0u; slot < 4u; ++slot) {
+        denominator +=
+            weights[slot] * weights[slot] *
+            inverseMasses[nodes[slot]];
+    }
+    const float timestep =
+        dispatch.gravityAndTimestep.w;
+    const float alpha =
+        dispatch.selfCollision.z /
+        (timestep * timestep);
+    if (!(denominator + alpha > 0.0f) ||
+        !isfinite(denominator) ||
+        !finite3(normal)) {
+        recordFailure(
+            failure,
+            MR_ROD_GPU_NONFINITE_RESULT
+        );
+        return;
+    }
+    const float lambda =
+        penetration / (denominator + alpha);
+    for (uint slot = 0u; slot < 4u; ++slot) {
+        const float sign = slot < 2u ? -1.0f : 1.0f;
+        const float3 correction =
+            sign * normal * weights[slot] * lambda *
+            inverseMasses[nodes[slot]];
+        positions[nodes[slot]] += correction;
+        recordPositiveMaximum(
+            maximumCorrectionBits,
+            length(correction)
+        );
+    }
+    recordPositiveMaximum(maximumErrorBits, penetration);
+    recordPositiveMaximum(
+        maximumPenetrationBits,
+        penetration
+    );
+    atomic_fetch_add_explicit(
+        &projectedContactCount,
+        1u,
+        memory_order_relaxed
+    );
+}
+
 inline void projectBend(
     const uint constraintIndex,
     const float timestep,
@@ -638,6 +855,8 @@ kernel void mr_discrete_elastic_rod_step(
     threadgroup atomic_uint failure;
     threadgroup atomic_uint maximumErrorBits;
     threadgroup atomic_uint maximumCorrectionBits;
+    threadgroup atomic_uint maximumPenetrationBits;
+    threadgroup atomic_uint projectedContactCount;
     threadgroup uint completedIterations;
     threadgroup uint converged;
 
@@ -657,6 +876,16 @@ kernel void mr_discrete_elastic_rod_step(
             0u,
             memory_order_relaxed
         );
+        atomic_store_explicit(
+            &maximumPenetrationBits,
+            0u,
+            memory_order_relaxed
+        );
+        atomic_store_explicit(
+            &projectedContactCount,
+            0u,
+            memory_order_relaxed
+        );
         completedIterations = 0u;
         converged = 0u;
         if (dispatch.abiVersion != MR_ROD_GPU_ABI_VERSION ||
@@ -671,6 +900,9 @@ kernel void mr_discrete_elastic_rod_step(
             dispatch.stateEdgeStride < dispatch.edgeCount ||
             dispatch.stateBodyStride <
                 dispatch.rigidBodyCount ||
+            (dispatch.flags &
+                ~uint(MR_ROD_GPU_FLAG_SELF_COLLISION)) !=
+                    0u ||
             !(dispatch.gravityAndTimestep.w > 0.0f) ||
             !all(isfinite(dispatch.gravityAndTimestep)) ||
             any(dispatch.dampingDerivativeTolerance < 0.0f) ||
@@ -678,7 +910,14 @@ kernel void mr_discrete_elastic_rod_step(
             !(dispatch.dampingDerivativeTolerance.w > 0.0f) ||
             !all(isfinite(
                 dispatch.dampingDerivativeTolerance
-            ))) {
+            )) ||
+            !all(isfinite(dispatch.selfCollision)) ||
+            any(dispatch.selfCollision < 0.0f) ||
+            (
+                (dispatch.flags &
+                    MR_ROD_GPU_FLAG_SELF_COLLISION) != 0u &&
+                !(dispatch.selfCollision.x > 0.0f)
+            )) {
             atomic_store_explicit(
                 &failure,
                 uint(MR_ROD_GPU_INVALID_DISPATCH),
@@ -827,6 +1066,31 @@ kernel void mr_discrete_elastic_rod_step(
                         maximumCorrectionBits
                     );
                 }
+                if ((dispatch.flags &
+                     MR_ROD_GPU_FLAG_SELF_COLLISION) != 0u) {
+                    for (uint firstEdge = 0u;
+                         firstEdge < dispatch.edgeCount;
+                         ++firstEdge) {
+                        for (
+                            uint secondEdge = firstEdge + 2u;
+                            secondEdge < dispatch.edgeCount;
+                            ++secondEdge
+                        ) {
+                            projectSelfContact(
+                                firstEdge,
+                                secondEdge,
+                                dispatch,
+                                inverseMasses,
+                                positions,
+                                failure,
+                                maximumErrorBits,
+                                maximumCorrectionBits,
+                                maximumPenetrationBits,
+                                projectedContactCount
+                            );
+                        }
+                    }
+                }
                 for (uint attachmentIndex = 0u;
                      attachmentIndex < dispatch.attachmentCount;
                      ++attachmentIndex) {
@@ -913,6 +1177,33 @@ kernel void mr_discrete_elastic_rod_step(
                 }
                 threadgroup_barrier(mem_flags::mem_threadgroup);
             }
+            if (lane == 0u &&
+                (dispatch.flags &
+                 MR_ROD_GPU_FLAG_SELF_COLLISION) != 0u) {
+                for (uint firstEdge = 0u;
+                     firstEdge < dispatch.edgeCount;
+                     ++firstEdge) {
+                    for (
+                        uint secondEdge = firstEdge + 2u;
+                        secondEdge < dispatch.edgeCount;
+                        ++secondEdge
+                    ) {
+                        projectSelfContact(
+                            firstEdge,
+                            secondEdge,
+                            dispatch,
+                            inverseMasses,
+                            positions,
+                            failure,
+                            maximumErrorBits,
+                            maximumCorrectionBits,
+                            maximumPenetrationBits,
+                            projectedContactCount
+                        );
+                    }
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             for (uint attachmentIndex = lane;
                  attachmentIndex < dispatch.attachmentCount;
                  attachmentIndex += laneCount) {
@@ -1115,8 +1406,14 @@ kernel void mr_discrete_elastic_rod_step(
                 &maximumCorrectionBits,
                 memory_order_relaxed
             )),
-            0.0f,
-            0.0f
+            as_type<float>(atomic_load_explicit(
+                &maximumPenetrationBits,
+                memory_order_relaxed
+            )),
+            float(atomic_load_explicit(
+                &projectedContactCount,
+                memory_order_relaxed
+            ))
         );
         statuses[environment] = status;
     }

@@ -474,8 +474,13 @@ int main() {
         );
 
         metalrobo::HeterogeneousRodProgram rod = world.rods[0];
+        require(
+            rod.stepConfig.enableSelfCollision,
+            "surgical heterogeneous rod did not own self-contact"
+        );
         rod.defaultState.positions[4][1] += 0.005;
-        metalrobo::DiscreteElasticRodStepConfig rodConfig;
+        metalrobo::DiscreteElasticRodStepConfig rodConfig =
+            rod.stepConfig;
         rodConfig.gravity = {0.0, 0.0, 0.0};
         rodConfig.solverIterations = 256u;
         rodConfig.constraintTolerance = 1.0e-5;

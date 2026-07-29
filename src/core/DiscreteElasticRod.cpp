@@ -358,7 +358,11 @@ bool validConfig(const DiscreteElasticRodStepConfig& config) {
         finite(config.twistDamping) &&
         config.twistDamping >= 0.0 &&
         finite(config.derivativeStep) &&
-        config.derivativeStep > 0.0;
+        config.derivativeStep > 0.0 &&
+        finite(config.selfCollisionMargin) &&
+        config.selfCollisionMargin >= 0.0 &&
+        finite(config.selfCollisionCompliance) &&
+        config.selfCollisionCompliance >= 0.0;
 }
 
 double stretchCompliance(
@@ -611,6 +615,220 @@ bool projectTwist(
     state.twists[vertex + 1u] += inverseB * lambda;
     return finite(state.twists[vertex]) &&
         finite(state.twists[vertex + 1u]);
+}
+
+struct ClosestSegments {
+    double first = 0.0;
+    double second = 0.0;
+    Vec3 delta{};
+    double distance = 0.0;
+};
+
+bool closestSegments(
+    const Vec3 firstA,
+    const Vec3 firstB,
+    const Vec3 secondA,
+    const Vec3 secondB,
+    ClosestSegments& result
+) {
+    const Vec3 firstDirection =
+        subtract(firstB, firstA);
+    const Vec3 secondDirection =
+        subtract(secondB, secondA);
+    const Vec3 offset =
+        subtract(firstA, secondA);
+    const double firstLengthSquared =
+        dot(firstDirection, firstDirection);
+    const double secondLengthSquared =
+        dot(secondDirection, secondDirection);
+    if (!(firstLengthSquared > 1.0e-28) ||
+        !(secondLengthSquared > 1.0e-28)) {
+        return false;
+    }
+    const double firstOffset =
+        dot(firstDirection, offset);
+    const double secondOffset =
+        dot(secondDirection, offset);
+    const double coupling =
+        dot(firstDirection, secondDirection);
+    const double denominator =
+        firstLengthSquared * secondLengthSquared -
+        coupling * coupling;
+    if (denominator >
+        1.0e-14 * firstLengthSquared *
+            secondLengthSquared) {
+        result.first = std::clamp(
+            (
+                coupling * secondOffset -
+                firstOffset * secondLengthSquared
+            ) / denominator,
+            0.0,
+            1.0
+        );
+    } else {
+        result.first = 0.0;
+    }
+    double secondNumerator =
+        coupling * result.first + secondOffset;
+    if (secondNumerator < 0.0) {
+        result.second = 0.0;
+        result.first = std::clamp(
+            -firstOffset / firstLengthSquared,
+            0.0,
+            1.0
+        );
+    } else if (secondNumerator >
+               secondLengthSquared) {
+        result.second = 1.0;
+        result.first = std::clamp(
+            (
+                coupling - firstOffset
+            ) / firstLengthSquared,
+            0.0,
+            1.0
+        );
+    } else {
+        result.second =
+            secondNumerator / secondLengthSquared;
+    }
+    const Vec3 firstPoint = add(
+        firstA,
+        multiply(firstDirection, result.first)
+    );
+    const Vec3 secondPoint = add(
+        secondA,
+        multiply(secondDirection, result.second)
+    );
+    result.delta = subtract(secondPoint, firstPoint);
+    result.distance = norm(result.delta);
+    return finite(result.first) &&
+        finite(result.second) &&
+        finite(result.delta) &&
+        finite(result.distance);
+}
+
+bool projectSelfContact(
+    const DiscreteElasticRodModel& model,
+    DiscreteElasticRodState& state,
+    const DiscreteElasticRodStepConfig& config,
+    const std::size_t firstEdge,
+    const std::size_t secondEdge,
+    bool& projected,
+    double& maximumError,
+    double& maximumPenetration,
+    double& maximumCorrection
+) {
+    projected = false;
+    ClosestSegments closest;
+    if (!closestSegments(
+            state.positions[firstEdge],
+            state.positions[firstEdge + 1u],
+            state.positions[secondEdge],
+            state.positions[secondEdge + 1u],
+            closest
+        )) {
+        return false;
+    }
+    const double contactDistance =
+        2.0 * model.radius +
+        config.selfCollisionMargin;
+    const double penetration =
+        contactDistance - closest.distance;
+    if (!(penetration > 0.0)) {
+        return true;
+    }
+    Vec3 normal;
+    if (closest.distance > 1.0e-14) {
+        normal = multiply(
+            closest.delta,
+            1.0 / closest.distance
+        );
+    } else {
+        Vec3 firstDirection;
+        Vec3 secondDirection;
+        if (!normalize(
+                subtract(
+                    state.positions[firstEdge + 1u],
+                    state.positions[firstEdge]
+                ),
+                firstDirection
+            ) ||
+            !normalize(
+                subtract(
+                    state.positions[secondEdge + 1u],
+                    state.positions[secondEdge]
+                ),
+                secondDirection
+            )) {
+            return false;
+        }
+        normal = cross(firstDirection, secondDirection);
+        if (!normalize(normal, normal)) {
+            normal = leastAlignedDirector(firstDirection);
+        }
+        if (((firstEdge ^ secondEdge) & 1u) != 0u) {
+            normal = multiply(normal, -1.0);
+        }
+    }
+    const std::array<double, 4> weights{
+        1.0 - closest.first,
+        closest.first,
+        1.0 - closest.second,
+        closest.second,
+    };
+    const std::array<std::size_t, 4> nodes{
+        firstEdge,
+        firstEdge + 1u,
+        secondEdge,
+        secondEdge + 1u,
+    };
+    double denominator = 0.0;
+    for (std::size_t slot = 0u;
+         slot < nodes.size();
+         ++slot) {
+        denominator +=
+            weights[slot] * weights[slot] /
+            model.nodeMasses[nodes[slot]];
+    }
+    const double alpha =
+        config.selfCollisionCompliance /
+        (config.timestep * config.timestep);
+    if (!(denominator + alpha > 0.0) ||
+        !finite(denominator)) {
+        return false;
+    }
+    const double lambda =
+        penetration / (denominator + alpha);
+    for (std::size_t slot = 0u;
+         slot < nodes.size();
+         ++slot) {
+        const double sign = slot < 2u ? -1.0 : 1.0;
+        const Vec3 correction = multiply(
+            normal,
+            sign * weights[slot] * lambda /
+                model.nodeMasses[nodes[slot]]
+        );
+        state.positions[nodes[slot]] = add(
+            state.positions[nodes[slot]],
+            correction
+        );
+        maximumCorrection = std::max(
+            maximumCorrection,
+            norm(correction)
+        );
+    }
+    maximumError = std::max(maximumError, penetration);
+    maximumPenetration = std::max(
+        maximumPenetration,
+        penetration
+    );
+    projected = true;
+    return std::ranges::all_of(
+        nodes,
+        [&](const std::size_t node) {
+            return finite(state.positions[node]);
+        }
+    );
 }
 
 bool projectAttachment(
@@ -1055,6 +1273,41 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                 );
             }
             ++diagnostics.projectedTwistConstraints;
+        }
+        if (config.enableSelfCollision) {
+            for (std::size_t firstEdge = 0u;
+                 firstEdge < model.restLengths.size();
+                 ++firstEdge) {
+                for (
+                    std::size_t secondEdge = firstEdge + 2u;
+                    secondEdge < model.restLengths.size();
+                    ++secondEdge
+                ) {
+                    bool projected = false;
+                    if (!projectSelfContact(
+                            model,
+                            candidate,
+                            config,
+                            firstEdge,
+                            secondEdge,
+                            projected,
+                            maximumError,
+                            diagnostics.maximumSelfPenetration,
+                            diagnostics.maximumPositionCorrection
+                        )) {
+                        return fail(
+                            std::move(diagnostics),
+                            DiscreteElasticRodStatus::
+                                degenerateGeometry,
+                            "self-contact projection encountered "
+                            "a degenerate edge"
+                        );
+                    }
+                    if (projected) {
+                        ++diagnostics.projectedSelfContacts;
+                    }
+                }
+            }
         }
         for (std::size_t attachmentIndex = 0u;
              attachmentIndex < attachments.size();

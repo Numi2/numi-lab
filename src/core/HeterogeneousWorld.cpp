@@ -251,6 +251,21 @@ std::uint64_t hashRod(
     hash = hashVector(hash, rod.defaultState.velocities);
     hash = hashVector(hash, rod.defaultState.twists);
     hash = hashVector(hash, rod.defaultState.twistRates);
+    hash = hashPod(hash, rod.stepConfig.timestep);
+    hash = hashPod(hash, rod.stepConfig.gravity);
+    hash = hashPod(hash, rod.stepConfig.solverIterations);
+    hash = hashPod(hash, rod.stepConfig.constraintTolerance);
+    hash = hashPod(hash, rod.stepConfig.linearDamping);
+    hash = hashPod(hash, rod.stepConfig.twistDamping);
+    hash = hashPod(hash, rod.stepConfig.derivativeStep);
+    const std::uint32_t selfCollision =
+        rod.stepConfig.enableSelfCollision ? 1u : 0u;
+    hash = hashPod(hash, selfCollision);
+    hash = hashPod(hash, rod.stepConfig.selfCollisionMargin);
+    hash = hashPod(
+        hash,
+        rod.stepConfig.selfCollisionCompliance
+    );
     hash = hashVector(hash, rod.attachments);
     return hashVector(hash, rod.rigidBindings);
 }
@@ -408,6 +423,29 @@ bool HeterogeneousWorld::valid(std::string* reason) const {
             return setReason(
                 reason,
                 "rod program identity, model, state, or binding count is invalid"
+            );
+        }
+        if (!finite(rod.stepConfig.timestep) ||
+            !(rod.stepConfig.timestep > 0.0) ||
+            !finite(rod.stepConfig.gravity) ||
+            rod.stepConfig.solverIterations == 0u ||
+            !finite(rod.stepConfig.constraintTolerance) ||
+            !(rod.stepConfig.constraintTolerance > 0.0) ||
+            !finite(rod.stepConfig.linearDamping) ||
+            rod.stepConfig.linearDamping < 0.0 ||
+            !finite(rod.stepConfig.twistDamping) ||
+            rod.stepConfig.twistDamping < 0.0 ||
+            !finite(rod.stepConfig.derivativeStep) ||
+            !(rod.stepConfig.derivativeStep > 0.0) ||
+            !finite(rod.stepConfig.selfCollisionMargin) ||
+            rod.stepConfig.selfCollisionMargin < 0.0 ||
+            !finite(
+                rod.stepConfig.selfCollisionCompliance
+            ) ||
+            rod.stepConfig.selfCollisionCompliance < 0.0) {
+            return setReason(
+                reason,
+                "rod step or self-contact configuration is invalid"
             );
         }
         std::set<std::uint32_t> nodes;
@@ -703,6 +741,14 @@ makeDualDvrkPsmNeedleThreadHeterogeneousWorld(
         thread.instanceId = "suture_thread";
         thread.model = surgical.threadModel;
         thread.defaultState = surgical.threadState;
+        thread.stepConfig.timestep =
+            surgical.robots.model.world.gravityAndTimestep.w;
+        thread.stepConfig.gravity = {
+            surgical.robots.model.world.gravityAndTimestep.x,
+            surgical.robots.model.world.gravityAndTimestep.y,
+            surgical.robots.model.world.gravityAndTimestep.z,
+        };
+        thread.stepConfig.enableSelfCollision = true;
         thread.attachments.assign(
             surgical.attachments.begin(),
             surgical.attachments.end()

@@ -82,9 +82,10 @@ struct MetalDiscreteElasticRodDiagnostics {
 
 // SIMD32-cohort implicit XPBD/DER solve. One threadgroup owns one complete
 // rod environment; 2/3-color phases make all physical writes disjoint.
-// Optional body-anchor projection and equal/opposite reaction application are
-// encoded in the same command buffer. Publication of rod and rigid candidates
-// is transactional across the batch.
+// Optional non-adjacent capsule self-contact is refreshed within each
+// nonlinear sweep. Body-anchor projection and equal/opposite reaction
+// application are encoded in the same command buffer. Publication of rod and
+// rigid candidates is transactional across the batch.
 [[nodiscard]] MetalDiscreteElasticRodDiagnostics
 runMetalDiscreteElasticRod(
     const DiscreteElasticRodModel& model,

@@ -12,7 +12,7 @@
 
 namespace metalrobo {
 
-inline constexpr std::uint32_t kHeterogeneousWorldFormatVersion = 1u;
+inline constexpr std::uint32_t kHeterogeneousWorldFormatVersion = 2u;
 
 struct HeterogeneousWorldComponent {
     const EngineModel* model = nullptr;
@@ -26,6 +26,9 @@ struct HeterogeneousRodProgram {
     std::string instanceId;
     DiscreteElasticRodModel model;
     DiscreteElasticRodState defaultState;
+    // World-owned default mechanics, including whether capsule self-contact
+    // participates in every rod transaction.
+    DiscreteElasticRodStepConfig stepConfig;
     std::vector<DiscreteRodAttachment> attachments;
     // Body indices address HeterogeneousWorld::defaultSceneBodies, not global
     // EngineModel body indices. This is the exact Metal rod runtime packing.

@@ -380,6 +380,18 @@ small deterministic Cholesky/null-space projection before its cone solve, and
 reconstructs equality impulses afterward. The result closes every regularized
 row below `7.5e-9` and matches the constrained FP64 payload within `6.9e-8`.
 
+The rod probes additionally start two non-adjacent suture capsules in an exact
+crossing. Both solvers relinearize the contact during the DER iterations and
+separate the centerlines to the declared `0.0003 m` diameter:
+
+```text
+discrete_elastic_rod=ok self_contacts=2
+self_penetration=0.000299993 separated_midpoints=0.000300001
+metal_discrete_elastic_rod=ok device="Apple M4"
+self_contacts=2 self_penetration=0.000299993
+self_oracle_error=4.00429e-08 deterministic=yes transactional=yes
+```
+
 Clean Release result:
 
 ```text
@@ -1011,9 +1023,9 @@ evidence.
 - Articulated self-collision and unsupported pair classes
 - Calibrated surgical jaw surfaces, rolling/torsional resistance, and generic
   grasp-wrench/force-closure certification beyond the tested segment-17 load
-- Long-horizon dual-PSM needle/thread transfer with thread self/tool collision;
-  the landed swage coupling currently proves deterministic two-way impulse
-  transfer and transactional state publication, not knot tying
+- Long-horizon dual-PSM needle/thread transfer with thread-tool collision;
+  the landed self-contact and swage coupling prove deterministic separation
+  plus two-way impulse transfer, not knot tying
 - Production segmented LBVH and heightfield collision
 - Matrix-free Newton-PCG for large exact-cone quality islands
 - Quality/throughput task-level closure for the landed temporal TGS

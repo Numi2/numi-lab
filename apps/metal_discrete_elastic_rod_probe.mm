@@ -26,6 +26,17 @@ double length(const std::array<double, 3>& value) {
     );
 }
 
+std::array<double, 3> midpoint(
+    const std::array<double, 3>& first,
+    const std::array<double, 3>& second
+) {
+    return {
+        0.5 * (first[0] + second[0]),
+        0.5 * (first[1] + second[1]),
+        0.5 * (first[2] + second[2]),
+    };
+}
+
 } // namespace
 
 int main() {
@@ -94,6 +105,7 @@ int main() {
         }};
 
         metalrobo::MetalDiscreteElasticRodConfig config;
+        config.step = thread.stepConfig;
         config.step.gravity = {0.0, 0.0, 0.0};
         config.step.solverIterations = 256u;
         config.step.constraintTolerance = 1.0e-5;
@@ -258,6 +270,118 @@ int main() {
             );
         }
 
+        metalrobo::DiscreteElasticRodModel collisionModel =
+            metalrobo::makeStraightSutureRod(4u, 0.12);
+        collisionModel.stretchStiffness.assign(
+            collisionModel.stretchStiffness.size(),
+            1.0e-6
+        );
+        collisionModel.bendStiffness.assign(
+            collisionModel.bendStiffness.size(),
+            1.0e-12
+        );
+        collisionModel.twistStiffness.assign(
+            collisionModel.twistStiffness.size(),
+            1.0e-12
+        );
+        metalrobo::DiscreteElasticRodState crossing =
+            metalrobo::makeDiscreteElasticRodDefaultState(
+                collisionModel
+            );
+        crossing.positions = {{
+            {-0.02, 0.00, 0.0},
+            { 0.02, 0.00, 0.0},
+            { 0.00, -0.02, 0.0},
+            { 0.00, 0.02, 0.0},
+        }};
+        std::vector<metalrobo::DiscreteElasticRodState>
+            crossingStates(environmentCount, crossing);
+        metalrobo::MetalDiscreteElasticRodConfig
+            collisionConfig;
+        collisionConfig.step.gravity = {0.0, 0.0, 0.0};
+        collisionConfig.step.solverIterations = 256u;
+        collisionConfig.step.constraintTolerance = 1.0e-6;
+        collisionConfig.step.enableSelfCollision = true;
+        metalrobo::MetalDiscreteElasticRodResult
+            collisionResult;
+        const auto collisionDiagnostics =
+            metalrobo::runMetalDiscreteElasticRod(
+                collisionModel,
+                {
+                    .states = crossingStates,
+                },
+                collisionResult,
+                collisionConfig
+            );
+        require(
+            collisionDiagnostics.succeeded() &&
+                collisionResult.states.size() ==
+                    environmentCount,
+            "Metal DER self-contact solve failed: " +
+                collisionDiagnostics.message
+        );
+        auto cpuCrossing = crossing;
+        const auto cpuCollisionDiagnostics =
+            metalrobo::stepDiscreteElasticRodCpu(
+                collisionModel,
+                cpuCrossing,
+                {},
+                collisionConfig.step
+            );
+        require(
+            cpuCollisionDiagnostics.succeeded(),
+            "CPU DER self-contact oracle failed"
+        );
+        double maximumSelfContactError = 0.0;
+        for (std::size_t environment = 0u;
+             environment < environmentCount;
+             ++environment) {
+            const auto& metalState =
+                collisionResult.states[environment];
+            const auto firstMidpoint = midpoint(
+                metalState.positions[0],
+                metalState.positions[1]
+            );
+            const auto secondMidpoint = midpoint(
+                metalState.positions[2],
+                metalState.positions[3]
+            );
+            const double separation = length({
+                firstMidpoint[0] - secondMidpoint[0],
+                firstMidpoint[1] - secondMidpoint[1],
+                firstMidpoint[2] - secondMidpoint[2],
+            });
+            require(
+                collisionResult.statuses[environment].
+                        diagnostics.w > 0.0F &&
+                    collisionResult.statuses[environment].
+                        diagnostics.z >=
+                            1.9F *
+                                static_cast<float>(
+                                    collisionModel.radius
+                                ) &&
+                    separation >=
+                        0.95 * 2.0 * collisionModel.radius,
+                "Metal DER capsule self-contact did not separate edges"
+            );
+            for (std::size_t node = 0u;
+                 node < metalState.positions.size();
+                 ++node) {
+                maximumSelfContactError = std::max(
+                    maximumSelfContactError,
+                    std::abs(
+                        metalState.positions[node][2] -
+                        cpuCrossing.positions[node][2]
+                    )
+                );
+            }
+        }
+        require(
+            maximumSelfContactError <= 2.0e-6,
+            "Metal DER self-contact normal response diverged "
+            "from FP64 oracle"
+        );
+
         auto invalidStates = states;
         invalidStates[2].positions[3][0] =
             std::numeric_limits<double>::quiet_NaN();
@@ -295,6 +419,12 @@ int main() {
             << " iterations=" << maximumIterations
             << " max_after_energy=" << maximumAfter
             << " max_anchor_force_n=" << maximumReaction
+            << " self_contacts="
+            << collisionResult.statuses[0].diagnostics.w
+            << " self_penetration="
+            << collisionResult.statuses[0].diagnostics.z
+            << " self_oracle_error="
+            << maximumSelfContactError
             << " allocated_bytes=" << diagnostics.allocatedBytes
             << " elapsed_ms=" << diagnostics.elapsedMilliseconds
             << " deterministic=yes transactional=yes\n";

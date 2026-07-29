@@ -130,7 +130,9 @@ linked or called at runtime.
   swage anchor drives the Metal DER endpoint, every attachment projection
   emits fixed-slot impulse/force evidence, and an equal-and-opposite wrench is
   applied to the dynamic needle in the same command buffer. Rod and rigid
-  candidates publish transactionally; no weld or hidden thread force exists
+  candidates publish transactionally; non-adjacent thread edges execute
+  radius-correct capsule self-contact with per-sweep relinearization on FP64
+  and Metal; no weld or hidden thread force exists
 - Owned heterogeneous executable bundles combine canonical multi-articulation
   topology, exact unarticulated scene-body reset packing, DER sidecars and
   rigid bindings under one deterministic fingerprint. The dual-PSM,
@@ -195,7 +197,7 @@ executable. The 40,000-step/s Franka contact gate, trained 60-second G1
 standing gate, dedicated tiled heightfields, fully composed
 manifold-to-row multi-articulation contact islands, patch rolling/torsional solve,
 convex decomposition and MJCF/OpenUSD workflows, rendering breadth, coupled
-thread self/tool collision and tissue mechanics, unified cone/scalar
+thread-tool collision and tissue mechanics, unified cone/scalar
 matrix-free Metal quality solve,
 and qualified differentiation remain open. Explicit heterogeneous contact
 rows are now solved on standalone Metal; manifold-to-row scatter into the

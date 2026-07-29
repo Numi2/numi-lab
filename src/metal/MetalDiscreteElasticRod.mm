@@ -296,7 +296,11 @@ bool validConfig(const DiscreteElasticRodStepConfig& config) {
         config.twistDamping >= 0.0 &&
         finite(config.twistDamping) &&
         config.derivativeStep > 0.0 &&
-        finite(config.derivativeStep);
+        finite(config.derivativeStep) &&
+        config.selfCollisionMargin >= 0.0 &&
+        finite(config.selfCollisionMargin) &&
+        config.selfCollisionCompliance >= 0.0 &&
+        finite(config.selfCollisionCompliance);
 }
 
 std::string nsString(NSString* value) {
@@ -595,6 +599,9 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         dispatch.rigidBodyCount =
             static_cast<std::uint32_t>(input.rigidBodyCount);
         dispatch.stateBodyStride = dispatch.rigidBodyCount;
+        dispatch.flags = config.step.enableSelfCollision
+            ? MR_ROD_GPU_FLAG_SELF_COLLISION
+            : 0u;
         dispatch.gravityAndTimestep = {
             static_cast<float>(config.step.gravity[0]),
             static_cast<float>(config.step.gravity[1]),
@@ -612,6 +619,16 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 3.5e-4
             )),
             static_cast<float>(config.step.constraintTolerance),
+        };
+        dispatch.selfCollision = {
+            static_cast<float>(model.radius),
+            static_cast<float>(
+                config.step.selfCollisionMargin
+            ),
+            static_cast<float>(
+                config.step.selfCollisionCompliance
+            ),
+            0.0f,
         };
 
         std::vector<float> restLengths;

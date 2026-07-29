@@ -163,8 +163,13 @@ prototype.
   equal/opposite needle wrench with transactional publication
 - **Landed heterogeneous ownership tranche:** one fingerprinted executable
   bundle now owns composed robot/free-body topology, scene reset states, rod
-  models/states and rigid bindings; the dual-PSM/needle/thread factory feeds
-  the existing multi-articulation compiler and Metal DER path directly
+  models/states, self-contact policy and rigid bindings; the
+  dual-PSM/needle/thread factory feeds the existing multi-articulation
+  compiler and Metal DER path directly
+- **Landed thread self-contact:** non-adjacent DER edges are radius-correct
+  capsules with deterministic closest-segment witnesses, stable coincident
+  normals, unilateral four-node inverse-mass projection, per-sweep
+  relinearization, fixed diagnostics and transactional FP64/Metal parity
 - **Landed coupled-contact oracle:** FP64 articulation-articulation,
   self-contact and articulation-static point Jacobians assemble one global
   exact-cone contact problem through retained per-articulation factors. The
@@ -181,8 +186,9 @@ prototype.
   on standalone Metal and MLX
 - Add trocar/RCM constraints, calibrated jaw patches, and physics-owned needle
   regrasp/ring/peg transfer without hidden attachments
-- Add thread self/tool collision and replace the current SIMD32 DER projection
-  with a measured batched block-tridiagonal rod solve where it wins
+- Add thread-tool collision by feeding shared capsule/rigid witnesses into
+  the landed rod contact response, then replace the current SIMD32 DER
+  projection with a measured batched block-tridiagonal solve where it wins
 - Defer calibrated tissue puncture/cutting until rigid needle/thread evidence
   is stable and reproducible
 

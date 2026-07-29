@@ -101,6 +101,13 @@ struct DiscreteElasticRodStepConfig {
     double twistDamping = 0.02;
     // Relative perturbation for local bend-constraint derivatives.
     double derivativeStep = 2.0e-6;
+    // Non-adjacent edges are treated as capsules with the model radius.
+    // Contact is regenerated and relinearized on every nonlinear sweep.
+    bool enableSelfCollision = false;
+    double selfCollisionMargin = 0.0;
+    // Zero is a hard unilateral contact; positive values soften it through
+    // the same XPBD compliance convention as attachments.
+    double selfCollisionCompliance = 0.0;
 };
 
 struct DiscreteElasticRodDiagnostics {
@@ -111,8 +118,10 @@ struct DiscreteElasticRodDiagnostics {
     std::uint32_t projectedBendConstraints = 0u;
     std::uint32_t projectedTwistConstraints = 0u;
     std::uint32_t projectedAttachments = 0u;
+    std::uint32_t projectedSelfContacts = 0u;
     double maximumConstraintError = 0.0;
     double maximumPositionCorrection = 0.0;
+    double maximumSelfPenetration = 0.0;
     DiscreteElasticRodEnergy before{};
     DiscreteElasticRodEnergy after{};
     std::string message;

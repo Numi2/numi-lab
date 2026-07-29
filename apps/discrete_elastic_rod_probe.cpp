@@ -25,6 +25,17 @@ double distance(
     return std::sqrt(x * x + y * y + z * z);
 }
 
+std::array<double, 3> midpoint(
+    const std::array<double, 3>& a,
+    const std::array<double, 3>& b
+) {
+    return {
+        0.5 * (a[0] + b[0]),
+        0.5 * (a[1] + b[1]),
+        0.5 * (a[2] + b[2]),
+    };
+}
+
 } // namespace
 
 int main() {
@@ -149,6 +160,88 @@ int main() {
             "DER non-finite rejection changed state"
         );
 
+        metalrobo::DiscreteElasticRodModel collisionModel =
+            metalrobo::makeStraightSutureRod(4u, 0.12);
+        collisionModel.stretchStiffness.assign(
+            collisionModel.stretchStiffness.size(),
+            1.0e-6
+        );
+        collisionModel.bendStiffness.assign(
+            collisionModel.bendStiffness.size(),
+            1.0e-12
+        );
+        collisionModel.twistStiffness.assign(
+            collisionModel.twistStiffness.size(),
+            1.0e-12
+        );
+        metalrobo::DiscreteElasticRodState crossing =
+            metalrobo::makeDiscreteElasticRodDefaultState(
+                collisionModel
+            );
+        crossing.positions = {{
+            {-0.02, 0.00, 0.0},
+            { 0.02, 0.00, 0.0},
+            { 0.00, -0.02, 0.0},
+            { 0.00, 0.02, 0.0},
+        }};
+        metalrobo::DiscreteElasticRodStepConfig collisionConfig;
+        collisionConfig.gravity = {0.0, 0.0, 0.0};
+        collisionConfig.solverIterations = 256u;
+        collisionConfig.constraintTolerance = 1.0e-6;
+        collisionConfig.enableSelfCollision = true;
+        const auto crossingInput = crossing;
+        const auto collisionDiagnostics =
+            metalrobo::stepDiscreteElasticRodCpu(
+                collisionModel,
+                crossing,
+                {},
+                collisionConfig
+            );
+        const double separatedMidpoints = distance(
+            midpoint(
+                crossing.positions[1],
+                crossing.positions[0]
+            ),
+            midpoint(
+                crossing.positions[2],
+                crossing.positions[3]
+            )
+        );
+        require(
+            collisionDiagnostics.succeeded() &&
+                collisionDiagnostics.projectedSelfContacts > 0u &&
+                collisionDiagnostics.maximumSelfPenetration >=
+                    1.9 * collisionModel.radius &&
+                separatedMidpoints >=
+                    0.95 * 2.0 * collisionModel.radius,
+            "DER capsule self-contact did not separate crossing edges: " +
+                collisionDiagnostics.message +
+                " contacts=" +
+                std::to_string(
+                    collisionDiagnostics.projectedSelfContacts
+                ) +
+                " penetration=" +
+                std::to_string(
+                    collisionDiagnostics.maximumSelfPenetration
+                ) +
+                " separation=" +
+                std::to_string(separatedMidpoints)
+        );
+        auto crossingReplay = crossingInput;
+        const auto crossingReplayDiagnostics =
+            metalrobo::stepDiscreteElasticRodCpu(
+                collisionModel,
+                crossingReplay,
+                {},
+                collisionConfig
+            );
+        require(
+            crossingReplayDiagnostics.succeeded() &&
+                crossingReplay.positions == crossing.positions &&
+                crossingReplay.velocities == crossing.velocities,
+            "DER self-contact replay is not deterministic"
+        );
+
         std::cout
             << "discrete_elastic_rod=ok"
             << " nodes=" << model.restPositions.size()
@@ -166,8 +259,14 @@ int main() {
                 reactions[0].averageForceOnTarget[1] *
                     reactions[0].averageForceOnTarget[1] +
                 reactions[0].averageForceOnTarget[2] *
-                    reactions[0].averageForceOnTarget[2]
+                reactions[0].averageForceOnTarget[2]
             )
+            << " self_contacts="
+            << collisionDiagnostics.projectedSelfContacts
+            << " self_penetration="
+            << collisionDiagnostics.maximumSelfPenetration
+            << " separated_midpoints="
+            << separatedMidpoints
             << " deterministic=yes transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {
