@@ -8,11 +8,17 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <span>
 #include <string>
 #include <vector>
 
 namespace metalrobo {
+
+namespace detail {
+struct MetalMultiArticulatedConstraintContextState;
+struct MetalMultiArticulatedConstraintSubmissionState;
+} // namespace detail
 
 struct MetalMultiArticulatedConstraintInput;
 struct MetalMultiArticulatedConstraintConfig;
@@ -95,6 +101,8 @@ enum class MetalMultiArticulatedConstraintStatus : std::uint32_t {
     metalCommandFailure,
     gpuEnvironmentFailure,
     nonfiniteResult,
+    internalFailure,
+    contextBusy,
 };
 
 struct MetalMultiArticulatedConstraintLayout {
@@ -147,6 +155,93 @@ compileMetalMultiArticulatedProgram(
     const EngineModel& model,
     CompiledMetalMultiArticulatedProgram& output
 );
+
+struct MetalMultiArticulatedConstraintContextStats {
+    std::uint64_t pipelineCreationCount = 0u;
+    std::uint64_t immutableUploadCount = 0u;
+    std::uint64_t bufferAllocationCount = 0u;
+    std::uint64_t bufferGrowthCount = 0u;
+    std::uint64_t submissionCount = 0u;
+    std::uint64_t completedSubmissionCount = 0u;
+    std::size_t retainedBufferBytes = 0u;
+    std::uint64_t programFingerprint = 0u;
+    bool hasInFlightSubmission = false;
+};
+
+class MetalMultiArticulatedConstraintContext;
+
+class MetalMultiArticulatedConstraintSubmission {
+public:
+    MetalMultiArticulatedConstraintSubmission() noexcept;
+    ~MetalMultiArticulatedConstraintSubmission();
+
+    MetalMultiArticulatedConstraintSubmission(
+        MetalMultiArticulatedConstraintSubmission&& other
+    ) noexcept;
+    MetalMultiArticulatedConstraintSubmission& operator=(
+        MetalMultiArticulatedConstraintSubmission&& other
+    ) noexcept;
+
+    MetalMultiArticulatedConstraintSubmission(
+        const MetalMultiArticulatedConstraintSubmission&
+    ) = delete;
+    MetalMultiArticulatedConstraintSubmission& operator=(
+        const MetalMultiArticulatedConstraintSubmission&
+    ) = delete;
+
+    [[nodiscard]] bool valid() const noexcept;
+    [[nodiscard]] MetalMultiArticulatedConstraintDiagnostics wait(
+        MetalMultiArticulatedConstraintResult& output
+    );
+
+private:
+    friend class MetalMultiArticulatedConstraintContext;
+    std::unique_ptr<
+        detail::MetalMultiArticulatedConstraintSubmissionState
+    > state_;
+};
+
+// Persistent one-program executor. Pipeline creation and immutable program
+// upload occur once; only environment-major input/output capacity can grow.
+// One submission may be in flight because the arena is intentionally reused.
+class MetalMultiArticulatedConstraintContext {
+public:
+    MetalMultiArticulatedConstraintContext(
+        const CompiledMetalMultiArticulatedProgram& program,
+        MetalMultiArticulatedConstraintConfig config = {}
+    );
+    ~MetalMultiArticulatedConstraintContext();
+
+    MetalMultiArticulatedConstraintContext(
+        MetalMultiArticulatedConstraintContext&& other
+    ) noexcept;
+    MetalMultiArticulatedConstraintContext& operator=(
+        MetalMultiArticulatedConstraintContext&& other
+    ) noexcept;
+
+    MetalMultiArticulatedConstraintContext(
+        const MetalMultiArticulatedConstraintContext&
+    ) = delete;
+    MetalMultiArticulatedConstraintContext& operator=(
+        const MetalMultiArticulatedConstraintContext&
+    ) = delete;
+
+    [[nodiscard]] MetalMultiArticulatedConstraintDiagnostics submit(
+        const MetalMultiArticulatedConstraintInput& input,
+        MetalMultiArticulatedConstraintSubmission& submission
+    );
+    [[nodiscard]] MetalMultiArticulatedConstraintDiagnostics run(
+        const MetalMultiArticulatedConstraintInput& input,
+        MetalMultiArticulatedConstraintResult& output
+    );
+    [[nodiscard]] MetalMultiArticulatedConstraintContextStats stats()
+        const noexcept;
+
+private:
+    std::shared_ptr<
+        detail::MetalMultiArticulatedConstraintContextState
+    > state_;
+};
 
 // Solves the immutable model-owned non-contact generalized ConstraintIR
 // program over all articulations. Sparse J' columns are factor-applied by the

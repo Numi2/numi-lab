@@ -278,19 +278,52 @@ int main() {
             .q = q,
             .freeVelocity = freeVelocity,
         };
+        metalrobo::MetalMultiArticulatedConstraintContext context(
+            program,
+            config
+        );
+        metalrobo::MetalMultiArticulatedConstraintSubmission
+            submission;
         metalrobo::MetalMultiArticulatedConstraintResult result;
-        const auto diagnostics =
-            metalrobo::solveMetalMultiArticulatedConstraints(
-                program,
-                input,
-                result,
-                config
-            );
+        auto diagnostics = context.submit(input, submission);
         if (!diagnostics.succeeded()) {
             throw std::runtime_error(
-                std::string{
-                    "Metal generalized constraint solve failed: "
-                } + diagnostics.message +
+                std::string{"Metal generalized submit failed: "} +
+                diagnostics.message
+            );
+        }
+        require(
+            diagnostics.dispatched &&
+                !diagnostics.published &&
+                submission.valid(),
+            "persistent context did not return an async ticket"
+        );
+        const auto submittedStats = context.stats();
+        require(
+            submittedStats.pipelineCreationCount == 3u &&
+                submittedStats.immutableUploadCount == 1u &&
+                submittedStats.submissionCount == 1u &&
+                submittedStats.hasInFlightSubmission &&
+                submittedStats.retainedBufferBytes > 0u,
+            "persistent context did not retain its device program"
+        );
+        metalrobo::MetalMultiArticulatedConstraintSubmission
+            busySubmission;
+        const auto busyDiagnostics =
+            context.submit(input, busySubmission);
+        require(
+            busyDiagnostics.status ==
+                metalrobo::
+                    MetalMultiArticulatedConstraintStatus::
+                        contextBusy &&
+                !busySubmission.valid(),
+            "persistent arena admitted overlapping submissions"
+        );
+        diagnostics = submission.wait(result);
+        if (!diagnostics.succeeded()) {
+            throw std::runtime_error(
+                std::string{"Metal generalized wait failed: "} +
+                diagnostics.message +
                 " gpu_code=" +
                 std::to_string(
                     diagnostics.firstGPUStatusCode
@@ -301,6 +334,7 @@ int main() {
                 )
             );
         }
+        const auto completedStats = context.stats();
         require(
             diagnostics.dispatched &&
                 diagnostics.published &&
@@ -309,8 +343,10 @@ int main() {
                 result.impulses.size() ==
                     environmentCount * rowCount &&
                 result.layout.inverseMassDispatches.size() >
-                    model.articulations.size(),
-            "generalized result did not exercise chunked inverse mass"
+                    model.articulations.size() &&
+                completedStats.completedSubmissionCount == 1u &&
+                !completedStats.hasInFlightSubmission,
+            "persistent result did not exercise chunked inverse mass"
         );
         const MRArticulationGPU& observer =
             model.articulations.back();
@@ -421,18 +457,20 @@ int main() {
         }
 
         metalrobo::MetalMultiArticulatedConstraintResult replay;
-        const auto replayDiagnostics =
-            metalrobo::solveMetalMultiArticulatedConstraints(
-                program,
-                input,
-                replay,
-                config
-            );
+        const auto replayDiagnostics = context.run(input, replay);
+        const auto replayStats = context.stats();
         require(
             replayDiagnostics.succeeded() &&
                 replay.nextVelocity == result.nextVelocity &&
-                replay.impulses == result.impulses,
-            "generalized Metal solve is not deterministic"
+                replay.impulses == result.impulses &&
+                replayStats.pipelineCreationCount ==
+                    completedStats.pipelineCreationCount &&
+                replayStats.bufferAllocationCount ==
+                    completedStats.bufferAllocationCount &&
+                replayStats.immutableUploadCount ==
+                    completedStats.immutableUploadCount &&
+                replayStats.completedSubmissionCount == 2u,
+            "persistent generalized replay rebuilt or diverged"
         );
 
         metalrobo::MetalMultiArticulatedConstraintResult sentinel =
@@ -447,12 +485,7 @@ int main() {
         auto invalidInput = input;
         invalidInput.freeVelocity = invalidVelocity;
         const auto rejected =
-            metalrobo::solveMetalMultiArticulatedConstraints(
-                program,
-                invalidInput,
-                sentinel,
-                config
-            );
+            context.run(invalidInput, sentinel);
         require(
             !rejected.succeeded() &&
                 !rejected.dispatched &&
@@ -472,6 +505,12 @@ int main() {
             << program.abaSchedule().levels.size()
             << " row_chunks="
             << program.rowChunkOffsets().size()
+            << " retained_bytes="
+            << replayStats.retainedBufferBytes
+            << " pipeline_creations="
+            << replayStats.pipelineCreationCount
+            << " buffer_allocations="
+            << replayStats.bufferAllocationCount
             << " inverse_packets="
             << result.layout.inverseMassDispatches.size() *
                 environmentCount
