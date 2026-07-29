@@ -266,6 +266,18 @@ std::uint64_t hashRod(
         hash,
         rod.stepConfig.selfCollisionCompliance
     );
+    hash = hashPod(hash, rod.collision.materialIndex);
+    hash = hashPod(hash, rod.collision.collisionGroup);
+    hash = hashPod(hash, rod.collision.collisionMask);
+    hash = hashPod(hash, rod.collision.topologyGeneration);
+    hash = hashPod(hash, rod.collision.contactOffset);
+    hash = hashPod(hash, rod.collision.restOffset);
+    const std::uint32_t toolCollision =
+        rod.collision.enableToolCollision ? 1u : 0u;
+    const std::uint32_t ccd =
+        rod.collision.enableCCD ? 1u : 0u;
+    hash = hashPod(hash, toolCollision);
+    hash = hashPod(hash, ccd);
     hash = hashVector(hash, rod.attachments);
     return hashVector(hash, rod.rigidBindings);
 }
@@ -446,6 +458,27 @@ bool HeterogeneousWorld::valid(std::string* reason) const {
             return setReason(
                 reason,
                 "rod step or self-contact configuration is invalid"
+            );
+        }
+        if (rod.collision.materialIndex >=
+                model.materials.size() ||
+            rod.collision.topologyGeneration == 0u ||
+            !finite(rod.collision.contactOffset) ||
+            rod.collision.contactOffset < 0.0 ||
+            !finite(rod.collision.restOffset) ||
+            rod.collision.restOffset < 0.0 ||
+            rod.collision.restOffset >
+                rod.collision.contactOffset ||
+            (
+                rod.collision.enableToolCollision &&
+                (
+                    rod.collision.collisionGroup == 0u ||
+                    rod.collision.collisionMask == 0u
+                )
+            )) {
+            return setReason(
+                reason,
+                "rod collision configuration is invalid"
             );
         }
         std::set<std::uint32_t> nodes;

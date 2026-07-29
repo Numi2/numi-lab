@@ -228,6 +228,7 @@ class MLXPSMNeedleRolloutCollector:
                 scene_linear_velocity,
                 scene_angular_velocity,
             ),
+            rods=self.default_state.rods,
             solver_cache=SolverCache(
                 manifold_headers,
                 manifold_points,
@@ -328,6 +329,7 @@ class MLXPSMNeedleRolloutCollector:
             q=next_q,
             v=next_v,
             scene_bodies=SceneBodyState(*next_scene),
+            rods=self.default_state.rods,
             solver_cache=SolverCache(*next_cache),
         )
         return (
@@ -388,6 +390,7 @@ class MLXPSMNeedleRolloutCollector:
                 q=result[0],
                 v=result[1],
                 scene_bodies=SceneBodyState(*result[2:6]),
+                rods=self.default_state.rods,
                 solver_cache=SolverCache(*result[6:10]),
             )
             observations = result[10]

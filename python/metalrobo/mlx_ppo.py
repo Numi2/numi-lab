@@ -117,6 +117,7 @@ class MLXRolloutCollector:
         )
         empty = initial_state(world, environment_count)
         self.empty_scene = empty.scene_bodies
+        self.empty_rods = empty.rods
         self.empty_cache = empty.solver_cache
         self._compiled_step = mx.compile(
             self._policy_physics_reward,
@@ -163,6 +164,7 @@ class MLXRolloutCollector:
             q=q,
             v=v,
             scene_bodies=self.empty_scene,
+            rods=self.empty_rods,
             solver_cache=self.empty_cache,
         )
         physics = step(self.world, current, effort)
@@ -338,6 +340,7 @@ class MLXRolloutCollector:
                 q=q,
                 v=v,
                 scene_bodies=self.empty_scene,
+                rods=self.empty_rods,
                 solver_cache=self.empty_cache,
             ),
             observations=observations,

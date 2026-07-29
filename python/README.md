@@ -77,8 +77,9 @@ metalrobo tune-workers \
 The command creates one fixed world per candidate, reports wall throughput,
 and never autotunes inside `mx.compile`.
 
-`WorldState` is an explicit PyTree containing q/v, scene-body state, and solver
-cache. Contact worlds are compiled explicitly:
+`WorldState` is an explicit PyTree containing q/v, scene-body state,
+fixed-shape `RodState`, and solver cache. Rigid-only worlds carry zero-sized
+rod arrays. Contact worlds are compiled explicitly:
 
 ```python
 world = compile_world(
@@ -99,6 +100,25 @@ output = step(
 )
 ```
 
+The same primitive can select the certificate-producing quality path:
+
+```python
+quality_world = compile_world(
+    "franka",
+    scene="cube",
+    solver_mode="quality_newton",
+    ccd_mode="disabled",
+)
+```
+
+`quality_newton` encodes manifold preparation, persistent-impulse velocity
+reconstruction, direct or matrix-free Newton, and transactional application
+through MLX's active encoder. A scan-ordered active-problem queue feeds the
+same fixed occupancy-sized persistent SIMD32 worker pattern as throughput
+contact; worker claim order cannot alter problem slots or row reductions.
+Hybrid event-time quality re-solves are rejected until they preserve the same
+semantics; there is no TGS fallback.
+
 `StepOutput` contains next state, observations, typed status,
 `physics_error`, acceleration, and fixed-capacity contact evidence with
 stable IDs, counts, and masks. Every contact world also returns the common
@@ -112,6 +132,11 @@ authoritative cooked-BVH4 rough terrain, and a dynamic curved needle for PSM.
 Hybrid mode performs literal multi-event TOI advance/solve/continue inside
 the active encoder. No NumPy or ctypes fallback is reachable. JVP, VJP, and
 `vmap` are deliberately unsupported in this tranche.
+
+The PyTree already carries the versioned rod-state contract. Nonzero rod
+execution is currently rejected explicitly because the two-way procedural
+capsule solver is still owned by the standalone Metal rod graph; MLX never
+ignores or freezes a supplied thread while reporting a successful world step.
 
 Multi-articulation generalized constraints use a second pure-array primitive
 over the same active Metal encoder:

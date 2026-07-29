@@ -31,6 +31,15 @@ class SceneBodyState(NamedTuple):
     angular_velocity: mx.array
 
 
+class RodState(NamedTuple):
+    """Explicit environment-major deforming-thread state."""
+
+    position: mx.array
+    velocity: mx.array
+    twist: mx.array
+    twist_rate: mx.array
+
+
 class SolverCache(NamedTuple):
     """Explicit device arrays carried between pure physics calls."""
 
@@ -46,6 +55,7 @@ class WorldState(NamedTuple):
     q: mx.array
     v: mx.array
     scene_bodies: SceneBodyState
+    rods: RodState
     solver_cache: SolverCache
 
 
@@ -122,6 +132,63 @@ def _broadcast_scene_default(
         value,
         (environment_count, scene_body_count, 4),
     )
+
+
+def _initial_rod_state(
+    world: MLXCompiledWorld,
+    environment_count: int,
+) -> RodState:
+    node_count = int(world.rod_node_count)
+    edge_count = int(world.rod_edge_count)
+    if node_count:
+        position = mx.broadcast_to(
+            mx.array(
+                world.default_rod_positions,
+                dtype=mx.float32,
+            ).reshape((1, node_count, 4)),
+            (environment_count, node_count, 4),
+        )
+        velocity = mx.broadcast_to(
+            mx.array(
+                world.default_rod_velocities,
+                dtype=mx.float32,
+            ).reshape((1, node_count, 4)),
+            (environment_count, node_count, 4),
+        )
+    else:
+        position = mx.zeros(
+            (environment_count, 0, 4),
+            dtype=mx.float32,
+        )
+        velocity = mx.zeros(
+            (environment_count, 0, 4),
+            dtype=mx.float32,
+        )
+    if edge_count:
+        twist = mx.broadcast_to(
+            mx.array(
+                world.default_rod_twists,
+                dtype=mx.float32,
+            ).reshape((1, edge_count)),
+            (environment_count, edge_count),
+        )
+        twist_rate = mx.broadcast_to(
+            mx.array(
+                world.default_rod_twist_rates,
+                dtype=mx.float32,
+            ).reshape((1, edge_count)),
+            (environment_count, edge_count),
+        )
+    else:
+        twist = mx.zeros(
+            (environment_count, 0),
+            dtype=mx.float32,
+        )
+        twist_rate = mx.zeros(
+            (environment_count, 0),
+            dtype=mx.float32,
+        )
+    return RodState(position, velocity, twist, twist_rate)
 
 
 def initial_state(
@@ -229,6 +296,7 @@ def initial_state(
         q=q,
         v=v,
         scene_bodies=scene,
+        rods=_initial_rod_state(world, environment_count),
         solver_cache=solver_cache,
     )
 
@@ -340,6 +408,7 @@ def sampled_state_from_world_family(
                 linear_velocity,
                 angular_velocity,
             ),
+            rods=_initial_rod_state(world, environment_count),
             solver_cache=solver_cache,
         ),
         scenarios=ScenarioState(
@@ -415,6 +484,16 @@ def reset_sampled_world_family(
                     )
                 )
             ),
+            rods=RodState(
+                *(
+                    _select_reset(reset_mask, new, old)
+                    for new, old in zip(
+                        replacement.world.rods,
+                        current.world.rods,
+                        strict=True,
+                    )
+                )
+            ),
             solver_cache=SolverCache(
                 *(
                     _select_reset(reset_mask, new, old)
@@ -469,6 +548,7 @@ def step(
     q = state.q
     v = state.v
     scene = state.scene_bodies
+    rods = state.rods
     cache = state.solver_cache
     if reset_mask is not None:
         replacement = (
@@ -488,6 +568,16 @@ def step(
                 )
             )
         )
+        rods = RodState(
+            *(
+                _select_reset(reset_mask, new, old)
+                for new, old in zip(
+                    replacement.rods,
+                    rods,
+                    strict=True,
+                )
+            )
+        )
         cache = SolverCache(
             *(
                 _select_reset(reset_mask, new, old)
@@ -500,6 +590,12 @@ def step(
         )
 
     environment_count = int(q.shape[0])
+    if int(world.rod_count) != 0:
+        raise NotImplementedError(
+            "nonzero RodState execution is not yet connected to the "
+            "persistent MLX graph; use the standalone two-way "
+            "thread-tool executor instead of silently dropping rod state"
+        )
     if body_parameters is None:
         body_parameters = mx.ones(
             (
@@ -565,6 +661,7 @@ def step(
                 next_linear_velocity,
                 next_angular_velocity,
             ),
+            rods=rods,
             solver_cache=SolverCache(
                 next_manifold_headers,
                 next_manifold_points,
@@ -590,6 +687,7 @@ def step(
             q=next_q,
             v=next_v,
             scene_bodies=scene,
+            rods=rods,
             solver_cache=cache,
         )
         contacts = ContactEvidence(
@@ -766,6 +864,7 @@ __all__ = [
     "ControllerDelayState",
     "MLXCompiledWorld",
     "MetalWorldCapacityProfile",
+    "RodState",
     "SceneBodyState",
     "ScenarioState",
     "SampledWorldFamilyState",

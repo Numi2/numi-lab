@@ -1,6 +1,9 @@
 #pragma once
 
 #include "metalrobo/EngineModel.hpp"
+#include "metalrobo/HeterogeneousWorld.hpp"
+#include "metalrobo/rod_gpu_shared.h"
+#include "metalrobo/unified_quality_shared.h"
 
 #include <array>
 #include <cstddef>
@@ -27,6 +30,20 @@ enum class MetalWorldSolverMode : std::uint32_t {
     freeMotionABA = 0u,
     throughputPGS = 1u,
     throughputTGS = 2u,
+    qualityNewton = 3u,
+};
+
+struct MetalWorldQualityConfig {
+    std::uint32_t maximumNewtonIterations = 20u;
+    std::uint32_t maximumPCGIterations = 128u;
+    std::uint32_t maximumLineSearchIterations = 8u;
+    std::uint32_t directMaximumGeneralizedVelocities = 64u;
+    std::uint32_t directMaximumRows = 256u;
+    float optimalityTolerance = 1.0e-5f;
+    float feasibilityTolerance = 2.0e-5f;
+    float armijoConstant = 1.0e-4f;
+    float lineSearchContraction = 0.5f;
+    float complianceFloorMultiplier = 64.0f;
 };
 
 enum class MetalWorldActuationMode : std::uint32_t {
@@ -63,6 +80,16 @@ struct MetalWorldCapacityProfile {
     std::uint32_t spillRows = 0u;
     std::uint32_t ccdCandidates = 0u;
     std::uint32_t ccdEvents = 0u;
+    std::uint32_t endpointRuntimeRecords = 0u;
+    std::uint32_t articulationPointQueries = 0u;
+    std::uint32_t rodCandidatePairs = 0u;
+    std::uint32_t rodRawContacts = 0u;
+    std::uint32_t rodManifolds = 0u;
+    std::uint32_t rodCCDEvents = 0u;
+    std::uint32_t qualityGeneralizedVelocities = 0u;
+    std::uint32_t qualityRows = 0u;
+    std::uint32_t qualityKrylovVectors = 0u;
+    std::uint32_t qualityDirectTiles = 0u;
 };
 
 enum class MetalWorldHostStatus : std::uint32_t {
@@ -114,6 +141,9 @@ public:
     [[nodiscard]] std::uint32_t sceneBodyCount() const noexcept;
     [[nodiscard]] std::uint32_t colliderCount() const noexcept;
     [[nodiscard]] std::uint32_t eligiblePairCount() const noexcept;
+    [[nodiscard]] std::uint32_t rodCount() const noexcept;
+    [[nodiscard]] std::uint32_t rodNodeCount() const noexcept;
+    [[nodiscard]] std::uint32_t rodEdgeCount() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t> sceneBodyIndices()
         const noexcept;
     [[nodiscard]] std::span<const MRCompiledCollisionPairGPU>
@@ -132,6 +162,22 @@ public:
     meshBvhNodes() const noexcept;
     [[nodiscard]] std::span<const MRMeshTriangleGPU>
     meshTriangles() const noexcept;
+    [[nodiscard]] std::span<const MRRodColliderGPU>
+    rodColliders() const noexcept;
+    [[nodiscard]] std::span<const MRShapeGPU>
+    rodShapeSources() const noexcept;
+    [[nodiscard]] std::span<const MRRodToolPairGPU>
+    rodToolPairs() const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t>
+    rodNodeOffsets() const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t>
+    rodEdgeOffsets() const noexcept;
+    [[nodiscard]] std::span<const MRRodNodeStateGPU>
+    defaultRodNodes() const noexcept;
+    [[nodiscard]] std::span<const MRRodEdgeStateGPU>
+    defaultRodEdges() const noexcept;
+    [[nodiscard]] std::span<const HeterogeneousRodProgram>
+    rodPrograms() const noexcept;
     [[nodiscard]] const MetalWorldCapacityProfile& capacities()
         const noexcept;
     [[nodiscard]] const MetalWorldCapacityProfile&
@@ -147,6 +193,11 @@ private:
         CompiledWorld&,
         const MetalWorldCapacityProfile&
     );
+    friend MetalWorldCompileDiagnostics compileMetalWorld(
+        const HeterogeneousWorld&,
+        CompiledWorld&,
+        const MetalWorldCapacityProfile&
+    );
     friend class MetalWorldContext;
 
     EngineModel model_;
@@ -157,6 +208,14 @@ private:
     MetalWorldCapacityProfile minimumCapacities_{};
     std::vector<std::uint32_t> sceneBodyIndices_;
     std::vector<MRCompiledCollisionPairGPU> eligiblePairs_;
+    std::vector<MRRodColliderGPU> rodColliders_;
+    std::vector<MRShapeGPU> rodShapeSources_;
+    std::vector<MRRodToolPairGPU> rodToolPairs_;
+    std::vector<std::uint32_t> rodNodeOffsets_;
+    std::vector<std::uint32_t> rodEdgeOffsets_;
+    std::vector<MRRodNodeStateGPU> defaultRodNodes_;
+    std::vector<MRRodEdgeStateGPU> defaultRodEdges_;
+    std::vector<HeterogeneousRodProgram> rodPrograms_;
     std::uint64_t fingerprint_ = 0u;
 };
 
@@ -165,6 +224,12 @@ private:
 [[nodiscard]] MetalWorldCompileDiagnostics compileMetalWorld(
     const EngineModel& model,
     std::uint32_t articulationIndex,
+    CompiledWorld& compiled,
+    const MetalWorldCapacityProfile& capacities = {}
+);
+
+[[nodiscard]] MetalWorldCompileDiagnostics compileMetalWorld(
+    const HeterogeneousWorld& world,
     CompiledWorld& compiled,
     const MetalWorldCapacityProfile& capacities = {}
 );
@@ -193,6 +258,13 @@ struct MetalWorldBatch {
     // Only kinematic records are consumed; empty means velocity-driven
     // kinematics retain their current state.
     std::span<const MRBodyStateGPU> kinematicTargets{};
+    // Packed [environment][compiled rod node/edge]. Empty spans use the
+    // immutable heterogeneous-world defaults. Reset streams are optional and
+    // transactionally replace both mechanics and all contact caches.
+    std::span<const MRRodNodeStateGPU> initialRodNodes{};
+    std::span<const MRRodEdgeStateGPU> initialRodEdges{};
+    std::span<const MRRodNodeStateGPU> resetRodNodes{};
+    std::span<const MRRodEdgeStateGPU> resetRodEdges{};
 };
 
 struct MetalWorldStepConfig {
@@ -230,6 +302,8 @@ struct MetalWorldStepConfig {
     float ccdSimultaneousTolerance = 1.0e-5f;
     float speculativeMarginScale = 1.0f;
     float ccdSpeedEnvelope = 1.0e4f;
+    std::uint32_t rodContactOuterIterations = 2u;
+    MetalWorldQualityConfig quality{};
 };
 
 struct MetalWorldConfig {
@@ -252,6 +326,7 @@ struct MetalWorldLayout {
     MRMetalWorldDispatchGPU dispatch{};
     MRABADispatchGPU abaDispatch{};
     MRMetalWorldContactDispatchGPU contactDispatch{};
+    MRUnifiedQualityDispatchGPU qualityDispatch{};
     std::size_t initialQElements = 0u;
     std::size_t initialVElements = 0u;
     std::size_t initialSceneBodyElements = 0u;
@@ -280,6 +355,10 @@ struct MetalWorldLayout {
     std::size_t ccdEventStateElements = 0u;
     std::size_t ccdImpactClusterElements = 0u;
     std::size_t waveWorkPacketElements = 0u;
+    std::size_t manifoldScatterElements = 0u;
+    std::size_t endpointRuntimeElements = 0u;
+    std::size_t rodNodeStateElements = 0u;
+    std::size_t rodEdgeStateElements = 0u;
     MetalWorldMemoryPlan memoryPlan{};
     std::size_t totalRequiredBytes = 0u;
 };
@@ -293,6 +372,7 @@ struct MetalWorldContactEvidence {
     std::vector<MRContactPointMetaGPU> contactMetadata;
     std::vector<MRConstraintIRBlockGPU> blocks;
     std::vector<MRConstraintIREndpointGPU> endpoints;
+    std::vector<MRConstraintEndpointRuntimeGPU> endpointRuntime;
     std::vector<MRConstraintIRRowGPU> rows;
     std::vector<MRConstraintIRConeGPU> cones;
     std::vector<MREvaluatedConstraintIRRowGPU> evaluatedRows;
@@ -315,6 +395,16 @@ struct MetalWorldStageCounts {
     std::uint32_t spillRows = 0u;
     std::uint32_t ccdCandidates = 0u;
     std::uint32_t ccdEvents = 0u;
+    std::uint32_t endpointRuntimeRecords = 0u;
+    std::uint32_t articulationPointQueries = 0u;
+    std::uint32_t rodCandidatePairs = 0u;
+    std::uint32_t rodRawContacts = 0u;
+    std::uint32_t rodManifolds = 0u;
+    std::uint32_t rodCCDEvents = 0u;
+    std::uint32_t qualityGeneralizedVelocities = 0u;
+    std::uint32_t qualityRows = 0u;
+    std::uint32_t qualityKrylovVectors = 0u;
+    std::uint32_t qualityDirectTiles = 0u;
 };
 
 // Horizon aggregate for one environment. Required counts retain exact
@@ -341,8 +431,13 @@ struct MetalWorldStatus {
     std::uint32_t maximumClusteredCCDImpacts = 0u;
     std::uint32_t maximumZeroTimeCCDReplays = 0u;
     std::uint32_t maximumWorkerPackets = 0u;
+    std::uint32_t maximumQualityNewtonIterations = 0u;
+    std::uint32_t maximumQualityPCGIterations = 0u;
+    std::uint32_t maximumQualityLineSearchBacktracks = 0u;
+    std::uint32_t maximumRodContacts = 0u;
     float maximumUnconsumedCCDTime = 0.0f;
     std::array<float, 4> maximumResiduals{};
+    std::array<float, 4> maximumQualityCertificates{};
 };
 
 struct MetalWorldResult {
@@ -351,6 +446,8 @@ struct MetalWorldResult {
     std::vector<float> finalQ;
     std::vector<float> finalV;
     std::vector<MRBodyStateGPU> finalSceneBodies;
+    std::vector<MRRodNodeStateGPU> finalRodNodes;
+    std::vector<MRRodEdgeStateGPU> finalRodEdges;
     // Packed [control step][environment][q then v].
     std::vector<float> observations;
     // Packed [control step][environment][local v]. Failed steps publish zero
@@ -358,6 +455,8 @@ struct MetalWorldResult {
     std::vector<float> accelerations;
     std::vector<MRMetalWorldStatusGPU> statuses;
     std::vector<MRMetalWorldContactStatusGPU> contactStatuses;
+    // One record per environment when qualityNewton is selected.
+    std::vector<MRUnifiedQualityStatusGPU> qualityStatuses;
     std::vector<MetalWorldStatus> environmentStatuses;
     MetalWorldContactEvidence contactEvidence;
 };

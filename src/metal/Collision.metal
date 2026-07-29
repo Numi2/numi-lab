@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/rod_gpu_shared.h"
 
 using namespace metal;
 
@@ -5119,7 +5120,8 @@ inline bool finiteContactDispatch(
         MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS |
         MR_METAL_WORLD_CONTACT_WAVE32 |
         MR_METAL_WORLD_CONTACT_CCD |
-        MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS;
+        MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS |
+        MR_METAL_WORLD_CONTACT_QUALITY;
     return
         dispatch.abiVersion ==
             MR_METAL_WORLD_CONTACT_ABI_VERSION &&
@@ -5155,8 +5157,16 @@ inline bool finiteContactDispatch(
             3u * dispatch.constraintCapacity &&
         dispatch.nv > 0u &&
         dispatch.velocityIterations > 0u &&
-        dispatch.solverType >= MR_SOLVER_THROUGHPUT_TGS &&
-        dispatch.solverType <= MR_SOLVER_THROUGHPUT_PGS &&
+        (
+            dispatch.solverType ==
+                MR_SOLVER_QUALITY_NEWTON ||
+            (
+                dispatch.solverType >=
+                    MR_SOLVER_THROUGHPUT_TGS &&
+                dispatch.solverType <=
+                    MR_SOLVER_THROUGHPUT_PGS
+            )
+        ) &&
         (dispatch.flags & ~knownFlags) == 0u &&
         finiteFloat4(dispatch.timestepAndBias) &&
         dispatch.timestepAndBias.x > 0.0f &&
@@ -8277,4 +8287,1411 @@ kernel void mr_world_collide_compile(
     candidateManifoldCounts[environment] =
         status.code == MR_STEP_SUCCESS ? manifoldCount : 0u;
     statuses[environment] = status;
+}
+
+// Pair-parallel replacement for the manifold portion of
+// mr_world_collide_compile. Every invocation owns one immutable compiled-pair
+// slot, so scheduling order cannot affect cache matching or output order.
+kernel void mr_world_finalize_pair_manifold(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRBodyStateGPU* bodies [[buffer(2)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(3)]],
+    device const uint* oldManifoldCounts [[buffer(4)]],
+    device const MRManifoldHeaderGPU* oldManifoldHeaders [[buffer(5)]],
+    device const MRManifoldPointGPU* oldManifoldPoints [[buffer(6)]],
+    device const uint* pairOverlapFlags [[buffer(7)]],
+    device const uint* pairRawCounts [[buffer(8)]],
+    device const MRRawContactGPU* pairRawContactStaging [[buffer(9)]],
+    device const MRConvexQueryCacheGPU* convexCaches [[buffer(10)]],
+    device const MRCCDPairGPU* ccdPairs [[buffer(11)]],
+    device MRManifoldHeaderGPU* pairManifoldHeaders [[buffer(12)]],
+    device MRManifoldPointGPU* pairManifoldPoints [[buffer(13)]],
+    device MRManifoldIRScatterGPU* scatterRecords [[buffer(14)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(15)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(16)]],
+    const uint flatPair [[thread_position_in_grid]]
+) {
+    const uint pairDomain =
+        dispatch.environmentCount * dispatch.eligiblePairCount;
+    if (flatPair >= pairDomain ||
+        dispatch.eligiblePairCount == 0u) {
+        return;
+    }
+    const uint environment =
+        flatPair / dispatch.eligiblePairCount;
+    const uint eligibleIndex =
+        flatPair - environment * dispatch.eligiblePairCount;
+    MRManifoldIRScatterGPU record = {};
+    record.diagnostics0.y = MR_CONSTRAINT_IR_INVALID_INDEX;
+    record.diagnostics1.w = MR_INVALID_INDEX;
+
+    const MRMetalWorldContactStatusGPU incoming =
+        statuses[environment];
+    if (incoming.code != MR_STEP_SUCCESS) {
+        record.diagnostics0.x = incoming.code;
+        record.diagnostics1.w = eligibleIndex;
+        scatterRecords[flatPair] = record;
+        return;
+    }
+    if (!finiteContactDispatch(dispatch) ||
+        pass.physicsSubstep >=
+            MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS) {
+        record.diagnostics0.x = MR_STEP_UNSUPPORTED;
+        record.diagnostics1.w = eligibleIndex;
+        scatterRecords[flatPair] = record;
+        return;
+    }
+
+    const MRCompiledCollisionPairGPU compiled =
+        eligiblePairs[eligibleIndex];
+    if (compiled.colliderA >= dispatch.shapeCount ||
+        compiled.colliderB >= dispatch.shapeCount ||
+        compiled.colliderA >= compiled.colliderB ||
+        compiled.pairClass == MR_COLLISION_PAIR_UNSUPPORTED) {
+        record.diagnostics0.x = MR_STEP_UNSUPPORTED;
+        record.diagnostics1.w = eligibleIndex;
+        scatterRecords[flatPair] = record;
+        return;
+    }
+    const uint overlapFlag = pairOverlapFlags[flatPair];
+    if ((overlapFlag & 0x80000000u) != 0u) {
+        record.diagnostics0.x =
+            overlapFlag & 0x7fffffffu;
+        record.diagnostics1.w = eligibleIndex;
+        scatterRecords[flatPair] = record;
+        return;
+    }
+    if (overlapFlag == 0u) {
+        scatterRecords[flatPair] = record;
+        return;
+    }
+    record.counts0.x = 1u;
+
+    if (dispatch.ccdMode == MR_WORLD_CCD_HYBRID) {
+        const uint storedEvents = min(
+            incoming.reservedEvent0,
+            min(
+                dispatch.ccdCandidateCapacity,
+                dispatch.ccdEventCapacity
+            )
+        );
+        const uint ccdBase =
+            environment * dispatch.ccdCandidateCapacity;
+        for (uint eventSlot = 0u;
+             eventSlot < storedEvents;
+             ++eventSlot) {
+            const MRCCDPairGPU event =
+                ccdPairs[ccdBase + eventSlot];
+            if (event.compiledPair == eligibleIndex &&
+                (event.flags & MR_CCD_PAIR_HAS_IMPACT) != 0u) {
+                record.diagnostics0.y = eventSlot;
+                break;
+            }
+        }
+    }
+
+    const uint workClass =
+        worldPairWorkClass(compiled, shapes);
+    if (workClass == MR_WORLD_WORK_PRIMITIVE_GJK ||
+        workClass == MR_WORLD_WORK_HULL_GJK ||
+        workClass == MR_WORLD_WORK_HARD_CONVEX ||
+        workClass == MR_WORLD_WORK_MESH) {
+        const MRConvexQueryCacheGPU cache =
+            convexCaches[
+                environment * dispatch.convexCacheStride +
+                eligibleIndex
+            ];
+        if (workClass == MR_WORLD_WORK_MESH) {
+            record.diagnostics1.y = cache.supportA.z;
+        } else if (
+            cache.supportA.w == 1u ||
+            cache.supportA.w == 3u
+        ) {
+            record.diagnostics1.x = 1u;
+            record.diagnostics1.z =
+                cache.supportA.w == 1u ? 1u : 0u;
+        }
+    }
+
+    const uint stagedCount = pairRawCounts[flatPair];
+    if ((stagedCount & 0x80000000u) != 0u) {
+        record.diagnostics0.x =
+            stagedCount & 0x7fffffffu;
+        record.diagnostics1.w = eligibleIndex;
+        scatterRecords[flatPair] = record;
+        return;
+    }
+    if (stagedCount >
+        MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR) {
+        record.diagnostics0.x = MR_STEP_NONFINITE_RESULT;
+        record.diagnostics1.w = eligibleIndex;
+        scatterRecords[flatPair] = record;
+        return;
+    }
+    record.counts0.y = stagedCount;
+    if (stagedCount == 0u) {
+        scatterRecords[flatPair] = record;
+        return;
+    }
+
+    ContactBatch raw = {};
+    raw.count = stagedCount;
+    const uint stagedBase =
+        flatPair * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+    const MRShapeGPU sourceA = shapes[compiled.colliderA];
+    const MRShapeGPU sourceB = shapes[compiled.colliderB];
+    const float restSeparation =
+        sourceA.contactRestAndBoundingRadius.y +
+        sourceB.contactRestAndBoundingRadius.y;
+    float maximumPenetration = 0.0f;
+    for (uint rawIndex = 0u;
+         rawIndex < stagedCount;
+         ++rawIndex) {
+        const MRRawContactGPU witness =
+            pairRawContactStaging[stagedBase + rawIndex];
+        if (!finiteContact(witness)) {
+            record.diagnostics0.x =
+                MR_STEP_NONFINITE_RESULT;
+            record.diagnostics1.w = eligibleIndex;
+            scatterRecords[flatPair] = record;
+            return;
+        }
+        raw.contacts[rawIndex] = witness;
+        maximumPenetration = max(
+            maximumPenetration,
+            max(
+                restSeparation -
+                    witness.normalAndSeparation.w,
+                0.0f
+            )
+        );
+    }
+
+    const uint manifoldBase =
+        environment * dispatch.manifoldStride;
+    const uint oldCount = min(
+        oldManifoldCounts[environment],
+        dispatch.manifoldCapacity
+    );
+    uint oldIndex = 0u;
+    bool hasOld = false;
+    for (; oldIndex < oldCount; ++oldIndex) {
+        const MRManifoldHeaderGPU oldHeader =
+            oldManifoldHeaders[manifoldBase + oldIndex];
+        if (oldHeader.pairAndCount[1] ==
+                compiled.colliderA &&
+            oldHeader.pairAndCount[2] ==
+                compiled.colliderB) {
+            hasOld = true;
+            break;
+        }
+        if (oldHeader.pairAndCount[1] >
+                compiled.colliderA ||
+            (
+                oldHeader.pairAndCount[1] ==
+                    compiled.colliderA &&
+                oldHeader.pairAndCount[2] >
+                    compiled.colliderB
+            )) {
+            break;
+        }
+    }
+
+    MRManifoldHeaderGPU manifoldHeader = {};
+    MRManifoldPointGPU manifoldPoints[
+        MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY
+    ];
+    uint retainedPoints = 0u;
+    uint newPoints = 0u;
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    if (!buildPersistentWorldManifold(
+            environment,
+            compiled,
+            raw,
+            shapes,
+            bodies + bodyBase,
+            hasOld,
+            oldManifoldHeaders + manifoldBase + oldIndex,
+            oldManifoldPoints +
+                (
+                    manifoldBase + oldIndex
+                ) * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY,
+            dispatch.manifoldThresholds,
+            manifoldHeader,
+            manifoldPoints,
+            retainedPoints,
+            newPoints
+        )) {
+        record.diagnostics0.x = MR_STEP_NONFINITE_RESULT;
+        record.diagnostics1.w = eligibleIndex;
+        scatterRecords[flatPair] = record;
+        return;
+    }
+
+    pairManifoldHeaders[flatPair] = manifoldHeader;
+    const uint pairPointBase =
+        flatPair * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+    for (uint point = 0u;
+         point < MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+         ++point) {
+        pairManifoldPoints[pairPointBase + point] =
+            manifoldPoints[point];
+    }
+    const uint pointCount = manifoldHeader.pairAndCount[3];
+    record.counts0.z = 1u;
+    record.counts0.w = pointCount;
+    record.counts1.x =
+        pointCount > 0x55555555u
+        ? 0xffffffffu
+        : 3u * pointCount;
+    record.counts1.y =
+        pointCount > 0x7fffffffu
+        ? 0xffffffffu
+        : 2u * pointCount;
+    record.counts1.z = record.counts1.y;
+    record.counts1.w = pointCount;
+    record.diagnostics0.z = retainedPoints;
+    record.diagnostics0.w = newPoints;
+    record.metrics.x = maximumPenetration;
+    scatterRecords[flatPair] = record;
+}
+
+// Exactly one SIMD32 group owns one environment. It scans arbitrary configured
+// pair counts in 32-pair tiles and writes stable exclusive prefixes. The only
+// serial state is one lane's tile accumulator; all pair work remains lane
+// saturated and no count becomes CPU-visible.
+kernel void mr_world_scan_manifold_ir(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device MRManifoldIRScatterGPU* scatterRecords [[buffer(1)]],
+    device uint* candidateManifoldCounts [[buffer(2)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(3)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
+    const uint environment [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        lane >= MR_SIMD_WIDTH) {
+        return;
+    }
+    // Event-time graph passes use non-success transient status codes to mark
+    // inactive environments. The legacy compiler returned before touching
+    // counts in this case; preserving that contract prevents a later
+    // successful closeout from erasing the last solved impact evidence.
+    if (statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    uint4 totals0 = uint4(0u);
+    uint4 totals1 = uint4(0u);
+    uint retained = 0u;
+    uint fresh = 0u;
+    uint hard = 0u;
+    uint mesh = 0u;
+    uint fallbacks = 0u;
+    float penetration = 0.0f;
+    uint firstError = MR_INVALID_INDEX;
+    uint firstErrorCode = MR_STEP_SUCCESS;
+    uint firstPairOverflow = MR_INVALID_INDEX;
+    uint firstRawOverflow = MR_INVALID_INDEX;
+    uint firstManifoldOverflow = MR_INVALID_INDEX;
+    uint firstConstraintOverflow = MR_INVALID_INDEX;
+    uint firstHardOverflow = MR_INVALID_INDEX;
+    uint firstMeshOverflow = MR_INVALID_INDEX;
+
+    const uint pairBase =
+        environment * dispatch.eligiblePairCount;
+    for (uint tile = 0u;
+         tile < dispatch.eligiblePairCount;
+         tile += MR_SIMD_WIDTH) {
+        const uint pair = tile + lane;
+        const bool valid = pair < dispatch.eligiblePairCount;
+        MRManifoldIRScatterGPU record = {};
+        if (valid) {
+            record = scatterRecords[pairBase + pair];
+        }
+        const uint4 count0 = valid ? record.counts0 : uint4(0u);
+        const uint4 count1 = valid ? record.counts1 : uint4(0u);
+        const uint4 prefix0 = uint4(
+            simd_prefix_exclusive_sum(count0.x),
+            simd_prefix_exclusive_sum(count0.y),
+            simd_prefix_exclusive_sum(count0.z),
+            simd_prefix_exclusive_sum(count0.w)
+        );
+        const uint4 prefix1 = uint4(
+            simd_prefix_exclusive_sum(count1.x),
+            simd_prefix_exclusive_sum(count1.y),
+            simd_prefix_exclusive_sum(count1.z),
+            simd_prefix_exclusive_sum(count1.w)
+        );
+        if (valid) {
+            record.offsets0 = totals0 + prefix0;
+            record.offsets1 = totals1 + prefix1;
+            scatterRecords[pairBase + pair] = record;
+        }
+        const uint tilePairs = simd_sum(count0.x);
+        const uint tileRaw = simd_sum(count0.y);
+        const uint tileManifolds = simd_sum(count0.z);
+        const uint tileConstraints = simd_sum(count0.w);
+        const uint tileRows = simd_sum(count1.x);
+        const uint tileEndpoints = simd_sum(count1.y);
+        const uint tileQueries = simd_sum(count1.z);
+        const uint tileEvidence = simd_sum(count1.w);
+
+        const uint errorPair =
+            valid &&
+            record.diagnostics0.x != MR_STEP_SUCCESS
+            ? pair
+            : MR_INVALID_INDEX;
+        const uint tileFirstError = simd_min(errorPair);
+        const uint pairOverflow =
+            valid &&
+            record.offsets0.x + count0.x >
+                dispatch.pairCapacity
+            ? pair
+            : MR_INVALID_INDEX;
+        const uint rawOverflow =
+            valid &&
+            record.offsets0.y + count0.y >
+                dispatch.rawContactCapacity
+            ? pair
+            : MR_INVALID_INDEX;
+        const uint manifoldOverflow =
+            valid &&
+            record.offsets0.z + count0.z >
+                dispatch.manifoldCapacity
+            ? pair
+            : MR_INVALID_INDEX;
+        const uint constraintOverflow =
+            valid &&
+            (
+                record.offsets0.w + count0.w >
+                    dispatch.constraintCapacity ||
+                record.offsets1.x + count1.x >
+                    dispatch.rowCapacity
+            )
+            ? pair
+            : MR_INVALID_INDEX;
+        const uint hardOverflow =
+            valid &&
+            record.offsets0.x <= dispatch.pairCapacity &&
+            record.diagnostics1.x != 0u
+            ? pair
+            : MR_INVALID_INDEX;
+        const uint meshOverflow =
+            valid &&
+            record.diagnostics1.y != 0u
+            ? pair
+            : MR_INVALID_INDEX;
+        const uint tilePairOverflow = simd_min(pairOverflow);
+        const uint tileRawOverflow = simd_min(rawOverflow);
+        const uint tileManifoldOverflow =
+            simd_min(manifoldOverflow);
+        const uint tileConstraintOverflow =
+            simd_min(constraintOverflow);
+        const uint tileHardOverflow = simd_min(hardOverflow);
+        const uint tileMeshOverflow = simd_min(meshOverflow);
+        const uint tileRetained = simd_sum(
+            valid ? record.diagnostics0.z : 0u
+        );
+        const uint tileFresh = simd_sum(
+            valid ? record.diagnostics0.w : 0u
+        );
+        const uint tileHard = simd_sum(
+            valid ? record.diagnostics1.x : 0u
+        );
+        const uint tileMesh = simd_sum(
+            valid ? record.diagnostics1.y : 0u
+        );
+        const uint tileFallbacks = simd_sum(
+            valid ? record.diagnostics1.z : 0u
+        );
+        const float tilePenetration = simd_max(
+            valid ? record.metrics.x : 0.0f
+        );
+        if (lane == 0u) {
+            if (firstError == MR_INVALID_INDEX &&
+                tileFirstError != MR_INVALID_INDEX) {
+                firstError = tileFirstError;
+                firstErrorCode =
+                    scatterRecords[
+                        pairBase + tileFirstError
+                    ].diagnostics0.x;
+            }
+            firstPairOverflow =
+                min(firstPairOverflow, tilePairOverflow);
+            firstRawOverflow =
+                min(firstRawOverflow, tileRawOverflow);
+            firstManifoldOverflow = min(
+                firstManifoldOverflow,
+                tileManifoldOverflow
+            );
+            firstConstraintOverflow = min(
+                firstConstraintOverflow,
+                tileConstraintOverflow
+            );
+            firstHardOverflow =
+                min(firstHardOverflow, tileHardOverflow);
+            firstMeshOverflow =
+                min(firstMeshOverflow, tileMeshOverflow);
+            totals0 += uint4(
+                tilePairs,
+                tileRaw,
+                tileManifolds,
+                tileConstraints
+            );
+            totals1 += uint4(
+                tileRows,
+                tileEndpoints,
+                tileQueries,
+                tileEvidence
+            );
+            retained += tileRetained;
+            fresh += tileFresh;
+            hard += tileHard;
+            mesh += tileMesh;
+            fallbacks += tileFallbacks;
+            penetration = max(
+                penetration,
+                tilePenetration
+            );
+        }
+        totals0 = simd_broadcast(totals0, 0u);
+        totals1 = simd_broadcast(totals1, 0u);
+    }
+
+    if (lane != 0u) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    status.environment = environment;
+    status.controlStep = pass.controlStep;
+    status.physicsSubstep = pass.physicsSubstep;
+    status.requiredPairs = totals0.x;
+    status.requiredRawContacts = totals0.y;
+    status.requiredManifolds = totals0.z;
+    status.requiredConstraints = totals0.w;
+    status.requiredRows = totals1.x;
+    status.requiredHardConvexPairs = hard;
+    status.requiredMeshCandidates = mesh;
+    status.hardConvexPairs = min(
+        hard,
+        dispatch.hardConvexCapacity
+    );
+    status.meshCandidates = min(
+        mesh,
+        dispatch.meshCandidateCapacity
+    );
+    status.hardFallbacks = fallbacks;
+    status.activePairs = totals0.x;
+    status.activeContacts = totals0.w;
+    status.retainedPoints = retained;
+    status.newPoints = fresh;
+    status.diagnostics.x =
+        retained + fresh == 0u
+        ? 1.0f
+        : float(retained) / float(retained + fresh);
+    status.diagnostics.y = penetration;
+    status.firstFailingPair = MR_INVALID_INDEX;
+    status.firstFailingConstraint = MR_INVALID_INDEX;
+    if (status.code == MR_STEP_SUCCESS) {
+        if (firstError != MR_INVALID_INDEX) {
+            status.code = firstErrorCode;
+            status.firstFailingPair = firstError;
+        } else if (totals0.x > dispatch.pairCapacity) {
+            status.code = MR_STEP_PAIR_CAPACITY_OVERFLOW;
+            status.firstFailingPair = firstPairOverflow;
+        } else if (
+            totals0.y > dispatch.rawContactCapacity
+        ) {
+            status.code = MR_STEP_CONTACT_CAPACITY_OVERFLOW;
+            status.firstFailingPair = firstRawOverflow;
+        } else if (
+            totals0.z > dispatch.manifoldCapacity
+        ) {
+            status.code = MR_STEP_MANIFOLD_CAPACITY_OVERFLOW;
+            status.firstFailingPair =
+                firstManifoldOverflow;
+        } else if (
+            totals0.w > dispatch.constraintCapacity ||
+            totals1.x > dispatch.rowCapacity
+        ) {
+            status.code =
+                MR_STEP_CONSTRAINT_CAPACITY_OVERFLOW;
+            status.firstFailingConstraint =
+                firstConstraintOverflow;
+        } else if (hard > dispatch.hardConvexCapacity) {
+            status.code = MR_STEP_CONTACT_CAPACITY_OVERFLOW;
+            status.firstFailingPair = firstHardOverflow;
+        } else if (
+            mesh > dispatch.meshCandidateCapacity
+        ) {
+            status.code = MR_STEP_CONTACT_CAPACITY_OVERFLOW;
+            status.firstFailingPair = firstMeshOverflow;
+        }
+    }
+    if (status.firstFailingPair != MR_INVALID_INDEX) {
+        status.firstFailingStableKeyLow =
+            status.firstFailingPair;
+        status.firstFailingStableKeyHigh = environment;
+    }
+    candidateManifoldCounts[environment] =
+        status.code == MR_STEP_SUCCESS ? totals0.z : 0u;
+    statuses[environment] = status;
+}
+
+kernel void mr_world_scatter_manifold_records(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(1)]],
+    device const uint* pairRawCounts [[buffer(2)]],
+    device const MRRawContactGPU* pairRawContactStaging [[buffer(3)]],
+    device const MRManifoldHeaderGPU* pairManifoldHeaders [[buffer(4)]],
+    device const MRManifoldPointGPU* pairManifoldPoints [[buffer(5)]],
+    device const MRManifoldIRScatterGPU* scatterRecords [[buffer(6)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
+    device MRCandidatePairGPU* outputPairs [[buffer(8)]],
+    device MRRawContactGPU* outputRawContacts [[buffer(9)]],
+    device uint* outputRawPairIndices [[buffer(10)]],
+    device MRManifoldHeaderGPU* candidateManifoldHeaders [[buffer(11)]],
+    device MRManifoldPointGPU* candidateManifoldPoints [[buffer(12)]],
+    const uint flatPair [[thread_position_in_grid]]
+) {
+    const uint pairDomain =
+        dispatch.environmentCount * dispatch.eligiblePairCount;
+    if (flatPair >= pairDomain ||
+        dispatch.eligiblePairCount == 0u) {
+        return;
+    }
+    const uint environment =
+        flatPair / dispatch.eligiblePairCount;
+    const uint eligibleIndex =
+        flatPair - environment * dispatch.eligiblePairCount;
+    if (statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const MRManifoldIRScatterGPU record =
+        scatterRecords[flatPair];
+    const MRCompiledCollisionPairGPU compiled =
+        eligiblePairs[eligibleIndex];
+    if (record.counts0.x != 0u) {
+        MRCandidatePairGPU pair = {};
+        pair.environment = environment;
+        pair.colliderA = compiled.colliderA;
+        pair.colliderB = compiled.colliderB;
+        pair.flags = compiled.pairClass;
+        outputPairs[
+            environment * dispatch.pairStride +
+            record.offsets0.x
+        ] = pair;
+    }
+    const uint stagedBase =
+        flatPair * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+    const uint rawBase =
+        environment * dispatch.rawContactStride;
+    for (uint rawIndex = 0u;
+         rawIndex < pairRawCounts[flatPair];
+         ++rawIndex) {
+        outputRawContacts[
+            rawBase + record.offsets0.y + rawIndex
+        ] = pairRawContactStaging[stagedBase + rawIndex];
+        outputRawPairIndices[
+            rawBase + record.offsets0.y + rawIndex
+        ] = record.offsets0.x;
+    }
+    if (record.counts0.z == 0u) {
+        return;
+    }
+    const uint manifoldOutput =
+        environment * dispatch.manifoldStride +
+        record.offsets0.z;
+    candidateManifoldHeaders[manifoldOutput] =
+        pairManifoldHeaders[flatPair];
+    const uint sourcePointBase =
+        flatPair * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+    const uint outputPointBase =
+        manifoldOutput * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+    for (uint point = 0u;
+         point < MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+         ++point) {
+        candidateManifoldPoints[outputPointBase + point] =
+            pairManifoldPoints[sourcePointBase + point];
+    }
+}
+
+inline MRConstraintEndpointRuntimeGPU
+worldEndpointRuntime(
+    const MRBodyStateGPU body,
+    const uint bodyIndex,
+    const uint queryIndex,
+    const float4 localAnchor
+) {
+    MRConstraintEndpointRuntimeGPU runtime = {};
+    runtime.dynamicNode = MR_CONSTRAINT_IR_INVALID_INDEX;
+    runtime.ownerIndex = MR_CONSTRAINT_IR_INVALID_INDEX;
+    runtime.elementIndex = bodyIndex;
+    runtime.queryIndex = MR_CONSTRAINT_IR_INVALID_INDEX;
+    runtime.secondaryIndex = MR_CONSTRAINT_IR_INVALID_INDEX;
+    runtime.twistIndex = MR_CONSTRAINT_IR_INVALID_INDEX;
+    runtime.localAnchorOrRadial = localAnchor;
+    const uint motion = body.flagsAndIndices[0];
+    const uint articulation = body.flagsAndIndices[1];
+    if (articulation != MR_INVALID_INDEX) {
+        runtime.dynamicNode = articulation;
+        runtime.ownerKind =
+            MR_CONSTRAINT_IR_OWNER_ARTICULATION;
+        runtime.ownerIndex = articulation;
+        runtime.queryIndex = queryIndex;
+        runtime.flags =
+            MR_CONSTRAINT_IR_RUNTIME_DYNAMIC |
+            MR_CONSTRAINT_IR_RUNTIME_HAS_POINT_QUERY;
+    } else {
+        runtime.ownerKind =
+            motion == MR_MOTION_STATIC
+            ? MR_CONSTRAINT_IR_OWNER_WORLD
+            : MR_CONSTRAINT_IR_OWNER_FREE_BODY;
+        runtime.ownerIndex =
+            motion == MR_MOTION_STATIC
+            ? MR_CONSTRAINT_IR_INVALID_INDEX
+            : bodyIndex;
+        runtime.dynamicNode =
+            motion == MR_MOTION_DYNAMIC
+            ? bodyIndex
+            : MR_CONSTRAINT_IR_INVALID_INDEX;
+        runtime.flags =
+            motion == MR_MOTION_DYNAMIC
+            ? MR_CONSTRAINT_IR_RUNTIME_DYNAMIC
+            : (
+                motion == MR_MOTION_KINEMATIC
+                ? MR_CONSTRAINT_IR_RUNTIME_KINEMATIC
+                : 0u
+            );
+    }
+    return runtime;
+}
+
+kernel void mr_world_scatter_manifold_ir(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRMaterialGPU* materials [[buffer(2)]],
+    device const MRBodyStateGPU* bodies [[buffer(3)]],
+    device const MRArticulationGPU* articulations [[buffer(4)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(5)]],
+    device const MRManifoldHeaderGPU* pairManifoldHeaders [[buffer(6)]],
+    device const MRManifoldPointGPU* pairManifoldPoints [[buffer(7)]],
+    device const MRManifoldIRScatterGPU* scatterRecords [[buffer(8)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(9)]],
+    device MRContactConstraintGPU* contacts [[buffer(10)]],
+    device MRContactPointMetaGPU* contactMetadata [[buffer(11)]],
+    device MRConstraintIRBlockGPU* blocks [[buffer(12)]],
+    device MRConstraintIREndpointGPU* endpoints [[buffer(13)]],
+    device MRConstraintEndpointRuntimeGPU* endpointRuntime [[buffer(14)]],
+    device MRConstraintIRRowGPU* rows [[buffer(15)]],
+    device MRConstraintIRConeGPU* cones [[buffer(16)]],
+    device MRArticulatedPointImpulseGPU* pointQueries [[buffer(17)]],
+    const uint flatPoint [[thread_position_in_grid]]
+) {
+    const uint pointsPerEnvironment =
+        dispatch.eligiblePairCount *
+        MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+    const uint pointDomain =
+        dispatch.environmentCount * pointsPerEnvironment;
+    if (flatPoint >= pointDomain ||
+        pointsPerEnvironment == 0u) {
+        return;
+    }
+    const uint environment =
+        flatPoint / pointsPerEnvironment;
+    if (statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const uint localFlat =
+        flatPoint - environment * pointsPerEnvironment;
+    const uint eligibleIndex =
+        localFlat / MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+    const uint pointIndex =
+        localFlat %
+        MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+    const uint flatPair =
+        environment * dispatch.eligiblePairCount +
+        eligibleIndex;
+    const MRManifoldIRScatterGPU record =
+        scatterRecords[flatPair];
+    if (record.counts0.z == 0u) {
+        return;
+    }
+    const MRManifoldHeaderGPU manifoldHeader =
+        pairManifoldHeaders[flatPair];
+    if (pointIndex >= manifoldHeader.pairAndCount[3]) {
+        return;
+    }
+    const MRManifoldPointGPU manifoldPoint =
+        pairManifoldPoints[
+            flatPair * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
+            pointIndex
+        ];
+    const MRCompiledCollisionPairGPU compiled =
+        eligiblePairs[eligibleIndex];
+    const MRShapeGPU sourceA = shapes[compiled.colliderA];
+    const MRShapeGPU sourceB = shapes[compiled.colliderB];
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    device const MRBodyStateGPU& bodyA =
+        bodies[bodyBase + sourceA.bodyIndex];
+    device const MRBodyStateGPU& bodyB =
+        bodies[bodyBase + sourceB.bodyIndex];
+    float4 rotationA;
+    float4 rotationB;
+    if (!checkedQuaternion(bodyA.orientation, rotationA) ||
+        !checkedQuaternion(bodyB.orientation, rotationB)) {
+        return;
+    }
+    const float3 normalWorld = normalize(
+        quaternionRotate(
+            rotationA,
+            manifoldHeader.normalAndAge.xyz
+        )
+    );
+    float3 tangentWorld = quaternionRotate(
+        rotationA,
+        manifoldHeader.tangentAndMetric.xyz
+    );
+    tangentWorld -=
+        normalWorld * dot(tangentWorld, normalWorld);
+    tangentWorld =
+        dot(tangentWorld, tangentWorld) > 1.0e-12f
+        ? normalize(tangentWorld)
+        : stableTangent(normalWorld);
+    const float3 bitangentWorld =
+        cross(normalWorld, tangentWorld);
+
+    uint materialIndexA = sourceA.materialIndex;
+    uint materialIndexB = sourceB.materialIndex;
+    const uint materialOverride =
+        manifoldPoint.featureAndLife[3];
+    if ((materialOverride &
+         MR_RAW_CONTACT_MATERIAL_OVERRIDE) != 0u) {
+        const uint cookedMaterial =
+            materialOverride &
+            MR_RAW_CONTACT_MATERIAL_INDEX_MASK;
+        if (sourceA.shapeType == MR_SHAPE_TRIANGLE_MESH) {
+            materialIndexA = cookedMaterial;
+        } else if (
+            sourceB.shapeType == MR_SHAPE_TRIANGLE_MESH
+        ) {
+            materialIndexB = cookedMaterial;
+        }
+    }
+    const MRMaterialGPU materialA =
+        materials[materialIndexA];
+    const MRMaterialGPU materialB =
+        materials[materialIndexB];
+    const float3 pointAWorld = worldPointFromAnchor(
+        bodyA,
+        rotationA,
+        manifoldPoint.localAnchorA
+    );
+    const float3 pointBWorld = worldPointFromAnchor(
+        bodyB,
+        rotationB,
+        manifoldPoint.localAnchorB
+    );
+    const float3 pointWorld =
+        0.5f * (pointAWorld + pointBWorld);
+    const float geometricSeparation =
+        dot(pointBWorld - pointAWorld, normalWorld);
+    const float effectiveSeparation =
+        geometricSeparation -
+        sourceA.contactRestAndBoundingRadius.y -
+        sourceB.contactRestAndBoundingRadius.y;
+
+    const uint currentConstraint =
+        record.offsets0.w + pointIndex;
+    const uint outputConstraint =
+        environment * dispatch.constraintStride +
+        currentConstraint;
+    MRContactConstraintGPU contact = {};
+    contact.bodyA = sourceA.bodyIndex;
+    contact.bodyB = sourceB.bodyIndex;
+    contact.flags =
+        record.diagnostics0.y !=
+                MR_CONSTRAINT_IR_INVALID_INDEX ||
+            manifoldPoint.featureAndLife[2] == 0u
+        ? MR_CONSTRAINT_FLAG_NEW_IMPACT
+        : MR_CONSTRAINT_FLAG_WARM_STARTED;
+    contact.islandIndex = MR_INVALID_INDEX;
+    contact.pairKey = collisionPairKey(
+        compiled.colliderA,
+        compiled.colliderB
+    );
+    contact.featureKey = collisionFeatureKey(manifoldPoint);
+    contact.pointAndSeparation =
+        float4(pointWorld, effectiveSeparation);
+    contact.normal = float4(normalWorld, 0.0f);
+    contact.friction = float4(
+        geometricMean(
+            materialA.friction.x,
+            materialB.friction.x
+        ),
+        geometricMean(
+            materialA.friction.y,
+            materialB.friction.y
+        ),
+        geometricMean(
+            materialA.friction.z,
+            materialB.friction.z
+        ),
+        geometricMean(
+            materialA.friction.w,
+            materialB.friction.w
+        )
+    );
+    contact.response = float4(
+        max(materialA.response.x, materialB.response.x),
+        max(materialA.response.y, materialB.response.y),
+        materialA.response.z + materialB.response.z,
+        0.0f
+    );
+    contact.impulses =
+        (dispatch.flags &
+         MR_METAL_WORLD_CONTACT_WARM_START) != 0u
+        ? manifoldPoint.impulses
+        : float4(0.0f);
+    contacts[outputConstraint] = contact;
+
+    MRContactPointMetaGPU metadata = {};
+    metadata.colliderA = compiled.colliderA;
+    metadata.colliderB = compiled.colliderB;
+    metadata.manifoldIndex = record.offsets0.z;
+    metadata.pointIndex = pointIndex;
+    metadata.localAnchorA = manifoldPoint.localAnchorA;
+    metadata.localAnchorB = manifoldPoint.localAnchorB;
+    contactMetadata[outputConstraint] = metadata;
+
+    MRConstraintIRBlockGPU block = {};
+    block.key.words[0] = compiled.colliderA;
+    block.key.words[1] = compiled.colliderB;
+    block.key.words[2] = manifoldPoint.featureAndLife[0];
+    block.key.words[3] = manifoldPoint.featureAndLife[1];
+    block.type = MR_CONSTRAINT_CONTACT;
+    block.dimension = 3u;
+    block.flags = contact.flags;
+    block.islandIndex = MR_INVALID_INDEX;
+    block.endpointOffset = 2u * currentConstraint;
+    block.endpointCount = 2u;
+    block.rowOffset = 3u * currentConstraint;
+    block.impulseOffset = 3u * currentConstraint;
+    block.coneIndex = currentConstraint;
+    block.eventSlot = record.diagnostics0.y;
+    blocks[outputConstraint] = block;
+
+    const uint endpointBase =
+        2u * environment * dispatch.constraintStride;
+    const uint endpointAIndex =
+        endpointBase + 2u * currentConstraint;
+    const uint endpointBIndex = endpointAIndex + 1u;
+    MRConstraintIREndpointGPU endpointA = {};
+    endpointA.objectIndex = sourceA.bodyIndex;
+    endpointA.articulationIndex = bodyA.flagsAndIndices[1];
+    endpointA.linkIndex = bodyA.flagsAndIndices[2];
+    endpointA.role = MR_CONSTRAINT_IR_ENDPOINT_A;
+    endpointA.jacobianKind =
+        MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT;
+    endpointA.anchor = manifoldPoint.localAnchorA;
+    MRConstraintIREndpointGPU endpointB = endpointA;
+    endpointB.objectIndex = sourceB.bodyIndex;
+    endpointB.articulationIndex = bodyB.flagsAndIndices[1];
+    endpointB.linkIndex = bodyB.flagsAndIndices[2];
+    endpointB.role = MR_CONSTRAINT_IR_ENDPOINT_B;
+    endpointB.anchor = manifoldPoint.localAnchorB;
+    endpoints[endpointAIndex] = endpointA;
+    endpoints[endpointBIndex] = endpointB;
+
+    const uint queryBase =
+        environment * dispatch.pointQueryStride;
+    const uint queryAIndex =
+        queryBase + 2u * currentConstraint;
+    const uint queryBIndex = queryAIndex + 1u;
+    endpointRuntime[endpointAIndex] = worldEndpointRuntime(
+        bodyA,
+        sourceA.bodyIndex,
+        queryAIndex,
+        manifoldPoint.localAnchorA
+    );
+    endpointRuntime[endpointBIndex] = worldEndpointRuntime(
+        bodyB,
+        sourceB.bodyIndex,
+        queryBIndex,
+        manifoldPoint.localAnchorB
+    );
+
+    const uint rowBase =
+        environment * dispatch.rowStride +
+        3u * currentConstraint;
+    const float3 directions[3] = {
+        normalWorld,
+        tangentWorld,
+        bitangentWorld,
+    };
+    for (uint localRow = 0u;
+         localRow < 3u;
+         ++localRow) {
+        MRConstraintIRRowGPU row = {};
+        row.direction = float4(directions[localRow], 0.0f);
+        row.positionError =
+            localRow == 0u ? effectiveSeparation : 0.0f;
+        row.targetVelocity =
+            localRow == 0u &&
+            effectiveSeparation > 0.0f
+            ? -effectiveSeparation /
+                dispatch.timestepAndBias.x
+            : 0.0f;
+        row.compliance =
+            localRow == 0u
+            ? materialA.response.z + materialB.response.z
+            : 0.0f;
+        row.dissipation =
+            localRow == 0u
+            ? materialA.response.w + materialB.response.w
+            : 0.0f;
+        row.timeConstant =
+            2.0f * dispatch.timestepAndBias.x;
+        row.dampingRatio = 1.0f;
+        row.impulseLower =
+            localRow == 0u
+            ? 0.0f
+            : -MR_CONSTRAINT_IR_UNBOUNDED;
+        row.impulseUpper = MR_CONSTRAINT_IR_UNBOUNDED;
+        row.flags =
+            localRow == 0u
+            ? (
+                MR_CONSTRAINT_IR_ROW_POSITION_STABILIZED |
+                MR_CONSTRAINT_IR_ROW_UNILATERAL |
+                MR_CONSTRAINT_IR_ROW_CONTACT_NORMAL
+            )
+            : MR_CONSTRAINT_IR_ROW_CONTACT_TANGENT;
+        rows[rowBase + localRow] = row;
+    }
+
+    MRConstraintIRConeGPU cone = {};
+    cone.staticFrictionU = contact.friction.x;
+    cone.staticFrictionV = contact.friction.x;
+    cone.dynamicFrictionU = contact.friction.y;
+    cone.dynamicFrictionV = contact.friction.y;
+    cone.rollingLength = contact.friction.z;
+    cone.torsionalLength = contact.friction.w;
+    cone.restitution = contact.response.x;
+    cone.restitutionThreshold = contact.response.y;
+    cone.stictionTransitionVelocity = 1.0e-3f;
+    cones[outputConstraint] = cone;
+
+    MRArticulatedPointImpulseGPU dummyQuery = {};
+    dummyQuery.bodyIndex =
+        articulations[dispatch.articulationIndex].rootBody;
+    MRArticulatedPointImpulseGPU queryA = dummyQuery;
+    MRArticulatedPointImpulseGPU queryB = dummyQuery;
+    if (bodyA.flagsAndIndices[1] ==
+        dispatch.articulationIndex) {
+        queryA.bodyIndex = sourceA.bodyIndex;
+        queryA.localPoint = manifoldPoint.localAnchorA;
+    }
+    if (bodyB.flagsAndIndices[1] ==
+        dispatch.articulationIndex) {
+        queryB.bodyIndex = sourceB.bodyIndex;
+        queryB.localPoint = manifoldPoint.localAnchorB;
+    }
+    pointQueries[queryAIndex] = queryA;
+    pointQueries[queryBIndex] = queryB;
+}
+
+// Procedural rod edges enter the same certified primitive/convex/mesh query
+// implementation as rigid colliders. Every pair owns four witness slots, so
+// neither worker scheduling nor atomics can alter contact ordering.
+kernel void mr_rod_tool_narrowphase(
+    device const MRRodGPUDispatch& dispatch [[buffer(0)]],
+    device const MRRodColliderGPU* rodColliders [[buffer(1)]],
+    device const MRShapeGPU* rodShapeSources [[buffer(2)]],
+    device const MRRodToolPairGPU* toolPairs [[buffer(3)]],
+    device const MRShapeGPU* toolShapes [[buffer(4)]],
+    device const MRBodyStateGPU* toolBodies [[buffer(5)]],
+    device const MRGeometryHeaderGPU* geometryHeaders [[buffer(6)]],
+    device const float4* geometryVertices [[buffer(7)]],
+    device const MRMeshBVHNodeGPU* meshNodes [[buffer(8)]],
+    device const MRMeshTriangleGPU* meshTriangles [[buffer(9)]],
+    device const float4* rodPositions [[buffer(10)]],
+    device const float4* rodVelocities [[buffer(11)]],
+    device const float* rodTwistRates [[buffer(12)]],
+    device const MRRodToolWitnessGPU* previousWitnesses [[buffer(13)]],
+    device uint* pairContactCounts [[buffer(14)]],
+    device MRRodToolWitnessGPU* outputWitnesses [[buffer(15)]],
+    device const MRRodGPUStatus* statuses [[buffer(16)]],
+    const uint flatPair [[thread_position_in_grid]]
+) {
+    const uint pairDomain =
+        dispatch.environmentCount * dispatch.toolPairCount;
+    if (flatPair >= pairDomain ||
+        dispatch.toolPairCount == 0u) {
+        return;
+    }
+    const uint environment =
+        flatPair / dispatch.toolPairCount;
+    const uint pairIndex =
+        flatPair - environment * dispatch.toolPairCount;
+    const uint witnessBase =
+        flatPair * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    pairContactCounts[flatPair] = 0u;
+    for (uint slot = 0u;
+         slot < MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+         ++slot) {
+        outputWitnesses[witnessBase + slot] = {};
+    }
+    if (statuses[environment].code != MR_ROD_GPU_SUCCESS) {
+        return;
+    }
+
+    const MRRodToolPairGPU pair = toolPairs[pairIndex];
+    if ((pair.flags & MR_ROD_TOOL_PAIR_VALID) == 0u ||
+        pair.rodCollider >= dispatch.edgeCount ||
+        pair.rigidCollider >= dispatch.toolShapeCount) {
+        pairContactCounts[flatPair] =
+            0x80000000u | MR_ROD_GPU_INVALID_DISPATCH;
+        return;
+    }
+    const MRRodColliderGPU rod =
+        rodColliders[pair.rodCollider];
+    if (rod.nodeA >= dispatch.nodeCount ||
+        rod.nodeB >= dispatch.nodeCount ||
+        rod.nodeA == rod.nodeB) {
+        pairContactCounts[flatPair] =
+            0x80000000u | MR_ROD_GPU_INVALID_DISPATCH;
+        return;
+    }
+    const uint nodeBase =
+        environment * dispatch.stateNodeStride;
+    const uint bodyBase =
+        environment * dispatch.stateBodyStride;
+    const float3 endpointA =
+        rodPositions[nodeBase + rod.nodeA].xyz;
+    const float3 endpointB =
+        rodPositions[nodeBase + rod.nodeB].xyz;
+    const float3 edge = endpointB - endpointA;
+    const float edgeLengthSquared = dot(edge, edge);
+    if (!(edgeLengthSquared > 1.0e-20f) ||
+        !finiteFloat3(endpointA) ||
+        !finiteFloat3(endpointB)) {
+        pairContactCounts[flatPair] =
+            0x80000000u | MR_ROD_GPU_DEGENERATE_GEOMETRY;
+        return;
+    }
+    const float edgeLength = sqrt(edgeLengthSquared);
+    const float3 edgeAxis = edge / edgeLength;
+    const float radius = rod.radiusAndOffsets.x;
+    const float contactOffset = rod.radiusAndOffsets.y;
+    if (!(radius > 0.0f) ||
+        !(contactOffset >= 0.0f) ||
+        !isfinite(radius) ||
+        !isfinite(contactOffset)) {
+        pairContactCounts[flatPair] =
+            0x80000000u | MR_ROD_GPU_INVALID_DISPATCH;
+        return;
+    }
+
+    WorldShape rodShape = {};
+    rodShape.index = dispatch.toolShapeCount + pair.rodCollider;
+    rodShape.type = MR_SHAPE_CAPSULE;
+    rodShape.body = MR_INVALID_INDEX;
+    rodShape.rotation = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    rodShape.center = 0.5f * (endpointA + endpointB);
+    rodShape.contactOffset = contactOffset;
+    rodShape.radius = radius;
+    rodShape.halfLength = 0.5f * edgeLength;
+    rodShape.capsuleEndpoint0 = endpointA;
+    rodShape.capsuleEndpoint1 = endpointB;
+    rodShape.lower =
+        min(endpointA, endpointB) - (radius + contactOffset);
+    rodShape.upper =
+        max(endpointA, endpointB) + (radius + contactOffset);
+    rodShape.scale = float3(1.0f);
+
+    WorldShape toolShape = {};
+    uint failure = MR_STEP_SUCCESS;
+    if (!makeWorldShape(
+            pair.rigidCollider,
+            toolShapes,
+            geometryHeaders,
+            toolBodies + bodyBase,
+            dispatch.rigidBodyCount,
+            toolShape,
+            failure
+        )) {
+        pairContactCounts[flatPair] =
+            0x80000000u |
+            (
+                failure == MR_STEP_NONFINITE_INPUT
+                ? MR_ROD_GPU_NONFINITE_RESULT
+                : MR_ROD_GPU_INVALID_DISPATCH
+            );
+        return;
+    }
+    if (toolShape.disabled) {
+        return;
+    }
+    if (toolShape.type != MR_SHAPE_PLANE &&
+        (
+            any(rodShape.lower > toolShape.upper) ||
+            any(toolShape.lower > rodShape.upper)
+        )) {
+        return;
+    }
+
+    device const MRShapeGPU& rodSource =
+        rodShapeSources[pair.rodCollider];
+    device const MRShapeGPU& toolSource =
+        toolShapes[pair.rigidCollider];
+    ContactBatch batch = {};
+    if (pair.pairClass == MR_COLLISION_PAIR_MESH) {
+        uint triangleCandidates = 0u;
+        batch = meshContacts(
+            rodShape,
+            toolShape,
+            rodSource,
+            toolSource,
+            geometryHeaders,
+            geometryVertices,
+            meshNodes,
+            meshTriangles,
+            triangleCandidates
+        );
+    } else if (
+        pair.pairClass == MR_COLLISION_PAIR_CONVEX
+    ) {
+        ConvexQueryResult query = {};
+        batch = supportMappedContacts(
+            rodShape.index,
+            toolShape.index,
+            rodShape,
+            toolShape,
+            rodSource,
+            toolSource,
+            geometryHeaders,
+            geometryVertices,
+            float3(0.0f),
+            query
+        );
+        if (query.status != MR_STEP_SUCCESS &&
+            query.status != MR_STEP_DID_NOT_CONVERGE) {
+            pairContactCounts[flatPair] =
+                0x80000000u |
+                MR_ROD_GPU_NONFINITE_RESULT;
+            return;
+        }
+    } else {
+        batch = generateContacts(
+            rodShape.index,
+            toolShape.index,
+            pair.pairClass,
+            rodShape,
+            toolShape
+        );
+    }
+    if (batch.count == 0u) {
+        return;
+    }
+
+    WorldManifoldCandidate candidates[12];
+    uint candidateCount = min(batch.count, 12u);
+    for (uint contactIndex = 0u;
+         contactIndex < candidateCount;
+         ++contactIndex) {
+        const MRRawContactGPU raw =
+            batch.contacts[contactIndex];
+        if (!finiteContact(raw)) {
+            pairContactCounts[flatPair] =
+                0x80000000u |
+                MR_ROD_GPU_NONFINITE_RESULT;
+            return;
+        }
+        candidates[contactIndex] = {};
+        candidates[contactIndex].point.localAnchorA =
+            raw.pointAWorld;
+        candidates[contactIndex].point.localAnchorB =
+            raw.pointBWorld;
+        candidates[contactIndex].point.featureAndLife[0] =
+            raw.featureAndFlags[0];
+        candidates[contactIndex].point.featureAndLife[1] =
+            raw.featureAndFlags[1];
+        candidates[contactIndex].point.featureAndLife[3] =
+            raw.featureAndFlags[3];
+        candidates[contactIndex].worldPoint =
+            0.5f * (
+                raw.pointAWorld.xyz + raw.pointBWorld.xyz
+            );
+        candidates[contactIndex].separation =
+            raw.normalAndSeparation.w;
+    }
+    const float3 patchNormal = normalize(
+        batch.contacts[0].normalAndSeparation.xyz
+    );
+    reduceCandidates(
+        candidates,
+        candidateCount,
+        patchNormal
+    );
+    const uint count = min(
+        candidateCount,
+        uint(MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR)
+    );
+    for (uint slot = 0u; slot < count; ++slot) {
+        const WorldManifoldCandidate selected =
+            candidates[slot];
+        const float3 rodPoint =
+            selected.point.localAnchorA.xyz;
+        const float3 toolPoint =
+            selected.point.localAnchorB.xyz;
+        const float weight = clamp(
+            dot(rodPoint - endpointA, edge) /
+                edgeLengthSquared,
+            0.0f,
+            1.0f
+        );
+        const float3 centerline =
+            mix(endpointA, endpointB, weight);
+        float3 radial = rodPoint - centerline;
+        const float radialSquared = dot(radial, radial);
+        radial =
+            radialSquared > 1.0e-20f
+            ? radial * rsqrt(radialSquared)
+            : stableTangent(patchNormal);
+        float3 tangentU =
+            edgeAxis - patchNormal *
+                dot(edgeAxis, patchNormal);
+        const float tangentSquared = dot(tangentU, tangentU);
+        tangentU =
+            tangentSquared > 1.0e-20f
+            ? tangentU * rsqrt(tangentSquared)
+            : stableTangent(patchNormal);
+
+        float4 warmImpulse = float4(0.0f);
+        bool warmStarted = false;
+        if ((dispatch.flags &
+             MR_ROD_GPU_FLAG_TOOL_WARM_START) != 0u) {
+            for (uint oldSlot = 0u;
+                 oldSlot <
+                     MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+                 ++oldSlot) {
+                const MRRodToolWitnessGPU previous =
+                    previousWitnesses[
+                        witnessBase + oldSlot
+                    ];
+                if ((previous.featuresAndFlags.w &
+                     MR_ROD_TOOL_WITNESS_VALID) != 0u &&
+                    previous.identity.y == pairIndex &&
+                    previous.featuresAndFlags.x ==
+                        selected.point.featureAndLife[0] &&
+                    previous.featuresAndFlags.y ==
+                        selected.point.featureAndLife[1]) {
+                    warmImpulse = previous.impulses;
+                    if (dot(
+                            tangentU,
+                            previous
+                                .tangentUAndTwistJacobian.xyz
+                        ) < 0.0f) {
+                        tangentU = -tangentU;
+                        warmImpulse.y = -warmImpulse.y;
+                    }
+                    warmStarted = true;
+                    break;
+                }
+            }
+        }
+        const float3 tangentV =
+            cross(patchNormal, tangentU);
+        const float3 surfaceJacobian =
+            cross(edgeAxis, radius * radial);
+        const float twistJacobianU =
+            dot(tangentU, surfaceJacobian);
+        const float twistJacobianV =
+            dot(tangentV, surfaceJacobian);
+        const float3 rodVelocity =
+            mix(
+                rodVelocities[nodeBase + rod.nodeA].xyz,
+                rodVelocities[nodeBase + rod.nodeB].xyz,
+                weight
+            ) +
+            rodTwistRates[
+                environment * dispatch.stateEdgeStride +
+                pair.rodCollider
+            ] * surfaceJacobian;
+        device const MRBodyStateGPU& body =
+            toolBodies[bodyBase + toolSource.bodyIndex];
+        const float3 toolVelocity =
+            body.flagsAndIndices[0] == MR_MOTION_STATIC
+            ? float3(0.0f)
+            : body.linearVelocityAndInverseMass.xyz +
+                cross(
+                    body.angularVelocity.xyz,
+                    toolPoint - body.position.xyz
+                );
+        MRRodToolWitnessGPU witness = {};
+        witness.identity = uint4(
+            environment,
+            pairIndex,
+            pair.rodCollider,
+            pair.rigidCollider
+        );
+        witness.featuresAndFlags = uint4(
+            selected.point.featureAndLife[0],
+            selected.point.featureAndLife[1],
+            toolSource.bodyIndex,
+            MR_ROD_TOOL_WITNESS_VALID |
+                (
+                    warmStarted
+                    ? MR_ROD_TOOL_WITNESS_WARM_STARTED
+                    : MR_ROD_TOOL_WITNESS_NEW_IMPACT
+                ) |
+                (
+                    toolShape.type ==
+                            MR_SHAPE_TRIANGLE_MESH
+                    ? MR_ROD_TOOL_WITNESS_MESH
+                    : 0u
+                ) |
+                (
+                    pair.pairClass ==
+                            MR_COLLISION_PAIR_CONVEX
+                    ? MR_ROD_TOOL_WITNESS_HARD_CONVEX
+                    : 0u
+                )
+        );
+        uint toolMaterialIndex = toolSource.materialIndex;
+        if ((selected.point.featureAndLife[3] &
+             MR_RAW_CONTACT_MATERIAL_OVERRIDE) != 0u) {
+            toolMaterialIndex =
+                selected.point.featureAndLife[3] &
+                MR_RAW_CONTACT_MATERIAL_INDEX_MASK;
+        }
+        witness.materialAndGeneration = uint4(
+            rod.materialIndex,
+            toolMaterialIndex,
+            rod.topologyGeneration,
+            0u
+        );
+        witness.rodPointAndWeight =
+            float4(rodPoint, weight);
+        witness.toolPointAndSeparation = float4(
+            toolPoint,
+            selected.separation -
+                rod.radiusAndOffsets.z -
+                toolSource.contactRestAndBoundingRadius.y
+        );
+        witness.normalAndPreSolveVelocity = float4(
+            patchNormal,
+            dot(toolVelocity - rodVelocity, patchNormal)
+        );
+        witness.tangentUAndTwistJacobian =
+            float4(tangentU, twistJacobianU);
+        witness.radialAndTwistJacobianV =
+            float4(radial, twistJacobianV);
+        witness.impulses = warmImpulse;
+        outputWitnesses[witnessBase + slot] = witness;
+    }
+    pairContactCounts[flatPair] = count;
 }

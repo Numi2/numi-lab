@@ -89,10 +89,11 @@ linked or called at runtime.
   Jacobians, `Jᵀp`, checked mass factorization, and `M⁻¹Jᵀp`, with
   deterministic replay and transactional rejection
 - Persistent `MetalWorldContext` for one compiled articulation plus arbitrary
-  dynamic/kinematic/static scene bodies: twenty-one pipelines and a typed
-  grow-only arena compose ABA, body/collider projection, precompiled-pair
-  broadphase, analytic narrowphase, persistent manifolds, canonical
-  ConstraintIR, mixed islands, coupled exact-cone PGS/TGS, constrained
+  dynamic/kinematic/static scene bodies: a typed grow-only arena composes ABA,
+  body/collider projection, precompiled-pair broadphase, compacted
+  analytic/SAT/GJK/mesh narrowphase, deterministic manifold finalization,
+  segmented manifold-to-ConstraintIR count/scan/scatter, mixed islands,
+  coupled exact-cone PGS/TGS or unified quality Newton, constrained
   integration, observations, and transactional publication in one
   asynchronous command buffer. A failed environment restores q/v, scene
   bodies, and manifolds while unrelated environments continue
@@ -100,13 +101,14 @@ linked or called at runtime.
   retention, solver residuals, and stable first-failure indices, plus optional
   fixed-capacity contact/ConstraintIR/island evidence
 - MLX 0.32 active-encoder custom primitive for Franka/G1 free-motion ABA with
-  the same contact graph used by standalone Metal, explicit PyTree
-  manifold/convex caches, MLX-owned output/scratch buffers, `mx.compile`,
-  isolated transactional rollback, no CPU fallback, and explicit autodiff
-  rejection. The Wave32 solver uses a fixed worker grid that persistently
-  pulls compact packets because MLX's active encoder does not expose indirect
-  dispatch. Worker-grid occupancy is selected before lazy execution from a
-  device profile or an explicit 32/64/96/128 benchmark override. Policy
+  the same contact and direct/PCG quality graph used by standalone Metal,
+  explicit PyTree rod/manifold/convex state, MLX-owned output/scratch buffers,
+  `mx.compile`, isolated transactional rollback, no CPU fallback, and explicit
+  autodiff rejection. Wave32 TGS and quality Newton use fixed worker grids
+  that persistently pull stable compact packets because MLX's active encoder
+  does not expose indirect dispatch. Worker-grid occupancy is selected before
+  lazy execution from a device profile or an explicit 32/64/96/128 benchmark
+  override. Policy
   inference, physics, reward/termination, GAE, rollout
   storage, and PPO updates have a NumPy-free MLX path
 - Literal hybrid-CCD event splitting on standalone Metal and MLX: each
@@ -133,6 +135,20 @@ linked or called at runtime.
   candidates publish transactionally; non-adjacent thread edges execute
   radius-correct capsule self-contact with per-sweep relinearization on FP64
   and Metal; no weld or hidden thread force exists
+- Generic deforming thread/tool contact: cooked rod edges project as
+  procedural capsules and reuse the rigid analytic, GJK-MPR-EPA, and BVH4
+  collision helpers. Pair-owned anchors retain edge barycentrics,
+  material-frame radial direction, rigid features, and impulses; the two-way
+  solve distributes force to both rod nodes and twist while applying the
+  opposite rigid wrench. The standalone graph publishes rod and tool
+  candidates transactionally
+- Unified product-cone Metal quality solver with scalar intervals and exact
+  3D/4D/6D elliptic cones, generalized-Hessian Cholesky below the declared
+  threshold, a 768-row matrix-free Newton-PCG bucket above it, Armijo
+  globalization, certificates, and one visible regularization retry. The PCG
+  path allocates no environment-major dense Hessian. `MetalWorld` and MLX
+  reconstruct a second primal candidate from persistent impulses using
+  cached articulation and body factors
 - Owned heterogeneous executable bundles combine canonical multi-articulation
   topology, exact unarticulated scene-body reset packing, DER sidecars and
   rigid bindings under one deterministic fingerprint. The dual-PSM,
@@ -193,18 +209,20 @@ replacement. The device graph now has compact analytic/SAT/GJK/mesh queues,
 Wave32 8/16/32-contact cohorts, deterministic tiled spill beyond 256
 constraints, exact elliptic friction, private placement heaps, robust
 cylinder/convex GJK-MPR-EPA, static mesh BVH4 traversal, literal hybrid-CCD
-advance/solve/continue, and a contact-capable MLX primitive. Contact graph ABI
-v4 carries the event-time and persistent-worker contract while ConstraintIR
-remains ABI v2. Implicit position drives and joint-boundary projection are
-executable. The 40,000-step/s Franka contact gate, trained 60-second G1
-standing gate, dedicated tiled heightfields, fully composed
-manifold-to-row multi-articulation contact islands, patch rolling/torsional solve,
-convex decomposition and MJCF/OpenUSD workflows, rendering breadth, coupled
-thread-tool collision and tissue mechanics, unified cone/scalar
-matrix-free Metal quality solve,
-and qualified differentiation remain open. Explicit heterogeneous contact
-rows are now solved on standalone Metal; manifold-to-row scatter into the
-persistent `MetalWorld`/MLX graph is the remaining composition boundary.
+advance/solve/continue, deterministic manifold-to-row scatter, a unified
+cone/scalar quality solve, and a contact-capable MLX primitive. World-graph
+ABI v4 and contact ABI v5 carry the event-time, endpoint-sidecar, scatter, and
+persistent-worker contracts while ConstraintIR remains ABI v2. Implicit
+position drives and joint-boundary projection are executable. The
+40,000-step/s Franka contact gate, trained 60-second G1 standing gate,
+dedicated tiled heightfields, fully composed manifold-to-row
+multi-articulation contact islands, patch rolling/torsional solve, convex
+decomposition and MJCF/OpenUSD workflows, rendering breadth, persistent
+`MetalWorld`/MLX execution of nonzero rod state, rod contact through the
+quality operator, tissue mechanics, and qualified differentiation remain
+open. Heterogeneous rod topology and collision templates are cooked now, but
+the persistent APIs reject nonzero rods until that state is genuinely
+encoded; they never drop it as a rigid-only step.
 The dated requirements and claim rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
 
@@ -244,6 +262,7 @@ cmake --build build
 ./build/bin/metalrobo_deterministic_broadphase_probe
 ./build/bin/metalrobo_constraint_ir_probe
 ./build/bin/metalrobo_quality_contact_probe
+./build/bin/metalrobo_metal_unified_quality_probe
 ./build/bin/metalrobo_rigid_body_world_probe
 ./build/bin/metalrobo_bench --envs 1024 --steps 1000
 ```

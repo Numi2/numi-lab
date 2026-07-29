@@ -382,6 +382,186 @@ int main() {
             "from FP64 oracle"
         );
 
+        metalrobo::DiscreteElasticRodModel toolRod =
+            metalrobo::makeStraightSutureRod(5u, 0.12);
+        std::vector<metalrobo::DiscreteElasticRodState>
+            toolStates(
+                environmentCount,
+                metalrobo::makeDiscreteElasticRodDefaultState(
+                    toolRod
+                )
+            );
+        metalrobo::EngineModel toolModel =
+            metalrobo::makeFreeSphereEngineModel();
+        toolModel.shapes[1].dimensions.x = 0.002F;
+        toolModel.shapes[1]
+            .contactRestAndBoundingRadius = {
+                2.0e-5F,
+                0.0F,
+                0.002F,
+                0.0F,
+            };
+        std::string toolModelReason;
+        require(
+            toolModel.valid(&toolModelReason),
+            "rod/tool model is invalid: " + toolModelReason
+        );
+        std::vector<MRBodyStateGPU> toolBodies(
+            environmentCount * toolModel.bodies.size()
+        );
+        for (std::size_t environment = 0u;
+             environment < environmentCount;
+             ++environment) {
+            MRBodyStateGPU& floor =
+                toolBodies[environment * 2u];
+            floor.position = {0.0F, -1.0F, 0.0F, 1.0F};
+            floor.orientation = {0.0F, 0.0F, 0.0F, 1.0F};
+            floor.flagsAndIndices[0] = MR_MOTION_STATIC;
+            floor.flagsAndIndices[1] = MR_INVALID_INDEX;
+            floor.flagsAndIndices[2] = 0u;
+            MRBodyStateGPU& sphere =
+                toolBodies[environment * 2u + 1u];
+            sphere.position = {
+                0.06F,
+                -0.0019F,
+                0.0F,
+                1.0F,
+            };
+            sphere.orientation = {0.0F, 0.0F, 0.0F, 1.0F};
+            sphere.linearVelocityAndInverseMass = {
+                0.0F,
+                0.0F,
+                0.0F,
+                1.0F,
+            };
+            sphere.inverseInertiaWorldRow0 =
+                toolModel.bodies[1].inverseInertiaRow0;
+            sphere.inverseInertiaWorldRow1 =
+                toolModel.bodies[1].inverseInertiaRow1;
+            sphere.inverseInertiaWorldRow2 =
+                toolModel.bodies[1].inverseInertiaRow2;
+            sphere.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+            sphere.flagsAndIndices[1] = 0u;
+            sphere.flagsAndIndices[2] = 1u;
+        }
+        std::vector<MRRodToolPairGPU> toolPairs;
+        for (std::uint32_t edge = 0u;
+             edge + 1u < toolRod.restPositions.size();
+             ++edge) {
+            toolPairs.push_back({
+                .rodCollider = edge,
+                .rigidCollider = 1u,
+                .pairClass =
+                    MR_COLLISION_PAIR_SPHERE_CAPSULE,
+                .flags = MR_ROD_TOOL_PAIR_VALID,
+            });
+        }
+        metalrobo::MetalDiscreteElasticRodConfig toolConfig;
+        toolConfig.step.gravity = {0.0, 0.0, 0.0};
+        toolConfig.step.solverIterations = 64u;
+        toolConfig.step.constraintTolerance = 1.0e-6;
+        toolConfig.tool.enabled = true;
+        toolConfig.tool.outerIterations = 3u;
+        toolConfig.tool.contactOffset = 2.0e-5F;
+        toolConfig.tool.restitution = 0.0F;
+        metalrobo::MetalDiscreteElasticRodResult toolResult;
+        const auto toolDiagnostics =
+            metalrobo::runMetalDiscreteElasticRod(
+                toolRod,
+                {
+                    .states = toolStates,
+                    .rigidBodyCount = 2u,
+                    .rigidBodies = toolBodies,
+                    .toolModel = &toolModel,
+                    .toolPairs = toolPairs,
+                },
+                toolResult,
+                toolConfig
+            );
+        require(
+            toolDiagnostics.succeeded() &&
+                toolDiagnostics.toolContactCount > 0u &&
+                toolResult.toolContactCounts.size() ==
+                    environmentCount * toolPairs.size(),
+            "Metal thread/tool contact graph failed: " +
+                toolDiagnostics.message
+        );
+        double maximumMomentumError = 0.0;
+        double maximumToolImpulse = 0.0;
+        for (std::size_t environment = 0u;
+             environment < environmentCount;
+             ++environment) {
+            std::array<double, 3> rodMomentum{};
+            for (std::size_t node = 0u;
+                 node < toolRod.nodeMasses.size();
+                 ++node) {
+                for (std::size_t axis = 0u;
+                     axis < 3u;
+                     ++axis) {
+                    rodMomentum[axis] +=
+                        toolRod.nodeMasses[node] *
+                        toolResult.states[environment]
+                            .velocities[node][axis];
+                }
+            }
+            const MRBodyStateGPU& sphere =
+                toolResult.rigidBodies[
+                    environment * 2u + 1u
+                ];
+            const std::array<double, 3> totalMomentum{
+                rodMomentum[0] +
+                    sphere.linearVelocityAndInverseMass.x,
+                rodMomentum[1] +
+                    sphere.linearVelocityAndInverseMass.y,
+                rodMomentum[2] +
+                    sphere.linearVelocityAndInverseMass.z,
+            };
+            maximumMomentumError = std::max(
+                maximumMomentumError,
+                length(totalMomentum)
+            );
+            for (std::size_t pair = 0u;
+                 pair < toolPairs.size();
+                 ++pair) {
+                const std::uint32_t count =
+                    toolResult.toolContactCounts[
+                        environment * toolPairs.size() + pair
+                    ];
+                for (std::uint32_t slot = 0u;
+                     slot < count;
+                     ++slot) {
+                    const auto& witness =
+                        toolResult.toolContacts[
+                            (
+                                environment *
+                                    toolPairs.size() +
+                                pair
+                            ) *
+                                MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR +
+                            slot
+                        ];
+                    maximumToolImpulse = std::max(
+                        maximumToolImpulse,
+                        static_cast<double>(
+                            std::sqrt(
+                                witness.impulses.x *
+                                    witness.impulses.x +
+                                witness.impulses.y *
+                                    witness.impulses.y +
+                                witness.impulses.z *
+                                    witness.impulses.z
+                            )
+                        )
+                    );
+                }
+            }
+        }
+        require(
+            maximumToolImpulse > 0.0 &&
+                maximumMomentumError <= 2.0e-5,
+            "thread/tool impulse was not equal and opposite"
+        );
+
         auto invalidStates = states;
         invalidStates[2].positions[3][0] =
             std::numeric_limits<double>::quiet_NaN();
@@ -425,6 +605,11 @@ int main() {
             << collisionResult.statuses[0].diagnostics.z
             << " self_oracle_error="
             << maximumSelfContactError
+            << " tool_contacts="
+            << toolDiagnostics.toolContactCount
+            << " tool_impulse=" << maximumToolImpulse
+            << " tool_momentum_error="
+            << maximumMomentumError
             << " allocated_bytes=" << diagnostics.allocatedBytes
             << " elapsed_ms=" << diagnostics.elapsedMilliseconds
             << " deterministic=yes transactional=yes\n";

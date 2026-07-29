@@ -2,9 +2,10 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_ROD_GPU_ABI_VERSION 3u
+#define MR_ROD_GPU_ABI_VERSION 4u
 #define MR_ROD_GPU_MAX_NODES 128u
 #define MR_ROD_GPU_MAX_ATTACHMENTS 8u
+#define MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR 4u
 #define MR_ROD_GPU_INVALID_BODY 0xffffffffu
 
 enum {
@@ -17,7 +18,89 @@ enum {
 
 enum {
     MR_ROD_GPU_FLAG_SELF_COLLISION = 1u << 0u,
+    MR_ROD_GPU_FLAG_TOOL_COLLISION = 1u << 1u,
+    MR_ROD_GPU_FLAG_ENABLE_CCD = 1u << 2u,
+    MR_ROD_GPU_FLAG_TOOL_WARM_START = 1u << 3u,
 };
+
+// Immutable procedural capsule generated for one rod edge. The world compiler
+// appends these after rigid colliders and cooks stable edge/tool templates;
+// projection replaces the capsule endpoints from candidate rod nodes at each
+// temporal or event-time relinearization.
+typedef struct MR_ALIGN16 MRRodColliderGPU {
+    mr_u32 rodIndex;
+    mr_u32 edgeIndex;
+    mr_u32 nodeA;
+    mr_u32 nodeB;
+
+    mr_u32 materialIndex;
+    mr_u32 collisionGroup;
+    mr_u32 collisionMask;
+    mr_u32 topologyGeneration;
+
+    // radius, contact offset, rest offset, conservative bounding radius.
+    mr_float4 radiusAndOffsets;
+    // flags, exclusion begin, exclusion count, reserved.
+    mr_uint4 flagsAndExclusions;
+} MRRodColliderGPU;
+
+typedef struct MR_ALIGN16 MRRodToolPairGPU {
+    mr_u32 rodCollider;
+    mr_u32 rigidCollider;
+    mr_u32 pairClass;
+    mr_u32 flags;
+} MRRodToolPairGPU;
+
+enum MRRodToolPairFlags : mr_u32 {
+    MR_ROD_TOOL_PAIR_VALID = 1u << 0u,
+    MR_ROD_TOOL_PAIR_ENABLE_CCD = 1u << 1u,
+};
+
+enum MRRodToolWitnessFlags : mr_u32 {
+    MR_ROD_TOOL_WITNESS_VALID = 1u << 0u,
+    MR_ROD_TOOL_WITNESS_WARM_STARTED = 1u << 1u,
+    MR_ROD_TOOL_WITNESS_NEW_IMPACT = 1u << 2u,
+    MR_ROD_TOOL_WITNESS_MESH = 1u << 3u,
+    MR_ROD_TOOL_WITNESS_HARD_CONVEX = 1u << 4u,
+};
+
+// Pair-owned thread/tool witness and impulse cache. One immutable pair owns
+// four canonical feature-ordered slots in every environment. The rod anchor
+// is edge-local (barycentric coordinate plus transported radial direction);
+// the tool anchor remains body local so both sides survive rigid motion.
+typedef struct MR_ALIGN16 MRRodToolWitnessGPU {
+    // environment, stable pair, rod edge, rigid collider.
+    mr_uint4 identity;
+    // rod feature, rigid feature, rigid body, flags.
+    mr_uint4 featuresAndFlags;
+    // rod material, rigid/triangle material, rod topology generation,
+    // reserved. The material override is resolved during narrowphase.
+    mr_uint4 materialAndGeneration;
+
+    // xyz rod surface point in world, w edge barycentric coordinate.
+    mr_float4 rodPointAndWeight;
+    // xyz rigid surface point in world, w signed surface separation.
+    mr_float4 toolPointAndSeparation;
+    // xyz normal from rod toward rigid tool, w pre-solve normal velocity.
+    mr_float4 normalAndPreSolveVelocity;
+    // xyz first tangent, w rod twist Jacobian along that tangent.
+    mr_float4 tangentUAndTwistJacobian;
+    // xyz rod radial direction in the transported contact frame, w rod
+    // twist Jacobian along tangent-v (tangent-v = normal x tangent-u).
+    mr_float4 radialAndTwistJacobianV;
+    // normal, tangent-u, tangent-v, torsional impulse.
+    mr_float4 impulses;
+} MRRodToolWitnessGPU;
+
+typedef struct MR_ALIGN16 MRRodNodeStateGPU {
+    mr_float4 position;
+    mr_float4 velocity;
+} MRRodNodeStateGPU;
+
+typedef struct MR_ALIGN16 MRRodEdgeStateGPU {
+    // x material-frame twist, y twist rate, z/w reserved.
+    mr_float4 twistAndRate;
+} MRRodEdgeStateGPU;
 
 typedef struct MR_ALIGN16 MRRodGPUDispatch {
     mr_u32 abiVersion;
@@ -33,7 +116,12 @@ typedef struct MR_ALIGN16 MRRodGPUDispatch {
     mr_u32 rigidBodyCount;
     mr_u32 stateBodyStride;
     mr_u32 flags;
-    mr_u32 reserved1;
+    mr_u32 toolShapeCount;
+
+    mr_u32 toolPairCount;
+    mr_u32 toolContactStride;
+    mr_u32 toolContactIterations;
+    mr_u32 rodMaterialIndex;
 
     // xyz gravity, w timestep.
     mr_float4 gravityAndTimestep;
@@ -41,6 +129,10 @@ typedef struct MR_ALIGN16 MRRodGPUDispatch {
     mr_float4 dampingDerivativeTolerance;
     // radius, margin, compliance, reserved.
     mr_float4 selfCollision;
+    // rod contact offset, rest offset, normal compliance, damping.
+    mr_float4 toolContact;
+    // restitution, threshold, friction scale, maximum depenetration speed.
+    mr_float4 toolResponse;
 } MRRodGPUDispatch;
 
 typedef struct MR_ALIGN16 MRRodGPUAttachment {
@@ -86,7 +178,7 @@ typedef struct MR_ALIGN16 MRRodGPUStatus {
 } MRRodGPUStatus;
 
 #ifdef __cplusplus
-static_assert(sizeof(MRRodGPUDispatch) == 96);
+static_assert(sizeof(MRRodGPUDispatch) == 144);
 static_assert(alignof(MRRodGPUDispatch) == 16);
 static_assert(sizeof(MRRodGPUAttachment) == 48);
 static_assert(alignof(MRRodGPUAttachment) == 16);
@@ -96,4 +188,11 @@ static_assert(sizeof(MRRodGPUAttachmentReaction) == 48);
 static_assert(alignof(MRRodGPUAttachmentReaction) == 16);
 static_assert(sizeof(MRRodGPUStatus) == 32);
 static_assert(alignof(MRRodGPUStatus) == 16);
+static_assert(sizeof(MRRodColliderGPU) == 64);
+static_assert(alignof(MRRodColliderGPU) == 16);
+static_assert(sizeof(MRRodToolPairGPU) == 16);
+static_assert(sizeof(MRRodToolWitnessGPU) == 144);
+static_assert(alignof(MRRodToolWitnessGPU) == 16);
+static_assert(sizeof(MRRodNodeStateGPU) == 32);
+static_assert(sizeof(MRRodEdgeStateGPU) == 16);
 #endif

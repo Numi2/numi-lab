@@ -210,6 +210,61 @@ int main() {
             ),
             "resting sphere never produced a device contact"
         );
+        auto qualityConfig = config;
+        qualityConfig.solverMode =
+            metalrobo::MetalWorldSolverMode::qualityNewton;
+        qualityConfig.ccdMode =
+            metalrobo::MetalWorldCCDMode::disabled;
+        metalrobo::MetalWorldResult qualityResult;
+        const auto qualityDiagnostics = context.run(
+            world,
+            batch,
+            qualityConfig,
+            qualityResult
+        );
+        require(
+            qualityDiagnostics.succeeded(),
+            qualityDiagnostics.message.c_str()
+        );
+        require(
+            qualityResult.qualityStatuses.size() ==
+                    environmentCount &&
+                std::all_of(
+                    qualityResult.qualityStatuses.begin(),
+                    qualityResult.qualityStatuses.end(),
+                    [](const MRUnifiedQualityStatusGPU& status) {
+                        return
+                            status.code ==
+                                MR_UNIFIED_QUALITY_SUCCESS &&
+                            std::isfinite(
+                                status.certificates0.x
+                            ) &&
+                            std::isfinite(
+                                status.certificates1.x
+                            );
+                    }
+                ) &&
+                std::all_of(
+                    qualityResult.environmentStatuses.begin(),
+                    qualityResult.environmentStatuses.end(),
+                    [environmentCount](
+                        const metalrobo::MetalWorldStatus& status
+                    ) {
+                        return
+                            status.code == MR_STEP_SUCCESS &&
+                            status
+                                .maximumQualityNewtonIterations >
+                                0u &&
+                            status.maximumWorkerPackets ==
+                                environmentCount &&
+                            std::isfinite(
+                                status
+                                    .maximumQualityCertificates[0]
+                            );
+                    }
+                ),
+            "unified quality solver was not promoted through MetalWorld"
+        );
         metalrobo::MetalWorldContext asynchronousContext(
             metalrobo::MetalWorldConfig{
                 .maximumInFlightSubmissions = 3u,

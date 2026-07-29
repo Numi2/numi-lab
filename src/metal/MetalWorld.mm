@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/unified_quality_shared.h"
 
 #include <dlfcn.h>
 
@@ -18,6 +19,7 @@
 #include <memory>
 #include <mutex>
 #include <new>
+#include <set>
 #include <span>
 #include <string>
 #include <system_error>
@@ -30,7 +32,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 111u;
+constexpr std::size_t kRawBufferCount = 130u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -163,6 +165,25 @@ enum BufferIndex : std::size_t {
     kCCDEventStatesB = 108u,
     kCCDImpactClusters = 109u,
     kWaveWorkPackets = 110u,
+    kPairManifoldHeaders = 111u,
+    kPairManifoldPoints = 112u,
+    kManifoldIRScatter = 113u,
+    kEndpointRuntime = 114u,
+    kQualityDispatch = 115u,
+    kQualityBlocks = 116u,
+    kQualityDynamics = 117u,
+    kQualityJacobian = 118u,
+    kQualityBias = 119u,
+    kQualityFreeVelocity = 120u,
+    kQualityWarmVelocity = 121u,
+    kQualityWarmImpulses = 122u,
+    kQualityOutputVelocity = 123u,
+    kQualityOutputImpulses = 124u,
+    kQualityDerivatives = 125u,
+    kQualityHessian = 126u,
+    kQualityStatuses = 127u,
+    kQualityWorkQueue = 128u,
+    kQualityWorkPackets = 129u,
 };
 
 struct BufferRequirement {
@@ -227,6 +248,10 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> convexNarrowphasePipeline = nil;
     __strong id<MTLComputePipelineState> meshNarrowphasePipeline = nil;
     __strong id<MTLComputePipelineState> collisionCompilePipeline = nil;
+    __strong id<MTLComputePipelineState> manifoldFinalizePipeline = nil;
+    __strong id<MTLComputePipelineState> manifoldScanPipeline = nil;
+    __strong id<MTLComputePipelineState> manifoldRecordScatterPipeline = nil;
+    __strong id<MTLComputePipelineState> manifoldIRScatterPipeline = nil;
     __strong id<MTLComputePipelineState> factorDispatchPipeline = nil;
     __strong id<MTLComputePipelineState> pointQueryTailPipeline = nil;
     __strong id<MTLComputePipelineState> evaluateIRPipeline = nil;
@@ -249,6 +274,12 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> contactCommitPipeline = nil;
     __strong id<MTLComputePipelineState> convexCachePublishPipeline = nil;
     __strong id<MTLComputePipelineState> contactCapturePipeline = nil;
+    __strong id<MTLComputePipelineState> qualityPreparePipeline = nil;
+    __strong id<MTLComputePipelineState> qualityWarmStartPipeline = nil;
+    __strong id<MTLComputePipelineState> qualityQueuePipeline = nil;
+    __strong id<MTLComputePipelineState> qualitySolvePipeline = nil;
+    __strong id<MTLComputePipelineState> qualityApplyPipeline = nil;
+    __strong id<MTLComputePipelineState> qualityQueueStatusPipeline = nil;
     __strong id<MTLHeap> immutableHeap = nil;
     __strong id<MTLHeap> persistentHeap = nil;
     __strong id<MTLHeap> transientHeap = nil;
@@ -979,6 +1010,33 @@ bool buildRequirements(
     std::size_t coneElements = 0u;
     std::size_t responseElements = 0u;
     std::size_t compactionElements = 0u;
+    const std::size_t qualityEnvironments =
+        contact.solverType == MR_SOLVER_QUALITY_NEWTON
+        ? contactEnvironments
+        : 0u;
+    const std::size_t qualityNv =
+        static_cast<std::size_t>(contact.nv) +
+        6u * static_cast<std::size_t>(
+            contact.sceneBodyCount
+        );
+    const std::size_t qualityRows =
+        3u * static_cast<std::size_t>(
+            contact.constraintStride
+        );
+    std::size_t qualityBlockElements = 0u;
+    std::size_t qualityDynamicsElements = 0u;
+    std::size_t qualityJacobianElements = 0u;
+    std::size_t qualityVectorElements = 0u;
+    std::size_t qualityDerivativeElements = 0u;
+    std::size_t qualityHessianElements = 0u;
+    if (qualityEnvironments != 0u &&
+        (qualityNv >
+             MR_UNIFIED_QUALITY_MAX_GENERALIZED_VELOCITIES ||
+         qualityRows > MR_UNIFIED_QUALITY_MAX_ROWS ||
+         contact.constraintStride >
+             MR_UNIFIED_QUALITY_MAX_BLOCKS)) {
+        return false;
+    }
     if (!checkedMultiply(
             contactEnvironments,
             world.bodyCount(),
@@ -1038,6 +1096,46 @@ bool buildRequirements(
             layout.contactConstraintElements,
             3u * static_cast<std::size_t>(contact.nv),
             responseElements
+        ) ||
+        !checkedMultiply(
+            qualityEnvironments,
+            static_cast<std::size_t>(
+                contact.constraintStride
+            ),
+            qualityBlockElements
+        ) ||
+        !checkedMultiply(
+            qualityEnvironments,
+            qualityNv * qualityNv,
+            qualityDynamicsElements
+        ) ||
+        !checkedMultiply(
+            qualityEnvironments,
+            qualityRows * qualityNv,
+            qualityJacobianElements
+        ) ||
+        !checkedMultiply(
+            qualityEnvironments,
+            std::max(qualityNv, qualityRows),
+            qualityVectorElements
+        ) ||
+        !checkedMultiply(
+            qualityBlockElements,
+            36u,
+            qualityDerivativeElements
+        ) ||
+        !checkedMultiply(
+            qualityEnvironments,
+            (
+                qualityNv <=
+                    layout.qualityDispatch
+                        .directMaximumGeneralizedVelocities &&
+                qualityRows <=
+                    layout.qualityDispatch.directMaximumRows
+                ? qualityNv * qualityNv
+                : 1u
+            ),
+            qualityHessianElements
         )) {
         return false;
     }
@@ -1290,6 +1388,11 @@ bool buildRequirements(
             endpointElements,
             requirements.entries[kIREndpoints]
         ) ||
+        !makeRequirement<MRConstraintEndpointRuntimeGPU>(
+            "ConstraintIR endpoint runtime bindings",
+            endpointElements,
+            requirements.entries[kEndpointRuntime]
+        ) ||
         !makeRequirement<MRConstraintIRRowGPU>(
             "ConstraintIR rows",
             layout.constraintRowElements,
@@ -1354,6 +1457,22 @@ bool buildRequirements(
             "per-pair raw contact counts",
             eligiblePairFlagElements,
             requirements.entries[kPairRawCounts]
+        ) ||
+        !makeRequirement<MRManifoldHeaderGPU>(
+            "pair-owned manifold headers",
+            eligiblePairFlagElements,
+            requirements.entries[kPairManifoldHeaders]
+        ) ||
+        !makeRequirement<MRManifoldPointGPU>(
+            "pair-owned manifold points",
+            eligiblePairFlagElements *
+                MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY,
+            requirements.entries[kPairManifoldPoints]
+        ) ||
+        !makeRequirement<MRManifoldIRScatterGPU>(
+            "manifold-to-IR scatter records",
+            eligiblePairFlagElements,
+            requirements.entries[kManifoldIRScatter]
         ) ||
         !makeRequirement<mr_u32>(
             "compaction offsets",
@@ -1500,6 +1619,81 @@ bool buildRequirements(
             "dense island work staging",
             layout.islandWorkElements,
             requirements.entries[kIslandWorkDense]
+        ) ||
+        !makeRequirement<MRUnifiedQualityDispatchGPU>(
+            "unified quality dispatch",
+            qualityEnvironments == 0u ? 0u : 1u,
+            requirements.entries[kQualityDispatch]
+        ) ||
+        !makeRequirement<MRUnifiedQualityBlockGPU>(
+            "unified quality blocks",
+            qualityBlockElements,
+            requirements.entries[kQualityBlocks]
+        ) ||
+        !makeRequirement<float>(
+            "unified quality dynamics",
+            qualityDynamicsElements,
+            requirements.entries[kQualityDynamics]
+        ) ||
+        !makeRequirement<float>(
+            "unified quality Jacobian",
+            qualityJacobianElements,
+            requirements.entries[kQualityJacobian]
+        ) ||
+        !makeRequirement<float>(
+            "unified quality bias",
+            qualityVectorElements,
+            requirements.entries[kQualityBias]
+        ) ||
+        !makeRequirement<float>(
+            "unified quality free velocity",
+            qualityVectorElements,
+            requirements.entries[kQualityFreeVelocity]
+        ) ||
+        !makeRequirement<float>(
+            "unified quality warm velocity",
+            qualityVectorElements,
+            requirements.entries[kQualityWarmVelocity]
+        ) ||
+        !makeRequirement<float>(
+            "unified quality warm impulses",
+            qualityVectorElements,
+            requirements.entries[kQualityWarmImpulses]
+        ) ||
+        !makeRequirement<float>(
+            "unified quality output velocity",
+            qualityVectorElements,
+            requirements.entries[kQualityOutputVelocity]
+        ) ||
+        !makeRequirement<float>(
+            "unified quality output impulses",
+            qualityVectorElements,
+            requirements.entries[kQualityOutputImpulses]
+        ) ||
+        !makeRequirement<float>(
+            "unified quality block derivatives",
+            qualityDerivativeElements,
+            requirements.entries[kQualityDerivatives]
+        ) ||
+        !makeRequirement<float>(
+            "unified quality Hessian scratch",
+            qualityHessianElements,
+            requirements.entries[kQualityHessian]
+        ) ||
+        !makeRequirement<MRUnifiedQualityStatusGPU>(
+            "unified quality statuses",
+            qualityEnvironments,
+            requirements.entries[kQualityStatuses]
+        ) ||
+        !makeRequirement<MRUnifiedQualityWorkQueueGPU>(
+            "unified quality work queue",
+            qualityEnvironments == 0u ? 0u : 1u,
+            requirements.entries[kQualityWorkQueue]
+        ) ||
+        !makeRequirement<MRUnifiedQualityWorkPacketGPU>(
+            "unified quality work packets",
+            qualityEnvironments,
+            requirements.entries[kQualityWorkPackets]
         )) {
         return false;
     }
@@ -1532,12 +1726,24 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "CompiledWorld is empty or invalid"
         );
     }
+    if (world.rodCount() != 0u) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::unsupportedTopology,
+            "nonzero rod state is cooked but not yet connected to the "
+            "persistent MetalWorld command graph; use "
+            "runMetalDiscreteElasticRod for the two-way thread-tool "
+            "executor rather than silently dropping rod dynamics"
+        );
+    }
     if (config.solverMode !=
             MetalWorldSolverMode::freeMotionABA &&
         config.solverMode !=
             MetalWorldSolverMode::throughputPGS &&
         config.solverMode !=
-            MetalWorldSolverMode::throughputTGS) {
+            MetalWorldSolverMode::throughputTGS &&
+        config.solverMode !=
+            MetalWorldSolverMode::qualityNewton) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedSolverMode,
@@ -1556,6 +1762,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     const bool contactMode =
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
+    const bool qualityMode =
+        config.solverMode == MetalWorldSolverMode::qualityNewton;
     if (!std::isfinite(config.timestepSeconds) ||
         !(config.timestepSeconds > 0.0f) ||
         config.physicsSubsteps == 0u ||
@@ -1593,6 +1801,36 @@ MetalWorldDiagnostics validateAndBuildLayout(
             MR_CCD_MAX_ZERO_TIME_REPLAYS ||
         config.maxConservativeAdvancementIterations == 0u ||
         config.maxConservativeAdvancementIterations > 128u ||
+        (qualityMode &&
+         (
+             config.quality.maximumNewtonIterations == 0u ||
+             config.quality.maximumPCGIterations == 0u ||
+             config.quality.maximumLineSearchIterations == 0u ||
+             config.quality
+                     .directMaximumGeneralizedVelocities ==
+                 0u ||
+             config.quality.directMaximumRows == 0u ||
+             !std::isfinite(
+                 config.quality.optimalityTolerance
+             ) ||
+             config.quality.optimalityTolerance <= 0.0f ||
+             !std::isfinite(
+                 config.quality.feasibilityTolerance
+             ) ||
+             config.quality.feasibilityTolerance <= 0.0f ||
+             !std::isfinite(config.quality.armijoConstant) ||
+             config.quality.armijoConstant <= 0.0f ||
+             config.quality.armijoConstant >= 0.5f ||
+             !std::isfinite(
+                 config.quality.lineSearchContraction
+             ) ||
+             config.quality.lineSearchContraction <= 0.0f ||
+             config.quality.lineSearchContraction >= 1.0f ||
+             !std::isfinite(
+                 config.quality.complianceFloorMultiplier
+             ) ||
+             config.quality.complianceFloorMultiplier <= 0.0f
+         )) ||
         (config.ccdMode != MetalWorldCCDMode::disabled &&
          config.ccdMode != MetalWorldCCDMode::speculative &&
          config.ccdMode != MetalWorldCCDMode::hybrid)) {
@@ -1602,6 +1840,35 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "timestepSeconds must be finite and positive and "
             "physicsSubsteps, solver iterations, or manifold "
             "thresholds are outside the supported range"
+        );
+    }
+    if (qualityMode &&
+        config.ccdMode == MetalWorldCCDMode::hybrid) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::unsupportedSolverMode,
+            "qualityNewton currently requires disabled or speculative "
+            "CCD; event-time quality re-solves are not silently routed "
+            "through TGS"
+        );
+    }
+    const std::size_t qualityNv =
+        static_cast<std::size_t>(world.nv()) +
+        6u * world.sceneBodyCount();
+    if (qualityMode &&
+        (qualityNv >
+             MR_UNIFIED_QUALITY_MAX_GENERALIZED_VELOCITIES ||
+         3u * static_cast<std::size_t>(
+                  world.capacities().constraintBlocks
+              ) >
+             MR_UNIFIED_QUALITY_MAX_ROWS ||
+         world.capacities().constraintBlocks >
+             MR_UNIFIED_QUALITY_MAX_BLOCKS)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::unsupportedTopology,
+            "qualityNewton island exceeds the compiled generalized "
+            "velocity, row, or product-block bucket"
         );
     }
     const float substepTimestep =
@@ -1782,6 +2049,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
     contact.solverType =
         config.solverMode == MetalWorldSolverMode::throughputPGS
         ? MR_SOLVER_THROUGHPUT_PGS
+        : config.solverMode == MetalWorldSolverMode::qualityNewton
+        ? MR_SOLVER_QUALITY_NEWTON
         : MR_SOLVER_THROUGHPUT_TGS;
     contact.bodyCount =
         static_cast<mr_u32>(world.model().bodies.size());
@@ -1826,6 +2095,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
         (!batch.kinematicTargets.empty()
              ? static_cast<mr_u32>(
                    MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS
+               )
+             : 0u) |
+        (config.solverMode == MetalWorldSolverMode::qualityNewton
+             ? static_cast<mr_u32>(
+                   MR_METAL_WORLD_CONTACT_QUALITY
                )
              : 0u);
     contact.velocityIterations = config.velocityIterations;
@@ -1900,6 +2174,64 @@ MetalWorldDiagnostics validateAndBuildLayout(
         0.0f,
         0.0f,
     };
+
+    MRUnifiedQualityDispatchGPU& quality =
+        layout.qualityDispatch;
+    if (config.solverMode == MetalWorldSolverMode::qualityNewton) {
+        const mr_u32 generalizedVelocityCount =
+            contact.nv + 6u * contact.sceneBodyCount;
+        const mr_u32 qualityRowCount =
+            3u * contact.constraintStride;
+        quality.abiVersion = MR_UNIFIED_QUALITY_ABI_VERSION;
+        quality.problemCount = dispatch.environmentCount;
+        quality.generalizedVelocityCount =
+            generalizedVelocityCount;
+        quality.rowCount = qualityRowCount;
+        quality.blockCount = contact.constraintStride;
+        quality.dynamicsStride =
+            generalizedVelocityCount *
+            generalizedVelocityCount;
+        quality.jacobianStride =
+            qualityRowCount * generalizedVelocityCount;
+        quality.vectorStride = std::max(
+            generalizedVelocityCount,
+            qualityRowCount
+        );
+        quality.maximumNewtonIterations =
+            config.quality.maximumNewtonIterations;
+        quality.maximumPCGIterations =
+            config.quality.maximumPCGIterations;
+        quality.maximumLineSearchIterations =
+            config.quality.maximumLineSearchIterations;
+        quality.directMaximumGeneralizedVelocities =
+            config.quality.directMaximumGeneralizedVelocities;
+        quality.directMaximumRows =
+            config.quality.directMaximumRows;
+        quality.derivativeStride =
+            contact.constraintStride * 36u;
+        quality.hessianStride =
+            generalizedVelocityCount <=
+                    config.quality
+                        .directMaximumGeneralizedVelocities &&
+                qualityRowCount <=
+                    config.quality.directMaximumRows
+            ? generalizedVelocityCount *
+                  generalizedVelocityCount
+            : 1u;
+        quality.blockStride = contact.constraintStride;
+        quality.tolerances = {
+            config.quality.optimalityTolerance,
+            config.quality.feasibilityTolerance,
+            config.quality.armijoConstant,
+            config.quality.lineSearchContraction,
+        };
+        quality.numerics = {
+            config.quality.complianceFloorMultiplier,
+            1.0e-10f,
+            1.0e-20f,
+            64.0f,
+        };
+    }
 
     if (!checkedMultiply(
             batch.environmentCount,
@@ -2043,6 +2375,13 @@ MetalWorldDiagnostics validateAndBuildLayout(
             : layout.initialSceneBodyElements;
         layout.workQueueHeaderElements =
             MR_WORLD_WORK_CLASS_COUNT;
+        layout.manifoldScatterElements =
+            batch.environmentCount *
+            static_cast<std::size_t>(
+                contact.eligiblePairCount
+            );
+        layout.endpointRuntimeElements =
+            2u * layout.contactConstraintElements;
         if (!batch.kinematicTargets.empty() &&
             !checkedMultiply(
                 batch.controlStepCount,
@@ -2542,6 +2881,10 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> convexNarrowphase = nil;
     __strong id<MTLComputePipelineState> meshNarrowphase = nil;
     __strong id<MTLComputePipelineState> collisionCompile = nil;
+    __strong id<MTLComputePipelineState> manifoldFinalize = nil;
+    __strong id<MTLComputePipelineState> manifoldScan = nil;
+    __strong id<MTLComputePipelineState> manifoldRecordScatter = nil;
+    __strong id<MTLComputePipelineState> manifoldIRScatter = nil;
     __strong id<MTLComputePipelineState> factorDispatch = nil;
     __strong id<MTLComputePipelineState> pointQueryTail = nil;
     __strong id<MTLComputePipelineState> evaluateIR = nil;
@@ -2564,6 +2907,12 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> contactCommit = nil;
     __strong id<MTLComputePipelineState> convexCachePublish = nil;
     __strong id<MTLComputePipelineState> contactCapture = nil;
+    __strong id<MTLComputePipelineState> qualityPrepare = nil;
+    __strong id<MTLComputePipelineState> qualityWarmStart = nil;
+    __strong id<MTLComputePipelineState> qualityQueue = nil;
+    __strong id<MTLComputePipelineState> qualitySolve = nil;
+    __strong id<MTLComputePipelineState> qualityApply = nil;
+    __strong id<MTLComputePipelineState> qualityQueueStatus = nil;
     auto createContactPipeline = [&](
         NSString* functionName
     ) {
@@ -2638,6 +2987,18 @@ MetalWorldDiagnostics initializeContext(
         createContactPipeline(@"mr_world_narrowphase_mesh_queue");
     collisionCompile =
         createContactPipeline(@"mr_world_collide_compile");
+    manifoldFinalize = createContactPipeline(
+        @"mr_world_finalize_pair_manifold"
+    );
+    manifoldScan = createContactPipeline(
+        @"mr_world_scan_manifold_ir"
+    );
+    manifoldRecordScatter = createContactPipeline(
+        @"mr_world_scatter_manifold_records"
+    );
+    manifoldIRScatter = createContactPipeline(
+        @"mr_world_scatter_manifold_ir"
+    );
     factorDispatch = createContactPipeline(
         @"mr_world_finalize_factor_dispatch"
     );
@@ -2691,6 +3052,24 @@ MetalWorldDiagnostics initializeContext(
         createContactPipeline(@"mr_world_publish_convex_cache");
     contactCapture =
         createContactPipeline(@"mr_world_capture_contact");
+    qualityPrepare = createContactPipeline(
+        @"mr_world_prepare_unified_quality"
+    );
+    qualityWarmStart = createContactPipeline(
+        @"mr_world_reconstruct_unified_quality_warm_start"
+    );
+    qualityQueue = createContactPipeline(
+        @"mr_world_build_unified_quality_queue"
+    );
+    qualitySolve = createContactPipeline(
+        @"mr_unified_quality_solve_queued"
+    );
+    qualityApply = createContactPipeline(
+        @"mr_world_apply_unified_quality"
+    );
+    qualityQueueStatus = createContactPipeline(
+        @"mr_world_publish_unified_quality_queue_status"
+    );
     if (operatorPipeline == nil ||
         contactPrepare == nil ||
         bodyProjection == nil ||
@@ -2718,6 +3097,10 @@ MetalWorldDiagnostics initializeContext(
         convexNarrowphase == nil ||
         meshNarrowphase == nil ||
         collisionCompile == nil ||
+        manifoldFinalize == nil ||
+        manifoldScan == nil ||
+        manifoldRecordScatter == nil ||
+        manifoldIRScatter == nil ||
         factorDispatch == nil ||
         pointQueryTail == nil ||
         evaluateIR == nil ||
@@ -2739,7 +3122,13 @@ MetalWorldDiagnostics initializeContext(
         contactLatch == nil ||
         contactCommit == nil ||
         convexCachePublish == nil ||
-        contactCapture == nil) {
+        contactCapture == nil ||
+        qualityPrepare == nil ||
+        qualityWarmStart == nil ||
+        qualityQueue == nil ||
+        qualitySolve == nil ||
+        qualityApply == nil ||
+        qualityQueueStatus == nil) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::metalPipelineFailure,
@@ -2796,6 +3185,11 @@ MetalWorldDiagnostics initializeContext(
         meshNarrowphase.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
         collisionCompile.maxTotalThreadsPerThreadgroup == 0u ||
+        manifoldFinalize.maxTotalThreadsPerThreadgroup == 0u ||
+        manifoldScan.maxTotalThreadsPerThreadgroup <
+            MR_SIMD_WIDTH ||
+        manifoldRecordScatter.maxTotalThreadsPerThreadgroup == 0u ||
+        manifoldIRScatter.maxTotalThreadsPerThreadgroup == 0u ||
         factorDispatch.maxTotalThreadsPerThreadgroup == 0u ||
         pointQueryTail.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
@@ -2833,7 +3227,25 @@ MetalWorldDiagnostics initializeContext(
         contactLatch.maxTotalThreadsPerThreadgroup == 0u ||
         contactCommit.maxTotalThreadsPerThreadgroup == 0u ||
         convexCachePublish.maxTotalThreadsPerThreadgroup == 0u ||
-        contactCapture.maxTotalThreadsPerThreadgroup == 0u) {
+        contactCapture.maxTotalThreadsPerThreadgroup == 0u ||
+        qualityPrepare.maxTotalThreadsPerThreadgroup <
+            MR_SIMD_WIDTH ||
+        qualityWarmStart.maxTotalThreadsPerThreadgroup <
+            MR_SIMD_WIDTH ||
+        qualityQueue.maxTotalThreadsPerThreadgroup <
+            MR_SIMD_WIDTH ||
+        qualitySolve.maxTotalThreadsPerThreadgroup <
+            MR_SIMD_WIDTH ||
+        qualityApply.maxTotalThreadsPerThreadgroup == 0u ||
+        qualityQueueStatus.maxTotalThreadsPerThreadgroup == 0u ||
+        qualityPrepare.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        qualityWarmStart.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        qualityQueue.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
+        qualitySolve.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::metalDeviceUnsupported,
@@ -2841,6 +3253,8 @@ MetalWorldDiagnostics initializeContext(
         );
     }
     if (pairNarrowphase.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        manifoldScan.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
         solverCohort.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
@@ -2851,6 +3265,14 @@ MetalWorldDiagnostics initializeContext(
         wave32DistributedDelta.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
         wave32DistributedReduce.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        qualityPrepare.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        qualityWarmStart.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        qualityQueue.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        qualitySolve.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE) {
         return reject(
             std::move(diagnostics),
@@ -2894,6 +3316,11 @@ MetalWorldDiagnostics initializeContext(
     context.convexNarrowphasePipeline = convexNarrowphase;
     context.meshNarrowphasePipeline = meshNarrowphase;
     context.collisionCompilePipeline = collisionCompile;
+    context.manifoldFinalizePipeline = manifoldFinalize;
+    context.manifoldScanPipeline = manifoldScan;
+    context.manifoldRecordScatterPipeline =
+        manifoldRecordScatter;
+    context.manifoldIRScatterPipeline = manifoldIRScatter;
     context.factorDispatchPipeline = factorDispatch;
     context.pointQueryTailPipeline = pointQueryTail;
     context.evaluateIRPipeline = evaluateIR;
@@ -2923,12 +3350,18 @@ MetalWorldDiagnostics initializeContext(
     context.contactCommitPipeline = contactCommit;
     context.convexCachePublishPipeline = convexCachePublish;
     context.contactCapturePipeline = contactCapture;
+    context.qualityPreparePipeline = qualityPrepare;
+    context.qualityWarmStartPipeline = qualityWarmStart;
+    context.qualityQueuePipeline = qualityQueue;
+    context.qualitySolvePipeline = qualitySolve;
+    context.qualityApplyPipeline = qualityApply;
+    context.qualityQueueStatusPipeline = qualityQueueStatus;
     context.stats.queriedThreadExecutionWidth =
         static_cast<std::uint32_t>(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 43u;
+    context.stats.pipelineCreationCount += 53u;
     return diagnostics;
 }
 
@@ -3000,8 +3433,24 @@ bool privateTransientBuffer(const std::size_t index) {
     case kCCDImpactClusters:
     case kWaveWorkPackets:
     case kPairRawContactStaging:
+    case kPairManifoldHeaders:
+    case kPairManifoldPoints:
+    case kManifoldIRScatter:
     case kWave32Preconditioners:
     case kIslandWorkDense:
+    case kQualityBlocks:
+    case kQualityDynamics:
+    case kQualityJacobian:
+    case kQualityBias:
+    case kQualityFreeVelocity:
+    case kQualityWarmVelocity:
+    case kQualityWarmImpulses:
+    case kQualityOutputVelocity:
+    case kQualityOutputImpulses:
+    case kQualityDerivatives:
+    case kQualityHessian:
+    case kQualityWorkQueue:
+    case kQualityWorkPackets:
         return true;
     default:
         return false;
@@ -3712,6 +4161,14 @@ void uploadBatch(
         &layout.contactDispatch,
         requirements.entries[kContactDispatch]
     );
+    if (layout.contactDispatch.solverType ==
+        MR_SOLVER_QUALITY_NEWTON) {
+        copyToBuffer(
+            context.buffers[kQualityDispatch],
+            &layout.qualityDispatch,
+            requirements.entries[kQualityDispatch]
+        );
+    }
     MRArticulatedOperatorDispatchGPU kinematicsDispatch{};
     kinematicsDispatch.articulationIndex =
         world.articulationIndex();
@@ -3846,8 +4303,13 @@ void uploadBatch(
         kCandidateConvexCaches,
         kCCDPairs,
         kPairRawContactStaging,
+        kPairManifoldHeaders,
+        kPairManifoldPoints,
+        kManifoldIRScatter,
+        kEndpointRuntime,
         kWave32Preconditioners,
         kIslandWorkDense,
+        kQualityStatuses,
     };
     for (const std::size_t index : scratch) {
         zeroBuffer(
@@ -5467,6 +5929,147 @@ bool encodeWave32ContactSolve(
     );
 }
 
+bool encodeParallelManifoldCompile(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t sourceManifoldHeaders,
+    const std::size_t sourceManifoldPoints,
+    const std::size_t sourceManifoldCounts,
+    const std::size_t environmentCount,
+    const std::size_t pairFlagThreadCount
+) {
+    const auto encodeScan = [&]() {
+        id<MTLComputeCommandEncoder> encoder =
+            [commandBuffer computeCommandEncoder];
+        if (encoder == nil) {
+            return false;
+        }
+        encoder.label =
+            @"MetalWorld SIMD32 manifold segmented scan";
+        [encoder
+            setComputePipelineState:
+                context.manifoldScanPipeline];
+        [encoder setBuffer:context.buffers[kContactDispatch]
+                    offset:0u
+                   atIndex:0u];
+        [encoder setBuffer:context.buffers[kManifoldIRScatter]
+                    offset:0u
+                   atIndex:1u];
+        [encoder
+            setBuffer:context.buffers[kCandidateManifoldCounts]
+              offset:0u
+             atIndex:2u];
+        [encoder setBuffer:context.buffers[kContactStatuses]
+                    offset:0u
+                   atIndex:3u];
+        [encoder setBytes:&pass
+                   length:sizeof(pass)
+                  atIndex:4u];
+        [encoder
+            dispatchThreadgroups:MTLSizeMake(
+                static_cast<NSUInteger>(
+                    std::max<std::size_t>(
+                        environmentCount,
+                        1u
+                    )
+                ),
+                1u,
+                1u
+            )
+            threadsPerThreadgroup:MTLSizeMake(
+                MR_SIMD_WIDTH,
+                1u,
+                1u
+            )];
+        [encoder endEncoding];
+        return true;
+    };
+    return
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.manifoldFinalizePipeline,
+            @"MetalWorld pair-parallel manifold finalization",
+            {
+                {0u, kContactDispatch},
+                {1u, kShapes},
+                {2u, kCurrentBodies},
+                {3u, kEligiblePairs},
+                {4u, sourceManifoldCounts},
+                {5u, sourceManifoldHeaders},
+                {6u, sourceManifoldPoints},
+                {7u, kPairOverlapFlags},
+                {8u, kPairRawCounts},
+                {9u, kPairRawContactStaging},
+                {10u, kCandidateConvexCaches},
+                {11u, kCCDPairs},
+                {12u, kPairManifoldHeaders},
+                {13u, kPairManifoldPoints},
+                {14u, kManifoldIRScatter},
+                {15u, kContactStatuses},
+            },
+            &pass,
+            16u,
+            pairFlagThreadCount
+        ) &&
+        encodeScan() &&
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.manifoldRecordScatterPipeline,
+            @"MetalWorld stable manifold record scatter",
+            {
+                {0u, kContactDispatch},
+                {1u, kEligiblePairs},
+                {2u, kPairRawCounts},
+                {3u, kPairRawContactStaging},
+                {4u, kPairManifoldHeaders},
+                {5u, kPairManifoldPoints},
+                {6u, kManifoldIRScatter},
+                {7u, kContactStatuses},
+                {8u, kCandidatePairs},
+                {9u, kRawContacts},
+                {10u, kRawPairIndices},
+                {11u, kCandidateManifoldHeaders},
+                {12u, kCandidateManifoldPoints},
+            },
+            nullptr,
+            0u,
+            pairFlagThreadCount
+        ) &&
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.manifoldIRScatterPipeline,
+            @"MetalWorld manifold-to-ConstraintIR scatter",
+            {
+                {0u, kContactDispatch},
+                {1u, kShapes},
+                {2u, kMaterials},
+                {3u, kCurrentBodies},
+                {4u, kArticulations},
+                {5u, kEligiblePairs},
+                {6u, kPairManifoldHeaders},
+                {7u, kPairManifoldPoints},
+                {8u, kManifoldIRScatter},
+                {9u, kContactStatuses},
+                {10u, kContacts},
+                {11u, kContactMetadata},
+                {12u, kIRBlocks},
+                {13u, kIREndpoints},
+                {14u, kEndpointRuntime},
+                {15u, kIRRows},
+                {16u, kIRCones},
+                {17u, kPointQueries},
+            },
+            nullptr,
+            0u,
+            pairFlagThreadCount *
+                MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY
+        );
+}
+
 bool encodeContactCollisionAndSolve(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -5492,45 +6095,15 @@ bool encodeContactCollisionAndSolve(
             pairFlagThreadCount,
             activePairClassMask
         ) &&
-        encodeContactThreadKernel(
+        encodeParallelManifoldCompile(
             context,
             commandBuffer,
-            context.collisionCompilePipeline,
-            @"MetalWorld collision/manifold/IR compile",
-            {
-                {0u, kContactDispatch},
-                {1u, kShapes},
-                {2u, kMaterials},
-                {3u, kCurrentBodies},
-                {4u, kArticulations},
-                {5u, kEligiblePairs},
-                {6u, sourceManifoldCounts},
-                {7u, sourceManifoldHeaders},
-                {8u, sourceManifoldPoints},
-                {9u, kCandidatePairs},
-                {10u, kRawContacts},
-                {11u, kRawPairIndices},
-                {12u, kCandidateManifoldHeaders},
-                {13u, kCandidateManifoldPoints},
-                {14u, kCandidateManifoldCounts},
-                {15u, kContacts},
-                {16u, kContactMetadata},
-                {17u, kIRBlocks},
-                {18u, kIREndpoints},
-                {19u, kIRRows},
-                {20u, kIRCones},
-                {21u, kPointQueries},
-                {22u, kContactStatuses},
-                {24u, kProjectedColliders},
-                {25u, kPairOverlapFlags},
-                {26u, kPairRawCounts},
-                {27u, kPairRawContactStaging},
-                {28u, kCandidateConvexCaches},
-                {29u, kCCDPairs},
-            },
-            &pass,
-            23u,
-            environmentCount
+            pass,
+            sourceManifoldHeaders,
+            sourceManifoldPoints,
+            sourceManifoldCounts,
+            environmentCount,
+            pairFlagThreadCount
         ) &&
         encodeContactThreadKernel(
             context,
@@ -6267,6 +6840,228 @@ bool encodeHybridContactSubstep(
         );
 }
 
+bool encodeUnifiedQualitySolve(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t environmentCount
+) {
+    id<MTLComputeCommandEncoder> prepare =
+        [commandBuffer computeCommandEncoder];
+    if (prepare == nil) {
+        return false;
+    }
+    prepare.label =
+        @"MetalWorld unified quality operator preparation";
+    [prepare
+        setComputePipelineState:
+            context.qualityPreparePipeline];
+    const std::array<std::size_t, 20u> prepareBuffers{{
+        kContactDispatch,
+        kQualityDispatch,
+        kSceneBodyIndices,
+        kFactorMatrix,
+        kPointJacobians,
+        kCandidateV,
+        kCandidateBodies,
+        kContacts,
+        kContactMetadata,
+        kIRBlocks,
+        kEvaluatedRows,
+        kEvaluatedCones,
+        kContactStatuses,
+        kQualityBlocks,
+        kQualityDynamics,
+        kQualityJacobian,
+        kQualityBias,
+        kQualityFreeVelocity,
+        kQualityWarmVelocity,
+        kQualityWarmImpulses,
+    }};
+    for (NSUInteger argument = 0u;
+         argument < prepareBuffers.size();
+         ++argument) {
+        [prepare setBuffer:context.buffers[
+                               prepareBuffers[argument]
+                           ]
+                    offset:0u
+                   atIndex:argument];
+    }
+    [prepare
+        dispatchThreadgroups:MTLSizeMake(
+            static_cast<NSUInteger>(environmentCount),
+            1u,
+            1u
+        )
+        threadsPerThreadgroup:MTLSizeMake(
+            MR_SIMD_WIDTH,
+            1u,
+            1u
+        )];
+    [prepare endEncoding];
+
+    id<MTLComputeCommandEncoder> warmStart =
+        [commandBuffer computeCommandEncoder];
+    if (warmStart == nil) {
+        return false;
+    }
+    warmStart.label =
+        @"MetalWorld persistent-impulse quality warm start";
+    [warmStart
+        setComputePipelineState:
+            context.qualityWarmStartPipeline];
+    const std::array<std::size_t, 9u> warmStartBuffers{{
+        kContactDispatch,
+        kQualityDispatch,
+        kFactorMatrix,
+        kQualityDynamics,
+        kQualityJacobian,
+        kQualityFreeVelocity,
+        kQualityWarmImpulses,
+        kQualityWarmVelocity,
+        kContactStatuses,
+    }};
+    for (NSUInteger argument = 0u;
+         argument < warmStartBuffers.size();
+         ++argument) {
+        [warmStart setBuffer:context.buffers[
+                                  warmStartBuffers[argument]
+                              ]
+                       offset:0u
+                      atIndex:argument];
+    }
+    [warmStart
+        dispatchThreadgroups:MTLSizeMake(
+            static_cast<NSUInteger>(environmentCount),
+            1u,
+            1u
+        )
+        threadsPerThreadgroup:MTLSizeMake(
+            MR_SIMD_WIDTH,
+            1u,
+            1u
+        )];
+    [warmStart endEncoding];
+
+    id<MTLComputeCommandEncoder> queue =
+        [commandBuffer computeCommandEncoder];
+    if (queue == nil) {
+        return false;
+    }
+    queue.label =
+        @"MetalWorld stable unified-quality packet compaction";
+    [queue setComputePipelineState:context.qualityQueuePipeline];
+    const std::array<std::size_t, 5u> queueBuffers{{
+        kContactDispatch,
+        kQualityDispatch,
+        kContactStatuses,
+        kQualityWorkQueue,
+        kQualityWorkPackets,
+    }};
+    for (NSUInteger argument = 0u;
+         argument < queueBuffers.size();
+         ++argument) {
+        [queue setBuffer:context.buffers[
+                             queueBuffers[argument]
+                         ]
+                  offset:0u
+                 atIndex:argument];
+    }
+    [queue
+        dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(
+            MR_SIMD_WIDTH,
+            1u,
+            1u
+        )];
+    [queue endEncoding];
+
+    id<MTLComputeCommandEncoder> solve =
+        [commandBuffer computeCommandEncoder];
+    if (solve == nil) {
+        return false;
+    }
+    solve.label =
+        @"MetalWorld unified matrix-free quality Newton";
+    [solve setComputePipelineState:context.qualitySolvePipeline];
+    const std::array<std::size_t, 15u> solveBuffers{{
+        kQualityDispatch,
+        kQualityBlocks,
+        kQualityDynamics,
+        kQualityJacobian,
+        kQualityBias,
+        kQualityFreeVelocity,
+        kQualityWarmVelocity,
+        kQualityWarmImpulses,
+        kQualityOutputVelocity,
+        kQualityOutputImpulses,
+        kQualityDerivatives,
+        kQualityHessian,
+        kQualityStatuses,
+        kQualityWorkPackets,
+        kQualityWorkQueue,
+    }};
+    for (NSUInteger argument = 0u;
+         argument < solveBuffers.size();
+         ++argument) {
+        [solve setBuffer:context.buffers[
+                             solveBuffers[argument]
+                         ]
+                  offset:0u
+                 atIndex:argument];
+    }
+    [solve
+        dispatchThreadgroupsWithIndirectBuffer:
+            context.buffers[kQualityWorkQueue]
+        indirectBufferOffset:
+            offsetof(MRUnifiedQualityWorkQueueGPU, indirect)
+        threadsPerThreadgroup:MTLSizeMake(
+            MR_SIMD_WIDTH,
+            1u,
+            1u
+        )];
+    [solve endEncoding];
+
+    if (!encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.qualityApplyPipeline,
+            @"MetalWorld unified quality transactional application",
+            {
+                {0u, kContactDispatch},
+                {1u, kQualityDispatch},
+                {2u, kSceneBodyIndices},
+                {3u, kQualityStatuses},
+                {4u, kQualityOutputVelocity},
+                {5u, kQualityOutputImpulses},
+                {6u, kCandidateV},
+                {7u, kCandidateBodies},
+                {8u, kContacts},
+                {9u, kContactMetadata},
+                {10u, kCandidateManifoldPoints},
+                {11u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount
+        )) {
+        return false;
+    }
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.qualityQueueStatusPipeline,
+        @"MetalWorld unified quality queue evidence",
+        {
+            {0u, kContactDispatch},
+            {1u, kQualityWorkQueue},
+            {2u, kContactStatuses},
+        },
+        nullptr,
+        0u,
+        environmentCount
+    );
+}
+
 bool encodeContactSubstep(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -6284,6 +7079,7 @@ bool encodeContactSubstep(
     const std::size_t destinationManifoldPoints,
     const std::size_t destinationManifoldCounts,
     const bool useWave32,
+    const bool useQuality,
     const mr_u32 activePairClassMask,
     const bool hasFutureKinematics,
     const bool useHybridCCD,
@@ -6470,45 +7266,15 @@ bool encodeContactSubstep(
             pairFlagThreadCount,
             activePairClassMask
         ) ||
-        !encodeContactThreadKernel(
+        !encodeParallelManifoldCompile(
             context,
             commandBuffer,
-            context.collisionCompilePipeline,
-            @"MetalWorld collision/manifold/IR compile",
-            {
-                {0u, kContactDispatch},
-                {1u, kShapes},
-                {2u, kMaterials},
-                {3u, kCurrentBodies},
-                {4u, kArticulations},
-                {5u, kEligiblePairs},
-                {6u, sourceManifoldCounts},
-                {7u, sourceManifoldHeaders},
-                {8u, sourceManifoldPoints},
-                {9u, kCandidatePairs},
-                {10u, kRawContacts},
-                {11u, kRawPairIndices},
-                {12u, kCandidateManifoldHeaders},
-                {13u, kCandidateManifoldPoints},
-                {14u, kCandidateManifoldCounts},
-                {15u, kContacts},
-                {16u, kContactMetadata},
-                {17u, kIRBlocks},
-                {18u, kIREndpoints},
-                {19u, kIRRows},
-                {20u, kIRCones},
-                {21u, kPointQueries},
-                {22u, kContactStatuses},
-                {24u, kProjectedColliders},
-                {25u, kPairOverlapFlags},
-                {26u, kPairRawCounts},
-                {27u, kPairRawContactStaging},
-                {28u, kCandidateConvexCaches},
-                {29u, kCCDPairs},
-            },
-            &pass,
-            23u,
-            environmentCount
+            pass,
+            sourceManifoldHeaders,
+            sourceManifoldPoints,
+            sourceManifoldCounts,
+            environmentCount,
+            pairFlagThreadCount
         ) ||
         !encodeContactThreadKernel(
             context,
@@ -6600,7 +7366,13 @@ bool encodeContactSubstep(
             true,
             sizeof(MRIndirectDispatchArgumentsGPU)
         ) ||
-        !(useWave32
+        !(useQuality
+              ? encodeUnifiedQualitySolve(
+                    context,
+                    commandBuffer,
+                    environmentCount
+                )
+              : useWave32
               ? encodeWave32ContactSolve(
                     context,
                     commandBuffer,
@@ -6915,6 +7687,8 @@ MetalWorldDiagnostics validateAndPublish(
                     !finite(contactStatus->residuals) ||
                     !finite(contactStatus->diagnostics) ||
                     !finite(contactStatus->eventTimes) ||
+                    !finite(contactStatus->qualityCertificates) ||
+                    !finite(contactStatus->qualityDiagnostics) ||
                     contactStatus->activePairs >
                         contactStatus->requiredPairs ||
                     contactStatus->activeContacts >
@@ -7143,6 +7917,18 @@ MetalWorldDiagnostics validateAndPublish(
                     summary.maximumSolverIterations,
                     contactStatus->solverIterations
                 );
+                updateMaximum(
+                    summary.maximumQualityNewtonIterations,
+                    contactStatus->qualityNewtonIterations
+                );
+                updateMaximum(
+                    summary.maximumQualityPCGIterations,
+                    contactStatus->qualityPCGIterations
+                );
+                updateMaximum(
+                    summary.maximumQualityLineSearchBacktracks,
+                    contactStatus->qualityLineSearchBacktracks
+                );
                 const std::array residuals{
                     contactStatus->residuals.x,
                     contactStatus->residuals.y,
@@ -7156,6 +7942,22 @@ MetalWorldDiagnostics validateAndPublish(
                         summary.maximumResiduals[index],
                         std::abs(residuals[index])
                     );
+                }
+                const std::array qualityCertificates{
+                    contactStatus->qualityCertificates.x,
+                    contactStatus->qualityCertificates.y,
+                    contactStatus->qualityCertificates.z,
+                    contactStatus->qualityCertificates.w,
+                };
+                for (std::size_t index = 0u;
+                     index < qualityCertificates.size();
+                     ++index) {
+                    summary.maximumQualityCertificates[index] =
+                        std::max(
+                            summary
+                                .maximumQualityCertificates[index],
+                            std::abs(qualityCertificates[index])
+                        );
                 }
                 retainedPointTotals[environment] +=
                     contactStatus->retainedPoints;
@@ -7404,6 +8206,30 @@ std::uint32_t CompiledWorld::eligiblePairCount() const noexcept {
         : 0u;
 }
 
+std::uint32_t CompiledWorld::rodCount() const noexcept {
+    return valid() && !rodNodeOffsets_.empty()
+        ? static_cast<std::uint32_t>(
+              rodNodeOffsets_.size() - 1u
+          )
+        : 0u;
+}
+
+std::uint32_t CompiledWorld::rodNodeCount() const noexcept {
+    return valid()
+        ? static_cast<std::uint32_t>(
+              defaultRodNodes_.size()
+          )
+        : 0u;
+}
+
+std::uint32_t CompiledWorld::rodEdgeCount() const noexcept {
+    return valid()
+        ? static_cast<std::uint32_t>(
+              defaultRodEdges_.size()
+          )
+        : 0u;
+}
+
 std::span<const std::uint32_t>
 CompiledWorld::sceneBodyIndices() const noexcept {
     return sceneBodyIndices_;
@@ -7447,6 +8273,46 @@ CompiledWorld::meshBvhNodes() const noexcept {
 std::span<const MRMeshTriangleGPU>
 CompiledWorld::meshTriangles() const noexcept {
     return model_.meshTriangles;
+}
+
+std::span<const MRRodColliderGPU>
+CompiledWorld::rodColliders() const noexcept {
+    return rodColliders_;
+}
+
+std::span<const MRShapeGPU>
+CompiledWorld::rodShapeSources() const noexcept {
+    return rodShapeSources_;
+}
+
+std::span<const MRRodToolPairGPU>
+CompiledWorld::rodToolPairs() const noexcept {
+    return rodToolPairs_;
+}
+
+std::span<const std::uint32_t>
+CompiledWorld::rodNodeOffsets() const noexcept {
+    return rodNodeOffsets_;
+}
+
+std::span<const std::uint32_t>
+CompiledWorld::rodEdgeOffsets() const noexcept {
+    return rodEdgeOffsets_;
+}
+
+std::span<const MRRodNodeStateGPU>
+CompiledWorld::defaultRodNodes() const noexcept {
+    return defaultRodNodes_;
+}
+
+std::span<const MRRodEdgeStateGPU>
+CompiledWorld::defaultRodEdges() const noexcept {
+    return defaultRodEdges_;
+}
+
+std::span<const HeterogeneousRodProgram>
+CompiledWorld::rodPrograms() const noexcept {
+    return rodPrograms_;
 }
 
 const MetalWorldCapacityProfile& CompiledWorld::capacities()
@@ -7816,6 +8682,66 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 )
             )
         );
+        const std::uint32_t endpointRecords =
+            defaultConstraints > 0x7fffffffu
+            ? 0xffffffffu
+            : 2u * defaultConstraints;
+        std::uint32_t dynamicSceneBodies = 0u;
+        for (const std::uint32_t body :
+             staged.sceneBodyIndices_) {
+            if (staged.model_.bodies[body].motionType ==
+                MR_MOTION_DYNAMIC) {
+                ++dynamicSceneBodies;
+            }
+        }
+        const std::uint64_t qualityVelocity64 =
+            static_cast<std::uint64_t>(articulation.nv) +
+            6ull * dynamicSceneBodies;
+        const std::uint32_t qualityVelocities =
+            static_cast<std::uint32_t>(
+                std::min<std::uint64_t>(
+                    qualityVelocity64,
+                    0xffffffffull
+                )
+            );
+        staged.capacities_.endpointRuntimeRecords = inferred(
+            requestedCapacities.endpointRuntimeRecords,
+            endpointRecords
+        );
+        staged.capacities_.articulationPointQueries = inferred(
+            requestedCapacities.articulationPointQueries,
+            endpointRecords
+        );
+        staged.capacities_.rodCandidatePairs =
+            requestedCapacities.rodCandidatePairs;
+        staged.capacities_.rodRawContacts =
+            requestedCapacities.rodRawContacts;
+        staged.capacities_.rodManifolds =
+            requestedCapacities.rodManifolds;
+        staged.capacities_.rodCCDEvents =
+            requestedCapacities.rodCCDEvents;
+        staged.capacities_.qualityGeneralizedVelocities = inferred(
+            requestedCapacities.qualityGeneralizedVelocities,
+            qualityVelocities
+        );
+        staged.capacities_.qualityRows = inferred(
+            requestedCapacities.qualityRows,
+            staged.capacities_.constraintRows
+        );
+        staged.capacities_.qualityKrylovVectors = inferred(
+            requestedCapacities.qualityKrylovVectors,
+            8u
+        );
+        staged.capacities_.qualityDirectTiles = inferred(
+            requestedCapacities.qualityDirectTiles,
+            std::max<std::uint32_t>(
+                1u,
+                (
+                    qualityVelocities +
+                    MR_SIMD_WIDTH - 1u
+                ) / MR_SIMD_WIDTH
+            )
+        );
         staged.minimumCapacities_ = {
             .candidatePairs = std::max(eligibleU32, 1u),
             .rawContacts = defaultRaw,
@@ -7846,6 +8772,23 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                     eligibleU32,
                     MR_CCD_DEFAULT_MAX_EVENTS
                 )
+            ),
+            .endpointRuntimeRecords = endpointRecords,
+            .articulationPointQueries = endpointRecords,
+            .qualityGeneralizedVelocities =
+                qualityVelocities,
+            .qualityRows =
+                authoredRowCount +
+                3u * (
+                    defaultConstraints - authoredBlockCount
+                ),
+            .qualityKrylovVectors = 8u,
+            .qualityDirectTiles = std::max<std::uint32_t>(
+                1u,
+                (
+                    qualityVelocities +
+                    MR_SIMD_WIDTH - 1u
+                ) / MR_SIMD_WIDTH
             ),
         };
         if (staged.capacities_.candidatePairs == 0u ||
@@ -7891,6 +8834,603 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             std::move(diagnostics),
             MetalWorldHostStatus::metalBufferFailure,
             "host allocation failed while compiling MetalWorld"
+        );
+    } catch (const std::exception& exception) {
+        return rejectCompile(
+            std::move(diagnostics),
+            MetalWorldHostStatus::internalFailure,
+            exception.what()
+        );
+    }
+}
+
+MetalWorldCompileDiagnostics compileMetalWorld(
+    const HeterogeneousWorld& world,
+    CompiledWorld& compiled,
+    const MetalWorldCapacityProfile& requestedCapacities
+) {
+    MetalWorldCompileDiagnostics diagnostics{};
+    try {
+        std::string reason;
+        if (!world.valid(&reason)) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::invalidModel,
+                "invalid HeterogeneousWorld: " + reason
+            );
+        }
+        if (world.model.articulations.size() != 1u) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::unsupportedTopology,
+                "the persistent MetalWorld executor currently owns one "
+                "articulation; multi-articulation heterogeneous worlds "
+                "must use the compiled parallel-ABA contact executor until "
+                "its island graph is promoted here"
+            );
+        }
+
+        CompiledWorld staged;
+        diagnostics = compileMetalWorld(
+            world.model,
+            0u,
+            staged,
+            requestedCapacities
+        );
+        if (!diagnostics.succeeded()) {
+            return diagnostics;
+        }
+        staged.rodPrograms_ = world.rods;
+        staged.rodNodeOffsets_.push_back(0u);
+        staged.rodEdgeOffsets_.push_back(0u);
+
+        std::uint64_t rodPairCount = 0u;
+        std::uint64_t rodNodeCount = 0u;
+        std::uint64_t rodEdgeCount = 0u;
+        std::uint64_t rodCCDPairCount = 0u;
+        std::uint64_t rodHardPairCount = 0u;
+        std::uint64_t rodMeshPairCount = 0u;
+        for (std::uint32_t rodIndex = 0u;
+             rodIndex < world.rods.size();
+             ++rodIndex) {
+            const HeterogeneousRodProgram& program =
+                world.rods[rodIndex];
+            const std::uint32_t nodeOffset =
+                static_cast<std::uint32_t>(rodNodeCount);
+            const std::uint32_t edgeOffset =
+                static_cast<std::uint32_t>(rodEdgeCount);
+            const std::uint32_t nodes =
+                static_cast<std::uint32_t>(
+                    program.model.restPositions.size()
+                );
+            const std::uint32_t edges = nodes - 1u;
+            rodNodeCount += nodes;
+            rodEdgeCount += edges;
+            if (rodNodeCount >
+                    std::numeric_limits<std::uint32_t>::max() ||
+                rodEdgeCount >
+                    std::numeric_limits<std::uint32_t>::max()) {
+                return rejectCompile(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::capacityOverflow,
+                    "flattened rod topology exceeds 32-bit indexing"
+                );
+            }
+
+            std::set<
+                std::pair<std::uint32_t, std::uint32_t>
+            > attachmentExclusions;
+            for (std::size_t attachment = 0u;
+                 attachment < program.attachments.size();
+                 ++attachment) {
+                const auto& binding =
+                    program.rigidBindings[attachment];
+                if (binding.bodyIndex ==
+                    kDiscreteRodNoRigidBody) {
+                    continue;
+                }
+                const std::uint32_t globalBody =
+                    world.sceneBodyIndices[
+                        binding.bodyIndex
+                    ];
+                const std::uint32_t node =
+                    program.attachments[attachment].nodeIndex;
+                if (node > 0u) {
+                    attachmentExclusions.emplace(
+                        node - 1u,
+                        globalBody
+                    );
+                }
+                if (node < edges) {
+                    attachmentExclusions.emplace(
+                        node,
+                        globalBody
+                    );
+                }
+            }
+
+            for (std::uint32_t node = 0u;
+                 node < nodes;
+                 ++node) {
+                const auto& position =
+                    program.defaultState.positions[node];
+                const auto& velocity =
+                    program.defaultState.velocities[node];
+                staged.defaultRodNodes_.push_back({
+                    .position = {
+                        static_cast<float>(position[0]),
+                        static_cast<float>(position[1]),
+                        static_cast<float>(position[2]),
+                        1.0f,
+                    },
+                    .velocity = {
+                        static_cast<float>(velocity[0]),
+                        static_cast<float>(velocity[1]),
+                        static_cast<float>(velocity[2]),
+                        0.0f,
+                    },
+                });
+            }
+            for (std::uint32_t edge = 0u;
+                 edge < edges;
+                 ++edge) {
+                staged.defaultRodEdges_.push_back({
+                    .twistAndRate = {
+                        static_cast<float>(
+                            program.defaultState.twists[edge]
+                        ),
+                        static_cast<float>(
+                            program.defaultState
+                                .twistRates[edge]
+                        ),
+                        0.0f,
+                        0.0f,
+                    },
+                });
+                MRRodColliderGPU collider{};
+                collider.rodIndex = rodIndex;
+                collider.edgeIndex = edgeOffset + edge;
+                collider.nodeA = nodeOffset + edge;
+                collider.nodeB = nodeOffset + edge + 1u;
+                collider.materialIndex =
+                    program.collision.materialIndex;
+                collider.collisionGroup =
+                    program.collision.collisionGroup;
+                collider.collisionMask =
+                    program.collision.collisionMask;
+                collider.topologyGeneration =
+                    program.collision.topologyGeneration;
+                collider.radiusAndOffsets = {
+                    static_cast<float>(program.model.radius),
+                    static_cast<float>(
+                        program.collision.contactOffset
+                    ),
+                    static_cast<float>(
+                        program.collision.restOffset
+                    ),
+                    static_cast<float>(
+                        program.model.radius +
+                        0.5 *
+                            program.model.restLengths[edge]
+                    ),
+                };
+                collider.flagsAndExclusions.x =
+                    (
+                        program.collision.enableToolCollision
+                        ? MR_ROD_GPU_FLAG_TOOL_COLLISION
+                        : 0u
+                    ) |
+                    (
+                        program.collision.enableCCD
+                        ? MR_ROD_GPU_FLAG_ENABLE_CCD
+                        : 0u
+                    );
+                staged.rodColliders_.push_back(collider);
+
+                MRShapeGPU source{};
+                source.bodyIndex = MR_INVALID_INDEX;
+                source.shapeType = MR_SHAPE_CAPSULE;
+                source.materialIndex =
+                    program.collision.materialIndex;
+                source.collisionGroup =
+                    program.collision.collisionGroup;
+                source.collisionMask =
+                    program.collision.collisionMask;
+                source.slotGeneration =
+                    program.collision.topologyGeneration;
+                source.localRotation = {
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                };
+                source.dimensions = {
+                    static_cast<float>(program.model.radius),
+                    static_cast<float>(
+                        0.5 *
+                        program.model.restLengths[edge]
+                    ),
+                    0.0f,
+                    0.0f,
+                };
+                source.contactRestAndBoundingRadius =
+                    collider.radiusAndOffsets;
+                staged.rodShapeSources_.push_back(source);
+
+                if (!program.collision.enableToolCollision) {
+                    continue;
+                }
+                for (std::uint32_t rigidCollider = 0u;
+                     rigidCollider <
+                         world.model.shapes.size();
+                     ++rigidCollider) {
+                    const MRShapeGPU& rigid =
+                        world.model.shapes[rigidCollider];
+                    if ((rigid.flags &
+                         MR_SHAPE_FLAG_SIMULATION_DISABLED) !=
+                            0u ||
+                        (collider.collisionGroup &
+                         rigid.collisionMask) == 0u ||
+                        (rigid.collisionGroup &
+                         collider.collisionMask) == 0u ||
+                        attachmentExclusions.contains({
+                            edge,
+                            rigid.bodyIndex,
+                        })) {
+                        continue;
+                    }
+                    const std::uint32_t pairClass =
+                        compiledPairClass(
+                            MR_SHAPE_CAPSULE,
+                            rigid.shapeType
+                        );
+                    if (pairClass ==
+                        MR_COLLISION_PAIR_UNSUPPORTED) {
+                        return rejectCompile(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::
+                                unsupportedTopology,
+                            "rod edge/tool collider has no Metal "
+                            "narrowphase"
+                        );
+                    }
+                    staged.rodToolPairs_.push_back({
+                        .rodCollider = edgeOffset + edge,
+                        .rigidCollider = rigidCollider,
+                        .pairClass = pairClass,
+                        .flags =
+                            MR_ROD_TOOL_PAIR_VALID |
+                            (
+                                program.collision.enableCCD &&
+                                    (rigid.flags &
+                                     MR_SHAPE_FLAG_ENABLE_CCD) !=
+                                        0u
+                                ? MR_ROD_TOOL_PAIR_ENABLE_CCD
+                                : 0u
+                            ),
+                    });
+                    ++rodPairCount;
+                    rodCCDPairCount +=
+                        program.collision.enableCCD ? 1u : 0u;
+                    rodHardPairCount +=
+                        pairClass == MR_COLLISION_PAIR_CONVEX
+                        ? 1u
+                        : 0u;
+                    if (pairClass == MR_COLLISION_PAIR_MESH) {
+                        const MRShapeGPU& meshShape =
+                            rigid.shapeType ==
+                                MR_SHAPE_TRIANGLE_MESH
+                            ? rigid
+                            : source;
+                        if (meshShape.shapeType ==
+                                MR_SHAPE_TRIANGLE_MESH &&
+                            meshShape.geometryOffset <
+                                world.model
+                                    .geometryHeaders.size()) {
+                            rodMeshPairCount +=
+                                world.model.geometryHeaders[
+                                    meshShape.geometryOffset
+                                ].triangleCount;
+                        }
+                    }
+                }
+            }
+            staged.rodNodeOffsets_.push_back(
+                static_cast<std::uint32_t>(rodNodeCount)
+            );
+            staged.rodEdgeOffsets_.push_back(
+                static_cast<std::uint32_t>(rodEdgeCount)
+            );
+        }
+
+        const std::uint64_t rodRaw =
+            rodPairCount *
+            MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+        const std::uint64_t rodConstraints = rodRaw;
+        const std::uint64_t rodRows = 3u * rodConstraints;
+        const std::uint64_t rodEndpoints =
+            2u * rodConstraints;
+        const std::uint64_t rodVelocities =
+            3u * rodNodeCount + rodEdgeCount;
+        const auto checkedU32 = [&diagnostics](
+            const std::uint64_t value,
+            const char* label,
+            std::uint32_t& output
+        ) {
+            if (value >
+                std::numeric_limits<std::uint32_t>::max()) {
+                diagnostics.status =
+                    MetalWorldHostStatus::capacityOverflow;
+                diagnostics.message =
+                    std::string(label) +
+                    " exceeds 32-bit world capacity";
+                return false;
+            }
+            output = static_cast<std::uint32_t>(value);
+            return true;
+        };
+        std::uint32_t requiredRodPairs = 0u;
+        std::uint32_t requiredRodRaw = 0u;
+        std::uint32_t requiredRodConstraints = 0u;
+        std::uint32_t requiredRodRows = 0u;
+        std::uint32_t requiredRodEndpoints = 0u;
+        std::uint32_t requiredRodVelocities = 0u;
+        if (!checkedU32(
+                rodPairCount,
+                "rod pair count",
+                requiredRodPairs
+            ) ||
+            !checkedU32(
+                rodRaw,
+                "rod raw-contact count",
+                requiredRodRaw
+            ) ||
+            !checkedU32(
+                rodConstraints,
+                "rod constraint count",
+                requiredRodConstraints
+            ) ||
+            !checkedU32(
+                rodRows,
+                "rod row count",
+                requiredRodRows
+            ) ||
+            !checkedU32(
+                rodEndpoints,
+                "rod endpoint count",
+                requiredRodEndpoints
+            ) ||
+            !checkedU32(
+                rodVelocities,
+                "rod generalized velocity count",
+                requiredRodVelocities
+            )) {
+            return diagnostics;
+        }
+
+        const auto addCapacity = [&diagnostics](
+            const char* label,
+            const std::uint32_t requested,
+            const std::uint32_t base,
+            const std::uint32_t additional,
+            std::uint32_t& capacity,
+            std::uint32_t& minimum
+        ) {
+            const std::uint64_t required =
+                static_cast<std::uint64_t>(base) +
+                additional;
+            if (required >
+                std::numeric_limits<std::uint32_t>::max()) {
+                diagnostics.status =
+                    MetalWorldHostStatus::capacityOverflow;
+                diagnostics.message =
+                    std::string(label) +
+                    " exceeds 32-bit world capacity";
+                return false;
+            }
+            minimum = static_cast<std::uint32_t>(required);
+            if (requested != 0u && requested < minimum) {
+                diagnostics.status =
+                    MetalWorldHostStatus::capacityOverflow;
+                diagnostics.message =
+                    std::string(label) +
+                    " is below the heterogeneous minimum";
+                return false;
+            }
+            capacity =
+                requested == 0u ? minimum : requested;
+            return true;
+        };
+        if (!addCapacity(
+                "raw-contact capacity",
+                requestedCapacities.rawContacts,
+                staged.minimumCapacities_.rawContacts,
+                requiredRodRaw,
+                staged.capacities_.rawContacts,
+                staged.minimumCapacities_.rawContacts
+            ) ||
+            !addCapacity(
+                "manifold capacity",
+                requestedCapacities.manifolds,
+                staged.minimumCapacities_.manifolds,
+                requiredRodPairs,
+                staged.capacities_.manifolds,
+                staged.minimumCapacities_.manifolds
+            ) ||
+            !addCapacity(
+                "constraint-block capacity",
+                requestedCapacities.constraintBlocks,
+                staged.minimumCapacities_.constraintBlocks,
+                requiredRodConstraints,
+                staged.capacities_.constraintBlocks,
+                staged.minimumCapacities_.constraintBlocks
+            ) ||
+            !addCapacity(
+                "constraint-row capacity",
+                requestedCapacities.constraintRows,
+                staged.minimumCapacities_.constraintRows,
+                requiredRodRows,
+                staged.capacities_.constraintRows,
+                staged.minimumCapacities_.constraintRows
+            ) ||
+            !addCapacity(
+                "endpoint-runtime capacity",
+                requestedCapacities.endpointRuntimeRecords,
+                staged.minimumCapacities_
+                    .endpointRuntimeRecords,
+                requiredRodEndpoints,
+                staged.capacities_.endpointRuntimeRecords,
+                staged.minimumCapacities_
+                    .endpointRuntimeRecords
+            ) ||
+            !addCapacity(
+                "quality generalized velocity capacity",
+                requestedCapacities
+                    .qualityGeneralizedVelocities,
+                staged.minimumCapacities_
+                    .qualityGeneralizedVelocities,
+                requiredRodVelocities,
+                staged.capacities_
+                    .qualityGeneralizedVelocities,
+                staged.minimumCapacities_
+                    .qualityGeneralizedVelocities
+            ) ||
+            !addCapacity(
+                "quality row capacity",
+                requestedCapacities.qualityRows,
+                staged.minimumCapacities_.qualityRows,
+                requiredRodRows,
+                staged.capacities_.qualityRows,
+                staged.minimumCapacities_.qualityRows
+            )) {
+            return diagnostics;
+        }
+        staged.capacities_.rodCandidatePairs =
+            requestedCapacities.rodCandidatePairs == 0u
+            ? requiredRodPairs
+            : requestedCapacities.rodCandidatePairs;
+        staged.capacities_.rodRawContacts =
+            requestedCapacities.rodRawContacts == 0u
+            ? requiredRodRaw
+            : requestedCapacities.rodRawContacts;
+        staged.capacities_.rodManifolds =
+            requestedCapacities.rodManifolds == 0u
+            ? requiredRodPairs
+            : requestedCapacities.rodManifolds;
+        staged.capacities_.rodCCDEvents =
+            requestedCapacities.rodCCDEvents == 0u
+            ? static_cast<std::uint32_t>(rodCCDPairCount)
+            : requestedCapacities.rodCCDEvents;
+        staged.minimumCapacities_.rodCandidatePairs =
+            requiredRodPairs;
+        staged.minimumCapacities_.rodRawContacts =
+            requiredRodRaw;
+        staged.minimumCapacities_.rodManifolds =
+            requiredRodPairs;
+        staged.minimumCapacities_.rodCCDEvents =
+            static_cast<std::uint32_t>(rodCCDPairCount);
+        if (staged.capacities_.rodCandidatePairs <
+                requiredRodPairs ||
+            staged.capacities_.rodRawContacts <
+                requiredRodRaw ||
+            staged.capacities_.rodManifolds <
+                requiredRodPairs ||
+            staged.capacities_.rodCCDEvents <
+                rodCCDPairCount) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::capacityOverflow,
+                "rod collision capacity is below the cooked minimum"
+            );
+        }
+        const std::uint64_t hardRequired =
+            staged.minimumCapacities_.hardConvexPairs +
+            rodHardPairCount;
+        const std::uint64_t meshRequired =
+            staged.minimumCapacities_
+                .meshTriangleCandidates +
+            rodMeshPairCount;
+        if (hardRequired >
+                std::numeric_limits<std::uint32_t>::max() ||
+            meshRequired >
+                std::numeric_limits<std::uint32_t>::max()) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::capacityOverflow,
+                "heterogeneous hard-query capacity overflows"
+            );
+        }
+        staged.minimumCapacities_.hardConvexPairs =
+            static_cast<std::uint32_t>(hardRequired);
+        staged.minimumCapacities_.meshTriangleCandidates =
+            static_cast<std::uint32_t>(meshRequired);
+        if ((requestedCapacities.hardConvexPairs != 0u &&
+             requestedCapacities.hardConvexPairs <
+                 staged.minimumCapacities_.hardConvexPairs) ||
+            (requestedCapacities.meshTriangleCandidates !=
+                 0u &&
+             requestedCapacities.meshTriangleCandidates <
+                 staged.minimumCapacities_
+                     .meshTriangleCandidates)) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::capacityOverflow,
+                "convex or mesh query capacity is below the "
+                "heterogeneous cooked minimum"
+            );
+        }
+        staged.capacities_.hardConvexPairs =
+            requestedCapacities.hardConvexPairs == 0u
+            ? staged.minimumCapacities_.hardConvexPairs
+            : requestedCapacities.hardConvexPairs;
+        staged.capacities_.meshTriangleCandidates =
+            requestedCapacities.meshTriangleCandidates == 0u
+            ? staged.minimumCapacities_
+                  .meshTriangleCandidates
+            : requestedCapacities.meshTriangleCandidates;
+        const std::uint32_t solverTiles =
+            (
+                staged.capacities_.constraintBlocks +
+                MR_WAVE32_CONTACTS_PER_TILE - 1u
+            ) / MR_WAVE32_CONTACTS_PER_TILE;
+        staged.minimumCapacities_.solverTiles = solverTiles;
+        staged.capacities_.solverTiles = std::max(
+            staged.capacities_.solverTiles,
+            solverTiles
+        );
+        const std::uint32_t spillRows =
+            staged.capacities_.constraintRows >
+                MR_WAVE32_ROWS_PER_TILE
+            ? staged.capacities_.constraintRows -
+                MR_WAVE32_ROWS_PER_TILE
+            : 0u;
+        staged.minimumCapacities_.spillRows = spillRows;
+        staged.capacities_.spillRows = std::max(
+            staged.capacities_.spillRows,
+            spillRows
+        );
+
+        std::uint64_t hash = staged.fingerprint_;
+        hashValue(hash, world.fingerprint);
+        hashVector(hash, staged.rodColliders_);
+        hashVector(hash, staged.rodShapeSources_);
+        hashVector(hash, staged.rodToolPairs_);
+        hashVector(hash, staged.rodNodeOffsets_);
+        hashVector(hash, staged.rodEdgeOffsets_);
+        hashVector(hash, staged.defaultRodNodes_);
+        hashVector(hash, staged.defaultRodEdges_);
+        hashValue(hash, staged.capacities_);
+        staged.fingerprint_ = hash == 0u ? 1u : hash;
+        diagnostics.fingerprint = staged.fingerprint_;
+        diagnostics.status = MetalWorldHostStatus::success;
+        diagnostics.message.clear();
+        compiled = std::move(staged);
+        return diagnostics;
+    } catch (const std::bad_alloc&) {
+        return rejectCompile(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalBufferFailure,
+            "host allocation failed while compiling heterogeneous world"
         );
     } catch (const std::exception& exception) {
         return rejectCompile(
@@ -7984,6 +9524,12 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 staged.contactStatuses.resize(
                     staged.layout.contactStatusElements
                 );
+                if (staged.layout.contactDispatch.solverType ==
+                    MR_SOLVER_QUALITY_NEWTON) {
+                    staged.qualityStatuses.resize(
+                        staged.layout.dispatch.environmentCount
+                    );
+                }
                 if (pending->captureContactEvidence) {
                     auto& evidence = staged.contactEvidence;
                     evidence.manifoldHeaders.resize(
@@ -8008,6 +9554,9 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                         2u *
                             staged.layout
                                 .contactConstraintElements
+                    );
+                    evidence.endpointRuntime.resize(
+                        staged.layout.endpointRuntimeElements
                     );
                     evidence.rows.resize(
                         staged.layout.constraintRowElements
@@ -8056,6 +9605,10 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                     staged.contactStatuses,
                     buffers[kPublicContactStatuses]
                 );
+                copyOutput(
+                    staged.qualityStatuses,
+                    buffers[kQualityStatuses]
+                );
                 if (pending->captureContactEvidence) {
                     auto& evidence = staged.contactEvidence;
                     copyOutput(
@@ -8091,6 +9644,10 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                     copyOutput(
                         evidence.endpoints,
                         buffers[kIREndpoints]
+                    );
+                    copyOutput(
+                        evidence.endpointRuntime,
+                        buffers[kEndpointRuntime]
                     );
                     copyOutput(
                         evidence.rows,
@@ -8492,6 +10049,9 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                               config.solverMode ==
                                   MetalWorldSolverMode::
                                       throughputTGS,
+                              config.solverMode ==
+                                  MetalWorldSolverMode::
+                                      qualityNewton,
                               activePairClassMask,
                               (
                                   diagnostics.layout

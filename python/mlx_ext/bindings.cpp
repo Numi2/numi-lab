@@ -68,6 +68,53 @@ NB_MODULE(_mlx_ext, module) {
         .def_rw(
             "ccd_events",
             &metalrobo::MetalWorldCapacityProfile::ccdEvents
+        )
+        .def_rw(
+            "endpoint_runtime_records",
+            &metalrobo::MetalWorldCapacityProfile::
+                endpointRuntimeRecords
+        )
+        .def_rw(
+            "articulation_point_queries",
+            &metalrobo::MetalWorldCapacityProfile::
+                articulationPointQueries
+        )
+        .def_rw(
+            "rod_candidate_pairs",
+            &metalrobo::MetalWorldCapacityProfile::
+                rodCandidatePairs
+        )
+        .def_rw(
+            "rod_raw_contacts",
+            &metalrobo::MetalWorldCapacityProfile::
+                rodRawContacts
+        )
+        .def_rw(
+            "rod_manifolds",
+            &metalrobo::MetalWorldCapacityProfile::rodManifolds
+        )
+        .def_rw(
+            "rod_ccd_events",
+            &metalrobo::MetalWorldCapacityProfile::rodCCDEvents
+        )
+        .def_rw(
+            "quality_generalized_velocities",
+            &metalrobo::MetalWorldCapacityProfile::
+                qualityGeneralizedVelocities
+        )
+        .def_rw(
+            "quality_rows",
+            &metalrobo::MetalWorldCapacityProfile::qualityRows
+        )
+        .def_rw(
+            "quality_krylov_vectors",
+            &metalrobo::MetalWorldCapacityProfile::
+                qualityKrylovVectors
+        )
+        .def_rw(
+            "quality_direct_tiles",
+            &metalrobo::MetalWorldCapacityProfile::
+                qualityDirectTiles
         );
 
     nb::class_<metalrobo::mlx_ext::MLXCompiledWorld>(
@@ -140,6 +187,24 @@ NB_MODULE(_mlx_ext, module) {
             "scene_body_count",
             [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
                 return world.world().sceneBodyCount();
+            }
+        )
+        .def_prop_ro(
+            "rod_count",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().rodCount();
+            }
+        )
+        .def_prop_ro(
+            "rod_node_count",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().rodNodeCount();
+            }
+        )
+        .def_prop_ro(
+            "rod_edge_count",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().rodEdgeCount();
             }
         )
         .def_prop_ro(
@@ -299,6 +364,78 @@ NB_MODULE(_mlx_ext, module) {
             }
         )
         .def_prop_ro(
+            "default_rod_positions",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                std::vector<float> values;
+                values.reserve(
+                    4u * world.world().defaultRodNodes().size()
+                );
+                for (const auto& node :
+                     world.world().defaultRodNodes()) {
+                    values.insert(
+                        values.end(),
+                        {
+                            node.position.x,
+                            node.position.y,
+                            node.position.z,
+                            node.position.w,
+                        }
+                    );
+                }
+                return values;
+            }
+        )
+        .def_prop_ro(
+            "default_rod_velocities",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                std::vector<float> values;
+                values.reserve(
+                    4u * world.world().defaultRodNodes().size()
+                );
+                for (const auto& node :
+                     world.world().defaultRodNodes()) {
+                    values.insert(
+                        values.end(),
+                        {
+                            node.velocity.x,
+                            node.velocity.y,
+                            node.velocity.z,
+                            node.velocity.w,
+                        }
+                    );
+                }
+                return values;
+            }
+        )
+        .def_prop_ro(
+            "default_rod_twists",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                std::vector<float> values;
+                values.reserve(
+                    world.world().defaultRodEdges().size()
+                );
+                for (const auto& edge :
+                     world.world().defaultRodEdges()) {
+                    values.push_back(edge.twistAndRate.x);
+                }
+                return values;
+            }
+        )
+        .def_prop_ro(
+            "default_rod_twist_rates",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                std::vector<float> values;
+                values.reserve(
+                    world.world().defaultRodEdges().size()
+                );
+                for (const auto& edge :
+                     world.world().defaultRodEdges()) {
+                    values.push_back(edge.twistAndRate.y);
+                }
+                return values;
+            }
+        )
+        .def_prop_ro(
             "solver_mode",
             [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
                 switch (world.solverMode()) {
@@ -311,6 +448,9 @@ NB_MODULE(_mlx_ext, module) {
                     case metalrobo::MetalWorldSolverMode::
                         throughputTGS:
                         return "throughput_tgs";
+                    case metalrobo::MetalWorldSolverMode::
+                        qualityNewton:
+                        return "quality_newton";
                 }
                 return "unsupported";
             }

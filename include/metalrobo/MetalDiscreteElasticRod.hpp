@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/DiscreteElasticRod.hpp"
+#include "metalrobo/EngineModel.hpp"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/rod_gpu_shared.h"
 
@@ -27,10 +28,37 @@ struct MetalDiscreteElasticRodInput {
     // Immutable homogeneous-world mapping, one slot per local attachment.
     // Coupled body indices must be unique so physical writes stay atomic-free.
     std::span<const DiscreteRodRigidAttachmentBinding> rigidBindings{};
+    // Optional immutable collision topology for thread/tool contact. Body
+    // indices in this model address rigidBodies. Rod-edge/tool-shape pairs
+    // are cooked deterministically when toolPairs is empty.
+    const EngineModel* toolModel = nullptr;
+    std::span<const MRRodToolPairGPU> toolPairs{};
+    // Optional explicit persistent cache packed
+    // [environment][tool pair][four canonical feature slots].
+    std::span<const MRRodToolWitnessGPU> previousToolContacts{};
+};
+
+struct MetalDiscreteElasticRodToolConfig {
+    bool enabled = false;
+    bool warmStart = true;
+    bool enableCCD = false;
+    std::uint32_t rodMaterialIndex = 0u;
+    std::uint32_t collisionGroup = 1u;
+    std::uint32_t collisionMask = ~0u;
+    std::uint32_t outerIterations = 2u;
+    float contactOffset = 2.0e-5f;
+    float restOffset = 0.0f;
+    float compliance = 0.0f;
+    float damping = 0.0f;
+    float restitution = 0.0f;
+    float restitutionThreshold = 0.2f;
+    float frictionScale = 1.0f;
+    float maximumDepenetrationVelocity = 2.0f;
 };
 
 struct MetalDiscreteElasticRodConfig {
     DiscreteElasticRodStepConfig step{};
+    MetalDiscreteElasticRodToolConfig tool{};
     std::string metallibPath;
 };
 
@@ -60,6 +88,10 @@ struct MetalDiscreteElasticRodResult {
     std::vector<DiscreteRodAttachmentReaction> reactions;
     // Environment-major, fixed rigidBodyCount. Empty for an uncoupled solve.
     std::vector<MRBodyStateGPU> rigidBodies;
+    // Fixed pair-owned evidence. Counts are packed [environment][tool pair],
+    // witnesses are packed [environment][tool pair][four canonical slots].
+    std::vector<std::uint32_t> toolContactCounts;
+    std::vector<MRRodToolWitnessGPU> toolContacts;
 };
 
 struct MetalDiscreteElasticRodDiagnostics {
@@ -69,6 +101,8 @@ struct MetalDiscreteElasticRodDiagnostics {
     bool published = false;
     std::uint32_t firstFailingEnvironment = 0xffffffffu;
     std::uint32_t firstGPUStatusCode = MR_ROD_GPU_SUCCESS;
+    std::uint32_t toolPairCount = 0u;
+    std::uint32_t toolContactCount = 0u;
     std::size_t allocatedBytes = 0u;
     double elapsedMilliseconds = 0.0;
     std::string deviceName;

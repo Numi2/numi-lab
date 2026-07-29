@@ -42,6 +42,11 @@ enum MRConstraintIRJacobianKind : mr_u32 {
     MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT = 1u,
     MR_CONSTRAINT_IR_JACOBIAN_GENERALIZED = 2u,
     MR_CONSTRAINT_IR_JACOBIAN_ANGULAR = 3u,
+    // Deforming capsule endpoint. The immutable IR endpoint retains the
+    // canonical anchor/axis representation while the runtime sidecar below
+    // binds the two rod nodes, interpolation weights, and optional material
+    // twist coordinate for applyJ/applyJT.
+    MR_CONSTRAINT_IR_JACOBIAN_ROD_EDGE = 4u,
 };
 
 // GENERALIZED endpoints are sparse Jacobian terms. objectIndex is the global
@@ -95,6 +100,43 @@ typedef struct MR_ALIGN16 MRConstraintIREndpointGPU {
     mr_float4 anchor;
     mr_float4 axis;
 } MRConstraintIREndpointGPU;
+
+enum MRConstraintIREndpointOwnerKind : mr_u32 {
+    MR_CONSTRAINT_IR_OWNER_WORLD = 0u,
+    MR_CONSTRAINT_IR_OWNER_ARTICULATION = 1u,
+    MR_CONSTRAINT_IR_OWNER_FREE_BODY = 2u,
+    MR_CONSTRAINT_IR_OWNER_ROD_EDGE = 3u,
+};
+
+enum MRConstraintIREndpointRuntimeFlags : mr_u32 {
+    MR_CONSTRAINT_IR_RUNTIME_DYNAMIC = 1u << 0u,
+    MR_CONSTRAINT_IR_RUNTIME_HAS_POINT_QUERY = 1u << 1u,
+    MR_CONSTRAINT_IR_RUNTIME_HAS_TWIST = 1u << 2u,
+    MR_CONSTRAINT_IR_RUNTIME_KINEMATIC = 1u << 3u,
+};
+
+// Dynamic binding for one immutable ConstraintIR endpoint. Keeping this
+// information in a separate fixed-layout record lets collision compilation
+// bind articulation queries, maximal bodies, and deforming rod edges without
+// changing ConstraintIR ABI v2 or embedding backend pointers in semantic IR.
+typedef struct MR_ALIGN16 MRConstraintEndpointRuntimeGPU {
+    mr_u32 dynamicNode MR_IR_DEFAULT(MR_CONSTRAINT_IR_INVALID_INDEX);
+    mr_u32 ownerKind MR_IR_DEFAULT(MR_CONSTRAINT_IR_OWNER_WORLD);
+    mr_u32 ownerIndex MR_IR_DEFAULT(MR_CONSTRAINT_IR_INVALID_INDEX);
+    mr_u32 elementIndex MR_IR_DEFAULT(MR_CONSTRAINT_IR_INVALID_INDEX);
+
+    mr_u32 queryIndex MR_IR_DEFAULT(MR_CONSTRAINT_IR_INVALID_INDEX);
+    mr_u32 secondaryIndex MR_IR_DEFAULT(MR_CONSTRAINT_IR_INVALID_INDEX);
+    mr_u32 twistIndex MR_IR_DEFAULT(MR_CONSTRAINT_IR_INVALID_INDEX);
+    mr_u32 flags MR_IR_DEFAULT(0u);
+
+    // Rod edges use x/y as the two nodal interpolation weights. Other
+    // endpoint kinds leave this record zero.
+    mr_float4 weights;
+    // Rigid endpoints store a body-local anchor. Rod endpoints store the
+    // cross-section radial direction in the transported material frame.
+    mr_float4 localAnchorOrRadial;
+} MRConstraintEndpointRuntimeGPU;
 
 typedef struct MR_ALIGN16 MRConstraintIRRowGPU {
     mr_float4 direction;
@@ -174,6 +216,7 @@ typedef struct MR_ALIGN16 MREvaluatedConstraintIRConeGPU {
 static_assert(sizeof(MRConstraintIRStableKeyGPU) == 16);
 static_assert(sizeof(MRConstraintIRBlockGPU) == 64);
 static_assert(sizeof(MRConstraintIREndpointGPU) == 64);
+static_assert(sizeof(MRConstraintEndpointRuntimeGPU) == 64);
 static_assert(sizeof(MRConstraintIRRowGPU) == 64);
 static_assert(sizeof(MRConstraintIRConeGPU) == 48);
 static_assert(sizeof(MREvaluatedConstraintIRRowGPU) == 64);

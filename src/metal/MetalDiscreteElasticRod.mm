@@ -303,6 +303,56 @@ bool validConfig(const DiscreteElasticRodStepConfig& config) {
         finite(config.selfCollisionCompliance);
 }
 
+bool validToolConfig(
+    const MetalDiscreteElasticRodToolConfig& config
+) {
+    return
+        config.outerIterations > 0u &&
+        config.outerIterations <= 32u &&
+        std::isfinite(config.contactOffset) &&
+        config.contactOffset >= 0.0f &&
+        std::isfinite(config.restOffset) &&
+        config.restOffset >= 0.0f &&
+        config.restOffset <= config.contactOffset &&
+        std::isfinite(config.compliance) &&
+        config.compliance >= 0.0f &&
+        std::isfinite(config.damping) &&
+        config.damping >= 0.0f &&
+        std::isfinite(config.restitution) &&
+        config.restitution >= 0.0f &&
+        config.restitution <= 1.0f &&
+        std::isfinite(config.restitutionThreshold) &&
+        config.restitutionThreshold >= 0.0f &&
+        std::isfinite(config.frictionScale) &&
+        config.frictionScale > 0.0f &&
+        std::isfinite(config.maximumDepenetrationVelocity) &&
+        config.maximumDepenetrationVelocity > 0.0f &&
+        config.collisionGroup != 0u &&
+        config.collisionMask != 0u;
+}
+
+std::uint32_t rodToolPairClass(
+    const std::uint32_t toolType
+) {
+    switch (toolType) {
+    case MR_SHAPE_PLANE:
+        return MR_COLLISION_PAIR_CAPSULE_PLANE;
+    case MR_SHAPE_SPHERE:
+        return MR_COLLISION_PAIR_SPHERE_CAPSULE;
+    case MR_SHAPE_CAPSULE:
+        return MR_COLLISION_PAIR_CAPSULE_CAPSULE;
+    case MR_SHAPE_BOX:
+        return MR_COLLISION_PAIR_CAPSULE_BOX;
+    case MR_SHAPE_CYLINDER:
+    case MR_SHAPE_CONVEX:
+        return MR_COLLISION_PAIR_CONVEX;
+    case MR_SHAPE_TRIANGLE_MESH:
+        return MR_COLLISION_PAIR_MESH;
+    default:
+        return MR_COLLISION_PAIR_UNSUPPORTED;
+    }
+}
+
 std::string nsString(NSString* value) {
     return value != nil && value.UTF8String != nullptr
         ? std::string{value.UTF8String}
@@ -420,6 +470,15 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 MetalDiscreteElasticRodHostStatus::
                     invalidConfiguration,
                 "Metal rod step configuration is invalid"
+            );
+        }
+        if (config.tool.enabled &&
+            !validToolConfig(config.tool)) {
+            return reject(
+                std::move(diagnostics),
+                MetalDiscreteElasticRodHostStatus::
+                    invalidConfiguration,
+                "Metal rod tool-contact configuration is invalid"
             );
         }
         const std::size_t environmentCount = input.states.size();
@@ -582,6 +641,282 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             }
         }
 
+        std::vector<MRRodColliderGPU> rodColliders;
+        std::vector<MRShapeGPU> rodShapeSources;
+        std::vector<MRRodToolPairGPU> toolPairs;
+        const EngineModel* toolModel =
+            config.tool.enabled ? input.toolModel : nullptr;
+        if (toolModel != nullptr) {
+            std::string toolReason;
+            if (!toolModel->valid(&toolReason) ||
+                input.rigidBodyCount !=
+                    toolModel->bodies.size() ||
+                toolModel->shapes.empty() ||
+                config.tool.rodMaterialIndex >=
+                    toolModel->materials.size()) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalDiscreteElasticRodHostStatus::
+                        invalidConfiguration,
+                    "thread/tool model or body packing is invalid: " +
+                        toolReason
+                );
+            }
+            if (edgeCount >
+                    std::numeric_limits<mr_u32>::max() ||
+                toolModel->shapes.size() >
+                    std::numeric_limits<mr_u32>::max()) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalDiscreteElasticRodHostStatus::
+                        capacityOverflow,
+                    "thread/tool topology exceeds 32-bit GPU indexing"
+                );
+            }
+            rodColliders.reserve(edgeCount);
+            rodShapeSources.reserve(edgeCount);
+            for (std::uint32_t edge = 0u;
+                 edge < edgeCount;
+                 ++edge) {
+                MRRodColliderGPU collider{};
+                collider.rodIndex = 0u;
+                collider.edgeIndex = edge;
+                collider.nodeA = edge;
+                collider.nodeB = edge + 1u;
+                collider.materialIndex =
+                    config.tool.rodMaterialIndex;
+                collider.collisionGroup =
+                    config.tool.collisionGroup;
+                collider.collisionMask =
+                    config.tool.collisionMask;
+                collider.topologyGeneration = 1u;
+                collider.radiusAndOffsets = {
+                    static_cast<float>(model.radius),
+                    config.tool.contactOffset,
+                    config.tool.restOffset,
+                    static_cast<float>(
+                        model.radius +
+                        0.5 * model.restLengths[edge]
+                    ),
+                };
+                collider.flagsAndExclusions = {
+                    static_cast<mr_u32>(
+                        MR_ROD_GPU_FLAG_TOOL_COLLISION |
+                        (
+                            config.tool.enableCCD
+                            ? MR_ROD_GPU_FLAG_ENABLE_CCD
+                            : 0u
+                        )
+                    ),
+                    0u,
+                    0u,
+                    0u,
+                };
+                rodColliders.push_back(collider);
+
+                MRShapeGPU source{};
+                source.bodyIndex = 0u;
+                source.shapeType = MR_SHAPE_CAPSULE;
+                source.materialIndex =
+                    config.tool.rodMaterialIndex;
+                source.collisionGroup =
+                    config.tool.collisionGroup;
+                source.collisionMask =
+                    config.tool.collisionMask;
+                source.slotGeneration = 1u;
+                source.localRotation = {
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                };
+                source.dimensions = {
+                    static_cast<float>(model.radius),
+                    static_cast<float>(
+                        0.5 * model.restLengths[edge]
+                    ),
+                    0.0f,
+                    0.0f,
+                };
+                source.contactRestAndBoundingRadius = {
+                    config.tool.contactOffset,
+                    config.tool.restOffset,
+                    collider.radiusAndOffsets.w,
+                    0.0f,
+                };
+                rodShapeSources.push_back(source);
+            }
+
+            if (!input.toolPairs.empty()) {
+                toolPairs.assign(
+                    input.toolPairs.begin(),
+                    input.toolPairs.end()
+                );
+                for (std::size_t pairIndex = 0u;
+                     pairIndex < toolPairs.size();
+                     ++pairIndex) {
+                    const MRRodToolPairGPU& pair =
+                        toolPairs[pairIndex];
+                    if (pair.rodCollider >= edgeCount ||
+                        pair.rigidCollider >=
+                            toolModel->shapes.size() ||
+                        pair.pairClass != rodToolPairClass(
+                            toolModel
+                                ->shapes[pair.rigidCollider]
+                                .shapeType
+                        ) ||
+                        (pair.flags &
+                         ~static_cast<mr_u32>(
+                             MR_ROD_TOOL_PAIR_VALID |
+                             MR_ROD_TOOL_PAIR_ENABLE_CCD
+                         )) != 0u ||
+                        (pair.flags &
+                         MR_ROD_TOOL_PAIR_VALID) == 0u) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalDiscreteElasticRodHostStatus::
+                                invalidConfiguration,
+                            "explicit thread/tool pair is invalid at " +
+                                std::to_string(pairIndex)
+                        );
+                    }
+                }
+            } else {
+                std::set<
+                    std::pair<std::uint32_t, std::uint32_t>
+                > attachmentExclusions;
+                for (std::size_t attachment = 0u;
+                     attachment < input.attachmentCount;
+                     ++attachment) {
+                    const auto& binding =
+                        input.rigidBindings[attachment];
+                    if (binding.bodyIndex ==
+                        kDiscreteRodNoRigidBody) {
+                        continue;
+                    }
+                    const std::uint32_t node =
+                        input.attachments[attachment].nodeIndex;
+                    for (std::size_t environment = 1u;
+                         environment < environmentCount;
+                         ++environment) {
+                        if (input.attachments[
+                                environment *
+                                    input.attachmentCount +
+                                attachment
+                            ].nodeIndex != node) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalDiscreteElasticRodHostStatus::
+                                    invalidAttachment,
+                                "tool collision requires homogeneous "
+                                "attachment topology"
+                            );
+                        }
+                    }
+                    if (node > 0u) {
+                        attachmentExclusions.emplace(
+                            static_cast<std::uint32_t>(node - 1u),
+                            binding.bodyIndex
+                        );
+                    }
+                    if (node < edgeCount) {
+                        attachmentExclusions.emplace(
+                            node,
+                            binding.bodyIndex
+                        );
+                    }
+                }
+                for (std::uint32_t edge = 0u;
+                     edge < edgeCount;
+                     ++edge) {
+                    for (std::uint32_t collider = 0u;
+                         collider < toolModel->shapes.size();
+                         ++collider) {
+                        const MRShapeGPU& shape =
+                            toolModel->shapes[collider];
+                        if ((shape.flags &
+                             MR_SHAPE_FLAG_SIMULATION_DISABLED) !=
+                                0u ||
+                            (config.tool.collisionGroup &
+                             shape.collisionMask) == 0u ||
+                            (shape.collisionGroup &
+                             config.tool.collisionMask) == 0u ||
+                            attachmentExclusions.contains({
+                                edge,
+                                shape.bodyIndex,
+                            })) {
+                            continue;
+                        }
+                        const std::uint32_t pairClass =
+                            rodToolPairClass(shape.shapeType);
+                        if (pairClass ==
+                            MR_COLLISION_PAIR_UNSUPPORTED) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalDiscreteElasticRodHostStatus::
+                                    invalidConfiguration,
+                                "tool collider has no rod narrowphase"
+                            );
+                        }
+                        toolPairs.push_back({
+                            .rodCollider = edge,
+                            .rigidCollider = collider,
+                            .pairClass = pairClass,
+                            .flags =
+                                MR_ROD_TOOL_PAIR_VALID |
+                                (
+                                    config.tool.enableCCD &&
+                                        (shape.flags &
+                                         MR_SHAPE_FLAG_ENABLE_CCD) !=
+                                            0u
+                                    ? MR_ROD_TOOL_PAIR_ENABLE_CCD
+                                    : 0u
+                                ),
+                        });
+                    }
+                }
+            }
+            const std::uint64_t witnessCount =
+                static_cast<std::uint64_t>(
+                    environmentCount
+                ) *
+                toolPairs.size() *
+                MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+            if (toolPairs.size() >
+                    std::numeric_limits<mr_u32>::max() /
+                        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR ||
+                witnessCount >
+                    std::numeric_limits<std::size_t>::max()) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalDiscreteElasticRodHostStatus::
+                        capacityOverflow,
+                    "thread/tool pair cache exceeds addressable capacity"
+                );
+            }
+            if (!input.previousToolContacts.empty() &&
+                input.previousToolContacts.size() !=
+                    static_cast<std::size_t>(witnessCount)) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalDiscreteElasticRodHostStatus::
+                        invalidState,
+                    "thread/tool cache is not pair-slot packed"
+                );
+            }
+        } else if (
+            config.tool.enabled ||
+            !input.toolPairs.empty() ||
+            !input.previousToolContacts.empty()
+        ) {
+            return reject(
+                std::move(diagnostics),
+                MetalDiscreteElasticRodHostStatus::
+                    invalidConfiguration,
+                "tool collision requires an EngineModel"
+            );
+        }
+
         MRRodGPUDispatch dispatch{};
         dispatch.abiVersion = MR_ROD_GPU_ABI_VERSION;
         dispatch.environmentCount =
@@ -602,6 +937,35 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         dispatch.flags = config.step.enableSelfCollision
             ? MR_ROD_GPU_FLAG_SELF_COLLISION
             : 0u;
+        dispatch.toolShapeCount = toolModel != nullptr
+            ? static_cast<std::uint32_t>(
+                  toolModel->shapes.size()
+              )
+            : 0u;
+        dispatch.toolPairCount =
+            static_cast<std::uint32_t>(toolPairs.size());
+        dispatch.toolContactStride =
+            dispatch.toolPairCount *
+            MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+        dispatch.toolContactIterations =
+            toolPairs.empty()
+            ? 0u
+            : config.tool.outerIterations;
+        dispatch.rodMaterialIndex =
+            config.tool.rodMaterialIndex;
+        if (!toolPairs.empty()) {
+            dispatch.flags |=
+                MR_ROD_GPU_FLAG_TOOL_COLLISION;
+            if (config.tool.enableCCD) {
+                dispatch.flags |=
+                    MR_ROD_GPU_FLAG_ENABLE_CCD;
+            }
+            if (config.tool.warmStart &&
+                !input.previousToolContacts.empty()) {
+                dispatch.flags |=
+                    MR_ROD_GPU_FLAG_TOOL_WARM_START;
+            }
+        }
         dispatch.gravityAndTimestep = {
             static_cast<float>(config.step.gravity[0]),
             static_cast<float>(config.step.gravity[1]),
@@ -629,6 +993,18 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 config.step.selfCollisionCompliance
             ),
             0.0f,
+        };
+        dispatch.toolContact = {
+            config.tool.contactOffset,
+            config.tool.restOffset,
+            config.tool.compliance,
+            config.tool.damping,
+        };
+        dispatch.toolResponse = {
+            config.tool.restitution,
+            config.tool.restitutionThreshold,
+            config.tool.frictionScale,
+            config.tool.maximumDepenetrationVelocity,
         };
 
         std::vector<float> restLengths;
@@ -710,6 +1086,11 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             environmentCount * nodeCount;
         const std::size_t edgeElements =
             environmentCount * edgeCount;
+        const std::size_t toolPairElements =
+            environmentCount * toolPairs.size();
+        const std::size_t toolWitnessElements =
+            toolPairElements *
+            MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
         std::vector<mr_float4> positions(nodeElements);
         std::vector<mr_float4> velocities(nodeElements);
         std::vector<float> twists(edgeElements);
@@ -818,11 +1199,13 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 allocatedBytes
             ) ||
             !appendBytes<mr_float4>(
-                4u * nodeElements,
+                (toolPairs.empty() ? 4u : 6u) *
+                    nodeElements,
                 allocatedBytes
             ) ||
             !appendBytes<float>(
-                4u * edgeElements,
+                (toolPairs.empty() ? 4u : 6u) *
+                    edgeElements,
                 allocatedBytes
             ) ||
             !appendBytes<MRRodGPUAttachment>(
@@ -838,7 +1221,8 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 allocatedBytes
             ) ||
             !appendBytes<MRBodyStateGPU>(
-                input.rigidBodies.size(),
+                (toolPairs.empty() ? 1u : 2u) *
+                    input.rigidBodies.size(),
                 allocatedBytes
             ) ||
             !appendBytes<MRBodyStateGPU>(
@@ -851,6 +1235,62 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             ) ||
             !appendBytes<MRRodGPUStatus>(
                 environmentCount,
+                allocatedBytes
+            ) ||
+            !appendBytes<MRRodColliderGPU>(
+                rodColliders.size(),
+                allocatedBytes
+            ) ||
+            !appendBytes<MRShapeGPU>(
+                rodShapeSources.size(),
+                allocatedBytes
+            ) ||
+            !appendBytes<MRRodToolPairGPU>(
+                toolPairs.size(),
+                allocatedBytes
+            ) ||
+            !appendBytes<MRShapeGPU>(
+                toolModel != nullptr
+                    ? toolModel->shapes.size()
+                    : 0u,
+                allocatedBytes
+            ) ||
+            !appendBytes<MRMaterialGPU>(
+                toolModel != nullptr
+                    ? toolModel->materials.size()
+                    : 0u,
+                allocatedBytes
+            ) ||
+            !appendBytes<MRGeometryHeaderGPU>(
+                toolModel != nullptr
+                    ? toolModel->geometryHeaders.size()
+                    : 0u,
+                allocatedBytes
+            ) ||
+            !appendBytes<mr_float4>(
+                toolModel != nullptr
+                    ? toolModel->geometryVertices.size()
+                    : 0u,
+                allocatedBytes
+            ) ||
+            !appendBytes<MRMeshBVHNodeGPU>(
+                toolModel != nullptr
+                    ? toolModel->meshBvhNodes.size()
+                    : 0u,
+                allocatedBytes
+            ) ||
+            !appendBytes<MRMeshTriangleGPU>(
+                toolModel != nullptr
+                    ? toolModel->meshTriangles.size()
+                    : 0u,
+                allocatedBytes
+            ) ||
+            !appendBytes<std::uint32_t>(
+                toolPairElements,
+                allocatedBytes
+            ) ||
+            !appendBytes<MRRodToolWitnessGPU>(
+                3u * toolWitnessElements,
                 allocatedBytes
             )) {
             return reject(
@@ -907,9 +1347,26 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         id<MTLFunction> applyFunction = [library
             newFunctionWithName:
                 @"mr_apply_rod_rigid_reactions"];
+        id<MTLFunction> toolNarrowphaseFunction =
+            toolPairs.empty()
+            ? nil
+            : [library
+                newFunctionWithName:
+                    @"mr_rod_tool_narrowphase"];
+        id<MTLFunction> toolSolveFunction =
+            toolPairs.empty()
+            ? nil
+            : [library
+                newFunctionWithName:
+                    @"mr_solve_rod_tool_contacts"];
         if (function == nil ||
             resolveFunction == nil ||
-            applyFunction == nil) {
+            applyFunction == nil ||
+            (!toolPairs.empty() &&
+             (
+                 toolNarrowphaseFunction == nil ||
+                 toolSolveFunction == nil
+             ))) {
             return reject(
                 std::move(diagnostics),
                 MetalDiscreteElasticRodHostStatus::
@@ -927,9 +1384,28 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         id<MTLComputePipelineState> applyPipeline = [device
             newComputePipelineStateWithFunction:applyFunction
                                            error:&error];
+        id<MTLComputePipelineState> toolNarrowphasePipeline =
+            toolPairs.empty()
+            ? nil
+            : [device
+                newComputePipelineStateWithFunction:
+                    toolNarrowphaseFunction
+                error:&error];
+        id<MTLComputePipelineState> toolSolvePipeline =
+            toolPairs.empty()
+            ? nil
+            : [device
+                newComputePipelineStateWithFunction:
+                    toolSolveFunction
+                error:&error];
         if (pipeline == nil ||
             resolvePipeline == nil ||
-            applyPipeline == nil) {
+            applyPipeline == nil ||
+            (!toolPairs.empty() &&
+             (
+                 toolNarrowphasePipeline == nil ||
+                 toolSolvePipeline == nil
+             ))) {
             return reject(
                 std::move(diagnostics),
                 MetalDiscreteElasticRodHostStatus::
@@ -948,6 +1424,21 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 MetalDiscreteElasticRodHostStatus::
                     metalDeviceUnsupported,
                 "device cannot execute the SIMD32 rod cohort"
+            );
+        }
+        if (!toolPairs.empty() &&
+            (
+                toolNarrowphasePipeline.threadExecutionWidth !=
+                    32u ||
+                toolSolvePipeline.threadExecutionWidth != 32u ||
+                toolSolvePipeline.maxTotalThreadsPerThreadgroup <
+                    kThreadgroupSize
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalDiscreteElasticRodHostStatus::
+                    metalDeviceUnsupported,
+                "device cannot execute the SIMD32 rod/tool graph"
             );
         }
 
@@ -1015,6 +1506,94 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 device,
                 rigidBodies.size()
             );
+        std::vector<MRRodToolWitnessGPU> previousToolContacts(
+            toolWitnessElements
+        );
+        if (!input.previousToolContacts.empty()) {
+            std::copy(
+                input.previousToolContacts.begin(),
+                input.previousToolContacts.end(),
+                previousToolContacts.begin()
+            );
+        }
+        const std::vector<MRShapeGPU> emptyShapes;
+        const std::vector<MRMaterialGPU> emptyMaterials;
+        const std::vector<MRGeometryHeaderGPU> emptyGeometryHeaders;
+        const std::vector<mr_float4> emptyGeometryVertices;
+        const std::vector<MRMeshBVHNodeGPU> emptyMeshNodes;
+        const std::vector<MRMeshTriangleGPU> emptyMeshTriangles;
+        id<MTLBuffer> rodColliderBuffer =
+            inputBuffer(device, rodColliders);
+        id<MTLBuffer> rodShapeSourceBuffer =
+            inputBuffer(device, rodShapeSources);
+        id<MTLBuffer> toolPairBuffer =
+            inputBuffer(device, toolPairs);
+        id<MTLBuffer> toolShapeBuffer = inputBuffer(
+            device,
+            toolModel != nullptr
+                ? toolModel->shapes
+                : emptyShapes
+        );
+        id<MTLBuffer> toolMaterialBuffer = inputBuffer(
+            device,
+            toolModel != nullptr
+                ? toolModel->materials
+                : emptyMaterials
+        );
+        id<MTLBuffer> toolGeometryHeaderBuffer = inputBuffer(
+            device,
+            toolModel != nullptr
+                ? toolModel->geometryHeaders
+                : emptyGeometryHeaders
+        );
+        id<MTLBuffer> toolGeometryVertexBuffer = inputBuffer(
+            device,
+            toolModel != nullptr
+                ? toolModel->geometryVertices
+                : emptyGeometryVertices
+        );
+        id<MTLBuffer> toolMeshNodeBuffer = inputBuffer(
+            device,
+            toolModel != nullptr
+                ? toolModel->meshBvhNodes
+                : emptyMeshNodes
+        );
+        id<MTLBuffer> toolMeshTriangleBuffer = inputBuffer(
+            device,
+            toolModel != nullptr
+                ? toolModel->meshTriangles
+                : emptyMeshTriangles
+        );
+        id<MTLBuffer> previousToolContactBuffer =
+            inputBuffer(device, previousToolContacts);
+        id<MTLBuffer> toolPairCountBuffer =
+            outputBuffer<std::uint32_t>(
+                device,
+                toolPairElements
+            );
+        id<MTLBuffer> toolWitnessBuffer =
+            outputBuffer<MRRodToolWitnessGPU>(
+                device,
+                toolWitnessElements
+            );
+        id<MTLBuffer> finalToolWitnessBuffer =
+            outputBuffer<MRRodToolWitnessGPU>(
+                device,
+                toolWitnessElements
+            );
+        id<MTLBuffer> finalToolPositionBuffer =
+            outputBuffer<mr_float4>(device, nodeElements);
+        id<MTLBuffer> finalToolVelocityBuffer =
+            outputBuffer<mr_float4>(device, nodeElements);
+        id<MTLBuffer> finalToolTwistBuffer =
+            outputBuffer<float>(device, edgeElements);
+        id<MTLBuffer> finalToolTwistRateBuffer =
+            outputBuffer<float>(device, edgeElements);
+        id<MTLBuffer> finalToolBodyBuffer =
+            outputBuffer<MRBodyStateGPU>(
+                device,
+                rigidBodies.size()
+            );
         for (id<MTLBuffer> buffer : buffers) {
             if (buffer == nil) {
                 return reject(
@@ -1028,7 +1607,25 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         if (inputAttachmentBuffer == nil ||
             rigidBindingBuffer == nil ||
             inputRigidBodyBuffer == nil ||
-            outputRigidBodyBuffer == nil) {
+            outputRigidBodyBuffer == nil ||
+            rodColliderBuffer == nil ||
+            rodShapeSourceBuffer == nil ||
+            toolPairBuffer == nil ||
+            toolShapeBuffer == nil ||
+            toolMaterialBuffer == nil ||
+            toolGeometryHeaderBuffer == nil ||
+            toolGeometryVertexBuffer == nil ||
+            toolMeshNodeBuffer == nil ||
+            toolMeshTriangleBuffer == nil ||
+            previousToolContactBuffer == nil ||
+            toolPairCountBuffer == nil ||
+            toolWitnessBuffer == nil ||
+            finalToolWitnessBuffer == nil ||
+            finalToolPositionBuffer == nil ||
+            finalToolVelocityBuffer == nil ||
+            finalToolTwistBuffer == nil ||
+            finalToolTwistRateBuffer == nil ||
+            finalToolBodyBuffer == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalDiscreteElasticRodHostStatus::
@@ -1134,6 +1731,158 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                     1u
                 )];
         }
+        if (!toolPairs.empty()) {
+            [encoder
+                memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            [encoder
+                setComputePipelineState:
+                    toolNarrowphasePipeline];
+            [encoder setBuffer:buffers[0]
+                        offset:0u
+                       atIndex:0u];
+            [encoder setBuffer:rodColliderBuffer
+                        offset:0u
+                       atIndex:1u];
+            [encoder setBuffer:rodShapeSourceBuffer
+                        offset:0u
+                       atIndex:2u];
+            [encoder setBuffer:toolPairBuffer
+                        offset:0u
+                       atIndex:3u];
+            [encoder setBuffer:toolShapeBuffer
+                        offset:0u
+                       atIndex:4u];
+            [encoder setBuffer:outputRigidBodyBuffer
+                        offset:0u
+                       atIndex:5u];
+            [encoder setBuffer:toolGeometryHeaderBuffer
+                        offset:0u
+                       atIndex:6u];
+            [encoder setBuffer:toolGeometryVertexBuffer
+                        offset:0u
+                       atIndex:7u];
+            [encoder setBuffer:toolMeshNodeBuffer
+                        offset:0u
+                       atIndex:8u];
+            [encoder setBuffer:toolMeshTriangleBuffer
+                        offset:0u
+                       atIndex:9u];
+            [encoder setBuffer:buffers[14]
+                        offset:0u
+                       atIndex:10u];
+            [encoder setBuffer:buffers[15]
+                        offset:0u
+                       atIndex:11u];
+            [encoder setBuffer:buffers[17]
+                        offset:0u
+                       atIndex:12u];
+            [encoder setBuffer:previousToolContactBuffer
+                        offset:0u
+                       atIndex:13u];
+            [encoder setBuffer:toolPairCountBuffer
+                        offset:0u
+                       atIndex:14u];
+            [encoder setBuffer:toolWitnessBuffer
+                        offset:0u
+                       atIndex:15u];
+            [encoder setBuffer:buffers[18]
+                        offset:0u
+                       atIndex:16u];
+            const NSUInteger narrowphaseWidth =
+                std::min<NSUInteger>(
+                    256u,
+                    toolNarrowphasePipeline
+                        .maxTotalThreadsPerThreadgroup
+                );
+            [encoder
+                dispatchThreads:MTLSizeMake(
+                    toolPairElements,
+                    1u,
+                    1u
+                )
+                threadsPerThreadgroup:MTLSizeMake(
+                    narrowphaseWidth,
+                    1u,
+                    1u
+                )];
+            [encoder
+                memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            [encoder setComputePipelineState:toolSolvePipeline];
+            [encoder setBuffer:buffers[0]
+                        offset:0u
+                       atIndex:0u];
+            [encoder setBuffer:buffers[4]
+                        offset:0u
+                       atIndex:1u];
+            [encoder setBuffer:buffers[5]
+                        offset:0u
+                       atIndex:2u];
+            [encoder setBuffer:rodColliderBuffer
+                        offset:0u
+                       atIndex:3u];
+            [encoder setBuffer:toolPairBuffer
+                        offset:0u
+                       atIndex:4u];
+            [encoder setBuffer:toolShapeBuffer
+                        offset:0u
+                       atIndex:5u];
+            [encoder setBuffer:toolMaterialBuffer
+                        offset:0u
+                       atIndex:6u];
+            [encoder setBuffer:toolPairCountBuffer
+                        offset:0u
+                       atIndex:7u];
+            [encoder setBuffer:toolWitnessBuffer
+                        offset:0u
+                       atIndex:8u];
+            [encoder setBuffer:buffers[14]
+                        offset:0u
+                       atIndex:9u];
+            [encoder setBuffer:buffers[15]
+                        offset:0u
+                       atIndex:10u];
+            [encoder setBuffer:buffers[16]
+                        offset:0u
+                       atIndex:11u];
+            [encoder setBuffer:buffers[17]
+                        offset:0u
+                       atIndex:12u];
+            [encoder setBuffer:outputRigidBodyBuffer
+                        offset:0u
+                       atIndex:13u];
+            [encoder setBuffer:buffers[18]
+                        offset:0u
+                       atIndex:14u];
+            [encoder setBuffer:finalToolWitnessBuffer
+                        offset:0u
+                       atIndex:15u];
+            [encoder setBuffer:finalToolPositionBuffer
+                        offset:0u
+                       atIndex:16u];
+            [encoder setBuffer:finalToolVelocityBuffer
+                        offset:0u
+                       atIndex:17u];
+            [encoder setBuffer:finalToolTwistBuffer
+                        offset:0u
+                       atIndex:18u];
+            [encoder setBuffer:finalToolTwistRateBuffer
+                        offset:0u
+                       atIndex:19u];
+            [encoder setBuffer:finalToolBodyBuffer
+                        offset:0u
+                       atIndex:20u];
+            [encoder
+                dispatchThreadgroups:MTLSizeMake(
+                    environmentCount,
+                    1u,
+                    1u
+                )
+                threadsPerThreadgroup:MTLSizeMake(
+                    kThreadgroupSize,
+                    1u,
+                    1u
+                )];
+        }
         [encoder endEncoding];
         const auto start = std::chrono::steady_clock::now();
         diagnostics.dispatched = true;
@@ -1186,26 +1935,56 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         }
 
         const auto* outputPosition =
-            static_cast<const mr_float4*>(buffers[14].contents);
+            static_cast<const mr_float4*>(
+                (
+                    toolPairs.empty()
+                    ? buffers[14]
+                    : finalToolPositionBuffer
+                ).contents
+            );
         const auto* outputVelocity =
-            static_cast<const mr_float4*>(buffers[15].contents);
+            static_cast<const mr_float4*>(
+                (
+                    toolPairs.empty()
+                    ? buffers[15]
+                    : finalToolVelocityBuffer
+                ).contents
+            );
         const auto* outputTwist =
-            static_cast<const float*>(buffers[16].contents);
+            static_cast<const float*>(
+                (
+                    toolPairs.empty()
+                    ? buffers[16]
+                    : finalToolTwistBuffer
+                ).contents
+            );
         const auto* outputTwistRate =
-            static_cast<const float*>(buffers[17].contents);
+            static_cast<const float*>(
+                (
+                    toolPairs.empty()
+                    ? buffers[17]
+                    : finalToolTwistRateBuffer
+                ).contents
+            );
         const auto* outputReaction =
             static_cast<const MRRodGPUAttachmentReaction*>(
                 buffers[19].contents
             );
         const auto* outputRigidBody =
             static_cast<const MRBodyStateGPU*>(
-                outputRigidBodyBuffer.contents
+                (
+                    toolPairs.empty()
+                    ? outputRigidBodyBuffer
+                    : finalToolBodyBuffer
+                ).contents
             );
         MetalDiscreteElasticRodResult staged;
         staged.states.resize(environmentCount);
         staged.statuses = std::move(statuses);
         staged.reactions.resize(attachments.size());
         staged.rigidBodies.resize(rigidBodies.size());
+        staged.toolContactCounts.resize(toolPairElements);
+        staged.toolContacts.resize(toolWitnessElements);
         for (std::size_t environment = 0u;
              environment < environmentCount;
              ++environment) {
@@ -1306,6 +2085,75 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                         internalFailure,
                     "GPU rigid reaction output is non-finite"
                 );
+            }
+        }
+        if (!toolPairs.empty()) {
+            std::copy_n(
+                static_cast<const std::uint32_t*>(
+                    toolPairCountBuffer.contents
+                ),
+                toolPairElements,
+                staged.toolContactCounts.begin()
+            );
+            std::copy_n(
+                static_cast<const MRRodToolWitnessGPU*>(
+                    finalToolWitnessBuffer.contents
+                ),
+                toolWitnessElements,
+                staged.toolContacts.begin()
+            );
+            diagnostics.toolPairCount =
+                static_cast<std::uint32_t>(toolPairs.size());
+            std::uint64_t totalToolContacts = 0u;
+            for (const std::uint32_t count :
+                 staged.toolContactCounts) {
+                if (count >
+                    MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalDiscreteElasticRodHostStatus::
+                            internalFailure,
+                        "GPU rod/tool count exceeded its pair slot"
+                    );
+                }
+                totalToolContacts += count;
+            }
+            diagnostics.toolContactCount =
+                static_cast<std::uint32_t>(
+                    std::min<std::uint64_t>(
+                        totalToolContacts,
+                        std::numeric_limits<std::uint32_t>::max()
+                    )
+                );
+            for (const MRRodToolWitnessGPU& witness :
+                 staged.toolContacts) {
+                if ((witness.featuresAndFlags.w &
+                     MR_ROD_TOOL_WITNESS_VALID) == 0u) {
+                    continue;
+                }
+                if (!finite(witness.rodPointAndWeight) ||
+                    !finite(
+                        witness.toolPointAndSeparation
+                    ) ||
+                    !finite(
+                        witness.normalAndPreSolveVelocity
+                    ) ||
+                    !finite(
+                        witness
+                            .tangentUAndTwistJacobian
+                    ) ||
+                    !finite(
+                        witness
+                            .radialAndTwistJacobianV
+                    ) ||
+                    !finite(witness.impulses)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalDiscreteElasticRodHostStatus::
+                            internalFailure,
+                        "GPU rod/tool evidence is non-finite"
+                    );
+                }
             }
         }
         output = std::move(staged);

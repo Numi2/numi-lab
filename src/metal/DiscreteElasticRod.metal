@@ -14,6 +14,213 @@ inline bool finite3(const float3 value) {
     return all(isfinite(value));
 }
 
+inline bool rodToolBodyDynamic(
+    device const MRBodyStateGPU& body
+) {
+    return
+        body.flagsAndIndices[0] == MR_MOTION_DYNAMIC &&
+        body.linearVelocityAndInverseMass.w > 0.0f;
+}
+
+inline float3 rodToolInverseInertia(
+    device const MRBodyStateGPU& body,
+    const float3 value
+) {
+    return float3(
+        dot(body.inverseInertiaWorldRow0.xyz, value),
+        dot(body.inverseInertiaWorldRow1.xyz, value),
+        dot(body.inverseInertiaWorldRow2.xyz, value)
+    );
+}
+
+inline float rodToolDirectionalResponse(
+    const float3 left,
+    const float3 right,
+    const float leftTwist,
+    const float rightTwist,
+    const float firstWeight,
+    const float secondWeight,
+    const float firstInverseMass,
+    const float secondInverseMass,
+    const float inverseTwistInertia,
+    device const MRBodyStateGPU& body,
+    const float3 bodyLever
+) {
+    float result =
+        (
+            firstWeight * firstWeight * firstInverseMass +
+            secondWeight * secondWeight * secondInverseMass
+        ) * dot(left, right) +
+        inverseTwistInertia * leftTwist * rightTwist;
+    if (rodToolBodyDynamic(body)) {
+        result +=
+            body.linearVelocityAndInverseMass.w *
+                dot(left, right) +
+            dot(
+                cross(bodyLever, left),
+                rodToolInverseInertia(
+                    body,
+                    cross(bodyLever, right)
+                )
+            );
+    }
+    return result;
+}
+
+inline bool rodToolInvertSymmetric3(
+    thread const float matrix[3][3],
+    thread float inverse[3][3]
+) {
+    const float c00 =
+        matrix[1][1] * matrix[2][2] -
+        matrix[1][2] * matrix[2][1];
+    const float c01 =
+        matrix[1][2] * matrix[2][0] -
+        matrix[1][0] * matrix[2][2];
+    const float c02 =
+        matrix[1][0] * matrix[2][1] -
+        matrix[1][1] * matrix[2][0];
+    const float determinant =
+        matrix[0][0] * c00 +
+        matrix[0][1] * c01 +
+        matrix[0][2] * c02;
+    const float scale = max(
+        max(
+            abs(matrix[0][0] * matrix[1][1] *
+                matrix[2][2]),
+            1.0f
+        ),
+        abs(determinant)
+    );
+    if (!(determinant >
+          64.0f * kFloatEpsilon * scale) ||
+        !isfinite(determinant)) {
+        return false;
+    }
+    const float reciprocal = 1.0f / determinant;
+    inverse[0][0] = c00 * reciprocal;
+    inverse[0][1] =
+        (matrix[0][2] * matrix[2][1] -
+         matrix[0][1] * matrix[2][2]) * reciprocal;
+    inverse[0][2] =
+        (matrix[0][1] * matrix[1][2] -
+         matrix[0][2] * matrix[1][1]) * reciprocal;
+    inverse[1][0] = c01 * reciprocal;
+    inverse[1][1] =
+        (matrix[0][0] * matrix[2][2] -
+         matrix[0][2] * matrix[2][0]) * reciprocal;
+    inverse[1][2] =
+        (matrix[0][2] * matrix[1][0] -
+         matrix[0][0] * matrix[1][2]) * reciprocal;
+    inverse[2][0] = c02 * reciprocal;
+    inverse[2][1] =
+        (matrix[0][1] * matrix[2][0] -
+         matrix[0][0] * matrix[2][1]) * reciprocal;
+    inverse[2][2] =
+        (matrix[0][0] * matrix[1][1] -
+         matrix[0][1] * matrix[1][0]) * reciprocal;
+    for (uint row = 0u; row < 3u; ++row) {
+        for (uint column = 0u; column < 3u; ++column) {
+            if (!isfinite(inverse[row][column])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+inline float2 rodToolProjectFriction(
+    const float2 candidate,
+    const float normalImpulse,
+    const float staticFriction,
+    const float dynamicFriction
+) {
+    if (!(normalImpulse > 0.0f)) {
+        return float2(0.0f);
+    }
+    const float magnitudeSquared = dot(candidate, candidate);
+    if (!(magnitudeSquared > 0.0f)) {
+        return float2(0.0f);
+    }
+    const float magnitude = sqrt(magnitudeSquared);
+    if (magnitude <= staticFriction * normalImpulse) {
+        return candidate;
+    }
+    return candidate *
+        (dynamicFriction * normalImpulse / magnitude);
+}
+
+inline bool applyRodToolImpulse(
+    const MRRodGPUDispatch dispatch,
+    const MRRodColliderGPU rod,
+    device const float* inverseMasses,
+    device const float* inverseRotationalInertias,
+    device float4* positions,
+    device float4* velocities,
+    device float* twists,
+    device float* twistRates,
+    device MRBodyStateGPU& body,
+    const MRRodToolWitnessGPU witness,
+    const float3 impulseOnTool,
+    const bool advancePosition
+) {
+    const float weightB = witness.rodPointAndWeight.w;
+    const float weightA = 1.0f - weightB;
+    const float3 endpointA = positions[rod.nodeA].xyz;
+    const float3 endpointB = positions[rod.nodeB].xyz;
+    const float3 edge = endpointB - endpointA;
+    const float edgeSquared = dot(edge, edge);
+    if (!(edgeSquared > 1.0e-20f)) {
+        return false;
+    }
+    const float3 edgeAxis = edge * rsqrt(edgeSquared);
+    const float3 radial =
+        witness.radialAndTwistJacobianV.xyz;
+    const float3 surfaceJacobian = cross(
+        edgeAxis,
+        rod.radiusAndOffsets.x * radial
+    );
+    const float firstInverseMass = inverseMasses[rod.nodeA];
+    const float secondInverseMass = inverseMasses[rod.nodeB];
+    const float inverseTwistInertia =
+        inverseRotationalInertias[rod.edgeIndex];
+    const float3 firstDelta =
+        -weightA * firstInverseMass * impulseOnTool;
+    const float3 secondDelta =
+        -weightB * secondInverseMass * impulseOnTool;
+    const float twistDelta =
+        -inverseTwistInertia *
+        dot(surfaceJacobian, impulseOnTool);
+    velocities[rod.nodeA].xyz += firstDelta;
+    velocities[rod.nodeB].xyz += secondDelta;
+    twistRates[rod.edgeIndex] += twistDelta;
+    if (advancePosition) {
+        const float timestep =
+            dispatch.gravityAndTimestep.w;
+        positions[rod.nodeA].xyz += timestep * firstDelta;
+        positions[rod.nodeB].xyz += timestep * secondDelta;
+        twists[rod.edgeIndex] += timestep * twistDelta;
+    }
+    if (rodToolBodyDynamic(body)) {
+        const float3 lever =
+            witness.toolPointAndSeparation.xyz -
+            body.position.xyz;
+        body.linearVelocityAndInverseMass.xyz +=
+            body.linearVelocityAndInverseMass.w *
+            impulseOnTool;
+        body.angularVelocity.xyz += rodToolInverseInertia(
+            body,
+            cross(lever, impulseOnTool)
+        );
+    }
+    return
+        finite3(velocities[rod.nodeA].xyz) &&
+        finite3(velocities[rod.nodeB].xyz) &&
+        isfinite(twistRates[rod.edgeIndex]) &&
+        finite3(body.linearVelocityAndInverseMass.xyz) &&
+        finite3(body.angularVelocity.xyz);
+}
+
 inline bool normalizeChecked(
     const float3 value,
     thread float3& output
@@ -901,7 +1108,12 @@ kernel void mr_discrete_elastic_rod_step(
             dispatch.stateBodyStride <
                 dispatch.rigidBodyCount ||
             (dispatch.flags &
-                ~uint(MR_ROD_GPU_FLAG_SELF_COLLISION)) !=
+                ~uint(
+                    MR_ROD_GPU_FLAG_SELF_COLLISION |
+                    MR_ROD_GPU_FLAG_TOOL_COLLISION |
+                    MR_ROD_GPU_FLAG_ENABLE_CCD |
+                    MR_ROD_GPU_FLAG_TOOL_WARM_START
+                )) !=
                     0u ||
             !(dispatch.gravityAndTimestep.w > 0.0f) ||
             !all(isfinite(dispatch.gravityAndTimestep)) ||
@@ -917,6 +1129,23 @@ kernel void mr_discrete_elastic_rod_step(
                 (dispatch.flags &
                     MR_ROD_GPU_FLAG_SELF_COLLISION) != 0u &&
                 !(dispatch.selfCollision.x > 0.0f)
+            ) ||
+            (
+                (dispatch.flags &
+                    MR_ROD_GPU_FLAG_TOOL_COLLISION) != 0u &&
+                (
+                    dispatch.toolShapeCount == 0u ||
+                    dispatch.toolPairCount == 0u ||
+                    dispatch.toolContactIterations == 0u ||
+                    dispatch.toolContactStride <
+                        dispatch.toolPairCount *
+                            MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR ||
+                    any(dispatch.toolContact < 0.0f) ||
+                    any(dispatch.toolResponse < 0.0f) ||
+                    dispatch.toolResponse.x > 1.0f ||
+                    !(dispatch.toolResponse.z > 0.0f) ||
+                    !(dispatch.toolResponse.w > 0.0f)
+                )
             )) {
             atomic_store_explicit(
                 &failure,
@@ -1495,4 +1724,487 @@ kernel void mr_apply_rod_rigid_reactions(
         statuses[environment].code =
             MR_ROD_GPU_NONFINITE_RESULT;
     }
+}
+
+// Common three-row cone response for procedural rod capsules against rigid
+// tools. One threadgroup owns an environment; lane zero performs stable
+// pair/feature ordered block GS while the remaining lanes provide the
+// transactional state copy. Physical writes are therefore atomic-free.
+kernel void mr_solve_rod_tool_contacts(
+    device const MRRodGPUDispatch& dispatch [[buffer(0)]],
+    device const float* inverseMasses [[buffer(1)]],
+    device const float* inverseRotationalInertias [[buffer(2)]],
+    device const MRRodColliderGPU* rodColliders [[buffer(3)]],
+    device const MRRodToolPairGPU* toolPairs [[buffer(4)]],
+    device const MRShapeGPU* toolShapes [[buffer(5)]],
+    device const MRMaterialGPU* materials [[buffer(6)]],
+    device const uint* pairContactCounts [[buffer(7)]],
+    device const MRRodToolWitnessGPU* inputWitnesses [[buffer(8)]],
+    device const float4* inputPositions [[buffer(9)]],
+    device const float4* inputVelocities [[buffer(10)]],
+    device const float* inputTwists [[buffer(11)]],
+    device const float* inputTwistRates [[buffer(12)]],
+    device const MRBodyStateGPU* inputBodies [[buffer(13)]],
+    device MRRodGPUStatus* statuses [[buffer(14)]],
+    device MRRodToolWitnessGPU* outputWitnesses [[buffer(15)]],
+    device float4* outputPositions [[buffer(16)]],
+    device float4* outputVelocities [[buffer(17)]],
+    device float* outputTwists [[buffer(18)]],
+    device float* outputTwistRates [[buffer(19)]],
+    device MRBodyStateGPU* outputBodies [[buffer(20)]],
+    const uint environment [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_threadgroup]],
+    const uint laneCount [[threads_per_threadgroup]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const uint nodeBase =
+        environment * dispatch.stateNodeStride;
+    const uint edgeBase =
+        environment * dispatch.stateEdgeStride;
+    const uint bodyBase =
+        environment * dispatch.stateBodyStride;
+    const uint pairBase =
+        environment * dispatch.toolPairCount;
+    const uint witnessBase =
+        pairBase * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    for (uint node = lane;
+         node < dispatch.nodeCount;
+         node += laneCount) {
+        outputPositions[nodeBase + node] =
+            inputPositions[nodeBase + node];
+        outputVelocities[nodeBase + node] =
+            inputVelocities[nodeBase + node];
+    }
+    for (uint edge = lane;
+         edge < dispatch.edgeCount;
+         edge += laneCount) {
+        outputTwists[edgeBase + edge] =
+            inputTwists[edgeBase + edge];
+        outputTwistRates[edgeBase + edge] =
+            inputTwistRates[edgeBase + edge];
+    }
+    for (uint body = lane;
+         body < dispatch.rigidBodyCount;
+         body += laneCount) {
+        outputBodies[bodyBase + body] =
+            inputBodies[bodyBase + body];
+    }
+    for (uint localWitness = lane;
+         localWitness <
+             dispatch.toolPairCount *
+                 MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+         localWitness += laneCount) {
+        outputWitnesses[witnessBase + localWitness] =
+            inputWitnesses[witnessBase + localWitness];
+    }
+    threadgroup_barrier(
+        mem_flags::mem_device |
+        mem_flags::mem_threadgroup
+    );
+    if (lane != 0u ||
+        statuses[environment].code != MR_ROD_GPU_SUCCESS) {
+        return;
+    }
+    if ((dispatch.flags &
+         MR_ROD_GPU_FLAG_TOOL_COLLISION) == 0u ||
+        dispatch.toolPairCount == 0u) {
+        return;
+    }
+    if (dispatch.toolContactIterations == 0u ||
+        dispatch.toolContactStride <
+            dispatch.toolPairCount *
+                MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR ||
+        !(dispatch.gravityAndTimestep.w > 0.0f) ||
+        any(dispatch.toolContact < 0.0f) ||
+        any(dispatch.toolResponse < 0.0f) ||
+        dispatch.toolResponse.x > 1.0f ||
+        !(dispatch.toolResponse.z > 0.0f) ||
+        !(dispatch.toolResponse.w > 0.0f)) {
+        statuses[environment].code =
+            MR_ROD_GPU_INVALID_DISPATCH;
+        return;
+    }
+    for (uint pairIndex = 0u;
+         pairIndex < dispatch.toolPairCount;
+         ++pairIndex) {
+        const uint count =
+            pairContactCounts[pairBase + pairIndex];
+        if ((count & 0x80000000u) != 0u) {
+            statuses[environment].code =
+                count & 0x7fffffffu;
+            statuses[environment].failingIndex =
+                pairIndex;
+            return;
+        }
+    }
+
+    const float timestep = dispatch.gravityAndTimestep.w;
+    const float normalRegularization =
+        dispatch.toolContact.z / (timestep * timestep) +
+        dispatch.toolContact.w / timestep;
+    uint contactCount = 0u;
+    float maximumPenetration = 0.0f;
+    bool valid = true;
+
+    // Persistent impulses are physical velocity warm starts. Apply them once
+    // before the first nonlinear sweep, then solve only accepted deltas.
+    if ((dispatch.flags &
+         MR_ROD_GPU_FLAG_TOOL_WARM_START) != 0u) {
+        for (uint pairIndex = 0u;
+             pairIndex < dispatch.toolPairCount;
+             ++pairIndex) {
+            const MRRodToolPairGPU pair =
+                toolPairs[pairIndex];
+            const MRRodColliderGPU rod =
+                rodColliders[pair.rodCollider];
+            const uint count = min(
+                pairContactCounts[pairBase + pairIndex],
+                uint(MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR)
+            );
+            for (uint slot = 0u; slot < count; ++slot) {
+                const uint witnessIndex =
+                    witnessBase +
+                    pairIndex *
+                        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR +
+                    slot;
+                const MRRodToolWitnessGPU witness =
+                    outputWitnesses[witnessIndex];
+                if ((witness.featuresAndFlags.w &
+                     MR_ROD_TOOL_WITNESS_VALID) == 0u) {
+                    continue;
+                }
+                const float3 normal =
+                    witness.normalAndPreSolveVelocity.xyz;
+                const float3 tangentU =
+                    witness.tangentUAndTwistJacobian.xyz;
+                const float3 tangentV =
+                    cross(normal, tangentU);
+                const float3 impulse =
+                    normal * witness.impulses.x +
+                    tangentU * witness.impulses.y +
+                    tangentV * witness.impulses.z;
+                device MRBodyStateGPU& body =
+                    outputBodies[
+                        bodyBase +
+                        witness.featuresAndFlags.z
+                    ];
+                valid = valid && applyRodToolImpulse(
+                    dispatch,
+                    rod,
+                    inverseMasses,
+                    inverseRotationalInertias,
+                    outputPositions + nodeBase,
+                    outputVelocities + nodeBase,
+                    outputTwists + edgeBase,
+                    outputTwistRates + edgeBase,
+                    body,
+                    witness,
+                    impulse,
+                    false
+                );
+            }
+        }
+    }
+
+    for (uint iteration = 0u;
+         valid && iteration < dispatch.toolContactIterations;
+         ++iteration) {
+        for (uint pairIndex = 0u;
+             pairIndex < dispatch.toolPairCount;
+             ++pairIndex) {
+            const MRRodToolPairGPU pair =
+                toolPairs[pairIndex];
+            const MRRodColliderGPU rod =
+                rodColliders[pair.rodCollider];
+            const uint count = min(
+                pairContactCounts[pairBase + pairIndex],
+                uint(MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR)
+            );
+            contactCount += iteration == 0u ? count : 0u;
+            for (uint slot = 0u; slot < count; ++slot) {
+                const uint witnessIndex =
+                    witnessBase +
+                    pairIndex *
+                        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR +
+                    slot;
+                device MRRodToolWitnessGPU& witness =
+                    outputWitnesses[witnessIndex];
+                if ((witness.featuresAndFlags.w &
+                     MR_ROD_TOOL_WITNESS_VALID) == 0u ||
+                    witness.featuresAndFlags.z >=
+                        dispatch.rigidBodyCount) {
+                    valid = false;
+                    break;
+                }
+                const float3 normal =
+                    witness.normalAndPreSolveVelocity.xyz;
+                const float3 tangentU =
+                    witness.tangentUAndTwistJacobian.xyz;
+                const float3 tangentV =
+                    cross(normal, tangentU);
+                const float3 directions[3] = {
+                    normal,
+                    tangentU,
+                    tangentV,
+                };
+                const float weightB =
+                    witness.rodPointAndWeight.w;
+                const float weightA = 1.0f - weightB;
+                device MRBodyStateGPU& body =
+                    outputBodies[
+                        bodyBase +
+                        witness.featuresAndFlags.z
+                    ];
+                const float3 bodyLever =
+                    witness.toolPointAndSeparation.xyz -
+                    body.position.xyz;
+                const float3 edgeVector =
+                    outputPositions[
+                        nodeBase + rod.nodeB
+                    ].xyz -
+                    outputPositions[
+                        nodeBase + rod.nodeA
+                    ].xyz;
+                const float edgeSquared =
+                    dot(edgeVector, edgeVector);
+                if (!(edgeSquared > 1.0e-20f)) {
+                    valid = false;
+                    break;
+                }
+                const float3 edgeAxis =
+                    edgeVector * rsqrt(edgeSquared);
+                const float3 surfaceJacobian = cross(
+                    edgeAxis,
+                    rod.radiusAndOffsets.x *
+                        witness
+                            .radialAndTwistJacobianV.xyz
+                );
+                const float twistJacobians[3] = {
+                    dot(normal, surfaceJacobian),
+                    dot(tangentU, surfaceJacobian),
+                    dot(tangentV, surfaceJacobian),
+                };
+                float response[3][3];
+                for (uint row = 0u; row < 3u; ++row) {
+                    for (uint column = 0u;
+                         column < 3u;
+                         ++column) {
+                        response[row][column] =
+                            rodToolDirectionalResponse(
+                                directions[row],
+                                directions[column],
+                                twistJacobians[row],
+                                twistJacobians[column],
+                                weightA,
+                                weightB,
+                                inverseMasses[rod.nodeA],
+                                inverseMasses[rod.nodeB],
+                                inverseRotationalInertias[
+                                    rod.edgeIndex
+                                ],
+                                body,
+                                bodyLever
+                            );
+                    }
+                }
+                response[0][0] += normalRegularization;
+                float inverseResponse[3][3];
+                if (!rodToolInvertSymmetric3(
+                        response,
+                        inverseResponse
+                    )) {
+                    valid = false;
+                    break;
+                }
+
+                const float3 centerVelocity =
+                    weightA *
+                        outputVelocities[
+                            nodeBase + rod.nodeA
+                        ].xyz +
+                    weightB *
+                        outputVelocities[
+                            nodeBase + rod.nodeB
+                        ].xyz;
+                const float3 rodVelocity =
+                    centerVelocity +
+                    outputTwistRates[
+                        edgeBase + rod.edgeIndex
+                    ] * surfaceJacobian;
+                const float3 toolVelocity =
+                    body.flagsAndIndices[0] ==
+                            MR_MOTION_STATIC
+                    ? float3(0.0f)
+                    : body.linearVelocityAndInverseMass.xyz +
+                        cross(
+                            body.angularVelocity.xyz,
+                            bodyLever
+                        );
+                const float3 relative =
+                    toolVelocity - rodVelocity;
+                const float separation =
+                    witness.toolPointAndSeparation.w;
+                maximumPenetration = max(
+                    maximumPenetration,
+                    max(-separation, 0.0f)
+                );
+                const float positionalTarget = min(
+                    max(
+                        -0.2f * separation / timestep,
+                        0.0f
+                    ),
+                    dispatch.toolResponse.w
+                );
+                float restitutionTarget = 0.0f;
+                if ((witness.featuresAndFlags.w &
+                     MR_ROD_TOOL_WITNESS_NEW_IMPACT) != 0u &&
+                    witness.normalAndPreSolveVelocity.w <
+                        -dispatch.toolResponse.y) {
+                    restitutionTarget =
+                        -dispatch.toolResponse.x *
+                        witness.normalAndPreSolveVelocity.w;
+                }
+                const float3 previous =
+                    witness.impulses.xyz;
+                const float3 rightHandSide = float3(
+                    max(positionalTarget, restitutionTarget) -
+                        dot(normal, relative) -
+                        normalRegularization * previous.x,
+                    -dot(tangentU, relative),
+                    -dot(tangentV, relative)
+                );
+                float3 delta = float3(
+                    dot(
+                        float3(
+                            inverseResponse[0][0],
+                            inverseResponse[0][1],
+                            inverseResponse[0][2]
+                        ),
+                        rightHandSide
+                    ),
+                    dot(
+                        float3(
+                            inverseResponse[1][0],
+                            inverseResponse[1][1],
+                            inverseResponse[1][2]
+                        ),
+                        rightHandSide
+                    ),
+                    dot(
+                        float3(
+                            inverseResponse[2][0],
+                            inverseResponse[2][1],
+                            inverseResponse[2][2]
+                        ),
+                        rightHandSide
+                    )
+                );
+                float3 candidate = previous + delta;
+                candidate.x = max(candidate.x, 0.0f);
+                const uint toolMaterialIndex =
+                    witness.materialAndGeneration.y;
+                const MRMaterialGPU rodMaterial =
+                    materials[dispatch.rodMaterialIndex];
+                const MRMaterialGPU toolMaterial =
+                    materials[toolMaterialIndex];
+                const float staticFriction =
+                    dispatch.toolResponse.z *
+                    sqrt(max(
+                        rodMaterial.friction.x *
+                            toolMaterial.friction.x,
+                        0.0f
+                    ));
+                const float dynamicFriction =
+                    min(
+                        staticFriction,
+                        dispatch.toolResponse.z *
+                            sqrt(max(
+                                rodMaterial.friction.y *
+                                    toolMaterial.friction.y,
+                                0.0f
+                            ))
+                    );
+                candidate.yz = rodToolProjectFriction(
+                    candidate.yz,
+                    candidate.x,
+                    staticFriction,
+                    dynamicFriction
+                );
+                delta = candidate - previous;
+                if (!finite3(delta) ||
+                    !applyRodToolImpulse(
+                        dispatch,
+                        rod,
+                        inverseMasses,
+                        inverseRotationalInertias,
+                        outputPositions + nodeBase,
+                        outputVelocities + nodeBase,
+                        outputTwists + edgeBase,
+                        outputTwistRates + edgeBase,
+                        body,
+                        witness,
+                        normal * delta.x +
+                            tangentU * delta.y +
+                            tangentV * delta.z,
+                        true
+                    )) {
+                    valid = false;
+                    break;
+                }
+                witness.impulses.xyz = candidate;
+                witness.featuresAndFlags.w |=
+                    MR_ROD_TOOL_WITNESS_WARM_STARTED;
+                witness.featuresAndFlags.w &=
+                    ~uint(MR_ROD_TOOL_WITNESS_NEW_IMPACT);
+            }
+            if (!valid) {
+                break;
+            }
+        }
+    }
+
+    if (!valid) {
+        statuses[environment].code =
+            MR_ROD_GPU_NONFINITE_RESULT;
+        statuses[environment].failingIndex = 0u;
+        for (uint node = 0u;
+             node < dispatch.nodeCount;
+             ++node) {
+            outputPositions[nodeBase + node] =
+                inputPositions[nodeBase + node];
+            outputVelocities[nodeBase + node] =
+                inputVelocities[nodeBase + node];
+        }
+        for (uint edge = 0u;
+             edge < dispatch.edgeCount;
+             ++edge) {
+            outputTwists[edgeBase + edge] =
+                inputTwists[edgeBase + edge];
+            outputTwistRates[edgeBase + edge] =
+                inputTwistRates[edgeBase + edge];
+        }
+        for (uint bodyIndex = 0u;
+             bodyIndex < dispatch.rigidBodyCount;
+             ++bodyIndex) {
+            outputBodies[bodyBase + bodyIndex] =
+                inputBodies[bodyBase + bodyIndex];
+        }
+        for (uint localWitness = 0u;
+             localWitness <
+                 dispatch.toolPairCount *
+                     MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+             ++localWitness) {
+            outputWitnesses[witnessBase + localWitness] =
+                inputWitnesses[witnessBase + localWitness];
+        }
+        return;
+    }
+    statuses[environment].diagnostics.z = max(
+        statuses[environment].diagnostics.z,
+        maximumPenetration
+    );
+    statuses[environment].diagnostics.w +=
+        float(contactCount);
 }

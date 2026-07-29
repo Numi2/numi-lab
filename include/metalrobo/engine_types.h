@@ -41,9 +41,9 @@
 // Versioned first generic Metal-world graph. One submission may encode many
 // control steps, each with a bounded number of ABA physics substeps, without
 // a command-buffer completion or CPU-visible intermediate state.
-#define MR_METAL_WORLD_ABI_VERSION 3u
+#define MR_METAL_WORLD_ABI_VERSION 4u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
-#define MR_METAL_WORLD_CONTACT_ABI_VERSION 4u
+#define MR_METAL_WORLD_CONTACT_ABI_VERSION 5u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
 #define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
 #define MR_WAVE32_CONTACTS_PER_TILE 32u
@@ -692,6 +692,7 @@ enum MRMetalWorldContactFlags : mr_u32 {
     MR_METAL_WORLD_CONTACT_WAVE32 = 1u << 4u,
     MR_METAL_WORLD_CONTACT_CCD = 1u << 5u,
     MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS = 1u << 6u,
+    MR_METAL_WORLD_CONTACT_QUALITY = 1u << 7u,
 };
 
 // One stable, cooker-produced pair. The pair stream is canonical collider
@@ -997,6 +998,30 @@ typedef struct MR_ALIGN16 MRContactPointMetaGPU {
     mr_float4 localAnchorB;
 } MRContactPointMetaGPU;
 
+// Pair-owned count and prefix record for deterministic manifold-to-IR
+// compilation. Narrowphase/finalization writes counts into fixed compiled-pair
+// slots, one SIMDgroup per environment computes stable exclusive prefixes,
+// and scatter writes only when the complete environment fits every arena.
+// This removes atomics from semantic ordering and keeps exact overflow
+// requirements device-resident.
+typedef struct MR_ALIGN16 MRManifoldIRScatterGPU {
+    // candidate pairs, raw witnesses, manifolds, constraint blocks.
+    mr_uint4 counts0;
+    // rows, endpoints, point queries, evidence records.
+    mr_uint4 counts1;
+    // Exclusive prefixes corresponding to counts0.
+    mr_uint4 offsets0;
+    // Exclusive prefixes corresponding to counts1.
+    mr_uint4 offsets1;
+    // status, CCD event slot, retained points, new points.
+    mr_uint4 diagnostics0;
+    // hard-convex requirement, mesh candidates, fallbacks, first failure.
+    mr_uint4 diagnostics1;
+    // maximum penetration and reserved finite diagnostics.
+    mr_float4 metrics;
+    mr_uint4 reserved;
+} MRManifoldIRScatterGPU;
+
 typedef struct MR_ALIGN16 MRContactIslandGPU {
     mr_u32 environment;
     mr_u32 stableRoot;
@@ -1087,12 +1112,23 @@ typedef struct MR_ALIGN16 MRMetalWorldContactStatusGPU {
     mr_u32 reservedEvent0;
     mr_u32 reservedEvent1;
 
+    mr_u32 qualityNewtonIterations;
+    mr_u32 qualityPCGIterations;
+    mr_u32 qualityLineSearchBacktracks;
+    mr_u32 qualitySolvePath;
+
     // impulse delta, normal residual, cone violation, factor residual.
     mr_float4 residuals;
     // manifold retention, maximum penetration, minimum pivot, maximum pivot.
     mr_float4 diagnostics;
     // consumed time, remaining time, earliest TOI, selected TOI.
     mr_float4 eventTimes;
+    // optimality, cone/scalar feasibility, equality feasibility,
+    // complementarity.
+    mr_float4 qualityCertificates;
+    // dynamics backward error, Newton decrement, objective change,
+    // effective compliance/regularization.
+    mr_float4 qualityDiagnostics;
 } MRMetalWorldContactStatusGPU;
 
 enum MRInverseMassStatusCode : mr_u32 {
@@ -1433,9 +1469,10 @@ static_assert(sizeof(MRCCDEventStateGPU) == 64);
 static_assert(sizeof(MRCCDImpactClusterGPU) == 48);
 static_assert(sizeof(MRProjectedColliderGPU) == 80);
 static_assert(sizeof(MRContactPointMetaGPU) == 48);
+static_assert(sizeof(MRManifoldIRScatterGPU) == 128);
 static_assert(sizeof(MRContactIslandGPU) == 32);
 static_assert(sizeof(MRArticulationFactorCacheGPU) == 48);
-static_assert(sizeof(MRMetalWorldContactStatusGPU) == 240);
+static_assert(sizeof(MRMetalWorldContactStatusGPU) == 288);
 static_assert(sizeof(MRInverseMassDispatchGPU) == 48);
 static_assert(sizeof(MRInverseMassStatusGPU) == 48);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);

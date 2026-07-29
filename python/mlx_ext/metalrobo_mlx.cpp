@@ -679,6 +679,10 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_narrowphase_convex_queue",
         "mr_world_narrowphase_mesh_queue",
         "mr_world_collide_compile",
+        "mr_world_finalize_pair_manifold",
+        "mr_world_scan_manifold_ir",
+        "mr_world_scatter_manifold_records",
+        "mr_world_scatter_manifold_ir",
         "mr_world_finalize_factor_dispatch",
         "mr_world_fill_point_query_tail",
         "mr_world_evaluate_constraint_ir",
@@ -697,6 +701,13 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_wave32_distributed_delta",
         "mr_world_wave32_distributed_reduce",
         "mr_world_reduce_wave32_status",
+        "mr_world_prepare_unified_quality",
+        "mr_world_reconstruct_unified_quality_warm_start",
+        "mr_world_build_unified_quality_queue",
+        "mr_unified_quality_solve",
+        "mr_unified_quality_solve_persistent",
+        "mr_world_apply_unified_quality",
+        "mr_world_publish_unified_quality_queue_status",
         "mr_world_integrate_contact_state",
         "mr_world_latch_contact_status",
         "mr_world_commit_contact_state",
@@ -743,11 +754,16 @@ MetalResources& MLXCompiledWorld::resources(
     const auto* wave32Solve = staged->kernels.at(
         "mr_world_wave32_solve_persistent"
     );
+    const auto* manifoldScan = staged->kernels.at(
+        "mr_world_scan_manifold_ir"
+    );
     const auto* solverCohort =
         staged->kernels.at("mr_world_select_solver_cohort");
     if (pairNarrowphase->threadExecutionWidth() !=
             MR_WAVE32_CONTACTS_PER_TILE ||
         solverCohort->threadExecutionWidth() !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        manifoldScan->threadExecutionWidth() !=
             MR_WAVE32_CONTACTS_PER_TILE ||
         wave32Solve->threadExecutionWidth() !=
             MR_WAVE32_CONTACTS_PER_TILE) {
@@ -1063,10 +1079,13 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         solverMode = MetalWorldSolverMode::throughputPGS;
     } else if (requestedSolverMode == "throughput_tgs") {
         solverMode = MetalWorldSolverMode::throughputTGS;
+    } else if (requestedSolverMode == "quality_newton") {
+        solverMode = MetalWorldSolverMode::qualityNewton;
     } else {
         throw std::invalid_argument(
             "solver_mode must be 'free_motion_aba', "
-            "'throughput_pgs', or 'throughput_tgs'"
+            "'throughput_pgs', 'throughput_tgs', or "
+            "'quality_newton'"
         );
     }
     MetalWorldCCDMode ccdMode;
@@ -1119,6 +1138,14 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         solverMode == MetalWorldSolverMode::freeMotionABA) {
         throw std::invalid_argument(
             "contact scenes require a contact solver mode"
+        );
+    }
+    if (solverMode == MetalWorldSolverMode::qualityNewton &&
+        ccdMode == MetalWorldCCDMode::hybrid) {
+        throw std::invalid_argument(
+            "quality_newton currently requires disabled or "
+            "speculative CCD; MLX never routes event-time quality "
+            "solves through TGS"
         );
     }
 
@@ -1492,7 +1519,17 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         capacityProfile.solverTiles != 0u ||
         capacityProfile.spillRows != 0u ||
         capacityProfile.ccdCandidates != 0u ||
-        capacityProfile.ccdEvents != 0u;
+        capacityProfile.ccdEvents != 0u ||
+        capacityProfile.endpointRuntimeRecords != 0u ||
+        capacityProfile.articulationPointQueries != 0u ||
+        capacityProfile.rodCandidatePairs != 0u ||
+        capacityProfile.rodRawContacts != 0u ||
+        capacityProfile.rodManifolds != 0u ||
+        capacityProfile.rodCCDEvents != 0u ||
+        capacityProfile.qualityGeneralizedVelocities != 0u ||
+        capacityProfile.qualityRows != 0u ||
+        capacityProfile.qualityKrylovVectors != 0u ||
+        capacityProfile.qualityDirectTiles != 0u;
     if (!defaultSceneBodies.empty() && !hasExplicitCapacity) {
         const std::uint32_t contactCapacity =
             addPickPlace
@@ -1568,6 +1605,24 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         throw std::runtime_error(
             "could not compile MLX world: " +
             diagnostics.message
+        );
+    }
+    const std::size_t qualityNv =
+        static_cast<std::size_t>(compiled.nv()) +
+        6u * compiled.sceneBodyCount();
+    const std::size_t qualityRows =
+        3u * compiled.capacities().constraintBlocks;
+    if (solverMode == MetalWorldSolverMode::qualityNewton &&
+        (
+            qualityNv >
+                MR_UNIFIED_QUALITY_MAX_GENERALIZED_VELOCITIES ||
+            qualityRows > MR_UNIFIED_QUALITY_MAX_ROWS ||
+            compiled.capacities().constraintBlocks >
+                MR_UNIFIED_QUALITY_MAX_BLOCKS
+        )) {
+        throw std::invalid_argument(
+            "quality_newton exceeds the compiled generalized "
+            "velocity, row, or product-block bucket"
         );
     }
 
@@ -2916,6 +2971,22 @@ void WorldStepPrimitive::eval_gpu(
     const std::uint32_t rowCapacity = capacity.constraintRows;
     const std::uint32_t islandCapacity = capacity.islands;
     const std::uint32_t tileCapacity = capacity.solverTiles;
+    const bool qualityMode =
+        world_->solverMode() ==
+        MetalWorldSolverMode::qualityNewton;
+    const MetalWorldQualityConfig qualityConfig{};
+    const std::uint32_t qualityNv =
+        nv + 6u * sceneCount;
+    const std::uint32_t qualityRows =
+        3u * constraintCapacity;
+    const bool qualityDirectPath =
+        qualityNv <=
+            qualityConfig.directMaximumGeneralizedVelocities &&
+        qualityRows <= qualityConfig.directMaximumRows;
+    const std::uint32_t qualityHessianStride =
+        qualityDirectPath ? qualityNv * qualityNv : 1u;
+    const std::uint32_t qualityVectorStride =
+        std::max(qualityNv, qualityRows);
     const std::uint32_t pointStride =
         2u * constraintCapacity;
     const std::uint32_t queueStride = std::max(
@@ -2942,7 +3013,7 @@ void WorldStepPrimitive::eval_gpu(
     );
 
     std::vector<mx::array> retainedTemporaries;
-    retainedTemporaries.reserve(80u);
+    retainedTemporaries.reserve(96u);
     const auto makeTemporary = [&](
         const mx::Shape& shape,
         const mx::Dtype dtype
@@ -3193,6 +3264,19 @@ void WorldStepPrimitive::eval_gpu(
             std::max<std::size_t>(pairFlagCount, 1u) *
             MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR
         );
+    mx::array pairManifoldHeaders =
+        rawRecords.template operator()<MRManifoldHeaderGPU>(
+            std::max<std::size_t>(pairFlagCount, 1u)
+        );
+    mx::array pairManifoldPoints =
+        rawRecords.template operator()<MRManifoldPointGPU>(
+            std::max<std::size_t>(pairFlagCount, 1u) *
+            MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY
+        );
+    mx::array manifoldScatter =
+        rawRecords.template operator()<MRManifoldIRScatterGPU>(
+            std::max<std::size_t>(pairFlagCount, 1u)
+        );
     mx::array candidatePairs =
         rawRecords.template operator()<MRCandidatePairGPU>(
             static_cast<std::size_t>(environments) *
@@ -3228,6 +3312,12 @@ void WorldStepPrimitive::eval_gpu(
             static_cast<std::size_t>(environments) *
             2u * constraintCapacity
         );
+    mx::array endpointRuntime =
+        rawRecords.template operator()<
+            MRConstraintEndpointRuntimeGPU>(
+                static_cast<std::size_t>(environments) *
+                2u * constraintCapacity
+            );
     mx::array irRows =
         rawRecords.template operator()<MRConstraintIRRowGPU>(
             static_cast<std::size_t>(environments) *
@@ -3348,6 +3438,95 @@ void WorldStepPrimitive::eval_gpu(
         rawRecords.template operator()<MRCCDImpactClusterGPU>(
             environments
         );
+    mx::array qualityBlocks =
+        rawRecords.template operator()<MRUnifiedQualityBlockGPU>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  constraintCapacity
+            : 1u
+        );
+    mx::array qualityDynamics =
+        rawRecords.template operator()<float>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  qualityNv * qualityNv
+            : 1u
+        );
+    mx::array qualityJacobian =
+        rawRecords.template operator()<float>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  qualityRows * qualityNv
+            : 1u
+        );
+    mx::array qualityBias =
+        rawRecords.template operator()<float>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  qualityVectorStride
+            : 1u
+        );
+    mx::array qualityFreeVelocity =
+        rawRecords.template operator()<float>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  qualityVectorStride
+            : 1u
+        );
+    mx::array qualityWarmVelocity =
+        rawRecords.template operator()<float>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  qualityVectorStride
+            : 1u
+        );
+    mx::array qualityWarmImpulses =
+        rawRecords.template operator()<float>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  qualityVectorStride
+            : 1u
+        );
+    mx::array qualityOutputVelocity =
+        rawRecords.template operator()<float>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  qualityVectorStride
+            : 1u
+        );
+    mx::array qualityOutputImpulses =
+        rawRecords.template operator()<float>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  qualityVectorStride
+            : 1u
+        );
+    mx::array qualityDerivatives =
+        rawRecords.template operator()<float>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  constraintCapacity * 36u
+            : 1u
+        );
+    mx::array qualityHessian =
+        rawRecords.template operator()<float>(
+            qualityMode
+            ? static_cast<std::size_t>(environments) *
+                  qualityHessianStride
+            : 1u
+        );
+    mx::array qualityStatuses =
+        rawRecords.template operator()<MRUnifiedQualityStatusGPU>(
+            qualityMode ? environments : 1u
+        );
+    mx::array qualityWorkQueue =
+        rawRecords.template operator()<
+            MRUnifiedQualityWorkQueueGPU>(1u);
+    mx::array qualityWorkPackets =
+        rawRecords.template operator()<
+            MRUnifiedQualityWorkPacketGPU>(
+                qualityMode ? environments : 1u
+            );
 
     encoder.add_temporaries(std::move(retainedTemporaries));
 
@@ -3395,6 +3574,8 @@ void WorldStepPrimitive::eval_gpu(
         world_->solverMode() ==
             MetalWorldSolverMode::throughputPGS
         ? MR_SOLVER_THROUGHPUT_PGS
+        : qualityMode
+        ? MR_SOLVER_QUALITY_NEWTON
         : MR_SOLVER_THROUGHPUT_TGS;
     contactDispatch.bodyCount = bodyCount;
     contactDispatch.sceneBodyCount = sceneCount;
@@ -3425,6 +3606,9 @@ void WorldStepPrimitive::eval_gpu(
         MetalWorldSolverMode::throughputTGS) {
         contactDispatch.flags |=
             MR_METAL_WORLD_CONTACT_WAVE32;
+    } else if (qualityMode) {
+        contactDispatch.flags |=
+            MR_METAL_WORLD_CONTACT_QUALITY;
     }
     contactDispatch.velocityIterations =
         world_->velocityIterations();
@@ -3490,6 +3674,45 @@ void WorldStepPrimitive::eval_gpu(
         0.0f,
         0.0f,
     };
+
+    MRUnifiedQualityDispatchGPU qualityDispatch{};
+    if (qualityMode) {
+        qualityDispatch.abiVersion =
+            MR_UNIFIED_QUALITY_ABI_VERSION;
+        qualityDispatch.problemCount = environments;
+        qualityDispatch.generalizedVelocityCount = qualityNv;
+        qualityDispatch.rowCount = qualityRows;
+        qualityDispatch.blockCount = constraintCapacity;
+        qualityDispatch.dynamicsStride = qualityNv * qualityNv;
+        qualityDispatch.jacobianStride = qualityRows * qualityNv;
+        qualityDispatch.vectorStride = qualityVectorStride;
+        qualityDispatch.maximumNewtonIterations =
+            qualityConfig.maximumNewtonIterations;
+        qualityDispatch.maximumPCGIterations =
+            qualityConfig.maximumPCGIterations;
+        qualityDispatch.maximumLineSearchIterations =
+            qualityConfig.maximumLineSearchIterations;
+        qualityDispatch.directMaximumGeneralizedVelocities =
+            qualityConfig.directMaximumGeneralizedVelocities;
+        qualityDispatch.directMaximumRows =
+            qualityConfig.directMaximumRows;
+        qualityDispatch.derivativeStride =
+            constraintCapacity * 36u;
+        qualityDispatch.hessianStride = qualityHessianStride;
+        qualityDispatch.blockStride = constraintCapacity;
+        qualityDispatch.tolerances = {
+            qualityConfig.optimalityTolerance,
+            qualityConfig.feasibilityTolerance,
+            qualityConfig.armijoConstant,
+            qualityConfig.lineSearchContraction,
+        };
+        qualityDispatch.numerics = {
+            qualityConfig.complianceFloorMultiplier,
+            1.0e-10f,
+            1.0e-20f,
+            64.0f,
+        };
+    }
 
     MRMLXContactAdapterDispatchGPU adapterDispatch{};
     adapterDispatch.environmentCount = environments;
@@ -4349,7 +4572,75 @@ void WorldStepPrimitive::eval_gpu(
             );
         }
 
-        setPhysicsKernel("mr_world_collide_compile");
+        setPhysicsKernel("mr_world_finalize_pair_manifold");
+        encoder.set_bytes(contactDispatch, 0);
+        immutable(kImmutableShapes, 1);
+        inputArray(
+            hybridCCD ? candidateBodies : currentBodies,
+            2
+        );
+        immutable(kImmutableEligiblePairs, 3);
+        inputArray(*eventSourceCounts, 4);
+        inputArray(*eventSourceHeaders, 5);
+        inputArray(*eventSourcePoints, 6);
+        inputArray(pairFlags, 7);
+        inputArray(pairRawCounts, 8);
+        inputArray(pairRawStaging, 9);
+        inputArray(outputs[9], 10);
+        inputArray(ccdPairs, 11);
+        outputArray(pairManifoldHeaders, 12);
+        outputArray(pairManifoldPoints, 13);
+        outputArray(manifoldScatter, 14);
+        inputArray(outputs[11], 15);
+        encoder.set_bytes(pass, 16);
+        dispatchThreads(
+            pairFlagCount,
+            resources.kernel(
+                "mr_world_finalize_pair_manifold"
+            )
+        );
+
+        setPhysicsKernel("mr_world_scan_manifold_ir");
+        encoder.set_bytes(contactDispatch, 0);
+        outputArray(manifoldScatter, 1);
+        outputArray(candidateManifoldCounts, 2);
+        outputArray(outputs[11], 3);
+        encoder.set_bytes(pass, 4);
+        encoder.dispatch_threads(
+            MTL::Size(
+                static_cast<std::size_t>(environments) *
+                    MR_SIMD_WIDTH,
+                1u,
+                1u
+            ),
+            MTL::Size(MR_SIMD_WIDTH, 1u, 1u)
+        );
+        encoder.barrier();
+
+        setPhysicsKernel(
+            "mr_world_scatter_manifold_records"
+        );
+        encoder.set_bytes(contactDispatch, 0);
+        immutable(kImmutableEligiblePairs, 1);
+        inputArray(pairRawCounts, 2);
+        inputArray(pairRawStaging, 3);
+        inputArray(pairManifoldHeaders, 4);
+        inputArray(pairManifoldPoints, 5);
+        inputArray(manifoldScatter, 6);
+        inputArray(outputs[11], 7);
+        outputArray(candidatePairs, 8);
+        outputArray(rawContacts, 9);
+        outputArray(rawPairIndices, 10);
+        outputArray(candidateManifoldHeaders, 11);
+        outputArray(candidateManifoldPoints, 12);
+        dispatchThreads(
+            pairFlagCount,
+            resources.kernel(
+                "mr_world_scatter_manifold_records"
+            )
+        );
+
+        setPhysicsKernel("mr_world_scatter_manifold_ir");
         encoder.set_bytes(contactDispatch, 0);
         immutable(kImmutableShapes, 1);
         immutable(kImmutableMaterials, 2);
@@ -4359,33 +4650,24 @@ void WorldStepPrimitive::eval_gpu(
         );
         immutable(kImmutableArticulations, 4);
         immutable(kImmutableEligiblePairs, 5);
-        inputArray(*eventSourceCounts, 6);
-        inputArray(*eventSourceHeaders, 7);
-        inputArray(*eventSourcePoints, 8);
-        outputArray(candidatePairs, 9);
-        outputArray(rawContacts, 10);
-        outputArray(rawPairIndices, 11);
-        outputArray(candidateManifoldHeaders, 12);
-        outputArray(candidateManifoldPoints, 13);
-        outputArray(candidateManifoldCounts, 14);
-        outputArray(contacts, 15);
-        outputArray(contactMetadata, 16);
-        outputArray(irBlocks, 17);
-        outputArray(irEndpoints, 18);
-        outputArray(irRows, 19);
-        outputArray(irCones, 20);
-        outputArray(pointQueries, 21);
-        outputArray(outputs[11], 22);
-        encoder.set_bytes(pass, 23);
-        inputArray(projected, 24);
-        inputArray(pairFlags, 25);
-        inputArray(pairRawCounts, 26);
-        inputArray(pairRawStaging, 27);
-        inputArray(outputs[9], 28);
-        inputArray(ccdPairs, 29);
+        inputArray(pairManifoldHeaders, 6);
+        inputArray(pairManifoldPoints, 7);
+        inputArray(manifoldScatter, 8);
+        inputArray(outputs[11], 9);
+        outputArray(contacts, 10);
+        outputArray(contactMetadata, 11);
+        outputArray(irBlocks, 12);
+        outputArray(irEndpoints, 13);
+        outputArray(endpointRuntime, 14);
+        outputArray(irRows, 15);
+        outputArray(irCones, 16);
+        outputArray(pointQueries, 17);
         dispatchThreads(
-            environments,
-            resources.kernel("mr_world_collide_compile")
+            pairFlagCount *
+                MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY,
+            resources.kernel(
+                "mr_world_scatter_manifold_ir"
+            )
         );
 
         setPhysicsKernel(
@@ -4483,8 +4765,135 @@ void WorldStepPrimitive::eval_gpu(
             resources.kernel("mr_world_build_contact_islands")
         );
 
-        if (world_->solverMode() ==
-            MetalWorldSolverMode::throughputTGS) {
+        if (qualityMode) {
+            setPhysicsKernel("mr_world_prepare_unified_quality");
+            encoder.set_bytes(contactDispatch, 0);
+            encoder.set_bytes(qualityDispatch, 1);
+            immutable(kImmutableSceneBodyIndices, 2);
+            inputArray(factor, 3);
+            inputArray(pointJacobians, 4);
+            inputArray(candidateV, 5);
+            inputArray(candidateBodies, 6);
+            inputArray(contacts, 7);
+            inputArray(contactMetadata, 8);
+            inputArray(irBlocks, 9);
+            inputArray(evaluatedRows, 10);
+            inputArray(evaluatedCones, 11);
+            outputArray(outputs[11], 12);
+            outputArray(qualityBlocks, 13);
+            outputArray(qualityDynamics, 14);
+            outputArray(qualityJacobian, 15);
+            outputArray(qualityBias, 16);
+            outputArray(qualityFreeVelocity, 17);
+            outputArray(qualityWarmVelocity, 18);
+            outputArray(qualityWarmImpulses, 19);
+            encoder.dispatch_threadgroups(
+                MTL::Size(environments, 1u, 1u),
+                MTL::Size(MR_SIMD_WIDTH, 1u, 1u)
+            );
+            encoder.barrier();
+
+            setPhysicsKernel(
+                "mr_world_reconstruct_unified_quality_warm_start"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            encoder.set_bytes(qualityDispatch, 1);
+            inputArray(factor, 2);
+            inputArray(qualityDynamics, 3);
+            inputArray(qualityJacobian, 4);
+            inputArray(qualityFreeVelocity, 5);
+            inputArray(qualityWarmImpulses, 6);
+            outputArray(qualityWarmVelocity, 7);
+            outputArray(outputs[11], 8);
+            encoder.dispatch_threadgroups(
+                MTL::Size(environments, 1u, 1u),
+                MTL::Size(MR_SIMD_WIDTH, 1u, 1u)
+            );
+            encoder.barrier();
+
+            setPhysicsKernel(
+                "mr_world_build_unified_quality_queue"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            encoder.set_bytes(qualityDispatch, 1);
+            inputArray(outputs[11], 2);
+            outputArray(qualityWorkQueue, 3);
+            outputArray(qualityWorkPackets, 4);
+            encoder.dispatch_threadgroups(
+                MTL::Size(1u, 1u, 1u),
+                MTL::Size(MR_SIMD_WIDTH, 1u, 1u)
+            );
+            encoder.barrier();
+
+            setPhysicsKernel(
+                "mr_unified_quality_solve_persistent"
+            );
+            encoder.set_bytes(qualityDispatch, 0);
+            inputArray(qualityBlocks, 1);
+            inputArray(qualityDynamics, 2);
+            inputArray(qualityJacobian, 3);
+            inputArray(qualityBias, 4);
+            inputArray(qualityFreeVelocity, 5);
+            inputArray(qualityWarmVelocity, 6);
+            inputArray(qualityWarmImpulses, 7);
+            outputArray(qualityOutputVelocity, 8);
+            outputArray(qualityOutputImpulses, 9);
+            outputArray(qualityDerivatives, 10);
+            outputArray(qualityHessian, 11);
+            outputArray(qualityStatuses, 12);
+            outputArray(qualityWorkQueue, 13);
+            inputArray(qualityWorkPackets, 14);
+            encoder.dispatch_threadgroups(
+                MTL::Size(
+                    std::max(
+                        contactDispatch.waveWorkerGroupCount,
+                        1u
+                    ),
+                    1u,
+                    1u
+                ),
+                MTL::Size(MR_SIMD_WIDTH, 1u, 1u)
+            );
+            encoder.barrier();
+
+            setPhysicsKernel("mr_world_apply_unified_quality");
+            encoder.set_bytes(contactDispatch, 0);
+            encoder.set_bytes(qualityDispatch, 1);
+            immutable(kImmutableSceneBodyIndices, 2);
+            inputArray(qualityStatuses, 3);
+            inputArray(qualityOutputVelocity, 4);
+            inputArray(qualityOutputImpulses, 5);
+            outputArray(candidateV, 6);
+            outputArray(candidateBodies, 7);
+            outputArray(contacts, 8);
+            inputArray(contactMetadata, 9);
+            outputArray(candidateManifoldPoints, 10);
+            outputArray(outputs[11], 11);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_apply_unified_quality"
+                )
+            );
+            encoder.barrier();
+
+            setPhysicsKernel(
+                "mr_world_publish_unified_quality_queue_status"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            inputArray(qualityWorkQueue, 1);
+            outputArray(outputs[11], 2);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_publish_unified_quality_queue_status"
+                )
+            );
+            encoder.barrier();
+        } else if (
+            world_->solverMode() ==
+                MetalWorldSolverMode::throughputTGS
+        ) {
             setPhysicsKernel("mr_world_build_contact_tiles");
             encoder.set_bytes(contactDispatch, 0);
             inputArray(candidateBodies, 1);

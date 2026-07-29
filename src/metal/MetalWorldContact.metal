@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/unified_quality_shared.h"
 
 using namespace metal;
 
@@ -216,6 +217,46 @@ inline Mat3 stateInverseInertia(
     result.row1 = state.inverseInertiaWorldRow1.xyz;
     result.row2 = state.inverseInertiaWorldRow2.xyz;
     return result;
+}
+
+inline bool inverseMatrix(
+    const thread Mat3& matrix,
+    thread Mat3& inverse
+) {
+    const float determinant = dot(
+        matrix.row0,
+        cross(matrix.row1, matrix.row2)
+    );
+    if (!(abs(determinant) > kMatrixFloor) ||
+        !isfinite(determinant)) {
+        return false;
+    }
+    const float reciprocal = 1.0f / determinant;
+    const float3 column0 =
+        reciprocal * cross(matrix.row1, matrix.row2);
+    const float3 column1 =
+        reciprocal * cross(matrix.row2, matrix.row0);
+    const float3 column2 =
+        reciprocal * cross(matrix.row0, matrix.row1);
+    inverse.row0 = float3(
+        column0.x,
+        column1.x,
+        column2.x
+    );
+    inverse.row1 = float3(
+        column0.y,
+        column1.y,
+        column2.y
+    );
+    inverse.row2 = float3(
+        column0.z,
+        column1.z,
+        column2.z
+    );
+    return
+        finite3(inverse.row0) &&
+        finite3(inverse.row1) &&
+        finite3(inverse.row2);
 }
 
 inline bool validSceneState(
@@ -5314,4 +5355,1017 @@ kernel void mr_world_capture_contact(
         pass.controlStep * dispatch.environmentCount +
         environment
     ] = statuses[environment];
+}
+
+inline bool qualityContactResponseDiagonal(
+    device const MRMetalWorldContactDispatchGPU& dispatch,
+    const uint localConstraint,
+    const MRContactConstraintGPU contact,
+    const float3 direction,
+    device const MRBodyStateGPU* bodies,
+    device const float* factorMatrices,
+    const uint factorBase,
+    device const float* pointJacobians,
+    const uint pointJacobianBase,
+    thread float& diagonal
+) {
+    float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
+    float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
+    float solution[MR_ARTICULATED_ABA_MAX_DOFS];
+    const bool articulatedA =
+        bodies[contact.bodyA].flagsAndIndices[1] ==
+            dispatch.articulationIndex;
+    const bool articulatedB =
+        bodies[contact.bodyB].flagsAndIndices[1] ==
+            dispatch.articulationIndex;
+    for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+        rightHandSide[dof] = dot(
+            direction,
+            combinedJacobianColumn(
+                pointJacobians,
+                pointJacobianBase,
+                localConstraint,
+                dof,
+                dispatch.nv,
+                articulatedA,
+                articulatedB
+            )
+        );
+        intermediate[dof] = 0.0f;
+        solution[dof] = 0.0f;
+    }
+    if (!solveCholesky(
+            factorMatrices,
+            factorBase,
+            dispatch.nv,
+            rightHandSide,
+            intermediate,
+            solution
+        )) {
+        return false;
+    }
+    float response = 0.0f;
+    for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+        response = fma(
+            rightHandSide[dof],
+            solution[dof],
+            response
+        );
+    }
+    if (dynamicSceneEndpoint(
+            bodies[contact.bodyA],
+            dispatch.articulationIndex
+        )) {
+        response += dot(
+            direction,
+            scenePointResponse(
+                bodies[contact.bodyA],
+                contact.pointAndSeparation.xyz,
+                direction
+            )
+        );
+    }
+    if (contact.bodyB != contact.bodyA &&
+        dynamicSceneEndpoint(
+            bodies[contact.bodyB],
+            dispatch.articulationIndex
+        )) {
+        response += dot(
+            direction,
+            scenePointResponse(
+                bodies[contact.bodyB],
+                contact.pointAndSeparation.xyz,
+                direction
+            )
+        );
+    }
+    diagonal = max(response, 0.0f);
+    return isfinite(diagonal);
+}
+
+// Adapts evaluated ConstraintIR contact blocks to the common primal product
+// cone operator. The generalized coordinate order is articulation velocity
+// followed by six world-frame coordinates for every compiled scene body.
+// Static/kinematic scene slots receive identity dynamics and zero Jacobians,
+// keeping the fixed MLX shape SPD without allowing a boundary body to move.
+kernel void mr_world_prepare_unified_quality(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRUnifiedQualityDispatchGPU& qualityDispatch
+        [[buffer(1)]],
+    device const uint* sceneBodyIndices [[buffer(2)]],
+    device const float* factorMatrices [[buffer(3)]],
+    device const float* pointJacobians [[buffer(4)]],
+    device const float* candidateV [[buffer(5)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(6)]],
+    device const MRContactConstraintGPU* contacts [[buffer(7)]],
+    device const MRContactPointMetaGPU* contactMetadata [[buffer(8)]],
+    device const MRConstraintIRBlockGPU* irBlocks [[buffer(9)]],
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows
+        [[buffer(10)]],
+    device const MREvaluatedConstraintIRConeGPU* evaluatedCones
+        [[buffer(11)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(12)]],
+    device MRUnifiedQualityBlockGPU* qualityBlocks [[buffer(13)]],
+    device float* dynamicsMatrices [[buffer(14)]],
+    device float* jacobianMatrices [[buffer(15)]],
+    device float* biasVectors [[buffer(16)]],
+    device float* freeVelocities [[buffer(17)]],
+    device float* warmVelocities [[buffer(18)]],
+    device float* warmImpulses [[buffer(19)]],
+    const uint environment [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        lane >= 32u) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU contactStatus =
+        statuses[environment];
+    const uint totalNv =
+        dispatch.nv + 6u * dispatch.sceneBodyCount;
+    const bool validDispatch =
+        contactStatus.code == MR_STEP_SUCCESS &&
+        qualityDispatch.abiVersion ==
+            MR_UNIFIED_QUALITY_ABI_VERSION &&
+        qualityDispatch.problemCount ==
+            dispatch.environmentCount &&
+        qualityDispatch.generalizedVelocityCount == totalNv &&
+        qualityDispatch.rowCount ==
+            3u * dispatch.constraintCapacity &&
+        qualityDispatch.blockCount ==
+            dispatch.constraintCapacity &&
+        qualityDispatch.blockStride >=
+            dispatch.constraintCapacity;
+    if (!validDispatch) {
+        if (lane == 0u &&
+            contactStatus.code == MR_STEP_SUCCESS) {
+            contactStatus.code = MR_STEP_UNSUPPORTED;
+            statuses[environment] = contactStatus;
+        }
+        return;
+    }
+
+    const uint vectorBase =
+        environment * qualityDispatch.vectorStride;
+    const uint dynamicsBase =
+        environment * qualityDispatch.dynamicsStride;
+    const uint jacobianBase =
+        environment * qualityDispatch.jacobianStride;
+    const uint qualityBlockBase =
+        environment * qualityDispatch.blockStride;
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    const uint velocityBase = environment * dispatch.nv;
+    const uint factorBase =
+        environment * dispatch.factorStride;
+    const uint pointJacobianBase =
+        environment *
+        dispatch.pointQueryStride * 3u * dispatch.nv;
+    const uint constraintBase =
+        environment * dispatch.constraintStride;
+    const uint rowBase = environment * dispatch.rowStride;
+
+    bool localFailure = false;
+    for (uint dof = lane; dof < totalNv; dof += 32u) {
+        float value = 0.0f;
+        if (dof < dispatch.nv) {
+            value = candidateV[velocityBase + dof];
+        } else {
+            const uint sceneCoordinate = dof - dispatch.nv;
+            const uint localScene = sceneCoordinate / 6u;
+            const uint component =
+                sceneCoordinate - 6u * localScene;
+            const uint globalBody =
+                sceneBodyIndices[localScene];
+            const MRBodyStateGPU body =
+                candidateBodies[bodyBase + globalBody];
+            value =
+                component < 3u
+                ? body.linearVelocityAndInverseMass[component]
+                : body.angularVelocity[component - 3u];
+        }
+        freeVelocities[vectorBase + dof] = value;
+        warmVelocities[vectorBase + dof] = value;
+        localFailure =
+            localFailure || !isfinite(value);
+    }
+
+    for (uint entry = lane;
+         entry < totalNv * totalNv;
+         entry += 32u) {
+        const uint row = entry / totalNv;
+        const uint column = entry - row * totalNv;
+        float value = 0.0f;
+        if (row < dispatch.nv && column < dispatch.nv) {
+            const uint maximumInner = min(row, column);
+            for (uint inner = 0u;
+                 inner <= maximumInner;
+                 ++inner) {
+                value = fma(
+                    factorMatrices[
+                        factorBase + row * dispatch.nv + inner
+                    ],
+                    factorMatrices[
+                        factorBase +
+                        column * dispatch.nv +
+                        inner
+                    ],
+                    value
+                );
+            }
+        } else if (
+            row >= dispatch.nv &&
+            column >= dispatch.nv
+        ) {
+            const uint rowSceneCoordinate =
+                row - dispatch.nv;
+            const uint columnSceneCoordinate =
+                column - dispatch.nv;
+            const uint rowScene = rowSceneCoordinate / 6u;
+            const uint columnScene =
+                columnSceneCoordinate / 6u;
+            const uint rowComponent =
+                rowSceneCoordinate - 6u * rowScene;
+            const uint columnComponent =
+                columnSceneCoordinate -
+                6u * columnScene;
+            if (rowScene == columnScene) {
+                const uint globalBody =
+                    sceneBodyIndices[rowScene];
+                device const MRBodyStateGPU& body =
+                    candidateBodies[bodyBase + globalBody];
+                if (body.flagsAndIndices[0] ==
+                    MR_MOTION_DYNAMIC) {
+                    if (rowComponent < 3u &&
+                        columnComponent < 3u) {
+                        value =
+                            rowComponent == columnComponent
+                            ? 1.0f /
+                                body
+                                    .linearVelocityAndInverseMass
+                                    .w
+                            : 0.0f;
+                    } else if (
+                        rowComponent >= 3u &&
+                        columnComponent >= 3u
+                    ) {
+                        Mat3 inertia;
+                        if (!inverseMatrix(
+                                stateInverseInertia(body),
+                                inertia
+                            )) {
+                            localFailure = true;
+                        } else {
+                            const uint inertiaRow =
+                                rowComponent - 3u;
+                            const uint inertiaColumn =
+                                columnComponent - 3u;
+                            value =
+                                inertiaRow == 0u
+                                ? inertia.row0[inertiaColumn]
+                                : inertiaRow == 1u
+                                ? inertia.row1[inertiaColumn]
+                                : inertia.row2[inertiaColumn];
+                        }
+                    }
+                } else {
+                    value =
+                        rowComponent == columnComponent
+                        ? 1.0f
+                        : 0.0f;
+                }
+            }
+        }
+        dynamicsMatrices[dynamicsBase + entry] = value;
+        localFailure =
+            localFailure || !isfinite(value);
+    }
+
+    for (uint localConstraint = lane;
+         localConstraint < dispatch.constraintCapacity;
+         localConstraint += 32u) {
+        const bool active =
+            localConstraint <
+                contactStatus.requiredConstraints;
+        MRUnifiedQualityBlockGPU qualityBlock = {};
+        qualityBlock.layout = uint4(
+            3u * localConstraint,
+            3u,
+            MR_UNIFIED_QUALITY_ELLIPTIC_CONE,
+            0u
+        );
+        qualityBlock.stableKey = uint4(
+            localConstraint,
+            environment,
+            0u,
+            0u
+        );
+        qualityBlock.scale0 =
+            float4(1.0f, 0.5f, 0.5f, 1.0f);
+        qualityBlock.scale1 = float4(1.0f);
+        qualityBlock.regularization0 =
+            float4(1.0f);
+        qualityBlock.regularization1 =
+            float4(1.0f);
+        qualityBlock.boundsAndShift = float4(0.0f);
+        if (active) {
+            const MRConstraintIRBlockGPU sourceBlock =
+                irBlocks[constraintBase + localConstraint];
+            const MREvaluatedConstraintIRConeGPU cone =
+                evaluatedCones[
+                    constraintBase + localConstraint
+                ];
+            qualityBlock.stableKey = uint4(
+                sourceBlock.key.words[0],
+                sourceBlock.key.words[1],
+                sourceBlock.key.words[2],
+                sourceBlock.key.words[3]
+            );
+            if (!(cone.effectiveFrictionU > 0.0f) ||
+                !(cone.effectiveFrictionV > 0.0f) ||
+                !isfinite(cone.effectiveFrictionU) ||
+                !isfinite(cone.effectiveFrictionV)) {
+                localFailure = true;
+            }
+            qualityBlock.scale0 = float4(
+                1.0f,
+                cone.effectiveFrictionU,
+                cone.effectiveFrictionV,
+                1.0f
+            );
+            const MRContactConstraintGPU contact =
+                contacts[constraintBase + localConstraint];
+            float responseDiagonal[3] = {
+                0.0f,
+                0.0f,
+                0.0f,
+            };
+            for (uint axis = 0u; axis < 3u; ++axis) {
+                const float3 direction =
+                    evaluatedRows[
+                        rowBase +
+                        3u * localConstraint +
+                        axis
+                    ].direction.xyz;
+                if (!qualityContactResponseDiagonal(
+                        dispatch,
+                        localConstraint,
+                        contact,
+                        direction,
+                        candidateBodies + bodyBase,
+                        factorMatrices,
+                        factorBase,
+                        pointJacobians,
+                        pointJacobianBase,
+                        responseDiagonal[axis]
+                    )) {
+                    localFailure = true;
+                }
+            }
+            const float positiveBlockMean = max(
+                (
+                    responseDiagonal[0] +
+                    responseDiagonal[1] +
+                    responseDiagonal[2]
+                ) / 3.0f,
+                qualityDispatch.numerics.y
+            );
+            for (uint axis = 0u; axis < 3u; ++axis) {
+                const MREvaluatedConstraintIRRowGPU row =
+                    evaluatedRows[
+                        rowBase +
+                        3u * localConstraint +
+                        axis
+                    ];
+                qualityBlock.regularization0[axis] = max(
+                    row.regularization,
+                    max(
+                        max(
+                            qualityDispatch.numerics.y,
+                            qualityDispatch.numerics.x *
+                                1.1920928955078125e-7f *
+                                max(
+                                    responseDiagonal[axis],
+                                    positiveBlockMean
+                                )
+                        ),
+                        // A pure 64-epsilon equality floor is too stiff for
+                        // a repeatedly projected FP32 cone. Keep its exact
+                        // floor, then bound the contact metric condition
+                        // number with a declared scale-aware 5e-4 response
+                        // floor. This is contact regularization, not hidden
+                        // equality compliance, and is reported by the
+                        // quality status.
+                        5.0e-4f *
+                            positiveBlockMean
+                    )
+                );
+                biasVectors[
+                    vectorBase +
+                    3u * localConstraint +
+                    axis
+                ] = -row.targetVelocity;
+            }
+            qualityBlock.boundsAndShift = float4(
+                cone.adhesionImpulse,
+                cone.maximumNormalImpulse,
+                0.0f,
+                0.0f
+            );
+            warmImpulses[
+                vectorBase + 3u * localConstraint + 0u
+            ] = contact.impulses.x;
+            warmImpulses[
+                vectorBase + 3u * localConstraint + 1u
+            ] = contact.impulses.y;
+            warmImpulses[
+                vectorBase + 3u * localConstraint + 2u
+            ] = contact.impulses.z;
+        } else {
+            for (uint axis = 0u; axis < 3u; ++axis) {
+                biasVectors[
+                    vectorBase +
+                    3u * localConstraint +
+                    axis
+                ] = 0.0f;
+                warmImpulses[
+                    vectorBase +
+                    3u * localConstraint +
+                    axis
+                ] = 0.0f;
+            }
+        }
+        qualityBlocks[
+            qualityBlockBase + localConstraint
+        ] = qualityBlock;
+    }
+
+    for (uint entry = lane;
+         entry < qualityDispatch.rowCount * totalNv;
+         entry += 32u) {
+        const uint row = entry / totalNv;
+        const uint dof = entry - row * totalNv;
+        const uint localConstraint = row / 3u;
+        const uint axis = row - 3u * localConstraint;
+        float coefficient = 0.0f;
+        if (localConstraint <
+            contactStatus.requiredConstraints) {
+            const MRContactConstraintGPU contact =
+                contacts[constraintBase + localConstraint];
+            const float3 direction =
+                evaluatedRows[rowBase + row].direction.xyz;
+            if (dof < dispatch.nv) {
+                const bool articulatedA =
+                    candidateBodies[
+                        bodyBase + contact.bodyA
+                    ].flagsAndIndices[1] ==
+                        dispatch.articulationIndex;
+                const bool articulatedB =
+                    candidateBodies[
+                        bodyBase + contact.bodyB
+                    ].flagsAndIndices[1] ==
+                        dispatch.articulationIndex;
+                coefficient = dot(
+                    direction,
+                    combinedJacobianColumn(
+                        pointJacobians,
+                        pointJacobianBase,
+                        localConstraint,
+                        dof,
+                        dispatch.nv,
+                        articulatedA,
+                        articulatedB
+                    )
+                );
+            } else {
+                const uint sceneCoordinate =
+                    dof - dispatch.nv;
+                const uint localScene =
+                    sceneCoordinate / 6u;
+                const uint component =
+                    sceneCoordinate - 6u * localScene;
+                const uint globalBody =
+                    sceneBodyIndices[localScene];
+                device const MRBodyStateGPU& body =
+                    candidateBodies[bodyBase + globalBody];
+                if (body.flagsAndIndices[0] ==
+                    MR_MOTION_DYNAMIC) {
+                    float sign = 0.0f;
+                    if (contact.bodyA == globalBody) {
+                        sign -= 1.0f;
+                    }
+                    if (contact.bodyB == globalBody) {
+                        sign += 1.0f;
+                    }
+                    if (component < 3u) {
+                        coefficient =
+                            sign * direction[component];
+                    } else {
+                        const MRContactPointMetaGPU metadata =
+                            contactMetadata[
+                                constraintBase +
+                                localConstraint
+                            ];
+                        static_cast<void>(metadata);
+                        const float3 lever =
+                            contact.pointAndSeparation.xyz -
+                            body.position.xyz;
+                        coefficient =
+                            sign *
+                            cross(lever, direction)[
+                                component - 3u
+                            ];
+                    }
+                }
+            }
+        }
+        jacobianMatrices[jacobianBase + entry] =
+            coefficient;
+        localFailure =
+            localFailure || !isfinite(coefficient);
+        static_cast<void>(axis);
+    }
+
+    if (simd_any(localFailure) && lane == 0u) {
+        contactStatus.code = MR_STEP_NONFINITE_RESULT;
+        contactStatus.firstFailingConstraint = 0u;
+        statuses[environment] = contactStatus;
+    }
+}
+
+// Reconstructs the second primal starting point from the persistent contact
+// impulses:
+//
+//     v_warm = v_free + A^-1 J^T lambda_cached.
+//
+// The preparation kernel writes A and J in parallel, so this is deliberately
+// a separate graph stage. Each generalized coordinate accumulates rows in
+// canonical order; worker scheduling therefore cannot perturb the sum.
+kernel void mr_world_reconstruct_unified_quality_warm_start(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRUnifiedQualityDispatchGPU& qualityDispatch
+        [[buffer(1)]],
+    device const float* factorMatrices [[buffer(2)]],
+    device const float* dynamicsMatrices [[buffer(3)]],
+    device const float* jacobianMatrices [[buffer(4)]],
+    device const float* freeVelocities [[buffer(5)]],
+    device const float* warmImpulses [[buffer(6)]],
+    device float* warmVelocities [[buffer(7)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(8)]],
+    const uint environment [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        lane >= MR_SIMD_WIDTH) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU contactStatus =
+        statuses[environment];
+    const uint totalNv =
+        dispatch.nv + 6u * dispatch.sceneBodyCount;
+    const bool validDispatch =
+        contactStatus.code == MR_STEP_SUCCESS &&
+        dispatch.nv <= MR_ARTICULATED_ABA_MAX_DOFS &&
+        totalNv ==
+            qualityDispatch.generalizedVelocityCount &&
+        totalNv <=
+            MR_UNIFIED_QUALITY_MAX_GENERALIZED_VELOCITIES &&
+        qualityDispatch.rowCount <=
+            MR_UNIFIED_QUALITY_MAX_ROWS;
+    if (!validDispatch) {
+        if (lane == 0u &&
+            contactStatus.code == MR_STEP_SUCCESS) {
+            contactStatus.code = MR_STEP_UNSUPPORTED;
+            statuses[environment] = contactStatus;
+        }
+        return;
+    }
+
+    const uint vectorBase =
+        environment * qualityDispatch.vectorStride;
+    const uint jacobianBase =
+        environment * qualityDispatch.jacobianStride;
+    threadgroup float generalizedImpulse[
+        MR_UNIFIED_QUALITY_MAX_GENERALIZED_VELOCITIES
+    ];
+    for (uint dof = lane; dof < totalNv; dof += MR_SIMD_WIDTH) {
+        float value = 0.0f;
+        for (uint row = 0u;
+             row < qualityDispatch.rowCount;
+             ++row) {
+            value = fma(
+                jacobianMatrices[
+                    jacobianBase + row * totalNv + dof
+                ],
+                warmImpulses[vectorBase + row],
+                value
+            );
+        }
+        generalizedImpulse[dof] = value;
+    }
+    threadgroup_barrier(
+        mem_flags::mem_threadgroup |
+        mem_flags::mem_device
+    );
+
+    if (lane != 0u) {
+        return;
+    }
+    bool valid = true;
+    float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
+    float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
+    float solution[MR_ARTICULATED_ABA_MAX_DOFS];
+    for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+        rightHandSide[dof] = generalizedImpulse[dof];
+        intermediate[dof] = 0.0f;
+        solution[dof] = 0.0f;
+    }
+    if (dispatch.nv != 0u) {
+        valid = solveCholesky(
+            factorMatrices,
+            environment * dispatch.factorStride,
+            dispatch.nv,
+            rightHandSide,
+            intermediate,
+            solution
+        );
+    }
+    for (uint dof = 0u; valid && dof < dispatch.nv; ++dof) {
+        const float value =
+            freeVelocities[vectorBase + dof] + solution[dof];
+        warmVelocities[vectorBase + dof] = value;
+        valid = valid && isfinite(value);
+    }
+
+    // Scene-body dynamics are independent 6x6 SPD blocks. Factor each block
+    // in stable body/component order rather than materializing a global
+    // inverse or relying on atomic wrench accumulation.
+    const uint dynamicsBase =
+        environment * qualityDispatch.dynamicsStride;
+    for (uint localScene = 0u;
+         valid && localScene < dispatch.sceneBodyCount;
+         ++localScene) {
+        float factor[36];
+        float bodyIntermediate[6];
+        float bodySolution[6];
+        const uint coordinateBase =
+            dispatch.nv + 6u * localScene;
+        for (uint row = 0u; row < 6u; ++row) {
+            bodyIntermediate[row] = 0.0f;
+            bodySolution[row] = 0.0f;
+            for (uint column = 0u; column < 6u; ++column) {
+                factor[row * 6u + column] = 0.0f;
+            }
+        }
+        for (uint row = 0u; valid && row < 6u; ++row) {
+            for (uint column = 0u; column <= row; ++column) {
+                float value = dynamicsMatrices[
+                    dynamicsBase +
+                    (coordinateBase + row) * totalNv +
+                    coordinateBase + column
+                ];
+                for (uint inner = 0u;
+                     inner < column;
+                     ++inner) {
+                    value = fma(
+                        -factor[row * 6u + inner],
+                        factor[column * 6u + inner],
+                        value
+                    );
+                }
+                if (row == column) {
+                    if (!(value >
+                          qualityDispatch.numerics.y) ||
+                        !isfinite(value)) {
+                        valid = false;
+                        break;
+                    }
+                    factor[row * 6u + column] = sqrt(value);
+                } else {
+                    factor[row * 6u + column] =
+                        value /
+                        factor[column * 6u + column];
+                }
+            }
+        }
+        for (uint row = 0u; valid && row < 6u; ++row) {
+            float value =
+                generalizedImpulse[coordinateBase + row];
+            for (uint column = 0u;
+                 column < row;
+                 ++column) {
+                value = fma(
+                    -factor[row * 6u + column],
+                    bodyIntermediate[column],
+                    value
+                );
+            }
+            bodyIntermediate[row] =
+                value / factor[row * 6u + row];
+        }
+        for (uint reverse = 0u;
+             valid && reverse < 6u;
+             ++reverse) {
+            const uint row = 5u - reverse;
+            float value = bodyIntermediate[row];
+            for (uint column = row + 1u;
+                 column < 6u;
+                 ++column) {
+                value = fma(
+                    -factor[column * 6u + row],
+                    bodySolution[column],
+                    value
+                );
+            }
+            bodySolution[row] =
+                value / factor[row * 6u + row];
+            valid = isfinite(bodySolution[row]);
+        }
+        for (uint component = 0u;
+             valid && component < 6u;
+             ++component) {
+            const uint dof = coordinateBase + component;
+            const float value =
+                freeVelocities[vectorBase + dof] +
+                bodySolution[component];
+            warmVelocities[vectorBase + dof] = value;
+            valid = valid && isfinite(value);
+        }
+    }
+    if (!valid) {
+        contactStatus.code = MR_STEP_FACTORIZATION_FAILED;
+        contactStatus.firstFailingConstraint = 0u;
+        statuses[environment] = contactStatus;
+    }
+}
+
+// Stable active-problem compaction for the MLX persistent quality executor.
+// One SIMD32 group scans environments in canonical order. The cursor is reset
+// invocation-locally and atomics are reserved exclusively for later worker
+// claims, never packet ordering.
+kernel void mr_world_build_unified_quality_queue(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRUnifiedQualityDispatchGPU& qualityDispatch
+        [[buffer(1)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(2)]],
+    device MRUnifiedQualityWorkQueueGPU& queue [[buffer(3)]],
+    device MRUnifiedQualityWorkPacketGPU* packets [[buffer(4)]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    if (lane >= MR_SIMD_WIDTH) {
+        return;
+    }
+    const bool valid =
+        qualityDispatch.abiVersion ==
+            MR_UNIFIED_QUALITY_ABI_VERSION &&
+        qualityDispatch.problemCount ==
+            dispatch.environmentCount;
+    uint total = 0u;
+    if (valid) {
+        for (uint tile = 0u;
+             tile < dispatch.environmentCount;
+             tile += MR_SIMD_WIDTH) {
+            const uint environment = tile + lane;
+            const bool active =
+                environment < dispatch.environmentCount &&
+                statuses[environment].code == MR_STEP_SUCCESS;
+            const uint prefix =
+                simd_prefix_exclusive_sum(active ? 1u : 0u);
+            const uint tileCount =
+                simd_sum(active ? 1u : 0u);
+            if (active) {
+                MRUnifiedQualityWorkPacketGPU packet = {};
+                packet.identity = uint4(
+                    environment,
+                    0u,
+                    environment,
+                    0u
+                );
+                packet.scheduling = uint4(
+                    statuses[environment].eventGeneration,
+                    0u,
+                    0u,
+                    0u
+                );
+                packets[total + prefix] = packet;
+            }
+            total += tileCount;
+        }
+    }
+    if (lane == 0u) {
+        MRUnifiedQualityWorkQueueGPU next = {};
+        next.count = total;
+        next.capacity = qualityDispatch.problemCount;
+        next.required = total;
+        next.cursor = 0u;
+        next.workerGroups = max(
+            dispatch.waveWorkerGroupCount,
+            1u
+        );
+        next.flags =
+            MR_UNIFIED_QUALITY_QUEUE_PERSISTENT_WORKER;
+        next.firstFailingStableKey =
+            uint4(MR_UNIFIED_QUALITY_INVALID_INDEX);
+        next.indirect = uint4(total, 1u, 1u, total);
+        queue = next;
+    }
+}
+
+// Transactionally transfers a converged generalized-velocity solution back
+// to the candidate world and persistent manifold impulses. A failed quality
+// island only marks its environment; the publication kernels preserve the
+// previous accepted state.
+kernel void mr_world_apply_unified_quality(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRUnifiedQualityDispatchGPU& qualityDispatch
+        [[buffer(1)]],
+    device const uint* sceneBodyIndices [[buffer(2)]],
+    device const MRUnifiedQualityStatusGPU* qualityStatuses
+        [[buffer(3)]],
+    device const float* qualityVelocities [[buffer(4)]],
+    device const float* qualityImpulses [[buffer(5)]],
+    device float* candidateV [[buffer(6)]],
+    device MRBodyStateGPU* candidateBodies [[buffer(7)]],
+    device MRContactConstraintGPU* contacts [[buffer(8)]],
+    device const MRContactPointMetaGPU* contactMetadata [[buffer(9)]],
+    device MRManifoldPointGPU* candidateManifoldPoints
+        [[buffer(10)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(11)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU contactStatus =
+        statuses[environment];
+    if (contactStatus.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const MRUnifiedQualityStatusGPU quality =
+        qualityStatuses[environment];
+    if (quality.code != MR_UNIFIED_QUALITY_SUCCESS) {
+        contactStatus.code =
+            quality.code ==
+                    MR_UNIFIED_QUALITY_FACTORIZATION_FAILED
+            ? MR_STEP_FACTORIZATION_FAILED
+            : quality.code ==
+                      MR_UNIFIED_QUALITY_DID_NOT_CONVERGE ||
+                  quality.code ==
+                      MR_UNIFIED_QUALITY_PCG_FAILED ||
+                  quality.code ==
+                      MR_UNIFIED_QUALITY_LINE_SEARCH_FAILED
+            ? MR_STEP_DID_NOT_CONVERGE
+            : MR_STEP_NONFINITE_RESULT;
+        contactStatus.firstFailingConstraint =
+            quality.failingBlock;
+        contactStatus.firstFailingStableKeyLow =
+            quality.firstFailingStableKey.x;
+        contactStatus.firstFailingStableKeyHigh =
+            quality.firstFailingStableKey.y;
+        contactStatus.solverIterations =
+            quality.newtonIterations;
+        contactStatus.qualityNewtonIterations =
+            quality.newtonIterations;
+        contactStatus.qualityPCGIterations =
+            quality.pcgIterations;
+        contactStatus.qualityLineSearchBacktracks =
+            quality.lineSearchBacktracks;
+        contactStatus.qualitySolvePath = quality.solvePath;
+        contactStatus.residuals = float4(
+            quality.certificates1.z,
+            quality.certificates0.x,
+            quality.certificates0.y,
+            quality.certificates1.x
+        );
+        contactStatus.qualityCertificates =
+            quality.certificates0;
+        contactStatus.qualityDiagnostics = float4(
+            quality.certificates1.x,
+            quality.certificates1.y,
+            quality.certificates1.z,
+            max(quality.numerics.x, quality.numerics.y)
+        );
+        statuses[environment] = contactStatus;
+        return;
+    }
+
+    const uint vectorBase =
+        environment * qualityDispatch.vectorStride;
+    const uint velocityBase = environment * dispatch.nv;
+    for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+        candidateV[velocityBase + dof] =
+            qualityVelocities[vectorBase + dof];
+    }
+    const uint bodyBase =
+        environment * dispatch.bodyStateStride;
+    for (uint localScene = 0u;
+         localScene < dispatch.sceneBodyCount;
+         ++localScene) {
+        const uint globalBody = sceneBodyIndices[localScene];
+        device MRBodyStateGPU& body =
+            candidateBodies[bodyBase + globalBody];
+        if (body.flagsAndIndices[0] != MR_MOTION_DYNAMIC) {
+            continue;
+        }
+        const uint offset =
+            vectorBase + dispatch.nv + 6u * localScene;
+        body.linearVelocityAndInverseMass.xyz = float3(
+            qualityVelocities[offset + 0u],
+            qualityVelocities[offset + 1u],
+            qualityVelocities[offset + 2u]
+        );
+        body.angularVelocity.xyz = float3(
+            qualityVelocities[offset + 3u],
+            qualityVelocities[offset + 4u],
+            qualityVelocities[offset + 5u]
+        );
+    }
+    const uint constraintBase =
+        environment * dispatch.constraintStride;
+    const uint manifoldPointBase =
+        environment * dispatch.manifoldStride *
+        MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+    for (uint localConstraint = 0u;
+         localConstraint < contactStatus.requiredConstraints;
+         ++localConstraint) {
+        const float3 impulse = float3(
+            qualityImpulses[
+                vectorBase + 3u * localConstraint + 0u
+            ],
+            qualityImpulses[
+                vectorBase + 3u * localConstraint + 1u
+            ],
+            qualityImpulses[
+                vectorBase + 3u * localConstraint + 2u
+            ]
+        );
+        device MRContactConstraintGPU& contact =
+            contacts[constraintBase + localConstraint];
+        contact.impulses.xyz = impulse;
+        const MRContactPointMetaGPU metadata =
+            contactMetadata[constraintBase + localConstraint];
+        const uint point =
+            manifoldPointBase +
+            metadata.manifoldIndex *
+                MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
+            metadata.pointIndex;
+        candidateManifoldPoints[point].impulses.xyz =
+            impulse;
+    }
+    contactStatus.solverIterations =
+        quality.newtonIterations;
+    contactStatus.qualityNewtonIterations =
+        quality.newtonIterations;
+    contactStatus.qualityPCGIterations =
+        quality.pcgIterations;
+    contactStatus.qualityLineSearchBacktracks =
+        quality.lineSearchBacktracks;
+    contactStatus.qualitySolvePath = quality.solvePath;
+    contactStatus.residuals = float4(
+        abs(quality.certificates1.z),
+        quality.certificates0.x,
+        quality.certificates0.y,
+        quality.certificates1.x
+    );
+    contactStatus.qualityCertificates =
+        quality.certificates0;
+    contactStatus.qualityDiagnostics = float4(
+        quality.certificates1.x,
+        quality.certificates1.y,
+        quality.certificates1.z,
+        max(quality.numerics.x, quality.numerics.y)
+    );
+    contactStatus.diagnostics.z = quality.numerics.z;
+    contactStatus.diagnostics.w = quality.numerics.w;
+    statuses[environment] = contactStatus;
+}
+
+// Publishes invocation-level persistent-worker evidence after every queued
+// problem has completed. This stage is deliberately separate from the solver:
+// no worker contends on per-environment status, and queue diagnostics cannot
+// perturb the primal state.
+kernel void mr_world_publish_unified_quality_queue_status(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRUnifiedQualityWorkQueueGPU& queue [[buffer(1)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(2)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    status.workerPackets = queue.packetsProcessed;
+    status.workerHighWater = max(
+        status.workerHighWater,
+        queue.count
+    );
+    status.workerEmptyPulls = queue.emptyPulls;
+    status.queueFlags |= MR_WORLD_QUEUE_PERSISTENT_WORKER;
+    if (status.code == MR_STEP_SUCCESS &&
+        queue.packetsProcessed != queue.count) {
+        status.code = MR_STEP_DID_NOT_CONVERGE;
+        status.firstFailingConstraint =
+            MR_UNIFIED_QUALITY_INVALID_INDEX;
+    }
+    statuses[environment] = status;
 }
