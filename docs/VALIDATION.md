@@ -323,6 +323,26 @@ scalar regression with finite `1e200` velocity and regularization therefore
 returns the analytic unit impulse instead of overflowing a denominator and
 falsely accepting zero impulse.
 
+## Heterogeneous multi-articulation Metal contact graph
+
+```sh
+./build/bin/metalrobo_metal_multi_articulated_contact_probe
+```
+
+This device probe composes two floating articulations and one independent
+dynamic body, then solves two coupled contacts as one 18-DoF exact-cone
+island. Point Jacobian emission, global row assembly, four inverse-ABA
+packets, free-body inverse response, Delassus construction, the quality solve
+and candidate publication execute in one Metal command buffer.
+
+On the Apple M4 the normal Delassus block is `[2, -1; -1, 2]`, both normal
+impulses are `0.99999`, the largest post-solve speed is `1.02e-5`, and the
+maximum error against the FP64 heterogeneous oracle is `9.2e-6`. A second
+submission is bitwise identical. An invalid quaternion injected into one
+environment rolls back only that environment while the other three publish
+normally; a rejected pre-dispatch input leaves the previously accepted host
+result unchanged.
+
 Clean Release result:
 
 ```text

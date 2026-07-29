@@ -141,6 +141,12 @@ linked or called at runtime.
   solve. Per-articulation factors and 6D body response blocks construct the
   physical Delassus operator without a dense global mass inverse; the
   dual-PSM/needle bundle is an executable 34-DoF reference island
+- The standalone Metal heterogeneous contact frontend executes analytic point
+  Jacobians, global row assembly, batched articulation-local inverse ABA,
+  maximal-coordinate scene-body response, physical Delassus construction and
+  the exact-cone quality solve in one command buffer. Its first device probe
+  couples two articulations and a dynamic body in one 18-DoF island with
+  deterministic replay and per-environment transactional rollback
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication
@@ -172,8 +178,10 @@ multi-articulation contact islands, patch rolling/torsional solve,
 mesh-backed URDF/MJCF/OpenUSD workflows, rendering breadth, coupled
 thread self/tool collision and tissue mechanics, unified cone/scalar
 matrix-free Metal quality solve,
-and qualified differentiation remain open. The dated requirements and claim
-rules are in
+and qualified differentiation remain open. Explicit heterogeneous contact
+rows are now solved on standalone Metal; manifold-to-row scatter into the
+persistent `MetalWorld`/MLX graph is the remaining composition boundary.
+The dated requirements and claim rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
 
 ## Build

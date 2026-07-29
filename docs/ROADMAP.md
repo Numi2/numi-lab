@@ -89,14 +89,20 @@ prototype.
   or factorizing a mass matrix. Multi-articulation contact can therefore feed
   those rows into the shared parallel inverse-ABA response stage without
   duplicating factor ownership
+- **Landed standalone heterogeneous contact solve:** explicit contact rows
+  spanning multiple articulations, dynamic scene-body 6D blocks and
+  static/kinematic boundaries now flow through one Metal command buffer into
+  the exact-cone quality solver, with deterministic replay and isolated
+  per-environment rollback
 - Move the actuation/free-motion ABA step itself from lane-zero recursion onto
   the cooked frontiers, then reuse its per-microstep factor cache across
   actuation, generalized constraints, and contact response
 - Compile complete unilateral joint-limit warm starts and equality/loop
   constraints into shared ConstraintIR; finish self-collision exclusions,
   coupled stiction, and calibrated rolling/torsional patch blocks
-- Extend the CPU transaction to multiple articulations and dynamic free
-  objects through deterministic island ownership
+- Scatter persistent manifold endpoints into the landed Metal row frontend,
+  then move the same encoder sequence into the private-buffer standalone
+  context and MLX active encoder
 - Preserve the working Franka API while moving it onto the generic ABI
 
 ## S2 — Production collision and throughput solve

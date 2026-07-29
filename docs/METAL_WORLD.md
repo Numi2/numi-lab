@@ -192,9 +192,19 @@ preserving point results bitwise against the full operator. The CPU operator
 also appends one 6D maximal-coordinate block per dynamic scene body, applies
 world-frame inverse mass/inertia directly, and treats static/kinematic point
 velocity as prescribed. The dual-PSM/needle `HeterogeneousWorld` now enters
-one exact-cone island through that path. The remaining device work is to
-scatter manifold endpoints into the frontend and assemble the identical
-articulation/scene-body global rows on Metal.
+one exact-cone island through that path.
+
+The standalone Metal frontend now assembles those identical global rows on
+device. In one command buffer it emits articulation-local point Jacobians,
+packs dynamic scene-body 6D blocks, applies every articulation-local inverse
+ABA response packet, constructs `J M^-1 J'`, solves the exact circular cones,
+and transactionally publishes candidate velocities per environment. It owns
+no CPU solver fallback and exposes failed point, inverse-mass, quality and
+physical-operator stages separately. This first host boundary intentionally
+uses owned shared buffers and one terminal wait for evidence extraction; it
+is not yet the persistent private-buffer runtime. The remaining shared-world
+work is manifold-endpoint scatter plus promotion of this encoder sequence
+into the persistent `MetalWorld` and MLX active-encoder contexts.
 
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training
