@@ -232,6 +232,201 @@ int main() {
             "articulation-static boundary is incorrect"
         );
 
+        MRBodyStateGPU sceneBody{};
+        sceneBody.position = {
+            0.0F, 1.0F, 0.0F, 1.0F,
+        };
+        sceneBody.orientation = {
+            0.0F, 0.0F, 0.0F, 1.0F,
+        };
+        sceneBody.linearVelocityAndInverseMass = {
+            0.0F, 0.0F, 0.0F, 1.0F,
+        };
+        sceneBody.inverseInertiaWorldRow0 = {
+            1.0F, 0.0F, 0.0F, 0.0F,
+        };
+        sceneBody.inverseInertiaWorldRow1 = {
+            0.0F, 1.0F, 0.0F, 0.0F,
+        };
+        sceneBody.inverseInertiaWorldRow2 = {
+            0.0F, 0.0F, 1.0F, 0.0F,
+        };
+        sceneBody.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+        sceneBody.flagsAndIndices[1] = MR_INVALID_INDEX;
+        sceneBody.flagsAndIndices[2] = MR_INVALID_INDEX;
+
+        std::ranges::fill(freeVelocity, 0.0);
+        freeVelocity[first.vOffset + 0u] = 1.0;
+        freeVelocity[second.vOffset + 0u] = -1.0;
+        metalrobo::MultiArticulatedIslandContact left;
+        left.endpointA = {
+            metalrobo::MultiContactEndpointKind::
+                articulatedBody,
+            first.rootBody,
+            {0.25, 0.0, 0.0},
+        };
+        left.endpointB = {
+            metalrobo::MultiContactEndpointKind::sceneBody,
+            0u,
+            {-0.25, 0.0, 0.0},
+        };
+        left.normal = {1.0, 0.0, 0.0};
+        left.tangentU = {0.0, 1.0, 0.0};
+        left.tangentV = {0.0, 0.0, 1.0};
+        left.regularization = {
+            1.0e-12,
+            1.0e-12,
+            1.0e-12,
+        };
+        metalrobo::MultiArticulatedIslandContact right =
+            left;
+        right.endpointA = {
+            metalrobo::MultiContactEndpointKind::sceneBody,
+            0u,
+            {0.25, 0.0, 0.0},
+        };
+        right.endpointB = {
+            metalrobo::MultiContactEndpointKind::
+                articulatedBody,
+            second.rootBody,
+            {-0.25, 0.0, 0.0},
+        };
+        const std::array<
+            metalrobo::MultiArticulatedIslandContact,
+            2
+        > heterogeneousContacts{left, right};
+        metalrobo::MultiArticulatedContactProblem
+            heterogeneousProblem;
+        const auto heterogeneousBuilt =
+            metalrobo::
+                buildMultiArticulatedIslandContactProblem(
+                    model,
+                    q,
+                    freeVelocity,
+                    std::span<const MRBodyStateGPU>(
+                        &sceneBody,
+                        1u
+                    ),
+                    heterogeneousContacts,
+                    heterogeneousProblem,
+                    dynamics
+                );
+        require(
+            heterogeneousBuilt.succeeded() &&
+            heterogeneousProblem.nv == 18u &&
+            heterogeneousProblem.articulatedNv == 12u &&
+            heterogeneousProblem
+                    .sceneBodyVelocityOffsets[0] == 12u &&
+            std::abs(
+                heterogeneousProblem.conic.delassus[
+                    0u * 6u + 0u
+                ] - 2.0
+            ) < 1.0e-12 &&
+            std::abs(
+                heterogeneousProblem.conic.delassus[
+                    0u * 6u + 3u
+                ] + 1.0
+            ) < 1.0e-12 &&
+            std::abs(
+                heterogeneousProblem.conic.delassus[
+                    3u * 6u + 3u
+                ] - 2.0
+            ) < 1.0e-12,
+            "two-articulation/scene-body operator is incorrect"
+        );
+        metalrobo::MultiArticulatedContactSolution
+            heterogeneousSolved;
+        const auto heterogeneousSolve =
+            metalrobo::solveMultiArticulatedContactProblem(
+                heterogeneousProblem,
+                heterogeneousSolved,
+                quality
+            );
+        require(
+            heterogeneousSolve.succeeded() &&
+            heterogeneousSolved.impulses.size() == 6u &&
+            std::abs(heterogeneousSolved.impulses[0] - 1.0) <
+                3.0e-9 &&
+            std::abs(heterogeneousSolved.impulses[3] - 1.0) <
+                3.0e-9 &&
+            std::abs(
+                heterogeneousSolved.articulatedVelocity[
+                    first.vOffset
+                ]
+            ) < 3.0e-9 &&
+            std::abs(
+                heterogeneousSolved.articulatedVelocity[
+                    second.vOffset
+                ]
+            ) < 3.0e-9 &&
+            std::abs(
+                heterogeneousSolved.sceneBodyVelocities[0]
+                    .linear[0]
+            ) < 3.0e-9 &&
+            heterogeneousSolve
+                    .maximumContactVelocityResidual <
+                1.0e-12,
+            "two robots and dynamic scene body did not share "
+            "one exact-cone island"
+        );
+
+        MRBodyStateGPU kinematicBody = sceneBody;
+        kinematicBody.flagsAndIndices[0] =
+            MR_MOTION_KINEMATIC;
+        kinematicBody.linearVelocityAndInverseMass = {
+            0.25F, 0.0F, 0.0F, 0.0F,
+        };
+        kinematicBody.inverseInertiaWorldRow0 = {};
+        kinematicBody.inverseInertiaWorldRow1 = {};
+        kinematicBody.inverseInertiaWorldRow2 = {};
+        std::ranges::fill(freeVelocity, 0.0);
+        metalrobo::MultiArticulatedContactProblem
+            kinematicProblem;
+        const auto kinematicBuilt =
+            metalrobo::
+                buildMultiArticulatedIslandContactProblem(
+                    model,
+                    q,
+                    freeVelocity,
+                    std::span<const MRBodyStateGPU>(
+                        &kinematicBody,
+                        1u
+                    ),
+                    std::span<
+                        const metalrobo::
+                            MultiArticulatedIslandContact
+                    >(&left, 1u),
+                    kinematicProblem,
+                    dynamics
+                );
+        metalrobo::MultiArticulatedContactSolution
+            kinematicSolved;
+        const auto kinematicSolve =
+            metalrobo::solveMultiArticulatedContactProblem(
+                kinematicProblem,
+                kinematicSolved,
+                quality
+            );
+        require(
+            kinematicBuilt.succeeded() &&
+            kinematicSolve.succeeded() &&
+            kinematicProblem.nv == model.world.nv &&
+            kinematicProblem.sceneBodyVelocityOffsets[0] ==
+                MR_INVALID_INDEX &&
+            std::abs(
+                kinematicProblem
+                    .prescribedContactVelocity[0] - 0.25
+            ) < 1.0e-12 &&
+            std::abs(kinematicSolved.impulses[0]) <
+                1.0e-12 &&
+            std::abs(
+                kinematicSolved.sceneBodyVelocities[0]
+                    .linear[0] - 0.25
+            ) < 1.0e-12,
+            "kinematic scene endpoint was not preserved as "
+            "prescribed velocity"
+        );
+
         const std::vector<double> acceptedJacobian =
             problem.contactJacobian;
         const std::uint32_t acceptedCount =
@@ -272,6 +467,11 @@ int main() {
             << built.maximumDelassusAsymmetry
             << " factor_residual="
             << built.maximumFactorResidual
+            << " heterogeneous_nv="
+            << heterogeneousProblem.nv
+            << " scene_impulses="
+            << heterogeneousSolved.impulses[0] << "/"
+            << heterogeneousSolved.impulses[3]
             << " solve_residual="
             << solved.quality.scaledKktCertificate
             << " deterministic=yes transactional=yes\n";

@@ -188,10 +188,13 @@ articulation-articulation and articulation-static contacts without a dense
 global inverse. The Metal articulated operator now has a dedicated
 kinematics-plus-point-Jacobian mode which skips mass assembly, factorization
 and impulse response; it emits deterministic zero generalized payloads while
-preserving point results bitwise against the full operator. The remaining
-device work is to scatter manifold endpoints into that frontend, assemble
-global contact rows, and add non-articulated scene-body 6D response columns to
-the same island operator.
+preserving point results bitwise against the full operator. The CPU operator
+also appends one 6D maximal-coordinate block per dynamic scene body, applies
+world-frame inverse mass/inertia directly, and treats static/kinematic point
+velocity as prescribed. The dual-PSM/needle `HeterogeneousWorld` now enters
+one exact-cone island through that path. The remaining device work is to
+scatter manifold endpoints into the frontend and assemble the identical
+articulation/scene-body global rows on Metal.
 
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training

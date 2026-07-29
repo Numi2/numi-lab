@@ -1,7 +1,9 @@
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalMultiArticulatedConstraints.hpp"
+#include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MultiArticulatedWorld.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <iostream>
@@ -107,6 +109,88 @@ int main() {
             "heterogeneous articulation program did not execute"
         );
 
+        std::ranges::fill(v, 0.0);
+        const MRArticulationGPU& leftArticulation =
+            world.model.articulations[0];
+        const MRArticulationGPU& rightArticulation =
+            world.model.articulations[1];
+        v[leftArticulation.vOffset] = 0.2;
+        v[rightArticulation.vOffset] = -0.2;
+        metalrobo::MultiArticulatedIslandContact leftContact;
+        leftContact.endpointA = {
+            metalrobo::MultiContactEndpointKind::
+                articulatedBody,
+            leftArticulation.rootBody,
+            {0.0, 0.0, 0.0},
+        };
+        leftContact.endpointB = {
+            metalrobo::MultiContactEndpointKind::sceneBody,
+            0u,
+            {0.0, 0.0, 0.0},
+        };
+        leftContact.normal = {1.0, 0.0, 0.0};
+        leftContact.tangentU = {0.0, 1.0, 0.0};
+        leftContact.tangentV = {0.0, 0.0, 1.0};
+        metalrobo::MultiArticulatedIslandContact rightContact =
+            leftContact;
+        rightContact.endpointA = {
+            metalrobo::MultiContactEndpointKind::sceneBody,
+            0u,
+            {0.0, 0.0, 0.0},
+        };
+        rightContact.endpointB = {
+            metalrobo::MultiContactEndpointKind::
+                articulatedBody,
+            rightArticulation.rootBody,
+            {0.0, 0.0, 0.0},
+        };
+        const std::array<
+            metalrobo::MultiArticulatedIslandContact,
+            2
+        > psmNeedleContacts{
+            leftContact,
+            rightContact,
+        };
+        metalrobo::MultiArticulatedContactProblem
+            psmNeedleProblem;
+        metalrobo::ArticulatedDynamicsConfig contactDynamics;
+        contactDynamics.gravity = {0.0, 0.0, 0.0};
+        contactDynamics.applyBodyDamping = false;
+        const auto contactBuild =
+            metalrobo::
+                buildMultiArticulatedIslandContactProblem(
+                    world.model,
+                    q,
+                    v,
+                    world.defaultSceneBodies,
+                    psmNeedleContacts,
+                    psmNeedleProblem,
+                    contactDynamics
+                );
+        metalrobo::MultiArticulatedContactSolution
+            psmNeedleSolution;
+        const auto contactSolve =
+            metalrobo::solveMultiArticulatedContactProblem(
+                psmNeedleProblem,
+                psmNeedleSolution
+            );
+        require(
+            contactBuild.succeeded() &&
+                contactSolve.succeeded() &&
+                psmNeedleProblem.articulatedNv ==
+                    world.model.world.nv &&
+                psmNeedleProblem.nv ==
+                    world.model.world.nv + 6u &&
+                psmNeedleSolution.impulses[0] > 0.0 &&
+                psmNeedleSolution.impulses[3] > 0.0 &&
+                psmNeedleSolution.quality.velocity[0] >
+                    -1.0e-8 &&
+                psmNeedleSolution.quality.velocity[3] >
+                    -1.0e-8,
+            "dual PSM and needle did not enter one coupled "
+            "exact-cone island"
+        );
+
         metalrobo::HeterogeneousRodProgram rod = world.rods[0];
         rod.defaultState.positions[4][1] += 0.005;
         metalrobo::DiscreteElasticRodStepConfig rodConfig;
@@ -180,6 +264,10 @@ int main() {
             << " colliders=" << world.model.shapes.size()
             << " constraint_rows=" << program.rowCount()
             << " rods=" << world.rods.size()
+            << " contact_nv=" << psmNeedleProblem.nv
+            << " needle_contact_impulses="
+            << psmNeedleSolution.impulses[0] << "/"
+            << psmNeedleSolution.impulses[3]
             << " fingerprint=" << world.fingerprint
             << " swage_force_n="
             << norm(reactions[0].averageForceOnTarget)

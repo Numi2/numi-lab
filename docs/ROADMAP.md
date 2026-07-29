@@ -140,12 +140,15 @@ prototype.
   exact-cone contact problem through retained per-articulation factors. The
   operator builds `M^-1 J'` response columns and `J M^-1 J'` without a dense
   global mass inverse, then reconstructs generalized velocity from the
-  converged quality solve transactionally
+  converged quality solve transactionally. Dynamic scene bodies now append
+  6D maximal-coordinate blocks, while static/kinematic endpoints contribute
+  prescribed point velocity. The owned dual-PSM/needle bundle executes as one
+  34-DoF coupled contact island in this oracle
 - Generalize the shared contact island graph to articulation-articulation
-  contacts, non-articulated 6D scene-body endpoints and loop blocks using the
-  landed oracle's sign/frame/material semantics; the multi-articulation
-  ABA/ConstraintIR primitive itself is already executable on standalone Metal
-  and MLX
+  contacts, non-articulated 6D scene-body endpoints and loop blocks on Metal
+  using the landed oracle's sign/frame/material semantics; the
+  multi-articulation ABA/ConstraintIR primitive itself is already executable
+  on standalone Metal and MLX
 - Add trocar/RCM constraints, calibrated jaw patches, and physics-owned needle
   regrasp/ring/peg transfer without hidden attachments
 - Add thread self/tool collision and replace the current SIMD32 DER projection

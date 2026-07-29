@@ -136,6 +136,11 @@ linked or called at runtime.
   rigid bindings under one deterministic fingerprint. The dual-PSM,
   curved-needle and thread factory compiles to two articulations, one dynamic
   scene body and one swage-bound rod without reconstructing state ad hoc
+- The FP64 heterogeneous contact oracle couples arbitrary articulation,
+  dynamic scene-body and static/kinematic endpoints in one exact circular-cone
+  solve. Per-articulation factors and 6D body response blocks construct the
+  physical Delassus operator without a dense global mass inverse; the
+  dual-PSM/needle bundle is an executable 34-DoF reference island
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication
