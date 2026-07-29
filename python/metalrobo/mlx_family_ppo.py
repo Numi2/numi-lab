@@ -9,6 +9,15 @@ import mlx.nn as nn
 import mlx.optimizers as optim
 
 from .mlx_ppo import MLXPPOTrainer
+from .mlx_manipulation import (
+    FrankaPickPlaceTaskState,
+    adapt_cartesian_action,
+    franka_kinematics,
+    initial_franka_pick_place_task,
+    select_franka_pick_place_task,
+    step_franka_pick_place_task,
+    task_evidence_values,
+)
 from .mlx_r2s2r import (
     CompactedEpisodeRecords,
     EpisodeAccumulator,
@@ -26,12 +35,15 @@ from .mlx_world import (
     sampled_state_from_world_family,
     step_sampled_world_family,
 )
+from .mlx_world_step import WorldStepResult
 from .ppo import ActorCritic, PPOConfig
 
 
 class MLXFamilyRolloutState(NamedTuple):
     sampled: SampledWorldFamilyState
     delay: ControllerDelayState
+    task: FrankaPickPlaceTaskState
+    episode_counter: mx.array
     observations: mx.array
     episode_steps: mx.array
     accumulator: EpisodeAccumulator
@@ -51,10 +63,11 @@ class MLXFamilyRolloutBatch(NamedTuple):
     rewards: mx.array
     dones: mx.array
     physics_errors: mx.array
+    valid_steps: mx.array
     completed: CompactedEpisodeRecords
 
     def flattened(self) -> dict[str, mx.array]:
-        return {
+        flattened = {
             "observations": self.observations.reshape(
                 (-1, self.observations.shape[-1])
             ),
@@ -68,16 +81,35 @@ class MLXFamilyRolloutBatch(NamedTuple):
             "advantages": self.advantages.reshape((-1,)),
             "returns": self.returns.reshape((-1,)),
         }
+        valid = self.valid_steps.reshape((-1,)).astype(mx.bool_)
+        valid_count = mx.sum(valid.astype(mx.uint32))
+        mx.eval(valid_count)
+        count = int(valid_count.item())
+        if count == 0:
+            raise RuntimeError(
+                "rollout contains no physically valid policy transitions"
+            )
+        order = mx.argsort((~valid).astype(mx.uint32))[:count]
+        return {
+            name: values[order]
+            for name, values in flattened.items()
+        }
 
 
 def _family_observations(
     sampled: SampledWorldFamilyState,
+    task: FrankaPickPlaceTaskState,
 ) -> mx.array:
     scene = sampled.world.scene_bodies
     object_position = scene.position[:, 0, :3]
     object_velocity = scene.linear_velocity[:, 0, :3]
     target_position = scene.position[:, 2, :3]
     relative_target = target_position - object_position
+    tool_position = franka_kinematics(sampled.world.q).position
+    relative_tool = object_position - tool_position
+    normalized_phase = (
+        task.phase.astype(mx.float32) / 8.0
+    )[:, None]
     return mx.concatenate(
         (
             sampled.world.q,
@@ -86,6 +118,9 @@ def _family_observations(
             object_velocity,
             target_position,
             relative_target,
+            tool_position,
+            relative_tool,
+            normalized_phase,
         ),
         axis=-1,
     )
@@ -134,15 +169,6 @@ class MLXWorldFamilyRolloutCollector:
         self.seed = int(seed)
         self.sample_generation = 0
         self.episode_counter_base = 0
-        self.default_q = mx.array(world.default_q, dtype=mx.float32)
-        command_scale = [0.35] * max(world.nv - 2, 0) + [0.02] * min(
-            world.nv,
-            2,
-        )
-        self.command_scale = mx.array(
-            command_scale,
-            dtype=mx.float32,
-        )
         maximum_latency = 0.025
         self.maximum_delay_steps = max(
             1,
@@ -156,24 +182,37 @@ class MLXWorldFamilyRolloutCollector:
             inputs=self.model.state,
         )
 
-    def _sample_replacement(self) -> SampledWorldFamilyState:
+    def _sample_replacement(
+        self,
+    ) -> tuple[SampledWorldFamilyState, mx.array]:
+        episode_counter_start = self.episode_counter_base
         self.family.sample(
             self.environment_count,
             seed=self.seed + self.sample_generation,
             mode=self.sampling_mode,
-            episode_counter=self.episode_counter_base,
+            episode_counter=episode_counter_start,
         )
         self.sample_generation += 1
         self.episode_counter_base += self.environment_count
-        return sampled_state_from_world_family(
-            self.world,
-            self.family,
+        return (
+            sampled_state_from_world_family(
+                self.world,
+                self.family,
+            ),
+            mx.arange(
+                episode_counter_start,
+                episode_counter_start + self.environment_count,
+                dtype=mx.uint32,
+            ),
         )
 
-    def _default_delay(self) -> ControllerDelayState:
+    def _delay_for(
+        self,
+        sampled: SampledWorldFamilyState,
+    ) -> ControllerDelayState:
         return ControllerDelayState(
             history=mx.broadcast_to(
-                self.default_q.reshape((1, 1, self.world.nv)),
+                sampled.world.q[:, None, :],
                 (
                     self.environment_count,
                     self.maximum_delay_steps + 1,
@@ -183,11 +222,14 @@ class MLXWorldFamilyRolloutCollector:
         )
 
     def initial(self) -> MLXFamilyRolloutState:
-        sampled = self._sample_replacement()
+        sampled, episode_counter = self._sample_replacement()
+        task = initial_franka_pick_place_task(sampled)
         state = MLXFamilyRolloutState(
             sampled=sampled,
-            delay=self._default_delay(),
-            observations=_family_observations(sampled),
+            delay=self._delay_for(sampled),
+            task=task,
+            episode_counter=episode_counter,
+            observations=_family_observations(sampled, task),
             episode_steps=mx.zeros(
                 (self.environment_count,),
                 dtype=mx.uint32,
@@ -211,16 +253,14 @@ class MLXWorldFamilyRolloutCollector:
         self,
         state: MLXFamilyRolloutState,
         replacement: SampledWorldFamilyState,
+        replacement_episode_counter: mx.array,
         noise: mx.array,
     ) -> tuple[
         MLXFamilyRolloutState,
         mx.array,
         mx.array,
         mx.array,
-        mx.array,
-        mx.array,
-        mx.array,
-        CompactedEpisodeRecords,
+        WorldStepResult,
     ]:
         mean, value = self.model(state.observations)
         log_std = mx.clip(self.model.log_std, -5.0, 2.0)
@@ -232,51 +272,28 @@ class MLXWorldFamilyRolloutCollector:
             latent,
             normalized_action,
         )
-        target = (
-            self.default_q
-            + normalized_action * self.command_scale
+        adapted = adapt_cartesian_action(
+            state.sampled.world.q,
+            normalized_action,
+            control_period_seconds=self.world.control_timestep,
         )
         stepped = step_sampled_world_family(
             self.world,
             state.sampled,
-            target,
+            adapted.joint_targets,
             state.delay,
             control_period_seconds=self.world.control_timestep,
         )
         next_sampled = stepped.next_state
-        current_object = state.sampled.world.scene_bodies.position[
-            :, 0, :3
-        ]
-        next_object = next_sampled.world.scene_bodies.position[
-            :, 0, :3
-        ]
-        target_position = next_sampled.world.scene_bodies.position[
-            :, 2, :3
-        ]
-        current_distance = mx.sqrt(
-            mx.sum(
-                (
-                    state.sampled.world.scene_bodies.position[
-                        :, 2, :3
-                    ]
-                    - current_object
-                )
-                ** 2,
-                axis=-1,
-            )
-            + 1.0e-9
+        physics_valid = ~stepped.physics.physics_error
+        next_task, task_evidence = step_franka_pick_place_task(
+            state.task,
+            next_sampled,
+            stepped.physics.contacts,
+            physics_valid=physics_valid,
         )
-        distance = mx.sqrt(
-            mx.sum(
-                (target_position - next_object) ** 2,
-                axis=-1,
-            )
-            + 1.0e-9
-        )
-        task_margin = 0.06 - distance
-        safety_margin = next_object[:, 2] + 0.05
-        success = task_margin > 0.0
-        state_limit = safety_margin < 0.0
+        success = task_evidence.success
+        state_limit = task_evidence.safety_margin < 0.0
         next_episode_steps = (
             state.episode_steps
             + mx.array(1, dtype=mx.uint32)
@@ -290,14 +307,15 @@ class MLXWorldFamilyRolloutCollector:
             | state_limit
             | horizon
         )
-        progress = current_distance - distance
         reward = (
-            4.0 * progress
-            + mx.exp(-8.0 * distance)
-            + success.astype(mx.float32) * 5.0
+            task_evidence.reward
             - 0.001
             * mx.mean(normalized_action * normalized_action, axis=-1)
-            - state_limit.astype(mx.float32) * 2.0
+        )
+        reward = mx.where(
+            physics_valid,
+            reward,
+            mx.zeros_like(reward),
         )
         valid_contacts = stepped.physics.contacts.mask.astype(
             mx.float32
@@ -334,26 +352,21 @@ class MLXWorldFamilyRolloutCollector:
                 ),
             ),
         )
-        failure_mask = (
-            state_limit.astype(mx.uint32)
-            | (
-                stepped.physics.physics_error.astype(mx.uint32)
-                << mx.array(1, dtype=mx.uint32)
-            )
-        )
+        failure_mask = task_evidence.failure_mask
+        recordable_done = done & physics_valid
         completed = compact_completed_episodes(
             accumulator,
             scenario_headers=state.sampled.scenarios.headers,
             scenario_values=state.sampled.scenarios.values,
             scenario_identities=state.sampled.scenarios.identities,
-            completed=done,
+            completed=recordable_done,
             success=success,
             termination=termination,
             physics_status=stepped.physics.status[:, 0],
             failure_mask_low=failure_mask,
             failure_mask_high=mx.zeros_like(failure_mask),
-            task_margin=task_margin,
-            safety_margin=safety_margin,
+            task_margin=task_evidence.task_margin,
+            safety_margin=task_evidence.safety_margin,
         )
         selected = reset_sampled_world_family(
             next_sampled,
@@ -363,9 +376,19 @@ class MLXWorldFamilyRolloutCollector:
         delay = ControllerDelayState(
             history=mx.where(
                 done[:, None, None],
-                self._default_delay().history,
+                self._delay_for(replacement).history,
                 stepped.delay_state.history,
             )
+        )
+        selected_task = select_franka_pick_place_task(
+            next_task,
+            initial_franka_pick_place_task(replacement),
+            done,
+        )
+        selected_episode_counter = mx.where(
+            done,
+            replacement_episode_counter,
+            state.episode_counter,
         )
         next_steps = mx.where(
             done,
@@ -375,22 +398,56 @@ class MLXWorldFamilyRolloutCollector:
         next_state = MLXFamilyRolloutState(
             sampled=selected,
             delay=delay,
-            observations=_family_observations(selected),
+            task=selected_task,
+            episode_counter=selected_episode_counter,
+            observations=_family_observations(
+                selected,
+                selected_task,
+            ),
             episode_steps=next_steps,
             accumulator=reset_episode_accumulator(
                 accumulator,
                 done,
             ),
         )
+        result = WorldStepResult(
+            next_state=selected,
+            deployable_observations=next_state.observations,
+            privileged_observations=mx.concatenate(
+                (
+                    selected.world.q,
+                    selected.world.v,
+                    selected.world.scene_bodies.position.reshape(
+                        (self.environment_count, -1)
+                    ),
+                    selected.world.scene_bodies.linear_velocity.reshape(
+                        (self.environment_count, -1)
+                    ),
+                    task_evidence_values(task_evidence),
+                ),
+                axis=-1,
+            ),
+            task_phase=next_task.phase,
+            task_evidence=task_evidence_values(task_evidence),
+            reward=reward,
+            terminated=done,
+            termination=termination,
+            scenario_state=state.sampled.scenarios,
+            episode_counter=state.episode_counter,
+            recurrent_state=mx.zeros(
+                (self.environment_count, 0),
+                dtype=mx.float32,
+            ),
+            physics_status=stepped.physics.status[:, 0],
+            valid=physics_valid,
+            completed=completed,
+        )
         return (
             next_state,
             latent,
             log_probability,
             value,
-            reward,
-            done,
-            stepped.physics.physics_error,
-            completed,
+            result,
         )
 
     def collect(
@@ -400,7 +457,9 @@ class MLXWorldFamilyRolloutCollector:
     ) -> tuple[MLXFamilyRolloutState, MLXFamilyRolloutBatch]:
         if rollout_steps <= 0:
             raise ValueError("rollout_steps must be positive")
-        replacement = self._sample_replacement()
+        replacement, replacement_episode_counter = (
+            self._sample_replacement()
+        )
         observations = []
         latents = []
         log_probabilities = []
@@ -408,36 +467,40 @@ class MLXWorldFamilyRolloutCollector:
         rewards = []
         dones = []
         errors = []
+        valid_steps = []
         records = []
         for index in range(rollout_steps):
             policy_observations = state.observations
             noise = mx.random.normal(
-                (self.environment_count, self.world.nv)
+                (self.environment_count, int(self.model.log_std.shape[0]))
             )
             (
                 state,
                 latent,
                 log_probability,
                 value,
-                reward,
-                done,
-                physics_error,
-                completed,
-            ) = self._compiled_step(state, replacement, noise)
+                result,
+            ) = self._compiled_step(
+                state,
+                replacement,
+                replacement_episode_counter,
+                noise,
+            )
             observations.append(policy_observations)
             latents.append(latent)
             log_probabilities.append(log_probability)
             values.append(value)
-            rewards.append(reward)
-            dones.append(done)
-            errors.append(physics_error)
-            records.append(completed)
+            rewards.append(result.reward)
+            dones.append(result.terminated)
+            errors.append(~result.valid)
+            valid_steps.append(result.valid)
+            records.append(result.completed)
             if (index + 1) % self.chunk_size == 0:
                 mx.async_eval(
                     state.sampled.world.q,
                     state.observations,
-                    reward,
-                    completed.valid_count,
+                    result.reward,
+                    result.completed.valid_count,
                 )
 
         _, final_value = self.model(state.observations)
@@ -483,6 +546,7 @@ class MLXWorldFamilyRolloutCollector:
             rewards=mx.stack(rewards),
             dones=mx.stack(dones),
             physics_errors=mx.stack(errors),
+            valid_steps=mx.stack(valid_steps),
             completed=stacked_records,
         )
         mx.async_eval(
@@ -523,9 +587,9 @@ class MLXWorldFamilyPPOTrainer(MLXPPOTrainer):
             physics_substeps=physics_substeps,
             metallib_path=metallib_path or "",
         )
-        self.task_name = "franka_pick_place_family_state_v1"
-        self.observation_size = self.world.nq + self.world.nv + 12
-        self.action_size = self.world.nv
+        self.task_name = "franka_pick_place_family_state_v2"
+        self.observation_size = self.world.nq + self.world.nv + 19
+        self.action_size = 7
         self.model = ActorCritic(
             self.observation_size,
             self.action_size,

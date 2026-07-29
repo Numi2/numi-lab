@@ -51,6 +51,10 @@ struct WorldAlignmentParticle {
     std::vector<float> quantiles;
     double weight = 0.0;
     double replayResidual = 0.0;
+    // False replay rows are never published with posterior mass. Keeping the
+    // decision explicit prevents rollback-preserved state from impersonating
+    // a low-residual physical replay.
+    bool replayValid = true;
 };
 
 struct WorldAlignmentPopulation {
@@ -278,17 +282,44 @@ struct PolicyEvaluationSummary {
     std::uint64_t policyFingerprint = 0u;
     std::uint64_t simulationEpisodes = 0u;
     std::uint64_t hardwareEpisodes = 0u;
+    std::uint64_t pairedSimulationEpisodes = 0u;
     double simulationSuccessRate = 0.0;
+    std::optional<double> pairedSimulationSuccessRate;
+    std::optional<double> pairedSimulationMeanTaskMargin;
     std::optional<double> hardwareSuccessRate;
     std::optional<double> calibratedHardwareSuccessRate;
+    std::optional<double> calibrationAbsoluteError;
     std::vector<double> failureRates;
+    std::vector<double> simulationFailureRates;
+    std::vector<double> hardwareFailureRates;
+};
+
+struct PolicyPairEvaluation {
+    std::uint64_t leftPolicyFingerprint = 0u;
+    std::uint64_t rightPolicyFingerprint = 0u;
+    std::uint64_t pairedScenarioCount = 0u;
+    double pairedSuccessDelta = 0.0;
+    double pairedSuccessLower = 0.0;
+    double pairedSuccessUpper = 0.0;
+    double pairedTaskMarginDelta = 0.0;
+    double pairedTaskMarginLower = 0.0;
+    double pairedTaskMarginUpper = 0.0;
+    std::optional<double> hardwareSuccessDelta;
 };
 
 struct PolicyEvaluationReport {
+    std::uint32_t schemaVersion = 2u;
     std::uint64_t taskFingerprint = 0u;
     std::uint64_t scenarioSchemaFingerprint = 0u;
     std::uint64_t pairedScenarioCount = 0u;
+    std::uint64_t hardwareEvidenceCount = 0u;
+    bool hardwarePredictionAvailable = false;
     std::vector<PolicyEvaluationSummary> policies;
+    std::vector<PolicyPairEvaluation> pairwise;
+    std::optional<double> meanMaximumRankViolation;
+    std::optional<double> rankCorrelation;
+    std::optional<double> calibrationError;
+    std::optional<double> failureRegionOverlap;
     // Policy fingerprints ordered best-to-worst by calibrated hardware
     // success when available, otherwise by paired simulation success.
     std::vector<std::uint64_t> relativeOrdering;

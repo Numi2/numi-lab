@@ -361,7 +361,63 @@ CaptureProduct streamProduct(const CaptureStream& stream) {
     result.expectedContentHash = stream.expectedContentHash;
     result.startTimeSeconds = stream.startTimeSeconds;
     result.endTimeSeconds = stream.endTimeSeconds;
+    result.payload.targetId =
+        stream.sensorId.empty() ? stream.assetId : stream.sensorId;
+    result.payload.calibration = stream.calibration;
+    switch (stream.kind) {
+    case CaptureStreamKind::rgb:
+    case CaptureStreamKind::depth:
+    case CaptureStreamKind::rgbd:
+    case CaptureStreamKind::video:
+        result.payload.kind =
+            EpisodeTwinProductKind::synchronizedSensorStream;
+        break;
+    case CaptureStreamKind::cameraCalibration:
+    case CaptureStreamKind::cameraPoses:
+        result.payload.kind = EpisodeTwinProductKind::sensorCalibration;
+        break;
+    case CaptureStreamKind::robotTelemetry:
+    case CaptureStreamKind::gripperState:
+    case CaptureStreamKind::forceTorque:
+        result.payload.kind = EpisodeTwinProductKind::robotStateTrace;
+        break;
+    case CaptureStreamKind::robotCommands:
+        result.payload.kind = EpisodeTwinProductKind::robotCommandTrace;
+        break;
+    case CaptureStreamKind::cad:
+    case CaptureStreamKind::urdf:
+        result.payload.kind = EpisodeTwinProductKind::artifactOnly;
+        break;
+    }
     return result;
+}
+
+void appendProductPayload(SHA256& hash,
+                          const EpisodeTwinProductPayload& payload) {
+    hash.appendScalar(payload.kind);
+    hash.appendString(payload.targetId);
+    hash.appendScalar(payload.calibration.hasResolution);
+    hash.appendScalar(payload.calibration.hasIntrinsics);
+    hash.appendScalar(payload.calibration.hasDistortion);
+    hash.appendScalar(payload.calibration.hasPose);
+    hash.appendScalar(payload.calibration.width);
+    hash.appendScalar(payload.calibration.height);
+    hash.appendScalar(payload.calibration.intrinsics);
+    hash.appendScalar(payload.calibration.distortion);
+    hash.appendScalar(payload.calibration.worldFromSensor.position);
+    hash.appendScalar(payload.calibration.worldFromSensor.orientation);
+    hash.appendScalar(payload.hasWorldPose);
+    hash.appendScalar(payload.worldPose.position);
+    hash.appendScalar(payload.worldPose.orientation);
+    hash.appendScalar(payload.hasPhysicalPrior);
+    hash.appendScalar(payload.massScale);
+    hash.appendScalar(payload.frictionScale);
+    hash.appendScalar(payload.restitutionScale);
+    hash.appendScalar(payload.dampingScale);
+    hash.appendScalar(payload.renderRepresentation);
+    hash.appendScalar(payload.collisionRepresentation);
+    hash.appendScalar(payload.hasCollisionBox);
+    hash.appendScalar(payload.collisionBoxHalfExtents);
 }
 
 void appendArtifactIdentity(SHA256& hash, const EpisodeArtifact& artifact) {
@@ -379,6 +435,7 @@ std::string makeStageKey(
     const EngineModel& engineModel,
     const std::span<const EpisodeArtifact> inputs,
     const std::span<const EpisodeArtifact> declared,
+    const std::span<const CaptureProduct> declaredProducts,
     const std::vector<std::shared_ptr<EpisodeTwinStageProvider>>& providers) {
     SHA256 hash;
     hash.appendString("MetalRoboEpisodeTwinStageV1");
@@ -388,6 +445,8 @@ std::string makeStageKey(
     hash.appendString(manifest.engineModelId);
     hash.appendString(manifest.worldProgramId);
     hash.appendScalar(manifest.adapter);
+    hash.appendScalar(manifest.schemaVersion);
+    hash.appendScalar(manifest.profile);
     for (const CaptureStream& stream : manifest.streams) {
         hash.appendString(stream.id);
         hash.appendScalar(stream.kind);
@@ -417,6 +476,9 @@ std::string makeStageKey(
     }
     for (const EpisodeArtifact& artifact : declared) {
         appendArtifactIdentity(hash, artifact);
+    }
+    for (const CaptureProduct& product : declaredProducts) {
+        appendProductPayload(hash, product.payload);
     }
     for (const auto& provider : providers) {
         if (provider != nullptr && provider->supports(stage, manifest)) {
@@ -477,14 +539,17 @@ bool saveReceipt(const std::filesystem::path& root,
     const std::filesystem::path temporary = uniqueSibling(target);
     std::ofstream stream(temporary, std::ios::binary | std::ios::trunc);
     constexpr std::array<char, 8> magic{'M', 'R', 'E', 'P', 'I', 'S', 'O', 'D'};
-    const std::uint32_t version = 1u;
+    const std::uint32_t version = 3u;
     const std::uint32_t stage = static_cast<std::uint32_t>(receipt.stage);
-    const std::uint64_t count = receipt.artifacts.size();
+    const std::uint64_t count = receipt.products.size();
     stream.write(magic.data(), magic.size());
-    bool okay = writeScalar(stream, version) && writeScalar(stream, stage) &&
+    bool okay = receipt.artifacts.size() == receipt.products.size() &&
+                writeScalar(stream, version) && writeScalar(stream, stage) &&
                 writeString(stream, receipt.stageKey) &&
                 writeScalar(stream, count);
-    for (const EpisodeArtifact& artifact : receipt.artifacts) {
+    for (const EpisodeTwinProduct& product : receipt.products) {
+        const EpisodeArtifact& artifact = product.artifact;
+        const EpisodeTwinProductPayload& payload = product.payload;
         okay = okay && writeString(stream, artifact.id) &&
                writeScalar(stream, artifact.kind) &&
                writeScalar(stream, artifact.producer) &&
@@ -492,7 +557,35 @@ bool saveReceipt(const std::filesystem::path& root,
                writeString(stream, artifact.uri) &&
                writeString(stream, artifact.contentHash) &&
                writeScalar(stream, artifact.startTimeSeconds) &&
-               writeScalar(stream, artifact.endTimeSeconds);
+               writeScalar(stream, artifact.endTimeSeconds) &&
+               writeScalar(stream, payload.kind) &&
+               writeString(stream, payload.targetId) &&
+               writeScalar(stream, payload.calibration.hasResolution) &&
+               writeScalar(stream, payload.calibration.hasIntrinsics) &&
+               writeScalar(stream, payload.calibration.hasDistortion) &&
+               writeScalar(stream, payload.calibration.hasPose) &&
+               writeScalar(stream, payload.calibration.width) &&
+               writeScalar(stream, payload.calibration.height) &&
+               writeScalar(stream, payload.calibration.intrinsics) &&
+               writeScalar(stream, payload.calibration.distortion) &&
+               writeScalar(
+                   stream,
+                   payload.calibration.worldFromSensor.position) &&
+               writeScalar(
+                   stream,
+                   payload.calibration.worldFromSensor.orientation) &&
+               writeScalar(stream, payload.hasWorldPose) &&
+               writeScalar(stream, payload.worldPose.position) &&
+               writeScalar(stream, payload.worldPose.orientation) &&
+               writeScalar(stream, payload.hasPhysicalPrior) &&
+               writeScalar(stream, payload.massScale) &&
+               writeScalar(stream, payload.frictionScale) &&
+               writeScalar(stream, payload.restitutionScale) &&
+               writeScalar(stream, payload.dampingScale) &&
+               writeScalar(stream, payload.renderRepresentation) &&
+               writeScalar(stream, payload.collisionRepresentation) &&
+               writeScalar(stream, payload.hasCollisionBox) &&
+               writeScalar(stream, payload.collisionBoxHalfExtents);
     }
     stream.close();
     if (!okay || !stream) {
@@ -553,7 +646,7 @@ bool loadReceipt(const std::filesystem::path& root,
     std::string storedKey;
     if (magic != expected || !readScalar(stream, version) ||
         !readScalar(stream, storedStage) || !readString(stream, storedKey) ||
-        !readScalar(stream, count) || version != 1u ||
+        !readScalar(stream, count) || version != 3u ||
         storedStage != static_cast<std::uint32_t>(stage) || storedKey != key ||
         count > 1'000'000u) {
         return false;
@@ -562,8 +655,11 @@ bool loadReceipt(const std::filesystem::path& root,
     candidate.stage = stage;
     candidate.stageKey = key;
     candidate.cacheHit = true;
-    candidate.artifacts.resize(static_cast<std::size_t>(count));
-    for (EpisodeArtifact& artifact : candidate.artifacts) {
+    candidate.products.resize(static_cast<std::size_t>(count));
+    candidate.artifacts.reserve(static_cast<std::size_t>(count));
+    for (EpisodeTwinProduct& product : candidate.products) {
+        EpisodeArtifact& artifact = product.artifact;
+        EpisodeTwinProductPayload& payload = product.payload;
         if (!readString(stream, artifact.id) ||
             !readScalar(stream, artifact.kind) ||
             !readScalar(stream, artifact.producer) ||
@@ -571,9 +667,38 @@ bool loadReceipt(const std::filesystem::path& root,
             !readString(stream, artifact.uri) ||
             !readString(stream, artifact.contentHash) ||
             !readScalar(stream, artifact.startTimeSeconds) ||
-            !readScalar(stream, artifact.endTimeSeconds)) {
+            !readScalar(stream, artifact.endTimeSeconds) ||
+            !readScalar(stream, payload.kind) ||
+            !readString(stream, payload.targetId) ||
+            !readScalar(stream, payload.calibration.hasResolution) ||
+            !readScalar(stream, payload.calibration.hasIntrinsics) ||
+            !readScalar(stream, payload.calibration.hasDistortion) ||
+            !readScalar(stream, payload.calibration.hasPose) ||
+            !readScalar(stream, payload.calibration.width) ||
+            !readScalar(stream, payload.calibration.height) ||
+            !readScalar(stream, payload.calibration.intrinsics) ||
+            !readScalar(stream, payload.calibration.distortion) ||
+            !readScalar(
+                stream,
+                payload.calibration.worldFromSensor.position) ||
+            !readScalar(
+                stream,
+                payload.calibration.worldFromSensor.orientation) ||
+            !readScalar(stream, payload.hasWorldPose) ||
+            !readScalar(stream, payload.worldPose.position) ||
+            !readScalar(stream, payload.worldPose.orientation) ||
+            !readScalar(stream, payload.hasPhysicalPrior) ||
+            !readScalar(stream, payload.massScale) ||
+            !readScalar(stream, payload.frictionScale) ||
+            !readScalar(stream, payload.restitutionScale) ||
+            !readScalar(stream, payload.dampingScale) ||
+            !readScalar(stream, payload.renderRepresentation) ||
+            !readScalar(stream, payload.collisionRepresentation) ||
+            !readScalar(stream, payload.hasCollisionBox) ||
+            !readScalar(stream, payload.collisionBoxHalfExtents)) {
             return false;
         }
+        candidate.artifacts.push_back(artifact);
     }
     if (!cachedArtifactsExist(root, candidate.artifacts)) {
         return false;
@@ -596,8 +721,18 @@ bool CaptureManifest::valid(std::string* reason) const {
         }
         return false;
     };
-    if (schemaVersion != 1u) {
+    const auto finite4 = [](const mr_float4& value) {
+        return std::isfinite(value.x) && std::isfinite(value.y) &&
+               std::isfinite(value.z) && std::isfinite(value.w);
+    };
+    if (schemaVersion != 1u && schemaVersion != 2u) {
         return invalid("capture manifest schema version is unsupported");
+    }
+    if (profile > CaptureProfile::frankaFixedRGBD ||
+        (schemaVersion == 1u && profile != CaptureProfile::authoredSeed) ||
+        (schemaVersion == 2u &&
+         profile == CaptureProfile::authoredSeed)) {
+        return invalid("capture manifest profile is invalid for its schema");
     }
     if (adapter > CaptureAdapterKind::videoFallback) {
         return invalid("capture manifest adapter is invalid");
@@ -626,10 +761,6 @@ bool CaptureManifest::valid(std::string* reason) const {
             return invalid("capture manifest contains an invalid stream");
         }
         if (stream.calibration.present()) {
-            const auto finite4 = [](const mr_float4& value) {
-                return std::isfinite(value.x) && std::isfinite(value.y) &&
-                       std::isfinite(value.z) && std::isfinite(value.w);
-            };
             if (!finite4(stream.calibration.intrinsics) ||
                 !finite4(stream.calibration.distortion) ||
                 !finite4(stream.calibration.worldFromSensor.position) ||
@@ -648,7 +779,34 @@ bool CaptureManifest::valid(std::string* reason) const {
             !std::isfinite(product.endTimeSeconds) ||
             product.endTimeSeconds < product.startTimeSeconds ||
             product.kind > EpisodeArtifactKind::replay ||
-            product.producer > EpisodeArtifactProducer::authored) {
+            product.producer > EpisodeArtifactProducer::authored ||
+            product.payload.kind > EpisodeTwinProductKind::taskEvents ||
+            product.payload.renderRepresentation >
+                MR_WORLD_RENDER_PROCEDURAL ||
+            product.payload.collisionRepresentation >
+                MR_WORLD_COLLISION_DEFORMABLE_SURFACE ||
+            !finite4(product.payload.calibration.intrinsics) ||
+            !finite4(product.payload.calibration.distortion) ||
+            !finite4(
+                product.payload.calibration.worldFromSensor.position) ||
+            !finite4(
+                product.payload.calibration.worldFromSensor.orientation) ||
+            !finite4(product.payload.worldPose.position) ||
+            !finite4(product.payload.worldPose.orientation) ||
+            !finite4(product.payload.collisionBoxHalfExtents) ||
+            !std::isfinite(product.payload.massScale) ||
+            !std::isfinite(product.payload.frictionScale) ||
+            !std::isfinite(product.payload.restitutionScale) ||
+            !std::isfinite(product.payload.dampingScale) ||
+            (product.payload.hasPhysicalPrior &&
+             (product.payload.massScale <= 0.0f ||
+              product.payload.frictionScale <= 0.0f ||
+              product.payload.restitutionScale < 0.0f ||
+              product.payload.dampingScale <= 0.0f)) ||
+            (product.payload.hasCollisionBox &&
+             (!(product.payload.collisionBoxHalfExtents.x > 0.0f) ||
+              !(product.payload.collisionBoxHalfExtents.y > 0.0f) ||
+              !(product.payload.collisionBoxHalfExtents.z > 0.0f)))) {
             return invalid("capture manifest contains an invalid product");
         }
     }
@@ -759,8 +917,266 @@ bool EpisodeArtifactStore::importProduct(const CaptureProduct& product,
     candidate.artifact.contentHash = "sha256:" + hashed.digest;
     candidate.artifact.startTimeSeconds = product.startTimeSeconds;
     candidate.artifact.endTimeSeconds = product.endTimeSeconds;
+    candidate.product.artifact = candidate.artifact;
+    candidate.product.payload = product.payload;
     output = std::move(candidate);
     return true;
+}
+
+EpisodeTwinCompilerResult EpisodeTwinAssembler::assemble(
+    const CaptureManifest& manifest,
+    const std::span<const EpisodeTwinProduct> products,
+    const EngineModel& seedEngineModel,
+    EpisodeTwin& episodeOutput,
+    EngineModel& engineOutput) {
+    EpisodeTwin candidate = manifest.seedEpisode;
+    EngineModel engineCandidate = seedEngineModel;
+    candidate.id = manifest.id;
+    candidate.coordinateConvention = manifest.coordinateConvention;
+    candidate.artifacts.clear();
+    candidate.artifacts.reserve(products.size());
+
+    bool calibratedRGBD = false;
+    bool robotStateTrace = false;
+    bool robotCommandTrace = false;
+    bool semanticGraph = false;
+    bool manipulatedPose = false;
+    bool manipulatedRenderGeometry = false;
+    bool manipulatedCollisionGeometry = false;
+
+    const auto findAsset = [&candidate](const std::string& id) {
+        return std::ranges::find_if(
+            candidate.assets,
+            [&id](const WorldAsset& value) { return value.id == id; });
+    };
+    const auto findSensor = [&candidate](const std::string& id) {
+        return std::ranges::find_if(
+            candidate.sensors,
+            [&id](const SensorSpec& value) { return value.id == id; });
+    };
+    const auto applyCalibration =
+        [](SensorSpec& sensor, const CaptureCalibration& calibration) {
+            if (calibration.hasPose) {
+                sensor.localPose = calibration.worldFromSensor;
+            }
+            if (calibration.hasResolution) {
+                sensor.width = calibration.width;
+                sensor.height = calibration.height;
+            }
+            if (calibration.hasIntrinsics) {
+                sensor.intrinsics = calibration.intrinsics;
+            }
+            if (calibration.hasDistortion) {
+                sensor.distortion = calibration.distortion;
+            }
+        };
+    const auto targetId = [](const EpisodeTwinProduct& product) {
+        return product.payload.targetId.empty()
+                   ? product.artifact.assetId
+                   : product.payload.targetId;
+    };
+
+    for (const EpisodeTwinProduct& product : products) {
+        candidate.artifacts.push_back(product.artifact);
+        const EpisodeTwinProductPayload& payload = product.payload;
+        const std::string target = targetId(product);
+        const bool deterministicPhysicalProduct =
+            product.artifact.producer ==
+                EpisodeArtifactProducer::deterministicTool ||
+            product.artifact.producer == EpisodeArtifactProducer::measured;
+        if (manifest.profile == CaptureProfile::frankaFixedRGBD &&
+            (payload.kind == EpisodeTwinProductKind::sensorCalibration ||
+             payload.kind == EpisodeTwinProductKind::segmentation ||
+             payload.kind == EpisodeTwinProductKind::objectPoseTrack ||
+             payload.kind == EpisodeTwinProductKind::renderGeometry ||
+             payload.kind == EpisodeTwinProductKind::collisionGeometry ||
+             payload.kind == EpisodeTwinProductKind::physicalPrior) &&
+            !deterministicPhysicalProduct) {
+            return failure(
+                EpisodeTwinCompilerStatus::assemblyFailure,
+                "physical product " + product.artifact.id +
+                    " must come from a measured or deterministic producer");
+        }
+
+        switch (payload.kind) {
+        case EpisodeTwinProductKind::artifactOnly:
+        case EpisodeTwinProductKind::segmentation:
+        case EpisodeTwinProductKind::taskEvents:
+            break;
+        case EpisodeTwinProductKind::synchronizedSensorStream:
+        case EpisodeTwinProductKind::sensorCalibration: {
+            if (target.empty()) {
+                if (payload.kind ==
+                    EpisodeTwinProductKind::sensorCalibration) {
+                    return failure(
+                        EpisodeTwinCompilerStatus::assemblyFailure,
+                        "sensor calibration product has no target sensor");
+                }
+                break;
+            }
+            const auto sensor = findSensor(target);
+            if (sensor == candidate.sensors.end()) {
+                return failure(
+                    EpisodeTwinCompilerStatus::assemblyFailure,
+                    "capture product " + product.artifact.id +
+                        " targets unknown sensor " + target);
+            }
+            applyCalibration(*sensor, payload.calibration);
+            calibratedRGBD =
+                calibratedRGBD ||
+                (sensor->kind == MR_WORLD_SENSOR_RGBD &&
+                 payload.calibration.hasResolution &&
+                 payload.calibration.hasIntrinsics &&
+                 payload.calibration.hasPose);
+            break;
+        }
+        case EpisodeTwinProductKind::robotStateTrace:
+            robotStateTrace = true;
+            break;
+        case EpisodeTwinProductKind::robotCommandTrace:
+            robotCommandTrace = true;
+            break;
+        case EpisodeTwinProductKind::semanticGraph:
+            semanticGraph = true;
+            break;
+        case EpisodeTwinProductKind::objectPoseTrack: {
+            const auto asset = findAsset(target);
+            if (target.empty() || asset == candidate.assets.end() ||
+                !payload.hasWorldPose) {
+                return failure(
+                    EpisodeTwinCompilerStatus::assemblyFailure,
+                    "object pose product " + product.artifact.id +
+                        " has no valid target pose");
+            }
+            asset->initialPose = payload.worldPose;
+            manipulatedPose =
+                manipulatedPose ||
+                target == candidate.task.manipulatedAssetId;
+            break;
+        }
+        case EpisodeTwinProductKind::renderGeometry: {
+            const auto asset = findAsset(target);
+            if (target.empty() || asset == candidate.assets.end() ||
+                payload.renderRepresentation == MR_WORLD_RENDER_NONE) {
+                return failure(
+                    EpisodeTwinCompilerStatus::assemblyFailure,
+                    "render geometry product " + product.artifact.id +
+                        " has no valid target representation");
+            }
+            asset->render = payload.renderRepresentation;
+            manipulatedRenderGeometry =
+                manipulatedRenderGeometry ||
+                target == candidate.task.manipulatedAssetId;
+            break;
+        }
+        case EpisodeTwinProductKind::collisionGeometry: {
+            const auto asset = findAsset(target);
+            if (target.empty() || asset == candidate.assets.end() ||
+                payload.collisionRepresentation ==
+                    MR_WORLD_COLLISION_NONE) {
+                return failure(
+                    EpisodeTwinCompilerStatus::assemblyFailure,
+                    "collision geometry product " + product.artifact.id +
+                        " has no valid target representation");
+            }
+            asset->collision = payload.collisionRepresentation;
+            bool collisionPatched =
+                manifest.profile != CaptureProfile::frankaFixedRGBD;
+            if (payload.hasCollisionBox) {
+                collisionPatched = false;
+                for (const std::uint32_t shapeIndex :
+                     asset->shapeIndices) {
+                    if (shapeIndex >= engineCandidate.shapes.size()) {
+                        return failure(
+                            EpisodeTwinCompilerStatus::assemblyFailure,
+                            "collision product " + product.artifact.id +
+                                " targets an unknown engine shape");
+                    }
+                    MRShapeGPU& shape =
+                        engineCandidate.shapes[shapeIndex];
+                    if (shape.shapeType != MR_SHAPE_BOX) {
+                        continue;
+                    }
+                    shape.dimensions =
+                        payload.collisionBoxHalfExtents;
+                    shape.contactRestAndBoundingRadius.z = std::sqrt(
+                        shape.dimensions.x * shape.dimensions.x +
+                        shape.dimensions.y * shape.dimensions.y +
+                        shape.dimensions.z * shape.dimensions.z
+                    );
+                    collisionPatched = true;
+                }
+            }
+            if (!collisionPatched) {
+                return failure(
+                    EpisodeTwinCompilerStatus::assemblyFailure,
+                    "collision product " + product.artifact.id +
+                        " did not cook a supported engine collision shape");
+            }
+            manipulatedCollisionGeometry =
+                manipulatedCollisionGeometry ||
+                target == candidate.task.manipulatedAssetId;
+            break;
+        }
+        case EpisodeTwinProductKind::physicalPrior: {
+            const auto asset = findAsset(target);
+            if (target.empty() || asset == candidate.assets.end() ||
+                !payload.hasPhysicalPrior) {
+                return failure(
+                    EpisodeTwinCompilerStatus::assemblyFailure,
+                    "physical prior product " + product.artifact.id +
+                        " has no valid target prior");
+            }
+            asset->massScale = payload.massScale;
+            asset->frictionScale = payload.frictionScale;
+            asset->restitutionScale = payload.restitutionScale;
+            asset->dampingScale = payload.dampingScale;
+            break;
+        }
+        }
+    }
+
+    if (manifest.profile == CaptureProfile::frankaFixedRGBD) {
+        std::vector<std::string> missing;
+        if (!calibratedRGBD) {
+            missing.emplace_back("calibrated fixed RGB-D");
+        }
+        if (!robotStateTrace) {
+            missing.emplace_back("robot state trace");
+        }
+        if (!robotCommandTrace) {
+            missing.emplace_back("robot command trace");
+        }
+        if (!semanticGraph) {
+            missing.emplace_back("semantic entity/support graph");
+        }
+        if (!manipulatedPose) {
+            missing.emplace_back("manipulated-object pose track");
+        }
+        if (!manipulatedRenderGeometry) {
+            missing.emplace_back("manipulated-object render geometry");
+        }
+        if (!manipulatedCollisionGeometry) {
+            missing.emplace_back("manipulated-object collision geometry");
+        }
+        if (!missing.empty()) {
+            std::string message =
+                "physical capture is missing required twin products: ";
+            for (std::size_t index = 0u; index < missing.size(); ++index) {
+                if (index != 0u) {
+                    message += ", ";
+                }
+                message += missing[index];
+            }
+            return failure(
+                EpisodeTwinCompilerStatus::assemblyFailure,
+                std::move(message));
+        }
+    }
+
+    episodeOutput = std::move(candidate);
+    engineOutput = std::move(engineCandidate);
+    return {};
 }
 
 EpisodeTwinCompiler::EpisodeTwinCompiler(EpisodeTwinCompilerConfig config)
@@ -820,6 +1236,7 @@ EpisodeTwinCompilerResult EpisodeTwinCompiler::compile(
         EpisodeTwinStage::publish,
     };
     std::vector<EpisodeArtifact> artifacts;
+    std::vector<EpisodeTwinProduct> products;
     std::vector<EpisodeTwinStageReceipt> receipts;
     std::unordered_set<std::string> artifactIds;
 
@@ -840,7 +1257,9 @@ EpisodeTwinCompilerResult EpisodeTwinCompiler::compile(
             }
 
             std::vector<EpisodeArtifact> declaredArtifacts;
+            std::vector<EpisodeTwinProduct> declaredTwinProducts;
             declaredArtifacts.reserve(declaredProducts.size());
+            declaredTwinProducts.reserve(declaredProducts.size());
             for (const CaptureProduct& product : declaredProducts) {
                 EpisodeArtifactImport imported;
                 if (!store.importProduct(product, imported, &reason)) {
@@ -848,11 +1267,12 @@ EpisodeTwinCompilerResult EpisodeTwinCompiler::compile(
                                    std::move(reason));
                 }
                 declaredArtifacts.push_back(std::move(imported.artifact));
+                declaredTwinProducts.push_back(std::move(imported.product));
             }
 
             const std::string key =
                 makeStageKey(stage, manifest, engineModel, artifacts,
-                             declaredArtifacts, providers_);
+                             declaredArtifacts, declaredProducts, providers_);
             EpisodeTwinStageReceipt receipt;
             if (config_.resume &&
                 loadReceipt(store.root(), stage, key, receipt)) {
@@ -865,6 +1285,10 @@ EpisodeTwinCompilerResult EpisodeTwinCompiler::compile(
                     }
                     artifacts.push_back(artifact);
                 }
+                products.insert(
+                    products.end(),
+                    receipt.products.begin(),
+                    receipt.products.end());
                 receipts.push_back(std::move(receipt));
                 continue;
             }
@@ -872,6 +1296,7 @@ EpisodeTwinCompilerResult EpisodeTwinCompiler::compile(
             receipt.stage = stage;
             receipt.stageKey = key;
             receipt.artifacts = std::move(declaredArtifacts);
+            receipt.products = std::move(declaredTwinProducts);
             for (const auto& provider : providers_) {
                 if (provider == nullptr ||
                     !provider->supports(stage, manifest)) {
@@ -893,6 +1318,7 @@ EpisodeTwinCompilerResult EpisodeTwinCompiler::compile(
                             std::move(reason));
                     }
                     receipt.artifacts.push_back(std::move(imported.artifact));
+                    receipt.products.push_back(std::move(imported.product));
                 }
             }
             for (const EpisodeArtifact& artifact : receipt.artifacts) {
@@ -903,6 +1329,10 @@ EpisodeTwinCompilerResult EpisodeTwinCompiler::compile(
                 }
                 artifacts.push_back(artifact);
             }
+            products.insert(
+                products.end(),
+                receipt.products.begin(),
+                receipt.products.end());
             if (!saveReceipt(store.root(), receipt, &reason)) {
                 return failure(EpisodeTwinCompilerStatus::ioFailure,
                                std::move(reason));
@@ -918,40 +1348,21 @@ EpisodeTwinCompilerResult EpisodeTwinCompiler::compile(
     }
 
     CompiledEpisodeTwin candidate;
-    candidate.episode = manifest.seedEpisode;
-    candidate.episode.id = manifest.id;
-    candidate.episode.coordinateConvention = manifest.coordinateConvention;
-    candidate.episode.artifacts = std::move(artifacts);
-    for (const CaptureStream& stream : manifest.streams) {
-        if (!stream.calibration.present() || stream.sensorId.empty()) {
-            continue;
-        }
-        const auto sensor = std::ranges::find_if(
-            candidate.episode.sensors, [&stream](const SensorSpec& value) {
-                return value.id == stream.sensorId;
-            });
-        if (sensor == candidate.episode.sensors.end()) {
-            return failure(EpisodeTwinCompilerStatus::invalidManifest,
-                           "capture stream " + stream.id +
-                               " targets unknown sensor " + stream.sensorId);
-        }
-        if (stream.calibration.hasPose) {
-            sensor->localPose = stream.calibration.worldFromSensor;
-        }
-        if (stream.calibration.hasResolution) {
-            sensor->width = stream.calibration.width;
-            sensor->height = stream.calibration.height;
-        }
-        if (stream.calibration.hasIntrinsics) {
-            sensor->intrinsics = stream.calibration.intrinsics;
-        }
-        if (stream.calibration.hasDistortion) {
-            sensor->distortion = stream.calibration.distortion;
-        }
+    EngineModel assembledEngine;
+    const EpisodeTwinCompilerResult assembled =
+        EpisodeTwinAssembler::assemble(
+            manifest,
+            products,
+            engineModel,
+            candidate.episode,
+            assembledEngine);
+    if (!assembled.succeeded()) {
+        return assembled;
     }
+    candidate.products = std::move(products);
 
     const WorldCompileResult twin = compileEpisodeTwin(
-        candidate.episode, engineModel, candidate.worldTemplate);
+        candidate.episode, assembledEngine, candidate.worldTemplate);
     if (!twin.succeeded()) {
         return failure(EpisodeTwinCompilerStatus::episodeCompileFailure,
                        twin.message);
@@ -1011,6 +1422,8 @@ episodeTwinCompilerStatusName(const EpisodeTwinCompilerStatus status) noexcept {
         return "artifact_failure";
     case EpisodeTwinCompilerStatus::providerFailure:
         return "provider_failure";
+    case EpisodeTwinCompilerStatus::assemblyFailure:
+        return "assembly_failure";
     case EpisodeTwinCompilerStatus::episodeCompileFailure:
         return "episode_compile_failure";
     case EpisodeTwinCompilerStatus::familyCompileFailure:

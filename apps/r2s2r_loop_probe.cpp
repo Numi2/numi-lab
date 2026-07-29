@@ -234,6 +234,27 @@ int main() {
         alignmentConfig.minimumEffectiveSampleFraction = 0.72;
         alignmentConfig.jitterScale = 0.025;
         alignmentConfig.seed = 0x5eed1234ull;
+        std::vector<float> invalidResiduals(
+            static_cast<std::size_t>(kWorldCount) * kResidualCount,
+            std::numeric_limits<float>::quiet_NaN()
+        );
+        metalrobo::WorldAlignmentPopulation invalidAlignment;
+        std::string invalidReason;
+        require(
+            !metalrobo::fitAlignmentPopulation(
+                schema,
+                candidates,
+                invalidResiduals,
+                kWorldCount,
+                kResidualCount,
+                alignmentConfig,
+                invalidAlignment,
+                &invalidReason
+            ) &&
+                invalidReason.find("no physically valid candidates") !=
+                    std::string::npos,
+            "invalid replay rows were admitted to alignment"
+        );
         metalrobo::WorldAlignmentPopulation alignment;
         const metalrobo::ReplayResidualEvaluator replay =
             [featureCount](
@@ -643,6 +664,16 @@ int main() {
             "hardware missing-value mask did not round-trip"
         );
         outcomes.push_back(std::move(hardwareManifest.outcome));
+        outcomes.push_back(makeOutcome(
+            coverage,
+            0u,
+            policyB,
+            task,
+            embodiment,
+            true,
+            true,
+            "real.b.0"
+        ));
         std::error_code removeError;
         std::filesystem::remove(hardwarePath, removeError);
 
@@ -654,7 +685,14 @@ int main() {
             );
         require(
             report.pairedScenarioCount == 16u &&
-                report.policies.size() == 2u,
+                report.policies.size() == 2u &&
+                report.pairwise.size() == 1u &&
+                report.hardwareEvidenceCount == 2u &&
+                report.hardwarePredictionAvailable &&
+                report.meanMaximumRankViolation.has_value() &&
+                report.rankCorrelation.has_value() &&
+                report.calibrationError.has_value() &&
+                report.failureRegionOverlap.has_value(),
             "paired policy evaluation did not use identical worlds"
         );
 
@@ -715,11 +753,14 @@ int main() {
             << " particles=" << alignment.particles.size()
             << " prior_replay_loss=" << priorMeanLoss
             << " posterior_replay_loss=" << posteriorMeanLoss
+            << " invalid_replay_rejected=yes"
             << " curriculum="
             << sourceCounts[MR_WORLD_SAMPLE_BROAD] << "/"
             << sourceCounts[MR_WORLD_SAMPLE_FAILURE] << "/"
             << sourceCounts[MR_WORLD_SAMPLE_UNCERTAINTY]
             << " paired_worlds=" << report.pairedScenarioCount
+            << " mmrv=" << *report.meanMaximumRankViolation
+            << " rank_correlation=" << *report.rankCorrelation
             << " outcomes=" << roundTrip.size()
             << " hardware_manifest=yes"
             << " sqlite_wal=yes closed_loop=yes\n";

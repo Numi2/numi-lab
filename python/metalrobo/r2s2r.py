@@ -77,6 +77,87 @@ def _parse_hex64(value: str | int | None, *, default: int = 0) -> int:
     return int(text, 16)
 
 
+def _bootstrap_mean_interval(
+    values: Sequence[float],
+    *,
+    seed: int,
+    replicates: int = 1024,
+) -> tuple[float, float]:
+    if not values:
+        raise ValueError("bootstrap interval requires observations")
+    array = np.asarray(values, dtype=np.float64)
+    if array.size == 1:
+        value = float(array[0])
+        return value, value
+    generator = np.random.default_rng(seed & ((1 << 64) - 1))
+    selections = generator.integers(
+        0,
+        array.size,
+        size=(replicates, array.size),
+    )
+    estimates = np.mean(array[selections], axis=1)
+    lower, upper = np.quantile(
+        estimates,
+        (0.025, 0.975),
+        method="linear",
+    )
+    return float(lower), float(upper)
+
+
+def _mean_maximum_rank_violation(
+    real_values: Sequence[float],
+    simulation_values: Sequence[float],
+) -> float:
+    real = np.asarray(real_values, dtype=np.float64)
+    simulation = np.asarray(simulation_values, dtype=np.float64)
+    if real.shape != simulation.shape or real.ndim != 1 or real.size < 2:
+        raise ValueError("MMRV requires paired policy vectors")
+    violations = np.abs(real[:, None] - real[None, :]) * (
+        (simulation[:, None] < simulation[None, :])
+        != (real[:, None] < real[None, :])
+    )
+    return float(np.mean(np.max(violations, axis=1)))
+
+
+def _rank_correlation(
+    real_values: Sequence[float],
+    simulation_values: Sequence[float],
+) -> float | None:
+    real = np.asarray(real_values, dtype=np.float64)
+    simulation = np.asarray(simulation_values, dtype=np.float64)
+    if real.shape != simulation.shape or real.ndim != 1 or real.size < 2:
+        return None
+
+    def ranks(values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+        order = np.argsort(values, kind="stable")
+        result = np.empty_like(values)
+        begin = 0
+        while begin < order.size:
+            end = begin + 1
+            while (
+                end < order.size
+                and values[order[end]] == values[order[begin]]
+            ):
+                end += 1
+            result[order[begin:end]] = 0.5 * (begin + end - 1)
+            begin = end
+        return result
+
+    real_ranks = ranks(real)
+    simulation_ranks = ranks(simulation)
+    real_centered = real_ranks - np.mean(real_ranks)
+    simulation_centered = simulation_ranks - np.mean(simulation_ranks)
+    denominator = math.sqrt(
+        float(np.sum(real_centered * real_centered))
+        * float(np.sum(simulation_centered * simulation_centered))
+    )
+    if denominator <= 0.0:
+        return None
+    return float(
+        np.sum(real_centered * simulation_centered) / denominator
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class ArtifactRef:
     content_hash: str
@@ -286,6 +367,17 @@ class EpisodeOutcome:
                 )
         if any(not tag for tag in self.failure_tags):
             raise ValueError("failure tags cannot be empty")
+        if (
+            self.source == "simulation"
+            and self.physics_status != 0
+        ):
+            raise ValueError(
+                "a physics-invalid simulation episode cannot be recorded"
+            )
+        if self.success and self.physics_status != 0:
+            raise ValueError(
+                "a physics-invalid episode cannot be recorded as success"
+            )
         for value in (
             self.episode_return,
             self.task_margin,
@@ -334,6 +426,8 @@ class FeedbackArtifact:
     embodiment_fingerprint: int
     region_count: int
     hardware_available: bool
+    hardware_evidence_count: int = 0
+    hardware_predictive_variance: float | None = None
 
 
 class R2S2RCoordinator:
@@ -574,6 +668,8 @@ class R2S2RCoordinator:
         quantiles = np.asarray(population.quantiles)
         weights = np.asarray(population.weights)
         residuals = np.asarray(population.replay_residuals)
+        attempted_particle_count = int(initial_quantiles.shape[0])
+        valid_particle_count = int(quantiles.shape[0])
         array_ref = self.artifacts.put_npz(
             kind="world-alignment-population-arrays",
             arrays={
@@ -589,6 +685,10 @@ class R2S2RCoordinator:
             "scenario_schema": schema.id,
             "schema_fingerprint": _hex64(schema.fingerprint),
             "particle_count": int(quantiles.shape[0]),
+            "attempted_particle_count": attempted_particle_count,
+            "rejected_particle_count": (
+                attempted_particle_count - valid_particle_count
+            ),
             "feature_count": int(quantiles.shape[1]),
             "rounds": config.rounds,
             "replay_artifact_hash": replay_ref.content_hash,
@@ -973,7 +1073,15 @@ class R2S2RCoordinator:
         )
         mx.eval(
             observed_scenario_scores.simulation_success,
+            observed_scenario_scores.uncertainty_score,
             scores.simulation_success,
+            scores.uncertainty_score,
+        )
+        observed_predictive_variance = float(
+            mx.mean(observed_scenario_scores.uncertainty_score).item()
+        )
+        candidate_predictive_variance = float(
+            mx.mean(scores.uncertainty_score).item()
         )
         predicted_hardware_rate: float | None = None
         candidate_grid_hardware_rate: float | None = None
@@ -1012,6 +1120,9 @@ class R2S2RCoordinator:
             ),
             "source_model_hash": model_ref.content_hash,
             "hardware_available": ensemble.hardware_available,
+            "hardware_evidence_count": (
+                ensemble.hardware_evidence_count
+            ),
             "simulation_episode_count": simulation_count,
             "hardware_episode_count": len(outcomes) - simulation_count,
             "candidate_count": candidate_count,
@@ -1034,9 +1145,15 @@ class R2S2RCoordinator:
                 for region in regions
             ],
             "hardware_prediction": (
-                "available"
+                "available_with_uncertainty"
                 if ensemble.hardware_available
                 else "unavailable_sim_only"
+            ),
+            "observed_scenario_predictive_variance": (
+                observed_predictive_variance
+            ),
+            "candidate_grid_predictive_variance": (
+                candidate_predictive_variance
             ),
             "observed_scenario_simulation_success_prediction": float(
                 mx.mean(
@@ -1103,6 +1220,14 @@ class R2S2RCoordinator:
             embodiment_fingerprint=embodiment_fingerprint,
             region_count=len(regions),
             hardware_available=ensemble.hardware_available,
+            hardware_evidence_count=(
+                ensemble.hardware_evidence_count
+            ),
+            hardware_predictive_variance=(
+                observed_predictive_variance
+                if ensemble.hardware_available
+                else None
+            ),
         )
 
     def configure_world_family(
@@ -1189,7 +1314,86 @@ class R2S2RCoordinator:
             }
             paired_keys = keys if paired_keys is None else paired_keys & keys
         paired_keys = paired_keys or set()
+        ordered_paired_keys = sorted(paired_keys)
+        axis_names = (
+            "appearance",
+            "object_configuration",
+            "clutter",
+            "physics",
+            "robot_controller",
+            "camera",
+        )
+
+        def aggregate_simulation(
+            outcomes: Sequence[EpisodeOutcome],
+        ) -> dict[int, tuple[float, float]]:
+            rows: dict[int, list[EpisodeOutcome]] = {}
+            for outcome in outcomes:
+                if (
+                    outcome.source == "simulation"
+                    and outcome.scenario_key in paired_keys
+                ):
+                    rows.setdefault(outcome.scenario_key, []).append(
+                        outcome
+                    )
+            return {
+                key: (
+                    sum(value.success for value in values) / len(values),
+                    sum(value.task_margin for value in values)
+                    / len(values),
+                )
+                for key, values in rows.items()
+            }
+
+        def scenario_slices(
+            paired: Sequence[EpisodeOutcome],
+        ) -> dict[str, dict[str, float | int]]:
+            buckets: dict[str, list[EpisodeOutcome]] = {}
+            for outcome in paired:
+                quantiles = outcome.scenario_quantiles
+                if quantiles is None:
+                    buckets.setdefault("unknown", []).append(outcome)
+                    continue
+                tails = [
+                    index
+                    for index, quantile in enumerate(quantiles)
+                    if quantile < 0.05 or quantile > 0.95
+                ]
+                bucket = "tail_ood" if tails else "central_id"
+                buckets.setdefault(bucket, []).append(outcome)
+                for axis in sorted(
+                    {schema.features[index].axis for index in tails}
+                ):
+                    name = (
+                        axis_names[axis]
+                        if 0 <= axis < len(axis_names)
+                        else f"axis_{axis}"
+                    )
+                    buckets.setdefault(
+                        f"tail_ood:{name}",
+                        [],
+                    ).append(outcome)
+            return {
+                name: {
+                    "episodes": len(values),
+                    "success_rate": (
+                        sum(value.success for value in values)
+                        / len(values)
+                    ),
+                    "mean_task_margin": (
+                        sum(value.task_margin for value in values)
+                        / len(values)
+                    ),
+                }
+                for name, values in sorted(buckets.items())
+                if values
+            }
+
         summaries = []
+        simulation_aggregates: dict[
+            int,
+            dict[int, tuple[float, float]],
+        ] = {}
         for policy, outcomes in all_outcomes.items():
             paired = [
                 outcome
@@ -1202,6 +1406,8 @@ class R2S2RCoordinator:
                 for outcome in outcomes
                 if outcome.source == "hardware"
             ]
+            aggregates = aggregate_simulation(outcomes)
+            simulation_aggregates[policy] = aggregates
             with self._connect() as database:
                 feedback_row = database.execute(
                     """
@@ -1224,33 +1430,240 @@ class R2S2RCoordinator:
             predicted_hardware = feedback_metadata.get(
                 "observed_scenario_hardware_success_prediction"
             )
+            paired_success_rate = (
+                sum(value[0] for value in aggregates.values())
+                / len(aggregates)
+                if aggregates
+                else None
+            )
+            paired_task_margin = (
+                sum(value[1] for value in aggregates.values())
+                / len(aggregates)
+                if aggregates
+                else None
+            )
+            hardware_success_rate = (
+                sum(outcome.success for outcome in hardware)
+                / len(hardware)
+                if hardware
+                else None
+            )
+            failure_tags = sorted(
+                {
+                    tag
+                    for outcome in outcomes
+                    for tag in outcome.failure_tags
+                }
+            )
+            simulation_failure_rates = {
+                tag: (
+                    sum(
+                        tag in outcome.failure_tags
+                        for outcome in paired
+                    )
+                    / len(paired)
+                    if paired
+                    else 0.0
+                )
+                for tag in failure_tags
+            }
+            hardware_failure_rates = {
+                tag: (
+                    sum(
+                        tag in outcome.failure_tags
+                        for outcome in hardware
+                    )
+                    / len(hardware)
+                    if hardware
+                    else 0.0
+                )
+                for tag in failure_tags
+            }
             summaries.append(
                 {
                     "policy_fingerprint": _hex64(policy),
                     "paired_simulation_episodes": len(paired),
-                    "paired_simulation_success_rate": (
-                        sum(outcome.success for outcome in paired)
-                        / len(paired)
-                        if paired
-                        else None
+                    "paired_simulation_success_rate": paired_success_rate,
+                    "paired_simulation_mean_task_margin": (
+                        paired_task_margin
                     ),
                     "hardware_episodes": len(hardware),
-                    "hardware_success_rate": (
-                        sum(outcome.success for outcome in hardware)
-                        / len(hardware)
-                        if hardware
-                        else None
-                    ),
+                    "hardware_success_rate": hardware_success_rate,
                     "predicted_hardware_success_rate": (
                         predicted_hardware
                     ),
+                    "predictive_variance": feedback_metadata.get(
+                        "observed_scenario_predictive_variance"
+                    ),
+                    "hardware_evidence_count": len(hardware),
                     "hardware_prediction": (
-                        "available"
+                        "available_with_uncertainty"
                         if predicted_hardware is not None
                         else "unavailable_sim_only"
                     ),
+                    "simulation_hardware_calibration_error": (
+                        abs(
+                            paired_success_rate
+                            - hardware_success_rate
+                        )
+                        if paired_success_rate is not None
+                        and hardware_success_rate is not None
+                        else None
+                    ),
+                    "model_hardware_calibration_error": (
+                        abs(
+                            predicted_hardware
+                            - hardware_success_rate
+                        )
+                        if predicted_hardware is not None
+                        and hardware_success_rate is not None
+                        else None
+                    ),
+                    "simulation_failure_rates": (
+                        simulation_failure_rates
+                    ),
+                    "hardware_failure_rates": hardware_failure_rates,
+                    "scenario_slices": scenario_slices(paired),
                 }
             )
+        summary_by_policy = {
+            _parse_hex64(summary["policy_fingerprint"]): summary
+            for summary in summaries
+        }
+        pairwise = []
+        ordered_policies = sorted(policy_fingerprints)
+        for left_index, left in enumerate(ordered_policies):
+            for right in ordered_policies[left_index + 1 :]:
+                left_aggregates = simulation_aggregates[left]
+                right_aggregates = simulation_aggregates[right]
+                common = [
+                    key
+                    for key in ordered_paired_keys
+                    if key in left_aggregates
+                    and key in right_aggregates
+                ]
+                if not common:
+                    continue
+                success_deltas = [
+                    left_aggregates[key][0]
+                    - right_aggregates[key][0]
+                    for key in common
+                ]
+                margin_deltas = [
+                    left_aggregates[key][1]
+                    - right_aggregates[key][1]
+                    for key in common
+                ]
+                success_interval = _bootstrap_mean_interval(
+                    success_deltas,
+                    seed=left ^ ((right << 17) | (right >> 47)),
+                )
+                margin_interval = _bootstrap_mean_interval(
+                    margin_deltas,
+                    seed=right ^ ((left << 29) | (left >> 35)),
+                )
+                left_hardware = summary_by_policy[left][
+                    "hardware_success_rate"
+                ]
+                right_hardware = summary_by_policy[right][
+                    "hardware_success_rate"
+                ]
+                pairwise.append(
+                    {
+                        "left_policy_fingerprint": _hex64(left),
+                        "right_policy_fingerprint": _hex64(right),
+                        "paired_scenario_count": len(common),
+                        "paired_success_delta": float(
+                            np.mean(success_deltas)
+                        ),
+                        "paired_success_interval_95": list(
+                            success_interval
+                        ),
+                        "paired_task_margin_delta": float(
+                            np.mean(margin_deltas)
+                        ),
+                        "paired_task_margin_interval_95": list(
+                            margin_interval
+                        ),
+                        "hardware_success_delta": (
+                            left_hardware - right_hardware
+                            if left_hardware is not None
+                            and right_hardware is not None
+                            else None
+                        ),
+                    }
+                )
+
+        hardware_rank_summaries = [
+            summary
+            for summary in summaries
+            if summary["hardware_success_rate"] is not None
+            and summary["paired_simulation_success_rate"] is not None
+        ]
+        real_values = [
+            summary["hardware_success_rate"]
+            for summary in hardware_rank_summaries
+        ]
+        simulation_values = [
+            summary["paired_simulation_success_rate"]
+            for summary in hardware_rank_summaries
+        ]
+        mmrv = (
+            _mean_maximum_rank_violation(
+                real_values,
+                simulation_values,
+            )
+            if len(hardware_rank_summaries) >= 2
+            else None
+        )
+        rank_correlation = _rank_correlation(
+            real_values,
+            simulation_values,
+        )
+        model_calibration_values = [
+            summary["model_hardware_calibration_error"]
+            for summary in summaries
+            if summary["model_hardware_calibration_error"] is not None
+        ]
+        simulation_calibration_values = [
+            summary["simulation_hardware_calibration_error"]
+            for summary in summaries
+            if summary[
+                "simulation_hardware_calibration_error"
+            ] is not None
+        ]
+        overlap_numerator = 0.0
+        overlap_denominator = 0.0
+        overlap_evidence = False
+        for summary in summaries:
+            if summary["hardware_episodes"] == 0:
+                continue
+            tags = set(summary["simulation_failure_rates"]) | set(
+                summary["hardware_failure_rates"]
+            )
+            for tag in tags:
+                simulation_rate = summary[
+                    "simulation_failure_rates"
+                ].get(tag, 0.0)
+                hardware_rate = summary[
+                    "hardware_failure_rates"
+                ].get(tag, 0.0)
+                overlap_numerator += min(
+                    simulation_rate,
+                    hardware_rate,
+                )
+                overlap_denominator += max(
+                    simulation_rate,
+                    hardware_rate,
+                )
+                overlap_evidence = True
+        failure_region_overlap = (
+            overlap_numerator / overlap_denominator
+            if overlap_denominator > 0.0
+            else 1.0
+            if overlap_evidence
+            else None
+        )
         summaries.sort(
             key=lambda summary: (
                 summary["predicted_hardware_success_rate"]
@@ -1264,13 +1677,35 @@ class R2S2RCoordinator:
             reverse=True,
         )
         report = {
-            "schema_version": self.schema_version,
+            "schema_version": 2,
             "kind": "PolicyEvaluationReport",
             "scenario_schema": schema.id,
             "schema_fingerprint": _hex64(schema.fingerprint),
             "task_fingerprint": _hex64(task_fingerprint),
             "paired_scenario_count": len(paired_keys),
+            "hardware_evidence_count": sum(
+                summary["hardware_episodes"]
+                for summary in summaries
+            ),
+            "hardware_prediction_available": any(
+                summary["predicted_hardware_success_rate"] is not None
+                for summary in summaries
+            ),
             "policies": summaries,
+            "pairwise": pairwise,
+            "mean_maximum_rank_violation": mmrv,
+            "rank_correlation": rank_correlation,
+            "model_calibration_error": (
+                float(np.mean(model_calibration_values))
+                if model_calibration_values
+                else None
+            ),
+            "simulation_hardware_calibration_error": (
+                float(np.mean(simulation_calibration_values))
+                if simulation_calibration_values
+                else None
+            ),
+            "failure_region_overlap": failure_region_overlap,
             "relative_ordering": [
                 summary["policy_fingerprint"] for summary in summaries
             ],
@@ -1289,6 +1724,10 @@ class R2S2RCoordinator:
             provenance={
                 "report_artifact": report_ref.content_hash,
                 "paired_scenario_count": len(paired_keys),
+                "hardware_evidence_count": report[
+                    "hardware_evidence_count"
+                ],
+                "mean_maximum_rank_violation": mmrv,
             },
         )
         return report
@@ -1389,6 +1828,10 @@ def drain_completed_episode_records(
             raise ValueError("compacted episode count exceeds capacity")
         for row in range(valid_count):
             record = words[chunk, row]
+            if int(record[4]) == 0 and int(record[7]) != 0:
+                # Physics failures belong in runtime diagnostics, not in the
+                # policy/outcome evidence used for alignment or evaluation.
+                continue
             scenario_key = int(record[0]) | (int(record[1]) << 32)
             episode_counter = int(record[2]) | (
                 int(record[3]) << 32

@@ -129,6 +129,7 @@ std::uint64_t alignmentFingerprint(
         hash.appendSpan<float>(particle.quantiles);
         hash.append(particle.weight);
         hash.append(particle.replayResidual);
+        hash.append(particle.replayValid);
     }
     return hash.finish();
 }
@@ -501,7 +502,7 @@ bool WorldAlignmentPopulation::valid(
         if (particle.quantiles.size() != schema.features.size() ||
             !finite(particle.weight) || particle.weight < 0.0 ||
             !finite(particle.replayResidual) ||
-            particle.replayResidual < 0.0) {
+            particle.replayResidual < 0.0 || !particle.replayValid) {
             return failReason(
                 reason,
                 "alignment particle dimensions or scores are invalid"
@@ -572,7 +573,13 @@ bool fitAlignmentPopulation(
         );
     }
 
-    std::vector<double> losses(candidateCount, 0.0);
+    std::vector<double> losses(
+        candidateCount,
+        std::numeric_limits<double>::infinity()
+    );
+    std::vector<std::uint8_t> replayValid(candidateCount, 0u);
+    std::vector<double> validLosses;
+    validLosses.reserve(candidateCount);
     for (std::uint32_t candidate = 0u;
          candidate < candidateCount;
          ++candidate) {
@@ -589,23 +596,32 @@ bool fitAlignmentPopulation(
             }
         }
         double loss = 0.0;
+        bool validReplay = true;
         for (std::uint32_t residual = 0u;
              residual < residualCount;
              ++residual) {
             const float value =
                 replayResiduals[candidate * residualCount + residual];
             if (!finite(value)) {
-                return failReason(
-                    reason,
-                    "alignment replay residual is non-finite"
-                );
+                validReplay = false;
+                break;
             }
             loss += huber(value, config.huberDelta);
         }
-        losses[candidate] = loss;
+        if (validReplay) {
+            replayValid[candidate] = 1u;
+            losses[candidate] = loss;
+            validLosses.push_back(loss);
+        }
+    }
+    if (validLosses.empty()) {
+        return failReason(
+            reason,
+            "alignment replay produced no physically valid candidates"
+        );
     }
 
-    std::vector<double> scaleValues = losses;
+    std::vector<double> scaleValues = validLosses;
     const auto median = scaleValues.begin() + scaleValues.size() / 2u;
     std::nth_element(scaleValues.begin(), median, scaleValues.end());
     const double scale = std::max(*median, 1.0e-9);
@@ -617,6 +633,11 @@ bool fitAlignmentPopulation(
         for (std::uint32_t candidate = 0u;
              candidate < candidateCount;
              ++candidate) {
+            if (replayValid[candidate] == 0u) {
+                logWeights[candidate] =
+                    -std::numeric_limits<double>::infinity();
+                continue;
+            }
             logWeights[candidate] -=
                 deltaBeta * losses[candidate] / scale;
             maximum = std::max(maximum, logWeights[candidate]);
@@ -625,8 +646,9 @@ bool fitAlignmentPopulation(
         for (std::uint32_t candidate = 0u;
              candidate < candidateCount;
              ++candidate) {
-            weights[candidate] =
-                std::exp(logWeights[candidate] - maximum);
+            weights[candidate] = replayValid[candidate] == 0u
+                ? 0.0
+                : std::exp(logWeights[candidate] - maximum);
             sum += weights[candidate];
         }
         if (!finite(sum) || !(sum > 0.0)) {
@@ -654,9 +676,8 @@ bool fitAlignmentPopulation(
         }
     );
     order.resize(std::min<std::size_t>(
-        order.size(),
-        config.maximumParticles
-    ));
+        static_cast<std::size_t>(std::ranges::count(replayValid, 1u)),
+        config.maximumParticles));
     double retainedWeight = 0.0;
     for (const std::uint32_t index : order) {
         retainedWeight += weights[index];
@@ -678,6 +699,7 @@ bool fitAlignmentPopulation(
         particle.quantiles.assign(begin, begin + featureCount);
         particle.weight = weights[index] / retainedWeight;
         particle.replayResidual = losses[index];
+        particle.replayValid = true;
         staged.particles.push_back(std::move(particle));
     }
     HashBuilder idHash;
@@ -742,7 +764,11 @@ bool fitAlignmentPopulationSMC(
         initialQuantiles.end(),
     };
     std::vector<float> residuals;
-    std::vector<double> losses(candidateCount, 0.0);
+    std::vector<double> losses(
+        candidateCount,
+        std::numeric_limits<double>::infinity()
+    );
+    std::vector<std::uint8_t> replayValid(candidateCount, 0u);
     std::vector<double> weights(
         candidateCount,
         1.0 / static_cast<double>(candidateCount)
@@ -774,10 +800,23 @@ bool fitAlignmentPopulationSMC(
                     : "SMC replay evaluator failed: " + evaluatorReason
             );
         }
+        std::fill(
+            replayValid.begin(),
+            replayValid.end(),
+            0u
+        );
+        std::fill(
+            losses.begin(),
+            losses.end(),
+            std::numeric_limits<double>::infinity()
+        );
+        std::vector<double> validLosses;
+        validLosses.reserve(candidateCount);
         for (std::uint32_t candidate = 0u;
              candidate < candidateCount;
              ++candidate) {
             double loss = 0.0;
+            bool validReplay = true;
             for (std::uint32_t residual = 0u;
                  residual < residualCount;
                  ++residual) {
@@ -788,17 +827,25 @@ bool fitAlignmentPopulationSMC(
                         residual
                     ];
                 if (!finite(value)) {
-                    return failReason(
-                        reason,
-                        "SMC replay residual is non-finite"
-                    );
+                    validReplay = false;
+                    break;
                 }
                 loss += huber(value, config.huberDelta);
             }
-            losses[candidate] = loss;
+            if (validReplay) {
+                replayValid[candidate] = 1u;
+                losses[candidate] = loss;
+                validLosses.push_back(loss);
+            }
+        }
+        if (validLosses.empty()) {
+            return failReason(
+                reason,
+                "SMC replay produced no physically valid candidates"
+            );
         }
 
-        std::vector<double> scaleValues = losses;
+        std::vector<double> scaleValues = validLosses;
         auto median =
             scaleValues.begin() + scaleValues.size() / 2u;
         std::nth_element(
@@ -815,6 +862,11 @@ bool fitAlignmentPopulationSMC(
         for (std::uint32_t candidate = 0u;
              candidate < candidateCount;
              ++candidate) {
+            if (replayValid[candidate] == 0u) {
+                logWeights[candidate] =
+                    -std::numeric_limits<double>::infinity();
+                continue;
+            }
             logWeights[candidate] =
                 std::log(std::max(weights[candidate], 1.0e-300)) -
                 deltaBeta * losses[candidate] / scale;
@@ -827,9 +879,11 @@ bool fitAlignmentPopulationSMC(
         for (std::uint32_t candidate = 0u;
              candidate < candidateCount;
              ++candidate) {
-            weights[candidate] = std::exp(
-                logWeights[candidate] - maximumLogWeight
-            );
+            weights[candidate] = replayValid[candidate] == 0u
+                ? 0.0
+                : std::exp(
+                      logWeights[candidate] - maximumLogWeight
+                  );
             weightSum += weights[candidate];
         }
         if (!finite(weightSum) || !(weightSum > 0.0)) {
@@ -931,6 +985,9 @@ bool fitAlignmentPopulationSMC(
     staged.particles.reserve(candidateCount);
     double normalizedSum = 0.0;
     for (const std::uint32_t index : order) {
+        if (replayValid[index] == 0u || weights[index] <= 0.0) {
+            continue;
+        }
         WorldAlignmentParticle particle;
         const auto begin =
             particles.begin() +
@@ -938,6 +995,7 @@ bool fitAlignmentPopulationSMC(
         particle.quantiles.assign(begin, begin + featureCount);
         particle.weight = weights[index];
         particle.replayResidual = losses[index];
+        particle.replayValid = true;
         normalizedSum += particle.weight;
         staged.particles.push_back(std::move(particle));
     }
@@ -1206,7 +1264,12 @@ bool compileWorldSamplingProgram(
                 static_cast<float>(particle.replayResidual),
                 0.0f,
             };
-            compiled.identity = {ordinal, 0u, 0u, 0u};
+            compiled.identity = {
+                ordinal,
+                particle.replayValid ? 1u : 0u,
+                0u,
+                0u,
+            };
             staged.alignmentParticles.push_back(compiled);
             staged.alignmentQuantiles.insert(
                 staged.alignmentQuantiles.end(),
@@ -1329,7 +1392,7 @@ bool EpisodeOutcome::valid(
         source > MR_EPISODE_SOURCE_HARDWARE ||
         termination > MR_EPISODE_TERMINATION_EXTERNAL ||
         (source == MR_EPISODE_SOURCE_SIMULATION &&
-         scenarioKey == 0u) ||
+         (scenarioKey == 0u || physicsStatus != 0u)) ||
         !finite(episodeReturn) || !finite(taskMargin) ||
         !finite(safetyMargin) || !finite(durationSeconds) ||
         durationSeconds < 0.0 || !finite(minimumVisibility) ||
@@ -1387,10 +1450,19 @@ PolicyEvaluationReport evaluatePolicies(
     report.taskFingerprint = task.fingerprint;
     report.scenarioSchemaFingerprint = scenarios.fingerprint;
 
+    struct ScenarioAggregate {
+        double success = 0.0;
+        double taskMargin = 0.0;
+        std::uint64_t count = 0u;
+    };
     std::unordered_map<
         std::uint64_t,
         std::vector<const EpisodeOutcome*>
     > byPolicy;
+    std::unordered_map<
+        std::uint64_t,
+        std::unordered_map<std::uint64_t, ScenarioAggregate>
+    > simulationByPolicy;
     std::unordered_map<
         std::uint64_t,
         std::unordered_set<std::uint64_t>
@@ -1406,23 +1478,49 @@ PolicyEvaluationReport evaluatePolicies(
             scenarioPolicies[outcome.scenarioKey].insert(
                 outcome.policyFingerprint
             );
+            ScenarioAggregate& aggregate =
+                simulationByPolicy[outcome.policyFingerprint]
+                                  [outcome.scenarioKey];
+            aggregate.success += outcome.success ? 1.0 : 0.0;
+            aggregate.taskMargin += outcome.taskMargin;
+            aggregate.count += 1u;
         }
     }
+    const std::size_t simulationPolicyCount = simulationByPolicy.size();
+    std::vector<std::uint64_t> pairedKeys;
     for (const auto& [key, policies] : scenarioPolicies) {
-        static_cast<void>(key);
-        if (policies.size() >= 2u) {
-            report.pairedScenarioCount += 1u;
+        if (simulationPolicyCount >= 2u &&
+            policies.size() == simulationPolicyCount) {
+            pairedKeys.push_back(key);
         }
     }
+    std::ranges::sort(pairedKeys);
+    report.pairedScenarioCount = pairedKeys.size();
 
     report.policies.reserve(byPolicy.size());
     for (const auto& [fingerprint, policyOutcomes] : byPolicy) {
         PolicyEvaluationSummary summary;
         summary.policyFingerprint = fingerprint;
         summary.failureRates.assign(task.failureTags.size(), 0.0);
+        summary.simulationFailureRates.assign(
+            task.failureTags.size(),
+            0.0
+        );
+        summary.hardwareFailureRates.assign(
+            task.failureTags.size(),
+            0.0
+        );
         std::uint64_t simulationSuccess = 0u;
         std::uint64_t hardwareSuccess = 0u;
         std::vector<std::uint64_t> failureCounts(
+            task.failureTags.size(),
+            0u
+        );
+        std::vector<std::uint64_t> simulationFailureCounts(
+            task.failureTags.size(),
+            0u
+        );
+        std::vector<std::uint64_t> hardwareFailureCounts(
             task.failureTags.size(),
             0u
         );
@@ -1433,14 +1531,20 @@ PolicyEvaluationReport evaluatePolicies(
             } else {
                 summary.hardwareEpisodes += 1u;
                 hardwareSuccess += outcome->success ? 1u : 0u;
+                report.hardwareEvidenceCount += 1u;
             }
             for (std::size_t tag = 0u;
                  tag < failureCounts.size();
                  ++tag) {
-                failureCounts[tag] +=
-                    (outcome->failureMask & (1ull << tag)) != 0u
-                    ? 1u
-                    : 0u;
+                const bool failed =
+                    (outcome->failureMask & (1ull << tag)) != 0u;
+                failureCounts[tag] += failed ? 1u : 0u;
+                if (outcome->source ==
+                    MR_EPISODE_SOURCE_SIMULATION) {
+                    simulationFailureCounts[tag] += failed ? 1u : 0u;
+                } else {
+                    hardwareFailureCounts[tag] += failed ? 1u : 0u;
+                }
             }
         }
         if (summary.simulationEpisodes != 0u) {
@@ -1455,13 +1559,312 @@ PolicyEvaluationReport evaluatePolicies(
             summary.hardwareSuccessRate = rate;
             summary.calibratedHardwareSuccessRate = rate;
         }
+        double pairedSuccess = 0.0;
+        double pairedTaskMargin = 0.0;
+        const auto policyScenarios =
+            simulationByPolicy.find(fingerprint);
+        if (policyScenarios != simulationByPolicy.end()) {
+            for (const std::uint64_t key : pairedKeys) {
+                const auto scenario =
+                    policyScenarios->second.find(key);
+                if (scenario == policyScenarios->second.end() ||
+                    scenario->second.count == 0u) {
+                    continue;
+                }
+                pairedSuccess +=
+                    scenario->second.success / scenario->second.count;
+                pairedTaskMargin +=
+                    scenario->second.taskMargin / scenario->second.count;
+                summary.pairedSimulationEpisodes += 1u;
+            }
+        }
+        if (summary.pairedSimulationEpisodes != 0u) {
+            summary.pairedSimulationSuccessRate =
+                pairedSuccess / summary.pairedSimulationEpisodes;
+            summary.pairedSimulationMeanTaskMargin =
+                pairedTaskMargin / summary.pairedSimulationEpisodes;
+        }
+        if (summary.hardwareSuccessRate.has_value()) {
+            const double simulationRate =
+                summary.pairedSimulationSuccessRate.value_or(
+                    summary.simulationSuccessRate
+                );
+            summary.calibrationAbsoluteError = std::abs(
+                simulationRate - *summary.hardwareSuccessRate
+            );
+        }
         const double total = static_cast<double>(policyOutcomes.size());
         for (std::size_t tag = 0u; tag < failureCounts.size(); ++tag) {
             summary.failureRates[tag] =
                 total == 0.0 ? 0.0 : failureCounts[tag] / total;
+            summary.simulationFailureRates[tag] =
+                summary.simulationEpisodes == 0u
+                ? 0.0
+                : static_cast<double>(simulationFailureCounts[tag]) /
+                      summary.simulationEpisodes;
+            summary.hardwareFailureRates[tag] =
+                summary.hardwareEpisodes == 0u
+                ? 0.0
+                : static_cast<double>(hardwareFailureCounts[tag]) /
+                      summary.hardwareEpisodes;
         }
         report.policies.push_back(std::move(summary));
     }
+
+    std::vector<std::uint64_t> simulationPolicies;
+    simulationPolicies.reserve(simulationByPolicy.size());
+    for (const auto& [fingerprint, values] : simulationByPolicy) {
+        static_cast<void>(values);
+        simulationPolicies.push_back(fingerprint);
+    }
+    std::ranges::sort(simulationPolicies);
+    const auto mean = [](const std::vector<double>& values) {
+        return values.empty()
+            ? 0.0
+            : std::accumulate(values.begin(), values.end(), 0.0) /
+                  values.size();
+    };
+    const auto bootstrapInterval =
+        [](const std::vector<double>& values,
+           std::uint64_t seed) {
+            if (values.empty()) {
+                return std::pair{0.0, 0.0};
+            }
+            constexpr std::size_t kReplicates = 512u;
+            std::vector<double> estimates(kReplicates, 0.0);
+            const auto next = [](std::uint64_t& state) {
+                state += 0x9e3779b97f4a7c15ull;
+                std::uint64_t value = state;
+                value = (value ^ (value >> 30u)) *
+                        0xbf58476d1ce4e5b9ull;
+                value = (value ^ (value >> 27u)) *
+                        0x94d049bb133111ebull;
+                return value ^ (value >> 31u);
+            };
+            for (double& estimate : estimates) {
+                double total = 0.0;
+                for (std::size_t draw = 0u;
+                     draw < values.size();
+                     ++draw) {
+                    const std::size_t index =
+                        next(seed) % values.size();
+                    total += values[index];
+                }
+                estimate = total / values.size();
+            }
+            std::ranges::sort(estimates);
+            return std::pair{
+                estimates[
+                    static_cast<std::size_t>(
+                        0.025 * (kReplicates - 1u)
+                    )
+                ],
+                estimates[
+                    static_cast<std::size_t>(
+                        0.975 * (kReplicates - 1u)
+                    )
+                ],
+            };
+        };
+    for (std::size_t leftIndex = 0u;
+         leftIndex < simulationPolicies.size();
+         ++leftIndex) {
+        for (std::size_t rightIndex = leftIndex + 1u;
+             rightIndex < simulationPolicies.size();
+             ++rightIndex) {
+            const std::uint64_t left =
+                simulationPolicies[leftIndex];
+            const std::uint64_t right =
+                simulationPolicies[rightIndex];
+            std::vector<double> successDeltas;
+            std::vector<double> marginDeltas;
+            for (const std::uint64_t key : pairedKeys) {
+                const ScenarioAggregate& leftValue =
+                    simulationByPolicy.at(left).at(key);
+                const ScenarioAggregate& rightValue =
+                    simulationByPolicy.at(right).at(key);
+                successDeltas.push_back(
+                    leftValue.success / leftValue.count -
+                    rightValue.success / rightValue.count
+                );
+                marginDeltas.push_back(
+                    leftValue.taskMargin / leftValue.count -
+                    rightValue.taskMargin / rightValue.count
+                );
+            }
+            if (successDeltas.empty()) {
+                continue;
+            }
+            const auto successInterval = bootstrapInterval(
+                successDeltas,
+                left ^ std::rotl(right, 17)
+            );
+            const auto marginInterval = bootstrapInterval(
+                marginDeltas,
+                right ^ std::rotl(left, 29)
+            );
+            PolicyPairEvaluation pair;
+            pair.leftPolicyFingerprint = left;
+            pair.rightPolicyFingerprint = right;
+            pair.pairedScenarioCount = successDeltas.size();
+            pair.pairedSuccessDelta = mean(successDeltas);
+            pair.pairedSuccessLower = successInterval.first;
+            pair.pairedSuccessUpper = successInterval.second;
+            pair.pairedTaskMarginDelta = mean(marginDeltas);
+            pair.pairedTaskMarginLower = marginInterval.first;
+            pair.pairedTaskMarginUpper = marginInterval.second;
+            const auto leftSummary = std::ranges::find_if(
+                report.policies,
+                [left](const PolicyEvaluationSummary& value) {
+                    return value.policyFingerprint == left;
+                }
+            );
+            const auto rightSummary = std::ranges::find_if(
+                report.policies,
+                [right](const PolicyEvaluationSummary& value) {
+                    return value.policyFingerprint == right;
+                }
+            );
+            if (leftSummary != report.policies.end() &&
+                rightSummary != report.policies.end() &&
+                leftSummary->hardwareSuccessRate.has_value() &&
+                rightSummary->hardwareSuccessRate.has_value()) {
+                pair.hardwareSuccessDelta =
+                    *leftSummary->hardwareSuccessRate -
+                    *rightSummary->hardwareSuccessRate;
+            }
+            report.pairwise.push_back(std::move(pair));
+        }
+    }
+
+    std::vector<double> simulatedRankingValues;
+    std::vector<double> hardwareRankingValues;
+    double calibrationSum = 0.0;
+    double overlapNumerator = 0.0;
+    double overlapDenominator = 0.0;
+    for (const PolicyEvaluationSummary& summary : report.policies) {
+        if (!summary.hardwareSuccessRate.has_value()) {
+            continue;
+        }
+        simulatedRankingValues.push_back(
+            summary.pairedSimulationSuccessRate.value_or(
+                summary.simulationSuccessRate
+            )
+        );
+        hardwareRankingValues.push_back(
+            *summary.hardwareSuccessRate
+        );
+        calibrationSum +=
+            summary.calibrationAbsoluteError.value_or(0.0);
+        for (std::size_t tag = 0u;
+             tag < summary.simulationFailureRates.size();
+             ++tag) {
+            overlapNumerator += std::min(
+                summary.simulationFailureRates[tag],
+                summary.hardwareFailureRates[tag]
+            );
+            overlapDenominator += std::max(
+                summary.simulationFailureRates[tag],
+                summary.hardwareFailureRates[tag]
+            );
+        }
+    }
+    report.hardwarePredictionAvailable =
+        report.hardwareEvidenceCount != 0u;
+    if (!hardwareRankingValues.empty()) {
+        report.calibrationError =
+            calibrationSum / hardwareRankingValues.size();
+        report.failureRegionOverlap =
+            overlapDenominator == 0.0
+            ? 1.0
+            : overlapNumerator / overlapDenominator;
+    }
+    if (hardwareRankingValues.size() >= 2u) {
+        double mmrv = 0.0;
+        for (std::size_t left = 0u;
+             left < hardwareRankingValues.size();
+             ++left) {
+            double maximumViolation = 0.0;
+            for (std::size_t right = 0u;
+                 right < hardwareRankingValues.size();
+                 ++right) {
+                const bool simulationLess =
+                    simulatedRankingValues[left] <
+                    simulatedRankingValues[right];
+                const bool hardwareLess =
+                    hardwareRankingValues[left] <
+                    hardwareRankingValues[right];
+                if (simulationLess != hardwareLess) {
+                    maximumViolation = std::max(
+                        maximumViolation,
+                        std::abs(
+                            hardwareRankingValues[left] -
+                            hardwareRankingValues[right]
+                        )
+                    );
+                }
+            }
+            mmrv += maximumViolation;
+        }
+        report.meanMaximumRankViolation =
+            mmrv / hardwareRankingValues.size();
+
+        const auto ranks = [](const std::vector<double>& values) {
+            std::vector<std::size_t> order(values.size());
+            std::iota(order.begin(), order.end(), 0u);
+            std::stable_sort(
+                order.begin(),
+                order.end(),
+                [&values](const std::size_t left,
+                          const std::size_t right) {
+                    return values[left] < values[right];
+                }
+            );
+            std::vector<double> result(values.size(), 0.0);
+            for (std::size_t begin = 0u;
+                 begin < order.size();) {
+                std::size_t end = begin + 1u;
+                while (end < order.size() &&
+                       values[order[end]] == values[order[begin]]) {
+                    ++end;
+                }
+                const double rank =
+                    0.5 * static_cast<double>(begin + end - 1u);
+                for (std::size_t index = begin; index < end; ++index) {
+                    result[order[index]] = rank;
+                }
+                begin = end;
+            }
+            return result;
+        };
+        const std::vector<double> simulationRanks =
+            ranks(simulatedRankingValues);
+        const std::vector<double> hardwareRanks =
+            ranks(hardwareRankingValues);
+        const double simulationMean = mean(simulationRanks);
+        const double hardwareMean = mean(hardwareRanks);
+        double covariance = 0.0;
+        double simulationVariance = 0.0;
+        double hardwareVariance = 0.0;
+        for (std::size_t index = 0u;
+             index < simulationRanks.size();
+             ++index) {
+            const double simulationDelta =
+                simulationRanks[index] - simulationMean;
+            const double hardwareDelta =
+                hardwareRanks[index] - hardwareMean;
+            covariance += simulationDelta * hardwareDelta;
+            simulationVariance +=
+                simulationDelta * simulationDelta;
+            hardwareVariance += hardwareDelta * hardwareDelta;
+        }
+        const double denominator =
+            std::sqrt(simulationVariance * hardwareVariance);
+        if (denominator > 0.0) {
+            report.rankCorrelation = covariance / denominator;
+        }
+    }
+
     std::stable_sort(
         report.policies.begin(),
         report.policies.end(),
@@ -1469,11 +1872,15 @@ PolicyEvaluationReport evaluatePolicies(
            const PolicyEvaluationSummary& right) {
             const double leftScore =
                 left.calibratedHardwareSuccessRate.value_or(
-                    left.simulationSuccessRate
+                    left.pairedSimulationSuccessRate.value_or(
+                        left.simulationSuccessRate
+                    )
                 );
             const double rightScore =
                 right.calibratedHardwareSuccessRate.value_or(
-                    right.simulationSuccessRate
+                    right.pairedSimulationSuccessRate.value_or(
+                        right.simulationSuccessRate
+                    )
                 );
             if (leftScore != rightScore) {
                 return leftScore > rightScore;

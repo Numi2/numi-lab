@@ -1101,9 +1101,15 @@ def run_fit_feedback(args: argparse.Namespace) -> int:
                 "model_hash": artifact.model_content_hash,
                 "regions": artifact.region_count,
                 "hardware_prediction": (
-                    "available"
+                    "available_with_uncertainty"
                     if artifact.hardware_available
                     else "unavailable_sim_only"
+                ),
+                "hardware_evidence_count": (
+                    artifact.hardware_evidence_count
+                ),
+                "hardware_predictive_variance": (
+                    artifact.hardware_predictive_variance
                 ),
             },
             indent=2,

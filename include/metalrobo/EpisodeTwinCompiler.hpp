@@ -48,6 +48,29 @@ enum class EpisodeTwinStage : std::uint32_t {
     publish,
 };
 
+enum class CaptureProfile : std::uint32_t {
+    // Compatibility profile for deterministic or manually assembled worlds.
+    authoredSeed = 0u,
+    // First fail-closed physical path: synchronized fixed RGB-D plus Franka
+    // state/commands and deterministic object reconstruction products.
+    frankaFixedRGBD = 1u,
+};
+
+enum class EpisodeTwinProductKind : std::uint32_t {
+    artifactOnly = 0u,
+    synchronizedSensorStream,
+    sensorCalibration,
+    robotStateTrace,
+    robotCommandTrace,
+    semanticGraph,
+    segmentation,
+    objectPoseTrack,
+    renderGeometry,
+    collisionGeometry,
+    physicalPrior,
+    taskEvents,
+};
+
 struct CaptureCalibration {
     bool hasResolution = false;
     bool hasIntrinsics = false;
@@ -62,6 +85,28 @@ struct CaptureCalibration {
     [[nodiscard]] bool present() const noexcept {
         return hasResolution || hasIntrinsics || hasDistortion || hasPose;
     }
+};
+
+// Typed, deterministic assembly instructions. The artifact proves where the
+// data came from; this payload is the bounded part allowed to alter the seed
+// world. Geometry providers select a representation and target, never inject
+// device pointers or unchecked collision records.
+struct EpisodeTwinProductPayload {
+    EpisodeTwinProductKind kind = EpisodeTwinProductKind::artifactOnly;
+    std::string targetId;
+    CaptureCalibration calibration;
+    bool hasWorldPose = false;
+    WorldPose worldPose;
+    bool hasPhysicalPrior = false;
+    float massScale = 1.0f;
+    float frictionScale = 1.0f;
+    float restitutionScale = 1.0f;
+    float dampingScale = 1.0f;
+    MRWorldRenderRepresentation renderRepresentation = MR_WORLD_RENDER_NONE;
+    MRWorldCollisionRepresentation collisionRepresentation =
+        MR_WORLD_COLLISION_NONE;
+    bool hasCollisionBox = false;
+    mr_float4 collisionBoxHalfExtents{};
 };
 
 struct CaptureStream {
@@ -92,12 +137,19 @@ struct CaptureProduct {
     std::string expectedContentHash;
     double startTimeSeconds = 0.0;
     double endTimeSeconds = 0.0;
+    EpisodeTwinProductPayload payload;
+};
+
+struct EpisodeTwinProduct {
+    EpisodeArtifact artifact;
+    EpisodeTwinProductPayload payload;
 };
 
 struct CaptureManifest {
     std::uint32_t schemaVersion = 1u;
     std::string id;
     CaptureAdapterKind adapter = CaptureAdapterKind::rgbdRobotTelemetry;
+    CaptureProfile profile = CaptureProfile::authoredSeed;
     std::string coordinateConvention = "x-forward,y-left,z-up";
     std::string engineModelId;
     std::string worldProgramId;
@@ -113,6 +165,7 @@ struct CaptureManifest {
 
 struct EpisodeArtifactImport {
     EpisodeArtifact artifact;
+    EpisodeTwinProduct product;
     std::filesystem::path storedPath;
     std::uint64_t byteCount = 0u;
 };
@@ -157,6 +210,7 @@ struct EpisodeTwinStageReceipt {
     std::string stageKey;
     bool cacheHit = false;
     std::vector<EpisodeArtifact> artifacts;
+    std::vector<EpisodeTwinProduct> products;
 };
 
 enum class EpisodeTwinCompilerStatus : std::uint32_t {
@@ -165,6 +219,7 @@ enum class EpisodeTwinCompilerStatus : std::uint32_t {
     invalidConfiguration,
     artifactFailure,
     providerFailure,
+    assemblyFailure,
     episodeCompileFailure,
     familyCompileFailure,
     packCompileFailure,
@@ -189,10 +244,21 @@ struct EpisodeTwinCompilerConfig {
 
 struct CompiledEpisodeTwin {
     EpisodeTwin episode;
+    std::vector<EpisodeTwinProduct> products;
     WorldTemplate worldTemplate;
     WorldFamily worldFamily;
     MRWorldPack worldPack;
     std::vector<EpisodeTwinStageReceipt> receipts;
+};
+
+class EpisodeTwinAssembler {
+public:
+    [[nodiscard]] static EpisodeTwinCompilerResult assemble(
+        const CaptureManifest& manifest,
+        std::span<const EpisodeTwinProduct> products,
+        const EngineModel& seedEngineModel,
+        EpisodeTwin& episodeOutput,
+        EngineModel& engineOutput);
 };
 
 class EpisodeTwinCompiler {

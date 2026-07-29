@@ -24,6 +24,7 @@ from .mlx_world import (
     sampled_state_from_world_family,
     step_sampled_world_family,
 )
+from .mlx_r2s2r import ReplayEvaluation
 
 
 def _readonly(
@@ -361,6 +362,8 @@ class PhysicalReplayTrace:
 class ReplayAccumulator(NamedTuple):
     squared_error: mx.array
     sample_count: mx.array
+    valid: mx.array
+    first_physics_status: mx.array
 
 
 class MLXPhysicalReplayEvaluator:
@@ -663,10 +666,19 @@ class MLXPhysicalReplayEvaluator:
                     accumulator.sample_count
                     + mx.stack(counts)
                 ),
+                valid=(
+                    accumulator.valid
+                    & ~stepped.physics.physics_error
+                ),
+                first_physics_status=mx.where(
+                    accumulator.first_physics_status != 0,
+                    accumulator.first_physics_status,
+                    stepped.physics.status[:, 0],
+                ),
             ),
         )
 
-    def __call__(self, quantiles: mx.array) -> mx.array:
+    def __call__(self, quantiles: mx.array) -> ReplayEvaluation:
         if (
             quantiles.ndim != 2
             or int(quantiles.shape[1])
@@ -753,6 +765,11 @@ class MLXPhysicalReplayEvaluator:
         accumulator = ReplayAccumulator(
             squared_error=mx.stack(initial_squared, axis=-1),
             sample_count=mx.stack(initial_counts),
+            valid=mx.ones((candidate_count,), dtype=mx.bool_),
+            first_physics_status=mx.zeros(
+                (candidate_count,),
+                dtype=mx.uint32,
+            ),
         )
 
         zero_contact = mx.array(0.0, dtype=mx.float32)
@@ -794,8 +811,13 @@ class MLXPhysicalReplayEvaluator:
             / mx.maximum(mx.stack(terminal_counts), 1.0)
         ) / self._state_scales
         residuals = mx.concatenate((trajectory, terminal), axis=-1)
-        mx.async_eval(residuals)
-        return residuals
+        result = ReplayEvaluation(
+            residuals=residuals,
+            valid=accumulator.valid,
+            physics_status=accumulator.first_physics_status,
+        )
+        mx.async_eval(*result)
+        return result
 
 
 __all__ = [

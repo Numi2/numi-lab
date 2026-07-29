@@ -82,6 +82,94 @@ std::optional<CaptureAdapterKind> parseAdapter(const std::string_view value) {
     return std::nullopt;
 }
 
+std::optional<CaptureProfile> parseProfile(const std::string_view value) {
+    if (value == "authored_seed") {
+        return CaptureProfile::authoredSeed;
+    }
+    if (value == "franka_fixed_rgbd") {
+        return CaptureProfile::frankaFixedRGBD;
+    }
+    return std::nullopt;
+}
+
+std::optional<EpisodeTwinProductKind>
+parseProductKind(const std::string_view value) {
+    if (value == "artifact_only") {
+        return EpisodeTwinProductKind::artifactOnly;
+    }
+    if (value == "synchronized_sensor_stream") {
+        return EpisodeTwinProductKind::synchronizedSensorStream;
+    }
+    if (value == "sensor_calibration") {
+        return EpisodeTwinProductKind::sensorCalibration;
+    }
+    if (value == "robot_state_trace") {
+        return EpisodeTwinProductKind::robotStateTrace;
+    }
+    if (value == "robot_command_trace") {
+        return EpisodeTwinProductKind::robotCommandTrace;
+    }
+    if (value == "semantic_graph") {
+        return EpisodeTwinProductKind::semanticGraph;
+    }
+    if (value == "segmentation") {
+        return EpisodeTwinProductKind::segmentation;
+    }
+    if (value == "object_pose_track") {
+        return EpisodeTwinProductKind::objectPoseTrack;
+    }
+    if (value == "render_geometry") {
+        return EpisodeTwinProductKind::renderGeometry;
+    }
+    if (value == "collision_geometry") {
+        return EpisodeTwinProductKind::collisionGeometry;
+    }
+    if (value == "physical_prior") {
+        return EpisodeTwinProductKind::physicalPrior;
+    }
+    if (value == "task_events") {
+        return EpisodeTwinProductKind::taskEvents;
+    }
+    return std::nullopt;
+}
+
+std::optional<MRWorldRenderRepresentation>
+parseRenderRepresentation(const std::string_view value) {
+    if (value == "gaussian_field") {
+        return MR_WORLD_RENDER_GAUSSIAN_FIELD;
+    }
+    if (value == "mesh_pbr") {
+        return MR_WORLD_RENDER_MESH_PBR;
+    }
+    if (value == "neural_residual") {
+        return MR_WORLD_RENDER_NEURAL_RESIDUAL;
+    }
+    if (value == "procedural") {
+        return MR_WORLD_RENDER_PROCEDURAL;
+    }
+    return std::nullopt;
+}
+
+std::optional<MRWorldCollisionRepresentation>
+parseCollisionRepresentation(const std::string_view value) {
+    if (value == "primitives") {
+        return MR_WORLD_COLLISION_PRIMITIVES;
+    }
+    if (value == "convex") {
+        return MR_WORLD_COLLISION_CONVEX;
+    }
+    if (value == "triangle_mesh") {
+        return MR_WORLD_COLLISION_TRIANGLE_MESH;
+    }
+    if (value == "sdf") {
+        return MR_WORLD_COLLISION_SDF;
+    }
+    if (value == "deformable_surface") {
+        return MR_WORLD_COLLISION_DEFORMABLE_SURFACE;
+    }
+    return std::nullopt;
+}
+
 std::optional<CaptureStreamKind> parseStreamKind(const std::string_view value) {
     if (value == "rgb") {
         return CaptureStreamKind::rgb;
@@ -282,6 +370,22 @@ bool parseCalibration(NSDictionary* object, CaptureCalibration& output) {
     return true;
 }
 
+bool parseWorldPose(NSDictionary* object, WorldPose& output) {
+    if (object == nil) {
+        return false;
+    }
+    NSArray* position = arrayValue(object, @"position");
+    NSArray* orientation = arrayValue(object, @"orientation");
+    if (position == nil || orientation == nil || position.count != 3u ||
+        orientation.count != 4u) {
+        return false;
+    }
+    mr_float4 parsedPosition{};
+    return parseFloat4(position, parsedPosition, false) &&
+           parseFloat4(orientation, output.orientation, true) &&
+           ((output.position = parsedPosition), true);
+}
+
 std::filesystem::path resolveSource(const std::filesystem::path& root,
                                     NSString* value) {
     std::filesystem::path source{cppString(value)};
@@ -339,6 +443,18 @@ loadCaptureManifestJSON(const std::filesystem::path& path,
             return invalid("capture manifest adapter is unsupported");
         }
         candidate.adapter = *adapter;
+        NSString* profileValue = stringValue(root, @"capture_profile");
+        if (profileValue != nil) {
+            const auto profile =
+                parseProfile(cppString(profileValue));
+            if (!profile.has_value()) {
+                return invalid("capture manifest profile is unsupported");
+            }
+            candidate.profile = *profile;
+        } else if (candidate.schemaVersion >= 2u) {
+            return invalid(
+                "schema-2 capture manifest requires capture_profile");
+        }
 
         const std::filesystem::path manifestDirectory =
             std::filesystem::absolute(path).parent_path();
@@ -422,6 +538,112 @@ loadCaptureManifestJSON(const std::filesystem::path& path,
             product.kind = *kind;
             product.producer = *producer;
             product.assetId = cppString(stringValue(object, @"asset_id"));
+            NSString* productKindValue =
+                stringValue(object, @"product_kind");
+            if (productKindValue != nil) {
+                const auto productKind =
+                    parseProductKind(cppString(productKindValue));
+                if (!productKind.has_value()) {
+                    return invalid(
+                        "capture product typed kind is unsupported");
+                }
+                product.payload.kind = *productKind;
+            } else if (candidate.schemaVersion >= 2u) {
+                return invalid(
+                    "schema-2 capture product requires product_kind");
+            }
+            product.payload.targetId =
+                cppString(stringValue(object, @"target_id"));
+            if (product.payload.targetId.empty()) {
+                product.payload.targetId = product.assetId;
+            }
+            NSDictionary* productCalibration =
+                dictionaryValue(object, @"calibration");
+            if (!parseCalibration(
+                    productCalibration,
+                    product.payload.calibration)) {
+                return invalid("capture product calibration is invalid");
+            }
+            NSDictionary* worldPose =
+                dictionaryValue(object, @"world_pose");
+            if (worldPose != nil) {
+                if (!parseWorldPose(
+                        worldPose,
+                        product.payload.worldPose)) {
+                    return invalid("capture product world pose is invalid");
+                }
+                product.payload.hasWorldPose = true;
+            }
+            NSString* renderRepresentation =
+                stringValue(object, @"render_representation");
+            if (renderRepresentation != nil) {
+                const auto representation = parseRenderRepresentation(
+                    cppString(renderRepresentation));
+                if (!representation.has_value()) {
+                    return invalid(
+                        "capture product render representation is invalid");
+                }
+                product.payload.renderRepresentation = *representation;
+            }
+            NSString* collisionRepresentation =
+                stringValue(object, @"collision_representation");
+            if (collisionRepresentation != nil) {
+                const auto representation =
+                    parseCollisionRepresentation(
+                        cppString(collisionRepresentation));
+                if (!representation.has_value()) {
+                    return invalid(
+                        "capture product collision representation is invalid");
+                }
+                product.payload.collisionRepresentation = *representation;
+            }
+            NSArray* collisionBox =
+                arrayValue(object, @"collision_box_half_extents");
+            if (collisionBox != nil) {
+                if (collisionBox.count != 3u ||
+                    !parseFloat4(
+                        collisionBox,
+                        product.payload.collisionBoxHalfExtents,
+                        false)) {
+                    return invalid(
+                        "capture product collision box is invalid");
+                }
+                product.payload.hasCollisionBox = true;
+            }
+            NSDictionary* physicalPrior =
+                dictionaryValue(object, @"physical_prior");
+            if (physicalPrior != nil) {
+                bool physicalOkay = true;
+                product.payload.massScale = static_cast<float>(
+                    finiteNumber(
+                        physicalPrior,
+                        @"mass_scale",
+                        1.0,
+                        physicalOkay));
+                product.payload.frictionScale = static_cast<float>(
+                    finiteNumber(
+                        physicalPrior,
+                        @"friction_scale",
+                        1.0,
+                        physicalOkay));
+                product.payload.restitutionScale = static_cast<float>(
+                    finiteNumber(
+                        physicalPrior,
+                        @"restitution_scale",
+                        1.0,
+                        physicalOkay));
+                product.payload.dampingScale = static_cast<float>(
+                    finiteNumber(
+                        physicalPrior,
+                        @"damping_scale",
+                        1.0,
+                        physicalOkay));
+                if (!physicalOkay) {
+                    return invalid(
+                        "capture product physical prior is invalid");
+                }
+                product.payload.hasPhysicalPrior = true;
+            }
             product.source = resolveSource(candidate.sourceRoot, pathValue);
             product.expectedContentHash =
                 cppString(stringValue(object, @"sha256"));

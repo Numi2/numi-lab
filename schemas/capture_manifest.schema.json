@@ -15,7 +15,10 @@
   ],
   "properties": {
     "schema_version": {
-      "const": 1
+      "enum": [
+        1,
+        2
+      ]
     },
     "id": {
       "$ref": "#/$defs/id"
@@ -28,6 +31,12 @@
         "libfranka_log",
         "cad_urdf",
         "video"
+      ]
+    },
+    "capture_profile": {
+      "enum": [
+        "authored_seed",
+        "franka_fixed_rgbd"
       ]
     },
     "coordinate_convention": {
@@ -61,6 +70,25 @@
       "default": []
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_version": {
+            "const": 2
+          }
+        },
+        "required": [
+          "schema_version"
+        ]
+      },
+      "then": {
+        "required": [
+          "capture_profile"
+        ]
+      }
+    }
+  ],
   "$defs": {
     "id": {
       "type": "string",
@@ -242,6 +270,98 @@
         },
         "asset_id": {
           "type": "string"
+        },
+        "product_kind": {
+          "enum": [
+            "artifact_only",
+            "synchronized_sensor_stream",
+            "sensor_calibration",
+            "robot_state_trace",
+            "robot_command_trace",
+            "semantic_graph",
+            "segmentation",
+            "object_pose_track",
+            "render_geometry",
+            "collision_geometry",
+            "physical_prior",
+            "task_events"
+          ]
+        },
+        "target_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "calibration": {
+          "$ref": "#/$defs/calibration"
+        },
+        "world_pose": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "position",
+            "orientation"
+          ],
+          "properties": {
+            "position": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "orientation": {
+              "$ref": "#/$defs/float4"
+            }
+          }
+        },
+        "render_representation": {
+          "enum": [
+            "gaussian_field",
+            "mesh_pbr",
+            "neural_residual",
+            "procedural"
+          ]
+        },
+        "collision_representation": {
+          "enum": [
+            "primitives",
+            "convex",
+            "triangle_mesh",
+            "sdf",
+            "deformable_surface"
+          ]
+        },
+        "collision_box_half_extents": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "physical_prior": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mass_scale": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "friction_scale": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "restitution_scale": {
+              "type": "number",
+              "minimum": 0
+            },
+            "damping_scale": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
         },
         "path": {
           "type": "string",

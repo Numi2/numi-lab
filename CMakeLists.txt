@@ -1523,6 +1523,30 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_episode_twin_product_probe
+    apps/episode_twin_product_probe.cpp
+)
+target_link_libraries(
+    metalrobo_episode_twin_product_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_episode_twin_product_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_episode_twin_product_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
     metalrobo_hybrid_renderer_probe
     apps/hybrid_renderer_probe.cpp
 )

@@ -56,14 +56,21 @@ bounded VLM decision, deterministic segmentation, reconstruction, calibration,
 or batched fitting tool has the same provenance and invalidation semantics.
 
 The initial registered assembler is `franka_pick_place`; the C++ provider and
-manifest APIs are not tied to that robot. The JSON contract lives in
-`schemas/capture_manifest.schema.json`. A minimal synchronized capture is:
+manifest APIs are not tied to that robot. Schema 2 is the fail-closed physical
+path. Imported files become typed `EpisodeTwinProduct` records, and the
+assembler uses them to change sensor calibration, object pose, render binding,
+the actual cooked collision shape, and physical priors before compiling the
+world. A product cannot merely accompany an unchanged seed world.
+
+The JSON contract lives in `schemas/capture_manifest.schema.json`. A minimal
+Franka/fixed-RGB-D capture is:
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "cell_a_pick_place",
   "adapter": "rgbd_robot_telemetry",
+  "capture_profile": "franka_fixed_rgbd",
   "engine_model": "franka_pick_place",
   "world_program": "franka_pick_place",
   "seed_world": "franka_pick_place",
@@ -77,7 +84,9 @@ manifest APIs are not tied to that robot. The JSON contract lives in
       "calibration": {
         "width": 1280,
         "height": 720,
-        "intrinsics": [915.2, 914.8, 640.0, 360.0]
+        "intrinsics": [915.2, 914.8, 640.0, 360.0],
+        "position": [0.8, -0.6, 0.8],
+        "orientation": [0, 0, 0, 1]
       }
     },
     {
@@ -85,10 +94,66 @@ manifest APIs are not tied to that robot. The JSON contract lives in
       "kind": "robot_telemetry",
       "path": "robot-state.parquet",
       "rate_hz": 1000
+    },
+    {
+      "id": "franka_commands",
+      "kind": "robot_commands",
+      "asset_id": "franka",
+      "path": "robot-commands.parquet",
+      "rate_hz": 1000
+    }
+  ],
+  "products": [
+    {
+      "id": "entity_support_graph",
+      "stage": "discover_entities",
+      "kind": "entity_graph",
+      "producer": "agent_decision",
+      "product_kind": "semantic_graph",
+      "path": "entity-support-graph.json"
+    },
+    {
+      "id": "pick_object_render",
+      "stage": "reconstruct_geometry",
+      "kind": "geometry",
+      "producer": "deterministic_tool",
+      "product_kind": "render_geometry",
+      "target_id": "pick_object",
+      "render_representation": "gaussian_field",
+      "path": "pick-object.splat"
+    },
+    {
+      "id": "pick_object_collision",
+      "stage": "reconstruct_geometry",
+      "kind": "geometry",
+      "producer": "deterministic_tool",
+      "product_kind": "collision_geometry",
+      "target_id": "pick_object",
+      "collision_representation": "primitives",
+      "collision_box_half_extents": [0.031, 0.022, 0.041],
+      "path": "pick-object-collision.json"
+    },
+    {
+      "id": "pick_object_pose",
+      "stage": "track_poses",
+      "kind": "pose_track",
+      "producer": "deterministic_tool",
+      "product_kind": "object_pose_track",
+      "target_id": "pick_object",
+      "world_pose": {
+        "position": [0.57, -0.04, 0.031],
+        "orientation": [0, 0, 0, 1]
+      },
+      "path": "pick-object-pose.parquet"
     }
   ]
 }
 ```
+
+The `franka_fixed_rgbd` profile refuses publication if calibrated RGB-D,
+robot state, robot commands, the semantic graph, manipulated-object pose,
+render geometry, or collision geometry is missing. Schema 1 remains only as
+the authored-seed compatibility path.
 
 Compile it directly:
 
@@ -347,6 +412,28 @@ with FrankaPickPlaceWorldFamily(count) as family:
 The import is lazy, retains the borrowed Metal buffers through evaluation, and
 does not use NumPy or a CPU state copy.
 
+## Franka manipulation and explicit world-step contract
+
+The first policy port emits either normalized joint targets or a Cartesian
+delta pose plus gripper command. `FrankaActionAdapter` also produces bounded
+operational-space impedance feedforward with analytic Jacobians, damped
+least-squares null-space control, joint/torque/rate limits, and payload
+compensation. Controller delay and sampled gains remain explicit world state.
+
+`FrankaPickPlaceTaskState` advances through approach, pre-grasp, bilateral
+contact, stable grasp, lift, transport, place, release, and settle. Success
+requires finger-contact evidence, lift, target containment, release,
+object/support contact, low object velocity, and a sustained settling window.
+Physics-invalid transitions receive no reward or success.
+
+The policy-independent `WorldStepRequest` / `WorldStepResult` contract carries
+the sampled scenario, episode counter, observations, privileged evidence,
+termination reason, physics validity, and compact completed record. A
+privileged MLX teacher retargets these same phases per sampled scene and adds a
+deterministic clearance waypoint when clutter blocks approach or transport.
+Only trajectories that complete the task through physics are suitable for the
+demonstration set.
+
 ## Executable R2S2R learning loop
 
 Every compiled `WorldProgram` now publishes a stable `ScenarioSchema`. Each
@@ -361,7 +448,10 @@ Carlo with effective-sample resampling and local jitter. A replay evaluator is
 a bounded callback over the complete candidate tensor, so trajectory, depth,
 mask, contact-time, controller-latency, and terminal-state residual kernels can
 be composed without changing the immutable anchor world. Multiple contact
-explanations remain separate particles.
+explanations remain separate particles. Replay validity is a separate channel:
+a non-finite/failed replay row receives zero posterior mass, and alignment
+fails if no physically valid candidate remains. Transactional rollback can
+therefore never look like a low-residual twin.
 
 The family sampler has three explicit modes:
 
@@ -434,6 +524,15 @@ It accepts policy, robot, and task identity; named scenario measurements and
 explicit missing masks; outcome/margin/failure evidence; and content-hashed
 telemetry or video references. Hardware outcomes without an exact simulation
 key still enter the residual head through normalized scenario features.
+
+`PolicyEvaluationReport` v2 compares checkpoints on the intersection of exact
+coverage scenario keys. It publishes paired success and task-margin deltas with
+deterministic bootstrap intervals, Mean Maximum Rank Violation, rank
+correlation, calibration error, failure-tag overlap, central-ID/tail-OOD axis
+slices, hardware evidence count, and ensemble predictive variance. Hardware
+ranking metrics remain unavailable until at least two policies have real
+evidence; a single result is reported as sparse evidence rather than an
+unqualified prediction.
 
 The version-2 replay manifest executes the physical command stream through the
 contact-capable Franka world rather than fitting a residual surrogate:

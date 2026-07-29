@@ -175,9 +175,54 @@ def main() -> int:
                 size=(args.envs, feature_count),
             ).astype(np.float32)
             candidates[0] = true_quantiles[0]
-            residuals = evaluator(mx.array(candidates))
-            mx.eval(residuals)
-            residual_values = np.asarray(residuals)
+            evaluation = evaluator(mx.array(candidates))
+            mx.eval(*evaluation)
+            residual_values = np.asarray(evaluation.residuals)
+            valid_values = np.asarray(evaluation.valid)
+            if any(code != 0 for code in physics_status_codes):
+                if bool(np.any(valid_values)):
+                    raise RuntimeError(
+                        "physics-failed replay candidates were marked valid"
+                    )
+                replay_statuses = {
+                    int(value)
+                    for value in np.asarray(
+                        evaluation.physics_status
+                    )
+                }
+                if not replay_statuses.issubset(
+                    set(physics_status_codes)
+                ):
+                    raise RuntimeError(
+                        "replay validity reported inconsistent physics status"
+                    )
+                try:
+                    fit_alignment_smc(
+                        mx.array(candidates),
+                        evaluator.residual_count,
+                        evaluator,
+                        config=SMCConfig(
+                            rounds=1,
+                            minimum_effective_sample_fraction=0.01,
+                            jitter_scale=0.0,
+                            seed=args.seed,
+                        ),
+                    )
+                except RuntimeError as error:
+                    if "no physically valid candidates" not in str(error):
+                        raise
+                else:
+                    raise RuntimeError(
+                        "physics-invalid replay published an alignment"
+                    )
+                print(
+                    f'device="{family.device_name}" '
+                    f"worlds={args.envs} steps={args.steps} "
+                    f"physics_statuses={sorted(set(physics_status_codes))} "
+                    "invalid_replay_rejected=yes "
+                    "alignment_published=no"
+                )
+                return 0
             population = fit_alignment_smc(
                 mx.array(candidates),
                 evaluator.residual_count,

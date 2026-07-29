@@ -23,6 +23,20 @@ class AlignmentPopulationArrays(NamedTuple):
     replay_residuals: mx.array
 
 
+class ReplayEvaluation(NamedTuple):
+    """Replay residuals plus a causal per-candidate validity decision.
+
+    Residuals describe how a successfully executed candidate differs from the
+    physical trace. ``valid`` is a separate channel because a transactional
+    simulator may roll state back after a failed microstep, making state
+    residuals deceptively small. Invalid candidates never receive likelihood.
+    """
+
+    residuals: mx.array
+    valid: mx.array
+    physics_status: mx.array
+
+
 class EpisodeAccumulator(NamedTuple):
     """Fixed-shape episode evidence retained on the Apple GPU."""
 
@@ -57,7 +71,7 @@ class SMCConfig:
     seed: int = 1
 
 
-ReplayEvaluator = Callable[[mx.array], mx.array]
+ReplayEvaluator = Callable[[mx.array], mx.array | ReplayEvaluation]
 
 
 def initial_episode_accumulator(
@@ -345,22 +359,57 @@ def fit_alignment_smc(
     )
     key = mx.random.key(config.seed)
     losses = mx.zeros((particle_count,), dtype=mx.float32)
+    valid = mx.ones((particle_count,), dtype=mx.bool_)
     for round_index in range(config.rounds):
-        residuals = evaluator(particles)
+        evaluation = evaluator(particles)
+        if isinstance(evaluation, ReplayEvaluation):
+            residuals = evaluation.residuals
+            valid = evaluation.valid.astype(mx.bool_)
+        else:
+            residuals = evaluation
+            valid = mx.ones((particle_count,), dtype=mx.bool_)
         expected = (particle_count, residual_count)
         if tuple(residuals.shape) != expected:
             raise ValueError(
                 f"replay evaluator returned {residuals.shape}, "
                 f"expected {expected}"
             )
-        losses = mx.sum(
+        if tuple(valid.shape) != (particle_count,):
+            raise ValueError(
+                f"replay evaluator returned validity shape {valid.shape}, "
+                f"expected {(particle_count,)}"
+            )
+        finite = mx.all(mx.isfinite(residuals), axis=-1)
+        valid = valid & finite
+        valid_count = mx.sum(valid.astype(mx.uint32))
+        mx.eval(valid, valid_count)
+        valid_count_value = int(valid_count.item())
+        if valid_count_value == 0:
+            raise RuntimeError(
+                "alignment replay produced no physically valid candidates"
+            )
+        raw_losses = mx.sum(
             _huber(residuals.astype(mx.float32), config.huber_delta),
             axis=-1,
         )
-        scale = mx.maximum(mx.median(losses), 1.0e-9)
+        losses = mx.where(
+            valid,
+            raw_losses,
+            mx.array(float("inf"), dtype=mx.float32),
+        )
+        sorted_losses = mx.sort(losses)
+        scale = mx.maximum(
+            sorted_losses[(valid_count_value - 1) // 2],
+            1.0e-9,
+        )
         log_weights = (
             mx.log(mx.maximum(weights, 1.0e-30))
             - losses / scale / float(config.rounds)
+        )
+        log_weights = mx.where(
+            valid,
+            log_weights,
+            mx.array(float("-inf"), dtype=mx.float32),
         )
         log_weights -= mx.max(log_weights)
         weights = mx.exp(log_weights)
@@ -406,11 +455,23 @@ def fit_alignment_smc(
             dtype=mx.float32,
         )
 
-    order = mx.argsort(-weights)
+    order = mx.argsort(
+        -mx.where(
+            valid,
+            weights,
+            -mx.ones_like(weights),
+        )
+    )
+    valid_count = mx.sum(valid.astype(mx.uint32))
+    mx.eval(valid_count)
+    valid_count_value = int(valid_count.item())
     result = AlignmentPopulationArrays(
-        quantiles=particles[order],
-        weights=weights[order] / mx.sum(weights),
-        replay_residuals=losses[order],
+        quantiles=particles[order][:valid_count_value],
+        weights=(
+            weights[order][:valid_count_value]
+            / mx.sum(weights[order][:valid_count_value])
+        ),
+        replay_residuals=losses[order][:valid_count_value],
     )
     mx.eval(*result)
     return result
@@ -540,6 +601,7 @@ class FiveMemberFailureEnsemble:
             ),
         }
         self.hardware_available = False
+        self.hardware_evidence_count = 0
 
     def fit(
         self,
@@ -566,8 +628,10 @@ class FiveMemberFailureEnsemble:
         margin = batch.task_margin.astype(mx.float32)
         hardware = batch.hardware_mask.astype(mx.float32)
         simulation = 1.0 - hardware
-        mx.eval(hardware)
-        self.hardware_available = bool(mx.sum(hardware).item() > 0)
+        hardware_count = mx.sum(hardware).astype(mx.uint32)
+        mx.eval(hardware_count)
+        self.hardware_evidence_count = int(hardware_count.item())
+        self.hardware_available = self.hardware_evidence_count > 0
 
         sample_index = mx.arange(sample_count, dtype=mx.uint32)[None, :]
         member_index = mx.arange(
@@ -871,6 +935,7 @@ __all__ = [
     "FailureTrainingBatch",
     "FiveMemberFailureEnsemble",
     "QuantileRegion",
+    "ReplayEvaluation",
     "SMCConfig",
     "compile_feedback_regions",
     "compact_completed_episodes",
