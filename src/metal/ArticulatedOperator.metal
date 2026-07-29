@@ -428,7 +428,8 @@ inline bool validDispatch(
              MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS |
              MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
              MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY |
-             MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES
+             MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES |
+             MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY
          )) != 0u ||
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u &&
@@ -442,6 +443,22 @@ inline bool validDispatch(
                MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS |
                MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR
            )) != 0u))) {
+        setFailure(
+            status,
+            MR_ARTICULATED_OPERATOR_INVALID_DISPATCH,
+            MR_INVALID_INDEX
+        );
+        return false;
+    }
+    if ((dispatch.flags &
+         MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) != 0u &&
+        (dispatch.flags &
+         (
+             MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS |
+             MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
+             MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY |
+             MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES
+         )) != 0u) {
         setFailure(
             status,
             MR_ARTICULATED_OPERATOR_INVALID_DISPATCH,
@@ -1102,30 +1119,103 @@ kernel void mr_articulated_operator(
         return;
     }
 
-    if ((dispatch.flags &
-         MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY) != 0u) {
-        if (lane == 0u) {
-            const uint poseBase =
-                environment * dispatch.bodyPoseStride;
-            for (uint localBody = 0u;
-                 localBody < articulation.bodyCount;
-                 ++localBody) {
-                if (!finite3(bodyPosition[localBody]) ||
-                    !finite4(bodyRotation[localBody])) {
-                    setFailure(
-                        status,
-                        MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                        articulation.firstBody + localBody
+    const bool posesOnly =
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY) != 0u;
+    const bool pointJacobiansOnly =
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) != 0u;
+    if (posesOnly || pointJacobiansOnly) {
+        const uint poseBase =
+            environment * dispatch.bodyPoseStride;
+        for (uint localBody = lane;
+             localBody < articulation.bodyCount;
+             localBody += threadsPerThreadgroup) {
+            MRArticulatedBodyPoseGPU pose;
+            pose.position =
+                float4(bodyPosition[localBody], 1.0f);
+            pose.orientation = bodyRotation[localBody];
+            bodyPoses[poseBase + localBody] = pose;
+        }
+        if (pointJacobiansOnly) {
+            const uint pointBase =
+                environment * dispatch.pointStride;
+            const uint pointWorldBase =
+                environment * dispatch.pointWorldStride;
+            const uint jacobianBase =
+                environment * dispatch.pointJacobianStride;
+            const uint entryCount =
+                dispatch.pointCount * articulation.nv;
+            for (uint entry = lane;
+                 entry < entryCount;
+                 entry += threadsPerThreadgroup) {
+                const uint point = entry / articulation.nv;
+                const uint dof = entry -
+                    point * articulation.nv;
+                device const MRArticulatedPointImpulseGPU& query =
+                    points[pointBase + point];
+                const uint localBody =
+                    query.bodyIndex - articulation.firstBody;
+                const float3 pointOffset = quaternionRotate(
+                    bodyRotation[localBody],
+                    query.localPoint.xyz
+                );
+                const MotionColumn bodyMotion =
+                    bodyMotionForDof(
+                        localBody,
+                        dof,
+                        articulation,
+                        joints,
+                        bodyPosition,
+                        jointPosition,
+                        jointAxis,
+                        inboundJoint,
+                        parentLocal
                     );
-                    statuses[environment] = status;
-                    return;
+                const float3 pointLinear =
+                    bodyMotion.linear +
+                    cross(bodyMotion.angular, pointOffset);
+                pointJacobians[
+                    jacobianBase +
+                    (point * 3u + 0u) * articulation.nv +
+                    dof
+                ] = pointLinear.x;
+                pointJacobians[
+                    jacobianBase +
+                    (point * 3u + 1u) * articulation.nv +
+                    dof
+                ] = pointLinear.y;
+                pointJacobians[
+                    jacobianBase +
+                    (point * 3u + 2u) * articulation.nv +
+                    dof
+                ] = pointLinear.z;
+                if (dof == 0u) {
+                    MRArticulatedPointWorldGPU worldPoint;
+                    worldPoint.position = float4(
+                        bodyPosition[localBody] + pointOffset,
+                        1.0f
+                    );
+                    pointWorld[
+                        pointWorldBase + point
+                    ] = worldPoint;
                 }
-                MRArticulatedBodyPoseGPU pose;
-                pose.position =
-                    float4(bodyPosition[localBody], 1.0f);
-                pose.orientation = bodyRotation[localBody];
-                bodyPoses[poseBase + localBody] = pose;
             }
+            const uint generalizedBase =
+                environment * dispatch.generalizedStride;
+            for (uint dof = lane;
+                 dof < articulation.nv;
+                 dof += threadsPerThreadgroup) {
+                generalizedImpulse[
+                    generalizedBase + dof
+                ] = 0.0f;
+                deltaVelocity[
+                    generalizedBase + dof
+                ] = 0.0f;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_device);
+        if (lane == 0u) {
             status.diagnostics = float4(0.0f);
             statuses[environment] = status;
         }

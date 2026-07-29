@@ -434,6 +434,52 @@ int main() {
             "typed output sizes or statuses are inconsistent"
         );
 
+        MetalArticulatedOperatorConfig jacobianOnlyConfig{
+            .pointJacobiansOnly = true,
+        };
+        MetalArticulatedOperatorResult jacobianOnlyResult;
+        const auto jacobianOnlyDiagnostics =
+            metalrobo::runMetalArticulatedOperator(
+                g1,
+                input,
+                jacobianOnlyResult,
+                jacobianOnlyConfig
+            );
+        require(
+            jacobianOnlyDiagnostics.succeeded() &&
+            jacobianOnlyResult.layout.dispatch.flags ==
+                MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY &&
+            jacobianOnlyResult.diagnosticMassMatrix.empty() &&
+            byteEqual(
+                result.bodyPoses,
+                jacobianOnlyResult.bodyPoses
+            ) &&
+            byteEqual(
+                result.pointWorld,
+                jacobianOnlyResult.pointWorld
+            ) &&
+            byteEqual(
+                result.pointJacobians,
+                jacobianOnlyResult.pointJacobians
+            ) &&
+            std::all_of(
+                jacobianOnlyResult.generalizedImpulse.begin(),
+                jacobianOnlyResult.generalizedImpulse.end(),
+                [](const float value) {
+                    return value == 0.0f;
+                }
+            ) &&
+            std::all_of(
+                jacobianOnlyResult.deltaVelocity.begin(),
+                jacobianOnlyResult.deltaVelocity.end(),
+                [](const float value) {
+                    return value == 0.0f;
+                }
+            ),
+            "point-Jacobian-only mode changed kinematics or "
+            "executed a mass response"
+        );
+
         MetalArticulatedOperatorResult replay;
         const auto replayDiagnostics =
             metalrobo::runMetalArticulatedOperator(
@@ -788,6 +834,7 @@ int main() {
             << diagnostics.elapsedMilliseconds
             << " replay=bitwise"
             << " offset_articulation=pass"
+            << " jacobian_only=pass"
             << " predispatch_canaries=7"
             << " empty_buffers=pass"
             << " gpu_status_publication=pass"

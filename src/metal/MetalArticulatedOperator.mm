@@ -525,10 +525,25 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         static_cast<mr_u32>(input.environmentCount);
     dispatch.pointCount =
         static_cast<mr_u32>(input.pointCount);
-    dispatch.flags =
-        config.writeDiagnosticMassMatrix
-            ? MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS
-            : 0u;
+    dispatch.flags = 0u;
+    if (config.writeDiagnosticMassMatrix) {
+        dispatch.flags |=
+            MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS;
+    }
+    if (config.pointJacobiansOnly) {
+        dispatch.flags |=
+            MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY;
+    }
+    if (config.writeDiagnosticMassMatrix &&
+        config.pointJacobiansOnly) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::
+                invalidDimensions,
+            "point-Jacobian-only mode cannot request a "
+            "diagnostic mass matrix"
+        );
+    }
     dispatch.qStride = articulation.nq;
     dispatch.pointStride = dispatch.pointCount;
     dispatch.bodyPoseStride = articulation.bodyCount;

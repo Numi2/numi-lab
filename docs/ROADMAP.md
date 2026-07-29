@@ -84,6 +84,11 @@ prototype.
   stable parent-owned sibling reductions, shared factorization across RHS
   packets, and identical standalone/MLX execution on branching dual-PSM-plus-
   G1 worlds without a dense generalized inverse
+- **Landed spatial-row frontend:** the Metal articulated operator can now emit
+  body poses, point positions and analytic point Jacobians without assembling
+  or factorizing a mass matrix. Multi-articulation contact can therefore feed
+  those rows into the shared parallel inverse-ABA response stage without
+  duplicating factor ownership
 - Move the actuation/free-motion ABA step itself from lane-zero recursion onto
   the cooked frontiers, then reuse its per-microstep factor cache across
   actuation, generalized constraints, and contact response

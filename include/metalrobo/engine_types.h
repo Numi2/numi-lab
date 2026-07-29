@@ -445,6 +445,11 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // Adds h D + h^2 K to generalized drive inertia. The matching
     // acceleration RHS is prepared from position targets by MetalWorld.
     MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES = 1u << 3u,
+    // Computes body poses, point positions, and analytic point Jacobians but
+    // skips mass assembly, factorization, and impulse response. This is the
+    // spatial-row frontend for multi-articulation contact graphs whose shared
+    // inverse-ABA stage owns mass response.
+    MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY = 1u << 4u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.

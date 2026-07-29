@@ -32,6 +32,11 @@ struct MetalArticulatedOperatorConfig {
     // The dense mass matrix is a correctness diagnostic. The factor-backed
     // impulse solve always runs; disabling this avoids its output bandwidth.
     bool writeDiagnosticMassMatrix = false;
+    // Emits body/point kinematics and analytic point Jacobians without
+    // assembling or factorizing the mass matrix. Generalized impulse and
+    // delta-velocity outputs are deterministically zero. This mode is used by
+    // the multi-articulation contact frontend before batched inverse ABA.
+    bool pointJacobiansOnly = false;
     // Empty discovers the co-installed metallib relative to the loaded
     // MetalRobo dylib, with the configured build-tree path as a fallback.
     // A non-empty path is an explicit trusted ABI-compatible override.

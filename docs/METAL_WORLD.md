@@ -185,9 +185,13 @@ analytic point Jacobians from any articulation are packed under global
 velocity offsets, retained articulation-local factors apply every
 `M^-1 J'` column, and the exact-cone quality solver handles self,
 articulation-articulation and articulation-static contacts without a dense
-global inverse. The remaining device work is to emit these spatial rows from
-GPU manifolds and add non-articulated scene-body 6D response columns to the
-same island operator.
+global inverse. The Metal articulated operator now has a dedicated
+kinematics-plus-point-Jacobian mode which skips mass assembly, factorization
+and impulse response; it emits deterministic zero generalized payloads while
+preserving point results bitwise against the full operator. The remaining
+device work is to scatter manifold endpoints into that frontend, assemble
+global contact rows, and add non-articulated scene-body 6D response columns to
+the same island operator.
 
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training
