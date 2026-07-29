@@ -6,6 +6,8 @@
 #include <nanobind/stl/variant.h>
 #include <nanobind/stl/vector.h>
 
+#include <algorithm>
+
 namespace nb = nanobind;
 using namespace nb::literals;
 
@@ -115,6 +117,30 @@ NB_MODULE(_mlx_ext, module) {
             "quality_direct_tiles",
             &metalrobo::MetalWorldCapacityProfile::
                 qualityDirectTiles
+        )
+        .def_rw(
+            "dynamic_nodes",
+            &metalrobo::MetalWorldCapacityProfile::dynamicNodes
+        )
+        .def_rw(
+            "island_node_references",
+            &metalrobo::MetalWorldCapacityProfile::
+                islandNodeReferences
+        )
+        .def_rw(
+            "island_constraint_references",
+            &metalrobo::MetalWorldCapacityProfile::
+                islandConstraintReferences
+        )
+        .def_rw(
+            "rod_factor_blocks",
+            &metalrobo::MetalWorldCapacityProfile::
+                rodFactorBlocks
+        )
+        .def_rw(
+            "operator_velocity_elements",
+            &metalrobo::MetalWorldCapacityProfile::
+                operatorVelocityElements
         );
 
     nb::class_<metalrobo::mlx_ext::MLXCompiledWorld>(
@@ -238,9 +264,44 @@ NB_MODULE(_mlx_ext, module) {
             }
         )
         .def_prop_ro(
+            "candidate_pair_capacity",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().capacities().candidatePairs;
+            }
+        )
+        .def_prop_ro(
+            "raw_contact_capacity",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().capacities().rawContacts;
+            }
+        )
+        .def_prop_ro(
             "contact_capacity",
             [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
                 return world.world().capacities().constraintBlocks;
+            }
+        )
+        .def_prop_ro(
+            "island_capacity",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().capacities().islands;
+            }
+        )
+        .def_prop_ro(
+            "island_constraint_reference_capacity",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                const auto& capacity =
+                    world.world().capacities();
+                return std::min(
+                    capacity.islandConstraintReferences,
+                    capacity.constraintBlocks
+                );
+            }
+        )
+        .def_prop_ro(
+            "ccd_candidate_capacity",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().capacities().ccdCandidates;
             }
         )
         .def_prop_ro(

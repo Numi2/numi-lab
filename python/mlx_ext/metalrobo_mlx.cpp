@@ -2033,31 +2033,9 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         );
     }
     CompiledWorld compiled;
-    const bool hasExplicitCapacity =
-        capacityProfile.candidatePairs != 0u ||
-        capacityProfile.rawContacts != 0u ||
-        capacityProfile.manifolds != 0u ||
-        capacityProfile.constraintBlocks != 0u ||
-        capacityProfile.constraintRows != 0u ||
-        capacityProfile.islands != 0u ||
-        capacityProfile.hardConvexPairs != 0u ||
-        capacityProfile.meshTriangleCandidates != 0u ||
-        capacityProfile.solverTiles != 0u ||
-        capacityProfile.spillRows != 0u ||
-        capacityProfile.ccdCandidates != 0u ||
-        capacityProfile.ccdEvents != 0u ||
-        capacityProfile.endpointRuntimeRecords != 0u ||
-        capacityProfile.articulationPointQueries != 0u ||
-        capacityProfile.rodCandidatePairs != 0u ||
-        capacityProfile.rodRawContacts != 0u ||
-        capacityProfile.rodManifolds != 0u ||
-        capacityProfile.rodCCDEvents != 0u ||
-        capacityProfile.qualityGeneralizedVelocities != 0u ||
-        capacityProfile.qualityRows != 0u ||
-        capacityProfile.qualityKrylovVectors != 0u ||
-        capacityProfile.qualityDirectTiles != 0u;
+    const MetalWorldCapacityProfile requestedCapacityProfile =
+        capacityProfile;
     if (!defaultSceneBodies.empty() &&
-        !hasExplicitCapacity &&
         !useHeterogeneousWorld) {
         const std::uint32_t contactCapacity =
             addPickPlace
@@ -2065,55 +2043,70 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             : modelName == "franka"
             ? 32u
             : 64u;
-        capacityProfile = {
-            .candidatePairs =
-                addPickPlace
-                ? 256u
-                : modelName == "franka"
-                ? 64u
-                : modelName == "psm"
-                ? 256u
-                : 128u,
-            .rawContacts = 2u * contactCapacity,
-            .manifolds = contactCapacity,
-            .constraintBlocks = contactCapacity,
-            .constraintRows = 3u * contactCapacity,
-            .islands = addPickPlace ? 8u : 2u,
-            .hardConvexPairs =
-                addPickPlace
-                ? 256u
-                : modelName == "franka"
-                ? 64u
-                : modelName == "psm"
-                ? 256u
-                : 128u,
-            .meshTriangleCandidates = 4u * contactCapacity,
-            .solverTiles =
-                // One articulation island and one free-body island may both
-                // be non-empty. The worst distribution puts one contact in
-                // the smaller island and all remaining contacts in the
-                // larger one.
-                1u + (
-                    contactCapacity - 1u +
-                    MR_WAVE32_CONTACTS_PER_TILE - 1u
-                ) / MR_WAVE32_CONTACTS_PER_TILE,
-            .spillRows =
-                contactCapacity > MR_WAVE32_CONTACTS_PER_TILE
-                ? 3u * (
-                      contactCapacity -
-                      MR_WAVE32_CONTACTS_PER_TILE
-                  )
-                : 0u,
-            .ccdCandidates =
-                addPickPlace
-                ? 256u
-                : modelName == "franka"
-                ? 64u
-                : modelName == "psm"
-                ? 256u
-                : 128u,
-            .ccdEvents = MR_CCD_DEFAULT_MAX_EVENTS,
+        const std::uint32_t pairCapacity =
+            addPickPlace
+            ? 256u
+            : modelName == "franka"
+            ? 64u
+            : modelName == "psm"
+            ? 256u
+            : 128u;
+        const auto fill = [](
+            std::uint32_t& selected,
+            const std::uint32_t fallback
+        ) {
+            if (selected == 0u) {
+                selected = fallback;
+            }
         };
+        fill(capacityProfile.candidatePairs, pairCapacity);
+        fill(
+            capacityProfile.rawContacts,
+            2u * contactCapacity
+        );
+        fill(capacityProfile.manifolds, contactCapacity);
+        fill(
+            capacityProfile.constraintBlocks,
+            contactCapacity
+        );
+        fill(
+            capacityProfile.constraintRows,
+            3u * capacityProfile.constraintBlocks
+        );
+        fill(
+            capacityProfile.islands,
+            addPickPlace ? 8u : 2u
+        );
+        fill(capacityProfile.hardConvexPairs, pairCapacity);
+        fill(
+            capacityProfile.meshTriangleCandidates,
+            4u * contactCapacity
+        );
+        // One articulation island and one free-body island may both be
+        // non-empty. The worst distribution puts one contact in the smaller
+        // island and all remaining contacts in the larger one.
+        fill(
+            capacityProfile.solverTiles,
+            1u + (
+                capacityProfile.constraintBlocks - 1u +
+                MR_WAVE32_CONTACTS_PER_TILE - 1u
+            ) / MR_WAVE32_CONTACTS_PER_TILE
+        );
+        fill(
+            capacityProfile.spillRows,
+            capacityProfile.constraintBlocks >
+                    MR_WAVE32_CONTACTS_PER_TILE
+            ? 3u * (
+                  capacityProfile.constraintBlocks -
+                  MR_WAVE32_CONTACTS_PER_TILE
+              )
+            : 0u
+        );
+        fill(capacityProfile.ccdCandidates, pairCapacity);
+        fill(
+            capacityProfile.ccdEvents,
+            MR_CCD_DEFAULT_MAX_EVENTS
+        );
         if (addTerrain) {
             capacityProfile.meshTriangleCandidates =
                 std::max<std::uint32_t>(
@@ -2122,24 +2115,98 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
                 );
         }
     }
-    const auto diagnostics =
-        useHeterogeneousWorld
-        ? compileMetalWorld(
-              heterogeneousWorld,
-              compiled,
-              capacityProfile
-          )
-        : compileMetalWorld(
-              model,
-              0u,
-              compiled,
-              capacityProfile
-          );
+    const auto compileSelectedWorld = [&]() {
+        return useHeterogeneousWorld
+            ? compileMetalWorld(
+                  heterogeneousWorld,
+                  compiled,
+                  capacityProfile
+              )
+            : compileMetalWorld(
+                  model,
+                  0u,
+                  compiled,
+                  capacityProfile
+              );
+    };
+    auto diagnostics = compileSelectedWorld();
     if (!diagnostics.succeeded()) {
         throw std::runtime_error(
             "could not compile MLX world: " +
             diagnostics.message
         );
+    }
+    if (!useHeterogeneousWorld &&
+        !defaultSceneBodies.empty()) {
+        // First compile discovers the canonical eligible-pair and
+        // dynamic-node topology. Specialize the fixed MLX arenas from that
+        // immutable graph while retaining the deliberately bounded raw and
+        // solved-contact activity budgets above. This avoids multiplying
+        // generic 128/256-slot reservations across thousands of worlds.
+        const std::uint32_t eligiblePairs =
+            std::max(compiled.eligiblePairCount(), 1u);
+        const std::uint32_t dynamicNodes =
+            std::max<std::uint32_t>(
+                static_cast<std::uint32_t>(
+                    compiled.dynamicNodes().size()
+                ),
+                1u
+            );
+        const bool hasMeshPairs = std::any_of(
+            compiled.eligiblePairs().begin(),
+            compiled.eligiblePairs().end(),
+            [](const MRCompiledCollisionPairGPU& pair) {
+                return
+                    pair.pairClass == MR_COLLISION_PAIR_MESH;
+            }
+        );
+        if (requestedCapacityProfile.candidatePairs == 0u) {
+            capacityProfile.candidatePairs = eligiblePairs;
+        }
+        if (requestedCapacityProfile.manifolds == 0u) {
+            capacityProfile.manifolds = std::min(
+                capacityProfile.manifolds,
+                eligiblePairs
+            );
+        }
+        if (requestedCapacityProfile.hardConvexPairs == 0u) {
+            capacityProfile.hardConvexPairs = std::min(
+                capacityProfile.hardConvexPairs,
+                eligiblePairs
+            );
+        }
+        if (!hasMeshPairs &&
+            requestedCapacityProfile
+                    .meshTriangleCandidates == 0u) {
+            capacityProfile.meshTriangleCandidates = 1u;
+        }
+        if (requestedCapacityProfile.ccdCandidates == 0u) {
+            capacityProfile.ccdCandidates = std::min(
+                capacityProfile.ccdCandidates,
+                eligiblePairs
+            );
+        }
+        if (requestedCapacityProfile.ccdEvents == 0u) {
+            capacityProfile.ccdEvents = std::min(
+                capacityProfile.ccdEvents,
+                eligiblePairs
+            );
+        }
+        if (requestedCapacityProfile.dynamicNodes == 0u) {
+            capacityProfile.dynamicNodes = dynamicNodes;
+        }
+        if (requestedCapacityProfile
+                .islandNodeReferences == 0u) {
+            capacityProfile.islandNodeReferences =
+                dynamicNodes;
+        }
+        diagnostics = compileSelectedWorld();
+        if (!diagnostics.succeeded()) {
+            throw std::runtime_error(
+                "could not compile topology-specialized MLX world: " +
+                diagnostics.message
+            );
+        }
     }
     const std::size_t qualityNv =
         static_cast<std::size_t>(compiled.nv()) +
@@ -3571,6 +3638,11 @@ void WorldStepPrimitive::eval_gpu(
         capacity.constraintBlocks;
     const std::uint32_t rowCapacity = capacity.constraintRows;
     const std::uint32_t islandCapacity = capacity.islands;
+    const std::uint32_t islandConstraintReferenceCapacity =
+        std::min(
+            capacity.islandConstraintReferences,
+            constraintCapacity
+        );
     const std::uint32_t tileCapacity = capacity.solverTiles;
     const std::uint32_t rodNodeCount =
         compiled.rodNodeCount();
@@ -4099,7 +4171,7 @@ void WorldStepPrimitive::eval_gpu(
         rawRecords.template operator()<
             MRIslandConstraintRefGPU>(
                 static_cast<std::size_t>(environments) *
-                capacity.islandConstraintReferences
+                islandConstraintReferenceCapacity
             );
     mx::array denseIslandWork =
         rawRecords.template operator()<MRIslandWorkGPU>(
@@ -4153,8 +4225,10 @@ void WorldStepPrimitive::eval_gpu(
         );
     mx::array ccdPairs =
         rawRecords.template operator()<MRCCDPairGPU>(
-            static_cast<std::size_t>(environments) *
-            capacity.ccdCandidates
+            hybridCCD
+            ? static_cast<std::size_t>(environments) *
+                  capacity.ccdCandidates
+            : 1u
         );
     mx::array ccdEventStatesA =
         rawRecords.template operator()<MRCCDEventStateGPU>(
@@ -4318,8 +4392,10 @@ void WorldStepPrimitive::eval_gpu(
         );
     mx::array rodConstraintWitnessIndices =
         rawRecords.template operator()<std::uint32_t>(
-            static_cast<std::size_t>(environments) *
-            constraintCapacity
+            rodCount != 0u
+            ? static_cast<std::size_t>(environments) *
+                  constraintCapacity
+            : 1u
         );
     mx::array rodFactorCaches =
         rawRecords.template operator()<MRRodFactorCacheGPU>(
@@ -4331,11 +4407,13 @@ void WorldStepPrimitive::eval_gpu(
         );
     mx::array rodOperatorArena =
         rawRecords.template operator()<float>(
-            std::max<std::size_t>(
-                static_cast<std::size_t>(environments) *
-                    capacity.operatorVelocityElements,
-                1u
-            )
+            rodCount != 0u
+            ? std::max<std::size_t>(
+                  static_cast<std::size_t>(environments) *
+                      capacity.operatorVelocityElements,
+                  1u
+              )
+            : 1u
         );
     mx::array qualityBlocks =
         rawRecords.template operator()<MRUnifiedQualityBlockGPU>(
@@ -4545,7 +4623,7 @@ void WorldStepPrimitive::eval_gpu(
     contactDispatch.islandNodeReferenceCapacity =
         capacity.islandNodeReferences;
     contactDispatch.islandConstraintReferenceCapacity =
-        capacity.islandConstraintReferences;
+        islandConstraintReferenceCapacity;
     contactDispatch.rodCount = rodCount;
     contactDispatch.rodNodeCount = rodNodeCount;
     contactDispatch.rodEdgeCount = rodEdgeCount;
