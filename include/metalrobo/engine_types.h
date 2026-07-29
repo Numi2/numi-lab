@@ -967,6 +967,10 @@ enum MRCCDSegmentMode : mr_u32 {
     MR_CCD_SEGMENT_REMAINING = 0u,
     // Materialize only the duration selected by the current TOI pass.
     MR_CCD_SEGMENT_SELECTED = 1u,
+    // Execute the ordinary fixed microstep. This lets kernels shared by the
+    // discrete and literal-event graphs retain one ABI without reading the
+    // transient event cursor outside hybrid CCD.
+    MR_CCD_SEGMENT_FULL_MICROSTEP = 2u,
 };
 
 // Transient per-environment event cursor. It is initialized for every

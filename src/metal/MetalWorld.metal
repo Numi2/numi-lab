@@ -549,6 +549,134 @@ kernel void mr_world_prepare_rod_contact_cache(
     candidate[flatWitness] = value;
 }
 
+// Rod nodes, twist state, and persistent tool witnesses participate in the
+// same literal-event transaction as articulations, free bodies, and rigid
+// manifolds. Two private slots are initialized once per microstep and then
+// ping-ponged by the statically encoded event graph.
+kernel void mr_world_initialize_rod_event_state(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRRodNodeStateGPU* sourceNodes [[buffer(1)]],
+    device const MRRodEdgeStateGPU* sourceEdges [[buffer(2)]],
+    device const MRRodToolWitnessGPU* sourceWitnesses [[buffer(3)]],
+    device MRRodNodeStateGPU* nodesA [[buffer(4)]],
+    device MRRodEdgeStateGPU* edgesA [[buffer(5)]],
+    device MRRodToolWitnessGPU* witnessesA [[buffer(6)]],
+    device MRRodNodeStateGPU* nodesB [[buffer(7)]],
+    device MRRodEdgeStateGPU* edgesB [[buffer(8)]],
+    device MRRodToolWitnessGPU* witnessesB [[buffer(9)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const uint nodeBase = environment * dispatch.rodNodeCount;
+    for (uint node = 0u; node < dispatch.rodNodeCount; ++node) {
+        const MRRodNodeStateGPU value =
+            sourceNodes[nodeBase + node];
+        nodesA[nodeBase + node] = value;
+        nodesB[nodeBase + node] = value;
+    }
+    const uint edgeBase = environment * dispatch.rodEdgeCount;
+    for (uint edge = 0u; edge < dispatch.rodEdgeCount; ++edge) {
+        const MRRodEdgeStateGPU value =
+            sourceEdges[edgeBase + edge];
+        edgesA[edgeBase + edge] = value;
+        edgesB[edgeBase + edge] = value;
+    }
+    const uint witnessStride =
+        dispatch.rodToolPairCount *
+        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint witnessBase = environment * witnessStride;
+    for (uint witness = 0u; witness < witnessStride; ++witness) {
+        const MRRodToolWitnessGPU value =
+            sourceWitnesses[witnessBase + witness];
+        witnessesA[witnessBase + witness] = value;
+        witnessesB[witnessBase + witness] = value;
+    }
+}
+
+// Fixed MLX event graphs continue dispatching after an environment has
+// consumed its full microstep. Restore that environment's accepted rod state
+// and cache into the ordinary candidate buffers so later commit is branch-free.
+kernel void mr_world_restore_inactive_rod_event_candidate(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRRodNodeStateGPU* sourceNodes [[buffer(1)]],
+    device const MRRodEdgeStateGPU* sourceEdges [[buffer(2)]],
+    device const MRRodToolWitnessGPU* sourceWitnesses [[buffer(3)]],
+    device MRRodNodeStateGPU* candidateNodes [[buffer(4)]],
+    device MRRodEdgeStateGPU* candidateEdges [[buffer(5)]],
+    device MRRodToolWitnessGPU* candidateWitnesses [[buffer(6)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        statuses[environment].code != MR_STEP_FIXED_BUDGET_COMPLETE) {
+        return;
+    }
+    const uint nodeBase = environment * dispatch.rodNodeCount;
+    for (uint node = 0u; node < dispatch.rodNodeCount; ++node) {
+        candidateNodes[nodeBase + node] =
+            sourceNodes[nodeBase + node];
+    }
+    const uint edgeBase = environment * dispatch.rodEdgeCount;
+    for (uint edge = 0u; edge < dispatch.rodEdgeCount; ++edge) {
+        candidateEdges[edgeBase + edge] =
+            sourceEdges[edgeBase + edge];
+    }
+    const uint witnessStride =
+        dispatch.rodToolPairCount *
+        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint witnessBase = environment * witnessStride;
+    for (uint witness = 0u; witness < witnessStride; ++witness) {
+        candidateWitnesses[witnessBase + witness] =
+            sourceWitnesses[witnessBase + witness];
+    }
+}
+
+// Advances the private rod event-state ping-pong. A failed event candidate
+// copies the last accepted source, matching the rigid event transaction.
+kernel void mr_world_publish_rod_event_segment(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRRodNodeStateGPU* sourceNodes [[buffer(1)]],
+    device const MRRodEdgeStateGPU* sourceEdges [[buffer(2)]],
+    device const MRRodToolWitnessGPU* sourceWitnesses [[buffer(3)]],
+    device const MRRodNodeStateGPU* candidateNodes [[buffer(4)]],
+    device const MRRodEdgeStateGPU* candidateEdges [[buffer(5)]],
+    device const MRRodToolWitnessGPU* candidateWitnesses [[buffer(6)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
+    device MRRodNodeStateGPU* destinationNodes [[buffer(8)]],
+    device MRRodEdgeStateGPU* destinationEdges [[buffer(9)]],
+    device MRRodToolWitnessGPU* destinationWitnesses [[buffer(10)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const bool publish =
+        statuses[environment].code == MR_STEP_SUCCESS;
+    const uint nodeBase = environment * dispatch.rodNodeCount;
+    for (uint node = 0u; node < dispatch.rodNodeCount; ++node) {
+        destinationNodes[nodeBase + node] = publish
+            ? candidateNodes[nodeBase + node]
+            : sourceNodes[nodeBase + node];
+    }
+    const uint edgeBase = environment * dispatch.rodEdgeCount;
+    for (uint edge = 0u; edge < dispatch.rodEdgeCount; ++edge) {
+        destinationEdges[edgeBase + edge] = publish
+            ? candidateEdges[edgeBase + edge]
+            : sourceEdges[edgeBase + edge];
+    }
+    const uint witnessStride =
+        dispatch.rodToolPairCount *
+        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint witnessBase = environment * witnessStride;
+    for (uint witness = 0u; witness < witnessStride; ++witness) {
+        destinationWitnesses[witnessBase + witness] = publish
+            ? candidateWitnesses[witnessBase + witness]
+            : sourceWitnesses[witnessBase + witness];
+    }
+}
+
 kernel void mr_world_pack_rod_state(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device const MRRodNodeStateGPU* nodes [[buffer(1)]],

@@ -5564,6 +5564,162 @@ kernel void mr_world_project_swept_colliders(
         as_type<uint>(speculativeMargin);
 }
 
+float4 rodCapsuleOrientation(const float3 axis) {
+    const float3 reference = float3(0.0f, 1.0f, 0.0f);
+    const float cosine = clamp(dot(reference, axis), -1.0f, 1.0f);
+    if (cosine < -1.0f + 1.0e-6f) {
+        return float4(1.0f, 0.0f, 0.0f, 0.0f);
+    }
+    float4 rotation = float4(
+        cross(reference, axis),
+        1.0f + cosine
+    );
+    const float normSquared = dot(rotation, rotation);
+    return normSquared > kTiny
+        ? rotation * rsqrt(normSquared)
+        : float4(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+MRProjectedColliderGPU projectedRodCapsule(
+    const MRRodColliderGPU collider,
+    const float3 endpointA,
+    const float3 endpointB
+) {
+    MRProjectedColliderGPU projected = {};
+    const float3 edge = endpointB - endpointA;
+    const float lengthSquared = dot(edge, edge);
+    if (!(lengthSquared > kTiny) ||
+        !finiteFloat3(endpointA) ||
+        !finiteFloat3(endpointB)) {
+        projected.statusAndFlags.x =
+            MR_STEP_NONFINITE_INPUT;
+        return projected;
+    }
+    const float edgeLength = sqrt(lengthSquared);
+    const float radius = collider.radiusAndOffsets.x;
+    const float contactOffset = collider.radiusAndOffsets.y;
+    const float extent = radius + contactOffset;
+    projected.statusAndFlags = uint4(
+        MR_STEP_SUCCESS,
+        0u,
+        0u,
+        MR_SHAPE_FLAG_ENABLE_CCD
+    );
+    projected.centerAndRadius = float4(
+        0.5f * (endpointA + endpointB),
+        radius
+    );
+    projected.rotation =
+        rodCapsuleOrientation(edge / edgeLength);
+    projected.lowerAndHalfLength = float4(
+        min(endpointA, endpointB) - extent,
+        0.5f * edgeLength
+    );
+    projected.upperAndContactOffset = float4(
+        max(endpointA, endpointB) + extent,
+        contactOffset
+    );
+    return projected;
+}
+
+// Projects the accepted and remaining-time DER states into deforming capsule
+// records. The accepted record carries the swept union for broadphase/mesh
+// traversal while preserving its exact center, rotation, and half length for
+// conservative advancement.
+kernel void mr_world_project_swept_rod_colliders(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRRodColliderGPU* rodColliders [[buffer(1)]],
+    device const MRRodNodeStateGPU* currentNodes [[buffer(2)]],
+    device const MRRodNodeStateGPU* futureNodes [[buffer(3)]],
+    device MRProjectedColliderGPU* projectedRodColliders [[buffer(4)]],
+    device MRProjectedColliderGPU* futureProjectedRodColliders [[buffer(5)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(6)]],
+    const uint threadIndex [[thread_position_in_grid]]
+) {
+    if (dispatch.rodEdgeCount == 0u) {
+        return;
+    }
+    const uint environment = threadIndex / dispatch.rodEdgeCount;
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const uint rodCollider =
+        threadIndex - environment * dispatch.rodEdgeCount;
+    const MRRodColliderGPU collider =
+        rodColliders[rodCollider];
+    const uint nodeBase = environment * dispatch.rodNodeCount;
+    const uint output =
+        environment * dispatch.rodEdgeCount + rodCollider;
+    if (collider.nodeA >= dispatch.rodNodeCount ||
+        collider.nodeB >= dispatch.rodNodeCount ||
+        collider.nodeA == collider.nodeB) {
+        MRProjectedColliderGPU failed = {};
+        failed.statusAndFlags.x = MR_STEP_UNSUPPORTED;
+        projectedRodColliders[output] = failed;
+        futureProjectedRodColliders[output] = failed;
+        if (statuses[environment].code == MR_STEP_SUCCESS) {
+            MRMetalWorldContactStatusGPU status =
+                statuses[environment];
+            status.code = MR_STEP_UNSUPPORTED;
+            status.firstFailingPair = rodCollider;
+            statuses[environment] = status;
+        }
+        return;
+    }
+    const float3 currentA =
+        currentNodes[nodeBase + collider.nodeA].position.xyz;
+    const float3 currentB =
+        currentNodes[nodeBase + collider.nodeB].position.xyz;
+    const float3 futureA =
+        futureNodes[nodeBase + collider.nodeA].position.xyz;
+    const float3 futureB =
+        futureNodes[nodeBase + collider.nodeB].position.xyz;
+    MRProjectedColliderGPU current = projectedRodCapsule(
+        collider,
+        currentA,
+        currentB
+    );
+    MRProjectedColliderGPU future = projectedRodCapsule(
+        collider,
+        futureA,
+        futureB
+    );
+    if (current.statusAndFlags.x != MR_STEP_SUCCESS ||
+        future.statusAndFlags.x != MR_STEP_SUCCESS) {
+        if (statuses[environment].code == MR_STEP_SUCCESS) {
+            MRMetalWorldContactStatusGPU status =
+                statuses[environment];
+            status.code = MR_STEP_NONFINITE_INPUT;
+            status.firstFailingPair = rodCollider;
+            statuses[environment] = status;
+        }
+        projectedRodColliders[output] = current;
+        futureProjectedRodColliders[output] = future;
+        return;
+    }
+    const float endpointMotion = max(
+        length(futureA - currentA),
+        length(futureB - currentB)
+    );
+    const float speculativeMargin =
+        dispatch.ccdParameters.z * endpointMotion;
+    current.lowerAndHalfLength.xyz =
+        min(
+            current.lowerAndHalfLength.xyz,
+            future.lowerAndHalfLength.xyz
+        ) - speculativeMargin;
+    current.upperAndContactOffset.xyz =
+        max(
+            current.upperAndContactOffset.xyz,
+            future.upperAndContactOffset.xyz
+        ) + speculativeMargin;
+    current.upperAndContactOffset.w += speculativeMargin;
+    current.statusAndFlags.z =
+        as_type<uint>(speculativeMargin);
+    projectedRodColliders[output] = current;
+    futureProjectedRodColliders[output] = future;
+}
+
 // Projects the already-advanced event configuration without adding a second
 // speculative sweep. Literal CCD uses this after advancing to the selected
 // TOI so narrowphase witnesses and manifold anchors belong to the impact
@@ -5665,7 +5821,13 @@ WorldShape interpolatedCCDShape(
     shape.lower = shape.center - bound;
     shape.upper = shape.center + bound;
     if (shape.type == MR_SHAPE_CAPSULE) {
-        shape.halfLength = source.dimensions.y;
+        // Procedural rod capsules deform, so their half length lives in the
+        // projected records. Rigid capsules store the same value there.
+        shape.halfLength = mix(
+            startProjected.lowerAndHalfLength.w,
+            endProjected.lowerAndHalfLength.w,
+            alpha
+        );
         const float3 axis = quaternionRotate(
             shape.rotation,
             float3(0.0f, shape.halfLength, 0.0f)
@@ -6314,6 +6476,208 @@ bool ccdEventPrecedes(
     return lhs.stableKeyLow < rhs.stableKeyLow;
 }
 
+MRCCDPairGPU resolveRodCCDPair(
+    const uint environment,
+    const uint globalPair,
+    const MRRodToolPairGPU pair,
+    device const MRRodColliderGPU* rodColliders,
+    device const MRShapeGPU* rodShapeSources,
+    device const MRShapeGPU* toolShapes,
+    device const MRProjectedColliderGPU* currentRodProjected,
+    device const MRProjectedColliderGPU* futureRodProjected,
+    device const MRProjectedColliderGPU* currentToolProjected,
+    device const MRProjectedColliderGPU* futureToolProjected,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    device const MRMeshBVHNodeGPU* meshNodes,
+    device const MRMeshTriangleGPU* meshTriangles,
+    device const MRMetalWorldContactDispatchGPU& dispatch,
+    const float timestep
+) {
+    MRCCDPairGPU record = {};
+    const uint encodedPair = 0x80000000u | globalPair;
+    record.environment = environment;
+    record.compiledPair = encodedPair;
+    record.colliderA = dispatch.shapeCount + pair.rodCollider;
+    record.colliderB = pair.rigidCollider;
+    record.stableKeyLow = globalPair;
+    record.stableKeyHigh = 0x80000000u | environment;
+    record.flags =
+        MR_CCD_PAIR_VALID |
+        MR_CCD_PAIR_CONSERVATIVE_ADVANCEMENT;
+    record.status = MR_STEP_SUCCESS;
+    device const MRRodColliderGPU& rod =
+        rodColliders[pair.rodCollider];
+    device const MRShapeGPU& sourceA =
+        rodShapeSources[pair.rodCollider];
+    device const MRShapeGPU& sourceB =
+        toolShapes[pair.rigidCollider];
+    device const MRProjectedColliderGPU& startA =
+        currentRodProjected[pair.rodCollider];
+    device const MRProjectedColliderGPU& endA =
+        futureRodProjected[pair.rodCollider];
+    device const MRProjectedColliderGPU& startB =
+        currentToolProjected[pair.rigidCollider];
+    device const MRProjectedColliderGPU& endB =
+        futureToolProjected[pair.rigidCollider];
+    const float tolerance =
+        dispatch.ccdParameters.y +
+        max(rod.radiusAndOffsets.z, 0.0f);
+    const float orientationA = clamp(
+        abs(dot(startA.rotation, endA.rotation)),
+        0.0f,
+        1.0f
+    );
+    const float orientationB = clamp(
+        abs(dot(startB.rotation, endB.rotation)),
+        0.0f,
+        1.0f
+    );
+    const float motionA =
+        length(
+            endA.centerAndRadius.xyz -
+            startA.centerAndRadius.xyz
+        ) +
+        2.0f * max(
+            startA.lowerAndHalfLength.w,
+            endA.lowerAndHalfLength.w
+        ) * sqrt(max(
+            0.0f,
+            1.0f - orientationA * orientationA
+        )) +
+        abs(
+            endA.lowerAndHalfLength.w -
+            startA.lowerAndHalfLength.w
+        );
+    const float motionB =
+        length(
+            endB.centerAndRadius.xyz -
+            startB.centerAndRadius.xyz
+        ) +
+        2.0f * shapeSweepRadius(sourceB, startB) *
+            sqrt(max(
+                0.0f,
+                1.0f - orientationB * orientationB
+            ));
+    const float totalMotion = max(
+        motionA + motionB,
+        tolerance
+    );
+    record.intervalAndDistance.w = min(
+        totalMotion / max(timestep, kTiny),
+        dispatch.ccdParameters.w
+    );
+    if (sourceB.shapeType == MR_SHAPE_TRIANGLE_MESH) {
+        record.flags |= MR_CCD_PAIR_MESH;
+    }
+
+    ConvexQueryResult query = {};
+    if (!ccdDistanceAtAlpha(
+            record.colliderA,
+            record.colliderB,
+            sourceA,
+            sourceB,
+            startA,
+            startB,
+            endA,
+            endB,
+            geometryHeaders,
+            geometryVertices,
+            meshNodes,
+            meshTriangles,
+            0.0f,
+            query
+        )) {
+        record.flags |= MR_CCD_PAIR_UNRESOLVED;
+        record.status =
+            query.status == MR_STEP_SUCCESS
+            ? MR_STEP_DID_NOT_CONVERGE
+            : query.status;
+        return record;
+    }
+    record.intervalAndDistance.z = query.separation;
+    record.normalAndIteration.xyz = query.normal;
+    if (query.separation <= tolerance) {
+        record.flags |= MR_CCD_PAIR_START_OVERLAP;
+        record.intervalAndDistance.x = 0.0f;
+        record.intervalAndDistance.y = 0.0f;
+        return record;
+    }
+
+    float alpha = 0.0f;
+    float previousAlpha = 0.0f;
+    const float minimumAlpha = min(
+        1.0f,
+        dispatch.ccdParameters.x /
+            max(timestep, kTiny)
+    );
+    bool resolved = false;
+    bool queryFailed = false;
+    for (uint iteration = 0u;
+         iteration <
+             dispatch.maxConservativeAdvancementIterations;
+         ++iteration) {
+        record.normalAndIteration.w = float(iteration + 1u);
+        if (query.separation <= tolerance) {
+            resolved = true;
+            record.flags |= MR_CCD_PAIR_HAS_IMPACT;
+            record.intervalAndDistance.x =
+                previousAlpha * timestep;
+            record.intervalAndDistance.y =
+                alpha * timestep;
+            record.normalAndIteration.xyz = query.normal;
+            break;
+        }
+        const float advancement = max(
+            (query.separation - tolerance) / totalMotion,
+            minimumAlpha
+        );
+        previousAlpha = alpha;
+        alpha += advancement;
+        if (alpha > 1.0f) {
+            resolved = true;
+            break;
+        }
+        if (!ccdDistanceAtAlpha(
+                record.colliderA,
+                record.colliderB,
+                sourceA,
+                sourceB,
+                startA,
+                startB,
+                endA,
+                endB,
+                geometryHeaders,
+                geometryVertices,
+                meshNodes,
+                meshTriangles,
+                alpha,
+                query
+            )) {
+            queryFailed = true;
+            break;
+        }
+    }
+    if (!resolved) {
+        record.flags |= MR_CCD_PAIR_UNRESOLVED;
+        if (!queryFailed &&
+            speculativeEnvelopeCoversCCDPair(
+                sourceA,
+                sourceB,
+                startA,
+                startB,
+                endA,
+                endB,
+                tolerance
+            )) {
+            record.flags |=
+                MR_CCD_PAIR_SPECULATIVE_FALLBACK;
+        }
+        record.status = MR_STEP_DID_NOT_CONVERGE;
+    }
+    return record;
+}
+
 // Exact CCD is intentionally a rare per-environment pass. It consumes the
 // stable compiled-pair stream, writes fixed per-environment segments with
 // impact events first in deterministic TOI/key order, and leaves the broad
@@ -6493,6 +6857,226 @@ kernel void mr_world_resolve_ccd(
         status.firstFailingEventKeyLow =
             status.firstFailingPair;
         status.firstFailingEventKeyHigh = environment;
+    }
+    statuses[environment] = status;
+}
+
+// Merges procedural rod/tool TOIs into the rigid candidate segment in the same
+// deterministic (ordered TOI, stable key) order. The high bit of compiledPair
+// identifies the rod namespace without changing MRCCDPairGPU's ABI.
+kernel void mr_world_resolve_rod_ccd(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRRodColliderGPU* rodColliders [[buffer(1)]],
+    device const MRShapeGPU* rodShapeSources [[buffer(2)]],
+    device const MRRodToolPairGPU* toolPairs [[buffer(3)]],
+    device const MRShapeGPU* toolShapes [[buffer(4)]],
+    device const MRProjectedColliderGPU* projectedRodColliders [[buffer(5)]],
+    device const MRProjectedColliderGPU* futureProjectedRodColliders [[buffer(6)]],
+    device const MRProjectedColliderGPU* projectedToolColliders [[buffer(7)]],
+    device const MRProjectedColliderGPU* futureProjectedToolColliders [[buffer(8)]],
+    device const MRGeometryHeaderGPU* geometryHeaders [[buffer(9)]],
+    device const float4* geometryVertices [[buffer(10)]],
+    device const MRMeshBVHNodeGPU* meshNodes [[buffer(11)]],
+    device const MRMeshTriangleGPU* meshTriangles [[buffer(12)]],
+    device MRCCDPairGPU* candidates [[buffer(13)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(14)]],
+    device const MRCCDEventStateGPU* eventStates [[buffer(15)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.ccdMode != MR_WORLD_CCD_HYBRID ||
+        dispatch.rodToolPairCount == 0u) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const uint candidateBase =
+        environment * dispatch.ccdCandidateCapacity;
+    const uint rodProjectionBase =
+        environment * dispatch.rodEdgeCount;
+    const uint toolProjectionBase =
+        environment * dispatch.shapeCount;
+    const float timestep = max(
+        eventStates[environment].time.y,
+        0.0f
+    );
+    uint candidateCount = status.ccdCandidates;
+    uint eventCount = status.ccdEvents;
+    uint addedEvents = 0u;
+    uint unresolvedCount = status.unresolvedCCDCount;
+    uint unsafeUnresolvedCount = 0u;
+    uint firstOverflow = MR_INVALID_INDEX;
+    uint firstUnsafe = MR_INVALID_INDEX;
+    for (uint globalPair = 0u;
+         globalPair < dispatch.rodToolPairCount;
+         ++globalPair) {
+        const MRRodToolPairGPU pair = toolPairs[globalPair];
+        if ((pair.flags &
+             (
+                 MR_ROD_TOOL_PAIR_VALID |
+                 MR_ROD_TOOL_PAIR_ENABLE_CCD
+             )) !=
+                (
+                    MR_ROD_TOOL_PAIR_VALID |
+                    MR_ROD_TOOL_PAIR_ENABLE_CCD
+                ) ||
+            pair.rodCollider >= dispatch.rodEdgeCount ||
+            pair.rigidCollider >= dispatch.shapeCount) {
+            continue;
+        }
+        device const MRProjectedColliderGPU& rodProjected =
+            projectedRodColliders[
+                rodProjectionBase + pair.rodCollider
+            ];
+        device const MRProjectedColliderGPU& toolProjected =
+            projectedToolColliders[
+                toolProjectionBase + pair.rigidCollider
+            ];
+        const MRShapeGPU toolSource =
+            toolShapes[pair.rigidCollider];
+        if (rodProjected.statusAndFlags.x != MR_STEP_SUCCESS ||
+            toolProjected.statusAndFlags.x != MR_STEP_SUCCESS ||
+            (
+                toolSource.shapeType != MR_SHAPE_PLANE &&
+                (
+                    any(
+                        rodProjected.lowerAndHalfLength.xyz >
+                        toolProjected
+                            .upperAndContactOffset.xyz
+                    ) ||
+                    any(
+                        toolProjected.lowerAndHalfLength.xyz >
+                        rodProjected
+                            .upperAndContactOffset.xyz
+                    )
+                )
+            )) {
+            continue;
+        }
+        MRCCDPairGPU record = resolveRodCCDPair(
+            environment,
+            globalPair,
+            pair,
+            rodColliders,
+            rodShapeSources,
+            toolShapes,
+            projectedRodColliders + rodProjectionBase,
+            futureProjectedRodColliders + rodProjectionBase,
+            projectedToolColliders + toolProjectionBase,
+            futureProjectedToolColliders + toolProjectionBase,
+            geometryHeaders,
+            geometryVertices,
+            meshNodes,
+            meshTriangles,
+            dispatch,
+            timestep
+        );
+        const bool hasImpact =
+            (record.flags & MR_CCD_PAIR_HAS_IMPACT) != 0u;
+        const uint destination = candidateCount;
+        ++candidateCount;
+        if ((record.flags & MR_CCD_PAIR_UNRESOLVED) != 0u) {
+            ++unresolvedCount;
+            if ((record.flags &
+                 MR_CCD_PAIR_SPECULATIVE_FALLBACK) == 0u) {
+                ++unsafeUnresolvedCount;
+                firstUnsafe = min(
+                    firstUnsafe,
+                    record.compiledPair
+                );
+            }
+        }
+        if (destination >= dispatch.ccdCandidateCapacity) {
+            firstOverflow = min(
+                firstOverflow,
+                record.compiledPair
+            );
+            if (hasImpact) {
+                ++eventCount;
+                ++addedEvents;
+            }
+            continue;
+        }
+        if (!hasImpact) {
+            candidates[candidateBase + destination] = record;
+            continue;
+        }
+        uint insertion = eventCount;
+        while (insertion > 0u &&
+               ccdEventPrecedes(
+                   record,
+                   candidates[
+                       candidateBase + insertion - 1u
+                   ]
+               )) {
+            --insertion;
+        }
+        for (uint move = destination;
+             move > insertion;
+             --move) {
+            candidates[candidateBase + move] =
+                candidates[candidateBase + move - 1u];
+        }
+        candidates[candidateBase + insertion] = record;
+        ++eventCount;
+        ++addedEvents;
+    }
+    status.requiredCCDCandidates = max(
+        status.requiredCCDCandidates,
+        candidateCount
+    );
+    status.requiredCCDEvents += addedEvents;
+    status.ccdCandidates = min(
+        candidateCount,
+        dispatch.ccdCandidateCapacity
+    );
+    status.ccdEvents = min(
+        eventCount,
+        min(
+            dispatch.ccdEventCapacity,
+            dispatch.maxCCDEvents
+        )
+    );
+    status.unresolvedCCDCount = unresolvedCount;
+    if (candidateCount > dispatch.ccdCandidateCapacity) {
+        status.code = MR_STEP_CCD_CAPACITY_OVERFLOW;
+        status.firstFailingPair = firstOverflow;
+    } else if (eventCount > dispatch.maxCCDEvents) {
+        status.code = MR_STEP_CCD_EVENT_BUDGET_EXHAUSTED;
+        status.firstFailingPair =
+            candidates[
+                candidateBase +
+                min(
+                    dispatch.maxCCDEvents,
+                    dispatch.ccdCandidateCapacity - 1u
+                )
+            ].compiledPair;
+    } else if (eventCount > dispatch.ccdEventCapacity) {
+        status.code = MR_STEP_CCD_CAPACITY_OVERFLOW;
+        status.firstFailingPair =
+            candidates[
+                candidateBase +
+                min(
+                    dispatch.ccdEventCapacity,
+                    dispatch.ccdCandidateCapacity - 1u
+                )
+            ].compiledPair;
+    } else if (unsafeUnresolvedCount != 0u) {
+        status.code = MR_STEP_DID_NOT_CONVERGE;
+        status.firstFailingPair = firstUnsafe;
+    }
+    if (status.code != MR_STEP_SUCCESS &&
+        status.firstFailingPair != MR_INVALID_INDEX) {
+        status.firstFailingStableKeyLow =
+            status.firstFailingPair;
+        status.firstFailingStableKeyHigh =
+            0x80000000u | environment;
+        status.firstFailingEventKeyLow =
+            status.firstFailingPair;
+        status.firstFailingEventKeyHigh =
+            0x80000000u | environment;
     }
     statuses[environment] = status;
 }
@@ -9729,7 +10313,7 @@ kernel void mr_rod_tool_narrowphase(
             rod.materialIndex,
             toolMaterialIndex,
             rod.topologyGeneration,
-            0u
+            MR_INVALID_INDEX
         );
         witness.rodPointAndWeight =
             float4(rodPoint, weight);
@@ -9751,6 +10335,64 @@ kernel void mr_rod_tool_narrowphase(
         outputWitnesses[witnessBase + slot] = witness;
     }
     pairContactCounts[flatWorldPair] = count;
+}
+
+// Associates pair-owned rod witnesses with the selected exact-impact prefix.
+// This preserves one restitution semantic for rigid and rod contacts without
+// coupling the generic rod narrowphase to the event scheduler.
+kernel void mr_world_tag_rod_ccd_witnesses(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRCCDPairGPU* ccdPairs [[buffer(1)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(2)]],
+    device MRRodToolWitnessGPU* witnesses [[buffer(3)]],
+    const uint flatWitness [[thread_position_in_grid]]
+) {
+    const uint witnessStride =
+        dispatch.rodToolPairCount *
+        MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+    const uint witnessCount =
+        dispatch.environmentCount * witnessStride;
+    if (flatWitness >= witnessCount || witnessStride == 0u) {
+        return;
+    }
+    const uint environment = flatWitness / witnessStride;
+    device MRRodToolWitnessGPU& witness =
+        witnesses[flatWitness];
+    if ((witness.featuresAndFlags.w &
+         MR_ROD_TOOL_WITNESS_VALID) == 0u) {
+        return;
+    }
+    witness.materialAndGeneration.w = MR_INVALID_INDEX;
+    const MRMetalWorldContactStatusGPU status =
+        statuses[environment];
+    const uint eventCount = min(
+        status.reservedEvent0,
+        min(
+            status.ccdEvents,
+            dispatch.ccdCandidateCapacity
+        )
+    );
+    const uint encodedPair =
+        0x80000000u | witness.identity.y;
+    const uint candidateBase =
+        environment * dispatch.ccdCandidateCapacity;
+    for (uint eventSlot = 0u;
+         eventSlot < eventCount;
+         ++eventSlot) {
+        const MRCCDPairGPU event =
+            ccdPairs[candidateBase + eventSlot];
+        if (event.compiledPair != encodedPair) {
+            continue;
+        }
+        witness.materialAndGeneration.w = eventSlot;
+        witness.featuresAndFlags.w &=
+            ~static_cast<uint>(
+                MR_ROD_TOOL_WITNESS_WARM_STARTED
+            );
+        witness.featuresAndFlags.w |=
+            MR_ROD_TOOL_WITNESS_NEW_IMPACT;
+        return;
+    }
 }
 
 // Appends the already feature-reduced rod witnesses after the rigid manifold
@@ -10121,7 +10763,7 @@ kernel void mr_world_scatter_rod_contact_ir(
     block.rowOffset = 3u * currentConstraint;
     block.impulseOffset = 3u * currentConstraint;
     block.coneIndex = currentConstraint;
-    block.eventSlot = MR_CONSTRAINT_IR_INVALID_INDEX;
+    block.eventSlot = witness.materialAndGeneration.w;
     block.reserved0 = flatWitness;
     blocks[outputConstraint] = block;
     constraintWitnessIndices[outputConstraint] = flatWitness;

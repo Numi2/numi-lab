@@ -10,6 +10,18 @@ constant float kGeometryFloor = 1.0e-12f;
 constant float kFrameDenominatorFloor = 1.0e-6f;
 constant float kFloatEpsilon = 1.1920928955078125e-7f;
 
+inline float rodEventSegmentDuration(
+    device const MRCCDEventStateGPU& state,
+    const uint mode
+) {
+    return max(
+        mode == MR_CCD_SEGMENT_SELECTED
+        ? state.time.w
+        : state.time.y,
+        0.0f
+    );
+}
+
 inline bool finite3(const float3 value) {
     return all(isfinite(value));
 }
@@ -1021,7 +1033,7 @@ kernel void mr_resolve_rod_rigid_attachments(
 // two colors for edges/twist, three for bend triples. No floating atomics
 // participate in the physical update; atomics only reduce diagnostics.
 kernel void mr_discrete_elastic_rod_step(
-    device const MRRodGPUDispatch& dispatch [[buffer(0)]],
+    device const MRRodGPUDispatch& sourceDispatch [[buffer(0)]],
     device const float* restLengths [[buffer(1)]],
     device const float* restTwists [[buffer(2)]],
     device const float4* restCurvature [[buffer(3)]],
@@ -1041,12 +1053,59 @@ kernel void mr_discrete_elastic_rod_step(
     device float* outputTwistRates [[buffer(17)]],
     device MRRodGPUStatus* statuses [[buffer(18)]],
     device MRRodGPUAttachmentReaction* reactions [[buffer(19)]],
+    device const MRCCDEventStateGPU* eventStates [[buffer(20)]],
+    constant uint& eventSegmentMode [[buffer(21)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_threadgroup]],
     const uint laneCount [[threads_per_threadgroup]]
 ) {
+    MRRodGPUDispatch dispatch = sourceDispatch;
     if (environment >= dispatch.environmentCount) {
         return;
+    }
+    const bool eventSegment =
+        eventSegmentMode != MR_CCD_SEGMENT_FULL_MICROSTEP;
+    if (eventSegment) {
+        const MRCCDEventStateGPU eventState =
+            eventStates[environment];
+        const float duration = rodEventSegmentDuration(
+            eventStates[environment],
+            eventSegmentMode
+        );
+        // Finished environments remain present in MLX's statically encoded
+        // worker grid. Preserve their accepted input exactly instead of
+        // attempting a zero-duration DER factorization.
+        if ((eventState.flags & MR_CCD_EVENT_FINISHED) != 0u ||
+            !(duration > 0.0f)) {
+            const uint nodeBase =
+                environment * dispatch.stateNodeStride;
+            const uint edgeBase =
+                environment * dispatch.stateEdgeStride;
+            for (uint node = lane;
+                 node < dispatch.nodeCount;
+                 node += laneCount) {
+                outputPositions[nodeBase + node] =
+                    inputPositions[nodeBase + node];
+                outputVelocities[nodeBase + node] =
+                    inputVelocities[nodeBase + node];
+            }
+            for (uint edge = lane;
+                 edge < dispatch.edgeCount;
+                 edge += laneCount) {
+                outputTwists[edgeBase + edge] =
+                    inputTwists[edgeBase + edge];
+                outputTwistRates[edgeBase + edge] =
+                    inputTwistRates[edgeBase + edge];
+            }
+            if (lane == 0u) {
+                MRRodGPUStatus status = {};
+                status.environment = environment;
+                status.code = MR_ROD_GPU_SUCCESS;
+                statuses[environment] = status;
+            }
+            return;
+        }
+        dispatch.gravityAndTimestep.w = duration;
     }
     threadgroup float3 positions[MR_ROD_GPU_MAX_NODES];
     threadgroup float3 originalPositions[MR_ROD_GPU_MAX_NODES];

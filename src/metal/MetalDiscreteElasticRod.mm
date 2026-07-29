@@ -1692,6 +1692,17 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                         offset:0u
                        atIndex:index];
         }
+        // The standalone rod solver runs one complete fixed microstep. Buffer
+        // zero is a valid inert binding for the event cursor because the
+        // FULL_MICROSTEP mode guarantees that the shader never dereferences it.
+        const mr_u32 eventSegmentMode =
+            MR_CCD_SEGMENT_FULL_MICROSTEP;
+        [encoder setBuffer:buffers[0]
+                    offset:0u
+                   atIndex:20u];
+        [encoder setBytes:&eventSegmentMode
+                   length:sizeof(eventSegmentMode)
+                  atIndex:21u];
         [encoder
             dispatchThreadgroups:MTLSizeMake(
                 environmentCount,

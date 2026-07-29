@@ -1188,10 +1188,17 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_publish_unified_quality_queue_status",
         "mr_world_prepare_rod_state",
         "mr_world_prepare_rod_contact_cache",
+        "mr_world_initialize_rod_event_state",
+        "mr_world_restore_inactive_rod_event_candidate",
+        "mr_world_publish_rod_event_segment",
         "mr_world_pack_rod_state",
         "mr_discrete_elastic_rod_step",
         "mr_world_unpack_rod_state",
         "mr_world_latch_rod_status",
+        "mr_world_factor_rod_operator",
+        "mr_world_project_swept_rod_colliders",
+        "mr_world_resolve_rod_ccd",
+        "mr_world_tag_rod_ccd_witnesses",
         "mr_rod_tool_narrowphase",
         "mr_world_scan_rod_contact_ir",
         "mr_world_scatter_rod_contact_ir",
@@ -1664,15 +1671,6 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             "solves through TGS"
         );
     }
-    if (addNeedleThread &&
-        ccdMode == MetalWorldCCDMode::hybrid) {
-        throw std::invalid_argument(
-            "the MLX needle_thread vertical slice currently "
-            "requires disabled or speculative CCD until rod "
-            "event-state splitting is composed"
-        );
-    }
-
     std::vector<MRBodyStateGPU> defaultSceneBodies =
         useHeterogeneousWorld
         ? heterogeneousWorld.defaultSceneBodies
@@ -4111,6 +4109,44 @@ void WorldStepPrimitive::eval_gpu(
         rawRecords.template operator()<MRCCDImpactClusterGPU>(
             environments
         );
+    mx::array eventRodNodesA =
+        rawRecords.template operator()<MRRodNodeStateGPU>(
+            static_cast<std::size_t>(environments) *
+            rodNodeCount
+        );
+    mx::array eventRodNodesB =
+        rawRecords.template operator()<MRRodNodeStateGPU>(
+            static_cast<std::size_t>(environments) *
+            rodNodeCount
+        );
+    mx::array eventRodEdgesA =
+        rawRecords.template operator()<MRRodEdgeStateGPU>(
+            static_cast<std::size_t>(environments) *
+            rodEdgeCount
+        );
+    mx::array eventRodEdgesB =
+        rawRecords.template operator()<MRRodEdgeStateGPU>(
+            static_cast<std::size_t>(environments) *
+            rodEdgeCount
+        );
+    mx::array eventRodWitnessesA =
+        rawRecords.template operator()<MRRodToolWitnessGPU>(
+            rodWitnessCount
+        );
+    mx::array eventRodWitnessesB =
+        rawRecords.template operator()<MRRodToolWitnessGPU>(
+            rodWitnessCount
+        );
+    mx::array projectedRodColliders =
+        rawRecords.template operator()<MRProjectedColliderGPU>(
+            static_cast<std::size_t>(environments) *
+            rodEdgeCount
+        );
+    mx::array futureProjectedRodColliders =
+        rawRecords.template operator()<MRProjectedColliderGPU>(
+            static_cast<std::size_t>(environments) *
+            rodEdgeCount
+        );
     mx::array rodNodesA =
         rawRecords.template operator()<MRRodNodeStateGPU>(
             static_cast<std::size_t>(environments) *
@@ -5188,6 +5224,194 @@ void WorldStepPrimitive::eval_gpu(
     const mx::array* sourceRodWitnesses = &inputs[15];
     mx::array* destinationRodWitnesses = &rodWitnessesA;
 
+    const auto encodeRodSubstep = [&](
+        const MRMetalWorldPassGPU& rodPass,
+        const mx::array& sourceNodes,
+        const mx::array& sourceEdges,
+        mx::array& destinationNodes,
+        mx::array& destinationEdges,
+        const mx::array& eventStates,
+        const std::uint32_t eventSegmentMode
+    ) {
+        if (rodCount == 0u) {
+            return;
+        }
+        setPhysicsKernel("mr_world_pack_rod_state");
+        encoder.set_bytes(contactDispatch, 0);
+        inputArray(sourceNodes, 1);
+        inputArray(sourceEdges, 2);
+        outputArray(rodInputPositions, 3);
+        outputArray(rodInputVelocities, 4);
+        outputArray(rodInputTwists, 5);
+        outputArray(rodInputTwistRates, 6);
+        dispatchThreads(
+            environments,
+            resources.kernel("mr_world_pack_rod_state")
+        );
+
+        setPhysicsKernel("mr_discrete_elastic_rod_step");
+        for (std::size_t rod = 0u;
+             rod < rodDispatches.size();
+             ++rod) {
+            const std::size_t nodeOffset =
+                compiled.rodNodeOffsets()[rod];
+            const std::size_t edgeOffset =
+                compiled.rodEdgeOffsets()[rod];
+            const std::size_t bendOffset = edgeOffset - rod;
+            encoder.set_bytes(rodDispatches[rod], 0);
+            encoder.set_buffer(
+                resources.buffer(kImmutableRodRestLengths),
+                1,
+                edgeOffset * sizeof(float)
+            );
+            encoder.set_buffer(
+                resources.buffer(kImmutableRodRestTwists),
+                2,
+                edgeOffset * sizeof(float)
+            );
+            encoder.set_buffer(
+                resources.buffer(kImmutableRodRestCurvatures),
+                3,
+                bendOffset * sizeof(mr_float4)
+            );
+            encoder.set_buffer(
+                resources.buffer(kImmutableRodInverseMasses),
+                4,
+                nodeOffset * sizeof(float)
+            );
+            encoder.set_buffer(
+                resources.buffer(
+                    kImmutableRodInverseTwistInertias
+                ),
+                5,
+                edgeOffset * sizeof(float)
+            );
+            encoder.set_buffer(
+                resources.buffer(kImmutableRodStretchStiffness),
+                6,
+                edgeOffset * sizeof(float)
+            );
+            encoder.set_buffer(
+                resources.buffer(kImmutableRodBendStiffness),
+                7,
+                bendOffset * sizeof(float)
+            );
+            encoder.set_buffer(
+                resources.buffer(kImmutableRodTwistStiffness),
+                8,
+                bendOffset * sizeof(float)
+            );
+            inputArray(
+                rodInputPositions,
+                9,
+                nodeOffset * sizeof(mr_float4)
+            );
+            inputArray(
+                rodInputVelocities,
+                10,
+                nodeOffset * sizeof(mr_float4)
+            );
+            inputArray(
+                rodInputTwists,
+                11,
+                edgeOffset * sizeof(float)
+            );
+            inputArray(
+                rodInputTwistRates,
+                12,
+                edgeOffset * sizeof(float)
+            );
+            // Attachments are represented through the typed world graph.
+            immutable(kImmutableRodInverseMasses, 13);
+            outputArray(
+                rodOutputPositions,
+                14,
+                nodeOffset * sizeof(mr_float4)
+            );
+            outputArray(
+                rodOutputVelocities,
+                15,
+                nodeOffset * sizeof(mr_float4)
+            );
+            outputArray(
+                rodOutputTwists,
+                16,
+                edgeOffset * sizeof(float)
+            );
+            outputArray(
+                rodOutputTwistRates,
+                17,
+                edgeOffset * sizeof(float)
+            );
+            outputArray(
+                rodStatuses,
+                18,
+                rod * environments * sizeof(MRRodGPUStatus)
+            );
+            immutable(kImmutableRodInverseMasses, 19);
+            inputArray(eventStates, 20);
+            encoder.set_bytes(eventSegmentMode, 21);
+            encoder.dispatch_threadgroups(
+                MTL::Size(environments, 1u, 1u),
+                MTL::Size(MR_ROD_GPU_MAX_NODES, 1u, 1u)
+            );
+        }
+        encoder.barrier();
+
+        setPhysicsKernel("mr_world_unpack_rod_state");
+        encoder.set_bytes(contactDispatch, 0);
+        inputArray(rodOutputPositions, 1);
+        inputArray(rodOutputVelocities, 2);
+        inputArray(rodOutputTwists, 3);
+        inputArray(rodOutputTwistRates, 4);
+        outputArray(destinationNodes, 5);
+        outputArray(destinationEdges, 6);
+        dispatchThreads(
+            environments,
+            resources.kernel("mr_world_unpack_rod_state")
+        );
+
+        setPhysicsKernel("mr_world_latch_rod_status");
+        encoder.set_bytes(worldDispatch, 0);
+        encoder.set_bytes(contactDispatch, 1);
+        encoder.set_bytes(rodPass, 2);
+        inputArray(rodStatuses, 3);
+        outputArray(worldStatuses, 4);
+        dispatchThreads(
+            environments,
+            resources.kernel("mr_world_latch_rod_status")
+        );
+
+        setPhysicsKernel("mr_world_factor_rod_operator");
+        for (std::size_t rod = 0u;
+             rod < rodDispatches.size();
+             ++rod) {
+            const std::uint32_t rodIndex =
+                static_cast<std::uint32_t>(rod);
+            encoder.set_bytes(contactDispatch, 0);
+            encoder.set_bytes(rodDispatches[rod], 1);
+            inputArray(destinationNodes, 2);
+            immutable(kImmutableRodInverseMasses, 3);
+            immutable(kImmutableRodInverseTwistInertias, 4);
+            immutable(kImmutableRodColliders, 5);
+            immutable(kImmutableRodRestLengths, 6);
+            immutable(kImmutableRodStretchStiffness, 7);
+            immutable(kImmutableRodBendStiffness, 8);
+            immutable(kImmutableRodTwistStiffness, 9);
+            outputArray(rodFactorCaches, 10);
+            outputArray(rodOperatorArena, 11);
+            encoder.set_bytes(rodIndex, 12);
+            encoder.set_bytes(rodPass, 13);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_factor_rod_operator"
+                )
+            );
+        }
+        encoder.barrier();
+    };
+
     for (std::uint32_t substep = 0u;
          substep < world_->physicsSubsteps();
          ++substep) {
@@ -5261,6 +5485,18 @@ void WorldStepPrimitive::eval_gpu(
             &eventManifoldCountsA;
         mx::array* eventStateIn = &ccdEventStatesA;
         mx::array* eventStateOut = &ccdEventStatesB;
+        const mx::array* eventSourceRodNodes =
+            &eventRodNodesA;
+        const mx::array* eventSourceRodEdges =
+            &eventRodEdgesA;
+        const mx::array* eventSourceRodWitnesses =
+            &eventRodWitnessesA;
+        mx::array* eventDestinationRodNodes =
+            &eventRodNodesB;
+        mx::array* eventDestinationRodEdges =
+            &eventRodEdgesB;
+        mx::array* eventDestinationRodWitnesses =
+            &eventRodWitnessesB;
         if (hybridCCD) {
             setPhysicsKernel(
                 "mr_world_initialize_ccd_event_state"
@@ -5277,9 +5513,30 @@ void WorldStepPrimitive::eval_gpu(
                     "mr_world_initialize_ccd_event_state"
                 )
             );
+            if (rodCount != 0u) {
+                setPhysicsKernel(
+                    "mr_world_initialize_rod_event_state"
+                );
+                encoder.set_bytes(contactDispatch, 0);
+                inputArray(*sourceRodNodes, 1);
+                inputArray(*sourceRodEdges, 2);
+                inputArray(*sourceRodWitnesses, 3);
+                outputArray(eventRodNodesA, 4);
+                outputArray(eventRodEdgesA, 5);
+                outputArray(eventRodWitnessesA, 6);
+                outputArray(eventRodNodesB, 7);
+                outputArray(eventRodEdgesB, 8);
+                outputArray(eventRodWitnessesB, 9);
+                dispatchThreads(
+                    environments,
+                    resources.kernel(
+                        "mr_world_initialize_rod_event_state"
+                    )
+                );
+            }
         }
 
-        if (rodCount != 0u) {
+        if (!hybridCCD && rodCount != 0u) {
             setPhysicsKernel("mr_world_pack_rod_state");
             encoder.set_bytes(contactDispatch, 0);
             inputArray(*sourceRodNodes, 1);
@@ -5411,6 +5668,10 @@ void WorldStepPrimitive::eval_gpu(
                         sizeof(MRRodGPUStatus)
                 );
                 immutable(kImmutableRodInverseMasses, 19);
+                inputArray(ccdEventStatesA, 20);
+                constexpr std::uint32_t fullRodMicrostep =
+                    MR_CCD_SEGMENT_FULL_MICROSTEP;
+                encoder.set_bytes(fullRodMicrostep, 21);
                 encoder.dispatch_threadgroups(
                     MTL::Size(environments, 1u, 1u),
                     MTL::Size(
@@ -5635,7 +5896,19 @@ void WorldStepPrimitive::eval_gpu(
             );
         }
 
-        if (rodToolPairCount != 0u) {
+        if (hybridCCD && rodCount != 0u) {
+            encodeRodSubstep(
+                pass,
+                *eventSourceRodNodes,
+                *eventSourceRodEdges,
+                candidateRodNodes,
+                candidateRodEdges,
+                *eventStateIn,
+                MR_CCD_SEGMENT_REMAINING
+            );
+        }
+
+        if (!hybridCCD && rodToolPairCount != 0u) {
             setPhysicsKernel("mr_rod_tool_narrowphase");
             for (std::size_t rod = 0u;
                  rod < rodCollisionDispatches.size();
@@ -5697,6 +5970,25 @@ void WorldStepPrimitive::eval_gpu(
                 "mr_world_project_swept_colliders"
             )
         );
+        if (hybridCCD && rodCount != 0u) {
+            setPhysicsKernel(
+                "mr_world_project_swept_rod_colliders"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            immutable(kImmutableRodColliders, 1);
+            inputArray(*eventSourceRodNodes, 2);
+            inputArray(candidateRodNodes, 3);
+            outputArray(projectedRodColliders, 4);
+            outputArray(futureProjectedRodColliders, 5);
+            outputArray(outputs[16], 6);
+            dispatchThreads(
+                static_cast<std::size_t>(environments) *
+                    rodEdgeCount,
+                resources.kernel(
+                    "mr_world_project_swept_rod_colliders"
+                )
+            );
+        }
 
         setPhysicsKernel("mr_world_flag_eligible_pairs");
         encoder.set_bytes(contactDispatch, 0);
@@ -5728,6 +6020,29 @@ void WorldStepPrimitive::eval_gpu(
                 environments,
                 resources.kernel("mr_world_resolve_ccd")
             );
+            if (rodCount != 0u) {
+                setPhysicsKernel("mr_world_resolve_rod_ccd");
+                encoder.set_bytes(contactDispatch, 0);
+                immutable(kImmutableRodColliders, 1);
+                immutable(kImmutableRodShapeSources, 2);
+                immutable(kImmutableRodToolPairs, 3);
+                immutable(kImmutableShapes, 4);
+                inputArray(projectedRodColliders, 5);
+                inputArray(futureProjectedRodColliders, 6);
+                inputArray(projected, 7);
+                inputArray(futureProjected, 8);
+                immutable(kImmutableGeometryHeaders, 9);
+                immutable(kImmutableGeometryVertices, 10);
+                immutable(kImmutableMeshNodes, 11);
+                immutable(kImmutableMeshTriangles, 12);
+                outputArray(ccdPairs, 13);
+                outputArray(outputs[16], 14);
+                inputArray(*eventStateIn, 15);
+                dispatchThreads(
+                    environments,
+                    resources.kernel("mr_world_resolve_rod_ccd")
+                );
+            }
 
             setPhysicsKernel(
                 "mr_world_select_ccd_event_state"
@@ -5792,6 +6107,17 @@ void WorldStepPrimitive::eval_gpu(
                     "mr_world_predict_scene_event"
                 )
             );
+            if (rodCount != 0u) {
+                encodeRodSubstep(
+                    pass,
+                    *eventSourceRodNodes,
+                    *eventSourceRodEdges,
+                    candidateRodNodes,
+                    candidateRodEdges,
+                    *eventStateOut,
+                    selectedMode
+                );
+            }
 
             setPhysicsKernel(
                 "mr_world_overlay_event_articulation_bodies"
@@ -5839,6 +6165,61 @@ void WorldStepPrimitive::eval_gpu(
                     "mr_world_flag_eligible_pairs"
                 )
             );
+            if (rodToolPairCount != 0u) {
+                setPhysicsKernel("mr_rod_tool_narrowphase");
+                for (std::size_t rod = 0u;
+                     rod < rodCollisionDispatches.size();
+                     ++rod) {
+                    const MRRodGPUDispatch& rodDispatch =
+                        rodCollisionDispatches[rod];
+                    if (rodDispatch.toolPairCount == 0u) {
+                        continue;
+                    }
+                    encoder.set_bytes(rodDispatch, 0);
+                    immutable(kImmutableRodColliders, 1);
+                    immutable(kImmutableRodShapeSources, 2);
+                    immutable(kImmutableRodToolPairs, 3);
+                    immutable(kImmutableShapes, 4);
+                    inputArray(candidateBodies, 5);
+                    immutable(kImmutableGeometryHeaders, 6);
+                    immutable(kImmutableGeometryVertices, 7);
+                    immutable(kImmutableMeshNodes, 8);
+                    immutable(kImmutableMeshTriangles, 9);
+                    inputArray(rodOutputPositions, 10);
+                    inputArray(rodOutputVelocities, 11);
+                    inputArray(rodOutputTwistRates, 12);
+                    inputArray(*eventSourceRodWitnesses, 13);
+                    outputArray(rodWitnessCounts, 14);
+                    outputArray(candidateRodWitnesses, 15);
+                    outputArray(
+                        rodStatuses,
+                        16,
+                        rod * environments *
+                            sizeof(MRRodGPUStatus)
+                    );
+                    dispatchThreads(
+                        static_cast<std::size_t>(environments) *
+                            rodDispatch.toolPairCount,
+                        resources.kernel(
+                            "mr_rod_tool_narrowphase"
+                        )
+                    );
+                }
+
+                setPhysicsKernel(
+                    "mr_world_tag_rod_ccd_witnesses"
+                );
+                encoder.set_bytes(contactDispatch, 0);
+                inputArray(ccdPairs, 1);
+                inputArray(outputs[16], 2);
+                outputArray(candidateRodWitnesses, 3);
+                dispatchThreads(
+                    rodWitnessCount,
+                    resources.kernel(
+                        "mr_world_tag_rod_ccd_witnesses"
+                    )
+                );
+            }
         }
 
         const std::size_t pairWorkers =
@@ -6910,6 +7291,25 @@ void WorldStepPrimitive::eval_gpu(
                     "mr_world_restore_inactive_event_candidate"
                 )
             );
+            if (rodCount != 0u) {
+                setPhysicsKernel(
+                    "mr_world_restore_inactive_rod_event_candidate"
+                );
+                encoder.set_bytes(contactDispatch, 0);
+                inputArray(*eventSourceRodNodes, 1);
+                inputArray(*eventSourceRodEdges, 2);
+                inputArray(*eventSourceRodWitnesses, 3);
+                outputArray(candidateRodNodes, 4);
+                outputArray(candidateRodEdges, 5);
+                outputArray(candidateRodWitnesses, 6);
+                inputArray(outputs[16], 7);
+                dispatchThreads(
+                    environments,
+                    resources.kernel(
+                        "mr_world_restore_inactive_rod_event_candidate"
+                    )
+                );
+            }
 
             setPhysicsKernel(
                 "mr_world_finalize_ccd_event_state"
@@ -6957,6 +7357,31 @@ void WorldStepPrimitive::eval_gpu(
                         "mr_world_publish_event_segment"
                     )
                 );
+                if (rodCount != 0u) {
+                    setPhysicsKernel(
+                        "mr_world_publish_rod_event_segment"
+                    );
+                    encoder.set_bytes(contactDispatch, 0);
+                    inputArray(*eventSourceRodNodes, 1);
+                    inputArray(*eventSourceRodEdges, 2);
+                    inputArray(*eventSourceRodWitnesses, 3);
+                    inputArray(candidateRodNodes, 4);
+                    inputArray(candidateRodEdges, 5);
+                    inputArray(candidateRodWitnesses, 6);
+                    inputArray(outputs[16], 7);
+                    outputArray(*eventDestinationRodNodes, 8);
+                    outputArray(*eventDestinationRodEdges, 9);
+                    outputArray(
+                        *eventDestinationRodWitnesses,
+                        10
+                    );
+                    dispatchThreads(
+                        environments,
+                        resources.kernel(
+                            "mr_world_publish_rod_event_segment"
+                        )
+                    );
+                }
                 eventSourceQ = eventDestinationQ;
                 eventSourceV = eventDestinationV;
                 eventSourceScene = eventDestinationScene;
@@ -6983,6 +7408,27 @@ void WorldStepPrimitive::eval_gpu(
                 eventDestinationCounts = destinationWasA
                     ? &eventManifoldCountsB
                     : &eventManifoldCountsA;
+                eventSourceRodNodes =
+                    eventDestinationRodNodes;
+                eventSourceRodEdges =
+                    eventDestinationRodEdges;
+                eventSourceRodWitnesses =
+                    eventDestinationRodWitnesses;
+                const bool rodDestinationWasA =
+                    eventDestinationRodNodes ==
+                    &eventRodNodesA;
+                eventDestinationRodNodes =
+                    rodDestinationWasA
+                    ? &eventRodNodesB
+                    : &eventRodNodesA;
+                eventDestinationRodEdges =
+                    rodDestinationWasA
+                    ? &eventRodEdgesB
+                    : &eventRodEdgesA;
+                eventDestinationRodWitnesses =
+                    rodDestinationWasA
+                    ? &eventRodWitnessesB
+                    : &eventRodWitnessesA;
                 std::swap(eventStateIn, eventStateOut);
             }
         }

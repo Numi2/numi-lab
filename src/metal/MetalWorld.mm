@@ -32,7 +32,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 184u;
+constexpr std::size_t kRawBufferCount = 192u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -238,6 +238,14 @@ enum BufferIndex : std::size_t {
     kAuthoredIRRows = 181u,
     kAuthoredIRCones = 182u,
     kAuthoredIRWarmImpulses = 183u,
+    kCCDEventRodNodesA = 184u,
+    kCCDEventRodEdgesA = 185u,
+    kCCDEventRodWitnessesA = 186u,
+    kCCDEventRodNodesB = 187u,
+    kCCDEventRodEdgesB = 188u,
+    kCCDEventRodWitnessesB = 189u,
+    kProjectedRodColliders = 190u,
+    kFutureProjectedRodColliders = 191u,
 };
 
 struct BufferRequirement {
@@ -294,6 +302,12 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> eventColliderProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> inactiveEventRestorePipeline = nil;
     __strong id<MTLComputePipelineState> eventSegmentPublishPipeline = nil;
+    __strong id<MTLComputePipelineState> rodEventInitializePipeline = nil;
+    __strong id<MTLComputePipelineState> inactiveRodEventRestorePipeline = nil;
+    __strong id<MTLComputePipelineState> rodEventSegmentPublishPipeline = nil;
+    __strong id<MTLComputePipelineState> rodSweptProjectionPipeline = nil;
+    __strong id<MTLComputePipelineState> rodCCDPipeline = nil;
+    __strong id<MTLComputePipelineState> rodCCDWitnessTagPipeline = nil;
     __strong id<MTLComputePipelineState> pairFlagPipeline = nil;
     __strong id<MTLComputePipelineState> scanBlocksPipeline = nil;
     __strong id<MTLComputePipelineState> scanAddPipeline = nil;
@@ -2273,6 +2287,46 @@ bool buildRequirements(
             rodWitnessElements,
             requirements.entries[kCheckpointRodWitnesses]
         ) ||
+        !makeRequirement<MRRodNodeStateGPU>(
+            "CCD event rod nodes A",
+            layout.rodNodeStateElements,
+            requirements.entries[kCCDEventRodNodesA]
+        ) ||
+        !makeRequirement<MRRodEdgeStateGPU>(
+            "CCD event rod edges A",
+            layout.rodEdgeStateElements,
+            requirements.entries[kCCDEventRodEdgesA]
+        ) ||
+        !makeRequirement<MRRodToolWitnessGPU>(
+            "CCD event rod witnesses A",
+            rodWitnessElements,
+            requirements.entries[kCCDEventRodWitnessesA]
+        ) ||
+        !makeRequirement<MRRodNodeStateGPU>(
+            "CCD event rod nodes B",
+            layout.rodNodeStateElements,
+            requirements.entries[kCCDEventRodNodesB]
+        ) ||
+        !makeRequirement<MRRodEdgeStateGPU>(
+            "CCD event rod edges B",
+            layout.rodEdgeStateElements,
+            requirements.entries[kCCDEventRodEdgesB]
+        ) ||
+        !makeRequirement<MRRodToolWitnessGPU>(
+            "CCD event rod witnesses B",
+            rodWitnessElements,
+            requirements.entries[kCCDEventRodWitnessesB]
+        ) ||
+        !makeRequirement<MRProjectedColliderGPU>(
+            "projected procedural rod colliders",
+            layout.rodEdgeStateElements,
+            requirements.entries[kProjectedRodColliders]
+        ) ||
+        !makeRequirement<MRProjectedColliderGPU>(
+            "future projected procedural rod colliders",
+            layout.rodEdgeStateElements,
+            requirements.entries[kFutureProjectedRodColliders]
+        ) ||
         !makeRequirement<mr_u32>(
             "rod constraint/witness bindings",
             layout.contactConstraintElements,
@@ -2460,16 +2514,6 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "qualityNewton currently requires disabled or speculative "
             "CCD; event-time quality re-solves are not silently routed "
             "through TGS"
-        );
-    }
-    if (world.rodCount() != 0u &&
-        config.ccdMode == MetalWorldCCDMode::hybrid) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::unsupportedSolverMode,
-            "hybrid CCD for a rod world requires the composed rod/rigid "
-            "event checkpoint path; disabled or speculative CCD remains "
-            "fully device-resident"
         );
     }
     const std::size_t qualityNv =
@@ -3782,6 +3826,12 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> rodContactSolve = nil;
     __strong id<MTLComputePipelineState> rodCommit = nil;
     __strong id<MTLComputePipelineState> rodContactCommit = nil;
+    __strong id<MTLComputePipelineState> rodEventInitialize = nil;
+    __strong id<MTLComputePipelineState> inactiveRodEventRestore = nil;
+    __strong id<MTLComputePipelineState> rodEventSegmentPublish = nil;
+    __strong id<MTLComputePipelineState> rodSweptProjection = nil;
+    __strong id<MTLComputePipelineState> rodCCD = nil;
+    __strong id<MTLComputePipelineState> rodCCDWitnessTag = nil;
     __strong id<MTLComputePipelineState> authoredIRSeed = nil;
     __strong id<MTLComputePipelineState>
         generalizedConstraintSolve = nil;
@@ -3840,6 +3890,24 @@ MetalWorldDiagnostics initializeContext(
     );
     eventSegmentPublish = createContactPipeline(
         @"mr_world_publish_event_segment"
+    );
+    rodEventInitialize = createContactPipeline(
+        @"mr_world_initialize_rod_event_state"
+    );
+    inactiveRodEventRestore = createContactPipeline(
+        @"mr_world_restore_inactive_rod_event_candidate"
+    );
+    rodEventSegmentPublish = createContactPipeline(
+        @"mr_world_publish_rod_event_segment"
+    );
+    rodSweptProjection = createContactPipeline(
+        @"mr_world_project_swept_rod_colliders"
+    );
+    rodCCD = createContactPipeline(
+        @"mr_world_resolve_rod_ccd"
+    );
+    rodCCDWitnessTag = createContactPipeline(
+        @"mr_world_tag_rod_ccd_witnesses"
     );
     pairFlags =
         createContactPipeline(@"mr_world_flag_eligible_pairs");
@@ -4011,6 +4079,12 @@ MetalWorldDiagnostics initializeContext(
         eventColliderProjection == nil ||
         inactiveEventRestore == nil ||
         eventSegmentPublish == nil ||
+        rodEventInitialize == nil ||
+        inactiveRodEventRestore == nil ||
+        rodEventSegmentPublish == nil ||
+        rodSweptProjection == nil ||
+        rodCCD == nil ||
+        rodCCDWitnessTag == nil ||
         pairFlags == nil ||
         scanBlocks == nil ||
         scanAdd == nil ||
@@ -4279,6 +4353,14 @@ MetalWorldDiagnostics initializeContext(
     context.eventColliderProjectionPipeline = eventColliderProjection;
     context.inactiveEventRestorePipeline = inactiveEventRestore;
     context.eventSegmentPublishPipeline = eventSegmentPublish;
+    context.rodEventInitializePipeline = rodEventInitialize;
+    context.inactiveRodEventRestorePipeline =
+        inactiveRodEventRestore;
+    context.rodEventSegmentPublishPipeline =
+        rodEventSegmentPublish;
+    context.rodSweptProjectionPipeline = rodSweptProjection;
+    context.rodCCDPipeline = rodCCD;
+    context.rodCCDWitnessTagPipeline = rodCCDWitnessTag;
     context.pairFlagPipeline = pairFlags;
     context.scanBlocksPipeline = scanBlocks;
     context.scanAddPipeline = scanAdd;
@@ -4353,7 +4435,7 @@ MetalWorldDiagnostics initializeContext(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 69u;
+    context.stats.pipelineCreationCount += 75u;
     return diagnostics;
 }
 
@@ -4465,6 +4547,14 @@ bool privateTransientBuffer(const std::size_t index) {
     case kCheckpointRodWitnesses:
     case kRodConstraintWitnessIndices:
     case kRodContactScratch:
+    case kCCDEventRodNodesA:
+    case kCCDEventRodEdgesA:
+    case kCCDEventRodWitnessesA:
+    case kCCDEventRodNodesB:
+    case kCCDEventRodEdgesB:
+    case kCCDEventRodWitnessesB:
+    case kProjectedRodColliders:
+    case kFutureProjectedRodColliders:
         return true;
     default:
         return false;
@@ -6996,6 +7086,8 @@ bool encodeRodSubstep(
     const std::size_t sourceEdges,
     const std::size_t candidateNodes,
     const std::size_t candidateEdges,
+    const std::size_t eventStates,
+    const mr_u32 eventSegmentMode,
     const std::size_t environmentCount
 ) {
     if (world.rodCount() == 0u) {
@@ -7090,6 +7182,12 @@ bool encodeRodSubstep(
                    offset:bindings[argument].second
                   atIndex:argument];
         }
+        [encoder setBuffer:context.buffers[eventStates]
+                    offset:0u
+                   atIndex:20u];
+        [encoder setBytes:&eventSegmentMode
+                   length:sizeof(eventSegmentMode)
+                  atIndex:21u];
         [encoder
             dispatchThreadgroups:MTLSizeMake(
                 static_cast<NSUInteger>(environmentCount),
@@ -8446,6 +8544,10 @@ bool encodeContactCollisionAndSolve(
     const std::size_t sourceManifoldHeaders,
     const std::size_t sourceManifoldPoints,
     const std::size_t sourceManifoldCounts,
+    const std::size_t candidateRodNodes,
+    const std::size_t candidateRodEdges,
+    const std::size_t rodWitnessThreadCount,
+    const std::size_t rodWitnessCount,
     const bool useWave32,
     const mr_u32 activePairClassMask,
     const mr_u32 solverIterationCount,
@@ -8469,10 +8571,10 @@ bool encodeContactCollisionAndSolve(
             sourceManifoldHeaders,
             sourceManifoldPoints,
             sourceManifoldCounts,
-            kRodNodesB,
+            candidateRodNodes,
             environmentCount,
             pairFlagThreadCount,
-            0u
+            rodWitnessThreadCount
         ) &&
         encodeContactThreadKernel(
             context,
@@ -8539,7 +8641,7 @@ bool encodeContactCollisionAndSolve(
                 {12u, kFactorCaches},
                 {13u, kContactStatuses},
                 {14u, kIREndpoints},
-                {15u, kRodNodesB},
+                {15u, candidateRodNodes},
             },
             nullptr,
             0u,
@@ -8579,8 +8681,8 @@ bool encodeContactCollisionAndSolve(
                   solverPass,
                   solverIterationCount,
                   enableDistributed,
-                  kRodNodesB,
-                  kRodEdgesB,
+                  candidateRodNodes,
+                  candidateRodEdges,
                   environmentCount,
                   islandWorkCount,
                   tileWorkCount
@@ -8609,7 +8711,16 @@ bool encodeContactCollisionAndSolve(
                   environmentCount,
                   true,
                   sizeof(MRIndirectDispatchArgumentsGPU)
-              )
+              ) &&
+                  encodeRodContactSolve(
+                      context,
+                      commandBuffer,
+                      solverPass,
+                      candidateRodNodes,
+                      candidateRodEdges,
+                      rodWitnessCount,
+                      environmentCount
+                  )
         );
 }
 
@@ -8617,6 +8728,7 @@ bool encodeHybridContactSubstep(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
     id<MTLComputePipelineState> abaPipeline,
+    const CompiledWorld& world,
     const MRMetalWorldPassGPU& pass,
     const bool finalPhysicsSubstep,
     const std::size_t sourceQ,
@@ -8631,6 +8743,12 @@ bool encodeHybridContactSubstep(
     const std::size_t destinationManifoldHeaders,
     const std::size_t destinationManifoldPoints,
     const std::size_t destinationManifoldCounts,
+    const std::size_t sourceRodNodes,
+    const std::size_t sourceRodEdges,
+    const std::size_t candidateRodNodes,
+    const std::size_t candidateRodEdges,
+    const std::size_t sourceRodWitnesses,
+    const std::size_t rodWitnessCount,
     const bool useWave32,
     const mr_u32 activePairClassMask,
     const mr_u32 solverIterationCount,
@@ -8660,6 +8778,30 @@ bool encodeHybridContactSubstep(
             &pass,
             5u,
             environmentCount
+        ) ||
+        (
+            world.rodCount() != 0u &&
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.rodEventInitializePipeline,
+                @"MetalWorld initialize rod CCD event state",
+                {
+                    {0u, kContactDispatch},
+                    {1u, sourceRodNodes},
+                    {2u, sourceRodEdges},
+                    {3u, sourceRodWitnesses},
+                    {4u, kCCDEventRodNodesA},
+                    {5u, kCCDEventRodEdgesA},
+                    {6u, kCCDEventRodWitnessesA},
+                    {7u, kCCDEventRodNodesB},
+                    {8u, kCCDEventRodEdgesB},
+                    {9u, kCCDEventRodWitnessesB},
+                },
+                nullptr,
+                0u,
+                environmentCount
+            )
         )) {
         return false;
     }
@@ -8681,6 +8823,16 @@ bool encodeHybridContactSubstep(
         destinationManifoldCounts;
     std::size_t eventStateIn = kCCDEventStatesA;
     std::size_t eventStateOut = kCCDEventStatesB;
+    std::size_t eventSourceRodNodes = kCCDEventRodNodesA;
+    std::size_t eventSourceRodEdges = kCCDEventRodEdgesA;
+    std::size_t eventSourceRodWitnesses =
+        kCCDEventRodWitnessesA;
+    std::size_t eventDestinationRodNodes =
+        kCCDEventRodNodesB;
+    std::size_t eventDestinationRodEdges =
+        kCCDEventRodEdgesB;
+    std::size_t eventDestinationRodWitnesses =
+        kCCDEventRodWitnessesB;
     const mr_u32 remainingMode = MR_CCD_SEGMENT_REMAINING;
     const mr_u32 selectedMode = MR_CCD_SEGMENT_SELECTED;
 
@@ -8800,12 +8952,28 @@ bool encodeHybridContactSubstep(
                 environmentCount,
                 false,
                 0u,
-                &remainingMode,
-                sizeof(remainingMode),
-                8u
-            ) ||
-            !encodeContactThreadKernel(
-                context,
+	                &remainingMode,
+	                sizeof(remainingMode),
+	                8u
+	            ) ||
+	            (
+	                world.rodCount() != 0u &&
+	                !encodeRodSubstep(
+	                    context,
+	                    commandBuffer,
+	                    pass,
+	                    world,
+	                    eventSourceRodNodes,
+	                    eventSourceRodEdges,
+	                    candidateRodNodes,
+	                    candidateRodEdges,
+	                    eventStateIn,
+	                    remainingMode,
+	                    environmentCount
+	                )
+	            ) ||
+	            !encodeContactThreadKernel(
+	                context,
                 commandBuffer,
                 context.sweptProjectionPipeline,
                 @"MetalWorld event swept collider projection",
@@ -8825,9 +8993,31 @@ bool encodeHybridContactSubstep(
                 },
                 nullptr,
                 0u,
-                colliderThreadCount
-            ) ||
-            !encodeContactThreadKernel(
+	                colliderThreadCount
+	            ) ||
+	            (
+	                world.rodCount() != 0u &&
+	                !encodeContactThreadKernel(
+	                    context,
+	                    commandBuffer,
+	                    context.rodSweptProjectionPipeline,
+	                    @"MetalWorld event swept rod projection",
+	                    {
+	                        {0u, kContactDispatch},
+	                        {1u, kRodColliders},
+	                        {2u, eventSourceRodNodes},
+	                        {3u, candidateRodNodes},
+	                        {4u, kProjectedRodColliders},
+	                        {5u, kFutureProjectedRodColliders},
+	                        {6u, kContactStatuses},
+	                    },
+	                    nullptr,
+	                    0u,
+	                    environmentCount *
+	                        world.rodEdgeCount()
+	                )
+	            ) ||
+	            !encodeContactThreadKernel(
                 context,
                 commandBuffer,
                 context.pairFlagPipeline,
@@ -8866,6 +9056,36 @@ bool encodeHybridContactSubstep(
                 nullptr,
                 0u,
                 environmentCount
+            ) ||
+            (
+                world.rodCount() != 0u &&
+                !encodeContactThreadKernel(
+                    context,
+                    commandBuffer,
+                    context.rodCCDPipeline,
+                    @"MetalWorld rod/tool conservative advancement",
+                    {
+                        {0u, kContactDispatch},
+                        {1u, kRodColliders},
+                        {2u, kRodShapeSources},
+                        {3u, kRodToolPairs},
+                        {4u, kShapes},
+                        {5u, kProjectedRodColliders},
+                        {6u, kFutureProjectedRodColliders},
+                        {7u, kProjectedColliders},
+                        {8u, kFutureProjectedColliders},
+                        {9u, kGeometryHeaders},
+                        {10u, kGeometryVertices},
+                        {11u, kMeshBvhNodes},
+                        {12u, kMeshTriangles},
+                        {13u, kCCDPairs},
+                        {14u, kContactStatuses},
+                        {15u, eventStateIn},
+                    },
+                    nullptr,
+                    0u,
+                    environmentCount
+                )
             ) ||
             !encodeContactThreadKernel(
                 context,
@@ -8951,6 +9171,22 @@ bool encodeHybridContactSubstep(
                 sizeof(selectedMode),
                 8u
             ) ||
+            (
+                world.rodCount() != 0u &&
+                !encodeRodSubstep(
+                    context,
+                    commandBuffer,
+                    pass,
+                    world,
+                    eventSourceRodNodes,
+                    eventSourceRodEdges,
+                    candidateRodNodes,
+                    candidateRodEdges,
+                    eventStateOut,
+                    selectedMode,
+                    environmentCount
+                )
+            ) ||
             !encodeContactThreadKernel(
                 context,
                 commandBuffer,
@@ -9002,6 +9238,34 @@ bool encodeHybridContactSubstep(
                 0u,
                 pairFlagThreadCount
             ) ||
+            (
+                world.rodCount() != 0u &&
+                !encodeRodToolNarrowphase(
+                    context,
+                    commandBuffer,
+                    world,
+                    eventSourceRodWitnesses,
+                    environmentCount
+                )
+            ) ||
+            (
+                rodWitnessCount != 0u &&
+                !encodeContactThreadKernel(
+                    context,
+                    commandBuffer,
+                    context.rodCCDWitnessTagPipeline,
+                    @"MetalWorld tag rod CCD impact witnesses",
+                    {
+                        {0u, kContactDispatch},
+                        {1u, kCCDPairs},
+                        {2u, kContactStatuses},
+                        {3u, kCandidateRodWitnesses},
+                    },
+                    nullptr,
+                    0u,
+                    rodWitnessCount
+                )
+            ) ||
             !encodeContactCollisionAndSolve(
                 context,
                 commandBuffer,
@@ -9011,6 +9275,10 @@ bool encodeHybridContactSubstep(
                 eventSourceHeaders,
                 eventSourcePoints,
                 eventSourceCounts,
+                candidateRodNodes,
+                candidateRodEdges,
+                rodWitnessCount,
+                rodWitnessCount,
                 useWave32,
                 activePairClassMask,
                 solverIterationCount,
@@ -9070,6 +9338,28 @@ bool encodeHybridContactSubstep(
                 0u,
                 environmentCount
             ) ||
+            (
+                world.rodCount() != 0u &&
+                !encodeContactThreadKernel(
+                    context,
+                    commandBuffer,
+                    context.inactiveRodEventRestorePipeline,
+                    @"MetalWorld restore finished rod CCD environments",
+                    {
+                        {0u, kContactDispatch},
+                        {1u, eventSourceRodNodes},
+                        {2u, eventSourceRodEdges},
+                        {3u, eventSourceRodWitnesses},
+                        {4u, candidateRodNodes},
+                        {5u, candidateRodEdges},
+                        {6u, kCandidateRodWitnesses},
+                        {7u, kContactStatuses},
+                    },
+                    nullptr,
+                    0u,
+                    environmentCount
+                )
+            ) ||
             !encodeContactThreadKernel(
                 context,
                 commandBuffer,
@@ -9127,6 +9417,31 @@ bool encodeHybridContactSubstep(
                     nullptr,
                     0u,
                     environmentCount
+                ) ||
+                (
+                    world.rodCount() != 0u &&
+                    !encodeContactThreadKernel(
+                        context,
+                        commandBuffer,
+                        context.rodEventSegmentPublishPipeline,
+                        @"MetalWorld publish accepted rod CCD segment",
+                        {
+                            {0u, kContactDispatch},
+                            {1u, eventSourceRodNodes},
+                            {2u, eventSourceRodEdges},
+                            {3u, eventSourceRodWitnesses},
+                            {4u, candidateRodNodes},
+                            {5u, candidateRodEdges},
+                            {6u, kCandidateRodWitnesses},
+                            {7u, kContactStatuses},
+                            {8u, eventDestinationRodNodes},
+                            {9u, eventDestinationRodEdges},
+                            {10u, eventDestinationRodWitnesses},
+                        },
+                        nullptr,
+                        0u,
+                        environmentCount
+                    )
                 )) {
                 return false;
             }
@@ -9144,6 +9459,18 @@ bool encodeHybridContactSubstep(
             std::swap(
                 eventSourceCounts,
                 eventDestinationCounts
+            );
+            std::swap(
+                eventSourceRodNodes,
+                eventDestinationRodNodes
+            );
+            std::swap(
+                eventSourceRodEdges,
+                eventDestinationRodEdges
+            );
+            std::swap(
+                eventSourceRodWitnesses,
+                eventDestinationRodWitnesses
             );
             std::swap(eventStateIn, eventStateOut);
         }
@@ -11956,6 +12283,12 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                             "narrowphase"
                         );
                     }
+                    const bool enablePairCCD =
+                        program.collision.enableCCD &&
+                        (
+                            rigid.flags &
+                            MR_SHAPE_FLAG_ENABLE_CCD
+                        ) != 0u;
                     staged.rodToolPairs_.push_back({
                         .rodCollider = edgeOffset + edge,
                         .rigidCollider = rigidCollider,
@@ -11963,17 +12296,14 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                         .flags =
                             MR_ROD_TOOL_PAIR_VALID |
                             (
-                                program.collision.enableCCD &&
-                                    (rigid.flags &
-                                     MR_SHAPE_FLAG_ENABLE_CCD) !=
-                                        0u
+                                enablePairCCD
                                 ? MR_ROD_TOOL_PAIR_ENABLE_CCD
                                 : 0u
                             ),
                     });
                     ++rodPairCount;
                     rodCCDPairCount +=
-                        program.collision.enableCCD ? 1u : 0u;
+                        enablePairCCD ? 1u : 0u;
                     rodHardPairCount +=
                         pairClass == MR_COLLISION_PAIR_CONVEX
                         ? 1u
@@ -12050,6 +12380,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         std::uint32_t requiredRodOperatorElements = 0u;
         std::uint32_t requiredRodNodes = 0u;
         std::uint32_t requiredRodComponents = 0u;
+        std::uint32_t requiredRodCCDPairs = 0u;
         if (!checkedU32(
                 rodPairCount,
                 "rod pair count",
@@ -12094,6 +12425,11 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 world.rods.size(),
                 "rod dynamic-node count",
                 requiredRodComponents
+            ) ||
+            !checkedU32(
+                rodCCDPairCount,
+                "rod CCD pair count",
+                requiredRodCCDPairs
             )) {
             return diagnostics;
         }
@@ -12239,6 +12575,22 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 staged.capacities_.operatorVelocityElements,
                 staged.minimumCapacities_
                     .operatorVelocityElements
+            ) ||
+            !addCapacity(
+                "CCD candidate capacity",
+                requestedCapacities.ccdCandidates,
+                staged.minimumCapacities_.ccdCandidates,
+                requiredRodCCDPairs,
+                staged.capacities_.ccdCandidates,
+                staged.minimumCapacities_.ccdCandidates
+            ) ||
+            !addCapacity(
+                "CCD event capacity",
+                requestedCapacities.ccdEvents,
+                staged.minimumCapacities_.ccdEvents,
+                requiredRodCCDPairs,
+                staged.capacities_.ccdEvents,
+                staged.minimumCapacities_.ccdEvents
             )) {
             return diagnostics;
         }
@@ -12256,7 +12608,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             : requestedCapacities.rodManifolds;
         staged.capacities_.rodCCDEvents =
             requestedCapacities.rodCCDEvents == 0u
-            ? static_cast<std::uint32_t>(rodCCDPairCount)
+            ? requiredRodCCDPairs
             : requestedCapacities.rodCCDEvents;
         staged.minimumCapacities_.rodCandidatePairs =
             requiredRodPairs;
@@ -12265,7 +12617,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         staged.minimumCapacities_.rodManifolds =
             requiredRodPairs;
         staged.minimumCapacities_.rodCCDEvents =
-            static_cast<std::uint32_t>(rodCCDPairCount);
+            requiredRodCCDPairs;
         if (staged.capacities_.rodCandidatePairs <
                 requiredRodPairs ||
             staged.capacities_.rodRawContacts <
@@ -13039,26 +13391,32 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                         );
                     const bool encodedRod =
                         encodedABA &&
-                        encodeRodSubstep(
-                            *selectedState,
-                            commandBuffer,
-                            pass,
-                            world,
-                            sourceRodNodes,
-                            sourceRodEdges,
-                            destinationRodNodes,
-                            destinationRodEdges,
-                            batch.environmentCount
+                        (
+                            useHybridContact ||
+                            encodeRodSubstep(
+                                *selectedState,
+                                commandBuffer,
+                                pass,
+                                world,
+                                sourceRodNodes,
+                                sourceRodEdges,
+                                destinationRodNodes,
+                                destinationRodEdges,
+                                kCCDEventStatesA,
+                                MR_CCD_SEGMENT_FULL_MICROSTEP,
+                                batch.environmentCount
+                            )
                         );
                     const bool encodedPublication =
                         encodedRod &&
                         (
                         useHybridContact
-                        ? encodeHybridContactSubstep(
-                              *selectedState,
-                              commandBuffer,
-                              selectedABAPipeline,
-                              pass,
+	                        ? encodeHybridContactSubstep(
+	                              *selectedState,
+	                              commandBuffer,
+	                              selectedABAPipeline,
+	                              world,
+	                              pass,
                               physicsSubstep + 1u ==
                                   config.physicsSubsteps,
                               sourceQ,
@@ -13070,9 +13428,17 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                               sourceManifoldHeaders,
                               sourceManifoldPoints,
                               sourceManifoldCounts,
-                              destinationManifoldHeaders,
-                              destinationManifoldPoints,
-                              destinationManifoldCounts,
+	                              destinationManifoldHeaders,
+	                              destinationManifoldPoints,
+	                              destinationManifoldCounts,
+	                              sourceRodNodes,
+	                              sourceRodEdges,
+	                              destinationRodNodes,
+	                              destinationRodEdges,
+	                              physicsSubstep == 0u
+	                                  ? kCheckpointRodWitnesses
+	                                  : sourceRodWitnesses,
+	                              rodWitnessCount,
                               config.solverMode ==
                                   MetalWorldSolverMode::
                                       throughputTGS,
