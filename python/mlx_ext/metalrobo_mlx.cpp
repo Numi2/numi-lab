@@ -85,6 +85,14 @@ enum GeneralizedImmutableBufferIndex : std::size_t {
     kGeneralizedJacobian = 7u,
     kGeneralizedInverseDispatches = 8u,
     kGeneralizedRhs = 9u,
+    kGeneralizedScheduleArticulations = 10u,
+    kGeneralizedScheduleLevels = 11u,
+    kGeneralizedScheduleReductions = 12u,
+    kGeneralizedScheduleLevelBodies = 13u,
+    kGeneralizedScheduleParents = 14u,
+    kGeneralizedScheduleInboundJoints = 15u,
+    kGeneralizedScheduleChildOffsets = 16u,
+    kGeneralizedScheduleChildIndices = 17u,
 };
 
 std::string currentBinaryDirectory() {
@@ -837,6 +845,8 @@ MLXCompiledMultiArticulatedProgram::resources(
         program_,
         environmentCapacity_
     );
+    const ParallelABASchedule& schedule =
+        program_.abaSchedule();
     MRJointDescriptorGPU emptyJoint{};
 
     auto staged =
@@ -846,7 +856,7 @@ MLXCompiledMultiArticulatedProgram::resources(
         static_cast<std::uint32_t>(
             inverseDispatches.size()
         );
-    staged->buffers.reserve(10u);
+    staged->buffers.reserve(18u);
     staged->buffers.push_back(
         immutableBuffer(&model.world, 1u)
     );
@@ -888,11 +898,43 @@ MLXCompiledMultiArticulatedProgram::resources(
         rhs.data(),
         rhs.size()
     ));
+    staged->buffers.push_back(immutableBuffer(
+        schedule.articulations.data(),
+        schedule.articulations.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        schedule.levels.data(),
+        schedule.levels.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        schedule.parentReductions.data(),
+        schedule.parentReductions.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        schedule.levelBodies.data(),
+        schedule.levelBodies.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        schedule.parentLocal.data(),
+        schedule.parentLocal.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        schedule.inboundJoint.data(),
+        schedule.inboundJoint.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        schedule.childOffsets.data(),
+        schedule.childOffsets.size()
+    ));
+    staged->buffers.push_back(immutableBuffer(
+        schedule.childIndices.data(),
+        schedule.childIndices.size()
+    ));
 
     auto* physicsLibrary =
         device.get_library("MetalRobo", metallibPath_);
     staged->inverseKernel = device.get_kernel(
-        "mr_multi_articulated_inverse_mass",
+        "mr_parallel_multi_articulated_inverse_mass",
         physicsLibrary
     );
     staged->delassusKernel = device.get_kernel(
@@ -2627,6 +2669,38 @@ void GeneralizedConstraintStepPrimitive::eval_gpu(
     );
     encoder.set_output_array(response, 8);
     encoder.set_output_array(inverseStatuses, 9);
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedScheduleArticulations),
+        10
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedScheduleLevels),
+        11
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedScheduleReductions),
+        12
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedScheduleLevelBodies),
+        13
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedScheduleParents),
+        14
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedScheduleInboundJoints),
+        15
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedScheduleChildOffsets),
+        16
+    );
+    encoder.set_buffer(
+        resources.buffer(kGeneralizedScheduleChildIndices),
+        17
+    );
     encoder.dispatch_threadgroups(
         MTL::Size(
             environments,

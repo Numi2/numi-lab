@@ -303,6 +303,9 @@ int main() {
             submittedStats.pipelineCreationCount == 3u &&
                 submittedStats.immutableUploadCount == 1u &&
                 submittedStats.submissionCount == 1u &&
+                submittedStats.parallelABAFrontierCount ==
+                    program.abaSchedule().levels.size() &&
+                submittedStats.maximumABAFrontierWidth > 1u &&
                 submittedStats.hasInFlightSubmission &&
                 submittedStats.retainedBufferBytes > 0u,
             "persistent context did not retain its device program"
@@ -503,6 +506,8 @@ int main() {
             << " plan_fingerprint=" << programFingerprint
             << " aba_levels="
             << program.abaSchedule().levels.size()
+            << " max_aba_frontier_width="
+            << replayStats.maximumABAFrontierWidth
             << " row_chunks="
             << program.rowChunkOffsets().size()
             << " retained_bytes="

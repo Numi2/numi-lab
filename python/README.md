@@ -138,9 +138,11 @@ next_v, impulses, status = mx.compile(
 
 The cooked ABA topology, generalized Jacobian, row chunks, inverse-mass
 packets, and repeated right-hand sides are immutable device resources.
-Failure is isolated per environment: velocity rolls back to the explicit
-input, impulses are zero, and the typed status remains visible. Supported
-compositions are `dual_psm` and `dual_psm_g1`.
+Inverse-ABA factorization and application use SIMD32 level frontiers with
+stable parent-owned sibling reductions; no dense generalized inverse is
+formed. Failure is isolated per environment: velocity rolls back to the
+explicit input, impulses are zero, and the typed status remains visible.
+Supported compositions are `dual_psm` and `dual_psm_g1`.
 
 ## MLX-native PPO
 

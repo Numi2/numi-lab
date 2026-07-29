@@ -80,8 +80,13 @@ prototype.
   Delassus assembly, residual-certified bounded solve, a persistent
   asynchronous standalone context, and a transactional MLX active-encoder
   primitive demonstrated on dual PSM plus G1
-- Replace the remaining lane-zero ABA body recursion with a level-parallel
-  batched tree implementation and multiple simultaneous right-hand sides
+- **Landed parallel inverse-ABA tranche:** SIMD32 forward/reverse frontiers,
+  stable parent-owned sibling reductions, shared factorization across RHS
+  packets, and identical standalone/MLX execution on branching dual-PSM-plus-
+  G1 worlds without a dense generalized inverse
+- Move the actuation/free-motion ABA step itself from lane-zero recursion onto
+  the cooked frontiers, then reuse its per-microstep factor cache across
+  actuation, generalized constraints, and contact response
 - Compile complete unilateral joint-limit warm starts and equality/loop
   constraints into shared ConstraintIR; finish self-collision exclusions,
   coupled stiction, and calibrated rolling/torsional patch blocks

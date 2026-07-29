@@ -1343,3 +1343,1279 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
     );
     statuses[statusIndex] = status;
 }
+
+#if MR_INVERSE_MASS_MULTI_ARTICULATION
+
+namespace {
+
+// All lanes call this at the same program point. The lowest lane wins, which
+// makes failures deterministic without atomics even when several sibling
+// bodies reject the same frontier.
+inline bool collectParallelInverseMassFailure(
+    threadgroup uint* laneCodes,
+    threadgroup uint* laneIndices,
+    threadgroup uint* selectedCode,
+    threadgroup uint* selectedIndex,
+    const uint lane
+) {
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        *selectedCode = MR_INVERSE_MASS_SUCCESS;
+        *selectedIndex = MR_INVALID_INDEX;
+        for (uint candidate = 0u; candidate < 32u; ++candidate) {
+            if (laneCodes[candidate] !=
+                    MR_INVERSE_MASS_SUCCESS) {
+                *selectedCode = laneCodes[candidate];
+                *selectedIndex = laneIndices[candidate];
+                break;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    return *selectedCode != MR_INVERSE_MASS_SUCCESS;
+}
+
+inline void clearParallelInverseMassFailure(
+    threadgroup uint* laneCodes,
+    threadgroup uint* laneIndices,
+    const uint lane
+) {
+    laneCodes[lane] = MR_INVERSE_MASS_SUCCESS;
+    laneIndices[lane] = MR_INVALID_INDEX;
+}
+
+} // namespace
+
+// Schedule-driven block-diagonal ABA inverse application. One SIMD32
+// threadgroup owns one articulation/environment packet. A lane owns one body
+// in each frontier; reverse frontiers emit disjoint child contributions and
+// parent-owned stable reductions combine siblings without floating atomics.
+// RHS vectors share the factorization and run through the same level graph.
+kernel void mr_parallel_multi_articulated_inverse_mass(
+    device const MRWorldGPU* worlds [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRJointDescriptorGPU* joints [[buffer(2)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(3)]],
+    device const MRBodyPropertiesGPU* bodies [[buffer(4)]],
+    device const MRMultiInverseMassDispatchGPU* dispatches [[buffer(5)]],
+    device const float* q [[buffer(6)]],
+    device const float* rightHandSides [[buffer(7)]],
+    device float* output [[buffer(8)]],
+    device MRInverseMassStatusGPU* statuses [[buffer(9)]],
+    device const MRParallelABAArticulationGPU*
+        scheduleArticulations [[buffer(10)]],
+    device const MRParallelABALevelGPU* scheduleLevels [[buffer(11)]],
+    device const MRParallelABAParentReductionGPU*
+        parentReductions [[buffer(12)]],
+    device const uint* levelBodies [[buffer(13)]],
+    device const uint* scheduleParentLocal [[buffer(14)]],
+    device const uint* scheduleInboundJoint [[buffer(15)]],
+    device const uint* childOffsets [[buffer(16)]],
+    device const uint* childIndices [[buffer(17)]],
+    uint2 packet [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint environment = packet.x;
+    const MRMultiInverseMassDispatchGPU work =
+        dispatches[packet.y];
+    const MRInverseMassDispatchGPU dispatch = work.dispatch;
+    const uint statusIndex = work.statusBase + environment;
+
+    threadgroup float3 bodyPosition[kMaxBodies];
+    threadgroup float4 bodyRotation[kMaxBodies];
+    threadgroup float3 motionAngular[kMaxBodies];
+    threadgroup float3 motionLinear[kMaxBodies];
+    threadgroup float3 parentToBody[kMaxBodies];
+    threadgroup float articulatedInertia[kMaxBodies * 36u];
+    threadgroup float childInertia[kMaxBodies * 36u];
+    threadgroup float projectedInertia[kMaxBodies * 6u];
+    threadgroup float jointDenominator[kMaxBodies];
+    threadgroup float articulatedBias[kMaxBodies * 6u];
+    threadgroup float childBias[kMaxBodies * 6u];
+    threadgroup float jointResidual[kMaxBodies];
+    threadgroup float3 accelerationAngular[kMaxBodies];
+    threadgroup float3 accelerationLinear[kMaxBodies];
+    threadgroup float candidateOutput[kMaxRhs * kMaxDofs];
+    threadgroup float rootFactor[36u];
+    threadgroup float rootIntermediate[6u];
+    threadgroup float maximumInputShared;
+    threadgroup float minimumPivotShared;
+    threadgroup float maximumPivotShared;
+    threadgroup uint laneFailureCodes[32u];
+    threadgroup uint laneFailureIndices[32u];
+    threadgroup uint selectedFailureCode;
+    threadgroup uint selectedFailureIndex;
+
+    MRInverseMassStatusGPU status = {};
+    status.code = MR_INVERSE_MASS_SUCCESS;
+    status.environment = environment;
+    status.articulationIndex = dispatch.articulationIndex;
+    status.failingIndex = MR_INVALID_INDEX;
+    status.rhsCount = dispatch.rhsCount;
+
+    clearParallelInverseMassFailure(
+        laneFailureCodes,
+        laneFailureIndices,
+        lane
+    );
+    if (lane == 0u) {
+        const MRWorldGPU world = worlds[0];
+        if (environment >= dispatch.environmentCount ||
+            work.reserved0 != 0u ||
+            work.reserved1 != 0u ||
+            work.reserved2 != 0u ||
+            work.reserved3 != 0u ||
+            world.abiVersion != MR_ENGINE_ABI_VERSION ||
+            dispatch.articulationIndex >=
+                world.articulationCount ||
+            dispatch.environmentCount == 0u ||
+            dispatch.rhsCount == 0u ||
+            dispatch.rhsCount > kMaxRhs ||
+            dispatch.reserved0 != 0u ||
+            dispatch.reserved1 != 0u ||
+            dispatch.reserved2 != 0u ||
+            dispatch.reserved3 != 0u) {
+            laneFailureCodes[0] =
+                MR_INVERSE_MASS_INVALID_DISPATCH;
+        }
+    }
+    if (collectParallelInverseMassFailure(
+            laneFailureCodes,
+            laneFailureIndices,
+            &selectedFailureCode,
+            &selectedFailureIndex,
+            lane
+        )) {
+        if (lane == 0u && environment < dispatch.environmentCount) {
+            status.code = selectedFailureCode;
+            status.failingIndex = selectedFailureIndex;
+            statuses[statusIndex] = status;
+        }
+        return;
+    }
+
+    const MRWorldGPU world = worlds[0];
+    const MRArticulationGPU articulation =
+        articulations[dispatch.articulationIndex];
+    const MRParallelABAArticulationGPU schedule =
+        scheduleArticulations[dispatch.articulationIndex];
+    status.bodyCount = articulation.bodyCount;
+    status.nq = articulation.nq;
+    status.nv = articulation.nv;
+    clearParallelInverseMassFailure(
+        laneFailureCodes,
+        laneFailureIndices,
+        lane
+    );
+    if (lane == 0u &&
+        ((articulation.rootType != MR_ROOT_FIXED &&
+          articulation.rootType != MR_ROOT_FLOATING) ||
+         articulation.bodyCount == 0u ||
+         articulation.bodyCount > kMaxBodies ||
+         articulation.nv == 0u ||
+         articulation.nv > kMaxDofs ||
+         articulation.nq > kMaxQ ||
+         articulation.firstBody > world.bodyCount ||
+         articulation.bodyCount >
+            world.bodyCount - articulation.firstBody ||
+         articulation.firstJoint > world.jointCount ||
+         articulation.jointCount >
+            world.jointCount - articulation.firstJoint ||
+         articulation.qOffset > world.nq ||
+         articulation.nq > world.nq - articulation.qOffset ||
+         articulation.vOffset > world.nv ||
+         articulation.nv > world.nv - articulation.vOffset ||
+         articulation.rootBody < articulation.firstBody ||
+         articulation.rootBody >=
+            articulation.firstBody + articulation.bodyCount ||
+         articulation.jointCount + 1u != articulation.bodyCount ||
+         dispatch.qStride < articulation.nq ||
+         !validVectorStrides(
+             dispatch.rhsVectorStride,
+             dispatch.rhsEnvironmentStride,
+             dispatch.rhsCount,
+             articulation.nv
+         ) ||
+         !validVectorStrides(
+             dispatch.outputVectorStride,
+             dispatch.outputEnvironmentStride,
+             dispatch.rhsCount,
+             articulation.nv
+         ) ||
+         schedule.abiVersion !=
+            MR_PARALLEL_ABA_SCHEDULE_ABI_VERSION ||
+         schedule.articulationIndex !=
+            dispatch.articulationIndex ||
+         schedule.bodyCount != articulation.bodyCount ||
+         schedule.jointCount != articulation.jointCount ||
+         schedule.rootLocalBody !=
+            articulation.rootBody - articulation.firstBody ||
+         schedule.forwardLevelCount == 0u ||
+         schedule.maximumLevelWidth == 0u ||
+         schedule.maximumLevelWidth > 32u ||
+         schedule.reverseLevelCount + 1u !=
+            schedule.forwardLevelCount)) {
+        laneFailureCodes[0] =
+            articulation.bodyCount > kMaxBodies ||
+                articulation.nv > kMaxDofs ||
+                articulation.nq > kMaxQ ||
+                schedule.maximumLevelWidth > 32u
+            ? MR_INVERSE_MASS_UNSUPPORTED_TOPOLOGY
+            : MR_INVERSE_MASS_INVALID_MODEL;
+    }
+    if (collectParallelInverseMassFailure(
+            laneFailureCodes,
+            laneFailureIndices,
+            &selectedFailureCode,
+            &selectedFailureIndex,
+            lane
+        )) {
+        if (lane == 0u) {
+            status.code = selectedFailureCode;
+            status.failingIndex = selectedFailureIndex;
+            statuses[statusIndex] = status;
+        }
+        return;
+    }
+
+    const uint rootLocal = schedule.rootLocalBody;
+    const uint qBase =
+        work.qBase + environment * dispatch.qStride;
+    device const float* environmentQ = q + qBase;
+    const uint rhsEnvironmentBase =
+        work.rhsBase +
+        environment * dispatch.rhsEnvironmentStride;
+
+    clearParallelInverseMassFailure(
+        laneFailureCodes,
+        laneFailureIndices,
+        lane
+    );
+    float laneMaximumInput = 0.0f;
+    for (uint localQ = lane;
+         localQ < articulation.nq;
+         localQ += 32u) {
+        const float value = environmentQ[localQ];
+        if (!isfinite(value)) {
+            laneFailureCodes[lane] =
+                MR_INVERSE_MASS_NONFINITE_INPUT;
+            laneFailureIndices[lane] = localQ;
+            break;
+        }
+    }
+    for (uint flat = lane;
+         flat < dispatch.rhsCount * articulation.nv;
+         flat += 32u) {
+        const uint rhsIndex = flat / articulation.nv;
+        const uint localV = flat - rhsIndex * articulation.nv;
+        const float value = rightHandSides[
+            rhsEnvironmentBase +
+            rhsIndex * dispatch.rhsVectorStride +
+            localV
+        ];
+        if (!isfinite(value) &&
+            laneFailureCodes[lane] ==
+                MR_INVERSE_MASS_SUCCESS) {
+            laneFailureCodes[lane] =
+                MR_INVERSE_MASS_NONFINITE_INPUT;
+            laneFailureIndices[lane] = flat;
+        }
+        laneMaximumInput = max(laneMaximumInput, abs(value));
+    }
+    const float maximumInput = simd_max(laneMaximumInput);
+    if (lane == 0u) {
+        maximumInputShared = maximumInput;
+    }
+    if (collectParallelInverseMassFailure(
+            laneFailureCodes,
+            laneFailureIndices,
+            &selectedFailureCode,
+            &selectedFailureIndex,
+            lane
+        )) {
+        if (lane == 0u) {
+            status.code = selectedFailureCode;
+            status.failingIndex = selectedFailureIndex;
+            statuses[statusIndex] = status;
+        }
+        return;
+    }
+
+    // Parent-complete forward frontiers.
+    for (uint forwardLevel = 0u;
+         forwardLevel < schedule.forwardLevelCount;
+         ++forwardLevel) {
+        const MRParallelABALevelGPU level = scheduleLevels[
+            schedule.forwardLevelOffset + forwardLevel
+        ];
+        clearParallelInverseMassFailure(
+            laneFailureCodes,
+            laneFailureIndices,
+            lane
+        );
+        if (lane < level.bodyCount) {
+            const uint localBody =
+                levelBodies[level.bodyOffset + lane];
+            if (forwardLevel == 0u) {
+                if (localBody != rootLocal ||
+                    level.bodyCount != 1u) {
+                    laneFailureCodes[lane] =
+                        MR_INVERSE_MASS_INVALID_MODEL;
+                    laneFailureIndices[lane] = localBody;
+                } else if (
+                    articulation.rootType == MR_ROOT_FLOATING) {
+                    float4 checkedRootRotation;
+                    if (!finite3(float3(
+                            environmentQ[0],
+                            environmentQ[1],
+                            environmentQ[2]
+                        )) ||
+                        !normalizedQuaternion(
+                            float4(
+                                environmentQ[3],
+                                environmentQ[4],
+                                environmentQ[5],
+                                environmentQ[6]
+                            ),
+                            checkedRootRotation,
+                            true
+                        )) {
+                        laneFailureCodes[lane] =
+                            MR_INVERSE_MASS_INVALID_QUATERNION;
+                        laneFailureIndices[lane] = 0u;
+                    } else {
+                        bodyPosition[localBody] = float3(
+                            environmentQ[0],
+                            environmentQ[1],
+                            environmentQ[2]
+                        );
+                        bodyRotation[localBody] =
+                            checkedRootRotation;
+                    }
+                } else {
+                    bodyPosition[localBody] = float3(0.0f);
+                    bodyRotation[localBody] =
+                        float4(0.0f, 0.0f, 0.0f, 1.0f);
+                }
+                parentToBody[localBody] = float3(0.0f);
+                motionAngular[localBody] = float3(0.0f);
+                motionLinear[localBody] = float3(0.0f);
+            } else {
+                const uint globalJoint = scheduleInboundJoint[
+                    schedule.inboundJointOffset + localBody
+                ];
+                const uint localParent = scheduleParentLocal[
+                    schedule.parentLocalOffset + localBody
+                ];
+                const MRJointDescriptorGPU joint =
+                    joints[globalJoint];
+                float4 parentJointRotation;
+                float4 childJointRotation;
+                if (globalJoint == MR_INVALID_INDEX ||
+                    localParent >= articulation.bodyCount ||
+                    !normalizedQuaternion(
+                        joint.parentRotation,
+                        parentJointRotation,
+                        true
+                    ) ||
+                    !normalizedQuaternion(
+                        joint.childRotation,
+                        childJointRotation,
+                        true
+                    )) {
+                    laneFailureCodes[lane] =
+                        MR_INVERSE_MASS_INVALID_MODEL;
+                    laneFailureIndices[lane] = globalJoint;
+                } else {
+                    const float4 parentToJointRotation =
+                        quaternionMultiply(
+                            bodyRotation[localParent],
+                            parentJointRotation
+                        );
+                    float3 axisInJoint =
+                        float3(1.0f, 0.0f, 0.0f);
+                    float4 motionRotation =
+                        float4(0.0f, 0.0f, 0.0f, 1.0f);
+                    float jointCoordinate = 0.0f;
+                    if (joint.nv == 1u) {
+                        const float axisNormSquared =
+                            dot(joint.axis0.xyz, joint.axis0.xyz);
+                        if (!finite4(joint.axis0) ||
+                            !(axisNormSquared >
+                                kQuaternionMinimum)) {
+                            laneFailureCodes[lane] =
+                                MR_INVERSE_MASS_INVALID_MODEL;
+                            laneFailureIndices[lane] =
+                                globalJoint;
+                        } else {
+                            axisInJoint =
+                                joint.axis0.xyz /
+                                sqrt(axisNormSquared);
+                            jointCoordinate = environmentQ[
+                                joint.qOffset -
+                                    articulation.qOffset
+                            ];
+                            if (joint.jointType ==
+                                    MR_JOINT_REVOLUTE ||
+                                joint.jointType ==
+                                    MR_JOINT_CONTINUOUS) {
+                                motionRotation =
+                                    axisAngleQuaternion(
+                                        axisInJoint,
+                                        jointCoordinate
+                                    );
+                            }
+                        }
+                    }
+                    if (laneFailureCodes[lane] ==
+                            MR_INVERSE_MASS_SUCCESS) {
+                        float4 checkedChildRotation;
+                        if (!normalizedQuaternion(
+                                quaternionMultiply(
+                                    quaternionMultiply(
+                                        parentToJointRotation,
+                                        motionRotation
+                                    ),
+                                    quaternionConjugate(
+                                        childJointRotation
+                                    )
+                                ),
+                                checkedChildRotation,
+                                false
+                            )) {
+                            laneFailureCodes[lane] =
+                                MR_INVERSE_MASS_NONFINITE_RESULT;
+                            laneFailureIndices[lane] =
+                                articulation.firstBody +
+                                    localBody;
+                        } else {
+                            bodyRotation[localBody] =
+                                checkedChildRotation;
+                            const float3 jointAxis =
+                                quaternionRotate(
+                                    parentToJointRotation,
+                                    axisInJoint
+                                );
+                            const bool prismatic =
+                                joint.jointType ==
+                                    MR_JOINT_PRISMATIC;
+                            const float3 jointPosition =
+                                bodyPosition[localParent] +
+                                quaternionRotate(
+                                    bodyRotation[localParent],
+                                    joint.parentAnchor.xyz
+                                ) +
+                                (prismatic
+                                    ? jointAxis *
+                                        jointCoordinate
+                                    : float3(0.0f));
+                            const float3 childAnchor =
+                                quaternionRotate(
+                                    bodyRotation[localBody],
+                                    joint.childAnchor.xyz
+                                );
+                            bodyPosition[localBody] =
+                                jointPosition - childAnchor;
+                            parentToBody[localBody] =
+                                bodyPosition[localBody] -
+                                bodyPosition[localParent];
+                            motionAngular[localBody] =
+                                joint.nv == 1u && !prismatic
+                                ? jointAxis
+                                : float3(0.0f);
+                            motionLinear[localBody] =
+                                prismatic
+                                ? jointAxis
+                                : (joint.nv == 1u
+                                    ? -cross(
+                                        jointAxis,
+                                        childAnchor
+                                    )
+                                    : float3(0.0f));
+                            if (!finite3(
+                                    bodyPosition[localBody]
+                                ) ||
+                                !finite4(
+                                    bodyRotation[localBody]
+                                ) ||
+                                !finite3(
+                                    motionAngular[localBody]
+                                ) ||
+                                !finite3(
+                                    motionLinear[localBody]
+                                )) {
+                                laneFailureCodes[lane] =
+                                    MR_INVERSE_MASS_NONFINITE_RESULT;
+                                laneFailureIndices[lane] =
+                                    articulation.firstBody +
+                                        localBody;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (collectParallelInverseMassFailure(
+                laneFailureCodes,
+                laneFailureIndices,
+                &selectedFailureCode,
+                &selectedFailureIndex,
+                lane
+            )) {
+            if (lane == 0u) {
+                status.code = selectedFailureCode;
+                status.failingIndex = selectedFailureIndex;
+                statuses[statusIndex] = status;
+            }
+            return;
+        }
+    }
+
+    // Every lane initializes one body-local spatial inertia.
+    clearParallelInverseMassFailure(
+        laneFailureCodes,
+        laneFailureIndices,
+        lane
+    );
+    if (lane < articulation.bodyCount) {
+        const uint localBody = lane;
+        const uint globalBody =
+            articulation.firstBody + localBody;
+        device const MRBodyPropertiesGPU& body =
+            bodies[globalBody];
+        const uint expectedParent =
+            localBody == rootLocal
+            ? MR_INVALID_INDEX
+            : joints[scheduleInboundJoint[
+                schedule.inboundJointOffset + localBody
+            ]].parentBody;
+        const uint expectedInbound =
+            localBody == rootLocal
+            ? MR_INVALID_INDEX
+            : scheduleInboundJoint[
+                schedule.inboundJointOffset + localBody
+            ];
+        if (body.articulationIndex !=
+                dispatch.articulationIndex ||
+            body.parentBody != expectedParent ||
+            body.inboundJoint != expectedInbound ||
+            body.motionType != MR_MOTION_DYNAMIC ||
+            !(body.massAndInverseMass.x > 0.0f) ||
+            !finite4(body.massAndInverseMass) ||
+            !finite4(body.inertiaRow0) ||
+            !finite4(body.inertiaRow1) ||
+            !finite4(body.inertiaRow2)) {
+            laneFailureCodes[lane] =
+                MR_INVERSE_MASS_INVALID_MODEL;
+            laneFailureIndices[lane] = globalBody;
+        } else {
+            const uint matrixBase = localBody * 36u;
+            for (uint entry = 0u; entry < 36u; ++entry) {
+                articulatedInertia[matrixBase + entry] = 0.0f;
+                childInertia[matrixBase + entry] = 0.0f;
+            }
+            const float3 rotationColumn0 = quaternionRotate(
+                bodyRotation[localBody],
+                float3(1.0f, 0.0f, 0.0f)
+            );
+            const float3 rotationColumn1 = quaternionRotate(
+                bodyRotation[localBody],
+                float3(0.0f, 1.0f, 0.0f)
+            );
+            const float3 rotationColumn2 = quaternionRotate(
+                bodyRotation[localBody],
+                float3(0.0f, 0.0f, 1.0f)
+            );
+            for (uint row = 0u; row < 3u; ++row) {
+                for (uint column = 0u;
+                     column < 3u;
+                     ++column) {
+                    articulatedInertia[
+                        matrixBase + row * 6u + column
+                    ] = worldInertiaElement(
+                        body,
+                        rotationColumn0,
+                        rotationColumn1,
+                        rotationColumn2,
+                        row,
+                        column
+                    );
+                }
+                articulatedInertia[
+                    matrixBase +
+                    (3u + row) * 6u +
+                    (3u + row)
+                ] = body.massAndInverseMass.x;
+            }
+            jointDenominator[localBody] = 0.0f;
+        }
+    }
+    if (collectParallelInverseMassFailure(
+            laneFailureCodes,
+            laneFailureIndices,
+            &selectedFailureCode,
+            &selectedFailureIndex,
+            lane
+        )) {
+        if (lane == 0u) {
+            status.code = selectedFailureCode;
+            status.failingIndex = selectedFailureIndex;
+            statuses[statusIndex] = status;
+        }
+        return;
+    }
+    if (lane == 0u &&
+        articulation.rootType == MR_ROOT_FLOATING) {
+        const uint rootMatrixBase = rootLocal * 36u;
+        for (uint axis = 0u; axis < 3u; ++axis) {
+            articulatedInertia[
+                rootMatrixBase +
+                (3u + axis) * 6u +
+                (3u + axis)
+            ] += dofs[articulation.vOffset + axis].drive.z;
+            articulatedInertia[
+                rootMatrixBase + axis * 6u + axis
+            ] += dofs[
+                articulation.vOffset + 3u + axis
+            ].drive.z;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    float laneMinimumPivot = INFINITY;
+    float laneMaximumPivot = 0.0f;
+    for (uint reverseLevel = 0u;
+         reverseLevel < schedule.reverseLevelCount;
+         ++reverseLevel) {
+        const MRParallelABALevelGPU level = scheduleLevels[
+            schedule.reverseLevelOffset + reverseLevel
+        ];
+        clearParallelInverseMassFailure(
+            laneFailureCodes,
+            laneFailureIndices,
+            lane
+        );
+        if (lane < level.bodyCount) {
+            const uint localBody =
+                levelBodies[level.bodyOffset + lane];
+            const uint globalJoint = scheduleInboundJoint[
+                schedule.inboundJointOffset + localBody
+            ];
+            const MRJointDescriptorGPU joint =
+                joints[globalJoint];
+            const uint matrixBase = localBody * 36u;
+            if (joint.nv == 1u) {
+                float3 projectedAngular = float3(0.0f);
+                float3 projectedLinear = float3(0.0f);
+                for (uint row = 0u; row < 6u; ++row) {
+                    float value = 0.0f;
+                    for (uint column = 0u;
+                         column < 6u;
+                         ++column) {
+                        value += articulatedInertia[
+                            matrixBase + row * 6u + column
+                        ] * spatialComponent(
+                            motionAngular[localBody],
+                            motionLinear[localBody],
+                            column
+                        );
+                    }
+                    projectedInertia[
+                        localBody * 6u + row
+                    ] = value;
+                    setSpatialComponent(
+                        projectedAngular,
+                        projectedLinear,
+                        row,
+                        value
+                    );
+                }
+                const uint localV =
+                    joint.vOffset - articulation.vOffset;
+                const float denominator =
+                    dot(
+                        motionAngular[localBody],
+                        projectedAngular
+                    ) +
+                    dot(
+                        motionLinear[localBody],
+                        projectedLinear
+                    ) +
+                    dofs[
+                        articulation.vOffset + localV
+                    ].drive.z;
+                float maximumInertia = 0.0f;
+                for (uint entry = 0u; entry < 36u; ++entry) {
+                    maximumInertia = max(
+                        maximumInertia,
+                        abs(articulatedInertia[
+                            matrixBase + entry
+                        ])
+                    );
+                }
+                const float pivotFloor = max(
+                    kAbsolutePivotFloor,
+                    maximumInertia * 6.0f * kFloatEpsilon
+                );
+                if (!(denominator > pivotFloor) ||
+                    !isfinite(denominator)) {
+                    laneFailureCodes[lane] =
+                        MR_INVERSE_MASS_FACTORIZATION_FAILED;
+                    laneFailureIndices[lane] = localV;
+                } else {
+                    jointDenominator[localBody] = denominator;
+                    const float pivot = sqrt(denominator);
+                    laneMinimumPivot = min(
+                        laneMinimumPivot,
+                        pivot
+                    );
+                    laneMaximumPivot = max(
+                        laneMaximumPivot,
+                        pivot
+                    );
+                    for (uint row = 0u; row < 6u; ++row) {
+                        for (uint column = 0u;
+                             column < 6u;
+                             ++column) {
+                            articulatedInertia[
+                                matrixBase +
+                                row * 6u + column
+                            ] -= projectedInertia[
+                                localBody * 6u + row
+                            ] * projectedInertia[
+                                localBody * 6u + column
+                            ] / denominator;
+                        }
+                    }
+                }
+            } else if (joint.nv != 0u) {
+                laneFailureCodes[lane] =
+                    MR_INVERSE_MASS_UNSUPPORTED_TOPOLOGY;
+                laneFailureIndices[lane] = globalJoint;
+            }
+            if (laneFailureCodes[lane] ==
+                    MR_INVERSE_MASS_SUCCESS) {
+                const float3 offset =
+                    parentToBody[localBody];
+                for (uint row = 0u; row < 6u; ++row) {
+                    for (uint column = 0u;
+                         column < 6u;
+                         ++column) {
+                        float transformed = 0.0f;
+                        for (uint left = 0u;
+                             left < 6u;
+                             ++left) {
+                            const float leftTransform =
+                                motionTransformElement(
+                                    offset,
+                                    left,
+                                    row
+                                );
+                            if (leftTransform == 0.0f) {
+                                continue;
+                            }
+                            for (uint right = 0u;
+                                 right < 6u;
+                                 ++right) {
+                                transformed +=
+                                    leftTransform *
+                                    articulatedInertia[
+                                        matrixBase +
+                                        left * 6u + right
+                                    ] *
+                                    motionTransformElement(
+                                        offset,
+                                        right,
+                                        column
+                                    );
+                            }
+                        }
+                        childInertia[
+                            matrixBase +
+                            row * 6u + column
+                        ] = transformed;
+                    }
+                }
+            }
+        }
+        if (collectParallelInverseMassFailure(
+                laneFailureCodes,
+                laneFailureIndices,
+                &selectedFailureCode,
+                &selectedFailureIndex,
+                lane
+            )) {
+            if (lane == 0u) {
+                status.code = selectedFailureCode;
+                status.failingIndex = selectedFailureIndex;
+                statuses[statusIndex] = status;
+            }
+            return;
+        }
+
+        // Parent lanes own the reduction and visit children in cooked order.
+        if (lane < level.parentReductionCount) {
+            const MRParallelABAParentReductionGPU reduction =
+                parentReductions[
+                    level.parentReductionOffset + lane
+                ];
+            const uint parentMatrixBase =
+                reduction.parentLocalBody * 36u;
+            for (uint entry = 0u; entry < 36u; ++entry) {
+                float contribution = 0.0f;
+                for (uint childOrdinal = 0u;
+                     childOrdinal < reduction.childCount;
+                     ++childOrdinal) {
+                    const uint localChild = childIndices[
+                        reduction.firstChildIndex +
+                            childOrdinal
+                    ];
+                    contribution += childInertia[
+                        localChild * 36u + entry
+                    ];
+                }
+                articulatedInertia[
+                    parentMatrixBase + entry
+                ] += contribution;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+
+    float minimumPivot = simd_min(laneMinimumPivot);
+    float maximumPivot = simd_max(laneMaximumPivot);
+    clearParallelInverseMassFailure(
+        laneFailureCodes,
+        laneFailureIndices,
+        lane
+    );
+    if (lane == 0u) {
+        if (articulation.rootType == MR_ROOT_FLOATING) {
+            const uint rootMatrixBase = rootLocal * 36u;
+            float maximumRootInertia = 0.0f;
+            for (uint entry = 0u; entry < 36u; ++entry) {
+                maximumRootInertia = max(
+                    maximumRootInertia,
+                    abs(articulatedInertia[
+                        rootMatrixBase + entry
+                    ])
+                );
+                rootFactor[entry] = 0.0f;
+            }
+            const float pivotFloor = max(
+                kAbsolutePivotFloor,
+                maximumRootInertia * 6.0f * kFloatEpsilon
+            );
+            for (uint row = 0u; row < 6u; ++row) {
+                for (uint column = 0u;
+                     column <= row;
+                     ++column) {
+                    float value = articulatedInertia[
+                        rootMatrixBase + row * 6u + column
+                    ];
+                    for (uint inner = 0u;
+                         inner < column;
+                         ++inner) {
+                        value -=
+                            rootFactor[row * 6u + inner] *
+                            rootFactor[
+                                column * 6u + inner
+                            ];
+                    }
+                    if (row == column) {
+                        if (!(value > pivotFloor) ||
+                            !isfinite(value)) {
+                            laneFailureCodes[0] =
+                                MR_INVERSE_MASS_FACTORIZATION_FAILED;
+                            laneFailureIndices[0] = row;
+                            break;
+                        }
+                        const float pivot = sqrt(value);
+                        rootFactor[row * 6u + row] = pivot;
+                        minimumPivot = min(
+                            minimumPivot,
+                            pivot
+                        );
+                        maximumPivot = max(
+                            maximumPivot,
+                            pivot
+                        );
+                    } else {
+                        rootFactor[row * 6u + column] =
+                            value /
+                            rootFactor[
+                                column * 6u + column
+                            ];
+                    }
+                }
+                if (laneFailureCodes[0] !=
+                        MR_INVERSE_MASS_SUCCESS) {
+                    break;
+                }
+            }
+        }
+        minimumPivotShared = minimumPivot;
+        maximumPivotShared = maximumPivot;
+    }
+    if (collectParallelInverseMassFailure(
+            laneFailureCodes,
+            laneFailureIndices,
+            &selectedFailureCode,
+            &selectedFailureIndex,
+            lane
+        )) {
+        if (lane == 0u) {
+            status.code = selectedFailureCode;
+            status.failingIndex = selectedFailureIndex;
+            statuses[statusIndex] = status;
+        }
+        return;
+    }
+
+    for (uint rhsIndex = 0u;
+         rhsIndex < dispatch.rhsCount;
+         ++rhsIndex) {
+        const uint rhsBase =
+            rhsEnvironmentBase +
+            rhsIndex * dispatch.rhsVectorStride;
+        if (lane < articulation.bodyCount) {
+            const uint biasBase = lane * 6u;
+            for (uint component = 0u;
+                 component < 6u;
+                 ++component) {
+                articulatedBias[biasBase + component] = 0.0f;
+                childBias[biasBase + component] = 0.0f;
+            }
+            jointResidual[lane] = 0.0f;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u &&
+            articulation.rootType == MR_ROOT_FLOATING) {
+            for (uint axis = 0u; axis < 3u; ++axis) {
+                articulatedBias[
+                    rootLocal * 6u + axis
+                ] = -rightHandSides[rhsBase + 3u + axis];
+                articulatedBias[
+                    rootLocal * 6u + 3u + axis
+                ] = -rightHandSides[rhsBase + axis];
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+
+        for (uint reverseLevel = 0u;
+             reverseLevel < schedule.reverseLevelCount;
+             ++reverseLevel) {
+            const MRParallelABALevelGPU level = scheduleLevels[
+                schedule.reverseLevelOffset + reverseLevel
+            ];
+            if (lane < level.bodyCount) {
+                const uint localBody =
+                    levelBodies[level.bodyOffset + lane];
+                const uint globalJoint = scheduleInboundJoint[
+                    schedule.inboundJointOffset + localBody
+                ];
+                const MRJointDescriptorGPU joint =
+                    joints[globalJoint];
+                float3 propagatedTorque = float3(
+                    articulatedBias[
+                        localBody * 6u + 0u
+                    ],
+                    articulatedBias[
+                        localBody * 6u + 1u
+                    ],
+                    articulatedBias[
+                        localBody * 6u + 2u
+                    ]
+                );
+                float3 propagatedForce = float3(
+                    articulatedBias[
+                        localBody * 6u + 3u
+                    ],
+                    articulatedBias[
+                        localBody * 6u + 4u
+                    ],
+                    articulatedBias[
+                        localBody * 6u + 5u
+                    ]
+                );
+                if (joint.nv == 1u) {
+                    const uint localV =
+                        joint.vOffset - articulation.vOffset;
+                    const float residual =
+                        rightHandSides[rhsBase + localV] -
+                        dot(
+                            motionAngular[localBody],
+                            propagatedTorque
+                        ) -
+                        dot(
+                            motionLinear[localBody],
+                            propagatedForce
+                        );
+                    jointResidual[localBody] = residual;
+                    for (uint component = 0u;
+                         component < 6u;
+                         ++component) {
+                        const float contribution =
+                            projectedInertia[
+                                localBody * 6u + component
+                            ] * residual /
+                            jointDenominator[localBody];
+                        if (component < 3u) {
+                            propagatedTorque[component] +=
+                                contribution;
+                        } else {
+                            propagatedForce[
+                                component - 3u
+                            ] += contribution;
+                        }
+                    }
+                }
+                propagatedTorque += cross(
+                    parentToBody[localBody],
+                    propagatedForce
+                );
+                for (uint component = 0u;
+                     component < 6u;
+                     ++component) {
+                    childBias[
+                        localBody * 6u + component
+                    ] = spatialComponent(
+                        propagatedTorque,
+                        propagatedForce,
+                        component
+                    );
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (lane < level.parentReductionCount) {
+                const MRParallelABAParentReductionGPU reduction =
+                    parentReductions[
+                        level.parentReductionOffset + lane
+                    ];
+                for (uint component = 0u;
+                     component < 6u;
+                     ++component) {
+                    float contribution = 0.0f;
+                    for (uint childOrdinal = 0u;
+                         childOrdinal < reduction.childCount;
+                         ++childOrdinal) {
+                        const uint localChild = childIndices[
+                            reduction.firstChildIndex +
+                                childOrdinal
+                        ];
+                        contribution += childBias[
+                            localChild * 6u + component
+                        ];
+                    }
+                    articulatedBias[
+                        reduction.parentLocalBody * 6u +
+                        component
+                    ] += contribution;
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+
+        if (lane == 0u) {
+            if (articulation.rootType == MR_ROOT_FLOATING) {
+                for (uint row = 0u; row < 6u; ++row) {
+                    float value = -articulatedBias[
+                        rootLocal * 6u + row
+                    ];
+                    for (uint column = 0u;
+                         column < row;
+                         ++column) {
+                        value -=
+                            rootFactor[row * 6u + column] *
+                            rootIntermediate[column];
+                    }
+                    rootIntermediate[row] =
+                        value /
+                        rootFactor[row * 6u + row];
+                }
+                float3 rootAngular = float3(0.0f);
+                float3 rootLinear = float3(0.0f);
+                for (uint reverse = 0u;
+                     reverse < 6u;
+                     ++reverse) {
+                    const uint row = 5u - reverse;
+                    float value = rootIntermediate[row];
+                    for (uint column = row + 1u;
+                         column < 6u;
+                         ++column) {
+                        value -=
+                            rootFactor[
+                                column * 6u + row
+                            ] *
+                            spatialComponent(
+                                rootAngular,
+                                rootLinear,
+                                column
+                            );
+                    }
+                    setSpatialComponent(
+                        rootAngular,
+                        rootLinear,
+                        row,
+                        value /
+                            rootFactor[row * 6u + row]
+                    );
+                }
+                accelerationAngular[rootLocal] = rootAngular;
+                accelerationLinear[rootLocal] = rootLinear;
+                candidateOutput[
+                    rhsIndex * kMaxDofs + 0u
+                ] = rootLinear.x;
+                candidateOutput[
+                    rhsIndex * kMaxDofs + 1u
+                ] = rootLinear.y;
+                candidateOutput[
+                    rhsIndex * kMaxDofs + 2u
+                ] = rootLinear.z;
+                candidateOutput[
+                    rhsIndex * kMaxDofs + 3u
+                ] = rootAngular.x;
+                candidateOutput[
+                    rhsIndex * kMaxDofs + 4u
+                ] = rootAngular.y;
+                candidateOutput[
+                    rhsIndex * kMaxDofs + 5u
+                ] = rootAngular.z;
+            } else {
+                accelerationAngular[rootLocal] =
+                    float3(0.0f);
+                accelerationLinear[rootLocal] =
+                    float3(0.0f);
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+
+        for (uint forwardLevel = 1u;
+             forwardLevel < schedule.forwardLevelCount;
+             ++forwardLevel) {
+            const MRParallelABALevelGPU level = scheduleLevels[
+                schedule.forwardLevelOffset + forwardLevel
+            ];
+            if (lane < level.bodyCount) {
+                const uint localBody =
+                    levelBodies[level.bodyOffset + lane];
+                const uint localParent = scheduleParentLocal[
+                    schedule.parentLocalOffset + localBody
+                ];
+                const uint globalJoint = scheduleInboundJoint[
+                    schedule.inboundJointOffset + localBody
+                ];
+                const MRJointDescriptorGPU joint =
+                    joints[globalJoint];
+                const float3 parentAngular =
+                    accelerationAngular[localParent];
+                const float3 parentLinear =
+                    accelerationLinear[localParent] +
+                    cross(
+                        accelerationAngular[localParent],
+                        parentToBody[localBody]
+                    );
+                float3 angular = parentAngular;
+                float3 linear = parentLinear;
+                if (joint.nv == 1u) {
+                    float projectedParent = 0.0f;
+                    for (uint component = 0u;
+                         component < 6u;
+                         ++component) {
+                        projectedParent += projectedInertia[
+                            localBody * 6u + component
+                        ] * spatialComponent(
+                            parentAngular,
+                            parentLinear,
+                            component
+                        );
+                    }
+                    const float jointAcceleration =
+                        (jointResidual[localBody] -
+                         projectedParent) /
+                        jointDenominator[localBody];
+                    const uint localV =
+                        joint.vOffset - articulation.vOffset;
+                    candidateOutput[
+                        rhsIndex * kMaxDofs + localV
+                    ] = jointAcceleration;
+                    angular += motionAngular[localBody] *
+                        jointAcceleration;
+                    linear += motionLinear[localBody] *
+                        jointAcceleration;
+                }
+                accelerationAngular[localBody] = angular;
+                accelerationLinear[localBody] = linear;
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+    }
+
+    clearParallelInverseMassFailure(
+        laneFailureCodes,
+        laneFailureIndices,
+        lane
+    );
+    float laneMaximumOutput = 0.0f;
+    for (uint flat = lane;
+         flat < dispatch.rhsCount * articulation.nv;
+         flat += 32u) {
+        const uint rhsIndex = flat / articulation.nv;
+        const uint localV = flat - rhsIndex * articulation.nv;
+        const float value = candidateOutput[
+            rhsIndex * kMaxDofs + localV
+        ];
+        if (!isfinite(value)) {
+            laneFailureCodes[lane] =
+                MR_INVERSE_MASS_NONFINITE_RESULT;
+            laneFailureIndices[lane] = flat;
+        }
+        laneMaximumOutput = max(
+            laneMaximumOutput,
+            abs(value)
+        );
+    }
+    const float maximumOutput = simd_max(laneMaximumOutput);
+    if (collectParallelInverseMassFailure(
+            laneFailureCodes,
+            laneFailureIndices,
+            &selectedFailureCode,
+            &selectedFailureIndex,
+            lane
+        )) {
+        if (lane == 0u) {
+            status.code = selectedFailureCode;
+            status.failingIndex = selectedFailureIndex;
+            statuses[statusIndex] = status;
+        }
+        return;
+    }
+
+    const uint outputEnvironmentBase =
+        work.outputBase +
+        environment * dispatch.outputEnvironmentStride;
+    for (uint flat = lane;
+         flat < dispatch.rhsCount * articulation.nv;
+         flat += 32u) {
+        const uint rhsIndex = flat / articulation.nv;
+        const uint localV = flat - rhsIndex * articulation.nv;
+        output[
+            outputEnvironmentBase +
+            rhsIndex * dispatch.outputVectorStride +
+            localV
+        ] = candidateOutput[
+            rhsIndex * kMaxDofs + localV
+        ];
+    }
+    if (lane == 0u) {
+        status.diagnostics = float4(
+            minimumPivotShared,
+            maximumPivotShared,
+            maximumOutput,
+            maximumInputShared
+        );
+        statuses[statusIndex] = status;
+    }
+}
+
+#endif

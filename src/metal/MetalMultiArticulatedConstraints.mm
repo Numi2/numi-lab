@@ -31,7 +31,7 @@ namespace {
 
 constexpr NSUInteger kWaveWidth = 32u;
 constexpr float kQuaternionTolerance = 2.0e-5f;
-constexpr std::size_t kImmutableBufferCount = 8u;
+constexpr std::size_t kImmutableBufferCount = 16u;
 constexpr std::size_t kDynamicBufferCount = 11u;
 const char kImageAnchor = 0;
 
@@ -230,6 +230,17 @@ struct MetalMultiArticulatedConstraintContextState {
     )
         : program(compiled), config(std::move(configured)) {
         stats.programFingerprint = program.fingerprint();
+        stats.parallelABAFrontierCount =
+            static_cast<std::uint32_t>(
+                program.abaSchedule().levels.size()
+            );
+        for (const MRParallelABAArticulationGPU& articulation :
+             program.abaSchedule().articulations) {
+            stats.maximumABAFrontierWidth = std::max(
+                stats.maximumABAFrontierWidth,
+                articulation.maximumLevelWidth
+            );
+        }
     }
 
     CompiledMetalMultiArticulatedProgram program;
@@ -925,6 +936,38 @@ solveMetalMultiArticulatedConstraints(
                 model.bodies.size(),
                 bytes
             ) ||
+            !addBytes<MRParallelABAArticulationGPU>(
+                program.abaSchedule().articulations.size(),
+                bytes
+            ) ||
+            !addBytes<MRParallelABALevelGPU>(
+                program.abaSchedule().levels.size(),
+                bytes
+            ) ||
+            !addBytes<MRParallelABAParentReductionGPU>(
+                program.abaSchedule().parentReductions.size(),
+                bytes
+            ) ||
+            !addBytes<std::uint32_t>(
+                program.abaSchedule().levelBodies.size(),
+                bytes
+            ) ||
+            !addBytes<std::uint32_t>(
+                program.abaSchedule().parentLocal.size(),
+                bytes
+            ) ||
+            !addBytes<std::uint32_t>(
+                program.abaSchedule().inboundJoint.size(),
+                bytes
+            ) ||
+            !addBytes<std::uint32_t>(
+                program.abaSchedule().childOffsets.size(),
+                bytes
+            ) ||
+            !addBytes<std::uint32_t>(
+                program.abaSchedule().childIndices.size(),
+                bytes
+            ) ||
             !addBytes<MRMultiInverseMassDispatchGPU>(
                 layout.inverseMassDispatches.size(),
                 bytes
@@ -1024,7 +1067,7 @@ solveMetalMultiArticulatedConstraints(
         id<MTLComputePipelineState> inversePipeline = pipeline(
             device,
             library,
-            @"mr_multi_articulated_inverse_mass",
+            @"mr_parallel_multi_articulated_inverse_mass",
             &error
         );
         if (inversePipeline == nil) {
@@ -1140,6 +1183,48 @@ solveMetalMultiArticulatedConstraints(
                 device,
                 layout.inverseStatusElements
             );
+        const ParallelABASchedule& schedule =
+            program.abaSchedule();
+        id<MTLBuffer> scheduleArticulationBuffer = inputBuffer(
+            device,
+            schedule.articulations.data(),
+            schedule.articulations.size()
+        );
+        id<MTLBuffer> scheduleLevelBuffer = inputBuffer(
+            device,
+            schedule.levels.data(),
+            schedule.levels.size()
+        );
+        id<MTLBuffer> scheduleReductionBuffer = inputBuffer(
+            device,
+            schedule.parentReductions.data(),
+            schedule.parentReductions.size()
+        );
+        id<MTLBuffer> scheduleLevelBodyBuffer = inputBuffer(
+            device,
+            schedule.levelBodies.data(),
+            schedule.levelBodies.size()
+        );
+        id<MTLBuffer> scheduleParentBuffer = inputBuffer(
+            device,
+            schedule.parentLocal.data(),
+            schedule.parentLocal.size()
+        );
+        id<MTLBuffer> scheduleInboundBuffer = inputBuffer(
+            device,
+            schedule.inboundJoint.data(),
+            schedule.inboundJoint.size()
+        );
+        id<MTLBuffer> scheduleChildOffsetBuffer = inputBuffer(
+            device,
+            schedule.childOffsets.data(),
+            schedule.childOffsets.size()
+        );
+        id<MTLBuffer> scheduleChildIndexBuffer = inputBuffer(
+            device,
+            schedule.childIndices.data(),
+            schedule.childIndices.size()
+        );
         id<MTLBuffer> dispatchBuffer = inputBuffer(
             device,
             &layout.dispatch,
@@ -1202,6 +1287,14 @@ solveMetalMultiArticulatedConstraints(
             impulseBuffer,
             nextVelocityBuffer,
             statusBuffer,
+            scheduleArticulationBuffer,
+            scheduleLevelBuffer,
+            scheduleReductionBuffer,
+            scheduleLevelBodyBuffer,
+            scheduleParentBuffer,
+            scheduleInboundBuffer,
+            scheduleChildOffsetBuffer,
+            scheduleChildIndexBuffer,
         };
         if (std::ranges::any_of(
                 buffers,
@@ -1239,6 +1332,14 @@ solveMetalMultiArticulatedConstraints(
             rhsBuffer,
             responseBuffer,
             inverseStatusBuffer,
+            scheduleArticulationBuffer,
+            scheduleLevelBuffer,
+            scheduleReductionBuffer,
+            scheduleLevelBodyBuffer,
+            scheduleParentBuffer,
+            scheduleInboundBuffer,
+            scheduleChildOffsetBuffer,
+            scheduleChildIndexBuffer,
         };
         for (NSUInteger index = 0u;
              index < inverseBuffers.size();
@@ -1541,7 +1642,7 @@ MetalMultiArticulatedConstraintDiagnostics initializeContext(
     id<MTLComputePipelineState> inverse = pipeline(
         device,
         library,
-        @"mr_multi_articulated_inverse_mass",
+        @"mr_parallel_multi_articulated_inverse_mass",
         &error
     );
     if (inverse == nil) {
@@ -1609,6 +1710,8 @@ MetalMultiArticulatedConstraintDiagnostics initializeContext(
 
     const EngineModel& model = context.program.model();
     const std::size_t rowCount = context.program.rowCount();
+    const ParallelABASchedule& schedule =
+        context.program.abaSchedule();
     const std::array<id<MTLBuffer>, kImmutableBufferCount>
         immutable{
             inputBuffer(device, &model.world, 1u),
@@ -1646,6 +1749,46 @@ MetalMultiArticulatedConstraintDiagnostics initializeContext(
                 device,
                 context.program.generalizedJacobian().data(),
                 context.program.generalizedJacobian().size()
+            ),
+            inputBuffer(
+                device,
+                schedule.articulations.data(),
+                schedule.articulations.size()
+            ),
+            inputBuffer(
+                device,
+                schedule.levels.data(),
+                schedule.levels.size()
+            ),
+            inputBuffer(
+                device,
+                schedule.parentReductions.data(),
+                schedule.parentReductions.size()
+            ),
+            inputBuffer(
+                device,
+                schedule.levelBodies.data(),
+                schedule.levelBodies.size()
+            ),
+            inputBuffer(
+                device,
+                schedule.parentLocal.data(),
+                schedule.parentLocal.size()
+            ),
+            inputBuffer(
+                device,
+                schedule.inboundJoint.data(),
+                schedule.inboundJoint.size()
+            ),
+            inputBuffer(
+                device,
+                schedule.childOffsets.data(),
+                schedule.childOffsets.size()
+            ),
+            inputBuffer(
+                device,
+                schedule.childIndices.data(),
+                schedule.childIndices.size()
             ),
         };
     if (std::ranges::any_of(
@@ -2114,6 +2257,14 @@ MetalMultiArticulatedConstraintContext::submit(
                 dynamic[2],
                 dynamic[3],
                 dynamic[4],
+                immutable[8],
+                immutable[9],
+                immutable[10],
+                immutable[11],
+                immutable[12],
+                immutable[13],
+                immutable[14],
+                immutable[15],
             };
             for (NSUInteger index = 0u;
                  index < inverseBuffers.size();

@@ -148,8 +148,12 @@ Franka, G1, and PSM scenes, including persistent Wave32 work pulling and
 literal event-time CCD. A separate fixed-capacity generalized-constraint
 primitive consumes the cooked multi-articulation program on the same active
 encoder; dual PSM and heterogeneous dual-PSM-plus-G1 graphs are executable
-without a secondary command buffer or CPU fallback. Full multi-articulation
-collision/island composition remains the next shared-world boundary.
+without a secondary command buffer or CPU fallback. Its inverse-ABA path
+executes forward/reverse body frontiers across SIMD32 and uses deterministic
+parent-owned sibling reductions, sharing one factorization across each RHS
+packet. The force/actuation ABA step still needs the same frontier conversion;
+full multi-articulation collision/island composition remains the next
+shared-world boundary.
 
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training

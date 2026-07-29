@@ -165,6 +165,8 @@ struct MetalMultiArticulatedConstraintContextStats {
     std::uint64_t completedSubmissionCount = 0u;
     std::size_t retainedBufferBytes = 0u;
     std::uint64_t programFingerprint = 0u;
+    std::uint32_t parallelABAFrontierCount = 0u;
+    std::uint32_t maximumABAFrontierWidth = 0u;
     bool hasInFlightSubmission = false;
 };
 
