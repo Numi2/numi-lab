@@ -35,6 +35,8 @@ struct PointOccurrence {
     std::size_t slot = 0u;
     bool second = false;
     bool equality = false;
+    bool angular = false;
+    std::uint32_t basis = 0u;
 };
 
 struct PointArenaSlice {
@@ -52,6 +54,7 @@ struct Prepared {
     std::vector<MRMultiContactGPU> pointEqualities;
     std::vector<MRMultiContactEndpointsGPU>
         pointEqualityEndpoints;
+    std::vector<std::uint32_t> equalityKinds;
     std::vector<ConstraintIRRow> equalityRows;
     std::vector<std::uint32_t> sceneVelocityOffsets;
     std::vector<MRArticulatedPointImpulseGPU> pointQueries;
@@ -459,6 +462,14 @@ MetalMultiArticulatedContactDiagnostics prepare(
             MR_MULTI_CONTACT_MAX_CONTACTS ||
         input.pointEqualityCount >
             MR_MULTI_CONTACT_MAX_EQUALITY_ROWS / 3u ||
+        input.angularEqualityCount >
+            MR_MULTI_CONTACT_MAX_EQUALITY_ROWS / 3u ||
+        input.pointEqualityCount >
+            std::numeric_limits<std::size_t>::max() -
+                input.angularEqualityCount ||
+        input.pointEqualityCount +
+                input.angularEqualityCount >
+            MR_MULTI_CONTACT_MAX_EQUALITY_ROWS / 3u ||
         input.environmentCount >
             std::numeric_limits<std::uint32_t>::max() ||
         input.sceneBodyCount >
@@ -482,6 +493,7 @@ MetalMultiArticulatedContactDiagnostics prepare(
     std::size_t sceneElements = 0u;
     std::size_t contactElements = 0u;
     std::size_t pointEqualityElements = 0u;
+    std::size_t angularEqualityElements = 0u;
     if (!checkedMultiply(
             input.environmentCount,
             model.world.nq,
@@ -507,13 +519,20 @@ MetalMultiArticulatedContactDiagnostics prepare(
             input.pointEqualityCount,
             pointEqualityElements
         ) ||
+        !checkedMultiply(
+            input.environmentCount,
+            input.angularEqualityCount,
+            angularEqualityElements
+        ) ||
         input.q.size() != qElements ||
         input.freeArticulationVelocity.size() !=
             articulatedVelocityElements ||
         input.sceneBodies.size() != sceneElements ||
         input.contacts.size() != contactElements ||
         input.pointEqualities.size() !=
-            pointEqualityElements) {
+            pointEqualityElements ||
+        input.angularEqualities.size() !=
+            angularEqualityElements) {
         return reject(
             std::move(diagnostics),
             MetalMultiArticulatedContactStatus::
@@ -546,7 +565,11 @@ MetalMultiArticulatedContactDiagnostics prepare(
     const std::size_t staticEqualityRows =
         model.constraintProgram.rows.size();
     const std::size_t equalityRows =
-        staticEqualityRows + 3u * input.pointEqualityCount;
+        staticEqualityRows +
+        3u * (
+            input.pointEqualityCount +
+            input.angularEqualityCount
+        );
     if (equalityRows > MR_MULTI_CONTACT_MAX_EQUALITY_ROWS ||
         equalityJacobian.size() !=
             staticEqualityRows * model.world.nv) {
@@ -611,6 +634,7 @@ MetalMultiArticulatedContactDiagnostics prepare(
         const std::size_t slot,
         const bool second,
         const bool equality,
+        const bool angular,
         MRMultiContactEndpointsGPU& gpu
     ) -> bool {
         const std::uint32_t kind =
@@ -633,11 +657,19 @@ MetalMultiArticulatedContactDiagnostics prepare(
             query = static_cast<std::uint32_t>(
                 occurrences[articulation].size()
             );
-            occurrences[articulation].push_back({
-                slot,
-                second,
-                equality,
-            });
+            const std::uint32_t queryCount =
+                angular ? 4u : 1u;
+            for (std::uint32_t basis = 0u;
+                 basis < queryCount;
+                 ++basis) {
+                occurrences[articulation].push_back({
+                    slot,
+                    second,
+                    equality,
+                    angular,
+                    basis,
+                });
+            }
         } else if (endpoint.kind ==
             MultiContactEndpointKind::sceneBody) {
             if (body >= input.sceneBodyCount) {
@@ -706,12 +738,14 @@ MetalMultiArticulatedContactDiagnostics prepare(
                 contact,
                 false,
                 false,
+                false,
                 staged.endpoints[contact]
             ) ||
             !compileEndpoint(
                 source.endpointB,
                 contact,
                 true,
+                false,
                 false,
                 staged.endpoints[contact]
             )) {
@@ -723,8 +757,11 @@ MetalMultiArticulatedContactDiagnostics prepare(
             );
         }
     }
+    const std::size_t authoredEqualityCount =
+        input.pointEqualityCount +
+        input.angularEqualityCount;
     staged.pointEqualityEndpoints.resize(
-        input.pointEqualityCount
+        authoredEqualityCount
     );
     for (std::size_t equality = 0u;
          equality < input.pointEqualityCount;
@@ -750,6 +787,7 @@ MetalMultiArticulatedContactDiagnostics prepare(
                 equality,
                 false,
                 true,
+                false,
                 staged.pointEqualityEndpoints[equality]
             ) ||
             !compileEndpoint(
@@ -757,6 +795,7 @@ MetalMultiArticulatedContactDiagnostics prepare(
                 equality,
                 true,
                 true,
+                false,
                 staged.pointEqualityEndpoints[equality]
             )) {
             return reject(
@@ -764,6 +803,51 @@ MetalMultiArticulatedContactDiagnostics prepare(
                 MetalMultiArticulatedContactStatus::
                     unsupportedTopology,
                 "point equality endpoint topology is invalid"
+            );
+        }
+    }
+    for (std::size_t angular = 0u;
+         angular < input.angularEqualityCount;
+         ++angular) {
+        const std::size_t slot =
+            input.pointEqualityCount + angular;
+        const MultiArticulatedAngularEquality& source =
+            input.angularEqualities[angular];
+        if ((
+                !endpointResponds(source.endpointA) &&
+                !endpointResponds(source.endpointB)
+            ) ||
+            (
+                source.endpointA.kind ==
+                    MultiContactEndpointKind::staticWorld &&
+                source.endpointB.kind ==
+                    MultiContactEndpointKind::staticWorld
+            ) ||
+            sameTopology(
+                source.endpointA,
+                source.endpointB
+            ) ||
+            !compileEndpoint(
+                source.endpointA,
+                angular,
+                false,
+                true,
+                true,
+                staged.pointEqualityEndpoints[slot]
+            ) ||
+            !compileEndpoint(
+                source.endpointB,
+                angular,
+                true,
+                true,
+                true,
+                staged.pointEqualityEndpoints[slot]
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalMultiArticulatedContactStatus::
+                    unsupportedTopology,
+                "angular equality endpoint topology is invalid"
             );
         }
     }
@@ -839,7 +923,21 @@ MetalMultiArticulatedContactDiagnostics prepare(
             };
         }
     }
-    staged.pointEqualities.resize(pointEqualityElements);
+    staged.pointEqualities.resize(
+        pointEqualityElements + angularEqualityElements
+    );
+    staged.equalityKinds.assign(
+        authoredEqualityCount,
+        MR_MULTI_EQUALITY_POINT
+    );
+    std::fill(
+        staged.equalityKinds.begin() +
+            static_cast<std::ptrdiff_t>(
+                input.pointEqualityCount
+            ),
+        staged.equalityKinds.end(),
+        MR_MULTI_EQUALITY_ANGULAR
+    );
     staged.equalityRows.resize(
         input.environmentCount * equalityRows
     );
@@ -916,7 +1014,7 @@ MetalMultiArticulatedContactDiagnostics prepare(
             MRMultiContactGPU& gpu =
                 staged.pointEqualities[
                     environment *
-                        input.pointEqualityCount +
+                        authoredEqualityCount +
                     equality
                 ];
             gpu.localPointA = f4(source.endpointA.localPoint);
@@ -1019,6 +1117,156 @@ MetalMultiArticulatedContactDiagnostics prepare(
                     : 0u;
             }
         }
+        for (std::size_t angular = 0u;
+             angular < input.angularEqualityCount;
+             ++angular) {
+            const std::size_t slot =
+                input.pointEqualityCount + angular;
+            const MultiArticulatedAngularEquality& source =
+                input.angularEqualities[
+                    environment *
+                        input.angularEqualityCount +
+                    angular
+                ];
+            const MultiArticulatedAngularEquality& topology =
+                input.angularEqualities[angular];
+            MultiArticulatedIslandContact frame;
+            frame.normal = source.axisX;
+            frame.tangentU = source.axisY;
+            frame.tangentV = source.axisZ;
+            const bool valid =
+                sameTopology(
+                    source.endpointA,
+                    topology.endpointA
+                ) &&
+                sameTopology(
+                    source.endpointB,
+                    topology.endpointB
+                ) &&
+                constraintIRKeyEqual(
+                    source.key,
+                    topology.key
+                ) &&
+                finite(source.endpointA.localPoint) &&
+                finite(source.endpointB.localPoint) &&
+                finite(source.orientationError) &&
+                finite(source.targetVelocity) &&
+                finite(source.compliance) &&
+                finite(source.dissipation) &&
+                finite(source.warmImpulse) &&
+                finite(source.timeConstant) &&
+                finite(source.dampingRatio) &&
+                source.timeConstant >= 0.0 &&
+                source.dampingRatio >= 0.0 &&
+                std::ranges::all_of(
+                    source.compliance,
+                    [](const double value) {
+                        return value >= 0.0;
+                    }
+                ) &&
+                std::ranges::all_of(
+                    source.dissipation,
+                    [](const double value) {
+                        return value >= 0.0;
+                    }
+                ) &&
+                validFrame(frame);
+            if (!valid) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalMultiArticulatedContactStatus::
+                        nonfiniteInput,
+                    "angular equality semantics are invalid"
+                );
+            }
+            MRMultiContactGPU& gpu =
+                staged.pointEqualities[
+                    environment * authoredEqualityCount +
+                    slot
+                ];
+            gpu.localPointA = f4(source.endpointA.localPoint);
+            gpu.localPointB = f4(source.endpointB.localPoint);
+            gpu.normal = f4(source.axisX);
+            gpu.tangentU = f4(source.axisY);
+            gpu.tangentV = f4(source.axisZ);
+            for (std::uint32_t row = 0u;
+                 row < 3u;
+                 ++row) {
+                ConstraintIRRow& semantics =
+                    staged.equalityRows[
+                        environment * equalityRows +
+                        staticEqualityRows +
+                        3u * slot + row
+                    ];
+                const std::array<double, 3>& axis =
+                    row == 0u
+                    ? source.axisX
+                    : (row == 1u
+                        ? source.axisY
+                        : source.axisZ);
+                double prescribedVelocity = 0.0;
+                const auto addPrescribed = [&](
+                    const MultiContactEndpoint& endpoint,
+                    const double sign
+                ) {
+                    if (endpoint.kind !=
+                            MultiContactEndpointKind::
+                                sceneBody ||
+                        staged.sceneVelocityOffsets[
+                            endpoint.body
+                        ] != MR_INVALID_INDEX) {
+                        return;
+                    }
+                    const MRBodyStateGPU& body =
+                        input.sceneBodies[
+                            environment *
+                                input.sceneBodyCount +
+                            endpoint.body
+                        ];
+                    prescribedVelocity += sign * (
+                        axis[0] * body.angularVelocity.x +
+                        axis[1] * body.angularVelocity.y +
+                        axis[2] * body.angularVelocity.z
+                    );
+                };
+                addPrescribed(source.endpointA, -1.0);
+                addPrescribed(source.endpointB, 1.0);
+                semantics.direction = f4(axis);
+                semantics.positionError =
+                    static_cast<float>(
+                        source.orientationError[row]
+                    );
+                semantics.targetVelocity =
+                    static_cast<float>(
+                        source.targetVelocity[row] -
+                        prescribedVelocity
+                    );
+                semantics.compliance =
+                    static_cast<float>(
+                        source.compliance[row]
+                    );
+                semantics.dissipation =
+                    static_cast<float>(
+                        source.dissipation[row]
+                    );
+                semantics.timeConstant =
+                    static_cast<float>(
+                        source.timeConstant
+                    );
+                semantics.dampingRatio =
+                    static_cast<float>(
+                        source.dampingRatio
+                    );
+                semantics.impulseLower =
+                    -kConstraintIRUnbounded;
+                semantics.impulseUpper =
+                    kConstraintIRUnbounded;
+                semantics.flags =
+                    source.positionStabilized
+                    ? constraintIRRowPositionStabilized
+                    : 0u;
+            }
+        }
     }
 
     staged.layout.pointDispatches.resize(
@@ -1055,6 +1303,8 @@ MetalMultiArticulatedContactDiagnostics prepare(
         if (staged.layout.pointQueryElements >
                 std::numeric_limits<std::uint32_t>::max() ||
             staged.layout.pointJacobianElements >
+                std::numeric_limits<std::uint32_t>::max() ||
+            staged.pointWorldElements >
                 std::numeric_limits<std::uint32_t>::max()) {
             return reject(
                 std::move(diagnostics),
@@ -1115,6 +1365,10 @@ MetalMultiArticulatedContactDiagnostics prepare(
             staged.pointGeneralizedElements;
         arena.statusOffset =
             articulationIndex * input.environmentCount;
+        slice.pointWorldOffset =
+            static_cast<std::uint32_t>(
+                arena.pointWorldOffset
+            );
 
         std::size_t count = 0u;
         if (!checkedMultiply(
@@ -1199,7 +1453,23 @@ MetalMultiArticulatedContactDiagnostics prepare(
                 const PointOccurrence& item =
                     occurrence[query];
                 MultiContactEndpoint endpoint;
-                if (item.equality) {
+                if (item.angular) {
+                    const MultiArticulatedAngularEquality&
+                        equality =
+                            input.angularEqualities[
+                                environment *
+                                    input.angularEqualityCount +
+                                item.slot
+                            ];
+                    endpoint = item.second
+                        ? equality.endpointB
+                        : equality.endpointA;
+                    if (item.basis != 0u) {
+                        endpoint.localPoint[
+                            item.basis - 1u
+                        ] += 1.0;
+                    }
+                } else if (item.equality) {
                     const MultiArticulatedPointEquality&
                         equality =
                             input.pointEqualities[
@@ -1474,6 +1744,10 @@ MetalMultiArticulatedContactDiagnostics prepare(
         MR_ADD_BUFFER(
             MRMultiContactEndpointsGPU,
             staged.pointEqualityEndpoints.size()
+        ) &&
+        MR_ADD_BUFFER(
+            std::uint32_t,
+            staged.equalityKinds.size()
         ) &&
         MR_ADD_BUFFER(
             MRMultiContactJacobianSliceGPU,
@@ -1783,6 +2057,9 @@ solveMetalMultiArticulatedContactsImpl(
         }
 
         const auto& layout = prepared.layout;
+        const std::size_t authoredEqualityCount =
+            input.pointEqualityCount +
+            input.angularEqualityCount;
         const std::size_t pointStatusElements =
             input.environmentCount * model.articulations.size();
         const std::size_t inverseStatusElements =
@@ -1905,6 +2182,11 @@ solveMetalMultiArticulatedContactsImpl(
                 prepared.pointEqualityEndpoints.data(),
                 prepared.pointEqualityEndpoints.size()
             );
+        id<MTLBuffer> equalityKindBuffer = inputBuffer(
+            device,
+            prepared.equalityKinds.data(),
+            prepared.equalityKinds.size()
+        );
         id<MTLBuffer> equalityRowBuffer = inputBuffer(
             device,
             prepared.equalityRows.data(),
@@ -2054,6 +2336,7 @@ solveMetalMultiArticulatedContactsImpl(
             equalityJacobianBuffer, equalityRowBuffer,
             pointEqualityBuffer,
             pointEqualityEndpointBuffer,
+            equalityKindBuffer,
             projectedResponseBuffer, projectedFreeBuffer,
             equalityOperatorBuffer, equalityCouplingBuffer,
             equalityFreeImpulseBuffer, equalityTargetBuffer,
@@ -2241,6 +2524,7 @@ solveMetalMultiArticulatedContactsImpl(
                 )];
         }
         const std::array pointProducts{
+            pointWorldBuffer,
             pointJacobianBuffer,
             pointStatusBuffer,
         };
@@ -2305,12 +2589,13 @@ solveMetalMultiArticulatedContactsImpl(
                     32u, 1u, 1u
                 )];
         }
-        if (input.pointEqualityCount != 0u) {
+        if (authoredEqualityCount != 0u) {
             [encoder setComputePipelineState:pipelines[4]];
             const std::array pointEqualityBuffers{
                 dispatchBuffer, pointEqualityBuffer,
                 pointEqualityEndpointBuffer, sliceBuffer,
-                pointJacobianBuffer, sceneBodyBuffer,
+                pointJacobianBuffer, pointWorldBuffer,
+                equalityKindBuffer, sceneBodyBuffer,
                 sceneOffsetBuffer, jacobianBuffer,
             };
             for (NSUInteger index = 0u;
@@ -2324,7 +2609,7 @@ solveMetalMultiArticulatedContactsImpl(
             [encoder
                 dispatchThreads:MTLSizeMake(
                     layout.dispatch.totalNv,
-                    3u * input.pointEqualityCount,
+                    3u * authoredEqualityCount,
                     input.environmentCount
                 )
                 threadsPerThreadgroup:MTLSizeMake(

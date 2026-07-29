@@ -230,7 +230,16 @@ fixtures as well as articulation/free-body and free-body boundary loops.
 Dynamic scene bodies contribute linear inverse mass and world-frame inverse
 inertia to every equality RHS; static or kinematic scene endpoints own no
 columns and instead shift the target by their prescribed point velocity.
-Angular weld/orientation rows remain explicit follow-on work.
+
+Three-axis angular frame rows use the same query stream. For each articulated
+endpoint, the cooker emits one base point plus three unit body-basis offsets.
+The Metal row kernel reconstructs the angular Jacobian exactly from
+`0.5 * sum(r_i x (J_i - J_base))`, then projects it onto the authored
+world-space frame. Dynamic scene bodies map directly to their packed angular
+velocity block; kinematic angular velocity shifts the row target. Point and
+angular rows can be combined into a six-axis weld without finite
+configuration differencing, dense body Jacobians, or another solver. This
+activates multi-contact ABI v3 while leaving ConstraintIR ABI v2 unchanged.
 
 `CompiledMetalMultiArticulatedContactProgram` snapshots the immutable model
 and deterministic parallel-ABA frontier schedule once, so repeated submissions

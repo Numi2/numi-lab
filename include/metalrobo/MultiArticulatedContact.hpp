@@ -128,6 +128,27 @@ struct MultiArticulatedPointEquality {
     bool positionStabilized = true;
 };
 
+// Three bilateral angular rows joining two body frames. Axes and orientation
+// error are world-space. The runtime derives body angular Jacobians
+// analytically from its point-Jacobian frontend; no finite configuration
+// differencing or dense mass matrix is used.
+struct MultiArticulatedAngularEquality {
+    ConstraintIRStableKey key{};
+    MultiContactEndpoint endpointA{};
+    MultiContactEndpoint endpointB{};
+    std::array<double, 3> axisX{1.0, 0.0, 0.0};
+    std::array<double, 3> axisY{0.0, 1.0, 0.0};
+    std::array<double, 3> axisZ{0.0, 0.0, 1.0};
+    std::array<double, 3> orientationError{};
+    std::array<double, 3> targetVelocity{};
+    std::array<double, 3> compliance{};
+    std::array<double, 3> dissipation{};
+    std::array<double, 3> warmImpulse{};
+    double timeConstant = 0.01;
+    double dampingRatio = 1.0;
+    bool positionStabilized = true;
+};
+
 struct MultiArticulatedContactSolution {
     std::vector<double> generalizedVelocity;
     std::vector<double> articulatedVelocity;
@@ -213,6 +234,20 @@ projectMultiArticulatedContactThroughPointEqualities(
     std::span<const double> q,
     MultiArticulatedContactProblem& problem,
     std::span<const MultiArticulatedPointEquality> equalities,
+    const ConstraintIREvaluationConfig& config = {},
+    const ArticulatedDynamicsConfig& dynamicsConfig = {}
+);
+
+// Compiles translational point rows and angular frame rows into one canonical
+// equality program before the shared contact-space Schur reduction.
+[[nodiscard]] MultiArticulatedContactDiagnostics
+projectMultiArticulatedContactThroughSpatialEqualities(
+    const EngineModel& model,
+    std::span<const double> q,
+    MultiArticulatedContactProblem& problem,
+    std::span<const MultiArticulatedPointEquality> pointEqualities,
+    std::span<const MultiArticulatedAngularEquality>
+        angularEqualities,
     const ConstraintIREvaluationConfig& config = {},
     const ArticulatedDynamicsConfig& dynamicsConfig = {}
 );

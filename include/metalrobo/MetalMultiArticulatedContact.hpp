@@ -65,6 +65,10 @@ struct MetalMultiArticulatedContactInput {
     std::size_t pointEqualityCount = 0u;
     std::span<const MultiArticulatedPointEquality>
         pointEqualities{};
+    // Optional environment-major three-axis angular frame rows.
+    std::size_t angularEqualityCount = 0u;
+    std::span<const MultiArticulatedAngularEquality>
+        angularEqualities{};
 };
 
 struct MetalMultiArticulatedContactConfig {
@@ -128,7 +132,7 @@ struct MetalMultiArticulatedContactResult {
     std::vector<float> delassus;
     std::vector<float> freeContactVelocity;
     // Environment-major: immutable model rows first, followed by authored
-    // point-equality slots, three axes per slot.
+    // point-equality slots and angular-equality slots, three axes per slot.
     std::vector<float> equalityImpulses;
     std::vector<MRMultiContactStatusGPU> statuses;
     std::vector<MRMultiContactEqualityStatusGPU>

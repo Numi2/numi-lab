@@ -2170,12 +2170,14 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
 }
 
 MultiArticulatedContactDiagnostics
-projectMultiArticulatedContactThroughPointEqualities(
+projectMultiArticulatedContactThroughSpatialEqualities(
     const EngineModel& model,
     const std::span<const double> q,
     MultiArticulatedContactProblem& problem,
     const std::span<const MultiArticulatedPointEquality>
-        equalities,
+        pointEqualities,
+    const std::span<const MultiArticulatedAngularEquality>
+        angularEqualities,
     const ConstraintIREvaluationConfig& config,
     const ArticulatedDynamicsConfig& dynamicsConfig
 ) {
@@ -2192,7 +2194,10 @@ projectMultiArticulatedContactThroughPointEqualities(
         problem.articulatedNv != model.world.nv ||
         problem.generalizedConstraintRowCount != 0u ||
         q.size() != model.world.nq ||
-        equalities.size() >
+        pointEqualities.size() >
+            std::numeric_limits<std::size_t>::max() -
+                angularEqualities.size() ||
+        pointEqualities.size() + angularEqualities.size() >
             (
                 std::numeric_limits<std::uint32_t>::max() -
                 model.constraintProgram.rows.size()
@@ -2208,7 +2213,8 @@ projectMultiArticulatedContactThroughPointEqualities(
             MultiArticulatedContactStatus::nonfiniteInput
         );
     }
-    if (equalities.empty()) {
+    if (pointEqualities.empty() &&
+        angularEqualities.empty()) {
         return projectMultiArticulatedContactThroughGeneralizedEqualities(
             model,
             problem,
@@ -2222,11 +2228,15 @@ projectMultiArticulatedContactThroughPointEqualities(
         std::array<float, 3> warm{};
         std::array<double, 3> prescribedVelocity{};
     };
-    std::vector<OwnedPointBlock> owned(equalities.size());
+    const std::size_t authoredEqualityCount =
+        pointEqualities.size() + angularEqualities.size();
+    std::vector<OwnedPointBlock> owned(
+        authoredEqualityCount
+    );
     std::vector<ConstraintIRSourceBlock> sources;
     sources.reserve(
         model.constraintProgram.blocks.size() +
-        equalities.size()
+        authoredEqualityCount
     );
     for (const ConstraintIRBlock& block :
          model.constraintProgram.blocks) {
@@ -2448,11 +2458,200 @@ projectMultiArticulatedContactThroughPointEqualities(
         return true;
     };
 
+    const auto appendAngularEndpointJacobian = [&](
+        const MultiContactEndpoint& endpoint,
+        const std::array<double, 3>& axis,
+        const double sign,
+        const std::uint32_t localRow,
+        std::vector<ConstraintIREndpoint>& endpoints,
+        double& prescribedVelocity
+    ) -> bool {
+        if (endpoint.kind ==
+            MultiContactEndpointKind::staticWorld) {
+            return true;
+        }
+        if (endpoint.kind ==
+            MultiContactEndpointKind::sceneBody) {
+            if (endpoint.body >=
+                    problem.sceneBodyVelocityOffsets.size() ||
+                endpoint.body >= problem.sceneBodyStates.size() ||
+                !finite(axis)) {
+                return false;
+            }
+            const std::uint32_t velocityOffset =
+                problem.sceneBodyVelocityOffsets[endpoint.body];
+            const MRBodyStateGPU& state =
+                problem.sceneBodyStates[endpoint.body];
+            if (velocityOffset == MR_INVALID_INDEX) {
+                prescribedVelocity += sign * (
+                    axis[0] * state.angularVelocity.x +
+                    axis[1] * state.angularVelocity.y +
+                    axis[2] * state.angularVelocity.z
+                );
+                return finite(prescribedVelocity);
+            }
+            if (model.articulations.size() >
+                std::numeric_limits<std::uint32_t>::max() -
+                    endpoint.body) {
+                return false;
+            }
+            const std::uint32_t owner =
+                static_cast<std::uint32_t>(
+                    model.articulations.size() +
+                    endpoint.body
+                );
+            for (std::uint32_t axisIndex = 0u;
+                 axisIndex < 3u;
+                 ++axisIndex) {
+                const double coefficient =
+                    sign * axis[axisIndex];
+                if (coefficient == 0.0) {
+                    continue;
+                }
+                endpoints.push_back(
+                    makeConstraintIRGeneralizedEndpoint(
+                        owner,
+                        kConstraintIRInvalidIndex,
+                        velocityOffset + 3u + axisIndex,
+                        localRow,
+                        static_cast<float>(coefficient)
+                    )
+                );
+            }
+            return true;
+        }
+        if (endpoint.kind !=
+                MultiContactEndpointKind::articulatedBody ||
+            endpoint.body >= model.bodies.size() ||
+            !finite(endpoint.localPoint) ||
+            !finite(axis)) {
+            return false;
+        }
+        const std::uint32_t articulationIndex =
+            model.bodies[endpoint.body].articulationIndex;
+        if (articulationIndex == MR_INVALID_INDEX ||
+            articulationIndex >= model.articulations.size()) {
+            return false;
+        }
+        const MRArticulationGPU& articulation =
+            model.articulations[articulationIndex];
+        std::array<ArticulatedPointQuery, 4> queries{};
+        queries[0] = {
+            endpoint.body,
+            endpoint.localPoint,
+        };
+        for (std::size_t basis = 0u;
+             basis < 3u;
+             ++basis) {
+            queries[basis + 1u] = queries[0];
+            queries[basis + 1u].localPoint[basis] += 1.0;
+        }
+        std::array<ArticulatedPointKinematics, 4>
+            kinematics{};
+        std::vector<double> jacobian(
+            12u * articulation.nv,
+            0.0
+        );
+        const ArticulatedDynamicsDiagnostics point =
+            computeArticulatedPointJacobians(
+                model,
+                articulationIndex,
+                q.subspan(
+                    articulation.qOffset,
+                    articulation.nq
+                ),
+                std::span<const double>(
+                    problem.freeVelocity
+                ).subspan(
+                    articulation.vOffset,
+                    articulation.nv
+                ),
+                queries,
+                kinematics,
+                jacobian,
+                dynamicsConfig
+            );
+        if (!point.succeeded()) {
+            diagnostics.firstFailingArticulation =
+                articulationIndex;
+            return false;
+        }
+        for (std::uint32_t localDof = 0u;
+             localDof < articulation.nv;
+             ++localDof) {
+            Vec3 angular{};
+            for (std::size_t basis = 0u;
+                 basis < 3u;
+                 ++basis) {
+                const Vec3 offset{
+                    kinematics[basis + 1u].position[0] -
+                        kinematics[0].position[0],
+                    kinematics[basis + 1u].position[1] -
+                        kinematics[0].position[1],
+                    kinematics[basis + 1u].position[2] -
+                        kinematics[0].position[2],
+                };
+                const std::size_t baseRow =
+                    (basis + 1u) * 3u;
+                const Vec3 delta{
+                    jacobian[
+                        (baseRow + 0u) * articulation.nv +
+                        localDof
+                    ] -
+                        jacobian[localDof],
+                    jacobian[
+                        (baseRow + 1u) * articulation.nv +
+                        localDof
+                    ] -
+                        jacobian[
+                            articulation.nv + localDof
+                        ],
+                    jacobian[
+                        (baseRow + 2u) * articulation.nv +
+                        localDof
+                    ] -
+                        jacobian[
+                            2u * articulation.nv + localDof
+                        ],
+                };
+                const Vec3 contribution = cross(
+                    offset,
+                    delta
+                );
+                angular.x += 0.5 * contribution.x;
+                angular.y += 0.5 * contribution.y;
+                angular.z += 0.5 * contribution.z;
+            }
+            const double coefficient = sign * dot(
+                vector(axis),
+                angular
+            );
+            if (!finite(coefficient) ||
+                std::abs(coefficient) >
+                    std::numeric_limits<float>::max()) {
+                return false;
+            }
+            if (coefficient == 0.0) {
+                continue;
+            }
+            endpoints.push_back(
+                makeConstraintIRGeneralizedEndpoint(
+                    articulationIndex,
+                    kConstraintIRInvalidIndex,
+                    articulation.vOffset + localDof,
+                    localRow,
+                    static_cast<float>(coefficient)
+                )
+            );
+        }
+        return true;
+    };
+
     for (std::size_t equalityIndex = 0u;
-         equalityIndex < equalities.size();
+         equalityIndex < pointEqualities.size();
          ++equalityIndex) {
         const MultiArticulatedPointEquality& equality =
-            equalities[equalityIndex];
+            pointEqualities[equalityIndex];
         const std::array axes{
             equality.axisX,
             equality.axisY,
@@ -2630,6 +2829,163 @@ projectMultiArticulatedContactThroughPointEqualities(
         });
     }
 
+    for (std::size_t angularIndex = 0u;
+         angularIndex < angularEqualities.size();
+         ++angularIndex) {
+        const MultiArticulatedAngularEquality& equality =
+            angularEqualities[angularIndex];
+        const std::size_t ownedIndex =
+            pointEqualities.size() + angularIndex;
+        const std::array axes{
+            equality.axisX,
+            equality.axisY,
+            equality.axisZ,
+        };
+        MultiArticulatedIslandContact frame;
+        frame.normal = equality.axisX;
+        frame.tangentU = equality.axisY;
+        frame.tangentV = equality.axisZ;
+        ContactFrame validatedFrame{};
+        const auto responds = [&](
+            const MultiContactEndpoint& endpoint
+        ) {
+            return endpoint.kind ==
+                    MultiContactEndpointKind::articulatedBody ||
+                (
+                    endpoint.kind ==
+                        MultiContactEndpointKind::sceneBody &&
+                    endpoint.body <
+                        problem.sceneBodyVelocityOffsets.size() &&
+                    problem.sceneBodyVelocityOffsets[
+                        endpoint.body
+                    ] != MR_INVALID_INDEX
+                );
+        };
+        const bool valid =
+            finite(equality.endpointA.localPoint) &&
+            finite(equality.endpointB.localPoint) &&
+            finite(equality.orientationError) &&
+            finite(equality.targetVelocity) &&
+            finite(equality.compliance) &&
+            finite(equality.dissipation) &&
+            finite(equality.warmImpulse) &&
+            finite(equality.timeConstant) &&
+            finite(equality.dampingRatio) &&
+            equality.timeConstant >= 0.0 &&
+            equality.dampingRatio >= 0.0 &&
+            std::ranges::all_of(
+                equality.compliance,
+                [](const double value) {
+                    return value >= 0.0;
+                }
+            ) &&
+            std::ranges::all_of(
+                equality.dissipation,
+                [](const double value) {
+                    return value >= 0.0;
+                }
+            ) &&
+            makeFrame(frame, validatedFrame) &&
+            (responds(equality.endpointA) ||
+             responds(equality.endpointB)) &&
+            !(
+                equality.endpointA.kind ==
+                    equality.endpointB.kind &&
+                equality.endpointA.kind !=
+                    MultiContactEndpointKind::staticWorld &&
+                equality.endpointA.body ==
+                    equality.endpointB.body
+            );
+        if (!valid) {
+            return fail(
+                std::move(diagnostics),
+                MultiArticulatedContactStatus::invalidContact,
+                static_cast<std::uint32_t>(ownedIndex)
+            );
+        }
+        OwnedPointBlock& block = owned[ownedIndex];
+        block.endpoints.reserve(
+            2u * model.world.nv
+        );
+        for (std::uint32_t row = 0u; row < 3u; ++row) {
+            if (!appendAngularEndpointJacobian(
+                    equality.endpointA,
+                    axes[row],
+                    -1.0,
+                    row,
+                    block.endpoints,
+                    block.prescribedVelocity[row]
+                ) ||
+                !appendAngularEndpointJacobian(
+                    equality.endpointB,
+                    axes[row],
+                    1.0,
+                    row,
+                    block.endpoints,
+                    block.prescribedVelocity[row]
+                )) {
+                const std::uint32_t failingArticulation =
+                    diagnostics.firstFailingArticulation;
+                return fail(
+                    std::move(diagnostics),
+                    MultiArticulatedContactStatus::
+                        kinematicsFailure,
+                    static_cast<std::uint32_t>(ownedIndex),
+                    failingArticulation
+                );
+            }
+            ConstraintIRRow& semantics = block.rows[row];
+            semantics.direction = {
+                static_cast<float>(axes[row][0]),
+                static_cast<float>(axes[row][1]),
+                static_cast<float>(axes[row][2]),
+                0.0f,
+            };
+            semantics.positionError =
+                static_cast<float>(
+                    equality.orientationError[row]
+                );
+            semantics.targetVelocity =
+                static_cast<float>(
+                    equality.targetVelocity[row] -
+                    block.prescribedVelocity[row]
+                );
+            semantics.compliance =
+                static_cast<float>(
+                    equality.compliance[row]
+                );
+            semantics.dissipation =
+                static_cast<float>(
+                    equality.dissipation[row]
+                );
+            semantics.timeConstant =
+                static_cast<float>(equality.timeConstant);
+            semantics.dampingRatio =
+                static_cast<float>(equality.dampingRatio);
+            semantics.impulseLower =
+                -kConstraintIRUnbounded;
+            semantics.impulseUpper =
+                kConstraintIRUnbounded;
+            semantics.flags =
+                equality.positionStabilized
+                ? constraintIRRowPositionStabilized
+                : 0u;
+            block.warm[row] =
+                static_cast<float>(equality.warmImpulse[row]);
+        }
+        sources.push_back({
+            .key = equality.key,
+            .type = MR_CONSTRAINT_WELD,
+            .flags = 0u,
+            .islandIndex = 0u,
+            .eventSlot = kConstraintIRInvalidIndex,
+            .endpoints = block.endpoints,
+            .rows = block.rows,
+            .cone = std::nullopt,
+            .warmImpulses = block.warm,
+        });
+    }
+
     ConstraintIRCompilationResult compiled =
         compileConstraintIR(sources);
     if (!compiled.succeeded()) {
@@ -2645,6 +3001,27 @@ projectMultiArticulatedContactThroughPointEqualities(
         stagedModel,
         problem,
         config
+    );
+}
+
+MultiArticulatedContactDiagnostics
+projectMultiArticulatedContactThroughPointEqualities(
+    const EngineModel& model,
+    const std::span<const double> q,
+    MultiArticulatedContactProblem& problem,
+    const std::span<const MultiArticulatedPointEquality>
+        equalities,
+    const ConstraintIREvaluationConfig& config,
+    const ArticulatedDynamicsConfig& dynamicsConfig
+) {
+    return projectMultiArticulatedContactThroughSpatialEqualities(
+        model,
+        q,
+        problem,
+        equalities,
+        {},
+        config,
+        dynamicsConfig
     );
 }
 

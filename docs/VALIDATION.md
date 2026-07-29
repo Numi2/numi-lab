@@ -343,13 +343,14 @@ environment rolls back only that environment while the other three publish
 normally; a rejected pre-dispatch input leaves the previously accepted host
 result unchanged.
 
-The same probe also authors rotated three-axis point loops chaining the two
-articulations to the independent dynamic body and a moving kinematic boundary,
-then couples that heterogeneous fixture to an articulation-static contact.
-On Apple M4, the maximum
-velocity/contact/equality-impulse error against the FP64 coupled oracle is
-`2.45187e-7`; the certified equality residual is `8.40604e-8`. The replayed
-velocity, contact impulse and equality impulse payloads are bitwise identical.
+The same probe authors rotated point and angular loops chaining the two
+articulations to an independent dynamic body and a moving kinematic boundary,
+then couples all 18 equality rows to an articulation-static contact. On Apple
+M4, the maximum velocity/contact/equality-impulse error against the FP64
+coupled oracle is `2.45187e-7`; the certified equality residual is
+`8.40604e-8`. All three dynamic angular velocities reach the prescribed
+`-0.1 rad/s` boundary target within `8.04663e-8`. The replayed velocity,
+contact impulse and equality impulse payloads are bitwise identical.
 
 The canonical heterogeneous surgical probe also compiles the two PSMs and
 dynamic needle once, then reuses that immutable program for a 34-DoF Metal
@@ -985,9 +986,9 @@ evidence.
   throughput
 - Multi-articulation islands and long-horizon/large-island mixed-scene
   stability beyond the focused dynamic-dynamic and supported-pickup cases
-- GPU ConstraintIR unilateral joint limits, implicit drives, angular
-  weld/orientation rows, patch rolling/torsional resistance, and force/torque
-  sensors
+- GPU ConstraintIR unilateral joint limits, implicit drives,
+  quaternion-to-orientation-error authoring, patch rolling/torsional
+  resistance, and force/torque sensors
 - Articulated self-collision and unsupported pair classes
 - Calibrated surgical jaw surfaces, rolling/torsional resistance, and generic
   grasp-wrench/force-closure certification beyond the tested segment-17 load

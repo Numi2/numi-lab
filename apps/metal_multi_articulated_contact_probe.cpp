@@ -482,6 +482,37 @@ int main() {
             bodyLoop,
             pointLoop,
         };
+        metalrobo::MultiArticulatedAngularEquality
+            angularPoint;
+        angularPoint.key.words[0] = 0x5a4c4f4fu;
+        angularPoint.key.words[1] = 1u;
+        angularPoint.endpointA = pointLoop.endpointA;
+        angularPoint.endpointB = pointLoop.endpointB;
+        angularPoint.axisX = pointLoop.axisX;
+        angularPoint.axisY = pointLoop.axisY;
+        angularPoint.axisZ = pointLoop.axisZ;
+        angularPoint.compliance = pointLoop.compliance;
+        angularPoint.positionStabilized = false;
+        metalrobo::MultiArticulatedAngularEquality
+            angularBody = angularPoint;
+        angularBody.key.words[0] = 0x5a424f44u;
+        angularBody.key.words[1] = 2u;
+        angularBody.endpointA = bodyLoop.endpointA;
+        angularBody.endpointB = bodyLoop.endpointB;
+        angularBody.axisX = bodyLoop.axisX;
+        angularBody.axisY = bodyLoop.axisY;
+        angularBody.axisZ = bodyLoop.axisZ;
+        metalrobo::MultiArticulatedAngularEquality
+            angularBoundary = angularPoint;
+        angularBoundary.key.words[0] = 0x5a424e44u;
+        angularBoundary.key.words[1] = 3u;
+        angularBoundary.endpointA = boundaryLoop.endpointA;
+        angularBoundary.endpointB = boundaryLoop.endpointB;
+        const std::array angularLoopTemplate{
+            angularBoundary,
+            angularBody,
+            angularPoint,
+        };
 
         std::vector<float> loopFreeVelocity(
             environments * model.world.nv,
@@ -498,6 +529,12 @@ int main() {
         pointLoops.reserve(
             environments * pointLoopTemplate.size()
         );
+        std::vector<
+            metalrobo::MultiArticulatedAngularEquality
+        > angularLoops;
+        angularLoops.reserve(
+            environments * angularLoopTemplate.size()
+        );
         for (std::size_t environment = 0u;
              environment < environments;
              ++environment) {
@@ -505,7 +542,17 @@ int main() {
                 environment * model.world.nv +
                 first.vOffset
             ] = 1.0F;
-            loopSceneBodies.push_back(makeSceneBody());
+            loopFreeVelocity[
+                environment * model.world.nv +
+                first.vOffset + 5u
+            ] = 1.0F;
+            loopFreeVelocity[
+                environment * model.world.nv +
+                second.vOffset + 5u
+            ] = -0.5F;
+            MRBodyStateGPU dynamicBody = makeSceneBody();
+            dynamicBody.angularVelocity.z = 0.25F;
+            loopSceneBodies.push_back(dynamicBody);
             MRBodyStateGPU boundary = makeSceneBody();
             boundary.position.y = 2.0F;
             boundary.linearVelocityAndInverseMass = {
@@ -516,11 +563,17 @@ int main() {
             boundary.inverseInertiaWorldRow2 = {};
             boundary.flagsAndIndices[0] =
                 MR_MOTION_KINEMATIC;
+            boundary.angularVelocity.z = -0.1F;
             loopSceneBodies.push_back(boundary);
             pointLoops.insert(
                 pointLoops.end(),
                 pointLoopTemplate.begin(),
                 pointLoopTemplate.end()
+            );
+            angularLoops.insert(
+                angularLoops.end(),
+                angularLoopTemplate.begin(),
+                angularLoopTemplate.end()
             );
         }
         metalrobo::MetalMultiArticulatedContactInput loopInput;
@@ -535,12 +588,17 @@ int main() {
         loopInput.pointEqualityCount =
             pointLoopTemplate.size();
         loopInput.pointEqualities = pointLoops;
+        loopInput.angularEqualityCount =
+            angularLoopTemplate.size();
+        loopInput.angularEqualities = angularLoops;
 
         std::vector<double> loopFree64(
             model.world.nv,
             0.0
         );
         loopFree64[first.vOffset] = 1.0;
+        loopFree64[first.vOffset + 5u] = 1.0;
+        loopFree64[second.vOffset + 5u] = -0.5;
         metalrobo::MultiArticulatedContactProblem
             loopOracle;
         const auto loopOracleBuild =
@@ -562,7 +620,7 @@ int main() {
                 );
         const auto loopOracleProjection =
             metalrobo::
-                projectMultiArticulatedContactThroughPointEqualities(
+                projectMultiArticulatedContactThroughSpatialEqualities(
                     model,
                     q64,
                     loopOracle,
@@ -572,6 +630,13 @@ int main() {
                     >(
                         pointLoopTemplate.data(),
                         pointLoopTemplate.size()
+                    ),
+                    std::span<
+                        const metalrobo::
+                            MultiArticulatedAngularEquality
+                    >(
+                        angularLoopTemplate.data(),
+                        angularLoopTemplate.size()
                     ),
                     config.equalityEvaluation,
                     dynamics
@@ -603,7 +668,7 @@ int main() {
         require(
                 loopDiagnostics.succeeded() &&
                 loopGPU.layout.dispatch.equalityRowCount ==
-                    9u &&
+                    18u &&
                 loopGPU.layout.dispatch
                         .staticEqualityRowCount == 0u &&
                 loopGPU.equalityStatuses.size() ==
@@ -683,8 +748,26 @@ int main() {
             maximumPointLoopContactError,
             maximumPointLoopEqualityError,
         });
+        const std::array angularVelocityIndices{
+            static_cast<std::size_t>(first.vOffset + 5u),
+            static_cast<std::size_t>(second.vOffset + 5u),
+            static_cast<std::size_t>(model.world.nv + 5u),
+        };
+        double maximumAngularConstraintError = 0.0;
+        for (const std::size_t index :
+             angularVelocityIndices) {
+            maximumAngularConstraintError = std::max(
+                maximumAngularConstraintError,
+                std::abs(
+                    static_cast<double>(
+                        loopGPU.nextVelocity[index]
+                    ) + 0.1
+                )
+            );
+        }
         require(
             maximumPointLoopError < 2.5e-3 &&
+                maximumAngularConstraintError < 2.5e-4 &&
                 loopGPU.equalityStatuses[0]
                         .diagnostics.x <
                     config.equalityResidualTolerance,
@@ -702,6 +785,10 @@ int main() {
                 " equality=" +
                 std::to_string(
                     maximumPointLoopEqualityError
+                ) +
+                " angular=" +
+                std::to_string(
+                    maximumAngularConstraintError
                 ) +
                 " residual=" +
                 std::to_string(
@@ -852,9 +939,13 @@ int main() {
             << " impulse=" << gpu.impulses[0]
             << " max_velocity=" << maximumVelocity
             << " oracle_error=" << maximumOracleError
-            << " point_loop_error="
+            << " spatial_loop_rows="
+            << loopGPU.layout.dispatch.equalityRowCount
+            << " spatial_loop_error="
             << maximumPointLoopError
-            << " point_loop_residual="
+            << " angular_target_error="
+            << maximumAngularConstraintError
+            << " spatial_loop_residual="
             << loopGPU.equalityStatuses[0].diagnostics.x
             << " deterministic=yes"
             << " transactional_failure=yes"

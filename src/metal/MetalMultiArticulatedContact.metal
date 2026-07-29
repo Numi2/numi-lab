@@ -102,6 +102,76 @@ inline float articulatedCoefficient(
         axis.z * pointJacobians[base + 2u * slice.nv];
 }
 
+inline float articulatedAngularCoefficient(
+    device const MRMultiContactEndpointsGPU& endpoint,
+    device const MRMultiContactJacobianSliceGPU* slices,
+    device const float* pointJacobians,
+    device const MRArticulatedPointWorldGPU* pointWorld,
+    const uint environment,
+    const uint globalDof,
+    const float3 axis,
+    const bool second
+) {
+    const uint sliceIndex = endpointSlice(endpoint, second);
+    if (sliceIndex == MR_INVALID_INDEX) {
+        return 0.0f;
+    }
+    device const MRMultiContactJacobianSliceGPU& slice =
+        slices[sliceIndex];
+    if (globalDof < slice.vOffset ||
+        globalDof >= slice.vOffset + slice.nv) {
+        return 0.0f;
+    }
+    const uint query = endpointQuery(endpoint, second);
+    if (query == MR_INVALID_INDEX ||
+        query + 3u >= slice.queryCount) {
+        return NAN;
+    }
+    const uint localDof = globalDof - slice.vOffset;
+    const uint jacobianEnvironmentBase =
+        slice.jacobianOffset +
+        environment * slice.jacobianEnvironmentStride;
+    const uint pointEnvironmentBase =
+        slice.pointWorldOffset +
+        environment * slice.queryCount;
+    const float3 basePoint =
+        pointWorld[pointEnvironmentBase + query]
+            .position.xyz;
+    const uint baseJacobian =
+        jacobianEnvironmentBase +
+        query * 3u * slice.nv + localDof;
+    const float3 baseLinear{
+        pointJacobians[baseJacobian],
+        pointJacobians[baseJacobian + slice.nv],
+        pointJacobians[baseJacobian + 2u * slice.nv],
+    };
+    float3 angular = float3(0.0f);
+    for (uint basis = 0u; basis < 3u; ++basis) {
+        const uint offsetQuery = query + basis + 1u;
+        const float3 offset =
+            pointWorld[
+                pointEnvironmentBase + offsetQuery
+            ].position.xyz - basePoint;
+        const uint offsetJacobian =
+            jacobianEnvironmentBase +
+            offsetQuery * 3u * slice.nv + localDof;
+        const float3 delta{
+            pointJacobians[offsetJacobian],
+            pointJacobians[
+                offsetJacobian + slice.nv
+            ],
+            pointJacobians[
+                offsetJacobian + 2u * slice.nv
+            ],
+        };
+        angular += 0.5f * cross(
+            offset,
+            delta - baseLinear
+        );
+    }
+    return dot(axis, angular);
+}
+
 inline float sceneCoefficient(
     device const MRMultiContactGPU& contact,
     device const MRMultiContactEndpointsGPU& endpoint,
@@ -134,6 +204,30 @@ inline float sceneCoefficient(
         endpointLocalPoint(contact, second)
     );
     return cross(pointOffset, axis)[localDof - 3u];
+}
+
+inline float sceneAngularCoefficient(
+    device const MRMultiContactEndpointsGPU& endpoint,
+    device const uint* sceneVelocityOffsets,
+    const uint sceneBodyCount,
+    const uint globalDof,
+    const float3 axis,
+    const bool second
+) {
+    const uint bodyIndex = endpointBody(endpoint, second);
+    if (bodyIndex >= sceneBodyCount) {
+        return NAN;
+    }
+    const uint offset = sceneVelocityOffsets[bodyIndex];
+    if (offset == MR_INVALID_INDEX ||
+        globalDof < offset ||
+        globalDof >= offset + 6u) {
+        return 0.0f;
+    }
+    const uint localDof = globalDof - offset;
+    return localDof < 3u
+        ? 0.0f
+        : axis[localDof - 3u];
 }
 
 inline float endpointCoefficient(
@@ -409,9 +503,12 @@ kernel void mr_multi_contact_assemble_point_equalities(
     device const MRMultiContactJacobianSliceGPU* slices
         [[buffer(3)]],
     device const float* pointJacobians [[buffer(4)]],
-    device const MRBodyStateGPU* sceneBodies [[buffer(5)]],
-    device const uint* sceneVelocityOffsets [[buffer(6)]],
-    device float* combinedJacobian [[buffer(7)]],
+    device const MRArticulatedPointWorldGPU* pointWorld
+        [[buffer(5)]],
+    device const uint* equalityKinds [[buffer(6)]],
+    device const MRBodyStateGPU* sceneBodies [[buffer(7)]],
+    device const uint* sceneVelocityOffsets [[buffer(8)]],
+    device float* combinedJacobian [[buffer(9)]],
     uint3 index [[thread_position_in_grid]]
 ) {
     const uint dof = index.x;
@@ -434,59 +531,104 @@ kernel void mr_multi_contact_assemble_point_equalities(
         ];
     device const MRMultiContactEndpointsGPU& topology =
         endpoints[equality];
+    const uint equalityKind = equalityKinds[equality];
     const float3 axis = contactAxis(geometry, localRow);
     float fromA = 0.0f;
     float fromB = 0.0f;
     if (topology.kindA == MR_MULTI_CONTACT_ARTICULATED) {
-        fromA = articulatedCoefficient(
-            topology,
-            slices,
-            pointJacobians,
-            environment,
-            dof,
-            axis,
-            false
-        );
+        fromA =
+            equalityKind == MR_MULTI_EQUALITY_ANGULAR
+            ? articulatedAngularCoefficient(
+                  topology,
+                  slices,
+                  pointJacobians,
+                  pointWorld,
+                  environment,
+                  dof,
+                  axis,
+                  false
+              )
+            : articulatedCoefficient(
+                  topology,
+                  slices,
+                  pointJacobians,
+                  environment,
+                  dof,
+                  axis,
+                  false
+              );
     } else if (topology.kindA ==
                MR_MULTI_CONTACT_SCENE_BODY) {
-        fromA = sceneCoefficient(
-            geometry,
-            topology,
-            sceneBodies,
-            sceneVelocityOffsets,
-            environment,
-            dispatch.sceneBodyCount,
-            dof,
-            axis,
-            false
-        );
+        fromA =
+            equalityKind == MR_MULTI_EQUALITY_ANGULAR
+            ? sceneAngularCoefficient(
+                  topology,
+                  sceneVelocityOffsets,
+                  dispatch.sceneBodyCount,
+                  dof,
+                  axis,
+                  false
+              )
+            : sceneCoefficient(
+                  geometry,
+                  topology,
+                  sceneBodies,
+                  sceneVelocityOffsets,
+                  environment,
+                  dispatch.sceneBodyCount,
+                  dof,
+                  axis,
+                  false
+              );
     } else if (topology.kindA !=
                MR_MULTI_CONTACT_STATIC_WORLD) {
         fromA = NAN;
     }
     if (topology.kindB == MR_MULTI_CONTACT_ARTICULATED) {
-        fromB = articulatedCoefficient(
-            topology,
-            slices,
-            pointJacobians,
-            environment,
-            dof,
-            axis,
-            true
-        );
+        fromB =
+            equalityKind == MR_MULTI_EQUALITY_ANGULAR
+            ? articulatedAngularCoefficient(
+                  topology,
+                  slices,
+                  pointJacobians,
+                  pointWorld,
+                  environment,
+                  dof,
+                  axis,
+                  true
+              )
+            : articulatedCoefficient(
+                  topology,
+                  slices,
+                  pointJacobians,
+                  environment,
+                  dof,
+                  axis,
+                  true
+              );
     } else if (topology.kindB ==
                MR_MULTI_CONTACT_SCENE_BODY) {
-        fromB = sceneCoefficient(
-            geometry,
-            topology,
-            sceneBodies,
-            sceneVelocityOffsets,
-            environment,
-            dispatch.sceneBodyCount,
-            dof,
-            axis,
-            true
-        );
+        fromB =
+            equalityKind == MR_MULTI_EQUALITY_ANGULAR
+            ? sceneAngularCoefficient(
+                  topology,
+                  sceneVelocityOffsets,
+                  dispatch.sceneBodyCount,
+                  dof,
+                  axis,
+                  true
+              )
+            : sceneCoefficient(
+                  geometry,
+                  topology,
+                  sceneBodies,
+                  sceneVelocityOffsets,
+                  environment,
+                  dispatch.sceneBodyCount,
+                  dof,
+                  axis,
+                  true
+              );
     } else if (topology.kindB !=
                MR_MULTI_CONTACT_STATIC_WORLD) {
         fromB = NAN;

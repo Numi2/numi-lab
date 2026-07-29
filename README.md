@@ -159,7 +159,8 @@ linked or called at runtime.
   three-axis body-point loops now use the same analytic point-Jacobian
   frontend and device Schur graph, including articulation-articulation and
   articulation/free-body/static/kinematic fixtures in arbitrary world-space
-  frames
+  frames. Three-axis angular frame rows use analytic point-Jacobian
+  reconstruction to close full spatial welds through that same operator
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication

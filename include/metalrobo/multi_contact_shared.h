@@ -2,7 +2,7 @@
 
 #include "metalrobo/gpu_types.h"
 
-#define MR_MULTI_CONTACT_ABI_VERSION 2u
+#define MR_MULTI_CONTACT_ABI_VERSION 3u
 #define MR_MULTI_CONTACT_MAX_CONTACTS 32u
 #define MR_MULTI_CONTACT_MAX_EQUALITY_ROWS 32u
 
@@ -10,6 +10,11 @@ enum MRMultiContactEndpointKindGPU : mr_u32 {
     MR_MULTI_CONTACT_ARTICULATED = 0u,
     MR_MULTI_CONTACT_SCENE_BODY = 1u,
     MR_MULTI_CONTACT_STATIC_WORLD = 2u,
+};
+
+enum MRMultiEqualityKindGPU : mr_u32 {
+    MR_MULTI_EQUALITY_POINT = 0u,
+    MR_MULTI_EQUALITY_ANGULAR = 1u,
 };
 
 enum MRMultiContactStatusCode : mr_u32 {
@@ -95,7 +100,7 @@ typedef struct MR_ALIGN16 MRMultiContactJacobianSliceGPU {
     mr_u32 jacobianEnvironmentStride;
     mr_u32 vOffset;
     mr_u32 nv;
-    mr_u32 reserved0;
+    mr_u32 pointWorldOffset;
 } MRMultiContactJacobianSliceGPU;
 
 typedef struct MR_ALIGN16 MRMultiContactStatusGPU {
