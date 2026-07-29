@@ -182,6 +182,7 @@ cmake --build build
 ./build/bin/metalrobo_articulated_actuation_probe
 ./build/bin/metalrobo_articulated_contact_probe
 ./build/bin/metalrobo_articulated_world_probe
+./build/bin/metalrobo_multi_articulated_contact_probe
 ./build/bin/metalrobo_articulated_operator_gpu_probe
 ./build/bin/metalrobo_articulated_operator_host_probe
 ./build/bin/metalrobo_metal_world_probe

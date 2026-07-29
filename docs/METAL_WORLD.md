@@ -179,7 +179,15 @@ factory produces two PSM articulations plus one dynamic compound needle and
 one swage-bound rod. Static generalized rows can already run through the
 multi-articulation Metal/MLX primitive and the rod/needle graph consumes the
 same bundle. Dynamic contact rows spanning more than one articulation are not
-yet admitted into the shared `MetalWorld` contact graph.
+yet admitted into the shared `MetalWorld` contact graph. The CPU FP64
+`MultiArticulatedContactProblem` now closes the reference semantics first:
+analytic point Jacobians from any articulation are packed under global
+velocity offsets, retained articulation-local factors apply every
+`M^-1 J'` column, and the exact-cone quality solver handles self,
+articulation-articulation and articulation-static contacts without a dense
+global inverse. The remaining device work is to emit these spatial rows from
+GPU manifolds and add non-articulated scene-body 6D response columns to the
+same island operator.
 
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training

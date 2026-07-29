@@ -130,9 +130,17 @@ prototype.
   bundle now owns composed robot/free-body topology, scene reset states, rod
   models/states and rigid bindings; the dual-PSM/needle/thread factory feeds
   the existing multi-articulation compiler and Metal DER path directly
+- **Landed coupled-contact oracle:** FP64 articulation-articulation,
+  self-contact and articulation-static point Jacobians assemble one global
+  exact-cone contact problem through retained per-articulation factors. The
+  operator builds `M^-1 J'` response columns and `J M^-1 J'` without a dense
+  global mass inverse, then reconstructs generalized velocity from the
+  converged quality solve transactionally
 - Generalize the shared contact island graph to articulation-articulation
-  contacts and loop blocks; the multi-articulation ABA/ConstraintIR primitive
-  itself is already executable on standalone Metal and MLX
+  contacts, non-articulated 6D scene-body endpoints and loop blocks using the
+  landed oracle's sign/frame/material semantics; the multi-articulation
+  ABA/ConstraintIR primitive itself is already executable on standalone Metal
+  and MLX
 - Add trocar/RCM constraints, calibrated jaw patches, and physics-owned needle
   regrasp/ring/peg transfer without hidden attachments
 - Add thread self/tool collision and replace the current SIMD32 DER projection
