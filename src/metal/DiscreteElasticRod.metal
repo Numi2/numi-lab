@@ -8,6 +8,7 @@ namespace {
 
 constant float kGeometryFloor = 1.0e-12f;
 constant float kFrameDenominatorFloor = 1.0e-6f;
+constant float kFloatEpsilon = 1.1920928955078125e-7f;
 
 inline bool finite3(const float3 value) {
     return all(isfinite(value));
@@ -289,7 +290,6 @@ inline void projectAttachment(
 
 inline void projectBend(
     const uint constraintIndex,
-    const uint component,
     const float timestep,
     const float derivativeScale,
     device const float4* restCurvature,
@@ -324,15 +324,20 @@ inline void projectBend(
         );
         return;
     }
-    const float constraint =
-        current[component] -
-        restCurvature[constraintIndex][component];
-    float3 positionGradient[3] = {
+    const float2 constraint =
+        current - restCurvature[constraintIndex].xy;
+    float3 positionGradient0[3] = {
         float3(0.0f),
         float3(0.0f),
         float3(0.0f),
     };
-    float twistGradient[2] = {0.0f, 0.0f};
+    float3 positionGradient1[3] = {
+        float3(0.0f),
+        float3(0.0f),
+        float3(0.0f),
+    };
+    float twistGradient0[2] = {0.0f, 0.0f};
+    float twistGradient1[2] = {0.0f, 0.0f};
     for (uint node = 0u; node < 3u; ++node) {
         for (uint axis = 0u; axis < 3u; ++axis) {
             const float scale = max(
@@ -365,9 +370,10 @@ inline void projectBend(
                 );
                 return;
             }
-            positionGradient[node][axis] =
-                (plus[component] - minus[component]) /
-                (2.0f * step);
+            const float2 derivative =
+                (plus - minus) / (2.0f * step);
+            positionGradient0[node][axis] = derivative.x;
+            positionGradient1[node][axis] = derivative.y;
         }
     }
     for (uint edge = 0u; edge < 2u; ++edge) {
@@ -394,21 +400,51 @@ inline void projectBend(
             );
             return;
         }
-        twistGradient[edge] =
-            (plus[component] - minus[component]) /
-            (2.0f * step);
+        const float2 derivative =
+            (plus - minus) / (2.0f * step);
+        twistGradient0[edge] = derivative.x;
+        twistGradient1[edge] = derivative.y;
     }
 
-    float denominator = 0.0f;
+    float effective00 = 0.0f;
+    float effective01 = 0.0f;
+    float effective11 = 0.0f;
     for (uint node = 0u; node < 3u; ++node) {
-        denominator +=
-            dot(positionGradient[node], positionGradient[node]) *
+        const float inverseMass =
             inverseMasses[constraintIndex + node];
+        effective00 +=
+            dot(
+                positionGradient0[node],
+                positionGradient0[node]
+            ) * inverseMass;
+        effective01 +=
+            dot(
+                positionGradient0[node],
+                positionGradient1[node]
+            ) * inverseMass;
+        effective11 +=
+            dot(
+                positionGradient1[node],
+                positionGradient1[node]
+            ) * inverseMass;
     }
     for (uint edge = 0u; edge < 2u; ++edge) {
-        denominator +=
-            twistGradient[edge] * twistGradient[edge] *
-            inverseRotationalInertias[constraintIndex + edge];
+        const float inverseInertia =
+            inverseRotationalInertias[
+                constraintIndex + edge
+            ];
+        effective00 +=
+            twistGradient0[edge] *
+            twistGradient0[edge] *
+            inverseInertia;
+        effective01 +=
+            twistGradient0[edge] *
+            twistGradient1[edge] *
+            inverseInertia;
+        effective11 +=
+            twistGradient1[edge] *
+            twistGradient1[edge] *
+            inverseInertia;
     }
     const float voronoi =
         0.5f * (
@@ -419,21 +455,49 @@ inline void projectBend(
         voronoi /
         bendStiffness[constraintIndex] /
         (timestep * timestep);
-    if (!(denominator + alpha > 0.0f) ||
-        !isfinite(denominator)) {
+    effective00 += alpha;
+    effective11 += alpha;
+    const float determinant =
+        effective00 * effective11 -
+        effective01 * effective01;
+    const float determinantScale = max(
+        effective00 * effective11,
+        1.0f
+    );
+    if (!(effective00 > 0.0f) ||
+        !(effective11 > 0.0f) ||
+        !(determinant >
+            32.0f * kFloatEpsilon * determinantScale) ||
+        !isfinite(effective00) ||
+        !isfinite(effective01) ||
+        !isfinite(effective11) ||
+        !isfinite(determinant)) {
         recordFailure(
             failure,
             MR_ROD_GPU_DEGENERATE_GEOMETRY
         );
         return;
     }
-    const float lambda =
-        -constraint / (denominator + alpha);
+    // The two material-curvature coordinates share every position and twist
+    // degree of freedom. Solve their complete symmetric block instead of
+    // discarding the cross response and repeating the derivative pass.
+    const float2 lambda = float2(
+        (
+            -effective11 * constraint.x +
+            effective01 * constraint.y
+        ) / determinant,
+        (
+            effective01 * constraint.x -
+            effective00 * constraint.y
+        ) / determinant
+    );
     for (uint node = 0u; node < 3u; ++node) {
         const float3 correction =
-            lambda *
             inverseMasses[constraintIndex + node] *
-            positionGradient[node];
+            (
+                lambda.x * positionGradient0[node] +
+                lambda.y * positionGradient1[node]
+            );
         positions[constraintIndex + node] += correction;
         recordPositiveMaximum(
             maximumCorrectionBits,
@@ -442,13 +506,17 @@ inline void projectBend(
     }
     for (uint edge = 0u; edge < 2u; ++edge) {
         twists[constraintIndex + edge] +=
-            lambda *
             inverseRotationalInertias[
                 constraintIndex + edge
-            ] *
-            twistGradient[edge];
+            ] * (
+                lambda.x * twistGradient0[edge] +
+                lambda.y * twistGradient1[edge]
+            );
     }
-    recordPositiveMaximum(maximumErrorBits, abs(constraint));
+    recordPositiveMaximum(
+        maximumErrorBits,
+        max(abs(constraint.x), abs(constraint.y))
+    );
 }
 
 } // namespace
@@ -649,26 +717,21 @@ kernel void mr_discrete_elastic_rod_step(
                      constraintIndex + 1u <
                          dispatch.edgeCount;
                      ++constraintIndex) {
-                    for (uint component = 0u;
-                         component < 2u;
-                         ++component) {
-                        projectBend(
-                            constraintIndex,
-                            component,
-                            dispatch.gravityAndTimestep.w,
-                            dispatch.dampingDerivativeTolerance.z,
-                            restCurvature,
-                            restLengths,
-                            inverseMasses,
-                            inverseRotationalInertias,
-                            bendStiffness,
-                            positions,
-                            twists,
-                            failure,
-                            maximumErrorBits,
-                            maximumCorrectionBits
-                        );
-                    }
+                    projectBend(
+                        constraintIndex,
+                        dispatch.gravityAndTimestep.w,
+                        dispatch.dampingDerivativeTolerance.z,
+                        restCurvature,
+                        restLengths,
+                        inverseMasses,
+                        inverseRotationalInertias,
+                        bendStiffness,
+                        positions,
+                        twists,
+                        failure,
+                        maximumErrorBits,
+                        maximumCorrectionBits
+                    );
                     projectTwist(
                         constraintIndex,
                         dispatch.gravityAndTimestep.w,
@@ -718,35 +781,32 @@ kernel void mr_discrete_elastic_rod_step(
                 }
                 threadgroup_barrier(mem_flags::mem_threadgroup);
             }
-            for (uint component = 0u; component < 2u; ++component) {
-                for (uint color = 0u; color < 3u; ++color) {
-                    for (
-                        uint constraintIndex = color + 3u * lane;
-                        constraintIndex + 1u <
-                            dispatch.edgeCount;
-                        constraintIndex += 3u * laneCount
-                    ) {
-                        projectBend(
-                            constraintIndex,
-                            component,
-                            dispatch.gravityAndTimestep.w,
-                            dispatch.dampingDerivativeTolerance.z,
-                            restCurvature,
-                            restLengths,
-                            inverseMasses,
-                            inverseRotationalInertias,
-                            bendStiffness,
-                            positions,
-                            twists,
-                            failure,
-                            maximumErrorBits,
-                            maximumCorrectionBits
-                        );
-                    }
-                    threadgroup_barrier(
-                        mem_flags::mem_threadgroup
+            for (uint color = 0u; color < 3u; ++color) {
+                for (
+                    uint constraintIndex = color + 3u * lane;
+                    constraintIndex + 1u <
+                        dispatch.edgeCount;
+                    constraintIndex += 3u * laneCount
+                ) {
+                    projectBend(
+                        constraintIndex,
+                        dispatch.gravityAndTimestep.w,
+                        dispatch.dampingDerivativeTolerance.z,
+                        restCurvature,
+                        restLengths,
+                        inverseMasses,
+                        inverseRotationalInertias,
+                        bendStiffness,
+                        positions,
+                        twists,
+                        failure,
+                        maximumErrorBits,
+                        maximumCorrectionBits
                     );
                 }
+                threadgroup_barrier(
+                    mem_flags::mem_threadgroup
+                );
             }
             for (uint color = 0u; color < 2u; ++color) {
                 for (
