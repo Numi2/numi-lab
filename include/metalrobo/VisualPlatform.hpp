@@ -44,6 +44,10 @@ struct VisualSensorProfileV1 {
     double nominalRateHz = 15.0;
     double exposureSeconds = 1.0 / 120.0;
     double shutterReadoutSeconds = 0.0;
+    MRVisualShutterModel shutterModel =
+        MR_VISUAL_SHUTTER_GLOBAL;
+    MRVisualShutterDirection shutterDirection =
+        MR_VISUAL_SHUTTER_TOP_TO_BOTTOM;
     double frameJitterSeconds = 0.0;
     double minimumDepthMeters = 0.05;
     double maximumDepthMeters = 10.0;
@@ -100,6 +104,34 @@ struct VisualSceneManifestV1 {
 // camera to the workspace and the wrist camera to the final articulated body.
 [[nodiscard]] VisualSceneManifestV1
 makeFrankaPickPlaceVisualSceneManifest();
+
+struct AuthoredVisualAssetReferenceV2 {
+    std::filesystem::path packPath;
+    std::uint32_t assetIndex = 0u;
+    std::uint32_t semanticId = 1u;
+    std::uint32_t instanceId = 1u;
+};
+
+// Builds an authored-only V2 scene. Streaming the pack loads keeps peak host
+// memory at the final scene plus one source pack; missing presentation assets
+// are never substituted with collision geometry.
+[[nodiscard]] bool compileVisualSceneManifestV2(
+    const WorldTemplate& world,
+    std::span<const AuthoredVisualAssetReferenceV2> authoredAssets,
+    const VisualEnvironmentV1& environment,
+    const VisualLightRigV1& lightRig,
+    VisualSceneManifestV2& output,
+    std::string* reason = nullptr
+);
+
+// Reference world integration: fixed and wrist sensors come from the existing
+// Franka family; the authored robot/object/workspace packs provide all visual
+// geometry and use the indoor environment plus rectangular key light.
+[[nodiscard]] bool makeFrankaPickPlaceVisualSceneManifestV2(
+    std::span<const AuthoredVisualAssetReferenceV2> authoredAssets,
+    VisualSceneManifestV2& output,
+    std::string* reason = nullptr
+);
 
 [[nodiscard]] bool writeVisualSceneManifest(
     const VisualSceneManifestV1& scene,
@@ -223,6 +255,11 @@ struct VisualBatchProvenanceV1 {
     std::uint64_t episodeTwinFingerprint = 0u;
     std::uint64_t scenarioFingerprint = 0u;
     std::uint64_t rendererFingerprint = 0u;
+    std::uint64_t visualPackFingerprint = 0u;
+    std::uint64_t environmentMapFingerprint = 0u;
+    std::uint64_t lightRigFingerprint = 0u;
+    std::uint64_t rendererProfileFingerprint = 0u;
+    std::uint64_t shutterProfileFingerprint = 0u;
     std::uint64_t sensorProfileFingerprint = 0u;
     std::uint64_t calibrationFingerprint = 0u;
 
@@ -378,6 +415,11 @@ struct VisualEpisodeStreamV1 {
     std::uint64_t scenarioFingerprint = 0u;
     std::uint64_t rendererFingerprint = 0u;
     std::uint64_t visualSceneFingerprint = 0u;
+    std::uint64_t visualPackFingerprint = 0u;
+    std::uint64_t environmentMapFingerprint = 0u;
+    std::uint64_t lightRigFingerprint = 0u;
+    std::uint64_t rendererProfileFingerprint = 0u;
+    std::uint64_t shutterProfileFingerprint = 0u;
     std::uint64_t sensorProfileFingerprint = 0u;
     std::uint64_t calibrationFingerprint = 0u;
     std::uint64_t physicsFingerprint = 0u;

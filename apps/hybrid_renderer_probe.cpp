@@ -68,7 +68,7 @@ int main() {
             "dropout world sample"
         );
 
-        metalrobo::HybridGaussianScene scene;
+        metalrobo::VisualRenderSceneV2 scene;
         scene.id = "camera_aligned_probe";
         scene.assetCount =
             static_cast<std::uint32_t>(worldTemplate.assets.size());
@@ -84,8 +84,21 @@ int main() {
                 MR_HYBRID_GAUSSIAN_ASSET_LOCAL,
             },
         });
+        scene.environment =
+            metalrobo::makeNeutralStudioEnvironmentV1();
+        scene.lightRig =
+            metalrobo::makeStudioKeyLightRigV1();
+        scene.fingerprint =
+            metalrobo::computeVisualRenderSceneV2Fingerprint(scene);
         metalrobo::MetalHybridRenderer renderer;
-        require(renderer.compile(scene, 4u), "renderer compile");
+        require(
+            renderer.compile(
+                std::move(scene),
+                metalrobo::VisualRendererProfileV1::sensorFast(),
+                4u
+            ),
+            "renderer compile"
+        );
         const auto rendered = renderer.render(worlds, 4u, 0u);
         require(rendered, "render");
         metalrobo::HybridObservationBatch observations;

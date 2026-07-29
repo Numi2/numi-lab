@@ -833,6 +833,8 @@ std::uint64_t sensorProfileFingerprint(
     hash.appendScalar(profile.nominalRateHz);
     hash.appendScalar(profile.exposureSeconds);
     hash.appendScalar(profile.shutterReadoutSeconds);
+    hash.appendScalar(profile.shutterModel);
+    hash.appendScalar(profile.shutterDirection);
     hash.appendScalar(profile.frameJitterSeconds);
     hash.appendScalar(profile.minimumDepthMeters);
     hash.appendScalar(profile.maximumDepthMeters);
@@ -854,6 +856,11 @@ std::uint64_t episodeFingerprint(
     hash.appendScalar(stream.scenarioFingerprint);
     hash.appendScalar(stream.rendererFingerprint);
     hash.appendScalar(stream.visualSceneFingerprint);
+    hash.appendScalar(stream.visualPackFingerprint);
+    hash.appendScalar(stream.environmentMapFingerprint);
+    hash.appendScalar(stream.lightRigFingerprint);
+    hash.appendScalar(stream.rendererProfileFingerprint);
+    hash.appendScalar(stream.shutterProfileFingerprint);
     hash.appendScalar(stream.sensorProfileFingerprint);
     hash.appendScalar(stream.calibrationFingerprint);
     hash.appendScalar(stream.physicsFingerprint);
@@ -1282,6 +1289,10 @@ bool VisualSensorProfileV1::valid(std::string* reason) const {
         !finite(exposureSeconds) || exposureSeconds < 0.0 ||
         !finite(shutterReadoutSeconds) ||
         shutterReadoutSeconds < 0.0 ||
+        shutterModel > MR_VISUAL_SHUTTER_ROLLING ||
+        shutterDirection > MR_VISUAL_SHUTTER_RIGHT_TO_LEFT ||
+        (shutterModel == MR_VISUAL_SHUTTER_GLOBAL &&
+         shutterReadoutSeconds != 0.0) ||
         !finite(frameJitterSeconds) ||
         frameJitterSeconds < 0.0 ||
         !finite(minimumDepthMeters) ||
@@ -1367,6 +1378,11 @@ bool VisualBatchProvenanceV1::valid(std::string* reason) const {
         episodeTwinFingerprint == 0u ||
         scenarioFingerprint == 0u ||
         rendererFingerprint == 0u ||
+        visualPackFingerprint == 0u ||
+        environmentMapFingerprint == 0u ||
+        lightRigFingerprint == 0u ||
+        rendererProfileFingerprint == 0u ||
+        shutterProfileFingerprint == 0u ||
         sensorProfileFingerprint == 0u ||
         calibrationFingerprint == 0u) {
         return fail(reason, "visual batch provenance is incomplete");
@@ -2290,6 +2306,12 @@ bool compileVisualSceneManifest(
             sensor.depthQuantumMeters,
             sensor.motionBlurScale,
         };
+        binding.shutter = {
+            sensor.shutterModel,
+            sensor.shutterDirection,
+            0u,
+            0u,
+        };
         candidate.renderScene.sensorBindings.push_back(binding);
     }
 
@@ -2399,6 +2421,201 @@ VisualSceneManifestV1 makeFrankaPickPlaceVisualSceneManifest() {
         return {};
     }
     return result;
+}
+
+bool compileVisualSceneManifestV2(
+    const WorldTemplate& world,
+    const std::span<const AuthoredVisualAssetReferenceV2>
+        authoredAssets,
+    const VisualEnvironmentV1& environment,
+    const VisualLightRigV1& lightRig,
+    VisualSceneManifestV2& output,
+    std::string* reason
+) {
+    std::string worldReason;
+    std::string presentationReason;
+    if (!world.valid(&worldReason) || authoredAssets.empty() ||
+        !environment.valid(
+            std::numeric_limits<std::size_t>::max(),
+            &presentationReason
+        ) ||
+        !lightRig.valid(&presentationReason)) {
+        return fail(
+            reason,
+            "V2 visual scene source is invalid: " +
+                (
+                    !worldReason.empty()
+                    ? worldReason
+                    : authoredAssets.empty()
+                        ? "authored visual packs are required"
+                        : presentationReason
+                )
+        );
+    }
+    VisualSceneManifestV2 candidate;
+    candidate.id = world.id + ".visual.v2";
+    candidate.worldFingerprint = world.fingerprint;
+    candidate.preprocessingProvenance =
+        "compileVisualSceneManifestV2/authored-only-v2";
+    candidate.renderScene.id = candidate.id + ".runtime";
+    candidate.renderScene.assetCount =
+        static_cast<std::uint32_t>(world.assets.size());
+    candidate.renderScene.bodyCount =
+        static_cast<std::uint32_t>(
+            world.engineModel.bodies.size()
+        );
+    candidate.renderScene.environment = environment;
+    candidate.renderScene.lightRig = lightRig;
+    candidate.renderScene.sensorBindings.reserve(
+        world.sensors.size()
+    );
+    for (const SensorSpec& sensor : world.sensors) {
+        const std::uint32_t assetIndex =
+            world.assetIndex(sensor.parentAssetId);
+        MRVisualSensorBindingGPU binding{};
+        binding.identity.z =
+            assetIndex < world.assets.size()
+            ? assetIndex
+            : MR_INVALID_INDEX;
+        switch (sensor.parentKind) {
+        case MR_WORLD_SENSOR_PARENT_WORLD:
+            binding.identity.x = MR_VISUAL_BINDING_WORLD;
+            binding.identity.y = MR_INVALID_INDEX;
+            break;
+        case MR_WORLD_SENSOR_PARENT_RIGID_BODY:
+            binding.identity.x = MR_VISUAL_BINDING_RIGID_BODY;
+            binding.identity.y = sensor.parentBodyIndex;
+            break;
+        case MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK:
+            binding.identity.x =
+                MR_VISUAL_BINDING_ARTICULATED_LINK;
+            binding.identity.y = sensor.parentBodyIndex;
+            break;
+        case MR_WORLD_SENSOR_PARENT_ASSET:
+        default:
+            binding.identity.x = MR_VISUAL_BINDING_ASSET;
+            binding.identity.y = assetIndex;
+            break;
+        }
+        binding.timing = {
+            sensor.nominalRateHz,
+            sensor.exposureSeconds,
+            sensor.shutterReadoutSeconds,
+            sensor.frameJitterSeconds,
+        };
+        binding.rangeAndResponse = {
+            sensor.minimumDepthMeters,
+            sensor.maximumDepthMeters,
+            sensor.depthQuantumMeters,
+            sensor.motionBlurScale,
+        };
+        binding.shutter = {
+            sensor.shutterModel,
+            sensor.shutterDirection,
+            0u,
+            0u,
+        };
+        candidate.renderScene.sensorBindings.push_back(binding);
+    }
+
+    for (const AuthoredVisualAssetReferenceV2& reference :
+         authoredAssets) {
+        if (reference.packPath.empty() ||
+            reference.assetIndex >=
+                candidate.renderScene.assetCount ||
+            reference.semanticId == 0u ||
+            reference.semanticId == MR_INVALID_INDEX ||
+            reference.instanceId == 0u ||
+            reference.instanceId == MR_INVALID_INDEX) {
+            return fail(
+                reason,
+                "authored V2 visual reference is invalid"
+            );
+        }
+        // Deliberately release each source pack after append. The immutable
+        // render scene is the only full asset aggregate retained.
+        VisualAssetPackV1 pack;
+        if (!readVisualAssetPack(
+                reference.packPath,
+                pack,
+                &presentationReason
+            )) {
+            return fail(
+                reason,
+                "could not read authored visual pack: " +
+                    presentationReason
+            );
+        }
+        const std::string packContentHash = pack.contentHash;
+        if (!appendVisualAssetPack(
+                std::move(pack),
+                reference.assetIndex,
+                reference.semanticId,
+                reference.instanceId,
+                candidate.renderScene,
+                &presentationReason
+            )) {
+            return fail(
+                reason,
+                "could not bind authored visual pack: " +
+                    presentationReason
+            );
+        }
+        if (std::ranges::find(
+                candidate.visualPackHashes,
+                packContentHash
+            ) == candidate.visualPackHashes.end()) {
+            candidate.visualPackHashes.push_back(
+                packContentHash
+            );
+        }
+    }
+    candidate.environmentMapHash = environment.contentHash;
+    candidate.lightRigHash = lightRig.contentHash;
+    candidate.renderScene.fingerprint =
+        computeVisualRenderSceneV2Fingerprint(
+            candidate.renderScene
+        );
+    candidate.fingerprint =
+        computeVisualSceneManifestV2Fingerprint(candidate);
+    if (!candidate.valid(&presentationReason)) {
+        return fail(
+            reason,
+            "compiled V2 visual scene is invalid: " +
+                presentationReason
+        );
+    }
+    output = std::move(candidate);
+    return true;
+}
+
+bool makeFrankaPickPlaceVisualSceneManifestV2(
+    const std::span<const AuthoredVisualAssetReferenceV2>
+        authoredAssets,
+    VisualSceneManifestV2& output,
+    std::string* reason
+) {
+    WorldTemplate world;
+    const WorldCompileResult compiled = compileEpisodeTwin(
+        makeFrankaPickPlaceEpisodeTwin(),
+        makeFrankaPickPlaceEngineModel(),
+        world
+    );
+    if (!compiled.succeeded()) {
+        return fail(
+            reason,
+            "could not compile Franka visual reference world: " +
+                compiled.message
+        );
+    }
+    return compileVisualSceneManifestV2(
+        world,
+        authoredAssets,
+        makeNeutralStudioEnvironmentV1(),
+        makeIndoorAreaLightRigV1(),
+        output,
+        reason
+    );
 }
 
 bool writeVisualSceneManifest(
@@ -3735,6 +3952,11 @@ bool VisualEpisodeStreamV1::finalize(std::string* reason) {
         scenarioFingerprint == 0u ||
         rendererFingerprint == 0u ||
         visualSceneFingerprint == 0u ||
+        visualPackFingerprint == 0u ||
+        environmentMapFingerprint == 0u ||
+        lightRigFingerprint == 0u ||
+        rendererProfileFingerprint == 0u ||
+        shutterProfileFingerprint == 0u ||
         sensorProfileFingerprint == 0u ||
         calibrationFingerprint == 0u ||
         physicsFingerprint == 0u) {
@@ -3752,6 +3974,11 @@ bool VisualEpisodeStreamV1::valid(std::string* reason) const {
         scenarioFingerprint == 0u ||
         rendererFingerprint == 0u ||
         visualSceneFingerprint == 0u ||
+        visualPackFingerprint == 0u ||
+        environmentMapFingerprint == 0u ||
+        lightRigFingerprint == 0u ||
+        rendererProfileFingerprint == 0u ||
+        shutterProfileFingerprint == 0u ||
         sensorProfileFingerprint == 0u ||
         calibrationFingerprint == 0u ||
         physicsFingerprint == 0u ||
@@ -3818,6 +4045,16 @@ bool writeVisualEpisodeManifest(
            << stream.rendererFingerprint << ",\n"
            << "  \"visual_scene_fingerprint\": "
            << stream.visualSceneFingerprint << ",\n"
+           << "  \"visual_pack_fingerprint\": "
+           << stream.visualPackFingerprint << ",\n"
+           << "  \"environment_map_fingerprint\": "
+           << stream.environmentMapFingerprint << ",\n"
+           << "  \"light_rig_fingerprint\": "
+           << stream.lightRigFingerprint << ",\n"
+           << "  \"renderer_profile_fingerprint\": "
+           << stream.rendererProfileFingerprint << ",\n"
+           << "  \"shutter_profile_fingerprint\": "
+           << stream.shutterProfileFingerprint << ",\n"
            << "  \"sensor_profile_fingerprint\": "
            << stream.sensorProfileFingerprint << ",\n"
            << "  \"calibration_fingerprint\": "

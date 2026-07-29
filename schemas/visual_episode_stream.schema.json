@@ -58,9 +58,18 @@
         "scenario_fingerprint",
         "renderer_fingerprint",
         "visual_scene_fingerprint",
+        "visual_pack_fingerprint",
+        "environment_map_fingerprint",
+        "light_rig_fingerprint",
+        "renderer_profile_fingerprint",
+        "shutter_profile_fingerprint",
         "sensor_profile_fingerprint",
         "calibration_fingerprint",
         "physics_fingerprint",
+        "environment_map_hash",
+        "light_rig_hash",
+        "renderer_profile_hash",
+        "shutter_profile_hash",
         "visual_asset_hashes",
         "nominal_rate_hz"
       ],
@@ -91,6 +100,21 @@
         "visual_scene_fingerprint": {
           "$ref": "#/$defs/fingerprint"
         },
+        "visual_pack_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "environment_map_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "light_rig_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "renderer_profile_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "shutter_profile_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
         "sensor_profile_fingerprint": {
           "$ref": "#/$defs/fingerprint"
         },
@@ -100,8 +124,26 @@
         "physics_fingerprint": {
           "$ref": "#/$defs/fingerprint"
         },
+        "environment_map_hash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "light_rig_hash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "renderer_profile_hash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shutter_profile_hash": {
+          "type": "string",
+          "minLength": 1
+        },
         "visual_asset_hashes": {
           "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
           "items": {
             "type": "string",
             "minLength": 1

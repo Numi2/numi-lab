@@ -3,7 +3,7 @@
 #include "metalrobo/gpu_types.h"
 #include "metalrobo/visual_platform_types.h"
 
-#define MR_HYBRID_RENDERER_ABI_VERSION 2u
+#define MR_HYBRID_RENDERER_ABI_VERSION 5u
 #define MR_HYBRID_TILE_SIZE 16u
 #define MR_HYBRID_MAX_GAUSSIANS_PER_TILE 256u
 
@@ -58,6 +58,22 @@ typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
     mr_float4 sensorTiming;
     // minimum/maximum depth, depth quantum, motion-blur scale.
     mr_float4 sensorRangeAndResponse;
+    // texture count, light count, renderer profile, profile flags.
+    mr_uint4 presentation;
+    // shutter model, scan direction, temporal sample, sample count.
+    mr_uint4 shutter;
+    // temporal sample fraction, truth fraction, environment intensity/rotation.
+    mr_float4 exposure;
+    // shadow atlas width/height, PCF radius, active shadow light.
+    mr_uint4 shadow;
+    // first environment, environments in batch, atlas layer capacity, reserved.
+    mr_uint4 shadowBatch;
+    // first row/column, band size, band axis, truth-only pass.
+    mr_uint4 band;
+    // visible ray instances, motion keyframes, area samples, reserved.
+    mr_uint4 ray;
+    // full shutter window, truth time fraction, sample weight, reserved.
+    mr_float4 rayTiming;
 } MRHybridRenderUniformsGPU;
 
 #ifndef __METAL_VERSION__
@@ -69,5 +85,5 @@ static_assert(std::is_trivially_copyable_v<MRHybridProjectedGaussianGPU>);
 static_assert(std::is_trivially_copyable_v<MRHybridRenderUniformsGPU>);
 static_assert(sizeof(MRHybridGaussianGPU) == 80u);
 static_assert(sizeof(MRHybridProjectedGaussianGPU) == 96u);
-static_assert(sizeof(MRHybridRenderUniformsGPU) == 128u);
+static_assert(sizeof(MRHybridRenderUniformsGPU) == 256u);
 #endif

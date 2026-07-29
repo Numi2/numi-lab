@@ -7,6 +7,7 @@
 #include "metalrobo/gpu_types.h"
 
 #define MR_VISUAL_PLATFORM_ABI_VERSION 1u
+#define MR_VISUAL_PRESENTATION_ABI_VERSION 2u
 
 enum MRVisualRepresentation : mr_u32 {
     MR_VISUAL_REPRESENTATION_NONE = 0u,
@@ -20,6 +21,61 @@ enum MRVisualBindingKind : mr_u32 {
     MR_VISUAL_BINDING_ASSET = 1u,
     MR_VISUAL_BINDING_RIGID_BODY = 2u,
     MR_VISUAL_BINDING_ARTICULATED_LINK = 3u,
+};
+
+enum MRVisualRendererProfileKind : mr_u32 {
+    MR_VISUAL_RENDERER_SENSOR_FAST = 0u,
+    MR_VISUAL_RENDERER_SENSOR_REFERENCE = 1u,
+};
+
+enum MRVisualShutterModel : mr_u32 {
+    MR_VISUAL_SHUTTER_GLOBAL = 0u,
+    MR_VISUAL_SHUTTER_ROLLING = 1u,
+};
+
+enum MRVisualShutterDirection : mr_u32 {
+    MR_VISUAL_SHUTTER_TOP_TO_BOTTOM = 0u,
+    MR_VISUAL_SHUTTER_BOTTOM_TO_TOP = 1u,
+    MR_VISUAL_SHUTTER_LEFT_TO_RIGHT = 2u,
+    MR_VISUAL_SHUTTER_RIGHT_TO_LEFT = 3u,
+};
+
+enum MRVisualAlphaMode : mr_u32 {
+    MR_VISUAL_ALPHA_OPAQUE = 0u,
+    MR_VISUAL_ALPHA_MASK = 1u,
+    MR_VISUAL_ALPHA_BLEND = 2u,
+};
+
+enum MRVisualLightKind : mr_u32 {
+    MR_VISUAL_LIGHT_DIRECTIONAL = 0u,
+    MR_VISUAL_LIGHT_POINT = 1u,
+    MR_VISUAL_LIGHT_SPOT = 2u,
+    MR_VISUAL_LIGHT_RECTANGLE = 3u,
+};
+
+enum MRVisualLightUnit : mr_u32 {
+    MR_VISUAL_LIGHT_UNIT_LUX = 0u,
+    MR_VISUAL_LIGHT_UNIT_CANDELA = 1u,
+    MR_VISUAL_LIGHT_UNIT_LUMEN = 2u,
+    MR_VISUAL_LIGHT_UNIT_NIT = 3u,
+};
+
+enum MRVisualTextureFlag : mr_u32 {
+    MR_VISUAL_TEXTURE_SRGB = 1u << 0u,
+    MR_VISUAL_TEXTURE_CLAMP_U = 1u << 1u,
+    MR_VISUAL_TEXTURE_CLAMP_V = 1u << 2u,
+};
+
+enum MRVisualInstanceFlag : mr_u32 {
+    MR_VISUAL_INSTANCE_CASTS_SHADOW = 1u << 0u,
+    MR_VISUAL_INSTANCE_RECEIVES_SHADOW = 1u << 1u,
+    MR_VISUAL_INSTANCE_GAUSSIAN_RECEIVER_PROXY = 1u << 2u,
+    MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR = 1u << 3u,
+};
+
+enum MRVisualMaterialFlag : mr_u32 {
+    MR_VISUAL_MATERIAL_DOUBLE_SIDED = 1u << 0u,
+    MR_VISUAL_MATERIAL_UNLIT = 1u << 1u,
 };
 
 enum MRVisualFrameSource : mr_u32 {
@@ -94,6 +150,8 @@ typedef struct MR_ALIGN16 MRVisualSensorBindingGPU {
     mr_float4 timing;
     // minimum range, maximum range, depth quantum, motion-blur scale.
     mr_float4 rangeAndResponse;
+    // shutter model, scan direction, reserved, reserved.
+    mr_uint4 shutter;
 } MRVisualSensorBindingGPU;
 
 typedef struct MR_ALIGN16 MRVisualMeshVertexGPU {
@@ -126,6 +184,100 @@ typedef struct MR_ALIGN16 MRVisualMaterialGPU {
     // Clearcoat, clearcoat roughness, specular scale, flags-as-float.
     mr_float4 coating;
 } MRVisualMaterialGPU;
+
+// Indexed authored-asset ABI. Asset packs retain these records verbatim;
+// the renderer may build profile-specific visibility records at compile time.
+typedef struct MR_ALIGN16 MRVisualVertexGPUV2 {
+    // xyz position in the primitive's local frame, w homogeneous one.
+    mr_float4 position;
+    // xyz unit normal, w tangent handedness (+1 or -1).
+    mr_float4 normalAndTangentSign;
+    // xyz unit tangent, w reserved.
+    mr_float4 tangent;
+    // UV0.xy and UV1.xy.
+    mr_float4 texcoord01;
+    // Linear RGBA vertex color.
+    mr_float4 color;
+} MRVisualVertexGPUV2;
+
+typedef struct MR_ALIGN16 MRVisualPrimitiveGPUV2 {
+    // first index, index count, material slot, instance index.
+    mr_uint4 geometry;
+    // semantic class, instance, link, stable primitive id.
+    mr_uint4 identity;
+    // Local axis-aligned bounds.
+    mr_float4 boundsMinimum;
+    mr_float4 boundsMaximum;
+} MRVisualPrimitiveGPUV2;
+
+typedef struct MR_ALIGN16 MRVisualTriangleGPUV2 {
+    // Three shared vertex indices and the owning primitive index.
+    mr_uint4 verticesAndPrimitive;
+} MRVisualTriangleGPUV2;
+
+typedef struct MR_ALIGN16 MRVisualInstanceGPUV2 {
+    // xyz local translation, w uniform scale.
+    mr_float4 translationAndScale;
+    // Normalized xyzw local orientation.
+    mr_float4 orientation;
+    // owning asset, body index, binding kind, instance flags.
+    mr_uint4 binding;
+    // semantic class, instance, link, stable instance id.
+    mr_uint4 identity;
+    // first primitive, primitive count, material variant, reserved.
+    mr_uint4 geometry;
+} MRVisualInstanceGPUV2;
+
+typedef struct MR_ALIGN16 MRVisualMaterialGPUV2 {
+    // glTF base-color factor in linear RGB and opacity.
+    mr_float4 baseColorAndOpacity;
+    // Linear emissive factor and emissive strength.
+    mr_float4 emissionAndStrength;
+    // Perceptual roughness, metallic, normal scale, occlusion strength.
+    mr_float4 surface;
+    // Clearcoat, clearcoat roughness, specular scale, alpha cutoff.
+    mr_float4 coatingAndAlphaCutoff;
+    // Base color, metallic-roughness, normal, occlusion texture indices.
+    mr_uint4 textureIndices0;
+    // Emissive, clearcoat, clearcoat-roughness, reserved texture indices.
+    mr_uint4 textureIndices1;
+    // alpha mode, material flags, UV set mask, stable material id.
+    mr_uint4 flags;
+    mr_uint4 reserved;
+} MRVisualMaterialGPUV2;
+
+typedef struct MR_ALIGN16 MRVisualTextureGPUV1 {
+    // Width, height, mip count, texture flags.
+    mr_uint4 dimensions;
+    // First texel for mip 0, total texels, stable texture id, reserved.
+    mr_uint4 storage;
+    // First texel offsets for mips 1 through 4, or MR_INVALID_INDEX.
+    mr_uint4 mipOffsets0;
+    // First texel offsets for mips 5 through 8, or MR_INVALID_INDEX.
+    mr_uint4 mipOffsets1;
+} MRVisualTextureGPUV1;
+
+typedef struct MR_ALIGN16 MRVisualLightGPUV1 {
+    // xyz position in metres, w effective range.
+    mr_float4 positionAndRange;
+    // xyz direction from the light, w outer spot cosine.
+    mr_float4 directionAndSpot;
+    // Linear RGB radiometric color, w authored physical intensity.
+    mr_float4 colorAndIntensity;
+    // Rectangle width/height, inner spot cosine, source radius.
+    mr_float4 shape;
+    // kind, physical unit, authored priority, stable light id.
+    mr_uint4 identity;
+    // casts shadow, shadow map layer, sample count, flags.
+    mr_uint4 shadow;
+} MRVisualLightGPUV1;
+
+typedef struct MR_ALIGN16 MRVisualShutterProfileGPUV1 {
+    // model, scan direction, temporal samples, rolling bands.
+    mr_uint4 mode;
+    // exposure seconds, readout seconds, exposure center, reserved.
+    mr_float4 timing;
+} MRVisualShutterProfileGPUV1;
 
 typedef struct MR_ALIGN16 MRVisualFrameMetadataGPU {
     // environments, views, width, height.
@@ -170,14 +322,30 @@ static_assert(std::is_trivially_copyable_v<MRVisualSensorBindingGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualMeshVertexGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualMeshTriangleGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualMaterialGPU>);
+static_assert(std::is_trivially_copyable_v<MRVisualVertexGPUV2>);
+static_assert(std::is_trivially_copyable_v<MRVisualPrimitiveGPUV2>);
+static_assert(std::is_trivially_copyable_v<MRVisualTriangleGPUV2>);
+static_assert(std::is_trivially_copyable_v<MRVisualInstanceGPUV2>);
+static_assert(std::is_trivially_copyable_v<MRVisualMaterialGPUV2>);
+static_assert(std::is_trivially_copyable_v<MRVisualTextureGPUV1>);
+static_assert(std::is_trivially_copyable_v<MRVisualLightGPUV1>);
+static_assert(std::is_trivially_copyable_v<MRVisualShutterProfileGPUV1>);
 static_assert(std::is_trivially_copyable_v<MRVisualFrameMetadataGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualKeypointGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualPoseGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualContactAnnotationGPU>);
-static_assert(sizeof(MRVisualSensorBindingGPU) == 48u);
+static_assert(sizeof(MRVisualSensorBindingGPU) == 64u);
 static_assert(sizeof(MRVisualMeshVertexGPU) == 48u);
 static_assert(sizeof(MRVisualMeshTriangleGPU) == 64u);
 static_assert(sizeof(MRVisualMaterialGPU) == 64u);
+static_assert(sizeof(MRVisualVertexGPUV2) == 80u);
+static_assert(sizeof(MRVisualPrimitiveGPUV2) == 64u);
+static_assert(sizeof(MRVisualTriangleGPUV2) == 16u);
+static_assert(sizeof(MRVisualInstanceGPUV2) == 80u);
+static_assert(sizeof(MRVisualMaterialGPUV2) == 128u);
+static_assert(sizeof(MRVisualTextureGPUV1) == 64u);
+static_assert(sizeof(MRVisualLightGPUV1) == 96u);
+static_assert(sizeof(MRVisualShutterProfileGPUV1) == 32u);
 static_assert(sizeof(MRVisualFrameMetadataGPU) == 64u);
 static_assert(sizeof(MRVisualKeypointGPU) == 32u);
 static_assert(sizeof(MRVisualPoseGPU) == 48u);

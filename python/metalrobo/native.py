@@ -85,9 +85,18 @@ class _HybridRendererLayoutC(ct.Structure):
         ("maximum_gaussians_per_tile", ct.c_uint32),
         ("mesh_vertex_count", ct.c_uint32),
         ("mesh_triangle_count", ct.c_uint32),
+        ("mesh_primitive_count", ct.c_uint32),
+        ("mesh_instance_count", ct.c_uint32),
+        ("mesh_index_count", ct.c_uint32),
         ("material_count", ct.c_uint32),
+        ("texture_count", ct.c_uint32),
+        ("light_count", ct.c_uint32),
         ("body_count", ct.c_uint32),
         ("sensor_binding_count", ct.c_uint32),
+        ("shadow_layer_capacity", ct.c_uint32),
+        ("ray_instance_count", ct.c_uint32),
+        ("shadow_workspace_bytes", ct.c_size_t),
+        ("acceleration_structure_bytes", ct.c_size_t),
         ("retained_private_bytes", ct.c_size_t),
         ("last_render_milliseconds", ct.c_double),
     ]
@@ -372,16 +381,23 @@ class _Bindings:
             function.argtypes = [ct.c_void_p]
             function.restype = ct.c_void_p
 
-        self.lib.mr_hybrid_renderer_create.argtypes = [
+        self.lib.mr_hybrid_renderer_create_v2.argtypes = [
             ct.c_void_p,
             ct.c_size_t,
+            ct.c_char_p,
+            ct.c_uint32,
             ct.c_uint32,
             ct.c_uint32,
             ct.c_uint32,
             ct.c_uint32,
             ct.c_char_p,
+            ct.c_char_p,
+            ct.c_uint32,
+            ct.c_uint32,
+            ct.c_uint32,
+            ct.c_char_p,
         ]
-        self.lib.mr_hybrid_renderer_create.restype = ct.c_void_p
+        self.lib.mr_hybrid_renderer_create_v2.restype = ct.c_void_p
         self.lib.mr_hybrid_renderer_destroy.argtypes = [ct.c_void_p]
         self.lib.mr_hybrid_renderer_destroy.restype = None
         self.lib.mr_hybrid_renderer_render.argtypes = [

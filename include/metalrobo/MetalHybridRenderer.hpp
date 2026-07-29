@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/MetalWorldFamily.hpp"
+#include "metalrobo/VisualPresentation.hpp"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/hybrid_renderer_types.h"
 
@@ -35,7 +36,19 @@ struct MetalHybridRendererConfig {
     std::uint32_t width = 160u;
     std::uint32_t height = 120u;
     std::uint32_t maximumGaussiansPerTile = MR_HYBRID_MAX_GAUSSIANS_PER_TILE;
+    // Shadow layers are transient and reused in environment batches. This
+    // controls encoding granularity, not total world capacity.
+    std::uint32_t shadowLayerBatchSize = 32u;
+    // Reference frames recycle motion/TLAS workspaces. Bounding the pool
+    // prevents asynchronous callers from multiplying large ray-build
+    // allocations while still allowing a normal triple-buffered producer.
+    std::uint32_t maximumReferenceFramesInFlight = 3u;
     mr_float4 clearColorAndDepth{0.0f, 0.0f, 0.0f, 1.0e30f};
+    // Hard bounds on unified-memory retention. Compilation rejects an
+    // oversized profile before asking Metal for any large allocation.
+    std::size_t maximumRetainedBytes = 2ull * 1024ull * 1024ull * 1024ull;
+    std::size_t maximumShadowAtlasBytes =
+        384ull * 1024ull * 1024ull;
 };
 
 enum class MetalHybridRendererStatus : std::uint32_t {
@@ -64,10 +77,19 @@ struct MetalHybridRendererLayout {
     std::uint32_t gaussianCount = 0u;
     std::uint32_t meshVertexCount = 0u;
     std::uint32_t meshTriangleCount = 0u;
+    std::uint32_t meshPrimitiveCount = 0u;
+    std::uint32_t meshInstanceCount = 0u;
+    std::uint32_t meshIndexCount = 0u;
     std::uint32_t materialCount = 0u;
+    std::uint32_t textureCount = 0u;
+    std::uint32_t lightCount = 0u;
     std::uint32_t bodyCount = 0u;
     std::uint32_t sensorBindingCount = 0u;
     std::uint32_t maximumGaussiansPerTile = 0u;
+    std::uint32_t shadowLayerCapacity = 0u;
+    std::uint32_t rayInstanceCount = 0u;
+    std::size_t shadowWorkspaceBytes = 0u;
+    std::size_t accelerationStructureBytes = 0u;
     std::size_t retainedPrivateBytes = 0u;
 };
 
@@ -137,6 +159,17 @@ enum class MetalHybridRendererBuffer : std::uint32_t {
     motion = 7u,
     validity = 8u,
     meshWinners = 9u,
+    shadowAtlas = 10u,
+    temporalAccumulation = 11u,
+};
+
+struct MetalHybridFrameCommandContext {
+    // Borrowed id<MTLCommandBuffer>. The reference profile creates the
+    // acceleration-structure, compute, and resolve encoders it needs without
+    // committing or waiting. The fast profile may instead receive a borrowed
+    // active id<MTLComputeCommandEncoder>.
+    void* commandBuffer = nullptr;
+    void* activeComputeCommandEncoder = nullptr;
 };
 
 // First native hybrid observation stage. Static, rigid-object, and other
@@ -154,8 +187,11 @@ public:
     MetalHybridRenderer(const MetalHybridRenderer&) = delete;
     MetalHybridRenderer& operator=(const MetalHybridRenderer&) = delete;
 
-    [[nodiscard]] MetalHybridRendererDiagnostics
-    compile(const HybridGaussianScene& scene, std::uint32_t capacity);
+    [[nodiscard]] MetalHybridRendererDiagnostics compile(
+        VisualRenderSceneV2&& scene,
+        const VisualRendererProfileV1& profile,
+        std::uint32_t capacity
+    );
 
     [[nodiscard]] MetalHybridRendererDiagnostics
     render(const MetalWorldFamilyContext& worlds,
@@ -176,6 +212,16 @@ public:
         const HybridDeviceStateBatch& liveState,
         std::uint32_t cameraIndex,
         void* metalComputeCommandEncoder
+    );
+
+    // Physical-exposure path. Motion samples cover exposure open through
+    // exposure close and remain authoritative; the renderer never predicts
+    // future body poses. Outputs are the same buffers exposed by encode().
+    [[nodiscard]] MetalHybridRendererDiagnostics encodeFrame(
+        const MetalWorldFamilyContext& worlds,
+        const VisualMotionSampleBatchV1& motion,
+        std::uint32_t cameraIndex,
+        const MetalHybridFrameCommandContext& commandContext
     );
 
     [[nodiscard]] MetalHybridRendererDiagnostics

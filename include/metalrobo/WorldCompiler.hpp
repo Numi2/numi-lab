@@ -2,6 +2,7 @@
 
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/r2s2r_types.h"
+#include "metalrobo/visual_platform_types.h"
 #include "metalrobo/world_compiler_types.h"
 
 #include <cstdint>
@@ -107,6 +108,10 @@ struct SensorSpec {
     float nominalRateHz = 15.0f;
     float exposureSeconds = 1.0f / 120.0f;
     float shutterReadoutSeconds = 0.0f;
+    MRVisualShutterModel shutterModel =
+        MR_VISUAL_SHUTTER_GLOBAL;
+    MRVisualShutterDirection shutterDirection =
+        MR_VISUAL_SHUTTER_TOP_TO_BOTTOM;
     float frameJitterSeconds = 0.0f;
     float minimumDepthMeters = 0.05f;
     float maximumDepthMeters = 10.0f;

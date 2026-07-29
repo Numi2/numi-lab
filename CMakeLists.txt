@@ -21,6 +21,9 @@ find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
 find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
+find_library(COREGRAPHICS_FRAMEWORK CoreGraphics REQUIRED)
+find_library(IMAGEIO_FRAMEWORK ImageIO REQUIRED)
+find_library(MODELIO_FRAMEWORK ModelIO REQUIRED)
 find_package(SQLite3 REQUIRED)
 find_package(LibXml2 REQUIRED)
 
@@ -352,6 +355,7 @@ add_library(
     src/core/EpisodeTwinCompiler.cpp
     src/core/R2S2R.cpp
     src/core/VisualPlatform.cpp
+    src/core/VisualPresentation.cpp
     src/core/RobotDescriptionCooker.cpp
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
@@ -381,6 +385,7 @@ add_library(
     src/core/RigidBodyWorld.cpp
     src/apple/CaptureManifestJSON.mm
     src/apple/HardwareOutcomeJSON.mm
+    src/apple/VisualAssetCooker.mm
     src/metal/MetalArticulatedOperator.mm
     src/metal/MetalArticulatedABA.mm
     src/metal/MetalMultiArticulatedABA.mm
@@ -426,6 +431,9 @@ target_link_libraries(
         "${METAL_FRAMEWORK}"
         "${QUARTZCORE_FRAMEWORK}"
         "${ACCELERATE_FRAMEWORK}"
+        "${COREGRAPHICS_FRAMEWORK}"
+        "${IMAGEIO_FRAMEWORK}"
+        "${MODELIO_FRAMEWORK}"
         SQLite::SQLite3
         LibXml2::LibXml2
 )
@@ -1573,8 +1581,60 @@ set_target_properties(
 )
 
 add_executable(
+    metalrobo_visual_reference_probe
+    apps/visual_reference_probe.mm
+)
+target_link_libraries(
+    metalrobo_visual_reference_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_visual_reference_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_visual_reference_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
     metalrobo_visual_platform_probe
     apps/visual_platform_probe.cpp
+)
+
+add_executable(
+    metalrobo_visual_cook
+    apps/visual_cook.cpp
+)
+target_link_libraries(
+    metalrobo_visual_cook
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_visual_cook
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_visual_cook
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
 )
 target_link_libraries(
     metalrobo_visual_platform_probe
@@ -1602,6 +1662,7 @@ install(
         metalrobo_bench
         metalrobo_world_pack
         metalrobo_episode_compile
+        metalrobo_visual_cook
 )
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)

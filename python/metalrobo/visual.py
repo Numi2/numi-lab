@@ -419,6 +419,11 @@ class VisualBatchProvenanceV1:
     episode_twin_fingerprint: int
     scenario_fingerprint: int
     renderer_fingerprint: int
+    visual_pack_fingerprint: int
+    environment_map_fingerprint: int
+    light_rig_fingerprint: int
+    renderer_profile_fingerprint: int
+    shutter_profile_fingerprint: int
     sensor_profile_fingerprint: int
     calibration_fingerprint: int
 
@@ -427,6 +432,11 @@ class VisualBatchProvenanceV1:
             "episode_twin_fingerprint",
             "scenario_fingerprint",
             "renderer_fingerprint",
+            "visual_pack_fingerprint",
+            "environment_map_fingerprint",
+            "light_rig_fingerprint",
+            "renderer_profile_fingerprint",
+            "shutter_profile_fingerprint",
             "sensor_profile_fingerprint",
             "calibration_fingerprint",
         ):
@@ -1180,9 +1190,18 @@ class VisualEpisodeProvenanceV1:
     scenario_fingerprint: int
     renderer_fingerprint: int
     visual_scene_fingerprint: int
+    visual_pack_fingerprint: int
+    environment_map_fingerprint: int
+    light_rig_fingerprint: int
+    renderer_profile_fingerprint: int
+    shutter_profile_fingerprint: int
     sensor_profile_fingerprint: int
     calibration_fingerprint: int
     physics_fingerprint: int
+    environment_map_hash: str
+    light_rig_hash: str
+    renderer_profile_hash: str
+    shutter_profile_hash: str
     visual_asset_hashes: tuple[str, ...] = ()
     nominal_rate_hz: float = 15.0
 
@@ -1207,12 +1226,30 @@ class VisualEpisodeProvenanceV1:
         if not isinstance(self.visual_asset_hashes, (tuple, list)):
             raise ValueError("visual asset hashes must be a sequence")
         visual_asset_hashes = tuple(self.visual_asset_hashes)
+        presentation_hashes = (
+            self.environment_map_hash,
+            self.light_rig_hash,
+            self.renderer_profile_hash,
+            self.shutter_profile_hash,
+        )
+        if any(
+            not isinstance(value, str) or not value
+            for value in presentation_hashes
+        ):
+            raise ValueError(
+                "visual presentation hashes must be nonempty strings"
+            )
         for name in (
             "episode_twin_fingerprint",
             "world_family_fingerprint",
             "scenario_fingerprint",
             "renderer_fingerprint",
             "visual_scene_fingerprint",
+            "visual_pack_fingerprint",
+            "environment_map_fingerprint",
+            "light_rig_fingerprint",
+            "renderer_profile_fingerprint",
+            "shutter_profile_fingerprint",
             "sensor_profile_fingerprint",
             "calibration_fingerprint",
             "physics_fingerprint",
@@ -1222,7 +1259,7 @@ class VisualEpisodeProvenanceV1:
                 name,
                 _fingerprint(getattr(self, name), name=name),
             )
-        if any(
+        if not visual_asset_hashes or any(
             not isinstance(value, str) or not value for value in visual_asset_hashes
         ) or len(visual_asset_hashes) != len(set(visual_asset_hashes)):
             raise ValueError("visual asset hashes must be nonempty and unique")
@@ -1336,6 +1373,11 @@ class VisualEpisodeWriterV1:
             self.provenance.episode_twin_fingerprint,
             self.provenance.scenario_fingerprint,
             self.provenance.renderer_fingerprint,
+            self.provenance.visual_pack_fingerprint,
+            self.provenance.environment_map_fingerprint,
+            self.provenance.light_rig_fingerprint,
+            self.provenance.renderer_profile_fingerprint,
+            self.provenance.shutter_profile_fingerprint,
             self.provenance.sensor_profile_fingerprint,
             self.provenance.calibration_fingerprint,
         )
@@ -1343,6 +1385,11 @@ class VisualEpisodeWriterV1:
             frame_provenance.episode_twin_fingerprint,
             frame_provenance.scenario_fingerprint,
             frame_provenance.renderer_fingerprint,
+            frame_provenance.visual_pack_fingerprint,
+            frame_provenance.environment_map_fingerprint,
+            frame_provenance.light_rig_fingerprint,
+            frame_provenance.renderer_profile_fingerprint,
+            frame_provenance.shutter_profile_fingerprint,
             frame_provenance.sensor_profile_fingerprint,
             frame_provenance.calibration_fingerprint,
         )

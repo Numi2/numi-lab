@@ -71,9 +71,18 @@ class HybridRendererLayout:
     maximum_gaussians_per_tile: int
     mesh_vertex_count: int
     mesh_triangle_count: int
+    mesh_primitive_count: int
+    mesh_instance_count: int
+    mesh_index_count: int
     material_count: int
+    texture_count: int
+    light_count: int
     body_count: int
     sensor_binding_count: int
+    shadow_layer_capacity: int
+    ray_instance_count: int
+    shadow_workspace_bytes: int
+    acceleration_structure_bytes: int
     retained_private_bytes: int
     last_render_milliseconds: float
 
@@ -240,9 +249,16 @@ class HybridObservationRenderer:
 
     def __init__(
         self,
-        gaussians: npt.ArrayLike,
+        gaussians: npt.ArrayLike | None = None,
         *,
         asset_count: int,
+        body_count: int = 0,
+        visual_pack: str | os.PathLike[str] | None = None,
+        visual_asset_index: int = 0,
+        semantic_id: int = 1,
+        instance_id: int = 1,
+        light_rig: str = "studio_key",
+        renderer_profile: str = "sensor_fast",
         capacity: int = 256,
         width: int = 160,
         height: int = 120,
@@ -256,6 +272,35 @@ class HybridObservationRenderer:
         )
         if asset_count >= int(INVALID_INDEX):
             raise ValueError("asset_count must leave room for valid instance ids")
+        body_count = _uint32(body_count, name="body_count")
+        visual_asset_index = _uint32(
+            visual_asset_index,
+            name="visual_asset_index",
+        )
+        if visual_asset_index >= asset_count:
+            raise ValueError("visual_asset_index must be inside asset_count")
+        semantic_id = _uint32(
+            semantic_id,
+            name="semantic_id",
+            nonzero=True,
+        )
+        instance_id = _uint32(
+            instance_id,
+            name="instance_id",
+            nonzero=True,
+        )
+        if semantic_id == int(INVALID_INDEX) or instance_id == int(INVALID_INDEX):
+            raise ValueError("semantic_id and instance_id must be valid identities")
+        if light_rig not in {"studio_key", "indoor_area"}:
+            raise ValueError("light_rig must be 'studio_key' or 'indoor_area'")
+        if renderer_profile not in {"sensor_fast", "sensor_reference"}:
+            raise ValueError(
+                "renderer_profile must be 'sensor_fast' or 'sensor_reference'"
+            )
+        if renderer_profile == "sensor_reference" and body_count == 0:
+            raise ValueError(
+                "sensor_reference requires body_count for its motion layout"
+            )
         dimensions: dict[str, int] = {}
         for name, value in (
             ("capacity", capacity),
@@ -270,18 +315,31 @@ class HybridObservationRenderer:
         capacity = dimensions["capacity"]
         width = dimensions["width"]
         height = dimensions["height"]
-        packed = np.ascontiguousarray(
-            gaussians,
-            dtype=HYBRID_GAUSSIAN_DTYPE,
+        packed = (
+            np.empty((0,), dtype=HYBRID_GAUSSIAN_DTYPE)
+            if gaussians is None
+            else np.ascontiguousarray(
+                gaussians,
+                dtype=HYBRID_GAUSSIAN_DTYPE,
+            )
         )
-        if packed.ndim != 1 or packed.size == 0:
-            raise ValueError("gaussians must be a nonempty one-dimensional array")
-        if (
+        if packed.ndim != 1:
+            raise ValueError("gaussians must be a one-dimensional array")
+        if packed.size and (
             np.any(packed["binding"][:, 0] >= asset_count)
             or np.any(packed["binding"][:, 2] == 0)
             or np.any(packed["binding"][:, 2] == INVALID_INDEX)
         ):
             raise ValueError("Gaussian asset and semantic bindings are invalid")
+        resolved_visual_pack: Path | None = None
+        if visual_pack is not None:
+            resolved_visual_pack = Path(visual_pack).expanduser().resolve()
+            if not resolved_visual_pack.is_file():
+                raise FileNotFoundError(
+                    f"VisualAssetPackV1 does not exist: {resolved_visual_pack}"
+                )
+        if packed.size == 0 and resolved_visual_pack is None:
+            raise ValueError("gaussians or visual_pack must be supplied")
 
         self._bindings = _load_bindings(library_path)
         self.library_path: Path = self._bindings.path
@@ -292,10 +350,26 @@ class HybridObservationRenderer:
         encoded_metallib = (
             os.fsencode(self.metallib_path) if self.metallib_path is not None else None
         )
-        self._handle = self._bindings.lib.mr_hybrid_renderer_create(
-            ct.c_void_p(int(packed.ctypes.data)),
+        encoded_visual_pack = (
+            os.fsencode(resolved_visual_pack)
+            if resolved_visual_pack is not None
+            else None
+        )
+        self._handle = self._bindings.lib.mr_hybrid_renderer_create_v2(
+            (
+                ct.c_void_p(int(packed.ctypes.data))
+                if packed.size
+                else None
+            ),
             ct.c_size_t(packed.size),
+            encoded_visual_pack,
             ct.c_uint32(asset_count),
+            ct.c_uint32(body_count),
+            ct.c_uint32(visual_asset_index),
+            ct.c_uint32(semantic_id),
+            ct.c_uint32(instance_id),
+            light_rig.encode("utf-8"),
+            renderer_profile.encode("utf-8"),
             ct.c_uint32(capacity),
             ct.c_uint32(width),
             ct.c_uint32(height),
@@ -305,6 +379,9 @@ class HybridObservationRenderer:
             raise MetalRoboError(
                 f"Could not create hybrid renderer: {self._bindings.last_error()}"
             )
+        self.visual_pack = resolved_visual_pack
+        self.light_rig = light_rig
+        self.renderer_profile = renderer_profile
 
     def _require_open(self) -> ct.c_void_p:
         handle = getattr(self, "_handle", None)
@@ -332,9 +409,20 @@ class HybridObservationRenderer:
             maximum_gaussians_per_tile=int(native.maximum_gaussians_per_tile),
             mesh_vertex_count=int(native.mesh_vertex_count),
             mesh_triangle_count=int(native.mesh_triangle_count),
+            mesh_primitive_count=int(native.mesh_primitive_count),
+            mesh_instance_count=int(native.mesh_instance_count),
+            mesh_index_count=int(native.mesh_index_count),
             material_count=int(native.material_count),
+            texture_count=int(native.texture_count),
+            light_count=int(native.light_count),
             body_count=int(native.body_count),
             sensor_binding_count=int(native.sensor_binding_count),
+            shadow_layer_capacity=int(native.shadow_layer_capacity),
+            ray_instance_count=int(native.ray_instance_count),
+            shadow_workspace_bytes=int(native.shadow_workspace_bytes),
+            acceleration_structure_bytes=int(
+                native.acceleration_structure_bytes
+            ),
             retained_private_bytes=int(native.retained_private_bytes),
             last_render_milliseconds=float(native.last_render_milliseconds),
         )

@@ -186,6 +186,8 @@ void appendSensor(HashBuilder& hash, const SensorSpec& sensor) {
     hash.appendScalar(sensor.nominalRateHz);
     hash.appendScalar(sensor.exposureSeconds);
     hash.appendScalar(sensor.shutterReadoutSeconds);
+    hash.appendScalar(sensor.shutterModel);
+    hash.appendScalar(sensor.shutterDirection);
     hash.appendScalar(sensor.frameJitterSeconds);
     hash.appendScalar(sensor.minimumDepthMeters);
     hash.appendScalar(sensor.maximumDepthMeters);
@@ -748,6 +750,11 @@ bool validSensor(const SensorSpec& sensor, std::string* reason) {
         !(sensor.exposureSeconds >= 0.0f) ||
         !finite(sensor.shutterReadoutSeconds) ||
         !(sensor.shutterReadoutSeconds >= 0.0f) ||
+        sensor.shutterModel > MR_VISUAL_SHUTTER_ROLLING ||
+        sensor.shutterDirection >
+            MR_VISUAL_SHUTTER_RIGHT_TO_LEFT ||
+        (sensor.shutterModel == MR_VISUAL_SHUTTER_GLOBAL &&
+         sensor.shutterReadoutSeconds != 0.0f) ||
         !finite(sensor.frameJitterSeconds) ||
         !(sensor.frameJitterSeconds >= 0.0f) ||
         !finite(sensor.minimumDepthMeters) ||

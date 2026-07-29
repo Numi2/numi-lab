@@ -272,6 +272,8 @@ bool readAsset(PayloadReader& reader, WorldAsset& asset) {
 void writeSensor(PayloadWriter& writer, const SensorSpec& sensor) {
     writer.string(sensor.id);
     writer.string(sensor.parentAssetId);
+    writer.pod(sensor.parentKind);
+    writer.pod(sensor.parentBodyIndex);
     writer.pod(sensor.kind);
     writePose(writer, sensor.localPose);
     writer.pod(sensor.width);
@@ -283,11 +285,23 @@ void writeSensor(PayloadWriter& writer, const SensorSpec& sensor) {
     writer.pod(sensor.depthNoiseSigma);
     writer.pod(sensor.depthDropout);
     writer.pod(sensor.latencySeconds);
+    writer.pod(sensor.nominalRateHz);
+    writer.pod(sensor.exposureSeconds);
+    writer.pod(sensor.shutterReadoutSeconds);
+    writer.pod(sensor.shutterModel);
+    writer.pod(sensor.shutterDirection);
+    writer.pod(sensor.frameJitterSeconds);
+    writer.pod(sensor.minimumDepthMeters);
+    writer.pod(sensor.maximumDepthMeters);
+    writer.pod(sensor.depthQuantumMeters);
+    writer.pod(sensor.motionBlurScale);
 }
 
 bool readSensor(PayloadReader& reader, SensorSpec& sensor) {
     return reader.string(sensor.id) &&
         reader.string(sensor.parentAssetId) &&
+        reader.pod(sensor.parentKind) &&
+        reader.pod(sensor.parentBodyIndex) &&
         reader.pod(sensor.kind) &&
         readPose(reader, sensor.localPose) &&
         reader.pod(sensor.width) &&
@@ -298,7 +312,17 @@ bool readSensor(PayloadReader& reader, SensorSpec& sensor) {
         reader.pod(sensor.colorNoiseSigma) &&
         reader.pod(sensor.depthNoiseSigma) &&
         reader.pod(sensor.depthDropout) &&
-        reader.pod(sensor.latencySeconds);
+        reader.pod(sensor.latencySeconds) &&
+        reader.pod(sensor.nominalRateHz) &&
+        reader.pod(sensor.exposureSeconds) &&
+        reader.pod(sensor.shutterReadoutSeconds) &&
+        reader.pod(sensor.shutterModel) &&
+        reader.pod(sensor.shutterDirection) &&
+        reader.pod(sensor.frameJitterSeconds) &&
+        reader.pod(sensor.minimumDepthMeters) &&
+        reader.pod(sensor.maximumDepthMeters) &&
+        reader.pod(sensor.depthQuantumMeters) &&
+        reader.pod(sensor.motionBlurScale);
 }
 
 void writeAppearance(

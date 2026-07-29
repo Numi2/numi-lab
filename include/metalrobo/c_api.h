@@ -80,9 +80,18 @@ typedef struct MRHybridRendererLayoutC {
     uint32_t maximum_gaussians_per_tile;
     uint32_t mesh_vertex_count;
     uint32_t mesh_triangle_count;
+    uint32_t mesh_primitive_count;
+    uint32_t mesh_instance_count;
+    uint32_t mesh_index_count;
     uint32_t material_count;
+    uint32_t texture_count;
+    uint32_t light_count;
     uint32_t body_count;
     uint32_t sensor_binding_count;
+    uint32_t shadow_layer_capacity;
+    uint32_t ray_instance_count;
+    size_t shadow_workspace_bytes;
+    size_t acceleration_structure_bytes;
     size_t retained_private_bytes;
     double last_render_milliseconds;
 } MRHybridRendererLayoutC;
@@ -240,10 +249,20 @@ mr_world_family_scenario_headers(const MRWorldFamilyHandle* handle);
 MR_API const MRWorldScenarioValueGPU*
 mr_world_family_scenario_values(const MRWorldFamilyHandle* handle);
 
-MR_API MRHybridRendererHandle* mr_hybrid_renderer_create(
+// V2 presentation entry point. At least one of gaussians or visual_pack_path
+// must be supplied. light_rig accepts "studio_key" or "indoor_area";
+// renderer_profile accepts "sensor_fast" or "sensor_reference".
+MR_API MRHybridRendererHandle* mr_hybrid_renderer_create_v2(
     const MRHybridGaussianC* gaussians,
     size_t gaussian_count,
+    const char* visual_pack_path,
     uint32_t asset_count,
+    uint32_t body_count,
+    uint32_t visual_asset_index,
+    uint32_t semantic_id,
+    uint32_t instance_id,
+    const char* light_rig,
+    const char* renderer_profile,
     uint32_t capacity,
     uint32_t width,
     uint32_t height,

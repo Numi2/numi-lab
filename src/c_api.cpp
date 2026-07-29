@@ -897,37 +897,53 @@ const MRWorldScenarioValueGPU* mr_world_family_scenario_values(
     return handle->readback.scenarioValues.data();
 }
 
-MRHybridRendererHandle* mr_hybrid_renderer_create(
+MRHybridRendererHandle* mr_hybrid_renderer_create_v2(
     const MRHybridGaussianC* gaussians,
     const size_t gaussian_count,
+    const char* visual_pack_path,
     const uint32_t asset_count,
+    const uint32_t body_count,
+    const uint32_t visual_asset_index,
+    const uint32_t semantic_id,
+    const uint32_t instance_id,
+    const char* light_rig,
+    const char* renderer_profile,
     const uint32_t capacity,
     const uint32_t width,
     const uint32_t height,
     const char* metallib_path
 ) {
-    if (gaussians == nullptr || gaussian_count == 0u ||
+    const bool hasGaussians = gaussian_count != 0u;
+    const bool hasPack =
+        visual_pack_path != nullptr &&
+        visual_pack_path[0] != '\0';
+    if ((!hasGaussians && !hasPack) ||
+        (hasGaussians && gaussians == nullptr) ||
         gaussian_count >
             std::numeric_limits<std::uint32_t>::max() ||
-        asset_count == 0u || capacity == 0u ||
-        width == 0u || height == 0u) {
+        asset_count == 0u ||
+        visual_asset_index >= asset_count ||
+        semantic_id == 0u ||
+        semantic_id == MR_INVALID_INDEX ||
+        instance_id == 0u ||
+        instance_id == MR_INVALID_INDEX ||
+        capacity == 0u || width == 0u || height == 0u) {
         gLastError =
-            "hybrid renderer scene, dimensions, and capacity "
-            "must be nonempty.";
+            "V2 visual scene, bindings, dimensions, and capacity "
+            "must be valid and nonempty.";
         return nullptr;
     }
     MRHybridRendererHandle* result = nullptr;
     const int status = translateErrors([&] {
-        metalrobo::HybridGaussianScene scene;
-        scene.id = "c_api_hybrid_scene";
-        scene.assetCount = asset_count;
-        scene.gaussians.resize(gaussian_count);
+        std::vector<MRHybridGaussianGPU> copiedGaussians(
+            gaussian_count
+        );
         for (std::size_t index = 0u;
              index < gaussian_count;
              ++index) {
             const MRHybridGaussianC& source = gaussians[index];
             MRHybridGaussianGPU& destination =
-                scene.gaussians[index];
+                copiedGaussians[index];
             std::memcpy(
                 &destination.meanAndOpacity,
                 source.mean_and_opacity,
@@ -954,6 +970,77 @@ MRHybridRendererHandle* mr_hybrid_renderer_create(
                 sizeof(source.binding)
             );
         }
+        metalrobo::VisualRenderSceneV2 scene;
+        scene.id = "c_api_visual_scene_v2";
+        scene.assetCount = asset_count;
+        scene.bodyCount = body_count;
+        scene.gaussians = std::move(copiedGaussians);
+        scene.environment =
+            metalrobo::makeNeutralStudioEnvironmentV1();
+        scene.lightRig =
+            metalrobo::makeStudioKeyLightRigV1();
+        if (hasPack) {
+            metalrobo::VisualAssetPackV1 pack;
+            std::string reason;
+            if (!metalrobo::readVisualAssetPack(
+                    visual_pack_path,
+                    pack,
+                    &reason
+                ) ||
+                !metalrobo::appendVisualAssetPack(
+                    std::move(pack),
+                    visual_asset_index,
+                    semantic_id,
+                    instance_id,
+                    scene,
+                    &reason
+                )) {
+                throw std::runtime_error(
+                    "could not load V2 visual pack: " + reason
+                );
+            }
+        }
+
+        const std::string selectedLightRig =
+            light_rig == nullptr || light_rig[0] == '\0'
+            ? "studio_key"
+            : light_rig;
+        if (selectedLightRig == "indoor_area") {
+            scene.lightRig =
+                metalrobo::makeIndoorAreaLightRigV1();
+        } else if (selectedLightRig != "studio_key") {
+            throw std::runtime_error(
+                "unsupported V2 light rig: " + selectedLightRig
+            );
+        }
+
+        const std::string selectedProfile =
+            renderer_profile == nullptr ||
+                renderer_profile[0] == '\0'
+            ? "sensor_fast"
+            : renderer_profile;
+        metalrobo::VisualRendererProfileV1 profile;
+        if (selectedProfile == "sensor_fast") {
+            profile =
+                metalrobo::VisualRendererProfileV1::sensorFast();
+        } else if (selectedProfile == "sensor_reference") {
+            profile =
+                metalrobo::VisualRendererProfileV1::
+                    sensorReference();
+        } else {
+            throw std::runtime_error(
+                "unsupported V2 renderer profile: " +
+                selectedProfile
+            );
+        }
+        if (profile.rayQueryVisibility && body_count == 0u) {
+            throw std::runtime_error(
+                "sensor_reference requires a nonzero body_count"
+            );
+        }
+        scene.fingerprint =
+            metalrobo::computeVisualRenderSceneV2Fingerprint(scene);
+
         metalrobo::MetalHybridRendererConfig config;
         config.width = width;
         config.height = height;
@@ -965,10 +1052,14 @@ MRHybridRendererHandle* mr_hybrid_renderer_create(
             std::move(config)
         };
         const metalrobo::MetalHybridRendererDiagnostics diagnostics =
-            handle->renderer.compile(scene, capacity);
+            handle->renderer.compile(
+                std::move(scene),
+                profile,
+                capacity
+            );
         if (!diagnostics.succeeded()) {
             throw std::runtime_error(
-                std::string{"hybrid renderer compile failed ["} +
+                std::string{"V2 visual renderer compile failed ["} +
                 metalrobo::metalHybridRendererStatusName(
                     diagnostics.status
                 ) + "]: " + diagnostics.message
@@ -1058,9 +1149,19 @@ MRHybridRendererLayoutC mr_hybrid_renderer_layout(
         layout.maximumGaussiansPerTile;
     result.mesh_vertex_count = layout.meshVertexCount;
     result.mesh_triangle_count = layout.meshTriangleCount;
+    result.mesh_primitive_count = layout.meshPrimitiveCount;
+    result.mesh_instance_count = layout.meshInstanceCount;
+    result.mesh_index_count = layout.meshIndexCount;
     result.material_count = layout.materialCount;
+    result.texture_count = layout.textureCount;
+    result.light_count = layout.lightCount;
     result.body_count = layout.bodyCount;
     result.sensor_binding_count = layout.sensorBindingCount;
+    result.shadow_layer_capacity = layout.shadowLayerCapacity;
+    result.ray_instance_count = layout.rayInstanceCount;
+    result.shadow_workspace_bytes = layout.shadowWorkspaceBytes;
+    result.acceleration_structure_bytes =
+        layout.accelerationStructureBytes;
     result.retained_private_bytes = layout.retainedPrivateBytes;
     result.last_render_milliseconds =
         handle->lastRenderMilliseconds;

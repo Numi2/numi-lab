@@ -1,10 +1,12 @@
 #include <metal_stdlib>
+#include <Metal/MTLAccelerationStructureTypes.h>
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/hybrid_renderer_types.h"
 #include "metalrobo/world_compiler_types.h"
 
 using namespace metal;
+using namespace raytracing;
 
 namespace {
 
@@ -60,6 +62,17 @@ float3 inverseRotateVector(
         ),
         vector
     );
+}
+
+float4 interpolateQuaternionFast(
+    float4 first,
+    float4 second,
+    const float fraction
+) {
+    if (dot(first, second) < 0.0f) {
+        second = -second;
+    }
+    return normalize(mix(first, second, fraction));
 }
 
 float2 projectAxis(
@@ -162,14 +175,59 @@ BoundPose bodyPose(
         result.valid = false;
         return result;
     }
-    const MRBodyStateGPU state =
-        bodies[environment * uniforms.live.x + body];
+    float3 position;
+    float4 orientation;
+    if (uniforms.rayTiming.w > 0.5f &&
+        uniforms.ray.y >= 2u) {
+        const float time = clamp(
+            previous
+                ? uniforms.rayTiming.z
+                : uniforms.exposure.x,
+            0.0f,
+            1.0f
+        );
+        const float scaled =
+            time * float(uniforms.ray.y - 1u);
+        const uint firstKeyframe =
+            min(uint(floor(scaled)), uniforms.ray.y - 1u);
+        const uint secondKeyframe =
+            min(firstKeyframe + 1u, uniforms.ray.y - 1u);
+        const float fraction =
+            scaled - float(firstKeyframe);
+        const uint statesPerKeyframe =
+            uniforms.counts.x * uniforms.live.x;
+        const uint bodyOffset =
+            environment * uniforms.live.x + body;
+        const MRBodyStateGPU first =
+            bodies[
+                firstKeyframe * statesPerKeyframe + bodyOffset
+            ];
+        const MRBodyStateGPU second =
+            bodies[
+                secondKeyframe * statesPerKeyframe + bodyOffset
+            ];
+        position = mix(
+            first.position.xyz,
+            second.position.xyz,
+            fraction
+        );
+        orientation = interpolateQuaternionFast(
+            first.orientation,
+            second.orientation,
+            fraction
+        );
+    } else {
+        const MRBodyStateGPU state =
+            bodies[environment * uniforms.live.x + body];
+        position = state.position.xyz;
+        orientation = normalize(state.orientation);
+    }
     return {
-        state.position.xyz,
-        normalize(state.orientation),
+        position,
+        orientation,
         1.0f,
-        all(isfinite(state.position.xyz)) &&
-            all(isfinite(state.orientation)),
+        all(isfinite(position)) &&
+            all(isfinite(orientation)),
     };
 }
 
@@ -204,6 +262,32 @@ BoundPose resolvePose(
         return result;
     }
     }
+}
+
+BoundPose composeInstancePose(
+    const BoundPose parent,
+    const MRVisualInstanceGPUV2 instance
+) {
+    if (!parent.valid) {
+        return parent;
+    }
+    BoundPose result;
+    result.position = parent.position + rotateVector(
+        parent.orientation,
+        instance.translationAndScale.xyz * parent.scale
+    );
+    result.orientation = normalize(
+        quaternionProduct(
+            parent.orientation,
+            instance.orientation
+        )
+    );
+    result.scale =
+        parent.scale * instance.translationAndScale.w;
+    result.valid = all(isfinite(result.position)) &&
+        all(isfinite(result.orientation)) &&
+        isfinite(result.scale) && result.scale > 0.0f;
+    return result;
 }
 
 BoundPose cameraPose(
@@ -381,6 +465,404 @@ float3 transformNormal(
     return normalize(rotateVector(pose.orientation, local));
 }
 
+float3 srgbToLinear(const float3 value) {
+    return select(
+        value / 12.92f,
+        pow((value + 0.055f) / 1.055f, 2.4f),
+        value > 0.04045f
+    );
+}
+
+uint textureMipOffset(
+    const MRVisualTextureGPUV1 texture,
+    const uint level
+) {
+    if (level == 0u) {
+        return texture.storage.x;
+    }
+    if (level <= 4u) {
+        return texture.mipOffsets0[level - 1u];
+    }
+    return texture.mipOffsets1[level - 5u];
+}
+
+float4 unpackRgba8(const uint value) {
+    return float4(
+        float(value & 255u),
+        float((value >> 8u) & 255u),
+        float((value >> 16u) & 255u),
+        float((value >> 24u) & 255u)
+    ) / 255.0f;
+}
+
+float4 sampleVisualTexture(
+    const device MRVisualTextureGPUV1* textures,
+    const device uint* texels,
+    const uint textureIndex,
+    float2 uv,
+    const float lod,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    if (textureIndex == MR_INVALID_INDEX ||
+        textureIndex >= uniforms.presentation.x) {
+        return 1.0f;
+    }
+    const MRVisualTextureGPUV1 texture = textures[textureIndex];
+    if ((texture.dimensions.w & MR_VISUAL_TEXTURE_CLAMP_U) != 0u) {
+        uv.x = clamp(uv.x, 0.0f, 1.0f);
+    } else {
+        uv.x = fract(uv.x);
+    }
+    if ((texture.dimensions.w & MR_VISUAL_TEXTURE_CLAMP_V) != 0u) {
+        uv.y = clamp(uv.y, 0.0f, 1.0f);
+    } else {
+        uv.y = fract(uv.y);
+    }
+    const uint level = min(
+        uint(max(round(lod), 0.0f)),
+        max(texture.dimensions.z, 1u) - 1u
+    );
+    const uint width = max(texture.dimensions.x >> level, 1u);
+    const uint height = max(texture.dimensions.y >> level, 1u);
+    const uint offset = textureMipOffset(texture, level);
+    if (offset == MR_INVALID_INDEX) {
+        return 1.0f;
+    }
+    const float2 coordinate =
+        uv * float2(width, height) - 0.5f;
+    const int2 base = int2(floor(coordinate));
+    const float2 fraction = fract(coordinate);
+    const auto texel = [&](const int x, const int y) {
+        int resolvedX = x;
+        int resolvedY = y;
+        if ((texture.dimensions.w &
+             MR_VISUAL_TEXTURE_CLAMP_U) != 0u) {
+            resolvedX = clamp(resolvedX, 0, int(width) - 1);
+        } else {
+            resolvedX =
+                (resolvedX % int(width) + int(width)) % int(width);
+        }
+        if ((texture.dimensions.w &
+             MR_VISUAL_TEXTURE_CLAMP_V) != 0u) {
+            resolvedY = clamp(resolvedY, 0, int(height) - 1);
+        } else {
+            resolvedY =
+                (resolvedY % int(height) + int(height)) % int(height);
+        }
+        return unpackRgba8(
+            texels[
+                offset + uint(resolvedY) * width + uint(resolvedX)
+            ]
+        );
+    };
+    float4 result = mix(
+        mix(
+            texel(base.x, base.y),
+            texel(base.x + 1, base.y),
+            fraction.x
+        ),
+        mix(
+            texel(base.x, base.y + 1),
+            texel(base.x + 1, base.y + 1),
+            fraction.x
+        ),
+        fraction.y
+    );
+    if ((texture.dimensions.w & MR_VISUAL_TEXTURE_SRGB) != 0u) {
+        result.xyz = srgbToLinear(result.xyz);
+    }
+    return result;
+}
+
+float3 evaluateEnvironmentSH(
+    const device float4* coefficients,
+    float3 direction,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    const float rotation = uniforms.exposure.w;
+    const float sine = sin(rotation);
+    const float cosine = cos(rotation);
+    direction.xy = float2(
+        cosine * direction.x - sine * direction.y,
+        sine * direction.x + cosine * direction.y
+    );
+    const float x = direction.x;
+    const float y = direction.y;
+    const float z = direction.z;
+    const float basis[9] = {
+        0.282095f,
+        0.488603f * y,
+        0.488603f * z,
+        0.488603f * x,
+        1.092548f * x * y,
+        1.092548f * y * z,
+        0.315392f * (3.0f * z * z - 1.0f),
+        1.092548f * x * z,
+        0.546274f * (x * x - y * y),
+    };
+    float3 result = 0.0f;
+    for (uint index = 0u; index < 9u; ++index) {
+        result += coefficients[index].xyz * basis[index];
+    }
+    return max(result * uniforms.exposure.z, 0.0f);
+}
+
+float distributionGGX(const float noH, const float roughness) {
+    const float alpha = max(roughness * roughness, 0.0025f);
+    const float alphaSquared = alpha * alpha;
+    const float denominator =
+        noH * noH * (alphaSquared - 1.0f) + 1.0f;
+    return alphaSquared /
+        max(M_PI_F * denominator * denominator, 1.0e-7f);
+}
+
+float visibilitySmithGGX(
+    const float noV,
+    const float noL,
+    const float roughness
+) {
+    const float alpha = max(roughness * roughness, 0.0025f);
+    const float lambdaV =
+        noL * sqrt(max(noV * noV * (1.0f - alpha * alpha) +
+                       alpha * alpha, 0.0f));
+    const float lambdaL =
+        noV * sqrt(max(noL * noL * (1.0f - alpha * alpha) +
+                       alpha * alpha, 0.0f));
+    return 0.5f / max(lambdaV + lambdaL, 1.0e-7f);
+}
+
+float3 fresnelSchlick(
+    const float voH,
+    const float3 f0
+) {
+    const float factor = pow(clamp(1.0f - voH, 0.0f, 1.0f), 5.0f);
+    return f0 + (1.0f - f0) * factor;
+}
+
+struct ShadowProjection {
+    float2 pixel;
+    float depth;
+    bool valid;
+};
+
+void lightBasis(
+    const float3 direction,
+    thread float3& right,
+    thread float3& up
+) {
+    const float3 reference =
+        abs(direction.z) < 0.99f
+        ? float3(0.0f, 0.0f, 1.0f)
+        : float3(0.0f, 1.0f, 0.0f);
+    right = normalize(cross(reference, direction));
+    up = normalize(cross(direction, right));
+}
+
+ShadowProjection projectShadow(
+    const float3 world,
+    const MRVisualLightGPUV1 light,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    ShadowProjection result{};
+    const float3 direction = normalize(light.directionAndSpot.xyz);
+    float3 right;
+    float3 up;
+    lightBasis(direction, right, up);
+    const float3 relative = world - light.positionAndRange.xyz;
+    const float range = max(light.positionAndRange.w, 1.0e-3f);
+    if (light.identity.x == MR_VISUAL_LIGHT_DIRECTIONAL) {
+        result.pixel = (
+            float2(dot(relative, right), dot(relative, up)) /
+                range +
+            0.5f
+        ) * float2(uniforms.shadow.xy);
+        result.depth = dot(relative, direction) + 0.5f * range;
+        result.valid = result.depth >= 0.0f &&
+            result.depth <= range;
+    } else {
+        const float z = dot(relative, direction);
+        const float outer = clamp(
+            light.directionAndSpot.w,
+            -0.999f,
+            0.999f
+        );
+        const float tangent =
+            max(sqrt(max(1.0f - outer * outer, 0.0f)) /
+                    max(outer, 0.05f),
+                0.05f);
+        result.pixel = (
+            float2(dot(relative, right), dot(relative, up)) /
+                max(z * 2.0f * tangent, 1.0e-5f) +
+            0.5f
+        ) * float2(uniforms.shadow.xy);
+        result.depth = z;
+        result.valid = z > 1.0e-4f && z <= range;
+    }
+    result.valid = result.valid &&
+        all(isfinite(result.pixel)) &&
+        result.pixel.x >= 0.0f &&
+        result.pixel.y >= 0.0f &&
+        result.pixel.x < float(uniforms.shadow.x) &&
+        result.pixel.y < float(uniforms.shadow.y);
+    return result;
+}
+
+float shadowVisibility(
+    const device uint* shadowAtlas,
+    const float3 world,
+    const float3 normal,
+    const float3 lightDirection,
+    const MRVisualLightGPUV1 light,
+    const uint lightIndex,
+    const uint environment,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    if (light.shadow.x == 0u || uniforms.shadow.x == 0u ||
+        lightIndex != uniforms.shadow.w ||
+        environment < uniforms.shadowBatch.x ||
+        environment >=
+            uniforms.shadowBatch.x + uniforms.shadowBatch.y) {
+        return 1.0f;
+    }
+    const ShadowProjection projection =
+        projectShadow(world, light, uniforms);
+    if (!projection.valid) {
+        return 1.0f;
+    }
+    const int radius = int(min(uniforms.shadow.z, 3u));
+    const uint localEnvironment =
+        environment - uniforms.shadowBatch.x;
+    const uint layerOffset =
+        localEnvironment * uniforms.shadow.x * uniforms.shadow.y;
+    const float bias =
+        0.0008f + 0.003f *
+            (1.0f - max(dot(normal, lightDirection), 0.0f));
+    float visible = 0.0f;
+    float samples = 0.0f;
+    const int2 center = int2(floor(projection.pixel));
+    for (int y = -radius; y <= radius; ++y) {
+        for (int x = -radius; x <= radius; ++x) {
+            const int2 pixel = center + int2(x, y);
+            if (pixel.x < 0 || pixel.y < 0 ||
+                pixel.x >= int(uniforms.shadow.x) ||
+                pixel.y >= int(uniforms.shadow.y)) {
+                continue;
+            }
+            const float stored = as_type<float>(
+                shadowAtlas[
+                    layerOffset + uint(pixel.y) * uniforms.shadow.x +
+                    uint(pixel.x)
+                ]
+            );
+            visible += projection.depth - bias <= stored ? 1.0f : 0.0f;
+            samples += 1.0f;
+        }
+    }
+    return samples > 0.0f ? visible / samples : 1.0f;
+}
+
+bool pixelInBand(
+    const uint x,
+    const uint y,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    const uint coordinate =
+        uniforms.band.z == 0u ? y : x;
+    return coordinate >= uniforms.band.x &&
+        coordinate < uniforms.band.x + uniforms.band.y;
+}
+
+bool tileIntersectsBand(
+    const uint tileX,
+    const uint tileY,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    const uint tileCoordinate =
+        uniforms.band.z == 0u ? tileY : tileX;
+    const uint firstPixel =
+        tileCoordinate * MR_HYBRID_TILE_SIZE;
+    const uint lastPixel =
+        firstPixel + MR_HYBRID_TILE_SIZE;
+    return lastPixel > uniforms.band.x &&
+        firstPixel < uniforms.band.x + uniforms.band.y;
+}
+
+uint bandPixelCountPerEnvironment(
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    return uniforms.band.z == 0u
+        ? uniforms.image.x * uniforms.band.y
+        : uniforms.image.y * uniforms.band.y;
+}
+
+uint globalPixelFromBandIndex(
+    const uint compactPixel,
+    const uint environmentOffset,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    const uint compactPerEnvironment =
+        bandPixelCountPerEnvironment(uniforms);
+    const uint environment =
+        compactPixel / compactPerEnvironment +
+        environmentOffset;
+    const uint local =
+        compactPixel % compactPerEnvironment;
+    uint x = 0u;
+    uint y = 0u;
+    if (uniforms.band.z == 0u) {
+        x = local % uniforms.image.x;
+        y = uniforms.band.x + local / uniforms.image.x;
+    } else {
+        x = uniforms.band.x + local % uniforms.band.y;
+        y = local / uniforms.band.y;
+    }
+    return environment * uniforms.image.x * uniforms.image.y +
+        y * uniforms.image.x + x;
+}
+
+uint bandTileCountPerEnvironment(
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    const uint firstTile =
+        uniforms.band.x / MR_HYBRID_TILE_SIZE;
+    const uint lastTile =
+        (
+            uniforms.band.x + uniforms.band.y - 1u
+        ) / MR_HYBRID_TILE_SIZE;
+    const uint bandTileCount = lastTile - firstTile + 1u;
+    return uniforms.band.z == 0u
+        ? uniforms.image.z * bandTileCount
+        : uniforms.image.w * bandTileCount;
+}
+
+uint globalTileFromBandIndex(
+    const uint compactTile,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    const uint compactPerEnvironment =
+        bandTileCountPerEnvironment(uniforms);
+    const uint environment =
+        compactTile / compactPerEnvironment;
+    const uint local = compactTile % compactPerEnvironment;
+    const uint firstTile =
+        uniforms.band.x / MR_HYBRID_TILE_SIZE;
+    const uint bandTileCount =
+        uniforms.band.z == 0u
+        ? compactPerEnvironment / uniforms.image.z
+        : compactPerEnvironment / uniforms.image.w;
+    uint tileX = 0u;
+    uint tileY = 0u;
+    if (uniforms.band.z == 0u) {
+        tileX = local % uniforms.image.z;
+        tileY = firstTile + local / uniforms.image.z;
+    } else {
+        tileX = firstTile + local % bandTileCount;
+        tileY = local / bandTileCount;
+    }
+    return environment * uniforms.image.z * uniforms.image.w +
+        tileY * uniforms.image.z + tileX;
+}
+
 } // namespace
 
 kernel void mr_hybrid_clear_tiles(
@@ -389,11 +871,12 @@ kernel void mr_hybrid_clear_tiles(
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(2)]],
     const uint index [[thread_position_in_grid]]
 ) {
-    const uint tileCount =
-        uniforms.image.z * uniforms.image.w * uniforms.counts.x;
-    if (index < tileCount) {
+    const uint compactTileCount =
+        bandTileCountPerEnvironment(uniforms) *
+        uniforms.counts.x;
+    if (index < compactTileCount) {
         atomic_store_explicit(
-            tileCounts + index,
+            tileCounts + globalTileFromBandIndex(index, uniforms),
             0u,
             memory_order_relaxed
         );
@@ -407,26 +890,266 @@ kernel void mr_hybrid_clear_tiles(
     }
 }
 
+kernel void mr_hybrid_clear_observations(
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(0)]],
+    const device MRWorldAppearanceInstanceGPU* appearances [[buffer(1)]],
+    device float4* rgb [[buffer(2)]],
+    device float* depth [[buffer(3)]],
+    device uint* segmentation [[buffer(4)]],
+    device uint4* identities [[buffer(5)]],
+    device float4* normals [[buffer(6)]],
+    device float4* motion [[buffer(7)]],
+    device uint* validity [[buffer(8)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(9)]],
+    const uint compactPixel [[thread_position_in_grid]]
+) {
+    const uint compactCount =
+        uniforms.counts.x *
+        bandPixelCountPerEnvironment(uniforms);
+    if (compactPixel >= compactCount) {
+        return;
+    }
+    const uint pixel =
+        globalPixelFromBandIndex(compactPixel, 0u, uniforms);
+    const uint pixelsPerEnvironment =
+        uniforms.image.x * uniforms.image.y;
+    const uint environment = pixel / pixelsPerEnvironment;
+    const MRWorldInstanceHeaderGPU instance =
+        instances[environment];
+    const MRWorldAppearanceInstanceGPU appearance =
+        appearances[instance.program.x];
+    rgb[pixel] = float4(
+        applyAppearance(
+            uniforms.clearColorAndDepth.xyz,
+            appearance
+        ),
+        0.0f
+    );
+    depth[pixel] = uniforms.clearColorAndDepth.w;
+    segmentation[pixel] = MR_INVALID_INDEX;
+    identities[pixel] = uint4(MR_INVALID_INDEX);
+    normals[pixel] = 0.0f;
+    motion[pixel] = 0.0f;
+    validity[pixel] = MR_VISUAL_VALIDITY_FRAME;
+}
+
 kernel void mr_hybrid_clear_mesh_winners(
     device atomic_uint* winners [[buffer(0)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(1)]],
     const uint pixel [[thread_position_in_grid]]
 ) {
-    const uint count =
+    const uint compactCount =
         uniforms.counts.x * uniforms.image.x * uniforms.image.y;
-    if (pixel >= count) {
+    const uint bandCount =
+        uniforms.counts.x *
+        bandPixelCountPerEnvironment(uniforms);
+    if (pixel >= bandCount) {
         return;
     }
+    const uint globalPixel =
+        globalPixelFromBandIndex(pixel, 0u, uniforms);
     atomic_store_explicit(
-        winners + pixel,
+        winners + globalPixel,
         0x7f800000u,
         memory_order_relaxed
     );
     atomic_store_explicit(
-        winners + count + pixel,
+        winners + compactCount + globalPixel,
         0xffffffffu,
         memory_order_relaxed
     );
+}
+
+kernel void mr_hybrid_clear_shadow_atlas(
+    device atomic_uint* shadowAtlas [[buffer(0)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(1)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint count =
+        uniforms.shadowBatch.y *
+        uniforms.shadow.x * uniforms.shadow.y;
+    if (index < count) {
+        atomic_store_explicit(
+            shadowAtlas + index,
+            0x7f800000u,
+            memory_order_relaxed
+        );
+    }
+}
+
+kernel void mr_hybrid_rasterize_shadow_atlas(
+    const device MRVisualVertexGPUV2* vertices [[buffer(0)]],
+    const device MRVisualTriangleGPUV2* triangles [[buffer(1)]],
+    const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
+    const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(4)]],
+    const device MRWorldAssetInstanceGPU* assets [[buffer(5)]],
+    const device MRBodyStateGPU* currentBodies [[buffer(6)]],
+    const device MRVisualLightGPUV1* lights [[buffer(7)]],
+    device atomic_uint* shadowAtlas [[buffer(8)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(9)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint triangleCount = uniforms.live.w;
+    const uint total =
+        uniforms.shadowBatch.y * triangleCount;
+    if (index >= total || triangleCount == 0u ||
+        uniforms.presentation.y == 0u ||
+        uniforms.shadow.w >= uniforms.presentation.y) {
+        return;
+    }
+    const uint localEnvironment = index / triangleCount;
+    const uint environment =
+        uniforms.shadowBatch.x + localEnvironment;
+    if (environment >= uniforms.counts.x) {
+        return;
+    }
+    const uint triangleIndex =
+        index - environment * triangleCount;
+    const MRVisualTriangleGPUV2 triangle =
+        triangles[triangleIndex];
+    const MRVisualPrimitiveGPUV2 primitive =
+        primitives[triangle.verticesAndPrimitive.w];
+    const MRVisualInstanceGPUV2 visualInstance =
+        visualInstances[primitive.geometry.w];
+    if ((visualInstance.binding.w &
+         MR_VISUAL_INSTANCE_CASTS_SHADOW) == 0u) {
+        return;
+    }
+    const MRWorldInstanceHeaderGPU instance =
+        instances[environment];
+    const BoundPose binding = composeInstancePose(resolvePose(
+        visualInstance.binding.z,
+        visualInstance.binding.y,
+        visualInstance.binding.x,
+        environment,
+        instance,
+        assets,
+        currentBodies,
+        uniforms,
+        false
+    ), visualInstance);
+    if (!binding.valid) {
+        return;
+    }
+    const uint3 indices = triangle.verticesAndPrimitive.xyz;
+    const MRVisualLightGPUV1 light = lights[uniforms.shadow.w];
+    const ShadowProjection p0 = projectShadow(
+        transformPoint(binding, vertices[indices.x].position.xyz),
+        light,
+        uniforms
+    );
+    const ShadowProjection p1 = projectShadow(
+        transformPoint(binding, vertices[indices.y].position.xyz),
+        light,
+        uniforms
+    );
+    const ShadowProjection p2 = projectShadow(
+        transformPoint(binding, vertices[indices.z].position.xyz),
+        light,
+        uniforms
+    );
+    if (!p0.valid || !p1.valid || !p2.valid) {
+        return;
+    }
+    const float area = edge(p0.pixel, p1.pixel, p2.pixel);
+    if (abs(area) <= 1.0e-8f || !isfinite(area)) {
+        return;
+    }
+    int minimumX = max(
+        0,
+        int(floor(min(p0.pixel.x, min(p1.pixel.x, p2.pixel.x))))
+    );
+    int maximumX = min(
+        int(uniforms.shadow.x) - 1,
+        int(ceil(max(p0.pixel.x, max(p1.pixel.x, p2.pixel.x))))
+    );
+    int minimumY = max(
+        0,
+        int(floor(min(p0.pixel.y, min(p1.pixel.y, p2.pixel.y))))
+    );
+    int maximumY = min(
+        int(uniforms.shadow.y) - 1,
+        int(ceil(max(p0.pixel.y, max(p1.pixel.y, p2.pixel.y))))
+    );
+    const uint layerOffset =
+        localEnvironment * uniforms.shadow.x * uniforms.shadow.y;
+    for (int y = minimumY; y <= maximumY; ++y) {
+        for (int x = minimumX; x <= maximumX; ++x) {
+            const float2 pixel = float2(x, y) + 0.5f;
+            const float w0 =
+                edge(p1.pixel, p2.pixel, pixel) / area;
+            const float w1 =
+                edge(p2.pixel, p0.pixel, pixel) / area;
+            const float w2 = 1.0f - w0 - w1;
+            if (min(w0, min(w1, w2)) < -1.0e-5f) {
+                continue;
+            }
+            const float depth =
+                w0 * p0.depth + w1 * p1.depth + w2 * p2.depth;
+            if (depth >= 0.0f && isfinite(depth)) {
+                atomic_fetch_min_explicit(
+                    shadowAtlas +
+                        layerOffset + uint(y) * uniforms.shadow.x +
+                        uint(x),
+                    as_type<uint>(depth),
+                    memory_order_relaxed
+                );
+            }
+        }
+    }
+}
+
+kernel void mr_hybrid_clear_temporal_accumulation(
+    device half4* accumulation [[buffer(0)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(1)]],
+    const uint pixel [[thread_position_in_grid]]
+) {
+    const uint count =
+        uniforms.counts.x *
+        bandPixelCountPerEnvironment(uniforms);
+    if (pixel < count) {
+        accumulation[
+            globalPixelFromBandIndex(pixel, 0u, uniforms)
+        ] = 0.0f;
+    }
+}
+
+kernel void mr_hybrid_accumulate_temporal_sample(
+    const device float4* rgb [[buffer(0)]],
+    device half4* accumulation [[buffer(1)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(2)]],
+    const uint pixel [[thread_position_in_grid]]
+) {
+    const uint count =
+        uniforms.counts.x *
+        bandPixelCountPerEnvironment(uniforms);
+    if (pixel < count) {
+        const uint globalPixel =
+            globalPixelFromBandIndex(pixel, 0u, uniforms);
+        accumulation[globalPixel] = half4(
+            float4(accumulation[globalPixel]) +
+            rgb[globalPixel]
+        );
+    }
+}
+
+kernel void mr_hybrid_resolve_temporal_accumulation(
+    const device half4* accumulation [[buffer(0)]],
+    device float4* rgb [[buffer(1)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(2)]],
+    const uint pixel [[thread_position_in_grid]]
+) {
+    const uint count =
+        uniforms.counts.x *
+        bandPixelCountPerEnvironment(uniforms);
+    if (pixel < count) {
+        const uint globalPixel =
+            globalPixelFromBandIndex(pixel, 0u, uniforms);
+        rgb[globalPixel] =
+            float4(accumulation[globalPixel]) /
+            float(max(uniforms.shutter.w, 1u));
+    }
 }
 
 kernel void mr_hybrid_bin_gaussians(
@@ -678,34 +1401,48 @@ kernel void mr_hybrid_bin_gaussians(
     result.motionAndVisibility = float4(motion, 1.0f, 0.0f);
     projected[index] = result;
 
-    const int minimumX = max(
+    int minimumX = max(
         0,
         int(floor(
             (result.centerDepthRadius.x - pixelRadius) /
             float(MR_HYBRID_TILE_SIZE)
         ))
     );
-    const int maximumX = min(
+    int maximumX = min(
         int(uniforms.image.z) - 1,
         int(floor(
             (result.centerDepthRadius.x + pixelRadius) /
             float(MR_HYBRID_TILE_SIZE)
         ))
     );
-    const int minimumY = max(
+    int minimumY = max(
         0,
         int(floor(
             (result.centerDepthRadius.y - pixelRadius) /
             float(MR_HYBRID_TILE_SIZE)
         ))
     );
-    const int maximumY = min(
+    int maximumY = min(
         int(uniforms.image.w) - 1,
         int(floor(
             (result.centerDepthRadius.y + pixelRadius) /
             float(MR_HYBRID_TILE_SIZE)
         ))
     );
+    const int firstBandTile =
+        int(uniforms.band.x / MR_HYBRID_TILE_SIZE);
+    const int lastBandTile = int(
+        (
+            uniforms.band.x + uniforms.band.y - 1u
+        ) / MR_HYBRID_TILE_SIZE
+    );
+    if (uniforms.band.z == 0u) {
+        minimumY = max(minimumY, firstBandTile);
+        maximumY = min(maximumY, lastBandTile);
+    } else {
+        minimumX = max(minimumX, firstBandTile);
+        maximumX = min(maximumX, lastBandTile);
+    }
     if (minimumX > maximumX || minimumY > maximumY) {
         return;
     }
@@ -757,7 +1494,7 @@ kernel void mr_hybrid_render_tiles(
     device float4* motion [[buffer(11)]],
     device uint* validity [[buffer(12)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(13)]],
-    const uint tile [[threadgroup_position_in_grid]],
+    const uint compactTile [[threadgroup_position_in_grid]],
     const uint localIndex [[thread_position_in_threadgroup]]
 ) {
     threadgroup uint
@@ -765,6 +1502,8 @@ kernel void mr_hybrid_render_tiles(
     threadgroup float
         sortedDepth[MR_HYBRID_MAX_GAUSSIANS_PER_TILE];
 
+    const uint tile =
+        globalTileFromBandIndex(compactTile, uniforms);
     const uint tilesPerEnvironment =
         uniforms.image.z * uniforms.image.w;
     const uint environment = tile / tilesPerEnvironment;
@@ -773,6 +1512,11 @@ kernel void mr_hybrid_render_tiles(
     }
     const uint tileInEnvironment =
         tile - environment * tilesPerEnvironment;
+    const uint tileX = tileInEnvironment % uniforms.image.z;
+    const uint tileY = tileInEnvironment / uniforms.image.z;
+    if (!tileIntersectsBand(tileX, tileY, uniforms)) {
+        return;
+    }
     const uint count = min(
         atomic_load_explicit(
             tileCounts + tile,
@@ -780,6 +1524,39 @@ kernel void mr_hybrid_render_tiles(
         ),
         uniforms.render.y
     );
+    const uint pixelX =
+        tileX * MR_HYBRID_TILE_SIZE +
+        localIndex % MR_HYBRID_TILE_SIZE;
+    const uint pixelY =
+        tileY * MR_HYBRID_TILE_SIZE +
+        localIndex / MR_HYBRID_TILE_SIZE;
+    if (count == 0u) {
+        if (pixelX < uniforms.image.x &&
+            pixelY < uniforms.image.y &&
+            pixelInBand(pixelX, pixelY, uniforms)) {
+            const MRWorldInstanceHeaderGPU instance =
+                instances[environment];
+            const MRWorldAppearanceInstanceGPU appearance =
+                appearances[instance.program.x];
+            const uint pixel =
+                environment * uniforms.image.x * uniforms.image.y +
+                pixelY * uniforms.image.x + pixelX;
+            rgb[pixel] = float4(
+                applyAppearance(
+                    uniforms.clearColorAndDepth.xyz,
+                    appearance
+                ),
+                0.0f
+            );
+            depth[pixel] = uniforms.clearColorAndDepth.w;
+            segmentation[pixel] = MR_INVALID_INDEX;
+            identities[pixel] = uint4(MR_INVALID_INDEX);
+            normals[pixel] = 0.0f;
+            motion[pixel] = 0.0f;
+            validity[pixel] = MR_VISUAL_VALIDITY_FRAME;
+        }
+        return;
+    }
     const uint sourceIndex =
         tile * uniforms.render.y + localIndex;
     if (localIndex < count) {
@@ -794,14 +1571,19 @@ kernel void mr_hybrid_render_tiles(
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
+    uint sortCapacity = 1u;
+    while (sortCapacity < count) {
+        sortCapacity <<= 1u;
+    }
     for (uint width = 2u;
-         width <= MR_HYBRID_MAX_GAUSSIANS_PER_TILE;
+         width <= sortCapacity;
          width <<= 1u) {
         for (uint stride = width >> 1u;
              stride > 0u;
              stride >>= 1u) {
             const uint partner = localIndex ^ stride;
-            if (partner > localIndex) {
+            if (localIndex < sortCapacity &&
+                partner > localIndex) {
                 const bool ascending =
                     (localIndex & width) == 0u;
                 const bool swapValues =
@@ -827,16 +1609,9 @@ kernel void mr_hybrid_render_tiles(
         }
     }
 
-    const uint tileX = tileInEnvironment % uniforms.image.z;
-    const uint tileY = tileInEnvironment / uniforms.image.z;
-    const uint pixelX =
-        tileX * MR_HYBRID_TILE_SIZE +
-        localIndex % MR_HYBRID_TILE_SIZE;
-    const uint pixelY =
-        tileY * MR_HYBRID_TILE_SIZE +
-        localIndex / MR_HYBRID_TILE_SIZE;
     if (pixelX >= uniforms.image.x ||
-        pixelY >= uniforms.image.y) {
+        pixelY >= uniforms.image.y ||
+        !pixelInBand(pixelX, pixelY, uniforms)) {
         return;
     }
 
@@ -917,8 +1692,10 @@ kernel void mr_hybrid_render_tiles(
 }
 
 void rasterizeMesh(
-    const device MRVisualMeshVertexGPU* vertices,
-    const device MRVisualMeshTriangleGPU* triangles,
+    const device MRVisualVertexGPUV2* vertices,
+    const device MRVisualTriangleGPUV2* triangles,
+    const device MRVisualPrimitiveGPUV2* primitives,
+    const device MRVisualInstanceGPUV2* visualInstances,
     const device MRWorldInstanceHeaderGPU* instances,
     const device MRWorldAssetInstanceGPU* assets,
     const device MRWorldSensorInstanceGPU* sensors,
@@ -937,8 +1714,16 @@ void rasterizeMesh(
     const uint environment = index / triangleCount;
     const uint triangleIndex =
         index - environment * triangleCount;
-    const MRVisualMeshTriangleGPU triangle =
+    const MRVisualTriangleGPUV2 triangle =
         triangles[triangleIndex];
+    const MRVisualPrimitiveGPUV2 primitive =
+        primitives[triangle.verticesAndPrimitive.w];
+    const MRVisualInstanceGPUV2 visualInstance =
+        visualInstances[primitive.geometry.w];
+    if ((visualInstance.binding.w &
+         MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR) == 0u) {
+        return;
+    }
     const MRWorldInstanceHeaderGPU instance =
         instances[environment];
     const MRWorldSensorInstanceGPU sensor =
@@ -954,22 +1739,22 @@ void rasterizeMesh(
         uniforms,
         false
     );
-    const BoundPose binding = resolvePose(
-        triangle.binding.z,
-        triangle.binding.y,
-        triangle.binding.x,
+    const BoundPose binding = composeInstancePose(resolvePose(
+        visualInstance.binding.z,
+        visualInstance.binding.y,
+        visualInstance.binding.x,
         environment,
         instance,
         assets,
         currentBodies,
         uniforms,
         false
-    );
+    ), visualInstance);
     if (!camera.valid || !binding.valid) {
         return;
     }
 
-    const uint3 indices = triangle.verticesAndMaterial.xyz;
+    const uint3 indices = triangle.verticesAndPrimitive.xyz;
     const float3 world0 = transformPoint(
         binding,
         vertices[indices.x].position.xyz
@@ -995,34 +1780,45 @@ void rasterizeMesh(
     if (abs(area) <= 1.0e-8f || !isfinite(area)) {
         return;
     }
-    const int minimumX = max(
+    int minimumX = max(
         0,
         int(floor(min(
             p0.pixel.x,
             min(p1.pixel.x, p2.pixel.x)
         )))
     );
-    const int maximumX = min(
+    int maximumX = min(
         int(uniforms.image.x) - 1,
         int(ceil(max(
             p0.pixel.x,
             max(p1.pixel.x, p2.pixel.x)
         )))
     );
-    const int minimumY = max(
+    int minimumY = max(
         0,
         int(floor(min(
             p0.pixel.y,
             min(p1.pixel.y, p2.pixel.y)
         )))
     );
-    const int maximumY = min(
+    int maximumY = min(
         int(uniforms.image.y) - 1,
         int(ceil(max(
             p0.pixel.y,
             max(p1.pixel.y, p2.pixel.y)
         )))
     );
+    const int firstBandPixel = int(uniforms.band.x);
+    const int lastBandPixel = int(
+        uniforms.band.x + uniforms.band.y - 1u
+    );
+    if (uniforms.band.z == 0u) {
+        minimumY = max(minimumY, firstBandPixel);
+        maximumY = min(maximumY, lastBandPixel);
+    } else {
+        minimumX = max(minimumX, firstBandPixel);
+        maximumX = min(maximumX, lastBandPixel);
+    }
     if (minimumX > maximumX || minimumY > maximumY) {
         return;
     }
@@ -1078,20 +1874,24 @@ void rasterizeMesh(
 }
 
 kernel void mr_hybrid_rasterize_mesh(
-    const device MRVisualMeshVertexGPU* vertices [[buffer(0)]],
-    const device MRVisualMeshTriangleGPU* triangles [[buffer(1)]],
-    const device MRWorldInstanceHeaderGPU* instances [[buffer(2)]],
-    const device MRWorldAssetInstanceGPU* assets [[buffer(3)]],
-    const device MRWorldSensorInstanceGPU* sensors [[buffer(4)]],
-    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(5)]],
-    const device MRBodyStateGPU* currentBodies [[buffer(6)]],
-    device atomic_uint* winners [[buffer(7)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(8)]],
+    const device MRVisualVertexGPUV2* vertices [[buffer(0)]],
+    const device MRVisualTriangleGPUV2* triangles [[buffer(1)]],
+    const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
+    const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(4)]],
+    const device MRWorldAssetInstanceGPU* assets [[buffer(5)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(6)]],
+    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(7)]],
+    const device MRBodyStateGPU* currentBodies [[buffer(8)]],
+    device atomic_uint* winners [[buffer(9)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(10)]],
     const uint index [[thread_position_in_grid]]
 ) {
     rasterizeMesh(
         vertices,
         triangles,
+        primitives,
+        visualInstances,
         instances,
         assets,
         sensors,
@@ -1105,20 +1905,24 @@ kernel void mr_hybrid_rasterize_mesh(
 }
 
 kernel void mr_hybrid_select_mesh(
-    const device MRVisualMeshVertexGPU* vertices [[buffer(0)]],
-    const device MRVisualMeshTriangleGPU* triangles [[buffer(1)]],
-    const device MRWorldInstanceHeaderGPU* instances [[buffer(2)]],
-    const device MRWorldAssetInstanceGPU* assets [[buffer(3)]],
-    const device MRWorldSensorInstanceGPU* sensors [[buffer(4)]],
-    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(5)]],
-    const device MRBodyStateGPU* currentBodies [[buffer(6)]],
-    device atomic_uint* winners [[buffer(7)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(8)]],
+    const device MRVisualVertexGPUV2* vertices [[buffer(0)]],
+    const device MRVisualTriangleGPUV2* triangles [[buffer(1)]],
+    const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
+    const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(4)]],
+    const device MRWorldAssetInstanceGPU* assets [[buffer(5)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(6)]],
+    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(7)]],
+    const device MRBodyStateGPU* currentBodies [[buffer(8)]],
+    device atomic_uint* winners [[buffer(9)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(10)]],
     const uint index [[thread_position_in_grid]]
 ) {
     rasterizeMesh(
         vertices,
         triangles,
+        primitives,
+        visualInstances,
         instances,
         assets,
         sensors,
@@ -1132,29 +1936,49 @@ kernel void mr_hybrid_select_mesh(
 }
 
 kernel void mr_hybrid_composite_mesh(
-    const device MRVisualMeshVertexGPU* vertices [[buffer(0)]],
-    const device MRVisualMeshTriangleGPU* triangles [[buffer(1)]],
-    const device MRVisualMaterialGPU* materials [[buffer(2)]],
-    const device MRWorldInstanceHeaderGPU* instances [[buffer(3)]],
-    const device MRWorldAssetInstanceGPU* assets [[buffer(4)]],
-    const device MRWorldSensorInstanceGPU* sensors [[buffer(5)]],
-    const device MRWorldAppearanceInstanceGPU* appearances [[buffer(6)]],
-    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(7)]],
-    const device MRBodyStateGPU* currentBodies [[buffer(8)]],
-    const device MRBodyStateGPU* previousBodies [[buffer(9)]],
-    const device atomic_uint* winners [[buffer(10)]],
-    device float4* rgb [[buffer(11)]],
-    device float* depth [[buffer(12)]],
-    device uint* segmentation [[buffer(13)]],
-    device uint4* identities [[buffer(14)]],
-    device float4* normals [[buffer(15)]],
-    device float4* motion [[buffer(16)]],
-    device uint* validity [[buffer(17)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(18)]],
-    const uint pixel [[thread_position_in_grid]]
+    const device MRVisualVertexGPUV2* vertices [[buffer(0)]],
+    const device MRVisualTriangleGPUV2* triangles [[buffer(1)]],
+    const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
+    const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
+    const device MRVisualMaterialGPUV2* materials [[buffer(4)]],
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(5)]],
+    const device MRWorldAssetInstanceGPU* assets [[buffer(6)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(7)]],
+    const device MRWorldAppearanceInstanceGPU* appearances [[buffer(8)]],
+    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(9)]],
+    const device MRBodyStateGPU* currentBodies [[buffer(10)]],
+    const device MRBodyStateGPU* previousBodies [[buffer(11)]],
+    const device atomic_uint* winners [[buffer(12)]],
+    device float4* rgb [[buffer(13)]],
+    device float* depth [[buffer(14)]],
+    device uint* segmentation [[buffer(15)]],
+    device uint4* identities [[buffer(16)]],
+    device float4* normals [[buffer(17)]],
+    device float4* motion [[buffer(18)]],
+    device uint* validity [[buffer(19)]],
+    const device MRVisualTextureGPUV1* textures [[buffer(20)]],
+    const device uint* textureTexels [[buffer(21)]],
+    const device MRVisualLightGPUV1* lights [[buffer(22)]],
+    const device float4* environmentSH [[buffer(23)]],
+    const device uint* shadowAtlas [[buffer(24)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(25)]],
+    const uint batchPixel [[thread_position_in_grid]]
 ) {
+    const uint pixelsPerEnvironment =
+        uniforms.image.x * uniforms.image.y;
+    const uint batchPixelCount =
+        uniforms.shadowBatch.y *
+        bandPixelCountPerEnvironment(uniforms);
     const uint pixelCount =
-        uniforms.counts.x * uniforms.image.x * uniforms.image.y;
+        uniforms.counts.x * pixelsPerEnvironment;
+    if (batchPixel >= batchPixelCount) {
+        return;
+    }
+    const uint pixel = globalPixelFromBandIndex(
+        batchPixel,
+        uniforms.shadowBatch.x,
+        uniforms
+    );
     if (pixel >= pixelCount) {
         return;
     }
@@ -1175,15 +1999,20 @@ kernel void mr_hybrid_composite_mesh(
     if (!(meshDepth < depth[pixel])) {
         return;
     }
-    const uint pixelsPerEnvironment =
-        uniforms.image.x * uniforms.image.y;
     const uint environment = pixel / pixelsPerEnvironment;
     const uint localPixel =
         pixel - environment * pixelsPerEnvironment;
     const uint pixelX = localPixel % uniforms.image.x;
     const uint pixelY = localPixel / uniforms.image.x;
-    const MRVisualMeshTriangleGPU triangle =
+    if (!pixelInBand(pixelX, pixelY, uniforms)) {
+        return;
+    }
+    const MRVisualTriangleGPUV2 triangle =
         triangles[triangleIndex];
+    const MRVisualPrimitiveGPUV2 primitive =
+        primitives[triangle.verticesAndPrimitive.w];
+    const MRVisualInstanceGPUV2 visualInstance =
+        visualInstances[primitive.geometry.w];
     const MRWorldInstanceHeaderGPU instance =
         instances[environment];
     const MRWorldSensorInstanceGPU sensor =
@@ -1210,39 +2039,39 @@ kernel void mr_hybrid_composite_mesh(
         uniforms,
         true
     );
-    const BoundPose binding = resolvePose(
-        triangle.binding.z,
-        triangle.binding.y,
-        triangle.binding.x,
+    const BoundPose binding = composeInstancePose(resolvePose(
+        visualInstance.binding.z,
+        visualInstance.binding.y,
+        visualInstance.binding.x,
         environment,
         instance,
         assets,
         currentBodies,
         uniforms,
         false
-    );
-    const BoundPose previousBinding = resolvePose(
-        triangle.binding.z,
-        triangle.binding.y,
-        triangle.binding.x,
+    ), visualInstance);
+    const BoundPose previousBinding = composeInstancePose(resolvePose(
+        visualInstance.binding.z,
+        visualInstance.binding.y,
+        visualInstance.binding.x,
         environment,
         instance,
         assets,
         previousBodies,
         uniforms,
         true
-    );
+    ), visualInstance);
     if (!camera.valid || !binding.valid) {
         return;
     }
 
     const uint3 vertexIndices =
-        triangle.verticesAndMaterial.xyz;
-    const MRVisualMeshVertexGPU vertex0 =
+        triangle.verticesAndPrimitive.xyz;
+    const MRVisualVertexGPUV2 vertex0 =
         vertices[vertexIndices.x];
-    const MRVisualMeshVertexGPU vertex1 =
+    const MRVisualVertexGPUV2 vertex1 =
         vertices[vertexIndices.y];
-    const MRVisualMeshVertexGPU vertex2 =
+    const MRVisualVertexGPUV2 vertex2 =
         vertices[vertexIndices.z];
     const float3 world0 =
         transformPoint(binding, vertex0.position.xyz);
@@ -1284,35 +2113,74 @@ kernel void mr_hybrid_composite_mesh(
         corrected.x * vertex0.position.xyz +
         corrected.y * vertex1.position.xyz +
         corrected.z * vertex2.position.xyz;
-    const float3 localNormal = normalize(
-        corrected.x * vertex0.normalAndU.xyz +
-        corrected.y * vertex1.normalAndU.xyz +
-        corrected.z * vertex2.normalAndU.xyz
+    float3 localNormal = normalize(
+        corrected.x * vertex0.normalAndTangentSign.xyz +
+        corrected.y * vertex1.normalAndTangentSign.xyz +
+        corrected.z * vertex2.normalAndTangentSign.xyz
     );
+    float3 localTangent = normalize(
+        corrected.x * vertex0.tangent.xyz +
+        corrected.y * vertex1.tangent.xyz +
+        corrected.z * vertex2.tangent.xyz
+    );
+    const float tangentSign =
+        corrected.x * vertex0.normalAndTangentSign.w +
+        corrected.y * vertex1.normalAndTangentSign.w +
+        corrected.z * vertex2.normalAndTangentSign.w < 0.0f
+        ? -1.0f
+        : 1.0f;
+    const float2 uv =
+        corrected.x * vertex0.texcoord01.xy +
+        corrected.y * vertex1.texcoord01.xy +
+        corrected.z * vertex2.texcoord01.xy;
+    const float4 vertexColor =
+        corrected.x * vertex0.color +
+        corrected.y * vertex1.color +
+        corrected.z * vertex2.color;
+
+    const MRVisualMaterialGPUV2 material =
+        materials[primitive.geometry.z];
+    float4 base =
+        material.baseColorAndOpacity * vertexColor;
+    base *= sampleVisualTexture(
+        textures,
+        textureTexels,
+        material.textureIndices0.x,
+        uv,
+        0.0f,
+        uniforms
+    );
+    if (material.flags.x == MR_VISUAL_ALPHA_MASK &&
+        base.w < material.coatingAndAlphaCutoff.w) {
+        return;
+    }
+    const float3 sampledNormal = sampleVisualTexture(
+        textures,
+        textureTexels,
+        material.textureIndices0.z,
+        uv,
+        0.0f,
+        uniforms
+    ).xyz * 2.0f - 1.0f;
+    if (material.textureIndices0.z != MR_INVALID_INDEX) {
+        const float3 localBitangent =
+            normalize(cross(localNormal, localTangent)) *
+            tangentSign;
+        localNormal = normalize(
+            localTangent *
+                (sampledNormal.x * material.surface.z) +
+            localBitangent *
+                (sampledNormal.y * material.surface.z) +
+            localNormal * max(sampledNormal.z, 1.0e-4f)
+        );
+    }
     const float3 worldNormal =
         transformNormal(binding, localNormal);
     const float3 cameraNormal = normalize(
         inverseRotateVector(camera.orientation, worldNormal)
     );
-
-    const MRVisualMaterialGPU material =
-        materials[triangle.verticesAndMaterial.w];
-    float4 base = material.baseColorAndOpacity;
-    if (triangle.colorAndOpacity.w > 0.0f) {
-        base = triangle.colorAndOpacity;
-    }
-    const float3 lightDirection =
-        normalize(float3(-0.35f, -0.55f, 1.0f));
-    const float diffuse =
-        0.24f + 0.76f * max(dot(worldNormal, lightDirection), 0.0f);
-    const MRWorldAppearanceInstanceGPU appearance =
-        appearances[instance.program.x];
-    float3 color =
-        base.xyz * diffuse * appearance.colorAndLight.w +
-        material.emissionAndStrength.xyz *
-            material.emissionAndStrength.w;
-    color = applyAppearance(color, appearance);
-
+    const float3 worldPosition =
+        transformPoint(binding, localPosition);
     float2 pixelMotion = 0.0f;
     if ((uniforms.live.y & kLivePrevious) != 0u &&
         previousBinding.valid && previousCamera.valid) {
@@ -1325,12 +2193,1514 @@ kernel void mr_hybrid_composite_mesh(
                 pixelCenter - previousProjection.pixel;
         }
     }
+    uint4 outputIdentity = primitive.identity;
+    if (visualInstance.identity.x != 0u) {
+        outputIdentity.x = visualInstance.identity.x;
+    }
+    if (visualInstance.identity.y != 0u) {
+        outputIdentity.y = visualInstance.identity.y;
+    }
+    if (visualInstance.identity.z != MR_INVALID_INDEX) {
+        outputIdentity.z = visualInstance.identity.z;
+    }
+    if (uniforms.band.w != 0u) {
+        depth[pixel] = meshDepth;
+        segmentation[pixel] = outputIdentity.x;
+        identities[pixel] = outputIdentity;
+        normals[pixel] = float4(cameraNormal, 1.0f);
+        motion[pixel] = float4(pixelMotion, 1.0f, 0.0f);
+        validity[pixel] =
+            MR_VISUAL_VALIDITY_FRAME |
+            MR_VISUAL_VALIDITY_GEOMETRY;
+        return;
+    }
+
+    const float4 metallicRoughness = sampleVisualTexture(
+        textures,
+        textureTexels,
+        material.textureIndices0.y,
+        uv,
+        0.0f,
+        uniforms
+    );
+    const MRWorldAppearanceInstanceGPU appearance =
+        appearances[instance.program.x];
+    const float roughness = clamp(
+        material.surface.x * metallicRoughness.y *
+            appearance.material.z,
+        0.045f,
+        1.0f
+    );
+    const float metallic = clamp(
+        material.surface.y * metallicRoughness.z *
+            appearance.material.w,
+        0.0f,
+        1.0f
+    );
+    const float3 viewDirection =
+        normalize(camera.position - worldPosition);
+    const float noV =
+        max(dot(worldNormal, viewDirection), 1.0e-4f);
+    const float3 f0 = mix(
+        float3(0.04f * material.coatingAndAlphaCutoff.z),
+        base.xyz,
+        metallic
+    );
+    const float aoSample = sampleVisualTexture(
+        textures,
+        textureTexels,
+        material.textureIndices0.w,
+        uv,
+        0.0f,
+        uniforms
+    ).x;
+    const float ao = mix(
+        1.0f,
+        aoSample,
+        clamp(material.surface.w, 0.0f, 1.0f)
+    );
+    float3 color = 0.0f;
+    if ((material.flags.y & MR_VISUAL_MATERIAL_UNLIT) == 0u) {
+        for (uint lightIndex = 0u;
+             lightIndex < uniforms.presentation.y;
+             ++lightIndex) {
+            const MRVisualLightGPUV1 light = lights[lightIndex];
+            float3 lightDirection = 0.0f;
+            float attenuation = 1.0f;
+            if (light.identity.x == MR_VISUAL_LIGHT_DIRECTIONAL) {
+                lightDirection =
+                    normalize(-light.directionAndSpot.xyz);
+                attenuation =
+                    light.colorAndIntensity.w * 0.001f;
+            } else {
+                const float3 toLight =
+                    light.positionAndRange.xyz - worldPosition;
+                const float distanceSquared =
+                    max(dot(toLight, toLight), 1.0e-4f);
+                const float distance = sqrt(distanceSquared);
+                lightDirection = toLight / distance;
+                const float rangeFade = saturate(
+                    1.0f -
+                    pow(
+                        distance /
+                            max(light.positionAndRange.w, 1.0e-3f),
+                        4.0f
+                    )
+                );
+                attenuation =
+                    light.colorAndIntensity.w * 0.01f *
+                    rangeFade * rangeFade / distanceSquared;
+                if (light.identity.x == MR_VISUAL_LIGHT_SPOT) {
+                    const float cosine = dot(
+                        normalize(light.directionAndSpot.xyz),
+                        -lightDirection
+                    );
+                    attenuation *= smoothstep(
+                        light.directionAndSpot.w,
+                        light.shape.z,
+                        cosine
+                    );
+                }
+            }
+            const float noL =
+                max(dot(worldNormal, lightDirection), 0.0f);
+            if (noL <= 0.0f || attenuation <= 0.0f) {
+                continue;
+            }
+            const float3 halfVector =
+                normalize(viewDirection + lightDirection);
+            const float noH =
+                max(dot(worldNormal, halfVector), 0.0f);
+            const float voH =
+                max(dot(viewDirection, halfVector), 0.0f);
+            const float3 fresnel = fresnelSchlick(voH, f0);
+            const float distribution =
+                distributionGGX(noH, roughness);
+            const float visibility = visibilitySmithGGX(
+                noV,
+                noL,
+                roughness
+            );
+            const float3 specular =
+                distribution * visibility * fresnel;
+            const float3 diffuse =
+                (1.0f - fresnel) *
+                (1.0f - metallic) * base.xyz / M_PI_F;
+            const float shadow = shadowVisibility(
+                shadowAtlas,
+                worldPosition,
+                worldNormal,
+                lightDirection,
+                light,
+                lightIndex,
+                environment,
+                uniforms
+            );
+            color +=
+                (diffuse + specular) * noL * shadow *
+                light.colorAndIntensity.xyz * attenuation;
+        }
+        const float3 reflected = reflect(
+            -viewDirection,
+            worldNormal
+        );
+        const float3 irradiance = evaluateEnvironmentSH(
+            environmentSH,
+            worldNormal,
+            uniforms
+        );
+        const float3 reflection = evaluateEnvironmentSH(
+            environmentSH,
+            normalize(mix(reflected, worldNormal, roughness)),
+            uniforms
+        );
+        const float3 environmentFresnel =
+            fresnelSchlick(noV, f0);
+        color +=
+            irradiance * base.xyz * (1.0f - metallic) * ao +
+            reflection * environmentFresnel *
+                (1.0f - 0.7f * roughness) * ao;
+        const float clearcoat =
+            material.coatingAndAlphaCutoff.x *
+            sampleVisualTexture(
+                textures,
+                textureTexels,
+                material.textureIndices1.y,
+                uv,
+                0.0f,
+                uniforms
+            ).x;
+        if (clearcoat > 0.0f) {
+            const float clearRoughness = clamp(
+                material.coatingAndAlphaCutoff.y *
+                    sampleVisualTexture(
+                        textures,
+                        textureTexels,
+                        material.textureIndices1.z,
+                        uv,
+                        0.0f,
+                        uniforms
+                    ).y,
+                0.045f,
+                1.0f
+            );
+            color += clearcoat * reflection *
+                fresnelSchlick(noV, float3(0.04f)) *
+                (1.0f - 0.8f * clearRoughness);
+        }
+    } else {
+        color = base.xyz;
+    }
+    const float3 emissiveTexture = sampleVisualTexture(
+        textures,
+        textureTexels,
+        material.textureIndices1.x,
+        uv,
+        0.0f,
+        uniforms
+    ).xyz;
+    color =
+        color * appearance.colorAndLight.w +
+        material.emissionAndStrength.xyz *
+            emissiveTexture *
+            material.emissionAndStrength.w;
+    color = applyAppearance(color, appearance);
+
     rgb[pixel] = float4(color, base.w);
     depth[pixel] = meshDepth;
-    segmentation[pixel] = triangle.identity.x;
-    identities[pixel] = triangle.identity;
+    segmentation[pixel] = outputIdentity.x;
+    identities[pixel] = outputIdentity;
     normals[pixel] = float4(cameraNormal, 1.0f);
     motion[pixel] = float4(pixelMotion, 1.0f, 0.0f);
+    validity[pixel] =
+        MR_VISUAL_VALIDITY_FRAME |
+        MR_VISUAL_VALIDITY_GEOMETRY;
+}
+
+kernel void mr_hybrid_prepare_ray_instances(
+    const device MRVisualInstanceGPUV2* visualInstances [[buffer(0)]],
+    const device uint* visibleInstances [[buffer(1)]],
+    const device uint* blasIndices [[buffer(2)]],
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(3)]],
+    const device MRWorldAssetInstanceGPU* assets [[buffer(4)]],
+    const device MRBodyStateGPU* motionBodies [[buffer(5)]],
+    device MTLAccelerationStructureMotionInstanceDescriptor*
+        rayInstances [[buffer(6)]],
+    device MTLComponentTransform* motionTransforms [[buffer(7)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(8)]],
+    const uint descriptorIndex [[thread_position_in_grid]]
+) {
+    const uint visibleCount = uniforms.ray.x;
+    const uint descriptorCount =
+        uniforms.counts.x * visibleCount;
+    if (descriptorIndex >= descriptorCount ||
+        visibleCount == 0u ||
+        uniforms.ray.y < 2u) {
+        return;
+    }
+    const uint environment = descriptorIndex / visibleCount;
+    const uint slot =
+        descriptorIndex - environment * visibleCount;
+    const uint visualInstanceIndex = visibleInstances[slot];
+    const MRVisualInstanceGPUV2 visualInstance =
+        visualInstances[visualInstanceIndex];
+    const MRWorldInstanceHeaderGPU instance =
+        instances[environment];
+
+    bool valid = true;
+    const uint firstTransform =
+        descriptorIndex * uniforms.ray.y;
+    const uint statesPerKeyframe =
+        uniforms.counts.x * uniforms.live.x;
+    for (uint keyframe = 0u;
+         keyframe < uniforms.ray.y;
+         ++keyframe) {
+        const device MRBodyStateGPU* bodies =
+            motionBodies + keyframe * statesPerKeyframe;
+        const BoundPose pose = composeInstancePose(resolvePose(
+            visualInstance.binding.z,
+            visualInstance.binding.y,
+            visualInstance.binding.x,
+            environment,
+            instance,
+            assets,
+            bodies,
+            uniforms,
+            false
+        ), visualInstance);
+        valid = valid && pose.valid;
+        MTLComponentTransform transform;
+        const float scale =
+            pose.valid ? pose.scale : 1.0f;
+        transform.scale = packed_float3(scale);
+        transform.shear = packed_float3(0.0f);
+        transform.pivot = packed_float3(0.0f);
+        transform.rotation = packed_float4(
+            pose.valid
+                ? pose.orientation
+                : float4(0.0f, 0.0f, 0.0f, 1.0f)
+        );
+        transform.translation = packed_float3(
+            pose.valid ? pose.position : float3(0.0f)
+        );
+        motionTransforms[firstTransform + keyframe] =
+            transform;
+    }
+
+    MTLAccelerationStructureMotionInstanceDescriptor descriptor{};
+    descriptor.options =
+        MTLAccelerationStructureInstanceOptionNone;
+    uint mask = 0u;
+    if ((visualInstance.binding.w &
+         MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR) != 0u) {
+        mask |= 1u;
+    }
+    if ((visualInstance.binding.w &
+         MR_VISUAL_INSTANCE_CASTS_SHADOW) != 0u &&
+        (visualInstance.binding.w &
+         MR_VISUAL_INSTANCE_GAUSSIAN_RECEIVER_PROXY) == 0u) {
+        mask |= 2u;
+        if (visualInstance.binding.z ==
+                MR_VISUAL_BINDING_RIGID_BODY ||
+            visualInstance.binding.z ==
+                MR_VISUAL_BINDING_ARTICULATED_LINK) {
+            mask |= 4u;
+        }
+    }
+    descriptor.mask = valid ? mask : 0u;
+    descriptor.intersectionFunctionTableOffset = 0u;
+    descriptor.accelerationStructureIndex = blasIndices[slot];
+    descriptor.userID = visualInstanceIndex;
+    descriptor.motionTransformsStartIndex = firstTransform;
+    descriptor.motionTransformsCount = uniforms.ray.y;
+    descriptor.motionStartBorderMode = MTLMotionBorderModeClamp;
+    descriptor.motionEndBorderMode = MTLMotionBorderModeClamp;
+    descriptor.motionStartTime = 0.0f;
+    descriptor.motionEndTime = 1.0f;
+    rayInstances[descriptorIndex] = descriptor;
+}
+
+using MRReferenceAccelerationStructure =
+    acceleration_structure<instancing, instance_motion>;
+using MRReferenceIntersector =
+    intersector<
+        triangle_data,
+        instancing,
+        world_space_data,
+        instance_motion
+    >;
+using MRReferenceIntersection =
+    MRReferenceIntersector::result_type;
+
+struct MRReferenceSurface {
+    uint environment;
+    uint visualInstanceIndex;
+    uint primitiveIndex;
+    float3 worldPosition;
+    float3 worldNormal;
+    float3 worldTangent;
+    float tangentSign;
+    float2 uv;
+    float4 vertexColor;
+    float4 base;
+    MRVisualMaterialGPUV2 material;
+    uint4 identity;
+};
+
+float4 referenceQuaternionSlerp(
+    float4 first,
+    float4 second,
+    const float fraction
+) {
+    first = normalize(first);
+    second = normalize(second);
+    float cosine = dot(first, second);
+    if (cosine < 0.0f) {
+        second = -second;
+        cosine = -cosine;
+    }
+    if (cosine > 0.9995f) {
+        return normalize(mix(first, second, fraction));
+    }
+    const float angle = acos(clamp(cosine, -1.0f, 1.0f));
+    const float inverseSine =
+        1.0f / max(sin(angle), 1.0e-6f);
+    return normalize(
+        sin((1.0f - fraction) * angle) * inverseSine * first +
+        sin(fraction * angle) * inverseSine * second
+    );
+}
+
+BoundPose referenceBodyPose(
+    const device MRBodyStateGPU* motionBodies,
+    const uint environment,
+    const uint body,
+    const float time,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    if (body >= uniforms.live.x || uniforms.ray.y < 2u) {
+        BoundPose invalid = worldPose();
+        invalid.valid = false;
+        return invalid;
+    }
+    const float scaled =
+        clamp(time, 0.0f, 1.0f) *
+        float(uniforms.ray.y - 1u);
+    const uint firstKeyframe =
+        min(uint(floor(scaled)), uniforms.ray.y - 1u);
+    const uint secondKeyframe =
+        min(firstKeyframe + 1u, uniforms.ray.y - 1u);
+    const float fraction = scaled - float(firstKeyframe);
+    const uint statesPerKeyframe =
+        uniforms.counts.x * uniforms.live.x;
+    const uint bodyOffset =
+        environment * uniforms.live.x + body;
+    const MRBodyStateGPU first =
+        motionBodies[
+            firstKeyframe * statesPerKeyframe + bodyOffset
+        ];
+    const MRBodyStateGPU second =
+        motionBodies[
+            secondKeyframe * statesPerKeyframe + bodyOffset
+        ];
+    BoundPose result;
+    result.position = mix(
+        first.position.xyz,
+        second.position.xyz,
+        fraction
+    );
+    result.orientation = referenceQuaternionSlerp(
+        first.orientation,
+        second.orientation,
+        fraction
+    );
+    result.scale = 1.0f;
+    result.valid =
+        all(isfinite(result.position)) &&
+        all(isfinite(result.orientation));
+    return result;
+}
+
+BoundPose referenceResolvePose(
+    const uint bindingKind,
+    const uint bindingIndex,
+    const uint asset,
+    const uint environment,
+    const MRWorldInstanceHeaderGPU instance,
+    const device MRWorldAssetInstanceGPU* assets,
+    const device MRBodyStateGPU* motionBodies,
+    const float time,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    if (bindingKind == MR_VISUAL_BINDING_WORLD) {
+        return worldPose();
+    }
+    if (bindingKind == MR_VISUAL_BINDING_ASSET) {
+        return assetPose(assets, instance, asset);
+    }
+    if (bindingKind == MR_VISUAL_BINDING_RIGID_BODY ||
+        bindingKind == MR_VISUAL_BINDING_ARTICULATED_LINK) {
+        return referenceBodyPose(
+            motionBodies,
+            environment,
+            bindingIndex,
+            time,
+            uniforms
+        );
+    }
+    BoundPose invalid = worldPose();
+    invalid.valid = false;
+    return invalid;
+}
+
+BoundPose referenceCameraPose(
+    const uint environment,
+    const MRWorldInstanceHeaderGPU instance,
+    const MRWorldSensorInstanceGPU sensor,
+    const device MRWorldAssetInstanceGPU* assets,
+    const device MRVisualSensorBindingGPU* sensorBindings,
+    const device MRBodyStateGPU* motionBodies,
+    const float time,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    BoundPose parent;
+    if (uniforms.render.x < uniforms.live.z) {
+        const MRVisualSensorBindingGPU binding =
+            sensorBindings[uniforms.render.x];
+        parent = referenceResolvePose(
+            binding.identity.x,
+            binding.identity.y,
+            binding.identity.z,
+            environment,
+            instance,
+            assets,
+            motionBodies,
+            time,
+            uniforms
+        );
+    } else {
+        parent = assetPose(
+            assets,
+            instance,
+            sensor.identity.x
+        );
+    }
+    if (!parent.valid) {
+        return parent;
+    }
+    parent.position += rotateVector(
+        parent.orientation,
+        sensor.positionAndFocalScale.xyz * parent.scale
+    );
+    parent.orientation = normalize(quaternionProduct(
+        parent.orientation,
+        sensor.orientation
+    ));
+    parent.scale = 1.0f;
+    return parent;
+}
+
+float referenceScanFraction(
+    const uint2 pixel,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    if (uniforms.shutter.x != MR_VISUAL_SHUTTER_ROLLING) {
+        return 0.0f;
+    }
+    switch (uniforms.shutter.y) {
+    case MR_VISUAL_SHUTTER_BOTTOM_TO_TOP:
+        return (
+            float(uniforms.image.y) -
+            (float(pixel.y) + 0.5f)
+        ) / max(float(uniforms.image.y), 1.0f);
+    case MR_VISUAL_SHUTTER_LEFT_TO_RIGHT:
+        return (float(pixel.x) + 0.5f) /
+            max(float(uniforms.image.x), 1.0f);
+    case MR_VISUAL_SHUTTER_RIGHT_TO_LEFT:
+        return (
+            float(uniforms.image.x) -
+            (float(pixel.x) + 0.5f)
+        ) / max(float(uniforms.image.x), 1.0f);
+    default:
+        return (float(pixel.y) + 0.5f) /
+            max(float(uniforms.image.y), 1.0f);
+    }
+}
+
+ray referenceCameraRay(
+    const uint2 pixel,
+    const MRWorldSensorInstanceGPU sensor,
+    const BoundPose camera,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    const float focalScale =
+        sensor.positionAndFocalScale.w;
+    const float2 focal =
+        max(sensor.intrinsics.xy * focalScale, 1.0e-6f);
+    const float2 distorted =
+        (
+            float2(pixel) + 0.5f -
+            sensor.intrinsics.zw
+        ) / focal;
+    float2 normalized = distorted;
+    // Invert the Brown-Conrady lens model used by projectPoint.
+    for (uint iteration = 0u; iteration < 5u; ++iteration) {
+        const float radiusSquared = dot(normalized, normalized);
+        const float radial =
+            1.0f +
+            sensor.distortion.x * radiusSquared +
+            sensor.distortion.y *
+                radiusSquared * radiusSquared;
+        const float2 tangential = float2(
+            2.0f * sensor.distortion.z *
+                    normalized.x * normalized.y +
+                sensor.distortion.w *
+                    (radiusSquared +
+                     2.0f * normalized.x * normalized.x),
+            sensor.distortion.z *
+                    (radiusSquared +
+                     2.0f * normalized.y * normalized.y) +
+                2.0f * sensor.distortion.w *
+                    normalized.x * normalized.y
+        );
+        normalized +=
+            distorted - (normalized * radial + tangential);
+    }
+    ray result;
+    result.origin = camera.position;
+    result.direction = normalize(rotateVector(
+        camera.orientation,
+        normalize(float3(normalized, 1.0f))
+    ));
+    result.max_distance =
+        uniforms.sensorRangeAndResponse.y * 2.0f;
+    return result;
+}
+
+bool referenceSurface(
+    const MRReferenceIntersection intersection,
+    const float3 worldPosition,
+    const uint visibleCount,
+    const device uint* visibleInstances,
+    const device MRVisualVertexGPUV2* vertices,
+    const device uint* indices,
+    const device MRVisualPrimitiveGPUV2* primitives,
+    const device MRVisualInstanceGPUV2* visualInstances,
+    const device MRVisualMaterialGPUV2* materials,
+    const device MRVisualTextureGPUV1* textures,
+    const device uint* textureTexels,
+    constant MRHybridRenderUniformsGPU& uniforms,
+    thread MRReferenceSurface& surface
+) {
+    if (visibleCount == 0u ||
+        intersection.instance_id >=
+            uniforms.counts.x * visibleCount) {
+        return false;
+    }
+    const uint environment =
+        intersection.instance_id / visibleCount;
+    const uint slot =
+        intersection.instance_id -
+        environment * visibleCount;
+    const uint visualInstanceIndex =
+        visibleInstances[slot];
+    const MRVisualInstanceGPUV2 visualInstance =
+        visualInstances[visualInstanceIndex];
+    if (intersection.geometry_id >=
+        visualInstance.geometry.y) {
+        return false;
+    }
+    const uint primitiveIndex =
+        visualInstance.geometry.x +
+        intersection.geometry_id;
+    const MRVisualPrimitiveGPUV2 primitive =
+        primitives[primitiveIndex];
+    const uint firstIndex =
+        primitive.geometry.x +
+        intersection.primitive_id * 3u;
+    if (firstIndex + 2u >=
+        primitive.geometry.x + primitive.geometry.y) {
+        return false;
+    }
+    const uint3 vertexIndices = uint3(
+        indices[firstIndex],
+        indices[firstIndex + 1u],
+        indices[firstIndex + 2u]
+    );
+    const MRVisualVertexGPUV2 vertex0 =
+        vertices[vertexIndices.x];
+    const MRVisualVertexGPUV2 vertex1 =
+        vertices[vertexIndices.y];
+    const MRVisualVertexGPUV2 vertex2 =
+        vertices[vertexIndices.z];
+    const float2 barycentric =
+        intersection.triangle_barycentric_coord;
+    const float3 weights = float3(
+        1.0f - barycentric.x - barycentric.y,
+        barycentric.x,
+        barycentric.y
+    );
+    float3 localNormal = normalize(
+        weights.x * vertex0.normalAndTangentSign.xyz +
+        weights.y * vertex1.normalAndTangentSign.xyz +
+        weights.z * vertex2.normalAndTangentSign.xyz
+    );
+    float3 localTangent = normalize(
+        weights.x * vertex0.tangent.xyz +
+        weights.y * vertex1.tangent.xyz +
+        weights.z * vertex2.tangent.xyz
+    );
+    const float tangentSign =
+        dot(
+            weights,
+            float3(
+                vertex0.normalAndTangentSign.w,
+                vertex1.normalAndTangentSign.w,
+                vertex2.normalAndTangentSign.w
+            )
+        ) < 0.0f
+        ? -1.0f
+        : 1.0f;
+    const float2 uv =
+        weights.x * vertex0.texcoord01.xy +
+        weights.y * vertex1.texcoord01.xy +
+        weights.z * vertex2.texcoord01.xy;
+    const float4 vertexColor =
+        weights.x * vertex0.color +
+        weights.y * vertex1.color +
+        weights.z * vertex2.color;
+    const MRVisualMaterialGPUV2 material =
+        materials[primitive.geometry.z];
+    float4 base =
+        material.baseColorAndOpacity * vertexColor;
+    base *= sampleVisualTexture(
+        textures,
+        textureTexels,
+        material.textureIndices0.x,
+        uv,
+        0.0f,
+        uniforms
+    );
+
+    if (material.textureIndices0.z != MR_INVALID_INDEX) {
+        const float3 sampledNormal = sampleVisualTexture(
+            textures,
+            textureTexels,
+            material.textureIndices0.z,
+            uv,
+            0.0f,
+            uniforms
+        ).xyz * 2.0f - 1.0f;
+        const float3 localBitangent =
+            normalize(cross(localNormal, localTangent)) *
+            tangentSign;
+        localNormal = normalize(
+            localTangent *
+                (sampledNormal.x * material.surface.z) +
+            localBitangent *
+                (sampledNormal.y * material.surface.z) +
+            localNormal * max(sampledNormal.z, 1.0e-4f)
+        );
+    }
+    const float4x3 transform =
+        intersection.object_to_world_transform;
+    surface.environment = environment;
+    surface.visualInstanceIndex = visualInstanceIndex;
+    surface.primitiveIndex = primitiveIndex;
+    surface.worldPosition = worldPosition;
+    surface.worldNormal = normalize(
+        transform * float4(localNormal, 0.0f)
+    );
+    surface.worldTangent = normalize(
+        transform * float4(localTangent, 0.0f)
+    );
+    surface.tangentSign = tangentSign;
+    surface.uv = uv;
+    surface.vertexColor = vertexColor;
+    surface.base = base;
+    surface.material = material;
+    surface.identity = primitive.identity;
+    if (visualInstance.identity.x != 0u) {
+        surface.identity.x = visualInstance.identity.x;
+    }
+    if (visualInstance.identity.y != 0u) {
+        surface.identity.y = visualInstance.identity.y;
+    }
+    if (visualInstance.identity.z != MR_INVALID_INDEX) {
+        surface.identity.z = visualInstance.identity.z;
+    }
+    return all(isfinite(surface.worldPosition)) &&
+        all(isfinite(surface.worldNormal));
+}
+
+bool referenceTrace(
+    ray queryRay,
+    const uint mask,
+    const float time,
+    const uint seed,
+    MRReferenceAccelerationStructure accelerationStructure,
+    const device uint* visibleInstances,
+    const device MRVisualVertexGPUV2* vertices,
+    const device uint* indices,
+    const device MRVisualPrimitiveGPUV2* primitives,
+    const device MRVisualInstanceGPUV2* visualInstances,
+    const device MRVisualMaterialGPUV2* materials,
+    const device MRVisualTextureGPUV1* textures,
+    const device uint* textureTexels,
+    constant MRHybridRenderUniformsGPU& uniforms,
+    thread MRReferenceSurface& surface,
+    thread float& totalDistance
+) {
+    MRReferenceIntersector intersector;
+    intersector.assume_geometry_type(geometry_type::triangle);
+    intersector.force_opacity(forced_opacity::opaque);
+    intersector.accept_any_intersection(false);
+    totalDistance = 0.0f;
+    for (uint layer = 0u; layer < 8u; ++layer) {
+        const MRReferenceIntersection intersection =
+            intersector.intersect(
+                queryRay,
+                accelerationStructure,
+                mask,
+                time
+            );
+        if (intersection.type == intersection_type::none) {
+            return false;
+        }
+        const float distance =
+            totalDistance + intersection.distance;
+        MRReferenceSurface candidate;
+        if (!referenceSurface(
+                intersection,
+                queryRay.origin +
+                    queryRay.direction * intersection.distance,
+                uniforms.ray.x,
+                visibleInstances,
+                vertices,
+                indices,
+                primitives,
+                visualInstances,
+                materials,
+                textures,
+                textureTexels,
+                uniforms,
+                candidate
+            )) {
+            return false;
+        }
+        bool accepted = true;
+        if (candidate.material.flags.x ==
+                MR_VISUAL_ALPHA_MASK) {
+            accepted =
+                candidate.base.w >=
+                candidate.material.coatingAndAlphaCutoff.w;
+        } else if (candidate.material.flags.x ==
+                   MR_VISUAL_ALPHA_BLEND) {
+            const float sample =
+                (float(randomHash(
+                    seed ^ layer * 0x9e3779b9u
+                )) + 0.5f) /
+                4294967296.0f;
+            accepted = sample < candidate.base.w;
+        }
+        if (accepted) {
+            surface = candidate;
+            totalDistance = distance;
+            return true;
+        }
+        const float advance =
+            intersection.distance + 1.0e-4f;
+        if (!(advance < queryRay.max_distance)) {
+            return false;
+        }
+        queryRay.origin += queryRay.direction * advance;
+        queryRay.max_distance -= advance;
+        totalDistance += advance;
+    }
+    return false;
+}
+
+float referenceShadow(
+    const MRReferenceSurface surface,
+    const float3 lightDirection,
+    const float lightDistance,
+    const uint mask,
+    const float time,
+    const uint seed,
+    MRReferenceAccelerationStructure accelerationStructure,
+    const device uint* visibleInstances,
+    const device MRVisualVertexGPUV2* vertices,
+    const device uint* indices,
+    const device MRVisualPrimitiveGPUV2* primitives,
+    const device MRVisualInstanceGPUV2* visualInstances,
+    const device MRVisualMaterialGPUV2* materials,
+    const device MRVisualTextureGPUV1* textures,
+    const device uint* textureTexels,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    ray shadowRay;
+    shadowRay.origin =
+        surface.worldPosition +
+        surface.worldNormal * 1.0e-4f;
+    shadowRay.direction = lightDirection;
+    shadowRay.max_distance =
+        max(lightDistance - 2.0e-4f, 1.0e-4f);
+    MRReferenceSurface blocker;
+    float blockerDistance = 0.0f;
+    return referenceTrace(
+        shadowRay,
+        mask,
+        time,
+        seed,
+        accelerationStructure,
+        visibleInstances,
+        vertices,
+        indices,
+        primitives,
+        visualInstances,
+        materials,
+        textures,
+        textureTexels,
+        uniforms,
+        blocker,
+        blockerDistance
+    ) ? 0.0f : 1.0f;
+}
+
+float3 referenceShade(
+    const MRReferenceSurface surface,
+    const float3 viewDirection,
+    const float time,
+    const uint seed,
+    MRReferenceAccelerationStructure accelerationStructure,
+    const device uint* visibleInstances,
+    const device MRVisualVertexGPUV2* vertices,
+    const device uint* indices,
+    const device MRVisualPrimitiveGPUV2* primitives,
+    const device MRVisualInstanceGPUV2* visualInstances,
+    const device MRVisualMaterialGPUV2* materials,
+    const device MRVisualTextureGPUV1* textures,
+    const device uint* textureTexels,
+    const device MRVisualLightGPUV1* lights,
+    const device float4* environmentSH,
+    const device MRWorldInstanceHeaderGPU* instances,
+    const device MRWorldAppearanceInstanceGPU* appearances,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    const MRWorldInstanceHeaderGPU instance =
+        instances[surface.environment];
+    const MRWorldAppearanceInstanceGPU appearance =
+        appearances[instance.program.x];
+    const float4 metallicRoughness = sampleVisualTexture(
+        textures,
+        textureTexels,
+        surface.material.textureIndices0.y,
+        surface.uv,
+        0.0f,
+        uniforms
+    );
+    const float roughness = clamp(
+        surface.material.surface.x *
+            metallicRoughness.y *
+            appearance.material.z,
+        0.045f,
+        1.0f
+    );
+    const float metallic = clamp(
+        surface.material.surface.y *
+            metallicRoughness.z *
+            appearance.material.w,
+        0.0f,
+        1.0f
+    );
+    const float noV = max(
+        dot(surface.worldNormal, viewDirection),
+        1.0e-4f
+    );
+    const float3 f0 = mix(
+        float3(
+            0.04f *
+            surface.material.coatingAndAlphaCutoff.z
+        ),
+        surface.base.xyz,
+        metallic
+    );
+    const float aoSample = sampleVisualTexture(
+        textures,
+        textureTexels,
+        surface.material.textureIndices0.w,
+        surface.uv,
+        0.0f,
+        uniforms
+    ).x;
+    const float ao = mix(
+        1.0f,
+        aoSample,
+        clamp(surface.material.surface.w, 0.0f, 1.0f)
+    );
+    float3 color = 0.0f;
+    if ((surface.material.flags.y &
+         MR_VISUAL_MATERIAL_UNLIT) == 0u) {
+        for (uint lightIndex = 0u;
+             lightIndex < uniforms.presentation.y;
+             ++lightIndex) {
+            const MRVisualLightGPUV1 light =
+                lights[lightIndex];
+            const uint sampleCount =
+                light.identity.x == MR_VISUAL_LIGHT_RECTANGLE
+                ? max(uniforms.ray.z, 1u)
+                : 1u;
+            float3 sampledContribution = 0.0f;
+            for (uint lightSample = 0u;
+                 lightSample < sampleCount;
+                 ++lightSample) {
+                float3 lightDirection = 0.0f;
+                float attenuation = 1.0f;
+                float lightDistance =
+                    uniforms.sensorRangeAndResponse.y * 4.0f;
+                if (light.identity.x ==
+                    MR_VISUAL_LIGHT_DIRECTIONAL) {
+                    lightDirection =
+                        normalize(-light.directionAndSpot.xyz);
+                    attenuation =
+                        light.colorAndIntensity.w * 0.001f;
+                } else {
+                    float3 lightPosition =
+                        light.positionAndRange.xyz;
+                    if (light.identity.x ==
+                        MR_VISUAL_LIGHT_RECTANGLE) {
+                        const float3 forward = normalize(
+                            light.directionAndSpot.xyz
+                        );
+                        const float3 helper =
+                            abs(forward.z) < 0.99f
+                            ? float3(0.0f, 0.0f, 1.0f)
+                            : float3(0.0f, 1.0f, 0.0f);
+                        const float3 right =
+                            normalize(cross(helper, forward));
+                        const float3 up =
+                            normalize(cross(forward, right));
+                        const uint grid = uint(ceil(sqrt(
+                            float(sampleCount)
+                        )));
+                        const uint sampleSeed = randomHash(
+                            seed ^
+                            lightIndex * 0x85ebca6bu ^
+                            lightSample * 0xc2b2ae35u
+                        );
+                        const float2 jitter = float2(
+                            uniformSigned(sampleSeed),
+                            uniformSigned(
+                                sampleSeed ^ 0x27d4eb2fu
+                            )
+                        ) * 0.25f;
+                        const float2 cell = (
+                            float2(
+                                lightSample % grid,
+                                lightSample / grid
+                            ) +
+                            0.5f + jitter
+                        ) / float(grid) - 0.5f;
+                        lightPosition +=
+                            right * cell.x * light.shape.x +
+                            up * cell.y * light.shape.y;
+                    }
+                    const float3 toLight =
+                        lightPosition - surface.worldPosition;
+                    const float distanceSquared =
+                        max(dot(toLight, toLight), 1.0e-4f);
+                    lightDistance = sqrt(distanceSquared);
+                    lightDirection =
+                        toLight / lightDistance;
+                    const float rangeFade = saturate(
+                        1.0f -
+                        pow(
+                            lightDistance /
+                                max(
+                                    light.positionAndRange.w,
+                                    1.0e-3f
+                                ),
+                            4.0f
+                        )
+                    );
+                    attenuation =
+                        light.colorAndIntensity.w * 0.01f *
+                        rangeFade * rangeFade /
+                        distanceSquared;
+                    if (light.identity.x ==
+                        MR_VISUAL_LIGHT_SPOT) {
+                        const float cosine = dot(
+                            normalize(
+                                light.directionAndSpot.xyz
+                            ),
+                            -lightDirection
+                        );
+                        attenuation *= smoothstep(
+                            light.directionAndSpot.w,
+                            light.shape.z,
+                            cosine
+                        );
+                    }
+                    if (light.identity.x ==
+                        MR_VISUAL_LIGHT_RECTANGLE) {
+                        attenuation *= saturate(dot(
+                            normalize(
+                                light.directionAndSpot.xyz
+                            ),
+                            -lightDirection
+                        ));
+                    }
+                }
+                const float noL = max(
+                    dot(surface.worldNormal, lightDirection),
+                    0.0f
+                );
+                if (noL <= 0.0f || attenuation <= 0.0f) {
+                    continue;
+                }
+                const float3 halfVector =
+                    normalize(viewDirection + lightDirection);
+                const float noH = max(
+                    dot(surface.worldNormal, halfVector),
+                    0.0f
+                );
+                const float voH = max(
+                    dot(viewDirection, halfVector),
+                    0.0f
+                );
+                const float3 fresnel =
+                    fresnelSchlick(voH, f0);
+                const float3 specular =
+                    distributionGGX(
+                        noH,
+                        roughness
+                    ) *
+                    visibilitySmithGGX(
+                        noV,
+                        noL,
+                        roughness
+                    ) *
+                    fresnel;
+                const float3 diffuse =
+                    (1.0f - fresnel) *
+                    (1.0f - metallic) *
+                    surface.base.xyz / M_PI_F;
+                const float shadow = referenceShadow(
+                    surface,
+                    lightDirection,
+                    lightDistance,
+                    2u,
+                    time,
+                    seed ^
+                        lightIndex * 0x165667b1u ^
+                        lightSample,
+                    accelerationStructure,
+                    visibleInstances,
+                    vertices,
+                    indices,
+                    primitives,
+                    visualInstances,
+                    materials,
+                    textures,
+                    textureTexels,
+                    uniforms
+                );
+                sampledContribution +=
+                    (diffuse + specular) * noL * shadow *
+                    light.colorAndIntensity.xyz *
+                    attenuation;
+            }
+            color += sampledContribution / float(sampleCount);
+        }
+        const float3 reflected = reflect(
+            -viewDirection,
+            surface.worldNormal
+        );
+        const float3 irradiance = evaluateEnvironmentSH(
+            environmentSH,
+            surface.worldNormal,
+            uniforms
+        );
+        const float3 reflection = evaluateEnvironmentSH(
+            environmentSH,
+            normalize(mix(
+                reflected,
+                surface.worldNormal,
+                roughness
+            )),
+            uniforms
+        );
+        color +=
+            irradiance * surface.base.xyz *
+                (1.0f - metallic) * ao +
+            reflection * fresnelSchlick(noV, f0) *
+                (1.0f - 0.7f * roughness) * ao;
+        const float clearcoat =
+            surface.material.coatingAndAlphaCutoff.x *
+            sampleVisualTexture(
+                textures,
+                textureTexels,
+                surface.material.textureIndices1.y,
+                surface.uv,
+                0.0f,
+                uniforms
+            ).x;
+        if (clearcoat > 0.0f) {
+            const float clearRoughness = clamp(
+                surface.material.coatingAndAlphaCutoff.y *
+                sampleVisualTexture(
+                    textures,
+                    textureTexels,
+                    surface.material.textureIndices1.z,
+                    surface.uv,
+                    0.0f,
+                    uniforms
+                ).y,
+                0.045f,
+                1.0f
+            );
+            color +=
+                clearcoat * reflection *
+                fresnelSchlick(noV, float3(0.04f)) *
+                (1.0f - 0.8f * clearRoughness);
+        }
+    } else {
+        color = surface.base.xyz;
+    }
+    const float3 emissiveTexture = sampleVisualTexture(
+        textures,
+        textureTexels,
+        surface.material.textureIndices1.x,
+        surface.uv,
+        0.0f,
+        uniforms
+    ).xyz;
+    color =
+        color * appearance.colorAndLight.w +
+        surface.material.emissionAndStrength.xyz *
+            emissiveTexture *
+            surface.material.emissionAndStrength.w;
+    return applyAppearance(color, appearance);
+}
+
+float referenceReceiverShadow(
+    const MRReferenceSurface surface,
+    const float time,
+    const uint seed,
+    MRReferenceAccelerationStructure accelerationStructure,
+    const device uint* visibleInstances,
+    const device MRVisualVertexGPUV2* vertices,
+    const device uint* indices,
+    const device MRVisualPrimitiveGPUV2* primitives,
+    const device MRVisualInstanceGPUV2* visualInstances,
+    const device MRVisualMaterialGPUV2* materials,
+    const device MRVisualTextureGPUV1* textures,
+    const device uint* textureTexels,
+    const device MRVisualLightGPUV1* lights,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    for (uint lightIndex = 0u;
+         lightIndex < uniforms.presentation.y;
+         ++lightIndex) {
+        const MRVisualLightGPUV1 light = lights[lightIndex];
+        if (light.shadow.x == 0u) {
+            continue;
+        }
+        float3 direction;
+        float distance;
+        if (light.identity.x == MR_VISUAL_LIGHT_DIRECTIONAL) {
+            direction =
+                normalize(-light.directionAndSpot.xyz);
+            distance =
+                uniforms.sensorRangeAndResponse.y * 4.0f;
+        } else {
+            const float3 toLight =
+                light.positionAndRange.xyz -
+                surface.worldPosition;
+            distance = length(toLight);
+            direction = toLight / max(distance, 1.0e-6f);
+        }
+        return referenceShadow(
+            surface,
+            direction,
+            distance,
+            4u,
+            time,
+            seed,
+            accelerationStructure,
+            visibleInstances,
+            vertices,
+            indices,
+            primitives,
+            visualInstances,
+            materials,
+            textures,
+            textureTexels,
+            uniforms
+        );
+    }
+    return 1.0f;
+}
+
+kernel void mr_hybrid_render_reference(
+    const device MRVisualVertexGPUV2* vertices [[buffer(0)]],
+    const device uint* indices [[buffer(1)]],
+    const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
+    const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
+    const device uint* visibleInstances [[buffer(4)]],
+    const device MRVisualMaterialGPUV2* materials [[buffer(5)]],
+    const device MRVisualTextureGPUV1* textures [[buffer(6)]],
+    const device uint* textureTexels [[buffer(7)]],
+    const device MRVisualLightGPUV1* lights [[buffer(8)]],
+    const device float4* environmentSH [[buffer(9)]],
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(10)]],
+    const device MRWorldAssetInstanceGPU* assets [[buffer(11)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(12)]],
+    const device MRWorldAppearanceInstanceGPU* appearances [[buffer(13)]],
+    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(14)]],
+    const device MRBodyStateGPU* motionBodies [[buffer(15)]],
+    device float4* rgb [[buffer(16)]],
+    device float* depth [[buffer(17)]],
+    device uint* segmentation [[buffer(18)]],
+    device uint4* identities [[buffer(19)]],
+    device float4* normals [[buffer(20)]],
+    device float4* motion [[buffer(21)]],
+    device uint* validity [[buffer(22)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(23)]],
+    MRReferenceAccelerationStructure accelerationStructure
+        [[buffer(24)]],
+    const uint pixel [[thread_position_in_grid]]
+) {
+    const uint pixelsPerEnvironment =
+        uniforms.image.x * uniforms.image.y;
+    const uint pixelCount =
+        uniforms.counts.x * pixelsPerEnvironment;
+    if (pixel >= pixelCount ||
+        uniforms.ray.x == 0u ||
+        uniforms.ray.y < 2u ||
+        uniforms.shutter.w == 0u) {
+        return;
+    }
+    const uint environment =
+        pixel / pixelsPerEnvironment;
+    const uint localPixel =
+        pixel - environment * pixelsPerEnvironment;
+    const uint2 coordinate = uint2(
+        localPixel % uniforms.image.x,
+        localPixel / uniforms.image.x
+    );
+    const MRWorldInstanceHeaderGPU instance =
+        instances[environment];
+    const MRWorldSensorInstanceGPU sensor =
+        sensors[instance.ranges.z + uniforms.render.x];
+    const float3 background = rgb[pixel].xyz;
+    const float backgroundDepth = depth[pixel];
+    const float scanFraction =
+        referenceScanFraction(coordinate, uniforms);
+    const float exposure =
+        max(uniforms.sensorTiming.y, 0.0f);
+    const float readout =
+        uniforms.shutter.x == MR_VISUAL_SHUTTER_ROLLING
+        ? max(uniforms.sensorTiming.z, 0.0f)
+        : 0.0f;
+    const float shutterWindow =
+        max(uniforms.rayTiming.x, 1.0e-8f);
+    const uint seed =
+        frameSeed(instance, uniforms, pixel);
+
+    float3 integrated = 0.0f;
+    for (uint sample = 0u;
+         sample < uniforms.shutter.w;
+         ++sample) {
+        const float sampleFraction =
+            (float(sample) + 0.5f) /
+            float(uniforms.shutter.w);
+        const float time = clamp(
+            (
+                scanFraction * readout +
+                sampleFraction * exposure
+            ) / shutterWindow,
+            0.0f,
+            1.0f
+        );
+        const BoundPose camera = referenceCameraPose(
+            environment,
+            instance,
+            sensor,
+            assets,
+            sensorBindings,
+            motionBodies,
+            time,
+            uniforms
+        );
+        if (!camera.valid) {
+            integrated += background;
+            continue;
+        }
+        const ray primaryRay = referenceCameraRay(
+            coordinate,
+            sensor,
+            camera,
+            uniforms
+        );
+        MRReferenceSurface surface;
+        float hitDistance = 0.0f;
+        if (!referenceTrace(
+                primaryRay,
+                1u,
+                time,
+                seed ^ sample * 0x9e3779b9u,
+                accelerationStructure,
+                visibleInstances,
+                vertices,
+                indices,
+                primitives,
+                visualInstances,
+                materials,
+                textures,
+                textureTexels,
+                uniforms,
+                surface,
+                hitDistance
+            )) {
+            integrated += background;
+            continue;
+        }
+        const float hitDepth = inverseRotateVector(
+            camera.orientation,
+            surface.worldPosition - camera.position
+        ).z;
+        if (!(hitDepth > 0.0f) ||
+            !(hitDepth < backgroundDepth)) {
+            integrated += background;
+            continue;
+        }
+        const MRVisualInstanceGPUV2 visualInstance =
+            visualInstances[surface.visualInstanceIndex];
+        if ((visualInstance.binding.w &
+             MR_VISUAL_INSTANCE_GAUSSIAN_RECEIVER_PROXY) != 0u) {
+            integrated += background *
+                mix(
+                    0.55f,
+                    1.0f,
+                    referenceReceiverShadow(
+                        surface,
+                        time,
+                        seed ^ sample,
+                        accelerationStructure,
+                        visibleInstances,
+                        vertices,
+                        indices,
+                        primitives,
+                        visualInstances,
+                        materials,
+                        textures,
+                        textureTexels,
+                        lights,
+                        uniforms
+                    )
+                );
+        } else {
+            integrated += referenceShade(
+                surface,
+                normalize(camera.position - surface.worldPosition),
+                time,
+                seed ^ sample * 0x85ebca6bu,
+                accelerationStructure,
+                visibleInstances,
+                vertices,
+                indices,
+                primitives,
+                visualInstances,
+                materials,
+                textures,
+                textureTexels,
+                lights,
+                environmentSH,
+                instances,
+                appearances,
+                uniforms
+            );
+        }
+    }
+    rgb[pixel] = float4(
+        integrated / float(uniforms.shutter.w),
+        1.0f
+    );
+
+    // Deployable geometry channels use the exact row-exposure midpoint.
+    const float truthTime = clamp(
+        (
+            scanFraction * readout +
+            0.5f * exposure
+        ) / shutterWindow,
+        0.0f,
+        1.0f
+    );
+    const BoundPose truthCamera = referenceCameraPose(
+        environment,
+        instance,
+        sensor,
+        assets,
+        sensorBindings,
+        motionBodies,
+        truthTime,
+        uniforms
+    );
+    if (!truthCamera.valid) {
+        return;
+    }
+    const ray truthRay = referenceCameraRay(
+        coordinate,
+        sensor,
+        truthCamera,
+        uniforms
+    );
+    MRReferenceSurface truthSurface;
+    float truthDistance = 0.0f;
+    if (!referenceTrace(
+            truthRay,
+            1u,
+            truthTime,
+            seed ^ 0x27d4eb2fu,
+            accelerationStructure,
+            visibleInstances,
+            vertices,
+            indices,
+            primitives,
+            visualInstances,
+            materials,
+            textures,
+            textureTexels,
+            uniforms,
+            truthSurface,
+            truthDistance
+        )) {
+        return;
+    }
+    const float truthDepth = inverseRotateVector(
+        truthCamera.orientation,
+        truthSurface.worldPosition - truthCamera.position
+    ).z;
+    const MRVisualInstanceGPUV2 truthInstance =
+        visualInstances[truthSurface.visualInstanceIndex];
+    if (!(truthDepth > 0.0f) ||
+        !(truthDepth < depth[pixel]) ||
+        (truthInstance.binding.w &
+         MR_VISUAL_INSTANCE_GAUSSIAN_RECEIVER_PROXY) != 0u) {
+        return;
+    }
+    depth[pixel] = truthDepth;
+    segmentation[pixel] = truthSurface.identity.x;
+    identities[pixel] = truthSurface.identity;
+    normals[pixel] = float4(
+        normalize(inverseRotateVector(
+            truthCamera.orientation,
+            truthSurface.worldNormal
+        )),
+        1.0f
+    );
+    motion[pixel] = 0.0f;
     validity[pixel] =
         MR_VISUAL_VALIDITY_FRAME |
         MR_VISUAL_VALIDITY_GEOMETRY;
@@ -1345,22 +3715,26 @@ kernel void mr_hybrid_apply_sensor(
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(5)]],
     const uint pixel [[thread_position_in_grid]]
 ) {
-    const uint pixelsPerEnvironment =
-        uniforms.image.x * uniforms.image.y;
-    const uint pixelCount =
-        uniforms.counts.x * pixelsPerEnvironment;
-    if (pixel >= pixelCount) {
+    const uint compactPixelCount =
+        uniforms.counts.x *
+        bandPixelCountPerEnvironment(uniforms);
+    if (pixel >= compactPixelCount) {
         return;
     }
-    const uint environment = pixel / pixelsPerEnvironment;
+    const uint globalPixel =
+        globalPixelFromBandIndex(pixel, 0u, uniforms);
+    const uint pixelsPerEnvironment =
+        uniforms.image.x * uniforms.image.y;
+    const uint environment =
+        globalPixel / pixelsPerEnvironment;
     const MRWorldInstanceHeaderGPU instance =
         instances[environment];
     const MRWorldSensorInstanceGPU sensor =
         sensors[instance.ranges.z + uniforms.render.x];
-    const uint seed = frameSeed(instance, uniforms, pixel);
+    const uint seed = frameSeed(instance, uniforms, globalPixel);
 
-    rgb[pixel].xyz = max(
-        rgb[pixel].xyz +
+    rgb[globalPixel].xyz = max(
+        rgb[globalPixel].xyz +
             sensor.noiseAndLatency.x *
                 float3(
                     unitVarianceNoise(seed ^ 0x243f6a88u),
@@ -1371,23 +3745,23 @@ kernel void mr_hybrid_apply_sensor(
     );
 
     uint valid =
-        validity[pixel] & ~MR_VISUAL_VALIDITY_DEPTH;
+        validity[globalPixel] & ~MR_VISUAL_VALIDITY_DEPTH;
     if ((valid & MR_VISUAL_VALIDITY_GEOMETRY) != 0u) {
-        float measuredDepth = depth[pixel];
+        float measuredDepth = depth[globalPixel];
         if (measureDepth(
-                depth[pixel],
+                depth[globalPixel],
                 sensor,
                 seed,
                 uniforms,
                 measuredDepth
             )) {
-            depth[pixel] = measuredDepth;
+            depth[globalPixel] = measuredDepth;
             valid |= MR_VISUAL_VALIDITY_DEPTH;
         } else {
-            depth[pixel] = uniforms.clearColorAndDepth.w;
+            depth[globalPixel] = uniforms.clearColorAndDepth.w;
         }
     } else {
-        depth[pixel] = uniforms.clearColorAndDepth.w;
+        depth[globalPixel] = uniforms.clearColorAndDepth.w;
     }
-    validity[pixel] = valid;
+    validity[globalPixel] = valid;
 }

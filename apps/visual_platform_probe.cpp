@@ -50,6 +50,108 @@ std::size_t validGeometryPixels(
     return result;
 }
 
+metalrobo::VisualAssetPackV1 makeAuthoredObjectPack(
+    const std::uint32_t bodyIndex
+) {
+    metalrobo::VisualAssetPackV1 pack;
+    pack.id = "pick_object_authored";
+    pack.sourceUri = "probe://pick_object_authored";
+    pack.sourceContentHash = "sha256:pick-object-probe";
+    pack.license = "CC0-1.0";
+    pack.preprocessingProvenance =
+        "metalrobo_visual_platform_probe/v2";
+    constexpr std::array positions{
+        std::array{-0.07f, -0.07f, -0.07f},
+        std::array{ 0.07f, -0.07f, -0.07f},
+        std::array{ 0.00f,  0.08f, -0.07f},
+        std::array{ 0.00f,  0.00f,  0.09f},
+    };
+    for (const auto& position : positions) {
+        const float length = std::sqrt(
+            position[0] * position[0] +
+            position[1] * position[1] +
+            position[2] * position[2]
+        );
+        pack.vertices.push_back({
+            {position[0], position[1], position[2], 1.0f},
+            {
+                position[0] / length,
+                position[1] / length,
+                position[2] / length,
+                1.0f,
+            },
+            {1.0f, 0.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f, 0.0f, 0.0f},
+            {1.0f, 1.0f, 1.0f, 1.0f},
+        });
+    }
+    pack.indices = {
+        0u, 2u, 1u,
+        0u, 1u, 3u,
+        1u, 2u, 3u,
+        2u, 0u, 3u,
+    };
+    MRVisualMaterialGPUV2 material{};
+    material.baseColorAndOpacity = {
+        0.82f,
+        0.12f,
+        0.03f,
+        1.0f,
+    };
+    material.surface = {0.3f, 0.1f, 1.0f, 1.0f};
+    material.coatingAndAlphaCutoff =
+        {0.2f, 0.15f, 1.0f, 0.5f};
+    material.textureIndices0 = {
+        MR_INVALID_INDEX,
+        MR_INVALID_INDEX,
+        MR_INVALID_INDEX,
+        MR_INVALID_INDEX,
+    };
+    material.textureIndices1 = material.textureIndices0;
+    material.flags = {
+        MR_VISUAL_ALPHA_OPAQUE,
+        MR_VISUAL_MATERIAL_DOUBLE_SIDED,
+        0u,
+        1u,
+    };
+    pack.materials = {material};
+    MRVisualPrimitiveGPUV2 primitive{};
+    primitive.geometry = {
+        0u,
+        static_cast<std::uint32_t>(pack.indices.size()),
+        0u,
+        0u,
+    };
+    primitive.identity = {1u, 1u, bodyIndex, 1u};
+    primitive.boundsMinimum = {-0.07f, -0.07f, -0.07f, 1.0f};
+    primitive.boundsMaximum = {0.07f, 0.08f, 0.09f, 1.0f};
+    pack.primitives = {primitive};
+    MRVisualInstanceGPUV2 instance{};
+    instance.translationAndScale = {0.0f, 0.0f, 0.0f, 1.0f};
+    instance.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+    instance.binding = {
+        0u,
+        bodyIndex,
+        MR_VISUAL_BINDING_RIGID_BODY,
+        MR_VISUAL_INSTANCE_CASTS_SHADOW |
+            MR_VISUAL_INSTANCE_RECEIVES_SHADOW |
+            MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR,
+    };
+    instance.identity = {1u, 1u, bodyIndex, 1u};
+    instance.geometry = {0u, 1u, 0u, 0u};
+    pack.instances = {instance};
+    pack.symbolicBindings = {{
+        "pick_object",
+        "pick_object",
+        0u,
+        bodyIndex,
+        MR_VISUAL_BINDING_RIGID_BODY,
+    }};
+    pack.contentHash =
+        metalrobo::computeVisualAssetPackContentHash(pack);
+    return pack;
+}
+
 } // namespace
 
 int main() {
@@ -121,6 +223,54 @@ int main() {
                 visualScene.bodyCount ==
                     worldTemplate.engineModel.bodies.size(),
             "compiled visual scene is incomplete: " + reason
+        );
+        constexpr std::uint32_t kManipulatedBody = 11u;
+        const std::uint32_t manipulatedAsset =
+            worldTemplate.assetIndex("pick_object");
+        const metalrobo::VisualAssetPackV1 authoredPack =
+            makeAuthoredObjectPack(kManipulatedBody);
+        const std::filesystem::path authoredPackPath =
+            std::filesystem::temp_directory_path() /
+            "metalrobo-pick-object-probe.mrvpack";
+        require(
+            metalrobo::writeVisualAssetPack(
+                authoredPack,
+                authoredPackPath,
+                &reason
+            ),
+            "authored V2 pack write: " + reason
+        );
+        const std::array authoredReferences{
+            metalrobo::AuthoredVisualAssetReferenceV2{
+                authoredPackPath,
+                manipulatedAsset,
+                visualScene.assets[manipulatedAsset].semanticId,
+                visualScene.assets[manipulatedAsset].instanceId,
+            },
+        };
+        metalrobo::VisualSceneManifestV2 authoredVisualScene;
+        require(
+            metalrobo::compileVisualSceneManifestV2(
+                worldTemplate,
+                authoredReferences,
+                metalrobo::makeNeutralStudioEnvironmentV1(),
+                metalrobo::makeIndoorAreaLightRigV1(),
+                authoredVisualScene,
+                &reason
+            ),
+            "authored-only V2 visual compile: " + reason
+        );
+        std::error_code ignoredAuthoredPackRemoval;
+        std::filesystem::remove(
+            authoredPackPath,
+            ignoredAuthoredPackRemoval
+        );
+        require(
+            authoredVisualScene.valid(&reason) &&
+                authoredVisualScene.visualPackHashes.size() == 1u &&
+                authoredVisualScene.renderScene.primitives.size() == 1u &&
+                authoredVisualScene.renderScene.sensorBindings.size() == 2u,
+            "authored V2 scene contains unexpected geometry: " + reason
         );
         const std::array<MRHybridGaussianGPU, 1> capturedAppearance{{
             {
@@ -212,7 +362,6 @@ int main() {
                 kEnvironmentCount * visualScene.bodyCount,
             "visual body state does not match global body indexing"
         );
-        constexpr std::uint32_t kManipulatedBody = 11u;
         for (std::uint32_t environment = 0u;
              environment < kEnvironmentCount;
              ++environment) {
@@ -226,7 +375,8 @@ int main() {
         metalrobo::MetalHybridRenderer renderer;
         require(
             renderer.compile(
-                visualScene.renderScene,
+                std::move(authoredVisualScene.renderScene),
+                metalrobo::VisualRendererProfileV1::sensorFast(),
                 kEnvironmentCount
             ),
             "visual sensor runtime compile"
@@ -301,14 +451,30 @@ int main() {
             );
         const std::array<std::uint32_t, 2> cameras{0u, 1u};
         metalrobo::VisualBatchAssemblyV1 assembly;
-        assembly.provenance = {
-            MR_VISUAL_SOURCE_SIMULATION,
-            worldTemplate.fingerprint,
-            family.program.fingerprint,
-            visualScene.fingerprint,
-            sensorProfile.fingerprint,
-            family.fingerprint ^ 0x5aa55aa55aa55aa5ull,
-        };
+        assembly.provenance.source =
+            MR_VISUAL_SOURCE_SIMULATION;
+        assembly.provenance.episodeTwinFingerprint =
+            worldTemplate.fingerprint;
+        assembly.provenance.scenarioFingerprint =
+            family.program.fingerprint;
+        assembly.provenance.rendererFingerprint =
+            authoredVisualScene.renderScene.fingerprint;
+        assembly.provenance.visualPackFingerprint =
+            authoredVisualScene.fingerprint ^
+            authoredVisualScene.renderScene.fingerprint;
+        assembly.provenance.environmentMapFingerprint =
+            authoredVisualScene.renderScene.environment.fingerprint;
+        assembly.provenance.lightRigFingerprint =
+            authoredVisualScene.renderScene.lightRig.fingerprint;
+        assembly.provenance.rendererProfileFingerprint =
+            metalrobo::VisualRendererProfileV1::sensorFast()
+                .fingerprint;
+        assembly.provenance.shutterProfileFingerprint =
+            sensorProfile.fingerprint;
+        assembly.provenance.sensorProfileFingerprint =
+            sensorProfile.fingerprint;
+        assembly.provenance.calibrationFingerprint =
+            family.fingerprint ^ 0x5aa55aa55aa55aa5ull;
         assembly.cameraIndices = cameras;
         assembly.observations = observations;
         assembly.currentBodyStates = bodyStates;
@@ -337,8 +503,6 @@ int main() {
             "deployable frame or supervisory truth is incomplete: " +
                 reason
         );
-        const std::uint32_t manipulatedAsset =
-            worldTemplate.assetIndex("pick_object");
         for (std::uint32_t environment = 0u;
              environment < kEnvironmentCount;
              ++environment) {
@@ -649,9 +813,20 @@ int main() {
         episode.worldFamilyFingerprint = family.fingerprint;
         episode.scenarioFingerprint =
             assembly.provenance.scenarioFingerprint;
-        episode.rendererFingerprint = visualScene.fingerprint;
+        episode.rendererFingerprint =
+            authoredVisualScene.renderScene.fingerprint;
         episode.visualSceneFingerprint =
-            visualScene.fingerprint;
+            authoredVisualScene.fingerprint;
+        episode.visualPackFingerprint =
+            assembly.provenance.visualPackFingerprint;
+        episode.environmentMapFingerprint =
+            assembly.provenance.environmentMapFingerprint;
+        episode.lightRigFingerprint =
+            assembly.provenance.lightRigFingerprint;
+        episode.rendererProfileFingerprint =
+            assembly.provenance.rendererProfileFingerprint;
+        episode.shutterProfileFingerprint =
+            assembly.provenance.shutterProfileFingerprint;
         episode.sensorProfileFingerprint =
             assembly.provenance.sensorProfileFingerprint;
         episode.calibrationFingerprint =
