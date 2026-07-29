@@ -67,6 +67,15 @@ enum MRVisualModality : mr_u32 {
     MR_VISUAL_MODALITY_OBJECT_POSE = 1u << 10u,
 };
 
+enum MRVisualValidityFlag : mr_u32 {
+    // A camera sample was produced for this pixel.
+    MR_VISUAL_VALIDITY_FRAME = 1u << 0u,
+    // The deployable depth sensor returned a usable measurement.
+    MR_VISUAL_VALIDITY_DEPTH = 1u << 1u,
+    // Rendered geometry exists, independently of sensor dropout/noise.
+    MR_VISUAL_VALIDITY_GEOMETRY = 1u << 2u,
+};
+
 enum MRPerceptionCapability : mr_u32 {
     MR_PERCEPTION_CAP_DENSE_DEPTH = 1u << 0u,
     MR_PERCEPTION_CAP_SEMANTIC = 1u << 1u,

@@ -42,7 +42,10 @@ std::size_t validGeometryPixels(
 ) {
     std::size_t result = 0u;
     for (const std::uint32_t validity : observations.validity) {
-        result += (validity & 4u) != 0u ? 1u : 0u;
+        result +=
+            (validity & MR_VISUAL_VALIDITY_GEOMETRY) != 0u
+            ? 1u
+            : 0u;
     }
     return result;
 }
@@ -60,6 +63,37 @@ int main() {
             ),
             "episode compile"
         );
+        metalrobo::EpisodeTwin sharedSemanticTwin =
+            metalrobo::makeFrankaPickPlaceEpisodeTwin();
+        sharedSemanticTwin.id = "franka_shared_semantic_probe";
+        sharedSemanticTwin.assets[4].semanticClass =
+            sharedSemanticTwin.assets[2].semanticClass;
+        metalrobo::WorldTemplate sharedSemanticWorld;
+        require(
+            metalrobo::compileEpisodeTwin(
+                sharedSemanticTwin,
+                metalrobo::makeFrankaPickPlaceEngineModel(),
+                sharedSemanticWorld
+            ),
+            "shared semantic episode compile"
+        );
+        metalrobo::VisualSceneManifestV1 sharedSemanticScene;
+        std::string reason;
+        require(
+            metalrobo::compileVisualSceneManifest(
+                sharedSemanticWorld,
+                sharedSemanticScene,
+                &reason
+            ),
+            "shared semantic visual compile: " + reason
+        );
+        require(
+            sharedSemanticScene.assets[2].semanticId ==
+                    sharedSemanticScene.assets[4].semanticId &&
+                sharedSemanticScene.assets[2].instanceId !=
+                    sharedSemanticScene.assets[4].instanceId,
+            "semantic classes did not share a class id"
+        );
         metalrobo::WorldFamily family;
         require(
             metalrobo::compileWorldFamily(
@@ -71,7 +105,6 @@ int main() {
         );
 
         metalrobo::VisualSceneManifestV1 visualScene;
-        std::string reason;
         require(
             metalrobo::compileVisualSceneManifest(
                 worldTemplate,
@@ -116,6 +149,29 @@ int main() {
             ),
             "Gaussian appearance attachment: " + reason
         );
+        const std::filesystem::path visualManifestPath =
+            std::filesystem::temp_directory_path() /
+            (
+                "metalrobo-visual-scene-" +
+                std::to_string(visualScene.fingerprint) +
+                ".json"
+            );
+        require(
+            metalrobo::writeVisualSceneManifest(
+                visualScene,
+                visualManifestPath,
+                &reason
+            ) &&
+                std::filesystem::file_size(
+                    visualManifestPath
+                ) > 0u,
+            "visual scene manifest write failed: " + reason
+        );
+        std::error_code ignoredManifestRemoval;
+        std::filesystem::remove(
+            visualManifestPath,
+            ignoredManifestRemoval
+        );
 
         constexpr std::uint32_t kEnvironmentCount = 2u;
         metalrobo::MetalWorldFamilyContext worlds;
@@ -156,6 +212,16 @@ int main() {
                 kEnvironmentCount * visualScene.bodyCount,
             "visual body state does not match global body indexing"
         );
+        constexpr std::uint32_t kManipulatedBody = 11u;
+        for (std::uint32_t environment = 0u;
+             environment < kEnvironmentCount;
+             ++environment) {
+            bodyStates[
+                static_cast<std::size_t>(environment) *
+                    visualScene.bodyCount +
+                kManipulatedBody
+            ].position.x += 0.075f;
+        }
 
         metalrobo::MetalHybridRenderer renderer;
         require(
@@ -203,7 +269,8 @@ int main() {
             observations[0].validity.begin(),
             observations[0].validity.end(),
             [](const std::uint32_t value) {
-                return (value & 4u) != 0u;
+                return
+                    (value & MR_VISUAL_VALIDITY_GEOMETRY) != 0u;
             }
         );
         const std::size_t visibleIndex =
@@ -270,6 +337,80 @@ int main() {
             "deployable frame or supervisory truth is incomplete: " +
                 reason
         );
+        const std::uint32_t manipulatedAsset =
+            worldTemplate.assetIndex("pick_object");
+        for (std::uint32_t environment = 0u;
+             environment < kEnvironmentCount;
+             ++environment) {
+            const MRVisualPoseGPU& objectPose =
+                truth.objectPoses[
+                    static_cast<std::size_t>(environment) *
+                        worldTemplate.assets.size() +
+                    manipulatedAsset
+                ];
+            const MRVisualPoseGPU& liveLinkPose =
+                truth.linkPoses[
+                    static_cast<std::size_t>(environment) *
+                        visualScene.bodyCount +
+                    kManipulatedBody
+                ];
+            require(
+                std::abs(
+                    objectPose.position.x -
+                    liveLinkPose.position.x
+                ) < 1.0e-5f &&
+                    std::abs(
+                        objectPose.position.y -
+                        liveLinkPose.position.y
+                    ) < 1.0e-5f &&
+                    std::abs(
+                        objectPose.position.z -
+                        liveLinkPose.position.z
+                    ) < 1.0e-5f,
+                "object pose supervision did not follow live physics"
+            );
+        }
+        auto independentlyTimedObservations = observations;
+        independentlyTimedObservations[1].metadata.timing.x = 1.45f;
+        independentlyTimedObservations[1].metadata.timing.y = 0.05f;
+        assembly.observations = independentlyTimedObservations;
+        metalrobo::VisualFrameBatchV1 independentlyTimedFrames;
+        metalrobo::VisualTruthBatchV1 independentlyTimedTruth;
+        require(
+            metalrobo::assembleVisualBatches(
+                worldTemplate,
+                sampledWorlds,
+                assembly,
+                independentlyTimedFrames,
+                independentlyTimedTruth,
+                &reason
+            ) &&
+                independentlyTimedFrames
+                        .cameras[1]
+                        .captureTimestampSeconds !=
+                    independentlyTimedFrames
+                        .cameras[0]
+                        .captureTimestampSeconds,
+            "independently timed visual sensors were rejected: " +
+                reason
+        );
+        auto unsynchronizedObservations = observations;
+        ++unsynchronizedObservations[1].metadata.identity.x;
+        assembly.observations = unsynchronizedObservations;
+        metalrobo::VisualFrameBatchV1 rejectedFrames;
+        metalrobo::VisualTruthBatchV1 rejectedTruth;
+        require(
+            !metalrobo::assembleVisualBatches(
+                worldTemplate,
+                sampledWorlds,
+                assembly,
+                rejectedFrames,
+                rejectedTruth,
+                &reason
+            ),
+            "unsynchronized visual views were accepted"
+        );
+        assembly.observations = observations;
 
         const std::array<float, 4> proprioception{
             0.1f,
@@ -316,6 +457,154 @@ int main() {
             "actor/critic observation groups were not preserved"
         );
 
+        constexpr float kIdealX = 0.2f;
+        constexpr float kIdealY = -0.1f;
+        const mr_float4 distortion{
+            0.1f,
+            -0.01f,
+            0.005f,
+            -0.004f,
+        };
+        const float radiusSquared =
+            kIdealX * kIdealX + kIdealY * kIdealY;
+        const float radial =
+            1.0f + distortion.x * radiusSquared +
+            distortion.y * radiusSquared * radiusSquared;
+        const float distortedX =
+            kIdealX * radial +
+            2.0f * distortion.z * kIdealX * kIdealY +
+            distortion.w *
+                (radiusSquared + 2.0f * kIdealX * kIdealX);
+        const float distortedY =
+            kIdealY * radial +
+            distortion.z *
+                (radiusSquared + 2.0f * kIdealY * kIdealY) +
+            2.0f * distortion.w * kIdealX * kIdealY;
+        metalrobo::VisualFrameBatchV1 calibratedFrame;
+        calibratedFrame.source = MR_VISUAL_SOURCE_SIMULATION;
+        calibratedFrame.environmentCount = 1u;
+        calibratedFrame.viewCount = 1u;
+        calibratedFrame.width = 1u;
+        calibratedFrame.height = 1u;
+        calibratedFrame.modalities =
+            MR_VISUAL_MODALITY_RGB |
+            MR_VISUAL_MODALITY_DEPTH |
+            MR_VISUAL_MODALITY_DEPTH_VALIDITY;
+        calibratedFrame.episodeTwinFingerprint = 1u;
+        calibratedFrame.scenarioFingerprint = 2u;
+        calibratedFrame.rendererFingerprint = 3u;
+        calibratedFrame.sensorProfileFingerprint = 4u;
+        calibratedFrame.calibrationFingerprint = 5u;
+        metalrobo::VisualCameraFrameV1 calibratedCamera;
+        calibratedCamera.sensorId = "distorted_rgbd";
+        calibratedCamera.intrinsics = {
+            100.0f,
+            100.0f,
+            0.5f - 100.0f * distortedX,
+            0.5f - 100.0f * distortedY,
+        };
+        calibratedCamera.distortion = distortion;
+        calibratedCamera.frameIndex = 9u;
+        calibratedCamera.captureTimestampSeconds = 0.75;
+        calibratedCamera.valid = true;
+        calibratedFrame.cameras = {calibratedCamera};
+        calibratedFrame.rgbLinear = {
+            {0.1f, 0.2f, 0.3f, 1.0f},
+        };
+        calibratedFrame.depthMeters = {2.0f};
+        calibratedFrame.depthValidity = {1u};
+        metalrobo::PolicyObservationRequestV1 calibratedRequest;
+        calibratedRequest.profile =
+            metalrobo::ObservationProfileV1::rgbXYZ;
+        calibratedRequest.environmentCount = 1u;
+        metalrobo::PolicyObservationBatchV1 calibratedPolicy;
+        require(
+            metalrobo::PolicyObservationAssemblerV1{}.assemble(
+                calibratedFrame,
+                nullptr,
+                calibratedRequest,
+                calibratedPolicy,
+                &reason
+            ),
+            "distortion-aware RGB-XYZ assembly: " + reason
+        );
+        require(
+            calibratedPolicy.deployable.size() == 7u &&
+                std::abs(
+                    calibratedPolicy.deployable[3] - 0.4f
+                ) < 1.0e-4f &&
+                std::abs(
+                    calibratedPolicy.deployable[4] + 0.2f
+                ) < 1.0e-4f &&
+                std::abs(
+                    calibratedPolicy.deployable[5] - 2.0f
+                ) < 1.0e-5f &&
+                calibratedPolicy.deployable[6] == 1.0f,
+            "RGB-XYZ ignored calibrated lens distortion"
+        );
+
+        metalrobo::PerceptionTensorV1 objectTensor;
+        objectTensor.id = "objects";
+        objectTensor.modality =
+            MR_VISUAL_MODALITY_OBJECT_POSE;
+        objectTensor.coordinateFrame =
+            MR_VISUAL_FRAME_ROBOT_BASE;
+        objectTensor.shape = {kEnvironmentCount, 1u};
+        objectTensor.floatValues = {0.25f, 0.75f};
+        objectTensor.timestampSeconds =
+            frames.cameras.front().captureTimestampSeconds;
+        metalrobo::PerceptionResultBatchV1 perception;
+        perception.providerId = "probe.replaceable-provider";
+        perception.providerContentHash = "sha256:probe";
+        perception.frameIndex =
+            frames.cameras.front().frameIndex;
+        perception.timestampSeconds =
+            frames.cameras.front().captureTimestampSeconds;
+        perception.tensors = {objectTensor};
+        metalrobo::PolicyObservationRequestV1 objectRequest =
+            request;
+        objectRequest.profile =
+            metalrobo::ObservationProfileV1::objectCentric;
+        auto stalePerception = perception;
+        ++stalePerception.frameIndex;
+        require(
+            !metalrobo::PolicyObservationAssemblerV1{}.assemble(
+                frames,
+                &stalePerception,
+                objectRequest,
+                policy,
+                &reason
+            ),
+            "stale perception result entered a policy observation"
+        );
+        require(
+            metalrobo::PolicyObservationAssemblerV1{}.assemble(
+                frames,
+                &perception,
+                objectRequest,
+                policy,
+                &reason
+            ),
+            "synchronized perception assembly: " + reason
+        );
+        metalrobo::PerceptionTensorV1 noDetections =
+            objectTensor;
+        noDetections.shape = {kEnvironmentCount, 0u};
+        noDetections.floatValues.clear();
+        perception.tensors = {noDetections};
+        require(
+            noDetections.validContract(&reason) &&
+                metalrobo::PolicyObservationAssemblerV1{}.assemble(
+                    frames,
+                    &perception,
+                    objectRequest,
+                    policy,
+                    &reason
+                ),
+            "zero-detection perception result was not representable: " +
+                reason
+        );
+
         metalrobo::PerceptionProviderDescriptorV1 descriptor;
         descriptor.id = "probe.replaceable-provider";
         descriptor.contentHash = "sha256:probe";
@@ -358,6 +647,8 @@ int main() {
         episode.episodeTwinFingerprint =
             worldTemplate.fingerprint;
         episode.worldFamilyFingerprint = family.fingerprint;
+        episode.scenarioFingerprint =
+            assembly.provenance.scenarioFingerprint;
         episode.rendererFingerprint = visualScene.fingerprint;
         episode.visualSceneFingerprint =
             visualScene.fingerprint;
@@ -365,6 +656,8 @@ int main() {
             assembly.provenance.sensorProfileFingerprint;
         episode.calibrationFingerprint =
             assembly.provenance.calibrationFingerprint;
+        episode.physicsFingerprint =
+            worldTemplate.fingerprint;
         metalrobo::VisualEpisodeStepV1 step;
         step.frameIndex = 23u;
         step.scenarioKey =

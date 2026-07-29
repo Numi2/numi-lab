@@ -1,6 +1,7 @@
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -33,6 +34,39 @@ int main() {
         metalrobo::MetalWorldFamilyContext worlds;
         require(worlds.compile(family, 4u), "world compile");
         require(worlds.sample(4u, 29u), "world sample");
+
+        metalrobo::EpisodeTwin dropoutTwin =
+            metalrobo::makeFrankaPickPlaceEpisodeTwin();
+        for (metalrobo::SensorSpec& sensor : dropoutTwin.sensors) {
+            sensor.depthDropout = 1.0f;
+        }
+        metalrobo::WorldTemplate dropoutTemplate;
+        require(
+            metalrobo::compileEpisodeTwin(
+                dropoutTwin,
+                metalrobo::makeFrankaPickPlaceEngineModel(),
+                dropoutTemplate
+            ),
+            "dropout episode compile"
+        );
+        metalrobo::WorldFamily dropoutFamily;
+        require(
+            metalrobo::compileWorldFamily(
+                dropoutTemplate,
+                metalrobo::makeFrankaPickPlaceWorldProgram(),
+                dropoutFamily
+            ),
+            "dropout family compile"
+        );
+        metalrobo::MetalWorldFamilyContext dropoutWorlds;
+        require(
+            dropoutWorlds.compile(dropoutFamily, 4u),
+            "dropout world compile"
+        );
+        require(
+            dropoutWorlds.sample(4u, 29u),
+            "dropout world sample"
+        );
 
         metalrobo::HybridGaussianScene scene;
         scene.id = "camera_aligned_probe";
@@ -72,6 +106,39 @@ int main() {
             throw std::runtime_error(
                 "center pixel did not preserve Gaussian depth, "
                 "semantic identity, and color");
+        }
+
+        const auto dropoutRendered =
+            renderer.render(dropoutWorlds, 4u, 0u);
+        require(dropoutRendered, "dropout render");
+        metalrobo::HybridObservationBatch dropoutObservations;
+        require(
+            renderer.readback(dropoutObservations),
+            "dropout readback"
+        );
+        const auto truthPixel = std::find_if(
+            dropoutObservations.segmentation.begin(),
+            dropoutObservations.segmentation.end(),
+            [](const std::uint32_t value) {
+                return value == 42u;
+            }
+        );
+        const std::size_t truthIndex =
+            static_cast<std::size_t>(
+                truthPixel -
+                dropoutObservations.segmentation.begin()
+            );
+        if (truthIndex >= dropoutObservations.validity.size() ||
+            (dropoutObservations.validity[truthIndex] &
+             MR_VISUAL_VALIDITY_GEOMETRY) == 0u ||
+            (dropoutObservations.validity[truthIndex] &
+             MR_VISUAL_VALIDITY_DEPTH) != 0u ||
+            dropoutObservations.identities[truthIndex].x != 42u ||
+            dropoutObservations.depth[truthIndex] <
+                1.0e20f) {
+            throw std::runtime_error(
+                "depth dropout corrupted simulation-only geometry truth"
+            );
         }
 
         std::cout << "device=\"" << rendered.deviceName << "\""

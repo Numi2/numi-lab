@@ -33,7 +33,7 @@ typedef struct MR_ALIGN16 MRHybridProjectedGaussianGPU {
     mr_float4 conicAndBounds;
     // linear RGB and opacity.
     mr_float4 colorAndOpacity;
-    // semantic label, source Gaussian, flags, reserved.
+    // semantic label, instance id, link id or invalid, source Gaussian.
     mr_uint4 identity;
     // xyz camera-space normal, w geometric validity.
     mr_float4 normalAndValidity;

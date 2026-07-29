@@ -34,6 +34,8 @@ flowchart LR
 
 - Deterministically triangulated primitive and cooked collision geometry.
 - Material records and stable semantic, instance, link, and primitive IDs.
+  Assets in the same semantic class share a class ID while retaining distinct
+  instance IDs.
 - Global-body bindings for every rigid body and articulated robot link.
 - Fixed, rigid-body-mounted, and articulated-link-mounted camera bindings.
 - Source URI, content hash, license, and preprocessing provenance for each
@@ -44,6 +46,10 @@ The Gaussian layer and physics-bound triangle geometry render into the same
 depth, identity, normal, and motion buffers. This supports captured static
 rooms while retaining mesh geometry for robots, manipulated objects, contact
 surfaces, and occlusion.
+
+`writeVisualSceneManifest` publishes the validated asset identities,
+provenance, geometry counts, and independent render-scene fingerprint as the
+JSON descriptor defined by `visual_scene_manifest.schema.json`.
 
 `composeVisualBodyStates` evaluates articulated bodies with MetalRobo's
 authoritative FP64 kinematics and combines them with sampled scene bodies in
@@ -65,9 +71,13 @@ buffers directly on Metal. It produces:
 The runtime applies calibrated intrinsics and radial/tangential distortion,
 sampled exposure and appearance response, direct material lighting,
 deterministic color/depth noise, range limits, depth quantization, dropout,
-and a motion-vector-based shutter blur approximation. Sensor effects are
-keyed by scenario, sensor sequence, frame identity, and pixel, so the same
-episode rerenders deterministically.
+and a motion-vector-based Gaussian shutter-blur approximation. Mesh motion
+vectors and shutter timing remain explicit for a future full rolling-shutter
+stage. Sensor effects are keyed by scenario, camera, sensor sequence, frame
+identity, and pixel, so the same episode rerenders deterministically. Sensor
+depth validity is separate from geometric validity: range failure or dropout
+masks deployable depth without erasing simulation-only identities, normals,
+motion, or visibility.
 
 `renderLive` accepts host-visible state for inspection and export.
 `encode` accepts borrowed Metal body-state buffers and a caller-owned active
@@ -92,13 +102,22 @@ It contains:
   profile, and calibration.
 - Host arrays or typed device-buffer views.
 
+Host-visible invalid depth is canonicalized to zero and interpreted only
+through the depth-validity mask.
+
 `VisualTruthBatchV1` is separate. It contains dense semantic/instance/link
 masks, normals, motion, visibility, occlusion, object and link poses,
-keypoints, and contact annotations in a declared coordinate frame.
+keypoints, and contact annotations in a declared coordinate frame. Dense IDs
+remain typed `uint32`; sparse pose/keypoint/contact records use exact
+`float64` packing so `uint32` identities and invalid sentinels are not rounded.
+Dense visibility is surface coverage in `[0, 1]`; occlusion is its quantized
+inverse, with `255` representing an absent or fully occluded truth surface.
 
 `assembleVisualBatches` converts synchronized renderer readbacks into both
-contracts. A physical RGB-D adapter constructs the same `VisualFrameBatchV1`
-and simply has no simulation-only truth.
+contracts and rejects stale or mismatched view metadata. A physical RGB-D
+adapter constructs the same `VisualFrameBatchV1` and simply has no
+simulation-only truth. Camera timestamps remain per-view so independently
+clocked sensors can be aligned under one batch frame index.
 
 ### Replaceable perception providers
 
@@ -116,7 +135,10 @@ YOLO/Core ML package, an MLX encoder, or a future foundation model. Model
 choice does not alter the simulator, episode format, or policy contract.
 
 The Python `CallablePerceptionProviderV1` adapter wraps any callable that
-honors this provenance and result contract.
+honors this provenance and result contract. Provider results and every tensor
+are bound to the originating frame index and timestamp before they can enter a
+policy observation; zero detections are represented by valid zero-length
+tensors rather than a malformed result.
 
 ### Policy observations
 
@@ -130,7 +152,9 @@ honors this provenance and result contract.
 
 Proprioception, prior actions, and task commands join the deployable actor
 observation. Privileged physics state remains a separate supervisory or
-critic group.
+critic group. RGB-XYZ backprojection inverts the same radial/tangential lens
+model used by rendering, so base-frame points remain calibrated away from the
+optical center.
 
 ### Visual episode stream
 
@@ -145,11 +169,17 @@ NPZ chunks plus a canonical manifest. Each step can carry:
 - Scenario identity and immutable renderer, asset, calibration, sensor, and
   physics provenance.
 
-`VisualEpisodeReaderV1` verifies the manifest and every chunk hash.
+Camera exposure, shutter timing, sensor sequence, and the scenario fingerprint
+are retained in every chunk. Independently clocked views may carry different
+capture timestamps while sharing one policy-step frame index. Sensor identities
+remain stable and each camera timeline remains monotonic.
+`VisualEpisodeReaderV1` verifies the manifest, contiguous chunk layout, hashes,
+array dtypes/shapes, calibration, frame ordering, depth validity, and scenario
+provenance before yielding data.
 Simulation and captured episodes share this format. The optional
 `export_lerobot_v3` adapter uses LeRobot's native writer when LeRobot is
-installed, mapping each parallel environment to an episode with multi-camera
-RGB, metric depth, state, and actions.
+installed, mapping each parallel environment to an episode with streaming
+multi-camera RGB, validity-masked metric depth, state, and actions.
 
 ## State-of-the-art alignment
 

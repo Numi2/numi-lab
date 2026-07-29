@@ -15,6 +15,7 @@
 #include <ranges>
 #include <sstream>
 #include <string_view>
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 
@@ -778,6 +779,25 @@ bool appendShape(
     }
 }
 
+std::uint64_t renderSceneFingerprint(
+    const HybridGaussianScene& scene
+) {
+    HashBuilder hash;
+    hash.appendString(scene.id);
+    hash.appendScalar(scene.assetCount);
+    hash.appendScalar(scene.bodyCount);
+    hash.appendSpan<MRHybridGaussianGPU>(scene.gaussians);
+    hash.appendSpan<MRVisualMeshVertexGPU>(scene.meshVertices);
+    hash.appendSpan<MRVisualMeshTriangleGPU>(
+        scene.meshTriangles
+    );
+    hash.appendSpan<MRVisualMaterialGPU>(scene.materials);
+    hash.appendSpan<MRVisualSensorBindingGPU>(
+        scene.sensorBindings
+    );
+    return hash.finish();
+}
+
 std::uint64_t visualSceneFingerprint(
     const VisualSceneManifestV1& scene
 ) {
@@ -801,21 +821,7 @@ std::uint64_t visualSceneFingerprint(
         hash.appendSpan<std::uint32_t>(asset.bodyIndices);
         hash.appendSpan<std::uint32_t>(asset.shapeIndices);
     }
-    hash.appendSpan<MRHybridGaussianGPU>(
-        scene.renderScene.gaussians
-    );
-    hash.appendSpan<MRVisualMeshVertexGPU>(
-        scene.renderScene.meshVertices
-    );
-    hash.appendSpan<MRVisualMeshTriangleGPU>(
-        scene.renderScene.meshTriangles
-    );
-    hash.appendSpan<MRVisualMaterialGPU>(
-        scene.renderScene.materials
-    );
-    hash.appendSpan<MRVisualSensorBindingGPU>(
-        scene.renderScene.sensorBindings
-    );
+    hash.appendScalar(scene.renderSceneFingerprint);
     return hash.finish();
 }
 
@@ -845,10 +851,12 @@ std::uint64_t episodeFingerprint(
     hash.appendScalar(stream.source);
     hash.appendScalar(stream.episodeTwinFingerprint);
     hash.appendScalar(stream.worldFamilyFingerprint);
+    hash.appendScalar(stream.scenarioFingerprint);
     hash.appendScalar(stream.rendererFingerprint);
     hash.appendScalar(stream.visualSceneFingerprint);
     hash.appendScalar(stream.sensorProfileFingerprint);
     hash.appendScalar(stream.calibrationFingerprint);
+    hash.appendScalar(stream.physicsFingerprint);
     for (const VisualEpisodeStepV1& step : stream.steps) {
         hash.appendScalar(step.frameIndex);
         hash.appendScalar(step.scenarioKey);
@@ -890,6 +898,148 @@ bool finiteValues(const std::span<const float> values) {
     return std::ranges::all_of(values, [](const float value) {
         return std::isfinite(value);
     });
+}
+
+struct NormalizedPoint {
+    float x = 0.0f;
+    float y = 0.0f;
+    bool valid = false;
+};
+
+NormalizedPoint undistortNormalized(
+    const float distortedX,
+    const float distortedY,
+    const mr_float4 distortion
+) {
+    if (!finite(distortedX) || !finite(distortedY) ||
+        !finite(distortion)) {
+        return {};
+    }
+    double x = distortedX;
+    double y = distortedY;
+    const double k1 = distortion.x;
+    const double k2 = distortion.y;
+    const double p1 = distortion.z;
+    const double p2 = distortion.w;
+    for (std::uint32_t iteration = 0u;
+         iteration < 8u;
+         ++iteration) {
+        const double radiusSquared = x * x + y * y;
+        const double radial =
+            1.0 + k1 * radiusSquared +
+            k2 * radiusSquared * radiusSquared;
+        if (!std::isfinite(radial) ||
+            std::abs(radial) <= 1.0e-12) {
+            return {};
+        }
+        const double tangentialX =
+            2.0 * p1 * x * y +
+            p2 * (radiusSquared + 2.0 * x * x);
+        const double tangentialY =
+            p1 * (radiusSquared + 2.0 * y * y) +
+            2.0 * p2 * x * y;
+        x = (static_cast<double>(distortedX) - tangentialX) /
+            radial;
+        y = (static_cast<double>(distortedY) - tangentialY) /
+            radial;
+        if (!std::isfinite(x) || !std::isfinite(y)) {
+            return {};
+        }
+    }
+    const double radiusSquared = x * x + y * y;
+    const double radial =
+        1.0 + k1 * radiusSquared +
+        k2 * radiusSquared * radiusSquared;
+    const double projectedX =
+        x * radial +
+        2.0 * p1 * x * y +
+        p2 * (radiusSquared + 2.0 * x * x);
+    const double projectedY =
+        y * radial +
+        p1 * (radiusSquared + 2.0 * y * y) +
+        2.0 * p2 * x * y;
+    if (!std::isfinite(projectedX) ||
+        !std::isfinite(projectedY) ||
+        std::abs(projectedX - distortedX) > 1.0e-4 ||
+        std::abs(projectedY - distortedY) > 1.0e-4) {
+        return {};
+    }
+    return {
+        static_cast<float>(x),
+        static_cast<float>(y),
+        true,
+    };
+}
+
+struct PixelProjection {
+    float x = 0.0f;
+    float y = 0.0f;
+    float depth = 0.0f;
+    bool valid = false;
+};
+
+PixelProjection projectBasePoint(
+    const mr_float4 pointInBase,
+    const VisualCameraFrameV1& camera
+) {
+    if (!finite(pointInBase) ||
+        !finite(camera.baseFromCamera.position) ||
+        !unitQuaternion(camera.baseFromCamera.orientation) ||
+        !finite(camera.intrinsics) ||
+        !finite(camera.distortion) ||
+        !(camera.intrinsics.x > 0.0f) ||
+        !(camera.intrinsics.y > 0.0f)) {
+        return {};
+    }
+    const mr_float4 inverseCamera{
+        -camera.baseFromCamera.orientation.x,
+        -camera.baseFromCamera.orientation.y,
+        -camera.baseFromCamera.orientation.z,
+        camera.baseFromCamera.orientation.w,
+    };
+    const mr_float4 pointInCamera = rotateVector(
+        inverseCamera,
+        subtract3(pointInBase, camera.baseFromCamera.position)
+    );
+    if (!finite(pointInCamera) || !(pointInCamera.z > 1.0e-6f)) {
+        return {};
+    }
+    const double normalizedX =
+        static_cast<double>(pointInCamera.x) / pointInCamera.z;
+    const double normalizedY =
+        static_cast<double>(pointInCamera.y) / pointInCamera.z;
+    const double radiusSquared =
+        normalizedX * normalizedX + normalizedY * normalizedY;
+    const double radial =
+        1.0 +
+        static_cast<double>(camera.distortion.x) * radiusSquared +
+        static_cast<double>(camera.distortion.y) *
+            radiusSquared * radiusSquared;
+    const double distortedX =
+        normalizedX * radial +
+        2.0 * camera.distortion.z *
+            normalizedX * normalizedY +
+        camera.distortion.w *
+            (radiusSquared + 2.0 * normalizedX * normalizedX);
+    const double distortedY =
+        normalizedY * radial +
+        camera.distortion.z *
+            (radiusSquared + 2.0 * normalizedY * normalizedY) +
+        2.0 * camera.distortion.w *
+            normalizedX * normalizedY;
+    const double pixelX =
+        distortedX * camera.intrinsics.x + camera.intrinsics.z;
+    const double pixelY =
+        distortedY * camera.intrinsics.y + camera.intrinsics.w;
+    if (!std::isfinite(pixelX) || !std::isfinite(pixelY)) {
+        return {};
+    }
+    return {
+        static_cast<float>(pixelX),
+        static_cast<float>(pixelY),
+        pointInCamera.z,
+        true,
+    };
 }
 
 std::uint64_t mix64(std::uint64_t value) {
@@ -990,6 +1140,50 @@ bool hasDeviceModality(
     );
 }
 
+bool hasDeviceStorage(
+    const std::span<const VisualDeviceBufferViewV1> buffers,
+    const std::uint32_t modality,
+    const std::size_t elementCount,
+    const std::span<const MRVisualPixelFormat> acceptedFormats
+) {
+    for (const VisualDeviceBufferViewV1& buffer : buffers) {
+        if (!buffer.valid() || buffer.modality != modality ||
+            std::ranges::find(
+                acceptedFormats,
+                buffer.format
+            ) == acceptedFormats.end()) {
+            continue;
+        }
+        std::size_t bytesPerElement = 0u;
+        switch (buffer.format) {
+        case MR_VISUAL_FORMAT_RGBA32_FLOAT:
+        case MR_VISUAL_FORMAT_RGBA32_UINT:
+            bytesPerElement = 16u;
+            break;
+        case MR_VISUAL_FORMAT_RG32_FLOAT:
+            bytesPerElement = 8u;
+            break;
+        case MR_VISUAL_FORMAT_R32_FLOAT:
+        case MR_VISUAL_FORMAT_R32_UINT:
+            bytesPerElement = 4u;
+            break;
+        case MR_VISUAL_FORMAT_R8_UINT:
+            bytesPerElement = 1u;
+            break;
+        case MR_VISUAL_FORMAT_UNKNOWN:
+        default:
+            continue;
+        }
+        if (elementCount <=
+                std::numeric_limits<std::size_t>::max() /
+                    bytesPerElement &&
+            buffer.sizeBytes >= elementCount * bytesPerElement) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::string jsonEscape(const std::string_view value) {
     std::ostringstream stream;
     for (const unsigned char character : value) {
@@ -1052,6 +1246,7 @@ bool VisualAssetManifestV1::valid(
     std::string* reason
 ) const {
     if (id.empty() || semanticClass.empty() ||
+        representation == MR_VISUAL_REPRESENTATION_NONE ||
         representation > MR_VISUAL_REPRESENTATION_PROCEDURAL ||
         binding > MR_VISUAL_BINDING_ARTICULATED_LINK ||
         sourceUri.empty() || contentHash.empty() ||
@@ -1066,6 +1261,15 @@ bool VisualAssetManifestV1::valid(
             return fail(
                 reason,
                 "visual asset has an invalid or duplicate body"
+            );
+        }
+    }
+    std::unordered_set<std::uint32_t> shapes;
+    for (const std::uint32_t shape : shapeIndices) {
+        if (!shapes.insert(shape).second) {
+            return fail(
+                reason,
+                "visual asset has a duplicate shape"
             );
         }
     }
@@ -1189,6 +1393,17 @@ bool assembleVisualBatches(
             "visual batch assembly input is invalid"
         );
     }
+    if (sampledWorlds.instances.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
+        input.cameraIndices.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
+        world.engineModel.bodies.size() >
+            std::numeric_limits<std::uint32_t>::max()) {
+        return fail(
+            reason,
+            "visual batch dimensions exceed the ABI"
+        );
+    }
     const std::uint32_t environmentCount =
         static_cast<std::uint32_t>(
             sampledWorlds.instances.size()
@@ -1216,15 +1431,42 @@ bool assembleVisualBatches(
         input.observations.front().width;
     const std::uint32_t height =
         input.observations.front().height;
-    const std::size_t pixelsPerView =
-        static_cast<std::size_t>(width) * height;
-    if (width == 0u || height == 0u) {
+    std::size_t pixelsPerView = 0u;
+    std::size_t totalPixels = 0u;
+    if (width == 0u || height == 0u ||
+        !checkedPixels(
+            1u,
+            1u,
+            width,
+            height,
+            pixelsPerView
+        ) ||
+        !checkedPixels(
+            environmentCount,
+            viewCount,
+            width,
+            height,
+            totalPixels
+        )) {
         return fail(reason, "visual batch resolution is invalid");
     }
+    const MRVisualFrameMetadataGPU referenceMetadata =
+        input.observations.front().metadata;
+    constexpr std::uint32_t kRequiredRendererModalities =
+        MR_VISUAL_MODALITY_RGB |
+        MR_VISUAL_MODALITY_DEPTH |
+        MR_VISUAL_MODALITY_DEPTH_VALIDITY |
+        MR_VISUAL_MODALITY_NORMAL |
+        MR_VISUAL_MODALITY_MOTION |
+        MR_VISUAL_MODALITY_SEMANTIC |
+        MR_VISUAL_MODALITY_INSTANCE |
+        MR_VISUAL_MODALITY_LINK;
     for (std::uint32_t view = 0u; view < viewCount; ++view) {
         const std::uint32_t camera = input.cameraIndices[view];
         const HybridObservationBatch& observation =
             input.observations[view];
+        const MRVisualFrameMetadataGPU metadata =
+            observation.metadata;
         const std::size_t pixels =
             static_cast<std::size_t>(environmentCount) *
             pixelsPerView;
@@ -1235,13 +1477,38 @@ bool assembleVisualBatches(
             observation.height != height ||
             observation.rgb.size() != pixels ||
             observation.depth.size() != pixels ||
+            observation.segmentation.size() != pixels ||
             observation.identities.size() != pixels ||
             observation.normals.size() != pixels ||
             observation.motion.size() != pixels ||
-            observation.validity.size() != pixels) {
+            observation.validity.size() != pixels ||
+            metadata.dimensions.x != environmentCount ||
+            metadata.dimensions.y != 1u ||
+            metadata.dimensions.z != width ||
+            metadata.dimensions.w != height ||
+            metadata.identity.w != input.provenance.source ||
+            metadata.contract.y != MR_VISUAL_FRAME_CAMERA ||
+            metadata.contract.z != MR_VISUAL_PLATFORM_ABI_VERSION ||
+            metadata.contract.x != kRequiredRendererModalities ||
+            !finite(metadata.timing) ||
+            metadata.timing.y < 0.0f ||
+            metadata.timing.z < 0.0f ||
+            metadata.timing.w < 0.0f ||
+            metadata.identity.x != referenceMetadata.identity.x ||
+            metadata.identity.y != referenceMetadata.identity.y ||
+            std::abs(
+                (
+                    metadata.timing.x +
+                    metadata.timing.y
+                ) -
+                (
+                    referenceMetadata.timing.x +
+                    referenceMetadata.timing.y
+                )
+            ) > 1.0e-5f) {
             return fail(
                 reason,
-                "visual view readback is incomplete or inconsistent"
+                "visual views are incomplete, stale, or unsynchronized"
             );
         }
     }
@@ -1286,9 +1553,6 @@ bool assembleVisualBatches(
         input.provenance.sensorProfileFingerprint;
     frameCandidate.calibrationFingerprint =
         input.provenance.calibrationFingerprint;
-    const std::size_t totalPixels =
-        static_cast<std::size_t>(environmentCount) *
-        viewCount * pixelsPerView;
     frameCandidate.cameras.resize(
         static_cast<std::size_t>(environmentCount) *
         viewCount
@@ -1330,9 +1594,24 @@ bool assembleVisualBatches(
         bodyCount,
         MR_INVALID_INDEX
     );
+    std::vector<std::uint32_t> assetSemanticIds(
+        world.assets.size(),
+        0u
+    );
+    std::unordered_map<std::string, std::uint32_t>
+        semanticIds;
     for (std::uint32_t asset = 0u;
          asset < world.assets.size();
          ++asset) {
+        const auto [semantic, inserted] =
+            semanticIds.try_emplace(
+                world.assets[asset].semanticClass,
+                static_cast<std::uint32_t>(
+                    semanticIds.size() + 1u
+                )
+            );
+        static_cast<void>(inserted);
+        assetSemanticIds[asset] = semantic->second;
         for (const std::uint32_t body :
              world.assets[asset].bodyIndices) {
             if (body < bodyAssets.size()) {
@@ -1453,12 +1732,62 @@ bool assembleVisualBatches(
                     ) * pixelsPerView + local;
                 frameCandidate.rgbLinear[destination] =
                     observation.rgb[source];
-                frameCandidate.depthMeters[destination] =
-                    observation.depth[source];
+                const std::uint32_t validity =
+                    observation.validity[source];
+                const bool geometryValid =
+                    (validity &
+                     MR_VISUAL_VALIDITY_GEOMETRY) != 0u;
+                const mr_uint4 identity =
+                    observation.identities[source];
+                if ((validity & MR_VISUAL_VALIDITY_FRAME) == 0u ||
+                    (validity &
+                     ~(
+                         MR_VISUAL_VALIDITY_FRAME |
+                         MR_VISUAL_VALIDITY_DEPTH |
+                         MR_VISUAL_VALIDITY_GEOMETRY
+                     )) != 0u ||
+                    (
+                        (validity &
+                         MR_VISUAL_VALIDITY_DEPTH) != 0u &&
+                        !geometryValid
+                    ) ||
+                    (
+                        geometryValid &&
+                        (
+                            identity.x == MR_INVALID_INDEX ||
+                            identity.y == MR_INVALID_INDEX
+                        )
+                    ) ||
+                    (
+                        !geometryValid &&
+                        (
+                            identity.x != MR_INVALID_INDEX ||
+                            identity.y != MR_INVALID_INDEX ||
+                            identity.z != MR_INVALID_INDEX ||
+                            identity.w != MR_INVALID_INDEX
+                        )
+                    )) {
+                    return fail(
+                        reason,
+                        "renderer validity and geometry truth disagree"
+                    );
+                }
+                const bool depthValid =
+                    (validity &
+                     MR_VISUAL_VALIDITY_DEPTH) != 0u;
                 frameCandidate.depthValidity[destination] =
-                    (observation.validity[source] & 2u) != 0u
-                    ? 1u
-                    : 0u;
+                    depthValid ? 1u : 0u;
+                frameCandidate.depthMeters[destination] =
+                    depthValid
+                    ? observation.depth[source]
+                    : 0.0f;
+                if (observation.segmentation[source] !=
+                    observation.identities[source].x) {
+                    return fail(
+                        reason,
+                        "semantic and identity buffers disagree"
+                    );
+                }
                 truthCandidate.normals[destination] =
                     observation.normals[source];
                 truthCandidate.motion[destination] =
@@ -1469,18 +1798,22 @@ bool assembleVisualBatches(
                     observation.identities[source].y;
                 truthCandidate.linkIds[destination] =
                     observation.identities[source].z;
-                truthCandidate.visibility[destination] =
-                    (observation.validity[source] & 4u) != 0u
+                const float visibility =
+                    geometryValid
                     ? std::clamp(
                           observation.motion[source].z,
                           0.0f,
                           1.0f
                       )
                     : 0.0f;
+                truthCandidate.visibility[destination] =
+                    visibility;
                 truthCandidate.occlusion[destination] =
-                    (observation.validity[source] & 4u) != 0u
-                    ? 0u
-                    : 255u;
+                    static_cast<std::uint8_t>(
+                        std::lround(
+                            (1.0f - visibility) * 255.0f
+                        )
+                    );
             }
         }
 
@@ -1491,9 +1824,31 @@ bool assembleVisualBatches(
                 sampledWorlds.assets[
                     instance.ranges.x + asset
                 ];
+            const WorldAsset& assetDefinition =
+                world.assets[asset];
+            std::uint32_t liveBody = MR_INVALID_INDEX;
+            if (assetDefinition.articulationIndex <
+                world.engineModel.articulations.size()) {
+                liveBody =
+                    world.engineModel.articulations[
+                        assetDefinition.articulationIndex
+                    ].rootBody;
+            } else if (!assetDefinition.bodyIndices.empty()) {
+                liveBody = assetDefinition.bodyIndices.front();
+            }
+            const WorldPose currentAssetInWorld =
+                liveBody < bodyCount
+                ? bodyPose(
+                      input.currentBodyStates[
+                          static_cast<std::size_t>(environment) *
+                              bodyCount +
+                          liveBody
+                      ]
+                  )
+                : assetPose(sampledAsset);
             const WorldPose objectInBase = relativePose(
                 baseInWorld,
-                assetPose(sampledAsset)
+                currentAssetInWorld
             );
             truthCandidate.objectPoses.push_back({
                 {
@@ -1504,7 +1859,7 @@ bool assembleVisualBatches(
                 },
                 objectInBase.orientation,
                 {
-                    asset + 1u,
+                    assetSemanticIds[asset],
                     asset + 1u,
                     MR_INVALID_INDEX,
                     sampledAsset.identity.y,
@@ -1512,31 +1867,78 @@ bool assembleVisualBatches(
             });
             for (std::uint32_t anchorIndex = 0u;
                  anchorIndex <
-                    world.assets[asset].anchors.size();
+                    assetDefinition.anchors.size();
                  ++anchorIndex) {
                 const SemanticAnchor& anchor =
-                    world.assets[asset].anchors[anchorIndex];
+                    assetDefinition.anchors[anchorIndex];
                 const WorldPose anchorInBase = relativePose(
                     baseInWorld,
                     composePose(
-                        assetPose(sampledAsset),
+                        currentAssetInWorld,
                         anchor.localPose
                     )
                 );
+                float keypointVisibility = 0.0f;
+                for (std::uint32_t view = 0u;
+                     view < viewCount;
+                     ++view) {
+                    const VisualCameraFrameV1& camera =
+                        frameCandidate.cameras[
+                            static_cast<std::size_t>(environment) *
+                                viewCount +
+                            view
+                        ];
+                    const PixelProjection projection =
+                        projectBasePoint(
+                            anchorInBase.position,
+                            camera
+                        );
+                    if (!projection.valid ||
+                        projection.x < 0.0f ||
+                        projection.y < 0.0f ||
+                        projection.x >=
+                            static_cast<float>(width) ||
+                        projection.y >=
+                            static_cast<float>(height)) {
+                        continue;
+                    }
+                    const std::uint32_t pixelX =
+                        static_cast<std::uint32_t>(
+                            std::floor(projection.x)
+                        );
+                    const std::uint32_t pixelY =
+                        static_cast<std::uint32_t>(
+                            std::floor(projection.y)
+                        );
+                    const std::size_t pixel =
+                        (
+                            static_cast<std::size_t>(environment) *
+                                viewCount +
+                            view
+                        ) * pixelsPerView +
+                        static_cast<std::size_t>(pixelY) * width +
+                        pixelX;
+                    if (truthCandidate.instanceIds[pixel] ==
+                            asset + 1u &&
+                        truthCandidate.visibility[pixel] > 0.0f) {
+                        keypointVisibility +=
+                            1.0f /
+                            static_cast<float>(viewCount);
+                    }
+                }
                 truthCandidate.keypoints.push_back({
                     {
                         anchorInBase.position.x,
                         anchorInBase.position.y,
                         anchorInBase.position.z,
-                        1.0f,
+                        keypointVisibility,
                     },
                     {
+                        assetSemanticIds[asset],
                         asset + 1u,
-                        asset + 1u,
-                        world.assets[asset].bodyIndices.empty()
+                        assetDefinition.bodyIndices.empty()
                             ? MR_INVALID_INDEX
-                            : world.assets[asset].
-                                  bodyIndices.front(),
+                            : assetDefinition.bodyIndices.front(),
                         anchorIndex,
                     },
                 });
@@ -1565,7 +1967,9 @@ bool assembleVisualBatches(
                 },
                 linkInBase.orientation,
                 {
-                    asset == MR_INVALID_INDEX ? 0u : asset + 1u,
+                    asset == MR_INVALID_INDEX
+                        ? 0u
+                        : assetSemanticIds[asset],
                     asset == MR_INVALID_INDEX ? 0u : asset + 1u,
                     body,
                     0u,
@@ -1594,25 +1998,49 @@ bool assembleVisualBatches(
 
 bool VisualSceneManifestV1::valid(std::string* reason) const {
     if (schemaVersion != kVisualSceneManifestVersion ||
-        id.empty() || coordinateConvention.empty() ||
-        worldFingerprint == 0u || fingerprint == 0u ||
+        id.empty() ||
+        coordinateConvention != "x-forward,y-left,z-up" ||
+        worldFingerprint == 0u ||
+        renderSceneFingerprint == 0u ||
+        fingerprint == 0u ||
         bodyCount == 0u || renderScene.id != id ||
         renderScene.bodyCount != bodyCount ||
         renderScene.assetCount != assets.size()) {
         return fail(reason, "visual scene manifest identity is invalid");
     }
     std::unordered_set<std::string> ids;
-    std::unordered_set<std::uint32_t> semanticIds;
     std::unordered_set<std::uint32_t> instanceIds;
+    std::unordered_map<std::string, std::uint32_t>
+        semanticIdsByClass;
+    std::unordered_map<std::uint32_t, std::string>
+        semanticClassesById;
     for (const VisualAssetManifestV1& asset : assets) {
         if (!asset.valid(bodyCount, reason)) {
             return false;
         }
         if (!ids.insert(asset.id).second ||
-            !semanticIds.insert(asset.semanticId).second ||
             !instanceIds.insert(asset.instanceId).second) {
-            return fail(reason, "visual asset identities are not unique");
+            return fail(reason, "visual asset/instance identities are not unique");
         }
+        const auto [classEntry, insertedClass] =
+            semanticIdsByClass.emplace(
+                asset.semanticClass,
+                asset.semanticId
+            );
+        if ((!insertedClass &&
+             classEntry->second != asset.semanticId) ||
+            (semanticClassesById.contains(asset.semanticId) &&
+             semanticClassesById.at(asset.semanticId) !=
+                 asset.semanticClass)) {
+            return fail(
+                reason,
+                "semantic classes and semantic ids are not one-to-one"
+            );
+        }
+        semanticClassesById.emplace(
+            asset.semanticId,
+            asset.semanticClass
+        );
     }
     std::string renderReason;
     if (!renderScene.valid(&renderReason)) {
@@ -1620,6 +2048,95 @@ bool VisualSceneManifestV1::valid(std::string* reason) const {
             reason,
             "visual render scene is invalid: " + renderReason
         );
+    }
+    if (renderSceneFingerprint !=
+        ::metalrobo::renderSceneFingerprint(renderScene)) {
+        return fail(
+            reason,
+            "visual render-scene fingerprint does not match"
+        );
+    }
+    for (std::uint32_t assetIndex = 0u;
+         assetIndex < assets.size();
+         ++assetIndex) {
+        if (assets[assetIndex].instanceId != assetIndex + 1u) {
+            return fail(
+                reason,
+                "visual instance ids do not match renderer asset indices"
+            );
+        }
+    }
+    for (const MRHybridGaussianGPU& gaussian :
+         renderScene.gaussians) {
+        const VisualAssetManifestV1& asset =
+            assets[gaussian.binding.x];
+        if (gaussian.binding.z != asset.semanticId ||
+            (
+                gaussian.binding.w ==
+                    MR_HYBRID_GAUSSIAN_BODY_LOCAL &&
+                std::ranges::find(
+                    asset.bodyIndices,
+                    gaussian.binding.y
+                ) == asset.bodyIndices.end()
+            )) {
+            return fail(
+                reason,
+                "Gaussian identity disagrees with its visual asset"
+            );
+        }
+    }
+    for (const MRVisualMeshTriangleGPU& triangle :
+         renderScene.meshTriangles) {
+        const VisualAssetManifestV1& asset =
+            assets[triangle.binding.x];
+        if (triangle.identity.x != asset.semanticId ||
+            triangle.identity.y != asset.instanceId ||
+            triangle.identity.z != triangle.binding.y ||
+            std::ranges::find(
+                asset.bodyIndices,
+                triangle.binding.y
+            ) == asset.bodyIndices.end()) {
+            return fail(
+                reason,
+                "mesh identity disagrees with its visual asset"
+            );
+        }
+    }
+    for (const MRVisualSensorBindingGPU& sensor :
+         renderScene.sensorBindings) {
+        if (sensor.identity.x == MR_VISUAL_BINDING_WORLD) {
+            if (sensor.identity.z != MR_INVALID_INDEX) {
+                return fail(
+                    reason,
+                    "world camera unexpectedly owns a visual asset"
+                );
+            }
+            continue;
+        }
+        if (sensor.identity.z >= assets.size()) {
+            return fail(
+                reason,
+                "camera owning asset is invalid"
+            );
+        }
+        const VisualAssetManifestV1& asset =
+            assets[sensor.identity.z];
+        if (sensor.identity.x == MR_VISUAL_BINDING_ASSET) {
+            if (sensor.identity.y != sensor.identity.z) {
+                return fail(
+                    reason,
+                    "asset camera binding disagrees with its owner"
+                );
+            }
+        } else if (std::ranges::find(
+                       asset.bodyIndices,
+                       sensor.identity.y
+                   ) == asset.bodyIndices.end()) {
+            return fail(
+                reason,
+                "body camera binding disagrees with its owner"
+            );
+        }
     }
     if (fingerprint != visualSceneFingerprint(*this)) {
         return fail(reason, "visual scene fingerprint does not match");
@@ -1659,6 +2176,8 @@ bool compileVisualSceneManifest(
     candidate.renderScene.bodyCount = candidate.bodyCount;
     candidate.assets.reserve(world.assets.size());
     candidate.renderScene.materials.reserve(world.assets.size());
+    std::unordered_map<std::string, std::uint32_t>
+        semanticIds;
 
     for (std::uint32_t assetIndex = 0u;
          assetIndex < world.assets.size();
@@ -1686,7 +2205,15 @@ bool compileVisualSceneManifest(
         asset.license = "generated-from-engine-model";
         asset.preprocessingProvenance =
             "engine-shape-triangulation-v1";
-        asset.semanticId = assetIndex + 1u;
+        const auto [semanticEntry, inserted] =
+            semanticIds.try_emplace(
+                source.semanticClass,
+                static_cast<std::uint32_t>(
+                    semanticIds.size() + 1u
+                )
+            );
+        static_cast<void>(inserted);
+        asset.semanticId = semanticEntry->second;
         asset.instanceId = assetIndex + 1u;
         asset.bodyIndices = source.bodyIndices;
         asset.shapeIndices = source.shapeIndices;
@@ -1726,7 +2253,10 @@ bool compileVisualSceneManifest(
         const std::uint32_t assetIndex =
             world.assetIndex(sensor.parentAssetId);
         MRVisualSensorBindingGPU binding{};
-        binding.identity.z = 0u;
+        binding.identity.z =
+            assetIndex < world.assets.size()
+            ? assetIndex
+            : MR_INVALID_INDEX;
         switch (sensor.parentKind) {
         case MR_WORLD_SENSOR_PARENT_WORLD:
             binding.identity.x = MR_VISUAL_BINDING_WORLD;
@@ -1763,6 +2293,8 @@ bool compileVisualSceneManifest(
         candidate.renderScene.sensorBindings.push_back(binding);
     }
 
+    candidate.renderSceneFingerprint =
+        renderSceneFingerprint(candidate.renderScene);
     candidate.fingerprint = visualSceneFingerprint(candidate);
     std::string candidateReason;
     if (!candidate.valid(&candidateReason)) {
@@ -1838,6 +2370,8 @@ bool attachGaussianField(
     asset.license = std::move(license);
     asset.preprocessingProvenance =
         std::move(preprocessingProvenance);
+    candidate.renderSceneFingerprint =
+        renderSceneFingerprint(candidate.renderScene);
     candidate.fingerprint = visualSceneFingerprint(candidate);
     if (!candidate.valid(&sceneReason)) {
         return fail(
@@ -1865,6 +2399,139 @@ VisualSceneManifestV1 makeFrankaPickPlaceVisualSceneManifest() {
         return {};
     }
     return result;
+}
+
+bool writeVisualSceneManifest(
+    const VisualSceneManifestV1& scene,
+    const std::filesystem::path& path,
+    std::string* reason
+) {
+    std::string sceneReason;
+    if (!scene.valid(&sceneReason) || path.empty()) {
+        return fail(
+            reason,
+            "visual scene manifest input is invalid: " +
+                sceneReason
+        );
+    }
+    const auto representationName =
+        [](const MRVisualRepresentation value)
+            -> std::string_view {
+        switch (value) {
+        case MR_VISUAL_REPRESENTATION_TRIANGLE_MESH:
+            return "triangle_mesh";
+        case MR_VISUAL_REPRESENTATION_GAUSSIAN_FIELD:
+            return "gaussian_field";
+        case MR_VISUAL_REPRESENTATION_PROCEDURAL:
+            return "procedural";
+        case MR_VISUAL_REPRESENTATION_NONE:
+        default:
+            return "invalid";
+        }
+    };
+    const auto bindingName =
+        [](const MRVisualBindingKind value)
+            -> std::string_view {
+        switch (value) {
+        case MR_VISUAL_BINDING_WORLD:
+            return "world";
+        case MR_VISUAL_BINDING_ASSET:
+            return "asset";
+        case MR_VISUAL_BINDING_RIGID_BODY:
+            return "rigid_body";
+        case MR_VISUAL_BINDING_ARTICULATED_LINK:
+            return "articulated_link";
+        default:
+            return "invalid";
+        }
+    };
+    const std::filesystem::path temporary =
+        path.string() + ".tmp." +
+        std::to_string(scene.fingerprint);
+    std::ofstream output(
+        temporary,
+        std::ios::binary | std::ios::trunc
+    );
+    if (!output) {
+        return fail(reason, "could not open visual scene manifest");
+    }
+    output << "{\n"
+           << "  \"schema_version\": " << scene.schemaVersion
+           << ",\n"
+           << "  \"id\": \"" << jsonEscape(scene.id) << "\",\n"
+           << "  \"coordinate_convention\": \""
+           << jsonEscape(scene.coordinateConvention) << "\",\n"
+           << "  \"world_fingerprint\": "
+           << scene.worldFingerprint << ",\n"
+           << "  \"fingerprint\": " << scene.fingerprint
+           << ",\n"
+           << "  \"body_count\": " << scene.bodyCount
+           << ",\n"
+           << "  \"assets\": [\n";
+    for (std::size_t index = 0u;
+         index < scene.assets.size();
+         ++index) {
+        const VisualAssetManifestV1& asset =
+            scene.assets[index];
+        output << "    {\"id\":\""
+               << jsonEscape(asset.id)
+               << "\",\"semantic_class\":\""
+               << jsonEscape(asset.semanticClass)
+               << "\",\"representation\":\""
+               << representationName(asset.representation)
+               << "\",\"binding\":\""
+               << bindingName(asset.binding)
+               << "\",\"source_uri\":\""
+               << jsonEscape(asset.sourceUri)
+               << "\",\"content_hash\":\""
+               << jsonEscape(asset.contentHash)
+               << "\",\"license\":\""
+               << jsonEscape(asset.license)
+               << "\",\"preprocessing_provenance\":\""
+               << jsonEscape(asset.preprocessingProvenance)
+               << "\",\"semantic_id\":"
+               << asset.semanticId
+               << ",\"instance_id\":"
+               << asset.instanceId
+               << ",\"body_indices\":";
+        writeJSONFloatArray(output, asset.bodyIndices);
+        output << ",\"shape_indices\":";
+        writeJSONFloatArray(output, asset.shapeIndices);
+        output << '}';
+        if (index + 1u != scene.assets.size()) {
+            output << ',';
+        }
+        output << '\n';
+    }
+    output << "  ],\n"
+           << "  \"render_scene\": {\n"
+           << "    \"gaussian_count\": "
+           << scene.renderScene.gaussians.size() << ",\n"
+           << "    \"mesh_vertex_count\": "
+           << scene.renderScene.meshVertices.size() << ",\n"
+           << "    \"mesh_triangle_count\": "
+           << scene.renderScene.meshTriangles.size() << ",\n"
+           << "    \"material_count\": "
+           << scene.renderScene.materials.size() << ",\n"
+           << "    \"sensor_binding_count\": "
+           << scene.renderScene.sensorBindings.size() << ",\n"
+           << "    \"fingerprint\": "
+           << scene.renderSceneFingerprint << "\n"
+           << "  }\n"
+           << "}\n";
+    output.close();
+    if (!output) {
+        std::error_code ignored;
+        std::filesystem::remove(temporary, ignored);
+        return fail(reason, "could not write visual scene manifest");
+    }
+    std::error_code error;
+    std::filesystem::rename(temporary, path, error);
+    if (error) {
+        std::filesystem::remove(temporary, error);
+        return fail(reason, "could not publish visual scene manifest");
+    }
+    return true;
 }
 
 bool composeVisualBodyStates(
@@ -2025,10 +2692,39 @@ bool composeVisualBodyStates(
 }
 
 bool VisualDeviceBufferViewV1::valid() const noexcept {
+    constexpr std::uint32_t kKnownModalities =
+        (MR_VISUAL_MODALITY_OBJECT_POSE << 1u) - 1u;
+    std::size_t elementBytes = 0u;
+    switch (format) {
+    case MR_VISUAL_FORMAT_RGBA32_FLOAT:
+    case MR_VISUAL_FORMAT_RGBA32_UINT:
+        elementBytes = 16u;
+        break;
+    case MR_VISUAL_FORMAT_RG32_FLOAT:
+        elementBytes = 8u;
+        break;
+    case MR_VISUAL_FORMAT_R32_FLOAT:
+    case MR_VISUAL_FORMAT_R32_UINT:
+        elementBytes = 4u;
+        break;
+    case MR_VISUAL_FORMAT_R8_UINT:
+        elementBytes = 1u;
+        break;
+    case MR_VISUAL_FORMAT_UNKNOWN:
+    default:
+        return false;
+    }
     return handle != 0u && sizeBytes != 0u &&
-        storage != MR_VISUAL_STORAGE_HOST &&
-        format != MR_VISUAL_FORMAT_UNKNOWN &&
-        modality != 0u;
+        offsetBytes <=
+            std::numeric_limits<std::size_t>::max() - sizeBytes &&
+        offsetBytes % elementBytes == 0u &&
+        sizeBytes % elementBytes == 0u &&
+        storage > MR_VISUAL_STORAGE_HOST &&
+        storage <= MR_VISUAL_STORAGE_COREML_TENSOR &&
+        format <= MR_VISUAL_FORMAT_RG32_FLOAT &&
+        modality != 0u &&
+        (modality & (modality - 1u)) == 0u &&
+        (modality & ~kKnownModalities) == 0u;
 }
 
 std::size_t VisualFrameBatchV1::pixelCount() const noexcept {
@@ -2050,13 +2746,43 @@ bool VisualFrameBatchV1::valid(std::string* reason) const {
         source > MR_VISUAL_SOURCE_REPLAY ||
         environmentCount == 0u || viewCount == 0u ||
         width == 0u || height == 0u || pixels == 0u ||
+        episodeTwinFingerprint == 0u ||
+        scenarioFingerprint == 0u ||
+        rendererFingerprint == 0u ||
+        sensorProfileFingerprint == 0u ||
+        calibrationFingerprint == 0u ||
+        modalities !=
+            (MR_VISUAL_MODALITY_RGB |
+             MR_VISUAL_MODALITY_DEPTH |
+             MR_VISUAL_MODALITY_DEPTH_VALIDITY) ||
         cameras.size() !=
             static_cast<std::size_t>(environmentCount) *
                 viewCount) {
         return fail(reason, "visual frame dimensions are invalid");
     }
-    for (const VisualCameraFrameV1& camera : cameras) {
+    const VisualCameraFrameV1& referenceCamera = cameras.front();
+    std::unordered_set<std::string> sensorIds;
+    for (std::uint32_t view = 0u; view < viewCount; ++view) {
+        if (!sensorIds.insert(cameras[view].sensorId).second) {
+            return fail(
+                reason,
+                "visual sensor ids must be unique across views"
+            );
+        }
+    }
+    for (std::size_t cameraIndex = 0u;
+         cameraIndex < cameras.size();
+         ++cameraIndex) {
+        const VisualCameraFrameV1& camera = cameras[cameraIndex];
+        const std::uint32_t view =
+            static_cast<std::uint32_t>(cameraIndex % viewCount);
+        const std::size_t environment =
+            cameraIndex / viewCount;
+        const VisualCameraFrameV1& environmentReference =
+            cameras[environment * viewCount];
         if (camera.sensorId.empty() ||
+            camera.sensorId != cameras[view].sensorId ||
+            camera.frameIndex != referenceCamera.frameIndex ||
             !finite(camera.intrinsics) ||
             !(camera.intrinsics.x > 0.0f) ||
             !(camera.intrinsics.y > 0.0f) ||
@@ -2066,6 +2792,16 @@ bool VisualFrameBatchV1::valid(std::string* reason) const {
             !finite(camera.captureTimestampSeconds) ||
             !finite(camera.frameAgeSeconds) ||
             camera.frameAgeSeconds < 0.0 ||
+            std::abs(
+                (
+                    camera.captureTimestampSeconds +
+                    camera.frameAgeSeconds
+                ) -
+                (
+                    environmentReference.captureTimestampSeconds +
+                    environmentReference.frameAgeSeconds
+                )
+            ) > 1.0e-6 ||
             !finite(camera.exposureSeconds) ||
             camera.exposureSeconds < 0.0 ||
             !finite(camera.shutterReadoutSeconds) ||
@@ -2102,6 +2838,42 @@ bool VisualFrameBatchV1::valid(std::string* reason) const {
             "visual modality storage does not match the frame contract"
         );
     }
+    constexpr std::array kRGBA32Float{
+        MR_VISUAL_FORMAT_RGBA32_FLOAT,
+    };
+    constexpr std::array kR32Float{
+        MR_VISUAL_FORMAT_R32_FLOAT,
+    };
+    constexpr std::array kDepthValidityFormats{
+        MR_VISUAL_FORMAT_R8_UINT,
+        MR_VISUAL_FORMAT_R32_UINT,
+    };
+    if ((rgbLinear.empty() &&
+         !hasDeviceStorage(
+             deviceBuffers,
+             MR_VISUAL_MODALITY_RGB,
+             pixels,
+             kRGBA32Float
+         )) ||
+        (depthMeters.empty() &&
+         !hasDeviceStorage(
+             deviceBuffers,
+             MR_VISUAL_MODALITY_DEPTH,
+             pixels,
+             kR32Float
+         )) ||
+        (depthValidity.empty() &&
+         !hasDeviceStorage(
+             deviceBuffers,
+             MR_VISUAL_MODALITY_DEPTH_VALIDITY,
+             pixels,
+             kDepthValidityFormats
+         ))) {
+        return fail(
+            reason,
+            "visual device storage has the wrong format or byte size"
+        );
+    }
     if (!std::ranges::all_of(
             rgbLinear,
             [](const mr_float4 value) {
@@ -2113,16 +2885,16 @@ bool VisualFrameBatchV1::valid(std::string* reason) const {
     if (!std::ranges::all_of(
             depthMeters,
             [](const float value) {
-                return std::isfinite(value) ||
-                    value == std::numeric_limits<float>::infinity();
+                return std::isfinite(value);
             }
         )) {
         return fail(reason, "visual depth contains invalid values");
     }
     if (!std::ranges::all_of(
             deviceBuffers,
-            [](const VisualDeviceBufferViewV1& buffer) {
-                return buffer.valid();
+            [this](const VisualDeviceBufferViewV1& buffer) {
+                return buffer.valid() &&
+                    (modalities & buffer.modality) != 0u;
             }
         )) {
         return fail(reason, "visual device buffer view is invalid");
@@ -2135,13 +2907,74 @@ bool VisualFrameBatchV1::valid(std::string* reason) const {
         )) {
         return fail(reason, "visual depth validity values are invalid");
     }
+    if (!depthMeters.empty()) {
+        for (std::size_t index = 0u;
+             index < depthMeters.size();
+             ++index) {
+            if (!depthValidity.empty() &&
+                depthValidity[index] != 0u &&
+                (!std::isfinite(depthMeters[index]) ||
+                 !(depthMeters[index] > 0.0f))) {
+                return fail(
+                    reason,
+                    "valid visual depth must be finite and positive"
+                );
+            }
+            if (!depthValidity.empty() &&
+                depthValidity[index] == 0u &&
+                depthMeters[index] != 0.0f) {
+                return fail(
+                    reason,
+                    "invalid visual depth must use the zero sentinel"
+                );
+            }
+        }
+    }
+    if (!depthValidity.empty()) {
+        const std::size_t pixelsPerCamera =
+            static_cast<std::size_t>(width) * height;
+        for (std::size_t cameraIndex = 0u;
+             cameraIndex < cameras.size();
+             ++cameraIndex) {
+            if (cameras[cameraIndex].valid) {
+                continue;
+            }
+            if (std::ranges::any_of(
+                    std::span<const std::uint8_t>{
+                        depthValidity
+                    }.subspan(
+                        cameraIndex * pixelsPerCamera,
+                        pixelsPerCamera
+                    ),
+                    [](const std::uint8_t value) {
+                        return value != 0u;
+                    }
+                )) {
+                return fail(
+                    reason,
+                    "invalid camera publishes valid depth samples"
+                );
+            }
+        }
+    }
     return true;
 }
 
 bool VisualTruthBatchV1::valid(std::string* reason) const {
     std::size_t pixels = 0u;
+    constexpr std::uint32_t kKnownModalities =
+        (MR_VISUAL_MODALITY_OBJECT_POSE << 1u) - 1u;
+    constexpr std::uint32_t kRequiredModalities =
+        MR_VISUAL_MODALITY_NORMAL |
+        MR_VISUAL_MODALITY_MOTION |
+        MR_VISUAL_MODALITY_SEMANTIC |
+        MR_VISUAL_MODALITY_INSTANCE |
+        MR_VISUAL_MODALITY_LINK;
     if (schemaVersion != kVisualFrameBatchVersion ||
         coordinateFrame > MR_VISUAL_FRAME_OBJECT ||
+        (modalities & kRequiredModalities) !=
+            kRequiredModalities ||
+        (modalities & ~kKnownModalities) != 0u ||
         !finite(timestampSeconds) ||
         !checkedPixels(
             environmentCount,
@@ -2152,6 +2985,15 @@ bool VisualTruthBatchV1::valid(std::string* reason) const {
         ) ||
         pixels == 0u) {
         return fail(reason, "visual truth dimensions are invalid");
+    }
+    if (objectPoses.size() % environmentCount != 0u ||
+        linkPoses.size() % environmentCount != 0u ||
+        keypoints.size() % environmentCount != 0u ||
+        contacts.size() % environmentCount != 0u) {
+        return fail(
+            reason,
+            "visual sparse truth is not environment-major"
+        );
     }
     const auto validStorage =
         [this, pixels](
@@ -2180,6 +3022,57 @@ bool VisualTruthBatchV1::valid(std::string* reason) const {
         occlusion.size() != pixels) {
         return fail(reason, "visual truth storage is incomplete");
     }
+    constexpr std::array kRGBA32Float{
+        MR_VISUAL_FORMAT_RGBA32_FLOAT,
+    };
+    constexpr std::array kR32Uint{
+        MR_VISUAL_FORMAT_R32_UINT,
+    };
+    if ((normals.empty() &&
+         (modalities & MR_VISUAL_MODALITY_NORMAL) != 0u &&
+         !hasDeviceStorage(
+             deviceBuffers,
+             MR_VISUAL_MODALITY_NORMAL,
+             pixels,
+             kRGBA32Float
+         )) ||
+        (motion.empty() &&
+         (modalities & MR_VISUAL_MODALITY_MOTION) != 0u &&
+         !hasDeviceStorage(
+             deviceBuffers,
+             MR_VISUAL_MODALITY_MOTION,
+             pixels,
+             kRGBA32Float
+         )) ||
+        (semanticIds.empty() &&
+         (modalities & MR_VISUAL_MODALITY_SEMANTIC) != 0u &&
+         !hasDeviceStorage(
+             deviceBuffers,
+             MR_VISUAL_MODALITY_SEMANTIC,
+             pixels,
+             kR32Uint
+         )) ||
+        (instanceIds.empty() &&
+         (modalities & MR_VISUAL_MODALITY_INSTANCE) != 0u &&
+         !hasDeviceStorage(
+             deviceBuffers,
+             MR_VISUAL_MODALITY_INSTANCE,
+             pixels,
+             kR32Uint
+         )) ||
+        (linkIds.empty() &&
+         (modalities & MR_VISUAL_MODALITY_LINK) != 0u &&
+         !hasDeviceStorage(
+             deviceBuffers,
+             MR_VISUAL_MODALITY_LINK,
+             pixels,
+             kR32Uint
+         ))) {
+        return fail(
+            reason,
+            "visual truth device storage has the wrong format or byte size"
+        );
+    }
     if (!std::ranges::all_of(
             normals,
             [](const mr_float4 value) {
@@ -2197,7 +3090,11 @@ bool VisualTruthBatchV1::valid(std::string* reason) const {
     for (const MRVisualKeypointGPU& keypoint : keypoints) {
         if (!finite(keypoint.positionAndVisibility) ||
             keypoint.positionAndVisibility.w < 0.0f ||
-            keypoint.positionAndVisibility.w > 1.0f) {
+            keypoint.positionAndVisibility.w > 1.0f ||
+            keypoint.identity.x == 0u ||
+            keypoint.identity.x == MR_INVALID_INDEX ||
+            keypoint.identity.y == 0u ||
+            keypoint.identity.y == MR_INVALID_INDEX) {
             return fail(reason, "visual keypoint is invalid");
         }
     }
@@ -2206,13 +3103,44 @@ bool VisualTruthBatchV1::valid(std::string* reason) const {
             pose.position.w == 1.0f &&
             unitQuaternion(pose.orientation);
     };
-    if (!std::ranges::all_of(objectPoses, validPose) ||
-        !std::ranges::all_of(linkPoses, validPose)) {
+    if (!std::ranges::all_of(
+            objectPoses,
+            [&validPose](const MRVisualPoseGPU& pose) {
+                return validPose(pose) &&
+                    pose.identity.x != 0u &&
+                    pose.identity.x != MR_INVALID_INDEX &&
+                    pose.identity.y != 0u &&
+                    pose.identity.y != MR_INVALID_INDEX;
+            }
+        ) ||
+        !std::ranges::all_of(
+            linkPoses,
+            [&validPose](const MRVisualPoseGPU& pose) {
+                return validPose(pose) &&
+                    pose.identity.z != MR_INVALID_INDEX;
+            }
+        )) {
         return fail(reason, "visual object/link pose is invalid");
     }
     for (const MRVisualContactAnnotationGPU& contact : contacts) {
         if (!finite(contact.positionAndImpulse) ||
-            !finite(contact.normalAndSeparation)) {
+            !finite(contact.normalAndSeparation) ||
+            contact.positionAndImpulse.w < 0.0f ||
+            std::abs(
+                (
+                    contact.normalAndSeparation.x *
+                        contact.normalAndSeparation.x +
+                    contact.normalAndSeparation.y *
+                        contact.normalAndSeparation.y +
+                    contact.normalAndSeparation.z *
+                        contact.normalAndSeparation.z
+                ) -
+                1.0f
+            ) > 1.0e-4f ||
+            contact.identity.x == 0u ||
+            contact.identity.x == MR_INVALID_INDEX ||
+            contact.identity.y == 0u ||
+            contact.identity.y == MR_INVALID_INDEX) {
             return fail(reason, "visual contact annotation is invalid");
         }
     }
@@ -2225,11 +3153,30 @@ bool VisualTruthBatchV1::valid(std::string* reason) const {
         ) ||
         !std::ranges::all_of(
             deviceBuffers,
-            [](const VisualDeviceBufferViewV1& buffer) {
-                return buffer.valid();
+            [this](const VisualDeviceBufferViewV1& buffer) {
+                return buffer.valid() &&
+                    (modalities & buffer.modality) != 0u;
             }
         )) {
         return fail(reason, "visual truth visibility/storage is invalid");
+    }
+    for (std::size_t index = 0u;
+         index < visibility.size();
+         ++index) {
+        const int expected = static_cast<int>(
+            std::lround(
+                (1.0f - visibility[index]) * 255.0f
+            )
+        );
+        if (std::abs(
+                static_cast<int>(occlusion[index]) -
+                expected
+            ) > 1) {
+            return fail(
+                reason,
+                "visual visibility and occlusion disagree"
+            );
+        }
     }
     return true;
 }
@@ -2240,8 +3187,10 @@ std::size_t PerceptionTensorV1::elementCount() const noexcept {
         return 0u;
     }
     for (const std::uint32_t dimension : shape) {
-        if (dimension == 0u ||
-            result >
+        if (dimension == 0u) {
+            return 0u;
+        }
+        if (result >
                 std::numeric_limits<std::size_t>::max() /
                     dimension) {
             return 0u;
@@ -2253,23 +3202,88 @@ std::size_t PerceptionTensorV1::elementCount() const noexcept {
 
 bool PerceptionTensorV1::validContract(std::string* reason) const {
     const std::size_t count = elementCount();
+    constexpr std::uint32_t kKnownModalities =
+        (MR_VISUAL_MODALITY_OBJECT_POSE << 1u) - 1u;
+    bool shapeOverflow = shape.empty();
+    if (!shape.empty()) {
+        std::size_t checkedCount = 1u;
+        shapeOverflow = false;
+        for (const std::uint32_t dimension : shape) {
+            if (dimension == 0u) {
+                checkedCount = 0u;
+                continue;
+            }
+            if (checkedCount != 0u &&
+                checkedCount >
+                    std::numeric_limits<std::size_t>::max() /
+                        dimension) {
+                shapeOverflow = true;
+                break;
+            }
+            checkedCount *= dimension;
+        }
+    }
     if (id.empty() || modality == 0u ||
+        (modality & (modality - 1u)) != 0u ||
+        (modality & ~kKnownModalities) != 0u ||
         coordinateFrame > MR_VISUAL_FRAME_OBJECT ||
-        count == 0u || !finite(timestampSeconds) ||
+        elementType > PerceptionElementType::uint8 ||
+        shapeOverflow || !finite(timestampSeconds) ||
         !finite(confidence) || confidence < 0.0f ||
         confidence > 1.0f) {
         return fail(reason, "perception tensor identity is invalid");
     }
-    const std::size_t hostCount =
-        elementType == PerceptionElementType::float32
-            ? floatValues.size()
-            : elementType == PerceptionElementType::uint32
-                ? uintValues.size()
-                : byteValues.size();
+    std::size_t hostCount = 0u;
+    std::size_t elementBytes = 0u;
+    MRVisualPixelFormat scalarFormat =
+        MR_VISUAL_FORMAT_UNKNOWN;
+    switch (elementType) {
+    case PerceptionElementType::float32:
+        if (!uintValues.empty() || !byteValues.empty()) {
+            return fail(
+                reason,
+                "perception tensor has conflicting host storage"
+            );
+        }
+        hostCount = floatValues.size();
+        elementBytes = sizeof(float);
+        scalarFormat = MR_VISUAL_FORMAT_R32_FLOAT;
+        break;
+    case PerceptionElementType::uint32:
+        if (!floatValues.empty() || !byteValues.empty()) {
+            return fail(
+                reason,
+                "perception tensor has conflicting host storage"
+            );
+        }
+        hostCount = uintValues.size();
+        elementBytes = sizeof(std::uint32_t);
+        scalarFormat = MR_VISUAL_FORMAT_R32_UINT;
+        break;
+    case PerceptionElementType::uint8:
+        if (!floatValues.empty() || !uintValues.empty()) {
+            return fail(
+                reason,
+                "perception tensor has conflicting host storage"
+            );
+        }
+        hostCount = byteValues.size();
+        elementBytes = sizeof(std::uint8_t);
+        scalarFormat = MR_VISUAL_FORMAT_R8_UINT;
+        break;
+    }
     if (hostCount != 0u && hostCount != count) {
         return fail(reason, "perception tensor host shape does not match");
     }
-    if (hostCount == 0u && deviceBuffers.empty()) {
+    if (count == 0u &&
+        (hostCount != 0u || !deviceBuffers.empty())) {
+        return fail(
+            reason,
+            "empty perception tensor must not carry storage"
+        );
+    }
+    if (count != 0u && hostCount == 0u &&
+        deviceBuffers.empty()) {
         return fail(reason, "perception tensor has no storage");
     }
     if (!finiteValues(floatValues)) {
@@ -2277,11 +3291,36 @@ bool PerceptionTensorV1::validContract(std::string* reason) const {
     }
     if (!std::ranges::all_of(
             deviceBuffers,
-            [](const VisualDeviceBufferViewV1& buffer) {
-                return buffer.valid();
+            [&](const VisualDeviceBufferViewV1& buffer) {
+                return buffer.valid() &&
+                    buffer.modality == modality &&
+                    buffer.format == scalarFormat &&
+                    count <=
+                        std::numeric_limits<std::size_t>::max() /
+                            elementBytes &&
+                    buffer.sizeBytes >= count * elementBytes;
             }
         )) {
         return fail(reason, "perception device buffer is invalid");
+    }
+    if (count != 0u && hostCount == 0u) {
+        const auto storage = std::ranges::find_if(
+            deviceBuffers,
+            [&](const VisualDeviceBufferViewV1& buffer) {
+                return buffer.modality == modality &&
+                    buffer.format == scalarFormat &&
+                    count <=
+                        std::numeric_limits<std::size_t>::max() /
+                            elementBytes &&
+                    buffer.sizeBytes >= count * elementBytes;
+            }
+        );
+        if (storage == deviceBuffers.end()) {
+            return fail(
+                reason,
+                "perception device tensor format or byte size is invalid"
+            );
+        }
     }
     return true;
 }
@@ -2289,10 +3328,21 @@ bool PerceptionTensorV1::validContract(std::string* reason) const {
 bool PerceptionProviderDescriptorV1::valid(
     std::string* reason
 ) const {
+    constexpr std::uint32_t kKnownModalities =
+        (MR_VISUAL_MODALITY_OBJECT_POSE << 1u) - 1u;
+    constexpr std::uint32_t kFrameModalities =
+        MR_VISUAL_MODALITY_RGB |
+        MR_VISUAL_MODALITY_DEPTH |
+        MR_VISUAL_MODALITY_DEPTH_VALIDITY;
+    constexpr std::uint32_t kKnownCapabilities =
+        (MR_PERCEPTION_CAP_EMBEDDING << 1u) - 1u;
     if (schemaVersion != kPerceptionProviderVersion ||
         id.empty() || contentHash.empty() ||
         inputModalities == 0u || capabilities == 0u ||
-        temporalWindow == 0u) {
+        temporalWindow == 0u ||
+        (inputModalities & ~kKnownModalities) != 0u ||
+        (inputModalities & ~kFrameModalities) != 0u ||
+        (capabilities & ~kKnownCapabilities) != 0u) {
         return fail(reason, "perception provider descriptor is invalid");
     }
     return true;
@@ -2323,6 +3373,13 @@ bool PerceptionResultBatchV1::valid(std::string* reason) const {
         if (!ids.insert(value.id).second) {
             return fail(reason, "perception tensor ids are not unique");
         }
+        if (std::abs(value.timestampSeconds - timestampSeconds) >
+            1.0e-6) {
+            return fail(
+                reason,
+                "perception tensor timestamp does not match its batch"
+            );
+        }
     }
     return true;
 }
@@ -2352,7 +3409,8 @@ bool PolicyObservationAssemblerV1::assemble(
 ) const {
     std::string frameReason;
     if (!frames.valid(&frameReason) ||
-        request.environmentCount != frames.environmentCount) {
+        request.environmentCount != frames.environmentCount ||
+        request.profile > ObservationProfileV1::compactLatent) {
         return fail(
             reason,
             "policy frames or environment count are invalid"
@@ -2403,9 +3461,12 @@ bool PolicyObservationAssemblerV1::assemble(
                 "raw RGB-D assembly requires host-visible frame storage"
             );
         }
-        visualWidth = static_cast<std::uint32_t>(
-            pixelsPerEnvironment * 5u
-        );
+        if (pixelsPerEnvironment >
+            std::numeric_limits<std::uint32_t>::max() / 5u) {
+            return fail(reason, "raw RGB-D observation width overflows");
+        }
+        visualWidth =
+            static_cast<std::uint32_t>(pixelsPerEnvironment * 5u);
     } else if (request.profile == ObservationProfileV1::rgbXYZ) {
         if (frames.rgbLinear.empty() ||
             frames.depthMeters.empty() ||
@@ -2415,14 +3476,29 @@ bool PolicyObservationAssemblerV1::assemble(
                 "RGB-XYZ assembly requires host-visible frame storage"
             );
         }
-        visualWidth = static_cast<std::uint32_t>(
-            pixelsPerEnvironment * 7u
-        );
+        if (pixelsPerEnvironment >
+            std::numeric_limits<std::uint32_t>::max() / 7u) {
+            return fail(reason, "RGB-XYZ observation width overflows");
+        }
+        visualWidth =
+            static_cast<std::uint32_t>(pixelsPerEnvironment * 7u);
     } else {
         if (perception == nullptr || !perception->valid()) {
             return fail(
                 reason,
                 "selected observation profile requires perception results"
+            );
+        }
+        const VisualCameraFrameV1& reference =
+            frames.cameras.front();
+        if (perception->frameIndex != reference.frameIndex ||
+            std::abs(
+                perception->timestampSeconds -
+                reference.captureTimestampSeconds
+            ) > 1.0e-6) {
+            return fail(
+                reason,
+                "perception result is stale or belongs to another frame"
             );
         }
         const std::uint32_t modality =
@@ -2433,13 +3509,25 @@ bool PolicyObservationAssemblerV1::assemble(
         if (selected == nullptr ||
             selected->elementType !=
                 PerceptionElementType::float32 ||
-            selected->floatValues.empty() ||
+            (selected->elementCount() != 0u &&
+             selected->floatValues.empty()) ||
+            selected->shape.empty() ||
+            selected->shape.front() !=
+                request.environmentCount ||
             selected->floatValues.size() %
                     request.environmentCount !=
                 0u) {
             return fail(
                 reason,
                 "perception result does not match observation profile"
+            );
+        }
+        if (selected->floatValues.size() /
+                request.environmentCount >
+            std::numeric_limits<std::uint32_t>::max()) {
+            return fail(
+                reason,
+                "perception observation width overflows"
             );
         }
         visualWidth = static_cast<std::uint32_t>(
@@ -2483,15 +3571,18 @@ bool PolicyObservationAssemblerV1::assemble(
             static_cast<std::size_t>(environment) *
             candidate.deployableWidth;
         if (selected != nullptr) {
-            const std::size_t source =
-                static_cast<std::size_t>(environment) * visualWidth;
-            std::ranges::copy(
-                std::span{
-                    selected->floatValues.data() + source,
-                    visualWidth,
-                },
-                candidate.deployable.begin() + destination
-            );
+            if (visualWidth != 0u) {
+                const std::size_t source =
+                    static_cast<std::size_t>(environment) *
+                    visualWidth;
+                std::ranges::copy(
+                    std::span{
+                        selected->floatValues.data() + source,
+                        visualWidth,
+                    },
+                    candidate.deployable.begin() + destination
+                );
+            }
             destination += visualWidth;
         } else {
             const std::size_t pixelBase =
@@ -2534,16 +3625,24 @@ bool PolicyObservationAssemblerV1::assemble(
                             continue;
                         }
                         mr_float4 cameraPoint{};
-                        if (valid != 0.0f) {
+                        bool projectable = valid != 0.0f;
+                        if (projectable) {
+                            const NormalizedPoint normalized =
+                                undistortNormalized(
+                                    (
+                                        (static_cast<float>(x) + 0.5f) -
+                                        camera.intrinsics.z
+                                    ) / camera.intrinsics.x,
+                                    (
+                                        (static_cast<float>(y) + 0.5f) -
+                                        camera.intrinsics.w
+                                    ) / camera.intrinsics.y,
+                                    camera.distortion
+                                );
+                            projectable = normalized.valid;
                             cameraPoint = {
-                                (
-                                    (static_cast<float>(x) + 0.5f) -
-                                    camera.intrinsics.z
-                                ) / camera.intrinsics.x * depth,
-                                (
-                                    (static_cast<float>(y) + 0.5f) -
-                                    camera.intrinsics.w
-                                ) / camera.intrinsics.y * depth,
+                                normalized.x * depth,
+                                normalized.y * depth,
                                 depth,
                                 1.0f,
                             };
@@ -2556,12 +3655,13 @@ bool PolicyObservationAssemblerV1::assemble(
                             )
                         );
                         candidate.deployable[destination++] =
-                            valid != 0.0f ? basePoint.x : 0.0f;
+                            projectable ? basePoint.x : 0.0f;
                         candidate.deployable[destination++] =
-                            valid != 0.0f ? basePoint.y : 0.0f;
+                            projectable ? basePoint.y : 0.0f;
                         candidate.deployable[destination++] =
-                            valid != 0.0f ? basePoint.z : 0.0f;
-                        candidate.deployable[destination++] = valid;
+                            projectable ? basePoint.z : 0.0f;
+                        candidate.deployable[destination++] =
+                            projectable ? 1.0f : 0.0f;
                     }
                 }
             }
@@ -2610,15 +3710,17 @@ bool VisualEpisodeStreamV1::append(
         !finiteValues(step.action) ||
         !finiteValues(step.taskCommand) ||
         !finiteValues(step.privilegedState) ||
+        step.scenarioKey == 0u ||
         step.frameContentHash.empty()) {
         return fail(reason, "visual episode step is invalid");
     }
     if (!steps.empty() &&
         (step.frameIndex <= steps.back().frameIndex ||
-         step.timestampSeconds < steps.back().timestampSeconds)) {
+         step.timestampSeconds < steps.back().timestampSeconds ||
+         step.scenarioKey != steps.front().scenarioKey)) {
         return fail(
             reason,
-            "visual episode steps must be monotonic"
+            "visual episode steps must be monotonic and scenario-stable"
         );
     }
     steps.push_back(std::move(step));
@@ -2630,10 +3732,12 @@ bool VisualEpisodeStreamV1::finalize(std::string* reason) {
     if (id.empty() || steps.empty() ||
         episodeTwinFingerprint == 0u ||
         worldFamilyFingerprint == 0u ||
+        scenarioFingerprint == 0u ||
         rendererFingerprint == 0u ||
         visualSceneFingerprint == 0u ||
         sensorProfileFingerprint == 0u ||
-        calibrationFingerprint == 0u) {
+        calibrationFingerprint == 0u ||
+        physicsFingerprint == 0u) {
         return fail(reason, "visual episode identity is incomplete");
     }
     fingerprint = episodeFingerprint(*this);
@@ -2643,6 +3747,14 @@ bool VisualEpisodeStreamV1::finalize(std::string* reason) {
 bool VisualEpisodeStreamV1::valid(std::string* reason) const {
     if (schemaVersion != kVisualEpisodeStreamVersion ||
         id.empty() || source > MR_VISUAL_SOURCE_REPLAY ||
+        episodeTwinFingerprint == 0u ||
+        worldFamilyFingerprint == 0u ||
+        scenarioFingerprint == 0u ||
+        rendererFingerprint == 0u ||
+        visualSceneFingerprint == 0u ||
+        sensorProfileFingerprint == 0u ||
+        calibrationFingerprint == 0u ||
+        physicsFingerprint == 0u ||
         fingerprint == 0u || steps.empty() ||
         fingerprint != episodeFingerprint(*this)) {
         return fail(reason, "visual episode stream identity is invalid");
@@ -2655,11 +3767,13 @@ bool VisualEpisodeStreamV1::valid(std::string* reason) const {
             !finiteValues(step.action) ||
             !finiteValues(step.taskCommand) ||
             !finiteValues(step.privilegedState) ||
+            step.scenarioKey == 0u ||
             step.frameContentHash.empty() ||
             (index != 0u &&
              (step.frameIndex <= steps[index - 1u].frameIndex ||
               step.timestampSeconds <
-                  steps[index - 1u].timestampSeconds))) {
+                  steps[index - 1u].timestampSeconds ||
+              step.scenarioKey != steps.front().scenarioKey))) {
             return fail(reason, "visual episode step is invalid");
         }
     }
@@ -2698,6 +3812,8 @@ bool writeVisualEpisodeManifest(
            << stream.episodeTwinFingerprint << ",\n"
            << "  \"world_family_fingerprint\": "
            << stream.worldFamilyFingerprint << ",\n"
+           << "  \"scenario_fingerprint\": "
+           << stream.scenarioFingerprint << ",\n"
            << "  \"renderer_fingerprint\": "
            << stream.rendererFingerprint << ",\n"
            << "  \"visual_scene_fingerprint\": "
@@ -2706,6 +3822,8 @@ bool writeVisualEpisodeManifest(
            << stream.sensorProfileFingerprint << ",\n"
            << "  \"calibration_fingerprint\": "
            << stream.calibrationFingerprint << ",\n"
+           << "  \"physics_fingerprint\": "
+           << stream.physicsFingerprint << ",\n"
            << "  \"fingerprint\": " << stream.fingerprint << ",\n"
            << "  \"steps\": [\n";
     for (std::size_t index = 0u;

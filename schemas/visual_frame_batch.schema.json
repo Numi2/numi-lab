@@ -54,6 +54,8 @@
     },
     "modalities": {
       "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
       "uniqueItems": true,
       "items": {
         "enum": [
@@ -75,7 +77,8 @@
     },
     "buffers": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 3,
+      "maxItems": 3,
       "items": {
         "$ref": "#/$defs/buffer"
       }
@@ -86,7 +89,8 @@
       "oneOf": [
         {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "maximum": 18446744073709551615
         },
         {
           "type": "string",
@@ -140,7 +144,10 @@
         "camera_to_base",
         "capture_timestamp_seconds",
         "frame_index",
+        "sensor_sequence",
         "frame_age_seconds",
+        "exposure_seconds",
+        "shutter_readout_seconds",
         "valid"
       ],
       "properties": {
@@ -172,9 +179,23 @@
         },
         "frame_index": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 18446744073709551615
+        },
+        "sensor_sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
         },
         "frame_age_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "exposure_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "shutter_readout_seconds": {
           "type": "number",
           "minimum": 0
         },
@@ -194,8 +215,11 @@
       ],
       "properties": {
         "modality": {
-          "type": "string",
-          "minLength": 1
+          "enum": [
+            "linear_rgb",
+            "metric_depth",
+            "depth_validity"
+          ]
         },
         "storage": {
           "enum": [

@@ -40,7 +40,8 @@
   "$defs": {
     "fingerprint": {
       "type": "integer",
-      "minimum": 1
+      "minimum": 1,
+      "maximum": 18446744073709551615
     },
     "sha256": {
       "type": "string",
@@ -54,6 +55,7 @@
         "source",
         "episode_twin_fingerprint",
         "world_family_fingerprint",
+        "scenario_fingerprint",
         "renderer_fingerprint",
         "visual_scene_fingerprint",
         "sensor_profile_fingerprint",
@@ -78,6 +80,9 @@
           "$ref": "#/$defs/fingerprint"
         },
         "world_family_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "scenario_fingerprint": {
           "$ref": "#/$defs/fingerprint"
         },
         "renderer_fingerprint": {

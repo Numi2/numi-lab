@@ -3,9 +3,12 @@
 from .env import FrankaEnv
 from .episode import compile_episode_manifest
 from .hybrid_renderer import (
+    DEPTH_VALID,
+    FRAME_VALID,
     GAUSSIAN_ASSET_LOCAL,
     GAUSSIAN_BODY_LOCAL,
     GAUSSIAN_WORLD,
+    GEOMETRY_VALID,
     HYBRID_GAUSSIAN_DTYPE,
     HybridObservationDeviceBuffers,
     HybridObservationRenderer,
@@ -183,9 +186,12 @@ __all__ = [
     "FrankaPrivilegedTeacherConfig",
     "FrankaTaskEvidence",
     "FrankaTaskPhase",
+    "DEPTH_VALID",
+    "FRAME_VALID",
     "GAUSSIAN_ASSET_LOCAL",
     "GAUSSIAN_BODY_LOCAL",
     "GAUSSIAN_WORLD",
+    "GEOMETRY_VALID",
     "HYBRID_GAUSSIAN_DTYPE",
     "HybridObservationDeviceBuffers",
     "HybridObservationRenderer",

@@ -93,6 +93,12 @@ float uniformSigned(const uint value) {
         1.0f;
 }
 
+float unitVarianceNoise(const uint value) {
+    // A bounded uniform sample scaled to unit variance, so configured
+    // sensor sigma values retain their statistical meaning.
+    return 1.7320508075688772f * uniformSigned(value);
+}
+
 float3 applyAppearance(
     float3 color,
     const MRWorldAppearanceInstanceGPU appearance
@@ -312,6 +318,7 @@ uint frameSeed(
     return instance.identity.x ^ instance.identity.y ^
         uniforms.timing.x ^ uniforms.timing.y ^
         uniforms.timing.z * 0x85ebca6bu ^
+        uniforms.render.x * 0xc2b2ae35u ^
         pixel * 0x9e3779b9u;
 }
 
@@ -343,7 +350,7 @@ bool measureDepth(
         0.0f,
         geometricDepth +
             sensor.noiseAndLatency.y *
-                uniformSigned(seed ^ 0xa511e9b3u)
+                unitVarianceNoise(seed ^ 0xa511e9b3u)
     );
     const float quantum =
         uniforms.sensorRangeAndResponse.z;
@@ -886,8 +893,6 @@ kernel void mr_hybrid_render_tiles(
 
     const MRWorldInstanceHeaderGPU instance =
         instances[environment];
-    const MRWorldSensorInstanceGPU sensor =
-        sensors[instance.ranges.z + uniforms.render.x];
     const MRWorldAppearanceInstanceGPU appearance =
         appearances[instance.program.x];
     accumulatedColor =
@@ -895,30 +900,9 @@ kernel void mr_hybrid_render_tiles(
     const uint pixel =
         environment * uniforms.image.x * uniforms.image.y +
         pixelY * uniforms.image.x + pixelX;
-    const uint seed = frameSeed(instance, uniforms, pixel);
-    accumulatedColor = max(
-        accumulatedColor +
-            sensor.noiseAndLatency.x * uniformSigned(seed),
-        0.0f
-    );
-    uint valid = 1u;
+    uint valid = MR_VISUAL_VALIDITY_FRAME;
     if (nearestDepth < uniforms.clearColorAndDepth.w) {
-        float measuredDepth = nearestDepth;
-        if (!measureDepth(
-                nearestDepth,
-                sensor,
-                seed,
-                uniforms,
-                measuredDepth
-            )) {
-            nearestDepth = measuredDepth;
-            identity = uint4(MR_INVALID_INDEX);
-            normal = 0.0f;
-            pixelMotion = 0.0f;
-        } else {
-            nearestDepth = measuredDepth;
-            valid |= 2u | 4u;
-        }
+        valid |= MR_VISUAL_VALIDITY_GEOMETRY;
     }
     rgb[pixel] = float4(
         accumulatedColor,
@@ -1328,29 +1312,6 @@ kernel void mr_hybrid_composite_mesh(
         material.emissionAndStrength.xyz *
             material.emissionAndStrength.w;
     color = applyAppearance(color, appearance);
-    const uint seed = frameSeed(instance, uniforms, pixel);
-    color = max(
-        color +
-            sensor.noiseAndLatency.x * uniformSigned(seed),
-        0.0f
-    );
-    float publishedDepth = meshDepth;
-    if (!measureDepth(
-            meshDepth,
-            sensor,
-            seed,
-            uniforms,
-            publishedDepth
-        )) {
-        validity[pixel] = 1u;
-        identities[pixel] = uint4(MR_INVALID_INDEX);
-        segmentation[pixel] = MR_INVALID_INDEX;
-        normals[pixel] = 0.0f;
-        motion[pixel] = 0.0f;
-        rgb[pixel] = float4(color, base.w);
-        depth[pixel] = publishedDepth;
-        return;
-    }
 
     float2 pixelMotion = 0.0f;
     if ((uniforms.live.y & kLivePrevious) != 0u &&
@@ -1365,10 +1326,68 @@ kernel void mr_hybrid_composite_mesh(
         }
     }
     rgb[pixel] = float4(color, base.w);
-    depth[pixel] = publishedDepth;
+    depth[pixel] = meshDepth;
     segmentation[pixel] = triangle.identity.x;
     identities[pixel] = triangle.identity;
     normals[pixel] = float4(cameraNormal, 1.0f);
     motion[pixel] = float4(pixelMotion, 1.0f, 0.0f);
-    validity[pixel] = 1u | 2u | 4u;
+    validity[pixel] =
+        MR_VISUAL_VALIDITY_FRAME |
+        MR_VISUAL_VALIDITY_GEOMETRY;
+}
+
+kernel void mr_hybrid_apply_sensor(
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(0)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(1)]],
+    device float4* rgb [[buffer(2)]],
+    device float* depth [[buffer(3)]],
+    device uint* validity [[buffer(4)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(5)]],
+    const uint pixel [[thread_position_in_grid]]
+) {
+    const uint pixelsPerEnvironment =
+        uniforms.image.x * uniforms.image.y;
+    const uint pixelCount =
+        uniforms.counts.x * pixelsPerEnvironment;
+    if (pixel >= pixelCount) {
+        return;
+    }
+    const uint environment = pixel / pixelsPerEnvironment;
+    const MRWorldInstanceHeaderGPU instance =
+        instances[environment];
+    const MRWorldSensorInstanceGPU sensor =
+        sensors[instance.ranges.z + uniforms.render.x];
+    const uint seed = frameSeed(instance, uniforms, pixel);
+
+    rgb[pixel].xyz = max(
+        rgb[pixel].xyz +
+            sensor.noiseAndLatency.x *
+                float3(
+                    unitVarianceNoise(seed ^ 0x243f6a88u),
+                    unitVarianceNoise(seed ^ 0x85a308d3u),
+                    unitVarianceNoise(seed ^ 0x13198a2eu)
+                ),
+        0.0f
+    );
+
+    uint valid =
+        validity[pixel] & ~MR_VISUAL_VALIDITY_DEPTH;
+    if ((valid & MR_VISUAL_VALIDITY_GEOMETRY) != 0u) {
+        float measuredDepth = depth[pixel];
+        if (measureDepth(
+                depth[pixel],
+                sensor,
+                seed,
+                uniforms,
+                measuredDepth
+            )) {
+            depth[pixel] = measuredDepth;
+            valid |= MR_VISUAL_VALIDITY_DEPTH;
+        } else {
+            depth[pixel] = uniforms.clearColorAndDepth.w;
+        }
+    } else {
+        depth[pixel] = uniforms.clearColorAndDepth.w;
+    }
+    validity[pixel] = valid;
 }

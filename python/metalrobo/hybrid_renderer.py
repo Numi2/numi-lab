@@ -36,6 +36,27 @@ GAUSSIAN_ASSET_LOCAL = 0
 GAUSSIAN_BODY_LOCAL = 1
 GAUSSIAN_WORLD = 2
 INVALID_INDEX = np.uint32(0xFFFFFFFF)
+FRAME_VALID = np.uint32(1 << 0)
+DEPTH_VALID = np.uint32(1 << 1)
+GEOMETRY_VALID = np.uint32(1 << 2)
+
+
+def _uint32(
+    value: object,
+    *,
+    name: str,
+    nonzero: bool = False,
+) -> int:
+    if isinstance(value, (bool, np.bool_)) or not isinstance(
+        value,
+        (int, np.integer),
+    ):
+        raise ValueError(f"{name} must be an integer")
+    result = int(value)
+    minimum = 1 if nonzero else 0
+    if not minimum <= result <= np.iinfo(np.uint32).max:
+        raise ValueError(f"{name} must fit in a uint32")
+    return result
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,7 +80,7 @@ class HybridRendererLayout:
 
 @dataclass(frozen=True, slots=True)
 class HybridObservationDeviceBuffers:
-    """Borrowed ``id<MTLBuffer>`` addresses for MLX graph composition."""
+    """Borrowed ``id<MTLBuffer>`` addresses for native graph bridges."""
 
     rgb: int
     depth: int
@@ -93,6 +114,34 @@ class HybridObservationSnapshot:
     validity: npt.NDArray[np.uint32]
     metadata: VisualFrameMetadata
 
+    @property
+    def frame_validity(self) -> npt.NDArray[np.bool_]:
+        result = (self.validity & FRAME_VALID) != 0
+        result.setflags(write=False)
+        return result
+
+    @property
+    def depth_validity(self) -> npt.NDArray[np.bool_]:
+        result = (self.validity & DEPTH_VALID) != 0
+        result.setflags(write=False)
+        return result
+
+    @property
+    def geometry_validity(self) -> npt.NDArray[np.bool_]:
+        result = (self.validity & GEOMETRY_VALID) != 0
+        result.setflags(write=False)
+        return result
+
+    @property
+    def metric_depth(self) -> npt.NDArray[np.float32]:
+        result = np.where(
+            self.depth_validity,
+            self.depth,
+            0.0,
+        ).astype(np.float32, copy=False)
+        result.setflags(write=False)
+        return result
+
 
 def make_asset_gaussians(
     means: npt.ArrayLike,
@@ -110,8 +159,8 @@ def make_asset_gaussians(
     mean_array = np.asarray(means, dtype=np.float32)
     scale_array = np.asarray(scales, dtype=np.float32)
     color_array = np.asarray(colors, dtype=np.float32)
-    assets = np.asarray(asset_indices, dtype=np.uint32)
-    semantics = np.asarray(semantic_labels, dtype=np.uint32)
+    source_assets = np.asarray(asset_indices)
+    source_semantics = np.asarray(semantic_labels)
     if mean_array.ndim != 2 or mean_array.shape[1] != 3:
         raise ValueError("means must have shape [gaussian, 3]")
     count = mean_array.shape[0]
@@ -119,8 +168,19 @@ def make_asset_gaussians(
         raise ValueError("scales must match means with shape [gaussian, 3]")
     if color_array.shape != (count, 3):
         raise ValueError("colors must match means with shape [gaussian, 3]")
-    if assets.shape != (count,) or semantics.shape != (count,):
+    if source_assets.shape != (count,) or source_semantics.shape != (count,):
         raise ValueError("asset_indices and semantic_labels must have shape [gaussian]")
+    if (
+        source_assets.dtype.kind not in "iu"
+        or source_semantics.dtype.kind not in "iu"
+        or (source_assets.size and np.any(source_assets < 0))
+        or (source_semantics.size and np.any(source_semantics <= 0))
+        or np.any(source_assets > np.iinfo(np.uint32).max)
+        or np.any(source_semantics >= np.iinfo(np.uint32).max)
+    ):
+        raise ValueError("asset indices and nonzero semantic labels must fit in uint32")
+    assets = np.asarray(source_assets, dtype=np.uint32)
+    semantics = np.asarray(source_semantics, dtype=np.uint32)
     opacity_array = np.broadcast_to(
         np.asarray(opacity, dtype=np.float32),
         (count,),
@@ -147,8 +207,10 @@ def make_asset_gaussians(
         or not np.all(np.isfinite(importance_array))
         or not np.all(np.isfinite(orientation_array))
         or np.any(scale_array <= 0.0)
+        or np.any(color_array < 0.0)
         or np.any(opacity_array < 0.0)
         or np.any(opacity_array > 1.0)
+        or np.any(importance_array < 0.0)
     ):
         raise ValueError("Gaussian attributes must be finite and physical")
 
@@ -187,21 +249,39 @@ class HybridObservationRenderer:
         library_path: str | os.PathLike[str] | None = None,
         metallib_path: str | os.PathLike[str] | None = None,
     ) -> None:
-        if not 1 <= int(asset_count) <= np.iinfo(np.uint32).max:
-            raise ValueError("asset_count must fit in a nonzero uint32")
+        asset_count = _uint32(
+            asset_count,
+            name="asset_count",
+            nonzero=True,
+        )
+        if asset_count >= int(INVALID_INDEX):
+            raise ValueError("asset_count must leave room for valid instance ids")
+        dimensions: dict[str, int] = {}
         for name, value in (
             ("capacity", capacity),
             ("width", width),
             ("height", height),
         ):
-            if not 1 <= int(value) <= np.iinfo(np.uint32).max:
-                raise ValueError(f"{name} must fit in a nonzero uint32")
+            dimensions[name] = _uint32(
+                value,
+                name=name,
+                nonzero=True,
+            )
+        capacity = dimensions["capacity"]
+        width = dimensions["width"]
+        height = dimensions["height"]
         packed = np.ascontiguousarray(
             gaussians,
             dtype=HYBRID_GAUSSIAN_DTYPE,
         )
         if packed.ndim != 1 or packed.size == 0:
             raise ValueError("gaussians must be a nonempty one-dimensional array")
+        if (
+            np.any(packed["binding"][:, 0] >= asset_count)
+            or np.any(packed["binding"][:, 2] == 0)
+            or np.any(packed["binding"][:, 2] == INVALID_INDEX)
+        ):
+            raise ValueError("Gaussian asset and semantic bindings are invalid")
 
         self._bindings = _load_bindings(library_path)
         self.library_path: Path = self._bindings.path
@@ -291,13 +371,21 @@ class HybridObservationRenderer:
         count = (
             world_layout.active_instance_count
             if environment_count is None
-            else int(environment_count)
+            else _uint32(
+                environment_count,
+                name="environment_count",
+                nonzero=True,
+            )
         )
         if not 1 <= count <= self.layout.capacity:
             raise ValueError(
                 "environment_count must be sampled and within renderer capacity"
             )
-        if not 0 <= int(camera_index) < world_layout.sensor_count_per_instance:
+        camera_index = _uint32(
+            camera_index,
+            name="camera_index",
+        )
+        if camera_index >= world_layout.sensor_count_per_instance:
             raise ValueError("camera_index is outside the world sensor range")
         status = self._bindings.lib.mr_hybrid_renderer_render(
             self._require_open(),
@@ -379,9 +467,7 @@ class HybridObservationRenderer:
             .reshape(shape)
             .copy()
         )
-        native_metadata = (
-            self._bindings.lib.mr_hybrid_renderer_frame_metadata(handle)
-        )
+        native_metadata = self._bindings.lib.mr_hybrid_renderer_frame_metadata(handle)
         metadata = VisualFrameMetadata(
             tuple(int(value) for value in native_metadata.dimensions),
             tuple(int(value) for value in native_metadata.identity),

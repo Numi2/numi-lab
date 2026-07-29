@@ -64,6 +64,7 @@ struct VisualSceneManifestV1 {
     std::string id;
     std::string coordinateConvention = "x-forward,y-left,z-up";
     std::uint64_t worldFingerprint = 0u;
+    std::uint64_t renderSceneFingerprint = 0u;
     std::uint64_t fingerprint = 0u;
     std::uint32_t bodyCount = 0u;
     std::vector<VisualAssetManifestV1> assets;
@@ -99,6 +100,12 @@ struct VisualSceneManifestV1 {
 // camera to the workspace and the wrist camera to the final articulated body.
 [[nodiscard]] VisualSceneManifestV1
 makeFrankaPickPlaceVisualSceneManifest();
+
+[[nodiscard]] bool writeVisualSceneManifest(
+    const VisualSceneManifestV1& scene,
+    const std::filesystem::path& path,
+    std::string* reason = nullptr
+);
 
 // Converts packed generalized and scene-body state into one environment-major
 // global-body stream usable by the visual runtime. Articulated bodies are
@@ -177,7 +184,9 @@ struct VisualTruthBatchV1 {
     std::vector<std::uint32_t> semanticIds;
     std::vector<std::uint32_t> instanceIds;
     std::vector<std::uint32_t> linkIds;
+    // Visible truth-surface coverage in [0, 1].
     std::vector<float> visibility;
+    // Quantized inverse visibility: 0 visible, 255 absent/fully occluded.
     std::vector<std::uint8_t> occlusion;
     std::vector<MRVisualPoseGPU> objectPoses;
     std::vector<MRVisualPoseGPU> linkPoses;
@@ -227,8 +236,9 @@ struct VisualBatchAssemblyV1 {
     std::span<const MRBodyStateGPU> currentBodyStates{};
 };
 
-// Converts one or more synchronized renderer readbacks into the exact same
+// Converts policy-step-aligned renderer readbacks into the exact same
 // deployable/supervisory contracts accepted from physical RGB-D capture.
+// Views share a global frame index but retain independent capture timestamps.
 [[nodiscard]] bool assembleVisualBatches(
     const WorldTemplate& world,
     const WorldInstanceBatch& sampledWorlds,
@@ -365,10 +375,12 @@ struct VisualEpisodeStreamV1 {
     MRVisualFrameSource source = MR_VISUAL_SOURCE_SIMULATION;
     std::uint64_t episodeTwinFingerprint = 0u;
     std::uint64_t worldFamilyFingerprint = 0u;
+    std::uint64_t scenarioFingerprint = 0u;
     std::uint64_t rendererFingerprint = 0u;
     std::uint64_t visualSceneFingerprint = 0u;
     std::uint64_t sensorProfileFingerprint = 0u;
     std::uint64_t calibrationFingerprint = 0u;
+    std::uint64_t physicsFingerprint = 0u;
     std::uint64_t fingerprint = 0u;
     std::vector<VisualEpisodeStepV1> steps;
 

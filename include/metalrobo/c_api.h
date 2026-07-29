@@ -270,7 +270,8 @@ MR_API const char* mr_hybrid_renderer_device_name(
 // buffer_kind: 0 RGB float4, 1 depth float, 2 semantic uint,
 // 3 projected Gaussian records, 4 per-world tile overflow counts,
 // 5 semantic/instance/link/primitive uint4, 6 normals float4,
-// 7 motion float4, 8 validity uint.
+// 7 motion float4, 8 validity uint. Validity bits are: bit 0 frame
+// produced, bit 1 usable sensor depth, bit 2 rendered geometry/truth.
 // Returned values borrow id<MTLBuffer>.
 MR_API void* mr_hybrid_renderer_native_buffer(
     const MRHybridRendererHandle* handle,

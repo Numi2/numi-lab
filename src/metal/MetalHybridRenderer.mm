@@ -237,6 +237,7 @@ struct MetalHybridRendererState {
     __strong id<MTLComputePipelineState> rasterMeshPipeline = nil;
     __strong id<MTLComputePipelineState> selectMeshPipeline = nil;
     __strong id<MTLComputePipelineState> compositeMeshPipeline = nil;
+    __strong id<MTLComputePipelineState> applySensorPipeline = nil;
     RendererBuffers buffers;
     MetalHybridRendererLayout layout;
     MRVisualFrameMetadataGPU activeMetadata{};
@@ -323,13 +324,16 @@ MetalHybridRendererDiagnostics initialize(
         pipeline(@"mr_hybrid_select_mesh");
     state.compositeMeshPipeline =
         pipeline(@"mr_hybrid_composite_mesh");
+    state.applySensorPipeline =
+        pipeline(@"mr_hybrid_apply_sensor");
     if (state.clearPipeline == nil ||
         state.clearMeshPipeline == nil ||
         state.binPipeline == nil ||
         state.renderPipeline == nil ||
         state.rasterMeshPipeline == nil ||
         state.selectMeshPipeline == nil ||
-        state.compositeMeshPipeline == nil) {
+        state.compositeMeshPipeline == nil ||
+        state.applySensorPipeline == nil) {
         return reject(
             std::move(diagnostics),
             MetalHybridRendererStatus::metalPipelineFailure,
@@ -827,6 +831,32 @@ MetalHybridRendererDiagnostics encodeLocked(
                                   )];
     }
 
+    [encoder setComputePipelineState:state.applySensorPipeline];
+    [encoder setBuffer:instances offset:0u atIndex:0u];
+    [encoder setBuffer:sensors offset:0u atIndex:1u];
+    [encoder setBuffer:state.buffers.rgb
+                offset:0u
+               atIndex:2u];
+    [encoder setBuffer:state.buffers.depth
+                offset:0u
+               atIndex:3u];
+    [encoder setBuffer:state.buffers.validity
+                offset:0u
+               atIndex:4u];
+    [encoder setBytes:&uniforms
+               length:sizeof(uniforms)
+              atIndex:5u];
+    const NSUInteger sensorThreads = std::min<NSUInteger>(
+        state.applySensorPipeline.maxTotalThreadsPerThreadgroup,
+        256u
+    );
+    [encoder dispatchThreads:MTLSizeMake(pixelCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(
+                                  sensorThreads,
+                                  1u,
+                                  1u
+                              )];
+
     state.activeEnvironmentCount = environmentCount;
     state.activeMetadata.dimensions = {
         environmentCount,
@@ -869,6 +899,7 @@ bool HybridGaussianScene::valid(std::string* reason) const {
         return false;
     };
     if (id.empty() || assetCount == 0u ||
+        assetCount >= MR_INVALID_INDEX ||
         (gaussians.empty() && meshTriangles.empty())) {
         return invalid(
             "visual scene identity, assets, and geometry are incomplete"
@@ -900,7 +931,13 @@ bool HybridGaussianScene::valid(std::string* reason) const {
             gaussian.scaleAndImportance.x <= 0.0f ||
             gaussian.scaleAndImportance.y <= 0.0f ||
             gaussian.scaleAndImportance.z <= 0.0f ||
+            gaussian.scaleAndImportance.w < 0.0f ||
+            gaussian.colorAndEmission.x < 0.0f ||
+            gaussian.colorAndEmission.y < 0.0f ||
+            gaussian.colorAndEmission.z < 0.0f ||
             orientationSquared <= 1.0e-12 ||
+            gaussian.binding.z == 0u ||
+            gaussian.binding.z == MR_INVALID_INDEX ||
             gaussian.binding.w > MR_HYBRID_GAUSSIAN_WORLD ||
             gaussian.binding.x >= assetCount ||
             (gaussian.binding.w ==
