@@ -362,6 +362,13 @@ the quality stage reports `DID_NOT_CONVERGE` and the environment velocity is
 rolled back. Before the KKT certificate was added, the step-size-scaled
 natural residual could incorrectly accept a zero impulse on this case.
 
+The same probe now also solves the physically constrained FP64 reference:
+twelve PSM floating-base lock rows and two jaw gear rows are Schur-eliminated
+into the two jaw/needle contact cones. The reconstructed equality impulses
+close their regularized row equations below `1e-9`; the reported Metal error
+continues to compare against the raw contact operator until this projection is
+encoded on device.
+
 Clean Release result:
 
 ```text

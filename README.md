@@ -140,7 +140,10 @@ linked or called at runtime.
   dynamic scene-body and static/kinematic endpoints in one exact circular-cone
   solve. Per-articulation factors and 6D body response blocks construct the
   physical Delassus operator without a dense global mass inverse; the
-  dual-PSM/needle bundle is an executable 34-DoF reference island
+  dual-PSM/needle bundle is an executable 34-DoF reference island. Model-owned
+  generalized equality and gear rows are eliminated through their small
+  Schur complement, so base locks, jaw gears and contact share one physical
+  operator rather than running as adjacent uncoupled solves
 - The standalone Metal heterogeneous contact frontend executes analytic point
   Jacobians, global row assembly, batched articulation-local inverse ABA,
   maximal-coordinate scene-body response, physical Delassus construction and
@@ -177,6 +180,7 @@ v4 carries the event-time and persistent-worker contract while ConstraintIR
 remains ABI v2. Implicit position drives and joint-boundary projection are
 executable. The 40,000-step/s Franka contact gate, trained 60-second G1
 standing gate, dedicated tiled heightfields, fully composed
+device-side generalized-equality/contact Schur projection in fully composed
 multi-articulation contact islands, patch rolling/torsional solve,
 mesh-backed URDF/MJCF/OpenUSD workflows, rendering breadth, coupled
 thread self/tool collision and tissue mechanics, unified cone/scalar

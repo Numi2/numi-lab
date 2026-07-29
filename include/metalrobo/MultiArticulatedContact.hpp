@@ -17,6 +17,9 @@ enum class MultiArticulatedContactStatus : std::uint32_t {
     nonfiniteInput,
     kinematicsFailure,
     factorizationFailure,
+    unsupportedConstraint,
+    constraintEvaluationFailure,
+    constraintFactorizationFailure,
     solverFailure,
     nonfiniteResult,
 };
@@ -49,6 +52,18 @@ struct MultiArticulatedContactProblem {
     // Relative point velocity contributed by static/kinematic endpoints that
     // own no generalized coordinates.
     std::vector<double> prescribedContactVelocity;
+    // Optional exact reduction through model-owned unbounded generalized
+    // equality rows. Contact response is projected into their null space;
+    // these records retain the eliminated impulses and evidence.
+    std::uint32_t generalizedConstraintRowCount = 0u;
+    std::vector<double> generalizedConstraintJacobian;
+    std::vector<double> generalizedConstraintResponseColumns;
+    std::vector<double> generalizedConstraintFreeImpulses;
+    // Row-major [generalized row][contact row]. Final equality impulse is
+    // freeImpulse - contactCoupling * contactImpulse.
+    std::vector<double> generalizedConstraintContactCoupling;
+    std::vector<double> generalizedConstraintTargets;
+    std::vector<double> generalizedConstraintRegularization;
     ContactSpaceConicProblem conic;
     std::vector<ArticulatedPointKinematics> pointA;
     std::vector<ArticulatedPointKinematics> pointB;
@@ -94,6 +109,7 @@ struct MultiArticulatedContactSolution {
     std::vector<MultiContactSceneBodyVelocity>
         sceneBodyVelocities;
     std::vector<double> impulses;
+    std::vector<double> generalizedConstraintImpulses;
     QualityContactSolution quality;
 };
 
@@ -110,6 +126,7 @@ struct MultiArticulatedContactDiagnostics {
     double maximumFactorResidual = 0.0;
     double maximumDelassusAsymmetry = 0.0;
     double maximumContactVelocityResidual = 0.0;
+    double maximumGeneralizedConstraintResidual = 0.0;
     double minimumDelassusDiagonal = 0.0;
 
     [[nodiscard]] bool succeeded() const noexcept {
@@ -145,6 +162,18 @@ buildMultiArticulatedIslandContactProblem(
     std::span<const MultiArticulatedIslandContact> contacts,
     MultiArticulatedContactProblem& output,
     const ArticulatedDynamicsConfig& config = {}
+);
+
+// Exactly eliminates model-owned unbounded generalized equality/gear rows
+// from an already built contact problem. It forms the small constraint
+// Schur complement from articulation-local inverse-mass applications,
+// projects free velocity and every contact response column, and never
+// materializes a dense generalized inverse. Publication is transactional.
+[[nodiscard]] MultiArticulatedContactDiagnostics
+projectMultiArticulatedContactThroughGeneralizedEqualities(
+    const EngineModel& model,
+    MultiArticulatedContactProblem& problem,
+    const ConstraintIREvaluationConfig& config = {}
 );
 
 // Solves the precomputed contact-space problem and transactionally publishes

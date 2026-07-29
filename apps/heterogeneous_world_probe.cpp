@@ -115,14 +115,16 @@ int main() {
             world.model.articulations[0];
         const MRArticulationGPU& rightArticulation =
             world.model.articulations[1];
-        v[leftArticulation.vOffset] = 0.2;
-        v[rightArticulation.vOffset] = -0.2;
+        v[leftArticulation.vOffset + 12u] = -0.2;
+        v[leftArticulation.vOffset + 13u] = 0.2;
+        v[rightArticulation.vOffset + 12u] = 0.2;
+        v[rightArticulation.vOffset + 13u] = -0.2;
         metalrobo::MultiArticulatedIslandContact leftContact;
         leftContact.endpointA = {
             metalrobo::MultiContactEndpointKind::
                 articulatedBody,
-            leftArticulation.rootBody,
-            {0.0, 0.0, 0.0},
+            leftArticulation.firstBody + 7u,
+            {0.0, 0.0, 0.01},
         };
         leftContact.endpointB = {
             metalrobo::MultiContactEndpointKind::sceneBody,
@@ -147,8 +149,8 @@ int main() {
         rightContact.endpointB = {
             metalrobo::MultiContactEndpointKind::
                 articulatedBody,
-            rightArticulation.rootBody,
-            {0.0, 0.0, 0.0},
+            rightArticulation.firstBody + 7u,
+            {0.0, 0.0, 0.01},
         };
         const std::array<
             metalrobo::MultiArticulatedIslandContact,
@@ -173,6 +175,26 @@ int main() {
                     psmNeedleProblem,
                     contactDynamics
                 );
+        const metalrobo::MultiArticulatedContactProblem
+            rawPsmNeedleProblem = psmNeedleProblem;
+        metalrobo::MultiArticulatedContactSolution
+            rawPsmNeedleSolution;
+        const auto rawContactSolve =
+            metalrobo::solveMultiArticulatedContactProblem(
+                rawPsmNeedleProblem,
+                rawPsmNeedleSolution
+            );
+        metalrobo::ConstraintIREvaluationConfig
+            equalityConfig;
+        equalityConfig.timestep =
+            world.model.world.gravityAndTimestep.w;
+        const auto equalityProjection =
+            metalrobo::
+                projectMultiArticulatedContactThroughGeneralizedEqualities(
+                    world.model,
+                    psmNeedleProblem,
+                    equalityConfig
+                );
         metalrobo::MultiArticulatedContactSolution
             psmNeedleSolution;
         const auto contactSolve =
@@ -182,11 +204,21 @@ int main() {
             );
         require(
             contactBuild.succeeded() &&
+                rawContactSolve.succeeded() &&
+                equalityProjection.succeeded() &&
                 contactSolve.succeeded() &&
                 psmNeedleProblem.articulatedNv ==
                     world.model.world.nv &&
                 psmNeedleProblem.nv ==
                     world.model.world.nv + 6u &&
+                psmNeedleProblem
+                        .generalizedConstraintRowCount == 14u &&
+                psmNeedleSolution
+                        .generalizedConstraintImpulses.size() ==
+                    14u &&
+                contactSolve
+                        .maximumGeneralizedConstraintResidual <
+                    1.0e-9 &&
                 psmNeedleSolution.impulses[0] > 0.0 &&
                 psmNeedleSolution.impulses[3] > 0.0 &&
                 psmNeedleSolution.quality.velocity[0] >
@@ -196,6 +228,8 @@ int main() {
             "dual PSM and needle did not enter one coupled "
             "exact-cone island: build=" +
                 std::to_string(contactBuild.succeeded()) +
+                " projection=" +
+                std::to_string(equalityProjection.succeeded()) +
                 " solve=" +
                 std::to_string(contactSolve.succeeded()) +
                 " impulses=" +
@@ -233,7 +267,7 @@ int main() {
              ++contact) {
             for (std::size_t row = 0u; row < 3u; ++row) {
                 metalPsmContacts[contact].warmImpulse[row] =
-                    psmNeedleSolution.impulses[
+                    rawPsmNeedleSolution.impulses[
                         3u * contact + row
                     ];
             }
@@ -305,35 +339,35 @@ int main() {
         double maximumMetalContactError = 0.0;
         double maximumMetalDelassusError = 0.0;
         for (std::size_t index = 0u;
-             index < psmNeedleProblem.conic.delassus.size();
+             index < rawPsmNeedleProblem.conic.delassus.size();
              ++index) {
             maximumMetalDelassusError = std::max(
                 maximumMetalDelassusError,
                 std::abs(
-                    psmNeedleProblem.conic.delassus[index] -
+                    rawPsmNeedleProblem.conic.delassus[index] -
                     metalContact.delassus[index]
                 )
             );
         }
         for (std::size_t index = 0u;
-             index < psmNeedleSolution.impulses.size();
+             index < rawPsmNeedleSolution.impulses.size();
              ++index) {
             maximumMetalContactError = std::max(
                 maximumMetalContactError,
                 std::abs(
-                    psmNeedleSolution.impulses[index] -
+                    rawPsmNeedleSolution.impulses[index] -
                     metalContact.impulses[index]
                 )
             );
         }
         for (std::size_t index = 0u;
              index <
-                 psmNeedleSolution.generalizedVelocity.size();
+                 rawPsmNeedleSolution.generalizedVelocity.size();
              ++index) {
             maximumMetalContactError = std::max(
                 maximumMetalContactError,
                 std::abs(
-                    psmNeedleSolution.generalizedVelocity[
+                    rawPsmNeedleSolution.generalizedVelocity[
                         index
                     ] -
                     metalContact.nextVelocity[index]
@@ -347,16 +381,16 @@ int main() {
                 " W=" +
                 std::to_string(maximumMetalDelassusError) +
                 " impulses=" +
-                std::to_string(psmNeedleSolution.impulses[0]) +
+                std::to_string(rawPsmNeedleSolution.impulses[0]) +
                 "/" +
                 std::to_string(metalContact.impulses[0]) +
                 "," +
-                std::to_string(psmNeedleSolution.impulses[3]) +
+                std::to_string(rawPsmNeedleSolution.impulses[3]) +
                 "/" +
                 std::to_string(metalContact.impulses[3]) +
                 " free=" +
                 std::to_string(
-                    psmNeedleProblem.conic
+                    rawPsmNeedleProblem.conic
                         .freeContactVelocity[0]
                 ) +
                 "/" +
@@ -365,7 +399,7 @@ int main() {
                 ) +
                 "," +
                 std::to_string(
-                    psmNeedleProblem.conic
+                    rawPsmNeedleProblem.conic
                         .freeContactVelocity[3]
                 ) +
                 "/" +
@@ -374,13 +408,13 @@ int main() {
                 ) +
                 " Wn=" +
                 std::to_string(
-                    psmNeedleProblem.conic.delassus[0]
+                    rawPsmNeedleProblem.conic.delassus[0]
                 ) +
                 "/" +
                 std::to_string(metalContact.delassus[0]) +
                 "," +
                 std::to_string(
-                    psmNeedleProblem.conic.delassus[
+                    rawPsmNeedleProblem.conic.delassus[
                         3u * 6u + 3u
                     ]
                 ) +
@@ -506,6 +540,9 @@ int main() {
             << " needle_contact_impulses="
             << psmNeedleSolution.impulses[0] << "/"
             << psmNeedleSolution.impulses[3]
+            << " equality_residual="
+            << contactSolve
+                   .maximumGeneralizedConstraintResidual
             << " metal_contact_error="
             << maximumMetalContactError
             << " metal_kkt="

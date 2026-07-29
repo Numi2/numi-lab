@@ -166,6 +166,28 @@ bool structurallyValid(
 ) {
     const std::size_t rowCount =
         3u * static_cast<std::size_t>(problem.contactCount);
+    const std::size_t equalityRows =
+        problem.generalizedConstraintRowCount;
+    const bool equalityLayoutValid =
+        equalityRows == 0u
+        ? problem.generalizedConstraintJacobian.empty() &&
+            problem.generalizedConstraintResponseColumns.empty() &&
+            problem.generalizedConstraintFreeImpulses.empty() &&
+            problem.generalizedConstraintContactCoupling.empty() &&
+            problem.generalizedConstraintTargets.empty() &&
+            problem.generalizedConstraintRegularization.empty()
+        : problem.generalizedConstraintJacobian.size() ==
+                equalityRows * problem.nv &&
+            problem.generalizedConstraintResponseColumns.size() ==
+                equalityRows * problem.nv &&
+            problem.generalizedConstraintFreeImpulses.size() ==
+                equalityRows &&
+            problem.generalizedConstraintContactCoupling.size() ==
+                equalityRows * rowCount &&
+            problem.generalizedConstraintTargets.size() ==
+                equalityRows &&
+            problem.generalizedConstraintRegularization.size() ==
+                equalityRows;
     return
         problem.freeVelocity.size() == problem.nv &&
         problem.contactJacobian.size() ==
@@ -183,7 +205,176 @@ bool structurallyValid(
         problem.pointA.size() == problem.contactCount &&
         problem.pointB.size() == problem.contactCount &&
         problem.sceneBodyFreeVelocities.size() ==
-            problem.sceneBodyVelocityOffsets.size();
+            problem.sceneBodyVelocityOffsets.size() &&
+        equalityLayoutValid;
+}
+
+bool buildGeneralizedEqualityJacobian(
+    const EngineModel& model,
+    std::vector<double>& jacobian
+) {
+    const ConstraintIR& program = model.constraintProgram;
+    const std::size_t rowCount = program.rows.size();
+    if (rowCount == 0u || !program.cones.empty()) {
+        return false;
+    }
+    jacobian.assign(rowCount * model.world.nv, 0.0);
+    for (const ConstraintIRBlock& block : program.blocks) {
+        if (block.type == MR_CONSTRAINT_CONTACT ||
+            block.coneIndex != kConstraintIRInvalidIndex ||
+            (block.flags & constraintIRBlockDisabled) != 0u) {
+            return false;
+        }
+        for (std::uint32_t local = 0u;
+             local < block.endpointCount;
+             ++local) {
+            const ConstraintIREndpoint& endpoint =
+                program.endpoints[
+                    block.endpointOffset + local
+                ];
+            const std::uint32_t row =
+                endpoint.flags &
+                constraintIREndpointRowMask;
+            if (endpoint.jacobianKind !=
+                    constraintIRJacobianGeneralized ||
+                endpoint.objectIndex >= model.world.nv ||
+                row >= block.dimension) {
+                return false;
+            }
+            double& coefficient = jacobian[
+                (block.rowOffset + row) * model.world.nv +
+                endpoint.objectIndex
+            ];
+            coefficient += endpoint.axis.x;
+            if (!finite(coefficient)) {
+                return false;
+            }
+        }
+    }
+    for (std::size_t row = 0u; row < rowCount; ++row) {
+        if (program.rows[row].impulseLower >
+                -0.5f * kConstraintIRUnbounded ||
+            program.rows[row].impulseUpper <
+                0.5f * kConstraintIRUnbounded) {
+            return false;
+        }
+        bool nonzero = false;
+        for (std::uint32_t dof = 0u;
+             dof < model.world.nv;
+             ++dof) {
+            nonzero =
+                nonzero ||
+                jacobian[row * model.world.nv + dof] != 0.0;
+        }
+        if (!nonzero) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool factorDenseSPD(
+    std::vector<double>& matrix,
+    const std::size_t dimension
+) {
+    if (matrix.size() != dimension * dimension ||
+        dimension == 0u) {
+        return false;
+    }
+    double scale = 1.0;
+    for (std::size_t row = 0u; row < dimension; ++row) {
+        scale = std::max(
+            scale,
+            std::abs(matrix[row * dimension + row])
+        );
+    }
+    const double pivotFloor =
+        4096.0 * std::numeric_limits<double>::epsilon() *
+        scale * static_cast<double>(dimension);
+    for (std::size_t row = 0u; row < dimension; ++row) {
+        for (std::size_t column = 0u;
+             column <= row;
+             ++column) {
+            double value =
+                matrix[row * dimension + column];
+            for (std::size_t inner = 0u;
+                 inner < column;
+                 ++inner) {
+                value -=
+                    matrix[row * dimension + inner] *
+                    matrix[column * dimension + inner];
+            }
+            if (row == column) {
+                if (!(value > pivotFloor) || !finite(value)) {
+                    return false;
+                }
+                matrix[row * dimension + column] =
+                    std::sqrt(value);
+            } else {
+                value /=
+                    matrix[column * dimension + column];
+                if (!finite(value)) {
+                    return false;
+                }
+                matrix[row * dimension + column] = value;
+            }
+        }
+        for (std::size_t column = row + 1u;
+             column < dimension;
+             ++column) {
+            matrix[row * dimension + column] = 0.0;
+        }
+    }
+    return true;
+}
+
+bool solveDenseSPD(
+    const std::span<const double> lower,
+    const std::span<const double> right,
+    const std::span<double> solution
+) {
+    const std::size_t dimension = right.size();
+    if (dimension == 0u ||
+        solution.size() != dimension ||
+        lower.size() != dimension * dimension) {
+        return false;
+    }
+    std::vector<double> intermediate(dimension, 0.0);
+    for (std::size_t row = 0u; row < dimension; ++row) {
+        double value = right[row];
+        for (std::size_t column = 0u;
+             column < row;
+             ++column) {
+            value -=
+                lower[row * dimension + column] *
+                intermediate[column];
+        }
+        value /= lower[row * dimension + row];
+        if (!finite(value)) {
+            return false;
+        }
+        intermediate[row] = value;
+    }
+    for (std::size_t reverse = 0u;
+         reverse < dimension;
+         ++reverse) {
+        const std::size_t row =
+            dimension - 1u - reverse;
+        double value = intermediate[row];
+        for (std::size_t column = row + 1u;
+             column < dimension;
+             ++column) {
+            value -=
+                lower[column * dimension + row] *
+                solution[column];
+        }
+        value /= lower[row * dimension + row];
+        if (!finite(value)) {
+            return false;
+        }
+        solution[row] = value;
+    }
+    return true;
 }
 
 } // namespace
@@ -1473,6 +1664,423 @@ buildMultiArticulatedIslandContactProblem(
 }
 
 MultiArticulatedContactDiagnostics
+projectMultiArticulatedContactThroughGeneralizedEqualities(
+    const EngineModel& model,
+    MultiArticulatedContactProblem& problem,
+    const ConstraintIREvaluationConfig& config
+) {
+    MultiArticulatedContactDiagnostics diagnostics =
+        diagnosticsFor(model, problem.contactCount);
+    std::string reason;
+    if (!model.valid(&reason)) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::invalidModel
+        );
+    }
+    if (!structurallyValid(problem) ||
+        problem.articulatedNv != model.world.nv ||
+        problem.generalizedConstraintRowCount != 0u) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::invalidDimensions
+        );
+    }
+    if (model.constraintProgram.rows.empty()) {
+        return diagnostics;
+    }
+    std::vector<double> equalityJacobian;
+    if (!buildGeneralizedEqualityJacobian(
+            model,
+            equalityJacobian
+        )) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::
+                unsupportedConstraint
+        );
+    }
+    const std::size_t equalityRows =
+        model.constraintProgram.rows.size();
+    const std::size_t contactRows =
+        3u * static_cast<std::size_t>(problem.contactCount);
+    std::vector<float> relative(equalityRows, 0.0f);
+    for (std::size_t row = 0u;
+         row < equalityRows;
+         ++row) {
+        double value = 0.0;
+        for (std::uint32_t dof = 0u;
+             dof < model.world.nv;
+             ++dof) {
+            value +=
+                equalityJacobian[
+                    row * model.world.nv + dof
+                ] * problem.freeVelocity[dof];
+        }
+        if (!finite(value) ||
+            std::abs(value) >
+                std::numeric_limits<float>::max()) {
+            return fail(
+                std::move(diagnostics),
+                MultiArticulatedContactStatus::
+                    nonfiniteInput
+            );
+        }
+        relative[row] = static_cast<float>(value);
+    }
+    const ConstraintIREvaluationResult evaluation =
+        evaluateConstraintIR(
+            model.constraintProgram,
+            {relative, {}},
+            config
+        );
+    if (!evaluation.succeeded() ||
+        evaluation.evaluated.rows.size() != equalityRows) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::
+                constraintEvaluationFailure
+        );
+    }
+
+    MultiArticulatedContactProblem staged = problem;
+    staged.generalizedConstraintRowCount =
+        static_cast<std::uint32_t>(equalityRows);
+    staged.generalizedConstraintJacobian.assign(
+        equalityRows * staged.nv,
+        0.0
+    );
+    staged.generalizedConstraintResponseColumns.assign(
+        equalityRows * staged.nv,
+        0.0
+    );
+    staged.generalizedConstraintFreeImpulses.assign(
+        equalityRows,
+        0.0
+    );
+    staged.generalizedConstraintContactCoupling.assign(
+        equalityRows * contactRows,
+        0.0
+    );
+    staged.generalizedConstraintTargets.resize(equalityRows);
+    staged.generalizedConstraintRegularization.resize(
+        equalityRows
+    );
+    for (std::size_t row = 0u;
+         row < equalityRows;
+         ++row) {
+        const EvaluatedConstraintIRRow& semantics =
+            evaluation.evaluated.rows[row];
+        if (semantics.impulseLower >
+                -0.5f * kConstraintIRUnbounded ||
+            semantics.impulseUpper <
+                0.5f * kConstraintIRUnbounded ||
+            !finite(semantics.targetVelocity) ||
+            !finite(semantics.regularization) ||
+            semantics.regularization < 0.0f) {
+            return fail(
+                std::move(diagnostics),
+                MultiArticulatedContactStatus::
+                    unsupportedConstraint
+            );
+        }
+        staged.generalizedConstraintTargets[row] =
+            semantics.targetVelocity;
+        staged.generalizedConstraintRegularization[row] =
+            semantics.regularization;
+        std::ranges::copy_n(
+            equalityJacobian.begin() +
+                static_cast<std::ptrdiff_t>(
+                    row * model.world.nv
+                ),
+            model.world.nv,
+            staged.generalizedConstraintJacobian.begin() +
+                static_cast<std::ptrdiff_t>(
+                    row * staged.nv
+                )
+        );
+    }
+
+    std::vector<double> rhs(model.world.nv, 0.0);
+    std::vector<double> response(model.world.nv, 0.0);
+    for (std::size_t row = 0u;
+         row < equalityRows;
+         ++row) {
+        std::ranges::copy_n(
+            equalityJacobian.begin() +
+                static_cast<std::ptrdiff_t>(
+                    row * model.world.nv
+                ),
+            model.world.nv,
+            rhs.begin()
+        );
+        const MultiArticulatedWorldDiagnostics applied =
+            applyMultiArticulationInverseMass(
+                model,
+                staged.factors,
+                rhs,
+                response
+            );
+        if (!applied.succeeded()) {
+            return fail(
+                std::move(diagnostics),
+                MultiArticulatedContactStatus::
+                    factorizationFailure,
+                MR_INVALID_INDEX,
+                applied.firstFailingArticulation
+            );
+        }
+        std::ranges::copy_n(
+            response.begin(),
+            model.world.nv,
+            staged.generalizedConstraintResponseColumns
+                .begin() +
+                static_cast<std::ptrdiff_t>(
+                    row * staged.nv
+                )
+        );
+    }
+
+    std::vector<double> equalityOperator(
+        equalityRows * equalityRows,
+        0.0
+    );
+    double maximumAsymmetry = 0.0;
+    for (std::size_t row = 0u;
+         row < equalityRows;
+         ++row) {
+        for (std::size_t column = 0u;
+             column < equalityRows;
+             ++column) {
+            double value = 0.0;
+            for (std::uint32_t dof = 0u;
+                 dof < model.world.nv;
+                 ++dof) {
+                value +=
+                    equalityJacobian[
+                        row * model.world.nv + dof
+                    ] *
+                    staged
+                        .generalizedConstraintResponseColumns[
+                            column * staged.nv + dof
+                        ];
+            }
+            equalityOperator[
+                row * equalityRows + column
+            ] = value;
+        }
+    }
+    for (std::size_t row = 0u;
+         row < equalityRows;
+         ++row) {
+        for (std::size_t column = row + 1u;
+             column < equalityRows;
+             ++column) {
+            const double left =
+                equalityOperator[
+                    row * equalityRows + column
+                ];
+            const double right =
+                equalityOperator[
+                    column * equalityRows + row
+                ];
+            maximumAsymmetry = std::max(
+                maximumAsymmetry,
+                std::abs(left - right)
+            );
+            const double symmetric = 0.5 * (left + right);
+            equalityOperator[
+                row * equalityRows + column
+            ] = symmetric;
+            equalityOperator[
+                column * equalityRows + row
+            ] = symmetric;
+        }
+        equalityOperator[row * equalityRows + row] +=
+            staged.generalizedConstraintRegularization[row];
+    }
+    diagnostics.maximumDelassusAsymmetry =
+        maximumAsymmetry;
+    std::vector<double> equalityFactor = equalityOperator;
+    if (!factorDenseSPD(equalityFactor, equalityRows)) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::
+                constraintFactorizationFailure
+        );
+    }
+
+    std::vector<double> equalityRight(equalityRows, 0.0);
+    for (std::size_t row = 0u;
+         row < equalityRows;
+         ++row) {
+        equalityRight[row] =
+            staged.generalizedConstraintTargets[row] -
+            relative[row];
+    }
+    if (!solveDenseSPD(
+            equalityFactor,
+            equalityRight,
+            staged.generalizedConstraintFreeImpulses
+        )) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::
+                constraintFactorizationFailure
+        );
+    }
+
+    std::vector<double> cross(equalityRows, 0.0);
+    std::vector<double> coupling(equalityRows, 0.0);
+    for (std::size_t contactRow = 0u;
+         contactRow < contactRows;
+         ++contactRow) {
+        for (std::size_t equalityRow = 0u;
+             equalityRow < equalityRows;
+             ++equalityRow) {
+            double value = 0.0;
+            for (std::uint32_t dof = 0u;
+                 dof < model.world.nv;
+                 ++dof) {
+                value +=
+                    equalityJacobian[
+                        equalityRow * model.world.nv + dof
+                    ] *
+                    staged.responseColumns[
+                        contactRow * staged.nv + dof
+                    ];
+            }
+            cross[equalityRow] = value;
+        }
+        std::ranges::fill(coupling, 0.0);
+        if (!solveDenseSPD(
+                equalityFactor,
+                cross,
+                coupling
+            )) {
+            return fail(
+                std::move(diagnostics),
+                MultiArticulatedContactStatus::
+                    constraintFactorizationFailure
+            );
+        }
+        for (std::size_t equalityRow = 0u;
+             equalityRow < equalityRows;
+             ++equalityRow) {
+            staged.generalizedConstraintContactCoupling[
+                equalityRow * contactRows + contactRow
+            ] = coupling[equalityRow];
+        }
+        for (std::size_t dof = 0u;
+             dof < staged.nv;
+             ++dof) {
+            double correction = 0.0;
+            for (std::size_t equalityRow = 0u;
+                 equalityRow < equalityRows;
+                 ++equalityRow) {
+                correction +=
+                    staged
+                        .generalizedConstraintResponseColumns[
+                            equalityRow * staged.nv + dof
+                        ] * coupling[equalityRow];
+            }
+            staged.responseColumns[
+                contactRow * staged.nv + dof
+            ] -= correction;
+        }
+    }
+    for (std::size_t dof = 0u;
+         dof < staged.nv;
+         ++dof) {
+        double correction = 0.0;
+        for (std::size_t row = 0u;
+             row < equalityRows;
+             ++row) {
+            correction +=
+                staged.generalizedConstraintResponseColumns[
+                    row * staged.nv + dof
+                ] *
+                staged.generalizedConstraintFreeImpulses[row];
+        }
+        staged.freeVelocity[dof] += correction;
+    }
+
+    for (std::size_t row = 0u;
+         row < contactRows;
+         ++row) {
+        double freeValue =
+            staged.prescribedContactVelocity[row];
+        for (std::size_t dof = 0u;
+             dof < staged.nv;
+             ++dof) {
+            freeValue +=
+                staged.contactJacobian[
+                    row * staged.nv + dof
+                ] * staged.freeVelocity[dof];
+        }
+        staged.conic.freeContactVelocity[row] = freeValue;
+        for (std::size_t column = 0u;
+             column < contactRows;
+             ++column) {
+            double value = 0.0;
+            for (std::size_t dof = 0u;
+                 dof < staged.nv;
+                 ++dof) {
+                value +=
+                    staged.contactJacobian[
+                        row * staged.nv + dof
+                    ] *
+                    staged.responseColumns[
+                        column * staged.nv + dof
+                    ];
+            }
+            staged.conic.delassus[
+                row * contactRows + column
+            ] = value;
+        }
+    }
+    if (!finite(staged.freeVelocity) ||
+        !finite(staged.responseColumns) ||
+        !finite(staged.conic.freeContactVelocity) ||
+        !finite(staged.conic.delassus)) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::nonfiniteResult
+        );
+    }
+    diagnostics.minimumDelassusDiagonal =
+        std::numeric_limits<double>::infinity();
+    diagnostics.maximumDelassusAsymmetry = 0.0;
+    for (std::size_t row = 0u;
+         row < contactRows;
+         ++row) {
+        diagnostics.minimumDelassusDiagonal = std::min(
+            diagnostics.minimumDelassusDiagonal,
+            staged.conic.delassus[
+                row * contactRows + row
+            ]
+        );
+        for (std::size_t column = row + 1u;
+             column < contactRows;
+             ++column) {
+            diagnostics.maximumDelassusAsymmetry = std::max(
+                diagnostics.maximumDelassusAsymmetry,
+                std::abs(
+                    staged.conic.delassus[
+                        row * contactRows + column
+                    ] -
+                    staged.conic.delassus[
+                        column * contactRows + row
+                    ]
+                )
+            );
+        }
+    }
+    problem = std::move(staged);
+    return diagnostics;
+}
+
+MultiArticulatedContactDiagnostics
 solveMultiArticulatedContactProblem(
     const MultiArticulatedContactProblem& problem,
     MultiArticulatedContactSolution& output,
@@ -1561,6 +2169,62 @@ solveMultiArticulatedContactProblem(
             std::move(diagnostics),
             MultiArticulatedContactStatus::nonfiniteResult
         );
+    }
+    const std::size_t equalityRows =
+        problem.generalizedConstraintRowCount;
+    if (equalityRows != 0u) {
+        staged.generalizedConstraintImpulses =
+            problem.generalizedConstraintFreeImpulses;
+        for (std::size_t row = 0u;
+             row < equalityRows;
+             ++row) {
+            for (std::size_t contactRow = 0u;
+                 contactRow < rowCount;
+                 ++contactRow) {
+                staged.generalizedConstraintImpulses[row] -=
+                    problem
+                        .generalizedConstraintContactCoupling[
+                            row * rowCount + contactRow
+                        ] * staged.impulses[contactRow];
+            }
+            double residual =
+                -problem.generalizedConstraintTargets[row] +
+                problem.generalizedConstraintRegularization[
+                    row
+                ] *
+                    staged
+                        .generalizedConstraintImpulses[row];
+            for (std::size_t dof = 0u;
+                 dof < problem.nv;
+                 ++dof) {
+                residual +=
+                    problem.generalizedConstraintJacobian[
+                        row * problem.nv + dof
+                    ] *
+                    staged.generalizedVelocity[dof];
+            }
+            diagnostics.maximumGeneralizedConstraintResidual =
+                std::max(
+                    diagnostics
+                        .maximumGeneralizedConstraintResidual,
+                    std::abs(residual)
+                );
+        }
+        if (!finite(
+                std::span<const double>(
+                    staged.generalizedConstraintImpulses
+                )
+            ) ||
+            !finite(
+                diagnostics
+                    .maximumGeneralizedConstraintResidual
+            )) {
+            return fail(
+                std::move(diagnostics),
+                MultiArticulatedContactStatus::
+                    nonfiniteResult
+            );
+        }
     }
     if (problem.articulatedNv > problem.nv ||
         problem.sceneBodyVelocityOffsets.size() >
@@ -1683,6 +2347,14 @@ const char* multiArticulatedContactStatusName(
         return "kinematics_failure";
     case MultiArticulatedContactStatus::factorizationFailure:
         return "factorization_failure";
+    case MultiArticulatedContactStatus::unsupportedConstraint:
+        return "unsupported_constraint";
+    case MultiArticulatedContactStatus::
+        constraintEvaluationFailure:
+        return "constraint_evaluation_failure";
+    case MultiArticulatedContactStatus::
+        constraintFactorizationFailure:
+        return "constraint_factorization_failure";
     case MultiArticulatedContactStatus::solverFailure:
         return "solver_failure";
     case MultiArticulatedContactStatus::nonfiniteResult:

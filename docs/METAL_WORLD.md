@@ -193,6 +193,14 @@ also appends one 6D maximal-coordinate block per dynamic scene body, applies
 world-frame inverse mass/inertia directly, and treats static/kinematic point
 velocity as prescribed. The dual-PSM/needle `HeterogeneousWorld` now enters
 one exact-cone island through that path.
+Model-owned unbounded generalized equality and gear rows are also reduced
+exactly in the FP64 oracle: articulation-local inverse ABA constructs
+`G M^-1 G'` and `G M^-1 J'`, a deterministic dense Cholesky factors only the
+small equality Schur complement, and the projected contact operator solves in
+the equality null space. Final equality impulses are reconstructed after the
+cone solve and expose their achieved residual. The dual PSM probe therefore
+keeps all twelve floating-base locks and both jaw gears active during the
+needle contact solve.
 
 The standalone Metal frontend now assembles those identical global rows on
 device. In one command buffer it emits articulation-local point Jacobians,
@@ -216,6 +224,13 @@ prevents a stiff operator's small projected-gradient step from making a zero
 impulse look converged. A cold, ill-conditioned solve that cannot meet the
 FP32 certificate fails transactionally; persistent manifold warm starts
 converge and expose the achieved KKT value.
+
+The current device comparison deliberately targets the unprojected contact
+operator while the constrained FP64 result is the oracle for the next graph
+step. Moving the small equality Schur factor and null-space projection into
+the same Metal command graph is the remaining device-side coupling boundary;
+the documentation does not treat the adjacent generalized-constraint
+primitive as equivalent.
 
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training
