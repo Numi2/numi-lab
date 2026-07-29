@@ -308,6 +308,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> rodSweptProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> rodCCDPipeline = nil;
     __strong id<MTLComputePipelineState> rodCCDWitnessTagPipeline = nil;
+    __strong id<MTLComputePipelineState> rodContactLatchPipeline = nil;
     __strong id<MTLComputePipelineState> pairFlagPipeline = nil;
     __strong id<MTLComputePipelineState> scanBlocksPipeline = nil;
     __strong id<MTLComputePipelineState> scanAddPipeline = nil;
@@ -3820,6 +3821,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> rodFactor = nil;
     __strong id<MTLComputePipelineState> rodUnpack = nil;
     __strong id<MTLComputePipelineState> rodLatch = nil;
+    __strong id<MTLComputePipelineState> rodContactLatch = nil;
     __strong id<MTLComputePipelineState> rodToolNarrowphase = nil;
     __strong id<MTLComputePipelineState> rodContactScan = nil;
     __strong id<MTLComputePipelineState> rodContactScatter = nil;
@@ -4037,6 +4039,9 @@ MetalWorldDiagnostics initializeContext(
     rodLatch = createContactPipeline(
         @"mr_world_latch_rod_status"
     );
+    rodContactLatch = createContactPipeline(
+        @"mr_world_latch_rod_contact_status"
+    );
     rodToolNarrowphase = createContactPipeline(
         @"mr_rod_tool_narrowphase"
     );
@@ -4134,6 +4139,7 @@ MetalWorldDiagnostics initializeContext(
         rodStep == nil ||
         rodUnpack == nil ||
         rodLatch == nil ||
+        rodContactLatch == nil ||
         rodToolNarrowphase == nil ||
         rodContactScan == nil ||
         rodContactScatter == nil ||
@@ -4265,6 +4271,7 @@ MetalWorldDiagnostics initializeContext(
         rodFactor.maxTotalThreadsPerThreadgroup == 0u ||
         rodUnpack.maxTotalThreadsPerThreadgroup == 0u ||
         rodLatch.maxTotalThreadsPerThreadgroup == 0u ||
+        rodContactLatch.maxTotalThreadsPerThreadgroup == 0u ||
         rodToolNarrowphase.maxTotalThreadsPerThreadgroup == 0u ||
         rodContactScan.maxTotalThreadsPerThreadgroup <
             MR_WAVE32_CONTACTS_PER_TILE ||
@@ -4421,6 +4428,7 @@ MetalWorldDiagnostics initializeContext(
     context.rodFactorPipeline = rodFactor;
     context.rodUnpackPipeline = rodUnpack;
     context.rodLatchPipeline = rodLatch;
+    context.rodContactLatchPipeline = rodContactLatch;
     context.rodToolNarrowphasePipeline = rodToolNarrowphase;
     context.rodContactScanPipeline = rodContactScan;
     context.rodContactScatterPipeline = rodContactScatter;
@@ -4435,7 +4443,7 @@ MetalWorldDiagnostics initializeContext(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 75u;
+    context.stats.pipelineCreationCount += 76u;
     return diagnostics;
 }
 
@@ -7233,6 +7241,20 @@ bool encodeRodSubstep(
             },
             &pass,
             2u,
+            environmentCount
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.rodContactLatchPipeline,
+            @"MetalWorld rod/contact transaction latch",
+            {
+                {0u, kContactDispatch},
+                {2u, kRodStatuses},
+                {3u, kContactStatuses},
+            },
+            &pass,
+            1u,
             environmentCount
         )) {
         return false;

@@ -1195,6 +1195,7 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_discrete_elastic_rod_step",
         "mr_world_unpack_rod_state",
         "mr_world_latch_rod_status",
+        "mr_world_latch_rod_contact_status",
         "mr_world_factor_rod_operator",
         "mr_world_project_swept_rod_colliders",
         "mr_world_resolve_rod_ccd",
@@ -5381,6 +5382,19 @@ void WorldStepPrimitive::eval_gpu(
             environments,
             resources.kernel("mr_world_latch_rod_status")
         );
+        setPhysicsKernel(
+            "mr_world_latch_rod_contact_status"
+        );
+        encoder.set_bytes(contactDispatch, 0);
+        encoder.set_bytes(rodPass, 1);
+        inputArray(rodStatuses, 2);
+        outputArray(outputs[16], 3);
+        dispatchThreads(
+            environments,
+            resources.kernel(
+                "mr_world_latch_rod_contact_status"
+            )
+        );
 
         setPhysicsKernel("mr_world_factor_rod_operator");
         for (std::size_t rod = 0u;
@@ -5705,6 +5719,19 @@ void WorldStepPrimitive::eval_gpu(
             dispatchThreads(
                 environments,
                 resources.kernel("mr_world_latch_rod_status")
+            );
+            setPhysicsKernel(
+                "mr_world_latch_rod_contact_status"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            encoder.set_bytes(pass, 1);
+            inputArray(rodStatuses, 2);
+            outputArray(outputs[16], 3);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_latch_rod_contact_status"
+                )
             );
 
             setPhysicsKernel("mr_world_factor_rod_operator");

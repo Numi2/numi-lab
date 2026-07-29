@@ -792,6 +792,56 @@ kernel void mr_world_latch_rod_status(
     }
 }
 
+// Rod mechanics participates in the same per-environment transaction as
+// collision and constraints. Mirror a DER failure into the contact status so
+// an event segment cannot become the accepted CCD source merely because the
+// rigid side remained healthy.
+kernel void mr_world_latch_rod_contact_status(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(1)]],
+    device const MRRodGPUStatus* rodStatuses [[buffer(2)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(3)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    MRMetalWorldContactStatusGPU status = statuses[environment];
+    if (status.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    for (uint rod = 0u; rod < dispatch.rodCount; ++rod) {
+        const MRRodGPUStatus rodStatus =
+            rodStatuses[
+                rod * dispatch.environmentCount + environment
+            ];
+        if (rodStatus.environment == environment &&
+            rodStatus.code == MR_ROD_GPU_SUCCESS) {
+            continue;
+        }
+        status.code =
+            rodStatus.environment == environment
+            ? mapRodStatus(rodStatus.code)
+            : uint(MR_STEP_UNSUPPORTED);
+        status.controlStep = pass.controlStep;
+        status.physicsSubstep = pass.physicsSubstep;
+        status.firstFailingConstraint =
+            rodStatus.environment == environment
+            ? rodStatus.failingIndex
+            : MR_INVALID_INDEX;
+        status.firstFailingStableKeyLow =
+            status.firstFailingConstraint;
+        status.firstFailingStableKeyHigh =
+            0x524f4400u | (rod & 0xffu);
+        status.firstFailingEventKeyLow =
+            status.firstFailingStableKeyLow;
+        status.firstFailingEventKeyHigh =
+            status.firstFailingStableKeyHigh;
+        statuses[environment] = status;
+        return;
+    }
+}
+
 kernel void mr_world_commit_rod_state(
     device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(0)]],
     device const MRMetalWorldContactDispatchGPU& contactDispatch
