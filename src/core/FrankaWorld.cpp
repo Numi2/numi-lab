@@ -223,6 +223,9 @@ EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
     SensorSpec wristCamera = fixedCamera;
     wristCamera.id = "wrist_rgbd";
     wristCamera.parentAssetId = "franka";
+    wristCamera.parentKind =
+        MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
+    wristCamera.parentBodyIndex = 10u;
     wristCamera.localPose.position = {0.0f, 0.0f, 0.08f, 0.0f};
     episode.sensors = {
         std::move(fixedCamera),

@@ -88,6 +88,11 @@ struct WorldAsset {
 struct SensorSpec {
     std::string id;
     std::string parentAssetId;
+    MRWorldSensorParentKind parentKind =
+        MR_WORLD_SENSOR_PARENT_ASSET;
+    // Global EngineModel body index for rigid-body or articulated-link
+    // parents. Asset/world parents require MR_INVALID_INDEX.
+    std::uint32_t parentBodyIndex = MR_INVALID_INDEX;
     MRWorldSensorKind kind = MR_WORLD_SENSOR_STATE;
     WorldPose localPose;
     std::uint32_t width = 0u;

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "metalrobo/gpu_types.h"
+#include "metalrobo/visual_platform_types.h"
 
-#define MR_HYBRID_RENDERER_ABI_VERSION 1u
+#define MR_HYBRID_RENDERER_ABI_VERSION 2u
 #define MR_HYBRID_TILE_SIZE 16u
 #define MR_HYBRID_MAX_GAUSSIANS_PER_TILE 256u
 
@@ -34,6 +35,10 @@ typedef struct MR_ALIGN16 MRHybridProjectedGaussianGPU {
     mr_float4 colorAndOpacity;
     // semantic label, source Gaussian, flags, reserved.
     mr_uint4 identity;
+    // xyz camera-space normal, w geometric validity.
+    mr_float4 normalAndValidity;
+    // xy previous-to-current pixel motion, z visibility, w reserved.
+    mr_float4 motionAndVisibility;
 } MRHybridProjectedGaussianGPU;
 
 typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
@@ -43,6 +48,10 @@ typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
     mr_uint4 image;
     // selected camera, max Gaussians/tile, tile size, ABI version.
     mr_uint4 render;
+    // body count, live-state flags, sensor-binding count, triangle count.
+    mr_uint4 live;
+    // frame low/high, sensor sequence, source.
+    mr_uint4 timing;
     // clear RGB and clear depth.
     mr_float4 clearColorAndDepth;
 } MRHybridRenderUniformsGPU;
@@ -55,6 +64,6 @@ static_assert(std::is_trivially_copyable_v<MRHybridGaussianGPU>);
 static_assert(std::is_trivially_copyable_v<MRHybridProjectedGaussianGPU>);
 static_assert(std::is_trivially_copyable_v<MRHybridRenderUniformsGPU>);
 static_assert(sizeof(MRHybridGaussianGPU) == 80u);
-static_assert(sizeof(MRHybridProjectedGaussianGPU) == 64u);
-static_assert(sizeof(MRHybridRenderUniformsGPU) == 64u);
+static_assert(sizeof(MRHybridProjectedGaussianGPU) == 96u);
+static_assert(sizeof(MRHybridRenderUniformsGPU) == 96u);
 #endif

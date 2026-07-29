@@ -170,6 +170,8 @@ void appendAsset(HashBuilder& hash, const WorldAsset& asset) {
 void appendSensor(HashBuilder& hash, const SensorSpec& sensor) {
     hash.appendString(sensor.id);
     hash.appendString(sensor.parentAssetId);
+    hash.appendScalar(sensor.parentKind);
+    hash.appendScalar(sensor.parentBodyIndex);
     hash.appendScalar(sensor.kind);
     appendPose(hash, sensor.localPose);
     hash.appendScalar(sensor.width);
@@ -718,6 +720,7 @@ bool validAsset(const WorldAsset& asset, std::string* reason) {
 
 bool validSensor(const SensorSpec& sensor, std::string* reason) {
     if (sensor.id.empty() || sensor.parentAssetId.empty() ||
+        sensor.parentKind > MR_WORLD_SENSOR_PARENT_WORLD ||
         sensor.kind > MR_WORLD_SENSOR_FORCE_TORQUE ||
         !finite(sensor.localPose.position) ||
         !unitQuaternion(sensor.localPose.orientation) ||
@@ -732,6 +735,17 @@ bool validSensor(const SensorSpec& sensor, std::string* reason) {
         !finite(sensor.latencySeconds) ||
         !(sensor.latencySeconds >= 0.0f)) {
         return fail(reason, "sensor has invalid authored parameters");
+    }
+    const bool bodyParent =
+        sensor.parentKind == MR_WORLD_SENSOR_PARENT_RIGID_BODY ||
+        sensor.parentKind ==
+            MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
+    if (bodyParent !=
+        (sensor.parentBodyIndex != MR_INVALID_INDEX)) {
+        return fail(
+            reason,
+            "sensor body/link parent identity is incomplete"
+        );
     }
     if (imageSensor(sensor.kind) &&
         (sensor.width == 0u || sensor.height == 0u ||
@@ -1000,6 +1014,34 @@ bool WorldTemplate::valid(std::string* reason) const {
         }
         if (assetIndex(sensor.parentAssetId) == MR_INVALID_INDEX) {
             return fail(reason, "sensor parent asset does not exist");
+        }
+        if (sensor.parentBodyIndex != MR_INVALID_INDEX &&
+            sensor.parentBodyIndex >= engineModel.bodies.size()) {
+            return fail(reason, "sensor parent body is outside the model");
+        }
+        if (sensor.parentBodyIndex != MR_INVALID_INDEX) {
+            const WorldAsset& parent =
+                assets[assetIndex(sensor.parentAssetId)];
+            if (std::ranges::find(
+                    parent.bodyIndices,
+                    sensor.parentBodyIndex
+                ) == parent.bodyIndices.end()) {
+                return fail(
+                    reason,
+                    "sensor parent body is not owned by its parent asset"
+                );
+            }
+            const bool articulated =
+                engineModel.bodies[sensor.parentBodyIndex].
+                    articulationIndex != MR_INVALID_INDEX;
+            if ((sensor.parentKind ==
+                     MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK) !=
+                articulated) {
+                return fail(
+                    reason,
+                    "sensor parent kind disagrees with body topology"
+                );
+            }
         }
     }
     std::unordered_set<std::string> appearanceIds;

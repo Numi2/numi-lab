@@ -327,6 +327,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/world_compiler_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/r2s2r_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hybrid_renderer_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/visual_platform_types.h"
     VERBATIM
 )
 
@@ -350,6 +351,7 @@ add_library(
     src/core/WorldPack.cpp
     src/core/EpisodeTwinCompiler.cpp
     src/core/R2S2R.cpp
+    src/core/VisualPlatform.cpp
     src/core/RobotDescriptionCooker.cpp
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
