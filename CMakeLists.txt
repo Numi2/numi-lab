@@ -761,6 +761,11 @@ target_link_libraries(
     PRIVATE
         metalrobo
 )
+target_compile_definitions(
+    metalrobo_robot_description_cooker_probe
+    PRIVATE
+        METALROBO_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+)
 set_target_properties(
     metalrobo_robot_description_cooker_probe
     PROPERTIES

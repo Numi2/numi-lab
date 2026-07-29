@@ -1,11 +1,15 @@
 #include "metalrobo/RobotDescriptionCooker.hpp"
 #include "metalrobo/ConstraintIR.hpp"
+#include "metalrobo/GeometryCooker.hpp"
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
 #include <algorithm>
 #include <array>
+#include <bit>
+#include <charconv>
+#include <cctype>
 #include <cerrno>
 #include <cmath>
 #include <cstddef>
@@ -57,12 +61,22 @@ enum class ParsedShapeKind {
     box,
     cylinder,
     capsule,
+    convexMesh,
 };
 
 struct ParsedShape {
     ParsedShapeKind kind = ParsedShapeKind::sphere;
     Transform origin{};
     Vec3 dimensions{};
+    std::uint32_t meshAsset = MR_INVALID_INDEX;
+};
+
+struct ParsedMeshAsset {
+    std::filesystem::path resolvedPath;
+    std::string sourceBytes;
+    std::vector<mr_float4> vertices;
+    std::vector<std::uint32_t> indices;
+    std::uint32_t geometryIndex = MR_INVALID_INDEX;
 };
 
 struct ParsedLink {
@@ -516,6 +530,449 @@ std::optional<std::string> readFile(
     return output.str();
 }
 
+void appendFingerprint(
+    std::uint64_t& hash,
+    const std::string_view bytes
+) {
+    for (const unsigned char byte : bytes) {
+        hash ^= byte;
+        hash *= kFnvPrime;
+    }
+}
+
+void appendFingerprintSize(
+    std::uint64_t& hash,
+    const std::uint64_t value
+) {
+    for (std::uint32_t byte = 0u; byte < 8u; ++byte) {
+        hash ^= static_cast<unsigned char>(
+            value >> (8u * byte)
+        );
+        hash *= kFnvPrime;
+    }
+}
+
+bool hasUriScheme(const std::string_view value) {
+    return value.find("://") != std::string_view::npos;
+}
+
+std::filesystem::path effectiveMeshRoot(
+    const RobotDescriptionCookOptions& options,
+    const std::string& sourceName
+) {
+    if (!options.meshAssetRoot.empty()) {
+        return options.meshAssetRoot;
+    }
+    if (sourceName.empty() || hasUriScheme(sourceName)) {
+        return {};
+    }
+    return std::filesystem::path(sourceName).parent_path();
+}
+
+bool regularFile(
+    const std::filesystem::path& candidate,
+    std::filesystem::path& resolved
+) {
+    std::error_code error;
+    if (!std::filesystem::is_regular_file(candidate, error) ||
+        error) {
+        return false;
+    }
+    resolved = std::filesystem::weakly_canonical(
+        candidate,
+        error
+    );
+    return !error;
+}
+
+bool resolveMeshUri(
+    const std::string_view uri,
+    const RobotDescriptionCookOptions& options,
+    const std::string& sourceName,
+    std::filesystem::path& resolved,
+    std::string& message
+) {
+    constexpr std::string_view packagePrefix =
+        "package://";
+    constexpr std::string_view filePrefix = "file://";
+    if (uri.starts_with(packagePrefix)) {
+        const std::string_view payload =
+            uri.substr(packagePrefix.size());
+        const std::size_t separator = payload.find('/');
+        if (separator == std::string_view::npos ||
+            separator == 0u ||
+            separator + 1u >= payload.size()) {
+            message = "package mesh URI must contain package and path";
+            return false;
+        }
+        const std::filesystem::path package{
+            payload.substr(0u, separator)
+        };
+        const std::filesystem::path relative{
+            payload.substr(separator + 1u)
+        };
+        if (relative.is_absolute()) {
+            message = "package mesh path must be relative";
+            return false;
+        }
+        std::vector<std::filesystem::path> roots =
+            options.packageSearchRoots;
+        const std::filesystem::path assetRoot =
+            effectiveMeshRoot(options, sourceName);
+        if (!assetRoot.empty()) {
+            roots.push_back(assetRoot);
+        }
+        for (const std::filesystem::path& root : roots) {
+            if (regularFile(
+                    root / package / relative,
+                    resolved
+                )) {
+                return true;
+            }
+            if (root.filename() == package &&
+                regularFile(root / relative, resolved)) {
+                return true;
+            }
+        }
+        message = "package mesh URI was not found in configured roots";
+        return false;
+    }
+    if (uri.starts_with(filePrefix)) {
+        const std::filesystem::path absolute{
+            uri.substr(filePrefix.size())
+        };
+        if (!absolute.is_absolute()) {
+            message = "file mesh URI must be absolute";
+            return false;
+        }
+        if (regularFile(absolute, resolved)) {
+            return true;
+        }
+        message = "file mesh URI does not name a regular file";
+        return false;
+    }
+    if (hasUriScheme(uri)) {
+        message = "mesh URI scheme is unsupported";
+        return false;
+    }
+    const std::filesystem::path authored{uri};
+    if (authored.is_absolute()) {
+        if (regularFile(authored, resolved)) {
+            return true;
+        }
+        message = "absolute mesh path does not name a regular file";
+        return false;
+    }
+    const std::filesystem::path root =
+        effectiveMeshRoot(options, sourceName);
+    if (root.empty()) {
+        message =
+            "relative mesh URI requires meshAssetRoot or a file source name";
+        return false;
+    }
+    if (regularFile(root / authored, resolved)) {
+        return true;
+    }
+    message = "relative mesh URI was not found under the asset root";
+    return false;
+}
+
+bool parseObjIndex(
+    const std::string_view token,
+    const std::size_t vertexCount,
+    std::uint32_t& index
+) {
+    const std::size_t separator = token.find('/');
+    const std::string_view vertex =
+        token.substr(0u, separator);
+    int parsed = 0;
+    const auto [end, error] = std::from_chars(
+        vertex.data(),
+        vertex.data() + vertex.size(),
+        parsed
+    );
+    if (error != std::errc{} ||
+        end != vertex.data() + vertex.size() ||
+        parsed == 0) {
+        return false;
+    }
+    const std::int64_t resolved = parsed > 0
+        ? static_cast<std::int64_t>(parsed - 1)
+        : static_cast<std::int64_t>(vertexCount) + parsed;
+    if (resolved < 0 ||
+        resolved >= static_cast<std::int64_t>(vertexCount)) {
+        return false;
+    }
+    index = static_cast<std::uint32_t>(resolved);
+    return true;
+}
+
+bool parseObj(
+    const std::string& source,
+    ParsedMeshAsset& mesh,
+    std::string& message
+) {
+    std::istringstream lines(source);
+    std::string line;
+    std::size_t lineNumber = 0u;
+    while (std::getline(lines, line)) {
+        ++lineNumber;
+        if (const std::size_t comment = line.find('#');
+            comment != std::string::npos) {
+            line.resize(comment);
+        }
+        std::istringstream tokens(line);
+        std::string kind;
+        if (!(tokens >> kind)) {
+            continue;
+        }
+        if (kind == "v") {
+            std::string x;
+            std::string y;
+            std::string z;
+            Vec3 vertex;
+            if (!(tokens >> x >> y >> z) ||
+                !parseDouble(x, vertex.x) ||
+                !parseDouble(y, vertex.y) ||
+                !parseDouble(z, vertex.z) ||
+                mesh.vertices.size() >=
+                    std::numeric_limits<std::uint32_t>::max()) {
+                message = "invalid OBJ vertex at line " +
+                    std::to_string(lineNumber);
+                return false;
+            }
+            mesh.vertices.push_back(f4(
+                vertex.x,
+                vertex.y,
+                vertex.z,
+                1.0
+            ));
+        } else if (kind == "f") {
+            std::vector<std::uint32_t> polygon;
+            std::string token;
+            while (tokens >> token) {
+                std::uint32_t index = 0u;
+                if (!parseObjIndex(
+                        token,
+                        mesh.vertices.size(),
+                        index
+                    )) {
+                    message = "invalid OBJ face at line " +
+                        std::to_string(lineNumber);
+                    return false;
+                }
+                polygon.push_back(index);
+            }
+            if (polygon.size() < 3u) {
+                message = "OBJ face has fewer than three vertices at line " +
+                    std::to_string(lineNumber);
+                return false;
+            }
+            const std::uint64_t addedIndices =
+                3ull * (polygon.size() - 2u);
+            if (mesh.indices.size() >
+                    std::numeric_limits<std::uint32_t>::max() ||
+                addedIndices >
+                    std::numeric_limits<std::uint32_t>::max() -
+                        mesh.indices.size()) {
+                message = "OBJ triangle count exceeds the cooked ABI";
+                return false;
+            }
+            for (std::size_t corner = 1u;
+                 corner + 1u < polygon.size();
+                 ++corner) {
+                mesh.indices.push_back(polygon[0]);
+                mesh.indices.push_back(polygon[corner]);
+                mesh.indices.push_back(polygon[corner + 1u]);
+            }
+        }
+    }
+    if (mesh.vertices.size() < 4u ||
+        mesh.indices.size() < 12u) {
+        message = "OBJ has no closed convex surface";
+        return false;
+    }
+    return true;
+}
+
+std::uint32_t littleU32(
+    const unsigned char* bytes
+) {
+    return static_cast<std::uint32_t>(bytes[0]) |
+        (static_cast<std::uint32_t>(bytes[1]) << 8u) |
+        (static_cast<std::uint32_t>(bytes[2]) << 16u) |
+        (static_cast<std::uint32_t>(bytes[3]) << 24u);
+}
+
+float littleFloat(const unsigned char* bytes) {
+    return std::bit_cast<float>(littleU32(bytes));
+}
+
+bool parseBinaryStl(
+    const std::string& source,
+    const std::uint32_t triangleCount,
+    ParsedMeshAsset& mesh,
+    std::string& message
+) {
+    if (triangleCount >
+        std::numeric_limits<std::uint32_t>::max() / 3u) {
+        message = "binary STL triangle count exceeds the cooked ABI";
+        return false;
+    }
+    mesh.vertices.reserve(
+        static_cast<std::size_t>(triangleCount) * 3u
+    );
+    mesh.indices.reserve(
+        static_cast<std::size_t>(triangleCount) * 3u
+    );
+    const auto* bytes = reinterpret_cast<
+        const unsigned char*
+    >(source.data());
+    for (std::uint32_t triangle = 0u;
+         triangle < triangleCount;
+         ++triangle) {
+        const std::size_t vertexBase =
+            84u + 50u * triangle + 12u;
+        for (std::uint32_t corner = 0u;
+             corner < 3u;
+             ++corner) {
+            const std::size_t offset =
+                vertexBase + 12u * corner;
+            const Vec3 vertex{
+                littleFloat(bytes + offset),
+                littleFloat(bytes + offset + 4u),
+                littleFloat(bytes + offset + 8u),
+            };
+            if (!finite(vertex)) {
+                message = "binary STL contains a non-finite vertex";
+                return false;
+            }
+            mesh.indices.push_back(
+                static_cast<std::uint32_t>(
+                    mesh.vertices.size()
+                )
+            );
+            mesh.vertices.push_back(f4(
+                vertex.x,
+                vertex.y,
+                vertex.z,
+                1.0
+            ));
+        }
+    }
+    if (triangleCount < 4u) {
+        message = "binary STL has no closed convex surface";
+        return false;
+    }
+    return true;
+}
+
+bool parseAsciiStl(
+    const std::string& source,
+    ParsedMeshAsset& mesh,
+    std::string& message
+) {
+    std::istringstream tokens(source);
+    std::string token;
+    while (tokens >> token) {
+        if (token != "vertex") {
+            continue;
+        }
+        std::string x;
+        std::string y;
+        std::string z;
+        Vec3 vertex;
+        if (!(tokens >> x >> y >> z) ||
+            !parseDouble(x, vertex.x) ||
+            !parseDouble(y, vertex.y) ||
+            !parseDouble(z, vertex.z) ||
+            mesh.vertices.size() >=
+                std::numeric_limits<std::uint32_t>::max()) {
+            message = "ASCII STL contains an invalid vertex";
+            return false;
+        }
+        mesh.indices.push_back(
+            static_cast<std::uint32_t>(mesh.vertices.size())
+        );
+        mesh.vertices.push_back(f4(
+            vertex.x,
+            vertex.y,
+            vertex.z,
+            1.0
+        ));
+    }
+    if (mesh.vertices.size() < 12u ||
+        mesh.vertices.size() % 3u != 0u) {
+        message = "ASCII STL has no complete closed surface";
+        return false;
+    }
+    return true;
+}
+
+bool parseStl(
+    const std::string& source,
+    ParsedMeshAsset& mesh,
+    std::string& message
+) {
+    if (source.size() >= 84u) {
+        const auto* bytes = reinterpret_cast<
+            const unsigned char*
+        >(source.data());
+        const std::uint32_t count =
+            littleU32(bytes + 80u);
+        const std::uint64_t expected =
+            84ull + 50ull * count;
+        if (expected == source.size()) {
+            return parseBinaryStl(
+                source,
+                count,
+                mesh,
+                message
+            );
+        }
+    }
+    return parseAsciiStl(source, mesh, message);
+}
+
+bool loadResolvedMeshAsset(
+    const std::filesystem::path& resolvedPath,
+    ParsedMeshAsset& mesh,
+    std::string& message
+) {
+    mesh.resolvedPath = resolvedPath;
+    const std::optional<std::string> loaded =
+        readFile(mesh.resolvedPath);
+    constexpr std::size_t maximumMeshBytes =
+        256u * 1024u * 1024u;
+    if (!loaded.has_value()) {
+        message = "failed to read resolved mesh";
+        return false;
+    }
+    if (loaded->size() > maximumMeshBytes) {
+        message = "mesh exceeds the 256 MiB cooker limit";
+        return false;
+    }
+    mesh.sourceBytes = *loaded;
+    std::string extension =
+        mesh.resolvedPath.extension().string();
+    std::ranges::transform(
+        extension,
+        extension.begin(),
+        [](const unsigned char value) {
+            return static_cast<char>(std::tolower(value));
+        }
+    );
+    if (extension == ".obj") {
+        return parseObj(mesh.sourceBytes, mesh, message);
+    }
+    if (extension == ".stl") {
+        return parseStl(mesh.sourceBytes, mesh, message);
+    }
+    message =
+        "only OBJ and STL articulated collision meshes are supported";
+    return false;
+}
+
 } // namespace
 
 RobotDescriptionDiagnostics cookRobotDescription(
@@ -590,6 +1047,8 @@ RobotDescriptionDiagnostics cookRobotDescription(
             );
         }
 
+        std::vector<ParsedMeshAsset> meshAssets;
+        std::map<std::string, std::uint32_t> meshByPath;
         std::map<std::string, ParsedLink> links;
         for (xmlNode* linkNode : children(robot, "link")) {
             const auto name = property(linkNode, "name");
@@ -803,18 +1262,110 @@ RobotDescriptionDiagnostics cookRobotDescription(
                     shape.dimensions.y *= 0.5;
                     shape.kind =
                         ParsedShapeKind::capsule;
-                } else if (firstChild(
-                               geometry,
-                               "mesh"
-                           ) != nullptr) {
-                    return fail(
-                        std::move(diagnostics),
-                        RobotDescriptionStatus::
-                            unsupportedGeometry,
-                        "mesh URI resolution must use the "
-                        "versioned geometry cooker",
-                        link.name
+                } else if (xmlNode* mesh =
+                               firstChild(geometry, "mesh");
+                           mesh != nullptr) {
+                    const auto filename =
+                        property(mesh, "filename");
+                    const auto scale =
+                        property(mesh, "scale");
+                    shape.dimensions = {1.0, 1.0, 1.0};
+                    if (!filename.has_value() ||
+                        filename->empty() ||
+                        (scale.has_value() &&
+                         !parseVec3(
+                             *scale,
+                             shape.dimensions
+                         )) ||
+                        !(shape.dimensions.x > 0.0) ||
+                        !(shape.dimensions.y > 0.0) ||
+                        !(shape.dimensions.z > 0.0)) {
+                        return fail(
+                            std::move(diagnostics),
+                            RobotDescriptionStatus::
+                                invalidRobot,
+                            "mesh filename or scale is invalid",
+                            link.name
+                        );
+                    }
+                    std::filesystem::path resolvedMesh;
+                    std::string meshMessage;
+                    if (!resolveMeshUri(
+                            *filename,
+                            options,
+                            diagnostics.sourceName,
+                            resolvedMesh,
+                            meshMessage
+                        )) {
+                        return fail(
+                            std::move(diagnostics),
+                            RobotDescriptionStatus::
+                                unsupportedGeometry,
+                            std::move(meshMessage),
+                            link.name
+                        );
+                    }
+                    const std::string key =
+                        resolvedMesh.generic_string();
+                    const auto existing = meshByPath.find(key);
+                    if (existing == meshByPath.end()) {
+                        if (meshAssets.size() >=
+                            std::numeric_limits<
+                                std::uint32_t
+                            >::max()) {
+                            return fail(
+                                std::move(diagnostics),
+                                RobotDescriptionStatus::
+                                    capacityOverflow,
+                                "mesh asset count exceeds the cooked ABI",
+                                link.name
+                            );
+                        }
+                        ParsedMeshAsset loaded;
+                        if (!loadResolvedMeshAsset(
+                                resolvedMesh,
+                                loaded,
+                                meshMessage
+                            )) {
+                            return fail(
+                                std::move(diagnostics),
+                                RobotDescriptionStatus::
+                                    unsupportedGeometry,
+                                std::move(meshMessage),
+                                link.name
+                            );
+                        }
+                        shape.meshAsset =
+                            static_cast<std::uint32_t>(
+                                meshAssets.size()
+                            );
+                        meshByPath.emplace(
+                            key,
+                            shape.meshAsset
+                        );
+                        meshAssets.push_back(std::move(loaded));
+                    } else {
+                        shape.meshAsset = existing->second;
+                    }
+                    appendFingerprintSize(
+                        diagnostics.sourceFingerprint,
+                        filename->size()
                     );
+                    appendFingerprint(
+                        diagnostics.sourceFingerprint,
+                        *filename
+                    );
+                    appendFingerprintSize(
+                        diagnostics.sourceFingerprint,
+                        meshAssets[shape.meshAsset]
+                            .sourceBytes.size()
+                    );
+                    appendFingerprint(
+                        diagnostics.sourceFingerprint,
+                        meshAssets[shape.meshAsset].sourceBytes
+                    );
+                    shape.kind =
+                        ParsedShapeKind::convexMesh;
                 } else {
                     return fail(
                         std::move(diagnostics),
@@ -1772,6 +2323,77 @@ RobotDescriptionDiagnostics cookRobotDescription(
                         sourceShape.dimensions.x +
                         sourceShape.dimensions.y;
                     break;
+                case ParsedShapeKind::convexMesh: {
+                    if (sourceShape.meshAsset >=
+                        meshAssets.size()) {
+                        return fail(
+                            std::move(diagnostics),
+                            RobotDescriptionStatus::
+                                internalFailure,
+                            "mesh asset reference is invalid",
+                            source.name
+                        );
+                    }
+                    ParsedMeshAsset& mesh =
+                        meshAssets[sourceShape.meshAsset];
+                    if (mesh.geometryIndex ==
+                        MR_INVALID_INDEX) {
+                        const GeometryCookResult cooked =
+                            cookConvexGeometry(
+                                staged,
+                                mesh.vertices,
+                                mesh.indices
+                            );
+                        if (!cooked.succeeded()) {
+                            return fail(
+                                std::move(diagnostics),
+                                cooked.status ==
+                                    GeometryCookStatus::
+                                        capacityOverflow
+                                    ? RobotDescriptionStatus::
+                                        capacityOverflow
+                                    : RobotDescriptionStatus::
+                                        unsupportedGeometry,
+                                "articulated mesh is not a valid "
+                                "closed convex surface: " +
+                                    cooked.message,
+                                source.name
+                            );
+                        }
+                        mesh.geometryIndex =
+                            cooked.geometryIndex;
+                    }
+                    shape.shapeType = MR_SHAPE_CONVEX;
+                    shape.geometryOffset =
+                        mesh.geometryIndex;
+                    shape.geometryCount = 1u;
+                    shape.dimensions = f4(
+                        sourceShape.dimensions.x,
+                        sourceShape.dimensions.y,
+                        sourceShape.dimensions.z
+                    );
+                    double radiusSquared = 0.0;
+                    for (const mr_float4& vertex :
+                         mesh.vertices) {
+                        radiusSquared = std::max(
+                            radiusSquared,
+                            static_cast<double>(vertex.x) *
+                                    vertex.x *
+                                    sourceShape.dimensions.x *
+                                    sourceShape.dimensions.x +
+                                static_cast<double>(vertex.y) *
+                                    vertex.y *
+                                    sourceShape.dimensions.y *
+                                    sourceShape.dimensions.y +
+                                static_cast<double>(vertex.z) *
+                                    vertex.z *
+                                    sourceShape.dimensions.z *
+                                    sourceShape.dimensions.z
+                        );
+                    }
+                    radius = std::sqrt(radiusSquared);
+                    break;
+                }
                 }
                 shape.contactRestAndBoundingRadius = f4(
                     options.contactOffset,
@@ -1999,6 +2621,30 @@ RobotDescriptionDiagnostics cookRobotDescription(
             static_cast<std::uint32_t>(
                 passiveJoints.size()
             );
+        diagnostics.meshAssetCount =
+            static_cast<std::uint32_t>(
+                meshAssets.size()
+            );
+        std::uint64_t meshVertices = 0u;
+        std::uint64_t meshTriangles = 0u;
+        for (const ParsedMeshAsset& mesh : meshAssets) {
+            meshVertices += mesh.vertices.size();
+            meshTriangles += mesh.indices.size() / 3u;
+        }
+        if (meshVertices >
+                std::numeric_limits<std::uint32_t>::max() ||
+            meshTriangles >
+                std::numeric_limits<std::uint32_t>::max()) {
+            return fail(
+                std::move(diagnostics),
+                RobotDescriptionStatus::capacityOverflow,
+                "mesh diagnostics exceed the cooked ABI"
+            );
+        }
+        diagnostics.meshVertexCount =
+            static_cast<std::uint32_t>(meshVertices);
+        diagnostics.meshTriangleCount =
+            static_cast<std::uint32_t>(meshTriangles);
         output = std::move(staged);
         return diagnostics;
     } catch (const std::bad_alloc&) {
@@ -2048,11 +2694,16 @@ RobotDescriptionDiagnostics cookRobotDescriptionFiles(
         }
         srdf = *loaded;
     }
+    RobotDescriptionCookOptions resolvedOptions = options;
+    if (resolvedOptions.meshAssetRoot.empty()) {
+        resolvedOptions.meshAssetRoot =
+            urdfPath.parent_path();
+    }
     return cookRobotDescription(
         *urdf,
         srdf,
         output,
-        options,
+        resolvedOptions,
         urdfPath.string()
     );
 }

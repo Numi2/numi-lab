@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace metalrobo {
 
@@ -50,6 +51,13 @@ struct RobotDescriptionCookOptions {
     bool respectTransmissions = true;
     std::uint32_t collisionGroup = 1u;
     std::uint32_t collisionMask = ~0u;
+    // Relative mesh filenames resolve from this directory. File-based cooks
+    // default it to the URDF's parent directory.
+    std::filesystem::path meshAssetRoot;
+    // package://name/path searches these roots in authored order, accepting
+    // either <root>/<name>/path or <root>/path when root itself is the named
+    // package. Resolution is local-only and deterministic.
+    std::vector<std::filesystem::path> packageSearchRoots;
 };
 
 struct RobotDescriptionDiagnostics {
@@ -63,6 +71,9 @@ struct RobotDescriptionDiagnostics {
     std::uint32_t mimicConstraintCount = 0u;
     std::uint32_t transmissionJointCount = 0u;
     std::uint32_t passiveJointCount = 0u;
+    std::uint32_t meshAssetCount = 0u;
+    std::uint32_t meshVertexCount = 0u;
+    std::uint32_t meshTriangleCount = 0u;
     std::uint64_t sourceFingerprint = 0u;
     std::string sourceName;
     std::string element;
@@ -75,10 +86,10 @@ struct RobotDescriptionDiagnostics {
 
 // Deterministic URDF/SRDF cooker. The initial executable surface supports
 // fixed, revolute, continuous, and prismatic tree joints; URDF transmissions
-// and mimic gears; SRDF passive joints and collision exclusions; plus sphere,
-// box, cylinder, and capsule collision geometry. Meshes fail explicitly until
-// their URI is resolved through the versioned geometry cooker. Output is
-// unchanged on every failure.
+// and mimic gears; SRDF passive joints and collision exclusions; sphere, box,
+// cylinder, and capsule collision geometry; plus closed convex OBJ/STL mesh
+// collision resolved through explicit local or package roots. Articulated
+// concave meshes fail explicitly. Output is unchanged on every failure.
 [[nodiscard]] RobotDescriptionDiagnostics cookRobotDescription(
     std::string_view urdf,
     std::string_view srdf,

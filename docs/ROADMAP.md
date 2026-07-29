@@ -203,8 +203,12 @@ prototype.
   damping/friction/armature, transmission-selected actuation, mimic gear
   ConstraintIR, SRDF passive joints/exclusions, fingerprints, and
   transactional publication
-- Add versioned URI/package mesh resolution with convex decomposition, then
-  MJCF; defer OpenUSD workflow breadth
+- **Landed articulated mesh bridge:** deterministic relative, absolute-file,
+  and `package://` resolution; OBJ and binary/ASCII STL ingestion; content
+  fingerprints; canonical asset deduplication; scale-aware bounds; and direct
+  cooking into the existing convex half-edge arenas
+- Add deterministic convex decomposition for authored concavity and DAE
+  ingestion, then MJCF; defer OpenUSD workflow breadth
 - Metal viewer, contact/constraint inspection, replay and serialization
 - Batched depth, segmentation, ray/LiDAR, IMU, and force sensors
 - Broader tendons, cables, particles, and deformables behind explicit solver

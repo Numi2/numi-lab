@@ -2,6 +2,8 @@
 #include "metalrobo/MetalMultiArticulatedConstraints.hpp"
 
 #include <cmath>
+#include <cstring>
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -221,6 +223,82 @@ int main() {
             "floating-root URDF cook failed"
         );
 
+        const std::filesystem::path sourceRoot{
+            METALROBO_SOURCE_DIR
+        };
+        metalrobo::EngineModel meshModel;
+        const auto meshDiagnostics =
+            metalrobo::cookRobotDescriptionFiles(
+                sourceRoot /
+                    "assets/probes/mesh_robot.urdf",
+                {},
+                meshModel
+            );
+        require(
+            meshDiagnostics.succeeded(),
+            std::string("mesh URDF cook failed: ") +
+                metalrobo::robotDescriptionStatusName(
+                    meshDiagnostics.status
+                ) +
+                " " + meshDiagnostics.message
+        );
+        require(
+            meshModel.valid(&reason),
+            "mesh model invalid: " + reason
+        );
+        require(
+            meshModel.shapes.size() == 3u &&
+            meshModel.geometryHeaders.size() == 2u &&
+            meshModel.shapes[0].shapeType ==
+                MR_SHAPE_CONVEX &&
+            meshModel.shapes[1].shapeType ==
+                MR_SHAPE_CONVEX &&
+            meshModel.shapes[2].shapeType ==
+                MR_SHAPE_CONVEX &&
+            meshModel.shapes[0].geometryOffset ==
+                meshModel.shapes[1].geometryOffset &&
+            meshModel.shapes[0].geometryCount == 1u &&
+            meshModel.shapes[0].dimensions.x == 2.0F &&
+            meshModel.shapes[0].dimensions.y == 4.0F &&
+            meshModel.shapes[0].dimensions.z == 6.0F &&
+            std::abs(
+                meshModel.shapes[0]
+                        .contactRestAndBoundingRadius.z -
+                    std::sqrt(14.0F)
+            ) < 1.0e-6F,
+            "mesh scale, deduplication, or bounding radius was lost"
+        );
+        require(
+            meshDiagnostics.meshAssetCount == 2u &&
+            meshDiagnostics.meshVertexCount == 20u &&
+            meshDiagnostics.meshTriangleCount == 16u,
+            "mesh diagnostics are wrong"
+        );
+        metalrobo::EngineModel replayMesh;
+        const auto replayMeshDiagnostics =
+            metalrobo::cookRobotDescriptionFiles(
+                sourceRoot /
+                    "assets/probes/mesh_robot.urdf",
+                {},
+                replayMesh
+            );
+        require(
+            replayMeshDiagnostics.succeeded() &&
+            replayMeshDiagnostics.sourceFingerprint ==
+                meshDiagnostics.sourceFingerprint &&
+            replayMesh.geometryVertices.size() ==
+                meshModel.geometryVertices.size() &&
+            std::memcmp(
+                replayMesh.geometryVertices.data(),
+                meshModel.geometryVertices.data(),
+                meshModel.geometryVertices.size() *
+                    sizeof(mr_float4)
+            ) == 0 &&
+            replayMesh.geometryIndices ==
+                meshModel.geometryIndices,
+            "mesh cook or content fingerprint is nondeterministic"
+        );
+
         std::cout
             << "robot_description_cooker=ok"
             << " links=" << diagnostics.linkCount
@@ -234,8 +312,17 @@ int main() {
             << diagnostics.transmissionJointCount
             << " passive_joints="
             << diagnostics.passiveJointCount
+            << " mesh_assets="
+            << meshDiagnostics.meshAssetCount
+            << " mesh_vertices="
+            << meshDiagnostics.meshVertexCount
+            << " mesh_triangles="
+            << meshDiagnostics.meshTriangleCount
             << " fingerprint="
             << diagnostics.sourceFingerprint
+            << " mesh_fingerprint="
+            << meshDiagnostics.sourceFingerprint
+            << " convex_dedup=yes"
             << " fixed_and_floating=yes"
             << " transactional=yes\n";
         return 0;

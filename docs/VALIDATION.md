@@ -827,6 +827,25 @@ reason stated above.
 
 ## Additional clean component evidence
 
+### Executable URDF/SRDF mesh cooker
+
+```sh
+./build/bin/metalrobo_robot_description_cooker_probe
+```
+
+The probe cooks the primitive fixed/floating model and a file-backed URDF
+whose colliders resolve the same OBJ through relative and `package://` paths
+plus an ASCII STL. It proves asset deduplication, nonuniform-scale bounds,
+content-stable replay fingerprints, executable mimic ConstraintIR, and
+transactional failure:
+
+```text
+robot_description_cooker=ok links=3 joints=2 dofs=2 colliders=3
+exclusions=1 mimic_gears=1 transmission_joints=1 passive_joints=1
+mesh_assets=2 mesh_vertices=20 mesh_triangles=16
+convex_dedup=yes fixed_and_floating=yes transactional=yes
+```
+
 ### Original Franka Metal runtime
 
 The clean probe initialized the FP64 CPU reference and fixed-base Franka Metal

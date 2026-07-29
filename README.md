@@ -177,6 +177,11 @@ linked or called at runtime.
   SQLite/WAL outcome indexing, immutable SHA-256 artifacts, five-member
   policy-specific failure ensembles, 65,536-scenario GPU scoring, hardware
   residual calibration, and paired policy evaluation
+- Deterministic URDF/SRDF executable cooker with fixed/floating trees,
+  transmissions, mimic gears, SRDF exclusions, and content-fingerprinted
+  closed-convex OBJ/STL collision meshes resolved from explicit local or
+  `package://` roots. Repeated mesh assets share one cooked half-edge geometry
+  arena; unsupported articulated concavity fails transactionally
 
 This is a serious numerical foundation, not yet a complete MuJoCo/PhysX
 replacement. The device graph now has compact analytic/SAT/GJK/mesh queues,
@@ -189,7 +194,7 @@ remains ABI v2. Implicit position drives and joint-boundary projection are
 executable. The 40,000-step/s Franka contact gate, trained 60-second G1
 standing gate, dedicated tiled heightfields, fully composed
 manifold-to-row multi-articulation contact islands, patch rolling/torsional solve,
-mesh-backed URDF/MJCF/OpenUSD workflows, rendering breadth, coupled
+convex decomposition and MJCF/OpenUSD workflows, rendering breadth, coupled
 thread self/tool collision and tissue mechanics, unified cone/scalar
 matrix-free Metal quality solve,
 and qualified differentiation remain open. Explicit heterogeneous contact
