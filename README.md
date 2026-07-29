@@ -163,6 +163,9 @@ linked or called at runtime.
   articulation/free-body/static/kinematic fixtures in arbitrary world-space
   frames. Three-axis angular frame rows use analytic point-Jacobian
   reconstruction to close full spatial welds through that same operator
+  and a transactional shortest-arc SO(3) authoring helper derives their
+  world-frame error directly from articulated/free/static endpoint
+  quaternions. Antipodal inputs and the exact-pi sign tie are deterministic
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication

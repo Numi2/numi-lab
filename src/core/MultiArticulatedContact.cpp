@@ -21,6 +21,18 @@ struct Vec3 {
     double z = 0.0;
 };
 
+struct QuaternionD {
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+    double w = 1.0;
+};
+
+bool finite(double value);
+
+template <std::size_t Size>
+bool finite(const std::array<double, Size>& values);
+
 struct ContactFrame {
     Vec3 normal;
     Vec3 tangentU;
@@ -84,6 +96,120 @@ Vec3 rotateVector(
 
 double norm(const Vec3 value) {
     return std::sqrt(dot(value, value));
+}
+
+QuaternionD multiply(
+    const QuaternionD left,
+    const QuaternionD right
+) {
+    return {
+        left.w * right.x + left.x * right.w +
+            left.y * right.z - left.z * right.y,
+        left.w * right.y - left.x * right.z +
+            left.y * right.w + left.z * right.x,
+        left.w * right.z + left.x * right.y -
+            left.y * right.x + left.z * right.w,
+        left.w * right.w - left.x * right.x -
+            left.y * right.y - left.z * right.z,
+    };
+}
+
+QuaternionD conjugate(const QuaternionD value) {
+    return {-value.x, -value.y, -value.z, value.w};
+}
+
+bool normalize(
+    const std::array<double, 4>& value,
+    QuaternionD& output
+) {
+    if (!finite(value)) {
+        return false;
+    }
+    const double squared =
+        value[0] * value[0] +
+        value[1] * value[1] +
+        value[2] * value[2] +
+        value[3] * value[3];
+    if (!(squared > 1.0e-24) || !finite(squared)) {
+        return false;
+    }
+    const double inverse = 1.0 / std::sqrt(squared);
+    output = {
+        value[0] * inverse,
+        value[1] * inverse,
+        value[2] * inverse,
+        value[3] * inverse,
+    };
+    return true;
+}
+
+QuaternionD normalized(const QuaternionD value) {
+    const double inverse = 1.0 / std::sqrt(
+        value.x * value.x +
+        value.y * value.y +
+        value.z * value.z +
+        value.w * value.w
+    );
+    return {
+        value.x * inverse,
+        value.y * inverse,
+        value.z * inverse,
+        value.w * inverse,
+    };
+}
+
+QuaternionD canonicalShortest(QuaternionD value) {
+    value = normalized(value);
+    constexpr double tie = 32.0 *
+        std::numeric_limits<double>::epsilon();
+    bool negate = value.w < 0.0;
+    if (std::abs(value.w) <= tie) {
+        const std::array vector{
+            value.x,
+            value.y,
+            value.z,
+        };
+        for (const double component : vector) {
+            if (std::abs(component) <= tie) {
+                continue;
+            }
+            negate = component < 0.0;
+            break;
+        }
+    }
+    if (negate) {
+        value = {
+            -value.x,
+            -value.y,
+            -value.z,
+            -value.w,
+        };
+    }
+    return value;
+}
+
+Vec3 rotationLog(const QuaternionD input) {
+    const QuaternionD value = canonicalShortest(input);
+    const double sineHalf = std::sqrt(
+        value.x * value.x +
+        value.y * value.y +
+        value.z * value.z
+    );
+    if (sineHalf <= 1.0e-14) {
+        return {
+            2.0 * value.x,
+            2.0 * value.y,
+            2.0 * value.z,
+        };
+    }
+    const double angle =
+        2.0 * std::atan2(sineHalf, value.w);
+    const double scale = angle / sineHalf;
+    return {
+        scale * value.x,
+        scale * value.y,
+        scale * value.z,
+    };
 }
 
 bool finite(const double value) {
@@ -2166,6 +2292,204 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
         }
     }
     problem = std::move(staged);
+    return diagnostics;
+}
+
+MultiArticulatedContactDiagnostics
+authorMultiArticulatedAngularOrientationErrors(
+    const EngineModel& model,
+    const std::span<const double> q,
+    const std::span<const MRBodyStateGPU> sceneBodies,
+    const std::span<const std::array<double, 4>>
+        desiredRelativeOrientations,
+    const std::span<MultiArticulatedAngularEquality>
+        equalities,
+    const ArticulatedDynamicsConfig& config
+) {
+    MultiArticulatedContactDiagnostics diagnostics =
+        diagnosticsFor(model, equalities.size());
+    std::string reason;
+    if (!model.valid(&reason)) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::invalidModel
+        );
+    }
+    if (q.size() != model.world.nq ||
+        desiredRelativeOrientations.size() !=
+            equalities.size()) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::invalidDimensions
+        );
+    }
+    if (!finite(q)) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::nonfiniteInput
+        );
+    }
+
+    std::vector<std::array<double, 4>> bodyOrientations(
+        model.bodies.size()
+    );
+    std::vector<bool> haveBodyOrientation(
+        model.bodies.size(),
+        false
+    );
+    for (std::uint32_t articulationIndex = 0u;
+         articulationIndex < model.articulations.size();
+         ++articulationIndex) {
+        const MRArticulationGPU& articulation =
+            model.articulations[articulationIndex];
+        std::vector<double> zeroVelocity(
+            articulation.nv,
+            0.0
+        );
+        std::vector<ArticulatedBodyKinematics> kinematics(
+            articulation.bodyCount
+        );
+        const ArticulatedDynamicsDiagnostics result =
+            computeArticulatedBodyKinematics(
+                model,
+                articulationIndex,
+                q.subspan(
+                    articulation.qOffset,
+                    articulation.nq
+                ),
+                zeroVelocity,
+                kinematics,
+                config
+            );
+        if (!result.succeeded()) {
+            return fail(
+                std::move(diagnostics),
+                MultiArticulatedContactStatus::
+                    kinematicsFailure,
+                MR_INVALID_INDEX,
+                articulationIndex
+            );
+        }
+        for (const ArticulatedBodyKinematics& body :
+             kinematics) {
+            if (body.bodyIndex >=
+                bodyOrientations.size()) {
+                return fail(
+                    std::move(diagnostics),
+                    MultiArticulatedContactStatus::
+                        kinematicsFailure,
+                    MR_INVALID_INDEX,
+                    articulationIndex
+                );
+            }
+            bodyOrientations[body.bodyIndex] =
+                body.orientation;
+            haveBodyOrientation[body.bodyIndex] = true;
+        }
+    }
+
+    std::vector<std::array<double, 3>> stagedErrors(
+        equalities.size()
+    );
+    const auto endpointOrientation = [&](
+        const MultiContactEndpoint& endpoint,
+        QuaternionD& orientation
+    ) {
+        switch (endpoint.kind) {
+        case MultiContactEndpointKind::articulatedBody:
+            return
+                endpoint.body < bodyOrientations.size() &&
+                haveBodyOrientation[endpoint.body] &&
+                normalize(
+                    bodyOrientations[endpoint.body],
+                    orientation
+                );
+        case MultiContactEndpointKind::sceneBody:
+            if (endpoint.body >= sceneBodies.size()) {
+                return false;
+            }
+            {
+                const std::array<double, 4> authored{
+                    sceneBodies[endpoint.body].orientation.x,
+                    sceneBodies[endpoint.body].orientation.y,
+                    sceneBodies[endpoint.body].orientation.z,
+                    sceneBodies[endpoint.body].orientation.w,
+                };
+                const double squared =
+                    authored[0] * authored[0] +
+                    authored[1] * authored[1] +
+                    authored[2] * authored[2] +
+                    authored[3] * authored[3];
+                return
+                    finite(squared) &&
+                    std::abs(squared - 1.0) <= 2.0e-4 &&
+                    normalize(authored, orientation);
+            }
+        case MultiContactEndpointKind::staticWorld:
+            orientation = {};
+            return true;
+        }
+        return false;
+    };
+    for (std::size_t equalityIndex = 0u;
+         equalityIndex < equalities.size();
+         ++equalityIndex) {
+        const MultiArticulatedAngularEquality& equality =
+            equalities[equalityIndex];
+        MultiArticulatedIslandContact frame;
+        frame.normal = equality.axisX;
+        frame.tangentU = equality.axisY;
+        frame.tangentV = equality.axisZ;
+        ContactFrame validated{};
+        QuaternionD orientationA;
+        QuaternionD orientationB;
+        QuaternionD desiredRelative;
+        if (!makeFrame(frame, validated) ||
+            !endpointOrientation(
+                equality.endpointA,
+                orientationA
+            ) ||
+            !endpointOrientation(
+                equality.endpointB,
+                orientationB
+            ) ||
+            !normalize(
+                desiredRelativeOrientations[equalityIndex],
+                desiredRelative
+            )) {
+            return fail(
+                std::move(diagnostics),
+                MultiArticulatedContactStatus::invalidContact,
+                static_cast<std::uint32_t>(equalityIndex)
+            );
+        }
+        const QuaternionD desiredWorldB = multiply(
+            orientationA,
+            desiredRelative
+        );
+        const Vec3 error = rotationLog(multiply(
+            orientationB,
+            conjugate(desiredWorldB)
+        ));
+        stagedErrors[equalityIndex] = {
+            dot(error, validated.normal),
+            dot(error, validated.tangentU),
+            dot(error, validated.tangentV),
+        };
+        if (!finite(stagedErrors[equalityIndex])) {
+            return fail(
+                std::move(diagnostics),
+                MultiArticulatedContactStatus::nonfiniteResult,
+                static_cast<std::uint32_t>(equalityIndex)
+            );
+        }
+    }
+    for (std::size_t equalityIndex = 0u;
+         equalityIndex < equalities.size();
+         ++equalityIndex) {
+        equalities[equalityIndex].orientationError =
+            stagedErrors[equalityIndex];
+    }
     return diagnostics;
 }
 

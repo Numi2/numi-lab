@@ -24,6 +24,8 @@ enum class MultiArticulatedContactStatus : std::uint32_t {
     nonfiniteResult,
 };
 
+struct MultiArticulatedContactDiagnostics;
+
 struct MultiContactSceneBodyVelocity {
     std::array<double, 3> linear{};
     std::array<double, 3> angular{};
@@ -148,6 +150,26 @@ struct MultiArticulatedAngularEquality {
     double dampingRatio = 1.0;
     bool positionStabilized = true;
 };
+
+// Transactionally derives each equality's three position-error coordinates
+// from current body orientations and a desired B-in-A relative quaternion.
+// Relative orientations are xyzw and satisfy
+//
+//   R_B,desired(world) = R_A(world) * R_B,in-A,desired.
+//
+// The shortest SO(3) logarithm is expressed in world space, then projected
+// onto the equality's authored axes. Antipodal quaternion representations
+// produce identical errors; the pi-angle sign tie is deterministic.
+[[nodiscard]] MultiArticulatedContactDiagnostics
+authorMultiArticulatedAngularOrientationErrors(
+    const EngineModel& model,
+    std::span<const double> q,
+    std::span<const MRBodyStateGPU> sceneBodies,
+    std::span<const std::array<double, 4>>
+        desiredRelativeOrientations,
+    std::span<MultiArticulatedAngularEquality> equalities,
+    const ArticulatedDynamicsConfig& config = {}
+);
 
 struct MultiArticulatedContactSolution {
     std::vector<double> generalizedVelocity;

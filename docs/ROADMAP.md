@@ -116,12 +116,16 @@ prototype.
   rows reconstruct each body angular Jacobian analytically from four
   body-local point queries. Translational and angular blocks can therefore
   form a full spatial weld spanning articulations, free bodies, and
-  static/kinematic boundaries while sharing the contact Schur solve
+  static/kinematic boundaries while sharing the contact Schur solve.
+  Shortest-arc SO(3) error authoring now derives row coordinates from current
+  endpoint quaternions plus the desired B-in-A relative pose, with
+  deterministic antipodal/exact-pi semantics and transactional failure
 - Move the actuation/free-motion ABA step itself from lane-zero recursion onto
   the cooked frontiers, then reuse its per-microstep factor cache across
   actuation, generalized constraints, and contact response
-- Compile complete unilateral joint-limit warm starts and quaternion-derived
-  orientation-error authoring into shared ConstraintIR;
+- Compile complete unilateral joint-limit warm starts and the landed
+  quaternion-derived orientation-error convention into the device-resident
+  ConstraintIR evaluation stage;
   finish self-collision exclusions, coupled stiction, and calibrated
   rolling/torsional patch blocks
 - Scatter persistent manifold endpoints into the landed Metal row frontend,

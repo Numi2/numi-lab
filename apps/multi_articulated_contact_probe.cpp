@@ -254,6 +254,175 @@ int main() {
         sceneBody.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
         sceneBody.flagsAndIndices[1] = MR_INVALID_INDEX;
         sceneBody.flagsAndIndices[2] = MR_INVALID_INDEX;
+        const float halfRootTwo =
+            static_cast<float>(std::sqrt(0.5));
+        MRBodyStateGPU orientationScene = sceneBody;
+        orientationScene.orientation = {
+            0.0F, 0.0F, halfRootTwo, halfRootTwo,
+        };
+        metalrobo::MultiArticulatedAngularEquality
+            authoredSceneOrientation;
+        authoredSceneOrientation.endpointA = {
+            metalrobo::MultiContactEndpointKind::staticWorld,
+            MR_INVALID_INDEX,
+            {},
+        };
+        authoredSceneOrientation.endpointB = {
+            metalrobo::MultiContactEndpointKind::sceneBody,
+            0u,
+            {},
+        };
+        const double inverseRootTwo = std::sqrt(0.5);
+        authoredSceneOrientation.axisX = {
+            inverseRootTwo,
+            inverseRootTwo,
+            0.0,
+        };
+        authoredSceneOrientation.axisY = {
+            -inverseRootTwo,
+            inverseRootTwo,
+            0.0,
+        };
+        authoredSceneOrientation.axisZ = {0.0, 0.0, 1.0};
+        auto authoredRelativeOrientation =
+            authoredSceneOrientation;
+        authoredRelativeOrientation.endpointA = {
+            metalrobo::MultiContactEndpointKind::
+                articulatedBody,
+            first.rootBody,
+            {},
+        };
+        std::array authoredOrientations{
+            authoredSceneOrientation,
+            authoredRelativeOrientation,
+        };
+        const std::array<std::array<double, 4>, 2>
+            desiredOrientations{{
+                {0.0, 0.0, 0.0, 1.0},
+                {
+                    0.0,
+                    0.0,
+                    inverseRootTwo,
+                    inverseRootTwo,
+                },
+            }};
+        const auto authoredOrientationDiagnostics =
+            metalrobo::
+                authorMultiArticulatedAngularOrientationErrors(
+                    model,
+                    q,
+                    std::span<const MRBodyStateGPU>(
+                        &orientationScene,
+                        1u
+                    ),
+                    desiredOrientations,
+                    authoredOrientations,
+                    dynamics
+                );
+        require(
+            authoredOrientationDiagnostics.succeeded() &&
+                std::abs(
+                    authoredOrientations[0].
+                        orientationError[0]
+                ) < 1.0e-12 &&
+                std::abs(
+                    authoredOrientations[0].
+                        orientationError[1]
+                ) < 1.0e-12 &&
+                std::abs(
+                    authoredOrientations[0].
+                        orientationError[2] -
+                    0.5 * std::acos(-1.0)
+                ) < 1.0e-7 &&
+                std::abs(
+                    authoredOrientations[1].
+                        orientationError[2]
+                ) < 1.0e-7,
+            "quaternion angular-error authoring used the wrong "
+            "relative frame or axes"
+        );
+        MRBodyStateGPU antipodalScene = orientationScene;
+        antipodalScene.orientation = {
+            -orientationScene.orientation.x,
+            -orientationScene.orientation.y,
+            -orientationScene.orientation.z,
+            -orientationScene.orientation.w,
+        };
+        auto antipodalOrientations = authoredOrientations;
+        const auto antipodalDiagnostics =
+            metalrobo::
+                authorMultiArticulatedAngularOrientationErrors(
+                    model,
+                    q,
+                    std::span<const MRBodyStateGPU>(
+                        &antipodalScene,
+                        1u
+                    ),
+                    desiredOrientations,
+                    antipodalOrientations,
+                    dynamics
+                );
+        require(
+            antipodalDiagnostics.succeeded() &&
+                antipodalOrientations[0].orientationError ==
+                    authoredOrientations[0].orientationError,
+            "antipodal quaternion changed the angular error"
+        );
+        MRBodyStateGPU piScene = sceneBody;
+        piScene.orientation = {
+            0.0F, 0.0F, -1.0F, 0.0F,
+        };
+        std::array piEquality{authoredSceneOrientation};
+        const std::array<std::array<double, 4>, 1>
+            identityRelative{{
+                {0.0, 0.0, 0.0, 1.0},
+            }};
+        const auto piDiagnostics =
+            metalrobo::
+                authorMultiArticulatedAngularOrientationErrors(
+                    model,
+                    q,
+                    std::span<const MRBodyStateGPU>(
+                        &piScene,
+                        1u
+                    ),
+                    identityRelative,
+                    piEquality,
+                    dynamics
+                );
+        require(
+            piDiagnostics.succeeded() &&
+                std::abs(
+                    piEquality[0].orientationError[2] -
+                    std::acos(-1.0)
+                ) < 1.0e-12,
+            "pi-angle quaternion sign tie is nondeterministic"
+        );
+        auto rejectedOrientations = authoredOrientations;
+        const auto acceptedOrientationError =
+            rejectedOrientations[0].orientationError;
+        auto invalidDesired = desiredOrientations;
+        invalidDesired[0] = {};
+        const auto rejectedOrientationDiagnostics =
+            metalrobo::
+                authorMultiArticulatedAngularOrientationErrors(
+                    model,
+                    q,
+                    std::span<const MRBodyStateGPU>(
+                        &orientationScene,
+                        1u
+                    ),
+                    invalidDesired,
+                    rejectedOrientations,
+                    dynamics
+                );
+        require(
+            !rejectedOrientationDiagnostics.succeeded() &&
+                rejectedOrientations[0].orientationError ==
+                    acceptedOrientationError,
+            "failed angular-error authoring mutated the "
+            "accepted equality"
+        );
 
         std::ranges::fill(freeVelocity, 0.0);
         freeVelocity[first.vOffset + 0u] = 1.0;
@@ -659,6 +828,8 @@ int main() {
             << " loop_residual="
             << loopSolve
                    .maximumGeneralizedConstraintResidual
+            << " authored_angle_error="
+            << authoredOrientations[0].orientationError[2]
             << " deterministic=yes transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {

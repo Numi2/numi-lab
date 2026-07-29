@@ -245,6 +245,17 @@ angular rows can be combined into a six-axis weld without finite
 configuration differencing, dense body Jacobians, or another solver. This
 activates multi-contact ABI v3 while leaving ConstraintIR ABI v2 unchanged.
 
+The public angular-equality authoring path accepts a desired B-in-A relative
+quaternion, forms the desired B orientation from the current A endpoint, and
+maps the shortest relative rotation into the authored world-space frame with
+the SO(3) logarithm. It supports articulated bodies, dynamic or kinematic
+scene bodies, and static world endpoints. Antipodal quaternion
+representations are identical, the exact-pi axis tie is canonical, and
+invalid input leaves every previously accepted equality unchanged. The
+resulting three scalar coordinates feed the same CPU/Metal spatial-row solve;
+future fully device-resident constraint compilation can reuse this convention
+without changing ConstraintIR v2.
+
 `CompiledMetalMultiArticulatedContactProgram` snapshots the immutable model
 and deterministic parallel-ABA frontier schedule once, so repeated submissions
 do not recook tree topology. The dual-PSM/needle heterogeneous bundle uses this

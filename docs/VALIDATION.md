@@ -352,6 +352,15 @@ coupled oracle is `2.45187e-7`; the certified equality residual is
 `-0.1 rad/s` boundary target within `8.04663e-8`. The replayed velocity,
 contact impulse and equality impulse payloads are bitwise identical.
 
+The CPU companion probe also derives angular equality errors from endpoint
+quaternions rather than accepting a manually computed rotation vector. A
+scene body at 90 degrees about Z produces
+`authored_angle_error=1.5708` in an arbitrary rotated constraint frame, while
+an articulated-to-scene desired relative pose produces zero. Antipodal
+quaternions produce identical coordinates, an exact-pi input chooses the
+canonical positive axis, and a rejected zero quaternion leaves the accepted
+equality byte-for-byte unchanged.
+
 The canonical heterogeneous surgical probe also compiles the two PSMs and
 dynamic needle once, then reuses that immutable program for a 34-DoF Metal
 contact solve:
@@ -1018,8 +1027,8 @@ evidence.
 - Multi-articulation islands and long-horizon/large-island mixed-scene
   stability beyond the focused dynamic-dynamic and supported-pickup cases
 - GPU ConstraintIR unilateral joint limits, implicit drives,
-  quaternion-to-orientation-error authoring, patch rolling/torsional
-  resistance, and force/torque sensors
+  device-resident evaluation of the landed quaternion-to-orientation-error
+  convention, patch rolling/torsional resistance, and force/torque sensors
 - Articulated self-collision and unsupported pair classes
 - Calibrated surgical jaw surfaces, rolling/torsional resistance, and generic
   grasp-wrench/force-closure certification beyond the tested segment-17 load
