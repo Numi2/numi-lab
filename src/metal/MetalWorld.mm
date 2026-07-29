@@ -342,6 +342,7 @@ struct MetalWorldContextState {
         rodContactPreparePipeline = nil;
     __strong id<MTLComputePipelineState> rodPackPipeline = nil;
     __strong id<MTLComputePipelineState> rodStepPipeline = nil;
+    __strong id<MTLComputePipelineState> rodFactorPipeline = nil;
     __strong id<MTLComputePipelineState> rodUnpackPipeline = nil;
     __strong id<MTLComputePipelineState> rodLatchPipeline = nil;
     __strong id<MTLComputePipelineState>
@@ -3772,6 +3773,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> rodContactPrepare = nil;
     __strong id<MTLComputePipelineState> rodPack = nil;
     __strong id<MTLComputePipelineState> rodStep = nil;
+    __strong id<MTLComputePipelineState> rodFactor = nil;
     __strong id<MTLComputePipelineState> rodUnpack = nil;
     __strong id<MTLComputePipelineState> rodLatch = nil;
     __strong id<MTLComputePipelineState> rodToolNarrowphase = nil;
@@ -3957,6 +3959,9 @@ MetalWorldDiagnostics initializeContext(
     );
     rodStep = createContactPipeline(
         @"mr_discrete_elastic_rod_step"
+    );
+    rodFactor = createContactPipeline(
+        @"mr_world_factor_rod_operator"
     );
     rodUnpack = createContactPipeline(
         @"mr_world_unpack_rod_state"
@@ -4183,6 +4188,7 @@ MetalWorldDiagnostics initializeContext(
         rodPack.maxTotalThreadsPerThreadgroup == 0u ||
         rodStep.maxTotalThreadsPerThreadgroup <
             MR_ROD_GPU_MAX_NODES ||
+        rodFactor.maxTotalThreadsPerThreadgroup == 0u ||
         rodUnpack.maxTotalThreadsPerThreadgroup == 0u ||
         rodLatch.maxTotalThreadsPerThreadgroup == 0u ||
         rodToolNarrowphase.maxTotalThreadsPerThreadgroup == 0u ||
@@ -4330,6 +4336,7 @@ MetalWorldDiagnostics initializeContext(
     context.rodContactPreparePipeline = rodContactPrepare;
     context.rodPackPipeline = rodPack;
     context.rodStepPipeline = rodStep;
+    context.rodFactorPipeline = rodFactor;
     context.rodUnpackPipeline = rodUnpack;
     context.rodLatchPipeline = rodLatch;
     context.rodToolNarrowphasePipeline = rodToolNarrowphase;
@@ -7097,8 +7104,7 @@ bool encodeRodSubstep(
     }
     [encoder endEncoding];
 
-    return
-        encodeContactThreadKernel(
+    if (!encodeContactThreadKernel(
             context,
             commandBuffer,
             context.rodUnpackPipeline,
@@ -7115,8 +7121,8 @@ bool encodeRodSubstep(
             nullptr,
             0u,
             environmentCount
-        ) &&
-        encodeContactThreadKernel(
+        ) ||
+        !encodeContactThreadKernel(
             context,
             commandBuffer,
             context.rodLatchPipeline,
@@ -7130,7 +7136,80 @@ bool encodeRodSubstep(
             &pass,
             2u,
             environmentCount
+        )) {
+        return false;
+    }
+
+    id<MTLComputeCommandEncoder> factorEncoder =
+        [commandBuffer computeCommandEncoder];
+    if (factorEncoder == nil) {
+        return false;
+    }
+    factorEncoder.label =
+        @"MetalWorld retained banded rod operator";
+    [factorEncoder
+        setComputePipelineState:context.rodFactorPipeline];
+    for (std::size_t rod = 0u;
+         rod < world.rodCount();
+         ++rod) {
+        const std::array<std::size_t, 12u> bindings{{
+            kContactDispatch,
+            kRodDispatches,
+            candidateNodes,
+            kRodInverseMasses,
+            kRodInverseRotationalInertias,
+            kRodColliders,
+            kRodRestLengths,
+            kRodStretchStiffness,
+            kRodBendStiffness,
+            kRodTwistStiffness,
+            kRodFactorCaches,
+            kOperatorVelocityArena,
+        }};
+        for (NSUInteger argument = 0u;
+             argument < bindings.size();
+             ++argument) {
+            const NSUInteger offset =
+                argument == 1u
+                ? rod * sizeof(MRRodGPUDispatch)
+                : 0u;
+            [factorEncoder
+                setBuffer:context.buffers[bindings[argument]]
+                   offset:offset
+                  atIndex:argument];
+        }
+        const std::uint32_t rodIndex =
+            static_cast<std::uint32_t>(rod);
+        [factorEncoder
+            setBytes:&rodIndex
+              length:sizeof(rodIndex)
+             atIndex:12u];
+        [factorEncoder
+            setBytes:&pass
+              length:sizeof(pass)
+             atIndex:13u];
+        const NSUInteger threadgroupWidth = std::min<NSUInteger>(
+            std::max<NSUInteger>(
+                context.rodFactorPipeline.threadExecutionWidth,
+                1u
+            ),
+            context.rodFactorPipeline
+                .maxTotalThreadsPerThreadgroup
         );
+        [factorEncoder
+            dispatchThreads:MTLSizeMake(
+                static_cast<NSUInteger>(environmentCount),
+                1u,
+                1u
+            )
+            threadsPerThreadgroup:MTLSizeMake(
+                threadgroupWidth,
+                1u,
+                1u
+            )];
+    }
+    [factorEncoder endEncoding];
+    return true;
 }
 
 bool encodeRodToolNarrowphase(
@@ -9217,7 +9296,7 @@ bool encodeUnifiedQualitySolve(
     [warmStart
         setComputePipelineState:
             context.qualityWarmStartPipeline];
-    const std::array<std::size_t, 9u> warmStartBuffers{{
+    const std::array<std::size_t, 11u> warmStartBuffers{{
         kContactDispatch,
         kQualityDispatch,
         kFactorMatrix,
@@ -9227,6 +9306,8 @@ bool encodeUnifiedQualitySolve(
         kQualityWarmImpulses,
         kQualityWarmVelocity,
         kContactStatuses,
+        kRodFactorCaches,
+        kOperatorVelocityArena,
     }};
     for (NSUInteger argument = 0u;
          argument < warmStartBuffers.size();
@@ -11930,6 +12011,15 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             2u * rodConstraints;
         const std::uint64_t rodVelocities =
             3u * rodNodeCount + rodEdgeCount;
+        const std::uint64_t rodFactorNumerics =
+            static_cast<std::uint64_t>(
+                MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE
+            ) * rodNodeCount +
+            static_cast<std::uint64_t>(
+                MR_ROD_FACTOR_TWIST_FLOATS_PER_EDGE
+            ) * rodEdgeCount;
+        const std::uint64_t rodOperatorElements =
+            rodFactorNumerics + rodVelocities;
         const auto checkedU32 = [&diagnostics](
             const std::uint64_t value,
             const char* label,
@@ -11953,6 +12043,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         std::uint32_t requiredRodRows = 0u;
         std::uint32_t requiredRodEndpoints = 0u;
         std::uint32_t requiredRodVelocities = 0u;
+        std::uint32_t requiredRodOperatorElements = 0u;
         std::uint32_t requiredRodNodes = 0u;
         std::uint32_t requiredRodComponents = 0u;
         if (!checkedU32(
@@ -11984,6 +12075,11 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 rodVelocities,
                 "rod generalized velocity count",
                 requiredRodVelocities
+            ) ||
+            !checkedU32(
+                rodOperatorElements,
+                "rod retained-factor/operator element count",
+                requiredRodOperatorElements
             ) ||
             !checkedU32(
                 rodNodeCount,
@@ -12135,7 +12231,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 requestedCapacities.operatorVelocityElements,
                 staged.minimumCapacities_
                     .operatorVelocityElements,
-                requiredRodVelocities,
+                requiredRodOperatorElements,
                 staged.capacities_.operatorVelocityElements,
                 staged.minimumCapacities_
                     .operatorVelocityElements

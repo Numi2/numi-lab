@@ -1189,6 +1189,675 @@ inline float rodCrossContactResponse(
     return dot(targetDirection, -surfaceDelta);
 }
 
+inline uint rodFactorElementStride(
+    device const MRMetalWorldContactDispatchGPU& dispatch
+) {
+    return
+        MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
+            dispatch.rodNodeCount +
+        MR_ROD_FACTOR_TWIST_FLOATS_PER_EDGE *
+            dispatch.rodEdgeCount;
+}
+
+inline float rodTranslationOperatorEntry(
+    device const MRMetalWorldContactDispatchGPU& dispatch,
+    constant MRRodGPUDispatch& rod,
+    device const MRRodNodeStateGPU* nodes,
+    device const float* inverseMasses,
+    device const MRRodColliderGPU* colliders,
+    device const float* restLengths,
+    device const float* stretchStiffness,
+    device const float* bendStiffness,
+    const uint row,
+    const uint column
+) {
+    const uint rowNode = row / 3u;
+    const uint columnNode = column / 3u;
+    const uint rowComponent = row - 3u * rowNode;
+    const uint columnComponent =
+        column - 3u * columnNode;
+    const uint globalRowNode = rod.rodNodeBase + rowNode;
+    const uint globalColumnNode =
+        rod.rodNodeBase + columnNode;
+    const float timestep = dispatch.timestepAndBias.x;
+    const float timestepSquared = timestep * timestep;
+    float value = 0.0f;
+    if (row == column) {
+        const float inverseMass =
+            inverseMasses[globalRowNode];
+        if (!(inverseMass > 0.0f)) {
+            return NAN;
+        }
+        value =
+            (1.0f +
+             timestep *
+                 max(rod.dampingDerivativeTolerance.x, 0.0f)) /
+            inverseMass;
+    }
+
+    for (uint localEdge = 0u;
+         localEdge < rod.edgeCount;
+         ++localEdge) {
+        const uint globalEdge =
+            rod.rodEdgeBase + localEdge;
+        const MRRodColliderGPU collider =
+            colliders[globalEdge];
+        const int rowSign =
+            globalRowNode == collider.nodeA
+            ? -1
+            : globalRowNode == collider.nodeB
+            ? 1
+            : 0;
+        const int columnSign =
+            globalColumnNode == collider.nodeA
+            ? -1
+            : globalColumnNode == collider.nodeB
+            ? 1
+            : 0;
+        if (rowSign == 0 || columnSign == 0) {
+            continue;
+        }
+        const float3 edge =
+            nodes[collider.nodeB].position.xyz -
+            nodes[collider.nodeA].position.xyz;
+        const float lengthSquared = dot(edge, edge);
+        if (!(lengthSquared > 1.0e-20f)) {
+            return NAN;
+        }
+        const float3 tangent = edge * rsqrt(lengthSquared);
+        const float restLength =
+            max(restLengths[globalEdge], 1.0e-6f);
+        const float stiffness =
+            timestepSquared *
+            max(stretchStiffness[globalEdge], 0.0f) /
+            restLength;
+        value +=
+            float(rowSign * columnSign) *
+            stiffness *
+            tangent[rowComponent] *
+            tangent[columnComponent];
+    }
+
+    for (uint localBend = 0u;
+         localBend + 1u < rod.edgeCount;
+         ++localBend) {
+        const uint firstEdge =
+            rod.rodEdgeBase + localBend;
+        const MRRodColliderGPU first =
+            colliders[firstEdge];
+        const MRRodColliderGPU second =
+            colliders[firstEdge + 1u];
+        if (first.rodIndex != second.rodIndex ||
+            first.nodeB != second.nodeA) {
+            continue;
+        }
+        const uint bendNodes[3] = {
+            first.nodeA,
+            first.nodeB,
+            second.nodeB,
+        };
+        const int coefficients[3] = {1, -2, 1};
+        int rowCoefficient = 0;
+        int columnCoefficient = 0;
+        for (uint local = 0u; local < 3u; ++local) {
+            if (globalRowNode == bendNodes[local]) {
+                rowCoefficient = coefficients[local];
+            }
+            if (globalColumnNode == bendNodes[local]) {
+                columnCoefficient = coefficients[local];
+            }
+        }
+        if (rowCoefficient == 0 ||
+            columnCoefficient == 0 ||
+            rowComponent != columnComponent) {
+            continue;
+        }
+        const uint bendIndex = firstEdge - first.rodIndex;
+        const float meanRest = max(
+            0.5f * (
+                restLengths[firstEdge] +
+                restLengths[firstEdge + 1u]
+            ),
+            1.0e-6f
+        );
+        const float stiffness =
+            timestepSquared *
+            max(bendStiffness[bendIndex], 0.0f) /
+            (meanRest * meanRest * meanRest);
+        value +=
+            float(rowCoefficient * columnCoefficient) *
+            stiffness;
+    }
+    return value;
+}
+
+inline float rodTwistOperatorEntry(
+    device const MRMetalWorldContactDispatchGPU& dispatch,
+    constant MRRodGPUDispatch& rod,
+    device const float* inverseTwistInertias,
+    device const MRRodColliderGPU* colliders,
+    device const float* restLengths,
+    device const float* twistStiffness,
+    const uint row,
+    const uint column
+) {
+    const uint globalRow = rod.rodEdgeBase + row;
+    const uint globalColumn = rod.rodEdgeBase + column;
+    const float timestep = dispatch.timestepAndBias.x;
+    float value = 0.0f;
+    if (row == column) {
+        const float inverseInertia =
+            inverseTwistInertias[globalRow];
+        if (!(inverseInertia > 0.0f)) {
+            return NAN;
+        }
+        value =
+            (1.0f +
+             timestep *
+                 max(rod.dampingDerivativeTolerance.y, 0.0f)) /
+            inverseInertia;
+    }
+    for (uint localBend = 0u;
+         localBend + 1u < rod.edgeCount;
+         ++localBend) {
+        const uint firstEdge =
+            rod.rodEdgeBase + localBend;
+        if (colliders[firstEdge].rodIndex !=
+            colliders[firstEdge + 1u].rodIndex) {
+            continue;
+        }
+        const int rowSign =
+            globalRow == firstEdge
+            ? -1
+            : globalRow == firstEdge + 1u
+            ? 1
+            : 0;
+        const int columnSign =
+            globalColumn == firstEdge
+            ? -1
+            : globalColumn == firstEdge + 1u
+            ? 1
+            : 0;
+        if (rowSign == 0 || columnSign == 0) {
+            continue;
+        }
+        const uint bendIndex =
+            firstEdge - colliders[firstEdge].rodIndex;
+        const float meanRest = max(
+            0.5f * (
+                restLengths[firstEdge] +
+                restLengths[firstEdge + 1u]
+            ),
+            1.0e-6f
+        );
+        value +=
+            float(rowSign * columnSign) *
+            timestep * timestep *
+            max(twistStiffness[bendIndex], 0.0f) /
+            meanRest;
+    }
+    return value;
+}
+
+inline float rodTranslationFactorValue(
+    device const float* factors,
+    const uint factorBase,
+    const uint row,
+    const uint column
+) {
+    if (column > row ||
+        row - column >=
+            MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH) {
+        return 0.0f;
+    }
+    return factors[
+        factorBase +
+        row * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH +
+        (row - column)
+    ];
+}
+
+inline bool solveRodTranslationFactor(
+    device const float* factors,
+    const uint factorBase,
+    const uint rowCount,
+    threadgroup float* vector,
+    const uint vectorBase
+) {
+    for (uint row = 0u; row < rowCount; ++row) {
+        float value = vector[vectorBase + row];
+        const uint first = row >
+                MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH - 1u
+            ? row -
+                (MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH - 1u)
+            : 0u;
+        for (uint column = first;
+             column < row;
+             ++column) {
+            value = fma(
+                -rodTranslationFactorValue(
+                    factors,
+                    factorBase,
+                    row,
+                    column
+                ),
+                vector[vectorBase + column],
+                value
+            );
+        }
+        const float diagonal = rodTranslationFactorValue(
+            factors,
+            factorBase,
+            row,
+            row
+        );
+        if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
+            return false;
+        }
+        vector[vectorBase + row] = value / diagonal;
+    }
+    for (uint reverse = 0u; reverse < rowCount; ++reverse) {
+        const uint row = rowCount - 1u - reverse;
+        float value = vector[vectorBase + row];
+        const uint last = min(
+            rowCount,
+            row + MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH
+        );
+        for (uint source = row + 1u;
+             source < last;
+             ++source) {
+            value = fma(
+                -rodTranslationFactorValue(
+                    factors,
+                    factorBase,
+                    source,
+                    row
+                ),
+                vector[vectorBase + source],
+                value
+            );
+        }
+        const float diagonal = rodTranslationFactorValue(
+            factors,
+            factorBase,
+            row,
+            row
+        );
+        vector[vectorBase + row] = value / diagonal;
+        if (!isfinite(vector[vectorBase + row])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+inline bool solveRodTwistFactor(
+    device const float* factors,
+    const uint factorBase,
+    const uint rowCount,
+    threadgroup float* vector,
+    const uint vectorBase
+) {
+    for (uint row = 0u; row < rowCount; ++row) {
+        float value = vector[vectorBase + row];
+        if (row != 0u) {
+            value = fma(
+                -factors[factorBase + 2u * row + 1u],
+                vector[vectorBase + row - 1u],
+                value
+            );
+        }
+        const float diagonal =
+            factors[factorBase + 2u * row];
+        if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
+            return false;
+        }
+        vector[vectorBase + row] = value / diagonal;
+    }
+    for (uint reverse = 0u; reverse < rowCount; ++reverse) {
+        const uint row = rowCount - 1u - reverse;
+        float value = vector[vectorBase + row];
+        if (row + 1u < rowCount) {
+            value = fma(
+                -factors[
+                    factorBase + 2u * (row + 1u) + 1u
+                ],
+                vector[vectorBase + row + 1u],
+                value
+            );
+        }
+        const float diagonal =
+            factors[factorBase + 2u * row];
+        vector[vectorBase + row] = value / diagonal;
+        if (!isfinite(vector[vectorBase + row])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+} // namespace
+
+// Factors the implicit DER response A = M + hD + h^2K once per rod and
+// microstep. Translation uses an exact scalar band for the retained
+// stretch/three-node bend stencil; twist uses a bidiagonal factor. Numerical
+// factors and later operator workspace share one private lifetime-planned
+// arena, while the compact cache is persistent diagnostic state.
+kernel void mr_world_factor_rod_operator(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    constant MRRodGPUDispatch& rod [[buffer(1)]],
+    device const MRRodNodeStateGPU* candidateRodNodes [[buffer(2)]],
+    device const float* inverseMasses [[buffer(3)]],
+    device const float* inverseTwistInertias [[buffer(4)]],
+    device const MRRodColliderGPU* colliders [[buffer(5)]],
+    device const float* restLengths [[buffer(6)]],
+    device const float* stretchStiffness [[buffer(7)]],
+    device const float* bendStiffness [[buffer(8)]],
+    device const float* twistStiffness [[buffer(9)]],
+    device MRRodFactorCacheGPU* caches [[buffer(10)]],
+    device float* operatorArena [[buffer(11)]],
+    constant uint& rodIndex [[buffer(12)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(13)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        rodIndex >= dispatch.rodCount) {
+        return;
+    }
+    const uint cacheIndex =
+        environment * dispatch.rodCount + rodIndex;
+    MRRodFactorCacheGPU cache = {};
+    cache.environment = environment;
+    cache.rodIndex = rodIndex;
+    cache.velocityOffset = rod.rodNodeBase;
+    cache.velocityCount = rod.nodeCount;
+    cache.blockCount = rod.rodEdgeBase;
+    cache.blockWidth = rod.edgeCount;
+    cache.generation =
+        pass.physicsSubstep +
+        pass.controlStep * max(dispatch.rodCount, 1u);
+    cache.code = MR_ROD_GPU_SUCCESS;
+    cache.failingElement = MR_INVALID_INDEX;
+    cache.diagnostics = float4(
+        INFINITY,
+        0.0f,
+        0.0f,
+        0.0f
+    );
+
+    const uint factorStride = rodFactorElementStride(dispatch);
+    const uint required =
+        factorStride +
+        3u * dispatch.rodNodeCount +
+        dispatch.rodEdgeCount;
+    if (dispatch.operatorVelocityCapacity < required ||
+        rod.nodeCount == 0u ||
+        rod.edgeCount + 1u != rod.nodeCount) {
+        cache.code = MR_ROD_GPU_INVALID_DISPATCH;
+        caches[cacheIndex] = cache;
+        return;
+    }
+    const uint factorBase =
+        environment * dispatch.operatorVelocityCapacity +
+        MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
+            rod.rodNodeBase +
+        MR_ROD_FACTOR_TWIST_FLOATS_PER_EDGE *
+            rod.rodEdgeBase;
+    cache.firstBlock = factorBase;
+    cache.flags =
+        MR_ROD_FACTOR_CACHE_TRANSLATION_BAND |
+        MR_ROD_FACTOR_CACHE_TWIST_BAND;
+    const uint nodeBase =
+        environment * dispatch.rodNodeCount;
+    device const MRRodNodeStateGPU* nodes =
+        candidateRodNodes + nodeBase;
+    uint projected = 0u;
+    float maximumProjection = 0.0f;
+    for (uint edge = 0u; edge < rod.edgeCount; ++edge) {
+        const uint globalEdge = rod.rodEdgeBase + edge;
+        if (stretchStiffness[globalEdge] < 0.0f) {
+            ++projected;
+            maximumProjection = max(
+                maximumProjection,
+                -stretchStiffness[globalEdge]
+            );
+        }
+        if (edge + 1u < rod.edgeCount) {
+            const uint bendIndex =
+                globalEdge - rodIndex;
+            if (bendStiffness[bendIndex] < 0.0f) {
+                ++projected;
+                maximumProjection = max(
+                    maximumProjection,
+                    -bendStiffness[bendIndex]
+                );
+            }
+            if (twistStiffness[bendIndex] < 0.0f) {
+                ++projected;
+                maximumProjection = max(
+                    maximumProjection,
+                    -twistStiffness[bendIndex]
+                );
+            }
+        }
+    }
+
+    const uint translationRows = 3u * rod.nodeCount;
+    for (uint row = 0u; row < translationRows; ++row) {
+        for (uint offset = 0u;
+             offset <
+                 MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH;
+             ++offset) {
+            operatorArena[
+                factorBase +
+                row * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH +
+                offset
+            ] = 0.0f;
+        }
+        const uint first = row >
+                MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH - 1u
+            ? row -
+                (MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH - 1u)
+            : 0u;
+        for (uint column = first;
+             column <= row;
+             ++column) {
+            float value = rodTranslationOperatorEntry(
+                dispatch,
+                rod,
+                nodes,
+                inverseMasses,
+                colliders,
+                restLengths,
+                stretchStiffness,
+                bendStiffness,
+                row,
+                column
+            );
+            const uint innerFirst = max(
+                first,
+                column >
+                        MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH -
+                            1u
+                    ? column -
+                        (
+                            MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH -
+                            1u
+                        )
+                    : 0u
+            );
+            for (uint inner = innerFirst;
+                 inner < column;
+                 ++inner) {
+                value = fma(
+                    -rodTranslationFactorValue(
+                        operatorArena,
+                        factorBase,
+                        row,
+                        inner
+                    ),
+                    rodTranslationFactorValue(
+                        operatorArena,
+                        factorBase,
+                        column,
+                        inner
+                    ),
+                    value
+                );
+            }
+            if (!isfinite(value)) {
+                cache.code = MR_ROD_GPU_NONFINITE_RESULT;
+                cache.failingElement = row;
+                caches[cacheIndex] = cache;
+                return;
+            }
+            if (row == column) {
+                const float scale = max(
+                    abs(rodTranslationOperatorEntry(
+                        dispatch,
+                        rod,
+                        nodes,
+                        inverseMasses,
+                        colliders,
+                        restLengths,
+                        stretchStiffness,
+                        bendStiffness,
+                        row,
+                        row
+                    )),
+                    1.0f
+                );
+                const float floor =
+                    64.0f * 1.1920928955078125e-7f *
+                    scale;
+                if (value < floor) {
+                    ++projected;
+                    maximumProjection = max(
+                        maximumProjection,
+                        floor - value
+                    );
+                    value = floor;
+                }
+                cache.diagnostics.x = min(
+                    cache.diagnostics.x,
+                    value
+                );
+                cache.diagnostics.y = max(
+                    cache.diagnostics.y,
+                    value
+                );
+                value = sqrt(value);
+            } else {
+                const float diagonal =
+                    rodTranslationFactorValue(
+                        operatorArena,
+                        factorBase,
+                        column,
+                        column
+                    );
+                if (!(diagonal > 0.0f)) {
+                    cache.code = MR_ROD_GPU_NONFINITE_RESULT;
+                    cache.failingElement = row;
+                    caches[cacheIndex] = cache;
+                    return;
+                }
+                value /= diagonal;
+            }
+            operatorArena[
+                factorBase +
+                row * MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH +
+                (row - column)
+            ] = value;
+        }
+    }
+
+    const uint twistBase =
+        factorBase +
+        MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
+            rod.nodeCount;
+    for (uint row = 0u; row < rod.edgeCount; ++row) {
+        float diagonal = rodTwistOperatorEntry(
+            dispatch,
+            rod,
+            inverseTwistInertias,
+            colliders,
+            restLengths,
+            twistStiffness,
+            row,
+            row
+        );
+        float lower = 0.0f;
+        if (row != 0u) {
+            const float previousDiagonal =
+                operatorArena[
+                    twistBase + 2u * (row - 1u)
+                ];
+            lower = rodTwistOperatorEntry(
+                dispatch,
+                rod,
+                inverseTwistInertias,
+                colliders,
+                restLengths,
+                twistStiffness,
+                row,
+                row - 1u
+            ) / previousDiagonal;
+            diagonal = fma(-lower, lower, diagonal);
+        }
+        if (!isfinite(diagonal) || !isfinite(lower)) {
+            cache.code = MR_ROD_GPU_NONFINITE_RESULT;
+            cache.failingElement = translationRows + row;
+            caches[cacheIndex] = cache;
+            return;
+        }
+        const float scale = max(
+            abs(rodTwistOperatorEntry(
+                dispatch,
+                rod,
+                inverseTwistInertias,
+                colliders,
+                restLengths,
+                twistStiffness,
+                row,
+                row
+            )),
+            1.0f
+        );
+        const float floor =
+            64.0f * 1.1920928955078125e-7f * scale;
+        if (diagonal < floor) {
+            ++projected;
+            maximumProjection = max(
+                maximumProjection,
+                floor - diagonal
+            );
+            diagonal = floor;
+        }
+        cache.diagnostics.x = min(
+            cache.diagnostics.x,
+            diagonal
+        );
+        cache.diagnostics.y = max(
+            cache.diagnostics.y,
+            diagonal
+        );
+        operatorArena[twistBase + 2u * row] =
+            sqrt(diagonal);
+        operatorArena[twistBase + 2u * row + 1u] =
+            lower;
+    }
+    cache.projectedCurvatureCount = projected;
+    cache.diagnostics.w = maximumProjection;
+    cache.flags |= MR_ROD_FACTOR_CACHE_VALID;
+    if (projected != 0u) {
+        cache.flags |=
+            MR_ROD_FACTOR_CACHE_PROJECTED_CURVATURE;
+    }
+    caches[cacheIndex] = cache;
+}
+
+namespace {
+
 inline uint findRoot(thread uint* parents, uint node) {
     uint current = node;
     while (parents[current] != current) {
@@ -9549,6 +10218,8 @@ kernel void mr_world_reconstruct_unified_quality_warm_start(
     device const float* warmImpulses [[buffer(6)]],
     device float* warmVelocities [[buffer(7)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(8)]],
+    device const MRRodFactorCacheGPU* rodFactorCaches [[buffer(9)]],
+    device const float* rodFactorArena [[buffer(10)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_simdgroup]]
 ) {
@@ -9733,26 +10404,75 @@ kernel void mr_world_reconstruct_unified_quality_warm_start(
             valid = valid && isfinite(value);
         }
     }
-    // The retained rod operator is banded. A diagonal solve is used only to
-    // construct the optional persistent-impulse starting point; Newton/PCG
-    // still sees every off-diagonal rod term in A and therefore converges to
-    // the identical primal objective.
-    for (uint dof = rodVelocityBase;
-         valid && dof < totalNv;
-         ++dof) {
-        const float diagonal = dynamicsMatrices[
-            dynamicsBase + dof * totalNv + dof
-        ];
-        if (!(diagonal > qualityDispatch.numerics.y) ||
-            !isfinite(diagonal)) {
+    // Rod coordinates consume the retained banded factor of the same
+    // M + hD + h^2K operator materialized above. This removes the old
+    // diagonal-only warm-start approximation without constructing an inverse.
+    for (uint rodIndex = 0u;
+         valid && rodIndex < dispatch.rodCount;
+         ++rodIndex) {
+        const MRRodFactorCacheGPU cache =
+            rodFactorCaches[
+                environment * dispatch.rodCount + rodIndex
+            ];
+        const uint nodeBase = cache.velocityOffset;
+        const uint nodeCount = cache.velocityCount;
+        const uint edgeBase = cache.blockCount;
+        const uint edgeCount = cache.blockWidth;
+        const bool cacheValid =
+            cache.environment == environment &&
+            cache.rodIndex == rodIndex &&
+            cache.code == MR_ROD_GPU_SUCCESS &&
+            (cache.flags & MR_ROD_FACTOR_CACHE_VALID) != 0u &&
+            nodeBase + nodeCount <= dispatch.rodNodeCount &&
+            edgeBase + edgeCount <= dispatch.rodEdgeCount;
+        if (!cacheValid) {
             valid = false;
             break;
         }
-        const float value =
-            freeVelocities[vectorBase + dof] +
-            generalizedImpulse[dof] / diagonal;
-        warmVelocities[vectorBase + dof] = value;
-        valid = isfinite(value);
+        const uint translationBase =
+            rodVelocityBase + 3u * nodeBase;
+        const uint twistBase =
+            rodVelocityBase +
+            3u * dispatch.rodNodeCount +
+            edgeBase;
+        valid = solveRodTranslationFactor(
+            rodFactorArena,
+            cache.firstBlock,
+            3u * nodeCount,
+            generalizedImpulse,
+            translationBase
+        );
+        if (valid) {
+            valid = solveRodTwistFactor(
+                rodFactorArena,
+                cache.firstBlock +
+                    MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
+                        nodeCount,
+                edgeCount,
+                generalizedImpulse,
+                twistBase
+            );
+        }
+        for (uint coordinate = 0u;
+             valid && coordinate < 3u * nodeCount;
+             ++coordinate) {
+            const uint dof = translationBase + coordinate;
+            const float value =
+                freeVelocities[vectorBase + dof] +
+                generalizedImpulse[dof];
+            warmVelocities[vectorBase + dof] = value;
+            valid = isfinite(value);
+        }
+        for (uint edge = 0u;
+             valid && edge < edgeCount;
+             ++edge) {
+            const uint dof = twistBase + edge;
+            const float value =
+                freeVelocities[vectorBase + dof] +
+                generalizedImpulse[dof];
+            warmVelocities[vectorBase + dof] = value;
+            valid = isfinite(value);
+        }
     }
     if (!valid) {
         // The persistent-impulse reconstruction is only the second of two

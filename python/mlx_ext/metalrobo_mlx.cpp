@@ -4226,6 +4226,22 @@ void WorldStepPrimitive::eval_gpu(
             static_cast<std::size_t>(environments) *
             constraintCapacity
         );
+    mx::array rodFactorCaches =
+        rawRecords.template operator()<MRRodFactorCacheGPU>(
+            std::max<std::size_t>(
+                static_cast<std::size_t>(environments) *
+                    rodCount,
+                1u
+            )
+        );
+    mx::array rodOperatorArena =
+        rawRecords.template operator()<float>(
+            std::max<std::size_t>(
+                static_cast<std::size_t>(environments) *
+                    capacity.operatorVelocityElements,
+                1u
+            )
+        );
     mx::array qualityBlocks =
         rawRecords.template operator()<MRUnifiedQualityBlockGPU>(
             qualityMode
@@ -5429,6 +5445,38 @@ void WorldStepPrimitive::eval_gpu(
                 environments,
                 resources.kernel("mr_world_latch_rod_status")
             );
+
+            setPhysicsKernel("mr_world_factor_rod_operator");
+            for (std::size_t rod = 0u;
+                 rod < rodDispatches.size();
+                 ++rod) {
+                const std::uint32_t rodIndex =
+                    static_cast<std::uint32_t>(rod);
+                encoder.set_bytes(contactDispatch, 0);
+                encoder.set_bytes(rodDispatches[rod], 1);
+                inputArray(candidateRodNodes, 2);
+                immutable(kImmutableRodInverseMasses, 3);
+                immutable(
+                    kImmutableRodInverseTwistInertias,
+                    4
+                );
+                immutable(kImmutableRodColliders, 5);
+                immutable(kImmutableRodRestLengths, 6);
+                immutable(kImmutableRodStretchStiffness, 7);
+                immutable(kImmutableRodBendStiffness, 8);
+                immutable(kImmutableRodTwistStiffness, 9);
+                outputArray(rodFactorCaches, 10);
+                outputArray(rodOperatorArena, 11);
+                encoder.set_bytes(rodIndex, 12);
+                encoder.set_bytes(pass, 13);
+                dispatchThreads(
+                    environments,
+                    resources.kernel(
+                        "mr_world_factor_rod_operator"
+                    )
+                );
+            }
+            encoder.barrier();
         }
 
         for (std::uint32_t eventPass = 0u;
@@ -6275,6 +6323,8 @@ void WorldStepPrimitive::eval_gpu(
             inputArray(qualityWarmImpulses, 6);
             outputArray(qualityWarmVelocity, 7);
             outputArray(outputs[16], 8);
+            inputArray(rodFactorCaches, 9);
+            inputArray(rodOperatorArena, 10);
             encoder.dispatch_threadgroups(
                 MTL::Size(environments, 1u, 1u),
                 MTL::Size(MR_SIMD_WIDTH, 1u, 1u)

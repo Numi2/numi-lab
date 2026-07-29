@@ -126,6 +126,20 @@ typedef struct MR_ALIGN16 MRRodFactorCacheGPU {
     mr_float4 diagnostics;
 } MRRodFactorCacheGPU;
 
+enum MRRodFactorCacheFlags : mr_u32 {
+    MR_ROD_FACTOR_CACHE_VALID = 1u << 0u,
+    MR_ROD_FACTOR_CACHE_TRANSLATION_BAND = 1u << 1u,
+    MR_ROD_FACTOR_CACHE_TWIST_BAND = 1u << 2u,
+    MR_ROD_FACTOR_CACHE_PROJECTED_CURVATURE = 1u << 3u,
+};
+
+// Translation uses a scalar lower Cholesky band with half-width eight. This
+// exactly covers the three-node bend stencil under xyz-interleaved node
+// ordering. Twist is a scalar bidiagonal Cholesky factor.
+#define MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH 9u
+#define MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE 27u
+#define MR_ROD_FACTOR_TWIST_FLOATS_PER_EDGE 2u
+
 typedef struct MR_ALIGN16 MRRodGPUDispatch {
     mr_u32 abiVersion;
     mr_u32 environmentCount;
