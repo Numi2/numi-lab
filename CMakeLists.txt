@@ -94,6 +94,12 @@ set(METALROBO_ARTICULATED_ABA_SMALL_AIR
 set(METALROBO_MULTI_ARTICULATED_ABA_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMultiArticulatedABA.air"
 )
+set(METALROBO_DISCRETE_ELASTIC_ROD_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/DiscreteElasticRod.metal"
+)
+set(METALROBO_DISCRETE_ELASTIC_ROD_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboDiscreteElasticRod.air"
+)
 set(METALROBO_ARTICULATED_INVERSE_MASS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedInverseMass.air"
 )
@@ -185,6 +191,13 @@ add_custom_command(
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
+            -o "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
             -o "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
@@ -223,6 +236,7 @@ add_custom_command(
             "${METALROBO_ARTICULATED_ABA_AIR}"
             "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
             "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
+            "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
             "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_WORLD_AIR}"
             "${METALROBO_WORLD_CONTACT_AIR}"
@@ -238,6 +252,7 @@ add_custom_command(
         "${METALROBO_BROADPHASE_SOURCE}"
         "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
         "${METALROBO_ARTICULATED_ABA_SOURCE}"
+        "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
         "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
         "${METALROBO_WORLD_SOURCE}"
         "${METALROBO_WORLD_CONTACT_SOURCE}"
@@ -248,6 +263,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/quality_solver_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/parallel_aba_shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/rod_gpu_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/world_compiler_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/r2s2r_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hybrid_renderer_types.h"
@@ -302,6 +318,7 @@ add_library(
     src/metal/MetalArticulatedOperator.mm
     src/metal/MetalArticulatedABA.mm
     src/metal/MetalMultiArticulatedABA.mm
+    src/metal/MetalDiscreteElasticRod.mm
     src/metal/MetalArticulatedInverseMass.mm
     src/metal/MetalQualityContactSolver.mm
     src/metal/MetalWorld.mm
@@ -585,6 +602,24 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_multi_articulated_aba_gpu_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_metal_discrete_elastic_rod_probe
+    apps/metal_discrete_elastic_rod_probe.mm
+)
+target_link_libraries(
+    metalrobo_metal_discrete_elastic_rod_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_metal_discrete_elastic_rod_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
