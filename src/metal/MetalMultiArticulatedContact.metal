@@ -1,5 +1,6 @@
 #include <metal_stdlib>
 
+#include "metalrobo/constraint_ir_shared.h"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/multi_contact_shared.h"
 #include "metalrobo/quality_solver_shared.h"
@@ -189,6 +190,78 @@ inline float3 statePointVelocity(
         cross(state.angularVelocity.xyz, offset);
 }
 
+inline bool evaluateEqualityRow(
+    const MRMultiContactDispatchGPU dispatch,
+    const MRConstraintIRRowGPU source,
+    const float relative,
+    thread float& target,
+    thread float& regularization
+) {
+    if (!all(isfinite(source.direction)) ||
+        !isfinite(source.positionError) ||
+        !isfinite(source.targetVelocity) ||
+        !isfinite(source.compliance) ||
+        !isfinite(source.dissipation) ||
+        !isfinite(source.timeConstant) ||
+        !isfinite(source.dampingRatio) ||
+        !isfinite(source.impulseLower) ||
+        !isfinite(source.impulseUpper) ||
+        source.compliance < 0.0f ||
+        source.dissipation < 0.0f ||
+        source.timeConstant < 0.0f ||
+        source.dampingRatio < 0.0f ||
+        source.impulseLower >
+            -0.5f * MR_CONSTRAINT_IR_UNBOUNDED ||
+        source.impulseUpper <
+            0.5f * MR_CONSTRAINT_IR_UNBOUNDED ||
+        (source.flags &
+         MR_CONSTRAINT_IR_ROW_UNILATERAL) != 0u) {
+        return false;
+    }
+    float stabilization = 0.0f;
+    if ((source.flags &
+         MR_CONSTRAINT_IR_ROW_POSITION_STABILIZED) != 0u) {
+        const float timestep =
+            dispatch.equalityEvaluation0.x;
+        const float tau = max(
+            source.timeConstant,
+            dispatch.equalityEvaluation0.z * timestep
+        );
+        if (!(tau > 0.0f) || !isfinite(tau)) {
+            return false;
+        }
+        const float ratio = timestep / tau;
+        const float denominator =
+            1.0f +
+            2.0f * source.dampingRatio * ratio +
+            ratio * ratio;
+        stabilization =
+            (
+                relative - source.targetVelocity -
+                timestep * source.positionError / (tau * tau)
+            ) / denominator;
+        stabilization = clamp(
+            stabilization,
+            -dispatch.equalityEvaluation0.y,
+            dispatch.equalityEvaluation0.y
+        );
+    }
+    target = source.targetVelocity + stabilization;
+    regularization = max(
+        source.compliance /
+            (
+                dispatch.equalityEvaluation0.x *
+                dispatch.equalityEvaluation0.x
+            ) +
+            source.dissipation /
+                dispatch.equalityEvaluation0.x,
+        dispatch.equalityEvaluation0.w
+    );
+    return isfinite(target) &&
+        isfinite(regularization) &&
+        regularization >= 0.0f;
+}
+
 } // namespace
 
 kernel void mr_multi_contact_assemble_jacobian(
@@ -251,7 +324,7 @@ kernel void mr_multi_contact_assemble_jacobian(
         true
     );
     jacobian[
-        (environment * dispatch.rowCount + row) *
+        (environment * dispatch.responseRowCount + row) *
             dispatch.totalNv +
         dof
     ] = fromB - fromA;
@@ -303,6 +376,31 @@ kernel void mr_multi_contact_pack_free_velocity(
     ] = value;
 }
 
+kernel void mr_multi_contact_scatter_equality_jacobian(
+    device const MRMultiContactDispatchGPU& dispatch [[buffer(0)]],
+    device const float* equalityJacobian [[buffer(1)]],
+    device float* combinedJacobian [[buffer(2)]],
+    uint3 index [[thread_position_in_grid]]
+) {
+    const uint dof = index.x;
+    const uint row = index.y;
+    const uint environment = index.z;
+    if (environment >= dispatch.environmentCount ||
+        row >= dispatch.equalityRowCount ||
+        dof >= dispatch.totalNv) {
+        return;
+    }
+    const uint combinedRow = dispatch.rowCount + row;
+    combinedJacobian[
+        (environment * dispatch.responseRowCount +
+         combinedRow) * dispatch.totalNv + dof
+    ] = dof < dispatch.articulatedNv
+        ? equalityJacobian[
+              row * dispatch.articulatedNv + dof
+          ]
+        : 0.0f;
+}
+
 kernel void mr_multi_contact_apply_scene_response(
     device const MRMultiContactDispatchGPU& dispatch [[buffer(0)]],
     device const float* jacobian [[buffer(1)]],
@@ -315,7 +413,7 @@ kernel void mr_multi_contact_apply_scene_response(
     const uint row = index.y;
     const uint environment = index.z;
     if (environment >= dispatch.environmentCount ||
-        row >= dispatch.rowCount ||
+        row >= dispatch.responseRowCount ||
         dof < dispatch.articulatedNv ||
         dof >= dispatch.totalNv) {
         return;
@@ -333,7 +431,7 @@ kernel void mr_multi_contact_apply_scene_response(
                 environment * dispatch.sceneBodyCount + body
             ];
         const uint base =
-            (environment * dispatch.rowCount + row) *
+            (environment * dispatch.responseRowCount + row) *
                 dispatch.totalNv;
         const uint local = dof - offset;
         float value = 0.0f;
@@ -361,6 +459,460 @@ kernel void mr_multi_contact_apply_scene_response(
     }
 }
 
+// Exact bilateral reduction for the small generalized-equality frontier.
+// Contact and equality rows share the same inverse-ABA response stream. One
+// SIMD32 group owns an environment; lane zero performs deterministic
+// Cholesky of G M^-1 G' + R while all lanes project velocity/response payloads.
+kernel void mr_multi_contact_project_equalities(
+    device const MRMultiContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRConstraintIRRowGPU* sourceRows [[buffer(1)]],
+    device const float* combinedJacobian [[buffer(2)]],
+    device const float* combinedResponse [[buffer(3)]],
+    device const MRInverseMassStatusGPU* inverseStatuses
+        [[buffer(4)]],
+    device const float* packedFreeVelocity [[buffer(5)]],
+    device float* projectedResponse [[buffer(6)]],
+    device float* projectedFreeVelocity [[buffer(7)]],
+    device float* equalityOperator [[buffer(8)]],
+    device float* equalityCoupling [[buffer(9)]],
+    device float* equalityFreeImpulses [[buffer(10)]],
+    device float* equalityTargets [[buffer(11)]],
+    device float* equalityRegularization [[buffer(12)]],
+    device MRMultiContactEqualityStatusGPU* statuses
+        [[buffer(13)]],
+    uint environment [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    threadgroup float factor[
+        MR_MULTI_CONTACT_MAX_EQUALITY_ROWS *
+        MR_MULTI_CONTACT_MAX_EQUALITY_ROWS
+    ];
+    threadgroup float right[
+        MR_MULTI_CONTACT_MAX_EQUALITY_ROWS
+    ];
+    threadgroup float solution[
+        MR_MULTI_CONTACT_MAX_EQUALITY_ROWS
+    ];
+    threadgroup atomic_uint sharedStatusCode;
+    threadgroup uint failingRow;
+    threadgroup float minimumPivot;
+
+    const uint equalityRows = dispatch.equalityRowCount;
+    const uint contactRows = dispatch.rowCount;
+    const uint totalNv = dispatch.totalNv;
+    const uint responseRows = dispatch.responseRowCount;
+    const uint velocityBase = environment * totalNv;
+    const uint combinedBase =
+        environment * responseRows * totalNv;
+    const uint projectedBase =
+        environment * contactRows * totalNv;
+    const uint operatorBase =
+        environment * equalityRows * equalityRows;
+    const uint couplingBase =
+        environment * equalityRows * contactRows;
+    const uint equalityBase = environment * equalityRows;
+
+    if (lane == 0u) {
+        uint statusCode =
+            MR_MULTI_CONTACT_EQUALITY_SUCCESS;
+        failingRow = MR_INVALID_INDEX;
+        minimumPivot = INFINITY;
+        if (dispatch.abiVersion !=
+                MR_MULTI_CONTACT_ABI_VERSION ||
+            equalityRows >
+                MR_MULTI_CONTACT_MAX_EQUALITY_ROWS ||
+            responseRows != contactRows + equalityRows ||
+            !(dispatch.equalityEvaluation0.x > 0.0f) ||
+            dispatch.equalityEvaluation0.y < 0.0f ||
+            dispatch.equalityEvaluation0.z < 0.0f ||
+            dispatch.equalityEvaluation0.w < 0.0f ||
+            !(dispatch.equalityEvaluation1.x > 0.0f) ||
+            !(dispatch.equalityEvaluation1.y > 0.0f) ||
+            !all(isfinite(dispatch.equalityEvaluation0)) ||
+            !all(isfinite(dispatch.equalityEvaluation1))) {
+            statusCode =
+                MR_MULTI_CONTACT_EQUALITY_INVALID_DISPATCH;
+        }
+        for (uint work = 0u;
+             statusCode ==
+                     MR_MULTI_CONTACT_EQUALITY_SUCCESS &&
+                 work < dispatch.inverseWorkCount;
+             ++work) {
+            const MRInverseMassStatusGPU inverse =
+                inverseStatuses[
+                    work * dispatch.environmentCount +
+                    environment
+                ];
+            if (inverse.code != MR_INVERSE_MASS_SUCCESS) {
+                statusCode =
+                    MR_MULTI_CONTACT_EQUALITY_INVERSE_MASS_FAILED;
+                failingRow = work;
+            }
+        }
+
+        float maximumDiagonal = 1.0f;
+        for (uint row = 0u;
+             statusCode ==
+                     MR_MULTI_CONTACT_EQUALITY_SUCCESS &&
+                 row < equalityRows;
+             ++row) {
+            const uint jacobianBase =
+                combinedBase +
+                (contactRows + row) * totalNv;
+            float relative = 0.0f;
+            for (uint dof = 0u; dof < totalNv; ++dof) {
+                relative = fma(
+                    combinedJacobian[jacobianBase + dof],
+                    packedFreeVelocity[velocityBase + dof],
+                    relative
+                );
+            }
+            float target = 0.0f;
+            float regularization = 0.0f;
+            if (!isfinite(relative) ||
+                !evaluateEqualityRow(
+                    dispatch,
+                    sourceRows[row],
+                    relative,
+                    target,
+                    regularization
+                )) {
+                statusCode =
+                    MR_MULTI_CONTACT_EQUALITY_INVALID_ROW;
+                failingRow = row;
+                break;
+            }
+            equalityTargets[equalityBase + row] = target;
+            equalityRegularization[equalityBase + row] =
+                regularization;
+            right[row] = target - relative;
+            for (uint column = 0u;
+                 column < equalityRows;
+                 ++column) {
+                const uint responseBase =
+                    combinedBase +
+                    (contactRows + column) * totalNv;
+                float value = 0.0f;
+                for (uint dof = 0u;
+                     dof < totalNv;
+                     ++dof) {
+                    value = fma(
+                        combinedJacobian[
+                            jacobianBase + dof
+                        ],
+                        combinedResponse[
+                            responseBase + dof
+                        ],
+                        value
+                    );
+                }
+                factor[row * equalityRows + column] = value;
+            }
+        }
+        for (uint row = 0u;
+             statusCode ==
+                     MR_MULTI_CONTACT_EQUALITY_SUCCESS &&
+                 row < equalityRows;
+             ++row) {
+            for (uint column = row + 1u;
+                 column < equalityRows;
+                 ++column) {
+                const float symmetric = 0.5f * (
+                    factor[row * equalityRows + column] +
+                    factor[column * equalityRows + row]
+                );
+                factor[row * equalityRows + column] =
+                    symmetric;
+                factor[column * equalityRows + row] =
+                    symmetric;
+            }
+            factor[row * equalityRows + row] +=
+                equalityRegularization[equalityBase + row];
+            maximumDiagonal = max(
+                maximumDiagonal,
+                abs(factor[row * equalityRows + row])
+            );
+        }
+        for (uint index = 0u;
+             index < equalityRows * equalityRows;
+             ++index) {
+            equalityOperator[operatorBase + index] =
+                factor[index];
+        }
+        const float pivotFloor =
+            dispatch.equalityEvaluation1.x * maximumDiagonal;
+        for (uint row = 0u;
+             statusCode ==
+                     MR_MULTI_CONTACT_EQUALITY_SUCCESS &&
+                 row < equalityRows;
+             ++row) {
+            for (uint column = 0u;
+                 column <= row;
+                 ++column) {
+                float value =
+                    factor[row * equalityRows + column];
+                for (uint inner = 0u;
+                     inner < column;
+                     ++inner) {
+                    value = fma(
+                        -factor[
+                            row * equalityRows + inner
+                        ],
+                        factor[
+                            column * equalityRows + inner
+                        ],
+                        value
+                    );
+                }
+                if (row == column) {
+                    if (!(value > pivotFloor) ||
+                        !isfinite(value)) {
+                        statusCode =
+                            MR_MULTI_CONTACT_EQUALITY_FACTORIZATION_FAILED;
+                        failingRow = row;
+                        break;
+                    }
+                    const float pivot = sqrt(value);
+                    factor[row * equalityRows + column] =
+                        pivot;
+                    minimumPivot = min(minimumPivot, pivot);
+                } else {
+                    value /=
+                        factor[
+                            column * equalityRows + column
+                        ];
+                    if (!isfinite(value)) {
+                        statusCode =
+                            MR_MULTI_CONTACT_EQUALITY_NONFINITE_RESULT;
+                        failingRow = row;
+                        break;
+                    }
+                    factor[row * equalityRows + column] =
+                        value;
+                }
+            }
+        }
+        if (statusCode ==
+                MR_MULTI_CONTACT_EQUALITY_SUCCESS &&
+            equalityRows != 0u) {
+            for (uint row = 0u;
+                 row < equalityRows;
+                 ++row) {
+                float value = right[row];
+                for (uint column = 0u;
+                     column < row;
+                     ++column) {
+                    value = fma(
+                        -factor[
+                            row * equalityRows + column
+                        ],
+                        solution[column],
+                        value
+                    );
+                }
+                solution[row] =
+                    value /
+                    factor[row * equalityRows + row];
+            }
+            for (uint reverse = 0u;
+                 reverse < equalityRows;
+                 ++reverse) {
+                const uint row =
+                    equalityRows - 1u - reverse;
+                float value = solution[row];
+                for (uint column = row + 1u;
+                     column < equalityRows;
+                     ++column) {
+                    value = fma(
+                        -factor[
+                            column * equalityRows + row
+                        ],
+                        right[column],
+                        value
+                    );
+                }
+                right[row] =
+                    value /
+                    factor[row * equalityRows + row];
+            }
+            for (uint row = 0u;
+                 row < equalityRows;
+                 ++row) {
+                equalityFreeImpulses[
+                    equalityBase + row
+                ] = right[row];
+            }
+
+            for (uint contactRow = 0u;
+                 contactRow < contactRows;
+                 ++contactRow) {
+                for (uint equalityRow = 0u;
+                     equalityRow < equalityRows;
+                     ++equalityRow) {
+                    const uint jacobianBase =
+                        combinedBase +
+                        (contactRows + equalityRow) *
+                            totalNv;
+                    const uint responseBase =
+                        combinedBase +
+                        contactRow * totalNv;
+                    float value = 0.0f;
+                    for (uint dof = 0u;
+                         dof < totalNv;
+                         ++dof) {
+                        value = fma(
+                            combinedJacobian[
+                                jacobianBase + dof
+                            ],
+                            combinedResponse[
+                                responseBase + dof
+                            ],
+                            value
+                        );
+                    }
+                    solution[equalityRow] = value;
+                }
+                for (uint row = 0u;
+                     row < equalityRows;
+                     ++row) {
+                    float value = solution[row];
+                    for (uint column = 0u;
+                         column < row;
+                         ++column) {
+                        value = fma(
+                            -factor[
+                                row * equalityRows + column
+                            ],
+                            right[column],
+                            value
+                        );
+                    }
+                    right[row] =
+                        value /
+                        factor[row * equalityRows + row];
+                }
+                for (uint reverse = 0u;
+                     reverse < equalityRows;
+                     ++reverse) {
+                    const uint row =
+                        equalityRows - 1u - reverse;
+                    float value = right[row];
+                    for (uint column = row + 1u;
+                         column < equalityRows;
+                         ++column) {
+                        value = fma(
+                            -factor[
+                                column * equalityRows + row
+                            ],
+                            solution[column],
+                            value
+                        );
+                    }
+                    solution[row] =
+                        value /
+                        factor[row * equalityRows + row];
+                }
+                for (uint row = 0u;
+                     row < equalityRows;
+                     ++row) {
+                    equalityCoupling[
+                        couplingBase +
+                        row * contactRows + contactRow
+                    ] = solution[row];
+                }
+            }
+        }
+        atomic_store_explicit(
+            &sharedStatusCode,
+            statusCode,
+            memory_order_relaxed
+        );
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const uint resolvedStatusCode =
+        atomic_load_explicit(
+            &sharedStatusCode,
+            memory_order_relaxed
+        );
+    const bool succeeded =
+        resolvedStatusCode ==
+            MR_MULTI_CONTACT_EQUALITY_SUCCESS;
+    for (uint dof = lane;
+         dof < totalNv;
+         dof += 32u) {
+        float value =
+            packedFreeVelocity[velocityBase + dof];
+        if (succeeded) {
+            for (uint row = 0u;
+                 row < equalityRows;
+                 ++row) {
+                value = fma(
+                    combinedResponse[
+                        combinedBase +
+                        (contactRows + row) * totalNv +
+                        dof
+                    ],
+                    equalityFreeImpulses[
+                        equalityBase + row
+                    ],
+                    value
+                );
+            }
+        }
+        projectedFreeVelocity[velocityBase + dof] =
+            isfinite(value)
+            ? value
+            : packedFreeVelocity[velocityBase + dof];
+    }
+    for (uint linear = lane;
+         linear < contactRows * totalNv;
+         linear += 32u) {
+        const uint contactRow = linear / totalNv;
+        const uint dof = linear - contactRow * totalNv;
+        float value =
+            combinedResponse[
+                combinedBase + contactRow * totalNv + dof
+            ];
+        if (succeeded) {
+            for (uint row = 0u;
+                 row < equalityRows;
+                 ++row) {
+                value = fma(
+                    -combinedResponse[
+                        combinedBase +
+                        (contactRows + row) * totalNv +
+                        dof
+                    ],
+                    equalityCoupling[
+                        couplingBase +
+                        row * contactRows + contactRow
+                    ],
+                    value
+                );
+            }
+        }
+        projectedResponse[projectedBase + linear] =
+            isfinite(value) ? value : 0.0f;
+    }
+    threadgroup_barrier(mem_flags::mem_device |
+                        mem_flags::mem_threadgroup);
+
+    if (lane == 0u) {
+        MRMultiContactEqualityStatusGPU status = {};
+        status.code = resolvedStatusCode;
+        status.environment = environment;
+        status.failingRow = failingRow;
+        status.rowCount = equalityRows;
+        status.diagnostics.y =
+            equalityRows == 0u ? 0.0f : minimumPivot;
+        statuses[environment] = status;
+    }
+}
+
 kernel void mr_multi_contact_delassus(
     device const MRMultiContactDispatchGPU& dispatch [[buffer(0)]],
     device const float* jacobian [[buffer(1)]],
@@ -377,7 +929,7 @@ kernel void mr_multi_contact_delassus(
         return;
     }
     const uint rowBase =
-        (environment * dispatch.rowCount + row) *
+        (environment * dispatch.responseRowCount + row) *
             dispatch.totalNv;
     const uint columnBase =
         (environment * dispatch.rowCount + column) *
@@ -428,7 +980,7 @@ kernel void mr_multi_contact_free_contact_velocity(
         endpoints[contactIndex];
     const float3 axis = contactAxis(contact, localRow);
     const uint jacobianBase =
-        (environment * dispatch.rowCount + row) *
+        (environment * dispatch.responseRowCount + row) *
             dispatch.totalNv;
     const uint velocityBase =
         environment * dispatch.totalNv;
@@ -567,6 +1119,15 @@ kernel void mr_multi_contact_finalize(
     device float* physicalImpulses [[buffer(9)]],
     device float* nextVelocity [[buffer(10)]],
     device MRMultiContactStatusGPU* statuses [[buffer(11)]],
+    device const float* projectedFreeVelocity [[buffer(12)]],
+    device const float* equalityJacobian [[buffer(13)]],
+    device const float* equalityTargets [[buffer(14)]],
+    device const float* equalityRegularization [[buffer(15)]],
+    device const float* equalityFreeImpulses [[buffer(16)]],
+    device const float* equalityCoupling [[buffer(17)]],
+    device float* equalityImpulses [[buffer(18)]],
+    device MRMultiContactEqualityStatusGPU* equalityStatuses
+        [[buffer(19)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
@@ -612,6 +1173,14 @@ kernel void mr_multi_contact_finalize(
             status.inverseMassCode = inverse.code;
         }
     }
+    MRMultiContactEqualityStatusGPU equality =
+        equalityStatuses[environment];
+    if (status.code == MR_MULTI_CONTACT_SUCCESS &&
+        equality.code !=
+            MR_MULTI_CONTACT_EQUALITY_SUCCESS) {
+        status.code = MR_MULTI_CONTACT_EQUALITY_FAILED;
+        status.failingWork = equality.failingRow;
+    }
     const MRMetalQualityStatusGPU quality =
         qualityStatuses[environment];
     if (status.code == MR_MULTI_CONTACT_SUCCESS &&
@@ -624,6 +1193,11 @@ kernel void mr_multi_contact_finalize(
         environment * dispatch.totalNv;
     const uint rowBase =
         environment * dispatch.rowCount;
+    const uint equalityBase =
+        environment * dispatch.equalityRowCount;
+    const uint couplingBase =
+        environment * dispatch.equalityRowCount *
+            dispatch.rowCount;
     float maximumImpulse = 0.0f;
     float maximumVelocityChange = 0.0f;
     for (uint row = 0u;
@@ -653,12 +1227,19 @@ kernel void mr_multi_contact_finalize(
              ++row) {
             physicalImpulses[rowBase + row] = 0.0f;
         }
+        for (uint row = 0u;
+             row < dispatch.equalityRowCount;
+             ++row) {
+            equalityImpulses[equalityBase + row] = 0.0f;
+        }
     }
     for (uint dof = 0u;
          dof < dispatch.totalNv;
          ++dof) {
-        const float freeValue =
+        const float publishedInput =
             packedFreeVelocity[velocityBase + dof];
+        const float freeValue =
+            projectedFreeVelocity[velocityBase + dof];
         float candidate = freeValue;
         if (status.code == MR_MULTI_CONTACT_SUCCESS) {
             for (uint row = 0u;
@@ -678,17 +1259,137 @@ kernel void mr_multi_contact_finalize(
         if (!isfinite(candidate)) {
             status.code =
                 MR_MULTI_CONTACT_NONFINITE_RESULT;
-            candidate = freeValue;
+            candidate = publishedInput;
         }
         nextVelocity[velocityBase + dof] =
             status.code == MR_MULTI_CONTACT_SUCCESS
             ? candidate
-            : freeValue;
+            : publishedInput;
         maximumVelocityChange = max(
             maximumVelocityChange,
-            abs(candidate - freeValue)
+            abs(candidate - publishedInput)
         );
     }
+
+    float maximumEqualityResidual = 0.0f;
+    float maximumEqualityImpulse = 0.0f;
+    float maximumNullSpaceLeakage = 0.0f;
+    for (uint row = 0u;
+         row < dispatch.equalityRowCount;
+         ++row) {
+        float impulse =
+            equalityFreeImpulses[equalityBase + row];
+        if (status.code == MR_MULTI_CONTACT_SUCCESS) {
+            for (uint contactRow = 0u;
+                 contactRow < dispatch.rowCount;
+                 ++contactRow) {
+                impulse = fma(
+                    -equalityCoupling[
+                        couplingBase +
+                        row * dispatch.rowCount +
+                        contactRow
+                    ],
+                    physicalImpulses[rowBase + contactRow],
+                    impulse
+                );
+            }
+        } else {
+            impulse = 0.0f;
+        }
+        equalityImpulses[equalityBase + row] = impulse;
+        maximumEqualityImpulse = max(
+            maximumEqualityImpulse,
+            abs(impulse)
+        );
+        float residual =
+            -equalityTargets[equalityBase + row] +
+            equalityRegularization[equalityBase + row] *
+                impulse;
+        const uint jacobianBase =
+            row * dispatch.articulatedNv;
+        for (uint dof = 0u;
+             dof < dispatch.articulatedNv;
+             ++dof) {
+            residual = fma(
+                equalityJacobian[jacobianBase + dof],
+                nextVelocity[velocityBase + dof],
+                residual
+            );
+        }
+        maximumEqualityResidual = max(
+            maximumEqualityResidual,
+            abs(residual)
+        );
+        for (uint contactRow = 0u;
+             contactRow < dispatch.rowCount;
+             ++contactRow) {
+            float leakage = 0.0f;
+            for (uint dof = 0u;
+                 dof < dispatch.articulatedNv;
+                 ++dof) {
+                leakage = fma(
+                    equalityJacobian[
+                        jacobianBase + dof
+                    ],
+                    responseColumns[
+                        (environment * dispatch.rowCount +
+                         contactRow) * dispatch.totalNv + dof
+                    ],
+                    leakage
+                );
+            }
+            leakage +=
+                equalityRegularization[
+                    equalityBase + row
+                ] *
+                equalityCoupling[
+                    couplingBase +
+                    row * dispatch.rowCount + contactRow
+                ];
+            maximumNullSpaceLeakage = max(
+                maximumNullSpaceLeakage,
+                abs(leakage)
+            );
+        }
+    }
+    if (status.code == MR_MULTI_CONTACT_SUCCESS &&
+        (
+            !isfinite(maximumEqualityResidual) ||
+            !isfinite(maximumEqualityImpulse) ||
+            !isfinite(maximumNullSpaceLeakage) ||
+            maximumEqualityResidual >
+                dispatch.equalityEvaluation1.y ||
+            maximumNullSpaceLeakage >
+                dispatch.equalityEvaluation1.y
+        )) {
+        status.code = MR_MULTI_CONTACT_EQUALITY_FAILED;
+        equality.code =
+            MR_MULTI_CONTACT_EQUALITY_RESIDUAL_FAILED;
+        for (uint dof = 0u;
+             dof < dispatch.totalNv;
+             ++dof) {
+            nextVelocity[velocityBase + dof] =
+                packedFreeVelocity[velocityBase + dof];
+        }
+        for (uint row = 0u;
+             row < dispatch.rowCount;
+             ++row) {
+            physicalImpulses[rowBase + row] = 0.0f;
+        }
+        for (uint row = 0u;
+             row < dispatch.equalityRowCount;
+             ++row) {
+            equalityImpulses[equalityBase + row] = 0.0f;
+        }
+    }
+    equality.code =
+        status.code == MR_MULTI_CONTACT_EQUALITY_FAILED
+        ? equality.code
+        : MR_MULTI_CONTACT_EQUALITY_SUCCESS;
+    equality.diagnostics.x = maximumEqualityResidual;
+    equality.diagnostics.z = maximumEqualityImpulse;
+    equality.diagnostics.w = maximumNullSpaceLeakage;
+    equalityStatuses[environment] = equality;
 
     float minimumDiagonal = INFINITY;
     float maximumAsymmetry = 0.0f;

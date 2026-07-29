@@ -2,8 +2,9 @@
 
 #include "metalrobo/gpu_types.h"
 
-#define MR_MULTI_CONTACT_ABI_VERSION 1u
+#define MR_MULTI_CONTACT_ABI_VERSION 2u
 #define MR_MULTI_CONTACT_MAX_CONTACTS 32u
+#define MR_MULTI_CONTACT_MAX_EQUALITY_ROWS 32u
 
 enum MRMultiContactEndpointKindGPU : mr_u32 {
     MR_MULTI_CONTACT_ARTICULATED = 0u,
@@ -19,6 +20,17 @@ enum MRMultiContactStatusCode : mr_u32 {
     MR_MULTI_CONTACT_INVALID_CONTACT = 4u,
     MR_MULTI_CONTACT_QUALITY_FAILED = 5u,
     MR_MULTI_CONTACT_NONFINITE_RESULT = 6u,
+    MR_MULTI_CONTACT_EQUALITY_FAILED = 7u,
+};
+
+enum MRMultiContactEqualityStatusCode : mr_u32 {
+    MR_MULTI_CONTACT_EQUALITY_SUCCESS = 0u,
+    MR_MULTI_CONTACT_EQUALITY_INVALID_DISPATCH = 1u,
+    MR_MULTI_CONTACT_EQUALITY_INVERSE_MASS_FAILED = 2u,
+    MR_MULTI_CONTACT_EQUALITY_INVALID_ROW = 3u,
+    MR_MULTI_CONTACT_EQUALITY_FACTORIZATION_FAILED = 4u,
+    MR_MULTI_CONTACT_EQUALITY_NONFINITE_RESULT = 5u,
+    MR_MULTI_CONTACT_EQUALITY_RESIDUAL_FAILED = 6u,
 };
 
 typedef struct MR_ALIGN16 MRMultiContactDispatchGPU {
@@ -33,12 +45,17 @@ typedef struct MR_ALIGN16 MRMultiContactDispatchGPU {
     mr_u32 rowCount;
 
     mr_u32 inverseWorkCount;
+    mr_u32 equalityRowCount;
+    mr_u32 responseRowCount;
     mr_u32 reserved0;
-    mr_u32 reserved1;
-    mr_u32 reserved2;
 
     // symmetry tolerance, diagonal tolerance, reserved, reserved.
     mr_float4 tolerances;
+    // timestep, maximum stabilization velocity, minimum time-constant ratio,
+    // minimum regularization.
+    mr_float4 equalityEvaluation0;
+    // relative pivot floor, equality residual tolerance, reserved, reserved.
+    mr_float4 equalityEvaluation1;
 } MRMultiContactDispatchGPU;
 
 // Per-environment contact geometry and exact-cone semantics. Topology lives
@@ -97,10 +114,22 @@ typedef struct MR_ALIGN16 MRMultiContactStatusGPU {
     mr_float4 diagnostics;
 } MRMultiContactStatusGPU;
 
+typedef struct MR_ALIGN16 MRMultiContactEqualityStatusGPU {
+    mr_u32 code;
+    mr_u32 environment;
+    mr_u32 failingRow;
+    mr_u32 rowCount;
+
+    // maximum equality residual, minimum Cholesky pivot, maximum equality
+    // impulse, maximum null-space leakage.
+    mr_float4 diagnostics;
+} MRMultiContactEqualityStatusGPU;
+
 #ifndef __METAL_VERSION__
-static_assert(sizeof(MRMultiContactDispatchGPU) == 64u);
+static_assert(sizeof(MRMultiContactDispatchGPU) == 96u);
 static_assert(sizeof(MRMultiContactGPU) == 144u);
 static_assert(sizeof(MRMultiContactEndpointsGPU) == 32u);
 static_assert(sizeof(MRMultiContactJacobianSliceGPU) == 32u);
 static_assert(sizeof(MRMultiContactStatusGPU) == 48u);
+static_assert(sizeof(MRMultiContactEqualityStatusGPU) == 32u);
 #endif

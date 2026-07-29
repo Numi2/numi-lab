@@ -205,8 +205,11 @@ needle contact solve.
 The standalone Metal frontend now assembles those identical global rows on
 device. In one command buffer it emits articulation-local point Jacobians,
 packs dynamic scene-body 6D blocks, applies every articulation-local inverse
-ABA response packet, constructs `J M^-1 J'`, solves the exact circular cones,
-and transactionally publishes candidate velocities per environment. It owns
+ABA response packet, appends generalized equality rows to the same RHS stream,
+constructs their small Schur complement, projects contact response into the
+equality null space, constructs the projected `J M^-1 J'`, solves the exact
+circular cones, reconstructs equality impulses, and transactionally publishes
+candidate velocities per environment. It owns
 no CPU solver fallback and exposes failed point, inverse-mass, quality and
 physical-operator stages separately. This first host boundary intentionally
 uses owned shared buffers and one terminal wait for evidence extraction; it
@@ -223,14 +226,10 @@ normalized primal-cone, dual-cone and complementarity KKT residual. This
 prevents a stiff operator's small projected-gradient step from making a zero
 impulse look converged. A cold, ill-conditioned solve that cannot meet the
 FP32 certificate fails transactionally; persistent manifold warm starts
-converge and expose the achieved KKT value.
-
-The current device comparison deliberately targets the unprojected contact
-operator while the constrained FP64 result is the oracle for the next graph
-step. Moving the small equality Schur factor and null-space projection into
-the same Metal command graph is the remaining device-side coupling boundary;
-the documentation does not treat the adjacent generalized-constraint
-primitive as equivalent.
+converge and expose the achieved KKT value. On the constrained dual-PSM
+needle scene, the Metal result matches the FP64 state, contact and reconstructed
+equality impulse payload within `6.9e-8`; all fourteen base-lock and jaw-gear
+rows close at `7.5e-9`.
 
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training

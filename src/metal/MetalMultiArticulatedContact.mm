@@ -54,6 +54,7 @@ struct Prepared {
     std::size_t bodyPoseElements = 0u;
     std::size_t pointWorldElements = 0u;
     std::size_t pointGeneralizedElements = 0u;
+    std::span<const float> equalityJacobian{};
 };
 
 MetalMultiArticulatedContactDiagnostics reject(
@@ -317,7 +318,26 @@ bool validConfiguration(
         finite(config.delassusSymmetryTolerance) &&
         config.delassusSymmetryTolerance > 0.0f &&
         finite(config.delassusDiagonalTolerance) &&
-        config.delassusDiagonalTolerance > 0.0f;
+        config.delassusDiagonalTolerance > 0.0f &&
+        finite(config.equalityEvaluation.timestep) &&
+        config.equalityEvaluation.timestep > 0.0 &&
+        finite(
+            config.equalityEvaluation
+                .maximumDepenetrationVelocity
+        ) &&
+        config.equalityEvaluation
+                .maximumDepenetrationVelocity >= 0.0 &&
+        finite(
+            config.equalityEvaluation.minimumTimeConstantRatio
+        ) &&
+        config.equalityEvaluation
+                .minimumTimeConstantRatio >= 0.0 &&
+        finite(config.equalityEvaluation.minimumRegularization) &&
+        config.equalityEvaluation.minimumRegularization >= 0.0 &&
+        finite(config.equalityPivotTolerance) &&
+        config.equalityPivotTolerance > 0.0f &&
+        finite(config.equalityResidualTolerance) &&
+        config.equalityResidualTolerance > 0.0f;
 }
 
 bool validSceneBody(
@@ -381,6 +401,7 @@ bool validSceneBody(
 MetalMultiArticulatedContactDiagnostics prepare(
     const EngineModel& model,
     const ParallelABASchedule& schedule,
+    const std::span<const float> equalityJacobian,
     const MetalMultiArticulatedContactInput& input,
     const MetalMultiArticulatedContactConfig& config,
     Prepared& output
@@ -481,6 +502,19 @@ MetalMultiArticulatedContactDiagnostics prepare(
 
     Prepared staged;
     staged.schedule = &schedule;
+    staged.equalityJacobian = equalityJacobian;
+    const std::size_t equalityRows =
+        model.constraintProgram.rows.size();
+    if (equalityRows > MR_MULTI_CONTACT_MAX_EQUALITY_ROWS ||
+        equalityJacobian.size() !=
+            equalityRows * model.world.nv) {
+        return reject(
+            std::move(diagnostics),
+            MetalMultiArticulatedContactStatus::
+                unsupportedTopology,
+            "compiled generalized equality layout is invalid"
+        );
+    }
     staged.sceneVelocityOffsets.assign(
         input.sceneBodyCount,
         MR_INVALID_INDEX
@@ -915,7 +949,10 @@ MetalMultiArticulatedContactDiagnostics prepare(
     }
 
     const std::size_t rowCount = 3u * input.contactCount;
+    const std::size_t responseRowCount =
+        rowCount + equalityRows;
     std::size_t environmentRows = 0u;
+    std::size_t environmentResponseRows = 0u;
     std::size_t rowPairs = 0u;
     if (!checkedMultiply(
             input.environmentCount,
@@ -928,7 +965,12 @@ MetalMultiArticulatedContactDiagnostics prepare(
             environmentRows
         ) ||
         !checkedMultiply(
-            environmentRows,
+            input.environmentCount,
+            responseRowCount,
+            environmentResponseRows
+        ) ||
+        !checkedMultiply(
+            environmentResponseRows,
             totalNv,
             staged.layout.jacobianElements
         ) ||
@@ -946,9 +988,33 @@ MetalMultiArticulatedContactDiagnostics prepare(
     }
     staged.layout.delassusElements = rowPairs;
     staged.layout.rowElements = environmentRows;
+    staged.layout.responseRowElements =
+        environmentResponseRows;
+    if (!checkedMultiply(
+            input.environmentCount,
+            equalityRows * equalityRows,
+            staged.layout.equalityOperatorElements
+        ) ||
+        !checkedMultiply(
+            input.environmentCount,
+            equalityRows * rowCount,
+            staged.layout.equalityCouplingElements
+        ) ||
+        !checkedMultiply(
+            input.environmentCount,
+            equalityRows,
+            staged.layout.equalityImpulseElements
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalMultiArticulatedContactStatus::
+                arithmeticOverflow,
+            "equality projection arena size overflow"
+        );
+    }
     std::size_t inverseEnvironmentStride = 0u;
     if (!checkedMultiply(
-            rowCount,
+            responseRowCount,
             totalNv,
             inverseEnvironmentStride
         ) ||
@@ -963,11 +1029,11 @@ MetalMultiArticulatedContactDiagnostics prepare(
     }
 
     for (std::size_t rowBegin = 0u;
-         rowBegin < rowCount;
+         rowBegin < responseRowCount;
          rowBegin += MR_ARTICULATED_INVERSE_MASS_MAX_RHS) {
         const std::size_t chunkRows = std::min<std::size_t>(
             MR_ARTICULATED_INVERSE_MASS_MAX_RHS,
-            rowCount - rowBegin
+            responseRowCount - rowBegin
         );
         for (std::size_t articulationIndex = 0u;
              articulationIndex < model.articulations.size();
@@ -1030,9 +1096,35 @@ MetalMultiArticulatedContactDiagnostics prepare(
         static_cast<std::uint32_t>(
             staged.layout.inverseMassDispatches.size()
         );
+    dispatch.equalityRowCount =
+        static_cast<std::uint32_t>(equalityRows);
+    dispatch.responseRowCount =
+        static_cast<std::uint32_t>(responseRowCount);
     dispatch.tolerances = {
         config.delassusSymmetryTolerance,
         config.delassusDiagonalTolerance,
+        0.0f,
+        0.0f,
+    };
+    dispatch.equalityEvaluation0 = {
+        static_cast<float>(
+            config.equalityEvaluation.timestep
+        ),
+        static_cast<float>(
+            config.equalityEvaluation
+                .maximumDepenetrationVelocity
+        ),
+        static_cast<float>(
+            config.equalityEvaluation
+                .minimumTimeConstantRatio
+        ),
+        static_cast<float>(
+            config.equalityEvaluation.minimumRegularization
+        ),
+    };
+    dispatch.equalityEvaluation1 = {
+        config.equalityPivotTolerance,
+        config.equalityResidualTolerance,
         0.0f,
         0.0f,
     };
@@ -1106,6 +1198,47 @@ MetalMultiArticulatedContactDiagnostics prepare(
         ) &&
         MR_ADD_BUFFER(float, staged.layout.jacobianElements) &&
         MR_ADD_BUFFER(float, staged.layout.jacobianElements) &&
+        MR_ADD_BUFFER(
+            float,
+            staged.layout.rowElements * totalNv
+        ) &&
+        MR_ADD_BUFFER(
+            float,
+            staged.layout.packedVelocityElements
+        ) &&
+        MR_ADD_BUFFER(float, equalityJacobian.size()) &&
+        MR_ADD_BUFFER(
+            ConstraintIRRow,
+            model.constraintProgram.rows.size()
+        ) &&
+        MR_ADD_BUFFER(
+            float,
+            staged.layout.equalityOperatorElements
+        ) &&
+        MR_ADD_BUFFER(
+            float,
+            staged.layout.equalityCouplingElements
+        ) &&
+        MR_ADD_BUFFER(
+            float,
+            staged.layout.equalityImpulseElements
+        ) &&
+        MR_ADD_BUFFER(
+            float,
+            staged.layout.equalityImpulseElements
+        ) &&
+        MR_ADD_BUFFER(
+            float,
+            staged.layout.equalityImpulseElements
+        ) &&
+        MR_ADD_BUFFER(
+            float,
+            staged.layout.equalityImpulseElements
+        ) &&
+        MR_ADD_BUFFER(
+            MRMultiContactEqualityStatusGPU,
+            input.environmentCount
+        ) &&
         MR_ADD_BUFFER(
             MRMultiInverseMassDispatchGPU,
             staged.layout.inverseMassDispatches.size()
@@ -1202,6 +1335,7 @@ static MetalMultiArticulatedContactDiagnostics
 solveMetalMultiArticulatedContactsImpl(
     const EngineModel& model,
     const ParallelABASchedule& schedule,
+    const std::span<const float> equalityJacobian,
     const MetalMultiArticulatedContactInput& input,
     MetalMultiArticulatedContactResult& output,
     const MetalMultiArticulatedContactConfig& config
@@ -1212,6 +1346,7 @@ solveMetalMultiArticulatedContactsImpl(
         diagnostics = prepare(
             model,
             schedule,
+            equalityJacobian,
             input,
             config,
             prepared
@@ -1292,19 +1427,21 @@ solveMetalMultiArticulatedContactsImpl(
             );
         }
 
-        const std::array<NSString*, 10> names{
+        const std::array<NSString*, 12> names{
             @"mr_articulated_operator",
             @"mr_multi_contact_assemble_jacobian",
             @"mr_multi_contact_pack_free_velocity",
+            @"mr_multi_contact_scatter_equality_jacobian",
             @"mr_parallel_multi_articulated_inverse_mass",
             @"mr_multi_contact_apply_scene_response",
+            @"mr_multi_contact_project_equalities",
             @"mr_multi_contact_delassus",
             @"mr_multi_contact_free_contact_velocity",
             @"mr_multi_contact_prepare_quality_matrix",
             @"mr_multi_contact_prepare_quality_vector",
             @"mr_quality_contact_solve",
         };
-        std::array<id<MTLComputePipelineState>, 10> pipelines{};
+        std::array<id<MTLComputePipelineState>, 12> pipelines{};
         for (std::size_t index = 0u;
              index < names.size();
              ++index) {
@@ -1336,8 +1473,9 @@ solveMetalMultiArticulatedContactsImpl(
             );
         if (finalizePipeline == nil ||
             pipelines[0].threadExecutionWidth != kWaveWidth ||
-            pipelines[3].threadExecutionWidth != kWaveWidth ||
-            pipelines[9].threadExecutionWidth != kWaveWidth ||
+            pipelines[4].threadExecutionWidth != kWaveWidth ||
+            pipelines[6].threadExecutionWidth != kWaveWidth ||
+            pipelines[11].threadExecutionWidth != kWaveWidth ||
             finalizePipeline.threadExecutionWidth != kWaveWidth) {
             return reject(
                 std::move(diagnostics),
@@ -1454,6 +1592,62 @@ solveMetalMultiArticulatedContactsImpl(
             outputBuffer<float>(
                 device, layout.jacobianElements
             );
+        id<MTLBuffer> equalityJacobianBuffer = inputBuffer(
+            device,
+            prepared.equalityJacobian.data(),
+            prepared.equalityJacobian.size()
+        );
+        id<MTLBuffer> equalityRowBuffer = inputBuffer(
+            device,
+            model.constraintProgram.rows.data(),
+            model.constraintProgram.rows.size()
+        );
+        id<MTLBuffer> projectedResponseBuffer =
+            outputBuffer<float>(
+                device,
+                layout.rowElements *
+                    layout.dispatch.totalNv
+            );
+        id<MTLBuffer> projectedFreeBuffer =
+            outputBuffer<float>(
+                device,
+                layout.packedVelocityElements
+            );
+        id<MTLBuffer> equalityOperatorBuffer =
+            outputBuffer<float>(
+                device,
+                layout.equalityOperatorElements
+            );
+        id<MTLBuffer> equalityCouplingBuffer =
+            outputBuffer<float>(
+                device,
+                layout.equalityCouplingElements
+            );
+        id<MTLBuffer> equalityFreeImpulseBuffer =
+            outputBuffer<float>(
+                device,
+                layout.equalityImpulseElements
+            );
+        id<MTLBuffer> equalityTargetBuffer =
+            outputBuffer<float>(
+                device,
+                layout.equalityImpulseElements
+            );
+        id<MTLBuffer> equalityRegularizationBuffer =
+            outputBuffer<float>(
+                device,
+                layout.equalityImpulseElements
+            );
+        id<MTLBuffer> equalityImpulseBuffer =
+            outputBuffer<float>(
+                device,
+                layout.equalityImpulseElements
+            );
+        id<MTLBuffer> equalityStatusBuffer =
+            outputBuffer<MRMultiContactEqualityStatusGPU>(
+                device,
+                input.environmentCount
+            );
         id<MTLBuffer> inverseDispatchBuffer = inputBuffer(
             device,
             layout.inverseMassDispatches.data(),
@@ -1549,6 +1743,12 @@ solveMetalMultiArticulatedContactsImpl(
             endpointBuffer, sliceBuffer, sceneBodyBuffer,
             sceneOffsetBuffer, freeArticulationBuffer,
             packedFreeBuffer, jacobianBuffer, responseBuffer,
+            equalityJacobianBuffer, equalityRowBuffer,
+            projectedResponseBuffer, projectedFreeBuffer,
+            equalityOperatorBuffer, equalityCouplingBuffer,
+            equalityFreeImpulseBuffer, equalityTargetBuffer,
+            equalityRegularizationBuffer,
+            equalityImpulseBuffer, equalityStatusBuffer,
             inverseDispatchBuffer, inverseStatusBuffer,
             scheduleArticulationBuffer, scheduleLevelBuffer,
             scheduleReductionBuffer, scheduleLevelBodyBuffer,
@@ -1632,6 +1832,15 @@ solveMetalMultiArticulatedContactsImpl(
             jacobianBuffer,
             responseBuffer,
             delassusBuffer,
+            projectedResponseBuffer,
+            projectedFreeBuffer,
+            equalityOperatorBuffer,
+            equalityCouplingBuffer,
+            equalityFreeImpulseBuffer,
+            equalityTargetBuffer,
+            equalityRegularizationBuffer,
+            equalityImpulseBuffer,
+            equalityStatusBuffer,
         };
         for (id<MTLBuffer> buffer : zeroedBuffers) {
             [blit fillBuffer:buffer
@@ -1768,6 +1977,24 @@ solveMetalMultiArticulatedContactsImpl(
                 1u
             )
             threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        if (layout.dispatch.equalityRowCount != 0u) {
+            [encoder setComputePipelineState:pipelines[3]];
+            [encoder setBuffer:dispatchBuffer
+                         offset:0u atIndex:0u];
+            [encoder setBuffer:equalityJacobianBuffer
+                         offset:0u atIndex:1u];
+            [encoder setBuffer:jacobianBuffer
+                         offset:0u atIndex:2u];
+            [encoder
+                dispatchThreads:MTLSizeMake(
+                    layout.dispatch.totalNv,
+                    layout.dispatch.equalityRowCount,
+                    input.environmentCount
+                )
+                threadsPerThreadgroup:MTLSizeMake(
+                    32u, 1u, 1u
+                )];
+        }
         const std::array rowProducts{
             jacobianBuffer,
             packedFreeBuffer,
@@ -1776,7 +2003,7 @@ solveMetalMultiArticulatedContactsImpl(
             memoryBarrierWithResources:rowProducts.data()
                                  count:rowProducts.size()];
 
-        [encoder setComputePipelineState:pipelines[3]];
+        [encoder setComputePipelineState:pipelines[4]];
         const std::array inverseBuffers{
             worldBuffer, articulationBuffer, jointBuffer,
             dofBuffer, bodyBuffer, inverseDispatchBuffer,
@@ -1807,7 +2034,7 @@ solveMetalMultiArticulatedContactsImpl(
                 kWaveWidth, 1u, 1u
             )];
 
-        [encoder setComputePipelineState:pipelines[4]];
+        [encoder setComputePipelineState:pipelines[5]];
         const std::array sceneResponseBuffers{
             dispatchBuffer, jacobianBuffer, sceneBodyBuffer,
             sceneOffsetBuffer, responseBuffer,
@@ -1821,7 +2048,7 @@ solveMetalMultiArticulatedContactsImpl(
         [encoder
             dispatchThreads:MTLSizeMake(
                 layout.dispatch.totalNv,
-                layout.dispatch.rowCount,
+                layout.dispatch.responseRowCount,
                 input.environmentCount
             )
             threadsPerThreadgroup:MTLSizeMake(8u, 4u, 1u)];
@@ -1833,10 +2060,51 @@ solveMetalMultiArticulatedContactsImpl(
             memoryBarrierWithResources:responseProducts.data()
                                  count:responseProducts.size()];
 
-        [encoder setComputePipelineState:pipelines[5]];
+        [encoder setComputePipelineState:pipelines[6]];
+        const std::array equalityBuffers{
+            dispatchBuffer, equalityRowBuffer,
+            jacobianBuffer, responseBuffer,
+            inverseStatusBuffer, packedFreeBuffer,
+            projectedResponseBuffer, projectedFreeBuffer,
+            equalityOperatorBuffer, equalityCouplingBuffer,
+            equalityFreeImpulseBuffer, equalityTargetBuffer,
+            equalityRegularizationBuffer,
+            equalityStatusBuffer,
+        };
+        for (NSUInteger index = 0u;
+             index < equalityBuffers.size();
+             ++index) {
+            [encoder setBuffer:equalityBuffers[index]
+                        offset:0u atIndex:index];
+        }
+        [encoder
+            dispatchThreadgroups:MTLSizeMake(
+                input.environmentCount,
+                1u,
+                1u
+            )
+            threadsPerThreadgroup:MTLSizeMake(
+                kWaveWidth, 1u, 1u
+            )];
+        const std::array equalityProducts{
+            projectedResponseBuffer,
+            projectedFreeBuffer,
+            equalityOperatorBuffer,
+            equalityCouplingBuffer,
+            equalityFreeImpulseBuffer,
+            equalityTargetBuffer,
+            equalityRegularizationBuffer,
+            equalityStatusBuffer,
+        };
+        [encoder
+            memoryBarrierWithResources:equalityProducts.data()
+                                 count:equalityProducts.size()];
+
+        [encoder setComputePipelineState:pipelines[7]];
         [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
         [encoder setBuffer:jacobianBuffer offset:0u atIndex:1u];
-        [encoder setBuffer:responseBuffer offset:0u atIndex:2u];
+        [encoder setBuffer:projectedResponseBuffer
+                     offset:0u atIndex:2u];
         [encoder setBuffer:delassusBuffer offset:0u atIndex:3u];
         [encoder
             dispatchThreads:MTLSizeMake(
@@ -1846,10 +2114,10 @@ solveMetalMultiArticulatedContactsImpl(
             )
             threadsPerThreadgroup:MTLSizeMake(8u, 8u, 1u)];
 
-        [encoder setComputePipelineState:pipelines[6]];
+        [encoder setComputePipelineState:pipelines[8]];
         const std::array velocityBuffers{
             dispatchBuffer, contactBuffer, endpointBuffer,
-            jacobianBuffer, packedFreeBuffer, sceneBodyBuffer,
+            jacobianBuffer, projectedFreeBuffer, sceneBodyBuffer,
             sceneOffsetBuffer, freeContactBuffer,
         };
         for (NSUInteger index = 0u;
@@ -1873,7 +2141,7 @@ solveMetalMultiArticulatedContactsImpl(
             memoryBarrierWithResources:contactProducts.data()
                                  count:contactProducts.size()];
 
-        [encoder setComputePipelineState:pipelines[7]];
+        [encoder setComputePipelineState:pipelines[9]];
         const std::array matrixBuffers{
             dispatchBuffer, contactBuffer, delassusBuffer,
             qualityMatrixBuffer,
@@ -1892,7 +2160,7 @@ solveMetalMultiArticulatedContactsImpl(
             )
             threadsPerThreadgroup:MTLSizeMake(8u, 8u, 1u)];
 
-        [encoder setComputePipelineState:pipelines[8]];
+        [encoder setComputePipelineState:pipelines[10]];
         const std::array vectorBuffers{
             dispatchBuffer, contactBuffer, freeContactBuffer,
             linearBuffer, warmBuffer, scaleBuffer,
@@ -1920,7 +2188,7 @@ solveMetalMultiArticulatedContactsImpl(
             memoryBarrierWithResources:qualityInputs.data()
                                  count:qualityInputs.size()];
 
-        [encoder setComputePipelineState:pipelines[9]];
+        [encoder setComputePipelineState:pipelines[11]];
         const std::array qualityBuffers{
             qualityDispatchBuffer, qualityMatrixBuffer,
             linearBuffer, warmBuffer, compactImpulseBuffer,
@@ -1954,9 +2222,16 @@ solveMetalMultiArticulatedContactsImpl(
             dispatchBuffer, pointStatusBuffer,
             inverseStatusBuffer, qualityStatusBuffer,
             scaleBuffer, compactImpulseBuffer,
-            packedFreeBuffer, responseBuffer, delassusBuffer,
+            packedFreeBuffer, projectedResponseBuffer,
+            delassusBuffer,
             physicalImpulseBuffer, nextVelocityBuffer,
             statusBuffer,
+            projectedFreeBuffer, equalityJacobianBuffer,
+            equalityTargetBuffer,
+            equalityRegularizationBuffer,
+            equalityFreeImpulseBuffer,
+            equalityCouplingBuffer, equalityImpulseBuffer,
+            equalityStatusBuffer,
         };
         for (NSUInteger index = 0u;
              index < finalizeBuffers.size();
@@ -2000,7 +2275,13 @@ solveMetalMultiArticulatedContactsImpl(
         staged.impulses.resize(layout.rowElements);
         staged.delassus.resize(layout.delassusElements);
         staged.freeContactVelocity.resize(layout.rowElements);
+        staged.equalityImpulses.resize(
+            layout.equalityImpulseElements
+        );
         staged.statuses.resize(input.environmentCount);
+        staged.equalityStatuses.resize(
+            input.environmentCount
+        );
         staged.pointStatuses.resize(pointStatusElements);
         staged.inverseMassStatuses.resize(
             inverseStatusElements
@@ -2015,7 +2296,15 @@ solveMetalMultiArticulatedContactsImpl(
             staged.freeContactVelocity,
             freeContactBuffer
         );
+        copyBuffer(
+            staged.equalityImpulses,
+            equalityImpulseBuffer
+        );
         copyBuffer(staged.statuses, statusBuffer);
+        copyBuffer(
+            staged.equalityStatuses,
+            equalityStatusBuffer
+        );
         copyBuffer(staged.pointStatuses, pointStatusBuffer);
         copyBuffer(
             staged.inverseMassStatuses,
@@ -2034,13 +2323,29 @@ solveMetalMultiArticulatedContactsImpl(
                 staged.statuses[environment];
             if (status.environment != environment ||
                 status.code >
-                    MR_MULTI_CONTACT_NONFINITE_RESULT ||
+                    MR_MULTI_CONTACT_EQUALITY_FAILED ||
                 !finite(status.diagnostics)) {
                 return reject(
                     std::move(diagnostics),
                     MetalMultiArticulatedContactStatus::
                         internalFailure,
                     "GPU returned malformed contact status"
+                );
+            }
+            const MRMultiContactEqualityStatusGPU&
+                equalityStatus =
+                    staged.equalityStatuses[environment];
+            if (equalityStatus.environment != environment ||
+                equalityStatus.rowCount !=
+                    layout.dispatch.equalityRowCount ||
+                equalityStatus.code >
+                    MR_MULTI_CONTACT_EQUALITY_RESIDUAL_FAILED ||
+                !finite(equalityStatus.diagnostics)) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalMultiArticulatedContactStatus::
+                        internalFailure,
+                    "GPU returned malformed equality status"
                 );
             }
             if (status.code != MR_MULTI_CONTACT_SUCCESS &&
@@ -2072,6 +2377,12 @@ solveMetalMultiArticulatedContactsImpl(
              ) ||
              !std::ranges::all_of(
                  staged.freeContactVelocity,
+                 [](const float value) {
+                     return finite(value);
+                 }
+             ) ||
+             !std::ranges::all_of(
+                 staged.equalityImpulses,
                  [](const float value) {
                      return finite(value);
                  }
@@ -2116,6 +2427,7 @@ solveMetalMultiArticulatedContacts(
     return solveMetalMultiArticulatedContactsImpl(
         program.model(),
         program.abaSchedule(),
+        program.generalizedEqualityJacobian(),
         input,
         output,
         config
@@ -2140,6 +2452,7 @@ solveMetalMultiArticulatedContacts(
     return solveMetalMultiArticulatedContactsImpl(
         program.model(),
         program.abaSchedule(),
+        program.generalizedEqualityJacobian(),
         input,
         output,
         config

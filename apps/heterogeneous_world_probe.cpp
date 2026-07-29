@@ -175,15 +175,6 @@ int main() {
                     psmNeedleProblem,
                     contactDynamics
                 );
-        const metalrobo::MultiArticulatedContactProblem
-            rawPsmNeedleProblem = psmNeedleProblem;
-        metalrobo::MultiArticulatedContactSolution
-            rawPsmNeedleSolution;
-        const auto rawContactSolve =
-            metalrobo::solveMultiArticulatedContactProblem(
-                rawPsmNeedleProblem,
-                rawPsmNeedleSolution
-            );
         metalrobo::ConstraintIREvaluationConfig
             equalityConfig;
         equalityConfig.timestep =
@@ -204,7 +195,6 @@ int main() {
             );
         require(
             contactBuild.succeeded() &&
-                rawContactSolve.succeeded() &&
                 equalityProjection.succeeded() &&
                 contactSolve.succeeded() &&
                 psmNeedleProblem.articulatedNv ==
@@ -267,7 +257,7 @@ int main() {
              ++contact) {
             for (std::size_t row = 0u; row < 3u; ++row) {
                 metalPsmContacts[contact].warmImpulse[row] =
-                    rawPsmNeedleSolution.impulses[
+                    psmNeedleSolution.impulses[
                         3u * contact + row
                     ];
             }
@@ -339,58 +329,78 @@ int main() {
         double maximumMetalContactError = 0.0;
         double maximumMetalDelassusError = 0.0;
         for (std::size_t index = 0u;
-             index < rawPsmNeedleProblem.conic.delassus.size();
+             index < psmNeedleProblem.conic.delassus.size();
              ++index) {
             maximumMetalDelassusError = std::max(
                 maximumMetalDelassusError,
                 std::abs(
-                    rawPsmNeedleProblem.conic.delassus[index] -
+                    psmNeedleProblem.conic.delassus[index] -
                     metalContact.delassus[index]
                 )
             );
         }
         for (std::size_t index = 0u;
-             index < rawPsmNeedleSolution.impulses.size();
+             index < psmNeedleSolution.impulses.size();
              ++index) {
             maximumMetalContactError = std::max(
                 maximumMetalContactError,
                 std::abs(
-                    rawPsmNeedleSolution.impulses[index] -
+                    psmNeedleSolution.impulses[index] -
                     metalContact.impulses[index]
                 )
             );
         }
         for (std::size_t index = 0u;
              index <
-                 rawPsmNeedleSolution.generalizedVelocity.size();
+                 psmNeedleSolution.generalizedVelocity.size();
              ++index) {
             maximumMetalContactError = std::max(
                 maximumMetalContactError,
                 std::abs(
-                    rawPsmNeedleSolution.generalizedVelocity[
+                    psmNeedleSolution.generalizedVelocity[
                         index
                     ] -
                     metalContact.nextVelocity[index]
                 )
             );
         }
+        for (std::size_t index = 0u;
+             index <
+                 psmNeedleSolution
+                     .generalizedConstraintImpulses.size();
+             ++index) {
+            maximumMetalContactError = std::max(
+                maximumMetalContactError,
+                std::abs(
+                    psmNeedleSolution
+                        .generalizedConstraintImpulses[index] -
+                    metalContact.equalityImpulses[index]
+                )
+            );
+        }
         require(
-            maximumMetalContactError < 3.0e-3,
+            maximumMetalContactError < 3.0e-3 &&
+                metalContact.equalityStatuses.size() == 1u &&
+                metalContact.equalityStatuses[0].code ==
+                    MR_MULTI_CONTACT_EQUALITY_SUCCESS &&
+                metalContact.equalityStatuses[0]
+                        .diagnostics.x <
+                    metalConfig.equalityResidualTolerance,
             "dual PSM/needle Metal contact disagrees with FP64: " +
                 std::to_string(maximumMetalContactError) +
                 " W=" +
                 std::to_string(maximumMetalDelassusError) +
                 " impulses=" +
-                std::to_string(rawPsmNeedleSolution.impulses[0]) +
+                std::to_string(psmNeedleSolution.impulses[0]) +
                 "/" +
                 std::to_string(metalContact.impulses[0]) +
                 "," +
-                std::to_string(rawPsmNeedleSolution.impulses[3]) +
+                std::to_string(psmNeedleSolution.impulses[3]) +
                 "/" +
                 std::to_string(metalContact.impulses[3]) +
                 " free=" +
                 std::to_string(
-                    rawPsmNeedleProblem.conic
+                    psmNeedleProblem.conic
                         .freeContactVelocity[0]
                 ) +
                 "/" +
@@ -399,7 +409,7 @@ int main() {
                 ) +
                 "," +
                 std::to_string(
-                    rawPsmNeedleProblem.conic
+                    psmNeedleProblem.conic
                         .freeContactVelocity[3]
                 ) +
                 "/" +
@@ -408,13 +418,13 @@ int main() {
                 ) +
                 " Wn=" +
                 std::to_string(
-                    rawPsmNeedleProblem.conic.delassus[0]
+                    psmNeedleProblem.conic.delassus[0]
                 ) +
                 "/" +
                 std::to_string(metalContact.delassus[0]) +
                 "," +
                 std::to_string(
-                    rawPsmNeedleProblem.conic.delassus[
+                    psmNeedleProblem.conic.delassus[
                         3u * 6u + 3u
                     ]
                 ) +
@@ -543,6 +553,8 @@ int main() {
             << " equality_residual="
             << contactSolve
                    .maximumGeneralizedConstraintResidual
+            << " metal_equality_residual="
+            << metalContact.equalityStatuses[0].diagnostics.x
             << " metal_contact_error="
             << maximumMetalContactError
             << " metal_kkt="

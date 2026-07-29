@@ -27,6 +27,10 @@ public:
     [[nodiscard]] const EngineModel& model() const noexcept;
     [[nodiscard]] const ParallelABASchedule& abaSchedule()
         const noexcept;
+    [[nodiscard]] std::span<const float>
+    generalizedEqualityJacobian() const noexcept;
+    [[nodiscard]] std::uint32_t equalityRowCount()
+        const noexcept;
     [[nodiscard]] std::uint64_t fingerprint() const noexcept;
 
 private:
@@ -38,6 +42,7 @@ private:
 
     EngineModel model_;
     ParallelABASchedule schedule_;
+    std::vector<float> generalizedEqualityJacobian_;
     std::uint64_t fingerprint_ = 0u;
 };
 
@@ -60,6 +65,9 @@ struct MetalMultiArticulatedContactConfig {
     MetalQualityContactSolverConfig quality{};
     float delassusSymmetryTolerance = 2.0e-4f;
     float delassusDiagonalTolerance = 2.0e-5f;
+    ConstraintIREvaluationConfig equalityEvaluation{};
+    float equalityPivotTolerance = 2.0e-6f;
+    float equalityResidualTolerance = 2.0e-4f;
     std::string metallibPath;
 };
 
@@ -97,8 +105,12 @@ struct MetalMultiArticulatedContactLayout {
     std::size_t pointJacobianElements = 0u;
     std::size_t packedVelocityElements = 0u;
     std::size_t jacobianElements = 0u;
+    std::size_t responseRowElements = 0u;
     std::size_t delassusElements = 0u;
     std::size_t rowElements = 0u;
+    std::size_t equalityOperatorElements = 0u;
+    std::size_t equalityCouplingElements = 0u;
+    std::size_t equalityImpulseElements = 0u;
     std::size_t totalAllocatedBytes = 0u;
 };
 
@@ -109,7 +121,10 @@ struct MetalMultiArticulatedContactResult {
     std::vector<float> impulses;
     std::vector<float> delassus;
     std::vector<float> freeContactVelocity;
+    std::vector<float> equalityImpulses;
     std::vector<MRMultiContactStatusGPU> statuses;
+    std::vector<MRMultiContactEqualityStatusGPU>
+        equalityStatuses;
     std::vector<MRArticulatedOperatorStatusGPU>
         pointStatuses;
     std::vector<MRInverseMassStatusGPU>
@@ -144,10 +159,12 @@ compileMetalMultiArticulatedContactProgram(
     CompiledMetalMultiArticulatedContactProgram& output
 );
 
-// Executes point-Jacobian projection, global row assembly, articulated and
-// 6D scene-body inverse response, Delassus construction, exact-cone Metal
-// quality solve, and transactional velocity publication in one command
-// buffer. There is no CPU collision/solver fallback and no intermediate wait.
+// Executes point-Jacobian projection, global contact/equality row assembly,
+// articulated and 6D scene-body inverse response, exact generalized-equality
+// Schur reduction, projected Delassus construction, exact-cone Metal quality
+// solve, equality reconstruction/certification, and transactional velocity
+// publication in one command buffer. There is no CPU collision/solver
+// fallback and no intermediate wait.
 [[nodiscard]] MetalMultiArticulatedContactDiagnostics
 solveMetalMultiArticulatedContacts(
     const EngineModel& model,

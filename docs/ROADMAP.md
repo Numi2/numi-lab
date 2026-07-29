@@ -99,16 +99,16 @@ prototype.
   the semismooth natural residual and an explicit normalized primal/dual/
   complementarity KKT certificate; stiff cold starts fail rather than
   publishing a false zero-impulse solution
-- **Landed coupled equality/contact oracle:** FP64 multi-articulation contact
-  now eliminates model-owned unbounded equality and gear rows through a small
-  Schur complement assembled with articulation-local inverse ABA. Dual-PSM
-  base locks, jaw gears and needle contacts share one operator, with final
-  equality impulses and residual evidence
+- **Landed coupled equality/contact solve:** FP64 and Metal
+  multi-articulation contact eliminate model-owned unbounded equality and gear
+  rows through a small Schur complement assembled with articulation-local
+  inverse ABA. Dual-PSM base locks, jaw gears and needle contacts share one
+  operator, with final equality impulses, null-space leakage and residual
+  evidence
 - Move the actuation/free-motion ABA step itself from lane-zero recursion onto
   the cooked frontiers, then reuse its per-microstep factor cache across
   actuation, generalized constraints, and contact response
-- Move the landed equality/contact Schur projection into the Metal command
-  graph, then compile complete unilateral joint-limit warm starts and
+- Compile complete unilateral joint-limit warm starts and general spatial
   equality/loop constraints into shared ConstraintIR; finish self-collision exclusions,
   coupled stiction, and calibrated rolling/torsional patch blocks
 - Scatter persistent manifold endpoints into the landed Metal row frontend,

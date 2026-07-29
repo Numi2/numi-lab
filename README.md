@@ -152,7 +152,10 @@ linked or called at runtime.
   deterministic replay and per-environment transactional rollback. An
   immutable compiled contact program cooks the parallel-ABA frontier schedule
   once; the canonical dual-PSM/needle world executes as a 34-DoF Metal island
-  and agrees with its FP64 oracle
+  and agrees with its FP64 oracle. The same command graph appends static
+  generalized equality rows to the inverse-ABA RHS stream, factors their small
+  Schur complement on device, projects contact into the equality null space,
+  and certifies reconstructed equality impulses before publication
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication
@@ -180,8 +183,7 @@ v4 carries the event-time and persistent-worker contract while ConstraintIR
 remains ABI v2. Implicit position drives and joint-boundary projection are
 executable. The 40,000-step/s Franka contact gate, trained 60-second G1
 standing gate, dedicated tiled heightfields, fully composed
-device-side generalized-equality/contact Schur projection in fully composed
-multi-articulation contact islands, patch rolling/torsional solve,
+manifold-to-row multi-articulation contact islands, patch rolling/torsional solve,
 mesh-backed URDF/MJCF/OpenUSD workflows, rendering breadth, coupled
 thread self/tool collision and tissue mechanics, unified cone/scalar
 matrix-free Metal quality solve,

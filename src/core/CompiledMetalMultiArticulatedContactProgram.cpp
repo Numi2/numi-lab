@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cmath>
 #include <new>
 #include <span>
 #include <string>
@@ -55,7 +56,8 @@ std::uint64_t hashSpan(
 
 std::uint64_t fingerprint(
     const EngineModel& model,
-    const ParallelABASchedule& schedule
+    const ParallelABASchedule& schedule,
+    const std::span<const float> equalityJacobian
 ) {
     std::uint64_t hash = kFnvOffset;
     hash = hashBytes(
@@ -73,12 +75,103 @@ std::uint64_t fingerprint(
     hash = hashSpan<MRBodyPropertiesGPU>(hash, model.bodies);
     hash = hashSpan<float>(hash, model.defaultQ);
     hash = hashSpan<float>(hash, model.defaultV);
+    hash = hashSpan<ConstraintIRBlock>(
+        hash,
+        model.constraintProgram.blocks
+    );
+    hash = hashSpan<ConstraintIREndpoint>(
+        hash,
+        model.constraintProgram.endpoints
+    );
+    hash = hashSpan<ConstraintIRRow>(
+        hash,
+        model.constraintProgram.rows
+    );
+    hash = hashSpan<float>(
+        hash,
+        model.constraintProgram.warmImpulses
+    );
+    hash = hashSpan<float>(hash, equalityJacobian);
     hash = hashBytes(
         hash,
         &schedule.fingerprint,
         sizeof(schedule.fingerprint)
     );
     return hash == 0u ? 1u : hash;
+}
+
+bool compileEqualityJacobian(
+    const EngineModel& model,
+    std::vector<float>& jacobian
+) {
+    const ConstraintIR& program = model.constraintProgram;
+    if (program.rows.size() >
+            MR_MULTI_CONTACT_MAX_EQUALITY_ROWS ||
+        !program.cones.empty()) {
+        return false;
+    }
+    jacobian.assign(
+        program.rows.size() * model.world.nv,
+        0.0f
+    );
+    for (const ConstraintIRBlock& block : program.blocks) {
+        if (block.type == MR_CONSTRAINT_CONTACT ||
+            block.coneIndex != kConstraintIRInvalidIndex ||
+            (block.flags & constraintIRBlockDisabled) != 0u) {
+            return false;
+        }
+        for (std::uint32_t local = 0u;
+             local < block.endpointCount;
+             ++local) {
+            const ConstraintIREndpoint& endpoint =
+                program.endpoints[
+                    block.endpointOffset + local
+                ];
+            const std::uint32_t localRow =
+                endpoint.flags & constraintIREndpointRowMask;
+            if (endpoint.jacobianKind !=
+                    constraintIRJacobianGeneralized ||
+                endpoint.objectIndex >= model.world.nv ||
+                localRow >= block.dimension ||
+                !std::isfinite(endpoint.axis.x)) {
+                return false;
+            }
+            float& coefficient = jacobian[
+                (block.rowOffset + localRow) *
+                    model.world.nv +
+                endpoint.objectIndex
+            ];
+            coefficient += endpoint.axis.x;
+            if (!std::isfinite(coefficient)) {
+                return false;
+            }
+        }
+    }
+    for (std::size_t row = 0u;
+         row < program.rows.size();
+         ++row) {
+        const ConstraintIRRow& semantics = program.rows[row];
+        if (semantics.impulseLower >
+                -0.5f * kConstraintIRUnbounded ||
+            semantics.impulseUpper <
+                0.5f * kConstraintIRUnbounded ||
+            (semantics.flags & constraintIRRowUnilateral) !=
+                0u) {
+            return false;
+        }
+        bool nonzero = false;
+        for (std::uint32_t dof = 0u;
+             dof < model.world.nv;
+             ++dof) {
+            nonzero =
+                nonzero ||
+                jacobian[row * model.world.nv + dof] != 0.0f;
+        }
+        if (!nonzero) {
+            return false;
+        }
+    }
+    return true;
 }
 
 } // namespace
@@ -89,7 +182,10 @@ bool CompiledMetalMultiArticulatedContactProgram::valid()
         !model_.articulations.empty() &&
         schedule_.fingerprint != 0u &&
         schedule_.articulations.size() ==
-            model_.articulations.size();
+            model_.articulations.size() &&
+        generalizedEqualityJacobian_.size() ==
+            model_.constraintProgram.rows.size() *
+                model_.world.nv;
 }
 
 const EngineModel&
@@ -102,6 +198,22 @@ const ParallelABASchedule&
 CompiledMetalMultiArticulatedContactProgram::abaSchedule()
     const noexcept {
     return schedule_;
+}
+
+std::span<const float>
+CompiledMetalMultiArticulatedContactProgram::
+generalizedEqualityJacobian() const noexcept {
+    return generalizedEqualityJacobian_;
+}
+
+std::uint32_t
+CompiledMetalMultiArticulatedContactProgram::
+equalityRowCount() const noexcept {
+    return valid()
+        ? static_cast<std::uint32_t>(
+              model_.constraintProgram.rows.size()
+          )
+        : 0u;
 }
 
 std::uint64_t
@@ -172,9 +284,22 @@ compileMetalMultiArticulatedContactProgram(
                     scheduleDiagnostics.message
             );
         }
+        if (!compileEqualityJacobian(
+                staged.model_,
+                staged.generalizedEqualityJacobian_
+            )) {
+            return fail(
+                std::move(diagnostics),
+                MetalMultiArticulatedContactStatus::
+                    unsupportedTopology,
+                "contact program requires zero or at most 32 "
+                "unbounded generalized equality rows"
+            );
+        }
         staged.fingerprint_ = fingerprint(
             staged.model_,
-            staged.schedule_
+            staged.schedule_,
+            staged.generalizedEqualityJacobian_
         );
         if (!staged.valid()) {
             return fail(

@@ -349,9 +349,11 @@ contact solve:
 
 ```text
 contact_nv=34
-needle_contact_impulses=0.875982/0.875982
-metal_contact_error=7.06555e-05
-metal_kkt=0.000291094
+needle_contact_impulses=0.0002592/0.0002592
+equality_residual=1.38778e-17
+metal_equality_residual=7.45058e-09
+metal_contact_error=6.89394e-08
+metal_kkt=2.9199e-07
 cold_start_rejected=yes
 ```
 
@@ -362,12 +364,12 @@ the quality stage reports `DID_NOT_CONVERGE` and the environment velocity is
 rolled back. Before the KKT certificate was added, the step-size-scaled
 natural residual could incorrectly accept a zero impulse on this case.
 
-The same probe now also solves the physically constrained FP64 reference:
-twelve PSM floating-base lock rows and two jaw gear rows are Schur-eliminated
-into the two jaw/needle contact cones. The reconstructed equality impulses
-close their regularized row equations below `1e-9`; the reported Metal error
-continues to compare against the raw contact operator until this projection is
-encoded on device.
+Twelve PSM floating-base lock rows and two jaw gear rows are Schur-eliminated
+into the two jaw/needle contact cones on both FP64 and Metal. The Metal graph
+appends these rows to the same parallel inverse-ABA RHS packets, performs the
+small deterministic Cholesky/null-space projection before its cone solve, and
+reconstructs equality impulses afterward. The result closes every regularized
+row below `7.5e-9` and matches the constrained FP64 payload within `6.9e-8`.
 
 Clean Release result:
 
