@@ -6196,6 +6196,31 @@ void WorldStepPrimitive::eval_gpu(
             resources.kernel("mr_world_build_contact_islands")
         );
 
+        if (!qualityMode &&
+            contactDispatch.authoredConstraintCount != 0u) {
+            setPhysicsKernel(
+                "mr_world_solve_generalized_constraints"
+            );
+            encoder.set_bytes(contactDispatch, 0);
+            inputArray(factor, 1);
+            outputArray(candidateV, 2);
+            outputArray(contacts, 3);
+            inputArray(irBlocks, 4);
+            inputArray(irEndpoints, 5);
+            inputArray(evaluatedRows, 6);
+            outputArray(outputs[16], 7);
+            encoder.set_bytes(solverPass, 8);
+            outputArray(candidateBodies, 9);
+            outputArray(candidateRodNodes, 10);
+            immutable(kImmutableRodInverseMasses, 11);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_world_solve_generalized_constraints"
+                )
+            );
+        }
+
         if (qualityMode) {
             setPhysicsKernel("mr_world_prepare_unified_quality");
             encoder.set_bytes(contactDispatch, 0);
@@ -6712,7 +6737,10 @@ void WorldStepPrimitive::eval_gpu(
             );
         }
 
-        if (rodWitnessCount != 0u && !qualityMode) {
+        if (rodWitnessCount != 0u &&
+            !qualityMode &&
+            world_->solverMode() !=
+                MetalWorldSolverMode::throughputTGS) {
             setPhysicsKernel(
                 "mr_world_solve_rod_contact_constraints"
             );

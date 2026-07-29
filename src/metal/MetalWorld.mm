@@ -9701,6 +9701,31 @@ bool encodeContactSubstep(
             true,
             sizeof(MRIndirectDispatchArgumentsGPU)
         ) ||
+        (
+            !useQuality &&
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.generalizedConstraintSolvePipeline,
+                @"MetalWorld pre-contact typed scalar IR sweep",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kFactorMatrix},
+                    {2u, kCandidateV},
+                    {3u, kContacts},
+                    {4u, kIRBlocks},
+                    {5u, kIREndpoints},
+                    {6u, kEvaluatedRows},
+                    {7u, kContactStatuses},
+                    {9u, kCandidateBodies},
+                    {10u, candidateRodNodes},
+                    {11u, kRodInverseMasses},
+                },
+                &solverPass,
+                8u,
+                environmentCount
+            )
+        ) ||
         !(useQuality
               ? encodeUnifiedQualitySolve(
                     context,
@@ -9749,6 +9774,7 @@ bool encodeContactSubstep(
                 )) ||
         (
             !useQuality &&
+            !useWave32 &&
             !encodeRodContactSolve(
                 context,
                 commandBuffer,
