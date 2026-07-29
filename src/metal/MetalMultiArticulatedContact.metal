@@ -409,7 +409,9 @@ kernel void mr_multi_contact_assemble_point_equalities(
     device const MRMultiContactJacobianSliceGPU* slices
         [[buffer(3)]],
     device const float* pointJacobians [[buffer(4)]],
-    device float* combinedJacobian [[buffer(5)]],
+    device const MRBodyStateGPU* sceneBodies [[buffer(5)]],
+    device const uint* sceneVelocityOffsets [[buffer(6)]],
+    device float* combinedJacobian [[buffer(7)]],
     uint3 index [[thread_position_in_grid]]
 ) {
     const uint dof = index.x;
@@ -445,6 +447,19 @@ kernel void mr_multi_contact_assemble_point_equalities(
             axis,
             false
         );
+    } else if (topology.kindA ==
+               MR_MULTI_CONTACT_SCENE_BODY) {
+        fromA = sceneCoefficient(
+            geometry,
+            topology,
+            sceneBodies,
+            sceneVelocityOffsets,
+            environment,
+            dispatch.sceneBodyCount,
+            dof,
+            axis,
+            false
+        );
     } else if (topology.kindA !=
                MR_MULTI_CONTACT_STATIC_WORLD) {
         fromA = NAN;
@@ -455,6 +470,19 @@ kernel void mr_multi_contact_assemble_point_equalities(
             slices,
             pointJacobians,
             environment,
+            dof,
+            axis,
+            true
+        );
+    } else if (topology.kindB ==
+               MR_MULTI_CONTACT_SCENE_BODY) {
+        fromB = sceneCoefficient(
+            geometry,
+            topology,
+            sceneBodies,
+            sceneVelocityOffsets,
+            environment,
+            dispatch.sceneBodyCount,
             dof,
             axis,
             true

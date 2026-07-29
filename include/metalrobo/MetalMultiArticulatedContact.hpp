@@ -127,6 +127,8 @@ struct MetalMultiArticulatedContactResult {
     std::vector<float> impulses;
     std::vector<float> delassus;
     std::vector<float> freeContactVelocity;
+    // Environment-major: immutable model rows first, followed by authored
+    // point-equality slots, three axes per slot.
     std::vector<float> equalityImpulses;
     std::vector<MRMultiContactStatusGPU> statuses;
     std::vector<MRMultiContactEqualityStatusGPU>

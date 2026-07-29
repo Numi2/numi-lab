@@ -438,6 +438,50 @@ int main() {
             1.0e-12,
         };
         pointLoop.positionStabilized = false;
+        metalrobo::MultiArticulatedPointEquality bodyLoop =
+            pointLoop;
+        bodyLoop.key.words[0] = 0x4d424f44u;
+        bodyLoop.key.words[1] = 2u;
+        bodyLoop.endpointA = {
+            metalrobo::MultiContactEndpointKind::articulatedBody,
+            second.rootBody,
+            {0.0, 0.0, 0.0},
+        };
+        bodyLoop.endpointB = {
+            metalrobo::MultiContactEndpointKind::sceneBody,
+            0u,
+            {0.0, 0.0, 0.0},
+        };
+        bodyLoop.axisX = {0.0, 0.0, 1.0};
+        bodyLoop.axisY = {
+            inverseRootTwo,
+            inverseRootTwo,
+            0.0,
+        };
+        bodyLoop.axisZ = {
+            -inverseRootTwo,
+            inverseRootTwo,
+            0.0,
+        };
+        metalrobo::MultiArticulatedPointEquality boundaryLoop =
+            pointLoop;
+        boundaryLoop.key.words[0] = 0x4d424e44u;
+        boundaryLoop.key.words[1] = 3u;
+        boundaryLoop.endpointA = {
+            metalrobo::MultiContactEndpointKind::sceneBody,
+            0u,
+            {0.0, 0.0, 0.0},
+        };
+        boundaryLoop.endpointB = {
+            metalrobo::MultiContactEndpointKind::sceneBody,
+            1u,
+            {0.0, 0.0, 0.0},
+        };
+        const std::array pointLoopTemplate{
+            boundaryLoop,
+            bodyLoop,
+            pointLoop,
+        };
 
         std::vector<float> loopFreeVelocity(
             environments * model.world.nv,
@@ -446,9 +490,14 @@ int main() {
         std::vector<
             metalrobo::MultiArticulatedIslandContact
         > loopContacts(environments, loopContact);
+        std::vector<MRBodyStateGPU> loopSceneBodies;
+        loopSceneBodies.reserve(2u * environments);
         std::vector<
             metalrobo::MultiArticulatedPointEquality
-        > pointLoops(environments, pointLoop);
+        > pointLoops;
+        pointLoops.reserve(
+            environments * pointLoopTemplate.size()
+        );
         for (std::size_t environment = 0u;
              environment < environments;
              ++environment) {
@@ -456,15 +505,35 @@ int main() {
                 environment * model.world.nv +
                 first.vOffset
             ] = 1.0F;
+            loopSceneBodies.push_back(makeSceneBody());
+            MRBodyStateGPU boundary = makeSceneBody();
+            boundary.position.y = 2.0F;
+            boundary.linearVelocityAndInverseMass = {
+                -0.2F, 0.0F, 0.0F, 0.0F,
+            };
+            boundary.inverseInertiaWorldRow0 = {};
+            boundary.inverseInertiaWorldRow1 = {};
+            boundary.inverseInertiaWorldRow2 = {};
+            boundary.flagsAndIndices[0] =
+                MR_MOTION_KINEMATIC;
+            loopSceneBodies.push_back(boundary);
+            pointLoops.insert(
+                pointLoops.end(),
+                pointLoopTemplate.begin(),
+                pointLoopTemplate.end()
+            );
         }
         metalrobo::MetalMultiArticulatedContactInput loopInput;
         loopInput.environmentCount = environments;
         loopInput.contactCount = 1u;
+        loopInput.sceneBodyCount = 2u;
         loopInput.q = q;
         loopInput.freeArticulationVelocity =
             loopFreeVelocity;
+        loopInput.sceneBodies = loopSceneBodies;
         loopInput.contacts = loopContacts;
-        loopInput.pointEqualityCount = 1u;
+        loopInput.pointEqualityCount =
+            pointLoopTemplate.size();
         loopInput.pointEqualities = pointLoops;
 
         std::vector<double> loopFree64(
@@ -480,7 +549,10 @@ int main() {
                     model,
                     q64,
                     loopFree64,
-                    {},
+                    std::span<const MRBodyStateGPU>(
+                        loopSceneBodies.data(),
+                        2u
+                    ),
                     std::span<
                         const metalrobo::
                             MultiArticulatedIslandContact
@@ -497,7 +569,10 @@ int main() {
                     std::span<
                         const metalrobo::
                             MultiArticulatedPointEquality
-                    >(&pointLoop, 1u),
+                    >(
+                        pointLoopTemplate.data(),
+                        pointLoopTemplate.size()
+                    ),
                     config.equalityEvaluation,
                     dynamics
                 );
@@ -526,9 +601,9 @@ int main() {
                 config
             );
         require(
-            loopDiagnostics.succeeded() &&
+                loopDiagnostics.succeeded() &&
                 loopGPU.layout.dispatch.equalityRowCount ==
-                    3u &&
+                    9u &&
                 loopGPU.layout.dispatch
                         .staticEqualityRowCount == 0u &&
                 loopGPU.equalityStatuses.size() ==
@@ -559,14 +634,16 @@ int main() {
                       )
                 )
         );
-        double maximumPointLoopError = 0.0;
+        double maximumPointLoopVelocityError = 0.0;
+        double maximumPointLoopContactError = 0.0;
+        double maximumPointLoopEqualityError = 0.0;
         for (std::size_t index = 0u;
              index <
                  loopOracleSolution
                      .generalizedVelocity.size();
              ++index) {
-            maximumPointLoopError = std::max(
-                maximumPointLoopError,
+            maximumPointLoopVelocityError = std::max(
+                maximumPointLoopVelocityError,
                 std::abs(
                     loopOracleSolution
                         .generalizedVelocity[index] -
@@ -577,8 +654,8 @@ int main() {
         for (std::size_t index = 0u;
              index < loopOracleSolution.impulses.size();
              ++index) {
-            maximumPointLoopError = std::max(
-                maximumPointLoopError,
+            maximumPointLoopContactError = std::max(
+                maximumPointLoopContactError,
                 std::abs(
                     loopOracleSolution.impulses[index] -
                     loopGPU.impulses[index]
@@ -590,8 +667,8 @@ int main() {
                  loopOracleSolution
                      .generalizedConstraintImpulses.size();
              ++index) {
-            maximumPointLoopError = std::max(
-                maximumPointLoopError,
+            maximumPointLoopEqualityError = std::max(
+                maximumPointLoopEqualityError,
                 std::abs(
                     loopOracleSolution
                         .generalizedConstraintImpulses[
@@ -601,12 +678,36 @@ int main() {
                 )
             );
         }
+        const double maximumPointLoopError = std::max({
+            maximumPointLoopVelocityError,
+            maximumPointLoopContactError,
+            maximumPointLoopEqualityError,
+        });
         require(
             maximumPointLoopError < 2.5e-3 &&
                 loopGPU.equalityStatuses[0]
                         .diagnostics.x <
                     config.equalityResidualTolerance,
-            "Metal point-loop result disagrees with FP64"
+            "Metal point-loop result disagrees with FP64 "
+            "error=" +
+                std::to_string(maximumPointLoopError) +
+                " velocity=" +
+                std::to_string(
+                    maximumPointLoopVelocityError
+                ) +
+                " contact=" +
+                std::to_string(
+                    maximumPointLoopContactError
+                ) +
+                " equality=" +
+                std::to_string(
+                    maximumPointLoopEqualityError
+                ) +
+                " residual=" +
+                std::to_string(
+                    loopGPU.equalityStatuses[0]
+                        .diagnostics.x
+                )
         );
         metalrobo::MetalMultiArticulatedContactResult
             loopReplay;

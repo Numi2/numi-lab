@@ -226,8 +226,11 @@ slots remain immutable across cloned environments. Final residual and
 null-space certification read the same combined operator used by elimination,
 so dynamic loop rows cannot be certified against stale static-row storage.
 This tranche supports articulation-articulation and articulation-static
-fixtures. Angular weld/orientation rows and scene-body equality endpoints
-remain explicit follow-on work.
+fixtures as well as articulation/free-body and free-body boundary loops.
+Dynamic scene bodies contribute linear inverse mass and world-frame inverse
+inertia to every equality RHS; static or kinematic scene endpoints own no
+columns and instead shift the target by their prescribed point velocity.
+Angular weld/orientation rows remain explicit follow-on work.
 
 `CompiledMetalMultiArticulatedContactProgram` snapshots the immutable model
 and deterministic parallel-ABA frontier schedule once, so repeated submissions

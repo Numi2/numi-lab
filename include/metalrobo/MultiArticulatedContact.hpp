@@ -46,6 +46,9 @@ struct MultiArticulatedContactProblem {
     std::vector<std::uint32_t> sceneBodyVelocityOffsets;
     std::vector<MultiContactSceneBodyVelocity>
         sceneBodyFreeVelocities;
+    // Immutable submission snapshot used when dynamically compiled
+    // constraints need a scene body's point Jacobian or inverse response.
+    std::vector<MRBodyStateGPU> sceneBodyStates;
     std::vector<double> freeVelocity;
     std::vector<double> contactJacobian;
     std::vector<double> responseColumns;
@@ -105,8 +108,9 @@ struct MultiArticulatedIslandContact {
 // Three bilateral translational rows joining two body-local points. Axes are
 // world-space, right-handed and normally form an orthonormal frame. This is a
 // generic loop/fixture primitive; grasping tasks must not use it as a hidden
-// attachment. Scene-body endpoints are intentionally deferred until their
-// 6D equality response joins the shared operator.
+// attachment. Dynamic scene-body endpoints append their full linear/angular
+// inverse response to the same heterogeneous operator; kinematic scene
+// endpoints contribute prescribed point velocity to the row target.
 struct MultiArticulatedPointEquality {
     ConstraintIRStableKey key{};
     MultiContactEndpoint endpointA{};
@@ -200,8 +204,9 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
 
 // Compiles analytic point Jacobians for authored three-axis loop/fixture rows,
 // merges them with model-owned generalized equalities, and applies one exact
-// Schur reduction. Only articulation and static-world endpoints are accepted
-// in this tranche. Failure leaves problem unchanged.
+// Schur reduction. Articulation, dynamic/kinematic scene-body and static-world
+// endpoints are accepted when at least one endpoint responds dynamically.
+// Failure leaves problem unchanged.
 [[nodiscard]] MultiArticulatedContactDiagnostics
 projectMultiArticulatedContactThroughPointEqualities(
     const EngineModel& model,

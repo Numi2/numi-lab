@@ -58,6 +58,30 @@ Vec3 cross(const Vec3 left, const Vec3 right) {
     };
 }
 
+Vec3 rotateVector(
+    const mr_float4 quaternion,
+    const std::array<double, 3>& value
+) {
+    const Vec3 q{
+        quaternion.x,
+        quaternion.y,
+        quaternion.z,
+    };
+    const Vec3 input = vector(value);
+    const Vec3 doubledCross = cross(q, input);
+    const Vec3 doubled{
+        2.0 * doubledCross.x,
+        2.0 * doubledCross.y,
+        2.0 * doubledCross.z,
+    };
+    const Vec3 second = cross(q, doubled);
+    return {
+        input.x + quaternion.w * doubled.x + second.x,
+        input.y + quaternion.w * doubled.y + second.y,
+        input.z + quaternion.w * doubled.z + second.z,
+    };
+}
+
 double norm(const Vec3 value) {
     return std::sqrt(dot(value, value));
 }
@@ -206,19 +230,24 @@ bool structurallyValid(
         problem.pointB.size() == problem.contactCount &&
         problem.sceneBodyFreeVelocities.size() ==
             problem.sceneBodyVelocityOffsets.size() &&
+        problem.sceneBodyStates.size() ==
+            problem.sceneBodyVelocityOffsets.size() &&
         equalityLayoutValid;
 }
 
 bool buildGeneralizedEqualityJacobian(
-    const EngineModel& model,
+    const ConstraintIR& program,
+    const std::size_t width,
     std::vector<double>& jacobian
 ) {
-    const ConstraintIR& program = model.constraintProgram;
     const std::size_t rowCount = program.rows.size();
-    if (rowCount == 0u || !program.cones.empty()) {
+    if (rowCount == 0u || width == 0u ||
+        rowCount >
+            std::numeric_limits<std::size_t>::max() / width ||
+        !program.cones.empty()) {
         return false;
     }
-    jacobian.assign(rowCount * model.world.nv, 0.0);
+    jacobian.assign(rowCount * width, 0.0);
     for (const ConstraintIRBlock& block : program.blocks) {
         if (block.type == MR_CONSTRAINT_CONTACT ||
             block.coneIndex != kConstraintIRInvalidIndex ||
@@ -237,12 +266,12 @@ bool buildGeneralizedEqualityJacobian(
                 constraintIREndpointRowMask;
             if (endpoint.jacobianKind !=
                     constraintIRJacobianGeneralized ||
-                endpoint.objectIndex >= model.world.nv ||
+                endpoint.objectIndex >= width ||
                 row >= block.dimension) {
                 return false;
             }
             double& coefficient = jacobian[
-                (block.rowOffset + row) * model.world.nv +
+                (block.rowOffset + row) * width +
                 endpoint.objectIndex
             ];
             coefficient += endpoint.axis.x;
@@ -259,12 +288,12 @@ bool buildGeneralizedEqualityJacobian(
             return false;
         }
         bool nonzero = false;
-        for (std::uint32_t dof = 0u;
-             dof < model.world.nv;
+        for (std::size_t dof = 0u;
+             dof < width;
              ++dof) {
             nonzero =
                 nonzero ||
-                jacobian[row * model.world.nv + dof] != 0.0;
+                jacobian[row * width + dof] != 0.0;
         }
         if (!nonzero) {
             return false;
@@ -1234,6 +1263,10 @@ buildMultiArticulatedIslandContactProblem(
     staged.sceneBodyFreeVelocities.resize(
         sceneBodies.size()
     );
+    staged.sceneBodyStates.assign(
+        sceneBodies.begin(),
+        sceneBodies.end()
+    );
     staged.freeVelocity.assign(totalNv, 0.0);
     std::ranges::copy(
         freeArticulationVelocity,
@@ -1672,7 +1705,9 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
     MultiArticulatedContactDiagnostics diagnostics =
         diagnosticsFor(model, problem.contactCount);
     std::string reason;
-    if (!model.valid(&reason)) {
+    EngineModel topologyModel = model;
+    topologyModel.constraintProgram = {};
+    if (!topologyModel.valid(&reason)) {
         return fail(
             std::move(diagnostics),
             MultiArticulatedContactStatus::invalidModel
@@ -1691,7 +1726,8 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
     }
     std::vector<double> equalityJacobian;
     if (!buildGeneralizedEqualityJacobian(
-            model,
+            model.constraintProgram,
+            problem.nv,
             equalityJacobian
         )) {
         return fail(
@@ -1710,11 +1746,11 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
          ++row) {
         double value = 0.0;
         for (std::uint32_t dof = 0u;
-             dof < model.world.nv;
+             dof < problem.nv;
              ++dof) {
             value +=
                 equalityJacobian[
-                    row * model.world.nv + dof
+                    row * problem.nv + dof
                 ] * problem.freeVelocity[dof];
         }
         if (!finite(value) ||
@@ -1791,9 +1827,9 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
         std::ranges::copy_n(
             equalityJacobian.begin() +
                 static_cast<std::ptrdiff_t>(
-                    row * model.world.nv
+                    row * problem.nv
                 ),
-            model.world.nv,
+            problem.nv,
             staged.generalizedConstraintJacobian.begin() +
                 static_cast<std::ptrdiff_t>(
                     row * staged.nv
@@ -1801,25 +1837,38 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
         );
     }
 
-    std::vector<double> rhs(model.world.nv, 0.0);
-    std::vector<double> response(model.world.nv, 0.0);
+    std::vector<double> rhs(problem.nv, 0.0);
+    std::vector<double> response(problem.nv, 0.0);
+    std::vector<double> articulatedRhs(
+        model.world.nv,
+        0.0
+    );
+    std::vector<double> articulatedResponse(
+        model.world.nv,
+        0.0
+    );
     for (std::size_t row = 0u;
          row < equalityRows;
          ++row) {
         std::ranges::copy_n(
             equalityJacobian.begin() +
                 static_cast<std::ptrdiff_t>(
-                    row * model.world.nv
+                    row * problem.nv
                 ),
-            model.world.nv,
+            problem.nv,
             rhs.begin()
+        );
+        std::ranges::copy_n(
+            rhs.begin(),
+            model.world.nv,
+            articulatedRhs.begin()
         );
         const MultiArticulatedWorldDiagnostics applied =
             applyMultiArticulationInverseMass(
                 model,
                 staged.factors,
-                rhs,
-                response
+                articulatedRhs,
+                articulatedResponse
             );
         if (!applied.succeeded()) {
             return fail(
@@ -1830,9 +1879,49 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
                 applied.firstFailingArticulation
             );
         }
+        std::ranges::fill(response, 0.0);
         std::ranges::copy_n(
-            response.begin(),
+            articulatedResponse.begin(),
             model.world.nv,
+            response.begin()
+        );
+        for (std::size_t bodyIndex = 0u;
+             bodyIndex <
+                 staged.sceneBodyVelocityOffsets.size();
+             ++bodyIndex) {
+            const std::uint32_t offset =
+                staged.sceneBodyVelocityOffsets[bodyIndex];
+            if (offset == MR_INVALID_INDEX) {
+                continue;
+            }
+            const MRBodyStateGPU& body =
+                staged.sceneBodyStates[bodyIndex];
+            for (std::size_t axis = 0u;
+                 axis < 3u;
+                 ++axis) {
+                response[offset + axis] =
+                    body.linearVelocityAndInverseMass.w *
+                    rhs[offset + axis];
+            }
+            const std::array<mr_float4, 3> inertiaRows{
+                body.inverseInertiaWorldRow0,
+                body.inverseInertiaWorldRow1,
+                body.inverseInertiaWorldRow2,
+            };
+            for (std::size_t axis = 0u;
+                 axis < 3u;
+                 ++axis) {
+                response[offset + 3u + axis] =
+                    inertiaRows[axis].x *
+                        rhs[offset + 3u] +
+                    inertiaRows[axis].y *
+                        rhs[offset + 4u] +
+                    inertiaRows[axis].z *
+                        rhs[offset + 5u];
+            }
+        }
+        std::ranges::copy(
+            response,
             staged.generalizedConstraintResponseColumns
                 .begin() +
                 static_cast<std::ptrdiff_t>(
@@ -1854,11 +1943,11 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
              ++column) {
             double value = 0.0;
             for (std::uint32_t dof = 0u;
-                 dof < model.world.nv;
+                 dof < problem.nv;
                  ++dof) {
                 value +=
                     equalityJacobian[
-                        row * model.world.nv + dof
+                        row * problem.nv + dof
                     ] *
                     staged
                         .generalizedConstraintResponseColumns[
@@ -1940,11 +2029,11 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
              ++equalityRow) {
             double value = 0.0;
             for (std::uint32_t dof = 0u;
-                 dof < model.world.nv;
+                 dof < problem.nv;
                  ++dof) {
                 value +=
                     equalityJacobian[
-                        equalityRow * model.world.nv + dof
+                        equalityRow * problem.nv + dof
                     ] *
                     staged.responseColumns[
                         contactRow * staged.nv + dof
@@ -2131,6 +2220,7 @@ projectMultiArticulatedContactThroughPointEqualities(
         std::vector<ConstraintIREndpoint> endpoints;
         std::array<ConstraintIRRow, 3> rows{};
         std::array<float, 3> warm{};
+        std::array<double, 3> prescribedVelocity{};
     };
     std::vector<OwnedPointBlock> owned(equalities.size());
     std::vector<ConstraintIRSourceBlock> sources;
@@ -2178,10 +2268,98 @@ projectMultiArticulatedContactThroughPointEqualities(
         const std::array<double, 3>& axis,
         const double sign,
         const std::uint32_t localRow,
-        std::vector<ConstraintIREndpoint>& endpoints
+        std::vector<ConstraintIREndpoint>& endpoints,
+        double& prescribedVelocity
     ) -> bool {
         if (endpoint.kind ==
             MultiContactEndpointKind::staticWorld) {
+            return true;
+        }
+        if (endpoint.kind ==
+            MultiContactEndpointKind::sceneBody) {
+            if (endpoint.body >=
+                    problem.sceneBodyVelocityOffsets.size() ||
+                endpoint.body >= problem.sceneBodyStates.size() ||
+                !finite(endpoint.localPoint) ||
+                !finite(axis)) {
+                return false;
+            }
+            const std::uint32_t velocityOffset =
+                problem.sceneBodyVelocityOffsets[endpoint.body];
+            const Vec3 pointOffset = rotateVector(
+                problem.sceneBodyStates[endpoint.body]
+                    .orientation,
+                endpoint.localPoint
+            );
+            if (velocityOffset == MR_INVALID_INDEX) {
+                const MRBodyStateGPU& state =
+                    problem.sceneBodyStates[endpoint.body];
+                const Vec3 linear{
+                    state.linearVelocityAndInverseMass.x,
+                    state.linearVelocityAndInverseMass.y,
+                    state.linearVelocityAndInverseMass.z,
+                };
+                const Vec3 angularVelocity{
+                    state.angularVelocity.x,
+                    state.angularVelocity.y,
+                    state.angularVelocity.z,
+                };
+                const Vec3 rotationalVelocity =
+                    cross(angularVelocity, pointOffset);
+                const Vec3 velocity{
+                    linear.x + rotationalVelocity.x,
+                    linear.y + rotationalVelocity.y,
+                    linear.z + rotationalVelocity.z,
+                };
+                prescribedVelocity +=
+                    sign * dot(vector(axis), velocity);
+                return finite(prescribedVelocity);
+            }
+            const Vec3 angular = cross(
+                pointOffset,
+                vector(axis)
+            );
+            const std::array<double, 6> coefficients{
+                axis[0],
+                axis[1],
+                axis[2],
+                angular.x,
+                angular.y,
+                angular.z,
+            };
+            if (model.articulations.size() >
+                std::numeric_limits<std::uint32_t>::max() -
+                    endpoint.body) {
+                return false;
+            }
+            const std::uint32_t owner =
+                static_cast<std::uint32_t>(
+                    model.articulations.size() +
+                    endpoint.body
+                );
+            for (std::uint32_t localDof = 0u;
+                 localDof < coefficients.size();
+                 ++localDof) {
+                const double coefficient =
+                    sign * coefficients[localDof];
+                if (!finite(coefficient) ||
+                    std::abs(coefficient) >
+                        std::numeric_limits<float>::max()) {
+                    return false;
+                }
+                if (coefficient == 0.0) {
+                    continue;
+                }
+                endpoints.push_back(
+                    makeConstraintIRGeneralizedEndpoint(
+                        owner,
+                        kConstraintIRInvalidIndex,
+                        velocityOffset + localDof,
+                        localRow,
+                        static_cast<float>(coefficient)
+                    )
+                );
+            }
             return true;
         }
         if (endpoint.kind !=
@@ -2285,6 +2463,21 @@ projectMultiArticulatedContactThroughPointEqualities(
             vector(equality.axisY),
             vector(equality.axisZ),
         };
+        const auto responds = [&](
+            const MultiContactEndpoint& endpoint
+        ) {
+            return endpoint.kind ==
+                    MultiContactEndpointKind::articulatedBody ||
+                (
+                    endpoint.kind ==
+                        MultiContactEndpointKind::sceneBody &&
+                    endpoint.body <
+                        problem.sceneBodyVelocityOffsets.size() &&
+                    problem.sceneBodyVelocityOffsets[
+                        endpoint.body
+                    ] != MR_INVALID_INDEX
+                );
+        };
         const bool frameValid =
             finite(equality.endpointA.localPoint) &&
             finite(equality.endpointB.localPoint) &&
@@ -2329,10 +2522,22 @@ projectMultiArticulatedContactThroughPointEqualities(
             ) <= 6.0e-4;
         if (!frameValid ||
             (
+                !responds(equality.endpointA) &&
+                !responds(equality.endpointB)
+            ) ||
+            (
                 equality.endpointA.kind ==
                     MultiContactEndpointKind::staticWorld &&
                 equality.endpointB.kind ==
                     MultiContactEndpointKind::staticWorld
+            ) ||
+            (
+                equality.endpointA.kind ==
+                    equality.endpointB.kind &&
+                equality.endpointA.kind !=
+                    MultiContactEndpointKind::staticWorld &&
+                equality.endpointA.body ==
+                    equality.endpointB.body
             )) {
             return fail(
                 std::move(diagnostics),
@@ -2350,14 +2555,16 @@ projectMultiArticulatedContactThroughPointEqualities(
                     axes[row],
                     -1.0,
                     row,
-                    block.endpoints
+                    block.endpoints,
+                    block.prescribedVelocity[row]
                 ) ||
                 !appendEndpointJacobian(
                     equality.endpointB,
                     axes[row],
                     1.0,
                     row,
-                    block.endpoints
+                    block.endpoints,
+                    block.prescribedVelocity[row]
                 )) {
                 const std::uint32_t failingArticulation =
                     diagnostics.firstFailingArticulation;
@@ -2384,7 +2591,8 @@ projectMultiArticulatedContactThroughPointEqualities(
                 );
             semantics.targetVelocity =
                 static_cast<float>(
-                    equality.targetVelocity[row]
+                    equality.targetVelocity[row] -
+                    block.prescribedVelocity[row]
                 );
             semantics.compliance =
                 static_cast<float>(

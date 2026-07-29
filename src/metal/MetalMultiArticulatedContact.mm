@@ -115,6 +115,31 @@ std::array<double, 3> cross(
     };
 }
 
+std::array<double, 3> rotate(
+    const mr_float4 quaternion,
+    const std::array<double, 3>& value
+) {
+    const std::array<double, 3> vectorPart{
+        quaternion.x,
+        quaternion.y,
+        quaternion.z,
+    };
+    const std::array<double, 3> first =
+        cross(vectorPart, value);
+    const std::array<double, 3> doubled{
+        2.0 * first[0],
+        2.0 * first[1],
+        2.0 * first[2],
+    };
+    const std::array<double, 3> second =
+        cross(vectorPart, doubled);
+    return {
+        value[0] + quaternion.w * doubled[0] + second[0],
+        value[1] + quaternion.w * doubled[1] + second[1],
+        value[2] + quaternion.w * doubled[2] + second[2],
+    };
+}
+
 double norm(const std::array<double, 3>& value) {
     return std::sqrt(dot(value, value));
 }
@@ -706,10 +731,10 @@ MetalMultiArticulatedContactDiagnostics prepare(
          ++equality) {
         const MultiArticulatedPointEquality& source =
             input.pointEqualities[equality];
-        if (source.endpointA.kind ==
-                MultiContactEndpointKind::sceneBody ||
-            source.endpointB.kind ==
-                MultiContactEndpointKind::sceneBody ||
+        if ((
+                !endpointResponds(source.endpointA) &&
+                !endpointResponds(source.endpointB)
+            ) ||
             (
                 source.endpointA.kind ==
                     MultiContactEndpointKind::staticWorld &&
@@ -914,6 +939,50 @@ MetalMultiArticulatedContactDiagnostics prepare(
                     : (row == 1u
                         ? source.axisY
                         : source.axisZ);
+                double prescribedVelocity = 0.0;
+                const auto addPrescribed = [&](
+                    const MultiContactEndpoint& endpoint,
+                    const double sign
+                ) {
+                    if (endpoint.kind !=
+                            MultiContactEndpointKind::
+                                sceneBody ||
+                        staged.sceneVelocityOffsets[
+                            endpoint.body
+                        ] != MR_INVALID_INDEX) {
+                        return;
+                    }
+                    const MRBodyStateGPU& body =
+                        input.sceneBodies[
+                            environment *
+                                input.sceneBodyCount +
+                            endpoint.body
+                        ];
+                    const std::array<double, 3> offset =
+                        rotate(
+                            body.orientation,
+                            endpoint.localPoint
+                        );
+                    const std::array<double, 3> angular{
+                        body.angularVelocity.x,
+                        body.angularVelocity.y,
+                        body.angularVelocity.z,
+                    };
+                    const std::array<double, 3> rotational =
+                        cross(angular, offset);
+                    const std::array<double, 3> velocity{
+                        body.linearVelocityAndInverseMass.x +
+                            rotational[0],
+                        body.linearVelocityAndInverseMass.y +
+                            rotational[1],
+                        body.linearVelocityAndInverseMass.z +
+                            rotational[2],
+                    };
+                    prescribedVelocity +=
+                        sign * dot(axis, velocity);
+                };
+                addPrescribed(source.endpointA, -1.0);
+                addPrescribed(source.endpointB, 1.0);
                 semantics.direction = f4(axis);
                 semantics.positionError =
                     static_cast<float>(
@@ -921,7 +990,8 @@ MetalMultiArticulatedContactDiagnostics prepare(
                     );
                 semantics.targetVelocity =
                     static_cast<float>(
-                        source.targetVelocity[row]
+                        source.targetVelocity[row] -
+                        prescribedVelocity
                     );
                 semantics.compliance =
                     static_cast<float>(
@@ -2240,7 +2310,8 @@ solveMetalMultiArticulatedContactsImpl(
             const std::array pointEqualityBuffers{
                 dispatchBuffer, pointEqualityBuffer,
                 pointEqualityEndpointBuffer, sliceBuffer,
-                pointJacobianBuffer, jacobianBuffer,
+                pointJacobianBuffer, sceneBodyBuffer,
+                sceneOffsetBuffer, jacobianBuffer,
             };
             for (NSUInteger index = 0u;
                  index < pointEqualityBuffers.size();
