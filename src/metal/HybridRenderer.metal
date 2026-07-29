@@ -315,6 +315,50 @@ uint frameSeed(
         pixel * 0x9e3779b9u;
 }
 
+bool measureDepth(
+    const float geometricDepth,
+    const MRWorldSensorInstanceGPU sensor,
+    const uint seed,
+    constant MRHybridRenderUniformsGPU& uniforms,
+    thread float& measuredDepth
+) {
+    const float minimumDepth =
+        uniforms.sensorRangeAndResponse.x;
+    const float maximumDepth =
+        uniforms.sensorRangeAndResponse.y;
+    if (!isfinite(geometricDepth) ||
+        geometricDepth < minimumDepth ||
+        geometricDepth > maximumDepth) {
+        measuredDepth = uniforms.clearColorAndDepth.w;
+        return false;
+    }
+    const float dropout =
+        (float(randomHash(seed ^ 0x63d83595u)) + 0.5f) /
+        4294967296.0f;
+    if (dropout < sensor.noiseAndLatency.z) {
+        measuredDepth = uniforms.clearColorAndDepth.w;
+        return false;
+    }
+    measuredDepth = max(
+        0.0f,
+        geometricDepth +
+            sensor.noiseAndLatency.y *
+                uniformSigned(seed ^ 0xa511e9b3u)
+    );
+    const float quantum =
+        uniforms.sensorRangeAndResponse.z;
+    if (quantum > 0.0f) {
+        measuredDepth =
+            round(measuredDepth / quantum) * quantum;
+    }
+    if (measuredDepth < minimumDepth ||
+        measuredDepth > maximumDepth) {
+        measuredDepth = uniforms.clearColorAndDepth.w;
+        return false;
+    }
+    return true;
+}
+
 float3 transformPoint(
     const BoundPose pose,
     const float3 local
@@ -569,7 +613,7 @@ kernel void mr_hybrid_bin_gaussians(
     );
     const float largestEigenvalue =
         0.5f * (trace + eigenDiscriminant);
-    const float pixelRadius = max(
+    float pixelRadius = max(
         0.5f,
         3.0f * sqrt(max(largestEigenvalue, 0.0f))
     );
@@ -606,34 +650,52 @@ kernel void mr_hybrid_bin_gaussians(
                 projection.pixel - previousProjection.pixel;
         }
     }
+    const float blurScale =
+        uniforms.sensorRangeAndResponse.w;
+    if (blurScale > 0.0f) {
+        const float2 blurMotion = motion * blurScale;
+        const float blurredRadius =
+            pixelRadius + 0.5f * length(blurMotion);
+        if (blurredRadius > pixelRadius) {
+            const float conicScale =
+                (pixelRadius * pixelRadius) /
+                (blurredRadius * blurredRadius);
+            result.centerDepthRadius.xy -=
+                0.5f * blurMotion;
+            result.centerDepthRadius.w = blurredRadius;
+            result.conicAndBounds.xyz *= conicScale;
+            result.conicAndBounds.w = blurredRadius;
+            pixelRadius = blurredRadius;
+        }
+    }
     result.motionAndVisibility = float4(motion, 1.0f, 0.0f);
     projected[index] = result;
 
     const int minimumX = max(
         0,
         int(floor(
-            (projection.pixel.x - pixelRadius) /
+            (result.centerDepthRadius.x - pixelRadius) /
             float(MR_HYBRID_TILE_SIZE)
         ))
     );
     const int maximumX = min(
         int(uniforms.image.z) - 1,
         int(floor(
-            (projection.pixel.x + pixelRadius) /
+            (result.centerDepthRadius.x + pixelRadius) /
             float(MR_HYBRID_TILE_SIZE)
         ))
     );
     const int minimumY = max(
         0,
         int(floor(
-            (projection.pixel.y - pixelRadius) /
+            (result.centerDepthRadius.y - pixelRadius) /
             float(MR_HYBRID_TILE_SIZE)
         ))
     );
     const int maximumY = min(
         int(uniforms.image.w) - 1,
         int(floor(
-            (projection.pixel.y + pixelRadius) /
+            (result.centerDepthRadius.y + pixelRadius) /
             float(MR_HYBRID_TILE_SIZE)
         ))
     );
@@ -841,21 +903,20 @@ kernel void mr_hybrid_render_tiles(
     );
     uint valid = 1u;
     if (nearestDepth < uniforms.clearColorAndDepth.w) {
-        nearestDepth = max(
-            0.0f,
-            nearestDepth +
-                sensor.noiseAndLatency.y *
-                    uniformSigned(seed ^ 0xa511e9b3u)
-        );
-        const float dropout =
-            (float(randomHash(seed ^ 0x63d83595u)) + 0.5f) /
-            4294967296.0f;
-        if (dropout < sensor.noiseAndLatency.z) {
-            nearestDepth = uniforms.clearColorAndDepth.w;
+        float measuredDepth = nearestDepth;
+        if (!measureDepth(
+                nearestDepth,
+                sensor,
+                seed,
+                uniforms,
+                measuredDepth
+            )) {
+            nearestDepth = measuredDepth;
             identity = uint4(MR_INVALID_INDEX);
             normal = 0.0f;
             pixelMotion = 0.0f;
         } else {
+            nearestDepth = measuredDepth;
             valid |= 2u | 4u;
         }
     }
@@ -1273,17 +1334,14 @@ kernel void mr_hybrid_composite_mesh(
             sensor.noiseAndLatency.x * uniformSigned(seed),
         0.0f
     );
-    float publishedDepth = max(
-        0.0f,
-        meshDepth +
-            sensor.noiseAndLatency.y *
-                uniformSigned(seed ^ 0xa511e9b3u)
-    );
-    const float dropout =
-        (float(randomHash(seed ^ 0x63d83595u)) + 0.5f) /
-        4294967296.0f;
-    if (dropout < sensor.noiseAndLatency.z) {
-        publishedDepth = uniforms.clearColorAndDepth.w;
+    float publishedDepth = meshDepth;
+    if (!measureDepth(
+            meshDepth,
+            sensor,
+            seed,
+            uniforms,
+            publishedDepth
+        )) {
         validity[pixel] = 1u;
         identities[pixel] = uint4(MR_INVALID_INDEX);
         segmentation[pixel] = MR_INVALID_INDEX;

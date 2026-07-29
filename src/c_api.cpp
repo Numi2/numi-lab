@@ -47,6 +47,10 @@ struct MRHybridRendererHandle {
 
 static_assert(sizeof(MRHybridGaussianC) == 80u);
 static_assert(sizeof(MRHybridGaussianGPU) == 80u);
+static_assert(
+    sizeof(MRVisualFrameMetadataC) ==
+    sizeof(MRVisualFrameMetadataGPU)
+);
 
 namespace {
 
@@ -1052,6 +1056,11 @@ MRHybridRendererLayoutC mr_hybrid_renderer_layout(
     result.gaussian_count = layout.gaussianCount;
     result.maximum_gaussians_per_tile =
         layout.maximumGaussiansPerTile;
+    result.mesh_vertex_count = layout.meshVertexCount;
+    result.mesh_triangle_count = layout.meshTriangleCount;
+    result.material_count = layout.materialCount;
+    result.body_count = layout.bodyCount;
+    result.sensor_binding_count = layout.sensorBindingCount;
     result.retained_private_bytes = layout.retainedPrivateBytes;
     result.last_render_milliseconds =
         handle->lastRenderMilliseconds;
@@ -1075,7 +1084,7 @@ void* mr_hybrid_renderer_native_buffer(
         buffer_kind >
             static_cast<std::uint32_t>(
                 metalrobo::MetalHybridRendererBuffer::
-                    tileOverflowCounts
+                    validity
             )) {
         if (handle != nullptr) {
             gLastError =
@@ -1120,6 +1129,67 @@ const uint32_t* mr_hybrid_renderer_segmentation(
         return nullptr;
     }
     return handle->readback.segmentation.data();
+}
+
+const uint32_t* mr_hybrid_renderer_identities(
+    const MRHybridRendererHandle* handle
+) {
+    if (!requireHybridRendererHandle(handle) ||
+        handle->readback.identities.empty()) {
+        return nullptr;
+    }
+    return reinterpret_cast<const uint32_t*>(
+        handle->readback.identities.data()
+    );
+}
+
+const float* mr_hybrid_renderer_normals(
+    const MRHybridRendererHandle* handle
+) {
+    if (!requireHybridRendererHandle(handle) ||
+        handle->readback.normals.empty()) {
+        return nullptr;
+    }
+    return reinterpret_cast<const float*>(
+        handle->readback.normals.data()
+    );
+}
+
+const float* mr_hybrid_renderer_motion(
+    const MRHybridRendererHandle* handle
+) {
+    if (!requireHybridRendererHandle(handle) ||
+        handle->readback.motion.empty()) {
+        return nullptr;
+    }
+    return reinterpret_cast<const float*>(
+        handle->readback.motion.data()
+    );
+}
+
+const uint32_t* mr_hybrid_renderer_validity(
+    const MRHybridRendererHandle* handle
+) {
+    if (!requireHybridRendererHandle(handle) ||
+        handle->readback.validity.empty()) {
+        return nullptr;
+    }
+    return handle->readback.validity.data();
+}
+
+MRVisualFrameMetadataC mr_hybrid_renderer_frame_metadata(
+    const MRHybridRendererHandle* handle
+) {
+    MRVisualFrameMetadataC result{};
+    if (!requireHybridRendererHandle(handle)) {
+        return result;
+    }
+    std::memcpy(
+        &result,
+        &handle->readback.metadata,
+        sizeof(result)
+    );
+    return result;
 }
 
 } // extern "C"

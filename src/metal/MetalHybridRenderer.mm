@@ -240,6 +240,7 @@ struct MetalHybridRendererState {
     RendererBuffers buffers;
     MetalHybridRendererLayout layout;
     MRVisualFrameMetadataGPU activeMetadata{};
+    std::vector<MRVisualSensorBindingGPU> sensorProfiles;
     std::uint32_t assetCount = 0u;
     std::uint32_t activeEnvironmentCount = 0u;
 };
@@ -545,6 +546,17 @@ MetalHybridRendererDiagnostics encodeLocked(
     };
     uniforms.clearColorAndDepth =
         state.config.clearColorAndDepth;
+    const MRVisualSensorBindingGPU profile =
+        cameraIndex < state.sensorProfiles.size()
+        ? state.sensorProfiles[cameraIndex]
+        : MRVisualSensorBindingGPU{
+              {},
+              {15.0f, 1.0f / 120.0f, 0.0f, 0.0f},
+              {0.05f, 10.0f, 0.001f, 0.0f},
+          };
+    uniforms.sensorTiming = profile.timing;
+    uniforms.sensorRangeAndResponse =
+        profile.rangeAndResponse;
 
     const NSUInteger tileCount =
         static_cast<NSUInteger>(environmentCount) *
@@ -828,8 +840,8 @@ MetalHybridRendererDiagnostics encodeLocked(
             liveState.captureTimestampSeconds
         ),
         static_cast<float>(liveState.frameAgeSeconds),
-        0.0f,
-        0.0f,
+        profile.timing.y,
+        profile.timing.z,
     };
     state.activeMetadata.contract = {
         MR_VISUAL_MODALITY_RGB |
@@ -937,13 +949,15 @@ bool HybridGaussianScene::valid(std::string* reason) const {
     }
     for (const MRVisualSensorBindingGPU& binding :
          sensorBindings) {
+        const bool assetBinding =
+            binding.identity.x == MR_VISUAL_BINDING_ASSET;
         const bool bodyBinding =
             binding.identity.x == MR_VISUAL_BINDING_RIGID_BODY ||
             binding.identity.x ==
                 MR_VISUAL_BINDING_ARTICULATED_LINK;
         if (binding.identity.x >
                 MR_VISUAL_BINDING_ARTICULATED_LINK ||
-            binding.identity.z >= assetCount ||
+            (assetBinding && binding.identity.z >= assetCount) ||
             (bodyBinding && binding.identity.y >= bodyCount) ||
             !finite4(binding.timing) ||
             !finite4(binding.rangeAndResponse) ||
@@ -1447,6 +1461,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         state_->buffers = std::move(buffers);
         state_->layout = layout;
         state_->assetCount = scene.assetCount;
+        state_->sensorProfiles = scene.sensorBindings;
         state_->requiresLiveState =
             std::ranges::any_of(
                 scene.gaussians,

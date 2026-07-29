@@ -54,6 +54,10 @@ typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
     mr_uint4 timing;
     // clear RGB and clear depth.
     mr_float4 clearColorAndDepth;
+    // nominal rate, exposure, shutter readout, deterministic jitter.
+    mr_float4 sensorTiming;
+    // minimum/maximum depth, depth quantum, motion-blur scale.
+    mr_float4 sensorRangeAndResponse;
 } MRHybridRenderUniformsGPU;
 
 #ifndef __METAL_VERSION__
@@ -65,5 +69,5 @@ static_assert(std::is_trivially_copyable_v<MRHybridProjectedGaussianGPU>);
 static_assert(std::is_trivially_copyable_v<MRHybridRenderUniformsGPU>);
 static_assert(sizeof(MRHybridGaussianGPU) == 80u);
 static_assert(sizeof(MRHybridProjectedGaussianGPU) == 96u);
-static_assert(sizeof(MRHybridRenderUniformsGPU) == 96u);
+static_assert(sizeof(MRHybridRenderUniformsGPU) == 128u);
 #endif

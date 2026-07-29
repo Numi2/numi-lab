@@ -83,8 +83,21 @@ class _HybridRendererLayoutC(ct.Structure):
         ("tile_count_y", ct.c_uint32),
         ("gaussian_count", ct.c_uint32),
         ("maximum_gaussians_per_tile", ct.c_uint32),
+        ("mesh_vertex_count", ct.c_uint32),
+        ("mesh_triangle_count", ct.c_uint32),
+        ("material_count", ct.c_uint32),
+        ("body_count", ct.c_uint32),
+        ("sensor_binding_count", ct.c_uint32),
         ("retained_private_bytes", ct.c_size_t),
         ("last_render_milliseconds", ct.c_double),
+    ]
+
+class _VisualFrameMetadataC(ct.Structure):
+    _fields_ = [
+        ("dimensions", ct.c_uint32 * 4),
+        ("identity", ct.c_uint32 * 4),
+        ("timing", ct.c_float * 4),
+        ("contract", ct.c_uint32 * 4),
     ]
 
 
@@ -402,6 +415,32 @@ class _Bindings:
         ]
         self.lib.mr_hybrid_renderer_segmentation.restype = ct.POINTER(
             ct.c_uint32
+        )
+        self.lib.mr_hybrid_renderer_identities.argtypes = [
+            ct.c_void_p
+        ]
+        self.lib.mr_hybrid_renderer_identities.restype = ct.POINTER(
+            ct.c_uint32
+        )
+        self.lib.mr_hybrid_renderer_normals.argtypes = [ct.c_void_p]
+        self.lib.mr_hybrid_renderer_normals.restype = ct.POINTER(
+            ct.c_float
+        )
+        self.lib.mr_hybrid_renderer_motion.argtypes = [ct.c_void_p]
+        self.lib.mr_hybrid_renderer_motion.restype = ct.POINTER(
+            ct.c_float
+        )
+        self.lib.mr_hybrid_renderer_validity.argtypes = [
+            ct.c_void_p
+        ]
+        self.lib.mr_hybrid_renderer_validity.restype = ct.POINTER(
+            ct.c_uint32
+        )
+        self.lib.mr_hybrid_renderer_frame_metadata.argtypes = [
+            ct.c_void_p
+        ]
+        self.lib.mr_hybrid_renderer_frame_metadata.restype = (
+            _VisualFrameMetadataC
         )
 
     def last_error(self) -> str:

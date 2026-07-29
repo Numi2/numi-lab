@@ -48,6 +48,11 @@ class HybridRendererLayout:
     tile_count_y: int
     gaussian_count: int
     maximum_gaussians_per_tile: int
+    mesh_vertex_count: int
+    mesh_triangle_count: int
+    material_count: int
+    body_count: int
+    sensor_binding_count: int
     retained_private_bytes: int
     last_render_milliseconds: float
 
@@ -61,6 +66,18 @@ class HybridObservationDeviceBuffers:
     segmentation: int
     projected_gaussians: int
     tile_overflow_counts: int
+    identities: int
+    normals: int
+    motion: int
+    validity: int
+
+
+@dataclass(frozen=True, slots=True)
+class VisualFrameMetadata:
+    dimensions: tuple[int, int, int, int]
+    identity: tuple[int, int, int, int]
+    timing: tuple[float, float, float, float]
+    contract: tuple[int, int, int, int]
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,6 +87,11 @@ class HybridObservationSnapshot:
     rgb: npt.NDArray[np.float32]
     depth: npt.NDArray[np.float32]
     segmentation: npt.NDArray[np.uint32]
+    identities: npt.NDArray[np.uint32]
+    normals: npt.NDArray[np.float32]
+    motion: npt.NDArray[np.float32]
+    validity: npt.NDArray[np.uint32]
+    metadata: VisualFrameMetadata
 
 
 def make_asset_gaussians(
@@ -228,6 +250,11 @@ class HybridObservationRenderer:
             tile_count_y=int(native.tile_count_y),
             gaussian_count=int(native.gaussian_count),
             maximum_gaussians_per_tile=int(native.maximum_gaussians_per_tile),
+            mesh_vertex_count=int(native.mesh_vertex_count),
+            mesh_triangle_count=int(native.mesh_triangle_count),
+            material_count=int(native.material_count),
+            body_count=int(native.body_count),
+            sensor_binding_count=int(native.sensor_binding_count),
             retained_private_bytes=int(native.retained_private_bytes),
             last_render_milliseconds=float(native.last_render_milliseconds),
         )
@@ -243,7 +270,7 @@ class HybridObservationRenderer:
                 )
                 or 0
             )
-            for kind in range(5)
+            for kind in range(9)
         )
         if not all(addresses):
             raise MetalRoboError("Hybrid renderer Metal buffers are unavailable")
@@ -320,9 +347,67 @@ class HybridObservationRenderer:
             .reshape(shape)
             .copy()
         )
-        for array in (rgb, depth, segmentation):
+        identities = (
+            np.ctypeslib.as_array(
+                self._bindings.lib.mr_hybrid_renderer_identities(handle),
+                shape=(pixel_count * 4,),
+            )
+            .reshape((*shape, 4))
+            .copy()
+        )
+        normals = (
+            np.ctypeslib.as_array(
+                self._bindings.lib.mr_hybrid_renderer_normals(handle),
+                shape=(pixel_count * 4,),
+            )
+            .reshape((*shape, 4))
+            .copy()
+        )
+        motion = (
+            np.ctypeslib.as_array(
+                self._bindings.lib.mr_hybrid_renderer_motion(handle),
+                shape=(pixel_count * 4,),
+            )
+            .reshape((*shape, 4))
+            .copy()
+        )
+        validity = (
+            np.ctypeslib.as_array(
+                self._bindings.lib.mr_hybrid_renderer_validity(handle),
+                shape=(pixel_count,),
+            )
+            .reshape(shape)
+            .copy()
+        )
+        native_metadata = (
+            self._bindings.lib.mr_hybrid_renderer_frame_metadata(handle)
+        )
+        metadata = VisualFrameMetadata(
+            tuple(int(value) for value in native_metadata.dimensions),
+            tuple(int(value) for value in native_metadata.identity),
+            tuple(float(value) for value in native_metadata.timing),
+            tuple(int(value) for value in native_metadata.contract),
+        )
+        for array in (
+            rgb,
+            depth,
+            segmentation,
+            identities,
+            normals,
+            motion,
+            validity,
+        ):
             array.setflags(write=False)
-        return HybridObservationSnapshot(rgb, depth, segmentation)
+        return HybridObservationSnapshot(
+            rgb,
+            depth,
+            segmentation,
+            identities,
+            normals,
+            motion,
+            validity,
+            metadata,
+        )
 
     def close(self) -> None:
         handle = getattr(self, "_handle", None)

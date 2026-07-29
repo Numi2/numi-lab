@@ -1,5 +1,9 @@
 # MetalRobo
 
+The versioned visual simulation, perception-provider, policy-observation, and
+visual episode interfaces are documented in
+[docs/VISUAL_PLATFORM.md](docs/VISUAL_PLATFORM.md).
+
 MetalRobo is a C++23/Metal robotics physics and reinforcement-learning runtime
 for Apple silicon. It is being built as a standalone, GPU-native alternative
 to the MuJoCo and NVIDIA simulation/training stacks, with Franka first and

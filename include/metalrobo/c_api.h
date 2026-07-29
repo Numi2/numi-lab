@@ -78,9 +78,21 @@ typedef struct MRHybridRendererLayoutC {
     uint32_t tile_count_y;
     uint32_t gaussian_count;
     uint32_t maximum_gaussians_per_tile;
+    uint32_t mesh_vertex_count;
+    uint32_t mesh_triangle_count;
+    uint32_t material_count;
+    uint32_t body_count;
+    uint32_t sensor_binding_count;
     size_t retained_private_bytes;
     double last_render_milliseconds;
 } MRHybridRendererLayoutC;
+
+typedef struct MRVisualFrameMetadataC {
+    uint32_t dimensions[4];
+    uint32_t identity[4];
+    float timing[4];
+    uint32_t contract[4];
+} MRVisualFrameMetadataC;
 
 typedef struct MRHybridGaussianC {
     float mean_and_opacity[4];
@@ -255,8 +267,10 @@ MR_API MRHybridRendererLayoutC mr_hybrid_renderer_layout(
 MR_API const char* mr_hybrid_renderer_device_name(
     const MRHybridRendererHandle* handle
 );
-// buffer_kind: 0 RGB float4, 1 depth float, 2 segmentation uint,
-// 3 projected Gaussian records, 4 per-world tile overflow counts.
+// buffer_kind: 0 RGB float4, 1 depth float, 2 semantic uint,
+// 3 projected Gaussian records, 4 per-world tile overflow counts,
+// 5 semantic/instance/link/primitive uint4, 6 normals float4,
+// 7 motion float4, 8 validity uint.
 // Returned values borrow id<MTLBuffer>.
 MR_API void* mr_hybrid_renderer_native_buffer(
     const MRHybridRendererHandle* handle,
@@ -270,6 +284,21 @@ MR_API const float* mr_hybrid_renderer_depth(
     const MRHybridRendererHandle* handle
 );
 MR_API const uint32_t* mr_hybrid_renderer_segmentation(
+    const MRHybridRendererHandle* handle
+);
+MR_API const uint32_t* mr_hybrid_renderer_identities(
+    const MRHybridRendererHandle* handle
+);
+MR_API const float* mr_hybrid_renderer_normals(
+    const MRHybridRendererHandle* handle
+);
+MR_API const float* mr_hybrid_renderer_motion(
+    const MRHybridRendererHandle* handle
+);
+MR_API const uint32_t* mr_hybrid_renderer_validity(
+    const MRHybridRendererHandle* handle
+);
+MR_API MRVisualFrameMetadataC mr_hybrid_renderer_frame_metadata(
     const MRHybridRendererHandle* handle
 );
 

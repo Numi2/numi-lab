@@ -10,6 +10,43 @@
 namespace metalrobo {
 namespace {
 
+mr_float4 cameraToward(
+    const mr_float4 position,
+    const mr_float4 target
+) {
+    const float x = target.x - position.x;
+    const float y = target.y - position.y;
+    const float z = target.z - position.z;
+    const float inverseLength =
+        1.0f / std::sqrt(x * x + y * y + z * z);
+    const mr_float4 forward{
+        x * inverseLength,
+        y * inverseLength,
+        z * inverseLength,
+        0.0f,
+    };
+    mr_float4 orientation{
+        -forward.y,
+        forward.x,
+        0.0f,
+        1.0f + forward.z,
+    };
+    if (orientation.w < 1.0e-5f) {
+        orientation = {1.0f, 0.0f, 0.0f, 0.0f};
+    }
+    const float inverseNorm = 1.0f / std::sqrt(
+        orientation.x * orientation.x +
+        orientation.y * orientation.y +
+        orientation.z * orientation.z +
+        orientation.w * orientation.w
+    );
+    orientation.x *= inverseNorm;
+    orientation.y *= inverseNorm;
+    orientation.z *= inverseNorm;
+    orientation.w *= inverseNorm;
+    return orientation;
+}
+
 WorldAsset makeAsset(
     std::string id,
     const MRWorldAssetRole role,
@@ -216,6 +253,10 @@ EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
     fixedCamera.parentAssetId = "workspace";
     fixedCamera.kind = MR_WORLD_SENSOR_RGBD;
     fixedCamera.localPose.position = {0.8f, -0.6f, 0.8f, 0.0f};
+    fixedCamera.localPose.orientation = cameraToward(
+        fixedCamera.localPose.position,
+        {0.45f, 0.0f, 0.08f, 0.0f}
+    );
     fixedCamera.width = 160u;
     fixedCamera.height = 120u;
     fixedCamera.intrinsics = {140.0f, 140.0f, 80.0f, 60.0f};
@@ -227,6 +268,8 @@ EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
         MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
     wristCamera.parentBodyIndex = 10u;
     wristCamera.localPose.position = {0.0f, 0.0f, 0.08f, 0.0f};
+    wristCamera.localPose.orientation =
+        {0.0f, 0.0f, 0.0f, 1.0f};
     episode.sensors = {
         std::move(fixedCamera),
         std::move(wristCamera),

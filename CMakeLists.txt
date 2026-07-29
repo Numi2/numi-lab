@@ -1572,6 +1572,30 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(
+    metalrobo_visual_platform_probe
+    apps/visual_platform_probe.cpp
+)
+target_link_libraries(
+    metalrobo_visual_platform_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_visual_platform_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_visual_platform_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 install(
     TARGETS
         metalrobo
@@ -1582,7 +1606,12 @@ install(
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)
 install(
-    FILES schemas/capture_manifest.schema.json
+    FILES
+        schemas/capture_manifest.schema.json
+        schemas/perception_provider.schema.json
+        schemas/visual_episode_stream.schema.json
+        schemas/visual_frame_batch.schema.json
+        schemas/visual_scene_manifest.schema.json
     DESTINATION share/metalrobo/schemas
 )
 install(

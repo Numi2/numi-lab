@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metalrobo.dev/schemas/visual_frame_batch.schema.json",
+  "title": "MetalRobo VisualFrameBatchV1 descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source",
+    "dimensions",
+    "modalities",
+    "provenance",
+    "cameras",
+    "buffers"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "source": {
+      "enum": [
+        "simulation",
+        "capture",
+        "replay"
+      ]
+    },
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "environment_count",
+        "view_count",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "environment_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "view_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "modalities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "linear_rgb",
+          "metric_depth",
+          "depth_validity"
+        ]
+      }
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "cameras": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/camera"
+      }
+    },
+    "buffers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/buffer"
+      }
+    }
+  },
+  "$defs": {
+    "fingerprint": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "type": "string",
+          "pattern": "^(0x)?[A-Fa-f0-9]{1,16}$"
+        }
+      ]
+    },
+    "float4": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "episode_twin",
+        "scenario",
+        "renderer",
+        "sensor_profile",
+        "calibration"
+      ],
+      "properties": {
+        "episode_twin": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "scenario": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "renderer": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "sensor_profile": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "calibration": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      }
+    },
+    "camera": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sensor_id",
+        "intrinsics",
+        "distortion",
+        "camera_to_base",
+        "capture_timestamp_seconds",
+        "frame_index",
+        "frame_age_seconds",
+        "valid"
+      ],
+      "properties": {
+        "sensor_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "intrinsics": {
+          "$ref": "#/$defs/float4"
+        },
+        "distortion": {
+          "$ref": "#/$defs/float4"
+        },
+        "camera_to_base": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 4,
+            "maxItems": 4
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "capture_timestamp_seconds": {
+          "type": "number"
+        },
+        "frame_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "frame_age_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "valid": {
+          "type": "boolean"
+        }
+      }
+    },
+    "buffer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modality",
+        "storage",
+        "dtype",
+        "shape"
+      ],
+      "properties": {
+        "modality": {
+          "type": "string",
+          "minLength": 1
+        },
+        "storage": {
+          "enum": [
+            "host",
+            "metal_buffer",
+            "mlx_array",
+            "coreml_tensor",
+            "chunk"
+          ]
+        },
+        "dtype": {
+          "enum": [
+            "float32",
+            "uint32",
+            "uint8",
+            "bool"
+          ]
+        },
+        "shape": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "offset_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

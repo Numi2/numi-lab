@@ -183,6 +183,14 @@ void appendSensor(HashBuilder& hash, const SensorSpec& sensor) {
     hash.appendScalar(sensor.depthNoiseSigma);
     hash.appendScalar(sensor.depthDropout);
     hash.appendScalar(sensor.latencySeconds);
+    hash.appendScalar(sensor.nominalRateHz);
+    hash.appendScalar(sensor.exposureSeconds);
+    hash.appendScalar(sensor.shutterReadoutSeconds);
+    hash.appendScalar(sensor.frameJitterSeconds);
+    hash.appendScalar(sensor.minimumDepthMeters);
+    hash.appendScalar(sensor.maximumDepthMeters);
+    hash.appendScalar(sensor.depthQuantumMeters);
+    hash.appendScalar(sensor.motionBlurScale);
 }
 
 void appendArtifact(HashBuilder& hash, const EpisodeArtifact& artifact) {
@@ -733,7 +741,24 @@ bool validSensor(const SensorSpec& sensor, std::string* reason) {
         !finite(sensor.depthDropout) ||
         !(sensor.depthDropout >= 0.0f && sensor.depthDropout <= 1.0f) ||
         !finite(sensor.latencySeconds) ||
-        !(sensor.latencySeconds >= 0.0f)) {
+        !(sensor.latencySeconds >= 0.0f) ||
+        !finite(sensor.nominalRateHz) ||
+        !(sensor.nominalRateHz > 0.0f) ||
+        !finite(sensor.exposureSeconds) ||
+        !(sensor.exposureSeconds >= 0.0f) ||
+        !finite(sensor.shutterReadoutSeconds) ||
+        !(sensor.shutterReadoutSeconds >= 0.0f) ||
+        !finite(sensor.frameJitterSeconds) ||
+        !(sensor.frameJitterSeconds >= 0.0f) ||
+        !finite(sensor.minimumDepthMeters) ||
+        !(sensor.minimumDepthMeters >= 0.0f) ||
+        !finite(sensor.maximumDepthMeters) ||
+        !(sensor.maximumDepthMeters >
+          sensor.minimumDepthMeters) ||
+        !finite(sensor.depthQuantumMeters) ||
+        !(sensor.depthQuantumMeters > 0.0f) ||
+        !finite(sensor.motionBlurScale) ||
+        !(sensor.motionBlurScale >= 0.0f)) {
         return fail(reason, "sensor has invalid authored parameters");
     }
     const bool bodyParent =

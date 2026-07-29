@@ -27,6 +27,7 @@ struct VisualAssetManifestV1 {
     std::string sourceUri;
     std::string contentHash;
     std::string license;
+    std::string preprocessingProvenance;
     std::uint32_t semanticId = 0u;
     std::uint32_t instanceId = 0u;
     std::vector<std::uint32_t> bodyIndices;
@@ -54,6 +55,10 @@ struct VisualSensorProfileV1 {
     [[nodiscard]] bool valid(std::string* reason = nullptr) const;
 };
 
+[[nodiscard]] std::uint64_t computeVisualSensorProfileFingerprint(
+    const VisualSensorProfileV1& profile
+);
+
 struct VisualSceneManifestV1 {
     std::uint32_t schemaVersion = kVisualSceneManifestVersion;
     std::string id;
@@ -74,6 +79,19 @@ struct VisualSceneManifestV1 {
 [[nodiscard]] bool compileVisualSceneManifest(
     const WorldTemplate& world,
     VisualSceneManifestV1& output,
+    std::string* reason = nullptr
+);
+
+// Adds a captured Gaussian appearance layer to an existing manifest while
+// retaining physics-bound meshes for interaction, metric depth, and identity.
+[[nodiscard]] bool attachGaussianField(
+    VisualSceneManifestV1& scene,
+    const std::string& assetId,
+    std::span<const MRHybridGaussianGPU> gaussians,
+    std::string sourceUri,
+    std::string contentHash,
+    std::string license,
+    std::string preprocessingProvenance,
     std::string* reason = nullptr
 );
 
@@ -145,20 +163,80 @@ struct VisualFrameBatchV1 {
 
 struct VisualTruthBatchV1 {
     std::uint32_t schemaVersion = kVisualFrameBatchVersion;
+    std::uint32_t modalities = 0u;
+    MRVisualCoordinateFrame coordinateFrame =
+        MR_VISUAL_FRAME_ROBOT_BASE;
     std::uint32_t environmentCount = 0u;
     std::uint32_t viewCount = 0u;
     std::uint32_t width = 0u;
     std::uint32_t height = 0u;
+    std::uint64_t frameIndex = 0u;
+    double timestampSeconds = 0.0;
     std::vector<mr_float4> normals;
     std::vector<mr_float4> motion;
     std::vector<std::uint32_t> semanticIds;
     std::vector<std::uint32_t> instanceIds;
     std::vector<std::uint32_t> linkIds;
+    std::vector<float> visibility;
+    std::vector<std::uint8_t> occlusion;
+    std::vector<MRVisualPoseGPU> objectPoses;
+    std::vector<MRVisualPoseGPU> linkPoses;
     std::vector<MRVisualKeypointGPU> keypoints;
     std::vector<MRVisualContactAnnotationGPU> contacts;
+    std::vector<VisualDeviceBufferViewV1> deviceBuffers;
 
     [[nodiscard]] bool valid(std::string* reason = nullptr) const;
 };
+
+struct VisualSensorCaptureV1 {
+    std::uint64_t frameIndex = 0u;
+    std::uint32_t sensorSequence = 0u;
+    double nominalTimestampSeconds = 0.0;
+    double exposureOpenSeconds = 0.0;
+    double exposureCloseSeconds = 0.0;
+    double publishTimestampSeconds = 0.0;
+
+    [[nodiscard]] bool valid(std::string* reason = nullptr) const;
+};
+
+// Stateless, deterministic frame scheduling. Identical scenario, sensor, and
+// frame identities produce identical jitter and exposure windows.
+[[nodiscard]] VisualSensorCaptureV1 makeVisualSensorCapture(
+    const VisualSensorProfileV1& profile,
+    std::uint64_t scenarioIdentity,
+    std::uint64_t sensorIdentity,
+    std::uint64_t frameIndex,
+    double episodeStartSeconds = 0.0
+);
+
+struct VisualBatchProvenanceV1 {
+    MRVisualFrameSource source = MR_VISUAL_SOURCE_SIMULATION;
+    std::uint64_t episodeTwinFingerprint = 0u;
+    std::uint64_t scenarioFingerprint = 0u;
+    std::uint64_t rendererFingerprint = 0u;
+    std::uint64_t sensorProfileFingerprint = 0u;
+    std::uint64_t calibrationFingerprint = 0u;
+
+    [[nodiscard]] bool valid(std::string* reason = nullptr) const;
+};
+
+struct VisualBatchAssemblyV1 {
+    VisualBatchProvenanceV1 provenance;
+    std::span<const std::uint32_t> cameraIndices{};
+    std::span<const HybridObservationBatch> observations{};
+    std::span<const MRBodyStateGPU> currentBodyStates{};
+};
+
+// Converts one or more synchronized renderer readbacks into the exact same
+// deployable/supervisory contracts accepted from physical RGB-D capture.
+[[nodiscard]] bool assembleVisualBatches(
+    const WorldTemplate& world,
+    const WorldInstanceBatch& sampledWorlds,
+    const VisualBatchAssemblyV1& input,
+    VisualFrameBatchV1& frames,
+    VisualTruthBatchV1& truth,
+    std::string* reason = nullptr
+);
 
 enum class PerceptionElementType : std::uint32_t {
     float32 = 0u,

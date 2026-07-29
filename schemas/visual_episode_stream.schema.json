@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metalrobo.dev/schemas/visual_episode_stream.schema.json",
+  "title": "MetalRobo VisualEpisodeStreamV1 chunked manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "provenance",
+    "layout",
+    "step_count",
+    "chunks",
+    "content_hash"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "layout": {
+      "$ref": "#/$defs/layout"
+    },
+    "step_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "chunks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/chunk"
+      }
+    },
+    "content_hash": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "fingerprint": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{64}$"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "episode_id",
+        "source",
+        "episode_twin_fingerprint",
+        "world_family_fingerprint",
+        "renderer_fingerprint",
+        "visual_scene_fingerprint",
+        "sensor_profile_fingerprint",
+        "calibration_fingerprint",
+        "physics_fingerprint",
+        "visual_asset_hashes",
+        "nominal_rate_hz"
+      ],
+      "properties": {
+        "episode_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "episode_twin_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "world_family_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "renderer_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "visual_scene_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "sensor_profile_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "calibration_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "physics_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "visual_asset_hashes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "nominal_rate_hz": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "arrays",
+        "sensor_ids",
+        "environment_count",
+        "view_count",
+        "height",
+        "width"
+      ],
+      "properties": {
+        "arrays": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/array"
+          }
+        },
+        "sensor_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "environment_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "view_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "array": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dtype",
+        "shape"
+      ],
+      "properties": {
+        "dtype": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shape": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "chunk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "step_start",
+        "step_count",
+        "arrays"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^chunks/[0-9]{6}-[A-Fa-f0-9]{16}\\.npz$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "step_start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "step_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "arrays": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/array"
+          }
+        }
+      }
+    }
+  }
+}

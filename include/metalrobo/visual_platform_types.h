@@ -136,6 +136,15 @@ typedef struct MR_ALIGN16 MRVisualKeypointGPU {
     mr_uint4 identity;
 } MRVisualKeypointGPU;
 
+typedef struct MR_ALIGN16 MRVisualPoseGPU {
+    // xyz position in the declared frame, w homogeneous one.
+    mr_float4 position;
+    // Normalized xyzw orientation in the declared frame.
+    mr_float4 orientation;
+    // semantic, instance, link, flags.
+    mr_uint4 identity;
+} MRVisualPoseGPU;
+
 typedef struct MR_ALIGN16 MRVisualContactAnnotationGPU {
     // xyz contact position in the declared frame, w normal impulse.
     mr_float4 positionAndImpulse;
@@ -154,6 +163,7 @@ static_assert(std::is_trivially_copyable_v<MRVisualMeshTriangleGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualMaterialGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualFrameMetadataGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualKeypointGPU>);
+static_assert(std::is_trivially_copyable_v<MRVisualPoseGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualContactAnnotationGPU>);
 static_assert(sizeof(MRVisualSensorBindingGPU) == 48u);
 static_assert(sizeof(MRVisualMeshVertexGPU) == 48u);
@@ -161,5 +171,6 @@ static_assert(sizeof(MRVisualMeshTriangleGPU) == 64u);
 static_assert(sizeof(MRVisualMaterialGPU) == 64u);
 static_assert(sizeof(MRVisualFrameMetadataGPU) == 64u);
 static_assert(sizeof(MRVisualKeypointGPU) == 32u);
+static_assert(sizeof(MRVisualPoseGPU) == 48u);
 static_assert(sizeof(MRVisualContactAnnotationGPU) == 48u);
 #endif

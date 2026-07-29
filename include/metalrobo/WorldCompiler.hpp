@@ -104,6 +104,14 @@ struct SensorSpec {
     float depthNoiseSigma = 0.0f;
     float depthDropout = 0.0f;
     float latencySeconds = 0.0f;
+    float nominalRateHz = 15.0f;
+    float exposureSeconds = 1.0f / 120.0f;
+    float shutterReadoutSeconds = 0.0f;
+    float frameJitterSeconds = 0.0f;
+    float minimumDepthMeters = 0.05f;
+    float maximumDepthMeters = 10.0f;
+    float depthQuantumMeters = 0.001f;
+    float motionBlurScale = 0.0f;
 };
 
 struct TaskSpec {

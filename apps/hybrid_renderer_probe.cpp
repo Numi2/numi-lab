@@ -39,7 +39,7 @@ int main() {
         scene.assetCount =
             static_cast<std::uint32_t>(worldTemplate.assets.size());
         scene.gaussians.push_back({
-            {0.8f, -0.6f, 1.3f, 0.98f},
+            {0.45f, 0.0f, 0.08f, 0.98f},
             {0.06f, 0.02f, 0.04f, 1.0f},
             {0.0f, 0.0f, 0.0f, 1.0f},
             {1.0f, 0.1f, 0.05f, 0.0f},
@@ -60,7 +60,13 @@ int main() {
         const std::size_t center = 60u * observations.width + 80u;
         const float depth = observations.depth[center];
         const std::uint32_t semantic = observations.segmentation[center];
-        if (!std::isfinite(depth) || std::abs(depth - 0.5f) > 0.05f ||
+        const float expectedDepth = std::sqrt(
+            0.35f * 0.35f +
+            0.6f * 0.6f +
+            0.72f * 0.72f
+        );
+        if (!std::isfinite(depth) ||
+            std::abs(depth - expectedDepth) > 0.05f ||
             semantic != 42u ||
             observations.rgb[center].x <= observations.rgb[center].y) {
             throw std::runtime_error(
