@@ -4387,8 +4387,8 @@ kernel void mr_world_build_contact_tiles(
         work.firstTile = tileCursor;
         work.tileCount = tileCount;
         work.dofClass =
-            island.operatorBucket <= 8u ? 8u :
-            island.operatorBucket <= 16u ? 16u :
+            island.generalizedVelocityCount <= 8u ? 8u :
+            island.generalizedVelocityCount <= 16u ? 16u :
             32u;
         work.flags = MR_ISLAND_WORK_VALID |
             (hasArticulation
@@ -5285,50 +5285,55 @@ kernel void mr_world_wave32_distributed_reduce(
         }
 
         if ((work.flags &
-             MR_ISLAND_WORK_HAS_ARTICULATION) != 0u &&
-            lane < dispatch.nv) {
-            float velocityDelta = 0.0f;
-            for (uint localTile = 0u;
-                 localTile < work.tileCount;
-                 ++localTile) {
-                const MRContactTileGPU tile =
-                    denseTiles[
-                        tileBase + work.firstTile + localTile
-                    ];
-                for (uint slot = 0u;
-                     slot < tile.constraintCount;
-                     ++slot) {
-                    const uint localConstraint =
-                        tileConstraintIndices[
-                            constraintBase +
-                            tile.partialOffset + slot
+             MR_ISLAND_WORK_HAS_ARTICULATION) != 0u) {
+            for (uint dof = lane;
+                 dof < dispatch.nv;
+                 dof += MR_WAVE32_CONTACTS_PER_TILE) {
+                float velocityDelta = 0.0f;
+                for (uint localTile = 0u;
+                     localTile < work.tileCount;
+                     ++localTile) {
+                    const MRContactTileGPU tile =
+                        denseTiles[
+                            tileBase +
+                            work.firstTile + localTile
                         ];
-                    const float3 delta =
-                        impulseDeltas[
-                            constraintBase + localConstraint
-                        ].xyz;
-                    velocityDelta +=
-                        responseColumns[
-                            responseBase +
-                            (localConstraint * 3u + 0u) *
-                                dispatch.nv +
-                            lane
-                        ] * delta.x +
-                        responseColumns[
-                            responseBase +
-                            (localConstraint * 3u + 1u) *
-                                dispatch.nv +
-                            lane
-                        ] * delta.y +
-                        responseColumns[
-                            responseBase +
-                            (localConstraint * 3u + 2u) *
-                                dispatch.nv +
-                            lane
-                        ] * delta.z;
+                    for (uint slot = 0u;
+                         slot < tile.constraintCount;
+                         ++slot) {
+                        const uint localConstraint =
+                            tileConstraintIndices[
+                                constraintBase +
+                                tile.partialOffset + slot
+                            ];
+                        const float3 delta =
+                            impulseDeltas[
+                                constraintBase +
+                                localConstraint
+                            ].xyz;
+                        velocityDelta +=
+                            responseColumns[
+                                responseBase +
+                                (localConstraint * 3u + 0u) *
+                                    dispatch.nv +
+                                dof
+                            ] * delta.x +
+                            responseColumns[
+                                responseBase +
+                                (localConstraint * 3u + 1u) *
+                                    dispatch.nv +
+                                dof
+                            ] * delta.y +
+                            responseColumns[
+                                responseBase +
+                                (localConstraint * 3u + 2u) *
+                                    dispatch.nv +
+                                dof
+                            ] * delta.z;
+                    }
                 }
+                articulationVelocity[dof] += velocityDelta;
             }
-            articulationVelocity[lane] += velocityDelta;
         }
         for (uint bodyIndex = lane;
              bodyIndex < dispatch.bodyCount;
@@ -6427,61 +6432,64 @@ inline void mrWorldWave32SolvePacket(
 
     // Apply every warm-start impulse exactly once. Articulation DoFs and free
     // bodies have unique lane owners, eliminating conflicting atomic writes.
-    if ((work.flags & MR_ISLAND_WORK_HAS_ARTICULATION) != 0u &&
-        localLane < dispatch.nv) {
-        float velocityDelta = 0.0f;
-        bool participates = false;
-        for (uint localTile = 0u;
-             localTile < work.tileCount;
-             ++localTile) {
-            const MRContactTileGPU tile =
-                tiles[tileBase + work.firstTile + localTile];
-            for (uint slot = 0u;
-                 slot < tile.constraintCount;
-                 ++slot) {
-                const uint localConstraint =
-                    tileConstraintIndices[
-                        constraintBase +
-                        tile.partialOffset + slot
-                    ];
-                const float3 delta =
-                    impulseDeltas[
-                        constraintBase + localConstraint
-                    ].xyz;
-                const float response0 =
-                    responseColumns[
-                        responseBase +
-                            (localConstraint * 3u + 0u) *
-                                dispatch.nv +
-                            localLane
-                    ];
-                const float response1 =
-                    responseColumns[
-                        responseBase +
-                            (localConstraint * 3u + 1u) *
-                                dispatch.nv +
-                            localLane
-                    ];
-                const float response2 =
-                    responseColumns[
-                        responseBase +
-                            (localConstraint * 3u + 2u) *
-                                dispatch.nv +
-                            localLane
-                    ];
-                participates =
-                    participates ||
-                    response0 != 0.0f ||
-                    response1 != 0.0f ||
-                    response2 != 0.0f;
-                velocityDelta +=
-                    response0 * delta.x +
-                    response1 * delta.y +
-                    response2 * delta.z;
+    if ((work.flags & MR_ISLAND_WORK_HAS_ARTICULATION) != 0u) {
+        for (uint dof = localLane;
+             dof < dispatch.nv;
+             dof += cohortWidth) {
+            float velocityDelta = 0.0f;
+            bool participates = false;
+            for (uint localTile = 0u;
+                 localTile < work.tileCount;
+                 ++localTile) {
+                const MRContactTileGPU tile =
+                    tiles[tileBase + work.firstTile + localTile];
+                for (uint slot = 0u;
+                     slot < tile.constraintCount;
+                     ++slot) {
+                    const uint localConstraint =
+                        tileConstraintIndices[
+                            constraintBase +
+                            tile.partialOffset + slot
+                        ];
+                    const float3 delta =
+                        impulseDeltas[
+                            constraintBase + localConstraint
+                        ].xyz;
+                    const float response0 =
+                        responseColumns[
+                            responseBase +
+                                (localConstraint * 3u + 0u) *
+                                    dispatch.nv +
+                                dof
+                        ];
+                    const float response1 =
+                        responseColumns[
+                            responseBase +
+                                (localConstraint * 3u + 1u) *
+                                    dispatch.nv +
+                                dof
+                        ];
+                    const float response2 =
+                        responseColumns[
+                            responseBase +
+                                (localConstraint * 3u + 2u) *
+                                    dispatch.nv +
+                                dof
+                        ];
+                    participates =
+                        participates ||
+                        response0 != 0.0f ||
+                        response1 != 0.0f ||
+                        response2 != 0.0f;
+                    velocityDelta +=
+                        response0 * delta.x +
+                        response1 * delta.y +
+                        response2 * delta.z;
+                }
             }
-        }
-        if (participates) {
-            articulationVelocity[localLane] += velocityDelta;
+            if (participates) {
+                articulationVelocity[dof] += velocityDelta;
+            }
         }
     }
     for (uint bodyIndex = localLane;
@@ -6779,64 +6787,69 @@ inline void mrWorldWave32SolvePacket(
         threadgroup_barrier(mem_flags::mem_device);
 
         if ((work.flags &
-             MR_ISLAND_WORK_HAS_ARTICULATION) != 0u &&
-            localLane < dispatch.nv) {
-            float velocityDelta = 0.0f;
-            bool participates = false;
-            for (uint localTile = 0u;
-                 localTile < work.tileCount;
-                 ++localTile) {
-                const MRContactTileGPU tile =
-                    tiles[
-                        tileBase + work.firstTile + localTile
-                    ];
-                for (uint slot = 0u;
-                     slot < tile.constraintCount;
-                     ++slot) {
-                    const uint localConstraint =
-                        tileConstraintIndices[
-                            constraintBase +
-                            tile.partialOffset + slot
+             MR_ISLAND_WORK_HAS_ARTICULATION) != 0u) {
+            for (uint dof = localLane;
+                 dof < dispatch.nv;
+                 dof += cohortWidth) {
+                float velocityDelta = 0.0f;
+                bool participates = false;
+                for (uint localTile = 0u;
+                     localTile < work.tileCount;
+                     ++localTile) {
+                    const MRContactTileGPU tile =
+                        tiles[
+                            tileBase +
+                            work.firstTile + localTile
                         ];
-                    const float3 delta =
-                        impulseDeltas[
-                            constraintBase + localConstraint
-                        ].xyz;
-                    const float response0 =
-                        responseColumns[
-                            responseBase +
-                                (localConstraint * 3u + 0u) *
-                                    dispatch.nv +
-                                localLane
-                        ];
-                    const float response1 =
-                        responseColumns[
-                            responseBase +
-                                (localConstraint * 3u + 1u) *
-                                    dispatch.nv +
-                                localLane
-                        ];
-                    const float response2 =
-                        responseColumns[
-                            responseBase +
-                                (localConstraint * 3u + 2u) *
-                                    dispatch.nv +
-                                localLane
-                        ];
-                    participates =
-                        participates ||
-                        response0 != 0.0f ||
-                        response1 != 0.0f ||
-                        response2 != 0.0f;
-                    velocityDelta +=
-                        response0 * delta.x +
-                        response1 * delta.y +
-                        response2 * delta.z;
+                    for (uint slot = 0u;
+                         slot < tile.constraintCount;
+                         ++slot) {
+                        const uint localConstraint =
+                            tileConstraintIndices[
+                                constraintBase +
+                                tile.partialOffset + slot
+                            ];
+                        const float3 delta =
+                            impulseDeltas[
+                                constraintBase +
+                                localConstraint
+                            ].xyz;
+                        const float response0 =
+                            responseColumns[
+                                responseBase +
+                                    (localConstraint * 3u + 0u) *
+                                        dispatch.nv +
+                                    dof
+                            ];
+                        const float response1 =
+                            responseColumns[
+                                responseBase +
+                                    (localConstraint * 3u + 1u) *
+                                        dispatch.nv +
+                                    dof
+                            ];
+                        const float response2 =
+                            responseColumns[
+                                responseBase +
+                                    (localConstraint * 3u + 2u) *
+                                        dispatch.nv +
+                                    dof
+                            ];
+                        participates =
+                            participates ||
+                            response0 != 0.0f ||
+                            response1 != 0.0f ||
+                            response2 != 0.0f;
+                        velocityDelta +=
+                            response0 * delta.x +
+                            response1 * delta.y +
+                            response2 * delta.z;
+                    }
                 }
-            }
-            if (participates) {
-                articulationVelocity[localLane] +=
-                    velocityDelta;
+                if (participates) {
+                    articulationVelocity[dof] +=
+                        velocityDelta;
+                }
             }
         }
         for (uint bodyIndex = localLane;
