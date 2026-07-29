@@ -389,6 +389,14 @@ WorldProgram makeFrankaPickPlaceWorldProgram() {
             1.5f
         ),
         uniformVariation(
+            "light_intensity",
+            MR_WORLD_VARIATION_APPEARANCE,
+            MR_WORLD_TARGET_APPEARANCE_LIGHT_INTENSITY,
+            "default",
+            0.65f,
+            1.35f
+        ),
+        uniformVariation(
             "object_x",
             MR_WORLD_VARIATION_OBJECT_CONFIGURATION,
             MR_WORLD_TARGET_ASSET_POSITION_X,
@@ -405,12 +413,52 @@ WorldProgram makeFrankaPickPlaceWorldProgram() {
             0.15f
         ),
         uniformVariation(
+            "mass_inertia",
+            MR_WORLD_VARIATION_PHYSICS,
+            MR_WORLD_TARGET_ASSET_MASS_SCALE,
+            "pick_object",
+            0.65f,
+            1.5f
+        ),
+        uniformVariation(
             "friction",
             MR_WORLD_VARIATION_PHYSICS,
             MR_WORLD_TARGET_ASSET_FRICTION_SCALE,
             "pick_object",
             0.5f,
             1.5f
+        ),
+        uniformVariation(
+            "restitution",
+            MR_WORLD_VARIATION_PHYSICS,
+            MR_WORLD_TARGET_ASSET_RESTITUTION_SCALE,
+            "pick_object",
+            0.25f,
+            1.75f
+        ),
+        uniformVariation(
+            "body_damping",
+            MR_WORLD_VARIATION_PHYSICS,
+            MR_WORLD_TARGET_ASSET_DAMPING_SCALE,
+            "pick_object",
+            0.5f,
+            1.5f
+        ),
+        uniformVariation(
+            "robot_gain",
+            MR_WORLD_VARIATION_ROBOT_STATE,
+            MR_WORLD_TARGET_ROBOT_GAIN_SCALE,
+            "franka",
+            0.8f,
+            1.2f
+        ),
+        uniformVariation(
+            "robot_damping",
+            MR_WORLD_VARIATION_ROBOT_STATE,
+            MR_WORLD_TARGET_ROBOT_DAMPING_SCALE,
+            "franka",
+            0.8f,
+            1.2f
         ),
         uniformVariation(
             "robot_latency",
@@ -421,12 +469,52 @@ WorldProgram makeFrankaPickPlaceWorldProgram() {
             0.025f
         ),
         uniformVariation(
+            "payload_compensation",
+            MR_WORLD_VARIATION_ROBOT_STATE,
+            MR_WORLD_TARGET_ROBOT_PAYLOAD_SCALE,
+            "franka",
+            0.75f,
+            1.25f
+        ),
+        uniformVariation(
             "camera_yaw",
             MR_WORLD_VARIATION_CAMERA,
             MR_WORLD_TARGET_SENSOR_ORIENTATION_YAW,
             "fixed_rgbd",
             -0.15f,
             0.15f
+        ),
+        uniformVariation(
+            "camera_focal_scale",
+            MR_WORLD_VARIATION_CAMERA,
+            MR_WORLD_TARGET_SENSOR_FOCAL_SCALE,
+            "fixed_rgbd",
+            0.95f,
+            1.05f
+        ),
+        uniformVariation(
+            "camera_latency",
+            MR_WORLD_VARIATION_CAMERA,
+            MR_WORLD_TARGET_SENSOR_LATENCY_SECONDS,
+            "fixed_rgbd",
+            0.0f,
+            0.035f
+        ),
+        uniformVariation(
+            "depth_noise",
+            MR_WORLD_VARIATION_CAMERA,
+            MR_WORLD_TARGET_SENSOR_DEPTH_NOISE,
+            "fixed_rgbd",
+            0.0f,
+            0.008f
+        ),
+        uniformVariation(
+            "depth_dropout",
+            MR_WORLD_VARIATION_CAMERA,
+            MR_WORLD_TARGET_SENSOR_DEPTH_DROPOUT,
+            "fixed_rgbd",
+            0.0f,
+            0.08f
         ),
     };
     VariationParameter clutter;

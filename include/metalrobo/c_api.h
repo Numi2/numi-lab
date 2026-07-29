@@ -25,6 +25,8 @@ typedef struct MRWorldAssetInstanceGPU MRWorldAssetInstanceGPU;
 typedef struct MRWorldSensorInstanceGPU MRWorldSensorInstanceGPU;
 typedef struct MRWorldAppearanceInstanceGPU
     MRWorldAppearanceInstanceGPU;
+typedef struct MRWorldScenarioHeaderGPU MRWorldScenarioHeaderGPU;
+typedef struct MRWorldScenarioValueGPU MRWorldScenarioValueGPU;
 
 typedef struct MRRuntimeStatsC {
     double last_gpu_milliseconds;
@@ -58,6 +60,14 @@ typedef struct MRWorldFamilyStatsC {
     uint64_t readback_count;
     double last_sample_milliseconds;
 } MRWorldFamilyStatsC;
+
+typedef struct MRScenarioFeatureC {
+    uint32_t axis;
+    uint32_t distribution;
+    uint32_t target;
+    uint32_t ordinal;
+    float parameters[4];
+} MRScenarioFeatureC;
 
 typedef struct MRHybridRendererLayoutC {
     uint32_t capacity;
@@ -139,6 +149,51 @@ MR_API int mr_world_family_sample(
     uint32_t instance_count,
     uint64_t seed
 );
+MR_API int mr_world_family_sample_ex(
+    MRWorldFamilyHandle* handle,
+    uint32_t instance_count,
+    uint64_t seed,
+    uint32_t sampling_mode,
+    uint64_t episode_counter
+);
+// Configures an already content-addressed alignment/feedback sampler.
+// particle_quantiles is [particle, feature], region_bounds is
+// [region, feature, lower/upper], and weights are normalized internally.
+MR_API int mr_world_family_configure_sampling(
+    MRWorldFamilyHandle* handle,
+    uint64_t alignment_fingerprint,
+    const float* particle_quantiles,
+    const float* particle_weights,
+    const float* particle_residuals,
+    uint32_t particle_count,
+    uint64_t feedback_fingerprint,
+    const uint32_t* region_kinds,
+    const float* region_weights,
+    const float* region_bounds,
+    uint32_t region_count,
+    float broad_weight,
+    float failure_weight,
+    float uncertainty_weight,
+    float alignment_jitter
+);
+MR_API uint64_t mr_world_family_scenario_fingerprint(
+    const MRWorldFamilyHandle* handle
+);
+MR_API const char* mr_world_family_scenario_id(
+    const MRWorldFamilyHandle* handle
+);
+MR_API const char* mr_world_family_scenario_feature_id(
+    const MRWorldFamilyHandle* handle,
+    uint32_t feature
+);
+MR_API const char* mr_world_family_scenario_target_id(
+    const MRWorldFamilyHandle* handle,
+    uint32_t feature
+);
+MR_API MRScenarioFeatureC mr_world_family_scenario_feature(
+    const MRWorldFamilyHandle* handle,
+    uint32_t feature
+);
 MR_API int mr_world_family_readback(MRWorldFamilyHandle* handle);
 MR_API MRWorldFamilyLayoutC mr_world_family_layout(
     const MRWorldFamilyHandle* handle
@@ -151,8 +206,9 @@ MR_API const char* mr_world_family_device_name(
 );
 // buffer_kind: 0 headers, 1 assets, 2 sensors, 3 appearances, 4 immutable
 // asset bindings, 5 immutable binding-index arena, 6 reset q, 7 reset v,
-// 8 scene-body resets, 9 body parameters, 10 controller parameters. The
-// returned value is a borrowed id<MTLBuffer> for native graph composition.
+// 8 scene-body resets, 9 body parameters, 10 controller parameters,
+// 11 scenario headers, 12 environment-major scenario values. The returned
+// value is a borrowed id<MTLBuffer> for native graph composition.
 MR_API void* mr_world_family_native_buffer(
     const MRWorldFamilyHandle* handle,
     uint32_t buffer_kind
@@ -166,6 +222,10 @@ MR_API const MRWorldSensorInstanceGPU*
 mr_world_family_sensor_instances(const MRWorldFamilyHandle* handle);
 MR_API const MRWorldAppearanceInstanceGPU*
 mr_world_family_appearance_instances(const MRWorldFamilyHandle* handle);
+MR_API const MRWorldScenarioHeaderGPU*
+mr_world_family_scenario_headers(const MRWorldFamilyHandle* handle);
+MR_API const MRWorldScenarioValueGPU*
+mr_world_family_scenario_values(const MRWorldFamilyHandle* handle);
 
 MR_API MRHybridRendererHandle* mr_hybrid_renderer_create(
     const MRHybridGaussianC* gaussians,

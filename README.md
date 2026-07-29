@@ -136,6 +136,12 @@ linked or called at runtime.
   robot/controller state, and cameras. A persistent Metal family context
   samples 4,096 compact worlds directly into private GPU buffers and exposes
   them to native/MLX graph stages without per-environment Python work
+- Executable R2S2R loop with stable scenario schemas, four-round 4,096-particle
+  replay alignment, unbiased coverage versus 50/30/20 adaptive curriculum
+  sampling, causal physical/controller variation, MLX episode compaction,
+  SQLite/WAL outcome indexing, immutable SHA-256 artifacts, five-member
+  policy-specific failure ensembles, 65,536-scenario GPU scoring, hardware
+  residual calibration, and paired policy evaluation
 
 This is a serious numerical foundation, not yet a complete MuJoCo/PhysX
 replacement. The device graph now has compact analytic/SAT/GJK/mesh queues,
@@ -177,6 +183,7 @@ cmake --build build
 ./build/bin/metalrobo_supported_needle_pickup_probe
 ./build/bin/metalrobo_world_compiler_probe
 ./build/bin/metalrobo_metal_world_family_probe
+./build/bin/metalrobo_r2s2r_loop_probe
 ./build/bin/metalrobo_g1_collision_contact_probe
 ./build/bin/metalrobo_free_body_gpu_probe
 ./build/bin/metalrobo_collision_gpu_probe

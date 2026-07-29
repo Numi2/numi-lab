@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/EngineModel.hpp"
+#include "metalrobo/r2s2r_types.h"
 #include "metalrobo/world_compiler_types.h"
 
 #include <cstdint>
@@ -180,6 +181,11 @@ struct CompiledWorldProgram {
     std::string id;
     std::uint64_t fingerprint = 0u;
     std::uint32_t instanceFlags = 0u;
+    // Authored semantic names stay parallel to the pointer-free descriptors.
+    // They are persisted in MRWorldPack so hardware manifests and evaluation
+    // records can address scenario dimensions without depending on ordinals.
+    std::vector<std::string> variationIds;
+    std::vector<std::string> variationTargetIds;
     std::vector<MRWorldVariationGPU> variations;
     std::vector<std::uint32_t> categoricalValues;
 };
@@ -187,6 +193,8 @@ struct CompiledWorldProgram {
 struct WorldInstanceBatch {
     std::uint64_t familyFingerprint = 0u;
     std::vector<MRWorldInstanceHeaderGPU> instances;
+    std::vector<MRWorldScenarioHeaderGPU> scenarioHeaders;
+    std::vector<MRWorldScenarioValueGPU> scenarioValues;
     std::vector<MRWorldAssetInstanceGPU> assets;
     std::vector<MRWorldSensorInstanceGPU> sensors;
     std::vector<MRWorldAppearanceInstanceGPU> appearances;

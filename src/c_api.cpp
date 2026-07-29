@@ -10,13 +10,18 @@
 #include "metalrobo/WorldPack.hpp"
 
 #include <cstring>
+#include <algorithm>
+#include <array>
+#include <cmath>
 #include <exception>
 #include <filesystem>
 #include <limits>
 #include <memory>
+#include <numeric>
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 struct MRRuntimeHandle {
     std::unique_ptr<metalrobo::Runtime> runtime;
@@ -26,6 +31,7 @@ struct MRRuntimeHandle {
 struct MRWorldFamilyHandle {
     metalrobo::MetalWorldFamilyContext context;
     metalrobo::WorldFamily family;
+    metalrobo::ScenarioSchema scenarioSchema;
     metalrobo::WorldInstanceBatch readback;
     std::string deviceName;
     double lastSampleMilliseconds = 0.0;
@@ -376,6 +382,8 @@ MRWorldFamilyHandle* mr_create_franka_pick_place_world_family(
             throw worldFamilyError("world-family compile", diagnostics);
         }
         handle->family = std::move(family);
+        handle->scenarioSchema =
+            metalrobo::compileScenarioSchema(handle->family);
         handle->deviceName = diagnostics.deviceName;
         result = handle.release();
     });
@@ -425,6 +433,8 @@ MRWorldFamilyHandle* mr_load_world_family_pack(
             );
         }
         handle->family = std::move(pack.family);
+        handle->scenarioSchema =
+            metalrobo::compileScenarioSchema(handle->family);
         handle->deviceName = diagnostics.deviceName;
         result = handle.release();
     });
@@ -453,6 +463,284 @@ int mr_world_family_sample(
             diagnostics.elapsedMilliseconds;
         handle->readback = {};
     });
+}
+
+int mr_world_family_sample_ex(
+    MRWorldFamilyHandle* handle,
+    const uint32_t instance_count,
+    const uint64_t seed,
+    const uint32_t sampling_mode,
+    const uint64_t episode_counter
+) {
+    if (!requireWorldFamilyHandle(handle)) {
+        return -1;
+    }
+    return translateErrors([&] {
+        if (sampling_mode > MR_WORLD_SAMPLING_CURRICULUM) {
+            throw std::invalid_argument(
+                "world-family sampling mode is invalid"
+            );
+        }
+        const auto diagnostics = handle->context.sample(
+            instance_count,
+            seed,
+            static_cast<MRWorldSamplingMode>(sampling_mode),
+            episode_counter
+        );
+        if (!diagnostics.succeeded()) {
+            throw worldFamilyError(
+                "adaptive world-family sample",
+                diagnostics
+            );
+        }
+        handle->lastSampleMilliseconds =
+            diagnostics.elapsedMilliseconds;
+        handle->readback = {};
+    });
+}
+
+int mr_world_family_configure_sampling(
+    MRWorldFamilyHandle* handle,
+    const uint64_t alignment_fingerprint,
+    const float* particle_quantiles,
+    const float* particle_weights,
+    const float* particle_residuals,
+    const uint32_t particle_count,
+    const uint64_t feedback_fingerprint,
+    const uint32_t* region_kinds,
+    const float* region_weights,
+    const float* region_bounds,
+    const uint32_t region_count,
+    const float broad_weight,
+    const float failure_weight,
+    const float uncertainty_weight,
+    const float alignment_jitter
+) {
+    if (!requireWorldFamilyHandle(handle)) {
+        return -1;
+    }
+    return translateErrors([&] {
+        const std::size_t featureCount =
+            handle->scenarioSchema.features.size();
+        if (!handle->scenarioSchema.valid() ||
+            featureCount == 0u ||
+            particle_count > metalrobo::kMaximumAlignmentParticles ||
+            region_count > metalrobo::kMaximumFeedbackRegions ||
+            (particle_count != 0u &&
+             (alignment_fingerprint == 0u ||
+              particle_quantiles == nullptr ||
+              particle_weights == nullptr)) ||
+            (region_count != 0u &&
+             (feedback_fingerprint == 0u ||
+              region_kinds == nullptr ||
+              region_weights == nullptr ||
+              region_bounds == nullptr))) {
+            throw std::invalid_argument(
+                "adaptive sampling arrays or fingerprints are invalid"
+            );
+        }
+        metalrobo::CompiledWorldSamplingProgram program;
+        program.schemaFingerprint =
+            handle->scenarioSchema.fingerprint;
+        program.alignmentFingerprint = alignment_fingerprint;
+        program.feedbackFingerprint = feedback_fingerprint;
+        program.broadWeight = broad_weight;
+        program.failureWeight = failure_weight;
+        program.uncertaintyWeight = uncertainty_weight;
+        program.alignmentJitter = alignment_jitter;
+
+        double particleTotal = 0.0;
+        for (std::uint32_t particle = 0u;
+             particle < particle_count;
+             ++particle) {
+            if (!std::isfinite(particle_weights[particle]) ||
+                particle_weights[particle] < 0.0f) {
+                throw std::invalid_argument(
+                    "alignment particle weight is invalid"
+                );
+            }
+            particleTotal += particle_weights[particle];
+        }
+        if (particle_count != 0u && !(particleTotal > 0.0)) {
+            throw std::invalid_argument(
+                "alignment particle weights have no mass"
+            );
+        }
+        double particleCDF = 0.0;
+        program.alignmentParticles.reserve(particle_count);
+        program.alignmentQuantiles.reserve(
+            static_cast<std::size_t>(particle_count) * featureCount
+        );
+        for (std::uint32_t particle = 0u;
+             particle < particle_count;
+             ++particle) {
+            const double weight =
+                particle_weights[particle] / particleTotal;
+            particleCDF += weight;
+            MRWorldAlignmentParticleGPU record{};
+            record.statistics = {
+                static_cast<float>(weight),
+                static_cast<float>(
+                    particle + 1u == particle_count
+                    ? 1.0
+                    : particleCDF
+                ),
+                particle_residuals == nullptr
+                    ? 0.0f
+                    : particle_residuals[particle],
+                0.0f,
+            };
+            record.identity = {particle, 0u, 0u, 0u};
+            program.alignmentParticles.push_back(record);
+            for (std::size_t feature = 0u;
+                 feature < featureCount;
+                 ++feature) {
+                program.alignmentQuantiles.push_back(
+                    particle_quantiles[
+                        static_cast<std::size_t>(particle) *
+                            featureCount +
+                        feature
+                    ]
+                );
+            }
+        }
+
+        std::array<double, 2> regionTotals{};
+        for (std::uint32_t region = 0u;
+             region < region_count;
+             ++region) {
+            if (region_kinds[region] >
+                    MR_FEEDBACK_REGION_UNCERTAINTY ||
+                !std::isfinite(region_weights[region]) ||
+                region_weights[region] < 0.0f) {
+                throw std::invalid_argument(
+                    "feedback region kind or weight is invalid"
+                );
+            }
+            regionTotals[region_kinds[region]] +=
+                region_weights[region];
+        }
+        std::array<double, 2> regionCDF{};
+        program.feedbackRegions.reserve(region_count);
+        program.feedbackBounds.reserve(
+            static_cast<std::size_t>(region_count) * featureCount
+        );
+        for (std::uint32_t region = 0u;
+             region < region_count;
+             ++region) {
+            const std::uint32_t kind = region_kinds[region];
+            const double total = regionTotals[kind];
+            const double weight =
+                total > 0.0 ? region_weights[region] / total : 0.0;
+            regionCDF[kind] += weight;
+            MRWorldFeedbackRegionGPU record{};
+            record.statistics = {
+                static_cast<float>(weight),
+                static_cast<float>(
+                    std::abs(regionCDF[kind] - 1.0) < 1.0e-12
+                    ? 1.0
+                    : regionCDF[kind]
+                ),
+                0.0f,
+                0.0f,
+            };
+            record.identity = {kind, region, 0u, 0u};
+            program.feedbackRegions.push_back(record);
+            for (std::size_t feature = 0u;
+                 feature < featureCount;
+                 ++feature) {
+                const std::size_t offset =
+                    (
+                        static_cast<std::size_t>(region) *
+                            featureCount +
+                        feature
+                    ) * 2u;
+                program.feedbackBounds.push_back({
+                    region_bounds[offset],
+                    region_bounds[offset + 1u],
+                    0.0f,
+                    0.0f,
+                });
+            }
+        }
+        std::string reason;
+        if (!program.valid(handle->scenarioSchema, &reason)) {
+            throw std::invalid_argument(reason);
+        }
+        const auto diagnostics =
+            handle->context.configureSamplingProgram(
+                handle->scenarioSchema,
+                program
+            );
+        if (!diagnostics.succeeded()) {
+            throw worldFamilyError(
+                "world-family sampling configuration",
+                diagnostics
+            );
+        }
+    });
+}
+
+uint64_t mr_world_family_scenario_fingerprint(
+    const MRWorldFamilyHandle* handle
+) {
+    return requireWorldFamilyHandle(handle)
+        ? handle->scenarioSchema.fingerprint
+        : 0u;
+}
+
+const char* mr_world_family_scenario_id(
+    const MRWorldFamilyHandle* handle
+) {
+    return requireWorldFamilyHandle(handle)
+        ? handle->scenarioSchema.id.c_str()
+        : "";
+}
+
+const char* mr_world_family_scenario_feature_id(
+    const MRWorldFamilyHandle* handle,
+    const uint32_t feature
+) {
+    if (!requireWorldFamilyHandle(handle) ||
+        feature >= handle->scenarioSchema.features.size()) {
+        gLastError = "scenario feature index is invalid.";
+        return "";
+    }
+    return handle->scenarioSchema.features[feature].id.c_str();
+}
+
+const char* mr_world_family_scenario_target_id(
+    const MRWorldFamilyHandle* handle,
+    const uint32_t feature
+) {
+    if (!requireWorldFamilyHandle(handle) ||
+        feature >= handle->scenarioSchema.features.size()) {
+        gLastError = "scenario feature index is invalid.";
+        return "";
+    }
+    return handle->scenarioSchema.features[feature].targetId.c_str();
+}
+
+MRScenarioFeatureC mr_world_family_scenario_feature(
+    const MRWorldFamilyHandle* handle,
+    const uint32_t feature
+) {
+    MRScenarioFeatureC result{};
+    if (!requireWorldFamilyHandle(handle) ||
+        feature >= handle->scenarioSchema.features.size()) {
+        gLastError = "scenario feature index is invalid.";
+        return result;
+    }
+    const auto& source = handle->scenarioSchema.features[feature];
+    result.axis = source.axis;
+    result.distribution = source.distribution;
+    result.target = source.target;
+    result.ordinal = source.ordinal;
+    result.parameters[0] = source.parameters.x;
+    result.parameters[1] = source.parameters.y;
+    result.parameters[2] = source.parameters.z;
+    result.parameters[3] = source.parameters.w;
+    return result;
 }
 
 int mr_world_family_readback(MRWorldFamilyHandle* handle) {
@@ -533,8 +821,8 @@ void* mr_world_family_native_buffer(
     const MRWorldFamilyHandle* handle,
     const uint32_t buffer_kind
 ) {
-    if (!requireWorldFamilyHandle(handle) || buffer_kind > 10u) {
-        if (buffer_kind > 10u) {
+    if (!requireWorldFamilyHandle(handle) || buffer_kind > 12u) {
+        if (buffer_kind > 12u) {
             gLastError = "world-family buffer kind is invalid.";
         }
         return nullptr;
@@ -583,6 +871,26 @@ mr_world_family_appearance_instances(
         return nullptr;
     }
     return handle->readback.appearances.data();
+}
+
+const MRWorldScenarioHeaderGPU* mr_world_family_scenario_headers(
+    const MRWorldFamilyHandle* handle
+) {
+    if (!requireWorldFamilyHandle(handle) ||
+        handle->readback.scenarioHeaders.empty()) {
+        return nullptr;
+    }
+    return handle->readback.scenarioHeaders.data();
+}
+
+const MRWorldScenarioValueGPU* mr_world_family_scenario_values(
+    const MRWorldFamilyHandle* handle
+) {
+    if (!requireWorldFamilyHandle(handle) ||
+        handle->readback.scenarioValues.empty()) {
+        return nullptr;
+    }
+    return handle->readback.scenarioValues.data();
 }
 
 MRHybridRendererHandle* mr_hybrid_renderer_create(

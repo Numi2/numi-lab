@@ -1,6 +1,6 @@
 #pragma once
 
-#include "metalrobo/WorldCompiler.hpp"
+#include "metalrobo/R2S2R.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -54,17 +54,24 @@ struct MetalWorldFamilyLayout {
     std::uint32_t bodyCount = 0u;
     std::uint32_t sceneBodyCount = 0u;
     std::uint32_t articulationCount = 0u;
+    std::uint32_t alignmentParticleCount = 0u;
+    std::uint32_t feedbackRegionCount = 0u;
     std::size_t immutablePrivateBytes = 0u;
     std::size_t instancePrivateBytes = 0u;
     std::size_t assetPrivateBytes = 0u;
     std::size_t sensorPrivateBytes = 0u;
     std::size_t appearancePrivateBytes = 0u;
+    std::size_t scenarioHeaderPrivateBytes = 0u;
+    std::size_t scenarioValuePrivateBytes = 0u;
+    std::size_t samplingPrivateBytes = 0u;
     std::size_t physicsResetPrivateBytes = 0u;
 
     [[nodiscard]] std::size_t totalPrivateBytes() const noexcept {
         return immutablePrivateBytes + instancePrivateBytes +
             assetPrivateBytes + sensorPrivateBytes +
-            appearancePrivateBytes + physicsResetPrivateBytes;
+            appearancePrivateBytes + scenarioHeaderPrivateBytes +
+            scenarioValuePrivateBytes + samplingPrivateBytes +
+            physicsResetPrivateBytes;
     }
 };
 
@@ -102,6 +109,8 @@ enum class MetalWorldFamilyBuffer : std::uint32_t {
     resetSceneBodies = 8u,
     bodyParameters = 9u,
     controllerParameters = 10u,
+    scenarioHeaders = 11u,
+    scenarioValues = 12u,
 };
 
 struct MetalWorldFamilyPhysicsBatch {
@@ -154,6 +163,16 @@ public:
     [[nodiscard]] MetalWorldFamilyDiagnostics sample(
         std::uint32_t instanceCount,
         std::uint64_t seed
+    );
+    [[nodiscard]] MetalWorldFamilyDiagnostics configureSamplingProgram(
+        const ScenarioSchema& schema,
+        const CompiledWorldSamplingProgram& program
+    );
+    [[nodiscard]] MetalWorldFamilyDiagnostics sample(
+        std::uint32_t instanceCount,
+        std::uint64_t seed,
+        MRWorldSamplingMode mode,
+        std::uint64_t episodeCounterBase
     );
 
     // Explicit diagnostic/export boundary. The normal simulation loop should

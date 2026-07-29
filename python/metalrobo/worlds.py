@@ -60,6 +60,18 @@ WORLD_APPEARANCE_DTYPE = np.dtype(
     ],
     align=True,
 )
+WORLD_SCENARIO_HEADER_DTYPE = np.dtype(
+    [
+        ("identity", _UINT4),
+        ("provenance", _UINT4),
+        ("sampling", _UINT4),
+    ],
+    align=True,
+)
+WORLD_SCENARIO_VALUE_DTYPE = np.dtype(
+    [("value", _FLOAT4), ("identity", _UINT4)],
+    align=True,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -91,6 +103,24 @@ class WorldFamilyStats:
 
 
 @dataclass(frozen=True, slots=True)
+class ScenarioFeature:
+    id: str
+    target_id: str
+    axis: int
+    distribution: int
+    target: int
+    ordinal: int
+    parameters: tuple[float, float, float, float]
+
+
+@dataclass(frozen=True, slots=True)
+class ScenarioSchema:
+    id: str
+    fingerprint: int
+    features: tuple[ScenarioFeature, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class WorldFamilyDeviceBuffers:
     """Borrowed ``id<MTLBuffer>`` addresses for native/MLX graph composition."""
 
@@ -105,6 +135,8 @@ class WorldFamilyDeviceBuffers:
     reset_scene_bodies: int
     body_parameters: int
     controller_parameters: int
+    scenario_headers: int
+    scenario_values: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -115,6 +147,8 @@ class WorldFamilySnapshot:
     assets: npt.NDArray[np.void]
     sensors: npt.NDArray[np.void]
     appearances: npt.NDArray[np.void]
+    scenario_headers: npt.NDArray[np.void]
+    scenario_values: npt.NDArray[np.void]
 
 
 def _stable_structured_copy(
@@ -263,6 +297,55 @@ class FrankaPickPlaceWorldFamily:
         )
 
     @property
+    def scenario_schema(self) -> ScenarioSchema:
+        handle = self._require_open()
+        features = []
+        for index in range(self.layout.variation_count):
+            native = (
+                self._bindings.lib.mr_world_family_scenario_feature(
+                    handle,
+                    ct.c_uint32(index),
+                )
+            )
+            features.append(
+                ScenarioFeature(
+                    id=_decode(
+                        self._bindings.lib
+                        .mr_world_family_scenario_feature_id(
+                            handle,
+                            ct.c_uint32(index),
+                        )
+                    ),
+                    target_id=_decode(
+                        self._bindings.lib
+                        .mr_world_family_scenario_target_id(
+                            handle,
+                            ct.c_uint32(index),
+                        )
+                    ),
+                    axis=int(native.axis),
+                    distribution=int(native.distribution),
+                    target=int(native.target),
+                    ordinal=int(native.ordinal),
+                    parameters=tuple(
+                        float(value) for value in native.parameters
+                    ),
+                )
+            )
+        return ScenarioSchema(
+            id=_decode(
+                self._bindings.lib.mr_world_family_scenario_id(
+                    handle
+                )
+            ),
+            fingerprint=int(
+                self._bindings.lib
+                .mr_world_family_scenario_fingerprint(handle)
+            ),
+            features=tuple(features),
+        )
+
+    @property
     def device_buffers(self) -> WorldFamilyDeviceBuffers:
         handle = self._require_open()
         addresses = tuple(
@@ -273,7 +356,7 @@ class FrankaPickPlaceWorldFamily:
                 )
                 or 0
             )
-            for kind in range(11)
+            for kind in range(13)
         )
         if not all(addresses):
             raise MetalRoboError(
@@ -281,17 +364,149 @@ class FrankaPickPlaceWorldFamily:
             )
         return WorldFamilyDeviceBuffers(*addresses)
 
-    def sample(self, instance_count: int, *, seed: int = 1) -> None:
+    def configure_sampling(
+        self,
+        *,
+        alignment_fingerprint: int = 0,
+        particle_quantiles: npt.ArrayLike | None = None,
+        particle_weights: npt.ArrayLike | None = None,
+        particle_residuals: npt.ArrayLike | None = None,
+        feedback_fingerprint: int = 0,
+        region_kinds: npt.ArrayLike | None = None,
+        region_weights: npt.ArrayLike | None = None,
+        region_bounds: npt.ArrayLike | None = None,
+        broad_weight: float = 0.5,
+        failure_weight: float = 0.3,
+        uncertainty_weight: float = 0.2,
+        alignment_jitter: float = 0.05,
+    ) -> None:
+        """Upload immutable alignment particles and feedback regions."""
+
+        feature_count = self.layout.variation_count
+        quantiles = np.ascontiguousarray(
+            (
+                np.empty((0, feature_count), dtype=np.float32)
+                if particle_quantiles is None
+                else particle_quantiles
+            ),
+            dtype=np.float32,
+        )
+        if quantiles.ndim != 2 or quantiles.shape[1] != feature_count:
+            raise ValueError(
+                "particle_quantiles must have shape [particle, feature]"
+            )
+        weights = np.ascontiguousarray(
+            (
+                np.empty((0,), dtype=np.float32)
+                if particle_weights is None
+                else particle_weights
+            ),
+            dtype=np.float32,
+        )
+        if weights.shape != (quantiles.shape[0],):
+            raise ValueError(
+                "particle_weights must have one value per particle"
+            )
+        residuals = np.ascontiguousarray(
+            (
+                np.zeros_like(weights)
+                if particle_residuals is None
+                else particle_residuals
+            ),
+            dtype=np.float32,
+        )
+        if residuals.shape != weights.shape:
+            raise ValueError(
+                "particle_residuals must have one value per particle"
+            )
+        kinds = np.ascontiguousarray(
+            (
+                np.empty((0,), dtype=np.uint32)
+                if region_kinds is None
+                else region_kinds
+            ),
+            dtype=np.uint32,
+        )
+        region_weight_values = np.ascontiguousarray(
+            (
+                np.empty((0,), dtype=np.float32)
+                if region_weights is None
+                else region_weights
+            ),
+            dtype=np.float32,
+        )
+        bounds = np.ascontiguousarray(
+            (
+                np.empty((0, feature_count, 2), dtype=np.float32)
+                if region_bounds is None
+                else region_bounds
+            ),
+            dtype=np.float32,
+        )
+        if (
+            kinds.ndim != 1
+            or region_weight_values.shape != kinds.shape
+            or bounds.shape != (kinds.size, feature_count, 2)
+        ):
+            raise ValueError(
+                "feedback regions require kinds/weights [region] and "
+                "bounds [region, feature, 2]"
+            )
+        if kinds.size == 0:
+            broad_weight = 1.0
+            failure_weight = 0.0
+            uncertainty_weight = 0.0
+        status = (
+            self._bindings.lib.mr_world_family_configure_sampling(
+                self._require_open(),
+                ct.c_uint64(alignment_fingerprint),
+                quantiles.ctypes.data_as(ct.POINTER(ct.c_float)),
+                weights.ctypes.data_as(ct.POINTER(ct.c_float)),
+                residuals.ctypes.data_as(ct.POINTER(ct.c_float)),
+                ct.c_uint32(quantiles.shape[0]),
+                ct.c_uint64(feedback_fingerprint),
+                kinds.ctypes.data_as(ct.POINTER(ct.c_uint32)),
+                region_weight_values.ctypes.data_as(
+                    ct.POINTER(ct.c_float)
+                ),
+                bounds.ctypes.data_as(ct.POINTER(ct.c_float)),
+                ct.c_uint32(kinds.size),
+                ct.c_float(broad_weight),
+                ct.c_float(failure_weight),
+                ct.c_float(uncertainty_weight),
+                ct.c_float(alignment_jitter),
+            )
+        )
+        if status != 0:
+            raise MetalRoboError(
+                "Could not configure adaptive world sampling: "
+                f"{self._bindings.last_error()}"
+            )
+
+    def sample(
+        self,
+        instance_count: int,
+        *,
+        seed: int = 1,
+        mode: str = "coverage",
+        episode_counter: int = 0,
+    ) -> None:
         if not 1 <= int(instance_count) <= self.layout.capacity:
             raise ValueError(
                 "instance_count must be nonzero and within compiled capacity"
             )
         if not 0 <= int(seed) <= np.iinfo(np.uint64).max:
             raise ValueError("seed must fit in a uint64")
-        status = self._bindings.lib.mr_world_family_sample(
+        if mode not in {"coverage", "curriculum"}:
+            raise ValueError("mode must be 'coverage' or 'curriculum'")
+        if not 0 <= int(episode_counter) <= np.iinfo(np.uint64).max:
+            raise ValueError("episode_counter must fit in a uint64")
+        status = self._bindings.lib.mr_world_family_sample_ex(
             self._require_open(),
             ct.c_uint32(instance_count),
             ct.c_uint64(seed),
+            ct.c_uint32(0 if mode == "coverage" else 1),
+            ct.c_uint64(episode_counter),
         )
         if status != 0:
             raise MetalRoboError(
@@ -341,6 +556,25 @@ class FrankaPickPlaceWorldFamily:
                 layout.appearance_count_per_instance,
                 WORLD_APPEARANCE_DTYPE,
                 "appearance",
+            ),
+            scenario_headers=_stable_structured_copy(
+                self._bindings.lib.mr_world_family_scenario_headers(
+                    handle
+                ),
+                environment_count,
+                WORLD_SCENARIO_HEADER_DTYPE,
+                "scenario header",
+            ),
+            scenario_values=_stable_structured_copy(
+                self._bindings.lib.mr_world_family_scenario_values(
+                    handle
+                ),
+                environment_count * layout.variation_count,
+                WORLD_SCENARIO_VALUE_DTYPE,
+                "scenario value",
+            ).reshape(
+                environment_count,
+                layout.variation_count,
             ),
         )
 

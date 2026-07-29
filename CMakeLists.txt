@@ -21,6 +21,7 @@ find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
 find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
+find_package(SQLite3 REQUIRED)
 find_package(LibXml2 REQUIRED)
 
 set(METALROBO_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
@@ -248,6 +249,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/quality_solver_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/parallel_aba_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/world_compiler_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/r2s2r_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hybrid_renderer_types.h"
     VERBATIM
 )
@@ -269,6 +271,7 @@ add_library(
     src/core/WorldCompiler.cpp
     src/core/WorldPack.cpp
     src/core/EpisodeTwinCompiler.cpp
+    src/core/R2S2R.cpp
     src/core/RobotDescriptionCooker.cpp
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
@@ -295,6 +298,7 @@ add_library(
     src/core/ConstraintSolver.cpp
     src/core/RigidBodyWorld.cpp
     src/apple/CaptureManifestJSON.mm
+    src/apple/HardwareOutcomeJSON.mm
     src/metal/MetalArticulatedOperator.mm
     src/metal/MetalArticulatedABA.mm
     src/metal/MetalMultiArticulatedABA.mm
@@ -335,6 +339,7 @@ target_link_libraries(
         "${METAL_FRAMEWORK}"
         "${QUARTZCORE_FRAMEWORK}"
         "${ACCELERATE_FRAMEWORK}"
+        SQLite::SQLite3
         LibXml2::LibXml2
 )
 set_target_properties(
@@ -1216,6 +1221,30 @@ target_compile_options(
 )
 set_target_properties(
     metalrobo_metal_world_family_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_r2s2r_loop_probe
+    apps/r2s2r_loop_probe.cpp
+)
+target_link_libraries(
+    metalrobo_r2s2r_loop_probe
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_r2s2r_loop_probe
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_r2s2r_loop_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

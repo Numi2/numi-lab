@@ -1,6 +1,8 @@
 #pragma once
 
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/r2s2r_types.h"
+#include "metalrobo/world_compiler_types.h"
 
 #include "mlx/backend/metal/device.h"
 #include "mlx/ops.h"
@@ -136,6 +138,8 @@ private:
     const mx::array& manifoldPoints,
     const mx::array& manifoldCounts,
     const mx::array& pairCache,
+    const mx::array& bodyParameters,
+    const mx::array& controllerParameters,
     mx::StreamOrDevice stream = {}
 );
 
@@ -146,7 +150,14 @@ private:
     std::uintptr_t resetQBuffer,
     std::uintptr_t resetVBuffer,
     std::uintptr_t resetSceneBodiesBuffer,
+    std::uintptr_t scenarioHeadersBuffer,
+    std::uintptr_t scenarioValuesBuffer,
+    std::uintptr_t bodyParametersBuffer,
+    std::uintptr_t controllerParametersBuffer,
     std::uint32_t environmentCount,
+    std::uint32_t variationCount,
+    std::uint32_t bodyCount,
+    std::uint32_t articulationCount,
     std::uint64_t generation,
     mx::StreamOrDevice stream = {}
 );
@@ -250,7 +261,14 @@ public:
         MTL::Buffer* resetQ,
         MTL::Buffer* resetV,
         MTL::Buffer* resetSceneBodies,
+        MTL::Buffer* scenarioHeaders,
+        MTL::Buffer* scenarioValues,
+        MTL::Buffer* bodyParameters,
+        MTL::Buffer* controllerParameters,
         std::uint32_t environmentCount,
+        std::uint32_t variationCount,
+        std::uint32_t bodyCount,
+        std::uint32_t articulationCount,
         std::uint64_t generation
     );
     ~WorldFamilyStatePrimitive() override;
@@ -288,7 +306,14 @@ private:
     MTL::Buffer* resetQ_ = nullptr;
     MTL::Buffer* resetV_ = nullptr;
     MTL::Buffer* resetSceneBodies_ = nullptr;
+    MTL::Buffer* scenarioHeaders_ = nullptr;
+    MTL::Buffer* scenarioValues_ = nullptr;
+    MTL::Buffer* bodyParameters_ = nullptr;
+    MTL::Buffer* controllerParameters_ = nullptr;
     std::uint32_t environmentCount_ = 0u;
+    std::uint32_t variationCount_ = 0u;
+    std::uint32_t bodyCount_ = 0u;
+    std::uint32_t articulationCount_ = 0u;
     std::uint64_t generation_ = 0u;
 };
 

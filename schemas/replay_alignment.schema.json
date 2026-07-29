@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metalrobo.dev/schemas/replay_alignment.schema.json",
+  "title": "MetalRobo physical replay alignment input",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "scenario_schema",
+    "episode_twin_hash",
+    "command_stream_hash",
+    "replay_residual_modes"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "scenario_schema": { "type": "string", "minLength": 1 },
+    "episode_twin_hash": { "type": "string", "minLength": 1 },
+    "command_stream_hash": { "type": "string", "minLength": 1 },
+    "world_hash": { "type": "string" },
+    "engine_hash": { "type": "string" },
+    "telemetry_hash": { "type": "string" },
+    "video_hash": { "type": "string" },
+    "replay_residual_modes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["matrix", "bias"],
+        "properties": {
+          "matrix": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "number" }
+            }
+          },
+          "bias": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "number" }
+          },
+          "contact_mode": { "type": "string" }
+        }
+      }
+    }
+  }
+}

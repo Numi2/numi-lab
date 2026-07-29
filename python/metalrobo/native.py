@@ -63,6 +63,16 @@ class _WorldFamilyStatsC(ct.Structure):
     ]
 
 
+class _ScenarioFeatureC(ct.Structure):
+    _fields_ = [
+        ("axis", ct.c_uint32),
+        ("distribution", ct.c_uint32),
+        ("target", ct.c_uint32),
+        ("ordinal", ct.c_uint32),
+        ("parameters", ct.c_float * 4),
+    ]
+
+
 class _HybridRendererLayoutC(ct.Structure):
     _fields_ = [
         ("capacity", ct.c_uint32),
@@ -269,6 +279,61 @@ class _Bindings:
             ct.c_uint64,
         ]
         self.lib.mr_world_family_sample.restype = ct.c_int
+        self.lib.mr_world_family_sample_ex.argtypes = [
+            ct.c_void_p,
+            ct.c_uint32,
+            ct.c_uint64,
+            ct.c_uint32,
+            ct.c_uint64,
+        ]
+        self.lib.mr_world_family_sample_ex.restype = ct.c_int
+        self.lib.mr_world_family_configure_sampling.argtypes = [
+            ct.c_void_p,
+            ct.c_uint64,
+            ct.POINTER(ct.c_float),
+            ct.POINTER(ct.c_float),
+            ct.POINTER(ct.c_float),
+            ct.c_uint32,
+            ct.c_uint64,
+            ct.POINTER(ct.c_uint32),
+            ct.POINTER(ct.c_float),
+            ct.POINTER(ct.c_float),
+            ct.c_uint32,
+            ct.c_float,
+            ct.c_float,
+            ct.c_float,
+            ct.c_float,
+        ]
+        self.lib.mr_world_family_configure_sampling.restype = ct.c_int
+        self.lib.mr_world_family_scenario_fingerprint.argtypes = [
+            ct.c_void_p
+        ]
+        self.lib.mr_world_family_scenario_fingerprint.restype = (
+            ct.c_uint64
+        )
+        self.lib.mr_world_family_scenario_id.argtypes = [ct.c_void_p]
+        self.lib.mr_world_family_scenario_id.restype = ct.c_char_p
+        self.lib.mr_world_family_scenario_feature_id.argtypes = [
+            ct.c_void_p,
+            ct.c_uint32,
+        ]
+        self.lib.mr_world_family_scenario_feature_id.restype = (
+            ct.c_char_p
+        )
+        self.lib.mr_world_family_scenario_target_id.argtypes = [
+            ct.c_void_p,
+            ct.c_uint32,
+        ]
+        self.lib.mr_world_family_scenario_target_id.restype = (
+            ct.c_char_p
+        )
+        self.lib.mr_world_family_scenario_feature.argtypes = [
+            ct.c_void_p,
+            ct.c_uint32,
+        ]
+        self.lib.mr_world_family_scenario_feature.restype = (
+            _ScenarioFeatureC
+        )
         self.lib.mr_world_family_readback.argtypes = [ct.c_void_p]
         self.lib.mr_world_family_readback.restype = ct.c_int
         self.lib.mr_world_family_layout.argtypes = [ct.c_void_p]
@@ -287,6 +352,8 @@ class _Bindings:
             "mr_world_family_asset_instances",
             "mr_world_family_sensor_instances",
             "mr_world_family_appearance_instances",
+            "mr_world_family_scenario_headers",
+            "mr_world_family_scenario_values",
         ):
             function = getattr(self.lib, name)
             function.argtypes = [ct.c_void_p]

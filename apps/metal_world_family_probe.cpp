@@ -68,6 +68,8 @@ int main() {
                  metalrobo::MetalWorldFamilyBuffer::resetSceneBodies,
                  metalrobo::MetalWorldFamilyBuffer::bodyParameters,
                  metalrobo::MetalWorldFamilyBuffer::controllerParameters,
+                 metalrobo::MetalWorldFamilyBuffer::scenarioHeaders,
+                 metalrobo::MetalWorldFamilyBuffer::scenarioValues,
              }) {
             if (context.nativeBuffer(buffer) == nullptr) {
                 throw std::runtime_error(
@@ -99,6 +101,17 @@ int main() {
         if (std::abs(firstObjectX - lastObjectX) < 1.0e-6f) {
             throw std::runtime_error(
                 "GPU object configurations collapsed"
+            );
+        }
+        if (batch.scenarioHeaders.size() != kWorldCount ||
+            batch.scenarioValues.size() !=
+                kWorldCount * family.program.variations.size() ||
+            batch.scenarioHeaders.front().identity.x !=
+                batch.instances.front().identity.x ||
+            batch.scenarioHeaders.front().identity.y !=
+                batch.instances.front().identity.y) {
+            throw std::runtime_error(
+                "GPU scenario provenance is incomplete"
             );
         }
         metalrobo::MetalWorldFamilyPhysicsBatch physics;
@@ -137,13 +150,31 @@ int main() {
         }
         const auto& firstObjectParameters =
             physics.bodyParameters[11u];
+        const auto& lastObjectParameters =
+            physics.bodyParameters[
+                (kWorldCount - 1u) * physics.bodyCount + 11u
+            ];
         if (firstObjectParameters.identity.x != objectIndex ||
             std::abs(
                 firstObjectParameters.physical.y -
                 batch.assets[objectIndex].physical.y
-            ) > 1.0e-6f) {
+            ) > 1.0e-6f ||
+            std::abs(
+                firstObjectParameters.physical.x -
+                lastObjectParameters.physical.x
+            ) < 1.0e-6f ||
+            !(physics.resetSceneBodies.front()
+                  .linearVelocityAndInverseMass.w > 0.0f) ||
+            std::abs(
+                physics.resetSceneBodies.front()
+                    .linearVelocityAndInverseMass.w -
+                physics.resetSceneBodies[
+                    (kWorldCount - 1u) *
+                    physics.sceneBodyCount
+                ].linearVelocityAndInverseMass.w
+            ) < 1.0e-6f) {
             throw std::runtime_error(
-                "GPU body parameters do not match asset physics"
+                "GPU mass/inertia parameters are not causal in resets"
             );
         }
         const std::uint32_t robotIndex =

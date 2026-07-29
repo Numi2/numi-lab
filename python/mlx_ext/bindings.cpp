@@ -93,6 +93,18 @@ NB_MODULE(_mlx_ext, module) {
             }
         )
         .def_prop_ro(
+            "articulation_count",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().model().articulations.size();
+            }
+        )
+        .def_prop_ro(
+            "model_body_count",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().model().bodies.size();
+            }
+        )
+        .def_prop_ro(
             "collider_count",
             [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
                 return world.world().colliderCount();
@@ -411,6 +423,8 @@ NB_MODULE(_mlx_ext, module) {
         "manifold_points"_a,
         "manifold_counts"_a,
         "pair_cache"_a,
+        "body_parameters"_a,
+        "controller_parameters"_a,
         nb::kw_only(),
         "stream"_a = nb::none(),
         "Encode a complete contact step into MLX's active Metal encoder."
@@ -422,7 +436,14 @@ NB_MODULE(_mlx_ext, module) {
         "reset_q_buffer"_a,
         "reset_v_buffer"_a,
         "reset_scene_bodies_buffer"_a,
+        "scenario_headers_buffer"_a,
+        "scenario_values_buffer"_a,
+        "body_parameters_buffer"_a,
+        "controller_parameters_buffer"_a,
         "environment_count"_a,
+        "variation_count"_a,
+        "body_count"_a,
+        "articulation_count"_a,
         "generation"_a,
         nb::kw_only(),
         "stream"_a = nb::none(),

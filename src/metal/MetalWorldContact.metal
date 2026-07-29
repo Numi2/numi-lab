@@ -933,9 +933,17 @@ kernel void mr_world_build_body_states(
         MRBodyStateGPU state = input;
         state.position.w = 1.0f;
         state.orientation = orientation;
+        const float authoredInverseMass =
+            properties.massAndInverseMass.y;
+        const bool hasMassOverride =
+            properties.motionType == MR_MOTION_DYNAMIC &&
+            input.linearVelocityAndInverseMass.w > 0.0f &&
+            authoredInverseMass > 0.0f;
         state.linearVelocityAndInverseMass.w =
             properties.motionType == MR_MOTION_DYNAMIC
-            ? properties.massAndInverseMass.y
+            ? (hasMassOverride
+                ? input.linearVelocityAndInverseMass.w
+                : authoredInverseMass)
             : 0.0f;
         state.angularVelocity.w = 0.0f;
         state.flagsAndIndices[0] = properties.motionType;
@@ -950,6 +958,17 @@ kernel void mr_world_build_body_states(
             status.firstFailingConstraint = globalBody;
             statuses[environment] = status;
             return;
+        }
+        if (hasMassOverride) {
+            const float inverseInertiaScale =
+                input.linearVelocityAndInverseMass.w /
+                authoredInverseMass;
+            state.inverseInertiaWorldRow0.xyz *=
+                inverseInertiaScale;
+            state.inverseInertiaWorldRow1.xyz *=
+                inverseInertiaScale;
+            state.inverseInertiaWorldRow2.xyz *=
+                inverseInertiaScale;
         }
         bodyStates[bodyBase + globalBody] = state;
     }

@@ -46,12 +46,20 @@ struct FamilyBuffers {
     __strong id<MTLBuffer> baseV = nil;
     __strong id<MTLBuffer> baseSceneBodies = nil;
     __strong id<MTLBuffer> bodyToScene = nil;
+    __strong id<MTLBuffer> bodyProperties = nil;
     __strong id<MTLBuffer> uniforms = nil;
     __strong id<MTLBuffer> materializeUniforms = nil;
     __strong id<MTLBuffer> instances = nil;
     __strong id<MTLBuffer> assets = nil;
     __strong id<MTLBuffer> sensors = nil;
     __strong id<MTLBuffer> appearances = nil;
+    __strong id<MTLBuffer> scenarioHeaders = nil;
+    __strong id<MTLBuffer> scenarioValues = nil;
+    __strong id<MTLBuffer> adaptiveUniforms = nil;
+    __strong id<MTLBuffer> alignmentParticles = nil;
+    __strong id<MTLBuffer> alignmentQuantiles = nil;
+    __strong id<MTLBuffer> feedbackRegions = nil;
+    __strong id<MTLBuffer> feedbackBounds = nil;
     __strong id<MTLBuffer> resetQ = nil;
     __strong id<MTLBuffer> resetV = nil;
     __strong id<MTLBuffer> resetSceneBodies = nil;
@@ -242,6 +250,8 @@ struct MetalWorldFamilyContextState {
     MetalWorldFamilyStats stats{};
     std::uint32_t instanceFlags = 0u;
     std::uint64_t familyFingerprint = 0u;
+    ScenarioSchema scenarioSchema;
+    CompiledWorldSamplingProgram samplingProgram;
 };
 
 } // namespace detail
@@ -391,10 +401,12 @@ bool validateFamily(
         const std::uint32_t index = variation.binding.w;
         if (variation.binding.x > MR_WORLD_VARIATION_CAMERA ||
             variation.binding.y > MR_WORLD_DISTRIBUTION_CATEGORICAL ||
-            target > MR_WORLD_TARGET_CLUTTER_SET ||
+            target > MR_WORLD_TARGET_ASSET_COLLISION_ALTERNATIVE ||
             (target <= MR_WORLD_TARGET_ASSET_RENDER_ALTERNATIVE &&
              index >= assetCount) ||
-            (target == MR_WORLD_TARGET_CLUTTER_SET &&
+            ((target == MR_WORLD_TARGET_CLUTTER_SET ||
+              target ==
+                  MR_WORLD_TARGET_ASSET_COLLISION_ALTERNATIVE) &&
              index >= assetCount) ||
             (target >= MR_WORLD_TARGET_SENSOR_POSITION_X &&
              target <= MR_WORLD_TARGET_SENSOR_DEPTH_DROPOUT &&
@@ -568,6 +580,24 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             );
         }
 
+        const ScenarioSchema scenarioSchema =
+            compileScenarioSchema(family);
+        CompiledWorldSamplingProgram samplingProgram;
+        if (!scenarioSchema.valid(&reason) ||
+            !compileWorldSamplingProgram(
+                scenarioSchema,
+                nullptr,
+                nullptr,
+                samplingProgram,
+                &reason
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::invalidFamily,
+                "failed to compile scenario schema: " + reason
+            );
+        }
+
         diagnostics = initialize(*state_, std::move(diagnostics));
         if (!diagnostics.succeeded()) {
             return diagnostics;
@@ -709,10 +739,13 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
         std::size_t baseVBytes = 0u;
         std::size_t baseSceneBodyBytes = 0u;
         std::size_t bodyToSceneBytes = 0u;
+        std::size_t bodyPropertyBytes = 0u;
         std::size_t instanceElements = 0u;
         std::size_t assetElements = 0u;
         std::size_t sensorElements = 0u;
         std::size_t appearanceElements = 0u;
+        std::size_t scenarioHeaderElements = 0u;
+        std::size_t scenarioValueElements = 0u;
         std::size_t resetQElements = 0u;
         std::size_t resetVElements = 0u;
         std::size_t resetSceneBodyElements = 0u;
@@ -767,6 +800,10 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
                 physicsBase.bodyToScene.size(),
                 bodyToSceneBytes
             ) ||
+            !checkedByteCount<MRBodyPropertiesGPU>(
+                family.worldTemplate.engineModel.bodies.size(),
+                bodyPropertyBytes
+            ) ||
             !checkedMultiply(capacity, 1u, instanceElements) ||
             !checkedMultiply(capacity, assetCount, assetElements) ||
             !checkedMultiply(capacity, sensorCount, sensorElements) ||
@@ -774,6 +811,16 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
                 capacity,
                 appearanceCount,
                 appearanceElements
+            ) ||
+            !checkedMultiply(
+                capacity,
+                1u,
+                scenarioHeaderElements
+            ) ||
+            !checkedMultiply(
+                capacity,
+                family.program.variations.size(),
+                scenarioValueElements
             ) ||
             !checkedMultiply(
                 capacity,
@@ -816,6 +863,14 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
                 appearanceElements,
                 layout.appearancePrivateBytes
             ) ||
+            !checkedByteCount<MRWorldScenarioHeaderGPU>(
+                scenarioHeaderElements,
+                layout.scenarioHeaderPrivateBytes
+            ) ||
+            !checkedByteCount<MRWorldScenarioValueGPU>(
+                scenarioValueElements,
+                layout.scenarioValuePrivateBytes
+            ) ||
             !checkedByteCount<float>(
                 resetQElements,
                 resetQBytes
@@ -846,7 +901,8 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             baseAssetBytes + baseSensorBytes + baseAppearanceBytes +
             variationBytes + categoricalBytes + assetBindingBytes +
             bindingIndexBytes + baseQBytes + baseVBytes +
-            baseSceneBodyBytes + bodyToSceneBytes;
+            baseSceneBodyBytes + bodyToSceneBytes +
+            bodyPropertyBytes;
         layout.physicsResetPrivateBytes =
             resetQBytes + resetVBytes + resetSceneBodyBytes +
             bodyParameterBytes + controllerParameterBytes;
@@ -857,6 +913,8 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             layout.assetPrivateBytes > maxBufferLength ||
             layout.sensorPrivateBytes > maxBufferLength ||
             layout.appearancePrivateBytes > maxBufferLength ||
+            layout.scenarioHeaderPrivateBytes > maxBufferLength ||
+            layout.scenarioValuePrivateBytes > maxBufferLength ||
             baseAssetBytes > maxBufferLength ||
             baseSensorBytes > maxBufferLength ||
             baseAppearanceBytes > maxBufferLength ||
@@ -868,6 +926,7 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             baseVBytes > maxBufferLength ||
             baseSceneBodyBytes > maxBufferLength ||
             bodyToSceneBytes > maxBufferLength ||
+            bodyPropertyBytes > maxBufferLength ||
             resetQBytes > maxBufferLength ||
             resetVBytes > maxBufferLength ||
             resetSceneBodyBytes > maxBufferLength ||
@@ -937,6 +996,11 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             bodyToSceneBytes,
             @"MetalRobo world-family body-to-scene map"
         );
+        candidate.bodyProperties = makePrivateBuffer(
+            state_->device,
+            bodyPropertyBytes,
+            @"MetalRobo world-family body properties"
+        );
         candidate.uniforms = makeSharedBuffer(
             state_->device,
             sizeof(MRWorldFamilySampleUniformsGPU),
@@ -966,6 +1030,41 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             state_->device,
             layout.appearancePrivateBytes,
             @"MetalRobo world appearance instances"
+        );
+        candidate.scenarioHeaders = makePrivateBuffer(
+            state_->device,
+            layout.scenarioHeaderPrivateBytes,
+            @"MetalRobo world scenario headers"
+        );
+        candidate.scenarioValues = makePrivateBuffer(
+            state_->device,
+            layout.scenarioValuePrivateBytes,
+            @"MetalRobo world scenario values"
+        );
+        candidate.adaptiveUniforms = makeSharedBuffer(
+            state_->device,
+            sizeof(MRWorldAdaptiveSampleUniformsGPU),
+            @"MetalRobo adaptive sampling uniforms"
+        );
+        candidate.alignmentParticles = makePrivateBuffer(
+            state_->device,
+            0u,
+            @"MetalRobo alignment particles"
+        );
+        candidate.alignmentQuantiles = makePrivateBuffer(
+            state_->device,
+            0u,
+            @"MetalRobo alignment quantiles"
+        );
+        candidate.feedbackRegions = makePrivateBuffer(
+            state_->device,
+            0u,
+            @"MetalRobo feedback regions"
+        );
+        candidate.feedbackBounds = makePrivateBuffer(
+            state_->device,
+            0u,
+            @"MetalRobo feedback bounds"
         );
         candidate.resetQ = makePrivateBuffer(
             state_->device,
@@ -1003,12 +1102,20 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             candidate.baseV == nil ||
             candidate.baseSceneBodies == nil ||
             candidate.bodyToScene == nil ||
+            candidate.bodyProperties == nil ||
             candidate.uniforms == nil ||
             candidate.materializeUniforms == nil ||
             candidate.instances == nil ||
             candidate.assets == nil ||
             candidate.sensors == nil ||
             candidate.appearances == nil ||
+            candidate.scenarioHeaders == nil ||
+            candidate.scenarioValues == nil ||
+            candidate.adaptiveUniforms == nil ||
+            candidate.alignmentParticles == nil ||
+            candidate.alignmentQuantiles == nil ||
+            candidate.feedbackRegions == nil ||
+            candidate.feedbackBounds == nil ||
             candidate.resetQ == nil ||
             candidate.resetV == nil ||
             candidate.resetSceneBodies == nil ||
@@ -1090,6 +1197,13 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             },
             @"MetalRobo upload body-to-scene map"
         );
+        id<MTLBuffer> uploadBodyProperties = makeUploadBuffer(
+            state_->device,
+            std::span<const MRBodyPropertiesGPU>{
+                family.worldTemplate.engineModel.bodies
+            },
+            @"MetalRobo upload body properties"
+        );
         if (uploadBaseAssets == nil ||
             uploadBaseSensors == nil ||
             uploadBaseAppearances == nil ||
@@ -1100,7 +1214,8 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             uploadBaseQ == nil ||
             uploadBaseV == nil ||
             uploadBaseSceneBodies == nil ||
-            uploadBodyToScene == nil) {
+            uploadBodyToScene == nil ||
+            uploadBodyProperties == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldFamilyStatus::metalBufferFailure,
@@ -1190,6 +1305,11 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             candidate.bodyToScene,
             bodyToSceneBytes
         );
+        copyUpload(
+            uploadBodyProperties,
+            candidate.bodyProperties,
+            bodyPropertyBytes
+        );
         [blit endEncoding];
         [command commit];
         [command waitUntilCompleted];
@@ -1206,6 +1326,8 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
         state_->layout = layout;
         state_->instanceFlags = family.program.instanceFlags;
         state_->familyFingerprint = family.fingerprint;
+        state_->scenarioSchema = scenarioSchema;
+        state_->samplingProgram = std::move(samplingProgram);
         state_->compiled = true;
         state_->stats.compileCount += 1u;
         state_->stats.retainedPrivateBytes =
@@ -1233,6 +1355,20 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
 MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
     const std::uint32_t instanceCount,
     const std::uint64_t seed
+) {
+    return sample(
+        instanceCount,
+        seed,
+        MR_WORLD_SAMPLING_COVERAGE,
+        0u
+    );
+}
+
+MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
+    const std::uint32_t instanceCount,
+    const std::uint64_t seed,
+    const MRWorldSamplingMode mode,
+    const std::uint64_t episodeCounterBase
 ) {
     MetalWorldFamilyDiagnostics diagnostics;
     if (state_ == nullptr) {
@@ -1262,6 +1398,13 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
                 "requested instance count is zero or exceeds capacity"
             );
         }
+        if (mode > MR_WORLD_SAMPLING_CURRICULUM) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::invalidFamily,
+                "world-family sampling mode is invalid"
+            );
+        }
 
         MRWorldFamilySampleUniformsGPU uniforms{};
         uniforms.counts = {
@@ -1286,6 +1429,58 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
             state_->buffers.uniforms.contents,
             &uniforms,
             sizeof(uniforms)
+        );
+        MRWorldAdaptiveSampleUniformsGPU adaptive{};
+        adaptive.counts = {
+            static_cast<std::uint32_t>(
+                state_->samplingProgram.alignmentParticles.size()
+            ),
+            static_cast<std::uint32_t>(
+                state_->samplingProgram.feedbackRegions.size()
+            ),
+            state_->layout.variationCount,
+            mode,
+        };
+        adaptive.identity = {
+            low32(episodeCounterBase),
+            high32(episodeCounterBase),
+            low32(state_->samplingProgram.alignmentFingerprint),
+            high32(state_->samplingProgram.alignmentFingerprint),
+        };
+        adaptive.provenance = {
+            low32(state_->samplingProgram.feedbackFingerprint),
+            high32(state_->samplingProgram.feedbackFingerprint),
+            0u,
+            0u,
+        };
+        adaptive.mixture = {
+            static_cast<float>(
+                mode == MR_WORLD_SAMPLING_COVERAGE
+                ? 1.0
+                : state_->samplingProgram.broadWeight
+            ),
+            static_cast<float>(
+                mode == MR_WORLD_SAMPLING_COVERAGE
+                ? 0.0
+                : state_->samplingProgram.failureWeight
+            ),
+            static_cast<float>(
+                mode == MR_WORLD_SAMPLING_COVERAGE
+                ? 0.0
+                : state_->samplingProgram.uncertaintyWeight
+            ),
+            state_->samplingProgram.alignmentJitter,
+        };
+        adaptive.abi = {
+            MR_R2S2R_ABI_VERSION,
+            0u,
+            0u,
+            0u,
+        };
+        std::memcpy(
+            state_->buffers.adaptiveUniforms.contents,
+            &adaptive,
+            sizeof(adaptive)
         );
         MRWorldFamilyMaterializeUniformsGPU materializeUniforms{};
         materializeUniforms.stateCounts = {
@@ -1356,6 +1551,27 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
         [encoder setBuffer:state_->buffers.appearances
                     offset:0u
                    atIndex:9u];
+        [encoder setBuffer:state_->buffers.scenarioHeaders
+                    offset:0u
+                   atIndex:10u];
+        [encoder setBuffer:state_->buffers.scenarioValues
+                    offset:0u
+                   atIndex:11u];
+        [encoder setBuffer:state_->buffers.adaptiveUniforms
+                    offset:0u
+                   atIndex:12u];
+        [encoder setBuffer:state_->buffers.alignmentParticles
+                    offset:0u
+                   atIndex:13u];
+        [encoder setBuffer:state_->buffers.alignmentQuantiles
+                    offset:0u
+                   atIndex:14u];
+        [encoder setBuffer:state_->buffers.feedbackRegions
+                    offset:0u
+                   atIndex:15u];
+        [encoder setBuffer:state_->buffers.feedbackBounds
+                    offset:0u
+                   atIndex:16u];
         const NSUInteger threadsPerGroup = std::min<NSUInteger>(
             state_->pipeline.maxTotalThreadsPerThreadgroup,
             std::max<NSUInteger>(
@@ -1429,6 +1645,10 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
             setBuffer:state_->buffers.controllerParameters
                offset:0u
               atIndex:12u];
+        [materializeEncoder
+            setBuffer:state_->buffers.bodyProperties
+               offset:0u
+              atIndex:13u];
         const NSUInteger materializeThreadsPerGroup =
             std::min<NSUInteger>(
                 state_->materializePipeline.maxTotalThreadsPerThreadgroup,
@@ -1466,6 +1686,211 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
         state_->stats.sampleCount += 1u;
         diagnostics.layout = state_->layout;
         return diagnostics;
+    } catch (const std::exception& exception) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldFamilyStatus::internalFailure,
+            exception.what()
+        );
+    }
+}
+
+MetalWorldFamilyDiagnostics
+MetalWorldFamilyContext::configureSamplingProgram(
+    const ScenarioSchema& schema,
+    const CompiledWorldSamplingProgram& program
+) {
+    MetalWorldFamilyDiagnostics diagnostics;
+    if (state_ == nullptr) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldFamilyStatus::internalFailure,
+            "world-family context has no state"
+        );
+    }
+    try {
+        const std::lock_guard lock(state_->mutex);
+        diagnostics.familyFingerprint = state_->familyFingerprint;
+        diagnostics.deviceName = nsString(state_->device.name);
+        diagnostics.layout = state_->layout;
+        if (!state_->compiled) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::notCompiled,
+                "compile a world family before configuring sampling"
+            );
+        }
+        std::string reason;
+        if (schema.fingerprint != state_->scenarioSchema.fingerprint ||
+            !program.valid(schema, &reason)) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::invalidFamily,
+                reason.empty()
+                    ? "sampling schema does not match the compiled family"
+                    : std::move(reason)
+            );
+        }
+        std::size_t particleBytes = 0u;
+        std::size_t quantileBytes = 0u;
+        std::size_t regionBytes = 0u;
+        std::size_t boundBytes = 0u;
+        if (!checkedByteCount<MRWorldAlignmentParticleGPU>(
+                program.alignmentParticles.size(),
+                particleBytes
+            ) ||
+            !checkedByteCount<float>(
+                program.alignmentQuantiles.size(),
+                quantileBytes
+            ) ||
+            !checkedByteCount<MRWorldFeedbackRegionGPU>(
+                program.feedbackRegions.size(),
+                regionBytes
+            ) ||
+            !checkedByteCount<mr_float4>(
+                program.feedbackBounds.size(),
+                boundBytes
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::arithmeticOverflow,
+                "adaptive sampling program byte layout overflowed"
+            );
+        }
+        const std::size_t maxBufferLength =
+            static_cast<std::size_t>(
+                state_->device.maxBufferLength
+            );
+        if (particleBytes > maxBufferLength ||
+            quantileBytes > maxBufferLength ||
+            regionBytes > maxBufferLength ||
+            boundBytes > maxBufferLength) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::metalBufferFailure,
+                "adaptive sampling program exceeds device.maxBufferLength"
+            );
+        }
+
+        id<MTLBuffer> particles = makePrivateBuffer(
+            state_->device,
+            particleBytes,
+            @"MetalRobo alignment particles"
+        );
+        id<MTLBuffer> quantiles = makePrivateBuffer(
+            state_->device,
+            quantileBytes,
+            @"MetalRobo alignment quantiles"
+        );
+        id<MTLBuffer> regions = makePrivateBuffer(
+            state_->device,
+            regionBytes,
+            @"MetalRobo feedback regions"
+        );
+        id<MTLBuffer> bounds = makePrivateBuffer(
+            state_->device,
+            boundBytes,
+            @"MetalRobo feedback bounds"
+        );
+        id<MTLBuffer> uploadParticles = makeUploadBuffer(
+            state_->device,
+            std::span<const MRWorldAlignmentParticleGPU>{
+                program.alignmentParticles
+            },
+            @"MetalRobo upload alignment particles"
+        );
+        id<MTLBuffer> uploadQuantiles = makeUploadBuffer(
+            state_->device,
+            std::span<const float>{program.alignmentQuantiles},
+            @"MetalRobo upload alignment quantiles"
+        );
+        id<MTLBuffer> uploadRegions = makeUploadBuffer(
+            state_->device,
+            std::span<const MRWorldFeedbackRegionGPU>{
+                program.feedbackRegions
+            },
+            @"MetalRobo upload feedback regions"
+        );
+        id<MTLBuffer> uploadBounds = makeUploadBuffer(
+            state_->device,
+            std::span<const mr_float4>{program.feedbackBounds},
+            @"MetalRobo upload feedback bounds"
+        );
+        if (particles == nil || quantiles == nil || regions == nil ||
+            bounds == nil || uploadParticles == nil ||
+            uploadQuantiles == nil || uploadRegions == nil ||
+            uploadBounds == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::metalBufferFailure,
+                "failed to allocate adaptive sampling buffers"
+            );
+        }
+        id<MTLCommandBuffer> command =
+            [state_->queue commandBuffer];
+        id<MTLBlitCommandEncoder> blit =
+            [command blitCommandEncoder];
+        if (command == nil || blit == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::metalCommandFailure,
+                "failed to create adaptive sampling upload command"
+            );
+        }
+        const auto copy = ^(
+            id<MTLBuffer> source,
+            id<MTLBuffer> destination,
+            const std::size_t bytes
+        ) {
+            if (bytes != 0u) {
+                [blit copyFromBuffer:source
+                       sourceOffset:0u
+                           toBuffer:destination
+                  destinationOffset:0u
+                               size:static_cast<NSUInteger>(bytes)];
+            }
+        };
+        copy(uploadParticles, particles, particleBytes);
+        copy(uploadQuantiles, quantiles, quantileBytes);
+        copy(uploadRegions, regions, regionBytes);
+        copy(uploadBounds, bounds, boundBytes);
+        [blit endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        if (command.status != MTLCommandBufferStatusCompleted) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::metalCommandFailure,
+                "adaptive sampling upload failed: " +
+                    describeError(command.error)
+            );
+        }
+
+        state_->buffers.alignmentParticles = particles;
+        state_->buffers.alignmentQuantiles = quantiles;
+        state_->buffers.feedbackRegions = regions;
+        state_->buffers.feedbackBounds = bounds;
+        state_->samplingProgram = program;
+        state_->layout.alignmentParticleCount =
+            static_cast<std::uint32_t>(
+                program.alignmentParticles.size()
+            );
+        state_->layout.feedbackRegionCount =
+            static_cast<std::uint32_t>(
+                program.feedbackRegions.size()
+            );
+        state_->layout.samplingPrivateBytes =
+            particleBytes + quantileBytes + regionBytes + boundBytes;
+        state_->stats.retainedPrivateBytes =
+            state_->layout.totalPrivateBytes();
+        diagnostics.layout = state_->layout;
+        return diagnostics;
+    } catch (const std::bad_alloc&) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldFamilyStatus::metalBufferFailure,
+            "host allocation failed while configuring sampling"
+        );
     } catch (const std::exception& exception) {
         return reject(
             std::move(diagnostics),
@@ -1524,6 +1949,8 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readback(
         const std::size_t appearanceElements =
             instanceCount *
             state_->layout.appearanceCountPerInstance;
+        const std::size_t scenarioValueElements =
+            instanceCount * state_->layout.variationCount;
         const std::size_t instanceBytes =
             instanceCount * sizeof(MRWorldInstanceHeaderGPU);
         const std::size_t assetBytes =
@@ -1533,6 +1960,10 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readback(
         const std::size_t appearanceBytes =
             appearanceElements *
             sizeof(MRWorldAppearanceInstanceGPU);
+        const std::size_t scenarioHeaderBytes =
+            instanceCount * sizeof(MRWorldScenarioHeaderGPU);
+        const std::size_t scenarioValueBytes =
+            scenarioValueElements * sizeof(MRWorldScenarioValueGPU);
 
         id<MTLBuffer> instanceReadback = makeSharedBuffer(
             state_->device,
@@ -1554,8 +1985,20 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readback(
             appearanceBytes,
             @"MetalRobo appearance readback"
         );
+        id<MTLBuffer> scenarioHeaderReadback = makeSharedBuffer(
+            state_->device,
+            scenarioHeaderBytes,
+            @"MetalRobo scenario header readback"
+        );
+        id<MTLBuffer> scenarioValueReadback = makeSharedBuffer(
+            state_->device,
+            scenarioValueBytes,
+            @"MetalRobo scenario value readback"
+        );
         if (instanceReadback == nil || assetReadback == nil ||
-            sensorReadback == nil || appearanceReadback == nil) {
+            sensorReadback == nil || appearanceReadback == nil ||
+            scenarioHeaderReadback == nil ||
+            scenarioValueReadback == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldFamilyStatus::metalBufferFailure,
@@ -1608,6 +2051,16 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readback(
             appearanceReadback,
             appearanceBytes
         );
+        copyOutput(
+            state_->buffers.scenarioHeaders,
+            scenarioHeaderReadback,
+            scenarioHeaderBytes
+        );
+        copyOutput(
+            state_->buffers.scenarioValues,
+            scenarioValueReadback,
+            scenarioValueBytes
+        );
         [blit endEncoding];
         [command commit];
         [command waitUntilCompleted];
@@ -1628,10 +2081,20 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readback(
         WorldInstanceBatch staged;
         staged.familyFingerprint = state_->familyFingerprint;
         staged.instances.resize(instanceCount);
+        staged.scenarioHeaders.resize(instanceCount);
+        staged.scenarioValues.resize(scenarioValueElements);
         staged.assets.resize(assetElements);
         staged.sensors.resize(sensorElements);
         staged.appearances.resize(appearanceElements);
         copySharedBuffer(staged.instances, instanceReadback);
+        copySharedBuffer(
+            staged.scenarioHeaders,
+            scenarioHeaderReadback
+        );
+        copySharedBuffer(
+            staged.scenarioValues,
+            scenarioValueReadback
+        );
         copySharedBuffer(staged.assets, assetReadback);
         copySharedBuffer(staged.sensors, sensorReadback);
         copySharedBuffer(staged.appearances, appearanceReadback);
@@ -1929,6 +2392,12 @@ void* MetalWorldFamilyContext::nativeBuffer(
             break;
         case MetalWorldFamilyBuffer::controllerParameters:
             selected = state_->buffers.controllerParameters;
+            break;
+        case MetalWorldFamilyBuffer::scenarioHeaders:
+            selected = state_->buffers.scenarioHeaders;
+            break;
+        case MetalWorldFamilyBuffer::scenarioValues:
+            selected = state_->buffers.scenarioValues;
             break;
         }
         return (__bridge void*)selected;

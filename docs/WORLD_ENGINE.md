@@ -251,11 +251,12 @@ coordinates, producing 11 articulated bodies, 9 generalized coordinates, and
 this first profile; robot/object and free-object/support contact remain
 enabled.
 
-`MRWorldPack` format v1 serializes the complete rich `WorldFamily`: engine
+`MRWorldPack` format v4 serializes the complete rich `WorldFamily`: engine
 topology, semantic assets and anchors, sensors, task, provenance artifacts,
-cohorts, compiled variations, and binding arenas. The file has explicit format,
-engine ABI, compiler ABI, payload length, content hash, and family fingerprints.
-Loading is transactional. `metalrobo_world_pack` creates or inspects packs, and
+cohorts, semantic variation/target identities, compiled variations, and binding
+arenas. The file has explicit format, engine ABI, compiler ABI, payload length,
+content hash, and family fingerprints. Loading is transactional.
+`metalrobo_world_pack` creates or inspects packs, and
 `mr_load_world_family_pack` / `PackedWorldFamily` compile them directly into
 the persistent Metal runtime.
 
@@ -309,8 +310,9 @@ import mlx.core as mx
 from metalrobo import (
     FrankaPickPlaceWorldFamily,
     compile_world,
-    initial_state_from_world_family,
-    step,
+    initial_controller_delay_state,
+    sampled_state_from_world_family,
+    step_sampled_world_family,
 )
 
 count = 4096
@@ -323,16 +325,117 @@ with FrankaPickPlaceWorldFamily(count) as family:
         solver_mode="throughput_tgs",
         actuation_mode="implicit_position",
     )
-    state = initial_state_from_world_family(world, family)
+    state = sampled_state_from_world_family(world, family)
     actions = mx.broadcast_to(
         mx.array(world.default_q, dtype=mx.float32),
         (count, world.nv),
     )
-    output = step(world, state, actions)
+    delay = initial_controller_delay_state(
+        count,
+        world.nv,
+        maximum_delay_steps=4,
+    )
+    output = step_sampled_world_family(
+        world,
+        state,
+        actions,
+        delay,
+        control_period_seconds=world.control_timestep,
+    )
 ```
 
 The import is lazy, retains the borrowed Metal buffers through evaluation, and
 does not use NumPy or a CPU state copy.
+
+## Executable R2S2R learning loop
+
+Every compiled `WorldProgram` now publishes a stable `ScenarioSchema`. Each
+device-resident scenario carries its key, independent episode counter, raw
+value, base-distribution quantile, categorical choice, sampling source, and
+alignment/feedback fingerprints. This state follows the world through reset,
+physics, policy execution, outcome compaction, and later hardware association.
+
+`WorldAlignmentPopulation` preserves as many as 4,096 weighted quantile-space
+particles. The native and MLX fitters run four-round robust sequential Monte
+Carlo with effective-sample resampling and local jitter. A replay evaluator is
+a bounded callback over the complete candidate tensor, so trajectory, depth,
+mask, contact-time, controller-latency, and terminal-state residual kernels can
+be composed without changing the immutable anchor world. Multiple contact
+explanations remain separate particles.
+
+The family sampler has two explicit modes:
+
+- `coverage` samples the aligned posterior without feedback bias;
+- `curriculum` samples 50% broad aligned coverage, 30% policy failure regions,
+  and 20% policy uncertainty regions.
+
+Mass/inertia, friction, restitution, damping, controller gains, and controller
+damping affect the active Metal/MLX physics path. Controller latency is an
+explicit MLX command-history state. Render and collision alternatives are
+stable resource indices; topology-changing alternatives stay in separate
+cohorts. Camera, appearance, clutter, object, physics, and robot variations all
+remain visible in the same scenario tensor.
+
+Completed episodes are accumulated and sorted into a dense fixed-record prefix
+on MLX. The host reads only that prefix at a rollout-chunk boundary. Each record
+retains return, success, termination, failure tags, task/safety margins,
+visibility/contact summaries, physics status, and exact scenario provenance.
+
+`R2S2RCoordinator` stores searchable metadata and outcomes in SQLite/WAL. Array
+populations, ensemble parameters, outcome batches, telemetry references, and
+feedback programs are immutable SHA-256 artifacts. A five-member MLX ensemble
+learns a simulation success/margin head and, only when real outcomes exist, a
+sparse hardware-residual head. It scores 65,536 deterministic candidate
+scenarios on the Apple GPU and compiles at most 64 failure/uncertainty boxes
+back into the Metal sampler. With no real outcomes, the artifact says
+`unavailable_sim_only`; it does not manufacture a hardware prediction.
+
+The coordinator CLI is:
+
+```bash
+metalrobo align \
+  --replay-manifest physical-replay.json \
+  --root runs/pick-place-r2s2r
+
+metalrobo record-sim \
+  --manifest simulation-outcomes.json \
+  --root runs/pick-place-r2s2r
+
+metalrobo ingest-real \
+  --manifest hardware-outcome.json \
+  --root runs/pick-place-r2s2r
+
+metalrobo fit-feedback \
+  --policy-fingerprint 0123456789abcdef \
+  --task-fingerprint 1111111111111111 \
+  --embodiment-fingerprint 2222222222222222 \
+  --root runs/pick-place-r2s2r
+
+metalrobo train \
+  --backend mlx \
+  --task franka-family-pick-place \
+  --alignment-hash ALIGNMENT_SHA256 \
+  --feedback-hash FEEDBACK_SHA256 \
+  --sampling-mode curriculum \
+  --r2s2r-root runs/pick-place-r2s2r
+
+metalrobo evaluate \
+  --task-fingerprint 1111111111111111 \
+  --policy-fingerprints 0123456789abcdef fedcba9876543210 \
+  --root runs/pick-place-r2s2r
+```
+
+`schemas/hardware_outcome.schema.json` is the versioned real-outcome boundary.
+It accepts policy, robot, and task identity; named scenario measurements and
+explicit missing masks; outcome/margin/failure evidence; and content-hashed
+telemetry or video references. Hardware outcomes without an exact simulation
+key still enter the residual head through normalized scenario features.
+
+The supplied CLI replay adapter consumes one or more local affine residual
+fields exported by a replay pipeline. The native `ReplayResidualEvaluator` and
+MLX `fit_alignment_smc` interfaces already accept a full simulator replay
+callback; capture-specific trajectory/image residual construction remains a
+provider responsibility rather than hidden coordinator behavior.
 
 ## Runtime integration sequence
 
@@ -353,16 +456,14 @@ flowchart LR
 ```
 
 The current code establishes the resumable episodic artifact graph, Apple
-capture-manifest loader, content-addressed store, compiler provider boundary,
-portable pack, runnable hand scene, resident family sampling, physics-reset
-materialization, and a zero-copy MLX state bridge. Asset pose variation already
-changes the executed scene state. Per-body physical and per-articulation
-controller override streams are materialized and exposed; consuming those
-override streams inside every contact/drive kernel is the next solver slice.
-Native segmentation/reconstruction providers, articulated/deformable splat
-motion, mesh depth/normals/shadow compositing, replay fitting, rods, shells,
-and soft volumes remain separate modules behind the provider and
-representation interfaces already present in the ABI.
+capture-manifest loader, portable pack, aligned particle population, adaptive
+Metal family sampler, causal physical/controller parameter path, zero-copy MLX
+state bridge, GPU episode compaction, outcome store, policy feedback ensemble,
+and paired evaluation report. Native segmentation/reconstruction providers,
+capture-specific replay residual kernels, articulated/deformable splat motion,
+mesh depth/normals/shadow compositing, shells, and soft volumes remain separate
+modules behind the provider and representation interfaces already present in
+the ABI.
 
 ## Main implementation files
 
@@ -388,4 +489,12 @@ representation interfaces already present in the ABI.
 - `src/core/FrankaHand.cpp`
 - `python/metalrobo/worlds.py`
 - `python/metalrobo/mlx_world.py`
+- `include/metalrobo/R2S2R.hpp`
+- `include/metalrobo/r2s2r_types.h`
+- `src/core/R2S2R.cpp`
+- `src/apple/HardwareOutcomeJSON.mm`
+- `schemas/hardware_outcome.schema.json`
+- `python/metalrobo/mlx_r2s2r.py`
+- `python/metalrobo/mlx_family_ppo.py`
+- `python/metalrobo/r2s2r.py`
 - `python/mlx_ext/metalrobo_mlx.cpp`

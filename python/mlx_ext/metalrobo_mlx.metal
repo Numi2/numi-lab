@@ -1,6 +1,8 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/r2s2r_types.h"
+#include "metalrobo/world_compiler_types.h"
 
 using namespace metal;
 
@@ -33,37 +35,54 @@ uint mapABAStatus(const uint code) {
 // MLX's explicit WorldState arrays. Sampling occurs before this dispatch;
 // only the state layout changes here.
 kernel void mr_mlx_import_world_family_state(
-    constant MRMLXContactAdapterDispatchGPU& dispatch [[buffer(0)]],
+    constant MRMLXWorldFamilyImportDispatchGPU&
+        dispatch [[buffer(0)]],
     device const float* resetQ [[buffer(1)]],
     device const float* resetV [[buffer(2)]],
     device const MRBodyStateGPU* resetSceneBodies [[buffer(3)]],
-    device float* q [[buffer(4)]],
-    device float* v [[buffer(5)]],
-    device float4* positions [[buffer(6)]],
-    device float4* orientations [[buffer(7)]],
-    device float4* linearVelocities [[buffer(8)]],
-    device float4* angularVelocities [[buffer(9)]],
+    device const MRWorldScenarioHeaderGPU*
+        scenarioHeaders [[buffer(4)]],
+    device const MRWorldScenarioValueGPU*
+        scenarioValues [[buffer(5)]],
+    device const MRWorldBodyParametersGPU*
+        bodyParameters [[buffer(6)]],
+    device const MRWorldControllerParametersGPU*
+        controllerParameters [[buffer(7)]],
+    device float* q [[buffer(8)]],
+    device float* v [[buffer(9)]],
+    device float4* positions [[buffer(10)]],
+    device float4* orientations [[buffer(11)]],
+    device float4* linearVelocities [[buffer(12)]],
+    device float4* angularVelocities [[buffer(13)]],
+    device uint4* outputScenarioHeaders [[buffer(14)]],
+    device float4* outputScenarioValues [[buffer(15)]],
+    device uint4* outputScenarioIdentities [[buffer(16)]],
+    device float4* outputBodyParameters [[buffer(17)]],
+    device uint4* outputBodyIdentities [[buffer(18)]],
+    device float4* outputControllerParameters [[buffer(19)]],
+    device uint4* outputControllerIdentities [[buffer(20)]],
     const uint environment [[thread_position_in_grid]]
 ) {
-    if (environment >= dispatch.environmentCount) {
+    if (environment >= dispatch.state.x ||
+        dispatch.topology.w != MR_R2S2R_ABI_VERSION) {
         return;
     }
     for (uint coordinate = 0u;
-         coordinate < dispatch.nq;
+         coordinate < dispatch.state.y;
          ++coordinate) {
-        q[environment * dispatch.nq + coordinate] =
-            resetQ[environment * dispatch.nq + coordinate];
+        q[environment * dispatch.state.y + coordinate] =
+            resetQ[environment * dispatch.state.y + coordinate];
     }
     for (uint coordinate = 0u;
-         coordinate < dispatch.nv;
+         coordinate < dispatch.state.z;
          ++coordinate) {
-        v[environment * dispatch.nv + coordinate] =
-            resetV[environment * dispatch.nv + coordinate];
+        v[environment * dispatch.state.z + coordinate] =
+            resetV[environment * dispatch.state.z + coordinate];
     }
     const uint sceneBase =
-        environment * dispatch.sceneBodyCount;
+        environment * dispatch.state.w;
     for (uint body = 0u;
-         body < dispatch.sceneBodyCount;
+         body < dispatch.state.w;
          ++body) {
         const MRBodyStateGPU state =
             resetSceneBodies[sceneBase + body];
@@ -73,6 +92,45 @@ kernel void mr_mlx_import_world_family_state(
             state.linearVelocityAndInverseMass;
         angularVelocities[sceneBase + body] =
             state.angularVelocity;
+    }
+    const MRWorldScenarioHeaderGPU scenario =
+        scenarioHeaders[environment];
+    const uint headerBase = environment * 3u;
+    outputScenarioHeaders[headerBase + 0u] = scenario.identity;
+    outputScenarioHeaders[headerBase + 1u] = scenario.provenance;
+    outputScenarioHeaders[headerBase + 2u] = scenario.sampling;
+    const uint scenarioBase =
+        environment * dispatch.topology.z;
+    for (uint feature = 0u;
+         feature < dispatch.topology.z;
+         ++feature) {
+        const MRWorldScenarioValueGPU value =
+            scenarioValues[scenarioBase + feature];
+        outputScenarioValues[scenarioBase + feature] = value.value;
+        outputScenarioIdentities[scenarioBase + feature] =
+            value.identity;
+    }
+    const uint bodyBase =
+        environment * dispatch.topology.x;
+    for (uint body = 0u; body < dispatch.topology.x; ++body) {
+        const MRWorldBodyParametersGPU value =
+            bodyParameters[bodyBase + body];
+        outputBodyParameters[bodyBase + body] = value.physical;
+        outputBodyIdentities[bodyBase + body] = value.identity;
+    }
+    const uint controllerBase =
+        environment * dispatch.topology.y;
+    for (uint articulation = 0u;
+         articulation < dispatch.topology.y;
+         ++articulation) {
+        const MRWorldControllerParametersGPU value =
+            controllerParameters[controllerBase + articulation];
+        outputControllerParameters[
+            controllerBase + articulation
+        ] = value.controller;
+        outputControllerIdentities[
+            controllerBase + articulation
+        ] = value.identity;
     }
 }
 
@@ -183,6 +241,7 @@ kernel void mr_mlx_prepare_contact_world(
     device const MRWorldGPU& world [[buffer(11)]],
     device const MRArticulationGPU* articulations [[buffer(12)]],
     device const MRDofPropertiesGPU* dofs [[buffer(13)]],
+    device const float4* controllerParameters [[buffer(14)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -203,6 +262,11 @@ kernel void mr_mlx_prepare_contact_world(
     const uint vBase = environment * dispatch.vStride;
     const MRArticulationGPU articulation =
         articulations[dispatch.articulationIndex];
+    const float4 controller =
+        controllerParameters[
+            environment * world.articulationCount +
+            dispatch.articulationIndex
+        ];
     for (uint coordinate = 0u; coordinate < dispatch.nq;
          ++coordinate) {
         checkpointQ[qBase + coordinate] = q[qBase + coordinate];
@@ -236,13 +300,13 @@ kernel void mr_mlx_prepare_contact_world(
                 const float timestep =
                     world.gravityAndTimestep.w;
                 command =
-                    dof.drive.x *
+                    dof.drive.x * controller.x *
                         (
                             target -
                             q[qBase + localQ] -
                             timestep * velocity
                         ) -
-                    dof.drive.y * velocity;
+                    dof.drive.y * controller.y * velocity;
                 const float dryFriction = dof.drive.w;
                 if (dryFriction > 0.0f) {
                     if (abs(velocity) > 1.0e-4f) {
@@ -256,6 +320,11 @@ kernel void mr_mlx_prepare_contact_world(
                         );
                     }
                 }
+                // WorldProgram payload compensation is an estimate used by
+                // the controller, not a mutation of the immutable robot
+                // inertias. Apply it to the drive effort before the authored
+                // effort limit; controller.w == 1 preserves the base model.
+                command *= max(controller.w, 0.0f);
                 if ((dof.flags &
                      MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
                     dof.limits.w > 0.0f) {
@@ -302,6 +371,113 @@ kernel void mr_mlx_commit_pair_cache(
     }
 }
 
+// Applies per-environment material scales after the immutable collision
+// compiler has produced task contacts and before ConstraintIR evaluation.
+// This keeps the landed immutable EngineModel/ConstraintIR boundary intact.
+kernel void mr_mlx_apply_family_contact_parameters(
+    constant MRMLXContactAdapterDispatchGPU& dispatch [[buffer(0)]],
+    constant MRMetalWorldContactDispatchGPU&
+        contactDispatch [[buffer(1)]],
+    device const float4* bodyParameters [[buffer(2)]],
+    device const MRMetalWorldContactStatusGPU*
+        statuses [[buffer(3)]],
+    device MRContactConstraintGPU* contacts [[buffer(4)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const uint bodyBase = environment * dispatch.bodyStateStride;
+    const uint contactBase =
+        environment * contactDispatch.constraintCapacity;
+    const uint contactCount = min(
+        statuses[environment].activeContacts,
+        contactDispatch.constraintCapacity
+    );
+    for (uint localContact = 0u;
+         localContact < contactCount;
+         ++localContact) {
+        device MRContactConstraintGPU& contact =
+            contacts[contactBase + localContact];
+        if (contact.bodyA >= dispatch.bodyStateStride ||
+            contact.bodyB >= dispatch.bodyStateStride) {
+            continue;
+        }
+        const float4 scaleA =
+            bodyParameters[bodyBase + contact.bodyA];
+        const float4 scaleB =
+            bodyParameters[bodyBase + contact.bodyB];
+        const float frictionScale = sqrt(
+            max(scaleA.y, 0.0f) * max(scaleB.y, 0.0f)
+        );
+        contact.friction *= frictionScale;
+        contact.response.x = clamp(
+            contact.response.x *
+                max(max(scaleA.z, 0.0f), max(scaleB.z, 0.0f)),
+            0.0f,
+            1.0f
+        );
+    }
+}
+
+kernel void mr_mlx_apply_family_body_damping(
+    constant MRMLXContactAdapterDispatchGPU& dispatch [[buffer(0)]],
+    constant MRMetalWorldContactDispatchGPU&
+        contactDispatch [[buffer(1)]],
+    device const MRBodyPropertiesGPU* bodyProperties [[buffer(2)]],
+    device const uint* sceneBodyIndices [[buffer(3)]],
+    device const float4* bodyParameters [[buffer(4)]],
+    device const MRBodyStateGPU* currentBodies [[buffer(5)]],
+    device MRBodyStateGPU* candidateBodies [[buffer(6)]],
+    device const MRMetalWorldContactStatusGPU*
+        statuses [[buffer(7)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const uint bodyBase = environment * dispatch.bodyStateStride;
+    const float timestep = contactDispatch.timestepAndBias.x;
+    for (uint localScene = 0u;
+         localScene < dispatch.sceneBodyCount;
+         ++localScene) {
+        const uint body = sceneBodyIndices[localScene];
+        device const MRBodyPropertiesGPU& properties =
+            bodyProperties[body];
+        if (properties.motionType != MR_MOTION_DYNAMIC) {
+            continue;
+        }
+        const float scale = max(
+            bodyParameters[bodyBase + body].w,
+            0.0f
+        );
+        const float baseLinear = exp(
+            -timestep * properties.dampingAndSpeedLimits.x
+        );
+        const float variedLinear = exp(
+            -timestep * properties.dampingAndSpeedLimits.x * scale
+        );
+        const float baseAngular = exp(
+            -timestep * properties.dampingAndSpeedLimits.y
+        );
+        const float variedAngular = exp(
+            -timestep * properties.dampingAndSpeedLimits.y * scale
+        );
+        device MRBodyStateGPU& candidate =
+            candidateBodies[bodyBase + body];
+        device const MRBodyStateGPU& current =
+            currentBodies[bodyBase + body];
+        candidate.linearVelocityAndInverseMass.xyz +=
+            (variedLinear - baseLinear) *
+            current.linearVelocityAndInverseMass.xyz;
+        candidate.angularVelocity.xyz +=
+            (variedAngular - baseAngular) *
+            current.angularVelocity.xyz;
+    }
+}
+
 kernel void mr_mlx_initialize_operator_dispatch(
     constant MRArticulatedOperatorDispatchGPU& source [[buffer(0)]],
     device MRArticulatedOperatorDispatchGPU* destination [[buffer(1)]],
@@ -335,7 +511,7 @@ kernel void mr_mlx_pack_scene_state(
     state.position.w = 1.0f;
     state.orientation = orientations[index];
     state.linearVelocityAndInverseMass =
-        float4(linearVelocities[index].xyz, 0.0f);
+        linearVelocities[index];
     state.angularVelocity =
         float4(angularVelocities[index].xyz, 0.0f);
     state.flagsAndIndices[0] =
@@ -378,7 +554,7 @@ kernel void mr_mlx_unpack_scene_and_evidence(
         positions[sceneBase + body] = state.position;
         orientations[sceneBase + body] = state.orientation;
         linearVelocities[sceneBase + body] =
-            float4(state.linearVelocityAndInverseMass.xyz, 0.0f);
+            state.linearVelocityAndInverseMass;
         angularVelocities[sceneBase + body] =
             float4(state.angularVelocity.xyz, 0.0f);
     }

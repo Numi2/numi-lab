@@ -524,6 +524,8 @@ std::vector<std::byte> serializeFamily(const WorldFamily& family) {
     writer.string(family.program.id);
     writer.pod(family.program.fingerprint);
     writer.pod(family.program.instanceFlags);
+    writeStringVector(writer, family.program.variationIds);
+    writeStringVector(writer, family.program.variationTargetIds);
     writer.podVector(family.program.variations);
     writer.podVector(family.program.categoricalValues);
     return writer.bytes();
@@ -556,6 +558,8 @@ bool deserializeFamily(
         !reader.string(staged.program.id) ||
         !reader.pod(staged.program.fingerprint) ||
         !reader.pod(staged.program.instanceFlags) ||
+        !readStringVector(reader, staged.program.variationIds) ||
+        !readStringVector(reader, staged.program.variationTargetIds) ||
         !reader.podVector(staged.program.variations) ||
         !reader.podVector(staged.program.categoricalValues) ||
         !reader.consumed()) {
@@ -572,12 +576,21 @@ bool validCompiledProgram(
     if (program.id.empty() || program.fingerprint == 0u) {
         return setReason(reason, "world pack program identity is empty");
     }
+    if (program.variationIds.size() != program.variations.size() ||
+        program.variationTargetIds.size() !=
+            program.variations.size()) {
+        return setReason(
+            reason,
+            "world pack scenario names do not match its variations"
+        );
+    }
     for (const MRWorldVariationGPU& variation :
          program.variations) {
         if (variation.binding.x > MR_WORLD_VARIATION_CAMERA ||
             variation.binding.y >
                 MR_WORLD_DISTRIBUTION_CATEGORICAL ||
-            variation.binding.z > MR_WORLD_TARGET_CLUTTER_SET) {
+            variation.binding.z >
+                MR_WORLD_TARGET_ASSET_COLLISION_ALTERNATIVE) {
             return setReason(
                 reason,
                 "world pack contains an unknown variation"

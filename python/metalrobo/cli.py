@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import gc
+import hashlib
 import json
 import sys
 import time
@@ -15,6 +16,7 @@ import numpy as np
 from .env import FrankaEnv
 from .mlx_locomotion import MLXG1PPOTrainer
 from .mlx_ppo import MLXPPOTrainer
+from .mlx_family_ppo import MLXWorldFamilyPPOTrainer
 from .mlx_surgical import MLXPSMNeedlePPOTrainer
 from .mlx_world import compile_world, initial_state, step
 from .ppo import (
@@ -24,6 +26,13 @@ from .ppo import (
     load_policy,
     sample_actions,
 )
+from .r2s2r import (
+    PolicyDescriptor,
+    R2S2RCoordinator,
+    make_affine_replay_evaluator,
+)
+from .mlx_r2s2r import SMCConfig, deterministic_candidate_scenarios
+from .worlds import FrankaPickPlaceWorldFamily
 
 
 def _runtime_arguments(parser: argparse.ArgumentParser) -> None:
@@ -31,6 +40,34 @@ def _runtime_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--library", help="path to libmetalrobo.dylib")
     parser.add_argument("--metallib", help="path to MetalRobo.metallib")
+
+
+def _checkpoint_content_hash(checkpoint: Path) -> str:
+    digest = hashlib.sha256()
+    paths = (
+        [checkpoint]
+        if checkpoint.is_file()
+        else sorted(
+            path
+            for path in checkpoint.rglob("*")
+            if path.is_file()
+        )
+    )
+    for path in paths:
+        relative = (
+            path.name
+            if checkpoint.is_file()
+            else path.relative_to(checkpoint).as_posix()
+        )
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        with path.open("rb") as checkpoint_file:
+            for chunk in iter(
+                lambda: checkpoint_file.read(1024 * 1024),
+                b"",
+            ):
+                digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _train_parser(parser: argparse.ArgumentParser) -> None:
@@ -48,6 +85,7 @@ def _train_parser(parser: argparse.ArgumentParser) -> None:
         "--task",
         choices=(
             "franka-stabilization",
+            "franka-family-pick-place",
             "g1-standing",
             "g1-command",
             "g1-terrain",
@@ -94,6 +132,104 @@ def _train_parser(parser: argparse.ArgumentParser) -> None:
         "--physics-substeps",
         type=int,
         default=4,
+    )
+    parser.add_argument(
+        "--r2s2r-root",
+        help="record the resulting policy and exact train invocation",
+    )
+    parser.add_argument(
+        "--policy-id",
+        help="stable policy identity for R2S2R provenance",
+    )
+    parser.add_argument(
+        "--embodiment-id",
+        default="franka",
+        help="embodiment identity recorded with the trained policy",
+    )
+    parser.add_argument(
+        "--alignment-hash",
+        help="WorldAlignmentPopulation artifact for family training",
+    )
+    parser.add_argument(
+        "--feedback-hash",
+        help="optional WorldFeedbackProgram artifact for curriculum training",
+    )
+    parser.add_argument(
+        "--sampling-mode",
+        choices=("coverage", "curriculum"),
+        default="curriculum",
+        help="world-family sampling mode for aligned training",
+    )
+    parser.add_argument(
+        "--family-metallib",
+        help="native world-family MetalRobo.metallib override",
+    )
+
+
+def _r2s2r_runtime_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--root",
+        type=Path,
+        default=Path(".metalrobo-r2s2r"),
+        help="R2S2R SQLite/WAL and content-addressed artifact root",
+    )
+    parser.add_argument("--library", help="path to libmetalrobo.dylib")
+    parser.add_argument("--metallib", help="path to MetalRobo.metallib")
+
+
+def _align_parser(parser: argparse.ArgumentParser) -> None:
+    _r2s2r_runtime_arguments(parser)
+    parser.add_argument(
+        "--replay-manifest",
+        type=Path,
+        required=True,
+        help=(
+            "physical replay manifest containing local "
+            "replay_residual_modes"
+        ),
+    )
+    parser.add_argument("--particles", type=int, default=4096)
+    parser.add_argument("--seed", type=int, default=1)
+
+
+def _record_sim_parser(parser: argparse.ArgumentParser) -> None:
+    _r2s2r_runtime_arguments(parser)
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        required=True,
+        help="chunk-drained simulation outcome manifest",
+    )
+
+
+def _ingest_real_parser(parser: argparse.ArgumentParser) -> None:
+    _r2s2r_runtime_arguments(parser)
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        required=True,
+        help="versioned hardware outcome manifest",
+    )
+
+
+def _fit_feedback_parser(parser: argparse.ArgumentParser) -> None:
+    _r2s2r_runtime_arguments(parser)
+    parser.add_argument("--policy-fingerprint", required=True)
+    parser.add_argument("--task-fingerprint", required=True)
+    parser.add_argument("--embodiment-fingerprint", required=True)
+    parser.add_argument("--steps", type=int, default=300)
+    parser.add_argument("--candidates", type=int, default=65536)
+    parser.add_argument("--regions", type=int, default=64)
+    parser.add_argument("--seed", type=int, default=1)
+
+
+def _evaluate_parser(parser: argparse.ArgumentParser) -> None:
+    _r2s2r_runtime_arguments(parser)
+    parser.add_argument("--task-fingerprint", required=True)
+    parser.add_argument(
+        "--policy-fingerprints",
+        nargs="+",
+        required=True,
     )
 
 
@@ -164,6 +300,36 @@ def build_parser() -> argparse.ArgumentParser:
             help="measure fixed MLX Wave32 worker-grid choices",
         )
     )
+    _align_parser(
+        subparsers.add_parser(
+            "align",
+            help="fit and publish a replay-aligned world population",
+        )
+    )
+    _record_sim_parser(
+        subparsers.add_parser(
+            "record-sim",
+            help="persist a chunk-drained simulation outcome batch",
+        )
+    )
+    _ingest_real_parser(
+        subparsers.add_parser(
+            "ingest-real",
+            help="ingest a versioned hardware outcome manifest",
+        )
+    )
+    _fit_feedback_parser(
+        subparsers.add_parser(
+            "fit-feedback",
+            help="learn and compile policy-specific failure regions",
+        )
+    )
+    _evaluate_parser(
+        subparsers.add_parser(
+            "evaluate",
+            help="compare policies on identical coverage scenario keys",
+        )
+    )
     return parser
 
 
@@ -182,6 +348,7 @@ def run_train(args: argparse.Namespace) -> int:
         "g1-terrain",
     }
     psm_task = args.task == "psm-needle"
+    family_task = args.task == "franka-family-pick-place"
     maximum_episode_steps = (
         args.maximum_episode_steps
         if args.maximum_episode_steps is not None
@@ -196,6 +363,8 @@ def run_train(args: argparse.Namespace) -> int:
         if args.task == "g1-command"
         else "runs/psm-needle"
         if psm_task
+        else "runs/franka-family"
+        if family_task
         else "runs/franka"
     )
     config = PPOConfig(
@@ -220,12 +389,38 @@ def run_train(args: argparse.Namespace) -> int:
         checkpoint_directory=checkpoint_directory,
     )
     if args.backend == "mlx":
-        if args.library:
+        if args.library and not family_task:
             raise ValueError(
                 "--library applies only to --backend ctypes-debug; "
                 "the MLX primitive links the compiled engine directly"
             )
-        if g1_task:
+        if family_task:
+            if not args.r2s2r_root or not args.alignment_hash:
+                raise ValueError(
+                    "franka-family-pick-place requires --r2s2r-root "
+                    "and --alignment-hash"
+                )
+            family = FrankaPickPlaceWorldFamily(
+                capacity=args.envs,
+                library_path=args.library,
+                metallib_path=args.family_metallib,
+            )
+            coordinator = R2S2RCoordinator(args.r2s2r_root)
+            coordinator.configure_world_family(
+                family,
+                alignment_hash=args.alignment_hash,
+                feedback_hash=args.feedback_hash,
+            )
+            trainer = MLXWorldFamilyPPOTrainer(
+                config,
+                family,
+                metallib_path=args.metallib,
+                rollout_chunk_size=args.rollout_chunk_size,
+                maximum_episode_steps=maximum_episode_steps,
+                physics_substeps=args.physics_substeps,
+                sampling_mode=args.sampling_mode,
+            )
+        elif g1_task:
             trainer = MLXG1PPOTrainer(
                 config,
                 metallib_path=args.metallib,
@@ -263,8 +458,51 @@ def run_train(args: argparse.Namespace) -> int:
             library_path=args.library,
             metallib_path=args.metallib,
         )
-    checkpoint = trainer.train(resume=args.resume)
-    print(json.dumps({"checkpoint": str(checkpoint.resolve())}))
+    try:
+        checkpoint = trainer.train(resume=args.resume)
+    finally:
+        close = getattr(trainer, "close", None)
+        if close is not None:
+            close()
+    report: dict[str, object] = {
+        "checkpoint": str(checkpoint.resolve()),
+    }
+    if args.r2s2r_root:
+        descriptor = PolicyDescriptor(
+            id=args.policy_id
+            or f"{args.task}.iteration-{config.iterations}",
+            content_hash=_checkpoint_content_hash(checkpoint),
+            observation_schema=f"{args.task}.observation.v1",
+            action_schema=f"{args.task}.action.v1",
+            embodiment=args.embodiment_id,
+        )
+        coordinator = R2S2RCoordinator(args.r2s2r_root)
+        coordinator.register_policy(descriptor)
+        iteration = coordinator.record_iteration(
+            "train",
+            alignment_hash=args.alignment_hash or "",
+            sampling_hash=args.feedback_hash or "",
+            policy_hash=descriptor.content_hash,
+            provenance={
+                "policy_fingerprint": (
+                    f"{descriptor.fingerprint:016x}"
+                ),
+                "task": args.task,
+                "backend": args.backend,
+                "environment_count": args.envs,
+                "rollout_steps": args.rollout_steps,
+                "iterations": args.iterations,
+                "checkpoint": str(checkpoint.resolve()),
+                "sampling_mode": (
+                    args.sampling_mode if family_task else "fixed"
+                ),
+            },
+        )
+        report.update(
+            policy_fingerprint=f"{descriptor.fingerprint:016x}",
+            r2s2r_iteration=iteration,
+        )
+    print(json.dumps(report))
     return 0
 
 
@@ -452,8 +690,16 @@ def run_worker_tuning(args: argparse.Namespace) -> int:
                 dtype=mx.float32,
             )
 
-        def advance(current, current_actions):
-            output = step(world, current, current_actions)
+        def advance(
+            current,
+            current_actions,
+            compiled_world=world,
+        ):
+            output = step(
+                compiled_world,
+                current,
+                current_actions,
+            )
             return output.next_state, output.physics_error
 
         compiled_advance = mx.compile(advance)
@@ -528,6 +774,175 @@ def run_worker_tuning(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cli_fingerprint(value: str) -> int:
+    text = value.strip().lower()
+    if text.startswith("0x"):
+        text = text[2:]
+    if (
+        not text
+        or len(text) > 16
+        or any(character not in "0123456789abcdef" for character in text)
+    ):
+        raise ValueError(
+            f"fingerprint must be up to 16 hexadecimal digits: {value!r}"
+        )
+    return int(text, 16)
+
+
+def _world_family(args: argparse.Namespace) -> FrankaPickPlaceWorldFamily:
+    return FrankaPickPlaceWorldFamily(
+        capacity=max(1, int(getattr(args, "particles", 1))),
+        library_path=args.library,
+        metallib_path=args.metallib,
+    )
+
+
+def run_align(args: argparse.Namespace) -> int:
+    if not 1 <= args.particles <= 4096:
+        raise ValueError("--particles must be between 1 and 4096")
+    replay = json.loads(
+        args.replay_manifest.expanduser().resolve().read_text(
+            encoding="utf-8"
+        )
+    )
+    if int(replay.get("schema_version", 1)) != 1:
+        raise ValueError("unsupported replay-manifest schema version")
+    with _world_family(args) as family:
+        schema = family.scenario_schema
+        expected_schema = replay.get("scenario_schema")
+        if expected_schema is not None and expected_schema != schema.id:
+            raise ValueError(
+                "replay manifest and compiled world use different "
+                "ScenarioSchema ids"
+            )
+        evaluator, residual_count = make_affine_replay_evaluator(
+            replay["replay_residual_modes"],
+            feature_count=len(schema.features),
+        )
+        coordinator = R2S2RCoordinator(args.root)
+        artifact = coordinator.align(
+            schema,
+            replay,
+            evaluator,
+            initial_quantiles=deterministic_candidate_scenarios(
+                len(schema.features),
+                count=args.particles,
+            ),
+            residual_count=residual_count,
+            config=SMCConfig(seed=args.seed),
+            world_hash=str(replay.get("world_hash", "")),
+            engine_hash=str(replay.get("engine_hash", "")),
+        )
+    print(
+        json.dumps(
+            {
+                "alignment_hash": artifact.content_hash,
+                "alignment_fingerprint": (
+                    f"{artifact.fingerprint:016x}"
+                ),
+                "scenario_schema_fingerprint": (
+                    f"{artifact.schema_fingerprint:016x}"
+                ),
+                "particles": artifact.particle_count,
+                "replay_artifact_hash": (
+                    artifact.replay_artifact_hash
+                ),
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
+def run_record_sim(args: argparse.Namespace) -> int:
+    with _world_family(args) as family:
+        coordinator = R2S2RCoordinator(args.root)
+        artifact = coordinator.ingest_simulation_manifest(
+            family.scenario_schema,
+            args.manifest,
+        )
+    print(
+        json.dumps(
+            {"simulation_outcome_artifact": artifact.content_hash},
+            indent=2,
+        )
+    )
+    return 0
+
+
+def run_ingest_real(args: argparse.Namespace) -> int:
+    with _world_family(args) as family:
+        coordinator = R2S2RCoordinator(args.root)
+        artifact = coordinator.ingest_hardware_manifest(
+            family.scenario_schema,
+            args.manifest,
+        )
+    print(
+        json.dumps(
+            {"hardware_outcome_artifact": artifact.content_hash},
+            indent=2,
+        )
+    )
+    return 0
+
+
+def run_fit_feedback(args: argparse.Namespace) -> int:
+    with _world_family(args) as family:
+        coordinator = R2S2RCoordinator(args.root)
+        artifact = coordinator.fit_feedback(
+            family.scenario_schema,
+            policy_fingerprint=_cli_fingerprint(
+                args.policy_fingerprint
+            ),
+            task_fingerprint=_cli_fingerprint(
+                args.task_fingerprint
+            ),
+            embodiment_fingerprint=_cli_fingerprint(
+                args.embodiment_fingerprint
+            ),
+            steps=args.steps,
+            candidate_count=args.candidates,
+            maximum_regions=args.regions,
+            seed=args.seed,
+        )
+    print(
+        json.dumps(
+            {
+                "feedback_hash": artifact.content_hash,
+                "feedback_fingerprint": (
+                    f"{artifact.fingerprint:016x}"
+                ),
+                "model_hash": artifact.model_content_hash,
+                "regions": artifact.region_count,
+                "hardware_prediction": (
+                    "available"
+                    if artifact.hardware_available
+                    else "unavailable_sim_only"
+                ),
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
+def run_evaluate(args: argparse.Namespace) -> int:
+    with _world_family(args) as family:
+        coordinator = R2S2RCoordinator(args.root)
+        report = coordinator.evaluate(
+            family.scenario_schema,
+            task_fingerprint=_cli_fingerprint(
+                args.task_fingerprint
+            ),
+            policy_fingerprints=[
+                _cli_fingerprint(value)
+                for value in args.policy_fingerprints
+            ],
+        )
+    print(json.dumps(report, indent=2))
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
@@ -539,6 +954,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             return run_rollout(args)
         if args.command == "tune-workers":
             return run_worker_tuning(args)
+        if args.command == "align":
+            return run_align(args)
+        if args.command == "record-sim":
+            return run_record_sim(args)
+        if args.command == "ingest-real":
+            return run_ingest_real(args)
+        if args.command == "fit-feedback":
+            return run_fit_feedback(args)
+        if args.command == "evaluate":
+            return run_evaluate(args)
         raise AssertionError(f"unhandled command: {args.command}")
     except (OSError, RuntimeError, ValueError) as error:
         print(f"metalrobo: {error}", file=sys.stderr)
@@ -576,3 +1001,7 @@ def rollout_main(argv: Sequence[str] | None = None) -> int:
     except (OSError, RuntimeError, ValueError) as error:
         print(f"metalrobo-rollout: {error}", file=sys.stderr)
         return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

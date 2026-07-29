@@ -64,6 +64,8 @@ int main() {
             throw std::runtime_error(reason);
         }
         if (!sameBytes(first.instances, replay.instances) ||
+            !sameBytes(first.scenarioHeaders, replay.scenarioHeaders) ||
+            !sameBytes(first.scenarioValues, replay.scenarioValues) ||
             !sameBytes(first.assets, replay.assets) ||
             !sameBytes(first.sensors, replay.sensors) ||
             !sameBytes(first.appearances, replay.appearances)) {

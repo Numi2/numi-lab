@@ -72,7 +72,8 @@ bool imageSensor(const MRWorldSensorKind kind) {
 
 bool assetTarget(const MRWorldVariationTarget target) {
     return target <= MR_WORLD_TARGET_ASSET_RENDER_ALTERNATIVE ||
-        target == MR_WORLD_TARGET_CLUTTER_SET;
+        target == MR_WORLD_TARGET_CLUTTER_SET ||
+        target == MR_WORLD_TARGET_ASSET_COLLISION_ALTERNATIVE;
 }
 
 bool sensorTarget(const MRWorldVariationTarget target) {
@@ -352,9 +353,72 @@ float uniform01(const std::uint32_t bits) {
     );
 }
 
+float inverseNormalCDF(const float probability) {
+    const double p = std::clamp(
+        static_cast<double>(probability),
+        1.0e-7,
+        1.0 - 1.0e-7
+    );
+    constexpr double lowerTail = 0.02425;
+    constexpr double upperTail = 1.0 - lowerTail;
+    if (p < lowerTail) {
+        const double q = std::sqrt(-2.0 * std::log(p));
+        const double numerator =
+            (((((-0.007784894002430293 * q -
+                  0.3223964580411365) * q -
+                 2.400758277161838) * q -
+                2.549732539343734) * q +
+               4.374664141464968) * q +
+              2.938163982698783);
+        const double denominator =
+            ((((0.007784695709041462 * q +
+                0.3224671290700398) * q +
+               2.445134137142996) * q +
+              3.754408661907416) * q +
+             1.0);
+        return static_cast<float>(numerator / denominator);
+    }
+    if (p > upperTail) {
+        const double q = std::sqrt(-2.0 * std::log(1.0 - p));
+        const double numerator =
+            (((((-0.007784894002430293 * q -
+                  0.3223964580411365) * q -
+                 2.400758277161838) * q -
+                2.549732539343734) * q +
+               4.374664141464968) * q +
+              2.938163982698783);
+        const double denominator =
+            ((((0.007784695709041462 * q +
+                0.3224671290700398) * q +
+               2.445134137142996) * q +
+              3.754408661907416) * q +
+             1.0);
+        return static_cast<float>(-numerator / denominator);
+    }
+    const double q = p - 0.5;
+    const double r = q * q;
+    const double numerator =
+        (((((-39.69683028665376 * r +
+              220.9460984245205) * r -
+             275.9285104469687) * r +
+            138.3577518672690) * r -
+           30.66479806614716) * r +
+          2.506628277459239) * q;
+    const double denominator =
+        (((((-54.47609879822406 * r +
+              161.5858368580409) * r -
+             155.6989798598866) * r +
+            66.80131188771972) * r -
+           13.28068155288572) * r +
+          1.0);
+    return static_cast<float>(numerator / denominator);
+}
+
 struct SampledValue {
     float scalar = 0.0f;
     std::uint32_t categorical = 0u;
+    std::uint32_t categoricalOrdinal = 0u;
+    float quantile = 0.5f;
 };
 
 SampledValue sampleValue(
@@ -363,27 +427,29 @@ SampledValue sampleValue(
     const std::array<std::uint32_t, 4>& random
 ) {
     const float u0 = uniform01(random[0]);
-    const float u1 = uniform01(random[1]);
     switch (descriptor.binding.y) {
     case MR_WORLD_DISTRIBUTION_CONSTANT:
-        return {descriptor.parameters.x, 0u};
+        return {descriptor.parameters.x, 0u, 0u, 0.5f};
     case MR_WORLD_DISTRIBUTION_UNIFORM:
         return {
             descriptor.parameters.x +
                 u0 * (descriptor.parameters.y - descriptor.parameters.x),
             0u,
+            0u,
+            u0,
         };
     case MR_WORLD_DISTRIBUTION_LOG_UNIFORM: {
         const float lower = std::log(descriptor.parameters.x);
         const float upper = std::log(descriptor.parameters.y);
-        return {std::exp(lower + u0 * (upper - lower)), 0u};
+        return {
+            std::exp(lower + u0 * (upper - lower)),
+            0u,
+            0u,
+            u0,
+        };
     }
     case MR_WORLD_DISTRIBUTION_NORMAL_CLAMPED: {
-        const float radius = std::sqrt(
-            -2.0f * std::log(std::max(u0, 1.0e-12f))
-        );
-        const float normal = radius *
-            std::cos(2.0f * std::numbers::pi_v<float> * u1);
+        const float normal = inverseNormalCDF(u0);
         const float value =
             descriptor.parameters.x + descriptor.parameters.y * normal;
         return {
@@ -393,6 +459,8 @@ SampledValue sampleValue(
                 descriptor.parameters.w
             ),
             0u,
+            0u,
+            u0,
         };
     }
     case MR_WORLD_DISTRIBUTION_CATEGORICAL: {
@@ -410,6 +478,8 @@ SampledValue sampleValue(
         return {
             static_cast<float>(categoricalValues[first + selected]),
             categoricalValues[first + selected],
+            static_cast<std::uint32_t>(selected),
+            u0,
         };
     }
     default:
@@ -529,6 +599,9 @@ void applyAssetVariation(
     case MR_WORLD_TARGET_ASSET_RENDER_ALTERNATIVE:
     case MR_WORLD_TARGET_CLUTTER_SET:
         asset.identity.y = value.categorical;
+        break;
+    case MR_WORLD_TARGET_ASSET_COLLISION_ALTERNATIVE:
+        asset.identity.z = value.categorical;
         break;
     default:
         break;
@@ -688,7 +761,8 @@ bool validDistribution(
     if (variation.id.empty() ||
         variation.axis > MR_WORLD_VARIATION_CAMERA ||
         variation.distribution > MR_WORLD_DISTRIBUTION_CATEGORICAL ||
-        variation.target > MR_WORLD_TARGET_CLUTTER_SET ||
+        variation.target >
+            MR_WORLD_TARGET_ASSET_COLLISION_ALTERNATIVE ||
         !finite(variation.parameters)) {
         return fail(reason, "variation has invalid identity or parameters");
     }
@@ -976,6 +1050,46 @@ bool WorldInstanceBatch::valid(std::string* reason) const {
     if (familyFingerprint == 0u && !instances.empty()) {
         return fail(reason, "world instance batch has no family fingerprint");
     }
+    if (scenarioHeaders.size() != instances.size()) {
+        return fail(
+            reason,
+            "world instance batch has no scenario header per instance"
+        );
+    }
+    const std::size_t variationCount = instances.empty()
+        ? 0u
+        : scenarioValues.size() / instances.size();
+    if ((!instances.empty() &&
+         variationCount * instances.size() != scenarioValues.size()) ||
+        (instances.empty() && !scenarioValues.empty())) {
+        return fail(reason, "world scenario value ranges are invalid");
+    }
+    for (std::size_t environment = 0u;
+         environment < scenarioHeaders.size();
+         ++environment) {
+        const MRWorldScenarioHeaderGPU& scenario =
+            scenarioHeaders[environment];
+        const MRWorldInstanceHeaderGPU& instance =
+            instances[environment];
+        if (scenario.identity.x != instance.identity.x ||
+            scenario.identity.y != instance.identity.y ||
+            scenario.sampling.x > MR_WORLD_SAMPLING_CURRICULUM ||
+            scenario.sampling.y > MR_WORLD_SAMPLE_UNCERTAINTY ||
+            scenario.sampling.w != MR_R2S2R_ABI_VERSION) {
+            return fail(reason, "world scenario header is invalid");
+        }
+    }
+    for (const MRWorldScenarioValueGPU& value : scenarioValues) {
+        if (!finite(value.value) || value.value.y < 0.0f ||
+            value.value.y > 1.0f ||
+            value.identity.x >= variationCount ||
+            (value.identity.w &
+             ~(MR_SCENARIO_VALUE_CATEGORICAL |
+               MR_SCENARIO_VALUE_MEASURED |
+               MR_SCENARIO_VALUE_MISSING)) != 0u) {
+            return fail(reason, "world scenario value is invalid");
+        }
+    }
     for (const MRWorldInstanceHeaderGPU& instance : instances) {
         if (instance.identity.w != MR_WORLD_COMPILER_ABI_VERSION ||
             instance.ranges.x > assets.size() ||
@@ -1256,7 +1370,9 @@ WorldCompileResult compileWorldFamily(
             );
         }
         if ((variation.target == MR_WORLD_TARGET_ASSET_RENDER_ALTERNATIVE ||
-             variation.target == MR_WORLD_TARGET_CLUTTER_SET) &&
+             variation.target == MR_WORLD_TARGET_CLUTTER_SET ||
+             variation.target ==
+                 MR_WORLD_TARGET_ASSET_COLLISION_ALTERNATIVE) &&
             variation.distribution != MR_WORLD_DISTRIBUTION_CATEGORICAL) {
             return compileFail(
                 WorldCompileStatus::invalidWorldProgram,
@@ -1309,6 +1425,8 @@ WorldCompileResult compileWorldFamily(
             static_cast<std::uint32_t>(salt >> 32u),
             0u,
         };
+        compiled.variationIds.push_back(variation.id);
+        compiled.variationTargetIds.push_back(variation.targetId);
         compiled.variations.push_back(descriptor);
         hash.appendString(variation.id);
         hash.appendScalar(descriptor);
@@ -1348,6 +1466,11 @@ WorldInstanceBatch WorldFamily::sample(
 
     batch.familyFingerprint = fingerprint;
     batch.instances.resize(instanceCount);
+    batch.scenarioHeaders.resize(instanceCount);
+    batch.scenarioValues.resize(
+        static_cast<std::size_t>(instanceCount) *
+        program.variations.size()
+    );
     batch.assets.resize(static_cast<std::size_t>(instanceCount) * assetCount);
     batch.sensors.resize(
         static_cast<std::size_t>(instanceCount) * sensorCount
@@ -1386,6 +1509,21 @@ WorldInstanceBatch WorldFamily::sample(
                 static_cast<std::uint32_t>(scenarioKey >> 32u),
                 program.instanceFlags,
                 MR_WORLD_COMPILER_ABI_VERSION,
+            },
+        };
+        batch.scenarioHeaders[environment] = {
+            {
+                static_cast<std::uint32_t>(scenarioKey),
+                static_cast<std::uint32_t>(scenarioKey >> 32u),
+                0u,
+                0u,
+            },
+            {0u, 0u, 0u, 0u},
+            {
+                MR_WORLD_SAMPLING_COVERAGE,
+                MR_WORLD_SAMPLE_BROAD,
+                MR_INVALID_INDEX,
+                MR_R2S2R_ABI_VERSION,
             },
         };
 
@@ -1481,6 +1619,29 @@ WorldInstanceBatch WorldFamily::sample(
                 program.categoricalValues,
                 philox(seed, environment, variationIndex, variation)
             );
+            const std::size_t scenarioValueIndex =
+                static_cast<std::size_t>(environment) *
+                    program.variations.size() +
+                variationIndex;
+            const bool categorical =
+                variation.binding.y ==
+                MR_WORLD_DISTRIBUTION_CATEGORICAL;
+            batch.scenarioValues[scenarioValueIndex] = {
+                {
+                    value.scalar,
+                    value.quantile,
+                    1.0f,
+                    0.0f,
+                },
+                {
+                    variationIndex,
+                    value.categorical,
+                    value.categoricalOrdinal,
+                    categorical
+                        ? MR_SCENARIO_VALUE_CATEGORICAL
+                        : 0u,
+                },
+            };
             const std::uint32_t targetIndex = variation.binding.w;
             const auto target =
                 static_cast<MRWorldVariationTarget>(variation.binding.z);

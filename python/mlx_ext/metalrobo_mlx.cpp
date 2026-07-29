@@ -583,6 +583,8 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_mlx_import_world_family_state",
         "mr_mlx_prepare_contact_world",
         "mr_mlx_commit_pair_cache",
+        "mr_mlx_apply_family_contact_parameters",
+        "mr_mlx_apply_family_body_damping",
         "mr_mlx_initialize_operator_dispatch",
         "mr_mlx_pack_scene_state",
         "mr_mlx_unpack_scene_and_evidence",
@@ -1341,6 +1343,8 @@ std::vector<mx::array> worldStep(
     const mx::array& manifoldPoints,
     const mx::array& manifoldCounts,
     const mx::array& pairCache,
+    const mx::array& bodyParameters,
+    const mx::array& controllerParameters,
     mx::StreamOrDevice stream
 ) {
     if (world == nullptr ||
@@ -1415,6 +1419,20 @@ std::vector<mx::array> worldStep(
         pairs,
         static_cast<mx::ShapeElem>(kConvexCacheWords),
     };
+    const mx::Shape controllerShape{
+        environments,
+        static_cast<mx::ShapeElem>(
+            world->world().model().articulations.size()
+        ),
+        4,
+    };
+    const mx::Shape bodyParameterShape{
+        environments,
+        static_cast<mx::ShapeElem>(
+            world->world().model().bodies.size()
+        ),
+        4,
+    };
     validateInput(q, qShape, "q");
     validateInput(v, vShape, "v");
     validateInput(effort, vShape, "actions");
@@ -1451,6 +1469,16 @@ std::vector<mx::array> worldStep(
     validateU32(manifoldPoints, pointShape, "manifold_points");
     validateU32(manifoldCounts, countShape, "manifold_counts");
     validateU32(pairCache, cacheShape, "pair_cache");
+    validateInput(
+        bodyParameters,
+        bodyParameterShape,
+        "body_parameters"
+    );
+    validateInput(
+        controllerParameters,
+        controllerShape,
+        "controller_parameters"
+    );
 
     const auto selectedStream = mx::to_stream(stream);
     std::vector<mx::array> inputs{
@@ -1465,6 +1493,12 @@ std::vector<mx::array> worldStep(
         mx::contiguous(manifoldPoints, false, selectedStream),
         mx::contiguous(manifoldCounts, false, selectedStream),
         mx::contiguous(pairCache, false, selectedStream),
+        mx::contiguous(bodyParameters, false, selectedStream),
+        mx::contiguous(
+            controllerParameters,
+            false,
+            selectedStream
+        ),
     };
     const auto primitive =
         std::make_shared<WorldStepPrimitive>(
@@ -1529,17 +1563,28 @@ std::vector<mx::array> worldFamilyState(
     const std::uintptr_t resetQBuffer,
     const std::uintptr_t resetVBuffer,
     const std::uintptr_t resetSceneBodiesBuffer,
+    const std::uintptr_t scenarioHeadersBuffer,
+    const std::uintptr_t scenarioValuesBuffer,
+    const std::uintptr_t bodyParametersBuffer,
+    const std::uintptr_t controllerParametersBuffer,
     const std::uint32_t environmentCount,
+    const std::uint32_t variationCount,
+    const std::uint32_t bodyCount,
+    const std::uint32_t articulationCount,
     const std::uint64_t generation,
     mx::StreamOrDevice stream
 ) {
     if (world == nullptr ||
         resetQBuffer == 0u ||
         resetVBuffer == 0u ||
-        resetSceneBodiesBuffer == 0u) {
+        resetSceneBodiesBuffer == 0u ||
+        scenarioHeadersBuffer == 0u ||
+        scenarioValuesBuffer == 0u ||
+        bodyParametersBuffer == 0u ||
+        controllerParametersBuffer == 0u) {
         throw std::invalid_argument(
             "world-family state requires a compiled world and "
-            "non-null Metal reset buffers"
+            "non-null Metal reset/scenario/parameter buffers"
         );
     }
     if (environmentCount == 0u ||
@@ -1556,6 +1601,15 @@ std::vector<mx::array> worldFamilyState(
     if (sceneBodyCount == 0) {
         throw std::invalid_argument(
             "world-family state requires a contact-capable scene"
+        );
+    }
+    if (variationCount == 0u ||
+        bodyCount != world->world().model().bodies.size() ||
+        articulationCount !=
+            world->world().model().articulations.size()) {
+        throw std::invalid_argument(
+            "world-family scenario or parameter topology does not "
+            "match the compiled MLX world"
         );
     }
     const mx::Shape qShape{
@@ -1581,7 +1635,22 @@ std::vector<mx::array> worldFamilyState(
             reinterpret_cast<MTL::Buffer*>(
                 resetSceneBodiesBuffer
             ),
+            reinterpret_cast<MTL::Buffer*>(
+                scenarioHeadersBuffer
+            ),
+            reinterpret_cast<MTL::Buffer*>(
+                scenarioValuesBuffer
+            ),
+            reinterpret_cast<MTL::Buffer*>(
+                bodyParametersBuffer
+            ),
+            reinterpret_cast<MTL::Buffer*>(
+                controllerParametersBuffer
+            ),
             environmentCount,
+            variationCount,
+            bodyCount,
+            articulationCount,
             generation
         );
     return mx::array::make_arrays(
@@ -1592,6 +1661,41 @@ std::vector<mx::array> worldFamilyState(
             sceneShape,
             sceneShape,
             sceneShape,
+            {
+                static_cast<mx::ShapeElem>(environmentCount),
+                3,
+                4,
+            },
+            {
+                static_cast<mx::ShapeElem>(environmentCount),
+                static_cast<mx::ShapeElem>(variationCount),
+                4,
+            },
+            {
+                static_cast<mx::ShapeElem>(environmentCount),
+                static_cast<mx::ShapeElem>(variationCount),
+                4,
+            },
+            {
+                static_cast<mx::ShapeElem>(environmentCount),
+                static_cast<mx::ShapeElem>(bodyCount),
+                4,
+            },
+            {
+                static_cast<mx::ShapeElem>(environmentCount),
+                static_cast<mx::ShapeElem>(bodyCount),
+                4,
+            },
+            {
+                static_cast<mx::ShapeElem>(environmentCount),
+                static_cast<mx::ShapeElem>(articulationCount),
+                4,
+            },
+            {
+                static_cast<mx::ShapeElem>(environmentCount),
+                static_cast<mx::ShapeElem>(articulationCount),
+                4,
+            },
         },
         {
             mx::float32,
@@ -1600,6 +1704,13 @@ std::vector<mx::array> worldFamilyState(
             mx::float32,
             mx::float32,
             mx::float32,
+            mx::uint32,
+            mx::float32,
+            mx::uint32,
+            mx::float32,
+            mx::uint32,
+            mx::float32,
+            mx::uint32,
         },
         primitive,
         {}
@@ -1908,7 +2019,7 @@ void WorldStepPrimitive::eval_gpu(
     const std::vector<mx::array>& inputs,
     std::vector<mx::array>& outputs
 ) {
-    if (inputs.size() != 11u || outputs.size() != 16u) {
+    if (inputs.size() != 13u || outputs.size() != 16u) {
         throw std::runtime_error(
             "MetalRobo contact primitive received an invalid graph"
         );
@@ -2642,6 +2753,7 @@ void WorldStepPrimitive::eval_gpu(
     immutable(kImmutableWorld, 11);
     immutable(kImmutableArticulations, 12);
     immutable(kImmutableDofs, 13);
+    inputArray(inputs[12], 14);
     dispatchThreads(
         environments,
         resources.kernel("mr_mlx_prepare_contact_world")
@@ -3045,6 +3157,23 @@ void WorldStepPrimitive::eval_gpu(
                 environments,
                 resources.kernel("mr_world_predict_scene")
             );
+            setPhysicsKernel(
+                "mr_mlx_apply_family_body_damping"
+            );
+            encoder.set_bytes(adapterDispatch, 0);
+            encoder.set_bytes(contactDispatch, 1);
+            immutable(kImmutableBodies, 2);
+            immutable(kImmutableSceneBodyIndices, 3);
+            inputArray(inputs[11], 4);
+            inputArray(currentBodies, 5);
+            outputArray(candidateBodies, 6);
+            inputArray(outputs[11], 7);
+            dispatchThreads(
+                environments,
+                resources.kernel(
+                    "mr_mlx_apply_family_body_damping"
+                )
+            );
         }
 
         setPhysicsKernel("mr_world_project_swept_colliders");
@@ -3401,6 +3530,21 @@ void WorldStepPrimitive::eval_gpu(
         dispatchThreads(
             environments,
             resources.kernel("mr_world_collide_compile")
+        );
+
+        setPhysicsKernel(
+            "mr_mlx_apply_family_contact_parameters"
+        );
+        encoder.set_bytes(adapterDispatch, 0);
+        encoder.set_bytes(contactDispatch, 1);
+        inputArray(inputs[11], 2);
+        inputArray(outputs[11], 3);
+        outputArray(contacts, 4);
+        dispatchThreads(
+            environments,
+            resources.kernel(
+                "mr_mlx_apply_family_contact_parameters"
+            )
         );
 
         setPhysicsKernel("mr_world_finalize_factor_dispatch");
@@ -4127,7 +4271,14 @@ WorldFamilyStatePrimitive::WorldFamilyStatePrimitive(
     MTL::Buffer* resetQ,
     MTL::Buffer* resetV,
     MTL::Buffer* resetSceneBodies,
+    MTL::Buffer* scenarioHeaders,
+    MTL::Buffer* scenarioValues,
+    MTL::Buffer* bodyParameters,
+    MTL::Buffer* controllerParameters,
     const std::uint32_t environmentCount,
+    const std::uint32_t variationCount,
+    const std::uint32_t bodyCount,
+    const std::uint32_t articulationCount,
     const std::uint64_t generation
 )
     : mx::Primitive(stream),
@@ -4135,17 +4286,32 @@ WorldFamilyStatePrimitive::WorldFamilyStatePrimitive(
       resetQ_(resetQ),
       resetV_(resetV),
       resetSceneBodies_(resetSceneBodies),
+      scenarioHeaders_(scenarioHeaders),
+      scenarioValues_(scenarioValues),
+      bodyParameters_(bodyParameters),
+      controllerParameters_(controllerParameters),
       environmentCount_(environmentCount),
+      variationCount_(variationCount),
+      bodyCount_(bodyCount),
+      articulationCount_(articulationCount),
       generation_(generation) {
     resetQ_->retain();
     resetV_->retain();
     resetSceneBodies_->retain();
+    scenarioHeaders_->retain();
+    scenarioValues_->retain();
+    bodyParameters_->retain();
+    controllerParameters_->retain();
 }
 
 WorldFamilyStatePrimitive::~WorldFamilyStatePrimitive() {
     resetQ_->release();
     resetV_->release();
     resetSceneBodies_->release();
+    scenarioHeaders_->release();
+    scenarioValues_->release();
+    bodyParameters_->release();
+    controllerParameters_->release();
 }
 
 void WorldFamilyStatePrimitive::eval_cpu(
@@ -4161,7 +4327,7 @@ void WorldFamilyStatePrimitive::eval_gpu(
     const std::vector<mx::array>& inputs,
     std::vector<mx::array>& outputs
 ) {
-    if (!inputs.empty() || outputs.size() != 6u) {
+    if (!inputs.empty() || outputs.size() != 13u) {
         throw std::runtime_error(
             "MetalRobo world-family primitive received an invalid graph"
         );
@@ -4175,12 +4341,25 @@ void WorldFamilyStatePrimitive::eval_gpu(
         output.set_data(mx::allocator::malloc(output.nbytes()));
     }
 
-    MRMLXContactAdapterDispatchGPU dispatch{};
-    dispatch.environmentCount = environmentCount_;
-    dispatch.sceneBodyCount = world_->world().sceneBodyCount();
-    dispatch.bodyStateStride = world_->world().bodyCount();
-    dispatch.nq = world_->world().nq();
-    dispatch.nv = world_->world().nv();
+    MRMLXWorldFamilyImportDispatchGPU dispatch{};
+    dispatch.state = {
+        environmentCount_,
+        world_->world().nq(),
+        world_->world().nv(),
+        world_->world().sceneBodyCount(),
+    };
+    dispatch.topology = {
+        bodyCount_,
+        articulationCount_,
+        variationCount_,
+        MR_R2S2R_ABI_VERSION,
+    };
+    dispatch.generation = {
+        static_cast<std::uint32_t>(generation_),
+        static_cast<std::uint32_t>(generation_ >> 32u),
+        0u,
+        0u,
+    };
 
     encoder.set_compute_pipeline_state(
         resources.kernel("mr_mlx_import_world_family_state")
@@ -4189,12 +4368,18 @@ void WorldFamilyStatePrimitive::eval_gpu(
     encoder.set_buffer(resetQ_, 1);
     encoder.set_buffer(resetV_, 2);
     encoder.set_buffer(resetSceneBodies_, 3);
-    encoder.set_output_array(outputs[0], 4);
-    encoder.set_output_array(outputs[1], 5);
-    encoder.set_output_array(outputs[2], 6);
-    encoder.set_output_array(outputs[3], 7);
-    encoder.set_output_array(outputs[4], 8);
-    encoder.set_output_array(outputs[5], 9);
+    encoder.set_buffer(scenarioHeaders_, 4);
+    encoder.set_buffer(scenarioValues_, 5);
+    encoder.set_buffer(bodyParameters_, 6);
+    encoder.set_buffer(controllerParameters_, 7);
+    for (std::size_t output = 0u;
+         output < outputs.size();
+         ++output) {
+        encoder.set_output_array(
+            outputs[output],
+            static_cast<int>(output + 8u)
+        );
+    }
     const auto threadgroupSize = std::min<std::uint32_t>(
         kWorldThreads,
         resources.kernel(
@@ -4253,7 +4438,14 @@ bool WorldFamilyStatePrimitive::is_equivalent(
         typed->resetQ_ == resetQ_ &&
         typed->resetV_ == resetV_ &&
         typed->resetSceneBodies_ == resetSceneBodies_ &&
+        typed->scenarioHeaders_ == scenarioHeaders_ &&
+        typed->scenarioValues_ == scenarioValues_ &&
+        typed->bodyParameters_ == bodyParameters_ &&
+        typed->controllerParameters_ == controllerParameters_ &&
         typed->environmentCount_ == environmentCount_ &&
+        typed->variationCount_ == variationCount_ &&
+        typed->bodyCount_ == bodyCount_ &&
+        typed->articulationCount_ == articulationCount_ &&
         typed->generation_ == generation_;
 }
 
