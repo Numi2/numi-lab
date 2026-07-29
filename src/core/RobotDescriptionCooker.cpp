@@ -1,4 +1,5 @@
 #include "metalrobo/RobotDescriptionCooker.hpp"
+#include "metalrobo/ConstraintIR.hpp"
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -17,6 +18,7 @@
 #include <memory>
 #include <optional>
 #include <ranges>
+#include <set>
 #include <span>
 #include <sstream>
 #include <string>
@@ -54,6 +56,7 @@ enum class ParsedShapeKind {
     sphere,
     box,
     cylinder,
+    capsule,
 };
 
 struct ParsedShape {
@@ -84,6 +87,9 @@ struct ParsedJoint {
     double effort = 0.0;
     double damping = 0.0;
     double friction = 0.0;
+    std::string mimicJoint;
+    double mimicMultiplier = 1.0;
+    double mimicOffset = 0.0;
 };
 
 using XmlDocument = std::unique_ptr<
@@ -467,6 +473,8 @@ std::uint64_t sourceFingerprint(
         static_cast<std::uint32_t>(options.rootMode);
     const std::uint32_t actuated =
         options.actuateMovableJoints ? 1u : 0u;
+    const std::uint32_t respectTransmissions =
+        options.respectTransmissions ? 1u : 0u;
     append(&rootMode, sizeof(rootMode));
     append(
         &options.gravityAndTimestep,
@@ -478,6 +486,10 @@ std::uint64_t sourceFingerprint(
     append(&options.restOffset, sizeof(options.restOffset));
     append(&options.defaultArmature, sizeof(options.defaultArmature));
     append(&actuated, sizeof(actuated));
+    append(
+        &respectTransmissions,
+        sizeof(respectTransmissions)
+    );
     append(
         &options.collisionGroup,
         sizeof(options.collisionGroup)
@@ -758,6 +770,39 @@ RobotDescriptionDiagnostics cookRobotDescription(
                     shape.dimensions.y *= 0.5;
                     shape.kind =
                         ParsedShapeKind::cylinder;
+                } else if (xmlNode* capsule =
+                               firstChild(
+                                   geometry,
+                                   "capsule"
+                               );
+                           capsule != nullptr) {
+                    const auto radius =
+                        property(capsule, "radius");
+                    const auto length =
+                        property(capsule, "length");
+                    if (!radius.has_value() ||
+                        !length.has_value() ||
+                        !parseDouble(
+                            *radius,
+                            shape.dimensions.x
+                        ) ||
+                        !parseDouble(
+                            *length,
+                            shape.dimensions.y
+                        ) ||
+                        !(shape.dimensions.x > 0.0) ||
+                        !(shape.dimensions.y >= 0.0)) {
+                        return fail(
+                            std::move(diagnostics),
+                            RobotDescriptionStatus::
+                                invalidRobot,
+                            "capsule dimensions are invalid",
+                            link.name
+                        );
+                    }
+                    shape.dimensions.y *= 0.5;
+                    shape.kind =
+                        ParsedShapeKind::capsule;
                 } else if (firstChild(
                                geometry,
                                "mesh"
@@ -996,10 +1041,172 @@ RobotDescriptionDiagnostics cookRobotDescription(
                     }
                 }
             }
+            if (xmlNode* mimic =
+                    firstChild(jointNode, "mimic");
+                mimic != nullptr) {
+                const auto source =
+                    property(mimic, "joint");
+                if (joint.type == MR_JOINT_FIXED ||
+                    !source.has_value() ||
+                    source->empty()) {
+                    return fail(
+                        std::move(diagnostics),
+                        RobotDescriptionStatus::invalidMimic,
+                        "mimic requires a movable joint and source",
+                        joint.name
+                    );
+                }
+                joint.mimicJoint = *source;
+                if (const auto multiplier =
+                        property(mimic, "multiplier");
+                    multiplier.has_value() &&
+                    !parseDouble(
+                        *multiplier,
+                        joint.mimicMultiplier
+                    )) {
+                    return fail(
+                        std::move(diagnostics),
+                        RobotDescriptionStatus::invalidMimic,
+                        "mimic multiplier is invalid",
+                        joint.name
+                    );
+                }
+                if (const auto offset =
+                        property(mimic, "offset");
+                    offset.has_value() &&
+                    !parseDouble(
+                        *offset,
+                        joint.mimicOffset
+                    )) {
+                    return fail(
+                        std::move(diagnostics),
+                        RobotDescriptionStatus::invalidMimic,
+                        "mimic offset is invalid",
+                        joint.name
+                    );
+                }
+            }
             const std::size_t index = joints.size();
             childJoint.emplace(joint.child, index);
             outgoing[joint.parent].push_back(index);
             joints.push_back(std::move(joint));
+        }
+        std::map<std::string, std::size_t> jointByName;
+        for (std::size_t index = 0u;
+             index < joints.size();
+             ++index) {
+            jointByName.emplace(joints[index].name, index);
+        }
+        for (std::size_t index = 0u;
+             index < joints.size();
+             ++index) {
+            const ParsedJoint& joint = joints[index];
+            if (joint.mimicJoint.empty()) {
+                continue;
+            }
+            const auto source =
+                jointByName.find(joint.mimicJoint);
+            if (source == jointByName.end() ||
+                source->second == index ||
+                joints[source->second].type == MR_JOINT_FIXED) {
+                return fail(
+                    std::move(diagnostics),
+                    RobotDescriptionStatus::invalidMimic,
+                    "mimic source is missing, fixed, or recursive",
+                    joint.name
+                );
+            }
+            const bool jointRotational =
+                joint.type == MR_JOINT_REVOLUTE ||
+                joint.type == MR_JOINT_CONTINUOUS;
+            const ParsedJoint& sourceJoint =
+                joints[source->second];
+            const bool sourceRotational =
+                sourceJoint.type == MR_JOINT_REVOLUTE ||
+                sourceJoint.type == MR_JOINT_CONTINUOUS;
+            if (jointRotational != sourceRotational) {
+                return fail(
+                    std::move(diagnostics),
+                    RobotDescriptionStatus::invalidMimic,
+                    "mimic joints use incompatible coordinates",
+                    joint.name
+                );
+            }
+            std::set<std::size_t> chain;
+            std::size_t cursor = index;
+            while (!joints[cursor].mimicJoint.empty()) {
+                if (!chain.insert(cursor).second) {
+                    return fail(
+                        std::move(diagnostics),
+                        RobotDescriptionStatus::invalidMimic,
+                        "mimic dependency graph contains a cycle",
+                        joint.name
+                    );
+                }
+                const auto next = jointByName.find(
+                    joints[cursor].mimicJoint
+                );
+                if (next == jointByName.end()) {
+                    return fail(
+                        std::move(diagnostics),
+                        RobotDescriptionStatus::invalidMimic,
+                        "mimic dependency source is missing",
+                        joint.name
+                    );
+                }
+                cursor = next->second;
+            }
+        }
+
+        std::set<std::string> transmissionJoints;
+        std::set<std::string> transmissionNames;
+        for (xmlNode* transmission :
+             children(robot, "transmission")) {
+            const auto name = property(transmission, "name");
+            if (!name.has_value() || name->empty() ||
+                !transmissionNames.insert(*name).second) {
+                return fail(
+                    std::move(diagnostics),
+                    RobotDescriptionStatus::
+                        invalidTransmission,
+                    "transmission names must be nonempty and unique",
+                    name.value_or("transmission")
+                );
+            }
+            const auto transmittedJoints =
+                children(transmission, "joint");
+            if (transmittedJoints.empty()) {
+                return fail(
+                    std::move(diagnostics),
+                    RobotDescriptionStatus::
+                        invalidTransmission,
+                    "transmission has no joint",
+                    *name
+                );
+            }
+            for (xmlNode* transmitted :
+                 transmittedJoints) {
+                const auto jointName =
+                    property(transmitted, "name");
+                const auto found = jointName.has_value()
+                    ? jointByName.find(*jointName)
+                    : jointByName.end();
+                if (!jointName.has_value() ||
+                    found == jointByName.end() ||
+                    joints[found->second].type ==
+                        MR_JOINT_FIXED ||
+                    !transmissionJoints.insert(
+                        *jointName
+                    ).second) {
+                    return fail(
+                        std::move(diagnostics),
+                        RobotDescriptionStatus::
+                            invalidTransmission,
+                        "transmission joint is missing, fixed, or duplicated",
+                        *name
+                    );
+                }
+            }
         }
         if (joints.size() + 1u != links.size()) {
             return fail(
@@ -1156,6 +1363,8 @@ RobotDescriptionDiagnostics cookRobotDescription(
 
         std::map<std::string, std::uint32_t>
             jointIndexByChild;
+        std::map<std::string, std::uint32_t>
+            jointIndexByName;
         for (std::size_t ordered = 0u;
              ordered < jointOrder.size();
              ++ordered) {
@@ -1216,6 +1425,10 @@ RobotDescriptionDiagnostics cookRobotDescription(
                 source.child,
                 static_cast<std::uint32_t>(ordered)
             );
+            jointIndexByName.emplace(
+                source.name,
+                static_cast<std::uint32_t>(ordered)
+            );
             if (scalar) {
                 MRDofPropertiesGPU dof{};
                 dof.articulationIndex = 0u;
@@ -1224,7 +1437,13 @@ RobotDescriptionDiagnostics cookRobotDescription(
                 dof.qIndex = joint.qOffset;
                 dof.vIndex = joint.vOffset;
                 dof.localDof = 0u;
-                if (options.actuateMovableJoints) {
+                const bool transmissionSelected =
+                    !options.respectTransmissions ||
+                    transmissionJoints.empty() ||
+                    transmissionJoints.contains(source.name);
+                if (options.actuateMovableJoints &&
+                    transmissionSelected &&
+                    source.mimicJoint.empty()) {
                     dof.flags |=
                         MR_DOF_FLAG_ACTUATED;
                 }
@@ -1243,14 +1462,13 @@ RobotDescriptionDiagnostics cookRobotDescription(
                         static_cast<float>(source.velocity);
                 }
                 if (source.effort > 0.0 &&
-                    options.actuateMovableJoints) {
+                    (dof.flags & MR_DOF_FLAG_ACTUATED) != 0u) {
                     dof.flags |=
                         MR_DOF_FLAG_EFFORT_LIMIT;
                     dof.limits.w =
                         static_cast<float>(source.effort);
                 }
-                if (source.damping > 0.0 &&
-                    options.actuateMovableJoints) {
+                if (source.damping > 0.0) {
                     dof.flags |= MR_DOF_FLAG_DRIVE;
                     dof.drive.y =
                         static_cast<float>(source.damping);
@@ -1275,6 +1493,155 @@ RobotDescriptionDiagnostics cookRobotDescription(
             staged.articulations[0].nq;
         staged.world.nv =
             staged.articulations[0].nv;
+
+        std::map<std::string, std::uint32_t> mimicVisitState;
+        const auto resolveMimicDefault = [&](
+            this auto&& self,
+            const std::string& name
+        ) -> bool {
+            std::uint32_t& state = mimicVisitState[name];
+            if (state == 2u) {
+                return true;
+            }
+            if (state == 1u) {
+                return false;
+            }
+            state = 1u;
+            const ParsedJoint& source =
+                joints[jointByName.at(name)];
+            if (!source.mimicJoint.empty()) {
+                if (!self(source.mimicJoint)) {
+                    return false;
+                }
+                const MRJointDescriptorGPU& mimicDescriptor =
+                    staged.joints[
+                        jointIndexByName.at(name)
+                    ];
+                const MRJointDescriptorGPU& sourceDescriptor =
+                    staged.joints[
+                        jointIndexByName.at(
+                            source.mimicJoint
+                        )
+                    ];
+                const double defaultValue =
+                    source.mimicMultiplier *
+                        staged.defaultQ[
+                            sourceDescriptor.qOffset
+                        ] +
+                    source.mimicOffset;
+                if (!finite(defaultValue) ||
+                    std::abs(defaultValue) >
+                        std::numeric_limits<float>::max() ||
+                    (source.hasPositionLimit &&
+                     (defaultValue < source.lower ||
+                      defaultValue > source.upper))) {
+                    return false;
+                }
+                staged.defaultQ[mimicDescriptor.qOffset] =
+                    static_cast<float>(defaultValue);
+            }
+            state = 2u;
+            return true;
+        };
+        for (const ParsedJoint& joint : joints) {
+            if (!resolveMimicDefault(joint.name)) {
+                return fail(
+                    std::move(diagnostics),
+                    RobotDescriptionStatus::invalidMimic,
+                    "mimic defaults are cyclic, non-finite, or outside limits",
+                    joint.name
+                );
+            }
+        }
+
+        struct MimicConstraintStorage {
+            ConstraintIRStableKey key{};
+            std::vector<ConstraintIREndpoint> endpoints;
+            ConstraintIRRow row{};
+            float warmImpulse = 0.0f;
+        };
+        std::vector<MimicConstraintStorage> mimicConstraints;
+        mimicConstraints.reserve(joints.size());
+        for (const ParsedJoint& source : joints) {
+            if (source.mimicJoint.empty()) {
+                continue;
+            }
+            const std::uint32_t mimicIndex =
+                jointIndexByName.at(source.name);
+            const std::uint32_t sourceIndex =
+                jointIndexByName.at(source.mimicJoint);
+            const MRJointDescriptorGPU& mimic =
+                staged.joints[mimicIndex];
+            const MRJointDescriptorGPU& driver =
+                staged.joints[sourceIndex];
+            MimicConstraintStorage storage;
+            storage.key.words[0] = 0x4d494d49u;
+            storage.key.words[1] = mimicIndex;
+            storage.key.words[2] = sourceIndex;
+            storage.endpoints.reserve(2u);
+            storage.endpoints.push_back(
+                makeConstraintIRGeneralizedEndpoint(
+                    0u,
+                    mimic.qOffset,
+                    mimic.vOffset,
+                    0u,
+                    1.0f
+                )
+            );
+            if (source.mimicMultiplier != 0.0) {
+                storage.endpoints.push_back(
+                    makeConstraintIRGeneralizedEndpoint(
+                        0u,
+                        driver.qOffset,
+                        driver.vOffset,
+                        0u,
+                        static_cast<float>(
+                            -source.mimicMultiplier
+                        )
+                    )
+                );
+            }
+            storage.row.targetVelocity = 0.0f;
+            storage.row.compliance = 0.0f;
+            storage.row.dissipation = 0.0f;
+            storage.row.impulseLower =
+                -kConstraintIRUnbounded;
+            storage.row.impulseUpper =
+                kConstraintIRUnbounded;
+            mimicConstraints.push_back(std::move(storage));
+        }
+        if (!mimicConstraints.empty()) {
+            std::vector<ConstraintIRSourceBlock> sources;
+            sources.reserve(mimicConstraints.size());
+            for (const MimicConstraintStorage& storage :
+                 mimicConstraints) {
+                sources.push_back({
+                    .key = storage.key,
+                    .type = MR_CONSTRAINT_GEAR,
+                    .flags = 0u,
+                    .islandIndex = 0u,
+                    .eventSlot = kConstraintIRInvalidIndex,
+                    .endpoints = storage.endpoints,
+                    .rows = std::span{&storage.row, 1u},
+                    .cone = std::nullopt,
+                    .warmImpulses = std::span{
+                        &storage.warmImpulse,
+                        1u,
+                    },
+                });
+            }
+            const ConstraintIRCompilationResult compiled =
+                compileConstraintIR(sources);
+            if (!compiled.succeeded()) {
+                return fail(
+                    std::move(diagnostics),
+                    RobotDescriptionStatus::invalidMimic,
+                    "mimic ConstraintIR compilation failed: " +
+                        compiled.diagnostics.message
+                );
+            }
+            staged.constraintProgram = compiled.ir;
+        }
 
         for (std::uint32_t ordered = 0u;
              ordered < linkOrder.size();
@@ -1394,6 +1761,17 @@ RobotDescriptionDiagnostics cookRobotDescription(
                         sourceShape.dimensions.y
                     );
                     break;
+                case ParsedShapeKind::capsule:
+                    shape.shapeType = MR_SHAPE_CAPSULE;
+                    shape.dimensions = f4(
+                        sourceShape.dimensions.x,
+                        sourceShape.dimensions.y,
+                        0.0
+                    );
+                    radius =
+                        sourceShape.dimensions.x +
+                        sourceShape.dimensions.y;
+                    break;
                 }
                 shape.contactRestAndBoundingRadius = f4(
                     options.contactOffset,
@@ -1457,6 +1835,7 @@ RobotDescriptionDiagnostics cookRobotDescription(
                 1u
             );
 
+        std::set<std::string> passiveJoints;
         if (!srdf.empty()) {
             XmlDocument srdfDocument{
                 xmlReadMemory(
@@ -1487,6 +1866,31 @@ RobotDescriptionDiagnostics cookRobotDescription(
                     std::move(diagnostics),
                     RobotDescriptionStatus::invalidSrdf,
                     "SRDF robot name does not match URDF"
+                );
+            }
+            for (xmlNode* passive :
+                 children(srdfRobot, "passive_joint")) {
+                const auto name = property(passive, "name");
+                const auto found = name.has_value()
+                    ? jointIndexByName.find(*name)
+                    : jointIndexByName.end();
+                if (!name.has_value() ||
+                    found == jointIndexByName.end() ||
+                    staged.joints[found->second].nv != 1u ||
+                    !passiveJoints.insert(*name).second) {
+                    return fail(
+                        std::move(diagnostics),
+                        RobotDescriptionStatus::invalidSrdf,
+                        "SRDF passive joint is missing, fixed, or duplicated",
+                        name.value_or("passive_joint")
+                    );
+                }
+                MRDofPropertiesGPU& dof = staged.dofs[
+                    staged.joints[found->second].vOffset
+                ];
+                dof.flags &= ~(
+                    MR_DOF_FLAG_ACTUATED |
+                    MR_DOF_FLAG_EFFORT_LIMIT
                 );
             }
             std::map<std::string, std::vector<std::uint32_t>>
@@ -1583,6 +1987,18 @@ RobotDescriptionDiagnostics cookRobotDescription(
             static_cast<std::uint32_t>(
                 staged.collisionExclusions.size()
             );
+        diagnostics.mimicConstraintCount =
+            static_cast<std::uint32_t>(
+                mimicConstraints.size()
+            );
+        diagnostics.transmissionJointCount =
+            static_cast<std::uint32_t>(
+                transmissionJoints.size()
+            );
+        diagnostics.passiveJointCount =
+            static_cast<std::uint32_t>(
+                passiveJoints.size()
+            );
         output = std::move(staged);
         return diagnostics;
     } catch (const std::bad_alloc&) {
@@ -1661,6 +2077,10 @@ const char* robotDescriptionStatusName(
         return "unsupported_joint";
     case RobotDescriptionStatus::unsupportedGeometry:
         return "unsupported_geometry";
+    case RobotDescriptionStatus::invalidMimic:
+        return "invalid_mimic";
+    case RobotDescriptionStatus::invalidTransmission:
+        return "invalid_transmission";
     case RobotDescriptionStatus::invalidSrdf:
         return "invalid_srdf";
     case RobotDescriptionStatus::capacityOverflow:

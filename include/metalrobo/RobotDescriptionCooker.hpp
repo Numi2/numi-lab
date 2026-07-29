@@ -18,6 +18,8 @@ enum class RobotDescriptionStatus : std::uint32_t {
     invalidInertial,
     unsupportedJoint,
     unsupportedGeometry,
+    invalidMimic,
+    invalidTransmission,
     invalidSrdf,
     capacityOverflow,
     invalidEngineModel,
@@ -43,6 +45,9 @@ struct RobotDescriptionCookOptions {
     float restOffset = 0.0F;
     float defaultArmature = 0.0F;
     bool actuateMovableJoints = true;
+    // When transmissions exist, only their movable joints are actuated.
+    // URDFs without transmissions retain the all-movable policy.
+    bool respectTransmissions = true;
     std::uint32_t collisionGroup = 1u;
     std::uint32_t collisionMask = ~0u;
 };
@@ -55,6 +60,9 @@ struct RobotDescriptionDiagnostics {
     std::uint32_t dofCount = 0u;
     std::uint32_t colliderCount = 0u;
     std::uint32_t exclusionCount = 0u;
+    std::uint32_t mimicConstraintCount = 0u;
+    std::uint32_t transmissionJointCount = 0u;
+    std::uint32_t passiveJointCount = 0u;
     std::uint64_t sourceFingerprint = 0u;
     std::string sourceName;
     std::string element;
@@ -66,10 +74,11 @@ struct RobotDescriptionDiagnostics {
 };
 
 // Deterministic URDF/SRDF cooker. The initial executable surface supports
-// fixed, revolute, continuous, and prismatic tree joints plus sphere, box,
-// and cylinder collision geometry. Meshes fail explicitly until their URI is
-// resolved through the versioned geometry cooker. Output is unchanged on
-// every failure.
+// fixed, revolute, continuous, and prismatic tree joints; URDF transmissions
+// and mimic gears; SRDF passive joints and collision exclusions; plus sphere,
+// box, cylinder, and capsule collision geometry. Meshes fail explicitly until
+// their URI is resolved through the versioned geometry cooker. Output is
+// unchanged on every failure.
 [[nodiscard]] RobotDescriptionDiagnostics cookRobotDescription(
     std::string_view urdf,
     std::string_view srdf,

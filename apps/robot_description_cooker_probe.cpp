@@ -1,4 +1,5 @@
 #include "metalrobo/RobotDescriptionCooker.hpp"
+#include "metalrobo/MetalMultiArticulatedConstraints.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -40,6 +41,16 @@ constexpr std::string_view kUrdf = R"(
       <geometry><cylinder radius="0.04" length="0.2"/></geometry>
     </collision>
   </link>
+  <link name="finger">
+    <inertial>
+      <mass value="0.2"/>
+      <inertia ixx="0.004" ixy="0" ixz="0"
+               iyy="0.005" iyz="0" izz="0.006"/>
+    </inertial>
+    <collision>
+      <geometry><capsule radius="0.015" length="0.08"/></geometry>
+    </collision>
+  </link>
   <joint name="base_to_tool" type="revolute">
     <parent link="base"/>
     <child link="tool"/>
@@ -49,6 +60,18 @@ constexpr std::string_view kUrdf = R"(
            effort="40" velocity="2.5"/>
     <dynamics damping="0.2" friction="0.1"/>
   </joint>
+  <joint name="tool_to_finger" type="revolute">
+    <parent link="tool"/>
+    <child link="finger"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-2" upper="2" effort="10" velocity="3"/>
+    <mimic joint="base_to_tool" multiplier="-0.5" offset="0.2"/>
+  </joint>
+  <transmission name="base_drive">
+    <joint name="base_to_tool"/>
+    <actuator name="base_motor"/>
+  </transmission>
 </robot>
 )";
 
@@ -56,6 +79,7 @@ constexpr std::string_view kSrdf = R"(
 <robot name="cooked_two_link">
   <disable_collisions link1="base" link2="tool"
                       reason="Adjacent"/>
+  <passive_joint name="tool_to_finger"/>
 </robot>
 )";
 
@@ -87,11 +111,11 @@ int main() {
         );
         require(
             model.name == "cooked_two_link" &&
-            model.world.bodyCount == 2u &&
-            model.world.jointCount == 1u &&
-            model.world.nq == 1u &&
-            model.world.nv == 1u &&
-            model.shapes.size() == 2u &&
+            model.world.bodyCount == 3u &&
+            model.world.jointCount == 2u &&
+            model.world.nq == 2u &&
+            model.world.nv == 2u &&
+            model.shapes.size() == 3u &&
             model.collisionExclusions.size() == 1u,
             "cooked model counts are wrong"
         );
@@ -122,11 +146,43 @@ int main() {
             model.shapes[0].shapeType == MR_SHAPE_BOX &&
             model.shapes[1].shapeType ==
                 MR_SHAPE_CYLINDER &&
+            model.shapes[2].shapeType ==
+                MR_SHAPE_CAPSULE &&
             std::abs(model.shapes[0].dimensions.x - 0.2F) <
                 1.0e-6F &&
             std::abs(model.shapes[1].dimensions.y - 0.1F) <
+                1.0e-6F &&
+            std::abs(model.shapes[2].dimensions.x - 0.015F) <
+                1.0e-6F &&
+            std::abs(model.shapes[2].dimensions.y - 0.04F) <
                 1.0e-6F,
             "primitive geometry was not cooked"
+        );
+        require(
+            diagnostics.mimicConstraintCount == 1u &&
+            diagnostics.transmissionJointCount == 1u &&
+            diagnostics.passiveJointCount == 1u &&
+            model.constraintProgram.blocks.size() == 1u &&
+            model.constraintProgram.rows.size() == 1u &&
+            model.constraintProgram.blocks[0].type ==
+                MR_CONSTRAINT_GEAR &&
+            std::abs(model.defaultQ[1] - 0.2F) < 1.0e-6F &&
+            (model.dofs[0].flags & MR_DOF_FLAG_ACTUATED) != 0u &&
+            (model.dofs[1].flags & MR_DOF_FLAG_ACTUATED) == 0u,
+            "mimic, transmission, or SRDF passive semantics were lost"
+        );
+        metalrobo::CompiledMetalMultiArticulatedProgram
+            executableProgram;
+        const auto executableDiagnostics =
+            metalrobo::compileMetalMultiArticulatedProgram(
+                model,
+                executableProgram
+            );
+        require(
+            executableDiagnostics.succeeded() &&
+                executableProgram.valid() &&
+                executableProgram.rowCount() == 1u,
+            "cooked mimic gear is not executable on Metal"
         );
 
         const metalrobo::EngineModel unchanged = model;
@@ -160,8 +216,8 @@ int main() {
             floatingDiagnostics.succeeded() &&
             floating.articulations[0].rootType ==
                 MR_ROOT_FLOATING &&
-            floating.world.nq == 8u &&
-            floating.world.nv == 7u,
+            floating.world.nq == 9u &&
+            floating.world.nv == 8u,
             "floating-root URDF cook failed"
         );
 
@@ -172,6 +228,12 @@ int main() {
             << " dofs=" << diagnostics.dofCount
             << " colliders=" << diagnostics.colliderCount
             << " exclusions=" << diagnostics.exclusionCount
+            << " mimic_gears="
+            << diagnostics.mimicConstraintCount
+            << " transmission_joints="
+            << diagnostics.transmissionJointCount
+            << " passive_joints="
+            << diagnostics.passiveJointCount
             << " fingerprint="
             << diagnostics.sourceFingerprint
             << " fixed_and_floating=yes"

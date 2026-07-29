@@ -41,8 +41,12 @@ anchors are therefore stored relative to each body's COM. A floating root uses
 world COM `xyz` plus quaternion `xyzw` in `q`, and world COM linear velocity
 plus world angular velocity in `v`.
 
-There is no URDF, MJCF, or OpenUSD importer yet. Franka, G1, and the surgical
-PSM are compiled in-house model definitions with pinned provenance.
+The executable URDF/SRDF cooker supports fixed/floating scalar-joint trees,
+COM-centred inertials, primitive/capsule collisions, limits and passive
+losses, transmission-selected actuation, mimic gear ConstraintIR, and SRDF
+passive-joint/collision exclusions. Versioned mesh URI resolution, convex
+decomposition, MJCF, and OpenUSD remain open. Franka, G1, and the surgical PSM
+also retain their pinned in-house model definitions.
 
 ## Execution planes
 

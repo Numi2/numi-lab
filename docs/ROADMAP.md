@@ -142,7 +142,13 @@ prototype.
 - Add implicit-adjoint MLX JVP/VJP only with explicit validity masks across
   topology, clipping, sleeping, and CCD event changes
 
-- URDF, MJCF, and OpenUSD import/cooking
+- **Landed URDF/SRDF executable cooker:** deterministic fixed/floating trees,
+  COM-centred inertials/anchors, primitive and capsule colliders, limits,
+  damping/friction/armature, transmission-selected actuation, mimic gear
+  ConstraintIR, SRDF passive joints/exclusions, fingerprints, and
+  transactional publication
+- Add versioned URI/package mesh resolution with convex decomposition, then
+  MJCF; defer OpenUSD workflow breadth
 - Metal viewer, contact/constraint inspection, replay and serialization
 - Batched depth, segmentation, ray/LiDAR, IMU, and force sensors
 - Broader tendons, cables, particles, and deformables behind explicit solver

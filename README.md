@@ -154,7 +154,8 @@ remains ABI v2. Implicit position drives and joint-boundary projection are
 executable. The 40,000-step/s Franka contact gate, trained 60-second G1
 standing gate, dedicated tiled heightfields, multi-articulation islands,
 patch rolling/torsional solve, complete joint/equality ConstraintIR,
-importers, rendering breadth, thread/tissue mechanics, a Metal quality solver,
+mesh-backed URDF/MJCF/OpenUSD workflows, rendering breadth, coupled
+thread/tissue mechanics, unified cone/scalar matrix-free Metal quality solve,
 and qualified differentiation remain open. The dated requirements and claim
 rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
