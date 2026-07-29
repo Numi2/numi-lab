@@ -497,15 +497,29 @@ class FrankaPickPlaceWorldFamily:
             )
         if not 0 <= int(seed) <= np.iinfo(np.uint64).max:
             raise ValueError("seed must fit in a uint64")
-        if mode not in {"coverage", "curriculum"}:
-            raise ValueError("mode must be 'coverage' or 'curriculum'")
+        modes = {
+            "coverage": 0,
+            "curriculum": 1,
+            "replay": 2,
+        }
+        if mode not in modes:
+            raise ValueError(
+                "mode must be 'coverage', 'curriculum', or 'replay'"
+            )
         if not 0 <= int(episode_counter) <= np.iinfo(np.uint64).max:
             raise ValueError("episode_counter must fit in a uint64")
+        if (
+            int(episode_counter) + int(instance_count) - 1
+            > np.iinfo(np.uint64).max
+        ):
+            raise ValueError(
+                "per-environment episode counters overflow uint64"
+            )
         status = self._bindings.lib.mr_world_family_sample_ex(
             self._require_open(),
             ct.c_uint32(instance_count),
             ct.c_uint64(seed),
-            ct.c_uint32(0 if mode == "coverage" else 1),
+            ct.c_uint32(modes[mode]),
             ct.c_uint64(episode_counter),
         )
         if status != 0:

@@ -193,11 +193,13 @@ linked or called at runtime.
   samples 4,096 compact worlds directly into private GPU buffers and exposes
   them to native/MLX graph stages without per-environment Python work
 - Executable R2S2R loop with stable scenario schemas, four-round 4,096-particle
-  replay alignment, unbiased coverage versus 50/30/20 adaptive curriculum
-  sampling, causal physical/controller variation, MLX episode compaction,
-  SQLite/WAL outcome indexing, immutable SHA-256 artifacts, five-member
-  policy-specific failure ensembles, 65,536-scenario GPU scoring, hardware
-  residual calibration, and paired policy evaluation
+  replay alignment, exact particle-to-world simulator replay of recorded
+  joint commands and masked robot/object/contact observations, a
+  rod-marker-ready trace contract, unbiased coverage versus 50/30/20 adaptive
+  curriculum sampling, causal physical/controller variation, MLX episode
+  compaction, SQLite/WAL outcome indexing, immutable SHA-256 artifacts,
+  five-member policy-specific failure ensembles, 65,536-scenario GPU scoring,
+  hardware residual calibration, and paired policy evaluation
 - Deterministic URDF/SRDF executable cooker with fixed/floating trees,
   transmissions, mimic gears, SRDF exclusions, and content-fingerprinted
   closed-convex OBJ/STL collision meshes resolved from explicit local or

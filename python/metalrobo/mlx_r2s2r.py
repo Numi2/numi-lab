@@ -1,9 +1,10 @@
 """MLX-native alignment and policy-specific failure-region learning.
 
-Only four SMC round boundaries and final artifact publication are allowed to
-materialize scalar metadata on the host. Replay residuals, ensemble training,
-65,536-scenario scoring, and region clustering remain MLX array programs on
-the Apple GPU.
+SMC orchestration is limited to four round boundaries and final artifact
+publication. An exact native world-family replay may upload one candidate
+population at each round boundary; replay steps and residuals, ensemble
+training, 65,536-scenario scoring, and region clustering remain MLX array
+programs on the Apple GPU.
 """
 
 from __future__ import annotations

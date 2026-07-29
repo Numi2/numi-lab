@@ -396,12 +396,16 @@ int main() {
         const auto coverageReadback = context.readback(coverage);
         require(coverageReadback.succeeded(), coverageReadback.message);
         require(coverage.valid(&reason), reason);
-        for (const MRWorldScenarioHeaderGPU& header :
-             coverage.scenarioHeaders) {
+        for (std::uint32_t environment = 0u;
+             environment < kWorldCount;
+             ++environment) {
+            const MRWorldScenarioHeaderGPU& header =
+                coverage.scenarioHeaders[environment];
             require(
                 header.sampling.x == MR_WORLD_SAMPLING_COVERAGE &&
                     header.sampling.y == MR_WORLD_SAMPLE_ALIGNMENT &&
-                    words64(header.identity, true) == 17u &&
+                    words64(header.identity, true) ==
+                        17u + environment &&
                     words64(header.provenance, false) ==
                         alignment.fingerprint,
                 "coverage provenance is not posterior-predictive"
@@ -431,7 +435,8 @@ int main() {
             require(
                 header.sampling.x == MR_WORLD_SAMPLING_CURRICULUM &&
                     header.sampling.y <= MR_WORLD_SAMPLE_UNCERTAINTY &&
-                    words64(header.identity, true) == 18u,
+                    words64(header.identity, true) ==
+                        18u + environment,
                 "curriculum scenario header is invalid"
             );
             sourceCounts[header.sampling.y] += 1u;
@@ -458,6 +463,48 @@ int main() {
                 require(
                     quantile >= 0.45f && quantile <= 0.55f,
                     "uncertainty sample escaped its compiled region"
+                );
+            }
+        }
+
+        const auto replaySample = context.sample(
+            kWorldCount,
+            0x0123456789abcdefull,
+            MR_WORLD_SAMPLING_REPLAY,
+            100u
+        );
+        require(replaySample.succeeded(), replaySample.message);
+        metalrobo::WorldInstanceBatch replayWorlds;
+        const auto replayReadback = context.readback(replayWorlds);
+        require(replayReadback.succeeded(), replayReadback.message);
+        for (std::uint32_t environment = 0u;
+             environment < kWorldCount;
+             ++environment) {
+            const auto& header =
+                replayWorlds.scenarioHeaders[environment];
+            require(
+                header.sampling.x == MR_WORLD_SAMPLING_REPLAY &&
+                    header.sampling.y == MR_WORLD_SAMPLE_ALIGNMENT &&
+                    header.sampling.z == environment &&
+                    words64(header.identity, true) ==
+                        100u + environment,
+                "replay sampling did not preserve particle identity"
+            );
+            for (std::uint32_t feature = 0u;
+                 feature < featureCount;
+                 ++feature) {
+                const float actual =
+                    replayWorlds.scenarioValues[
+                        static_cast<std::size_t>(environment) *
+                            featureCount +
+                        feature
+                    ].value.y;
+                const float expected =
+                    alignment.particles[environment]
+                        .quantiles[feature];
+                require(
+                    std::abs(actual - expected) <= 1.0e-6f,
+                    "replay sampling changed a candidate quantile"
                 );
             }
         }

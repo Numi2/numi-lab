@@ -7,19 +7,81 @@
   "required": [
     "schema_version",
     "scenario_schema",
-    "episode_twin_hash",
-    "command_stream_hash",
-    "replay_residual_modes"
+    "episode_twin_hash"
   ],
   "properties": {
-    "schema_version": { "const": 1 },
-    "scenario_schema": { "type": "string", "minLength": 1 },
-    "episode_twin_hash": { "type": "string", "minLength": 1 },
-    "command_stream_hash": { "type": "string", "minLength": 1 },
-    "world_hash": { "type": "string" },
-    "engine_hash": { "type": "string" },
-    "telemetry_hash": { "type": "string" },
-    "video_hash": { "type": "string" },
+    "schema_version": {
+      "enum": [1, 2]
+    },
+    "scenario_schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "episode_twin_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "world_hash": {
+      "type": "string"
+    },
+    "engine_hash": {
+      "type": "string"
+    },
+    "telemetry_hash": {
+      "type": "string"
+    },
+    "video_hash": {
+      "type": "string"
+    },
+    "trace_npz": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Path relative to this manifest. The coordinator copies it into content-addressed storage before alignment."
+    },
+    "command_semantics": {
+      "const": "joint_position_target"
+    },
+    "control_period_seconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "solver_mode": {
+      "enum": ["throughput_tgs", "quality_newton"]
+    },
+    "residual_scales": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "robot_q": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "robot_v": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "object_position": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rod_position": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "contact_timing": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "physics_failure": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "command_stream_hash": {
+      "type": "string",
+      "minLength": 1
+    },
     "replay_residual_modes": {
       "type": "array",
       "minItems": 1,
@@ -34,17 +96,48 @@
             "items": {
               "type": "array",
               "minItems": 1,
-              "items": { "type": "number" }
+              "items": {
+                "type": "number"
+              }
             }
           },
           "bias": {
             "type": "array",
             "minItems": 1,
-            "items": { "type": "number" }
+            "items": {
+              "type": "number"
+            }
           },
-          "contact_mode": { "type": "string" }
+          "contact_mode": {
+            "type": "string"
+          }
         }
       }
     }
-  }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "schema_version": {
+          "const": 1
+        }
+      },
+      "required": [
+        "command_stream_hash",
+        "replay_residual_modes"
+      ]
+    },
+    {
+      "properties": {
+        "schema_version": {
+          "const": 2
+        }
+      },
+      "required": [
+        "trace_npz",
+        "command_semantics",
+        "control_period_seconds"
+      ]
+    }
+  ]
 }

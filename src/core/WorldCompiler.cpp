@@ -1073,7 +1073,7 @@ bool WorldInstanceBatch::valid(std::string* reason) const {
             instances[environment];
         if (scenario.identity.x != instance.identity.x ||
             scenario.identity.y != instance.identity.y ||
-            scenario.sampling.x > MR_WORLD_SAMPLING_CURRICULUM ||
+            scenario.sampling.x > MR_WORLD_SAMPLING_REPLAY ||
             scenario.sampling.y > MR_WORLD_SAMPLE_UNCERTAINTY ||
             scenario.sampling.w != MR_R2S2R_ABI_VERSION) {
             return fail(reason, "world scenario header is invalid");

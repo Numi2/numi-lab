@@ -12,6 +12,9 @@
 enum MRWorldSamplingMode : mr_u32 {
     MR_WORLD_SAMPLING_COVERAGE = 0u,
     MR_WORLD_SAMPLING_CURRICULUM = 1u,
+    // Deterministic alignment replay: environment i consumes alignment
+    // particle i exactly, with no posterior resampling or quantile jitter.
+    MR_WORLD_SAMPLING_REPLAY = 2u,
 };
 
 enum MRWorldSamplingSource : mr_u32 {
@@ -79,7 +82,8 @@ typedef struct MR_ALIGN16 MREpisodeOutcomeGPU {
 
 typedef struct MR_ALIGN16 MRWorldAdaptiveSampleUniformsGPU {
     // alignment particle count, feedback region count, variation count,
-    // MRWorldSamplingMode.
+    // MRWorldSamplingMode. Replay mode requires at least one alignment
+    // particle per active environment.
     mr_uint4 counts;
     // episode-counter base low/high, alignment fingerprint low/high.
     mr_uint4 identity;

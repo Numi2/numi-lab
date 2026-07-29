@@ -476,7 +476,7 @@ int mr_world_family_sample_ex(
         return -1;
     }
     return translateErrors([&] {
-        if (sampling_mode > MR_WORLD_SAMPLING_CURRICULUM) {
+        if (sampling_mode > MR_WORLD_SAMPLING_REPLAY) {
             throw std::invalid_argument(
                 "world-family sampling mode is invalid"
             );

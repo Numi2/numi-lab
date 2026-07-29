@@ -320,7 +320,10 @@ def sampled_state_from_world_family(
     expected = (
         int(world.nq),
         int(world.nv),
-        int(world.body_count) + int(world.scene_body_count),
+        # The family and parameter buffers address the complete EngineModel.
+        # This remains stable if CompiledWorld.body_count changes from
+        # articulation-local to whole-world semantics.
+        int(world.model_body_count),
         int(world.scene_body_count),
     )
     actual = (

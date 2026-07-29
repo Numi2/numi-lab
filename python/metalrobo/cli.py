@@ -17,6 +17,11 @@ from .env import FrankaEnv
 from .mlx_locomotion import MLXG1PPOTrainer
 from .mlx_ppo import MLXPPOTrainer
 from .mlx_family_ppo import MLXWorldFamilyPPOTrainer
+from .mlx_replay import (
+    MLXPhysicalReplayEvaluator,
+    PhysicalReplayTrace,
+    ReplayResidualScales,
+)
 from .mlx_surgical import MLXPSMNeedlePPOTrainer
 from .mlx_world import compile_world, initial_state, step
 from .ppo import (
@@ -184,12 +189,13 @@ def _align_parser(parser: argparse.ArgumentParser) -> None:
         type=Path,
         required=True,
         help=(
-            "physical replay manifest containing local "
-            "replay_residual_modes"
+            "physical replay manifest containing a time-aligned trace_npz "
+            "or legacy replay_residual_modes"
         ),
     )
     parser.add_argument("--particles", type=int, default=4096)
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--physics-substeps", type=int, default=4)
 
 
 def _record_sim_parser(parser: argparse.ArgumentParser) -> None:
@@ -800,13 +806,47 @@ def _world_family(args: argparse.Namespace) -> FrankaPickPlaceWorldFamily:
 def run_align(args: argparse.Namespace) -> int:
     if not 1 <= args.particles <= 4096:
         raise ValueError("--particles must be between 1 and 4096")
+    if args.physics_substeps <= 0:
+        raise ValueError("--physics-substeps must be positive")
+    manifest_path = args.replay_manifest.expanduser().resolve()
     replay = json.loads(
-        args.replay_manifest.expanduser().resolve().read_text(
+        manifest_path.read_text(
             encoding="utf-8"
         )
     )
-    if int(replay.get("schema_version", 1)) != 1:
+    replay_schema_version = int(replay.get("schema_version", 1))
+    if replay_schema_version not in {1, 2}:
         raise ValueError("unsupported replay-manifest schema version")
+    if not replay.get("scenario_schema") or not replay.get(
+        "episode_twin_hash"
+    ):
+        raise ValueError(
+            "replay manifest requires scenario_schema and "
+            "episode_twin_hash provenance"
+        )
+    if (
+        replay_schema_version == 2
+        and (
+            "trace_npz" not in replay
+            or "control_period_seconds" not in replay
+            or "command_semantics" not in replay
+        )
+    ):
+        raise ValueError(
+            "version-2 replay manifest requires trace_npz and "
+            "control_period_seconds with command semantics"
+        )
+    if (
+        replay_schema_version == 1
+        and (
+            "replay_residual_modes" not in replay
+            or not replay.get("command_stream_hash")
+        )
+    ):
+        raise ValueError(
+            "version-1 replay manifest requires "
+            "command_stream_hash and replay_residual_modes"
+        )
     with _world_family(args) as family:
         schema = family.scenario_schema
         expected_schema = replay.get("scenario_schema")
@@ -815,14 +855,154 @@ def run_align(args: argparse.Namespace) -> int:
                 "replay manifest and compiled world use different "
                 "ScenarioSchema ids"
             )
-        evaluator, residual_count = make_affine_replay_evaluator(
-            replay["replay_residual_modes"],
-            feature_count=len(schema.features),
-        )
         coordinator = R2S2RCoordinator(args.root)
+        replay_artifact = dict(replay)
+        trace_hash = ""
+        engine_hash = str(replay.get("engine_hash", ""))
+        residual_names: tuple[str, ...] = ()
+        if "trace_npz" in replay:
+            if replay.get(
+                "command_semantics",
+                "joint_position_target",
+            ) != "joint_position_target":
+                raise ValueError(
+                    "the first executable replay path requires "
+                    "joint_position_target commands"
+                )
+            trace_path = Path(str(replay["trace_npz"])).expanduser()
+            if not trace_path.is_absolute():
+                trace_path = manifest_path.parent / trace_path
+            scale_values = replay.get("residual_scales", {})
+            scales = ReplayResidualScales(
+                robot_q=float(scale_values.get("robot_q", 0.05)),
+                robot_v=float(scale_values.get("robot_v", 0.20)),
+                object_position=float(
+                    scale_values.get("object_position", 0.02)
+                ),
+                rod_position=float(
+                    scale_values.get("rod_position", 0.01)
+                ),
+                contact_timing=float(
+                    scale_values.get("contact_timing", 1.0)
+                ),
+                physics_failure=float(
+                    scale_values.get("physics_failure", 1.0)
+                ),
+            )
+            period = replay.get("control_period_seconds")
+            trace = PhysicalReplayTrace.from_npz(
+                trace_path,
+                control_period_seconds=(
+                    None if period is None else float(period)
+                ),
+                scales=scales,
+            )
+            trace_reference = coordinator.ingest_replay_trace(
+                trace_path
+            )
+            trace_hash = trace_reference.content_hash
+            replay_solver_mode = str(
+                replay.get("solver_mode", "throughput_tgs")
+            )
+            if replay_solver_mode not in {
+                "throughput_tgs",
+                "quality_newton",
+            }:
+                raise ValueError(
+                    "replay solver_mode must be throughput_tgs or "
+                    "quality_newton"
+                )
+            world = compile_world(
+                "franka",
+                scene="pick_place",
+                environment_capacity=args.particles,
+                solver_mode=replay_solver_mode,
+                actuation_mode="implicit_position",
+                physics_substeps=args.physics_substeps,
+                control_timestep=trace.control_period_seconds,
+                metallib_path=args.metallib or "",
+            )
+            physical_evaluator = MLXPhysicalReplayEvaluator(
+                world,
+                family,
+                trace,
+                seed=args.seed,
+            )
+            extension_module = sys.modules.get(
+                "metalrobo._mlx_ext"
+            )
+            extension_file = getattr(
+                extension_module,
+                "__file__",
+                None,
+            )
+            extension_path = (
+                None
+                if extension_file is None
+                else Path(str(extension_file)).resolve()
+            )
+            engine_components = {
+                "library_sha256": _checkpoint_content_hash(
+                    family.library_path
+                ),
+                "metallib_sha256": (
+                    ""
+                    if family.metallib_path is None
+                    else _checkpoint_content_hash(
+                        family.metallib_path
+                    )
+                ),
+                "mlx_extension_sha256": (
+                    ""
+                    if extension_path is None
+                    else _checkpoint_content_hash(extension_path)
+                ),
+                "solver_mode": replay_solver_mode,
+                "physics_substeps": args.physics_substeps,
+                "control_period_seconds": (
+                    trace.control_period_seconds
+                ),
+            }
+            engine_hash = hashlib.sha256(
+                json.dumps(
+                    engine_components,
+                    allow_nan=False,
+                    separators=(",", ":"),
+                    sort_keys=True,
+                ).encode("utf-8")
+            ).hexdigest()
+            evaluator = physical_evaluator
+            residual_count = physical_evaluator.residual_count
+            residual_names = physical_evaluator.residual_names
+            replay_artifact.pop("trace_npz", None)
+            replay_artifact["trace_artifact_hash"] = trace_hash
+            replay_artifact["trace_file_name"] = trace_path.name
+            replay_artifact["residual_names"] = list(residual_names)
+            replay_artifact["replay_backend"] = (
+                "mlx-metal-exact-candidate-v1"
+            )
+            replay_artifact["solver_mode"] = replay_solver_mode
+            replay_artifact["declared_engine_hash"] = str(
+                replay.get("engine_hash", "")
+            )
+            replay_artifact["engine_hash"] = engine_hash
+            replay_artifact["engine_components"] = engine_components
+        else:
+            evaluator, residual_count = make_affine_replay_evaluator(
+                replay["replay_residual_modes"],
+                feature_count=len(schema.features),
+            )
+            residual_names = tuple(
+                f"provider_residual_{index}"
+                for index in range(residual_count)
+            )
+            replay_artifact["residual_names"] = list(residual_names)
+            replay_artifact["replay_backend"] = (
+                "provider-affine-residual-v1"
+            )
         artifact = coordinator.align(
             schema,
-            replay,
+            replay_artifact,
             evaluator,
             initial_quantiles=deterministic_candidate_scenarios(
                 len(schema.features),
@@ -830,8 +1010,11 @@ def run_align(args: argparse.Namespace) -> int:
             ),
             residual_count=residual_count,
             config=SMCConfig(seed=args.seed),
-            world_hash=str(replay.get("world_hash", "")),
-            engine_hash=str(replay.get("engine_hash", "")),
+            world_hash=str(
+                replay.get("world_hash")
+                or replay["episode_twin_hash"]
+            ),
+            engine_hash=engine_hash,
         )
     print(
         json.dumps(
@@ -847,6 +1030,9 @@ def run_align(args: argparse.Namespace) -> int:
                 "replay_artifact_hash": (
                     artifact.replay_artifact_hash
                 ),
+                "trace_artifact_hash": trace_hash or None,
+                "engine_hash": engine_hash or None,
+                "residual_names": residual_names,
             },
             indent=2,
         )

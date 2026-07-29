@@ -363,11 +363,15 @@ mask, contact-time, controller-latency, and terminal-state residual kernels can
 be composed without changing the immutable anchor world. Multiple contact
 explanations remain separate particles.
 
-The family sampler has two explicit modes:
+The family sampler has three explicit modes:
 
 - `coverage` samples the aligned posterior without feedback bias;
 - `curriculum` samples 50% broad aligned coverage, 30% policy failure regions,
   and 20% policy uncertainty regions.
+- `replay` maps alignment particle *i* to environment *i* exactly, disables
+  quantile jitter, and assigns a distinct episode counter to every candidate.
+  It is the deterministic simulator-in-the-loop fitting boundary rather than a
+  training distribution.
 
 Mass/inertia, friction, restitution, damping, controller gains, and controller
 damping affect the active Metal/MLX physics path. Controller latency is an
@@ -431,11 +435,53 @@ explicit missing masks; outcome/margin/failure evidence; and content-hashed
 telemetry or video references. Hardware outcomes without an exact simulation
 key still enter the residual head through normalized scenario features.
 
-The supplied CLI replay adapter consumes one or more local affine residual
-fields exported by a replay pipeline. The native `ReplayResidualEvaluator` and
-MLX `fit_alignment_smc` interfaces already accept a full simulator replay
-callback; capture-specific trajectory/image residual construction remains a
-provider responsibility rather than hidden coordinator behavior.
+The version-2 replay manifest executes the physical command stream through the
+contact-capable Franka world rather than fitting a residual surrogate:
+
+```json
+{
+  "schema_version": 2,
+  "scenario_schema": "systematic_pick_place_family_v1.scenarios",
+  "episode_twin_hash": "EPISODE_TWIN_SHA256",
+  "trace_npz": "aligned-physical-episode.npz",
+  "command_semantics": "joint_position_target",
+  "control_period_seconds": 0.0166666667,
+  "solver_mode": "quality_newton",
+  "residual_scales": {
+    "robot_q": 0.05,
+    "robot_v": 0.2,
+    "object_position": 0.02,
+    "rod_position": 0.01
+  }
+}
+```
+
+The NPZ contains `commands[T,nv]` and `robot_q[T+1,nq]`. Optional measured
+arrays are `robot_v[T+1,nv]`, `object_positions[T+1,K,3]`,
+`scene_body_indices[K]`, `contact_active[T]`, `rod_positions[T+1,R,3]`, and
+`rod_node_indices[R]`. Missing data uses `robot_q_mask`, `robot_v_mask`,
+`object_position_mask`, `contact_mask`, and `rod_position_mask`; object and rod
+masks may omit the final xyz dimension. Capture providers resample all streams
+to the declared control period and transform positions into the anchor-world
+frame before publication.
+
+`MLXPhysicalReplayEvaluator` uploads candidate quantiles only at the four SMC
+round boundaries. Private Metal buffers then materialize one exact world per
+candidate. The complete command replay, controller delay, contact physics,
+robot/object trajectories, terminal state, contact timing, physics status, and
+residual reductions stay in MLX on the Apple GPU. Rod-marker arrays already
+share the trace and residual contract; they become executable when a nonzero
+rod family is connected to the persistent MLX world graph. The coordinator
+copies the source NPZ into its SHA-256 store and records only its content hash
+in the alignment manifest.
+The runtime fingerprint covers the native engine library, Metal shader
+library, MLX extension, solver mode, substep count, and control period, so a
+population cannot silently lose the executable that produced its likelihoods.
+
+Schema version 1 remains an explicit compatibility adapter for affine residual
+fields produced by an external replay provider. Image/depth/mask residuals
+remain a provider or future MLX-renderer input; the coordinator does not claim
+visual alignment when those observations are absent.
 
 ## Runtime integration sequence
 
@@ -456,14 +502,14 @@ flowchart LR
 ```
 
 The current code establishes the resumable episodic artifact graph, Apple
-capture-manifest loader, portable pack, aligned particle population, adaptive
-Metal family sampler, causal physical/controller parameter path, zero-copy MLX
-state bridge, GPU episode compaction, outcome store, policy feedback ensemble,
-and paired evaluation report. Native segmentation/reconstruction providers,
-capture-specific replay residual kernels, articulated/deformable splat motion,
-mesh depth/normals/shadow compositing, shells, and soft volumes remain separate
-modules behind the provider and representation interfaces already present in
-the ABI.
+capture-manifest loader, portable pack, aligned particle population, exact
+GPU physical replay, adaptive Metal family sampler, causal
+physical/controller parameter path, zero-copy MLX state bridge, GPU episode
+compaction, outcome store, policy feedback ensemble, and paired evaluation
+report. Native segmentation/reconstruction providers, visual replay residuals,
+articulated/deformable splat motion, mesh depth/normals/shadow compositing,
+shells, and soft volumes remain separate modules behind the provider and
+representation interfaces already present in the ABI.
 
 ## Main implementation files
 
@@ -494,7 +540,9 @@ the ABI.
 - `src/core/R2S2R.cpp`
 - `src/apple/HardwareOutcomeJSON.mm`
 - `schemas/hardware_outcome.schema.json`
+- `schemas/replay_alignment.schema.json`
 - `python/metalrobo/mlx_r2s2r.py`
+- `python/metalrobo/mlx_replay.py`
 - `python/metalrobo/mlx_family_ppo.py`
 - `python/metalrobo/r2s2r.py`
 - `python/mlx_ext/metalrobo_mlx.cpp`

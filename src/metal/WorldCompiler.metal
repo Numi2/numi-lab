@@ -543,7 +543,8 @@ kernel void mr_world_family_sample(
     const ulong seed =
         (ulong(uniforms.identity.y) << 32u) |
         ulong(uniforms.identity.x);
-    const ulong episodeCounter = join64(adaptive.identity.xy);
+    const ulong episodeCounter =
+        join64(adaptive.identity.xy) + ulong(environment);
     const ulong alignmentFingerprint = join64(adaptive.identity.zw);
     const ulong feedbackFingerprint = join64(adaptive.provenance.xy);
 
@@ -605,11 +606,14 @@ kernel void mr_world_family_sample(
     }
     if (source == MR_WORLD_SAMPLE_BROAD ||
         source == MR_WORLD_SAMPLE_ALIGNMENT) {
-        selectedParticle = selectAlignmentParticle(
-            alignmentParticles,
-            adaptive.counts.x,
-            uniform01(selectionRandom.z)
-        );
+        selectedParticle =
+            adaptive.counts.w == MR_WORLD_SAMPLING_REPLAY
+            ? environment
+            : selectAlignmentParticle(
+                alignmentParticles,
+                adaptive.counts.x,
+                uniform01(selectionRandom.z)
+            );
         if (selectedParticle != MR_INVALID_INDEX) {
             selectedIndex = selectedParticle;
             componentWeight =
@@ -696,8 +700,10 @@ kernel void mr_world_family_sample(
                 selectedParticle * uniforms.program.x + variationIndex
             ];
             const float jitter =
-                (uniform01(random.y) * 2.0f - 1.0f) *
-                adaptive.mixture.w;
+                adaptive.counts.w == MR_WORLD_SAMPLING_REPLAY
+                ? 0.0f
+                : (uniform01(random.y) * 2.0f - 1.0f) *
+                    adaptive.mixture.w;
             quantile = clamp(aligned + jitter, 0.0f, 1.0f);
         }
         const SampledValue value = sampleValueAtQuantile(

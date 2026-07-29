@@ -1398,11 +1398,31 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
                 "requested instance count is zero or exceeds capacity"
             );
         }
-        if (mode > MR_WORLD_SAMPLING_CURRICULUM) {
+        if (mode > MR_WORLD_SAMPLING_REPLAY) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldFamilyStatus::invalidFamily,
                 "world-family sampling mode is invalid"
+            );
+        }
+        if (episodeCounterBase >
+            std::numeric_limits<std::uint64_t>::max() -
+                (static_cast<std::uint64_t>(instanceCount) - 1u)) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::arithmeticOverflow,
+                "per-environment episode counters overflow uint64"
+            );
+        }
+        if (mode == MR_WORLD_SAMPLING_REPLAY &&
+            (state_->samplingProgram.alignmentParticles.empty() ||
+             instanceCount >
+                 state_->samplingProgram.alignmentParticles.size())) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::invalidCapacity,
+                "replay sampling requires one alignment particle per "
+                "active environment"
             );
         }
 
@@ -1455,21 +1475,23 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::sample(
         };
         adaptive.mixture = {
             static_cast<float>(
-                mode == MR_WORLD_SAMPLING_COVERAGE
+                mode != MR_WORLD_SAMPLING_CURRICULUM
                 ? 1.0
                 : state_->samplingProgram.broadWeight
             ),
             static_cast<float>(
-                mode == MR_WORLD_SAMPLING_COVERAGE
+                mode != MR_WORLD_SAMPLING_CURRICULUM
                 ? 0.0
                 : state_->samplingProgram.failureWeight
             ),
             static_cast<float>(
-                mode == MR_WORLD_SAMPLING_COVERAGE
+                mode != MR_WORLD_SAMPLING_CURRICULUM
                 ? 0.0
                 : state_->samplingProgram.uncertaintyWeight
             ),
-            state_->samplingProgram.alignmentJitter,
+            mode == MR_WORLD_SAMPLING_REPLAY
+                ? 0.0f
+                : state_->samplingProgram.alignmentJitter,
         };
         adaptive.abi = {
             MR_R2S2R_ABI_VERSION,

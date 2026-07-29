@@ -153,6 +153,7 @@ MR_API int mr_world_family_sample_ex(
     MRWorldFamilyHandle* handle,
     uint32_t instance_count,
     uint64_t seed,
+    // MRWorldSamplingMode. Replay maps particle i to environment i.
     uint32_t sampling_mode,
     uint64_t episode_counter
 );

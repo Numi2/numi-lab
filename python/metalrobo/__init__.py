@@ -104,6 +104,11 @@ from .mlx_r2s2r import (
     initial_episode_accumulator,
     reset_episode_accumulator,
 )
+from .mlx_replay import (
+    MLXPhysicalReplayEvaluator,
+    PhysicalReplayTrace,
+    ReplayResidualScales,
+)
 
 __all__ = [
     "ActorCritic",
@@ -140,6 +145,7 @@ __all__ = [
     "MLXG1RolloutCollector",
     "MLXPSMNeedlePPOTrainer",
     "MLXPSMNeedleRolloutCollector",
+    "MLXPhysicalReplayEvaluator",
     "MetalWorldCapacityProfile",
     "MLXPPOTrainer",
     "MLXRolloutBatch",
@@ -152,9 +158,11 @@ __all__ = [
     "PPOTrainer",
     "PackedWorldFamily",
     "PolicyDescriptor",
+    "PhysicalReplayTrace",
     "QuantileRegion",
     "RodState",
     "R2S2RCoordinator",
+    "ReplayResidualScales",
     "RuntimeStats",
     "SMCConfig",
     "SampledWorldFamilyState",

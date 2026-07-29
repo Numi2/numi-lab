@@ -520,6 +520,26 @@ class R2S2RCoordinator:
                 ),
             )
 
+    def ingest_replay_trace(
+        self,
+        path: str | os.PathLike[str],
+    ) -> ArtifactRef:
+        """Copy a telemetry trace into immutable artifact storage."""
+
+        trace_path = Path(path).expanduser().resolve()
+        if not trace_path.is_file():
+            raise FileNotFoundError(
+                f"physical replay trace is unavailable: {trace_path}"
+            )
+        reference = self.artifacts.put_bytes(
+            trace_path.read_bytes(),
+            kind="physical-replay-trace",
+            media_type="application/x-npz",
+            suffix=".npz",
+        )
+        self._register_artifact(reference)
+        return reference
+
     def align(
         self,
         schema: ScenarioSchema,
@@ -573,6 +593,9 @@ class R2S2RCoordinator:
             "rounds": config.rounds,
             "replay_artifact_hash": replay_ref.content_hash,
             "array_artifact_hash": array_ref.content_hash,
+            "replay_residual_names": list(
+                replay_artifact.get("residual_names", ())
+            ),
             "multimodal": True,
         }
         metadata_ref = self.artifacts.put_json(
