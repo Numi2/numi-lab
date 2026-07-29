@@ -378,8 +378,29 @@ kernel void mr_generalized_constraint_solve(
         }
         completedIterations = iteration + 1u;
         if (maximumDelta <= tolerance) {
-            converged = true;
-            break;
+            float iterationResidual = 0.0f;
+            for (uint row = 0u;
+                 row < dispatch.rowCount;
+                 ++row) {
+                const float gradient =
+                    physicalVelocity[row] -
+                    targetVelocity[row] +
+                    regularization[row] * impulse[row];
+                const float projected = clamp(
+                    impulse[row] - gradient,
+                    lowerBound[row],
+                    upperBound[row]
+                );
+                iterationResidual = max(
+                    iterationResidual,
+                    abs(impulse[row] - projected)
+                );
+            }
+            if (isfinite(iterationResidual) &&
+                iterationResidual <= tolerance) {
+                converged = true;
+                break;
+            }
         }
     }
 

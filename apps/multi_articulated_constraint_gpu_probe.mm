@@ -1,8 +1,11 @@
 #include "metalrobo/ConstraintIR.hpp"
+#include "metalrobo/EngineModelComposer.hpp"
+#include "metalrobo/G1.hpp"
 #include "metalrobo/MetalMultiArticulatedConstraints.hpp"
 #include "metalrobo/SurgicalWorld.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -156,15 +159,86 @@ metalrobo::DualPsmWorld crossArticulationWorld() {
 int main() {
     try {
         constexpr std::size_t environmentCount = 4u;
-        metalrobo::DualPsmWorld world =
+        const metalrobo::DualPsmWorld surgicalWorld =
             crossArticulationWorld();
-        const metalrobo::EngineModel& model = world.model;
+        const metalrobo::EngineModel g1 =
+            metalrobo::makeUnitreeG1EngineModel();
+        const std::array components{
+            metalrobo::EngineModelComponent{
+                .model = &surgicalWorld.model,
+                .instanceId = "dual_psm_cell",
+            },
+            metalrobo::EngineModelComponent{
+                .model = &g1,
+                .instanceId = "g1_observer",
+            },
+        };
+        metalrobo::EngineModel model;
+        const auto composeDiagnostics =
+            metalrobo::composeEngineModels(components, model);
+        require(
+            composeDiagnostics.succeeded(),
+            "failed to compose heterogeneous constraint probe"
+        );
         const std::size_t rowCount =
             model.constraintProgram.rows.size();
         require(
-            model.articulations.size() == 2u &&
+            model.articulations.size() == 3u &&
                 rowCount == 8u,
-            "probe did not create the intended cross-articulation graph"
+            "probe did not create dual PSM plus G1 constraint graph"
+        );
+
+        metalrobo::CompiledMetalMultiArticulatedProgram program;
+        const auto compileDiagnostics =
+            metalrobo::compileMetalMultiArticulatedProgram(
+                model,
+                program
+            );
+        require(
+            compileDiagnostics.succeeded() &&
+                program.valid() &&
+                program.rowCount() == rowCount &&
+                program.abaSchedule().articulations.size() == 3u &&
+                program.rowChunkOffsets().size() > 1u &&
+                program.fingerprint() != 0u,
+            "heterogeneous Metal execution plan did not cook"
+        );
+        const std::uint64_t programFingerprint =
+            program.fingerprint();
+        metalrobo::CompiledMetalMultiArticulatedProgram replayProgram;
+        const auto replayCompileDiagnostics =
+            metalrobo::compileMetalMultiArticulatedProgram(
+                model,
+                replayProgram
+            );
+        require(
+            replayCompileDiagnostics.succeeded() &&
+                replayProgram.fingerprint() == programFingerprint &&
+                std::ranges::equal(
+                    replayProgram.generalizedJacobian(),
+                    program.generalizedJacobian()
+                ) &&
+                std::ranges::equal(
+                    replayProgram.rowChunkOffsets(),
+                    program.rowChunkOffsets()
+                ) &&
+                std::ranges::equal(
+                    replayProgram.rowChunkCounts(),
+                    program.rowChunkCounts()
+                ),
+            "compiled execution plan is not deterministic"
+        );
+        metalrobo::EngineModel invalidModel = model;
+        ++invalidModel.world.nv;
+        const auto rejectedCompile =
+            metalrobo::compileMetalMultiArticulatedProgram(
+                invalidModel,
+                replayProgram
+            );
+        require(
+            !rejectedCompile.succeeded() &&
+                replayProgram.fingerprint() == programFingerprint,
+            "failed plan compilation modified the published plan"
         );
 
         std::vector<float> q(
@@ -207,7 +281,7 @@ int main() {
         metalrobo::MetalMultiArticulatedConstraintResult result;
         const auto diagnostics =
             metalrobo::solveMetalMultiArticulatedConstraints(
-                model,
+                program,
                 input,
                 result,
                 config
@@ -238,6 +312,24 @@ int main() {
                     model.articulations.size(),
             "generalized result did not exercise chunked inverse mass"
         );
+        const MRArticulationGPU& observer =
+            model.articulations.back();
+        for (std::size_t environment = 0u;
+             environment < environmentCount;
+             ++environment) {
+            for (std::uint32_t local = 0u;
+                 local < observer.nv;
+                 ++local) {
+                const std::size_t index =
+                    environment * model.world.nv +
+                    observer.vOffset + local;
+                require(
+                    result.nextVelocity[index] ==
+                        freeVelocity[index],
+                    "uncoupled G1 velocity changed"
+                );
+            }
+        }
 
         double maximumResidual = 0.0;
         double maximumCrossVelocity = 0.0;
@@ -300,7 +392,13 @@ int main() {
                 maximumResidual,
                 residual.maximumNaturalResidual
             );
-            for (std::size_t row = 0u; row < 7u; ++row) {
+            for (std::size_t row = 0u;
+                 row < rowCount;
+                 ++row) {
+                if ((model.constraintProgram.rows[row].flags &
+                     metalrobo::constraintIRRowUnilateral) != 0u) {
+                    continue;
+                }
                 maximumCrossVelocity = std::max(
                     maximumCrossVelocity,
                     std::abs(
@@ -311,16 +409,21 @@ int main() {
                 );
             }
         }
-        require(
-            maximumResidual <= 2.0e-4 &&
-                maximumCrossVelocity <= 2.0e-4,
-            "cross-articulation constraints missed the KKT gate"
-        );
+        if (maximumResidual > 2.0e-4 ||
+            maximumCrossVelocity > 2.0e-4) {
+            throw std::runtime_error(
+                "cross-articulation constraints missed the KKT "
+                "gate residual=" +
+                std::to_string(maximumResidual) +
+                " cross_velocity=" +
+                std::to_string(maximumCrossVelocity)
+            );
+        }
 
         metalrobo::MetalMultiArticulatedConstraintResult replay;
         const auto replayDiagnostics =
             metalrobo::solveMetalMultiArticulatedConstraints(
-                model,
+                program,
                 input,
                 replay,
                 config
@@ -345,7 +448,7 @@ int main() {
         invalidInput.freeVelocity = invalidVelocity;
         const auto rejected =
             metalrobo::solveMetalMultiArticulatedConstraints(
-                model,
+                program,
                 invalidInput,
                 sentinel,
                 config
@@ -364,6 +467,11 @@ int main() {
             << " articulations=" << model.articulations.size()
             << " environments=" << environmentCount
             << " rows=" << rowCount
+            << " plan_fingerprint=" << programFingerprint
+            << " aba_levels="
+            << program.abaSchedule().levels.size()
+            << " row_chunks="
+            << program.rowChunkOffsets().size()
             << " inverse_packets="
             << result.layout.inverseMassDispatches.size() *
                 environmentCount

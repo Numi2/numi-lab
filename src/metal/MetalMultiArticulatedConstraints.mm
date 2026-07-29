@@ -167,82 +167,6 @@ bool validConfiguration(
         config.evaluation.minimumRegularization >= 0.0;
 }
 
-bool validTopology(
-    const EngineModel& model,
-    const std::size_t articulationIndex
-) {
-    const MRArticulationGPU& articulation =
-        model.articulations[articulationIndex];
-    if ((articulation.rootType != MR_ROOT_FIXED &&
-         articulation.rootType != MR_ROOT_FLOATING) ||
-        articulation.bodyCount == 0u ||
-        articulation.bodyCount > MR_ARTICULATED_ABA_MAX_BODIES ||
-        articulation.nv == 0u ||
-        articulation.nv > MR_ARTICULATED_ABA_MAX_DOFS ||
-        articulation.nq > MR_ARTICULATED_ABA_MAX_Q ||
-        articulation.jointCount + 1u != articulation.bodyCount) {
-        return false;
-    }
-    for (std::uint32_t localJoint = 0u;
-         localJoint < articulation.jointCount;
-         ++localJoint) {
-        const std::uint32_t type = model.joints[
-            articulation.firstJoint + localJoint
-        ].jointType;
-        if (type != MR_JOINT_FIXED &&
-            type != MR_JOINT_REVOLUTE &&
-            type != MR_JOINT_CONTINUOUS &&
-            type != MR_JOINT_PRISMATIC) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool compileGeneralizedJacobian(
-    const EngineModel& model,
-    std::vector<float>& jacobian
-) {
-    const ConstraintIR& program = model.constraintProgram;
-    jacobian.assign(
-        program.rows.size() * model.world.nv,
-        0.0f
-    );
-    for (const ConstraintIRBlock& block : program.blocks) {
-        if (block.type == MR_CONSTRAINT_CONTACT) {
-            return false;
-        }
-        for (std::uint32_t local = 0u;
-             local < block.endpointCount;
-             ++local) {
-            const ConstraintIREndpoint& endpoint =
-                program.endpoints[
-                    block.endpointOffset + local
-                ];
-            const std::uint32_t localRow =
-                endpoint.flags &
-                constraintIREndpointRowMask;
-            if (endpoint.jacobianKind !=
-                    constraintIRJacobianGeneralized ||
-                endpoint.objectIndex >= model.world.nv ||
-                localRow >= block.dimension ||
-                !std::isfinite(endpoint.axis.x)) {
-                return false;
-            }
-            float& coefficient = jacobian[
-                (block.rowOffset + localRow) *
-                    model.world.nv +
-                endpoint.objectIndex
-            ];
-            coefficient += endpoint.axis.x;
-            if (!std::isfinite(coefficient)) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
 template <typename T>
 id<MTLBuffer> inputBuffer(
     id<MTLDevice> device,
@@ -295,13 +219,23 @@ id<MTLComputePipelineState> pipeline(
 
 MetalMultiArticulatedConstraintDiagnostics
 solveMetalMultiArticulatedConstraints(
-    const EngineModel& model,
+    const CompiledMetalMultiArticulatedProgram& program,
     const MetalMultiArticulatedConstraintInput& input,
     MetalMultiArticulatedConstraintResult& output,
     const MetalMultiArticulatedConstraintConfig& config
 ) {
     @autoreleasepool {
         MetalMultiArticulatedConstraintDiagnostics diagnostics{};
+        if (!program.valid()) {
+            return reject(
+                std::move(diagnostics),
+                MetalMultiArticulatedConstraintStatus::invalidModel,
+                "compiled multi-articulation program is invalid"
+            );
+        }
+        const EngineModel& model = program.model();
+        const std::span<const float> jacobian =
+            program.generalizedJacobian();
         if (!validConfiguration(config)) {
             return reject(
                 std::move(diagnostics),
@@ -310,33 +244,7 @@ solveMetalMultiArticulatedConstraints(
                 "generalized constraint configuration is invalid"
             );
         }
-        std::string modelReason;
-        if (!model.valid(&modelReason)) {
-            return reject(
-                std::move(diagnostics),
-                MetalMultiArticulatedConstraintStatus::invalidModel,
-                "invalid EngineModel: " + modelReason
-            );
-        }
-        if (model.articulations.empty()) {
-            return reject(
-                std::move(diagnostics),
-                MetalMultiArticulatedConstraintStatus::
-                    unsupportedTopology,
-                "generalized solve requires an articulation"
-            );
-        }
-        const std::size_t rowCount =
-            model.constraintProgram.rows.size();
-        if (rowCount == 0u ||
-            rowCount > MR_GENERALIZED_CONSTRAINT_MAX_ROWS) {
-            return reject(
-                std::move(diagnostics),
-                MetalMultiArticulatedConstraintStatus::
-                    unsupportedConstraint,
-                "generalized row count is outside the Metal bucket"
-            );
-        }
+        const std::size_t rowCount = program.rowCount();
         if (model.articulations.size() >
                 std::numeric_limits<mr_u32>::max() ||
             input.environmentCount == 0u ||
@@ -350,31 +258,6 @@ solveMetalMultiArticulatedConstraints(
                 "the GPU ABI"
             );
         }
-        for (std::size_t articulationIndex = 0u;
-             articulationIndex < model.articulations.size();
-             ++articulationIndex) {
-            if (!validTopology(model, articulationIndex)) {
-                return reject(
-                    std::move(diagnostics),
-                    MetalMultiArticulatedConstraintStatus::
-                        unsupportedTopology,
-                    "an articulation exceeds the inverse-mass "
-                    "topology bucket"
-                );
-            }
-        }
-
-        std::vector<float> jacobian;
-        if (!compileGeneralizedJacobian(model, jacobian)) {
-            return reject(
-                std::move(diagnostics),
-                MetalMultiArticulatedConstraintStatus::
-                    unsupportedConstraint,
-                "ConstraintIR contains contact, spatial, or malformed "
-                "generalized endpoints"
-            );
-        }
-
         MetalMultiArticulatedConstraintLayout layout;
         std::size_t environmentRows = 0u;
         std::size_t environmentRowPairs = 0u;
@@ -482,9 +365,7 @@ solveMetalMultiArticulatedConstraints(
         }
 
         const std::size_t rowChunkCount =
-            (rowCount +
-             MR_ARTICULATED_INVERSE_MASS_MAX_RHS - 1u) /
-            MR_ARTICULATED_INVERSE_MASS_MAX_RHS;
+            program.rowChunkOffsets().size();
         std::size_t inverseWorkCount = 0u;
         if (!checkedMultiply(
                 rowChunkCount,
@@ -514,16 +395,13 @@ solveMetalMultiArticulatedConstraints(
             );
         }
         layout.inverseMassDispatches.reserve(inverseWorkCount);
-        for (std::size_t rowBegin = 0u;
-             rowBegin < rowCount;
-             rowBegin +=
-                 MR_ARTICULATED_INVERSE_MASS_MAX_RHS) {
-            const std::size_t chunkRows = std::min(
-                std::size_t{
-                    MR_ARTICULATED_INVERSE_MASS_MAX_RHS
-                },
-                rowCount - rowBegin
-            );
+        for (std::size_t chunkIndex = 0u;
+             chunkIndex < rowChunkCount;
+             ++chunkIndex) {
+            const std::size_t rowBegin =
+                program.rowChunkOffsets()[chunkIndex];
+            const std::size_t chunkRows =
+                program.rowChunkCounts()[chunkIndex];
             for (std::size_t articulationIndex = 0u;
                  articulationIndex < model.articulations.size();
                  ++articulationIndex) {
@@ -1089,7 +967,14 @@ solveMetalMultiArticulatedConstraints(
                     std::move(diagnostics),
                     MetalMultiArticulatedConstraintStatus::
                         gpuEnvironmentFailure,
-                    "a generalized constraint environment failed"
+                    "a generalized constraint environment failed "
+                    "(iterations=" +
+                        std::to_string(status.iterations) +
+                    ", impulse_delta=" +
+                        std::to_string(status.diagnostics.x) +
+                    ", natural_residual=" +
+                        std::to_string(status.diagnostics.y) +
+                    ")"
                 );
             }
         }
@@ -1114,6 +999,27 @@ solveMetalMultiArticulatedConstraints(
         diagnostics.published = true;
         return diagnostics;
     }
+}
+
+MetalMultiArticulatedConstraintDiagnostics
+solveMetalMultiArticulatedConstraints(
+    const EngineModel& model,
+    const MetalMultiArticulatedConstraintInput& input,
+    MetalMultiArticulatedConstraintResult& output,
+    const MetalMultiArticulatedConstraintConfig& config
+) {
+    CompiledMetalMultiArticulatedProgram program;
+    MetalMultiArticulatedConstraintDiagnostics diagnostics =
+        compileMetalMultiArticulatedProgram(model, program);
+    if (!diagnostics.succeeded()) {
+        return diagnostics;
+    }
+    return solveMetalMultiArticulatedConstraints(
+        program,
+        input,
+        output,
+        config
+    );
 }
 
 const char* metalMultiArticulatedConstraintStatusName(

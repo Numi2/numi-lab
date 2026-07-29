@@ -2,6 +2,7 @@
 
 #include "metalrobo/ConstraintIR.hpp"
 #include "metalrobo/EngineModel.hpp"
+#include "metalrobo/ParallelABASchedule.hpp"
 #include "metalrobo/generalized_constraint_shared.h"
 #include "metalrobo/parallel_aba_shared.h"
 
@@ -12,6 +13,54 @@
 #include <vector>
 
 namespace metalrobo {
+
+struct MetalMultiArticulatedConstraintInput;
+struct MetalMultiArticulatedConstraintConfig;
+struct MetalMultiArticulatedConstraintResult;
+struct MetalMultiArticulatedConstraintDiagnostics;
+
+// Immutable host-owned execution plan shared by standalone Metal and the
+// future MLX encoder adapter. Model validation, tree scheduling, generalized
+// Jacobian compilation, and RHS chunking occur once at cook time. Its spans
+// are uploaded into persistent device arenas by the runtime adapter.
+class CompiledMetalMultiArticulatedProgram {
+public:
+    CompiledMetalMultiArticulatedProgram() = default;
+
+    [[nodiscard]] bool valid() const noexcept;
+    [[nodiscard]] const EngineModel& model() const noexcept;
+    [[nodiscard]] const ParallelABASchedule& abaSchedule()
+        const noexcept;
+    [[nodiscard]] std::span<const float> generalizedJacobian()
+        const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t> rowChunkOffsets()
+        const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t> rowChunkCounts()
+        const noexcept;
+    [[nodiscard]] std::uint32_t rowCount() const noexcept;
+    [[nodiscard]] std::uint64_t fingerprint() const noexcept;
+
+private:
+    friend MetalMultiArticulatedConstraintDiagnostics
+    compileMetalMultiArticulatedProgram(
+        const EngineModel&,
+        CompiledMetalMultiArticulatedProgram&
+    );
+    friend MetalMultiArticulatedConstraintDiagnostics
+    solveMetalMultiArticulatedConstraints(
+        const CompiledMetalMultiArticulatedProgram&,
+        const MetalMultiArticulatedConstraintInput&,
+        MetalMultiArticulatedConstraintResult&,
+        const MetalMultiArticulatedConstraintConfig&
+    );
+
+    EngineModel model_;
+    ParallelABASchedule abaSchedule_;
+    std::vector<float> generalizedJacobian_;
+    std::vector<std::uint32_t> rowChunkOffsets_;
+    std::vector<std::uint32_t> rowChunkCounts_;
+    std::uint64_t fingerprint_ = 0u;
+};
 
 struct MetalMultiArticulatedConstraintInput {
     std::size_t environmentCount = 0u;
@@ -91,6 +140,14 @@ struct MetalMultiArticulatedConstraintDiagnostics {
     }
 };
 
+// Transactionally cooks the immutable multi-articulation program. Failed
+// compilation leaves output unchanged.
+[[nodiscard]] MetalMultiArticulatedConstraintDiagnostics
+compileMetalMultiArticulatedProgram(
+    const EngineModel& model,
+    CompiledMetalMultiArticulatedProgram& output
+);
+
 // Solves the immutable model-owned non-contact generalized ConstraintIR
 // program over all articulations. Sparse J' columns are factor-applied by the
 // multi-articulation ABA operator, J M^-1 J' is formed on Metal, and the
@@ -99,6 +156,16 @@ struct MetalMultiArticulatedConstraintDiagnostics {
 [[nodiscard]] MetalMultiArticulatedConstraintDiagnostics
 solveMetalMultiArticulatedConstraints(
     const EngineModel& model,
+    const MetalMultiArticulatedConstraintInput& input,
+    MetalMultiArticulatedConstraintResult& output,
+    const MetalMultiArticulatedConstraintConfig& config = {}
+);
+
+// Fast path for repeated execution. It reuses the validated model snapshot,
+// cooked ABA topology, generalized Jacobian, and row packetization.
+[[nodiscard]] MetalMultiArticulatedConstraintDiagnostics
+solveMetalMultiArticulatedConstraints(
+    const CompiledMetalMultiArticulatedProgram& program,
     const MetalMultiArticulatedConstraintInput& input,
     MetalMultiArticulatedConstraintResult& output,
     const MetalMultiArticulatedConstraintConfig& config = {}
