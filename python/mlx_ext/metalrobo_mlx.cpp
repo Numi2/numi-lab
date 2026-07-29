@@ -3578,9 +3578,26 @@ void WorldStepPrimitive::eval_gpu(
         compiled.rodEdgeCount();
     const std::uint32_t rodCount =
         compiled.rodCount();
+    const bool multipleArticulations = articulationCount > 1u;
+    const bool hybridCCD =
+        world_->ccdMode() == MetalWorldCCDMode::hybrid;
+    const bool futureKinematics =
+        hybridCCD &&
+        std::any_of(
+            model.shapes.begin(),
+            model.shapes.end(),
+            [](const MRShapeGPU& shape) {
+                return
+                    (shape.flags & MR_SHAPE_FLAG_ENABLE_CCD) !=
+                    0u;
+            }
+        );
     const bool qualityMode =
         world_->solverMode() ==
         MetalWorldSolverMode::qualityNewton;
+    const bool throughputTGS =
+        world_->solverMode() ==
+        MetalWorldSolverMode::throughputTGS;
     const MetalWorldQualityConfig qualityConfig{};
     const std::uint32_t qualityNv =
         nv +
@@ -3724,50 +3741,77 @@ void WorldStepPrimitive::eval_gpu(
     mx::array qPingB = makeTemporary(qShape, mx::float32);
     mx::array vPingA = makeTemporary(vShape, mx::float32);
     mx::array vPingB = makeTemporary(vShape, mx::float32);
-    mx::array eventQPingA = makeTemporary(qShape, mx::float32);
-    mx::array eventQPingB = makeTemporary(qShape, mx::float32);
-    mx::array eventVPingA = makeTemporary(vShape, mx::float32);
-    mx::array eventVPingB = makeTemporary(vShape, mx::float32);
+    // CCD event replay is a separate topology cohort. Do not reserve its
+    // complete state ping-pong arena for the overwhelmingly common rigid
+    // speculative/discrete cohorts.
+    mx::array eventQPingA = hybridCCD
+        ? makeTemporary(qShape, mx::float32)
+        : qPingA;
+    mx::array eventQPingB = hybridCCD
+        ? makeTemporary(qShape, mx::float32)
+        : qPingB;
+    mx::array eventVPingA = hybridCCD
+        ? makeTemporary(vShape, mx::float32)
+        : vPingA;
+    mx::array eventVPingB = hybridCCD
+        ? makeTemporary(vShape, mx::float32)
+        : vPingB;
     mx::array eventScenePingA =
-        rawRecords.template operator()<MRBodyStateGPU>(
-            static_cast<std::size_t>(environments) *
-            sceneCount
-        );
+        hybridCCD
+        ? rawRecords.template operator()<MRBodyStateGPU>(
+              static_cast<std::size_t>(environments) *
+              sceneCount
+          )
+        : scenePackedA;
     mx::array eventScenePingB =
-        rawRecords.template operator()<MRBodyStateGPU>(
-            static_cast<std::size_t>(environments) *
-            sceneCount
-        );
+        hybridCCD
+        ? rawRecords.template operator()<MRBodyStateGPU>(
+              static_cast<std::size_t>(environments) *
+              sceneCount
+          )
+        : scenePackedB;
     mx::array eventManifoldHeadersA =
-        rawRecords.template operator()<MRManifoldHeaderGPU>(
-            static_cast<std::size_t>(environments) *
-            manifoldCapacity
-        );
+        hybridCCD
+        ? rawRecords.template operator()<MRManifoldHeaderGPU>(
+              static_cast<std::size_t>(environments) *
+              manifoldCapacity
+          )
+        : inputs[7];
     mx::array eventManifoldHeadersB =
-        rawRecords.template operator()<MRManifoldHeaderGPU>(
-            static_cast<std::size_t>(environments) *
-            manifoldCapacity
-        );
+        hybridCCD
+        ? rawRecords.template operator()<MRManifoldHeaderGPU>(
+              static_cast<std::size_t>(environments) *
+              manifoldCapacity
+          )
+        : inputs[7];
     mx::array eventManifoldPointsA =
-        rawRecords.template operator()<MRManifoldPointGPU>(
-            static_cast<std::size_t>(environments) *
-            manifoldCapacity *
-            MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY
-        );
+        hybridCCD
+        ? rawRecords.template operator()<MRManifoldPointGPU>(
+              static_cast<std::size_t>(environments) *
+              manifoldCapacity *
+              MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY
+          )
+        : inputs[8];
     mx::array eventManifoldPointsB =
-        rawRecords.template operator()<MRManifoldPointGPU>(
-            static_cast<std::size_t>(environments) *
-            manifoldCapacity *
-            MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY
-        );
+        hybridCCD
+        ? rawRecords.template operator()<MRManifoldPointGPU>(
+              static_cast<std::size_t>(environments) *
+              manifoldCapacity *
+              MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY
+          )
+        : inputs[8];
     mx::array eventManifoldCountsA =
-        rawRecords.template operator()<std::uint32_t>(
-            environments
-        );
+        hybridCCD
+        ? rawRecords.template operator()<std::uint32_t>(
+              environments
+          )
+        : inputs[9];
     mx::array eventManifoldCountsB =
-        rawRecords.template operator()<std::uint32_t>(
-            environments
-        );
+        hybridCCD
+        ? rawRecords.template operator()<std::uint32_t>(
+              environments
+          )
+        : inputs[9];
     mx::array manifoldHeadersA =
         rawRecords.template operator()<MRManifoldHeaderGPU>(
             static_cast<std::size_t>(environments) *
@@ -3845,10 +3889,12 @@ void WorldStepPrimitive::eval_gpu(
             bodyCount
         );
     mx::array futureBodyPoses =
-        rawRecords.template operator()<MRArticulatedBodyPoseGPU>(
-            static_cast<std::size_t>(environments) *
-            bodyCount
-        );
+        futureKinematics
+        ? rawRecords.template operator()<MRArticulatedBodyPoseGPU>(
+              static_cast<std::size_t>(environments) *
+              bodyCount
+          )
+        : bodyPoses;
     mx::array currentBodies =
         rawRecords.template operator()<MRBodyStateGPU>(
             static_cast<std::size_t>(environments) * bodyCount
@@ -3995,19 +4041,23 @@ void WorldStepPrimitive::eval_gpu(
             static_cast<std::size_t>(environments) * nv * nv
         );
     mx::array factorStaging =
-        rawRecords.template operator()<float>(
-            static_cast<std::size_t>(environments) * nv * nv
-        );
+        multipleArticulations
+        ? rawRecords.template operator()<float>(
+              static_cast<std::size_t>(environments) * nv * nv
+          )
+        : factor;
     mx::array pointJacobians =
         rawRecords.template operator()<float>(
             static_cast<std::size_t>(environments) *
             pointStride * 3u * nv
         );
     mx::array pointJacobiansStaging =
-        rawRecords.template operator()<float>(
-            static_cast<std::size_t>(environments) *
-            pointStride * 3u * nv
-        );
+        multipleArticulations
+        ? rawRecords.template operator()<float>(
+              static_cast<std::size_t>(environments) *
+              pointStride * 3u * nv
+          )
+        : pointJacobians;
     mx::array generalizedImpulse =
         makeTemporary(vShape, mx::float32);
     mx::array deltaVelocity =
@@ -4053,40 +4103,48 @@ void WorldStepPrimitive::eval_gpu(
             );
     mx::array denseIslandWork =
         rawRecords.template operator()<MRIslandWorkGPU>(
-            islandWorkCount
+            throughputTGS ? islandWorkCount : 1u
         );
     mx::array compactIslandWork =
         rawRecords.template operator()<MRIslandWorkGPU>(
-            2u * islandWorkCount
+            throughputTGS ? 2u * islandWorkCount : 1u
         );
     mx::array waveWorkPackets =
         rawRecords.template operator()<MRWaveWorkPacketGPU>(
-            islandWorkCount
+            throughputTGS ? islandWorkCount : 1u
         );
     mx::array contactTiles =
         rawRecords.template operator()<MRContactTileGPU>(
-            2u * static_cast<std::size_t>(environments) *
-                tileCapacity
+            throughputTGS
+            ? 2u * static_cast<std::size_t>(environments) *
+                  tileCapacity
+            : 1u
         );
     mx::array tileConstraintIndices =
         rawRecords.template operator()<std::uint32_t>(
-            static_cast<std::size_t>(environments) *
-            constraintCapacity
+            throughputTGS
+            ? static_cast<std::size_t>(environments) *
+                  constraintCapacity
+            : 1u
         );
     mx::array impulseDeltas =
         rawRecords.template operator()<mr_float4>(
-            static_cast<std::size_t>(environments) *
-            constraintCapacity
+            throughputTGS
+            ? static_cast<std::size_t>(environments) *
+                  constraintCapacity
+            : 1u
         );
     mx::array preconditioners =
         rawRecords.template operator()<
             MRWave32PreconditionerGPU>(
-                static_cast<std::size_t>(environments) *
-                constraintCapacity
+                throughputTGS
+                ? static_cast<std::size_t>(environments) *
+                      constraintCapacity
+                : 1u
             );
     mx::array waveStatuses =
         rawRecords.template operator()<MRWave32IslandStatusGPU>(
-            islandWorkCount
+            throughputTGS ? islandWorkCount : 1u
         );
     mx::array responseColumns =
         rawRecords.template operator()<float>(
@@ -4516,17 +4574,6 @@ void WorldStepPrimitive::eval_gpu(
     if (world_->ccdMode() != MetalWorldCCDMode::disabled) {
         contactDispatch.flags |= MR_METAL_WORLD_CONTACT_CCD;
     }
-    const bool futureKinematics =
-        world_->ccdMode() == MetalWorldCCDMode::hybrid &&
-        std::any_of(
-            model.shapes.begin(),
-            model.shapes.end(),
-            [](const MRShapeGPU& shape) {
-                return
-                    (shape.flags & MR_SHAPE_FLAG_ENABLE_CCD) !=
-                    0u;
-            }
-        );
     if (futureKinematics) {
         contactDispatch.flags |=
             MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS;
@@ -5476,8 +5523,6 @@ void WorldStepPrimitive::eval_gpu(
         pass.physicsSubstep = substep;
         MRMetalWorldPassGPU solverPass = pass;
         solverPass.reserved0 = finalSubstep ? 1u : 0u;
-        const bool hybridCCD =
-            world_->ccdMode() == MetalWorldCCDMode::hybrid;
         const std::uint32_t eventPassCount =
             hybridCCD
             ? world_->maxCCDAdvanceSolvePasses()
@@ -7115,13 +7160,28 @@ void WorldStepPrimitive::eval_gpu(
             inputArray(rodConstraintWitnessIndices, 27);
             inputArray(rodFactorCaches, 28);
             outputArray(rodOperatorArena, 29);
+            // Persistent workers claim multiple packets, so an
+            // occupancy-sized pool is sufficient. Launching one worker per
+            // possible island needlessly saturated the integrated GPU for
+            // small replay batches and competed with WindowServer.
+            const std::size_t persistentWaveWorkerBudget =
+                std::max<std::size_t>(
+                    1u,
+                    std::min<std::size_t>(
+                        resources.tuning.waveWorkerGroupCount,
+                        32u
+                    )
+                );
             const std::size_t persistentWaveWorkers =
                 std::min<std::size_t>(
                     std::max<std::size_t>(
-                        islandWorkCount,
+                        2u *
+                            static_cast<std::size_t>(
+                                environments
+                            ),
                         1u
                     ),
-                    64u
+                    persistentWaveWorkerBudget
                 );
             encoder.dispatch_threadgroups(
                 MTL::Size(
@@ -7482,6 +7542,7 @@ void WorldStepPrimitive::eval_gpu(
         outputArray(worldStatuses, 7);
         inputArray(checkpointQ, 8);
         inputArray(checkpointV, 9);
+        immutable(kImmutableWorld, 10);
         dispatchThreads(
             environments,
             resources.kernel("mr_metal_world_commit")

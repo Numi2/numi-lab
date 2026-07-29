@@ -31,6 +31,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--steps", type=int, default=12)
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument(
+        "--command-buffer-step-limit",
+        type=int,
+        default=1,
+        help=(
+            "maximum physics steps encoded into one replay command "
+            "buffer"
+        ),
+    )
+    parser.add_argument(
         "--solver-mode",
         choices=("throughput_tgs", "quality_newton"),
         default="throughput_tgs",
@@ -167,6 +176,9 @@ def main() -> int:
                 family,
                 trace,
                 seed=args.seed,
+                command_buffer_step_limit=(
+                    args.command_buffer_step_limit
+                ),
             )
             rng = np.random.default_rng(args.seed)
             candidates = rng.uniform(

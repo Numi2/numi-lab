@@ -371,7 +371,10 @@ class MLXPhysicalReplayEvaluator:
 
     A candidate-quantile upload occurs only at an SMC round boundary. Candidate
     worlds, commands, physics state, contacts, and residual reductions remain
-    on the Apple GPU for the complete episode.
+    on the Apple GPU for the complete episode. Long episodes are submitted in
+    bounded command-buffer chunks so the integrated GPU can schedule display
+    and system work between physics batches; materialization does not inspect
+    or copy an individual environment to the host.
     """
 
     def __init__(
@@ -381,12 +384,18 @@ class MLXPhysicalReplayEvaluator:
         trace: PhysicalReplayTrace,
         *,
         seed: int = 1,
+        command_buffer_step_limit: int = 1,
     ) -> None:
         self.world = world
         self.family = family
         self.trace = trace
         self.seed = int(seed)
+        self.command_buffer_step_limit = int(command_buffer_step_limit)
         self.round_index = 0
+        if self.command_buffer_step_limit <= 0:
+            raise ValueError(
+                "command_buffer_step_limit must be positive"
+            )
         if (
             not world.contact_supported
             or world.nq != trace.robot_q.shape[1]
@@ -537,6 +546,44 @@ class MLXPhysicalReplayEvaluator:
             ),
         )
         self._compiled_step = mx.compile(self._step)
+
+    @staticmethod
+    def _materialize_checkpoint(
+        state: SampledWorldFamilyState,
+        delay: ControllerDelayState,
+        accumulator: ReplayAccumulator,
+    ) -> None:
+        """Commit one bounded GPU replay chunk without a host data transfer."""
+
+        mx.eval(
+            state.world.q,
+            state.world.v,
+            state.world.scene_bodies.position,
+            state.world.scene_bodies.orientation,
+            state.world.scene_bodies.linear_velocity,
+            state.world.scene_bodies.angular_velocity,
+            state.world.rods.position,
+            state.world.rods.velocity,
+            state.world.rods.twist,
+            state.world.rods.twist_rate,
+            state.world.solver_cache.manifold_headers,
+            state.world.solver_cache.manifold_points,
+            state.world.solver_cache.manifold_counts,
+            state.world.solver_cache.pair_cache,
+            state.world.solver_cache.rod_witnesses,
+            state.scenarios.headers,
+            state.scenarios.values,
+            state.scenarios.identities,
+            state.parameters.body_values,
+            state.parameters.body_identities,
+            state.parameters.controller_values,
+            state.parameters.controller_identities,
+            delay.history,
+            accumulator.squared_error,
+            accumulator.sample_count,
+            accumulator.valid,
+            accumulator.first_physics_status,
+        )
 
     @property
     def residual_count(self) -> int:
@@ -797,6 +844,15 @@ class MLXPhysicalReplayEvaluator:
                     )
                 ),
             )
+            if (
+                (step_index + 1) % self.command_buffer_step_limit == 0
+                or step_index + 1 == self.trace.step_count
+            ):
+                self._materialize_checkpoint(
+                    state,
+                    delay,
+                    accumulator,
+                )
 
         trajectory = mx.sqrt(
             accumulator.squared_error
