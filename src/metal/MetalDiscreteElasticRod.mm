@@ -52,6 +52,36 @@ bool finite(const Vec3& value) {
         finite(value[2]);
 }
 
+bool finite(const mr_float4 value) {
+    return
+        finite(value.x) &&
+        finite(value.y) &&
+        finite(value.z) &&
+        finite(value.w);
+}
+
+bool validRigidBodyState(const MRBodyStateGPU& state) {
+    const double quaternionNormSquared =
+        static_cast<double>(state.orientation.x) *
+            state.orientation.x +
+        static_cast<double>(state.orientation.y) *
+            state.orientation.y +
+        static_cast<double>(state.orientation.z) *
+            state.orientation.z +
+        static_cast<double>(state.orientation.w) *
+            state.orientation.w;
+    return
+        finite(state.position) &&
+        finite(state.orientation) &&
+        finite(state.linearVelocityAndInverseMass) &&
+        finite(state.angularVelocity) &&
+        finite(state.inverseInertiaWorldRow0) &&
+        finite(state.inverseInertiaWorldRow1) &&
+        finite(state.inverseInertiaWorldRow2) &&
+        std::abs(quaternionNormSquared - 1.0) <= 2.0e-4 &&
+        state.linearVelocityAndInverseMass.w >= 0.0f;
+}
+
 Vec3 subtract(const Vec3& left, const Vec3& right) {
     return {
         left[0] - right[0],
@@ -417,6 +447,28 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 "attachments are not packed environment-major"
             );
         }
+        if (input.rigidBodyCount == 0u) {
+            if (!input.rigidBodies.empty() ||
+                !input.rigidBindings.empty()) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalDiscreteElasticRodHostStatus::
+                        invalidAttachment,
+                    "rigid rod bindings require rigid body state"
+                );
+            }
+        } else if (
+            input.rigidBodies.size() !=
+                environmentCount * input.rigidBodyCount ||
+            input.rigidBindings.size() != input.attachmentCount
+        ) {
+            return reject(
+                std::move(diagnostics),
+                MetalDiscreteElasticRodHostStatus::
+                    invalidAttachment,
+                "rigid bodies or bindings are not packed as declared"
+            );
+        }
         for (const DiscreteElasticRodState& state :
              input.states) {
             if (!validState(model, state)) {
@@ -456,6 +508,75 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 }
             }
         }
+        if (input.rigidBodyCount > 0u) {
+            if (input.rigidBodyCount >
+                std::numeric_limits<mr_u32>::max()) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalDiscreteElasticRodHostStatus::
+                        capacityOverflow,
+                    "rigid body stride exceeds the Metal ABI"
+                );
+            }
+            for (const MRBodyStateGPU& body : input.rigidBodies) {
+                if (!validRigidBodyState(body)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalDiscreteElasticRodHostStatus::
+                            invalidState,
+                        "rigid coupling state is invalid"
+                    );
+                }
+            }
+            std::set<std::uint32_t> coupledBodies;
+            for (const DiscreteRodRigidAttachmentBinding& binding :
+                 input.rigidBindings) {
+                if (!finite(binding.localAnchor)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalDiscreteElasticRodHostStatus::
+                            invalidAttachment,
+                        "rigid attachment anchor is non-finite"
+                    );
+                }
+                if (binding.bodyIndex ==
+                    kDiscreteRodNoRigidBody) {
+                    continue;
+                }
+                if (binding.bodyIndex >= input.rigidBodyCount ||
+                    !coupledBodies.insert(
+                        binding.bodyIndex
+                    ).second) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalDiscreteElasticRodHostStatus::
+                            invalidAttachment,
+                        "rigid attachment bodies must be valid and disjoint"
+                    );
+                }
+                for (std::size_t environment = 0u;
+                     environment < environmentCount;
+                     ++environment) {
+                    const MRBodyStateGPU& body =
+                        input.rigidBodies[
+                            environment *
+                                input.rigidBodyCount +
+                            binding.bodyIndex
+                        ];
+                    if (body.flagsAndIndices[0] !=
+                            MR_MOTION_DYNAMIC ||
+                        !(body.linearVelocityAndInverseMass.w >
+                            0.0f)) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalDiscreteElasticRodHostStatus::
+                                invalidAttachment,
+                            "rod reactions require a dynamic rigid target"
+                        );
+                    }
+                }
+            }
+        }
 
         MRRodGPUDispatch dispatch{};
         dispatch.abiVersion = MR_ROD_GPU_ABI_VERSION;
@@ -471,6 +592,9 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             config.step.solverIterations;
         dispatch.stateNodeStride = dispatch.nodeCount;
         dispatch.stateEdgeStride = dispatch.edgeCount;
+        dispatch.rigidBodyCount =
+            static_cast<std::uint32_t>(input.rigidBodyCount);
+        dispatch.stateBodyStride = dispatch.rigidBodyCount;
         dispatch.gravityAndTimestep = {
             static_cast<float>(config.step.gravity[0]),
             static_cast<float>(config.step.gravity[1]),
@@ -630,6 +754,27 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             record.nodeIndex = attachment.nodeIndex;
             attachments.push_back(record);
         }
+        std::vector<MRRodGPURigidBinding> rigidBindings(
+            input.attachmentCount
+        );
+        for (std::size_t attachmentIndex = 0u;
+             attachmentIndex < input.attachmentCount;
+             ++attachmentIndex) {
+            MRRodGPURigidBinding& record =
+                rigidBindings[attachmentIndex];
+            record.bodyIndex = MR_ROD_GPU_INVALID_BODY;
+            if (!input.rigidBindings.empty()) {
+                const DiscreteRodRigidAttachmentBinding& binding =
+                    input.rigidBindings[attachmentIndex];
+                record.localAnchor = {
+                    static_cast<float>(binding.localAnchor[0]),
+                    static_cast<float>(binding.localAnchor[1]),
+                    static_cast<float>(binding.localAnchor[2]),
+                    0.0f,
+                };
+                record.bodyIndex = binding.bodyIndex;
+            }
+        }
 
         std::size_t allocatedBytes = sizeof(dispatch);
         if (!appendBytes<float>(restLengths.size(), allocatedBytes) ||
@@ -664,6 +809,26 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 allocatedBytes
             ) ||
             !appendBytes<MRRodGPUAttachment>(
+                attachments.size(),
+                allocatedBytes
+            ) ||
+            !appendBytes<MRRodGPUAttachment>(
+                attachments.size(),
+                allocatedBytes
+            ) ||
+            !appendBytes<MRRodGPURigidBinding>(
+                rigidBindings.size(),
+                allocatedBytes
+            ) ||
+            !appendBytes<MRBodyStateGPU>(
+                input.rigidBodies.size(),
+                allocatedBytes
+            ) ||
+            !appendBytes<MRBodyStateGPU>(
+                input.rigidBodies.size(),
+                allocatedBytes
+            ) ||
+            !appendBytes<MRRodGPUAttachmentReaction>(
                 attachments.size(),
                 allocatedBytes
             ) ||
@@ -719,19 +884,35 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         }
         id<MTLFunction> function = [library
             newFunctionWithName:@"mr_discrete_elastic_rod_step"];
-        if (function == nil) {
+        id<MTLFunction> resolveFunction = [library
+            newFunctionWithName:
+                @"mr_resolve_rod_rigid_attachments"];
+        id<MTLFunction> applyFunction = [library
+            newFunctionWithName:
+                @"mr_apply_rod_rigid_reactions"];
+        if (function == nil ||
+            resolveFunction == nil ||
+            applyFunction == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalDiscreteElasticRodHostStatus::
                     metalLibraryFailure,
-                "metallib lacks discrete elastic rod kernel"
+                "metallib lacks the coupled discrete rod graph"
             );
         }
         error = nil;
         id<MTLComputePipelineState> pipeline = [device
             newComputePipelineStateWithFunction:function
                                            error:&error];
-        if (pipeline == nil) {
+        id<MTLComputePipelineState> resolvePipeline = [device
+            newComputePipelineStateWithFunction:resolveFunction
+                                           error:&error];
+        id<MTLComputePipelineState> applyPipeline = [device
+            newComputePipelineStateWithFunction:applyFunction
+                                           error:&error];
+        if (pipeline == nil ||
+            resolvePipeline == nil ||
+            applyPipeline == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalDiscreteElasticRodHostStatus::
@@ -753,7 +934,7 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             );
         }
 
-        id<MTLBuffer> buffers[19] = {};
+        id<MTLBuffer> buffers[20] = {};
         const std::vector<MRRodGPUDispatch> dispatchVector{dispatch};
         buffers[0] = inputBuffer(device, dispatchVector);
         buffers[1] = inputBuffer(device, restLengths);
@@ -771,7 +952,12 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
         buffers[10] = inputBuffer(device, velocities);
         buffers[11] = inputBuffer(device, twists);
         buffers[12] = inputBuffer(device, twistRates);
-        buffers[13] = inputBuffer(device, attachments);
+        // The canonical attachment stream is resolved by the preceding
+        // projection kernel. Explicit attachments are copied unchanged.
+        buffers[13] = outputBuffer<MRRodGPUAttachment>(
+            device,
+            attachments.size()
+        );
         buffers[14] = outputBuffer<mr_float4>(
             device,
             nodeElements
@@ -792,6 +978,26 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             device,
             environmentCount
         );
+        buffers[19] =
+            outputBuffer<MRRodGPUAttachmentReaction>(
+                device,
+                attachments.size()
+            );
+        id<MTLBuffer> inputAttachmentBuffer =
+            inputBuffer(device, attachments);
+        id<MTLBuffer> rigidBindingBuffer =
+            inputBuffer(device, rigidBindings);
+        const std::vector<MRBodyStateGPU> rigidBodies{
+            input.rigidBodies.begin(),
+            input.rigidBodies.end(),
+        };
+        id<MTLBuffer> inputRigidBodyBuffer =
+            inputBuffer(device, rigidBodies);
+        id<MTLBuffer> outputRigidBodyBuffer =
+            outputBuffer<MRBodyStateGPU>(
+                device,
+                rigidBodies.size()
+            );
         for (id<MTLBuffer> buffer : buffers) {
             if (buffer == nil) {
                 return reject(
@@ -801,6 +1007,17 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                     "failed to allocate rod Metal buffer"
                 );
             }
+        }
+        if (inputAttachmentBuffer == nil ||
+            rigidBindingBuffer == nil ||
+            inputRigidBodyBuffer == nil ||
+            outputRigidBodyBuffer == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalDiscreteElasticRodHostStatus::
+                    metalBufferFailure,
+                "failed to allocate rigid rod coupling buffer"
+            );
         }
         id<MTLCommandQueue> queue = [device newCommandQueue];
         id<MTLCommandBuffer> commandBuffer =
@@ -816,8 +1033,42 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 "failed to create rod command graph"
             );
         }
+        if (!attachments.empty()) {
+            [encoder setComputePipelineState:resolvePipeline];
+            [encoder setBuffer:buffers[0]
+                        offset:0u
+                       atIndex:0u];
+            [encoder setBuffer:inputAttachmentBuffer
+                        offset:0u
+                       atIndex:1u];
+            [encoder setBuffer:rigidBindingBuffer
+                        offset:0u
+                       atIndex:2u];
+            [encoder setBuffer:inputRigidBodyBuffer
+                        offset:0u
+                       atIndex:3u];
+            [encoder setBuffer:buffers[13]
+                        offset:0u
+                       atIndex:4u];
+            const NSUInteger resolveWidth = std::min<NSUInteger>(
+                256u,
+                resolvePipeline.maxTotalThreadsPerThreadgroup
+            );
+            [encoder
+                dispatchThreads:MTLSizeMake(
+                    attachments.size(),
+                    1u,
+                    1u
+                )
+                threadsPerThreadgroup:MTLSizeMake(
+                    resolveWidth,
+                    1u,
+                    1u
+                )];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
         [encoder setComputePipelineState:pipeline];
-        for (NSUInteger index = 0u; index < 19u; ++index) {
+        for (NSUInteger index = 0u; index < 20u; ++index) {
             [encoder setBuffer:buffers[index]
                         offset:0u
                        atIndex:index];
@@ -833,6 +1084,39 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                 1u,
                 1u
             )];
+        if (input.rigidBodyCount > 0u) {
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            [encoder setComputePipelineState:applyPipeline];
+            [encoder setBuffer:buffers[0]
+                        offset:0u
+                       atIndex:0u];
+            [encoder setBuffer:rigidBindingBuffer
+                        offset:0u
+                       atIndex:1u];
+            [encoder setBuffer:inputRigidBodyBuffer
+                        offset:0u
+                       atIndex:2u];
+            [encoder setBuffer:buffers[19]
+                        offset:0u
+                       atIndex:3u];
+            [encoder setBuffer:buffers[18]
+                        offset:0u
+                       atIndex:4u];
+            [encoder setBuffer:outputRigidBodyBuffer
+                        offset:0u
+                       atIndex:5u];
+            [encoder
+                dispatchThreadgroups:MTLSizeMake(
+                    environmentCount,
+                    1u,
+                    1u
+                )
+                threadsPerThreadgroup:MTLSizeMake(
+                    kThreadgroupSize,
+                    1u,
+                    1u
+                )];
+        }
         [encoder endEncoding];
         const auto start = std::chrono::steady_clock::now();
         diagnostics.dispatched = true;
@@ -892,9 +1176,19 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
             static_cast<const float*>(buffers[16].contents);
         const auto* outputTwistRate =
             static_cast<const float*>(buffers[17].contents);
+        const auto* outputReaction =
+            static_cast<const MRRodGPUAttachmentReaction*>(
+                buffers[19].contents
+            );
+        const auto* outputRigidBody =
+            static_cast<const MRBodyStateGPU*>(
+                outputRigidBodyBuffer.contents
+            );
         MetalDiscreteElasticRodResult staged;
         staged.states.resize(environmentCount);
         staged.statuses = std::move(statuses);
+        staged.reactions.resize(attachments.size());
+        staged.rigidBodies.resize(rigidBodies.size());
         for (std::size_t environment = 0u;
              environment < environmentCount;
              ++environment) {
@@ -944,6 +1238,56 @@ MetalDiscreteElasticRodDiagnostics runMetalDiscreteElasticRod(
                     MetalDiscreteElasticRodHostStatus::
                         internalFailure,
                     "GPU rod output is non-finite"
+                );
+            }
+        }
+        for (std::size_t reactionIndex = 0u;
+             reactionIndex < attachments.size();
+             ++reactionIndex) {
+            const MRRodGPUAttachmentReaction value =
+                outputReaction[reactionIndex];
+            DiscreteRodAttachmentReaction& reaction =
+                staged.reactions[reactionIndex];
+            reaction.nodeIndex = value.nodeIndex;
+            reaction.bodyIndex = value.bodyIndex;
+            reaction.impulseOnTarget = {
+                value.impulseAndError.x,
+                value.impulseAndError.y,
+                value.impulseAndError.z,
+            };
+            reaction.averageForceOnTarget = {
+                value.averageForce.x,
+                value.averageForce.y,
+                value.averageForce.z,
+            };
+            reaction.finalPositionError =
+                value.impulseAndError.w;
+            if (!finite(reaction.impulseOnTarget) ||
+                !finite(reaction.averageForceOnTarget) ||
+                !finite(reaction.finalPositionError)) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalDiscreteElasticRodHostStatus::
+                        internalFailure,
+                    "GPU rod reaction evidence is non-finite"
+                );
+            }
+        }
+        if (!rigidBodies.empty()) {
+            std::copy_n(
+                outputRigidBody,
+                rigidBodies.size(),
+                staged.rigidBodies.begin()
+            );
+            if (!std::ranges::all_of(
+                    staged.rigidBodies,
+                    validRigidBodyState
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalDiscreteElasticRodHostStatus::
+                        internalFailure,
+                    "GPU rigid reaction output is non-finite"
                 );
             }
         }

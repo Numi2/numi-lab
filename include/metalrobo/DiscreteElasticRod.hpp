@@ -8,6 +8,9 @@
 
 namespace metalrobo {
 
+inline constexpr std::uint32_t kDiscreteRodNoRigidBody =
+    0xffffffffu;
+
 struct DiscreteRodMaterial {
     double radius = 1.5e-4;
     double density = 1100.0;
@@ -47,6 +50,25 @@ struct DiscreteRodAttachment {
     std::array<double, 3> targetVelocity{};
     // Zero is a hard attachment; positive values are XPBD compliance.
     double compliance = 0.0;
+};
+
+// Fixed-slot evidence for one attachment. impulseOnTarget is the equal and
+// opposite impulse exerted by the rod on the attachment target over the
+// complete step; averageForceOnTarget is impulseOnTarget / timestep. This is
+// the force-transfer boundary used by rigid needle and tool coupling.
+struct DiscreteRodAttachmentReaction {
+    std::uint32_t nodeIndex = 0u;
+    std::uint32_t bodyIndex = kDiscreteRodNoRigidBody;
+    std::array<double, 3> impulseOnTarget{};
+    std::array<double, 3> averageForceOnTarget{};
+    double finalPositionError = 0.0;
+};
+
+struct DiscreteRodRigidAttachmentBinding {
+    // Local body index inside each environment. UINT32_MAX leaves the
+    // attachment target explicit.
+    std::uint32_t bodyIndex = kDiscreteRodNoRigidBody;
+    std::array<double, 3> localAnchor{};
 };
 
 struct DiscreteElasticRodEnergy {
@@ -132,7 +154,8 @@ stepDiscreteElasticRodCpu(
     const DiscreteElasticRodModel& model,
     DiscreteElasticRodState& state,
     std::span<const DiscreteRodAttachment> attachments = {},
-    const DiscreteElasticRodStepConfig& config = {}
+    const DiscreteElasticRodStepConfig& config = {},
+    std::span<DiscreteRodAttachmentReaction> reactions = {}
 );
 
 [[nodiscard]] const char* discreteElasticRodStatusName(

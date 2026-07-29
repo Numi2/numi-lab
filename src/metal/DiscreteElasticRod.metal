@@ -40,6 +40,30 @@ inline float3 rotateAroundAxis(
         axis * dot(axis, value) * (1.0f - cosine);
 }
 
+inline float3 rotateQuaternion(
+    const float4 quaternion,
+    const float3 value
+) {
+    const float3 imaginary = quaternion.xyz;
+    return value +
+        2.0f * cross(
+            imaginary,
+            cross(imaginary, value) +
+                quaternion.w * value
+        );
+}
+
+inline float3 applyInverseInertia(
+    const MRBodyStateGPU body,
+    const float3 value
+) {
+    return float3(
+        dot(body.inverseInertiaWorldRow0.xyz, value),
+        dot(body.inverseInertiaWorldRow1.xyz, value),
+        dot(body.inverseInertiaWorldRow2.xyz, value)
+    );
+}
+
 inline float3 leastAlignedDirector(const float3 tangent) {
     const float3 absoluteTangent = abs(tangent);
     const float3 axis =
@@ -257,9 +281,11 @@ inline void projectTwist(
 
 inline void projectAttachment(
     const MRRodGPUAttachment attachment,
+    const uint attachmentIndex,
     const float timestep,
     device const float* inverseMasses,
     threadgroup float3* positions,
+    threadgroup float3* targetImpulses,
     threadgroup atomic_uint& failure,
     threadgroup atomic_uint& maximumErrorBits,
     threadgroup atomic_uint& maximumCorrectionBits
@@ -274,6 +300,8 @@ inline void projectAttachment(
     const float3 correction =
         -delta * inverseMass / (inverseMass + alpha);
     positions[node] += correction;
+    targetImpulses[attachmentIndex] -=
+        correction / (inverseMass * timestep);
     if (!finite3(positions[node])) {
         recordFailure(
             failure,
@@ -521,6 +549,49 @@ inline void projectBend(
 
 } // namespace
 
+// Resolve immutable homogeneous-world body bindings into per-environment
+// attachment targets. The rod kernel consumes only this canonical record, so
+// explicit and rigid targets retain identical constraint semantics.
+kernel void mr_resolve_rod_rigid_attachments(
+    device const MRRodGPUDispatch& dispatch [[buffer(0)]],
+    device const MRRodGPUAttachment* inputAttachments [[buffer(1)]],
+    device const MRRodGPURigidBinding* bindings [[buffer(2)]],
+    device const MRBodyStateGPU* rigidBodies [[buffer(3)]],
+    device MRRodGPUAttachment* resolvedAttachments [[buffer(4)]],
+    const uint globalIndex [[thread_position_in_grid]]
+) {
+    const uint count =
+        dispatch.environmentCount * dispatch.attachmentCount;
+    if (globalIndex >= count) {
+        return;
+    }
+    const uint environment =
+        globalIndex / dispatch.attachmentCount;
+    const uint attachmentIndex =
+        globalIndex - environment * dispatch.attachmentCount;
+    MRRodGPUAttachment resolved =
+        inputAttachments[globalIndex];
+    const MRRodGPURigidBinding binding =
+        bindings[attachmentIndex];
+    if (binding.bodyIndex != MR_ROD_GPU_INVALID_BODY) {
+        const MRBodyStateGPU body =
+            rigidBodies[
+                environment * dispatch.stateBodyStride +
+                binding.bodyIndex
+            ];
+        const float3 worldOffset = rotateQuaternion(
+            body.orientation,
+            binding.localAnchor.xyz
+        );
+        resolved.targetAndCompliance.xyz =
+            body.position.xyz + worldOffset;
+        resolved.velocity.xyz =
+            body.linearVelocityAndInverseMass.xyz +
+            cross(body.angularVelocity.xyz, worldOffset);
+    }
+    resolvedAttachments[globalIndex] = resolved;
+}
+
 // One threadgroup owns one environment and retains the complete rod state in
 // threadgroup memory. Constraint coloring makes every phase write-disjoint:
 // two colors for edges/twist, three for bend triples. No floating atomics
@@ -545,6 +616,7 @@ kernel void mr_discrete_elastic_rod_step(
     device float* outputTwists [[buffer(16)]],
     device float* outputTwistRates [[buffer(17)]],
     device MRRodGPUStatus* statuses [[buffer(18)]],
+    device MRRodGPUAttachmentReaction* reactions [[buffer(19)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_threadgroup]],
     const uint laneCount [[threads_per_threadgroup]]
@@ -560,6 +632,9 @@ kernel void mr_discrete_elastic_rod_step(
     threadgroup float originalTwists[MR_ROD_GPU_MAX_NODES - 1u];
     threadgroup float iterationTwists[MR_ROD_GPU_MAX_NODES - 1u];
     threadgroup float twistRates[MR_ROD_GPU_MAX_NODES - 1u];
+    threadgroup float3 targetImpulses[
+        MR_ROD_GPU_MAX_ATTACHMENTS
+    ];
     threadgroup atomic_uint failure;
     threadgroup atomic_uint maximumErrorBits;
     threadgroup atomic_uint maximumCorrectionBits;
@@ -594,6 +669,8 @@ kernel void mr_discrete_elastic_rod_step(
             dispatch.solverIterations == 0u ||
             dispatch.stateNodeStride < dispatch.nodeCount ||
             dispatch.stateEdgeStride < dispatch.edgeCount ||
+            dispatch.stateBodyStride <
+                dispatch.rigidBodyCount ||
             !(dispatch.gravityAndTimestep.w > 0.0f) ||
             !all(isfinite(dispatch.gravityAndTimestep)) ||
             any(dispatch.dampingDerivativeTolerance < 0.0f) ||
@@ -608,6 +685,11 @@ kernel void mr_discrete_elastic_rod_step(
                 memory_order_relaxed
             );
         }
+    }
+    for (uint attachmentIndex = lane;
+         attachmentIndex < dispatch.attachmentCount;
+         attachmentIndex += laneCount) {
+        targetImpulses[attachmentIndex] = float3(0.0f);
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
@@ -752,9 +834,11 @@ kernel void mr_discrete_elastic_rod_step(
                         attachments[
                             attachmentBase + attachmentIndex
                         ],
+                        attachmentIndex,
                         dispatch.gravityAndTimestep.w,
                         inverseMasses,
                         positions,
+                        targetImpulses,
                         failure,
                         maximumErrorBits,
                         maximumCorrectionBits
@@ -836,9 +920,11 @@ kernel void mr_discrete_elastic_rod_step(
                     attachments[
                         attachmentBase + attachmentIndex
                     ],
+                    attachmentIndex,
                     dispatch.gravityAndTimestep.w,
                     inverseMasses,
                     positions,
+                    targetImpulses,
                     failure,
                     maximumErrorBits,
                     maximumCorrectionBits
@@ -948,6 +1034,11 @@ kernel void mr_discrete_elastic_rod_step(
                     ];
                 if (attachment.nodeIndex == node &&
                     attachment.targetAndCompliance.w == 0.0f) {
+                    targetImpulses[attachmentIndex] -=
+                        (
+                            attachment.velocity.xyz -
+                            velocity
+                        ) / inverseMasses[node];
                     position = attachment.targetAndCompliance.xyz;
                     velocity = attachment.velocity.xyz;
                 }
@@ -972,6 +1063,43 @@ kernel void mr_discrete_elastic_rod_step(
             ) * (twistDecay * inverseTimestep)
             : inputTwistRates[edgeBase + edge];
     }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint attachmentIndex = lane;
+         attachmentIndex < dispatch.attachmentCount;
+         attachmentIndex += laneCount) {
+        const uint globalAttachment =
+            environment * dispatch.attachmentCount +
+            attachmentIndex;
+        const MRRodGPUAttachment attachment =
+            attachments[globalAttachment];
+        const float3 impulse =
+            failureCode == MR_ROD_GPU_SUCCESS
+            ? targetImpulses[attachmentIndex]
+            : float3(0.0f);
+        MRRodGPUAttachmentReaction reaction{};
+        reaction.impulseAndError = float4(
+            impulse,
+            failureCode == MR_ROD_GPU_SUCCESS
+            ? (
+                attachment.targetAndCompliance.w == 0.0f
+                ? 0.0f
+                : length(
+                    positions[attachment.nodeIndex] -
+                    attachment.targetAndCompliance.xyz
+                )
+            )
+            : 0.0f
+        );
+        reaction.averageForce = float4(
+            impulse * inverseTimestep,
+            0.0f
+        );
+        reaction.nodeIndex = attachment.nodeIndex;
+        reaction.attachmentIndex = attachmentIndex;
+        reaction.bodyIndex = MR_ROD_GPU_INVALID_BODY;
+        reactions[globalAttachment] = reaction;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
     if (lane == 0u) {
         MRRodGPUStatus status{};
         status.code = failureCode;
@@ -991,5 +1119,83 @@ kernel void mr_discrete_elastic_rod_step(
             0.0f
         );
         statuses[environment] = status;
+    }
+}
+
+// Apply the equal-and-opposite rod reaction at each rigid local anchor.
+// Bindings are required to name disjoint bodies, so lane zero can update the
+// small surgical coupling set in stable attachment order without atomics.
+// All body candidates are copied before any reaction is applied; on a
+// non-finite update the environment's rigid candidates and rod status roll
+// back together.
+kernel void mr_apply_rod_rigid_reactions(
+    device const MRRodGPUDispatch& dispatch [[buffer(0)]],
+    device const MRRodGPURigidBinding* bindings [[buffer(1)]],
+    device const MRBodyStateGPU* inputBodies [[buffer(2)]],
+    device MRRodGPUAttachmentReaction* reactions [[buffer(3)]],
+    device MRRodGPUStatus* statuses [[buffer(4)]],
+    device MRBodyStateGPU* outputBodies [[buffer(5)]],
+    const uint environment [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_threadgroup]],
+    const uint laneCount [[threads_per_threadgroup]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    const uint bodyBase =
+        environment * dispatch.stateBodyStride;
+    for (uint bodyIndex = lane;
+         bodyIndex < dispatch.rigidBodyCount;
+         bodyIndex += laneCount) {
+        outputBodies[bodyBase + bodyIndex] =
+            inputBodies[bodyBase + bodyIndex];
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+    if (lane != 0u ||
+        statuses[environment].code != MR_ROD_GPU_SUCCESS) {
+        return;
+    }
+
+    bool valid = true;
+    const uint attachmentBase =
+        environment * dispatch.attachmentCount;
+    for (uint attachmentIndex = 0u;
+         attachmentIndex < dispatch.attachmentCount;
+         ++attachmentIndex) {
+        const MRRodGPURigidBinding binding =
+            bindings[attachmentIndex];
+        if (binding.bodyIndex == MR_ROD_GPU_INVALID_BODY) {
+            continue;
+        }
+        device MRRodGPUAttachmentReaction& reaction =
+            reactions[attachmentBase + attachmentIndex];
+        device MRBodyStateGPU& body =
+            outputBodies[bodyBase + binding.bodyIndex];
+        const float3 impulse = reaction.impulseAndError.xyz;
+        const float3 worldOffset = rotateQuaternion(
+            body.orientation,
+            binding.localAnchor.xyz
+        );
+        body.linearVelocityAndInverseMass.xyz +=
+            body.linearVelocityAndInverseMass.w * impulse;
+        body.angularVelocity.xyz += applyInverseInertia(
+            body,
+            cross(worldOffset, impulse)
+        );
+        reaction.bodyIndex = binding.bodyIndex;
+        valid =
+            valid &&
+            finite3(body.linearVelocityAndInverseMass.xyz) &&
+            finite3(body.angularVelocity.xyz);
+    }
+    if (!valid) {
+        for (uint bodyIndex = 0u;
+             bodyIndex < dispatch.rigidBodyCount;
+             ++bodyIndex) {
+            outputBodies[bodyBase + bodyIndex] =
+                inputBodies[bodyBase + bodyIndex];
+        }
+        statuses[environment].code =
+            MR_ROD_GPU_NONFINITE_RESULT;
     }
 }

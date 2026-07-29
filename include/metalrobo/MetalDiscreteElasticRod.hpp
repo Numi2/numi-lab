@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/DiscreteElasticRod.hpp"
+#include "metalrobo/engine_types.h"
 #include "metalrobo/rod_gpu_shared.h"
 
 #include <cstddef>
@@ -17,6 +18,15 @@ struct MetalDiscreteElasticRodInput {
     // explicit inputs so PSM/needle kinematics can update them on-device.
     std::size_t attachmentCount = 0u;
     std::span<const DiscreteRodAttachment> attachments{};
+    // Optional environment-major rigid candidate state. When bindings are
+    // supplied, attachment targets are projected from these bodies on-device
+    // and reaction impulses are applied back to disjoint bodies in the same
+    // command graph.
+    std::size_t rigidBodyCount = 0u;
+    std::span<const MRBodyStateGPU> rigidBodies{};
+    // Immutable homogeneous-world mapping, one slot per local attachment.
+    // Coupled body indices must be unique so physical writes stay atomic-free.
+    std::span<const DiscreteRodRigidAttachmentBinding> rigidBindings{};
 };
 
 struct MetalDiscreteElasticRodConfig {
@@ -46,6 +56,10 @@ enum class MetalDiscreteElasticRodHostStatus : std::uint32_t {
 struct MetalDiscreteElasticRodResult {
     std::vector<DiscreteElasticRodState> states;
     std::vector<MRRodGPUStatus> statuses;
+    // Environment-major, fixed attachmentCount.
+    std::vector<DiscreteRodAttachmentReaction> reactions;
+    // Environment-major, fixed rigidBodyCount. Empty for an uncoupled solve.
+    std::vector<MRBodyStateGPU> rigidBodies;
 };
 
 struct MetalDiscreteElasticRodDiagnostics {
@@ -68,7 +82,9 @@ struct MetalDiscreteElasticRodDiagnostics {
 
 // SIMD32-cohort implicit XPBD/DER solve. One threadgroup owns one complete
 // rod environment; 2/3-color phases make all physical writes disjoint.
-// Publication is transactional across the batch.
+// Optional body-anchor projection and equal/opposite reaction application are
+// encoded in the same command buffer. Publication of rod and rigid candidates
+// is transactional across the batch.
 [[nodiscard]] MetalDiscreteElasticRodDiagnostics
 runMetalDiscreteElasticRod(
     const DiscreteElasticRodModel& model,

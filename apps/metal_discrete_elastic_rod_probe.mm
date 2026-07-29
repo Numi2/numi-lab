@@ -1,4 +1,5 @@
 #include "metalrobo/MetalDiscreteElasticRod.hpp"
+#include "metalrobo/SurgicalWorld.hpp"
 
 #include <array>
 #include <cmath>
@@ -17,16 +18,31 @@ void require(const bool condition, const std::string& message) {
     }
 }
 
+double length(const std::array<double, 3>& value) {
+    return std::sqrt(
+        value[0] * value[0] +
+        value[1] * value[1] +
+        value[2] * value[2]
+    );
+}
+
 } // namespace
 
 int main() {
     try {
         constexpr std::size_t environmentCount = 4u;
-        const metalrobo::DiscreteElasticRodModel model =
-            metalrobo::makeStraightSutureRod(9u, 0.12);
+        metalrobo::DualPsmNeedleThreadWorldConfig worldConfig;
+        worldConfig.threadNodeCount = 9u;
+        worldConfig.threadLengthM = 0.12;
+        const metalrobo::DualPsmNeedleThreadWorld world =
+            metalrobo::makeDualDvrkPsmNeedleThreadWorld(
+                worldConfig
+            );
+        const metalrobo::DiscreteElasticRodModel& model =
+            world.threadModel;
         std::vector<metalrobo::DiscreteElasticRodState> states(
             environmentCount,
-            metalrobo::makeDiscreteElasticRodDefaultState(model)
+            world.threadState
         );
         std::vector<metalrobo::DiscreteElasticRodEnergy> before(
             environmentCount
@@ -34,10 +50,14 @@ int main() {
         std::vector<metalrobo::DiscreteRodAttachment> attachments(
             environmentCount
         );
+        std::vector<MRBodyStateGPU> rigidBodies(
+            environmentCount,
+            world.needleState
+        );
         for (std::size_t environment = 0u;
              environment < environmentCount;
              ++environment) {
-            states[environment].positions[4][1] =
+            states[environment].positions[4][1] +=
                 0.004 + 0.001 * environment;
             states[environment].positions.back()[0] +=
                 0.002 + 0.0005 * environment;
@@ -54,13 +74,15 @@ int main() {
                     before[environment].total() > 0.0,
                 "initial rod energy is invalid"
             );
-            attachments[environment] = {
-                .nodeIndex = 0u,
-                .targetPosition = model.restPositions[0],
-                .targetVelocity = {0.0, 0.0, 0.0},
-                .compliance = 0.0,
-            };
+            attachments[environment] =
+                world.attachments[0];
         }
+        const std::array<
+            metalrobo::DiscreteRodRigidAttachmentBinding,
+            1
+        > rigidBindings{{
+            world.rigidBindings[0],
+        }};
 
         metalrobo::MetalDiscreteElasticRodConfig config;
         config.step.gravity = {0.0, 0.0, 0.0};
@@ -70,6 +92,9 @@ int main() {
             .states = states,
             .attachmentCount = 1u,
             .attachments = attachments,
+            .rigidBodyCount = 1u,
+            .rigidBodies = rigidBodies,
+            .rigidBindings = rigidBindings,
         };
         metalrobo::MetalDiscreteElasticRodResult result;
         const auto diagnostics =
@@ -91,10 +116,13 @@ int main() {
             diagnostics.dispatched &&
                 diagnostics.published &&
                 result.states.size() == environmentCount &&
-                result.statuses.size() == environmentCount,
+                result.statuses.size() == environmentCount &&
+                result.reactions.size() == environmentCount &&
+                result.rigidBodies.size() == environmentCount,
             "Metal rod result was not published"
         );
         double maximumAfter = 0.0;
+        double maximumReaction = 0.0;
         std::uint32_t maximumIterations = 0u;
         for (std::size_t environment = 0u;
              environment < environmentCount;
@@ -112,11 +140,59 @@ int main() {
                 "Metal rod projection did not reduce energy"
             );
             require(
-                result.states[environment].positions.front() ==
-                    attachments[environment].targetPosition &&
-                    result.states[environment].velocities.front() ==
-                    attachments[environment].targetVelocity,
+                std::abs(
+                    result.states[environment].
+                        positions.front()[0] -
+                    attachments[environment].targetPosition[0]
+                ) <= 1.0e-7 &&
+                    std::abs(
+                        result.states[environment].
+                            positions.front()[1] -
+                        attachments[environment].
+                            targetPosition[1]
+                    ) <= 1.0e-7 &&
+                    std::abs(
+                        result.states[environment].
+                            positions.front()[2] -
+                        attachments[environment].
+                            targetPosition[2]
+                    ) <= 1.0e-7 &&
+                    result.states[environment].
+                            velocities.front() ==
+                        attachments[environment].targetVelocity,
                 "hard rod attachment was not enforced"
+            );
+            const auto& reaction = result.reactions[environment];
+            maximumReaction = std::max(
+                maximumReaction,
+                length(reaction.averageForceOnTarget)
+            );
+            const MRBodyStateGPU& body =
+                result.rigidBodies[environment];
+            const double inverseMass =
+                rigidBodies[environment].
+                    linearVelocityAndInverseMass.w;
+            require(
+                reaction.nodeIndex == 0u &&
+                    reaction.bodyIndex == 0u &&
+                    reaction.finalPositionError <= 1.0e-5 &&
+                    length(reaction.impulseOnTarget) > 0.0 &&
+                    std::abs(
+                        body.linearVelocityAndInverseMass.x -
+                        inverseMass *
+                            reaction.impulseOnTarget[0]
+                    ) <= 2.0e-5 &&
+                    std::abs(
+                        body.linearVelocityAndInverseMass.y -
+                        inverseMass *
+                            reaction.impulseOnTarget[1]
+                    ) <= 2.0e-5 &&
+                    std::abs(
+                        body.linearVelocityAndInverseMass.z -
+                        inverseMass *
+                            reaction.impulseOnTarget[2]
+                    ) <= 2.0e-5,
+                "needle did not receive the on-GPU rod reaction"
             );
             maximumAfter = std::max(
                 maximumAfter,
@@ -152,7 +228,23 @@ int main() {
                     replay.states[environment].twists ==
                         result.states[environment].twists &&
                     replay.states[environment].twistRates ==
-                        result.states[environment].twistRates,
+                        result.states[environment].twistRates &&
+                    replay.reactions[environment].
+                            impulseOnTarget ==
+                        result.reactions[environment].
+                            impulseOnTarget &&
+                    replay.rigidBodies[environment].
+                            linearVelocityAndInverseMass.x ==
+                        result.rigidBodies[environment].
+                            linearVelocityAndInverseMass.x &&
+                    replay.rigidBodies[environment].
+                            linearVelocityAndInverseMass.y ==
+                        result.rigidBodies[environment].
+                            linearVelocityAndInverseMass.y &&
+                    replay.rigidBodies[environment].
+                            linearVelocityAndInverseMass.z ==
+                        result.rigidBodies[environment].
+                            linearVelocityAndInverseMass.z,
                 "Metal rod replay is not deterministic"
             );
         }
@@ -167,6 +259,9 @@ int main() {
             .states = invalidStates,
             .attachmentCount = 1u,
             .attachments = attachments,
+            .rigidBodyCount = 1u,
+            .rigidBodies = rigidBodies,
+            .rigidBindings = rigidBindings,
         };
         const auto rejected =
             metalrobo::runMetalDiscreteElasticRod(
@@ -190,6 +285,7 @@ int main() {
             << " nodes=" << model.restPositions.size()
             << " iterations=" << maximumIterations
             << " max_after_energy=" << maximumAfter
+            << " max_anchor_force_n=" << maximumReaction
             << " allocated_bytes=" << diagnostics.allocatedBytes
             << " elapsed_ms=" << diagnostics.elapsedMilliseconds
             << " deterministic=yes transactional=yes\n";

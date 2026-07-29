@@ -121,12 +121,18 @@ prototype.
 
 ## S4 — Multiple articulations and surgical autonomy
 
-- Generalize island nodes and factor caches to multiple articulations per
-  environment, including articulation-articulation contacts and loop blocks
-- Compose two PSMs, trocar/RCM constraints, calibrated jaw patches, and
-  physics-owned needle regrasp/ring/peg transfer without hidden attachments
-- Add discrete-elastic-rod thread stretch/bend/twist, attachment, self/tool
-  collision, and its batched block-tridiagonal inner solve
+- **Landed composition/force-transfer tranche:** two independently based PSM
+  articulations, generalized base/jaw mechanism rows, dynamic curved needle,
+  physically parameterized DER stretch/bend/twist, geometry-derived swage
+  binding, fixed-slot attachment reaction evidence, and same-command-buffer
+  equal/opposite needle wrench with transactional publication
+- Generalize the shared contact island graph to articulation-articulation
+  contacts and loop blocks; the multi-articulation ABA/ConstraintIR primitive
+  itself is already executable on standalone Metal and MLX
+- Add trocar/RCM constraints, calibrated jaw patches, and physics-owned needle
+  regrasp/ring/peg transfer without hidden attachments
+- Add thread self/tool collision and replace the current SIMD32 DER projection
+  with a measured batched block-tridiagonal rod solve where it wins
 - Defer calibrated tissue puncture/cutting until rigid needle/thread evidence
   is stable and reproducible
 

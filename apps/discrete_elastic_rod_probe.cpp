@@ -1,5 +1,6 @@
 #include "metalrobo/DiscreteElasticRod.hpp"
 
+#include <array>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -63,12 +64,17 @@ int main() {
         config.gravity = {0.0, 0.0, 0.0};
         config.solverIterations = 96u;
         config.constraintTolerance = 1.0e-5;
+        std::array<
+            metalrobo::DiscreteRodAttachmentReaction,
+            1
+        > reactions{};
         const auto diagnostics =
             metalrobo::stepDiscreteElasticRodCpu(
                 model,
                 state,
                 {&attachment, 1u},
-                config
+                config,
+                reactions
             );
         require(
             diagnostics.succeeded(),
@@ -82,6 +88,20 @@ int main() {
                     state.positions[1]
                 ) < 1.1 * model.restLengths[0],
             "hard attachment or stretch projection failed"
+        );
+        require(
+            reactions[0].nodeIndex == 0u &&
+                std::isfinite(
+                    reactions[0].averageForceOnTarget[0]
+                ) &&
+                std::isfinite(
+                    reactions[0].averageForceOnTarget[1]
+                ) &&
+                std::isfinite(
+                    reactions[0].averageForceOnTarget[2]
+                ) &&
+                reactions[0].finalPositionError <= 1.0e-12,
+            "DER attachment reaction evidence is invalid"
         );
         require(
             diagnostics.after.total() <
@@ -139,6 +159,15 @@ int main() {
             << " twist=" << diagnostics.after.twist
             << " max_error="
             << diagnostics.maximumConstraintError
+            << " anchor_force_n="
+            << std::sqrt(
+                reactions[0].averageForceOnTarget[0] *
+                    reactions[0].averageForceOnTarget[0] +
+                reactions[0].averageForceOnTarget[1] *
+                    reactions[0].averageForceOnTarget[1] +
+                reactions[0].averageForceOnTarget[2] *
+                    reactions[0].averageForceOnTarget[2]
+            )
             << " deterministic=yes transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {

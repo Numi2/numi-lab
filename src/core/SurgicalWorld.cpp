@@ -54,6 +54,109 @@ bool validPose(const SurgicalBasePose& pose) {
         std::abs(normSquared - 1.0) <= 1.0e-5;
 }
 
+using DVec3 = std::array<double, 3>;
+using DMat3 = std::array<double, 9>;
+
+DVec3 add(const DVec3& left, const DVec3& right) {
+    return {
+        left[0] + right[0],
+        left[1] + right[1],
+        left[2] + right[2],
+    };
+}
+
+DVec3 multiply(const DVec3& value, const double scale) {
+    return {
+        value[0] * scale,
+        value[1] * scale,
+        value[2] * scale,
+    };
+}
+
+double length(const DVec3& value) {
+    return std::sqrt(
+        value[0] * value[0] +
+        value[1] * value[1] +
+        value[2] * value[2]
+    );
+}
+
+DVec3 rotate(
+    const std::array<float, 4>& quaternion,
+    const DVec3& value
+) {
+    const DVec3 imaginary{
+        quaternion[0],
+        quaternion[1],
+        quaternion[2],
+    };
+    const auto cross = [](const DVec3& a, const DVec3& b) {
+        return DVec3{
+            a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0],
+        };
+    };
+    return add(
+        value,
+        multiply(
+            cross(
+                imaginary,
+                add(
+                    cross(imaginary, value),
+                    multiply(value, quaternion[3])
+                )
+            ),
+            2.0
+        )
+    );
+}
+
+DMat3 rotationMatrix(
+    const std::array<float, 4>& q
+) {
+    const double x = q[0];
+    const double y = q[1];
+    const double z = q[2];
+    const double w = q[3];
+    return {
+        1.0 - 2.0 * (y * y + z * z),
+        2.0 * (x * y - z * w),
+        2.0 * (x * z + y * w),
+        2.0 * (x * y + z * w),
+        1.0 - 2.0 * (x * x + z * z),
+        2.0 * (y * z - x * w),
+        2.0 * (x * z - y * w),
+        2.0 * (y * z + x * w),
+        1.0 - 2.0 * (x * x + y * y),
+    };
+}
+
+DMat3 rotateTensor(
+    const DMat3& body,
+    const std::array<float, 4>& quaternion
+) {
+    const DMat3 rotation = rotationMatrix(quaternion);
+    DMat3 result{};
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            double value = 0.0;
+            for (std::size_t left = 0u; left < 3u; ++left) {
+                for (std::size_t right = 0u;
+                     right < 3u;
+                     ++right) {
+                    value +=
+                        rotation[row * 3u + left] *
+                        body[left * 3u + right] *
+                        rotation[column * 3u + right];
+                }
+            }
+            result[row * 3u + column] = value;
+        }
+    }
+    return result;
+}
+
 void checkedAdd(
     const std::uint64_t left,
     const std::uint64_t right,
@@ -482,6 +585,178 @@ DualPsmWorld makeDualDvrkPsmWorld(
             "internal dual PSM model is invalid: " + reason
         );
     }
+    return staged;
+}
+
+DualPsmNeedleThreadWorld
+makeDualDvrkPsmNeedleThreadWorld(
+    const DualPsmNeedleThreadWorldConfig& config
+) {
+    if (!validPose(config.needlePose) ||
+        config.threadNodeCount < 2u ||
+        !(config.threadLengthM > 0.0) ||
+        !std::isfinite(config.threadLengthM) ||
+        !(config.attachmentCompliance >= 0.0) ||
+        !std::isfinite(config.attachmentCompliance) ||
+        !std::ranges::all_of(
+            config.threadExitDirectionLocal,
+            [](const double value) {
+                return std::isfinite(value);
+            }
+        )) {
+        throw std::invalid_argument(
+            "dual PSM needle-thread configuration is invalid"
+        );
+    }
+    const double directionLength =
+        length(config.threadExitDirectionLocal);
+    if (!(directionLength > 1.0e-12) ||
+        !std::isfinite(directionLength)) {
+        throw std::invalid_argument(
+            "thread exit direction is degenerate"
+        );
+    }
+
+    DualPsmNeedleThreadWorld staged;
+    staged.robots = makeDualDvrkPsmWorld(config.robots);
+    staged.needle = makeCurvedSutureNeedleAsset(
+        SurgicalAssetIds{
+            .bodyIndex = 0u,
+            .materialIndex = 0u,
+            .slotGenerationBase = 1u,
+            .collisionGroup = 1u,
+            .collisionMask = ~0u,
+            .motionType = MR_MOTION_DYNAMIC,
+        },
+        config.needle
+    );
+
+    const double centerlineRadius =
+        config.needle.arcLengthM.value /
+        config.needle.arcAngleRad.value;
+    const double startAngle =
+        -0.5 * config.needle.arcAngleRad.value;
+    staged.metadata.swageAnchorLocal = {
+        centerlineRadius * std::cos(startAngle) -
+            staged.needle.rigid.geometryCenterOfMassM[0],
+        centerlineRadius * std::sin(startAngle) -
+            staged.needle.rigid.geometryCenterOfMassM[1],
+        -staged.needle.rigid.geometryCenterOfMassM[2],
+    };
+    const DVec3 needlePosition{
+        config.needlePose.position[0],
+        config.needlePose.position[1],
+        config.needlePose.position[2],
+    };
+    staged.metadata.swageAnchorWorld = add(
+        needlePosition,
+        rotate(
+            config.needlePose.orientation,
+            staged.metadata.swageAnchorLocal
+        )
+    );
+    staged.metadata.initialThreadDirectionWorld = rotate(
+        config.needlePose.orientation,
+        multiply(
+            config.threadExitDirectionLocal,
+            1.0 / directionLength
+        )
+    );
+
+    const MRBodyPropertiesGPU& needleBody =
+        staged.needle.rigid.body;
+    MRBodyStateGPU& needleState = staged.needleState;
+    needleState.position = f4(
+        config.needlePose.position[0],
+        config.needlePose.position[1],
+        config.needlePose.position[2],
+        1.0f
+    );
+    needleState.orientation = f4(
+        config.needlePose.orientation[0],
+        config.needlePose.orientation[1],
+        config.needlePose.orientation[2],
+        config.needlePose.orientation[3]
+    );
+    needleState.linearVelocityAndInverseMass =
+        f4(0.0f, 0.0f, 0.0f, needleBody.massAndInverseMass.y);
+    needleState.angularVelocity = f4(0.0f, 0.0f, 0.0f);
+    const DMat3 inverseBody{
+        needleBody.inverseInertiaRow0.x,
+        needleBody.inverseInertiaRow0.y,
+        needleBody.inverseInertiaRow0.z,
+        needleBody.inverseInertiaRow1.x,
+        needleBody.inverseInertiaRow1.y,
+        needleBody.inverseInertiaRow1.z,
+        needleBody.inverseInertiaRow2.x,
+        needleBody.inverseInertiaRow2.y,
+        needleBody.inverseInertiaRow2.z,
+    };
+    const DMat3 inverseWorld = rotateTensor(
+        inverseBody,
+        config.needlePose.orientation
+    );
+    needleState.inverseInertiaWorldRow0 = f4(
+        static_cast<float>(inverseWorld[0]),
+        static_cast<float>(inverseWorld[1]),
+        static_cast<float>(inverseWorld[2])
+    );
+    needleState.inverseInertiaWorldRow1 = f4(
+        static_cast<float>(inverseWorld[3]),
+        static_cast<float>(inverseWorld[4]),
+        static_cast<float>(inverseWorld[5])
+    );
+    needleState.inverseInertiaWorldRow2 = f4(
+        static_cast<float>(inverseWorld[6]),
+        static_cast<float>(inverseWorld[7]),
+        static_cast<float>(inverseWorld[8])
+    );
+    needleState.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+
+    staged.threadModel = makeStraightSutureRod(
+        config.threadNodeCount,
+        config.threadLengthM,
+        config.threadMaterial
+    );
+    staged.threadModel.name =
+        "dual_psm_needle_swage_thread";
+    staged.threadModel.fidelityBoundary =
+        "DER research material; geometry-owned swage coupling; "
+        "not package-calibrated or clinical";
+    const double restLength =
+        config.threadLengthM /
+        static_cast<double>(config.threadNodeCount - 1u);
+    for (std::uint32_t node = 0u;
+         node < config.threadNodeCount;
+         ++node) {
+        staged.threadModel.restPositions[node] = add(
+            staged.metadata.swageAnchorWorld,
+            multiply(
+                staged.metadata.initialThreadDirectionWorld,
+                restLength * static_cast<double>(node)
+            )
+        );
+    }
+    std::string rodReason;
+    if (!staged.threadModel.valid(&rodReason)) {
+        throw std::logic_error(
+            "internal surgical thread is invalid: " + rodReason
+        );
+    }
+    staged.threadState =
+        makeDiscreteElasticRodDefaultState(
+            staged.threadModel
+        );
+    staged.attachments[0] = {
+        .nodeIndex = staged.metadata.threadAttachmentNode,
+        .targetPosition = staged.metadata.swageAnchorWorld,
+        .targetVelocity = {0.0, 0.0, 0.0},
+        .compliance = config.attachmentCompliance,
+    };
+    staged.rigidBindings[0] = {
+        .bodyIndex = staged.metadata.needleSceneBodyIndex,
+        .localAnchor = staged.metadata.swageAnchorLocal,
+    };
     return staged;
 }
 

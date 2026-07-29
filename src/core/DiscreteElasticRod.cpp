@@ -618,6 +618,7 @@ bool projectAttachment(
     DiscreteElasticRodState& state,
     const DiscreteRodAttachment& attachment,
     const double timestep,
+    Vec3& impulseOnTarget,
     double& maximumError,
     double& maximumCorrection
 ) {
@@ -639,6 +640,16 @@ bool projectAttachment(
             state.positions[attachment.nodeIndex],
             correction
         );
+    // Convert the positional correction into its step impulse and expose the
+    // equal-and-opposite support reaction. Repeated ordered projections are
+    // accumulated so internal rod forces reaching the anchor are retained.
+    impulseOnTarget = subtract(
+        impulseOnTarget,
+        multiply(
+            correction,
+            1.0 / (inverseMass * timestep)
+        )
+    );
     maximumCorrection = std::max(
         maximumCorrection,
         norm(correction)
@@ -877,7 +888,8 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
     const DiscreteElasticRodModel& model,
     DiscreteElasticRodState& state,
     const std::span<const DiscreteRodAttachment> attachments,
-    const DiscreteElasticRodStepConfig& config
+    const DiscreteElasticRodStepConfig& config,
+    const std::span<DiscreteRodAttachmentReaction> reactions
 ) {
     DiscreteElasticRodDiagnostics diagnostics;
     std::string reason;
@@ -900,6 +912,14 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
             std::move(diagnostics),
             DiscreteElasticRodStatus::invalidState,
             "rod state dimensions or values are invalid"
+        );
+    }
+    if (!reactions.empty() &&
+        reactions.size() != attachments.size()) {
+        return fail(
+            std::move(diagnostics),
+            DiscreteElasticRodStatus::invalidAttachment,
+            "rod reaction output must match attachment count"
         );
     }
     for (const DiscreteRodAttachment& attachment :
@@ -926,6 +946,14 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
     }
 
     DiscreteElasticRodState candidate = state;
+    std::vector<DiscreteRodAttachmentReaction>
+        candidateReactions(attachments.size());
+    for (std::size_t attachmentIndex = 0u;
+         attachmentIndex < attachments.size();
+         ++attachmentIndex) {
+        candidateReactions[attachmentIndex].nodeIndex =
+            attachments[attachmentIndex].nodeIndex;
+    }
     const auto oldPositions = state.positions;
     const auto oldTwists = state.twists;
     const double h = config.timestep;
@@ -1028,13 +1056,19 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
             }
             ++diagnostics.projectedTwistConstraints;
         }
-        for (const DiscreteRodAttachment& attachment :
-             attachments) {
+        for (std::size_t attachmentIndex = 0u;
+             attachmentIndex < attachments.size();
+             ++attachmentIndex) {
+            const DiscreteRodAttachment& attachment =
+                attachments[attachmentIndex];
             if (!projectAttachment(
                     model,
                     candidate,
                     attachment,
                     h,
+                    candidateReactions[
+                        attachmentIndex
+                    ].impulseOnTarget,
                     maximumError,
                     diagnostics.maximumPositionCorrection
                 )) {
@@ -1104,13 +1138,46 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                 oldTwists[edge]
             ) * twistDecay / h;
     }
-    for (const DiscreteRodAttachment& attachment :
-         attachments) {
+    for (std::size_t attachmentIndex = 0u;
+         attachmentIndex < attachments.size();
+         ++attachmentIndex) {
+        const DiscreteRodAttachment& attachment =
+            attachments[attachmentIndex];
+        DiscreteRodAttachmentReaction& reaction =
+            candidateReactions[attachmentIndex];
         if (attachment.compliance == 0.0) {
+            const Vec3 velocityCorrection = subtract(
+                attachment.targetVelocity,
+                candidate.velocities[attachment.nodeIndex]
+            );
+            reaction.impulseOnTarget = subtract(
+                reaction.impulseOnTarget,
+                multiply(
+                    velocityCorrection,
+                    model.nodeMasses[attachment.nodeIndex]
+                )
+            );
             candidate.positions[attachment.nodeIndex] =
                 attachment.targetPosition;
             candidate.velocities[attachment.nodeIndex] =
                 attachment.targetVelocity;
+        }
+        reaction.finalPositionError = norm(subtract(
+            candidate.positions[attachment.nodeIndex],
+            attachment.targetPosition
+        ));
+        reaction.averageForceOnTarget = multiply(
+            reaction.impulseOnTarget,
+            1.0 / h
+        );
+        if (!finite(reaction.impulseOnTarget) ||
+            !finite(reaction.averageForceOnTarget) ||
+            !finite(reaction.finalPositionError)) {
+            return fail(
+                std::move(diagnostics),
+                DiscreteElasticRodStatus::nonfiniteResult,
+                "attachment reaction became non-finite"
+            );
         }
     }
     if (!validState(model, candidate) ||
@@ -1129,6 +1196,9 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
         );
     }
     state = std::move(candidate);
+    if (!reactions.empty()) {
+        std::ranges::copy(candidateReactions, reactions.begin());
+    }
     return diagnostics;
 }
 

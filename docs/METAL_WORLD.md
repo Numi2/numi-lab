@@ -159,6 +159,17 @@ products remain open. The force/actuation ABA step still needs the same
 frontier conversion; full multi-articulation collision/island composition
 remains the next shared-world boundary.
 
+The surgical DER path now uses a separate shared-ABI graph in the same
+metallib. It resolves homogeneous rigid bindings into environment-major
+attachment targets, runs the SIMD32 rod projection, records the accumulated
+equal-and-opposite attachment impulse plus average force, and applies that
+impulse at the dynamic needle anchor without floating-point atomics. The
+public dual-PSM needle/thread factory derives its binding from the curved
+needle's rear swage geometry and initializes the thread in world coordinates.
+The standalone host currently submits this three-kernel graph and publishes
+rod and rigid output together. Promotion into the MLX `WorldStepPrimitive`,
+thread self/tool contact, and strong coupled rod/rigid iterations remain open.
+
 The NumPy/ctypes Franka task remains available only as
 `--backend ctypes-debug` for compatibility and oracle work. The CLI training
 default is the MLX-native Franka joint-stabilization task.

@@ -138,6 +138,36 @@ int main() {
             "dual PSM failure was not transactional"
         );
 
+        metalrobo::DualPsmNeedleThreadWorldConfig surgicalConfig;
+        surgicalConfig.threadNodeCount = 9u;
+        surgicalConfig.threadLengthM = 0.12;
+        const metalrobo::DualPsmNeedleThreadWorld surgical =
+            metalrobo::makeDualDvrkPsmNeedleThreadWorld(
+                surgicalConfig
+            );
+        require(
+            surgical.robots.model.articulations.size() == 2u &&
+                surgical.robots.model.constraintProgram.blocks.size() ==
+                    14u &&
+                surgical.needle.rigid.shapes.size() ==
+                    surgicalConfig.needle.arcSegments &&
+                surgical.threadModel.restPositions.size() == 9u &&
+                surgical.threadState.positions.front() ==
+                    surgical.metadata.swageAnchorWorld &&
+                surgical.attachments[0].targetPosition ==
+                    surgical.metadata.swageAnchorWorld &&
+                surgical.rigidBindings[0].bodyIndex ==
+                    surgical.metadata.needleSceneBodyIndex &&
+                surgical.rigidBindings[0].localAnchor ==
+                    surgical.metadata.swageAnchorLocal &&
+                surgical.needleState.flagsAndIndices[0] ==
+                    MR_MOTION_DYNAMIC &&
+                surgical.needleState.
+                        linearVelocityAndInverseMass.w >
+                    0.0f,
+            "dual PSM needle-thread composition is incomplete"
+        );
+
         std::cout
             << "dual_psm_world=ok"
             << " articulations="
@@ -152,6 +182,12 @@ int main() {
             << diagnostics.solverIterations
             << " residual="
             << diagnostics.residual.maximumNaturalResidual
+            << " needle_shapes="
+            << surgical.needle.rigid.shapes.size()
+            << " thread_nodes="
+            << surgical.threadModel.restPositions.size()
+            << " swage_binding=geometry_owned"
+            << " hidden_grasp=no"
             << " transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {

@@ -126,6 +126,11 @@ linked or called at runtime.
   PPO task scores measured rigid-body pose and contact evidence without a
   weld or hidden grasp state. Fixed- and floating-base contact worlds share
   an eight-channel acceleration/load/contact sensor summary
+- First-class dual-PSM/needle/thread composition: a geometry-derived rear
+  swage anchor drives the Metal DER endpoint, every attachment projection
+  emits fixed-slot impulse/force evidence, and an equal-and-opposite wrench is
+  applied to the dynamic needle in the same command buffer. Rod and rigid
+  candidates publish transactionally; no weld or hidden thread force exists
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication
@@ -152,10 +157,11 @@ advance/solve/continue, and a contact-capable MLX primitive. Contact graph ABI
 v4 carries the event-time and persistent-worker contract while ConstraintIR
 remains ABI v2. Implicit position drives and joint-boundary projection are
 executable. The 40,000-step/s Franka contact gate, trained 60-second G1
-standing gate, dedicated tiled heightfields, multi-articulation islands,
-patch rolling/torsional solve, complete joint/equality ConstraintIR,
+standing gate, dedicated tiled heightfields, fully composed
+multi-articulation contact islands, patch rolling/torsional solve,
 mesh-backed URDF/MJCF/OpenUSD workflows, rendering breadth, coupled
-thread/tissue mechanics, unified cone/scalar matrix-free Metal quality solve,
+thread self/tool collision and tissue mechanics, unified cone/scalar
+matrix-free Metal quality solve,
 and qualified differentiation remain open. The dated requirements and claim
 rules are in
 [ENGINE_TARGET](docs/ENGINE_TARGET.md).
@@ -178,6 +184,9 @@ cmake --build build
 ./build/bin/metalrobo_surgical_psm_probe
 ./build/bin/metalrobo_surgical_assets_probe
 ./build/bin/metalrobo_surgical_metal_operator_probe
+./build/bin/metalrobo_dual_psm_world_probe
+./build/bin/metalrobo_discrete_elastic_rod_probe
+./build/bin/metalrobo_metal_discrete_elastic_rod_probe
 ./build/bin/metalrobo_coupled_articulated_rigid_contact_probe
 ./build/bin/metalrobo_articulated_rigid_collision_probe
 ./build/bin/metalrobo_articulated_rigid_world_probe

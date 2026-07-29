@@ -921,8 +921,6 @@ evidence.
 
 - Trajectory/contact comparison against pinned MuJoCo, Genesis, or another
   independent simulator
-- Literal bounded multi-event TOI advance/solve/continue splitting, including
-  zero-time impact replay and event-budget rollback
 - A measured 32-active-contact saturation result and the 40,000 control-step/s
   Franka-plus-object gate on M4
 - Per-complexity solver queues instead of the current homogeneous cohort
@@ -936,6 +934,9 @@ evidence.
 - Articulated self-collision, loop constraints, and unsupported pair classes
 - Calibrated surgical jaw surfaces, rolling/torsional resistance, and generic
   grasp-wrench/force-closure certification beyond the tested segment-17 load
+- Long-horizon dual-PSM needle/thread transfer with thread self/tool collision;
+  the landed swage coupling currently proves deterministic two-way impulse
+  transfer and transactional state publication, not knot tying
 - Production segmented LBVH and heightfield collision
 - Matrix-free Newton-PCG for large exact-cone quality islands
 - Quality/throughput task-level closure for the landed temporal TGS
