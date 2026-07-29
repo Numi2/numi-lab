@@ -74,7 +74,7 @@ inline float articulatedCoefficient(
     device const float* pointJacobians,
     const uint environment,
     const uint globalDof,
-    const uint axis,
+    const float3 axis,
     const bool second
 ) {
     const uint sliceIndex = endpointSlice(endpoint, second);
@@ -91,12 +91,15 @@ inline float articulatedCoefficient(
     if (query >= slice.queryCount) {
         return NAN;
     }
-    return pointJacobians[
+    const uint base =
         slice.jacobianOffset +
         environment * slice.jacobianEnvironmentStride +
-        (query * 3u + axis) * slice.nv +
-        (globalDof - slice.vOffset)
-    ];
+        query * 3u * slice.nv +
+        (globalDof - slice.vOffset);
+    return
+        axis.x * pointJacobians[base] +
+        axis.y * pointJacobians[base + slice.nv] +
+        axis.z * pointJacobians[base + 2u * slice.nv];
 }
 
 inline float sceneCoefficient(
@@ -143,7 +146,6 @@ inline float endpointCoefficient(
     const uint environment,
     const uint sceneBodyCount,
     const uint globalDof,
-    const uint localAxis,
     const float3 axis,
     const bool second
 ) {
@@ -155,7 +157,7 @@ inline float endpointCoefficient(
             pointJacobians,
             environment,
             globalDof,
-            localAxis,
+            axis,
             second
         );
     }
@@ -305,7 +307,6 @@ kernel void mr_multi_contact_assemble_jacobian(
         environment,
         dispatch.sceneBodyCount,
         dof,
-        localRow,
         axis,
         false
     );
@@ -319,7 +320,6 @@ kernel void mr_multi_contact_assemble_jacobian(
         environment,
         dispatch.sceneBodyCount,
         dof,
-        localRow,
         axis,
         true
     );
@@ -386,7 +386,7 @@ kernel void mr_multi_contact_scatter_equality_jacobian(
     const uint row = index.y;
     const uint environment = index.z;
     if (environment >= dispatch.environmentCount ||
-        row >= dispatch.equalityRowCount ||
+        row >= dispatch.staticEqualityRowCount ||
         dof >= dispatch.totalNv) {
         return;
     }
@@ -399,6 +399,78 @@ kernel void mr_multi_contact_scatter_equality_jacobian(
               row * dispatch.articulatedNv + dof
           ]
         : 0.0f;
+}
+
+kernel void mr_multi_contact_assemble_point_equalities(
+    device const MRMultiContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRMultiContactGPU* equalities [[buffer(1)]],
+    device const MRMultiContactEndpointsGPU* endpoints
+        [[buffer(2)]],
+    device const MRMultiContactJacobianSliceGPU* slices
+        [[buffer(3)]],
+    device const float* pointJacobians [[buffer(4)]],
+    device float* combinedJacobian [[buffer(5)]],
+    uint3 index [[thread_position_in_grid]]
+) {
+    const uint dof = index.x;
+    const uint pointRow = index.y;
+    const uint environment = index.z;
+    const uint dynamicRows =
+        dispatch.equalityRowCount -
+        dispatch.staticEqualityRowCount;
+    if (environment >= dispatch.environmentCount ||
+        pointRow >= dynamicRows ||
+        dof >= dispatch.totalNv) {
+        return;
+    }
+    const uint equality = pointRow / 3u;
+    const uint localRow = pointRow % 3u;
+    const uint equalityCount = dynamicRows / 3u;
+    device const MRMultiContactGPU& geometry =
+        equalities[
+            environment * equalityCount + equality
+        ];
+    device const MRMultiContactEndpointsGPU& topology =
+        endpoints[equality];
+    const float3 axis = contactAxis(geometry, localRow);
+    float fromA = 0.0f;
+    float fromB = 0.0f;
+    if (topology.kindA == MR_MULTI_CONTACT_ARTICULATED) {
+        fromA = articulatedCoefficient(
+            topology,
+            slices,
+            pointJacobians,
+            environment,
+            dof,
+            axis,
+            false
+        );
+    } else if (topology.kindA !=
+               MR_MULTI_CONTACT_STATIC_WORLD) {
+        fromA = NAN;
+    }
+    if (topology.kindB == MR_MULTI_CONTACT_ARTICULATED) {
+        fromB = articulatedCoefficient(
+            topology,
+            slices,
+            pointJacobians,
+            environment,
+            dof,
+            axis,
+            true
+        );
+    } else if (topology.kindB !=
+               MR_MULTI_CONTACT_STATIC_WORLD) {
+        fromB = NAN;
+    }
+    const uint combinedRow =
+        dispatch.rowCount +
+        dispatch.staticEqualityRowCount +
+        pointRow;
+    combinedJacobian[
+        (environment * dispatch.responseRowCount +
+         combinedRow) * dispatch.totalNv + dof
+    ] = fromB - fromA;
 }
 
 kernel void mr_multi_contact_apply_scene_response(
@@ -524,6 +596,12 @@ kernel void mr_multi_contact_project_equalities(
                 MR_MULTI_CONTACT_ABI_VERSION ||
             equalityRows >
                 MR_MULTI_CONTACT_MAX_EQUALITY_ROWS ||
+            dispatch.staticEqualityRowCount >
+                equalityRows ||
+            (
+                equalityRows -
+                    dispatch.staticEqualityRowCount
+            ) % 3u != 0u ||
             responseRows != contactRows + equalityRows ||
             !(dispatch.equalityEvaluation0.x > 0.0f) ||
             dispatch.equalityEvaluation0.y < 0.0f ||
@@ -575,7 +653,9 @@ kernel void mr_multi_contact_project_equalities(
             if (!isfinite(relative) ||
                 !evaluateEqualityRow(
                     dispatch,
-                    sourceRows[row],
+                    sourceRows[
+                        environment * equalityRows + row
+                    ],
                     relative,
                     target,
                     regularization
@@ -1120,7 +1200,7 @@ kernel void mr_multi_contact_finalize(
     device float* nextVelocity [[buffer(10)]],
     device MRMultiContactStatusGPU* statuses [[buffer(11)]],
     device const float* projectedFreeVelocity [[buffer(12)]],
-    device const float* equalityJacobian [[buffer(13)]],
+    device const float* combinedJacobian [[buffer(13)]],
     device const float* equalityTargets [[buffer(14)]],
     device const float* equalityRegularization [[buffer(15)]],
     device const float* equalityFreeImpulses [[buffer(16)]],
@@ -1306,12 +1386,15 @@ kernel void mr_multi_contact_finalize(
             equalityRegularization[equalityBase + row] *
                 impulse;
         const uint jacobianBase =
-            row * dispatch.articulatedNv;
+            (
+                environment * dispatch.responseRowCount +
+                dispatch.rowCount + row
+            ) * dispatch.totalNv;
         for (uint dof = 0u;
-             dof < dispatch.articulatedNv;
+             dof < dispatch.totalNv;
              ++dof) {
             residual = fma(
-                equalityJacobian[jacobianBase + dof],
+                combinedJacobian[jacobianBase + dof],
                 nextVelocity[velocityBase + dof],
                 residual
             );
@@ -1325,10 +1408,10 @@ kernel void mr_multi_contact_finalize(
              ++contactRow) {
             float leakage = 0.0f;
             for (uint dof = 0u;
-                 dof < dispatch.articulatedNv;
+                 dof < dispatch.totalNv;
                  ++dof) {
                 leakage = fma(
-                    equalityJacobian[
+                    combinedJacobian[
                         jacobianBase + dof
                     ],
                     responseColumns[

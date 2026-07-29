@@ -155,7 +155,10 @@ linked or called at runtime.
   and agrees with its FP64 oracle. The same command graph appends static
   generalized equality rows to the inverse-ABA RHS stream, factors their small
   Schur complement on device, projects contact into the equality null space,
-  and certifies reconstructed equality impulses before publication
+  and certifies reconstructed equality impulses before publication. Authored
+  three-axis body-point loops now use the same analytic point-Jacobian
+  frontend and device Schur graph, including articulation-articulation and
+  articulation-static fixtures in arbitrary world-space frames
 - Checked public Metal host boundary with owned compact buffers, overflow and
   32-bit shader-address preflight, device memory limits, typed zero-length
   bindings, per-environment statuses, and atomic result publication

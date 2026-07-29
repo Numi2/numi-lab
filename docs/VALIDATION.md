@@ -343,6 +343,13 @@ environment rolls back only that environment while the other three publish
 normally; a rejected pre-dispatch input leaves the previously accepted host
 result unchanged.
 
+The same probe also authors a rotated three-axis point loop between the two
+articulations and couples it to an articulation-static contact. On Apple M4,
+the maximum velocity/contact/equality-impulse error against the FP64 coupled
+oracle is `9.80236e-7`; the certified equality residual is `8.23535e-14`.
+The replayed velocity, contact impulse and equality impulse payloads are
+bitwise identical.
+
 The canonical heterogeneous surgical probe also compiles the two PSMs and
 dynamic needle once, then reuses that immutable program for a 34-DoF Metal
 contact solve:
@@ -977,9 +984,10 @@ evidence.
   throughput
 - Multi-articulation islands and long-horizon/large-island mixed-scene
   stability beyond the focused dynamic-dynamic and supported-pickup cases
-- GPU ConstraintIR joint limits, implicit drives, equality/loop blocks, patch
-  rolling/torsional resistance, and force/torque sensors
-- Articulated self-collision, loop constraints, and unsupported pair classes
+- GPU ConstraintIR unilateral joint limits, implicit drives, angular
+  weld/orientation rows, scene-body loop endpoints, patch rolling/torsional
+  resistance, and force/torque sensors
+- Articulated self-collision and unsupported pair classes
 - Calibrated surgical jaw surfaces, rolling/torsional resistance, and generic
   grasp-wrench/force-closure certification beyond the tested segment-17 load
 - Long-horizon dual-PSM needle/thread transfer with thread self/tool collision;

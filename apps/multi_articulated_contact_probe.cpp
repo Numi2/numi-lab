@@ -427,6 +427,186 @@ int main() {
             "prescribed velocity"
         );
 
+        std::ranges::fill(freeVelocity, 0.0);
+        freeVelocity[first.vOffset] = 1.0;
+        metalrobo::MultiArticulatedIslandContact
+            loopContact;
+        loopContact.endpointA = {
+            metalrobo::MultiContactEndpointKind::
+                articulatedBody,
+            first.rootBody,
+            {0.0, 0.0, 0.0},
+        };
+        loopContact.endpointB = {
+            metalrobo::MultiContactEndpointKind::staticWorld,
+            MR_INVALID_INDEX,
+            {0.0, 0.0, 0.0},
+        };
+        loopContact.normal = {1.0, 0.0, 0.0};
+        loopContact.tangentU = {0.0, 1.0, 0.0};
+        loopContact.tangentV = {0.0, 0.0, 1.0};
+        loopContact.regularization = {
+            1.0e-12,
+            1.0e-12,
+            1.0e-12,
+        };
+        metalrobo::MultiArticulatedContactProblem loopProblem;
+        const auto loopBuilt =
+            metalrobo::
+                buildMultiArticulatedIslandContactProblem(
+                    model,
+                    q,
+                    freeVelocity,
+                    {},
+                    std::span<
+                        const metalrobo::
+                            MultiArticulatedIslandContact
+                    >(&loopContact, 1u),
+                    loopProblem,
+                    dynamics
+                );
+        metalrobo::MultiArticulatedPointEquality loop;
+        loop.key.words[0] = 0x4c4f4f50u;
+        loop.key.words[1] = 1u;
+        loop.endpointA = {
+            metalrobo::MultiContactEndpointKind::
+                articulatedBody,
+            first.rootBody,
+            {0.0, 0.0, 0.0},
+        };
+        loop.endpointB = {
+            metalrobo::MultiContactEndpointKind::
+                articulatedBody,
+            second.rootBody,
+            {0.0, 0.0, 0.0},
+        };
+        loop.compliance = {
+            1.0e-12,
+            1.0e-12,
+            1.0e-12,
+        };
+        loop.positionStabilized = false;
+        metalrobo::ConstraintIREvaluationConfig
+            loopEvaluation;
+        loopEvaluation.timestep = 1.0e-3;
+        const auto loopProjected =
+            metalrobo::
+                projectMultiArticulatedContactThroughPointEqualities(
+                    model,
+                    q,
+                    loopProblem,
+                    std::span<
+                        const metalrobo::
+                            MultiArticulatedPointEquality
+                    >(&loop, 1u),
+                    loopEvaluation,
+                    dynamics
+                );
+        metalrobo::MultiArticulatedContactSolution
+            loopSolved;
+        const auto loopSolve =
+            metalrobo::solveMultiArticulatedContactProblem(
+                loopProblem,
+                loopSolved,
+                quality
+            );
+        require(
+            loopBuilt.succeeded() &&
+                loopProjected.succeeded() &&
+                loopSolve.succeeded() &&
+                loopProblem.generalizedConstraintRowCount ==
+                    3u &&
+                loopSolved.generalizedConstraintImpulses
+                        .size() == 3u &&
+                loopSolved.impulses[0] > 0.0 &&
+                std::abs(
+                    loopSolved.generalizedVelocity[
+                        first.vOffset
+                    ]
+                ) < 3.0e-9 &&
+                std::abs(
+                    loopSolved.generalizedVelocity[
+                        second.vOffset
+                    ]
+                ) < 3.0e-9 &&
+                loopSolve
+                        .maximumGeneralizedConstraintResidual <
+                    1.0e-10,
+            "three-axis inter-articulation point loop did not "
+            "share the contact Schur operator build=" +
+                std::to_string(loopBuilt.succeeded()) +
+                " project=" +
+                std::string(
+                    metalrobo::
+                        multiArticulatedContactStatusName(
+                            loopProjected.status
+                        )
+                ) +
+                " solve=" +
+                std::string(
+                    metalrobo::
+                        multiArticulatedContactStatusName(
+                            loopSolve.status
+                        )
+                ) +
+                " rows=" +
+                std::to_string(
+                    loopProblem
+                        .generalizedConstraintRowCount
+                ) +
+                " residual=" +
+                std::to_string(
+                    loopSolve
+                        .maximumGeneralizedConstraintResidual
+                ) +
+                " impulse=" +
+                (
+                    loopSolved.impulses.empty()
+                    ? std::string{"empty"}
+                    : std::to_string(
+                          loopSolved.impulses[0]
+                      )
+                ) +
+                " velocity=" +
+                std::to_string(
+                    loopSolved.generalizedVelocity[
+                        first.vOffset
+                    ]
+                ) +
+                "/" +
+                std::to_string(
+                    loopSolved.generalizedVelocity[
+                        second.vOffset
+                    ]
+                ) +
+                " equality_impulse=" +
+                std::to_string(
+                    loopSolved
+                        .generalizedConstraintImpulses[0]
+                ) +
+                " coupling=" +
+                std::to_string(
+                    loopProblem
+                        .generalizedConstraintContactCoupling[
+                            0
+                        ]
+                ) +
+                " G=" +
+                std::to_string(
+                    loopProblem
+                        .generalizedConstraintJacobian[
+                            first.vOffset
+                        ]
+                ) +
+                "/" +
+                std::to_string(
+                    loopProblem
+                        .generalizedConstraintJacobian[
+                            second.vOffset
+                        ]
+                )
+        );
+
         const std::vector<double> acceptedJacobian =
             problem.contactJacobian;
         const std::uint32_t acceptedCount =
@@ -474,6 +654,11 @@ int main() {
             << heterogeneousSolved.impulses[3]
             << " solve_residual="
             << solved.quality.scaledKktCertificate
+            << " loop_rows="
+            << loopProblem.generalizedConstraintRowCount
+            << " loop_residual="
+            << loopSolve
+                   .maximumGeneralizedConstraintResidual
             << " deterministic=yes transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {

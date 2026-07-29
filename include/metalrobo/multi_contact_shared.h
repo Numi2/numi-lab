@@ -47,7 +47,7 @@ typedef struct MR_ALIGN16 MRMultiContactDispatchGPU {
     mr_u32 inverseWorkCount;
     mr_u32 equalityRowCount;
     mr_u32 responseRowCount;
-    mr_u32 reserved0;
+    mr_u32 staticEqualityRowCount;
 
     // symmetry tolerance, diagonal tolerance, reserved, reserved.
     mr_float4 tolerances;

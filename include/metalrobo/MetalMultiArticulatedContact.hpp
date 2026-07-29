@@ -59,6 +59,12 @@ struct MetalMultiArticulatedContactInput {
     // identical for the same contact slot across cloned environments; local
     // points, frame, targets, regularization, warm start and friction may vary.
     std::span<const MultiArticulatedIslandContact> contacts{};
+    // Optional environment-major three-axis point loops. Topology and stable
+    // keys are fixed by slot across cloned environments; semantic values may
+    // vary. These rows share the contact/equality Schur operator.
+    std::size_t pointEqualityCount = 0u;
+    std::span<const MultiArticulatedPointEquality>
+        pointEqualities{};
 };
 
 struct MetalMultiArticulatedContactConfig {

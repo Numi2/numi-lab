@@ -102,6 +102,28 @@ struct MultiArticulatedIslandContact {
     double friction = 0.7;
 };
 
+// Three bilateral translational rows joining two body-local points. Axes are
+// world-space, right-handed and normally form an orthonormal frame. This is a
+// generic loop/fixture primitive; grasping tasks must not use it as a hidden
+// attachment. Scene-body endpoints are intentionally deferred until their
+// 6D equality response joins the shared operator.
+struct MultiArticulatedPointEquality {
+    ConstraintIRStableKey key{};
+    MultiContactEndpoint endpointA{};
+    MultiContactEndpoint endpointB{};
+    std::array<double, 3> axisX{1.0, 0.0, 0.0};
+    std::array<double, 3> axisY{0.0, 1.0, 0.0};
+    std::array<double, 3> axisZ{0.0, 0.0, 1.0};
+    std::array<double, 3> positionError{};
+    std::array<double, 3> targetVelocity{};
+    std::array<double, 3> compliance{};
+    std::array<double, 3> dissipation{};
+    std::array<double, 3> warmImpulse{};
+    double timeConstant = 0.01;
+    double dampingRatio = 1.0;
+    bool positionStabilized = true;
+};
+
 struct MultiArticulatedContactSolution {
     std::vector<double> generalizedVelocity;
     std::vector<double> articulatedVelocity;
@@ -174,6 +196,20 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
     const EngineModel& model,
     MultiArticulatedContactProblem& problem,
     const ConstraintIREvaluationConfig& config = {}
+);
+
+// Compiles analytic point Jacobians for authored three-axis loop/fixture rows,
+// merges them with model-owned generalized equalities, and applies one exact
+// Schur reduction. Only articulation and static-world endpoints are accepted
+// in this tranche. Failure leaves problem unchanged.
+[[nodiscard]] MultiArticulatedContactDiagnostics
+projectMultiArticulatedContactThroughPointEqualities(
+    const EngineModel& model,
+    std::span<const double> q,
+    MultiArticulatedContactProblem& problem,
+    std::span<const MultiArticulatedPointEquality> equalities,
+    const ConstraintIREvaluationConfig& config = {},
+    const ArticulatedDynamicsConfig& dynamicsConfig = {}
 );
 
 // Solves the precomputed contact-space problem and transactionally publishes

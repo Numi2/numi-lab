@@ -105,12 +105,18 @@ prototype.
   inverse ABA. Dual-PSM base locks, jaw gears and needle contacts share one
   operator, with final equality impulses, null-space leakage and residual
   evidence
+- **Landed point-loop frontend:** authored three-axis translational fixtures
+  between articulations or between an articulation and static world compile
+  analytic body-point Jacobians directly into the coupled equality/contact
+  operator. Environment-varying semantics stay in canonical ConstraintIR rows;
+  the device graph solves and certifies them without a dense mass inverse
 - Move the actuation/free-motion ABA step itself from lane-zero recursion onto
   the cooked frontiers, then reuse its per-microstep factor cache across
   actuation, generalized constraints, and contact response
-- Compile complete unilateral joint-limit warm starts and general spatial
-  equality/loop constraints into shared ConstraintIR; finish self-collision exclusions,
-  coupled stiction, and calibrated rolling/torsional patch blocks
+- Compile complete unilateral joint-limit warm starts and the remaining
+  angular weld/orientation and scene-body loop rows into shared ConstraintIR;
+  finish self-collision exclusions, coupled stiction, and calibrated
+  rolling/torsional patch blocks
 - Scatter persistent manifold endpoints into the landed Metal row frontend,
   then move the same encoder sequence into the private-buffer standalone
   context and MLX active encoder

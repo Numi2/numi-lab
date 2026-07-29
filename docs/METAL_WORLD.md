@@ -217,6 +217,18 @@ is not yet the persistent private-buffer runtime. The remaining shared-world
 work is manifold-endpoint scatter plus promotion of this encoder sequence
 into the persistent `MetalWorld` and MLX active-encoder contexts.
 
+Three-axis translational loop/fixture blocks now enter this graph dynamically.
+Each authored body-local point reuses the articulation point-Jacobian stream;
+the three arbitrary world-space frame axes are dotted with those analytic
+Jacobians on device and appended after immutable model-owned equality rows.
+Semantic ConstraintIR records are environment-major, while topology and query
+slots remain immutable across cloned environments. Final residual and
+null-space certification read the same combined operator used by elimination,
+so dynamic loop rows cannot be certified against stale static-row storage.
+This tranche supports articulation-articulation and articulation-static
+fixtures. Angular weld/orientation rows and scene-body equality endpoints
+remain explicit follow-on work.
+
 `CompiledMetalMultiArticulatedContactProgram` snapshots the immutable model
 and deterministic parallel-ABA frontier schedule once, so repeated submissions
 do not recook tree topology. The dual-PSM/needle heterogeneous bundle uses this

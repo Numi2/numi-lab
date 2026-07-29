@@ -2081,6 +2081,366 @@ projectMultiArticulatedContactThroughGeneralizedEqualities(
 }
 
 MultiArticulatedContactDiagnostics
+projectMultiArticulatedContactThroughPointEqualities(
+    const EngineModel& model,
+    const std::span<const double> q,
+    MultiArticulatedContactProblem& problem,
+    const std::span<const MultiArticulatedPointEquality>
+        equalities,
+    const ConstraintIREvaluationConfig& config,
+    const ArticulatedDynamicsConfig& dynamicsConfig
+) {
+    MultiArticulatedContactDiagnostics diagnostics =
+        diagnosticsFor(model, problem.contactCount);
+    std::string reason;
+    if (!model.valid(&reason)) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::invalidModel
+        );
+    }
+    if (!structurallyValid(problem) ||
+        problem.articulatedNv != model.world.nv ||
+        problem.generalizedConstraintRowCount != 0u ||
+        q.size() != model.world.nq ||
+        equalities.size() >
+            (
+                std::numeric_limits<std::uint32_t>::max() -
+                model.constraintProgram.rows.size()
+            ) / 3u) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::invalidDimensions
+        );
+    }
+    if (!finite(q)) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::nonfiniteInput
+        );
+    }
+    if (equalities.empty()) {
+        return projectMultiArticulatedContactThroughGeneralizedEqualities(
+            model,
+            problem,
+            config
+        );
+    }
+
+    struct OwnedPointBlock {
+        std::vector<ConstraintIREndpoint> endpoints;
+        std::array<ConstraintIRRow, 3> rows{};
+        std::array<float, 3> warm{};
+    };
+    std::vector<OwnedPointBlock> owned(equalities.size());
+    std::vector<ConstraintIRSourceBlock> sources;
+    sources.reserve(
+        model.constraintProgram.blocks.size() +
+        equalities.size()
+    );
+    for (const ConstraintIRBlock& block :
+         model.constraintProgram.blocks) {
+        ConstraintIRSourceBlock source;
+        source.key = block.key;
+        source.type = block.type;
+        source.flags = block.flags;
+        source.islandIndex = block.islandIndex;
+        source.eventSlot = block.eventSlot;
+        source.endpoints = std::span{
+            model.constraintProgram.endpoints
+        }.subspan(
+            block.endpointOffset,
+            block.endpointCount
+        );
+        source.rows = std::span{
+            model.constraintProgram.rows
+        }.subspan(
+            block.rowOffset,
+            block.dimension
+        );
+        if (block.coneIndex != kConstraintIRInvalidIndex) {
+            source.cone =
+                model.constraintProgram.cones[
+                    block.coneIndex
+                ];
+        }
+        source.warmImpulses = std::span{
+            model.constraintProgram.warmImpulses
+        }.subspan(
+            block.impulseOffset,
+            block.dimension
+        );
+        sources.push_back(source);
+    }
+
+    const auto appendEndpointJacobian = [&](
+        const MultiContactEndpoint& endpoint,
+        const std::array<double, 3>& axis,
+        const double sign,
+        const std::uint32_t localRow,
+        std::vector<ConstraintIREndpoint>& endpoints
+    ) -> bool {
+        if (endpoint.kind ==
+            MultiContactEndpointKind::staticWorld) {
+            return true;
+        }
+        if (endpoint.kind !=
+                MultiContactEndpointKind::articulatedBody ||
+            endpoint.body >= model.bodies.size() ||
+            !finite(endpoint.localPoint) ||
+            !finite(axis)) {
+            return false;
+        }
+        const std::uint32_t articulationIndex =
+            model.bodies[endpoint.body].articulationIndex;
+        if (articulationIndex == MR_INVALID_INDEX ||
+            articulationIndex >= model.articulations.size()) {
+            return false;
+        }
+        const MRArticulationGPU& articulation =
+            model.articulations[articulationIndex];
+        const std::array query{
+            ArticulatedPointQuery{
+                endpoint.body,
+                endpoint.localPoint,
+            },
+        };
+        std::array<ArticulatedPointKinematics, 1>
+            kinematics{};
+        std::vector<double> jacobian(
+            3u * articulation.nv,
+            0.0
+        );
+        const ArticulatedDynamicsDiagnostics point =
+            computeArticulatedPointJacobians(
+                model,
+                articulationIndex,
+                q.subspan(
+                    articulation.qOffset,
+                    articulation.nq
+                ),
+                std::span<const double>(
+                    problem.freeVelocity
+                ).subspan(
+                    articulation.vOffset,
+                    articulation.nv
+                ),
+                query,
+                kinematics,
+                jacobian,
+                dynamicsConfig
+            );
+        if (!point.succeeded()) {
+            diagnostics.firstFailingArticulation =
+                articulationIndex;
+            return false;
+        }
+        for (std::uint32_t localDof = 0u;
+             localDof < articulation.nv;
+             ++localDof) {
+            const double coefficient = sign * (
+                axis[0] * jacobian[localDof] +
+                axis[1] *
+                    jacobian[
+                        articulation.nv + localDof
+                    ] +
+                axis[2] *
+                    jacobian[
+                        2u * articulation.nv + localDof
+                    ]
+            );
+            if (!finite(coefficient) ||
+                std::abs(coefficient) >
+                    std::numeric_limits<float>::max()) {
+                return false;
+            }
+            if (coefficient == 0.0) {
+                continue;
+            }
+            endpoints.push_back(
+                makeConstraintIRGeneralizedEndpoint(
+                    articulationIndex,
+                    kConstraintIRInvalidIndex,
+                    articulation.vOffset + localDof,
+                    localRow,
+                    static_cast<float>(coefficient)
+                )
+            );
+        }
+        return true;
+    };
+
+    for (std::size_t equalityIndex = 0u;
+         equalityIndex < equalities.size();
+         ++equalityIndex) {
+        const MultiArticulatedPointEquality& equality =
+            equalities[equalityIndex];
+        const std::array axes{
+            equality.axisX,
+            equality.axisY,
+            equality.axisZ,
+        };
+        const ContactFrame frame{
+            vector(equality.axisX),
+            vector(equality.axisY),
+            vector(equality.axisZ),
+        };
+        const bool frameValid =
+            finite(equality.endpointA.localPoint) &&
+            finite(equality.endpointB.localPoint) &&
+            finite(equality.positionError) &&
+            finite(equality.targetVelocity) &&
+            finite(equality.compliance) &&
+            finite(equality.dissipation) &&
+            finite(equality.warmImpulse) &&
+            finite(equality.timeConstant) &&
+            finite(equality.dampingRatio) &&
+            equality.timeConstant >= 0.0 &&
+            equality.dampingRatio >= 0.0 &&
+            std::ranges::all_of(
+                equality.compliance,
+                [](const double value) {
+                    return value >= 0.0;
+                }
+            ) &&
+            std::ranges::all_of(
+                equality.dissipation,
+                [](const double value) {
+                    return value >= 0.0;
+                }
+            ) &&
+            std::abs(norm(frame.normal) - 1.0) <=
+                2.0e-4 &&
+            std::abs(norm(frame.tangentU) - 1.0) <=
+                2.0e-4 &&
+            std::abs(norm(frame.tangentV) - 1.0) <=
+                2.0e-4 &&
+            std::abs(dot(frame.normal, frame.tangentU)) <=
+                4.0e-4 &&
+            std::abs(dot(frame.normal, frame.tangentV)) <=
+                4.0e-4 &&
+            std::abs(dot(frame.tangentU, frame.tangentV)) <=
+                4.0e-4 &&
+            std::abs(
+                dot(
+                    cross(frame.normal, frame.tangentU),
+                    frame.tangentV
+                ) - 1.0
+            ) <= 6.0e-4;
+        if (!frameValid ||
+            (
+                equality.endpointA.kind ==
+                    MultiContactEndpointKind::staticWorld &&
+                equality.endpointB.kind ==
+                    MultiContactEndpointKind::staticWorld
+            )) {
+            return fail(
+                std::move(diagnostics),
+                MultiArticulatedContactStatus::invalidContact,
+                static_cast<std::uint32_t>(equalityIndex)
+            );
+        }
+        OwnedPointBlock& block = owned[equalityIndex];
+        block.endpoints.reserve(
+            6u * model.world.nv
+        );
+        for (std::uint32_t row = 0u; row < 3u; ++row) {
+            if (!appendEndpointJacobian(
+                    equality.endpointA,
+                    axes[row],
+                    -1.0,
+                    row,
+                    block.endpoints
+                ) ||
+                !appendEndpointJacobian(
+                    equality.endpointB,
+                    axes[row],
+                    1.0,
+                    row,
+                    block.endpoints
+                )) {
+                const std::uint32_t failingArticulation =
+                    diagnostics.firstFailingArticulation;
+                return fail(
+                    std::move(diagnostics),
+                    MultiArticulatedContactStatus::
+                        kinematicsFailure,
+                    static_cast<std::uint32_t>(
+                        equalityIndex
+                    ),
+                    failingArticulation
+                );
+            }
+            ConstraintIRRow& semantics = block.rows[row];
+            semantics.direction = {
+                static_cast<float>(axes[row][0]),
+                static_cast<float>(axes[row][1]),
+                static_cast<float>(axes[row][2]),
+                0.0f,
+            };
+            semantics.positionError =
+                static_cast<float>(
+                    equality.positionError[row]
+                );
+            semantics.targetVelocity =
+                static_cast<float>(
+                    equality.targetVelocity[row]
+                );
+            semantics.compliance =
+                static_cast<float>(
+                    equality.compliance[row]
+                );
+            semantics.dissipation =
+                static_cast<float>(
+                    equality.dissipation[row]
+                );
+            semantics.timeConstant =
+                static_cast<float>(equality.timeConstant);
+            semantics.dampingRatio =
+                static_cast<float>(equality.dampingRatio);
+            semantics.impulseLower =
+                -kConstraintIRUnbounded;
+            semantics.impulseUpper =
+                kConstraintIRUnbounded;
+            semantics.flags =
+                equality.positionStabilized
+                ? constraintIRRowPositionStabilized
+                : 0u;
+            block.warm[row] =
+                static_cast<float>(equality.warmImpulse[row]);
+        }
+        sources.push_back({
+            .key = equality.key,
+            .type = MR_CONSTRAINT_BILATERAL,
+            .flags = 0u,
+            .islandIndex = 0u,
+            .eventSlot = kConstraintIRInvalidIndex,
+            .endpoints = block.endpoints,
+            .rows = block.rows,
+            .cone = std::nullopt,
+            .warmImpulses = block.warm,
+        });
+    }
+
+    ConstraintIRCompilationResult compiled =
+        compileConstraintIR(sources);
+    if (!compiled.succeeded()) {
+        return fail(
+            std::move(diagnostics),
+            MultiArticulatedContactStatus::
+                unsupportedConstraint
+        );
+    }
+    EngineModel stagedModel = model;
+    stagedModel.constraintProgram = std::move(compiled.ir);
+    return projectMultiArticulatedContactThroughGeneralizedEqualities(
+        stagedModel,
+        problem,
+        config
+    );
+}
+
+MultiArticulatedContactDiagnostics
 solveMultiArticulatedContactProblem(
     const MultiArticulatedContactProblem& problem,
     MultiArticulatedContactSolution& output,

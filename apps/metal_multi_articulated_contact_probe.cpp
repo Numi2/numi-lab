@@ -387,6 +387,253 @@ int main() {
             "Metal result disagrees with the FP64 oracle"
         );
 
+        metalrobo::MultiArticulatedIslandContact loopContact;
+        loopContact.endpointA = {
+            metalrobo::MultiContactEndpointKind::articulatedBody,
+            first.rootBody,
+            {0.0, 0.0, 0.0},
+        };
+        loopContact.endpointB = {
+            metalrobo::MultiContactEndpointKind::staticWorld,
+            MR_INVALID_INDEX,
+            {0.0, 0.0, 0.0},
+        };
+        loopContact.normal = {1.0, 0.0, 0.0};
+        loopContact.tangentU = {0.0, 1.0, 0.0};
+        loopContact.tangentV = {0.0, 0.0, 1.0};
+        loopContact.regularization = {
+            1.0e-6,
+            1.0e-6,
+            1.0e-6,
+        };
+        constexpr double inverseRootTwo =
+            0.70710678118654752440;
+        metalrobo::MultiArticulatedPointEquality pointLoop;
+        pointLoop.key.words[0] = 0x4d4c4f4fu;
+        pointLoop.key.words[1] = 1u;
+        pointLoop.endpointA = {
+            metalrobo::MultiContactEndpointKind::articulatedBody,
+            first.rootBody,
+            {0.0, 0.0, 0.0},
+        };
+        pointLoop.endpointB = {
+            metalrobo::MultiContactEndpointKind::articulatedBody,
+            second.rootBody,
+            {0.0, 0.0, 0.0},
+        };
+        pointLoop.axisX = {
+            inverseRootTwo,
+            inverseRootTwo,
+            0.0,
+        };
+        pointLoop.axisY = {
+            -inverseRootTwo,
+            inverseRootTwo,
+            0.0,
+        };
+        pointLoop.axisZ = {0.0, 0.0, 1.0};
+        pointLoop.compliance = {
+            1.0e-12,
+            1.0e-12,
+            1.0e-12,
+        };
+        pointLoop.positionStabilized = false;
+
+        std::vector<float> loopFreeVelocity(
+            environments * model.world.nv,
+            0.0F
+        );
+        std::vector<
+            metalrobo::MultiArticulatedIslandContact
+        > loopContacts(environments, loopContact);
+        std::vector<
+            metalrobo::MultiArticulatedPointEquality
+        > pointLoops(environments, pointLoop);
+        for (std::size_t environment = 0u;
+             environment < environments;
+             ++environment) {
+            loopFreeVelocity[
+                environment * model.world.nv +
+                first.vOffset
+            ] = 1.0F;
+        }
+        metalrobo::MetalMultiArticulatedContactInput loopInput;
+        loopInput.environmentCount = environments;
+        loopInput.contactCount = 1u;
+        loopInput.q = q;
+        loopInput.freeArticulationVelocity =
+            loopFreeVelocity;
+        loopInput.contacts = loopContacts;
+        loopInput.pointEqualityCount = 1u;
+        loopInput.pointEqualities = pointLoops;
+
+        std::vector<double> loopFree64(
+            model.world.nv,
+            0.0
+        );
+        loopFree64[first.vOffset] = 1.0;
+        metalrobo::MultiArticulatedContactProblem
+            loopOracle;
+        const auto loopOracleBuild =
+            metalrobo::
+                buildMultiArticulatedIslandContactProblem(
+                    model,
+                    q64,
+                    loopFree64,
+                    {},
+                    std::span<
+                        const metalrobo::
+                            MultiArticulatedIslandContact
+                    >(&loopContact, 1u),
+                    loopOracle,
+                    dynamics
+                );
+        const auto loopOracleProjection =
+            metalrobo::
+                projectMultiArticulatedContactThroughPointEqualities(
+                    model,
+                    q64,
+                    loopOracle,
+                    std::span<
+                        const metalrobo::
+                            MultiArticulatedPointEquality
+                    >(&pointLoop, 1u),
+                    config.equalityEvaluation,
+                    dynamics
+                );
+        metalrobo::MultiArticulatedContactSolution
+            loopOracleSolution;
+        const auto loopOracleSolve =
+            metalrobo::solveMultiArticulatedContactProblem(
+                loopOracle,
+                loopOracleSolution,
+                cpuConfig
+            );
+        require(
+            loopOracleBuild.succeeded() &&
+                loopOracleProjection.succeeded() &&
+                loopOracleSolve.succeeded(),
+            "FP64 point-loop contact oracle failed"
+        );
+
+        metalrobo::MetalMultiArticulatedContactResult
+            loopGPU;
+        const auto loopDiagnostics =
+            metalrobo::solveMetalMultiArticulatedContacts(
+                program,
+                loopInput,
+                loopGPU,
+                config
+            );
+        require(
+            loopDiagnostics.succeeded() &&
+                loopGPU.layout.dispatch.equalityRowCount ==
+                    3u &&
+                loopGPU.layout.dispatch
+                        .staticEqualityRowCount == 0u &&
+                loopGPU.equalityStatuses.size() ==
+                    environments &&
+                loopGPU.equalityStatuses[0].code ==
+                    MR_MULTI_CONTACT_EQUALITY_SUCCESS,
+            "Metal point-loop contact graph failed: " +
+                loopDiagnostics.message +
+                " gpu_status=" +
+                std::to_string(
+                    loopDiagnostics.firstGPUStatusCode
+                ) +
+                " equality_status=" +
+                (
+                    loopGPU.equalityStatuses.empty()
+                    ? std::string{"empty"}
+                    : std::to_string(
+                          loopGPU.equalityStatuses[0].code
+                      )
+                ) +
+                " residual=" +
+                (
+                    loopGPU.equalityStatuses.empty()
+                    ? std::string{"empty"}
+                    : std::to_string(
+                          loopGPU.equalityStatuses[0]
+                              .diagnostics.x
+                      )
+                )
+        );
+        double maximumPointLoopError = 0.0;
+        for (std::size_t index = 0u;
+             index <
+                 loopOracleSolution
+                     .generalizedVelocity.size();
+             ++index) {
+            maximumPointLoopError = std::max(
+                maximumPointLoopError,
+                std::abs(
+                    loopOracleSolution
+                        .generalizedVelocity[index] -
+                    loopGPU.nextVelocity[index]
+                )
+            );
+        }
+        for (std::size_t index = 0u;
+             index < loopOracleSolution.impulses.size();
+             ++index) {
+            maximumPointLoopError = std::max(
+                maximumPointLoopError,
+                std::abs(
+                    loopOracleSolution.impulses[index] -
+                    loopGPU.impulses[index]
+                )
+            );
+        }
+        for (std::size_t index = 0u;
+             index <
+                 loopOracleSolution
+                     .generalizedConstraintImpulses.size();
+             ++index) {
+            maximumPointLoopError = std::max(
+                maximumPointLoopError,
+                std::abs(
+                    loopOracleSolution
+                        .generalizedConstraintImpulses[
+                            index
+                        ] -
+                    loopGPU.equalityImpulses[index]
+                )
+            );
+        }
+        require(
+            maximumPointLoopError < 2.5e-3 &&
+                loopGPU.equalityStatuses[0]
+                        .diagnostics.x <
+                    config.equalityResidualTolerance,
+            "Metal point-loop result disagrees with FP64"
+        );
+        metalrobo::MetalMultiArticulatedContactResult
+            loopReplay;
+        const auto loopReplayDiagnostics =
+            metalrobo::solveMetalMultiArticulatedContacts(
+                program,
+                loopInput,
+                loopReplay,
+                config
+            );
+        require(
+            loopReplayDiagnostics.succeeded() &&
+                bitwiseEqual(
+                    loopGPU.nextVelocity,
+                    loopReplay.nextVelocity
+                ) &&
+                bitwiseEqual(
+                    loopGPU.impulses,
+                    loopReplay.impulses
+                ) &&
+                bitwiseEqual(
+                    loopGPU.equalityImpulses,
+                    loopReplay.equalityImpulses
+                ),
+            "same-device Metal point-loop replay changed"
+        );
+
         metalrobo::MetalMultiArticulatedContactResult replay;
         const auto replayDiagnostics =
             metalrobo::solveMetalMultiArticulatedContacts(
@@ -504,6 +751,10 @@ int main() {
             << " impulse=" << gpu.impulses[0]
             << " max_velocity=" << maximumVelocity
             << " oracle_error=" << maximumOracleError
+            << " point_loop_error="
+            << maximumPointLoopError
+            << " point_loop_residual="
+            << loopGPU.equalityStatuses[0].diagnostics.x
             << " deterministic=yes"
             << " transactional_failure=yes"
             << " elapsed_ms="
