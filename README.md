@@ -25,6 +25,9 @@ packs, advances them in persistent Metal memory, and exposes synchronized
 observations to MLX, Core ML, Swift, C++, and Python. The runtime does not link
 or call an external physics engine.
 
+Every image below is a native MetalRobo sensor output. There is no generated
+concept art and no screenshot from another simulator.
+
 > One authoritative state drives physics, contact, vision, tactile sensing,
 > supervisory truth, and policy observations.
 
@@ -41,7 +44,7 @@ or call an external physics engine.
 
 ## The renderer is a sensor
 
-![RGB, metric depth, surface normals, and instance identities from the same MetalRobo frame](docs/media/metalrobo-sensor-gallery.webp)
+![RGB, metric depth, surface normals, and authored identities from the same MetalRobo frame](docs/media/metalrobo-sensor-gallery.webp)
 
 These four panels are read from the same `sensor_reference` frame. RGB remains
 scene-linear in the policy path; tone mapping is applied only to the preview.
@@ -93,11 +96,18 @@ timeline.
 | **Unitree G1** | COM-consistent floating-base 29-DoF model with pinned topology, inertials, limits, collision geometry, IMU frames, and named locomotion presets. |
 | **Surgical PSM** | Fixed-base serial research model with a true prismatic insertion axis, independent jaws, mixed articulated/rigid contact, needle and thread infrastructure, and multi-PSM composition. |
 
-![MetalRobo dual PSM needle and thread research world](docs/media/metalrobo-dual-psm.webp)
+![Official Franka FR3v2 geometry in a MetalRobo pick-and-place sensor scene](docs/media/metalrobo-franka-fr3v2.webp)
 
-The surgical scene is an authored MetalRobo research presentation. It is not a
-clinical simulator and makes no biomechanical, procedural, safety, or
-real-hardware transfer claim.
+<p><sub>
+MetalRobo <code>sensor_reference</code> render on Apple M4 using the
+<a href="https://github.com/frankarobotics/franka_description/tree/02afaae282d4a8e10d7d2f781b23b3515c303ce5/meshes/robots/fr3v2/visual">official Franka FR3v2 visual geometry</a>.
+The calibrated camera, pick-and-place workcell, materials, lighting, and
+supervisory buffers are produced by MetalRobo.
+</sub></p>
+
+The Surgical PSM integration is a robotics research world, not a clinical
+simulator; it makes no biomechanical, procedural, safety, or real-hardware
+transfer claim.
 
 ## Quick start
 

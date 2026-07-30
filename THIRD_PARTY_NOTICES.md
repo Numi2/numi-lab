@@ -15,8 +15,11 @@ are adapted from `frankarobotics/franka_description`, tag `2.8.1`, commit
 That source is licensed under the Apache License, Version 2.0. The upstream
 license text is retained by reference at
 <https://github.com/frankarobotics/franka_description/blob/2.8.1/LICENSE>.
-The primitive collision spheres are MetalRobo approximations; upstream mesh
-assets are not redistributed here.
+The documentation image `docs/media/metalrobo-franka-fr3v2.webp` is a
+MetalRobo render of the official FR3v2 and Franka hand visual meshes from that
+revision. The primitive collision spheres and displayed workcell are
+MetalRobo-authored. Upstream mesh files and the transient cooked pack are not
+redistributed here.
 
 ## Unitree G1 model data
 
@@ -57,6 +60,14 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
+
+## Studio Small 03 HDR environment
+
+The README renders use Greg Zaal's
+[`Studio Small 03`](https://polyhaven.com/a/studio_small_03) HDRI from Poly
+Haven. Poly Haven publishes the asset under the Creative Commons CC0 1.0
+Universal public-domain dedication. The source HDR and transient cooked
+environment pack are not redistributed here.
 
 ## Named Unitree RL Lab training preset
 
