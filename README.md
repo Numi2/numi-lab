@@ -1,31 +1,27 @@
 <div align="center">
 
-<h1>MetalRobo</h1>
+<h1>numi-lab</h1>
 
 <p><strong>Metal-native robotics simulation, sensing, and MLX policy infrastructure for Apple Silicon</strong></p>
 
 <p><code>C++23</code> · <code>Metal 4</code> · <code>MLX</code> · <code>Model I/O</code> · <code>Core ML-ready</code></p>
 
-<img
-  src="docs/media/metalrobo-unitree-g1.webp"
-  alt="Official Unitree G1 geometry rendered by MetalRobo"
-  width="100%"
->
+<img src="docs/media/metalrobo-unitree-g1.webp" alt="Official Unitree G1 geometry rendered by numi-lab" width="100%" />
 
 <p><sub>
-MetalRobo <code>sensor_reference</code> render on Apple M4 using the
+numi-lab <code>sensor_reference</code> render on Apple M4 using the
 <a href="https://github.com/unitreerobotics/unitree_ros/tree/aa0f5c68b5aba347bad409e71b6430407da758d7/robots/g1_description">official Unitree G1 visual geometry</a>.
-Robot geometry is upstream-authored; the presentation stage and lighting are MetalRobo-authored.
+Robot geometry is upstream-authored; the presentation stage and lighting are numi-lab-authored.
 </sub></p>
 
 </div>
 
-MetalRobo turns authored robots, worlds, and sensors into immutable runtime
+numi-lab turns authored robots, worlds, and sensors into immutable runtime
 packs, advances them in persistent Metal memory, and exposes synchronized
 observations to MLX, Core ML, Swift, C++, and Python. The runtime does not link
 or call an external physics engine.
 
-Every image below is a native MetalRobo sensor output. There is no generated
+Every image below is a native numi-lab sensor output. There is no generated
 concept art and no screenshot from another simulator.
 
 > One authoritative state drives physics, contact, vision, tactile sensing,
@@ -45,7 +41,7 @@ concept art and no screenshot from another simulator.
 
 ## The renderer is a sensor
 
-![RGB, metric depth, surface normals, and authored identities from the same MetalRobo frame](docs/media/metalrobo-sensor-gallery.webp)
+![RGB, metric depth, surface normals, and authored identities from the same numi-lab frame](docs/media/metalrobo-sensor-gallery.webp)
 
 These four panels are read from the same `sensor_reference` frame. RGB remains
 scene-linear in the policy path; tone mapping is applied only to the preview.
@@ -92,19 +88,19 @@ timeline.
 
 ## Robots and research worlds
 
-| Robot | MetalRobo integration |
+| Robot | numi-lab integration |
 | --- | --- |
 | **Franka** | Fixed-base manipulation, pick-and-place world family, fixed and wrist cameras, tactile fingertip atlases, and deterministic replay. |
 | **Unitree G1** | COM-consistent floating-base 29-DoF model with pinned topology, inertials, limits, collision geometry, IMU frames, and named locomotion presets. |
 | **Surgical PSM** | Fixed-base serial research model with a true prismatic insertion axis, independent jaws, mixed articulated/rigid contact, needle and thread infrastructure, and multi-PSM composition. |
 
-![Official Franka FR3v2 geometry in a MetalRobo pick-and-place sensor scene](docs/media/metalrobo-franka-fr3v2.webp)
+![Official Franka FR3v2 geometry in a numi-lab pick-and-place sensor scene](docs/media/metalrobo-franka-fr3v2.webp)
 
 <p><sub>
-MetalRobo <code>sensor_reference</code> render on Apple M4 using the
+numi-lab <code>sensor_reference</code> render on Apple M4 using the
 <a href="https://github.com/frankarobotics/franka_description/tree/02afaae282d4a8e10d7d2f781b23b3515c303ce5/meshes/robots/fr3v2/visual">official Franka FR3v2 visual geometry</a>.
 The calibrated camera, pick-and-place workcell, materials, lighting, and
-supervisory buffers are produced by MetalRobo.
+supervisory buffers are produced by numi-lab.
 </sub></p>
 
 The Surgical PSM integration is a robotics research world, not a clinical
@@ -113,7 +109,7 @@ transfer claim.
 
 ## Quick start
 
-MetalRobo currently targets Apple Silicon, macOS 26 / Metal 4, and the Xcode
+numi-lab currently targets Apple Silicon, macOS 26 / Metal 4, and the Xcode
 toolchain. The build requires CMake 3.28 or newer, Ninja, SQLite3, and LibXml2.
 
 ```sh
@@ -180,7 +176,7 @@ command-buffer timeline.
 - [Validation record](docs/VALIDATION.md)
 - [Detailed capability ledger](docs/ENGINE_CAPABILITY_LEDGER.md)
 
-MetalRobo is a pre-release research platform. It supplies simulation,
+numi-lab is a pre-release research platform. It supplies simulation,
 perception, and policy-training infrastructure; it does not ship or train a
 particular vision or policy model. Robot sources, adaptations, and required
 upstream notices are recorded in
