@@ -69,6 +69,7 @@ class HybridRendererLayout:
     tile_count_y: int
     gaussian_count: int
     maximum_gaussians_per_tile: int
+    maximum_mesh_triangles_per_tile: int
     mesh_vertex_count: int
     mesh_triangle_count: int
     mesh_primitive_count: int
@@ -425,6 +426,9 @@ class HybridObservationRenderer:
             tile_count_y=int(native.tile_count_y),
             gaussian_count=int(native.gaussian_count),
             maximum_gaussians_per_tile=int(native.maximum_gaussians_per_tile),
+            maximum_mesh_triangles_per_tile=int(
+                native.maximum_mesh_triangles_per_tile
+            ),
             mesh_vertex_count=int(native.mesh_vertex_count),
             mesh_triangle_count=int(native.mesh_triangle_count),
             mesh_primitive_count=int(native.mesh_primitive_count),

@@ -3,6 +3,8 @@
 #include "metalrobo/MetalMultiArticulatedConstraints.hpp"
 #include "metalrobo/Tactile.hpp"
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/c_api.h"
+#include "metalrobo/hybrid_renderer_types.h"
 #include "metalrobo/r2s2r_types.h"
 #include "metalrobo/world_compiler_types.h"
 
@@ -278,6 +280,20 @@ generalizedConstraintStep(
     mx::StreamOrDevice stream = {}
 );
 
+// Writes policy-ready visual modalities directly into MLX-owned arrays on
+// MLX's active Metal compute encoder. Body records use the native
+// environment-major MRBodyStateGPU layout.
+[[nodiscard]] std::vector<mx::array> visualObservation(
+    std::uintptr_t rendererHandle,
+    std::uintptr_t worldFamilyHandle,
+    const mx::array& currentBodyStates,
+    const mx::array& previousBodyStates,
+    std::uint64_t frameIndex,
+    std::uint32_t sensorSequence,
+    std::uint32_t cameraIndex,
+    mx::StreamOrDevice stream = {}
+);
+
 // Synchronous FP64 validation oracle. It is intentionally separate from the
 // custom primitive and is never reachable from the MLX execution path.
 [[nodiscard]] std::vector<float> debugCPUStep(
@@ -475,6 +491,62 @@ private:
     std::uint32_t bodyCount_ = 0u;
     std::uint32_t articulationCount_ = 0u;
     std::uint64_t generation_ = 0u;
+};
+
+class VisualObservationPrimitive final : public mx::Primitive {
+public:
+    VisualObservationPrimitive(
+        mx::Stream stream,
+        MRHybridRendererHandle* renderer,
+        MRWorldFamilyHandle* worlds,
+        std::uint32_t environmentCount,
+        std::uint32_t bodyCount,
+        std::uint32_t width,
+        std::uint32_t height,
+        std::uint64_t frameIndex,
+        std::uint32_t sensorSequence,
+        std::uint32_t cameraIndex
+    );
+    ~VisualObservationPrimitive() override;
+
+    void eval_cpu(
+        const std::vector<mx::array>& inputs,
+        std::vector<mx::array>& outputs
+    ) override;
+    void eval_gpu(
+        const std::vector<mx::array>& inputs,
+        std::vector<mx::array>& outputs
+    ) override;
+    std::vector<mx::array> jvp(
+        const std::vector<mx::array>& primals,
+        const std::vector<mx::array>& tangents,
+        const std::vector<int>& argnums
+    ) override;
+    std::vector<mx::array> vjp(
+        const std::vector<mx::array>& primals,
+        const std::vector<mx::array>& cotangents,
+        const std::vector<int>& argnums,
+        const std::vector<mx::array>& outputs
+    ) override;
+    std::pair<std::vector<mx::array>, std::vector<int>> vmap(
+        const std::vector<mx::array>& inputs,
+        const std::vector<int>& axes
+    ) override;
+    [[nodiscard]] const char* name() const override;
+    [[nodiscard]] bool is_equivalent(
+        const mx::Primitive& other
+    ) const override;
+
+private:
+    MRHybridRendererHandle* renderer_ = nullptr;
+    MRWorldFamilyHandle* worlds_ = nullptr;
+    std::uint32_t environmentCount_ = 0u;
+    std::uint32_t bodyCount_ = 0u;
+    std::uint32_t width_ = 0u;
+    std::uint32_t height_ = 0u;
+    std::uint64_t frameIndex_ = 0u;
+    std::uint32_t sensorSequence_ = 0u;
+    std::uint32_t cameraIndex_ = 0u;
 };
 
 } // namespace metalrobo::mlx_ext

@@ -90,12 +90,21 @@ environment, and image-based lighting implementation. A compact
 environment-major state pass resolves current and previous camera plus authored
 instance transforms once, removing repeated body binding and quaternion work
 from triangle visibility, shadows, and composition. `sensor_fast` packs depth
-and triangle identity into one Apple9 64-bit atomic visibility key, so geometry
-is rasterized once. Near-plane work launches indirectly only when clipped
-geometry exists; winner clearing and sensor response are fused into passes that
-already touch the pixels. World buffers are resolved once per physical frame,
-resource residency is declared once per active encoder, and fixed buffer tables
-are bound as ranges rather than as individual Objective-C calls.
+and triangle identity into one Apple9 64-bit atomic visibility key. Authored
+mesh visibility is hierarchical: projected triangles with a bounded
+microtriangle box use the direct atomic lane, while larger triangles append
+their already-projected screen-space record to 16×16 tiles. One 256-thread
+group then resolves each tile in 128-record shared-memory batches. This keeps
+subpixel robot meshes inexpensive, eliminates a second world/camera transform
+for tiled geometry, and prevents large triangles from serially walking their
+complete pixel bounding box. Tile-list order is irrelevant because the packed
+winner is an exact minimum; capacity overflow takes the bounded atomic lane
+without dropping geometry. Near-plane work launches indirectly only when
+clipped geometry exists; winner clearing and sensor response are fused into
+passes that already touch the pixels. World buffers are resolved once per
+physical frame, resource residency is declared once per active encoder, and
+fixed buffer tables are bound as ranges rather than as individual Objective-C
+calls.
 
 `sensor_fast` uses environment-major shadow atlases and stratified space-time
 samples during physical exposure. Near-plane scratch storage scales with the
@@ -119,6 +128,16 @@ exposure samples.
 compute encoder. It commits no command buffer and performs no readback. RGB,
 depth, identity, normal, motion, and validity buffers stay device-resident and
 are exposed through `nativeBuffer` for MLX, Core ML, or another Metal stage.
+`encodeGraph` additionally accepts an active-compute callback surface and a
+complete set of caller-owned observation buffers. The Python
+`visual_observation` custom primitive uses that surface to write linear RGB,
+metric depth, segmentation, identities, normals, motion, and validity directly
+into MLX allocations. The primitive registers its array dependencies with MLX,
+adds no command buffer, and attaches the renderer's private heap through a
+Metal residency set compiled and committed once with the immutable scene, then
+reused on MLX's current command buffer. This follows MLX's
+[custom-extension contract](https://ml-explore.github.io/mlx/build/html/dev/extensions.html)
+while retaining native heap and argument-buffer residency.
 Explicit inspection/export readback coalesces every plane into one transient
 aligned shared buffer and reuses caller-owned host capacity. This avoids
 per-modality Metal allocations without retaining a resolution-sized staging

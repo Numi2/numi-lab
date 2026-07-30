@@ -99,6 +99,11 @@ from .mlx_world import (
     step,
     step_sampled_world_family,
 )
+from .mlx_visual import (
+    BODY_STATE_WORDS,
+    VisualObservation,
+    visual_observation,
+)
 from .tactile_latent import (
     ContactEventTargets,
     ObjectContactFieldEstimator,
@@ -265,6 +270,9 @@ __all__ = [
     "HYBRID_GAUSSIAN_DTYPE",
     "HybridObservationDeviceBuffers",
     "HybridObservationRenderer",
+    "BODY_STATE_WORDS",
+    "VisualObservation",
+    "visual_observation",
     "HybridObservationSnapshot",
     "HybridRendererLayout",
     "CallablePerceptionProviderV1",

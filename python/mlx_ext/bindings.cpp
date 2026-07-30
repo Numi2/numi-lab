@@ -846,6 +846,21 @@ NB_MODULE(_mlx_ext, module) {
         "Import GPU-resident world-family resets into MLX arrays."
     );
     module.def(
+        "visual_observation",
+        &metalrobo::mlx_ext::visualObservation,
+        "renderer_handle"_a,
+        "world_family_handle"_a,
+        "current_body_states"_a,
+        "previous_body_states"_a,
+        "frame_index"_a = 0u,
+        "sensor_sequence"_a = 0u,
+        "camera_index"_a = 0u,
+        nb::kw_only(),
+        "stream"_a = nb::none(),
+        "Encode synchronized visual modalities on MLX's active Metal "
+        "compute encoder."
+    );
+    module.def(
         "_debug_cpu_step",
         &metalrobo::mlx_ext::debugCPUStep,
         "world"_a,

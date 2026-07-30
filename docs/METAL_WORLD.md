@@ -131,10 +131,26 @@ extension. The primitive:
 - allocates outputs and temporaries through MLX;
 - encodes ABA and transactional publication into MLX's active Metal command
   encoder;
+- can append `sensor_fast` authored-mesh visibility and all synchronized visual
+  modalities through `visual_observation`, writing directly into MLX-owned
+  arrays on that same encoder;
 - creates, commits, and waits on no command buffer;
 - has no CPU fallback;
 - rejects JVP, VJP, and `vmap` explicitly;
 - carries environment batching as the leading array dimension.
+
+The visual primitive receives current and previous environment-major
+`MRBodyStateGPU` records from a physics stage. It retains the native renderer
+and sampled world-family resources through lazy evaluation and Metal command
+completion, registers both body arrays as MLX inputs, and publishes seven MLX
+arrays without routing through renderer-owned images. Metal resources
+referenced indirectly by the scene
+argument buffer live in a one-heap residency set committed once with the
+renderer and attached to the current MLX command buffer. The compute-only tile
+path is deliberate: MLX owns an active
+compute encoder, whereas Apple hardware rasterization and mesh shaders require
+a render pass and therefore cannot be inserted by ending or replacing MLX's
+encoder.
 
 `WorldState`, `SolverCache`, and `StepOutput` are explicit MLX PyTrees. The
 pure `step()` API supports explicit MLX reset masks/state. `MLXRolloutCollector`

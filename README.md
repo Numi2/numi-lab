@@ -36,7 +36,7 @@ concept art and no screenshot from another simulator.
 | System | Current capability |
 | --- | --- |
 | **Dynamics and contact** | Rigid and articulated dynamics, fixed and floating roots, revolute and prismatic joints, deterministic broadphase/manifolds, Coulomb contact, joint limits, and transactional state publication. |
-| **Persistent Metal execution** | Batched worlds, fixed-capacity device graphs, private GPU resources, deterministic resets, and MLX execution through the active Metal command encoder. |
+| **Persistent Metal execution** | Batched worlds, fixed-capacity device graphs, private GPU resources, deterministic resets, and direct physics plus seven-plane visual MLX primitives on the active Metal command encoder. |
 | **Visual Presentation V3** | Direct USD/USDZ/GLB cooking, native textures, glTF metallic-roughness PBR, visible HDR environments, shadows, global or rolling shutter, and fast/reference sensor profiles. |
 | **Policy-ready sensing** | Scene-linear RGB, metric depth, normals, semantic/instance/link identities, motion, validity, calibration, tactile depth, solver wrench, and center of pressure. |
 | **Perception and data plane** | Replaceable perception providers, separate deployable and privileged streams, synchronized policy assembly, deterministic visual episodes, and a LeRobot v3 exporter. |
@@ -54,9 +54,9 @@ same camera, timestamp, physics state, and immutable provenance.
 Two profiles use the same assets, materials, lighting, truth buffers, and
 perception contract:
 
-- `sensor_fast` uses precomputed camera states, GPU-resident compute
-  visibility, parallel near-plane resolve, shadow atlases, and two-sample
-  space-time integration for online observations.
+- `sensor_fast` uses precomputed camera states, hierarchical GPU tile
+  visibility for authored meshes, parallel near-plane resolve, shadow atlases,
+  and two-sample space-time integration for online observations.
 - `sensor_reference` uses Metal ray queries, stratified space-time samples,
   direct shadow rays, and exact per-row exposure timing for deterministic
   high-fidelity rerendering.
@@ -146,9 +146,11 @@ python3 -m pip install -e .
 python3 probes/mlx_world_probe.py
 ```
 
-The Python package pins `mlx>=0.32,<0.33`. Its custom primitive allocates
-through MLX and encodes into MLX's active Metal command encoder; it has no
-NumPy, ctypes, or CPU simulation fallback.
+The Python package pins `mlx>=0.32,<0.33`. Its physics and
+`visual_observation` primitives allocate through MLX and encode into MLX's
+active Metal command encoder; the visual primitive returns RGB, depth,
+segmentation, identities, normals, motion, and validity without renderer
+readback or a second command-buffer timeline.
 
 ## Repository map
 

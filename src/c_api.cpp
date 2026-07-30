@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <algorithm>
+#include <atomic>
 #include <array>
 #include <cmath>
 #include <exception>
@@ -30,6 +31,7 @@ struct MRRuntimeHandle {
 };
 
 struct MRWorldFamilyHandle {
+    std::atomic_uint32_t references{1u};
     metalrobo::MetalWorldFamilyContext context;
     metalrobo::WorldFamily family;
     metalrobo::ScenarioSchema scenarioSchema;
@@ -39,6 +41,7 @@ struct MRWorldFamilyHandle {
 };
 
 struct MRHybridRendererHandle {
+    std::atomic_uint32_t references{1u};
     metalrobo::MetalHybridRenderer renderer;
     metalrobo::HybridObservationBatch readback;
     std::string deviceName;
@@ -467,8 +470,20 @@ MRWorldFamilyHandle* mr_load_world_family_pack(
     return status == 0 ? result : nullptr;
 }
 
+void mr_world_family_retain(MRWorldFamilyHandle* handle) {
+    if (handle != nullptr) {
+        handle->references.fetch_add(1u, std::memory_order_relaxed);
+    }
+}
+
 void mr_world_family_destroy(MRWorldFamilyHandle* handle) {
-    delete handle;
+    if (handle != nullptr &&
+        handle->references.fetch_sub(
+            1u,
+            std::memory_order_acq_rel
+        ) == 1u) {
+        delete handle;
+    }
 }
 
 int mr_world_family_sample(
@@ -1113,8 +1128,20 @@ MRHybridRendererHandle* mr_hybrid_renderer_create_v3(
     return status == 0 ? result : nullptr;
 }
 
+void mr_hybrid_renderer_retain(MRHybridRendererHandle* handle) {
+    if (handle != nullptr) {
+        handle->references.fetch_add(1u, std::memory_order_relaxed);
+    }
+}
+
 void mr_hybrid_renderer_destroy(MRHybridRendererHandle* handle) {
-    delete handle;
+    if (handle != nullptr &&
+        handle->references.fetch_sub(
+            1u,
+            std::memory_order_acq_rel
+        ) == 1u) {
+        delete handle;
+    }
 }
 
 int mr_hybrid_renderer_render(
@@ -1145,6 +1172,86 @@ int mr_hybrid_renderer_render(
         handle->activeEnvironmentCount = environment_count;
         handle->lastRenderMilliseconds =
             diagnostics.elapsedMilliseconds;
+    });
+}
+
+int mr_hybrid_renderer_encode_graph(
+    MRHybridRendererHandle* handle,
+    const MRWorldFamilyHandle* worlds,
+    const void* current_body_states,
+    const void* previous_body_states,
+    const size_t current_body_offset,
+    const size_t previous_body_offset,
+    const uint32_t environment_count,
+    const uint32_t body_count,
+    const uint64_t frame_index,
+    const uint32_t sensor_sequence,
+    const uint32_t camera_index,
+    const MRMetalComputeEncoderCallbacksC* encoder,
+    const MRHybridObservationBuffersC* outputs
+) {
+    if (!requireHybridRendererHandle(handle) ||
+        !requireWorldFamilyHandle(worlds) ||
+        current_body_states == nullptr ||
+        encoder == nullptr ||
+        outputs == nullptr) {
+        return -1;
+    }
+    return translateErrors([&] {
+        metalrobo::HybridDeviceStateBatch live;
+        live.currentBodyStates =
+            const_cast<void*>(current_body_states);
+        live.previousBodyStates =
+            const_cast<void*>(previous_body_states);
+        live.currentBodyOffset = current_body_offset;
+        live.previousBodyOffset = previous_body_offset;
+        live.environmentCount = environment_count;
+        live.bodyCount = body_count;
+        live.frameIndex = frame_index;
+        live.sensorSequence = sensor_sequence;
+        live.source = MR_VISUAL_SOURCE_SIMULATION;
+
+        metalrobo::MetalHybridComputeEncoderCallbacks callbacks;
+        callbacks.context = encoder->context;
+        callbacks.setLabel = encoder->set_label;
+        callbacks.useHeap = encoder->use_heap;
+        callbacks.useResidencySet =
+            encoder->use_residency_set;
+        callbacks.setPipeline = encoder->set_pipeline;
+        callbacks.setBuffer = encoder->set_buffer;
+        callbacks.setBytes = encoder->set_bytes;
+        callbacks.dispatchThreads = encoder->dispatch_threads;
+        callbacks.dispatchThreadgroups =
+            encoder->dispatch_threadgroups;
+        callbacks.dispatchThreadgroupsIndirect =
+            encoder->dispatch_threadgroups_indirect;
+
+        metalrobo::HybridDeviceObservationBuffers destination;
+        destination.rgb = outputs->rgb;
+        destination.depth = outputs->depth;
+        destination.segmentation = outputs->segmentation;
+        destination.identities = outputs->identities;
+        destination.normals = outputs->normals;
+        destination.motion = outputs->motion;
+        destination.validity = outputs->validity;
+
+        const metalrobo::MetalHybridRendererDiagnostics diagnostics =
+            handle->renderer.encodeGraph(
+                worlds->context,
+                live,
+                camera_index,
+                callbacks,
+                destination
+            );
+        if (!diagnostics.succeeded()) {
+            throw std::runtime_error(
+                std::string{"hybrid graph encode failed ["} +
+                metalrobo::metalHybridRendererStatusName(
+                    diagnostics.status
+                ) + "]: " + diagnostics.message
+            );
+        }
+        handle->activeEnvironmentCount = environment_count;
     });
 }
 
@@ -1189,6 +1296,8 @@ MRHybridRendererLayoutC mr_hybrid_renderer_layout(
     result.gaussian_count = layout.gaussianCount;
     result.maximum_gaussians_per_tile =
         layout.maximumGaussiansPerTile;
+    result.maximum_mesh_triangles_per_tile =
+        layout.maximumMeshTrianglesPerTile;
     result.mesh_vertex_count = layout.meshVertexCount;
     result.mesh_triangle_count = layout.meshTriangleCount;
     result.mesh_primitive_count = layout.meshPrimitiveCount;

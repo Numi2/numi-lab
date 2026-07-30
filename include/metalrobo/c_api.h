@@ -79,6 +79,7 @@ typedef struct MRHybridRendererLayoutC {
     uint32_t tile_count_y;
     uint32_t gaussian_count;
     uint32_t maximum_gaussians_per_tile;
+    uint32_t maximum_mesh_triangles_per_tile;
     uint32_t mesh_vertex_count;
     uint32_t mesh_triangle_count;
     uint32_t mesh_primitive_count;
@@ -96,6 +97,55 @@ typedef struct MRHybridRendererLayoutC {
     size_t retained_private_bytes;
     double last_render_milliseconds;
 } MRHybridRendererLayoutC;
+
+typedef struct MRMetalComputeEncoderCallbacksC {
+    void* context;
+    void (*set_label)(void* context, const char* label);
+    void (*use_heap)(void* context, void* heap);
+    void (*use_residency_set)(
+        void* context,
+        void* residency_set
+    );
+    void (*set_pipeline)(void* context, void* pipeline);
+    void (*set_buffer)(
+        void* context,
+        void* buffer,
+        size_t offset,
+        uint32_t index
+    );
+    void (*set_bytes)(
+        void* context,
+        const void* bytes,
+        size_t length,
+        uint32_t index
+    );
+    void (*dispatch_threads)(
+        void* context,
+        size_t thread_count,
+        size_t threads_per_threadgroup
+    );
+    void (*dispatch_threadgroups)(
+        void* context,
+        size_t threadgroup_count,
+        size_t threads_per_threadgroup
+    );
+    void (*dispatch_threadgroups_indirect)(
+        void* context,
+        void* arguments,
+        size_t offset,
+        size_t threads_per_threadgroup
+    );
+} MRMetalComputeEncoderCallbacksC;
+
+typedef struct MRHybridObservationBuffersC {
+    void* rgb;
+    void* depth;
+    void* segmentation;
+    void* identities;
+    void* normals;
+    void* motion;
+    void* validity;
+} MRHybridObservationBuffersC;
 
 typedef struct MRVisualFrameMetadataC {
     uint32_t dimensions[4];
@@ -194,6 +244,7 @@ MR_API MRWorldFamilyHandle* mr_load_world_family_pack(
     uint32_t capacity,
     const char* metallib_path
 );
+MR_API void mr_world_family_retain(MRWorldFamilyHandle* handle);
 MR_API void mr_world_family_destroy(MRWorldFamilyHandle* handle);
 MR_API int mr_world_family_sample(
     MRWorldFamilyHandle* handle,
@@ -300,6 +351,9 @@ MR_API MRHybridRendererHandle* mr_hybrid_renderer_create_v3(
     uint32_t height,
     const char* metallib_path
 );
+MR_API void mr_hybrid_renderer_retain(
+    MRHybridRendererHandle* handle
+);
 MR_API void mr_hybrid_renderer_destroy(
     MRHybridRendererHandle* handle
 );
@@ -308,6 +362,23 @@ MR_API int mr_hybrid_renderer_render(
     const MRWorldFamilyHandle* worlds,
     uint32_t environment_count,
     uint32_t camera_index
+);
+// Direct lazy-graph path. Inputs and outputs borrow MTLBuffer objects and the
+// callbacks append to the graph runtime's active compute encoder.
+MR_API int mr_hybrid_renderer_encode_graph(
+    MRHybridRendererHandle* handle,
+    const MRWorldFamilyHandle* worlds,
+    const void* current_body_states,
+    const void* previous_body_states,
+    size_t current_body_offset,
+    size_t previous_body_offset,
+    uint32_t environment_count,
+    uint32_t body_count,
+    uint64_t frame_index,
+    uint32_t sensor_sequence,
+    uint32_t camera_index,
+    const MRMetalComputeEncoderCallbacksC* encoder,
+    const MRHybridObservationBuffersC* outputs
 );
 MR_API int mr_hybrid_renderer_readback(
     MRHybridRendererHandle* handle

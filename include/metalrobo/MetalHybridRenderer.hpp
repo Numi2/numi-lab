@@ -23,6 +23,8 @@ struct MetalHybridRendererConfig {
     std::uint32_t width = 160u;
     std::uint32_t height = 120u;
     std::uint32_t maximumGaussiansPerTile = MR_HYBRID_MAX_GAUSSIANS_PER_TILE;
+    std::uint32_t maximumMeshTrianglesPerTile =
+        MR_HYBRID_MAX_MESH_TRIANGLES_PER_TILE;
     // Shadow layers are transient and reused in environment batches. This
     // controls encoding granularity, not total world capacity.
     std::uint32_t shadowLayerBatchSize = 32u;
@@ -73,6 +75,7 @@ struct MetalHybridRendererLayout {
     std::uint32_t bodyCount = 0u;
     std::uint32_t sensorBindingCount = 0u;
     std::uint32_t maximumGaussiansPerTile = 0u;
+    std::uint32_t maximumMeshTrianglesPerTile = 0u;
     std::uint32_t shadowLayerCapacity = 0u;
     std::uint32_t rayInstanceCount = 0u;
     std::size_t shadowWorkspaceBytes = 0u;
@@ -126,6 +129,8 @@ struct HybridDeviceStateBatch {
     // frame, in which case motion is zero.
     void* currentBodyStates = nullptr;
     void* previousBodyStates = nullptr;
+    std::size_t currentBodyOffset = 0u;
+    std::size_t previousBodyOffset = 0u;
     std::uint32_t environmentCount = 0u;
     std::uint32_t bodyCount = 0u;
     std::uint64_t frameIndex = 0u;
@@ -133,6 +138,67 @@ struct HybridDeviceStateBatch {
     MRVisualFrameSource source = MR_VISUAL_SOURCE_SIMULATION;
     double captureTimestampSeconds = 0.0;
     double frameAgeSeconds = 0.0;
+};
+
+struct HybridDeviceObservationBuffers {
+    // Borrowed id<MTLBuffer> values. Supplying this complete set makes the
+    // renderer write directly into caller-owned graph arrays.
+    void* rgb = nullptr;
+    void* depth = nullptr;
+    void* segmentation = nullptr;
+    void* identities = nullptr;
+    void* normals = nullptr;
+    void* motion = nullptr;
+    void* validity = nullptr;
+};
+
+struct MetalHybridComputeEncoderCallbacks {
+    void* context = nullptr;
+    void (*setLabel)(void* context, const char* label) = nullptr;
+    void (*useHeap)(void* context, void* heap) = nullptr;
+    void (*useResidencySet)(
+        void* context,
+        void* residencySet
+    ) = nullptr;
+    void (*setPipeline)(void* context, void* pipeline) = nullptr;
+    void (*setBuffer)(
+        void* context,
+        void* buffer,
+        std::size_t offset,
+        std::uint32_t index
+    ) = nullptr;
+    void (*setBytes)(
+        void* context,
+        const void* bytes,
+        std::size_t length,
+        std::uint32_t index
+    ) = nullptr;
+    void (*dispatchThreads)(
+        void* context,
+        std::size_t threadCount,
+        std::size_t threadsPerThreadgroup
+    ) = nullptr;
+    void (*dispatchThreadgroups)(
+        void* context,
+        std::size_t threadgroupCount,
+        std::size_t threadsPerThreadgroup
+    ) = nullptr;
+    void (*dispatchThreadgroupsIndirect)(
+        void* context,
+        void* arguments,
+        std::size_t offset,
+        std::size_t threadsPerThreadgroup
+    ) = nullptr;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr &&
+            (useHeap != nullptr || useResidencySet != nullptr) &&
+            setPipeline != nullptr &&
+            setBuffer != nullptr &&
+            setBytes != nullptr &&
+            dispatchThreads != nullptr &&
+            dispatchThreadgroups != nullptr;
+    }
 };
 
 enum class MetalHybridRendererBuffer : std::uint32_t {
@@ -148,6 +214,7 @@ enum class MetalHybridRendererBuffer : std::uint32_t {
     meshWinners = 9u,
     shadowAtlas = 10u,
     temporalAccumulation = 11u,
+    meshTileOverflowCounts = 12u,
 };
 
 struct MetalHybridFrameCommandContext {
@@ -199,6 +266,18 @@ public:
         const HybridDeviceStateBatch& liveState,
         std::uint32_t cameraIndex,
         void* metalComputeCommandEncoder
+    );
+
+    // MLX and other lazy graph runtimes use this callback surface to keep the
+    // renderer on their active compute encoder. All observation buffers are
+    // caller-owned and written in place; no copy, commit, wait, or readback is
+    // introduced.
+    [[nodiscard]] MetalHybridRendererDiagnostics encodeGraph(
+        const MetalWorldFamilyContext& worlds,
+        const HybridDeviceStateBatch& liveState,
+        std::uint32_t cameraIndex,
+        const MetalHybridComputeEncoderCallbacks& encoder,
+        const HybridDeviceObservationBuffers& outputs
     );
 
     // Physical-exposure path. Motion samples cover exposure open through

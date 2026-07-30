@@ -3,9 +3,12 @@
 #include "metalrobo/gpu_types.h"
 #include "metalrobo/visual_platform_types.h"
 
-#define MR_HYBRID_RENDERER_ABI_VERSION 7u
+#define MR_HYBRID_RENDERER_ABI_VERSION 8u
 #define MR_HYBRID_TILE_SIZE 16u
 #define MR_HYBRID_MAX_GAUSSIANS_PER_TILE 256u
+#define MR_HYBRID_MAX_MESH_TRIANGLES_PER_TILE 512u
+#define MR_HYBRID_MESH_TILE_BATCH 128u
+#define MR_HYBRID_MESH_MICRO_TRIANGLE_PIXELS 1024u
 #define MR_HYBRID_MAX_NEAR_CLIPPED_TRIANGLES 4096u
 #define MR_HYBRID_NEAR_CLIPPED_RESOLVE_THREADS 256u
 
@@ -71,6 +74,15 @@ typedef struct MR_ALIGN16 MRHybridNearClippedTriangleGPU {
     mr_uint4 identity;
 } MRHybridNearClippedTriangleGPU;
 
+typedef struct MR_ALIGN16 MRHybridMeshTileRecordGPU {
+    // p0.xy, p1.xy.
+    mr_float4 projected01;
+    // p2.xy, inverse depth 0, inverse depth 1.
+    mr_float4 projected2AndInverse01;
+    // inverse depth 2, signed area, triangle bits, reserved.
+    mr_float4 inverse2AreaAndTriangle;
+} MRHybridMeshTileRecordGPU;
+
 typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
     // active environments, Gaussian count, assets/world, sensors/world.
     mr_uint4 counts;
@@ -90,6 +102,8 @@ typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
     mr_float4 sensorRangeAndResponse;
     // texture count, light count, renderer profile, profile flags.
     mr_uint4 presentation;
+    // mesh triangles/tile, cooperative batch, microtriangle pixels, reserved.
+    mr_uint4 meshTiling;
     // shutter model, scan direction, temporal sample, sample count.
     mr_uint4 shutter;
     // temporal sample fraction, truth fraction, environment intensity/rotation.
@@ -119,11 +133,15 @@ static_assert(
 static_assert(
     std::is_trivially_copyable_v<MRHybridNearClippedTriangleGPU>
 );
+static_assert(
+    std::is_trivially_copyable_v<MRHybridMeshTileRecordGPU>
+);
 static_assert(std::is_trivially_copyable_v<MRHybridRenderUniformsGPU>);
 static_assert(sizeof(MRHybridGaussianGPU) == 80u);
 static_assert(sizeof(MRHybridProjectedGaussianGPU) == 96u);
 static_assert(sizeof(MRHybridCameraStateGPU) == 64u);
 static_assert(sizeof(MRHybridVisualInstanceStateGPU) == 64u);
 static_assert(sizeof(MRHybridNearClippedTriangleGPU) == 64u);
-static_assert(sizeof(MRHybridRenderUniformsGPU) == 256u);
+static_assert(sizeof(MRHybridMeshTileRecordGPU) == 48u);
+static_assert(sizeof(MRHybridRenderUniformsGPU) == 272u);
 #endif

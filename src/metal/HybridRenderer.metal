@@ -605,6 +605,60 @@ uint clipTriangleToNearPlane(
     return outputCount;
 }
 
+void rasterizeProjectedTriangleInBounds(
+    const CameraProjection p0,
+    const CameraProjection p1,
+    const CameraProjection p2,
+    const float area,
+    const int minimumX,
+    const int maximumX,
+    const int minimumY,
+    const int maximumY,
+    const uint environment,
+    const uint triangleIndex,
+    device atomic_ulong* winners,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    const float inverseDepth0 = 1.0f / p0.depth;
+    const float inverseDepth1 = 1.0f / p1.depth;
+    const float inverseDepth2 = 1.0f / p2.depth;
+    for (int y = minimumY; y <= maximumY; ++y) {
+        for (int x = minimumX; x <= maximumX; ++x) {
+            const uint flat =
+                environment *
+                    uniforms.image.x * uniforms.image.y +
+                uint(y) * uniforms.image.x + uint(x);
+            const float2 pixel =
+                float2(float(x), float(y)) + 0.5f +
+                fastSubpixelOffset(flat, uniforms);
+            const float w0 =
+                edge(p1.pixel, p2.pixel, pixel) / area;
+            const float w1 =
+                edge(p2.pixel, p0.pixel, pixel) / area;
+            const float w2 = 1.0f - w0 - w1;
+            if (min(w0, min(w1, w2)) < -1.0e-5f) {
+                continue;
+            }
+            const float inverseDepth =
+                w0 * inverseDepth0 +
+                w1 * inverseDepth1 +
+                w2 * inverseDepth2;
+            if (!(inverseDepth > 0.0f) ||
+                !isfinite(inverseDepth)) {
+                continue;
+            }
+            const ulong winner =
+                (ulong(as_type<uint>(1.0f / inverseDepth)) << 32u) |
+                ulong(triangleIndex);
+            atomic_min_explicit(
+                winners + flat,
+                winner,
+                memory_order_relaxed
+            );
+        }
+    }
+}
+
 void rasterizeProjectedTriangle(
     const CameraProjection p0,
     const CameraProjection p1,
@@ -663,40 +717,20 @@ void rasterizeProjectedTriangle(
     if (minimumX > maximumX || minimumY > maximumY) {
         return;
     }
-    for (int y = minimumY; y <= maximumY; ++y) {
-        for (int x = minimumX; x <= maximumX; ++x) {
-            const uint flat =
-                environment *
-                    uniforms.image.x * uniforms.image.y +
-                uint(y) * uniforms.image.x + uint(x);
-            const float2 pixel =
-                float2(float(x), float(y)) + 0.5f +
-                fastSubpixelOffset(flat, uniforms);
-            const float w0 =
-                edge(p1.pixel, p2.pixel, pixel) / area;
-            const float w1 =
-                edge(p2.pixel, p0.pixel, pixel) / area;
-            const float w2 = 1.0f - w0 - w1;
-            if (min(w0, min(w1, w2)) < -1.0e-5f) {
-                continue;
-            }
-            const float inverseDepth =
-                w0 / p0.depth + w1 / p1.depth +
-                w2 / p2.depth;
-            if (!(inverseDepth > 0.0f) ||
-                !isfinite(inverseDepth)) {
-                continue;
-            }
-            const ulong winner =
-                (ulong(as_type<uint>(1.0f / inverseDepth)) << 32u) |
-                ulong(triangleIndex);
-            atomic_min_explicit(
-                winners + flat,
-                winner,
-                memory_order_relaxed
-            );
-        }
-    }
+    rasterizeProjectedTriangleInBounds(
+        p0,
+        p1,
+        p2,
+        area,
+        minimumX,
+        maximumX,
+        minimumY,
+        maximumY,
+        environment,
+        triangleIndex,
+        winners,
+        uniforms
+    );
 }
 
 bool rayTriangleWeights(
@@ -1353,6 +1387,8 @@ kernel void mr_hybrid_clear_tiles(
     device atomic_uint* tileCounts [[buffer(0)]],
     device atomic_uint* overflowCounts [[buffer(1)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(2)]],
+    device atomic_uint* meshTileCounts [[buffer(3)]],
+    device atomic_uint* meshOverflowCounts [[buffer(4)]],
     const uint index [[thread_position_in_grid]]
 ) {
     const uint compactTileCount =
@@ -1364,6 +1400,14 @@ kernel void mr_hybrid_clear_tiles(
             0u,
             memory_order_relaxed
         );
+        if (uniforms.live.w != 0u) {
+            atomic_store_explicit(
+                meshTileCounts +
+                    globalTileFromBandIndex(index, uniforms),
+                0u,
+                memory_order_relaxed
+            );
+        }
     }
     if (index < uniforms.counts.x) {
         atomic_store_explicit(
@@ -1371,6 +1415,13 @@ kernel void mr_hybrid_clear_tiles(
             0u,
             memory_order_relaxed
         );
+        if (uniforms.live.w != 0u) {
+            atomic_store_explicit(
+                meshOverflowCounts + index,
+                0u,
+                memory_order_relaxed
+            );
+        }
     }
 }
 
@@ -1631,6 +1682,8 @@ kernel void mr_hybrid_clear_observations(
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(13)]],
     device ulong* meshWinners [[buffer(14)]],
     device atomic_uint* clippedDispatch [[buffer(15)]],
+    device atomic_uint* meshTileCounts [[buffer(16)]],
+    device atomic_uint* meshOverflowCounts [[buffer(17)]],
     const uint compactPixel [[thread_position_in_grid]]
 ) {
     const uint compactCount =
@@ -1638,6 +1691,26 @@ kernel void mr_hybrid_clear_observations(
         bandPixelCountPerEnvironment(uniforms);
     if (compactPixel >= compactCount) {
         return;
+    }
+    const uint compactTileCount =
+        uniforms.counts.x *
+        bandTileCountPerEnvironment(uniforms);
+    if (uniforms.live.w != 0u &&
+        compactPixel < compactTileCount) {
+        atomic_store_explicit(
+            meshTileCounts +
+                globalTileFromBandIndex(compactPixel, uniforms),
+            0u,
+            memory_order_relaxed
+        );
+    }
+    if (uniforms.live.w != 0u &&
+        compactPixel < uniforms.counts.x) {
+        atomic_store_explicit(
+            meshOverflowCounts + compactPixel,
+            0u,
+            memory_order_relaxed
+        );
     }
     const uint pixel =
         globalPixelFromBandIndex(compactPixel, 0u, uniforms);
@@ -2432,7 +2505,7 @@ kernel void mr_hybrid_render_tiles(
     validity[pixel] = valid;
 }
 
-void rasterizeMesh(
+void binMeshTriangle(
     const device MRVisualVertexGPUV2* vertices,
     const device MRVisualTriangleGPUV2* triangles,
     const device MRVisualPrimitiveGPUV2* primitives,
@@ -2445,6 +2518,9 @@ void rasterizeMesh(
     device MRHybridNearClippedTriangleGPU* nearClippedTriangles,
     device atomic_uint* nearClippedCounts,
     device atomic_uint* nearClippedDispatch,
+    device atomic_uint* tileCounts,
+    device MRHybridMeshTileRecordGPU* tileRecords,
+    device atomic_uint* overflowCounts,
     constant MRHybridRenderUniformsGPU& uniforms,
     const uint index
 ) {
@@ -2517,15 +2593,159 @@ void rasterizeMesh(
             cameraVertices[1].z,
             cameraVertices[2].z
         ) >= nearPlane)) {
-        rasterizeProjectedTriangle(
-            projectCameraPoint(cameraVertices[0], sensor),
-            projectCameraPoint(cameraVertices[1], sensor),
-            projectCameraPoint(cameraVertices[2], sensor),
-            environment,
-            triangleIndex,
-            winners,
-            uniforms
+        const CameraProjection p0 =
+            projectCameraPoint(cameraVertices[0], sensor);
+        const CameraProjection p1 =
+            projectCameraPoint(cameraVertices[1], sensor);
+        const CameraProjection p2 =
+            projectCameraPoint(cameraVertices[2], sensor);
+        if (!p0.valid || !p1.valid || !p2.valid) {
+            return;
+        }
+        const float area = edge(p0.pixel, p1.pixel, p2.pixel);
+        if (abs(area) <= 1.0e-8f || !isfinite(area)) {
+            return;
+        }
+        int minimumX = max(
+            0,
+            int(floor(min(
+                p0.pixel.x,
+                min(p1.pixel.x, p2.pixel.x)
+            )))
         );
+        int maximumX = min(
+            int(uniforms.image.x) - 1,
+            int(ceil(max(
+                p0.pixel.x,
+                max(p1.pixel.x, p2.pixel.x)
+            )))
+        );
+        int minimumY = max(
+            0,
+            int(floor(min(
+                p0.pixel.y,
+                min(p1.pixel.y, p2.pixel.y)
+            )))
+        );
+        int maximumY = min(
+            int(uniforms.image.y) - 1,
+            int(ceil(max(
+                p0.pixel.y,
+                max(p1.pixel.y, p2.pixel.y)
+            )))
+        );
+        const int firstBandPixel = int(uniforms.band.x);
+        const int lastBandPixel = int(
+            uniforms.band.x + uniforms.band.y - 1u
+        );
+        if (uniforms.band.z == 0u) {
+            minimumY = max(minimumY, firstBandPixel);
+            maximumY = min(maximumY, lastBandPixel);
+        } else {
+            minimumX = max(minimumX, firstBandPixel);
+            maximumX = min(maximumX, lastBandPixel);
+        }
+        if (minimumX > maximumX || minimumY > maximumY) {
+            return;
+        }
+        const uint boundedPixelCount =
+            uint(maximumX - minimumX + 1) *
+            uint(maximumY - minimumY + 1);
+        if (boundedPixelCount <= uniforms.meshTiling.z) {
+            // Microtriangles are common in authored robot meshes at policy
+            // resolution. A strictly bounded lane avoids a second transform
+            // and a tile-list round trip while large triangles retain
+            // cooperative tile resolution.
+            rasterizeProjectedTriangleInBounds(
+                p0,
+                p1,
+                p2,
+                area,
+                minimumX,
+                maximumX,
+                minimumY,
+                maximumY,
+                environment,
+                triangleIndex,
+                winners,
+                uniforms
+            );
+            return;
+        }
+
+        const uint capacity = uniforms.meshTiling.x;
+        const uint tilesPerEnvironment =
+            uniforms.image.z * uniforms.image.w;
+        bool overflowed = false;
+        const uint firstTileX =
+            uint(minimumX) / MR_HYBRID_TILE_SIZE;
+        const uint lastTileX =
+            uint(maximumX) / MR_HYBRID_TILE_SIZE;
+        const uint firstTileY =
+            uint(minimumY) / MR_HYBRID_TILE_SIZE;
+        const uint lastTileY =
+            uint(maximumY) / MR_HYBRID_TILE_SIZE;
+        for (uint tileY = firstTileY;
+             tileY <= lastTileY;
+             ++tileY) {
+            for (uint tileX = firstTileX;
+                 tileX <= lastTileX;
+                 ++tileX) {
+                const uint tile =
+                    environment * tilesPerEnvironment +
+                    tileY * uniforms.image.z + tileX;
+                const uint slot = atomic_fetch_add_explicit(
+                    tileCounts + tile,
+                    1u,
+                    memory_order_relaxed
+                );
+                if (slot < capacity) {
+                    MRHybridMeshTileRecordGPU record;
+                    record.projected01 = float4(
+                        p0.pixel,
+                        p1.pixel
+                    );
+                    record.projected2AndInverse01 = float4(
+                        p2.pixel,
+                        1.0f / p0.depth,
+                        1.0f / p1.depth
+                    );
+                    record.inverse2AreaAndTriangle = float4(
+                        1.0f / p2.depth,
+                        area,
+                        as_type<float>(triangleIndex),
+                        0.0f
+                    );
+                    tileRecords[tile * capacity + slot] =
+                        record;
+                } else {
+                    overflowed = true;
+                }
+            }
+        }
+        if (overflowed) {
+            atomic_fetch_add_explicit(
+                overflowCounts + environment,
+                1u,
+                memory_order_relaxed
+            );
+            // Dense layers remain exact. Only triangles that do not fit the
+            // compiled tile arena use the atomic pixel lane.
+            rasterizeProjectedTriangleInBounds(
+                p0,
+                p1,
+                p2,
+                area,
+                minimumX,
+                maximumX,
+                minimumY,
+                maximumY,
+                environment,
+                triangleIndex,
+                winners,
+                uniforms
+            );
+        }
         return;
     }
     const bool crossesNearPlane = any(float3(
@@ -2592,7 +2812,7 @@ void rasterizeMesh(
     }
 }
 
-kernel void mr_hybrid_rasterize_mesh(
+kernel void mr_hybrid_bin_mesh(
     const device MRVisualVertexGPUV2* vertices [[buffer(0)]],
     const device MRVisualTriangleGPUV2* triangles [[buffer(1)]],
     const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
@@ -2608,9 +2828,12 @@ kernel void mr_hybrid_rasterize_mesh(
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(13)]],
     const device MRHybridVisualInstanceStateGPU* visualInstanceStates
         [[buffer(14)]],
+    device atomic_uint* tileCounts [[buffer(15)]],
+    device MRHybridMeshTileRecordGPU* tileRecords [[buffer(16)]],
+    device atomic_uint* overflowCounts [[buffer(17)]],
     const uint index [[thread_position_in_grid]]
 ) {
-    rasterizeMesh(
+    binMeshTriangle(
         vertices,
         triangles,
         primitives,
@@ -2623,9 +2846,122 @@ kernel void mr_hybrid_rasterize_mesh(
         nearClippedTriangles,
         nearClippedCounts,
         nearClippedDispatch,
+        tileCounts,
+        tileRecords,
+        overflowCounts,
         uniforms,
         index
     );
+}
+
+kernel void mr_hybrid_resolve_mesh_tiles(
+    const device atomic_uint* tileCounts [[buffer(0)]],
+    const device MRHybridMeshTileRecordGPU* tileRecords
+        [[buffer(1)]],
+    device ulong* winners [[buffer(2)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(3)]],
+    const uint compactTile [[threadgroup_position_in_grid]],
+    const uint localIndex [[thread_position_in_threadgroup]]
+) {
+    threadgroup MRHybridMeshTileRecordGPU
+        projected[MR_HYBRID_MESH_TILE_BATCH];
+
+    const uint tile =
+        globalTileFromBandIndex(compactTile, uniforms);
+    const uint tilesPerEnvironment =
+        uniforms.image.z * uniforms.image.w;
+    const uint environment = tile / tilesPerEnvironment;
+    const uint tileInEnvironment =
+        tile - environment * tilesPerEnvironment;
+    const uint tileX = tileInEnvironment % uniforms.image.z;
+    const uint tileY = tileInEnvironment / uniforms.image.z;
+    const uint pixelX =
+        tileX * MR_HYBRID_TILE_SIZE +
+        localIndex % MR_HYBRID_TILE_SIZE;
+    const uint pixelY =
+        tileY * MR_HYBRID_TILE_SIZE +
+        localIndex / MR_HYBRID_TILE_SIZE;
+    const bool activePixel =
+        environment < uniforms.counts.x &&
+        pixelX < uniforms.image.x &&
+        pixelY < uniforms.image.y &&
+        pixelInBand(pixelX, pixelY, uniforms);
+    const uint pixel = environment *
+            uniforms.image.x * uniforms.image.y +
+        pixelY * uniforms.image.x + pixelX;
+    ulong selected = activePixel
+        ? winners[pixel]
+        : (ulong(0x7f800000u) << 32u) | 0xfffffffful;
+    const float2 rasterSample = activePixel
+        ? float2(float(pixelX), float(pixelY)) + 0.5f +
+            fastSubpixelOffset(pixel, uniforms)
+        : float2(0.0f);
+    const uint capacity = uniforms.meshTiling.x;
+    const uint count = min(
+        atomic_load_explicit(
+            tileCounts + tile,
+            memory_order_relaxed
+        ),
+        capacity
+    );
+
+    for (uint first = 0u;
+         first < count;
+         first += MR_HYBRID_MESH_TILE_BATCH) {
+        const uint batchCount = min(
+            uint(MR_HYBRID_MESH_TILE_BATCH),
+            count - first
+        );
+        if (localIndex < batchCount) {
+            projected[localIndex] =
+                tileRecords[
+                    tile * capacity + first + localIndex
+                ];
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+
+        if (activePixel) {
+            for (uint candidate = 0u;
+                 candidate < batchCount;
+                 ++candidate) {
+                const MRHybridMeshTileRecordGPU record =
+                    projected[candidate];
+                const float2 p0 = record.projected01.xy;
+                const float2 p1 = record.projected01.zw;
+                const float2 p2 =
+                    record.projected2AndInverse01.xy;
+                const float area =
+                    record.inverse2AreaAndTriangle.y;
+                const float w0 =
+                    edge(p1, p2, rasterSample) / area;
+                const float w1 =
+                    edge(p2, p0, rasterSample) / area;
+                const float w2 = 1.0f - w0 - w1;
+                if (min(w0, min(w1, w2)) < -1.0e-5f) {
+                    continue;
+                }
+                const float inverseDepth =
+                    w0 * record.projected2AndInverse01.z +
+                    w1 * record.projected2AndInverse01.w +
+                    w2 * record.inverse2AreaAndTriangle.x;
+                if (!(inverseDepth > 0.0f) ||
+                    !isfinite(inverseDepth)) {
+                    continue;
+                }
+                const float depth = 1.0f / inverseDepth;
+                const ulong candidateWinner =
+                    (ulong(as_type<uint>(depth)) << 32u) |
+                    ulong(as_type<uint>(
+                        record.inverse2AreaAndTriangle.z
+                    ));
+                selected = min(selected, candidateWinner);
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (activePixel) {
+        winners[pixel] = selected;
+    }
 }
 
 kernel void mr_hybrid_resolve_near_clipped_mesh(

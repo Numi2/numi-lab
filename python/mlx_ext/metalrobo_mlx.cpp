@@ -3622,6 +3622,114 @@ std::vector<mx::array> worldFamilyState(
     );
 }
 
+std::vector<mx::array> visualObservation(
+    const std::uintptr_t rendererHandle,
+    const std::uintptr_t worldFamilyHandle,
+    const mx::array& currentBodyStates,
+    const mx::array& previousBodyStates,
+    const std::uint64_t frameIndex,
+    const std::uint32_t sensorSequence,
+    const std::uint32_t cameraIndex,
+    mx::StreamOrDevice stream
+) {
+    auto* renderer = reinterpret_cast<MRHybridRendererHandle*>(
+        rendererHandle
+    );
+    auto* worlds = reinterpret_cast<MRWorldFamilyHandle*>(
+        worldFamilyHandle
+    );
+    if (renderer == nullptr || worlds == nullptr) {
+        throw std::invalid_argument(
+            "visual observation requires live renderer and world-family "
+            "handles"
+        );
+    }
+    const MRHybridRendererLayoutC rendererLayout =
+        mr_hybrid_renderer_layout(renderer);
+    const MRWorldFamilyLayoutC worldLayout =
+        mr_world_family_layout(worlds);
+    const std::uint32_t environments =
+        worldLayout.active_instance_count;
+    constexpr mx::ShapeElem bodyRecordWords =
+        sizeof(MRBodyStateGPU) / sizeof(std::uint32_t);
+    const mx::Shape bodyShape{
+        static_cast<mx::ShapeElem>(environments),
+        static_cast<mx::ShapeElem>(rendererLayout.body_count),
+        bodyRecordWords,
+    };
+    if (environments == 0u ||
+        environments > rendererLayout.capacity ||
+        rendererLayout.body_count == 0u ||
+        cameraIndex >= worldLayout.sensor_count_per_instance ||
+        currentBodyStates.dtype() != mx::uint32 ||
+        previousBodyStates.dtype() != mx::uint32 ||
+        currentBodyStates.shape() != bodyShape ||
+        previousBodyStates.shape() != bodyShape) {
+        throw std::invalid_argument(
+            "visual body records, active worlds, or camera do not match "
+            "the compiled renderer"
+        );
+    }
+    const auto selectedStream = mx::to_stream(stream);
+    const auto primitive =
+        std::make_shared<VisualObservationPrimitive>(
+            selectedStream,
+            renderer,
+            worlds,
+            environments,
+            rendererLayout.body_count,
+            rendererLayout.width,
+            rendererLayout.height,
+            frameIndex,
+            sensorSequence,
+            cameraIndex
+        );
+    const mx::Shape scalarShape{
+        static_cast<mx::ShapeElem>(environments),
+        static_cast<mx::ShapeElem>(rendererLayout.height),
+        static_cast<mx::ShapeElem>(rendererLayout.width),
+    };
+    const mx::Shape vectorShape{
+        static_cast<mx::ShapeElem>(environments),
+        static_cast<mx::ShapeElem>(rendererLayout.height),
+        static_cast<mx::ShapeElem>(rendererLayout.width),
+        4,
+    };
+    return mx::array::make_arrays(
+        {
+            vectorShape,
+            scalarShape,
+            scalarShape,
+            vectorShape,
+            vectorShape,
+            vectorShape,
+            scalarShape,
+        },
+        {
+            mx::float32,
+            mx::float32,
+            mx::uint32,
+            mx::uint32,
+            mx::float32,
+            mx::float32,
+            mx::uint32,
+        },
+        primitive,
+        {
+            mx::contiguous(
+                currentBodyStates,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(
+                previousBodyStates,
+                false,
+                selectedStream
+            ),
+        }
+    );
+}
+
 std::vector<float> debugCPUStep(
     const std::shared_ptr<MLXCompiledWorld>& world,
     const std::vector<float>& q,
@@ -8893,6 +9001,295 @@ bool WorldFamilyStatePrimitive::is_equivalent(
         typed->bodyCount_ == bodyCount_ &&
         typed->articulationCount_ == articulationCount_ &&
         typed->generation_ == generation_;
+}
+
+namespace {
+
+struct MLXVisualEncoderContext {
+    mx::metal::CommandEncoder* encoder = nullptr;
+    bool hasEncodedDispatch = false;
+};
+
+void mlxVisualSetLabel(void*, const char*) {}
+
+void mlxVisualUseResidencySet(
+    void* opaque,
+    void* residencySet
+) {
+    auto& context =
+        *static_cast<MLXVisualEncoderContext*>(opaque);
+    auto* typedSet =
+        reinterpret_cast<MTL::ResidencySet*>(residencySet);
+    if (typedSet == nullptr) {
+        throw std::runtime_error(
+            "MLX visual renderer received no resource residency set"
+        );
+    }
+    context.encoder->get_command_buffer()->useResidencySet(
+        typedSet
+    );
+}
+
+void mlxVisualSetPipeline(void* opaque, void* pipeline) {
+    auto& context =
+        *static_cast<MLXVisualEncoderContext*>(opaque);
+    context.encoder->set_compute_pipeline_state(
+        reinterpret_cast<MTL::ComputePipelineState*>(pipeline)
+    );
+}
+
+void mlxVisualSetBuffer(
+    void* opaque,
+    void* buffer,
+    const std::size_t offset,
+    const std::uint32_t index
+) {
+    auto& context =
+        *static_cast<MLXVisualEncoderContext*>(opaque);
+    context.encoder->set_buffer(
+        reinterpret_cast<MTL::Buffer*>(buffer),
+        static_cast<int>(index),
+        static_cast<std::int64_t>(offset)
+    );
+}
+
+void mlxVisualSetBytes(
+    void* opaque,
+    const void* bytes,
+    const std::size_t length,
+    const std::uint32_t index
+) {
+    if (length != sizeof(MRHybridRenderUniformsGPU)) {
+        throw std::runtime_error(
+            "MLX visual encoder received an unsupported immediate "
+            "constant layout"
+        );
+    }
+    auto& context =
+        *static_cast<MLXVisualEncoderContext*>(opaque);
+    context.encoder->set_bytes(
+        *static_cast<const MRHybridRenderUniformsGPU*>(bytes),
+        static_cast<int>(index)
+    );
+}
+
+void mlxVisualDispatchThreads(
+    void* opaque,
+    const std::size_t threadCount,
+    const std::size_t threadsPerThreadgroup
+) {
+    auto& context =
+        *static_cast<MLXVisualEncoderContext*>(opaque);
+    // Renderer-owned scratch resources are not MLX arrays, so MLX cannot
+    // infer their producer/consumer hazards. Order only adjacent renderer
+    // passes; the first dispatch and the completed primitive need no extra
+    // synchronization.
+    if (context.hasEncodedDispatch) {
+        context.encoder->barrier();
+    }
+    context.encoder->dispatch_threads(
+        MTL::Size(threadCount, 1u, 1u),
+        MTL::Size(threadsPerThreadgroup, 1u, 1u)
+    );
+    context.hasEncodedDispatch = true;
+}
+
+void mlxVisualDispatchThreadgroups(
+    void* opaque,
+    const std::size_t threadgroupCount,
+    const std::size_t threadsPerThreadgroup
+) {
+    auto& context =
+        *static_cast<MLXVisualEncoderContext*>(opaque);
+    if (context.hasEncodedDispatch) {
+        context.encoder->barrier();
+    }
+    context.encoder->dispatch_threadgroups(
+        MTL::Size(threadgroupCount, 1u, 1u),
+        MTL::Size(threadsPerThreadgroup, 1u, 1u)
+    );
+    context.hasEncodedDispatch = true;
+}
+
+} // namespace
+
+VisualObservationPrimitive::VisualObservationPrimitive(
+    mx::Stream stream,
+    MRHybridRendererHandle* renderer,
+    MRWorldFamilyHandle* worlds,
+    const std::uint32_t environmentCount,
+    const std::uint32_t bodyCount,
+    const std::uint32_t width,
+    const std::uint32_t height,
+    const std::uint64_t frameIndex,
+    const std::uint32_t sensorSequence,
+    const std::uint32_t cameraIndex
+)
+    : mx::Primitive(stream),
+      renderer_(renderer),
+      worlds_(worlds),
+      environmentCount_(environmentCount),
+      bodyCount_(bodyCount),
+      width_(width),
+      height_(height),
+      frameIndex_(frameIndex),
+      sensorSequence_(sensorSequence),
+      cameraIndex_(cameraIndex) {
+    mr_hybrid_renderer_retain(renderer_);
+    mr_world_family_retain(worlds_);
+}
+
+VisualObservationPrimitive::~VisualObservationPrimitive() {
+    mr_hybrid_renderer_destroy(renderer_);
+    mr_world_family_destroy(worlds_);
+}
+
+void VisualObservationPrimitive::eval_cpu(
+    const std::vector<mx::array>&,
+    std::vector<mx::array>&
+) {
+    throw std::runtime_error(
+        "MetalRobo visual observation has no MLX CPU fallback"
+    );
+}
+
+void VisualObservationPrimitive::eval_gpu(
+    const std::vector<mx::array>& inputs,
+    std::vector<mx::array>& outputs
+) {
+    if (inputs.size() != 2u || outputs.size() != 7u) {
+        throw std::runtime_error(
+            "MetalRobo visual observation received an invalid graph"
+        );
+    }
+    for (mx::array& output : outputs) {
+        output.set_data(mx::allocator::malloc(output.nbytes()));
+    }
+
+    auto& streamValue = stream();
+    auto& commandEncoder =
+        mx::metal::get_command_encoder(streamValue);
+    // These bindings register MLX's data dependencies. Renderer kernels
+    // replace lower argument slots before every dispatch.
+    commandEncoder.set_input_array(inputs[0], 30);
+    commandEncoder.set_input_array(inputs[1], 31);
+    for (const mx::array& output : outputs) {
+        commandEncoder.register_output_array(output);
+    }
+
+    MLXVisualEncoderContext context{
+        &commandEncoder,
+        false,
+    };
+    MRMetalComputeEncoderCallbacksC callbacks{};
+    callbacks.context = &context;
+    callbacks.set_label = mlxVisualSetLabel;
+    callbacks.use_residency_set =
+        mlxVisualUseResidencySet;
+    callbacks.set_pipeline = mlxVisualSetPipeline;
+    callbacks.set_buffer = mlxVisualSetBuffer;
+    callbacks.set_bytes = mlxVisualSetBytes;
+    callbacks.dispatch_threads = mlxVisualDispatchThreads;
+    callbacks.dispatch_threadgroups =
+        mlxVisualDispatchThreadgroups;
+
+    MRHybridObservationBuffersC destination{};
+    destination.rgb = outputs[0].buffer().ptr();
+    destination.depth = outputs[1].buffer().ptr();
+    destination.segmentation = outputs[2].buffer().ptr();
+    destination.identities = outputs[3].buffer().ptr();
+    destination.normals = outputs[4].buffer().ptr();
+    destination.motion = outputs[5].buffer().ptr();
+    destination.validity = outputs[6].buffer().ptr();
+
+    if (mr_hybrid_renderer_encode_graph(
+            renderer_,
+            worlds_,
+            inputs[0].buffer().ptr(),
+            inputs[1].buffer().ptr(),
+            static_cast<std::size_t>(inputs[0].offset()),
+            static_cast<std::size_t>(inputs[1].offset()),
+            environmentCount_,
+            bodyCount_,
+            frameIndex_,
+            sensorSequence_,
+            cameraIndex_,
+            &callbacks,
+            &destination
+        ) != 0) {
+        throw std::runtime_error(
+            std::string{"MetalRobo MLX visual encode failed: "} +
+            mr_last_error()
+        );
+    }
+    // MLX may release the primitive immediately after encoding, before its
+    // command buffer reaches the GPU. Keep native heaps and sampled-world
+    // buffers alive until Metal signals completion.
+    mr_hybrid_renderer_retain(renderer_);
+    mr_world_family_retain(worlds_);
+    commandEncoder.get_command_buffer()->addCompletedHandler(
+        MTL::HandlerFunction{
+            [renderer = renderer_, worlds = worlds_](
+                MTL::CommandBuffer*
+            ) {
+                mr_hybrid_renderer_destroy(renderer);
+                mr_world_family_destroy(worlds);
+            }
+        }
+    );
+}
+
+std::vector<mx::array> VisualObservationPrimitive::jvp(
+    const std::vector<mx::array>&,
+    const std::vector<mx::array>&,
+    const std::vector<int>&
+) {
+    throw std::runtime_error(
+        "MetalRobo visual observation does not implement JVP"
+    );
+}
+
+std::vector<mx::array> VisualObservationPrimitive::vjp(
+    const std::vector<mx::array>&,
+    const std::vector<mx::array>&,
+    const std::vector<int>&,
+    const std::vector<mx::array>&
+) {
+    throw std::runtime_error(
+        "MetalRobo visual observation does not implement VJP"
+    );
+}
+
+std::pair<std::vector<mx::array>, std::vector<int>>
+VisualObservationPrimitive::vmap(
+    const std::vector<mx::array>&,
+    const std::vector<int>&
+) {
+    throw std::runtime_error(
+        "MetalRobo visual observations use the native batch axis; "
+        "vmap is not supported"
+    );
+}
+
+const char* VisualObservationPrimitive::name() const {
+    return "MetalRoboVisualObservation";
+}
+
+bool VisualObservationPrimitive::is_equivalent(
+    const mx::Primitive& other
+) const {
+    const auto* typed =
+        dynamic_cast<const VisualObservationPrimitive*>(&other);
+    return typed != nullptr &&
+        typed->renderer_ == renderer_ &&
+        typed->worlds_ == worlds_ &&
+        typed->environmentCount_ == environmentCount_ &&
+        typed->bodyCount_ == bodyCount_ &&
+        typed->width_ == width_ &&
+        typed->height_ == height_ &&
+        typed->frameIndex_ == frameIndex_ &&
+        typed->sensorSequence_ == sensorSequence_ &&
+        typed->cameraIndex_ == cameraIndex_;
 }
 
 } // namespace metalrobo::mlx_ext

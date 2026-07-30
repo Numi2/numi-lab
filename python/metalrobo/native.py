@@ -83,6 +83,7 @@ class _HybridRendererLayoutC(ct.Structure):
         ("tile_count_y", ct.c_uint32),
         ("gaussian_count", ct.c_uint32),
         ("maximum_gaussians_per_tile", ct.c_uint32),
+        ("maximum_mesh_triangles_per_tile", ct.c_uint32),
         ("mesh_vertex_count", ct.c_uint32),
         ("mesh_triangle_count", ct.c_uint32),
         ("mesh_primitive_count", ct.c_uint32),
