@@ -526,11 +526,16 @@ class MLXPhysicalReplayEvaluator:
         self.trace = trace
         self.seed = int(seed)
         self.command_buffer_step_limit = int(command_buffer_step_limit)
-        self.round_index = 0
         if self.command_buffer_step_limit <= 0:
             raise ValueError(
                 "command_buffer_step_limit must be positive"
             )
+        # A tactile step appends dense sample and reduction kernels to the
+        # physics graph. Commit every control step separately so Apple's
+        # integrated GPU can service WindowServer between replay batches,
+        # even if a caller requests a larger command-buffer chunk.
+        if int(world.tactile_sample_count) > 0:
+            self.command_buffer_step_limit = 1
         if (
             not world.contact_supported
             or world.nq != trace.robot_q.shape[1]
@@ -1018,9 +1023,11 @@ class MLXPhysicalReplayEvaluator:
             candidate_count,
             seed=self.seed,
             mode="replay",
-            episode_counter=self.round_index * candidate_count,
+            # Every SMC round explains the same measured episode. Candidate
+            # quantiles can change between rounds; the episode identity and
+            # all counter-derived scenario provenance cannot.
+            episode_counter=0,
         )
-        self.round_index += 1
         state = sampled_state_from_world_family(
             self.world,
             self.family,

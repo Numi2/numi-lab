@@ -1821,7 +1821,10 @@ MetalWorldFamilyContext::configureSamplingProgram(
 
         id<MTLBuffer> particles = makePrivateBuffer(
             state_->device,
-            particleBytes,
+            std::max(
+                particleBytes,
+                sizeof(MRWorldAlignmentParticleGPU)
+            ),
             @"MetalRobo alignment particles"
         );
         id<MTLBuffer> quantiles = makePrivateBuffer(
@@ -1831,7 +1834,10 @@ MetalWorldFamilyContext::configureSamplingProgram(
         );
         id<MTLBuffer> regions = makePrivateBuffer(
             state_->device,
-            regionBytes,
+            std::max(
+                regionBytes,
+                sizeof(MRWorldFeedbackRegionGPU)
+            ),
             @"MetalRobo feedback regions"
         );
         id<MTLBuffer> bounds = makePrivateBuffer(

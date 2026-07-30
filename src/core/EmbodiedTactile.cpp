@@ -538,20 +538,24 @@ EngineModel makeUnitreeG1TactileEngineModel() {
 
 EpisodeTwin makeUnitreeG1TactileEpisodeTwin() {
     const EngineModel model = makeUnitreeG1TactileEngineModel();
+    const std::uint32_t groundBody =
+        static_cast<std::uint32_t>(model.bodies.size() - 1u);
+    const std::uint32_t groundShape =
+        static_cast<std::uint32_t>(model.shapes.size() - 1u);
     EpisodeTwin episode;
     episode.id = "unitree_g1_plantar_tactile_balance";
 
     WorldAsset robot = asset(
         "g1",
         MR_WORLD_ASSET_ROBOT,
-        MR_WORLD_COLLISION_PRIMITIVES,
+        MR_WORLD_COLLISION_CONVEX,
         MR_WORLD_DYNAMICS_ARTICULATED
     );
     robot.articulationIndex = 0u;
-    for (std::uint32_t body = 0u; body < 30u; ++body) {
+    for (std::uint32_t body = 0u; body < groundBody; ++body) {
         robot.bodyIndices.push_back(body);
     }
-    for (std::uint32_t shape = 0u; shape < 12u; ++shape) {
+    for (std::uint32_t shape = 0u; shape < groundShape; ++shape) {
         robot.shapeIndices.push_back(shape);
     }
     robot.materialIndices = {0u};
@@ -562,8 +566,8 @@ EpisodeTwin makeUnitreeG1TactileEpisodeTwin() {
         MR_WORLD_COLLISION_PRIMITIVES,
         MR_WORLD_DYNAMICS_STATIC
     );
-    ground.bodyIndices = {30u};
-    ground.shapeIndices = {12u};
+    ground.bodyIndices = {groundBody};
+    ground.shapeIndices = {groundShape};
     ground.materialIndices = {0u};
     ground.initialPose.position = {0.0f, 0.0f, -0.05f, 0.0f};
     ground.anchors.push_back({
@@ -579,8 +583,8 @@ EpisodeTwin makeUnitreeG1TactileEpisodeTwin() {
 
     const G1ModelMetadata& metadata = unitreeG1Metadata();
     episode.tactileSensors = {
-        makeG1SoleSensor(model, metadata.feet[0], 12u),
-        makeG1SoleSensor(model, metadata.feet[1], 12u),
+        makeG1SoleSensor(model, metadata.feet[0], groundShape),
+        makeG1SoleSensor(model, metadata.feet[1], groundShape),
     };
     episode.task = {
         "g1_tactile_balance",

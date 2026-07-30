@@ -5404,7 +5404,8 @@ inline bool finiteContactDispatch(
         MR_METAL_WORLD_CONTACT_WAVE32 |
         MR_METAL_WORLD_CONTACT_CCD |
         MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS |
-        MR_METAL_WORLD_CONTACT_QUALITY;
+        MR_METAL_WORLD_CONTACT_QUALITY |
+        MR_METAL_WORLD_CONTACT_BODY_PARAMETERS;
     return
         dispatch.abiVersion ==
             MR_METAL_WORLD_CONTACT_ABI_VERSION &&
@@ -10060,6 +10061,7 @@ kernel void mr_world_scatter_manifold_ir(
     device MRConstraintIRConeGPU* cones [[buffer(16)]],
     device MRArticulatedPointImpulseGPU* pointQueries [[buffer(17)]],
     device const uint* bodyDynamicNodes [[buffer(18)]],
+    device const float4* bodyParameters [[buffer(19)]],
     const uint flatPoint [[thread_position_in_grid]]
 ) {
     const uint pointsPerEnvironment =
@@ -10155,6 +10157,27 @@ kernel void mr_world_scatter_manifold_ir(
         materials[materialIndexA];
     const MRMaterialGPU materialB =
         materials[materialIndexB];
+    float frictionScaleA = 1.0f;
+    float frictionScaleB = 1.0f;
+    float restitutionScaleA = 1.0f;
+    float restitutionScaleB = 1.0f;
+    if ((dispatch.flags &
+         MR_METAL_WORLD_CONTACT_BODY_PARAMETERS) != 0u) {
+        const uint parameterBase =
+            environment * dispatch.bodyCount;
+        const float4 parametersA =
+            bodyParameters[parameterBase + sourceA.bodyIndex];
+        const float4 parametersB =
+            bodyParameters[parameterBase + sourceB.bodyIndex];
+        frictionScaleA = max(parametersA.y, 0.0f);
+        frictionScaleB = max(parametersB.y, 0.0f);
+        restitutionScaleA = max(parametersA.z, 0.0f);
+        restitutionScaleB = max(parametersB.z, 0.0f);
+    }
+    const float frictionScale =
+        sqrt(frictionScaleA * frictionScaleB);
+    const float restitutionScale =
+        max(restitutionScaleA, restitutionScaleB);
     const float3 pointAWorld = worldPointFromAnchor(
         bodyA,
         rotationA,
@@ -10201,22 +10224,27 @@ kernel void mr_world_scatter_manifold_ir(
         geometricMean(
             materialA.friction.x,
             materialB.friction.x
-        ),
+        ) * frictionScale,
         geometricMean(
             materialA.friction.y,
             materialB.friction.y
-        ),
+        ) * frictionScale,
         geometricMean(
             materialA.friction.z,
             materialB.friction.z
-        ),
+        ) * frictionScale,
         geometricMean(
             materialA.friction.w,
             materialB.friction.w
-        )
+        ) * frictionScale
     );
     contact.response = float4(
-        max(materialA.response.x, materialB.response.x),
+        clamp(
+            max(materialA.response.x, materialB.response.x) *
+                restitutionScale,
+            0.0f,
+            1.0f
+        ),
         max(materialA.response.y, materialB.response.y),
         materialA.response.z + materialB.response.z,
         0.0f

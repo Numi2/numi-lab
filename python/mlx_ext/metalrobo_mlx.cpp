@@ -1717,7 +1717,6 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_mlx_import_world_family_state",
         "mr_mlx_prepare_contact_world",
         "mr_mlx_commit_pair_cache",
-        "mr_mlx_apply_family_contact_parameters",
         "mr_mlx_apply_family_body_damping",
         "mr_mlx_initialize_operator_dispatch",
         "mr_mlx_initialize_world_articulation_dispatches",
@@ -5945,6 +5944,9 @@ void WorldStepPrimitive::eval_gpu(
             );
     }
 
+    // MLX command buffers use unretained Metal resource references. Keep
+    // every primitive-owned scratch array alive until the command buffer's
+    // completion handler runs.
     encoder.add_temporaries(std::move(retainedTemporaries));
 
     MRMetalWorldDispatchGPU worldDispatch{};
@@ -6018,7 +6020,8 @@ void WorldStepPrimitive::eval_gpu(
     contactDispatch.flags =
         MR_METAL_WORLD_CONTACT_DETERMINISTIC |
         MR_METAL_WORLD_CONTACT_WARM_START |
-        MR_METAL_WORLD_CONTACT_CAPTURE_EVIDENCE;
+        MR_METAL_WORLD_CONTACT_CAPTURE_EVIDENCE |
+        MR_METAL_WORLD_CONTACT_BODY_PARAMETERS;
     if (world_->solverMode() ==
         MetalWorldSolverMode::throughputTGS) {
         contactDispatch.flags |=
@@ -8135,6 +8138,7 @@ void WorldStepPrimitive::eval_gpu(
         outputArray(irCones, 16);
         outputArray(pointQueries, 17);
         immutable(kImmutableBodyDynamicNodes, 18);
+        inputArray(inputs[16], 19);
         dispatchThreads(
             pairFlagCount *
                 MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY,
@@ -8172,21 +8176,6 @@ void WorldStepPrimitive::eval_gpu(
                 )
             );
         }
-
-        setPhysicsKernel(
-            "mr_mlx_apply_family_contact_parameters"
-        );
-        encoder.set_bytes(adapterDispatch, 0);
-        encoder.set_bytes(contactDispatch, 1);
-        inputArray(inputs[16], 2);
-        inputArray(outputs[16], 3);
-        outputArray(contacts, 4);
-        dispatchThreads(
-            environments,
-            resources.kernel(
-                "mr_mlx_apply_family_contact_parameters"
-            )
-        );
 
         setPhysicsKernel("mr_world_finalize_factor_dispatch");
         encoder.set_bytes(contactDispatch, 0);
@@ -10482,6 +10471,7 @@ void SceneRaycastPrimitive::eval_gpu(
         },
         mx::float32
     );
+    encoder.add_temporary(projectedShapes);
     auto* projectionKernel =
         resources.sceneQueryProjectionKernel;
     encoder.set_compute_pipeline_state(projectionKernel);

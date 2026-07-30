@@ -8657,6 +8657,10 @@ bool encodeParallelManifoldCompile(
                 {16u, kIRCones},
                 {17u, kPointQueries},
                 {18u, kBodyDynamicNodes},
+                // Standalone worlds use canonical material friction. The
+                // body-parameter flag is unset, so this bound immutable
+                // buffer is never indexed as an environment-major table.
+                {19u, kMaterials},
             },
             nullptr,
             0u,

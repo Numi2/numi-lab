@@ -97,15 +97,6 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
-        "--repeat-evaluations",
-        type=int,
-        default=0,
-        help=(
-            "optional identical replay repetitions for determinism "
-            "diagnostics; disabled in the bounded smoke path"
-        ),
-    )
-    parser.add_argument(
         "--worker",
         action="store_true",
         help=argparse.SUPPRESS,
@@ -126,8 +117,6 @@ def _run(args: argparse.Namespace) -> int:
         or args.steps <= 0
         or args.physics_substeps <= 0
         or args.physics_substeps > 64
-        or args.repeat_evaluations < 0
-        or args.repeat_evaluations > 3
     ):
         raise ValueError("probe requires at least two worlds and one step")
     started = time.perf_counter()
@@ -303,6 +292,7 @@ def _run(args: argparse.Namespace) -> int:
             alignment_jitter=0.0,
         )
         family.sample(1, seed=args.seed, mode="replay")
+        stage("capture_family_sampled")
         world = compile_requested_world()
         stage(
             "world_compiled",
@@ -526,34 +516,6 @@ def _run(args: argparse.Namespace) -> int:
                 ],
                 valid_candidates=int(np.count_nonzero(valid_values)),
             )
-            for repeat_index in range(args.repeat_evaluations):
-                repeated = evaluator(mx.array(candidates))
-                mx.eval(*repeated)
-                repeated_residuals = np.asarray(repeated.residuals)
-                repeated_valid = np.asarray(repeated.valid)
-                stage(
-                    "replay_repeat_materialized",
-                    finite_candidates=int(
-                        np.count_nonzero(
-                            np.all(
-                                np.isfinite(repeated_residuals),
-                                axis=-1,
-                            )
-                        )
-                    ),
-                    repeat=repeat_index + 1,
-                    replay_statuses=sorted(
-                        {
-                            int(value)
-                            for value in np.asarray(
-                                repeated.physics_status
-                            ).reshape(-1)
-                        }
-                    ),
-                    valid_candidates=int(
-                        np.count_nonzero(repeated_valid)
-                    ),
-                )
             if any(code != 0 for code in physics_status_codes):
                 expected_tactile_residuals = {
                     "tactile_force_trajectory",

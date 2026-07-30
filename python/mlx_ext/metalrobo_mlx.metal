@@ -482,56 +482,6 @@ kernel void mr_mlx_commit_pair_cache(
     }
 }
 
-// Applies per-environment material scales after the immutable collision
-// compiler has produced task contacts and before ConstraintIR evaluation.
-// This keeps the landed immutable EngineModel/ConstraintIR boundary intact.
-kernel void mr_mlx_apply_family_contact_parameters(
-    constant MRMLXContactAdapterDispatchGPU& dispatch [[buffer(0)]],
-    constant MRMetalWorldContactDispatchGPU&
-        contactDispatch [[buffer(1)]],
-    device const float4* bodyParameters [[buffer(2)]],
-    device const MRMetalWorldContactStatusGPU*
-        statuses [[buffer(3)]],
-    device MRContactConstraintGPU* contacts [[buffer(4)]],
-    const uint environment [[thread_position_in_grid]]
-) {
-    if (environment >= dispatch.environmentCount ||
-        statuses[environment].code != MR_STEP_SUCCESS) {
-        return;
-    }
-    const uint bodyBase = environment * dispatch.bodyStateStride;
-    const uint contactBase =
-        environment * contactDispatch.constraintCapacity;
-    const uint contactCount = min(
-        statuses[environment].activeContacts,
-        contactDispatch.constraintCapacity
-    );
-    for (uint localContact = 0u;
-         localContact < contactCount;
-         ++localContact) {
-        device MRContactConstraintGPU& contact =
-            contacts[contactBase + localContact];
-        if (contact.bodyA >= dispatch.bodyStateStride ||
-            contact.bodyB >= dispatch.bodyStateStride) {
-            continue;
-        }
-        const float4 scaleA =
-            bodyParameters[bodyBase + contact.bodyA];
-        const float4 scaleB =
-            bodyParameters[bodyBase + contact.bodyB];
-        const float frictionScale = sqrt(
-            max(scaleA.y, 0.0f) * max(scaleB.y, 0.0f)
-        );
-        contact.friction *= frictionScale;
-        contact.response.x = clamp(
-            contact.response.x *
-                max(max(scaleA.z, 0.0f), max(scaleB.z, 0.0f)),
-            0.0f,
-            1.0f
-        );
-    }
-}
-
 kernel void mr_mlx_apply_family_body_damping(
     constant MRMLXContactAdapterDispatchGPU& dispatch [[buffer(0)]],
     constant MRMetalWorldContactDispatchGPU&

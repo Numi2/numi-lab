@@ -58,6 +58,18 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     );
     hash = detail::appendRuntimeAbiWord(
         hash,
+        MR_METAL_WORLD_CONTACT_DETERMINISTIC |
+            MR_METAL_WORLD_CONTACT_WARM_START |
+            MR_METAL_WORLD_CONTACT_CAPTURE_EVIDENCE |
+            MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS |
+            MR_METAL_WORLD_CONTACT_WAVE32 |
+            MR_METAL_WORLD_CONTACT_CCD |
+            MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS |
+            MR_METAL_WORLD_CONTACT_QUALITY |
+            MR_METAL_WORLD_CONTACT_BODY_PARAMETERS
+    );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
         MR_TACTILE_ABI_VERSION
     );
     hash = detail::appendRuntimeAbiWord(

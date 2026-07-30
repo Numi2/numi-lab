@@ -726,6 +726,7 @@ enum MRMetalWorldContactFlags : mr_u32 {
     MR_METAL_WORLD_CONTACT_CCD = 1u << 5u,
     MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS = 1u << 6u,
     MR_METAL_WORLD_CONTACT_QUALITY = 1u << 7u,
+    MR_METAL_WORLD_CONTACT_BODY_PARAMETERS = 1u << 8u,
 };
 
 // One stable, cooker-produced pair. The pair stream is canonical collider
