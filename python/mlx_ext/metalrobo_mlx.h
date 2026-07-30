@@ -326,6 +326,20 @@ generalizedConstraintStep(
     mx::StreamOrDevice stream = {}
 );
 
+// Casts a graph-static ray pattern whose origins and directions are expressed
+// in each ray's parent-body frame. The Metal kernel composes body motion and
+// traversal without materializing environment-major world-space ray arrays.
+[[nodiscard]] std::vector<mx::array> sceneRaycastPattern(
+    const std::shared_ptr<MLXCompiledWorld>& world,
+    const mx::array& bodyStates,
+    const mx::array& parentBodies,
+    const mx::array& localOrigins,
+    const mx::array& localDirections,
+    const mx::array& maximumDistances,
+    const mx::array& options,
+    mx::StreamOrDevice stream = {}
+);
+
 // Synchronous FP64 validation oracle. It is intentionally separate from the
 // custom primitive and is never reachable from the MLX execution path.
 [[nodiscard]] std::vector<float> debugCPUStep(
@@ -630,7 +644,8 @@ public:
         mx::Stream stream,
         std::shared_ptr<MLXCompiledWorld> world,
         std::uint32_t environmentCount,
-        std::uint32_t rayCount
+        std::uint32_t rayCount,
+        bool mountedPattern
     );
 
     void eval_cpu(
@@ -665,6 +680,7 @@ private:
     std::shared_ptr<MLXCompiledWorld> world_;
     std::uint32_t environmentCount_ = 0u;
     std::uint32_t rayCount_ = 0u;
+    bool mountedPattern_ = false;
 };
 
 } // namespace metalrobo::mlx_ext

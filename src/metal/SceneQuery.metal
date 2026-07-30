@@ -864,185 +864,41 @@ inline void intersectMesh(
     }
 }
 
-} // namespace
-
-kernel void mr_scene_query_pack_body_states(
-    constant MRBodyStateMaterializeDispatchGPU& dispatch
-        [[buffer(0)]],
-    device const MRBodyPropertiesGPU* bodyProperties
-        [[buffer(1)]],
-    device const uint* bodyToScene [[buffer(2)]],
-    device const MRArticulatedBodyPoseGPU* bodyPoses
-        [[buffer(3)]],
-    device const MRArticulatedOperatorStatusGPU* operatorStatuses
-        [[buffer(4)]],
-    device const float4* scenePosition [[buffer(5)]],
-    device const float4* sceneOrientation [[buffer(6)]],
-    device const float4* sceneLinearVelocity [[buffer(7)]],
-    device const float4* sceneAngularVelocity [[buffer(8)]],
-    device MRBodyStateGPU* bodyStates [[buffer(9)]],
-    const uint index [[thread_position_in_grid]]
+inline void clearRayResult(
+    device float* distances,
+    device float4* points,
+    device float4* normals,
+    device uint4* identities,
+    device uint* validity,
+    const uint index
 ) {
-    const uint count =
-        dispatch.environmentCount * dispatch.bodyCount;
-    if (dispatch.abiVersion != MR_SCENE_QUERY_ABI_VERSION ||
-        dispatch.bodyStride < dispatch.bodyCount ||
-        index >= count) {
-        return;
-    }
-    const uint environment = index / dispatch.bodyCount;
-    const uint body =
-        index - environment * dispatch.bodyCount;
-    device const MRBodyPropertiesGPU& properties =
-        bodyProperties[body];
-    MRBodyStateGPU state = {};
-    state.flagsAndIndices[0] = properties.motionType;
-    state.flagsAndIndices[1] = properties.articulationIndex;
-    state.flagsAndIndices[2] = body;
-    state.flagsAndIndices[3] = 0u;
-
-    if (properties.articulationIndex != MR_INVALID_INDEX) {
-        const uint owner = properties.articulationIndex;
-        if (owner >= dispatch.articulationCount ||
-            operatorStatuses[
-                owner * dispatch.environmentCount +
-                environment
-            ].code != MR_ARTICULATED_OPERATOR_SUCCESS) {
-            bodyStates[
-                environment * dispatch.bodyStride + body
-            ] = state;
-            return;
-        }
-        const MRArticulatedBodyPoseGPU pose =
-            bodyPoses[
-                environment * dispatch.bodyCount + body
-            ];
-        if (!finite4(pose.position) ||
-            !finite4(pose.orientation) ||
-            !(dot(pose.orientation, pose.orientation) >
-              kQuaternionMinimum)) {
-            bodyStates[
-                environment * dispatch.bodyStride + body
-            ] = state;
-            return;
-        }
-        state.position = float4(pose.position.xyz, 1.0f);
-        // The articulated operator already owns quaternion normalization.
-        // Preserve its exact published components so this materializer and
-        // the solver's body arena cannot introduce different visual motion.
-        state.orientation = pose.orientation;
-        bodyStates[
-            environment * dispatch.bodyStride + body
-        ] = state;
-        return;
-    }
-
-    const uint localScene = bodyToScene[body];
-    if (localScene >= dispatch.sceneBodyCount) {
-        bodyStates[
-            environment * dispatch.bodyStride + body
-        ] = state;
-        return;
-    }
-    const uint sceneIndex =
-        environment * dispatch.sceneBodyCount + localScene;
-    float4 orientation;
-    if (!finite4(scenePosition[sceneIndex]) ||
-        !normalizedQuaternion(
-            sceneOrientation[sceneIndex],
-            orientation
-        ) ||
-        !finite4(sceneLinearVelocity[sceneIndex]) ||
-        !finite4(sceneAngularVelocity[sceneIndex])) {
-        bodyStates[
-            environment * dispatch.bodyStride + body
-        ] = state;
-        return;
-    }
-    state.position =
-        float4(scenePosition[sceneIndex].xyz, 1.0f);
-    state.orientation = orientation;
-    state.linearVelocityAndInverseMass = float4(
-        sceneLinearVelocity[sceneIndex].xyz,
-        properties.motionType == MR_MOTION_DYNAMIC
-            ? properties.massAndInverseMass.y
-            : 0.0f
-    );
-    state.angularVelocity =
-        float4(sceneAngularVelocity[sceneIndex].xyz, 0.0f);
-    state.flagsAndIndices[1] = MR_INVALID_INDEX;
-    if (!writeWorldInverseInertia(
-            state,
-            properties,
-            orientation
-        )) {
-        state.orientation = float4(0.0f);
-    }
-    bodyStates[
-        environment * dispatch.bodyStride + body
-    ] = state;
-}
-
-kernel void mr_scene_raycast(
-    constant MRSceneQueryDispatchGPU& dispatch [[buffer(0)]],
-    device const MRShapeGPU* shapes [[buffer(1)]],
-    device const MRGeometryHeaderGPU* geometryHeaders
-        [[buffer(2)]],
-    device const float4* geometryVertices [[buffer(3)]],
-    device const MRMeshBVHNodeGPU* meshNodes [[buffer(4)]],
-    device const MRMeshTriangleGPU* meshTriangles [[buffer(5)]],
-    device const MRConvexFaceGPU* convexFaces [[buffer(6)]],
-    device const MRBodyStateGPU* bodyStates [[buffer(7)]],
-    device const float4* origins [[buffer(8)]],
-    device const float4* directions [[buffer(9)]],
-    device const float* maximumDistances [[buffer(10)]],
-    device const uint4* options [[buffer(11)]],
-    device float* distances [[buffer(12)]],
-    device float4* points [[buffer(13)]],
-    device float4* normals [[buffer(14)]],
-    device uint4* identities [[buffer(15)]],
-    device uint* validity [[buffer(16)]],
-    const uint index [[thread_position_in_grid]]
-) {
-    const uint queryCount =
-        dispatch.environmentCount * dispatch.rayCount;
-    if (dispatch.abiVersion != MR_SCENE_QUERY_ABI_VERSION ||
-        dispatch.rayCount == 0u ||
-        dispatch.rayStride < dispatch.rayCount ||
-        dispatch.bodyStride < dispatch.bodyCount ||
-        index >= queryCount) {
-        return;
-    }
     distances[index] = -1.0f;
     points[index] = float4(0.0f);
     normals[index] = float4(0.0f);
     identities[index] = uint4(MR_INVALID_INDEX);
     validity[index] = 0u;
+}
 
-    const float3 origin = origins[index].xyz;
-    const float3 rawDirection = directions[index].xyz;
-    const float directionSquared =
-        dot(rawDirection, rawDirection);
-    const float maximumDistance = maximumDistances[index];
-    if (!finite3(origin) ||
-        !finite3(rawDirection) ||
-        !(directionSquared > kDirectionMinimum) ||
-        !isfinite(maximumDistance) ||
-        !(maximumDistance > 0.0f)) {
-        return;
-    }
-    const float3 direction =
-        rawDirection * rsqrt(directionSquared);
-    const uint4 queryOptions = options[index];
-    const uint queryGroup = queryOptions.x;
-    const uint queryMask = queryOptions.y;
-    const uint excludedBody = queryOptions.z;
-    const uint flags = queryOptions.w;
-    const uint environment = index / dispatch.rayCount;
-    const uint bodyBase = environment * dispatch.bodyStride;
-
-    RayHit hit;
-    hit.distance = maximumDistance;
+inline bool traceSceneRay(
+    const MRSceneQueryDispatchGPU dispatch,
+    device const MRShapeGPU* shapes,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    device const MRMeshBVHNodeGPU* meshNodes,
+    device const MRMeshTriangleGPU* meshTriangles,
+    device const MRConvexFaceGPU* convexFaces,
+    device const MRBodyStateGPU* bodyStates,
+    const float3 origin,
+    const float3 rawDirection,
+    const float maximumDistance,
+    const uint4 queryOptions,
+    const uint environment,
+    thread float3& direction,
+    thread RayHit& hit
+) {
+    direction = float3(0.0f);
+    hit.distance =
+        isfinite(maximumDistance) ? maximumDistance : 0.0f;
     hit.normal = float3(0.0f);
     hit.shape = MR_INVALID_INDEX;
     hit.body = MR_INVALID_INDEX;
@@ -1050,15 +906,35 @@ kernel void mr_scene_raycast(
     hit.feature = MR_INVALID_INDEX;
     hit.valid = false;
 
+    const float directionSquared =
+        dot(rawDirection, rawDirection);
+    if (environment >= dispatch.environmentCount ||
+        !finite3(origin) ||
+        !finite3(rawDirection) ||
+        !(directionSquared > kDirectionMinimum) ||
+        !isfinite(maximumDistance) ||
+        !(maximumDistance > 0.0f)) {
+        return false;
+    }
+    direction = rawDirection * rsqrt(directionSquared);
+    const uint queryGroup = queryOptions.x;
+    const uint queryMask = queryOptions.y;
+    const uint excludedBody = queryOptions.z;
+    const uint flags = queryOptions.w;
+    const uint bodyBase = environment * dispatch.bodyStride;
+
     for (uint shapeIndex = 0u;
          shapeIndex < dispatch.shapeCount;
          ++shapeIndex) {
         const MRShapeGPU shape = shapes[shapeIndex];
         if (shape.bodyIndex >= dispatch.bodyCount ||
             shape.bodyIndex == excludedBody ||
-            (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) !=
-                    0u &&
-                (flags & MR_SCENE_QUERY_INCLUDE_DISABLED) == 0u ||
+            (
+                (shape.flags &
+                 MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u &&
+                (flags &
+                 MR_SCENE_QUERY_INCLUDE_DISABLED) == 0u
+            ) ||
             (shape.collisionGroup & queryMask) == 0u ||
             (queryGroup & shape.collisionMask) == 0u) {
             continue;
@@ -1230,12 +1106,26 @@ kernel void mr_scene_raycast(
     }
 
     if (!hit.valid) {
-        return;
+        return false;
     }
     if ((flags & MR_SCENE_QUERY_FACE_FORWARD_NORMAL) != 0u &&
         dot(hit.normal, direction) > 0.0f) {
         hit.normal = -hit.normal;
     }
+    return true;
+}
+
+inline void writeRayHit(
+    device float* distances,
+    device float4* points,
+    device float4* normals,
+    device uint4* identities,
+    device uint* validity,
+    const uint index,
+    const float3 origin,
+    const float3 direction,
+    const thread RayHit& hit
+) {
     distances[index] = hit.distance;
     points[index] = float4(
         origin + hit.distance * direction,
@@ -1249,4 +1139,306 @@ kernel void mr_scene_raycast(
         hit.feature
     );
     validity[index] = 1u;
+}
+
+} // namespace
+
+kernel void mr_scene_query_pack_body_states(
+    constant MRBodyStateMaterializeDispatchGPU& dispatch
+        [[buffer(0)]],
+    device const MRBodyPropertiesGPU* bodyProperties
+        [[buffer(1)]],
+    device const uint* bodyToScene [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses
+        [[buffer(3)]],
+    device const MRArticulatedOperatorStatusGPU* operatorStatuses
+        [[buffer(4)]],
+    device const float4* scenePosition [[buffer(5)]],
+    device const float4* sceneOrientation [[buffer(6)]],
+    device const float4* sceneLinearVelocity [[buffer(7)]],
+    device const float4* sceneAngularVelocity [[buffer(8)]],
+    device MRBodyStateGPU* bodyStates [[buffer(9)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint count =
+        dispatch.environmentCount * dispatch.bodyCount;
+    if (dispatch.abiVersion != MR_SCENE_QUERY_ABI_VERSION ||
+        dispatch.bodyStride < dispatch.bodyCount ||
+        index >= count) {
+        return;
+    }
+    const uint environment = index / dispatch.bodyCount;
+    const uint body =
+        index - environment * dispatch.bodyCount;
+    device const MRBodyPropertiesGPU& properties =
+        bodyProperties[body];
+    MRBodyStateGPU state = {};
+    state.flagsAndIndices[0] = properties.motionType;
+    state.flagsAndIndices[1] = properties.articulationIndex;
+    state.flagsAndIndices[2] = body;
+    state.flagsAndIndices[3] = 0u;
+
+    if (properties.articulationIndex != MR_INVALID_INDEX) {
+        const uint owner = properties.articulationIndex;
+        if (owner >= dispatch.articulationCount ||
+            operatorStatuses[
+                owner * dispatch.environmentCount +
+                environment
+            ].code != MR_ARTICULATED_OPERATOR_SUCCESS) {
+            bodyStates[
+                environment * dispatch.bodyStride + body
+            ] = state;
+            return;
+        }
+        const MRArticulatedBodyPoseGPU pose =
+            bodyPoses[
+                environment * dispatch.bodyCount + body
+            ];
+        if (!finite4(pose.position) ||
+            !finite4(pose.orientation) ||
+            !(dot(pose.orientation, pose.orientation) >
+              kQuaternionMinimum)) {
+            bodyStates[
+                environment * dispatch.bodyStride + body
+            ] = state;
+            return;
+        }
+        state.position = float4(pose.position.xyz, 1.0f);
+        // The articulated operator already owns quaternion normalization.
+        // Preserve its exact published components so this materializer and
+        // the solver's body arena cannot introduce different visual motion.
+        state.orientation = pose.orientation;
+        bodyStates[
+            environment * dispatch.bodyStride + body
+        ] = state;
+        return;
+    }
+
+    const uint localScene = bodyToScene[body];
+    if (localScene >= dispatch.sceneBodyCount) {
+        bodyStates[
+            environment * dispatch.bodyStride + body
+        ] = state;
+        return;
+    }
+    const uint sceneIndex =
+        environment * dispatch.sceneBodyCount + localScene;
+    float4 orientation;
+    if (!finite4(scenePosition[sceneIndex]) ||
+        !normalizedQuaternion(
+            sceneOrientation[sceneIndex],
+            orientation
+        ) ||
+        !finite4(sceneLinearVelocity[sceneIndex]) ||
+        !finite4(sceneAngularVelocity[sceneIndex])) {
+        bodyStates[
+            environment * dispatch.bodyStride + body
+        ] = state;
+        return;
+    }
+    state.position =
+        float4(scenePosition[sceneIndex].xyz, 1.0f);
+    state.orientation = orientation;
+    state.linearVelocityAndInverseMass = float4(
+        sceneLinearVelocity[sceneIndex].xyz,
+        properties.motionType == MR_MOTION_DYNAMIC
+            ? properties.massAndInverseMass.y
+            : 0.0f
+    );
+    state.angularVelocity =
+        float4(sceneAngularVelocity[sceneIndex].xyz, 0.0f);
+    state.flagsAndIndices[1] = MR_INVALID_INDEX;
+    if (!writeWorldInverseInertia(
+            state,
+            properties,
+            orientation
+        )) {
+        state.orientation = float4(0.0f);
+    }
+    bodyStates[
+        environment * dispatch.bodyStride + body
+    ] = state;
+}
+
+kernel void mr_scene_raycast(
+    constant MRSceneQueryDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRGeometryHeaderGPU* geometryHeaders
+        [[buffer(2)]],
+    device const float4* geometryVertices [[buffer(3)]],
+    device const MRMeshBVHNodeGPU* meshNodes [[buffer(4)]],
+    device const MRMeshTriangleGPU* meshTriangles [[buffer(5)]],
+    device const MRConvexFaceGPU* convexFaces [[buffer(6)]],
+    device const MRBodyStateGPU* bodyStates [[buffer(7)]],
+    device const float4* origins [[buffer(8)]],
+    device const float4* directions [[buffer(9)]],
+    device const float* maximumDistances [[buffer(10)]],
+    device const uint4* options [[buffer(11)]],
+    device float* distances [[buffer(12)]],
+    device float4* points [[buffer(13)]],
+    device float4* normals [[buffer(14)]],
+    device uint4* identities [[buffer(15)]],
+    device uint* validity [[buffer(16)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint queryCount =
+        dispatch.environmentCount * dispatch.rayCount;
+    if (dispatch.abiVersion != MR_SCENE_QUERY_ABI_VERSION ||
+        dispatch.rayCount == 0u ||
+        dispatch.rayStride < dispatch.rayCount ||
+        dispatch.bodyStride < dispatch.bodyCount ||
+        index >= queryCount) {
+        return;
+    }
+    clearRayResult(
+        distances,
+        points,
+        normals,
+        identities,
+        validity,
+        index
+    );
+
+    const float3 origin = origins[index].xyz;
+    const float3 rawDirection = directions[index].xyz;
+    const float maximumDistance = maximumDistances[index];
+    const uint4 queryOptions = options[index];
+    const uint environment = index / dispatch.rayCount;
+    float3 direction;
+    RayHit hit;
+    if (!traceSceneRay(
+            dispatch,
+            shapes,
+            geometryHeaders,
+            geometryVertices,
+            meshNodes,
+            meshTriangles,
+            convexFaces,
+            bodyStates,
+            origin,
+            rawDirection,
+            maximumDistance,
+            queryOptions,
+            environment,
+            direction,
+            hit
+        )) {
+        return;
+    }
+    writeRayHit(
+        distances,
+        points,
+        normals,
+        identities,
+        validity,
+        index,
+        origin,
+        direction,
+        hit
+    );
+}
+
+kernel void mr_scene_raycast_pattern(
+    constant MRSceneQueryDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRGeometryHeaderGPU* geometryHeaders
+        [[buffer(2)]],
+    device const float4* geometryVertices [[buffer(3)]],
+    device const MRMeshBVHNodeGPU* meshNodes [[buffer(4)]],
+    device const MRMeshTriangleGPU* meshTriangles [[buffer(5)]],
+    device const MRConvexFaceGPU* convexFaces [[buffer(6)]],
+    device const MRBodyStateGPU* bodyStates [[buffer(7)]],
+    device const uint* parentBodies [[buffer(8)]],
+    device const float4* localOrigins [[buffer(9)]],
+    device const float4* localDirections [[buffer(10)]],
+    device const float* maximumDistances [[buffer(11)]],
+    device const uint4* options [[buffer(12)]],
+    device float* distances [[buffer(13)]],
+    device float4* points [[buffer(14)]],
+    device float4* normals [[buffer(15)]],
+    device uint4* identities [[buffer(16)]],
+    device uint* validity [[buffer(17)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint queryCount =
+        dispatch.environmentCount * dispatch.rayCount;
+    if (dispatch.abiVersion != MR_SCENE_QUERY_ABI_VERSION ||
+        dispatch.rayCount == 0u ||
+        dispatch.rayStride < dispatch.rayCount ||
+        dispatch.bodyStride < dispatch.bodyCount ||
+        index >= queryCount) {
+        return;
+    }
+    clearRayResult(
+        distances,
+        points,
+        normals,
+        identities,
+        validity,
+        index
+    );
+
+    const uint environment = index / dispatch.rayCount;
+    const uint localRay =
+        index - environment * dispatch.rayCount;
+    const uint parentBody = parentBodies[localRay];
+    float3 origin = localOrigins[localRay].xyz;
+    float3 rawDirection = localDirections[localRay].xyz;
+    if (parentBody != MR_INVALID_INDEX) {
+        if (parentBody >= dispatch.bodyCount) {
+            return;
+        }
+        const MRBodyStateGPU parent =
+            bodyStates[
+                environment * dispatch.bodyStride + parentBody
+            ];
+        float4 parentRotation;
+        if (!finite4(parent.position) ||
+            !normalizedQuaternion(
+                parent.orientation,
+                parentRotation
+            )) {
+            return;
+        }
+        origin =
+            parent.position.xyz +
+            quaternionRotate(parentRotation, origin);
+        rawDirection = quaternionRotate(
+            parentRotation,
+            rawDirection
+        );
+    }
+
+    float3 direction;
+    RayHit hit;
+    if (!traceSceneRay(
+            dispatch,
+            shapes,
+            geometryHeaders,
+            geometryVertices,
+            meshNodes,
+            meshTriangles,
+            convexFaces,
+            bodyStates,
+            origin,
+            rawDirection,
+            maximumDistances[index],
+            options[index],
+            environment,
+            direction,
+            hit
+        )) {
+        return;
+    }
+    writeRayHit(
+        distances,
+        points,
+        normals,
+        identities,
+        validity,
+        index,
+        origin,
+        direction,
+        hit
+    );
 }

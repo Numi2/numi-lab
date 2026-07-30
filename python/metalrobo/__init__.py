@@ -106,9 +106,14 @@ from .mlx_visual import (
 )
 from .mlx_scene_query import (
     INVALID_ID,
+    RayPattern,
     SceneRaycastResult,
+    make_grid_ray_pattern,
+    make_lidar_ray_pattern,
+    make_ray_pattern,
     materialize_body_states,
     scene_raycast,
+    scene_raycast_pattern,
 )
 from .tactile_latent import (
     ContactEventTargets,
@@ -278,9 +283,14 @@ __all__ = [
     "HybridObservationRenderer",
     "BODY_STATE_WORDS",
     "INVALID_ID",
+    "RayPattern",
     "SceneRaycastResult",
+    "make_grid_ray_pattern",
+    "make_lidar_ray_pattern",
+    "make_ray_pattern",
     "materialize_body_states",
     "scene_raycast",
+    "scene_raycast_pattern",
     "VisualObservation",
     "visual_observation",
     "HybridObservationSnapshot",

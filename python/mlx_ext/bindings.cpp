@@ -895,6 +895,21 @@ NB_MODULE(_mlx_ext, module) {
         "MLX's active Metal encoder."
     );
     module.def(
+        "scene_raycast_pattern",
+        &metalrobo::mlx_ext::sceneRaycastPattern,
+        "world"_a,
+        "body_states"_a,
+        "parent_bodies"_a,
+        "local_origins"_a,
+        "local_directions"_a,
+        "maximum_distances"_a,
+        "options"_a,
+        nb::kw_only(),
+        "stream"_a = nb::none(),
+        "Cast a body-attached ray pattern without materializing "
+        "world-space rays."
+    );
+    module.def(
         "_debug_cpu_step",
         &metalrobo::mlx_ext::debugCPUStep,
         "world"_a,

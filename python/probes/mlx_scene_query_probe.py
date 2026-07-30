@@ -13,8 +13,12 @@ from metalrobo import (
     INVALID_ID,
     compile_world,
     initial_state,
+    make_grid_ray_pattern,
+    make_lidar_ray_pattern,
+    make_ray_pattern,
     materialize_body_states,
     scene_raycast,
+    scene_raycast_pattern,
 )
 
 
@@ -105,6 +109,75 @@ def main() -> None:
         "inside-box exit or face-forward normal semantics are incorrect",
     )
 
+    moved_position = np.asarray(
+        analytic_state.scene_bodies.position
+    ).copy()
+    moved_orientation = np.asarray(
+        analytic_state.scene_bodies.orientation
+    ).copy()
+    moved_position[1, 0, :3] += np.array(
+        [0.3, -0.2, 0.4],
+        dtype=np.float32,
+    )
+    half_turn = 0.25 * math.pi
+    moved_orientation[1, 0] = np.array(
+        [0.0, 0.0, math.sin(half_turn), math.cos(half_turn)],
+        dtype=np.float32,
+    )
+    moved_scene = analytic_state.scene_bodies._replace(
+        position=mx.array(moved_position),
+        orientation=mx.array(moved_orientation),
+    )
+    moved_state = analytic_state._replace(
+        scene_bodies=moved_scene
+    )
+    mounted_pattern = make_ray_pattern(
+        cube_body,
+        [[0.0, 0.0, 0.0]],
+        [[1.0, 0.0, 0.0]],
+    )
+    compiled_mounted = mx.compile(
+        lambda current_state: scene_raycast_pattern(
+            analytic_world,
+            materialize_body_states(
+                analytic_world,
+                current_state,
+            ),
+            mounted_pattern,
+            maximum_distance_m=1.0,
+            exclude_parent=False,
+        )
+    )
+    mounted = compiled_mounted(moved_state)
+    mounted_filtered = scene_raycast_pattern(
+        analytic_world,
+        materialize_body_states(
+            analytic_world,
+            moved_state,
+        ),
+        mounted_pattern,
+        maximum_distance_m=1.0,
+    )
+    mx.eval(*mounted, *mounted_filtered)
+    mounted_distance = np.asarray(mounted.distance_m)
+    mounted_points = np.asarray(mounted.point_world)
+    mounted_ids = np.asarray(mounted.identities)
+    expected_moved_point = (
+        moved_position[1, 0, :3]
+        + np.array([0.0, 0.05, 0.0], dtype=np.float32)
+    )
+    require(
+        np.allclose(mounted_distance, 0.05, atol=2.0e-5)
+        and np.all(mounted_ids[..., 1] == cube_body)
+        and np.allclose(
+            mounted_points[1, 0, :3],
+            expected_moved_point,
+            atol=2.0e-5,
+        )
+        and not np.any(np.asarray(mounted_filtered.validity)),
+        "mounted rays lost body-frame motion or parent self-filtering",
+    )
+
     miss = scene_raycast(
         analytic_world,
         body_states,
@@ -131,6 +204,19 @@ def main() -> None:
         terrain_world,
         terrain_state,
     )
+    terrain_grid_pattern = make_grid_ray_pattern(
+        0,
+        size_m=(0.3, 0.2),
+        resolution=(4, 3),
+        origin_m=(0.0, 0.0, 1.0),
+        direction=(0.0, 0.0, -1.0),
+    )
+    terrain_grid = scene_raycast_pattern(
+        terrain_world,
+        terrain_bodies,
+        terrain_grid_pattern,
+        maximum_distance_m=5.0,
+    )
     terrain = scene_raycast(
         terrain_world,
         terrain_bodies,
@@ -150,7 +236,7 @@ def main() -> None:
         ),
         maximum_distance_m=5.0,
     )
-    mx.eval(*terrain)
+    mx.eval(*terrain, *terrain_grid)
     terrain_points = np.asarray(terrain.point_world)
     terrain_normals = np.asarray(terrain.normal_world)
     terrain_ids = np.asarray(terrain.identities)
@@ -177,6 +263,22 @@ def main() -> None:
         ),
         "mesh BVH4 query lost metric geometry, normals, or feature IDs",
     )
+    terrain_grid_ids = np.asarray(terrain_grid.identities)
+    require(
+        np.all(np.asarray(terrain_grid.validity))
+        and terrain_grid.distance_m.shape == (2, 12)
+        and np.all(terrain_grid_ids[..., 1] == terrain_body),
+        "body-mounted terrain grid did not remain fully device-resident",
+    )
+    lidar_pattern = make_lidar_ray_pattern(
+        0,
+        horizontal_samples=8,
+        vertical_channels=2,
+    )
+    require(
+        lidar_pattern.parent_bodies.shape == (16,),
+        "LiDAR pattern dimensions are incorrect",
+    )
 
     print(
         json.dumps(
@@ -189,6 +291,11 @@ def main() -> None:
                 "cube_exit_distance_m": float(
                     cube_distance[0, 0]
                 ),
+                "mounted_cube_exit_distance_m": float(
+                    mounted_distance[1, 0]
+                ),
+                "mounted_grid_rays": 12,
+                "lidar_pattern_rays": 16,
                 "terrain_height_m": float(
                     terrain_points[0, 0, 2]
                 ),

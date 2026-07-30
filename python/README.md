@@ -88,6 +88,25 @@ the same interface. If a tactile step already returned
 `output.body_states`, pass that array directly and avoid another kinematics
 dispatch.
 
+Robot-mounted range sensing uses a graph-static pattern instead:
+
+```python
+from metalrobo import make_grid_ray_pattern, scene_raycast_pattern
+
+terrain_grid = make_grid_ray_pattern(
+    parent_body=base_body,
+    size_m=(1.2, 0.8),
+    resolution=(24, 16),
+    origin_m=(0.0, 0.0, 0.5),
+)
+hits = scene_raycast_pattern(world, body_states, terrain_grid)
+```
+
+The pattern is shared across environments. Metal composes each ray with its
+current parent-body pose and traverses the scene in the same dispatch, so no
+dense world-space origin/direction arrays are produced per step. A LiDAR
+pattern builder and arbitrary per-ray body bindings use the same result type.
+
 Wave32 worker occupancy is fixed when the world is compiled. The device
 profile supplies the default; `wave_worker_groups=32|64|96|128` is an explicit
 override. Measure candidates outside rollout execution:

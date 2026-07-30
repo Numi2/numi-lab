@@ -180,6 +180,14 @@ point and normal, plus stable shape, body, material, and geometric-feature
 identities. Two-way collision masks, excluded bodies, one- or two-sided mesh
 queries, and face-forward normals are array inputs or graph-fixed options.
 
+`scene_raycast_pattern` is the mounted-sensor form. Its ray geometry is cooked
+once in parent-body coordinates and shared across environments. One Metal
+kernel reads each environment's current body pose, transforms the local ray,
+self-filters the mounting body by default, and traverses the complete scene.
+No environment-major world-ray tensor is constructed. Deterministic grid and
+LiDAR pattern builders cover terrain scanners and range sensors; arbitrary
+patterns can bind different rays to different bodies or to the world.
+
 This is the common geometry primitive for range cameras, LiDAR, terrain
 height scanners, visibility tests, occupancy observations, and planning
 queries. It stays on the existing compute timeline and reuses the immutable

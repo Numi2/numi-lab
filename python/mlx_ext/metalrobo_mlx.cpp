@@ -1508,6 +1508,7 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_commit_contact_state",
         "mr_scene_query_pack_body_states",
         "mr_scene_raycast",
+        "mr_scene_raycast_pattern",
     };
     if (hasTactile()) {
         physicsKernels.insert(
@@ -3983,7 +3984,8 @@ std::vector<mx::array> sceneRaycast(
             selectedStream,
             world,
             static_cast<std::uint32_t>(environments),
-            static_cast<std::uint32_t>(rays)
+            static_cast<std::uint32_t>(rays),
+            false
         );
     return mx::array::make_arrays(
         {
@@ -4010,6 +4012,120 @@ std::vector<mx::array> sceneRaycast(
             mx::contiguous(origins, false, selectedStream),
             mx::contiguous(
                 directions,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(
+                maximumDistances,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(options, false, selectedStream),
+        }
+    );
+}
+
+std::vector<mx::array> sceneRaycastPattern(
+    const std::shared_ptr<MLXCompiledWorld>& world,
+    const mx::array& bodyStates,
+    const mx::array& parentBodies,
+    const mx::array& localOrigins,
+    const mx::array& localDirections,
+    const mx::array& maximumDistances,
+    const mx::array& options,
+    mx::StreamOrDevice stream
+) {
+    if (world == nullptr ||
+        parentBodies.ndim() != 1u ||
+        parentBodies.shape(0) <= 0 ||
+        bodyStates.ndim() != 3u ||
+        bodyStates.shape(0) <= 0) {
+        throw std::invalid_argument(
+            "mounted scene raycast requires a compiled world, "
+            "body states, and a nonempty shared ray pattern"
+        );
+    }
+    const auto environments = bodyStates.shape(0);
+    const auto rays = parentBodies.shape(0);
+    if (static_cast<std::uint64_t>(environments) >
+            world->environmentCapacity() ||
+        static_cast<std::uint64_t>(rays) >
+            std::numeric_limits<std::uint32_t>::max()) {
+        throw std::invalid_argument(
+            "mounted scene raycast dimensions exceed compiled capacity"
+        );
+    }
+    constexpr mx::ShapeElem bodyWords =
+        sizeof(MRBodyStateGPU) / sizeof(std::uint32_t);
+    const mx::Shape bodyShape{
+        environments,
+        static_cast<mx::ShapeElem>(
+            world->world().model().bodies.size()
+        ),
+        bodyWords,
+    };
+    const mx::Shape patternShape{rays, 4};
+    const mx::Shape rayShape{environments, rays, 4};
+    const mx::Shape scalarShape{environments, rays};
+    if (bodyStates.dtype() != mx::uint32 ||
+        bodyStates.shape() != bodyShape ||
+        parentBodies.dtype() != mx::uint32 ||
+        localOrigins.dtype() != mx::float32 ||
+        localOrigins.shape() != patternShape ||
+        localDirections.dtype() != mx::float32 ||
+        localDirections.shape() != patternShape ||
+        maximumDistances.dtype() != mx::float32 ||
+        maximumDistances.shape() != scalarShape ||
+        options.dtype() != mx::uint32 ||
+        options.shape() != rayShape) {
+        throw std::invalid_argument(
+            "mounted scene raycast arrays do not match the compiled "
+            "body/pattern layout"
+        );
+    }
+    const auto selectedStream = mx::to_stream(stream);
+    const auto primitive =
+        std::make_shared<SceneRaycastPrimitive>(
+            selectedStream,
+            world,
+            static_cast<std::uint32_t>(environments),
+            static_cast<std::uint32_t>(rays),
+            true
+        );
+    return mx::array::make_arrays(
+        {
+            scalarShape,
+            rayShape,
+            rayShape,
+            rayShape,
+            scalarShape,
+        },
+        {
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::uint32,
+            mx::uint32,
+        },
+        primitive,
+        {
+            mx::contiguous(
+                bodyStates,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(
+                parentBodies,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(
+                localOrigins,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(
+                localDirections,
                 false,
                 selectedStream
             ),
@@ -9927,12 +10043,14 @@ SceneRaycastPrimitive::SceneRaycastPrimitive(
     mx::Stream stream,
     std::shared_ptr<MLXCompiledWorld> world,
     const std::uint32_t environmentCount,
-    const std::uint32_t rayCount
+    const std::uint32_t rayCount,
+    const bool mountedPattern
 )
     : mx::Primitive(stream),
       world_(std::move(world)),
       environmentCount_(environmentCount),
-      rayCount_(rayCount) {}
+      rayCount_(rayCount),
+      mountedPattern_(mountedPattern) {}
 
 void SceneRaycastPrimitive::eval_cpu(
     const std::vector<mx::array>&,
@@ -9947,7 +10065,10 @@ void SceneRaycastPrimitive::eval_gpu(
     const std::vector<mx::array>& inputs,
     std::vector<mx::array>& outputs
 ) {
-    if (inputs.size() != 5u || outputs.size() != 5u) {
+    const std::size_t expectedInputs =
+        mountedPattern_ ? 6u : 5u;
+    if (inputs.size() != expectedInputs ||
+        outputs.size() != 5u) {
         throw std::runtime_error(
             "MetalRobo scene raycast received an invalid graph"
         );
@@ -9990,7 +10111,11 @@ void SceneRaycastPrimitive::eval_gpu(
     dispatch.rayStride = rayCount_;
     dispatch.bodyStride = dispatch.bodyCount;
 
-    auto* kernel = resources.kernel("mr_scene_raycast");
+    auto* kernel = resources.kernel(
+        mountedPattern_
+        ? "mr_scene_raycast_pattern"
+        : "mr_scene_raycast"
+    );
     encoder.set_compute_pipeline_state(kernel);
     encoder.set_bytes(dispatch, 0);
     encoder.set_buffer(
@@ -10018,15 +10143,28 @@ void SceneRaycastPrimitive::eval_gpu(
         6
     );
     encoder.set_input_array(inputs[0], 7);
-    encoder.set_input_array(inputs[1], 8);
-    encoder.set_input_array(inputs[2], 9);
-    encoder.set_input_array(inputs[3], 10);
-    encoder.set_input_array(inputs[4], 11);
-    encoder.set_output_array(outputs[0], 12);
-    encoder.set_output_array(outputs[1], 13);
-    encoder.set_output_array(outputs[2], 14);
-    encoder.set_output_array(outputs[3], 15);
-    encoder.set_output_array(outputs[4], 16);
+    if (mountedPattern_) {
+        encoder.set_input_array(inputs[1], 8);
+        encoder.set_input_array(inputs[2], 9);
+        encoder.set_input_array(inputs[3], 10);
+        encoder.set_input_array(inputs[4], 11);
+        encoder.set_input_array(inputs[5], 12);
+        encoder.set_output_array(outputs[0], 13);
+        encoder.set_output_array(outputs[1], 14);
+        encoder.set_output_array(outputs[2], 15);
+        encoder.set_output_array(outputs[3], 16);
+        encoder.set_output_array(outputs[4], 17);
+    } else {
+        encoder.set_input_array(inputs[1], 8);
+        encoder.set_input_array(inputs[2], 9);
+        encoder.set_input_array(inputs[3], 10);
+        encoder.set_input_array(inputs[4], 11);
+        encoder.set_output_array(outputs[0], 12);
+        encoder.set_output_array(outputs[1], 13);
+        encoder.set_output_array(outputs[2], 14);
+        encoder.set_output_array(outputs[3], 15);
+        encoder.set_output_array(outputs[4], 16);
+    }
     const std::size_t width = std::min<std::size_t>(
         kWorldThreads,
         kernel->maxTotalThreadsPerThreadgroup()
@@ -10085,7 +10223,8 @@ bool SceneRaycastPrimitive::is_equivalent(
     return typed != nullptr &&
         typed->world_.get() == world_.get() &&
         typed->environmentCount_ == environmentCount_ &&
-        typed->rayCount_ == rayCount_;
+        typed->rayCount_ == rayCount_ &&
+        typed->mountedPattern_ == mountedPattern_;
 }
 
 } // namespace metalrobo::mlx_ext
