@@ -945,6 +945,126 @@ inline bool buildKinematics(
     return true;
 }
 
+inline bool buildBodyVelocities(
+    device const MRArticulationGPU& articulation,
+    device const MRJointDescriptorGPU* joints,
+    device const float* v,
+    threadgroup const float3* bodyPosition,
+    threadgroup const float3* jointPosition,
+    threadgroup const float3* jointAxis,
+    threadgroup float3* bodyLinearVelocity,
+    threadgroup float3* bodyAngularVelocity,
+    threadgroup uchar* velocityKnown,
+    thread MRArticulatedOperatorStatusGPU& status
+) {
+    for (uint dof = 0u; dof < articulation.nv; ++dof) {
+        if (!isfinite(v[dof])) {
+            setFailure(
+                status,
+                MR_ARTICULATED_OPERATOR_NONFINITE_INPUT,
+                dof
+            );
+            return false;
+        }
+    }
+    for (uint localBody = 0u;
+         localBody < articulation.bodyCount;
+         ++localBody) {
+        velocityKnown[localBody] = 0u;
+    }
+
+    const uint rootLocal =
+        articulation.rootBody - articulation.firstBody;
+    if (articulation.rootType == MR_ROOT_FLOATING) {
+        bodyLinearVelocity[rootLocal] =
+            float3(v[0], v[1], v[2]);
+        bodyAngularVelocity[rootLocal] =
+            float3(v[3], v[4], v[5]);
+    } else {
+        bodyLinearVelocity[rootLocal] = float3(0.0f);
+        bodyAngularVelocity[rootLocal] = float3(0.0f);
+    }
+    velocityKnown[rootLocal] = 1u;
+
+    uint discovered = 1u;
+    for (uint pass = 0u;
+         pass < articulation.bodyCount &&
+             discovered < articulation.bodyCount;
+         ++pass) {
+        bool progressed = false;
+        for (uint localJoint = 0u;
+             localJoint < articulation.jointCount;
+             ++localJoint) {
+            const uint globalJoint =
+                articulation.firstJoint + localJoint;
+            device const MRJointDescriptorGPU& joint =
+                joints[globalJoint];
+            const uint localParent =
+                joint.parentBody - articulation.firstBody;
+            const uint localChild =
+                joint.childBody - articulation.firstBody;
+            if (velocityKnown[localParent] == 0u ||
+                velocityKnown[localChild] != 0u) {
+                continue;
+            }
+
+            const float3 parentToJoint =
+                jointPosition[localChild] -
+                bodyPosition[localParent];
+            float3 jointLinear =
+                bodyLinearVelocity[localParent] +
+                cross(
+                    bodyAngularVelocity[localParent],
+                    parentToJoint
+                );
+            float3 angular =
+                bodyAngularVelocity[localParent];
+            if (joint.nv == 1u) {
+                const uint localDof =
+                    joint.vOffset - articulation.vOffset;
+                const float rate = v[localDof];
+                const float3 jointMotion =
+                    rate * jointAxis[localChild];
+                if (joint.jointType == MR_JOINT_PRISMATIC) {
+                    jointLinear += jointMotion;
+                } else {
+                    angular += jointMotion;
+                }
+            }
+            const float3 childAnchor =
+                jointPosition[localChild] -
+                bodyPosition[localChild];
+            const float3 linear =
+                jointLinear - cross(angular, childAnchor);
+            if (!finite3(linear) || !finite3(angular)) {
+                setFailure(
+                    status,
+                    MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+                    joint.childBody
+                );
+                return false;
+            }
+            bodyLinearVelocity[localChild] = linear;
+            bodyAngularVelocity[localChild] = angular;
+            velocityKnown[localChild] = 1u;
+            ++discovered;
+            progressed = true;
+        }
+        if (!progressed) {
+            break;
+        }
+    }
+    if (discovered != articulation.bodyCount) {
+        setFailure(
+            status,
+            MR_ARTICULATED_OPERATOR_UNSUPPORTED_TOPOLOGY,
+            MR_INVALID_INDEX
+        );
+        return false;
+    }
+    return true;
+}
+
 inline bool validatePoints(
     const uint environment,
     device const MRArticulationGPU& articulation,
@@ -1789,7 +1909,9 @@ kernel void mr_articulated_operator(
 // Materializes world-space rigid-body velocities from the same generalized
 // state used by the solver. Tactile sampling needs point velocity at arbitrary
 // atlas hits, so publishing only articulation poses would silently erase the
-// angular component of surface-relative motion.
+// angular component of surface-relative motion. One forward tree recursion
+// computes every twist without expanding a body-by-DoF Jacobian; SIMD lanes
+// only publish the finished body records.
 kernel void mr_articulated_materialize_body_velocities(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
@@ -1803,12 +1925,14 @@ kernel void mr_articulated_materialize_body_velocities(
     device MRBodyStateGPU* bodyStates [[buffer(8)]],
     device MRArticulatedOperatorStatusGPU* statuses [[buffer(9)]],
     uint environment [[threadgroup_position_in_grid]],
-    uint lane [[thread_index_in_threadgroup]]
+    uint lane [[thread_index_in_threadgroup]],
+    uint threadsPerThreadgroup [[threads_per_threadgroup]]
 ) {
-    if (environment >= dispatch.environmentCount || lane != 0u) {
+    if (environment >= dispatch.environmentCount) {
         return;
     }
 
+    threadgroup uint initializationSucceeded;
     threadgroup float3 bodyPosition[
         MR_ARTICULATED_OPERATOR_MAX_BODIES
     ];
@@ -1830,6 +1954,15 @@ kernel void mr_articulated_materialize_body_velocities(
     threadgroup uchar known[
         MR_ARTICULATED_OPERATOR_MAX_BODIES
     ];
+    threadgroup float3 bodyLinearVelocity[
+        MR_ARTICULATED_OPERATOR_MAX_BODIES
+    ];
+    threadgroup float3 bodyAngularVelocity[
+        MR_ARTICULATED_OPERATOR_MAX_BODIES
+    ];
+    threadgroup uchar bodyVelocityKnown[
+        MR_ARTICULATED_OPERATOR_MAX_BODIES
+    ];
 
     MRArticulatedOperatorStatusGPU status = {};
     status.code = MR_ARTICULATED_OPERATOR_SUCCESS;
@@ -1837,87 +1970,96 @@ kernel void mr_articulated_materialize_body_velocities(
     status.articulationIndex = dispatch.articulationIndex;
     status.failingIndex = MR_INVALID_INDEX;
     device const MRWorldGPU& world = worlds[0];
+
+    if (lane == 0u) {
+        initializationSucceeded = 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    if (lane == 0u) {
+        initializationSucceeded =
+            validDispatch(world, dispatch, status) ? 1u : 0u;
+        if (initializationSucceeded == 0u) {
+            statuses[environment] = status;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (initializationSucceeded == 0u) {
+        return;
+    }
+
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     device const float* environmentQ =
         q + environment * dispatch.qStride;
     device const float* environmentV =
         v + environment * dispatch.generalizedStride;
-    if (!validDispatch(world, dispatch, status) ||
-        !validModelAndLayout(
-            world,
-            articulation,
-            joints,
-            dofs,
-            bodies,
-            dispatch,
-            inboundJoint,
-            parentLocal,
-            known,
-            status
-        ) ||
-        !buildKinematics(
-            articulation,
-            joints,
-            environmentQ,
-            bodyPosition,
-            bodyRotation,
-            jointPosition,
-            jointAxis,
-            known,
-            status
-        )) {
-        statuses[environment] = status;
+    if (lane == 0u) {
+        initializationSucceeded =
+            validModelAndLayout(
+                world,
+                articulation,
+                joints,
+                dofs,
+                bodies,
+                dispatch,
+                inboundJoint,
+                parentLocal,
+                known,
+                status
+            ) &&
+            buildKinematics(
+                articulation,
+                joints,
+                environmentQ,
+                bodyPosition,
+                bodyRotation,
+                jointPosition,
+                jointAxis,
+                known,
+                status
+            ) &&
+            buildBodyVelocities(
+                articulation,
+                joints,
+                environmentV,
+                bodyPosition,
+                jointPosition,
+                jointAxis,
+                bodyLinearVelocity,
+                bodyAngularVelocity,
+                bodyVelocityKnown,
+                status
+            )
+            ? 1u
+            : 0u;
+        if (initializationSucceeded == 0u) {
+            statuses[environment] = status;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (initializationSucceeded == 0u) {
         return;
     }
 
     const uint bodyBase =
         environment * dispatch.bodyPoseStride;
-    for (uint localBody = 0u;
+    for (uint localBody = lane;
          localBody < articulation.bodyCount;
-         ++localBody) {
-        MotionColumn velocity;
-        velocity.linear = float3(0.0f);
-        velocity.angular = float3(0.0f);
-        for (uint dof = 0u; dof < articulation.nv; ++dof) {
-            const float rate = environmentV[dof];
-            if (!isfinite(rate)) {
-                setFailure(
-                    status,
-                    MR_ARTICULATED_OPERATOR_NONFINITE_INPUT,
-                    dof
-                );
-                statuses[environment] = status;
-                return;
-            }
-            const MotionColumn column = bodyMotionForDof(
-                localBody,
-                dof,
-                articulation,
-                joints,
-                bodyPosition,
-                jointPosition,
-                jointAxis,
-                inboundJoint,
-                parentLocal
-            );
-            velocity.linear += rate * column.linear;
-            velocity.angular += rate * column.angular;
-        }
-        if (!finite3(velocity.linear) ||
-            !finite3(velocity.angular)) {
-            setFailure(
-                status,
-                MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                articulation.firstBody + localBody
-            );
-            statuses[environment] = status;
-            return;
-        }
+         localBody += threadsPerThreadgroup) {
         device MRBodyStateGPU& state =
             bodyStates[bodyBase + localBody];
-        state.linearVelocityAndInverseMass.xyz = velocity.linear;
-        state.angularVelocity = float4(velocity.angular, 0.0f);
+        state.linearVelocityAndInverseMass.xyz =
+            bodyLinearVelocity[localBody];
+        state.angularVelocity = float4(
+            bodyAngularVelocity[localBody],
+            0.0f
+        );
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    if (lane != 0u) {
+        return;
     }
     status.bodyCount = articulation.bodyCount;
     status.nq = articulation.nq;

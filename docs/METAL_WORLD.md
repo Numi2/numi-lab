@@ -171,6 +171,9 @@ inserted by ending or replacing MLX's encoder.
 from articulated `q`/`v` and standalone scene-body state on MLX's active
 encoder. When a world step already publishes `StepOutput.body_states`, sensor
 graphs reuse that array and skip materialization.
+Articulated twists use forward tree recursion and are then published across
+one fixed SIMD body cohort. This does not expand a body-by-DoF Jacobian merely
+to recover rigid-body velocity.
 
 `scene_raycast` casts shared or per-environment ray batches against the
 compiled physics scene without host publication. The kernel intersects

@@ -61,6 +61,8 @@ constexpr std::uint32_t kEvidenceFloatWidth = 16u;
 constexpr std::uint32_t kEvidenceIDWidth = 4u;
 constexpr std::uint32_t kWorldThreads = 256u;
 constexpr std::uint32_t kOperatorThreads = 128u;
+constexpr std::uint32_t kBodyStateThreads =
+    MR_ARTICULATED_OPERATOR_MAX_BODIES;
 constexpr std::uint32_t kSceneQueryProjectionMinimumShapes = 8u;
 
 enum ImmutableBufferIndex : std::size_t {
@@ -9054,7 +9056,7 @@ void WorldStepPrimitive::eval_gpu(
             );
             encoder.dispatch_threadgroups(
                 MTL::Size(environments, 1u, 1u),
-                MTL::Size(kOperatorThreads, 1u, 1u)
+                MTL::Size(kBodyStateThreads, 1u, 1u)
             );
         }
         encoder.barrier();
@@ -10046,7 +10048,7 @@ void BodyStatePrimitive::eval_gpu(
         );
         encoder.dispatch_threadgroups(
             MTL::Size(environments, 1u, 1u),
-            MTL::Size(kOperatorThreads, 1u, 1u)
+            MTL::Size(kBodyStateThreads, 1u, 1u)
         );
     }
 }

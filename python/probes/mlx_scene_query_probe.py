@@ -48,6 +48,58 @@ def main() -> None:
         ),
         "materialized body-state layout is incorrect",
     )
+    joint_velocity = np.zeros(
+        tuple(analytic_state.v.shape),
+        dtype=np.float32,
+    )
+    joint_velocity[:, 0] = 0.5
+    position_epsilon = np.float32(1.0e-3)
+    center_state = analytic_state._replace(
+        v=mx.array(joint_velocity),
+    )
+    plus_q = np.asarray(analytic_state.q).copy()
+    minus_q = plus_q.copy()
+    plus_q[:, 0] += position_epsilon * joint_velocity[:, 0]
+    minus_q[:, 0] -= position_epsilon * joint_velocity[:, 0]
+    moving_bodies = materialize_body_states(
+        analytic_world,
+        center_state,
+    )
+    plus_bodies = materialize_body_states(
+        analytic_world,
+        analytic_state._replace(q=mx.array(plus_q)),
+    )
+    minus_bodies = materialize_body_states(
+        analytic_world,
+        analytic_state._replace(q=mx.array(minus_q)),
+    )
+    mx.eval(moving_bodies, plus_bodies, minus_bodies)
+    moving_words = np.asarray(moving_bodies).view(np.float32)
+    plus_words = np.asarray(plus_bodies).view(np.float32)
+    minus_words = np.asarray(minus_bodies).view(np.float32)
+    articulation_bodies = (
+        int(analytic_world.model_body_count)
+        - int(analytic_world.scene_body_count)
+    )
+    finite_difference_velocity = (
+        plus_words[:, :articulation_bodies, 0:3]
+        - minus_words[:, :articulation_bodies, 0:3]
+    ) / (2.0 * position_epsilon)
+    angular_velocity = moving_words[
+        :, :articulation_bodies, 12:15
+    ]
+    require(
+        np.allclose(
+            moving_words[:, :articulation_bodies, 8:11],
+            finite_difference_velocity,
+            atol=7.5e-5,
+        )
+        and np.allclose(angular_velocity[:, 0], 0.0)
+        and np.allclose(angular_velocity[:, 1:, 0:2], 0.0)
+        and np.allclose(angular_velocity[:, 1:, 2], 0.5),
+        "articulated body velocity publication is not kinematically "
+        "consistent",
+    )
 
     plane_origin = mx.array(
         [[1.5, 1.5, 2.0]],
