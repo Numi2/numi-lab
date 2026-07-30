@@ -3,10 +3,11 @@
 #include "metalrobo/gpu_types.h"
 #include "metalrobo/visual_platform_types.h"
 
-#define MR_HYBRID_RENDERER_ABI_VERSION 8u
+#define MR_HYBRID_RENDERER_ABI_VERSION 9u
 #define MR_HYBRID_TILE_SIZE 16u
 #define MR_HYBRID_MAX_GAUSSIANS_PER_TILE 256u
 #define MR_HYBRID_MAX_MESH_TRIANGLES_PER_TILE 512u
+#define MR_HYBRID_REFERENCE_ENVIRONMENTS_PER_TLAS 32u
 #define MR_HYBRID_MESH_TILE_BATCH 128u
 #define MR_HYBRID_MESH_MICRO_TRIANGLE_PIXELS 1024u
 #define MR_HYBRID_MAX_NEAR_CLIPPED_TRIANGLES 4096u
@@ -129,6 +130,9 @@ typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
     mr_uint4 band;
     // visible ray instances, motion keyframes, area samples, visual instances.
     mr_uint4 ray;
+    // first environment and environment count in the active ray TLAS group;
+    // the remaining lanes are reserved.
+    mr_uint4 rayBatch;
     // full shutter window, truth time fraction, sample weight, reserved.
     mr_float4 rayTiming;
 } MRHybridRenderUniformsGPU;
@@ -156,5 +160,5 @@ static_assert(sizeof(MRHybridCameraStateGPU) == 64u);
 static_assert(sizeof(MRHybridVisualInstanceStateGPU) == 64u);
 static_assert(sizeof(MRHybridNearClippedTriangleGPU) == 64u);
 static_assert(sizeof(MRHybridMeshTileRecordGPU) == 48u);
-static_assert(sizeof(MRHybridRenderUniformsGPU) == 272u);
+static_assert(sizeof(MRHybridRenderUniformsGPU) == 288u);
 #endif

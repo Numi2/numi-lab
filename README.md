@@ -58,9 +58,10 @@ perception contract:
 - `sensor_fast` uses precomputed camera states, hierarchical GPU tile
   visibility for authored meshes, parallel near-plane resolve, shadow atlases,
   and two-sample space-time integration for online observations.
-- `sensor_reference` uses Metal ray queries, stratified space-time samples,
-  direct shadow rays, and exact per-row exposure timing for deterministic
-  high-fidelity rerendering.
+- `sensor_reference` uses compacted mesh BLASes, grouped motion-instance
+  TLASes, Metal ray queries, stratified space-time samples, direct shadow
+  rays, and exact per-row exposure timing for deterministic high-fidelity
+  rerendering.
 
 `metalrobo_visual_cook` writes sectioned, content-addressed packs from GLB,
 glTF, USD, USDA, USDC, or USDZ. `metalrobo_environment_cook` converts HDR/EXR

@@ -3734,8 +3734,15 @@ kernel void mr_hybrid_prepare_ray_instances(
         instances[environment];
 
     bool valid = true;
-    const uint firstTransform =
+    const uint firstGlobalTransform =
         descriptorIndex * uniforms.ray.y;
+    const uint localDescriptor =
+        (environment %
+         MR_HYBRID_REFERENCE_ENVIRONMENTS_PER_TLAS) *
+            visibleCount +
+        slot;
+    const uint firstLocalTransform =
+        localDescriptor * uniforms.ray.y;
     const uint statesPerKeyframe =
         uniforms.counts.x * uniforms.live.x;
     for (uint keyframe = 0u;
@@ -3769,35 +3776,31 @@ kernel void mr_hybrid_prepare_ray_instances(
         transform.translation = packed_float3(
             pose.valid ? pose.position : float3(0.0f)
         );
-        motionTransforms[firstTransform + keyframe] =
+        motionTransforms[firstGlobalTransform + keyframe] =
             transform;
     }
 
     MTLAccelerationStructureMotionInstanceDescriptor descriptor{};
     descriptor.options =
         MTLAccelerationStructureInstanceOptionNone;
-    uint mask = 0u;
-    if ((visualInstance.binding.w &
-         MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR) != 0u) {
-        mask |= 1u;
-    }
-    if ((visualInstance.binding.w &
-         MR_VISUAL_INSTANCE_CASTS_SHADOW) != 0u &&
-        (visualInstance.binding.w &
-         MR_VISUAL_INSTANCE_GAUSSIAN_RECEIVER_PROXY) == 0u) {
-        mask |= 2u;
-        if (visualInstance.binding.z ==
-                MR_VISUAL_BINDING_RIGID_BODY ||
-            visualInstance.binding.z ==
-                MR_VISUAL_BINDING_ARTICULATED_LINK) {
-            mask |= 4u;
-        }
-    }
-    descriptor.mask = valid ? mask : 0u;
+    const bool participates =
+        (visualInstance.binding.w & (
+             MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR |
+             MR_VISUAL_INSTANCE_CASTS_SHADOW
+         )) != 0u;
+    descriptor.mask =
+        valid && participates
+        ? (
+              1u << (
+                  environment %
+                  MR_HYBRID_REFERENCE_ENVIRONMENTS_PER_TLAS
+              )
+          )
+        : 0u;
     descriptor.intersectionFunctionTableOffset = 0u;
     descriptor.accelerationStructureIndex = blasIndices[slot];
     descriptor.userID = visualInstanceIndex;
-    descriptor.motionTransformsStartIndex = firstTransform;
+    descriptor.motionTransformsStartIndex = firstLocalTransform;
     descriptor.motionTransformsCount = uniforms.ray.y;
     descriptor.motionStartBorderMode = MTLMotionBorderModeClamp;
     descriptor.motionEndBorderMode = MTLMotionBorderModeClamp;
@@ -3822,6 +3825,8 @@ struct MRReferenceSurface {
     uint environment;
     uint visualInstanceIndex;
     uint primitiveIndex;
+    uint instanceFlags;
+    uint bindingKind;
     float3 worldPosition;
     float3 worldNormal;
     float3 worldTangent;
@@ -4044,15 +4049,21 @@ bool referenceSurface(
     thread MRReferenceSurface& surface
 ) {
     if (visibleCount == 0u ||
+        uniforms.rayBatch.y == 0u ||
         intersection.instance_id >=
-            uniforms.counts.x * visibleCount) {
+            uniforms.rayBatch.y * visibleCount) {
         return false;
     }
-    const uint environment =
+    const uint localEnvironment =
         intersection.instance_id / visibleCount;
+    const uint environment =
+        uniforms.rayBatch.x + localEnvironment;
+    if (environment >= uniforms.counts.x) {
+        return false;
+    }
     const uint slot =
         intersection.instance_id -
-        environment * visibleCount;
+        localEnvironment * visibleCount;
     const uint visualInstanceIndex =
         visibleInstances[slot];
     const MRVisualInstanceGPUV2 visualInstance =
@@ -4168,6 +4179,8 @@ bool referenceSurface(
     surface.environment = environment;
     surface.visualInstanceIndex = visualInstanceIndex;
     surface.primitiveIndex = primitiveIndex;
+    surface.instanceFlags = visualInstance.binding.w;
+    surface.bindingKind = visualInstance.binding.z;
     surface.worldPosition = worldPosition;
     surface.worldNormal = normalize(
         transform * float4(localNormal, 0.0f)
@@ -4194,9 +4207,38 @@ bool referenceSurface(
         all(isfinite(surface.worldNormal));
 }
 
+bool referenceRoleAccepted(
+    const MRReferenceSurface surface,
+    const uint role
+) {
+    if (role == 1u) {
+        return (surface.instanceFlags &
+                MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR) != 0u;
+    }
+    const bool castsShadow =
+        (surface.instanceFlags &
+         MR_VISUAL_INSTANCE_CASTS_SHADOW) != 0u &&
+        (surface.instanceFlags &
+         MR_VISUAL_INSTANCE_GAUSSIAN_RECEIVER_PROXY) == 0u;
+    if (role == 2u) {
+        return castsShadow;
+    }
+    if (role == 4u) {
+        return castsShadow &&
+            (
+                surface.bindingKind ==
+                    MR_VISUAL_BINDING_RIGID_BODY ||
+                surface.bindingKind ==
+                    MR_VISUAL_BINDING_ARTICULATED_LINK
+            );
+    }
+    return false;
+}
+
 bool referenceTrace(
     ray queryRay,
-    const uint mask,
+    const uint role,
+    const uint expectedEnvironment,
     const float time,
     const uint seed,
     MRReferenceAccelerationStructure accelerationStructure,
@@ -4216,13 +4258,18 @@ bool referenceTrace(
     intersector.assume_geometry_type(geometry_type::triangle);
     intersector.force_opacity(forced_opacity::opaque);
     intersector.accept_any_intersection(false);
+    const uint environmentMask =
+        1u << (
+            expectedEnvironment %
+            MR_HYBRID_REFERENCE_ENVIRONMENTS_PER_TLAS
+        );
     totalDistance = 0.0f;
-    for (uint layer = 0u; layer < 8u; ++layer) {
+    for (uint layer = 0u; layer < 32u; ++layer) {
         const MRReferenceIntersection intersection =
             intersector.intersect(
                 queryRay,
                 accelerationStructure,
-                mask,
+                environmentMask,
                 time
             );
         if (intersection.type == intersection_type::none) {
@@ -4249,10 +4296,15 @@ bool referenceTrace(
             )) {
             return false;
         }
-        bool accepted = true;
+        bool accepted =
+            candidate.environment == expectedEnvironment &&
+            referenceRoleAccepted(
+                candidate,
+                role
+            );
         if (candidate.material.flags.x ==
                 MR_VISUAL_ALPHA_MASK) {
-            accepted =
+            accepted = accepted &&
                 candidate.base.w >=
                 candidate.material.coatingAndAlphaCutoff.w;
         } else if (candidate.material.flags.x ==
@@ -4262,7 +4314,7 @@ bool referenceTrace(
                     seed ^ layer * 0x9e3779b9u
                 )) + 0.5f) /
                 4294967296.0f;
-            accepted = sample < candidate.base.w;
+            accepted = accepted && sample < candidate.base.w;
         }
         if (accepted) {
             surface = candidate;
@@ -4311,6 +4363,7 @@ float referenceShadow(
     return referenceTrace(
         shadowRay,
         mask,
+        surface.environment,
         time,
         seed,
         accelerationStructure,
@@ -4744,22 +4797,30 @@ kernel void mr_hybrid_render_reference(
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(23)]],
     MRReferenceAccelerationStructure accelerationStructure
         [[buffer(24)]],
-    const uint pixel [[thread_position_in_grid]]
+    const uint threadIndex [[thread_position_in_grid]]
 ) {
     const uint pixelsPerEnvironment =
         uniforms.image.x * uniforms.image.y;
-    const uint pixelCount =
-        uniforms.counts.x * pixelsPerEnvironment;
-    if (pixel >= pixelCount ||
+    const uint groupPixelCount =
+        uniforms.rayBatch.y * pixelsPerEnvironment;
+    if (threadIndex >= groupPixelCount ||
+        uniforms.rayBatch.x + uniforms.rayBatch.y >
+            uniforms.counts.x ||
         uniforms.ray.x == 0u ||
         uniforms.ray.y < 2u ||
         uniforms.shutter.w == 0u) {
         return;
     }
+    const uint pixel =
+        uniforms.rayBatch.x * pixelsPerEnvironment +
+        threadIndex;
     const uint environment =
-        pixel / pixelsPerEnvironment;
+        uniforms.rayBatch.x +
+        threadIndex / pixelsPerEnvironment;
     const uint localPixel =
-        pixel - environment * pixelsPerEnvironment;
+        threadIndex -
+        (environment - uniforms.rayBatch.x) *
+            pixelsPerEnvironment;
     const uint2 coordinate = uint2(
         localPixel % uniforms.image.x,
         localPixel / uniforms.image.x
@@ -4835,6 +4896,7 @@ kernel void mr_hybrid_render_reference(
         if (!referenceTrace(
                 primaryRay,
                 1u,
+                environment,
                 time,
                 seed ^ sample * 0x9e3779b9u,
                 accelerationStructure,
@@ -4972,6 +5034,7 @@ kernel void mr_hybrid_render_reference(
     if (!referenceTrace(
             truthRay,
             1u,
+            environment,
             truthTime,
             seed ^ 0x27d4eb2fu,
             accelerationStructure,

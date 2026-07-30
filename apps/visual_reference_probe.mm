@@ -170,11 +170,12 @@ metalrobo::VisualAssetPackV2 makePack() {
 }
 
 metalrobo::VisualMotionSampleBatchV1 makeMotion(
+    const std::uint32_t environmentCount,
     const std::uint32_t bodyCount,
     const std::uint64_t frameIndex
 ) {
     metalrobo::VisualMotionSampleBatchV1 motion;
-    motion.environmentCount = 1u;
+    motion.environmentCount = environmentCount;
     motion.bodyCount = bodyCount;
     motion.sampleCount = 2u;
     motion.exposureOpenSeconds = 0.0;
@@ -184,16 +185,45 @@ metalrobo::VisualMotionSampleBatchV1 makeMotion(
         motion.exposureCloseSeconds,
     };
     motion.bodyStates.resize(
-        static_cast<std::size_t>(motion.sampleCount) * bodyCount
+        static_cast<std::size_t>(motion.sampleCount) *
+        environmentCount * bodyCount
     );
     for (MRBodyStateGPU& body : motion.bodyStates) {
         body.orientation.w = 1.0f;
     }
-    motion.bodyStates[11u].position =
-        {0.42f, -0.08f, 0.08f, 0.0f};
-    motion.bodyStates[
-        static_cast<std::size_t>(bodyCount) + 11u
-    ].position = {0.52f, 0.08f, 0.08f, 0.0f};
+    for (std::uint32_t sample = 0u;
+         sample < motion.sampleCount;
+         ++sample) {
+        const std::size_t sampleBase =
+            static_cast<std::size_t>(sample) *
+            environmentCount * bodyCount;
+        motion.bodyStates[sampleBase + 11u].position =
+            sample == 0u
+            ? mr_float4{0.42f, -0.08f, 0.08f, 0.0f}
+            : mr_float4{0.52f, 0.08f, 0.08f, 0.0f};
+        for (std::uint32_t environment = 1u;
+             environment < environmentCount;
+             ++environment) {
+            motion.bodyStates[
+                sampleBase +
+                static_cast<std::size_t>(environment) *
+                    bodyCount +
+                11u
+            ].position =
+                environment + 1u == environmentCount
+                ? (
+                      sample == 0u
+                      ? mr_float4{0.42f, -0.08f, 0.08f, 0.0f}
+                      : mr_float4{0.52f, 0.08f, 0.08f, 0.0f}
+                  )
+                : mr_float4{
+                      50.0f + static_cast<float>(environment),
+                      50.0f,
+                      50.0f,
+                      0.0f,
+                  };
+        }
+    }
     motion.scenarioIdentity = 29u;
     motion.sensorIdentity = 1u;
     motion.frameIndex = frameIndex;
@@ -207,6 +237,7 @@ metalrobo::VisualMotionSampleBatchV1 makeMotion(
 int main() {
     @autoreleasepool {
         try {
+            constexpr std::uint32_t environmentCount = 33u;
             const metalrobo::EngineModel model =
                 metalrobo::makeFrankaPickPlaceEngineModel();
             metalrobo::WorldTemplate worldTemplate;
@@ -228,12 +259,18 @@ int main() {
                 "family compile"
             );
             metalrobo::MetalWorldFamilyContext worlds;
-            require(worlds.compile(family, 1u), "world compile");
-            require(worlds.sample(1u, 29u), "world sample");
+            require(
+                worlds.compile(family, environmentCount),
+                "world compile"
+            );
+            require(
+                worlds.sample(environmentCount, 29u),
+                "world sample"
+            );
 
             metalrobo::MetalHybridRendererConfig config;
-            config.width = 160u;
-            config.height = 120u;
+            config.width = 96u;
+            config.height = 72u;
             config.maximumReferenceFramesInFlight = 2u;
             metalrobo::MetalHybridRenderer renderer(config);
             std::string manifestReason;
@@ -317,7 +354,7 @@ int main() {
                     std::move(referenceScene),
                     metalrobo::VisualRendererProfileV1::
                         sensorReference(),
-                    1u
+                    environmentCount
                 ),
                 "reference compile"
             );
@@ -334,6 +371,7 @@ int main() {
             for (std::uint64_t frame = 1u; frame <= 2u; ++frame) {
                 id<MTLCommandBuffer> command = [queue commandBuffer];
                 const auto motion = makeMotion(
+                    environmentCount,
                     static_cast<std::uint32_t>(model.bodies.size()),
                     frame
                 );
@@ -368,15 +406,39 @@ int main() {
 
             metalrobo::HybridObservationBatch observations;
             require(renderer.readback(observations), "reference readback");
+            const std::size_t pixelsPerEnvironment =
+                static_cast<std::size_t>(config.width) *
+                config.height;
+            const auto firstEnvironmentEnd =
+                observations.segmentation.begin() +
+                pixelsPerEnvironment;
+            const auto lastEnvironmentBegin =
+                observations.segmentation.end() -
+                pixelsPerEnvironment;
             const auto visible = std::find(
                 observations.segmentation.begin(),
-                observations.segmentation.end(),
+                firstEnvironmentEnd,
                 77u
             );
-            if (visible == observations.segmentation.end()) {
+            if (visible == firstEnvironmentEnd ||
+                std::find(
+                    lastEnvironmentBegin,
+                    observations.segmentation.end(),
+                    77u
+                ) == observations.segmentation.end()) {
                 throw std::runtime_error(
-                    "reference ray visibility did not render the "
-                    "authored cube"
+                    "reference ray visibility did not render both "
+                    "TLAS groups"
+                );
+            }
+            if (std::find(
+                    firstEnvironmentEnd,
+                    lastEnvironmentBegin,
+                    77u
+                ) != lastEnvironmentBegin) {
+                throw std::runtime_error(
+                    "reference TLAS leaked geometry between batched "
+                    "environments"
                 );
             }
             const std::size_t pixel = static_cast<std::size_t>(
@@ -402,7 +464,7 @@ int main() {
                 fastRenderer.compile(
                     std::move(fastScene),
                     metalrobo::VisualRendererProfileV1::sensorFast(),
-                    1u
+                    environmentCount
                 ),
                 "fast presentation compile"
             );
@@ -411,6 +473,7 @@ int main() {
             for (std::uint64_t frame = 3u; frame <= 4u; ++frame) {
                 id<MTLCommandBuffer> command = [queue commandBuffer];
                 const auto motion = makeMotion(
+                    environmentCount,
                     static_cast<std::uint32_t>(model.bodies.size()),
                     frame
                 );
@@ -444,8 +507,19 @@ int main() {
                 fastRenderer.readback(fastObservations),
                 "fast rolling-shutter readback"
             );
+            const auto fastFirstEnvironmentEnd =
+                fastObservations.segmentation.begin() +
+                pixelsPerEnvironment;
+            const auto fastLastEnvironmentBegin =
+                fastObservations.segmentation.end() -
+                pixelsPerEnvironment;
             if (std::find(
                     fastObservations.segmentation.begin(),
+                    fastFirstEnvironmentEnd,
+                    77u
+                ) == fastFirstEnvironmentEnd ||
+                std::find(
+                    fastLastEnvironmentBegin,
                     fastObservations.segmentation.end(),
                     77u
                 ) == fastObservations.segmentation.end()) {
@@ -453,9 +527,20 @@ int main() {
                     "banded fast renderer lost authored geometry"
                 );
             }
+            if (std::find(
+                    fastFirstEnvironmentEnd,
+                    fastLastEnvironmentBegin,
+                    77u
+                ) != fastLastEnvironmentBegin) {
+                throw std::runtime_error(
+                    "banded fast renderer leaked geometry between "
+                    "batched environments"
+                );
+            }
             const auto layout = renderer.layout();
             std::cout
                 << "device=\"" << device.name.UTF8String << "\""
+                << " environments=" << environmentCount
                 << " ray_instances=" << layout.rayInstanceCount
                 << " compact_blas_bytes="
                 << layout.accelerationStructureBytes

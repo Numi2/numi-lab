@@ -110,9 +110,16 @@ calls.
 samples during physical exposure. Near-plane scratch storage scales with the
 compiled triangle count up to a fixed GPU-local ceiling rather than reserving
 the ceiling for every scene. `sensor_reference` uses
-motion-instance ray queries, stratified subpixel and shutter-time samples,
-direct shadow rays, and exact per-row exposure timing. Deployable RGB is
-integrated over those samples while depth, identities, normals, and truth
+one compacted BLAS per unique authored mesh and GPU-authored component-motion
+instances. TLASes cover groups of at most 32 environments; a one-hot Metal
+instance mask isolates every environment without shifting world coordinates
+or sacrificing metric precision. Group builds and refits share one encoder
+with disjoint scratch ranges, and periodic rebuilds restore traversal quality
+after accumulated motion. Primary visibility, all-scene shadows, and
+dynamic-only Gaussian receiver shadows use the same structures with explicit
+role filtering. The renderer then applies stratified subpixel and shutter-time
+samples, direct shadow rays, and exact per-row exposure timing. Deployable RGB
+is integrated over those samples while depth, identities, normals, and truth
 remain exact center-exposure observations. Sensor effects are keyed by
 scenario, camera, sensor sequence, frame identity, pixel, and sample, so
 rerenders remain deterministic. Sensor depth validity is separate from

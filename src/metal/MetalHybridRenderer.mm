@@ -146,6 +146,10 @@ struct CompactedPrimitiveAccelerationStructures {
     std::size_t retainedBytes = 0u;
 };
 
+constexpr std::uint32_t kReferenceEnvironmentsPerTLAS =
+    MR_HYBRID_REFERENCE_ENVIRONMENTS_PER_TLAS;
+constexpr std::size_t kAccelerationStructureScratchAlignment = 256u;
+
 std::string nsString(NSString* value) {
     if (value == nil || value.UTF8String == nullptr) {
         return {};
@@ -760,11 +764,17 @@ struct ReferenceFrameWorkspace {
     __strong id<MTLBuffer> instanceDescriptors = nil;
     __strong id<MTLBuffer> motionTransforms = nil;
     __strong id<MTLBuffer> buildScratch = nil;
-    __strong id<MTLAccelerationStructure> instanceStructure = nil;
+    __strong NSArray<MTLInstanceAccelerationStructureDescriptor*>*
+        tlasDescriptors = nil;
+    __strong NSArray<id<MTLAccelerationStructure>>*
+        instanceStructures = nil;
+    std::vector<std::size_t> buildScratchOffsets;
     std::size_t retainedBytes = 0u;
     std::size_t motionBodyBytes = 0u;
     std::size_t structureBytes = 0u;
     std::size_t scratchBytes = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t instancesPerEnvironment = 0u;
     std::uint32_t instanceCount = 0u;
     std::uint32_t keyframeCount = 0u;
     bool built = false;
@@ -2119,29 +2129,40 @@ bool buildCompactedPrimitiveAccelerationStructures(
 
 struct AcquiredReferenceWorkspace {
     std::shared_ptr<detail::ReferenceFrameWorkspace> workspace;
-    __strong MTLInstanceAccelerationStructureDescriptor* descriptor =
-        nil;
+    __strong NSArray<MTLInstanceAccelerationStructureDescriptor*>*
+        descriptors = nil;
 };
 
 AcquiredReferenceWorkspace acquireReferenceWorkspace(
     detail::MetalHybridRendererState& state,
     const std::size_t motionBodyBytes,
-    const std::uint32_t instanceCount,
+    const std::uint32_t environmentCount,
+    const std::uint32_t instancesPerEnvironment,
     const std::uint32_t keyframeCount,
     std::string& reason
 ) {
     AcquiredReferenceWorkspace result;
+    std::size_t instanceCountValue = 0u;
     std::size_t transformCount = 0u;
     std::size_t descriptorBytes = 0u;
     std::size_t transformBytes = 0u;
-    if (instanceCount == 0u || keyframeCount < 2u ||
+    if (environmentCount == 0u ||
+        instancesPerEnvironment == 0u ||
+        keyframeCount < 2u ||
         !checkedMultiply(
-            instanceCount,
+            environmentCount,
+            instancesPerEnvironment,
+            instanceCountValue
+        ) ||
+        instanceCountValue >
+            std::numeric_limits<std::uint32_t>::max() ||
+        !checkedMultiply(
+            instanceCountValue,
             keyframeCount,
             transformCount
         ) ||
         !checkedBytes<MTLAccelerationStructureMotionInstanceDescriptor>(
-            instanceCount,
+            instanceCountValue,
             descriptorBytes
         ) ||
         !checkedBytes<MTLComponentTransform>(
@@ -2152,6 +2173,12 @@ AcquiredReferenceWorkspace acquireReferenceWorkspace(
             "reference instance or motion-transform count overflows";
         return result;
     }
+    const std::uint32_t instanceCount =
+        static_cast<std::uint32_t>(instanceCountValue);
+    const std::uint32_t groupCount =
+        (environmentCount - 1u) /
+            kReferenceEnvironmentsPerTLAS +
+        1u;
 
     for (const auto& candidate : state.referenceWorkspaces) {
         bool expected = false;
@@ -2190,8 +2217,12 @@ AcquiredReferenceWorkspace acquireReferenceWorkspace(
     };
 
     const bool topologyChanged =
+        result.workspace->environmentCount != environmentCount ||
+        result.workspace->instancesPerEnvironment !=
+            instancesPerEnvironment ||
         result.workspace->instanceCount != instanceCount ||
         result.workspace->keyframeCount != keyframeCount;
+    bool topologyStorageChanged = false;
     if (result.workspace->motionBodies == nil ||
         result.workspace->motionBodies.length < motionBodyBytes) {
         result.workspace->motionBodies = makeSharedBuffer(
@@ -2208,6 +2239,7 @@ AcquiredReferenceWorkspace acquireReferenceWorkspace(
             descriptorBytes,
             @"MetalRobo recycled ray instance descriptors"
         );
+        topologyStorageChanged = true;
     }
     if (result.workspace->motionTransforms == nil ||
         result.workspace->motionTransforms.length <
@@ -2217,6 +2249,7 @@ AcquiredReferenceWorkspace acquireReferenceWorkspace(
             transformBytes,
             @"MetalRobo recycled component motion transforms"
         );
+        topologyStorageChanged = true;
     }
     if (result.workspace->motionBodies == nil ||
         result.workspace->instanceDescriptors == nil ||
@@ -2227,74 +2260,172 @@ AcquiredReferenceWorkspace acquireReferenceWorkspace(
         return result;
     }
 
-    MTLInstanceAccelerationStructureDescriptor* descriptor =
-        [MTLInstanceAccelerationStructureDescriptor descriptor];
-    descriptor.instancedAccelerationStructures =
-        state.primitiveAccelerationStructures;
-    descriptor.instanceDescriptorBuffer =
-        result.workspace->instanceDescriptors;
-    descriptor.instanceDescriptorBufferOffset = 0u;
-    descriptor.instanceDescriptorStride =
-        sizeof(MTLAccelerationStructureMotionInstanceDescriptor);
-    descriptor.instanceCount = instanceCount;
-    descriptor.instanceDescriptorType =
-        MTLAccelerationStructureInstanceDescriptorTypeMotion;
-    descriptor.motionTransformBuffer =
-        result.workspace->motionTransforms;
-    descriptor.motionTransformBufferOffset = 0u;
-    descriptor.motionTransformCount = transformCount;
-    descriptor.motionTransformType = MTLTransformTypeComponent;
-    descriptor.motionTransformStride =
-        sizeof(MTLComponentTransform);
-    descriptor.usage =
-        MTLAccelerationStructureUsageRefit |
-        MTLAccelerationStructureUsagePreferFastIntersection;
-    const MTLAccelerationStructureSizes sizes =
-        [state.device
-            accelerationStructureSizesWithDescriptor:descriptor];
-    const std::size_t scratchBytes = std::max(
-        sizes.buildScratchBufferSize,
-        sizes.refitScratchBufferSize
-    );
-    if (sizes.accelerationStructureSize == 0u ||
-        scratchBytes == 0u) {
-        reason =
-            "Metal returned an invalid reference acceleration "
-            "structure size";
-        releaseOnFailure();
-        return result;
-    }
-    if (result.workspace->instanceStructure == nil ||
-        result.workspace->structureBytes <
-            sizes.accelerationStructureSize) {
-        result.workspace->instanceStructure =
-            [state.device newAccelerationStructureWithSize:
-                sizes.accelerationStructureSize];
-        result.workspace->structureBytes =
-            sizes.accelerationStructureSize;
-        result.workspace->built = false;
-    }
-    if (result.workspace->buildScratch == nil ||
-        result.workspace->scratchBytes < scratchBytes) {
-        result.workspace->buildScratch = makePrivateBuffer(
-            state.device,
-            scratchBytes,
-            @"MetalRobo recycled TLAS build scratch"
-        );
-        result.workspace->scratchBytes = scratchBytes;
-    }
-    if (result.workspace->instanceStructure == nil ||
-        result.workspace->buildScratch == nil) {
-        reason =
-            "could not allocate the recycled reference TLAS workspace";
-        releaseOnFailure();
-        return result;
-    }
-    if (topologyChanged) {
+    const bool rebuildTopologyResources =
+        topologyChanged ||
+        topologyStorageChanged ||
+        result.workspace->tlasDescriptors == nil ||
+        result.workspace->tlasDescriptors.count != groupCount ||
+        result.workspace->instanceStructures == nil ||
+        result.workspace->instanceStructures.count != groupCount ||
+        result.workspace->buildScratch == nil ||
+        result.workspace->buildScratchOffsets.size() != groupCount;
+    if (rebuildTopologyResources) {
+        NSMutableArray<MTLInstanceAccelerationStructureDescriptor*>*
+            descriptors = [NSMutableArray arrayWithCapacity:groupCount];
+        std::vector<MTLAccelerationStructureSizes> groupSizes;
+        groupSizes.reserve(groupCount);
+        std::vector<std::size_t> scratchOffsets;
+        scratchOffsets.reserve(groupCount);
+        std::size_t totalScratchBytes = 0u;
+        for (std::uint32_t group = 0u;
+             group < groupCount;
+             ++group) {
+            const std::uint32_t firstEnvironment =
+                group * kReferenceEnvironmentsPerTLAS;
+            const std::uint32_t environmentsInGroup = std::min(
+                kReferenceEnvironmentsPerTLAS,
+                environmentCount - firstEnvironment
+            );
+            const std::size_t firstInstance =
+                static_cast<std::size_t>(firstEnvironment) *
+                instancesPerEnvironment;
+            const std::size_t groupInstances =
+                static_cast<std::size_t>(environmentsInGroup) *
+                instancesPerEnvironment;
+            const std::size_t firstTransform =
+                firstInstance * keyframeCount;
+            const std::size_t groupTransforms =
+                groupInstances * keyframeCount;
+
+            MTLInstanceAccelerationStructureDescriptor* descriptor =
+                [MTLInstanceAccelerationStructureDescriptor descriptor];
+            descriptor.instancedAccelerationStructures =
+                state.primitiveAccelerationStructures;
+            descriptor.instanceDescriptorBuffer =
+                result.workspace->instanceDescriptors;
+            descriptor.instanceDescriptorBufferOffset =
+                firstInstance *
+                sizeof(MTLAccelerationStructureMotionInstanceDescriptor);
+            descriptor.instanceDescriptorStride =
+                sizeof(MTLAccelerationStructureMotionInstanceDescriptor);
+            descriptor.instanceCount = groupInstances;
+            descriptor.instanceDescriptorType =
+                MTLAccelerationStructureInstanceDescriptorTypeMotion;
+            descriptor.motionTransformBuffer =
+                result.workspace->motionTransforms;
+            descriptor.motionTransformBufferOffset =
+                firstTransform * sizeof(MTLComponentTransform);
+            descriptor.motionTransformCount = groupTransforms;
+            descriptor.motionTransformType = MTLTransformTypeComponent;
+            descriptor.motionTransformStride =
+                sizeof(MTLComponentTransform);
+            descriptor.usage =
+                MTLAccelerationStructureUsageRefit |
+                MTLAccelerationStructureUsagePreferFastIntersection;
+            const MTLAccelerationStructureSizes sizes =
+                [state.device
+                    accelerationStructureSizesWithDescriptor:descriptor];
+            const std::size_t scratchBytes = std::max(
+                sizes.buildScratchBufferSize,
+                sizes.refitScratchBufferSize
+            );
+            if (sizes.accelerationStructureSize == 0u ||
+                scratchBytes == 0u) {
+                reason =
+                    "Metal returned an invalid grouped reference "
+                    "acceleration-structure size";
+                releaseOnFailure();
+                return result;
+            }
+            const std::size_t scratchOffset = alignResourceOffset(
+                totalScratchBytes,
+                kAccelerationStructureScratchAlignment
+            );
+            if (scratchOffset < totalScratchBytes ||
+                !checkedAdd(
+                    scratchOffset,
+                    scratchBytes,
+                    totalScratchBytes
+                )) {
+                reason =
+                    "grouped reference TLAS scratch size overflows";
+                releaseOnFailure();
+                return result;
+            }
+            scratchOffsets.push_back(scratchOffset);
+            groupSizes.push_back(sizes);
+            [descriptors addObject:descriptor];
+        }
+
+        bool allocateStructures =
+            topologyChanged ||
+            result.workspace->instanceStructures == nil ||
+            result.workspace->instanceStructures.count != groupCount;
+        if (!allocateStructures) {
+            for (std::uint32_t group = 0u;
+                 group < groupCount;
+                 ++group) {
+                if (result.workspace->instanceStructures[group].size <
+                    groupSizes[group].accelerationStructureSize) {
+                    allocateStructures = true;
+                    break;
+                }
+            }
+        }
+        if (allocateStructures) {
+            NSMutableArray<id<MTLAccelerationStructure>>* structures =
+                [NSMutableArray arrayWithCapacity:groupCount];
+            std::size_t structureBytes = 0u;
+            for (const MTLAccelerationStructureSizes sizes :
+                 groupSizes) {
+                id<MTLAccelerationStructure> structure =
+                    [state.device newAccelerationStructureWithSize:
+                        sizes.accelerationStructureSize];
+                if (structure == nil ||
+                    !checkedAdd(
+                        structureBytes,
+                        sizes.accelerationStructureSize,
+                        structureBytes
+                    )) {
+                    reason =
+                        "could not allocate grouped reference TLASes";
+                    releaseOnFailure();
+                    return result;
+                }
+                [structures addObject:structure];
+            }
+            result.workspace->instanceStructures = [structures copy];
+            result.workspace->structureBytes = structureBytes;
+            result.workspace->built = false;
+            result.workspace->refitCount = 0u;
+        }
+        if (result.workspace->buildScratch == nil ||
+            result.workspace->scratchBytes < totalScratchBytes) {
+            result.workspace->buildScratch = makePrivateBuffer(
+                state.device,
+                totalScratchBytes,
+                @"MetalRobo grouped TLAS build scratch"
+            );
+            result.workspace->scratchBytes = totalScratchBytes;
+        }
+        if (result.workspace->instanceStructures == nil ||
+            result.workspace->instanceStructures.count != groupCount ||
+            result.workspace->buildScratch == nil) {
+            reason =
+                "could not allocate the grouped reference TLAS workspace";
+            releaseOnFailure();
+            return result;
+        }
+        result.workspace->tlasDescriptors = [descriptors copy];
+        result.workspace->buildScratchOffsets =
+            std::move(scratchOffsets);
         result.workspace->built = false;
         result.workspace->refitCount = 0u;
     }
     result.workspace->motionBodyBytes = motionBodyBytes;
+    result.workspace->environmentCount = environmentCount;
+    result.workspace->instancesPerEnvironment =
+        instancesPerEnvironment;
     result.workspace->instanceCount = instanceCount;
     result.workspace->keyframeCount = keyframeCount;
     result.workspace->retainedBytes =
@@ -2339,7 +2470,7 @@ AcquiredReferenceWorkspace acquireReferenceWorkspace(
         releaseOnFailure();
         return result;
     }
-    result.descriptor = descriptor;
+    result.descriptors = result.workspace->tlasDescriptors;
     return result;
 }
 
@@ -2971,6 +3102,12 @@ MetalHybridRendererDiagnostics encodeLocked(
                 state.layout.meshTriangleCount != 0u
             ? state.layout.meshInstanceCount
             : 0u,
+    };
+    uniforms.rayBatch = {
+        0u,
+        environmentCount,
+        0u,
+        0u,
     };
     uniforms.rayTiming = {
         options.shutterWindowSeconds > 0.0f
@@ -3641,12 +3778,13 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
         acquireReferenceWorkspace(
             state,
             retainedStateBytes,
-            descriptorCount,
+            motion.environmentCount,
+            state.layout.rayInstanceCount,
             keyframeCount,
             reason
         );
     if (acquired.workspace == nullptr ||
-        acquired.descriptor == nil) {
+        acquired.descriptors == nil) {
         return reject(
             std::move(diagnostics),
             MetalHybridRendererStatus::metalBufferFailure,
@@ -3857,26 +3995,37 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
             "could not create the reference TLAS encoder"
         );
     }
-    buildEncoder.label = @"MetalRobo reference motion TLAS";
+    buildEncoder.label = @"MetalRobo grouped reference motion TLASes";
     // Refit recycles the existing TLAS for stable topology. Periodic rebuilds
     // restore traversal quality after large accumulated object motion.
-    if (acquired.workspace->built &&
-        acquired.workspace->refitCount < 32u) {
-        [buildEncoder
-            refitAccelerationStructure:
-                acquired.workspace->instanceStructure
-            descriptor:acquired.descriptor
-            destination:nil
-            scratchBuffer:acquired.workspace->buildScratch
-            scratchBufferOffset:0u];
+    const bool refit =
+        acquired.workspace->built &&
+        acquired.workspace->refitCount < 32u;
+    for (NSUInteger group = 0u;
+         group < acquired.descriptors.count;
+         ++group) {
+        if (refit) {
+            [buildEncoder
+                refitAccelerationStructure:
+                    acquired.workspace->instanceStructures[group]
+                descriptor:acquired.descriptors[group]
+                destination:nil
+                scratchBuffer:acquired.workspace->buildScratch
+                scratchBufferOffset:
+                    acquired.workspace->buildScratchOffsets[group]];
+        } else {
+            [buildEncoder
+                buildAccelerationStructure:
+                    acquired.workspace->instanceStructures[group]
+                descriptor:acquired.descriptors[group]
+                scratchBuffer:acquired.workspace->buildScratch
+                scratchBufferOffset:
+                    acquired.workspace->buildScratchOffsets[group]];
+        }
+    }
+    if (refit) {
         ++acquired.workspace->refitCount;
     } else {
-        [buildEncoder
-            buildAccelerationStructure:
-                acquired.workspace->instanceStructure
-            descriptor:acquired.descriptor
-            scratchBuffer:acquired.workspace->buildScratch
-            scratchBufferOffset:0u];
         acquired.workspace->built = true;
         acquired.workspace->refitCount = 0u;
     }
@@ -3957,13 +4106,6 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
     [referenceEncoder setBuffer:state.buffers.validity
                          offset:0u
                         atIndex:22u];
-    [referenceEncoder setBytes:&uniforms
-                        length:sizeof(uniforms)
-                       atIndex:23u];
-    [referenceEncoder
-        setAccelerationStructure:
-            acquired.workspace->instanceStructure
-        atBufferIndex:24u];
     [referenceEncoder useHeap:state.visualResourceHeap];
     for (id<MTLAccelerationStructure> primitive :
          state.primitiveAccelerationStructures) {
@@ -3971,25 +4113,55 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
             useResource:primitive
             usage:MTLResourceUsageRead];
     }
+    const NSUInteger pixelsPerEnvironment =
+        static_cast<NSUInteger>(state.layout.width) *
+        state.layout.height;
     const NSUInteger pixelCount =
         static_cast<NSUInteger>(motion.environmentCount) *
-        state.layout.width * state.layout.height;
+        pixelsPerEnvironment;
     const NSUInteger referenceThreads =
         std::min<NSUInteger>(
             state.referenceRenderPipeline
                 .maxTotalThreadsPerThreadgroup,
             128u
         );
-    [referenceEncoder dispatchThreads:MTLSizeMake(
-                                          pixelCount,
-                                          1u,
-                                          1u
-                                      )
-        threadsPerThreadgroup:MTLSizeMake(
-                                  referenceThreads,
-                                  1u,
-                                  1u
-                              )];
+    for (NSUInteger group = 0u;
+         group < acquired.workspace->instanceStructures.count;
+         ++group) {
+        const std::uint32_t firstEnvironment =
+            static_cast<std::uint32_t>(group) *
+            kReferenceEnvironmentsPerTLAS;
+        const std::uint32_t environmentsInGroup = std::min(
+            kReferenceEnvironmentsPerTLAS,
+            motion.environmentCount - firstEnvironment
+        );
+        uniforms.rayBatch = {
+            firstEnvironment,
+            environmentsInGroup,
+            0u,
+            0u,
+        };
+        [referenceEncoder setBytes:&uniforms
+                            length:sizeof(uniforms)
+                           atIndex:23u];
+        [referenceEncoder
+            setAccelerationStructure:
+                acquired.workspace->instanceStructures[group]
+            atBufferIndex:24u];
+        [referenceEncoder dispatchThreads:MTLSizeMake(
+                                              static_cast<NSUInteger>(
+                                                  environmentsInGroup
+                                              ) *
+                                                  pixelsPerEnvironment,
+                                              1u,
+                                              1u
+                                          )
+            threadsPerThreadgroup:MTLSizeMake(
+                                      referenceThreads,
+                                      1u,
+                                      1u
+                                  )];
+    }
 
     [referenceEncoder
         setComputePipelineState:state.applySensorPipeline];
@@ -4004,6 +4176,12 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
     [referenceEncoder setBuffer:state.buffers.validity
                          offset:0u
                         atIndex:4u];
+    uniforms.rayBatch = {
+        0u,
+        motion.environmentCount,
+        0u,
+        0u,
+    };
     [referenceEncoder setBytes:&uniforms
                         length:sizeof(uniforms)
                        atIndex:5u];

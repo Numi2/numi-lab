@@ -192,9 +192,9 @@ This is the common geometry primitive for range cameras, LiDAR, terrain
 height scanners, visibility tests, occupancy observations, and planning
 queries. It stays on the existing compute timeline and reuses the immutable
 world buffers; it does not build a per-step acceleration structure or cross
-an MLX command-encoder boundary. Standalone/reference presentation can still
-use Metal acceleration structures when authored high-poly visibility warrants
-their build and encoder-transition cost.
+an MLX command-encoder boundary. Standalone `sensor_reference` presentation
+uses compacted Metal BLASes and grouped motion-instance TLASes when authored
+high-poly visibility warrants their build and encoder-transition cost.
 
 `WorldState`, `SolverCache`, and `StepOutput` are explicit MLX PyTrees. The
 pure `step()` API supports explicit MLX reset masks/state. `MLXRolloutCollector`
