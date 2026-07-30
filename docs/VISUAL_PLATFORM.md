@@ -87,13 +87,20 @@ produces:
 
 Both renderer profiles use the same metallic-roughness PBR, visible HDR
 environment, and image-based lighting implementation. A compact
-environment-major camera-state pass removes repeated body binding and
-quaternion work from every Gaussian and rasterized triangle. `sensor_fast`
-uses compute raster visibility, a parallel per-pixel resolve for geometry
-crossing the near plane, environment-major shadow atlases, and stratified
-space-time samples during physical exposure. Near-plane scratch storage scales
-with the compiled triangle count up to a fixed GPU-local ceiling rather than
-reserving the ceiling for every scene. `sensor_reference` uses
+environment-major state pass resolves current and previous camera plus authored
+instance transforms once, removing repeated body binding and quaternion work
+from triangle visibility, shadows, and composition. `sensor_fast` packs depth
+and triangle identity into one Apple9 64-bit atomic visibility key, so geometry
+is rasterized once. Near-plane work launches indirectly only when clipped
+geometry exists; winner clearing and sensor response are fused into passes that
+already touch the pixels. World buffers are resolved once per physical frame,
+resource residency is declared once per active encoder, and fixed buffer tables
+are bound as ranges rather than as individual Objective-C calls.
+
+`sensor_fast` uses environment-major shadow atlases and stratified space-time
+samples during physical exposure. Near-plane scratch storage scales with the
+compiled triangle count up to a fixed GPU-local ceiling rather than reserving
+the ceiling for every scene. `sensor_reference` uses
 motion-instance ray queries, stratified subpixel and shutter-time samples,
 direct shadow rays, and exact per-row exposure timing. Deployable RGB is
 integrated over those samples while depth, identities, normals, and truth

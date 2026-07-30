@@ -1073,7 +1073,7 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
         );
         candidate.alignmentParticles = makePrivateBuffer(
             state_->device,
-            0u,
+            sizeof(MRWorldAlignmentParticleGPU),
             @"MetalRobo alignment particles"
         );
         candidate.alignmentQuantiles = makePrivateBuffer(
@@ -1083,7 +1083,7 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
         );
         candidate.feedbackRegions = makePrivateBuffer(
             state_->device,
-            0u,
+            sizeof(MRWorldFeedbackRegionGPU),
             @"MetalRobo feedback regions"
         );
         candidate.feedbackBounds = makePrivateBuffer(

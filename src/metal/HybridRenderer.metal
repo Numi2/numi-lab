@@ -440,6 +440,35 @@ BoundPose cameraStatePose(
     return result;
 }
 
+BoundPose visualInstanceStatePose(
+    const device MRHybridVisualInstanceStateGPU* states,
+    const uint environment,
+    const uint visualInstance,
+    constant MRHybridRenderUniformsGPU& uniforms,
+    const bool previous
+) {
+    BoundPose result = worldPose();
+    if (visualInstance >= uniforms.ray.w) {
+        result.valid = false;
+        return result;
+    }
+    const MRHybridVisualInstanceStateGPU state =
+        states[environment * uniforms.ray.w + visualInstance];
+    const float4 positionAndScale = previous
+        ? state.previousPositionAndScale
+        : state.currentPositionAndScale;
+    result.position = positionAndScale.xyz;
+    result.orientation = previous
+        ? state.previousOrientation
+        : state.currentOrientation;
+    result.scale = positionAndScale.w;
+    result.valid =
+        result.scale > 0.0f &&
+        all(isfinite(result.position)) &&
+        all(isfinite(result.orientation));
+    return result;
+}
+
 float3 cameraSampleDirection(
     const float2 rasterSample,
     const MRWorldSensorInstanceGPU sensor,
@@ -582,9 +611,8 @@ void rasterizeProjectedTriangle(
     const CameraProjection p2,
     const uint environment,
     const uint triangleIndex,
-    device atomic_uint* winners,
-    constant MRHybridRenderUniformsGPU& uniforms,
-    const bool selectTriangle
+    device atomic_ulong* winners,
+    constant MRHybridRenderUniformsGPU& uniforms
 ) {
     if (!p0.valid || !p1.valid || !p2.valid) {
         return;
@@ -635,10 +663,6 @@ void rasterizeProjectedTriangle(
     if (minimumX > maximumX || minimumY > maximumY) {
         return;
     }
-    const uint pixelCount =
-        uniforms.counts.x *
-        uniforms.image.x *
-        uniforms.image.y;
     for (int y = minimumY; y <= maximumY; ++y) {
         for (int x = minimumX; x <= maximumX; ++x) {
             const uint flat =
@@ -663,26 +687,14 @@ void rasterizeProjectedTriangle(
                 !isfinite(inverseDepth)) {
                 continue;
             }
-            const uint depthBits =
-                as_type<uint>(1.0f / inverseDepth);
-            if (selectTriangle) {
-                if (atomic_load_explicit(
-                        winners + flat,
-                        memory_order_relaxed
-                    ) == depthBits) {
-                    atomic_fetch_min_explicit(
-                        winners + pixelCount + flat,
-                        triangleIndex,
-                        memory_order_relaxed
-                    );
-                }
-            } else {
-                atomic_fetch_min_explicit(
-                    winners + flat,
-                    depthBits,
-                    memory_order_relaxed
-                );
-            }
+            const ulong winner =
+                (ulong(as_type<uint>(1.0f / inverseDepth)) << 32u) |
+                ulong(triangleIndex);
+            atomic_min_explicit(
+                winners + flat,
+                winner,
+                memory_order_relaxed
+            );
         }
     }
 }
@@ -781,6 +793,95 @@ bool measureDepth(
         return false;
     }
     return true;
+}
+
+void applySensorMeasurement(
+    const device MRWorldInstanceHeaderGPU* instances,
+    const device MRWorldSensorInstanceGPU* sensors,
+    device float4* rgb,
+    device float* depth,
+    device uint* validity,
+    constant MRHybridRenderUniformsGPU& uniforms,
+    const uint globalPixel
+) {
+    const uint pixelsPerEnvironment =
+        uniforms.image.x * uniforms.image.y;
+    const uint environment =
+        globalPixel / pixelsPerEnvironment;
+    const MRWorldInstanceHeaderGPU instance =
+        instances[environment];
+    const MRWorldSensorInstanceGPU sensor =
+        sensors[instance.ranges.z + uniforms.render.x];
+    uint valid =
+        validity[globalPixel] & ~MR_VISUAL_VALIDITY_DEPTH;
+    const bool hasGeometry =
+        (valid & MR_VISUAL_VALIDITY_GEOMETRY) != 0u;
+    const bool stochasticDepth =
+        hasGeometry &&
+        (
+            sensor.noiseAndLatency.y > 0.0f ||
+            sensor.noiseAndLatency.z > 0.0f
+        );
+    const bool stochasticColor =
+        sensor.noiseAndLatency.x > 0.0f;
+    const uint seed =
+        stochasticColor || stochasticDepth
+        ? frameSeed(instance, uniforms, globalPixel)
+        : 0u;
+
+    if (stochasticColor) {
+        rgb[globalPixel].xyz = max(
+            rgb[globalPixel].xyz +
+                sensor.noiseAndLatency.x *
+                float3(
+                    unitVarianceNoise(seed ^ 0x243f6a88u),
+                    unitVarianceNoise(seed ^ 0x85a308d3u),
+                    unitVarianceNoise(seed ^ 0x13198a2eu)
+                ),
+            0.0f
+        );
+    }
+
+    if (hasGeometry) {
+        float measuredDepth = depth[globalPixel];
+        if (measureDepth(
+                depth[globalPixel],
+                sensor,
+                seed,
+                uniforms,
+                measuredDepth
+            )) {
+            depth[globalPixel] = measuredDepth;
+            valid |= MR_VISUAL_VALIDITY_DEPTH;
+        } else {
+            depth[globalPixel] = uniforms.clearColorAndDepth.w;
+        }
+    } else {
+        depth[globalPixel] = uniforms.clearColorAndDepth.w;
+    }
+    validity[globalPixel] = valid;
+}
+
+void applySensorMeasurementIfRequested(
+    const device MRWorldInstanceHeaderGPU* instances,
+    const device MRWorldSensorInstanceGPU* sensors,
+    device float4* rgb,
+    device float* depth,
+    device uint* validity,
+    constant MRHybridRenderUniformsGPU& uniforms,
+    const uint globalPixel
+) {
+    if (uniforms.shadowBatch.w != 0u) {
+        applySensorMeasurement(
+            instances,
+            sensors,
+            rgb,
+            depth,
+            validity,
+            uniforms,
+            globalPixel
+        );
+    }
 }
 
 float3 transformPoint(
@@ -1365,9 +1466,12 @@ kernel void mr_hybrid_prepare_cameras(
     const device MRVisualSensorBindingGPU* sensorBindings [[buffer(3)]],
     const device MRBodyStateGPU* currentBodies [[buffer(4)]],
     const device MRBodyStateGPU* previousBodies [[buffer(5)]],
-    device MRHybridCameraStateGPU* cameraStates [[buffer(6)]],
-    device atomic_uint* nearClippedCounts [[buffer(7)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(8)]],
+    const device MRVisualInstanceGPUV2* visualInstances [[buffer(6)]],
+    device MRHybridCameraStateGPU* cameraStates [[buffer(7)]],
+    device MRHybridVisualInstanceStateGPU* visualInstanceStates
+        [[buffer(8)]],
+    device atomic_uint* nearClippedCounts [[buffer(9)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(10)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= uniforms.counts.x) {
@@ -1388,17 +1492,21 @@ kernel void mr_hybrid_prepare_cameras(
         uniforms,
         false
     );
-    const BoundPose previous = cameraPose(
-        environment,
-        instance,
-        sensor,
-        uniforms.render.x,
-        assets,
-        sensorBindings,
-        previousBodies,
-        uniforms,
-        true
-    );
+    const bool hasPrevious =
+        (uniforms.live.y & kLivePrevious) != 0u;
+    const BoundPose previous = hasPrevious
+        ? cameraPose(
+              environment,
+              instance,
+              sensor,
+              uniforms.render.x,
+              assets,
+              sensorBindings,
+              previousBodies,
+              uniforms,
+              true
+          )
+        : current;
     MRHybridCameraStateGPU result;
     result.currentPositionAndValidity =
         float4(current.position, current.valid ? 1.0f : 0.0f);
@@ -1407,10 +1515,101 @@ kernel void mr_hybrid_prepare_cameras(
         float4(previous.position, previous.valid ? 1.0f : 0.0f);
     result.previousOrientation = previous.orientation;
     cameraStates[environment] = result;
-    atomic_store_explicit(
-        nearClippedCounts + environment,
-        0u,
-        memory_order_relaxed
+    for (uint visualInstance = 0u;
+         visualInstance < uniforms.ray.w;
+         ++visualInstance) {
+        const MRVisualInstanceGPUV2 authored =
+            visualInstances[visualInstance];
+        const BoundPose currentVisual = composeInstancePose(
+            resolvePose(
+                authored.binding.z,
+                authored.binding.y,
+                authored.binding.x,
+                environment,
+                instance,
+                assets,
+                currentBodies,
+                uniforms,
+                false
+            ),
+            authored
+        );
+        const BoundPose previousVisual = hasPrevious
+            ? composeInstancePose(
+                  resolvePose(
+                      authored.binding.z,
+                      authored.binding.y,
+                      authored.binding.x,
+                      environment,
+                      instance,
+                      assets,
+                      previousBodies,
+                      uniforms,
+                      true
+                  ),
+                  authored
+              )
+            : currentVisual;
+        MRHybridVisualInstanceStateGPU visualState;
+        visualState.currentPositionAndScale = float4(
+            currentVisual.position,
+            currentVisual.valid ? currentVisual.scale : -1.0f
+        );
+        visualState.currentOrientation =
+            currentVisual.orientation;
+        visualState.previousPositionAndScale = float4(
+            previousVisual.position,
+            previousVisual.valid ? previousVisual.scale : -1.0f
+        );
+        visualState.previousOrientation =
+            previousVisual.orientation;
+        visualInstanceStates[
+            environment * uniforms.ray.w + visualInstance
+        ] = visualState;
+    }
+    if (uniforms.ray.w != 0u) {
+        atomic_store_explicit(
+            nearClippedCounts + environment,
+            0u,
+            memory_order_relaxed
+        );
+    }
+}
+
+void resetNearClippedDispatch(
+    device atomic_uint* clippedDispatch,
+    const bool reset
+) {
+    if (reset) {
+        atomic_store_explicit(
+            clippedDispatch,
+            0u,
+            memory_order_relaxed
+        );
+        atomic_store_explicit(
+            clippedDispatch + 1u,
+            1u,
+            memory_order_relaxed
+        );
+        atomic_store_explicit(
+            clippedDispatch + 2u,
+            1u,
+            memory_order_relaxed
+        );
+    }
+}
+
+void clearMeshWinner(
+    device ulong* meshWinners,
+    device atomic_uint* clippedDispatch,
+    const uint pixel,
+    const bool resetDispatch
+) {
+    meshWinners[pixel] =
+        (ulong(0x7f800000u) << 32u) | 0xfffffffful;
+    resetNearClippedDispatch(
+        clippedDispatch,
+        resetDispatch
     );
 }
 
@@ -1430,6 +1629,8 @@ kernel void mr_hybrid_clear_observations(
     device float4* motion [[buffer(11)]],
     device uint* validity [[buffer(12)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(13)]],
+    device ulong* meshWinners [[buffer(14)]],
+    device atomic_uint* clippedDispatch [[buffer(15)]],
     const uint compactPixel [[thread_position_in_grid]]
 ) {
     const uint compactCount =
@@ -1479,33 +1680,14 @@ kernel void mr_hybrid_clear_observations(
     normals[pixel] = 0.0f;
     motion[pixel] = 0.0f;
     validity[pixel] = MR_VISUAL_VALIDITY_FRAME;
-}
-
-kernel void mr_hybrid_clear_mesh_winners(
-    device atomic_uint* winners [[buffer(0)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(1)]],
-    const uint pixel [[thread_position_in_grid]]
-) {
-    const uint compactCount =
-        uniforms.counts.x * uniforms.image.x * uniforms.image.y;
-    const uint bandCount =
-        uniforms.counts.x *
-        bandPixelCountPerEnvironment(uniforms);
-    if (pixel >= bandCount) {
-        return;
+    if (uniforms.ray.w != 0u) {
+        clearMeshWinner(
+            meshWinners,
+            clippedDispatch,
+            pixel,
+            compactPixel == 0u
+        );
     }
-    const uint globalPixel =
-        globalPixelFromBandIndex(pixel, 0u, uniforms);
-    atomic_store_explicit(
-        winners + globalPixel,
-        0x7f800000u,
-        memory_order_relaxed
-    );
-    atomic_store_explicit(
-        winners + compactCount + globalPixel,
-        0xffffffffu,
-        memory_order_relaxed
-    );
 }
 
 kernel void mr_hybrid_clear_shadow_atlas(
@@ -1530,12 +1712,11 @@ kernel void mr_hybrid_rasterize_shadow_atlas(
     const device MRVisualTriangleGPUV2* triangles [[buffer(1)]],
     const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
     const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
-    const device MRWorldInstanceHeaderGPU* instances [[buffer(4)]],
-    const device MRWorldAssetInstanceGPU* assets [[buffer(5)]],
-    const device MRBodyStateGPU* currentBodies [[buffer(6)]],
     const device MRVisualLightGPUV1* lights [[buffer(7)]],
     device atomic_uint* shadowAtlas [[buffer(8)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(9)]],
+    const device MRHybridVisualInstanceStateGPU* visualInstanceStates
+        [[buffer(10)]],
     const uint index [[thread_position_in_grid]]
 ) {
     const uint triangleCount = uniforms.live.w;
@@ -1553,7 +1734,7 @@ kernel void mr_hybrid_rasterize_shadow_atlas(
         return;
     }
     const uint triangleIndex =
-        index - environment * triangleCount;
+        index - localEnvironment * triangleCount;
     const MRVisualTriangleGPUV2 triangle =
         triangles[triangleIndex];
     const MRVisualPrimitiveGPUV2 primitive =
@@ -1564,19 +1745,13 @@ kernel void mr_hybrid_rasterize_shadow_atlas(
          MR_VISUAL_INSTANCE_CASTS_SHADOW) == 0u) {
         return;
     }
-    const MRWorldInstanceHeaderGPU instance =
-        instances[environment];
-    const BoundPose binding = composeInstancePose(resolvePose(
-        visualInstance.binding.z,
-        visualInstance.binding.y,
-        visualInstance.binding.x,
+    const BoundPose binding = visualInstanceStatePose(
+        visualInstanceStates,
         environment,
-        instance,
-        assets,
-        currentBodies,
+        primitive.geometry.w,
         uniforms,
         false
-    ), visualInstance);
+    );
     if (!binding.valid) {
         return;
     }
@@ -1684,8 +1859,12 @@ kernel void mr_hybrid_accumulate_temporal_sample(
 
 kernel void mr_hybrid_resolve_temporal_accumulation(
     const device half4* accumulation [[buffer(0)]],
-    device float4* rgb [[buffer(1)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(2)]],
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(1)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(2)]],
+    device float4* rgb [[buffer(3)]],
+    device float* depth [[buffer(4)]],
+    device uint* validity [[buffer(5)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(6)]],
     const uint pixel [[thread_position_in_grid]]
 ) {
     const uint count =
@@ -1697,6 +1876,15 @@ kernel void mr_hybrid_resolve_temporal_accumulation(
         rgb[globalPixel] =
             float4(accumulation[globalPixel]) /
             float(max(uniforms.shutter.w, 1u));
+        applySensorMeasurement(
+            instances,
+            sensors,
+            rgb,
+            depth,
+            validity,
+            uniforms,
+            globalPixel
+        );
     }
 }
 
@@ -2028,6 +2216,8 @@ kernel void mr_hybrid_render_tiles(
     device float4* motion [[buffer(14)]],
     device uint* validity [[buffer(15)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(16)]],
+    device ulong* meshWinners [[buffer(17)]],
+    device atomic_uint* clippedDispatch [[buffer(18)]],
     const uint compactTile [[threadgroup_position_in_grid]],
     const uint localIndex [[thread_position_in_threadgroup]]
 ) {
@@ -2050,6 +2240,12 @@ kernel void mr_hybrid_render_tiles(
     const uint tileY = tileInEnvironment / uniforms.image.z;
     if (!tileIntersectsBand(tileX, tileY, uniforms)) {
         return;
+    }
+    if (uniforms.ray.w != 0u) {
+        resetNearClippedDispatch(
+            clippedDispatch,
+            compactTile == 0u && localIndex == 0u
+        );
     }
     const uint count = min(
         atomic_load_explicit(
@@ -2080,6 +2276,14 @@ kernel void mr_hybrid_render_tiles(
     const uint pixel =
         environment * uniforms.image.x * uniforms.image.y +
         pixelY * uniforms.image.x + pixelX;
+    if (uniforms.ray.w != 0u) {
+        clearMeshWinner(
+            meshWinners,
+            clippedDispatch,
+            pixel,
+            false
+        );
+    }
     const float2 pixelCenter =
         float2(float(pixelX), float(pixelY)) + 0.5f +
         fastSubpixelOffset(pixel, uniforms);
@@ -2234,16 +2438,15 @@ void rasterizeMesh(
     const device MRVisualPrimitiveGPUV2* primitives,
     const device MRVisualInstanceGPUV2* visualInstances,
     const device MRWorldInstanceHeaderGPU* instances,
-    const device MRWorldAssetInstanceGPU* assets,
     const device MRWorldSensorInstanceGPU* sensors,
     const device MRHybridCameraStateGPU* cameraStates,
-    const device MRBodyStateGPU* currentBodies,
-    device atomic_uint* winners,
+    const device MRHybridVisualInstanceStateGPU* visualInstanceStates,
+    device atomic_ulong* winners,
     device MRHybridNearClippedTriangleGPU* nearClippedTriangles,
     device atomic_uint* nearClippedCounts,
+    device atomic_uint* nearClippedDispatch,
     constant MRHybridRenderUniformsGPU& uniforms,
-    const uint index,
-    const bool selectTriangle
+    const uint index
 ) {
     const uint triangleCount = uniforms.live.w;
     const uint total = uniforms.counts.x * triangleCount;
@@ -2269,17 +2472,13 @@ void rasterizeMesh(
         sensors[instance.ranges.z + uniforms.render.x];
     const BoundPose camera =
         cameraStatePose(cameraStates, environment, false);
-    const BoundPose binding = composeInstancePose(resolvePose(
-        visualInstance.binding.z,
-        visualInstance.binding.y,
-        visualInstance.binding.x,
+    const BoundPose binding = visualInstanceStatePose(
+        visualInstanceStates,
         environment,
-        instance,
-        assets,
-        currentBodies,
+        primitive.geometry.w,
         uniforms,
         false
-    ), visualInstance);
+    );
     if (!camera.valid || !binding.valid) {
         return;
     }
@@ -2325,8 +2524,7 @@ void rasterizeMesh(
             environment,
             triangleIndex,
             winners,
-            uniforms,
-            selectTriangle
+            uniforms
         );
         return;
     }
@@ -2341,39 +2539,32 @@ void rasterizeMesh(
     const uint clippedCapacity = uniforms.presentation.w;
     const uint recordBase =
         environment * clippedCapacity;
-    if (!selectTriangle) {
-        const uint slot = atomic_fetch_add_explicit(
-            nearClippedCounts + environment,
-            1u,
+    const uint slot = atomic_fetch_add_explicit(
+        nearClippedCounts + environment,
+        1u,
+        memory_order_relaxed
+    );
+    if (slot < clippedCapacity) {
+        MRHybridNearClippedTriangleGPU record;
+        record.worldVertex0 = float4(world0, 1.0f);
+        record.worldVertex1 = float4(world1, 1.0f);
+        record.worldVertex2 = float4(world2, 1.0f);
+        record.identity =
+            uint4(triangleIndex, 0u, 0u, 0u);
+        nearClippedTriangles[recordBase + slot] = record;
+        const uint resolveGroups =
+            (
+                uniforms.counts.x *
+                    bandPixelCountPerEnvironment(uniforms) +
+                MR_HYBRID_NEAR_CLIPPED_RESOLVE_THREADS - 1u
+            ) /
+            MR_HYBRID_NEAR_CLIPPED_RESOLVE_THREADS;
+        atomic_fetch_max_explicit(
+            nearClippedDispatch,
+            resolveGroups,
             memory_order_relaxed
         );
-        if (slot < clippedCapacity) {
-            MRHybridNearClippedTriangleGPU record;
-            record.worldVertex0 = float4(world0, 1.0f);
-            record.worldVertex1 = float4(world1, 1.0f);
-            record.worldVertex2 = float4(world2, 1.0f);
-            record.identity =
-                uint4(triangleIndex, 0u, 0u, 0u);
-            nearClippedTriangles[recordBase + slot] = record;
-            return;
-        }
-    } else {
-        const uint recordCount = min(
-            atomic_load_explicit(
-                nearClippedCounts + environment,
-                memory_order_relaxed
-            ),
-            clippedCapacity
-        );
-        for (uint recordIndex = 0u;
-             recordIndex < recordCount;
-             ++recordIndex) {
-            if (nearClippedTriangles[
-                    recordBase + recordIndex
-                ].identity.x == triangleIndex) {
-                return;
-            }
-        }
+        return;
     }
     thread float3 clipped[4];
     const uint clippedCount = clipTriangleToNearPlane(
@@ -2396,8 +2587,7 @@ void rasterizeMesh(
             environment,
             triangleIndex,
             winners,
-            uniforms,
-            selectTriangle
+            uniforms
         );
     }
 }
@@ -2408,15 +2598,16 @@ kernel void mr_hybrid_rasterize_mesh(
     const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
     const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
     const device MRWorldInstanceHeaderGPU* instances [[buffer(4)]],
-    const device MRWorldAssetInstanceGPU* assets [[buffer(5)]],
     const device MRWorldSensorInstanceGPU* sensors [[buffer(6)]],
     const device MRHybridCameraStateGPU* cameraStates [[buffer(7)]],
-    const device MRBodyStateGPU* currentBodies [[buffer(8)]],
-    device atomic_uint* winners [[buffer(9)]],
+    device atomic_ulong* winners [[buffer(9)]],
     device MRHybridNearClippedTriangleGPU* nearClippedTriangles
         [[buffer(10)]],
     device atomic_uint* nearClippedCounts [[buffer(11)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(12)]],
+    device atomic_uint* nearClippedDispatch [[buffer(12)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(13)]],
+    const device MRHybridVisualInstanceStateGPU* visualInstanceStates
+        [[buffer(14)]],
     const uint index [[thread_position_in_grid]]
 ) {
     rasterizeMesh(
@@ -2425,52 +2616,15 @@ kernel void mr_hybrid_rasterize_mesh(
         primitives,
         visualInstances,
         instances,
-        assets,
         sensors,
         cameraStates,
-        currentBodies,
+        visualInstanceStates,
         winners,
         nearClippedTriangles,
         nearClippedCounts,
+        nearClippedDispatch,
         uniforms,
-        index,
-        false
-    );
-}
-
-kernel void mr_hybrid_select_mesh(
-    const device MRVisualVertexGPUV2* vertices [[buffer(0)]],
-    const device MRVisualTriangleGPUV2* triangles [[buffer(1)]],
-    const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
-    const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
-    const device MRWorldInstanceHeaderGPU* instances [[buffer(4)]],
-    const device MRWorldAssetInstanceGPU* assets [[buffer(5)]],
-    const device MRWorldSensorInstanceGPU* sensors [[buffer(6)]],
-    const device MRHybridCameraStateGPU* cameraStates [[buffer(7)]],
-    const device MRBodyStateGPU* currentBodies [[buffer(8)]],
-    device atomic_uint* winners [[buffer(9)]],
-    device MRHybridNearClippedTriangleGPU* nearClippedTriangles
-        [[buffer(10)]],
-    device atomic_uint* nearClippedCounts [[buffer(11)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(12)]],
-    const uint index [[thread_position_in_grid]]
-) {
-    rasterizeMesh(
-        vertices,
-        triangles,
-        primitives,
-        visualInstances,
-        instances,
-        assets,
-        sensors,
-        cameraStates,
-        currentBodies,
-        winners,
-        nearClippedTriangles,
-        nearClippedCounts,
-        uniforms,
-        index,
-        true
+        index
     );
 }
 
@@ -2481,7 +2635,7 @@ kernel void mr_hybrid_resolve_near_clipped_mesh(
     const device MRWorldInstanceHeaderGPU* instances [[buffer(2)]],
     const device MRWorldSensorInstanceGPU* sensors [[buffer(3)]],
     const device MRHybridCameraStateGPU* cameraStates [[buffer(4)]],
-    device atomic_uint* winners [[buffer(5)]],
+    device atomic_ulong* winners [[buffer(5)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(6)]],
     const uint compactPixel [[thread_position_in_grid]]
 ) {
@@ -2523,19 +2677,8 @@ kernel void mr_hybrid_resolve_near_clipped_mesh(
     }
     const float3 direction =
         cameraSampleDirection(rasterSample, sensor, camera);
-    const uint pixelCount =
-        uniforms.counts.x * pixelsPerEnvironment;
-    float selectedDepth = as_type<float>(
-        atomic_load_explicit(
-            winners + pixel,
-            memory_order_relaxed
-        )
-    );
-    uint selectedTriangle = atomic_load_explicit(
-        winners + pixelCount + pixel,
-        memory_order_relaxed
-    );
-    bool selected = false;
+    ulong selectedWinner =
+        (ulong(0x7f800000u) << 32u) | 0xfffffffful;
     const uint recordBase =
         environment * uniforms.presentation.w;
     for (uint recordIndex = 0u;
@@ -2568,25 +2711,16 @@ kernel void mr_hybrid_resolve_near_clipped_mesh(
             continue;
         }
         const uint triangleIndex = record.identity.x;
-        if (cameraDepth < selectedDepth ||
-            (
-                cameraDepth == selectedDepth &&
-                triangleIndex < selectedTriangle
-            )) {
-            selectedDepth = cameraDepth;
-            selectedTriangle = triangleIndex;
-            selected = true;
-        }
+        const ulong candidate =
+            (ulong(as_type<uint>(cameraDepth)) << 32u) |
+            ulong(triangleIndex);
+        selectedWinner = min(selectedWinner, candidate);
     }
-    if (selected) {
-        atomic_store_explicit(
+    if (selectedWinner !=
+        ((ulong(0x7f800000u) << 32u) | 0xfffffffful)) {
+        atomic_min_explicit(
             winners + pixel,
-            as_type<uint>(selectedDepth),
-            memory_order_relaxed
-        );
-        atomic_store_explicit(
-            winners + pixelCount + pixel,
-            selectedTriangle,
+            selectedWinner,
             memory_order_relaxed
         );
     }
@@ -2599,13 +2733,10 @@ kernel void mr_hybrid_composite_mesh(
     const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
     const device MRVisualMaterialGPUV2* materials [[buffer(4)]],
     const device MRWorldInstanceHeaderGPU* instances [[buffer(5)]],
-    const device MRWorldAssetInstanceGPU* assets [[buffer(6)]],
     const device MRWorldSensorInstanceGPU* sensors [[buffer(7)]],
     const device MRWorldAppearanceInstanceGPU* appearances [[buffer(8)]],
     const device MRHybridCameraStateGPU* cameraStates [[buffer(9)]],
-    const device MRBodyStateGPU* currentBodies [[buffer(10)]],
-    const device MRBodyStateGPU* previousBodies [[buffer(11)]],
-    const device atomic_uint* winners [[buffer(12)]],
+    const device ulong* winners [[buffer(12)]],
     device float4* rgb [[buffer(13)]],
     device float* depth [[buffer(14)]],
     device uint* segmentation [[buffer(15)]],
@@ -2620,6 +2751,8 @@ kernel void mr_hybrid_composite_mesh(
         [[buffer(23)]],
     const device uint* shadowAtlas [[buffer(24)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(25)]],
+    const device MRHybridVisualInstanceStateGPU* visualInstanceStates
+        [[buffer(26)]],
     const uint batchPixel [[thread_position_in_grid]]
 ) {
     const uint pixelsPerEnvironment =
@@ -2640,21 +2773,34 @@ kernel void mr_hybrid_composite_mesh(
     if (pixel >= pixelCount) {
         return;
     }
-    const uint meshDepthBits = atomic_load_explicit(
-        winners + pixel,
-        memory_order_relaxed
-    );
-    const uint triangleIndex = atomic_load_explicit(
-        winners + pixelCount + pixel,
-        memory_order_relaxed
-    );
+    const ulong meshWinner = winners[pixel];
+    const uint meshDepthBits = uint(meshWinner >> 32u);
+    const uint triangleIndex = uint(meshWinner);
     if (triangleIndex == 0xffffffffu ||
         triangleIndex >= uniforms.live.w) {
+        applySensorMeasurementIfRequested(
+            instances,
+            sensors,
+            rgb,
+            depth,
+            validity,
+            uniforms,
+            pixel
+        );
         return;
     }
     const float meshDepth =
         as_type<float>(meshDepthBits);
     if (!(meshDepth < depth[pixel])) {
+        applySensorMeasurementIfRequested(
+            instances,
+            sensors,
+            rgb,
+            depth,
+            validity,
+            uniforms,
+            pixel
+        );
         return;
     }
     const uint environment = pixel / pixelsPerEnvironment;
@@ -2679,29 +2825,30 @@ kernel void mr_hybrid_composite_mesh(
         cameraStatePose(cameraStates, environment, false);
     const BoundPose previousCamera =
         cameraStatePose(cameraStates, environment, true);
-    const BoundPose binding = composeInstancePose(resolvePose(
-        visualInstance.binding.z,
-        visualInstance.binding.y,
-        visualInstance.binding.x,
+    const BoundPose binding = visualInstanceStatePose(
+        visualInstanceStates,
         environment,
-        instance,
-        assets,
-        currentBodies,
+        primitive.geometry.w,
         uniforms,
         false
-    ), visualInstance);
-    const BoundPose previousBinding = composeInstancePose(resolvePose(
-        visualInstance.binding.z,
-        visualInstance.binding.y,
-        visualInstance.binding.x,
+    );
+    const BoundPose previousBinding = visualInstanceStatePose(
+        visualInstanceStates,
         environment,
-        instance,
-        assets,
-        previousBodies,
+        primitive.geometry.w,
         uniforms,
         true
-    ), visualInstance);
+    );
     if (!camera.valid || !binding.valid) {
+        applySensorMeasurementIfRequested(
+            instances,
+            sensors,
+            rgb,
+            depth,
+            validity,
+            uniforms,
+            pixel
+        );
         return;
     }
 
@@ -2737,6 +2884,15 @@ kernel void mr_hybrid_composite_mesh(
             corrected,
             hitDistance
         )) {
+        applySensorMeasurementIfRequested(
+            instances,
+            sensors,
+            rgb,
+            depth,
+            validity,
+            uniforms,
+            pixel
+        );
         return;
     }
     const float3 localPosition =
@@ -2792,6 +2948,15 @@ kernel void mr_hybrid_composite_mesh(
     }
     if (material.flags.x == MR_VISUAL_ALPHA_MASK &&
         base.w < material.coatingAndAlphaCutoff.w) {
+        applySensorMeasurementIfRequested(
+            instances,
+            sensors,
+            rgb,
+            depth,
+            validity,
+            uniforms,
+            pixel
+        );
         return;
     }
     const float3 sampledNormal = sampleVisualTexture(
@@ -2852,6 +3017,15 @@ kernel void mr_hybrid_composite_mesh(
         validity[pixel] =
             MR_VISUAL_VALIDITY_FRAME |
             MR_VISUAL_VALIDITY_GEOMETRY;
+        applySensorMeasurementIfRequested(
+            instances,
+            sensors,
+            rgb,
+            depth,
+            validity,
+            uniforms,
+            pixel
+        );
         return;
     }
 
@@ -3075,6 +3249,15 @@ kernel void mr_hybrid_composite_mesh(
     validity[pixel] =
         MR_VISUAL_VALIDITY_FRAME |
         MR_VISUAL_VALIDITY_GEOMETRY;
+    applySensorMeasurementIfRequested(
+        instances,
+        sensors,
+        rgb,
+        depth,
+        validity,
+        uniforms,
+        pixel
+    );
 }
 
 kernel void mr_hybrid_prepare_ray_instances(
@@ -4408,60 +4591,13 @@ kernel void mr_hybrid_apply_sensor(
     }
     const uint globalPixel =
         globalPixelFromBandIndex(pixel, 0u, uniforms);
-    const uint pixelsPerEnvironment =
-        uniforms.image.x * uniforms.image.y;
-    const uint environment =
-        globalPixel / pixelsPerEnvironment;
-    const MRWorldInstanceHeaderGPU instance =
-        instances[environment];
-    const MRWorldSensorInstanceGPU sensor =
-        sensors[instance.ranges.z + uniforms.render.x];
-    uint valid =
-        validity[globalPixel] & ~MR_VISUAL_VALIDITY_DEPTH;
-    const bool hasGeometry =
-        (valid & MR_VISUAL_VALIDITY_GEOMETRY) != 0u;
-    const bool stochasticDepth =
-        hasGeometry &&
-        (
-            sensor.noiseAndLatency.y > 0.0f ||
-            sensor.noiseAndLatency.z > 0.0f
-        );
-    const bool stochasticColor =
-        sensor.noiseAndLatency.x > 0.0f;
-    const uint seed =
-        stochasticColor || stochasticDepth
-        ? frameSeed(instance, uniforms, globalPixel)
-        : 0u;
-
-    if (stochasticColor) {
-        rgb[globalPixel].xyz = max(
-            rgb[globalPixel].xyz +
-                sensor.noiseAndLatency.x *
-                float3(
-                    unitVarianceNoise(seed ^ 0x243f6a88u),
-                    unitVarianceNoise(seed ^ 0x85a308d3u),
-                    unitVarianceNoise(seed ^ 0x13198a2eu)
-                ),
-            0.0f
-        );
-    }
-
-    if (hasGeometry) {
-        float measuredDepth = depth[globalPixel];
-        if (measureDepth(
-                depth[globalPixel],
-                sensor,
-                seed,
-                uniforms,
-                measuredDepth
-            )) {
-            depth[globalPixel] = measuredDepth;
-            valid |= MR_VISUAL_VALIDITY_DEPTH;
-        } else {
-            depth[globalPixel] = uniforms.clearColorAndDepth.w;
-        }
-    } else {
-        depth[globalPixel] = uniforms.clearColorAndDepth.w;
-    }
-    validity[globalPixel] = valid;
+    applySensorMeasurement(
+        instances,
+        sensors,
+        rgb,
+        depth,
+        validity,
+        uniforms,
+        globalPixel
+    );
 }

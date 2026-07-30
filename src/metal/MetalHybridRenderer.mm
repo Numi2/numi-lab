@@ -32,6 +32,9 @@ namespace metalrobo {
 namespace {
 
 constexpr NSUInteger kMinimumAllocationBytes = 16u;
+constexpr NSUInteger kCameraThreads = 64u;
+constexpr NSUInteger kGeometryThreads = 128u;
+constexpr NSUInteger kPixelThreads = 256u;
 constexpr std::uint32_t kLiveCurrent = 1u << 0u;
 constexpr std::uint32_t kLivePrevious = 1u << 1u;
 const char kMetalHybridRendererImageAnchor = 0;
@@ -54,8 +57,10 @@ struct RendererBuffers {
     __strong id<MTLBuffer> currentBodies = nil;
     __strong id<MTLBuffer> previousBodies = nil;
     __strong id<MTLBuffer> cameraStates = nil;
+    __strong id<MTLBuffer> visualInstanceStates = nil;
     __strong id<MTLBuffer> nearClippedTriangles = nil;
     __strong id<MTLBuffer> nearClippedTriangleCounts = nil;
+    __strong id<MTLBuffer> nearClippedDispatchArguments = nil;
     __strong id<MTLBuffer> projected = nil;
     __strong id<MTLBuffer> tileCounts = nil;
     __strong id<MTLBuffer> tileIndices = nil;
@@ -336,47 +341,25 @@ mr_float4 interpolateQuaternion(
     return result;
 }
 
-MRBodyStateGPU interpolateBodyState(
+void writeInterpolatedBodyPose(
+    MRBodyStateGPU& result,
     const MRBodyStateGPU& a,
     const MRBodyStateGPU& b,
     const float fraction
 ) {
-    MRBodyStateGPU result{};
     result.position = interpolate4(a.position, b.position, fraction);
     result.orientation =
         interpolateQuaternion(a.orientation, b.orientation, fraction);
-    result.linearVelocityAndInverseMass = interpolate4(
-        a.linearVelocityAndInverseMass,
-        b.linearVelocityAndInverseMass,
-        fraction
-    );
-    result.angularVelocity =
-        interpolate4(a.angularVelocity, b.angularVelocity, fraction);
-    result.inverseInertiaWorldRow0 = interpolate4(
-        a.inverseInertiaWorldRow0,
-        b.inverseInertiaWorldRow0,
-        fraction
-    );
-    result.inverseInertiaWorldRow1 = interpolate4(
-        a.inverseInertiaWorldRow1,
-        b.inverseInertiaWorldRow1,
-        fraction
-    );
-    result.inverseInertiaWorldRow2 = interpolate4(
-        a.inverseInertiaWorldRow2,
-        b.inverseInertiaWorldRow2,
-        fraction
-    );
-    std::copy(
-        fraction < 0.5f
-            ? std::begin(a.flagsAndIndices)
-            : std::begin(b.flagsAndIndices),
-        fraction < 0.5f
-            ? std::end(a.flagsAndIndices)
-            : std::end(b.flagsAndIndices),
-        std::begin(result.flagsAndIndices)
-    );
-    return result;
+}
+
+void copyBodyPoses(
+    const std::span<const MRBodyStateGPU> input,
+    const std::span<MRBodyStateGPU> output
+) {
+    for (std::size_t index = 0u; index < input.size(); ++index) {
+        output[index].position = input[index].position;
+        output[index].orientation = input[index].orientation;
+    }
 }
 
 bool sampleMotionStates(
@@ -397,13 +380,13 @@ bool sampleMotionStates(
         timestamp
     );
     if (upper == motion.timestampsSeconds.begin()) {
-        std::ranges::copy(motion.sample(0u), output.begin());
+        copyBodyPoses(motion.sample(0u), output);
         return true;
     }
     if (upper == motion.timestampsSeconds.end()) {
-        std::ranges::copy(
+        copyBodyPoses(
             motion.sample(motion.sampleCount - 1u),
-            output.begin()
+            output
         );
         return true;
     }
@@ -426,7 +409,8 @@ bool sampleMotionStates(
     const auto rightStates =
         motion.sample(static_cast<std::uint32_t>(right));
     for (std::size_t index = 0u; index < perSample; ++index) {
-        output[index] = interpolateBodyState(
+        writeInterpolatedBodyPose(
+            output[index],
             leftStates[index],
             rightStates[index],
             fraction
@@ -804,6 +788,7 @@ struct MetalHybridRendererState {
     __strong id<MTLDevice> device = nil;
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
+    std::string deviceName;
     __strong id<MTLComputePipelineState> clearPipeline = nil;
     __strong id<MTLComputePipelineState> rebaseIndicesPipeline = nil;
     __strong id<MTLComputePipelineState>
@@ -812,11 +797,9 @@ struct MetalHybridRendererState {
     __strong id<MTLComputePipelineState> prepareCameraPipeline = nil;
     __strong id<MTLComputePipelineState> resolveNearClippedPipeline = nil;
     __strong id<MTLComputePipelineState> clearObservationPipeline = nil;
-    __strong id<MTLComputePipelineState> clearMeshPipeline = nil;
     __strong id<MTLComputePipelineState> binPipeline = nil;
     __strong id<MTLComputePipelineState> renderPipeline = nil;
     __strong id<MTLComputePipelineState> rasterMeshPipeline = nil;
-    __strong id<MTLComputePipelineState> selectMeshPipeline = nil;
     __strong id<MTLComputePipelineState> compositeMeshPipeline = nil;
     __strong id<MTLComputePipelineState> clearShadowPipeline = nil;
     __strong id<MTLComputePipelineState> rasterShadowPipeline = nil;
@@ -853,6 +836,7 @@ struct MetalHybridRendererState {
     std::vector<std::shared_ptr<ExposureFrameWorkspace>>
         exposureWorkspaces;
     std::uint32_t assetCount = 0u;
+    std::uint32_t textureBindingCount = 0u;
     std::uint32_t activeEnvironmentCount = 0u;
 };
 
@@ -865,7 +849,7 @@ MetalHybridRendererDiagnostics initialize(
     MetalHybridRendererDiagnostics diagnostics
 ) {
     if (state.initialized) {
-        diagnostics.deviceName = nsString(state.device.name);
+        diagnostics.deviceName = state.deviceName;
         return diagnostics;
     }
     state.device = MTLCreateSystemDefaultDevice();
@@ -934,16 +918,12 @@ MetalHybridRendererDiagnostics initialize(
         pipeline(@"mr_hybrid_resolve_near_clipped_mesh");
     state.clearObservationPipeline =
         pipeline(@"mr_hybrid_clear_observations");
-    state.clearMeshPipeline =
-        pipeline(@"mr_hybrid_clear_mesh_winners");
     state.binPipeline =
         pipeline(@"mr_hybrid_bin_gaussians");
     state.renderPipeline =
         pipeline(@"mr_hybrid_render_tiles");
     state.rasterMeshPipeline =
         pipeline(@"mr_hybrid_rasterize_mesh");
-    state.selectMeshPipeline =
-        pipeline(@"mr_hybrid_select_mesh");
     state.compositeMeshPipeline =
         pipeline(@"mr_hybrid_composite_mesh");
     state.clearShadowPipeline =
@@ -974,11 +954,9 @@ MetalHybridRendererDiagnostics initialize(
         state.prepareCameraPipeline == nil ||
         state.resolveNearClippedPipeline == nil ||
         state.clearObservationPipeline == nil ||
-        state.clearMeshPipeline == nil ||
         state.binPipeline == nil ||
         state.renderPipeline == nil ||
         state.rasterMeshPipeline == nil ||
-        state.selectMeshPipeline == nil ||
         state.compositeMeshPipeline == nil ||
         state.clearShadowPipeline == nil ||
         state.rasterShadowPipeline == nil ||
@@ -1002,8 +980,9 @@ MetalHybridRendererDiagnostics initialize(
             "device cannot dispatch the 16x16 Gaussian tile kernel"
         );
     }
+    state.deviceName = nsString(state.device.name);
     state.initialized = true;
-    diagnostics.deviceName = nsString(state.device.name);
+    diagnostics.deviceName = state.deviceName;
     return diagnostics;
 }
 
@@ -1119,13 +1098,22 @@ bool createNativeGeometryResources(
         MTLResourceHazardTrackingModeUntracked;
     std::array<std::size_t, 7u> lengths{};
     std::array<std::size_t, 7u> offsets{};
+    constexpr std::array<std::size_t, 7u> typedMinimums{
+        sizeof(MRVisualVertexGPUV2),
+        sizeof(std::uint32_t),
+        sizeof(MRVisualTriangleGPUV2),
+        sizeof(MRVisualPrimitiveGPUV2),
+        sizeof(MRVisualInstanceGPUV2),
+        sizeof(MRVisualMaterialGPUV2),
+        sizeof(MRVisualTextureBindingGPUV2),
+    };
     std::size_t heapBytes = 0u;
     for (std::size_t index = 0u;
          index < byteCounts.size();
          ++index) {
         lengths[index] = std::max<std::size_t>(
             byteCounts[index],
-            kMinimumAllocationBytes
+            typedMinimums[index]
         );
         const MTLSizeAndAlign sizeAndAlign =
             [device
@@ -2453,7 +2441,70 @@ struct EncodePassOptions {
     float previousExposureFraction = 0.0f;
     float shutterWindowSeconds = 0.0f;
     bool interpolateMotion = false;
+    bool resourcesResident = false;
+    bool bodyBuffersValidated = false;
 };
+
+struct EncodeWorldResources {
+    MetalWorldFamilyLayout layout{};
+    __strong id<MTLBuffer> instances = nil;
+    __strong id<MTLBuffer> assets = nil;
+    __strong id<MTLBuffer> sensors = nil;
+    __strong id<MTLBuffer> appearances = nil;
+};
+
+bool resolveEncodeWorldResources(
+    const detail::MetalHybridRendererState& state,
+    const MetalWorldFamilyContext& worlds,
+    const std::uint32_t environmentCount,
+    const std::uint32_t cameraIndex,
+    EncodeWorldResources& resources,
+    std::string& reason
+) {
+    resources.layout = worlds.layout();
+    if (environmentCount == 0u ||
+        environmentCount > state.layout.capacity ||
+        environmentCount > resources.layout.activeInstanceCount ||
+        resources.layout.assetCountPerInstance < state.assetCount ||
+        cameraIndex >= resources.layout.sensorCountPerInstance ||
+        (state.layout.sensorBindingCount != 0u &&
+         cameraIndex >= state.layout.sensorBindingCount)) {
+        reason =
+            "sampled world count, assets, sensor bindings, or camera "
+            "are incompatible with the visual scene";
+        return false;
+    }
+    resources.instances =
+        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
+            MetalWorldFamilyBuffer::instanceHeaders
+        );
+    resources.assets =
+        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
+            MetalWorldFamilyBuffer::assetInstances
+        );
+    resources.sensors =
+        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
+            MetalWorldFamilyBuffer::sensorInstances
+        );
+    resources.appearances =
+        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
+            MetalWorldFamilyBuffer::appearanceInstances
+        );
+    if (resources.instances == nil ||
+        resources.assets == nil ||
+        resources.sensors == nil ||
+        resources.appearances == nil ||
+        resources.instances.device != state.device ||
+        resources.assets.device != state.device ||
+        resources.sensors.device != state.device ||
+        resources.appearances.device != state.device) {
+        reason =
+            "world-family Metal buffers are unavailable or on a "
+            "different device";
+        return false;
+    }
+    return true;
+}
 
 MetalHybridRendererDiagnostics encodeLocked(
     detail::MetalHybridRendererState& state,
@@ -2461,11 +2512,12 @@ MetalHybridRendererDiagnostics encodeLocked(
     const HybridDeviceStateBatch& liveState,
     const std::uint32_t cameraIndex,
     id<MTLComputeCommandEncoder> encoder,
-    const EncodePassOptions options = {}
+    const EncodePassOptions options = {},
+    const EncodeWorldResources* resolvedWorld = nullptr
 ) {
     MetalHybridRendererDiagnostics diagnostics;
     diagnostics.layout = state.layout;
-    diagnostics.deviceName = nsString(state.device.name);
+    diagnostics.deviceName = state.deviceName;
     if (!state.compiled) {
         return reject(
             std::move(diagnostics),
@@ -2480,51 +2532,39 @@ MetalHybridRendererDiagnostics encodeLocked(
             "visual sensor encoding requires a Metal compute encoder"
         );
     }
-    const MetalWorldFamilyLayout worldLayout = worlds.layout();
     const std::uint32_t environmentCount =
         liveState.environmentCount;
-    if (environmentCount == 0u ||
-        environmentCount > state.layout.capacity ||
-        environmentCount > worldLayout.activeInstanceCount ||
-        worldLayout.assetCountPerInstance < state.assetCount ||
-        cameraIndex >= worldLayout.sensorCountPerInstance ||
-        (state.layout.sensorBindingCount != 0u &&
-         cameraIndex >= state.layout.sensorBindingCount)) {
-        return reject(
-            std::move(diagnostics),
-            MetalHybridRendererStatus::incompatibleWorldFamily,
-            "sampled world count, assets, sensor bindings, or camera "
-            "are incompatible with the visual scene"
-        );
+    EncodeWorldResources localWorld;
+    if (resolvedWorld == nullptr) {
+        std::string reason;
+        if (!resolveEncodeWorldResources(
+                state,
+                worlds,
+                environmentCount,
+                cameraIndex,
+                localWorld,
+                reason
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::incompatibleWorldFamily,
+                std::move(reason)
+            );
+        }
+        resolvedWorld = &localWorld;
     }
-
-    id<MTLBuffer> instances =
-        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
-            MetalWorldFamilyBuffer::instanceHeaders
-        );
-    id<MTLBuffer> assets =
-        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
-            MetalWorldFamilyBuffer::assetInstances
-        );
-    id<MTLBuffer> sensors =
-        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
-            MetalWorldFamilyBuffer::sensorInstances
-        );
-    id<MTLBuffer> appearances =
-        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
-            MetalWorldFamilyBuffer::appearanceInstances
-        );
-    if (instances == nil || assets == nil || sensors == nil ||
-        appearances == nil ||
-        instances.device != state.device ||
-        assets.device != state.device ||
-        sensors.device != state.device ||
-        appearances.device != state.device) {
+    const MetalWorldFamilyLayout& worldLayout =
+        resolvedWorld->layout;
+    id<MTLBuffer> instances = resolvedWorld->instances;
+    id<MTLBuffer> assets = resolvedWorld->assets;
+    id<MTLBuffer> sensors = resolvedWorld->sensors;
+    id<MTLBuffer> appearances = resolvedWorld->appearances;
+    if (environmentCount == 0u ||
+        environmentCount > worldLayout.activeInstanceCount) {
         return reject(
             std::move(diagnostics),
             MetalHybridRendererStatus::incompatibleWorldFamily,
-            "world-family Metal buffers are unavailable or on a "
-            "different device"
+            "the resolved world batch no longer covers the render"
         );
     }
 
@@ -2576,20 +2616,21 @@ MetalHybridRendererDiagnostics encodeLocked(
             "live visual body-state size overflows"
         );
     }
-    if (currentBodies == nil || previousBodies == nil ||
-        currentBodies.device != state.device ||
-        previousBodies.device != state.device ||
-        ((liveFlags & kLiveCurrent) != 0u &&
-         (options.currentBodyOffset >
-              currentBodies.length ||
-          liveBodyBytes >
-              currentBodies.length -
-                  options.currentBodyOffset ||
-          options.previousBodyOffset >
-              previousBodies.length ||
-          liveBodyBytes >
-              previousBodies.length -
-                  options.previousBodyOffset))) {
+    if (!options.bodyBuffersValidated &&
+        (currentBodies == nil || previousBodies == nil ||
+         currentBodies.device != state.device ||
+         previousBodies.device != state.device ||
+         ((liveFlags & kLiveCurrent) != 0u &&
+          (options.currentBodyOffset >
+               currentBodies.length ||
+           liveBodyBytes >
+               currentBodies.length -
+                   options.currentBodyOffset ||
+           options.previousBodyOffset >
+               previousBodies.length ||
+           liveBodyBytes >
+               previousBodies.length -
+                   options.previousBodyOffset)))) {
         return reject(
             std::move(diagnostics),
             MetalHybridRendererStatus::missingLiveState,
@@ -2654,10 +2695,7 @@ MetalHybridRendererDiagnostics encodeLocked(
         uniforms.sensorRangeAndResponse.w = 0.0f;
     }
     uniforms.presentation = {
-        static_cast<std::uint32_t>(
-            state.buffers.textureBindings.length /
-                sizeof(MRVisualTextureBindingGPUV2)
-        ),
+        state.textureBindingCount,
         state.layout.lightCount,
         static_cast<std::uint32_t>(
             state.rendererProfile.kind
@@ -2716,7 +2754,10 @@ MetalHybridRendererDiagnostics encodeLocked(
         state.layout.rayInstanceCount,
         options.motionKeyframes,
         state.rendererProfile.areaLightSamples,
-        0u,
+        options.renderMeshes &&
+                state.layout.meshTriangleCount != 0u
+            ? state.layout.meshInstanceCount
+            : 0u,
     };
     uniforms.rayTiming = {
         options.shutterWindowSeconds > 0.0f
@@ -2766,8 +2807,16 @@ MetalHybridRendererDiagnostics encodeLocked(
     const NSUInteger triangleCount =
         static_cast<NSUInteger>(environmentCount) *
         state.layout.meshTriangleCount;
+    const bool sensorFusedIntoComposite =
+        options.applySensor &&
+        !options.resolveAccumulation &&
+        options.renderMeshes &&
+        triangleCount != 0u;
 
     encoder.label = @"MetalRobo visual sensor runtime";
+    if (!options.resourcesResident) {
+        [encoder useHeap:state.visualResourceHeap];
+    }
     if (options.clearAccumulation) {
         [encoder
             setComputePipelineState:state.clearAccumulationPipeline];
@@ -2777,12 +2826,7 @@ MetalHybridRendererDiagnostics encodeLocked(
         [encoder setBytes:&uniforms
                    length:sizeof(uniforms)
                   atIndex:1u];
-        const NSUInteger accumulationThreads =
-            std::min<NSUInteger>(
-                state.clearAccumulationPipeline
-                    .maxTotalThreadsPerThreadgroup,
-                256u
-            );
+        constexpr NSUInteger accumulationThreads = kPixelThreads;
         [encoder dispatchThreads:MTLSizeMake(
                                      bandPixelCount,
                                      1u,
@@ -2795,31 +2839,37 @@ MetalHybridRendererDiagnostics encodeLocked(
                                   )];
     }
     [encoder setComputePipelineState:state.prepareCameraPipeline];
-    [encoder setBuffer:instances offset:0u atIndex:0u];
-    [encoder setBuffer:assets offset:0u atIndex:1u];
-    [encoder setBuffer:sensors offset:0u atIndex:2u];
-    [encoder setBuffer:state.buffers.sensorBindings
-                offset:0u
-               atIndex:3u];
-    [encoder setBuffer:currentBodies
-                offset:options.currentBodyOffset
-               atIndex:4u];
-    [encoder setBuffer:previousBodies
-                offset:options.previousBodyOffset
-               atIndex:5u];
-    [encoder setBuffer:state.buffers.cameraStates
-                offset:0u
-               atIndex:6u];
-    [encoder setBuffer:state.buffers.nearClippedTriangleCounts
-                offset:0u
-               atIndex:7u];
+    id<MTLBuffer> __unsafe_unretained prepareBuffers[] = {
+        instances,
+        assets,
+        sensors,
+        state.buffers.sensorBindings,
+        currentBodies,
+        previousBodies,
+        state.buffers.meshInstances,
+        state.buffers.cameraStates,
+        state.buffers.visualInstanceStates,
+        state.buffers.nearClippedTriangleCounts,
+    };
+    const NSUInteger prepareOffsets[] = {
+        0u,
+        0u,
+        0u,
+        0u,
+        options.currentBodyOffset,
+        options.previousBodyOffset,
+        0u,
+        0u,
+        0u,
+        0u,
+    };
+    [encoder setBuffers:prepareBuffers
+                offsets:prepareOffsets
+              withRange:NSMakeRange(0u, std::size(prepareBuffers))];
     [encoder setBytes:&uniforms
                length:sizeof(uniforms)
-              atIndex:8u];
-    const NSUInteger cameraThreads = std::min<NSUInteger>(
-        state.prepareCameraPipeline.maxTotalThreadsPerThreadgroup,
-        64u
-    );
+              atIndex:10u];
+    constexpr NSUInteger cameraThreads = kCameraThreads;
     [encoder dispatchThreads:MTLSizeMake(
                                  environmentCount,
                                  1u,
@@ -2842,10 +2892,7 @@ MetalHybridRendererDiagnostics encodeLocked(
         [encoder setBytes:&uniforms
                    length:sizeof(uniforms)
                   atIndex:2u];
-        const NSUInteger clearThreads = std::min<NSUInteger>(
-            state.clearPipeline.maxTotalThreadsPerThreadgroup,
-            256u
-        );
+        constexpr NSUInteger clearThreads = kPixelThreads;
         [encoder dispatchThreads:MTLSizeMake(
                                      std::max<NSUInteger>(
                                          bandTileCount,
@@ -2862,49 +2909,46 @@ MetalHybridRendererDiagnostics encodeLocked(
     } else {
         [encoder
             setComputePipelineState:state.clearObservationPipeline];
-        [encoder setBuffer:instances offset:0u atIndex:0u];
-        [encoder setBuffer:sensors offset:0u atIndex:1u];
-        [encoder setBuffer:appearances offset:0u atIndex:2u];
-        [encoder setBuffer:state.buffers.cameraStates
-                    offset:0u
-                   atIndex:3u];
-        [encoder setBuffer:state.buffers.resourceArgumentBuffer
-                    offset:0u
-                   atIndex:4u];
-        [encoder setBuffer:state.buffers.environmentData
-                    offset:0u
-                   atIndex:5u];
-        [encoder setBuffer:state.buffers.rgb
-                    offset:0u
-                   atIndex:6u];
-        [encoder setBuffer:state.buffers.depth
-                    offset:0u
-                   atIndex:7u];
-        [encoder setBuffer:state.buffers.segmentation
-                    offset:0u
-                   atIndex:8u];
-        [encoder setBuffer:state.buffers.identities
-                    offset:0u
-                   atIndex:9u];
-        [encoder setBuffer:state.buffers.normals
-                    offset:0u
-                   atIndex:10u];
-        [encoder setBuffer:state.buffers.motion
-                    offset:0u
-                   atIndex:11u];
-        [encoder setBuffer:state.buffers.validity
-                    offset:0u
-                   atIndex:12u];
+        id<MTLBuffer> __unsafe_unretained observationBuffers[] = {
+            instances,
+            sensors,
+            appearances,
+            state.buffers.cameraStates,
+            state.buffers.resourceArgumentBuffer,
+            state.buffers.environmentData,
+            state.buffers.rgb,
+            state.buffers.depth,
+            state.buffers.segmentation,
+            state.buffers.identities,
+            state.buffers.normals,
+            state.buffers.motion,
+            state.buffers.validity,
+        };
+        const NSUInteger observationOffsets[
+            std::size(observationBuffers)
+        ] = {};
+        [encoder setBuffers:observationBuffers
+                    offsets:observationOffsets
+                  withRange:NSMakeRange(
+                      0u,
+                      std::size(observationBuffers)
+                  )];
         [encoder setBytes:&uniforms
                    length:sizeof(uniforms)
                   atIndex:13u];
-        [encoder useHeap:state.visualResourceHeap];
-        const NSUInteger clearObservationThreads =
-            std::min<NSUInteger>(
-                state.clearObservationPipeline
-                    .maxTotalThreadsPerThreadgroup,
-                256u
-            );
+        id<MTLBuffer> __unsafe_unretained observationAuxiliary[] = {
+            state.buffers.meshWinners,
+            state.buffers.nearClippedDispatchArguments,
+        };
+        const NSUInteger observationAuxiliaryOffsets[] = {0u, 0u};
+        [encoder setBuffers:observationAuxiliary
+                    offsets:observationAuxiliaryOffsets
+                  withRange:NSMakeRange(
+                      14u,
+                      std::size(observationAuxiliary)
+                  )];
+        constexpr NSUInteger clearObservationThreads =
+            kPixelThreads;
         [encoder dispatchThreads:MTLSizeMake(
                                      bandPixelCount,
                                      1u,
@@ -2917,66 +2961,41 @@ MetalHybridRendererDiagnostics encodeLocked(
                                   )];
     }
 
-    if (options.renderMeshes && triangleCount != 0u) {
-        [encoder setComputePipelineState:state.clearMeshPipeline];
-        [encoder setBuffer:state.buffers.meshWinners
-                    offset:0u
-                   atIndex:0u];
-        [encoder setBytes:&uniforms
-                   length:sizeof(uniforms)
-                  atIndex:1u];
-        const NSUInteger clearMeshThreads = std::min<NSUInteger>(
-            state.clearMeshPipeline.maxTotalThreadsPerThreadgroup,
-            256u
-        );
-        [encoder dispatchThreads:MTLSizeMake(
-                                     bandPixelCount,
-                                     1u,
-                                     1u
-                                 )
-            threadsPerThreadgroup:MTLSizeMake(
-                                      clearMeshThreads,
-                                      1u,
-                                      1u
-                                  )];
-    }
-
     if (projectedCount != 0u) {
         [encoder setComputePipelineState:state.binPipeline];
-        [encoder setBuffer:state.buffers.gaussians
-                    offset:0u
-                   atIndex:0u];
-        [encoder setBuffer:instances offset:0u atIndex:1u];
-        [encoder setBuffer:assets offset:0u atIndex:2u];
-        [encoder setBuffer:sensors offset:0u atIndex:3u];
-        [encoder setBuffer:state.buffers.cameraStates
-                    offset:0u
-                   atIndex:4u];
-        [encoder setBuffer:currentBodies
-                    offset:options.currentBodyOffset
-                   atIndex:5u];
-        [encoder setBuffer:previousBodies
-                    offset:options.previousBodyOffset
-                   atIndex:6u];
-        [encoder setBuffer:state.buffers.projected
-                    offset:0u
-                   atIndex:7u];
-        [encoder setBuffer:state.buffers.tileCounts
-                    offset:0u
-                   atIndex:8u];
-        [encoder setBuffer:state.buffers.tileIndices
-                    offset:0u
-                   atIndex:9u];
-        [encoder setBuffer:state.buffers.tileOverflowCounts
-                    offset:0u
-                   atIndex:10u];
+        id<MTLBuffer> __unsafe_unretained binBuffers[] = {
+            state.buffers.gaussians,
+            instances,
+            assets,
+            sensors,
+            state.buffers.cameraStates,
+            currentBodies,
+            previousBodies,
+            state.buffers.projected,
+            state.buffers.tileCounts,
+            state.buffers.tileIndices,
+            state.buffers.tileOverflowCounts,
+        };
+        const NSUInteger binOffsets[] = {
+            0u,
+            0u,
+            0u,
+            0u,
+            0u,
+            options.currentBodyOffset,
+            options.previousBodyOffset,
+            0u,
+            0u,
+            0u,
+            0u,
+        };
+        [encoder setBuffers:binBuffers
+                    offsets:binOffsets
+                  withRange:NSMakeRange(0u, std::size(binBuffers))];
         [encoder setBytes:&uniforms
                    length:sizeof(uniforms)
                   atIndex:11u];
-        const NSUInteger binThreads = std::min<NSUInteger>(
-            state.binPipeline.maxTotalThreadsPerThreadgroup,
-            256u
-        );
+        constexpr NSUInteger binThreads = kPixelThreads;
         [encoder dispatchThreads:MTLSizeMake(
                                      projectedCount,
                                      1u,
@@ -2991,52 +3010,44 @@ MetalHybridRendererDiagnostics encodeLocked(
 
     if (projectedCount != 0u) {
         [encoder setComputePipelineState:state.renderPipeline];
-        [encoder setBuffer:state.buffers.projected
-                    offset:0u
-                   atIndex:0u];
-        [encoder setBuffer:state.buffers.tileCounts
-                    offset:0u
-                   atIndex:1u];
-        [encoder setBuffer:state.buffers.tileIndices
-                    offset:0u
-                   atIndex:2u];
-        [encoder setBuffer:instances offset:0u atIndex:3u];
-        [encoder setBuffer:sensors offset:0u atIndex:4u];
-        [encoder setBuffer:appearances offset:0u atIndex:5u];
-        [encoder setBuffer:state.buffers.cameraStates
-                    offset:0u
-                   atIndex:6u];
-        [encoder setBuffer:state.buffers.resourceArgumentBuffer
-                    offset:0u
-                   atIndex:7u];
-        [encoder setBuffer:state.buffers.environmentData
-                    offset:0u
-                   atIndex:8u];
-        [encoder setBuffer:state.buffers.rgb
-                    offset:0u
-                   atIndex:9u];
-        [encoder setBuffer:state.buffers.depth
-                    offset:0u
-                   atIndex:10u];
-        [encoder setBuffer:state.buffers.segmentation
-                    offset:0u
-                   atIndex:11u];
-        [encoder setBuffer:state.buffers.identities
-                    offset:0u
-                   atIndex:12u];
-        [encoder setBuffer:state.buffers.normals
-                    offset:0u
-                   atIndex:13u];
-        [encoder setBuffer:state.buffers.motion
-                    offset:0u
-                   atIndex:14u];
-        [encoder setBuffer:state.buffers.validity
-                    offset:0u
-                   atIndex:15u];
+        id<MTLBuffer> __unsafe_unretained renderBuffers[] = {
+            state.buffers.projected,
+            state.buffers.tileCounts,
+            state.buffers.tileIndices,
+            instances,
+            sensors,
+            appearances,
+            state.buffers.cameraStates,
+            state.buffers.resourceArgumentBuffer,
+            state.buffers.environmentData,
+            state.buffers.rgb,
+            state.buffers.depth,
+            state.buffers.segmentation,
+            state.buffers.identities,
+            state.buffers.normals,
+            state.buffers.motion,
+            state.buffers.validity,
+        };
+        const NSUInteger renderOffsets[
+            std::size(renderBuffers)
+        ] = {};
+        [encoder setBuffers:renderBuffers
+                    offsets:renderOffsets
+                  withRange:NSMakeRange(0u, std::size(renderBuffers))];
         [encoder setBytes:&uniforms
                    length:sizeof(uniforms)
                   atIndex:16u];
-        [encoder useHeap:state.visualResourceHeap];
+        id<MTLBuffer> __unsafe_unretained renderAuxiliary[] = {
+            state.buffers.meshWinners,
+            state.buffers.nearClippedDispatchArguments,
+        };
+        const NSUInteger renderAuxiliaryOffsets[] = {0u, 0u};
+        [encoder setBuffers:renderAuxiliary
+                    offsets:renderAuxiliaryOffsets
+                  withRange:NSMakeRange(
+                      17u,
+                      std::size(renderAuxiliary)
+                  )];
         [encoder
              dispatchThreadgroups:MTLSizeMake(
                                       bandTileCount,
@@ -3052,44 +3063,34 @@ MetalHybridRendererDiagnostics encodeLocked(
 
     if (options.renderMeshes && triangleCount != 0u) {
         [encoder setComputePipelineState:state.rasterMeshPipeline];
-        [encoder setBuffer:state.buffers.meshVertices
-                    offset:0u
-                   atIndex:0u];
-        [encoder setBuffer:state.buffers.meshTriangles
-                    offset:0u
-                   atIndex:1u];
-        [encoder setBuffer:state.buffers.meshPrimitives
-                    offset:0u
-                   atIndex:2u];
-        [encoder setBuffer:state.buffers.meshInstances
-                    offset:0u
-                   atIndex:3u];
-        [encoder setBuffer:instances offset:0u atIndex:4u];
-        [encoder setBuffer:assets offset:0u atIndex:5u];
-        [encoder setBuffer:sensors offset:0u atIndex:6u];
-        [encoder setBuffer:state.buffers.cameraStates
-                    offset:0u
-                   atIndex:7u];
-        [encoder setBuffer:currentBodies
-                    offset:options.currentBodyOffset
-                   atIndex:8u];
-        [encoder setBuffer:state.buffers.meshWinners
-                    offset:0u
-                   atIndex:9u];
-        [encoder setBuffer:state.buffers.nearClippedTriangles
-                    offset:0u
-                   atIndex:10u];
-        [encoder setBuffer:state.buffers.nearClippedTriangleCounts
-                    offset:0u
-                   atIndex:11u];
+        id<MTLBuffer> __unsafe_unretained rasterBuffers[] = {
+            state.buffers.meshVertices,
+            state.buffers.meshTriangles,
+            state.buffers.meshPrimitives,
+            state.buffers.meshInstances,
+            instances,
+            nil,
+            sensors,
+            state.buffers.cameraStates,
+            nil,
+            state.buffers.meshWinners,
+            state.buffers.nearClippedTriangles,
+            state.buffers.nearClippedTriangleCounts,
+            state.buffers.nearClippedDispatchArguments,
+        };
+        const NSUInteger rasterOffsets[
+            std::size(rasterBuffers)
+        ] = {};
+        [encoder setBuffers:rasterBuffers
+                    offsets:rasterOffsets
+                  withRange:NSMakeRange(0u, std::size(rasterBuffers))];
         [encoder setBytes:&uniforms
                    length:sizeof(uniforms)
-                  atIndex:12u];
-        const NSUInteger rasterThreads = std::min<NSUInteger>(
-            state.rasterMeshPipeline
-                .maxTotalThreadsPerThreadgroup,
-            128u
-        );
+                  atIndex:13u];
+        [encoder setBuffer:state.buffers.visualInstanceStates
+                    offset:0u
+                   atIndex:14u];
+        constexpr NSUInteger rasterThreads = kGeometryThreads;
         [encoder dispatchThreads:MTLSizeMake(
                                      triangleCount,
                                      1u,
@@ -3101,58 +3102,34 @@ MetalHybridRendererDiagnostics encodeLocked(
                                       1u
                                   )];
 
-        [encoder setComputePipelineState:state.selectMeshPipeline];
-        const NSUInteger selectThreads = std::min<NSUInteger>(
-            state.selectMeshPipeline
-                .maxTotalThreadsPerThreadgroup,
-            128u
-        );
-        [encoder dispatchThreads:MTLSizeMake(
-                                     triangleCount,
-                                     1u,
-                                     1u
-                                 )
-            threadsPerThreadgroup:MTLSizeMake(
-                                      selectThreads,
-                                      1u,
-                                      1u
-                                  )];
-
         [encoder
             setComputePipelineState:state.resolveNearClippedPipeline];
-        [encoder setBuffer:state.buffers.nearClippedTriangles
-                    offset:0u
-                   atIndex:0u];
-        [encoder setBuffer:state.buffers.nearClippedTriangleCounts
-                    offset:0u
-                   atIndex:1u];
-        [encoder setBuffer:instances offset:0u atIndex:2u];
-        [encoder setBuffer:sensors offset:0u atIndex:3u];
-        [encoder setBuffer:state.buffers.cameraStates
-                    offset:0u
-                   atIndex:4u];
-        [encoder setBuffer:state.buffers.meshWinners
-                    offset:0u
-                   atIndex:5u];
+        id<MTLBuffer> __unsafe_unretained clippedBuffers[] = {
+            state.buffers.nearClippedTriangles,
+            state.buffers.nearClippedTriangleCounts,
+            instances,
+            sensors,
+            state.buffers.cameraStates,
+            state.buffers.meshWinners,
+        };
+        const NSUInteger clippedOffsets[
+            std::size(clippedBuffers)
+        ] = {};
+        [encoder setBuffers:clippedBuffers
+                    offsets:clippedOffsets
+                  withRange:NSMakeRange(0u, std::size(clippedBuffers))];
         [encoder setBytes:&uniforms
                    length:sizeof(uniforms)
                   atIndex:6u];
-        const NSUInteger resolveClippedThreads =
-            std::min<NSUInteger>(
-                state.resolveNearClippedPipeline
-                    .maxTotalThreadsPerThreadgroup,
-                256u
-            );
-        [encoder dispatchThreads:MTLSizeMake(
-                                     bandPixelCount,
-                                     1u,
-                                     1u
-                                 )
+        [encoder
+            dispatchThreadgroupsWithIndirectBuffer:
+                state.buffers.nearClippedDispatchArguments
+            indirectBufferOffset:0u
             threadsPerThreadgroup:MTLSizeMake(
-                                      resolveClippedThreads,
-                                      1u,
-                                      1u
-                                  )];
+                MR_HYBRID_NEAR_CLIPPED_RESOLVE_THREADS,
+                1u,
+                1u
+            )];
 
         const bool shadowResourcesAvailable =
             !options.truthOnly &&
@@ -3169,24 +3146,9 @@ MetalHybridRendererDiagnostics encodeLocked(
                 environmentCount >
                     state.layout.shadowLayerCapacity
             );
-        const NSUInteger clearShadowThreads =
-            std::min<NSUInteger>(
-                state.clearShadowPipeline
-                    .maxTotalThreadsPerThreadgroup,
-                256u
-            );
-        const NSUInteger shadowThreads =
-            std::min<NSUInteger>(
-                state.rasterShadowPipeline
-                    .maxTotalThreadsPerThreadgroup,
-                128u
-            );
-        const NSUInteger compositeThreads =
-            std::min<NSUInteger>(
-                state.compositeMeshPipeline
-                    .maxTotalThreadsPerThreadgroup,
-                256u
-            );
+        constexpr NSUInteger clearShadowThreads = kPixelThreads;
+        constexpr NSUInteger shadowThreads = kGeometryThreads;
+        constexpr NSUInteger compositeThreads = kPixelThreads;
         for (std::uint32_t environmentStart = 0u;
              environmentStart < environmentCount;
              environmentStart += batchCapacity) {
@@ -3198,7 +3160,7 @@ MetalHybridRendererDiagnostics encodeLocked(
                 environmentStart,
                 batchCount,
                 state.layout.shadowLayerCapacity,
-                0u,
+                sensorFusedIntoComposite ? 1u : 0u,
             };
             if (updateShadowAtlas) {
                 const NSUInteger shadowPixelCount =
@@ -3225,32 +3187,32 @@ MetalHybridRendererDiagnostics encodeLocked(
 
                 [encoder
                     setComputePipelineState:state.rasterShadowPipeline];
-                [encoder setBuffer:state.buffers.meshVertices
-                            offset:0u
-                           atIndex:0u];
-                [encoder setBuffer:state.buffers.meshTriangles
-                            offset:0u
-                           atIndex:1u];
-                [encoder setBuffer:state.buffers.meshPrimitives
-                            offset:0u
-                           atIndex:2u];
-                [encoder setBuffer:state.buffers.meshInstances
-                            offset:0u
-                           atIndex:3u];
-                [encoder setBuffer:instances offset:0u atIndex:4u];
-                [encoder setBuffer:assets offset:0u atIndex:5u];
-                [encoder setBuffer:currentBodies
-                            offset:options.currentBodyOffset
-                           atIndex:6u];
-                [encoder setBuffer:state.buffers.lights
-                            offset:0u
-                           atIndex:7u];
-                [encoder setBuffer:state.buffers.shadowAtlas
-                            offset:0u
-                           atIndex:8u];
+                id<MTLBuffer> __unsafe_unretained shadowBuffers[] = {
+                    state.buffers.meshVertices,
+                    state.buffers.meshTriangles,
+                    state.buffers.meshPrimitives,
+                    state.buffers.meshInstances,
+                    nil,
+                    nil,
+                    nil,
+                    state.buffers.lights,
+                    state.buffers.shadowAtlas,
+                };
+                const NSUInteger shadowOffsets[
+                    std::size(shadowBuffers)
+                ] = {};
+                [encoder setBuffers:shadowBuffers
+                            offsets:shadowOffsets
+                          withRange:NSMakeRange(
+                              0u,
+                              std::size(shadowBuffers)
+                          )];
                 [encoder setBytes:&uniforms
                            length:sizeof(uniforms)
                           atIndex:9u];
+                [encoder setBuffer:state.buffers.visualInstanceStates
+                            offset:0u
+                           atIndex:10u];
                 const NSUInteger batchTriangleCount =
                     static_cast<NSUInteger>(batchCount) *
                     state.layout.meshTriangleCount;
@@ -3268,77 +3230,48 @@ MetalHybridRendererDiagnostics encodeLocked(
 
             [encoder
                 setComputePipelineState:state.compositeMeshPipeline];
-            [encoder setBuffer:state.buffers.meshVertices
-                        offset:0u
-                       atIndex:0u];
-            [encoder setBuffer:state.buffers.meshTriangles
-                        offset:0u
-                       atIndex:1u];
-            [encoder setBuffer:state.buffers.meshPrimitives
-                        offset:0u
-                       atIndex:2u];
-            [encoder setBuffer:state.buffers.meshInstances
-                        offset:0u
-                       atIndex:3u];
-            [encoder setBuffer:state.buffers.materials
-                        offset:0u
-                       atIndex:4u];
-            [encoder setBuffer:instances offset:0u atIndex:5u];
-            [encoder setBuffer:assets offset:0u atIndex:6u];
-            [encoder setBuffer:sensors offset:0u atIndex:7u];
-            [encoder setBuffer:appearances offset:0u atIndex:8u];
-            [encoder setBuffer:state.buffers.cameraStates
-                        offset:0u
-                       atIndex:9u];
-            [encoder setBuffer:currentBodies
-                        offset:options.currentBodyOffset
-                       atIndex:10u];
-            [encoder setBuffer:previousBodies
-                        offset:options.previousBodyOffset
-                       atIndex:11u];
-            [encoder setBuffer:state.buffers.meshWinners
-                        offset:0u
-                       atIndex:12u];
-            [encoder setBuffer:state.buffers.rgb
-                        offset:0u
-                       atIndex:13u];
-            [encoder setBuffer:state.buffers.depth
-                        offset:0u
-                       atIndex:14u];
-            [encoder setBuffer:state.buffers.segmentation
-                        offset:0u
-                       atIndex:15u];
-            [encoder setBuffer:state.buffers.identities
-                        offset:0u
-                       atIndex:16u];
-            [encoder setBuffer:state.buffers.normals
-                        offset:0u
-                       atIndex:17u];
-            [encoder setBuffer:state.buffers.motion
-                        offset:0u
-                       atIndex:18u];
-            [encoder setBuffer:state.buffers.validity
-                        offset:0u
-                       atIndex:19u];
-            [encoder setBuffer:state.buffers.textureBindings
-                        offset:0u
-                       atIndex:20u];
-            [encoder setBuffer:state.buffers.resourceArgumentBuffer
-                        offset:0u
-                       atIndex:21u];
-            [encoder setBuffer:state.buffers.lights
-                        offset:0u
-                       atIndex:22u];
-            [encoder setBuffer:state.buffers.environmentData
-                        offset:0u
-                       atIndex:23u];
-            [encoder setBuffer:state.buffers.shadowAtlas
-                        offset:0u
-                       atIndex:24u];
+            id<MTLBuffer> __unsafe_unretained compositeBuffers[] = {
+                state.buffers.meshVertices,
+                state.buffers.meshTriangles,
+                state.buffers.meshPrimitives,
+                state.buffers.meshInstances,
+                state.buffers.materials,
+                instances,
+                nil,
+                sensors,
+                appearances,
+                state.buffers.cameraStates,
+                nil,
+                nil,
+                state.buffers.meshWinners,
+                state.buffers.rgb,
+                state.buffers.depth,
+                state.buffers.segmentation,
+                state.buffers.identities,
+                state.buffers.normals,
+                state.buffers.motion,
+                state.buffers.validity,
+                state.buffers.textureBindings,
+                state.buffers.resourceArgumentBuffer,
+                state.buffers.lights,
+                state.buffers.environmentData,
+                state.buffers.shadowAtlas,
+            };
+            const NSUInteger compositeOffsets[
+                std::size(compositeBuffers)
+            ] = {};
+            [encoder setBuffers:compositeBuffers
+                        offsets:compositeOffsets
+                      withRange:NSMakeRange(
+                          0u,
+                          std::size(compositeBuffers)
+                      )];
             [encoder setBytes:&uniforms
                        length:sizeof(uniforms)
                       atIndex:25u];
-            [encoder useHeap:state.visualResourceHeap];
+            [encoder setBuffer:state.buffers.visualInstanceStates
+                        offset:0u
+                       atIndex:26u];
             [encoder dispatchThreads:MTLSizeMake(
                                          static_cast<NSUInteger>(
                                              batchCount
@@ -3356,21 +3289,21 @@ MetalHybridRendererDiagnostics encodeLocked(
 
     if (options.accumulateRadiance) {
         [encoder setComputePipelineState:state.accumulatePipeline];
-        [encoder setBuffer:state.buffers.rgb
-                    offset:0u
-                   atIndex:0u];
-        [encoder setBuffer:state.buffers.temporalAccumulation
-                    offset:0u
-                   atIndex:1u];
+        id<MTLBuffer> __unsafe_unretained accumulationBuffers[] = {
+            state.buffers.rgb,
+            state.buffers.temporalAccumulation,
+        };
+        const NSUInteger accumulationOffsets[] = {0u, 0u};
+        [encoder setBuffers:accumulationBuffers
+                    offsets:accumulationOffsets
+                  withRange:NSMakeRange(
+                      0u,
+                      std::size(accumulationBuffers)
+                  )];
         [encoder setBytes:&uniforms
                    length:sizeof(uniforms)
                   atIndex:2u];
-        const NSUInteger accumulateThreads =
-            std::min<NSUInteger>(
-                state.accumulatePipeline
-                    .maxTotalThreadsPerThreadgroup,
-                256u
-            );
+        constexpr NSUInteger accumulateThreads = kPixelThreads;
         [encoder dispatchThreads:MTLSizeMake(
                                      bandPixelCount,
                                      1u,
@@ -3385,21 +3318,24 @@ MetalHybridRendererDiagnostics encodeLocked(
     if (options.resolveAccumulation) {
         [encoder
             setComputePipelineState:state.resolveAccumulationPipeline];
-        [encoder setBuffer:state.buffers.temporalAccumulation
-                    offset:0u
-                   atIndex:0u];
-        [encoder setBuffer:state.buffers.rgb
-                    offset:0u
-                   atIndex:1u];
+        id<MTLBuffer> __unsafe_unretained resolveBuffers[] = {
+            state.buffers.temporalAccumulation,
+            instances,
+            sensors,
+            state.buffers.rgb,
+            state.buffers.depth,
+            state.buffers.validity,
+        };
+        const NSUInteger resolveOffsets[
+            std::size(resolveBuffers)
+        ] = {};
+        [encoder setBuffers:resolveBuffers
+                    offsets:resolveOffsets
+                  withRange:NSMakeRange(0u, std::size(resolveBuffers))];
         [encoder setBytes:&uniforms
                    length:sizeof(uniforms)
-                  atIndex:2u];
-        const NSUInteger resolveThreads =
-            std::min<NSUInteger>(
-                state.resolveAccumulationPipeline
-                    .maxTotalThreadsPerThreadgroup,
-                256u
-            );
+                  atIndex:6u];
+        constexpr NSUInteger resolveThreads = kPixelThreads;
         [encoder dispatchThreads:MTLSizeMake(
                                      bandPixelCount,
                                      1u,
@@ -3411,26 +3347,27 @@ MetalHybridRendererDiagnostics encodeLocked(
                                       1u
                                   )];
     }
-    if (options.applySensor) {
+    if (options.applySensor &&
+        !options.resolveAccumulation &&
+        !sensorFusedIntoComposite) {
         [encoder setComputePipelineState:state.applySensorPipeline];
-        [encoder setBuffer:instances offset:0u atIndex:0u];
-        [encoder setBuffer:sensors offset:0u atIndex:1u];
-        [encoder setBuffer:state.buffers.rgb
-                    offset:0u
-                   atIndex:2u];
-        [encoder setBuffer:state.buffers.depth
-                    offset:0u
-                   atIndex:3u];
-        [encoder setBuffer:state.buffers.validity
-                    offset:0u
-                   atIndex:4u];
+        id<MTLBuffer> __unsafe_unretained sensorBuffers[] = {
+            instances,
+            sensors,
+            state.buffers.rgb,
+            state.buffers.depth,
+            state.buffers.validity,
+        };
+        const NSUInteger sensorOffsets[
+            std::size(sensorBuffers)
+        ] = {};
+        [encoder setBuffers:sensorBuffers
+                    offsets:sensorOffsets
+                  withRange:NSMakeRange(0u, std::size(sensorBuffers))];
         [encoder setBytes:&uniforms
                    length:sizeof(uniforms)
                   atIndex:5u];
-        const NSUInteger sensorThreads = std::min<NSUInteger>(
-            state.applySensorPipeline.maxTotalThreadsPerThreadgroup,
-            256u
-        );
+        constexpr NSUInteger sensorThreads = kPixelThreads;
         [encoder dispatchThreads:MTLSizeMake(
                                      bandPixelCount,
                                      1u,
@@ -3484,8 +3421,7 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
 ) {
     MetalHybridRendererDiagnostics diagnostics;
     diagnostics.layout = state.layout;
-    diagnostics.deviceName = nsString(state.device.name);
-    const MetalWorldFamilyLayout worldLayout = worlds.layout();
+    diagnostics.deviceName = state.deviceName;
     if (!state.compiled ||
         !state.rendererProfile.rayQueryVisibility ||
         state.primitiveAccelerationStructures == nil ||
@@ -3497,51 +3433,26 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
             "sensor_reference was not compiled for ray-query rendering"
         );
     }
-    if (motion.environmentCount == 0u ||
-        motion.environmentCount > state.layout.capacity ||
-        motion.environmentCount >
-            worldLayout.activeInstanceCount ||
-        worldLayout.assetCountPerInstance < state.assetCount ||
-        cameraIndex >= worldLayout.sensorCountPerInstance ||
-        (state.layout.sensorBindingCount != 0u &&
-         cameraIndex >= state.layout.sensorBindingCount)) {
+    EncodeWorldResources worldResources;
+    std::string worldReason;
+    if (!resolveEncodeWorldResources(
+            state,
+            worlds,
+            motion.environmentCount,
+            cameraIndex,
+            worldResources,
+            worldReason
+        )) {
         return reject(
             std::move(diagnostics),
             MetalHybridRendererStatus::incompatibleWorldFamily,
-            "motion samples, assets, or camera are incompatible "
-            "with the reference visual scene"
+            std::move(worldReason)
         );
     }
-
-    id<MTLBuffer> instances =
-        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
-            MetalWorldFamilyBuffer::instanceHeaders
-        );
-    id<MTLBuffer> assets =
-        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
-            MetalWorldFamilyBuffer::assetInstances
-        );
-    id<MTLBuffer> sensors =
-        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
-            MetalWorldFamilyBuffer::sensorInstances
-        );
-    id<MTLBuffer> appearances =
-        (__bridge id<MTLBuffer>)worlds.nativeBuffer(
-            MetalWorldFamilyBuffer::appearanceInstances
-        );
-    if (instances == nil || assets == nil ||
-        sensors == nil || appearances == nil ||
-        instances.device != state.device ||
-        assets.device != state.device ||
-        sensors.device != state.device ||
-        appearances.device != state.device) {
-        return reject(
-            std::move(diagnostics),
-            MetalHybridRendererStatus::incompatibleWorldFamily,
-            "reference world-family buffers are unavailable or on "
-            "another Metal device"
-        );
-    }
+    id<MTLBuffer> instances = worldResources.instances;
+    id<MTLBuffer> assets = worldResources.assets;
+    id<MTLBuffer> sensors = worldResources.sensors;
+    id<MTLBuffer> appearances = worldResources.appearances;
 
     const std::uint32_t keyframeCount =
         state.rendererProfile.temporalSamples;
@@ -3698,6 +3609,7 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
     baseOptions.physicalExposure = true;
     baseOptions.applySensor = false;
     baseOptions.renderMeshes = false;
+    baseOptions.bodyBuffersValidated = true;
     baseOptions.encodedUniforms = &uniforms;
     diagnostics = encodeLocked(
         state,
@@ -3705,7 +3617,8 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
         live,
         cameraIndex,
         baseEncoder,
-        baseOptions
+        baseOptions,
+        &worldResources
     );
     [baseEncoder endEncoding];
     if (!diagnostics.succeeded()) {
@@ -4240,6 +4153,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         std::size_t projectedCount = 0u;
         std::size_t tileIndexCount = 0u;
         std::size_t bodyStateCount = 0u;
+        std::size_t visualInstanceStateCount = 0u;
         std::size_t nearClippedTriangleCount = 0u;
         if (!checkedMultiply(
                 layout.width,
@@ -4270,6 +4184,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             ) ||
             !checkedMultiply(
                 capacity,
+                layout.meshInstanceCount,
+                visualInstanceStateCount
+            ) ||
+            !checkedMultiply(
+                capacity,
                 nearClippedTriangleCapacity,
                 nearClippedTriangleCount
             )) {
@@ -4295,8 +4214,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         std::size_t sensorBindingBytes = 0u;
         std::size_t bodyStateBytes = 0u;
         std::size_t cameraStateBytes = 0u;
+        std::size_t visualInstanceStateBytes = 0u;
         std::size_t nearClippedTriangleBytes = 0u;
         std::size_t nearClippedCountBytes = 0u;
+        const std::size_t nearClippedDispatchBytes =
+            sizeof(MTLDispatchThreadgroupsIndirectArguments);
         std::size_t projectedBytes = 0u;
         std::size_t tileCountBytes = 0u;
         std::size_t tileIndexBytes = 0u;
@@ -4411,6 +4333,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 capacity,
                 cameraStateBytes
             ) ||
+            !checkedBytes<MRHybridVisualInstanceStateGPU>(
+                visualInstanceStateCount,
+                visualInstanceStateBytes
+            ) ||
             !checkedBytes<MRHybridNearClippedTriangleGPU>(
                 nearClippedTriangleCount,
                 nearClippedTriangleBytes
@@ -4498,8 +4424,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                  sensorBindingBytes,
                  2u * bodyStateBytes,
                  cameraStateBytes,
+                 visualInstanceStateBytes,
                  nearClippedTriangleBytes,
                  nearClippedCountBytes,
+                 nearClippedDispatchBytes,
                  projectedBytes,
                  tileCountBytes,
                  tileIndexBytes,
@@ -4576,7 +4504,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         }
         buffers.lights = makePrivateBuffer(
             state_->device,
-            lightBytes,
+            std::max<std::size_t>(
+                lightBytes,
+                sizeof(MRVisualLightGPUV1)
+            ),
             @"MetalRobo visual light rig"
         );
         buffers.environmentData = makePrivateBuffer(
@@ -4596,23 +4527,40 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         );
         buffers.sensorBindings = makePrivateBuffer(
             state_->device,
-            sensorBindingBytes,
+            std::max<std::size_t>(
+                sensorBindingBytes,
+                sizeof(MRVisualSensorBindingGPU)
+            ),
             @"MetalRobo visual sensor bindings"
         );
         buffers.currentBodies = makeSharedBuffer(
             state_->device,
-            bodyStateBytes,
+            std::max<std::size_t>(
+                bodyStateBytes,
+                sizeof(MRBodyStateGPU)
+            ),
             @"MetalRobo visual current bodies"
         );
         buffers.previousBodies = makeSharedBuffer(
             state_->device,
-            bodyStateBytes,
+            std::max<std::size_t>(
+                bodyStateBytes,
+                sizeof(MRBodyStateGPU)
+            ),
             @"MetalRobo visual previous bodies"
         );
         buffers.cameraStates = makePrivateBuffer(
             state_->device,
             cameraStateBytes,
             @"MetalRobo visual camera states"
+        );
+        buffers.visualInstanceStates = makePrivateBuffer(
+            state_->device,
+            std::max<std::size_t>(
+                visualInstanceStateBytes,
+                sizeof(MRHybridVisualInstanceStateGPU)
+            ),
+            @"MetalRobo visual instance states"
         );
         buffers.nearClippedTriangles = makePrivateBuffer(
             state_->device,
@@ -4623,6 +4571,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             state_->device,
             nearClippedCountBytes,
             @"MetalRobo near-clipped mesh counts"
+        );
+        buffers.nearClippedDispatchArguments = makePrivateBuffer(
+            state_->device,
+            nearClippedDispatchBytes,
+            @"MetalRobo near-clipped indirect dispatch"
         );
         buffers.projected = makePrivateBuffer(
             state_->device,
@@ -4737,8 +4690,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             buffers.currentBodies,
             buffers.previousBodies,
             buffers.cameraStates,
+            buffers.visualInstanceStates,
             buffers.nearClippedTriangles,
             buffers.nearClippedTriangleCounts,
+            buffers.nearClippedDispatchArguments,
             buffers.projected,
             buffers.tileCounts,
             buffers.tileIndices,
@@ -5003,6 +4958,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         state_->exposureWorkspaces.clear();
         state_->layout = layout;
         state_->assetCount = sceneAssetCount;
+        state_->textureBindingCount =
+            static_cast<std::uint32_t>(
+                runtime.textureBindings.size()
+            );
         state_->sensorProfiles = std::move(sensorProfiles);
         state_->rendererProfile = profile;
         state_->environment = std::move(sceneEnvironment);
@@ -5018,7 +4977,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         state_->activeMetadata = {};
         state_->compiled = true;
         diagnostics.layout = layout;
-        diagnostics.deviceName = nsString(state_->device.name);
+        diagnostics.deviceName = state_->deviceName;
         return diagnostics;
     } catch (const std::bad_alloc&) {
         return reject(
@@ -5430,6 +5389,26 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeFrame(
                 "encodeFrame could not create a compute encoder"
             );
         }
+        EncodeWorldResources worldResources;
+        std::string worldReason;
+        if (!resolveEncodeWorldResources(
+                *state_,
+                worlds,
+                motion.environmentCount,
+                cameraIndex,
+                worldResources,
+                worldReason
+            )) {
+            if (ownsEncoder) {
+                [encoder endEncoding];
+            }
+            return reject(
+                {},
+                MetalHybridRendererStatus::incompatibleWorldFamily,
+                std::move(worldReason)
+            );
+        }
+        [encoder useHeap:state_->visualResourceHeap];
 
         const std::uint32_t temporalSamples =
             state_->rendererProfile.temporalSamples;
@@ -5665,6 +5644,8 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeFrame(
                 options.accumulateRadiance = true;
                 options.applySensor = false;
                 options.updateShadows = sample == 0u;
+                options.resourcesResident = true;
+                options.bodyBuffersValidated = true;
                 options.bandFirst = first;
                 options.bandCount = pixelsInBand;
                 options.bandAxis = bandAxis;
@@ -5684,7 +5665,8 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeFrame(
                     live,
                     cameraIndex,
                     encoder,
-                    options
+                    options,
+                    &worldResources
                 );
                 if (!diagnostics.succeeded()) {
                     if (ownsEncoder) {
@@ -5717,6 +5699,8 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeFrame(
             truthOptions.applySensor = true;
             truthOptions.truthOnly = true;
             truthOptions.updateShadows = false;
+            truthOptions.resourcesResident = true;
+            truthOptions.bodyBuffersValidated = true;
             truthOptions.bandFirst = first;
             truthOptions.bandCount = pixelsInBand;
             truthOptions.bandAxis = bandAxis;
@@ -5734,7 +5718,8 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeFrame(
                 live,
                 cameraIndex,
                 encoder,
-                truthOptions
+                truthOptions,
+                &worldResources
             );
             if (!diagnostics.succeeded()) {
                 if (ownsEncoder) {
@@ -5790,7 +5775,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::readback(
     try {
         const std::lock_guard lock(state_->mutex);
         diagnostics.layout = state_->layout;
-        diagnostics.deviceName = nsString(state_->device.name);
+        diagnostics.deviceName = state_->deviceName;
         if (!state_->compiled ||
             state_->activeEnvironmentCount == 0u) {
             return reject(
