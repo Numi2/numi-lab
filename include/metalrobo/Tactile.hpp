@@ -35,7 +35,10 @@ struct TactileSampleSpec {
 struct TactileSensorSpec {
     std::string id;
     std::uint32_t parentBodyIndex = MR_INVALID_INDEX;
-    std::uint32_t backingShapeIndex = MR_INVALID_INDEX;
+    // One physical tactile surface may be supported by compound collision
+    // geometry. Every backing belongs to parentBodyIndex and contributes its
+    // exact solver wrench to this sensor.
+    std::vector<std::uint32_t> backingShapeIndices;
     TactilePose localPose;
     std::uint32_t width = 0u;
     std::uint32_t height = 0u;
@@ -60,7 +63,7 @@ struct TactileSensorSpec {
 [[nodiscard]] TactileSensorSpec makeFlatTactileSensor(
     std::string id,
     std::uint32_t parentBodyIndex,
-    std::uint32_t backingShapeIndex,
+    std::vector<std::uint32_t> backingShapeIndices,
     TactilePose localPose,
     std::uint32_t width,
     std::uint32_t height,
@@ -74,7 +77,7 @@ struct TactileSensorSpec {
 [[nodiscard]] TactileSensorSpec makeSphericalTactileSensor(
     std::string id,
     std::uint32_t parentBodyIndex,
-    std::uint32_t backingShapeIndex,
+    std::vector<std::uint32_t> backingShapeIndices,
     TactilePose localPose,
     std::uint32_t width,
     std::uint32_t height,
@@ -145,6 +148,12 @@ struct CookedTactileSystem {
     std::vector<std::string> sensorIds;
     std::vector<MRTactileSensorGPU> sensors;
     std::vector<MRTactileSampleGPU> samples;
+    // Sensor-ordered backing arena. MRTactileSensorGPU::backingRange indexes
+    // this vector.
+    std::vector<std::uint32_t> backingShapeIndices;
+    // One immutable O(1) ownership entry per EngineModel shape. Unowned
+    // shapes contain MR_INVALID_INDEX.
+    std::vector<std::uint32_t> shapeToSensor;
     std::vector<std::uint32_t> targetShapeIndices;
 
     [[nodiscard]] bool valid(

@@ -498,12 +498,13 @@ class _Bindings:
             _VisualFrameMetadataC
         )
 
-        self.lib.mr_tactile_create_franka.argtypes = [
+        self.lib.mr_tactile_create_world_pack.argtypes = [
+            ct.c_char_p,
             ct.c_uint32,
             ct.c_uint32,
             ct.c_char_p,
         ]
-        self.lib.mr_tactile_create_franka.restype = ct.c_void_p
+        self.lib.mr_tactile_create_world_pack.restype = ct.c_void_p
         self.lib.mr_tactile_destroy.argtypes = [ct.c_void_p]
         self.lib.mr_tactile_destroy.restype = None
         self.lib.mr_tactile_encode.argtypes = [

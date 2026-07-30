@@ -18,14 +18,27 @@ from .mlx_ppo import (
     MLXRolloutState,
 )
 from .mlx_world import (
+    ActuatorState,
+    RodState,
     SceneBodyState,
     SolverCache,
+    TactileState,
     WorldState,
-    compile_world,
+    compile_world_pack,
     initial_state,
     step,
 )
 from .ppo import ActorCritic, PPOConfig
+from .tactile_latent import (
+    TactileAtlasRange,
+    canonical_metric_tactile_policy_observation,
+)
+
+
+_DUAL_32_TACTILE_ATLASES = (
+    TactileAtlasRange(offset=0, width=32, height=32),
+    TactileAtlasRange(offset=32 * 32, width=32, height=32),
+)
 
 
 def _select_environment(
@@ -40,6 +53,15 @@ def _select_environment(
         mask.reshape(shape),
         reset_value,
         current_value,
+    )
+
+
+def _tactile_policy_observation(tactile) -> mx.array:
+    """Flatten the shared metric stem with explicit source availability."""
+
+    return canonical_metric_tactile_policy_observation(
+        tactile,
+        _DUAL_32_TACTILE_ATLASES,
     )
 
 
@@ -85,6 +107,14 @@ class MLXG1RolloutCollector:
             )
         if world.nv < 7 or world.nq != world.nv + 1:
             raise ValueError("G1 state must use quaternion floating-root ABI")
+        if (
+            int(world.tactile_sensor_count) != 2
+            or int(world.tactile_sample_count) != 2 * 32 * 32
+        ):
+            raise ValueError(
+                "G1 tactile rollouts require the authored dual-sole "
+                "32x32 observation contract"
+            )
         self.world = world
         self.model = model
         self.environment_count = environment_count
@@ -170,8 +200,9 @@ class MLXG1RolloutCollector:
         self,
         state: WorldState,
         commands: mx.array,
+        tactile_policy: mx.array,
     ) -> mx.array:
-        components = [state.q, state.v]
+        components = [state.q, state.v, tactile_policy]
         if self.command_tracking:
             components.append(commands)
         return mx.concatenate(components, axis=-1)
@@ -195,6 +226,10 @@ class MLXG1RolloutCollector:
             observations=self._observations(
                 self.default_state,
                 commands,
+                mx.zeros(
+                    (self.environment_count, 132),
+                    dtype=mx.float32,
+                ),
             ),
             episode_steps=mx.zeros(
                 (self.environment_count,),
@@ -210,11 +245,24 @@ class MLXG1RolloutCollector:
         scene_orientation: mx.array,
         scene_linear_velocity: mx.array,
         scene_angular_velocity: mx.array,
+        rod_position: mx.array,
+        rod_velocity: mx.array,
+        rod_twist: mx.array,
+        rod_twist_rate: mx.array,
         manifold_headers: mx.array,
         manifold_points: mx.array,
         manifold_counts: mx.array,
         pair_cache: mx.array,
         rod_witnesses: mx.array,
+        tactile_previous_depth: mx.array,
+        tactile_previous_validity: mx.array,
+        tactile_previous_object: mx.array,
+        tactile_previous_motion: mx.array,
+        tactile_target_anchor: mx.array,
+        tactile_frame_index: mx.array,
+        tactile_time: mx.array,
+        actuator_effective_position_target: mx.array,
+        actuator_profile_values: mx.array,
         observations: mx.array,
         episode_steps: mx.array,
         noise: mx.array,
@@ -232,6 +280,8 @@ class MLXG1RolloutCollector:
         reset_manifold_counts: mx.array,
         reset_pair_cache: mx.array,
         reset_rod_witnesses: mx.array,
+        reset_actuator_effective_position_target: mx.array,
+        reset_actuator_profile_values: mx.array,
     ) -> tuple[mx.array, ...]:
         mean, value = self.model(observations)
         log_std = mx.clip(self.model.log_std, -5.0, 2.0)
@@ -266,7 +316,12 @@ class MLXG1RolloutCollector:
                 scene_linear_velocity,
                 scene_angular_velocity,
             ),
-            rods=self.default_state.rods,
+            rods=RodState(
+                rod_position,
+                rod_velocity,
+                rod_twist,
+                rod_twist_rate,
+            ),
             solver_cache=SolverCache(
                 manifold_headers,
                 manifold_points,
@@ -274,8 +329,19 @@ class MLXG1RolloutCollector:
                 pair_cache,
                 rod_witnesses,
             ),
-            tactile=self.default_state.tactile,
-            actuators=self.default_state.actuators,
+            tactile=TactileState(
+                tactile_previous_depth,
+                tactile_previous_validity,
+                tactile_previous_object,
+                tactile_previous_motion,
+                tactile_target_anchor,
+                tactile_frame_index,
+                tactile_time,
+            ),
+            actuators=ActuatorState(
+                actuator_effective_position_target,
+                actuator_profile_values,
+            ),
         )
         physics = step(self.world, current, actions)
         candidate = physics.next_state
@@ -317,6 +383,37 @@ class MLXG1RolloutCollector:
             0.0,
             1.0,
         )
+        tactile_summary = physics.tactile.summary
+        tactile_force = mx.sqrt(
+            mx.sum(
+                mx.square(
+                    tactile_summary.
+                        net_force_and_contact_area[..., :3]
+                ),
+                axis=-1,
+            )
+        )
+        tactile_support = mx.clip(
+            mx.sum(tactile_force, axis=-1) /
+                (33.34114202 * 9.81),
+            0.0,
+            1.0,
+        )
+        center_of_pressure = (
+            tactile_summary.
+                center_of_pressure_local_and_force_weight[..., :2]
+        )
+        center_of_pressure_cost = mx.mean(
+            mx.sum(mx.square(center_of_pressure), axis=-1),
+            axis=-1,
+        )
+        tactile_motion_cost = mx.mean(
+            mx.square(
+                tactile_summary.
+                    tangential_motion_and_friction[..., 0]
+            ),
+            axis=-1,
+        )
         commands = (
             observations[:, -3:]
             if self.command_tracking
@@ -340,12 +437,15 @@ class MLXG1RolloutCollector:
             1.5 * mx.clip(upright, 0.0, 1.0)
             + mx.exp(-20.0 * mx.square(height_error))
             + 0.2 * support
+            + 0.2 * tactile_support
             + tracking_reward
             - 0.25 * planar_velocity
             - 0.05 * vertical_velocity
             - 0.02 * angular_velocity
             - 0.5 * joint_error
             - 0.002 * action_cost
+            - 2.0 * center_of_pressure_cost
+            - 0.01 * tactile_motion_cost
         )
 
         next_episode_steps = episode_steps + mx.array(
@@ -410,17 +510,74 @@ class MLXG1RolloutCollector:
             reset_commands,
             commands,
         )
+        next_tactile = TactileState(
+            *(
+                _select_environment(done, reset, value)
+                for reset, value in zip(
+                    (
+                        mx.zeros_like(
+                            candidate.tactile.previous_depth_m
+                        ),
+                        mx.zeros_like(
+                            candidate.tactile.previous_validity
+                        ),
+                        mx.full_like(
+                            candidate.tactile.
+                                previous_object_shape_ids,
+                            0xFFFFFFFF,
+                        ),
+                        mx.zeros_like(
+                            candidate.tactile.
+                                previous_tangential_motion
+                        ),
+                        mx.zeros_like(
+                            candidate.tactile.target_local_anchor
+                        ),
+                        mx.zeros_like(
+                            candidate.tactile.frame_index
+                        ),
+                        mx.zeros_like(
+                            candidate.tactile.time_seconds
+                        ),
+                    ),
+                    candidate.tactile,
+                    strict=True,
+                )
+            )
+        )
+        next_actuators = ActuatorState(
+            *(
+                _select_environment(done, reset, value)
+                for reset, value in zip(
+                    (
+                        reset_actuator_effective_position_target,
+                        reset_actuator_profile_values,
+                    ),
+                    candidate.actuators,
+                    strict=True,
+                )
+            )
+        )
+        tactile_policy = _select_environment(
+            done,
+            mx.zeros(
+                (self.environment_count, 132),
+                dtype=mx.float32,
+            ),
+            _tactile_policy_observation(physics.tactile),
+        )
         next_observations = self._observations(
             WorldState(
                 q=next_q,
                 v=next_v,
                 scene_bodies=SceneBodyState(*next_scene),
-                rods=self.default_state.rods,
+                rods=current.rods,
                 solver_cache=SolverCache(*next_cache),
-                tactile=self.default_state.tactile,
-                actuators=self.default_state.actuators,
+                tactile=next_tactile,
+                actuators=next_actuators,
             ),
             next_commands,
+            tactile_policy,
         )
         return (
             next_q,
@@ -435,6 +592,8 @@ class MLXG1RolloutCollector:
             reward,
             done,
             physics.physics_error,
+            *next_tactile,
+            *next_actuators,
         )
 
     def collect(
@@ -473,7 +632,10 @@ class MLXG1RolloutCollector:
                 current.q,
                 current.v,
                 *current.scene_bodies,
+                *current.rods,
                 *current.solver_cache,
+                *current.tactile,
+                *current.actuators,
                 observations,
                 episode_steps,
                 noise,
@@ -484,15 +646,16 @@ class MLXG1RolloutCollector:
                 reset_v,
                 *self.default_state.scene_bodies,
                 *self.default_state.solver_cache,
+                *self.default_state.actuators,
             )
             current = WorldState(
                 q=result[0],
                 v=result[1],
                 scene_bodies=SceneBodyState(*result[2:6]),
-                rods=self.default_state.rods,
+                rods=current.rods,
                 solver_cache=SolverCache(*result[6:11]),
-                tactile=self.default_state.tactile,
-                actuators=self.default_state.actuators,
+                tactile=TactileState(*result[19:26]),
+                actuators=ActuatorState(*result[26:28]),
             )
             observations = result[11]
             episode_steps = result[12]
@@ -588,6 +751,7 @@ class MLXG1PPOTrainer(MLXPPOTrainer):
         final_velocity_iterations: int = 1,
         scene: str = "ground",
         command_tracking: bool = False,
+        world_pack_path: str,
     ) -> None:
         config.validate()
         if scene not in {"ground", "terrain"}:
@@ -596,9 +760,13 @@ class MLXG1PPOTrainer(MLXPPOTrainer):
             )
         self.config = config
         mx.random.seed(config.seed)
-        self.world = compile_world(
-            "g1",
-            scene=scene,
+        if not world_pack_path:
+            raise ValueError(
+                "G1 tactile training requires an explicit authored "
+                "world pack"
+            )
+        self.world = compile_world_pack(
+            world_pack_path,
             environment_capacity=config.environment_count,
             actuation_mode="implicit_position",
             solver_mode="throughput_tgs",
@@ -610,12 +778,19 @@ class MLXG1PPOTrainer(MLXPPOTrainer):
         )
         self.task_name = (
             f"g1_{'flat_ground' if scene == 'ground' else 'rough_mesh'}_"
-            f"{'command_tracking' if command_tracking else 'standing'}_v1"
+            f"{'command_tracking' if command_tracking else 'standing'}_"
+            "tactile"
         )
         self.observation_size = (
             self.world.nq
             + self.world.nv
+            + 132
             + (3 if command_tracking else 0)
+        )
+        self.tactile_observation_selection = (
+            "canonical_metric_stem_64_per_sensor",
+            "presence",
+            "confidence",
         )
         self.action_size = self.world.nv - 6
         self.model = ActorCritic(

@@ -668,6 +668,38 @@ class MLXPPOTrainer:
             "physics_substeps": self.world.physics_substeps,
             "ppo_config": asdict(self.config),
         }
+        tactile_sensor_count = int(
+            getattr(self.world, "tactile_sensor_count", 0)
+        )
+        if tactile_sensor_count:
+            metadata_text = str(
+                self.world.tactile_observation_metadata_json
+            )
+            if not metadata_text:
+                raise RuntimeError(
+                    "authored tactile world did not publish its "
+                    "observation contract"
+                )
+            metadata = json.loads(metadata_text)
+            fingerprint = metadata.get("fingerprint")
+            selection = tuple(
+                getattr(
+                    self,
+                    "tactile_observation_selection",
+                    (),
+                )
+            )
+            if not fingerprint or not selection:
+                raise RuntimeError(
+                    "tactile checkpoint requires a fingerprinted "
+                    "named observation selection"
+                )
+            state["tactile_observation_fingerprint"] = fingerprint
+            state["tactile_observation_selection"] = list(selection)
+            (checkpoint / "tactile_observation.json").write_text(
+                metadata_text.rstrip() + "\n",
+                encoding="utf-8",
+            )
         (checkpoint / "state.json").write_text(
             json.dumps(state, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
@@ -711,6 +743,44 @@ class MLXPPOTrainer:
                 f"checkpoint hidden sizes {saved_hidden} "
                 f"do not match {self.config.hidden_sizes}"
             )
+        tactile_sensor_count = int(
+            getattr(self.world, "tactile_sensor_count", 0)
+        )
+        if tactile_sensor_count:
+            metadata_text = str(
+                self.world.tactile_observation_metadata_json
+            )
+            metadata = json.loads(metadata_text)
+            expected_fingerprint = metadata.get("fingerprint")
+            saved_fingerprint = state.get(
+                "tactile_observation_fingerprint"
+            )
+            expected_selection = tuple(
+                getattr(
+                    self,
+                    "tactile_observation_selection",
+                    (),
+                )
+            )
+            saved_selection = tuple(
+                state.get("tactile_observation_selection", ())
+            )
+            checkpoint_metadata = json.loads(
+                (
+                    checkpoint / "tactile_observation.json"
+                ).read_text(encoding="utf-8")
+            )
+            if (
+                not expected_fingerprint
+                or saved_fingerprint != expected_fingerprint
+                or checkpoint_metadata.get("fingerprint")
+                != expected_fingerprint
+                or saved_selection != expected_selection
+            ):
+                raise ValueError(
+                    "checkpoint tactile observation contract does "
+                    "not match this authored world"
+                )
         self.model.load_weights(
             str(checkpoint / "model.safetensors")
         )

@@ -1,5 +1,8 @@
+#include "metalrobo/EmbodiedTactile.hpp"
+#include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/MetalTactile.hpp"
 #include "metalrobo/GeometryCooker.hpp"
+#include "metalrobo/SurgicalAssets.hpp"
 
 #include <algorithm>
 #include <array>
@@ -224,7 +227,7 @@ metalrobo::CookedTactileSystem makeFlatSystem(
     auto sensor = metalrobo::makeFlatTactileSensor(
         "probe_flat",
         0u,
-        0u,
+        {0u},
         pose,
         kWidth,
         kHeight,
@@ -305,10 +308,15 @@ void requireMetalMatchesCpu(
     const metalrobo::EngineModel& model,
     const std::span<const MRBodyStateGPU> bodies,
     const metalrobo::TactileObservationBatch& cpu,
-    const std::string_view label
+    const std::string_view label,
+    const std::span<const MRTactileContactGPU> contacts = {},
+    const std::span<const std::uint32_t> contactCounts = {},
+    const std::uint32_t contactCapacity = 0u,
+    const float contactImpulseTimestepSeconds = 0.0f
 ) {
     metalrobo::MetalTactileConfig config;
-    config.contactCapacityPerEnvironment = 1u;
+    config.contactCapacityPerEnvironment =
+        std::max(1u, contactCapacity);
     metalrobo::MetalTactileContext context(config);
     const auto compiled = context.compile(tactile, model, 1u);
     require(
@@ -319,7 +327,11 @@ void requireMetalMatchesCpu(
     metalrobo::MetalTactileHostFrame frame;
     frame.environmentCount = 1u;
     frame.bodies = bodies;
+    frame.contacts = contacts;
+    frame.contactCounts = contactCounts;
     frame.observationTimestepSeconds = 0.01f;
+    frame.contactImpulseTimestepSeconds =
+        contactImpulseTimestepSeconds;
     frame.frameIndex = 0u;
     frame.timestampSeconds = 1.0;
     const auto observed = context.observe(frame);
@@ -382,28 +394,50 @@ void requireMetalMatchesCpu(
         std::string{label} +
             " Metal depth differs from CPU by more than 2 micrometres"
     );
-    require(
-        gpu.summaries[0u].statisticsAndIdentity.z ==
-            cpu.summaries[0u].statisticsAndIdentity.z,
-        std::string{label} +
-            " Metal summary validity differs from CPU"
-    );
-    const mr_float4 cpuMotionSummary =
-        cpu.summaries[0u].tangentialMotionAndFriction;
-    const mr_float4 gpuMotionSummary =
-        gpu.summaries[0u].tangentialMotionAndFriction;
-    require(
-        std::abs(cpuMotionSummary.x - gpuMotionSummary.x) <
-                2.0e-6f &&
-            std::abs(cpuMotionSummary.y - gpuMotionSummary.y) <
-                2.0e-6f &&
-            std::abs(cpuMotionSummary.z - gpuMotionSummary.z) <
-                2.0e-6f &&
-            std::abs(cpuMotionSummary.w - gpuMotionSummary.w) <
-                2.0e-6f,
-        std::string{label} +
-            " Metal tangential reduction differs from CPU"
-    );
+    for (std::size_t sensor = 0u;
+         sensor < cpu.summaries.size();
+         ++sensor) {
+        require(
+            gpu.summaries[sensor].statisticsAndIdentity.z ==
+                cpu.summaries[sensor].statisticsAndIdentity.z,
+            std::string{label} +
+                " Metal summary validity differs from CPU"
+        );
+        const mr_float4 cpuMotionSummary =
+            cpu.summaries[sensor].tangentialMotionAndFriction;
+        const mr_float4 gpuMotionSummary =
+            gpu.summaries[sensor].tangentialMotionAndFriction;
+        require(
+            std::abs(cpuMotionSummary.x - gpuMotionSummary.x) <
+                    2.0e-6f &&
+                std::abs(cpuMotionSummary.y - gpuMotionSummary.y) <
+                    2.0e-6f &&
+                std::abs(cpuMotionSummary.z - gpuMotionSummary.z) <
+                    2.0e-6f &&
+                std::abs(cpuMotionSummary.w - gpuMotionSummary.w) <
+                    2.0e-6f,
+            std::string{label} +
+                " Metal tangential reduction differs from CPU"
+        );
+        const mr_float4 cpuForce =
+            cpu.summaries[sensor].netForceAndContactArea;
+        const mr_float4 gpuForce =
+            gpu.summaries[sensor].netForceAndContactArea;
+        const mr_float4 cpuTorque =
+            cpu.summaries[sensor].netTorqueAndMaximumDepth;
+        const mr_float4 gpuTorque =
+            gpu.summaries[sensor].netTorqueAndMaximumDepth;
+        require(
+            std::abs(cpuForce.x - gpuForce.x) < 2.0e-5f &&
+                std::abs(cpuForce.y - gpuForce.y) < 2.0e-5f &&
+                std::abs(cpuForce.z - gpuForce.z) < 2.0e-5f &&
+                std::abs(cpuTorque.x - gpuTorque.x) < 2.0e-5f &&
+                std::abs(cpuTorque.y - gpuTorque.y) < 2.0e-5f &&
+                std::abs(cpuTorque.z - gpuTorque.z) < 2.0e-5f,
+            std::string{label} +
+                " Metal wrench differs from CPU"
+        );
+    }
 }
 
 void validateSphereField(
@@ -615,7 +649,7 @@ void validateMultipleContactsAndAtlasBoundary(
     auto invalidSelf = metalrobo::makeFlatTactileSensor(
         "invalid_self_target",
         0u,
-        0u,
+        {0u},
         pose,
         5u,
         5u,
@@ -672,7 +706,7 @@ void validateCurvedSensor() {
     auto sensor = metalrobo::makeSphericalTactileSensor(
         "probe_curved",
         0u,
-        0u,
+        {0u},
         {},
         33u,
         25u,
@@ -841,7 +875,7 @@ void validateCookedGeometryBackends() {
         auto sensor = metalrobo::makeFlatTactileSensor(
             "probe_cooked_geometry",
             0u,
-            0u,
+            {0u},
             pose,
             17u,
             17u,
@@ -1395,6 +1429,526 @@ void validateWrenchAndCenterOfPressure(
 
 }
 
+void validateCompoundBackingSurfaces() {
+    metalrobo::EngineModel model = makeModel();
+    MRShapeGPU secondBacking = model.shapes[0u];
+    secondBacking.slotGeneration = 6u;
+    secondBacking.localPosition.x = 0.010f;
+    model.shapes.push_back(secondBacking);
+
+    metalrobo::TactilePose pose;
+    pose.position = {0.0f, 0.0f, kShell, 0.0f};
+    auto sensor = metalrobo::makeFlatTactileSensor(
+        "compound_probe",
+        0u,
+        {0u, 5u},
+        pose,
+        9u,
+        9u,
+        0.020f,
+        0.020f,
+        kShell
+    );
+    sensor.targetShapeIndices = {1u};
+    metalrobo::CookedTactileSystem tactile;
+    require(
+        metalrobo::cookTactileSystem(
+            std::span{&sensor, 1u},
+            model,
+            tactile
+        ),
+        "cook compound tactile backing"
+    );
+    require(
+        tactile.backingShapeIndices ==
+                std::vector<std::uint32_t>{0u, 5u} &&
+            tactile.shapeToSensor[0u] == 0u &&
+            tactile.shapeToSensor[5u] == 0u &&
+            tactile.sensors[0u].backingRange.x == 0u &&
+            tactile.sensors[0u].backingRange.y == 2u,
+        "compound backing arena or O(1) ownership lookup is incorrect"
+    );
+
+    std::array<MRTactileContactGPU, 2u> contacts{};
+    contacts[0u].shapesAndFlags = {
+        0u,
+        1u,
+        MR_TACTILE_CONTACT_SOLVER_IMPULSE,
+        0u,
+    };
+    contacts[0u].worldPoint = {
+        -0.004f, 0.0f, kShell, 0.0f,
+    };
+    contacts[0u].worldImpulseOnA = {
+        0.010f, 0.0f, 0.020f, 0.0f,
+    };
+    contacts[0u].solverImpulseAndFriction = {
+        0.020f, 0.004f, 0.5f, 0.4f,
+    };
+    contacts[1u].shapesAndFlags = {
+        2u,
+        5u,
+        MR_TACTILE_CONTACT_SOLVER_IMPULSE,
+        0u,
+    };
+    contacts[1u].worldPoint = {
+        0.006f, 0.0f, kShell, 0.0f,
+    };
+    contacts[1u].worldImpulseOnA = {
+        0.0f, 0.020f, -0.030f, 0.0f,
+    };
+    contacts[1u].solverImpulseAndFriction = {
+        0.030f, 0.006f, 0.5f, 0.4f,
+    };
+    const std::array<std::uint32_t, 1u> contactCounts{2u};
+    const auto bodies = sphereContactBodies(0.002f);
+    const auto observation = observeCpu(
+        tactile,
+        model,
+        bodies,
+        {},
+        {},
+        {},
+        0u,
+        {},
+        {},
+        {},
+        contacts,
+        contactCounts,
+        2u,
+        0.01f
+    );
+    const mr_float4 force =
+        observation.summaries[0u].netForceAndContactArea;
+    require(
+        std::abs(force.x - 1.0f) < 2.0e-5f &&
+            std::abs(force.y + 2.0f) < 2.0e-5f &&
+            std::abs(force.z - 5.0f) < 2.0e-5f &&
+            observation.summaries[0u].
+                    centerOfPressureWorldAndContactCount.w == 2.0f,
+        "compound backing contacts were not aggregated exactly once"
+    );
+    requireMetalMatchesCpu(
+        tactile,
+        model,
+        bodies,
+        observation,
+        "compound-backing-wrench",
+        contacts,
+        contactCounts,
+        2u,
+        0.01f
+    );
+
+    auto duplicate = sensor;
+    duplicate.id = "duplicate_compound_owner";
+    duplicate.backingShapeIndices = {5u};
+    const std::array duplicateSensors{sensor, duplicate};
+    metalrobo::CookedTactileSystem rejected;
+    const auto duplicateResult = metalrobo::cookTactileSystem(
+        duplicateSensors,
+        model,
+        rejected
+    );
+    require(
+        !duplicateResult.succeeded() &&
+            duplicateResult.message.find("already owned") !=
+                std::string::npos,
+        "cooker accepted one backing shape for two sensors"
+    );
+
+    auto mixedParent = sensor;
+    mixedParent.id = "mixed_parent";
+    mixedParent.backingShapeIndices = {0u, 1u};
+    mixedParent.targetShapeIndices = {2u};
+    const auto parentResult = metalrobo::cookTactileSystem(
+        std::span{&mixedParent, 1u},
+        model,
+        rejected
+    );
+    require(
+        !parentResult.succeeded() &&
+            parentResult.message.find("parent body") !=
+                std::string::npos,
+        "cooker accepted compound backings from different bodies"
+    );
+
+    metalrobo::EngineModel filterModel = model;
+    filterModel.shapes[5u].collisionMask = 2u;
+    const auto filterResult = metalrobo::cookTactileSystem(
+        std::span{&sensor, 1u},
+        filterModel,
+        rejected
+    );
+    require(
+        !filterResult.succeeded() &&
+            filterResult.message.find("filters disagree") !=
+                std::string::npos,
+        "cooker accepted incompatible compound backing filters"
+    );
+
+    metalrobo::EngineModel offsetModel = model;
+    offsetModel.shapes[5u].contactRestAndBoundingRadius.x +=
+        0.001f;
+    const auto offsetResult = metalrobo::cookTactileSystem(
+        std::span{&sensor, 1u},
+        offsetModel,
+        rejected
+    );
+    require(
+        !offsetResult.succeeded() &&
+            offsetResult.message.find(
+                "contact offsets disagree"
+            ) != std::string::npos,
+        "cooker accepted incompatible compound contact offsets"
+    );
+}
+
+void validateTwoSidedTactileContact() {
+    metalrobo::EngineModel model = makeModel();
+    model.shapes[1u].contactRestAndBoundingRadius = {
+        kShell,
+        kShell,
+        kRadius + kShell,
+        0.0f,
+    };
+    metalrobo::TactilePose firstPose;
+    firstPose.position = {0.0f, 0.0f, kShell, 0.0f};
+    auto first = metalrobo::makeFlatTactileSensor(
+        "two_sided_a",
+        0u,
+        {0u},
+        firstPose,
+        5u,
+        5u,
+        0.010f,
+        0.010f,
+        kShell
+    );
+    first.targetShapeIndices = {1u};
+    metalrobo::TactilePose secondPose;
+    secondPose.position = {0.0f, 0.0f, -kRadius, 0.0f};
+    secondPose.orientation =
+        quaternionAxisAngle(1.0f, 0.0f, 0.0f,
+                            std::numbers::pi_v<float>);
+    auto second = metalrobo::makeFlatTactileSensor(
+        "two_sided_b",
+        1u,
+        {1u},
+        secondPose,
+        5u,
+        5u,
+        0.010f,
+        0.010f,
+        kShell
+    );
+    second.targetShapeIndices = {0u};
+    const std::array sensors{first, second};
+    metalrobo::CookedTactileSystem tactile;
+    require(
+        metalrobo::cookTactileSystem(sensors, model, tactile),
+        "cook two-sided tactile contact"
+    );
+
+    std::array<MRTactileContactGPU, 1u> contacts{};
+    contacts[0u].shapesAndFlags = {
+        0u,
+        1u,
+        MR_TACTILE_CONTACT_SOLVER_IMPULSE,
+        0u,
+    };
+    contacts[0u].worldPoint = {
+        0.0f, 0.0f, kShell, 0.0f,
+    };
+    contacts[0u].worldImpulseOnA = {
+        0.010f, -0.020f, 0.030f, 0.0f,
+    };
+    contacts[0u].solverImpulseAndFriction = {
+        0.030f, 0.010f, 0.6f, 0.5f,
+    };
+    const std::array<std::uint32_t, 1u> contactCounts{1u};
+    auto bodies = sphereContactBodies(0.0f);
+    bodies[1u].position = {0.0f, 0.0f, 0.2f, 1.0f};
+    const auto observation = observeCpu(
+        tactile,
+        model,
+        bodies,
+        {},
+        {},
+        {},
+        0u,
+        {},
+        {},
+        {},
+        contacts,
+        contactCounts,
+        1u,
+        0.01f
+    );
+    const mr_float4 forceA =
+        observation.summaries[0u].netForceAndContactArea;
+    const mr_float4 forceB =
+        observation.summaries[1u].netForceAndContactArea;
+    require(
+        std::abs(forceA.x + forceB.x) < 2.0e-5f &&
+            std::abs(forceA.y + forceB.y) < 2.0e-5f &&
+            std::abs(forceA.z + forceB.z) < 2.0e-5f &&
+            std::abs(forceA.x - 1.0f) < 2.0e-5f &&
+            std::abs(forceA.y + 2.0f) < 2.0e-5f &&
+            std::abs(forceA.z - 3.0f) < 2.0e-5f,
+        "two tactile surfaces did not receive opposite solver wrenches"
+    );
+    requireMetalMatchesCpu(
+        tactile,
+        model,
+        bodies,
+        observation,
+        "two-sided-tactile-contact",
+        contacts,
+        contactCounts,
+        1u,
+        0.01f
+    );
+}
+
+std::vector<MRBodyStateGPU> separatedBodyStates(
+    const metalrobo::EngineModel& model
+) {
+    std::vector<MRBodyStateGPU> result(model.bodies.size());
+    for (std::uint32_t bodyIndex = 0u;
+         bodyIndex < result.size();
+         ++bodyIndex) {
+        result[bodyIndex] = makeBody({
+            10.0f * static_cast<float>(bodyIndex),
+            0.0f,
+            0.0f,
+            1.0f,
+        });
+        result[bodyIndex].flagsAndIndices[0] =
+            model.bodies[bodyIndex].motionType;
+        result[bodyIndex].flagsAndIndices[1] =
+            model.bodies[bodyIndex].articulationIndex;
+        result[bodyIndex].flagsAndIndices[2] = bodyIndex;
+    }
+    return result;
+}
+
+void validateEmbodiedTactileAtlases() {
+    {
+        const auto model =
+            metalrobo::makeFrankaTactileEngineModel();
+        const auto episode =
+            metalrobo::makeFrankaTactileEpisodeTwin();
+        metalrobo::WorldTemplate world;
+        require(
+            metalrobo::compileEpisodeTwin(episode, model, world),
+            "compile Franka compound-list migration"
+        );
+        const auto& tactile = world.tactileSystem;
+        require(
+            tactile.sensors.size() == 2u &&
+                tactile.backingShapeIndices ==
+                    std::vector<std::uint32_t>{27u, 31u} &&
+                tactile.sensors[0u].backingRange.y == 1u &&
+                tactile.sensors[1u].backingRange.y == 1u &&
+                tactile.samples.size() == 2u * 32u * 32u,
+            "Franka one-element backing-list migration changed topology"
+        );
+        for (std::size_t index = 0u;
+             index < tactile.samples.size();
+             ++index) {
+            const auto& authored =
+                episode.tactileSensors[index / (32u * 32u)].
+                    samples[index % (32u * 32u)];
+            const auto& cooked = tactile.samples[index];
+            require(
+                cooked.localPositionAndArea.x ==
+                        authored.localPosition.x &&
+                    cooked.localPositionAndArea.y ==
+                        authored.localPosition.y &&
+                    cooked.localPositionAndArea.z ==
+                        authored.localPosition.z &&
+                    cooked.localPositionAndArea.w ==
+                        authored.areaSquareMeters &&
+                    cooked.localNormalAndMaximumDepth.x ==
+                        authored.localNormal.x &&
+                    cooked.localNormalAndMaximumDepth.y ==
+                        authored.localNormal.y &&
+                    cooked.localNormalAndMaximumDepth.z ==
+                        authored.localNormal.z,
+                "Franka tactile samples changed during backing migration"
+            );
+        }
+        auto changedEpisode = episode;
+        changedEpisode.tactileSensors[0u]
+            .samples[0u].localPosition.x += 1.0e-5f;
+        metalrobo::WorldTemplate changedWorld;
+        require(
+            metalrobo::compileEpisodeTwin(
+                changedEpisode,
+                model,
+                changedWorld
+            ),
+            "compile changed Franka tactile geometry"
+        );
+        require(
+            tactile.fingerprint !=
+                changedWorld.tactileSystem.fingerprint,
+            "changed Franka sensor geometry did not invalidate the "
+            "observation boundary"
+        );
+    }
+
+    const auto validateAtlas = [](
+        const metalrobo::EngineModel& model,
+        const metalrobo::EpisodeTwin& episode,
+        const std::uint32_t expectedBackings,
+        const std::string_view label
+    ) {
+        metalrobo::WorldTemplate world;
+        const auto compiled =
+            metalrobo::compileEpisodeTwin(episode, model, world);
+        require(
+            compiled.succeeded(),
+            std::string{label} + " authored world compile: " +
+                compiled.message
+        );
+        const auto& tactile = world.tactileSystem;
+        require(
+            tactile.sensors.size() == 2u &&
+                tactile.samples.size() == 2u * 32u * 32u &&
+                (world.capabilities &
+                 MR_WORLD_CAP_TACTILE_DEPTH) != 0u,
+            std::string{label} +
+                " did not publish two 32x32 tactile atlases"
+        );
+        std::size_t validSamples = 0u;
+        std::size_t invalidSamples = 0u;
+        for (const auto& sensor : tactile.sensors) {
+            require(
+                sensor.backingRange.y == expectedBackings,
+                std::string{label} +
+                    " compound backing count is incorrect"
+            );
+        }
+        for (const auto& sample : tactile.samples) {
+            if ((sample.atlasAndIdentity.w &
+                 MR_TACTILE_SAMPLE_VALID) == 0u) {
+                ++invalidSamples;
+                continue;
+            }
+            ++validSamples;
+            const float length = std::sqrt(
+                sample.localNormalAndMaximumDepth.x *
+                    sample.localNormalAndMaximumDepth.x +
+                sample.localNormalAndMaximumDepth.y *
+                    sample.localNormalAndMaximumDepth.y +
+                sample.localNormalAndMaximumDepth.z *
+                    sample.localNormalAndMaximumDepth.z
+            );
+            require(
+                sample.localPositionAndArea.w > 0.0f &&
+                    std::abs(length - 1.0f) < 2.0e-5f,
+                std::string{label} +
+                    " atlas lacks metric area or analytic normals"
+            );
+        }
+        require(
+            validSamples > 0u && invalidSamples > 0u,
+            std::string{label} +
+                " atlas did not preserve explicit invalid space"
+        );
+        const auto bodies = separatedBodyStates(model);
+        const auto cpu = observeCpu(
+            tactile,
+            model,
+            bodies
+        );
+        requireMetalMatchesCpu(
+            tactile,
+            model,
+            bodies,
+            cpu,
+            label
+        );
+    };
+
+    const auto g1Model =
+        metalrobo::makeUnitreeG1TactileEngineModel();
+    validateAtlas(
+        g1Model,
+        metalrobo::makeUnitreeG1TactileEpisodeTwin(),
+        4u,
+        "g1-spherical-cap-atlas"
+    );
+
+    const auto psmModel =
+        metalrobo::makeDvrkPsmTactileEngineModel();
+    validateAtlas(
+        psmModel,
+        metalrobo::makeDvrkPsmTactileEpisodeTwin(),
+        3u,
+        "psm-irregular-jaw-atlas"
+    );
+
+    auto dual = metalrobo::makeDualDvrkPsmTactileWorld();
+    MRBodyPropertiesGPU targetBody{};
+    targetBody.articulationIndex = MR_INVALID_INDEX;
+    targetBody.parentBody = MR_INVALID_INDEX;
+    targetBody.inboundJoint = MR_INVALID_INDEX;
+    targetBody.motionType = MR_MOTION_KINEMATIC;
+    const std::uint32_t targetBodyIndex =
+        static_cast<std::uint32_t>(dual.model.bodies.size());
+    dual.model.bodies.push_back(targetBody);
+    MRShapeGPU target{};
+    target.bodyIndex = targetBodyIndex;
+    target.shapeType = MR_SHAPE_SPHERE;
+    target.materialIndex = 0u;
+    target.collisionGroup = 1u;
+    target.collisionMask = ~0u;
+    target.slotGeneration = 920001u;
+    target.localPosition.w = 1.0f;
+    target.localRotation.w = 1.0f;
+    target.dimensions = {0.001f, 0.0f, 0.0f, 0.0f};
+    target.contactRestAndBoundingRadius = {
+        0.0001f, 0.0f, 0.0011f, 0.0f,
+    };
+    const std::uint32_t targetShapeIndex =
+        static_cast<std::uint32_t>(dual.model.shapes.size());
+    dual.model.shapes.push_back(target);
+    dual.model.world.bodyCount =
+        static_cast<std::uint32_t>(dual.model.bodies.size());
+    dual.model.world.shapeCount =
+        static_cast<std::uint32_t>(dual.model.shapes.size());
+    const std::array targets{targetShapeIndex};
+    const auto dualSensors =
+        metalrobo::makeDualDvrkPsmTactileSensors(
+            dual.model,
+            dual.metadata,
+            targets
+        );
+    metalrobo::CookedTactileSystem dualTactile;
+    require(
+        metalrobo::cookTactileSystem(
+            dualSensors,
+            dual.model,
+            dualTactile
+        ),
+        "cook dual-PSM rebased jaw sensors"
+    );
+    require(
+        dualTactile.sensors.size() == 4u &&
+            dualTactile.backingShapeIndices.size() == 12u &&
+            std::ranges::all_of(
+                dualTactile.sensors,
+                [](const MRTactileSensorGPU& sensor) {
+                    return sensor.backingRange.y == 3u;
+                }
+            ),
+        "dual-PSM composition did not rebase one jaw definition four times"
+    );
+}
+
 double validateMetal(
     const metalrobo::EngineModel& model,
     const metalrobo::CookedTactileSystem& tactile,
@@ -1527,6 +2081,9 @@ int main(const int argc, const char* const* argv) {
             tactile,
             bodies
         );
+        validateCompoundBackingSurfaces();
+        validateTwoSidedTactileContact();
+        validateEmbodiedTactileAtlases();
 
         auto noContactBodies = sphereContactBodies(0.0f);
         noContactBodies[1].position =

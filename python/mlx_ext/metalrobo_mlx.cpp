@@ -100,6 +100,7 @@ enum ImmutableBufferIndex : std::size_t {
     kImmutableTactileSensors = 34u,
     kImmutableTactileSamples = 35u,
     kImmutableTactileTargets = 36u,
+    kImmutableTactileShapeToSensor = 37u,
 };
 
 enum GeneralizedImmutableBufferIndex : std::size_t {
@@ -1008,7 +1009,7 @@ MetalResources& MLXCompiledWorld::resources(
         staged->tuning.waveWorkerGroupCount =
             waveWorkerGroups_;
     }
-    staged->buffers.reserve(hasTactile() ? 37u : 34u);
+    staged->buffers.reserve(hasTactile() ? 38u : 34u);
     staged->buffers.push_back(
         immutableBuffer(&worldRecord, 1u)
     );
@@ -1361,6 +1362,15 @@ MetalResources& MLXCompiledWorld::resources(
                 : tactile_.targetShapeIndices.data(),
             std::max<std::size_t>(
                 tactile_.targetShapeIndices.size(),
+                1u
+            )
+        ));
+        staged->buffers.push_back(immutableBuffer(
+            tactile_.shapeToSensor.empty()
+                ? &emptyIndex
+                : tactile_.shapeToSensor.data(),
+            std::max<std::size_t>(
+                tactile_.shapeToSensor.size(),
                 1u
             )
         ));
@@ -8583,6 +8593,7 @@ void WorldStepPrimitive::eval_gpu(
         outputArray(tactileSummaries, 11);
         outputArray(outputs[37], 12);
         inputArray(inputs[23], 13);
+        immutable(kImmutableTactileShapeToSensor, 14);
         dispatchThreads(
             static_cast<std::size_t>(environments) *
                 world_->tactile().sensors.size(),

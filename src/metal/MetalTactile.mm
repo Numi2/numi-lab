@@ -253,6 +253,7 @@ struct MetalTactileBuffers {
     __strong id<MTLBuffer> sensors = nil;
     __strong id<MTLBuffer> samples = nil;
     __strong id<MTLBuffer> targets = nil;
+    __strong id<MTLBuffer> shapeToSensor = nil;
     __strong id<MTLBuffer> shapes = nil;
     __strong id<MTLBuffer> geometryHeaders = nil;
     __strong id<MTLBuffer> geometryVertices = nil;
@@ -570,6 +571,9 @@ MetalTactileDiagnostics encodeLocked(
     [encoder setBuffer:state.buffers.hostFrameIndices
                  offset:0u
                 atIndex:13u];
+    [encoder setBuffer:state.buffers.shapeToSensor
+                 offset:0u
+                atIndex:14u];
     dispatch1D(
         encoder,
         state.reducePipeline,
@@ -628,6 +632,7 @@ bool allBuffersAllocated(const detail::MetalTactileBuffers& buffers) {
     return buffers.sensors != nil &&
         buffers.samples != nil &&
         buffers.targets != nil &&
+        buffers.shapeToSensor != nil &&
         buffers.shapes != nil &&
         buffers.geometryHeaders != nil &&
         buffers.geometryVertices != nil &&
@@ -929,6 +934,13 @@ MetalTactileDiagnostics MetalTactileContext::compile(
         },
         @"MetalRobo tactile targets"
     );
+    buffers.shapeToSensor = makeStaticBuffer(
+        candidate->device,
+        std::span<const std::uint32_t>{
+            tactile.shapeToSensor
+        },
+        @"MetalRobo tactile shape ownership"
+    );
     buffers.shapes = makeStaticBuffer(
         candidate->device,
         std::span<const MRShapeGPU>{model.shapes},
@@ -1120,10 +1132,11 @@ MetalTactileDiagnostics MetalTactileContext::compile(
     std::memset(buffers.hostResetMask.contents, 0, countBytes);
 
     std::size_t retainedBytes = 0u;
-    const std::array<id<MTLBuffer>, 37u> retained{
+    const std::array<id<MTLBuffer>, 38u> retained{
         buffers.sensors,
         buffers.samples,
         buffers.targets,
+        buffers.shapeToSensor,
         buffers.shapes,
         buffers.geometryHeaders,
         buffers.geometryVertices,

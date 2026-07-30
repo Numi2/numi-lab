@@ -20,6 +20,7 @@ struct Options {
     std::uint32_t width = 32u;
     std::uint32_t height = 32u;
     std::uint32_t sensors = 2u;
+    std::uint32_t backingsPerSensor = 1u;
     std::uint32_t updatePeriod = 1u;
     std::uint32_t warmupIterations = 3u;
     std::uint32_t measuredIterations = 11u;
@@ -66,6 +67,7 @@ Options options(const int argc, const char* const* argv) {
         (argc - 1) % 2 == 0,
         "usage: metalrobo_tactile_benchmark "
         "[--environments N] [--width N] [--height N] [--sensors N] "
+        "[--backings-per-sensor N] "
         "[--update-period N] [--warmup N] [--iterations N]"
     );
     for (int argument = 1; argument < argc; argument += 2) {
@@ -79,6 +81,8 @@ Options options(const int argc, const char* const* argv) {
             result.height = value;
         } else if (option == "--sensors") {
             result.sensors = value;
+        } else if (option == "--backings-per-sensor") {
+            result.backingsPerSensor = value;
         } else if (option == "--update-period") {
             result.updatePeriod = value;
         } else if (option == "--warmup") {
@@ -95,13 +99,17 @@ Options options(const int argc, const char* const* argv) {
     require(
         result.width <= 512u &&
         result.height <= 512u &&
-        result.sensors <= 64u,
+        result.sensors <= 64u &&
+        result.backingsPerSensor <= 16u,
         "benchmark atlas or sensor count exceeds the bounded harness"
     );
     return result;
 }
 
-metalrobo::EngineModel makeModel() {
+metalrobo::EngineModel makeModel(
+    const std::uint32_t sensorCount,
+    const std::uint32_t backingsPerSensor
+) {
     metalrobo::EngineModel model;
     model.name = "tactile_benchmark_primitives";
     model.bodies.resize(2u);
@@ -114,28 +122,38 @@ metalrobo::EngineModel makeModel() {
         model.bodies[body].motionType =
             body == 0u ? MR_MOTION_STATIC : MR_MOTION_KINEMATIC;
     }
-    model.shapes.resize(2u);
-    MRShapeGPU& backing = model.shapes[0u];
-    backing.bodyIndex = 0u;
-    backing.shapeType = MR_SHAPE_BOX;
-    backing.collisionGroup = 1u;
-    backing.collisionMask = 1u;
-    backing.slotGeneration = 1u;
-    backing.localPosition = {0.0f, 0.0f, -0.005f, 1.0f};
-    backing.localRotation.w = 1.0f;
-    backing.dimensions = {0.03f, 0.03f, 0.005f, 0.0f};
-    backing.contactRestAndBoundingRadius = {
-        0.004f,
-        0.004f,
-        0.05f,
-        0.0f,
-    };
-    MRShapeGPU& target = model.shapes[1u];
+    const std::uint32_t backingCount =
+        sensorCount * backingsPerSensor;
+    model.shapes.resize(backingCount + 1u);
+    for (std::uint32_t index = 0u;
+         index < backingCount;
+         ++index) {
+        MRShapeGPU& backing = model.shapes[index];
+        backing.bodyIndex = 0u;
+        backing.shapeType = MR_SHAPE_BOX;
+        backing.collisionGroup = 1u;
+        backing.collisionMask = 1u;
+        backing.slotGeneration = index + 1u;
+        backing.localPosition = {
+            0.0f, 0.0f, -0.005f, 1.0f,
+        };
+        backing.localRotation.w = 1.0f;
+        backing.dimensions = {
+            0.03f, 0.03f, 0.005f, 0.0f,
+        };
+        backing.contactRestAndBoundingRadius = {
+            0.004f,
+            0.004f,
+            0.05f,
+            0.0f,
+        };
+    }
+    MRShapeGPU& target = model.shapes[backingCount];
     target.bodyIndex = 1u;
     target.shapeType = MR_SHAPE_SPHERE;
     target.collisionGroup = 1u;
     target.collisionMask = 1u;
-    target.slotGeneration = 2u;
+    target.slotGeneration = backingCount + 1u;
     target.localPosition.w = 1.0f;
     target.localRotation.w = 1.0f;
     target.dimensions = {0.012f, 0.0f, 0.0f, 0.0f};
@@ -183,7 +201,12 @@ double percentile(
 int main(const int argc, const char* const* argv) {
     try {
         const Options config = options(argc, argv);
-        const metalrobo::EngineModel model = makeModel();
+        const metalrobo::EngineModel model = makeModel(
+            config.sensors,
+            config.backingsPerSensor
+        );
+        const std::uint32_t backingCount =
+            config.sensors * config.backingsPerSensor;
         std::vector<metalrobo::TactileSensorSpec> authored;
         authored.reserve(config.sensors);
         for (std::uint32_t sensor = 0u;
@@ -195,7 +218,7 @@ int main(const int argc, const char* const* argv) {
                 metalrobo::makeFlatTactileSensor(
                     "benchmark_" + std::to_string(sensor),
                     0u,
-                    0u,
+                    {},
                     pose,
                     config.width,
                     config.height,
@@ -203,7 +226,14 @@ int main(const int argc, const char* const* argv) {
                     0.03f,
                     0.004f
                 );
-            specification.targetShapeIndices = {1u};
+            for (std::uint32_t local = 0u;
+                 local < config.backingsPerSensor;
+                 ++local) {
+                specification.backingShapeIndices.push_back(
+                    sensor * config.backingsPerSensor + local
+                );
+            }
+            specification.targetShapeIndices = {backingCount};
             specification.updatePeriodSteps =
                 config.updatePeriod;
             authored.push_back(std::move(specification));
@@ -240,9 +270,50 @@ int main(const int argc, const char* const* argv) {
                 MR_MOTION_KINEMATIC
             ));
         }
+        std::vector<MRTactileContactGPU> contacts(
+            static_cast<std::size_t>(config.environments) *
+                config.sensors
+        );
+        std::vector<std::uint32_t> contactCounts(
+            config.environments,
+            config.sensors
+        );
+        for (std::uint32_t environment = 0u;
+             environment < config.environments;
+             ++environment) {
+            for (std::uint32_t sensor = 0u;
+                 sensor < config.sensors;
+                 ++sensor) {
+                const std::uint32_t localBacking =
+                    (environment + sensor) %
+                    config.backingsPerSensor;
+                MRTactileContactGPU& contact = contacts[
+                    static_cast<std::size_t>(environment) *
+                        config.sensors +
+                    sensor
+                ];
+                contact.shapesAndFlags = {
+                    sensor * config.backingsPerSensor +
+                        localBacking,
+                    backingCount,
+                    MR_TACTILE_CONTACT_SOLVER_IMPULSE,
+                    0u,
+                };
+                contact.worldPoint = {
+                    0.0f, 0.0f, 0.004f, 0.0f,
+                };
+                contact.worldImpulseOnA = {
+                    0.0f, 0.0f, 0.01f, 0.0f,
+                };
+                contact.solverImpulseAndFriction = {
+                    0.01f, 0.002f, 0.5f, 0.5f,
+                };
+            }
+        }
 
         metalrobo::MetalTactileConfig runtimeConfig;
-        runtimeConfig.contactCapacityPerEnvironment = 1u;
+        runtimeConfig.contactCapacityPerEnvironment =
+            config.sensors;
         runtimeConfig.enableDebugHits = false;
         metalrobo::MetalTactileContext runtime(runtimeConfig);
         const auto compileStart =
@@ -263,7 +334,10 @@ int main(const int argc, const char* const* argv) {
         metalrobo::MetalTactileHostFrame frame;
         frame.environmentCount = config.environments;
         frame.bodies = bodies;
+        frame.contacts = contacts;
+        frame.contactCounts = contactCounts;
         frame.observationTimestepSeconds = 1.0f / 60.0f;
+        frame.contactImpulseTimestepSeconds = 1.0f / 60.0f;
         for (std::uint32_t iteration = 0u;
              iteration < config.warmupIterations;
              ++iteration) {
@@ -337,6 +411,15 @@ int main(const int argc, const char* const* argv) {
             << ",\"environments\":" << config.environments
             << ",\"sensors_per_environment\":"
             << config.sensors
+            << ",\"backings_per_sensor\":"
+            << config.backingsPerSensor
+            << ",\"backing_records\":"
+            << tactile.backingShapeIndices.size()
+            << ",\"contact_contributions_per_environment\":"
+            << config.sensors
+            << ",\"shape_to_sensor_lookup_bytes\":"
+            << tactile.shapeToSensor.size() *
+                sizeof(std::uint32_t)
             << ",\"width\":" << config.width
             << ",\"height\":" << config.height
             << ",\"update_period_steps\":"

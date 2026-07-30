@@ -947,6 +947,7 @@ kernel void mr_tactile_reduce(
     device MRTactileSummaryGPU* summaries [[buffer(11)]],
     device MRTactileStatusGPU* statuses [[buffer(12)]],
     device const ulong* frameIndices [[buffer(13)]],
+    device const uint* shapeToSensor [[buffer(14)]],
     const uint threadIndex [[thread_position_in_grid]]
 ) {
     const uint total =
@@ -1053,11 +1054,19 @@ kernel void mr_tactile_reduce(
         const MRTactileContactGPU contact =
             contacts[contactBase + contactIndex];
         float3 impulse = float3(0.0f);
-        if (contact.shapesAndFlags.x == sensor.topology.y) {
+        const uint shapeA = contact.shapesAndFlags.x;
+        const uint shapeB = contact.shapesAndFlags.y;
+        const uint sensorA =
+            shapeA < dispatch.geometryCounts.x
+            ? shapeToSensor[shapeA]
+            : MR_INVALID_INDEX;
+        const uint sensorB =
+            shapeB < dispatch.geometryCounts.x
+            ? shapeToSensor[shapeB]
+            : MR_INVALID_INDEX;
+        if (sensorA == sensorIndex) {
             impulse = contact.worldImpulseOnA.xyz;
-        } else if (
-            contact.shapesAndFlags.y == sensor.topology.y
-        ) {
+        } else if (sensorB == sensorIndex) {
             impulse = -contact.worldImpulseOnA.xyz;
         } else {
             continue;

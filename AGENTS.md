@@ -50,11 +50,11 @@ cmake --build build --target metalrobo_tactile_check
 ./build/bin/metalrobo_tactile_check
 ```
 
-The Franka flow is an example, not a second test suite:
+The consolidated tactile flow is an example, not a second test suite:
 
 ```sh
-cmake --build build --target metalrobo_franka_tactile_example
-./build/bin/metalrobo_franka_tactile_example
+cmake --build build --target metalrobo_tactile_example
+./build/bin/metalrobo_tactile_example franka-grasp
 ```
 
 Keep benchmark commands out of correctness workflows unless the change can

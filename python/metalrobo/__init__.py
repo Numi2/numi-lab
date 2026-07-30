@@ -51,7 +51,7 @@ from .tactile import (
     FILTERED_TARGET,
     SAMPLE_VALID,
     TACTILE_ABI_VERSION,
-    FrankaTactileObservation,
+    NativeTactileObservation,
     TactileCalibrationRecord,
     TactileDeviceBuffers,
     TactileLayout,
@@ -121,6 +121,8 @@ from .tactile_latent import (
     TactilePolicyInput,
     TactileReconstructionDecoder,
     check_stateful_encoder_parity,
+    canonical_metric_tactile_policy_observation,
+    canonical_metric_tactile_stem,
     canonical_tactile_encoder_input,
     contact_event_targets,
     explicitly_impute_missing_touch,
@@ -147,6 +149,10 @@ from .mlx_ppo import (
     MLXRolloutBatch,
     MLXRolloutCollector,
     MLXRolloutState,
+)
+from .mlx_tactile_manipulation import (
+    MLXFrankaTactilePPOTrainer,
+    MLXFrankaTactileRolloutCollector,
 )
 from .mlx_family_ppo import (
     MLXFamilyRolloutBatch,
@@ -249,7 +255,7 @@ __all__ = [
     "FrankaPrivilegedTeacherConfig",
     "FrankaTaskEvidence",
     "FrankaTaskPhase",
-    "FrankaTactileObservation",
+    "NativeTactileObservation",
     "DEPTH_VALID",
     "FRAME_VALID",
     "GAUSSIAN_ASSET_LOCAL",
@@ -277,6 +283,8 @@ __all__ = [
     "MLXCompiledWorld",
     "MLXFamilyRolloutBatch",
     "MLXFamilyRolloutState",
+    "MLXFrankaTactilePPOTrainer",
+    "MLXFrankaTactileRolloutCollector",
     "MLXG1PPOTrainer",
     "MLXG1RolloutCollector",
     "MLXPSMNeedlePPOTrainer",

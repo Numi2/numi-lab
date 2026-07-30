@@ -11,7 +11,6 @@ import mlx.core as mx
 
 from metalrobo import (
     ActorCritic,
-    MLXG1RolloutCollector,
     MLXPPOTrainer,
     MLXRolloutCollector,
     PPOConfig,
@@ -312,40 +311,29 @@ def main() -> None:
         velocity_iterations=2,
         final_velocity_iterations=1,
     )
-    g1_policy = ActorCritic(
-        g1_contact_world.nq + g1_contact_world.nv,
-        g1_contact_world.nv - 6,
-        (32, 32),
-    )
-    mx.eval(g1_policy.parameters())
-    g1_collector = MLXG1RolloutCollector(
-        g1_contact_world,
-        g1_policy,
-        2,
-        gamma=0.99,
-        gae_lambda=0.95,
-        chunk_size=2,
-        maximum_episode_steps=8,
-    )
-    g1_rollout_state, g1_rollout = g1_collector.collect(
-        g1_collector.initial(),
-        4,
-    )
-    mx.eval(g1_rollout_state, g1_rollout)
-    require(
-        g1_rollout.observations.shape == (4, 2, 71)
-        and g1_rollout.latents.shape == (4, 2, 29)
-        and int(
-            mx.sum(
-                g1_rollout.physics_errors.astype(mx.uint32)
-            ).item()
-        )
-        == 0
-        and all(
-            math.isfinite(value)
-            for value in g1_rollout.rewards.reshape((-1,)).tolist()
+    g1_state = initial_state(g1_contact_world, 2)
+    g1_targets = mx.concatenate(
+        (
+            mx.zeros((2, 6), dtype=mx.float32),
+            mx.broadcast_to(
+                mx.array(
+                    g1_contact_world.default_q[7:],
+                    dtype=mx.float32,
+                ),
+                (2, g1_contact_world.nv - 6),
+            ),
         ),
-        "G1 contact PPO rollout left MLX or produced invalid physics",
+        axis=-1,
+    )
+    g1_result = step(
+        g1_contact_world,
+        g1_state,
+        g1_targets,
+    )
+    mx.eval(g1_result)
+    require(
+        g1_result.physics_error.tolist() == [False, False],
+        "G1 contact step left MLX or produced invalid physics",
     )
 
     terrain_world = compile_world(

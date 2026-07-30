@@ -39,10 +39,11 @@ code.
 - A paired-data MLX camera-to-depth translator trainer for the physical side.
 - Optional MLX shared-latent, reconstruction, object-field, and tactile
   dynamics models above the canonical observation.
-- A Franka two-fingertip contact and closed-loop stabilization evaluation.
+- Authored Franka finger, G1 plantar, and da Vinci PSM jaw product flows.
 
 It is not FEM, a soft-body elastomer, a tactile RGB renderer, or a complete
-pressure/shear model. No real-hardware transfer is claimed by this repository.
+tangential membrane model. No real-hardware transfer is claimed by this
+repository.
 
 ## Contact model
 
@@ -57,12 +58,14 @@ S_s  undeformed outer sensing boundary and solver rest-offset surface
 S_u  authored rigid backing collision surface
 ```
 
-The backing collider remains an ordinary rigid shape. Its positive
-`restOffset` is the shell thickness and its `contactOffset` is at least that
-large. The tactile cooker rejects a sensor whose configured shell and backing
-offset disagree. The material's bounded compliance allows a small, stable
-compression of the solver's rest-offset surface while the rigid backing
-prevents unbounded passage.
+Each backing collider remains an ordinary rigid shape. A sensor owns one or
+more backing shapes on the same body. Their positive `restOffset` is the shell
+thickness and their `contactOffset` is at least that large. The tactile cooker
+rejects mixed ownership, duplicate ownership, incompatible filters, or
+inconsistent shell/contact offsets. Materials may differ; each solver contact
+retains its actual friction coefficients. Bounded material compliance allows
+a small, stable compression of the solver's rest-offset surface while the
+rigid backing prevents unbounded passage.
 
 For sample rest position `p_s`, outward unit normal `n`, and maximum measurable
 depth `d_max`, the runtime queries
@@ -88,10 +91,10 @@ impulses divided by the explicitly supplied impulse interval.
 | Platform layer | Tactile integration |
 | --- | --- |
 | Episode authoring | `EpisodeTwin::tactileSensors` owns the physical sensor definition and target filters. |
-| World compiler | Validates backing/contact semantics, cooks samples, and fingerprints the complete observation definition. |
+| World compiler | Validates compound backing/contact semantics, cooks one flat backing arena and direct shape-to-sensor lookup, then fingerprints the complete observation definition. |
 | World assets | `WorldTemplate::tactileSystem` contains pointer-free GPU records; runtime atlas processing is forbidden. |
 | World packs | The current pack serializes tactile data and authored visual data as one contract. |
-| Collision/contact | Target geometry reuses cooked engine shapes and BVH4; wrench data is adapted from actual solved manifolds. |
+| Collision/contact | Target geometry reuses cooked engine shapes and BVH4; each solved contact contributes to at most two directly looked-up tactile sensors with opposite wrench signs. |
 | Physics stepping | The tactile encoder accepts body states and solver contacts from the same step and distinguishes observation `dt` from impulse `dt`. |
 | Metal resources | Static geometry is shared; dense outputs/history are fixed-capacity environment-major private buffers. |
 | RL observations | Depth, depth velocity, tangent motion, validity, identity, named summaries, and status are directly borrowable `MTLBuffer` objects or named MLX arrays. |
@@ -101,16 +104,17 @@ impulses divided by the explicitly supplied impulse interval.
 | Real sensors | Paired calibration JSONL and an MLX translator produce the same metric map; simulation never calls the network. |
 | Learned interface | Modality-specific MLX stems publish a 64-value latent with explicit presence, confidence, and recurrent state. |
 
-Tactile does not introduce a visual compatibility route. Authored visual
-presentation remains V2-only. A missing V2 visual pack still fails through the
-visual compiler; collision geometry is never promoted into a V1 presentation
-scene and no fallback visual hash is synthesized.
+Tactile does not introduce a visual compatibility route. Visualization
+requires an explicit Visual Presentation V3 scene and complete sectioned V2
+asset/environment packs. Headless worlds need no presentation assets.
+Collision geometry is never promoted into a presentation scene and no
+fallback pack hash is synthesized.
 
 ## Cooked sensor definition
 
 `TactileSensorAuthoring` identifies:
 
-- the owning body and rigid backing shape;
+- the owning body and one or more rigid backing shapes;
 - a local sensor pose;
 - atlas dimensions and surface kind;
 - maximum depth, active threshold, shell thickness, and query epsilon;
@@ -131,6 +135,28 @@ Flat maps use cell-centred samples and exact cell area. Spherical maps sample
 the authored angular patch, use a local normal at every point, and include the
 spherical area Jacobian. Custom atlases permit irregular fingertips and
 invalid image regions without flattening the physical query domain.
+
+The cooked backing indices live in one immutable arena with a range per
+sensor. A shape-sized lookup stores one sensor ordinal or the invalid sentinel,
+so solver-contact reduction never scans a sensor's backing list. One contact
+record can update the sensor on shape A, shape B, or both. Dense depth samples
+do not fabricate pressure or distributed force.
+
+## Authored embodiments
+
+- Franka retains its two 32x32 fingertip atlases and one-element backing lists.
+- Unitree G1 has two 32x32 plantar atlases. Each atlas is four deterministic
+  spherical-cap patches separated by invalid cells and backed by the four
+  existing contact spheres of one foot. The target is explicitly authored
+  terrain; no hand sensing is inferred.
+- The dVRK PSM Large Needle Driver has one 32x32 inner-jaw atlas per jaw. Each
+  atlas contains a medial capsule strip and two tooth patches backed by that
+  jaw's capsule and tooth spheres. The single-PSM needle world has two sensors;
+  the rebased dual-PSM composition has four without a second schema.
+
+All three use the same virtual sensing shell and rigid backing contact model.
+The G1 and PSM actuator values remain simulation engineering values, not
+measured hardware calibration.
 
 ## Query backends
 
@@ -165,7 +191,7 @@ Depth remains FP32 and in metres through the native publication boundary.
 | `depth_velocity_m_per_s` | Difference from the previous updated map divided by the elapsed observation interval. |
 | `validity_bits` | Physical sample, active contact, saturation, and target-filter flags. |
 | `object_shape_id` | Stable selected target shape, or `MR_INVALID_INDEX`. |
-| `tangential_displacement_u_m` / `v_m` | Bounded target-anchor motion in the cooked sample tangent frame. This is a kinematic proxy, not elastomer strain. |
+| `tangential_displacement_u_m` / `v_m` | Bounded target-anchor motion in the cooked sample tangent frame. This is rigid-body kinematics, not membrane deformation. |
 | `surface_velocity_u_m_per_s` / `v_m_per_s` | Instantaneous target-minus-sensor point velocity projected onto the cooked tangents. |
 | `sensor_pose` / `timestamp_s` | Sensor-to-world pose and sampled time. |
 | `net_force_n` | Sum of solver impulses on the backing shape divided by the solver impulse interval. |
@@ -199,7 +225,12 @@ velocity, tangent motion, validity, object IDs, summaries, and statuses
 directly to the native tensor boundary. Host `observe` and `readback` are
 convenience and diagnostic paths.
 
-The authored-pack MLX path owns the same cooked sensor arena. After the final
+The C, Swift, and Python native contexts require an explicit `.mrworld` pack
+and compile its cooked tactile system. They do not construct a hidden Franka
+scene or infer sensors from collision geometry.
+
+The authored-pack MLX path owns the same cooked sensor and backing arenas.
+After the final
 solver microstep, `WorldStepPrimitive` materializes committed body velocity,
 packs final solver contacts, samples tactile geometry, reduces summaries, and
 publishes named arrays on MLX's active command encoder. Previous depth,
@@ -304,6 +335,16 @@ claimed trained by the repository. Reduced-order MPM, sensor-specific shear
 rendering, and force-adapter pretraining remain offline calibration tools, not
 live physics modes.
 
+The Franka, G1, and PSM tactile tasks require an explicit authored pack. Their
+common deterministic baseline directly pools metric depth, depth velocity, and
+all four tangent-motion components into 48 values, then appends the 16 named
+physical summaries. It avoids materializing the full seven-channel encoder
+atlas when no learned CNN is active. This yields the same
+`[environment, sensor, 64]` boundary plus presence and confidence for both
+embodiments. It is not presented as a trained cross-sensor latent; a learned
+`SharedTactileEncoder` replaces it only with matching trained weights and the
+same observation fingerprint.
+
 ## Actuator transfer boundary
 
 Accurate touch does not compensate for an idealized actuator. An optional
@@ -331,9 +372,9 @@ performance tool:
   saturation, temporal updates, solver wrench, center of pressure, tangent
   projection, anchor resets, identity changes, friction utilization, and
   batched determinism.
-- `metalrobo_franka_tactile_example` exercises the normal authored world-pack
-  flow, actual contact evidence, native buffers, deterministic feedback, and
-  optional visualization.
+- `metalrobo_tactile_example` selects `franka-grasp`, `g1-balance`, or
+  `psm-needle` at startup and exercises authored world packs, actual contact
+  evidence, native buffers, deterministic replay, and optional debugging.
 - `metalrobo_tactile_benchmark` is not a regression suite; it exists only for
   explicit performance measurements.
 
@@ -343,32 +384,36 @@ Run:
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target \
   metalrobo_tactile_check \
-  metalrobo_franka_tactile_example \
+  metalrobo_tactile_example \
   metalrobo_tactile_benchmark
 ./build/bin/metalrobo_tactile_check
-./build/bin/metalrobo_franka_tactile_example
-./build/bin/metalrobo_franka_tactile_example \
+./build/bin/metalrobo_tactile_example franka-grasp
+./build/bin/metalrobo_tactile_example g1-balance
+./build/bin/metalrobo_tactile_example psm-needle \
   --debug-dir /tmp/metalrobo-tactile-debug
 ```
 
-The standalone benchmark reports compile time, median/p95/min/max observation
-time, tactile frames/s, samples/s, retained bytes, per-environment bytes, and
-explicit diagnostic-readback time as one JSON object. It does not invent
-stage timings that Metal has not counter-sampled.
+The standalone benchmark supplies one solver-contact contribution per sensor
+so compound ownership lookup is exercised. It reports compile time,
+median/p95/min/max observation time, tactile frames/s, samples/s, backing and
+lookup storage, retained bytes, per-environment bytes, and explicit
+diagnostic-readback time as one JSON object. It does not invent stage timings
+that Metal has not counter-sampled.
 The measured Apple M4 matrix is recorded in `docs/TACTILE_PERFORMANCE.md`.
 
 ```sh
 ./build/bin/metalrobo_tactile_benchmark \
-  --environments 256 --sensors 2 --width 32 --height 32 \
+  --environments 256 --sensors 2 --backings-per-sensor 4 \
+  --width 32 --height 32 \
   --warmup 3 --iterations 9
 ```
 
 ## Current limits
 
 - Tangent displacement is a bounded rigid-anchor motion proxy. It is not
-  distributed elastomer shear, micro-slip, viscoelastic memory, elastic waves,
+  a deformable-membrane state, micro-slip, viscoelastic memory, elastic waves,
   optical appearance, or a complete force field.
-- The compliant shell is a calibrated rigid-contact engineering model, not a
+- The compliant shell is a bounded rigid-contact engineering model, not a
   deformable continuum.
 - Capsule exit uses bounded bisection.
 - Closed triangle meshes only; mesh parity near non-manifold geometry is
@@ -379,7 +424,7 @@ The measured Apple M4 matrix is recorded in `docs/TACTILE_PERFORMANCE.md`.
 - Only the local Apple GPU used by the recorded run has been measured. Results
   must not be generalized to other Apple GPU generations without rerunning the
   benchmark.
-- The Franka example evaluates a deterministic tactile feedback law; it is
-  not evidence of a trained or physically transferred policy.
-- Franka actuator values are not fabricated. Hardware transfer evaluation
-  remains blocked on measured profiles and physical sensor/encoder artifacts.
+- The product example evaluates deterministic simulator flows; it is not
+  evidence of trained or physically transferred policies.
+- Hardware transfer evaluation remains blocked on measured actuator profiles
+  and physical sensor/encoder artifacts.

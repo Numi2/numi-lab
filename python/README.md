@@ -132,6 +132,7 @@ Authored tactile worlds enter through the same primitive:
 from metalrobo import (
     SharedTactileEncoder,
     TactileAtlasRange,
+    canonical_metric_tactile_policy_observation,
     canonical_tactile_encoder_input,
     compile_world_pack,
 )
@@ -148,6 +149,13 @@ output = step(
     state.actuators.effective_position_target,
 )
 encoder_input = canonical_tactile_encoder_input(
+    output.tactile,
+    (
+        TactileAtlasRange(0, 32, 32),
+        TactileAtlasRange(1024, 32, 32),
+    ),
+)
+policy_touch = canonical_metric_tactile_policy_observation(
     output.tactile,
     (
         TactileAtlasRange(0, 32, 32),
@@ -173,6 +181,11 @@ arrays. A pack without authored tactile sensors has zero-sized tactile state
 and encodes no tactile dispatch. Learned real-sensor encoders are registered
 as exact artifacts; a missing encoder does not fall back to simulated or
 imagined touch.
+
+The built-in tactile PPO tasks use `policy_touch`: one deterministic
+64-value metric stem per sensor plus presence and confidence. The learned
+encoder occupies the same policy boundary only after matching weights are
+available; random weights are never presented as a cross-sensor latent.
 
 The active-encoder primitive supports Franka, G1, and PSM through the same
 device graph. Available contact scenes include dynamic cube/ground,
@@ -224,6 +237,22 @@ line-search safeguards for scalar bounded rows. Supported compositions are
 ## MLX-native PPO
 
 ```sh
+./build/bin/metalrobo_tactile_example franka-grasp \
+  --write-world-pack /tmp/franka-tactile.mrworld
+./build/bin/metalrobo_tactile_example g1-balance \
+  --write-world-pack /tmp/g1-tactile.mrworld
+./build/bin/metalrobo_tactile_example psm-needle \
+  --write-world-pack /tmp/psm-tactile.mrworld
+
+metalrobo train \
+  --backend mlx \
+  --task franka-grasp \
+  --world-pack /tmp/franka-tactile.mrworld \
+  --envs 1024 \
+  --rollout-steps 64 \
+  --iterations 1000 \
+  --checkpoint-dir runs/franka-grasp
+
 metalrobo train \
   --backend mlx \
   --envs 1024 \
@@ -235,6 +264,7 @@ metalrobo train \
 metalrobo train \
   --backend mlx \
   --task g1-standing \
+  --world-pack /tmp/g1-tactile.mrworld \
   --envs 2048 \
   --rollout-steps 64 \
   --iterations 1000
@@ -242,6 +272,7 @@ metalrobo train \
 metalrobo train \
   --backend mlx \
   --task g1-command \
+  --world-pack /tmp/g1-tactile.mrworld \
   --envs 2048 \
   --rollout-steps 64 \
   --iterations 1000
@@ -249,6 +280,7 @@ metalrobo train \
 metalrobo train \
   --backend mlx \
   --task g1-terrain \
+  --world-pack /path/to/explicit-authored-g1-terrain.mrworld \
   --envs 1024 \
   --rollout-steps 64 \
   --iterations 1000
@@ -256,6 +288,7 @@ metalrobo train \
 metalrobo train \
   --backend mlx \
   --task psm-needle \
+  --world-pack /tmp/psm-tactile.mrworld \
   --envs 1024 \
   --rollout-steps 64 \
   --iterations 1000
@@ -267,8 +300,11 @@ inside `mx.compile`; bounded lazy chunks use `mx.async_eval`. Blocking
 evaluation occurs only at declared rollout/logging, optimizer, and checkpoint
 boundaries.
 
-The CLI exposes `franka-stabilization`, `g1-standing`, `g1-command`,
-`g1-terrain`, and `psm-needle`. G1 command tasks carry episodic planar/yaw
+The CLI exposes the authored tactile tasks `franka-grasp`, `g1-standing`,
+`g1-command`, `g1-terrain`, and `psm-needle`, plus the separate contact-free
+Franka joint-stabilization diagnostic. Tactile tasks require `--world-pack`;
+the terrain command does not synthesize terrain or adapt a flat pack. G1
+command tasks carry episodic planar/yaw
 commands inside the compiled observation and resample them on transactional
 reset. Reset root position/yaw, joint pose, and generalized velocity are also
 randomized as MLX arrays without changing immutable model parameters. The G1

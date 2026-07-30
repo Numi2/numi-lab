@@ -1335,35 +1335,45 @@ MRVisualFrameMetadataC mr_hybrid_renderer_frame_metadata(
     return result;
 }
 
-MRTactileHandle* mr_tactile_create_franka(
+MRTactileHandle* mr_tactile_create_world_pack(
+    const char* world_pack_path,
     const uint32_t capacity,
     const uint32_t contact_capacity_per_environment,
     const char* metallib_path
 ) {
-    if (capacity == 0u ||
+    if (world_pack_path == nullptr ||
+        world_pack_path[0] == '\0' ||
+        capacity == 0u ||
         contact_capacity_per_environment == 0u) {
         gLastError =
-            "tactile capacity and contact capacity must be positive.";
+            "authored tactile world path and capacities are required.";
         return nullptr;
     }
     MRTactileHandle* result = nullptr;
     const int status = translateErrors([&] {
-        metalrobo::EngineModel model =
-            metalrobo::makeFrankaTactileEngineModel();
-        metalrobo::WorldTemplate world;
-        const auto compiled = metalrobo::compileEpisodeTwin(
-            metalrobo::makeFrankaTactileEpisodeTwin(),
-            model,
-            world
+        metalrobo::MRWorldPack pack;
+        const auto loaded = metalrobo::readWorldPack(
+            world_pack_path,
+            pack
         );
-        if (!compiled.succeeded()) {
+        if (!loaded.succeeded()) {
             throw std::runtime_error(
-                std::string{"Franka tactile world compile failed ["} +
-                std::to_string(
-                    static_cast<std::uint32_t>(
-                        compiled.status
-                    )
-                ) + "]: " + compiled.message
+                std::string{"authored tactile world load failed ["} +
+                metalrobo::worldPackStatusName(loaded.status) +
+                "]: " + loaded.message
+            );
+        }
+        const metalrobo::WorldTemplate& world =
+            pack.family.worldTemplate;
+        std::string reason;
+        if (!world.valid(&reason)) {
+            throw std::runtime_error(
+                "authored tactile world is incomplete: " + reason
+            );
+        }
+        if (world.tactileSystem.sensors.empty()) {
+            throw std::runtime_error(
+                "authored world pack contains no tactile sensors"
             );
         }
         metalrobo::MetalTactileConfig config;
@@ -1378,12 +1388,12 @@ MRTactileHandle* mr_tactile_create_franka(
         };
         const auto diagnostics = handle->context.compile(
             world.tactileSystem,
-            model,
+            world.engineModel,
             capacity
         );
         if (!diagnostics.succeeded()) {
             throw std::runtime_error(
-                std::string{"Franka tactile Metal compile failed ["} +
+                std::string{"authored tactile Metal compile failed ["} +
                 metalrobo::metalTactileStatusName(
                     diagnostics.status
                 ) + "]: " + diagnostics.message

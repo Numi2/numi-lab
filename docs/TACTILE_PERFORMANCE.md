@@ -40,6 +40,23 @@ The p95 spread is materially larger than the medians on this fanless host.
 These short runs are useful implementation checks, not thermal
 characterization.
 
+### Compound ownership lookup spot check
+
+The current compound-surface benchmark writes one solver-contact contribution
+per sensor, so reduction executes the immutable shape-to-sensor lookup. Two
+back-to-back 256-environment, two-sensor, 32x32 runs with 5 warm-up and 20
+measured iterations produced:
+
+| Backings/sensor | Median observe ms | p95 ms | Retained bytes | Lookup bytes |
+| ---: | ---: | ---: | ---: | ---: |
+| 1 | 1.5300625 | 3.70657085 | 65,475,280 | 12 |
+| 4 | 1.5264795 | 5.79898895 | 65,475,972 | 36 |
+
+The median difference is within the noise of this short run. The four-backing
+case retained 692 additional bytes in total. The p95 values are reported
+without interpretation because the host had just restarted and was still
+settling background services.
+
 ## What is not measured here
 
 - per-kernel geometry, reduction, and history counter samples;
@@ -56,6 +73,7 @@ These are left explicit rather than inferred from the aggregate numbers.
 
 ```sh
 ./build/bin/metalrobo_tactile_benchmark \
-  --environments 256 --sensors 2 --width 32 --height 32 \
+  --environments 256 --sensors 2 --backings-per-sensor 4 \
+  --width 32 --height 32 \
   --warmup 5 --iterations 15
 ```

@@ -354,10 +354,12 @@ MR_API MRVisualFrameMetadataC mr_hybrid_renderer_frame_metadata(
     const MRHybridRendererHandle* handle
 );
 
-// Canonical Franka tactile frontend. encode() borrows id<MTLBuffer> inputs
-// and a live id<MTLComputeCommandEncoder>; it neither commits nor waits.
-// Passing null contact buffers produces geometry-only observations.
-MR_API MRTactileHandle* mr_tactile_create_franka(
+// Canonical authored-world tactile frontend. encode() borrows id<MTLBuffer>
+// inputs and a live id<MTLComputeCommandEncoder>; it neither commits nor
+// waits. Passing null contact buffers produces geometry-only observations.
+// The pack must contain explicit cooked tactile sensors.
+MR_API MRTactileHandle* mr_tactile_create_world_pack(
+    const char* world_pack_path,
     uint32_t capacity,
     uint32_t contact_capacity_per_environment,
     const char* metallib_path
@@ -390,8 +392,7 @@ MR_API const char* mr_tactile_observation_metadata_json(
 );
 // buffer_kind: 0 depth float, 1 depth velocity float, 2 validity uint,
 // 3 object shape uint, 4 optional debug hit, 5 summary, 6 status,
-// 7 tangential-motion float4. The headless Franka context returns null for
-// kind 4.
+// 7 tangential-motion float4. A headless context returns null for kind 4.
 MR_API void* mr_tactile_native_buffer(
     const MRTactileHandle* handle,
     uint32_t buffer_kind

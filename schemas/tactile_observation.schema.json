@@ -176,7 +176,7 @@
         "shell_thickness_m",
         "update_period_steps",
         "parent_body",
-        "backing_shape"
+        "backing_shapes"
       ],
       "properties": {
         "id": {
@@ -222,9 +222,14 @@
           "type": "integer",
           "minimum": 0
         },
-        "backing_shape": {
-          "type": "integer",
-          "minimum": 0
+        "backing_shapes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
         }
       }
     }

@@ -71,8 +71,10 @@ enum MRTactileStatusCode : mr_u32 {
 };
 
 typedef struct MR_ALIGN16 MRTactileSensorGPU {
-    // Parent body, rigid backing shape, first sample, sample count.
+    // Parent body, reserved, first sample, sample count.
     mr_uint4 topology;
+    // First backing-shape arena record, backing count, reserved, reserved.
+    mr_uint4 backingRange;
     // Atlas width/height, first target-shape index, target count.
     mr_uint4 atlasAndTargets;
     // Update period in physics steps, surface kind, flags, stable ordinal.
@@ -131,8 +133,8 @@ typedef struct MR_ALIGN16 MRTactileContactGPU {
 typedef struct MR_ALIGN16 MRTactileTangentialMotionGPU {
     // Bounded contact-relative displacement in the cooked sample tangent
     // frame (metres), followed by instantaneous target-minus-sensor surface
-    // velocity in the same frame (metres/second). The displacement is a
-    // kinematic contact-history proxy, not elastomer strain.
+    // velocity in the same frame (metres/second). The displacement is bounded
+    // rigid-body contact-history kinematics, not membrane deformation.
     mr_float4 displacementAndVelocity;
 } MRTactileTangentialMotionGPU;
 
@@ -198,7 +200,7 @@ static_assert(
 static_assert(std::is_trivially_copyable_v<MRTactileHitGPU>);
 static_assert(std::is_trivially_copyable_v<MRTactileSummaryGPU>);
 static_assert(std::is_trivially_copyable_v<MRTactileStatusGPU>);
-static_assert(sizeof(MRTactileSensorGPU) == 96u);
+static_assert(sizeof(MRTactileSensorGPU) == 112u);
 static_assert(sizeof(MRTactileSampleGPU) == 80u);
 static_assert(sizeof(MRTactileDispatchGPU) == 80u);
 static_assert(sizeof(MRTactileContactGPU) == 64u);

@@ -538,6 +538,8 @@ void writeTactileSystem(
     writeStringVector(writer, tactile.sensorIds);
     writer.podVector(tactile.sensors);
     writer.podVector(tactile.samples);
+    writer.podVector(tactile.backingShapeIndices);
+    writer.podVector(tactile.shapeToSensor);
     writer.podVector(tactile.targetShapeIndices);
 }
 
@@ -550,6 +552,8 @@ bool readTactileSystem(
         readStringVector(reader, tactile.sensorIds) &&
         reader.podVector(tactile.sensors) &&
         reader.podVector(tactile.samples) &&
+        reader.podVector(tactile.backingShapeIndices) &&
+        reader.podVector(tactile.shapeToSensor) &&
         reader.podVector(tactile.targetShapeIndices);
 }
 

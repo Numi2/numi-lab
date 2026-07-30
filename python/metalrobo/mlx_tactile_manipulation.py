@@ -1,4 +1,4 @@
-"""Pure-MLX surgical control and learning for the PSM contact world."""
+"""Franka tactile grasp stabilization on an explicit authored world pack."""
 
 from __future__ import annotations
 
@@ -35,42 +35,6 @@ _DUAL_32_TACTILE_ATLASES = (
 )
 
 
-def _tactile_policy_observation(tactile) -> mx.array:
-    return canonical_metric_tactile_policy_observation(
-        tactile,
-        _DUAL_32_TACTILE_ATLASES,
-    )
-
-
-def psm_physical_position_targets(
-    logical_targets: mx.array,
-) -> mx.array:
-    """Expand six arm targets plus jaw aperture into eight PSM coordinates.
-
-    ``logical_targets[..., :6]`` map directly to the arm. The final
-    non-negative aperture is split symmetrically across the independent jaws.
-    The physics model intentionally keeps both jaw coordinates explicit until
-    tendon/transmission constraints are executable.
-    """
-
-    if logical_targets.ndim < 1 or logical_targets.shape[-1] != 7:
-        raise ValueError(
-            "PSM logical targets must have a final dimension of 7"
-        )
-    aperture = mx.maximum(
-        logical_targets[..., 6:7],
-        mx.array(0.0, dtype=logical_targets.dtype),
-    )
-    return mx.concatenate(
-        (
-            logical_targets[..., :6],
-            -0.5 * aperture,
-            0.5 * aperture,
-        ),
-        axis=-1,
-    )
-
-
 def _select_environment(
     mask: mx.array,
     reset_value: mx.array,
@@ -86,13 +50,15 @@ def _select_environment(
     )
 
 
-class MLXPSMNeedleRolloutCollector:
-    """Physics-owned PSM needle hold/lift rollout.
+def _tactile_policy_observation(tactile) -> mx.array:
+    return canonical_metric_tactile_policy_observation(
+        tactile,
+        _DUAL_32_TACTILE_ATLASES,
+    )
 
-    The needle remains a dynamic rigid body. Success is rewarded from its
-    measured pose and published contacts; no weld, teleport, or native grasp
-    state is introduced.
-    """
+
+class MLXFrankaTactileRolloutCollector:
+    """Compiled Franka grasp rollout with a real dynamic grasp object."""
 
     def __init__(
         self,
@@ -103,34 +69,32 @@ class MLXPSMNeedleRolloutCollector:
         gamma: float,
         gae_lambda: float,
         chunk_size: int = 16,
-        maximum_episode_steps: int = 400,
+        maximum_episode_steps: int = 256,
     ) -> None:
         if environment_count <= 0:
             raise ValueError("environment_count must be positive")
-        if chunk_size <= 0:
-            raise ValueError("chunk_size must be positive")
-        if maximum_episode_steps <= 0:
+        if chunk_size <= 0 or maximum_episode_steps <= 0:
             raise ValueError(
-                "maximum_episode_steps must be positive"
+                "chunk_size and maximum_episode_steps must be positive"
             )
         if (
             world.solver_mode == "free_motion_aba"
             or world.actuation_mode != "implicit_position"
             or world.floating_root
-            or world.nq != 8
-            or world.nv != 8
-            or world.scene_body_count != 1
+            or world.nq != 9
+            or world.nv != 9
+            or world.scene_body_count < 1
         ):
             raise ValueError(
-                "PSM needle rollouts require the fixed-base "
-                "eight-coordinate needle contact world"
+                "Franka tactile grasp requires the authored fixed-base "
+                "nine-coordinate contact world"
             )
         if (
             int(world.tactile_sensor_count) != 2
             or int(world.tactile_sample_count) != 2 * 32 * 32
         ):
             raise ValueError(
-                "PSM tactile rollouts require the authored dual-jaw "
+                "Franka tactile grasp requires the authored dual-finger "
                 "32x32 observation contract"
             )
         self.world = world
@@ -140,27 +104,55 @@ class MLXPSMNeedleRolloutCollector:
         self.gae_lambda = float(gae_lambda)
         self.chunk_size = chunk_size
         self.maximum_episode_steps = maximum_episode_steps
-        self.action_size = 7
-        self.default_state = initial_state(
-            world,
-            environment_count,
+        self.action_size = int(world.nv)
+        base_state = initial_state(world, environment_count)
+        initial_disturbance = mx.broadcast_to(
+            mx.array(
+                (0.0, 0.08, 0.0, 0.0),
+                dtype=mx.float32,
+            ).reshape((1, 1, 4)),
+            (
+                environment_count,
+                int(world.scene_body_count),
+                4,
+            ),
+        )
+        body_mask = (
+            mx.arange(int(world.scene_body_count))[None, :, None]
+            == 0
+        )
+        self.default_state = base_state._replace(
+            scene_bodies=base_state.scene_bodies._replace(
+                linear_velocity=(
+                    base_state.scene_bodies.linear_velocity
+                    + mx.where(
+                        body_mask,
+                        initial_disturbance,
+                        mx.zeros_like(initial_disturbance),
+                    )
+                )
+            )
         )
         self.default_q = mx.array(
             world.default_q,
             dtype=mx.float32,
         )
-        self.default_logical_targets = mx.concatenate(
+        self.default_object_position = (
+            base_state.scene_bodies.position[:, 0, :3]
+        )
+        self.action_scales = mx.array(
             (
-                self.default_q[:6],
-                self.default_q[7:8] - self.default_q[6:7],
-            )
-        )
-        self.target_scales = mx.array(
-            (0.05, 0.05, 0.015, 0.10, 0.10, 0.10, 0.18),
+                0.03,
+                0.03,
+                0.03,
+                0.03,
+                0.03,
+                0.03,
+                0.03,
+                0.002,
+                0.002,
+            ),
             dtype=mx.float32,
-        )
-        self.default_needle_position = (
-            self.default_state.scene_bodies.position[:, 0, :3]
         )
         self._compiled_step = mx.compile(
             self._policy_physics_reward,
@@ -182,22 +174,21 @@ class MLXPSMNeedleRolloutCollector:
                 scene.orientation[:, 0, :4],
                 scene.linear_velocity[:, 0, :3],
                 scene.angular_velocity[:, 0, :3],
-                contact_counts[:, None].astype(mx.float32) * 0.25,
+                contact_counts[:, None].astype(mx.float32) * 0.125,
                 tactile_policy,
             ),
             axis=-1,
         )
 
     def initial(self) -> MLXRolloutState:
-        contact_counts = mx.zeros(
-            (self.environment_count,),
-            dtype=mx.uint32,
-        )
         return MLXRolloutState(
             world=self.default_state,
             observations=self._observations(
                 self.default_state,
-                contact_counts,
+                mx.zeros(
+                    (self.environment_count,),
+                    dtype=mx.uint32,
+                ),
                 mx.zeros(
                     (self.environment_count, 132),
                     dtype=mx.float32,
@@ -207,6 +198,45 @@ class MLXPSMNeedleRolloutCollector:
                 (self.environment_count,),
                 dtype=mx.uint32,
             ),
+        )
+
+    def _reset_scene_linear_velocity(self) -> mx.array:
+        disturbance = mx.concatenate(
+            (
+                mx.zeros(
+                    (self.environment_count, 1),
+                    dtype=mx.float32,
+                ),
+                mx.random.uniform(
+                    low=-0.12,
+                    high=0.12,
+                    shape=(self.environment_count, 1),
+                ),
+                mx.zeros(
+                    (self.environment_count, 2),
+                    dtype=mx.float32,
+                ),
+            ),
+            axis=-1,
+        )
+        body_mask = (
+            mx.arange(int(self.world.scene_body_count))[None, :, None]
+            == 0
+        )
+        return (
+            self.default_state.scene_bodies.linear_velocity
+            + mx.where(
+                body_mask,
+                disturbance[:, None, :],
+                mx.zeros(
+                    (
+                        self.environment_count,
+                        int(self.world.scene_body_count),
+                        4,
+                    ),
+                    dtype=mx.float32,
+                ),
+            )
         )
 
     def _policy_physics_reward(
@@ -238,11 +268,9 @@ class MLXPSMNeedleRolloutCollector:
         observations: mx.array,
         episode_steps: mx.array,
         noise: mx.array,
-        default_logical_targets: mx.array,
-        target_scales: mx.array,
-        default_needle_position: mx.array,
-        reset_q: mx.array,
-        reset_v: mx.array,
+        default_q: mx.array,
+        action_scales: mx.array,
+        default_object_position: mx.array,
         reset_scene_position: mx.array,
         reset_scene_orientation: mx.array,
         reset_scene_linear_velocity: mx.array,
@@ -265,11 +293,7 @@ class MLXPSMNeedleRolloutCollector:
             latent,
             normalized_action,
         )
-        logical_targets = (
-            default_logical_targets
-            + target_scales * normalized_action
-        )
-        actions = psm_physical_position_targets(logical_targets)
+        actions = default_q + action_scales * normalized_action
         current = WorldState(
             q=q,
             v=v,
@@ -308,19 +332,19 @@ class MLXPSMNeedleRolloutCollector:
         )
         physics = step(self.world, current, actions)
         candidate = physics.next_state
-        needle_position = candidate.scene_bodies.position[:, 0, :3]
-        needle_velocity = candidate.scene_bodies.linear_velocity[:, 0, :3]
-        displacement = needle_position - default_needle_position
-        lift_error = displacement[:, 2] - 0.008
-        lateral_error = mx.sum(
-            mx.square(displacement[:, :2]),
+
+        object_position = candidate.scene_bodies.position[:, 0, :3]
+        object_velocity = candidate.scene_bodies.linear_velocity[:, 0, :3]
+        displacement = object_position - default_object_position
+        displacement_cost = mx.sum(mx.square(displacement), axis=-1)
+        velocity_cost = mx.sum(mx.square(object_velocity), axis=-1)
+        joint_cost = mx.mean(
+            mx.square(candidate.q - default_q),
             axis=-1,
         )
-        contact_counts = physics.contacts.counts
-        contact_support = mx.clip(
-            contact_counts.astype(mx.float32) / 2.0,
-            0.0,
-            1.0,
+        action_cost = mx.mean(
+            mx.square(normalized_action),
+            axis=-1,
         )
         tactile_summary = physics.tactile.summary
         tactile_force = mx.sqrt(
@@ -332,108 +356,94 @@ class MLXPSMNeedleRolloutCollector:
                 axis=-1,
             )
         )
-        tactile_support = mx.clip(
-            mx.sum(tactile_force, axis=-1) / 2.0,
+        bilateral_support = mx.clip(
+            mx.min(tactile_force, axis=-1) / 1.0,
             0.0,
             1.0,
+        )
+        force_balance = mx.square(
+            tactile_force[:, 0] - tactile_force[:, 1]
         )
         tactile_depth = mx.mean(
             tactile_summary.
                 centroid_local_and_mean_depth[..., 3],
             axis=-1,
         )
-        tactile_motion_cost = mx.mean(
-            mx.square(
-                tactile_summary.
-                    tangential_motion_and_friction[..., 0]
-            ),
-            axis=-1,
-        )
-        aperture = candidate.q[:, 7] - candidate.q[:, 6]
-        action_cost = mx.mean(
-            mx.square(normalized_action),
+        tangent_speed = mx.mean(
+            tactile_summary.
+                tangential_motion_and_friction[..., 0],
             axis=-1,
         )
         reward = (
-            2.0 * mx.exp(-20_000.0 * mx.square(lift_error))
-            + contact_support
-            + 0.5 * tactile_support
+            2.0 * mx.exp(-5_000.0 * displacement_cost)
+            + 0.75 * bilateral_support
             + 0.25 * mx.clip(
-                tactile_depth / 5.0e-5,
+                tactile_depth / 1.0e-4,
                 0.0,
                 1.0,
             )
-            + 0.25 * mx.clip(displacement[:, 2] / 0.008, 0.0, 1.0)
-            - 2_000.0 * lateral_error
-            - 0.01 * mx.sum(mx.square(needle_velocity), axis=-1)
-            - 0.02 * mx.square(aperture)
+            - 0.05 * velocity_cost
+            - 0.01 * force_balance
+            - 0.25 * joint_cost
             - 0.002 * action_cost
-            - 0.01 * tactile_motion_cost
+            - 0.02 * mx.square(tangent_speed)
         )
 
         next_episode_steps = episode_steps + mx.array(
             1,
             dtype=mx.uint32,
         )
-        horizon = (
-            next_episode_steps >= self.maximum_episode_steps
+        done = (
+            physics.physics_error
+            | (next_episode_steps >= self.maximum_episode_steps)
+            | (mx.sqrt(displacement_cost) > 0.08)
         )
-        lost = (
-            mx.sum(mx.square(displacement), axis=-1)
-            > 0.0064
-        )
-        done = physics.physics_error | horizon | lost
         next_q = _select_environment(
             done,
-            reset_q,
+            mx.broadcast_to(
+                default_q,
+                candidate.q.shape,
+            ),
             candidate.q,
         )
         next_v = _select_environment(
             done,
-            reset_v,
+            mx.zeros_like(candidate.v),
             candidate.v,
+        )
+        reset_scene = (
+            reset_scene_position,
+            reset_scene_orientation,
+            reset_scene_linear_velocity,
+            reset_scene_angular_velocity,
         )
         next_scene = [
             _select_environment(done, reset, current_value)
             for reset, current_value in zip(
-                (
-                    reset_scene_position,
-                    reset_scene_orientation,
-                    reset_scene_linear_velocity,
-                    reset_scene_angular_velocity,
-                ),
+                reset_scene,
                 candidate.scene_bodies,
                 strict=True,
             )
         ]
+        reset_cache = (
+            reset_manifold_headers,
+            reset_manifold_points,
+            reset_manifold_counts,
+            reset_pair_cache,
+            reset_rod_witnesses,
+        )
         next_cache = [
             _select_environment(done, reset, current_value)
             for reset, current_value in zip(
-                (
-                    reset_manifold_headers,
-                    reset_manifold_points,
-                    reset_manifold_counts,
-                    reset_pair_cache,
-                    reset_rod_witnesses,
-                ),
+                reset_cache,
                 candidate.solver_cache,
                 strict=True,
             )
         ]
-        next_episode_steps = mx.where(
-            done,
-            mx.zeros_like(next_episode_steps),
-            next_episode_steps,
-        )
-        next_contact_counts = mx.where(
-            done,
-            mx.zeros_like(contact_counts),
-            contact_counts,
-        )
         next_tactile = TactileState(
             *(
-                _select_environment(done, reset, value)
-                for reset, value in zip(
+                _select_environment(done, reset, current_value)
+                for reset, current_value in zip(
                     (
                         mx.zeros_like(
                             candidate.tactile.previous_depth_m
@@ -467,8 +477,8 @@ class MLXPSMNeedleRolloutCollector:
         )
         next_actuators = ActuatorState(
             *(
-                _select_environment(done, reset, value)
-                for reset, value in zip(
+                _select_environment(done, reset, current_value)
+                for reset, current_value in zip(
                     (
                         reset_actuator_effective_position_target,
                         reset_actuator_profile_values,
@@ -477,6 +487,16 @@ class MLXPSMNeedleRolloutCollector:
                     strict=True,
                 )
             )
+        )
+        next_episode_steps = mx.where(
+            done,
+            mx.zeros_like(next_episode_steps),
+            next_episode_steps,
+        )
+        next_contact_counts = mx.where(
+            done,
+            mx.zeros_like(physics.contacts.counts),
+            physics.contacts.counts,
         )
         tactile_policy = _select_environment(
             done,
@@ -536,9 +556,6 @@ class MLXPSMNeedleRolloutCollector:
 
         for index in range(rollout_steps):
             policy_observations = observations
-            noise = mx.random.normal(
-                (self.environment_count, self.action_size)
-            )
             result = self._compiled_step(
                 current.q,
                 current.v,
@@ -549,13 +566,16 @@ class MLXPSMNeedleRolloutCollector:
                 *current.actuators,
                 observations,
                 episode_steps,
-                noise,
-                self.default_logical_targets,
-                self.target_scales,
-                self.default_needle_position,
-                self.default_state.q,
-                self.default_state.v,
-                *self.default_state.scene_bodies,
+                mx.random.normal(
+                    (self.environment_count, self.action_size)
+                ),
+                self.default_q,
+                self.action_scales,
+                self.default_object_position,
+                self.default_state.scene_bodies.position,
+                self.default_state.scene_bodies.orientation,
+                self._reset_scene_linear_velocity(),
+                self.default_state.scene_bodies.angular_velocity,
                 *self.default_state.solver_cache,
                 *self.default_state.actuators,
             )
@@ -581,9 +601,9 @@ class MLXPSMNeedleRolloutCollector:
                 mx.async_eval(
                     current.q,
                     current.scene_bodies.position,
-                    current.solver_cache.manifold_counts,
+                    current.tactile.frame_index,
                     observations,
-                    result[15],
+                    result[16],
                 )
 
         _, final_value = self.model(observations)
@@ -640,8 +660,8 @@ class MLXPSMNeedleRolloutCollector:
         return next_state, batch
 
 
-class MLXPSMNeedlePPOTrainer(MLXPPOTrainer):
-    """PPO trainer for physics-owned PSM needle hold and lift."""
+class MLXFrankaTactilePPOTrainer(MLXPPOTrainer):
+    """PPO trainer for authored Franka tactile grasp stabilization."""
 
     def __init__(
         self,
@@ -650,17 +670,17 @@ class MLXPSMNeedlePPOTrainer(MLXPPOTrainer):
         world_pack_path: str,
         metallib_path: str | None = None,
         rollout_chunk_size: int = 16,
-        maximum_episode_steps: int = 400,
-        physics_substeps: int = 4,
-        velocity_iterations: int = 2,
-        final_velocity_iterations: int = 1,
+        maximum_episode_steps: int = 256,
+        physics_substeps: int = 8,
+        velocity_iterations: int = 4,
+        final_velocity_iterations: int = 2,
     ) -> None:
         config.validate()
         self.config = config
         mx.random.seed(config.seed)
         if not world_pack_path:
             raise ValueError(
-                "PSM tactile training requires an explicit authored "
+                "Franka tactile training requires an explicit authored "
                 "world pack"
             )
         self.world = compile_world_pack(
@@ -668,20 +688,20 @@ class MLXPSMNeedlePPOTrainer(MLXPPOTrainer):
             environment_capacity=config.environment_count,
             actuation_mode="implicit_position",
             solver_mode="throughput_tgs",
-            ccd_mode="hybrid",
+            ccd_mode="speculative",
             physics_substeps=physics_substeps,
             velocity_iterations=velocity_iterations,
             final_velocity_iterations=final_velocity_iterations,
             metallib_path=metallib_path or "",
         )
-        self.task_name = "psm_needle_hold_lift_tactile"
-        self.observation_size = 30 + 132
+        self.task_name = "franka_tactile_grasp_stabilization"
+        self.observation_size = 164
+        self.action_size = int(self.world.nv)
         self.tactile_observation_selection = (
             "canonical_metric_stem_64_per_sensor",
             "presence",
             "confidence",
         )
-        self.action_size = 7
         self.model = ActorCritic(
             self.observation_size,
             self.action_size,
@@ -694,7 +714,7 @@ class MLXPSMNeedlePPOTrainer(MLXPPOTrainer):
         )
         self.optimizer.init(self.model.trainable_parameters())
         mx.eval(self.model.parameters(), self.optimizer.state)
-        self.collector = MLXPSMNeedleRolloutCollector(
+        self.collector = MLXFrankaTactileRolloutCollector(
             self.world,
             self.model,
             config.environment_count,
@@ -713,7 +733,6 @@ class MLXPSMNeedlePPOTrainer(MLXPPOTrainer):
 
 
 __all__ = [
-    "MLXPSMNeedlePPOTrainer",
-    "MLXPSMNeedleRolloutCollector",
-    "psm_physical_position_targets",
+    "MLXFrankaTactilePPOTrainer",
+    "MLXFrankaTactileRolloutCollector",
 ]

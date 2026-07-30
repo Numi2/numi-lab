@@ -15,6 +15,9 @@ import numpy as np
 
 from .env import FrankaEnv
 from .mlx_locomotion import MLXG1PPOTrainer
+from .mlx_tactile_manipulation import (
+    MLXFrankaTactilePPOTrainer,
+)
 from .mlx_ppo import MLXPPOTrainer
 from .mlx_family_ppo import MLXWorldFamilyPPOTrainer
 from .mlx_replay import (
@@ -90,6 +93,7 @@ def _train_parser(parser: argparse.ArgumentParser) -> None:
         "--task",
         choices=(
             "franka-stabilization",
+            "franka-grasp",
             "franka-family-pick-place",
             "g1-standing",
             "g1-command",
@@ -122,6 +126,14 @@ def _train_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--checkpoint-dir")
     parser.add_argument("--checkpoint-interval", type=int, default=10)
     parser.add_argument("--resume", type=Path)
+    parser.add_argument(
+        "--world-pack",
+        type=Path,
+        help=(
+            "explicit authored world pack; required by Franka, G1, "
+            "and PSM tactile tasks"
+        ),
+    )
     parser.add_argument(
         "--rollout-chunk-size",
         type=int,
@@ -354,7 +366,15 @@ def run_train(args: argparse.Namespace) -> int:
         "g1-terrain",
     }
     psm_task = args.task == "psm-needle"
+    franka_tactile_task = args.task == "franka-grasp"
     family_task = args.task == "franka-family-pick-place"
+    if (
+        franka_tactile_task or g1_task or psm_task
+    ) and args.world_pack is None:
+        raise ValueError(
+            f"{args.task} requires --world-pack from the authored "
+            "tactile example or world pipeline"
+        )
     maximum_episode_steps = (
         args.maximum_episode_steps
         if args.maximum_episode_steps is not None
@@ -369,6 +389,8 @@ def run_train(args: argparse.Namespace) -> int:
         if args.task == "g1-command"
         else "runs/psm-needle"
         if psm_task
+        else "runs/franka-grasp"
+        if franka_tactile_task
         else "runs/franka-family"
         if family_task
         else "runs/franka"
@@ -400,7 +422,16 @@ def run_train(args: argparse.Namespace) -> int:
                 "--library applies only to --backend ctypes-debug; "
                 "the MLX primitive links the compiled engine directly"
             )
-        if family_task:
+        if franka_tactile_task:
+            trainer = MLXFrankaTactilePPOTrainer(
+                config,
+                world_pack_path=str(args.world_pack),
+                metallib_path=args.metallib,
+                rollout_chunk_size=args.rollout_chunk_size,
+                maximum_episode_steps=maximum_episode_steps,
+                physics_substeps=args.physics_substeps,
+            )
+        elif family_task:
             if not args.r2s2r_root or not args.alignment_hash:
                 raise ValueError(
                     "franka-family-pick-place requires --r2s2r-root "
@@ -441,10 +472,12 @@ def run_train(args: argparse.Namespace) -> int:
                 command_tracking=(
                     args.task in {"g1-command", "g1-terrain"}
                 ),
+                world_pack_path=str(args.world_pack),
             )
         elif psm_task:
             trainer = MLXPSMNeedlePPOTrainer(
                 config,
+                world_pack_path=str(args.world_pack),
                 metallib_path=args.metallib,
                 rollout_chunk_size=args.rollout_chunk_size,
                 maximum_episode_steps=maximum_episode_steps,

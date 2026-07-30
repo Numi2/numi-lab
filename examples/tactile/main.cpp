@@ -1,4 +1,6 @@
+// Consolidated tactile product flows for every authored embodiment.
 #include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/EmbodiedTactile.hpp"
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/MetalTactile.hpp"
 #include "metalrobo/MetalWorld.hpp"
@@ -135,7 +137,7 @@ std::vector<metalrobo::ArticulatedBodyKinematics> kinematics(
         );
     if (!diagnostics.succeeded()) {
         throw std::runtime_error(
-            "Franka tactile kinematics failed"
+            "tactile example articulated kinematics failed"
         );
     }
     return result;
@@ -348,34 +350,39 @@ metalrobo::TactileObservationBatch tactileObservation(
             frame,
             result
         ),
-        "Franka tactile CPU observation"
+        "tactile example CPU observation"
     );
     return result;
 }
 
 void verifyWorldPack(
-    const metalrobo::WorldFamily& family
+    const metalrobo::WorldFamily& family,
+    const std::optional<std::filesystem::path>& outputPath =
+        std::nullopt
 ) {
     metalrobo::MRWorldPack pack;
     require(
         metalrobo::compileWorldPack(family, pack),
         "compile tactile world pack"
     );
-    const std::filesystem::path path =
+    const std::filesystem::path path = outputPath.value_or(
         std::filesystem::temp_directory_path() /
         (
-            "metalrobo-franka-tactile-" +
+            "metalrobo-tactile-" +
             std::to_string(pack.contentHash) +
             ".mrworld"
-        );
+        )
+    );
     require(
         metalrobo::writeWorldPack(pack, path),
         "write tactile world pack"
     );
     metalrobo::MRWorldPack loaded;
     const auto read = metalrobo::readWorldPack(path, loaded);
-    std::error_code ignored;
-    std::filesystem::remove(path, ignored);
+    if (!outputPath.has_value()) {
+        std::error_code ignored;
+        std::filesystem::remove(path, ignored);
+    }
     require(read, "read tactile world pack");
     const auto& loadedSamples =
         loaded.family.worldTemplate.tactileSystem.samples;
@@ -398,17 +405,470 @@ void verifyWorldPack(
     );
 }
 
+std::vector<MRBodyStateGPU> authoredSceneStates(
+    const metalrobo::EngineModel& model,
+    const metalrobo::EpisodeTwin& episode,
+    const metalrobo::CompiledWorld& compiled
+) {
+    std::vector<MRBodyStateGPU> states;
+    states.reserve(compiled.sceneBodyIndices().size());
+    for (const std::uint32_t bodyIndex :
+         compiled.sceneBodyIndices()) {
+        const auto owner = std::ranges::find_if(
+            episode.assets,
+            [&](const metalrobo::WorldAsset& asset) {
+                return std::ranges::find(
+                    asset.bodyIndices,
+                    bodyIndex
+                ) != asset.bodyIndices.end();
+            }
+        );
+        require(
+            owner != episode.assets.end(),
+            "authored scene body is not owned by an episode asset"
+        );
+        MRBodyStateGPU state{};
+        state.position = owner->initialPose.position;
+        state.position.w = 1.0f;
+        state.orientation = owner->initialPose.orientation;
+        state.linearVelocityAndInverseMass.w =
+            model.bodies[bodyIndex].massAndInverseMass.y;
+        state.flagsAndIndices[0] =
+            model.bodies[bodyIndex].motionType;
+        state.flagsAndIndices[1] = MR_INVALID_INDEX;
+        state.flagsAndIndices[2] = bodyIndex;
+        states.push_back(state);
+    }
+    return states;
+}
+
+metalrobo::TactileSolverContactBatch packFinalContacts(
+    const metalrobo::EngineModel& model,
+    const metalrobo::MetalWorldResult& result,
+    const std::span<const MRBodyStateGPU> bodies
+) {
+    require(
+        !result.contactStatuses.empty(),
+        "tactile scenario produced no contact status"
+    );
+    const std::array activeContactCounts{
+        result.contactStatuses.back().activeContacts,
+    };
+    metalrobo::TactileSolverContactFrame frame;
+    frame.environmentCount = 1u;
+    frame.bodyCount =
+        static_cast<std::uint32_t>(model.bodies.size());
+    frame.contactCapacityPerEnvironment =
+        result.layout.contactDispatch.constraintCapacity;
+    frame.manifoldCapacityPerEnvironment =
+        result.layout.contactDispatch.manifoldCapacity;
+    frame.shapes = model.shapes;
+    frame.bodies = bodies;
+    frame.constraints = result.contactEvidence.contacts;
+    frame.metadata = result.contactEvidence.contactMetadata;
+    frame.manifoldHeaders =
+        result.contactEvidence.manifoldHeaders;
+    frame.activeContactCounts = activeContactCounts;
+    metalrobo::TactileSolverContactBatch contacts;
+    require(
+        metalrobo::packTactileSolverContacts(frame, contacts),
+        "pack tactile scenario solver impulses"
+    );
+    return contacts;
+}
+
+int runCompoundScenario(
+    const std::string_view scenario,
+    const std::optional<std::filesystem::path>& debugDirectory,
+    const std::optional<std::filesystem::path>& worldPackPath
+) {
+    metalrobo::EngineModel model;
+    metalrobo::EpisodeTwin episode;
+    float controlTimestep = 0.02f;
+    std::uint32_t controlSteps = 8u;
+    std::uint32_t physicsSubsteps = 8u;
+    metalrobo::MetalWorldCCDMode ccdMode =
+        metalrobo::MetalWorldCCDMode::speculative;
+    if (scenario == "g1-balance") {
+        model = metalrobo::makeUnitreeG1TactileEngineModel();
+        episode = metalrobo::makeUnitreeG1TactileEpisodeTwin();
+    } else if (scenario == "psm-needle") {
+        model = metalrobo::makeDvrkPsmTactileEngineModel();
+        episode = metalrobo::makeDvrkPsmTactileEpisodeTwin();
+        controlTimestep = 0.005f;
+        controlSteps = 24u;
+        ccdMode = metalrobo::MetalWorldCCDMode::hybrid;
+    } else {
+        throw std::runtime_error("unknown tactile example scenario");
+    }
+
+    metalrobo::WorldTemplate worldTemplate;
+    require(
+        metalrobo::compileEpisodeTwin(
+            episode,
+            model,
+            worldTemplate
+        ),
+        "compile authored tactile scenario"
+    );
+    require(
+        worldTemplate.tactileSystem.sensors.size() == 2u &&
+            worldTemplate.tactileSystem.samples.size() ==
+                2u * 32u * 32u,
+        "authored tactile scenario did not retain two 32x32 sensors"
+    );
+    metalrobo::WorldProgram program;
+    program.id = episode.id + "_program";
+    metalrobo::WorldFamily family;
+    require(
+        metalrobo::compileWorldFamily(
+            worldTemplate,
+            program,
+            family
+        ),
+        "compile authored tactile scenario family"
+    );
+    verifyWorldPack(family, worldPackPath);
+
+    metalrobo::CompiledWorld compiled;
+    require(
+        metalrobo::compileMetalWorld(model, 0u, compiled),
+        "compile authored tactile physics"
+    );
+    std::vector<double> q(
+        model.defaultQ.begin(),
+        model.defaultQ.end()
+    );
+    std::vector<double> v(
+        model.defaultV.begin(),
+        model.defaultV.end()
+    );
+    std::vector<MRBodyStateGPU> scene =
+        authoredSceneStates(model, episode, compiled);
+    if (scenario == "g1-balance") {
+        v[0u] = 0.12;
+    } else {
+        q[6u] = -0.045;
+        q[7u] = 0.045;
+        require(
+            scene.size() == 1u,
+            "PSM tactile scenario requires one authored needle body"
+        );
+    }
+
+    std::vector<float> actions(
+        static_cast<std::size_t>(controlSteps) *
+            compiled.nv(),
+        0.0f
+    );
+    for (std::uint32_t stepIndex = 0u;
+         stepIndex < controlSteps;
+         ++stepIndex) {
+        for (std::uint32_t coordinate = 0u;
+             coordinate < compiled.nv();
+             ++coordinate) {
+            if (scenario == "g1-balance") {
+                actions[
+                    static_cast<std::size_t>(stepIndex) *
+                        compiled.nv() +
+                    coordinate
+                ] = coordinate < 6u
+                    ? 0.0f
+                    : static_cast<float>(q[coordinate + 1u]);
+            } else {
+                actions[
+                    static_cast<std::size_t>(stepIndex) *
+                        compiled.nv() +
+                    coordinate
+                ] = static_cast<float>(q[coordinate]);
+            }
+        }
+        if (scenario == "psm-needle") {
+            const std::size_t base =
+                static_cast<std::size_t>(stepIndex) *
+                compiled.nv();
+            const float phase =
+                static_cast<float>(stepIndex + 1u) /
+                static_cast<float>(controlSteps);
+            const float jaw =
+                0.045f * std::max(0.0f, 1.0f - 2.0f * phase);
+            const float lift =
+                0.004f * std::max(0.0f, 2.0f * phase - 1.0f);
+            actions[base + 2u] =
+                static_cast<float>(q[2u]) + lift;
+            actions[base + 6u] = -jaw;
+            actions[base + 7u] = jaw;
+        }
+    }
+
+    const std::vector<float> initialQ = floatVector(q);
+    const std::vector<float> initialV = floatVector(v);
+    metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = controlSteps,
+        .initialQ = initialQ,
+        .initialV = initialV,
+        .efforts = actions,
+        .initialSceneBodies = scene,
+    };
+    metalrobo::MetalWorldStepConfig physicsConfig;
+    physicsConfig.timestepSeconds = controlTimestep;
+    physicsConfig.physicsSubsteps = physicsSubsteps;
+    physicsConfig.solverMode =
+        metalrobo::MetalWorldSolverMode::throughputTGS;
+    physicsConfig.actuationMode =
+        metalrobo::MetalWorldActuationMode::
+            implicitPositionDrive;
+    physicsConfig.velocityIterations = 16u;
+    physicsConfig.finalVelocityIterations = 8u;
+    physicsConfig.ccdMode = ccdMode;
+    physicsConfig.deterministic = true;
+    physicsConfig.captureContactEvidence = true;
+
+    metalrobo::MetalWorldContext physics;
+    metalrobo::MetalWorldResult result;
+    const auto run = physics.run(
+        compiled,
+        batch,
+        physicsConfig,
+        result
+    );
+    require(run, "run authored tactile scenario");
+    const auto finalBodies = globalBodyStates(
+        model,
+        doubleVector(result.finalQ),
+        doubleVector(result.finalV),
+        result.finalSceneBodies
+    );
+    const auto solverContacts =
+        packFinalContacts(model, result, finalBodies);
+    const auto observation = tactileObservation(
+        worldTemplate,
+        finalBodies,
+        solverContacts,
+        controlSteps
+    );
+
+    metalrobo::MetalTactileConfig tactileConfig;
+    tactileConfig.contactCapacityPerEnvironment =
+        solverContacts.capacityPerEnvironment;
+    metalrobo::MetalTactileContext tactileGPU(tactileConfig);
+    require(
+        tactileGPU.compile(
+            worldTemplate.tactileSystem,
+            model,
+            1u
+        ),
+        "compile scenario tactile Metal context"
+    );
+    metalrobo::MetalTactileHostFrame tactileFrame;
+    tactileFrame.environmentCount = 1u;
+    tactileFrame.bodies = finalBodies;
+    tactileFrame.contacts = solverContacts.contacts;
+    tactileFrame.contactCounts = solverContacts.counts;
+    tactileFrame.observationTimestepSeconds = controlTimestep;
+    tactileFrame.contactImpulseTimestepSeconds =
+        controlTimestep /
+        static_cast<float>(physicsSubsteps);
+    tactileFrame.frameIndex = controlSteps;
+    tactileFrame.timestampSeconds =
+        controlSteps * controlTimestep;
+    require(
+        tactileGPU.observe(tactileFrame),
+        "observe authored scenario tactile maps"
+    );
+    metalrobo::TactileObservationBatch metalObservation;
+    require(
+        tactileGPU.readback(1u, metalObservation),
+        "read authored scenario tactile maps"
+    );
+
+    double maximumDepthError = 0.0;
+    for (std::size_t index = 0u;
+         index < observation.penetrationDepthMeters.size();
+         ++index) {
+        maximumDepthError = std::max(
+            maximumDepthError,
+            static_cast<double>(std::abs(
+                observation.penetrationDepthMeters[index] -
+                metalObservation.penetrationDepthMeters[index]
+            ))
+        );
+    }
+    require(
+        maximumDepthError < 2.0e-6,
+        "authored scenario Metal depth differs from CPU"
+    );
+    const std::size_t activeSensors = std::ranges::count_if(
+        observation.summaries,
+        [](const MRTactileSummaryGPU& summary) {
+            return summary.netForceAndContactArea.w > 0.0f &&
+                length3(summary.netForceAndContactArea) > 0.0f;
+        }
+    );
+    require(
+        activeSensors > 0u,
+        "authored scenario produced no coherent depth-and-wrench sensor: "
+        "solver_contacts=" +
+            std::to_string(
+                result.contactStatuses.back().activeContacts
+            ) +
+            " sensor0_area=" +
+            std::to_string(
+                observation.summaries[0u].
+                    netForceAndContactArea.w
+            ) +
+            " sensor0_force=" +
+            std::to_string(
+                length3(
+                    observation.summaries[0u].
+                        netForceAndContactArea
+                )
+            ) +
+            " sensor1_area=" +
+            std::to_string(
+                observation.summaries[1u].
+                    netForceAndContactArea.w
+            ) +
+            " sensor1_force=" +
+            std::to_string(
+                length3(
+                    observation.summaries[1u].
+                        netForceAndContactArea
+                )
+            )
+    );
+
+    if (debugDirectory.has_value()) {
+        for (std::uint32_t sensorIndex = 0u;
+             sensorIndex <
+                worldTemplate.tactileSystem.sensors.size();
+             ++sensorIndex) {
+            metalrobo::TactileDebugExportConfig debug;
+            debug.directory = *debugDirectory;
+            debug.prefix =
+                std::string{scenario} + "_" +
+                worldTemplate.tactileSystem.sensorIds[sensorIndex];
+            debug.sensor = sensorIndex;
+            require(
+                metalrobo::exportTactileDebugFrame(
+                    worldTemplate.tactileSystem,
+                    observation,
+                    debug
+                ),
+                "export authored tactile scenario"
+            );
+        }
+    }
+
+    metalrobo::MetalWorldResult replay;
+    require(
+        physics.run(
+            compiled,
+            batch,
+            physicsConfig,
+            replay
+        ),
+        "replay authored tactile scenario"
+    );
+    require(
+        result.finalQ == replay.finalQ &&
+            result.finalV == replay.finalV &&
+            result.finalSceneBodies.size() ==
+                replay.finalSceneBodies.size() &&
+            std::equal(
+                result.finalSceneBodies.begin(),
+                result.finalSceneBodies.end(),
+                replay.finalSceneBodies.begin(),
+                [](const MRBodyStateGPU& left,
+                   const MRBodyStateGPU& right) {
+                    return std::memcmp(
+                        &left,
+                        &right,
+                        sizeof(left)
+                    ) == 0;
+                }
+            ),
+        "authored tactile scenario replay diverged"
+    );
+
+    std::cout
+        << "scenario=" << scenario
+        << " device=\"" << run.deviceName << "\""
+        << " tactile_sensors="
+        << worldTemplate.tactileSystem.sensors.size()
+        << " active_tactile_sensors=" << activeSensors
+        << " active_solver_contacts="
+        << result.contactStatuses.back().activeContacts
+        << " packed_solver_contacts="
+        << solverContacts.counts[0u]
+        << " observation_fingerprint=0x"
+        << std::hex
+        << worldTemplate.tactileSystem.fingerprint
+        << std::dec
+        << " max_cpu_gpu_error_m=" << maximumDepthError
+        << " deterministic_replay=yes"
+        << " world_pack="
+        << (
+            worldPackPath.has_value()
+            ? worldPackPath->string()
+            : "validated-temporary"
+        )
+        << " debug_export="
+        << (
+            debugDirectory.has_value()
+            ? debugDirectory->string()
+            : "disabled"
+        )
+        << '\n';
+    return 0;
+}
+
 } // namespace
 
 int main(const int argc, const char* const* argv) {
     try {
-        std::optional<std::filesystem::path> debugDirectory;
-        if (argc == 3 && std::string_view{argv[1]} == "--debug-dir") {
-            debugDirectory = std::filesystem::path{argv[2]};
-        } else if (argc != 1) {
+        if (argc < 2) {
             throw std::runtime_error(
-                "usage: metalrobo_franka_tactile_example "
-                "[--debug-dir PATH]"
+                "usage: metalrobo_tactile_example "
+                "franka-grasp|g1-balance|psm-needle "
+                "[--debug-dir PATH] [--write-world-pack PATH]"
+            );
+        }
+        const std::string_view scenario{argv[1]};
+        require(
+            scenario == "franka-grasp" ||
+                scenario == "g1-balance" ||
+                scenario == "psm-needle",
+            "unknown tactile example scenario"
+        );
+        std::optional<std::filesystem::path> debugDirectory;
+        std::optional<std::filesystem::path> worldPackPath;
+        require(
+            (argc - 2) % 2 == 0,
+            "tactile example options require a path value"
+        );
+        for (int argument = 2;
+             argument < argc;
+             argument += 2) {
+            const std::string_view option{argv[argument]};
+            if (option == "--debug-dir") {
+                debugDirectory =
+                    std::filesystem::path{argv[argument + 1]};
+            } else if (option == "--write-world-pack") {
+                worldPackPath =
+                    std::filesystem::path{argv[argument + 1]};
+            } else {
+                throw std::runtime_error(
+                    "unknown tactile example option"
+                );
+            }
+        }
+        if (scenario != "franka-grasp") {
+            return runCompoundScenario(
+                scenario,
+                debugDirectory,
+                worldPackPath
             );
         }
         const metalrobo::EngineModel model =
@@ -441,7 +901,7 @@ int main(const int argc, const char* const* argv) {
             ),
             "compile Franka tactile family"
         );
-        verifyWorldPack(family);
+        verifyWorldPack(family, worldPackPath);
 
         constexpr float desiredPenetration = 0.0002f;
         constexpr float objectHalfExtent = 0.025f;
@@ -1043,7 +1503,8 @@ int main(const int argc, const char* const* argv) {
         );
 
         std::cout
-            << "device=\"" << firstRun.deviceName << "\""
+            << "scenario=franka-grasp"
+            << " device=\"" << firstRun.deviceName << "\""
             << " active_solver_contacts="
             << first.contactStatuses.back().activeContacts
             << " left_mean_depth_m=" << leftMean
@@ -1085,6 +1546,12 @@ int main(const int argc, const char* const* argv) {
                 ? "yes"
                 : "no"
             )
+            << " world_pack="
+            << (
+                worldPackPath.has_value()
+                ? worldPackPath->string()
+                : "validated-temporary"
+            )
             << " debug_export="
             << (
                 debugDirectory.has_value()
@@ -1094,7 +1561,7 @@ int main(const int argc, const char* const* argv) {
             << '\n';
         return 0;
     } catch (const std::exception& error) {
-        std::cerr << "metalrobo_franka_tactile_example: "
+        std::cerr << "metalrobo_tactile_example: "
                   << error.what() << '\n';
         return 1;
     }

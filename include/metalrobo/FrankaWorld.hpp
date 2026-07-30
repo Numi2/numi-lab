@@ -23,7 +23,7 @@ makeFrankaPickPlaceSceneState();
 [[nodiscard]] WorldProgram makeFrankaPickPlaceWorldProgram();
 
 // Tacmap-style tactile variant. The two rubber pad colliders remain rigid
-// backings; a 3 mm positive rest-offset shell plus calibrated normal
+// backings; a 3 mm positive rest-offset shell plus bounded authored normal
 // compliance creates bounded solver-visible compression. Dense flat atlases
 // are cooked onto both articulated fingertips and target the manipulated
 // object through the normal world pipeline.

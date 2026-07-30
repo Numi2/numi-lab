@@ -759,7 +759,7 @@ std::string escapedJSON(const std::string_view input) {
 TactileSensorSpec makeFlatTactileSensor(
     std::string id,
     const std::uint32_t parentBodyIndex,
-    const std::uint32_t backingShapeIndex,
+    std::vector<std::uint32_t> backingShapeIndices,
     const TactilePose localPose,
     const std::uint32_t width,
     const std::uint32_t height,
@@ -770,7 +770,7 @@ TactileSensorSpec makeFlatTactileSensor(
     TactileSensorSpec result;
     result.id = std::move(id);
     result.parentBodyIndex = parentBodyIndex;
-    result.backingShapeIndex = backingShapeIndex;
+    result.backingShapeIndices = std::move(backingShapeIndices);
     result.localPose = localPose;
     result.width = width;
     result.height = height;
@@ -817,7 +817,7 @@ TactileSensorSpec makeFlatTactileSensor(
 TactileSensorSpec makeSphericalTactileSensor(
     std::string id,
     const std::uint32_t parentBodyIndex,
-    const std::uint32_t backingShapeIndex,
+    std::vector<std::uint32_t> backingShapeIndices,
     const TactilePose localPose,
     const std::uint32_t width,
     const std::uint32_t height,
@@ -830,7 +830,7 @@ TactileSensorSpec makeSphericalTactileSensor(
     TactileSensorSpec result;
     result.id = std::move(id);
     result.parentBodyIndex = parentBodyIndex;
-    result.backingShapeIndex = backingShapeIndex;
+    result.backingShapeIndices = std::move(backingShapeIndices);
     result.localPose = localPose;
     result.width = width;
     result.height = height;
@@ -918,11 +918,17 @@ bool CookedTactileSystem::valid(
     }
     if (abiVersion != MR_TACTILE_ABI_VERSION ||
         fingerprint == 0u ||
-        sensorIds.size() != sensors.size()) {
+        sensorIds.size() != sensors.size() ||
+        shapeToSensor.size() != model.shapes.size()) {
         return reject("tactile system identity is invalid");
     }
     std::unordered_set<std::string> ids;
+    std::vector<std::uint32_t> expectedShapeOwners(
+        model.shapes.size(),
+        MR_INVALID_INDEX
+    );
     std::size_t expectedSample = 0u;
+    std::size_t expectedBacking = 0u;
     std::size_t expectedTarget = 0u;
     for (std::uint32_t sensorIndex = 0u;
          sensorIndex < sensors.size();
@@ -931,11 +937,13 @@ bool CookedTactileSystem::valid(
         if (sensorIds[sensorIndex].empty() ||
             !ids.insert(sensorIds[sensorIndex]).second ||
             sensor.topology.x >= model.bodies.size() ||
-            sensor.topology.y >= model.shapes.size() ||
-            model.shapes[sensor.topology.y].bodyIndex !=
-                sensor.topology.x ||
+            sensor.topology.y != 0u ||
             sensor.topology.z != expectedSample ||
             sensor.topology.w == 0u ||
+            sensor.backingRange.x != expectedBacking ||
+            sensor.backingRange.y == 0u ||
+            sensor.backingRange.z != 0u ||
+            sensor.backingRange.w != 0u ||
             sensor.atlasAndTargets.x == 0u ||
             sensor.atlasAndTargets.y == 0u ||
             static_cast<std::uint64_t>(
@@ -961,20 +969,71 @@ bool CookedTactileSystem::valid(
             !(sensor.depth.w > 0.0f)) {
             return reject("tactile sensor descriptor is invalid");
         }
-        const MRShapeGPU& backing = model.shapes[sensor.topology.y];
-        if ((sensor.scheduleAndIdentity.z &
-             MR_TACTILE_SENSOR_COMPLIANT_SHELL) != 0u &&
-            (!(backing.contactRestAndBoundingRadius.y > 0.0f) ||
-             backing.contactRestAndBoundingRadius.x <
-                 backing.contactRestAndBoundingRadius.y ||
-             std::abs(
-                 backing.contactRestAndBoundingRadius.y -
-                 sensor.depth.z
-             ) > 1.0e-6f)) {
-            return reject(
-                "tactile shell disagrees with backing-shape rest offset"
-            );
+
+        expectedBacking += sensor.backingRange.y;
+        if (expectedBacking > backingShapeIndices.size()) {
+            return reject("tactile backing range is invalid");
         }
+        const MRShapeGPU* filterReference = nullptr;
+        for (std::uint32_t local = 0u;
+             local < sensor.backingRange.y;
+             ++local) {
+            const std::uint32_t shapeIndex =
+                backingShapeIndices[sensor.backingRange.x + local];
+            if (shapeIndex >= model.shapes.size() ||
+                expectedShapeOwners[shapeIndex] != MR_INVALID_INDEX ||
+                shapeToSensor[shapeIndex] != sensorIndex) {
+                return reject(
+                    "tactile backing ownership is invalid or duplicated"
+                );
+            }
+            const MRShapeGPU& backing = model.shapes[shapeIndex];
+            if (backing.bodyIndex != sensor.topology.x ||
+                (backing.flags &
+                 MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u) {
+                return reject(
+                    "tactile backing is disabled or owned by another body"
+                );
+            }
+            if (filterReference == nullptr) {
+                filterReference = &backing;
+            } else if (
+                backing.collisionGroup !=
+                    filterReference->collisionGroup ||
+                backing.collisionMask !=
+                    filterReference->collisionMask
+            ) {
+                return reject(
+                    "compound tactile backing filters disagree"
+                );
+            } else if (
+                std::abs(
+                    backing.contactRestAndBoundingRadius.x -
+                    filterReference
+                        ->contactRestAndBoundingRadius.x
+                ) > 1.0e-6f
+            ) {
+                return reject(
+                    "compound tactile backing contact offsets disagree"
+                );
+            }
+            if ((sensor.scheduleAndIdentity.z &
+                 MR_TACTILE_SENSOR_COMPLIANT_SHELL) != 0u &&
+                (!(backing.contactRestAndBoundingRadius.y > 0.0f) ||
+                 backing.contactRestAndBoundingRadius.x <
+                     backing.contactRestAndBoundingRadius.y ||
+                 std::abs(
+                     backing.contactRestAndBoundingRadius.y -
+                     sensor.depth.z
+                 ) > 1.0e-6f)) {
+                return reject(
+                    "tactile shell disagrees with a backing-shape rest "
+                    "offset"
+                );
+            }
+            expectedShapeOwners[shapeIndex] = sensorIndex;
+        }
+
         expectedSample += sensor.topology.w;
         expectedTarget += sensor.atlasAndTargets.w;
         if (expectedSample > samples.size() ||
@@ -1038,14 +1097,27 @@ bool CookedTactileSystem::valid(
                     sensor.atlasAndTargets.z + local
                 ];
             if (shapeIndex >= model.shapes.size() ||
-                shapeIndex == sensor.topology.y ||
+                expectedShapeOwners[shapeIndex] == sensorIndex ||
                 model.shapes[shapeIndex].bodyIndex ==
                     sensor.topology.x ||
                 !supportedTarget(
                     model.shapes[shapeIndex].shapeType
-                ) ||
-                !filtersAdmit(backing, model.shapes[shapeIndex])) {
+                )) {
                 return reject("tactile target shape is invalid");
+            }
+            for (std::uint32_t backingLocal = 0u;
+                 backingLocal < sensor.backingRange.y;
+                 ++backingLocal) {
+                const MRShapeGPU& backing = model.shapes[
+                    backingShapeIndices[
+                        sensor.backingRange.x + backingLocal
+                    ]
+                ];
+                if (!filtersAdmit(backing, model.shapes[shapeIndex])) {
+                    return reject(
+                        "tactile target is rejected by a backing filter"
+                    );
+                }
             }
             if (model.shapes[shapeIndex].shapeType ==
                 MR_SHAPE_TRIANGLE_MESH) {
@@ -1062,8 +1134,12 @@ bool CookedTactileSystem::valid(
         }
     }
     if (expectedSample != samples.size() ||
+        expectedBacking != backingShapeIndices.size() ||
         expectedTarget != targetShapeIndices.size()) {
         return reject("tactile arenas contain unreferenced records");
+    }
+    if (expectedShapeOwners != shapeToSensor) {
+        return reject("tactile shape ownership lookup is inconsistent");
     }
     return true;
 }
@@ -1094,6 +1170,10 @@ TactileCookResult cookTactileSystem(
         );
     }
     CookedTactileSystem candidate;
+    candidate.shapeToSensor.assign(
+        model.shapes.size(),
+        MR_INVALID_INDEX
+    );
     std::unordered_set<std::string> ids;
     try {
         for (std::uint32_t sensorIndex = 0u;
@@ -1106,9 +1186,9 @@ TactileCookResult cookTactileSystem(
             if (source.id.empty() ||
                 !ids.insert(source.id).second ||
                 source.parentBodyIndex >= model.bodies.size() ||
-                source.backingShapeIndex >= model.shapes.size() ||
-                model.shapes[source.backingShapeIndex].bodyIndex !=
-                    source.parentBodyIndex ||
+                source.backingShapeIndices.empty() ||
+                source.backingShapeIndices.size() >
+                    std::numeric_limits<std::uint32_t>::max() ||
                 source.width == 0u || source.height == 0u ||
                 sampleCount != source.samples.size() ||
                 sampleCount >
@@ -1140,26 +1220,100 @@ TactileCookResult cookTactileSystem(
                     "tactile sensor authoring is invalid"
                 );
             }
-            const MRShapeGPU& backing =
-                model.shapes[source.backingShapeIndex];
-            const float shellThickness =
-                backing.contactRestAndBoundingRadius.y;
-            if ((source.flags &
-                 MR_TACTILE_SENSOR_COMPLIANT_SHELL) != 0u &&
-                (!(shellThickness > 0.0f) ||
-                 backing.contactRestAndBoundingRadius.x <
-                    shellThickness ||
-                 source.maximumDepthMeters >
-                    shellThickness + 1.0e-7f)) {
+            std::vector<std::uint32_t> backings =
+                source.backingShapeIndices;
+            std::ranges::sort(backings);
+            if (std::adjacent_find(
+                    backings.begin(),
+                    backings.end()
+                ) != backings.end()) {
                 return cookFailure(
                     TactileCookStatus::invalidBackingShape,
-                    "tactile depth must fit inside the backing collider's "
-                    "positive rest-offset shell"
+                    "tactile backing list contains a duplicate shape"
                 );
+            }
+            const MRShapeGPU* filterReference = nullptr;
+            for (const std::uint32_t shapeIndex : backings) {
+                if (shapeIndex >= model.shapes.size() ||
+                    candidate.shapeToSensor[shapeIndex] !=
+                        MR_INVALID_INDEX) {
+                    return cookFailure(
+                        TactileCookStatus::invalidBackingShape,
+                        "tactile backing shape is invalid or already owned"
+                    );
+                }
+                const MRShapeGPU& backing = model.shapes[shapeIndex];
+                if (backing.bodyIndex != source.parentBodyIndex ||
+                    (backing.flags &
+                     MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u) {
+                    return cookFailure(
+                        TactileCookStatus::invalidBackingShape,
+                        "tactile backing must be an enabled collider on "
+                        "the sensor parent body"
+                    );
+                }
+                if (filterReference == nullptr) {
+                    filterReference = &backing;
+                } else if (
+                    backing.collisionGroup !=
+                        filterReference->collisionGroup ||
+                    backing.collisionMask !=
+                        filterReference->collisionMask
+                ) {
+                    return cookFailure(
+                        TactileCookStatus::invalidBackingShape,
+                        "compound tactile backing filters disagree"
+                    );
+                } else if (
+                    std::abs(
+                        backing.contactRestAndBoundingRadius.x -
+                        filterReference
+                            ->contactRestAndBoundingRadius.x
+                    ) > 1.0e-6f
+                ) {
+                    return cookFailure(
+                        TactileCookStatus::invalidBackingShape,
+                        "compound tactile backing contact offsets "
+                        "disagree"
+                    );
+                }
+            }
+            const MRShapeGPU& backing = *filterReference;
+            const float shellThickness =
+                backing.contactRestAndBoundingRadius.y;
+            for (const std::uint32_t shapeIndex : backings) {
+                const MRShapeGPU& compoundBacking =
+                    model.shapes[shapeIndex];
+                if ((source.flags &
+                     MR_TACTILE_SENSOR_COMPLIANT_SHELL) != 0u &&
+                    (!(compoundBacking
+                           .contactRestAndBoundingRadius.y > 0.0f) ||
+                     compoundBacking
+                             .contactRestAndBoundingRadius.x <
+                         compoundBacking
+                             .contactRestAndBoundingRadius.y ||
+                     source.maximumDepthMeters >
+                         compoundBacking
+                                 .contactRestAndBoundingRadius.y +
+                             1.0e-7f ||
+                     std::abs(
+                         compoundBacking
+                                 .contactRestAndBoundingRadius.y -
+                             shellThickness
+                     ) > 1.0e-6f)) {
+                    return cookFailure(
+                        TactileCookStatus::invalidBackingShape,
+                        "tactile depth must fit inside every backing "
+                        "collider's common positive rest-offset shell"
+                    );
+                }
             }
             if (candidate.samples.size() >
                     std::numeric_limits<std::uint32_t>::max() -
                         source.samples.size() ||
+                candidate.backingShapeIndices.size() >
+                    std::numeric_limits<std::uint32_t>::max() -
+                        backings.size() ||
                 candidate.targetShapeIndices.size() >
                     std::numeric_limits<std::uint32_t>::max()) {
                 return cookFailure(
@@ -1176,12 +1330,28 @@ TactileCookResult cookTactileSystem(
                      ++shapeIndex) {
                     const MRShapeGPU& target =
                         model.shapes[shapeIndex];
-                    if (shapeIndex != source.backingShapeIndex &&
+                    const bool isBacking =
+                        std::binary_search(
+                            backings.begin(),
+                            backings.end(),
+                            shapeIndex
+                        );
+                    const bool admitted =
+                        std::ranges::all_of(
+                            backings,
+                            [&](const std::uint32_t backingIndex) {
+                                return filtersAdmit(
+                                    model.shapes[backingIndex],
+                                    target
+                                );
+                            }
+                        );
+                    if (!isBacking &&
                         target.bodyIndex != source.parentBodyIndex &&
                         (target.flags &
                          MR_SHAPE_FLAG_SIMULATION_DISABLED) == 0u &&
                         supportedTarget(target.shapeType) &&
-                        filtersAdmit(backing, target)) {
+                        admitted) {
                         targets.push_back(shapeIndex);
                     }
                 }
@@ -1199,14 +1369,31 @@ TactileCookResult cookTactileSystem(
                 );
             }
             for (const std::uint32_t shapeIndex : targets) {
+                const bool isBacking =
+                    std::binary_search(
+                        backings.begin(),
+                        backings.end(),
+                        shapeIndex
+                    );
+                const bool admitted =
+                    shapeIndex < model.shapes.size() &&
+                    std::ranges::all_of(
+                        backings,
+                        [&](const std::uint32_t backingIndex) {
+                            return filtersAdmit(
+                                model.shapes[backingIndex],
+                                model.shapes[shapeIndex]
+                            );
+                        }
+                    );
                 if (shapeIndex >= model.shapes.size() ||
-                    shapeIndex == source.backingShapeIndex ||
+                    isBacking ||
                     model.shapes[shapeIndex].bodyIndex ==
                         source.parentBodyIndex ||
                     !supportedTarget(
                         model.shapes[shapeIndex].shapeType
                     ) ||
-                    !filtersAdmit(backing, model.shapes[shapeIndex])) {
+                    !admitted) {
                     return cookFailure(
                         TactileCookStatus::unsupportedGeometry,
                         "tactile target is unsupported, self-owned, or "
@@ -1233,13 +1420,21 @@ TactileCookResult cookTactileSystem(
             MRTactileSensorGPU cooked{};
             cooked.topology = {
                 source.parentBodyIndex,
-                source.backingShapeIndex,
+                0u,
                 static_cast<std::uint32_t>(
                     candidate.samples.size()
                 ),
                 static_cast<std::uint32_t>(
                     source.samples.size()
                 ),
+            };
+            cooked.backingRange = {
+                static_cast<std::uint32_t>(
+                    candidate.backingShapeIndices.size()
+                ),
+                static_cast<std::uint32_t>(backings.size()),
+                0u,
+                0u,
             };
             cooked.atlasAndTargets = {
                 source.width,
@@ -1349,6 +1544,14 @@ TactileCookResult cookTactileSystem(
             }
             candidate.sensorIds.push_back(source.id);
             candidate.sensors.push_back(cooked);
+            candidate.backingShapeIndices.insert(
+                candidate.backingShapeIndices.end(),
+                backings.begin(),
+                backings.end()
+            );
+            for (const std::uint32_t shapeIndex : backings) {
+                candidate.shapeToSensor[shapeIndex] = sensorIndex;
+            }
             candidate.targetShapeIndices.insert(
                 candidate.targetShapeIndices.end(),
                 targets.begin(),
@@ -1380,6 +1583,14 @@ TactileCookResult cookTactileSystem(
     fingerprint = appendHash<MRTactileSampleGPU>(
         fingerprint,
         candidate.samples
+    );
+    fingerprint = appendHash<std::uint32_t>(
+        fingerprint,
+        candidate.backingShapeIndices
+    );
+    fingerprint = appendHash<std::uint32_t>(
+        fingerprint,
+        candidate.shapeToSensor
     );
     fingerprint = appendHash<std::uint32_t>(
         fingerprint,
@@ -2128,11 +2339,21 @@ TactileObserveResult observeTactileCpuReference(
                     const MRTactileContactGPU& contact =
                         frame.contacts[contactBase + contactIndex];
                     Vec3 impulse{};
-                    if (contact.shapesAndFlags.x ==
-                        sensor.topology.y) {
+                    const std::uint32_t shapeA =
+                        contact.shapesAndFlags.x;
+                    const std::uint32_t shapeB =
+                        contact.shapesAndFlags.y;
+                    const std::uint32_t sensorA =
+                        shapeA < tactile.shapeToSensor.size()
+                        ? tactile.shapeToSensor[shapeA]
+                        : MR_INVALID_INDEX;
+                    const std::uint32_t sensorB =
+                        shapeB < tactile.shapeToSensor.size()
+                        ? tactile.shapeToSensor[shapeB]
+                        : MR_INVALID_INDEX;
+                    if (sensorA == sensorIndex) {
                         impulse = vector(contact.worldImpulseOnA);
-                    } else if (contact.shapesAndFlags.y ==
-                               sensor.topology.y) {
+                    } else if (sensorB == sensorIndex) {
                         impulse =
                             -vector(contact.worldImpulseOnA);
                     } else {
@@ -2334,8 +2555,18 @@ std::string tactileObservationMetadataJSON(
              << ",\"update_period_steps\":"
              << sensor.scheduleAndIdentity.x
              << ",\"parent_body\":" << sensor.topology.x
-             << ",\"backing_shape\":" << sensor.topology.y
-             << '}';
+             << ",\"backing_shapes\":[";
+        for (std::uint32_t local = 0u;
+             local < sensor.backingRange.y;
+             ++local) {
+            if (local != 0u) {
+                json << ',';
+            }
+            json << tactile.backingShapeIndices[
+                sensor.backingRange.x + local
+            ];
+        }
+        json << "]}";
     }
     json << "],\"dense_channels\":["
          << "\"penetration_depth_m\","

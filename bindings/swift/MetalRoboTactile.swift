@@ -56,7 +56,7 @@ public enum MetalRoboTactileBuffer: UInt32, Sendable {
     case tangentialMotion = 7
 }
 
-/// Swift owner for the canonical Franka metric tactile observation context.
+/// Swift owner for an explicitly authored metric tactile observation context.
 ///
 /// `encode` borrows all Metal objects. It performs no command-buffer commit,
 /// synchronization, readback, or per-frame allocation.
@@ -64,21 +64,30 @@ public final class MetalRoboTactileContext {
     private var handle: OpaquePointer?
 
     public init(
+        worldPackPath: String,
         capacity: UInt32,
         contactCapacityPerEnvironment: UInt32 = 128,
         metallibPath: String? = nil
     ) throws {
-        let created: OpaquePointer? = metallibPath?.withCString { path in
-            mr_tactile_create_franka(
+        let created: OpaquePointer? = worldPackPath.withCString {
+            worldPath in
+            if let metallibPath {
+                return metallibPath.withCString { libraryPath in
+                    mr_tactile_create_world_pack(
+                        worldPath,
+                        capacity,
+                        contactCapacityPerEnvironment,
+                        libraryPath
+                    )
+                }
+            }
+            return mr_tactile_create_world_pack(
+                worldPath,
                 capacity,
                 contactCapacityPerEnvironment,
-                path
+                nil
             )
-        } ?? mr_tactile_create_franka(
-            capacity,
-            contactCapacityPerEnvironment,
-            nil
-        )
+        }
         guard let created else {
             throw MetalRoboTactileError.native(Self.lastError())
         }

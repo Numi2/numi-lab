@@ -950,6 +950,164 @@ def canonical_tactile_encoder_input(
     )
 
 
+def canonical_metric_tactile_stem(
+    observation: Any,
+    atlas_ranges: Sequence[TactileAtlasRange],
+) -> TactilePolicyInput:
+    """Publish one deterministic 64-value metric baseline per sensor.
+
+    This uses the canonical seven-channel packing shared with learned
+    encoders. Forty-eight coarse spatial values retain depth, depth velocity,
+    and all four bounded rigid-body tangent-motion components; the sixteen
+    physical summary values complete the policy vector. It occupies the shared
+    latent boundary without claiming learned cross-sensor alignment. The
+    metric path pools those named arrays directly so captured RL graphs do not
+    materialize an otherwise disposable full seven-channel atlas tensor.
+    """
+
+    if not atlas_ranges:
+        raise ValueError("at least one tactile atlas range is required")
+    for atlas in atlas_ranges:
+        atlas.validate()
+    if any(
+        atlas.width != 32 or atlas.height != 32
+        for atlas in atlas_ranges
+    ):
+        raise ValueError(
+            "canonical metric tactile stem requires 32x32 atlases"
+        )
+    depth = observation.penetration_depth_m
+    if (
+        depth.ndim != 2
+        or observation.depth_velocity_m_s.shape != depth.shape
+        or observation.tangential_motion.shape != depth.shape + (4,)
+        or observation.validity.shape != depth.shape
+    ):
+        raise ValueError("canonical tactile dense arrays are inconsistent")
+    environment_count = int(depth.shape[0])
+    pooled_sensors: list[mx.array] = []
+    for atlas in atlas_ranges:
+        end = atlas.offset + atlas.sample_count
+        if end > int(depth.shape[1]):
+            raise ValueError(
+                "tactile atlas range exceeds dense observation"
+            )
+        valid = (
+            (
+                observation.validity[:, atlas.offset:end]
+                & 1
+            )
+            != 0
+        ).astype(depth.dtype)
+        bin_counts = mx.maximum(
+            mx.sum(
+                valid.reshape(
+                    (environment_count, 2, 16, 4, 8, 1)
+                ),
+                axis=(2, 4),
+            ),
+            mx.array(1.0, dtype=depth.dtype),
+        )
+        depth_channels = mx.stack(
+            (
+                depth[:, atlas.offset:end],
+                observation.depth_velocity_m_s[
+                    :, atlas.offset:end
+                ],
+            ),
+            axis=-1,
+        )
+        pooled_depth = mx.sum(
+            (
+                depth_channels * valid[..., None]
+            ).reshape(
+                (environment_count, 2, 16, 4, 8, 2)
+            ),
+            axis=(2, 4),
+        ) / bin_counts
+        pooled_motion = mx.sum(
+            (
+                observation.tangential_motion[
+                    :, atlas.offset:end, :
+                ]
+                * valid[..., None]
+            ).reshape(
+                (environment_count, 2, 16, 4, 8, 4)
+            ),
+            axis=(2, 4),
+        ) / bin_counts
+        pooled_sensors.append(
+            mx.concatenate(
+                (pooled_depth, pooled_motion),
+                axis=-1,
+            ).reshape((environment_count, 48))
+        )
+    spatial = mx.stack(pooled_sensors, axis=1)
+    summary = observation.summary
+    summaries = mx.concatenate(
+        (
+            summary.net_force_and_contact_area[
+                :, : len(atlas_ranges), :
+            ],
+            summary.net_torque_and_maximum_depth[
+                :, : len(atlas_ranges), :
+            ],
+            summary.center_of_pressure_local_and_force_weight[
+                :, : len(atlas_ranges), :
+            ],
+            summary.tangential_motion_and_friction[
+                :, : len(atlas_ranges), :
+            ],
+        ),
+        axis=-1,
+    )
+    if summaries.shape != (
+        environment_count,
+        len(atlas_ranges),
+        16,
+    ):
+        raise ValueError("tactile summaries do not match atlas ranges")
+    latent = mx.concatenate(
+        (spatial, summaries),
+        axis=-1,
+    )
+    availability_shape = (
+        environment_count,
+        len(atlas_ranges),
+    )
+    presence = mx.ones(availability_shape, dtype=mx.bool_)
+    return TactilePolicyInput(
+        latent=latent,
+        presence=presence,
+        confidence=mx.ones(
+            availability_shape,
+            dtype=mx.float32,
+        ),
+        predicted=mx.zeros_like(presence),
+    )
+
+
+def canonical_metric_tactile_policy_observation(
+    observation: Any,
+    atlas_ranges: Sequence[TactileAtlasRange],
+) -> mx.array:
+    """Flatten the shared metric stem with presence and confidence."""
+
+    encoded = canonical_metric_tactile_stem(
+        observation,
+        atlas_ranges,
+    )
+    environment_count = int(encoded.latent.shape[0])
+    return mx.concatenate(
+        (
+            encoded.latent.reshape((environment_count, -1)),
+            encoded.presence.astype(mx.float32),
+            encoded.confidence,
+        ),
+        axis=-1,
+    )
+
+
 def masked_metric_reconstruction_loss(
     prediction: mx.array,
     target: mx.array,
@@ -1371,6 +1529,8 @@ __all__ = [
     "TactileReconstructionDecoder",
     "check_stateful_encoder_parity",
     "canonical_tactile_encoder_input",
+    "canonical_metric_tactile_policy_observation",
+    "canonical_metric_tactile_stem",
     "contact_event_targets",
     "explicitly_impute_missing_touch",
     "flatten_named_tactile_summaries",

@@ -1,14 +1,217 @@
 #include "metalrobo/FrankaWorld.hpp"
 
+#include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/Franka.hpp"
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace metalrobo {
 namespace {
+
+struct TactileWorldPose {
+    mr_float4 position{};
+    mr_float4 orientation{0.0f, 0.0f, 0.0f, 1.0f};
+};
+
+mr_float4 quaternionMultiply(
+    const mr_float4 a,
+    const mr_float4 b
+) {
+    return {
+        a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+        a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+        a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+        a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+    };
+}
+
+mr_float4 rotate(
+    const mr_float4 quaternion,
+    const mr_float4 value
+) {
+    const mr_float4 twiceCross{
+        2.0f * (
+            quaternion.y * value.z -
+            quaternion.z * value.y
+        ),
+        2.0f * (
+            quaternion.z * value.x -
+            quaternion.x * value.z
+        ),
+        2.0f * (
+            quaternion.x * value.y -
+            quaternion.y * value.x
+        ),
+        0.0f,
+    };
+    return {
+        value.x + quaternion.w * twiceCross.x +
+            quaternion.y * twiceCross.z -
+            quaternion.z * twiceCross.y,
+        value.y + quaternion.w * twiceCross.y +
+            quaternion.z * twiceCross.x -
+            quaternion.x * twiceCross.z,
+        value.z + quaternion.w * twiceCross.z +
+            quaternion.x * twiceCross.y -
+            quaternion.y * twiceCross.x,
+        value.w,
+    };
+}
+
+std::array<TactileSensorSpec, 2u> frankaTactileSensors() {
+    constexpr float shellThickness = 0.003f;
+    constexpr float squareRootHalf = 0.7071067811865476f;
+    TactilePose pose;
+    // Sensor +z maps to each finger's local -y (the inner pad face);
+    // sensor +x/+y map to finger local +x/+z.
+    pose.orientation = {
+        squareRootHalf,
+        0.0f,
+        0.0f,
+        squareRootHalf,
+    };
+    // Final pad box centre minus finger COM, then move from its inner rigid
+    // face outward by the undeformed 3 mm tactile shell.
+    pose.position = {
+        0.0f,
+        -0.018305f,
+        0.0232825f,
+        0.0f,
+    };
+    TactileSensorSpec left = makeFlatTactileSensor(
+        "left_fingertip_tactile",
+        9u,
+        {27u},
+        pose,
+        32u,
+        32u,
+        0.0175f,
+        0.0185f,
+        shellThickness
+    );
+    left.targetShapeIndices = {32u};
+    left.queryEpsilonMeters = 5.0e-7f;
+    TactileSensorSpec right = makeFlatTactileSensor(
+        "right_fingertip_tactile",
+        10u,
+        {31u},
+        pose,
+        32u,
+        32u,
+        0.0175f,
+        0.0185f,
+        shellThickness
+    );
+    right.targetShapeIndices = {32u};
+    right.queryEpsilonMeters = 5.0e-7f;
+    return {std::move(left), std::move(right)};
+}
+
+std::array<TactileWorldPose, 2u> tactileWorldPoses(
+    const EngineModel& model,
+    const std::array<TactileSensorSpec, 2u>& sensors,
+    const std::span<const double> q
+) {
+    std::vector<ArticulatedBodyKinematics> bodies(
+        model.articulations.front().bodyCount
+    );
+    const std::vector<double> velocity(model.world.nv, 0.0);
+    const auto status = computeArticulatedBodyKinematics(
+        model,
+        0u,
+        q,
+        velocity,
+        bodies
+    );
+    if (!status.succeeded()) {
+        throw std::logic_error(
+            "could not derive authored Franka tactile reset"
+        );
+    }
+    std::array<TactileWorldPose, 2u> result{};
+    for (std::size_t index = 0u; index < result.size(); ++index) {
+        const TactileSensorSpec& sensor = sensors[index];
+        const ArticulatedBodyKinematics& body =
+            bodies.at(sensor.parentBodyIndex);
+        const mr_float4 bodyPosition{
+            static_cast<float>(body.centerOfMassPosition[0]),
+            static_cast<float>(body.centerOfMassPosition[1]),
+            static_cast<float>(body.centerOfMassPosition[2]),
+            0.0f,
+        };
+        const mr_float4 bodyOrientation{
+            static_cast<float>(body.orientation[0]),
+            static_cast<float>(body.orientation[1]),
+            static_cast<float>(body.orientation[2]),
+            static_cast<float>(body.orientation[3]),
+        };
+        const mr_float4 offset = rotate(
+            bodyOrientation,
+            sensor.localPose.position
+        );
+        result[index].position = {
+            bodyPosition.x + offset.x,
+            bodyPosition.y + offset.y,
+            bodyPosition.z + offset.z,
+            0.0f,
+        };
+        result[index].orientation = quaternionMultiply(
+            bodyOrientation,
+            sensor.localPose.orientation
+        );
+    }
+    return result;
+}
+
+void authorFrankaTactileReset(
+    EngineModel& model,
+    const std::array<TactileSensorSpec, 2u>& sensors
+) {
+    constexpr double targetGap = 2.0 * (0.025 - 0.0002);
+    std::vector<double> q(
+        model.defaultQ.begin(),
+        model.defaultQ.end()
+    );
+    const auto gapAt = [&](const double fingerPosition) {
+        q[7u] = fingerPosition;
+        q[8u] = fingerPosition;
+        const auto poses = tactileWorldPoses(model, sensors, q);
+        const double x =
+            poses[1u].position.x - poses[0u].position.x;
+        const double y =
+            poses[1u].position.y - poses[0u].position.y;
+        const double z =
+            poses[1u].position.z - poses[0u].position.z;
+        return std::sqrt(x * x + y * y + z * z);
+    };
+    const double closedGap = gapAt(0.0);
+    const double openGap = gapAt(0.04);
+    if (!(closedGap < targetGap && targetGap < openGap)) {
+        throw std::logic_error(
+            "authored Franka tactile grasp is outside finger travel"
+        );
+    }
+    double lower = 0.0;
+    double upper = 0.04;
+    for (std::uint32_t iteration = 0u; iteration < 48u; ++iteration) {
+        const double middle = 0.5 * (lower + upper);
+        if (gapAt(middle) < targetGap) {
+            lower = middle;
+        } else {
+            upper = middle;
+        }
+    }
+    const float finger =
+        static_cast<float>(0.5 * (lower + upper));
+    model.defaultQ[7u] = finger;
+    model.defaultQ[8u] = finger;
+}
 
 mr_float4 cameraToward(
     const mr_float4 position,
@@ -599,6 +802,7 @@ WorldProgram makeFrankaPickPlaceWorldProgram() {
 EngineModel makeFrankaTactileEngineModel() {
     EngineModel model = makeFrankaPickPlaceEngineModel();
     model.name = "franka_fer_hand_tactile_shell_world";
+    const auto sensors = frankaTactileSensors();
     constexpr float shellThickness = 0.003f;
     constexpr float contactOffset = 0.0035f;
     for (const std::uint32_t shapeIndex : {27u, 31u}) {
@@ -650,6 +854,7 @@ EngineModel makeFrankaTactileEngineModel() {
     // physical sensor calibration should replace it.
     model.materials[1u].response.z = 2.0e-6f;
     model.materials[1u].response.w = 0.02f;
+    authorFrankaTactileReset(model, sensors);
     std::string reason;
     if (!model.valid(&reason)) {
         throw std::logic_error(
@@ -663,55 +868,39 @@ EpisodeTwin makeFrankaTactileEpisodeTwin() {
     EpisodeTwin episode = makeFrankaPickPlaceEpisodeTwin();
     episode.id = "franka_tactile_grasp_stabilization";
     episode.task.id = "tactile_grasp_stabilization";
-    constexpr float shellThickness = 0.003f;
-    constexpr float squareRootHalf = 0.7071067811865476f;
-    TactilePose pose;
-    // Sensor +z maps to each finger's local -y (the inner pad face);
-    // sensor +x/+y map to finger local +x/+z.
-    pose.orientation = {
-        squareRootHalf,
-        0.0f,
-        0.0f,
-        squareRootHalf,
-    };
-    // Final pad box centre minus finger COM, then move from its inner rigid
-    // face outward by the undeformed 3 mm tactile shell.
-    pose.position = {
-        0.0f,
-        -0.018305f,
-        0.0232825f,
-        0.0f,
-    };
-    TactileSensorSpec left = makeFlatTactileSensor(
-        "left_fingertip_tactile",
-        9u,
-        27u,
-        pose,
-        32u,
-        32u,
-        0.0175f,
-        0.0185f,
-        shellThickness
+    const EngineModel model = makeFrankaTactileEngineModel();
+    const auto sensors = frankaTactileSensors();
+    episode.tactileSensors.assign(
+        sensors.begin(),
+        sensors.end()
     );
-    left.targetShapeIndices = {32u};
-    left.queryEpsilonMeters = 5.0e-7f;
-    TactileSensorSpec right = makeFlatTactileSensor(
-        "right_fingertip_tactile",
-        10u,
-        31u,
-        pose,
-        32u,
-        32u,
-        0.0175f,
-        0.0185f,
-        shellThickness
+    const std::vector<double> q(
+        model.defaultQ.begin(),
+        model.defaultQ.end()
     );
-    right.targetShapeIndices = {32u};
-    right.queryEpsilonMeters = 5.0e-7f;
-    episode.tactileSensors = {
-        std::move(left),
-        std::move(right),
+    const auto poses = tactileWorldPoses(
+        model,
+        sensors,
+        q
+    );
+    const auto manipulated = std::ranges::find_if(
+        episode.assets,
+        [&](const WorldAsset& asset) {
+            return asset.id == episode.task.manipulatedAssetId;
+        }
+    );
+    if (manipulated == episode.assets.end()) {
+        throw std::logic_error(
+            "Franka tactile task has no manipulated asset"
+        );
+    }
+    manipulated->initialPose.position = {
+        0.5f * (poses[0u].position.x + poses[1u].position.x),
+        0.5f * (poses[0u].position.y + poses[1u].position.y),
+        0.5f * (poses[0u].position.z + poses[1u].position.z),
+        0.0f,
     };
+    manipulated->initialPose.orientation = poses[0u].orientation;
     return episode;
 }
 

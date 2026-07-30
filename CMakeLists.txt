@@ -441,6 +441,7 @@ add_library(
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
     src/core/SurgicalPSM.cpp
+    src/core/EmbodiedTactile.cpp
     src/core/SurgicalAssets.cpp
     src/core/SurgicalWorld.cpp
     src/core/HeterogeneousWorld.cpp
@@ -573,15 +574,15 @@ set_target_properties(
 )
 
 add_executable(
-    metalrobo_franka_tactile_example
-    examples/franka_tactile_grasp/main.cpp
+    metalrobo_tactile_example
+    examples/tactile/main.cpp
 )
 target_link_libraries(
-    metalrobo_franka_tactile_example
+    metalrobo_tactile_example
     PRIVATE metalrobo
 )
 set_target_properties(
-    metalrobo_franka_tactile_example
+    metalrobo_tactile_example
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"

@@ -201,7 +201,7 @@ void appendTactileSensor(
 ) {
     hash.appendString(sensor.id);
     hash.appendScalar(sensor.parentBodyIndex);
-    hash.appendScalar(sensor.backingShapeIndex);
+    hash.appendSpan<std::uint32_t>(sensor.backingShapeIndices);
     hash.appendScalar(sensor.localPose.position);
     hash.appendScalar(sensor.localPose.orientation);
     hash.appendScalar(sensor.width);
@@ -1141,6 +1141,8 @@ bool WorldTemplate::valid(std::string* reason) const {
             tactileSystem.fingerprint != 0u ||
             !tactileSystem.sensorIds.empty() ||
             !tactileSystem.samples.empty() ||
+            !tactileSystem.backingShapeIndices.empty() ||
+            !tactileSystem.shapeToSensor.empty() ||
             !tactileSystem.targetShapeIndices.empty()) {
             return fail(
                 reason,

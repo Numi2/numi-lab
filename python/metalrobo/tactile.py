@@ -132,7 +132,7 @@ class TactileSensorContract:
     shell_thickness_m: float
     update_period_steps: int
     parent_body: int
-    backing_shape: int
+    backing_shapes: tuple[int, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -219,6 +219,22 @@ class TactileObservationContract:
             )
             if surface_kind > 2:
                 raise ValueError("sensor surface kind is unsupported")
+            raw_backings = sensor.get("backing_shapes")
+            if not isinstance(raw_backings, list) or not raw_backings:
+                raise ValueError(
+                    "sensor backing_shapes must be a nonempty array"
+                )
+            backing_shapes = tuple(
+                _nonnegative_uint32(
+                    shape,
+                    "sensor backing shape",
+                )
+                for shape in raw_backings
+            )
+            if len(set(backing_shapes)) != len(backing_shapes):
+                raise ValueError(
+                    "sensor backing_shapes must not contain duplicates"
+                )
             maximum_depth = _finite_float(
                 sensor.get("maximum_depth_m"),
                 "sensor maximum depth",
@@ -271,10 +287,7 @@ class TactileObservationContract:
                         sensor.get("parent_body"),
                         "sensor parent body",
                     ),
-                    backing_shape=_nonnegative_uint32(
-                        sensor.get("backing_shape"),
-                        "sensor backing shape",
-                    ),
+                    backing_shapes=backing_shapes,
                 )
             )
         sensors = tuple(parsed_sensors)
@@ -360,11 +373,12 @@ class TactileObservationSnapshot:
         return result
 
 
-class FrankaTactileObservation:
-    """Persistent native tactile context for the canonical Franka fingertips."""
+class NativeTactileObservation:
+    """Persistent native tactile context for one explicit authored world."""
 
     def __init__(
         self,
+        world_pack_path: str | os.PathLike[str],
         capacity: int,
         *,
         contact_capacity_per_environment: int = 128,
@@ -376,17 +390,23 @@ class FrankaTactileObservation:
             metallib_path,
             library_path=self._bindings.path,
         )
-        self._handle = self._bindings.lib.mr_tactile_create_franka(
-            _positive_uint32(capacity, "capacity"),
-            _positive_uint32(
-                contact_capacity_per_environment,
-                "contact_capacity_per_environment",
-            ),
-            (
-                os.fsencode(resolved_metallib)
-                if resolved_metallib is not None
-                else None
-            ),
+        encoded_world_pack = os.fsencode(world_pack_path)
+        if not encoded_world_pack:
+            raise ValueError("world_pack_path must not be empty")
+        self._handle = (
+            self._bindings.lib.mr_tactile_create_world_pack(
+                encoded_world_pack,
+                _positive_uint32(capacity, "capacity"),
+                _positive_uint32(
+                    contact_capacity_per_environment,
+                    "contact_capacity_per_environment",
+                ),
+                (
+                    os.fsencode(resolved_metallib)
+                    if resolved_metallib is not None
+                    else None
+                ),
+            )
         )
         if not self._handle:
             raise MetalRoboError(self._bindings.last_error())
@@ -621,7 +641,7 @@ class FrankaTactileObservation:
         if not getattr(self, "_handle", None):
             raise RuntimeError("Franka tactile observation context is closed")
 
-    def __enter__(self) -> "FrankaTactileObservation":
+    def __enter__(self) -> "NativeTactileObservation":
         self._require_open()
         return self
 
@@ -785,7 +805,7 @@ __all__ = [
     "CONTACT_VALID",
     "DEPTH_SATURATED",
     "FILTERED_TARGET",
-    "FrankaTactileObservation",
+    "NativeTactileObservation",
     "SAMPLE_VALID",
     "TACTILE_ABI_VERSION",
     "TactileCalibrationRecord",
