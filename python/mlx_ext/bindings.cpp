@@ -841,6 +841,7 @@ NB_MODULE(_mlx_ext, module) {
         "body_count"_a,
         "articulation_count"_a,
         "generation"_a,
+        "authored_pack_hash"_a,
         nb::kw_only(),
         "stream"_a = nb::none(),
         "Import GPU-resident world-family resets into MLX arrays."
@@ -848,6 +849,7 @@ NB_MODULE(_mlx_ext, module) {
     module.def(
         "visual_observation",
         &metalrobo::mlx_ext::visualObservation,
+        "world"_a,
         "renderer_handle"_a,
         "world_family_handle"_a,
         "current_body_states"_a,
@@ -855,10 +857,42 @@ NB_MODULE(_mlx_ext, module) {
         "frame_index"_a = 0u,
         "sensor_sequence"_a = 0u,
         "camera_index"_a = 0u,
+        "output_mask"_a = static_cast<std::uint32_t>(
+            MR_HYBRID_OUTPUT_ALL_TRUTH
+        ),
         nb::kw_only(),
         "stream"_a = nb::none(),
         "Encode synchronized visual modalities on MLX's active Metal "
         "compute encoder."
+    );
+    module.def(
+        "materialize_body_states",
+        &metalrobo::mlx_ext::materializeBodyStates,
+        "world"_a,
+        "q"_a,
+        "v"_a,
+        "scene_position"_a,
+        "scene_orientation"_a,
+        "scene_linear_velocity"_a,
+        "scene_angular_velocity"_a,
+        nb::kw_only(),
+        "stream"_a = nb::none(),
+        "Materialize authoritative rigid body records on MLX's active "
+        "Metal encoder."
+    );
+    module.def(
+        "scene_raycast",
+        &metalrobo::mlx_ext::sceneRaycast,
+        "world"_a,
+        "body_states"_a,
+        "origins"_a,
+        "directions"_a,
+        "maximum_distances"_a,
+        "options"_a,
+        nb::kw_only(),
+        "stream"_a = nb::none(),
+        "Cast batched metric rays against cooked physics geometry on "
+        "MLX's active Metal encoder."
     );
     module.def(
         "_debug_cpu_step",

@@ -104,6 +104,12 @@ from .mlx_visual import (
     VisualObservation,
     visual_observation,
 )
+from .mlx_scene_query import (
+    INVALID_ID,
+    SceneRaycastResult,
+    materialize_body_states,
+    scene_raycast,
+)
 from .tactile_latent import (
     ContactEventTargets,
     ObjectContactFieldEstimator,
@@ -271,6 +277,10 @@ __all__ = [
     "HybridObservationDeviceBuffers",
     "HybridObservationRenderer",
     "BODY_STATE_WORDS",
+    "INVALID_ID",
+    "SceneRaycastResult",
+    "materialize_body_states",
+    "scene_raycast",
     "VisualObservation",
     "visual_observation",
     "HybridObservationSnapshot",

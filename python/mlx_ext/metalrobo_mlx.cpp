@@ -668,6 +668,7 @@ struct MetalResources {
         std::string,
         MTL::ComputePipelineState*
     > kernels;
+    std::size_t bodyToSceneBufferIndex = 0u;
 
     ~MetalResources() {
         for (const auto buffer : buffers) {
@@ -1009,7 +1010,7 @@ MetalResources& MLXCompiledWorld::resources(
         staged->tuning.waveWorkerGroupCount =
             waveWorkerGroups_;
     }
-    staged->buffers.reserve(hasTactile() ? 38u : 34u);
+    staged->buffers.reserve(hasTactile() ? 39u : 35u);
     staged->buffers.push_back(
         immutableBuffer(&worldRecord, 1u)
     );
@@ -1375,6 +1376,27 @@ MetalResources& MLXCompiledWorld::resources(
             )
         ));
     }
+    std::vector<std::uint32_t> bodyToScene(
+        model.bodies.size(),
+        MR_INVALID_INDEX
+    );
+    for (std::uint32_t local = 0u;
+         local < world_.sceneBodyIndices().size();
+         ++local) {
+        const std::uint32_t body =
+            world_.sceneBodyIndices()[local];
+        if (body >= bodyToScene.size()) {
+            throw std::runtime_error(
+                "MLXCompiledWorld scene-body mapping is invalid"
+            );
+        }
+        bodyToScene[body] = local;
+    }
+    staged->bodyToSceneBufferIndex = staged->buffers.size();
+    staged->buffers.push_back(immutableBuffer(
+        bodyToScene.empty() ? &emptyIndex : bodyToScene.data(),
+        std::max<std::size_t>(bodyToScene.size(), 1u)
+    ));
 
     auto* physicsLibrary =
         device.get_library("MetalRobo", metallibPath_);
@@ -1484,6 +1506,8 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_integrate_contact_state",
         "mr_world_latch_contact_status",
         "mr_world_commit_contact_state",
+        "mr_scene_query_pack_body_states",
+        "mr_scene_raycast",
     };
     if (hasTactile()) {
         physicsKernels.insert(
@@ -3174,6 +3198,21 @@ std::vector<mx::array> worldStep(
             sizeof(std::uint32_t)
         ),
     };
+    constexpr mx::ShapeElem bodyRecordWords =
+        sizeof(MRBodyStateGPU) / sizeof(std::uint32_t);
+    const mx::Shape bodyStateShape = world->hasTactile()
+        ? mx::Shape{
+              environments,
+              static_cast<mx::ShapeElem>(
+                  world->world().model().bodies.size()
+              ),
+              bodyRecordWords,
+          }
+        : mx::Shape{
+              environments,
+              0,
+              bodyRecordWords,
+          };
     validateInput(q, qShape, "q");
     validateInput(v, vShape, "v");
     validateInput(effort, vShape, "actions");
@@ -3414,6 +3453,7 @@ std::vector<mx::array> worldStep(
             tactileMotionShape,
             tactileMotionShape,
             tactileDenseShape,
+            bodyStateShape,
         },
         {
             mx::float32,
@@ -3457,6 +3497,7 @@ std::vector<mx::array> worldStep(
             mx::float32,
             mx::float32,
             mx::uint32,
+            mx::uint32,
         },
         primitive,
         inputs
@@ -3477,6 +3518,7 @@ std::vector<mx::array> worldFamilyState(
     const std::uint32_t bodyCount,
     const std::uint32_t articulationCount,
     const std::uint64_t generation,
+    const std::uint64_t authoredPackHash,
     mx::StreamOrDevice stream
 ) {
     if (world == nullptr ||
@@ -3490,6 +3532,12 @@ std::vector<mx::array> worldFamilyState(
         throw std::invalid_argument(
             "world-family state requires a compiled world and "
             "non-null Metal reset/scenario/parameter buffers"
+        );
+    }
+    if (world->authoredPackHash() != authoredPackHash) {
+        throw std::invalid_argument(
+            "sampled world family and compiled MLX physics must use "
+            "the same authored pack"
         );
     }
     if (environmentCount == 0u ||
@@ -3623,6 +3671,7 @@ std::vector<mx::array> worldFamilyState(
 }
 
 std::vector<mx::array> visualObservation(
+    const std::shared_ptr<MLXCompiledWorld>& world,
     const std::uintptr_t rendererHandle,
     const std::uintptr_t worldFamilyHandle,
     const mx::array& currentBodyStates,
@@ -3630,6 +3679,7 @@ std::vector<mx::array> visualObservation(
     const std::uint64_t frameIndex,
     const std::uint32_t sensorSequence,
     const std::uint32_t cameraIndex,
+    const std::uint32_t outputMask,
     mx::StreamOrDevice stream
 ) {
     auto* renderer = reinterpret_cast<MRHybridRendererHandle*>(
@@ -3638,10 +3688,30 @@ std::vector<mx::array> visualObservation(
     auto* worlds = reinterpret_cast<MRWorldFamilyHandle*>(
         worldFamilyHandle
     );
-    if (renderer == nullptr || worlds == nullptr) {
+    if (world == nullptr || renderer == nullptr || worlds == nullptr) {
         throw std::invalid_argument(
-            "visual observation requires live renderer and world-family "
-            "handles"
+            "visual observation requires a compiled authored world plus "
+            "live renderer and world-family handles"
+        );
+    }
+    const std::uint64_t compiledPackHash =
+        world->authoredPackHash();
+    const std::uint64_t sampledPackHash =
+        mr_world_family_authored_pack_hash(worlds);
+    if (compiledPackHash == 0u ||
+        sampledPackHash == 0u ||
+        compiledPackHash != sampledPackHash) {
+        throw std::invalid_argument(
+            "visual observation physics and sampled worlds must come "
+            "from the same explicit authored pack"
+        );
+    }
+    if ((outputMask &
+         ~static_cast<std::uint32_t>(
+             MR_HYBRID_OUTPUT_ALL_TRUTH
+         )) != 0u) {
+        throw std::invalid_argument(
+            "visual observation output selection is invalid"
         );
     }
     const MRHybridRendererLayoutC rendererLayout =
@@ -3659,7 +3729,10 @@ std::vector<mx::array> visualObservation(
     };
     if (environments == 0u ||
         environments > rendererLayout.capacity ||
+        environments > world->environmentCapacity() ||
         rendererLayout.body_count == 0u ||
+        rendererLayout.body_count !=
+            world->world().model().bodies.size() ||
         cameraIndex >= worldLayout.sensor_count_per_instance ||
         currentBodyStates.dtype() != mx::uint32 ||
         previousBodyStates.dtype() != mx::uint32 ||
@@ -3674,6 +3747,7 @@ std::vector<mx::array> visualObservation(
     const auto primitive =
         std::make_shared<VisualObservationPrimitive>(
             selectedStream,
+            world,
             renderer,
             worlds,
             environments,
@@ -3682,7 +3756,8 @@ std::vector<mx::array> visualObservation(
             rendererLayout.height,
             frameIndex,
             sensorSequence,
-            cameraIndex
+            cameraIndex,
+            outputMask
         );
     const mx::Shape scalarShape{
         static_cast<mx::ShapeElem>(environments),
@@ -3695,14 +3770,33 @@ std::vector<mx::array> visualObservation(
         static_cast<mx::ShapeElem>(rendererLayout.width),
         4,
     };
+    const mx::Shape emptyScalarShape{
+        static_cast<mx::ShapeElem>(environments),
+        0,
+        0,
+    };
+    const mx::Shape emptyVectorShape{
+        static_cast<mx::ShapeElem>(environments),
+        0,
+        0,
+        4,
+    };
     return mx::array::make_arrays(
         {
             vectorShape,
             scalarShape,
-            scalarShape,
-            vectorShape,
-            vectorShape,
-            vectorShape,
+            (outputMask & MR_HYBRID_OUTPUT_SEGMENTATION) != 0u
+                ? scalarShape
+                : emptyScalarShape,
+            (outputMask & MR_HYBRID_OUTPUT_IDENTITIES) != 0u
+                ? vectorShape
+                : emptyVectorShape,
+            (outputMask & MR_HYBRID_OUTPUT_NORMALS) != 0u
+                ? vectorShape
+                : emptyVectorShape,
+            (outputMask & MR_HYBRID_OUTPUT_MOTION) != 0u
+                ? vectorShape
+                : emptyVectorShape,
             scalarShape,
         },
         {
@@ -3726,6 +3820,205 @@ std::vector<mx::array> visualObservation(
                 false,
                 selectedStream
             ),
+        }
+    );
+}
+
+std::vector<mx::array> materializeBodyStates(
+    const std::shared_ptr<MLXCompiledWorld>& world,
+    const mx::array& q,
+    const mx::array& v,
+    const mx::array& scenePosition,
+    const mx::array& sceneOrientation,
+    const mx::array& sceneLinearVelocity,
+    const mx::array& sceneAngularVelocity,
+    mx::StreamOrDevice stream
+) {
+    if (world == nullptr || q.ndim() != 2u ||
+        q.shape(0) <= 0) {
+        throw std::invalid_argument(
+            "body-state materialization requires a compiled world "
+            "and environment-major q"
+        );
+    }
+    const auto environments = q.shape(0);
+    if (static_cast<std::uint64_t>(environments) >
+        world->environmentCapacity()) {
+        throw std::invalid_argument(
+            "body-state environment count exceeds compiled capacity"
+        );
+    }
+    const auto bodies = static_cast<mx::ShapeElem>(
+        world->world().model().bodies.size()
+    );
+    const auto scenes = static_cast<mx::ShapeElem>(
+        world->world().sceneBodyCount()
+    );
+    const mx::Shape qShape{
+        environments,
+        static_cast<mx::ShapeElem>(world->world().nq()),
+    };
+    const mx::Shape vShape{
+        environments,
+        static_cast<mx::ShapeElem>(world->world().nv()),
+    };
+    const mx::Shape sceneShape{environments, scenes, 4};
+    validateInput(q, qShape, "q");
+    validateInput(v, vShape, "v");
+    validateInput(
+        scenePosition,
+        sceneShape,
+        "scene_position"
+    );
+    validateInput(
+        sceneOrientation,
+        sceneShape,
+        "scene_orientation"
+    );
+    validateInput(
+        sceneLinearVelocity,
+        sceneShape,
+        "scene_linear_velocity"
+    );
+    validateInput(
+        sceneAngularVelocity,
+        sceneShape,
+        "scene_angular_velocity"
+    );
+    constexpr mx::ShapeElem bodyWords =
+        sizeof(MRBodyStateGPU) / sizeof(std::uint32_t);
+    const auto selectedStream = mx::to_stream(stream);
+    const auto primitive = std::make_shared<BodyStatePrimitive>(
+        selectedStream,
+        world
+    );
+    return mx::array::make_arrays(
+        {{environments, bodies, bodyWords}},
+        {mx::uint32},
+        primitive,
+        {
+            mx::contiguous(q, false, selectedStream),
+            mx::contiguous(v, false, selectedStream),
+            mx::contiguous(
+                scenePosition,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(
+                sceneOrientation,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(
+                sceneLinearVelocity,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(
+                sceneAngularVelocity,
+                false,
+                selectedStream
+            ),
+        }
+    );
+}
+
+std::vector<mx::array> sceneRaycast(
+    const std::shared_ptr<MLXCompiledWorld>& world,
+    const mx::array& bodyStates,
+    const mx::array& origins,
+    const mx::array& directions,
+    const mx::array& maximumDistances,
+    const mx::array& options,
+    mx::StreamOrDevice stream
+) {
+    if (world == nullptr ||
+        origins.ndim() != 3u ||
+        origins.shape(0) <= 0 ||
+        origins.shape(1) <= 0) {
+        throw std::invalid_argument(
+            "scene raycast requires a compiled world and "
+            "environment-major rays"
+        );
+    }
+    const auto environments = origins.shape(0);
+    const auto rays = origins.shape(1);
+    if (static_cast<std::uint64_t>(environments) >
+            world->environmentCapacity() ||
+        static_cast<std::uint64_t>(rays) >
+            std::numeric_limits<std::uint32_t>::max()) {
+        throw std::invalid_argument(
+            "scene raycast dimensions exceed compiled capacity"
+        );
+    }
+    constexpr mx::ShapeElem bodyWords =
+        sizeof(MRBodyStateGPU) / sizeof(std::uint32_t);
+    const mx::Shape bodyShape{
+        environments,
+        static_cast<mx::ShapeElem>(
+            world->world().model().bodies.size()
+        ),
+        bodyWords,
+    };
+    const mx::Shape rayShape{environments, rays, 4};
+    const mx::Shape scalarShape{environments, rays};
+    if (bodyStates.dtype() != mx::uint32 ||
+        bodyStates.shape() != bodyShape ||
+        origins.dtype() != mx::float32 ||
+        origins.shape() != rayShape ||
+        directions.dtype() != mx::float32 ||
+        directions.shape() != rayShape ||
+        maximumDistances.dtype() != mx::float32 ||
+        maximumDistances.shape() != scalarShape ||
+        options.dtype() != mx::uint32 ||
+        options.shape() != rayShape) {
+        throw std::invalid_argument(
+            "scene raycast arrays do not match the compiled "
+            "environment/ray layout"
+        );
+    }
+    const auto selectedStream = mx::to_stream(stream);
+    const auto primitive =
+        std::make_shared<SceneRaycastPrimitive>(
+            selectedStream,
+            world,
+            static_cast<std::uint32_t>(environments),
+            static_cast<std::uint32_t>(rays)
+        );
+    return mx::array::make_arrays(
+        {
+            scalarShape,
+            rayShape,
+            rayShape,
+            rayShape,
+            scalarShape,
+        },
+        {
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::uint32,
+            mx::uint32,
+        },
+        primitive,
+        {
+            mx::contiguous(
+                bodyStates,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(origins, false, selectedStream),
+            mx::contiguous(
+                directions,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(
+                maximumDistances,
+                false,
+                selectedStream
+            ),
+            mx::contiguous(options, false, selectedStream),
         }
     );
 }
@@ -4367,7 +4660,7 @@ void WorldStepPrimitive::eval_gpu(
     const std::vector<mx::array>& inputs,
     std::vector<mx::array>& outputs
 ) {
-    if (inputs.size() != 27u || outputs.size() != 41u) {
+    if (inputs.size() != 27u || outputs.size() != 42u) {
         throw std::runtime_error(
             "MetalRobo contact primitive received an invalid graph"
         );
@@ -4736,10 +5029,16 @@ void WorldStepPrimitive::eval_gpu(
               bodyCount
           )
         : bodyPoses;
-    mx::array currentBodies =
-        rawRecords.template operator()<MRBodyStateGPU>(
-            static_cast<std::size_t>(environments) * bodyCount
-        );
+    // Tactile sampling already requires the final global body records.
+    // Publish that same arena as an MLX result so a visual policy stage can
+    // consume it without another kinematics/materialization pass. Worlds
+    // without tactile sensing retain the internal scratch path and expose an
+    // empty tensor, so their step graph gains no observation work.
+    mx::array currentBodies = world_->hasTactile()
+        ? outputs[41]
+        : rawRecords.template operator()<MRBodyStateGPU>(
+              static_cast<std::size_t>(environments) * bodyCount
+          );
     mx::array candidateBodies =
         rawRecords.template operator()<MRBodyStateGPU>(
             static_cast<std::size_t>(environments) * bodyCount
@@ -9115,6 +9414,7 @@ void mlxVisualDispatchThreadgroups(
 
 VisualObservationPrimitive::VisualObservationPrimitive(
     mx::Stream stream,
+    std::shared_ptr<MLXCompiledWorld> world,
     MRHybridRendererHandle* renderer,
     MRWorldFamilyHandle* worlds,
     const std::uint32_t environmentCount,
@@ -9123,9 +9423,11 @@ VisualObservationPrimitive::VisualObservationPrimitive(
     const std::uint32_t height,
     const std::uint64_t frameIndex,
     const std::uint32_t sensorSequence,
-    const std::uint32_t cameraIndex
+    const std::uint32_t cameraIndex,
+    const std::uint32_t outputMask
 )
     : mx::Primitive(stream),
+      world_(std::move(world)),
       renderer_(renderer),
       worlds_(worlds),
       environmentCount_(environmentCount),
@@ -9134,7 +9436,8 @@ VisualObservationPrimitive::VisualObservationPrimitive(
       height_(height),
       frameIndex_(frameIndex),
       sensorSequence_(sensorSequence),
-      cameraIndex_(cameraIndex) {
+      cameraIndex_(cameraIndex),
+      outputMask_(outputMask) {
     mr_hybrid_renderer_retain(renderer_);
     mr_world_family_retain(worlds_);
 }
@@ -9196,11 +9499,24 @@ void VisualObservationPrimitive::eval_gpu(
     MRHybridObservationBuffersC destination{};
     destination.rgb = outputs[0].buffer().ptr();
     destination.depth = outputs[1].buffer().ptr();
-    destination.segmentation = outputs[2].buffer().ptr();
-    destination.identities = outputs[3].buffer().ptr();
-    destination.normals = outputs[4].buffer().ptr();
-    destination.motion = outputs[5].buffer().ptr();
+    destination.segmentation =
+        (outputMask_ & MR_HYBRID_OUTPUT_SEGMENTATION) != 0u
+        ? outputs[2].buffer().ptr()
+        : nullptr;
+    destination.identities =
+        (outputMask_ & MR_HYBRID_OUTPUT_IDENTITIES) != 0u
+        ? outputs[3].buffer().ptr()
+        : nullptr;
+    destination.normals =
+        (outputMask_ & MR_HYBRID_OUTPUT_NORMALS) != 0u
+        ? outputs[4].buffer().ptr()
+        : nullptr;
+    destination.motion =
+        (outputMask_ & MR_HYBRID_OUTPUT_MOTION) != 0u
+        ? outputs[5].buffer().ptr()
+        : nullptr;
     destination.validity = outputs[6].buffer().ptr();
+    destination.output_mask = outputMask_;
 
     if (mr_hybrid_renderer_encode_graph(
             renderer_,
@@ -9281,6 +9597,7 @@ bool VisualObservationPrimitive::is_equivalent(
     const auto* typed =
         dynamic_cast<const VisualObservationPrimitive*>(&other);
     return typed != nullptr &&
+        typed->world_.get() == world_.get() &&
         typed->renderer_ == renderer_ &&
         typed->worlds_ == worlds_ &&
         typed->environmentCount_ == environmentCount_ &&
@@ -9289,7 +9606,486 @@ bool VisualObservationPrimitive::is_equivalent(
         typed->height_ == height_ &&
         typed->frameIndex_ == frameIndex_ &&
         typed->sensorSequence_ == sensorSequence_ &&
-        typed->cameraIndex_ == cameraIndex_;
+        typed->cameraIndex_ == cameraIndex_ &&
+        typed->outputMask_ == outputMask_;
+}
+
+BodyStatePrimitive::BodyStatePrimitive(
+    mx::Stream stream,
+    std::shared_ptr<MLXCompiledWorld> world
+)
+    : mx::Primitive(stream), world_(std::move(world)) {}
+
+void BodyStatePrimitive::eval_cpu(
+    const std::vector<mx::array>&,
+    std::vector<mx::array>&
+) {
+    throw std::runtime_error(
+        "MetalRobo body-state materialization has no MLX CPU fallback"
+    );
+}
+
+void BodyStatePrimitive::eval_gpu(
+    const std::vector<mx::array>& inputs,
+    std::vector<mx::array>& outputs
+) {
+    if (inputs.size() != 6u || outputs.size() != 1u) {
+        throw std::runtime_error(
+            "MetalRobo body-state primitive received an invalid graph"
+        );
+    }
+    outputs[0].set_data(
+        mx::allocator::malloc(outputs[0].nbytes())
+    );
+    auto& streamValue = stream();
+    auto& device = mx::metal::device(streamValue.device);
+    MetalResources& resources = world_->resources(device);
+    auto& encoder =
+        mx::metal::get_command_encoder(streamValue);
+
+    const CompiledWorld& compiled = world_->world();
+    const EngineModel& model = compiled.model();
+    const std::uint32_t environments =
+        static_cast<std::uint32_t>(inputs[0].shape(0));
+    const std::uint32_t bodies =
+        static_cast<std::uint32_t>(model.bodies.size());
+    const std::uint32_t articulations =
+        static_cast<std::uint32_t>(
+            model.articulations.size()
+        );
+    const std::uint32_t scenes =
+        compiled.sceneBodyCount();
+    const auto rawTemporary = [](
+        const std::size_t bytes
+    ) {
+        return temporary(
+            {
+                static_cast<mx::ShapeElem>(
+                    std::max<std::size_t>(
+                        (bytes + sizeof(std::uint32_t) - 1u) /
+                            sizeof(std::uint32_t),
+                        1u
+                    )
+                ),
+            },
+            mx::uint32
+        );
+    };
+    mx::array bodyPoses = rawTemporary(
+        static_cast<std::size_t>(environments) *
+        bodies * sizeof(MRArticulatedBodyPoseGPU)
+    );
+    mx::array operatorStatuses = rawTemporary(
+        static_cast<std::size_t>(environments) *
+        articulations *
+        sizeof(MRArticulatedOperatorStatusGPU)
+    );
+    mx::array dummyRecords = rawTemporary(
+        sizeof(MRArticulatedPointImpulseGPU)
+    );
+    mx::array dummyFloat = temporary({1}, mx::float32);
+    std::vector<mx::array> temporaries{
+        bodyPoses,
+        operatorStatuses,
+        dummyRecords,
+        dummyFloat,
+    };
+    encoder.add_temporaries(std::move(temporaries));
+
+    auto* operatorKernel =
+        resources.kernel("mr_articulated_operator");
+    encoder.set_compute_pipeline_state(operatorKernel);
+    for (std::uint32_t owner = 0u;
+         owner < articulations;
+         ++owner) {
+        const MRArticulationGPU& articulation =
+            model.articulations[owner];
+        MRArticulatedOperatorDispatchGPU dispatch{};
+        dispatch.articulationIndex = owner;
+        dispatch.environmentCount = environments;
+        dispatch.pointCount = 0u;
+        dispatch.flags =
+            MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY;
+        dispatch.qStride = model.world.nq;
+        dispatch.pointStride = 1u;
+        dispatch.bodyPoseStride = bodies;
+        dispatch.pointWorldStride = 1u;
+        dispatch.massMatrixStride = 1u;
+        dispatch.pointJacobianStride = 1u;
+        dispatch.generalizedStride = model.world.nv;
+        encoder.set_buffer(
+            resources.buffer(kImmutableWorld),
+            0
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableArticulations),
+            1
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableJoints),
+            2
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableDofs),
+            3
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableBodies),
+            4
+        );
+        encoder.set_bytes(dispatch, 5);
+        encoder.set_input_array(
+            inputs[0],
+            6,
+            articulation.qOffset * sizeof(float)
+        );
+        encoder.set_input_array(dummyRecords, 7);
+        encoder.set_output_array(
+            bodyPoses,
+            8,
+            articulation.firstBody *
+                sizeof(MRArticulatedBodyPoseGPU)
+        );
+        encoder.set_output_array(dummyRecords, 9);
+        encoder.set_output_array(dummyFloat, 10);
+        encoder.set_output_array(dummyFloat, 11);
+        encoder.set_output_array(dummyFloat, 12);
+        encoder.set_output_array(dummyFloat, 13);
+        encoder.set_output_array(
+            operatorStatuses,
+            14,
+            static_cast<std::int64_t>(owner) *
+                environments *
+                sizeof(MRArticulatedOperatorStatusGPU)
+        );
+        encoder.dispatch_threadgroups(
+            MTL::Size(environments, 1u, 1u),
+            MTL::Size(kOperatorThreads, 1u, 1u)
+        );
+    }
+    encoder.barrier();
+
+    MRBodyStateMaterializeDispatchGPU materialize{};
+    materialize.abiVersion = MR_SCENE_QUERY_ABI_VERSION;
+    materialize.environmentCount = environments;
+    materialize.bodyCount = bodies;
+    materialize.articulationCount = articulations;
+    materialize.sceneBodyCount = scenes;
+    materialize.qStride = model.world.nq;
+    materialize.vStride = model.world.nv;
+    materialize.bodyStride = bodies;
+    auto* packKernel =
+        resources.kernel("mr_scene_query_pack_body_states");
+    encoder.set_compute_pipeline_state(packKernel);
+    encoder.set_bytes(materialize, 0);
+    encoder.set_buffer(
+        resources.buffer(kImmutableBodies),
+        1
+    );
+    encoder.set_buffer(
+        resources.buffer(resources.bodyToSceneBufferIndex),
+        2
+    );
+    encoder.set_input_array(bodyPoses, 3);
+    encoder.set_input_array(operatorStatuses, 4);
+    encoder.set_input_array(inputs[2], 5);
+    encoder.set_input_array(inputs[3], 6);
+    encoder.set_input_array(inputs[4], 7);
+    encoder.set_input_array(inputs[5], 8);
+    encoder.set_output_array(outputs[0], 9);
+    const std::size_t packWidth = std::min<std::size_t>(
+        kWorldThreads,
+        packKernel->maxTotalThreadsPerThreadgroup()
+    );
+    encoder.dispatch_threads(
+        MTL::Size(
+            static_cast<std::size_t>(environments) * bodies,
+            1u,
+            1u
+        ),
+        MTL::Size(packWidth, 1u, 1u)
+    );
+    encoder.barrier();
+
+    auto* velocityKernel = resources.kernel(
+        "mr_articulated_materialize_body_velocities"
+    );
+    encoder.set_compute_pipeline_state(velocityKernel);
+    for (std::uint32_t owner = 0u;
+         owner < articulations;
+         ++owner) {
+        const MRArticulationGPU& articulation =
+            model.articulations[owner];
+        MRArticulatedOperatorDispatchGPU dispatch{};
+        dispatch.articulationIndex = owner;
+        dispatch.environmentCount = environments;
+        dispatch.pointCount = 0u;
+        dispatch.flags =
+            MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY;
+        dispatch.qStride = model.world.nq;
+        dispatch.pointStride = 1u;
+        dispatch.bodyPoseStride = bodies;
+        dispatch.pointWorldStride = 1u;
+        dispatch.massMatrixStride = 1u;
+        dispatch.pointJacobianStride = 1u;
+        dispatch.generalizedStride = model.world.nv;
+        encoder.set_buffer(
+            resources.buffer(kImmutableWorld),
+            0
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableArticulations),
+            1
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableJoints),
+            2
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableDofs),
+            3
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableBodies),
+            4
+        );
+        encoder.set_bytes(dispatch, 5);
+        encoder.set_input_array(
+            inputs[0],
+            6,
+            articulation.qOffset * sizeof(float)
+        );
+        encoder.set_input_array(
+            inputs[1],
+            7,
+            articulation.vOffset * sizeof(float)
+        );
+        encoder.set_output_array(
+            outputs[0],
+            8,
+            articulation.firstBody * sizeof(MRBodyStateGPU)
+        );
+        encoder.set_output_array(
+            operatorStatuses,
+            9,
+            static_cast<std::int64_t>(owner) *
+                environments *
+                sizeof(MRArticulatedOperatorStatusGPU)
+        );
+        encoder.dispatch_threadgroups(
+            MTL::Size(environments, 1u, 1u),
+            MTL::Size(kOperatorThreads, 1u, 1u)
+        );
+    }
+}
+
+std::vector<mx::array> BodyStatePrimitive::jvp(
+    const std::vector<mx::array>&,
+    const std::vector<mx::array>&,
+    const std::vector<int>&
+) {
+    throw std::runtime_error(
+        "MetalRobo body-state materialization does not implement JVP"
+    );
+}
+
+std::vector<mx::array> BodyStatePrimitive::vjp(
+    const std::vector<mx::array>&,
+    const std::vector<mx::array>&,
+    const std::vector<int>&,
+    const std::vector<mx::array>&
+) {
+    throw std::runtime_error(
+        "MetalRobo body-state materialization does not implement VJP"
+    );
+}
+
+std::pair<std::vector<mx::array>, std::vector<int>>
+BodyStatePrimitive::vmap(
+    const std::vector<mx::array>&,
+    const std::vector<int>&
+) {
+    throw std::runtime_error(
+        "MetalRobo body states use the native environment batch axis"
+    );
+}
+
+const char* BodyStatePrimitive::name() const {
+    return "MetalRoboBodyState";
+}
+
+bool BodyStatePrimitive::is_equivalent(
+    const mx::Primitive& other
+) const {
+    const auto* typed =
+        dynamic_cast<const BodyStatePrimitive*>(&other);
+    return typed != nullptr &&
+        typed->world_.get() == world_.get();
+}
+
+SceneRaycastPrimitive::SceneRaycastPrimitive(
+    mx::Stream stream,
+    std::shared_ptr<MLXCompiledWorld> world,
+    const std::uint32_t environmentCount,
+    const std::uint32_t rayCount
+)
+    : mx::Primitive(stream),
+      world_(std::move(world)),
+      environmentCount_(environmentCount),
+      rayCount_(rayCount) {}
+
+void SceneRaycastPrimitive::eval_cpu(
+    const std::vector<mx::array>&,
+    std::vector<mx::array>&
+) {
+    throw std::runtime_error(
+        "MetalRobo scene raycast has no MLX CPU fallback"
+    );
+}
+
+void SceneRaycastPrimitive::eval_gpu(
+    const std::vector<mx::array>& inputs,
+    std::vector<mx::array>& outputs
+) {
+    if (inputs.size() != 5u || outputs.size() != 5u) {
+        throw std::runtime_error(
+            "MetalRobo scene raycast received an invalid graph"
+        );
+    }
+    for (mx::array& output : outputs) {
+        output.set_data(mx::allocator::malloc(output.nbytes()));
+    }
+    auto& streamValue = stream();
+    auto& device = mx::metal::device(streamValue.device);
+    MetalResources& resources = world_->resources(device);
+    auto& encoder =
+        mx::metal::get_command_encoder(streamValue);
+    const EngineModel& model = world_->world().model();
+
+    MRSceneQueryDispatchGPU dispatch{};
+    dispatch.abiVersion = MR_SCENE_QUERY_ABI_VERSION;
+    dispatch.environmentCount = environmentCount_;
+    dispatch.rayCount = rayCount_;
+    dispatch.bodyCount =
+        static_cast<std::uint32_t>(model.bodies.size());
+    dispatch.shapeCount =
+        static_cast<std::uint32_t>(model.shapes.size());
+    dispatch.geometryCount = static_cast<std::uint32_t>(
+        model.geometryHeaders.size()
+    );
+    dispatch.vertexCount = static_cast<std::uint32_t>(
+        model.geometryVertices.size()
+    );
+    dispatch.meshNodeCount = static_cast<std::uint32_t>(
+        model.meshBvhNodes.size()
+    );
+    dispatch.meshTriangleCount =
+        static_cast<std::uint32_t>(
+            model.meshTriangles.size()
+        );
+    dispatch.convexFaceCount =
+        static_cast<std::uint32_t>(
+            model.convexFaces.size()
+        );
+    dispatch.rayStride = rayCount_;
+    dispatch.bodyStride = dispatch.bodyCount;
+
+    auto* kernel = resources.kernel("mr_scene_raycast");
+    encoder.set_compute_pipeline_state(kernel);
+    encoder.set_bytes(dispatch, 0);
+    encoder.set_buffer(
+        resources.buffer(kImmutableShapes),
+        1
+    );
+    encoder.set_buffer(
+        resources.buffer(kImmutableGeometryHeaders),
+        2
+    );
+    encoder.set_buffer(
+        resources.buffer(kImmutableGeometryVertices),
+        3
+    );
+    encoder.set_buffer(
+        resources.buffer(kImmutableMeshNodes),
+        4
+    );
+    encoder.set_buffer(
+        resources.buffer(kImmutableMeshTriangles),
+        5
+    );
+    encoder.set_buffer(
+        resources.buffer(kImmutableConvexFaces),
+        6
+    );
+    encoder.set_input_array(inputs[0], 7);
+    encoder.set_input_array(inputs[1], 8);
+    encoder.set_input_array(inputs[2], 9);
+    encoder.set_input_array(inputs[3], 10);
+    encoder.set_input_array(inputs[4], 11);
+    encoder.set_output_array(outputs[0], 12);
+    encoder.set_output_array(outputs[1], 13);
+    encoder.set_output_array(outputs[2], 14);
+    encoder.set_output_array(outputs[3], 15);
+    encoder.set_output_array(outputs[4], 16);
+    const std::size_t width = std::min<std::size_t>(
+        kWorldThreads,
+        kernel->maxTotalThreadsPerThreadgroup()
+    );
+    encoder.dispatch_threads(
+        MTL::Size(
+            static_cast<std::size_t>(environmentCount_) *
+                rayCount_,
+            1u,
+            1u
+        ),
+        MTL::Size(width, 1u, 1u)
+    );
+}
+
+std::vector<mx::array> SceneRaycastPrimitive::jvp(
+    const std::vector<mx::array>&,
+    const std::vector<mx::array>&,
+    const std::vector<int>&
+) {
+    throw std::runtime_error(
+        "MetalRobo scene raycast does not implement JVP"
+    );
+}
+
+std::vector<mx::array> SceneRaycastPrimitive::vjp(
+    const std::vector<mx::array>&,
+    const std::vector<mx::array>&,
+    const std::vector<int>&,
+    const std::vector<mx::array>&
+) {
+    throw std::runtime_error(
+        "MetalRobo scene raycast does not implement VJP"
+    );
+}
+
+std::pair<std::vector<mx::array>, std::vector<int>>
+SceneRaycastPrimitive::vmap(
+    const std::vector<mx::array>&,
+    const std::vector<int>&
+) {
+    throw std::runtime_error(
+        "MetalRobo scene rays use the native environment batch axis"
+    );
+}
+
+const char* SceneRaycastPrimitive::name() const {
+    return "MetalRoboSceneRaycast";
+}
+
+bool SceneRaycastPrimitive::is_equivalent(
+    const mx::Primitive& other
+) const {
+    const auto* typed =
+        dynamic_cast<const SceneRaycastPrimitive*>(&other);
+    return typed != nullptr &&
+        typed->world_.get() == world_.get() &&
+        typed->environmentCount_ == environmentCount_ &&
+        typed->rayCount_ == rayCount_;
 }
 
 } // namespace metalrobo::mlx_ext

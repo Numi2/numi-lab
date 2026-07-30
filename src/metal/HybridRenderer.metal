@@ -177,6 +177,13 @@ float2 fastSubpixelOffset(
     );
 }
 
+bool optionalOutputEnabled(
+    constant MRHybridRenderUniformsGPU& uniforms,
+    const uint bit
+) {
+    return (uniforms.meshTiling.w & bit) != 0u;
+}
+
 float uniformSigned(const uint value) {
     return (float(randomHash(value)) + 0.5f) *
                (2.0f / 4294967296.0f) -
@@ -1748,10 +1755,30 @@ kernel void mr_hybrid_clear_observations(
         0.0f
     );
     depth[pixel] = uniforms.clearColorAndDepth.w;
-    segmentation[pixel] = MR_INVALID_INDEX;
-    identities[pixel] = uint4(MR_INVALID_INDEX);
-    normals[pixel] = 0.0f;
-    motion[pixel] = 0.0f;
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_SEGMENTATION
+        )) {
+        segmentation[pixel] = MR_INVALID_INDEX;
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_IDENTITIES
+        )) {
+        identities[pixel] = uint4(MR_INVALID_INDEX);
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_NORMALS
+        )) {
+        normals[pixel] = 0.0f;
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_MOTION
+        )) {
+        motion[pixel] = 0.0f;
+    }
     validity[pixel] = MR_VISUAL_VALIDITY_FRAME;
     if (uniforms.ray.w != 0u) {
         clearMeshWinner(
@@ -2378,10 +2405,30 @@ kernel void mr_hybrid_render_tiles(
             0.0f
         );
         depth[pixel] = uniforms.clearColorAndDepth.w;
-        segmentation[pixel] = MR_INVALID_INDEX;
-        identities[pixel] = uint4(MR_INVALID_INDEX);
-        normals[pixel] = 0.0f;
-        motion[pixel] = 0.0f;
+        if (optionalOutputEnabled(
+                uniforms,
+                MR_HYBRID_OUTPUT_SEGMENTATION
+            )) {
+            segmentation[pixel] = MR_INVALID_INDEX;
+        }
+        if (optionalOutputEnabled(
+                uniforms,
+                MR_HYBRID_OUTPUT_IDENTITIES
+            )) {
+            identities[pixel] = uint4(MR_INVALID_INDEX);
+        }
+        if (optionalOutputEnabled(
+                uniforms,
+                MR_HYBRID_OUTPUT_NORMALS
+            )) {
+            normals[pixel] = 0.0f;
+        }
+        if (optionalOutputEnabled(
+                uniforms,
+                MR_HYBRID_OUTPUT_MOTION
+            )) {
+            motion[pixel] = 0.0f;
+        }
         validity[pixel] = MR_VISUAL_VALIDITY_FRAME;
         return;
     }
@@ -2498,10 +2545,30 @@ kernel void mr_hybrid_render_tiles(
         1.0f - transmittance
     );
     depth[pixel] = nearestDepth;
-    segmentation[pixel] = identity.x;
-    identities[pixel] = identity;
-    normals[pixel] = normal;
-    motion[pixel] = pixelMotion;
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_SEGMENTATION
+        )) {
+        segmentation[pixel] = identity.x;
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_IDENTITIES
+        )) {
+        identities[pixel] = identity;
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_NORMALS
+        )) {
+        normals[pixel] = normal;
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_MOTION
+        )) {
+        motion[pixel] = pixelMotion;
+    }
     validity[pixel] = valid;
 }
 
@@ -3346,10 +3413,30 @@ kernel void mr_hybrid_composite_mesh(
     }
     if (uniforms.band.w != 0u) {
         depth[pixel] = meshDepth;
-        segmentation[pixel] = outputIdentity.x;
-        identities[pixel] = outputIdentity;
-        normals[pixel] = float4(cameraNormal, 1.0f);
-        motion[pixel] = float4(pixelMotion, 1.0f, 0.0f);
+        if (optionalOutputEnabled(
+                uniforms,
+                MR_HYBRID_OUTPUT_SEGMENTATION
+            )) {
+            segmentation[pixel] = outputIdentity.x;
+        }
+        if (optionalOutputEnabled(
+                uniforms,
+                MR_HYBRID_OUTPUT_IDENTITIES
+            )) {
+            identities[pixel] = outputIdentity;
+        }
+        if (optionalOutputEnabled(
+                uniforms,
+                MR_HYBRID_OUTPUT_NORMALS
+            )) {
+            normals[pixel] = float4(cameraNormal, 1.0f);
+        }
+        if (optionalOutputEnabled(
+                uniforms,
+                MR_HYBRID_OUTPUT_MOTION
+            )) {
+            motion[pixel] = float4(pixelMotion, 1.0f, 0.0f);
+        }
         validity[pixel] =
             MR_VISUAL_VALIDITY_FRAME |
             MR_VISUAL_VALIDITY_GEOMETRY;
@@ -3578,10 +3665,30 @@ kernel void mr_hybrid_composite_mesh(
 
     rgb[pixel] = float4(color, base.w);
     depth[pixel] = meshDepth;
-    segmentation[pixel] = outputIdentity.x;
-    identities[pixel] = outputIdentity;
-    normals[pixel] = float4(cameraNormal, 1.0f);
-    motion[pixel] = float4(pixelMotion, 1.0f, 0.0f);
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_SEGMENTATION
+        )) {
+        segmentation[pixel] = outputIdentity.x;
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_IDENTITIES
+        )) {
+        identities[pixel] = outputIdentity;
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_NORMALS
+        )) {
+        normals[pixel] = float4(cameraNormal, 1.0f);
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_MOTION
+        )) {
+        motion[pixel] = float4(pixelMotion, 1.0f, 0.0f);
+    }
     validity[pixel] =
         MR_VISUAL_VALIDITY_FRAME |
         MR_VISUAL_VALIDITY_GEOMETRY;
@@ -4895,16 +5002,36 @@ kernel void mr_hybrid_render_reference(
         return;
     }
     depth[pixel] = truthDepth;
-    segmentation[pixel] = truthSurface.identity.x;
-    identities[pixel] = truthSurface.identity;
-    normals[pixel] = float4(
-        normalize(inverseRotateVector(
-            truthCamera.orientation,
-            truthSurface.worldNormal
-        )),
-        1.0f
-    );
-    motion[pixel] = 0.0f;
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_SEGMENTATION
+        )) {
+        segmentation[pixel] = truthSurface.identity.x;
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_IDENTITIES
+        )) {
+        identities[pixel] = truthSurface.identity;
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_NORMALS
+        )) {
+        normals[pixel] = float4(
+            normalize(inverseRotateVector(
+                truthCamera.orientation,
+                truthSurface.worldNormal
+            )),
+            1.0f
+        );
+    }
+    if (optionalOutputEnabled(
+            uniforms,
+            MR_HYBRID_OUTPUT_MOTION
+        )) {
+        motion[pixel] = 0.0f;
+    }
     validity[pixel] =
         MR_VISUAL_VALIDITY_FRAME |
         MR_VISUAL_VALIDITY_GEOMETRY;

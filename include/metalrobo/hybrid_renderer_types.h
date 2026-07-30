@@ -13,6 +13,18 @@
 #define MR_HYBRID_NEAR_CLIPPED_RESOLVE_THREADS 256u
 
 enum {
+    MR_HYBRID_OUTPUT_SEGMENTATION = 1u << 0u,
+    MR_HYBRID_OUTPUT_IDENTITIES = 1u << 1u,
+    MR_HYBRID_OUTPUT_NORMALS = 1u << 2u,
+    MR_HYBRID_OUTPUT_MOTION = 1u << 3u,
+    MR_HYBRID_OUTPUT_ALL_TRUTH =
+        MR_HYBRID_OUTPUT_SEGMENTATION |
+        MR_HYBRID_OUTPUT_IDENTITIES |
+        MR_HYBRID_OUTPUT_NORMALS |
+        MR_HYBRID_OUTPUT_MOTION,
+};
+
+enum {
     MR_HYBRID_GAUSSIAN_ASSET_LOCAL = 0u,
     MR_HYBRID_GAUSSIAN_BODY_LOCAL = 1u,
     MR_HYBRID_GAUSSIAN_WORLD = 2u,
@@ -102,7 +114,8 @@ typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
     mr_float4 sensorRangeAndResponse;
     // texture count, light count, renderer profile, profile flags.
     mr_uint4 presentation;
-    // mesh triangles/tile, cooperative batch, microtriangle pixels, reserved.
+    // Mesh triangles/tile, cooperative batch, microtriangle pixels, and the
+    // statically selected optional truth-output mask.
     mr_uint4 meshTiling;
     // shutter model, scan direction, temporal sample, sample count.
     mr_uint4 shutter;

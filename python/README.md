@@ -62,6 +62,32 @@ capacity overflow never reallocates inside the primitive: the raw fixed-shape
 status reports the exact required stage counts and the affected environment
 keeps its input state.
 
+### Geometric sensors and scene queries
+
+The same compiled world supports arbitrary environment-major rays without a
+CPU copy or a second command buffer:
+
+```python
+from metalrobo import materialize_body_states, scene_raycast
+
+body_states = materialize_body_states(world, state)
+hits = scene_raycast(
+    world,
+    body_states,
+    origins=mx.array([[0.0, 0.0, 1.5]], dtype=mx.float32),
+    directions=mx.array([[0.0, 0.0, -1.0]], dtype=mx.float32),
+    maximum_distance_m=4.0,
+)
+```
+
+Origins and directions may be shared as `(ray, 3)` arrays or supplied per
+environment as `(environment, ray, 3)`. Results contain metric distance,
+world-space point and normal, shape/body/material/feature identities, and
+validity. Analytic shapes, convex geometry, and authored triangle meshes use
+the same interface. If a tactile step already returned
+`output.body_states`, pass that array directly and avoid another kinematics
+dispatch.
+
 Wave32 worker occupancy is fixed when the world is compiled. The device
 profile supplies the default; `wave_worker_groups=32|64|96|128` is an explicit
 override. Measure candidates outside rollout execution:

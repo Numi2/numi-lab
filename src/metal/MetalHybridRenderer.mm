@@ -2719,6 +2719,15 @@ MetalHybridRendererDiagnostics encodeLocked(
             "compile the visual sensor runtime before rendering"
         );
     }
+    if (options.outputs == nullptr &&
+        !state.config.retainObservationBuffers) {
+        return reject(
+            std::move(diagnostics),
+            MetalHybridRendererStatus::missingLiveState,
+            "this graph-only visual sensor retains no standalone "
+            "observation planes"
+        );
+    }
     if (!encoder.valid()) {
         return reject(
             std::move(diagnostics),
@@ -2900,7 +2909,11 @@ MetalHybridRendererDiagnostics encodeLocked(
         state.layout.maximumMeshTrianglesPerTile,
         MR_HYBRID_MESH_TILE_BATCH,
         MR_HYBRID_MESH_MICRO_TRIANGLE_PIXELS,
-        0u,
+        options.outputs == nullptr
+            ? static_cast<std::uint32_t>(
+                  MR_HYBRID_OUTPUT_ALL_TRUTH
+              )
+            : options.outputs->outputMask,
     };
     uniforms.shutter = {
         profile.shutter.x,
@@ -4175,6 +4188,8 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             state_->config.maximumReferenceFramesInFlight == 0u ||
             state_->config.maximumRetainedBytes == 0u ||
             state_->config.maximumShadowAtlasBytes == 0u ||
+            (profile.rayQueryVisibility &&
+             !state_->config.retainObservationBuffers) ||
             !finite4(state_->config.clearColorAndDepth) ||
             state_->config.clearColorAndDepth.w <= 0.0f) {
             return reject(
@@ -4598,12 +4613,22 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                  meshTileRecordBytes,
                  meshTileOverflowBytes,
                  meshWinnerBytes,
-                 rgbBytes,
+                 state_->config.retainObservationBuffers
+                     ? rgbBytes
+                     : 0u,
                  temporalAccumulationBytes,
-                 depthBytes,
-                 3u * uintBytes,
-                 2u * float4Bytes,
-                 uint4Bytes,
+                 state_->config.retainObservationBuffers
+                     ? depthBytes
+                     : 0u,
+                 state_->config.retainObservationBuffers
+                     ? 2u * uintBytes
+                     : 0u,
+                 state_->config.retainObservationBuffers
+                     ? 2u * float4Bytes
+                     : 0u,
+                 state_->config.retainObservationBuffers
+                     ? uint4Bytes
+                     : 0u,
                  shadowBytes,
              }) {
             if (!checkedAdd(
@@ -4782,41 +4807,43 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             meshWinnerBytes,
             @"MetalRobo mesh pixel winners"
         );
-        buffers.rgb = makePrivateBuffer(
-            state_->device,
-            rgbBytes,
-            @"MetalRobo visual RGB"
-        );
-        buffers.depth = makePrivateBuffer(
-            state_->device,
-            depthBytes,
-            @"MetalRobo visual depth"
-        );
-        buffers.segmentation = makePrivateBuffer(
-            state_->device,
-            uintBytes,
-            @"MetalRobo visual semantics"
-        );
-        buffers.identities = makePrivateBuffer(
-            state_->device,
-            uint4Bytes,
-            @"MetalRobo visual identities"
-        );
-        buffers.normals = makePrivateBuffer(
-            state_->device,
-            float4Bytes,
-            @"MetalRobo visual normals"
-        );
-        buffers.motion = makePrivateBuffer(
-            state_->device,
-            float4Bytes,
-            @"MetalRobo visual motion"
-        );
-        buffers.validity = makePrivateBuffer(
-            state_->device,
-            uintBytes,
-            @"MetalRobo visual validity"
-        );
+        if (state_->config.retainObservationBuffers) {
+            buffers.rgb = makePrivateBuffer(
+                state_->device,
+                rgbBytes,
+                @"MetalRobo visual RGB"
+            );
+            buffers.depth = makePrivateBuffer(
+                state_->device,
+                depthBytes,
+                @"MetalRobo visual depth"
+            );
+            buffers.segmentation = makePrivateBuffer(
+                state_->device,
+                uintBytes,
+                @"MetalRobo visual semantics"
+            );
+            buffers.identities = makePrivateBuffer(
+                state_->device,
+                uint4Bytes,
+                @"MetalRobo visual identities"
+            );
+            buffers.normals = makePrivateBuffer(
+                state_->device,
+                float4Bytes,
+                @"MetalRobo visual normals"
+            );
+            buffers.motion = makePrivateBuffer(
+                state_->device,
+                float4Bytes,
+                @"MetalRobo visual motion"
+            );
+            buffers.validity = makePrivateBuffer(
+                state_->device,
+                uintBytes,
+                @"MetalRobo visual validity"
+            );
+        }
         buffers.shadowAtlas = makePrivateBuffer(
             state_->device,
             shadowBytes,
@@ -4903,13 +4930,6 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             buffers.meshTileRecords,
             buffers.meshTileOverflowCounts,
             buffers.meshWinners,
-            buffers.rgb,
-            buffers.depth,
-            buffers.segmentation,
-            buffers.identities,
-            buffers.normals,
-            buffers.motion,
-            buffers.validity,
             buffers.shadowAtlas,
             buffers.temporalAccumulation,
         };
@@ -4924,6 +4944,30 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 MetalHybridRendererStatus::metalBufferFailure,
                 "could not allocate visual sensor buffers"
             );
+        }
+        if (state_->config.retainObservationBuffers) {
+            const std::array observationBuffers{
+                buffers.rgb,
+                buffers.depth,
+                buffers.segmentation,
+                buffers.identities,
+                buffers.normals,
+                buffers.motion,
+                buffers.validity,
+            };
+            if (std::ranges::any_of(
+                    observationBuffers,
+                    [](id<MTLBuffer> buffer) {
+                        return buffer == nil;
+                    }
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalHybridRendererStatus::metalBufferFailure,
+                    "could not allocate retained visual observation "
+                    "buffers"
+                );
+            }
         }
         std::memset(
             buffers.currentBodies.contents,
@@ -5558,6 +5602,16 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeGraph(
                 "active-compute callback surface"
             );
         }
+        if ((outputs.outputMask &
+             ~static_cast<std::uint32_t>(
+                 MR_HYBRID_OUTPUT_ALL_TRUTH
+             )) != 0u) {
+            return reject(
+                {},
+                MetalHybridRendererStatus::metalBufferFailure,
+                "graph observation output selection is invalid"
+            );
+        }
         const std::array<void*, 7u> outputPointers{
             outputs.rgb,
             outputs.depth,
@@ -5567,11 +5621,28 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeGraph(
             outputs.motion,
             outputs.validity,
         };
-        if (std::ranges::any_of(
-                outputPointers,
-                [](const void* pointer) {
-                    return pointer == nullptr;
-                }
+        if (outputs.rgb == nullptr ||
+            outputs.depth == nullptr ||
+            outputs.validity == nullptr ||
+            (
+                (outputs.outputMask &
+                 MR_HYBRID_OUTPUT_SEGMENTATION) != 0u &&
+                outputs.segmentation == nullptr
+            ) ||
+            (
+                (outputs.outputMask &
+                 MR_HYBRID_OUTPUT_IDENTITIES) != 0u &&
+                outputs.identities == nullptr
+            ) ||
+            (
+                (outputs.outputMask &
+                 MR_HYBRID_OUTPUT_NORMALS) != 0u &&
+                outputs.normals == nullptr
+            ) ||
+            (
+                (outputs.outputMask &
+                 MR_HYBRID_OUTPUT_MOTION) != 0u &&
+                outputs.motion == nullptr
             )) {
             return reject(
                 {},
@@ -5605,9 +5676,25 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeGraph(
             pixelCount * sizeof(mr_float4),
             pixelCount * sizeof(std::uint32_t),
         };
+        const std::array<bool, 7u> requiredOutputs{
+            true,
+            true,
+            (outputs.outputMask &
+             MR_HYBRID_OUTPUT_SEGMENTATION) != 0u,
+            (outputs.outputMask &
+             MR_HYBRID_OUTPUT_IDENTITIES) != 0u,
+            (outputs.outputMask &
+             MR_HYBRID_OUTPUT_NORMALS) != 0u,
+            (outputs.outputMask &
+             MR_HYBRID_OUTPUT_MOTION) != 0u,
+            true,
+        };
         for (std::size_t index = 0u;
              index < outputPointers.size();
              ++index) {
+            if (!requiredOutputs[index]) {
+                continue;
+            }
             id<MTLBuffer> buffer =
                 (__bridge id<MTLBuffer>)outputPointers[index];
             if (buffer == nil ||
@@ -6103,6 +6190,13 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::readback(
         const std::lock_guard lock(state_->mutex);
         diagnostics.layout = state_->layout;
         diagnostics.deviceName = state_->deviceName;
+        if (!state_->config.retainObservationBuffers) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::notCompiled,
+                "graph-only visual sensors retain no readback planes"
+            );
+        }
         if (!state_->compiled ||
             state_->activeEnvironmentCount == 0u) {
             return reject(

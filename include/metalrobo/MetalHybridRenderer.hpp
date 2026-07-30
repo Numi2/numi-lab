@@ -33,6 +33,10 @@ struct MetalHybridRendererConfig {
     // allocations while still allowing a normal triple-buffered producer.
     std::uint32_t maximumReferenceFramesInFlight = 3u;
     mr_float4 clearColorAndDepth{0.0f, 0.0f, 0.0f, 1.0e30f};
+    // MLX graph execution supplies all observation planes. Disabling retained
+    // planes avoids keeping a second capacity-sized copy of every image in
+    // unified memory. Standalone render/readback is unavailable in that mode.
+    bool retainObservationBuffers = true;
     // Hard bounds on unified-memory retention. Compilation rejects an
     // oversized profile before asking Metal for any large allocation.
     std::size_t maximumRetainedBytes = 2ull * 1024ull * 1024ull * 1024ull;
@@ -141,8 +145,9 @@ struct HybridDeviceStateBatch {
 };
 
 struct HybridDeviceObservationBuffers {
-    // Borrowed id<MTLBuffer> values. Supplying this complete set makes the
-    // renderer write directly into caller-owned graph arrays.
+    // Borrowed id<MTLBuffer> values. RGB, depth, and validity are mandatory.
+    // Optional truth buffers may be null when their bit is absent from
+    // outputMask.
     void* rgb = nullptr;
     void* depth = nullptr;
     void* segmentation = nullptr;
@@ -150,6 +155,7 @@ struct HybridDeviceObservationBuffers {
     void* normals = nullptr;
     void* motion = nullptr;
     void* validity = nullptr;
+    std::uint32_t outputMask = MR_HYBRID_OUTPUT_ALL_TRUTH;
 };
 
 struct MetalHybridComputeEncoderCallbacks {

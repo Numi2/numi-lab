@@ -372,6 +372,12 @@ class _Bindings:
         self.lib.mr_world_family_scenario_fingerprint.restype = (
             ct.c_uint64
         )
+        self.lib.mr_world_family_authored_pack_hash.argtypes = [
+            ct.c_void_p
+        ]
+        self.lib.mr_world_family_authored_pack_hash.restype = (
+            ct.c_uint64
+        )
         self.lib.mr_world_family_scenario_id.argtypes = [ct.c_void_p]
         self.lib.mr_world_family_scenario_id.restype = ct.c_char_p
         self.lib.mr_world_family_scenario_feature_id.argtypes = [
@@ -432,6 +438,7 @@ class _Bindings:
             ct.c_uint32,
             ct.c_char_p,
             ct.c_char_p,
+            ct.c_uint32,
             ct.c_uint32,
             ct.c_uint32,
             ct.c_uint32,

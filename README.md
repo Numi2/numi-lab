@@ -36,7 +36,8 @@ concept art and no screenshot from another simulator.
 | System | Current capability |
 | --- | --- |
 | **Dynamics and contact** | Rigid and articulated dynamics, fixed and floating roots, revolute and prismatic joints, deterministic broadphase/manifolds, Coulomb contact, joint limits, and transactional state publication. |
-| **Persistent Metal execution** | Batched worlds, fixed-capacity device graphs, private GPU resources, deterministic resets, and direct physics plus seven-plane visual MLX primitives on the active Metal command encoder. |
+| **Persistent Metal execution** | Batched worlds, fixed-capacity device graphs, private GPU resources, deterministic resets, and direct physics plus statically selected visual MLX planes on the active Metal command encoder. |
+| **GPU-native scene queries** | Vectorized rays against analytic, convex, and authored mesh geometry with metric distance, hit point, normal, material, feature, body, and shape identities returned directly as MLX arrays. |
 | **Visual Presentation V3** | Direct USD/USDZ/GLB cooking, native textures, glTF metallic-roughness PBR, visible HDR environments, shadows, global or rolling shutter, and fast/reference sensor profiles. |
 | **Policy-ready sensing** | Scene-linear RGB, metric depth, normals, semantic/instance/link identities, motion, validity, calibration, tactile depth, solver wrench, and center of pressure. |
 | **Perception and data plane** | Replaceable perception providers, separate deployable and privileged streams, synchronized policy assembly, deterministic visual episodes, and a LeRobot v3 exporter. |
@@ -149,8 +150,10 @@ python3 probes/mlx_world_probe.py
 The Python package pins `mlx>=0.32,<0.33`. Its physics and
 `visual_observation` primitives allocate through MLX and encode into MLX's
 active Metal command encoder; the visual primitive returns RGB, depth,
-segmentation, identities, normals, motion, and validity without renderer
-readback or a second command-buffer timeline.
+and validity by default. Segmentation, identities, normals, and motion are
+explicit optional truth planes. Graph-only renderers retain no duplicate
+final images, and no selection uses renderer readback or a second
+command-buffer timeline.
 
 ## Repository map
 

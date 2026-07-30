@@ -6,6 +6,7 @@
 #include "metalrobo/c_api.h"
 #include "metalrobo/hybrid_renderer_types.h"
 #include "metalrobo/r2s2r_types.h"
+#include "metalrobo/scene_query_types.h"
 #include "metalrobo/world_compiler_types.h"
 
 #include "mlx/backend/metal/device.h"
@@ -277,6 +278,7 @@ generalizedConstraintStep(
     std::uint32_t bodyCount,
     std::uint32_t articulationCount,
     std::uint64_t generation,
+    std::uint64_t authoredPackHash,
     mx::StreamOrDevice stream = {}
 );
 
@@ -284,6 +286,7 @@ generalizedConstraintStep(
 // MLX's active Metal compute encoder. Body records use the native
 // environment-major MRBodyStateGPU layout.
 [[nodiscard]] std::vector<mx::array> visualObservation(
+    const std::shared_ptr<MLXCompiledWorld>& world,
     std::uintptr_t rendererHandle,
     std::uintptr_t worldFamilyHandle,
     const mx::array& currentBodyStates,
@@ -291,6 +294,35 @@ generalizedConstraintStep(
     std::uint64_t frameIndex,
     std::uint32_t sensorSequence,
     std::uint32_t cameraIndex,
+    std::uint32_t outputMask,
+    mx::StreamOrDevice stream = {}
+);
+
+// Materializes the complete authoritative rigid state without publishing it
+// through host memory. The resulting uint32 view is the native
+// environment-major MRBodyStateGPU record layout shared by visual and scene
+// query primitives.
+[[nodiscard]] std::vector<mx::array> materializeBodyStates(
+    const std::shared_ptr<MLXCompiledWorld>& world,
+    const mx::array& q,
+    const mx::array& v,
+    const mx::array& scenePosition,
+    const mx::array& sceneOrientation,
+    const mx::array& sceneLinearVelocity,
+    const mx::array& sceneAngularVelocity,
+    mx::StreamOrDevice stream = {}
+);
+
+// Casts arbitrary world-space rays against the cooked physics geometry and
+// returns metric distance, world point/normal, stable identities, and
+// validity directly as MLX arrays.
+[[nodiscard]] std::vector<mx::array> sceneRaycast(
+    const std::shared_ptr<MLXCompiledWorld>& world,
+    const mx::array& bodyStates,
+    const mx::array& origins,
+    const mx::array& directions,
+    const mx::array& maximumDistances,
+    const mx::array& options,
     mx::StreamOrDevice stream = {}
 );
 
@@ -497,6 +529,7 @@ class VisualObservationPrimitive final : public mx::Primitive {
 public:
     VisualObservationPrimitive(
         mx::Stream stream,
+        std::shared_ptr<MLXCompiledWorld> world,
         MRHybridRendererHandle* renderer,
         MRWorldFamilyHandle* worlds,
         std::uint32_t environmentCount,
@@ -505,7 +538,8 @@ public:
         std::uint32_t height,
         std::uint64_t frameIndex,
         std::uint32_t sensorSequence,
-        std::uint32_t cameraIndex
+        std::uint32_t cameraIndex,
+        std::uint32_t outputMask
     );
     ~VisualObservationPrimitive() override;
 
@@ -538,6 +572,7 @@ public:
     ) const override;
 
 private:
+    std::shared_ptr<MLXCompiledWorld> world_;
     MRHybridRendererHandle* renderer_ = nullptr;
     MRWorldFamilyHandle* worlds_ = nullptr;
     std::uint32_t environmentCount_ = 0u;
@@ -547,6 +582,89 @@ private:
     std::uint64_t frameIndex_ = 0u;
     std::uint32_t sensorSequence_ = 0u;
     std::uint32_t cameraIndex_ = 0u;
+    std::uint32_t outputMask_ = MR_HYBRID_OUTPUT_ALL_TRUTH;
+};
+
+class BodyStatePrimitive final : public mx::Primitive {
+public:
+    BodyStatePrimitive(
+        mx::Stream stream,
+        std::shared_ptr<MLXCompiledWorld> world
+    );
+
+    void eval_cpu(
+        const std::vector<mx::array>& inputs,
+        std::vector<mx::array>& outputs
+    ) override;
+    void eval_gpu(
+        const std::vector<mx::array>& inputs,
+        std::vector<mx::array>& outputs
+    ) override;
+    std::vector<mx::array> jvp(
+        const std::vector<mx::array>& primals,
+        const std::vector<mx::array>& tangents,
+        const std::vector<int>& argnums
+    ) override;
+    std::vector<mx::array> vjp(
+        const std::vector<mx::array>& primals,
+        const std::vector<mx::array>& cotangents,
+        const std::vector<int>& argnums,
+        const std::vector<mx::array>& outputs
+    ) override;
+    std::pair<std::vector<mx::array>, std::vector<int>> vmap(
+        const std::vector<mx::array>& inputs,
+        const std::vector<int>& axes
+    ) override;
+    [[nodiscard]] const char* name() const override;
+    [[nodiscard]] bool is_equivalent(
+        const mx::Primitive& other
+    ) const override;
+
+private:
+    std::shared_ptr<MLXCompiledWorld> world_;
+};
+
+class SceneRaycastPrimitive final : public mx::Primitive {
+public:
+    SceneRaycastPrimitive(
+        mx::Stream stream,
+        std::shared_ptr<MLXCompiledWorld> world,
+        std::uint32_t environmentCount,
+        std::uint32_t rayCount
+    );
+
+    void eval_cpu(
+        const std::vector<mx::array>& inputs,
+        std::vector<mx::array>& outputs
+    ) override;
+    void eval_gpu(
+        const std::vector<mx::array>& inputs,
+        std::vector<mx::array>& outputs
+    ) override;
+    std::vector<mx::array> jvp(
+        const std::vector<mx::array>& primals,
+        const std::vector<mx::array>& tangents,
+        const std::vector<int>& argnums
+    ) override;
+    std::vector<mx::array> vjp(
+        const std::vector<mx::array>& primals,
+        const std::vector<mx::array>& cotangents,
+        const std::vector<int>& argnums,
+        const std::vector<mx::array>& outputs
+    ) override;
+    std::pair<std::vector<mx::array>, std::vector<int>> vmap(
+        const std::vector<mx::array>& inputs,
+        const std::vector<int>& axes
+    ) override;
+    [[nodiscard]] const char* name() const override;
+    [[nodiscard]] bool is_equivalent(
+        const mx::Primitive& other
+    ) const override;
+
+private:
+    std::shared_ptr<MLXCompiledWorld> world_;
+    std::uint32_t environmentCount_ = 0u;
+    std::uint32_t rayCount_ = 0u;
 };
 
 } // namespace metalrobo::mlx_ext

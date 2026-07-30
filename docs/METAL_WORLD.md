@@ -140,17 +140,53 @@ extension. The primitive:
 - carries environment batching as the leading array dimension.
 
 The visual primitive receives current and previous environment-major
-`MRBodyStateGPU` records from a physics stage. It retains the native renderer
-and sampled world-family resources through lazy evaluation and Metal command
-completion, registers both body arrays as MLX inputs, and publishes seven MLX
-arrays without routing through renderer-owned images. Metal resources
-referenced indirectly by the scene
+`MRBodyStateGPU` records from a physics stage. Tactile authored worlds publish
+the final body arena already materialized for tactile sampling as
+`StepOutput.body_states`; this adds neither a second kinematics pass nor a
+second body-state allocation. The visual primitive accepts only an explicit
+`PackedWorldFamily`, and its MRWorldPack hash must exactly match the
+`MLXCompiledWorld` hash before graph construction. Matching tensor dimensions
+cannot hide a mismatched authored world.
+
+MLX renderers are compiled with `graph_only=True`. They retain visual scratch
+needed by rasterization but no capacity-sized RGB, depth, identity, normal,
+motion, or validity planes. `visual_observation` always publishes RGB, metric
+depth, and validity. Segmentation, identities, normals, and motion are a
+static named selection; omitted fields have zero spatial extent and allocate
+no dense MLX storage. This selection is fixed when the graph is built and
+does not add a per-frame solver flag.
+The primitive retains the native renderer and sampled world-family resources
+through lazy evaluation and Metal command completion, registers both body
+arrays as MLX inputs, and publishes the arrays without routing through
+renderer-owned images. Metal resources referenced indirectly by the scene
 argument buffer live in a one-heap residency set committed once with the
 renderer and attached to the current MLX command buffer. The compute-only tile
-path is deliberate: MLX owns an active
-compute encoder, whereas Apple hardware rasterization and mesh shaders require
-a render pass and therefore cannot be inserted by ending or replacing MLX's
-encoder.
+path is deliberate: MLX owns an active compute encoder, whereas Apple hardware
+rasterization and mesh shaders require a render pass and therefore cannot be
+inserted by ending or replacing MLX's encoder.
+
+### GPU-native geometric sensors
+
+`materialize_body_states` derives one environment-major geometric body arena
+from articulated `q`/`v` and standalone scene-body state on MLX's active
+encoder. When a world step already publishes `StepOutput.body_states`, sensor
+graphs reuse that array and skip materialization.
+
+`scene_raycast` casts shared or per-environment ray batches against the
+compiled physics scene without host publication. The kernel intersects
+spheres, boxes, capsules, cylinders, planes, convex faces, and cooked
+quantized BVH4 meshes. Every valid hit returns metric distance, world-space
+point and normal, plus stable shape, body, material, and geometric-feature
+identities. Two-way collision masks, excluded bodies, one- or two-sided mesh
+queries, and face-forward normals are array inputs or graph-fixed options.
+
+This is the common geometry primitive for range cameras, LiDAR, terrain
+height scanners, visibility tests, occupancy observations, and planning
+queries. It stays on the existing compute timeline and reuses the immutable
+world buffers; it does not build a per-step acceleration structure or cross
+an MLX command-encoder boundary. Standalone/reference presentation can still
+use Metal acceleration structures when authored high-poly visibility warrants
+their build and encoder-transition cost.
 
 `WorldState`, `SolverCache`, and `StepOutput` are explicit MLX PyTrees. The
 pure `step()` API supports explicit MLX reset masks/state. `MLXRolloutCollector`

@@ -145,6 +145,7 @@ typedef struct MRHybridObservationBuffersC {
     void* normals;
     void* motion;
     void* validity;
+    uint32_t output_mask;
 } MRHybridObservationBuffersC;
 
 typedef struct MRVisualFrameMetadataC {
@@ -282,6 +283,11 @@ MR_API int mr_world_family_configure_sampling(
 MR_API uint64_t mr_world_family_scenario_fingerprint(
     const MRWorldFamilyHandle* handle
 );
+// Nonzero only for an explicitly loaded MRWorldPack. This is the single
+// authored-artifact identity used to reject physics/render graph mismatches.
+MR_API uint64_t mr_world_family_authored_pack_hash(
+    const MRWorldFamilyHandle* handle
+);
 MR_API const char* mr_world_family_scenario_id(
     const MRWorldFamilyHandle* handle
 );
@@ -349,6 +355,7 @@ MR_API MRHybridRendererHandle* mr_hybrid_renderer_create_v3(
     uint32_t capacity,
     uint32_t width,
     uint32_t height,
+    uint32_t retain_observation_buffers,
     const char* metallib_path
 );
 MR_API void mr_hybrid_renderer_retain(

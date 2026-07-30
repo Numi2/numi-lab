@@ -246,7 +246,12 @@ def make_asset_gaussians(
 
 
 class HybridObservationRenderer:
-    """Render sampled world families without host-side environment work."""
+    """Render sampled world families without host-side environment work.
+
+    Set ``graph_only=True`` for MLX policy execution. In that mode the
+    renderer retains only bounded raster scratch; final observation planes
+    are caller-owned MLX arrays and standalone render/readback is disabled.
+    """
 
     def __init__(
         self,
@@ -264,6 +269,7 @@ class HybridObservationRenderer:
         capacity: int = 256,
         width: int = 160,
         height: int = 120,
+        graph_only: bool = False,
         library_path: str | os.PathLike[str] | None = None,
         metallib_path: str | os.PathLike[str] | None = None,
     ) -> None:
@@ -303,6 +309,10 @@ class HybridObservationRenderer:
             raise ValueError(
                 "sensor_reference requires body_count for its motion layout"
             )
+        if not isinstance(graph_only, bool):
+            raise TypeError("graph_only must be a bool")
+        if graph_only and renderer_profile != "sensor_fast":
+            raise ValueError("graph_only requires sensor_fast")
         dimensions: dict[str, int] = {}
         for name, value in (
             ("capacity", capacity),
@@ -391,6 +401,7 @@ class HybridObservationRenderer:
             ct.c_uint32(capacity),
             ct.c_uint32(width),
             ct.c_uint32(height),
+            ct.c_uint32(not graph_only),
             encoded_metallib,
         )
         if not self._handle:
@@ -401,6 +412,7 @@ class HybridObservationRenderer:
         self.environment_pack = resolved_environment_pack
         self.light_rig = light_rig
         self.renderer_profile = renderer_profile
+        self.graph_only = graph_only
 
     def _require_open(self) -> ct.c_void_p:
         handle = getattr(self, "_handle", None)
@@ -451,6 +463,11 @@ class HybridObservationRenderer:
 
     @property
     def device_buffers(self) -> HybridObservationDeviceBuffers:
+        if self.graph_only:
+            raise MetalRoboError(
+                "graph-only renderers write directly into caller-owned "
+                "MLX arrays and retain no observation planes"
+            )
         handle = self._require_open()
         addresses = tuple(
             int(
@@ -473,6 +490,10 @@ class HybridObservationRenderer:
         *,
         camera_index: int = 0,
     ) -> None:
+        if self.graph_only:
+            raise MetalRoboError(
+                "graph-only renderers must use visual_observation"
+            )
         if worlds._bindings.path != self._bindings.path:
             raise ValueError(
                 "renderer and world family must use the same native library"
@@ -509,6 +530,10 @@ class HybridObservationRenderer:
             )
 
     def snapshot(self) -> HybridObservationSnapshot:
+        if self.graph_only:
+            raise MetalRoboError(
+                "graph-only renderers retain no readback planes"
+            )
         handle = self._require_open()
         if self._bindings.lib.mr_hybrid_renderer_readback(handle) != 0:
             raise MetalRoboError(

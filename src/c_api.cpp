@@ -35,6 +35,7 @@ struct MRWorldFamilyHandle {
     metalrobo::MetalWorldFamilyContext context;
     metalrobo::WorldFamily family;
     metalrobo::ScenarioSchema scenarioSchema;
+    std::uint64_t authoredPackHash = 0u;
     metalrobo::WorldInstanceBatch readback;
     std::string deviceName;
     double lastSampleMilliseconds = 0.0;
@@ -464,6 +465,7 @@ MRWorldFamilyHandle* mr_load_world_family_pack(
         handle->family = std::move(pack.family);
         handle->scenarioSchema =
             metalrobo::compileScenarioSchema(handle->family);
+        handle->authoredPackHash = pack.contentHash;
         handle->deviceName = diagnostics.deviceName;
         result = handle.release();
     });
@@ -730,6 +732,14 @@ uint64_t mr_world_family_scenario_fingerprint(
         : 0u;
 }
 
+uint64_t mr_world_family_authored_pack_hash(
+    const MRWorldFamilyHandle* handle
+) {
+    return requireWorldFamilyHandle(handle)
+        ? handle->authoredPackHash
+        : 0u;
+}
+
 const char* mr_world_family_scenario_id(
     const MRWorldFamilyHandle* handle
 ) {
@@ -949,6 +959,7 @@ MRHybridRendererHandle* mr_hybrid_renderer_create_v3(
     const uint32_t capacity,
     const uint32_t width,
     const uint32_t height,
+    const uint32_t retain_observation_buffers,
     const char* metallib_path
 ) {
     const bool hasGaussians = gaussian_count != 0u;
@@ -968,7 +979,8 @@ MRHybridRendererHandle* mr_hybrid_renderer_create_v3(
         semantic_id == MR_INVALID_INDEX ||
         instance_id == 0u ||
         instance_id == MR_INVALID_INDEX ||
-        capacity == 0u || width == 0u || height == 0u) {
+        capacity == 0u || width == 0u || height == 0u ||
+        retain_observation_buffers > 1u) {
         gLastError =
             "V3 visual scene, bindings, dimensions, and capacity "
             "must be valid and nonempty.";
@@ -1101,6 +1113,8 @@ MRHybridRendererHandle* mr_hybrid_renderer_create_v3(
         metalrobo::MetalHybridRendererConfig config;
         config.width = width;
         config.height = height;
+        config.retainObservationBuffers =
+            retain_observation_buffers != 0u;
         if (metallib_path != nullptr) {
             config.metallibPath = metallib_path;
         }
@@ -1234,6 +1248,7 @@ int mr_hybrid_renderer_encode_graph(
         destination.normals = outputs->normals;
         destination.motion = outputs->motion;
         destination.validity = outputs->validity;
+        destination.outputMask = outputs->output_mask;
 
         const metalrobo::MetalHybridRendererDiagnostics diagnostics =
             handle->renderer.encodeGraph(

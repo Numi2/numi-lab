@@ -216,6 +216,7 @@ class FrankaPickPlaceWorldFamily:
             else None
         )
         if pack_path is None:
+            self.pack_path: Path | None = None
             handle = (
                 self._bindings.lib.mr_create_franka_pick_place_world_family(
                     ct.c_uint32(capacity),
@@ -228,6 +229,7 @@ class FrankaPickPlaceWorldFamily:
                 raise FileNotFoundError(
                     f"MRWorldPack does not exist: {resolved_pack}"
                 )
+            self.pack_path = resolved_pack
             handle = self._bindings.lib.mr_load_world_family_pack(
                 os.fsencode(resolved_pack),
                 ct.c_uint32(capacity),
@@ -250,6 +252,16 @@ class FrankaPickPlaceWorldFamily:
     def device_name(self) -> str:
         return _decode(
             self._bindings.lib.mr_world_family_device_name(
+                self._require_open()
+            )
+        )
+
+    @property
+    def authored_pack_hash(self) -> int:
+        """Exact MRWorldPack identity, or zero for the built-in helper."""
+
+        return int(
+            self._bindings.lib.mr_world_family_authored_pack_hash(
                 self._require_open()
             )
         )

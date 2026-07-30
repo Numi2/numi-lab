@@ -81,6 +81,9 @@ set(METALROBO_VISUAL_ASSET_COOK_SOURCE
 set(METALROBO_TACTILE_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Tactile.metal"
 )
+set(METALROBO_SCENE_QUERY_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/SceneQuery.metal"
+)
 set(METALROBO_PHYSICS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboPhysics.air"
 )
@@ -158,6 +161,9 @@ set(METALROBO_VISUAL_ASSET_COOK_AIR
 )
 set(METALROBO_TACTILE_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboTactile.air"
+)
+set(METALROBO_SCENE_QUERY_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboSceneQuery.air"
 )
 set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 
@@ -321,6 +327,12 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_TACTILE_SOURCE}"
             -o "${METALROBO_TACTILE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_SCENE_QUERY_SOURCE}"
+            -o "${METALROBO_SCENE_QUERY_AIR}"
     COMMAND xcrun -sdk macosx metallib
             "${METALROBO_PHYSICS_AIR}"
             "${METALROBO_CONSTRAINT_AIR}"
@@ -345,6 +357,7 @@ add_custom_command(
             "${METALROBO_ENVIRONMENT_PREFILTER_AIR}"
             "${METALROBO_VISUAL_ASSET_COOK_AIR}"
             "${METALROBO_TACTILE_AIR}"
+            "${METALROBO_SCENE_QUERY_AIR}"
             -o "${METALROBO_METALLIB}"
     DEPENDS
         "${METALROBO_PHYSICS_SOURCE}"
@@ -368,6 +381,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/VisualPBR.metal"
         "${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
         "${METALROBO_TACTILE_SOURCE}"
+        "${METALROBO_SCENE_QUERY_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
@@ -382,6 +396,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hybrid_renderer_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/visual_platform_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/tactile_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/scene_query_types.h"
     VERBATIM
 )
 

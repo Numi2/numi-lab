@@ -170,6 +170,7 @@ class StepOutput(NamedTuple):
     observations: mx.array
     contacts: ContactEvidence
     tactile: TactileObservation
+    body_states: mx.array
     sensors: mx.array
     status: mx.array
     physics_error: mx.array
@@ -581,6 +582,13 @@ def sampled_state_from_world_family(
         int(layout.body_count),
         int(layout.scene_body_count),
     )
+    compiled_pack_hash = int(world.authored_pack_hash)
+    sampled_pack_hash = int(family.authored_pack_hash)
+    if compiled_pack_hash != sampled_pack_hash:
+        raise ValueError(
+            "sampled world family and compiled MLX physics must use "
+            "the same authored pack"
+        )
     if actual != expected:
         raise ValueError(
             "world-family topology does not match the compiled MLX world"
@@ -615,6 +623,7 @@ def sampled_state_from_world_family(
         int(layout.body_count),
         int(layout.articulation_count),
         generation,
+        sampled_pack_hash,
         stream=stream,
     )
 
@@ -986,6 +995,7 @@ def step(
             tactile_object_local_points,
             tactile_object_local_normals,
             tactile_object_contact_mask,
+            body_states,
         ) = _world_step(
             world,
             q,
@@ -1176,6 +1186,10 @@ def step(
                 dtype=mx.uint32,
             ),
         )
+        body_states = mx.zeros(
+            (environment_count, 0, 32),
+            dtype=mx.uint32,
+        )
 
     if world.floating_root or world.contact_supported:
         valid_contacts = contacts.mask.astype(mx.float32)
@@ -1221,6 +1235,7 @@ def step(
         ),
         contacts=contacts,
         tactile=tactile,
+        body_states=body_states,
         sensors=sensors,
         status=status,
         physics_error=status[:, 0] != 0,

@@ -132,7 +132,14 @@ are exposed through `nativeBuffer` for MLX, Core ML, or another Metal stage.
 complete set of caller-owned observation buffers. The Python
 `visual_observation` custom primitive uses that surface to write linear RGB,
 metric depth, segmentation, identities, normals, motion, and validity directly
-into MLX allocations. The primitive registers its array dependencies with MLX,
+into MLX allocations. Its `graph_only=True` renderer keeps no duplicate
+capacity-sized observation planes, while retaining the bounded raster,
+visibility, and temporal scratch required to produce those outputs. The
+policy default is RGB, metric depth, and validity; dense segmentation,
+identities, normals, and motion are explicitly selected static truth channels
+and otherwise have zero spatial extent. The
+primitive rejects a sampled world whose authored pack hash differs from the
+compiled physics world. It registers its array dependencies with MLX,
 adds no command buffer, and attaches the renderer's private heap through a
 Metal residency set compiled and committed once with the immutable scene, then
 reused on MLX's current command buffer. This follows MLX's
