@@ -70,6 +70,9 @@ set(METALROBO_WORLD_COMPILER_SOURCE
 set(METALROBO_HYBRID_RENDERER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/HybridRenderer.metal"
 )
+set(METALROBO_TACTILE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Tactile.metal"
+)
 set(METALROBO_PHYSICS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboPhysics.air"
 )
@@ -138,6 +141,9 @@ set(METALROBO_WORLD_COMPILER_AIR
 )
 set(METALROBO_HYBRID_RENDERER_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboHybridRenderer.air"
+)
+set(METALROBO_TACTILE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboTactile.air"
 )
 set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 
@@ -278,6 +284,13 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_HYBRID_RENDERER_SOURCE}"
             -o "${METALROBO_HYBRID_RENDERER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_TACTILE_SOURCE}"
+            -o "${METALROBO_TACTILE_AIR}"
     COMMAND xcrun -sdk macosx metallib
             "${METALROBO_PHYSICS_AIR}"
             "${METALROBO_CONSTRAINT_AIR}"
@@ -299,6 +312,7 @@ add_custom_command(
             "${METALROBO_WORLD_CONTACT_AIR}"
             "${METALROBO_WORLD_COMPILER_AIR}"
             "${METALROBO_HYBRID_RENDERER_AIR}"
+            "${METALROBO_TACTILE_AIR}"
             -o "${METALROBO_METALLIB}"
     DEPENDS
         "${METALROBO_PHYSICS_SOURCE}"
@@ -318,6 +332,7 @@ add_custom_command(
         "${METALROBO_WORLD_CONTACT_SOURCE}"
         "${METALROBO_WORLD_COMPILER_SOURCE}"
         "${METALROBO_HYBRID_RENDERER_SOURCE}"
+        "${METALROBO_TACTILE_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
@@ -331,6 +346,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/r2s2r_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/hybrid_renderer_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/visual_platform_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/tactile_types.h"
     VERBATIM
 )
 
@@ -356,6 +372,8 @@ add_library(
     src/core/R2S2R.cpp
     src/core/VisualPlatform.cpp
     src/core/VisualPresentation.cpp
+    src/core/Tactile.cpp
+    src/core/TactileDebug.cpp
     src/core/RobotDescriptionCooker.cpp
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
@@ -399,6 +417,7 @@ add_library(
     src/metal/MetalWorld.mm
     src/metal/MetalWorldFamily.mm
     src/metal/MetalHybridRenderer.mm
+    src/metal/MetalTactile.mm
     src/metal/MetalRuntime.mm
     src/c_api.cpp
 )
@@ -450,6 +469,48 @@ add_executable(metalrobo_bench apps/benchmark.cpp)
 target_link_libraries(metalrobo_bench PRIVATE metalrobo)
 set_target_properties(
     metalrobo_bench
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(metalrobo_tactile_check apps/tactile_check.cpp)
+target_link_libraries(metalrobo_tactile_check PRIVATE metalrobo)
+set_target_properties(
+    metalrobo_tactile_check
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
+    metalrobo_tactile_benchmark
+    apps/tactile_benchmark.cpp
+)
+target_link_libraries(
+    metalrobo_tactile_benchmark
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_tactile_benchmark
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+add_executable(
+    metalrobo_franka_tactile_example
+    examples/franka_tactile_grasp/main.cpp
+)
+target_link_libraries(
+    metalrobo_franka_tactile_example
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_franka_tactile_example
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
@@ -1670,9 +1731,12 @@ install(
     FILES
         schemas/capture_manifest.schema.json
         schemas/perception_provider.schema.json
+        schemas/tactile_calibration_record.schema.json
+        schemas/tactile_observation.schema.json
         schemas/visual_episode_stream.schema.json
         schemas/visual_frame_batch.schema.json
         schemas/visual_scene_manifest.schema.json
+        schemas/visual_scene_manifest_v2.schema.json
     DESTINATION share/metalrobo/schemas
 )
 install(

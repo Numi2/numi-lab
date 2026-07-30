@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/EngineModel.hpp"
+#include "metalrobo/Tactile.hpp"
 #include "metalrobo/r2s2r_types.h"
 #include "metalrobo/visual_platform_types.h"
 #include "metalrobo/world_compiler_types.h"
@@ -134,6 +135,10 @@ struct EpisodeTwin {
     std::string coordinateConvention = "x-forward,y-left,z-up";
     std::vector<WorldAsset> assets;
     std::vector<SensorSpec> sensors;
+    // Tactile atlas authoring is separate from camera-like SensorSpec data.
+    // compileEpisodeTwin cooks it into one immutable, GPU-ready arena and
+    // creates/verifies matching generic sensor metadata.
+    std::vector<TactileSensorSpec> tactileSensors;
     std::vector<EpisodeArtifact> artifacts;
     TaskSpec task;
 };
@@ -159,6 +164,7 @@ struct WorldTemplate {
     EngineModel engineModel;
     std::vector<WorldAsset> assets;
     std::vector<SensorSpec> sensors;
+    CookedTactileSystem tactileSystem;
     std::vector<AppearanceSpec> appearances;
     std::vector<MRWorldAssetBindingGPU> assetBindings;
     std::vector<std::uint32_t> bindingIndices;

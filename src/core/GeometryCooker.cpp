@@ -1086,6 +1086,7 @@ GeometryCookResult cookTriangleMeshGeometry(
             });
         }
     }
+    bool closedSurface = true;
     for (const auto& [edge, references] : edges) {
         (void)edge;
         if (references.size() > 2u) {
@@ -1095,6 +1096,8 @@ GeometryCookResult cookTriangleMeshGeometry(
                 "mesh edge has more than two incident triangles"
             );
         }
+        closedSurface =
+            closedSurface && references.size() == 2u;
     }
 
     if (!checkedArenaAppend(
@@ -1144,7 +1147,13 @@ GeometryCookResult cookTriangleMeshGeometry(
         quantizationBounds.upper + inflation;
     MRGeometryHeaderGPU header{};
     header.kind = MR_GEOMETRY_TRIANGLE_MESH;
-    header.flags = MR_GEOMETRY_FLAG_QUANTIZED_BVH;
+    header.flags =
+        MR_GEOMETRY_FLAG_QUANTIZED_BVH |
+        (
+            closedSurface
+            ? MR_GEOMETRY_FLAG_CLOSED
+            : 0u
+        );
     header.vertexOffset =
         static_cast<std::uint32_t>(
             model.geometryVertices.size()

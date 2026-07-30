@@ -20,6 +20,7 @@ extern "C" {
 typedef struct MRRuntimeHandle MRRuntimeHandle;
 typedef struct MRWorldFamilyHandle MRWorldFamilyHandle;
 typedef struct MRHybridRendererHandle MRHybridRendererHandle;
+typedef struct MRTactileHandle MRTactileHandle;
 typedef struct MRWorldInstanceHeaderGPU MRWorldInstanceHeaderGPU;
 typedef struct MRWorldAssetInstanceGPU MRWorldAssetInstanceGPU;
 typedef struct MRWorldSensorInstanceGPU MRWorldSensorInstanceGPU;
@@ -110,6 +111,34 @@ typedef struct MRHybridGaussianC {
     float color_and_emission[4];
     uint32_t binding[4];
 } MRHybridGaussianC;
+
+typedef struct MRTactileLayoutC {
+    uint32_t capacity;
+    uint32_t active_environment_count;
+    uint32_t body_count;
+    uint32_t shape_count;
+    uint32_t sensor_count;
+    uint32_t sample_count;
+    uint32_t target_count;
+    uint32_t contact_capacity_per_environment;
+    uint32_t query_backend;
+    uint32_t hardware_ray_queries_available;
+    size_t retained_bytes;
+    size_t bytes_per_environment;
+    double last_observe_milliseconds;
+} MRTactileLayoutC;
+
+typedef struct MRTactileSummaryC {
+    float pose_position_and_timestamp[4];
+    float pose_orientation[4];
+    float net_force_and_contact_area[4];
+    float net_torque_and_maximum_depth[4];
+    float centroid_local_and_mean_depth[4];
+    float centroid_world_and_active_count[4];
+    float center_of_pressure_local_and_force_weight[4];
+    float center_of_pressure_world_and_contact_count[4];
+    uint32_t statistics_and_identity[4];
+} MRTactileSummaryC;
 
 MR_API const char* mr_version(void);
 MR_API const char* mr_last_error(void);
@@ -320,6 +349,64 @@ MR_API const uint32_t* mr_hybrid_renderer_validity(
 );
 MR_API MRVisualFrameMetadataC mr_hybrid_renderer_frame_metadata(
     const MRHybridRendererHandle* handle
+);
+
+// Canonical Franka tactile frontend. encode() borrows id<MTLBuffer> inputs
+// and a live id<MTLComputeCommandEncoder>; it neither commits nor waits.
+// Passing null contact buffers produces geometry-only observations.
+MR_API MRTactileHandle* mr_tactile_create_franka(
+    uint32_t capacity,
+    uint32_t contact_capacity_per_environment,
+    const char* metallib_path
+);
+MR_API void mr_tactile_destroy(MRTactileHandle* handle);
+MR_API int mr_tactile_encode(
+    MRTactileHandle* handle,
+    void* body_states,
+    void* contacts,
+    void* contact_counts,
+    void* reset_mask,
+    uint32_t environment_count,
+    uint32_t body_count,
+    uint32_t contact_capacity_per_environment,
+    float observation_timestep_seconds,
+    float contact_impulse_timestep_seconds,
+    uint64_t frame_index,
+    double timestamp_seconds,
+    void* metal_compute_command_encoder
+);
+MR_API int mr_tactile_readback(MRTactileHandle* handle);
+MR_API MRTactileLayoutC mr_tactile_layout(
+    const MRTactileHandle* handle
+);
+MR_API const char* mr_tactile_device_name(
+    const MRTactileHandle* handle
+);
+MR_API const char* mr_tactile_observation_metadata_json(
+    const MRTactileHandle* handle
+);
+// buffer_kind: 0 depth float, 1 depth velocity float, 2 validity uint,
+// 3 object shape uint, 4 optional debug hit, 5 summary, 6 status. The
+// headless Franka context returns null for kind 4.
+MR_API void* mr_tactile_native_buffer(
+    const MRTactileHandle* handle,
+    uint32_t buffer_kind
+);
+// Readback pointers remain valid until the next readback or destroy.
+MR_API const float* mr_tactile_depth(
+    const MRTactileHandle* handle
+);
+MR_API const float* mr_tactile_depth_velocity(
+    const MRTactileHandle* handle
+);
+MR_API const uint32_t* mr_tactile_validity(
+    const MRTactileHandle* handle
+);
+MR_API const uint32_t* mr_tactile_object_shape_ids(
+    const MRTactileHandle* handle
+);
+MR_API const MRTactileSummaryC* mr_tactile_summaries(
+    const MRTactileHandle* handle
 );
 
 #ifdef __cplusplus

@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metalrobo.dev/schemas/tactile_calibration_record.schema.json",
+  "title": "MetalRobo tactile calibration JSONL record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "raw_frame_uri",
+    "target_depth_uri",
+    "sensor_id",
+    "indenter_asset_id",
+    "timestamp_s",
+    "indentation_depth_m",
+    "indenter_pose_sensor_xyzw"
+  ],
+  "properties": {
+    "schema": {
+      "const": "metalrobo.tactile_calibration"
+    },
+    "raw_frame_uri": {
+      "$ref": "#/$defs/nonempty"
+    },
+    "target_depth_uri": {
+      "$ref": "#/$defs/nonempty"
+    },
+    "validity_uri": {
+      "$ref": "#/$defs/nullableUri"
+    },
+    "force_torque_uri": {
+      "$ref": "#/$defs/nullableUri"
+    },
+    "sensor_id": {
+      "$ref": "#/$defs/nonempty"
+    },
+    "indenter_asset_id": {
+      "$ref": "#/$defs/nonempty"
+    },
+    "timestamp_s": {
+      "type": "number"
+    },
+    "indentation_depth_m": {
+      "type": "number",
+      "minimum": 0
+    },
+    "indenter_pose_sensor_xyzw": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "prefixItems": [
+        {
+          "type": "number",
+          "description": "position x in sensor frame, metres"
+        },
+        {
+          "type": "number",
+          "description": "position y in sensor frame, metres"
+        },
+        {
+          "type": "number",
+          "description": "position z in sensor frame, metres"
+        },
+        {
+          "type": "number",
+          "description": "orientation quaternion x"
+        },
+        {
+          "type": "number",
+          "description": "orientation quaternion y"
+        },
+        {
+          "type": "number",
+          "description": "orientation quaternion z"
+        },
+        {
+          "type": "number",
+          "description": "orientation quaternion w"
+        }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "nonempty": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nullableUri": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    }
+  }
+}

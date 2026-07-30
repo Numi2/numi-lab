@@ -527,6 +527,30 @@ bool readStringVector(
     );
 }
 
+void writeTactileSystem(
+    PayloadWriter& writer,
+    const CookedTactileSystem& tactile
+) {
+    writer.pod(tactile.abiVersion);
+    writer.pod(tactile.fingerprint);
+    writeStringVector(writer, tactile.sensorIds);
+    writer.podVector(tactile.sensors);
+    writer.podVector(tactile.samples);
+    writer.podVector(tactile.targetShapeIndices);
+}
+
+bool readTactileSystem(
+    PayloadReader& reader,
+    CookedTactileSystem& tactile
+) {
+    return reader.pod(tactile.abiVersion) &&
+        reader.pod(tactile.fingerprint) &&
+        readStringVector(reader, tactile.sensorIds) &&
+        reader.podVector(tactile.sensors) &&
+        reader.podVector(tactile.samples) &&
+        reader.podVector(tactile.targetShapeIndices);
+}
+
 std::vector<std::byte> serializeFamily(const WorldFamily& family) {
     PayloadWriter writer;
     writer.pod(family.fingerprint);
@@ -538,6 +562,7 @@ std::vector<std::byte> serializeFamily(const WorldFamily& family) {
     writeEngineModel(writer, world.engineModel);
     writeRichVector(writer, world.assets, writeAsset);
     writeRichVector(writer, world.sensors, writeSensor);
+    writeTactileSystem(writer, world.tactileSystem);
     writeRichVector(writer, world.appearances, writeAppearance);
     writer.podVector(world.assetBindings);
     writer.podVector(world.bindingIndices);
@@ -569,6 +594,7 @@ bool deserializeFamily(
         !readEngineModel(reader, world.engineModel) ||
         !readRichVector(reader, world.assets, readAsset) ||
         !readRichVector(reader, world.sensors, readSensor) ||
+        !readTactileSystem(reader, world.tactileSystem) ||
         !readRichVector(
             reader,
             world.appearances,

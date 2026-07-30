@@ -1,0 +1,343 @@
+# MetalRobo detailed capability ledger
+
+This is a detailed evidence and capability index, not the developer
+onboarding path. Start with the repository `README.md` and `AGENTS.md`, then
+open only the subsystem document relevant to the change.
+
+The versioned visual simulation, perception-provider, policy-observation, and
+visual episode interfaces are documented in
+[VISUAL_PLATFORM.md](VISUAL_PLATFORM.md).
+The metric, geometry-consistent tactile subsystem and Franka example are
+documented in
+[TACTILE_GEOMETRY_BRIDGE.md](TACTILE_GEOMETRY_BRIDGE.md).
+
+MetalRobo is a C++23/Metal robotics physics and reinforcement-learning runtime
+for Apple silicon. It is being built as a standalone, GPU-native alternative
+to the MuJoCo and NVIDIA simulation/training stacks, with Franka first and
+Unitree G1 second. MLX is the learning backend. No external physics engine is
+linked or called at runtime.
+
+## Executable v0.4 engine spine
+
+- ABI-v3, pointer-free CPU/Metal model with separate `nq`/`nv`, fixed and
+  floating roots, bodies, joints, one authoritative record per DoF, shapes,
+  materials, contacts, and explicit capacities
+- FP64 free-body dynamics plus matching Metal symplectic and implicit-midpoint
+  kernels, including gyroscopic motion and SO(3) quaternion integration
+- Generalized CPU FP64 articulated dynamics for fixed or floating trees with
+  revolute, continuous, prismatic, and fixed joints: world-coordinate CRBA
+  plus Cholesky, RNEA bias/inverse dynamics, external COM wrenches, and
+  transactional SO(3) integration; the actual 29-DoF G1 topology passes
+  forward/inverse consistency; per-DoF armature is included consistently in
+  CRBA, RNEA, energy, contact, and impulse response
+- Transactional articulated actuation with disabled, model-PD, custom-PD,
+  and effort modes; effort clamping precedes passive loss, continuous-joint
+  PD uses shortest-angle error, and near-zero dry friction is explicitly a
+  controller-local approximation rather than falsely claimed full stiction
+- Analytic articulated COM poses, twists, point Jacobians, `J`/`Jᵀ` actions,
+  and factor-solve `J M⁻¹ Jᵀ` contact response; an exact-cone two-foot solve
+  executes on the actual 35-velocity G1 without finite differencing
+- Transactional composed CPU articulation step: free dynamics, collision,
+  manifolds, canonical ConstraintIR compilation/evaluation, exact-cone solve,
+  factor-backed impulse application, common residual, and SO(3) integration;
+  real G1 ground contact executes end to end with atomic state/cache rollback
+- Evaluated-contact-to-articulation adapter consumes one fingerprinted
+  material/timestep decision, including endpoint/basis swaps and kinematic
+  compensation; no solver is allowed to re-derive contact semantics
+- Production quality contact solves consume physical `J M⁻¹ Jᵀ` and return
+  contact velocity without materializing dense `M⁻¹`; the independent FP64
+  oracle retains an explicit checked compatibility adapter
+- Deterministic FP64 collision with sweep-and-prune, analytic primitive pairs,
+  stable features, and persistent four-point manifolds
+- CPU/Metal analytic collision for sphere/sphere, sphere/plane,
+  capsule/plane, box/plane, oriented cylinder/plane, sphere/capsule,
+  capsule/capsule, sphere/box, capsule/box, and deterministic SAT box/box
+  witnesses
+- Parallel deterministic Metal micro broadphase using flag, two-level
+  exclusive scan, and canonical scatter with no global append atomic
+- Pointer-free constraint IR v2 with canonical validation, v1 contact
+  adaptation, one timestep/material evaluator shared by quality and
+  throughput consumers, and a solver-independent exact-cone residual
+- Three contact paths: independent FP64 exact-cone reference, a safeguarded
+  FP64 semismooth-Newton quality solve with four-merit GLL globalization,
+  Gauss-Newton retry, and projected-gradient safety fallback, plus a
+  CPU/Metal fixed-budget PGS block
+- Transactional CPU rigid-body world step composing motion, collision,
+  materials, warm starts, contact solve, and configuration integration for
+  maximal-coordinate free bodies
+- Pinned 29-DoF Unitree G1 model with floating COM root, full inertias,
+  COM-centred joint anchors, 12 official primitive records, authoritative
+  per-DoF limits, named RL Lab drive/armature data, foot frames, and IMUs;
+  eight foot spheres are executable
+- Open, pinned dVRK-style Patient Side Manipulator research model with a true
+  prismatic insertion axis, eight driven coordinates, exact serial
+  remote-center geometry, Classic Large Needle Driver, independent jaws, and
+  20 executable primitive colliders, including four 0.35 mm distal teeth at
+  0.8 mm longitudinal pitch; a validated seven-target policy map expands one
+  logical aperture into symmetric physical jaw commands with tangent closure
+  and a monotonically increasing distal surface gap
+- Procedural GS-21-scale curved needle, training ring, and peg-board assets
+  with stable compound colliders and geometry-derived mass, COM, inertia, and
+  semantic grasp/tip zones; source facts and research defaults remain
+  explicitly separated
+- FP64 mixed articulation/maximal-coordinate contact operator with analytic
+  articulated point Jacobians and compact dynamic-body blocks; articulated,
+  dynamic, static, and kinematic endpoints share one exact circular-Coulomb
+  solve with prescribed point velocity subtracted exactly once
+- Transactional PSM/scene CPU world that separates force prediction from
+  configuration integration, generates articulation-dynamic,
+  articulation-prescribed, dynamic-dynamic, and dynamic-prescribed contacts,
+  solves them with active joint stops in one exact-cone island, and persists
+  generation-safe world-space warm starts
+- Physics-owned PSM needle pickup from a six-button static cradle: open-jaw
+  approach, legal computed-torque closure on needle segment 17, support load
+  transfer, and an 8 mm off-COM lift are verified without a weld, teleport,
+  or hidden attachment. Bilateral shape-17 load persists for all 2,000 lift
+  frames; the finite jaw patch is load-bearing for 1,859 frames with a
+  1,395-frame continuous run while resisting an 8.407 µN·m gravity moment
+- Correctness-first generic Metal articulation operator for fixed/floating
+  trees, exercised on actual 30-body/35-velocity G1: poses, analytic point
+  Jacobians, `Jᵀp`, checked mass factorization, and `M⁻¹Jᵀp`, with
+  deterministic replay and transactional rejection
+- Persistent `MetalWorldContext` for one compiled articulation plus arbitrary
+  dynamic/kinematic/static scene bodies: a typed grow-only arena composes ABA,
+  body/collider projection, precompiled-pair broadphase, compacted
+  analytic/SAT/GJK/mesh narrowphase, deterministic manifold finalization,
+  segmented manifold-to-ConstraintIR count/scan/scatter, mixed islands,
+  coupled exact-cone PGS/TGS or unified quality Newton, constrained
+  integration, observations, and transactional publication in one
+  asynchronous command buffer. A failed environment restores q/v, scene
+  bodies, and manifolds while unrelated environments continue
+- Exact per-environment capacity requirements, high-water counts, manifold
+  retention, solver residuals, and stable first-failure indices, plus optional
+  fixed-capacity contact/ConstraintIR/island evidence
+- MLX 0.32 active-encoder custom primitive for Franka/G1 free-motion ABA with
+  the same contact and direct/PCG quality graph used by standalone Metal,
+  explicit PyTree rod/manifold/convex state, MLX-owned output/scratch buffers,
+  `mx.compile`, isolated transactional rollback, no CPU fallback, and explicit
+  autodiff rejection. Wave32 TGS and quality Newton use fixed worker grids
+  that persistently pull stable compact packets because MLX's active encoder
+  does not expose indirect dispatch. Worker-grid occupancy is selected before
+  lazy execution from a device profile or an explicit 32/64/96/128 benchmark
+  override. Policy
+  inference, physics, reward/termination, GAE, rollout
+  storage, and PPO updates have a NumPy-free MLX path
+- Literal hybrid-CCD event splitting on standalone Metal and MLX: each
+  microstep repeatedly advances to the earliest deterministic TOI cluster,
+  solves it with impact-only restitution, and continues the unused time.
+  Event state, manifolds, and pair caches remain transactional, and an
+  uncertified remainder fails instead of silently losing time
+- Pure-MLX G1 contact rollout and PPO path using implicit position drives,
+  floating-root acceleration/load/contact-count sensor evidence, and
+  transactional resets; episodic planar/yaw commands remain in the compiled
+  observation/reset graph, root/joint/velocity reset randomization remains
+  device-native, and rough terrain executes through the authoritative cooked
+  static-mesh BVH4 contact path
+- Contact-capable MLX PSM scene with the generic dynamic curved-needle asset,
+  exact-CCD shape flags, persistent contact state, and a pure-array logical
+  aperture-to-independent-jaw target map; a physics-owned needle hold/lift
+  PPO task scores measured rigid-body pose and contact evidence without a
+  weld or hidden grasp state. Fixed- and floating-base contact worlds share
+  an eight-channel acceleration/load/contact sensor summary
+- First-class dual-PSM/needle/thread composition: a geometry-derived rear
+  swage anchor drives the Metal DER endpoint, every attachment projection
+  emits fixed-slot impulse/force evidence, and an equal-and-opposite wrench is
+  applied to the dynamic needle in the same command buffer. Rod and rigid
+  candidates publish transactionally; non-adjacent thread edges execute
+  radius-correct capsule self-contact with per-sweep relinearization on FP64
+  and Metal; no weld or hidden thread force exists
+- Generic deforming thread/tool contact: cooked rod edges project as
+  procedural capsules and reuse the rigid analytic, GJK-MPR-EPA, and BVH4
+  collision helpers. Pair-owned anchors retain edge barycentrics,
+  material-frame radial direction, rigid features, and impulses; the two-way
+  solve distributes force to both rod nodes and twist while applying the
+  opposite rigid wrench. The standalone graph publishes rod and tool
+  candidates transactionally
+- Unified product-cone Metal quality solver with scalar intervals and exact
+  3D/4D/6D elliptic cones, generalized-Hessian Cholesky below the declared
+  threshold, a 768-row matrix-free Newton-PCG bucket above it, Armijo
+  globalization, certificates, and one visible regularization retry. The PCG
+  path allocates no environment-major dense Hessian. `MetalWorld` and MLX
+  reconstruct a second primal candidate from persistent impulses using
+  cached articulation and body factors
+- Owned heterogeneous executable bundles combine canonical multi-articulation
+  topology, exact unarticulated scene-body reset packing, DER sidecars and
+  rigid bindings under one deterministic fingerprint. The dual-PSM,
+  curved-needle and thread factory compiles to two articulations, one dynamic
+  scene body and one swage-bound rod without reconstructing state ad hoc
+- The FP64 heterogeneous contact oracle couples arbitrary articulation,
+  dynamic scene-body and static/kinematic endpoints in one exact circular-cone
+  solve. Per-articulation factors and 6D body response blocks construct the
+  physical Delassus operator without a dense global mass inverse; the
+  dual-PSM/needle bundle is an executable 34-DoF reference island. Model-owned
+  generalized equality and gear rows are eliminated through their small
+  Schur complement, so base locks, jaw gears and contact share one physical
+  operator rather than running as adjacent uncoupled solves
+- The standalone Metal heterogeneous contact frontend executes analytic point
+  Jacobians, global row assembly, batched articulation-local inverse ABA,
+  maximal-coordinate scene-body response, physical Delassus construction and
+  the exact-cone quality solve in one command buffer. Its first device probe
+  couples two articulations and a dynamic body in one 18-DoF island with
+  deterministic replay and per-environment transactional rollback. An
+  immutable compiled contact program cooks the parallel-ABA frontier schedule
+  once; the canonical dual-PSM/needle world executes as a 34-DoF Metal island
+  and agrees with its FP64 oracle. The same command graph appends static
+  generalized equality rows to the inverse-ABA RHS stream, factors their small
+  Schur complement on device, projects contact into the equality null space,
+  and certifies reconstructed equality impulses before publication. Authored
+  three-axis body-point loops now use the same analytic point-Jacobian
+  frontend and device Schur graph, including articulation-articulation and
+  articulation/free-body/static/kinematic fixtures in arbitrary world-space
+  frames. Three-axis angular frame rows use analytic point-Jacobian
+  reconstruction to close full spatial welds through that same operator
+  and a transactional shortest-arc SO(3) authoring helper derives their
+  world-frame error directly from articulated/free/static endpoint
+  quaternions. Antipodal inputs and the exact-pi sign tie are deterministic
+- Checked public Metal host boundary with owned compact buffers, overflow and
+  32-bit shader-address preflight, device memory limits, typed zero-length
+  bindings, per-environment statuses, and atomic result publication
+- Existing batched Metal Franka ABA/reach environment and MLX PPO path
+- Episodic-twin world compiler with independent semantic, render, collision,
+  dynamics, and variation representations; a canonical Franka pick-and-place
+  program covers appearance, object configuration, clutter, physics,
+  robot/controller state, and cameras. A persistent Metal family context
+  samples 4,096 compact worlds directly into private GPU buffers and exposes
+  them to native/MLX graph stages without per-environment Python work
+- Executable R2S2R loop with stable scenario schemas, four-round 4,096-particle
+  replay alignment, exact particle-to-world simulator replay of recorded
+  joint commands and masked robot/object/contact observations, a
+  rod-marker-ready trace contract, unbiased coverage versus 50/30/20 adaptive
+  curriculum sampling, causal physical/controller variation, MLX episode
+  compaction, SQLite/WAL outcome indexing, immutable SHA-256 artifacts,
+  five-member policy-specific failure ensembles, 65,536-scenario GPU scoring,
+  hardware residual calibration, and paired policy evaluation
+- Deterministic URDF/SRDF executable cooker with fixed/floating trees,
+  transmissions, mimic gears, SRDF exclusions, and content-fingerprinted
+  closed-convex OBJ/STL collision meshes resolved from explicit local or
+  `package://` roots. Repeated mesh assets share one cooked half-edge geometry
+  arena; unsupported articulated concavity fails transactionally
+
+This is a serious numerical foundation, not yet a complete MuJoCo/PhysX
+replacement. The device graph now has compact analytic/SAT/GJK/mesh queues,
+Wave32 8/16/32-contact cohorts, deterministic tiled spill beyond 256
+constraints, exact elliptic friction, private placement heaps, robust
+cylinder/convex GJK-MPR-EPA, static mesh BVH4 traversal, literal hybrid-CCD
+advance/solve/continue, deterministic manifold-to-row scatter, a unified
+cone/scalar quality solve, and a contact-capable MLX primitive. World-graph
+ABI v4 and contact ABI v5 carry the event-time, endpoint-sidecar, scatter, and
+persistent-worker contracts while ConstraintIR remains ABI v2. Implicit
+position drives and joint-boundary projection are executable. The
+40,000-step/s Franka contact gate, trained 60-second G1 standing gate,
+dedicated tiled heightfields, fully composed manifold-to-row
+multi-articulation contact islands, patch rolling/torsional solve, convex
+decomposition and MJCF/OpenUSD workflows, rendering breadth, persistent
+`MetalWorld`/MLX execution of nonzero rod state, rod contact through the
+quality operator, tissue mechanics, and qualified differentiation remain
+open. Heterogeneous rod topology and collision templates are cooked now, but
+the persistent APIs reject nonzero rods until that state is genuinely
+encoded; they never drop it as a rigid-only step.
+The dated requirements and claim rules are in
+[ENGINE_TARGET](ENGINE_TARGET.md).
+
+## Build
+
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+./build/bin/metalrobo_cpu_probe
+./build/bin/metalrobo_parity_probe
+./build/bin/metalrobo_articulated_dynamics_probe
+./build/bin/metalrobo_articulated_actuation_probe
+./build/bin/metalrobo_articulated_contact_probe
+./build/bin/metalrobo_articulated_world_probe
+./build/bin/metalrobo_multi_articulated_contact_probe
+./build/bin/metalrobo_articulated_operator_gpu_probe
+./build/bin/metalrobo_articulated_operator_host_probe
+./build/bin/metalrobo_metal_world_probe
+./build/bin/metalrobo_metal_world_contact_probe
+./build/bin/metalrobo_surgical_psm_probe
+./build/bin/metalrobo_surgical_assets_probe
+./build/bin/metalrobo_surgical_metal_operator_probe
+./build/bin/metalrobo_dual_psm_world_probe
+./build/bin/metalrobo_discrete_elastic_rod_probe
+./build/bin/metalrobo_metal_discrete_elastic_rod_probe
+./build/bin/metalrobo_heterogeneous_world_probe
+./build/bin/metalrobo_coupled_articulated_rigid_contact_probe
+./build/bin/metalrobo_articulated_rigid_collision_probe
+./build/bin/metalrobo_articulated_rigid_world_probe
+./build/bin/metalrobo_supported_needle_pickup_probe
+./build/bin/metalrobo_world_compiler_probe
+./build/bin/metalrobo_metal_world_family_probe
+./build/bin/metalrobo_r2s2r_loop_probe
+./build/bin/metalrobo_g1_collision_contact_probe
+./build/bin/metalrobo_free_body_gpu_probe
+./build/bin/metalrobo_collision_gpu_probe
+./build/bin/metalrobo_deterministic_broadphase_probe
+./build/bin/metalrobo_constraint_ir_probe
+./build/bin/metalrobo_quality_contact_probe
+./build/bin/metalrobo_metal_unified_quality_probe
+./build/bin/metalrobo_rigid_body_world_probe
+./build/bin/metalrobo_bench --envs 1024 --steps 1000
+```
+
+Python support lives under `python/` and loads the native library from the
+CMake build tree by default.
+
+```sh
+python3 -m pip install -e python
+cd python
+python3 probes/mlx_world_probe.py
+
+metalrobo train \
+  --backend mlx \
+  --envs 1024 \
+  --rollout-steps 32 \
+  --iterations 1000 \
+  --minibatch-size 8192
+```
+
+The native engine has no third-party physics dependency. Factual robot model
+data retains its upstream notices in
+[THIRD_PARTY_NOTICES](../THIRD_PARTY_NOTICES.md). Python training requires Python
+3.10+, MLX 0.32 for the device-native path, and NumPy only for the legacy
+debug adapter. On the local 10-GPU-core Apple M4, the current canonical
+Franka Metal-world gate measured 221,219 device-timestamped and 218,616
+end-to-end wall-timed
+control-steps/s for 4,096 environments over a 16-step horizon, with four
+physics substeps per control step. Its three-substep FP64/Metal parity case
+had maximum q error `5.753e-7`, v error `4.745e-8`, and scaled acceleration
+error `1.982e-6`; same-build replay was bitwise. These are free-motion
+composition numbers, not external-engine results. The 1,024-environment
+Franka-plus-dynamic-cube TGS probe most recently measured 32,178 GPU and
+31,346 wall
+control-steps/s with two active contacts, a 32-contact capacity class, and a
+246.1 MB retained arena. That is below the 40,000 release gate; the gate
+remains open and a 32-active-contact saturation run is still required. The earlier
+clean v0.4 validation run of the original fixed-base Franka slice measured
+216,313 environment control-steps/s at 1,024
+environments on a 24 GB, 10-GPU-core Apple M4, with four physics substeps per
+control step. That is a local legacy-path result, not generic G1 throughput or
+a cross-engine benchmark. See
+[validation](VALIDATION.md) for exact commands and boundaries.
+
+The explicit MLX worker-grid benchmark on the same Apple M4 measured 38,526,
+38,608, 38,883, and 38,835 wall environment-steps/s for 32, 64, 96, and 128
+groups respectively over eight 1,024-environment Franka-cube steps with four
+physics substeps. The measured registry profile therefore selects 96 groups.
+This short occupancy comparison is not a sustained thermal result and does
+not close the 40,000-step/s gate.
+
+## Design and research
+
+- [Architecture](ARCHITECTURE.md)
+- [Persistent Metal world graph](METAL_WORLD.md)
+- [Real-to-sim world compiler and GPU world families](WORLD_ENGINE.md)
+- [v0.4 transactional generalized architecture](V04_TRANSACTIONAL_ARCHITECTURE.md)
+- [v0.3 operator-first architecture](V03_OPERATOR_ARCHITECTURE.md)
+- [State-of-the-art acceptance target](ENGINE_TARGET.md)
+- [Production collision design](COLLISION_PIPELINE.md)
+- [Pinned G1 specification](G1_SPEC.md)
+- [Numerical contract](NUMERICS.md)
+- [Competitor landscape](LANDSCAPE.md)
+- [Heavy-lifting roadmap](ROADMAP.md)
+- [Provenance](PROVENANCE.md)

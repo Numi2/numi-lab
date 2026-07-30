@@ -4,6 +4,7 @@
 #include "metalrobo/Franka.hpp"
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
+#include "metalrobo/MetalTactile.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
 #include "metalrobo/Model.hpp"
 #include "metalrobo/Runtime.hpp"
@@ -45,11 +46,24 @@ struct MRHybridRendererHandle {
     double lastRenderMilliseconds = 0.0;
 };
 
+struct MRTactileHandle {
+    metalrobo::MetalTactileContext context;
+    metalrobo::TactileObservationBatch readback;
+    std::string deviceName;
+    std::string observationMetadataJSON;
+    std::uint32_t activeEnvironmentCount = 0u;
+    double lastObserveMilliseconds = 0.0;
+};
+
 static_assert(sizeof(MRHybridGaussianC) == 80u);
 static_assert(sizeof(MRHybridGaussianGPU) == 80u);
 static_assert(
     sizeof(MRVisualFrameMetadataC) ==
     sizeof(MRVisualFrameMetadataGPU)
+);
+static_assert(
+    sizeof(MRTactileSummaryC) ==
+    sizeof(MRTactileSummaryGPU)
 );
 
 namespace {
@@ -93,6 +107,14 @@ bool requireHybridRendererHandle(
         return true;
     }
     gLastError = "MetalRobo hybrid renderer handle is null.";
+    return false;
+}
+
+bool requireTactileHandle(const MRTactileHandle* handle) {
+    if (handle != nullptr) {
+        return true;
+    }
+    gLastError = "MetalRobo tactile handle is null.";
     return false;
 }
 
@@ -1291,6 +1313,260 @@ MRVisualFrameMetadataC mr_hybrid_renderer_frame_metadata(
         sizeof(result)
     );
     return result;
+}
+
+MRTactileHandle* mr_tactile_create_franka(
+    const uint32_t capacity,
+    const uint32_t contact_capacity_per_environment,
+    const char* metallib_path
+) {
+    if (capacity == 0u ||
+        contact_capacity_per_environment == 0u) {
+        gLastError =
+            "tactile capacity and contact capacity must be positive.";
+        return nullptr;
+    }
+    MRTactileHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        metalrobo::EngineModel model =
+            metalrobo::makeFrankaTactileEngineModel();
+        metalrobo::WorldTemplate world;
+        const auto compiled = metalrobo::compileEpisodeTwin(
+            metalrobo::makeFrankaTactileEpisodeTwin(),
+            model,
+            world
+        );
+        if (!compiled.succeeded()) {
+            throw std::runtime_error(
+                std::string{"Franka tactile world compile failed ["} +
+                std::to_string(
+                    static_cast<std::uint32_t>(
+                        compiled.status
+                    )
+                ) + "]: " + compiled.message
+            );
+        }
+        metalrobo::MetalTactileConfig config;
+        config.contactCapacityPerEnvironment =
+            contact_capacity_per_environment;
+        if (metallib_path != nullptr) {
+            config.metallibPath = metallib_path;
+        }
+        auto handle = std::make_unique<MRTactileHandle>();
+        handle->context = metalrobo::MetalTactileContext{
+            std::move(config)
+        };
+        const auto diagnostics = handle->context.compile(
+            world.tactileSystem,
+            model,
+            capacity
+        );
+        if (!diagnostics.succeeded()) {
+            throw std::runtime_error(
+                std::string{"Franka tactile Metal compile failed ["} +
+                metalrobo::metalTactileStatusName(
+                    diagnostics.status
+                ) + "]: " + diagnostics.message
+            );
+        }
+        handle->deviceName = diagnostics.deviceName;
+        handle->observationMetadataJSON =
+            metalrobo::tactileObservationMetadataJSON(
+                world.tactileSystem
+            );
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
+void mr_tactile_destroy(MRTactileHandle* handle) {
+    delete handle;
+}
+
+int mr_tactile_encode(
+    MRTactileHandle* handle,
+    void* body_states,
+    void* contacts,
+    void* contact_counts,
+    void* reset_mask,
+    const uint32_t environment_count,
+    const uint32_t body_count,
+    const uint32_t contact_capacity_per_environment,
+    const float observation_timestep_seconds,
+    const float contact_impulse_timestep_seconds,
+    const uint64_t frame_index,
+    const double timestamp_seconds,
+    void* metal_compute_command_encoder
+) {
+    if (!requireTactileHandle(handle)) {
+        return -1;
+    }
+    return translateErrors([&] {
+        metalrobo::MetalTactileDeviceFrame frame;
+        frame.bodyStates = body_states;
+        frame.contacts = contacts;
+        frame.contactCounts = contact_counts;
+        frame.resetMask = reset_mask;
+        frame.environmentCount = environment_count;
+        frame.bodyCount = body_count;
+        frame.contactCapacityPerEnvironment =
+            contact_capacity_per_environment;
+        frame.observationTimestepSeconds =
+            observation_timestep_seconds;
+        frame.contactImpulseTimestepSeconds =
+            contact_impulse_timestep_seconds;
+        frame.frameIndex = frame_index;
+        frame.timestampSeconds = timestamp_seconds;
+        const auto diagnostics = handle->context.encode(
+            frame,
+            metal_compute_command_encoder
+        );
+        if (!diagnostics.succeeded()) {
+            throw std::runtime_error(
+                std::string{"tactile encode failed ["} +
+                metalrobo::metalTactileStatusName(
+                    diagnostics.status
+                ) + "]: " + diagnostics.message
+            );
+        }
+        handle->activeEnvironmentCount = environment_count;
+        handle->lastObserveMilliseconds =
+            diagnostics.elapsedMilliseconds;
+    });
+}
+
+int mr_tactile_readback(MRTactileHandle* handle) {
+    if (!requireTactileHandle(handle)) {
+        return -1;
+    }
+    return translateErrors([&] {
+        metalrobo::TactileObservationBatch candidate;
+        const auto diagnostics = handle->context.readback(
+            handle->activeEnvironmentCount,
+            candidate
+        );
+        if (!diagnostics.succeeded()) {
+            throw std::runtime_error(
+                std::string{"tactile readback failed ["} +
+                metalrobo::metalTactileStatusName(
+                    diagnostics.status
+                ) + "]: " + diagnostics.message
+            );
+        }
+        handle->readback = std::move(candidate);
+    });
+}
+
+MRTactileLayoutC mr_tactile_layout(
+    const MRTactileHandle* handle
+) {
+    MRTactileLayoutC result{};
+    if (!requireTactileHandle(handle)) {
+        return result;
+    }
+    const metalrobo::MetalTactileLayout layout =
+        handle->context.layout();
+    result.capacity = layout.environmentCapacity;
+    result.active_environment_count =
+        handle->activeEnvironmentCount;
+    result.body_count = layout.bodyCount;
+    result.shape_count = layout.shapeCount;
+    result.sensor_count = layout.sensorCount;
+    result.sample_count = layout.sampleCount;
+    result.target_count = layout.targetCount;
+    result.contact_capacity_per_environment =
+        layout.contactCapacityPerEnvironment;
+    result.query_backend =
+        static_cast<uint32_t>(layout.queryBackend);
+    result.hardware_ray_queries_available =
+        layout.hardwareRayQueriesAvailable ? 1u : 0u;
+    result.retained_bytes = layout.retainedBytes;
+    result.bytes_per_environment = layout.bytesPerEnvironment;
+    result.last_observe_milliseconds =
+        handle->lastObserveMilliseconds;
+    return result;
+}
+
+const char* mr_tactile_device_name(
+    const MRTactileHandle* handle
+) {
+    return requireTactileHandle(handle)
+        ? handle->deviceName.c_str()
+        : "";
+}
+
+const char* mr_tactile_observation_metadata_json(
+    const MRTactileHandle* handle
+) {
+    return requireTactileHandle(handle)
+        ? handle->observationMetadataJSON.c_str()
+        : "";
+}
+
+void* mr_tactile_native_buffer(
+    const MRTactileHandle* handle,
+    const uint32_t buffer_kind
+) {
+    if (!requireTactileHandle(handle) ||
+        buffer_kind >
+            static_cast<uint32_t>(
+                metalrobo::MetalTactileBuffer::statuses
+            )) {
+        if (handle != nullptr) {
+            gLastError = "tactile buffer kind is invalid.";
+        }
+        return nullptr;
+    }
+    return handle->context.nativeBuffer(
+        static_cast<metalrobo::MetalTactileBuffer>(buffer_kind)
+    );
+}
+
+const float* mr_tactile_depth(
+    const MRTactileHandle* handle
+) {
+    return requireTactileHandle(handle) &&
+        !handle->readback.penetrationDepthMeters.empty()
+        ? handle->readback.penetrationDepthMeters.data()
+        : nullptr;
+}
+
+const float* mr_tactile_depth_velocity(
+    const MRTactileHandle* handle
+) {
+    return requireTactileHandle(handle) &&
+        !handle->readback.depthVelocityMetersPerSecond.empty()
+        ? handle->readback.depthVelocityMetersPerSecond.data()
+        : nullptr;
+}
+
+const uint32_t* mr_tactile_validity(
+    const MRTactileHandle* handle
+) {
+    return requireTactileHandle(handle) &&
+        !handle->readback.validity.empty()
+        ? handle->readback.validity.data()
+        : nullptr;
+}
+
+const uint32_t* mr_tactile_object_shape_ids(
+    const MRTactileHandle* handle
+) {
+    return requireTactileHandle(handle) &&
+        !handle->readback.objectShapeIds.empty()
+        ? handle->readback.objectShapeIds.data()
+        : nullptr;
+}
+
+const MRTactileSummaryC* mr_tactile_summaries(
+    const MRTactileHandle* handle
+) {
+    return requireTactileHandle(handle) &&
+        !handle->readback.summaries.empty()
+        ? reinterpret_cast<const MRTactileSummaryC*>(
+            handle->readback.summaries.data()
+        )
+        : nullptr;
 }
 
 } // extern "C"

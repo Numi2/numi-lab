@@ -195,6 +195,39 @@ void appendSensor(HashBuilder& hash, const SensorSpec& sensor) {
     hash.appendScalar(sensor.motionBlurScale);
 }
 
+void appendTactileSensor(
+    HashBuilder& hash,
+    const TactileSensorSpec& sensor
+) {
+    hash.appendString(sensor.id);
+    hash.appendScalar(sensor.parentBodyIndex);
+    hash.appendScalar(sensor.backingShapeIndex);
+    hash.appendScalar(sensor.localPose.position);
+    hash.appendScalar(sensor.localPose.orientation);
+    hash.appendScalar(sensor.width);
+    hash.appendScalar(sensor.height);
+    hash.appendScalar(sensor.surfaceKind);
+    hash.appendScalar(sensor.maximumDepthMeters);
+    hash.appendScalar(sensor.activeDepthThresholdMeters);
+    hash.appendScalar(sensor.queryEpsilonMeters);
+    hash.appendScalar(sensor.updatePeriodSteps);
+    hash.appendScalar(sensor.flags);
+    hash.appendSpan<std::uint32_t>(sensor.targetShapeIndices);
+    const std::uint64_t sampleCount = sensor.samples.size();
+    hash.appendScalar(sampleCount);
+    for (const TactileSampleSpec& sample : sensor.samples) {
+        hash.appendScalar(sample.localPosition);
+        hash.appendScalar(sample.localNormal);
+        hash.appendScalar(sample.localTangentU);
+        hash.appendScalar(sample.localTangentV);
+        hash.appendScalar(sample.areaSquareMeters);
+        hash.appendScalar(sample.maximumDepthMeters);
+        hash.appendScalar(sample.atlasU);
+        hash.appendScalar(sample.atlasV);
+        hash.appendScalar<std::uint8_t>(sample.valid ? 1u : 0u);
+    }
+}
+
 void appendArtifact(HashBuilder& hash, const EpisodeArtifact& artifact) {
     hash.appendString(artifact.id);
     hash.appendScalar(artifact.kind);
@@ -310,6 +343,9 @@ std::uint32_t computeCapabilities(
             break;
         case MR_WORLD_SENSOR_STATE:
         case MR_WORLD_SENSOR_FORCE_TORQUE:
+            break;
+        case MR_WORLD_SENSOR_TACTILE_DEPTH:
+            result |= MR_WORLD_CAP_TACTILE_DEPTH;
             break;
         }
     }
@@ -731,7 +767,7 @@ bool validAsset(const WorldAsset& asset, std::string* reason) {
 bool validSensor(const SensorSpec& sensor, std::string* reason) {
     if (sensor.id.empty() || sensor.parentAssetId.empty() ||
         sensor.parentKind > MR_WORLD_SENSOR_PARENT_WORLD ||
-        sensor.kind > MR_WORLD_SENSOR_FORCE_TORQUE ||
+        sensor.kind > MR_WORLD_SENSOR_TACTILE_DEPTH ||
         !finite(sensor.localPose.position) ||
         !unitQuaternion(sensor.localPose.orientation) ||
         !finite(sensor.intrinsics) || !finite(sensor.distortion) ||
@@ -784,6 +820,15 @@ bool validSensor(const SensorSpec& sensor, std::string* reason) {
          !(sensor.intrinsics.x > 0.0f) ||
          !(sensor.intrinsics.y > 0.0f))) {
         return fail(reason, "image sensor has invalid dimensions or intrinsics");
+    }
+    if (sensor.kind == MR_WORLD_SENSOR_TACTILE_DEPTH &&
+        (sensor.width == 0u || sensor.height == 0u ||
+         sensor.minimumDepthMeters != 0.0f ||
+         !(sensor.maximumDepthMeters > 0.0f))) {
+        return fail(
+            reason,
+            "tactile sensor has invalid atlas dimensions or metric range"
+        );
     }
     return true;
 }
@@ -1076,6 +1121,87 @@ bool WorldTemplate::valid(std::string* reason) const {
             }
         }
     }
+    const std::size_t genericTactileCount =
+        static_cast<std::size_t>(std::count_if(
+            sensors.begin(),
+            sensors.end(),
+            [](const SensorSpec& sensor) {
+                return sensor.kind ==
+                    MR_WORLD_SENSOR_TACTILE_DEPTH;
+            }
+        ));
+    if (tactileSystem.sensors.empty()) {
+        if (genericTactileCount != 0u ||
+            tactileSystem.fingerprint != 0u ||
+            !tactileSystem.sensorIds.empty() ||
+            !tactileSystem.samples.empty() ||
+            !tactileSystem.targetShapeIndices.empty()) {
+            return fail(
+                reason,
+                "world template tactile metadata has no cooked system"
+            );
+        }
+    } else {
+        std::string tactileReason;
+        if (!tactileSystem.valid(engineModel, &tactileReason)) {
+            return fail(
+                reason,
+                "world template tactile system: " +
+                    tactileReason
+            );
+        }
+        if (genericTactileCount !=
+            tactileSystem.sensors.size()) {
+            return fail(
+                reason,
+                "world template tactile metadata count disagrees with "
+                "the cooked system"
+            );
+        }
+        for (std::uint32_t tactileIndex = 0u;
+             tactileIndex < tactileSystem.sensors.size();
+             ++tactileIndex) {
+            const std::uint32_t genericIndex =
+                sensorIndex(
+                    tactileSystem.sensorIds[tactileIndex]
+                );
+            if (genericIndex == MR_INVALID_INDEX) {
+                return fail(
+                    reason,
+                    "cooked tactile sensor has no generic metadata"
+                );
+            }
+            const SensorSpec& metadata = sensors[genericIndex];
+            const MRTactileSensorGPU& tactile =
+                tactileSystem.sensors[tactileIndex];
+            if (metadata.kind !=
+                    MR_WORLD_SENSOR_TACTILE_DEPTH ||
+                metadata.parentBodyIndex != tactile.topology.x ||
+                metadata.width != tactile.atlasAndTargets.x ||
+                metadata.height != tactile.atlasAndTargets.y ||
+                metadata.localPose.position.x !=
+                    tactile.localPositionAndQueryEpsilon.x ||
+                metadata.localPose.position.y !=
+                    tactile.localPositionAndQueryEpsilon.y ||
+                metadata.localPose.position.z !=
+                    tactile.localPositionAndQueryEpsilon.z ||
+                metadata.localPose.orientation.x !=
+                    tactile.localOrientation.x ||
+                metadata.localPose.orientation.y !=
+                    tactile.localOrientation.y ||
+                metadata.localPose.orientation.z !=
+                    tactile.localOrientation.z ||
+                metadata.localPose.orientation.w !=
+                    tactile.localOrientation.w ||
+                metadata.minimumDepthMeters != 0.0f ||
+                metadata.maximumDepthMeters != tactile.depth.x) {
+                return fail(
+                    reason,
+                    "generic tactile metadata disagrees with cooked atlas"
+                );
+            }
+        }
+    }
     std::unordered_set<std::string> appearanceIds;
     for (const AppearanceSpec& appearance : appearances) {
         if (appearance.id.empty() ||
@@ -1207,7 +1333,7 @@ bool WorldInstanceBatch::valid(std::string* reason) const {
             sensor.noiseAndLatency.z < 0.0f ||
             sensor.noiseAndLatency.z > 1.0f ||
             sensor.noiseAndLatency.w < 0.0f ||
-            sensor.identity.y > MR_WORLD_SENSOR_FORCE_TORQUE) {
+            sensor.identity.y > MR_WORLD_SENSOR_TACTILE_DEPTH) {
             return fail(reason, "sampled sensor instance is invalid");
         }
     }
@@ -1236,6 +1362,8 @@ std::uint64_t worldCompilerFingerprint(
     hash.appendString(episode.coordinateConvention);
     const std::uint64_t assetCount = episode.assets.size();
     const std::uint64_t sensorCount = episode.sensors.size();
+    const std::uint64_t tactileSensorCount =
+        episode.tactileSensors.size();
     const std::uint64_t artifactCount = episode.artifacts.size();
     hash.appendScalar(assetCount);
     for (const WorldAsset& asset : episode.assets) {
@@ -1244,6 +1372,11 @@ std::uint64_t worldCompilerFingerprint(
     hash.appendScalar(sensorCount);
     for (const SensorSpec& sensor : episode.sensors) {
         appendSensor(hash, sensor);
+    }
+    hash.appendScalar(tactileSensorCount);
+    for (const TactileSensorSpec& sensor :
+         episode.tactileSensors) {
+        appendTactileSensor(hash, sensor);
     }
     hash.appendScalar(artifactCount);
     for (const EpisodeArtifact& artifact : episode.artifacts) {
@@ -1297,6 +1430,83 @@ WorldCompileResult compileEpisodeTwin(
     candidate.artifacts = episode.artifacts;
     candidate.task = episode.task;
     candidate.appearances.push_back({});
+    if (!episode.tactileSensors.empty()) {
+        const TactileCookResult tactileCook = cookTactileSystem(
+            episode.tactileSensors,
+            engineModel,
+            candidate.tactileSystem
+        );
+        if (!tactileCook.succeeded()) {
+            return compileFail(
+                WorldCompileStatus::invalidEpisodeTwin,
+                "tactile cook: " + tactileCook.message
+            );
+        }
+        for (const TactileSensorSpec& tactile :
+             episode.tactileSensors) {
+            const auto existing = std::ranges::find_if(
+                candidate.sensors,
+                [&](const SensorSpec& sensor) {
+                    return sensor.id == tactile.id;
+                }
+            );
+            if (existing != candidate.sensors.end()) {
+                continue;
+            }
+            const auto owner = std::ranges::find_if(
+                candidate.assets,
+                [&](const WorldAsset& asset) {
+                    return std::ranges::find(
+                        asset.bodyIndices,
+                        tactile.parentBodyIndex
+                    ) != asset.bodyIndices.end();
+                }
+            );
+            if (owner == candidate.assets.end()) {
+                return compileFail(
+                    WorldCompileStatus::invalidEpisodeTwin,
+                    "tactile parent body is not owned by a world asset"
+                );
+            }
+            SensorSpec metadata;
+            metadata.id = tactile.id;
+            metadata.parentAssetId = owner->id;
+            metadata.parentBodyIndex = tactile.parentBodyIndex;
+            metadata.parentKind =
+                engineModel.bodies[tactile.parentBodyIndex].
+                    articulationIndex == MR_INVALID_INDEX
+                ? MR_WORLD_SENSOR_PARENT_RIGID_BODY
+                : MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
+            metadata.kind = MR_WORLD_SENSOR_TACTILE_DEPTH;
+            metadata.localPose.position =
+                tactile.localPose.position;
+            metadata.localPose.orientation =
+                tactile.localPose.orientation;
+            metadata.width = tactile.width;
+            metadata.height = tactile.height;
+            const double tactilePeriodSeconds =
+                episode.task.controlPeriodSeconds *
+                tactile.updatePeriodSteps;
+            if (!std::isfinite(tactilePeriodSeconds) ||
+                !(tactilePeriodSeconds > 0.0)) {
+                return compileFail(
+                    WorldCompileStatus::invalidEpisodeTwin,
+                    "tactile observation period is invalid"
+                );
+            }
+            metadata.nominalRateHz =
+                static_cast<float>(1.0 / tactilePeriodSeconds);
+            metadata.exposureSeconds = 0.0f;
+            metadata.minimumDepthMeters = 0.0f;
+            metadata.maximumDepthMeters =
+                tactile.maximumDepthMeters;
+            metadata.depthQuantumMeters = std::max(
+                1.0e-7f,
+                tactile.maximumDepthMeters / 65535.0f
+            );
+            candidate.sensors.push_back(std::move(metadata));
+        }
+    }
     for (const WorldAsset& asset : candidate.assets) {
         if (std::ranges::find(
                 candidate.topologyCohorts,

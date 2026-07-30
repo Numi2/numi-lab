@@ -22,4 +22,13 @@ makeFrankaPickPlaceSceneState();
 // camera variation without changing the template topology.
 [[nodiscard]] WorldProgram makeFrankaPickPlaceWorldProgram();
 
+// Tacmap-style tactile variant. The two rubber pad colliders remain rigid
+// backings; a 3 mm positive rest-offset shell plus calibrated normal
+// compliance creates bounded solver-visible compression. Dense flat atlases
+// are cooked onto both articulated fingertips and target the manipulated
+// object through the normal world pipeline.
+[[nodiscard]] EngineModel makeFrankaTactileEngineModel();
+
+[[nodiscard]] EpisodeTwin makeFrankaTactileEpisodeTwin();
+
 } // namespace metalrobo

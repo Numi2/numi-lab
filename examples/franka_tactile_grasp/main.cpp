@@ -1,0 +1,1057 @@
+#include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/FrankaWorld.hpp"
+#include "metalrobo/MetalTactile.hpp"
+#include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/TactileDebug.hpp"
+#include "metalrobo/WorldPack.hpp"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstring>
+#include <cstdint>
+#include <filesystem>
+#include <iostream>
+#include <optional>
+#include <ranges>
+#include <span>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace {
+
+template <typename Result>
+requires requires(const Result& value) {
+    value.succeeded();
+    value.message;
+}
+void require(const Result& result, const char* operation) {
+    if (!result.succeeded()) {
+        throw std::runtime_error(
+            std::string{operation} + ": " + result.message
+        );
+    }
+}
+
+void require(const bool condition, const std::string& message) {
+    if (!condition) {
+        throw std::runtime_error(message);
+    }
+}
+
+mr_float4 quaternionMultiply(
+    const mr_float4 a,
+    const mr_float4 b
+) {
+    return {
+        a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+        a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+        a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+        a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+    };
+}
+
+mr_float4 rotate(
+    const mr_float4 quaternion,
+    const mr_float4 value
+) {
+    const mr_float4 twiceCross{
+        2.0f * (
+            quaternion.y * value.z -
+            quaternion.z * value.y
+        ),
+        2.0f * (
+            quaternion.z * value.x -
+            quaternion.x * value.z
+        ),
+        2.0f * (
+            quaternion.x * value.y -
+            quaternion.y * value.x
+        ),
+        0.0f,
+    };
+    return {
+        value.x + quaternion.w * twiceCross.x +
+            quaternion.y * twiceCross.z -
+            quaternion.z * twiceCross.y,
+        value.y + quaternion.w * twiceCross.y +
+            quaternion.z * twiceCross.x -
+            quaternion.x * twiceCross.z,
+        value.z + quaternion.w * twiceCross.z +
+            quaternion.x * twiceCross.y -
+            quaternion.y * twiceCross.x,
+        value.w,
+    };
+}
+
+mr_float4 add(const mr_float4 a, const mr_float4 b) {
+    return {a.x + b.x, a.y + b.y, a.z + b.z, 0.0f};
+}
+
+mr_float4 subtract(const mr_float4 a, const mr_float4 b) {
+    return {a.x - b.x, a.y - b.y, a.z - b.z, 0.0f};
+}
+
+mr_float4 multiply(const mr_float4 value, const float scale) {
+    return {
+        value.x * scale,
+        value.y * scale,
+        value.z * scale,
+        0.0f,
+    };
+}
+
+float dot3(const mr_float4 a, const mr_float4 b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+float length3(const mr_float4 value) {
+    return std::sqrt(dot3(value, value));
+}
+
+struct SensorWorldPose {
+    mr_float4 position{};
+    mr_float4 orientation{0.0f, 0.0f, 0.0f, 1.0f};
+    mr_float4 outwardNormal{};
+};
+
+std::vector<metalrobo::ArticulatedBodyKinematics> kinematics(
+    const metalrobo::EngineModel& model,
+    const std::span<const double> q,
+    const std::span<const double> v
+) {
+    std::vector<metalrobo::ArticulatedBodyKinematics> result(
+        model.articulations[0u].bodyCount
+    );
+    const auto diagnostics =
+        metalrobo::computeArticulatedBodyKinematics(
+            model,
+            0u,
+            q,
+            v,
+            result
+        );
+    if (!diagnostics.succeeded()) {
+        throw std::runtime_error(
+            "Franka tactile kinematics failed"
+        );
+    }
+    return result;
+}
+
+SensorWorldPose sensorWorldPose(
+    const MRTactileSensorGPU& sensor,
+    const std::span<
+        const metalrobo::ArticulatedBodyKinematics> bodies
+) {
+    const auto& body = bodies[sensor.topology.x];
+    const mr_float4 bodyPosition{
+        static_cast<float>(body.centerOfMassPosition[0]),
+        static_cast<float>(body.centerOfMassPosition[1]),
+        static_cast<float>(body.centerOfMassPosition[2]),
+        0.0f,
+    };
+    const mr_float4 bodyOrientation{
+        static_cast<float>(body.orientation[0]),
+        static_cast<float>(body.orientation[1]),
+        static_cast<float>(body.orientation[2]),
+        static_cast<float>(body.orientation[3]),
+    };
+    SensorWorldPose result;
+    result.position = add(
+        bodyPosition,
+        rotate(
+            bodyOrientation,
+            sensor.localPositionAndQueryEpsilon
+        )
+    );
+    result.orientation = quaternionMultiply(
+        bodyOrientation,
+        sensor.localOrientation
+    );
+    result.outwardNormal = rotate(
+        result.orientation,
+        {0.0f, 0.0f, 1.0f, 0.0f}
+    );
+    return result;
+}
+
+std::vector<MRBodyStateGPU> globalBodyStates(
+    const metalrobo::EngineModel& model,
+    const std::span<const double> q,
+    const std::span<const double> v,
+    const std::span<const MRBodyStateGPU> scene
+) {
+    const auto articulated = kinematics(model, q, v);
+    std::vector<MRBodyStateGPU> result(model.bodies.size());
+    for (const auto& body : articulated) {
+        MRBodyStateGPU state{};
+        state.position = {
+            static_cast<float>(body.centerOfMassPosition[0]),
+            static_cast<float>(body.centerOfMassPosition[1]),
+            static_cast<float>(body.centerOfMassPosition[2]),
+            1.0f,
+        };
+        state.orientation = {
+            static_cast<float>(body.orientation[0]),
+            static_cast<float>(body.orientation[1]),
+            static_cast<float>(body.orientation[2]),
+            static_cast<float>(body.orientation[3]),
+        };
+        state.linearVelocityAndInverseMass = {
+            static_cast<float>(body.linearVelocity[0]),
+            static_cast<float>(body.linearVelocity[1]),
+            static_cast<float>(body.linearVelocity[2]),
+            model.bodies[body.bodyIndex].massAndInverseMass.y,
+        };
+        state.angularVelocity = {
+            static_cast<float>(body.angularVelocity[0]),
+            static_cast<float>(body.angularVelocity[1]),
+            static_cast<float>(body.angularVelocity[2]),
+            0.0f,
+        };
+        state.flagsAndIndices[0] =
+            model.bodies[body.bodyIndex].motionType;
+        state.flagsAndIndices[1] = 0u;
+        state.flagsAndIndices[2] = body.bodyIndex;
+        result[body.bodyIndex] = state;
+    }
+    require(
+        scene.size() ==
+            model.bodies.size() - articulated.size(),
+        "scene state does not cover every non-articulated body"
+    );
+    std::copy(
+        scene.begin(),
+        scene.end(),
+        result.begin() + articulated.size()
+    );
+    return result;
+}
+
+std::array<SensorWorldPose, 2u> fingertipPoses(
+    const metalrobo::EngineModel& model,
+    const metalrobo::CookedTactileSystem& tactile,
+    const std::span<const double> q,
+    const std::span<const double> v
+) {
+    const auto bodies = kinematics(model, q, v);
+    return {
+        sensorWorldPose(tactile.sensors[0u], bodies),
+        sensorWorldPose(tactile.sensors[1u], bodies),
+    };
+}
+
+std::vector<double> closedConfiguration(
+    const metalrobo::EngineModel& model,
+    const metalrobo::CookedTactileSystem& tactile,
+    const float targetGap
+) {
+    std::vector<double> q(
+        model.defaultQ.begin(),
+        model.defaultQ.end()
+    );
+    const std::vector<double> v(model.world.nv, 0.0);
+    const auto gapAt = [&](const double fingerPosition) {
+        q[7u] = fingerPosition;
+        q[8u] = fingerPosition;
+        const auto poses = fingertipPoses(
+            model,
+            tactile,
+            q,
+            v
+        );
+        return length3(
+            subtract(poses[1u].position, poses[0u].position)
+        );
+    };
+    const double closedGap = gapAt(0.0);
+    const double openGap = gapAt(0.04);
+    require(
+        closedGap < targetGap && targetGap < openGap,
+        "requested tactile grasp gap is outside Franka finger travel: "
+        "closed=" + std::to_string(closedGap) +
+        " open=" + std::to_string(openGap)
+    );
+    double lower = 0.0;
+    double upper = 0.04;
+    for (std::uint32_t iteration = 0u;
+         iteration < 48u;
+         ++iteration) {
+        const double middle = 0.5 * (lower + upper);
+        if (gapAt(middle) < targetGap) {
+            lower = middle;
+        } else {
+            upper = middle;
+        }
+    }
+    q[7u] = 0.5 * (lower + upper);
+    q[8u] = q[7u];
+    return q;
+}
+
+std::vector<float> floatVector(
+    const std::span<const double> values
+) {
+    std::vector<float> result(values.size());
+    std::transform(
+        values.begin(),
+        values.end(),
+        result.begin(),
+        [](const double value) {
+            return static_cast<float>(value);
+        }
+    );
+    return result;
+}
+
+std::vector<double> doubleVector(
+    const std::span<const float> values
+) {
+    std::vector<double> result(values.size());
+    std::transform(
+        values.begin(),
+        values.end(),
+        result.begin(),
+        [](const float value) {
+            return static_cast<double>(value);
+        }
+    );
+    return result;
+}
+
+metalrobo::TactileObservationBatch tactileObservation(
+    const metalrobo::WorldTemplate& world,
+    const std::span<const MRBodyStateGPU> bodies,
+    const metalrobo::TactileSolverContactBatch& contacts,
+    const std::uint64_t frameIndex
+) {
+    metalrobo::TactileCpuFrame frame;
+    frame.environmentCount = 1u;
+    frame.bodies = bodies;
+    frame.contacts = contacts.contacts;
+    frame.contactCounts = contacts.counts;
+    frame.contactCapacityPerEnvironment =
+        contacts.capacityPerEnvironment;
+    frame.observationTimestepSeconds = 0.02f;
+    frame.contactImpulseTimestepSeconds =
+        contacts.contacts.empty() ? 0.0f : 0.02f / 8.0f;
+    frame.frameIndex = frameIndex;
+    frame.timestampSeconds = frameIndex * 0.02;
+    metalrobo::TactileObservationBatch result;
+    require(
+        metalrobo::observeTactileCpuReference(
+            world.tactileSystem,
+            world.engineModel,
+            frame,
+            result
+        ),
+        "Franka tactile CPU observation"
+    );
+    return result;
+}
+
+void verifyWorldPack(
+    const metalrobo::WorldFamily& family
+) {
+    metalrobo::MRWorldPack pack;
+    require(
+        metalrobo::compileWorldPack(family, pack),
+        "compile tactile world pack"
+    );
+    const std::filesystem::path path =
+        std::filesystem::temp_directory_path() /
+        (
+            "metalrobo-franka-tactile-" +
+            std::to_string(pack.contentHash) +
+            ".mrworld"
+        );
+    require(
+        metalrobo::writeWorldPack(pack, path),
+        "write tactile world pack"
+    );
+    metalrobo::MRWorldPack loaded;
+    const auto read = metalrobo::readWorldPack(path, loaded);
+    std::error_code ignored;
+    std::filesystem::remove(path, ignored);
+    require(read, "read tactile world pack");
+    const auto& loadedSamples =
+        loaded.family.worldTemplate.tactileSystem.samples;
+    const auto& originalSamples =
+        family.worldTemplate.tactileSystem.samples;
+    require(
+        loaded.family.worldTemplate.tactileSystem.fingerprint ==
+            family.worldTemplate.tactileSystem.fingerprint &&
+        loadedSamples.size() == originalSamples.size() &&
+        (
+            loadedSamples.empty() ||
+            std::memcmp(
+                loadedSamples.data(),
+                originalSamples.data(),
+                loadedSamples.size() *
+                    sizeof(MRTactileSampleGPU)
+            ) == 0
+        ),
+        "world-pack replay changed the tactile observation definition"
+    );
+}
+
+} // namespace
+
+int main(const int argc, const char* const* argv) {
+    try {
+        std::optional<std::filesystem::path> debugDirectory;
+        if (argc == 3 && std::string_view{argv[1]} == "--debug-dir") {
+            debugDirectory = std::filesystem::path{argv[2]};
+        } else if (argc != 1) {
+            throw std::runtime_error(
+                "usage: metalrobo_franka_tactile_example "
+                "[--debug-dir PATH]"
+            );
+        }
+        const metalrobo::EngineModel model =
+            metalrobo::makeFrankaTactileEngineModel();
+        const metalrobo::EpisodeTwin episode =
+            metalrobo::makeFrankaTactileEpisodeTwin();
+        metalrobo::WorldTemplate worldTemplate;
+        require(
+            metalrobo::compileEpisodeTwin(
+                episode,
+                model,
+                worldTemplate
+            ),
+            "compile Franka tactile episode"
+        );
+        require(
+            worldTemplate.tactileSystem.sensors.size() == 2u &&
+            worldTemplate.tactileSystem.samples.size() ==
+                2u * 32u * 32u &&
+            (worldTemplate.capabilities &
+             MR_WORLD_CAP_TACTILE_DEPTH) != 0u,
+            "normal world compilation did not retain both tactile pads"
+        );
+        metalrobo::WorldFamily family;
+        require(
+            metalrobo::compileWorldFamily(
+                worldTemplate,
+                metalrobo::makeFrankaPickPlaceWorldProgram(),
+                family
+            ),
+            "compile Franka tactile family"
+        );
+        verifyWorldPack(family);
+
+        constexpr float desiredPenetration = 0.0002f;
+        constexpr float objectHalfExtent = 0.025f;
+        const float desiredGap =
+            2.0f * (objectHalfExtent - desiredPenetration);
+        std::vector<double> q = closedConfiguration(
+            model,
+            worldTemplate.tactileSystem,
+            desiredGap
+        );
+        std::vector<double> v(model.world.nv, 0.0);
+        const auto initialFingertips = fingertipPoses(
+            model,
+            worldTemplate.tactileSystem,
+            q,
+            v
+        );
+        require(
+            dot3(
+                initialFingertips[0u].outwardNormal,
+                initialFingertips[1u].outwardNormal
+            ) < -0.999f,
+            "Franka fingertip tactile normals do not oppose"
+        );
+        const mr_float4 objectPosition = multiply(
+            add(
+                initialFingertips[0u].position,
+                initialFingertips[1u].position
+            ),
+            0.5f
+        );
+        std::vector<MRBodyStateGPU> scene =
+            metalrobo::makeFrankaPickPlaceSceneState();
+        scene[0u].position = {
+            objectPosition.x,
+            objectPosition.y,
+            objectPosition.z,
+            1.0f,
+        };
+        scene[0u].orientation =
+            initialFingertips[0u].orientation;
+        scene[0u].linearVelocityAndInverseMass =
+            {0.0f, 0.0f, 0.0f, model.bodies[11u].
+                massAndInverseMass.y};
+        const std::vector<MRBodyStateGPU> initialBodies =
+            globalBodyStates(model, q, v, scene);
+        metalrobo::TactileSolverContactBatch noContacts;
+        const auto initialTactile = tactileObservation(
+            worldTemplate,
+            initialBodies,
+            noContacts,
+            0u
+        );
+        if (debugDirectory.has_value()) {
+            std::cerr
+                << "initial_tactile_debug left_area="
+                << initialTactile.summaries[0u].
+                    netForceAndContactArea.w
+                << " right_area="
+                << initialTactile.summaries[1u].
+                    netForceAndContactArea.w
+                << " left_max="
+                << initialTactile.summaries[0u].
+                    netTorqueAndMaximumDepth.w
+                << " right_max="
+                << initialTactile.summaries[1u].
+                    netTorqueAndMaximumDepth.w
+                << " gap="
+                << length3(subtract(
+                    initialFingertips[1u].position,
+                    initialFingertips[0u].position
+                ))
+                << " left_normal="
+                << initialFingertips[0u].outwardNormal.x << ','
+                << initialFingertips[0u].outwardNormal.y << ','
+                << initialFingertips[0u].outwardNormal.z
+                << " right_normal="
+                << initialFingertips[1u].outwardNormal.x << ','
+                << initialFingertips[1u].outwardNormal.y << ','
+                << initialFingertips[1u].outwardNormal.z
+                << '\n';
+        }
+
+        metalrobo::CompiledWorld compiled;
+        require(
+            metalrobo::compileMetalWorld(
+                model,
+                0u,
+                compiled
+            ),
+            "compile tactile contact world"
+        );
+        constexpr std::uint32_t controlSteps = 1u;
+        std::vector<float> actions(
+            controlSteps * compiled.nv(),
+            0.0f
+        );
+        for (std::uint32_t step = 0u;
+             step < controlSteps;
+             ++step) {
+            for (std::uint32_t coordinate = 0u;
+                 coordinate < compiled.nv();
+                 ++coordinate) {
+                actions[step * compiled.nv() + coordinate] =
+                    static_cast<float>(q[coordinate]);
+            }
+            actions[step * compiled.nv() + 7u] -= 0.0001f;
+            actions[step * compiled.nv() + 8u] -= 0.0001f;
+        }
+        const std::vector<float> initialQ = floatVector(q);
+        const std::vector<float> initialV = floatVector(v);
+        metalrobo::MetalWorldBatch batch{
+            .environmentCount = 1u,
+            .controlStepCount = controlSteps,
+            .initialQ = initialQ,
+            .initialV = initialV,
+            .efforts = actions,
+            .initialSceneBodies = scene,
+        };
+        metalrobo::MetalWorldStepConfig physicsConfig;
+        physicsConfig.timestepSeconds = 0.02f;
+        physicsConfig.physicsSubsteps = 8u;
+        physicsConfig.solverMode =
+            metalrobo::MetalWorldSolverMode::throughputTGS;
+        physicsConfig.actuationMode =
+            metalrobo::MetalWorldActuationMode::
+                implicitPositionDrive;
+        physicsConfig.velocityIterations = 16u;
+        physicsConfig.finalVelocityIterations = 8u;
+        physicsConfig.deterministic = true;
+        physicsConfig.captureContactEvidence = true;
+        metalrobo::MetalWorldContext physics;
+        metalrobo::MetalWorldResult first;
+        const auto firstRun = physics.run(
+            compiled,
+            batch,
+            physicsConfig,
+            first
+        );
+        require(firstRun, "run tactile grasp physics");
+        require(
+            !first.contactStatuses.empty() &&
+            first.contactStatuses.back().activeContacts >= 2u,
+            "actual contact solver did not retain bilateral finger contact"
+        );
+
+        const std::vector<double> finalQ =
+            doubleVector(first.finalQ);
+        const std::vector<double> finalV =
+            doubleVector(first.finalV);
+        const std::vector<MRBodyStateGPU> finalBodies =
+            globalBodyStates(
+                model,
+                finalQ,
+                finalV,
+                first.finalSceneBodies
+            );
+        const auto finalFingertips = fingertipPoses(
+            model,
+            worldTemplate.tactileSystem,
+            finalQ,
+            finalV
+        );
+        if (debugDirectory.has_value()) {
+            std::cerr
+                << "pose_debug final_gap="
+                << length3(subtract(
+                    finalFingertips[1u].position,
+                    finalFingertips[0u].position
+                ))
+                << " object_distance_left="
+                << length3(subtract(
+                    first.finalSceneBodies[0u].position,
+                    finalFingertips[0u].position
+                ))
+                << " object_distance_right="
+                << length3(subtract(
+                    first.finalSceneBodies[0u].position,
+                    finalFingertips[1u].position
+                ))
+                << " object_speed="
+                << length3(
+                    first.finalSceneBodies[0u].
+                        linearVelocityAndInverseMass
+                )
+                << '\n';
+        }
+        const std::array activeContactCounts{
+            first.contactStatuses.back().activeContacts,
+        };
+        metalrobo::TactileSolverContactFrame contactFrame;
+        contactFrame.environmentCount = 1u;
+        contactFrame.bodyCount =
+            static_cast<std::uint32_t>(model.bodies.size());
+        contactFrame.contactCapacityPerEnvironment =
+            first.layout.contactDispatch.constraintCapacity;
+        contactFrame.manifoldCapacityPerEnvironment =
+            first.layout.contactDispatch.manifoldCapacity;
+        contactFrame.shapes = model.shapes;
+        contactFrame.bodies = finalBodies;
+        contactFrame.constraints =
+            first.contactEvidence.contacts;
+        contactFrame.metadata =
+            first.contactEvidence.contactMetadata;
+        contactFrame.manifoldHeaders =
+            first.contactEvidence.manifoldHeaders;
+        contactFrame.activeContactCounts =
+            activeContactCounts;
+        metalrobo::TactileSolverContactBatch solverContacts;
+        require(
+            metalrobo::packTactileSolverContacts(
+                contactFrame,
+                solverContacts
+            ),
+            "pack tactile solver impulses"
+        );
+        if (debugDirectory.has_value()) {
+            for (std::uint32_t contactIndex = 0u;
+                 contactIndex < solverContacts.counts[0u];
+                 ++contactIndex) {
+                const auto& contact =
+                    solverContacts.contacts[contactIndex];
+                std::cerr
+                    << "contact_debug index=" << contactIndex
+                    << " shapes=" << contact.shapesAndFlags.x
+                    << ',' << contact.shapesAndFlags.y
+                    << " impulse="
+                    << length3(contact.worldImpulseOnA)
+                    << '\n';
+            }
+        }
+        const auto tactile = tactileObservation(
+            worldTemplate,
+            finalBodies,
+            solverContacts,
+            controlSteps
+        );
+        if (debugDirectory.has_value() &&
+            tactile.summaries.size() == 2u) {
+            std::cerr
+                << "tactile_debug active_contacts="
+                << first.contactStatuses.back().activeContacts
+                << " packed_contacts=" << solverContacts.counts[0u]
+                << " left_area="
+                << tactile.summaries[0u].
+                    netForceAndContactArea.w
+                << " right_area="
+                << tactile.summaries[1u].
+                    netForceAndContactArea.w
+                << " left_force="
+                << length3(
+                    tactile.summaries[0u].
+                        netForceAndContactArea
+                )
+                << " right_force="
+                << length3(
+                    tactile.summaries[1u].
+                        netForceAndContactArea
+                )
+                << " left_max="
+                << tactile.summaries[0u].
+                    netTorqueAndMaximumDepth.w
+                << " right_max="
+                << tactile.summaries[1u].
+                    netTorqueAndMaximumDepth.w
+                << '\n';
+        }
+        require(
+            tactile.summaries.size() == 2u &&
+            tactile.summaries[0u].
+                netForceAndContactArea.w > 0.0f &&
+            tactile.summaries[1u].
+                netForceAndContactArea.w > 0.0f &&
+            length3(
+                tactile.summaries[0u].netForceAndContactArea
+            ) > 0.0f &&
+            length3(
+                tactile.summaries[1u].netForceAndContactArea
+            ) > 0.0f,
+            "tactile geometry and solver wrenches did not agree on "
+            "bilateral contact"
+        );
+
+        metalrobo::MetalTactileConfig tactileConfig;
+        tactileConfig.contactCapacityPerEnvironment =
+            solverContacts.capacityPerEnvironment;
+        metalrobo::MetalTactileContext tactileGPU(tactileConfig);
+        require(
+            tactileGPU.compile(
+                worldTemplate.tactileSystem,
+                model,
+                1u
+            ),
+            "compile Franka tactile Metal context"
+        );
+        metalrobo::MetalTactileHostFrame tactileFrame;
+        tactileFrame.environmentCount = 1u;
+        tactileFrame.bodies = finalBodies;
+        tactileFrame.contacts = solverContacts.contacts;
+        tactileFrame.contactCounts = solverContacts.counts;
+        tactileFrame.observationTimestepSeconds = 0.02f;
+        tactileFrame.contactImpulseTimestepSeconds =
+            0.02f / 8.0f;
+        tactileFrame.frameIndex = controlSteps;
+        tactileFrame.timestampSeconds =
+            controlSteps * 0.02;
+        require(
+            tactileGPU.observe(tactileFrame),
+            "observe Franka tactile map on Metal"
+        );
+        metalrobo::TactileObservationBatch tactileMetal;
+        require(
+            tactileGPU.readback(1u, tactileMetal),
+            "read Franka tactile map"
+        );
+        double maximumDepthError = 0.0;
+        for (std::size_t index = 0u;
+             index < tactile.penetrationDepthMeters.size();
+             ++index) {
+            maximumDepthError = std::max(
+                maximumDepthError,
+                static_cast<double>(std::abs(
+                    tactile.penetrationDepthMeters[index] -
+                    tactileMetal.penetrationDepthMeters[index]
+                ))
+            );
+        }
+        require(
+            maximumDepthError < 2.0e-6,
+            "Franka Metal tactile map differs from CPU oracle"
+        );
+        if (debugDirectory.has_value()) {
+            for (std::uint32_t sensorIndex = 0u;
+                 sensorIndex <
+                    worldTemplate.tactileSystem.sensors.size();
+                 ++sensorIndex) {
+                metalrobo::TactileDebugExportConfig debug;
+                debug.directory = *debugDirectory;
+                debug.prefix =
+                    worldTemplate.tactileSystem.
+                        sensorIds[sensorIndex];
+                debug.sensor = sensorIndex;
+                require(
+                    metalrobo::exportTactileDebugFrame(
+                        worldTemplate.tactileSystem,
+                        tactile,
+                        debug
+                    ),
+                    "export tactile debug frame"
+                );
+            }
+        }
+        for (std::uint32_t sensorIndex = 0u;
+             sensorIndex < tactile.summaries.size();
+             ++sensorIndex) {
+            const auto& cpuSummary =
+                tactile.summaries[sensorIndex];
+            const auto& gpuSummary =
+                tactileMetal.summaries[sensorIndex];
+            require(
+                length3(subtract(
+                    cpuSummary.netForceAndContactArea,
+                    gpuSummary.netForceAndContactArea
+                )) < 2.0e-5f &&
+                length3(subtract(
+                    cpuSummary.
+                        centerOfPressureLocalAndForceWeight,
+                    gpuSummary.
+                        centerOfPressureLocalAndForceWeight
+                )) < 2.0e-5f,
+                "Franka Metal wrench or center of pressure differs "
+                "from the CPU oracle"
+            );
+        }
+
+        const float leftMean =
+            tactile.summaries[0u].
+                centroidLocalAndMeanDepth.w;
+        const float rightMean =
+            tactile.summaries[1u].
+                centroidLocalAndMeanDepth.w;
+        constexpr float policyTargetMeanDepth = 0.00016f;
+        constexpr float policyMaximumCorrection = 0.00020f;
+        const float leftCorrection = std::clamp(
+            policyTargetMeanDepth - leftMean,
+            0.0f,
+            policyMaximumCorrection
+        );
+        const float rightCorrection = std::clamp(
+            policyTargetMeanDepth - rightMean,
+            0.0f,
+            policyMaximumCorrection
+        );
+        std::vector<float> holdActions = first.finalQ;
+        std::vector<float> feedbackActions = holdActions;
+        feedbackActions[7u] -= leftCorrection;
+        feedbackActions[8u] -= rightCorrection;
+        metalrobo::MetalWorldBatch holdBatch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = first.finalQ,
+            .initialV = first.finalV,
+            .efforts = holdActions,
+            .initialSceneBodies = first.finalSceneBodies,
+        };
+        metalrobo::MetalWorldBatch feedbackBatch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = first.finalQ,
+            .initialV = first.finalV,
+            .efforts = feedbackActions,
+            .initialSceneBodies = first.finalSceneBodies,
+        };
+        metalrobo::MetalWorldStepConfig continuationConfig =
+            physicsConfig;
+        continuationConfig.captureContactEvidence = false;
+        metalrobo::MetalWorldContext holdPhysics;
+        metalrobo::MetalWorldContext feedbackPhysics;
+        metalrobo::MetalWorldResult holdContinuation;
+        metalrobo::MetalWorldResult feedbackContinuation;
+        require(
+            holdPhysics.run(
+                compiled,
+                holdBatch,
+                continuationConfig,
+                holdContinuation
+            ),
+            "run open-loop grasp continuation"
+        );
+        require(
+            feedbackPhysics.run(
+                compiled,
+                feedbackBatch,
+                continuationConfig,
+                feedbackContinuation
+            ),
+            "run tactile-feedback grasp continuation"
+        );
+        const float holdSlipSpeed = std::abs(
+            holdContinuation.finalSceneBodies[0u].
+                linearVelocityAndInverseMass.z
+        );
+        const float feedbackSlipSpeed = std::abs(
+            feedbackContinuation.finalSceneBodies[0u].
+                linearVelocityAndInverseMass.z
+        );
+        const float feedbackSlipReduction = std::clamp(
+            (holdSlipSpeed - feedbackSlipSpeed) /
+                std::max(holdSlipSpeed, 1.0e-7f),
+            -1.0f,
+            1.0f
+        );
+
+        metalrobo::EngineModel noGripModel = model;
+        noGripModel.name =
+            "franka_fer_hand_tactile_no_grip_baseline";
+        noGripModel.shapes[27u].collisionMask = 0u;
+        noGripModel.shapes[31u].collisionMask = 0u;
+        metalrobo::CompiledWorld noGripCompiled;
+        require(
+            metalrobo::compileMetalWorld(
+                noGripModel,
+                0u,
+                noGripCompiled
+            ),
+            "compile no-grip evaluation baseline"
+        );
+        metalrobo::MetalWorldStepConfig noGripConfig =
+            physicsConfig;
+        noGripConfig.captureContactEvidence = false;
+        metalrobo::MetalWorldContext noGripPhysics;
+        metalrobo::MetalWorldResult noGrip;
+        require(
+            noGripPhysics.run(
+                noGripCompiled,
+                batch,
+                noGripConfig,
+                noGrip
+            ),
+            "run no-grip evaluation baseline"
+        );
+
+        metalrobo::MetalWorldResult replay;
+        const auto replayRun = physics.run(
+            compiled,
+            batch,
+            physicsConfig,
+            replay
+        );
+        require(
+            replayRun.succeeded() &&
+            first.finalQ == replay.finalQ &&
+            first.finalV == replay.finalV &&
+            first.finalSceneBodies.size() ==
+                replay.finalSceneBodies.size() &&
+            std::equal(
+                first.finalSceneBodies.begin(),
+                first.finalSceneBodies.end(),
+                replay.finalSceneBodies.begin(),
+                [](const MRBodyStateGPU& left,
+                   const MRBodyStateGPU& right) {
+                    return std::memcmp(
+                        &left,
+                        &right,
+                        sizeof(left)
+                    ) == 0;
+                }
+            ),
+            "tactile grasp deterministic replay diverged"
+        );
+
+        const float balanceError =
+            std::abs(leftMean - rightMean);
+        const float tactileSlipSpeed = std::abs(
+            first.finalSceneBodies[0u].
+                linearVelocityAndInverseMass.z
+        );
+        const float baselineSlipSpeed = std::abs(
+            noGrip.finalSceneBodies[0u].
+                linearVelocityAndInverseMass.z
+        );
+        const float balanceScore = std::clamp(
+            1.0f -
+                balanceError /
+                    std::max(
+                        std::max(leftMean, rightMean),
+                        1.0e-7f
+                    ),
+            0.0f,
+            1.0f
+        );
+        const float slipReduction = std::clamp(
+            (
+                baselineSlipSpeed - tactileSlipSpeed
+            ) / std::max(baselineSlipSpeed, 1.0e-7f),
+            -1.0f,
+            1.0f
+        );
+        const float stabilizationReward =
+            balanceScore *
+            std::max(feedbackSlipReduction, 0.0f);
+        if (debugDirectory.has_value()) {
+            std::cerr
+                << "reward_debug left_mean=" << leftMean
+                << " right_mean=" << rightMean
+                << " balance_score=" << balanceScore
+                << " baseline_slip=" << baselineSlipSpeed
+                << " tactile_slip=" << tactileSlipSpeed
+                << " slip_reduction=" << slipReduction
+                << " hold_continuation_slip=" << holdSlipSpeed
+                << " feedback_continuation_slip="
+                << feedbackSlipSpeed
+                << " feedback_slip_reduction="
+                << feedbackSlipReduction
+                << " reward=" << stabilizationReward
+                << '\n';
+        }
+        require(
+            leftMean > 0.0f &&
+            rightMean > 0.0f &&
+            balanceScore > 0.85f &&
+            slipReduction > 0.05f &&
+            feedbackSlipReduction > 0.0f &&
+            stabilizationReward > 0.0f,
+            "tactile-aware grasp-stabilization evaluation failed"
+        );
+
+        std::cout
+            << "device=\"" << firstRun.deviceName << "\""
+            << " active_solver_contacts="
+            << first.contactStatuses.back().activeContacts
+            << " left_mean_depth_m=" << leftMean
+            << " right_mean_depth_m=" << rightMean
+            << " balance_error_m=" << balanceError
+            << " baseline_slip_speed_mps="
+            << baselineSlipSpeed
+            << " tactile_slip_speed_mps="
+            << tactileSlipSpeed
+            << " slip_reduction=" << slipReduction
+            << " hold_continuation_slip_speed_mps="
+            << holdSlipSpeed
+            << " feedback_continuation_slip_speed_mps="
+            << feedbackSlipSpeed
+            << " feedback_slip_reduction="
+            << feedbackSlipReduction
+            << " stabilization_reward="
+            << stabilizationReward
+            << " max_cpu_gpu_error_m="
+            << maximumDepthError
+            << " deterministic_replay=yes"
+            << " native_depth_buffer="
+            << (
+                tactileGPU.nativeBuffer(
+                    metalrobo::MetalTactileBuffer::
+                        penetrationDepth
+                ) != nullptr
+                ? "yes"
+                : "no"
+            )
+            << " debug_export="
+            << (
+                debugDirectory.has_value()
+                ? debugDirectory->string()
+                : "disabled"
+            )
+            << '\n';
+        return 0;
+    } catch (const std::exception& error) {
+        std::cerr << "metalrobo_franka_tactile_example: "
+                  << error.what() << '\n';
+        return 1;
+    }
+}

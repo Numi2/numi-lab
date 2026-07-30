@@ -1,0 +1,59 @@
+{
+  "schema": "metalrobo.tactile_observation",
+  "abi_version": 1,
+  "fingerprint": "0xd899d148235790dd",
+  "primary_representation": "metric_normal_penetration",
+  "depth_unit": "m",
+  "velocity_unit": "m/s",
+  "force_unit": "N",
+  "torque_unit": "N*m",
+  "layout": "environment_sensor_row_major",
+  "sensors": [
+    {
+      "id": "left_fingertip_tactile",
+      "width": 32,
+      "height": 32,
+      "surface_kind": 0,
+      "maximum_depth_m": 0.00300000003,
+      "active_threshold_m": 9.99999997e-07,
+      "shell_thickness_m": 0.00300000003,
+      "update_period_steps": 1,
+      "parent_body": 9,
+      "backing_shape": 27
+    },
+    {
+      "id": "right_fingertip_tactile",
+      "width": 32,
+      "height": 32,
+      "surface_kind": 0,
+      "maximum_depth_m": 0.00300000003,
+      "active_threshold_m": 9.99999997e-07,
+      "shell_thickness_m": 0.00300000003,
+      "update_period_steps": 1,
+      "parent_body": 10,
+      "backing_shape": 31
+    }
+  ],
+  "dense_channels": [
+    "penetration_depth_m",
+    "validity_bits",
+    "object_shape_id",
+    "depth_velocity_m_per_s"
+  ],
+  "summary_channels": [
+    "sensor_pose",
+    "timestamp_s",
+    "net_force_n",
+    "net_torque_nm",
+    "center_of_pressure_sensor_m",
+    "center_of_pressure_force_weight_n",
+    "geometric_contact_centroid_m",
+    "contact_area_m2",
+    "maximum_depth_m",
+    "mean_depth_m"
+  ],
+  "wrench_source": "physics_solver_impulse_over_explicit_interval",
+  "center_of_pressure_definition": "solver_force_magnitude_weighted_contact_position",
+  "simulation_translator_required": false,
+  "real_sensor_input": "camera_to_metric_depth_translator"
+}

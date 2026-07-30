@@ -51,6 +51,9 @@ enum MRWorldSensorKind : mr_u32 {
     MR_WORLD_SENSOR_SEGMENTATION = 3u,
     MR_WORLD_SENSOR_STATE = 4u,
     MR_WORLD_SENSOR_FORCE_TORQUE = 5u,
+    // Dense metric normal-penetration atlas. This is not camera depth and
+    // does not use camera intrinsics.
+    MR_WORLD_SENSOR_TACTILE_DEPTH = 6u,
 };
 
 enum MRWorldSensorParentKind : mr_u32 {
@@ -131,6 +134,7 @@ enum MRWorldTemplateCapabilities : mr_u32 {
     MR_WORLD_CAP_ROD_DYNAMICS = 1u << 8u,
     MR_WORLD_CAP_SHELL_DYNAMICS = 1u << 9u,
     MR_WORLD_CAP_SOFT_VOLUME_DYNAMICS = 1u << 10u,
+    MR_WORLD_CAP_TACTILE_DEPTH = 1u << 11u,
 };
 
 typedef struct MR_ALIGN16 MRWorldInstanceHeaderGPU {

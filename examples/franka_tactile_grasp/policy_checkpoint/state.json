@@ -1,0 +1,6 @@
+{
+  "artifact_kind": "metalrobo.example_policy_checkpoint",
+  "policy": "deterministic_mean_depth_feedback",
+  "trained_weights_present": false,
+  "real_hardware_transfer_claimed": false
+}

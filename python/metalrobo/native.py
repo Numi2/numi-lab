@@ -109,6 +109,43 @@ class _VisualFrameMetadataC(ct.Structure):
         ("contract", ct.c_uint32 * 4),
     ]
 
+class _TactileLayoutC(ct.Structure):
+    _fields_ = [
+        ("capacity", ct.c_uint32),
+        ("active_environment_count", ct.c_uint32),
+        ("body_count", ct.c_uint32),
+        ("shape_count", ct.c_uint32),
+        ("sensor_count", ct.c_uint32),
+        ("sample_count", ct.c_uint32),
+        ("target_count", ct.c_uint32),
+        ("contact_capacity_per_environment", ct.c_uint32),
+        ("query_backend", ct.c_uint32),
+        ("hardware_ray_queries_available", ct.c_uint32),
+        ("retained_bytes", ct.c_size_t),
+        ("bytes_per_environment", ct.c_size_t),
+        ("last_observe_milliseconds", ct.c_double),
+    ]
+
+
+class _TactileSummaryC(ct.Structure):
+    _fields_ = [
+        ("pose_position_and_timestamp", ct.c_float * 4),
+        ("pose_orientation", ct.c_float * 4),
+        ("net_force_and_contact_area", ct.c_float * 4),
+        ("net_torque_and_maximum_depth", ct.c_float * 4),
+        ("centroid_local_and_mean_depth", ct.c_float * 4),
+        ("centroid_world_and_active_count", ct.c_float * 4),
+        (
+            "center_of_pressure_local_and_force_weight",
+            ct.c_float * 4,
+        ),
+        (
+            "center_of_pressure_world_and_contact_count",
+            ct.c_float * 4,
+        ),
+        ("statistics_and_identity", ct.c_uint32 * 4),
+    ]
+
 
 @dataclass(frozen=True, slots=True)
 class RuntimeStats:
@@ -457,6 +494,64 @@ class _Bindings:
         ]
         self.lib.mr_hybrid_renderer_frame_metadata.restype = (
             _VisualFrameMetadataC
+        )
+
+        self.lib.mr_tactile_create_franka.argtypes = [
+            ct.c_uint32,
+            ct.c_uint32,
+            ct.c_char_p,
+        ]
+        self.lib.mr_tactile_create_franka.restype = ct.c_void_p
+        self.lib.mr_tactile_destroy.argtypes = [ct.c_void_p]
+        self.lib.mr_tactile_destroy.restype = None
+        self.lib.mr_tactile_encode.argtypes = [
+            ct.c_void_p,
+            ct.c_void_p,
+            ct.c_void_p,
+            ct.c_void_p,
+            ct.c_void_p,
+            ct.c_uint32,
+            ct.c_uint32,
+            ct.c_uint32,
+            ct.c_float,
+            ct.c_float,
+            ct.c_uint64,
+            ct.c_double,
+            ct.c_void_p,
+        ]
+        self.lib.mr_tactile_encode.restype = ct.c_int
+        self.lib.mr_tactile_readback.argtypes = [ct.c_void_p]
+        self.lib.mr_tactile_readback.restype = ct.c_int
+        self.lib.mr_tactile_layout.argtypes = [ct.c_void_p]
+        self.lib.mr_tactile_layout.restype = _TactileLayoutC
+        self.lib.mr_tactile_device_name.argtypes = [ct.c_void_p]
+        self.lib.mr_tactile_device_name.restype = ct.c_char_p
+        self.lib.mr_tactile_observation_metadata_json.argtypes = [
+            ct.c_void_p
+        ]
+        self.lib.mr_tactile_observation_metadata_json.restype = (
+            ct.c_char_p
+        )
+        self.lib.mr_tactile_native_buffer.argtypes = [
+            ct.c_void_p,
+            ct.c_uint32,
+        ]
+        self.lib.mr_tactile_native_buffer.restype = ct.c_void_p
+        self.lib.mr_tactile_depth.argtypes = [ct.c_void_p]
+        self.lib.mr_tactile_depth.restype = ct.POINTER(ct.c_float)
+        self.lib.mr_tactile_depth_velocity.argtypes = [ct.c_void_p]
+        self.lib.mr_tactile_depth_velocity.restype = ct.POINTER(
+            ct.c_float
+        )
+        self.lib.mr_tactile_validity.argtypes = [ct.c_void_p]
+        self.lib.mr_tactile_validity.restype = ct.POINTER(ct.c_uint32)
+        self.lib.mr_tactile_object_shape_ids.argtypes = [ct.c_void_p]
+        self.lib.mr_tactile_object_shape_ids.restype = ct.POINTER(
+            ct.c_uint32
+        )
+        self.lib.mr_tactile_summaries.argtypes = [ct.c_void_p]
+        self.lib.mr_tactile_summaries.restype = ct.POINTER(
+            _TactileSummaryC
         )
 
     def last_error(self) -> str:

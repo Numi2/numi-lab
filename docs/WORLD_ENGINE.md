@@ -316,7 +316,7 @@ coordinates, producing 11 articulated bodies, 9 generalized coordinates, and
 this first profile; robot/object and free-object/support contact remain
 enabled.
 
-`MRWorldPack` format v4 serializes the complete rich `WorldFamily`: engine
+`MRWorldPack` format v5 serializes the complete rich `WorldFamily`: engine
 topology, semantic assets and anchors, sensors, task, provenance artifacts,
 cohorts, semantic variation/target identities, compiled variations, and binding
 arenas. The file has explicit format, engine ABI, compiler ABI, payload length,

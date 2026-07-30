@@ -167,6 +167,28 @@ MRBodyStateGPU sceneState(
     return state;
 }
 
+void setDynamicBoxInertia(
+    MRBodyPropertiesGPU& body,
+    const mr_float4 halfExtents
+) {
+    const float mass = body.massAndInverseMass.x;
+    const float x = 2.0f * halfExtents.x;
+    const float y = 2.0f * halfExtents.y;
+    const float z = 2.0f * halfExtents.z;
+    const float ixx = mass * (y * y + z * z) / 12.0f;
+    const float iyy = mass * (x * x + z * z) / 12.0f;
+    const float izz = mass * (x * x + y * y) / 12.0f;
+    body.inertiaRow0 = {ixx, 0.0f, 0.0f, 0.0f};
+    body.inertiaRow1 = {0.0f, iyy, 0.0f, 0.0f};
+    body.inertiaRow2 = {0.0f, 0.0f, izz, 0.0f};
+    body.inverseInertiaRow0 =
+        {1.0f / ixx, 0.0f, 0.0f, 0.0f};
+    body.inverseInertiaRow1 =
+        {0.0f, 1.0f / iyy, 0.0f, 0.0f};
+    body.inverseInertiaRow2 =
+        {0.0f, 0.0f, 1.0f / izz, 0.0f};
+}
+
 } // namespace
 
 EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
@@ -572,6 +594,125 @@ WorldProgram makeFrankaPickPlaceWorldProgram() {
     clutter.categoricalValues = {0u, 1u, 2u, 3u};
     program.variations.push_back(std::move(clutter));
     return program;
+}
+
+EngineModel makeFrankaTactileEngineModel() {
+    EngineModel model = makeFrankaPickPlaceEngineModel();
+    model.name = "franka_fer_hand_tactile_shell_world";
+    constexpr float shellThickness = 0.003f;
+    constexpr float contactOffset = 0.0035f;
+    for (const std::uint32_t shapeIndex : {27u, 31u}) {
+        if (shapeIndex >= model.shapes.size() ||
+            model.shapes[shapeIndex].shapeType != MR_SHAPE_BOX ||
+            model.shapes[shapeIndex].materialIndex != 1u) {
+            throw std::logic_error(
+                "Franka tactile pad topology no longer matches its "
+                "pinned shape indices"
+            );
+        }
+        model.shapes[shapeIndex].
+            contactRestAndBoundingRadius.x = contactOffset;
+        model.shapes[shapeIndex].
+            contactRestAndBoundingRadius.y = shellThickness;
+    }
+    // The legacy palm capsules are deliberately broad collision proxies and
+    // overlap the usable opening near the fingertip pads. They would contact
+    // this narrow coupon before the tactile surfaces and inject a physically
+    // unrelated impulse, so the tactile task disables those two proxies while
+    // retaining the explicit finger boxes and all arm collision geometry.
+    for (const std::uint32_t palmShapeIndex : {22u, 23u}) {
+        model.shapes[palmShapeIndex].collisionMask = 0u;
+    }
+    // The tactile task uses a narrow grasp coupon instead of the pick-place
+    // cube. Its 50 mm normal span exercises both pads while the reduced
+    // tangent span keeps the coupon clear of the palm collision capsules.
+    constexpr mr_float4 couponHalfExtents{
+        0.006f,
+        0.007f,
+        0.025f,
+        0.0f,
+    };
+    model.shapes[32u].dimensions = couponHalfExtents;
+    model.shapes[32u].contactRestAndBoundingRadius.z =
+        std::sqrt(
+            couponHalfExtents.x * couponHalfExtents.x +
+            couponHalfExtents.y * couponHalfExtents.y +
+            couponHalfExtents.z * couponHalfExtents.z
+        );
+    setDynamicBoxInertia(model.bodies[11u], couponHalfExtents);
+    if (model.materials.size() <= 1u) {
+        throw std::logic_error(
+            "Franka tactile rubber material is missing"
+        );
+    }
+    // Position-level normal compliance (m/N). This first native profile is a
+    // stable engineering prior, not a claim of measured GelSight mechanics;
+    // physical sensor calibration should replace it.
+    model.materials[1u].response.z = 2.0e-6f;
+    model.materials[1u].response.w = 0.02f;
+    std::string reason;
+    if (!model.valid(&reason)) {
+        throw std::logic_error(
+            "Franka tactile model compilation failed: " + reason
+        );
+    }
+    return model;
+}
+
+EpisodeTwin makeFrankaTactileEpisodeTwin() {
+    EpisodeTwin episode = makeFrankaPickPlaceEpisodeTwin();
+    episode.id = "franka_tactile_grasp_stabilization";
+    episode.task.id = "tactile_grasp_stabilization";
+    constexpr float shellThickness = 0.003f;
+    constexpr float squareRootHalf = 0.7071067811865476f;
+    TactilePose pose;
+    // Sensor +z maps to each finger's local -y (the inner pad face);
+    // sensor +x/+y map to finger local +x/+z.
+    pose.orientation = {
+        squareRootHalf,
+        0.0f,
+        0.0f,
+        squareRootHalf,
+    };
+    // Final pad box centre minus finger COM, then move from its inner rigid
+    // face outward by the undeformed 3 mm tactile shell.
+    pose.position = {
+        0.0f,
+        -0.018305f,
+        0.0232825f,
+        0.0f,
+    };
+    TactileSensorSpec left = makeFlatTactileSensor(
+        "left_fingertip_tactile",
+        9u,
+        27u,
+        pose,
+        32u,
+        32u,
+        0.0175f,
+        0.0185f,
+        shellThickness
+    );
+    left.targetShapeIndices = {32u};
+    left.queryEpsilonMeters = 5.0e-7f;
+    TactileSensorSpec right = makeFlatTactileSensor(
+        "right_fingertip_tactile",
+        10u,
+        31u,
+        pose,
+        32u,
+        32u,
+        0.0175f,
+        0.0185f,
+        shellThickness
+    );
+    right.targetShapeIndices = {32u};
+    right.queryEpsilonMeters = 5.0e-7f;
+    episode.tactileSensors = {
+        std::move(left),
+        std::move(right),
+    };
+    return episode;
 }
 
 } // namespace metalrobo
