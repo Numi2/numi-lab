@@ -18,8 +18,9 @@ executable in the repository.
 
 ## Architecture rules
 
-- Visual Presentation V2 is the only authored presentation path. Never derive
-  a visual scene from collision geometry, add a V1 presentation adapter, or
+- Visual Presentation V3 and its sectioned V2 asset/environment pack wire
+  formats are the only authored presentation path. Never derive a visual
+  scene from collision geometry, add a legacy presentation adapter, or
   synthesize a fallback pack hash.
 - Existing perception-contract V1 labels are current wire-format names. They
   do not authorize renderer fallback behavior.

@@ -1147,12 +1147,29 @@ void generateTangents(
         tangent[1] -= normal.y * projection;
         tangent[2] -= normal.z * projection;
         normalize3(tangent[0], tangent[1], tangent[2]);
-        if (tangent[0] == 0.0f &&
-            tangent[1] == 0.0f &&
-            tangent[2] == 0.0f) {
-            tangent = std::abs(normal.z) < 0.999f
-                ? std::array{-normal.y, normal.x, 0.0f}
-                : std::array{1.0f, 0.0f, 0.0f};
+        const float tangentLengthSquared =
+            tangent[0] * tangent[0] +
+            tangent[1] * tangent[1] +
+            tangent[2] * tangent[2];
+        if (!(tangentLengthSquared > 1.0e-12f) ||
+            !std::isfinite(tangentLengthSquared)) {
+            // Pick the coordinate axis least aligned with the normal, then
+            // cross it into an exactly orthogonal fallback. This remains
+            // stable for UV-less geometry near every pole; selecting a fixed
+            // X tangent near +Z can leave a projection large enough to break
+            // the packed vertex contract.
+            const std::array axis =
+                std::abs(normal.x) <= std::abs(normal.y) &&
+                        std::abs(normal.x) <= std::abs(normal.z)
+                    ? std::array{1.0f, 0.0f, 0.0f}
+                    : std::abs(normal.y) <= std::abs(normal.z)
+                        ? std::array{0.0f, 1.0f, 0.0f}
+                        : std::array{0.0f, 0.0f, 1.0f};
+            tangent = {
+                axis[1] * normal.z - axis[2] * normal.y,
+                axis[2] * normal.x - axis[0] * normal.z,
+                axis[0] * normal.y - axis[1] * normal.x,
+            };
             normalize3(tangent[0], tangent[1], tangent[2]);
         }
         const float crossX =

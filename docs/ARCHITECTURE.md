@@ -8,8 +8,9 @@ macOS 26 / Metal 4. A Python package drives learning through MLX; the engine is
 C++23, Objective-C++, and Metal Shading Language. No external physics engine
 is linked or called at runtime.
 
-The headless training path is the product core. Rendering is a future consumer
-of body-pose buffers, not part of the current physics step.
+The headless training path remains the product core. Visual and tactile
+sensors are first-class consumers of the authoritative body-pose and contact
+buffers, while physics remains the sole owner of simulated state.
 
 ## Two model generations
 

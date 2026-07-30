@@ -23,6 +23,10 @@ assets are not redistributed here.
 Source: `unitreerobotics/unitree_ros`, commit
 `aa0f5c68b5aba347bad409e71b6430407da758d7`, including
 `robots/g1_description/g1_29dof_rev_1_0.urdf` and its companion MJCF.
+The documentation images `docs/media/metalrobo-unitree-g1.webp` and
+`docs/media/metalrobo-sensor-gallery.webp` are MetalRobo renders of the
+official visual meshes referenced by that URDF. The upstream mesh files and
+transient cooked pack are not redistributed.
 
 BSD 3-Clause License
 
