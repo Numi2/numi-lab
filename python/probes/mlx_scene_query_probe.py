@@ -91,10 +91,22 @@ def main() -> None:
         analytic_world,
         body_states,
         mx.array(
-            [[float(value) for value in cube_position]],
+            np.broadcast_to(
+                cube_position.astype(np.float32, copy=False),
+                (32, 3),
+            ),
             dtype=mx.float32,
         ),
-        mx.array([[1.0, 0.0, 0.0]], dtype=mx.float32),
+        mx.array(
+            np.broadcast_to(
+                np.array(
+                    [1.0, 0.0, 0.0],
+                    dtype=np.float32,
+                ),
+                (32, 3),
+            ),
+            dtype=mx.float32,
+        ),
         maximum_distance_m=1.0,
     )
     mx.eval(*cube)
@@ -133,8 +145,11 @@ def main() -> None:
     )
     mounted_pattern = make_ray_pattern(
         cube_body,
-        [[0.0, 0.0, 0.0]],
-        [[1.0, 0.0, 0.0]],
+        np.zeros((32, 3), dtype=np.float32),
+        np.broadcast_to(
+            np.array([1.0, 0.0, 0.0], dtype=np.float32),
+            (32, 3),
+        ),
     )
     compiled_mounted = mx.compile(
         lambda current_state: scene_raycast_pattern(
@@ -207,7 +222,7 @@ def main() -> None:
     terrain_grid_pattern = make_grid_ray_pattern(
         0,
         size_m=(0.3, 0.2),
-        resolution=(4, 3),
+        resolution=(8, 4),
         origin_m=(0.0, 0.0, 1.0),
         direction=(0.0, 0.0, -1.0),
     )
@@ -266,7 +281,7 @@ def main() -> None:
     terrain_grid_ids = np.asarray(terrain_grid.identities)
     require(
         np.all(np.asarray(terrain_grid.validity))
-        and terrain_grid.distance_m.shape == (2, 12)
+        and terrain_grid.distance_m.shape == (2, 32)
         and np.all(terrain_grid_ids[..., 1] == terrain_body),
         "body-mounted terrain grid did not remain fully device-resident",
     )
@@ -294,7 +309,7 @@ def main() -> None:
                 "mounted_cube_exit_distance_m": float(
                     mounted_distance[1, 0]
                 ),
-                "mounted_grid_rays": 12,
+                "mounted_grid_rays": 32,
                 "lidar_pattern_rays": 16,
                 "terrain_height_m": float(
                     terrain_points[0, 0, 2]

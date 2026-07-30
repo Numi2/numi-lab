@@ -10,6 +10,8 @@ namespace {
 constant float kRayMinimum = 1.0e-6f;
 constant float kDirectionMinimum = 1.0e-16f;
 constant float kQuaternionMinimum = 1.0e-12f;
+constant bool kSceneQueryUsesProjectedShapes
+    [[function_constant(0)]];
 
 struct Mat3 {
     float3 row0;
@@ -235,6 +237,28 @@ inline bool rayAabb(
         }
     }
     return farValue >= kRayMinimum;
+}
+
+inline bool rayBoundingSphere(
+    const float3 origin,
+    const float3 direction,
+    const float3 center,
+    const float radius,
+    const float maximumDistance
+) {
+    const float3 delta = center - origin;
+    const float projection = dot(delta, direction);
+    const float radiusSquared = radius * radius;
+    const float closestSquared =
+        max(dot(delta, delta) - projection * projection, 0.0f);
+    if (closestSquared > radiusSquared) {
+        return false;
+    }
+    const float halfChord =
+        sqrt(max(radiusSquared - closestSquared, 0.0f));
+    return
+        projection + halfChord >= kRayMinimum &&
+        projection - halfChord <= maximumDistance;
 }
 
 inline bool rayTriangle(
@@ -888,6 +912,7 @@ inline bool traceSceneRay(
     device const MRMeshTriangleGPU* meshTriangles,
     device const MRConvexFaceGPU* convexFaces,
     device const MRBodyStateGPU* bodyStates,
+    device const MRSceneQueryShapeStateGPU* projectedShapes,
     const float3 origin,
     const float3 rawDirection,
     const float maximumDistance,
@@ -939,29 +964,61 @@ inline bool traceSceneRay(
             (queryGroup & shape.collisionMask) == 0u) {
             continue;
         }
-        const MRBodyStateGPU body =
-            bodyStates[bodyBase + shape.bodyIndex];
-        float4 bodyRotation;
-        float4 localRotation;
-        if (!finite4(body.position) ||
-            !normalizedQuaternion(
-                body.orientation,
-                bodyRotation
-            ) ||
-            !normalizedQuaternion(
-                shape.localRotation,
-                localRotation
-            )) {
-            continue;
+        float4 rotation;
+        float3 center;
+        if (kSceneQueryUsesProjectedShapes) {
+            const MRSceneQueryShapeStateGPU projected =
+                projectedShapes[
+                    environment * dispatch.shapeCount +
+                    shapeIndex
+                ];
+            if (projected.centerAndRadius.w < -1.5f ||
+                !finite4(projected.centerAndRadius) ||
+                !finite4(projected.rotation)) {
+                continue;
+            }
+            center = projected.centerAndRadius.xyz;
+            rotation = projected.rotation;
+            if (projected.centerAndRadius.w >= 0.0f) {
+                const float distanceLimit =
+                    hit.valid
+                    ? min(hit.distance, maximumDistance)
+                    : maximumDistance;
+                if (!rayBoundingSphere(
+                        origin,
+                        direction,
+                        center,
+                        projected.centerAndRadius.w,
+                        distanceLimit
+                    )) {
+                    continue;
+                }
+            }
+        } else {
+            const MRBodyStateGPU body =
+                bodyStates[bodyBase + shape.bodyIndex];
+            float4 bodyRotation;
+            float4 localRotation;
+            if (!finite4(body.position) ||
+                !normalizedQuaternion(
+                    body.orientation,
+                    bodyRotation
+                ) ||
+                !normalizedQuaternion(
+                    shape.localRotation,
+                    localRotation
+                )) {
+                continue;
+            }
+            rotation =
+                quaternionMultiply(bodyRotation, localRotation);
+            center =
+                body.position.xyz +
+                quaternionRotate(
+                    bodyRotation,
+                    shape.localPosition.xyz
+                );
         }
-        const float4 rotation =
-            quaternionMultiply(bodyRotation, localRotation);
-        const float3 center =
-            body.position.xyz +
-            quaternionRotate(
-                bodyRotation,
-                shape.localPosition.xyz
-            );
         const float3 localOrigin =
             quaternionInverseRotate(
                 rotation,
@@ -1143,6 +1200,163 @@ inline void writeRayHit(
 
 } // namespace
 
+kernel void mr_scene_query_project_shapes(
+    constant MRSceneQueryDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRGeometryHeaderGPU* geometryHeaders
+        [[buffer(2)]],
+    device const MRBodyStateGPU* bodyStates [[buffer(3)]],
+    device MRSceneQueryShapeStateGPU* projectedShapes
+        [[buffer(4)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint count =
+        dispatch.environmentCount * dispatch.shapeCount;
+    if (dispatch.abiVersion != MR_SCENE_QUERY_ABI_VERSION ||
+        dispatch.bodyStride < dispatch.bodyCount ||
+        index >= count) {
+        return;
+    }
+    MRSceneQueryShapeStateGPU output{};
+    output.centerAndRadius.w = -2.0f;
+    const uint environment = index / dispatch.shapeCount;
+    const uint shapeIndex =
+        index - environment * dispatch.shapeCount;
+    const MRShapeGPU shape = shapes[shapeIndex];
+    if (shape.bodyIndex >= dispatch.bodyCount ||
+        !finite4(shape.localPosition) ||
+        !finite4(shape.localRotation) ||
+        !finite4(shape.dimensions) ||
+        !finite4(shape.contactRestAndBoundingRadius)) {
+        projectedShapes[index] = output;
+        return;
+    }
+    const MRBodyStateGPU body =
+        bodyStates[
+            environment * dispatch.bodyStride +
+            shape.bodyIndex
+        ];
+    float4 bodyRotation;
+    float4 localRotation;
+    if (!finite4(body.position) ||
+        !normalizedQuaternion(
+            body.orientation,
+            bodyRotation
+        ) ||
+        !normalizedQuaternion(
+            shape.localRotation,
+            localRotation
+        )) {
+        projectedShapes[index] = output;
+        return;
+    }
+    const float3 center =
+        body.position.xyz +
+        quaternionRotate(
+            bodyRotation,
+            shape.localPosition.xyz
+        );
+    const float4 rotation =
+        quaternionMultiply(bodyRotation, localRotation);
+    float radius = -2.0f;
+    switch (shape.shapeType) {
+    case MR_SHAPE_PLANE:
+        radius = -1.0f;
+        break;
+    case MR_SHAPE_SPHERE:
+        if (shape.dimensions.x > 0.0f) {
+            radius = max(
+                shape.contactRestAndBoundingRadius.z,
+                shape.dimensions.x
+            );
+        }
+        break;
+    case MR_SHAPE_CAPSULE:
+        if (shape.dimensions.x > 0.0f &&
+            shape.dimensions.y >= 0.0f) {
+            radius = max(
+                shape.contactRestAndBoundingRadius.z,
+                shape.dimensions.x + shape.dimensions.y
+            );
+        }
+        break;
+    case MR_SHAPE_BOX:
+        if (all(shape.dimensions.xyz > float3(0.0f))) {
+            radius = max(
+                shape.contactRestAndBoundingRadius.z,
+                length(shape.dimensions.xyz)
+            );
+        }
+        break;
+    case MR_SHAPE_CYLINDER:
+        if (shape.dimensions.x > 0.0f &&
+            shape.dimensions.y > 0.0f) {
+            radius = max(
+                shape.contactRestAndBoundingRadius.z,
+                length(
+                    float2(
+                        shape.dimensions.x,
+                        shape.dimensions.y
+                    )
+                )
+            );
+        }
+        break;
+    case MR_SHAPE_CONVEX:
+    case MR_SHAPE_TRIANGLE_MESH:
+        if (shape.geometryCount == 1u &&
+            shape.geometryOffset < dispatch.geometryCount &&
+            all(shape.dimensions.xyz > float3(0.0f))) {
+            const MRGeometryHeaderGPU geometry =
+                geometryHeaders[shape.geometryOffset];
+            if (finite4(geometry.localLower) &&
+                finite4(geometry.localUpper) &&
+                all(geometry.localLower.xyz <=
+                    geometry.localUpper.xyz)) {
+                const float3 corner = max(
+                    abs(
+                        geometry.localLower.xyz *
+                        shape.dimensions.xyz
+                    ),
+                    abs(
+                        geometry.localUpper.xyz *
+                        shape.dimensions.xyz
+                    )
+                );
+                radius = max(
+                    shape.contactRestAndBoundingRadius.z,
+                    length(corner)
+                );
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    if (!finite3(center) ||
+        !finite4(rotation) ||
+        !isfinite(radius) ||
+        radius < -1.0f) {
+        projectedShapes[index] = output;
+        return;
+    }
+    if (radius >= 0.0f) {
+        const float scale = max(
+            max(
+                max(abs(center.x), abs(center.y)),
+                abs(center.z)
+            ),
+            radius
+        );
+        radius +=
+            (scale + 1.0f) *
+            MR_COLLISION_AABB_RELATIVE_PAD;
+    }
+    output.centerAndRadius = float4(center, radius);
+    output.rotation = rotation;
+    projectedShapes[index] = output;
+}
+
 kernel void mr_scene_query_pack_body_states(
     constant MRBodyStateMaterializeDispatchGPU& dispatch
         [[buffer(0)]],
@@ -1270,15 +1484,17 @@ kernel void mr_scene_raycast(
     device const MRMeshTriangleGPU* meshTriangles [[buffer(5)]],
     device const MRConvexFaceGPU* convexFaces [[buffer(6)]],
     device const MRBodyStateGPU* bodyStates [[buffer(7)]],
-    device const float4* origins [[buffer(8)]],
-    device const float4* directions [[buffer(9)]],
-    device const float* maximumDistances [[buffer(10)]],
-    device const uint4* options [[buffer(11)]],
-    device float* distances [[buffer(12)]],
-    device float4* points [[buffer(13)]],
-    device float4* normals [[buffer(14)]],
-    device uint4* identities [[buffer(15)]],
-    device uint* validity [[buffer(16)]],
+    device const MRSceneQueryShapeStateGPU* projectedShapes
+        [[buffer(8)]],
+    device const float4* origins [[buffer(9)]],
+    device const float4* directions [[buffer(10)]],
+    device const float* maximumDistances [[buffer(11)]],
+    device const uint4* options [[buffer(12)]],
+    device float* distances [[buffer(13)]],
+    device float4* points [[buffer(14)]],
+    device float4* normals [[buffer(15)]],
+    device uint4* identities [[buffer(16)]],
+    device uint* validity [[buffer(17)]],
     const uint index [[thread_position_in_grid]]
 ) {
     const uint queryCount =
@@ -1315,6 +1531,7 @@ kernel void mr_scene_raycast(
             meshTriangles,
             convexFaces,
             bodyStates,
+            projectedShapes,
             origin,
             rawDirection,
             maximumDistance,
@@ -1348,16 +1565,18 @@ kernel void mr_scene_raycast_pattern(
     device const MRMeshTriangleGPU* meshTriangles [[buffer(5)]],
     device const MRConvexFaceGPU* convexFaces [[buffer(6)]],
     device const MRBodyStateGPU* bodyStates [[buffer(7)]],
-    device const uint* parentBodies [[buffer(8)]],
-    device const float4* localOrigins [[buffer(9)]],
-    device const float4* localDirections [[buffer(10)]],
-    device const float* maximumDistances [[buffer(11)]],
-    device const uint4* options [[buffer(12)]],
-    device float* distances [[buffer(13)]],
-    device float4* points [[buffer(14)]],
-    device float4* normals [[buffer(15)]],
-    device uint4* identities [[buffer(16)]],
-    device uint* validity [[buffer(17)]],
+    device const MRSceneQueryShapeStateGPU* projectedShapes
+        [[buffer(8)]],
+    device const uint* parentBodies [[buffer(9)]],
+    device const float4* localOrigins [[buffer(10)]],
+    device const float4* localDirections [[buffer(11)]],
+    device const float* maximumDistances [[buffer(12)]],
+    device const uint4* options [[buffer(13)]],
+    device float* distances [[buffer(14)]],
+    device float4* points [[buffer(15)]],
+    device float4* normals [[buffer(16)]],
+    device uint4* identities [[buffer(17)]],
+    device uint* validity [[buffer(18)]],
     const uint index [[thread_position_in_grid]]
 ) {
     const uint queryCount =
@@ -1420,6 +1639,7 @@ kernel void mr_scene_raycast_pattern(
             meshTriangles,
             convexFaces,
             bodyStates,
+            projectedShapes,
             origin,
             rawDirection,
             maximumDistances[index],

@@ -2,7 +2,7 @@
 
 #include "metalrobo/gpu_types.h"
 
-#define MR_SCENE_QUERY_ABI_VERSION 1u
+#define MR_SCENE_QUERY_ABI_VERSION 2u
 
 enum MRSceneQueryFlags : mr_u32 {
     // Collision-disabled authored geometry is factual but excluded from
@@ -49,7 +49,16 @@ typedef struct MR_ALIGN16 MRSceneQueryDispatchGPU {
     mr_u32 bodyStride;
 } MRSceneQueryDispatchGPU;
 
+// Environment-local shape projection reused by every ray in one query.
+// centerAndRadius.w is a verified conservative radius, -1 for a valid plane,
+// and -2 for an invalid transform.
+typedef struct MR_ALIGN16 MRSceneQueryShapeStateGPU {
+    mr_float4 centerAndRadius;
+    mr_float4 rotation;
+} MRSceneQueryShapeStateGPU;
+
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MRBodyStateMaterializeDispatchGPU) == 32);
 static_assert(sizeof(MRSceneQueryDispatchGPU) == 48);
+static_assert(sizeof(MRSceneQueryShapeStateGPU) == 32);
 #endif

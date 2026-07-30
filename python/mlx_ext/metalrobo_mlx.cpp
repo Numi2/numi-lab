@@ -61,6 +61,7 @@ constexpr std::uint32_t kEvidenceFloatWidth = 16u;
 constexpr std::uint32_t kEvidenceIDWidth = 4u;
 constexpr std::uint32_t kWorldThreads = 256u;
 constexpr std::uint32_t kOperatorThreads = 128u;
+constexpr std::uint32_t kSceneQueryProjectionMinimumShapes = 8u;
 
 enum ImmutableBufferIndex : std::size_t {
     kImmutableWorld = 0u,
@@ -619,6 +620,7 @@ struct MetalDeviceTuningProfile {
     std::uint64_t registryID = 0u;
     std::uint32_t appleGPUFamily = 0u;
     std::uint32_t waveWorkerGroupCount = 32u;
+    std::uint32_t sceneQueryProjectionMinimumRays = 64u;
 };
 
 MetalDeviceTuningProfile tuningProfile(
@@ -654,6 +656,10 @@ MetalDeviceTuningProfile tuningProfile(
         profile.registryID == measuredM4RegistryID
         ? 96u
         : profile.appleGPUFamily >= 9u ? 64u : 32u;
+    profile.sceneQueryProjectionMinimumRays =
+        profile.registryID == measuredM4RegistryID
+        ? 32u
+        : 64u;
     return profile;
 }
 
@@ -664,6 +670,12 @@ struct MetalResources {
     MTL::ComputePipelineState* abaKernel = nullptr;
     MTL::ComputePipelineState* multiABAKernel = nullptr;
     MTL::ComputePipelineState* commitKernel = nullptr;
+    MTL::ComputePipelineState* sceneQueryProjectionKernel = nullptr;
+    std::array<
+        std::array<MTL::ComputePipelineState*, 2u>,
+        2u
+    >
+        sceneQueryRayKernels{};
     std::unordered_map<
         std::string,
         MTL::ComputePipelineState*
@@ -1507,8 +1519,6 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_latch_contact_status",
         "mr_world_commit_contact_state",
         "mr_scene_query_pack_body_states",
-        "mr_scene_raycast",
-        "mr_scene_raycast_pattern",
     };
     if (hasTactile()) {
         physicsKernels.insert(
@@ -1524,6 +1534,52 @@ MetalResources& MLXCompiledWorld::resources(
             device.get_kernel(name, physicsLibrary)
         );
     }
+    staged->sceneQueryProjectionKernel = device.get_kernel(
+        "mr_scene_query_project_shapes",
+        physicsLibrary
+    );
+    const bool directSceneQueries = false;
+    const bool projectedSceneQueries = true;
+    staged->sceneQueryRayKernels[0u][0u] = device.get_kernel(
+        "mr_scene_raycast",
+        physicsLibrary,
+        "mr_scene_raycast_direct",
+        {{
+            &directSceneQueries,
+            MTL::DataTypeBool,
+            0u,
+        }}
+    );
+    staged->sceneQueryRayKernels[0u][1u] = device.get_kernel(
+        "mr_scene_raycast",
+        physicsLibrary,
+        "mr_scene_raycast_projected",
+        {{
+            &projectedSceneQueries,
+            MTL::DataTypeBool,
+            0u,
+        }}
+    );
+    staged->sceneQueryRayKernels[1u][0u] = device.get_kernel(
+        "mr_scene_raycast_pattern",
+        physicsLibrary,
+        "mr_scene_raycast_pattern_direct",
+        {{
+            &directSceneQueries,
+            MTL::DataTypeBool,
+            0u,
+        }}
+    );
+    staged->sceneQueryRayKernels[1u][1u] = device.get_kernel(
+        "mr_scene_raycast_pattern",
+        physicsLibrary,
+        "mr_scene_raycast_pattern_projected",
+        {{
+            &projectedSceneQueries,
+            MTL::DataTypeBool,
+            0u,
+        }}
+    );
     if (hasTactile()) {
         const bool debugHits = false;
         staged->kernels.emplace(
@@ -10082,6 +10138,12 @@ void SceneRaycastPrimitive::eval_gpu(
     auto& encoder =
         mx::metal::get_command_encoder(streamValue);
     const EngineModel& model = world_->world().model();
+    const bool useProjectedShapes =
+        model.shapes.size() >=
+            kSceneQueryProjectionMinimumShapes &&
+        rayCount_ >=
+            resources.tuning.
+                sceneQueryProjectionMinimumRays;
 
     MRSceneQueryDispatchGPU dispatch{};
     dispatch.abiVersion = MR_SCENE_QUERY_ABI_VERSION;
@@ -10111,12 +10173,106 @@ void SceneRaycastPrimitive::eval_gpu(
     dispatch.rayStride = rayCount_;
     dispatch.bodyStride = dispatch.bodyCount;
 
-    auto* kernel = resources.kernel(
-        mountedPattern_
-        ? "mr_scene_raycast_pattern"
-        : "mr_scene_raycast"
+    const auto encodeRays = [&](
+        const mx::array* projectedShapes
+    ) {
+        auto* kernel = resources.sceneQueryRayKernels[
+            mountedPattern_ ? 1u : 0u
+        ][
+            projectedShapes != nullptr ? 1u : 0u
+        ];
+        encoder.set_compute_pipeline_state(kernel);
+        encoder.set_bytes(dispatch, 0);
+        encoder.set_buffer(
+            resources.buffer(kImmutableShapes),
+            1
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableGeometryHeaders),
+            2
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableGeometryVertices),
+            3
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableMeshNodes),
+            4
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableMeshTriangles),
+            5
+        );
+        encoder.set_buffer(
+            resources.buffer(kImmutableConvexFaces),
+            6
+        );
+        encoder.set_input_array(inputs[0], 7);
+        if (projectedShapes != nullptr) {
+            encoder.set_input_array(*projectedShapes, 8);
+        } else {
+            // The direct function-constant specialization eliminates
+            // every load from this slot.
+            encoder.set_buffer(
+                resources.buffer(kImmutableShapes),
+                8
+            );
+        }
+        if (mountedPattern_) {
+            encoder.set_input_array(inputs[1], 9);
+            encoder.set_input_array(inputs[2], 10);
+            encoder.set_input_array(inputs[3], 11);
+            encoder.set_input_array(inputs[4], 12);
+            encoder.set_input_array(inputs[5], 13);
+            encoder.set_output_array(outputs[0], 14);
+            encoder.set_output_array(outputs[1], 15);
+            encoder.set_output_array(outputs[2], 16);
+            encoder.set_output_array(outputs[3], 17);
+            encoder.set_output_array(outputs[4], 18);
+        } else {
+            encoder.set_input_array(inputs[1], 9);
+            encoder.set_input_array(inputs[2], 10);
+            encoder.set_input_array(inputs[3], 11);
+            encoder.set_input_array(inputs[4], 12);
+            encoder.set_output_array(outputs[0], 13);
+            encoder.set_output_array(outputs[1], 14);
+            encoder.set_output_array(outputs[2], 15);
+            encoder.set_output_array(outputs[3], 16);
+            encoder.set_output_array(outputs[4], 17);
+        }
+        const std::size_t width = std::min<std::size_t>(
+            kWorldThreads,
+            kernel->maxTotalThreadsPerThreadgroup()
+        );
+        encoder.dispatch_threads(
+            MTL::Size(
+                static_cast<std::size_t>(
+                    environmentCount_
+                ) * rayCount_,
+                1u,
+                1u
+            ),
+            MTL::Size(width, 1u, 1u)
+        );
+    };
+
+    if (!useProjectedShapes) {
+        encodeRays(nullptr);
+        return;
+    }
+    constexpr mx::ShapeElem projectedWords =
+        sizeof(MRSceneQueryShapeStateGPU) / sizeof(float);
+    mx::array projectedShapes = temporary(
+        {
+            static_cast<mx::ShapeElem>(environmentCount_),
+            static_cast<mx::ShapeElem>(dispatch.shapeCount),
+            projectedWords,
+        },
+        mx::float32
     );
-    encoder.set_compute_pipeline_state(kernel);
+    auto* projectionKernel =
+        resources.sceneQueryProjectionKernel;
+    encoder.set_compute_pipeline_state(projectionKernel);
     encoder.set_bytes(dispatch, 0);
     encoder.set_buffer(
         resources.buffer(kImmutableShapes),
@@ -10126,58 +10282,24 @@ void SceneRaycastPrimitive::eval_gpu(
         resources.buffer(kImmutableGeometryHeaders),
         2
     );
-    encoder.set_buffer(
-        resources.buffer(kImmutableGeometryVertices),
-        3
-    );
-    encoder.set_buffer(
-        resources.buffer(kImmutableMeshNodes),
-        4
-    );
-    encoder.set_buffer(
-        resources.buffer(kImmutableMeshTriangles),
-        5
-    );
-    encoder.set_buffer(
-        resources.buffer(kImmutableConvexFaces),
-        6
-    );
-    encoder.set_input_array(inputs[0], 7);
-    if (mountedPattern_) {
-        encoder.set_input_array(inputs[1], 8);
-        encoder.set_input_array(inputs[2], 9);
-        encoder.set_input_array(inputs[3], 10);
-        encoder.set_input_array(inputs[4], 11);
-        encoder.set_input_array(inputs[5], 12);
-        encoder.set_output_array(outputs[0], 13);
-        encoder.set_output_array(outputs[1], 14);
-        encoder.set_output_array(outputs[2], 15);
-        encoder.set_output_array(outputs[3], 16);
-        encoder.set_output_array(outputs[4], 17);
-    } else {
-        encoder.set_input_array(inputs[1], 8);
-        encoder.set_input_array(inputs[2], 9);
-        encoder.set_input_array(inputs[3], 10);
-        encoder.set_input_array(inputs[4], 11);
-        encoder.set_output_array(outputs[0], 12);
-        encoder.set_output_array(outputs[1], 13);
-        encoder.set_output_array(outputs[2], 14);
-        encoder.set_output_array(outputs[3], 15);
-        encoder.set_output_array(outputs[4], 16);
-    }
-    const std::size_t width = std::min<std::size_t>(
-        kWorldThreads,
-        kernel->maxTotalThreadsPerThreadgroup()
-    );
+    encoder.set_input_array(inputs[0], 3);
+    encoder.set_output_array(projectedShapes, 4);
+    const std::size_t projectionWidth =
+        std::min<std::size_t>(
+            kWorldThreads,
+            projectionKernel->
+                maxTotalThreadsPerThreadgroup()
+        );
     encoder.dispatch_threads(
         MTL::Size(
             static_cast<std::size_t>(environmentCount_) *
-                rayCount_,
+                dispatch.shapeCount,
             1u,
             1u
         ),
-        MTL::Size(width, 1u, 1u)
+        MTL::Size(projectionWidth, 1u, 1u)
     );
+    encodeRays(&projectedShapes);
 }
 
 std::vector<mx::array> SceneRaycastPrimitive::jvp(

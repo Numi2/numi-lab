@@ -188,6 +188,14 @@ No environment-major world-ray tensor is constructed. Deterministic grid and
 LiDAR pattern builders cover terrain scanners and range sensors; arbitrary
 patterns can bind different rays to different bodies or to the world.
 
+Large graph-static ray batches use a projected-shape specialization. One
+linear Metal pass composes each shape transform and its verified conservative
+radius once per environment; all rays then reuse that compact state and reject
+distant shapes before exact intersection. Small batches retain direct
+traversal because measurement shows that projection setup is not free. The
+specialization is fixed by the compiled Apple-device profile, never by a
+per-frame sensor or solver flag.
+
 This is the common geometry primitive for range cameras, LiDAR, terrain
 height scanners, visibility tests, occupancy observations, and planning
 queries. It stays on the existing compute timeline and reuses the immutable
