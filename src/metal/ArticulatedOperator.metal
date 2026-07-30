@@ -235,6 +235,10 @@ inline bool zero4(const float4 value) {
     return all(value == float4(0.0f));
 }
 
+inline uint alignedThreadgroupOffset(const uint value) {
+    return (value + 15u) & ~15u;
+}
+
 inline bool validDofParameters(
     device const MRDofPropertiesGPU& dof,
     const bool root,
@@ -408,16 +412,16 @@ inline float massElement(
         device const MRBodyPropertiesGPU& body =
             bodies[articulation.firstBody + localBody];
 #if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
-        const float inertialScale = max(
-            bodyParameters[
-                bodyParameterBase +
-                articulation.firstBody +
-                localBody
-            ].x,
-            1.0e-4f
-        );
+        const float4 physical = bodyParameters[
+            bodyParameterBase +
+            articulation.firstBody +
+            localBody
+        ];
+        const float massScale = max(physical.x, 1.0e-4f);
+        const float inertiaScale = max(physical.z, 1.0e-4f);
 #else
-        constexpr float inertialScale = 1.0f;
+        constexpr float massScale = 1.0f;
+        constexpr float inertiaScale = 1.0f;
 #endif
         const float3 leftBodyAngular = quaternionRotate(
             quaternionConjugate(bodyRotation[localBody]),
@@ -428,9 +432,9 @@ inline float massElement(
             right.angular
         );
         value +=
-            inertialScale * body.massAndInverseMass.x *
+            massScale * body.massAndInverseMass.x *
                 dot(left.linear, right.linear) +
-            inertialScale * dot(
+            inertiaScale * dot(
                 leftBodyAngular,
                 inertiaMultiply(body, rightBodyAngular)
             );
@@ -1147,6 +1151,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 #if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
     device const float4* bodyParameters [[buffer(15)]],
 #endif
+    threadgroup uchar* scratch [[threadgroup(0)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadsPerThreadgroup [[threads_per_threadgroup]]
@@ -1156,41 +1161,6 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     }
 
     threadgroup uint initializationSucceeded;
-    threadgroup float3 bodyPosition[
-        MR_ARTICULATED_OPERATOR_MAX_BODIES
-    ];
-    threadgroup float4 bodyRotation[
-        MR_ARTICULATED_OPERATOR_MAX_BODIES
-    ];
-    threadgroup float3 jointPosition[
-        MR_ARTICULATED_OPERATOR_MAX_BODIES
-    ];
-    threadgroup float3 jointAxis[
-        MR_ARTICULATED_OPERATOR_MAX_BODIES
-    ];
-    threadgroup uint inboundJoint[
-        MR_ARTICULATED_OPERATOR_MAX_BODIES
-    ];
-    threadgroup uint parentLocal[
-        MR_ARTICULATED_OPERATOR_MAX_BODIES
-    ];
-    threadgroup uchar known[
-        MR_ARTICULATED_OPERATOR_MAX_BODIES
-    ];
-    threadgroup float factor[
-        MR_ARTICULATED_OPERATOR_MAX_DOFS *
-        MR_ARTICULATED_OPERATOR_MAX_DOFS
-    ];
-    threadgroup float rightHandSide[
-        MR_ARTICULATED_OPERATOR_MAX_DOFS
-    ];
-    threadgroup float intermediate[
-        MR_ARTICULATED_OPERATOR_MAX_DOFS
-    ];
-    threadgroup float solution[
-        MR_ARTICULATED_OPERATOR_MAX_DOFS
-    ];
-
     MRArticulatedOperatorStatusGPU status = {};
     status.code = MR_ARTICULATED_OPERATOR_SUCCESS;
     status.environment = environment;
@@ -1217,6 +1187,87 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
+    uint scratchOffset = 0u;
+    threadgroup float3* bodyPosition =
+        reinterpret_cast<threadgroup float3*>(
+            scratch + scratchOffset
+        );
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset +
+        articulation.bodyCount * sizeof(float3)
+    );
+    threadgroup float4* bodyRotation =
+        reinterpret_cast<threadgroup float4*>(
+            scratch + scratchOffset
+        );
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset +
+        articulation.bodyCount * sizeof(float4)
+    );
+    threadgroup float3* jointPosition =
+        reinterpret_cast<threadgroup float3*>(
+            scratch + scratchOffset
+        );
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset +
+        articulation.bodyCount * sizeof(float3)
+    );
+    threadgroup float3* jointAxis =
+        reinterpret_cast<threadgroup float3*>(
+            scratch + scratchOffset
+        );
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset +
+        articulation.bodyCount * sizeof(float3)
+    );
+    threadgroup uint* inboundJoint =
+        reinterpret_cast<threadgroup uint*>(
+            scratch + scratchOffset
+        );
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset +
+        articulation.bodyCount * sizeof(uint)
+    );
+    threadgroup uint* parentLocal =
+        reinterpret_cast<threadgroup uint*>(
+            scratch + scratchOffset
+        );
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset +
+        articulation.bodyCount * sizeof(uint)
+    );
+    threadgroup uchar* known = scratch + scratchOffset;
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset +
+        articulation.bodyCount * sizeof(uchar)
+    );
+    threadgroup float* factor =
+        reinterpret_cast<threadgroup float*>(
+            scratch + scratchOffset
+        );
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset +
+        articulation.nv * articulation.nv * sizeof(float)
+    );
+    threadgroup float* rightHandSide =
+        reinterpret_cast<threadgroup float*>(
+            scratch + scratchOffset
+        );
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset + articulation.nv * sizeof(float)
+    );
+    threadgroup float* intermediate =
+        reinterpret_cast<threadgroup float*>(
+            scratch + scratchOffset
+        );
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset + articulation.nv * sizeof(float)
+    );
+    threadgroup float* solution =
+        reinterpret_cast<threadgroup float*>(
+            scratch + scratchOffset
+        );
+    const uint factorStride = articulation.nv;
     device const float* environmentQ =
         q + environment * dispatch.qStride;
     if (lane == 0u) {
@@ -1402,10 +1453,10 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             parentLocal
         );
         factor[
-            row * MR_ARTICULATED_OPERATOR_MAX_DOFS + column
+            row * factorStride + column
         ] = value;
         factor[
-            column * MR_ARTICULATED_OPERATOR_MAX_DOFS + row
+            column * factorStride + row
         ] = value;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -1419,7 +1470,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     for (uint row = 0u; row < articulation.nv; ++row) {
         for (uint column = 0u; column <= row; ++column) {
             const float value = factor[
-                row * MR_ARTICULATED_OPERATOR_MAX_DOFS + column
+                row * factorStride + column
             ];
             if (!isfinite(value)) {
                 setFailure(
@@ -1450,7 +1501,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 timestep * timestep * properties.drive.x;
         }
         const uint diagonal =
-            dof * MR_ARTICULATED_OPERATOR_MAX_DOFS + dof;
+            dof * factorStride + dof;
         const float value = factor[diagonal] + armature;
         if (!isfinite(value)) {
             setFailure(
@@ -1479,16 +1530,16 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
              column <= row;
              ++column) {
             float value = factor[
-                row * MR_ARTICULATED_OPERATOR_MAX_DOFS + column
+                row * factorStride + column
             ];
             for (uint inner = 0u; inner < column; ++inner) {
                 value -=
                     factor[
-                        row * MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                        row * factorStride +
                         inner
                     ] *
                     factor[
-                        column * MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                        column * factorStride +
                         inner
                     ];
             }
@@ -1511,13 +1562,13 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 }
                 const float pivot = sqrt(value);
                 factor[
-                    row * MR_ARTICULATED_OPERATOR_MAX_DOFS + row
+                    row * factorStride + row
                 ] = pivot;
                 minimumPivot = min(minimumPivot, pivot);
                 maximumPivot = max(maximumPivot, pivot);
             } else {
                 value /= factor[
-                    column * MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                    column * factorStride +
                     column
                 ];
                 if (!isfinite(value)) {
@@ -1530,7 +1581,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     return;
                 }
                 factor[
-                    row * MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                    row * factorStride +
                     column
                 ] = value;
             }
@@ -1577,7 +1628,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         for (uint column = 0u; column < row; ++column) {
             value -=
                 factor[
-                    row * MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                    row * factorStride +
                     column
                 ] *
                 intermediate[column];
@@ -1585,7 +1636,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         intermediate[row] =
             value /
             factor[
-                row * MR_ARTICULATED_OPERATOR_MAX_DOFS + row
+                row * factorStride + row
             ];
     }
     for (uint reverse = 0u;
@@ -1598,7 +1649,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
              ++column) {
             value -=
                 factor[
-                    column * MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                    column * factorStride +
                     row
                 ] *
                 solution[column];
@@ -1606,7 +1657,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         solution[row] =
             value /
             factor[
-                row * MR_ARTICULATED_OPERATOR_MAX_DOFS + row
+                row * factorStride + row
             ];
         if (!isfinite(solution[row])) {
             setFailure(
@@ -1629,7 +1680,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
              ++column) {
             value +=
                 factor[
-                    column * MR_ARTICULATED_OPERATOR_MAX_DOFS + row
+                    column * factorStride + row
                 ] *
                 solution[column];
         }
@@ -1645,7 +1696,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
              ++column) {
             action +=
                 factor[
-                    row * MR_ARTICULATED_OPERATOR_MAX_DOFS + column
+                    row * factorStride + column
                 ] *
                 intermediate[column];
         }
@@ -1779,13 +1830,11 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                      ++inner) {
                     value +=
                         factor[
-                            row *
-                                MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                            row * factorStride +
                             inner
                         ] *
                         factor[
-                            column *
-                                MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                            column * factorStride +
                             inner
                         ];
                 }
@@ -1892,13 +1941,11 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                      ++inner) {
                     value +=
                         factor[
-                            row *
-                                MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                            row * factorStride +
                             inner
                         ] *
                         factor[
-                            column *
-                                MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                            column * factorStride +
                             inner
                         ];
                 }
@@ -1919,8 +1966,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     factorBase + row * articulation.nv + column
                 ] = column <= row
                     ? factor[
-                          row *
-                              MR_ARTICULATED_OPERATOR_MAX_DOFS +
+                          row * factorStride +
                           column
                       ]
                     : 0.0f;

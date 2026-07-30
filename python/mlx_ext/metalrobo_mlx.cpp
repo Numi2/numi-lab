@@ -7,6 +7,7 @@
 #include "metalrobo/G1.hpp"
 #include "metalrobo/GeometryCooker.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
+#include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/SurgicalAssets.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
 #include "metalrobo/SurgicalWorld.hpp"
@@ -24,6 +25,7 @@
 #include <cmath>
 #include <cstring>
 #include <filesystem>
+#include <initializer_list>
 #include <limits>
 #include <stdexcept>
 #include <unordered_map>
@@ -975,6 +977,47 @@ MLXCompiledWorld::shapeBodyIndices() const {
     values.reserve(world_.model().shapes.size());
     for (const MRShapeGPU& shape : world_.model().shapes) {
         values.push_back(shape.bodyIndex);
+    }
+    return values;
+}
+
+std::vector<std::uint32_t> MLXCompiledWorld::shapeTypes() const {
+    std::vector<std::uint32_t> values;
+    values.reserve(world_.model().shapes.size());
+    for (const MRShapeGPU& shape : world_.model().shapes) {
+        values.push_back(shape.shapeType);
+    }
+    return values;
+}
+
+std::vector<float> MLXCompiledWorld::shapeLocalPositions() const {
+    std::vector<float> values;
+    values.reserve(3u * world_.model().shapes.size());
+    for (const MRShapeGPU& shape : world_.model().shapes) {
+        values.insert(
+            values.end(),
+            {
+                shape.localPosition.x,
+                shape.localPosition.y,
+                shape.localPosition.z,
+            }
+        );
+    }
+    return values;
+}
+
+std::vector<float> MLXCompiledWorld::shapeDimensions() const {
+    std::vector<float> values;
+    values.reserve(3u * world_.model().shapes.size());
+    for (const MRShapeGPU& shape : world_.model().shapes) {
+        values.insert(
+            values.end(),
+            {
+                shape.dimensions.x,
+                shape.dimensions.y,
+                shape.dimensions.z,
+            }
+        );
     }
     return values;
 }
@@ -3271,6 +3314,7 @@ std::vector<mx::array> worldStep(
     const mx::array& tactileTimestamp,
     const mx::array& resetMask,
     const mx::array& actuatorProfileValues,
+    const bool nonemptyUnusedOutputs,
     mx::StreamOrDevice stream
 ) {
     if (world == nullptr ||
@@ -3423,6 +3467,90 @@ std::vector<mx::array> worldStep(
             sizeof(std::uint32_t)
         ),
     };
+    const auto nonemptyShape = [
+        nonemptyUnusedOutputs,
+        environments
+    ](
+        const mx::Shape& logical,
+        const std::initializer_list<mx::ShapeElem> replacement
+    ) -> mx::Shape {
+        if (!nonemptyUnusedOutputs) {
+            return logical;
+        }
+        for (const mx::ShapeElem dimension : logical) {
+            if (dimension == 0) {
+                return mx::Shape(replacement);
+            }
+        }
+        return logical;
+    };
+    const mx::Shape outputRodNodeShape = nonemptyShape(
+        rodNodeShape,
+        {environments, 1, 4}
+    );
+    const mx::Shape outputRodEdgeShape = nonemptyShape(
+        rodEdgeShape,
+        {environments, 1}
+    );
+    const mx::Shape outputRodWitnessShape = nonemptyShape(
+        rodWitnessShape,
+        {
+            environments,
+            1,
+            static_cast<mx::ShapeElem>(kRodWitnessWords),
+        }
+    );
+    const mx::Shape outputTactileDenseShape = nonemptyShape(
+        tactileDenseShape,
+        {environments, 1}
+    );
+    const mx::Shape outputTactileMotionShape = nonemptyShape(
+        tactileMotionShape,
+        {environments, 1, 4}
+    );
+    const mx::Shape outputTactileSummaryShape = nonemptyShape(
+        tactileSummaryShape,
+        {environments, 1, 4}
+    );
+    const mx::Shape outputTactileStatusShape = nonemptyShape(
+        tactileStatusShape,
+        {
+            environments,
+            1,
+            static_cast<mx::ShapeElem>(
+                sizeof(MRTactileStatusGPU) /
+                sizeof(std::uint32_t)
+            ),
+        }
+    );
+    const mx::Shape inputRodNodeShape = nonemptyShape(
+        rodNodeShape,
+        {environments, 1, 4}
+    );
+    const mx::Shape inputRodEdgeShape = nonemptyShape(
+        rodEdgeShape,
+        {environments, 1}
+    );
+    const mx::Shape inputRodWitnessShape = nonemptyShape(
+        rodWitnessShape,
+        {
+            environments,
+            1,
+            static_cast<mx::ShapeElem>(kRodWitnessWords),
+        }
+    );
+    const mx::Shape inputTactileDenseShape = nonemptyShape(
+        tactileDenseShape,
+        {environments, 1}
+    );
+    const mx::Shape inputTactileMotionShape = nonemptyShape(
+        tactileMotionShape,
+        {environments, 1, 4}
+    );
+    const mx::Shape inputTactileClockShape = nonemptyShape(
+        tactileClockShape,
+        {environments, 1}
+    );
     constexpr mx::ShapeElem bodyRecordWords =
         sizeof(MRBodyStateGPU) / sizeof(std::uint32_t);
     const mx::Shape bodyStateShape =
@@ -3477,23 +3605,23 @@ std::vector<mx::array> worldStep(
     validateU32(pairCache, cacheShape, "pair_cache");
     validateInput(
         rodPositions,
-        rodNodeShape,
+        inputRodNodeShape,
         "rod_positions"
     );
     validateInput(
         rodVelocities,
-        rodNodeShape,
+        inputRodNodeShape,
         "rod_velocities"
     );
-    validateInput(rodTwists, rodEdgeShape, "rod_twists");
+    validateInput(rodTwists, inputRodEdgeShape, "rod_twists");
     validateInput(
         rodTwistRates,
-        rodEdgeShape,
+        inputRodEdgeShape,
         "rod_twist_rates"
     );
     validateU32(
         rodWitnessCache,
-        rodWitnessShape,
+        inputRodWitnessShape,
         "rod_witness_cache"
     );
     validateInput(
@@ -3508,32 +3636,32 @@ std::vector<mx::array> worldStep(
     );
     validateInput(
         tactilePreviousDepth,
-        tactileDenseShape,
+        inputTactileDenseShape,
         "tactile_previous_depth"
     );
     validateInput(
         tactilePreviousMotion,
-        tactileMotionShape,
+        inputTactileMotionShape,
         "tactile_previous_motion"
     );
     validateInput(
         tactileTargetAnchor,
-        tactileMotionShape,
+        inputTactileMotionShape,
         "tactile_target_anchor"
     );
     validateInput(
         tactileTimestamp,
-        tactileClockShape,
+        inputTactileClockShape,
         "tactile_timestamp"
     );
     validateU32(
         tactilePreviousValidity,
-        tactileDenseShape,
+        inputTactileDenseShape,
         "tactile_previous_validity"
     );
     validateU32(
         tactilePreviousObject,
-        tactileDenseShape,
+        inputTactileDenseShape,
         "tactile_previous_object"
     );
     validateU32(resetMask, countShape, "reset_mask");
@@ -3543,7 +3671,7 @@ std::vector<mx::array> worldStep(
         "actuator_profile_values"
     );
     if (tactileFrameIndex.dtype() != mx::uint64 ||
-        tactileFrameIndex.shape() != tactileClockShape) {
+        tactileFrameIndex.shape() != inputTactileClockShape) {
         throw std::invalid_argument(
             "tactile_frame_index must be a uint64 MLX array "
             "with the compiled shape"
@@ -3551,74 +3679,44 @@ std::vector<mx::array> worldStep(
     }
 
     const auto selectedStream = mx::to_stream(stream);
+    const auto contiguousInput = [&](
+        const mx::array& value
+    ) -> mx::array {
+        // MLX's compiled contiguous primitive must not receive a zero-sized
+        // grid. Empty rod/tactile leaves are already contiguous ABI
+        // placeholders, so forwarding them is both cheaper and well-defined.
+        return value.nbytes() == 0u
+            ? value
+            : mx::contiguous(value, false, selectedStream);
+    };
     std::vector<mx::array> inputs{
-        mx::contiguous(q, false, selectedStream),
-        mx::contiguous(v, false, selectedStream),
-        mx::contiguous(effort, false, selectedStream),
-        mx::contiguous(scenePosition, false, selectedStream),
-        mx::contiguous(sceneOrientation, false, selectedStream),
-        mx::contiguous(sceneLinearVelocity, false, selectedStream),
-        mx::contiguous(sceneAngularVelocity, false, selectedStream),
-        mx::contiguous(manifoldHeaders, false, selectedStream),
-        mx::contiguous(manifoldPoints, false, selectedStream),
-        mx::contiguous(manifoldCounts, false, selectedStream),
-        mx::contiguous(pairCache, false, selectedStream),
-        mx::contiguous(rodPositions, false, selectedStream),
-        mx::contiguous(rodVelocities, false, selectedStream),
-        mx::contiguous(rodTwists, false, selectedStream),
-        mx::contiguous(rodTwistRates, false, selectedStream),
-        mx::contiguous(
-            rodWitnessCache,
-            false,
-            selectedStream
-        ),
-        mx::contiguous(bodyParameters, false, selectedStream),
-        mx::contiguous(
-            controllerParameters,
-            false,
-            selectedStream
-        ),
-        mx::contiguous(
-            tactilePreviousDepth,
-            false,
-            selectedStream
-        ),
-        mx::contiguous(
-            tactilePreviousValidity,
-            false,
-            selectedStream
-        ),
-        mx::contiguous(
-            tactilePreviousObject,
-            false,
-            selectedStream
-        ),
-        mx::contiguous(
-            tactilePreviousMotion,
-            false,
-            selectedStream
-        ),
-        mx::contiguous(
-            tactileTargetAnchor,
-            false,
-            selectedStream
-        ),
-        mx::contiguous(
-            tactileFrameIndex,
-            false,
-            selectedStream
-        ),
-        mx::contiguous(
-            tactileTimestamp,
-            false,
-            selectedStream
-        ),
-        mx::contiguous(resetMask, false, selectedStream),
-        mx::contiguous(
-            actuatorProfileValues,
-            false,
-            selectedStream
-        ),
+        contiguousInput(q),
+        contiguousInput(v),
+        contiguousInput(effort),
+        contiguousInput(scenePosition),
+        contiguousInput(sceneOrientation),
+        contiguousInput(sceneLinearVelocity),
+        contiguousInput(sceneAngularVelocity),
+        contiguousInput(manifoldHeaders),
+        contiguousInput(manifoldPoints),
+        contiguousInput(manifoldCounts),
+        contiguousInput(pairCache),
+        contiguousInput(rodPositions),
+        contiguousInput(rodVelocities),
+        contiguousInput(rodTwists),
+        contiguousInput(rodTwistRates),
+        contiguousInput(rodWitnessCache),
+        contiguousInput(bodyParameters),
+        contiguousInput(controllerParameters),
+        contiguousInput(tactilePreviousDepth),
+        contiguousInput(tactilePreviousValidity),
+        contiguousInput(tactilePreviousObject),
+        contiguousInput(tactilePreviousMotion),
+        contiguousInput(tactileTargetAnchor),
+        contiguousInput(tactileFrameIndex),
+        contiguousInput(tactileTimestamp),
+        contiguousInput(resetMask),
+        contiguousInput(actuatorProfileValues),
     };
     const auto primitive =
         std::make_shared<WorldStepPrimitive>(
@@ -3637,11 +3735,11 @@ std::vector<mx::array> worldStep(
             pointShape,
             countShape,
             cacheShape,
-            rodNodeShape,
-            rodNodeShape,
-            rodEdgeShape,
-            rodEdgeShape,
-            rodWitnessShape,
+            outputRodNodeShape,
+            outputRodNodeShape,
+            outputRodEdgeShape,
+            outputRodEdgeShape,
+            outputRodWitnessShape,
             vShape,
             {
                 environments,
@@ -3659,26 +3757,26 @@ std::vector<mx::array> worldStep(
             },
             countShape,
             {environments, contacts},
-            tactileDenseShape,
-            tactileDenseShape,
-            tactileMotionShape,
-            tactileDenseShape,
-            tactileDenseShape,
-            tactileMotionShape,
-            tactileSummaryShape,
-            tactileSummaryShape,
-            tactileSummaryShape,
-            tactileSummaryShape,
-            tactileSummaryShape,
-            tactileSummaryShape,
-            tactileSummaryShape,
-            tactileSummaryShape,
-            tactileSummaryShape,
-            tactileSummaryShape,
-            tactileStatusShape,
-            tactileMotionShape,
-            tactileMotionShape,
-            tactileDenseShape,
+            outputTactileDenseShape,
+            outputTactileDenseShape,
+            outputTactileMotionShape,
+            outputTactileDenseShape,
+            outputTactileDenseShape,
+            outputTactileMotionShape,
+            outputTactileSummaryShape,
+            outputTactileSummaryShape,
+            outputTactileSummaryShape,
+            outputTactileSummaryShape,
+            outputTactileSummaryShape,
+            outputTactileSummaryShape,
+            outputTactileSummaryShape,
+            outputTactileSummaryShape,
+            outputTactileSummaryShape,
+            outputTactileSummaryShape,
+            outputTactileStatusShape,
+            outputTactileMotionShape,
+            outputTactileMotionShape,
+            outputTactileDenseShape,
             bodyStateShape,
         },
         {
@@ -6425,6 +6523,14 @@ void WorldStepPrimitive::eval_gpu(
                 owner * environments *
                     sizeof(MRArticulatedOperatorStatusGPU)
             );
+            encoder.set_threadgroup_memory_length(
+                metalrobo::detail::
+                    articulatedOperatorThreadgroupBytes(
+                        owned.bodyCount,
+                        owned.nv
+                    ),
+                0
+            );
             encoder.dispatch_threadgroups(
                 MTL::Size(environments, 1u, 1u),
                 MTL::Size(kOperatorThreads, 1u, 1u)
@@ -6515,6 +6621,14 @@ void WorldStepPrimitive::eval_gpu(
             if (articulationCount == 1u) {
                 inputArray(inputs[16], 15);
             }
+            encoder.set_threadgroup_memory_length(
+                metalrobo::detail::
+                    articulatedOperatorThreadgroupBytes(
+                        owned.bodyCount,
+                        owned.nv
+                    ),
+                0
+            );
             encoder.dispatch_threadgroups(
                 MTL::Size(environments, 1u, 1u),
                 MTL::Size(kOperatorThreads, 1u, 1u)
@@ -6785,6 +6899,9 @@ void WorldStepPrimitive::eval_gpu(
                     "mr_world_scan_add_block_offsets"
                 )
             );
+            // The next lower level consumes the offsets written here. This
+            // is also the publication barrier for the final compacted scan.
+            encoder.barrier();
         }
     };
 
@@ -7975,17 +8092,44 @@ void WorldStepPrimitive::eval_gpu(
             }
             const std::size_t classWorkers =
                 workClass == MR_WORLD_WORK_HULL_GJK
-                ? std::min(
-                      persistentPairWorkers,
-                      static_cast<std::size_t>(
-                          MR_WORLD_QUEUE_THREADS_PER_THREADGROUP
+                ? std::max<std::size_t>(
+                      1u,
+                      std::min(
+                          persistentPairWorkers,
+                          static_cast<std::size_t>(
+                              MR_WORLD_QUEUE_THREADS_PER_THREADGROUP
+                          )
                       )
                   )
                 : persistentPairWorkers;
-            dispatchThreads(
-                classWorkers,
-                resources.kernel(kernelName)
-            );
+            if (workClass == MR_WORLD_WORK_HULL_GJK) {
+                MTL::ComputePipelineState* hullPipeline =
+                    resources.kernel(kernelName);
+                const std::size_t hullThreadgroupWidth =
+                    std::max<std::size_t>(
+                        1u,
+                        std::min<std::size_t>(
+                            {
+                                classWorkers,
+                                static_cast<std::size_t>(
+                                    MR_WORLD_QUEUE_THREADS_PER_THREADGROUP
+                                ),
+                                hullPipeline->
+                                    maxTotalThreadsPerThreadgroup(),
+                            }
+                        )
+                    );
+                encoder.dispatch_threads(
+                    MTL::Size(classWorkers, 1u, 1u),
+                    MTL::Size(hullThreadgroupWidth, 1u, 1u)
+                );
+                encoder.barrier();
+            } else {
+                dispatchThreads(
+                    classWorkers,
+                    resources.kernel(kernelName)
+                );
+            }
         }
         // Manifold finalization consumes counts, raw contacts, and query
         // caches produced by every class-specific narrowphase above.
@@ -8426,6 +8570,7 @@ void WorldStepPrimitive::eval_gpu(
             outputArray(tileConstraintIndices, 6);
             outputArray(outputs[16], 7);
             outputArray(compactionFlags, 8);
+            outputArray(waveStatuses, 9);
             dispatchThreads(
                 environments,
                 resources.kernel(
@@ -10130,6 +10275,14 @@ void BodyStatePrimitive::eval_gpu(
             static_cast<std::int64_t>(owner) *
                 environments *
                 sizeof(MRArticulatedOperatorStatusGPU)
+        );
+        encoder.set_threadgroup_memory_length(
+            metalrobo::detail::
+                articulatedOperatorThreadgroupBytes(
+                    articulation.bodyCount,
+                    articulation.nv
+                ),
+            0
         );
         encoder.dispatch_threadgroups(
             MTL::Size(environments, 1u, 1u),

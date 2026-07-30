@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/unified_quality_shared.h"
 
 #include <dlfcn.h>
@@ -6940,6 +6941,13 @@ bool encodeArticulatedOperator(
                       atIndex:argument];
             }
             [encoder
+                setThreadgroupMemoryLength:
+                    detail::articulatedOperatorThreadgroupBytes(
+                        articulation.bodyCount,
+                        articulation.nv
+                    )
+                atIndex:0u];
+            [encoder
                 dispatchThreadgroups:MTLSizeMake(
                     static_cast<NSUInteger>(
                         environmentCount
@@ -7018,6 +7026,13 @@ bool encodeArticulatedOperator(
                             atIndex:argument];
             }
             [encoder
+                setThreadgroupMemoryLength:
+                    detail::articulatedOperatorThreadgroupBytes(
+                        articulation.bodyCount,
+                        articulation.nv
+                    )
+                atIndex:0u];
+            [encoder
                 dispatchThreadgroups:MTLSizeMake(
                     static_cast<NSUInteger>(
                         environmentCount
@@ -7085,6 +7100,19 @@ bool encodeArticulatedOperator(
                      offset:0u
                     atIndex:argument];
     }
+    if (context.boundArticulations.empty()) {
+        [encoder endEncoding];
+        return false;
+    }
+    const MRArticulationGPU& articulation =
+        context.boundArticulations.front();
+    [encoder
+        setThreadgroupMemoryLength:
+            detail::articulatedOperatorThreadgroupBytes(
+                articulation.bodyCount,
+                articulation.nv
+            )
+        atIndex:0u];
     if (indirectDispatch) {
         [encoder
             dispatchThreadgroupsWithIndirectBuffer:
@@ -7891,6 +7919,7 @@ bool encodeWave32ContactSolve(
                 {6u, kTileConstraintIndices},
                 {7u, kContactStatuses},
                 {8u, kCompactionFlags},
+                {9u, kWave32IslandStatuses},
             },
             nullptr,
             0u,

@@ -901,10 +901,12 @@ kernel void MR_ABA_KERNEL_NAME(
         const float4 physical = bodyParameters[
             environment * world.bodyCount + globalBody
         ];
-        const float inertialScale = max(physical.x, 1.0e-4f);
+        const float massScale = max(physical.x, 1.0e-4f);
+        const float inertiaScale = max(physical.z, 1.0e-4f);
         const float dampingScale = max(physical.w, 0.0f);
 #else
-        constexpr float inertialScale = 1.0f;
+        constexpr float massScale = 1.0f;
+        constexpr float inertiaScale = 1.0f;
         constexpr float dampingScale = 1.0f;
 #endif
         if (body.articulationIndex !=
@@ -940,7 +942,7 @@ kernel void MR_ABA_KERNEL_NAME(
             for (uint column = 0u; column < 3u; ++column) {
                 articulatedInertia[
                     matrixBase + row * 6u + column
-                ] = inertialScale * worldInertiaElement(
+                ] = inertiaScale * worldInertiaElement(
                     body,
                     rotationColumn0,
                     rotationColumn1,
@@ -953,10 +955,10 @@ kernel void MR_ABA_KERNEL_NAME(
                 matrixBase +
                 (3u + row) * 6u +
                 (3u + row)
-            ] = inertialScale * body.massAndInverseMass.x;
+            ] = massScale * body.massAndInverseMass.x;
         }
         float3 externalForce =
-            inertialScale * body.massAndInverseMass.x *
+            massScale * body.massAndInverseMass.x *
             world.gravityAndTimestep.xyz;
         float3 externalTorque = float3(0.0f);
         if ((dispatch.flags & MR_ABA_HAS_BODY_WRENCHES) != 0u) {
@@ -975,7 +977,7 @@ kernel void MR_ABA_KERNEL_NAME(
         }
         float3 biasTorque = cross(
             angularVelocity[localBody],
-            inertialScale * multiplyWorldInertia(
+            inertiaScale * multiplyWorldInertia(
                 body,
                 bodyRotation[localBody],
                 angularVelocity[localBody]

@@ -837,6 +837,7 @@ def step(
     reset_state: WorldState | None = None,
     body_parameters: mx.array | None = None,
     controller_parameters: mx.array | None = None,
+    nonempty_unused_outputs: bool = False,
     stream: mx.Stream | mx.Device | None = None,
 ) -> StepOutput:
     """Advance one transactional control step without host synchronization.
@@ -1028,17 +1029,25 @@ def step(
             tactile_timestamp,
             tactile_reset_mask,
             actuator_state.profile_values,
+            nonempty_unused_outputs=nonempty_unused_outputs,
             stream=stream,
         )
-        next_tactile_state = TactileState(
-            previous_depth_m=tactile_depth,
-            previous_validity=tactile_validity,
-            previous_object_shape_ids=tactile_object_ids,
-            previous_tangential_motion=tactile_motion,
-            target_local_anchor=tactile_anchor,
-            frame_index=tactile_state.frame_index + 1,
-            time_seconds=tactile_timestamp,
-        )
+        if int(world.tactile_sensor_count) == 0:
+            # The contact primitive retains zero-sized tactile ABI outputs,
+            # but a world without tactile sensors has no tactile clock or
+            # history to advance. Reusing the explicit empty state also keeps
+            # compiled locomotion graphs free of zero-grid elementwise work.
+            next_tactile_state = tactile_state
+        else:
+            next_tactile_state = TactileState(
+                previous_depth_m=tactile_depth,
+                previous_validity=tactile_validity,
+                previous_object_shape_ids=tactile_object_ids,
+                previous_tangential_motion=tactile_motion,
+                target_local_anchor=tactile_anchor,
+                frame_index=tactile_state.frame_index + 1,
+                time_seconds=tactile_timestamp,
+            )
         next_state = WorldState(
             q=next_q,
             v=next_v,

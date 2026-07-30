@@ -655,6 +655,20 @@ NB_MODULE(_mlx_ext, module) {
                 shapeBodyIndices
         )
         .def_prop_ro(
+            "shape_types",
+            &metalrobo::mlx_ext::MLXCompiledWorld::shapeTypes
+        )
+        .def_prop_ro(
+            "shape_local_positions",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                shapeLocalPositions
+        )
+        .def_prop_ro(
+            "shape_dimensions",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                shapeDimensions
+        )
+        .def_prop_ro(
             "body_masses",
             &metalrobo::mlx_ext::MLXCompiledWorld::
                 bodyMasses
@@ -891,6 +905,7 @@ NB_MODULE(_mlx_ext, module) {
         "reset_mask"_a,
         "actuator_profile_values"_a,
         nb::kw_only(),
+        "nonempty_unused_outputs"_a = false,
         "stream"_a = nb::none(),
         "Encode a complete contact step into MLX's active Metal encoder."
     );

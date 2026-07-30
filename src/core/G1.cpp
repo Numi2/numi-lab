@@ -830,8 +830,7 @@ EngineModel makeUnitreeG1EngineModel() {
     model.world.contactCapacity = 1024u;
     model.world.constraintCapacity = 2048u;
     model.world.islandCapacity = 32u;
-    // TGS is a target, not yet the executable throughput implementation.
-    model.world.solverType = MR_SOLVER_THROUGHPUT_PGS;
+    model.world.solverType = MR_SOLVER_THROUGHPUT_TGS;
     model.world.frictionConeType = MR_FRICTION_CONE_ELLIPTIC;
     model.world.gravityAndTimestep = f4(0.0, 0.0, -9.81, 1.0 / 240.0);
     model.world.solverScales = f4(1.0e-7, 1.0e-9, 2.0, 1.0e-4);

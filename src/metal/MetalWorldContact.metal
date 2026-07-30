@@ -4330,6 +4330,7 @@ kernel void mr_world_build_contact_tiles(
     device uint* tileConstraintIndices [[buffer(6)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
     device uint* islandWorkFlags [[buffer(8)]],
+    device MRWave32IslandStatusGPU* waveStatuses [[buffer(9)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -4341,6 +4342,11 @@ kernel void mr_world_build_contact_tiles(
          islandIndex < dispatch.islandCapacity;
          ++islandIndex) {
         islandWorkFlags[islandBase + islandIndex] = 0u;
+        MRWave32IslandStatusGPU baseline = {};
+        baseline.code = MR_STEP_SUCCESS;
+        baseline.environment = environment;
+        baseline.islandIndex = islandIndex;
+        waveStatuses[islandBase + islandIndex] = baseline;
     }
     MRMetalWorldContactStatusGPU status = statuses[environment];
     if (status.code != MR_STEP_SUCCESS) {
@@ -4449,6 +4455,17 @@ kernel void mr_world_build_contact_tiles(
         }
         islandWork[islandBase + islandIndex] = work;
         islandWorkFlags[islandBase + islandIndex] = 1u;
+        // An active island must publish a terminal solver record before the
+        // environment reduction. Initializing that record in this existing
+        // topology pass avoids a separate clear dispatch and turns a missed
+        // queue packet into deterministic stage provenance instead of stale
+        // memory from a prior control frame.
+        MRWave32IslandStatusGPU pending = {};
+        pending.code = MR_STEP_UNSUPPORTED;
+        pending.environment = environment;
+        pending.islandIndex = islandIndex;
+        pending.iterations = MR_INVALID_INDEX;
+        waveStatuses[islandBase + islandIndex] = pending;
 
         for (uint localTile = 0u;
              localTile < tileCount;
@@ -5812,6 +5829,193 @@ inline float typedNormalCrossContactResponse(
     return response;
 }
 
+// Projects one source impulse axis into all three target contact rows in one
+// pass over the articulation DoFs and shared free-body endpoints. Wave32 uses
+// the resulting 3x3 contact blocks to derive a block-Jacobi spectral bound
+// once per solve, replacing the previous normal-only bound recomputed during
+// every iteration.
+inline float3 typedCrossContactResponseColumn(
+    const uint targetConstraint,
+    const uint sourceConstraint,
+    const uint sourceAxis,
+    device const MRContactConstraintGPU& target,
+    device const MRContactConstraintGPU& source,
+    const float3 targetDirection0,
+    const float3 targetDirection1,
+    const float3 targetDirection2,
+    const float3 sourceDirection,
+    device const MRBodyStateGPU* bodies,
+    device const float* pointJacobians,
+    const uint pointJacobianBase,
+    device const float* responseColumns,
+    const uint responseBase,
+    const uint nv,
+    const uint articulationIndex,
+    device const MRRodNodeStateGPU* rodNodes,
+    device const float* inverseRodMasses,
+    device const float* inverseRodTwistInertias,
+    device const MRRodColliderGPU* rodColliders,
+    device const MRRodToolWitnessGPU* rodWitnesses,
+    device const uint* constraintWitnessIndices,
+    const uint constraintBase
+) {
+    float3 response = float3(0.0f);
+    for (uint dof = 0u; dof < nv; ++dof) {
+        const float3 targetColumn =
+            typedArticulationJacobianColumn(
+                targetConstraint,
+                target,
+                bodies,
+                pointJacobians,
+                pointJacobianBase,
+                dof,
+                nv,
+                rodWitnesses,
+                constraintWitnessIndices,
+                constraintBase
+            );
+        const float sourceVelocity =
+            responseColumns[
+                responseBase +
+                (sourceConstraint * 3u + sourceAxis) * nv +
+                dof
+            ];
+        response += float3(
+            dot(targetDirection0, targetColumn),
+            dot(targetDirection1, targetColumn),
+            dot(targetDirection2, targetColumn)
+        ) * sourceVelocity;
+    }
+
+    const bool targetRod = typedRodConstraint(target);
+    const bool sourceRod = typedRodConstraint(source);
+    MRRodToolWitnessGPU targetWitness = {};
+    MRRodToolWitnessGPU sourceWitness = {};
+    if (targetRod) {
+        targetWitness = rodWitnesses[
+            constraintWitnessIndices[
+                constraintBase + targetConstraint
+            ]
+        ];
+    }
+    if (sourceRod) {
+        sourceWitness = rodWitnesses[
+            constraintWitnessIndices[
+                constraintBase + sourceConstraint
+            ]
+        ];
+    }
+
+    const uint targetEndpointCount = targetRod ? 1u : 2u;
+    const uint sourceEndpointCount = sourceRod ? 1u : 2u;
+    for (uint targetEndpoint = 0u;
+         targetEndpoint < targetEndpointCount;
+         ++targetEndpoint) {
+        const uint targetBody =
+            targetRod
+            ? targetWitness.featuresAndFlags.z
+            : targetEndpoint == 0u
+            ? target.bodyA
+            : target.bodyB;
+        const float targetSign =
+            targetRod
+            ? 1.0f
+            : targetEndpoint == 0u
+            ? -1.0f
+            : 1.0f;
+        const float3 targetPoint =
+            targetRod
+            ? targetWitness.toolPointAndSeparation.xyz
+            : target.pointAndSeparation.xyz;
+        device const MRBodyStateGPU& body =
+            bodies[targetBody];
+        if (!dynamicSceneEndpoint(body, articulationIndex)) {
+            continue;
+        }
+        for (uint sourceEndpoint = 0u;
+             sourceEndpoint < sourceEndpointCount;
+             ++sourceEndpoint) {
+            const uint sourceBody =
+                sourceRod
+                ? sourceWitness.featuresAndFlags.z
+                : sourceEndpoint == 0u
+                ? source.bodyA
+                : source.bodyB;
+            if (sourceBody != targetBody) {
+                continue;
+            }
+            const float sourceSign =
+                sourceRod
+                ? 1.0f
+                : sourceEndpoint == 0u
+                ? -1.0f
+                : 1.0f;
+            const float3 sourcePoint =
+                sourceRod
+                ? sourceWitness.toolPointAndSeparation.xyz
+                : source.pointAndSeparation.xyz;
+            const float3 targetVelocity =
+                sceneCrossPointResponse(
+                    body,
+                    targetPoint,
+                    sourcePoint,
+                    sourceSign * sourceDirection
+                );
+            response += targetSign * float3(
+                dot(targetDirection0, targetVelocity),
+                dot(targetDirection1, targetVelocity),
+                dot(targetDirection2, targetVelocity)
+            );
+        }
+    }
+
+    if (targetRod && sourceRod) {
+        const MRRodColliderGPU targetCollider =
+            rodColliders[targetWitness.identity.z];
+        const MRRodColliderGPU sourceCollider =
+            rodColliders[sourceWitness.identity.z];
+        if (targetCollider.rodIndex ==
+            sourceCollider.rodIndex) {
+            response += float3(
+                rodCrossContactResponse(
+                    targetCollider,
+                    targetWitness,
+                    sourceCollider,
+                    sourceWitness,
+                    rodNodes,
+                    inverseRodMasses,
+                    inverseRodTwistInertias,
+                    targetDirection0,
+                    sourceDirection
+                ),
+                rodCrossContactResponse(
+                    targetCollider,
+                    targetWitness,
+                    sourceCollider,
+                    sourceWitness,
+                    rodNodes,
+                    inverseRodMasses,
+                    inverseRodTwistInertias,
+                    targetDirection1,
+                    sourceDirection
+                ),
+                rodCrossContactResponse(
+                    targetCollider,
+                    targetWitness,
+                    sourceCollider,
+                    sourceWitness,
+                    rodNodes,
+                    inverseRodMasses,
+                    inverseRodTwistInertias,
+                    targetDirection2,
+                    sourceDirection
+                )
+            );
+        }
+    }
+    return response;
+}
+
 // Applies one island's complete rod generalized impulse through the retained
 // implicit DER factor. A connected rod is represented by exactly one dynamic
 // node and therefore has one island owner; lane zero of that packet cohort can
@@ -6274,6 +6478,11 @@ inline void mrWorldWave32SolvePacket(
     uint localFailure = MR_STEP_SUCCESS;
     uint localFailureConstraint = MR_INVALID_INDEX;
     float laneMaximumDelta = 0.0f;
+    float laneMaximumInverse = 0.0f;
+    float laneMaximumSpectralBound = 0.0f;
+    float laneFailureRhs = 0.0f;
+    float laneFailureInverse = 0.0f;
+    float laneFailureRelaxation = 0.0f;
     if (localLane == 0u) {
         sharedFailure[cohortIndex] = MR_STEP_SUCCESS;
     }
@@ -6414,17 +6623,17 @@ inline void mrWorldWave32SolvePacket(
             inverse[2][1],
             inverse[2][2]
         );
+        for (uint row = 0u; row < 3u; ++row) {
+            for (uint column = 0u; column < 3u; ++column) {
+                laneMaximumInverse = max(
+                    laneMaximumInverse,
+                    abs(inverse[row][column])
+                );
+            }
+        }
         preconditioners[
             constraintBase + localConstraint
         ] = preconditioner;
-        const float3 warm = projectFrictionCone(
-            contact.impulses.xyz,
-            evaluatedCones[constraintBase + localConstraint]
-        );
-        contact.impulses.xyz = warm;
-        impulseDeltas[
-            constraintBase + localConstraint
-        ] = float4(warm, 0.0f);
     }
 
     failureCodes[lane] = localFailure;
@@ -6477,6 +6686,130 @@ inline void mrWorldWave32SolvePacket(
         }
         return;
     }
+
+    // Bound the complete three-axis block-Jacobi operator once. This covers
+    // tangent-normal and tangent-tangent coupling that a normal-only row sum
+    // misses, and reuses the bound for every velocity iteration.
+    for (uint localTile = 0u;
+         localTile < work.tileCount;
+         ++localTile) {
+        const MRContactTileGPU tile =
+            tiles[tileBase + work.firstTile + localTile];
+        if (localLane >= tile.constraintCount) {
+            continue;
+        }
+        const uint localConstraint =
+            tileConstraintIndices[
+                constraintBase + tile.partialOffset + localLane
+            ];
+        device MRContactConstraintGPU& contact =
+            contacts[constraintBase + localConstraint];
+        device const MREvaluatedConstraintIRRowGPU* localRows =
+            evaluatedRows + rowBase + 3u * localConstraint;
+        MRWave32PreconditionerGPU preconditioner =
+            preconditioners[
+                constraintBase + localConstraint
+            ];
+        float3 normalizedRowSums = float3(0.0f);
+        for (uint sourceTile = 0u;
+             sourceTile < work.tileCount;
+             ++sourceTile) {
+            const MRContactTileGPU source =
+                tiles[tileBase + work.firstTile + sourceTile];
+            for (uint sourceSlot = 0u;
+                 sourceSlot < source.constraintCount;
+                 ++sourceSlot) {
+                const uint sourceConstraint =
+                    tileConstraintIndices[
+                        constraintBase +
+                        source.partialOffset +
+                        sourceSlot
+                    ];
+                device const MRContactConstraintGPU&
+                    sourceContact =
+                        contacts[
+                            constraintBase + sourceConstraint
+                        ];
+                device const MREvaluatedConstraintIRRowGPU*
+                    sourceRows =
+                        evaluatedRows +
+                        rowBase + 3u * sourceConstraint;
+                for (uint sourceAxis = 0u;
+                     sourceAxis < 3u;
+                     ++sourceAxis) {
+                    float3 response =
+                        typedCrossContactResponseColumn(
+                            localConstraint,
+                            sourceConstraint,
+                            sourceAxis,
+                            contact,
+                            sourceContact,
+                            localRows[0].direction.xyz,
+                            localRows[1].direction.xyz,
+                            localRows[2].direction.xyz,
+                            sourceRows[
+                                sourceAxis
+                            ].direction.xyz,
+                            bodies,
+                            pointJacobians,
+                            pointJacobianBase,
+                            responseColumns,
+                            responseBase,
+                            dispatch.nv,
+                            dispatch.articulationIndex,
+                            rodNodes,
+                            inverseRodMasses,
+                            inverseRodTwistInertias,
+                            rodColliders,
+                            rodWitnesses,
+                            constraintWitnessIndices,
+                            constraintBase
+                        );
+                    if (sourceConstraint == localConstraint) {
+                        response[sourceAxis] +=
+                            localRows[
+                                sourceAxis
+                            ].regularization;
+                    }
+                    const float3 normalized = float3(
+                        dot(preconditioner.row0.xyz, response),
+                        dot(preconditioner.row1.xyz, response),
+                        dot(preconditioner.row2.xyz, response)
+                    );
+                    normalizedRowSums += abs(normalized);
+                }
+            }
+        }
+        const float spectralBound = max(
+            normalizedRowSums.x,
+            max(
+                normalizedRowSums.y,
+                normalizedRowSums.z
+            )
+        );
+        laneMaximumSpectralBound = max(
+            laneMaximumSpectralBound,
+            spectralBound
+        );
+        const float relaxation =
+            1.0f / max(spectralBound, 1.0f);
+        preconditioner.row0.w = relaxation;
+        preconditioners[
+            constraintBase + localConstraint
+        ] = preconditioner;
+        const float3 warm =
+            relaxation * projectFrictionCone(
+                contact.impulses.xyz,
+                evaluatedCones[
+                    constraintBase + localConstraint
+                ]
+            );
+        contact.impulses.xyz = warm;
+        impulseDeltas[
+            constraintBase + localConstraint
+        ] = float4(warm, 0.0f);
+    }
+    threadgroup_barrier(mem_flags::mem_device);
 
     // Apply every warm-start impulse exactly once. Articulation DoFs and free
     // bodies have unique lane owners, eliminating conflicting atomic writes.
@@ -6736,81 +7069,42 @@ inline void mrWorldWave32SolvePacket(
                     constraintBase + localConstraint
                 ]
             );
-            float absoluteNormalRowSum = 0.0f;
-            float diagonalNormalResponse = 0.0f;
-            for (uint sourceTile = 0u;
-                 sourceTile < work.tileCount;
-                 ++sourceTile) {
-                const MRContactTileGPU source =
-                    tiles[
-                        tileBase + work.firstTile + sourceTile
-                    ];
-                for (uint sourceSlot = 0u;
-                     sourceSlot < source.constraintCount;
-                     ++sourceSlot) {
-                    const uint sourceConstraint =
-                        tileConstraintIndices[
-                            constraintBase +
-                            source.partialOffset +
-                            sourceSlot
-                        ];
-                    device const MRContactConstraintGPU&
-                        sourceContact =
-                            contacts[
-                                constraintBase +
-                                sourceConstraint
-                            ];
-                    const float3 sourceNormal =
-                        evaluatedRows[
-                            rowBase +
-                            3u * sourceConstraint
-                        ].direction.xyz;
-                    const float crossResponse =
-                        typedNormalCrossContactResponse(
-                            localConstraint,
-                            sourceConstraint,
-                            0u,
-                            contact,
-                            sourceContact,
-                            localRows[0].direction.xyz,
-                            sourceNormal,
-                            bodies,
-                            pointJacobians,
-                            pointJacobianBase,
-                            responseColumns,
-                            responseBase,
-                            dispatch.nv,
-                            dispatch.articulationIndex,
-                            rodNodes,
-                            inverseRodMasses,
-                            inverseRodTwistInertias,
-                            rodColliders,
-                            rodWitnesses,
-                            constraintWitnessIndices,
-                            constraintBase
-                        );
-                    absoluteNormalRowSum += abs(crossResponse);
-                    if (sourceConstraint == localConstraint) {
-                        diagonalNormalResponse =
-                            abs(crossResponse) +
-                            localRows[0].regularization;
-                    }
-                }
-            }
             const float relaxation =
-                absoluteNormalRowSum >
-                    max(diagonalNormalResponse, kMatrixFloor)
-                ? clamp(
-                      diagonalNormalResponse /
-                          absoluteNormalRowSum,
-                      1.0f / 32.0f,
-                      1.0f
-                  )
-                : 1.0f;
+                preconditioner.row0.w;
             const float3 delta =
                 relaxation * (proposed - previous);
             const float3 candidate = previous + delta;
             if (!finite3(candidate) || !finite3(delta)) {
+                laneFailureRhs = max(
+                    abs(rhs.x),
+                    max(abs(rhs.y), abs(rhs.z))
+                );
+                laneFailureInverse = max(
+                    max(
+                        abs(preconditioner.row0.x),
+                        max(
+                            abs(preconditioner.row0.y),
+                            abs(preconditioner.row0.z)
+                        )
+                    ),
+                    max(
+                        max(
+                            abs(preconditioner.row1.x),
+                            max(
+                                abs(preconditioner.row1.y),
+                                abs(preconditioner.row1.z)
+                            )
+                        ),
+                        max(
+                            abs(preconditioner.row2.x),
+                            max(
+                                abs(preconditioner.row2.y),
+                                abs(preconditioner.row2.z)
+                            )
+                        )
+                    )
+                );
+                laneFailureRelaxation = relaxation;
                 localFailure = MR_STEP_NONFINITE_RESULT;
                 localFailureConstraint = min(
                     localFailureConstraint,
@@ -7143,6 +7437,14 @@ inline void mrWorldWave32SolvePacket(
         laneConeViolation,
         cohortWidth
     );
+    const float maximumInverse = waveCohortMaximum(
+        laneMaximumInverse,
+        cohortWidth
+    );
+    const float maximumSpectralBound = waveCohortMaximum(
+        laneMaximumSpectralBound,
+        cohortWidth
+    );
     const uint maximumFailureCode = waveCohortMaximum(
         localFailure,
         cohortWidth
@@ -7152,6 +7454,18 @@ inline void mrWorldWave32SolvePacket(
             localFailureConstraint,
             cohortWidth
         );
+    const float maximumFailureRhs = waveCohortMaximum(
+        laneFailureRhs,
+        cohortWidth
+    );
+    const float maximumFailureInverse = waveCohortMaximum(
+        laneFailureInverse,
+        cohortWidth
+    );
+    const float maximumFailureRelaxation = waveCohortMaximum(
+        laneFailureRelaxation,
+        cohortWidth
+    );
     if (localLane == 0u) {
         MRWave32IslandStatusGPU result = {};
         result.code =
@@ -7159,16 +7473,23 @@ inline void mrWorldWave32SolvePacket(
         result.environment = environment;
         result.islandIndex = islandIndex;
         result.iterations = solverIterations;
-        result.residuals = float4(
-            maximumImpulseDelta,
-            maximumNormalResidual,
-            maximumConeViolation,
-            maximumFailureCode != MR_STEP_SUCCESS
-                ? static_cast<float>(firstFailureConstraint)
-                : maximumNormalResidual > 1.0e-3f
-                ? 1.0f
-                : 0.0f
-        );
+        if (maximumFailureCode != MR_STEP_SUCCESS) {
+            result.residuals = float4(
+                maximumFailureRhs,
+                maximumFailureInverse,
+                maximumFailureRelaxation,
+                static_cast<float>(firstFailureConstraint)
+            );
+        } else {
+            result.residuals = float4(
+                maximumInverse,
+                maximumNormalResidual,
+                maximumSpectralBound,
+                maximumNormalResidual > 1.0e-3f
+                    ? 1.0f
+                    : 0.0f
+            );
+        }
         waveStatuses[islandBase + islandIndex] = result;
     }
 }
@@ -7419,10 +7740,20 @@ kernel void mr_world_reduce_wave32_status(
             waveStatuses[islandBase + island];
         if (source.code != MR_STEP_SUCCESS) {
             status.code = source.code;
-            status.firstFailingConstraint =
-                static_cast<uint>(source.residuals.w);
-            status.firstFailingStableKeyLow = island;
-            status.firstFailingStableKeyHigh = environment;
+            if (source.iterations == MR_INVALID_INDEX) {
+                status.firstFailingConstraint =
+                    MR_INVALID_INDEX;
+                status.firstFailingStableKeyLow =
+                    source.islandIndex;
+                status.firstFailingStableKeyHigh =
+                    source.environment;
+            } else {
+                status.firstFailingConstraint =
+                    static_cast<uint>(source.residuals.w);
+                status.firstFailingStableKeyLow = 0u;
+                status.firstFailingStableKeyHigh = 0u;
+                residuals = source.residuals;
+            }
             break;
         }
         residuals = max(residuals, source.residuals);
@@ -7430,6 +7761,8 @@ kernel void mr_world_reduce_wave32_status(
     }
     status.solverIterations = iterations;
     status.residuals = residuals;
+    status.qualityDiagnostics.x = residuals.z;
+    status.qualityDiagnostics.y = residuals.x;
     const MRWorkQueueHeaderGPU solverHeader =
         workHeaders[MR_WORLD_WORK_SOLVER];
     status.queueFlags |=
@@ -8142,6 +8475,10 @@ kernel void mr_world_solve_contact_islands(
                 status.code = MR_STEP_NONFINITE_RESULT;
                 status.firstFailingConstraint =
                     localConstraint;
+                status.firstFailingStableKeyLow =
+                    uint(contact.pairKey);
+                status.firstFailingStableKeyHigh =
+                    uint(contact.pairKey >> 32u);
                 statuses[environment] = status;
                 return;
             }

@@ -112,7 +112,7 @@ G1_TERRAIN_SAMPLE_COUNT = (
     G1_TERRAIN_GRID_X * G1_TERRAIN_GRID_Y
 )
 G1_COMPACT_CONTACT_SIZE = 16
-G1_DOMAIN_PARAMETER_SIZE = 8
+G1_DOMAIN_PARAMETER_SIZE = 9
 G1_CRITIC_OBSERVATION_SIZE = (
     G1_ACTOR_OBSERVATION_SIZE
     + 4
@@ -200,7 +200,6 @@ class G1LocomotionState(NamedTuple):
     episode_steps: mx.array
     gait_phase: mx.array
     foot_air_time: mx.array
-    previous_foot_position: mx.array
     action_delay_history: mx.array
     actuator_delay: mx.array
     observation_delay: mx.array
@@ -232,6 +231,132 @@ class G1LocomotionStepOutput(NamedTuple):
     termination_reason: mx.array
     timeout_bootstrap_value: mx.array
     metrics: mx.array
+
+
+class _G1CompiledWorldState(NamedTuple):
+    """Non-empty physics leaves carried through the compiled G1 graph."""
+
+    q: mx.array
+    v: mx.array
+    scene_bodies: SceneBodyState
+    manifold_headers: mx.array
+    manifold_points: mx.array
+    manifold_counts: mx.array
+    pair_cache: mx.array
+    actuators: ActuatorState
+
+
+class _G1CompiledLocomotionState(NamedTuple):
+    world: _G1CompiledWorldState
+    actor_history: mx.array
+    clean_history: mx.array
+    critic_observation: mx.array
+    previous_action: mx.array
+    previous_joint_velocity: mx.array
+    commands: mx.array
+    command_steps_remaining: mx.array
+    episode_steps: mx.array
+    gait_phase: mx.array
+    foot_air_time: mx.array
+    action_delay_history: mx.array
+    actuator_delay: mx.array
+    observation_delay: mx.array
+    gyro_bias: mx.array
+    encoder_bias: mx.array
+    body_parameters: mx.array
+    controller_parameters: mx.array
+    curriculum_level: mx.array
+    terrain_level: mx.array
+    push_steps_remaining: mx.array
+    episode_return: mx.array
+    episode_tracking: mx.array
+
+
+class _G1CompiledStepOutput(NamedTuple):
+    state: _G1CompiledLocomotionState
+    actor_observation: mx.array
+    critic_observation: mx.array
+    latent: mx.array
+    log_probability: mx.array
+    value: mx.array
+    reward: mx.array
+    done: mx.array
+    timeout: mx.array
+    physics_error: mx.array
+    physics_status: mx.array
+    termination_reason: mx.array
+    timeout_bootstrap_value: mx.array
+    metrics: mx.array
+
+
+def _compact_g1_state(
+    state: G1LocomotionState,
+) -> _G1CompiledLocomotionState:
+    world = state.world
+    return _G1CompiledLocomotionState(
+        _G1CompiledWorldState(
+            q=world.q,
+            v=world.v,
+            scene_bodies=world.scene_bodies,
+            manifold_headers=world.solver_cache.manifold_headers,
+            manifold_points=world.solver_cache.manifold_points,
+            manifold_counts=world.solver_cache.manifold_counts,
+            pair_cache=world.solver_cache.pair_cache,
+            actuators=world.actuators,
+        ),
+        *state[1:],
+    )
+
+
+def _expand_g1_state(
+    state: _G1CompiledLocomotionState,
+    empty_world: WorldState,
+) -> G1LocomotionState:
+    compact = state.world
+    world = WorldState(
+        q=compact.q,
+        v=compact.v,
+        scene_bodies=compact.scene_bodies,
+        rods=empty_world.rods,
+        solver_cache=SolverCache(
+            manifold_headers=compact.manifold_headers,
+            manifold_points=compact.manifold_points,
+            manifold_counts=compact.manifold_counts,
+            pair_cache=compact.pair_cache,
+            rod_witnesses=empty_world.solver_cache.rod_witnesses,
+        ),
+        tactile=empty_world.tactile,
+        actuators=compact.actuators,
+    )
+    return G1LocomotionState(world, *state[1:])
+
+
+def _nonempty_abi_leaf(value: mx.array) -> mx.array:
+    if value.size != 0:
+        return value
+    return mx.zeros(
+        tuple(max(int(dimension), 1) for dimension in value.shape),
+        dtype=value.dtype,
+    )
+
+
+def _g1_compiled_world_template(world: WorldState) -> WorldState:
+    """Provide one-element storage for unused generic-world ABI channels."""
+
+    return world._replace(
+        rods=RodState(*(_nonempty_abi_leaf(value) for value in world.rods)),
+        solver_cache=world.solver_cache._replace(
+            rod_witnesses=_nonempty_abi_leaf(
+                world.solver_cache.rod_witnesses
+            )
+        ),
+        tactile=TactileState(
+            *(
+                _nonempty_abi_leaf(value)
+                for value in world.tactile
+            )
+        ),
+    )
 
 
 class G1LocomotionRolloutBatch(NamedTuple):
@@ -543,6 +668,16 @@ def _rotate_inverse(
     return vector - w * tangent + _cross(q, tangent)
 
 
+def _rotate(
+    quaternion_xyzw: mx.array,
+    vector: mx.array,
+) -> mx.array:
+    q = quaternion_xyzw[..., :3]
+    w = quaternion_xyzw[..., 3:4]
+    tangent = 2.0 * _cross(q, vector)
+    return vector + w * tangent + _cross(q, tangent)
+
+
 def _select(
     mask: mx.array,
     replacement: mx.array,
@@ -550,6 +685,19 @@ def _select(
 ) -> mx.array:
     shape = (int(mask.shape[0]),) + (1,) * (current.ndim - 1)
     return mx.where(mask.reshape(shape), replacement, current)
+
+
+def _select_nonempty(
+    mask: mx.array,
+    replacement: mx.array,
+    current: mx.array,
+) -> mx.array:
+    # Empty rod/tactile leaves are ABI placeholders in the generic world
+    # state. Keeping the existing leaf avoids asking mx.compile to launch a
+    # zero-grid elementwise kernel in the G1-specialized transition.
+    if current.size == 0:
+        return current
+    return _select(mask, replacement, current)
 
 
 def _select_world(
@@ -572,7 +720,7 @@ def _select_world(
         ),
         rods=RodState(
             *(
-                _select(mask, new, old)
+                _select_nonempty(mask, new, old)
                 for new, old in zip(
                     replacement.rods,
                     current.rods,
@@ -582,7 +730,7 @@ def _select_world(
         ),
         solver_cache=SolverCache(
             *(
-                _select(mask, new, old)
+                _select_nonempty(mask, new, old)
                 for new, old in zip(
                     replacement.solver_cache,
                     current.solver_cache,
@@ -592,7 +740,7 @@ def _select_world(
         ),
         tactile=TactileState(
             *(
-                _select(mask, new, old)
+                _select_nonempty(mask, new, old)
                 for new, old in zip(
                     replacement.tactile,
                     current.tactile,
@@ -645,6 +793,7 @@ class MLXG1RolloutCollector:
         gamma: float,
         gae_lambda: float,
         terrain: bool,
+        diagnostic_allow_pgs: bool = False,
     ) -> None:
         task.validate()
         if environment_count <= 0:
@@ -654,7 +803,13 @@ class MLXG1RolloutCollector:
             or world.nv != 35
             or not world.floating_root
             or world.actuation_mode != "implicit_position"
-            or world.solver_mode != "throughput_tgs"
+            or (
+                world.solver_mode != "throughput_tgs"
+                and not (
+                    diagnostic_allow_pgs
+                    and world.solver_mode == "throughput_pgs"
+                )
+            )
             or not world.publishes_body_states
         ):
             raise ValueError(
@@ -676,6 +831,9 @@ class MLXG1RolloutCollector:
         self.gae_lambda = float(gae_lambda)
         self.terrain = bool(terrain)
         self.default_world = initial_state(world, environment_count)
+        self._compiled_world_template = _g1_compiled_world_template(
+            self.default_world
+        )
         self.default_q = mx.array(world.default_q, dtype=mx.float32)
         self.default_v = mx.array(world.default_v, dtype=mx.float32)
         self.default_joint_pose = self.default_q[7:]
@@ -707,6 +865,42 @@ class MLXG1RolloutCollector:
             world.shape_body_indices,
             dtype=mx.uint32,
         )
+        shape_bodies = np.asarray(
+            world.shape_body_indices,
+            dtype=np.uint32,
+        )
+        shape_types = np.asarray(
+            world.shape_types,
+            dtype=np.uint32,
+        )
+        shape_local_positions = np.asarray(
+            world.shape_local_positions,
+            dtype=np.float32,
+        ).reshape((-1, 3))
+        shape_dimensions = np.asarray(
+            world.shape_dimensions,
+            dtype=np.float32,
+        ).reshape((-1, 3))
+        foot_spheres = []
+        for body in (6, 12):
+            indices = np.flatnonzero(
+                (shape_bodies == body) & (shape_types == 0)
+            )
+            if indices.size != 4:
+                raise ValueError(
+                    "G1 locomotion requires four official sole spheres "
+                    f"on body {body}, found {indices.size}"
+                )
+            foot_spheres.append(indices)
+        foot_sphere_indices = np.stack(foot_spheres)
+        self._foot_sphere_local = mx.array(
+            shape_local_positions[foot_sphere_indices],
+            dtype=mx.float32,
+        )
+        self._foot_sphere_radius = mx.array(
+            shape_dimensions[foot_sphere_indices, 0],
+            dtype=mx.float32,
+        )
         self.body_masses = mx.array(
             world.body_masses,
             dtype=mx.float32,
@@ -728,6 +922,10 @@ class MLXG1RolloutCollector:
         )
         self._compiled_value = mx.compile(
             self.model.value,
+            inputs=self.model.state,
+        )
+        self._compiled_transition = mx.compile(
+            self._compact_transition_impl,
             inputs=self.model.state,
         )
 
@@ -1016,7 +1214,7 @@ class MLXG1RolloutCollector:
     def _contact_aggregates(
         self,
         physics: Any,
-    ) -> tuple[mx.array, mx.array, mx.array, mx.array]:
+    ) -> tuple[mx.array, mx.array, mx.array]:
         ids = physics.contacts.stable_ids
         mask = physics.contacts.mask.astype(mx.float32)
         maximum_shape = int(self.shape_body_indices.shape[0]) - 1
@@ -1045,12 +1243,34 @@ class MLXG1RolloutCollector:
         contact = force > 1.0
 
         body_words = physics.body_states.view(mx.float32)
-        foot_position = body_words[
+        foot_body_position = body_words[
             :, self._foot_body_indices, :3
         ]
-        foot_velocity = body_words[
+        foot_orientation = body_words[
+            :, self._foot_body_indices, 4:8
+        ]
+        foot_linear_velocity = body_words[
             :, self._foot_body_indices, 8:11
         ]
+        foot_angular_velocity = body_words[
+            :, self._foot_body_indices, 12:15
+        ]
+        sphere_offset = _rotate(
+            foot_orientation[:, :, None, :],
+            self._foot_sphere_local[None, :, :, :],
+        )
+        sphere_position = (
+            foot_body_position[:, :, None, :] + sphere_offset
+        )
+        sphere_velocity = (
+            foot_linear_velocity[:, :, None, :]
+            + _cross(
+                foot_angular_velocity[:, :, None, :],
+                sphere_offset,
+            )
+        )
+        foot_position = mx.mean(sphere_position, axis=2)
+        foot_velocity = mx.mean(sphere_velocity, axis=2)
         slip = (
             mx.sqrt(
                 mx.sum(mx.square(foot_velocity[..., :2]), axis=-1)
@@ -1058,20 +1278,25 @@ class MLXG1RolloutCollector:
             * contact.astype(mx.float32)
         )
         terrain_translation = (
-            physics.next_state.scene_bodies.position[:, :1, :]
+            physics.next_state.scene_bodies.position[:, 0, :]
         )
         terrain_height = (
             _terrain_height(
-                foot_position[..., 0]
-                - terrain_translation[..., 0],
-                foot_position[..., 1]
-                - terrain_translation[..., 1],
+                sphere_position[..., 0]
+                - terrain_translation[:, None, None, 0],
+                sphere_position[..., 1]
+                - terrain_translation[:, None, None, 1],
             )
-            + terrain_translation[..., 2]
+            + terrain_translation[:, None, None, 2]
             if self.terrain
-            else mx.zeros_like(foot_position[..., 2])
+            else mx.zeros_like(sphere_position[..., 2])
         )
-        clearance = foot_position[..., 2] - terrain_height
+        clearance = mx.min(
+            sphere_position[..., 2]
+            - self._foot_sphere_radius[None, :, :]
+            - terrain_height,
+            axis=2,
+        )
 
         points = values[..., :2]
         center_of_pressure = []
@@ -1192,7 +1417,6 @@ class MLXG1RolloutCollector:
         return (
             compact,
             terminal_contact,
-            foot_position,
             first_contact,
         )
 
@@ -1220,6 +1444,7 @@ class MLXG1RolloutCollector:
                 mx.mean(body_parameters[..., 0], axis=1),
                 body_parameters[:, self._torso_body_index, 0],
                 mx.mean(body_parameters[..., 1], axis=1),
+                mx.mean(body_parameters[..., 2], axis=1),
                 mx.mean(body_parameters[..., 3], axis=1),
             ),
             axis=-1,
@@ -1246,8 +1471,9 @@ class MLXG1RolloutCollector:
     ) -> tuple[mx.array, mx.array, mx.array, mx.array, mx.array]:
         mass_scale = 0.9 + 0.2 * random[:, 0]
         friction = 0.3 + 0.7 * random[:, 1]
-        damping_scale = 0.8 + 0.4 * random[:, 2]
-        payload_mass = -1.0 + 4.0 * random[:, 8]
+        inertia_scale = 0.9 + 0.2 * random[:, 2]
+        damping_scale = 0.8 + 0.4 * random[:, 3]
+        payload_mass = -1.0 + 4.0 * random[:, 9]
         mass_scales = mx.broadcast_to(
             mass_scale[:, None],
             (
@@ -1274,7 +1500,10 @@ class MLXG1RolloutCollector:
             (
                 mass_scales,
                 mx.broadcast_to(friction[:, None], mass_scales.shape),
-                mx.ones_like(mass_scales),
+                mx.broadcast_to(
+                    inertia_scale[:, None],
+                    mass_scales.shape,
+                ),
                 mx.broadcast_to(
                     damping_scale[:, None],
                     mass_scales.shape,
@@ -1283,17 +1512,17 @@ class MLXG1RolloutCollector:
             axis=-1,
         )
         body_parameters = physical
-        gain = 0.8 + 0.4 * random[:, 3]
-        damping = 0.8 + 0.4 * random[:, 4]
+        gain = 0.8 + 0.4 * random[:, 4]
+        damping = 0.8 + 0.4 * random[:, 5]
         delay = mx.minimum(
-            mx.floor(3.0 * random[:, 5]).astype(mx.int32),
+            mx.floor(3.0 * random[:, 6]).astype(mx.int32),
             mx.array(2, dtype=mx.int32),
         )
         observation_delay = mx.minimum(
-            mx.floor(2.0 * random[:, 6]).astype(mx.int32),
+            mx.floor(2.0 * random[:, 7]).astype(mx.int32),
             mx.array(1, dtype=mx.int32),
         )
-        strength = 0.8 + 0.4 * random[:, 7]
+        strength = 0.8 + 0.4 * random[:, 8]
         controller = mx.stack(
             (
                 gain,
@@ -1309,7 +1538,7 @@ class MLXG1RolloutCollector:
             controller,
             delay,
             observation_delay,
-            random[:, 9:12],
+            random[:, 10:13],
         )
 
     def initial(self) -> G1LocomotionState:
@@ -1344,7 +1573,7 @@ class MLXG1RolloutCollector:
             ),
         )
         domain = mx.random.uniform(
-            shape=(self.environment_count, 12)
+            shape=(self.environment_count, 15)
         )
         (
             body_parameters,
@@ -1387,10 +1616,6 @@ class MLXG1RolloutCollector:
             ),
             foot_air_time=mx.zeros(
                 (self.environment_count, 2),
-                dtype=mx.float32,
-            ),
-            previous_foot_position=mx.zeros(
-                (self.environment_count, 2, 3),
                 dtype=mx.float32,
             ),
             action_delay_history=mx.zeros(
@@ -1538,7 +1763,7 @@ class MLXG1RolloutCollector:
                 shape=(self.environment_count, 35),
             ),
             domain=mx.random.uniform(
-                shape=(self.environment_count, 12)
+                shape=(self.environment_count, 15)
             ),
             push=mx.random.uniform(
                 low=-1.0,
@@ -1547,7 +1772,7 @@ class MLXG1RolloutCollector:
             ),
         )
 
-    def _transition(
+    def _transition_impl(
         self,
         state: G1LocomotionState,
         random: _G1RandomInputs,
@@ -1637,9 +1862,10 @@ class MLXG1RolloutCollector:
             target,
             body_parameters=state.body_parameters,
             controller_parameters=state.controller_parameters,
+            nonempty_unused_outputs=True,
         )
         candidate = physics.next_state
-        compact, terminal_contact, foot_position, contact_metrics = (
+        compact, terminal_contact, contact_metrics = (
             self._contact_aggregates(physics)
         )
         foot_contact = compact[:, :2] > 1.0
@@ -2083,11 +2309,6 @@ class MLXG1RolloutCollector:
             mx.zeros_like(air_time),
             air_time,
         )
-        next_foot_position = _select(
-            done,
-            mx.zeros_like(foot_position),
-            foot_position,
-        )
         next_delay_history = _select(
             done,
             mx.zeros_like(delay_history),
@@ -2132,7 +2353,6 @@ class MLXG1RolloutCollector:
                 phase,
             ),
             foot_air_time=next_air_time,
-            previous_foot_position=next_foot_position,
             action_delay_history=next_delay_history,
             actuator_delay=next_actuator_delay,
             observation_delay=next_observation_delay,
@@ -2187,6 +2407,69 @@ class MLXG1RolloutCollector:
             metrics=metrics,
         )
 
+    def _compact_transition_impl(
+        self,
+        state: _G1CompiledLocomotionState,
+        random: _G1RandomInputs,
+        policy_noise: mx.array,
+    ) -> _G1CompiledStepOutput:
+        output = self._transition_impl(
+            _expand_g1_state(state, self._compiled_world_template),
+            random,
+            policy_noise,
+        )
+        return _G1CompiledStepOutput(
+            _compact_g1_state(output.state),
+            *output[1:],
+        )
+
+    def _transition(
+        self,
+        state: G1LocomotionState,
+        random: _G1RandomInputs,
+        policy_noise: mx.array,
+    ) -> G1LocomotionStepOutput:
+        """Execute the stable G1 transition through one cached MLX graph."""
+
+        output = self._compiled_transition(
+            _compact_g1_state(state),
+            random,
+            policy_noise,
+        )
+        return G1LocomotionStepOutput(
+            _expand_g1_state(output.state, self.default_world),
+            *output[1:],
+        )
+
+    def warmup(self) -> None:
+        """Materialize one transition before constructing lazy rollouts."""
+
+        for _, value in tree_flatten(self.model.parameters()):
+            mx.eval(value)
+        random = self._random_inputs()
+        policy_noise = mx.random.normal(
+            (self.environment_count, 29)
+        )
+        # MLX specializes RandomBits pipelines by output layout. Materialize
+        # each layout independently so Apple's Metal compiler file cache is
+        # not entered repeatedly by one large first-use lazy graph.
+        for value in (*random, policy_noise):
+            mx.eval(value)
+        warm_state = self.initial()
+        for _, value in tree_flatten(_compact_g1_state(warm_state)):
+            mx.eval(value)
+        output = self._transition(
+            warm_state,
+            random,
+            policy_noise,
+        )
+        mx.eval(
+            _compact_g1_state(output.state),
+            output.reward,
+            output.physics_error,
+            output.physics_status,
+        )
+
     def collect(
         self,
         state: G1LocomotionState,
@@ -2239,9 +2522,16 @@ class MLXG1RolloutCollector:
                 )
             )
             if (index + 1) % self.task.rollout_chunk_size == 0:
+                chunk = records[
+                    index + 1 - self.task.rollout_chunk_size :
+                    index + 1
+                ]
+                # The state alone does not depend on every rollout field.
+                # Materialize the complete record payload so no physics,
+                # status, or policy branch crosses the bounded chunk.
                 mx.eval(
                     current,
-                    records[-1].reward,
+                    chunk,
                 )
 
         final_value = self._compiled_value(
@@ -2416,6 +2706,10 @@ class MLXG1PPOTrainer:
             gae_lambda=config.gae_lambda,
             terrain=terrain,
         )
+        # Compile and execute one bounded graph before a rollout cohort builds
+        # eight lazy transitions. This keeps first-use Metal compilation out
+        # of the first production command-buffer burst.
+        self.collector.warmup()
         cohort_count = (
             config.environment_count // execution_count
         )

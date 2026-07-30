@@ -89,6 +89,9 @@ public:
     actuatorProfileFlags() const;
     [[nodiscard]] std::vector<std::uint32_t>
     shapeBodyIndices() const;
+    [[nodiscard]] std::vector<std::uint32_t> shapeTypes() const;
+    [[nodiscard]] std::vector<float> shapeLocalPositions() const;
+    [[nodiscard]] std::vector<float> shapeDimensions() const;
     [[nodiscard]] std::vector<float> bodyMasses() const;
     [[nodiscard]] std::vector<float> jointLowerLimits() const;
     [[nodiscard]] std::vector<float> jointUpperLimits() const;
@@ -272,6 +275,7 @@ generalizedConstraintStep(
     const mx::array& tactileTimestamp,
     const mx::array& resetMask,
     const mx::array& actuatorProfileValues,
+    bool nonemptyUnusedOutputs = false,
     mx::StreamOrDevice stream = {}
 );
 

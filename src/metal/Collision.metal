@@ -3126,6 +3126,156 @@ bool mprConservativeWitness(
     return false;
 }
 
+bool updateSupportAxisPenetration(
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    const float3 centerDelta,
+    const float3 requestedAxis,
+    thread bool& found,
+    thread ConvexQueryResult& result
+) {
+    const float axisSquared = dot(requestedAxis, requestedAxis);
+    if (!(axisSquared > kTiny) || !isfinite(axisSquared)) {
+        return true;
+    }
+    float3 axis = requestedAxis * rsqrt(axisSquared);
+    if (dot(centerDelta, centerDelta) > kTiny &&
+        dot(axis, centerDelta) < 0.0f) {
+        axis = -axis;
+    }
+    float3 pointA;
+    float3 pointB;
+    uint featureA = 0u;
+    uint featureB = 0u;
+    if (!supportWorldShape(
+            shapeA,
+            sourceA,
+            geometryHeaders,
+            geometryVertices,
+            axis,
+            pointA,
+            featureA
+        ) ||
+        !supportWorldShape(
+            shapeB,
+            sourceB,
+            geometryHeaders,
+            geometryVertices,
+            -axis,
+            pointB,
+            featureB
+        )) {
+        return false;
+    }
+    const float separation = dot(pointB - pointA, axis);
+    if (!isfinite(separation)) {
+        return false;
+    }
+    if (!found || separation > result.separation) {
+        found = true;
+        result.normal = axis;
+        result.separation = separation;
+        result.pointA = pointA;
+        result.pointB = pointB;
+        result.featureA = featureA;
+        result.featureB = featureB;
+    }
+    return true;
+}
+
+// Bounded online penetration witness for authored locomotion hulls. GJK has
+// already established overlap before this function is entered. Sampling the
+// center/cached directions and both local frames yields stable support points
+// and a shallow separating-axis estimate without MPR/EPA's private portal
+// state in the high-throughput Apple-GPU kernel.
+bool supportAxisPenetrationWitness(
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    const float3 cachedDirection,
+    thread ConvexQueryResult& result
+) {
+    const float3 centerDelta = shapeB.center - shapeA.center;
+    bool found = false;
+    if (!updateSupportAxisPenetration(
+            shapeA,
+            shapeB,
+            sourceA,
+            sourceB,
+            geometryHeaders,
+            geometryVertices,
+            centerDelta,
+            centerDelta,
+            found,
+            result
+        ) ||
+        !updateSupportAxisPenetration(
+            shapeA,
+            shapeB,
+            sourceA,
+            sourceB,
+            geometryHeaders,
+            geometryVertices,
+            centerDelta,
+            cachedDirection,
+            found,
+            result
+        )) {
+        return false;
+    }
+    const float3 basis[3] = {
+        float3(1.0f, 0.0f, 0.0f),
+        float3(0.0f, 1.0f, 0.0f),
+        float3(0.0f, 0.0f, 1.0f),
+    };
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        if (!updateSupportAxisPenetration(
+                shapeA,
+                shapeB,
+                sourceA,
+                sourceB,
+                geometryHeaders,
+                geometryVertices,
+                centerDelta,
+                quaternionRotate(shapeA.rotation, basis[axis]),
+                found,
+                result
+            ) ||
+            !updateSupportAxisPenetration(
+                shapeA,
+                shapeB,
+                sourceA,
+                sourceB,
+                geometryHeaders,
+                geometryVertices,
+                centerDelta,
+                quaternionRotate(shapeB.rotation, basis[axis]),
+                found,
+                result
+            )) {
+            return false;
+        }
+    }
+    if (!found) {
+        return false;
+    }
+    result.status = MR_STEP_SUCCESS;
+    result.fallback = 2u;
+    result.separation = min(result.separation, -0.0f);
+    return
+        finiteFloat3(result.pointA) &&
+        finiteFloat3(result.pointB) &&
+        finiteFloat3(result.normal) &&
+        isfinite(result.separation);
+}
+
 float3 contactPatchTangent(const float3 normal) {
     const float3 absoluteNormal = abs(normal);
     const float3 reference =
@@ -3468,8 +3618,8 @@ ContactBatch supportMappedContacts(
 // Online articulated meshes use compact authored convex hulls. Keep their
 // penetration path in a separate call graph so Metal does not reserve EPA's
 // large per-lane vertex, face, and horizon workspaces for every humanoid
-// self-collision query. MPR remains a true geometry witness: failure is
-// reported transactionally rather than converted into separation.
+// self-collision query. The bounded support-axis witness retains only a few
+// directions per lane, which keeps this high-throughput kernel resident.
 ContactBatch supportMappedHullContacts(
     const uint colliderA,
     const uint colliderB,
@@ -3559,13 +3709,14 @@ ContactBatch supportMappedHullContacts(
         return result;
     }
     if ((overlap || query.status == MR_STEP_DID_NOT_CONVERGE) &&
-        !mprConservativeWitness(
+        !supportAxisPenetrationWitness(
             shapeA,
             shapeB,
             sourceA,
             sourceB,
             geometryHeaders,
             geometryVertices,
+            cachedDirection,
             query
         )) {
         query.status = MR_STEP_DID_NOT_CONVERGE;
@@ -4041,6 +4192,13 @@ ContactBatch meshContacts(
             int(cellCountY - 1u)
         );
         const uint width = cellCountX + 1u;
+        const float localContactDistance =
+            (
+                finiteShape.contactOffset +
+                mesh.contactOffset +
+                pairQueryPadding(finiteShape, mesh)
+            ) /
+            max(abs(mesh.scale.z), MR_MIN_COLLISION_EXTENT);
         for (int y = firstY; y <= lastY; ++y) {
             for (int x = firstX; x <= lastX; ++x) {
                 const uint local00 =
@@ -4050,6 +4208,28 @@ ContactBatch meshContacts(
                 const uint vertex10 = vertex00 + 1u;
                 const uint vertex01 = vertex00 + width;
                 const uint vertex11 = vertex01 + 1u;
+                const float height00 =
+                    geometryVertices[vertex00].z;
+                const float height10 =
+                    geometryVertices[vertex10].z;
+                const float height01 =
+                    geometryVertices[vertex01].z;
+                const float height11 =
+                    geometryVertices[vertex11].z;
+                const float cellMinimum = min(
+                    min(height00, height10),
+                    min(height01, height11)
+                );
+                const float cellMaximum = max(
+                    max(height00, height10),
+                    max(height01, height11)
+                );
+                if (queryLower.z >
+                        cellMaximum + localContactDistance ||
+                    queryUpper.z <
+                        cellMinimum - localContactDistance) {
+                    continue;
+                }
                 const uint cell =
                     uint(y) * cellCountX + uint(x);
                 MRMeshTriangleGPU triangle0 = {};
@@ -8278,7 +8458,7 @@ kernel void mr_world_narrowphase_convex_queue(
     }
 }
 
-// Authored-hull queue with an MPR-only penetration call graph. Keeping this
+// Authored-hull queue with a bounded penetration call graph. Keeping this
 // distinct from the general convex kernel materially reduces per-lane private
 // storage and improves occupancy for batched humanoid self-collision.
 kernel void mr_world_narrowphase_hull_queue(
@@ -9962,8 +10142,10 @@ kernel void mr_world_scatter_manifold_records(
         flatPair * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
     const uint rawBase =
         environment * dispatch.rawContactStride;
+    // Finalization bounds this count and the segmented scan certifies its
+    // output span. The narrowphase source count is not canonical here.
     for (uint rawIndex = 0u;
-         rawIndex < pairRawCounts[flatPair];
+         rawIndex < record.counts0.y;
          ++rawIndex) {
         outputRawContacts[
             rawBase + record.offsets0.y + rawIndex

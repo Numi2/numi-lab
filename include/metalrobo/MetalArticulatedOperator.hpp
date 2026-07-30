@@ -14,6 +14,36 @@ namespace metalrobo {
 namespace detail {
 struct MetalArticulatedOperatorContextState;
 struct MetalArticulatedOperatorSubmissionState;
+
+[[nodiscard]] constexpr std::size_t
+articulatedOperatorThreadgroupBytes(
+    const std::size_t bodyCount,
+    const std::size_t dofCount
+) noexcept {
+    const auto aligned16 = [](const std::size_t value) {
+        return (value + 15u) & ~std::size_t{15u};
+    };
+    std::size_t bytes = 0u;
+    const auto append = [&bytes, &aligned16](
+        const std::size_t value
+    ) {
+        bytes = aligned16(bytes);
+        bytes += value;
+    };
+    // float3 occupies a 16-byte slot in Metal threadgroup memory.
+    append(16u * bodyCount); // body position
+    append(16u * bodyCount); // body rotation
+    append(16u * bodyCount); // joint position
+    append(16u * bodyCount); // joint axis
+    append(sizeof(std::uint32_t) * bodyCount); // inbound joint
+    append(sizeof(std::uint32_t) * bodyCount); // parent body
+    append(sizeof(std::uint8_t) * bodyCount); // topology-known flags
+    append(sizeof(float) * dofCount * dofCount); // dense factor
+    append(sizeof(float) * dofCount); // right-hand side
+    append(sizeof(float) * dofCount); // forward solve
+    append(sizeof(float) * dofCount); // solution
+    return aligned16(bytes);
+}
 } // namespace detail
 
 // Packed, environment-major input for the synchronous Metal articulated

@@ -1494,6 +1494,15 @@ MetalArticulatedOperatorContext::submit(
                        offset:0u
                       atIndex:index];
             }
+            const MRArticulationGPU& articulation =
+                model.articulations[input.articulationIndex];
+            [encoder
+                setThreadgroupMemoryLength:
+                    detail::articulatedOperatorThreadgroupBytes(
+                        articulation.bodyCount,
+                        articulation.nv
+                    )
+                atIndex:0u];
             [encoder
                 dispatchThreadgroups:MTLSizeMake(
                     static_cast<NSUInteger>(
@@ -1878,6 +1887,15 @@ MetalArticulatedOperatorDiagnostics runMetalArticulatedOperator(
                        offset:0u
                       atIndex:index];
             }
+            const MRArticulationGPU& articulation =
+                model.articulations[input.articulationIndex];
+            [encoder
+                setThreadgroupMemoryLength:
+                    detail::articulatedOperatorThreadgroupBytes(
+                        articulation.bodyCount,
+                        articulation.nv
+                    )
+                atIndex:0u];
             [encoder
                 dispatchThreadgroups:MTLSizeMake(
                     static_cast<NSUInteger>(
