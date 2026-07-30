@@ -6,12 +6,15 @@ from typing import NamedTuple
 
 import mlx.core as mx
 
+from ._mlx_abi import ENGINE_ABI_VERSION as _ENGINE_ABI_VERSION
 from ._mlx_ext import (  # type: ignore[attr-defined]
     MLXCompiledWorld,
     visual_observation as _visual_observation,
 )
 from .hybrid_renderer import HybridObservationRenderer
 from .worlds import PackedWorldFamily
+
+del _ENGINE_ABI_VERSION
 
 
 BODY_STATE_WORDS = 32

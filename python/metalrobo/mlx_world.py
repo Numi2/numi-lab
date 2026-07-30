@@ -12,6 +12,7 @@ from typing import Any, NamedTuple
 
 import mlx.core as mx
 
+from ._mlx_abi import ENGINE_ABI_VERSION as _ENGINE_ABI_VERSION
 from ._mlx_ext import (  # type: ignore[attr-defined]
     MLXCompiledWorld,
     MetalWorldCapacityProfile,
@@ -21,6 +22,8 @@ from ._mlx_ext import (  # type: ignore[attr-defined]
     world_family_state as _world_family_state,
     world_step as _world_step,
 )
+
+del _ENGINE_ABI_VERSION
 
 
 class SceneBodyState(NamedTuple):

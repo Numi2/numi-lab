@@ -6,11 +6,14 @@ from typing import NamedTuple
 
 import mlx.core as mx
 
+from ._mlx_abi import ENGINE_ABI_VERSION as _ENGINE_ABI_VERSION
 from ._mlx_ext import (  # type: ignore[attr-defined]
     MLXCompiledMultiArticulatedProgram,
     compile_multi_articulated_program,
     generalized_constraint_step,
 )
+
+del _ENGINE_ABI_VERSION
 
 
 class GeneralizedConstraintOutput(NamedTuple):

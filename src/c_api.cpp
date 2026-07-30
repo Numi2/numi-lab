@@ -8,6 +8,7 @@
 #include "metalrobo/MetalWorldFamily.hpp"
 #include "metalrobo/Model.hpp"
 #include "metalrobo/Runtime.hpp"
+#include "metalrobo/RuntimeAbi.hpp"
 #include "metalrobo/WorldPack.hpp"
 
 #include <cstring>
@@ -139,6 +140,10 @@ extern "C" {
 
 const char* mr_version(void) {
     return "0.4.0";
+}
+
+uint64_t mr_runtime_abi_fingerprint(void) {
+    return metalrobo::runtimeAbiFingerprint();
 }
 
 const char* mr_last_error(void) {

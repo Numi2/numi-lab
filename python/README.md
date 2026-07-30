@@ -20,6 +20,11 @@ python3 setup.py build_ext --inplace
 python3 probes/mlx_world_probe.py
 ```
 
+At import, the MLX extension compares a fingerprint of every shared native
+and Metal record ABI with the currently loaded `libmetalrobo`. A stale
+extension fails before registering or submitting a custom primitive. Rebuild
+the engine and extension together whenever a shared ABI changes.
+
 The extension finds `../build/shaders/MetalRobo.metallib` by default.
 Relocated builds can pass `metallib_path=` to `compile_world()` or use the
 CLI `--metallib` option.
@@ -259,6 +264,32 @@ the public card does not verify action semantics or wrench units/frames.
 See
 [`docs/TACTILE_GEOMETRY_BRIDGE.md`](../docs/TACTILE_GEOMETRY_BRIDGE.md)
 for promotion, Wave asset cooking, replay alignment, and evaluation details.
+
+Physical replay has a host-only preflight that does not create a Metal
+pipeline. It checks the extension/native ABI fingerprint and validates the
+world-pack header, payload length, and content hash:
+
+```sh
+PYTHONPATH=python python python/probes/mlx_physical_replay_probe.py \
+  --world-pack /tmp/franka-tactile.mrworld \
+  --envs 2 --steps 1 --preflight-only
+```
+
+The live probe defaults to one physics substep, one replay control step per
+command-buffer boundary for tactile worlds, and a 20-second no-progress
+worker watchdog. Increase fidelity explicitly only after the smoke path is
+healthy:
+
+```sh
+PYTHONPATH=python python python/probes/mlx_physical_replay_probe.py \
+  --world-pack /tmp/franka-tactile.mrworld \
+  --envs 4 --steps 3 --physics-substeps 1
+```
+
+If pipeline creation reports that `MTLCompilerService` is unavailable or
+“Reentrancy avoided,” do not loop on the live probe. No live GPU validation
+is complete until the compiler service recovers, normally after restarting
+the login session or host.
 
 The active-encoder primitive supports Franka, G1, and PSM through the same
 device graph. Available contact scenes include dynamic cube/ground,

@@ -194,6 +194,9 @@ typedef struct MRTactileSummaryC {
 } MRTactileSummaryC;
 
 MR_API const char* mr_version(void);
+// Host/Metal record fingerprint for native-extension compatibility checks.
+// A consumer must reject a mismatch before submitting GPU work.
+MR_API uint64_t mr_runtime_abi_fingerprint(void);
 MR_API const char* mr_last_error(void);
 
 // Compile an Apple-native capture manifest into a portable MRWorldPack.

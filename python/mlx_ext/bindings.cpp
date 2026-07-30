@@ -1,5 +1,8 @@
 #include "metalrobo_mlx.h"
 
+#include "metalrobo/RuntimeAbi.hpp"
+#include "metalrobo/c_api.h"
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/shared_ptr.h>
 #include <nanobind/stl/string.h>
@@ -7,11 +10,29 @@
 #include <nanobind/stl/vector.h>
 
 #include <algorithm>
+#include <sstream>
 
 namespace nb = nanobind;
 using namespace nb::literals;
 
 NB_MODULE(_mlx_ext, module) {
+    constexpr std::uint64_t extensionAbi =
+        metalrobo::runtimeAbiFingerprint();
+    const std::uint64_t nativeAbi =
+        mr_runtime_abi_fingerprint();
+    if (extensionAbi != nativeAbi) {
+        std::ostringstream message;
+        message << "MetalRobo MLX extension/native ABI mismatch "
+                << "(extension=0x" << std::hex << extensionAbi
+                << ", native=0x" << nativeAbi << "). Rebuild with "
+                << "`cd python && python setup.py build_ext --inplace` "
+                << "before running Apple-GPU workloads.";
+        throw nb::import_error(message.str().c_str());
+    }
+    module.attr("runtime_abi_fingerprint") =
+        nb::int_(nativeAbi);
+    module.attr("engine_abi_version") =
+        nb::int_(MR_ENGINE_ABI_VERSION);
     module.doc() =
         "MLX-native MetalRobo primitives using MLX's active encoder";
 

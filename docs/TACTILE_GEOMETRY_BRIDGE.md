@@ -193,6 +193,14 @@ them.
 | Artifacts | Safetensors plus SHA-256-sealed config/optimizer/training/EMA weights, source revision, stream and dataset fingerprints, capability declaration, and promotion blockers. |
 | Replay alignment | Verified physical wrench and metric-depth traces add force, torque, and dense-depth residuals to exact-candidate MLX replay. Sensor order and canonical tactile fingerprint must match the compiled world. |
 
+The replay boundary rejects a stale MLX extension before any custom primitive
+can submit work: its compile-time native/Metal record fingerprint must equal
+the fingerprint exported by the loaded engine library. The physical replay
+probe also provides a host-only pack preflight, flushed stage timings, a
+no-progress worker watchdog, and one-control-step command-buffer boundaries
+for tactile worlds. These controls protect display scheduling; they do not
+turn an interrupted or compiler-service-blocked run into replay evidence.
+
 The policy follows
 [Tube Diffusion Policy](https://arxiv.org/abs/2604.23609)'s dual-time idea:
 one field denoises a coherent future action tube while another corrects the

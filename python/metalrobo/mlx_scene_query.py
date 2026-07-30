@@ -9,12 +9,15 @@ import mlx.core as mx
 import numpy as np
 import numpy.typing as npt
 
+from ._mlx_abi import ENGINE_ABI_VERSION as _ENGINE_ABI_VERSION
 from ._mlx_ext import (  # type: ignore[attr-defined]
     MLXCompiledWorld,
     materialize_body_states as _materialize_body_states,
     scene_raycast as _scene_raycast,
     scene_raycast_pattern as _scene_raycast_pattern,
 )
+
+del _ENGINE_ABI_VERSION
 
 
 BODY_STATE_WORDS = 32
