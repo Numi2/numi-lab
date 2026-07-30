@@ -85,13 +85,22 @@ produces:
 - Previous-to-current pixel motion.
 - Frame validity and versioned frame metadata.
 
-Both renderer profiles use the same metallic-roughness PBR and image-based
-lighting implementation. `sensor_fast` uses compute raster visibility,
-environment-major shadow atlases, and banded temporal sampling.
-`sensor_reference` uses motion-instance ray queries, direct shadow rays, and
-per-row exposure timing. Sensor effects are keyed by scenario, camera, sensor
-sequence, frame identity, pixel, and sample, so rerenders remain
-deterministic. Sensor depth validity is separate from geometric validity:
+Both renderer profiles use the same metallic-roughness PBR, visible HDR
+environment, and image-based lighting implementation. A compact
+environment-major camera-state pass removes repeated body binding and
+quaternion work from every Gaussian and rasterized triangle. `sensor_fast`
+uses compute raster visibility, a parallel per-pixel resolve for geometry
+crossing the near plane, environment-major shadow atlases, and stratified
+space-time samples during physical exposure. Near-plane scratch storage scales
+with the compiled triangle count up to a fixed GPU-local ceiling rather than
+reserving the ceiling for every scene. `sensor_reference` uses
+motion-instance ray queries, stratified subpixel and shutter-time samples,
+direct shadow rays, and exact per-row exposure timing. Deployable RGB is
+integrated over those samples while depth, identities, normals, and truth
+remain exact center-exposure observations. Sensor effects are keyed by
+scenario, camera, sensor sequence, frame identity, pixel, and sample, so
+rerenders remain deterministic. Sensor depth validity is separate from
+geometric validity:
 range failure or dropout masks deployable depth without erasing
 simulation-only identities, normals, motion, or visibility.
 

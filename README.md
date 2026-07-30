@@ -34,7 +34,7 @@ or call an external physics engine.
 | --- | --- |
 | **Dynamics and contact** | Rigid and articulated dynamics, fixed and floating roots, revolute and prismatic joints, deterministic broadphase/manifolds, Coulomb contact, joint limits, and transactional state publication. |
 | **Persistent Metal execution** | Batched worlds, fixed-capacity device graphs, private GPU resources, deterministic resets, and MLX execution through the active Metal command encoder. |
-| **Visual Presentation V3** | Direct USD/USDZ/GLB cooking, native textures, glTF metallic-roughness PBR, HDR image-based lighting, shadows, global or rolling shutter, and fast/reference sensor profiles. |
+| **Visual Presentation V3** | Direct USD/USDZ/GLB cooking, native textures, glTF metallic-roughness PBR, visible HDR environments, shadows, global or rolling shutter, and fast/reference sensor profiles. |
 | **Policy-ready sensing** | Scene-linear RGB, metric depth, normals, semantic/instance/link identities, motion, validity, calibration, tactile depth, solver wrench, and center of pressure. |
 | **Perception and data plane** | Replaceable perception providers, separate deployable and privileged streams, synchronized policy assembly, deterministic visual episodes, and a LeRobot v3 exporter. |
 | **Reference robots** | Franka manipulation, the pinned 29-DoF Unitree G1, and a dVRK-style PSM research model with physical insertion and independent jaws. |
@@ -51,10 +51,12 @@ same camera, timestamp, physics state, and immutable provenance.
 Two profiles use the same assets, materials, lighting, truth buffers, and
 perception contract:
 
-- `sensor_fast` uses GPU-resident compute visibility, shadow atlases, native
-  texture sampling, and banded shutter integration for online observations.
-- `sensor_reference` uses Metal ray queries, direct shadow rays, and per-row
-  exposure timing for deterministic high-fidelity rerendering.
+- `sensor_fast` uses precomputed camera states, GPU-resident compute
+  visibility, parallel near-plane resolve, shadow atlases, and two-sample
+  space-time integration for online observations.
+- `sensor_reference` uses Metal ray queries, stratified space-time samples,
+  direct shadow rays, and exact per-row exposure timing for deterministic
+  high-fidelity rerendering.
 
 `metalrobo_visual_cook` writes sectioned, content-addressed packs from GLB,
 glTF, USD, USDA, USDC, or USDZ. `metalrobo_environment_cook` converts HDR/EXR

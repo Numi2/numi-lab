@@ -231,7 +231,7 @@ typedef struct MR_ALIGN16 MRVisualTextureBindingGPUV2 {
 typedef struct MR_ALIGN16 MRVisualEnvironmentGPUV2 {
     // Specular mip count, diffuse size, specular size, BRDF LUT size.
     mr_uint4 dimensions;
-    // Intensity, rotation radians, reserved, reserved.
+    // Intensity, rotation radians, visible-background blend, reserved.
     mr_float4 parameters;
 } MRVisualEnvironmentGPUV2;
 

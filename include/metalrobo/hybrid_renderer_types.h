@@ -3,9 +3,10 @@
 #include "metalrobo/gpu_types.h"
 #include "metalrobo/visual_platform_types.h"
 
-#define MR_HYBRID_RENDERER_ABI_VERSION 5u
+#define MR_HYBRID_RENDERER_ABI_VERSION 6u
 #define MR_HYBRID_TILE_SIZE 16u
 #define MR_HYBRID_MAX_GAUSSIANS_PER_TILE 256u
+#define MR_HYBRID_MAX_NEAR_CLIPPED_TRIANGLES 4096u
 
 enum {
     MR_HYBRID_GAUSSIAN_ASSET_LOCAL = 0u,
@@ -40,6 +41,25 @@ typedef struct MR_ALIGN16 MRHybridProjectedGaussianGPU {
     // xy previous-to-current pixel motion, z visibility, w reserved.
     mr_float4 motionAndVisibility;
 } MRHybridProjectedGaussianGPU;
+
+typedef struct MR_ALIGN16 MRHybridCameraStateGPU {
+    // xyz current world position, w validity.
+    mr_float4 currentPositionAndValidity;
+    // xyzw current world orientation.
+    mr_float4 currentOrientation;
+    // xyz previous world position, w validity.
+    mr_float4 previousPositionAndValidity;
+    // xyzw previous world orientation.
+    mr_float4 previousOrientation;
+} MRHybridCameraStateGPU;
+
+typedef struct MR_ALIGN16 MRHybridNearClippedTriangleGPU {
+    mr_float4 worldVertex0;
+    mr_float4 worldVertex1;
+    mr_float4 worldVertex2;
+    // Source triangle index and reserved.
+    mr_uint4 identity;
+} MRHybridNearClippedTriangleGPU;
 
 typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
     // active environments, Gaussian count, assets/world, sensors/world.
@@ -82,8 +102,14 @@ typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
 
 static_assert(std::is_trivially_copyable_v<MRHybridGaussianGPU>);
 static_assert(std::is_trivially_copyable_v<MRHybridProjectedGaussianGPU>);
+static_assert(std::is_trivially_copyable_v<MRHybridCameraStateGPU>);
+static_assert(
+    std::is_trivially_copyable_v<MRHybridNearClippedTriangleGPU>
+);
 static_assert(std::is_trivially_copyable_v<MRHybridRenderUniformsGPU>);
 static_assert(sizeof(MRHybridGaussianGPU) == 80u);
 static_assert(sizeof(MRHybridProjectedGaussianGPU) == 96u);
+static_assert(sizeof(MRHybridCameraStateGPU) == 64u);
+static_assert(sizeof(MRHybridNearClippedTriangleGPU) == 64u);
 static_assert(sizeof(MRHybridRenderUniformsGPU) == 256u);
 #endif

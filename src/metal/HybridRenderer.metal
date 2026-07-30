@@ -116,6 +116,62 @@ uint randomHash(uint value) {
     return value;
 }
 
+uint reverseBits32(uint value) {
+    value = ((value & 0x55555555u) << 1u) |
+        ((value >> 1u) & 0x55555555u);
+    value = ((value & 0x33333333u) << 2u) |
+        ((value >> 2u) & 0x33333333u);
+    value = ((value & 0x0f0f0f0fu) << 4u) |
+        ((value >> 4u) & 0x0f0f0f0fu);
+    value = ((value & 0x00ff00ffu) << 8u) |
+        ((value >> 8u) & 0x00ff00ffu);
+    return (value << 16u) | (value >> 16u);
+}
+
+float2 stratifiedSubpixelOffset(
+    const uint sample,
+    const uint sampleCount,
+    const uint seed
+) {
+    if (sampleCount <= 1u) {
+        return 0.0f;
+    }
+    const float inverseCount = 1.0f / float(sampleCount);
+    const float2 hammersley = float2(
+        (float(sample) + 0.5f) * inverseCount,
+        (float(reverseBits32(sample)) + 0.5f) *
+            (1.0f / 4294967296.0f)
+    );
+    const float2 rotation = float2(
+        (float(randomHash(seed ^ 0xa511e9b3u)) + 0.5f) *
+            (1.0f / 4294967296.0f),
+        (float(randomHash(seed ^ 0x63d83595u)) + 0.5f) *
+            (1.0f / 4294967296.0f)
+    );
+    return fract(hammersley + rotation) - 0.5f;
+}
+
+float2 fastSubpixelOffset(
+    const uint pixel,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    if (uniforms.band.w != 0u ||
+        uniforms.shutter.w <= 1u) {
+        return 0.0f;
+    }
+    const uint seed = randomHash(
+        pixel ^
+        uniforms.timing.x ^
+        uniforms.timing.y * 0x9e3779b9u ^
+        uniforms.timing.z * 0x85ebca6bu
+    );
+    return stratifiedSubpixelOffset(
+        uniforms.shutter.z,
+        uniforms.shutter.w,
+        seed
+    );
+}
+
 float uniformSigned(const uint value) {
     return (float(randomHash(value)) + 0.5f) *
                (2.0f / 4294967296.0f) -
@@ -356,19 +412,82 @@ BoundPose cameraPose(
     return parent;
 }
 
-CameraProjection projectPoint(
-    const float3 world,
-    const BoundPose camera,
+BoundPose cameraStatePose(
+    const device MRHybridCameraStateGPU* cameraStates,
+    const uint environment,
+    const bool previous
+) {
+    const MRHybridCameraStateGPU state =
+        cameraStates[environment];
+    BoundPose result;
+    if (previous) {
+        result.position = state.previousPositionAndValidity.xyz;
+        result.orientation = state.previousOrientation;
+        result.valid =
+            state.previousPositionAndValidity.w > 0.5f;
+    } else {
+        result.position = state.currentPositionAndValidity.xyz;
+        result.orientation = state.currentOrientation;
+        result.valid =
+            state.currentPositionAndValidity.w > 0.5f;
+    }
+    result.scale = 1.0f;
+    return result;
+}
+
+float3 cameraSampleDirection(
+    const float2 rasterSample,
+    const MRWorldSensorInstanceGPU sensor,
+    const BoundPose camera
+) {
+    const float focalScale =
+        sensor.positionAndFocalScale.w;
+    const float2 focal =
+        max(sensor.intrinsics.xy * focalScale, 1.0e-6f);
+    const float2 distorted =
+        (rasterSample - sensor.intrinsics.zw) / focal;
+    float2 normalized = distorted;
+    // Most simulated cameras are rectilinear. Keep that path cheap while
+    // preserving the exact inverse Brown-Conrady projection for calibrated
+    // physical sensors.
+    if (any(abs(sensor.distortion) > 1.0e-8f)) {
+        for (uint iteration = 0u; iteration < 5u; ++iteration) {
+            const float radiusSquared = dot(normalized, normalized);
+            const float radial =
+                1.0f +
+                sensor.distortion.x * radiusSquared +
+                sensor.distortion.y *
+                    radiusSquared * radiusSquared;
+            const float2 tangential = float2(
+                2.0f * sensor.distortion.z *
+                        normalized.x * normalized.y +
+                    sensor.distortion.w *
+                        (radiusSquared +
+                         2.0f * normalized.x * normalized.x),
+                sensor.distortion.z *
+                        (radiusSquared +
+                         2.0f * normalized.y * normalized.y) +
+                    2.0f * sensor.distortion.w *
+                        normalized.x * normalized.y
+            );
+            normalized +=
+                distorted - (normalized * radial + tangential);
+        }
+    }
+    return normalize(rotateVector(
+        camera.orientation,
+        normalize(float3(normalized, 1.0f))
+    ));
+}
+
+CameraProjection projectCameraPoint(
+    const float3 cameraPoint,
     const MRWorldSensorInstanceGPU sensor
 ) {
-    const float3 cameraPoint = inverseRotateVector(
-        camera.orientation,
-        world - camera.position
-    );
     CameraProjection result;
     result.depth = cameraPoint.z;
     result.valid =
-        camera.valid && cameraPoint.z > 1.0e-4f &&
+        cameraPoint.z > 1.0e-4f &&
         all(isfinite(cameraPoint));
     if (!result.valid) {
         result.pixel = 0.0f;
@@ -401,6 +520,20 @@ CameraProjection projectPoint(
     return result;
 }
 
+CameraProjection projectPoint(
+    const float3 world,
+    const BoundPose camera,
+    const MRWorldSensorInstanceGPU sensor
+) {
+    return projectCameraPoint(
+        inverseRotateVector(
+            camera.orientation,
+            world - camera.position
+        ),
+        sensor
+    );
+}
+
 float edge(
     const float2 a,
     const float2 b,
@@ -408,6 +541,179 @@ float edge(
 ) {
     return (point.x - a.x) * (b.y - a.y) -
         (point.y - a.y) * (b.x - a.x);
+}
+
+uint clipTriangleToNearPlane(
+    const thread float3* vertices,
+    thread float3* clipped,
+    const float nearPlane
+) {
+    uint outputCount = 0u;
+    float3 previous = vertices[2];
+    bool previousInside = previous.z >= nearPlane;
+    for (uint index = 0u; index < 3u; ++index) {
+        const float3 current = vertices[index];
+        const bool currentInside = current.z >= nearPlane;
+        if (currentInside != previousInside) {
+            const float denominator = current.z - previous.z;
+            const float fraction = abs(denominator) > 1.0e-12f
+                ? (nearPlane - previous.z) / denominator
+                : 0.0f;
+            clipped[outputCount++] =
+                mix(previous, current, clamp(fraction, 0.0f, 1.0f));
+        }
+        if (currentInside) {
+            clipped[outputCount++] = current;
+        }
+        previous = current;
+        previousInside = currentInside;
+    }
+    return outputCount;
+}
+
+void rasterizeProjectedTriangle(
+    const CameraProjection p0,
+    const CameraProjection p1,
+    const CameraProjection p2,
+    const uint environment,
+    const uint triangleIndex,
+    device atomic_uint* winners,
+    constant MRHybridRenderUniformsGPU& uniforms,
+    const bool selectTriangle
+) {
+    if (!p0.valid || !p1.valid || !p2.valid) {
+        return;
+    }
+    const float area = edge(p0.pixel, p1.pixel, p2.pixel);
+    if (abs(area) <= 1.0e-8f || !isfinite(area)) {
+        return;
+    }
+    int minimumX = max(
+        0,
+        int(floor(min(
+            p0.pixel.x,
+            min(p1.pixel.x, p2.pixel.x)
+        )))
+    );
+    int maximumX = min(
+        int(uniforms.image.x) - 1,
+        int(ceil(max(
+            p0.pixel.x,
+            max(p1.pixel.x, p2.pixel.x)
+        )))
+    );
+    int minimumY = max(
+        0,
+        int(floor(min(
+            p0.pixel.y,
+            min(p1.pixel.y, p2.pixel.y)
+        )))
+    );
+    int maximumY = min(
+        int(uniforms.image.y) - 1,
+        int(ceil(max(
+            p0.pixel.y,
+            max(p1.pixel.y, p2.pixel.y)
+        )))
+    );
+    const int firstBandPixel = int(uniforms.band.x);
+    const int lastBandPixel = int(
+        uniforms.band.x + uniforms.band.y - 1u
+    );
+    if (uniforms.band.z == 0u) {
+        minimumY = max(minimumY, firstBandPixel);
+        maximumY = min(maximumY, lastBandPixel);
+    } else {
+        minimumX = max(minimumX, firstBandPixel);
+        maximumX = min(maximumX, lastBandPixel);
+    }
+    if (minimumX > maximumX || minimumY > maximumY) {
+        return;
+    }
+    const uint pixelCount =
+        uniforms.counts.x *
+        uniforms.image.x *
+        uniforms.image.y;
+    for (int y = minimumY; y <= maximumY; ++y) {
+        for (int x = minimumX; x <= maximumX; ++x) {
+            const uint flat =
+                environment *
+                    uniforms.image.x * uniforms.image.y +
+                uint(y) * uniforms.image.x + uint(x);
+            const float2 pixel =
+                float2(float(x), float(y)) + 0.5f +
+                fastSubpixelOffset(flat, uniforms);
+            const float w0 =
+                edge(p1.pixel, p2.pixel, pixel) / area;
+            const float w1 =
+                edge(p2.pixel, p0.pixel, pixel) / area;
+            const float w2 = 1.0f - w0 - w1;
+            if (min(w0, min(w1, w2)) < -1.0e-5f) {
+                continue;
+            }
+            const float inverseDepth =
+                w0 / p0.depth + w1 / p1.depth +
+                w2 / p2.depth;
+            if (!(inverseDepth > 0.0f) ||
+                !isfinite(inverseDepth)) {
+                continue;
+            }
+            const uint depthBits =
+                as_type<uint>(1.0f / inverseDepth);
+            if (selectTriangle) {
+                if (atomic_load_explicit(
+                        winners + flat,
+                        memory_order_relaxed
+                    ) == depthBits) {
+                    atomic_fetch_min_explicit(
+                        winners + pixelCount + flat,
+                        triangleIndex,
+                        memory_order_relaxed
+                    );
+                }
+            } else {
+                atomic_fetch_min_explicit(
+                    winners + flat,
+                    depthBits,
+                    memory_order_relaxed
+                );
+            }
+        }
+    }
+}
+
+bool rayTriangleWeights(
+    const float3 origin,
+    const float3 direction,
+    const float3 vertex0,
+    const float3 vertex1,
+    const float3 vertex2,
+    thread float3& weights,
+    thread float& distance
+) {
+    const float3 edge1 = vertex1 - vertex0;
+    const float3 edge2 = vertex2 - vertex0;
+    const float3 crossDirection = cross(direction, edge2);
+    const float determinant = dot(edge1, crossDirection);
+    if (abs(determinant) <= 1.0e-10f) {
+        return false;
+    }
+    const float inverseDeterminant = 1.0f / determinant;
+    const float3 offset = origin - vertex0;
+    const float u =
+        dot(offset, crossDirection) * inverseDeterminant;
+    const float3 crossOffset = cross(offset, edge1);
+    const float v =
+        dot(direction, crossOffset) * inverseDeterminant;
+    distance = dot(edge2, crossOffset) * inverseDeterminant;
+    const float w = 1.0f - u - v;
+    if (min(w, min(u, v)) < -1.0e-4f ||
+        !(distance > 0.0f) ||
+        !isfinite(distance)) {
+        return false;
+    }
+    weights = float3(w, u, v);
+    return true;
 }
 
 uint frameSeed(
@@ -586,6 +892,61 @@ float3 rotateEnvironmentDirection(
         sine * direction.x + cosine * direction.y
     );
     return direction;
+}
+
+float3 sampleEnvironmentBackground(
+    constant VisualResourceTableV3& resources,
+    constant MRVisualEnvironmentGPUV2& environment,
+    const float3 worldDirection,
+    const float3 clearColor
+) {
+    if (environment.parameters.z <= 0.0f) {
+        return clearColor;
+    }
+    constexpr sampler environmentSampler(
+        filter::linear,
+        mip_filter::linear,
+        address::clamp_to_edge
+    );
+    const float3 environmentRadiance = max(
+        resources.prefilteredSpecular.sample(
+            environmentSampler,
+            rotateEnvironmentDirection(
+                worldDirection,
+                environment
+            ),
+            level(0.0f)
+        ).xyz * environment.parameters.x,
+        0.0f
+    );
+    return mix(
+        clearColor,
+        environmentRadiance,
+        saturate(environment.parameters.z)
+    );
+}
+
+float3 resolveEnvironmentBackground(
+    const float3 compositedBackground,
+    const float compositedOpacity,
+    constant VisualResourceTableV3& resources,
+    constant MRVisualEnvironmentGPUV2& environment,
+    const float3 worldDirection,
+    const MRWorldAppearanceInstanceGPU appearance,
+    const float3 clearColor
+) {
+    if (compositedOpacity > 1.0e-4f) {
+        return compositedBackground;
+    }
+    return applyAppearance(
+        sampleEnvironmentBackground(
+            resources,
+            environment,
+            worldDirection,
+            clearColor
+        ),
+        appearance
+    );
 }
 
 float3 evaluateEnvironmentIBL(
@@ -986,17 +1347,78 @@ kernel void mr_visual_expand_triangles_v3(
     }
 }
 
+kernel void mr_hybrid_prepare_cameras(
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(0)]],
+    const device MRWorldAssetInstanceGPU* assets [[buffer(1)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(2)]],
+    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(3)]],
+    const device MRBodyStateGPU* currentBodies [[buffer(4)]],
+    const device MRBodyStateGPU* previousBodies [[buffer(5)]],
+    device MRHybridCameraStateGPU* cameraStates [[buffer(6)]],
+    device atomic_uint* nearClippedCounts [[buffer(7)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(8)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= uniforms.counts.x) {
+        return;
+    }
+    const MRWorldInstanceHeaderGPU instance =
+        instances[environment];
+    const MRWorldSensorInstanceGPU sensor =
+        sensors[instance.ranges.z + uniforms.render.x];
+    const BoundPose current = cameraPose(
+        environment,
+        instance,
+        sensor,
+        uniforms.render.x,
+        assets,
+        sensorBindings,
+        currentBodies,
+        uniforms,
+        false
+    );
+    const BoundPose previous = cameraPose(
+        environment,
+        instance,
+        sensor,
+        uniforms.render.x,
+        assets,
+        sensorBindings,
+        previousBodies,
+        uniforms,
+        true
+    );
+    MRHybridCameraStateGPU result;
+    result.currentPositionAndValidity =
+        float4(current.position, current.valid ? 1.0f : 0.0f);
+    result.currentOrientation = current.orientation;
+    result.previousPositionAndValidity =
+        float4(previous.position, previous.valid ? 1.0f : 0.0f);
+    result.previousOrientation = previous.orientation;
+    cameraStates[environment] = result;
+    atomic_store_explicit(
+        nearClippedCounts + environment,
+        0u,
+        memory_order_relaxed
+    );
+}
+
 kernel void mr_hybrid_clear_observations(
     const device MRWorldInstanceHeaderGPU* instances [[buffer(0)]],
-    const device MRWorldAppearanceInstanceGPU* appearances [[buffer(1)]],
-    device float4* rgb [[buffer(2)]],
-    device float* depth [[buffer(3)]],
-    device uint* segmentation [[buffer(4)]],
-    device uint4* identities [[buffer(5)]],
-    device float4* normals [[buffer(6)]],
-    device float4* motion [[buffer(7)]],
-    device uint* validity [[buffer(8)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(9)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(1)]],
+    const device MRWorldAppearanceInstanceGPU* appearances [[buffer(2)]],
+    const device MRHybridCameraStateGPU* cameraStates [[buffer(3)]],
+    constant VisualResourceTableV3& resources [[buffer(4)]],
+    constant MRVisualEnvironmentGPUV2& environmentLighting
+        [[buffer(5)]],
+    device float4* rgb [[buffer(6)]],
+    device float* depth [[buffer(7)]],
+    device uint* segmentation [[buffer(8)]],
+    device uint4* identities [[buffer(9)]],
+    device float4* normals [[buffer(10)]],
+    device float4* motion [[buffer(11)]],
+    device uint* validity [[buffer(12)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(13)]],
     const uint compactPixel [[thread_position_in_grid]]
 ) {
     const uint compactCount =
@@ -1012,13 +1434,32 @@ kernel void mr_hybrid_clear_observations(
     const uint environment = pixel / pixelsPerEnvironment;
     const MRWorldInstanceHeaderGPU instance =
         instances[environment];
+    const MRWorldSensorInstanceGPU sensor =
+        sensors[instance.ranges.z + uniforms.render.x];
     const MRWorldAppearanceInstanceGPU appearance =
         appearances[instance.program.x];
+    const BoundPose camera =
+        cameraStatePose(cameraStates, environment, false);
+    const uint localPixel = pixel -
+        environment * pixelsPerEnvironment;
+    const float2 rasterSample = float2(
+        float(localPixel % uniforms.image.x) + 0.5f,
+        float(localPixel / uniforms.image.x) + 0.5f
+    ) + fastSubpixelOffset(pixel, uniforms);
+    const float3 background = camera.valid
+        ? sampleEnvironmentBackground(
+              resources,
+              environmentLighting,
+              cameraSampleDirection(
+                  rasterSample,
+                  sensor,
+                  camera
+              ),
+              uniforms.clearColorAndDepth.xyz
+          )
+        : uniforms.clearColorAndDepth.xyz;
     rgb[pixel] = float4(
-        applyAppearance(
-            uniforms.clearColorAndDepth.xyz,
-            appearance
-        ),
+        applyAppearance(background, appearance),
         0.0f
     );
     depth[pixel] = uniforms.clearColorAndDepth.w;
@@ -1253,7 +1694,7 @@ kernel void mr_hybrid_bin_gaussians(
     const device MRWorldInstanceHeaderGPU* instances [[buffer(1)]],
     const device MRWorldAssetInstanceGPU* assets [[buffer(2)]],
     const device MRWorldSensorInstanceGPU* sensors [[buffer(3)]],
-    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(4)]],
+    const device MRHybridCameraStateGPU* cameraStates [[buffer(4)]],
     const device MRBodyStateGPU* currentBodies [[buffer(5)]],
     const device MRBodyStateGPU* previousBodies [[buffer(6)]],
     device MRHybridProjectedGaussianGPU* projected [[buffer(7)]],
@@ -1275,28 +1716,10 @@ kernel void mr_hybrid_bin_gaussians(
     const uint cameraIndex = uniforms.render.x;
     const MRWorldSensorInstanceGPU sensor =
         sensors[instance.ranges.z + cameraIndex];
-    const BoundPose camera = cameraPose(
-        environment,
-        instance,
-        sensor,
-        cameraIndex,
-        assets,
-        sensorBindings,
-        currentBodies,
-        uniforms,
-        false
-    );
-    const BoundPose previousCamera = cameraPose(
-        environment,
-        instance,
-        sensor,
-        cameraIndex,
-        assets,
-        sensorBindings,
-        previousBodies,
-        uniforms,
-        true
-    );
+    const BoundPose camera =
+        cameraStatePose(cameraStates, environment, false);
+    const BoundPose previousCamera =
+        cameraStatePose(cameraStates, environment, true);
 
     BoundPose binding = worldPose();
     BoundPose previousBinding = binding;
@@ -1582,14 +2005,18 @@ kernel void mr_hybrid_render_tiles(
     const device MRWorldInstanceHeaderGPU* instances [[buffer(3)]],
     const device MRWorldSensorInstanceGPU* sensors [[buffer(4)]],
     const device MRWorldAppearanceInstanceGPU* appearances [[buffer(5)]],
-    device float4* rgb [[buffer(6)]],
-    device float* depth [[buffer(7)]],
-    device uint* segmentation [[buffer(8)]],
-    device uint4* identities [[buffer(9)]],
-    device float4* normals [[buffer(10)]],
-    device float4* motion [[buffer(11)]],
-    device uint* validity [[buffer(12)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(13)]],
+    const device MRHybridCameraStateGPU* cameraStates [[buffer(6)]],
+    constant VisualResourceTableV3& resources [[buffer(7)]],
+    constant MRVisualEnvironmentGPUV2& environmentLighting
+        [[buffer(8)]],
+    device float4* rgb [[buffer(9)]],
+    device float* depth [[buffer(10)]],
+    device uint* segmentation [[buffer(11)]],
+    device uint4* identities [[buffer(12)]],
+    device float4* normals [[buffer(13)]],
+    device float4* motion [[buffer(14)]],
+    device uint* validity [[buffer(15)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(16)]],
     const uint compactTile [[threadgroup_position_in_grid]],
     const uint localIndex [[thread_position_in_threadgroup]]
 ) {
@@ -1626,31 +2053,48 @@ kernel void mr_hybrid_render_tiles(
     const uint pixelY =
         tileY * MR_HYBRID_TILE_SIZE +
         localIndex / MR_HYBRID_TILE_SIZE;
+    if (pixelX >= uniforms.image.x ||
+        pixelY >= uniforms.image.y ||
+        !pixelInBand(pixelX, pixelY, uniforms)) {
+        return;
+    }
+    const MRWorldInstanceHeaderGPU instance =
+        instances[environment];
+    const MRWorldSensorInstanceGPU sensor =
+        sensors[instance.ranges.z + uniforms.render.x];
+    const MRWorldAppearanceInstanceGPU appearance =
+        appearances[instance.program.x];
+    const BoundPose camera =
+        cameraStatePose(cameraStates, environment, false);
+    const uint pixel =
+        environment * uniforms.image.x * uniforms.image.y +
+        pixelY * uniforms.image.x + pixelX;
+    const float2 pixelCenter =
+        float2(float(pixelX), float(pixelY)) + 0.5f +
+        fastSubpixelOffset(pixel, uniforms);
+    const float3 background = camera.valid
+        ? sampleEnvironmentBackground(
+              resources,
+              environmentLighting,
+              cameraSampleDirection(
+                  pixelCenter,
+                  sensor,
+                  camera
+              ),
+              uniforms.clearColorAndDepth.xyz
+          )
+        : uniforms.clearColorAndDepth.xyz;
     if (count == 0u) {
-        if (pixelX < uniforms.image.x &&
-            pixelY < uniforms.image.y &&
-            pixelInBand(pixelX, pixelY, uniforms)) {
-            const MRWorldInstanceHeaderGPU instance =
-                instances[environment];
-            const MRWorldAppearanceInstanceGPU appearance =
-                appearances[instance.program.x];
-            const uint pixel =
-                environment * uniforms.image.x * uniforms.image.y +
-                pixelY * uniforms.image.x + pixelX;
-            rgb[pixel] = float4(
-                applyAppearance(
-                    uniforms.clearColorAndDepth.xyz,
-                    appearance
-                ),
-                0.0f
-            );
-            depth[pixel] = uniforms.clearColorAndDepth.w;
-            segmentation[pixel] = MR_INVALID_INDEX;
-            identities[pixel] = uint4(MR_INVALID_INDEX);
-            normals[pixel] = 0.0f;
-            motion[pixel] = 0.0f;
-            validity[pixel] = MR_VISUAL_VALIDITY_FRAME;
-        }
+        rgb[pixel] = float4(
+            applyAppearance(background, appearance),
+            0.0f
+        );
+        depth[pixel] = uniforms.clearColorAndDepth.w;
+        segmentation[pixel] = MR_INVALID_INDEX;
+        identities[pixel] = uint4(MR_INVALID_INDEX);
+        normals[pixel] = 0.0f;
+        motion[pixel] = 0.0f;
+        validity[pixel] = MR_VISUAL_VALIDITY_FRAME;
         return;
     }
     const uint sourceIndex =
@@ -1705,12 +2149,6 @@ kernel void mr_hybrid_render_tiles(
         }
     }
 
-    if (pixelX >= uniforms.image.x ||
-        pixelY >= uniforms.image.y ||
-        !pixelInBand(pixelX, pixelY, uniforms)) {
-        return;
-    }
-
     float3 accumulatedColor = 0.0f;
     float transmittance = 1.0f;
     float nearestDepth = uniforms.clearColorAndDepth.w;
@@ -1726,7 +2164,7 @@ kernel void mr_hybrid_render_tiles(
         const MRHybridProjectedGaussianGPU gaussian =
             projected[projectedIndex];
         const float2 delta =
-            (float2(float(pixelX), float(pixelY)) + 0.5f) -
+            pixelCenter -
             gaussian.centerDepthRadius.xy;
         const float mahalanobis =
             gaussian.conicAndBounds.x * delta.x * delta.x +
@@ -1760,17 +2198,9 @@ kernel void mr_hybrid_render_tiles(
         }
     }
     accumulatedColor +=
-        transmittance * uniforms.clearColorAndDepth.xyz;
-
-    const MRWorldInstanceHeaderGPU instance =
-        instances[environment];
-    const MRWorldAppearanceInstanceGPU appearance =
-        appearances[instance.program.x];
+        transmittance * background;
     accumulatedColor =
         applyAppearance(accumulatedColor, appearance);
-    const uint pixel =
-        environment * uniforms.image.x * uniforms.image.y +
-        pixelY * uniforms.image.x + pixelX;
     uint valid = MR_VISUAL_VALIDITY_FRAME;
     if (nearestDepth < uniforms.clearColorAndDepth.w) {
         valid |= MR_VISUAL_VALIDITY_GEOMETRY;
@@ -1795,9 +2225,11 @@ void rasterizeMesh(
     const device MRWorldInstanceHeaderGPU* instances,
     const device MRWorldAssetInstanceGPU* assets,
     const device MRWorldSensorInstanceGPU* sensors,
-    const device MRVisualSensorBindingGPU* sensorBindings,
+    const device MRHybridCameraStateGPU* cameraStates,
     const device MRBodyStateGPU* currentBodies,
     device atomic_uint* winners,
+    device MRHybridNearClippedTriangleGPU* nearClippedTriangles,
+    device atomic_uint* nearClippedCounts,
     constant MRHybridRenderUniformsGPU& uniforms,
     const uint index,
     const bool selectTriangle
@@ -1824,17 +2256,8 @@ void rasterizeMesh(
         instances[environment];
     const MRWorldSensorInstanceGPU sensor =
         sensors[instance.ranges.z + uniforms.render.x];
-    const BoundPose camera = cameraPose(
-        environment,
-        instance,
-        sensor,
-        uniforms.render.x,
-        assets,
-        sensorBindings,
-        currentBodies,
-        uniforms,
-        false
-    );
+    const BoundPose camera =
+        cameraStatePose(cameraStates, environment, false);
     const BoundPose binding = composeInstancePose(resolvePose(
         visualInstance.binding.z,
         visualInstance.binding.y,
@@ -1863,109 +2286,108 @@ void rasterizeMesh(
         binding,
         vertices[indices.z].position.xyz
     );
-    const CameraProjection p0 =
-        projectPoint(world0, camera, sensor);
-    const CameraProjection p1 =
-        projectPoint(world1, camera, sensor);
-    const CameraProjection p2 =
-        projectPoint(world2, camera, sensor);
-    if (!p0.valid || !p1.valid || !p2.valid) {
+    thread float3 cameraVertices[3] = {
+        inverseRotateVector(
+            camera.orientation,
+            world0 - camera.position
+        ),
+        inverseRotateVector(
+            camera.orientation,
+            world1 - camera.position
+        ),
+        inverseRotateVector(
+            camera.orientation,
+            world2 - camera.position
+        ),
+    };
+    const float nearPlane =
+        max(uniforms.sensorRangeAndResponse.x, 1.0e-4f);
+    if (all(float3(
+            cameraVertices[0].z,
+            cameraVertices[1].z,
+            cameraVertices[2].z
+        ) >= nearPlane)) {
+        rasterizeProjectedTriangle(
+            projectCameraPoint(cameraVertices[0], sensor),
+            projectCameraPoint(cameraVertices[1], sensor),
+            projectCameraPoint(cameraVertices[2], sensor),
+            environment,
+            triangleIndex,
+            winners,
+            uniforms,
+            selectTriangle
+        );
         return;
     }
-    const float area = edge(p0.pixel, p1.pixel, p2.pixel);
-    if (abs(area) <= 1.0e-8f || !isfinite(area)) {
+    const bool crossesNearPlane = any(float3(
+            cameraVertices[0].z,
+            cameraVertices[1].z,
+            cameraVertices[2].z
+        ) >= nearPlane);
+    if (!crossesNearPlane) {
         return;
     }
-    int minimumX = max(
-        0,
-        int(floor(min(
-            p0.pixel.x,
-            min(p1.pixel.x, p2.pixel.x)
-        )))
-    );
-    int maximumX = min(
-        int(uniforms.image.x) - 1,
-        int(ceil(max(
-            p0.pixel.x,
-            max(p1.pixel.x, p2.pixel.x)
-        )))
-    );
-    int minimumY = max(
-        0,
-        int(floor(min(
-            p0.pixel.y,
-            min(p1.pixel.y, p2.pixel.y)
-        )))
-    );
-    int maximumY = min(
-        int(uniforms.image.y) - 1,
-        int(ceil(max(
-            p0.pixel.y,
-            max(p1.pixel.y, p2.pixel.y)
-        )))
-    );
-    const int firstBandPixel = int(uniforms.band.x);
-    const int lastBandPixel = int(
-        uniforms.band.x + uniforms.band.y - 1u
-    );
-    if (uniforms.band.z == 0u) {
-        minimumY = max(minimumY, firstBandPixel);
-        maximumY = min(maximumY, lastBandPixel);
+    const uint clippedCapacity = uniforms.presentation.w;
+    const uint recordBase =
+        environment * clippedCapacity;
+    if (!selectTriangle) {
+        const uint slot = atomic_fetch_add_explicit(
+            nearClippedCounts + environment,
+            1u,
+            memory_order_relaxed
+        );
+        if (slot < clippedCapacity) {
+            MRHybridNearClippedTriangleGPU record;
+            record.worldVertex0 = float4(world0, 1.0f);
+            record.worldVertex1 = float4(world1, 1.0f);
+            record.worldVertex2 = float4(world2, 1.0f);
+            record.identity =
+                uint4(triangleIndex, 0u, 0u, 0u);
+            nearClippedTriangles[recordBase + slot] = record;
+            return;
+        }
     } else {
-        minimumX = max(minimumX, firstBandPixel);
-        maximumX = min(maximumX, lastBandPixel);
-    }
-    if (minimumX > maximumX || minimumY > maximumY) {
-        return;
-    }
-    for (int y = minimumY; y <= maximumY; ++y) {
-        for (int x = minimumX; x <= maximumX; ++x) {
-            const float2 pixel =
-                float2(float(x), float(y)) + 0.5f;
-            const float w0 =
-                edge(p1.pixel, p2.pixel, pixel) / area;
-            const float w1 =
-                edge(p2.pixel, p0.pixel, pixel) / area;
-            const float w2 = 1.0f - w0 - w1;
-            if (min(w0, min(w1, w2)) < -1.0e-5f) {
-                continue;
-            }
-            const float inverseDepth =
-                w0 / p0.depth + w1 / p1.depth +
-                w2 / p2.depth;
-            if (!(inverseDepth > 0.0f) ||
-                !isfinite(inverseDepth)) {
-                continue;
-            }
-            const float depth = 1.0f / inverseDepth;
-            const uint depthBits = as_type<uint>(depth);
-            const uint flat =
-                environment *
-                    uniforms.image.x * uniforms.image.y +
-                uint(y) * uniforms.image.x + uint(x);
-            if (selectTriangle) {
-                const uint pixelCount =
-                    uniforms.counts.x *
-                    uniforms.image.x *
-                    uniforms.image.y;
-                if (atomic_load_explicit(
-                        winners + flat,
-                        memory_order_relaxed
-                    ) == depthBits) {
-                    atomic_fetch_min_explicit(
-                        winners + pixelCount + flat,
-                        triangleIndex,
-                        memory_order_relaxed
-                    );
-                }
-            } else {
-                atomic_fetch_min_explicit(
-                    winners + flat,
-                    depthBits,
-                    memory_order_relaxed
-                );
+        const uint recordCount = min(
+            atomic_load_explicit(
+                nearClippedCounts + environment,
+                memory_order_relaxed
+            ),
+            clippedCapacity
+        );
+        for (uint recordIndex = 0u;
+             recordIndex < recordCount;
+             ++recordIndex) {
+            if (nearClippedTriangles[
+                    recordBase + recordIndex
+                ].identity.x == triangleIndex) {
+                return;
             }
         }
+    }
+    thread float3 clipped[4];
+    const uint clippedCount = clipTriangleToNearPlane(
+        cameraVertices,
+        clipped,
+        nearPlane
+    );
+    if (clippedCount < 3u) {
+        return;
+    }
+    const CameraProjection first =
+        projectCameraPoint(clipped[0], sensor);
+    for (uint fanIndex = 1u;
+         fanIndex + 1u < clippedCount;
+         ++fanIndex) {
+        rasterizeProjectedTriangle(
+            first,
+            projectCameraPoint(clipped[fanIndex], sensor),
+            projectCameraPoint(clipped[fanIndex + 1u], sensor),
+            environment,
+            triangleIndex,
+            winners,
+            uniforms,
+            selectTriangle
+        );
     }
 }
 
@@ -1977,10 +2399,13 @@ kernel void mr_hybrid_rasterize_mesh(
     const device MRWorldInstanceHeaderGPU* instances [[buffer(4)]],
     const device MRWorldAssetInstanceGPU* assets [[buffer(5)]],
     const device MRWorldSensorInstanceGPU* sensors [[buffer(6)]],
-    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(7)]],
+    const device MRHybridCameraStateGPU* cameraStates [[buffer(7)]],
     const device MRBodyStateGPU* currentBodies [[buffer(8)]],
     device atomic_uint* winners [[buffer(9)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(10)]],
+    device MRHybridNearClippedTriangleGPU* nearClippedTriangles
+        [[buffer(10)]],
+    device atomic_uint* nearClippedCounts [[buffer(11)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(12)]],
     const uint index [[thread_position_in_grid]]
 ) {
     rasterizeMesh(
@@ -1991,9 +2416,11 @@ kernel void mr_hybrid_rasterize_mesh(
         instances,
         assets,
         sensors,
-        sensorBindings,
+        cameraStates,
         currentBodies,
         winners,
+        nearClippedTriangles,
+        nearClippedCounts,
         uniforms,
         index,
         false
@@ -2008,10 +2435,13 @@ kernel void mr_hybrid_select_mesh(
     const device MRWorldInstanceHeaderGPU* instances [[buffer(4)]],
     const device MRWorldAssetInstanceGPU* assets [[buffer(5)]],
     const device MRWorldSensorInstanceGPU* sensors [[buffer(6)]],
-    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(7)]],
+    const device MRHybridCameraStateGPU* cameraStates [[buffer(7)]],
     const device MRBodyStateGPU* currentBodies [[buffer(8)]],
     device atomic_uint* winners [[buffer(9)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(10)]],
+    device MRHybridNearClippedTriangleGPU* nearClippedTriangles
+        [[buffer(10)]],
+    device atomic_uint* nearClippedCounts [[buffer(11)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(12)]],
     const uint index [[thread_position_in_grid]]
 ) {
     rasterizeMesh(
@@ -2022,13 +2452,133 @@ kernel void mr_hybrid_select_mesh(
         instances,
         assets,
         sensors,
-        sensorBindings,
+        cameraStates,
         currentBodies,
         winners,
+        nearClippedTriangles,
+        nearClippedCounts,
         uniforms,
         index,
         true
     );
+}
+
+kernel void mr_hybrid_resolve_near_clipped_mesh(
+    const device MRHybridNearClippedTriangleGPU*
+        nearClippedTriangles [[buffer(0)]],
+    const device atomic_uint* nearClippedCounts [[buffer(1)]],
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(2)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(3)]],
+    const device MRHybridCameraStateGPU* cameraStates [[buffer(4)]],
+    device atomic_uint* winners [[buffer(5)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(6)]],
+    const uint compactPixel [[thread_position_in_grid]]
+) {
+    const uint compactCount =
+        uniforms.counts.x *
+        bandPixelCountPerEnvironment(uniforms);
+    if (compactPixel >= compactCount) {
+        return;
+    }
+    const uint pixel =
+        globalPixelFromBandIndex(compactPixel, 0u, uniforms);
+    const uint pixelsPerEnvironment =
+        uniforms.image.x * uniforms.image.y;
+    const uint environment = pixel / pixelsPerEnvironment;
+    const uint recordCount = min(
+        atomic_load_explicit(
+            nearClippedCounts + environment,
+            memory_order_relaxed
+        ),
+        uniforms.presentation.w
+    );
+    if (recordCount == 0u) {
+        return;
+    }
+    const uint localPixel =
+        pixel - environment * pixelsPerEnvironment;
+    const float2 rasterSample = float2(
+        float(localPixel % uniforms.image.x) + 0.5f,
+        float(localPixel / uniforms.image.x) + 0.5f
+    ) + fastSubpixelOffset(pixel, uniforms);
+    const MRWorldInstanceHeaderGPU instance =
+        instances[environment];
+    const MRWorldSensorInstanceGPU sensor =
+        sensors[instance.ranges.z + uniforms.render.x];
+    const BoundPose camera =
+        cameraStatePose(cameraStates, environment, false);
+    if (!camera.valid) {
+        return;
+    }
+    const float3 direction =
+        cameraSampleDirection(rasterSample, sensor, camera);
+    const uint pixelCount =
+        uniforms.counts.x * pixelsPerEnvironment;
+    float selectedDepth = as_type<float>(
+        atomic_load_explicit(
+            winners + pixel,
+            memory_order_relaxed
+        )
+    );
+    uint selectedTriangle = atomic_load_explicit(
+        winners + pixelCount + pixel,
+        memory_order_relaxed
+    );
+    bool selected = false;
+    const uint recordBase =
+        environment * uniforms.presentation.w;
+    for (uint recordIndex = 0u;
+         recordIndex < recordCount;
+         ++recordIndex) {
+        const MRHybridNearClippedTriangleGPU record =
+            nearClippedTriangles[recordBase + recordIndex];
+        float3 weights = 0.0f;
+        float distance = 0.0f;
+        if (!rayTriangleWeights(
+                camera.position,
+                direction,
+                record.worldVertex0.xyz,
+                record.worldVertex1.xyz,
+                record.worldVertex2.xyz,
+                weights,
+                distance
+            )) {
+            continue;
+        }
+        const float cameraDepth = inverseRotateVector(
+            camera.orientation,
+            direction * distance
+        ).z;
+        if (cameraDepth <
+            max(
+                uniforms.sensorRangeAndResponse.x,
+                1.0e-4f
+            )) {
+            continue;
+        }
+        const uint triangleIndex = record.identity.x;
+        if (cameraDepth < selectedDepth ||
+            (
+                cameraDepth == selectedDepth &&
+                triangleIndex < selectedTriangle
+            )) {
+            selectedDepth = cameraDepth;
+            selectedTriangle = triangleIndex;
+            selected = true;
+        }
+    }
+    if (selected) {
+        atomic_store_explicit(
+            winners + pixel,
+            as_type<uint>(selectedDepth),
+            memory_order_relaxed
+        );
+        atomic_store_explicit(
+            winners + pixelCount + pixel,
+            selectedTriangle,
+            memory_order_relaxed
+        );
+    }
 }
 
 kernel void mr_hybrid_composite_mesh(
@@ -2041,7 +2591,7 @@ kernel void mr_hybrid_composite_mesh(
     const device MRWorldAssetInstanceGPU* assets [[buffer(6)]],
     const device MRWorldSensorInstanceGPU* sensors [[buffer(7)]],
     const device MRWorldAppearanceInstanceGPU* appearances [[buffer(8)]],
-    const device MRVisualSensorBindingGPU* sensorBindings [[buffer(9)]],
+    const device MRHybridCameraStateGPU* cameraStates [[buffer(9)]],
     const device MRBodyStateGPU* currentBodies [[buffer(10)]],
     const device MRBodyStateGPU* previousBodies [[buffer(11)]],
     const device atomic_uint* winners [[buffer(12)]],
@@ -2114,28 +2664,10 @@ kernel void mr_hybrid_composite_mesh(
         instances[environment];
     const MRWorldSensorInstanceGPU sensor =
         sensors[instance.ranges.z + uniforms.render.x];
-    const BoundPose camera = cameraPose(
-        environment,
-        instance,
-        sensor,
-        uniforms.render.x,
-        assets,
-        sensorBindings,
-        currentBodies,
-        uniforms,
-        false
-    );
-    const BoundPose previousCamera = cameraPose(
-        environment,
-        instance,
-        sensor,
-        uniforms.render.x,
-        assets,
-        sensorBindings,
-        previousBodies,
-        uniforms,
-        true
-    );
+    const BoundPose camera =
+        cameraStatePose(cameraStates, environment, false);
+    const BoundPose previousCamera =
+        cameraStatePose(cameraStates, environment, true);
     const BoundPose binding = composeInstancePose(resolvePose(
         visualInstance.binding.z,
         visualInstance.binding.y,
@@ -2176,36 +2708,26 @@ kernel void mr_hybrid_composite_mesh(
         transformPoint(binding, vertex1.position.xyz);
     const float3 world2 =
         transformPoint(binding, vertex2.position.xyz);
-    const CameraProjection p0 =
-        projectPoint(world0, camera, sensor);
-    const CameraProjection p1 =
-        projectPoint(world1, camera, sensor);
-    const CameraProjection p2 =
-        projectPoint(world2, camera, sensor);
-    const float area = edge(p0.pixel, p1.pixel, p2.pixel);
-    if (!p0.valid || !p1.valid || !p2.valid ||
-        abs(area) <= 1.0e-8f) {
-        return;
-    }
     const float2 pixelCenter =
-        float2(float(pixelX), float(pixelY)) + 0.5f;
-    float3 weights = float3(
-        edge(p1.pixel, p2.pixel, pixelCenter) / area,
-        edge(p2.pixel, p0.pixel, pixelCenter) / area,
-        0.0f
-    );
-    weights.z = 1.0f - weights.x - weights.y;
-    const float3 perspective = weights / float3(
-        p0.depth,
-        p1.depth,
-        p2.depth
-    );
-    const float perspectiveSum =
-        perspective.x + perspective.y + perspective.z;
-    if (!(perspectiveSum > 0.0f)) {
+        float2(float(pixelX), float(pixelY)) + 0.5f +
+        fastSubpixelOffset(pixel, uniforms);
+    float3 corrected = 0.0f;
+    float hitDistance = 0.0f;
+    if (!rayTriangleWeights(
+            camera.position,
+            cameraSampleDirection(
+                pixelCenter,
+                sensor,
+                camera
+            ),
+            world0,
+            world1,
+            world2,
+            corrected,
+            hitDistance
+        )) {
         return;
     }
-    const float3 corrected = perspective / perspectiveSum;
     const float3 localPosition =
         corrected.x * vertex0.position.xyz +
         corrected.y * vertex1.position.xyz +
@@ -2855,50 +3377,15 @@ float referenceScanFraction(
 }
 
 ray referenceCameraRay(
-    const uint2 pixel,
+    const float2 rasterSample,
     const MRWorldSensorInstanceGPU sensor,
     const BoundPose camera,
     constant MRHybridRenderUniformsGPU& uniforms
 ) {
-    const float focalScale =
-        sensor.positionAndFocalScale.w;
-    const float2 focal =
-        max(sensor.intrinsics.xy * focalScale, 1.0e-6f);
-    const float2 distorted =
-        (
-            float2(pixel) + 0.5f -
-            sensor.intrinsics.zw
-        ) / focal;
-    float2 normalized = distorted;
-    // Invert the Brown-Conrady lens model used by projectPoint.
-    for (uint iteration = 0u; iteration < 5u; ++iteration) {
-        const float radiusSquared = dot(normalized, normalized);
-        const float radial =
-            1.0f +
-            sensor.distortion.x * radiusSquared +
-            sensor.distortion.y *
-                radiusSquared * radiusSquared;
-        const float2 tangential = float2(
-            2.0f * sensor.distortion.z *
-                    normalized.x * normalized.y +
-                sensor.distortion.w *
-                    (radiusSquared +
-                     2.0f * normalized.x * normalized.x),
-            sensor.distortion.z *
-                    (radiusSquared +
-                     2.0f * normalized.y * normalized.y) +
-                2.0f * sensor.distortion.w *
-                    normalized.x * normalized.y
-        );
-        normalized +=
-            distorted - (normalized * radial + tangential);
-    }
     ray result;
     result.origin = camera.position;
-    result.direction = normalize(rotateVector(
-        camera.orientation,
-        normalize(float3(normalized, 1.0f))
-    ));
+    result.direction =
+        cameraSampleDirection(rasterSample, sensor, camera);
     result.max_distance =
         uniforms.sensorRangeAndResponse.y * 2.0f;
     return result;
@@ -3647,6 +4134,7 @@ kernel void mr_hybrid_render_reference(
     const MRWorldSensorInstanceGPU sensor =
         sensors[instance.ranges.z + uniforms.render.x];
     const float3 background = rgb[pixel].xyz;
+    const float backgroundOpacity = rgb[pixel].w;
     const float backgroundDepth = depth[pixel];
     const float scanFraction =
         referenceScanFraction(coordinate, uniforms);
@@ -3690,8 +4178,15 @@ kernel void mr_hybrid_render_reference(
             integrated += background;
             continue;
         }
+        const float2 rasterSample =
+            float2(coordinate) + 0.5f +
+            stratifiedSubpixelOffset(
+                sample,
+                uniforms.shutter.w,
+                seed
+            );
         const ray primaryRay = referenceCameraRay(
-            coordinate,
+            rasterSample,
             sensor,
             camera,
             uniforms
@@ -3716,7 +4211,15 @@ kernel void mr_hybrid_render_reference(
                 surface,
                 hitDistance
             )) {
-            integrated += background;
+            integrated += resolveEnvironmentBackground(
+                background,
+                backgroundOpacity,
+                resources,
+                environmentLighting,
+                primaryRay.direction,
+                appearances[instance.program.x],
+                uniforms.clearColorAndDepth.xyz
+            );
             continue;
         }
         const float hitDepth = inverseRotateVector(
@@ -3725,14 +4228,30 @@ kernel void mr_hybrid_render_reference(
         ).z;
         if (!(hitDepth > 0.0f) ||
             !(hitDepth < backgroundDepth)) {
-            integrated += background;
+            integrated += resolveEnvironmentBackground(
+                background,
+                backgroundOpacity,
+                resources,
+                environmentLighting,
+                primaryRay.direction,
+                appearances[instance.program.x],
+                uniforms.clearColorAndDepth.xyz
+            );
             continue;
         }
         const MRVisualInstanceGPUV2 visualInstance =
             visualInstances[surface.visualInstanceIndex];
         if ((visualInstance.binding.w &
              MR_VISUAL_INSTANCE_GAUSSIAN_RECEIVER_PROXY) != 0u) {
-            integrated += background *
+            integrated += resolveEnvironmentBackground(
+                background,
+                backgroundOpacity,
+                resources,
+                environmentLighting,
+                primaryRay.direction,
+                appearances[instance.program.x],
+                uniforms.clearColorAndDepth.xyz
+            ) *
                 mix(
                     0.55f,
                     1.0f,
@@ -3804,7 +4323,7 @@ kernel void mr_hybrid_render_reference(
         return;
     }
     const ray truthRay = referenceCameraRay(
-        coordinate,
+        float2(coordinate) + 0.5f,
         sensor,
         truthCamera,
         uniforms

@@ -10,7 +10,14 @@ from matching MetalRobo `sensor_reference` frames on Apple M4. The hero was
 rendered at 1920×1080 and downsampled to 1280×720 for cleaner presentation.
 The gallery uses a 1280×720 frame and contains scene-linear RGB presented
 through an ACES preview transform, metric depth, camera-space surface normals,
-and packed instance identities.
+and packed instance identities. Both frames use the renderer's stratified
+eight-sample space-time integration and show the authored HDR environment
+through the calibrated camera.
+
+The hero camera is at `(1.22, -1.45, 1.15)` metres and targets
+`(0.0, 0.0, 0.62)`, with focal length equal to image height. Environment
+intensity is `0.55` and rotation is `0.35` radians. The 1920×1080 source frame
+rendered in 254 ms and retained 307,224,368 private GPU bytes on Apple M4.
 
 Robot geometry comes from Unitree's official
 [`unitree_ros`](https://github.com/unitreerobotics/unitree_ros) source at
