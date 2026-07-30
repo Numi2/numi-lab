@@ -165,6 +165,15 @@ path is deliberate: MLX owns an active compute encoder, whereas Apple hardware
 rasterization and mesh shaders require a render pass and therefore cannot be
 inserted by ending or replacing MLX's encoder.
 
+High-poly authored geometry remains compute-native on this path. MetalRobo
+builds tight fixed-size cluster bounds once from streamed geometry, culls
+clusters in parallel per environment and active shutter band, and lets the
+flat triangle kernel reject from compact triangle-to-cluster and cached
+visibility tables before vertex fetch. Visible microtriangles use packed
+atomic depth/identity; larger triangles enter the cooperative tile resolver.
+This retains one active MLX compute encoder while avoiding all-triangle
+transform work for off-camera links, objects, and scanlines.
+
 ### GPU-native geometric sensors
 
 `materialize_body_states` derives one environment-major geometric body arena

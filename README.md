@@ -51,9 +51,9 @@ same camera, timestamp, physics state, and immutable provenance.
 Two profiles use the same assets, materials, lighting, truth buffers, and
 perception contract:
 
-- `sensor_fast` uses precomputed camera states, hierarchical GPU tile
-  visibility for authored meshes, parallel near-plane resolve, shadow atlases,
-  and two-sample space-time integration for online observations.
+- `sensor_fast` uses GPU-built mesh clusters, parallel frustum and shutter-band
+  culling, hierarchical tile visibility, parallel near-plane resolve, shadow
+  atlases, and two-sample space-time integration for online observations.
 - `sensor_reference` uses compacted mesh BLASes, grouped motion-instance
   TLASes, Metal ray queries, stratified space-time samples, direct shadow
   rays, and exact per-row exposure timing for deterministic high-fidelity

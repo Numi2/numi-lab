@@ -1517,6 +1517,36 @@ kernel void mr_visual_expand_triangles_v3(
     }
 }
 
+kernel void mr_visual_build_mesh_clusters(
+    const device MRVisualTriangleGPUV2* triangles [[buffer(0)]],
+    const device MRVisualVertexGPUV2* vertices [[buffer(1)]],
+    device MRHybridMeshClusterGPU* clusters [[buffer(2)]],
+    constant uint& clusterCount [[buffer(3)]],
+    const uint clusterIndex [[thread_position_in_grid]]
+) {
+    if (clusterIndex >= clusterCount) {
+        return;
+    }
+    MRHybridMeshClusterGPU cluster = clusters[clusterIndex];
+    float3 minimum = float3(INFINITY);
+    float3 maximum = float3(-INFINITY);
+    for (uint localTriangle = 0u;
+         localTriangle < cluster.range.y;
+         ++localTriangle) {
+        const MRVisualTriangleGPUV2 triangle =
+            triangles[cluster.range.x + localTriangle];
+        const uint3 indices = triangle.verticesAndPrimitive.xyz;
+        const float3 p0 = vertices[indices.x].position.xyz;
+        const float3 p1 = vertices[indices.y].position.xyz;
+        const float3 p2 = vertices[indices.z].position.xyz;
+        minimum = min(minimum, min(p0, min(p1, p2)));
+        maximum = max(maximum, max(p0, max(p1, p2)));
+    }
+    cluster.boundsMinimum = float4(minimum, 1.0f);
+    cluster.boundsMaximum = float4(maximum, 1.0f);
+    clusters[clusterIndex] = cluster;
+}
+
 kernel void mr_hybrid_prepare_cameras(
     const device MRWorldInstanceHeaderGPU* instances [[buffer(0)]],
     const device MRWorldAssetInstanceGPU* assets [[buffer(1)]],
@@ -1807,34 +1837,90 @@ kernel void mr_hybrid_clear_shadow_atlas(
     }
 }
 
-kernel void mr_hybrid_rasterize_shadow_atlas(
-    const device MRVisualVertexGPUV2* vertices [[buffer(0)]],
-    const device MRVisualTriangleGPUV2* triangles [[buffer(1)]],
-    const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
-    const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
-    const device MRVisualLightGPUV1* lights [[buffer(7)]],
-    device atomic_uint* shadowAtlas [[buffer(8)]],
-    constant MRHybridRenderUniformsGPU& uniforms [[buffer(9)]],
-    const device MRHybridVisualInstanceStateGPU* visualInstanceStates
-        [[buffer(10)]],
-    const uint index [[thread_position_in_grid]]
+bool meshClusterIntersectsShadow(
+    const MRHybridMeshClusterGPU cluster,
+    const MRVisualInstanceGPUV2 visualInstance,
+    const MRVisualLightGPUV1 light,
+    const BoundPose binding
 ) {
-    const uint triangleCount = uniforms.live.w;
-    const uint total =
-        uniforms.shadowBatch.y * triangleCount;
-    if (index >= total || triangleCount == 0u ||
-        uniforms.presentation.y == 0u ||
-        uniforms.shadow.w >= uniforms.presentation.y) {
-        return;
+    if ((visualInstance.binding.w &
+         MR_VISUAL_INSTANCE_CASTS_SHADOW) == 0u ||
+        !binding.valid) {
+        return false;
     }
-    const uint localEnvironment = index / triangleCount;
-    const uint environment =
-        uniforms.shadowBatch.x + localEnvironment;
-    if (environment >= uniforms.counts.x) {
-        return;
+    const float3 direction =
+        normalize(light.directionAndSpot.xyz);
+    float3 right;
+    float3 up;
+    lightBasis(direction, right, up);
+    const float range =
+        max(light.positionAndRange.w, 1.0e-3f);
+    const bool directional =
+        light.identity.x == MR_VISUAL_LIGHT_DIRECTIONAL;
+    const float outer = clamp(
+        light.directionAndSpot.w,
+        -0.999f,
+        0.999f
+    );
+    const float tangent =
+        max(sqrt(max(1.0f - outer * outer, 0.0f)) /
+                max(outer, 0.05f),
+            0.05f);
+    const float3 localCenter =
+        0.5f * (
+            cluster.boundsMinimum.xyz +
+            cluster.boundsMaximum.xyz
+        );
+    const float radius =
+        0.5f * length(
+            cluster.boundsMaximum.xyz -
+            cluster.boundsMinimum.xyz
+        ) * binding.scale;
+    const float3 relative =
+        transformPoint(binding, localCenter) -
+        light.positionAndRange.xyz;
+    const float x = dot(relative, right);
+    const float y = dot(relative, up);
+    const float z = dot(relative, direction);
+    if (!all(isfinite(float3(x, y, z))) ||
+        !isfinite(radius)) {
+        return true;
     }
-    const uint triangleIndex =
-        index - localEnvironment * triangleCount;
+    if (directional) {
+        const float halfRange = 0.5f * range;
+        const float depth = z + halfRange;
+        return depth + radius >= 0.0f &&
+            depth - radius <= range &&
+            x + radius >= -halfRange &&
+            x - radius <= halfRange &&
+            y + radius >= -halfRange &&
+            y - radius <= halfRange;
+    }
+    if (z + radius <= 1.0e-4f ||
+        z - radius > range) {
+        return false;
+    }
+    const float planeRadius =
+        radius * sqrt(1.0f + tangent * tangent);
+    return x + tangent * z >= -planeRadius &&
+        tangent * z - x >= -planeRadius &&
+        y + tangent * z >= -planeRadius &&
+        tangent * z - y >= -planeRadius;
+}
+
+void rasterizeShadowTriangle(
+    const device MRVisualVertexGPUV2* vertices,
+    const device MRVisualTriangleGPUV2* triangles,
+    const device MRVisualPrimitiveGPUV2* primitives,
+    const device MRVisualInstanceGPUV2* visualInstances,
+    const device MRVisualLightGPUV1* lights,
+    device atomic_uint* shadowAtlas,
+    constant MRHybridRenderUniformsGPU& uniforms,
+    const device MRHybridVisualInstanceStateGPU* visualInstanceStates,
+    const uint localEnvironment,
+    const uint environment,
+    const uint triangleIndex
+) {
     const MRVisualTriangleGPUV2 triangle =
         triangles[triangleIndex];
     const MRVisualPrimitiveGPUV2 primitive =
@@ -1921,6 +2007,91 @@ kernel void mr_hybrid_rasterize_shadow_atlas(
             }
         }
     }
+}
+
+kernel void mr_hybrid_rasterize_shadow_clusters(
+    const device MRVisualVertexGPUV2* vertices [[buffer(0)]],
+    const device MRVisualTriangleGPUV2* triangles [[buffer(1)]],
+    const device MRVisualPrimitiveGPUV2* primitives [[buffer(2)]],
+    const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
+    const device MRVisualLightGPUV1* lights [[buffer(7)]],
+    device atomic_uint* shadowAtlas [[buffer(8)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(9)]],
+    const device MRHybridVisualInstanceStateGPU* visualInstanceStates
+        [[buffer(10)]],
+    const device MRHybridMeshClusterGPU* clusters [[buffer(11)]],
+    const uint clusterGroup [[threadgroup_position_in_grid]],
+    const uint localTriangle [[thread_position_in_threadgroup]]
+) {
+    threadgroup uint4 clusterRange;
+    threadgroup atomic_uint clusterVisible;
+    const uint clusterCount = uniforms.meshTiling.y;
+    const uint totalClusterGroups =
+        uniforms.shadowBatch.y * clusterCount;
+    if (clusterGroup >= totalClusterGroups ||
+        clusterCount == 0u ||
+        uniforms.presentation.y == 0u ||
+        uniforms.shadow.w >= uniforms.presentation.y) {
+        return;
+    }
+    const uint localEnvironment =
+        clusterGroup / clusterCount;
+    const uint clusterIndex =
+        clusterGroup - localEnvironment * clusterCount;
+    const uint environment =
+        uniforms.shadowBatch.x + localEnvironment;
+    if (environment >= uniforms.counts.x) {
+        return;
+    }
+    if (localTriangle == 0u) {
+        const MRHybridMeshClusterGPU cluster =
+            clusters[clusterIndex];
+        clusterRange = cluster.range;
+        const MRVisualPrimitiveGPUV2 primitive =
+            primitives[cluster.range.z];
+        const MRVisualInstanceGPUV2 visualInstance =
+            visualInstances[primitive.geometry.w];
+        const BoundPose binding = visualInstanceStatePose(
+            visualInstanceStates,
+            environment,
+            primitive.geometry.w,
+            uniforms,
+            false
+        );
+        const MRVisualLightGPUV1 light =
+            lights[uniforms.shadow.w];
+        atomic_store_explicit(
+            &clusterVisible,
+            meshClusterIntersectsShadow(
+                cluster,
+                visualInstance,
+                light,
+                binding
+            ) ? 1u : 0u,
+            memory_order_relaxed
+        );
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (atomic_load_explicit(
+            &clusterVisible,
+            memory_order_relaxed
+        ) == 0u ||
+        localTriangle >= clusterRange.y) {
+        return;
+    }
+    rasterizeShadowTriangle(
+        vertices,
+        triangles,
+        primitives,
+        visualInstances,
+        lights,
+        shadowAtlas,
+        uniforms,
+        visualInstanceStates,
+        localEnvironment,
+        environment,
+        clusterRange.x + localTriangle
+    );
 }
 
 kernel void mr_hybrid_clear_temporal_accumulation(
@@ -2572,6 +2743,102 @@ kernel void mr_hybrid_render_tiles(
     validity[pixel] = valid;
 }
 
+bool meshClusterIntersectsSensor(
+    const MRHybridMeshClusterGPU cluster,
+    const MRVisualInstanceGPUV2 visualInstance,
+    const MRWorldSensorInstanceGPU sensor,
+    const BoundPose camera,
+    const BoundPose binding,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    if ((visualInstance.binding.w &
+         MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR) == 0u ||
+        !camera.valid || !binding.valid) {
+        return false;
+    }
+    const float nearPlane =
+        max(uniforms.sensorRangeAndResponse.x, 1.0e-4f);
+    const float3 localCenter =
+        0.5f * (
+            cluster.boundsMinimum.xyz +
+            cluster.boundsMaximum.xyz
+        );
+    const float radius =
+        0.5f * length(
+            cluster.boundsMaximum.xyz -
+            cluster.boundsMinimum.xyz
+        ) * binding.scale;
+    const float3 cameraPoint = inverseRotateVector(
+        camera.orientation,
+        transformPoint(binding, localCenter) - camera.position
+    );
+    if (!all(isfinite(cameraPoint)) ||
+        !isfinite(radius)) {
+        return true;
+    }
+    if (cameraPoint.z + radius < nearPlane) {
+        return false;
+    }
+    const float focalScale =
+        sensor.positionAndFocalScale.w;
+    const float2 focal =
+        max(sensor.intrinsics.xy * focalScale, 1.0e-6f);
+    const bool rectilinear =
+        all(abs(sensor.distortion) <= 1.0e-8f);
+    const float leftSlope =
+        (-1.0f - sensor.intrinsics.z) / focal.x;
+    const float rightSlope =
+        (float(uniforms.image.x) + 1.0f -
+         sensor.intrinsics.z) / focal.x;
+    const float bottomSlope =
+        (-1.0f - sensor.intrinsics.w) / focal.y;
+    const float topSlope =
+        (float(uniforms.image.y) + 1.0f -
+         sensor.intrinsics.w) / focal.y;
+    if (rectilinear) {
+        if (cameraPoint.x - leftSlope * cameraPoint.z <
+                -radius * sqrt(1.0f + leftSlope * leftSlope) ||
+            rightSlope * cameraPoint.z - cameraPoint.x <
+                -radius * sqrt(1.0f + rightSlope * rightSlope) ||
+            cameraPoint.y - bottomSlope * cameraPoint.z <
+                -radius * sqrt(1.0f + bottomSlope * bottomSlope) ||
+            topSlope * cameraPoint.z - cameraPoint.y <
+                -radius * sqrt(1.0f + topSlope * topSlope)) {
+            return false;
+        }
+        const bool verticalBand = uniforms.band.z == 0u;
+        const float principal = verticalBand
+            ? sensor.intrinsics.w
+            : sensor.intrinsics.z;
+        const float bandFocal = verticalBand
+            ? focal.y
+            : focal.x;
+        const float center = verticalBand
+            ? cameraPoint.y
+            : cameraPoint.x;
+        const float firstSlope =
+            (float(uniforms.band.x) - 1.0f - principal) /
+            bandFocal;
+        const float endSlope =
+            (
+                float(uniforms.band.x + uniforms.band.y) +
+                1.0f - principal
+            ) /
+            bandFocal;
+        if (center - firstSlope * cameraPoint.z <
+                -radius * sqrt(
+                    1.0f + firstSlope * firstSlope
+                ) ||
+            endSlope * cameraPoint.z - center <
+                -radius * sqrt(
+                    1.0f + endSlope * endSlope
+                )) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void binMeshTriangle(
     const device MRVisualVertexGPUV2* vertices,
     const device MRVisualTriangleGPUV2* triangles,
@@ -2589,16 +2856,13 @@ void binMeshTriangle(
     device MRHybridMeshTileRecordGPU* tileRecords,
     device atomic_uint* overflowCounts,
     constant MRHybridRenderUniformsGPU& uniforms,
-    const uint index
+    const uint environment,
+    const uint triangleIndex
 ) {
-    const uint triangleCount = uniforms.live.w;
-    const uint total = uniforms.counts.x * triangleCount;
-    if (index >= total || triangleCount == 0u) {
+    if (environment >= uniforms.counts.x ||
+        triangleIndex >= uniforms.live.w) {
         return;
     }
-    const uint environment = index / triangleCount;
-    const uint triangleIndex =
-        index - environment * triangleCount;
     const MRVisualTriangleGPUV2 triangle =
         triangles[triangleIndex];
     const MRVisualPrimitiveGPUV2 primitive =
@@ -2879,6 +3143,56 @@ void binMeshTriangle(
     }
 }
 
+kernel void mr_hybrid_cull_mesh_clusters(
+    const device MRHybridMeshClusterGPU* clusters [[buffer(0)]],
+    const device MRVisualPrimitiveGPUV2* primitives [[buffer(1)]],
+    const device MRVisualInstanceGPUV2* visualInstances [[buffer(2)]],
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(3)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(4)]],
+    const device MRHybridCameraStateGPU* cameraStates [[buffer(5)]],
+    const device MRHybridVisualInstanceStateGPU* visualInstanceStates
+        [[buffer(6)]],
+    device uint* visibility [[buffer(7)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(8)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint clusterCount = uniforms.meshTiling.y;
+    const uint total = uniforms.counts.x * clusterCount;
+    if (index >= total || clusterCount == 0u) {
+        return;
+    }
+    const uint environment = index / clusterCount;
+    const uint clusterIndex =
+        index - environment * clusterCount;
+    const MRHybridMeshClusterGPU cluster =
+        clusters[clusterIndex];
+    const MRVisualPrimitiveGPUV2 primitive =
+        primitives[cluster.range.z];
+    const MRVisualInstanceGPUV2 visualInstance =
+        visualInstances[primitive.geometry.w];
+    const MRWorldInstanceHeaderGPU instance =
+        instances[environment];
+    const MRWorldSensorInstanceGPU sensor =
+        sensors[instance.ranges.z + uniforms.render.x];
+    const BoundPose camera =
+        cameraStatePose(cameraStates, environment, false);
+    const BoundPose binding = visualInstanceStatePose(
+        visualInstanceStates,
+        environment,
+        primitive.geometry.w,
+        uniforms,
+        false
+    );
+    visibility[index] = meshClusterIntersectsSensor(
+        cluster,
+        visualInstance,
+        sensor,
+        camera,
+        binding,
+        uniforms
+    ) ? 1u : 0u;
+}
+
 kernel void mr_hybrid_bin_mesh(
     const device MRVisualVertexGPUV2* vertices [[buffer(0)]],
     const device MRVisualTriangleGPUV2* triangles [[buffer(1)]],
@@ -2898,8 +3212,27 @@ kernel void mr_hybrid_bin_mesh(
     device atomic_uint* tileCounts [[buffer(15)]],
     device MRHybridMeshTileRecordGPU* tileRecords [[buffer(16)]],
     device atomic_uint* overflowCounts [[buffer(17)]],
+    const device uint* triangleClusters [[buffer(18)]],
+    const device uint* clusterVisibility [[buffer(19)]],
     const uint index [[thread_position_in_grid]]
 ) {
+    const uint triangleCount = uniforms.live.w;
+    const uint total = uniforms.counts.x * triangleCount;
+    if (index >= total || triangleCount == 0u) {
+        return;
+    }
+    const uint environment = index / triangleCount;
+    const uint triangleIndex =
+        index - environment * triangleCount;
+    const uint clusterCount = uniforms.meshTiling.y;
+    const uint clusterIndex =
+        triangleClusters[triangleIndex];
+    if (clusterIndex >= clusterCount ||
+        clusterVisibility[
+            environment * clusterCount + clusterIndex
+        ] == 0u) {
+        return;
+    }
     binMeshTriangle(
         vertices,
         triangles,
@@ -2917,7 +3250,8 @@ kernel void mr_hybrid_bin_mesh(
         tileRecords,
         overflowCounts,
         uniforms,
-        index
+        environment,
+        triangleIndex
     );
 }
 

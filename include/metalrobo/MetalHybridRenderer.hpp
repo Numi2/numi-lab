@@ -70,6 +70,7 @@ struct MetalHybridRendererLayout {
     std::uint32_t gaussianCount = 0u;
     std::uint32_t meshVertexCount = 0u;
     std::uint32_t meshTriangleCount = 0u;
+    std::uint32_t meshClusterCount = 0u;
     std::uint32_t meshPrimitiveCount = 0u;
     std::uint32_t meshInstanceCount = 0u;
     std::uint32_t meshIndexCount = 0u;

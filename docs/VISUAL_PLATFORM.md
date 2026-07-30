@@ -90,11 +90,20 @@ environment, and image-based lighting implementation. A compact
 environment-major state pass resolves current and previous camera plus authored
 instance transforms once, removing repeated body binding and quaternion work
 from triangle visibility, shadows, and composition. `sensor_fast` packs depth
-and triangle identity into one Apple9 64-bit atomic visibility key. Authored
-mesh visibility is hierarchical: projected triangles with a bounded
-microtriangle box use the direct atomic lane, while larger triangles append
-their already-projected screen-space record to 16×16 tiles. One 256-thread
-group then resolves each tile in 128-record shared-memory batches. This keeps
+and triangle identity into one Apple9 64-bit atomic visibility key. Streamed
+indexed geometry is partitioned into 64-triangle clusters, and tight cluster
+bounds are built once on Metal after the Metal I/O load. Each camera pass
+culls environment-major clusters in parallel against the calibrated frustum
+and active rolling-shutter band. The flat triangle pass then performs one
+coalesced triangle-to-cluster and cached-visibility lookup before touching
+vertices, so high-poly work scales with visible geometry without a
+compact-list scan or an encoder transition. Shadow clusters use a cooperative
+light-frustum path.
+
+Within visible clusters, projected triangles with a bounded microtriangle box
+use the direct atomic lane, while larger triangles append their
+already-projected screen-space record to 16×16 tiles. One 256-thread group
+then resolves each tile in 128-record shared-memory batches. This keeps
 subpixel robot meshes inexpensive, eliminates a second world/camera transform
 for tiled geometry, and prevents large triangles from serially walking their
 complete pixel bounding box. Tile-list order is irrelevant because the packed

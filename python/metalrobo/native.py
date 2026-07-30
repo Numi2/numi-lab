@@ -86,6 +86,7 @@ class _HybridRendererLayoutC(ct.Structure):
         ("maximum_mesh_triangles_per_tile", ct.c_uint32),
         ("mesh_vertex_count", ct.c_uint32),
         ("mesh_triangle_count", ct.c_uint32),
+        ("mesh_cluster_count", ct.c_uint32),
         ("mesh_primitive_count", ct.c_uint32),
         ("mesh_instance_count", ct.c_uint32),
         ("mesh_index_count", ct.c_uint32),

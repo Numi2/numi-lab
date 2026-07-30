@@ -72,6 +72,7 @@ class HybridRendererLayout:
     maximum_mesh_triangles_per_tile: int
     mesh_vertex_count: int
     mesh_triangle_count: int
+    mesh_cluster_count: int
     mesh_primitive_count: int
     mesh_instance_count: int
     mesh_index_count: int
@@ -443,6 +444,7 @@ class HybridObservationRenderer:
             ),
             mesh_vertex_count=int(native.mesh_vertex_count),
             mesh_triangle_count=int(native.mesh_triangle_count),
+            mesh_cluster_count=int(native.mesh_cluster_count),
             mesh_primitive_count=int(native.mesh_primitive_count),
             mesh_instance_count=int(native.mesh_instance_count),
             mesh_index_count=int(native.mesh_index_count),

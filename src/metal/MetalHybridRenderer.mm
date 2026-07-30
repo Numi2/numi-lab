@@ -33,7 +33,6 @@ namespace {
 
 constexpr NSUInteger kMinimumAllocationBytes = 16u;
 constexpr NSUInteger kCameraThreads = 64u;
-constexpr NSUInteger kGeometryThreads = 128u;
 constexpr NSUInteger kPixelThreads = 256u;
 constexpr std::uint32_t kLiveCurrent = 1u << 0u;
 constexpr std::uint32_t kLivePrevious = 1u << 1u;
@@ -44,6 +43,8 @@ struct RendererBuffers {
     __strong id<MTLBuffer> meshVertices = nil;
     __strong id<MTLBuffer> meshIndices = nil;
     __strong id<MTLBuffer> meshTriangles = nil;
+    __strong id<MTLBuffer> meshClusters = nil;
+    __strong id<MTLBuffer> meshTriangleClusters = nil;
     __strong id<MTLBuffer> meshPrimitives = nil;
     __strong id<MTLBuffer> meshInstances = nil;
     __strong id<MTLBuffer> materials = nil;
@@ -68,6 +69,7 @@ struct RendererBuffers {
     __strong id<MTLBuffer> meshTileCounts = nil;
     __strong id<MTLBuffer> meshTileRecords = nil;
     __strong id<MTLBuffer> meshTileOverflowCounts = nil;
+    __strong id<MTLBuffer> meshClusterVisibility = nil;
     __strong id<MTLBuffer> meshWinners = nil;
     __strong id<MTLBuffer> rgb = nil;
     __strong id<MTLBuffer> depth = nil;
@@ -104,6 +106,8 @@ struct RuntimeVisualScene {
     std::uint32_t vertexCount = 0u;
     std::uint32_t indexCount = 0u;
     std::vector<GeometrySource> geometrySources;
+    std::vector<MRHybridMeshClusterGPU> meshClusters;
+    std::vector<std::uint32_t> meshTriangleClusters;
     std::vector<MRVisualPrimitiveGPUV2> primitives;
     std::vector<MRVisualInstanceGPUV2> instances;
     std::vector<MRVisualMaterialGPUV2> materials;
@@ -754,6 +758,83 @@ bool flattenScene(
     return output.indexCount % 3u == 0u;
 }
 
+bool buildMeshClusters(
+    RuntimeVisualScene& scene,
+    std::string& reason
+) {
+    scene.meshClusters.clear();
+    scene.meshTriangleClusters.assign(
+        scene.indexCount / 3u,
+        MR_INVALID_INDEX
+    );
+    scene.meshClusters.reserve(
+        (
+            static_cast<std::size_t>(scene.indexCount / 3u) +
+            MR_HYBRID_MESH_CLUSTER_TRIANGLES - 1u
+        ) /
+        MR_HYBRID_MESH_CLUSTER_TRIANGLES
+    );
+    for (std::uint32_t primitiveIndex = 0u;
+         primitiveIndex < scene.primitives.size();
+         ++primitiveIndex) {
+        const MRVisualPrimitiveGPUV2& primitive =
+            scene.primitives[primitiveIndex];
+        if (primitive.geometry.x % 3u != 0u ||
+            primitive.geometry.y % 3u != 0u ||
+            primitive.geometry.x > scene.indexCount ||
+            primitive.geometry.y >
+                scene.indexCount - primitive.geometry.x) {
+            reason =
+                "visual primitive index range cannot form mesh clusters";
+            return false;
+        }
+        const std::uint32_t firstTriangle =
+            primitive.geometry.x / 3u;
+        const std::uint32_t triangleCount =
+            primitive.geometry.y / 3u;
+        for (std::uint32_t first = 0u;
+             first < triangleCount;
+             first += MR_HYBRID_MESH_CLUSTER_TRIANGLES) {
+            const std::uint32_t count = std::min(
+                std::uint32_t(MR_HYBRID_MESH_CLUSTER_TRIANGLES),
+                triangleCount - first
+            );
+            MRHybridMeshClusterGPU cluster{};
+            cluster.range = {
+                firstTriangle + first,
+                count,
+                primitiveIndex,
+                0u,
+            };
+            const std::uint32_t clusterIndex =
+                static_cast<std::uint32_t>(
+                    scene.meshClusters.size()
+                );
+            scene.meshClusters.push_back(cluster);
+            std::fill_n(
+                scene.meshTriangleClusters.begin() +
+                    cluster.range.x,
+                cluster.range.y,
+                clusterIndex
+            );
+        }
+    }
+    if (scene.meshClusters.size() >
+        std::numeric_limits<std::uint32_t>::max()) {
+        reason = "visual mesh cluster count exceeds uint32";
+        return false;
+    }
+    if (std::ranges::find(
+            scene.meshTriangleClusters,
+            MR_INVALID_INDEX
+        ) != scene.meshTriangleClusters.end()) {
+        reason =
+            "visual mesh triangles are not covered by a primitive";
+        return false;
+    }
+    return true;
+}
+
 } // namespace
 
 namespace detail {
@@ -807,11 +888,13 @@ struct MetalHybridRendererState {
     __strong id<MTLComputePipelineState>
         rebaseMaterialBindingsPipeline = nil;
     __strong id<MTLComputePipelineState> expandTrianglesPipeline = nil;
+    __strong id<MTLComputePipelineState> buildMeshClustersPipeline = nil;
     __strong id<MTLComputePipelineState> prepareCameraPipeline = nil;
     __strong id<MTLComputePipelineState> resolveNearClippedPipeline = nil;
     __strong id<MTLComputePipelineState> clearObservationPipeline = nil;
     __strong id<MTLComputePipelineState> binPipeline = nil;
     __strong id<MTLComputePipelineState> renderPipeline = nil;
+    __strong id<MTLComputePipelineState> cullMeshClustersPipeline = nil;
     __strong id<MTLComputePipelineState> binMeshPipeline = nil;
     __strong id<MTLComputePipelineState> resolveMeshTilesPipeline = nil;
     __strong id<MTLComputePipelineState> compositeMeshPipeline = nil;
@@ -927,6 +1010,8 @@ MetalHybridRendererDiagnostics initialize(
         pipeline(@"mr_visual_rebase_material_bindings_v3");
     state.expandTrianglesPipeline =
         pipeline(@"mr_visual_expand_triangles_v3");
+    state.buildMeshClustersPipeline =
+        pipeline(@"mr_visual_build_mesh_clusters");
     state.prepareCameraPipeline =
         pipeline(@"mr_hybrid_prepare_cameras");
     state.resolveNearClippedPipeline =
@@ -937,6 +1022,8 @@ MetalHybridRendererDiagnostics initialize(
         pipeline(@"mr_hybrid_bin_gaussians");
     state.renderPipeline =
         pipeline(@"mr_hybrid_render_tiles");
+    state.cullMeshClustersPipeline =
+        pipeline(@"mr_hybrid_cull_mesh_clusters");
     state.binMeshPipeline =
         pipeline(@"mr_hybrid_bin_mesh");
     state.resolveMeshTilesPipeline =
@@ -946,7 +1033,7 @@ MetalHybridRendererDiagnostics initialize(
     state.clearShadowPipeline =
         pipeline(@"mr_hybrid_clear_shadow_atlas");
     state.rasterShadowPipeline =
-        pipeline(@"mr_hybrid_rasterize_shadow_atlas");
+        pipeline(@"mr_hybrid_rasterize_shadow_clusters");
     state.clearAccumulationPipeline =
         pipeline(@"mr_hybrid_clear_temporal_accumulation");
     state.accumulatePipeline =
@@ -968,11 +1055,13 @@ MetalHybridRendererDiagnostics initialize(
         state.rebaseIndicesPipeline == nil ||
         state.rebaseMaterialBindingsPipeline == nil ||
         state.expandTrianglesPipeline == nil ||
+        state.buildMeshClustersPipeline == nil ||
         state.prepareCameraPipeline == nil ||
         state.resolveNearClippedPipeline == nil ||
         state.clearObservationPipeline == nil ||
         state.binPipeline == nil ||
         state.renderPipeline == nil ||
+        state.cullMeshClustersPipeline == nil ||
         state.binMeshPipeline == nil ||
         state.resolveMeshTilesPipeline == nil ||
         state.compositeMeshPipeline == nil ||
@@ -992,6 +1081,8 @@ MetalHybridRendererDiagnostics initialize(
     }
     if (state.renderPipeline.maxTotalThreadsPerThreadgroup <
             MR_HYBRID_MAX_GAUSSIANS_PER_TILE ||
+        state.rasterShadowPipeline.maxTotalThreadsPerThreadgroup <
+            MR_HYBRID_MESH_CLUSTER_TRIANGLES ||
         state.resolveMeshTilesPipeline
                 .maxTotalThreadsPerThreadgroup <
             MR_HYBRID_TILE_SIZE * MR_HYBRID_TILE_SIZE) {
@@ -1109,7 +1200,7 @@ struct NativeGeometryResources {
 
 bool createNativeGeometryResources(
     id<MTLDevice> device,
-    const std::array<std::size_t, 7u>& byteCounts,
+    const std::array<std::size_t, 9u>& byteCounts,
     RendererBuffers& buffers,
     NativeGeometryResources& output,
     std::string& reason
@@ -1117,12 +1208,14 @@ bool createNativeGeometryResources(
     const MTLResourceOptions options =
         MTLResourceStorageModePrivate |
         MTLResourceHazardTrackingModeUntracked;
-    std::array<std::size_t, 7u> lengths{};
-    std::array<std::size_t, 7u> offsets{};
-    constexpr std::array<std::size_t, 7u> typedMinimums{
+    std::array<std::size_t, 9u> lengths{};
+    std::array<std::size_t, 9u> offsets{};
+    constexpr std::array<std::size_t, 9u> typedMinimums{
         sizeof(MRVisualVertexGPUV2),
         sizeof(std::uint32_t),
         sizeof(MRVisualTriangleGPUV2),
+        sizeof(MRHybridMeshClusterGPU),
+        sizeof(std::uint32_t),
         sizeof(MRVisualPrimitiveGPUV2),
         sizeof(MRVisualInstanceGPUV2),
         sizeof(MRVisualMaterialGPUV2),
@@ -1192,18 +1285,24 @@ bool createNativeGeometryResources(
         buffer(1u, @"MetalRobo streamed indices");
     buffers.meshTriangles =
         buffer(2u, @"MetalRobo expanded triangles");
+    buffers.meshClusters =
+        buffer(3u, @"MetalRobo mesh clusters");
+    buffers.meshTriangleClusters =
+        buffer(4u, @"MetalRobo triangle cluster indices");
     buffers.meshPrimitives =
-        buffer(3u, @"MetalRobo visual primitives");
+        buffer(5u, @"MetalRobo visual primitives");
     buffers.meshInstances =
-        buffer(4u, @"MetalRobo visual instances");
+        buffer(6u, @"MetalRobo visual instances");
     buffers.materials =
-        buffer(5u, @"MetalRobo visual materials");
+        buffer(7u, @"MetalRobo visual materials");
     buffers.textureBindings =
-        buffer(6u, @"MetalRobo visual texture bindings");
+        buffer(8u, @"MetalRobo visual texture bindings");
     const std::array created{
         buffers.meshVertices,
         buffers.meshIndices,
         buffers.meshTriangles,
+        buffers.meshClusters,
+        buffers.meshTriangleClusters,
         buffers.meshPrimitives,
         buffers.meshInstances,
         buffers.materials,
@@ -1674,6 +1773,7 @@ bool loadAndPrepareStreamedGeometry(
     id<MTLComputePipelineState> rebasePipeline,
     id<MTLComputePipelineState> rebaseMaterialPipeline,
     id<MTLComputePipelineState> expandPipeline,
+    id<MTLComputePipelineState> buildClustersPipeline,
     const RuntimeVisualScene& scene,
     const RendererBuffers& buffers,
     std::string& reason
@@ -1809,6 +1909,7 @@ bool loadAndPrepareStreamedGeometry(
                                       1u
                                   )];
     }
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
     [encoder setComputePipelineState:rebaseMaterialPipeline];
     [encoder setBuffer:buffers.materials offset:0u atIndex:0u];
     const NSUInteger materialThreads = std::min<NSUInteger>(
@@ -1840,6 +1941,7 @@ bool loadAndPrepareStreamedGeometry(
                                       1u
                                   )];
     }
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
     [encoder setComputePipelineState:expandPipeline];
     [encoder setBuffer:buffers.meshIndices offset:0u atIndex:0u];
     [encoder setBuffer:buffers.meshPrimitives offset:0u atIndex:1u];
@@ -1863,6 +1965,32 @@ bool loadAndPrepareStreamedGeometry(
                                   1u,
                                   1u
                               )];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    [encoder setComputePipelineState:buildClustersPipeline];
+    [encoder setBuffer:buffers.meshTriangles offset:0u atIndex:0u];
+    [encoder setBuffer:buffers.meshVertices offset:0u atIndex:1u];
+    [encoder setBuffer:buffers.meshClusters offset:0u atIndex:2u];
+    const std::uint32_t clusterCount =
+        static_cast<std::uint32_t>(scene.meshClusters.size());
+    [encoder setBytes:&clusterCount
+               length:sizeof(clusterCount)
+              atIndex:3u];
+    const NSUInteger clusterThreads = std::min<NSUInteger>(
+        buildClustersPipeline.maxTotalThreadsPerThreadgroup,
+        128u
+    );
+    if (clusterCount != 0u) {
+        [encoder dispatchThreads:MTLSizeMake(
+                                     clusterCount,
+                                     1u,
+                                     1u
+                                 )
+            threadsPerThreadgroup:MTLSizeMake(
+                                      clusterThreads,
+                                      1u,
+                                      1u
+                                  )];
+    }
     [encoder endEncoding];
     [command commit];
     [command waitUntilCompleted];
@@ -3038,7 +3166,7 @@ MetalHybridRendererDiagnostics encodeLocked(
     };
     uniforms.meshTiling = {
         state.layout.maximumMeshTrianglesPerTile,
-        MR_HYBRID_MESH_TILE_BATCH,
+        state.layout.meshClusterCount,
         MR_HYBRID_MESH_MICRO_TRIANGLE_PIXELS,
         options.outputs == nullptr
             ? static_cast<std::uint32_t>(
@@ -3157,6 +3285,9 @@ MetalHybridRendererDiagnostics encodeLocked(
     const NSUInteger triangleCount =
         static_cast<NSUInteger>(environmentCount) *
         state.layout.meshTriangleCount;
+    const NSUInteger meshClusterGroupCount =
+        static_cast<NSUInteger>(environmentCount) *
+        state.layout.meshClusterCount;
     const bool sensorFusedIntoComposite =
         options.applySensor &&
         !options.resolveAccumulation &&
@@ -3391,6 +3522,27 @@ MetalHybridRendererDiagnostics encodeLocked(
     }
 
     if (options.renderMeshes && triangleCount != 0u) {
+        encoder.setPipeline(state.cullMeshClustersPipeline);
+        id<MTLBuffer> __unsafe_unretained cullBuffers[] = {
+            state.buffers.meshClusters,
+            state.buffers.meshPrimitives,
+            state.buffers.meshInstances,
+            instances,
+            sensors,
+            state.buffers.cameraStates,
+            state.buffers.visualInstanceStates,
+            state.buffers.meshClusterVisibility,
+        };
+        const NSUInteger cullOffsets[
+            std::size(cullBuffers)
+        ] = {};
+        encoder.setBuffers(cullBuffers, cullOffsets, 0u);
+        encoder.setBytes(&uniforms, sizeof(uniforms), 8u);
+        encoder.dispatchThreads(
+            meshClusterGroupCount,
+            kPixelThreads
+        );
+
         encoder.setPipeline(state.binMeshPipeline);
         id<MTLBuffer> __unsafe_unretained rasterBuffers[] = {
             state.buffers.meshVertices,
@@ -3411,14 +3563,18 @@ MetalHybridRendererDiagnostics encodeLocked(
             state.buffers.meshTileCounts,
             state.buffers.meshTileRecords,
             state.buffers.meshTileOverflowCounts,
+            state.buffers.meshTriangleClusters,
+            state.buffers.meshClusterVisibility,
         };
         const NSUInteger rasterOffsets[
             std::size(rasterBuffers)
         ] = {};
         encoder.setBuffers(rasterBuffers, rasterOffsets, 0u);
         encoder.setBytes(&uniforms, sizeof(uniforms), 13u);
-        constexpr NSUInteger rasterThreads = kGeometryThreads;
-        encoder.dispatchThreads(triangleCount, rasterThreads);
+        encoder.dispatchThreads(
+            triangleCount,
+            kPixelThreads
+        );
 
         encoder.setPipeline(state.resolveMeshTilesPipeline);
         id<MTLBuffer> __unsafe_unretained resolveTileBuffers[] = {
@@ -3481,7 +3637,6 @@ MetalHybridRendererDiagnostics encodeLocked(
                     state.layout.shadowLayerCapacity
             );
         constexpr NSUInteger clearShadowThreads = kPixelThreads;
-        constexpr NSUInteger shadowThreads = kGeometryThreads;
         constexpr NSUInteger compositeThreads = kPixelThreads;
         for (std::uint32_t environmentStart = 0u;
              environmentStart < environmentCount;
@@ -3512,6 +3667,9 @@ MetalHybridRendererDiagnostics encodeLocked(
                     clearShadowThreads
                 );
 
+                const NSUInteger batchClusterCount =
+                    static_cast<NSUInteger>(batchCount) *
+                    state.layout.meshClusterCount;
                 encoder.setPipeline(state.rasterShadowPipeline);
                 id<MTLBuffer> __unsafe_unretained shadowBuffers[] = {
                     state.buffers.meshVertices,
@@ -3538,12 +3696,14 @@ MetalHybridRendererDiagnostics encodeLocked(
                     0u,
                     10u
                 );
-                const NSUInteger batchTriangleCount =
-                    static_cast<NSUInteger>(batchCount) *
-                    state.layout.meshTriangleCount;
-                encoder.dispatchThreads(
-                    batchTriangleCount,
-                    shadowThreads
+                encoder.setBuffer(
+                    state.buffers.meshClusters,
+                    0u,
+                    11u
+                );
+                encoder.dispatchThreadgroups(
+                    batchClusterCount,
+                    MR_HYBRID_MESH_CLUSTER_TRIANGLES
                 );
             }
 
@@ -4277,6 +4437,14 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 std::move(reason)
             );
         }
+        if (!profile.rayQueryVisibility &&
+            !buildMeshClusters(runtime, reason)) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::invalidScene,
+                std::move(reason)
+            );
+        }
         std::uint32_t shadowLightIndex = MR_INVALID_INDEX;
         std::uint32_t shadowLightPriority = 0u;
         for (std::uint32_t lightIndex = 0u;
@@ -4409,6 +4577,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 std::numeric_limits<std::uint32_t>::max();
         };
         if (!fitsUint32(runtime.gaussians.size()) ||
+            !fitsUint32(runtime.meshClusters.size()) ||
             !fitsUint32(runtime.primitives.size()) ||
             !fitsUint32(runtime.instances.size()) ||
             !fitsUint32(runtime.materials.size()) ||
@@ -4430,6 +4599,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             runtime.vertexCount;
         layout.meshTriangleCount =
             runtime.indexCount / 3u;
+        layout.meshClusterCount =
+            static_cast<std::uint32_t>(
+                runtime.meshClusters.size()
+            );
         layout.meshPrimitiveCount =
             static_cast<std::uint32_t>(runtime.primitives.size());
         layout.meshInstanceCount =
@@ -4478,6 +4651,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         std::size_t projectedCount = 0u;
         std::size_t tileIndexCount = 0u;
         std::size_t meshTileRecordCount = 0u;
+        std::size_t meshClusterVisibilityCount = 0u;
         std::size_t bodyStateCount = 0u;
         std::size_t visualInstanceStateCount = 0u;
         std::size_t nearClippedTriangleCount = 0u;
@@ -4510,6 +4684,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             ) ||
             !checkedMultiply(
                 capacity,
+                layout.meshClusterCount,
+                meshClusterVisibilityCount
+            ) ||
+            !checkedMultiply(
+                capacity,
                 layout.bodyCount,
                 bodyStateCount
             ) ||
@@ -4534,6 +4713,8 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         std::size_t meshVertexBytes = 0u;
         std::size_t meshIndexBytes = 0u;
         std::size_t meshTriangleBytes = 0u;
+        std::size_t meshClusterBytes = 0u;
+        std::size_t meshTriangleClusterBytes = 0u;
         std::size_t meshPrimitiveBytes = 0u;
         std::size_t meshInstanceBytes = 0u;
         std::size_t materialBytes = 0u;
@@ -4557,6 +4738,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         std::size_t meshTileCountBytes = 0u;
         std::size_t meshTileRecordBytes = 0u;
         std::size_t meshTileOverflowBytes = 0u;
+        std::size_t meshClusterVisibilityBytes = 0u;
         std::size_t meshWinnerBytes = 0u;
         std::size_t rgbBytes = 0u;
         std::size_t temporalAccumulationBytes = 0u;
@@ -4622,6 +4804,14 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             !checkedBytes<MRVisualTriangleGPUV2>(
                 runtime.indexCount / 3u,
                 meshTriangleBytes
+            ) ||
+            !checkedBytes<MRHybridMeshClusterGPU>(
+                runtime.meshClusters.size(),
+                meshClusterBytes
+            ) ||
+            !checkedBytes<std::uint32_t>(
+                runtime.meshTriangleClusters.size(),
+                meshTriangleClusterBytes
             ) ||
             !checkedBytes<MRVisualPrimitiveGPUV2>(
                 runtime.primitives.size(),
@@ -4716,6 +4906,12 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                     : capacity,
                 meshTileOverflowBytes
             ) ||
+            !checkedBytes<std::uint32_t>(
+                profile.rayQueryVisibility
+                    ? 0u
+                    : meshClusterVisibilityCount,
+                meshClusterVisibilityBytes
+            ) ||
             !checkedMultiply(
                 pixelCount,
                 2u * sizeof(std::uint32_t),
@@ -4790,6 +4986,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                  meshTileCountBytes,
                  meshTileRecordBytes,
                  meshTileOverflowBytes,
+                 meshClusterVisibilityBytes,
                  meshWinnerBytes,
                  state_->config.retainObservationBuffers
                      ? rgbBytes
@@ -4846,6 +5043,8 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                     meshVertexBytes,
                     meshIndexBytes,
                     meshTriangleBytes,
+                    meshClusterBytes,
+                    meshTriangleClusterBytes,
                     meshPrimitiveBytes,
                     meshInstanceBytes,
                     materialBytes,
@@ -4980,6 +5179,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             meshTileOverflowBytes,
             @"MetalRobo mesh tile overflows"
         );
+        buffers.meshClusterVisibility = makePrivateBuffer(
+            state_->device,
+            meshClusterVisibilityBytes,
+            @"MetalRobo mesh cluster visibility"
+        );
         buffers.meshWinners = makePrivateBuffer(
             state_->device,
             meshWinnerBytes,
@@ -5083,6 +5287,8 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             buffers.meshVertices,
             buffers.meshIndices,
             buffers.meshTriangles,
+            buffers.meshClusters,
+            buffers.meshTriangleClusters,
             buffers.meshPrimitives,
             buffers.meshInstances,
             buffers.materials,
@@ -5107,6 +5313,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             buffers.meshTileCounts,
             buffers.meshTileRecords,
             buffers.meshTileOverflowCounts,
+            buffers.meshClusterVisibility,
             buffers.meshWinners,
             buffers.shadowAtlas,
             buffers.temporalAccumulation,
@@ -5177,6 +5384,24 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 gaussianBytes,
                 buffers.gaussians,
                 @"MetalRobo Gaussian upload",
+                staging
+            ) ||
+            !upload(
+                state_->device,
+                blit,
+                runtime.meshClusters.data(),
+                meshClusterBytes,
+                buffers.meshClusters,
+                @"MetalRobo mesh cluster upload",
+                staging
+            ) ||
+            !upload(
+                state_->device,
+                blit,
+                runtime.meshTriangleClusters.data(),
+                meshTriangleClusterBytes,
+                buffers.meshTriangleClusters,
+                @"MetalRobo triangle cluster-index upload",
                 staging
             ) ||
             !upload(
@@ -5279,6 +5504,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 state_->rebaseIndicesPipeline,
                 state_->rebaseMaterialBindingsPipeline,
                 state_->expandTrianglesPipeline,
+                state_->buildMeshClustersPipeline,
                 runtime,
                 buffers,
                 reason
@@ -5319,6 +5545,12 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         std::vector<MRHybridGaussianGPU>{}.swap(runtime.gaussians);
         std::vector<RuntimeVisualScene::GeometrySource>{}.swap(
             runtime.geometrySources
+        );
+        std::vector<MRHybridMeshClusterGPU>{}.swap(
+            runtime.meshClusters
+        );
+        std::vector<std::uint32_t>{}.swap(
+            runtime.meshTriangleClusters
         );
         std::vector<MRVisualPrimitiveGPUV2>{}.swap(runtime.primitives);
         std::vector<MRVisualInstanceGPUV2>{}.swap(runtime.instances);

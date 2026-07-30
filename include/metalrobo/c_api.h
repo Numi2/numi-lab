@@ -82,6 +82,7 @@ typedef struct MRHybridRendererLayoutC {
     uint32_t maximum_mesh_triangles_per_tile;
     uint32_t mesh_vertex_count;
     uint32_t mesh_triangle_count;
+    uint32_t mesh_cluster_count;
     uint32_t mesh_primitive_count;
     uint32_t mesh_instance_count;
     uint32_t mesh_index_count;

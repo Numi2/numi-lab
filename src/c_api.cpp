@@ -1315,6 +1315,7 @@ MRHybridRendererLayoutC mr_hybrid_renderer_layout(
         layout.maximumMeshTrianglesPerTile;
     result.mesh_vertex_count = layout.meshVertexCount;
     result.mesh_triangle_count = layout.meshTriangleCount;
+    result.mesh_cluster_count = layout.meshClusterCount;
     result.mesh_primitive_count = layout.meshPrimitiveCount;
     result.mesh_instance_count = layout.meshInstanceCount;
     result.mesh_index_count = layout.meshIndexCount;

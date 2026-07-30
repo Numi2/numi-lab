@@ -864,6 +864,8 @@ int main() {
             << " views=" << frames.viewCount
             << " triangles="
             << lastRender.layout.meshTriangleCount
+            << " clusters="
+            << lastRender.layout.meshClusterCount
             << " fixed_visible_pixels=" << fixedVisible
             << " wrist_visible_pixels="
             << validGeometryPixels(observations[1])
