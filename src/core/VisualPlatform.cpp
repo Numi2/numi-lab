@@ -1468,6 +1468,7 @@ bool composeVisualBodyStates(
         );
     }
     std::vector<std::uint32_t> sceneIndices;
+    sceneIndices.reserve(model.bodies.size());
     for (std::uint32_t body = 0u; body < model.bodies.size(); ++body) {
         if (model.bodies[body].articulationIndex ==
             MR_INVALID_INDEX) {
@@ -1481,6 +1482,25 @@ bool composeVisualBodyStates(
             "visual scene-body stream has invalid dimensions"
         );
     }
+    struct ArticulationScratch {
+        std::vector<double> q;
+        std::vector<double> v;
+        std::vector<ArticulatedBodyKinematics> bodies;
+    };
+    std::vector<ArticulationScratch> articulationScratch(
+        model.articulations.size()
+    );
+    for (std::size_t articulationIndex = 0u;
+         articulationIndex < model.articulations.size();
+         ++articulationIndex) {
+        const MRArticulationGPU& articulation =
+            model.articulations[articulationIndex];
+        ArticulationScratch& scratch =
+            articulationScratch[articulationIndex];
+        scratch.q.resize(articulation.nq);
+        scratch.v.resize(articulation.nv);
+        scratch.bodies.resize(articulation.bodyCount);
+    }
     std::vector<MRBodyStateGPU> candidate(
         static_cast<std::size_t>(environmentCount) *
         model.bodies.size()
@@ -1493,32 +1513,29 @@ bool composeVisualBodyStates(
              ++articulationIndex) {
             const MRArticulationGPU& articulation =
                 model.articulations[articulationIndex];
-            std::vector<double> localQ(articulation.nq);
-            std::vector<double> localV(articulation.nv);
+            ArticulationScratch& scratch =
+                articulationScratch[articulationIndex];
             for (std::uint32_t coordinate = 0u;
                  coordinate < articulation.nq;
                  ++coordinate) {
-                localQ[coordinate] =
+                scratch.q[coordinate] =
                     q[environment * nq +
                       articulation.qOffset + coordinate];
             }
             for (std::uint32_t coordinate = 0u;
                  coordinate < articulation.nv;
                  ++coordinate) {
-                localV[coordinate] =
+                scratch.v[coordinate] =
                     v[environment * nv +
                       articulation.vOffset + coordinate];
             }
-            std::vector<ArticulatedBodyKinematics> kinematics(
-                articulation.bodyCount
-            );
             const ArticulatedDynamicsDiagnostics diagnostics =
                 computeArticulatedBodyKinematics(
                     model,
                     articulationIndex,
-                    localQ,
-                    localV,
-                    kinematics
+                    scratch.q,
+                    scratch.v,
+                    scratch.bodies
                 );
             if (!diagnostics.succeeded()) {
                 return fail(
@@ -1527,7 +1544,7 @@ bool composeVisualBodyStates(
                 );
             }
             for (const ArticulatedBodyKinematics& body :
-                 kinematics) {
+                 scratch.bodies) {
                 MRBodyStateGPU state{};
                 state.position = {
                     static_cast<float>(

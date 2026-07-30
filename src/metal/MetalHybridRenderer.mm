@@ -10,6 +10,7 @@
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstring>
 #include <filesystem>
 #include <iterator>
@@ -20,6 +21,7 @@
 #include <span>
 #include <string>
 #include <system_error>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -111,6 +113,53 @@ struct RuntimeVisualScene {
 using RayGeometryKey =
     std::vector<std::array<std::uint32_t, 3u>>;
 
+struct RayGeometryHash {
+    [[nodiscard]] std::size_t operator()(
+        const std::span<const MRVisualPrimitiveGPUV2> primitives
+    ) const noexcept {
+        std::uint64_t hash = 14695981039346656037ull;
+        for (const MRVisualPrimitiveGPUV2& primitive :
+             primitives) {
+            const std::array values{
+                primitive.geometry.x,
+                primitive.geometry.y,
+                primitive.geometry.z,
+            };
+            for (const std::uint32_t value : values) {
+                hash ^= value;
+                hash *= 1099511628211ull;
+            }
+        }
+        hash ^= primitives.size();
+        hash *= 1099511628211ull;
+        if constexpr (sizeof(std::size_t) < sizeof(hash)) {
+            hash ^= hash >> 32u;
+        }
+        return static_cast<std::size_t>(hash);
+    }
+};
+
+bool matchesRayGeometry(
+    const RayGeometryKey& key,
+    const std::span<const MRVisualPrimitiveGPUV2> primitives
+) {
+    if (key.size() != primitives.size()) {
+        return false;
+    }
+    for (std::size_t index = 0u; index < key.size(); ++index) {
+        const MRVisualPrimitiveGPUV2& primitive =
+            primitives[index];
+        if (key[index] != std::array{
+                primitive.geometry.x,
+                primitive.geometry.y,
+                primitive.geometry.z,
+            }) {
+            return false;
+        }
+    }
+    return true;
+}
+
 struct CompactedPrimitiveAccelerationStructures {
     __strong NSArray<id<MTLAccelerationStructure>>* structures = nil;
     std::size_t retainedBytes = 0u;
@@ -198,6 +247,22 @@ bool checkedAdd(
     }
     result = left + right;
     return true;
+}
+
+bool appendAlignedReadbackRegion(
+    const std::size_t bytes,
+    std::size_t& cursor,
+    std::size_t& offset
+) {
+    constexpr std::size_t kAlignment = 256u;
+    const std::size_t remainder = cursor % kAlignment;
+    const std::size_t padding =
+        remainder == 0u ? 0u : kAlignment - remainder;
+    if (!checkedAdd(cursor, padding, offset) ||
+        !checkedAdd(offset, bytes, cursor)) {
+        return false;
+    }
+    return cursor <= std::numeric_limits<NSUInteger>::max();
 }
 
 template <typename Value>
@@ -4030,6 +4095,15 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         std::vector<std::uint32_t> rayVisibleInstances;
         std::vector<std::uint32_t> rayBlasIndices;
         if (profile.rayQueryVisibility) {
+            rayGeometryKeys.reserve(runtime.instances.size());
+            rayVisibleInstances.reserve(runtime.instances.size());
+            rayBlasIndices.reserve(runtime.instances.size());
+            std::unordered_multimap<
+                std::size_t,
+                std::uint32_t
+            > rayGeometryLookup;
+            rayGeometryLookup.reserve(runtime.instances.size());
+            const RayGeometryHash hashRayGeometry;
             for (std::uint32_t instanceIndex = 0u;
                  instanceIndex < runtime.instances.size();
                  ++instanceIndex) {
@@ -4042,33 +4116,49 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                     instance.geometry.y == 0u) {
                     continue;
                 }
-                RayGeometryKey key;
-                key.reserve(instance.geometry.y);
-                for (std::uint32_t geometry = 0u;
-                     geometry < instance.geometry.y;
-                     ++geometry) {
-                    const MRVisualPrimitiveGPUV2& primitive =
-                        runtime.primitives[
-                            instance.geometry.x + geometry
-                        ];
-                    key.push_back({
-                        primitive.geometry.x,
-                        primitive.geometry.y,
-                        primitive.geometry.z,
-                    });
-                }
-                const auto found =
-                    std::ranges::find(rayGeometryKeys, key);
-                const std::uint32_t blasIndex =
-                    found == rayGeometryKeys.end()
-                    ? static_cast<std::uint32_t>(
-                          rayGeometryKeys.size()
-                      )
-                    : static_cast<std::uint32_t>(
-                          found - rayGeometryKeys.begin()
-                      );
-                if (found == rayGeometryKeys.end()) {
+                const auto primitives =
+                    std::span<const MRVisualPrimitiveGPUV2>{
+                        runtime.primitives
+                    }.subspan(
+                        instance.geometry.x,
+                        instance.geometry.y
+                    );
+                const std::size_t geometryHash =
+                    hashRayGeometry(primitives);
+                const auto [first, last] =
+                    rayGeometryLookup.equal_range(geometryHash);
+                const auto found = std::find_if(
+                    first,
+                    last,
+                    [&](const auto& entry) {
+                        return matchesRayGeometry(
+                            rayGeometryKeys[entry.second],
+                            primitives
+                        );
+                    }
+                );
+                std::uint32_t blasIndex = 0u;
+                if (found == last) {
+                    blasIndex = static_cast<std::uint32_t>(
+                        rayGeometryKeys.size()
+                    );
+                    RayGeometryKey key;
+                    key.reserve(primitives.size());
+                    for (const MRVisualPrimitiveGPUV2& primitive :
+                         primitives) {
+                        key.push_back({
+                            primitive.geometry.x,
+                            primitive.geometry.y,
+                            primitive.geometry.z,
+                        });
+                    }
                     rayGeometryKeys.push_back(std::move(key));
+                    rayGeometryLookup.emplace(
+                        geometryHash,
+                        blasIndex
+                    );
+                } else {
+                    blasIndex = found->second;
                 }
                 rayVisibleInstances.push_back(instanceIndex);
                 rayBlasIndices.push_back(blasIndex);
@@ -5766,78 +5856,69 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::readback(
                 "visual readback pixel count overflows"
             );
         }
-        HybridObservationBatch candidate;
-        candidate.environmentCount =
-            state_->activeEnvironmentCount;
-        candidate.width = state_->layout.width;
-        candidate.height = state_->layout.height;
-        candidate.rgb.resize(pixelCount);
-        candidate.depth.resize(pixelCount);
-        candidate.segmentation.resize(pixelCount);
-        candidate.identities.resize(pixelCount);
-        candidate.normals.resize(pixelCount);
-        candidate.motion.resize(pixelCount);
-        candidate.validity.resize(pixelCount);
-        candidate.metadata = state_->activeMetadata;
-
-        const std::size_t rgbBytes =
-            pixelCount * sizeof(mr_float4);
-        const std::size_t depthBytes =
-            pixelCount * sizeof(float);
-        const std::size_t uintBytes =
-            pixelCount * sizeof(std::uint32_t);
-        const std::size_t uint4Bytes =
-            pixelCount * sizeof(mr_uint4);
-        id<MTLBuffer> rgb = makeSharedBuffer(
-            state_->device,
-            rgbBytes,
-            @"MetalRobo visual RGB readback"
-        );
-        id<MTLBuffer> depth = makeSharedBuffer(
-            state_->device,
-            depthBytes,
-            @"MetalRobo visual depth readback"
-        );
-        id<MTLBuffer> segmentation = makeSharedBuffer(
-            state_->device,
-            uintBytes,
-            @"MetalRobo visual semantic readback"
-        );
-        id<MTLBuffer> identities = makeSharedBuffer(
-            state_->device,
-            uint4Bytes,
-            @"MetalRobo visual identity readback"
-        );
-        id<MTLBuffer> normals = makeSharedBuffer(
-            state_->device,
-            rgbBytes,
-            @"MetalRobo visual normal readback"
-        );
-        id<MTLBuffer> motion = makeSharedBuffer(
-            state_->device,
-            rgbBytes,
-            @"MetalRobo visual motion readback"
-        );
-        id<MTLBuffer> validity = makeSharedBuffer(
-            state_->device,
-            uintBytes,
-            @"MetalRobo visual validity readback"
-        );
-        const std::array readbacks{
-            rgb,
-            depth,
-            segmentation,
-            identities,
-            normals,
-            motion,
-            validity,
+        std::size_t rgbBytes = 0u;
+        std::size_t depthBytes = 0u;
+        std::size_t uintBytes = 0u;
+        std::size_t uint4Bytes = 0u;
+        if (!checkedBytes<mr_float4>(pixelCount, rgbBytes) ||
+            !checkedBytes<float>(pixelCount, depthBytes) ||
+            !checkedBytes<std::uint32_t>(pixelCount, uintBytes) ||
+            !checkedBytes<mr_uint4>(pixelCount, uint4Bytes)) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::capacityOverflow,
+                "visual readback byte count overflows"
+            );
+        }
+        enum ReadbackPlane : std::size_t {
+            rgbPlane,
+            depthPlane,
+            segmentationPlane,
+            identityPlane,
+            normalPlane,
+            motionPlane,
+            validityPlane,
+            planeCount,
         };
-        if (std::ranges::any_of(
-                readbacks,
-                [](id<MTLBuffer> buffer) {
-                    return buffer == nil;
-                }
-            )) {
+        const std::array<std::size_t, planeCount> planeBytes{
+            rgbBytes,
+            depthBytes,
+            uintBytes,
+            uint4Bytes,
+            rgbBytes,
+            rgbBytes,
+            uintBytes,
+        };
+        std::array<std::size_t, planeCount> planeOffsets{};
+        std::size_t readbackBytes = 0u;
+        for (std::size_t plane = 0u;
+             plane < planeCount;
+             ++plane) {
+            if (!appendAlignedReadbackRegion(
+                    planeBytes[plane],
+                    readbackBytes,
+                    planeOffsets[plane]
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalHybridRendererStatus::capacityOverflow,
+                    "visual readback layout overflows"
+                );
+            }
+        }
+        output.rgb.reserve(pixelCount);
+        output.depth.reserve(pixelCount);
+        output.segmentation.reserve(pixelCount);
+        output.identities.reserve(pixelCount);
+        output.normals.reserve(pixelCount);
+        output.motion.reserve(pixelCount);
+        output.validity.reserve(pixelCount);
+        id<MTLBuffer> readback = makeSharedBuffer(
+            state_->device,
+            readbackBytes,
+            @"MetalRobo visual observation readback"
+        );
+        if (readback == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalHybridRendererStatus::metalBufferFailure,
@@ -5856,32 +5937,52 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::readback(
             );
         }
         const auto copy =
-            [blit](
+            [blit, readback](
                 id<MTLBuffer> source,
-                id<MTLBuffer> destination,
+                const std::size_t destinationOffset,
                 const std::size_t bytes
             ) {
             [blit copyFromBuffer:source
                     sourceOffset:0u
-                        toBuffer:destination
-               destinationOffset:0u
+                        toBuffer:readback
+               destinationOffset:destinationOffset
                             size:bytes];
         };
-        copy(state_->buffers.rgb, rgb, rgbBytes);
-        copy(state_->buffers.depth, depth, depthBytes);
+        copy(
+            state_->buffers.rgb,
+            planeOffsets[rgbPlane],
+            rgbBytes
+        );
+        copy(
+            state_->buffers.depth,
+            planeOffsets[depthPlane],
+            depthBytes
+        );
         copy(
             state_->buffers.segmentation,
-            segmentation,
+            planeOffsets[segmentationPlane],
             uintBytes
         );
         copy(
             state_->buffers.identities,
-            identities,
+            planeOffsets[identityPlane],
             uint4Bytes
         );
-        copy(state_->buffers.normals, normals, rgbBytes);
-        copy(state_->buffers.motion, motion, rgbBytes);
-        copy(state_->buffers.validity, validity, uintBytes);
+        copy(
+            state_->buffers.normals,
+            planeOffsets[normalPlane],
+            rgbBytes
+        );
+        copy(
+            state_->buffers.motion,
+            planeOffsets[motionPlane],
+            rgbBytes
+        );
+        copy(
+            state_->buffers.validity,
+            planeOffsets[validityPlane],
+            uintBytes
+        );
         [blit endEncoding];
         [command commit];
         [command waitUntilCompleted];
@@ -5893,42 +5994,54 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::readback(
                     describeError(command.error)
             );
         }
+        output.rgb.resize(pixelCount);
+        output.depth.resize(pixelCount);
+        output.segmentation.resize(pixelCount);
+        output.identities.resize(pixelCount);
+        output.normals.resize(pixelCount);
+        output.motion.resize(pixelCount);
+        output.validity.resize(pixelCount);
+        const auto* contents =
+            static_cast<const std::byte*>(readback.contents);
         std::memcpy(
-            candidate.rgb.data(),
-            rgb.contents,
+            output.rgb.data(),
+            contents + planeOffsets[rgbPlane],
             rgbBytes
         );
         std::memcpy(
-            candidate.depth.data(),
-            depth.contents,
+            output.depth.data(),
+            contents + planeOffsets[depthPlane],
             depthBytes
         );
         std::memcpy(
-            candidate.segmentation.data(),
-            segmentation.contents,
+            output.segmentation.data(),
+            contents + planeOffsets[segmentationPlane],
             uintBytes
         );
         std::memcpy(
-            candidate.identities.data(),
-            identities.contents,
+            output.identities.data(),
+            contents + planeOffsets[identityPlane],
             uint4Bytes
         );
         std::memcpy(
-            candidate.normals.data(),
-            normals.contents,
+            output.normals.data(),
+            contents + planeOffsets[normalPlane],
             rgbBytes
         );
         std::memcpy(
-            candidate.motion.data(),
-            motion.contents,
+            output.motion.data(),
+            contents + planeOffsets[motionPlane],
             rgbBytes
         );
         std::memcpy(
-            candidate.validity.data(),
-            validity.contents,
+            output.validity.data(),
+            contents + planeOffsets[validityPlane],
             uintBytes
         );
-        output = std::move(candidate);
+        output.environmentCount = state_->activeEnvironmentCount;
+        output.width = state_->layout.width;
+        output.height = state_->layout.height;
+        output.metadata = state_->activeMetadata;
         return diagnostics;
     } catch (const std::bad_alloc&) {
         return reject(

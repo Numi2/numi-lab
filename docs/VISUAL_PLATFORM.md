@@ -109,6 +109,10 @@ simulation-only identities, normals, motion, or visibility.
 compute encoder. It commits no command buffer and performs no readback. RGB,
 depth, identity, normal, motion, and validity buffers stay device-resident and
 are exposed through `nativeBuffer` for MLX, Core ML, or another Metal stage.
+Explicit inspection/export readback coalesces every plane into one transient
+aligned shared buffer and reuses caller-owned host capacity. This avoids
+per-modality Metal allocations without retaining a resolution-sized staging
+buffer after the readback completes.
 
 Fixed and wrist cameras in `FrankaPickPlaceWorldFamily` are the reference
 integration. The fixed camera is calibrated toward the manipulation

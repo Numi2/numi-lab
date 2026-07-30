@@ -1959,16 +1959,26 @@ ArticulatedDynamicsDiagnostics computeArticulatedBodyKinematics(
         return diagnostics;
     }
 
-    std::vector<ArticulatedBodyKinematics> result(
-        topology.articulation->bodyCount
-    );
+    for (const BodyKinematics& source : internal) {
+        const Quaternion orientation =
+            quaternionFromRotationMatrix(source.rotation);
+        if (!finite(source.centerOfMassPosition) ||
+            !finite(source.centerOfMassLinearVelocity) ||
+            !finite(source.angularVelocity) ||
+            !finite(orientation)) {
+            diagnostics.status =
+                ArticulatedDynamicsStatus::nonfiniteResult;
+            return diagnostics;
+        }
+    }
     for (std::size_t localBody = 0u;
-         localBody < result.size();
+         localBody < bodyKinematics.size();
          ++localBody) {
         const BodyKinematics& source = internal[localBody];
         const Quaternion orientation =
             quaternionFromRotationMatrix(source.rotation);
-        ArticulatedBodyKinematics& destination = result[localBody];
+        ArticulatedBodyKinematics& destination =
+            bodyKinematics[localBody];
         destination.bodyIndex =
             topology.articulation->firstBody +
             static_cast<std::uint32_t>(localBody);
@@ -1993,16 +2003,7 @@ ArticulatedDynamicsDiagnostics computeArticulatedBodyKinematics(
             source.angularVelocity.y,
             source.angularVelocity.z,
         };
-        if (!finite(source.centerOfMassPosition) ||
-            !finite(source.centerOfMassLinearVelocity) ||
-            !finite(source.angularVelocity) ||
-            !finite(orientation)) {
-            diagnostics.status =
-                ArticulatedDynamicsStatus::nonfiniteResult;
-            return diagnostics;
-        }
     }
-    std::ranges::copy(result, bodyKinematics.begin());
     return diagnostics;
 }
 

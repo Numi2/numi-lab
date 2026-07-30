@@ -136,6 +136,28 @@ bool checkedMultiply(
     return true;
 }
 
+bool appendAlignedReadbackRegion(
+    const std::size_t bytes,
+    std::size_t& cursor,
+    std::size_t& offset
+) {
+    constexpr std::size_t kAlignment = 256u;
+    const std::size_t remainder = cursor % kAlignment;
+    const std::size_t padding =
+        remainder == 0u ? 0u : kAlignment - remainder;
+    if (padding >
+            std::numeric_limits<std::size_t>::max() - cursor) {
+        return false;
+    }
+    offset = cursor + padding;
+    if (bytes >
+            std::numeric_limits<std::size_t>::max() - offset) {
+        return false;
+    }
+    cursor = offset + bytes;
+    return cursor <= std::numeric_limits<NSUInteger>::max();
+}
+
 template <typename T>
 bool checkedByteCount(
     const std::size_t count,
@@ -215,12 +237,15 @@ id<MTLBuffer> makeUploadBuffer(
 template <typename T>
 void copySharedBuffer(
     std::vector<T>& destination,
-    id<MTLBuffer> buffer
+    id<MTLBuffer> buffer,
+    const std::size_t offset
 ) {
     if (!destination.empty()) {
+        const auto* contents =
+            static_cast<const std::byte*>(buffer.contents);
         std::memcpy(
             destination.data(),
-            buffer.contents,
+            contents + offset,
             destination.size() * sizeof(T)
         );
     }
@@ -1964,67 +1989,109 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readback(
 
         const std::size_t instanceCount =
             state_->layout.activeInstanceCount;
-        const std::size_t assetElements =
-            instanceCount * state_->layout.assetCountPerInstance;
-        const std::size_t sensorElements =
-            instanceCount * state_->layout.sensorCountPerInstance;
-        const std::size_t appearanceElements =
-            instanceCount *
-            state_->layout.appearanceCountPerInstance;
-        const std::size_t scenarioValueElements =
-            instanceCount * state_->layout.variationCount;
-        const std::size_t instanceBytes =
-            instanceCount * sizeof(MRWorldInstanceHeaderGPU);
-        const std::size_t assetBytes =
-            assetElements * sizeof(MRWorldAssetInstanceGPU);
-        const std::size_t sensorBytes =
-            sensorElements * sizeof(MRWorldSensorInstanceGPU);
-        const std::size_t appearanceBytes =
-            appearanceElements *
-            sizeof(MRWorldAppearanceInstanceGPU);
-        const std::size_t scenarioHeaderBytes =
-            instanceCount * sizeof(MRWorldScenarioHeaderGPU);
-        const std::size_t scenarioValueBytes =
-            scenarioValueElements * sizeof(MRWorldScenarioValueGPU);
-
-        id<MTLBuffer> instanceReadback = makeSharedBuffer(
+        std::size_t assetElements = 0u;
+        std::size_t sensorElements = 0u;
+        std::size_t appearanceElements = 0u;
+        std::size_t scenarioValueElements = 0u;
+        if (!checkedMultiply(
+                instanceCount,
+                state_->layout.assetCountPerInstance,
+                assetElements
+            ) ||
+            !checkedMultiply(
+                instanceCount,
+                state_->layout.sensorCountPerInstance,
+                sensorElements
+            ) ||
+            !checkedMultiply(
+                instanceCount,
+                state_->layout.appearanceCountPerInstance,
+                appearanceElements
+            ) ||
+            !checkedMultiply(
+                instanceCount,
+                state_->layout.variationCount,
+                scenarioValueElements
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::arithmeticOverflow,
+                "world-family readback element count overflows"
+            );
+        }
+        enum ReadbackSection : std::size_t {
+            instanceSection,
+            assetSection,
+            sensorSection,
+            appearanceSection,
+            scenarioHeaderSection,
+            scenarioValueSection,
+            sectionCount,
+        };
+        std::array<std::size_t, sectionCount> sectionBytes{};
+        if (!checkedByteCount<MRWorldInstanceHeaderGPU>(
+                instanceCount,
+                sectionBytes[instanceSection]
+            ) ||
+            !checkedByteCount<MRWorldAssetInstanceGPU>(
+                assetElements,
+                sectionBytes[assetSection]
+            ) ||
+            !checkedByteCount<MRWorldSensorInstanceGPU>(
+                sensorElements,
+                sectionBytes[sensorSection]
+            ) ||
+            !checkedByteCount<MRWorldAppearanceInstanceGPU>(
+                appearanceElements,
+                sectionBytes[appearanceSection]
+            ) ||
+            !checkedByteCount<MRWorldScenarioHeaderGPU>(
+                instanceCount,
+                sectionBytes[scenarioHeaderSection]
+            ) ||
+            !checkedByteCount<MRWorldScenarioValueGPU>(
+                scenarioValueElements,
+                sectionBytes[scenarioValueSection]
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::arithmeticOverflow,
+                "world-family readback byte count overflows"
+            );
+        }
+        std::array<std::size_t, sectionCount> sectionOffsets{};
+        std::size_t readbackBytes = 0u;
+        for (std::size_t section = 0u;
+             section < sectionCount;
+             ++section) {
+            if (!appendAlignedReadbackRegion(
+                    sectionBytes[section],
+                    readbackBytes,
+                    sectionOffsets[section]
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldFamilyStatus::arithmeticOverflow,
+                    "world-family readback layout overflows"
+                );
+            }
+        }
+        output.instances.reserve(instanceCount);
+        output.scenarioHeaders.reserve(instanceCount);
+        output.scenarioValues.reserve(scenarioValueElements);
+        output.assets.reserve(assetElements);
+        output.sensors.reserve(sensorElements);
+        output.appearances.reserve(appearanceElements);
+        id<MTLBuffer> readback = makeSharedBuffer(
             state_->device,
-            instanceBytes,
-            @"MetalRobo instance readback"
+            readbackBytes,
+            @"MetalRobo world-family readback"
         );
-        id<MTLBuffer> assetReadback = makeSharedBuffer(
-            state_->device,
-            assetBytes,
-            @"MetalRobo asset readback"
-        );
-        id<MTLBuffer> sensorReadback = makeSharedBuffer(
-            state_->device,
-            sensorBytes,
-            @"MetalRobo sensor readback"
-        );
-        id<MTLBuffer> appearanceReadback = makeSharedBuffer(
-            state_->device,
-            appearanceBytes,
-            @"MetalRobo appearance readback"
-        );
-        id<MTLBuffer> scenarioHeaderReadback = makeSharedBuffer(
-            state_->device,
-            scenarioHeaderBytes,
-            @"MetalRobo scenario header readback"
-        );
-        id<MTLBuffer> scenarioValueReadback = makeSharedBuffer(
-            state_->device,
-            scenarioValueBytes,
-            @"MetalRobo scenario value readback"
-        );
-        if (instanceReadback == nil || assetReadback == nil ||
-            sensorReadback == nil || appearanceReadback == nil ||
-            scenarioHeaderReadback == nil ||
-            scenarioValueReadback == nil) {
+        if (readback == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldFamilyStatus::metalBufferFailure,
-                "failed to allocate world-family readback buffers"
+                "failed to allocate world-family readback buffer"
             );
         }
 
@@ -2042,46 +2109,46 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readback(
         }
         const auto copyOutput = ^(
             id<MTLBuffer> source,
-            id<MTLBuffer> destination,
+            const std::size_t destinationOffset,
             std::size_t bytes
         ) {
             if (bytes != 0u) {
                 [blit copyFromBuffer:source
                        sourceOffset:0u
-                           toBuffer:destination
-                  destinationOffset:0u
+                           toBuffer:readback
+                  destinationOffset:destinationOffset
                                size:static_cast<NSUInteger>(bytes)];
             }
         };
         copyOutput(
             state_->buffers.instances,
-            instanceReadback,
-            instanceBytes
+            sectionOffsets[instanceSection],
+            sectionBytes[instanceSection]
         );
         copyOutput(
             state_->buffers.assets,
-            assetReadback,
-            assetBytes
+            sectionOffsets[assetSection],
+            sectionBytes[assetSection]
         );
         copyOutput(
             state_->buffers.sensors,
-            sensorReadback,
-            sensorBytes
+            sectionOffsets[sensorSection],
+            sectionBytes[sensorSection]
         );
         copyOutput(
             state_->buffers.appearances,
-            appearanceReadback,
-            appearanceBytes
+            sectionOffsets[appearanceSection],
+            sectionBytes[appearanceSection]
         );
         copyOutput(
             state_->buffers.scenarioHeaders,
-            scenarioHeaderReadback,
-            scenarioHeaderBytes
+            sectionOffsets[scenarioHeaderSection],
+            sectionBytes[scenarioHeaderSection]
         );
         copyOutput(
             state_->buffers.scenarioValues,
-            scenarioValueReadback,
-            scenarioValueBytes
+            sectionOffsets[scenarioValueSection],
+            sectionBytes[scenarioValueSection]
         );
         [blit endEncoding];
         [command commit];
@@ -2100,35 +2167,51 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readback(
             );
         }
 
-        WorldInstanceBatch staged;
-        staged.familyFingerprint = state_->familyFingerprint;
-        staged.instances.resize(instanceCount);
-        staged.scenarioHeaders.resize(instanceCount);
-        staged.scenarioValues.resize(scenarioValueElements);
-        staged.assets.resize(assetElements);
-        staged.sensors.resize(sensorElements);
-        staged.appearances.resize(appearanceElements);
-        copySharedBuffer(staged.instances, instanceReadback);
+        output.familyFingerprint = state_->familyFingerprint;
+        output.instances.resize(instanceCount);
+        output.scenarioHeaders.resize(instanceCount);
+        output.scenarioValues.resize(scenarioValueElements);
+        output.assets.resize(assetElements);
+        output.sensors.resize(sensorElements);
+        output.appearances.resize(appearanceElements);
         copySharedBuffer(
-            staged.scenarioHeaders,
-            scenarioHeaderReadback
+            output.instances,
+            readback,
+            sectionOffsets[instanceSection]
         );
         copySharedBuffer(
-            staged.scenarioValues,
-            scenarioValueReadback
+            output.scenarioHeaders,
+            readback,
+            sectionOffsets[scenarioHeaderSection]
         );
-        copySharedBuffer(staged.assets, assetReadback);
-        copySharedBuffer(staged.sensors, sensorReadback);
-        copySharedBuffer(staged.appearances, appearanceReadback);
+        copySharedBuffer(
+            output.scenarioValues,
+            readback,
+            sectionOffsets[scenarioValueSection]
+        );
+        copySharedBuffer(
+            output.assets,
+            readback,
+            sectionOffsets[assetSection]
+        );
+        copySharedBuffer(
+            output.sensors,
+            readback,
+            sectionOffsets[sensorSection]
+        );
+        copySharedBuffer(
+            output.appearances,
+            readback,
+            sectionOffsets[appearanceSection]
+        );
         std::string reason;
-        if (!staged.valid(&reason)) {
+        if (!output.valid(&reason)) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldFamilyStatus::metalCommandFailure,
                 "GPU produced an invalid world batch: " + reason
             );
         }
-        output = std::move(staged);
         state_->stats.readbackCount += 1u;
         return diagnostics;
     } catch (const std::bad_alloc&) {
@@ -2174,68 +2257,109 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readbackPhysics(
 
         const std::size_t instanceCount =
             state_->layout.activeInstanceCount;
-        const std::size_t qElements =
-            instanceCount * state_->layout.nq;
-        const std::size_t vElements =
-            instanceCount * state_->layout.nv;
-        const std::size_t sceneElements =
-            instanceCount * state_->layout.sceneBodyCount;
-        const std::size_t bodyElements =
-            instanceCount * state_->layout.bodyCount;
-        const std::size_t controllerElements =
-            instanceCount * state_->layout.articulationCount;
-
-        MetalWorldFamilyPhysicsBatch staged;
-        staged.instanceCount =
-            static_cast<std::uint32_t>(instanceCount);
-        staged.primaryArticulationIndex =
-            state_->layout.primaryArticulationIndex;
-        staged.nq = state_->layout.nq;
-        staged.nv = state_->layout.nv;
-        staged.bodyCount = state_->layout.bodyCount;
-        staged.sceneBodyCount = state_->layout.sceneBodyCount;
-        staged.articulationCount =
-            state_->layout.articulationCount;
-        staged.resetQ.resize(qElements);
-        staged.resetV.resize(vElements);
-        staged.resetSceneBodies.resize(sceneElements);
-        staged.bodyParameters.resize(bodyElements);
-        staged.controllerParameters.resize(controllerElements);
-
-        const auto makeReadback = [this](
-            const std::size_t bytes,
-            NSString* label
-        ) {
-            return makeSharedBuffer(state_->device, bytes, label);
+        std::size_t qElements = 0u;
+        std::size_t vElements = 0u;
+        std::size_t sceneElements = 0u;
+        std::size_t bodyElements = 0u;
+        std::size_t controllerElements = 0u;
+        if (!checkedMultiply(
+                instanceCount,
+                state_->layout.nq,
+                qElements
+            ) ||
+            !checkedMultiply(
+                instanceCount,
+                state_->layout.nv,
+                vElements
+            ) ||
+            !checkedMultiply(
+                instanceCount,
+                state_->layout.sceneBodyCount,
+                sceneElements
+            ) ||
+            !checkedMultiply(
+                instanceCount,
+                state_->layout.bodyCount,
+                bodyElements
+            ) ||
+            !checkedMultiply(
+                instanceCount,
+                state_->layout.articulationCount,
+                controllerElements
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::arithmeticOverflow,
+                "physics readback element count overflows"
+            );
+        }
+        enum ReadbackSection : std::size_t {
+            qSection,
+            vSection,
+            sceneSection,
+            bodySection,
+            controllerSection,
+            sectionCount,
         };
-        id<MTLBuffer> qReadback = makeReadback(
-            qElements * sizeof(float),
-            @"MetalRobo physics q readback"
+        std::array<std::size_t, sectionCount> sectionBytes{};
+        if (!checkedByteCount<float>(
+                qElements,
+                sectionBytes[qSection]
+            ) ||
+            !checkedByteCount<float>(
+                vElements,
+                sectionBytes[vSection]
+            ) ||
+            !checkedByteCount<MRBodyStateGPU>(
+                sceneElements,
+                sectionBytes[sceneSection]
+            ) ||
+            !checkedByteCount<MRWorldBodyParametersGPU>(
+                bodyElements,
+                sectionBytes[bodySection]
+            ) ||
+            !checkedByteCount<MRWorldControllerParametersGPU>(
+                controllerElements,
+                sectionBytes[controllerSection]
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldFamilyStatus::arithmeticOverflow,
+                "physics readback byte count overflows"
+            );
+        }
+        std::array<std::size_t, sectionCount> sectionOffsets{};
+        std::size_t readbackBytes = 0u;
+        for (std::size_t section = 0u;
+             section < sectionCount;
+             ++section) {
+            if (!appendAlignedReadbackRegion(
+                    sectionBytes[section],
+                    readbackBytes,
+                    sectionOffsets[section]
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldFamilyStatus::arithmeticOverflow,
+                    "physics readback layout overflows"
+                );
+            }
+        }
+        output.resetQ.reserve(qElements);
+        output.resetV.reserve(vElements);
+        output.resetSceneBodies.reserve(sceneElements);
+        output.bodyParameters.reserve(bodyElements);
+        output.controllerParameters.reserve(controllerElements);
+        id<MTLBuffer> readback = makeSharedBuffer(
+            state_->device,
+            readbackBytes,
+            @"MetalRobo physics readback"
         );
-        id<MTLBuffer> vReadback = makeReadback(
-            vElements * sizeof(float),
-            @"MetalRobo physics v readback"
-        );
-        id<MTLBuffer> sceneReadback = makeReadback(
-            sceneElements * sizeof(MRBodyStateGPU),
-            @"MetalRobo physics scene readback"
-        );
-        id<MTLBuffer> bodyReadback = makeReadback(
-            bodyElements * sizeof(MRWorldBodyParametersGPU),
-            @"MetalRobo body-parameter readback"
-        );
-        id<MTLBuffer> controllerReadback = makeReadback(
-            controllerElements *
-                sizeof(MRWorldControllerParametersGPU),
-            @"MetalRobo controller-parameter readback"
-        );
-        if (qReadback == nil || vReadback == nil ||
-            sceneReadback == nil || bodyReadback == nil ||
-            controllerReadback == nil) {
+        if (readback == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldFamilyStatus::metalBufferFailure,
-                "failed to allocate physics readback buffers"
+                "failed to allocate physics readback buffer"
             );
         }
 
@@ -2252,42 +2376,41 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readbackPhysics(
         }
         const auto copyOutput = ^(
             id<MTLBuffer> source,
-            id<MTLBuffer> destination,
+            const std::size_t destinationOffset,
             const std::size_t bytes
         ) {
             if (bytes != 0u) {
                 [blit copyFromBuffer:source
                        sourceOffset:0u
-                           toBuffer:destination
-                  destinationOffset:0u
+                           toBuffer:readback
+                  destinationOffset:destinationOffset
                                size:static_cast<NSUInteger>(bytes)];
             }
         };
         copyOutput(
             state_->buffers.resetQ,
-            qReadback,
-            qElements * sizeof(float)
+            sectionOffsets[qSection],
+            sectionBytes[qSection]
         );
         copyOutput(
             state_->buffers.resetV,
-            vReadback,
-            vElements * sizeof(float)
+            sectionOffsets[vSection],
+            sectionBytes[vSection]
         );
         copyOutput(
             state_->buffers.resetSceneBodies,
-            sceneReadback,
-            sceneElements * sizeof(MRBodyStateGPU)
+            sectionOffsets[sceneSection],
+            sectionBytes[sceneSection]
         );
         copyOutput(
             state_->buffers.bodyParameters,
-            bodyReadback,
-            bodyElements * sizeof(MRWorldBodyParametersGPU)
+            sectionOffsets[bodySection],
+            sectionBytes[bodySection]
         );
         copyOutput(
             state_->buffers.controllerParameters,
-            controllerReadback,
-            controllerElements *
-                sizeof(MRWorldControllerParametersGPU)
+            sectionOffsets[controllerSection],
+            sectionBytes[controllerSection]
         );
         [blit endEncoding];
         [command commit];
@@ -2300,25 +2423,57 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readbackPhysics(
                     describeError(command.error)
             );
         }
-        copySharedBuffer(staged.resetQ, qReadback);
-        copySharedBuffer(staged.resetV, vReadback);
-        copySharedBuffer(staged.resetSceneBodies, sceneReadback);
-        copySharedBuffer(staged.bodyParameters, bodyReadback);
+        output.instanceCount =
+            static_cast<std::uint32_t>(instanceCount);
+        output.primaryArticulationIndex =
+            state_->layout.primaryArticulationIndex;
+        output.nq = state_->layout.nq;
+        output.nv = state_->layout.nv;
+        output.bodyCount = state_->layout.bodyCount;
+        output.sceneBodyCount = state_->layout.sceneBodyCount;
+        output.articulationCount =
+            state_->layout.articulationCount;
+        output.resetQ.resize(qElements);
+        output.resetV.resize(vElements);
+        output.resetSceneBodies.resize(sceneElements);
+        output.bodyParameters.resize(bodyElements);
+        output.controllerParameters.resize(controllerElements);
         copySharedBuffer(
-            staged.controllerParameters,
-            controllerReadback
+            output.resetQ,
+            readback,
+            sectionOffsets[qSection]
+        );
+        copySharedBuffer(
+            output.resetV,
+            readback,
+            sectionOffsets[vSection]
+        );
+        copySharedBuffer(
+            output.resetSceneBodies,
+            readback,
+            sectionOffsets[sceneSection]
+        );
+        copySharedBuffer(
+            output.bodyParameters,
+            readback,
+            sectionOffsets[bodySection]
+        );
+        copySharedBuffer(
+            output.controllerParameters,
+            readback,
+            sectionOffsets[controllerSection]
         );
         const auto finiteFloat = [](const float value) {
             return std::isfinite(value);
         };
         if (!std::all_of(
-                staged.resetQ.begin(),
-                staged.resetQ.end(),
+                output.resetQ.begin(),
+                output.resetQ.end(),
                 finiteFloat
             ) ||
             !std::all_of(
-                staged.resetV.begin(),
-                staged.resetV.end(),
+                output.resetV.begin(),
+                output.resetV.end(),
                 finiteFloat
             )) {
             return reject(
@@ -2327,7 +2482,6 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::readbackPhysics(
                 "GPU produced non-finite physics reset coordinates"
             );
         }
-        output = std::move(staged);
         state_->stats.readbackCount += 1u;
         return diagnostics;
     } catch (const std::bad_alloc&) {
