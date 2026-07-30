@@ -8,7 +8,9 @@ Python code inspects an individual environment or physics step result.
 from __future__ import annotations
 
 import hashlib
+import json
 import math
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import NamedTuple
@@ -25,6 +27,10 @@ from .mlx_world import (
     step_sampled_world_family,
 )
 from .mlx_r2s2r import ReplayEvaluation
+
+
+_SHA256 = re.compile(r"[0-9a-f]{64}")
+_TACTILE_FINGERPRINT = re.compile(r"0x[0-9a-f]{16}")
 
 
 def _readonly(
@@ -70,6 +76,9 @@ class ReplayResidualScales:
     object_position: float = 0.02
     rod_position: float = 0.01
     contact_timing: float = 1.0
+    tactile_force: float = 5.0
+    tactile_torque: float = 0.10
+    tactile_depth: float = 0.001
     physics_failure: float = 1.0
 
     def validate(self) -> None:
@@ -79,6 +88,9 @@ class ReplayResidualScales:
             self.object_position,
             self.rod_position,
             self.contact_timing,
+            self.tactile_force,
+            self.tactile_torque,
+            self.tactile_depth,
             self.physics_failure,
         ):
             if not math.isfinite(value) or value <= 0.0:
@@ -110,6 +122,13 @@ class PhysicalReplayTrace:
     rod_node_indices: np.ndarray
     contact_active: np.ndarray | None
     contact_mask: np.ndarray | None
+    tactile_wrench: np.ndarray | None
+    tactile_wrench_mask: np.ndarray | None
+    tactile_depth: np.ndarray | None
+    tactile_depth_mask: np.ndarray | None
+    tactile_sensor_ids: tuple[str, ...]
+    tactile_stream_fingerprint: str | None
+    canonical_tactile_fingerprint: str | None
     control_period_seconds: float
     scales: ReplayResidualScales
 
@@ -124,6 +143,11 @@ class PhysicalReplayTrace:
         *,
         control_period_seconds: float | None = None,
         scales: ReplayResidualScales = ReplayResidualScales(),
+        tactile_sensor_ids: tuple[str, ...] = (),
+        tactile_stream_fingerprint: str | None = None,
+        canonical_tactile_fingerprint: str | None = None,
+        tactile_wrench_verified: bool = False,
+        tactile_depth_verified: bool = False,
     ) -> PhysicalReplayTrace:
         trace_path = Path(path).expanduser().resolve()
         if not trace_path.is_file():
@@ -309,6 +333,106 @@ class PhysicalReplayTrace:
                 )
                 contact_mask = candidate_mask
 
+        tactile_wrench: np.ndarray | None = None
+        tactile_wrench_mask: np.ndarray | None = None
+        if "tactile_wrench" in arrays:
+            wrench_raw = np.asarray(
+                arrays["tactile_wrench"],
+                dtype=np.float32,
+            )
+            if (
+                wrench_raw.ndim != 3
+                or wrench_raw.shape[0] != commands.shape[0]
+                or wrench_raw.shape[1] == 0
+                or wrench_raw.shape[2] != 6
+            ):
+                raise ValueError(
+                    "tactile_wrench must have shape "
+                    "[step, sensor, 6]"
+                )
+            candidate_mask = _mask_for(
+                arrays,
+                "tactile_wrench_mask",
+                wrench_raw.shape,
+            )
+            if bool(np.any(candidate_mask)):
+                tactile_wrench = _masked_values(
+                    wrench_raw,
+                    candidate_mask,
+                    "tactile_wrench",
+                )
+                tactile_wrench_mask = candidate_mask
+
+        tactile_depth: np.ndarray | None = None
+        tactile_depth_mask: np.ndarray | None = None
+        if "tactile_depth" in arrays:
+            depth_raw = np.asarray(
+                arrays["tactile_depth"],
+                dtype=np.float32,
+            )
+            if (
+                depth_raw.ndim != 2
+                or depth_raw.shape[0] != commands.shape[0]
+                or depth_raw.shape[1] == 0
+            ):
+                raise ValueError(
+                    "tactile_depth must have shape [step, sample]"
+                )
+            candidate_mask = _mask_for(
+                arrays,
+                "tactile_depth_mask",
+                depth_raw.shape,
+            )
+            if np.any(depth_raw[candidate_mask] < 0.0):
+                raise ValueError(
+                    "measured tactile_depth must be non-negative"
+                )
+            if bool(np.any(candidate_mask)):
+                tactile_depth = _masked_values(
+                    depth_raw,
+                    candidate_mask,
+                    "tactile_depth",
+                )
+                tactile_depth_mask = candidate_mask
+
+        has_tactile = (
+            tactile_wrench is not None or tactile_depth is not None
+        )
+        sensor_ids = tuple(str(value) for value in tactile_sensor_ids)
+        if has_tactile:
+            if (
+                _SHA256.fullmatch(tactile_stream_fingerprint or "")
+                is None
+                or _TACTILE_FINGERPRINT.fullmatch(
+                    canonical_tactile_fingerprint or ""
+                )
+                is None
+                or not sensor_ids
+                or len(set(sensor_ids)) != len(sensor_ids)
+                or any(not value for value in sensor_ids)
+            ):
+                raise ValueError(
+                    "tactile replay requires stream provenance, a "
+                    "canonical observation fingerprint, and ordered "
+                    "sensor ids"
+                )
+            if (
+                tactile_wrench is not None
+                and (
+                    not tactile_wrench_verified
+                    or tactile_wrench.shape[1] != len(sensor_ids)
+                )
+            ):
+                raise ValueError(
+                    "tactile wrench replay requires verified units/frame "
+                    "and one ordered id per sensor"
+                )
+            if tactile_depth is not None and not tactile_depth_verified:
+                raise ValueError(
+                    "tactile depth replay requires a verified metric "
+                    "translator"
+                )
+
         recorded_period = (
             None
             if "control_period_seconds" not in arrays
@@ -354,6 +478,17 @@ class PhysicalReplayTrace:
             rod_node_indices=rod_indices,
             contact_active=contact_active,
             contact_mask=contact_mask,
+            tactile_wrench=tactile_wrench,
+            tactile_wrench_mask=tactile_wrench_mask,
+            tactile_depth=tactile_depth,
+            tactile_depth_mask=tactile_depth_mask,
+            tactile_sensor_ids=sensor_ids,
+            tactile_stream_fingerprint=(
+                tactile_stream_fingerprint if has_tactile else None
+            ),
+            canonical_tactile_fingerprint=(
+                canonical_tactile_fingerprint if has_tactile else None
+            ),
             control_period_seconds=float(period),
             scales=scales,
         )
@@ -433,6 +568,45 @@ class MLXPhysicalReplayEvaluator:
             raise ValueError(
                 "a tracked rod marker exceeds the rod topology"
             )
+        if (
+            trace.tactile_wrench is not None
+            or trace.tactile_depth is not None
+        ):
+            try:
+                tactile_metadata = json.loads(
+                    str(world.tactile_observation_metadata_json)
+                )
+            except (TypeError, ValueError, json.JSONDecodeError) as error:
+                raise ValueError(
+                    "tactile replay requires a compiled canonical "
+                    "tactile observation"
+                ) from error
+            if (
+                tactile_metadata.get("fingerprint")
+                != trace.canonical_tactile_fingerprint
+                or tuple(world.tactile_sensor_ids)
+                != trace.tactile_sensor_ids
+            ):
+                raise ValueError(
+                    "physical and simulated tactile topology or "
+                    "fingerprint differs"
+                )
+            if (
+                trace.tactile_wrench is not None
+                and trace.tactile_wrench.shape[1]
+                != int(world.tactile_sensor_count)
+            ):
+                raise ValueError(
+                    "tactile_wrench sensor count does not match the world"
+                )
+            if (
+                trace.tactile_depth is not None
+                and trace.tactile_depth.shape[1]
+                != int(world.tactile_sample_count)
+            ):
+                raise ValueError(
+                    "tactile_depth sample count does not match the world"
+                )
 
         self._commands = mx.array(trace.commands)
         self._robot_q = mx.array(trace.robot_q)
@@ -483,6 +657,26 @@ class MLXPhysicalReplayEvaluator:
             if trace.contact_mask is None
             else mx.array(trace.contact_mask)
         )
+        self._tactile_wrench = (
+            None
+            if trace.tactile_wrench is None
+            else mx.array(trace.tactile_wrench)
+        )
+        self._tactile_wrench_mask = (
+            None
+            if trace.tactile_wrench_mask is None
+            else mx.array(trace.tactile_wrench_mask)
+        )
+        self._tactile_depth = (
+            None
+            if trace.tactile_depth is None
+            else mx.array(trace.tactile_depth)
+        )
+        self._tactile_depth_mask = (
+            None
+            if trace.tactile_depth_mask is None
+            else mx.array(trace.tactile_depth_mask)
+        )
 
         state_names = ["robot_q"]
         state_scales = [trace.scales.robot_q]
@@ -500,6 +694,25 @@ class MLXPhysicalReplayEvaluator:
             f"{name}_trajectory" for name in self._state_names
         ]
         trajectory_scales = list(state_scales)
+        self._tactile_component_count = 0
+        if self._tactile_wrench is not None:
+            trajectory_names.extend(
+                (
+                    "tactile_force_trajectory",
+                    "tactile_torque_trajectory",
+                )
+            )
+            trajectory_scales.extend(
+                (
+                    trace.scales.tactile_force,
+                    trace.scales.tactile_torque,
+                )
+            )
+            self._tactile_component_count += 2
+        if self._tactile_depth is not None:
+            trajectory_names.append("tactile_depth_trajectory")
+            trajectory_scales.append(trace.scales.tactile_depth)
+            self._tactile_component_count += 1
         if self._contact_active is not None:
             trajectory_names.append("contact_timing")
             trajectory_scales.append(trace.scales.contact_timing)
@@ -687,6 +900,38 @@ class MLXPhysicalReplayEvaluator:
             stepped.next_state,
             frame,
         )
+        tactile_frame = frame - mx.array(1, dtype=mx.uint32)
+        if self._tactile_wrench is not None:
+            assert self._tactile_wrench_mask is not None
+            value, count = self._component(
+                stepped.physics.tactile.summary
+                .net_force_and_contact_area[:, :, :3],
+                self._tactile_wrench[tactile_frame, :, :3],
+                self._tactile_wrench_mask[
+                    tactile_frame, :, :3
+                ],
+            )
+            squared.append(value)
+            counts.append(count)
+            value, count = self._component(
+                stepped.physics.tactile.summary
+                .net_torque_and_maximum_depth[:, :, :3],
+                self._tactile_wrench[tactile_frame, :, 3:],
+                self._tactile_wrench_mask[
+                    tactile_frame, :, 3:
+                ],
+            )
+            squared.append(value)
+            counts.append(count)
+        if self._tactile_depth is not None:
+            assert self._tactile_depth_mask is not None
+            value, count = self._component(
+                stepped.physics.tactile.penetration_depth_m,
+                self._tactile_depth[tactile_frame],
+                self._tactile_depth_mask[tactile_frame],
+            )
+            squared.append(value)
+            counts.append(count)
         if self._contact_active is not None:
             simulated_contact = mx.any(
                 stepped.physics.contacts.mask,
@@ -794,6 +1039,14 @@ class MLXPhysicalReplayEvaluator:
             state,
             0,
         )
+        for _ in range(self._tactile_component_count):
+            initial_squared.append(
+                mx.zeros(
+                    (candidate_count,),
+                    dtype=mx.float32,
+                )
+            )
+            initial_counts.append(mx.array(0.0, dtype=mx.float32))
         if self._contact_active is not None:
             initial_squared.append(
                 mx.zeros(

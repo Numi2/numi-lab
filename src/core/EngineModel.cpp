@@ -822,7 +822,8 @@ bool EngineModel::valid(std::string* reason) const {
             MR_GEOMETRY_FLAG_TWO_SIDED |
             MR_GEOMETRY_FLAG_QUANTIZED_BVH;
         if ((geometry.kind != MR_GEOMETRY_CONVEX &&
-             geometry.kind != MR_GEOMETRY_TRIANGLE_MESH) ||
+             geometry.kind != MR_GEOMETRY_TRIANGLE_MESH &&
+             geometry.kind != MR_GEOMETRY_HEIGHTFIELD) ||
             (geometry.flags & ~knownFlags) != 0u ||
             !finite(geometry.localLower) ||
             !finite(geometry.localUpper) ||
@@ -872,6 +873,43 @@ bool EngineModel::valid(std::string* reason) const {
              geometry.bvhCount == 0u)) {
             return fail(reason, "triangle mesh has no cooked BVH");
         }
+        if (geometry.kind == MR_GEOMETRY_HEIGHTFIELD) {
+            const double spacing = geometry.localLower.w;
+            const double inverseSpacing = geometry.localUpper.w;
+            const double spanX =
+                static_cast<double>(geometry.localUpper.x) -
+                geometry.localLower.x;
+            const double spanY =
+                static_cast<double>(geometry.localUpper.y) -
+                geometry.localLower.y;
+            if (!(spacing > 0.0) ||
+                !(inverseSpacing > 0.0) ||
+                std::abs(spacing * inverseSpacing - 1.0) >
+                    1.0e-5 ||
+                geometry.indexCount != 0u ||
+                geometry.faceCount != 0u ||
+                geometry.halfEdgeCount != 0u ||
+                geometry.bvhCount != 0u ||
+                geometry.triangleCount != 0u) {
+                return fail(reason, "heightfield metadata is invalid");
+            }
+            const double cellsX = std::round(spanX * inverseSpacing);
+            const double cellsY = std::round(spanY * inverseSpacing);
+            if (cellsX < 1.0 || cellsY < 1.0 ||
+                std::abs(spanX * inverseSpacing - cellsX) >
+                    1.0e-4 ||
+                std::abs(spanY * inverseSpacing - cellsY) >
+                    1.0e-4) {
+                return fail(reason, "heightfield grid is not regular");
+            }
+            const std::uint64_t width =
+                static_cast<std::uint64_t>(cellsX) + 1u;
+            const std::uint64_t height =
+                static_cast<std::uint64_t>(cellsY) + 1u;
+            if (width * height != geometry.vertexCount) {
+                return fail(reason, "heightfield vertex count disagrees");
+            }
+        }
     }
     for (const mr_float4& vertex : geometryVertices) {
         if (!finite(vertex)) {
@@ -920,7 +958,8 @@ bool EngineModel::valid(std::string* reason) const {
             return fail(reason, "primitive shape dimensions are invalid");
         }
         if (shape.shapeType == MR_SHAPE_CONVEX ||
-            shape.shapeType == MR_SHAPE_TRIANGLE_MESH) {
+            shape.shapeType == MR_SHAPE_TRIANGLE_MESH ||
+            shape.shapeType == MR_SHAPE_HEIGHTFIELD) {
             if (shape.geometryCount != 1u ||
                 shape.dimensions.x <= 0.0f ||
                 shape.dimensions.y <= 0.0f ||
@@ -933,7 +972,9 @@ bool EngineModel::valid(std::string* reason) const {
             if ((shape.shapeType == MR_SHAPE_CONVEX &&
                  geometry.kind != MR_GEOMETRY_CONVEX) ||
                 (shape.shapeType == MR_SHAPE_TRIANGLE_MESH &&
-                 geometry.kind != MR_GEOMETRY_TRIANGLE_MESH)) {
+                 geometry.kind != MR_GEOMETRY_TRIANGLE_MESH) ||
+                (shape.shapeType == MR_SHAPE_HEIGHTFIELD &&
+                 geometry.kind != MR_GEOMETRY_HEIGHTFIELD)) {
                 return fail(reason, "shape and geometry kinds disagree");
             }
         } else if (shape.geometryCount != 0u) {

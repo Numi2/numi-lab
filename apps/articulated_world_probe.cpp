@@ -174,7 +174,7 @@ std::vector<double> loweredG1Configuration(
         }
     }
     require(
-        queries.size() == metalrobo::kUnitreeG1ExecutableShapeCount,
+        queries.size() == metalrobo::kUnitreeG1FootSphereCount,
         "G1 executable foot sphere set changed"
     );
     std::vector<metalrobo::ArticulatedPointKinematics>

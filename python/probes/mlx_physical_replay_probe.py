@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import tempfile
 from pathlib import Path
 
@@ -18,10 +20,14 @@ from metalrobo.mlx_r2s2r import SMCConfig, fit_alignment_smc
 from metalrobo.mlx_world import (
     ControllerDelayState,
     compile_world,
+    compile_world_pack,
     sampled_state_from_world_family,
     step_sampled_world_family,
 )
-from metalrobo.worlds import FrankaPickPlaceWorldFamily
+from metalrobo.worlds import (
+    FrankaPickPlaceWorldFamily,
+    PackedWorldFamily,
+)
 from metalrobo.r2s2r import R2S2RCoordinator
 
 
@@ -46,6 +52,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--library")
     parser.add_argument("--metallib")
+    parser.add_argument(
+        "--world-pack",
+        help=(
+            "optional authored pack; tactile observations are replayed "
+            "when the pack publishes them"
+        ),
+    )
     return parser.parse_args()
 
 
@@ -53,11 +66,21 @@ def main() -> int:
     args = parse_args()
     if args.envs < 2 or args.steps <= 0:
         raise ValueError("probe requires at least two worlds and one step")
-    with FrankaPickPlaceWorldFamily(
-        capacity=args.envs,
-        library_path=args.library,
-        metallib_path=args.metallib,
-    ) as family:
+    family_context = (
+        PackedWorldFamily(
+            args.world_pack,
+            capacity=args.envs,
+            library_path=args.library,
+            metallib_path=args.metallib,
+        )
+        if args.world_pack
+        else FrankaPickPlaceWorldFamily(
+            capacity=args.envs,
+            library_path=args.library,
+            metallib_path=args.metallib,
+        )
+    )
+    with family_context as family:
         feature_count = len(family.scenario_schema.features)
         true_quantiles = np.full(
             (1, feature_count),
@@ -80,15 +103,25 @@ def main() -> int:
             alignment_jitter=0.0,
         )
         family.sample(1, seed=args.seed, mode="replay")
-        world = compile_world(
-            "franka",
-            scene="pick_place",
-            environment_capacity=args.envs,
-            solver_mode=args.solver_mode,
-            actuation_mode="implicit_position",
-            physics_substeps=4,
-            metallib_path=args.metallib or "",
-        )
+        if args.world_pack:
+            world = compile_world_pack(
+                args.world_pack,
+                environment_capacity=args.envs,
+                solver_mode=args.solver_mode,
+                actuation_mode="implicit_position",
+                physics_substeps=4,
+                metallib_path=args.metallib or "",
+            )
+        else:
+            world = compile_world(
+                "franka",
+                scene="pick_place",
+                environment_capacity=args.envs,
+                solver_mode=args.solver_mode,
+                actuation_mode="implicit_position",
+                physics_substeps=4,
+                metallib_path=args.metallib or "",
+            )
         state = sampled_state_from_world_family(world, family)
         default_q = mx.array(world.default_q, dtype=mx.float32)
         commands = []
@@ -115,6 +148,8 @@ def main() -> int:
             np.asarray(state.world.scene_bodies.position)[0, :1, :3].copy()
         ]
         contacts = []
+        tactile_wrenches = []
+        tactile_depths = []
         physics_status_codes = []
         for command in command_array:
             stepped = step_sampled_world_family(
@@ -131,6 +166,11 @@ def main() -> int:
                 state.world.v,
                 state.world.scene_bodies.position,
                 stepped.physics.contacts.mask,
+                stepped.physics.tactile.penetration_depth_m,
+                stepped.physics.tactile.summary
+                .net_force_and_contact_area,
+                stepped.physics.tactile.summary
+                .net_torque_and_maximum_depth,
                 stepped.physics.status,
             )
             robot_q.append(np.asarray(state.world.q)[0].copy())
@@ -143,6 +183,27 @@ def main() -> int:
             contacts.append(
                 bool(np.any(np.asarray(stepped.physics.contacts.mask)[0]))
             )
+            if int(world.tactile_sensor_count) > 0:
+                tactile_wrenches.append(
+                    np.concatenate(
+                        (
+                            np.asarray(
+                                stepped.physics.tactile.summary
+                                .net_force_and_contact_area
+                            )[0, :, :3],
+                            np.asarray(
+                                stepped.physics.tactile.summary
+                                .net_torque_and_maximum_depth
+                            )[0, :, :3],
+                        ),
+                        axis=-1,
+                    )
+                )
+                tactile_depths.append(
+                    np.asarray(
+                        stepped.physics.tactile.penetration_depth_m
+                    )[0].copy()
+                )
             physics_status_codes.append(
                 int(np.asarray(stepped.physics.status)[0, 0])
             )
@@ -151,26 +212,68 @@ def main() -> int:
             prefix="metalrobo-replay-probe-"
         ) as directory:
             trace_path = Path(directory) / "physical_episode.npz"
-            np.savez_compressed(
-                trace_path,
-                commands=command_array,
-                robot_q=np.asarray(robot_q, dtype=np.float32),
-                robot_v=np.asarray(robot_v, dtype=np.float32),
-                object_positions=np.asarray(
+            trace_arrays = {
+                "commands": command_array,
+                "robot_q": np.asarray(robot_q, dtype=np.float32),
+                "robot_v": np.asarray(robot_v, dtype=np.float32),
+                "object_positions": np.asarray(
                     objects,
                     dtype=np.float32,
                 ),
-                scene_body_indices=np.asarray([0], dtype=np.uint32),
-                contact_active=np.asarray(
+                "scene_body_indices": np.asarray(
+                    [0],
+                    dtype=np.uint32,
+                ),
+                "contact_active": np.asarray(
                     contacts,
                     dtype=np.float32,
                 ),
-                control_period_seconds=np.asarray(
+                "control_period_seconds": np.asarray(
                     world.control_timestep,
                     dtype=np.float32,
                 ),
+            }
+            tactile_alignment = {}
+            if tactile_wrenches:
+                trace_arrays["tactile_wrench"] = np.asarray(
+                    tactile_wrenches,
+                    dtype=np.float32,
+                )
+                trace_arrays["tactile_depth"] = np.asarray(
+                    tactile_depths,
+                    dtype=np.float32,
+                )
+                tactile_metadata = json.loads(
+                    world.tactile_observation_metadata_json
+                )
+                tactile_alignment = {
+                    "stream_fingerprint": hashlib.sha256(
+                        Path(args.world_pack).read_bytes()
+                    ).hexdigest(),
+                    "canonical_observation_fingerprint": (
+                        tactile_metadata["fingerprint"]
+                    ),
+                    "sensor_ids": list(world.tactile_sensor_ids),
+                    "wrench_verified": True,
+                    "depth_verified": True,
+                }
+            np.savez_compressed(trace_path, **trace_arrays)
+            trace = PhysicalReplayTrace.from_npz(
+                trace_path,
+                tactile_sensor_ids=tuple(
+                    tactile_alignment.get("sensor_ids", ())
+                ),
+                tactile_stream_fingerprint=(
+                    tactile_alignment.get("stream_fingerprint")
+                ),
+                canonical_tactile_fingerprint=(
+                    tactile_alignment.get(
+                        "canonical_observation_fingerprint"
+                    )
+                ),
+                tactile_wrench_verified=bool(tactile_alignment),
+                tactile_depth_verified=bool(tactile_alignment),
             )
-            trace = PhysicalReplayTrace.from_npz(trace_path)
             evaluator = MLXPhysicalReplayEvaluator(
                 world,
                 family,
@@ -192,6 +295,20 @@ def main() -> int:
             residual_values = np.asarray(evaluation.residuals)
             valid_values = np.asarray(evaluation.valid)
             if any(code != 0 for code in physics_status_codes):
+                expected_tactile_residuals = {
+                    "tactile_force_trajectory",
+                    "tactile_torque_trajectory",
+                    "tactile_depth_trajectory",
+                }
+                if trace.tactile_wrench is not None and (
+                    not expected_tactile_residuals.issubset(
+                        evaluator.residual_names
+                    )
+                    or not np.all(np.isfinite(residual_values))
+                ):
+                    raise RuntimeError(
+                        "tactile replay residual graph was not compiled"
+                    )
                 if bool(np.any(valid_values)):
                     raise RuntimeError(
                         "physics-failed replay candidates were marked valid"
@@ -231,6 +348,7 @@ def main() -> int:
                     f'device="{family.device_name}" '
                     f"worlds={args.envs} steps={args.steps} "
                     f"physics_statuses={sorted(set(physics_status_codes))} "
+                    f"tactile_residuals={trace.tactile_wrench is not None} "
                     "invalid_replay_rejected=yes "
                     "alignment_published=no"
                 )
@@ -269,6 +387,11 @@ def main() -> int:
                     ),
                     "replay_backend": (
                         "mlx-metal-exact-candidate-v1"
+                    ),
+                    **(
+                        {"tactile_alignment": tactile_alignment}
+                        if tactile_alignment
+                        else {}
                     ),
                 },
                 evaluator,
@@ -331,6 +454,7 @@ def main() -> int:
             f"median_other_loss={float(np.median(other_losses)):.8g} "
             f"top_weight={float(np.asarray(population.weights)[0]):.8g} "
             f"physics_statuses={sorted(set(physics_status_codes))} "
+            f"tactile_residuals={trace.tactile_wrench is not None} "
             "exact_candidate=yes gpu_replay=yes artifact_graph=yes"
         )
     return 0

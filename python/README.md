@@ -232,6 +232,34 @@ The built-in tactile PPO tasks use `policy_touch`: one deterministic
 encoder occupies the same policy boundary only after matching weights are
 available; random weights are never presented as a cross-sensor latent.
 
+### Pinned physical tactile imitation
+
+`metalrobo-tactile` ingests pinned LeRobot 3 seasons directly through Arrow
+and PyAV, then trains a vision/state/ten-fingertip-wrench action-tube policy
+with MLX on the Apple GPU. Splits are whole-season, normalization is
+training-only, and EMA inference weights plus optimizer/training weights are
+SHA-256 sealed at the checkpoint boundary.
+
+```sh
+python -m pip install -e 'python[tactile-dataset]'
+metalrobo-tactile prepare \
+  --dataset-root /path/to/origami \
+  --output /path/to/contracts
+metalrobo-tactile train \
+  --dataset-root /path/to/origami \
+  --stream-contract /path/to/contracts/tactile-stream.json \
+  --manifest /path/to/contracts/dataset-manifest.json \
+  --video-key observation.images.head_left \
+  --video-key observation.images.wrist_left \
+  --steps 100000 --output runs/origami
+```
+
+The initial public Origami contract deliberately blocks hardware execution:
+the public card does not verify action semantics or wrench units/frames.
+See
+[`docs/TACTILE_GEOMETRY_BRIDGE.md`](../docs/TACTILE_GEOMETRY_BRIDGE.md)
+for promotion, Wave asset cooking, replay alignment, and evaluation details.
+
 The active-encoder primitive supports Franka, G1, and PSM through the same
 device graph. Available contact scenes include dynamic cube/ground,
 authoritative cooked-BVH4 rough terrain, and a dynamic curved needle for PSM.

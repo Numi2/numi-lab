@@ -4,6 +4,14 @@
 
 using namespace metal;
 
+#ifndef MR_ARTICULATED_OPERATOR_KERNEL_NAME
+#define MR_ARTICULATED_OPERATOR_KERNEL_NAME mr_articulated_operator
+#endif
+
+#ifndef MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+#define MR_ARTICULATED_OPERATOR_BODY_PARAMETERS 0
+#endif
+
 namespace {
 
 constant float kQuaternionTolerance = 2.0e-5f;
@@ -360,6 +368,10 @@ inline float massElement(
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
     device const MRBodyPropertiesGPU* bodies,
+#if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+    device const float4* bodyParameters,
+    const uint bodyParameterBase,
+#endif
     threadgroup const float3* bodyPosition,
     threadgroup const float4* bodyRotation,
     threadgroup const float3* jointPosition,
@@ -395,6 +407,18 @@ inline float massElement(
         );
         device const MRBodyPropertiesGPU& body =
             bodies[articulation.firstBody + localBody];
+#if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+        const float inertialScale = max(
+            bodyParameters[
+                bodyParameterBase +
+                articulation.firstBody +
+                localBody
+            ].x,
+            1.0e-4f
+        );
+#else
+        constexpr float inertialScale = 1.0f;
+#endif
         const float3 leftBodyAngular = quaternionRotate(
             quaternionConjugate(bodyRotation[localBody]),
             left.angular
@@ -404,9 +428,9 @@ inline float massElement(
             right.angular
         );
         value +=
-            body.massAndInverseMass.x *
+            inertialScale * body.massAndInverseMass.x *
                 dot(left.linear, right.linear) +
-            dot(
+            inertialScale * dot(
                 leftBodyAngular,
                 inertiaMultiply(body, rightBodyAngular)
             );
@@ -1104,7 +1128,7 @@ inline bool validatePoints(
 // ordered so their status and transactional semantics stay exact. Dense mass
 // assembly is independent per symmetric matrix entry and is distributed over
 // the group; every entry retains the same deterministic body-order reduction.
-kernel void mr_articulated_operator(
+kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
     device const MRJointDescriptorGPU* joints [[buffer(2)]],
@@ -1120,6 +1144,9 @@ kernel void mr_articulated_operator(
     device float* generalizedImpulse [[buffer(12)]],
     device float* deltaVelocity [[buffer(13)]],
     device MRArticulatedOperatorStatusGPU* statuses [[buffer(14)]],
+#if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+    device const float4* bodyParameters [[buffer(15)]],
+#endif
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadsPerThreadgroup [[threads_per_threadgroup]]
@@ -1363,6 +1390,10 @@ kernel void mr_articulated_operator(
             articulation,
             joints,
             bodies,
+#if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+            bodyParameters,
+            environment * world.bodyCount,
+#endif
             bodyPosition,
             bodyRotation,
             jointPosition,
@@ -1906,6 +1937,7 @@ kernel void mr_articulated_operator(
     statuses[environment] = status;
 }
 
+#if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
 // Materializes world-space rigid-body velocities from the same generalized
 // state used by the solver. Tactile sampling needs point velocity at arbitrary
 // atlas hits, so publishing only articulation poses would silently erase the
@@ -2067,3 +2099,4 @@ kernel void mr_articulated_materialize_body_velocities(
     status.pointCount = 0u;
     statuses[environment] = status;
 }
+#endif

@@ -39,6 +39,9 @@ code.
 - A paired-data MLX camera-to-depth translator trainer for the physical side.
 - Optional MLX shared-latent, reconstruction, object-field, and tactile
   dynamics models above the canonical observation.
+- Pinned LeRobot 3 ingestion and an Apple-native vision/wrench/state tube
+  diffusion policy with per-frame tactile feedback.
+- Pinned Sharpa Wave URDF and tactile-atlas cooking for both 22-DoF hands.
 - Authored Franka finger, G1 plantar, and da Vinci PSM jaw product flows.
 
 It is not FEM, a soft-body elastomer, a tactile RGB renderer, or a complete
@@ -157,6 +160,96 @@ do not fabricate pressure or distributed force.
 All three use the same virtual sensing shell and rigid backing contact model.
 The G1 and PSM actuator values remain simulation engineering values, not
 measured hardware calibration.
+
+## Sharpa Wave and Robotic Origami training
+
+The physical-data path supports
+[`SharpaIT/Robotic_Origami_Challenge`](https://huggingface.co/datasets/SharpaIT/Robotic_Origami_Challenge)
+at the pinned Git revision
+`8194af6b9341dac7686c2f29704ff893e6f2f95e`. The dataset is gated, so a
+Hugging Face account with accepted access and a token is required to fetch
+episode data. Metadata preparation does not silently fall back to another
+revision.
+
+The public card establishes the 65-value state/action layout, 60-value
+fingertip wrench layout, six video keys, 30 Hz synchronization, and LeRobot 3
+storage. It does not establish the action command type, wrench units,
+wrench coordinate frames, tactile mosaic crop order, or a metric
+interpretation of the deformation video. The initial
+`metalrobo.physical_tactile_stream` contract marks each of those facts
+unverified. Training and offline evaluation are allowed; hardware execution
+remains blocked until an inspected, fingerprinted promoted contract supplies
+them.
+
+| Capability | Current path |
+| --- | --- |
+| Numeric ingestion | Native Arrow reads `observation.state`, `action`, and `observation.tactile` without PyTorch or a LeRobot runtime dependency. |
+| Video ingestion | PyAV performs timestamp-aligned seeks for any requested head, wrist, raw tactile, or deformation stream. |
+| Long-horizon isolation | Whole seasons are assigned by deterministic SHA-256 rank. Normalization is computed from training seasons only. |
+| Policy | State and ten fingertip-wrench tokens, optional synchronized multi-view RGB, transformer action tubes, cosine diffusion denoising, and a separate streaming feedback field. |
+| Auxiliary learning | Random tactile masking, current-wrench reconstruction, and next-wrench prediction. |
+| Apple execution | AdamW, gradient clipping, EMA weights, DDIM inference, streaming correction, and evaluation execute through MLX on the Apple GPU. |
+| Evaluation | Whole-season action MAE/RMSE, streaming MAE/RMSE, tactile ablations, next-wrench RMSE, and correction magnitude. |
+| Artifacts | Safetensors plus SHA-256-sealed config/optimizer/training/EMA weights, source revision, stream and dataset fingerprints, capability declaration, and promotion blockers. |
+| Replay alignment | Verified physical wrench and metric-depth traces add force, torque, and dense-depth residuals to exact-candidate MLX replay. Sensor order and canonical tactile fingerprint must match the compiled world. |
+
+The policy follows
+[Tube Diffusion Policy](https://arxiv.org/abs/2604.23609)'s dual-time idea:
+one field denoises a coherent future action tube while another corrects the
+shifted tube after each fresh tactile observation. It remains an imitation
+policy, not evidence that the unverified dataset action column is safe to
+send to hardware.
+
+Install the optional dataset dependencies, prepare pinned metadata, fetch
+selected seasons, then train:
+
+```sh
+python -m pip install -e 'python[tactile-dataset]'
+
+metalrobo-tactile prepare \
+  --dataset-root /path/to/origami \
+  --output /path/to/origami-contracts
+
+metalrobo-tactile fetch \
+  --dataset-root /path/to/origami \
+  --season "$SEASON" \
+  --video observation.images.head_left \
+  --video observation.images.wrist_left
+
+metalrobo-tactile train \
+  --dataset-root /path/to/origami \
+  --stream-contract /path/to/origami-contracts/tactile-stream.json \
+  --manifest /path/to/origami-contracts/dataset-manifest.json \
+  --video-key observation.images.head_left \
+  --video-key observation.images.wrist_left \
+  --steps 100000 \
+  --batch-size 16 \
+  --output runs/origami
+
+metalrobo-tactile evaluate \
+  --dataset-root /path/to/origami \
+  --stream-contract /path/to/origami-contracts/tactile-stream.json \
+  --manifest /path/to/origami-contracts/dataset-manifest.json \
+  --checkpoint runs/origami/checkpoint-100000 \
+  --split test
+```
+
+`include/metalrobo/Wave.hpp` cooks the official hand-only assets at these
+pinned revisions:
+
+- `sharpa-robotics/sharpa-urdf-usd-xml`:
+  `6eea427eb24189519f32b9f21674cd534d3f973c`
+- `sharpa-robotics/sharpa-tactile-sensor-assets`:
+  `865530a98a0ca0e69d177f2121833f8bb3ed94de`
+
+The cooker resolves controller names into each hand's generalized-coordinate
+order, converts the 240x240 published point maps from millimetres to metres,
+derives normals/tangents/metric area, and emits five configurable custom
+atlases per hand. `cookSharpaWavePair` also publishes exact column maps for
+the left/right 22-joint slices of the 65D vectors and all 60 wrench values.
+Those maps describe layout only. The public hand repositories do not provide
+the complete two-arm/torso model used for collection, so MetalRobo does not
+invent that mechanism or claim an exact Origami digital twin.
 
 ## Query backends
 
@@ -428,3 +521,9 @@ The measured Apple M4 matrix is recorded in `docs/TACTILE_PERFORMANCE.md`.
   evidence of trained or physically transferred policies.
 - Hardware transfer evaluation remains blocked on measured actuator profiles
   and physical sensor/encoder artifacts.
+- The public Origami card does not verify action semantics, fingertip-wrench
+  units/frames, or tactile mosaic calibration. Checkpoints trained under that
+  initial contract are explicitly non-deployable.
+- Official Wave hand geometry and tactile maps are cooked exactly, but the
+  unpublished collection arms/torso and calibrated elastomer mechanics remain
+  outside the current asset contract.

@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metalrobo.dev/schemas/tactile_policy_checkpoint.schema.json",
+  "title": "MetalRobo tactile tube policy checkpoint provenance",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "format_version",
+    "step",
+    "examples",
+    "dataset_manifest_fingerprint",
+    "stream_fingerprint",
+    "source_repository",
+    "source_revision",
+    "canonical_target_fingerprint",
+    "action_semantics_verified",
+    "wrench_contract_verified",
+    "hardware_deployable",
+    "promotion_blockers",
+    "artifact_sha256",
+    "capabilities",
+    "runtime"
+  ],
+  "properties": {
+    "schema": {
+      "const": "metalrobo.tactile_tube_policy_checkpoint"
+    },
+    "format_version": {
+      "const": 1
+    },
+    "step": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "examples": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "dataset_manifest_fingerprint": {
+      "$ref": "#/$defs/sha256"
+    },
+    "stream_fingerprint": {
+      "$ref": "#/$defs/sha256"
+    },
+    "source_repository": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_revision": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "canonical_target_fingerprint": {
+      "type": ["string", "null"],
+      "pattern": "^0x[0-9a-f]{16}$"
+    },
+    "action_semantics_verified": {
+      "type": "boolean"
+    },
+    "wrench_contract_verified": {
+      "type": "boolean"
+    },
+    "hardware_deployable": {
+      "type": "boolean"
+    },
+    "promotion_blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "action_semantics_unverified",
+          "wrench_units_or_frame_unverified"
+        ]
+      }
+    },
+    "artifact_sha256": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model.safetensors",
+        "training_model.safetensors",
+        "optimizer.safetensors",
+        "config.json"
+      ],
+      "properties": {
+        "model.safetensors": {
+          "$ref": "#/$defs/sha256"
+        },
+        "training_model.safetensors": {
+          "$ref": "#/$defs/sha256"
+        },
+        "optimizer.safetensors": {
+          "$ref": "#/$defs/sha256"
+        },
+        "config.json": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modalities",
+        "inference",
+        "execution_backend",
+        "sensor_order",
+        "normalization_source",
+        "evaluation_partition"
+      ],
+      "properties": {
+        "modalities": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "joint_state",
+              "fingertip_wrench",
+              "multi_view_rgb"
+            ]
+          }
+        },
+        "inference": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "ddim_action_tube",
+              "streaming_feedback_field",
+              "next_wrench_prediction",
+              "ema_inference_weights"
+            ]
+          }
+        },
+        "execution_backend": {
+          "const": "apple_mlx_metal"
+        },
+        "sensor_order": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "normalization_source": {
+          "const": "training_seasons_only"
+        },
+        "evaluation_partition": {
+          "const": "whole_season"
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["framework", "mlx_version", "device", "machine"],
+      "properties": {
+        "framework": {
+          "const": "mlx"
+        },
+        "mlx_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "device": {
+          "type": "string",
+          "minLength": 1
+        },
+        "machine": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "hardware_deployable": {
+            "const": true
+          }
+        },
+        "required": ["hardware_deployable"]
+      },
+      "then": {
+        "properties": {
+          "action_semantics_verified": {
+            "const": true
+          },
+          "wrench_contract_verified": {
+            "const": true
+          },
+          "promotion_blockers": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

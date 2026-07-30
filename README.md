@@ -37,6 +37,7 @@ concept art and no screenshot from another simulator.
 | **Visual Presentation V3** | Direct USD/USDZ/GLB cooking, native textures, glTF metallic-roughness PBR, visible HDR environments, shadows, global or rolling shutter, and fast/reference sensor profiles. |
 | **Policy-ready sensing** | Scene-linear RGB, metric depth, normals, semantic/instance/link identities, motion, validity, calibration, tactile depth, solver wrench, and center of pressure. |
 | **Perception and data plane** | Replaceable perception providers, separate deployable and privileged streams, synchronized policy assembly, deterministic visual episodes, and a LeRobot v3 exporter. |
+| **Tactile imitation** | Pinned LeRobot 3 season-safe ingestion, synchronized multi-view/wrench training, dual-time action-tube diffusion, reactive tactile replanning, and provenance-gated MLX checkpoints for Apple GPUs. |
 | **Reference robots** | Franka manipulation, the pinned 29-DoF Unitree G1, and a dVRK-style PSM research model with physical insertion and independent jaws. |
 
 ## The renderer is a sensor

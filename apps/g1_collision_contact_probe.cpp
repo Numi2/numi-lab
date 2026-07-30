@@ -286,7 +286,7 @@ int main() {
         }
         require(
             sphereQueries.size() ==
-                metalrobo::kUnitreeG1ExecutableShapeCount,
+                metalrobo::kUnitreeG1FootSphereCount,
             "G1 executable foot-sphere set changed"
         );
         std::vector<metalrobo::ArticulatedPointKinematics>
@@ -349,7 +349,19 @@ int main() {
         std::vector<MRBodyStateGPU> states =
             makeCollisionStates(model, bodyKinematics);
 
-        std::vector<MRShapeGPU> shapes = model.shapes;
+        std::vector<MRShapeGPU> shapes;
+        shapes.reserve(
+            metalrobo::kUnitreeG1FootSphereCount + 1u
+        );
+        for (const MRShapeGPU& shape : model.shapes) {
+            if (
+                (shape.flags &
+                 MR_SHAPE_FLAG_SIMULATION_DISABLED) == 0u &&
+                shape.shapeType == MR_SHAPE_SPHERE
+            ) {
+                shapes.push_back(shape);
+            }
+        }
         shapes.push_back(makeZUpGroundPlane(
             static_cast<std::uint32_t>(states.size() - 1u)
         ));

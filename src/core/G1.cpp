@@ -1,11 +1,16 @@
 #include "metalrobo/G1.hpp"
 
+#include "metalrobo/GeometryCooker.hpp"
+
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <numbers>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 // Unitree model-data attribution
 // --------------------------------
@@ -382,6 +387,25 @@ constexpr std::array<JointSource, kUnitreeG1JointCount> kJoints{{
     },
 }};
 
+struct G1CollisionHullRecord {
+    std::string_view sourceMesh;
+    std::uint32_t sourceElement;
+    std::uint32_t pieceIndex;
+    std::uint32_t pieceCount;
+    std::uint32_t bodyIndex;
+    std::array<float, 3> center;
+    std::array<float, 3> lower;
+    std::array<float, 3> extent;
+    std::uint32_t vertexOffset;
+    std::uint32_t vertexCount;
+    std::uint32_t indexOffset;
+    std::uint32_t indexCount;
+    float volumeRatio;
+    std::string_view sourceSha256;
+};
+
+#include "G1CollisionHulls.inc"
+
 constexpr std::array<float, kUnitreeG1JointCount> kRLLabStiffness{{
     100.0f, 100.0f, 100.0f, 150.0f, 40.0f, 40.0f,
     100.0f, 100.0f, 100.0f, 150.0f, 40.0f, 40.0f,
@@ -572,6 +596,109 @@ MRShapeGPU makePrimitive(
     return shape;
 }
 
+std::uint32_t appendAuthoredCollisionHull(
+    EngineModel& model,
+    const G1CollisionHullRecord& source
+) {
+    const std::uint64_t vertexEnd =
+        static_cast<std::uint64_t>(source.vertexOffset) +
+        source.vertexCount;
+    const std::uint64_t indexEnd =
+        static_cast<std::uint64_t>(source.indexOffset) +
+        source.indexCount;
+    if (source.bodyIndex >= kBodies.size() ||
+        source.vertexCount < 4u ||
+        source.vertexCount > 255u ||
+        source.indexCount < 12u ||
+        source.indexCount % 3u != 0u ||
+        vertexEnd * 3u > kG1CollisionHullVertices.size() ||
+        indexEnd > kG1CollisionHullIndices.size()) {
+        throw std::logic_error(
+            "pinned G1 collision hull record is invalid: " +
+            std::string{source.sourceMesh}
+        );
+    }
+
+    std::vector<mr_float4> vertices;
+    vertices.reserve(source.vertexCount);
+    double boundingRadiusSquared = 0.0;
+    for (std::uint32_t index = 0u;
+         index < source.vertexCount;
+         ++index) {
+        const std::size_t packedIndex =
+            3u * (source.vertexOffset + index);
+        const double x =
+            source.lower[0] +
+            source.extent[0] *
+                static_cast<double>(
+                    kG1CollisionHullVertices[packedIndex]
+                ) /
+                65535.0;
+        const double y =
+            source.lower[1] +
+            source.extent[1] *
+                static_cast<double>(
+                    kG1CollisionHullVertices[packedIndex + 1u]
+                ) /
+                65535.0;
+        const double z =
+            source.lower[2] +
+            source.extent[2] *
+                static_cast<double>(
+                    kG1CollisionHullVertices[packedIndex + 2u]
+                ) /
+                65535.0;
+        vertices.push_back(f4(x, y, z, 1.0));
+        boundingRadiusSquared = std::max(
+            boundingRadiusSquared,
+            x * x + y * y + z * z
+        );
+    }
+
+    std::vector<std::uint32_t> triangleIndices;
+    triangleIndices.reserve(source.indexCount);
+    for (std::uint32_t index = 0u;
+         index < source.indexCount;
+         ++index) {
+        const std::uint32_t vertex =
+            kG1CollisionHullIndices[source.indexOffset + index];
+        if (vertex >= source.vertexCount) {
+            throw std::logic_error(
+                "pinned G1 collision hull index is invalid: " +
+                std::string{source.sourceMesh}
+            );
+        }
+        triangleIndices.push_back(vertex);
+    }
+
+    const GeometryCookResult cooked = cookConvexGeometry(
+        model,
+        vertices,
+        triangleIndices
+    );
+    if (!cooked.succeeded()) {
+        throw std::logic_error(
+            "pinned G1 collision hull cook failed for " +
+            std::string{source.sourceMesh} + ": " + cooked.message
+        );
+    }
+
+    MRShapeGPU shape = makePrimitive(
+        source.bodyIndex,
+        MR_SHAPE_CONVEX,
+        f4(source.center[0], source.center[1], source.center[2]),
+        f4(0.0, 0.0, 0.0, 1.0),
+        f4(1.0, 1.0, 1.0),
+        std::sqrt(boundingRadiusSquared)
+    );
+    shape.geometryOffset = cooked.geometryIndex;
+    shape.geometryCount = 1u;
+    const std::uint32_t shapeIndex =
+        static_cast<std::uint32_t>(model.shapes.size());
+    model.shapes.push_back(shape);
+    return shapeIndex;
+}
+
 } // namespace
 
 const G1ModelMetadata& unitreeG1Metadata() noexcept {
@@ -594,6 +721,11 @@ const G1ModelMetadata& unitreeG1Metadata() noexcept {
         value.collisionMaterialPreset =
             "Unitree RL Lab locomotion material: static=1 dynamic=1; "
             "task randomizes robot material in [0.3,1.0]";
+        value.collisionCookMethod =
+            "official STL deterministic V-HACD two-piece compound, "
+            "normalized farthest-point compact support sets, uint16 "
+            "local quantization";
+        value.collisionCookHash = kG1CollisionHullCookHash;
         value.modeMachine = 5u;
         value.modePr = 0u;
         value.canonicalMassKg = 33.34114202;
@@ -690,14 +822,13 @@ EngineModel makeUnitreeG1EngineModel() {
     model.world.bodyCount = static_cast<mr_u32>(kUnitreeG1BodyCount);
     model.world.articulationCount = 1u;
     model.world.jointCount = static_cast<mr_u32>(kUnitreeG1JointCount);
-    model.world.shapeCount =
-        static_cast<mr_u32>(kUnitreeG1PrimitiveShapeCount);
+    model.world.shapeCount = 0u;
     model.world.materialCount = 1u;
     model.world.nq = 36u;
     model.world.nv = 35u;
-    model.world.pairCapacity = 512u;
-    model.world.contactCapacity = 512u;
-    model.world.constraintCapacity = 1024u;
+    model.world.pairCapacity = 2048u;
+    model.world.contactCapacity = 1024u;
+    model.world.constraintCapacity = 2048u;
     model.world.islandCapacity = 32u;
     // TGS is a target, not yet the executable throughput implementation.
     model.world.solverType = MR_SOLVER_THROUGHPUT_PGS;
@@ -812,8 +943,7 @@ EngineModel makeUnitreeG1EngineModel() {
         f4(0.0, 0.04, -0.01),
         shoulderPitchRotation,
         f4(0.03, 0.025, 0.0, 0.0),
-        std::hypot(0.03, 0.025),
-        false
+        std::hypot(0.03, 0.025)
     ));
     model.shapes.push_back(makePrimitive(
         17u,
@@ -821,8 +951,7 @@ EngineModel makeUnitreeG1EngineModel() {
         f4(-0.004, 0.006, -0.053),
         identity,
         f4(0.03, 0.015, 0.0, 0.0),
-        std::hypot(0.03, 0.015),
-        false
+        std::hypot(0.03, 0.015)
     ));
     model.shapes.push_back(makePrimitive(
         23u,
@@ -830,8 +959,7 @@ EngineModel makeUnitreeG1EngineModel() {
         f4(0.0, -0.04, -0.01),
         shoulderPitchRotation,
         f4(0.03, 0.025, 0.0, 0.0),
-        std::hypot(0.03, 0.025),
-        false
+        std::hypot(0.03, 0.025)
     ));
     model.shapes.push_back(makePrimitive(
         24u,
@@ -839,9 +967,55 @@ EngineModel makeUnitreeG1EngineModel() {
         f4(-0.004, -0.006, -0.053),
         identity,
         f4(0.03, 0.015, 0.0, 0.0),
-        std::hypot(0.03, 0.015),
-        false
+        std::hypot(0.03, 0.015)
     ));
+
+    std::array<
+        std::vector<std::uint32_t>,
+        kUnitreeG1MeshCollisionCount
+    > elementShapes;
+    for (const G1CollisionHullRecord& source : kG1CollisionHulls) {
+        if (source.sourceElement >= elementShapes.size() ||
+            source.pieceCount != 2u ||
+            source.pieceIndex >= source.pieceCount) {
+            throw std::logic_error(
+                "pinned G1 compound collision record is invalid: " +
+                std::string{source.sourceMesh}
+            );
+        }
+        elementShapes[source.sourceElement].push_back(
+            appendAuthoredCollisionHull(model, source)
+        );
+    }
+    // The official wrist and elbow shells intentionally overlap across the
+    // intervening compact wrist joint at the authored default pose. Preserve
+    // self-collision everywhere else, but remove these four permanent
+    // internal interfaces from broadphase just as the connected-link filter
+    // removes direct joint neighbours.
+    constexpr std::array<std::array<std::uint32_t, 2>, 4>
+        overlappingElements{{
+            {15u, 17u},
+            {16u, 18u},
+            {20u, 22u},
+            {21u, 23u},
+        }};
+    for (const auto& elements : overlappingElements) {
+        for (const std::uint32_t left :
+             elementShapes[elements[0]]) {
+            for (const std::uint32_t right :
+                 elementShapes[elements[1]]) {
+                model.collisionExclusions.push_back({left, right});
+            }
+        }
+    }
+    model.world.shapeCount =
+        static_cast<mr_u32>(model.shapes.size());
+    if (model.world.shapeCount !=
+        kUnitreeG1ExecutableShapeCount) {
+        throw std::logic_error(
+            "pinned G1 compound collision topology changed"
+        );
+    }
 
     model.defaultQ.reserve(36u);
     model.defaultQ.insert(

@@ -112,12 +112,13 @@ The production-shaped contact graph now includes:
   execution; Apple9/10 devices currently use 64 worker groups.
 
 Analytic/SAT paths cover the inexpensive primitive pairs. Exact cylinder
-support, robust GJK with MPR/EPA fallback, cooked convex patches, and static or
-kinematic mesh BVH4 traversal cover remaining convex and mesh pairs.
-Heightfields and dynamic concave shapes remain unsupported.
+support, robust GJK with MPR/EPA fallback, cooked convex patches, static or
+kinematic mesh BVH4 traversal, and direct cell-indexed static heightfields
+cover remaining convex and surface pairs. Dynamic concave shapes remain
+unsupported.
 
 Hybrid CCD computes deterministic, capacity-bounded event intervals for
-analytic, support-mapped, and convex-mesh paths. ABI v3 carries event cursors,
+analytic, support-mapped, and convex-mesh paths. ABI v4 carries event cursors,
 simultaneous-impact clusters, split budgets, zero-time replay limits, consumed
 time, and first failing event keys. The current step clusters certified events
 and uses speculative TGS to consume the complete microstep; literal repeated

@@ -10,7 +10,7 @@
 #include "metalrobo/gpu_types.h"
 #include "metalrobo/constraint_ir_shared.h"
 
-#define MR_ENGINE_ABI_VERSION 3u
+#define MR_ENGINE_ABI_VERSION 4u
 #define MR_INVALID_INDEX 0xffffffffu
 #define MR_MAX_CONTACTS_PER_SOLVER_BATCH 128u
 #define MR_MAX_BODIES_PER_SOLVER_BATCH \
@@ -243,6 +243,7 @@ enum MRGeometryKind : mr_u32 {
     MR_GEOMETRY_NONE = 0u,
     MR_GEOMETRY_CONVEX = 1u,
     MR_GEOMETRY_TRIANGLE_MESH = 2u,
+    MR_GEOMETRY_HEIGHTFIELD = 3u,
 };
 
 enum MRGeometryFlags : mr_u32 {

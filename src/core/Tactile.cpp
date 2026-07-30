@@ -965,7 +965,12 @@ bool CookedTactileSystem::valid(
             !(sensor.depth.x > 0.0f) ||
             !(sensor.depth.y >= 0.0f) ||
             sensor.depth.y > sensor.depth.x ||
-            sensor.depth.z + 1.0e-7f < sensor.depth.x ||
+            !(sensor.depth.z >= 0.0f) ||
+            (
+                (sensor.scheduleAndIdentity.z &
+                 MR_TACTILE_SENSOR_COMPLIANT_SHELL) != 0u &&
+                sensor.depth.z + 1.0e-7f < sensor.depth.x
+            ) ||
             !(sensor.depth.w > 0.0f)) {
             return reject("tactile sensor descriptor is invalid");
         }

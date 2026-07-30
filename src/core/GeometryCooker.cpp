@@ -652,6 +652,471 @@ void encodeBVHNode(
     destination[nodeIndex] = encoded;
 }
 
+struct HullFace {
+    std::array<std::uint32_t, 3u> vertices{};
+    Vec3 normal{};
+    double offset = 0.0;
+    bool active = true;
+};
+
+bool makeHullFace(
+    const std::span<const Vec3> vertices,
+    const std::uint32_t a,
+    const std::uint32_t b,
+    const std::uint32_t c,
+    const Vec3 interior,
+    const double minimumCrossSquared,
+    HullFace& output
+) {
+    if (
+        a >= vertices.size() ||
+        b >= vertices.size() ||
+        c >= vertices.size() ||
+        a == b ||
+        b == c ||
+        c == a
+    ) {
+        return false;
+    }
+    HullFace candidate;
+    candidate.vertices = {a, b, c};
+    Vec3 normal = cross(
+        vertices[b] - vertices[a],
+        vertices[c] - vertices[a]
+    );
+    if (lengthSquared(normal) <= minimumCrossSquared) {
+        return false;
+    }
+    if (dot(normal, interior - vertices[a]) > 0.0) {
+        std::swap(
+            candidate.vertices[0],
+            candidate.vertices[1]
+        );
+        normal = normal * -1.0;
+    }
+    const double magnitude = std::sqrt(lengthSquared(normal));
+    candidate.normal = normal / magnitude;
+    candidate.offset = dot(
+        candidate.normal,
+        vertices[candidate.vertices[0]]
+    );
+    output = candidate;
+    return true;
+}
+
+double pointLineDistanceSquared(
+    const Vec3 point,
+    const Vec3 a,
+    const Vec3 b
+) {
+    const Vec3 edge = b - a;
+    const double edgeLength = lengthSquared(edge);
+    if (!(edgeLength > 0.0)) {
+        return 0.0;
+    }
+    return lengthSquared(cross(point - a, edge)) /
+        edgeLength;
+}
+
+bool buildConvexHullSurface(
+    const std::span<const mr_float4> input,
+    const GeometryCookConfig& config,
+    std::vector<mr_float4>& hullVertices,
+    std::vector<std::uint32_t>& hullIndices,
+    std::uint32_t& weldedCount,
+    std::string& message
+) {
+    std::vector<Vec3> points;
+    std::vector<std::uint32_t> remap;
+    if (!weldVertices(
+            input,
+            config.weldTolerance,
+            points,
+            remap
+        ) ||
+        points.size() < 4u) {
+        message = "convex-hull point set is invalid or degenerate";
+        return false;
+    }
+    weldedCount = static_cast<std::uint32_t>(points.size());
+    const Bounds bounds = vertexBounds(points);
+    const Vec3 extent = bounds.upper - bounds.lower;
+    const double scale = std::max({
+        std::abs(extent.x),
+        std::abs(extent.y),
+        std::abs(extent.z),
+        config.weldTolerance,
+    });
+    const double distanceTolerance = std::max(
+        8.0 * config.weldTolerance,
+        1.0e-9 * scale
+    );
+    const double minimumCrossSquared = std::max(
+        4.0 * config.minimumTriangleArea *
+            config.minimumTriangleArea,
+        distanceTolerance * distanceTolerance *
+            distanceTolerance * distanceTolerance
+    );
+
+    const auto lexicographic = [&points](
+        const std::uint32_t left,
+        const std::uint32_t right
+    ) {
+        return std::tie(
+                   points[left].x,
+                   points[left].y,
+                   points[left].z,
+                   left
+               ) <
+            std::tie(
+                   points[right].x,
+                   points[right].y,
+                   points[right].z,
+                   right
+               );
+    };
+    std::uint32_t a = 0u;
+    for (std::uint32_t index = 1u;
+         index < points.size();
+         ++index) {
+        if (lexicographic(index, a)) {
+            a = index;
+        }
+    }
+    std::uint32_t b = MR_INVALID_INDEX;
+    double farthest = -1.0;
+    for (std::uint32_t index = 0u;
+         index < points.size();
+         ++index) {
+        const double distance =
+            lengthSquared(points[index] - points[a]);
+        if (
+            distance > farthest ||
+            (
+                distance == farthest &&
+                index < b
+            )
+        ) {
+            farthest = distance;
+            b = index;
+        }
+    }
+    if (
+        b == MR_INVALID_INDEX ||
+        farthest <=
+            distanceTolerance * distanceTolerance
+    ) {
+        message = "convex-hull points are coincident";
+        return false;
+    }
+    std::uint32_t c = MR_INVALID_INDEX;
+    farthest = -1.0;
+    for (std::uint32_t index = 0u;
+         index < points.size();
+         ++index) {
+        const double distance = pointLineDistanceSquared(
+            points[index],
+            points[a],
+            points[b]
+        );
+        if (
+            distance > farthest ||
+            (
+                distance == farthest &&
+                index < c
+            )
+        ) {
+            farthest = distance;
+            c = index;
+        }
+    }
+    if (
+        c == MR_INVALID_INDEX ||
+        farthest <=
+            distanceTolerance * distanceTolerance
+    ) {
+        message = "convex-hull points are collinear";
+        return false;
+    }
+    const Vec3 planeNormal = cross(
+        points[b] - points[a],
+        points[c] - points[a]
+    );
+    const double planeMagnitude =
+        std::sqrt(lengthSquared(planeNormal));
+    std::uint32_t d = MR_INVALID_INDEX;
+    farthest = -1.0;
+    for (std::uint32_t index = 0u;
+         index < points.size();
+         ++index) {
+        const double distance = std::abs(
+            dot(planeNormal, points[index] - points[a])
+        ) / planeMagnitude;
+        if (
+            distance > farthest ||
+            (
+                distance == farthest &&
+                index < d
+            )
+        ) {
+            farthest = distance;
+            d = index;
+        }
+    }
+    if (
+        d == MR_INVALID_INDEX ||
+        farthest <= distanceTolerance
+    ) {
+        message = "convex-hull points are coplanar";
+        return false;
+    }
+    const Vec3 interior =
+        (points[a] + points[b] + points[c] + points[d]) /
+        4.0;
+    std::vector<HullFace> faces;
+    faces.reserve(points.size() * 2u);
+    const std::array<std::array<std::uint32_t, 3u>, 4u>
+        tetrahedron{{
+            {a, b, c},
+            {a, d, b},
+            {b, d, c},
+            {c, d, a},
+        }};
+    for (const auto& triangle : tetrahedron) {
+        HullFace face;
+        if (!makeHullFace(
+                points,
+                triangle[0],
+                triangle[1],
+                triangle[2],
+                interior,
+                minimumCrossSquared,
+                face
+            )) {
+            message = "initial convex-hull tetrahedron is degenerate";
+            return false;
+        }
+        faces.push_back(face);
+    }
+
+    std::size_t expansionCount = 0u;
+    while (true) {
+        std::uint32_t pointIndex = MR_INVALID_INDEX;
+        double farthestOutside = distanceTolerance;
+        for (std::uint32_t candidate = 0u;
+             candidate < points.size();
+             ++candidate) {
+            double candidateDistance =
+                -std::numeric_limits<double>::infinity();
+            for (const HullFace& face : faces) {
+                if (!face.active) {
+                    continue;
+                }
+                candidateDistance = std::max(
+                    candidateDistance,
+                    dot(face.normal, points[candidate]) -
+                        face.offset
+                );
+            }
+            if (
+                candidateDistance > farthestOutside ||
+                (
+                    candidateDistance == farthestOutside &&
+                    candidate < pointIndex
+                )
+            ) {
+                farthestOutside = candidateDistance;
+                pointIndex = candidate;
+            }
+        }
+        if (pointIndex == MR_INVALID_INDEX) {
+            break;
+        }
+        ++expansionCount;
+        if (expansionCount > points.size() - 4u) {
+            message = "convex-hull expansion did not converge";
+            return false;
+        }
+        std::vector<std::size_t> visible;
+        for (std::size_t faceIndex = 0u;
+             faceIndex < faces.size();
+             ++faceIndex) {
+            const HullFace& face = faces[faceIndex];
+            if (
+                face.active &&
+                dot(face.normal, points[pointIndex]) -
+                    face.offset >
+                    0.0
+            ) {
+                visible.push_back(faceIndex);
+            }
+        }
+        if (visible.empty()) {
+            message = "convex-hull outside point has no visible face";
+            return false;
+        }
+        struct HorizonEdge {
+            std::uint32_t from = 0u;
+            std::uint32_t to = 0u;
+            std::uint32_t count = 0u;
+        };
+        std::map<
+            std::pair<std::uint32_t, std::uint32_t>,
+            HorizonEdge
+        > horizon;
+        for (const std::size_t faceIndex : visible) {
+            const HullFace& face = faces[faceIndex];
+            for (std::uint32_t edge = 0u; edge < 3u; ++edge) {
+                const std::uint32_t from =
+                    face.vertices[edge];
+                const std::uint32_t to =
+                    face.vertices[(edge + 1u) % 3u];
+                const auto key = std::minmax(from, to);
+                HorizonEdge& record = horizon[key];
+                if (record.count == 0u) {
+                    record.from = from;
+                    record.to = to;
+                }
+                ++record.count;
+                if (record.count > 2u) {
+                    message =
+                        "convex-hull visible region is non-manifold";
+                    return false;
+                }
+            }
+        }
+        std::map<std::uint32_t, std::vector<std::uint32_t>>
+            boundaryAdjacency;
+        std::size_t boundaryEdgeCount = 0u;
+        for (const auto& [edge, record] : horizon) {
+            static_cast<void>(edge);
+            if (record.count != 1u) {
+                continue;
+            }
+            boundaryAdjacency[record.from].push_back(record.to);
+            boundaryAdjacency[record.to].push_back(record.from);
+            ++boundaryEdgeCount;
+        }
+        if (
+            boundaryEdgeCount < 3u ||
+            boundaryAdjacency.size() != boundaryEdgeCount ||
+            std::ranges::any_of(
+                boundaryAdjacency,
+                [](const auto& entry) {
+                    return entry.second.size() != 2u;
+                }
+            )
+        ) {
+            std::size_t irregularVertexCount = 0u;
+            for (const auto& [vertex, neighbors] :
+                 boundaryAdjacency) {
+                static_cast<void>(vertex);
+                irregularVertexCount +=
+                    neighbors.size() == 2u ? 0u : 1u;
+            }
+            message =
+                "convex-hull horizon is not one closed ring"
+                " edges=" +
+                std::to_string(boundaryEdgeCount) +
+                " vertices=" +
+                std::to_string(boundaryAdjacency.size()) +
+                " irregular=" +
+                std::to_string(irregularVertexCount);
+            return false;
+        }
+        std::set<std::uint32_t> connected;
+        std::vector<std::uint32_t> pending{
+            boundaryAdjacency.begin()->first,
+        };
+        while (!pending.empty()) {
+            const std::uint32_t vertex = pending.back();
+            pending.pop_back();
+            if (!connected.insert(vertex).second) {
+                continue;
+            }
+            for (const std::uint32_t neighbor :
+                 boundaryAdjacency.at(vertex)) {
+                pending.push_back(neighbor);
+            }
+        }
+        if (connected.size() != boundaryAdjacency.size()) {
+            message =
+                "convex-hull horizon contains disconnected rings";
+            return false;
+        }
+        for (const std::size_t faceIndex : visible) {
+            faces[faceIndex].active = false;
+        }
+        std::size_t addedFaces = 0u;
+        for (const auto& [edge, record] : horizon) {
+            static_cast<void>(edge);
+            if (record.count != 1u) {
+                continue;
+            }
+            HullFace face;
+            if (!makeHullFace(
+                    points,
+                    record.from,
+                    record.to,
+                    pointIndex,
+                    interior,
+                    minimumCrossSquared,
+                    face
+                )) {
+                message = "convex-hull horizon is degenerate";
+                return false;
+            }
+            faces.push_back(face);
+            ++addedFaces;
+        }
+        if (addedFaces < 3u) {
+            message = "convex-hull horizon is not closed";
+            return false;
+        }
+    }
+
+    std::set<std::uint32_t> used;
+    std::size_t activeFaceCount = 0u;
+    for (const HullFace& face : faces) {
+        if (!face.active) {
+            continue;
+        }
+        ++activeFaceCount;
+        used.insert(
+            face.vertices.begin(),
+            face.vertices.end()
+        );
+    }
+    if (used.size() < 4u || activeFaceCount < 4u) {
+        message = "convex-hull output is degenerate";
+        return false;
+    }
+    std::vector<std::uint32_t> compact(
+        points.size(),
+        MR_INVALID_INDEX
+    );
+    hullVertices.reserve(used.size());
+    for (const std::uint32_t source : used) {
+        compact[source] =
+            static_cast<std::uint32_t>(hullVertices.size());
+        hullVertices.push_back(packed(points[source], 1.0f));
+    }
+    hullIndices.reserve(activeFaceCount * 3u);
+    for (const HullFace& face : faces) {
+        if (!face.active) {
+            continue;
+        }
+        for (const std::uint32_t source : face.vertices) {
+            if (compact[source] == MR_INVALID_INDEX) {
+                message = "convex-hull compaction failed";
+                return false;
+            }
+            hullIndices.push_back(compact[source]);
+        }
+    }
+    return true;
+}
+
 } // namespace
 
 GeometryCookResult cookConvexGeometry(
@@ -960,6 +1425,68 @@ GeometryCookResult cookConvexGeometry(
     result.outputTriangleCount = header.faceCount;
     result.message = "ok";
     return result;
+}
+
+GeometryCookResult cookConvexHullGeometry(
+    EngineModel& model,
+    const std::span<const mr_float4> inputVertices,
+    const GeometryCookConfig& config
+) {
+    GeometryCookResult result;
+    result.inputVertexCount =
+        static_cast<std::uint32_t>(std::min<std::size_t>(
+            inputVertices.size(),
+            std::numeric_limits<std::uint32_t>::max()
+        ));
+    if (
+        !validConfig(config) ||
+        inputVertices.size() < 4u ||
+        inputVertices.size() >
+            std::numeric_limits<std::uint32_t>::max()
+    ) {
+        return failure(
+            std::move(result),
+            GeometryCookStatus::invalidInput,
+            "convex-hull input or cooker configuration is invalid"
+        );
+    }
+    std::vector<mr_float4> hullVertices;
+    std::vector<std::uint32_t> hullIndices;
+    std::uint32_t weldedCount = 0u;
+    std::string message;
+    if (!buildConvexHullSurface(
+            inputVertices,
+            config,
+            hullVertices,
+            hullIndices,
+            weldedCount,
+            message
+        )) {
+        return failure(
+            std::move(result),
+            GeometryCookStatus::degenerateGeometry,
+            std::move(message)
+        );
+    }
+    GeometryCookResult cooked = cookConvexGeometry(
+        model,
+        hullVertices,
+        hullIndices,
+        config
+    );
+    cooked.inputVertexCount = result.inputVertexCount;
+    cooked.inputTriangleCount = 0u;
+    if (cooked.succeeded()) {
+        cooked.removedDegenerateTriangles =
+            weldedCount > hullVertices.size()
+            ? weldedCount -
+                static_cast<std::uint32_t>(
+                    hullVertices.size()
+                )
+            : 0u;
+        cooked.message = "ok";
+    }
+    return cooked;
 }
 
 GeometryCookResult cookTriangleMeshGeometry(

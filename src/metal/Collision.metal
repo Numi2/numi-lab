@@ -29,6 +29,12 @@ constant uint kCylinderPositiveGeneralRim = 11u;
 // center/halfExtents/capsuleEndpoint{0,1} carry the triangle centroid/C/A/B.
 constant uint kQueryTriangleShape = 0xfffffffdu;
 
+bool isSurfaceShapeType(const uint type) {
+    return
+        type == MR_SHAPE_TRIANGLE_MESH ||
+        type == MR_SHAPE_HEIGHTFIELD;
+}
+
 struct WorldShape {
     uint index;
     uint type;
@@ -398,13 +404,14 @@ bool makeWorldShape(
         shape.shapeType != MR_SHAPE_CYLINDER &&
         shape.shapeType != MR_SHAPE_PLANE &&
         shape.shapeType != MR_SHAPE_CONVEX &&
-        shape.shapeType != MR_SHAPE_TRIANGLE_MESH) {
+        shape.shapeType != MR_SHAPE_TRIANGLE_MESH &&
+        shape.shapeType != MR_SHAPE_HEIGHTFIELD) {
         failureCode = MR_STEP_UNSUPPORTED;
         return false;
     }
 
     if (shape.shapeType == MR_SHAPE_CONVEX ||
-        shape.shapeType == MR_SHAPE_TRIANGLE_MESH) {
+        isSurfaceShapeType(shape.shapeType)) {
         if (shape.geometryCount != 1u ||
             !all(shape.dimensions.xyz >=
                  float3(MR_MIN_COLLISION_EXTENT))) {
@@ -416,7 +423,9 @@ bool makeWorldShape(
         const uint expectedKind =
             shape.shapeType == MR_SHAPE_CONVEX
             ? MR_GEOMETRY_CONVEX
-            : MR_GEOMETRY_TRIANGLE_MESH;
+            : shape.shapeType == MR_SHAPE_TRIANGLE_MESH
+            ? MR_GEOMETRY_TRIANGLE_MESH
+            : MR_GEOMETRY_HEIGHTFIELD;
         if (geometry.kind != expectedKind ||
             !collisionInputDomainXyz(geometry.localLower) ||
             !collisionInputDomainXyz(geometry.localUpper) ||
@@ -669,8 +678,7 @@ bool makeWorldShape(
     if ((shapes[index].flags &
          MR_SHAPE_FLAG_SIMULATION_DISABLED) == 0u &&
         (shapes[index].shapeType == MR_SHAPE_CONVEX ||
-         shapes[index].shapeType ==
-             MR_SHAPE_TRIANGLE_MESH)) {
+         isSurfaceShapeType(shapes[index].shapeType))) {
         failureCode = MR_STEP_UNSUPPORTED;
         return false;
     }
@@ -3362,26 +3370,61 @@ ContactBatch supportMappedContacts(
         return result;
     }
     if (overlap) {
-        if (!epaPenetration(
-                shapeA,
-                shapeB,
-                sourceA,
-                sourceB,
-                geometryHeaders,
-                geometryVertices,
-                simplex,
-                simplexCount,
-                query
-            ) &&
-            !mprConservativeWitness(
-                shapeA,
-                shapeB,
-                sourceA,
-                sourceB,
-                geometryHeaders,
-                geometryVertices,
-                query
-            )) {
+        const bool hullPair =
+            shapeA.type == MR_SHAPE_CONVEX ||
+            shapeB.type == MR_SHAPE_CONVEX;
+        // MPR carries a four-point portal and is the compact online path for
+        // authored hull overlap. EPA's 64-vertex/128-face workspace is a
+        // useful precision fallback, but entering it first for every limb
+        // contact creates large per-lane spills and poor occupancy in
+        // humanoid batches. Primitive pairs retain EPA-first resolution.
+        const bool resolved =
+            hullPair
+            ? (
+                mprConservativeWitness(
+                    shapeA,
+                    shapeB,
+                    sourceA,
+                    sourceB,
+                    geometryHeaders,
+                    geometryVertices,
+                    query
+                ) ||
+                epaPenetration(
+                    shapeA,
+                    shapeB,
+                    sourceA,
+                    sourceB,
+                    geometryHeaders,
+                    geometryVertices,
+                    simplex,
+                    simplexCount,
+                    query
+                )
+            )
+            : (
+                epaPenetration(
+                    shapeA,
+                    shapeB,
+                    sourceA,
+                    sourceB,
+                    geometryHeaders,
+                    geometryVertices,
+                    simplex,
+                    simplexCount,
+                    query
+                ) ||
+                mprConservativeWitness(
+                    shapeA,
+                    shapeB,
+                    sourceA,
+                    sourceB,
+                    geometryHeaders,
+                    geometryVertices,
+                    query
+                )
+            );
+        if (!resolved) {
             query.status = MR_STEP_DID_NOT_CONVERGE;
             return result;
         }
@@ -3397,6 +3440,136 @@ ContactBatch supportMappedContacts(
             )) {
             return result;
         }
+    }
+    if (query.separation <= acceptedContactDistance) {
+        result.contacts[0] = makeContact(
+            query.normal,
+            query.separation,
+            query.pointA,
+            query.pointB,
+            query.featureA,
+            query.featureB
+        );
+        result.count = 1u;
+        appendSupportMappedPatch(
+            shapeA,
+            shapeB,
+            sourceA,
+            sourceB,
+            geometryHeaders,
+            geometryVertices,
+            query,
+            result
+        );
+    }
+    return result;
+}
+
+// Online articulated meshes use compact authored convex hulls. Keep their
+// penetration path in a separate call graph so Metal does not reserve EPA's
+// large per-lane vertex, face, and horizon workspaces for every humanoid
+// self-collision query. MPR remains a true geometry witness: failure is
+// reported transactionally rather than converted into separation.
+ContactBatch supportMappedHullContacts(
+    const uint colliderA,
+    const uint colliderB,
+    const thread WorldShape& shapeA,
+    const thread WorldShape& shapeB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    const float3 cachedDirection,
+    thread ConvexQueryResult& query
+) {
+    ContactBatch result = {};
+    const float acceptedContactDistance =
+        shapeA.contactOffset +
+        shapeB.contactOffset +
+        pairQueryPadding(shapeA, shapeB);
+    if (shapeA.type == MR_SHAPE_PLANE ||
+        shapeB.type == MR_SHAPE_PLANE) {
+        const thread WorldShape& plane =
+            shapeA.type == MR_SHAPE_PLANE ? shapeA : shapeB;
+        const thread WorldShape& finiteShape =
+            shapeA.type == MR_SHAPE_PLANE ? shapeB : shapeA;
+        device const MRShapeGPU& finiteSource =
+            shapeA.type == MR_SHAPE_PLANE ? sourceB : sourceA;
+        float3 surface;
+        uint feature = 0u;
+        if (!supportWorldShape(
+                finiteShape,
+                finiteSource,
+                geometryHeaders,
+                geometryVertices,
+                -plane.planeNormal,
+                surface,
+                feature
+            )) {
+            query.status = MR_STEP_UNSUPPORTED;
+            return result;
+        }
+        const float separation = dot(
+            plane.planeNormal,
+            surface - plane.center
+        );
+        query.status = MR_STEP_SUCCESS;
+        query.normal =
+            colliderA == plane.index
+            ? plane.planeNormal
+            : -plane.planeNormal;
+        query.separation = separation;
+        if (separation <= acceptedContactDistance) {
+            appendFinitePlaneContact(
+                result,
+                colliderA,
+                plane,
+                surface,
+                separation,
+                feature
+            );
+            query.pointA = result.contacts[0].pointAWorld.xyz;
+            query.pointB = result.contacts[0].pointBWorld.xyz;
+            query.featureA =
+                result.contacts[0].featureAndFlags[0];
+            query.featureB =
+                result.contacts[0].featureAndFlags[1];
+        }
+        return result;
+    }
+
+    ConvexSupportPoint simplex[4];
+    float weights[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    uint simplexCount = 0u;
+    const bool overlap = gjkDistance(
+        shapeA,
+        shapeB,
+        sourceA,
+        sourceB,
+        geometryHeaders,
+        geometryVertices,
+        simplex,
+        simplexCount,
+        weights,
+        cachedDirection,
+        query
+    );
+    if (query.status != MR_STEP_SUCCESS &&
+        query.status != MR_STEP_DID_NOT_CONVERGE) {
+        return result;
+    }
+    if ((overlap || query.status == MR_STEP_DID_NOT_CONVERGE) &&
+        !mprConservativeWitness(
+            shapeA,
+            shapeB,
+            sourceA,
+            sourceB,
+            geometryHeaders,
+            geometryVertices,
+            query
+        )) {
+        query.status = MR_STEP_DID_NOT_CONVERGE;
+        return result;
     }
     if (query.separation <= acceptedContactDistance) {
         result.contacts[0] = makeContact(
@@ -3614,7 +3787,7 @@ void convexTriangleContact(
             finiteShape.center + relativeClosest,
             featureKey(MR_SHAPE_SPHERE, 0u),
             featureKey(
-                MR_SHAPE_TRIANGLE_MESH,
+                mesh.type,
                 triangle.verticesAndFeature.w
             )
         );
@@ -3754,7 +3927,7 @@ void convexTriangleContact(
         trianglePoint,
         finiteFeature,
         featureKey(
-            MR_SHAPE_TRIANGLE_MESH,
+            mesh.type,
             triangle.verticesAndFeature.w
         )
     );
@@ -3782,8 +3955,7 @@ ContactBatch meshContacts(
     thread uint& triangleCandidates
 ) {
     ContactBatch result = {};
-    const bool meshIsA =
-        shapeA.type == MR_SHAPE_TRIANGLE_MESH;
+    const bool meshIsA = isSurfaceShapeType(shapeA.type);
     const thread WorldShape& mesh =
         meshIsA ? shapeA : shapeB;
     const thread WorldShape& finiteShape =
@@ -3792,13 +3964,16 @@ ContactBatch meshContacts(
         meshIsA ? sourceA : sourceB;
     device const MRShapeGPU& finiteSource =
         meshIsA ? sourceB : sourceA;
-    if (finiteShape.type == MR_SHAPE_TRIANGLE_MESH) {
+    if (isSurfaceShapeType(finiteShape.type)) {
         return result;
     }
     const MRGeometryHeaderGPU geometry =
         geometryHeaders[meshSource.geometryOffset];
-    if (geometry.kind != MR_GEOMETRY_TRIANGLE_MESH ||
-        geometry.bvhCount == 0u) {
+    const uint expectedKind =
+        mesh.type == MR_SHAPE_TRIANGLE_MESH
+        ? MR_GEOMETRY_TRIANGLE_MESH
+        : MR_GEOMETRY_HEIGHTFIELD;
+    if (geometry.kind != expectedKind) {
         return result;
     }
     float3 queryLower;
@@ -3809,6 +3984,140 @@ ContactBatch meshContacts(
         queryLower,
         queryUpper
     );
+    if (mesh.type == MR_SHAPE_HEIGHTFIELD) {
+        if (geometry.vertexCount < 4u ||
+            !(geometry.localLower.w > 0.0f) ||
+            !(geometry.localUpper.w > 0.0f) ||
+            queryUpper.x < geometry.localLower.x ||
+            queryLower.x > geometry.localUpper.x ||
+            queryUpper.y < geometry.localLower.y ||
+            queryLower.y > geometry.localUpper.y) {
+            return result;
+        }
+        const float inverseSpacing = geometry.localUpper.w;
+        const uint cellCountX = uint(round(
+            (geometry.localUpper.x - geometry.localLower.x) *
+            inverseSpacing
+        ));
+        const uint cellCountY = uint(round(
+            (geometry.localUpper.y - geometry.localLower.y) *
+            inverseSpacing
+        ));
+        if (cellCountX == 0u || cellCountY == 0u ||
+            (cellCountX + 1u) * (cellCountY + 1u) !=
+                geometry.vertexCount) {
+            return result;
+        }
+        const int firstX = clamp(
+            int(floor(
+                (queryLower.x - geometry.localLower.x) *
+                inverseSpacing
+            )) - 1,
+            0,
+            int(cellCountX - 1u)
+        );
+        const int firstY = clamp(
+            int(floor(
+                (queryLower.y - geometry.localLower.y) *
+                inverseSpacing
+            )) - 1,
+            0,
+            int(cellCountY - 1u)
+        );
+        const int lastX = clamp(
+            int(floor(
+                (queryUpper.x - geometry.localLower.x) *
+                inverseSpacing
+            )),
+            0,
+            int(cellCountX - 1u)
+        );
+        const int lastY = clamp(
+            int(floor(
+                (queryUpper.y - geometry.localLower.y) *
+                inverseSpacing
+            )),
+            0,
+            int(cellCountY - 1u)
+        );
+        const uint width = cellCountX + 1u;
+        for (int y = firstY; y <= lastY; ++y) {
+            for (int x = firstX; x <= lastX; ++x) {
+                const uint local00 =
+                    uint(y) * width + uint(x);
+                const uint vertex00 =
+                    geometry.vertexOffset + local00;
+                const uint vertex10 = vertex00 + 1u;
+                const uint vertex01 = vertex00 + width;
+                const uint vertex11 = vertex01 + 1u;
+                const uint cell =
+                    uint(y) * cellCountX + uint(x);
+                MRMeshTriangleGPU triangle0 = {};
+                triangle0.verticesAndFeature = uint4(
+                    vertex00,
+                    vertex10,
+                    vertex11,
+                    2u * cell
+                );
+                triangle0.adjacencyAndEdges = uint4(
+                    MR_INVALID_INDEX,
+                    MR_INVALID_INDEX,
+                    MR_INVALID_INDEX,
+                    0x7u
+                );
+                triangle0.materialAndFlags.x =
+                    meshSource.materialIndex;
+                if (triangleCandidates != 0xffffffffu) {
+                    ++triangleCandidates;
+                }
+                convexTriangleContact(
+                    meshIsA,
+                    finiteShape,
+                    mesh,
+                    finiteSource,
+                    meshSource,
+                    triangle0,
+                    geometryHeaders,
+                    geometryVertices,
+                    result
+                );
+
+                MRMeshTriangleGPU triangle1 = {};
+                triangle1.verticesAndFeature = uint4(
+                    vertex00,
+                    vertex11,
+                    vertex01,
+                    2u * cell + 1u
+                );
+                triangle1.adjacencyAndEdges = uint4(
+                    MR_INVALID_INDEX,
+                    MR_INVALID_INDEX,
+                    MR_INVALID_INDEX,
+                    0x7u
+                );
+                triangle1.materialAndFlags.x =
+                    meshSource.materialIndex;
+                if (triangleCandidates != 0xffffffffu) {
+                    ++triangleCandidates;
+                }
+                convexTriangleContact(
+                    meshIsA,
+                    finiteShape,
+                    mesh,
+                    finiteSource,
+                    meshSource,
+                    triangle1,
+                    geometryHeaders,
+                    geometryVertices,
+                    result
+                );
+            }
+        }
+        return result;
+    }
+    if (geometry.bvhCount == 0u) {
+        return result;
+    }
     uint cursor = 0u;
     uint visits = 0u;
     const uint maximumVisits =
@@ -3883,32 +4192,6 @@ ContactBatch meshContacts(
             );
         }
         cursor = escape;
-    }
-    // The cooked BVH is conservative, but retain a deterministic exhaustive
-    // replay when quantized traversal produced no triangle candidate. This is
-    // a GPU-only robustness path for extremely thin or zero-extent mesh axes,
-    // not a second full-mesh pass for ordinary separated candidates.
-    if (triangleCandidates == 0u) {
-        for (uint triangle = 0u;
-             triangle < geometry.triangleCount;
-             ++triangle) {
-            if (triangleCandidates != 0xffffffffu) {
-                ++triangleCandidates;
-            }
-            convexTriangleContact(
-                meshIsA,
-                finiteShape,
-                mesh,
-                finiteSource,
-                meshSource,
-                meshTriangles[
-                    geometry.triangleOffset + triangle
-                ],
-                geometryHeaders,
-                geometryVertices,
-                result
-            );
-        }
     }
     return result;
 }
@@ -6148,6 +6431,12 @@ bool ccdDistanceAtAlpha(
         endB,
         alpha
     );
+    if (shapeA.type == MR_SHAPE_HEIGHTFIELD ||
+        shapeB.type == MR_SHAPE_HEIGHTFIELD) {
+        query = {};
+        query.status = MR_STEP_UNSUPPORTED;
+        return false;
+    }
     if (shapeA.type == MR_SHAPE_TRIANGLE_MESH ||
         shapeB.type == MR_SHAPE_TRIANGLE_MESH) {
         const bool meshIsA =
@@ -6373,8 +6662,8 @@ MRCCDPairGPU resolveCCDPair(
         return record;
     }
 
-    if (sourceA.shapeType == MR_SHAPE_TRIANGLE_MESH ||
-        sourceB.shapeType == MR_SHAPE_TRIANGLE_MESH) {
+    if (isSurfaceShapeType(sourceA.shapeType) ||
+        isSurfaceShapeType(sourceB.shapeType)) {
         record.flags |= MR_CCD_PAIR_MESH;
     } else {
         record.flags |=
@@ -6567,7 +6856,7 @@ MRCCDPairGPU resolveRodCCDPair(
         totalMotion / max(timestep, kTiny),
         dispatch.ccdParameters.w
     );
-    if (sourceB.shapeType == MR_SHAPE_TRIANGLE_MESH) {
+    if (isSurfaceShapeType(sourceB.shapeType)) {
         record.flags |= MR_CCD_PAIR_MESH;
     }
 
@@ -7886,7 +8175,6 @@ kernel void mr_world_narrowphase_convex_queue(
             work.compiledPair >= dispatch.eligiblePairCount ||
             work.workClass != workClass ||
             (workClass != MR_WORLD_WORK_PRIMITIVE_GJK &&
-             workClass != MR_WORLD_WORK_HULL_GJK &&
              workClass != MR_WORLD_WORK_HARD_CONVEX)) {
             continue;
         }
@@ -7933,6 +8221,172 @@ kernel void mr_world_narrowphase_convex_queue(
             ? previousCache.separatingAxisAndDistance.xyz
             : float3(0.0f);
         const ContactBatch contacts = supportMappedContacts(
+            pair.colliderA,
+            pair.colliderB,
+            shapeA,
+            shapeB,
+            shapes[pair.colliderA],
+            shapes[pair.colliderB],
+            geometryHeaders,
+            geometryVertices,
+            cachedDirection,
+            query
+        );
+        MRConvexQueryCacheGPU cache = {};
+        cache.separatingAxisAndDistance =
+            float4(query.normal, query.separation);
+        cache.supportA = uint4(
+            query.featureA,
+            query.featureB,
+            query.iterations,
+            query.fallback
+        );
+        cache.featureAndStatus = uint4(
+            query.status,
+            work.workClass,
+            work.stableKeyLow,
+            work.stableKeyHigh
+        );
+        candidateCaches[work.cacheSlot] = cache;
+
+        const uint countIndex =
+            work.environment * dispatch.eligiblePairCount +
+            work.compiledPair;
+        if (query.status != MR_STEP_SUCCESS) {
+            pairRawCounts[countIndex] =
+                0x80000000u | query.status;
+            continue;
+        }
+        const uint stagingBase =
+            countIndex *
+            MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+        uint count = contacts.count;
+        for (uint index = 0u;
+             index < contacts.count;
+             ++index) {
+            if (!finiteContact(contacts.contacts[index])) {
+                count =
+                    0x80000000u |
+                    MR_STEP_NONFINITE_RESULT;
+                break;
+            }
+            pairRawContacts[stagingBase + index] =
+                contacts.contacts[index];
+        }
+        pairRawCounts[countIndex] = count;
+    }
+}
+
+// Authored-hull queue with an MPR-only penetration call graph. Keeping this
+// distinct from the general convex kernel materially reduces per-lane private
+// storage and improves occupancy for batched humanoid self-collision.
+kernel void mr_world_narrowphase_hull_queue(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(2)]],
+    device const MRProjectedColliderGPU* projectedColliders [[buffer(3)]],
+    device const MRPairWorkGPU* queue [[buffer(4)]],
+    device MRWorkQueueHeaderGPU* headers [[buffer(5)]],
+    device const MRGeometryHeaderGPU* geometryHeaders [[buffer(6)]],
+    device const float4* geometryVertices [[buffer(7)]],
+    device MRRawContactGPU* pairRawContacts [[buffer(8)]],
+    device uint* pairRawCounts [[buffer(9)]],
+    device const MRConvexQueryCacheGPU* previousCaches
+        [[buffer(10)]],
+    device MRConvexQueryCacheGPU* candidateCaches
+        [[buffer(11)]],
+    constant uint4& classConfig [[buffer(12)]],
+    const uint workerIndex [[thread_position_in_grid]],
+    const uint workerCount [[threads_per_grid]],
+    const uint lane [[thread_index_in_simdgroup]]
+) {
+    const uint workClass = classConfig.x;
+    const MRWorkQueueHeaderGPU header = headers[workClass];
+    const uint stride = max(workerCount, 1u);
+    device atomic_uint* workerCursor =
+        reinterpret_cast<device atomic_uint*>(
+            &headers[workClass].workerCursor
+        );
+    for (uint iteration = 0u;; ++iteration) {
+        uint queueIndex = 0u;
+        if (classConfig.z != 0u) {
+            uint claimedBase = 0u;
+            if (lane == 0u) {
+                claimedBase = atomic_fetch_add_explicit(
+                    workerCursor,
+                    MR_WAVE32_CONTACTS_PER_TILE,
+                    memory_order_relaxed
+                );
+            }
+            claimedBase =
+                simd_broadcast_first(claimedBase);
+            if (claimedBase >= header.count) {
+                break;
+            }
+            queueIndex = claimedBase + lane;
+            if (queueIndex >= header.count) {
+                continue;
+            }
+        } else {
+            const ulong linearIndex =
+                static_cast<ulong>(workerIndex) +
+                static_cast<ulong>(iteration) * stride;
+            if (linearIndex >= header.count) {
+                break;
+            }
+            queueIndex = static_cast<uint>(linearIndex);
+        }
+        const MRPairWorkGPU work =
+            queue[header.reserved0 + queueIndex];
+        if (work.environment >= dispatch.environmentCount ||
+            work.compiledPair >= dispatch.eligiblePairCount ||
+            work.workClass != workClass ||
+            workClass != MR_WORLD_WORK_HULL_GJK) {
+            continue;
+        }
+        const MRCompiledCollisionPairGPU pair =
+            eligiblePairs[work.compiledPair];
+        const uint projectionBase =
+            work.environment * dispatch.shapeCount;
+        WorldShape shapeA;
+        WorldShape shapeB;
+        uint failureCode = MR_STEP_SUCCESS;
+        if (!loadProjectedCollider(
+                pair.colliderA,
+                shapes[pair.colliderA],
+                projectedColliders[
+                    projectionBase + pair.colliderA
+                ],
+                shapeA,
+                failureCode
+            ) ||
+            !loadProjectedCollider(
+                pair.colliderB,
+                shapes[pair.colliderB],
+                projectedColliders[
+                    projectionBase + pair.colliderB
+                ],
+                shapeB,
+                failureCode
+            )) {
+            pairRawCounts[
+                work.environment *
+                    dispatch.eligiblePairCount +
+                work.compiledPair
+            ] = 0x80000000u | failureCode;
+            continue;
+        }
+
+        ConvexQueryResult query = {};
+        query.status = MR_STEP_SUCCESS;
+        const MRConvexQueryCacheGPU previousCache =
+            previousCaches[work.cacheSlot];
+        const float3 cachedDirection =
+            previousCache.featureAndStatus.x ==
+                    MR_STEP_SUCCESS
+            ? previousCache.separatingAxisAndDistance.xyz
+            : float3(0.0f);
+        const ContactBatch contacts = supportMappedHullContacts(
             pair.colliderA,
             pair.colliderB,
             shapeA,
@@ -8585,13 +9039,11 @@ kernel void mr_world_collide_compile(
                 const uint cookedMaterial =
                     materialOverride &
                     MR_RAW_CONTACT_MATERIAL_INDEX_MASK;
-                if (sourceA.shapeType ==
-                    MR_SHAPE_TRIANGLE_MESH) {
+                if (isSurfaceShapeType(sourceA.shapeType)) {
                     materialIndexA = cookedMaterial;
-                } else if (
-                    sourceB.shapeType ==
-                    MR_SHAPE_TRIANGLE_MESH
-                ) {
+                } else if (isSurfaceShapeType(
+                               sourceB.shapeType
+                           )) {
                     materialIndexB = cookedMaterial;
                 }
             }
@@ -9693,11 +10145,9 @@ kernel void mr_world_scatter_manifold_ir(
         const uint cookedMaterial =
             materialOverride &
             MR_RAW_CONTACT_MATERIAL_INDEX_MASK;
-        if (sourceA.shapeType == MR_SHAPE_TRIANGLE_MESH) {
+        if (isSurfaceShapeType(sourceA.shapeType)) {
             materialIndexA = cookedMaterial;
-        } else if (
-            sourceB.shapeType == MR_SHAPE_TRIANGLE_MESH
-        ) {
+        } else if (isSurfaceShapeType(sourceB.shapeType)) {
             materialIndexB = cookedMaterial;
         }
     }
@@ -10290,8 +10740,7 @@ kernel void mr_rod_tool_narrowphase(
                     : MR_ROD_TOOL_WITNESS_NEW_IMPACT
                 ) |
                 (
-                    toolShape.type ==
-                            MR_SHAPE_TRIANGLE_MESH
+                    isSurfaceShapeType(toolShape.type)
                     ? MR_ROD_TOOL_WITNESS_MESH
                     : 0u
                 ) |

@@ -32,6 +32,11 @@ enum class RobotDescriptionRootMode : std::uint32_t {
     floating = 1u,
 };
 
+enum class RobotDescriptionMeshMode : std::uint32_t {
+    requireConvexSurface = 0u,
+    convexHull = 1u,
+};
+
 struct RobotDescriptionCookOptions {
     RobotDescriptionRootMode rootMode =
         RobotDescriptionRootMode::fixed;
@@ -58,6 +63,11 @@ struct RobotDescriptionCookOptions {
     // either <root>/<name>/path or <root>/path when root itself is the named
     // package. Resolution is local-only and deterministic.
     std::vector<std::filesystem::path> packageSearchRoots;
+    // Articulated triangle meshes remain unsupported. This explicitly
+    // selects whether authored mesh vertices already form a convex surface
+    // or are deterministically reduced to their convex hull.
+    RobotDescriptionMeshMode meshMode =
+        RobotDescriptionMeshMode::requireConvexSurface;
 };
 
 struct RobotDescriptionDiagnostics {
@@ -75,6 +85,12 @@ struct RobotDescriptionDiagnostics {
     std::uint32_t meshVertexCount = 0u;
     std::uint32_t meshTriangleCount = 0u;
     std::uint64_t sourceFingerprint = 0u;
+    // Cooker-order semantic maps for attaching authored sensors and
+    // observations without reverse-engineering opaque runtime indices.
+    std::vector<std::string> bodyNames;
+    std::vector<std::string> jointNames;
+    std::vector<std::string> dofNames;
+    std::vector<std::string> shapeLinkNames;
     std::string sourceName;
     std::string element;
     std::string message;

@@ -144,3 +144,26 @@ The procedural needle uses the Medtronic GS-21 catalog facts “37 mm,”
 contact, and grasp-zone values are separately labelled MetalRobo research
 defaults. No Medtronic mesh, artwork, documentation, or software is
 redistributed.
+
+## Sharpa Wave hand and tactile assets
+
+`include/metalrobo/Wave.hpp` and `src/core/Wave.cpp` load, validate, and cook
+external assets from:
+
+- `sharpa-robotics/sharpa-urdf-usd-xml`, commit
+  `6eea427eb24189519f32b9f21674cd534d3f973c`
+- `sharpa-robotics/sharpa-tactile-sensor-assets`, commit
+  `865530a98a0ca0e69d177f2121833f8bb3ed94de`
+
+Both upstream repositories identify the work as Copyright 2025 Sharpa Group
+and license it under the Apache License, Version 2.0. MetalRobo does not
+redistribute the URDF, mesh, NumPy, OBJ, USD, or XML assets; callers provide
+their own pinned checkouts. The Apache 2.0 terms are available at
+<https://www.apache.org/licenses/LICENSE-2.0>.
+
+The optional `SharpaIT/Robotic_Origami_Challenge` training dataset is pinned
+separately at commit `8194af6b9341dac7686c2f29704ff893e6f2f95e`. Its
+Hugging Face card declares Creative Commons Attribution 4.0 International
+(CC-BY-4.0). Dataset files are gated, downloaded by the user, and are not
+redistributed with MetalRobo. The license terms are available at
+<https://creativecommons.org/licenses/by/4.0/>.

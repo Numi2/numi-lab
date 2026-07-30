@@ -108,8 +108,14 @@ set(METALROBO_BROADPHASE_AIR
 set(METALROBO_ARTICULATED_OPERATOR_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedOperator.air"
 )
+set(METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParameterizedArticulatedOperator.air"
+)
 set(METALROBO_ARTICULATED_ABA_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedABA.air"
+)
+set(METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParameterizedArticulatedABA.air"
 )
 set(METALROBO_ARTICULATED_ABA_SMALL_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedABASmall.air"
@@ -225,8 +231,24 @@ add_custom_command(
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_ARTICULATED_OPERATOR_KERNEL_NAME=mr_parameterized_articulated_operator
+            -DMR_ARTICULATED_OPERATOR_BODY_PARAMETERS=1
+            -c "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
+            -o "${METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
             -o "${METALROBO_ARTICULATED_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_ABA_KERNEL_NAME=mr_parameterized_articulated_aba_step
+            -DMR_ABA_BODY_PARAMETERS=1
+            -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -342,7 +364,9 @@ add_custom_command(
             "${METALROBO_COLLISION_AIR}"
             "${METALROBO_BROADPHASE_AIR}"
             "${METALROBO_ARTICULATED_OPERATOR_AIR}"
+            "${METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR}"
             "${METALROBO_ARTICULATED_ABA_AIR}"
+            "${METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR}"
             "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
             "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
             "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
@@ -457,6 +481,7 @@ add_library(
     src/core/G1.cpp
     src/core/SurgicalPSM.cpp
     src/core/EmbodiedTactile.cpp
+    src/core/Wave.cpp
     src/core/SurgicalAssets.cpp
     src/core/SurgicalWorld.cpp
     src/core/HeterogeneousWorld.cpp
@@ -1845,6 +1870,9 @@ install(
         schemas/perception_provider.schema.json
         schemas/tactile_calibration_record.schema.json
         schemas/tactile_observation.schema.json
+        schemas/tactile_policy_checkpoint.schema.json
+        schemas/tactile_stream.schema.json
+        schemas/robot_dataset_manifest.schema.json
         schemas/visual_episode_stream.schema.json
         schemas/visual_frame_batch.schema.json
         schemas/visual_scene_manifest_v3.schema.json

@@ -190,6 +190,12 @@ NB_MODULE(_mlx_ext, module) {
             }
         )
         .def_prop_ro(
+            "world_fingerprint",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.world().fingerprint();
+            }
+        )
+        .def_prop_ro(
             "control_timestep",
             &metalrobo::mlx_ext::MLXCompiledWorld::
                 controlTimestep
@@ -618,6 +624,46 @@ NB_MODULE(_mlx_ext, module) {
                 waveWorkerGroups
         )
         .def_prop_ro(
+            "publishes_body_states",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                publishBodyStates
+        )
+        .def_prop_ro(
+            "shape_body_indices",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                shapeBodyIndices
+        )
+        .def_prop_ro(
+            "body_masses",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                bodyMasses
+        )
+        .def_prop_ro(
+            "joint_lower_limits",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                jointLowerLimits
+        )
+        .def_prop_ro(
+            "joint_upper_limits",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                jointUpperLimits
+        )
+        .def_prop_ro(
+            "joint_velocity_limits",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                jointVelocityLimits
+        )
+        .def_prop_ro(
+            "drive_stiffness",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                driveStiffness
+        )
+        .def_prop_ro(
+            "drive_damping",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                driveDamping
+        )
+        .def_prop_ro(
             "contact_supported",
             [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
                 return world.solverMode() !=
@@ -725,6 +771,7 @@ NB_MODULE(_mlx_ext, module) {
             MR_CCD_DEFAULT_ZERO_TIME_REPLAYS,
         "ccd_simultaneous_tolerance"_a = 1.0e-5f,
         "wave_worker_groups"_a = 0u,
+        "publish_body_states"_a = false,
         "metallib_path"_a = "",
         "stream"_a = nb::none(),
         "Compile an immutable Franka or G1 world for MLX."
@@ -765,6 +812,7 @@ NB_MODULE(_mlx_ext, module) {
             MR_CCD_DEFAULT_ZERO_TIME_REPLAYS,
         "ccd_simultaneous_tolerance"_a = 1.0e-5f,
         "wave_worker_groups"_a = 0u,
+        "publish_body_states"_a = false,
         "metallib_path"_a = "",
         "stream"_a = nb::none(),
         "Compile an explicit authored world pack for MLX."

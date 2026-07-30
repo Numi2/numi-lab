@@ -13,8 +13,11 @@ inline constexpr std::size_t kUnitreeG1BodyCount = 30u;
 inline constexpr std::size_t kUnitreeG1JointCount = 29u;
 inline constexpr std::size_t kUnitreeG1FootCount = 2u;
 inline constexpr std::size_t kUnitreeG1ImuCount = 2u;
+inline constexpr std::size_t kUnitreeG1FootSphereCount = 8u;
+inline constexpr std::size_t kUnitreeG1MeshCollisionCount = 24u;
 inline constexpr std::size_t kUnitreeG1PrimitiveShapeCount = 12u;
-inline constexpr std::size_t kUnitreeG1ExecutableShapeCount = 8u;
+inline constexpr std::size_t kUnitreeG1OfficialCollisionElementCount = 36u;
+inline constexpr std::size_t kUnitreeG1ExecutableShapeCount = 60u;
 
 struct G1JointLimit {
     std::string_view name;
@@ -69,6 +72,8 @@ struct G1ModelMetadata {
     std::string_view rlPresetCommit;
     std::string_view rlPresetLicense;
     std::string_view collisionMaterialPreset;
+    std::string_view collisionCookMethod;
+    std::string_view collisionCookHash;
 
     std::uint32_t modeMachine = 0u;
     std::uint32_t modePr = 0u;

@@ -485,11 +485,14 @@ std::uint64_t sourceFingerprint(
     append(srdf.data(), srdf.size());
     const auto rootMode =
         static_cast<std::uint32_t>(options.rootMode);
+    const auto meshMode =
+        static_cast<std::uint32_t>(options.meshMode);
     const std::uint32_t actuated =
         options.actuateMovableJoints ? 1u : 0u;
     const std::uint32_t respectTransmissions =
         options.respectTransmissions ? 1u : 0u;
     append(&rootMode, sizeof(rootMode));
+    append(&meshMode, sizeof(meshMode));
     append(
         &options.gravityAndTimestep,
         sizeof(options.gravityAndTimestep)
@@ -2339,11 +2342,18 @@ RobotDescriptionDiagnostics cookRobotDescription(
                     if (mesh.geometryIndex ==
                         MR_INVALID_INDEX) {
                         const GeometryCookResult cooked =
-                            cookConvexGeometry(
-                                staged,
-                                mesh.vertices,
-                                mesh.indices
-                            );
+                            options.meshMode ==
+                                RobotDescriptionMeshMode::
+                                    convexHull
+                            ? cookConvexHullGeometry(
+                                  staged,
+                                  mesh.vertices
+                              )
+                            : cookConvexGeometry(
+                                  staged,
+                                  mesh.vertices,
+                                  mesh.indices
+                              );
                         if (!cooked.succeeded()) {
                             return fail(
                                 std::move(diagnostics),
@@ -2645,6 +2655,51 @@ RobotDescriptionDiagnostics cookRobotDescription(
             static_cast<std::uint32_t>(meshVertices);
         diagnostics.meshTriangleCount =
             static_cast<std::uint32_t>(meshTriangles);
+        diagnostics.bodyNames = linkOrder;
+        diagnostics.jointNames.reserve(jointOrder.size());
+        diagnostics.dofNames.reserve(staged.world.nv);
+        if (options.rootMode ==
+            RobotDescriptionRootMode::floating) {
+            diagnostics.dofNames.insert(
+                diagnostics.dofNames.end(),
+                {
+                    "root_linear_x",
+                    "root_linear_y",
+                    "root_linear_z",
+                    "root_angular_x",
+                    "root_angular_y",
+                    "root_angular_z",
+                }
+            );
+        }
+        for (const std::size_t ordered : jointOrder) {
+            const ParsedJoint& joint = joints[ordered];
+            diagnostics.jointNames.push_back(joint.name);
+            if (joint.type != MR_JOINT_FIXED) {
+                diagnostics.dofNames.push_back(joint.name);
+            }
+        }
+        for (const std::string& linkName : linkOrder) {
+            const ParsedLink& link = links.at(linkName);
+            diagnostics.shapeLinkNames.insert(
+                diagnostics.shapeLinkNames.end(),
+                link.collisions.size(),
+                linkName
+            );
+        }
+        if (
+            diagnostics.bodyNames.size() != staged.bodies.size() ||
+            diagnostics.jointNames.size() != staged.joints.size() ||
+            diagnostics.dofNames.size() != staged.dofs.size() ||
+            diagnostics.shapeLinkNames.size() !=
+                staged.shapes.size()
+        ) {
+            return fail(
+                std::move(diagnostics),
+                RobotDescriptionStatus::internalFailure,
+                "semantic index maps do not match cooked runtime arrays"
+            );
+        }
         output = std::move(staged);
         return diagnostics;
     } catch (const std::bad_alloc&) {

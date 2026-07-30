@@ -317,6 +317,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> pairQueueScatterPipeline = nil;
     __strong id<MTLComputePipelineState> pairNarrowphasePipeline = nil;
     __strong id<MTLComputePipelineState> convexNarrowphasePipeline = nil;
+    __strong id<MTLComputePipelineState> hullNarrowphasePipeline = nil;
     __strong id<MTLComputePipelineState> meshNarrowphasePipeline = nil;
     __strong id<MTLComputePipelineState> collisionCompilePipeline = nil;
     __strong id<MTLComputePipelineState> manifoldFinalizePipeline = nil;
@@ -1241,10 +1242,14 @@ std::uint32_t compiledPairClass(
         typeB == MR_SHAPE_BOX) {
         return MR_COLLISION_PAIR_BOX_BOX;
     }
-    const bool meshA = typeA == MR_SHAPE_TRIANGLE_MESH;
-    const bool meshB = typeB == MR_SHAPE_TRIANGLE_MESH;
-    if (meshA || meshB) {
-        return meshA && meshB
+    const bool surfaceA =
+        typeA == MR_SHAPE_TRIANGLE_MESH ||
+        typeA == MR_SHAPE_HEIGHTFIELD;
+    const bool surfaceB =
+        typeB == MR_SHAPE_TRIANGLE_MESH ||
+        typeB == MR_SHAPE_HEIGHTFIELD;
+    if (surfaceA || surfaceB) {
+        return surfaceA && surfaceB
             ? MR_COLLISION_PAIR_UNSUPPORTED
             : MR_COLLISION_PAIR_MESH;
     }
@@ -3890,6 +3895,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> pairQueueScatter = nil;
     __strong id<MTLComputePipelineState> pairNarrowphase = nil;
     __strong id<MTLComputePipelineState> convexNarrowphase = nil;
+    __strong id<MTLComputePipelineState> hullNarrowphase = nil;
     __strong id<MTLComputePipelineState> meshNarrowphase = nil;
     __strong id<MTLComputePipelineState> collisionCompile = nil;
     __strong id<MTLComputePipelineState> manifoldFinalize = nil;
@@ -4037,6 +4043,8 @@ MetalWorldDiagnostics initializeContext(
         createContactPipeline(@"mr_world_narrowphase_pair_queue");
     convexNarrowphase =
         createContactPipeline(@"mr_world_narrowphase_convex_queue");
+    hullNarrowphase =
+        createContactPipeline(@"mr_world_narrowphase_hull_queue");
     meshNarrowphase =
         createContactPipeline(@"mr_world_narrowphase_mesh_queue");
     collisionCompile =
@@ -4209,6 +4217,7 @@ MetalWorldDiagnostics initializeContext(
         pairQueueScatter == nil ||
         pairNarrowphase == nil ||
         convexNarrowphase == nil ||
+        hullNarrowphase == nil ||
         meshNarrowphase == nil ||
         collisionCompile == nil ||
         manifoldFinalize == nil ||
@@ -4316,6 +4325,8 @@ MetalWorldDiagnostics initializeContext(
         pairNarrowphase.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
         convexNarrowphase.maxTotalThreadsPerThreadgroup <
+            kWorldThreadsPerThreadgroup ||
+        hullNarrowphase.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
         meshNarrowphase.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
@@ -4487,6 +4498,7 @@ MetalWorldDiagnostics initializeContext(
     context.pairQueueScatterPipeline = pairQueueScatter;
     context.pairNarrowphasePipeline = pairNarrowphase;
     context.convexNarrowphasePipeline = convexNarrowphase;
+    context.hullNarrowphasePipeline = hullNarrowphase;
     context.meshNarrowphasePipeline = meshNarrowphase;
     context.collisionCompilePipeline = collisionCompile;
     context.manifoldFinalizePipeline = manifoldFinalize;
@@ -6758,10 +6770,14 @@ bool encodeClassCompactedPairNarrowphase(
             workClass == MR_WORLD_WORK_HARD_CONVEX
         ) {
             encoder.label =
-                @"MetalWorld compact certified convex queue";
+                workClass == MR_WORLD_WORK_HULL_GJK
+                ? @"MetalWorld compact authored-hull MPR queue"
+                : @"MetalWorld certified convex GJK MPR EPA queue";
             [encoder
                 setComputePipelineState:
-                    context.convexNarrowphasePipeline];
+                    workClass == MR_WORLD_WORK_HULL_GJK
+                    ? context.hullNarrowphasePipeline
+                    : context.convexNarrowphasePipeline];
             const std::array<std::size_t, 12u> buffers{{
                 kContactDispatch,
                 kShapes,
@@ -11416,15 +11432,17 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                  MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u) {
                 continue;
             }
-            if (shape.shapeType ==
-                    MR_SHAPE_TRIANGLE_MESH &&
+            if ((shape.shapeType ==
+                     MR_SHAPE_TRIANGLE_MESH ||
+                 shape.shapeType ==
+                     MR_SHAPE_HEIGHTFIELD) &&
                 staged.model_.bodies[shape.bodyIndex]
                         .motionType ==
                     MR_MOTION_DYNAMIC) {
                 return rejectCompile(
                     std::move(diagnostics),
                     MetalWorldHostStatus::unsupportedTopology,
-                    "dynamic concave mesh collider " +
+                    "dynamic concave surface collider " +
                         std::to_string(collider) +
                         " must be replaced by convex decomposition"
                 );

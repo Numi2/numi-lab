@@ -11,6 +11,7 @@ namespace {
 constant float kQuaternionMinimum = 1.0e-12f;
 constant float kMatrixFloor = 1.0e-10f;
 constant float kConeEpsilon = 1.0e-7f;
+constant float kContactMatrixRegularization = 1.0e-4f;
 
 struct Mat3 {
     float3 row0;
@@ -621,45 +622,77 @@ inline bool invert3x3(
     thread const float matrix[3][3],
     thread float inverse[3][3]
 ) {
+    float scale = 0.0f;
+    for (uint row = 0u; row < 3u; ++row) {
+        for (uint column = 0u; column < 3u; ++column) {
+            if (!isfinite(matrix[row][column])) {
+                return false;
+            }
+            scale = max(scale, abs(matrix[row][column]));
+        }
+    }
+    if (!(scale > kMatrixFloor)) {
+        return false;
+    }
+
+    // Relative contact motion can be rank deficient for articulated
+    // self-contact even though the articulation mass matrix is valid. Work
+    // in a scale-free frame, symmetrize the numerically assembled response,
+    // and apply a small deterministic CFM floor before inversion. This keeps
+    // the coupled normal/tangent solve finite without weakening well-scaled
+    // contacts or turning a valid fall into a transactional physics error.
+    float regularized[3][3];
+    for (uint row = 0u; row < 3u; ++row) {
+        for (uint column = 0u; column < 3u; ++column) {
+            regularized[row][column] =
+                0.5f *
+                (matrix[row][column] + matrix[column][row]) /
+                scale;
+            if (row == column) {
+                regularized[row][column] +=
+                    kContactMatrixRegularization;
+            }
+        }
+    }
     const float c00 =
-        matrix[1][1] * matrix[2][2] -
-        matrix[1][2] * matrix[2][1];
+        regularized[1][1] * regularized[2][2] -
+        regularized[1][2] * regularized[2][1];
     const float c01 =
-        matrix[1][2] * matrix[2][0] -
-        matrix[1][0] * matrix[2][2];
+        regularized[1][2] * regularized[2][0] -
+        regularized[1][0] * regularized[2][2];
     const float c02 =
-        matrix[1][0] * matrix[2][1] -
-        matrix[1][1] * matrix[2][0];
+        regularized[1][0] * regularized[2][1] -
+        regularized[1][1] * regularized[2][0];
     const float determinant =
-        matrix[0][0] * c00 +
-        matrix[0][1] * c01 +
-        matrix[0][2] * c02;
+        regularized[0][0] * c00 +
+        regularized[0][1] * c01 +
+        regularized[0][2] * c02;
     if (!(determinant > kMatrixFloor) ||
         !isfinite(determinant)) {
         return false;
     }
-    const float reciprocal = 1.0f / determinant;
+    const float reciprocal = 1.0f / (determinant * scale);
     inverse[0][0] = c00 * reciprocal;
     inverse[0][1] =
-        (matrix[0][2] * matrix[2][1] -
-         matrix[0][1] * matrix[2][2]) * reciprocal;
+        (regularized[0][2] * regularized[2][1] -
+         regularized[0][1] * regularized[2][2]) * reciprocal;
     inverse[0][2] =
-        (matrix[0][1] * matrix[1][2] -
-         matrix[0][2] * matrix[1][1]) * reciprocal;
+        (regularized[0][1] * regularized[1][2] -
+         regularized[0][2] * regularized[1][1]) * reciprocal;
     inverse[1][0] = c01 * reciprocal;
     inverse[1][1] =
-        (matrix[0][0] * matrix[2][2] -
-         matrix[0][2] * matrix[2][0]) * reciprocal;
+        (regularized[0][0] * regularized[2][2] -
+         regularized[0][2] * regularized[2][0]) * reciprocal;
     inverse[1][2] =
-        (matrix[0][2] * matrix[1][0] -
-         matrix[0][0] * matrix[1][2]) * reciprocal;
+        (regularized[0][2] * regularized[1][0] -
+         regularized[0][0] * regularized[1][2]) * reciprocal;
     inverse[2][0] = c02 * reciprocal;
     inverse[2][1] =
-        (matrix[0][1] * matrix[2][0] -
-         matrix[0][0] * matrix[2][1]) * reciprocal;
+        (regularized[0][1] * regularized[2][0] -
+         regularized[0][0] * regularized[2][1]) * reciprocal;
     inverse[2][2] =
-        (matrix[0][0] * matrix[1][1] -
-         matrix[0][1] * matrix[1][0]) * reciprocal;
+        (regularized[0][0] * regularized[1][1] -
+         regularized[0][1] * regularized[1][0]) * reciprocal;
     for (uint row = 0u; row < 3u; ++row) {
         for (uint column = 0u; column < 3u; ++column) {
             if (!isfinite(inverse[row][column])) {
@@ -7896,6 +7929,10 @@ kernel void mr_world_solve_contact_islands(
                 status.code = MR_STEP_FACTORIZATION_FAILED;
                 status.firstFailingConstraint =
                     localConstraint;
+                status.firstFailingStableKeyLow =
+                    uint(contact.pairKey);
+                status.firstFailingStableKeyHigh =
+                    uint(contact.pairKey >> 32u);
                 statuses[environment] = status;
                 return;
             }
@@ -8058,6 +8095,10 @@ kernel void mr_world_solve_contact_islands(
                 status.code = MR_STEP_FACTORIZATION_FAILED;
                 status.firstFailingConstraint =
                     localConstraint;
+                status.firstFailingStableKeyLow =
+                    uint(contact.pairKey);
+                status.firstFailingStableKeyHigh =
+                    uint(contact.pairKey >> 32u);
                 statuses[environment] = status;
                 return;
             }
@@ -8387,6 +8428,10 @@ kernel void mr_world_solve_rod_contact_constraints(
                 status.code = MR_STEP_FACTORIZATION_FAILED;
                 status.firstFailingConstraint =
                     localConstraint;
+                status.firstFailingStableKeyLow =
+                    uint(contact.pairKey);
+                status.firstFailingStableKeyHigh =
+                    uint(contact.pairKey >> 32u);
                 statuses[environment] = status;
                 return;
             }
@@ -8631,6 +8676,10 @@ kernel void mr_world_solve_rod_contact_constraints(
                 status.code = MR_STEP_FACTORIZATION_FAILED;
                 status.firstFailingConstraint =
                     localConstraint;
+                status.firstFailingStableKeyLow =
+                    uint(contact.pairKey);
+                status.firstFailingStableKeyHigh =
+                    uint(contact.pairKey >> 32u);
                 statuses[environment] = status;
                 return;
             }

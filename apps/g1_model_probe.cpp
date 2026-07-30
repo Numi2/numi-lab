@@ -390,8 +390,8 @@ int main() {
 
         require(
             model.shapes.size() ==
-                metalrobo::kUnitreeG1PrimitiveShapeCount,
-            "official primitive collider count is incorrect"
+                metalrobo::kUnitreeG1ExecutableShapeCount,
+            "official compound collider count is incorrect"
         );
         for (std::size_t footIndex = 0;
              footIndex < metadata.feet.size();
@@ -456,10 +456,43 @@ int main() {
                     (
                         model.shapes[shape].flags &
                         MR_SHAPE_FLAG_SIMULATION_DISABLED
-                    ) != 0u,
-                "unsupported shoulder cylinder was not retained and disabled"
+                    ) == 0u,
+                "official shoulder cylinder is not executable"
             );
         }
+        for (std::size_t shape = 12u;
+             shape < model.shapes.size();
+             ++shape) {
+            const MRShapeGPU& collision = model.shapes[shape];
+            require(
+                collision.shapeType == MR_SHAPE_CONVEX &&
+                    (
+                        collision.flags &
+                        MR_SHAPE_FLAG_SIMULATION_DISABLED
+                    ) == 0u &&
+                    collision.bodyIndex <
+                        metalrobo::kUnitreeG1BodyCount &&
+                    collision.geometryCount == 1u &&
+                    collision.geometryOffset <
+                        model.geometryHeaders.size() &&
+                    model.geometryHeaders[
+                        collision.geometryOffset
+                    ].kind == MR_GEOMETRY_CONVEX,
+                "official-mesh-derived G1 collision hull is invalid"
+            );
+        }
+        require(
+            model.geometryHeaders.size() ==
+                    (
+                        metalrobo::kUnitreeG1ExecutableShapeCount -
+                        metalrobo::kUnitreeG1PrimitiveShapeCount
+                    ) &&
+                !metadata.collisionCookHash.empty() &&
+                metadata.collisionCookMethod.find(
+                    "official STL deterministic V-HACD"
+                ) != std::string_view::npos,
+            "official G1 collision cook provenance is missing"
+        );
 
         require(
             metadata.imus[0].bodyIndex == 0u &&
@@ -522,9 +555,11 @@ int main() {
                   << " nv=" << model.world.nv
                   << " root_com_z=" << model.defaultQ[2]
                   << " mass_kg=" << totalMass
-                  << " primitive_shapes=" << model.world.shapeCount
+                  << " official_collision_elements="
+                  << metalrobo::
+                         kUnitreeG1OfficialCollisionElementCount
                   << " executable_shapes="
-                  << metalrobo::kUnitreeG1ExecutableShapeCount
+                  << model.world.shapeCount
                   << " foot_spheres=8"
                   << " imus=" << metadata.imus.size()
                   << " max_inverse_error=" << std::scientific

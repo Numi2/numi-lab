@@ -45,6 +45,42 @@
       "type": "number",
       "exclusiveMinimum": 0
     },
+    "tactile_alignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stream_fingerprint",
+        "canonical_observation_fingerprint",
+        "sensor_ids",
+        "wrench_verified",
+        "depth_verified"
+      ],
+      "properties": {
+        "stream_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "canonical_observation_fingerprint": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{16}$"
+        },
+        "sensor_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "wrench_verified": {
+          "type": "boolean"
+        },
+        "depth_verified": {
+          "type": "boolean"
+        }
+      }
+    },
     "solver_mode": {
       "enum": ["throughput_tgs", "quality_newton"]
     },
@@ -69,6 +105,18 @@
           "exclusiveMinimum": 0
         },
         "contact_timing": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "tactile_force": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "tactile_torque": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "tactile_depth": {
           "type": "number",
           "exclusiveMinimum": 0
         },

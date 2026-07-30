@@ -42,6 +42,7 @@ public:
         std::uint32_t maxCCDZeroTimeReplays,
         float ccdSimultaneousTolerance,
         std::uint32_t waveWorkerGroups,
+        bool publishBodyStates,
         std::vector<MRBodyStateGPU> defaultSceneBodies,
         CookedTactileSystem tactile,
         std::uint64_t authoredPackHash,
@@ -69,6 +70,7 @@ public:
     maxCCDZeroTimeReplays() const noexcept;
     [[nodiscard]] float ccdSimultaneousTolerance() const noexcept;
     [[nodiscard]] std::uint32_t waveWorkerGroups() const noexcept;
+    [[nodiscard]] bool publishBodyStates() const noexcept;
     [[nodiscard]] const std::vector<MRBodyStateGPU>&
     defaultSceneBodies() const noexcept;
     [[nodiscard]] const CookedTactileSystem& tactile()
@@ -85,6 +87,14 @@ public:
     actuatorProfileValues() const;
     [[nodiscard]] std::vector<std::uint32_t>
     actuatorProfileFlags() const;
+    [[nodiscard]] std::vector<std::uint32_t>
+    shapeBodyIndices() const;
+    [[nodiscard]] std::vector<float> bodyMasses() const;
+    [[nodiscard]] std::vector<float> jointLowerLimits() const;
+    [[nodiscard]] std::vector<float> jointUpperLimits() const;
+    [[nodiscard]] std::vector<float> jointVelocityLimits() const;
+    [[nodiscard]] std::vector<float> driveStiffness() const;
+    [[nodiscard]] std::vector<float> driveDamping() const;
 
     void prepareStream(mx::StreamOrDevice stream = {});
     MetalResources& resources(mx::metal::Device& device);
@@ -108,6 +118,7 @@ private:
         MR_CCD_DEFAULT_ZERO_TIME_REPLAYS;
     float ccdSimultaneousTolerance_ = 1.0e-5f;
     std::uint32_t waveWorkerGroups_ = 0u;
+    bool publishBodyStates_ = false;
     std::vector<MRBodyStateGPU> defaultSceneBodies_;
     CookedTactileSystem tactile_;
     std::uint64_t authoredPackHash_ = 0u;
@@ -175,6 +186,7 @@ private:
     std::uint32_t maxCCDZeroTimeReplays,
     float ccdSimultaneousTolerance,
     std::uint32_t waveWorkerGroups,
+    bool publishBodyStates,
     const std::string& metallibPath,
     mx::StreamOrDevice stream = {}
 );
@@ -195,6 +207,7 @@ private:
     std::uint32_t maxCCDZeroTimeReplays,
     float ccdSimultaneousTolerance,
     std::uint32_t waveWorkerGroups,
+    bool publishBodyStates,
     const std::string& metallibPath,
     mx::StreamOrDevice stream = {}
 );

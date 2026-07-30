@@ -183,7 +183,7 @@ new physical state.
 ### GPU record contracts
 
 These logical records are each a multiple of 16 bytes. They are illustrative
-of the generic engine ABI currently at `MR_ENGINE_ABI_VERSION == 2`; their
+of the generic engine ABI currently at `MR_ENGINE_ABI_VERSION == 4`; their
 definitions must live in one C++/Metal shared header with compile-time size
 and offset checks.
 

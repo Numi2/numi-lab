@@ -50,6 +50,15 @@ struct GeometryCookResult {
     const GeometryCookConfig& config = {}
 );
 
+// Builds a deterministic closed convex hull from an authored point set, then
+// passes the resulting triangulated surface through the same canonical convex
+// validator and arena cooker as cookConvexGeometry.
+[[nodiscard]] GeometryCookResult cookConvexHullGeometry(
+    EngineModel& model,
+    std::span<const mr_float4> vertices,
+    const GeometryCookConfig& config = {}
+);
+
 // Cooks a static/kinematic triangle mesh with deterministic welding,
 // degeneracy removal, adjacency/internal-edge ownership, and an inflated
 // quantized BVH4 with threaded escape cursors.

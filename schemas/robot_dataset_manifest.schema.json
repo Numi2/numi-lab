@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metalrobo.dev/schemas/robot_dataset_manifest.schema.json",
+  "title": "MetalRobo robot dataset manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "format_version",
+    "fingerprint",
+    "source",
+    "stream_fingerprint",
+    "split_policy",
+    "features",
+    "normalization_split",
+    "normalization",
+    "seasons",
+    "totals"
+  ],
+  "properties": {
+    "schema": {
+      "const": "metalrobo.robot_dataset_manifest"
+    },
+    "format_version": {
+      "const": 1
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "revision"],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "stream_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "split_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "validation_fraction",
+        "test_fraction"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256-season-rank"
+        },
+        "validation_fraction": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 1
+        },
+        "test_fraction": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 1
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "action", "wrench"],
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/feature"
+        },
+        "action": {
+          "$ref": "#/$defs/feature"
+        },
+        "wrench": {
+          "$ref": "#/$defs/feature"
+        }
+      }
+    },
+    "normalization_split": {
+      "const": "train"
+    },
+    "normalization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "action", "wrench"],
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/normalization"
+        },
+        "action": {
+          "$ref": "#/$defs/normalization"
+        },
+        "wrench": {
+          "$ref": "#/$defs/normalization"
+        }
+      }
+    },
+    "seasons": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/season"
+      }
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seasons", "episodes", "frames"],
+      "properties": {
+        "seasons": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "episodes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "frames": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  },
+  "$defs": {
+    "feature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "dtype", "shape"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dtype": {
+          "const": "float32"
+        },
+        "shape": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "normalization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "mean", "std", "minimum", "maximum"],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mean": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "number"}
+        },
+        "std": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "number", "minimum": 0}
+        },
+        "minimum": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "number"}
+        },
+        "maximum": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "number"}
+        }
+      }
+    },
+    "season": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "relative_root",
+        "split",
+        "episodes",
+        "frames",
+        "fps",
+        "info_sha256",
+        "stats_sha256"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relative_root": {
+          "type": "string",
+          "minLength": 1
+        },
+        "split": {
+          "enum": ["train", "validation", "test"]
+        },
+        "episodes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "frames": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fps": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "info_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "stats_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

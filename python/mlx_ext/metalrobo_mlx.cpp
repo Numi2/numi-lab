@@ -750,6 +750,7 @@ MLXCompiledWorld::MLXCompiledWorld(
     const std::uint32_t maxCCDZeroTimeReplays,
     const float ccdSimultaneousTolerance,
     const std::uint32_t waveWorkerGroups,
+    const bool publishBodyStates,
     std::vector<MRBodyStateGPU> defaultSceneBodies,
     CookedTactileSystem tactile,
     const std::uint64_t authoredPackHash,
@@ -769,6 +770,7 @@ MLXCompiledWorld::MLXCompiledWorld(
       maxCCDZeroTimeReplays_(maxCCDZeroTimeReplays),
       ccdSimultaneousTolerance_(ccdSimultaneousTolerance),
       waveWorkerGroups_(waveWorkerGroups),
+      publishBodyStates_(publishBodyStates),
       defaultSceneBodies_(std::move(defaultSceneBodies)),
       tactile_(std::move(tactile)),
       authoredPackHash_(authoredPackHash),
@@ -835,6 +837,10 @@ float MLXCompiledWorld::ccdSimultaneousTolerance() const noexcept {
 std::uint32_t
 MLXCompiledWorld::waveWorkerGroups() const noexcept {
     return waveWorkerGroups_;
+}
+
+bool MLXCompiledWorld::publishBodyStates() const noexcept {
+    return publishBodyStates_;
 }
 
 const std::vector<MRBodyStateGPU>&
@@ -961,6 +967,111 @@ MLXCompiledWorld::actuatorProfileFlags() const {
             ].identity.y;
     }
     return flags;
+}
+
+std::vector<std::uint32_t>
+MLXCompiledWorld::shapeBodyIndices() const {
+    std::vector<std::uint32_t> values;
+    values.reserve(world_.model().shapes.size());
+    for (const MRShapeGPU& shape : world_.model().shapes) {
+        values.push_back(shape.bodyIndex);
+    }
+    return values;
+}
+
+std::vector<float> MLXCompiledWorld::bodyMasses() const {
+    std::vector<float> values;
+    values.reserve(world_.model().bodies.size());
+    for (const MRBodyPropertiesGPU& body :
+         world_.model().bodies) {
+        values.push_back(body.massAndInverseMass.x);
+    }
+    return values;
+}
+
+namespace {
+
+std::vector<float> articulatedJointField(
+    const EngineModel& model,
+    const std::uint32_t articulationIndex,
+    const std::uint32_t field
+) {
+    const MRArticulationGPU& articulation =
+        model.articulations.at(articulationIndex);
+    const std::uint32_t rootDofs =
+        articulation.rootType == MR_ROOT_FLOATING ? 6u : 0u;
+    std::vector<float> values;
+    values.reserve(articulation.nv - rootDofs);
+    for (std::uint32_t local = rootDofs;
+         local < articulation.nv;
+         ++local) {
+        const MRDofPropertiesGPU& dof =
+            model.dofs.at(articulation.vOffset + local);
+        switch (field) {
+            case 0u:
+                values.push_back(dof.limits.x);
+                break;
+            case 1u:
+                values.push_back(dof.limits.y);
+                break;
+            case 2u:
+                values.push_back(dof.limits.z);
+                break;
+            case 3u:
+                values.push_back(dof.drive.x);
+                break;
+            case 4u:
+                values.push_back(dof.drive.y);
+                break;
+            default:
+                values.push_back(0.0f);
+                break;
+        }
+    }
+    return values;
+}
+
+} // namespace
+
+std::vector<float> MLXCompiledWorld::jointLowerLimits() const {
+    return articulatedJointField(
+        world_.model(),
+        world_.articulationIndex(),
+        0u
+    );
+}
+
+std::vector<float> MLXCompiledWorld::jointUpperLimits() const {
+    return articulatedJointField(
+        world_.model(),
+        world_.articulationIndex(),
+        1u
+    );
+}
+
+std::vector<float>
+MLXCompiledWorld::jointVelocityLimits() const {
+    return articulatedJointField(
+        world_.model(),
+        world_.articulationIndex(),
+        2u
+    );
+}
+
+std::vector<float> MLXCompiledWorld::driveStiffness() const {
+    return articulatedJointField(
+        world_.model(),
+        world_.articulationIndex(),
+        3u
+    );
+}
+
+std::vector<float> MLXCompiledWorld::driveDamping() const {
+    return articulatedJointField(
+        world_.model(),
+        world_.articulationIndex(),
+        4u
+    );
 }
 
 void MLXCompiledWorld::prepareStream(
@@ -1415,9 +1526,11 @@ MetalResources& MLXCompiledWorld::resources(
     auto* physicsLibrary =
         device.get_library("MetalRobo", metallibPath_);
     const std::string abaName =
-        articulation.bodyCount <= 12u &&
-            articulation.nv <= 16u &&
-            articulation.nq <= 17u
+        solverMode_ != MetalWorldSolverMode::freeMotionABA
+        ? "mr_parameterized_articulated_aba_step"
+        : articulation.bodyCount <= 12u &&
+                articulation.nv <= 16u &&
+                articulation.nq <= 17u
         ? "mr_articulated_aba_step_small"
         : "mr_articulated_aba_step";
     staged->abaKernel =
@@ -1437,6 +1550,7 @@ MetalResources& MLXCompiledWorld::resources(
     );
     std::vector<std::string> physicsKernels{
         "mr_articulated_operator",
+        "mr_parameterized_articulated_operator",
         "mr_articulated_materialize_body_velocities",
         "mr_metal_world_commit",
         "mr_world_prepare_contact_step",
@@ -1462,6 +1576,7 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_scatter_pair_queue",
         "mr_world_narrowphase_pair_queue",
         "mr_world_narrowphase_convex_queue",
+        "mr_world_narrowphase_hull_queue",
         "mr_world_narrowphase_mesh_queue",
         "mr_world_collide_compile",
         "mr_world_finalize_pair_manifold",
@@ -1896,6 +2011,7 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
     const std::uint32_t maxCCDZeroTimeReplays,
     const float ccdSimultaneousTolerance,
     const std::uint32_t waveWorkerGroups,
+    const bool publishBodyStates,
     const std::string& requestedMetallibPath,
     mx::StreamOrDevice stream
 ) {
@@ -1967,7 +2083,6 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             "'dual_psm' with scene='needle_thread'"
         );
     }
-
     MetalWorldActuationMode actuationMode;
     if (requestedActuationMode == "effort") {
         actuationMode = MetalWorldActuationMode::effort;
@@ -2216,55 +2331,87 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         defaultSceneBodies.push_back(groundState);
     }
     if (addTerrain) {
-        constexpr std::uint32_t side = 17u;
-        constexpr float spacing = 0.25f;
+        constexpr std::uint32_t side = 161u;
+        constexpr float spacing = 0.05f;
         constexpr float halfWidth =
             0.5f * spacing * static_cast<float>(side - 1u);
+        const auto terrainHeight = [](
+            const float x,
+            const float y
+        ) {
+            if (x < -2.0f) {
+                return 0.0f;
+            }
+            if (x < 0.0f) {
+                return 0.08f * (x + 2.0f);
+            }
+            if (x < 2.0f) {
+                return 0.16f +
+                    0.03f * std::floor(x / 0.25f);
+            }
+            return
+                0.37f +
+                0.035f *
+                    (
+                        std::sin(1.7f * x) -
+                        std::sin(3.4f)
+                    ) *
+                    std::sin(1.3f * y) +
+                0.015f *
+                    (
+                        std::sin(3.1f * x) -
+                        std::sin(6.2f)
+                    ) *
+                    std::sin(2.3f * y);
+        };
         std::vector<mr_float4> vertices;
         vertices.reserve(side * side);
+        float minimumHeight =
+            std::numeric_limits<float>::infinity();
+        float maximumHeight =
+            -std::numeric_limits<float>::infinity();
         for (std::uint32_t y = 0u; y < side; ++y) {
             for (std::uint32_t x = 0u; x < side; ++x) {
                 const float px =
                     -halfWidth + spacing * static_cast<float>(x);
                 const float py =
                     -halfWidth + spacing * static_cast<float>(y);
-                const float height =
-                    0.035f *
-                        std::sin(1.7f * px) *
-                        std::sin(1.3f * py) +
-                    0.015f *
-                        std::sin(3.1f * px) *
-                        std::sin(2.3f * py);
+                const float height = terrainHeight(px, py);
+                minimumHeight = std::min(minimumHeight, height);
+                maximumHeight = std::max(maximumHeight, height);
                 vertices.push_back({px, py, height, 1.0f});
             }
         }
-        std::vector<std::uint32_t> indices;
-        indices.reserve(
-            6u * (side - 1u) * (side - 1u)
+        const std::uint32_t geometryIndex =
+            static_cast<std::uint32_t>(
+                model.geometryHeaders.size()
+            );
+        MRGeometryHeaderGPU geometry{};
+        geometry.kind = MR_GEOMETRY_HEIGHTFIELD;
+        geometry.vertexOffset =
+            static_cast<std::uint32_t>(
+                model.geometryVertices.size()
+            );
+        geometry.vertexCount =
+            static_cast<std::uint32_t>(vertices.size());
+        geometry.localLower = {
+            -halfWidth,
+            -halfWidth,
+            minimumHeight,
+            spacing,
+        };
+        geometry.localUpper = {
+            halfWidth,
+            halfWidth,
+            maximumHeight,
+            1.0f / spacing,
+        };
+        model.geometryHeaders.push_back(geometry);
+        model.geometryVertices.insert(
+            model.geometryVertices.end(),
+            vertices.begin(),
+            vertices.end()
         );
-        for (std::uint32_t y = 0u; y + 1u < side; ++y) {
-            for (std::uint32_t x = 0u; x + 1u < side; ++x) {
-                const std::uint32_t v00 = y * side + x;
-                const std::uint32_t v10 = v00 + 1u;
-                const std::uint32_t v01 = v00 + side;
-                const std::uint32_t v11 = v01 + 1u;
-                indices.insert(
-                    indices.end(),
-                    {v00, v10, v11, v00, v11, v01}
-                );
-            }
-        }
-        const GeometryCookResult cooked =
-            cookTriangleMeshGeometry(
-                model,
-                vertices,
-                indices
-            );
-        if (!cooked.succeeded()) {
-            throw std::runtime_error(
-                "could not cook MLX terrain: " + cooked.message
-            );
-        }
 
         MRBodyPropertiesGPU terrain{};
         terrain.articulationIndex = MR_INVALID_INDEX;
@@ -2277,21 +2424,21 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             static_cast<std::uint32_t>(model.bodies.size());
         model.bodies.push_back(terrain);
 
-        MRShapeGPU mesh{};
-        mesh.bodyIndex = terrainBody;
-        mesh.shapeType = MR_SHAPE_TRIANGLE_MESH;
-        mesh.materialIndex = 0u;
-        mesh.collisionGroup = 1u;
-        mesh.collisionMask = ~0u;
-        mesh.slotGeneration = 1u;
-        mesh.localPosition.w = 1.0f;
-        mesh.localRotation.w = 1.0f;
-        mesh.dimensions = {1.0f, 1.0f, 1.0f, 0.0f};
-        mesh.contactRestAndBoundingRadius =
-            {0.002f, 0.0f, 3.0f, 0.0f};
-        mesh.geometryOffset = cooked.geometryIndex;
-        mesh.geometryCount = 1u;
-        model.shapes.push_back(mesh);
+        MRShapeGPU heightfield{};
+        heightfield.bodyIndex = terrainBody;
+        heightfield.shapeType = MR_SHAPE_HEIGHTFIELD;
+        heightfield.materialIndex = 0u;
+        heightfield.collisionGroup = 1u;
+        heightfield.collisionMask = ~0u;
+        heightfield.slotGeneration = 1u;
+        heightfield.localPosition.w = 1.0f;
+        heightfield.localRotation.w = 1.0f;
+        heightfield.dimensions = {1.0f, 1.0f, 1.0f, 0.0f};
+        heightfield.contactRestAndBoundingRadius =
+            {0.002f, 0.0f, 5.8f, 0.0f};
+        heightfield.geometryOffset = geometryIndex;
+        heightfield.geometryCount = 1u;
+        model.shapes.push_back(heightfield);
         model.world.bodyCount =
             static_cast<std::uint32_t>(model.bodies.size());
         model.world.shapeCount =
@@ -2426,10 +2573,17 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
     CompiledWorld compiled;
     const MetalWorldCapacityProfile requestedCapacityProfile =
         capacityProfile;
+    const bool g1Locomotion =
+        modelName == "g1" &&
+        (addGround || addTerrain) &&
+        actuationMode ==
+            MetalWorldActuationMode::implicitPositionDrive;
     if (!defaultSceneBodies.empty() &&
         !useHeterogeneousWorld) {
         const std::uint32_t contactCapacity =
             addPickPlace
+            ? 128u
+            : g1Locomotion
             ? 128u
             : modelName == "franka"
             ? 32u
@@ -2437,6 +2591,8 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         const std::uint32_t pairCapacity =
             addPickPlace
             ? 256u
+            : g1Locomotion
+            ? 192u
             : modelName == "franka"
             ? 64u
             : modelName == "psm"
@@ -2453,12 +2609,17 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         fill(capacityProfile.candidatePairs, pairCapacity);
         fill(
             capacityProfile.rawContacts,
-            2u * contactCapacity
+            (g1Locomotion ? 4u : 2u) * contactCapacity
         );
         fill(capacityProfile.manifolds, contactCapacity);
         fill(
             capacityProfile.constraintBlocks,
-            contactCapacity
+            (g1Locomotion ? 2u : 1u) * contactCapacity +
+                (g1Locomotion
+                     ? static_cast<std::uint32_t>(
+                           model.joints.size()
+                       )
+                     : 0u)
         );
         fill(
             capacityProfile.constraintRows,
@@ -2487,7 +2648,7 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             capacityProfile.meshTriangleCandidates =
                 std::max<std::uint32_t>(
                     capacityProfile.meshTriangleCandidates,
-                    4096u
+                    g1Locomotion ? 1024u : 8192u
                 );
         }
     }
@@ -2537,7 +2698,10 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             }
         );
         if (requestedCapacityProfile.candidatePairs == 0u) {
-            capacityProfile.candidatePairs = eligiblePairs;
+            capacityProfile.candidatePairs =
+                g1Locomotion
+                ? std::min(eligiblePairs, 192u)
+                : eligiblePairs;
         }
         if (requestedCapacityProfile.manifolds == 0u) {
             capacityProfile.manifolds = std::min(
@@ -2623,6 +2787,7 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         maxCCDZeroTimeReplays,
         ccdSimultaneousTolerance,
         waveWorkerGroups,
+        publishBodyStates,
         std::move(defaultSceneBodies),
         CookedTactileSystem{},
         0u,
@@ -2648,6 +2813,7 @@ std::shared_ptr<MLXCompiledWorld> compileWorldPack(
     const std::uint32_t maxCCDZeroTimeReplays,
     const float ccdSimultaneousTolerance,
     const std::uint32_t waveWorkerGroups,
+    const bool publishBodyStates,
     const std::string& requestedMetallibPath,
     mx::StreamOrDevice stream
 ) {
@@ -2819,6 +2985,7 @@ std::shared_ptr<MLXCompiledWorld> compileWorldPack(
         maxCCDZeroTimeReplays,
         ccdSimultaneousTolerance,
         waveWorkerGroups,
+        publishBodyStates,
         base.sceneBodies,
         authored.tactileSystem,
         pack.contentHash,
@@ -3259,7 +3426,8 @@ std::vector<mx::array> worldStep(
     };
     constexpr mx::ShapeElem bodyRecordWords =
         sizeof(MRBodyStateGPU) / sizeof(std::uint32_t);
-    const mx::Shape bodyStateShape = world->hasTactile()
+    const mx::Shape bodyStateShape =
+        (world->hasTactile() || world->publishBodyStates())
         ? mx::Shape{
               environments,
               static_cast<mx::ShapeElem>(
@@ -5208,7 +5376,8 @@ void WorldStepPrimitive::eval_gpu(
     // consume it without another kinematics/materialization pass. Worlds
     // without tactile sensing retain the internal scratch path and expose an
     // empty tensor, so their step graph gains no observation work.
-    mx::array currentBodies = world_->hasTactile()
+    mx::array currentBodies =
+        (world_->hasTactile() || world_->publishBodyStates())
         ? outputs[41]
         : rawRecords.template operator()<MRBodyStateGPU>(
               static_cast<std::size_t>(environments) * bodyCount
@@ -6264,7 +6433,11 @@ void WorldStepPrimitive::eval_gpu(
         const mx::array& qState,
         mx::array& poses
     ) {
-        setPhysicsKernel("mr_articulated_operator");
+        setPhysicsKernel(
+            articulationCount == 1u
+            ? "mr_parameterized_articulated_operator"
+            : "mr_articulated_operator"
+        );
         std::size_t factorPrefix = 0u;
         std::size_t jacobianPrefix = 0u;
         for (std::uint32_t owner = 0u;
@@ -6336,6 +6509,9 @@ void WorldStepPrimitive::eval_gpu(
                 owner * environments *
                     sizeof(MRArticulatedOperatorStatusGPU)
             );
+            if (articulationCount == 1u) {
+                inputArray(inputs[16], 15);
+            }
             encoder.dispatch_threadgroups(
                 MTL::Size(environments, 1u, 1u),
                 MTL::Size(kOperatorThreads, 1u, 1u)
@@ -7202,6 +7378,9 @@ void WorldStepPrimitive::eval_gpu(
         outputArray(candidateV, 11);
         outputArray(candidateQ, 12);
         outputArray(abaStatuses, 13);
+        if (articulationCount == 1u) {
+            inputArray(inputs[16], 14);
+        }
         encoder.dispatch_threadgroups(
             MTL::Size(
                 environments,
@@ -7664,7 +7843,11 @@ void WorldStepPrimitive::eval_gpu(
             const mr_uint4 classConfig{
                 workClass,
                 activePairClassMask,
-                1u,
+                // Stable flag/scan/scatter already compacts this queue.
+                // Direct strided ownership avoids an atomic claim loop and
+                // remains bounded when high-DoF self-collision activates
+                // many hull pairs in one control frame.
+                0u,
                 0u,
             };
             setPhysicsKernel(
@@ -7682,11 +7865,13 @@ void WorldStepPrimitive::eval_gpu(
                     "mr_world_flag_pair_work_class"
                 )
             );
+            encoder.barrier();
             encodeScan(
                 compactionFlags,
                 std::max<std::size_t>(pairFlagCount, 1u),
                 workClass
             );
+            encoder.barrier();
 
             setPhysicsKernel("mr_world_scatter_pair_queue");
             encoder.set_bytes(contactDispatch, 0);
@@ -7703,6 +7888,10 @@ void WorldStepPrimitive::eval_gpu(
                     "mr_world_scatter_pair_queue"
                 )
             );
+            // The next class derives its queue base from every preceding
+            // header. Keep this dependency inside the active encoder while
+            // making those device writes explicitly visible.
+            encoder.barrier();
         }
 
         for (std::uint32_t workClass =
@@ -7716,7 +7905,12 @@ void WorldStepPrimitive::eval_gpu(
             const mr_uint4 classConfig{
                 workClass,
                 activePairClassMask,
-                1u,
+                // The queue is already compact and bounded by pair capacity.
+                // Give each dispatched lane one canonical queue slot instead
+                // of repeatedly claiming SIMD-width packets through a global
+                // atomic cursor. This removes the divergent resident loop
+                // from high-DoF self-collision while preserving stable order.
+                0u,
                 0u,
             };
             const char* kernelName = nullptr;
@@ -7740,7 +7934,9 @@ void WorldStepPrimitive::eval_gpu(
                 workClass == MR_WORLD_WORK_HARD_CONVEX
             ) {
                 kernelName =
-                    "mr_world_narrowphase_convex_queue";
+                    workClass == MR_WORLD_WORK_HULL_GJK
+                    ? "mr_world_narrowphase_hull_queue"
+                    : "mr_world_narrowphase_convex_queue";
                 setPhysicsKernel(kernelName);
                 encoder.set_bytes(contactDispatch, 0);
                 immutable(kImmutableShapes, 1);
@@ -7774,11 +7970,23 @@ void WorldStepPrimitive::eval_gpu(
                 outputArray(outputs[9], 12);
                 encoder.set_bytes(classConfig, 13);
             }
+            const std::size_t classWorkers =
+                workClass == MR_WORLD_WORK_HULL_GJK
+                ? std::min(
+                      persistentPairWorkers,
+                      static_cast<std::size_t>(
+                          MR_WORLD_QUEUE_THREADS_PER_THREADGROUP
+                      )
+                  )
+                : persistentPairWorkers;
             dispatchThreads(
-                persistentPairWorkers,
+                classWorkers,
                 resources.kernel(kernelName)
             );
         }
+        // Manifold finalization consumes counts, raw contacts, and query
+        // caches produced by every class-specific narrowphase above.
+        encoder.barrier();
 
         setPhysicsKernel(
             "mr_world_initialize_multi_articulation_queries"
@@ -8993,7 +9201,7 @@ void WorldStepPrimitive::eval_gpu(
         resources.kernel("mr_mlx_commit_pair_cache")
     );
 
-    if (world_->hasTactile()) {
+    if (world_->hasTactile() || world_->publishBodyStates()) {
         // Re-materialize the committed state. The contact loop's body arena
         // may describe an intermediate microstep and articulation entries do
         // not carry generalized velocities, both of which would corrupt the
@@ -9060,7 +9268,9 @@ void WorldStepPrimitive::eval_gpu(
             );
         }
         encoder.barrier();
+    }
 
+    if (world_->hasTactile()) {
         MRTactileDispatchGPU tactileDispatch{};
         tactileDispatch.counts = {
             environments,

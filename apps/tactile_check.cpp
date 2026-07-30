@@ -812,6 +812,43 @@ void validateCurvedSensor() {
     );
 }
 
+void validateRigidBackingAtlas() {
+    metalrobo::EngineModel model = makeModel();
+    model.shapes[0u].contactRestAndBoundingRadius.y = 0.0f;
+    metalrobo::TactilePose pose;
+    pose.position = {0.0f, 0.0f, kShell, 0.0f};
+    auto sensor = metalrobo::makeFlatTactileSensor(
+        "rigid_backing_atlas",
+        0u,
+        {0u},
+        pose,
+        5u,
+        5u,
+        0.01f,
+        0.01f,
+        kShell
+    );
+    sensor.flags = 0u;
+    sensor.targetShapeIndices = {1u};
+    metalrobo::CookedTactileSystem tactile;
+    require(
+        metalrobo::cookTactileSystem(
+            std::span<const metalrobo::TactileSensorSpec>{
+                &sensor,
+                1u,
+            },
+            model,
+            tactile
+        ),
+        "cook rigid-backing tactile atlas"
+    );
+    std::string reason;
+    require(
+        tactile.valid(model, &reason),
+        "rigid-backing tactile descriptor is invalid: " + reason
+    );
+}
+
 void validateCookedGeometryBackends() {
     const std::array<mr_float4, 8u> vertices{{
         {-0.006f, -0.006f, -0.006f, 1.0f},
@@ -959,6 +996,43 @@ void validateCookedGeometryBackends() {
         convex,
         kShell + 0.006f - 0.002f,
         "convex-flat"
+    );
+
+    const std::array<mr_float4, 13u> hullPoints{{
+        vertices[0u],
+        vertices[1u],
+        vertices[2u],
+        vertices[3u],
+        vertices[4u],
+        vertices[5u],
+        vertices[6u],
+        vertices[7u],
+        {0.0f, 0.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, -0.006f, 1.0f},
+        {0.003f, -0.002f, 0.006f, 1.0f},
+        {-0.006f, 0.001f, -0.002f, 1.0f},
+        vertices[0u],
+    }};
+    metalrobo::EngineModel hull = baseModel();
+    const auto cookedHull = metalrobo::cookConvexHullGeometry(
+        hull,
+        hullPoints
+    );
+    require(cookedHull, "cook deterministic tactile convex hull");
+    require(
+        cookedHull.outputVertexCount == 8u &&
+            cookedHull.outputTriangleCount == 12u,
+        "deterministic tactile convex hull topology changed"
+    );
+    hull.shapes[1u].shapeType = MR_SHAPE_CONVEX;
+    hull.shapes[1u].geometryOffset = cookedHull.geometryIndex;
+    hull.shapes[1u].geometryCount = 1u;
+    hull.shapes[1u].dimensions =
+        {1.0f, 1.0f, 1.0f, 0.0f};
+    validate(
+        hull,
+        kShell + 0.006f - 0.002f,
+        "convex-hull-flat"
     );
 
     metalrobo::EngineModel mesh = baseModel();
@@ -2073,6 +2147,7 @@ int main(const int argc, const char* const* argv) {
             model
         );
         validateCurvedSensor();
+        validateRigidBackingAtlas();
         validateCookedGeometryBackends();
         validateDecimationAndReset(model);
         validateTangentialMotion(model);
