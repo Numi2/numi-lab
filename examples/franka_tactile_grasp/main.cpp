@@ -758,6 +758,7 @@ int main(const int argc, const char* const* argv) {
             "read Franka tactile map"
         );
         double maximumDepthError = 0.0;
+        double maximumMotionError = 0.0;
         for (std::size_t index = 0u;
              index < tactile.penetrationDepthMeters.size();
              ++index) {
@@ -768,10 +769,34 @@ int main(const int argc, const char* const* argv) {
                     tactileMetal.penetrationDepthMeters[index]
                 ))
             );
+            const mr_float4 cpuMotion =
+                tactile.tangentialMotion[index].
+                    displacementAndVelocity;
+            const mr_float4 gpuMotion =
+                tactileMetal.tangentialMotion[index].
+                    displacementAndVelocity;
+            maximumMotionError = std::max(
+                {
+                    maximumMotionError,
+                    static_cast<double>(
+                        std::abs(cpuMotion.x - gpuMotion.x)
+                    ),
+                    static_cast<double>(
+                        std::abs(cpuMotion.y - gpuMotion.y)
+                    ),
+                    static_cast<double>(
+                        std::abs(cpuMotion.z - gpuMotion.z)
+                    ),
+                    static_cast<double>(
+                        std::abs(cpuMotion.w - gpuMotion.w)
+                    ),
+                }
+            );
         }
         require(
-            maximumDepthError < 2.0e-6,
-            "Franka Metal tactile map differs from CPU oracle"
+            maximumDepthError < 2.0e-6 &&
+            maximumMotionError < 2.0e-5,
+            "Franka Metal tactile geometry differs from CPU oracle"
         );
         if (debugDirectory.has_value()) {
             for (std::uint32_t sensorIndex = 0u;
@@ -811,8 +836,16 @@ int main(const int argc, const char* const* argv) {
                         centerOfPressureLocalAndForceWeight,
                     gpuSummary.
                         centerOfPressureLocalAndForceWeight
-                )) < 2.0e-5f,
-                "Franka Metal wrench or center of pressure differs "
+                )) < 2.0e-5f &&
+                length3(subtract(
+                    cpuSummary.tangentialMotionAndFriction,
+                    gpuSummary.tangentialMotionAndFriction
+                )) < 2.0e-5f &&
+                std::abs(
+                    cpuSummary.tangentialMotionAndFriction.w -
+                    gpuSummary.tangentialMotionAndFriction.w
+                ) < 2.0e-5f,
+                "Franka Metal wrench, center of pressure, or motion differs "
                 "from the CPU oracle"
             );
         }
@@ -1031,12 +1064,23 @@ int main(const int argc, const char* const* argv) {
             << stabilizationReward
             << " max_cpu_gpu_error_m="
             << maximumDepthError
+            << " max_cpu_gpu_motion_error="
+            << maximumMotionError
             << " deterministic_replay=yes"
             << " native_depth_buffer="
             << (
                 tactileGPU.nativeBuffer(
                     metalrobo::MetalTactileBuffer::
                         penetrationDepth
+                ) != nullptr
+                ? "yes"
+                : "no"
+            )
+            << " native_tangential_motion_buffer="
+            << (
+                tactileGPU.nativeBuffer(
+                    metalrobo::MetalTactileBuffer::
+                        tangentialMotion
                 ) != nullptr
                 ? "yes"
                 : "no"

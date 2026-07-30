@@ -21,6 +21,11 @@ struct EngineModel {
     // Exactly one authoritative record per generalized velocity coordinate,
     // stored in global v order.
     std::vector<MRDofPropertiesGPU> dofs;
+    // Optional measured or explicitly authored actuator truth. An empty
+    // vector means the mechanism has no identified profile and preserves the
+    // authoritative DoF effort limits. When present it is global-v ordered
+    // and contains inactive zero records for unactuated coordinates.
+    std::vector<MRActuatorProfileGPU> actuatorProfiles;
     std::vector<MRBodyPropertiesGPU> bodies;
     std::vector<MRShapeGPU> shapes;
     std::vector<MRMaterialGPU> materials;

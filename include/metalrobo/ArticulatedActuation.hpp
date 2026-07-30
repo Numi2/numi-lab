@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <span>
+#include <string>
 #include <vector>
 
 namespace metalrobo {
@@ -41,6 +42,25 @@ struct ArticulatedActuationConfig {
     // velocity.
     double stictionVelocityThreshold = 1.0e-4;
 };
+
+struct ActuatorProfile {
+    double jointTorqueConstant = 0.0;
+    double currentLimit = 0.0;
+    double noLoadSpeed = 0.0;
+    double efficiency = 0.0;
+    double backlash = 0.0;
+    double commandDelaySeconds = 0.0;
+    bool calibrated = false;
+};
+
+// Transactionally cooks authored SI-unit parameters into the fixed Metal
+// record and derives stall torque = torque constant * current limit.
+[[nodiscard]] bool cookActuatorProfile(
+    const ActuatorProfile& source,
+    std::uint32_t globalVIndex,
+    MRActuatorProfileGPU& output,
+    std::string* reason = nullptr
+);
 
 enum class ArticulatedActuationStatus : std::uint32_t {
     success = 0u,
@@ -88,6 +108,22 @@ struct ArticulatedActuationResult {
     std::vector<double> passiveFrictionEffort;
     std::vector<double> generalizedEffort;
 };
+
+// Branch-free scalar definitions mirrored by the native and MLX Metal
+// prepare kernels. The profile must already have passed EngineModel::valid.
+[[nodiscard]] double actuatorTorqueEnvelope(
+    const MRActuatorProfileGPU& profile,
+    double jointVelocity,
+    double authoredEffortLimit
+) noexcept;
+
+// Deterministic play operator for an explicit position-target state.
+// Zero play returns the incoming command exactly.
+[[nodiscard]] double updateActuatorBacklashTarget(
+    double previousEffectiveTarget,
+    double commandedTarget,
+    double backlashPlay
+) noexcept;
 
 // Evaluates one immutable articulation's control and passive dry friction.
 //

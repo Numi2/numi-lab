@@ -274,6 +274,8 @@ class MLXG1RolloutCollector:
                 pair_cache,
                 rod_witnesses,
             ),
+            tactile=self.default_state.tactile,
+            actuators=self.default_state.actuators,
         )
         physics = step(self.world, current, actions)
         candidate = physics.next_state
@@ -415,6 +417,8 @@ class MLXG1RolloutCollector:
                 scene_bodies=SceneBodyState(*next_scene),
                 rods=self.default_state.rods,
                 solver_cache=SolverCache(*next_cache),
+                tactile=self.default_state.tactile,
+                actuators=self.default_state.actuators,
             ),
             next_commands,
         )
@@ -487,6 +491,8 @@ class MLXG1RolloutCollector:
                 scene_bodies=SceneBodyState(*result[2:6]),
                 rods=self.default_state.rods,
                 solver_cache=SolverCache(*result[6:11]),
+                tactile=self.default_state.tactile,
+                actuators=self.default_state.actuators,
             )
             observations = result[11]
             episode_steps = result[12]

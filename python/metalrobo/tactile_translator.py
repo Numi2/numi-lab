@@ -228,6 +228,9 @@ def load_calibration_manifest(
                 raw_frame_uri=resolved_uri(record.raw_frame_uri),
                 target_depth_uri=resolved_uri(record.target_depth_uri),
                 validity_uri=resolved_uri(record.validity_uri),
+                tangential_motion_uri=resolved_uri(
+                    record.tangential_motion_uri
+                ),
                 force_torque_uri=resolved_uri(record.force_torque_uri),
             )
         except (

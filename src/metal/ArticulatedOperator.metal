@@ -1785,3 +1785,143 @@ kernel void mr_articulated_operator(
     );
     statuses[environment] = status;
 }
+
+// Materializes world-space rigid-body velocities from the same generalized
+// state used by the solver. Tactile sampling needs point velocity at arbitrary
+// atlas hits, so publishing only articulation poses would silently erase the
+// angular component of surface-relative motion.
+kernel void mr_articulated_materialize_body_velocities(
+    device const MRWorldGPU* worlds [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRJointDescriptorGPU* joints [[buffer(2)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(3)]],
+    device const MRBodyPropertiesGPU* bodies [[buffer(4)]],
+    device const MRArticulatedOperatorDispatchGPU& dispatch
+        [[buffer(5)]],
+    device const float* q [[buffer(6)]],
+    device const float* v [[buffer(7)]],
+    device MRBodyStateGPU* bodyStates [[buffer(8)]],
+    device MRArticulatedOperatorStatusGPU* statuses [[buffer(9)]],
+    uint environment [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    if (environment >= dispatch.environmentCount || lane != 0u) {
+        return;
+    }
+
+    threadgroup float3 bodyPosition[
+        MR_ARTICULATED_OPERATOR_MAX_BODIES
+    ];
+    threadgroup float4 bodyRotation[
+        MR_ARTICULATED_OPERATOR_MAX_BODIES
+    ];
+    threadgroup float3 jointPosition[
+        MR_ARTICULATED_OPERATOR_MAX_BODIES
+    ];
+    threadgroup float3 jointAxis[
+        MR_ARTICULATED_OPERATOR_MAX_BODIES
+    ];
+    threadgroup uint inboundJoint[
+        MR_ARTICULATED_OPERATOR_MAX_BODIES
+    ];
+    threadgroup uint parentLocal[
+        MR_ARTICULATED_OPERATOR_MAX_BODIES
+    ];
+    threadgroup uchar known[
+        MR_ARTICULATED_OPERATOR_MAX_BODIES
+    ];
+
+    MRArticulatedOperatorStatusGPU status = {};
+    status.code = MR_ARTICULATED_OPERATOR_SUCCESS;
+    status.environment = environment;
+    status.articulationIndex = dispatch.articulationIndex;
+    status.failingIndex = MR_INVALID_INDEX;
+    device const MRWorldGPU& world = worlds[0];
+    device const MRArticulationGPU& articulation =
+        articulations[dispatch.articulationIndex];
+    device const float* environmentQ =
+        q + environment * dispatch.qStride;
+    device const float* environmentV =
+        v + environment * dispatch.generalizedStride;
+    if (!validDispatch(world, dispatch, status) ||
+        !validModelAndLayout(
+            world,
+            articulation,
+            joints,
+            dofs,
+            bodies,
+            dispatch,
+            inboundJoint,
+            parentLocal,
+            known,
+            status
+        ) ||
+        !buildKinematics(
+            articulation,
+            joints,
+            environmentQ,
+            bodyPosition,
+            bodyRotation,
+            jointPosition,
+            jointAxis,
+            known,
+            status
+        )) {
+        statuses[environment] = status;
+        return;
+    }
+
+    const uint bodyBase =
+        environment * dispatch.bodyPoseStride;
+    for (uint localBody = 0u;
+         localBody < articulation.bodyCount;
+         ++localBody) {
+        MotionColumn velocity;
+        velocity.linear = float3(0.0f);
+        velocity.angular = float3(0.0f);
+        for (uint dof = 0u; dof < articulation.nv; ++dof) {
+            const float rate = environmentV[dof];
+            if (!isfinite(rate)) {
+                setFailure(
+                    status,
+                    MR_ARTICULATED_OPERATOR_NONFINITE_INPUT,
+                    dof
+                );
+                statuses[environment] = status;
+                return;
+            }
+            const MotionColumn column = bodyMotionForDof(
+                localBody,
+                dof,
+                articulation,
+                joints,
+                bodyPosition,
+                jointPosition,
+                jointAxis,
+                inboundJoint,
+                parentLocal
+            );
+            velocity.linear += rate * column.linear;
+            velocity.angular += rate * column.angular;
+        }
+        if (!finite3(velocity.linear) ||
+            !finite3(velocity.angular)) {
+            setFailure(
+                status,
+                MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+                articulation.firstBody + localBody
+            );
+            statuses[environment] = status;
+            return;
+        }
+        device MRBodyStateGPU& state =
+            bodyStates[bodyBase + localBody];
+        state.linearVelocityAndInverseMass.xyz = velocity.linear;
+        state.angularVelocity = float4(velocity.angular, 0.0f);
+    }
+    status.bodyCount = articulation.bodyCount;
+    status.nq = articulation.nq;
+    status.nv = articulation.nv;
+    status.pointCount = 0u;
+    statuses[environment] = status;
+}

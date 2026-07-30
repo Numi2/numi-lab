@@ -216,6 +216,59 @@ bool validDofParameters(
     return true;
 }
 
+bool validActuatorProfile(
+    const MRActuatorProfileGPU& profile,
+    const MRDofPropertiesGPU& dof,
+    const std::size_t index
+) {
+    constexpr mr_u32 knownFlags =
+        MR_ACTUATOR_PROFILE_ACTIVE |
+        MR_ACTUATOR_PROFILE_CALIBRATED;
+    if (profile.identity.x != index ||
+        profile.identity.z != 0u ||
+        profile.identity.w != 0u ||
+        (profile.identity.y & ~knownFlags) != 0u ||
+        !finite(profile.motorAndSpeed) ||
+        !finite(profile.transmissionAndEnvelope)) {
+        return false;
+    }
+    const bool active =
+        (profile.identity.y &
+         MR_ACTUATOR_PROFILE_ACTIVE) != 0u;
+    const bool calibrated =
+        (profile.identity.y &
+         MR_ACTUATOR_PROFILE_CALIBRATED) != 0u;
+    if (!active) {
+        return !calibrated &&
+            zero(profile.motorAndSpeed) &&
+            zero(profile.transmissionAndEnvelope);
+    }
+    if ((dof.flags & MR_DOF_FLAG_ACTUATED) == 0u ||
+        (dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) == 0u ||
+        !(dof.limits.w > 0.0f) ||
+        !(profile.motorAndSpeed.x > 0.0f) ||
+        !(profile.motorAndSpeed.y > 0.0f) ||
+        !(profile.motorAndSpeed.z > 0.0f) ||
+        !(profile.motorAndSpeed.w > 0.0f) ||
+        profile.motorAndSpeed.w > 1.0f ||
+        profile.transmissionAndEnvelope.x < 0.0f ||
+        profile.transmissionAndEnvelope.y < 0.0f ||
+        !(profile.transmissionAndEnvelope.z > 0.0f) ||
+        profile.transmissionAndEnvelope.w != 0.0f) {
+        return false;
+    }
+    const double expected =
+        static_cast<double>(profile.motorAndSpeed.x) *
+        profile.motorAndSpeed.y;
+    const double tolerance =
+        2.0e-5 * std::max(1.0, expected);
+    return std::abs(
+        static_cast<double>(
+            profile.transmissionAndEnvelope.z
+        ) - expected
+    ) <= tolerance;
+}
+
 bool normalizedQuaternion(
     std::span<const float> q,
     const std::size_t offset
@@ -266,6 +319,8 @@ bool EngineModel::valid(std::string* reason) const {
         world.articulationCount != articulations.size() ||
         world.jointCount != joints.size() ||
         world.nv != dofs.size() ||
+        (!actuatorProfiles.empty() &&
+         world.nv != actuatorProfiles.size()) ||
         world.shapeCount != shapes.size() ||
         world.materialCount != materials.size() ||
         world.nq != defaultQ.size() || world.nv != defaultV.size()) {
@@ -295,6 +350,20 @@ bool EngineModel::valid(std::string* reason) const {
             return finite(value);
         })) {
         return fail(reason, "default generalized state is non-finite");
+    }
+    for (std::size_t index = 0u;
+         index < actuatorProfiles.size();
+         ++index) {
+        if (!validActuatorProfile(
+                actuatorProfiles[index],
+                dofs[index],
+                index
+            )) {
+            return fail(
+                reason,
+                "actuator profile is invalid or disagrees with its DoF"
+            );
+        }
     }
     const ConstraintIRDiagnostics constraintDiagnostics =
         validateConstraintIR(constraintProgram);

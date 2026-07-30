@@ -19,6 +19,8 @@
     "summary_channels",
     "wrench_source",
     "center_of_pressure_definition",
+    "tangential_displacement_definition",
+    "friction_utilization_definition",
     "simulation_translator_required",
     "real_sensor_input"
   ],
@@ -60,8 +62,8 @@
     },
     "dense_channels": {
       "type": "array",
-      "minItems": 4,
-      "maxItems": 4,
+      "minItems": 8,
+      "maxItems": 8,
       "prefixItems": [
         {
           "const": "penetration_depth_m"
@@ -74,14 +76,26 @@
         },
         {
           "const": "depth_velocity_m_per_s"
+        },
+        {
+          "const": "tangential_displacement_u_m"
+        },
+        {
+          "const": "tangential_displacement_v_m"
+        },
+        {
+          "const": "surface_velocity_u_m_per_s"
+        },
+        {
+          "const": "surface_velocity_v_m_per_s"
         }
       ],
       "items": false
     },
     "summary_channels": {
       "type": "array",
-      "minItems": 10,
-      "maxItems": 10,
+      "minItems": 14,
+      "maxItems": 14,
       "prefixItems": [
         {
           "const": "sensor_pose"
@@ -112,6 +126,18 @@
         },
         {
           "const": "mean_depth_m"
+        },
+        {
+          "const": "tangential_speed_rms_m_per_s"
+        },
+        {
+          "const": "maximum_tangential_displacement_m"
+        },
+        {
+          "const": "friction_utilization_force_weighted"
+        },
+        {
+          "const": "friction_utilization_maximum"
         }
       ],
       "items": false
@@ -121,6 +147,12 @@
     },
     "center_of_pressure_definition": {
       "const": "solver_force_magnitude_weighted_contact_position"
+    },
+    "tangential_displacement_definition": {
+      "const": "bounded_kinematic_target_anchor_motion_proxy"
+    },
+    "friction_utilization_definition": {
+      "const": "tangential_impulse_over_static_friction_capacity"
     },
     "simulation_translator_required": {
       "const": false
@@ -139,6 +171,7 @@
         "height",
         "surface_kind",
         "maximum_depth_m",
+        "maximum_tangential_displacement_m",
         "active_threshold_m",
         "shell_thickness_m",
         "update_period_steps",
@@ -166,6 +199,10 @@
           ]
         },
         "maximum_depth_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "maximum_tangential_displacement_m": {
           "type": "number",
           "exclusiveMinimum": 0
         },

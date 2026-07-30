@@ -143,6 +143,22 @@ reset into one lazy graph; rollout storage and GAE are MLX arrays.
 `mx.async_eval` bounds rollout chunks, while blocking evaluation is restricted
 to declared rollout/logging and optimizer/checkpoint boundaries.
 
+An authored `MRWorldPack` can be compiled directly into the same primitive.
+Its `EngineModel` and `CookedTactileSystem` are the only physics/tactile
+sources; there is no collision-derived authored scene or alternate pack path.
+For tactile packs, the primitive packs final solver contacts and publishes
+metric depth, tangent motion, named summaries, and object-local labels on the
+active encoder. All temporal tactile state is explicit. Packs without authored
+tactile sensors allocate and dispatch no tactile work.
+
+Optional per-DoF actuator profiles carry joint-side torque constant, current
+limit, no-load speed, efficiency, backlash, and delay. Cooking derives stall
+torque. Standalone Metal consumes immutable authored profiles; MLX carries
+fixed per-environment profile values, backlash target, and delay history as
+explicit state. One correlated profile may be selected at reset, but no
+per-frame calibration branch exists in the solver loop. Missing measured
+profiles use neutral execution records and do not imply calibration.
+
 The active-encoder world primitive exposes free-motion and contact-capable
 Franka, G1, and PSM scenes, including persistent Wave32 work pulling and
 literal event-time CCD. A separate fixed-capacity generalized-constraint

@@ -143,6 +143,7 @@ class _TactileSummaryC(ct.Structure):
             "center_of_pressure_world_and_contact_count",
             ct.c_float * 4,
         ),
+        ("tangential_motion_and_friction", ct.c_float * 4),
         ("statistics_and_identity", ct.c_uint32 * 4),
     ]
 
@@ -542,6 +543,10 @@ class _Bindings:
         self.lib.mr_tactile_depth.restype = ct.POINTER(ct.c_float)
         self.lib.mr_tactile_depth_velocity.argtypes = [ct.c_void_p]
         self.lib.mr_tactile_depth_velocity.restype = ct.POINTER(
+            ct.c_float
+        )
+        self.lib.mr_tactile_tangential_motion.argtypes = [ct.c_void_p]
+        self.lib.mr_tactile_tangential_motion.restype = ct.POINTER(
             ct.c_float
         )
         self.lib.mr_tactile_validity.argtypes = [ct.c_void_p]

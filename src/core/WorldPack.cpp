@@ -415,6 +415,7 @@ void writeEngineModel(
     writer.podVector(model.articulations);
     writer.podVector(model.joints);
     writer.podVector(model.dofs);
+    writer.podVector(model.actuatorProfiles);
     writer.podVector(model.bodies);
     writer.podVector(model.shapes);
     writer.podVector(model.materials);
@@ -445,6 +446,7 @@ bool readEngineModel(
         reader.podVector(model.articulations) &&
         reader.podVector(model.joints) &&
         reader.podVector(model.dofs) &&
+        reader.podVector(model.actuatorProfiles) &&
         reader.podVector(model.bodies) &&
         reader.podVector(model.shapes) &&
         reader.podVector(model.materials) &&

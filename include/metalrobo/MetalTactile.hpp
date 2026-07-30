@@ -106,6 +106,7 @@ enum class MetalTactileBuffer : std::uint32_t {
     debugHits = 4u,
     summaries = 5u,
     statuses = 6u,
+    tangentialMotion = 7u,
 };
 
 // Persistent fixed-capacity Apple-GPU tactile runtime. encode() composes into

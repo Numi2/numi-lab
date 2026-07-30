@@ -1,6 +1,7 @@
 # Tactile performance
 
-This is a measured local result, not a projected product claim.
+This is a measured local result from 2026-07-30, not a projected product
+claim.
 
 ## Host and build
 
@@ -10,6 +11,7 @@ This is a measured local result, not a projected product claim.
 - `MR_TACTILE_QUERY_METAL_ANALYTIC_BVH4`
 - Metal ray-query support detected, but not selected
 - debug-hit stream disabled
+- depth, target-anchor tangent motion, velocity, and history enabled
 - one analytical sphere target per sensor
 - median/p95 from the reported measured iterations after explicit warm-up
 
@@ -22,15 +24,15 @@ Diagnostic readback is timed separately and is not part of the RL path.
 
 | Environments | Sensors/env | Atlas | Median observe ms | p95 ms | Sensor frames/s | Samples/s | Retained bytes | Bytes/env | Readback ms |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 256 | 2 | 16×16 | 0.926042 | 4.027979 | 552,891 | 141,540,017 | 6,068,784 | 23,706 | 5.910750 |
-| 256 | 2 | 32×32 | 1.079125 | 4.504630 | 474,458 | 485,845,477 | 23,493,168 | 91,770 | 1.958917 |
-| 256 | 2 | 64×64 | 3.005584 | 6.546192 | 170,350 | 697,751,918 | 93,190,704 | 364,026 | 7.314125 |
-| 256 | 5 | 32×32 | 1.482375 | 5.275592 | 863,479 | 884,202,715 | 58,612,564 | 228,955 | 4.197167 |
-| 2,048 | 1 | 41×41 | 4.683292 | 7.710217 | 437,299 | 735,100,011 | 152,973,088 | 74,693 | 30.041666 |
+| 256 | 2 | 16×16 | 1.439917 | 2.423287 | 355,576 | 91,027,469 | 16,577,072 | 64,754 | 2.207292 |
+| 256 | 2 | 32×32 | 3.745083 | 5.569883 | 136,713 | 139,993,693 | 65,458,736 | 255,698 | 4.659375 |
+| 256 | 2 | 64×64 | 4.426125 | 4.959658 | 115,677 | 473,812,195 | 260,985,392 | 1,019,474 | 11.598042 |
+| 256 | 5 | 32×32 | 2.641125 | 3.184737 | 484,642 | 496,273,368 | 163,517,268 | 638,739 | 7.111041 |
+| 2,048 | 1 | 41×41 | 6.550750 | 7.119892 | 312,636 | 525,541,045 | 428,502,816 | 209,229 | 20.065875 |
 
 One 256-environment, two-sensor, 32×32 run with an update period of four
-physics steps measured 0.955771 ms median and 4.335329 ms p95 over 20
-iterations. Its reported 548,549,810 samples/s counts logical sample slots.
+physics steps measured 1.470000 ms median and 1.860158 ms p95 over 20
+iterations. Its reported 356,658,625 samples/s counts logical sample slots.
 Only every fourth map performs geometry queries; retained-map and reduction
 work still runs on skipped updates.
 

@@ -32,7 +32,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 192u;
+constexpr std::size_t kRawBufferCount = 193u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -246,6 +246,7 @@ enum BufferIndex : std::size_t {
     kCCDEventRodWitnessesB = 189u,
     kProjectedRodColliders = 190u,
     kFutureProjectedRodColliders = 191u,
+    kActuatorProfiles = 192u,
 };
 
 struct BufferRequirement {
@@ -1119,6 +1120,7 @@ std::uint64_t fingerprint(const EngineModel& model) {
     hashVector(hash, model.articulations);
     hashVector(hash, model.joints);
     hashVector(hash, model.dofs);
+    hashVector(hash, model.actuatorProfiles);
     hashVector(hash, model.bodies);
     hashVector(hash, model.shapes);
     hashVector(hash, model.materials);
@@ -1141,6 +1143,44 @@ std::uint64_t fingerprint(const EngineModel& model) {
     hashValue(hash, model.name.size());
     hashBytes(hash, model.name.data(), model.name.size());
     return hash == 0u ? 1u : hash;
+}
+
+std::vector<MRActuatorProfileGPU> executionActuatorProfiles(
+    const EngineModel& model
+) {
+    std::vector<MRActuatorProfileGPU> profiles =
+        model.actuatorProfiles.empty()
+        ? std::vector<MRActuatorProfileGPU>(model.dofs.size())
+        : model.actuatorProfiles;
+    for (std::size_t index = 0u;
+         index < profiles.size();
+         ++index) {
+        const MRDofPropertiesGPU& dof = model.dofs[index];
+        MRActuatorProfileGPU& profile = profiles[index];
+        if ((profile.identity.y &
+             MR_ACTUATOR_PROFILE_ACTIVE) != 0u) {
+            continue;
+        }
+        profile.motorAndSpeed = {
+            0.0f,
+            0.0f,
+            std::numeric_limits<float>::max(),
+            1.0f,
+        };
+        profile.transmissionAndEnvelope = {};
+        profile.transmissionAndEnvelope.z =
+            (dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
+                dof.limits.w > 0.0f
+            ? dof.limits.w
+            : std::numeric_limits<float>::max();
+        profile.identity = {
+            static_cast<mr_u32>(index),
+            0u,
+            0u,
+            0u,
+        };
+    }
+    return profiles;
 }
 
 std::uint32_t compiledPairClass(
@@ -1283,6 +1323,11 @@ bool buildRequirements(
             "DoF properties",
             model.dofs.size(),
             requirements.entries[kDofs]
+        ) ||
+        !makeRequirement<MRActuatorProfileGPU>(
+            "actuator profiles",
+            model.dofs.size(),
+            requirements.entries[kActuatorProfiles]
         ) ||
         !makeRequirement<MRBodyPropertiesGPU>(
             "body properties",
@@ -3572,6 +3617,8 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld joints";
     case kDofs:
         return @"MetalWorld DoF properties";
+    case kActuatorProfiles:
+        return @"MetalWorld actuator profiles";
     case kBodies:
         return @"MetalWorld body properties";
     case kABADispatch:
@@ -4644,6 +4691,7 @@ bool privatePersistentBuffer(const std::size_t index) {
 bool privateImmutableBuffer(const std::size_t index) {
     return
         (index >= kArticulations && index <= kBodies) ||
+        index == kActuatorProfiles ||
         index == kShapes ||
         index == kMaterials ||
         index == kSceneBodyIndices ||
@@ -5191,6 +5239,16 @@ void uploadBatch(
                 immutableUpload
             );
         }
+        const std::vector<MRActuatorProfileGPU>
+            actuatorProfiles =
+                executionActuatorProfiles(model);
+        stageImmutableBuffer(
+            context,
+            kActuatorProfiles,
+            actuatorProfiles.data(),
+            requirements.entries[kActuatorProfiles],
+            immutableUpload
+        );
         MRShapeGPU emptyShape{};
         MRMaterialGPU emptyMaterial{};
         mr_u32 emptySceneIndex = 0u;
@@ -7088,6 +7146,9 @@ bool encodePrepare(
     [encoder setBuffer:context.buffers[kDofs]
                  offset:0u
                 atIndex:14u];
+    [encoder setBuffer:context.buffers[kActuatorProfiles]
+                 offset:0u
+                atIndex:15u];
     dispatchWorldThreads(
         encoder,
         context.preparePipeline,

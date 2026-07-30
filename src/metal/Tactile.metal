@@ -102,12 +102,16 @@ inline float3 inverseTransformVector(
     );
 }
 
-inline ulong tactileFrameIndex(
-    constant const MRTactileDispatchGPU& dispatch
+inline float3 bodyPointVelocity(
+    const MRBodyStateGPU body,
+    const float3 worldPoint
 ) {
     return
-        (static_cast<ulong>(dispatch.frameAndAbi.y) << 32u) |
-        static_cast<ulong>(dispatch.frameAndAbi.x);
+        body.linearVelocityAndInverseMass.xyz +
+        cross(
+            body.angularVelocity.xyz,
+            worldPoint - body.position.xyz
+        );
 }
 
 inline bool validDispatch(
@@ -676,11 +680,18 @@ kernel void mr_tactile_sample(
     device const uint* previousValidity [[buffer(13)]],
     device const uint* previousObject [[buffer(14)]],
     device const MRTactileHitGPU* previousHits [[buffer(15)]],
-    device float* depth [[buffer(16)]],
-    device float* depthVelocity [[buffer(17)]],
-    device uint* validity [[buffer(18)]],
-    device uint* objectShape [[buffer(19)]],
-    device MRTactileHitGPU* hits [[buffer(20)]],
+    device const MRTactileTangentialMotionGPU*
+        previousTangentialMotion [[buffer(16)]],
+    device const float4* previousTargetLocalAnchor [[buffer(17)]],
+    device float* depth [[buffer(18)]],
+    device float* depthVelocity [[buffer(19)]],
+    device MRTactileTangentialMotionGPU*
+        tangentialMotion [[buffer(20)]],
+    device float4* targetLocalAnchor [[buffer(21)]],
+    device uint* validity [[buffer(22)]],
+    device uint* objectShape [[buffer(23)]],
+    device MRTactileHitGPU* hits [[buffer(24)]],
+    device const ulong* frameIndices [[buffer(25)]],
     const uint threadIndex [[thread_position_in_grid]]
 ) {
     if (!validDispatch(dispatch)) {
@@ -700,6 +711,8 @@ kernel void mr_tactile_sample(
     if (sensorIndex >= dispatch.counts.z) {
         depth[threadIndex] = 0.0f;
         depthVelocity[threadIndex] = 0.0f;
+        tangentialMotion[threadIndex] = {};
+        targetLocalAnchor[threadIndex] = float4(0.0f);
         validity[threadIndex] = 0u;
         objectShape[threadIndex] = MR_INVALID_INDEX;
         if (debugHitsEnabled()) {
@@ -712,6 +725,8 @@ kernel void mr_tactile_sample(
          MR_TACTILE_SAMPLE_VALID) == 0u) {
         depth[threadIndex] = 0.0f;
         depthVelocity[threadIndex] = 0.0f;
+        tangentialMotion[threadIndex] = {};
+        targetLocalAnchor[threadIndex] = float4(0.0f);
         validity[threadIndex] = 0u;
         objectShape[threadIndex] = MR_INVALID_INDEX;
         if (debugHitsEnabled()) {
@@ -719,13 +734,23 @@ kernel void mr_tactile_sample(
         }
         return;
     }
-    const ulong frameIndex = tactileFrameIndex(dispatch);
+    const ulong frameIndex = frameIndices[environment];
     const bool update =
         frameIndex %
             static_cast<ulong>(sensor.scheduleAndIdentity.x) == 0u;
     if (!update) {
         depth[threadIndex] = previousDepth[threadIndex];
         depthVelocity[threadIndex] = 0.0f;
+        tangentialMotion[threadIndex].displacementAndVelocity =
+            float4(
+                previousTangentialMotion[
+                    threadIndex
+                ].displacementAndVelocity.xy,
+                0.0f,
+                0.0f
+            );
+        targetLocalAnchor[threadIndex] =
+            previousTargetLocalAnchor[threadIndex];
         validity[threadIndex] = previousValidity[threadIndex];
         objectShape[threadIndex] = previousObject[threadIndex];
         if (debugHitsEnabled()) {
@@ -806,6 +831,8 @@ kernel void mr_tactile_sample(
 
     uint outputValidity = MR_TACTILE_VALIDITY_SAMPLE;
     MRTactileHitGPU hit = {};
+    MRTactileTangentialMotionGPU motion = {};
+    float4 anchor = float4(0.0f);
     if (bestShape != MR_INVALID_INDEX) {
         outputValidity |=
             MR_TACTILE_VALIDITY_CONTACT |
@@ -829,8 +856,67 @@ kernel void mr_tactile_sample(
             outputValidity,
             0u
         );
+
+        const MRShapeGPU targetShape = shapes[bestShape];
+        const MRBodyStateGPU targetBody =
+            bodies[bodyBase + targetShape.bodyIndex];
+        const float3 worldHit = hit.worldPointAndDepth.xyz;
+        const TactilePose targetBodyPose = bodyPose(targetBody);
+        const bool reset = resetMask[environment] != 0u;
+        const bool continuingContact =
+            !reset &&
+            (previousValidity[threadIndex] &
+             MR_TACTILE_VALIDITY_CONTACT) != 0u &&
+            previousObject[threadIndex] == bestShape;
+        const float3 anchorLocal =
+            continuingContact
+            ? previousTargetLocalAnchor[threadIndex].xyz
+            : inverseTransformPoint(targetBodyPose, worldHit);
+        anchor = float4(anchorLocal, 0.0f);
+
+        float2 displacement = float2(0.0f);
+        if (continuingContact) {
+            const float3 anchorWorld =
+                targetBodyPose.position +
+                quaternionRotate(
+                    targetBodyPose.orientation,
+                    anchorLocal
+                );
+            const float3 relativeLocal =
+                inverseTransformPoint(worldSensor, anchorWorld) -
+                sample.localPositionAndArea.xyz;
+            displacement = float2(
+                dot(relativeLocal, sample.localTangentU.xyz),
+                dot(relativeLocal, sample.localTangentV.xyz)
+            );
+            const float magnitude = length(displacement);
+            if (magnitude > sensor.depth.w) {
+                displacement *= sensor.depth.w / magnitude;
+            }
+        }
+
+        const MRBodyStateGPU sensorBody =
+            bodies[bodyBase + sensor.topology.x];
+        const float3 relativeVelocity =
+            bodyPointVelocity(targetBody, worldHit) -
+            bodyPointVelocity(sensorBody, worldHit);
+        const float3 worldTangentU = quaternionRotate(
+            worldSensor.orientation,
+            sample.localTangentU.xyz
+        );
+        const float3 worldTangentV = quaternionRotate(
+            worldSensor.orientation,
+            sample.localTangentV.xyz
+        );
+        motion.displacementAndVelocity = float4(
+            displacement,
+            dot(relativeVelocity, worldTangentU),
+            dot(relativeVelocity, worldTangentV)
+        );
     }
     depth[threadIndex] = bestDepth;
+    tangentialMotion[threadIndex] = motion;
+    targetLocalAnchor[threadIndex] = anchor;
     validity[threadIndex] = outputValidity;
     objectShape[threadIndex] = bestShape;
     if (debugHitsEnabled()) {
@@ -856,8 +942,11 @@ kernel void mr_tactile_reduce(
     device const float* depth [[buffer(7)]],
     device const uint* validity [[buffer(8)]],
     device const uint* objectShape [[buffer(9)]],
-    device MRTactileSummaryGPU* summaries [[buffer(10)]],
-    device MRTactileStatusGPU* statuses [[buffer(11)]],
+    device const MRTactileTangentialMotionGPU*
+        tangentialMotion [[buffer(10)]],
+    device MRTactileSummaryGPU* summaries [[buffer(11)]],
+    device MRTactileStatusGPU* statuses [[buffer(12)]],
+    device const ulong* frameIndices [[buffer(13)]],
     const uint threadIndex [[thread_position_in_grid]]
 ) {
     const uint total =
@@ -881,6 +970,8 @@ kernel void mr_tactile_reduce(
     float activeArea = 0.0f;
     float areaDepth = 0.0f;
     float maximumDepth = 0.0f;
+    float areaTangentialSpeedSquared = 0.0f;
+    float maximumTangentialDisplacement = 0.0f;
     uint activeCount = 0u;
     uint saturatedCount = 0u;
     uint unanimousObject = MR_INVALID_INDEX;
@@ -915,6 +1006,15 @@ kernel void mr_tactile_reduce(
         activeArea += area;
         areaDepth += area * sampleDepth;
         maximumDepth = max(maximumDepth, sampleDepth);
+        const float4 motion =
+            tangentialMotion[denseIndex]
+                .displacementAndVelocity;
+        areaTangentialSpeedSquared +=
+            area * dot(motion.zw, motion.zw);
+        maximumTangentialDisplacement = max(
+            maximumTangentialDisplacement,
+            length(motion.xy)
+        );
         ++activeCount;
         if ((validity[denseIndex] &
              MR_TACTILE_VALIDITY_SATURATED) != 0u) {
@@ -938,6 +1038,9 @@ kernel void mr_tactile_reduce(
     float centerOfPressureForceWeight = 0.0f;
     uint contactContributors = 0u;
     uint centerOfPressureContributors = 0u;
+    float weightedFrictionUtilization = 0.0f;
+    float frictionUtilizationWeight = 0.0f;
+    float maximumFrictionUtilization = 0.0f;
     const uint contactCount = min(
         contactCounts[environment],
         dispatch.queryCounts.w
@@ -973,6 +1076,35 @@ kernel void mr_tactile_reduce(
             centerOfPressureForceWeight += forceWeight;
             ++centerOfPressureContributors;
         }
+        const float normalImpulse =
+            contact.solverImpulseAndFriction.x;
+        const float tangentialImpulse =
+            contact.solverImpulseAndFriction.y;
+        const float staticFriction =
+            contact.solverImpulseAndFriction.z;
+        float utilization = 0.0f;
+        if (normalImpulse > kTiny) {
+            const float capacity =
+                staticFriction * normalImpulse;
+            utilization = capacity > kTiny
+                ? clamp(
+                    tangentialImpulse / capacity,
+                    0.0f,
+                    1.0f
+                )
+                : (tangentialImpulse > kTiny ? 1.0f : 0.0f);
+        }
+        const float normalForceWeight =
+            normalImpulse * dispatch.timing.w;
+        if (normalForceWeight > kTiny) {
+            weightedFrictionUtilization +=
+                normalForceWeight * utilization;
+            frictionUtilizationWeight += normalForceWeight;
+        }
+        maximumFrictionUtilization = max(
+            maximumFrictionUtilization,
+            utilization
+        );
         ++contactContributors;
     }
     if (centerOfPressureForceWeight > 0.0f) {
@@ -987,7 +1119,7 @@ kernel void mr_tactile_reduce(
         )
         : float3(0.0f);
 
-    const ulong frameIndex = tactileFrameIndex(dispatch);
+    const ulong frameIndex = frameIndices[environment];
     const bool update =
         frameIndex %
             static_cast<ulong>(sensor.scheduleAndIdentity.x) == 0u;
@@ -1021,6 +1153,17 @@ kernel void mr_tactile_reduce(
         centerOfPressureWorld,
         static_cast<float>(centerOfPressureContributors)
     );
+    summary.tangentialMotionAndFriction = float4(
+        activeArea > 0.0f
+            ? sqrt(areaTangentialSpeedSquared / activeArea)
+            : 0.0f,
+        maximumTangentialDisplacement,
+        frictionUtilizationWeight > 0.0f
+            ? weightedFrictionUtilization /
+                frictionUtilizationWeight
+            : 0.0f,
+        maximumFrictionUtilization
+    );
     summary.statisticsAndIdentity = uint4(
         saturatedCount,
         contactContributors,
@@ -1048,10 +1191,16 @@ kernel void mr_tactile_commit_history(
     device const uint* validity [[buffer(2)]],
     device const uint* objectShape [[buffer(3)]],
     device const MRTactileHitGPU* hits [[buffer(4)]],
-    device float* previousDepth [[buffer(5)]],
-    device uint* previousValidity [[buffer(6)]],
-    device uint* previousObject [[buffer(7)]],
-    device MRTactileHitGPU* previousHits [[buffer(8)]],
+    device const MRTactileTangentialMotionGPU*
+        tangentialMotion [[buffer(5)]],
+    device const float4* targetLocalAnchor [[buffer(6)]],
+    device float* previousDepth [[buffer(7)]],
+    device uint* previousValidity [[buffer(8)]],
+    device uint* previousObject [[buffer(9)]],
+    device MRTactileHitGPU* previousHits [[buffer(10)]],
+    device MRTactileTangentialMotionGPU*
+        previousTangentialMotion [[buffer(11)]],
+    device float4* previousTargetLocalAnchor [[buffer(12)]],
     const uint threadIndex [[thread_position_in_grid]]
 ) {
     const uint total =
@@ -1062,6 +1211,10 @@ kernel void mr_tactile_commit_history(
     previousDepth[threadIndex] = depth[threadIndex];
     previousValidity[threadIndex] = validity[threadIndex];
     previousObject[threadIndex] = objectShape[threadIndex];
+    previousTangentialMotion[threadIndex] =
+        tangentialMotion[threadIndex];
+    previousTargetLocalAnchor[threadIndex] =
+        targetLocalAnchor[threadIndex];
     if (debugHitsEnabled()) {
         previousHits[threadIndex] = hits[threadIndex];
     }

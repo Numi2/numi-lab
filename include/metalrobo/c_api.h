@@ -137,6 +137,7 @@ typedef struct MRTactileSummaryC {
     float centroid_world_and_active_count[4];
     float center_of_pressure_local_and_force_weight[4];
     float center_of_pressure_world_and_contact_count[4];
+    float tangential_motion_and_friction[4];
     uint32_t statistics_and_identity[4];
 } MRTactileSummaryC;
 
@@ -388,8 +389,9 @@ MR_API const char* mr_tactile_observation_metadata_json(
     const MRTactileHandle* handle
 );
 // buffer_kind: 0 depth float, 1 depth velocity float, 2 validity uint,
-// 3 object shape uint, 4 optional debug hit, 5 summary, 6 status. The
-// headless Franka context returns null for kind 4.
+// 3 object shape uint, 4 optional debug hit, 5 summary, 6 status,
+// 7 tangential-motion float4. The headless Franka context returns null for
+// kind 4.
 MR_API void* mr_tactile_native_buffer(
     const MRTactileHandle* handle,
     uint32_t buffer_kind
@@ -399,6 +401,9 @@ MR_API const float* mr_tactile_depth(
     const MRTactileHandle* handle
 );
 MR_API const float* mr_tactile_depth_velocity(
+    const MRTactileHandle* handle
+);
+MR_API const float* mr_tactile_tangential_motion(
     const MRTactileHandle* handle
 );
 MR_API const uint32_t* mr_tactile_validity(

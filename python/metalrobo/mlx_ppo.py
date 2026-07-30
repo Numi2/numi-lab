@@ -119,6 +119,8 @@ class MLXRolloutCollector:
         self.empty_scene = empty.scene_bodies
         self.empty_rods = empty.rods
         self.empty_cache = empty.solver_cache
+        self.empty_tactile = empty.tactile
+        self.empty_actuators = empty.actuators
         self._compiled_step = mx.compile(
             self._policy_physics_reward,
             inputs=self.model.state,
@@ -166,6 +168,8 @@ class MLXRolloutCollector:
             scene_bodies=self.empty_scene,
             rods=self.empty_rods,
             solver_cache=self.empty_cache,
+            tactile=self.empty_tactile,
+            actuators=self.empty_actuators,
         )
         physics = step(self.world, current, effort)
 
@@ -342,6 +346,8 @@ class MLXRolloutCollector:
                 scene_bodies=self.empty_scene,
                 rods=self.empty_rods,
                 solver_cache=self.empty_cache,
+                tactile=self.empty_tactile,
+                actuators=self.empty_actuators,
             ),
             observations=observations,
             episode_steps=episode_steps,

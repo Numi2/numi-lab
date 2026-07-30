@@ -155,6 +155,18 @@ Vec3 inverseTransformVector(const Pose pose, const Vec3 direction) {
     return rotate(conjugate(pose.orientation), direction);
 }
 
+Vec3 pointVelocity(
+    const MRBodyStateGPU& body,
+    const Vec3 worldPoint
+) {
+    return
+        vector(body.linearVelocityAndInverseMass) +
+        cross(
+            vector(body.angularVelocity),
+            worldPoint - vector(body.position)
+        );
+}
+
 bool finite(const double value) {
     return std::isfinite(value);
 }
@@ -764,6 +776,8 @@ TactileSensorSpec makeFlatTactileSensor(
     result.height = height;
     result.surfaceKind = MR_TACTILE_SURFACE_FLAT;
     result.maximumDepthMeters = maximumDepthMeters;
+    result.maximumTangentialDisplacementMeters =
+        maximumDepthMeters;
     if (width == 0u || height == 0u ||
         !(physicalWidthMeters > 0.0f) ||
         !(physicalHeightMeters > 0.0f)) {
@@ -822,6 +836,8 @@ TactileSensorSpec makeSphericalTactileSensor(
     result.height = height;
     result.surfaceKind = MR_TACTILE_SURFACE_CURVED;
     result.maximumDepthMeters = maximumDepthMeters;
+    result.maximumTangentialDisplacementMeters =
+        maximumDepthMeters;
     if (width == 0u || height == 0u ||
         !(undeformedRadiusMeters > 0.0f) ||
         !(horizontalSpanRadians > 0.0f) ||
@@ -941,7 +957,8 @@ bool CookedTactileSystem::valid(
             !(sensor.depth.x > 0.0f) ||
             !(sensor.depth.y >= 0.0f) ||
             sensor.depth.y > sensor.depth.x ||
-            sensor.depth.z + 1.0e-7f < sensor.depth.x) {
+            sensor.depth.z + 1.0e-7f < sensor.depth.x ||
+            !(sensor.depth.w > 0.0f)) {
             return reject("tactile sensor descriptor is invalid");
         }
         const MRShapeGPU& backing = model.shapes[sensor.topology.y];
@@ -1102,6 +1119,13 @@ TactileCookResult cookTactileSystem(
                 !unitQuaternion(source.localPose.orientation) ||
                 !finite(source.maximumDepthMeters) ||
                 !(source.maximumDepthMeters > 0.0f) ||
+                !finite(
+                    source.maximumTangentialDisplacementMeters
+                ) ||
+                !(
+                    source.maximumTangentialDisplacementMeters >
+                    0.0f
+                ) ||
                 !finite(source.activeDepthThresholdMeters) ||
                 source.activeDepthThresholdMeters < 0.0f ||
                 source.activeDepthThresholdMeters >
@@ -1243,7 +1267,7 @@ TactileCookResult cookTactileSystem(
                 source.maximumDepthMeters,
                 source.activeDepthThresholdMeters,
                 shellThickness,
-                0.0f,
+                source.maximumTangentialDisplacementMeters,
             };
 
             for (std::uint32_t local = 0u;
@@ -1491,6 +1515,9 @@ TactileObserveResult packTactileSolverContacts(
             if (!finite(contact.normal) ||
                 !finite(contact.pointAndSeparation) ||
                 !finite(contact.impulses) ||
+                !finite(contact.friction) ||
+                contact.friction.x < 0.0f ||
+                contact.friction.y < 0.0f ||
                 !finite(manifold.tangentAndMetric) ||
                 lengthSquared(vector(contact.normal)) <= kTiny) {
                 return observeFailure(
@@ -1524,6 +1551,15 @@ TactileObserveResult packTactileSolverContacts(
                 },
                 contact.pointAndSeparation,
                 packed(impulseOnA),
+                {
+                    std::abs(contact.impulses.x),
+                    std::hypot(
+                        contact.impulses.y,
+                        contact.impulses.z
+                    ),
+                    contact.friction.x,
+                    contact.friction.y,
+                },
             };
             ++packedCount;
         }
@@ -1589,6 +1625,10 @@ TactileObserveResult observeTactileCpuReference(
          frame.previousValidity.size() != denseCount) ||
         (!frame.previousObjectShapeIds.empty() &&
          frame.previousObjectShapeIds.size() != denseCount) ||
+        (!frame.previousTangentialMotion.empty() &&
+         frame.previousTangentialMotion.size() != denseCount) ||
+        (!frame.previousTargetLocalContactAnchors.empty() &&
+         frame.previousTargetLocalContactAnchors.size() != denseCount) ||
         (!frame.previousDebugHits.empty() &&
          frame.previousDebugHits.size() != denseCount) ||
         (!frame.resetMask.empty() &&
@@ -1625,7 +1665,12 @@ TactileObserveResult observeTactileCpuReference(
                     (contact.shapesAndFlags.z &
                      ~MR_TACTILE_CONTACT_SOLVER_IMPULSE) != 0u ||
                     !finite(contact.worldPoint) ||
-                    !finite(contact.worldImpulseOnA)) {
+                    !finite(contact.worldImpulseOnA) ||
+                    !finite(contact.solverImpulseAndFriction) ||
+                    contact.solverImpulseAndFriction.x < 0.0f ||
+                    contact.solverImpulseAndFriction.y < 0.0f ||
+                    contact.solverImpulseAndFriction.z < 0.0f ||
+                    contact.solverImpulseAndFriction.w < 0.0f) {
                     return observeFailure(
                         MR_TACTILE_NONFINITE_INPUT,
                         "CPU tactile solver evidence is invalid"
@@ -1637,7 +1682,9 @@ TactileObserveResult observeTactileCpuReference(
             const MRBodyStateGPU& state =
                 frame.bodies[environment * bodyCount + body];
             if (!finite(state.position) ||
-                !unitQuaternion(state.orientation)) {
+                !unitQuaternion(state.orientation) ||
+                !finite(state.linearVelocityAndInverseMass) ||
+                !finite(state.angularVelocity)) {
                 return observeFailure(
                     MR_TACTILE_NONFINITE_INPUT,
                     "CPU tactile body pose is non-finite or unnormalized"
@@ -1660,12 +1707,17 @@ TactileObserveResult observeTactileCpuReference(
             denseCount,
             0.0f
         );
+        candidate.tangentialMotion.assign(denseCount, {});
         candidate.validity.assign(denseCount, 0u);
         candidate.objectShapeIds.assign(
             denseCount,
             MR_INVALID_INDEX
         );
         candidate.debugHits.assign(denseCount, {});
+        candidate.targetLocalContactAnchors.assign(
+            denseCount,
+            {}
+        );
         candidate.summaries.assign(summaryCount, {});
         candidate.statuses.assign(summaryCount, {});
     } catch (const std::bad_alloc&) {
@@ -1726,6 +1778,30 @@ TactileObserveResult observeTactileCpuReference(
                         frame.previousObjectShapeIds.empty()
                         ? MR_INVALID_INDEX
                         : frame.previousObjectShapeIds[outputIndex];
+                    if (!frame.previousTangentialMotion.empty()) {
+                        candidate.tangentialMotion[outputIndex]
+                            .displacementAndVelocity = {
+                                frame.previousTangentialMotion[
+                                    outputIndex
+                                ].displacementAndVelocity.x,
+                                frame.previousTangentialMotion[
+                                    outputIndex
+                                ].displacementAndVelocity.y,
+                                0.0f,
+                                0.0f,
+                            };
+                    }
+                    if (!frame
+                             .previousTargetLocalContactAnchors
+                             .empty()) {
+                        candidate.targetLocalContactAnchors[
+                            outputIndex
+                        ] =
+                            frame
+                                .previousTargetLocalContactAnchors[
+                                    outputIndex
+                                ];
+                    }
                     if (!frame.previousDebugHits.empty()) {
                         candidate.debugHits[outputIndex] =
                             frame.previousDebugHits[outputIndex];
@@ -1827,6 +1903,99 @@ TactileObserveResult observeTactileCpuReference(
                             0u,
                         },
                     };
+
+                    const MRShapeGPU& targetShape =
+                        model.shapes[best.shape];
+                    const MRBodyStateGPU& targetBody =
+                        bodies[targetShape.bodyIndex];
+                    const Pose targetBodyPose = bodyPose(targetBody);
+                    const bool continuingContact =
+                        !reset &&
+                        !frame.previousValidity.empty() &&
+                        !frame.previousObjectShapeIds.empty() &&
+                        !frame.previousTangentialMotion.empty() &&
+                        !frame
+                             .previousTargetLocalContactAnchors
+                             .empty() &&
+                        (
+                            frame.previousValidity[outputIndex] &
+                            MR_TACTILE_VALIDITY_CONTACT
+                        ) != 0u &&
+                        frame.previousObjectShapeIds[outputIndex] ==
+                            best.shape;
+                    const Vec3 targetLocalAnchor =
+                        continuingContact
+                        ? vector(
+                            frame
+                                .previousTargetLocalContactAnchors[
+                                    outputIndex
+                                ]
+                        )
+                        : inverseTransformPoint(
+                            targetBodyPose,
+                            best.point
+                        );
+                    candidate.targetLocalContactAnchors[
+                        outputIndex
+                    ] = packed(targetLocalAnchor);
+
+                    Vec3 displacementLocal{};
+                    if (continuingContact) {
+                        const Vec3 anchorWorld =
+                            targetBodyPose.position +
+                            rotate(
+                                targetBodyPose.orientation,
+                                targetLocalAnchor
+                            );
+                        displacementLocal =
+                            inverseTransformPoint(
+                                worldSensor,
+                                anchorWorld
+                            ) -
+                            vector(sample.localPositionAndArea);
+                    }
+                    double displacementU = dot(
+                        displacementLocal,
+                        vector(sample.localTangentU)
+                    );
+                    double displacementV = dot(
+                        displacementLocal,
+                        vector(sample.localTangentV)
+                    );
+                    const double displacementMagnitude =
+                        std::hypot(displacementU, displacementV);
+                    if (displacementMagnitude > sensor.depth.w) {
+                        const double scale =
+                            sensor.depth.w /
+                            displacementMagnitude;
+                        displacementU *= scale;
+                        displacementV *= scale;
+                    }
+
+                    const MRBodyStateGPU& sensorBody =
+                        bodies[sensor.topology.x];
+                    const Vec3 relativeVelocity =
+                        pointVelocity(targetBody, best.point) -
+                        pointVelocity(sensorBody, best.point);
+                    const Vec3 worldTangentU = rotate(
+                        worldSensor.orientation,
+                        vector(sample.localTangentU)
+                    );
+                    const Vec3 worldTangentV = rotate(
+                        worldSensor.orientation,
+                        vector(sample.localTangentV)
+                    );
+                    candidate.tangentialMotion[outputIndex]
+                        .displacementAndVelocity = {
+                            static_cast<float>(displacementU),
+                            static_cast<float>(displacementV),
+                            static_cast<float>(
+                                dot(relativeVelocity, worldTangentU)
+                            ),
+                            static_cast<float>(
+                                dot(relativeVelocity, worldTangentV)
+                            ),
+                        };
                 }
                 if (!reset &&
                     !frame.previousDepthMeters.empty()) {
@@ -1863,6 +2032,8 @@ TactileObserveResult observeTactileCpuReference(
             double activeArea = 0.0;
             double areaDepth = 0.0;
             double maximumDepth = 0.0;
+            double areaTangentialSpeedSquared = 0.0;
+            double maximumTangentialDisplacement = 0.0;
             std::uint32_t activeCount = 0u;
             std::uint32_t saturatedCount = 0u;
             std::uint32_t unanimousObject = MR_INVALID_INDEX;
@@ -1903,6 +2074,22 @@ TactileObserveResult observeTactileCpuReference(
                 areaDepth += area * depth;
                 maximumDepth =
                     std::max<double>(maximumDepth, depth);
+                const mr_float4 motion =
+                    candidate.tangentialMotion[outputIndex]
+                        .displacementAndVelocity;
+                areaTangentialSpeedSquared +=
+                    area *
+                    (
+                        static_cast<double>(motion.z) * motion.z +
+                        static_cast<double>(motion.w) * motion.w
+                    );
+                maximumTangentialDisplacement = std::max(
+                    maximumTangentialDisplacement,
+                    std::hypot(
+                        static_cast<double>(motion.x),
+                        static_cast<double>(motion.y)
+                    )
+                );
                 ++activeCount;
                 if ((candidate.validity[outputIndex] &
                      MR_TACTILE_VALIDITY_SATURATED) != 0u) {
@@ -1927,6 +2114,9 @@ TactileObserveResult observeTactileCpuReference(
             double centerOfPressureForceWeight = 0.0;
             std::uint32_t contactContributors = 0u;
             std::uint32_t centerOfPressureContributors = 0u;
+            double frictionUtilizationWeighted = 0.0;
+            double frictionUtilizationWeight = 0.0;
+            double maximumFrictionUtilization = 0.0;
             if (contactsPresent) {
                 const std::size_t contactBase =
                     static_cast<std::size_t>(environment) *
@@ -1968,6 +2158,39 @@ TactileObserveResult observeTactileCpuReference(
                             forceWeight;
                         ++centerOfPressureContributors;
                     }
+                    const double normalImpulse =
+                        contact.solverImpulseAndFriction.x;
+                    const double tangentialImpulse =
+                        contact.solverImpulseAndFriction.y;
+                    const double staticFriction =
+                        contact.solverImpulseAndFriction.z;
+                    double utilization = 0.0;
+                    if (normalImpulse > kTiny) {
+                        const double capacity =
+                            staticFriction * normalImpulse;
+                        utilization = capacity > kTiny
+                            ? std::clamp(
+                                tangentialImpulse / capacity,
+                                0.0,
+                                1.0
+                            )
+                            : (tangentialImpulse > kTiny
+                                ? 1.0
+                                : 0.0);
+                    }
+                    const double normalForceWeight =
+                        normalImpulse /
+                        frame.contactImpulseTimestepSeconds;
+                    if (normalForceWeight > kTiny) {
+                        frictionUtilizationWeighted +=
+                            normalForceWeight * utilization;
+                        frictionUtilizationWeight +=
+                            normalForceWeight;
+                    }
+                    maximumFrictionUtilization = std::max(
+                        maximumFrictionUtilization,
+                        utilization
+                    );
                     ++contactContributors;
                 }
             }
@@ -2026,6 +2249,25 @@ TactileObserveResult observeTactileCpuReference(
                         centerOfPressureContributors
                     )
                 );
+            summary.tangentialMotionAndFriction = {
+                activeArea > 0.0
+                    ? static_cast<float>(std::sqrt(
+                        areaTangentialSpeedSquared / activeArea
+                    ))
+                    : 0.0f,
+                static_cast<float>(
+                    maximumTangentialDisplacement
+                ),
+                frictionUtilizationWeight > 0.0
+                    ? static_cast<float>(
+                        frictionUtilizationWeighted /
+                        frictionUtilizationWeight
+                    )
+                    : 0.0f,
+                static_cast<float>(
+                    maximumFrictionUtilization
+                ),
+            };
             summary.statisticsAndIdentity = {
                 saturatedCount,
                 contactContributors,
@@ -2085,6 +2327,8 @@ std::string tactileObservationMetadataJSON(
              << ",\"surface_kind\":"
              << sensor.scheduleAndIdentity.y
              << ",\"maximum_depth_m\":" << sensor.depth.x
+             << ",\"maximum_tangential_displacement_m\":"
+             << sensor.depth.w
              << ",\"active_threshold_m\":" << sensor.depth.y
              << ",\"shell_thickness_m\":" << sensor.depth.z
              << ",\"update_period_steps\":"
@@ -2097,7 +2341,11 @@ std::string tactileObservationMetadataJSON(
          << "\"penetration_depth_m\","
          << "\"validity_bits\","
          << "\"object_shape_id\","
-         << "\"depth_velocity_m_per_s\"],"
+         << "\"depth_velocity_m_per_s\","
+         << "\"tangential_displacement_u_m\","
+         << "\"tangential_displacement_v_m\","
+         << "\"surface_velocity_u_m_per_s\","
+         << "\"surface_velocity_v_m_per_s\"],"
          << "\"summary_channels\":["
          << "\"sensor_pose\","
          << "\"timestamp_s\","
@@ -2108,11 +2356,19 @@ std::string tactileObservationMetadataJSON(
          << "\"geometric_contact_centroid_m\","
          << "\"contact_area_m2\","
          << "\"maximum_depth_m\","
-         << "\"mean_depth_m\"],"
+         << "\"mean_depth_m\","
+         << "\"tangential_speed_rms_m_per_s\","
+         << "\"maximum_tangential_displacement_m\","
+         << "\"friction_utilization_force_weighted\","
+         << "\"friction_utilization_maximum\"],"
          << "\"wrench_source\":"
             "\"physics_solver_impulse_over_explicit_interval\","
          << "\"center_of_pressure_definition\":"
             "\"solver_force_magnitude_weighted_contact_position\","
+         << "\"tangential_displacement_definition\":"
+            "\"bounded_kinematic_target_anchor_motion_proxy\","
+         << "\"friction_utilization_definition\":"
+            "\"tangential_impulse_over_static_friction_capacity\","
          << "\"simulation_translator_required\":false,"
          << "\"real_sensor_input\":"
             "\"camera_to_metric_depth_translator\"}";

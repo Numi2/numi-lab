@@ -41,6 +41,10 @@ struct TactileSensorSpec {
     std::uint32_t height = 0u;
     MRTactileSurfaceKind surfaceKind = MR_TACTILE_SURFACE_FLAT;
     float maximumDepthMeters = 0.0f;
+    // Bound for the contact-relative tangential-motion proxy. Factory
+    // sensors default it to maximumDepthMeters; custom atlases must author a
+    // positive value explicitly.
+    float maximumTangentialDisplacementMeters = 0.0f;
     float activeDepthThresholdMeters = 1.0e-6f;
     float queryEpsilonMeters = 1.0e-6f;
     std::uint32_t updatePeriodSteps = 1u;
@@ -112,6 +116,10 @@ struct TactileObservationSchema {
         "validity_bits",
         "object_shape_id",
         "depth_velocity_m_per_s",
+        "tangential_displacement_u_m",
+        "tangential_displacement_v_m",
+        "surface_velocity_u_m_per_s",
+        "surface_velocity_v_m_per_s",
     };
     std::vector<std::string> summaryChannels{
         "sensor_pose",
@@ -124,6 +132,10 @@ struct TactileObservationSchema {
         "contact_area_m2",
         "maximum_depth_m",
         "mean_depth_m",
+        "tangential_speed_rms_m_per_s",
+        "maximum_tangential_displacement_m",
+        "friction_utilization_force_weighted",
+        "friction_utilization_maximum",
     };
 };
 
@@ -157,8 +169,12 @@ struct TactileObservationBatch {
     double timestampSeconds = 0.0;
     std::vector<float> penetrationDepthMeters;
     std::vector<float> depthVelocityMetersPerSecond;
+    std::vector<MRTactileTangentialMotionGPU> tangentialMotion;
     std::vector<std::uint32_t> validity;
     std::vector<std::uint32_t> objectShapeIds;
+    // Internal deterministic history used by the FP64 reference. It is not a
+    // policy observation and is not included in the observation schema.
+    std::vector<mr_float4> targetLocalContactAnchors;
     std::vector<MRTactileHitGPU> debugHits;
     std::vector<MRTactileSummaryGPU> summaries;
     std::vector<MRTactileStatusGPU> statuses;
@@ -176,6 +192,9 @@ struct TactileCpuFrame {
     std::span<const float> previousDepthMeters;
     std::span<const std::uint32_t> previousValidity;
     std::span<const std::uint32_t> previousObjectShapeIds;
+    std::span<const MRTactileTangentialMotionGPU>
+        previousTangentialMotion;
+    std::span<const mr_float4> previousTargetLocalContactAnchors;
     std::span<const MRTactileHitGPU> previousDebugHits;
     std::span<const std::uint32_t> resetMask;
     // Base simulation/control-step interval. A sensor updated every N frames

@@ -1,5 +1,6 @@
 #include "metalrobo/ArticulatedActuation.hpp"
 #include "metalrobo/G1.hpp"
+#include "metalrobo/MetalWorld.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -311,6 +312,234 @@ int main() {
                 }
             ),
             "floating-root force must stay zero"
+        );
+
+        metalrobo::EngineModel profiledModel = model;
+        profiledModel.actuatorProfiles.resize(
+            profiledModel.world.nv
+        );
+        for (std::uint32_t index = 0u;
+             index < profiledModel.world.nv;
+             ++index) {
+            profiledModel.actuatorProfiles[index].
+                identity.x = index;
+        }
+        MRActuatorProfileGPU& profile =
+            profiledModel.actuatorProfiles[effortDof];
+        require(
+            metalrobo::cookActuatorProfile(
+                {
+                    .jointTorqueConstant = 2.0,
+                    .currentLimit = 10.0,
+                    .noLoadSpeed = 4.0,
+                    .efficiency = 0.8,
+                    .backlash = 0.2,
+                    .commandDelaySeconds = 0.015,
+                },
+                effortDof,
+                profile,
+                &reason
+            ),
+            "actuator profile cooking failed: " + reason
+        );
+        require(
+            profiledModel.valid(&reason),
+            "profiled actuation model is invalid: " + reason
+        );
+        std::vector<double> profiledV = v;
+        profiledV[effortDof] = 2.0;
+        ArticulatedActuationResult profiledResult;
+        const auto profiledDiagnostics =
+            metalrobo::evaluateArticulatedActuation(
+                profiledModel,
+                0u,
+                q,
+                profiledV,
+                commands,
+                profiledResult
+            );
+        require(
+            profiledDiagnostics.succeeded() &&
+            close(
+                profiledResult.actuatorEffort[effortDof],
+                8.0,
+                2.0e-6
+            ),
+            "torque-speed envelope did not apply current, speed, "
+            "and efficiency limits"
+        );
+        profiledV[effortDof] = -2.0;
+        ArticulatedActuationResult symmetricResult;
+        require(
+            metalrobo::evaluateArticulatedActuation(
+                profiledModel,
+                0u,
+                q,
+                profiledV,
+                commands,
+                symmetricResult
+            ).succeeded() &&
+            close(
+                symmetricResult.actuatorEffort[effortDof],
+                8.0,
+                2.0e-6
+            ),
+            "torque-speed envelope is not sign symmetric"
+        );
+        profiledV[effortDof] = 4.0;
+        ArticulatedActuationResult noLoadResult;
+        require(
+            metalrobo::evaluateArticulatedActuation(
+                profiledModel,
+                0u,
+                q,
+                profiledV,
+                commands,
+                noLoadResult
+            ).succeeded() &&
+            noLoadResult.actuatorEffort[effortDof] == 0.0,
+            "actuator produced torque at or above no-load speed"
+        );
+
+        const double backlashForward =
+            metalrobo::updateActuatorBacklashTarget(
+                0.0,
+                1.0,
+                0.2
+            );
+        const double backlashWithinPlay =
+            metalrobo::updateActuatorBacklashTarget(
+                backlashForward,
+                0.95,
+                0.2
+            );
+        const double backlashReverse =
+            metalrobo::updateActuatorBacklashTarget(
+                backlashWithinPlay,
+                0.7,
+                0.2
+            );
+        require(
+            close(backlashForward, 0.9) &&
+            close(backlashWithinPlay, 0.9) &&
+            close(backlashReverse, 0.8) &&
+            close(
+                metalrobo::updateActuatorBacklashTarget(
+                    -backlashForward,
+                    -0.95,
+                    0.2
+                ),
+                -backlashWithinPlay
+            ) &&
+            metalrobo::updateActuatorBacklashTarget(
+                5.0,
+                -2.0,
+                0.0
+            ) == -2.0,
+            "deterministic backlash play or sign symmetry is wrong"
+        );
+
+        metalrobo::CompiledWorld profiledWorld;
+        require(
+            metalrobo::compileMetalWorld(
+                profiledModel,
+                0u,
+                profiledWorld
+            ).succeeded(),
+            "compile profiled Metal actuation world"
+        );
+        const auto runProfiledMetal = [&](
+            const std::uint32_t drivenDof,
+            const float velocity,
+            const float effort
+        ) {
+            std::vector<float> initialV =
+                profiledModel.defaultV;
+            initialV[drivenDof] = velocity;
+            std::vector<float> efforts(
+                profiledWorld.nv(),
+                0.0f
+            );
+            efforts[drivenDof] = effort;
+            metalrobo::MetalWorldBatch batch{
+                .environmentCount = 1u,
+                .controlStepCount = 1u,
+                .initialQ = profiledModel.defaultQ,
+                .initialV = initialV,
+                .efforts = efforts,
+            };
+            metalrobo::MetalWorldStepConfig config;
+            config.timestepSeconds = 1.0e-3f;
+            config.physicsSubsteps = 1u;
+            config.solverMode =
+                metalrobo::MetalWorldSolverMode::
+                    freeMotionABA;
+            config.actuationMode =
+                metalrobo::MetalWorldActuationMode::effort;
+            config.applyBodyDamping = false;
+            config.deterministic = true;
+            metalrobo::MetalWorldContext context;
+            metalrobo::MetalWorldResult result;
+            const auto diagnostics = context.run(
+                profiledWorld,
+                batch,
+                config,
+                result
+            );
+            require(
+                diagnostics.succeeded(),
+                "run profiled Metal actuation"
+            );
+            return result;
+        };
+        const auto metalLimited =
+            runProfiledMetal(effortDof, 2.0f, 1000.0f);
+        const auto metalExpected =
+            runProfiledMetal(effortDof, 2.0f, 8.0f);
+        require(
+            metalLimited.finalQ == metalExpected.finalQ &&
+            metalLimited.finalV == metalExpected.finalV,
+            "native Metal did not apply the cooked torque-speed "
+            "envelope deterministically"
+        );
+        const auto metalNoLoad =
+            runProfiledMetal(effortDof, 4.0f, 1000.0f);
+        const auto metalZero =
+            runProfiledMetal(effortDof, 4.0f, 0.0f);
+        require(
+            metalNoLoad.finalQ == metalZero.finalQ &&
+            metalNoLoad.finalV == metalZero.finalV,
+            "native Metal actuator generated torque at no-load speed"
+        );
+        const std::uint32_t neutralProfileDof =
+            modelPdDof == effortDof
+            ? customPdDof
+            : modelPdDof;
+        require(
+            neutralProfileDof != effortDof &&
+            neutralProfileDof < profiledModel.dofs.size() &&
+            (profiledModel.dofs[neutralProfileDof].flags &
+             MR_DOF_FLAG_EFFORT_LIMIT) != 0u,
+            "actuation probe has no unidentified effort-limited DoF"
+        );
+        const float neutralEffort =
+            0.5f *
+            profiledModel.dofs[neutralProfileDof].limits.w;
+        const auto metalNeutralDriven = runProfiledMetal(
+            neutralProfileDof,
+            0.0f,
+            neutralEffort
+        );
+        const auto metalNeutralZero = runProfiledMetal(
+            neutralProfileDof,
+            0.0f,
+            0.0f
+        );
+        require(
+            metalNeutralDriven.finalQ != metalNeutralZero.finalQ ||
+            metalNeutralDriven.finalV != metalNeutralZero.finalV,
+            "an unidentified actuator profile suppressed the authored "
+            "effort envelope"
         );
 
         metalrobo::EngineModel continuousModel = model;

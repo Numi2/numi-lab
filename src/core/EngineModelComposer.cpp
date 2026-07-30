@@ -668,6 +668,47 @@ EngineModelComposeDiagnostics composeEngineModels(
                 }
                 staged.dofs.push_back(dof);
             }
+            if (!source.actuatorProfiles.empty() &&
+                staged.actuatorProfiles.empty() &&
+                offsets.v != 0u) {
+                staged.actuatorProfiles.resize(offsets.v);
+                for (std::uint32_t index = 0u;
+                     index < offsets.v;
+                     ++index) {
+                    staged.actuatorProfiles[index].identity.x =
+                        index;
+                }
+            }
+            if (!staged.actuatorProfiles.empty() ||
+                !source.actuatorProfiles.empty()) {
+                for (std::uint32_t local = 0u;
+                     local < source.dofs.size();
+                     ++local) {
+                    MRActuatorProfileGPU profile{};
+                    if (!source.actuatorProfiles.empty()) {
+                        profile =
+                            source.actuatorProfiles[local];
+                    } else {
+                        profile.identity.x = local;
+                    }
+                    if (!checkedOffset(
+                            profile.identity.x,
+                            offsets.v,
+                            profile.identity.x
+                        )) {
+                        return fail(
+                            std::move(diagnostics),
+                            EngineModelComposeStatus::
+                                capacityOverflow,
+                            "actuator profile rebase overflow",
+                            componentIndex
+                        );
+                    }
+                    staged.actuatorProfiles.push_back(
+                        profile
+                    );
+                }
+            }
             for (const MRBodyPropertiesGPU& sourceBody :
                  source.bodies) {
                 MRBodyPropertiesGPU body = sourceBody;

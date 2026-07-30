@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <limits>
 #include <numbers>
 #include <ranges>
 #include <utility>
@@ -195,6 +196,125 @@ ArticulatedActuationDiagnostics fail(
 }
 
 } // namespace
+
+bool cookActuatorProfile(
+    const ActuatorProfile& source,
+    const std::uint32_t globalVIndex,
+    MRActuatorProfileGPU& output,
+    std::string* reason
+) {
+    const double stallTorque =
+        source.jointTorqueConstant * source.currentLimit;
+    const bool valid =
+        globalVIndex != MR_INVALID_INDEX &&
+        finite(source.jointTorqueConstant) &&
+        finite(source.currentLimit) &&
+        finite(source.noLoadSpeed) &&
+        finite(source.efficiency) &&
+        finite(source.backlash) &&
+        finite(source.commandDelaySeconds) &&
+        source.jointTorqueConstant > 0.0 &&
+        source.currentLimit > 0.0 &&
+        source.noLoadSpeed > 0.0 &&
+        source.efficiency > 0.0 &&
+        source.efficiency <= 1.0 &&
+        source.backlash >= 0.0 &&
+        source.commandDelaySeconds >= 0.0 &&
+        finite(stallTorque) &&
+        stallTorque > 0.0 &&
+        stallTorque <=
+            std::numeric_limits<float>::max() &&
+        source.jointTorqueConstant <=
+            std::numeric_limits<float>::max() &&
+        source.currentLimit <=
+            std::numeric_limits<float>::max() &&
+        source.noLoadSpeed <=
+            std::numeric_limits<float>::max() &&
+        source.backlash <=
+            std::numeric_limits<float>::max() &&
+        source.commandDelaySeconds <=
+            std::numeric_limits<float>::max();
+    if (!valid) {
+        if (reason != nullptr) {
+            *reason =
+                "actuator profile must contain finite positive motor "
+                "parameters, efficiency in (0,1], and nonnegative "
+                "backlash/delay";
+        }
+        return false;
+    }
+    MRActuatorProfileGPU cooked{};
+    cooked.motorAndSpeed = {
+        static_cast<float>(source.jointTorqueConstant),
+        static_cast<float>(source.currentLimit),
+        static_cast<float>(source.noLoadSpeed),
+        static_cast<float>(source.efficiency),
+    };
+    cooked.transmissionAndEnvelope = {
+        static_cast<float>(source.backlash),
+        static_cast<float>(source.commandDelaySeconds),
+        static_cast<float>(stallTorque),
+        0.0f,
+    };
+    cooked.identity = {
+        globalVIndex,
+        MR_ACTUATOR_PROFILE_ACTIVE |
+            (
+                source.calibrated
+                ? MR_ACTUATOR_PROFILE_CALIBRATED
+                : 0u
+            ),
+        0u,
+        0u,
+    };
+    output = cooked;
+    if (reason != nullptr) {
+        reason->clear();
+    }
+    return true;
+}
+
+double actuatorTorqueEnvelope(
+    const MRActuatorProfileGPU& profile,
+    const double jointVelocity,
+    const double authoredEffortLimit
+) noexcept {
+    const double speedFraction = std::clamp(
+        std::abs(jointVelocity) /
+            std::max(
+                static_cast<double>(
+                    profile.motorAndSpeed.z
+                ),
+                std::numeric_limits<double>::min()
+            ),
+        0.0,
+        1.0
+    );
+    const double motorLimit =
+        static_cast<double>(
+            profile.transmissionAndEnvelope.z
+        ) *
+        profile.motorAndSpeed.w *
+        (1.0 - speedFraction);
+    return std::min(
+        std::max(0.0, authoredEffortLimit),
+        std::max(0.0, motorLimit)
+    );
+}
+
+double updateActuatorBacklashTarget(
+    const double previousEffectiveTarget,
+    const double commandedTarget,
+    const double backlashPlay
+) noexcept {
+    const double halfPlay =
+        0.5 * std::max(0.0, backlashPlay);
+    return std::clamp(
+        previousEffectiveTarget,
+        commandedTarget - halfPlay,
+        commandedTarget + halfPlay
+    );
+}
 
 ArticulatedActuationDiagnostics evaluateArticulatedActuation(
     const EngineModel& model,
@@ -471,8 +591,19 @@ ArticulatedActuationDiagnostics evaluateArticulatedActuation(
             actuator
         );
         if (active) {
-            const double effortLimit =
+            double effortLimit =
                 static_cast<double>(dof.limits.w);
+            if (!model.actuatorProfiles.empty() &&
+                (
+                    model.actuatorProfiles[globalV].identity.y &
+                    MR_ACTUATOR_PROFILE_ACTIVE
+                ) != 0u) {
+                effortLimit = actuatorTorqueEnvelope(
+                    model.actuatorProfiles[globalV],
+                    v[localV],
+                    effortLimit
+                );
+            }
             const double clamped =
                 std::clamp(actuator, -effortLimit, effortLimit);
             if (clamped != actuator) {

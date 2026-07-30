@@ -10,6 +10,7 @@
 #include "metalrobo/SurgicalAssets.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
 #include "metalrobo/SurgicalWorld.hpp"
+#include "metalrobo/WorldPack.hpp"
 
 #include "mlx/allocator.h"
 #include "mlx/backend/metal/device.h"
@@ -94,6 +95,11 @@ enum ImmutableBufferIndex : std::size_t {
     kImmutableAuthoredIRRows = 29u,
     kImmutableAuthoredIRCones = 30u,
     kImmutableAuthoredIRWarmImpulses = 31u,
+    kImmutableConvexFaces = 32u,
+    kImmutableActuatorProfiles = 33u,
+    kImmutableTactileSensors = 34u,
+    kImmutableTactileSamples = 35u,
+    kImmutableTactileTargets = 36u,
 };
 
 enum GeneralizedImmutableBufferIndex : std::size_t {
@@ -491,6 +497,121 @@ std::vector<float> generalizedRhs(
     return result;
 }
 
+struct AuthoredPhysicsBase {
+    std::uint32_t primaryArticulation = MR_INVALID_INDEX;
+    std::vector<MRBodyStateGPU> sceneBodies;
+};
+
+AuthoredPhysicsBase authoredPhysicsBase(
+    const WorldTemplate& worldTemplate
+) {
+    const std::uint32_t robotIndex =
+        worldTemplate.assetIndex(
+            worldTemplate.task.robotAssetId
+        );
+    if (robotIndex == MR_INVALID_INDEX) {
+        throw std::invalid_argument(
+            "authored world pack has no task robot asset"
+        );
+    }
+    const WorldAsset& robot =
+        worldTemplate.assets[robotIndex];
+    if (robot.articulationIndex == MR_INVALID_INDEX ||
+        robot.articulationIndex >=
+            worldTemplate.engineModel.articulations.size()) {
+        throw std::invalid_argument(
+            "authored task robot has no executable articulation"
+        );
+    }
+
+    AuthoredPhysicsBase result;
+    result.primaryArticulation = robot.articulationIndex;
+    std::vector<std::uint32_t> bodyToScene(
+        worldTemplate.engineModel.bodies.size(),
+        MR_INVALID_INDEX
+    );
+    for (std::uint32_t body = 0u;
+         body < worldTemplate.engineModel.bodies.size();
+         ++body) {
+        const MRBodyPropertiesGPU& properties =
+            worldTemplate.engineModel.bodies[body];
+        if (properties.articulationIndex != MR_INVALID_INDEX) {
+            continue;
+        }
+        bodyToScene[body] =
+            static_cast<std::uint32_t>(
+                result.sceneBodies.size()
+            );
+        MRBodyStateGPU state{};
+        state.position.w = 1.0f;
+        state.orientation.w = 1.0f;
+        state.flagsAndIndices[0] = properties.motionType;
+        state.flagsAndIndices[1] = MR_INVALID_INDEX;
+        state.flagsAndIndices[2] = body;
+        result.sceneBodies.push_back(state);
+    }
+    for (const WorldAsset& asset : worldTemplate.assets) {
+        for (const std::uint32_t body : asset.bodyIndices) {
+            if (body >= bodyToScene.size()) {
+                throw std::invalid_argument(
+                    "authored asset body exceeds the engine topology"
+                );
+            }
+            const std::uint32_t scene = bodyToScene[body];
+            if (scene == MR_INVALID_INDEX) {
+                continue;
+            }
+            MRBodyStateGPU& state = result.sceneBodies[scene];
+            state.position = {
+                asset.initialPose.position.x,
+                asset.initialPose.position.y,
+                asset.initialPose.position.z,
+                1.0f,
+            };
+            state.orientation = asset.initialPose.orientation;
+        }
+    }
+    return result;
+}
+
+std::vector<MRActuatorProfileGPU> mlxExecutionActuatorProfiles(
+    const EngineModel& model
+) {
+    std::vector<MRActuatorProfileGPU> profiles =
+        model.actuatorProfiles.empty()
+        ? std::vector<MRActuatorProfileGPU>(model.dofs.size())
+        : model.actuatorProfiles;
+    for (std::size_t index = 0u;
+         index < profiles.size();
+         ++index) {
+        const MRDofPropertiesGPU& dof = model.dofs[index];
+        MRActuatorProfileGPU& profile = profiles[index];
+        if ((profile.identity.y &
+             MR_ACTUATOR_PROFILE_ACTIVE) != 0u) {
+            continue;
+        }
+        profile.motorAndSpeed = {
+            0.0f,
+            0.0f,
+            std::numeric_limits<float>::max(),
+            1.0f,
+        };
+        profile.transmissionAndEnvelope = {};
+        profile.transmissionAndEnvelope.z =
+            (dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
+                dof.limits.w > 0.0f
+            ? dof.limits.w
+            : std::numeric_limits<float>::max();
+        profile.identity = {
+            static_cast<mr_u32>(index),
+            0u,
+            0u,
+            0u,
+        };
+    }
+    return profiles;
+}
+
 } // namespace
 
 struct MetalDeviceTuningProfile {
@@ -614,6 +735,8 @@ MLXCompiledWorld::MLXCompiledWorld(
     const float ccdSimultaneousTolerance,
     const std::uint32_t waveWorkerGroups,
     std::vector<MRBodyStateGPU> defaultSceneBodies,
+    CookedTactileSystem tactile,
+    const std::uint64_t authoredPackHash,
     std::string metallibPath
 )
     : world_(std::move(world)),
@@ -631,6 +754,8 @@ MLXCompiledWorld::MLXCompiledWorld(
       ccdSimultaneousTolerance_(ccdSimultaneousTolerance),
       waveWorkerGroups_(waveWorkerGroups),
       defaultSceneBodies_(std::move(defaultSceneBodies)),
+      tactile_(std::move(tactile)),
+      authoredPackHash_(authoredPackHash),
       metallibPath_(std::move(metallibPath)) {}
 
 MLXCompiledWorld::~MLXCompiledWorld() = default;
@@ -701,6 +826,20 @@ MLXCompiledWorld::defaultSceneBodies() const noexcept {
     return defaultSceneBodies_;
 }
 
+const CookedTactileSystem&
+MLXCompiledWorld::tactile() const noexcept {
+    return tactile_;
+}
+
+bool MLXCompiledWorld::hasTactile() const noexcept {
+    return !tactile_.sensors.empty();
+}
+
+std::uint64_t
+MLXCompiledWorld::authoredPackHash() const noexcept {
+    return authoredPackHash_;
+}
+
 const std::string& MLXCompiledWorld::metallibPath() const noexcept {
     return metallibPath_;
 }
@@ -730,6 +869,82 @@ std::vector<float> MLXCompiledWorld::effortLimits() const {
             dof.limits.w;
     }
     return limits;
+}
+
+std::vector<float>
+MLXCompiledWorld::defaultActuatorTargets() const {
+    const EngineModel& model = world_.model();
+    const MRArticulationGPU& articulation =
+        model.articulations[world_.articulationIndex()];
+    std::vector<float> targets(articulation.nv, 0.0f);
+    for (std::uint32_t local = 0u;
+         local < articulation.nv;
+         ++local) {
+        const MRDofPropertiesGPU& dof =
+            model.dofs[articulation.vOffset + local];
+        if (dof.qIndex != MR_INVALID_INDEX &&
+            dof.qIndex < model.defaultQ.size()) {
+            targets[local] = model.defaultQ[dof.qIndex];
+        }
+    }
+    return targets;
+}
+
+std::vector<float>
+MLXCompiledWorld::actuatorProfileValues() const {
+    const EngineModel& model = world_.model();
+    const MRArticulationGPU& articulation =
+        model.articulations[world_.articulationIndex()];
+    std::vector<float> values(
+        static_cast<std::size_t>(articulation.nv) * 7u,
+        0.0f
+    );
+    const std::vector<MRActuatorProfileGPU> profiles =
+        mlxExecutionActuatorProfiles(model);
+    for (std::uint32_t local = 0u;
+         local < articulation.nv;
+         ++local) {
+        const MRActuatorProfileGPU& profile =
+            profiles[
+                articulation.vOffset + local
+            ];
+        const std::size_t base =
+            static_cast<std::size_t>(local) * 7u;
+        values[base + 0u] = profile.motorAndSpeed.x;
+        values[base + 1u] = profile.motorAndSpeed.y;
+        values[base + 2u] = profile.motorAndSpeed.z;
+        values[base + 3u] = profile.motorAndSpeed.w;
+        values[base + 4u] =
+            profile.transmissionAndEnvelope.x;
+        values[base + 5u] =
+            profile.transmissionAndEnvelope.y;
+        values[base + 6u] =
+            profile.transmissionAndEnvelope.z;
+    }
+    return values;
+}
+
+std::vector<std::uint32_t>
+MLXCompiledWorld::actuatorProfileFlags() const {
+    const EngineModel& model = world_.model();
+    const MRArticulationGPU& articulation =
+        model.articulations[world_.articulationIndex()];
+    std::vector<std::uint32_t> flags(
+        articulation.nv,
+        0u
+    );
+    if (model.actuatorProfiles.empty()) {
+        return flags;
+    }
+    for (std::uint32_t local = 0u;
+         local < articulation.nv;
+         ++local) {
+        flags[local] =
+            model.actuatorProfiles[
+                articulation.vOffset + local
+            ].identity.y;
+    }
+    return flags;
 }
 
 void MLXCompiledWorld::prepareStream(
@@ -773,6 +988,9 @@ MetalResources& MLXCompiledWorld::resources(
     mr_float4 emptyVertex{};
     MRMeshBVHNodeGPU emptyMeshNode{};
     MRMeshTriangleGPU emptyTriangle{};
+    MRConvexFaceGPU emptyConvexFace{};
+    MRTactileSensorGPU emptyTactileSensor{};
+    MRTactileSampleGPU emptyTactileSample{};
     MRWorldDynamicNodeGPU emptyDynamicNode{};
     MRRodColliderGPU emptyRodCollider{};
     MRRodToolPairGPU emptyRodToolPair{};
@@ -790,7 +1008,7 @@ MetalResources& MLXCompiledWorld::resources(
         staged->tuning.waveWorkerGroupCount =
             waveWorkerGroups_;
     }
-    staged->buffers.reserve(32u);
+    staged->buffers.reserve(hasTactile() ? 37u : 34u);
     staged->buffers.push_back(
         immutableBuffer(&worldRecord, 1u)
     );
@@ -1102,6 +1320,51 @@ MetalResources& MLXCompiledWorld::resources(
             1u
         )
     ));
+    staged->buffers.push_back(immutableBuffer(
+        model.convexFaces.empty()
+            ? &emptyConvexFace
+            : model.convexFaces.data(),
+        std::max<std::size_t>(
+            model.convexFaces.size(),
+            1u
+        )
+    ));
+    const std::vector<MRActuatorProfileGPU>
+        actuatorProfiles =
+            mlxExecutionActuatorProfiles(model);
+    staged->buffers.push_back(immutableBuffer(
+        actuatorProfiles.data(),
+        actuatorProfiles.size()
+    ));
+    if (hasTactile()) {
+        staged->buffers.push_back(immutableBuffer(
+            tactile_.sensors.empty()
+                ? &emptyTactileSensor
+                : tactile_.sensors.data(),
+            std::max<std::size_t>(
+                tactile_.sensors.size(),
+                1u
+            )
+        ));
+        staged->buffers.push_back(immutableBuffer(
+            tactile_.samples.empty()
+                ? &emptyTactileSample
+                : tactile_.samples.data(),
+            std::max<std::size_t>(
+                tactile_.samples.size(),
+                1u
+            )
+        ));
+        staged->buffers.push_back(immutableBuffer(
+            tactile_.targetShapeIndices.empty()
+                ? &emptyIndex
+                : tactile_.targetShapeIndices.data(),
+            std::max<std::size_t>(
+                tactile_.targetShapeIndices.size(),
+                1u
+            )
+        ));
+    }
 
     auto* physicsLibrary =
         device.get_library("MetalRobo", metallibPath_);
@@ -1126,8 +1389,9 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_mlx_world_commit_aba",
         adapterLibrary
     );
-    const std::vector<std::string> physicsKernels{
+    std::vector<std::string> physicsKernels{
         "mr_articulated_operator",
+        "mr_articulated_materialize_body_velocities",
         "mr_metal_world_commit",
         "mr_world_prepare_contact_step",
         "mr_world_build_body_states",
@@ -1211,13 +1475,37 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_world_latch_contact_status",
         "mr_world_commit_contact_state",
     };
+    if (hasTactile()) {
+        physicsKernels.insert(
+            physicsKernels.end(),
+            {
+                "mr_tactile_reduce",
+            }
+        );
+    }
     for (const std::string& name : physicsKernels) {
         staged->kernels.emplace(
             name,
             device.get_kernel(name, physicsLibrary)
         );
     }
-    const std::vector<std::string> adapterKernels{
+    if (hasTactile()) {
+        const bool debugHits = false;
+        staged->kernels.emplace(
+            "mr_tactile_sample",
+            device.get_kernel(
+                "mr_tactile_sample",
+                physicsLibrary,
+                "mr_tactile_sample_nondebug",
+                {{
+                    &debugHits,
+                    MTL::DataTypeBool,
+                    0u,
+                }}
+            )
+        );
+    }
+    std::vector<std::string> adapterKernels{
         "mr_mlx_import_world_family_state",
         "mr_mlx_prepare_contact_world",
         "mr_mlx_commit_pair_cache",
@@ -1228,6 +1516,16 @@ MetalResources& MLXCompiledWorld::resources(
         "mr_mlx_pack_scene_state",
         "mr_mlx_unpack_scene_and_evidence",
     };
+    if (hasTactile()) {
+        adapterKernels.insert(
+            adapterKernels.end(),
+            {
+                "mr_mlx_pack_tactile_contacts",
+                "mr_mlx_unpack_tactile_summary",
+                "mr_mlx_publish_object_contact_points",
+            }
+        );
+    }
     for (const std::string& name : adapterKernels) {
         staged->kernels.emplace(
             name,
@@ -2233,6 +2531,204 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         ccdSimultaneousTolerance,
         waveWorkerGroups,
         std::move(defaultSceneBodies),
+        CookedTactileSystem{},
+        0u,
+        std::move(metallibPath)
+    );
+    world->prepareStream(stream);
+    return world;
+}
+
+std::shared_ptr<MLXCompiledWorld> compileWorldPack(
+    const std::string& path,
+    const std::uint32_t environmentCapacity,
+    MetalWorldCapacityProfile capacityProfile,
+    float controlTimestep,
+    const std::uint32_t physicsSubsteps,
+    const bool applyBodyDamping,
+    const std::string& requestedActuationMode,
+    const std::string& requestedSolverMode,
+    const std::uint32_t velocityIterations,
+    const std::uint32_t finalVelocityIterations,
+    const std::string& requestedCCDMode,
+    const std::uint32_t maxCCDAdvanceSolvePasses,
+    const std::uint32_t maxCCDZeroTimeReplays,
+    const float ccdSimultaneousTolerance,
+    const std::uint32_t waveWorkerGroups,
+    const std::string& requestedMetallibPath,
+    mx::StreamOrDevice stream
+) {
+    if (path.empty() || environmentCapacity == 0u ||
+        physicsSubsteps == 0u || physicsSubsteps > 128u ||
+        velocityIterations == 0u ||
+        velocityIterations > 128u ||
+        finalVelocityIterations > 128u ||
+        maxCCDAdvanceSolvePasses == 0u ||
+        maxCCDAdvanceSolvePasses >
+            MR_CCD_MAX_ADVANCE_SOLVE_PASSES ||
+        maxCCDZeroTimeReplays >
+            MR_CCD_MAX_ZERO_TIME_REPLAYS ||
+        !std::isfinite(ccdSimultaneousTolerance) ||
+        !(ccdSimultaneousTolerance > 0.0f) ||
+        (waveWorkerGroups != 0u &&
+         waveWorkerGroups != 32u &&
+         waveWorkerGroups != 64u &&
+         waveWorkerGroups != 96u &&
+         waveWorkerGroups != 128u)) {
+        throw std::invalid_argument(
+            "authored world compile options are invalid"
+        );
+    }
+
+    MRWorldPack pack;
+    const WorldPackResult loaded = readWorldPack(path, pack);
+    if (!loaded.succeeded()) {
+        throw std::invalid_argument(
+            "authored world-pack load failed [" +
+            std::string(worldPackStatusName(loaded.status)) +
+            "]: " + loaded.message
+        );
+    }
+    const WorldTemplate& authored = pack.family.worldTemplate;
+    std::string reason;
+    if (!authored.valid(&reason)) {
+        throw std::invalid_argument(
+            "authored world pack is incomplete: " + reason
+        );
+    }
+    const AuthoredPhysicsBase base =
+        authoredPhysicsBase(authored);
+    if (controlTimestep == 0.0f) {
+        controlTimestep =
+            static_cast<float>(
+                authored.task.controlPeriodSeconds
+            );
+    }
+    if (!std::isfinite(controlTimestep) ||
+        !(controlTimestep > 0.0f)) {
+        throw std::invalid_argument(
+            "control_timestep must be positive, or zero to use "
+            "the authored task control period"
+        );
+    }
+
+    MetalWorldActuationMode actuationMode;
+    if (requestedActuationMode == "effort") {
+        actuationMode = MetalWorldActuationMode::effort;
+    } else if (requestedActuationMode == "implicit_position") {
+        actuationMode =
+            MetalWorldActuationMode::implicitPositionDrive;
+    } else {
+        throw std::invalid_argument(
+            "actuation_mode must be 'effort' or "
+            "'implicit_position'"
+        );
+    }
+    MetalWorldSolverMode solverMode;
+    if (requestedSolverMode == "free_motion_aba") {
+        solverMode = MetalWorldSolverMode::freeMotionABA;
+    } else if (requestedSolverMode == "throughput_pgs") {
+        solverMode = MetalWorldSolverMode::throughputPGS;
+    } else if (requestedSolverMode == "throughput_tgs") {
+        solverMode = MetalWorldSolverMode::throughputTGS;
+    } else if (requestedSolverMode == "quality_newton") {
+        solverMode = MetalWorldSolverMode::qualityNewton;
+    } else {
+        throw std::invalid_argument(
+            "solver_mode must be 'free_motion_aba', "
+            "'throughput_pgs', 'throughput_tgs', or "
+            "'quality_newton'"
+        );
+    }
+    MetalWorldCCDMode ccdMode;
+    if (requestedCCDMode == "disabled") {
+        ccdMode = MetalWorldCCDMode::disabled;
+    } else if (requestedCCDMode == "speculative") {
+        ccdMode = MetalWorldCCDMode::speculative;
+    } else if (requestedCCDMode == "hybrid") {
+        ccdMode = MetalWorldCCDMode::hybrid;
+    } else {
+        throw std::invalid_argument(
+            "ccd_mode must be 'disabled', 'speculative', or 'hybrid'"
+        );
+    }
+    if (solverMode == MetalWorldSolverMode::freeMotionABA &&
+        (!base.sceneBodies.empty() ||
+         !authored.tactileSystem.sensors.empty())) {
+        throw std::invalid_argument(
+            "authored scene bodies and tactile sensors require a "
+            "contact-capable solver"
+        );
+    }
+    if (!authored.tactileSystem.sensors.empty() &&
+        base.sceneBodies.empty()) {
+        throw std::invalid_argument(
+            "authored tactile world has no explicit scene body"
+        );
+    }
+    if (solverMode == MetalWorldSolverMode::qualityNewton &&
+        ccdMode == MetalWorldCCDMode::hybrid) {
+        throw std::invalid_argument(
+            "quality_newton requires disabled or speculative CCD"
+        );
+    }
+
+    CompiledWorld compiled;
+    const MetalWorldCompileDiagnostics diagnostics =
+        compileMetalWorld(
+            authored.engineModel,
+            base.primaryArticulation,
+            compiled,
+            capacityProfile
+        );
+    if (!diagnostics.succeeded()) {
+        throw std::runtime_error(
+            "could not compile authored MLX world: " +
+            diagnostics.message
+        );
+    }
+    const std::size_t qualityNv =
+        static_cast<std::size_t>(compiled.nv()) +
+        6u * compiled.sceneBodyCount() +
+        3u * compiled.rodNodeCount() +
+        compiled.rodEdgeCount();
+    if (solverMode == MetalWorldSolverMode::qualityNewton &&
+        qualityNv >
+            MR_UNIFIED_QUALITY_MAX_GENERALIZED_VELOCITIES) {
+        throw std::invalid_argument(
+            "quality_newton exceeds the compiled generalized "
+            "velocity bucket"
+        );
+    }
+
+    std::string metallibPath = requestedMetallibPath;
+    if (metallibPath.empty()) {
+        metallibPath = METALROBO_DEFAULT_METALLIB;
+    }
+    if (metallibPath.empty() ||
+        !std::filesystem::is_regular_file(metallibPath)) {
+        throw std::invalid_argument(
+            "MetalRobo.metallib was not found; pass metallib_path"
+        );
+    }
+    auto world = std::make_shared<MLXCompiledWorld>(
+        std::move(compiled),
+        controlTimestep,
+        physicsSubsteps,
+        applyBodyDamping,
+        environmentCapacity,
+        actuationMode,
+        solverMode,
+        velocityIterations,
+        finalVelocityIterations,
+        ccdMode,
+        maxCCDAdvanceSolvePasses,
+        maxCCDZeroTimeReplays,
+        ccdSimultaneousTolerance,
+        waveWorkerGroups,
+        base.sceneBodies,
+        authored.tactileSystem,
+        pack.contentHash,
         std::move(metallibPath)
     );
     world->prepareStream(stream);
@@ -2507,6 +3003,15 @@ std::vector<mx::array> worldStep(
     const mx::array& rodWitnessCache,
     const mx::array& bodyParameters,
     const mx::array& controllerParameters,
+    const mx::array& tactilePreviousDepth,
+    const mx::array& tactilePreviousValidity,
+    const mx::array& tactilePreviousObject,
+    const mx::array& tactilePreviousMotion,
+    const mx::array& tactileTargetAnchor,
+    const mx::array& tactileFrameIndex,
+    const mx::array& tactileTimestamp,
+    const mx::array& resetMask,
+    const mx::array& actuatorProfileValues,
     mx::StreamOrDevice stream
 ) {
     if (world == nullptr ||
@@ -2622,6 +3127,43 @@ std::vector<mx::array> worldStep(
         ),
         4,
     };
+    const auto tactileSamples = static_cast<mx::ShapeElem>(
+        world->tactile().samples.size()
+    );
+    const auto tactileSensors = static_cast<mx::ShapeElem>(
+        world->tactile().sensors.size()
+    );
+    const mx::Shape tactileDenseShape{
+        environments,
+        tactileSamples,
+    };
+    const mx::Shape tactileMotionShape{
+        environments,
+        tactileSamples,
+        4,
+    };
+    const mx::Shape tactileClockShape =
+        world->hasTactile()
+        ? mx::Shape{environments}
+        : mx::Shape{environments, 0};
+    const mx::Shape tactileSummaryShape{
+        environments,
+        tactileSensors,
+        4,
+    };
+    const mx::Shape actuatorProfileShape{
+        environments,
+        static_cast<mx::ShapeElem>(world->world().nv()),
+        7,
+    };
+    const mx::Shape tactileStatusShape{
+        environments,
+        tactileSensors,
+        static_cast<mx::ShapeElem>(
+            sizeof(MRTactileStatusGPU) /
+            sizeof(std::uint32_t)
+        ),
+    };
     validateInput(q, qShape, "q");
     validateInput(v, vShape, "v");
     validateInput(effort, vShape, "actions");
@@ -2689,6 +3231,49 @@ std::vector<mx::array> worldStep(
         controllerShape,
         "controller_parameters"
     );
+    validateInput(
+        tactilePreviousDepth,
+        tactileDenseShape,
+        "tactile_previous_depth"
+    );
+    validateInput(
+        tactilePreviousMotion,
+        tactileMotionShape,
+        "tactile_previous_motion"
+    );
+    validateInput(
+        tactileTargetAnchor,
+        tactileMotionShape,
+        "tactile_target_anchor"
+    );
+    validateInput(
+        tactileTimestamp,
+        tactileClockShape,
+        "tactile_timestamp"
+    );
+    validateU32(
+        tactilePreviousValidity,
+        tactileDenseShape,
+        "tactile_previous_validity"
+    );
+    validateU32(
+        tactilePreviousObject,
+        tactileDenseShape,
+        "tactile_previous_object"
+    );
+    validateU32(resetMask, countShape, "reset_mask");
+    validateInput(
+        actuatorProfileValues,
+        actuatorProfileShape,
+        "actuator_profile_values"
+    );
+    if (tactileFrameIndex.dtype() != mx::uint64 ||
+        tactileFrameIndex.shape() != tactileClockShape) {
+        throw std::invalid_argument(
+            "tactile_frame_index must be a uint64 MLX array "
+            "with the compiled shape"
+        );
+    }
 
     const auto selectedStream = mx::to_stream(stream);
     std::vector<mx::array> inputs{
@@ -2715,6 +3300,47 @@ std::vector<mx::array> worldStep(
         mx::contiguous(bodyParameters, false, selectedStream),
         mx::contiguous(
             controllerParameters,
+            false,
+            selectedStream
+        ),
+        mx::contiguous(
+            tactilePreviousDepth,
+            false,
+            selectedStream
+        ),
+        mx::contiguous(
+            tactilePreviousValidity,
+            false,
+            selectedStream
+        ),
+        mx::contiguous(
+            tactilePreviousObject,
+            false,
+            selectedStream
+        ),
+        mx::contiguous(
+            tactilePreviousMotion,
+            false,
+            selectedStream
+        ),
+        mx::contiguous(
+            tactileTargetAnchor,
+            false,
+            selectedStream
+        ),
+        mx::contiguous(
+            tactileFrameIndex,
+            false,
+            selectedStream
+        ),
+        mx::contiguous(
+            tactileTimestamp,
+            false,
+            selectedStream
+        ),
+        mx::contiguous(resetMask, false, selectedStream),
+        mx::contiguous(
+            actuatorProfileValues,
             false,
             selectedStream
         ),
@@ -2758,6 +3384,26 @@ std::vector<mx::array> worldStep(
             },
             countShape,
             {environments, contacts},
+            tactileDenseShape,
+            tactileDenseShape,
+            tactileMotionShape,
+            tactileDenseShape,
+            tactileDenseShape,
+            tactileMotionShape,
+            tactileSummaryShape,
+            tactileSummaryShape,
+            tactileSummaryShape,
+            tactileSummaryShape,
+            tactileSummaryShape,
+            tactileSummaryShape,
+            tactileSummaryShape,
+            tactileSummaryShape,
+            tactileSummaryShape,
+            tactileSummaryShape,
+            tactileStatusShape,
+            tactileMotionShape,
+            tactileMotionShape,
+            tactileDenseShape,
         },
         {
             mx::float32,
@@ -2780,6 +3426,26 @@ std::vector<mx::array> worldStep(
             mx::float32,
             mx::uint32,
             mx::uint32,
+            mx::uint32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::uint32,
+            mx::uint32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::float32,
+            mx::uint32,
+            mx::uint32,
+            mx::float32,
+            mx::float32,
             mx::uint32,
         },
         primitive,
@@ -3583,7 +4249,7 @@ void WorldStepPrimitive::eval_gpu(
     const std::vector<mx::array>& inputs,
     std::vector<mx::array>& outputs
 ) {
-    if (inputs.size() != 18u || outputs.size() != 21u) {
+    if (inputs.size() != 27u || outputs.size() != 41u) {
         throw std::runtime_error(
             "MetalRobo contact primitive received an invalid graph"
         );
@@ -4490,6 +5156,35 @@ void WorldStepPrimitive::eval_gpu(
                 qualityMode ? environments : 1u
             );
 
+    // Tactile temporaries exist only for authored tactile worlds. The
+    // tactile-free graph aliases already-retained arrays and never reaches
+    // the corresponding dispatch block below.
+    mx::array tactileContacts = contacts;
+    mx::array tactileContactCounts = manifoldCountsA;
+    mx::array tactileHits = contactMetadata;
+    mx::array tactileSummaries = contactMetadata;
+    if (world_->hasTactile()) {
+        tactileContacts =
+            rawRecords.template operator()<MRTactileContactGPU>(
+                static_cast<std::size_t>(environments) *
+                constraintCapacity
+            );
+        tactileContactCounts =
+            rawRecords.template operator()<std::uint32_t>(
+                environments
+            );
+        tactileHits =
+            rawRecords.template operator()<MRTactileHitGPU>(
+                static_cast<std::size_t>(environments) *
+                world_->tactile().samples.size()
+            );
+        tactileSummaries =
+            rawRecords.template operator()<MRTactileSummaryGPU>(
+                static_cast<std::size_t>(environments) *
+                world_->tactile().sensors.size()
+            );
+    }
+
     encoder.add_temporaries(std::move(retainedTemporaries));
 
     MRMetalWorldDispatchGPU worldDispatch{};
@@ -5101,6 +5796,7 @@ void WorldStepPrimitive::eval_gpu(
     immutable(kImmutableDofs, 13);
     inputArray(inputs[17], 14);
     outputArray(resetMasks, 15);
+    inputArray(inputs[26], 16);
     dispatchThreads(
         environments,
         resources.kernel("mr_mlx_prepare_contact_world")
@@ -7705,6 +8401,234 @@ void WorldStepPrimitive::eval_gpu(
         std::max<std::size_t>(pairFlagCount, 1u),
         resources.kernel("mr_mlx_commit_pair_cache")
     );
+
+    if (world_->hasTactile()) {
+        // Re-materialize the committed state. The contact loop's body arena
+        // may describe an intermediate microstep and articulation entries do
+        // not carry generalized velocities, both of which would corrupt the
+        // physical meaning of surface-relative motion.
+        encodeAllArticulationKinematics(*sourceQ, bodyPoses);
+        setPhysicsKernel("mr_world_build_body_states");
+        encoder.set_bytes(contactDispatch, 0);
+        immutable(kImmutableArticulations, 1);
+        immutable(kImmutableBodies, 2);
+        immutable(kImmutableSceneBodyIndices, 3);
+        inputArray(bodyPoses, 4);
+        inputArray(operatorStatuses, 5);
+        inputArray(*sourceScene, 6);
+        outputArray(currentBodies, 7);
+        outputArray(outputs[16], 8);
+        dispatchThreads(
+            environments,
+            resources.kernel("mr_world_build_body_states")
+        );
+
+        setPhysicsKernel(
+            "mr_articulated_materialize_body_velocities"
+        );
+        for (std::uint32_t owner = 0u;
+             owner < articulationCount;
+             ++owner) {
+            const MRArticulationGPU& owned =
+                model.articulations[owner];
+            immutable(kImmutableWorld, 0);
+            immutable(kImmutableArticulations, 1);
+            immutable(kImmutableJoints, 2);
+            immutable(kImmutableDofs, 3);
+            immutable(kImmutableBodies, 4);
+            inputArray(
+                kinematicsDispatches,
+                5,
+                owner *
+                    sizeof(MRArticulatedOperatorDispatchGPU)
+            );
+            inputArray(
+                *sourceQ,
+                6,
+                owned.qOffset * sizeof(float)
+            );
+            inputArray(
+                *sourceV,
+                7,
+                owned.vOffset * sizeof(float)
+            );
+            outputArray(
+                currentBodies,
+                8,
+                owned.firstBody * sizeof(MRBodyStateGPU)
+            );
+            outputArray(
+                operatorStatuses,
+                9,
+                owner * environments *
+                    sizeof(MRArticulatedOperatorStatusGPU)
+            );
+            encoder.dispatch_threadgroups(
+                MTL::Size(environments, 1u, 1u),
+                MTL::Size(kOperatorThreads, 1u, 1u)
+            );
+        }
+        encoder.barrier();
+
+        MRTactileDispatchGPU tactileDispatch{};
+        tactileDispatch.counts = {
+            environments,
+            bodyCount,
+            static_cast<std::uint32_t>(
+                world_->tactile().sensors.size()
+            ),
+            static_cast<std::uint32_t>(
+                world_->tactile().samples.size()
+            ),
+        };
+        tactileDispatch.geometryCounts = {
+            shapeCount,
+            static_cast<std::uint32_t>(
+                model.geometryHeaders.size()
+            ),
+            static_cast<std::uint32_t>(
+                model.geometryVertices.size()
+            ),
+            static_cast<std::uint32_t>(
+                model.convexFaces.size()
+            ),
+        };
+        tactileDispatch.queryCounts = {
+            static_cast<std::uint32_t>(
+                model.meshBvhNodes.size()
+            ),
+            static_cast<std::uint32_t>(
+                model.meshTriangles.size()
+            ),
+            static_cast<std::uint32_t>(
+                world_->tactile().targetShapeIndices.size()
+            ),
+            constraintCapacity,
+        };
+        tactileDispatch.frameAndAbi = {
+            0u,
+            0u,
+            MR_TACTILE_ABI_VERSION,
+            0u,
+        };
+        tactileDispatch.timing = {
+            world_->controlTimestep(),
+            1.0f / world_->controlTimestep(),
+            0.0f,
+            static_cast<float>(world_->physicsSubsteps()) /
+                world_->controlTimestep(),
+        };
+
+        setPhysicsKernel("mr_mlx_pack_tactile_contacts");
+        encoder.set_bytes(adapterDispatch, 0);
+        encoder.set_bytes(tactileDispatch, 1);
+        immutable(kImmutableShapes, 2);
+        inputArray(currentBodies, 3);
+        inputArray(*sourceHeaders, 4);
+        inputArray(contacts, 5);
+        inputArray(contactMetadata, 6);
+        inputArray(outputs[16], 7);
+        outputArray(tactileContacts, 8);
+        outputArray(tactileContactCounts, 9);
+        dispatchThreads(
+            environments,
+            resources.kernel("mr_mlx_pack_tactile_contacts")
+        );
+
+        setPhysicsKernel("mr_tactile_sample");
+        encoder.set_bytes(tactileDispatch, 0);
+        immutable(kImmutableTactileSensors, 1);
+        immutable(kImmutableTactileSamples, 2);
+        immutable(kImmutableTactileTargets, 3);
+        immutable(kImmutableShapes, 4);
+        immutable(kImmutableGeometryHeaders, 5);
+        immutable(kImmutableGeometryVertices, 6);
+        immutable(kImmutableConvexFaces, 7);
+        immutable(kImmutableMeshNodes, 8);
+        immutable(kImmutableMeshTriangles, 9);
+        inputArray(currentBodies, 10);
+        inputArray(inputs[25], 11);
+        inputArray(inputs[18], 12);
+        inputArray(inputs[19], 13);
+        inputArray(inputs[20], 14);
+        inputArray(tactileHits, 15);
+        inputArray(inputs[21], 16);
+        inputArray(inputs[22], 17);
+        outputArray(outputs[21], 18);
+        outputArray(outputs[22], 19);
+        outputArray(outputs[23], 20);
+        outputArray(outputs[26], 21);
+        outputArray(outputs[24], 22);
+        outputArray(outputs[25], 23);
+        outputArray(tactileHits, 24);
+        inputArray(inputs[23], 25);
+        dispatchThreads(
+            static_cast<std::size_t>(environments) *
+                world_->tactile().samples.size(),
+            resources.kernel("mr_tactile_sample")
+        );
+
+        setPhysicsKernel("mr_tactile_reduce");
+        encoder.set_bytes(tactileDispatch, 0);
+        immutable(kImmutableTactileSensors, 1);
+        immutable(kImmutableTactileSamples, 2);
+        inputArray(currentBodies, 3);
+        inputArray(tactileContacts, 4);
+        inputArray(tactileContactCounts, 5);
+        inputArray(inputs[25], 6);
+        inputArray(outputs[21], 7);
+        inputArray(outputs[24], 8);
+        inputArray(outputs[25], 9);
+        inputArray(outputs[23], 10);
+        outputArray(tactileSummaries, 11);
+        outputArray(outputs[37], 12);
+        inputArray(inputs[23], 13);
+        dispatchThreads(
+            static_cast<std::size_t>(environments) *
+                world_->tactile().sensors.size(),
+            resources.kernel("mr_tactile_reduce")
+        );
+
+        setPhysicsKernel("mr_mlx_unpack_tactile_summary");
+        encoder.set_bytes(tactileDispatch, 0);
+        inputArray(tactileSummaries, 1);
+        inputArray(inputs[24], 2);
+        outputArray(outputs[27], 3);
+        outputArray(outputs[28], 4);
+        outputArray(outputs[29], 5);
+        outputArray(outputs[30], 6);
+        outputArray(outputs[31], 7);
+        outputArray(outputs[32], 8);
+        outputArray(outputs[33], 9);
+        outputArray(outputs[34], 10);
+        outputArray(outputs[35], 11);
+        outputArray(outputs[36], 12);
+        dispatchThreads(
+            static_cast<std::size_t>(environments) *
+                world_->tactile().sensors.size(),
+            resources.kernel(
+                "mr_mlx_unpack_tactile_summary"
+            )
+        );
+
+        setPhysicsKernel(
+            "mr_mlx_publish_object_contact_points"
+        );
+        encoder.set_bytes(tactileDispatch, 0);
+        inputArray(tactileHits, 1);
+        immutable(kImmutableShapes, 2);
+        inputArray(currentBodies, 3);
+        outputArray(outputs[38], 4);
+        outputArray(outputs[39], 5);
+        outputArray(outputs[40], 6);
+        dispatchThreads(
+            static_cast<std::size_t>(environments) *
+                world_->tactile().samples.size(),
+            resources.kernel(
+                "mr_mlx_publish_object_contact_points"
+            )
+        );
+    }
 
     setPhysicsKernel("mr_mlx_unpack_scene_and_evidence");
     encoder.set_bytes(adapterDispatch, 0);

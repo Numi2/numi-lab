@@ -15,12 +15,14 @@ from metalrobo.mlx_manipulation import (
 )
 from metalrobo.mlx_teacher import privileged_franka_teacher_action
 from metalrobo.mlx_world import (
+    ActuatorState,
     ContactEvidence,
     RodState,
     SampledWorldFamilyState,
     ScenarioState,
     SceneBodyState,
     SolverCache,
+    TactileState,
     WorldPhysicalParameters,
     WorldState,
 )
@@ -60,6 +62,8 @@ def _with_scene(
             ),
             rods=sampled.world.rods,
             solver_cache=sampled.world.solver_cache,
+            tactile=sampled.world.tactile,
+            actuators=sampled.world.actuators,
         ),
         scenarios=sampled.scenarios,
         parameters=sampled.parameters,
@@ -147,6 +151,42 @@ def _sampled_state() -> SampledWorldFamilyState:
                 twist_rate=empty_float,
             ),
             solver_cache=SolverCache(**solver_values),
+            tactile=TactileState(
+                previous_depth_m=empty_float,
+                previous_validity=mx.zeros(
+                    (1, 0),
+                    dtype=mx.uint32,
+                ),
+                previous_object_shape_ids=mx.zeros(
+                    (1, 0),
+                    dtype=mx.uint32,
+                ),
+                previous_tangential_motion=empty_float4,
+                target_local_anchor=empty_float4,
+                frame_index=mx.zeros(
+                    (1, 0),
+                    dtype=mx.uint64,
+                ),
+                time_seconds=empty_float,
+            ),
+            actuators=ActuatorState(
+                effective_position_target=q,
+                profile_values=mx.broadcast_to(
+                    mx.array(
+                        [
+                            0.0,
+                            0.0,
+                            float(mx.finfo(mx.float32).max),
+                            1.0,
+                            0.0,
+                            0.0,
+                            float(mx.finfo(mx.float32).max),
+                        ],
+                        dtype=mx.float32,
+                    ).reshape((1, 1, 7)),
+                    (1, int(q.shape[1]), 7),
+                ),
+            ),
         ),
         scenarios=ScenarioState(
             headers=mx.zeros((1, 3, 4), dtype=mx.uint32),

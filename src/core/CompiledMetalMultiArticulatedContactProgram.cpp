@@ -72,6 +72,10 @@ std::uint64_t fingerprint(
     );
     hash = hashSpan<MRJointDescriptorGPU>(hash, model.joints);
     hash = hashSpan<MRDofPropertiesGPU>(hash, model.dofs);
+    hash = hashSpan<MRActuatorProfileGPU>(
+        hash,
+        model.actuatorProfiles
+    );
     hash = hashSpan<MRBodyPropertiesGPU>(hash, model.bodies);
     hash = hashSpan<float>(hash, model.defaultQ);
     hash = hashSpan<float>(hash, model.defaultV);

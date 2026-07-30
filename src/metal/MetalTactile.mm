@@ -264,9 +264,12 @@ struct MetalTactileBuffers {
     __strong id<MTLBuffer> hostContacts = nil;
     __strong id<MTLBuffer> hostContactCounts = nil;
     __strong id<MTLBuffer> hostResetMask = nil;
+    __strong id<MTLBuffer> hostFrameIndices = nil;
 
     __strong id<MTLBuffer> depth = nil;
     __strong id<MTLBuffer> depthVelocity = nil;
+    __strong id<MTLBuffer> tangentialMotion = nil;
+    __strong id<MTLBuffer> targetLocalAnchor = nil;
     __strong id<MTLBuffer> validity = nil;
     __strong id<MTLBuffer> objectShape = nil;
     __strong id<MTLBuffer> hits = nil;
@@ -277,9 +280,12 @@ struct MetalTactileBuffers {
     __strong id<MTLBuffer> previousValidity = nil;
     __strong id<MTLBuffer> previousObject = nil;
     __strong id<MTLBuffer> previousHits = nil;
+    __strong id<MTLBuffer> previousTangentialMotion = nil;
+    __strong id<MTLBuffer> previousTargetLocalAnchor = nil;
 
     __strong id<MTLBuffer> readbackDepth = nil;
     __strong id<MTLBuffer> readbackDepthVelocity = nil;
+    __strong id<MTLBuffer> readbackTangentialMotion = nil;
     __strong id<MTLBuffer> readbackValidity = nil;
     __strong id<MTLBuffer> readbackObject = nil;
     __strong id<MTLBuffer> readbackHits = nil;
@@ -434,6 +440,14 @@ MetalTactileDiagnostics encodeLocked(
     id<MTLBuffer> resetMask = frame.resetMask == nullptr
         ? state.buffers.hostResetMask
         : (__bridge id<MTLBuffer>)frame.resetMask;
+    auto* frameIndices = static_cast<std::uint64_t*>(
+        state.buffers.hostFrameIndices.contents
+    );
+    std::fill_n(
+        frameIndices,
+        frame.environmentCount,
+        frame.frameIndex
+    );
     std::size_t requiredBodyBytes = 0u;
     std::size_t requiredContactBytes = 0u;
     std::size_t requiredCountBytes = 0u;
@@ -503,15 +517,30 @@ MetalTactileDiagnostics encodeLocked(
     [encoder setBuffer:state.buffers.previousHits
                  offset:0u
                 atIndex:15u];
-    [encoder setBuffer:state.buffers.depth offset:0u atIndex:16u];
-    [encoder setBuffer:state.buffers.depthVelocity
+    [encoder setBuffer:state.buffers.previousTangentialMotion
+                 offset:0u
+                atIndex:16u];
+    [encoder setBuffer:state.buffers.previousTargetLocalAnchor
                  offset:0u
                 atIndex:17u];
-    [encoder setBuffer:state.buffers.validity offset:0u atIndex:18u];
-    [encoder setBuffer:state.buffers.objectShape
+    [encoder setBuffer:state.buffers.depth offset:0u atIndex:18u];
+    [encoder setBuffer:state.buffers.depthVelocity
                  offset:0u
                 atIndex:19u];
-    [encoder setBuffer:state.buffers.hits offset:0u atIndex:20u];
+    [encoder setBuffer:state.buffers.tangentialMotion
+                 offset:0u
+                atIndex:20u];
+    [encoder setBuffer:state.buffers.targetLocalAnchor
+                 offset:0u
+                atIndex:21u];
+    [encoder setBuffer:state.buffers.validity offset:0u atIndex:22u];
+    [encoder setBuffer:state.buffers.objectShape
+                 offset:0u
+                atIndex:23u];
+    [encoder setBuffer:state.buffers.hits offset:0u atIndex:24u];
+    [encoder setBuffer:state.buffers.hostFrameIndices
+                 offset:0u
+                atIndex:25u];
     dispatch1D(
         encoder,
         state.samplePipeline,
@@ -533,8 +562,14 @@ MetalTactileDiagnostics encodeLocked(
     [encoder setBuffer:state.buffers.depth offset:0u atIndex:7u];
     [encoder setBuffer:state.buffers.validity offset:0u atIndex:8u];
     [encoder setBuffer:state.buffers.objectShape offset:0u atIndex:9u];
-    [encoder setBuffer:state.buffers.summaries offset:0u atIndex:10u];
-    [encoder setBuffer:state.buffers.statuses offset:0u atIndex:11u];
+    [encoder setBuffer:state.buffers.tangentialMotion
+                 offset:0u
+                atIndex:10u];
+    [encoder setBuffer:state.buffers.summaries offset:0u atIndex:11u];
+    [encoder setBuffer:state.buffers.statuses offset:0u atIndex:12u];
+    [encoder setBuffer:state.buffers.hostFrameIndices
+                 offset:0u
+                atIndex:13u];
     dispatch1D(
         encoder,
         state.reducePipeline,
@@ -551,18 +586,30 @@ MetalTactileDiagnostics encodeLocked(
     [encoder setBuffer:state.buffers.validity offset:0u atIndex:2u];
     [encoder setBuffer:state.buffers.objectShape offset:0u atIndex:3u];
     [encoder setBuffer:state.buffers.hits offset:0u atIndex:4u];
-    [encoder setBuffer:state.buffers.previousDepth
+    [encoder setBuffer:state.buffers.tangentialMotion
                  offset:0u
                 atIndex:5u];
-    [encoder setBuffer:state.buffers.previousValidity
+    [encoder setBuffer:state.buffers.targetLocalAnchor
                  offset:0u
                 atIndex:6u];
-    [encoder setBuffer:state.buffers.previousObject
+    [encoder setBuffer:state.buffers.previousDepth
                  offset:0u
                 atIndex:7u];
-    [encoder setBuffer:state.buffers.previousHits
+    [encoder setBuffer:state.buffers.previousValidity
                  offset:0u
                 atIndex:8u];
+    [encoder setBuffer:state.buffers.previousObject
+                 offset:0u
+                atIndex:9u];
+    [encoder setBuffer:state.buffers.previousHits
+                 offset:0u
+                atIndex:10u];
+    [encoder setBuffer:state.buffers.previousTangentialMotion
+                 offset:0u
+                atIndex:11u];
+    [encoder setBuffer:state.buffers.previousTargetLocalAnchor
+                 offset:0u
+                atIndex:12u];
     dispatch1D(
         encoder,
         state.commitPipeline,
@@ -591,8 +638,11 @@ bool allBuffersAllocated(const detail::MetalTactileBuffers& buffers) {
         buffers.hostContacts != nil &&
         buffers.hostContactCounts != nil &&
         buffers.hostResetMask != nil &&
+        buffers.hostFrameIndices != nil &&
         buffers.depth != nil &&
         buffers.depthVelocity != nil &&
+        buffers.tangentialMotion != nil &&
+        buffers.targetLocalAnchor != nil &&
         buffers.validity != nil &&
         buffers.objectShape != nil &&
         buffers.hits != nil &&
@@ -602,8 +652,11 @@ bool allBuffersAllocated(const detail::MetalTactileBuffers& buffers) {
         buffers.previousValidity != nil &&
         buffers.previousObject != nil &&
         buffers.previousHits != nil &&
+        buffers.previousTangentialMotion != nil &&
+        buffers.previousTargetLocalAnchor != nil &&
         buffers.readbackDepth != nil &&
         buffers.readbackDepthVelocity != nil &&
+        buffers.readbackTangentialMotion != nil &&
         buffers.readbackValidity != nil &&
         buffers.readbackObject != nil &&
         buffers.readbackHits != nil &&
@@ -809,14 +862,22 @@ MetalTactileDiagnostics MetalTactileContext::compile(
     }
     std::size_t denseFloatBytes = 0u;
     std::size_t denseUintBytes = 0u;
+    std::size_t tangentialMotionBytes = 0u;
+    std::size_t anchorBytes = 0u;
     std::size_t hitBytes = 0u;
     std::size_t summaryBytes = 0u;
     std::size_t statusBytes = 0u;
     std::size_t bodyBytes = 0u;
     std::size_t contactBytes = 0u;
     std::size_t countBytes = 0u;
+    std::size_t frameIndexBytes = 0u;
     if (!checkedBytes<float>(denseCount, denseFloatBytes) ||
         !checkedBytes<std::uint32_t>(denseCount, denseUintBytes) ||
+        !checkedBytes<MRTactileTangentialMotionGPU>(
+            denseCount,
+            tangentialMotionBytes
+        ) ||
+        !checkedBytes<mr_float4>(denseCount, anchorBytes) ||
         !checkedBytes<MRTactileHitGPU>(denseCount, hitBytes) ||
         !checkedBytes<MRTactileSummaryGPU>(
             summaryCount,
@@ -834,6 +895,10 @@ MetalTactileDiagnostics MetalTactileContext::compile(
         !checkedBytes<std::uint32_t>(
             environmentCapacity,
             countBytes
+        ) ||
+        !checkedBytes<std::uint64_t>(
+            environmentCapacity,
+            frameIndexBytes
         )) {
         return reject(
             baseDiagnostics(*candidate),
@@ -916,6 +981,11 @@ MetalTactileDiagnostics MetalTactileContext::compile(
         countBytes,
         @"MetalRobo tactile host reset mask"
     );
+    buffers.hostFrameIndices = makeSharedBuffer(
+        candidate->device,
+        frameIndexBytes,
+        @"MetalRobo tactile host frame indices"
+    );
     buffers.depth = makePrivateBuffer(
         candidate->device,
         denseFloatBytes,
@@ -925,6 +995,16 @@ MetalTactileDiagnostics MetalTactileContext::compile(
         candidate->device,
         denseFloatBytes,
         @"MetalRobo tactile depth velocity"
+    );
+    buffers.tangentialMotion = makePrivateBuffer(
+        candidate->device,
+        tangentialMotionBytes,
+        @"MetalRobo tactile tangential motion"
+    );
+    buffers.targetLocalAnchor = makePrivateBuffer(
+        candidate->device,
+        anchorBytes,
+        @"MetalRobo tactile target-local anchors"
     );
     buffers.validity = makePrivateBuffer(
         candidate->device,
@@ -975,6 +1055,16 @@ MetalTactileDiagnostics MetalTactileContext::compile(
         debugHitBytes,
         @"MetalRobo tactile history hits"
     );
+    buffers.previousTangentialMotion = makePrivateBuffer(
+        candidate->device,
+        tangentialMotionBytes,
+        @"MetalRobo tactile history tangential motion"
+    );
+    buffers.previousTargetLocalAnchor = makePrivateBuffer(
+        candidate->device,
+        anchorBytes,
+        @"MetalRobo tactile history target-local anchors"
+    );
     buffers.readbackDepth = makeSharedBuffer(
         candidate->device,
         denseFloatBytes,
@@ -984,6 +1074,11 @@ MetalTactileDiagnostics MetalTactileContext::compile(
         candidate->device,
         denseFloatBytes,
         @"MetalRobo tactile readback velocity"
+    );
+    buffers.readbackTangentialMotion = makeSharedBuffer(
+        candidate->device,
+        tangentialMotionBytes,
+        @"MetalRobo tactile readback tangential motion"
     );
     buffers.readbackValidity = makeSharedBuffer(
         candidate->device,
@@ -1025,7 +1120,7 @@ MetalTactileDiagnostics MetalTactileContext::compile(
     std::memset(buffers.hostResetMask.contents, 0, countBytes);
 
     std::size_t retainedBytes = 0u;
-    const std::array<id<MTLBuffer>, 30u> retained{
+    const std::array<id<MTLBuffer>, 37u> retained{
         buffers.sensors,
         buffers.samples,
         buffers.targets,
@@ -1039,8 +1134,11 @@ MetalTactileDiagnostics MetalTactileContext::compile(
         buffers.hostContacts,
         buffers.hostContactCounts,
         buffers.hostResetMask,
+        buffers.hostFrameIndices,
         buffers.depth,
         buffers.depthVelocity,
+        buffers.tangentialMotion,
+        buffers.targetLocalAnchor,
         buffers.validity,
         buffers.objectShape,
         buffers.hits,
@@ -1050,13 +1148,16 @@ MetalTactileDiagnostics MetalTactileContext::compile(
         buffers.previousValidity,
         buffers.previousObject,
         buffers.previousHits,
+        buffers.previousTangentialMotion,
+        buffers.previousTargetLocalAnchor,
         buffers.readbackDepth,
         buffers.readbackDepthVelocity,
+        buffers.readbackTangentialMotion,
         buffers.readbackValidity,
         buffers.readbackObject,
         buffers.readbackHits,
         buffers.readbackSummaries,
-        // statuses counted immediately below because std::array is fixed.
+        buffers.readbackStatuses,
     };
     for (id<MTLBuffer> buffer : retained) {
         if (!checkedAdd(
@@ -1071,12 +1172,7 @@ MetalTactileDiagnostics MetalTactileContext::compile(
             );
         }
     }
-    if (!checkedAdd(
-            retainedBytes,
-            buffers.readbackStatuses.length,
-            retainedBytes
-        ) ||
-        retainedBytes > candidate->config.maximumRetainedBytes) {
+    if (retainedBytes > candidate->config.maximumRetainedBytes) {
         return reject(
             baseDiagnostics(*candidate),
             MetalTactileStatus::capacityOverflow,
@@ -1110,6 +1206,18 @@ MetalTactileDiagnostics MetalTactileContext::compile(
                value:0xffu];
     [blit fillBuffer:buffers.previousHits
                range:NSMakeRange(0u, buffers.previousHits.length)
+               value:0u];
+    [blit fillBuffer:buffers.previousTangentialMotion
+               range:NSMakeRange(
+                   0u,
+                   buffers.previousTangentialMotion.length
+               )
+               value:0u];
+    [blit fillBuffer:buffers.previousTargetLocalAnchor
+               range:NSMakeRange(
+                   0u,
+                   buffers.previousTargetLocalAnchor.length
+               )
                value:0u];
     [blit endEncoding];
     [commandBuffer commit];
@@ -1338,6 +1446,8 @@ MetalTactileDiagnostics MetalTactileContext::readback(
         static_cast<std::size_t>(environmentCount) *
         state_->layout.sensorCount;
     const std::size_t depthBytes = denseCount * sizeof(float);
+    const std::size_t tangentialMotionBytes =
+        denseCount * sizeof(MRTactileTangentialMotionGPU);
     const std::size_t uintBytes =
         denseCount * sizeof(std::uint32_t);
     const std::size_t hitBytes =
@@ -1369,6 +1479,11 @@ MetalTactileDiagnostics MetalTactileContext::readback(
                 toBuffer:state_->buffers.readbackDepthVelocity
        destinationOffset:0u
                     size:depthBytes];
+    [blit copyFromBuffer:state_->buffers.tangentialMotion
+            sourceOffset:0u
+                toBuffer:state_->buffers.readbackTangentialMotion
+       destinationOffset:0u
+                    size:tangentialMotionBytes];
     [blit copyFromBuffer:state_->buffers.validity
             sourceOffset:0u
                 toBuffer:state_->buffers.readbackValidity
@@ -1416,6 +1531,7 @@ MetalTactileDiagnostics MetalTactileContext::readback(
         candidate.timestampSeconds = state_->activeTimestampSeconds;
         candidate.penetrationDepthMeters.resize(denseCount);
         candidate.depthVelocityMetersPerSecond.resize(denseCount);
+        candidate.tangentialMotion.resize(denseCount);
         candidate.validity.resize(denseCount);
         candidate.objectShapeIds.resize(denseCount);
         if (state_->config.enableDebugHits) {
@@ -1439,6 +1555,11 @@ MetalTactileDiagnostics MetalTactileContext::readback(
         candidate.depthVelocityMetersPerSecond.data(),
         state_->buffers.readbackDepthVelocity.contents,
         depthBytes
+    );
+    std::memcpy(
+        candidate.tangentialMotion.data(),
+        state_->buffers.readbackTangentialMotion.contents,
+        tangentialMotionBytes
     );
     std::memcpy(
         candidate.validity.data(),
@@ -1525,6 +1646,18 @@ MetalTactileDiagnostics MetalTactileContext::clearHistory() {
                    state_->buffers.previousHits.length
                )
                value:0u];
+    [blit fillBuffer:state_->buffers.previousTangentialMotion
+               range:NSMakeRange(
+                   0u,
+                   state_->buffers.previousTangentialMotion.length
+               )
+               value:0u];
+    [blit fillBuffer:state_->buffers.previousTargetLocalAnchor
+               range:NSMakeRange(
+                   0u,
+                   state_->buffers.previousTargetLocalAnchor.length
+               )
+               value:0u];
     [blit endEncoding];
     [commandBuffer commit];
     [commandBuffer waitUntilCompleted];
@@ -1578,6 +1711,9 @@ void* MetalTactileContext::nativeBuffer(
         break;
     case MetalTactileBuffer::statuses:
         result = state_->buffers.statuses;
+        break;
+    case MetalTactileBuffer::tangentialMotion:
+        result = state_->buffers.tangentialMotion;
         break;
     }
     return result == nil ? nullptr : (__bridge void*)result;

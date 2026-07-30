@@ -126,6 +126,54 @@ eight-channel sensor summary: floating-root linear/angular acceleration (zero
 for fixed-base robots), aggregate normal load, and active-contact count.
 Reset masks and randomized reset state are explicit MLX inputs.
 
+Authored tactile worlds enter through the same primitive:
+
+```python
+from metalrobo import (
+    SharedTactileEncoder,
+    TactileAtlasRange,
+    canonical_tactile_encoder_input,
+    compile_world_pack,
+)
+
+world = compile_world_pack(
+    "franka-tactile.mrworld",
+    environment_capacity=1024,
+    control_timestep=0.02,
+)
+state = initial_state(world, 1024)
+output = step(
+    world,
+    state,
+    state.actuators.effective_position_target,
+)
+encoder_input = canonical_tactile_encoder_input(
+    output.tactile,
+    (
+        TactileAtlasRange(0, 32, 32),
+        TactileAtlasRange(1024, 32, 32),
+    ),
+)
+encoder = SharedTactileEncoder(
+    modality="canonical",
+    input_channels=7,
+    summary_channels=16,
+)
+latent = encoder(
+    *encoder_input[:3],
+    encoder.initial_state(1024, 2),
+    *encoder_input[3:],
+)
+```
+
+`output.tactile` exposes named metric depth, depth velocity, bounded tangent
+motion, physical summaries, and a masked object-local point set. Tactile
+history and per-environment actuator profiles are explicit `WorldState`
+arrays. A pack without authored tactile sensors has zero-sized tactile state
+and encodes no tactile dispatch. Learned real-sensor encoders are registered
+as exact artifacts; a missing encoder does not fall back to simulated or
+imagined touch.
+
 The active-encoder primitive supports Franka, G1, and PSM through the same
 device graph. Available contact scenes include dynamic cube/ground,
 authoritative cooked-BVH4 rough terrain, and a dynamic curved needle for PSM.

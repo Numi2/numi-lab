@@ -263,6 +263,14 @@ enum MRDofFlags : mr_u32 {
     MR_DOF_FLAG_DRIVE = 1u << 5u,
 };
 
+enum MRActuatorProfileFlags : mr_u32 {
+    MR_ACTUATOR_PROFILE_ACTIVE = 1u << 0u,
+    // Set only for parameters identified from measurements on the target
+    // mechanism. An authored engineering prior remains executable but must
+    // not be presented as calibrated.
+    MR_ACTUATOR_PROFILE_CALIBRATED = 1u << 1u,
+};
+
 typedef struct MR_ALIGN16 MRWorldGPU {
     mr_u32 abiVersion;
     mr_u32 bodyCount;
@@ -360,6 +368,21 @@ typedef struct MR_ALIGN16 MRDofPropertiesGPU {
     // the actuation law.
     mr_float4 drive;
 } MRDofPropertiesGPU;
+
+// Optional authored motor/transmission truth in global generalized-velocity
+// order. When present, EngineModel carries exactly one record per DoF;
+// inactive/root entries are zero. The cooker derives stall torque so Metal
+// hot loops consume a fixed record without recomputing authored products.
+typedef struct MR_ALIGN16 MRActuatorProfileGPU {
+    // joint-side torque constant N*m/A, current limit A,
+    // no-load speed rad/s (or m/s), efficiency [0,1].
+    mr_float4 motorAndSpeed;
+    // backlash play in joint units, command delay seconds,
+    // cooked stall torque N*m (or N), reserved.
+    mr_float4 transmissionAndEnvelope;
+    // global v index, MRActuatorProfileFlags, reserved, reserved.
+    mr_uint4 identity;
+} MRActuatorProfileGPU;
 
 typedef struct MR_ALIGN16 MRBodyPropertiesGPU {
     mr_u32 articulationIndex;
@@ -1544,6 +1567,17 @@ static_assert(alignof(MRDofPropertiesGPU) == 16);
 static_assert(__builtin_offsetof(MRDofPropertiesGPU, localDof) == 16);
 static_assert(__builtin_offsetof(MRDofPropertiesGPU, limits) == 32);
 static_assert(__builtin_offsetof(MRDofPropertiesGPU, drive) == 48);
+static_assert(sizeof(MRActuatorProfileGPU) == 48);
+static_assert(alignof(MRActuatorProfileGPU) == 16);
+static_assert(
+    __builtin_offsetof(
+        MRActuatorProfileGPU,
+        transmissionAndEnvelope
+    ) == 16
+);
+static_assert(
+    __builtin_offsetof(MRActuatorProfileGPU, identity) == 32
+);
 static_assert(sizeof(MRBodyPropertiesGPU) % 16 == 0);
 static_assert(sizeof(MRBodyStateGPU) % 16 == 0);
 static_assert(sizeof(MRBodyWrenchGPU) == 32);

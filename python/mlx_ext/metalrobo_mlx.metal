@@ -4,6 +4,7 @@
 #include "metalrobo/generalized_constraint_shared.h"
 #include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/r2s2r_types.h"
+#include "metalrobo/tactile_types.h"
 #include "metalrobo/world_compiler_types.h"
 
 using namespace metal;
@@ -29,6 +30,28 @@ uint mapABAStatus(const uint code) {
     default:
         return MR_STEP_UNSUPPORTED;
     }
+}
+
+float3 tactileQuaternionRotate(
+    const float4 quaternion,
+    const float3 value
+) {
+    const float3 doubledCross =
+        2.0f * cross(quaternion.xyz, value);
+    return value +
+        quaternion.w * doubledCross +
+        cross(quaternion.xyz, doubledCross);
+}
+
+float3 tactileStableTangent(const float3 normal) {
+    const float3 absolute = abs(normal);
+    const float3 reference =
+        absolute.x <= absolute.y && absolute.x <= absolute.z
+        ? float3(1.0f, 0.0f, 0.0f)
+        : absolute.y <= absolute.z
+        ? float3(0.0f, 1.0f, 0.0f)
+        : float3(0.0f, 0.0f, 1.0f);
+    return normalize(cross(reference, normal));
 }
 
 } // namespace
@@ -303,6 +326,7 @@ kernel void mr_mlx_prepare_contact_world(
     device const MRDofPropertiesGPU* dofs [[buffer(13)]],
     device const float4* controllerParameters [[buffer(14)]],
     device uint* resetMasks [[buffer(15)]],
+    device const float* actuatorProfileValues [[buffer(16)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -399,6 +423,30 @@ kernel void mr_mlx_prepare_contact_world(
                 }
             }
         }
+        const uint actuatorBase =
+            (environment * dispatch.nv + coordinate) * 7u;
+        const float noLoadSpeed =
+            actuatorProfileValues[actuatorBase + 2u];
+        const float efficiency =
+            actuatorProfileValues[actuatorBase + 3u];
+        const float stallTorque =
+            actuatorProfileValues[actuatorBase + 6u];
+        const float speedFraction = clamp(
+            abs(velocity) /
+                max(
+                    noLoadSpeed,
+                    1.175494351e-38f
+                ),
+            0.0f,
+            1.0f
+        );
+        const float envelope = min(
+            dofs[coordinate].limits.w,
+            stallTorque *
+                efficiency *
+                (1.0f - speedFraction)
+        );
+        command = clamp(command, -envelope, envelope);
         workingEffort[vBase + coordinate] = command;
     }
     const uint cacheBase =
@@ -768,4 +816,185 @@ kernel void mr_mlx_unpack_scene_and_evidence(
             ? candidateAcceleration[velocityBase + dof]
             : 0.0f;
     }
+}
+
+// Converts the final solver rows into the tactile subsystem's explicit
+// wrench evidence. Geometry sampling remains independent from these impulses;
+// force is never inferred from penetration depth.
+kernel void mr_mlx_pack_tactile_contacts(
+    constant MRMLXContactAdapterDispatchGPU& adapter [[buffer(0)]],
+    constant MRTactileDispatchGPU& tactile [[buffer(1)]],
+    device const MRShapeGPU* shapes [[buffer(2)]],
+    device const MRBodyStateGPU* bodies [[buffer(3)]],
+    device const MRManifoldHeaderGPU* manifoldHeaders [[buffer(4)]],
+    device const MRContactConstraintGPU* contacts [[buffer(5)]],
+    device const MRContactPointMetaGPU* metadata [[buffer(6)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
+    device MRTactileContactGPU* tactileContacts [[buffer(8)]],
+    device uint* tactileContactCounts [[buffer(9)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= tactile.counts.x) {
+        return;
+    }
+    const uint capacity = tactile.queryCounts.w;
+    const uint base = environment * capacity;
+    const MRMetalWorldContactStatusGPU status = statuses[environment];
+    const uint active =
+        status.code == MR_STEP_SUCCESS
+        ? min(status.activeContacts, capacity)
+        : 0u;
+    tactileContactCounts[environment] = active;
+    for (uint local = 0u; local < capacity; ++local) {
+        MRTactileContactGPU output = {};
+        if (local < active) {
+            const uint flat =
+                environment * adapter.contactCapacity + local;
+            const MRContactPointMetaGPU meta = metadata[flat];
+            const MRContactConstraintGPU contact = contacts[flat];
+            const MRShapeGPU shapeA = shapes[meta.colliderA];
+            const MRManifoldHeaderGPU manifold =
+                manifoldHeaders[
+                    environment * adapter.manifoldCapacity +
+                    meta.manifoldIndex
+                ];
+            const float3 normal = normalize(contact.normal.xyz);
+            float3 tangent = tactileQuaternionRotate(
+                bodies[
+                    environment * adapter.bodyStateStride +
+                    shapeA.bodyIndex
+                ].orientation,
+                manifold.tangentAndMetric.xyz
+            );
+            tangent -= normal * dot(tangent, normal);
+            tangent =
+                dot(tangent, tangent) > 1.0e-12f
+                ? normalize(tangent)
+                : tactileStableTangent(normal);
+            const float3 bitangent = cross(normal, tangent);
+            const float3 impulseOnA = -(
+                normal * contact.impulses.x +
+                tangent * contact.impulses.y +
+                bitangent * contact.impulses.z
+            );
+            output.shapesAndFlags = uint4(
+                meta.colliderA,
+                meta.colliderB,
+                MR_TACTILE_CONTACT_SOLVER_IMPULSE,
+                0u
+            );
+            output.worldPoint = contact.pointAndSeparation;
+            output.worldImpulseOnA = float4(impulseOnA, 0.0f);
+            output.solverImpulseAndFriction = float4(
+                abs(contact.impulses.x),
+                length(contact.impulses.yz),
+                contact.friction.x,
+                contact.friction.y
+            );
+        }
+        tactileContacts[base + local] = output;
+    }
+}
+
+// Publishes semantically named MLX arrays from the mixed float/uint summary
+// record. Python policy code never depends on packed channel ordinals.
+kernel void mr_mlx_unpack_tactile_summary(
+    constant MRTactileDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTactileSummaryGPU* summaries [[buffer(1)]],
+    device const float* timestamps [[buffer(2)]],
+    device float4* posePositionAndTimestamp [[buffer(3)]],
+    device float4* poseOrientation [[buffer(4)]],
+    device float4* netForceAndContactArea [[buffer(5)]],
+    device float4* netTorqueAndMaximumDepth [[buffer(6)]],
+    device float4* centroidLocalAndMeanDepth [[buffer(7)]],
+    device float4* centroidWorldAndActiveCount [[buffer(8)]],
+    device float4* centerOfPressureLocalAndForceWeight [[buffer(9)]],
+    device float4* centerOfPressureWorldAndContactCount [[buffer(10)]],
+    device float4* tangentialMotionAndFriction [[buffer(11)]],
+    device uint4* statisticsAndIdentity [[buffer(12)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.counts.x * dispatch.counts.z;
+    if (index >= total) {
+        return;
+    }
+    const uint environment = index / dispatch.counts.z;
+    const MRTactileSummaryGPU summary = summaries[index];
+    posePositionAndTimestamp[index] = float4(
+        summary.posePositionAndTimestamp.xyz,
+        timestamps[environment]
+    );
+    poseOrientation[index] = summary.poseOrientation;
+    netForceAndContactArea[index] =
+        summary.netForceAndContactArea;
+    netTorqueAndMaximumDepth[index] =
+        summary.netTorqueAndMaximumDepth;
+    centroidLocalAndMeanDepth[index] =
+        summary.centroidLocalAndMeanDepth;
+    centroidWorldAndActiveCount[index] =
+        summary.centroidWorldAndActiveCount;
+    centerOfPressureLocalAndForceWeight[index] =
+        summary.centerOfPressureLocalAndForceWeight;
+    centerOfPressureWorldAndContactCount[index] =
+        summary.centerOfPressureWorldAndContactCount;
+    tangentialMotionAndFriction[index] =
+        summary.tangentialMotionAndFriction;
+    statisticsAndIdentity[index] =
+        summary.statisticsAndIdentity;
+}
+
+// Fixed-capacity masked object-local labels for field-estimator training.
+// This is sample evidence, not a fabricated force distribution; exact solver
+// points and impulses remain in the separate contact-evidence output.
+kernel void mr_mlx_publish_object_contact_points(
+    constant MRTactileDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTactileHitGPU* hits [[buffer(1)]],
+    device const MRShapeGPU* shapes [[buffer(2)]],
+    device const MRBodyStateGPU* bodies [[buffer(3)]],
+    device float4* objectLocalPoints [[buffer(4)]],
+    device float4* objectLocalNormals [[buffer(5)]],
+    device uint* mask [[buffer(6)]],
+    const uint index [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.counts.x * dispatch.counts.w;
+    if (index >= total) {
+        return;
+    }
+    const uint environment = index / dispatch.counts.w;
+    const MRTactileHitGPU hit = hits[index];
+    const uint shapeIndex = hit.identityAndFlags.x;
+    const bool active =
+        (hit.identityAndFlags.z &
+         MR_TACTILE_VALIDITY_CONTACT) != 0u &&
+        shapeIndex < dispatch.geometryCounts.x;
+    float4 localPoint = {};
+    float4 localNormal = {};
+    if (active) {
+        const MRShapeGPU shape = shapes[shapeIndex];
+        const MRBodyStateGPU body =
+            bodies[
+                environment * dispatch.counts.y +
+                shape.bodyIndex
+            ];
+        const float4 inverseOrientation =
+            float4(-body.orientation.xyz, body.orientation.w);
+        localPoint = float4(
+            tactileQuaternionRotate(
+                inverseOrientation,
+                hit.worldPointAndDepth.xyz -
+                    body.position.xyz
+            ),
+            hit.worldPointAndDepth.w
+        );
+        localNormal = float4(
+            tactileQuaternionRotate(
+                inverseOrientation,
+                hit.worldNormalAndRayParameter.xyz
+            ),
+            0.0f
+        );
+    }
+    objectLocalPoints[index] = localPoint;
+    objectLocalNormals[index] = localNormal;
+    mask[index] = active ? 1u : 0u;
 }

@@ -216,7 +216,8 @@ std::vector<MRBodyStateGPU> sphereContactBodies(
 
 metalrobo::CookedTactileSystem makeFlatSystem(
     const metalrobo::EngineModel& model,
-    const std::uint32_t updatePeriod = 1u
+    const std::uint32_t updatePeriod = 1u,
+    const float maximumTangentialDisplacement = kShell
 ) {
     metalrobo::TactilePose pose;
     pose.position = {0.0f, 0.0f, kShell, 0.0f};
@@ -233,6 +234,8 @@ metalrobo::CookedTactileSystem makeFlatSystem(
     );
     sensor.targetShapeIndices = {1u, 2u, 3u, 4u};
     sensor.updatePeriodSteps = updatePeriod;
+    sensor.maximumTangentialDisplacementMeters =
+        maximumTangentialDisplacement;
     metalrobo::CookedTactileSystem tactile;
     require(
         metalrobo::cookTactileSystem(
@@ -256,7 +259,14 @@ metalrobo::TactileObservationBatch observeCpu(
     const std::span<const std::uint32_t> previousValidity = {},
     const std::span<const std::uint32_t> previousObjects = {},
     const std::uint64_t frameIndex = 0u,
-    const std::span<const std::uint32_t> reset = {}
+    const std::span<const std::uint32_t> reset = {},
+    const std::span<const MRTactileTangentialMotionGPU>
+        previousTangentialMotion = {},
+    const std::span<const mr_float4> previousAnchors = {},
+    const std::span<const MRTactileContactGPU> contacts = {},
+    const std::span<const std::uint32_t> contactCounts = {},
+    const std::uint32_t contactCapacity = 0u,
+    const float contactImpulseTimestepSeconds = 0.0f
 ) {
     metalrobo::TactileObservationBatch output;
     metalrobo::TactileCpuFrame frame;
@@ -265,8 +275,17 @@ metalrobo::TactileObservationBatch observeCpu(
     frame.previousDepthMeters = previous;
     frame.previousValidity = previousValidity;
     frame.previousObjectShapeIds = previousObjects;
+    frame.previousTangentialMotion =
+        previousTangentialMotion;
+    frame.previousTargetLocalContactAnchors =
+        previousAnchors;
+    frame.contacts = contacts;
+    frame.contactCounts = contactCounts;
+    frame.contactCapacityPerEnvironment = contactCapacity;
     frame.resetMask = reset;
     frame.observationTimestepSeconds = 0.01f;
+    frame.contactImpulseTimestepSeconds =
+        contactImpulseTimestepSeconds;
     frame.frameIndex = frameIndex;
     frame.timestampSeconds = 1.0 + frameIndex * 0.01;
     require(
@@ -319,6 +338,8 @@ void requireMetalMatchesCpu(
     require(
         gpu.penetrationDepthMeters.size() ==
             cpu.penetrationDepthMeters.size() &&
+        gpu.tangentialMotion.size() ==
+            cpu.tangentialMotion.size() &&
         gpu.validity.size() == cpu.validity.size() &&
         gpu.objectShapeIds.size() == cpu.objectShapeIds.size() &&
         gpu.summaries.size() == cpu.summaries.size(),
@@ -341,6 +362,20 @@ void requireMetalMatchesCpu(
             std::string{label} +
                 " Metal validity or identity differs from CPU"
         );
+        const mr_float4 cpuMotion =
+            cpu.tangentialMotion[index].
+                displacementAndVelocity;
+        const mr_float4 gpuMotion =
+            gpu.tangentialMotion[index].
+                displacementAndVelocity;
+        require(
+            std::abs(cpuMotion.x - gpuMotion.x) < 2.0e-6f &&
+            std::abs(cpuMotion.y - gpuMotion.y) < 2.0e-6f &&
+            std::abs(cpuMotion.z - gpuMotion.z) < 2.0e-6f &&
+            std::abs(cpuMotion.w - gpuMotion.w) < 2.0e-6f,
+            std::string{label} +
+                " Metal tangential motion differs from CPU"
+        );
     }
     require(
         maximumDifference < 2.0e-6,
@@ -352,6 +387,22 @@ void requireMetalMatchesCpu(
             cpu.summaries[0u].statisticsAndIdentity.z,
         std::string{label} +
             " Metal summary validity differs from CPU"
+    );
+    const mr_float4 cpuMotionSummary =
+        cpu.summaries[0u].tangentialMotionAndFriction;
+    const mr_float4 gpuMotionSummary =
+        gpu.summaries[0u].tangentialMotionAndFriction;
+    require(
+        std::abs(cpuMotionSummary.x - gpuMotionSummary.x) <
+                2.0e-6f &&
+            std::abs(cpuMotionSummary.y - gpuMotionSummary.y) <
+                2.0e-6f &&
+            std::abs(cpuMotionSummary.z - gpuMotionSummary.z) <
+                2.0e-6f &&
+            std::abs(cpuMotionSummary.w - gpuMotionSummary.w) <
+                2.0e-6f,
+        std::string{label} +
+            " Metal tangential reduction differs from CPU"
     );
 }
 
@@ -653,6 +704,12 @@ void validateCurvedSensor() {
             1.0f,
         }),
     };
+    bodies[1u].linearVelocityAndInverseMass = {
+        0.04f,
+        -0.03f,
+        0.07f,
+        0.0f,
+    };
     const auto observation = observeCpu(tactile, model, bodies);
     requireMetalMatchesCpu(
         tactile,
@@ -673,6 +730,20 @@ void validateCurvedSensor() {
         observation.summaries[0].
             netForceAndContactArea.w > 0.0f,
         "curved tactile contact area is empty"
+    );
+    require(
+        std::abs(
+            observation.tangentialMotion[center].
+                displacementAndVelocity.z -
+            0.04f
+        ) < 2.0e-6f &&
+        std::abs(
+            observation.tangentialMotion[center].
+                displacementAndVelocity.w +
+            0.03f
+        ) < 2.0e-6f,
+        "curved fingertip velocity was not projected into its "
+        "sample-local tangent frame"
     );
 
     model.shapes[1].shapeType = MR_SHAPE_CYLINDER;
@@ -945,6 +1016,182 @@ void validateDecimationAndReset(
     );
 }
 
+void validateTangentialMotion(
+    const metalrobo::EngineModel& model
+) {
+    constexpr float maximumMotion = 0.0002f;
+    const auto tactile = makeFlatSystem(
+        model,
+        1u,
+        maximumMotion
+    );
+    auto initialBodies = sphereContactBodies(0.003f);
+    const auto initial =
+        observeCpu(tactile, model, initialBodies);
+    const std::size_t center =
+        (kHeight / 2u) * kWidth + kWidth / 2u;
+    require(
+        initial.objectShapeIds[center] == 1u &&
+        initial.tangentialMotion[center].
+                displacementAndVelocity.x == 0.0f &&
+        initial.tangentialMotion[center].
+                displacementAndVelocity.y == 0.0f,
+        "contact onset did not establish a zero-motion anchor"
+    );
+
+    auto movedBodies = initialBodies;
+    movedBodies[1u].position.x += 0.0005f;
+    movedBodies[1u].linearVelocityAndInverseMass.x = 0.12f;
+    movedBodies[1u].linearVelocityAndInverseMass.y = -0.04f;
+    const auto moved = observeCpu(
+        tactile,
+        model,
+        movedBodies,
+        initial.penetrationDepthMeters,
+        initial.validity,
+        initial.objectShapeIds,
+        1u,
+        {},
+        initial.tangentialMotion,
+        initial.targetLocalContactAnchors
+    );
+    const mr_float4 movedMotion =
+        moved.tangentialMotion[center].
+            displacementAndVelocity;
+    require(
+        std::abs(
+            std::hypot(movedMotion.x, movedMotion.y) -
+            maximumMotion
+        ) < 2.0e-7f,
+        "tangential displacement did not saturate at the authored "
+        "kinematic-proxy range"
+    );
+    require(
+        std::abs(movedMotion.z - 0.12f) < 2.0e-6f &&
+        std::abs(movedMotion.w + 0.04f) < 2.0e-6f,
+        "flat-surface relative velocity was not projected into "
+        "the cooked tangent frame"
+    );
+    require(
+        std::abs(
+            moved.summaries[0u].
+                tangentialMotionAndFriction.y -
+            maximumMotion
+        ) < 2.0e-7f &&
+        moved.summaries[0u].
+                tangentialMotionAndFriction.x > 0.12f,
+        "tangential motion reductions are incorrect"
+    );
+
+    auto coMovingBodies = initialBodies;
+    coMovingBodies[0u].linearVelocityAndInverseMass.x = 0.08f;
+    coMovingBodies[0u].linearVelocityAndInverseMass.y = -0.03f;
+    coMovingBodies[1u].linearVelocityAndInverseMass.x = 0.08f;
+    coMovingBodies[1u].linearVelocityAndInverseMass.y = -0.03f;
+    const auto coMoving =
+        observeCpu(tactile, model, coMovingBodies);
+    require(
+        std::abs(
+            coMoving.tangentialMotion[center].
+                displacementAndVelocity.z
+        ) < 1.0e-7f &&
+        std::abs(
+            coMoving.tangentialMotion[center].
+                displacementAndVelocity.w
+        ) < 1.0e-7f,
+        "co-moving sensor and target produced relative motion"
+    );
+
+    auto changedIdentityBodies = movedBodies;
+    changedIdentityBodies[1u].position =
+        {1.0f, 0.0f, 1.0f, 1.0f};
+    changedIdentityBodies[4u] = makeBody({
+        0.0005f,
+        0.0f,
+        kShell + 0.007f - 0.003f,
+        1.0f,
+    });
+    const auto changedIdentity = observeCpu(
+        tactile,
+        model,
+        changedIdentityBodies,
+        moved.penetrationDepthMeters,
+        moved.validity,
+        moved.objectShapeIds,
+        2u,
+        {},
+        moved.tangentialMotion,
+        moved.targetLocalContactAnchors
+    );
+    require(
+        changedIdentity.objectShapeIds[center] == 4u &&
+        std::hypot(
+            changedIdentity.tangentialMotion[center].
+                displacementAndVelocity.x,
+            changedIdentity.tangentialMotion[center].
+                displacementAndVelocity.y
+        ) < 1.0e-7f,
+        "target identity change did not reset the contact anchor"
+    );
+
+    const std::array<std::uint32_t, 1u> reset{1u};
+    const auto resetMotion = observeCpu(
+        tactile,
+        model,
+        movedBodies,
+        moved.penetrationDepthMeters,
+        moved.validity,
+        moved.objectShapeIds,
+        2u,
+        reset,
+        moved.tangentialMotion,
+        moved.targetLocalContactAnchors
+    );
+    require(
+        std::hypot(
+            resetMotion.tangentialMotion[center].
+                displacementAndVelocity.x,
+            resetMotion.tangentialMotion[center].
+                displacementAndVelocity.y
+        ) < 1.0e-7f,
+        "environment reset did not reset the contact anchor"
+    );
+
+    metalrobo::MetalTactileConfig config;
+    config.contactCapacityPerEnvironment = 1u;
+    metalrobo::MetalTactileContext context(config);
+    require(
+        context.compile(tactile, model, 1u),
+        "Metal tangential-motion compile"
+    );
+    metalrobo::MetalTactileHostFrame frame;
+    frame.environmentCount = 1u;
+    frame.bodies = initialBodies;
+    frame.observationTimestepSeconds = 0.01f;
+    frame.frameIndex = 0u;
+    frame.timestampSeconds = 0.0;
+    require(context.observe(frame), "Metal tangential-motion onset");
+    frame.bodies = movedBodies;
+    frame.frameIndex = 1u;
+    frame.timestampSeconds = 0.01;
+    require(context.observe(frame), "Metal tangential-motion update");
+    metalrobo::TactileObservationBatch gpu;
+    require(
+        context.readback(1u, gpu),
+        "Metal tangential-motion readback"
+    );
+    const mr_float4 gpuMotion =
+        gpu.tangentialMotion[center].
+            displacementAndVelocity;
+    require(
+        std::abs(gpuMotion.x - movedMotion.x) < 2.0e-6f &&
+        std::abs(gpuMotion.y - movedMotion.y) < 2.0e-6f &&
+        std::abs(gpuMotion.z - movedMotion.z) < 2.0e-6f &&
+        std::abs(gpuMotion.w - movedMotion.w) < 2.0e-6f,
+        "Metal tangential history differs from the CPU oracle"
+    );
+}
+
 void validateWrenchAndCenterOfPressure(
     const metalrobo::EngineModel& model,
     const metalrobo::CookedTactileSystem& tactile,
@@ -969,6 +1216,12 @@ void validateWrenchAndCenterOfPressure(
         0.030f,
         0.0f,
     };
+    contacts[0u].solverImpulseAndFriction = {
+        0.040f,
+        0.010f,
+        0.50f,
+        0.40f,
+    };
     contacts[1u].shapesAndFlags = {
         2u,
         0u,
@@ -986,6 +1239,12 @@ void validateWrenchAndCenterOfPressure(
         -0.010f,
         -0.015f,
         0.0f,
+    };
+    contacts[1u].solverImpulseAndFriction = {
+        0.020f,
+        0.020f,
+        0.50f,
+        0.40f,
     };
     const std::array<std::uint32_t, 1u> contactCounts{2u};
     metalrobo::TactileCpuFrame cpuFrame;
@@ -1044,6 +1303,17 @@ void validateWrenchAndCenterOfPressure(
             3.0f * std::sqrt(14.0f)
         ),
         "force-weighted center of pressure is incorrect"
+    );
+    require(
+        close(
+            summary.tangentialMotionAndFriction.z,
+            2.0f / 3.0f
+        ) &&
+        close(
+            summary.tangentialMotionAndFriction.w,
+            1.0f
+        ),
+        "solver friction utilization is incorrect"
     );
 
     metalrobo::MetalTactileConfig config;
@@ -1104,6 +1374,14 @@ void validateWrenchAndCenterOfPressure(
         close(
             gpuSummary.centerOfPressureLocalAndForceWeight.z,
             summary.centerOfPressureLocalAndForceWeight.z
+        ) &&
+        close(
+            gpuSummary.tangentialMotionAndFriction.z,
+            summary.tangentialMotionAndFriction.z
+        ) &&
+        close(
+            gpuSummary.tangentialMotionAndFriction.w,
+            summary.tangentialMotionAndFriction.w
         ),
         "Metal wrench or CoP differs from the CPU oracle"
     );
@@ -1243,6 +1521,7 @@ int main(const int argc, const char* const* argv) {
         validateCurvedSensor();
         validateCookedGeometryBackends();
         validateDecimationAndReset(model);
+        validateTangentialMotion(model);
         validateWrenchAndCenterOfPressure(
             model,
             tactile,

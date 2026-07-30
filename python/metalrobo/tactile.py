@@ -37,6 +37,7 @@ TACTILE_OBJECT_SHAPE_IDS = 3
 TACTILE_DEBUG_HITS = 4
 TACTILE_SUMMARIES = 5
 TACTILE_STATUSES = 6
+TACTILE_TANGENTIAL_MOTION = 7
 
 SAMPLE_VALID = np.uint32(1 << 0)
 CONTACT_VALID = np.uint32(1 << 1)
@@ -48,6 +49,10 @@ _DENSE_CHANNELS = (
     "validity_bits",
     "object_shape_id",
     "depth_velocity_m_per_s",
+    "tangential_displacement_u_m",
+    "tangential_displacement_v_m",
+    "surface_velocity_u_m_per_s",
+    "surface_velocity_v_m_per_s",
 )
 _SUMMARY_CHANNELS = (
     "sensor_pose",
@@ -60,6 +65,10 @@ _SUMMARY_CHANNELS = (
     "contact_area_m2",
     "maximum_depth_m",
     "mean_depth_m",
+    "tangential_speed_rms_m_per_s",
+    "maximum_tangential_displacement_m",
+    "friction_utilization_force_weighted",
+    "friction_utilization_maximum",
 )
 _FINGERPRINT = re.compile(r"0x[0-9a-f]{16}")
 
@@ -118,6 +127,7 @@ class TactileSensorContract:
     height: int
     surface_kind: int
     maximum_depth_m: float
+    maximum_tangential_displacement_m: float
     active_threshold_m: float
     shell_thickness_m: float
     update_period_steps: int
@@ -165,6 +175,12 @@ class TactileObservationContract:
             "center_of_pressure_definition": (
                 "solver_force_magnitude_weighted_contact_position"
             ),
+            "tangential_displacement_definition": (
+                "bounded_kinematic_target_anchor_motion_proxy"
+            ),
+            "friction_utilization_definition": (
+                "tangential_impulse_over_static_friction_capacity"
+            ),
             "real_sensor_input": "camera_to_metric_depth_translator",
         }
         for name, expected in fixed_fields.items():
@@ -211,12 +227,17 @@ class TactileObservationContract:
                 sensor.get("active_threshold_m"),
                 "sensor active threshold",
             )
+            maximum_tangential_displacement = _finite_float(
+                sensor.get("maximum_tangential_displacement_m"),
+                "sensor maximum tangential displacement",
+            )
             shell_thickness = _finite_float(
                 sensor.get("shell_thickness_m"),
                 "sensor shell thickness",
             )
             if (
                 maximum_depth <= 0.0
+                or maximum_tangential_displacement <= 0.0
                 or active_threshold < 0.0
                 or active_threshold > maximum_depth
                 or shell_thickness + 1.0e-7 < maximum_depth
@@ -237,6 +258,9 @@ class TactileObservationContract:
                     ),
                     surface_kind=surface_kind,
                     maximum_depth_m=maximum_depth,
+                    maximum_tangential_displacement_m=(
+                        maximum_tangential_displacement
+                    ),
                     active_threshold_m=active_threshold,
                     shell_thickness_m=shell_thickness,
                     update_period_steps=_positive_uint32(
@@ -308,12 +332,14 @@ class TactileDeviceBuffers:
     debug_hits: int
     summaries: int
     statuses: int
+    tangential_motion: int
 
 
 @dataclass(frozen=True, slots=True)
 class TactileObservationSnapshot:
     penetration_depth_m: FloatArray
     depth_velocity_m_per_s: FloatArray
+    tangential_motion: FloatArray
     validity: UInt32Array
     object_shape_ids: UInt32Array
     pose_position_and_timestamp: FloatArray
@@ -324,6 +350,7 @@ class TactileObservationSnapshot:
     centroid_world_and_active_count: FloatArray
     center_of_pressure_local_and_force_weight: FloatArray
     center_of_pressure_world_and_contact_count: FloatArray
+    tangential_motion_and_friction: FloatArray
     statistics_and_identity: UInt32Array
 
     @property
@@ -413,7 +440,7 @@ class FrankaTactileObservation:
         self._require_open()
         addresses = tuple(
             int(self._bindings.lib.mr_tactile_native_buffer(self._handle, kind) or 0)
-            for kind in range(7)
+            for kind in range(8)
         )
         if any(
             address == 0
@@ -516,6 +543,20 @@ class FrankaTactileObservation:
             result.setflags(write=False)
             return result
 
+        tangential_pointer = (
+            self._bindings.lib.mr_tactile_tangential_motion(self._handle)
+        )
+        if not tangential_pointer:
+            raise MetalRoboError(
+                "native tactile tangential motion is unavailable"
+            )
+        tangential_motion = np.ctypeslib.as_array(
+            tangential_pointer,
+            shape=(dense_count * 4,),
+        ).copy()
+        tangential_motion.shape = (*dense_shape, 4)
+        tangential_motion.setflags(write=False)
+
         summaries = self._bindings.lib.mr_tactile_summaries(self._handle)
         if not summaries:
             raise MetalRoboError("native tactile summaries are unavailable")
@@ -539,6 +580,7 @@ class FrankaTactileObservation:
         return TactileObservationSnapshot(
             penetration_depth_m=floats("mr_tactile_depth"),
             depth_velocity_m_per_s=floats("mr_tactile_depth_velocity"),
+            tangential_motion=tangential_motion,
             validity=uints("mr_tactile_validity"),
             object_shape_ids=uints("mr_tactile_object_shape_ids"),
             pose_position_and_timestamp=summary_float(
@@ -562,6 +604,9 @@ class FrankaTactileObservation:
             ),
             center_of_pressure_world_and_contact_count=summary_float(
                 "center_of_pressure_world_and_contact_count"
+            ),
+            tangential_motion_and_friction=summary_float(
+                "tangential_motion_and_friction"
             ),
             statistics_and_identity=statistics,
         )
@@ -595,12 +640,23 @@ class TactileCalibrationRecord:
     raw_frame_uri: str
     target_depth_uri: str
     sensor_id: str
+    sequence_id: str
+    frame_index: int
     indenter_asset_id: str
     timestamp_s: float
     indentation_depth_m: float
     indenter_pose_sensor_xyzw: tuple[float, float, float, float, float, float, float]
     validity_uri: str | None = None
+    tangential_motion_uri: str | None = None
     force_torque_uri: str | None = None
+    measured_wrench_si: tuple[
+        float,
+        float,
+        float,
+        float,
+        float,
+        float,
+    ] | None = None
     schema: str = "metalrobo.tactile_calibration"
 
     def validate(self) -> None:
@@ -609,6 +665,10 @@ class TactileCalibrationRecord:
             or not self.raw_frame_uri
             or not self.target_depth_uri
             or not self.sensor_id
+            or not self.sequence_id
+            or not isinstance(self.frame_index, int)
+            or isinstance(self.frame_index, bool)
+            or self.frame_index < 0
             or not self.indenter_asset_id
             or not np.isfinite(self.timestamp_s)
             or not np.isfinite(self.indentation_depth_m)
@@ -625,8 +685,21 @@ class TactileCalibrationRecord:
                 and not self.validity_uri
             )
             or (
+                self.tangential_motion_uri is not None
+                and not self.tangential_motion_uri
+            )
+            or (
                 self.force_torque_uri is not None
                 and not self.force_torque_uri
+            )
+            or (
+                self.measured_wrench_si is not None
+                and (
+                    len(self.measured_wrench_si) != 6
+                    or not np.all(
+                        np.isfinite(self.measured_wrench_si)
+                    )
+                )
             )
         ):
             raise ValueError("tactile calibration record is invalid")

@@ -9,6 +9,8 @@
     "raw_frame_uri",
     "target_depth_uri",
     "sensor_id",
+    "sequence_id",
+    "frame_index",
     "indenter_asset_id",
     "timestamp_s",
     "indentation_depth_m",
@@ -27,11 +29,34 @@
     "validity_uri": {
       "$ref": "#/$defs/nullableUri"
     },
+    "tangential_motion_uri": {
+      "$ref": "#/$defs/nullableUri",
+      "description": "Optional metric [H,W,4] displacement/velocity target"
+    },
     "force_torque_uri": {
       "$ref": "#/$defs/nullableUri"
     },
+    "measured_wrench_si": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "number"
+      },
+      "description": "[Fx,Fy,Fz,Tx,Ty,Tz] in N and N*m"
+    },
     "sensor_id": {
       "$ref": "#/$defs/nonempty"
+    },
+    "sequence_id": {
+      "$ref": "#/$defs/nonempty"
+    },
+    "frame_index": {
+      "type": "integer",
+      "minimum": 0
     },
     "indenter_asset_id": {
       "$ref": "#/$defs/nonempty"

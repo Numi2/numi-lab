@@ -355,6 +355,54 @@ NB_MODULE(_mlx_ext, module) {
             &metalrobo::mlx_ext::MLXCompiledWorld::effortLimits
         )
         .def_prop_ro(
+            "default_actuator_targets",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                defaultActuatorTargets
+        )
+        .def_prop_ro(
+            "actuator_profile_values",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                actuatorProfileValues
+        )
+        .def_prop_ro(
+            "actuator_profile_flags",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                actuatorProfileFlags
+        )
+        .def_prop_ro(
+            "tactile_sensor_count",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.tactile().sensors.size();
+            }
+        )
+        .def_prop_ro(
+            "tactile_sample_count",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.tactile().samples.size();
+            }
+        )
+        .def_prop_ro(
+            "tactile_sensor_ids",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.tactile().sensorIds;
+            }
+        )
+        .def_prop_ro(
+            "tactile_observation_metadata_json",
+            [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
+                return world.hasTactile()
+                    ? metalrobo::tactileObservationMetadataJSON(
+                          world.tactile()
+                      )
+                    : std::string{};
+            }
+        )
+        .def_prop_ro(
+            "authored_pack_hash",
+            &metalrobo::mlx_ext::MLXCompiledWorld::
+                authoredPackHash
+        )
+        .def_prop_ro(
             "default_scene_positions",
             [](const metalrobo::mlx_ext::MLXCompiledWorld& world) {
                 std::vector<float> values;
@@ -696,6 +744,32 @@ NB_MODULE(_mlx_ext, module) {
         "Cook a fixed-capacity multi-articulation MLX program."
     );
     module.def(
+        "compile_world_pack",
+        &metalrobo::mlx_ext::compileWorldPack,
+        "path"_a,
+        nb::kw_only(),
+        "environment_capacity"_a = 1024u,
+        "capacity_profile"_a =
+            metalrobo::MetalWorldCapacityProfile{},
+        "control_timestep"_a = 0.0f,
+        "physics_substeps"_a = 4u,
+        "apply_body_damping"_a = true,
+        "actuation_mode"_a = "implicit_position",
+        "solver_mode"_a = "throughput_pgs",
+        "velocity_iterations"_a = 1u,
+        "final_velocity_iterations"_a = 1u,
+        "ccd_mode"_a = "speculative",
+        "max_ccd_advance_solve_passes"_a =
+            MR_CCD_DEFAULT_ADVANCE_SOLVE_PASSES,
+        "max_ccd_zero_time_replays"_a =
+            MR_CCD_DEFAULT_ZERO_TIME_REPLAYS,
+        "ccd_simultaneous_tolerance"_a = 1.0e-5f,
+        "wave_worker_groups"_a = 0u,
+        "metallib_path"_a = "",
+        "stream"_a = nb::none(),
+        "Compile an explicit authored world pack for MLX."
+    );
+    module.def(
         "generalized_constraint_step",
         &metalrobo::mlx_ext::generalizedConstraintStep,
         "program"_a,
@@ -738,6 +812,15 @@ NB_MODULE(_mlx_ext, module) {
         "rod_witness_cache"_a,
         "body_parameters"_a,
         "controller_parameters"_a,
+        "tactile_previous_depth"_a,
+        "tactile_previous_validity"_a,
+        "tactile_previous_object"_a,
+        "tactile_previous_motion"_a,
+        "tactile_target_anchor"_a,
+        "tactile_frame_index"_a,
+        "tactile_timestamp"_a,
+        "reset_mask"_a,
+        "actuator_profile_values"_a,
         nb::kw_only(),
         "stream"_a = nb::none(),
         "Encode a complete contact step into MLX's active Metal encoder."

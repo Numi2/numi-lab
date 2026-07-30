@@ -124,6 +124,8 @@ kernel void mr_metal_world_prepare(
     device const MRWorldGPU& world [[buffer(12)]],
     device const MRArticulationGPU* articulations [[buffer(13)]],
     device const MRDofPropertiesGPU* dofs [[buffer(14)]],
+    device const MRActuatorProfileGPU* actuatorProfiles
+        [[buffer(15)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -236,6 +238,24 @@ kernel void mr_metal_world_prepare(
                 }
             }
         }
+        device const MRActuatorProfileGPU& actuator =
+            actuatorProfiles[coordinate];
+        const float speedFraction = clamp(
+            abs(value) /
+                max(
+                    actuator.motorAndSpeed.z,
+                    1.175494351e-38f
+                ),
+            0.0f,
+            1.0f
+        );
+        const float envelope = min(
+            dofs[coordinate].limits.w,
+            actuator.transmissionAndEnvelope.z *
+                actuator.motorAndSpeed.w *
+                (1.0f - speedFraction)
+        );
+        command = clamp(command, -envelope, envelope);
         workingEffort[
             environment * dispatch.effortEnvironmentStride +
             coordinate

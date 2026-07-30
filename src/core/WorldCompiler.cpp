@@ -208,6 +208,9 @@ void appendTactileSensor(
     hash.appendScalar(sensor.height);
     hash.appendScalar(sensor.surfaceKind);
     hash.appendScalar(sensor.maximumDepthMeters);
+    hash.appendScalar(
+        sensor.maximumTangentialDisplacementMeters
+    );
     hash.appendScalar(sensor.activeDepthThresholdMeters);
     hash.appendScalar(sensor.queryEpsilonMeters);
     hash.appendScalar(sensor.updatePeriodSteps);
@@ -255,6 +258,9 @@ void appendEngineModel(HashBuilder& hash, const EngineModel& model) {
     hash.appendSpan<MRArticulationGPU>(model.articulations);
     hash.appendSpan<MRJointDescriptorGPU>(model.joints);
     hash.appendSpan<MRDofPropertiesGPU>(model.dofs);
+    hash.appendSpan<MRActuatorProfileGPU>(
+        model.actuatorProfiles
+    );
     hash.appendSpan<MRBodyPropertiesGPU>(model.bodies);
     hash.appendSpan<MRShapeGPU>(model.shapes);
     hash.appendSpan<MRMaterialGPU>(model.materials);

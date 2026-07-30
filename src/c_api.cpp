@@ -1530,7 +1530,7 @@ void* mr_tactile_native_buffer(
     if (!requireTactileHandle(handle) ||
         buffer_kind >
             static_cast<uint32_t>(
-                metalrobo::MetalTactileBuffer::statuses
+                metalrobo::MetalTactileBuffer::tangentialMotion
             )) {
         if (handle != nullptr) {
             gLastError = "tactile buffer kind is invalid.";
@@ -1557,6 +1557,17 @@ const float* mr_tactile_depth_velocity(
     return requireTactileHandle(handle) &&
         !handle->readback.depthVelocityMetersPerSecond.empty()
         ? handle->readback.depthVelocityMetersPerSecond.data()
+        : nullptr;
+}
+
+const float* mr_tactile_tangential_motion(
+    const MRTactileHandle* handle
+) {
+    return requireTactileHandle(handle) &&
+        !handle->readback.tangentialMotion.empty()
+        ? reinterpret_cast<const float*>(
+            handle->readback.tangentialMotion.data()
+        )
         : nullptr;
 }
 

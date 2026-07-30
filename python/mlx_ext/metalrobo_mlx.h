@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/MetalMultiArticulatedConstraints.hpp"
+#include "metalrobo/Tactile.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/r2s2r_types.h"
 #include "metalrobo/world_compiler_types.h"
@@ -39,6 +40,8 @@ public:
         float ccdSimultaneousTolerance,
         std::uint32_t waveWorkerGroups,
         std::vector<MRBodyStateGPU> defaultSceneBodies,
+        CookedTactileSystem tactile,
+        std::uint64_t authoredPackHash,
         std::string metallibPath
     );
     ~MLXCompiledWorld();
@@ -65,10 +68,20 @@ public:
     [[nodiscard]] std::uint32_t waveWorkerGroups() const noexcept;
     [[nodiscard]] const std::vector<MRBodyStateGPU>&
     defaultSceneBodies() const noexcept;
+    [[nodiscard]] const CookedTactileSystem& tactile()
+        const noexcept;
+    [[nodiscard]] bool hasTactile() const noexcept;
+    [[nodiscard]] std::uint64_t authoredPackHash() const noexcept;
     [[nodiscard]] const std::string& metallibPath() const noexcept;
     [[nodiscard]] std::vector<float> defaultQ() const;
     [[nodiscard]] std::vector<float> defaultV() const;
     [[nodiscard]] std::vector<float> effortLimits() const;
+    [[nodiscard]] std::vector<float>
+    defaultActuatorTargets() const;
+    [[nodiscard]] std::vector<float>
+    actuatorProfileValues() const;
+    [[nodiscard]] std::vector<std::uint32_t>
+    actuatorProfileFlags() const;
 
     void prepareStream(mx::StreamOrDevice stream = {});
     MetalResources& resources(mx::metal::Device& device);
@@ -93,6 +106,8 @@ private:
     float ccdSimultaneousTolerance_ = 1.0e-5f;
     std::uint32_t waveWorkerGroups_ = 0u;
     std::vector<MRBodyStateGPU> defaultSceneBodies_;
+    CookedTactileSystem tactile_;
+    std::uint64_t authoredPackHash_ = 0u;
     std::string metallibPath_;
     std::mutex resourceMutex_;
     std::unique_ptr<MetalResources> resources_;
@@ -143,6 +158,26 @@ private:
 [[nodiscard]] std::shared_ptr<MLXCompiledWorld> compileWorld(
     const std::string& model,
     const std::string& scene,
+    std::uint32_t environmentCapacity,
+    MetalWorldCapacityProfile capacityProfile,
+    float controlTimestep,
+    std::uint32_t physicsSubsteps,
+    bool applyBodyDamping,
+    const std::string& actuationMode,
+    const std::string& solverMode,
+    std::uint32_t velocityIterations,
+    std::uint32_t finalVelocityIterations,
+    const std::string& ccdMode,
+    std::uint32_t maxCCDAdvanceSolvePasses,
+    std::uint32_t maxCCDZeroTimeReplays,
+    float ccdSimultaneousTolerance,
+    std::uint32_t waveWorkerGroups,
+    const std::string& metallibPath,
+    mx::StreamOrDevice stream = {}
+);
+
+[[nodiscard]] std::shared_ptr<MLXCompiledWorld> compileWorldPack(
+    const std::string& path,
     std::uint32_t environmentCapacity,
     MetalWorldCapacityProfile capacityProfile,
     float controlTimestep,
@@ -212,6 +247,15 @@ generalizedConstraintStep(
     const mx::array& rodWitnessCache,
     const mx::array& bodyParameters,
     const mx::array& controllerParameters,
+    const mx::array& tactilePreviousDepth,
+    const mx::array& tactilePreviousValidity,
+    const mx::array& tactilePreviousObject,
+    const mx::array& tactilePreviousMotion,
+    const mx::array& tactileTargetAnchor,
+    const mx::array& tactileFrameIndex,
+    const mx::array& tactileTimestamp,
+    const mx::array& resetMask,
+    const mx::array& actuatorProfileValues,
     mx::StreamOrDevice stream = {}
 );
 

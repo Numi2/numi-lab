@@ -209,6 +209,7 @@ std::uint64_t hashModel(
     hash = hashVector(hash, model.articulations);
     hash = hashVector(hash, model.joints);
     hash = hashVector(hash, model.dofs);
+    hash = hashVector(hash, model.actuatorProfiles);
     hash = hashVector(hash, model.bodies);
     hash = hashVector(hash, model.shapes);
     hash = hashVector(hash, model.materials);

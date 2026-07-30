@@ -62,21 +62,30 @@ int main(int argc, char** argv) {
             printPack(argv[2], pack);
             return 0;
         }
-        if (argc != 2) {
+        const bool tactile =
+            argc == 3 &&
+            std::string{argv[1]} == "--franka-tactile";
+        if (argc != 2 && !tactile) {
             std::cerr
                 << "usage: metalrobo_world_pack <output.mrworld>\n"
+                << "       metalrobo_world_pack --franka-tactile "
+                   "<output.mrworld>\n"
                 << "       metalrobo_world_pack --inspect "
                    "<input.mrworld>\n";
             return 2;
         }
 
         const metalrobo::EpisodeTwin episode =
-            metalrobo::makeFrankaPickPlaceEpisodeTwin();
+            tactile
+            ? metalrobo::makeFrankaTactileEpisodeTwin()
+            : metalrobo::makeFrankaPickPlaceEpisodeTwin();
         metalrobo::WorldTemplate worldTemplate;
         require(
             metalrobo::compileEpisodeTwin(
                 episode,
-                metalrobo::makeFrankaPickPlaceEngineModel(),
+                tactile
+                ? metalrobo::makeFrankaTactileEngineModel()
+                : metalrobo::makeFrankaPickPlaceEngineModel(),
                 worldTemplate
             ),
             "episode compile"
@@ -95,7 +104,9 @@ int main(int argc, char** argv) {
             metalrobo::compileWorldPack(family, pack),
             "pack compile"
         );
-        const std::filesystem::path output{argv[1]};
+        const std::filesystem::path output{
+            tactile ? argv[2] : argv[1]
+        };
         require(metalrobo::writeWorldPack(pack, output), "write");
         printPack(output, pack);
         return 0;

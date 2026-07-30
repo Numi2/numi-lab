@@ -83,7 +83,8 @@ typedef struct MR_ALIGN16 MRTactileSensorGPU {
     mr_float4 localPositionAndQueryEpsilon;
     // Sensor-to-parent normalized quaternion (xyzw).
     mr_float4 localOrientation;
-    // Maximum depth, active-depth threshold, shell thickness, reserved.
+    // Maximum depth, active-depth threshold, shell thickness, and maximum
+    // bounded contact-relative tangential displacement (all metres).
     mr_float4 depth;
 } MRTactileSensorGPU;
 
@@ -121,7 +122,19 @@ typedef struct MR_ALIGN16 MRTactileContactGPU {
     // Complete world impulse applied to shape A during the explicitly
     // supplied solver-impulse interval. Force is impulse / that interval.
     mr_float4 worldImpulseOnA;
+    // Normal impulse magnitude, tangential impulse magnitude, static
+    // friction, and dynamic friction. These are solver evidence, not values
+    // inferred from the geometric depth map.
+    mr_float4 solverImpulseAndFriction;
 } MRTactileContactGPU;
+
+typedef struct MR_ALIGN16 MRTactileTangentialMotionGPU {
+    // Bounded contact-relative displacement in the cooked sample tangent
+    // frame (metres), followed by instantaneous target-minus-sensor surface
+    // velocity in the same frame (metres/second). The displacement is a
+    // kinematic contact-history proxy, not elastomer strain.
+    mr_float4 displacementAndVelocity;
+} MRTactileTangentialMotionGPU;
 
 typedef struct MR_ALIGN16 MRTactileHitGPU {
     // World exit point from the occupying target; w = metric depth.
@@ -152,6 +165,11 @@ typedef struct MR_ALIGN16 MRTactileSummaryGPU {
     // solver-contact count. This is a compact resultant-contact descriptor,
     // not a complete pressure distribution.
     mr_float4 centerOfPressureWorldAndContactCount;
+    // Area-weighted RMS tangential speed (m/s), maximum tangential
+    // displacement (m), force-weighted mean friction utilization, and
+    // maximum friction utilization. Utilization is derived from solver
+    // impulses and authored friction, never from penetration depth.
+    mr_float4 tangentialMotionAndFriction;
     // Saturated count, contributing solver contacts, summary flags, object ID
     // when all active samples agree (otherwise MR_INVALID_INDEX).
     mr_uint4 statisticsAndIdentity;
@@ -174,14 +192,18 @@ static_assert(std::is_trivially_copyable_v<MRTactileSensorGPU>);
 static_assert(std::is_trivially_copyable_v<MRTactileSampleGPU>);
 static_assert(std::is_trivially_copyable_v<MRTactileDispatchGPU>);
 static_assert(std::is_trivially_copyable_v<MRTactileContactGPU>);
+static_assert(
+    std::is_trivially_copyable_v<MRTactileTangentialMotionGPU>
+);
 static_assert(std::is_trivially_copyable_v<MRTactileHitGPU>);
 static_assert(std::is_trivially_copyable_v<MRTactileSummaryGPU>);
 static_assert(std::is_trivially_copyable_v<MRTactileStatusGPU>);
 static_assert(sizeof(MRTactileSensorGPU) == 96u);
 static_assert(sizeof(MRTactileSampleGPU) == 80u);
 static_assert(sizeof(MRTactileDispatchGPU) == 80u);
-static_assert(sizeof(MRTactileContactGPU) == 48u);
+static_assert(sizeof(MRTactileContactGPU) == 64u);
+static_assert(sizeof(MRTactileTangentialMotionGPU) == 16u);
 static_assert(sizeof(MRTactileHitGPU) == 48u);
-static_assert(sizeof(MRTactileSummaryGPU) == 144u);
+static_assert(sizeof(MRTactileSummaryGPU) == 160u);
 static_assert(sizeof(MRTactileStatusGPU) == 32u);
 #endif

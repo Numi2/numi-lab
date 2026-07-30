@@ -17,6 +17,7 @@ from ._mlx_ext import (  # type: ignore[attr-defined]
     MetalWorldCapacityProfile,
     aba_step as _aba_step,
     compile_world,
+    compile_world_pack,
     world_family_state as _world_family_state,
     world_step as _world_step,
 )
@@ -50,6 +51,25 @@ class SolverCache(NamedTuple):
     rod_witnesses: mx.array
 
 
+class TactileState(NamedTuple):
+    """Explicit canonical tactile history carried through compiled rollouts."""
+
+    previous_depth_m: mx.array
+    previous_validity: mx.array
+    previous_object_shape_ids: mx.array
+    previous_tangential_motion: mx.array
+    target_local_anchor: mx.array
+    frame_index: mx.array
+    time_seconds: mx.array
+
+
+class ActuatorState(NamedTuple):
+    """Explicit deterministic transmission and per-environment calibration."""
+
+    effective_position_target: mx.array
+    profile_values: mx.array
+
+
 class WorldState(NamedTuple):
     """MLX PyTree for one environment-major world batch."""
 
@@ -58,6 +78,8 @@ class WorldState(NamedTuple):
     scene_bodies: SceneBodyState
     rods: RodState
     solver_cache: SolverCache
+    tactile: TactileState
+    actuators: ActuatorState
 
 
 class ScenarioState(NamedTuple):
@@ -100,12 +122,54 @@ class ContactEvidence(NamedTuple):
     mask: mx.array
 
 
+class TactileSummary(NamedTuple):
+    """Named physical reductions; no packed channel indices are public."""
+
+    pose_position_and_timestamp: mx.array
+    pose_orientation: mx.array
+    net_force_and_contact_area: mx.array
+    net_torque_and_maximum_depth: mx.array
+    centroid_local_and_mean_depth: mx.array
+    centroid_world_and_active_count: mx.array
+    center_of_pressure_local_and_force_weight: mx.array
+    center_of_pressure_world_and_contact_count: mx.array
+    tangential_motion_and_friction: mx.array
+    statistics_and_identity: mx.array
+
+
+class ObjectContactPointSet(NamedTuple):
+    """Fixed-capacity, masked object-local tactile geometry labels.
+
+    These are geometric sample labels for field-estimator training. Exact
+    solver points, forces, and impulses remain in ``ContactEvidence``.
+    """
+
+    object_shape_ids: mx.array
+    object_local_point_and_depth: mx.array
+    object_local_sensor_normal: mx.array
+    mask: mx.array
+
+
+class TactileObservation(NamedTuple):
+    """Canonical metric tactile observation published beside physics state."""
+
+    penetration_depth_m: mx.array
+    depth_velocity_m_s: mx.array
+    tangential_motion: mx.array
+    validity: mx.array
+    object_shape_ids: mx.array
+    summary: TactileSummary
+    object_contacts: ObjectContactPointSet
+    status: mx.array
+
+
 class StepOutput(NamedTuple):
     """Fixed-shape output suitable for ``mx.compile`` and lazy rollouts."""
 
     next_state: WorldState
     observations: mx.array
     contacts: ContactEvidence
+    tactile: TactileObservation
     sensors: mx.array
     status: mx.array
     physics_error: mx.array
@@ -190,6 +254,173 @@ def _initial_rod_state(
             dtype=mx.float32,
         )
     return RodState(position, velocity, twist, twist_rate)
+
+
+def _initial_tactile_state(
+    world: MLXCompiledWorld,
+    environment_count: int,
+) -> TactileState:
+    sample_count = int(world.tactile_sample_count)
+    if sample_count:
+        dense_shape = (environment_count, sample_count)
+        motion_shape = (environment_count, sample_count, 4)
+        clock_shape = (environment_count,)
+    else:
+        dense_shape = (environment_count, 0)
+        motion_shape = (environment_count, 0, 4)
+        clock_shape = (environment_count, 0)
+    return TactileState(
+        previous_depth_m=mx.zeros(
+            dense_shape,
+            dtype=mx.float32,
+        ),
+        previous_validity=mx.zeros(
+            dense_shape,
+            dtype=mx.uint32,
+        ),
+        previous_object_shape_ids=mx.full(
+            dense_shape,
+            0xFFFFFFFF,
+            dtype=mx.uint32,
+        ),
+        previous_tangential_motion=mx.zeros(
+            motion_shape,
+            dtype=mx.float32,
+        ),
+        target_local_anchor=mx.zeros(
+            motion_shape,
+            dtype=mx.float32,
+        ),
+        frame_index=mx.zeros(
+            clock_shape,
+            dtype=mx.uint64,
+        ),
+        time_seconds=mx.zeros(
+            clock_shape,
+            dtype=mx.float32,
+        ),
+    )
+
+
+def _initial_actuator_state(
+    world: MLXCompiledWorld,
+    environment_count: int,
+) -> ActuatorState:
+    velocity_count = int(world.nv)
+    return ActuatorState(
+        effective_position_target=mx.broadcast_to(
+            mx.array(
+                world.default_actuator_targets,
+                dtype=mx.float32,
+            ).reshape((1, velocity_count)),
+            (environment_count, velocity_count),
+        ),
+        profile_values=mx.broadcast_to(
+            mx.array(
+                world.actuator_profile_values,
+                dtype=mx.float32,
+            ).reshape((1, velocity_count, 7)),
+            (environment_count, velocity_count, 7),
+        ),
+    )
+
+
+def materialize_correlated_actuator_profiles(
+    world: MLXCompiledWorld,
+    state: ActuatorState,
+    profile_multiplier_bank: mx.array,
+    selected_profiles: mx.array,
+    *,
+    reset_mask: mx.array | None = None,
+) -> ActuatorState:
+    """Select one correlated actuator profile per environment at reset.
+
+    The bank has shape ``[profile, dof, 6]`` and multiplies, in order,
+    torque constant, current limit, no-load speed, efficiency, backlash, and
+    delay. Stall torque is then re-cooked as torque constant times current
+    limit. Inactive/unidentified DoFs retain their neutral execution records.
+    The selected values live in explicit MLX state and are consumed without a
+    solver-loop profile branch.
+    """
+
+    environment_count = int(state.profile_values.shape[0])
+    velocity_count = int(world.nv)
+    if state.profile_values.shape != (
+        environment_count,
+        velocity_count,
+        7,
+    ):
+        raise ValueError("actuator state does not match the compiled world")
+    if (
+        profile_multiplier_bank.ndim != 3
+        or profile_multiplier_bank.shape[1:] != (
+            velocity_count,
+            6,
+        )
+        or int(profile_multiplier_bank.shape[0]) <= 0
+    ):
+        raise ValueError(
+            "actuator profile bank must have shape [profile,dof,6]"
+        )
+    if selected_profiles.shape != (environment_count,):
+        raise ValueError(
+            "selected actuator profiles must have shape [environment]"
+        )
+    selected = mx.take(
+        profile_multiplier_bank.astype(mx.float32),
+        selected_profiles.astype(mx.uint32),
+        axis=0,
+    )
+    base = mx.broadcast_to(
+        mx.array(
+            world.actuator_profile_values,
+            dtype=mx.float32,
+        ).reshape((1, velocity_count, 7)),
+        (environment_count, velocity_count, 7),
+    )
+    positive = mx.maximum(selected[:, :, :3], 1.0e-6)
+    motor = base[:, :, :3] * positive
+    efficiency = mx.clip(
+        base[:, :, 3:4]
+        * mx.maximum(selected[:, :, 3:4], 1.0e-6),
+        1.0e-6,
+        1.0,
+    )
+    transmission = base[:, :, 4:6] * mx.maximum(
+        selected[:, :, 4:6],
+        0.0,
+    )
+    candidate = mx.concatenate(
+        (
+            motor,
+            efficiency,
+            transmission,
+            motor[:, :, 0:1] * motor[:, :, 1:2],
+        ),
+        axis=-1,
+    )
+    active = (
+        mx.array(
+            world.actuator_profile_flags,
+            dtype=mx.uint32,
+        ).reshape((1, velocity_count, 1))
+        & mx.array(1, dtype=mx.uint32)
+    ) != 0
+    candidate = mx.where(active, candidate, base)
+    if reset_mask is not None:
+        if reset_mask.shape != (environment_count,):
+            raise ValueError(
+                "actuator reset mask must have shape [environment]"
+            )
+        candidate = mx.where(
+            reset_mask.astype(mx.bool_)[:, None, None],
+            candidate,
+            state.profile_values,
+        )
+    return ActuatorState(
+        effective_position_target=state.effective_position_target,
+        profile_values=candidate,
+    )
 
 
 def initial_state(
@@ -308,6 +539,14 @@ def initial_state(
         scene_bodies=scene,
         rods=_initial_rod_state(world, environment_count),
         solver_cache=solver_cache,
+        tactile=_initial_tactile_state(
+            world,
+            environment_count,
+        ),
+        actuators=_initial_actuator_state(
+            world,
+            environment_count,
+        ),
     )
 
 def sampled_state_from_world_family(
@@ -431,6 +670,14 @@ def sampled_state_from_world_family(
             ),
             rods=_initial_rod_state(world, environment_count),
             solver_cache=solver_cache,
+            tactile=_initial_tactile_state(
+                world,
+                environment_count,
+            ),
+            actuators=_initial_actuator_state(
+                world,
+                environment_count,
+            ),
         ),
         scenarios=ScenarioState(
             headers=scenario_headers,
@@ -525,6 +772,26 @@ def reset_sampled_world_family(
                     )
                 )
             ),
+            tactile=TactileState(
+                *(
+                    _select_reset(reset_mask, new, old)
+                    for new, old in zip(
+                        replacement.world.tactile,
+                        current.world.tactile,
+                        strict=True,
+                    )
+                )
+            ),
+            actuators=ActuatorState(
+                *(
+                    _select_reset(reset_mask, new, old)
+                    for new, old in zip(
+                        replacement.world.actuators,
+                        current.world.actuators,
+                        strict=True,
+                    )
+                )
+            ),
         ),
         scenarios=ScenarioState(
             *(
@@ -571,6 +838,13 @@ def step(
     scene = state.scene_bodies
     rods = state.rods
     cache = state.solver_cache
+    tactile_state = state.tactile
+    actuator_state = state.actuators
+    tactile_reset_mask = (
+        reset_mask.astype(mx.uint32)
+        if reset_mask is not None
+        else mx.zeros((int(q.shape[0]),), dtype=mx.uint32)
+    )
     if reset_mask is not None:
         replacement = (
             reset_state
@@ -609,6 +883,26 @@ def step(
                 )
             )
         )
+        tactile_state = TactileState(
+            *(
+                _select_reset(reset_mask, new, old)
+                for new, old in zip(
+                    replacement.tactile,
+                    tactile_state,
+                    strict=True,
+                )
+            )
+        )
+        actuator_state = ActuatorState(
+            *(
+                _select_reset(reset_mask, new, old)
+                for new, old in zip(
+                    replacement.actuators,
+                    actuator_state,
+                    strict=True,
+                )
+            )
+        )
 
     environment_count = int(q.shape[0])
     if body_parameters is None:
@@ -632,7 +926,24 @@ def step(
                 4,
             ),
         )
+    if world.actuation_mode == "implicit_position":
+        half_backlash = 0.5 * actuator_state.profile_values[:, :, 4]
+        actions = mx.clip(
+            actuator_state.effective_position_target,
+            actions - half_backlash,
+            actions + half_backlash,
+        )
+        next_actuator_state = ActuatorState(
+            effective_position_target=actions,
+            profile_values=actuator_state.profile_values,
+        )
+    else:
+        next_actuator_state = actuator_state
     if world.contact_supported:
+        tactile_timestamp = (
+            tactile_state.time_seconds +
+            float(world.control_timestep)
+        )
         (
             next_q,
             next_v,
@@ -655,6 +966,26 @@ def step(
             contact_ids,
             contact_counts,
             contact_mask,
+            tactile_depth,
+            tactile_depth_velocity,
+            tactile_motion,
+            tactile_validity,
+            tactile_object_ids,
+            tactile_anchor,
+            tactile_pose_position,
+            tactile_pose_orientation,
+            tactile_force,
+            tactile_torque,
+            tactile_centroid_local,
+            tactile_centroid_world,
+            tactile_cop_local,
+            tactile_cop_world,
+            tactile_motion_summary,
+            tactile_statistics,
+            tactile_status,
+            tactile_object_local_points,
+            tactile_object_local_normals,
+            tactile_object_contact_mask,
         ) = _world_step(
             world,
             q,
@@ -675,7 +1006,25 @@ def step(
             cache.rod_witnesses,
             body_parameters,
             controller_parameters,
+            tactile_state.previous_depth_m,
+            tactile_state.previous_validity,
+            tactile_state.previous_object_shape_ids,
+            tactile_state.previous_tangential_motion,
+            tactile_state.target_local_anchor,
+            tactile_state.frame_index,
+            tactile_timestamp,
+            tactile_reset_mask,
+            actuator_state.profile_values,
             stream=stream,
+        )
+        next_tactile_state = TactileState(
+            previous_depth_m=tactile_depth,
+            previous_validity=tactile_validity,
+            previous_object_shape_ids=tactile_object_ids,
+            previous_tangential_motion=tactile_motion,
+            target_local_anchor=tactile_anchor,
+            frame_index=tactile_state.frame_index + 1,
+            time_seconds=tactile_timestamp,
         )
         next_state = WorldState(
             q=next_q,
@@ -699,12 +1048,46 @@ def step(
                 next_pair_cache,
                 next_rod_witnesses,
             ),
+            tactile=next_tactile_state,
+            actuators=next_actuator_state,
         )
         contacts = ContactEvidence(
             contact_values,
             contact_ids,
             contact_counts,
             contact_mask.astype(mx.bool_),
+        )
+        tactile = TactileObservation(
+            penetration_depth_m=tactile_depth,
+            depth_velocity_m_s=tactile_depth_velocity,
+            tangential_motion=tactile_motion,
+            validity=tactile_validity,
+            object_shape_ids=tactile_object_ids,
+            summary=TactileSummary(
+                pose_position_and_timestamp=tactile_pose_position,
+                pose_orientation=tactile_pose_orientation,
+                net_force_and_contact_area=tactile_force,
+                net_torque_and_maximum_depth=tactile_torque,
+                centroid_local_and_mean_depth=tactile_centroid_local,
+                centroid_world_and_active_count=tactile_centroid_world,
+                center_of_pressure_local_and_force_weight=tactile_cop_local,
+                center_of_pressure_world_and_contact_count=tactile_cop_world,
+                tangential_motion_and_friction=tactile_motion_summary,
+                statistics_and_identity=tactile_statistics,
+            ),
+            object_contacts=ObjectContactPointSet(
+                object_shape_ids=tactile_object_ids,
+                object_local_point_and_depth=(
+                    tactile_object_local_points
+                ),
+                object_local_sensor_normal=(
+                    tactile_object_local_normals
+                ),
+                mask=tactile_object_contact_mask.astype(
+                    mx.bool_
+                ),
+            ),
+            status=tactile_status,
         )
     else:
         next_q, next_v, acceleration, status = _aba_step(
@@ -720,6 +1103,8 @@ def step(
             scene_bodies=scene,
             rods=rods,
             solver_cache=cache,
+            tactile=tactile_state,
+            actuators=next_actuator_state,
         )
         contacts = ContactEvidence(
             mx.zeros(
@@ -737,6 +1122,58 @@ def step(
             mx.zeros(
                 (environment_count, 0),
                 dtype=mx.bool_,
+            ),
+        )
+        sensor_count = int(world.tactile_sensor_count)
+        sample_count = int(world.tactile_sample_count)
+        empty_dense = mx.zeros(
+            (environment_count, sample_count),
+            dtype=mx.float32,
+        )
+        empty_motion = mx.zeros(
+            (environment_count, sample_count, 4),
+            dtype=mx.float32,
+        )
+        empty_summary = mx.zeros(
+            (environment_count, sensor_count, 4),
+            dtype=mx.float32,
+        )
+        tactile = TactileObservation(
+            penetration_depth_m=empty_dense,
+            depth_velocity_m_s=empty_dense,
+            tangential_motion=empty_motion,
+            validity=mx.zeros(
+                (environment_count, sample_count),
+                dtype=mx.uint32,
+            ),
+            object_shape_ids=mx.full(
+                (environment_count, sample_count),
+                0xFFFFFFFF,
+                dtype=mx.uint32,
+            ),
+            summary=TactileSummary(
+                *([empty_summary] * 9),
+                mx.zeros(
+                    (environment_count, sensor_count, 4),
+                    dtype=mx.uint32,
+                ),
+            ),
+            object_contacts=ObjectContactPointSet(
+                object_shape_ids=mx.full(
+                    (environment_count, sample_count),
+                    0xFFFFFFFF,
+                    dtype=mx.uint32,
+                ),
+                object_local_point_and_depth=empty_motion,
+                object_local_sensor_normal=empty_motion,
+                mask=mx.zeros(
+                    (environment_count, sample_count),
+                    dtype=mx.bool_,
+                ),
+            ),
+            status=mx.zeros(
+                (environment_count, sensor_count, 8),
+                dtype=mx.uint32,
             ),
         )
 
@@ -783,6 +1220,7 @@ def step(
             axis=-1,
         ),
         contacts=contacts,
+        tactile=tactile,
         sensors=sensors,
         status=status,
         physics_error=status[:, 0] != 0,
@@ -829,7 +1267,8 @@ def step_sampled_world_family(
 
     Mass/inertia, friction, restitution, damping, gains, and damping gains are
     consumed by ``world_step``. This adapter additionally turns the sampled
-    controller latency into an explicit per-environment command delay.
+    controller and authored per-DoF actuator latency into an explicit
+    per-environment command delay.
     """
 
     if control_period_seconds <= 0.0:
@@ -858,6 +1297,10 @@ def step_sampled_world_family(
             (environment_count,),
             dtype=mx.float32,
         )
+    latency = (
+        latency[:, None] +
+        state.world.actuators.profile_values[:, :, 5]
+    )
     delay_steps = mx.clip(
         mx.floor(
             latency / float(control_period_seconds) + 0.5
@@ -867,7 +1310,7 @@ def step_sampled_world_family(
     ).astype(mx.uint32)
     applied_actions = mx.take_along_axis(
         next_history,
-        delay_steps[:, None, None],
+        delay_steps[:, None, :],
         axis=1,
     )[:, 0, :]
     physics = step(
@@ -891,10 +1334,12 @@ def step_sampled_world_family(
 
 
 __all__ = [
+    "ActuatorState",
     "ContactEvidence",
     "ControllerDelayState",
     "MLXCompiledWorld",
     "MetalWorldCapacityProfile",
+    "ObjectContactPointSet",
     "RodState",
     "SceneBodyState",
     "ScenarioState",
@@ -902,12 +1347,17 @@ __all__ = [
     "SampledWorldStepOutput",
     "SolverCache",
     "StepOutput",
+    "TactileObservation",
+    "TactileState",
+    "TactileSummary",
     "WorldState",
     "WorldPhysicalParameters",
     "compile_world",
+    "compile_world_pack",
     "initial_state",
     "initial_controller_delay_state",
     "initial_state_from_world_family",
+    "materialize_correlated_actuator_profiles",
     "reset_sampled_world_family",
     "sampled_state_from_world_family",
     "step",

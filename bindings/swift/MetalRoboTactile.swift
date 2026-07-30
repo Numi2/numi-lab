@@ -53,6 +53,7 @@ public enum MetalRoboTactileBuffer: UInt32, Sendable {
     case debugHits = 4
     case summaries = 5
     case statuses = 6
+    case tangentialMotion = 7
 }
 
 /// Swift owner for the canonical Franka metric tactile observation context.
