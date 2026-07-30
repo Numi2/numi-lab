@@ -278,13 +278,15 @@ mr_world_family_scenario_headers(const MRWorldFamilyHandle* handle);
 MR_API const MRWorldScenarioValueGPU*
 mr_world_family_scenario_values(const MRWorldFamilyHandle* handle);
 
-// V2 presentation entry point. At least one of gaussians or visual_pack_path
-// must be supplied. light_rig accepts "studio_key" or "indoor_area";
-// renderer_profile accepts "sensor_fast" or "sensor_reference".
-MR_API MRHybridRendererHandle* mr_hybrid_renderer_create_v2(
+// V3 presentation entry point. At least one of gaussians or visual_pack_path
+// must be supplied. environment_pack_path accepts a cooked .mrenv pack.
+// light_rig accepts "studio_key" or "indoor_area"; renderer_profile accepts
+// "sensor_fast" or "sensor_reference".
+MR_API MRHybridRendererHandle* mr_hybrid_renderer_create_v3(
     const MRHybridGaussianC* gaussians,
     size_t gaussian_count,
     const char* visual_pack_path,
+    const char* environment_pack_path,
     uint32_t asset_count,
     uint32_t body_count,
     uint32_t visual_asset_index,

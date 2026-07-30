@@ -30,26 +30,41 @@ flowchart LR
 
 ### Physics-bound scene
 
-`VisualSceneManifestV1` compiles the immutable `WorldTemplate` into:
+`VisualSceneManifestV3` binds immutable `VisualAssetPackV2` files to the
+authoritative `WorldTemplate`. A live scene contains only pack references,
+body/link instances, camera bindings, the selected light rig, and an optional
+`VisualEnvironmentPackV2`; it never flattens authored geometry into a host
+scene arena.
 
-- Deterministically triangulated primitive and cooked collision geometry.
-- Material records and stable semantic, instance, link, and primitive IDs.
-  Assets in the same semantic class share a class ID while retaining distinct
-  instance IDs.
-- Global-body bindings for every rigid body and articulated robot link.
-- Fixed, rigid-body-mounted, and articulated-link-mounted camera bindings.
-- Source URI, content hash, license, and preprocessing provenance for each
-  visual asset.
+`metalrobo_visual_cook` accepts GLB, glTF, USD, USDA, USDC, and USDZ. The USD
+path uses Model I/O with `MTKMeshBufferAllocator`, applies stage units and
+up-axis conversion, preserves material subsets and symbolic link bindings,
+and writes a sectioned, content-addressed `.mrvpack`. Geometry, material
+records, texture descriptors, texture payloads, and symbolic bindings occupy
+independently hashed sections. USDZ package resolution remains inside Model
+I/O; a reusable `MTKTextureLoader` converts one material texture at a time
+without color-transforming linear normal, roughness, metallic, occlusion, or
+mask data. Separate Model I/O roughness, metallic, opacity, and clearcoat-gloss
+maps retain scalar-channel semantics instead of being interpreted as glTF's
+packed material channels. Vertices, indices, and texture subresources are
+aligned for direct Metal I/O loading. Authored minification, magnification,
+mipmap, and U/V wrap modes are encoded independently; renderer compilation
+deduplicates only the sampler states actually used by the scene.
 
-`attachGaussianField` adds a captured Gaussian appearance layer to an asset.
-The Gaussian layer and physics-bound triangle geometry render into the same
-depth, identity, normal, and motion buffers. This supports captured static
-rooms while retaining mesh geometry for robots, manipulated objects, contact
-surfaces, and occlusion.
+`metalrobo_environment_cook` converts HDR or EXR equirectangular images into a
+diffuse irradiance cube, a full prefiltered GGX mip chain, and the shared DFG
+BRDF LUT. The resulting `.mrenv` is immutable and records color conversion,
+sample schedules, exact IBL-kernel hash, and source provenance. GPU
+convolution runs in one ordered command stream; derived texture readback uses
+an actual two-slot pipeline with exact final-capacity reservation, avoiding
+per-subresource synchronization and vector-growth memory spikes.
 
-`writeVisualSceneManifest` publishes the validated asset identities,
-provenance, geometry counts, and independent render-scene fingerprint as the
-JSON descriptor defined by `visual_scene_manifest.schema.json`.
+Captured Gaussians remain an optional pre-lit appearance layer in
+`VisualRenderSceneV3`. They share metric depth, identity, normal, and motion
+outputs with authored PBR geometry.
+
+`writeVisualSceneManifestV3` publishes immutable pack hashes and lightweight
+runtime bindings against `visual_scene_manifest_v3.schema.json`.
 
 `composeVisualBodyStates` evaluates articulated bodies with MetalRobo's
 authoritative FP64 kinematics and combines them with sampled scene bodies in
@@ -58,8 +73,10 @@ poses used by collision and contact.
 
 ### Visual sensor runtime
 
-`MetalHybridRenderer` consumes live body/link buffers and sampled world-family
-buffers directly on Metal. It produces:
+`MetalHybridRenderer` streams cooked sections into private placement heaps
+with Metal I/O, binds native textures and samplers once through a tier-2
+argument buffer, and consumes live body/link buffers directly on Metal. It
+produces:
 
 - Linear RGBA.
 - Metric depth and depth validity.
@@ -68,16 +85,15 @@ buffers directly on Metal. It produces:
 - Previous-to-current pixel motion.
 - Frame validity and versioned frame metadata.
 
-The runtime applies calibrated intrinsics and radial/tangential distortion,
-sampled exposure and appearance response, direct material lighting,
-deterministic color/depth noise, range limits, depth quantization, dropout,
-and a motion-vector-based Gaussian shutter-blur approximation. Mesh motion
-vectors and shutter timing remain explicit for a future full rolling-shutter
-stage. Sensor effects are keyed by scenario, camera, sensor sequence, frame
-identity, and pixel, so the same episode rerenders deterministically. Sensor
-depth validity is separate from geometric validity: range failure or dropout
-masks deployable depth without erasing simulation-only identities, normals,
-motion, or visibility.
+Both renderer profiles use the same metallic-roughness PBR and image-based
+lighting implementation. `sensor_fast` uses compute raster visibility,
+environment-major shadow atlases, and banded temporal sampling.
+`sensor_reference` uses motion-instance ray queries, direct shadow rays, and
+per-row exposure timing. Sensor effects are keyed by scenario, camera, sensor
+sequence, frame identity, pixel, and sample, so rerenders remain
+deterministic. Sensor depth validity is separate from geometric validity:
+range failure or dropout masks deployable depth without erasing
+simulation-only identities, normals, motion, or visibility.
 
 `renderLive` accepts host-visible state for inspection and export.
 `encode` accepts borrowed Metal body-state buffers and a caller-owned active

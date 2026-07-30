@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cstring>
 #include <filesystem>
+#include <iterator>
 #include <limits>
 #include <mutex>
 #include <new>
@@ -42,10 +43,10 @@ struct RendererBuffers {
     __strong id<MTLBuffer> meshPrimitives = nil;
     __strong id<MTLBuffer> meshInstances = nil;
     __strong id<MTLBuffer> materials = nil;
-    __strong id<MTLBuffer> textureDescriptors = nil;
-    __strong id<MTLBuffer> textureTexels = nil;
+    __strong id<MTLBuffer> textureBindings = nil;
+    __strong id<MTLBuffer> resourceArgumentBuffer = nil;
     __strong id<MTLBuffer> lights = nil;
-    __strong id<MTLBuffer> environmentSH = nil;
+    __strong id<MTLBuffer> environmentData = nil;
     __strong id<MTLBuffer> rayVisibleInstances = nil;
     __strong id<MTLBuffer> rayBlasIndices = nil;
     __strong id<MTLBuffer> sensorBindings = nil;
@@ -68,17 +69,39 @@ struct RendererBuffers {
 };
 
 struct RuntimeVisualScene {
+    struct GeometrySource {
+        std::filesystem::path path;
+        std::uint64_t vertexFileOffset = 0u;
+        std::uint64_t vertexByteCount = 0u;
+        std::uint64_t indexFileOffset = 0u;
+        std::uint64_t indexByteCount = 0u;
+        std::uint64_t materialFileOffset = 0u;
+        std::uint64_t materialByteCount = 0u;
+        std::uint32_t vertexBase = 0u;
+        std::uint32_t indexBase = 0u;
+        std::uint32_t materialBase = 0u;
+        std::uint32_t bindingBase = 0u;
+    };
+
+    struct TextureSource {
+        std::filesystem::path path;
+        std::uint64_t payloadFileOffset = 0u;
+    };
+
     std::vector<MRHybridGaussianGPU> gaussians;
-    std::vector<MRVisualVertexGPUV2> vertices;
-    std::vector<std::uint32_t> indices;
-    std::vector<MRVisualTriangleGPUV2> triangles;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t indexCount = 0u;
+    std::vector<GeometrySource> geometrySources;
     std::vector<MRVisualPrimitiveGPUV2> primitives;
     std::vector<MRVisualInstanceGPUV2> instances;
     std::vector<MRVisualMaterialGPUV2> materials;
-    std::vector<MRVisualTextureGPUV1> textureDescriptors;
-    std::vector<std::uint32_t> textureTexels;
+    std::vector<MRVisualTextureBindingGPUV2> textureBindings;
+    std::vector<VisualTextureImageV2> textures;
+    std::vector<TextureSource> textureSources;
     std::vector<MRVisualLightGPUV1> lights;
-    std::array<mr_float4, 9u> environmentSH{};
+    VisualEnvironmentPackV2 environmentPack;
+    std::array<TextureSource, 3u> environmentTextureSources{};
+    MRVisualEnvironmentGPUV2 environmentData{};
     std::vector<MRVisualSensorBindingGPU> sensors;
 };
 
@@ -234,19 +257,6 @@ bool finite4(const mr_float4& value) {
         std::isfinite(value.w);
 }
 
-bool validMaterial(const MRVisualMaterialGPU& material) {
-    return finite4(material.baseColorAndOpacity) &&
-        finite4(material.emissionAndStrength) &&
-        finite4(material.surface) &&
-        finite4(material.coating) &&
-        material.baseColorAndOpacity.w >= 0.0f &&
-        material.baseColorAndOpacity.w <= 1.0f &&
-        material.surface.x >= 0.0f &&
-        material.surface.x <= 1.0f &&
-        material.surface.y >= 0.0f &&
-        material.surface.y <= 1.0f;
-}
-
 mr_float4 interpolate4(
     const mr_float4 a,
     const mr_float4 b,
@@ -384,139 +394,332 @@ bool sampleMotionStates(
     return true;
 }
 
+VisualTextureImageV2 makeNeutralCubeTexture(
+    const std::string& id
+) {
+    VisualTextureImageV2 texture{};
+    texture.id = id;
+    texture.contentHash = "builtin:" + id;
+    texture.width = 1u;
+    texture.height = 1u;
+    texture.mipCount = 1u;
+    texture.arrayLength = 6u;
+    texture.pixelFormat =
+        VisualTexturePixelFormatV2::rgba16Float;
+    texture.dimension = VisualTextureDimensionV2::cube;
+    constexpr std::uint32_t kRowBytes = 256u;
+    texture.data.resize(6u * kRowBytes, 0u);
+    for (std::uint32_t slice = 0u; slice < 6u; ++slice) {
+        auto* values = reinterpret_cast<std::uint16_t*>(
+            texture.data.data() + slice * kRowBytes
+        );
+        values[0] = 0x3c00u;
+        values[1] = 0x3c00u;
+        values[2] = 0x3c00u;
+        values[3] = 0x3c00u;
+        texture.subresources.push_back({
+            0u,
+            slice,
+            1u,
+            1u,
+            static_cast<std::uint64_t>(slice) * kRowBytes,
+            kRowBytes,
+            kRowBytes,
+            kRowBytes,
+        });
+    }
+    return texture;
+}
+
+VisualTextureImageV2 makeNeutralBrdfTexture() {
+    VisualTextureImageV2 texture{};
+    texture.id = "neutral_dfg";
+    texture.contentHash = "builtin:neutral-dfg";
+    texture.width = 1u;
+    texture.height = 1u;
+    texture.mipCount = 1u;
+    texture.arrayLength = 1u;
+    texture.pixelFormat = VisualTexturePixelFormatV2::rg16Float;
+    texture.dimension = VisualTextureDimensionV2::texture2D;
+    texture.data.resize(256u, 0u);
+    auto* values =
+        reinterpret_cast<std::uint16_t*>(texture.data.data());
+    values[0] = 0x3c00u;
+    values[1] = 0u;
+    texture.subresources.push_back({
+        0u,
+        0u,
+        1u,
+        1u,
+        0u,
+        256u,
+        256u,
+        256u,
+    });
+    return texture;
+}
+
+VisualEnvironmentPackV2 makeNeutralEnvironmentPack() {
+    VisualEnvironmentPackV2 pack{};
+    pack.id = "neutral_studio";
+    pack.sourceUri = "builtin:neutral-studio-v3";
+    pack.sourceContentHash = "builtin:neutral-studio-v3";
+    pack.sourceColorSpace = "linear-rec709";
+    pack.preprocessingProvenance =
+        "metalrobo builtin neutral IBL v3";
+    pack.specularFaceSize = 1u;
+    pack.diffuseFaceSize = 1u;
+    pack.brdfLutSize = 1u;
+    pack.diffuseIrradiance =
+        makeNeutralCubeTexture("neutral_irradiance");
+    pack.prefilteredSpecular =
+        makeNeutralCubeTexture("neutral_specular");
+    pack.brdfLut = makeNeutralBrdfTexture();
+    pack.contentHash =
+        computeVisualEnvironmentPackContentHash(pack);
+    return pack;
+}
+
+void rebaseMaterialBindings(
+    MRVisualMaterialGPUV2& material,
+    const std::uint32_t bindingBase
+) {
+    const auto rebase = [bindingBase](std::uint32_t& value) {
+        if (value != MR_INVALID_INDEX) {
+            value += bindingBase;
+        }
+    };
+    rebase(material.textureIndices0.x);
+    rebase(material.textureIndices0.y);
+    rebase(material.textureIndices0.z);
+    rebase(material.textureIndices0.w);
+    rebase(material.textureIndices1.x);
+    rebase(material.textureIndices1.y);
+    rebase(material.textureIndices1.z);
+    // Direct USD keeps scalar bindings separate from glTF's packed maps.
+    rebase(material.reserved.x);
+    rebase(material.reserved.y);
+    rebase(material.reserved.z);
+    rebase(material.reserved.w);
+}
+
+const VisualPackSectionV2* packSection(
+    const std::span<const VisualPackSectionV2> sections,
+    const VisualAssetSectionKindV2 kind,
+    const std::uint32_t index = 0u
+) {
+    const auto found = std::ranges::find_if(
+        sections,
+        [kind, index](const VisualPackSectionV2& section) {
+            return section.kind == kind &&
+                section.index == index;
+        }
+    );
+    return found == sections.end() ? nullptr : &*found;
+}
+
 bool flattenScene(
-    VisualRenderSceneV2&& scene,
+    VisualRenderSceneV3&& scene,
     RuntimeVisualScene& output,
     std::string& reason
 ) {
     output.gaussians = std::move(scene.gaussians);
-    output.vertices = std::move(scene.vertices);
-    output.indices = std::move(scene.indices);
-    output.primitives = std::move(scene.primitives);
-    output.instances = std::move(scene.instances);
-    output.materials = std::move(scene.materials);
     output.lights = std::move(scene.lightRig.lights);
-    output.environmentSH = scene.environment.diffuseSH;
     output.sensors = std::move(scene.sensorBindings);
-    output.textureDescriptors.reserve(scene.textures.size());
-    std::size_t textureTexelCount = 0u;
-    for (const VisualTextureImageV1& texture : scene.textures) {
-        if (!checkedAdd(
-                textureTexelCount,
-                texture.rgba8.size() / 4u,
-                textureTexelCount
-            )) {
-            reason = "visual texture atlas size overflows";
-            return false;
-        }
-    }
-    output.textureTexels.reserve(textureTexelCount);
-    for (VisualTextureImageV1& texture : scene.textures) {
-        if (output.textureTexels.size() >
-            std::numeric_limits<std::uint32_t>::max() -
-                texture.rgba8.size() / 4u) {
-            reason = "visual texture atlas exceeds uint32";
-            return false;
-        }
-        MRVisualTextureGPUV1 descriptor{};
-        descriptor.dimensions = {
-            texture.width,
-            texture.height,
-            static_cast<std::uint32_t>(
-                texture.mipTexelOffsets.size()
-            ),
-            texture.flags,
-        };
-        const std::uint32_t base =
-            static_cast<std::uint32_t>(
-                output.textureTexels.size()
-            );
-        descriptor.storage = {
-            base,
-            static_cast<std::uint32_t>(texture.rgba8.size() / 4u),
-            static_cast<std::uint32_t>(
-                output.textureDescriptors.size() + 1u
-            ),
-            0u,
-        };
-        descriptor.mipOffsets0 = {
-            MR_INVALID_INDEX,
-            MR_INVALID_INDEX,
-            MR_INVALID_INDEX,
-            MR_INVALID_INDEX,
-        };
-        descriptor.mipOffsets1 = {
-            MR_INVALID_INDEX,
-            MR_INVALID_INDEX,
-            MR_INVALID_INDEX,
-            MR_INVALID_INDEX,
-        };
-        for (std::size_t level = 1u;
-             level < texture.mipTexelOffsets.size();
-             ++level) {
-            const std::uint32_t offset =
-                base + texture.mipTexelOffsets[level];
-            if (level <= 4u) {
-                (&descriptor.mipOffsets0.x)[level - 1u] = offset;
-            } else if (level <= 8u) {
-                (&descriptor.mipOffsets1.x)[level - 5u] = offset;
+
+    for (const VisualAssetReferenceV3& reference :
+         scene.visualPacks) {
+        VisualAssetPackV2 pack{};
+        if (!readVisualAssetPackIndex(
+                reference.packPath,
+                pack,
+                &reason
+            ) ||
+            pack.contentHash != reference.contentHash) {
+            if (reason.empty()) {
+                reason =
+                    "visual pack reference hash does not match";
             }
+            return false;
         }
-        output.textureDescriptors.push_back(descriptor);
-        for (std::size_t byte = 0u;
-             byte < texture.rgba8.size();
-             byte += 4u) {
-            output.textureTexels.push_back(
-                static_cast<std::uint32_t>(texture.rgba8[byte]) |
-                static_cast<std::uint32_t>(
-                    texture.rgba8[byte + 1u]
-                ) << 8u |
-                static_cast<std::uint32_t>(
-                    texture.rgba8[byte + 2u]
-                ) << 16u |
-                static_cast<std::uint32_t>(
-                    texture.rgba8[byte + 3u]
-                ) << 24u
+        const VisualPackSectionV2* vertexSection = packSection(
+            pack.sections,
+            VisualAssetSectionKindV2::vertices
+        );
+        const VisualPackSectionV2* indexSection = packSection(
+            pack.sections,
+            VisualAssetSectionKindV2::indices
+        );
+        const VisualPackSectionV2* materialSection = packSection(
+            pack.sections,
+            VisualAssetSectionKindV2::materials
+        );
+        if (vertexSection == nullptr || indexSection == nullptr ||
+            materialSection == nullptr ||
+            vertexSection->elementCount >
+                std::numeric_limits<std::uint32_t>::max() -
+                    output.vertexCount ||
+            indexSection->elementCount >
+                std::numeric_limits<std::uint32_t>::max() -
+                    output.indexCount ||
+            output.primitives.size() >
+                std::numeric_limits<std::uint32_t>::max() ||
+            output.instances.size() >
+                std::numeric_limits<std::uint32_t>::max() ||
+            output.materials.size() >
+                std::numeric_limits<std::uint32_t>::max() ||
+            output.textures.size() >
+                std::numeric_limits<std::uint32_t>::max() ||
+            output.textureBindings.size() >
+                std::numeric_limits<std::uint32_t>::max()) {
+            reason = "visual scene pack bases exceed uint32";
+            return false;
+        }
+        const std::uint32_t vertexBase =
+            output.vertexCount;
+        const std::uint32_t indexBase =
+            output.indexCount;
+        const std::uint32_t primitiveBase =
+            static_cast<std::uint32_t>(output.primitives.size());
+        const std::uint32_t instanceBase =
+            static_cast<std::uint32_t>(output.instances.size());
+        const std::uint32_t materialBase =
+            static_cast<std::uint32_t>(output.materials.size());
+        const std::uint32_t textureBase =
+            static_cast<std::uint32_t>(output.textures.size());
+        const std::uint32_t bindingBase =
+            static_cast<std::uint32_t>(
+                output.textureBindings.size()
             );
+
+        output.vertexCount += static_cast<std::uint32_t>(
+            vertexSection->elementCount
+        );
+        output.indexCount += static_cast<std::uint32_t>(
+            indexSection->elementCount
+        );
+        output.geometrySources.push_back({
+            reference.packPath,
+            vertexSection->fileOffset,
+            vertexSection->byteCount,
+            indexSection->fileOffset,
+            indexSection->byteCount,
+            materialSection->fileOffset,
+            materialSection->byteCount,
+            vertexBase,
+            indexBase,
+            materialBase,
+            bindingBase,
+        });
+        for (MRVisualTextureBindingGPUV2 binding :
+             pack.textureBindings) {
+            binding.resource.x += textureBase;
+            output.textureBindings.push_back(binding);
         }
-        std::vector<std::uint8_t>{}.swap(texture.rgba8);
-    }
-    if (!output.primitives.empty() && output.materials.empty()) {
-        reason = "V2 render scene has no materials";
-        return false;
-    }
-    for (std::uint32_t primitiveIndex = 0u;
-         primitiveIndex < output.primitives.size();
-         ++primitiveIndex) {
-        const MRVisualPrimitiveGPUV2& primitive =
-            output.primitives[primitiveIndex];
-        const MRVisualInstanceGPUV2& instance =
-            output.instances[primitive.geometry.w];
-        if ((instance.binding.w &
-             MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR) == 0u) {
-            continue;
+        for (MRVisualMaterialGPUV2 material : pack.materials) {
+            rebaseMaterialBindings(material, bindingBase);
+            output.materials.push_back(material);
         }
-        const std::uint32_t first = primitive.geometry.x;
-        const std::uint32_t end = first + primitive.geometry.y;
-        for (std::uint32_t index = first;
-             index < end;
-             index += 3u) {
-            if (output.triangles.size() ==
-                    std::numeric_limits<std::uint32_t>::max()) {
-                reason = "indexed visual triangle count exceeds uint32";
+        for (MRVisualInstanceGPUV2 instance : pack.instances) {
+            instance.binding.x = reference.assetIndex;
+            instance.geometry.x += primitiveBase;
+            if (instance.identity.x == 0u) {
+                instance.identity.x = reference.semanticId;
+            }
+            if (instance.identity.y == 0u) {
+                instance.identity.y = reference.instanceId;
+            }
+            output.instances.push_back(instance);
+        }
+        for (MRVisualPrimitiveGPUV2 primitive :
+             pack.primitives) {
+            primitive.geometry.x += indexBase;
+            primitive.geometry.z += materialBase;
+            primitive.geometry.w += instanceBase;
+            if (primitive.identity.x == 0u) {
+                primitive.identity.x = reference.semanticId;
+            }
+            if (primitive.identity.y == 0u) {
+                primitive.identity.y = reference.instanceId;
+            }
+            output.primitives.push_back(primitive);
+        }
+        for (std::uint32_t textureIndex = 0u;
+             textureIndex < pack.textures.size();
+             ++textureIndex) {
+            const VisualPackSectionV2* payload = packSection(
+                pack.sections,
+                VisualAssetSectionKindV2::texturePayload,
+                textureIndex
+            );
+            if (payload == nullptr) {
+                reason = "visual texture payload section is absent";
                 return false;
             }
-            MRVisualTriangleGPUV2 triangle{};
-            triangle.verticesAndPrimitive = {
-                output.indices[index],
-                output.indices[index + 1u],
-                output.indices[index + 2u],
-                primitiveIndex,
+            output.textureSources.push_back({
+                reference.packPath,
+                payload->fileOffset,
+            });
+        }
+        output.textures.insert(
+            output.textures.end(),
+            std::make_move_iterator(pack.textures.begin()),
+            std::make_move_iterator(pack.textures.end())
+        );
+    }
+
+    if (scene.environment.packPath.empty()) {
+        output.environmentPack = makeNeutralEnvironmentPack();
+    } else if (!readVisualEnvironmentPackIndex(
+                   scene.environment.packPath,
+                   output.environmentPack,
+                   &reason
+               ) ||
+               output.environmentPack.contentHash !=
+                   scene.environment.contentHash) {
+        if (reason.empty()) {
+            reason =
+                "environment pack reference hash does not match";
+        }
+        return false;
+    } else {
+        for (std::uint32_t index = 0u;
+             index < output.environmentTextureSources.size();
+             ++index) {
+            const VisualPackSectionV2* payload = packSection(
+                output.environmentPack.sections,
+                VisualAssetSectionKindV2::texturePayload,
+                index
+            );
+            if (payload == nullptr) {
+                reason =
+                    "environment texture payload section is absent";
+                return false;
+            }
+            output.environmentTextureSources[index] = {
+                scene.environment.packPath,
+                payload->fileOffset,
             };
-            output.triangles.push_back(triangle);
         }
     }
-    return true;
+    output.environmentData.dimensions = {
+        output.environmentPack.prefilteredSpecular.mipCount,
+        output.environmentPack.diffuseFaceSize,
+        output.environmentPack.specularFaceSize,
+        output.environmentPack.brdfLutSize,
+    };
+    output.environmentData.parameters = {
+        scene.environment.intensity,
+        scene.environment.rotationRadians,
+        0.0f,
+        0.0f,
+    };
+
+    if (!output.primitives.empty() && output.materials.empty()) {
+        reason = "V3 render scene has no materials";
+        return false;
+    }
+    return output.indexCount % 3u == 0u;
 }
 
 } // namespace
@@ -561,6 +764,10 @@ struct MetalHybridRendererState {
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> clearPipeline = nil;
+    __strong id<MTLComputePipelineState> rebaseIndicesPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        rebaseMaterialBindingsPipeline = nil;
+    __strong id<MTLComputePipelineState> expandTrianglesPipeline = nil;
     __strong id<MTLComputePipelineState> clearObservationPipeline = nil;
     __strong id<MTLComputePipelineState> clearMeshPipeline = nil;
     __strong id<MTLComputePipelineState> binPipeline = nil;
@@ -576,6 +783,14 @@ struct MetalHybridRendererState {
     __strong id<MTLComputePipelineState> applySensorPipeline = nil;
     __strong id<MTLComputePipelineState> prepareRayInstancesPipeline = nil;
     __strong id<MTLComputePipelineState> referenceRenderPipeline = nil;
+    __strong id<MTLArgumentEncoder> resourceArgumentEncoder = nil;
+    __strong id<MTLHeap> geometryHeap = nil;
+    __strong id<MTLHeap> visualResourceHeap = nil;
+    __strong NSArray<id<MTLTexture>>* materialTextures = nil;
+    __strong NSArray<id<MTLSamplerState>>* materialSamplers = nil;
+    __strong id<MTLTexture> diffuseIrradiance = nil;
+    __strong id<MTLTexture> prefilteredSpecular = nil;
+    __strong id<MTLTexture> brdfLut = nil;
     __strong NSArray<id<MTLAccelerationStructure>>*
         primitiveAccelerationStructures = nil;
     RendererBuffers buffers;
@@ -584,7 +799,7 @@ struct MetalHybridRendererState {
     std::vector<MRVisualSensorBindingGPU> sensorProfiles;
     VisualRendererProfileV1 rendererProfile =
         VisualRendererProfileV1::sensorFast();
-    VisualEnvironmentV1 environment;
+    VisualEnvironmentReferenceV2 environment;
     std::uint64_t renderSceneFingerprint = 0u;
     std::uint32_t shadowLightIndex = MR_INVALID_INDEX;
     std::vector<std::uint32_t> rayVisibleInstances;
@@ -663,6 +878,12 @@ MetalHybridRendererDiagnostics initialize(
     };
     state.clearPipeline =
         pipeline(@"mr_hybrid_clear_tiles");
+    state.rebaseIndicesPipeline =
+        pipeline(@"mr_visual_rebase_indices_v3");
+    state.rebaseMaterialBindingsPipeline =
+        pipeline(@"mr_visual_rebase_material_bindings_v3");
+    state.expandTrianglesPipeline =
+        pipeline(@"mr_visual_expand_triangles_v3");
     state.clearObservationPipeline =
         pipeline(@"mr_hybrid_clear_observations");
     state.clearMeshPipeline =
@@ -693,7 +914,15 @@ MetalHybridRendererDiagnostics initialize(
         pipeline(@"mr_hybrid_prepare_ray_instances");
     state.referenceRenderPipeline =
         pipeline(@"mr_hybrid_render_reference");
+    id<MTLFunction> compositeFunction =
+        [state.library
+            newFunctionWithName:@"mr_hybrid_composite_mesh"];
+    state.resourceArgumentEncoder =
+        [compositeFunction newArgumentEncoderWithBufferIndex:21u];
     if (state.clearPipeline == nil ||
+        state.rebaseIndicesPipeline == nil ||
+        state.rebaseMaterialBindingsPipeline == nil ||
+        state.expandTrianglesPipeline == nil ||
         state.clearObservationPipeline == nil ||
         state.clearMeshPipeline == nil ||
         state.binPipeline == nil ||
@@ -706,7 +935,8 @@ MetalHybridRendererDiagnostics initialize(
         state.clearAccumulationPipeline == nil ||
         state.accumulatePipeline == nil ||
         state.resolveAccumulationPipeline == nil ||
-        state.applySensorPipeline == nil) {
+        state.applySensorPipeline == nil ||
+        state.resourceArgumentEncoder == nil) {
         return reject(
             std::move(diagnostics),
             MetalHybridRendererStatus::metalPipelineFailure,
@@ -751,6 +981,838 @@ bool upload(
        destinationOffset:0u
                     size:bytes];
     staging.push_back(buffer);
+    return true;
+}
+
+constexpr std::uint32_t kMaximumSceneTexturesV3 = 2048u;
+constexpr std::uint32_t kSceneSamplerCountV3 = 108u;
+constexpr std::uint32_t kEnvironmentArgumentBaseV3 =
+    kMaximumSceneTexturesV3 + kSceneSamplerCountV3;
+
+MTLPixelFormat metalPixelFormat(
+    const VisualTexturePixelFormatV2 format
+) {
+    switch (format) {
+    case VisualTexturePixelFormatV2::rgba8Unorm:
+        return MTLPixelFormatRGBA8Unorm;
+    case VisualTexturePixelFormatV2::rgba8UnormSrgb:
+        return MTLPixelFormatRGBA8Unorm_sRGB;
+    case VisualTexturePixelFormatV2::rg11b10Float:
+        return MTLPixelFormatRG11B10Float;
+    case VisualTexturePixelFormatV2::rg16Float:
+        return MTLPixelFormatRG16Float;
+    case VisualTexturePixelFormatV2::rgba16Float:
+        return MTLPixelFormatRGBA16Float;
+    }
+    return MTLPixelFormatInvalid;
+}
+
+MTLTextureDescriptor* textureDescriptor(
+    const VisualTextureImageV2& texture
+) {
+    MTLTextureDescriptor* descriptor =
+        [[MTLTextureDescriptor alloc] init];
+    descriptor.textureType =
+        texture.dimension == VisualTextureDimensionV2::cube
+        ? MTLTextureTypeCube
+        : MTLTextureType2D;
+    descriptor.pixelFormat =
+        metalPixelFormat(texture.pixelFormat);
+    descriptor.width = texture.width;
+    descriptor.height = texture.height;
+    descriptor.depth = 1u;
+    descriptor.mipmapLevelCount = texture.mipCount;
+    descriptor.arrayLength = 1u;
+    descriptor.sampleCount = 1u;
+    descriptor.storageMode = MTLStorageModePrivate;
+    descriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
+    descriptor.hazardTrackingMode =
+        MTLHazardTrackingModeUntracked;
+    descriptor.usage = MTLTextureUsageShaderRead;
+    return descriptor;
+}
+
+std::size_t alignResourceOffset(
+    const std::size_t value,
+    const std::size_t alignment
+) {
+    if (alignment <= 1u) {
+        return value;
+    }
+    return (value + alignment - 1u) & ~(alignment - 1u);
+}
+
+struct NativeVisualResources {
+    __strong id<MTLHeap> heap = nil;
+    __strong NSArray<id<MTLTexture>>* materialTextures = nil;
+    __strong NSArray<id<MTLSamplerState>>* samplers = nil;
+    __strong id<MTLTexture> diffuseIrradiance = nil;
+    __strong id<MTLTexture> prefilteredSpecular = nil;
+    __strong id<MTLTexture> brdfLut = nil;
+    std::size_t retainedBytes = 0u;
+};
+
+struct NativeGeometryResources {
+    __strong id<MTLHeap> heap = nil;
+    std::size_t retainedBytes = 0u;
+};
+
+bool createNativeGeometryResources(
+    id<MTLDevice> device,
+    const std::array<std::size_t, 7u>& byteCounts,
+    RendererBuffers& buffers,
+    NativeGeometryResources& output,
+    std::string& reason
+) {
+    const MTLResourceOptions options =
+        MTLResourceStorageModePrivate |
+        MTLResourceHazardTrackingModeUntracked;
+    std::array<std::size_t, 7u> lengths{};
+    std::array<std::size_t, 7u> offsets{};
+    std::size_t heapBytes = 0u;
+    for (std::size_t index = 0u;
+         index < byteCounts.size();
+         ++index) {
+        lengths[index] = std::max<std::size_t>(
+            byteCounts[index],
+            kMinimumAllocationBytes
+        );
+        const MTLSizeAndAlign sizeAndAlign =
+            [device
+                heapBufferSizeAndAlignWithLength:lengths[index]
+                                         options:options];
+        if (sizeAndAlign.size == 0u ||
+            sizeAndAlign.align == 0u ||
+            heapBytes >
+                std::numeric_limits<std::size_t>::max() -
+                    sizeAndAlign.align) {
+            reason = "visual geometry heap sizing failed";
+            return false;
+        }
+        heapBytes = alignResourceOffset(
+            heapBytes,
+            sizeAndAlign.align
+        );
+        offsets[index] = heapBytes;
+        if (sizeAndAlign.size >
+            std::numeric_limits<std::size_t>::max() - heapBytes) {
+            reason = "visual geometry heap size overflows";
+            return false;
+        }
+        heapBytes += sizeAndAlign.size;
+    }
+    MTLHeapDescriptor* descriptor =
+        [[MTLHeapDescriptor alloc] init];
+    descriptor.type = MTLHeapTypePlacement;
+    descriptor.storageMode = MTLStorageModePrivate;
+    descriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
+    descriptor.hazardTrackingMode =
+        MTLHazardTrackingModeUntracked;
+    descriptor.size = heapBytes;
+    output.heap = [device newHeapWithDescriptor:descriptor];
+    if (output.heap == nil) {
+        reason = "could not allocate visual geometry placement heap";
+        return false;
+    }
+    output.heap.label = @"MetalRobo V3 streamed geometry heap";
+    const auto buffer = [&](
+        const std::size_t index,
+        NSString* label
+    ) -> id<MTLBuffer> {
+        id<MTLBuffer> result =
+            [output.heap
+                newBufferWithLength:lengths[index]
+                           options:options
+                            offset:offsets[index]];
+        result.label = label;
+        return result;
+    };
+    buffers.meshVertices =
+        buffer(0u, @"MetalRobo streamed vertices");
+    buffers.meshIndices =
+        buffer(1u, @"MetalRobo streamed indices");
+    buffers.meshTriangles =
+        buffer(2u, @"MetalRobo expanded triangles");
+    buffers.meshPrimitives =
+        buffer(3u, @"MetalRobo visual primitives");
+    buffers.meshInstances =
+        buffer(4u, @"MetalRobo visual instances");
+    buffers.materials =
+        buffer(5u, @"MetalRobo visual materials");
+    buffers.textureBindings =
+        buffer(6u, @"MetalRobo visual texture bindings");
+    const std::array created{
+        buffers.meshVertices,
+        buffers.meshIndices,
+        buffers.meshTriangles,
+        buffers.meshPrimitives,
+        buffers.meshInstances,
+        buffers.materials,
+        buffers.textureBindings,
+    };
+    if (std::ranges::any_of(
+            created,
+            [](id<MTLBuffer> value) {
+                return value == nil;
+            }
+        )) {
+        reason =
+            "could not place visual geometry buffers in the heap";
+        return false;
+    }
+    output.retainedBytes = output.heap.size;
+    return true;
+}
+
+bool createNativeVisualResources(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLArgumentEncoder> argumentEncoder,
+    RuntimeVisualScene& scene,
+    __strong id<MTLBuffer>& argumentBuffer,
+    NativeVisualResources& output,
+    std::string& reason
+) {
+    @autoreleasepool {
+    if (scene.textures.size() > kMaximumSceneTexturesV3) {
+        reason =
+            "visual scene exceeds the tier-2 native texture table";
+        return false;
+    }
+    std::vector<const VisualTextureImageV2*> images;
+    std::vector<const RuntimeVisualScene::TextureSource*> sources;
+    images.reserve(scene.textures.size() + 3u);
+    sources.reserve(scene.textures.size() + 3u);
+    if (scene.textureSources.size() != scene.textures.size()) {
+        reason = "visual texture source index is inconsistent";
+        return false;
+    }
+    for (std::size_t index = 0u;
+         index < scene.textures.size();
+         ++index) {
+        images.push_back(&scene.textures[index]);
+        sources.push_back(&scene.textureSources[index]);
+    }
+    images.push_back(&scene.environmentPack.diffuseIrradiance);
+    sources.push_back(&scene.environmentTextureSources[0]);
+    images.push_back(&scene.environmentPack.prefilteredSpecular);
+    sources.push_back(&scene.environmentTextureSources[1]);
+    images.push_back(&scene.environmentPack.brdfLut);
+    sources.push_back(&scene.environmentTextureSources[2]);
+
+    std::size_t heapBytes = 0u;
+    std::vector<std::size_t> offsets;
+    offsets.reserve(images.size());
+    for (const VisualTextureImageV2* image : images) {
+        MTLTextureDescriptor* descriptor =
+            textureDescriptor(*image);
+        if (descriptor.pixelFormat == MTLPixelFormatInvalid) {
+            reason = "visual texture pixel format is unsupported";
+            return false;
+        }
+        const MTLSizeAndAlign sizeAndAlign =
+            [device heapTextureSizeAndAlignWithDescriptor:descriptor];
+        if (sizeAndAlign.size == 0u ||
+            sizeAndAlign.align == 0u ||
+            heapBytes >
+                std::numeric_limits<std::size_t>::max() -
+                    sizeAndAlign.align) {
+            reason = "visual texture heap sizing failed";
+            return false;
+        }
+        heapBytes = alignResourceOffset(
+            heapBytes,
+            sizeAndAlign.align
+        );
+        offsets.push_back(heapBytes);
+        if (sizeAndAlign.size >
+            std::numeric_limits<std::size_t>::max() - heapBytes) {
+            reason = "visual texture heap size overflows";
+            return false;
+        }
+        heapBytes += sizeAndAlign.size;
+    }
+
+    MTLHeapDescriptor* heapDescriptor =
+        [[MTLHeapDescriptor alloc] init];
+    heapDescriptor.type = MTLHeapTypePlacement;
+    heapDescriptor.storageMode = MTLStorageModePrivate;
+    heapDescriptor.cpuCacheMode =
+        MTLCPUCacheModeDefaultCache;
+    heapDescriptor.hazardTrackingMode =
+        MTLHazardTrackingModeUntracked;
+    heapDescriptor.size = std::max<std::size_t>(
+        heapBytes,
+        kMinimumAllocationBytes
+    );
+    output.heap = [device newHeapWithDescriptor:heapDescriptor];
+    if (output.heap == nil) {
+        reason = "could not allocate the visual texture placement heap";
+        return false;
+    }
+    output.heap.label = @"MetalRobo V3 native visual resources";
+
+    NSMutableArray<id<MTLTexture>>* textures =
+        [[NSMutableArray alloc]
+            initWithCapacity:images.size()];
+    for (std::size_t index = 0u;
+         index < images.size();
+         ++index) {
+        MTLTextureDescriptor* descriptor =
+            textureDescriptor(*images[index]);
+        id<MTLTexture> texture =
+            [output.heap
+                newTextureWithDescriptor:descriptor
+                                  offset:offsets[index]];
+        if (texture == nil) {
+            reason =
+                "could not place a native visual texture in the heap";
+            return false;
+        }
+        texture.label = @(images[index]->id.c_str());
+        [textures addObject:texture];
+    }
+
+    struct StagingUploadTask {
+        __unsafe_unretained id<MTLTexture> texture = nil;
+        const VisualTextureImageV2* image = nullptr;
+        const VisualTextureSubresourceV2* subresource = nullptr;
+    };
+    std::vector<StagingUploadTask> stagingTasks;
+    std::size_t maximumSubresourceBytes = 0u;
+    bool needsMetalIO = false;
+    for (std::size_t imageIndex = 0u;
+         imageIndex < images.size();
+         ++imageIndex) {
+        const VisualTextureImageV2& image = *images[imageIndex];
+        const bool streamed =
+            !sources[imageIndex]->path.empty();
+        needsMetalIO = needsMetalIO || streamed;
+        for (const VisualTextureSubresourceV2& subresource :
+             image.subresources) {
+            if (!streamed &&
+                (subresource.dataOffset > image.data.size() ||
+                 subresource.dataSize >
+                    image.data.size() - subresource.dataOffset)) {
+                reason =
+                    "visual texture subresource points outside its "
+                    "cooked payload";
+                return false;
+            }
+            if (!streamed) {
+                maximumSubresourceBytes =
+                    std::max<std::size_t>(
+                        maximumSubresourceBytes,
+                        subresource.dataSize
+                    );
+                stagingTasks.push_back({
+                    textures[imageIndex],
+                    &image,
+                    &subresource,
+                });
+            }
+        }
+    }
+
+    if (needsMetalIO) {
+        MTLIOCommandQueueDescriptor* descriptor =
+            [[MTLIOCommandQueueDescriptor alloc] init];
+        descriptor.type = MTLIOCommandQueueTypeSerial;
+        descriptor.priority = MTLIOPriorityHigh;
+        descriptor.maxCommandBufferCount = 2u;
+        descriptor.maxCommandsInFlight = 64u;
+        NSError* ioError = nil;
+        id<MTLIOCommandQueue> ioQueue =
+            [device
+                newIOCommandQueueWithDescriptor:descriptor
+                                          error:&ioError];
+        if (ioQueue == nil) {
+            reason =
+                "could not create Metal I/O texture queue: " +
+                describeError(ioError);
+            return false;
+        }
+        NSMutableDictionary<NSString*, id<MTLIOFileHandle>>*
+            handles = [[NSMutableDictionary alloc] init];
+        id<MTLIOCommandBuffer> command = nil;
+        std::uint32_t loadCount = 0u;
+        const auto finishBatch = [&]() {
+            if (command == nil) {
+                return true;
+            }
+            [command commit];
+            [command waitUntilCompleted];
+            if (command.status != MTLIOStatusComplete) {
+                reason =
+                    "Metal I/O texture load failed: " +
+                    describeError(command.error);
+                return false;
+            }
+            command = nil;
+            loadCount = 0u;
+            return true;
+        };
+        for (std::size_t imageIndex = 0u;
+             imageIndex < images.size();
+             ++imageIndex) {
+            const auto& source = *sources[imageIndex];
+            if (source.path.empty()) {
+                continue;
+            }
+            NSString* path = @(source.path.string().c_str());
+            id<MTLIOFileHandle> handle = handles[path];
+            if (handle == nil) {
+                NSURL* url = [NSURL fileURLWithPath:path];
+                handle = [device
+                    newIOFileHandleWithURL:url
+                                    error:&ioError];
+                if (handle == nil) {
+                    reason =
+                        "could not open texture pack through Metal I/O: " +
+                        describeError(ioError);
+                    return false;
+                }
+                handles[path] = handle;
+            }
+            const VisualTextureImageV2& image =
+                *images[imageIndex];
+            for (const VisualTextureSubresourceV2& subresource :
+                 image.subresources) {
+                if (command == nil) {
+                    command = [ioQueue commandBuffer];
+                }
+                [command
+                    loadTexture:textures[imageIndex]
+                           slice:subresource.arraySlice
+                           level:subresource.mipLevel
+                            size:MTLSizeMake(
+                                subresource.width,
+                                subresource.height,
+                                1u
+                            )
+               sourceBytesPerRow:subresource.bytesPerRow
+             sourceBytesPerImage:subresource.bytesPerImage
+               destinationOrigin:MTLOriginMake(0u, 0u, 0u)
+                    sourceHandle:handle
+              sourceHandleOffset:
+                    source.payloadFileOffset +
+                    subresource.dataOffset];
+                if (++loadCount == 64u && !finishBatch()) {
+                    return false;
+                }
+            }
+        }
+        if (!finishBatch()) {
+            return false;
+        }
+    }
+
+    if (!stagingTasks.empty()) {
+        const std::array<id<MTLBuffer>, 2u> staging{
+            makeSharedBuffer(
+                device,
+                maximumSubresourceBytes,
+                @"MetalRobo texture staging 0"
+            ),
+            makeSharedBuffer(
+                device,
+                maximumSubresourceBytes,
+                @"MetalRobo texture staging 1"
+            ),
+        };
+        if (staging[0] == nil || staging[1] == nil) {
+            reason = "could not allocate bounded texture staging";
+            return false;
+        }
+        for (std::size_t first = 0u;
+             first < stagingTasks.size();
+             first += staging.size()) {
+            id<MTLCommandBuffer> command = [queue commandBuffer];
+            id<MTLBlitCommandEncoder> blit =
+                [command blitCommandEncoder];
+            const std::size_t count = std::min<std::size_t>(
+                staging.size(),
+                stagingTasks.size() - first
+            );
+            for (std::size_t slot = 0u;
+                 slot < count;
+                 ++slot) {
+                const StagingUploadTask& task =
+                    stagingTasks[first + slot];
+                std::memcpy(
+                    staging[slot].contents,
+                    task.image->data.data() +
+                        task.subresource->dataOffset,
+                    task.subresource->dataSize
+                );
+                [blit
+                    copyFromBuffer:staging[slot]
+                        sourceOffset:0u
+                   sourceBytesPerRow:
+                        task.subresource->bytesPerRow
+                 sourceBytesPerImage:
+                        task.subresource->bytesPerImage
+                          sourceSize:MTLSizeMake(
+                              task.subresource->width,
+                              task.subresource->height,
+                              1u
+                          )
+                           toTexture:task.texture
+                    destinationSlice:
+                        task.subresource->arraySlice
+                    destinationLevel:
+                        task.subresource->mipLevel
+                   destinationOrigin:MTLOriginMake(0u, 0u, 0u)];
+            }
+            [blit endEncoding];
+            [command commit];
+            [command waitUntilCompleted];
+            if (command.status != MTLCommandBufferStatusCompleted) {
+                reason =
+                    "native visual texture upload failed: " +
+                    describeError(command.error);
+                return false;
+            }
+        }
+    }
+
+    const std::size_t materialTextureCount =
+        scene.textures.size();
+    output.materialTextures = [textures
+        subarrayWithRange:NSMakeRange(0u, materialTextureCount)];
+    output.diffuseIrradiance =
+        textures[materialTextureCount];
+    output.prefilteredSpecular =
+        textures[materialTextureCount + 1u];
+    output.brdfLut =
+        textures[materialTextureCount + 2u];
+
+    std::array<std::uint32_t, kSceneSamplerCountV3>
+        samplerRemap{};
+    samplerRemap.fill(MR_INVALID_INDEX);
+    NSMutableArray<id<MTLSamplerState>>* samplers =
+        [[NSMutableArray alloc]
+            initWithCapacity:std::min<std::size_t>(
+                scene.textureBindings.size(),
+                kSceneSamplerCountV3
+            )];
+    for (MRVisualTextureBindingGPUV2& binding :
+         scene.textureBindings) {
+        const std::uint32_t authoredIndex =
+            binding.resource.y;
+        if (authoredIndex >= kSceneSamplerCountV3) {
+            reason = "visual sampler encoding is invalid";
+            return false;
+        }
+        if (samplerRemap[authoredIndex] != MR_INVALID_INDEX) {
+            binding.resource.y = samplerRemap[authoredIndex];
+            continue;
+        }
+        const std::uint32_t addressIndex =
+            authoredIndex % 9u;
+        const std::uint32_t filterIndex =
+            authoredIndex / 9u;
+        MTLSamplerDescriptor* descriptor =
+            [[MTLSamplerDescriptor alloc] init];
+        descriptor.minFilter =
+            (filterIndex & 1u) != 0u
+            ? MTLSamplerMinMagFilterNearest
+            : MTLSamplerMinMagFilterLinear;
+        descriptor.magFilter =
+            (filterIndex & 2u) != 0u
+            ? MTLSamplerMinMagFilterNearest
+            : MTLSamplerMinMagFilterLinear;
+        const std::uint32_t mipClass = filterIndex >> 2u;
+        descriptor.mipFilter =
+            mipClass == 0u
+            ? MTLSamplerMipFilterNotMipmapped
+            : mipClass == 1u
+                ? MTLSamplerMipFilterNearest
+                : MTLSamplerMipFilterLinear;
+        const auto address = [](
+            const std::uint32_t addressClass
+        ) {
+            return addressClass == 1u
+            ? MTLSamplerAddressModeClampToEdge
+            : addressClass == 2u
+                ? MTLSamplerAddressModeMirrorRepeat
+                : MTLSamplerAddressModeRepeat;
+        };
+        descriptor.sAddressMode =
+            address(addressIndex / 3u);
+        descriptor.tAddressMode =
+            address(addressIndex % 3u);
+        descriptor.rAddressMode = MTLSamplerAddressModeClampToEdge;
+        descriptor.normalizedCoordinates = YES;
+        id<MTLSamplerState> sampler =
+            [device newSamplerStateWithDescriptor:descriptor];
+        if (sampler == nil) {
+            reason = "could not create visual texture sampler table";
+            return false;
+        }
+        samplerRemap[authoredIndex] =
+            static_cast<std::uint32_t>(samplers.count);
+        binding.resource.y = samplerRemap[authoredIndex];
+        [samplers addObject:sampler];
+    }
+    output.samplers = samplers;
+
+    argumentBuffer = makeSharedBuffer(
+        device,
+        argumentEncoder.encodedLength,
+        @"MetalRobo V3 visual resource argument buffer"
+    );
+    if (argumentBuffer == nil) {
+        reason = "could not allocate visual resource argument buffer";
+        return false;
+    }
+    [argumentEncoder setArgumentBuffer:argumentBuffer offset:0u];
+    for (std::uint32_t index = 0u;
+         index < materialTextureCount;
+         ++index) {
+        [argumentEncoder
+            setTexture:output.materialTextures[index]
+               atIndex:index];
+    }
+    for (std::uint32_t index = 0u;
+         index < output.samplers.count;
+         ++index) {
+        [argumentEncoder
+            setSamplerState:output.samplers[index]
+                    atIndex:kMaximumSceneTexturesV3 + index];
+    }
+    [argumentEncoder
+        setTexture:output.diffuseIrradiance
+           atIndex:kEnvironmentArgumentBaseV3];
+    [argumentEncoder
+        setTexture:output.prefilteredSpecular
+           atIndex:kEnvironmentArgumentBaseV3 + 1u];
+    [argumentEncoder
+        setTexture:output.brdfLut
+           atIndex:kEnvironmentArgumentBaseV3 + 2u];
+
+    output.retainedBytes =
+        output.heap.size + argumentBuffer.length;
+    for (VisualTextureImageV2& texture : scene.textures) {
+        std::vector<std::uint8_t>{}.swap(texture.data);
+    }
+    std::vector<std::uint8_t>{}.swap(
+        scene.environmentPack.diffuseIrradiance.data
+    );
+    std::vector<std::uint8_t>{}.swap(
+        scene.environmentPack.prefilteredSpecular.data
+    );
+    std::vector<std::uint8_t>{}.swap(
+        scene.environmentPack.brdfLut.data
+    );
+    return true;
+    }
+}
+
+bool loadAndPrepareStreamedGeometry(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> rebasePipeline,
+    id<MTLComputePipelineState> rebaseMaterialPipeline,
+    id<MTLComputePipelineState> expandPipeline,
+    const RuntimeVisualScene& scene,
+    const RendererBuffers& buffers,
+    std::string& reason
+) {
+    if (scene.geometrySources.empty()) {
+        return true;
+    }
+    MTLIOCommandQueueDescriptor* ioDescriptor =
+        [[MTLIOCommandQueueDescriptor alloc] init];
+    ioDescriptor.type = MTLIOCommandQueueTypeSerial;
+    ioDescriptor.priority = MTLIOPriorityHigh;
+    ioDescriptor.maxCommandBufferCount = 2u;
+    ioDescriptor.maxCommandsInFlight = 16u;
+    NSError* error = nil;
+    id<MTLIOCommandQueue> ioQueue =
+        [device
+            newIOCommandQueueWithDescriptor:ioDescriptor
+                                      error:&error];
+    if (ioQueue == nil) {
+        reason =
+            "could not create Metal I/O geometry queue: " +
+            describeError(error);
+        return false;
+    }
+    NSMutableDictionary<NSString*, id<MTLIOFileHandle>>* handles =
+        [[NSMutableDictionary alloc] init];
+    id<MTLIOCommandBuffer> ioCommand = nil;
+    std::uint32_t ioLoadCount = 0u;
+    const auto finishBatch = [&]() {
+        if (ioCommand == nil) {
+            return true;
+        }
+        [ioCommand commit];
+        [ioCommand waitUntilCompleted];
+        if (ioCommand.status != MTLIOStatusComplete) {
+            reason =
+                "Metal I/O geometry load failed: " +
+                describeError(ioCommand.error);
+            return false;
+        }
+        ioCommand = nil;
+        ioLoadCount = 0u;
+        return true;
+    };
+    for (const RuntimeVisualScene::GeometrySource& source :
+         scene.geometrySources) {
+        NSString* path = @(source.path.string().c_str());
+        id<MTLIOFileHandle> handle = handles[path];
+        if (handle == nil) {
+            NSURL* url = [NSURL fileURLWithPath:path];
+            handle = [device
+                newIOFileHandleWithURL:url
+                                error:&error];
+            if (handle == nil) {
+                reason =
+                    "could not open geometry pack through Metal I/O: " +
+                    describeError(error);
+                return false;
+            }
+            handles[path] = handle;
+        }
+        if (ioCommand == nil) {
+            ioCommand = [ioQueue commandBuffer];
+        }
+        [ioCommand
+            loadBuffer:buffers.meshVertices
+                 offset:
+                    static_cast<std::size_t>(source.vertexBase) *
+                    sizeof(MRVisualVertexGPUV2)
+                   size:source.vertexByteCount
+           sourceHandle:handle
+     sourceHandleOffset:source.vertexFileOffset];
+        [ioCommand
+            loadBuffer:buffers.meshIndices
+                 offset:
+                    static_cast<std::size_t>(source.indexBase) *
+                    sizeof(std::uint32_t)
+                   size:source.indexByteCount
+           sourceHandle:handle
+     sourceHandleOffset:source.indexFileOffset];
+        [ioCommand
+            loadBuffer:buffers.materials
+                 offset:
+                    static_cast<std::size_t>(source.materialBase) *
+                    sizeof(MRVisualMaterialGPUV2)
+                   size:source.materialByteCount
+           sourceHandle:handle
+     sourceHandleOffset:source.materialFileOffset];
+        ioLoadCount += 3u;
+        if (ioLoadCount >= 64u && !finishBatch()) {
+            return false;
+        }
+    }
+    if (!finishBatch()) {
+        return false;
+    }
+
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    id<MTLComputeCommandEncoder> encoder =
+        [command computeCommandEncoder];
+    if (command == nil || encoder == nil) {
+        reason =
+            "could not create streamed geometry preparation command";
+        return false;
+    }
+    [encoder setComputePipelineState:rebasePipeline];
+    [encoder setBuffer:buffers.meshIndices offset:0u atIndex:0u];
+    const NSUInteger rebaseThreads = std::min<NSUInteger>(
+        rebasePipeline.maxTotalThreadsPerThreadgroup,
+        256u
+    );
+    for (const RuntimeVisualScene::GeometrySource& source :
+         scene.geometrySources) {
+        const mr_uint4 range{
+            source.indexBase,
+            static_cast<std::uint32_t>(
+                source.indexByteCount / sizeof(std::uint32_t)
+            ),
+            source.vertexBase,
+            0u,
+        };
+        [encoder setBytes:&range
+                   length:sizeof(range)
+                  atIndex:1u];
+        [encoder dispatchThreads:MTLSizeMake(
+                                     range.y,
+                                     1u,
+                                     1u
+                                 )
+            threadsPerThreadgroup:MTLSizeMake(
+                                      rebaseThreads,
+                                      1u,
+                                      1u
+                                  )];
+    }
+    [encoder setComputePipelineState:rebaseMaterialPipeline];
+    [encoder setBuffer:buffers.materials offset:0u atIndex:0u];
+    const NSUInteger materialThreads = std::min<NSUInteger>(
+        rebaseMaterialPipeline.maxTotalThreadsPerThreadgroup,
+        128u
+    );
+    for (const RuntimeVisualScene::GeometrySource& source :
+         scene.geometrySources) {
+        const mr_uint4 range{
+            source.materialBase,
+            static_cast<std::uint32_t>(
+                source.materialByteCount /
+                sizeof(MRVisualMaterialGPUV2)
+            ),
+            source.bindingBase,
+            0u,
+        };
+        [encoder setBytes:&range
+                   length:sizeof(range)
+                  atIndex:1u];
+        [encoder dispatchThreads:MTLSizeMake(
+                                     range.y,
+                                     1u,
+                                     1u
+                                 )
+            threadsPerThreadgroup:MTLSizeMake(
+                                      materialThreads,
+                                      1u,
+                                      1u
+                                  )];
+    }
+    [encoder setComputePipelineState:expandPipeline];
+    [encoder setBuffer:buffers.meshIndices offset:0u atIndex:0u];
+    [encoder setBuffer:buffers.meshPrimitives offset:0u atIndex:1u];
+    [encoder setBuffer:buffers.meshTriangles offset:0u atIndex:2u];
+    const std::uint32_t primitiveCount =
+        static_cast<std::uint32_t>(scene.primitives.size());
+    [encoder setBytes:&primitiveCount
+               length:sizeof(primitiveCount)
+              atIndex:3u];
+    const NSUInteger expandThreads = std::min<NSUInteger>(
+        expandPipeline.maxTotalThreadsPerThreadgroup,
+        128u
+    );
+    [encoder dispatchThreads:MTLSizeMake(
+                                 primitiveCount,
+                                 1u,
+                                 1u
+                             )
+        threadsPerThreadgroup:MTLSizeMake(
+                                  expandThreads,
+                                  1u,
+                                  1u
+                              )];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    if (command.status != MTLCommandBufferStatusCompleted) {
+        reason =
+            "streamed geometry preparation failed: " +
+            describeError(command.error);
+        return false;
+    }
     return true;
 }
 
@@ -1542,12 +2604,15 @@ MetalHybridRendererDiagnostics encodeLocked(
         uniforms.sensorRangeAndResponse.w = 0.0f;
     }
     uniforms.presentation = {
-        state.layout.textureCount,
+        static_cast<std::uint32_t>(
+            state.buffers.textureBindings.length /
+                sizeof(MRVisualTextureBindingGPUV2)
+        ),
         state.layout.lightCount,
         static_cast<std::uint32_t>(
             state.rendererProfile.kind
         ),
-        state.environment.textureIndex,
+        0u,
     };
     uniforms.shutter = {
         profile.shutter.x,
@@ -2105,16 +3170,16 @@ MetalHybridRendererDiagnostics encodeLocked(
             [encoder setBuffer:state.buffers.validity
                         offset:0u
                        atIndex:19u];
-            [encoder setBuffer:state.buffers.textureDescriptors
+            [encoder setBuffer:state.buffers.textureBindings
                         offset:0u
                        atIndex:20u];
-            [encoder setBuffer:state.buffers.textureTexels
+            [encoder setBuffer:state.buffers.resourceArgumentBuffer
                         offset:0u
                        atIndex:21u];
             [encoder setBuffer:state.buffers.lights
                         offset:0u
                        atIndex:22u];
-            [encoder setBuffer:state.buffers.environmentSH
+            [encoder setBuffer:state.buffers.environmentData
                         offset:0u
                        atIndex:23u];
             [encoder setBuffer:state.buffers.shadowAtlas
@@ -2123,6 +3188,7 @@ MetalHybridRendererDiagnostics encodeLocked(
             [encoder setBytes:&uniforms
                        length:sizeof(uniforms)
                       atIndex:25u];
+            [encoder useHeap:state.visualResourceHeap];
             [encoder dispatchThreads:MTLSizeMake(
                                          static_cast<NSUInteger>(
                                              batchCount
@@ -2647,16 +3713,16 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
     [referenceEncoder setBuffer:state.buffers.materials
                          offset:0u
                         atIndex:5u];
-    [referenceEncoder setBuffer:state.buffers.textureDescriptors
+    [referenceEncoder setBuffer:state.buffers.textureBindings
                          offset:0u
                         atIndex:6u];
-    [referenceEncoder setBuffer:state.buffers.textureTexels
+    [referenceEncoder setBuffer:state.buffers.resourceArgumentBuffer
                          offset:0u
                         atIndex:7u];
     [referenceEncoder setBuffer:state.buffers.lights
                          offset:0u
                         atIndex:8u];
-    [referenceEncoder setBuffer:state.buffers.environmentSH
+    [referenceEncoder setBuffer:state.buffers.environmentData
                          offset:0u
                         atIndex:9u];
     [referenceEncoder setBuffer:instances offset:0u atIndex:10u];
@@ -2697,6 +3763,7 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
         setAccelerationStructure:
             acquired.workspace->instanceStructure
         atBufferIndex:24u];
+    [referenceEncoder useHeap:state.visualResourceHeap];
     for (id<MTLAccelerationStructure> primitive :
          state.primitiveAccelerationStructures) {
         [referenceEncoder
@@ -2774,125 +3841,6 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
 
 } // namespace
 
-bool HybridGaussianScene::valid(std::string* reason) const {
-    const auto invalid = [reason](const std::string& message) {
-        if (reason != nullptr) {
-            *reason = message;
-        }
-        return false;
-    };
-    if (id.empty() || assetCount == 0u ||
-        assetCount >= MR_INVALID_INDEX ||
-        (gaussians.empty() && meshTriangles.empty())) {
-        return invalid(
-            "visual scene identity, assets, and geometry are incomplete"
-        );
-    }
-    if ((!meshVertices.empty() || !meshTriangles.empty()) &&
-        (meshVertices.empty() || meshTriangles.empty() ||
-         materials.empty())) {
-        return invalid(
-            "mesh visual scene requires vertices, triangles, and materials"
-        );
-    }
-    for (const MRHybridGaussianGPU& gaussian : gaussians) {
-        const double orientationSquared =
-            static_cast<double>(gaussian.orientation.x) *
-                gaussian.orientation.x +
-            static_cast<double>(gaussian.orientation.y) *
-                gaussian.orientation.y +
-            static_cast<double>(gaussian.orientation.z) *
-                gaussian.orientation.z +
-            static_cast<double>(gaussian.orientation.w) *
-                gaussian.orientation.w;
-        if (!finite4(gaussian.meanAndOpacity) ||
-            !finite4(gaussian.scaleAndImportance) ||
-            !finite4(gaussian.orientation) ||
-            !finite4(gaussian.colorAndEmission) ||
-            gaussian.meanAndOpacity.w < 0.0f ||
-            gaussian.meanAndOpacity.w > 1.0f ||
-            gaussian.scaleAndImportance.x <= 0.0f ||
-            gaussian.scaleAndImportance.y <= 0.0f ||
-            gaussian.scaleAndImportance.z <= 0.0f ||
-            gaussian.scaleAndImportance.w < 0.0f ||
-            gaussian.colorAndEmission.x < 0.0f ||
-            gaussian.colorAndEmission.y < 0.0f ||
-            gaussian.colorAndEmission.z < 0.0f ||
-            orientationSquared <= 1.0e-12 ||
-            gaussian.binding.z == 0u ||
-            gaussian.binding.z == MR_INVALID_INDEX ||
-            gaussian.binding.w > MR_HYBRID_GAUSSIAN_WORLD ||
-            gaussian.binding.x >= assetCount ||
-            (gaussian.binding.w ==
-                 MR_HYBRID_GAUSSIAN_BODY_LOCAL &&
-             (bodyCount == 0u ||
-              gaussian.binding.y >= bodyCount))) {
-            return invalid(
-                "visual scene contains an invalid Gaussian"
-            );
-        }
-    }
-    for (const MRVisualMeshVertexGPU& vertex : meshVertices) {
-        if (!finite4(vertex.position) ||
-            !finite4(vertex.normalAndU) ||
-            !finite4(vertex.tangentAndV) ||
-            vertex.position.w != 1.0f) {
-            return invalid(
-                "visual scene contains an invalid mesh vertex"
-            );
-        }
-    }
-    for (const MRVisualMeshTriangleGPU& triangle :
-         meshTriangles) {
-        if (triangle.verticesAndMaterial.x >= meshVertices.size() ||
-            triangle.verticesAndMaterial.y >= meshVertices.size() ||
-            triangle.verticesAndMaterial.z >= meshVertices.size() ||
-            triangle.verticesAndMaterial.w >= materials.size() ||
-            triangle.binding.x >= assetCount ||
-            triangle.binding.z >
-                MR_VISUAL_BINDING_ARTICULATED_LINK ||
-            ((triangle.binding.z ==
-                  MR_VISUAL_BINDING_RIGID_BODY ||
-              triangle.binding.z ==
-                  MR_VISUAL_BINDING_ARTICULATED_LINK) &&
-             triangle.binding.y >= bodyCount) ||
-            triangle.identity.x == 0u ||
-            triangle.identity.y == 0u ||
-            !finite4(triangle.colorAndOpacity)) {
-            return invalid(
-                "visual scene contains an invalid mesh triangle"
-            );
-        }
-    }
-    if (!std::ranges::all_of(materials, validMaterial)) {
-        return invalid("visual scene contains an invalid material");
-    }
-    for (const MRVisualSensorBindingGPU& binding :
-         sensorBindings) {
-        const bool assetBinding =
-            binding.identity.x == MR_VISUAL_BINDING_ASSET;
-        const bool bodyBinding =
-            binding.identity.x == MR_VISUAL_BINDING_RIGID_BODY ||
-            binding.identity.x ==
-                MR_VISUAL_BINDING_ARTICULATED_LINK;
-        if (binding.identity.x >
-                MR_VISUAL_BINDING_ARTICULATED_LINK ||
-            (assetBinding && binding.identity.z >= assetCount) ||
-            (bodyBinding && binding.identity.y >= bodyCount) ||
-            !finite4(binding.timing) ||
-            !finite4(binding.rangeAndResponse) ||
-            binding.timing.x <= 0.0f ||
-            binding.rangeAndResponse.x < 0.0f ||
-            binding.rangeAndResponse.y <=
-                binding.rangeAndResponse.x) {
-            return invalid(
-                "visual scene contains an invalid sensor binding"
-            );
-        }
-    }
-    return true;
-}
-
 MetalHybridRenderer::MetalHybridRenderer(
     MetalHybridRendererConfig config
 )
@@ -2913,7 +3861,7 @@ MetalHybridRenderer& MetalHybridRenderer::operator=(
 ) noexcept = default;
 
 MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
-    VisualRenderSceneV2&& scene,
+    VisualRenderSceneV3&& scene,
     const VisualRendererProfileV1& profile,
     const std::uint32_t capacity
 ) {
@@ -2937,11 +3885,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         }
         const std::uint32_t sceneAssetCount = scene.assetCount;
         const std::uint32_t sceneBodyCount = scene.bodyCount;
-        VisualEnvironmentV1 sceneEnvironment = scene.environment;
+        VisualEnvironmentReferenceV2 sceneEnvironment = scene.environment;
         const std::uint64_t sceneFingerprint =
             scene.fingerprint != 0u
             ? scene.fingerprint
-            : computeVisualRenderSceneV2Fingerprint(scene);
+            : computeVisualRenderSceneV3Fingerprint(scene);
         RuntimeVisualScene runtime;
         if (!flattenScene(std::move(scene), runtime, reason)) {
             return reject(
@@ -3065,14 +4013,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 std::numeric_limits<std::uint32_t>::max();
         };
         if (!fitsUint32(runtime.gaussians.size()) ||
-            !fitsUint32(runtime.vertices.size()) ||
-            !fitsUint32(runtime.triangles.size()) ||
             !fitsUint32(runtime.primitives.size()) ||
             !fitsUint32(runtime.instances.size()) ||
-            !fitsUint32(runtime.indices.size()) ||
             !fitsUint32(runtime.materials.size()) ||
-            !fitsUint32(runtime.textureDescriptors.size()) ||
-            !fitsUint32(runtime.textureTexels.size()) ||
+            !fitsUint32(runtime.textureBindings.size()) ||
+            !fitsUint32(runtime.textures.size()) ||
             !fitsUint32(runtime.lights.size()) ||
             !fitsUint32(runtime.sensors.size())) {
             return reject(
@@ -3084,28 +4029,24 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         layout.gaussianCount =
             static_cast<std::uint32_t>(
                 runtime.gaussians.size()
-            );
+        );
         layout.meshVertexCount =
-            static_cast<std::uint32_t>(
-                runtime.vertices.size()
-            );
+            runtime.vertexCount;
         layout.meshTriangleCount =
-            static_cast<std::uint32_t>(
-                runtime.triangles.size()
-            );
+            runtime.indexCount / 3u;
         layout.meshPrimitiveCount =
             static_cast<std::uint32_t>(runtime.primitives.size());
         layout.meshInstanceCount =
             static_cast<std::uint32_t>(runtime.instances.size());
         layout.meshIndexCount =
-            static_cast<std::uint32_t>(runtime.indices.size());
+            runtime.indexCount;
         layout.materialCount =
             static_cast<std::uint32_t>(
                 runtime.materials.size()
             );
         layout.textureCount =
             static_cast<std::uint32_t>(
-                runtime.textureDescriptors.size()
+                runtime.textures.size()
             );
         layout.lightCount =
             static_cast<std::uint32_t>(
@@ -3169,8 +4110,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         std::size_t meshPrimitiveBytes = 0u;
         std::size_t meshInstanceBytes = 0u;
         std::size_t materialBytes = 0u;
-        std::size_t textureDescriptorBytes = 0u;
-        std::size_t textureTexelBytes = 0u;
+        std::size_t textureBindingBytes = 0u;
         std::size_t lightBytes = 0u;
         std::size_t environmentBytes = 0u;
         std::size_t rayVisibleInstanceBytes = 0u;
@@ -3209,7 +4149,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         }
         const bool usesShadowAtlas =
             !profile.rayQueryVisibility &&
-            !runtime.triangles.empty() &&
+            runtime.indexCount != 0u &&
             shadowLightIndex != MR_INVALID_INDEX &&
             profile.shadowMapResolution != 0u;
         if (usesShadowAtlas) {
@@ -3236,17 +4176,15 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 gaussianBytes
             ) ||
             !checkedBytes<MRVisualVertexGPUV2>(
-                runtime.vertices.size(),
+                runtime.vertexCount,
                 meshVertexBytes
             ) ||
             !checkedBytes<std::uint32_t>(
-                profile.rayQueryVisibility
-                    ? runtime.indices.size()
-                    : 0u,
+                runtime.indexCount,
                 meshIndexBytes
             ) ||
             !checkedBytes<MRVisualTriangleGPUV2>(
-                runtime.triangles.size(),
+                runtime.indexCount / 3u,
                 meshTriangleBytes
             ) ||
             !checkedBytes<MRVisualPrimitiveGPUV2>(
@@ -3261,20 +4199,16 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 runtime.materials.size(),
                 materialBytes
             ) ||
-            !checkedBytes<MRVisualTextureGPUV1>(
-                runtime.textureDescriptors.size(),
-                textureDescriptorBytes
-            ) ||
-            !checkedBytes<std::uint32_t>(
-                runtime.textureTexels.size(),
-                textureTexelBytes
+            !checkedBytes<MRVisualTextureBindingGPUV2>(
+                runtime.textureBindings.size(),
+                textureBindingBytes
             ) ||
             !checkedBytes<MRVisualLightGPUV1>(
                 runtime.lights.size(),
                 lightBytes
             ) ||
-            !checkedBytes<mr_float4>(
-                runtime.environmentSH.size(),
+            !checkedBytes<MRVisualEnvironmentGPUV2>(
+                1u,
                 environmentBytes
             ) ||
             !checkedBytes<std::uint32_t>(
@@ -3365,14 +4299,6 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         std::size_t requestedRetention = 0u;
         for (const std::size_t bytes : {
                  gaussianBytes,
-                 meshVertexBytes,
-                 meshIndexBytes,
-                 meshTriangleBytes,
-                 meshPrimitiveBytes,
-                 meshInstanceBytes,
-                 materialBytes,
-                 textureDescriptorBytes,
-                 textureTexelBytes,
                  lightBytes,
                  environmentBytes,
                  rayVisibleInstanceBytes,
@@ -3422,55 +4348,46 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             gaussianBytes,
             @"MetalRobo visual Gaussians"
         );
-        buffers.meshVertices = makePrivateBuffer(
-            state_->device,
-            meshVertexBytes,
-            @"MetalRobo visual mesh vertices"
-        );
-        buffers.meshIndices = makePrivateBuffer(
-            state_->device,
-            meshIndexBytes,
-            @"MetalRobo visual ray indices"
-        );
-        buffers.meshTriangles = makePrivateBuffer(
-            state_->device,
-            meshTriangleBytes,
-            @"MetalRobo visual mesh triangles"
-        );
-        buffers.meshPrimitives = makePrivateBuffer(
-            state_->device,
-            meshPrimitiveBytes,
-            @"MetalRobo visual mesh primitives"
-        );
-        buffers.meshInstances = makePrivateBuffer(
-            state_->device,
-            meshInstanceBytes,
-            @"MetalRobo visual mesh instances"
-        );
-        buffers.materials = makePrivateBuffer(
-            state_->device,
-            materialBytes,
-            @"MetalRobo visual materials"
-        );
-        buffers.textureDescriptors = makePrivateBuffer(
-            state_->device,
-            textureDescriptorBytes,
-            @"MetalRobo visual texture descriptors"
-        );
-        buffers.textureTexels = makePrivateBuffer(
-            state_->device,
-            textureTexelBytes,
-            @"MetalRobo visual texture texels"
-        );
+        NativeGeometryResources geometryResources;
+        if (!createNativeGeometryResources(
+                state_->device,
+                {
+                    meshVertexBytes,
+                    meshIndexBytes,
+                    meshTriangleBytes,
+                    meshPrimitiveBytes,
+                    meshInstanceBytes,
+                    materialBytes,
+                    textureBindingBytes,
+                },
+                buffers,
+                geometryResources,
+                reason
+            ) ||
+            !checkedAdd(
+                requestedRetention,
+                geometryResources.retainedBytes,
+                requestedRetention
+            ) ||
+            requestedRetention >
+                state_->config.maximumRetainedBytes) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalBufferFailure,
+                reason.empty()
+                    ? "streamed geometry exceeds retained memory"
+                    : std::move(reason)
+            );
+        }
         buffers.lights = makePrivateBuffer(
             state_->device,
             lightBytes,
             @"MetalRobo visual light rig"
         );
-        buffers.environmentSH = makePrivateBuffer(
+        buffers.environmentData = makePrivateBuffer(
             state_->device,
             environmentBytes,
-            @"MetalRobo visual environment SH"
+            @"MetalRobo visual environment parameters"
         );
         buffers.rayVisibleInstances = makePrivateBuffer(
             state_->device,
@@ -3567,6 +4484,31 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             temporalAccumulationBytes,
             @"MetalRobo temporal radiance accumulation"
         );
+        NativeVisualResources nativeResources;
+        if (!createNativeVisualResources(
+                state_->device,
+                state_->queue,
+                state_->resourceArgumentEncoder,
+                runtime,
+                buffers.resourceArgumentBuffer,
+                nativeResources,
+                reason
+            ) ||
+            !checkedAdd(
+                requestedRetention,
+                nativeResources.retainedBytes,
+                requestedRetention
+            ) ||
+            requestedRetention >
+                state_->config.maximumRetainedBytes) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalBufferFailure,
+                reason.empty()
+                    ? "native visual resources exceed retained memory"
+                    : std::move(reason)
+            );
+        }
         const std::array allBuffers{
             buffers.gaussians,
             buffers.meshVertices,
@@ -3575,10 +4517,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             buffers.meshPrimitives,
             buffers.meshInstances,
             buffers.materials,
-            buffers.textureDescriptors,
-            buffers.textureTexels,
+            buffers.textureBindings,
+            buffers.resourceArgumentBuffer,
             buffers.lights,
-            buffers.environmentSH,
+            buffers.environmentData,
             buffers.rayVisibleInstances,
             buffers.rayBlasIndices,
             buffers.sensorBindings,
@@ -3646,33 +4588,6 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             !upload(
                 state_->device,
                 blit,
-                runtime.vertices.data(),
-                meshVertexBytes,
-                buffers.meshVertices,
-                @"MetalRobo mesh vertex upload",
-                staging
-            ) ||
-            !upload(
-                state_->device,
-                blit,
-                runtime.indices.data(),
-                meshIndexBytes,
-                buffers.meshIndices,
-                @"MetalRobo ray index upload",
-                staging
-            ) ||
-            !upload(
-                state_->device,
-                blit,
-                runtime.triangles.data(),
-                meshTriangleBytes,
-                buffers.meshTriangles,
-                @"MetalRobo mesh triangle upload",
-                staging
-            ) ||
-            !upload(
-                state_->device,
-                blit,
                 runtime.primitives.data(),
                 meshPrimitiveBytes,
                 buffers.meshPrimitives,
@@ -3691,28 +4606,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             !upload(
                 state_->device,
                 blit,
-                runtime.materials.data(),
-                materialBytes,
-                buffers.materials,
-                @"MetalRobo material upload",
-                staging
-            ) ||
-            !upload(
-                state_->device,
-                blit,
-                runtime.textureDescriptors.data(),
-                textureDescriptorBytes,
-                buffers.textureDescriptors,
-                @"MetalRobo texture descriptor upload",
-                staging
-            ) ||
-            !upload(
-                state_->device,
-                blit,
-                runtime.textureTexels.data(),
-                textureTexelBytes,
-                buffers.textureTexels,
-                @"MetalRobo texture texel upload",
+                runtime.textureBindings.data(),
+                textureBindingBytes,
+                buffers.textureBindings,
+                @"MetalRobo texture binding upload",
                 staging
             ) ||
             !upload(
@@ -3727,10 +4624,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             !upload(
                 state_->device,
                 blit,
-                runtime.environmentSH.data(),
+                &runtime.environmentData,
                 environmentBytes,
-                buffers.environmentSH,
-                @"MetalRobo environment SH upload",
+                buffers.environmentData,
+                @"MetalRobo environment parameter upload",
                 staging
             ) ||
             !upload(
@@ -3782,6 +4679,22 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         // scene representation instead of source + staging + acceleration
         // structures.
         std::vector<id<MTLBuffer>>{}.swap(staging);
+        if (!loadAndPrepareStreamedGeometry(
+                state_->device,
+                state_->queue,
+                state_->rebaseIndicesPipeline,
+                state_->rebaseMaterialBindingsPipeline,
+                state_->expandTrianglesPipeline,
+                runtime,
+                buffers,
+                reason
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalCommandFailure,
+                std::move(reason)
+            );
+        }
         const bool requiresLiveState =
             std::ranges::any_of(
                 runtime.gaussians,
@@ -3810,15 +4723,15 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             );
         auto sensorProfiles = std::move(runtime.sensors);
         std::vector<MRHybridGaussianGPU>{}.swap(runtime.gaussians);
-        std::vector<MRVisualVertexGPUV2>{}.swap(runtime.vertices);
-        std::vector<std::uint32_t>{}.swap(runtime.indices);
-        std::vector<MRVisualTriangleGPUV2>{}.swap(runtime.triangles);
+        std::vector<RuntimeVisualScene::GeometrySource>{}.swap(
+            runtime.geometrySources
+        );
         std::vector<MRVisualPrimitiveGPUV2>{}.swap(runtime.primitives);
         std::vector<MRVisualInstanceGPUV2>{}.swap(runtime.instances);
-        std::vector<MRVisualTextureGPUV1>{}.swap(
-            runtime.textureDescriptors
+        std::vector<MRVisualTextureBindingGPUV2>{}.swap(
+            runtime.textureBindings
         );
-        std::vector<std::uint32_t>{}.swap(runtime.textureTexels);
+        std::vector<VisualTextureImageV2>{}.swap(runtime.textures);
         std::vector<MRVisualLightGPUV1>{}.swap(runtime.lights);
 
         CompactedPrimitiveAccelerationStructures
@@ -3861,6 +4774,16 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             );
         }
         state_->buffers = std::move(buffers);
+        state_->geometryHeap = geometryResources.heap;
+        state_->visualResourceHeap = nativeResources.heap;
+        state_->materialTextures =
+            nativeResources.materialTextures;
+        state_->materialSamplers = nativeResources.samplers;
+        state_->diffuseIrradiance =
+            nativeResources.diffuseIrradiance;
+        state_->prefilteredSpecular =
+            nativeResources.prefilteredSpecular;
+        state_->brdfLut = nativeResources.brdfLut;
         state_->primitiveAccelerationStructures =
             primitiveAccelerationStructures.structures;
         state_->referenceWorkspaces.clear();

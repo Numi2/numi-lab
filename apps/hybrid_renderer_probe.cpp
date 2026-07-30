@@ -68,7 +68,7 @@ int main() {
             "dropout world sample"
         );
 
-        metalrobo::VisualRenderSceneV2 scene;
+        metalrobo::VisualRenderSceneV3 scene;
         scene.id = "camera_aligned_probe";
         scene.assetCount =
             static_cast<std::uint32_t>(worldTemplate.assets.size());
@@ -85,11 +85,11 @@ int main() {
             },
         });
         scene.environment =
-            metalrobo::makeNeutralStudioEnvironmentV1();
+            metalrobo::makeNeutralStudioEnvironmentV2();
         scene.lightRig =
             metalrobo::makeStudioKeyLightRigV1();
         scene.fingerprint =
-            metalrobo::computeVisualRenderSceneV2Fingerprint(scene);
+            metalrobo::computeVisualRenderSceneV3Fingerprint(scene);
         metalrobo::MetalHybridRenderer renderer;
         require(
             renderer.compile(

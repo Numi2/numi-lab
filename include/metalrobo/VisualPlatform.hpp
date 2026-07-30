@@ -13,129 +13,31 @@
 
 namespace metalrobo {
 
-inline constexpr std::uint32_t kVisualSceneManifestVersion = 1u;
 inline constexpr std::uint32_t kVisualFrameBatchVersion = 1u;
 inline constexpr std::uint32_t kPerceptionProviderVersion = 1u;
 inline constexpr std::uint32_t kVisualEpisodeStreamVersion = 1u;
 
-struct VisualAssetManifestV1 {
-    std::string id;
-    std::string semanticClass;
-    MRVisualRepresentation representation =
-        MR_VISUAL_REPRESENTATION_NONE;
-    MRVisualBindingKind binding = MR_VISUAL_BINDING_WORLD;
-    std::string sourceUri;
-    std::string contentHash;
-    std::string license;
-    std::string preprocessingProvenance;
-    std::uint32_t semanticId = 0u;
-    std::uint32_t instanceId = 0u;
-    std::vector<std::uint32_t> bodyIndices;
-    std::vector<std::uint32_t> shapeIndices;
-
-    [[nodiscard]] bool valid(
-        std::uint32_t bodyCount,
-        std::string* reason = nullptr
-    ) const;
-};
-
-struct VisualSensorProfileV1 {
-    std::string id;
-    double nominalRateHz = 15.0;
-    double exposureSeconds = 1.0 / 120.0;
-    double shutterReadoutSeconds = 0.0;
-    MRVisualShutterModel shutterModel =
-        MR_VISUAL_SHUTTER_GLOBAL;
-    MRVisualShutterDirection shutterDirection =
-        MR_VISUAL_SHUTTER_TOP_TO_BOTTOM;
-    double frameJitterSeconds = 0.0;
-    double minimumDepthMeters = 0.05;
-    double maximumDepthMeters = 10.0;
-    double depthQuantumMeters = 0.001;
-    double motionBlurScale = 0.0;
-    double latencySeconds = 0.0;
-    std::uint64_t fingerprint = 0u;
-
-    [[nodiscard]] bool valid(std::string* reason = nullptr) const;
-};
-
 [[nodiscard]] std::uint64_t computeVisualSensorProfileFingerprint(
-    const VisualSensorProfileV1& profile
+    const VisualSensorProfileV2& profile
 );
 
-struct VisualSceneManifestV1 {
-    std::uint32_t schemaVersion = kVisualSceneManifestVersion;
-    std::string id;
-    std::string coordinateConvention = "x-forward,y-left,z-up";
-    std::uint64_t worldFingerprint = 0u;
-    std::uint64_t renderSceneFingerprint = 0u;
-    std::uint64_t fingerprint = 0u;
-    std::uint32_t bodyCount = 0u;
-    std::vector<VisualAssetManifestV1> assets;
-    HybridGaussianScene renderScene;
-
-    [[nodiscard]] bool valid(std::string* reason = nullptr) const;
-};
-
-// Compiles visual geometry from the canonical engine shapes. Procedural
-// primitive shapes are triangulated deterministically; cooked convex/mesh
-// geometry reuses the immutable EngineModel arenas. Every triangle is bound
-// to the same global body index that owns its collision shape.
-[[nodiscard]] bool compileVisualSceneManifest(
+// Builds an authored V3 reference scene. Geometry and textures remain in
+// immutable packs and are streamed directly by the Metal renderer.
+[[nodiscard]] bool compileVisualSceneManifestV3(
     const WorldTemplate& world,
-    VisualSceneManifestV1& output,
-    std::string* reason = nullptr
-);
-
-// Adds a captured Gaussian appearance layer to an existing manifest while
-// retaining physics-bound meshes for interaction, metric depth, and identity.
-[[nodiscard]] bool attachGaussianField(
-    VisualSceneManifestV1& scene,
-    const std::string& assetId,
-    std::span<const MRHybridGaussianGPU> gaussians,
-    std::string sourceUri,
-    std::string contentHash,
-    std::string license,
-    std::string preprocessingProvenance,
-    std::string* reason = nullptr
-);
-
-// Reference integration for the canonical Franka world. It binds the fixed
-// camera to the workspace and the wrist camera to the final articulated body.
-[[nodiscard]] VisualSceneManifestV1
-makeFrankaPickPlaceVisualSceneManifest();
-
-struct AuthoredVisualAssetReferenceV2 {
-    std::filesystem::path packPath;
-    std::uint32_t assetIndex = 0u;
-    std::uint32_t semanticId = 1u;
-    std::uint32_t instanceId = 1u;
-};
-
-// Builds an authored-only V2 scene. Streaming the pack loads keeps peak host
-// memory at the final scene plus one source pack; missing presentation assets
-// are never substituted with collision geometry.
-[[nodiscard]] bool compileVisualSceneManifestV2(
-    const WorldTemplate& world,
-    std::span<const AuthoredVisualAssetReferenceV2> authoredAssets,
-    const VisualEnvironmentV1& environment,
+    std::span<const VisualAssetReferenceV3> authoredAssets,
+    const VisualEnvironmentReferenceV2& environment,
     const VisualLightRigV1& lightRig,
-    VisualSceneManifestV2& output,
+    VisualSceneManifestV3& output,
     std::string* reason = nullptr
 );
 
 // Reference world integration: fixed and wrist sensors come from the existing
 // Franka family; the authored robot/object/workspace packs provide all visual
 // geometry and use the indoor environment plus rectangular key light.
-[[nodiscard]] bool makeFrankaPickPlaceVisualSceneManifestV2(
-    std::span<const AuthoredVisualAssetReferenceV2> authoredAssets,
-    VisualSceneManifestV2& output,
-    std::string* reason = nullptr
-);
-
-[[nodiscard]] bool writeVisualSceneManifest(
-    const VisualSceneManifestV1& scene,
-    const std::filesystem::path& path,
+[[nodiscard]] bool makeFrankaPickPlaceVisualSceneManifestV3(
+    std::span<const VisualAssetReferenceV3> authoredAssets,
+    VisualSceneManifestV3& output,
     std::string* reason = nullptr
 );
 
@@ -243,7 +145,7 @@ struct VisualSensorCaptureV1 {
 // Stateless, deterministic frame scheduling. Identical scenario, sensor, and
 // frame identities produce identical jitter and exposure windows.
 [[nodiscard]] VisualSensorCaptureV1 makeVisualSensorCapture(
-    const VisualSensorProfileV1& profile,
+    const VisualSensorProfileV2& profile,
     std::uint64_t scenarioIdentity,
     std::uint64_t sensorIdentity,
     std::uint64_t frameIndex,

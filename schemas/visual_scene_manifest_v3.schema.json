@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://metalrobo.dev/schemas/visual_scene_manifest_v2.schema.json",
-  "title": "MetalRobo VisualSceneManifestV2",
+  "$id": "https://metalrobo.dev/schemas/visual_scene_manifest_v3.schema.json",
+  "title": "MetalRobo VisualSceneManifestV3",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -18,7 +18,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": 2
+      "const": 3
     },
     "id": {
       "$ref": "#/$defs/id"
@@ -79,12 +79,7 @@
         "asset_count",
         "body_count",
         "gaussian_count",
-        "vertex_count",
-        "index_count",
-        "primitive_count",
-        "instance_count",
-        "material_count",
-        "texture_count",
+        "visual_pack_count",
         "sensor_binding_count",
         "light_count",
         "environment_id",
@@ -105,23 +100,9 @@
         "gaussian_count": {
           "$ref": "#/$defs/count"
         },
-        "vertex_count": {
-          "$ref": "#/$defs/count"
-        },
-        "index_count": {
-          "$ref": "#/$defs/count"
-        },
-        "primitive_count": {
-          "$ref": "#/$defs/count"
-        },
-        "instance_count": {
-          "$ref": "#/$defs/count"
-        },
-        "material_count": {
-          "$ref": "#/$defs/count"
-        },
-        "texture_count": {
-          "$ref": "#/$defs/count"
+        "visual_pack_count": {
+          "type": "integer",
+          "minimum": 1
         },
         "sensor_binding_count": {
           "$ref": "#/$defs/count"

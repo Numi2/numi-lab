@@ -4,14 +4,30 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/hybrid_renderer_types.h"
 #include "metalrobo/world_compiler_types.h"
+#include "VisualPBR.metal"
 
 using namespace metal;
 using namespace raytracing;
 
-namespace {
-
 constant uint kLiveCurrent = 1u << 0u;
 constant uint kLivePrevious = 1u << 1u;
+constant uint kMaximumSceneTexturesV3 = 2048u;
+constant uint kSceneSamplerCountV3 = 108u;
+
+struct VisualResourceTableV3 {
+    array<texture2d<float>, kMaximumSceneTexturesV3>
+        textures [[id(0)]];
+    array<sampler, kSceneSamplerCountV3>
+        samplers [[id(kMaximumSceneTexturesV3)]];
+    texturecube<float> diffuseIrradiance
+        [[id(kMaximumSceneTexturesV3 + kSceneSamplerCountV3)]];
+    texturecube<float> prefilteredSpecular
+        [[id(kMaximumSceneTexturesV3 + kSceneSamplerCountV3 + 1u)]];
+    texture2d<float> brdfLut
+        [[id(kMaximumSceneTexturesV3 + kSceneSamplerCountV3 + 2u)]];
+};
+
+namespace {
 
 struct BoundPose {
     float3 position;
@@ -465,178 +481,173 @@ float3 transformNormal(
     return normalize(rotateVector(pose.orientation, local));
 }
 
-float3 srgbToLinear(const float3 value) {
-    return select(
-        value / 12.92f,
-        pow((value + 0.055f) / 1.055f, 2.4f),
-        value > 0.04045f
-    );
-}
-
-uint textureMipOffset(
-    const MRVisualTextureGPUV1 texture,
-    const uint level
-) {
-    if (level == 0u) {
-        return texture.storage.x;
-    }
-    if (level <= 4u) {
-        return texture.mipOffsets0[level - 1u];
-    }
-    return texture.mipOffsets1[level - 5u];
-}
-
-float4 unpackRgba8(const uint value) {
-    return float4(
-        float(value & 255u),
-        float((value >> 8u) & 255u),
-        float((value >> 16u) & 255u),
-        float((value >> 24u) & 255u)
-    ) / 255.0f;
-}
-
 float4 sampleVisualTexture(
-    const device MRVisualTextureGPUV1* textures,
-    const device uint* texels,
-    const uint textureIndex,
-    float2 uv,
+    const device MRVisualTextureBindingGPUV2* bindings,
+    constant VisualResourceTableV3& resources,
+    const uint bindingIndex,
+    const float4 texcoord01,
     const float lod,
     constant MRHybridRenderUniformsGPU& uniforms
 ) {
-    if (textureIndex == MR_INVALID_INDEX ||
-        textureIndex >= uniforms.presentation.x) {
+    if (bindingIndex == MR_INVALID_INDEX ||
+        bindingIndex >= uniforms.presentation.x) {
         return 1.0f;
     }
-    const MRVisualTextureGPUV1 texture = textures[textureIndex];
-    if ((texture.dimensions.w & MR_VISUAL_TEXTURE_CLAMP_U) != 0u) {
-        uv.x = clamp(uv.x, 0.0f, 1.0f);
-    } else {
-        uv.x = fract(uv.x);
-    }
-    if ((texture.dimensions.w & MR_VISUAL_TEXTURE_CLAMP_V) != 0u) {
-        uv.y = clamp(uv.y, 0.0f, 1.0f);
-    } else {
-        uv.y = fract(uv.y);
-    }
-    const uint level = min(
-        uint(max(round(lod), 0.0f)),
-        max(texture.dimensions.z, 1u) - 1u
-    );
-    const uint width = max(texture.dimensions.x >> level, 1u);
-    const uint height = max(texture.dimensions.y >> level, 1u);
-    const uint offset = textureMipOffset(texture, level);
-    if (offset == MR_INVALID_INDEX) {
+    const MRVisualTextureBindingGPUV2 binding =
+        bindings[bindingIndex];
+    if (binding.resource.x >= kMaximumSceneTexturesV3 ||
+        binding.resource.y >= kSceneSamplerCountV3) {
         return 1.0f;
     }
-    const float2 coordinate =
-        uv * float2(width, height) - 0.5f;
-    const int2 base = int2(floor(coordinate));
-    const float2 fraction = fract(coordinate);
-    const auto texel = [&](const int x, const int y) {
-        int resolvedX = x;
-        int resolvedY = y;
-        if ((texture.dimensions.w &
-             MR_VISUAL_TEXTURE_CLAMP_U) != 0u) {
-            resolvedX = clamp(resolvedX, 0, int(width) - 1);
-        } else {
-            resolvedX =
-                (resolvedX % int(width) + int(width)) % int(width);
-        }
-        if ((texture.dimensions.w &
-             MR_VISUAL_TEXTURE_CLAMP_V) != 0u) {
-            resolvedY = clamp(resolvedY, 0, int(height) - 1);
-        } else {
-            resolvedY =
-                (resolvedY % int(height) + int(height)) % int(height);
-        }
-        return unpackRgba8(
-            texels[
-                offset + uint(resolvedY) * width + uint(resolvedX)
-            ]
-        );
-    };
-    float4 result = mix(
-        mix(
-            texel(base.x, base.y),
-            texel(base.x + 1, base.y),
-            fraction.x
-        ),
-        mix(
-            texel(base.x, base.y + 1),
-            texel(base.x + 1, base.y + 1),
-            fraction.x
-        ),
-        fraction.y
+    const float2 authoredUv =
+        binding.resource.z == 0u
+        ? texcoord01.xy
+        : texcoord01.zw;
+    const float3 homogeneousUv = float3(authoredUv, 1.0f);
+    const float2 transformedUv = float2(
+        dot(binding.uvTransform0.xyz, homogeneousUv),
+        dot(binding.uvTransform1.xyz, homogeneousUv)
     );
-    if ((texture.dimensions.w & MR_VISUAL_TEXTURE_SRGB) != 0u) {
-        result.xyz = srgbToLinear(result.xyz);
-    }
-    return result;
+    return resources.textures[binding.resource.x].sample(
+        resources.samplers[binding.resource.y],
+        transformedUv,
+        level(max(lod, 0.0f))
+    );
 }
 
-float3 evaluateEnvironmentSH(
-    const device float4* coefficients,
-    float3 direction,
+float materialRoughness(
+    const MRVisualMaterialGPUV2 material,
+    const device MRVisualTextureBindingGPUV2* bindings,
+    constant VisualResourceTableV3& resources,
+    const float4 texcoord01,
     constant MRHybridRenderUniformsGPU& uniforms
 ) {
-    const float rotation = uniforms.exposure.w;
+    const float textureValue =
+        material.reserved.z != MR_INVALID_INDEX
+        ? sampleVisualTexture(
+              bindings,
+              resources,
+              material.reserved.z,
+              texcoord01,
+              0.0f,
+              uniforms
+          ).x
+        : sampleVisualTexture(
+              bindings,
+              resources,
+              material.textureIndices0.y,
+              texcoord01,
+              0.0f,
+              uniforms
+          ).y;
+    return material.surface.x * textureValue;
+}
+
+float materialClearcoatRoughness(
+    const MRVisualMaterialGPUV2 material,
+    const device MRVisualTextureBindingGPUV2* bindings,
+    constant VisualResourceTableV3& resources,
+    const float4 texcoord01,
+    constant MRHybridRenderUniformsGPU& uniforms
+) {
+    if (material.reserved.w != MR_INVALID_INDEX) {
+        const float gloss = sampleVisualTexture(
+            bindings,
+            resources,
+            material.reserved.w,
+            texcoord01,
+            0.0f,
+            uniforms
+        ).x;
+        const float authoredGloss =
+            1.0f - material.coatingAndAlphaCutoff.y;
+        return 1.0f - authoredGloss * gloss;
+    }
+    return material.coatingAndAlphaCutoff.y *
+        sampleVisualTexture(
+            bindings,
+            resources,
+            material.textureIndices1.z,
+            texcoord01,
+            0.0f,
+            uniforms
+        ).y;
+}
+
+float3 rotateEnvironmentDirection(
+    float3 direction,
+    constant MRVisualEnvironmentGPUV2& environment
+) {
+    const float rotation = environment.parameters.y;
     const float sine = sin(rotation);
     const float cosine = cos(rotation);
     direction.xy = float2(
         cosine * direction.x - sine * direction.y,
         sine * direction.x + cosine * direction.y
     );
-    const float x = direction.x;
-    const float y = direction.y;
-    const float z = direction.z;
-    const float basis[9] = {
-        0.282095f,
-        0.488603f * y,
-        0.488603f * z,
-        0.488603f * x,
-        1.092548f * x * y,
-        1.092548f * y * z,
-        0.315392f * (3.0f * z * z - 1.0f),
-        1.092548f * x * z,
-        0.546274f * (x * x - y * y),
-    };
-    float3 result = 0.0f;
-    for (uint index = 0u; index < 9u; ++index) {
-        result += coefficients[index].xyz * basis[index];
-    }
-    return max(result * uniforms.exposure.z, 0.0f);
+    return direction;
 }
 
-float distributionGGX(const float noH, const float roughness) {
-    const float alpha = max(roughness * roughness, 0.0025f);
-    const float alphaSquared = alpha * alpha;
-    const float denominator =
-        noH * noH * (alphaSquared - 1.0f) + 1.0f;
-    return alphaSquared /
-        max(M_PI_F * denominator * denominator, 1.0e-7f);
-}
-
-float visibilitySmithGGX(
-    const float noV,
-    const float noL,
-    const float roughness
+float3 evaluateEnvironmentIBL(
+    constant VisualResourceTableV3& resources,
+    constant MRVisualEnvironmentGPUV2& environment,
+    const float3 normal,
+    const float3 viewDirection,
+    const float3 baseColor,
+    const float metallic,
+    const float perceptualRoughness,
+    const float3 f0,
+    const float ao
 ) {
-    const float alpha = max(roughness * roughness, 0.0025f);
-    const float lambdaV =
-        noL * sqrt(max(noV * noV * (1.0f - alpha * alpha) +
-                       alpha * alpha, 0.0f));
-    const float lambdaL =
-        noV * sqrt(max(noL * noL * (1.0f - alpha * alpha) +
-                       alpha * alpha, 0.0f));
-    return 0.5f / max(lambdaV + lambdaL, 1.0e-7f);
-}
-
-float3 fresnelSchlick(
-    const float voH,
-    const float3 f0
-) {
-    const float factor = pow(clamp(1.0f - voH, 0.0f, 1.0f), 5.0f);
-    return f0 + (1.0f - f0) * factor;
+    constexpr sampler environmentSampler(
+        filter::linear,
+        mip_filter::linear,
+        address::clamp_to_edge
+    );
+    const float noV =
+        max(dot(normal, viewDirection), 1.0e-4f);
+    const float3 irradiance =
+        resources.diffuseIrradiance.sample(
+            environmentSampler,
+            rotateEnvironmentDirection(normal, environment)
+        ).xyz;
+    const float3 reflection = reflect(-viewDirection, normal);
+    const float mip = perceptualRoughness *
+        float(max(environment.dimensions.x, 1u) - 1u);
+    const float3 radiance =
+        resources.prefilteredSpecular.sample(
+            environmentSampler,
+            rotateEnvironmentDirection(
+                reflection,
+                environment
+            ),
+            level(mip)
+        ).xyz;
+    constexpr sampler lutSampler(
+        filter::linear,
+        address::clamp_to_edge
+    );
+    const float2 dfg = resources.brdfLut.sample(
+        lutSampler,
+        float2(noV, perceptualRoughness)
+    ).xy;
+    const float3 specular =
+        metalrobo_pbr::multiscatterSpecular(
+            radiance,
+            irradiance,
+            f0,
+            dfg
+        );
+    const float3 diffuseEnergy =
+        metalrobo_pbr::multiscatterDiffuseEnergy(f0, dfg);
+    const float3 diffuse =
+        irradiance * baseColor * (1.0f - metallic) *
+        diffuseEnergy * M_1_PI_F;
+    return max(
+        (diffuse + specular) *
+            environment.parameters.x * ao,
+        0.0f
+    );
 }
 
 struct ShadowProjection {
@@ -887,6 +898,91 @@ kernel void mr_hybrid_clear_tiles(
             0u,
             memory_order_relaxed
         );
+    }
+}
+
+kernel void mr_visual_rebase_indices_v3(
+    device uint* indices [[buffer(0)]],
+    constant uint4& range [[buffer(1)]],
+    const uint localIndex [[thread_position_in_grid]]
+) {
+    if (localIndex < range.y) {
+        indices[range.x + localIndex] += range.z;
+    }
+}
+
+kernel void mr_visual_rebase_material_bindings_v3(
+    device MRVisualMaterialGPUV2* materials [[buffer(0)]],
+    constant uint4& range [[buffer(1)]],
+    const uint localIndex [[thread_position_in_grid]]
+) {
+    if (localIndex >= range.y) {
+        return;
+    }
+    MRVisualMaterialGPUV2 material =
+        materials[range.x + localIndex];
+    if (material.textureIndices0.x != MR_INVALID_INDEX) {
+        material.textureIndices0.x += range.z;
+    }
+    if (material.textureIndices0.y != MR_INVALID_INDEX) {
+        material.textureIndices0.y += range.z;
+    }
+    if (material.textureIndices0.z != MR_INVALID_INDEX) {
+        material.textureIndices0.z += range.z;
+    }
+    if (material.textureIndices0.w != MR_INVALID_INDEX) {
+        material.textureIndices0.w += range.z;
+    }
+    if (material.textureIndices1.x != MR_INVALID_INDEX) {
+        material.textureIndices1.x += range.z;
+    }
+    if (material.textureIndices1.y != MR_INVALID_INDEX) {
+        material.textureIndices1.y += range.z;
+    }
+    if (material.textureIndices1.z != MR_INVALID_INDEX) {
+        material.textureIndices1.z += range.z;
+    }
+    if (material.reserved.x != MR_INVALID_INDEX) {
+        material.reserved.x += range.z;
+    }
+    if (material.reserved.y != MR_INVALID_INDEX) {
+        material.reserved.y += range.z;
+    }
+    if (material.reserved.z != MR_INVALID_INDEX) {
+        material.reserved.z += range.z;
+    }
+    if (material.reserved.w != MR_INVALID_INDEX) {
+        material.reserved.w += range.z;
+    }
+    materials[range.x + localIndex] = material;
+}
+
+kernel void mr_visual_expand_triangles_v3(
+    const device uint* indices [[buffer(0)]],
+    const device MRVisualPrimitiveGPUV2* primitives [[buffer(1)]],
+    device MRVisualTriangleGPUV2* triangles [[buffer(2)]],
+    constant uint& primitiveCount [[buffer(3)]],
+    const uint primitiveIndex [[thread_position_in_grid]]
+) {
+    if (primitiveIndex >= primitiveCount) {
+        return;
+    }
+    const MRVisualPrimitiveGPUV2 primitive =
+        primitives[primitiveIndex];
+    const uint triangleBase = primitive.geometry.x / 3u;
+    const uint triangleCount = primitive.geometry.y / 3u;
+    for (uint triangle = 0u;
+         triangle < triangleCount;
+         ++triangle) {
+        const uint first = primitive.geometry.x + triangle * 3u;
+        MRVisualTriangleGPUV2 result;
+        result.verticesAndPrimitive = uint4(
+            indices[first],
+            indices[first + 1u],
+            indices[first + 2u],
+            primitiveIndex
+        );
+        triangles[triangleBase + triangle] = result;
     }
 }
 
@@ -1956,10 +2052,11 @@ kernel void mr_hybrid_composite_mesh(
     device float4* normals [[buffer(17)]],
     device float4* motion [[buffer(18)]],
     device uint* validity [[buffer(19)]],
-    const device MRVisualTextureGPUV1* textures [[buffer(20)]],
-    const device uint* textureTexels [[buffer(21)]],
+    const device MRVisualTextureBindingGPUV2* textureBindings [[buffer(20)]],
+    constant VisualResourceTableV3& resources [[buffer(21)]],
     const device MRVisualLightGPUV1* lights [[buffer(22)]],
-    const device float4* environmentSH [[buffer(23)]],
+    constant MRVisualEnvironmentGPUV2& environmentLighting
+        [[buffer(23)]],
     const device uint* shadowAtlas [[buffer(24)]],
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(25)]],
     const uint batchPixel [[thread_position_in_grid]]
@@ -2129,10 +2226,10 @@ kernel void mr_hybrid_composite_mesh(
         corrected.z * vertex2.normalAndTangentSign.w < 0.0f
         ? -1.0f
         : 1.0f;
-    const float2 uv =
-        corrected.x * vertex0.texcoord01.xy +
-        corrected.y * vertex1.texcoord01.xy +
-        corrected.z * vertex2.texcoord01.xy;
+    const float4 texcoord01 =
+        corrected.x * vertex0.texcoord01 +
+        corrected.y * vertex1.texcoord01 +
+        corrected.z * vertex2.texcoord01;
     const float4 vertexColor =
         corrected.x * vertex0.color +
         corrected.y * vertex1.color +
@@ -2143,22 +2240,32 @@ kernel void mr_hybrid_composite_mesh(
     float4 base =
         material.baseColorAndOpacity * vertexColor;
     base *= sampleVisualTexture(
-        textures,
-        textureTexels,
+        textureBindings,
+        resources,
         material.textureIndices0.x,
-        uv,
+        texcoord01,
         0.0f,
         uniforms
     );
+    if (material.reserved.y != MR_INVALID_INDEX) {
+        base.w *= sampleVisualTexture(
+            textureBindings,
+            resources,
+            material.reserved.y,
+            texcoord01,
+            0.0f,
+            uniforms
+        ).x;
+    }
     if (material.flags.x == MR_VISUAL_ALPHA_MASK &&
         base.w < material.coatingAndAlphaCutoff.w) {
         return;
     }
     const float3 sampledNormal = sampleVisualTexture(
-        textures,
-        textureTexels,
+        textureBindings,
+        resources,
         material.textureIndices0.z,
-        uv,
+        texcoord01,
         0.0f,
         uniforms
     ).xyz * 2.0f - 1.0f;
@@ -2216,23 +2323,40 @@ kernel void mr_hybrid_composite_mesh(
     }
 
     const float4 metallicRoughness = sampleVisualTexture(
-        textures,
-        textureTexels,
+        textureBindings,
+        resources,
         material.textureIndices0.y,
-        uv,
+        texcoord01,
         0.0f,
         uniforms
     );
     const MRWorldAppearanceInstanceGPU appearance =
         appearances[instance.program.x];
     const float roughness = clamp(
-        material.surface.x * metallicRoughness.y *
+        materialRoughness(
+            material,
+            textureBindings,
+            resources,
+            texcoord01,
+            uniforms
+        ) *
             appearance.material.z,
         0.045f,
         1.0f
     );
+    const float metallicTexture =
+        material.reserved.x != MR_INVALID_INDEX
+        ? sampleVisualTexture(
+              textureBindings,
+              resources,
+              material.reserved.x,
+              texcoord01,
+              0.0f,
+              uniforms
+          ).x
+        : metallicRoughness.z;
     const float metallic = clamp(
-        material.surface.y * metallicRoughness.z *
+        material.surface.y * metallicTexture *
             appearance.material.w,
         0.0f,
         1.0f
@@ -2247,10 +2371,10 @@ kernel void mr_hybrid_composite_mesh(
         metallic
     );
     const float aoSample = sampleVisualTexture(
-        textures,
-        textureTexels,
+        textureBindings,
+        resources,
         material.textureIndices0.w,
-        uv,
+        texcoord01,
         0.0f,
         uniforms
     ).x;
@@ -2313,10 +2437,10 @@ kernel void mr_hybrid_composite_mesh(
                 max(dot(worldNormal, halfVector), 0.0f);
             const float voH =
                 max(dot(viewDirection, halfVector), 0.0f);
-            const float3 fresnel = fresnelSchlick(voH, f0);
+            const float3 fresnel = metalrobo_pbr::fresnelSchlick(voH, f0);
             const float distribution =
-                distributionGGX(noH, roughness);
-            const float visibility = visibilitySmithGGX(
+                metalrobo_pbr::distributionGGX(noH, roughness);
+            const float visibility = metalrobo_pbr::visibilitySmithGGX(
                 noV,
                 noL,
                 roughness
@@ -2340,62 +2464,65 @@ kernel void mr_hybrid_composite_mesh(
                 (diffuse + specular) * noL * shadow *
                 light.colorAndIntensity.xyz * attenuation;
         }
-        const float3 reflected = reflect(
-            -viewDirection,
-            worldNormal
-        );
-        const float3 irradiance = evaluateEnvironmentSH(
-            environmentSH,
+        color += evaluateEnvironmentIBL(
+            resources,
+            environmentLighting,
             worldNormal,
-            uniforms
+            viewDirection,
+            base.xyz,
+            metallic,
+            roughness,
+            f0,
+            ao
         );
-        const float3 reflection = evaluateEnvironmentSH(
-            environmentSH,
-            normalize(mix(reflected, worldNormal, roughness)),
-            uniforms
-        );
-        const float3 environmentFresnel =
-            fresnelSchlick(noV, f0);
-        color +=
-            irradiance * base.xyz * (1.0f - metallic) * ao +
-            reflection * environmentFresnel *
-                (1.0f - 0.7f * roughness) * ao;
         const float clearcoat =
             material.coatingAndAlphaCutoff.x *
             sampleVisualTexture(
-                textures,
-                textureTexels,
+                textureBindings,
+                resources,
                 material.textureIndices1.y,
-                uv,
+                texcoord01,
                 0.0f,
                 uniforms
             ).x;
         if (clearcoat > 0.0f) {
             const float clearRoughness = clamp(
-                material.coatingAndAlphaCutoff.y *
-                    sampleVisualTexture(
-                        textures,
-                        textureTexels,
-                        material.textureIndices1.z,
-                        uv,
-                        0.0f,
-                        uniforms
-                    ).y,
+                materialClearcoatRoughness(
+                    material,
+                    textureBindings,
+                    resources,
+                    texcoord01,
+                    uniforms
+                ),
                 0.045f,
                 1.0f
             );
-            color += clearcoat * reflection *
-                fresnelSchlick(noV, float3(0.04f)) *
-                (1.0f - 0.8f * clearRoughness);
+            const float coatFresnel =
+                metalrobo_pbr::fresnelSchlick(
+                    noV,
+                    float3(0.04f)
+                ).x;
+            color *= 1.0f - clearcoat * coatFresnel;
+            color += clearcoat * evaluateEnvironmentIBL(
+                resources,
+                environmentLighting,
+                worldNormal,
+                viewDirection,
+                float3(0.0f),
+                1.0f,
+                clearRoughness,
+                float3(0.04f),
+                ao
+            );
         }
     } else {
         color = base.xyz;
     }
     const float3 emissiveTexture = sampleVisualTexture(
-        textures,
-        textureTexels,
+        textureBindings,
+        resources,
         material.textureIndices1.x,
-        uv,
+        texcoord01,
         0.0f,
         uniforms
     ).xyz;
@@ -2540,7 +2667,7 @@ struct MRReferenceSurface {
     float3 worldNormal;
     float3 worldTangent;
     float tangentSign;
-    float2 uv;
+    float4 texcoord01;
     float4 vertexColor;
     float4 base;
     MRVisualMaterialGPUV2 material;
@@ -2787,8 +2914,8 @@ bool referenceSurface(
     const device MRVisualPrimitiveGPUV2* primitives,
     const device MRVisualInstanceGPUV2* visualInstances,
     const device MRVisualMaterialGPUV2* materials,
-    const device MRVisualTextureGPUV1* textures,
-    const device uint* textureTexels,
+    const device MRVisualTextureBindingGPUV2* textureBindings,
+    constant VisualResourceTableV3& resources,
     constant MRHybridRenderUniformsGPU& uniforms,
     thread MRReferenceSurface& surface
 ) {
@@ -2861,10 +2988,10 @@ bool referenceSurface(
         ) < 0.0f
         ? -1.0f
         : 1.0f;
-    const float2 uv =
-        weights.x * vertex0.texcoord01.xy +
-        weights.y * vertex1.texcoord01.xy +
-        weights.z * vertex2.texcoord01.xy;
+    const float4 texcoord01 =
+        weights.x * vertex0.texcoord01 +
+        weights.y * vertex1.texcoord01 +
+        weights.z * vertex2.texcoord01;
     const float4 vertexColor =
         weights.x * vertex0.color +
         weights.y * vertex1.color +
@@ -2874,20 +3001,30 @@ bool referenceSurface(
     float4 base =
         material.baseColorAndOpacity * vertexColor;
     base *= sampleVisualTexture(
-        textures,
-        textureTexels,
+        textureBindings,
+        resources,
         material.textureIndices0.x,
-        uv,
+        texcoord01,
         0.0f,
         uniforms
     );
+    if (material.reserved.y != MR_INVALID_INDEX) {
+        base.w *= sampleVisualTexture(
+            textureBindings,
+            resources,
+            material.reserved.y,
+            texcoord01,
+            0.0f,
+            uniforms
+        ).x;
+    }
 
     if (material.textureIndices0.z != MR_INVALID_INDEX) {
         const float3 sampledNormal = sampleVisualTexture(
-            textures,
-            textureTexels,
+            textureBindings,
+            resources,
             material.textureIndices0.z,
-            uv,
+            texcoord01,
             0.0f,
             uniforms
         ).xyz * 2.0f - 1.0f;
@@ -2915,7 +3052,7 @@ bool referenceSurface(
         transform * float4(localTangent, 0.0f)
     );
     surface.tangentSign = tangentSign;
-    surface.uv = uv;
+    surface.texcoord01 = texcoord01;
     surface.vertexColor = vertexColor;
     surface.base = base;
     surface.material = material;
@@ -2945,8 +3082,8 @@ bool referenceTrace(
     const device MRVisualPrimitiveGPUV2* primitives,
     const device MRVisualInstanceGPUV2* visualInstances,
     const device MRVisualMaterialGPUV2* materials,
-    const device MRVisualTextureGPUV1* textures,
-    const device uint* textureTexels,
+    const device MRVisualTextureBindingGPUV2* textureBindings,
+    constant VisualResourceTableV3& resources,
     constant MRHybridRenderUniformsGPU& uniforms,
     thread MRReferenceSurface& surface,
     thread float& totalDistance
@@ -2981,8 +3118,8 @@ bool referenceTrace(
                 primitives,
                 visualInstances,
                 materials,
-                textures,
-                textureTexels,
+                textureBindings,
+                resources,
                 uniforms,
                 candidate
             )) {
@@ -3034,8 +3171,8 @@ float referenceShadow(
     const device MRVisualPrimitiveGPUV2* primitives,
     const device MRVisualInstanceGPUV2* visualInstances,
     const device MRVisualMaterialGPUV2* materials,
-    const device MRVisualTextureGPUV1* textures,
-    const device uint* textureTexels,
+    const device MRVisualTextureBindingGPUV2* textureBindings,
+    constant VisualResourceTableV3& resources,
     constant MRHybridRenderUniformsGPU& uniforms
 ) {
     ray shadowRay;
@@ -3059,8 +3196,8 @@ float referenceShadow(
         primitives,
         visualInstances,
         materials,
-        textures,
-        textureTexels,
+        textureBindings,
+        resources,
         uniforms,
         blocker,
         blockerDistance
@@ -3079,10 +3216,10 @@ float3 referenceShade(
     const device MRVisualPrimitiveGPUV2* primitives,
     const device MRVisualInstanceGPUV2* visualInstances,
     const device MRVisualMaterialGPUV2* materials,
-    const device MRVisualTextureGPUV1* textures,
-    const device uint* textureTexels,
+    const device MRVisualTextureBindingGPUV2* textureBindings,
+    constant VisualResourceTableV3& resources,
     const device MRVisualLightGPUV1* lights,
-    const device float4* environmentSH,
+    constant MRVisualEnvironmentGPUV2& environmentLighting,
     const device MRWorldInstanceHeaderGPU* instances,
     const device MRWorldAppearanceInstanceGPU* appearances,
     constant MRHybridRenderUniformsGPU& uniforms
@@ -3092,23 +3229,39 @@ float3 referenceShade(
     const MRWorldAppearanceInstanceGPU appearance =
         appearances[instance.program.x];
     const float4 metallicRoughness = sampleVisualTexture(
-        textures,
-        textureTexels,
+        textureBindings,
+        resources,
         surface.material.textureIndices0.y,
-        surface.uv,
+        surface.texcoord01,
         0.0f,
         uniforms
     );
     const float roughness = clamp(
-        surface.material.surface.x *
-            metallicRoughness.y *
+        materialRoughness(
+            surface.material,
+            textureBindings,
+            resources,
+            surface.texcoord01,
+            uniforms
+        ) *
             appearance.material.z,
         0.045f,
         1.0f
     );
+    const float metallicTexture =
+        surface.material.reserved.x != MR_INVALID_INDEX
+        ? sampleVisualTexture(
+              textureBindings,
+              resources,
+              surface.material.reserved.x,
+              surface.texcoord01,
+              0.0f,
+              uniforms
+          ).x
+        : metallicRoughness.z;
     const float metallic = clamp(
         surface.material.surface.y *
-            metallicRoughness.z *
+            metallicTexture *
             appearance.material.w,
         0.0f,
         1.0f
@@ -3126,10 +3279,10 @@ float3 referenceShade(
         metallic
     );
     const float aoSample = sampleVisualTexture(
-        textures,
-        textureTexels,
+        textureBindings,
+        resources,
         surface.material.textureIndices0.w,
-        surface.uv,
+        surface.texcoord01,
         0.0f,
         uniforms
     ).x;
@@ -3269,13 +3422,13 @@ float3 referenceShade(
                     0.0f
                 );
                 const float3 fresnel =
-                    fresnelSchlick(voH, f0);
+                    metalrobo_pbr::fresnelSchlick(voH, f0);
                 const float3 specular =
-                    distributionGGX(
+                    metalrobo_pbr::distributionGGX(
                         noH,
                         roughness
                     ) *
-                    visibilitySmithGGX(
+                    metalrobo_pbr::visibilitySmithGGX(
                         noV,
                         noL,
                         roughness
@@ -3301,8 +3454,8 @@ float3 referenceShade(
                     primitives,
                     visualInstances,
                     materials,
-                    textures,
-                    textureTexels,
+                    textureBindings,
+                    resources,
                     uniforms
                 );
                 sampledContribution +=
@@ -3312,66 +3465,65 @@ float3 referenceShade(
             }
             color += sampledContribution / float(sampleCount);
         }
-        const float3 reflected = reflect(
-            -viewDirection,
-            surface.worldNormal
-        );
-        const float3 irradiance = evaluateEnvironmentSH(
-            environmentSH,
+        color += evaluateEnvironmentIBL(
+            resources,
+            environmentLighting,
             surface.worldNormal,
-            uniforms
+            viewDirection,
+            surface.base.xyz,
+            metallic,
+            roughness,
+            f0,
+            ao
         );
-        const float3 reflection = evaluateEnvironmentSH(
-            environmentSH,
-            normalize(mix(
-                reflected,
-                surface.worldNormal,
-                roughness
-            )),
-            uniforms
-        );
-        color +=
-            irradiance * surface.base.xyz *
-                (1.0f - metallic) * ao +
-            reflection * fresnelSchlick(noV, f0) *
-                (1.0f - 0.7f * roughness) * ao;
         const float clearcoat =
             surface.material.coatingAndAlphaCutoff.x *
             sampleVisualTexture(
-                textures,
-                textureTexels,
+                textureBindings,
+                resources,
                 surface.material.textureIndices1.y,
-                surface.uv,
+                surface.texcoord01,
                 0.0f,
                 uniforms
             ).x;
         if (clearcoat > 0.0f) {
             const float clearRoughness = clamp(
-                surface.material.coatingAndAlphaCutoff.y *
-                sampleVisualTexture(
-                    textures,
-                    textureTexels,
-                    surface.material.textureIndices1.z,
-                    surface.uv,
-                    0.0f,
+                materialClearcoatRoughness(
+                    surface.material,
+                    textureBindings,
+                    resources,
+                    surface.texcoord01,
                     uniforms
-                ).y,
+                ),
                 0.045f,
                 1.0f
             );
-            color +=
-                clearcoat * reflection *
-                fresnelSchlick(noV, float3(0.04f)) *
-                (1.0f - 0.8f * clearRoughness);
+            const float coatFresnel =
+                metalrobo_pbr::fresnelSchlick(
+                    noV,
+                    float3(0.04f)
+                ).x;
+            color *= 1.0f - clearcoat * coatFresnel;
+            color += clearcoat * evaluateEnvironmentIBL(
+                resources,
+                environmentLighting,
+                surface.worldNormal,
+                viewDirection,
+                float3(0.0f),
+                1.0f,
+                clearRoughness,
+                float3(0.04f),
+                ao
+            );
         }
     } else {
         color = surface.base.xyz;
     }
     const float3 emissiveTexture = sampleVisualTexture(
-        textures,
-        textureTexels,
+        textureBindings,
+        resources,
         surface.material.textureIndices1.x,
-        surface.uv,
+        surface.texcoord01,
         0.0f,
         uniforms
     ).xyz;
@@ -3394,8 +3546,8 @@ float referenceReceiverShadow(
     const device MRVisualPrimitiveGPUV2* primitives,
     const device MRVisualInstanceGPUV2* visualInstances,
     const device MRVisualMaterialGPUV2* materials,
-    const device MRVisualTextureGPUV1* textures,
-    const device uint* textureTexels,
+    const device MRVisualTextureBindingGPUV2* textureBindings,
+    constant VisualResourceTableV3& resources,
     const device MRVisualLightGPUV1* lights,
     constant MRHybridRenderUniformsGPU& uniforms
 ) {
@@ -3434,8 +3586,8 @@ float referenceReceiverShadow(
             primitives,
             visualInstances,
             materials,
-            textures,
-            textureTexels,
+            textureBindings,
+            resources,
             uniforms
         );
     }
@@ -3449,10 +3601,11 @@ kernel void mr_hybrid_render_reference(
     const device MRVisualInstanceGPUV2* visualInstances [[buffer(3)]],
     const device uint* visibleInstances [[buffer(4)]],
     const device MRVisualMaterialGPUV2* materials [[buffer(5)]],
-    const device MRVisualTextureGPUV1* textures [[buffer(6)]],
-    const device uint* textureTexels [[buffer(7)]],
+    const device MRVisualTextureBindingGPUV2* textureBindings [[buffer(6)]],
+    constant VisualResourceTableV3& resources [[buffer(7)]],
     const device MRVisualLightGPUV1* lights [[buffer(8)]],
-    const device float4* environmentSH [[buffer(9)]],
+    constant MRVisualEnvironmentGPUV2& environmentLighting
+        [[buffer(9)]],
     const device MRWorldInstanceHeaderGPU* instances [[buffer(10)]],
     const device MRWorldAssetInstanceGPU* assets [[buffer(11)]],
     const device MRWorldSensorInstanceGPU* sensors [[buffer(12)]],
@@ -3557,8 +3710,8 @@ kernel void mr_hybrid_render_reference(
                 primitives,
                 visualInstances,
                 materials,
-                textures,
-                textureTexels,
+                textureBindings,
+                resources,
                 uniforms,
                 surface,
                 hitDistance
@@ -3594,8 +3747,8 @@ kernel void mr_hybrid_render_reference(
                         primitives,
                         visualInstances,
                         materials,
-                        textures,
-                        textureTexels,
+                        textureBindings,
+                        resources,
                         lights,
                         uniforms
                     )
@@ -3613,10 +3766,10 @@ kernel void mr_hybrid_render_reference(
                 primitives,
                 visualInstances,
                 materials,
-                textures,
-                textureTexels,
+                textureBindings,
+                resources,
                 lights,
-                environmentSH,
+                environmentLighting,
                 instances,
                 appearances,
                 uniforms
@@ -3670,8 +3823,8 @@ kernel void mr_hybrid_render_reference(
             primitives,
             visualInstances,
             materials,
-            textures,
-            textureTexels,
+            textureBindings,
+            resources,
             uniforms,
             truthSurface,
             truthDistance

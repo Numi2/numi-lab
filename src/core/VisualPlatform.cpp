@@ -132,701 +132,12 @@ mr_float4 add3(const mr_float4 a, const mr_float4 b) {
     return {a.x + b.x, a.y + b.y, a.z + b.z, a.w};
 }
 
-mr_float4 normalize3(const mr_float4 value) {
-    const double lengthSquared =
-        static_cast<double>(value.x) * value.x +
-        static_cast<double>(value.y) * value.y +
-        static_cast<double>(value.z) * value.z;
-    if (!(lengthSquared > 1.0e-20) ||
-        !std::isfinite(lengthSquared)) {
-        return {0.0f, 0.0f, 1.0f, value.w};
-    }
-    const float inverse =
-        static_cast<float>(1.0 / std::sqrt(lengthSquared));
-    return {
-        value.x * inverse,
-        value.y * inverse,
-        value.z * inverse,
-        value.w,
-    };
-}
-
-mr_float4 cross3(const mr_float4 a, const mr_float4 b) {
-    return {
-        a.y * b.z - a.z * b.y,
-        a.z * b.x - a.x * b.z,
-        a.x * b.y - a.y * b.x,
-        0.0f,
-    };
-}
-
 mr_float4 subtract3(const mr_float4 a, const mr_float4 b) {
     return {a.x - b.x, a.y - b.y, a.z - b.z, 0.0f};
 }
 
-mr_float4 scale3(const mr_float4 value, const mr_float4 scale) {
-    return {
-        value.x * scale.x,
-        value.y * scale.y,
-        value.z * scale.z,
-        value.w,
-    };
-}
-
-mr_float4 transformShapePoint(
-    const MRShapeGPU& shape,
-    const mr_float4 point
-) {
-    return add3(
-        shape.localPosition,
-        rotateVector(shape.localRotation, point)
-    );
-}
-
-mr_float4 transformShapeNormal(
-    const MRShapeGPU& shape,
-    const mr_float4 normal
-) {
-    return normalize3(rotateVector(shape.localRotation, normal));
-}
-
-mr_float4 palette(const MRWorldAssetRole role) {
-    switch (role) {
-    case MR_WORLD_ASSET_ROBOT:
-        return {0.72f, 0.75f, 0.78f, 1.0f};
-    case MR_WORLD_ASSET_MANIPULATED:
-        return {0.92f, 0.18f, 0.08f, 1.0f};
-    case MR_WORLD_ASSET_FIXTURE:
-        return {0.08f, 0.52f, 0.90f, 1.0f};
-    case MR_WORLD_ASSET_CLUTTER:
-        return {0.72f, 0.52f, 0.10f, 1.0f};
-    case MR_WORLD_ASSET_SENSOR_RIG:
-        return {0.15f, 0.15f, 0.18f, 1.0f};
-    case MR_WORLD_ASSET_BACKGROUND:
-    default:
-        return {0.34f, 0.36f, 0.38f, 1.0f};
-    }
-}
-
-MRVisualRepresentation representation(
-    const WorldAsset& asset
-) {
-    switch (asset.render) {
-    case MR_WORLD_RENDER_GAUSSIAN_FIELD:
-        return MR_VISUAL_REPRESENTATION_GAUSSIAN_FIELD;
-    case MR_WORLD_RENDER_MESH_PBR:
-        return MR_VISUAL_REPRESENTATION_TRIANGLE_MESH;
-    case MR_WORLD_RENDER_PROCEDURAL:
-        return MR_VISUAL_REPRESENTATION_PROCEDURAL;
-    case MR_WORLD_RENDER_NONE:
-    case MR_WORLD_RENDER_NEURAL_RESIDUAL:
-    default:
-        return MR_VISUAL_REPRESENTATION_NONE;
-    }
-}
-
-MRVisualBindingKind bodyBinding(
-    const EngineModel& model,
-    const std::uint32_t body
-) {
-    return model.bodies[body].articulationIndex == MR_INVALID_INDEX
-        ? MR_VISUAL_BINDING_RIGID_BODY
-        : MR_VISUAL_BINDING_ARTICULATED_LINK;
-}
-
-struct MeshBuilder {
-    HybridGaussianScene& scene;
-    const EngineModel& model;
-    const std::uint32_t asset;
-    const std::uint32_t body;
-    const std::uint32_t material;
-    const std::uint32_t semantic;
-    const std::uint32_t instance;
-
-    std::uint32_t vertex(
-        const MRShapeGPU& shape,
-        const mr_float4 position,
-        const mr_float4 normal,
-        const float u = 0.0f,
-        const float v = 0.0f
-    ) {
-        const std::uint32_t index =
-            static_cast<std::uint32_t>(scene.meshVertices.size());
-        const mr_float4 worldPosition =
-            transformShapePoint(shape, position);
-        const mr_float4 worldNormal =
-            transformShapeNormal(shape, normal);
-        const mr_float4 tangentSeed =
-            std::abs(worldNormal.z) < 0.9f
-                ? mr_float4{0.0f, 0.0f, 1.0f, 0.0f}
-                : mr_float4{0.0f, 1.0f, 0.0f, 0.0f};
-        const mr_float4 tangent =
-            normalize3(cross3(tangentSeed, worldNormal));
-        scene.meshVertices.push_back({
-            {
-                worldPosition.x,
-                worldPosition.y,
-                worldPosition.z,
-                1.0f,
-            },
-            {
-                worldNormal.x,
-                worldNormal.y,
-                worldNormal.z,
-                u,
-            },
-            {tangent.x, tangent.y, tangent.z, v},
-        });
-        return index;
-    }
-
-    void triangle(
-        const std::uint32_t a,
-        const std::uint32_t b,
-        const std::uint32_t c,
-        const std::uint32_t primitive
-    ) {
-        scene.meshTriangles.push_back({
-            {a, b, c, material},
-            {
-                asset,
-                body,
-                static_cast<std::uint32_t>(
-                    bodyBinding(model, body)
-                ),
-                0u,
-            },
-            {semantic, instance, body, primitive},
-            {},
-        });
-    }
-};
-
-void appendBox(
-    MeshBuilder& builder,
-    const MRShapeGPU& shape,
-    const std::uint32_t primitiveBase
-) {
-    const mr_float4 h = shape.dimensions;
-    constexpr std::array<std::array<int, 3>, 8> signs{{
-        {{-1, -1, -1}},
-        {{1, -1, -1}},
-        {{1, 1, -1}},
-        {{-1, 1, -1}},
-        {{-1, -1, 1}},
-        {{1, -1, 1}},
-        {{1, 1, 1}},
-        {{-1, 1, 1}},
-    }};
-    constexpr std::array<std::array<std::uint32_t, 4>, 6> faces{{
-        {{0u, 3u, 2u, 1u}},
-        {{4u, 5u, 6u, 7u}},
-        {{0u, 1u, 5u, 4u}},
-        {{1u, 2u, 6u, 5u}},
-        {{2u, 3u, 7u, 6u}},
-        {{3u, 0u, 4u, 7u}},
-    }};
-    constexpr std::array<mr_float4, 6> normals{{
-        {0.0f, 0.0f, -1.0f, 0.0f},
-        {0.0f, 0.0f, 1.0f, 0.0f},
-        {0.0f, -1.0f, 0.0f, 0.0f},
-        {1.0f, 0.0f, 0.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f, 0.0f},
-        {-1.0f, 0.0f, 0.0f, 0.0f},
-    }};
-    for (std::uint32_t face = 0u; face < faces.size(); ++face) {
-        std::array<std::uint32_t, 4> vertices{};
-        for (std::uint32_t corner = 0u; corner < 4u; ++corner) {
-            const auto sign = signs[faces[face][corner]];
-            vertices[corner] = builder.vertex(
-                shape,
-                {
-                    static_cast<float>(sign[0]) * h.x,
-                    static_cast<float>(sign[1]) * h.y,
-                    static_cast<float>(sign[2]) * h.z,
-                    1.0f,
-                },
-                normals[face],
-                corner == 1u || corner == 2u ? 1.0f : 0.0f,
-                corner >= 2u ? 1.0f : 0.0f
-            );
-        }
-        builder.triangle(
-            vertices[0],
-            vertices[1],
-            vertices[2],
-            primitiveBase + face * 2u
-        );
-        builder.triangle(
-            vertices[0],
-            vertices[2],
-            vertices[3],
-            primitiveBase + face * 2u + 1u
-        );
-    }
-}
-
-void appendSphere(
-    MeshBuilder& builder,
-    const MRShapeGPU& shape,
-    const mr_float4 center,
-    const mr_float4 radii,
-    const std::uint32_t primitiveBase,
-    const std::uint32_t latitudeSegments = 8u,
-    const std::uint32_t longitudeSegments = 12u
-) {
-    const std::uint32_t first =
-        static_cast<std::uint32_t>(
-            builder.scene.meshVertices.size()
-        );
-    for (std::uint32_t latitude = 0u;
-         latitude <= latitudeSegments;
-         ++latitude) {
-        const double phi =
-            std::numbers::pi *
-            static_cast<double>(latitude) /
-            static_cast<double>(latitudeSegments);
-        const float z = static_cast<float>(std::cos(phi));
-        const float ring = static_cast<float>(std::sin(phi));
-        for (std::uint32_t longitude = 0u;
-             longitude <= longitudeSegments;
-             ++longitude) {
-            const double theta =
-                2.0 * std::numbers::pi *
-                static_cast<double>(longitude) /
-                static_cast<double>(longitudeSegments);
-            const mr_float4 normal{
-                ring * static_cast<float>(std::cos(theta)),
-                ring * static_cast<float>(std::sin(theta)),
-                z,
-                0.0f,
-            };
-            builder.vertex(
-                shape,
-                add3(center, scale3(normal, radii)),
-                normal,
-                static_cast<float>(longitude) /
-                    static_cast<float>(longitudeSegments),
-                static_cast<float>(latitude) /
-                    static_cast<float>(latitudeSegments)
-            );
-        }
-    }
-    std::uint32_t primitive = primitiveBase;
-    for (std::uint32_t latitude = 0u;
-         latitude < latitudeSegments;
-         ++latitude) {
-        for (std::uint32_t longitude = 0u;
-             longitude < longitudeSegments;
-             ++longitude) {
-            const std::uint32_t row =
-                longitudeSegments + 1u;
-            const std::uint32_t a =
-                first + latitude * row + longitude;
-            const std::uint32_t b = a + 1u;
-            const std::uint32_t c = a + row;
-            const std::uint32_t d = c + 1u;
-            if (latitude != 0u) {
-                builder.triangle(a, c, b, primitive++);
-            }
-            if (latitude + 1u != latitudeSegments) {
-                builder.triangle(b, c, d, primitive++);
-            }
-        }
-    }
-}
-
-void appendCylinder(
-    MeshBuilder& builder,
-    const MRShapeGPU& shape,
-    const float radius,
-    const float halfLength,
-    const std::uint32_t primitiveBase,
-    const bool capped
-) {
-    constexpr std::uint32_t segments = 16u;
-    const std::uint32_t first =
-        static_cast<std::uint32_t>(
-            builder.scene.meshVertices.size()
-        );
-    for (std::uint32_t ring = 0u; ring < 2u; ++ring) {
-        const float z = ring == 0u ? -halfLength : halfLength;
-        for (std::uint32_t segment = 0u;
-             segment <= segments;
-             ++segment) {
-            const double angle =
-                2.0 * std::numbers::pi *
-                static_cast<double>(segment) /
-                static_cast<double>(segments);
-            const mr_float4 normal{
-                static_cast<float>(std::cos(angle)),
-                static_cast<float>(std::sin(angle)),
-                0.0f,
-                0.0f,
-            };
-            builder.vertex(
-                shape,
-                {
-                    radius * normal.x,
-                    radius * normal.y,
-                    z,
-                    1.0f,
-                },
-                normal,
-                static_cast<float>(segment) /
-                    static_cast<float>(segments),
-                static_cast<float>(ring)
-            );
-        }
-    }
-    std::uint32_t primitive = primitiveBase;
-    const std::uint32_t row = segments + 1u;
-    for (std::uint32_t segment = 0u;
-         segment < segments;
-         ++segment) {
-        const std::uint32_t a = first + segment;
-        const std::uint32_t b = a + 1u;
-        const std::uint32_t c = a + row;
-        const std::uint32_t d = c + 1u;
-        builder.triangle(a, c, b, primitive++);
-        builder.triangle(b, c, d, primitive++);
-    }
-    if (!capped) {
-        return;
-    }
-    for (std::uint32_t cap = 0u; cap < 2u; ++cap) {
-        const float z = cap == 0u ? -halfLength : halfLength;
-        const mr_float4 normal{
-            0.0f,
-            0.0f,
-            cap == 0u ? -1.0f : 1.0f,
-            0.0f,
-        };
-        const std::uint32_t center = builder.vertex(
-            shape,
-            {0.0f, 0.0f, z, 1.0f},
-            normal,
-            0.5f,
-            0.5f
-        );
-        std::vector<std::uint32_t> rim;
-        rim.reserve(segments);
-        for (std::uint32_t segment = 0u;
-             segment < segments;
-             ++segment) {
-            const double angle =
-                2.0 * std::numbers::pi *
-                static_cast<double>(segment) /
-                static_cast<double>(segments);
-            rim.push_back(builder.vertex(
-                shape,
-                {
-                    radius * static_cast<float>(std::cos(angle)),
-                    radius * static_cast<float>(std::sin(angle)),
-                    z,
-                    1.0f,
-                },
-                normal
-            ));
-        }
-        for (std::uint32_t segment = 0u;
-             segment < segments;
-             ++segment) {
-            const std::uint32_t next = (segment + 1u) % segments;
-            if (cap == 0u) {
-                builder.triangle(
-                    center,
-                    rim[next],
-                    rim[segment],
-                    primitive++
-                );
-            } else {
-                builder.triangle(
-                    center,
-                    rim[segment],
-                    rim[next],
-                    primitive++
-                );
-            }
-        }
-    }
-}
-
-bool appendCookedGeometry(
-    MeshBuilder& builder,
-    const MRShapeGPU& shape,
-    const std::uint32_t primitiveBase
-) {
-    if (shape.geometryOffset >=
-        builder.model.geometryHeaders.size()) {
-        return false;
-    }
-    const MRGeometryHeaderGPU& geometry =
-        builder.model.geometryHeaders[shape.geometryOffset];
-    if (geometry.vertexOffset >
-            builder.model.geometryVertices.size() ||
-        geometry.vertexCount >
-            builder.model.geometryVertices.size() -
-                geometry.vertexOffset) {
-        return false;
-    }
-    const mr_float4 authoredScale{
-        shape.dimensions.x == 0.0f ? 1.0f : shape.dimensions.x,
-        shape.dimensions.y == 0.0f ? 1.0f : shape.dimensions.y,
-        shape.dimensions.z == 0.0f ? 1.0f : shape.dimensions.z,
-        1.0f,
-    };
-    std::vector<std::uint32_t> remap;
-    remap.reserve(geometry.vertexCount);
-    for (std::uint32_t local = 0u;
-         local < geometry.vertexCount;
-         ++local) {
-        const mr_float4 point =
-            scale3(
-                builder.model.geometryVertices[
-                    geometry.vertexOffset + local
-                ],
-                authoredScale
-            );
-        remap.push_back(builder.vertex(
-            shape,
-            point,
-            {0.0f, 0.0f, 1.0f, 0.0f}
-        ));
-    }
-    std::vector<std::array<std::uint32_t, 3>> triangles;
-    if (geometry.indexCount != 0u) {
-        if (geometry.indexOffset >
-                builder.model.geometryIndices.size() ||
-            geometry.indexCount >
-                builder.model.geometryIndices.size() -
-                    geometry.indexOffset ||
-            geometry.indexCount % 3u != 0u) {
-            return false;
-        }
-        for (std::uint32_t index = 0u;
-             index < geometry.indexCount;
-             index += 3u) {
-            triangles.push_back({
-                builder.model.geometryIndices[
-                    geometry.indexOffset + index
-                ],
-                builder.model.geometryIndices[
-                    geometry.indexOffset + index + 1u
-                ],
-                builder.model.geometryIndices[
-                    geometry.indexOffset + index + 2u
-                ],
-            });
-        }
-    } else if (geometry.triangleCount != 0u) {
-        if (geometry.triangleOffset >
-                builder.model.meshTriangles.size() ||
-            geometry.triangleCount >
-                builder.model.meshTriangles.size() -
-                    geometry.triangleOffset) {
-            return false;
-        }
-        for (std::uint32_t index = 0u;
-             index < geometry.triangleCount;
-             ++index) {
-            const mr_uint4 vertices =
-                builder.model.meshTriangles[
-                    geometry.triangleOffset + index
-                ].verticesAndFeature;
-            triangles.push_back({vertices.x, vertices.y, vertices.z});
-        }
-    }
-    std::uint32_t primitive = primitiveBase;
-    for (const auto triangle : triangles) {
-        if (triangle[0] >= remap.size() ||
-            triangle[1] >= remap.size() ||
-            triangle[2] >= remap.size()) {
-            return false;
-        }
-        const mr_float4 a =
-            builder.scene.meshVertices[remap[triangle[0]]].position;
-        const mr_float4 b =
-            builder.scene.meshVertices[remap[triangle[1]]].position;
-        const mr_float4 c =
-            builder.scene.meshVertices[remap[triangle[2]]].position;
-        const mr_float4 normal =
-            normalize3(cross3(subtract3(b, a), subtract3(c, a)));
-        for (const std::uint32_t vertexIndex : triangle) {
-            MRVisualMeshVertexGPU& vertex =
-                builder.scene.meshVertices[remap[vertexIndex]];
-            vertex.normalAndU.x = normal.x;
-            vertex.normalAndU.y = normal.y;
-            vertex.normalAndU.z = normal.z;
-        }
-        builder.triangle(
-            remap[triangle[0]],
-            remap[triangle[1]],
-            remap[triangle[2]],
-            primitive++
-        );
-    }
-    return !triangles.empty();
-}
-
-bool appendShape(
-    HybridGaussianScene& scene,
-    const EngineModel& model,
-    const std::uint32_t asset,
-    const std::uint32_t semantic,
-    const std::uint32_t instance,
-    const std::uint32_t material,
-    const std::uint32_t shapeIndex
-) {
-    if (shapeIndex >= model.shapes.size()) {
-        return false;
-    }
-    const MRShapeGPU& shape = model.shapes[shapeIndex];
-    if (shape.bodyIndex >= model.bodies.size()) {
-        return false;
-    }
-    MeshBuilder builder{
-        scene,
-        model,
-        asset,
-        shape.bodyIndex,
-        material,
-        semantic,
-        instance,
-    };
-    const std::uint32_t primitiveBase =
-        shapeIndex * 100000u;
-    switch (shape.shapeType) {
-    case MR_SHAPE_SPHERE:
-        appendSphere(
-            builder,
-            shape,
-            {},
-            {
-                shape.dimensions.x,
-                shape.dimensions.x,
-                shape.dimensions.x,
-                1.0f,
-            },
-            primitiveBase
-        );
-        return true;
-    case MR_SHAPE_CAPSULE:
-        appendCylinder(
-            builder,
-            shape,
-            shape.dimensions.x,
-            shape.dimensions.y,
-            primitiveBase,
-            false
-        );
-        appendSphere(
-            builder,
-            shape,
-            {0.0f, 0.0f, -shape.dimensions.y, 1.0f},
-            {
-                shape.dimensions.x,
-                shape.dimensions.x,
-                shape.dimensions.x,
-                1.0f,
-            },
-            primitiveBase + 1000u
-        );
-        appendSphere(
-            builder,
-            shape,
-            {0.0f, 0.0f, shape.dimensions.y, 1.0f},
-            {
-                shape.dimensions.x,
-                shape.dimensions.x,
-                shape.dimensions.x,
-                1.0f,
-            },
-            primitiveBase + 2000u
-        );
-        return true;
-    case MR_SHAPE_BOX:
-        appendBox(builder, shape, primitiveBase);
-        return true;
-    case MR_SHAPE_PLANE: {
-        MRShapeGPU finitePlane = shape;
-        finitePlane.dimensions = {
-            shape.dimensions.x > 0.0f ? shape.dimensions.x : 1.5f,
-            shape.dimensions.y > 0.0f ? shape.dimensions.y : 1.5f,
-            0.005f,
-            0.0f,
-        };
-        appendBox(builder, finitePlane, primitiveBase);
-        return true;
-    }
-    case MR_SHAPE_CYLINDER:
-        appendCylinder(
-            builder,
-            shape,
-            shape.dimensions.x,
-            shape.dimensions.y,
-            primitiveBase,
-            true
-        );
-        return true;
-    case MR_SHAPE_CONVEX:
-    case MR_SHAPE_TRIANGLE_MESH:
-        return appendCookedGeometry(builder, shape, primitiveBase);
-    case MR_SHAPE_HEIGHTFIELD:
-    case MR_SHAPE_SDF:
-    default:
-        return false;
-    }
-}
-
-std::uint64_t renderSceneFingerprint(
-    const HybridGaussianScene& scene
-) {
-    HashBuilder hash;
-    hash.appendString(scene.id);
-    hash.appendScalar(scene.assetCount);
-    hash.appendScalar(scene.bodyCount);
-    hash.appendSpan<MRHybridGaussianGPU>(scene.gaussians);
-    hash.appendSpan<MRVisualMeshVertexGPU>(scene.meshVertices);
-    hash.appendSpan<MRVisualMeshTriangleGPU>(
-        scene.meshTriangles
-    );
-    hash.appendSpan<MRVisualMaterialGPU>(scene.materials);
-    hash.appendSpan<MRVisualSensorBindingGPU>(
-        scene.sensorBindings
-    );
-    return hash.finish();
-}
-
-std::uint64_t visualSceneFingerprint(
-    const VisualSceneManifestV1& scene
-) {
-    HashBuilder hash;
-    hash.appendScalar(scene.schemaVersion);
-    hash.appendString(scene.id);
-    hash.appendString(scene.coordinateConvention);
-    hash.appendScalar(scene.worldFingerprint);
-    hash.appendScalar(scene.bodyCount);
-    for (const VisualAssetManifestV1& asset : scene.assets) {
-        hash.appendString(asset.id);
-        hash.appendString(asset.semanticClass);
-        hash.appendScalar(asset.representation);
-        hash.appendScalar(asset.binding);
-        hash.appendString(asset.sourceUri);
-        hash.appendString(asset.contentHash);
-        hash.appendString(asset.license);
-        hash.appendString(asset.preprocessingProvenance);
-        hash.appendScalar(asset.semanticId);
-        hash.appendScalar(asset.instanceId);
-        hash.appendSpan<std::uint32_t>(asset.bodyIndices);
-        hash.appendSpan<std::uint32_t>(asset.shapeIndices);
-    }
-    hash.appendScalar(scene.renderSceneFingerprint);
-    return hash.finish();
-}
-
 std::uint64_t sensorProfileFingerprint(
-    const VisualSensorProfileV1& profile
+    const VisualSensorProfileV2& profile
 ) {
     HashBuilder hash;
     hash.appendString(profile.id);
@@ -839,7 +150,6 @@ std::uint64_t sensorProfileFingerprint(
     hash.appendScalar(profile.minimumDepthMeters);
     hash.appendScalar(profile.maximumDepthMeters);
     hash.appendScalar(profile.depthQuantumMeters);
-    hash.appendScalar(profile.motionBlurScale);
     hash.appendScalar(profile.latencySeconds);
     return hash.finish();
 }
@@ -1248,77 +558,10 @@ void writeJSONFloatArray(
 
 } // namespace
 
-bool VisualAssetManifestV1::valid(
-    const std::uint32_t bodyCount,
-    std::string* reason
-) const {
-    if (id.empty() || semanticClass.empty() ||
-        representation == MR_VISUAL_REPRESENTATION_NONE ||
-        representation > MR_VISUAL_REPRESENTATION_PROCEDURAL ||
-        binding > MR_VISUAL_BINDING_ARTICULATED_LINK ||
-        sourceUri.empty() || contentHash.empty() ||
-        license.empty() || preprocessingProvenance.empty() ||
-        semanticId == 0u ||
-        instanceId == 0u) {
-        return fail(reason, "visual asset identity is incomplete");
-    }
-    std::unordered_set<std::uint32_t> bodies;
-    for (const std::uint32_t body : bodyIndices) {
-        if (body >= bodyCount || !bodies.insert(body).second) {
-            return fail(
-                reason,
-                "visual asset has an invalid or duplicate body"
-            );
-        }
-    }
-    std::unordered_set<std::uint32_t> shapes;
-    for (const std::uint32_t shape : shapeIndices) {
-        if (!shapes.insert(shape).second) {
-            return fail(
-                reason,
-                "visual asset has a duplicate shape"
-            );
-        }
-    }
-    return true;
-}
-
-bool VisualSensorProfileV1::valid(std::string* reason) const {
-    if (id.empty() || !finite(nominalRateHz) ||
-        !(nominalRateHz > 0.0) ||
-        !finite(exposureSeconds) || exposureSeconds < 0.0 ||
-        !finite(shutterReadoutSeconds) ||
-        shutterReadoutSeconds < 0.0 ||
-        shutterModel > MR_VISUAL_SHUTTER_ROLLING ||
-        shutterDirection > MR_VISUAL_SHUTTER_RIGHT_TO_LEFT ||
-        (shutterModel == MR_VISUAL_SHUTTER_GLOBAL &&
-         shutterReadoutSeconds != 0.0) ||
-        !finite(frameJitterSeconds) ||
-        frameJitterSeconds < 0.0 ||
-        !finite(minimumDepthMeters) ||
-        !(minimumDepthMeters >= 0.0) ||
-        !finite(maximumDepthMeters) ||
-        !(maximumDepthMeters > minimumDepthMeters) ||
-        !finite(depthQuantumMeters) ||
-        !(depthQuantumMeters > 0.0) ||
-        !finite(motionBlurScale) || motionBlurScale < 0.0 ||
-        !finite(latencySeconds) || latencySeconds < 0.0) {
-        return fail(reason, "visual sensor profile is invalid");
-    }
-    if (fingerprint != 0u &&
-        fingerprint != sensorProfileFingerprint(*this)) {
-        return fail(
-            reason,
-            "visual sensor profile fingerprint does not match"
-        );
-    }
-    return true;
-}
-
 std::uint64_t computeVisualSensorProfileFingerprint(
-    const VisualSensorProfileV1& profile
+    const VisualSensorProfileV2& profile
 ) {
-    VisualSensorProfileV1 candidate = profile;
+    VisualSensorProfileV2 candidate = profile;
     candidate.fingerprint = 0u;
     return candidate.valid()
         ? sensorProfileFingerprint(candidate)
@@ -1338,7 +581,7 @@ bool VisualSensorCaptureV1::valid(std::string* reason) const {
 }
 
 VisualSensorCaptureV1 makeVisualSensorCapture(
-    const VisualSensorProfileV1& profile,
+    const VisualSensorProfileV2& profile,
     const std::uint64_t scenarioIdentity,
     const std::uint64_t sensorIdentity,
     const std::uint64_t frameIndex,
@@ -2012,437 +1255,23 @@ bool assembleVisualBatches(
     return true;
 }
 
-bool VisualSceneManifestV1::valid(std::string* reason) const {
-    if (schemaVersion != kVisualSceneManifestVersion ||
-        id.empty() ||
-        coordinateConvention != "x-forward,y-left,z-up" ||
-        worldFingerprint == 0u ||
-        renderSceneFingerprint == 0u ||
-        fingerprint == 0u ||
-        bodyCount == 0u || renderScene.id != id ||
-        renderScene.bodyCount != bodyCount ||
-        renderScene.assetCount != assets.size()) {
-        return fail(reason, "visual scene manifest identity is invalid");
-    }
-    std::unordered_set<std::string> ids;
-    std::unordered_set<std::uint32_t> instanceIds;
-    std::unordered_map<std::string, std::uint32_t>
-        semanticIdsByClass;
-    std::unordered_map<std::uint32_t, std::string>
-        semanticClassesById;
-    for (const VisualAssetManifestV1& asset : assets) {
-        if (!asset.valid(bodyCount, reason)) {
-            return false;
-        }
-        if (!ids.insert(asset.id).second ||
-            !instanceIds.insert(asset.instanceId).second) {
-            return fail(reason, "visual asset/instance identities are not unique");
-        }
-        const auto [classEntry, insertedClass] =
-            semanticIdsByClass.emplace(
-                asset.semanticClass,
-                asset.semanticId
-            );
-        if ((!insertedClass &&
-             classEntry->second != asset.semanticId) ||
-            (semanticClassesById.contains(asset.semanticId) &&
-             semanticClassesById.at(asset.semanticId) !=
-                 asset.semanticClass)) {
-            return fail(
-                reason,
-                "semantic classes and semantic ids are not one-to-one"
-            );
-        }
-        semanticClassesById.emplace(
-            asset.semanticId,
-            asset.semanticClass
-        );
-    }
-    std::string renderReason;
-    if (!renderScene.valid(&renderReason)) {
-        return fail(
-            reason,
-            "visual render scene is invalid: " + renderReason
-        );
-    }
-    if (renderSceneFingerprint !=
-        ::metalrobo::renderSceneFingerprint(renderScene)) {
-        return fail(
-            reason,
-            "visual render-scene fingerprint does not match"
-        );
-    }
-    for (std::uint32_t assetIndex = 0u;
-         assetIndex < assets.size();
-         ++assetIndex) {
-        if (assets[assetIndex].instanceId != assetIndex + 1u) {
-            return fail(
-                reason,
-                "visual instance ids do not match renderer asset indices"
-            );
-        }
-    }
-    for (const MRHybridGaussianGPU& gaussian :
-         renderScene.gaussians) {
-        const VisualAssetManifestV1& asset =
-            assets[gaussian.binding.x];
-        if (gaussian.binding.z != asset.semanticId ||
-            (
-                gaussian.binding.w ==
-                    MR_HYBRID_GAUSSIAN_BODY_LOCAL &&
-                std::ranges::find(
-                    asset.bodyIndices,
-                    gaussian.binding.y
-                ) == asset.bodyIndices.end()
-            )) {
-            return fail(
-                reason,
-                "Gaussian identity disagrees with its visual asset"
-            );
-        }
-    }
-    for (const MRVisualMeshTriangleGPU& triangle :
-         renderScene.meshTriangles) {
-        const VisualAssetManifestV1& asset =
-            assets[triangle.binding.x];
-        if (triangle.identity.x != asset.semanticId ||
-            triangle.identity.y != asset.instanceId ||
-            triangle.identity.z != triangle.binding.y ||
-            std::ranges::find(
-                asset.bodyIndices,
-                triangle.binding.y
-            ) == asset.bodyIndices.end()) {
-            return fail(
-                reason,
-                "mesh identity disagrees with its visual asset"
-            );
-        }
-    }
-    for (const MRVisualSensorBindingGPU& sensor :
-         renderScene.sensorBindings) {
-        if (sensor.identity.x == MR_VISUAL_BINDING_WORLD) {
-            if (sensor.identity.z != MR_INVALID_INDEX) {
-                return fail(
-                    reason,
-                    "world camera unexpectedly owns a visual asset"
-                );
-            }
-            continue;
-        }
-        if (sensor.identity.z >= assets.size()) {
-            return fail(
-                reason,
-                "camera owning asset is invalid"
-            );
-        }
-        const VisualAssetManifestV1& asset =
-            assets[sensor.identity.z];
-        if (sensor.identity.x == MR_VISUAL_BINDING_ASSET) {
-            if (sensor.identity.y != sensor.identity.z) {
-                return fail(
-                    reason,
-                    "asset camera binding disagrees with its owner"
-                );
-            }
-        } else if (std::ranges::find(
-                       asset.bodyIndices,
-                       sensor.identity.y
-                   ) == asset.bodyIndices.end()) {
-            return fail(
-                reason,
-                "body camera binding disagrees with its owner"
-            );
-        }
-    }
-    if (fingerprint != visualSceneFingerprint(*this)) {
-        return fail(reason, "visual scene fingerprint does not match");
-    }
-    return true;
-}
-
-bool compileVisualSceneManifest(
+bool compileVisualSceneManifestV3(
     const WorldTemplate& world,
-    VisualSceneManifestV1& output,
-    std::string* reason
-) {
-    std::string worldReason;
-    if (!world.valid(&worldReason)) {
-        return fail(
-            reason,
-            "world template is invalid: " + worldReason
-        );
-    }
-    if (world.engineModel.bodies.empty() ||
-        world.assets.empty() || world.sensors.empty()) {
-        return fail(
-            reason,
-            "visual scene requires bodies, assets, and sensors"
-        );
-    }
-    VisualSceneManifestV1 candidate;
-    candidate.id = world.id + ".visual.v1";
-    candidate.coordinateConvention = "x-forward,y-left,z-up";
-    candidate.worldFingerprint = world.fingerprint;
-    candidate.bodyCount = static_cast<std::uint32_t>(
-        world.engineModel.bodies.size()
-    );
-    candidate.renderScene.id = candidate.id;
-    candidate.renderScene.assetCount =
-        static_cast<std::uint32_t>(world.assets.size());
-    candidate.renderScene.bodyCount = candidate.bodyCount;
-    candidate.assets.reserve(world.assets.size());
-    candidate.renderScene.materials.reserve(world.assets.size());
-    std::unordered_map<std::string, std::uint32_t>
-        semanticIds;
-
-    for (std::uint32_t assetIndex = 0u;
-         assetIndex < world.assets.size();
-         ++assetIndex) {
-        const WorldAsset& source = world.assets[assetIndex];
-        VisualAssetManifestV1 asset;
-        asset.id = source.id;
-        asset.semanticClass = source.semanticClass;
-        asset.representation = representation(source);
-        asset.binding =
-            source.dynamics == MR_WORLD_DYNAMICS_ARTICULATED
-                ? MR_VISUAL_BINDING_ARTICULATED_LINK
-                : source.dynamics == MR_WORLD_DYNAMICS_STATIC &&
-                        source.bodyIndices.empty()
-                    ? MR_VISUAL_BINDING_WORLD
-                    : MR_VISUAL_BINDING_RIGID_BODY;
-        asset.sourceUri =
-            "engine://" + world.engineModel.name + "/" + source.id;
-        asset.contentHash =
-            "fnv64:" + std::to_string(
-                world.fingerprint ^
-                (static_cast<std::uint64_t>(assetIndex) *
-                 0x9e3779b97f4a7c15ull)
-            );
-        asset.license = "generated-from-engine-model";
-        asset.preprocessingProvenance =
-            "engine-shape-triangulation-v1";
-        const auto [semanticEntry, inserted] =
-            semanticIds.try_emplace(
-                source.semanticClass,
-                static_cast<std::uint32_t>(
-                    semanticIds.size() + 1u
-                )
-            );
-        static_cast<void>(inserted);
-        asset.semanticId = semanticEntry->second;
-        asset.instanceId = assetIndex + 1u;
-        asset.bodyIndices = source.bodyIndices;
-        asset.shapeIndices = source.shapeIndices;
-        candidate.assets.push_back(asset);
-
-        const mr_float4 color = palette(source.role);
-        candidate.renderScene.materials.push_back({
-            color,
-            {0.0f, 0.0f, 0.0f, 0.0f},
-            {0.55f, 0.05f, 1.0f, 1.0f},
-            {},
-        });
-        for (const std::uint32_t shapeIndex : source.shapeIndices) {
-            if (!appendShape(
-                    candidate.renderScene,
-                    world.engineModel,
-                    assetIndex,
-                    asset.semanticId,
-                    asset.instanceId,
-                    assetIndex,
-                    shapeIndex
-                )) {
-                return fail(
-                    reason,
-                    "visual scene could not triangulate shape " +
-                        std::to_string(shapeIndex) + " for asset " +
-                        source.id
-                );
-            }
-        }
-    }
-
-    candidate.renderScene.sensorBindings.reserve(
-        world.sensors.size()
-    );
-    for (const SensorSpec& sensor : world.sensors) {
-        const std::uint32_t assetIndex =
-            world.assetIndex(sensor.parentAssetId);
-        MRVisualSensorBindingGPU binding{};
-        binding.identity.z =
-            assetIndex < world.assets.size()
-            ? assetIndex
-            : MR_INVALID_INDEX;
-        switch (sensor.parentKind) {
-        case MR_WORLD_SENSOR_PARENT_WORLD:
-            binding.identity.x = MR_VISUAL_BINDING_WORLD;
-            binding.identity.y = MR_INVALID_INDEX;
-            break;
-        case MR_WORLD_SENSOR_PARENT_RIGID_BODY:
-            binding.identity.x = MR_VISUAL_BINDING_RIGID_BODY;
-            binding.identity.y = sensor.parentBodyIndex;
-            break;
-        case MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK:
-            binding.identity.x =
-                MR_VISUAL_BINDING_ARTICULATED_LINK;
-            binding.identity.y = sensor.parentBodyIndex;
-            break;
-        case MR_WORLD_SENSOR_PARENT_ASSET:
-        default:
-            binding.identity.x = MR_VISUAL_BINDING_ASSET;
-            binding.identity.y = assetIndex;
-            binding.identity.z = assetIndex;
-            break;
-        }
-        binding.timing = {
-            sensor.nominalRateHz,
-            sensor.exposureSeconds,
-            sensor.shutterReadoutSeconds,
-            sensor.frameJitterSeconds,
-        };
-        binding.rangeAndResponse = {
-            sensor.minimumDepthMeters,
-            sensor.maximumDepthMeters,
-            sensor.depthQuantumMeters,
-            sensor.motionBlurScale,
-        };
-        binding.shutter = {
-            sensor.shutterModel,
-            sensor.shutterDirection,
-            0u,
-            0u,
-        };
-        candidate.renderScene.sensorBindings.push_back(binding);
-    }
-
-    candidate.renderSceneFingerprint =
-        renderSceneFingerprint(candidate.renderScene);
-    candidate.fingerprint = visualSceneFingerprint(candidate);
-    std::string candidateReason;
-    if (!candidate.valid(&candidateReason)) {
-        return fail(
-            reason,
-            "compiled visual scene is invalid: " + candidateReason
-        );
-    }
-    output = std::move(candidate);
-    return true;
-}
-
-bool attachGaussianField(
-    VisualSceneManifestV1& scene,
-    const std::string& assetId,
-    const std::span<const MRHybridGaussianGPU> gaussians,
-    std::string sourceUri,
-    std::string contentHash,
-    std::string license,
-    std::string preprocessingProvenance,
-    std::string* reason
-) {
-    std::string sceneReason;
-    if (!scene.valid(&sceneReason) || assetId.empty() ||
-        gaussians.empty() || sourceUri.empty() ||
-        contentHash.empty() || license.empty() ||
-        preprocessingProvenance.empty()) {
-        return fail(
-            reason,
-            "Gaussian layer input is incomplete or invalid"
-        );
-    }
-    const auto found = std::ranges::find_if(
-        scene.assets,
-        [&assetId](const VisualAssetManifestV1& asset) {
-            return asset.id == assetId;
-        }
-    );
-    if (found == scene.assets.end()) {
-        return fail(reason, "Gaussian layer asset does not exist");
-    }
-    VisualSceneManifestV1 candidate = scene;
-    const std::uint32_t assetIndex =
-        static_cast<std::uint32_t>(
-            found - scene.assets.begin()
-        );
-    VisualAssetManifestV1& asset =
-        candidate.assets[assetIndex];
-    for (MRHybridGaussianGPU gaussian : gaussians) {
-        gaussian.binding.x = assetIndex;
-        gaussian.binding.z = asset.semanticId;
-        if (gaussian.binding.w ==
-                MR_HYBRID_GAUSSIAN_BODY_LOCAL &&
-            std::ranges::find(
-                asset.bodyIndices,
-                gaussian.binding.y
-            ) == asset.bodyIndices.end()) {
-            return fail(
-                reason,
-                "body-local Gaussian is not owned by the selected asset"
-            );
-        }
-        if (gaussian.binding.w !=
-            MR_HYBRID_GAUSSIAN_BODY_LOCAL) {
-            gaussian.binding.y = MR_INVALID_INDEX;
-        }
-        candidate.renderScene.gaussians.push_back(gaussian);
-    }
-    asset.representation =
-        MR_VISUAL_REPRESENTATION_GAUSSIAN_FIELD;
-    asset.sourceUri = std::move(sourceUri);
-    asset.contentHash = std::move(contentHash);
-    asset.license = std::move(license);
-    asset.preprocessingProvenance =
-        std::move(preprocessingProvenance);
-    candidate.renderSceneFingerprint =
-        renderSceneFingerprint(candidate.renderScene);
-    candidate.fingerprint = visualSceneFingerprint(candidate);
-    if (!candidate.valid(&sceneReason)) {
-        return fail(
-            reason,
-            "Gaussian layer produced an invalid visual scene: " +
-                sceneReason
-        );
-    }
-    scene = std::move(candidate);
-    return true;
-}
-
-VisualSceneManifestV1 makeFrankaPickPlaceVisualSceneManifest() {
-    WorldTemplate world;
-    const WorldCompileResult compiled = compileEpisodeTwin(
-        makeFrankaPickPlaceEpisodeTwin(),
-        makeFrankaPickPlaceEngineModel(),
-        world
-    );
-    if (!compiled.succeeded()) {
-        return {};
-    }
-    VisualSceneManifestV1 result;
-    if (!compileVisualSceneManifest(world, result)) {
-        return {};
-    }
-    return result;
-}
-
-bool compileVisualSceneManifestV2(
-    const WorldTemplate& world,
-    const std::span<const AuthoredVisualAssetReferenceV2>
+    const std::span<const VisualAssetReferenceV3>
         authoredAssets,
-    const VisualEnvironmentV1& environment,
+    const VisualEnvironmentReferenceV2& environment,
     const VisualLightRigV1& lightRig,
-    VisualSceneManifestV2& output,
+    VisualSceneManifestV3& output,
     std::string* reason
 ) {
     std::string worldReason;
     std::string presentationReason;
     if (!world.valid(&worldReason) || authoredAssets.empty() ||
-        !environment.valid(
-            std::numeric_limits<std::size_t>::max(),
-            &presentationReason
-        ) ||
+        !environment.valid(&presentationReason) ||
         !lightRig.valid(&presentationReason)) {
         return fail(
             reason,
-            "V2 visual scene source is invalid: " +
+            "V3 visual scene source is invalid: " +
                 (
                     !worldReason.empty()
                     ? worldReason
@@ -2452,11 +1281,11 @@ bool compileVisualSceneManifestV2(
                 )
         );
     }
-    VisualSceneManifestV2 candidate;
-    candidate.id = world.id + ".visual.v2";
+    VisualSceneManifestV3 candidate;
+    candidate.id = world.id + ".visual.v3";
     candidate.worldFingerprint = world.fingerprint;
     candidate.preprocessingProvenance =
-        "compileVisualSceneManifestV2/authored-only-v2";
+        "compileVisualSceneManifestV3/native-pack-references-v3";
     candidate.renderScene.id = candidate.id + ".runtime";
     candidate.renderScene.assetCount =
         static_cast<std::uint32_t>(world.assets.size());
@@ -2518,7 +1347,7 @@ bool compileVisualSceneManifestV2(
         candidate.renderScene.sensorBindings.push_back(binding);
     }
 
-    for (const AuthoredVisualAssetReferenceV2& reference :
+    for (const VisualAssetReferenceV3& reference :
          authoredAssets) {
         if (reference.packPath.empty() ||
             reference.assetIndex >=
@@ -2529,13 +1358,13 @@ bool compileVisualSceneManifestV2(
             reference.instanceId == MR_INVALID_INDEX) {
             return fail(
                 reason,
-                "authored V2 visual reference is invalid"
+                "authored V3 visual reference is invalid"
             );
         }
-        // Deliberately release each source pack after append. The immutable
-        // render scene is the only full asset aggregate retained.
-        VisualAssetPackV1 pack;
-        if (!readVisualAssetPack(
+        // Validate one pack at a time, but keep only its immutable path and
+        // content hash in the live scene.
+        VisualAssetPackV2 pack;
+        if (!readVisualAssetPackIndex(
                 reference.packPath,
                 pack,
                 &presentationReason
@@ -2547,20 +1376,14 @@ bool compileVisualSceneManifestV2(
             );
         }
         const std::string packContentHash = pack.contentHash;
-        if (!appendVisualAssetPack(
-                std::move(pack),
-                reference.assetIndex,
-                reference.semanticId,
-                reference.instanceId,
-                candidate.renderScene,
-                &presentationReason
-            )) {
+        if (packContentHash != reference.contentHash) {
             return fail(
                 reason,
-                "could not bind authored visual pack: " +
-                    presentationReason
+                "authored visual pack hash does not match its V3 "
+                "reference"
             );
         }
+        candidate.renderScene.visualPacks.push_back(reference);
         if (std::ranges::find(
                 candidate.visualPackHashes,
                 packContentHash
@@ -2573,15 +1396,15 @@ bool compileVisualSceneManifestV2(
     candidate.environmentMapHash = environment.contentHash;
     candidate.lightRigHash = lightRig.contentHash;
     candidate.renderScene.fingerprint =
-        computeVisualRenderSceneV2Fingerprint(
+        computeVisualRenderSceneV3Fingerprint(
             candidate.renderScene
         );
     candidate.fingerprint =
-        computeVisualSceneManifestV2Fingerprint(candidate);
+        computeVisualSceneManifestV3Fingerprint(candidate);
     if (!candidate.valid(&presentationReason)) {
         return fail(
             reason,
-            "compiled V2 visual scene is invalid: " +
+            "compiled V3 visual scene is invalid: " +
                 presentationReason
         );
     }
@@ -2589,10 +1412,10 @@ bool compileVisualSceneManifestV2(
     return true;
 }
 
-bool makeFrankaPickPlaceVisualSceneManifestV2(
-    const std::span<const AuthoredVisualAssetReferenceV2>
+bool makeFrankaPickPlaceVisualSceneManifestV3(
+    const std::span<const VisualAssetReferenceV3>
         authoredAssets,
-    VisualSceneManifestV2& output,
+    VisualSceneManifestV3& output,
     std::string* reason
 ) {
     WorldTemplate world;
@@ -2608,147 +1431,14 @@ bool makeFrankaPickPlaceVisualSceneManifestV2(
                 compiled.message
         );
     }
-    return compileVisualSceneManifestV2(
+    return compileVisualSceneManifestV3(
         world,
         authoredAssets,
-        makeNeutralStudioEnvironmentV1(),
+        makeNeutralStudioEnvironmentV2(),
         makeIndoorAreaLightRigV1(),
         output,
         reason
     );
-}
-
-bool writeVisualSceneManifest(
-    const VisualSceneManifestV1& scene,
-    const std::filesystem::path& path,
-    std::string* reason
-) {
-    std::string sceneReason;
-    if (!scene.valid(&sceneReason) || path.empty()) {
-        return fail(
-            reason,
-            "visual scene manifest input is invalid: " +
-                sceneReason
-        );
-    }
-    const auto representationName =
-        [](const MRVisualRepresentation value)
-            -> std::string_view {
-        switch (value) {
-        case MR_VISUAL_REPRESENTATION_TRIANGLE_MESH:
-            return "triangle_mesh";
-        case MR_VISUAL_REPRESENTATION_GAUSSIAN_FIELD:
-            return "gaussian_field";
-        case MR_VISUAL_REPRESENTATION_PROCEDURAL:
-            return "procedural";
-        case MR_VISUAL_REPRESENTATION_NONE:
-        default:
-            return "invalid";
-        }
-    };
-    const auto bindingName =
-        [](const MRVisualBindingKind value)
-            -> std::string_view {
-        switch (value) {
-        case MR_VISUAL_BINDING_WORLD:
-            return "world";
-        case MR_VISUAL_BINDING_ASSET:
-            return "asset";
-        case MR_VISUAL_BINDING_RIGID_BODY:
-            return "rigid_body";
-        case MR_VISUAL_BINDING_ARTICULATED_LINK:
-            return "articulated_link";
-        default:
-            return "invalid";
-        }
-    };
-    const std::filesystem::path temporary =
-        path.string() + ".tmp." +
-        std::to_string(scene.fingerprint);
-    std::ofstream output(
-        temporary,
-        std::ios::binary | std::ios::trunc
-    );
-    if (!output) {
-        return fail(reason, "could not open visual scene manifest");
-    }
-    output << "{\n"
-           << "  \"schema_version\": " << scene.schemaVersion
-           << ",\n"
-           << "  \"id\": \"" << jsonEscape(scene.id) << "\",\n"
-           << "  \"coordinate_convention\": \""
-           << jsonEscape(scene.coordinateConvention) << "\",\n"
-           << "  \"world_fingerprint\": "
-           << scene.worldFingerprint << ",\n"
-           << "  \"fingerprint\": " << scene.fingerprint
-           << ",\n"
-           << "  \"body_count\": " << scene.bodyCount
-           << ",\n"
-           << "  \"assets\": [\n";
-    for (std::size_t index = 0u;
-         index < scene.assets.size();
-         ++index) {
-        const VisualAssetManifestV1& asset =
-            scene.assets[index];
-        output << "    {\"id\":\""
-               << jsonEscape(asset.id)
-               << "\",\"semantic_class\":\""
-               << jsonEscape(asset.semanticClass)
-               << "\",\"representation\":\""
-               << representationName(asset.representation)
-               << "\",\"binding\":\""
-               << bindingName(asset.binding)
-               << "\",\"source_uri\":\""
-               << jsonEscape(asset.sourceUri)
-               << "\",\"content_hash\":\""
-               << jsonEscape(asset.contentHash)
-               << "\",\"license\":\""
-               << jsonEscape(asset.license)
-               << "\",\"preprocessing_provenance\":\""
-               << jsonEscape(asset.preprocessingProvenance)
-               << "\",\"semantic_id\":"
-               << asset.semanticId
-               << ",\"instance_id\":"
-               << asset.instanceId
-               << ",\"body_indices\":";
-        writeJSONFloatArray(output, asset.bodyIndices);
-        output << ",\"shape_indices\":";
-        writeJSONFloatArray(output, asset.shapeIndices);
-        output << '}';
-        if (index + 1u != scene.assets.size()) {
-            output << ',';
-        }
-        output << '\n';
-    }
-    output << "  ],\n"
-           << "  \"render_scene\": {\n"
-           << "    \"gaussian_count\": "
-           << scene.renderScene.gaussians.size() << ",\n"
-           << "    \"mesh_vertex_count\": "
-           << scene.renderScene.meshVertices.size() << ",\n"
-           << "    \"mesh_triangle_count\": "
-           << scene.renderScene.meshTriangles.size() << ",\n"
-           << "    \"material_count\": "
-           << scene.renderScene.materials.size() << ",\n"
-           << "    \"sensor_binding_count\": "
-           << scene.renderScene.sensorBindings.size() << ",\n"
-           << "    \"fingerprint\": "
-           << scene.renderSceneFingerprint << "\n"
-           << "  }\n"
-           << "}\n";
-    output.close();
-    if (!output) {
-        std::error_code ignored;
-        std::filesystem::remove(temporary, ignored);
-        return fail(reason, "could not write visual scene manifest");
-    }
-    std::error_code error;
-    std::filesystem::rename(temporary, path, error);
-    if (error) {
-        std::filesystem::remove(temporary, error);
-        return fail(reason, "could not publish visual scene manifest");
-    }
-    return true;
 }
 
 bool composeVisualBodyStates(

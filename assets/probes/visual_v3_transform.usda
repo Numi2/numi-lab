@@ -1,0 +1,61 @@
+#usda 1.0
+(
+    defaultPrim = "Root"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "Root"
+{
+    def Xform "Authored"
+    {
+        def Mesh "Panel"
+        {
+            uniform token subdivisionScheme = "none"
+            point3f[] points = [
+                (-0.5, -0.5, 0),
+                (0.5, -0.5, 0),
+                (0.5, 0.5, 0),
+                (-0.5, 0.5, 0)
+            ]
+            int[] faceVertexCounts = [3, 3]
+            int[] faceVertexIndices = [0, 1, 2, 0, 2, 3]
+            texCoord2f[] primvars:st = [
+                (0, 0),
+                (1, 0),
+                (1, 1),
+                (0, 1)
+            ] (
+                interpolation = "vertex"
+            )
+        }
+    }
+
+    def Xform "Repeated"
+    {
+        double3 xformOp:translate = (1.25, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+
+        def Mesh "PanelCopy" (
+            prepend references = </Root/Authored/Panel>
+        )
+        {
+        }
+    }
+
+    def Xform "MirroredNonUniform"
+    {
+        double3 xformOp:translate = (-1.25, 0, 0)
+        double3 xformOp:scale = (-2, 1, 0.5)
+        uniform token[] xformOpOrder = [
+            "xformOp:translate",
+            "xformOp:scale"
+        ]
+
+        def Mesh "PanelResidual" (
+            prepend references = </Root/Authored/Panel>
+        )
+        {
+        }
+    }
+}

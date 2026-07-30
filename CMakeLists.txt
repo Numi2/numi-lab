@@ -22,7 +22,9 @@ find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
 find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
 find_library(COREGRAPHICS_FRAMEWORK CoreGraphics REQUIRED)
+find_library(COREIMAGE_FRAMEWORK CoreImage REQUIRED)
 find_library(IMAGEIO_FRAMEWORK ImageIO REQUIRED)
+find_library(METALKIT_FRAMEWORK MetalKit REQUIRED)
 find_library(MODELIO_FRAMEWORK ModelIO REQUIRED)
 find_package(SQLite3 REQUIRED)
 find_package(LibXml2 REQUIRED)
@@ -69,6 +71,12 @@ set(METALROBO_WORLD_COMPILER_SOURCE
 )
 set(METALROBO_HYBRID_RENDERER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/HybridRenderer.metal"
+)
+set(METALROBO_ENVIRONMENT_PREFILTER_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/EnvironmentPrefilter.metal"
+)
+set(METALROBO_VISUAL_ASSET_COOK_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/VisualAssetCook.metal"
 )
 set(METALROBO_TACTILE_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Tactile.metal"
@@ -141,6 +149,12 @@ set(METALROBO_WORLD_COMPILER_AIR
 )
 set(METALROBO_HYBRID_RENDERER_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboHybridRenderer.air"
+)
+set(METALROBO_ENVIRONMENT_PREFILTER_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboEnvironmentPrefilter.air"
+)
+set(METALROBO_VISUAL_ASSET_COOK_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboVisualAssetCook.air"
 )
 set(METALROBO_TACTILE_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboTactile.air"
@@ -282,8 +296,24 @@ add_custom_command(
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
             -c "${METALROBO_HYBRID_RENDERER_SOURCE}"
             -o "${METALROBO_HYBRID_RENDERER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
+            -c "${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"
+            -o "${METALROBO_ENVIRONMENT_PREFILTER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
+            -o "${METALROBO_VISUAL_ASSET_COOK_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -312,6 +342,8 @@ add_custom_command(
             "${METALROBO_WORLD_CONTACT_AIR}"
             "${METALROBO_WORLD_COMPILER_AIR}"
             "${METALROBO_HYBRID_RENDERER_AIR}"
+            "${METALROBO_ENVIRONMENT_PREFILTER_AIR}"
+            "${METALROBO_VISUAL_ASSET_COOK_AIR}"
             "${METALROBO_TACTILE_AIR}"
             -o "${METALROBO_METALLIB}"
     DEPENDS
@@ -332,6 +364,9 @@ add_custom_command(
         "${METALROBO_WORLD_CONTACT_SOURCE}"
         "${METALROBO_WORLD_COMPILER_SOURCE}"
         "${METALROBO_HYBRID_RENDERER_SOURCE}"
+        "${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/VisualPBR.metal"
+        "${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
         "${METALROBO_TACTILE_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
@@ -351,6 +386,34 @@ add_custom_command(
 )
 
 add_custom_target(metalrobo_shaders ALL DEPENDS "${METALROBO_METALLIB}")
+
+set(
+    METALROBO_VISUAL_KERNEL_HASH_HEADER
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/VisualKernelHashes.h"
+)
+add_custom_command(
+    OUTPUT "${METALROBO_VISUAL_KERNEL_HASH_HEADER}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E make_directory
+        "${CMAKE_CURRENT_BINARY_DIR}/generated"
+    COMMAND
+        "${CMAKE_COMMAND}"
+        "-DOUTPUT=${METALROBO_VISUAL_KERNEL_HASH_HEADER}"
+        "-DENVIRONMENT_SOURCE=${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"
+        "-DPBR_SOURCE=${CMAKE_CURRENT_SOURCE_DIR}/src/metal/VisualPBR.metal"
+        "-DASSET_COOK_SOURCE=${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVisualKernelHashes.cmake"
+    DEPENDS
+        "${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/VisualPBR.metal"
+        "${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVisualKernelHashes.cmake"
+    VERBATIM
+)
+add_custom_target(
+    metalrobo_visual_kernel_hashes
+    DEPENDS "${METALROBO_VISUAL_KERNEL_HASH_HEADER}"
+)
 
 add_library(
     metalrobo
@@ -403,6 +466,7 @@ add_library(
     src/core/RigidBodyWorld.cpp
     src/apple/CaptureManifestJSON.mm
     src/apple/HardwareOutcomeJSON.mm
+    src/apple/EnvironmentCooker.mm
     src/apple/VisualAssetCooker.mm
     src/metal/MetalArticulatedOperator.mm
     src/metal/MetalArticulatedABA.mm
@@ -421,7 +485,11 @@ add_library(
     src/metal/MetalRuntime.mm
     src/c_api.cpp
 )
-add_dependencies(metalrobo metalrobo_shaders)
+add_dependencies(
+    metalrobo
+    metalrobo_shaders
+    metalrobo_visual_kernel_hashes
+)
 
 target_include_directories(
     metalrobo
@@ -430,6 +498,7 @@ target_include_directories(
         "$<INSTALL_INTERFACE:include>"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_BINARY_DIR}/generated"
 )
 target_compile_definitions(
     metalrobo
@@ -451,7 +520,9 @@ target_link_libraries(
         "${QUARTZCORE_FRAMEWORK}"
         "${ACCELERATE_FRAMEWORK}"
         "${COREGRAPHICS_FRAMEWORK}"
+        "${COREIMAGE_FRAMEWORK}"
         "${IMAGEIO_FRAMEWORK}"
+        "${METALKIT_FRAMEWORK}"
         "${MODELIO_FRAMEWORK}"
         SQLite::SQLite3
         LibXml2::LibXml2
@@ -1697,6 +1768,30 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
         INSTALL_RPATH "@loader_path/../lib"
 )
+add_executable(
+    metalrobo_environment_cook
+    apps/environment_cook.cpp
+)
+target_link_libraries(
+    metalrobo_environment_cook
+    PRIVATE
+        metalrobo
+)
+target_compile_options(
+    metalrobo_environment_cook
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+set_target_properties(
+    metalrobo_environment_cook
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
 target_link_libraries(
     metalrobo_visual_platform_probe
     PRIVATE
@@ -1724,6 +1819,7 @@ install(
         metalrobo_world_pack
         metalrobo_episode_compile
         metalrobo_visual_cook
+        metalrobo_environment_cook
 )
 install(DIRECTORY include/ DESTINATION include)
 install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)
@@ -1735,8 +1831,7 @@ install(
         schemas/tactile_observation.schema.json
         schemas/visual_episode_stream.schema.json
         schemas/visual_frame_batch.schema.json
-        schemas/visual_scene_manifest.schema.json
-        schemas/visual_scene_manifest_v2.schema.json
+        schemas/visual_scene_manifest_v3.schema.json
     DESTINATION share/metalrobo/schemas
 )
 install(

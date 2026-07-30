@@ -50,10 +50,10 @@ std::size_t validGeometryPixels(
     return result;
 }
 
-metalrobo::VisualAssetPackV1 makeAuthoredObjectPack(
+metalrobo::VisualAssetPackV2 makeAuthoredObjectPack(
     const std::uint32_t bodyIndex
 ) {
-    metalrobo::VisualAssetPackV1 pack;
+    metalrobo::VisualAssetPackV2 pack;
     pack.id = "pick_object_authored";
     pack.sourceUri = "probe://pick_object_authored";
     pack.sourceContentHash = "sha256:pick-object-probe";
@@ -72,15 +72,40 @@ metalrobo::VisualAssetPackV1 makeAuthoredObjectPack(
             position[1] * position[1] +
             position[2] * position[2]
         );
+        const std::array<float, 3u> normal{
+            position[0] / length,
+            position[1] / length,
+            position[2] / length,
+        };
+        const std::array<float, 3u> reference =
+            std::abs(normal[2]) < 0.999f
+            ? std::array<float, 3u>{0.0f, 0.0f, 1.0f}
+            : std::array<float, 3u>{0.0f, 1.0f, 0.0f};
+        std::array<float, 3u> tangent{
+            reference[1] * normal[2] -
+                reference[2] * normal[1],
+            reference[2] * normal[0] -
+                reference[0] * normal[2],
+            reference[0] * normal[1] -
+                reference[1] * normal[0],
+        };
+        const float tangentLength = std::sqrt(
+            tangent[0] * tangent[0] +
+            tangent[1] * tangent[1] +
+            tangent[2] * tangent[2]
+        );
+        for (float& component : tangent) {
+            component /= tangentLength;
+        }
         pack.vertices.push_back({
             {position[0], position[1], position[2], 1.0f},
             {
-                position[0] / length,
-                position[1] / length,
-                position[2] / length,
+                normal[0],
+                normal[1],
+                normal[2],
                 1.0f,
             },
-            {1.0f, 0.0f, 0.0f, 0.0f},
+            {tangent[0], tangent[1], tangent[2], 0.0f},
             {0.0f, 0.0f, 0.0f, 0.0f},
             {1.0f, 1.0f, 1.0f, 1.0f},
         });
@@ -108,6 +133,7 @@ metalrobo::VisualAssetPackV1 makeAuthoredObjectPack(
         MR_INVALID_INDEX,
     };
     material.textureIndices1 = material.textureIndices0;
+    material.reserved = material.textureIndices0;
     material.flags = {
         MR_VISUAL_ALPHA_OPAQUE,
         MR_VISUAL_MATERIAL_DOUBLE_SIDED,
@@ -165,37 +191,7 @@ int main() {
             ),
             "episode compile"
         );
-        metalrobo::EpisodeTwin sharedSemanticTwin =
-            metalrobo::makeFrankaPickPlaceEpisodeTwin();
-        sharedSemanticTwin.id = "franka_shared_semantic_probe";
-        sharedSemanticTwin.assets[4].semanticClass =
-            sharedSemanticTwin.assets[2].semanticClass;
-        metalrobo::WorldTemplate sharedSemanticWorld;
-        require(
-            metalrobo::compileEpisodeTwin(
-                sharedSemanticTwin,
-                metalrobo::makeFrankaPickPlaceEngineModel(),
-                sharedSemanticWorld
-            ),
-            "shared semantic episode compile"
-        );
-        metalrobo::VisualSceneManifestV1 sharedSemanticScene;
         std::string reason;
-        require(
-            metalrobo::compileVisualSceneManifest(
-                sharedSemanticWorld,
-                sharedSemanticScene,
-                &reason
-            ),
-            "shared semantic visual compile: " + reason
-        );
-        require(
-            sharedSemanticScene.assets[2].semanticId ==
-                    sharedSemanticScene.assets[4].semanticId &&
-                sharedSemanticScene.assets[2].instanceId !=
-                    sharedSemanticScene.assets[4].instanceId,
-            "semantic classes did not share a class id"
-        );
         metalrobo::WorldFamily family;
         require(
             metalrobo::compileWorldFamily(
@@ -205,29 +201,11 @@ int main() {
             ),
             "family compile"
         );
-
-        metalrobo::VisualSceneManifestV1 visualScene;
-        require(
-            metalrobo::compileVisualSceneManifest(
-                worldTemplate,
-                visualScene,
-                &reason
-            ),
-            "visual scene compile: " + reason
-        );
-        require(
-            visualScene.valid(&reason) &&
-                !visualScene.renderScene.meshVertices.empty() &&
-                !visualScene.renderScene.meshTriangles.empty() &&
-                visualScene.renderScene.sensorBindings.size() == 2u &&
-                visualScene.bodyCount ==
-                    worldTemplate.engineModel.bodies.size(),
-            "compiled visual scene is incomplete: " + reason
-        );
         constexpr std::uint32_t kManipulatedBody = 11u;
+        constexpr std::uint32_t kManipulatedSemantic = 2u;
         const std::uint32_t manipulatedAsset =
             worldTemplate.assetIndex("pick_object");
-        const metalrobo::VisualAssetPackV1 authoredPack =
+        const metalrobo::VisualAssetPackV2 authoredPack =
             makeAuthoredObjectPack(kManipulatedBody);
         const std::filesystem::path authoredPackPath =
             std::filesystem::temp_directory_path() /
@@ -241,36 +219,25 @@ int main() {
             "authored V2 pack write: " + reason
         );
         const std::array authoredReferences{
-            metalrobo::AuthoredVisualAssetReferenceV2{
+            metalrobo::VisualAssetReferenceV3{
                 authoredPackPath,
+                authoredPack.contentHash,
                 manipulatedAsset,
-                visualScene.assets[manipulatedAsset].semanticId,
-                visualScene.assets[manipulatedAsset].instanceId,
+                kManipulatedSemantic,
+                manipulatedAsset + 1u,
             },
         };
-        metalrobo::VisualSceneManifestV2 authoredVisualScene;
+        metalrobo::VisualSceneManifestV3 authoredVisualScene;
         require(
-            metalrobo::compileVisualSceneManifestV2(
+            metalrobo::compileVisualSceneManifestV3(
                 worldTemplate,
                 authoredReferences,
-                metalrobo::makeNeutralStudioEnvironmentV1(),
+                metalrobo::makeNeutralStudioEnvironmentV2(),
                 metalrobo::makeIndoorAreaLightRigV1(),
                 authoredVisualScene,
                 &reason
             ),
-            "authored-only V2 visual compile: " + reason
-        );
-        std::error_code ignoredAuthoredPackRemoval;
-        std::filesystem::remove(
-            authoredPackPath,
-            ignoredAuthoredPackRemoval
-        );
-        require(
-            authoredVisualScene.valid(&reason) &&
-                authoredVisualScene.visualPackHashes.size() == 1u &&
-                authoredVisualScene.renderScene.primitives.size() == 1u &&
-                authoredVisualScene.renderScene.sensorBindings.size() == 2u,
-            "authored V2 scene contains unexpected geometry: " + reason
+            "authored-only V3 visual compile: " + reason
         );
         const std::array<MRHybridGaussianGPU, 1> capturedAppearance{{
             {
@@ -279,36 +246,43 @@ int main() {
                 {0.0f, 0.0f, 0.0f, 1.0f},
                 {0.15f, 0.45f, 0.95f, 0.0f},
                 {
-                    0u,
+                    worldTemplate.assetIndex("workspace"),
                     MR_INVALID_INDEX,
-                    0u,
+                    3u,
                     MR_HYBRID_GAUSSIAN_ASSET_LOCAL,
                 },
             },
         }};
+        authoredVisualScene.renderScene.gaussians.assign(
+            capturedAppearance.begin(),
+            capturedAppearance.end()
+        );
+        authoredVisualScene.renderScene.fingerprint =
+            metalrobo::computeVisualRenderSceneV3Fingerprint(
+                authoredVisualScene.renderScene
+            );
+        authoredVisualScene.fingerprint =
+            metalrobo::computeVisualSceneManifestV3Fingerprint(
+                authoredVisualScene
+            );
+        std::error_code ignoredAuthoredPackRemoval;
         require(
-            metalrobo::attachGaussianField(
-                visualScene,
-                "workspace",
-                capturedAppearance,
-                "capture://probe/workspace.gsplat",
-                "sha256:probe-gaussian-layer",
-                "probe-only",
-                "gaussian-capture-probe-v1",
-                &reason
-            ),
-            "Gaussian appearance attachment: " + reason
+            authoredVisualScene.valid(&reason) &&
+                authoredVisualScene.visualPackHashes.size() == 1u &&
+                authoredVisualScene.renderScene.visualPacks.size() == 1u &&
+                authoredVisualScene.renderScene.sensorBindings.size() == 2u,
+            "authored V3 scene contains unexpected references: " + reason
         );
         const std::filesystem::path visualManifestPath =
             std::filesystem::temp_directory_path() /
             (
                 "metalrobo-visual-scene-" +
-                std::to_string(visualScene.fingerprint) +
+                std::to_string(authoredVisualScene.fingerprint) +
                 ".json"
             );
         require(
-            metalrobo::writeVisualSceneManifest(
-                visualScene,
+            metalrobo::writeVisualSceneManifestV3(
+                authoredVisualScene,
                 visualManifestPath,
                 &reason
             ) &&
@@ -359,7 +333,8 @@ int main() {
         );
         require(
             bodyStates.size() ==
-                kEnvironmentCount * visualScene.bodyCount,
+                kEnvironmentCount *
+                    worldTemplate.engineModel.bodies.size(),
             "visual body state does not match global body indexing"
         );
         for (std::uint32_t environment = 0u;
@@ -367,11 +342,19 @@ int main() {
              ++environment) {
             bodyStates[
                 static_cast<std::size_t>(environment) *
-                    visualScene.bodyCount +
+                    worldTemplate.engineModel.bodies.size() +
                 kManipulatedBody
             ].position.x += 0.075f;
         }
 
+        const std::uint64_t visualSceneFingerprint =
+            authoredVisualScene.renderScene.fingerprint;
+        const std::uint64_t visualManifestFingerprint =
+            authoredVisualScene.fingerprint;
+        const std::uint64_t environmentFingerprint =
+            authoredVisualScene.renderScene.environment.fingerprint;
+        const std::uint64_t lightRigFingerprint =
+            authoredVisualScene.renderScene.lightRig.fingerprint;
         metalrobo::MetalHybridRenderer renderer;
         require(
             renderer.compile(
@@ -381,9 +364,15 @@ int main() {
             ),
             "visual sensor runtime compile"
         );
+        std::filesystem::remove(
+            authoredPackPath,
+            ignoredAuthoredPackRemoval
+        );
         metalrobo::HybridLiveStateBatch liveState;
         liveState.environmentCount = kEnvironmentCount;
-        liveState.bodyCount = visualScene.bodyCount;
+        liveState.bodyCount = static_cast<std::uint32_t>(
+            worldTemplate.engineModel.bodies.size()
+        );
         liveState.currentBodies =
             std::span<const MRBodyStateGPU>{bodyStates};
         liveState.previousBodies =
@@ -416,17 +405,18 @@ int main() {
             "fixed camera did not see physics-bound visual geometry"
         );
         const auto firstVisible = std::find_if(
-            observations[0].validity.begin(),
-            observations[0].validity.end(),
-            [](const std::uint32_t value) {
-                return
-                    (value & MR_VISUAL_VALIDITY_GEOMETRY) != 0u;
+            observations[0].identities.begin(),
+            observations[0].identities.end(),
+            [](const mr_uint4 value) {
+                return value.x != MR_INVALID_INDEX &&
+                    value.y != MR_INVALID_INDEX &&
+                    value.z != MR_INVALID_INDEX;
             }
         );
         const std::size_t visibleIndex =
             static_cast<std::size_t>(
                 firstVisible -
-                observations[0].validity.begin()
+                observations[0].identities.begin()
             );
         require(
             visibleIndex < observations[0].identities.size() &&
@@ -442,7 +432,7 @@ int main() {
             "dense semantic, instance, link, or normal truth is missing"
         );
 
-        metalrobo::VisualSensorProfileV1 sensorProfile;
+        metalrobo::VisualSensorProfileV2 sensorProfile;
         sensorProfile.id = "franka.rgbd.reference";
         sensorProfile.frameJitterSeconds = 0.0005;
         sensorProfile.fingerprint =
@@ -458,14 +448,13 @@ int main() {
         assembly.provenance.scenarioFingerprint =
             family.program.fingerprint;
         assembly.provenance.rendererFingerprint =
-            authoredVisualScene.renderScene.fingerprint;
+            visualSceneFingerprint;
         assembly.provenance.visualPackFingerprint =
-            authoredVisualScene.fingerprint ^
-            authoredVisualScene.renderScene.fingerprint;
+            visualManifestFingerprint ^ visualSceneFingerprint;
         assembly.provenance.environmentMapFingerprint =
-            authoredVisualScene.renderScene.environment.fingerprint;
+            environmentFingerprint;
         assembly.provenance.lightRigFingerprint =
-            authoredVisualScene.renderScene.lightRig.fingerprint;
+            lightRigFingerprint;
         assembly.provenance.rendererProfileFingerprint =
             metalrobo::VisualRendererProfileV1::sensorFast()
                 .fingerprint;
@@ -515,7 +504,7 @@ int main() {
             const MRVisualPoseGPU& liveLinkPose =
                 truth.linkPoses[
                     static_cast<std::size_t>(environment) *
-                        visualScene.bodyCount +
+                        worldTemplate.engineModel.bodies.size() +
                     kManipulatedBody
                 ];
             require(
@@ -874,7 +863,7 @@ int main() {
             << " environments=" << kEnvironmentCount
             << " views=" << frames.viewCount
             << " triangles="
-            << visualScene.renderScene.meshTriangles.size()
+            << lastRender.layout.meshTriangleCount
             << " fixed_visible_pixels=" << fixedVisible
             << " wrist_visible_pixels="
             << validGeometryPixels(observations[1])

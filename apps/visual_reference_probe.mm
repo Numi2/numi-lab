@@ -26,14 +26,14 @@ void require(const Result& result, const char* operation) {
     }
 }
 
-metalrobo::VisualRenderSceneV2 makeScene(
-    const std::uint32_t assetCount,
-    const std::uint32_t bodyCount
-) {
-    metalrobo::VisualRenderSceneV2 scene;
-    scene.id = "reference_cube";
-    scene.assetCount = assetCount;
-    scene.bodyCount = bodyCount;
+metalrobo::VisualAssetPackV2 makePack() {
+    metalrobo::VisualAssetPackV2 pack;
+    pack.id = "reference_cube";
+    pack.sourceUri = "probe://reference_cube";
+    pack.sourceContentHash = "sha256:reference-cube-source";
+    pack.license = "CC0-1.0";
+    pack.preprocessingProvenance =
+        "metalrobo_visual_reference_probe/v3";
 
     constexpr std::array positions{
         std::array{-0.06f, -0.06f, -0.06f},
@@ -45,27 +45,52 @@ metalrobo::VisualRenderSceneV2 makeScene(
         std::array{ 0.06f,  0.06f,  0.06f},
         std::array{-0.06f,  0.06f,  0.06f},
     };
-    scene.vertices.reserve(positions.size());
+    pack.vertices.reserve(positions.size());
     for (const auto& position : positions) {
         const float length = std::sqrt(
             position[0] * position[0] +
             position[1] * position[1] +
             position[2] * position[2]
         );
-        scene.vertices.push_back({
+        const std::array<float, 3u> normal{
+            position[0] / length,
+            position[1] / length,
+            position[2] / length,
+        };
+        const std::array<float, 3u> reference =
+            std::abs(normal[2]) < 0.999f
+            ? std::array<float, 3u>{0.0f, 0.0f, 1.0f}
+            : std::array<float, 3u>{0.0f, 1.0f, 0.0f};
+        std::array<float, 3u> tangent{
+            reference[1] * normal[2] -
+                reference[2] * normal[1],
+            reference[2] * normal[0] -
+                reference[0] * normal[2],
+            reference[0] * normal[1] -
+                reference[1] * normal[0],
+        };
+        const float tangentLength = std::sqrt(
+            tangent[0] * tangent[0] +
+            tangent[1] * tangent[1] +
+            tangent[2] * tangent[2]
+        );
+        for (float& component : tangent) {
+            component /= tangentLength;
+        }
+        pack.vertices.push_back({
             {position[0], position[1], position[2], 1.0f},
             {
-                position[0] / length,
-                position[1] / length,
-                position[2] / length,
+                normal[0],
+                normal[1],
+                normal[2],
                 1.0f,
             },
-            {1.0f, 0.0f, 0.0f, 0.0f},
+            {tangent[0], tangent[1], tangent[2], 0.0f},
             {0.0f, 0.0f, 0.0f, 0.0f},
             {1.0f, 1.0f, 1.0f, 1.0f},
         });
     }
-    scene.indices = {
+    pack.indices = {
         0u, 2u, 1u, 0u, 3u, 2u,
         4u, 5u, 6u, 4u, 6u, 7u,
         0u, 1u, 5u, 0u, 5u, 4u,
@@ -98,88 +123,40 @@ metalrobo::VisualRenderSceneV2 makeScene(
         0u,
         1u,
     };
-    scene.materials.push_back(material);
+    material.reserved = {
+        MR_INVALID_INDEX,
+        MR_INVALID_INDEX,
+        MR_INVALID_INDEX,
+        MR_INVALID_INDEX,
+    };
+    pack.materials.push_back(material);
 
     MRVisualPrimitiveGPUV2 primitive{};
     primitive.geometry = {
         0u,
-        static_cast<std::uint32_t>(scene.indices.size()),
+        static_cast<std::uint32_t>(pack.indices.size()),
         0u,
         0u,
     };
-    primitive.identity = {77u, 7001u, MR_INVALID_INDEX, 1u};
+    primitive.identity = {77u, 7001u, 11u, 1u};
     primitive.boundsMinimum = {-0.06f, -0.06f, -0.06f, 1.0f};
     primitive.boundsMaximum = { 0.06f,  0.06f,  0.06f, 1.0f};
-    scene.primitives.push_back(primitive);
+    pack.primitives.push_back(primitive);
 
     MRVisualInstanceGPUV2 instance{};
     instance.translationAndScale = {0.0f, 0.0f, 0.0f, 1.0f};
     instance.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
     instance.binding = {
         0u,
-        MR_INVALID_INDEX,
-        MR_VISUAL_BINDING_ASSET,
+        11u,
+        MR_VISUAL_BINDING_RIGID_BODY,
         MR_VISUAL_INSTANCE_CASTS_SHADOW |
             MR_VISUAL_INSTANCE_RECEIVES_SHADOW |
             MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR,
     };
-    instance.identity = {77u, 7001u, MR_INVALID_INDEX, 1u};
+    instance.identity = {77u, 7001u, 11u, 1u};
     instance.geometry = {0u, 1u, 0u, 0u};
-    scene.instances.push_back(instance);
-
-    MRVisualSensorBindingGPU sensor{};
-    sensor.identity = {
-        MR_VISUAL_BINDING_ASSET,
-        0u,
-        0u,
-        0u,
-    };
-    sensor.timing = {15.0f, 1.0f / 240.0f, 1.0f / 120.0f, 0.0f};
-    sensor.rangeAndResponse = {0.05f, 10.0f, 0.001f, 0.0f};
-    sensor.shutter = {
-        MR_VISUAL_SHUTTER_ROLLING,
-        MR_VISUAL_SHUTTER_TOP_TO_BOTTOM,
-        0u,
-        0u,
-    };
-    scene.sensorBindings = {sensor, sensor};
-
-    MRVisualLightGPUV1 light{};
-    light.positionAndRange = {0.5f, -0.5f, 2.5f, 20.0f};
-    light.directionAndSpot = {-0.35f, 0.35f, -0.87f, -1.0f};
-    light.colorAndIntensity = {1.0f, 0.97f, 0.92f, 1200.0f};
-    light.shape = {0.8f, 0.8f, -1.0f, 0.08f};
-    light.identity = {
-        MR_VISUAL_LIGHT_RECTANGLE,
-        MR_VISUAL_LIGHT_UNIT_NIT,
-        100u,
-        1u,
-    };
-    light.shadow = {1u, 0u, 8u, 0u};
-    scene.lightRig.id = "reference_area";
-    scene.lightRig.contentHash = "builtin:reference-area-v1";
-    scene.lightRig.lights = {light};
-    scene.fingerprint =
-        metalrobo::computeVisualRenderSceneV2Fingerprint(scene);
-    return scene;
-}
-
-metalrobo::VisualAssetPackV1 makePack(
-    const metalrobo::VisualRenderSceneV2& scene
-) {
-    metalrobo::VisualAssetPackV1 pack;
-    pack.id = "reference_cube";
-    pack.sourceUri = "probe://reference_cube";
-    pack.sourceContentHash = "sha256:reference-cube-source";
-    pack.license = "CC0-1.0";
-    pack.preprocessingProvenance =
-        "metalrobo_visual_reference_probe/v2";
-    pack.vertices = scene.vertices;
-    pack.indices = scene.indices;
-    pack.primitives = scene.primitives;
-    pack.instances = scene.instances;
-    pack.materials = scene.materials;
-    pack.textures = scene.textures;
+    pack.instances.push_back(instance);
     pack.symbolicBindings.push_back({
         "pick_object",
         "pick_object",
@@ -259,18 +236,12 @@ int main() {
             config.height = 120u;
             config.maximumReferenceFramesInFlight = 2u;
             metalrobo::MetalHybridRenderer renderer(config);
-            const auto authoredScene = makeScene(
-                static_cast<std::uint32_t>(
-                    worldTemplate.assets.size()
-                ),
-                static_cast<std::uint32_t>(model.bodies.size())
-            );
             std::string manifestReason;
             const std::filesystem::path packPath =
                 std::filesystem::temp_directory_path() /
                 "metalrobo-reference-cube.mrvpack";
-            const metalrobo::VisualAssetPackV1 pack =
-                makePack(authoredScene);
+            const metalrobo::VisualAssetPackV2 pack =
+                makePack();
             if (!metalrobo::writeVisualAssetPack(
                     pack,
                     packPath,
@@ -281,29 +252,29 @@ int main() {
                 );
             }
             const std::array authoredAssets{
-                metalrobo::AuthoredVisualAssetReferenceV2{
+                metalrobo::VisualAssetReferenceV3{
                     packPath,
+                    pack.contentHash,
                     2u,
                     77u,
                     7001u,
                 },
             };
-            metalrobo::VisualSceneManifestV2 manifest;
-            if (!metalrobo::compileVisualSceneManifestV2(
+            metalrobo::VisualSceneManifestV3 manifest;
+            if (!metalrobo::compileVisualSceneManifestV3(
                     worldTemplate,
                     authoredAssets,
-                    metalrobo::makeNeutralStudioEnvironmentV1(),
+                    metalrobo::makeNeutralStudioEnvironmentV2(),
                     metalrobo::makeIndoorAreaLightRigV1(),
                     manifest,
                     &manifestReason
                 )) {
                 throw std::runtime_error(
-                    "authored-only V2 composition: " +
+                    "authored-only V3 composition: " +
                     manifestReason
                 );
             }
             std::error_code ignored;
-            std::filesystem::remove(packPath, ignored);
             for (MRVisualSensorBindingGPU& sensor :
                  manifest.renderScene.sensorBindings) {
                 sensor.timing.y = 1.0f / 240.0f;
@@ -313,28 +284,28 @@ int main() {
                     MR_VISUAL_SHUTTER_TOP_TO_BOTTOM;
             }
             manifest.renderScene.fingerprint =
-                metalrobo::computeVisualRenderSceneV2Fingerprint(
+                metalrobo::computeVisualRenderSceneV3Fingerprint(
                     manifest.renderScene
                 );
             manifest.fingerprint =
-                metalrobo::computeVisualSceneManifestV2Fingerprint(
+                metalrobo::computeVisualSceneManifestV3Fingerprint(
                     manifest
                 );
             const std::filesystem::path manifestPath =
                 std::filesystem::temp_directory_path() /
                 (
-                    "metalrobo-visual-v2-" +
+                    "metalrobo-visual-v3-" +
                     std::to_string(manifest.fingerprint) +
                     ".json"
                 );
-            if (!metalrobo::writeVisualSceneManifestV2(
+            if (!metalrobo::writeVisualSceneManifestV3(
                     manifest,
                     manifestPath,
                     &manifestReason
                 ) ||
                 std::filesystem::file_size(manifestPath) == 0u) {
                 throw std::runtime_error(
-                    "V2 scene manifest: " + manifestReason
+                    "V3 scene manifest: " + manifestReason
                 );
             }
             std::filesystem::remove(manifestPath, ignored);
@@ -424,7 +395,7 @@ int main() {
             fastScene.sensorBindings[0].shutter.y =
                 MR_VISUAL_SHUTTER_RIGHT_TO_LEFT;
             fastScene.fingerprint =
-                metalrobo::computeVisualRenderSceneV2Fingerprint(
+                metalrobo::computeVisualRenderSceneV3Fingerprint(
                     fastScene
                 );
             require(
@@ -497,6 +468,7 @@ int main() {
                 << " reference_ms=" << referenceMilliseconds
                 << " fast_ms=" << fastMilliseconds
                 << '\n';
+            std::filesystem::remove(packPath, ignored);
             return 0;
         } catch (const std::exception& error) {
             std::cerr

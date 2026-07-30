@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
     const std::filesystem::path input{positional[0]};
     const std::filesystem::path output{positional[1]};
     if (urdf) {
-        std::vector<metalrobo::VisualAssetPackV1> packs;
+        std::vector<metalrobo::VisualAssetPackV2> packs;
         const auto diagnostics =
             metalrobo::cookUrdfVisualDescription(
                 input,
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    metalrobo::VisualAssetPackV1 pack;
+    metalrobo::VisualAssetPackV2 pack;
     const auto diagnostics =
         metalrobo::cookVisualAsset(input, pack, options);
     if (!diagnostics.succeeded()) {

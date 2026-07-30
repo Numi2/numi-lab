@@ -919,10 +919,11 @@ const MRWorldScenarioValueGPU* mr_world_family_scenario_values(
     return handle->readback.scenarioValues.data();
 }
 
-MRHybridRendererHandle* mr_hybrid_renderer_create_v2(
+MRHybridRendererHandle* mr_hybrid_renderer_create_v3(
     const MRHybridGaussianC* gaussians,
     const size_t gaussian_count,
     const char* visual_pack_path,
+    const char* environment_pack_path,
     const uint32_t asset_count,
     const uint32_t body_count,
     const uint32_t visual_asset_index,
@@ -939,6 +940,9 @@ MRHybridRendererHandle* mr_hybrid_renderer_create_v2(
     const bool hasPack =
         visual_pack_path != nullptr &&
         visual_pack_path[0] != '\0';
+    const bool hasEnvironmentPack =
+        environment_pack_path != nullptr &&
+        environment_pack_path[0] != '\0';
     if ((!hasGaussians && !hasPack) ||
         (hasGaussians && gaussians == nullptr) ||
         gaussian_count >
@@ -951,7 +955,7 @@ MRHybridRendererHandle* mr_hybrid_renderer_create_v2(
         instance_id == MR_INVALID_INDEX ||
         capacity == 0u || width == 0u || height == 0u) {
         gLastError =
-            "V2 visual scene, bindings, dimensions, and capacity "
+            "V3 visual scene, bindings, dimensions, and capacity "
             "must be valid and nonempty.";
         return nullptr;
     }
@@ -992,35 +996,51 @@ MRHybridRendererHandle* mr_hybrid_renderer_create_v2(
                 sizeof(source.binding)
             );
         }
-        metalrobo::VisualRenderSceneV2 scene;
-        scene.id = "c_api_visual_scene_v2";
+        metalrobo::VisualRenderSceneV3 scene;
+        scene.id = "c_api_visual_scene_v3";
         scene.assetCount = asset_count;
         scene.bodyCount = body_count;
         scene.gaussians = std::move(copiedGaussians);
         scene.environment =
-            metalrobo::makeNeutralStudioEnvironmentV1();
+            metalrobo::makeNeutralStudioEnvironmentV2();
         scene.lightRig =
             metalrobo::makeStudioKeyLightRigV1();
         if (hasPack) {
-            metalrobo::VisualAssetPackV1 pack;
+            metalrobo::VisualAssetPackV2 pack;
             std::string reason;
-            if (!metalrobo::readVisualAssetPack(
+            if (!metalrobo::readVisualAssetPackIndex(
                     visual_pack_path,
                     pack,
                     &reason
-                ) ||
-                !metalrobo::appendVisualAssetPack(
-                    std::move(pack),
-                    visual_asset_index,
-                    semantic_id,
-                    instance_id,
-                    scene,
+                )) {
+                throw std::runtime_error(
+                    "could not load V3 visual pack: " + reason
+                );
+            }
+            scene.visualPacks.push_back({
+                visual_pack_path,
+                pack.contentHash,
+                visual_asset_index,
+                semantic_id,
+                instance_id,
+            });
+        }
+        if (hasEnvironmentPack) {
+            metalrobo::VisualEnvironmentPackV2 environmentPack;
+            std::string reason;
+            if (!metalrobo::readVisualEnvironmentPackIndex(
+                    environment_pack_path,
+                    environmentPack,
                     &reason
                 )) {
                 throw std::runtime_error(
-                    "could not load V2 visual pack: " + reason
+                    "could not load V3 environment pack: " + reason
                 );
             }
+            scene.environment.id = environmentPack.id;
+            scene.environment.packPath = environment_pack_path;
+            scene.environment.contentHash =
+                environmentPack.contentHash;
         }
 
         const std::string selectedLightRig =
@@ -1032,7 +1052,7 @@ MRHybridRendererHandle* mr_hybrid_renderer_create_v2(
                 metalrobo::makeIndoorAreaLightRigV1();
         } else if (selectedLightRig != "studio_key") {
             throw std::runtime_error(
-                "unsupported V2 light rig: " + selectedLightRig
+                "unsupported V3 light rig: " + selectedLightRig
             );
         }
 
@@ -1051,7 +1071,7 @@ MRHybridRendererHandle* mr_hybrid_renderer_create_v2(
                     sensorReference();
         } else {
             throw std::runtime_error(
-                "unsupported V2 renderer profile: " +
+                "unsupported V3 renderer profile: " +
                 selectedProfile
             );
         }
@@ -1061,7 +1081,7 @@ MRHybridRendererHandle* mr_hybrid_renderer_create_v2(
             );
         }
         scene.fingerprint =
-            metalrobo::computeVisualRenderSceneV2Fingerprint(scene);
+            metalrobo::computeVisualRenderSceneV3Fingerprint(scene);
 
         metalrobo::MetalHybridRendererConfig config;
         config.width = width;

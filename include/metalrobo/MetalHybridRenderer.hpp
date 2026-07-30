@@ -18,19 +18,6 @@ namespace detail {
 struct MetalHybridRendererState;
 } // namespace detail
 
-struct HybridGaussianScene {
-    std::string id;
-    std::uint32_t assetCount = 0u;
-    std::uint32_t bodyCount = 0u;
-    std::vector<MRHybridGaussianGPU> gaussians;
-    std::vector<MRVisualMeshVertexGPU> meshVertices;
-    std::vector<MRVisualMeshTriangleGPU> meshTriangles;
-    std::vector<MRVisualMaterialGPU> materials;
-    std::vector<MRVisualSensorBindingGPU> sensorBindings;
-
-    [[nodiscard]] bool valid(std::string* reason = nullptr) const;
-};
-
 struct MetalHybridRendererConfig {
     std::string metallibPath;
     std::uint32_t width = 160u;
@@ -188,7 +175,7 @@ public:
     MetalHybridRenderer& operator=(const MetalHybridRenderer&) = delete;
 
     [[nodiscard]] MetalHybridRendererDiagnostics compile(
-        VisualRenderSceneV2&& scene,
+        VisualRenderSceneV3&& scene,
         const VisualRendererProfileV1& profile,
         std::uint32_t capacity
     );

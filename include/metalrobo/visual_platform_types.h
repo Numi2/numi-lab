@@ -7,7 +7,7 @@
 #include "metalrobo/gpu_types.h"
 
 #define MR_VISUAL_PLATFORM_ABI_VERSION 1u
-#define MR_VISUAL_PRESENTATION_ABI_VERSION 2u
+#define MR_VISUAL_PRESENTATION_ABI_VERSION 3u
 
 enum MRVisualRepresentation : mr_u32 {
     MR_VISUAL_REPRESENTATION_NONE = 0u,
@@ -154,37 +154,6 @@ typedef struct MR_ALIGN16 MRVisualSensorBindingGPU {
     mr_uint4 shutter;
 } MRVisualSensorBindingGPU;
 
-typedef struct MR_ALIGN16 MRVisualMeshVertexGPU {
-    // xyz position in the triangle binding frame, w homogeneous one.
-    mr_float4 position;
-    // xyz normal in the triangle binding frame, w texture u.
-    mr_float4 normalAndU;
-    // xyz tangent in the triangle binding frame, w texture v.
-    mr_float4 tangentAndV;
-} MRVisualMeshVertexGPU;
-
-typedef struct MR_ALIGN16 MRVisualMeshTriangleGPU {
-    // three vertex indices and material index.
-    mr_uint4 verticesAndMaterial;
-    // owning asset, body index, binding kind, flags.
-    mr_uint4 binding;
-    // semantic class, instance, link, stable primitive id.
-    mr_uint4 identity;
-    // Optional per-triangle overrides. Zero uses the material.
-    mr_float4 colorAndOpacity;
-} MRVisualMeshTriangleGPU;
-
-typedef struct MR_ALIGN16 MRVisualMaterialGPU {
-    // Linear RGB base color and opacity.
-    mr_float4 baseColorAndOpacity;
-    // Linear RGB emissive color and emissive strength.
-    mr_float4 emissionAndStrength;
-    // Roughness, metallic, normal scale, occlusion scale.
-    mr_float4 surface;
-    // Clearcoat, clearcoat roughness, specular scale, flags-as-float.
-    mr_float4 coating;
-} MRVisualMaterialGPU;
-
 // Indexed authored-asset ABI. Asset packs retain these records verbatim;
 // the renderer may build profile-specific visibility records at compile time.
 typedef struct MR_ALIGN16 MRVisualVertexGPUV2 {
@@ -243,19 +212,28 @@ typedef struct MR_ALIGN16 MRVisualMaterialGPUV2 {
     mr_uint4 textureIndices1;
     // alpha mode, material flags, UV set mask, stable material id.
     mr_uint4 flags;
+    // Separate metallic, opacity, roughness, and clearcoat-gloss bindings.
+    // These preserve Model I/O scalar-texture semantics; glTF continues to
+    // use its packed metallic-roughness and clearcoat-roughness channels.
     mr_uint4 reserved;
 } MRVisualMaterialGPUV2;
 
-typedef struct MR_ALIGN16 MRVisualTextureGPUV1 {
-    // Width, height, mip count, texture flags.
+typedef struct MR_ALIGN16 MRVisualTextureBindingGPUV2 {
+    // Native texture index, sampler encoding/index, UV set, texture flags.
+    // Pack records encode filter/mipmap/wrap state; renderer compilation
+    // rewrites the second field to the deduplicated scene sampler index.
+    mr_uint4 resource;
+    // Affine UV transform rows: u' and v'.
+    mr_float4 uvTransform0;
+    mr_float4 uvTransform1;
+} MRVisualTextureBindingGPUV2;
+
+typedef struct MR_ALIGN16 MRVisualEnvironmentGPUV2 {
+    // Specular mip count, diffuse size, specular size, BRDF LUT size.
     mr_uint4 dimensions;
-    // First texel for mip 0, total texels, stable texture id, reserved.
-    mr_uint4 storage;
-    // First texel offsets for mips 1 through 4, or MR_INVALID_INDEX.
-    mr_uint4 mipOffsets0;
-    // First texel offsets for mips 5 through 8, or MR_INVALID_INDEX.
-    mr_uint4 mipOffsets1;
-} MRVisualTextureGPUV1;
+    // Intensity, rotation radians, reserved, reserved.
+    mr_float4 parameters;
+} MRVisualEnvironmentGPUV2;
 
 typedef struct MR_ALIGN16 MRVisualLightGPUV1 {
     // xyz position in metres, w effective range.
@@ -319,15 +297,13 @@ typedef struct MR_ALIGN16 MRVisualContactAnnotationGPU {
 #include <type_traits>
 
 static_assert(std::is_trivially_copyable_v<MRVisualSensorBindingGPU>);
-static_assert(std::is_trivially_copyable_v<MRVisualMeshVertexGPU>);
-static_assert(std::is_trivially_copyable_v<MRVisualMeshTriangleGPU>);
-static_assert(std::is_trivially_copyable_v<MRVisualMaterialGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualVertexGPUV2>);
 static_assert(std::is_trivially_copyable_v<MRVisualPrimitiveGPUV2>);
 static_assert(std::is_trivially_copyable_v<MRVisualTriangleGPUV2>);
 static_assert(std::is_trivially_copyable_v<MRVisualInstanceGPUV2>);
 static_assert(std::is_trivially_copyable_v<MRVisualMaterialGPUV2>);
-static_assert(std::is_trivially_copyable_v<MRVisualTextureGPUV1>);
+static_assert(std::is_trivially_copyable_v<MRVisualTextureBindingGPUV2>);
+static_assert(std::is_trivially_copyable_v<MRVisualEnvironmentGPUV2>);
 static_assert(std::is_trivially_copyable_v<MRVisualLightGPUV1>);
 static_assert(std::is_trivially_copyable_v<MRVisualShutterProfileGPUV1>);
 static_assert(std::is_trivially_copyable_v<MRVisualFrameMetadataGPU>);
@@ -335,15 +311,13 @@ static_assert(std::is_trivially_copyable_v<MRVisualKeypointGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualPoseGPU>);
 static_assert(std::is_trivially_copyable_v<MRVisualContactAnnotationGPU>);
 static_assert(sizeof(MRVisualSensorBindingGPU) == 64u);
-static_assert(sizeof(MRVisualMeshVertexGPU) == 48u);
-static_assert(sizeof(MRVisualMeshTriangleGPU) == 64u);
-static_assert(sizeof(MRVisualMaterialGPU) == 64u);
 static_assert(sizeof(MRVisualVertexGPUV2) == 80u);
 static_assert(sizeof(MRVisualPrimitiveGPUV2) == 64u);
 static_assert(sizeof(MRVisualTriangleGPUV2) == 16u);
 static_assert(sizeof(MRVisualInstanceGPUV2) == 80u);
 static_assert(sizeof(MRVisualMaterialGPUV2) == 128u);
-static_assert(sizeof(MRVisualTextureGPUV1) == 64u);
+static_assert(sizeof(MRVisualTextureBindingGPUV2) == 48u);
+static_assert(sizeof(MRVisualEnvironmentGPUV2) == 32u);
 static_assert(sizeof(MRVisualLightGPUV1) == 96u);
 static_assert(sizeof(MRVisualShutterProfileGPUV1) == 32u);
 static_assert(sizeof(MRVisualFrameMetadataGPU) == 64u);

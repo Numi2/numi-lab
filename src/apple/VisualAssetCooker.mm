@@ -1,9 +1,13 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
 #import <ImageIO/ImageIO.h>
+#import <MetalKit/MetalKit.h>
 #import <ModelIO/ModelIO.h>
 
+#import <simd/simd.h>
+
 #include "metalrobo/VisualPresentation.hpp"
+#include "VisualKernelHashes.h"
 
 #include <CommonCrypto/CommonDigest.h>
 #include <libxml/parser.h>
@@ -21,13 +25,19 @@
 #include <map>
 #include <optional>
 #include <ranges>
+#include <regex>
 #include <set>
 #include <span>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <unordered_map>
 #include <vector>
+
+#ifndef METALROBO_DEFAULT_METALLIB
+#define METALROBO_DEFAULT_METALLIB ""
+#endif
 
 namespace metalrobo {
 namespace {
@@ -86,24 +96,76 @@ std::optional<std::vector<std::uint8_t>> readBytes(
     };
 }
 
-std::string sha256(const std::span<const std::uint8_t> bytes) {
-    std::array<unsigned char, CC_SHA256_DIGEST_LENGTH> digest{};
-    CC_SHA256(
-        bytes.data(),
-        static_cast<CC_LONG>(bytes.size()),
-        digest.data()
-    );
+void updateSha256(
+    CC_SHA256_CTX& context,
+    const void* data,
+    const std::size_t size
+) {
+    const auto* bytes = static_cast<const std::uint8_t*>(data);
+    std::size_t offset = 0u;
+    while (offset < size) {
+        const std::size_t count = std::min<std::size_t>(
+            size - offset,
+            std::numeric_limits<CC_LONG>::max()
+        );
+        CC_SHA256_Update(
+            &context,
+            bytes + offset,
+            static_cast<CC_LONG>(count)
+        );
+        offset += count;
+    }
+}
+
+std::string finishSha256(CC_SHA256_CTX& context) {
+    std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
+    CC_SHA256_Final(digest.data(), &context);
     constexpr std::array digits{
         '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
     };
     std::string result = "sha256:";
     result.reserve(result.size() + digest.size() * 2u);
-    for (const unsigned char byte : digest) {
+    for (const std::uint8_t byte : digest) {
         result.push_back(digits[byte >> 4u]);
         result.push_back(digits[byte & 15u]);
     }
     return result;
+}
+
+std::string sha256(const std::span<const std::uint8_t> bytes) {
+    CC_SHA256_CTX context{};
+    CC_SHA256_Init(&context);
+    updateSha256(context, bytes.data(), bytes.size());
+    return finishSha256(context);
+}
+
+std::string sha256File(const std::filesystem::path& path) {
+    std::ifstream stream(path, std::ios::binary);
+    if (!stream) {
+        return {};
+    }
+    CC_SHA256_CTX context{};
+    CC_SHA256_Init(&context);
+    std::array<char, 1u << 20u> buffer{};
+    while (stream) {
+        stream.read(
+            buffer.data(),
+            static_cast<std::streamsize>(buffer.size())
+        );
+        const std::streamsize count = stream.gcount();
+        if (count > 0) {
+            updateSha256(
+                context,
+                buffer.data(),
+                static_cast<std::size_t>(count)
+            );
+        }
+    }
+    if (!stream.eof()) {
+        return {};
+    }
+    return finishSha256(context);
 }
 
 std::uint32_t littleU32(
@@ -152,6 +214,19 @@ std::string utf8(NSString* value) {
         return {};
     }
     return value.UTF8String;
+}
+
+std::string frameworkVersion(Class frameworkClass) {
+    NSBundle* bundle = [NSBundle bundleForClass:frameworkClass];
+    NSString* version =
+        bundle.infoDictionary[@"CFBundleVersion"];
+    if (version.length == 0u) {
+        version =
+            bundle.infoDictionary[
+                @"CFBundleShortVersionString"
+            ];
+    }
+    return utf8(version);
 }
 
 std::uint32_t uintValue(
@@ -632,12 +707,149 @@ float linearToSrgb(const float value) {
         : 1.055f * std::pow(value, 1.0f / 2.4f) - 0.055f;
 }
 
+bool cookRgba8Texture(
+    std::vector<std::uint8_t> level,
+    const std::uint32_t width,
+    const std::uint32_t height,
+    const bool srgb,
+    const bool mipmaps,
+    const std::string& id,
+    const std::string& contentHash,
+    VisualTextureImageV2& output
+) {
+    output = {};
+    output.id = id;
+    output.contentHash = contentHash;
+    output.width = width;
+    output.height = height;
+    output.flags = srgb ? MR_VISUAL_TEXTURE_SRGB : 0u;
+    output.pixelFormat = srgb
+        ? VisualTexturePixelFormatV2::rgba8UnormSrgb
+        : VisualTexturePixelFormatV2::rgba8Unorm;
+    output.dimension = VisualTextureDimensionV2::texture2D;
+    output.arrayLength = 1u;
+    std::uint32_t levelWidth = width;
+    std::uint32_t levelHeight = height;
+    std::uint32_t mipLevel = 0u;
+    while (true) {
+        if (levelWidth >
+            (std::numeric_limits<std::uint32_t>::max() - 255u) /
+                4u) {
+            return false;
+        }
+        const std::uint32_t bytesPerRow =
+            (levelWidth * 4u + 255u) & ~255u;
+        if (levelHeight != 0u &&
+            bytesPerRow >
+                std::numeric_limits<std::uint32_t>::max() /
+                    levelHeight) {
+            return false;
+        }
+        const std::uint32_t bytesPerImage =
+            bytesPerRow * levelHeight;
+        const std::uint64_t offset = output.data.size();
+        if (bytesPerImage >
+            std::numeric_limits<std::size_t>::max() -
+                output.data.size()) {
+            return false;
+        }
+        output.data.resize(
+            output.data.size() + bytesPerImage,
+            0u
+        );
+        for (std::uint32_t row = 0u;
+             row < levelHeight;
+             ++row) {
+            std::memcpy(
+                output.data.data() + offset +
+                    static_cast<std::uint64_t>(row) * bytesPerRow,
+                level.data() +
+                    static_cast<std::size_t>(row) *
+                        levelWidth * 4u,
+                static_cast<std::size_t>(levelWidth) * 4u
+            );
+        }
+        output.subresources.push_back({
+            mipLevel,
+            0u,
+            levelWidth,
+            levelHeight,
+            offset,
+            bytesPerImage,
+            bytesPerRow,
+            bytesPerImage,
+        });
+        ++mipLevel;
+        if (!mipmaps ||
+            (levelWidth == 1u && levelHeight == 1u)) {
+            break;
+        }
+        const std::uint32_t nextWidth =
+            std::max(1u, levelWidth / 2u);
+        const std::uint32_t nextHeight =
+            std::max(1u, levelHeight / 2u);
+        std::vector<std::uint8_t> next(
+            static_cast<std::size_t>(nextWidth) *
+                nextHeight * 4u
+        );
+        for (std::uint32_t y = 0u; y < nextHeight; ++y) {
+            for (std::uint32_t x = 0u; x < nextWidth; ++x) {
+                std::array<float, 4u> sum{};
+                for (std::uint32_t dy = 0u; dy < 2u; ++dy) {
+                    for (std::uint32_t dx = 0u; dx < 2u; ++dx) {
+                        const std::uint32_t sourceX =
+                            std::min(levelWidth - 1u, 2u * x + dx);
+                        const std::uint32_t sourceY =
+                            std::min(levelHeight - 1u, 2u * y + dy);
+                        const std::size_t sourcePixel =
+                            static_cast<std::size_t>(sourceY) *
+                                levelWidth +
+                            sourceX;
+                        for (std::size_t channel = 0u;
+                             channel < 4u;
+                             ++channel) {
+                            float value =
+                                level[sourcePixel * 4u + channel] /
+                                255.0f;
+                            if (srgb && channel < 3u) {
+                                value = srgbToLinear(value);
+                            }
+                            sum[channel] += value;
+                        }
+                    }
+                }
+                const std::size_t destination =
+                    static_cast<std::size_t>(y) * nextWidth + x;
+                for (std::size_t channel = 0u;
+                     channel < 4u;
+                     ++channel) {
+                    float value = 0.25f * sum[channel];
+                    if (srgb && channel < 3u) {
+                        value = linearToSrgb(value);
+                    }
+                    next[destination * 4u + channel] =
+                        static_cast<std::uint8_t>(std::clamp(
+                            std::lround(value * 255.0f),
+                            0l,
+                            255l
+                        ));
+                }
+            }
+        }
+        level = std::move(next);
+        levelWidth = nextWidth;
+        levelHeight = nextHeight;
+    }
+    output.mipCount = mipLevel;
+    return true;
+}
+
 bool decodeTexture(
     const std::vector<std::uint8_t>& encoded,
     const bool srgb,
     const bool mipmaps,
     const std::string& id,
-    VisualTextureImageV1& output
+    VisualTextureImageV2& output
 ) {
     if (encoded.empty()) {
         return false;
@@ -722,83 +934,102 @@ bool decodeTexture(
             }
         }
     }
-    output.id = id;
-    output.contentHash = sha256(encoded);
-    output.width = static_cast<std::uint32_t>(width);
-    output.height = static_cast<std::uint32_t>(height);
-    output.flags = srgb ? MR_VISUAL_TEXTURE_SRGB : 0u;
-    std::uint32_t levelWidth = output.width;
-    std::uint32_t levelHeight = output.height;
-    while (true) {
-        output.mipTexelOffsets.push_back(
-            static_cast<std::uint32_t>(output.rgba8.size() / 4u)
-        );
-        output.rgba8.insert(
-            output.rgba8.end(),
-            level.begin(),
-            level.end()
-        );
-        if (!mipmaps ||
-            (levelWidth == 1u && levelHeight == 1u) ||
-            output.mipTexelOffsets.size() == 9u) {
-            break;
-        }
-        const std::uint32_t nextWidth =
-            std::max(1u, levelWidth / 2u);
-        const std::uint32_t nextHeight =
-            std::max(1u, levelHeight / 2u);
-        std::vector<std::uint8_t> next(
-            static_cast<std::size_t>(nextWidth) * nextHeight * 4u
-        );
-        for (std::uint32_t y = 0u; y < nextHeight; ++y) {
-            for (std::uint32_t x = 0u; x < nextWidth; ++x) {
-                std::array<float, 4u> sum{};
-                for (std::uint32_t dy = 0u; dy < 2u; ++dy) {
-                    for (std::uint32_t dx = 0u; dx < 2u; ++dx) {
-                        const std::uint32_t sourceX =
-                            std::min(levelWidth - 1u, 2u * x + dx);
-                        const std::uint32_t sourceY =
-                            std::min(levelHeight - 1u, 2u * y + dy);
-                        const std::size_t sourcePixel =
-                            static_cast<std::size_t>(sourceY) *
-                                levelWidth +
-                            sourceX;
-                        for (std::size_t channel = 0u;
-                             channel < 4u;
-                             ++channel) {
-                            float value =
-                                level[sourcePixel * 4u + channel] /
-                                255.0f;
-                            if (srgb && channel < 3u) {
-                                value = srgbToLinear(value);
-                            }
-                            sum[channel] += value;
-                        }
-                    }
-                }
-                const std::size_t destination =
-                    static_cast<std::size_t>(y) * nextWidth + x;
-                for (std::size_t channel = 0u;
-                     channel < 4u;
-                     ++channel) {
-                    float value = 0.25f * sum[channel];
-                    if (srgb && channel < 3u) {
-                        value = linearToSrgb(value);
-                    }
-                    next[destination * 4u + channel] =
-                        static_cast<std::uint8_t>(std::clamp(
-                            std::lround(value * 255.0f),
-                            0l,
-                            255l
-                        ));
-                }
-            }
-        }
-        level = std::move(next);
-        levelWidth = nextWidth;
-        levelHeight = nextHeight;
+    return cookRgba8Texture(
+        std::move(level),
+        static_cast<std::uint32_t>(width),
+        static_cast<std::uint32_t>(height),
+        srgb,
+        mipmaps,
+        id,
+        sha256(encoded),
+        output
+    );
+}
+
+bool decodeModelTexture(
+    MTKTextureLoader* loader,
+    MDLTexture* texture,
+    const bool srgb,
+    const bool mipmaps,
+    const std::string& textureId,
+    VisualTextureImageV2& output
+) {
+    if (loader == nil || texture == nil) {
+        return false;
     }
-    return true;
+    NSError* error = nil;
+    id<MTLTexture> native = [loader
+        newTextureWithMDLTexture:texture
+                         options:@{
+                             MTKTextureLoaderOptionSRGB:
+                                 @(srgb),
+                             MTKTextureLoaderOptionAllocateMipmaps:
+                                 @NO,
+                             MTKTextureLoaderOptionTextureStorageMode:
+                                 @(MTLStorageModeShared),
+                             MTKTextureLoaderOptionTextureUsage:
+                                 @(MTLTextureUsageShaderRead),
+                         }
+                           error:&error];
+    if (native == nil ||
+        native.textureType != MTLTextureType2D ||
+        native.depth != 1u ||
+        native.width == 0u ||
+        native.height == 0u ||
+        native.width >
+            std::numeric_limits<std::uint32_t>::max() ||
+        native.height >
+            std::numeric_limits<std::uint32_t>::max() ||
+        native.width >
+            std::numeric_limits<std::size_t>::max() /
+                native.height ||
+        native.width * native.height >
+            std::numeric_limits<std::size_t>::max() / 4u) {
+        return false;
+    }
+    const std::size_t width = native.width;
+    const std::size_t height = native.height;
+    const bool rgba =
+        native.pixelFormat == MTLPixelFormatRGBA8Unorm ||
+        native.pixelFormat == MTLPixelFormatRGBA8Unorm_sRGB;
+    const bool bgra =
+        native.pixelFormat == MTLPixelFormatBGRA8Unorm ||
+        native.pixelFormat == MTLPixelFormatBGRA8Unorm_sRGB;
+    if (!rgba && !bgra) {
+        return false;
+    }
+    std::vector<std::uint8_t> pixels(width * height * 4u);
+    [native
+        getBytes:pixels.data()
+     bytesPerRow:width * 4u
+      fromRegion:MTLRegionMake2D(
+                     0u,
+                     0u,
+                     width,
+                     height
+                 )
+     mipmapLevel:0u];
+    if (bgra) {
+        for (std::size_t pixel = 0u;
+             pixel < width * height;
+             ++pixel) {
+            std::swap(
+                pixels[pixel * 4u],
+                pixels[pixel * 4u + 2u]
+            );
+        }
+    }
+    const std::string contentHash = sha256(pixels);
+    return cookRgba8Texture(
+        std::move(pixels),
+        static_cast<std::uint32_t>(width),
+        static_cast<std::uint32_t>(height),
+        srgb,
+        mipmaps,
+        textureId,
+        contentHash,
+        output
+    );
 }
 
 void normalize3(float& x, float& y, float& z) {
@@ -1114,13 +1345,117 @@ bool decomposeUniform(
     return true;
 }
 
+bool decomposeRigidResidual(
+    const Matrix4& matrix,
+    mr_float4& translationAndScale,
+    mr_float4& orientation,
+    Matrix4& residual
+) {
+    simd_double3x3 linear{
+        {
+            {
+                matrix.value[0][0],
+                matrix.value[1][0],
+                matrix.value[2][0],
+            },
+            {
+                matrix.value[0][1],
+                matrix.value[1][1],
+                matrix.value[2][1],
+            },
+            {
+                matrix.value[0][2],
+                matrix.value[1][2],
+                matrix.value[2][2],
+            },
+        }
+    };
+    const double determinant = simd_determinant(linear);
+    const double scale = std::cbrt(std::abs(determinant));
+    if (!(scale > 1.0e-12) || !std::isfinite(scale)) {
+        return false;
+    }
+
+    simd_double3x3 rotation = linear;
+    for (std::size_t column = 0u; column < 3u; ++column) {
+        rotation.columns[column] /= scale;
+    }
+    for (std::uint32_t iteration = 0u;
+         iteration < 12u;
+         ++iteration) {
+        const simd_double3x3 inverseTranspose =
+            simd_transpose(simd_inverse(rotation));
+        simd_double3x3 next = rotation;
+        for (std::size_t column = 0u;
+             column < 3u;
+             ++column) {
+            next.columns[column] =
+                0.5 * (
+                    rotation.columns[column] +
+                    inverseTranspose.columns[column]
+                );
+        }
+        const double delta =
+            simd_length(next.columns[0] - rotation.columns[0]) +
+            simd_length(next.columns[1] - rotation.columns[1]) +
+            simd_length(next.columns[2] - rotation.columns[2]);
+        rotation = next;
+        if (delta < 1.0e-12) {
+            break;
+        }
+    }
+    if (simd_determinant(rotation) < 0.0) {
+        rotation.columns[0] = -rotation.columns[0];
+    }
+    simd_double3x3 scaledRotation = rotation;
+    for (std::size_t column = 0u; column < 3u; ++column) {
+        scaledRotation.columns[column] *= scale;
+    }
+    const simd_double3x3 baked = simd_mul(
+        simd_inverse(scaledRotation),
+        linear
+    );
+    if (!std::isfinite(simd_determinant(baked))) {
+        return false;
+    }
+
+    Matrix4 rigid{};
+    Matrix4 bakedMatrix{};
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            rigid.value[row][column] =
+                rotation.columns[column][row];
+            bakedMatrix.value[row][column] =
+                baked.columns[column][row];
+        }
+        rigid.value[row][3] = matrix.value[row][3];
+        bakedMatrix.value[row][3] = 0.0;
+    }
+    translationAndScale = {
+        static_cast<float>(matrix.value[0][3]),
+        static_cast<float>(matrix.value[1][3]),
+        static_cast<float>(matrix.value[2][3]),
+        static_cast<float>(scale),
+    };
+    orientation = rotationQuaternion(rigid, 1.0);
+    residual = bakedMatrix;
+    return std::isfinite(translationAndScale.x) &&
+        std::isfinite(translationAndScale.y) &&
+        std::isfinite(translationAndScale.z) &&
+        std::isfinite(translationAndScale.w) &&
+        std::isfinite(orientation.x) &&
+        std::isfinite(orientation.y) &&
+        std::isfinite(orientation.z) &&
+        std::isfinite(orientation.w);
+}
+
 std::uint32_t textureForMaterial(
     const GltfDocument& document,
     const std::uint32_t textureIndex,
     const bool srgb,
     const VisualAssetCookOptions& options,
     std::map<std::pair<std::uint32_t, bool>, std::uint32_t>& textureMap,
-    VisualAssetPackV1& pack,
+    VisualAssetPackV2& pack,
     std::string& message
 ) {
     if (textureIndex == MR_INVALID_INDEX) {
@@ -1152,7 +1487,7 @@ std::uint32_t textureForMaterial(
         static_cast<NSDictionary*>(images[imageIndex]);
     const std::vector<std::uint8_t> encoded =
         imagePayload(document, image);
-    VisualTextureImageV1 decoded;
+    VisualTextureImageV2 decoded;
     const std::string name = utf8(stringValue(image, @"name"));
     if (!decodeTexture(
             encoded,
@@ -1181,10 +1516,156 @@ std::uint32_t textureReference(
         : uintValue(record, @"index", MR_INVALID_INDEX);
 }
 
+std::uint32_t textureBindingForMaterial(
+    const GltfDocument& document,
+    NSDictionary* record,
+    const bool srgb,
+    const VisualAssetCookOptions& options,
+    std::map<std::pair<std::uint32_t, bool>, std::uint32_t>&
+        textureMap,
+    VisualAssetPackV2& pack,
+    std::string& message
+) {
+    const std::uint32_t source = textureReference(record);
+    if (source == MR_INVALID_INDEX) {
+        return MR_INVALID_INDEX;
+    }
+    const std::uint32_t textureIndex = textureForMaterial(
+        document,
+        source,
+        srgb,
+        options,
+        textureMap,
+        pack,
+        message
+    );
+    if (textureIndex == MR_INVALID_INDEX) {
+        if (message.empty()) {
+            message = "glTF material texture is invalid";
+        }
+        return MR_INVALID_INDEX;
+    }
+    NSArray* textures = arrayValue(document.root, @"textures");
+    NSDictionary* texture =
+        textures != nil && source < textures.count &&
+            [textures[source] isKindOfClass:NSDictionary.class]
+        ? static_cast<NSDictionary*>(textures[source])
+        : nil;
+    NSArray* samplers = arrayValue(document.root, @"samplers");
+    const std::uint32_t samplerSource =
+        uintValue(texture, @"sampler", MR_INVALID_INDEX);
+    NSDictionary* sampler =
+        samplers != nil && samplerSource < samplers.count &&
+            [samplers[samplerSource]
+                isKindOfClass:NSDictionary.class]
+        ? static_cast<NSDictionary*>(samplers[samplerSource])
+        : nil;
+    const std::uint32_t wrapS =
+        uintValue(sampler, @"wrapS", 10497u);
+    const std::uint32_t wrapT =
+        uintValue(sampler, @"wrapT", 10497u);
+    const std::uint32_t minFilter =
+        uintValue(sampler, @"minFilter", 9987u);
+    const std::uint32_t magFilter =
+        uintValue(sampler, @"magFilter", 9729u);
+    const bool minNearest =
+        minFilter == 9728u ||
+        minFilter == 9984u ||
+        minFilter == 9986u;
+    const bool magNearest = magFilter == 9728u;
+    const std::uint32_t mipClass =
+        minFilter == 9728u || minFilter == 9729u
+        ? 0u
+        : minFilter == 9984u || minFilter == 9985u
+            ? 1u
+            : 2u;
+    const auto addressClass = [](
+        const std::uint32_t wrap
+    ) {
+        return wrap == 33071u
+            ? 1u
+            : wrap == 33648u
+                ? 2u
+                : 0u;
+    };
+    const std::uint32_t samplerIndex =
+        3u * addressClass(wrapS) +
+        addressClass(wrapT) +
+        (minNearest ? 9u : 0u) +
+        (magNearest ? 18u : 0u) +
+        36u * mipClass;
+    std::uint32_t texcoordSet =
+        uintValue(record, @"texCoord", 0u);
+    float offsetX = 0.0f;
+    float offsetY = 0.0f;
+    float scaleX = 1.0f;
+    float scaleY = 1.0f;
+    float rotation = 0.0f;
+    NSDictionary* extensions =
+        dictionaryValue(record, @"extensions");
+    NSDictionary* transform = dictionaryValue(
+        extensions,
+        @"KHR_texture_transform"
+    );
+    if (transform != nil) {
+        texcoordSet =
+            uintValue(transform, @"texCoord", texcoordSet);
+        if (NSArray* offset = arrayValue(transform, @"offset");
+            offset != nil && offset.count == 2u) {
+            offsetX = [offset[0] floatValue];
+            offsetY = [offset[1] floatValue];
+        }
+        if (NSArray* scale = arrayValue(transform, @"scale");
+            scale != nil && scale.count == 2u) {
+            scaleX = [scale[0] floatValue];
+            scaleY = [scale[1] floatValue];
+        }
+        rotation =
+            static_cast<float>(
+                doubleValue(transform, @"rotation", 0.0)
+            );
+    }
+    const float sine = std::sin(rotation);
+    const float cosine = std::cos(rotation);
+    MRVisualTextureBindingGPUV2 binding{};
+    binding.resource = {
+        textureIndex,
+        samplerIndex,
+        std::min(texcoordSet, 1u),
+        (wrapS == 33071u ? MR_VISUAL_TEXTURE_CLAMP_U : 0u) |
+            (wrapT == 33071u
+                 ? MR_VISUAL_TEXTURE_CLAMP_V
+                 : 0u),
+    };
+    binding.uvTransform0 = {
+        cosine * scaleX,
+        -sine * scaleY,
+        offsetX,
+        0.0f,
+    };
+    binding.uvTransform1 = {
+        sine * scaleX,
+        cosine * scaleY,
+        offsetY,
+        0.0f,
+    };
+    if (pack.textureBindings.size() ==
+        std::numeric_limits<std::uint32_t>::max()) {
+        message = "visual texture binding count exceeds uint32";
+        return MR_INVALID_INDEX;
+    }
+    const std::uint32_t result =
+        static_cast<std::uint32_t>(
+            pack.textureBindings.size()
+        );
+    pack.textureBindings.push_back(binding);
+    return result;
+}
+
 bool importMaterials(
     const GltfDocument& document,
     const VisualAssetCookOptions& options,
-    VisualAssetPackV1& pack,
+    VisualAssetPackV2& pack,
     std::string& message
 ) {
     NSArray* materials = arrayValue(document.root, @"materials");
@@ -1297,23 +1778,15 @@ bool importMaterials(
             NSDictionary* record,
             const bool isSrgb
         ) -> std::uint32_t {
-            const std::uint32_t source =
-                textureReference(record);
-            const std::uint32_t result = textureForMaterial(
+            return textureBindingForMaterial(
                 document,
-                source,
+                record,
                 isSrgb,
                 options,
                 textureMap,
                 pack,
                 message
             );
-            if (source != MR_INVALID_INDEX &&
-                result == MR_INVALID_INDEX &&
-                message.empty()) {
-                message = "glTF material texture is invalid";
-            }
-            return result;
         };
         gpu.textureIndices0 = {
             texture(
@@ -1354,6 +1827,12 @@ bool importMaterials(
             ),
             MR_INVALID_INDEX,
         };
+        gpu.reserved = {
+            MR_INVALID_INDEX,
+            MR_INVALID_INDEX,
+            MR_INVALID_INDEX,
+            MR_INVALID_INDEX,
+        };
         if (!message.empty()) {
             return false;
         }
@@ -1365,7 +1844,7 @@ bool importMaterials(
 bool importMeshes(
     const GltfDocument& document,
     const VisualAssetCookOptions& options,
-    VisualAssetPackV1& pack,
+    VisualAssetPackV2& pack,
     std::vector<ImportedMesh>& imported,
     std::string& message
 ) {
@@ -1654,7 +2133,7 @@ bool appendNode(
     const std::uint32_t nodeIndex,
     const Matrix4& parent,
     std::set<std::uint32_t>& active,
-    VisualAssetPackV1& pack,
+    VisualAssetPackV2& pack,
     std::string& message
 ) {
     NSArray* nodes = arrayValue(document.root, @"nodes");
@@ -1739,7 +2218,7 @@ bool appendNode(
             primitive.boundsMaximum = source.boundsMaximum;
             pack.primitives.push_back(primitive);
         }
-        VisualSymbolicBindingV1 binding;
+        VisualSymbolicBindingV2 binding;
         binding.node = nodeName.empty()
             ? "node_" + std::to_string(nodeIndex)
             : nodeName;
@@ -1778,7 +2257,7 @@ bool importNodes(
     const GltfDocument& document,
     const std::vector<ImportedMesh>& meshes,
     const VisualAssetCookOptions& options,
-    VisualAssetPackV1& pack,
+    VisualAssetPackV2& pack,
     std::string& message
 ) {
     NSArray* scenes = arrayValue(document.root, @"scenes");
@@ -1852,7 +2331,7 @@ bool importNodes(
 VisualAssetCookDiagnostics cookGltf(
     const std::filesystem::path& source,
     const std::span<const std::uint8_t> sourceBytes,
-    VisualAssetPackV1& output,
+    VisualAssetPackV2& output,
     const VisualAssetCookOptions& options
 ) {
     VisualAssetCookDiagnostics diagnostics;
@@ -1865,7 +2344,7 @@ VisualAssetCookDiagnostics cookGltf(
             std::move(message)
         );
     }
-    VisualAssetPackV1 candidate;
+    VisualAssetPackV2 candidate;
     candidate.id = options.id.empty()
         ? source.stem().string()
         : options.id;
@@ -1991,23 +2470,1730 @@ std::vector<xmlNode*> xmlChildren(
     return result;
 }
 
+struct UsdStageMetadata {
+    double metersPerUnit = 0.01;
+    char upAxis = 'Y';
+    std::string defaultPrim;
+};
+
+bool readUsdStageMetadata(
+    const std::filesystem::path& source,
+    UsdStageMetadata& output,
+    std::string& message
+) {
+    NSTask* task = [[NSTask alloc] init];
+    task.executableURL =
+        [NSURL fileURLWithPath:@"/usr/bin/usdcat"];
+    task.arguments = @[
+        @"--layerMetadata",
+        @(source.string().c_str()),
+    ];
+    NSPipe* pipe = [NSPipe pipe];
+    task.standardOutput = pipe;
+    task.standardError = pipe;
+    NSError* error = nil;
+    if (![task launchAndReturnError:&error]) {
+        message =
+            "Apple OpenUSD metadata query could not launch: " +
+            utf8(error.localizedDescription);
+        return false;
+    }
+    NSData* bytes =
+        [pipe.fileHandleForReading readDataToEndOfFile];
+    [task waitUntilExit];
+    if (task.terminationStatus != 0 || bytes.length == 0u) {
+        message =
+            "Apple OpenUSD could not read stage metadata";
+        return false;
+    }
+    NSString* text = [[NSString alloc]
+        initWithData:bytes
+            encoding:NSUTF8StringEncoding];
+    const std::string metadata = utf8(text);
+    std::smatch match;
+    if (std::regex_search(
+            metadata,
+            match,
+            std::regex{
+                R"(metersPerUnit\s*=\s*([0-9eE+\-.]+))"
+            }
+        )) {
+        try {
+            output.metersPerUnit = std::stod(match[1].str());
+        } catch (...) {
+            message = "USD metersPerUnit metadata is malformed";
+            return false;
+        }
+    }
+    if (std::regex_search(
+            metadata,
+            match,
+            std::regex{R"usd(upAxis\s*=\s*"([XYZxyz])")usd"}
+        )) {
+        output.upAxis = static_cast<char>(
+            std::toupper(
+                static_cast<unsigned char>(match[1].str()[0])
+            )
+        );
+    }
+    if (std::regex_search(
+            metadata,
+            match,
+            std::regex{R"usd(defaultPrim\s*=\s*"([^"]+)")usd"}
+        )) {
+        output.defaultPrim = match[1].str();
+    }
+    if (!(output.metersPerUnit > 0.0) ||
+        !std::isfinite(output.metersPerUnit)) {
+        message = "USD metersPerUnit must be finite and positive";
+        return false;
+    }
+    return true;
+}
+
+Matrix4 usdCoordinateTransform(
+    const UsdStageMetadata& metadata
+) {
+    Matrix4 result{};
+    for (auto& row : result.value) {
+        std::fill(std::begin(row), std::end(row), 0.0);
+    }
+    result.value[3][3] = 1.0;
+    const double unit = metadata.metersPerUnit;
+    if (metadata.upAxis == 'Z') {
+        // USD +X right, +Y forward, +Z up -> MetalRobo
+        // +X forward, +Y left, +Z up.
+        result.value[0][1] = unit;
+        result.value[1][0] = -unit;
+        result.value[2][2] = unit;
+    } else if (metadata.upAxis == 'X') {
+        result.value[0][1] = unit;
+        result.value[1][2] = -unit;
+        result.value[2][0] = unit;
+    } else {
+        // USD +X right, +Y up, +Z back -> MetalRobo
+        // +X forward, +Y left, +Z up.
+        result.value[0][2] = -unit;
+        result.value[1][0] = -unit;
+        result.value[2][1] = unit;
+    }
+    return result;
+}
+
+Matrix4 matrixFromSimd(const matrix_float4x4& value) {
+    Matrix4 result;
+    for (std::size_t column = 0u; column < 4u; ++column) {
+        for (std::size_t row = 0u; row < 4u; ++row) {
+            result.value[row][column] =
+                value.columns[column][row];
+        }
+    }
+    return result;
+}
+
+double determinant3(const Matrix4& matrix) {
+    return
+        matrix.value[0][0] *
+            (
+                matrix.value[1][1] * matrix.value[2][2] -
+                matrix.value[1][2] * matrix.value[2][1]
+            ) -
+        matrix.value[0][1] *
+            (
+                matrix.value[1][0] * matrix.value[2][2] -
+                matrix.value[1][2] * matrix.value[2][0]
+            ) +
+        matrix.value[0][2] *
+            (
+                matrix.value[1][0] * matrix.value[2][1] -
+                matrix.value[1][1] * matrix.value[2][0]
+            );
+}
+
+float materialScalar(
+    MDLMaterial* material,
+    const MDLMaterialSemantic semantic,
+    const float fallback
+) {
+    if (material == nil) {
+        return fallback;
+    }
+    for (MDLMaterialProperty* property in
+         [material propertiesWithSemantic:semantic]) {
+        switch (property.type) {
+        case MDLMaterialPropertyTypeFloat:
+            return property.floatValue;
+        case MDLMaterialPropertyTypeFloat2:
+            return property.float2Value.x;
+        case MDLMaterialPropertyTypeFloat3:
+            return property.float3Value.x;
+        case MDLMaterialPropertyTypeFloat4:
+            return property.float4Value.x;
+        case MDLMaterialPropertyTypeColor:
+            return property.luminance;
+        default:
+            break;
+        }
+    }
+    return fallback;
+}
+
+mr_float4 materialColor(
+    MDLMaterial* material,
+    const MDLMaterialSemantic semantic,
+    const mr_float4 fallback
+) {
+    if (material == nil) {
+        return fallback;
+    }
+    for (MDLMaterialProperty* property in
+         [material propertiesWithSemantic:semantic]) {
+        switch (property.type) {
+        case MDLMaterialPropertyTypeFloat3: {
+            const vector_float3 value = property.float3Value;
+            return {value.x, value.y, value.z, fallback.w};
+        }
+        case MDLMaterialPropertyTypeFloat4: {
+            const vector_float4 value = property.float4Value;
+            return {value.x, value.y, value.z, value.w};
+        }
+        case MDLMaterialPropertyTypeColor: {
+            CGColorRef color = property.color;
+            if (color == nullptr) {
+                break;
+            }
+            const CGFloat* components = CGColorGetComponents(color);
+            const std::size_t count =
+                CGColorGetNumberOfComponents(color);
+            if (count >= 3u) {
+                return {
+                    static_cast<float>(components[0]),
+                    static_cast<float>(components[1]),
+                    static_cast<float>(components[2]),
+                    count >= 4u
+                        ? static_cast<float>(components[3])
+                        : fallback.w,
+                };
+            }
+            if (count >= 1u) {
+                const float value =
+                    static_cast<float>(components[0]);
+                return {
+                    value,
+                    value,
+                    value,
+                    count >= 2u
+                        ? static_cast<float>(components[1])
+                        : fallback.w,
+                };
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    return fallback;
+}
+
+MDLMaterialProperty* materialTextureProperty(
+    MDLMaterial* material,
+    const MDLMaterialSemantic semantic
+) {
+    if (material == nil) {
+        return nil;
+    }
+    for (MDLMaterialProperty* property in
+         [material propertiesWithSemantic:semantic]) {
+        if (property.type == MDLMaterialPropertyTypeTexture ||
+            property.type == MDLMaterialPropertyTypeURL ||
+            property.type == MDLMaterialPropertyTypeString) {
+            return property;
+        }
+    }
+    return nil;
+}
+
+MDLMaterialProperty* materialPropertyContaining(
+    MDLMaterial* material,
+    const std::string_view token
+) {
+    if (material == nil) {
+        return nil;
+    }
+    for (MDLMaterialProperty* property in material) {
+        std::string name = utf8(property.name);
+        std::ranges::transform(
+            name,
+            name.begin(),
+            [](const unsigned char value) {
+                return static_cast<char>(std::tolower(value));
+            }
+        );
+        if (name.find(token) != std::string::npos) {
+            return property;
+        }
+    }
+    return nil;
+}
+
+MDLTextureSampler* textureSampler(
+    MDLMaterialProperty* property
+) {
+    if (property == nil) {
+        return nil;
+    }
+    if (property.type == MDLMaterialPropertyTypeTexture) {
+        return property.textureSamplerValue;
+    }
+    NSURL* url = property.URLValue;
+    if (url == nil && property.stringValue.length != 0u) {
+        url = [NSURL
+            fileURLWithPath:property.stringValue];
+    }
+    if (url == nil) {
+        return nil;
+    }
+    MDLTextureSampler* sampler =
+        [[MDLTextureSampler alloc] init];
+    sampler.texture = [[MDLURLTexture alloc]
+        initWithURL:url
+              name:property.name];
+    return sampler;
+}
+
+struct ModelTextureCache {
+    std::map<std::pair<std::uintptr_t, bool>, std::uint32_t>
+        objects;
+    std::unordered_map<std::string, std::uint32_t> content;
+};
+
+std::uint32_t appendModelTextureBinding(
+    MTKTextureLoader* textureLoader,
+    MDLMaterialProperty* property,
+    const bool srgb,
+    const VisualAssetCookOptions& options,
+    ModelTextureCache& textureCache,
+    VisualAssetPackV2& pack,
+    std::string& message
+) {
+    MDLTextureSampler* sampler = textureSampler(property);
+    MDLTexture* texture = sampler.texture;
+    if (texture == nil) {
+        return MR_INVALID_INDEX;
+    }
+    const auto key = std::pair{
+        reinterpret_cast<std::uintptr_t>(
+            (__bridge void*)texture
+        ),
+        srgb,
+    };
+    std::uint32_t textureIndex = MR_INVALID_INDEX;
+    if (const auto found = textureCache.objects.find(key);
+        found != textureCache.objects.end()) {
+        textureIndex = found->second;
+    } else {
+        VisualTextureImageV2 decoded;
+        std::string id = utf8(texture.name);
+        if (id.empty()) {
+            id = utf8(property.name);
+        }
+        if (id.empty()) {
+            id = "usd_texture_" +
+                std::to_string(pack.textures.size());
+        }
+        bool decodedTexture = false;
+        @autoreleasepool {
+            decodedTexture = decodeModelTexture(
+                textureLoader,
+                texture,
+                srgb,
+                options.generateMipmaps,
+                id,
+                decoded
+            );
+        }
+        if (!decodedTexture) {
+            message =
+                "Model I/O material texture could not be decoded";
+            return MR_INVALID_INDEX;
+        }
+        const std::string contentKey =
+            decoded.contentHash +
+            (
+                decoded.pixelFormat ==
+                    VisualTexturePixelFormatV2::rgba8UnormSrgb
+                ? ":srgb"
+                : ":linear"
+            );
+        if (const auto existing =
+                textureCache.content.find(contentKey);
+            existing != textureCache.content.end()) {
+            textureIndex = existing->second;
+        } else {
+            textureIndex = static_cast<std::uint32_t>(
+                pack.textures.size()
+            );
+            pack.textures.push_back(std::move(decoded));
+            textureCache.content.emplace(
+                contentKey,
+                textureIndex
+            );
+        }
+        textureCache.objects.emplace(key, textureIndex);
+    }
+
+    const bool minNearest =
+        sampler.hardwareFilter != nil &&
+        sampler.hardwareFilter.minFilter ==
+            MDLMaterialTextureFilterModeNearest;
+    const bool magNearest =
+        sampler.hardwareFilter != nil &&
+        sampler.hardwareFilter.magFilter ==
+            MDLMaterialTextureFilterModeNearest;
+    const auto addressClass = [](
+        const MDLMaterialTextureWrapMode mode
+    ) {
+        return mode == MDLMaterialTextureWrapModeClamp
+            ? 1u
+            : mode == MDLMaterialTextureWrapModeMirror
+                ? 2u
+                : 0u;
+    };
+    const std::uint32_t samplerIndex =
+        (
+            sampler.hardwareFilter == nil
+            ? 0u
+            : 3u * addressClass(
+                    sampler.hardwareFilter.sWrapMode
+                ) +
+                addressClass(
+                    sampler.hardwareFilter.tWrapMode
+                )
+        ) +
+        (minNearest ? 9u : 0u) +
+        (magNearest ? 18u : 0u) +
+        (options.generateMipmaps ? 72u : 0u);
+    MRVisualTextureBindingGPUV2 binding{};
+    binding.resource = {
+        textureIndex,
+        samplerIndex,
+        0u,
+        0u,
+    };
+    binding.uvTransform0 = {1.0f, 0.0f, 0.0f, 0.0f};
+    binding.uvTransform1 = {0.0f, 1.0f, 0.0f, 0.0f};
+    if (sampler.transform != nil) {
+        const matrix_float4x4 matrix =
+            [sampler.transform localTransformAtTime:0.0];
+        binding.uvTransform0 = {
+            matrix.columns[0].x,
+            matrix.columns[1].x,
+            matrix.columns[3].x,
+            0.0f,
+        };
+        binding.uvTransform1 = {
+            matrix.columns[0].y,
+            matrix.columns[1].y,
+            matrix.columns[3].y,
+            0.0f,
+        };
+    }
+    if (pack.textureBindings.size() ==
+        std::numeric_limits<std::uint32_t>::max()) {
+        message = "USD texture binding count exceeds uint32";
+        return MR_INVALID_INDEX;
+    }
+    const std::uint32_t result =
+        static_cast<std::uint32_t>(
+            pack.textureBindings.size()
+        );
+    pack.textureBindings.push_back(binding);
+    return result;
+}
+
+std::uint32_t importModelMaterial(
+    MTKTextureLoader* textureLoader,
+    MDLMaterial* material,
+    const VisualAssetCookOptions& options,
+    std::unordered_map<void*, std::uint32_t>& materialMap,
+    ModelTextureCache& textureCache,
+    VisualAssetPackV2& pack,
+    std::string& message
+) {
+    void* key = (__bridge void*)material;
+    if (const auto found = materialMap.find(key);
+        found != materialMap.end()) {
+        return found->second;
+    }
+    MDLMaterialProperty* const baseColorTexture =
+        materialTextureProperty(
+            material,
+            MDLMaterialSemanticBaseColor
+        );
+    MDLMaterialProperty* const roughnessTexture =
+        materialTextureProperty(
+            material,
+            MDLMaterialSemanticRoughness
+        );
+    MDLMaterialProperty* const normalTexture =
+        materialTextureProperty(
+            material,
+            MDLMaterialSemanticTangentSpaceNormal
+        );
+    MDLMaterialProperty* const occlusionTexture =
+        materialTextureProperty(
+            material,
+            MDLMaterialSemanticAmbientOcclusion
+        );
+    MDLMaterialProperty* const emissionTexture =
+        materialTextureProperty(
+            material,
+            MDLMaterialSemanticEmission
+        );
+    MDLMaterialProperty* const clearcoatTexture =
+        materialTextureProperty(
+            material,
+            MDLMaterialSemanticClearcoat
+        );
+    MDLMaterialProperty* const clearcoatGlossTexture =
+        materialTextureProperty(
+            material,
+            MDLMaterialSemanticClearcoatGloss
+        );
+    MDLMaterialProperty* const metallicTexture =
+        materialTextureProperty(
+            material,
+            MDLMaterialSemanticMetallic
+        );
+    MDLMaterialProperty* const opacityTexture =
+        materialTextureProperty(
+            material,
+            MDLMaterialSemanticOpacity
+        );
+    MRVisualMaterialGPUV2 result{};
+    result.baseColorAndOpacity = materialColor(
+        material,
+        MDLMaterialSemanticBaseColor,
+        {1.0f, 1.0f, 1.0f, 1.0f}
+    );
+    result.baseColorAndOpacity.w *= materialScalar(
+        material,
+        MDLMaterialSemanticOpacity,
+        1.0f
+    );
+    result.emissionAndStrength = materialColor(
+        material,
+        MDLMaterialSemanticEmission,
+        emissionTexture == nil
+            ? mr_float4{0.0f, 0.0f, 0.0f, 1.0f}
+            : mr_float4{1.0f, 1.0f, 1.0f, 1.0f}
+    );
+    result.surface = {
+        std::clamp(
+            materialScalar(
+                material,
+                MDLMaterialSemanticRoughness,
+                1.0f
+            ),
+            0.0f,
+            1.0f
+        ),
+        std::clamp(
+            materialScalar(
+                material,
+                MDLMaterialSemanticMetallic,
+                metallicTexture == nil ? 0.0f : 1.0f
+            ),
+            0.0f,
+            1.0f
+        ),
+        1.0f,
+        std::clamp(
+            materialScalar(
+                material,
+                MDLMaterialSemanticAmbientOcclusionScale,
+                1.0f
+            ),
+            0.0f,
+            1.0f
+        ),
+    };
+    const float clearcoat = std::clamp(
+        materialScalar(
+            material,
+            MDLMaterialSemanticClearcoat,
+            clearcoatTexture == nil ? 0.0f : 1.0f
+        ),
+        0.0f,
+        1.0f
+    );
+    const float clearcoatGloss = std::clamp(
+        materialScalar(
+            material,
+            MDLMaterialSemanticClearcoatGloss,
+            1.0f
+        ),
+        0.0f,
+        1.0f
+    );
+    const float ior = std::max(
+        materialScalar(
+            material,
+            MDLMaterialSemanticMaterialIndexOfRefraction,
+            1.5f
+        ),
+        1.0f
+    );
+    const float dielectricF0 =
+        std::pow((ior - 1.0f) / (ior + 1.0f), 2.0f);
+    result.coatingAndAlphaCutoff = {
+        clearcoat,
+        1.0f - clearcoatGloss,
+        dielectricF0 / 0.04f,
+        0.5f,
+    };
+    const auto texture = [&](
+        MDLMaterialProperty* property,
+        const bool srgb
+    ) {
+        return appendModelTextureBinding(
+            textureLoader,
+            property,
+            srgb,
+            options,
+            textureCache,
+            pack,
+            message
+        );
+    };
+    result.textureIndices0 = {
+        texture(baseColorTexture, true),
+        MR_INVALID_INDEX,
+        texture(normalTexture, false),
+        texture(occlusionTexture, false),
+    };
+    result.textureIndices1 = {
+        texture(emissionTexture, true),
+        texture(clearcoatTexture, false),
+        MR_INVALID_INDEX,
+        MR_INVALID_INDEX,
+    };
+    result.reserved = {
+        texture(metallicTexture, false),
+        texture(opacityTexture, false),
+        texture(roughnessTexture, false),
+        texture(clearcoatGlossTexture, false),
+    };
+    if (!message.empty()) {
+        return MR_INVALID_INDEX;
+    }
+    MRVisualAlphaMode alphaMode =
+        result.baseColorAndOpacity.w < 0.999f ||
+                result.reserved.y != MR_INVALID_INDEX
+        ? MR_VISUAL_ALPHA_BLEND
+        : MR_VISUAL_ALPHA_OPAQUE;
+    if (MDLMaterialProperty* authoredMode =
+            materialPropertyContaining(material, "alphamode");
+        authoredMode != nil) {
+        std::string mode = utf8(authoredMode.stringValue);
+        std::ranges::transform(
+            mode,
+            mode.begin(),
+            [](const unsigned char value) {
+                return static_cast<char>(std::tolower(value));
+            }
+        );
+        alphaMode = mode == "mask"
+            ? MR_VISUAL_ALPHA_MASK
+            : mode == "blend"
+                ? MR_VISUAL_ALPHA_BLEND
+                : MR_VISUAL_ALPHA_OPAQUE;
+    }
+    if (MDLMaterialProperty* cutoff =
+            materialPropertyContaining(material, "alphacutoff");
+        cutoff != nil &&
+        cutoff.type == MDLMaterialPropertyTypeFloat) {
+        result.coatingAndAlphaCutoff.w =
+            std::clamp(cutoff.floatValue, 0.0f, 1.0f);
+    }
+    const bool unlit =
+        materialPropertyContaining(material, "unlit") != nil;
+    result.flags = {
+        alphaMode,
+        (
+            material.materialFace == MDLMaterialFaceDoubleSided
+            ? MR_VISUAL_MATERIAL_DOUBLE_SIDED
+            : 0u
+        ) |
+            (unlit ? MR_VISUAL_MATERIAL_UNLIT : 0u),
+        0u,
+        0u,
+    };
+    if (pack.materials.size() ==
+        std::numeric_limits<std::uint32_t>::max()) {
+        message = "USD material count exceeds uint32";
+        return MR_INVALID_INDEX;
+    }
+    for (std::uint32_t index = 0u;
+         index < pack.materials.size();
+         ++index) {
+        MRVisualMaterialGPUV2 existing =
+            pack.materials[index];
+        existing.flags.w = 0u;
+        if (std::memcmp(
+                &existing,
+                &result,
+                sizeof(result)
+            ) == 0) {
+            materialMap.emplace(key, index);
+            return index;
+        }
+    }
+    const std::uint32_t index =
+        static_cast<std::uint32_t>(pack.materials.size());
+    result.flags.w = index + 1u;
+    pack.materials.push_back(result);
+    materialMap.emplace(key, index);
+    return index;
+}
+
+MDLVertexAttributeData* modelAttribute(
+    MDLMesh* mesh,
+    NSString* semantic,
+    const NSUInteger occurrence,
+    const MDLVertexFormat format
+) {
+    NSUInteger seen = 0u;
+    for (MDLVertexAttribute* attribute in
+         mesh.vertexDescriptor.attributes) {
+        if (attribute.name == nil ||
+            ![attribute.name hasPrefix:semantic]) {
+            continue;
+        }
+        if (seen++ == occurrence) {
+            return [mesh
+                vertexAttributeDataForAttributeNamed:attribute.name
+                                             asFormat:format];
+        }
+    }
+    return nil;
+}
+
+template <std::size_t Count>
+std::array<float, Count> readModelAttribute(
+    MDLVertexAttributeData* attribute,
+    const std::size_t vertex,
+    const std::array<float, Count>& fallback
+) {
+    if (attribute == nil || attribute.dataStart == nullptr) {
+        return fallback;
+    }
+    std::array<float, Count> result{};
+    std::memcpy(
+        result.data(),
+        static_cast<const std::uint8_t*>(attribute.dataStart) +
+            vertex * attribute.stride,
+        Count * sizeof(float)
+    );
+    return result;
+}
+
+bool modelDirectionAttributeValid(
+    MDLVertexAttributeData* attribute,
+    const std::size_t vertexCount
+) {
+    if (attribute == nil || attribute.dataStart == nullptr ||
+        attribute.stride < 3u * sizeof(float)) {
+        return false;
+    }
+    for (std::size_t vertex = 0u;
+         vertex < vertexCount;
+         ++vertex) {
+        std::array<float, 3u> value{};
+        std::memcpy(
+            value.data(),
+            static_cast<const std::uint8_t*>(
+                attribute.dataStart
+            ) + vertex * attribute.stride,
+            value.size() * sizeof(float)
+        );
+        const float lengthSquared =
+            value[0] * value[0] +
+            value[1] * value[1] +
+            value[2] * value[2];
+        if (!std::isfinite(value[0]) ||
+            !std::isfinite(value[1]) ||
+            !std::isfinite(value[2]) ||
+            !(lengthSquared > 1.0e-12f)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::string stableModelObjectPath(
+    MDLObject* object,
+    const std::uint32_t rootOrdinal
+) {
+    std::vector<std::string> segments;
+    for (MDLObject* cursor = object;
+         cursor != nil;
+         cursor = cursor.parent) {
+        std::string name = utf8(cursor.name);
+        if (name.empty()) {
+            name = utf8(NSStringFromClass(cursor.class));
+        }
+        std::uint32_t ordinal =
+            cursor.parent == nil ? rootOrdinal : 0u;
+        if (cursor.parent != nil &&
+            cursor.parent.children != nil) {
+            for (MDLObject* sibling in
+                 cursor.parent.children.objects) {
+                if (sibling == cursor) {
+                    break;
+                }
+                const std::string siblingName =
+                    utf8(sibling.name).empty()
+                    ? utf8(NSStringFromClass(sibling.class))
+                    : utf8(sibling.name);
+                if (siblingName == name) {
+                    ++ordinal;
+                }
+            }
+        }
+        segments.push_back(
+            name + "[" + std::to_string(ordinal) + "]"
+        );
+    }
+    std::ranges::reverse(segments);
+    std::string result;
+    for (const std::string& segment : segments) {
+        result += "/" + segment;
+    }
+    return result.empty()
+        ? "/mesh[" + std::to_string(rootOrdinal) + "]"
+        : result;
+}
+
+struct ReusedModelGeometry {
+    std::vector<std::uint32_t> firstIndices;
+    std::vector<std::uint32_t> indexCounts;
+};
+
+struct VisualCookTransformGPU {
+    mr_float4 positionRow0;
+    mr_float4 positionRow1;
+    mr_float4 positionRow2;
+    mr_float4 normalRow0;
+    mr_float4 normalRow1;
+    mr_float4 normalRow2;
+    mr_uint4 counts;
+};
+
+bool bakeResidualOnMetal(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> pipeline,
+    const Matrix4& residual,
+    const std::span<MRVisualVertexGPUV2> vertices,
+    std::string& message
+) {
+    if (vertices.empty()) {
+        return true;
+    }
+    id<MTLBuffer> buffer = [device
+        newBufferWithBytes:vertices.data()
+                   length:vertices.size_bytes()
+                  options:MTLResourceStorageModeShared];
+    if (buffer == nil) {
+        message =
+            "USD residual vertex staging allocation failed";
+        return false;
+    }
+    simd_double3x3 linear{
+        {
+            {
+                residual.value[0][0],
+                residual.value[1][0],
+                residual.value[2][0],
+            },
+            {
+                residual.value[0][1],
+                residual.value[1][1],
+                residual.value[2][1],
+            },
+            {
+                residual.value[0][2],
+                residual.value[1][2],
+                residual.value[2][2],
+            },
+        }
+    };
+    const simd_double3x3 normalMatrix =
+        simd_transpose(simd_inverse(linear));
+    VisualCookTransformGPU transform{
+        {
+            static_cast<float>(residual.value[0][0]),
+            static_cast<float>(residual.value[0][1]),
+            static_cast<float>(residual.value[0][2]),
+            static_cast<float>(residual.value[0][3]),
+        },
+        {
+            static_cast<float>(residual.value[1][0]),
+            static_cast<float>(residual.value[1][1]),
+            static_cast<float>(residual.value[1][2]),
+            static_cast<float>(residual.value[1][3]),
+        },
+        {
+            static_cast<float>(residual.value[2][0]),
+            static_cast<float>(residual.value[2][1]),
+            static_cast<float>(residual.value[2][2]),
+            static_cast<float>(residual.value[2][3]),
+        },
+        {
+            static_cast<float>(normalMatrix.columns[0][0]),
+            static_cast<float>(normalMatrix.columns[1][0]),
+            static_cast<float>(normalMatrix.columns[2][0]),
+            0.0f,
+        },
+        {
+            static_cast<float>(normalMatrix.columns[0][1]),
+            static_cast<float>(normalMatrix.columns[1][1]),
+            static_cast<float>(normalMatrix.columns[2][1]),
+            0.0f,
+        },
+        {
+            static_cast<float>(normalMatrix.columns[0][2]),
+            static_cast<float>(normalMatrix.columns[1][2]),
+            static_cast<float>(normalMatrix.columns[2][2]),
+            0.0f,
+        },
+        {
+            static_cast<std::uint32_t>(vertices.size()),
+            determinant3(residual) < 0.0 ? 1u : 0u,
+            0u,
+            0u,
+        },
+    };
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    id<MTLComputeCommandEncoder> encoder =
+        [command computeCommandEncoder];
+    if (command == nil || encoder == nil) {
+        message = "USD residual compute command allocation failed";
+        return false;
+    }
+    [encoder setComputePipelineState:pipeline];
+    [encoder setBuffer:buffer offset:0u atIndex:0u];
+    [encoder setBytes:&transform
+               length:sizeof(transform)
+              atIndex:1u];
+    const NSUInteger threadCount = std::min<NSUInteger>(
+        pipeline.maxTotalThreadsPerThreadgroup,
+        256u
+    );
+    [encoder dispatchThreads:MTLSizeMake(vertices.size(), 1u, 1u)
+       threadsPerThreadgroup:MTLSizeMake(threadCount, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    if (command.status != MTLCommandBufferStatusCompleted) {
+        message =
+            "USD residual compute bake failed: " +
+            utf8(command.error.localizedDescription);
+        return false;
+    }
+    std::memcpy(
+        vertices.data(),
+        buffer.contents,
+        vertices.size_bytes()
+    );
+    return true;
+}
+
+std::string hashModelGeometry(
+    const std::span<const MRVisualVertexGPUV2> vertices,
+    const std::span<const std::uint32_t> indices,
+    const std::uint32_t vertexBase,
+    const std::span<const MRVisualPrimitiveGPUV2> primitives
+) {
+    CC_SHA256_CTX context{};
+    CC_SHA256_Init(&context);
+    updateSha256(
+        context,
+        vertices.data(),
+        vertices.size_bytes()
+    );
+    for (const std::uint32_t index : indices) {
+        const std::uint32_t local = index - vertexBase;
+        updateSha256(context, &local, sizeof(local));
+    }
+    for (const MRVisualPrimitiveGPUV2& primitive : primitives) {
+        updateSha256(
+            context,
+            &primitive.geometry.y,
+            sizeof(primitive.geometry.y)
+        );
+    }
+    return finishSha256(context);
+}
+
+bool appendModelMesh(
+    MDLMesh* objectMesh,
+    const std::uint32_t objectOrdinal,
+    const Matrix4& stageConversion,
+    const VisualAssetCookOptions& options,
+    std::unordered_map<void*, std::uint32_t>& materialMap,
+    ModelTextureCache& textureCache,
+    std::unordered_map<std::string, ReusedModelGeometry>&
+        geometryMap,
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    MTKTextureLoader* textureLoader,
+    id<MTLComputePipelineState> residualPipeline,
+    VisualAssetPackV2& pack,
+    std::string& message
+) {
+    MDLMesh* mesh =
+        [objectMesh.instance isKindOfClass:MDLMesh.class]
+        ? static_cast<MDLMesh*>(objectMesh.instance)
+        : objectMesh;
+    if (mesh.vertexCount == 0u ||
+        mesh.vertexCount >
+            std::numeric_limits<std::uint32_t>::max()) {
+        message = "USD mesh has an invalid vertex count";
+        return false;
+    }
+    MDLVertexAttributeData* normals = modelAttribute(
+        mesh,
+        MDLVertexAttributeNormal,
+        0u,
+        MDLVertexFormatFloat3
+    );
+    if (!modelDirectionAttributeValid(
+            normals,
+            mesh.vertexCount
+        )) {
+        if (!options.generateNormals) {
+            message =
+                "USD mesh normals are absent or invalid and generation "
+                "is disabled";
+            return false;
+        }
+        [mesh addNormalsWithAttributeNamed:MDLVertexAttributeNormal
+                           creaseThreshold:0.75f];
+        normals = modelAttribute(
+            mesh,
+            MDLVertexAttributeNormal,
+            0u,
+            MDLVertexFormatFloat3
+        );
+        if (!modelDirectionAttributeValid(
+                normals,
+                mesh.vertexCount
+            )) {
+            message =
+                "Model I/O could not generate valid USD mesh normals";
+            return false;
+        }
+    }
+    MDLVertexAttributeData* uv0 = modelAttribute(
+        mesh,
+        MDLVertexAttributeTextureCoordinate,
+        0u,
+        MDLVertexFormatFloat2
+    );
+    MDLVertexAttributeData* tangents = modelAttribute(
+        mesh,
+        MDLVertexAttributeTangent,
+        0u,
+        MDLVertexFormatFloat4
+    );
+    if (!modelDirectionAttributeValid(
+            tangents,
+            mesh.vertexCount
+        ) &&
+        options.generateTangents && uv0 != nil) {
+        [mesh
+            addOrthTanBasisForTextureCoordinateAttributeNamed:
+                MDLVertexAttributeTextureCoordinate
+            normalAttributeNamed:MDLVertexAttributeNormal
+            tangentAttributeNamed:MDLVertexAttributeTangent];
+        tangents = modelAttribute(
+            mesh,
+            MDLVertexAttributeTangent,
+            0u,
+            MDLVertexFormatFloat4
+        );
+    }
+    MDLVertexAttributeData* positions = modelAttribute(
+        mesh,
+        MDLVertexAttributePosition,
+        0u,
+        MDLVertexFormatFloat3
+    );
+    MDLVertexAttributeData* uv1 = modelAttribute(
+        mesh,
+        MDLVertexAttributeTextureCoordinate,
+        1u,
+        MDLVertexFormatFloat2
+    );
+    MDLVertexAttributeData* colors = modelAttribute(
+        mesh,
+        MDLVertexAttributeColor,
+        0u,
+        MDLVertexFormatFloat4
+    );
+    if (positions == nil || normals == nil) {
+        message = "USD mesh has no readable positions or normals";
+        return false;
+    }
+    const Matrix4 world = multiply(
+        stageConversion,
+        matrixFromSimd(
+            [MDLTransform
+                globalTransformWithObject:objectMesh
+                                    atTime:0.0]
+        )
+    );
+    MRVisualInstanceGPUV2 instance{};
+    Matrix4 residual;
+    if (!decomposeRigidResidual(
+            world,
+            instance.translationAndScale,
+            instance.orientation,
+            residual
+        )) {
+        message =
+            "USD mesh transform is singular or non-finite";
+        return false;
+    }
+    const bool hasResidual =
+        std::abs(residual.value[0][0] - 1.0) > 1.0e-8 ||
+        std::abs(residual.value[1][1] - 1.0) > 1.0e-8 ||
+        std::abs(residual.value[2][2] - 1.0) > 1.0e-8 ||
+        std::abs(residual.value[0][1]) > 1.0e-8 ||
+        std::abs(residual.value[0][2]) > 1.0e-8 ||
+        std::abs(residual.value[1][0]) > 1.0e-8 ||
+        std::abs(residual.value[1][2]) > 1.0e-8 ||
+        std::abs(residual.value[2][0]) > 1.0e-8 ||
+        std::abs(residual.value[2][1]) > 1.0e-8;
+    const std::uint32_t vertexOffset =
+        static_cast<std::uint32_t>(pack.vertices.size());
+    if (mesh.vertexCount >
+        std::numeric_limits<std::uint32_t>::max() -
+            vertexOffset) {
+        message = "USD vertex arena exceeds uint32";
+        return false;
+    }
+    pack.vertices.reserve(
+        pack.vertices.size() + mesh.vertexCount
+    );
+    for (std::size_t vertex = 0u;
+         vertex < mesh.vertexCount;
+         ++vertex) {
+        std::array<float, 3u> position =
+            readModelAttribute<3u>(
+                positions,
+                vertex,
+                {0.0f, 0.0f, 0.0f}
+            );
+        std::array<float, 3u> normal =
+            readModelAttribute<3u>(
+                normals,
+                vertex,
+                {0.0f, 0.0f, 1.0f}
+            );
+        std::array<float, 4u> tangent =
+            readModelAttribute<4u>(
+                tangents,
+                vertex,
+                {1.0f, 0.0f, 0.0f, 1.0f}
+            );
+        normalize3(normal[0], normal[1], normal[2]);
+        normalize3(tangent[0], tangent[1], tangent[2]);
+        const auto finiteVector3 = [](const auto& value) {
+            return std::isfinite(value[0]) &&
+                std::isfinite(value[1]) &&
+                std::isfinite(value[2]);
+        };
+        if (!finiteVector3(normal) ||
+            normal[0] * normal[0] +
+                    normal[1] * normal[1] +
+                    normal[2] * normal[2] <=
+                1.0e-12f) {
+            normal = {0.0f, 0.0f, 1.0f};
+        }
+        normalize3(normal[0], normal[1], normal[2]);
+        if (!finiteVector3(tangent)) {
+            tangent[0] = 0.0f;
+            tangent[1] = 0.0f;
+            tangent[2] = 0.0f;
+        }
+        const float tangentProjection =
+            tangent[0] * normal[0] +
+            tangent[1] * normal[1] +
+            tangent[2] * normal[2];
+        tangent[0] -= tangentProjection * normal[0];
+        tangent[1] -= tangentProjection * normal[1];
+        tangent[2] -= tangentProjection * normal[2];
+        const float tangentLengthSquared =
+            tangent[0] * tangent[0] +
+            tangent[1] * tangent[1] +
+            tangent[2] * tangent[2];
+        if (!(tangentLengthSquared > 1.0e-12f)) {
+            const std::array<float, 3u> reference =
+                std::abs(normal[2]) < 0.999f
+                ? std::array<float, 3u>{0.0f, 0.0f, 1.0f}
+                : std::array<float, 3u>{0.0f, 1.0f, 0.0f};
+            tangent[0] =
+                reference[1] * normal[2] -
+                reference[2] * normal[1];
+            tangent[1] =
+                reference[2] * normal[0] -
+                reference[0] * normal[2];
+            tangent[2] =
+                reference[0] * normal[1] -
+                reference[1] * normal[0];
+        }
+        normalize3(tangent[0], tangent[1], tangent[2]);
+        const std::array<float, 2u> firstUv =
+            readModelAttribute<2u>(
+                uv0,
+                vertex,
+                {0.0f, 0.0f}
+            );
+        const std::array<float, 2u> secondUv =
+            readModelAttribute<2u>(
+                uv1,
+                vertex,
+                firstUv
+            );
+        const std::array<float, 4u> color =
+            readModelAttribute<4u>(
+                colors,
+                vertex,
+                {1.0f, 1.0f, 1.0f, 1.0f}
+            );
+        MRVisualVertexGPUV2 result{};
+        result.position = {
+            position[0], position[1], position[2], 1.0f,
+        };
+        result.normalAndTangentSign = {
+            normal[0], normal[1], normal[2],
+            tangent[3] < 0.0f ? -1.0f : 1.0f,
+        };
+        result.tangent = {
+            tangent[0], tangent[1], tangent[2], 0.0f,
+        };
+        result.texcoord01 = {
+            firstUv[0], firstUv[1],
+            secondUv[0], secondUv[1],
+        };
+        result.color = {
+            color[0], color[1], color[2], color[3],
+        };
+        pack.vertices.push_back(result);
+    }
+    if (hasResidual &&
+        !bakeResidualOnMetal(
+            device,
+            queue,
+            residualPipeline,
+            residual,
+            std::span<MRVisualVertexGPUV2>{
+                pack.vertices.data() + vertexOffset,
+                pack.vertices.size() - vertexOffset,
+            },
+            message
+        )) {
+        return false;
+    }
+
+    const std::string nodeName = utf8(objectMesh.name);
+    const std::string nodePath =
+        stableModelObjectPath(objectMesh, objectOrdinal);
+    const auto body = options.linkBodyIndices.find(nodeName);
+    instance.binding = {
+        0u,
+        body == options.linkBodyIndices.end()
+            ? MR_INVALID_INDEX
+            : body->second,
+        body == options.linkBodyIndices.end()
+            ? MR_VISUAL_BINDING_ASSET
+            : MR_VISUAL_BINDING_ARTICULATED_LINK,
+        MR_VISUAL_INSTANCE_CASTS_SHADOW |
+            MR_VISUAL_INSTANCE_RECEIVES_SHADOW |
+            MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR,
+    };
+    instance.identity = {
+        0u,
+        0u,
+        body == options.linkBodyIndices.end()
+            ? MR_INVALID_INDEX
+            : body->second,
+        static_cast<std::uint32_t>(pack.instances.size() + 1u),
+    };
+    instance.geometry.x =
+        static_cast<std::uint32_t>(pack.primitives.size());
+    const std::uint32_t instanceIndex =
+        static_cast<std::uint32_t>(pack.instances.size());
+    pack.instances.push_back(instance);
+
+    for (MDLSubmesh* source in mesh.submeshes) {
+        MDLSubmesh* triangles =
+            source.geometryType == MDLGeometryTypeTriangles &&
+                source.indexType == MDLIndexBitDepthUInt32
+            ? source
+            : [[MDLSubmesh alloc]
+                  initWithMDLSubmesh:source
+                          indexType:MDLIndexBitDepthUInt32
+                       geometryType:MDLGeometryTypeTriangles];
+        if (triangles == nil || triangles.indexCount == 0u ||
+            triangles.indexCount % 3u != 0u ||
+            triangles.indexCount >
+                std::numeric_limits<std::uint32_t>::max()) {
+            message =
+                "Model I/O could not triangulate a USD submesh";
+            return false;
+        }
+        id<MDLMeshBuffer> indexBuffer =
+            [triangles
+                indexBufferAsIndexType:MDLIndexBitDepthUInt32];
+        MDLMeshBufferMap* indexMap = [indexBuffer map];
+        if (indexMap == nil || indexMap.bytes == nullptr) {
+            message = "USD index buffer could not be mapped";
+            return false;
+        }
+        const std::uint32_t firstIndex =
+            static_cast<std::uint32_t>(pack.indices.size());
+        if (triangles.indexCount >
+            std::numeric_limits<std::uint32_t>::max() -
+                firstIndex) {
+            message = "USD index arena exceeds uint32";
+            return false;
+        }
+        const auto* sourceIndices =
+            static_cast<const std::uint32_t*>(indexMap.bytes);
+        for (std::size_t index = 0u;
+             index < triangles.indexCount;
+             index += 3u) {
+            std::array<std::uint32_t, 3u> local{
+                sourceIndices[index],
+                sourceIndices[index + 1u],
+                sourceIndices[index + 2u],
+            };
+            if (std::ranges::any_of(
+                    local,
+                    [mesh](const std::uint32_t value) {
+                        return value >= mesh.vertexCount;
+                    }
+                )) {
+                message = "USD submesh index is out of range";
+                return false;
+            }
+            if (determinant3(residual) < 0.0) {
+                std::swap(local[1], local[2]);
+            }
+            for (const std::uint32_t value : local) {
+                pack.indices.push_back(vertexOffset + value);
+            }
+        }
+        const std::uint32_t materialIndex =
+            importModelMaterial(
+                textureLoader,
+                triangles.material,
+                options,
+                materialMap,
+                textureCache,
+                pack,
+                message
+            );
+        if (!message.empty() ||
+            materialIndex == MR_INVALID_INDEX) {
+            return false;
+        }
+        MRVisualPrimitiveGPUV2 primitive{};
+        primitive.geometry = {
+            firstIndex,
+            static_cast<std::uint32_t>(triangles.indexCount),
+            materialIndex,
+            instanceIndex,
+        };
+        primitive.identity = {
+            0u,
+            0u,
+            instance.identity.z,
+            static_cast<std::uint32_t>(
+                pack.primitives.size() + 1u
+            ),
+        };
+        primitive.boundsMinimum = {
+            std::numeric_limits<float>::infinity(),
+            std::numeric_limits<float>::infinity(),
+            std::numeric_limits<float>::infinity(),
+            1.0f,
+        };
+        primitive.boundsMaximum = {
+            -std::numeric_limits<float>::infinity(),
+            -std::numeric_limits<float>::infinity(),
+            -std::numeric_limits<float>::infinity(),
+            1.0f,
+        };
+        for (std::size_t index = firstIndex;
+             index < pack.indices.size();
+             ++index) {
+            const MRVisualVertexGPUV2& vertex =
+                pack.vertices[pack.indices[index]];
+            primitive.boundsMinimum.x = std::min(
+                primitive.boundsMinimum.x,
+                vertex.position.x
+            );
+            primitive.boundsMinimum.y = std::min(
+                primitive.boundsMinimum.y,
+                vertex.position.y
+            );
+            primitive.boundsMinimum.z = std::min(
+                primitive.boundsMinimum.z,
+                vertex.position.z
+            );
+            primitive.boundsMaximum.x = std::max(
+                primitive.boundsMaximum.x,
+                vertex.position.x
+            );
+            primitive.boundsMaximum.y = std::max(
+                primitive.boundsMaximum.y,
+                vertex.position.y
+            );
+            primitive.boundsMaximum.z = std::max(
+                primitive.boundsMaximum.z,
+                vertex.position.z
+            );
+        }
+        pack.primitives.push_back(primitive);
+    }
+    const std::uint32_t firstPrimitive =
+        pack.instances.back().geometry.x;
+    const std::uint32_t primitiveCount =
+        static_cast<std::uint32_t>(pack.primitives.size()) -
+        firstPrimitive;
+    const std::uint32_t firstMeshIndex =
+        primitiveCount == 0u
+        ? static_cast<std::uint32_t>(pack.indices.size())
+        : pack.primitives[firstPrimitive].geometry.x;
+    const std::string geometryHash = hashModelGeometry(
+        std::span<const MRVisualVertexGPUV2>{
+            pack.vertices.data() + vertexOffset,
+            pack.vertices.size() - vertexOffset,
+        },
+        std::span<const std::uint32_t>{
+            pack.indices.data() + firstMeshIndex,
+            pack.indices.size() - firstMeshIndex,
+        },
+        vertexOffset,
+        std::span<const MRVisualPrimitiveGPUV2>{
+            pack.primitives.data() + firstPrimitive,
+            primitiveCount,
+        }
+    );
+    if (const auto reused = geometryMap.find(geometryHash);
+        reused != geometryMap.end()) {
+        if (reused->second.firstIndices.size() != primitiveCount) {
+            message =
+                "canonical USD geometry hash has incompatible subsets";
+            return false;
+        }
+        for (std::uint32_t primitive = 0u;
+             primitive < primitiveCount;
+             ++primitive) {
+            MRVisualPrimitiveGPUV2& record =
+                pack.primitives[firstPrimitive + primitive];
+            if (record.geometry.y !=
+                reused->second.indexCounts[primitive]) {
+                message =
+                    "canonical USD geometry subset count changed";
+                return false;
+            }
+            record.geometry.x =
+                reused->second.firstIndices[primitive];
+        }
+        pack.vertices.resize(vertexOffset);
+        pack.indices.resize(firstMeshIndex);
+    } else {
+        ReusedModelGeometry stored;
+        stored.firstIndices.reserve(primitiveCount);
+        stored.indexCounts.reserve(primitiveCount);
+        for (std::uint32_t primitive = 0u;
+             primitive < primitiveCount;
+             ++primitive) {
+            const MRVisualPrimitiveGPUV2& record =
+                pack.primitives[firstPrimitive + primitive];
+            stored.firstIndices.push_back(record.geometry.x);
+            stored.indexCounts.push_back(record.geometry.y);
+        }
+        geometryMap.emplace(geometryHash, std::move(stored));
+    }
+    pack.instances.back().geometry.y =
+        primitiveCount;
+    VisualSymbolicBindingV2 binding;
+    binding.node = nodePath.empty()
+        ? nodeName.empty()
+            ? "usd_mesh_" + std::to_string(instanceIndex)
+            : nodeName
+        : nodePath;
+    binding.instanceIndex = instanceIndex;
+    if (body != options.linkBodyIndices.end()) {
+        binding.link = nodeName;
+        binding.bodyIndex = body->second;
+        binding.binding = MR_VISUAL_BINDING_ARTICULATED_LINK;
+    }
+    pack.symbolicBindings.push_back(std::move(binding));
+    return true;
+}
+
+MDLVertexDescriptor* canonicalModelVertexDescriptor() {
+    MDLVertexDescriptor* descriptor =
+        [[MDLVertexDescriptor alloc] init];
+    descriptor.attributes[0] = [[MDLVertexAttribute alloc]
+        initWithName:MDLVertexAttributePosition
+              format:MDLVertexFormatFloat3
+              offset:0u
+         bufferIndex:0u];
+    descriptor.attributes[1] = [[MDLVertexAttribute alloc]
+        initWithName:MDLVertexAttributeNormal
+              format:MDLVertexFormatFloat3
+              offset:16u
+         bufferIndex:0u];
+    descriptor.attributes[2] = [[MDLVertexAttribute alloc]
+        initWithName:MDLVertexAttributeTangent
+              format:MDLVertexFormatFloat4
+              offset:32u
+         bufferIndex:0u];
+    descriptor.attributes[3] = [[MDLVertexAttribute alloc]
+        initWithName:MDLVertexAttributeTextureCoordinate
+              format:MDLVertexFormatFloat2
+              offset:48u
+         bufferIndex:0u];
+    descriptor.attributes[4] = [[MDLVertexAttribute alloc]
+        initWithName:
+            [MDLVertexAttributeTextureCoordinate
+                stringByAppendingString:@"_1"]
+              format:MDLVertexFormatFloat2
+              offset:56u
+         bufferIndex:0u];
+    descriptor.attributes[5] = [[MDLVertexAttribute alloc]
+        initWithName:MDLVertexAttributeColor
+              format:MDLVertexFormatFloat4
+              offset:64u
+         bufferIndex:0u];
+    descriptor.layouts[0] = [[MDLVertexBufferLayout alloc]
+        initWithStride:sizeof(MRVisualVertexGPUV2)];
+    return descriptor;
+}
+
+VisualAssetCookDiagnostics cookUsd(
+    const std::filesystem::path& source,
+    std::string sourceHash,
+    VisualAssetPackV2& output,
+    const VisualAssetCookOptions& options
+) {
+    VisualAssetCookDiagnostics diagnostics;
+    std::string message;
+    UsdStageMetadata metadata;
+    if (!readUsdStageMetadata(source, metadata, message)) {
+        return reject(
+            std::move(diagnostics),
+            VisualAssetCookStatus::malformedAsset,
+            std::move(message)
+        );
+    }
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    if (device == nil) {
+        return reject(
+            std::move(diagnostics),
+            VisualAssetCookStatus::internalFailure,
+            "Metal device is unavailable for USD cooking"
+        );
+    }
+    id<MTLCommandQueue> cookQueue = [device newCommandQueue];
+    NSError* metalError = nil;
+    const std::filesystem::path metallibPath{
+        METALROBO_DEFAULT_METALLIB
+    };
+    id<MTLLibrary> library = [device
+        newLibraryWithURL:
+            [NSURL fileURLWithPath:@(metallibPath.string().c_str())]
+                   error:&metalError];
+    id<MTLFunction> residualFunction = [library
+        newFunctionWithName:@"mr_visual_cook_bake_residual_v3"];
+    id<MTLComputePipelineState> residualPipeline =
+        residualFunction == nil
+        ? nil
+        : [device
+              newComputePipelineStateWithFunction:residualFunction
+                                            error:&metalError];
+    if (cookQueue == nil || library == nil ||
+        residualPipeline == nil) {
+        return reject(
+            std::move(diagnostics),
+            VisualAssetCookStatus::internalFailure,
+            "USD residual Metal pipeline is unavailable: " +
+                utf8(metalError.localizedDescription)
+        );
+    }
+    MTKMeshBufferAllocator* allocator =
+        [[MTKMeshBufferAllocator alloc] initWithDevice:device];
+    MTKTextureLoader* textureLoader =
+        [[MTKTextureLoader alloc] initWithDevice:device];
+    NSURL* url = [NSURL
+        fileURLWithPath:@(source.string().c_str())];
+    MDLAsset* asset = [[MDLAsset alloc]
+        initWithURL:url
+  vertexDescriptor:canonicalModelVertexDescriptor()
+   bufferAllocator:allocator];
+    if (asset == nil || asset.count == 0u) {
+        return reject(
+            std::move(diagnostics),
+            VisualAssetCookStatus::malformedAsset,
+            "Model I/O could not compose the USD stage"
+        );
+    }
+    // Model I/O performs USDZ package resolution here. Texture pixel
+    // conversion remains one-material-at-a-time through MTKTextureLoader.
+    [asset loadTextures];
+    NSArray<MDLObject*>* meshObjects =
+        [asset childObjectsOfClass:MDLMesh.class];
+    if (meshObjects.count == 0u) {
+        return reject(
+            std::move(diagnostics),
+            VisualAssetCookStatus::invalidGeometry,
+            "USD stage contains no triangle meshes"
+        );
+    }
+
+    VisualAssetPackV2 candidate;
+    candidate.id = options.id.empty()
+        ? source.stem().string()
+        : options.id;
+    candidate.sourceUri = source.string();
+    candidate.sourceContentHash = std::move(sourceHash);
+    candidate.license = options.license;
+    candidate.preprocessingProvenance =
+        options.preprocessingProvenance +
+        ";input=usd;importer=ModelIO+MTKMeshBufferAllocator" +
+        ";metersPerUnit=" +
+        std::to_string(metadata.metersPerUnit) +
+        ";upAxis=" + std::string{metadata.upAxis} +
+        ";defaultPrim=" + metadata.defaultPrim +
+        ";modelio=" + frameworkVersion(MDLAsset.class) +
+        ";sdk=" +
+        std::to_string(__MAC_OS_X_VERSION_MAX_ALLOWED) +
+        ";cook-kernel=" METALROBO_VISUAL_ASSET_COOK_KERNEL_HASH +
+        ";residual-transform=metal-compute-polar-v1" +
+        ";canonical-vertex-layout=mrvisualvertexgpuv2" +
+        ";normals=" +
+        (options.generateNormals ? "generate-if-missing" : "authored") +
+        ";tangents=" +
+        (options.generateTangents ? "generate-if-missing" : "authored") +
+        ";mips=" +
+        (options.generateMipmaps
+             ? "semantic-linear-box-v2"
+             : "none");
+    const Matrix4 conversion = usdCoordinateTransform(metadata);
+    std::unordered_map<void*, std::uint32_t> materialMap;
+    ModelTextureCache textureCache;
+    std::unordered_map<std::string, ReusedModelGeometry>
+        geometryMap;
+    for (std::uint32_t objectOrdinal = 0u;
+         objectOrdinal < meshObjects.count;
+         ++objectOrdinal) {
+        MDLObject* object = meshObjects[objectOrdinal];
+        if (![object isKindOfClass:MDLMesh.class] ||
+            object.hidden) {
+            continue;
+        }
+        if (!appendModelMesh(
+                static_cast<MDLMesh*>(object),
+                objectOrdinal,
+                conversion,
+                    options,
+                    materialMap,
+                    textureCache,
+                    geometryMap,
+                    device,
+                    cookQueue,
+                    textureLoader,
+                    residualPipeline,
+                candidate,
+                message
+            )) {
+            return reject(
+                std::move(diagnostics),
+                message.find("material") != std::string::npos ||
+                        message.find("texture") != std::string::npos
+                    ? VisualAssetCookStatus::invalidMaterial
+                    : VisualAssetCookStatus::invalidGeometry,
+                std::move(message)
+            );
+        }
+    }
+    if (candidate.instances.empty()) {
+        return reject(
+            std::move(diagnostics),
+            VisualAssetCookStatus::invalidGeometry,
+            "USD stage has no visible mesh instances"
+        );
+    }
+    CC_SHA256_CTX dependencyContext{};
+    CC_SHA256_Init(&dependencyContext);
+    for (const VisualTextureImageV2& texture :
+         candidate.textures) {
+        updateSha256(
+            dependencyContext,
+            texture.contentHash.data(),
+            texture.contentHash.size()
+        );
+    }
+    candidate.preprocessingProvenance +=
+        ";dependency-set=" +
+        finishSha256(dependencyContext) +
+        ";texture-transform=mdl-sampler-affine-v1";
+    candidate.contentHash =
+        computeVisualAssetPackContentHash(candidate);
+    if (!candidate.valid(&message)) {
+        return reject(
+            std::move(diagnostics),
+            VisualAssetCookStatus::malformedAsset,
+            std::move(message)
+        );
+    }
+    diagnostics.vertexCount =
+        static_cast<std::uint32_t>(candidate.vertices.size());
+    diagnostics.indexCount =
+        static_cast<std::uint32_t>(candidate.indices.size());
+    diagnostics.primitiveCount =
+        static_cast<std::uint32_t>(candidate.primitives.size());
+    diagnostics.instanceCount =
+        static_cast<std::uint32_t>(candidate.instances.size());
+    diagnostics.materialCount =
+        static_cast<std::uint32_t>(candidate.materials.size());
+    diagnostics.textureCount =
+        static_cast<std::uint32_t>(candidate.textures.size());
+    diagnostics.sourceHash = candidate.sourceContentHash;
+    diagnostics.packHash = candidate.contentHash;
+    output = std::move(candidate);
+    return diagnostics;
+}
+
 } // namespace
 
 VisualAssetCookDiagnostics cookVisualAsset(
     const std::filesystem::path& source,
-    VisualAssetPackV1& output,
+    VisualAssetPackV2& output,
     const VisualAssetCookOptions& options
 ) {
     VisualAssetCookDiagnostics diagnostics;
     try {
-        const auto bytes = readBytes(source);
-        if (!bytes.has_value()) {
-            return reject(
-                std::move(diagnostics),
-                VisualAssetCookStatus::ioFailure,
-                "visual source could not be read"
-            );
-        }
         std::string extension = source.extension().string();
         std::ranges::transform(
             extension,
@@ -2017,28 +4203,31 @@ VisualAssetCookDiagnostics cookVisualAsset(
             }
         );
         if (extension == ".glb" || extension == ".gltf") {
+            const auto bytes = readBytes(source);
+            if (!bytes.has_value()) {
+                return reject(
+                    std::move(diagnostics),
+                    VisualAssetCookStatus::ioFailure,
+                    "visual source could not be read"
+                );
+            }
             return cookGltf(source, *bytes, output, options);
         }
         if (extension == ".usd" || extension == ".usda" ||
             extension == ".usdc" || extension == ".usdz") {
-            // Model I/O is the authoritative USD importer. Its runtime mesh
-            // conversion is deliberately separate from the glTF parser so
-            // every path still terminates in the same immutable pack.
-            NSURL* url = [NSURL
-                fileURLWithPath:@(source.string().c_str())];
-            MDLAsset* asset = [[MDLAsset alloc] initWithURL:url];
-            if (asset == nil || asset.count == 0u) {
+            std::string sourceHash = sha256File(source);
+            if (sourceHash.empty()) {
                 return reject(
                     std::move(diagnostics),
-                    VisualAssetCookStatus::malformedAsset,
-                    "Model I/O could not import the USD asset"
+                    VisualAssetCookStatus::ioFailure,
+                    "USD source could not be hashed"
                 );
             }
-            return reject(
-                std::move(diagnostics),
-                VisualAssetCookStatus::unsupportedFeature,
-                "USD was validated by Model I/O, but this asset requires "
-                "export to GLB before the deterministic V1 pack cook"
+            return cookUsd(
+                source,
+                std::move(sourceHash),
+                output,
+                options
             );
         }
         if (extension == ".dae") {
@@ -2071,7 +4260,7 @@ VisualAssetCookDiagnostics cookVisualAsset(
 
 VisualAssetCookDiagnostics cookUrdfVisualDescription(
     const std::filesystem::path& urdf,
-    std::vector<VisualAssetPackV1>& output,
+    std::vector<VisualAssetPackV2>& output,
     const VisualAssetCookOptions& options
 ) {
     VisualAssetCookDiagnostics diagnostics;
@@ -2097,7 +4286,7 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
             "URDF visual description is malformed"
         );
     }
-    std::vector<VisualAssetPackV1> candidate;
+    std::vector<VisualAssetPackV2> candidate;
     xmlNode* robot = xmlDocGetRootElement(document);
     for (xmlNode* link : xmlChildren(robot, "link")) {
         const std::string linkName =
@@ -2142,7 +4331,7 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
                 body != options.linkBodyIndices.end()) {
                 visualOptions.linkBodyIndices.clear();
             }
-            VisualAssetPackV1 pack;
+            VisualAssetPackV2 pack;
             VisualAssetCookDiagnostics result =
                 cookVisualAsset(source, pack, visualOptions);
             if (!result.succeeded()) {
@@ -2162,7 +4351,7 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
                         MR_VISUAL_BINDING_ARTICULATED_LINK;
                     instance.identity.z = body->second;
                 }
-                VisualSymbolicBindingV1 binding;
+                VisualSymbolicBindingV2 binding;
                 binding.node =
                     linkName + "/" +
                     std::to_string(instanceIndex);

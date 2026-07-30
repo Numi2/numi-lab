@@ -254,6 +254,7 @@ class HybridObservationRenderer:
         asset_count: int,
         body_count: int = 0,
         visual_pack: str | os.PathLike[str] | None = None,
+        environment_pack: str | os.PathLike[str] | None = None,
         visual_asset_index: int = 0,
         semantic_id: int = 1,
         instance_id: int = 1,
@@ -336,10 +337,20 @@ class HybridObservationRenderer:
             resolved_visual_pack = Path(visual_pack).expanduser().resolve()
             if not resolved_visual_pack.is_file():
                 raise FileNotFoundError(
-                    f"VisualAssetPackV1 does not exist: {resolved_visual_pack}"
+                    f"VisualAssetPackV2 does not exist: {resolved_visual_pack}"
                 )
         if packed.size == 0 and resolved_visual_pack is None:
             raise ValueError("gaussians or visual_pack must be supplied")
+        resolved_environment_pack: Path | None = None
+        if environment_pack is not None:
+            resolved_environment_pack = (
+                Path(environment_pack).expanduser().resolve()
+            )
+            if not resolved_environment_pack.is_file():
+                raise FileNotFoundError(
+                    "VisualEnvironmentPackV2 does not exist: "
+                    f"{resolved_environment_pack}"
+                )
 
         self._bindings = _load_bindings(library_path)
         self.library_path: Path = self._bindings.path
@@ -355,7 +366,12 @@ class HybridObservationRenderer:
             if resolved_visual_pack is not None
             else None
         )
-        self._handle = self._bindings.lib.mr_hybrid_renderer_create_v2(
+        encoded_environment_pack = (
+            os.fsencode(resolved_environment_pack)
+            if resolved_environment_pack is not None
+            else None
+        )
+        self._handle = self._bindings.lib.mr_hybrid_renderer_create_v3(
             (
                 ct.c_void_p(int(packed.ctypes.data))
                 if packed.size
@@ -363,6 +379,7 @@ class HybridObservationRenderer:
             ),
             ct.c_size_t(packed.size),
             encoded_visual_pack,
+            encoded_environment_pack,
             ct.c_uint32(asset_count),
             ct.c_uint32(body_count),
             ct.c_uint32(visual_asset_index),
@@ -380,6 +397,7 @@ class HybridObservationRenderer:
                 f"Could not create hybrid renderer: {self._bindings.last_error()}"
             )
         self.visual_pack = resolved_visual_pack
+        self.environment_pack = resolved_environment_pack
         self.light_rig = light_rig
         self.renderer_profile = renderer_profile
 

@@ -14,24 +14,69 @@
 
 namespace metalrobo {
 
-inline constexpr std::uint32_t kVisualAssetPackVersion = 1u;
-inline constexpr std::uint32_t kVisualSceneManifestV2Version = 2u;
+inline constexpr std::uint32_t kVisualAssetPackVersion = 2u;
+inline constexpr std::uint32_t kVisualEnvironmentPackVersion = 2u;
+inline constexpr std::uint32_t kVisualSceneManifestV3Version = 3u;
 inline constexpr std::uint32_t kVisualMotionSampleBatchVersion = 1u;
 
-struct VisualTextureImageV1 {
+enum class VisualTexturePixelFormatV2 : std::uint32_t {
+    rgba8Unorm = 1u,
+    rgba8UnormSrgb = 2u,
+    rg11b10Float = 3u,
+    rg16Float = 4u,
+    rgba16Float = 5u,
+};
+
+enum class VisualTextureDimensionV2 : std::uint32_t {
+    texture2D = 1u,
+    cube = 2u,
+};
+
+enum class VisualAssetSectionKindV2 : std::uint32_t {
+    metadata = 1u,
+    vertices = 2u,
+    indices = 3u,
+    primitives = 4u,
+    instances = 5u,
+    materials = 6u,
+    textureBindings = 7u,
+    textureDescriptors = 8u,
+    texturePayload = 9u,
+    symbolicBindings = 10u,
+};
+
+struct VisualTextureSubresourceV2 {
+    std::uint32_t mipLevel = 0u;
+    std::uint32_t arraySlice = 0u;
+    std::uint32_t width = 0u;
+    std::uint32_t height = 0u;
+    std::uint64_t dataOffset = 0u;
+    std::uint64_t dataSize = 0u;
+    std::uint32_t bytesPerRow = 0u;
+    std::uint32_t bytesPerImage = 0u;
+};
+
+struct VisualTextureImageV2 {
     std::string id;
     std::string contentHash;
     std::uint32_t width = 0u;
     std::uint32_t height = 0u;
+    std::uint32_t mipCount = 0u;
+    std::uint32_t arrayLength = 1u;
+    VisualTexturePixelFormatV2 pixelFormat =
+        VisualTexturePixelFormatV2::rgba8Unorm;
+    VisualTextureDimensionV2 dimension =
+        VisualTextureDimensionV2::texture2D;
     std::uint32_t flags = 0u;
-    // RGBA8 mip levels are tightly packed in largest-to-smallest order.
-    std::vector<std::uint32_t> mipTexelOffsets;
-    std::vector<std::uint8_t> rgba8;
+    std::vector<VisualTextureSubresourceV2> subresources;
+    // Cook-only storage. Each subresource points into this arena until the
+    // sectioned pack writer streams it to its final file offset.
+    std::vector<std::uint8_t> data;
 
     [[nodiscard]] bool valid(std::string* reason = nullptr) const;
 };
 
-struct VisualSymbolicBindingV1 {
+struct VisualSymbolicBindingV2 {
     std::string node;
     std::string link;
     std::uint32_t instanceIndex = MR_INVALID_INDEX;
@@ -45,7 +90,18 @@ struct VisualSymbolicBindingV1 {
     ) const;
 };
 
-struct VisualAssetPackV1 {
+struct VisualPackSectionV2 {
+    VisualAssetSectionKindV2 kind =
+        VisualAssetSectionKindV2::metadata;
+    std::uint32_t index = 0u;
+    std::uint64_t fileOffset = 0u;
+    std::uint64_t byteCount = 0u;
+    std::uint64_t elementCount = 0u;
+    std::uint32_t elementStride = 0u;
+    std::string contentHash;
+};
+
+struct VisualAssetPackV2 {
     std::uint32_t schemaVersion = kVisualAssetPackVersion;
     std::string id;
     std::string sourceUri;
@@ -59,28 +115,43 @@ struct VisualAssetPackV1 {
     std::vector<MRVisualPrimitiveGPUV2> primitives;
     std::vector<MRVisualInstanceGPUV2> instances;
     std::vector<MRVisualMaterialGPUV2> materials;
-    std::vector<VisualTextureImageV1> textures;
-    std::vector<VisualSymbolicBindingV1> symbolicBindings;
+    std::vector<MRVisualTextureBindingGPUV2> textureBindings;
+    std::vector<VisualTextureImageV2> textures;
+    std::vector<VisualSymbolicBindingV2> symbolicBindings;
+    std::vector<VisualPackSectionV2> sections;
 
     [[nodiscard]] bool valid(std::string* reason = nullptr) const;
 };
 
-struct VisualEnvironmentV1 {
+struct VisualEnvironmentPackV2 {
+    std::uint32_t schemaVersion =
+        kVisualEnvironmentPackVersion;
+    std::string id;
+    std::string sourceUri;
+    std::string sourceContentHash;
+    std::string contentHash;
+    std::string sourceColorSpace = "linear-rec709";
+    std::string preprocessingProvenance;
+    std::uint32_t specularFaceSize = 0u;
+    std::uint32_t diffuseFaceSize = 64u;
+    std::uint32_t brdfLutSize = 256u;
+    VisualTextureImageV2 diffuseIrradiance;
+    VisualTextureImageV2 prefilteredSpecular;
+    VisualTextureImageV2 brdfLut;
+    std::vector<VisualPackSectionV2> sections;
+
+    [[nodiscard]] bool valid(std::string* reason = nullptr) const;
+};
+
+struct VisualEnvironmentReferenceV2 {
     std::string id = "neutral_studio";
-    std::string contentHash = "builtin:neutral-studio-v1";
-    std::uint32_t textureIndex = MR_INVALID_INDEX;
+    std::filesystem::path packPath;
+    std::string contentHash = "builtin:neutral-studio-v2";
     float intensity = 1.0f;
     float rotationRadians = 0.0f;
-    // Third-order real spherical harmonics in linear RGB.
-    std::array<mr_float4, 9u> diffuseSH{{
-        {0.282095f, 0.282095f, 0.282095f, 0.0f},
-    }};
     std::uint64_t fingerprint = 0u;
 
-    [[nodiscard]] bool valid(
-        std::size_t textureCount,
-        std::string* reason = nullptr
-    ) const;
+    [[nodiscard]] bool valid(std::string* reason = nullptr) const;
 };
 
 struct VisualLightRigV1 {
@@ -92,27 +163,30 @@ struct VisualLightRigV1 {
     [[nodiscard]] bool valid(std::string* reason = nullptr) const;
 };
 
-struct VisualRenderSceneV2 {
+struct VisualAssetReferenceV3 {
+    std::filesystem::path packPath;
+    std::string contentHash;
+    std::uint32_t assetIndex = 0u;
+    std::uint32_t semanticId = 1u;
+    std::uint32_t instanceId = 1u;
+};
+
+struct VisualRenderSceneV3 {
     std::string id;
     std::uint32_t assetCount = 0u;
     std::uint32_t bodyCount = 0u;
     std::vector<MRHybridGaussianGPU> gaussians;
-    std::vector<MRVisualVertexGPUV2> vertices;
-    std::vector<std::uint32_t> indices;
-    std::vector<MRVisualPrimitiveGPUV2> primitives;
-    std::vector<MRVisualInstanceGPUV2> instances;
-    std::vector<MRVisualMaterialGPUV2> materials;
-    std::vector<VisualTextureImageV1> textures;
+    std::vector<VisualAssetReferenceV3> visualPacks;
     std::vector<MRVisualSensorBindingGPU> sensorBindings;
-    VisualEnvironmentV1 environment;
+    VisualEnvironmentReferenceV2 environment;
     VisualLightRigV1 lightRig;
     std::uint64_t fingerprint = 0u;
 
     [[nodiscard]] bool valid(std::string* reason = nullptr) const;
 };
 
-struct VisualSceneManifestV2 {
-    std::uint32_t schemaVersion = kVisualSceneManifestV2Version;
+struct VisualSceneManifestV3 {
+    std::uint32_t schemaVersion = kVisualSceneManifestV3Version;
     std::string id;
     std::string coordinateConvention = "x-forward,y-left,z-up";
     std::uint64_t worldFingerprint = 0u;
@@ -121,7 +195,7 @@ struct VisualSceneManifestV2 {
     std::string environmentMapHash;
     std::string lightRigHash;
     std::string preprocessingProvenance;
-    VisualRenderSceneV2 renderScene;
+    VisualRenderSceneV3 renderScene;
 
     [[nodiscard]] bool valid(std::string* reason = nullptr) const;
 };
@@ -204,7 +278,7 @@ struct VisualAssetCookOptions {
     std::string id;
     std::string license = "NOASSERTION";
     std::string preprocessingProvenance =
-        "metalrobo_visual_cook/v1";
+        "metalrobo_visual_cook/v3";
     bool generateNormals = true;
     bool generateTangents = true;
     bool generateMipmaps = true;
@@ -231,59 +305,102 @@ struct VisualAssetCookDiagnostics {
 
 [[nodiscard]] VisualAssetCookDiagnostics cookVisualAsset(
     const std::filesystem::path& source,
-    VisualAssetPackV1& output,
+    VisualAssetPackV2& output,
     const VisualAssetCookOptions& options = {}
 );
 
 [[nodiscard]] VisualAssetCookDiagnostics
 cookUrdfVisualDescription(
     const std::filesystem::path& urdf,
-    std::vector<VisualAssetPackV1>& output,
+    std::vector<VisualAssetPackV2>& output,
     const VisualAssetCookOptions& options = {}
 );
 
 [[nodiscard]] bool writeVisualAssetPack(
-    const VisualAssetPackV1& pack,
+    const VisualAssetPackV2& pack,
     const std::filesystem::path& path,
     std::string* reason = nullptr
 );
 
 [[nodiscard]] bool readVisualAssetPack(
     const std::filesystem::path& path,
-    VisualAssetPackV1& output,
+    VisualAssetPackV2& output,
+    std::string* reason = nullptr
+);
+
+// Reads pack metadata, section offsets, materials, instances, primitives, and
+// texture bindings without materializing vertex, index, or texture payloads.
+[[nodiscard]] bool readVisualAssetPackIndex(
+    const std::filesystem::path& path,
+    VisualAssetPackV2& output,
     std::string* reason = nullptr
 );
 
 [[nodiscard]] std::string computeVisualAssetPackContentHash(
-    const VisualAssetPackV1& pack
+    const VisualAssetPackV2& pack
 );
 
-[[nodiscard]] bool appendVisualAssetPack(
-    VisualAssetPackV1&& pack,
+[[nodiscard]] bool appendVisualAssetPackReference(
+    const std::filesystem::path& packPath,
     std::uint32_t assetIndex,
     std::uint32_t semanticId,
     std::uint32_t instanceId,
-    VisualRenderSceneV2& scene,
+    VisualRenderSceneV3& scene,
     std::string* reason = nullptr
 );
 
-[[nodiscard]] VisualEnvironmentV1
-makeNeutralStudioEnvironmentV1();
+[[nodiscard]] bool writeVisualEnvironmentPack(
+    const VisualEnvironmentPackV2& pack,
+    const std::filesystem::path& path,
+    std::string* reason = nullptr
+);
+
+[[nodiscard]] bool readVisualEnvironmentPack(
+    const std::filesystem::path& path,
+    VisualEnvironmentPackV2& output,
+    std::string* reason = nullptr
+);
+
+// Reads environment metadata and section offsets without texture payloads.
+[[nodiscard]] bool readVisualEnvironmentPackIndex(
+    const std::filesystem::path& path,
+    VisualEnvironmentPackV2& output,
+    std::string* reason = nullptr
+);
+
+[[nodiscard]] std::string computeVisualEnvironmentPackContentHash(
+    const VisualEnvironmentPackV2& pack
+);
+
+struct VisualEnvironmentCookOptions {
+    std::string id;
+    std::string sourceColorSpace = "auto";
+    std::uint32_t faceSize = 0u;
+};
+
+[[nodiscard]] VisualAssetCookDiagnostics cookVisualEnvironment(
+    const std::filesystem::path& source,
+    VisualEnvironmentPackV2& output,
+    const VisualEnvironmentCookOptions& options = {}
+);
+
+[[nodiscard]] VisualEnvironmentReferenceV2
+makeNeutralStudioEnvironmentV2();
 
 [[nodiscard]] VisualLightRigV1 makeStudioKeyLightRigV1();
 
 [[nodiscard]] VisualLightRigV1 makeIndoorAreaLightRigV1();
 
-[[nodiscard]] std::uint64_t computeVisualRenderSceneV2Fingerprint(
-    const VisualRenderSceneV2& scene
+[[nodiscard]] std::uint64_t computeVisualRenderSceneV3Fingerprint(
+    const VisualRenderSceneV3& scene
 );
 
-[[nodiscard]] std::uint64_t computeVisualSceneManifestV2Fingerprint(
-    const VisualSceneManifestV2& manifest
+[[nodiscard]] std::uint64_t computeVisualSceneManifestV3Fingerprint(
+    const VisualSceneManifestV3& manifest
 );
 
-[[nodiscard]] bool writeVisualSceneManifestV2(
-    const VisualSceneManifestV2& manifest,
+[[nodiscard]] bool writeVisualSceneManifestV3(
+    const VisualSceneManifestV3& manifest,
     const std::filesystem::path& path,
     std::string* reason = nullptr
 );

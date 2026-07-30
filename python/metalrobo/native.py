@@ -418,9 +418,10 @@ class _Bindings:
             function.argtypes = [ct.c_void_p]
             function.restype = ct.c_void_p
 
-        self.lib.mr_hybrid_renderer_create_v2.argtypes = [
+        self.lib.mr_hybrid_renderer_create_v3.argtypes = [
             ct.c_void_p,
             ct.c_size_t,
+            ct.c_char_p,
             ct.c_char_p,
             ct.c_uint32,
             ct.c_uint32,
@@ -434,7 +435,7 @@ class _Bindings:
             ct.c_uint32,
             ct.c_char_p,
         ]
-        self.lib.mr_hybrid_renderer_create_v2.restype = ct.c_void_p
+        self.lib.mr_hybrid_renderer_create_v3.restype = ct.c_void_p
         self.lib.mr_hybrid_renderer_destroy.argtypes = [ct.c_void_p]
         self.lib.mr_hybrid_renderer_destroy.restype = None
         self.lib.mr_hybrid_renderer_render.argtypes = [
