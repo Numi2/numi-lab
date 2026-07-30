@@ -103,6 +103,9 @@ rerenders remain deterministic. Sensor depth validity is separate from
 geometric validity:
 range failure or dropout masks deployable depth without erasing
 simulation-only identities, normals, motion, or visibility.
+Disabled color noise, depth noise, and dropout execute no random hash work.
+Reference subpixel rotation is generated once per pixel and reused across its
+exposure samples.
 
 `renderLive` accepts host-visible state for inspection and export.
 `encode` accepts borrowed Metal body-state buffers and a caller-owned active

@@ -128,10 +128,22 @@ uint reverseBits32(uint value) {
     return (value << 16u) | (value >> 16u);
 }
 
+float2 randomUnit2(
+    const uint seed
+) {
+    const uint packed = randomHash(seed);
+    return (
+        float2(
+            float(packed & 0xffffu),
+            float(packed >> 16u)
+        ) + 0.5f
+    ) * (1.0f / 65536.0f);
+}
+
 float2 stratifiedSubpixelOffset(
     const uint sample,
     const uint sampleCount,
-    const uint seed
+    const float2 rotation
 ) {
     if (sampleCount <= 1u) {
         return 0.0f;
@@ -140,12 +152,6 @@ float2 stratifiedSubpixelOffset(
     const float2 hammersley = float2(
         (float(sample) + 0.5f) * inverseCount,
         (float(reverseBits32(sample)) + 0.5f) *
-            (1.0f / 4294967296.0f)
-    );
-    const float2 rotation = float2(
-        (float(randomHash(seed ^ 0xa511e9b3u)) + 0.5f) *
-            (1.0f / 4294967296.0f),
-        (float(randomHash(seed ^ 0x63d83595u)) + 0.5f) *
             (1.0f / 4294967296.0f)
     );
     return fract(hammersley + rotation) - 0.5f;
@@ -159,16 +165,15 @@ float2 fastSubpixelOffset(
         uniforms.shutter.w <= 1u) {
         return 0.0f;
     }
-    const uint seed = randomHash(
+    const uint seed =
         pixel ^
         uniforms.timing.x ^
         uniforms.timing.y * 0x9e3779b9u ^
-        uniforms.timing.z * 0x85ebca6bu
-    );
+        uniforms.timing.z * 0x85ebca6bu;
     return stratifiedSubpixelOffset(
         uniforms.shutter.z,
         uniforms.shutter.w,
-        seed
+        randomUnit2(seed)
     );
 }
 
@@ -745,19 +750,25 @@ bool measureDepth(
         measuredDepth = uniforms.clearColorAndDepth.w;
         return false;
     }
-    const float dropout =
-        (float(randomHash(seed ^ 0x63d83595u)) + 0.5f) /
-        4294967296.0f;
-    if (dropout < sensor.noiseAndLatency.z) {
-        measuredDepth = uniforms.clearColorAndDepth.w;
-        return false;
+    const float dropoutProbability =
+        sensor.noiseAndLatency.z;
+    if (dropoutProbability > 0.0f) {
+        const float dropout =
+            (float(randomHash(seed ^ 0x63d83595u)) + 0.5f) /
+            4294967296.0f;
+        if (dropout < dropoutProbability) {
+            measuredDepth = uniforms.clearColorAndDepth.w;
+            return false;
+        }
     }
-    measuredDepth = max(
-        0.0f,
-        geometricDepth +
-            sensor.noiseAndLatency.y *
+    const float noiseSigma = sensor.noiseAndLatency.y;
+    measuredDepth = noiseSigma > 0.0f
+        ? max(
+            0.0f,
+            geometricDepth + noiseSigma *
                 unitVarianceNoise(seed ^ 0xa511e9b3u)
-    );
+        )
+        : geometricDepth;
     const float quantum =
         uniforms.sensorRangeAndResponse.z;
     if (quantum > 0.0f) {
@@ -3823,17 +3834,15 @@ float3 referenceShade(
                         const uint grid = uint(ceil(sqrt(
                             float(sampleCount)
                         )));
-                        const uint sampleSeed = randomHash(
+                        const uint sampleSeed =
                             seed ^
                             lightIndex * 0x85ebca6bu ^
-                            lightSample * 0xc2b2ae35u
-                        );
-                        const float2 jitter = float2(
-                            uniformSigned(sampleSeed),
-                            uniformSigned(
-                                sampleSeed ^ 0x27d4eb2fu
-                            )
-                        ) * 0.25f;
+                            lightSample * 0xc2b2ae35u;
+                        const float2 jitter =
+                            (
+                                randomUnit2(sampleSeed) *
+                                2.0f - 1.0f
+                            ) * 0.25f;
                         const float2 cell = (
                             float2(
                                 lightSample % grid,
@@ -4148,6 +4157,10 @@ kernel void mr_hybrid_render_reference(
         max(uniforms.rayTiming.x, 1.0e-8f);
     const uint seed =
         frameSeed(instance, uniforms, pixel);
+    const float2 subpixelRotation =
+        uniforms.shutter.w > 1u
+        ? randomUnit2(seed)
+        : 0.0f;
 
     float3 integrated = 0.0f;
     for (uint sample = 0u;
@@ -4183,7 +4196,7 @@ kernel void mr_hybrid_render_reference(
             stratifiedSubpixelOffset(
                 sample,
                 uniforms.shutter.w,
-                seed
+                subpixelRotation
             );
         const ray primaryRay = referenceCameraRay(
             rasterSample,
@@ -4403,22 +4416,37 @@ kernel void mr_hybrid_apply_sensor(
         instances[environment];
     const MRWorldSensorInstanceGPU sensor =
         sensors[instance.ranges.z + uniforms.render.x];
-    const uint seed = frameSeed(instance, uniforms, globalPixel);
+    uint valid =
+        validity[globalPixel] & ~MR_VISUAL_VALIDITY_DEPTH;
+    const bool hasGeometry =
+        (valid & MR_VISUAL_VALIDITY_GEOMETRY) != 0u;
+    const bool stochasticDepth =
+        hasGeometry &&
+        (
+            sensor.noiseAndLatency.y > 0.0f ||
+            sensor.noiseAndLatency.z > 0.0f
+        );
+    const bool stochasticColor =
+        sensor.noiseAndLatency.x > 0.0f;
+    const uint seed =
+        stochasticColor || stochasticDepth
+        ? frameSeed(instance, uniforms, globalPixel)
+        : 0u;
 
-    rgb[globalPixel].xyz = max(
-        rgb[globalPixel].xyz +
-            sensor.noiseAndLatency.x *
+    if (stochasticColor) {
+        rgb[globalPixel].xyz = max(
+            rgb[globalPixel].xyz +
+                sensor.noiseAndLatency.x *
                 float3(
                     unitVarianceNoise(seed ^ 0x243f6a88u),
                     unitVarianceNoise(seed ^ 0x85a308d3u),
                     unitVarianceNoise(seed ^ 0x13198a2eu)
                 ),
-        0.0f
-    );
+            0.0f
+        );
+    }
 
-    uint valid =
-        validity[globalPixel] & ~MR_VISUAL_VALIDITY_DEPTH;
-    if ((valid & MR_VISUAL_VALIDITY_GEOMETRY) != 0u) {
+    if (hasGeometry) {
         float measuredDepth = depth[globalPixel];
         if (measureDepth(
                 depth[globalPixel],

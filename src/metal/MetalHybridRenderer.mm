@@ -21,7 +21,6 @@
 #include <span>
 #include <string>
 #include <system_error>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -112,32 +111,6 @@ struct RuntimeVisualScene {
 
 using RayGeometryKey =
     std::vector<std::array<std::uint32_t, 3u>>;
-
-struct RayGeometryHash {
-    [[nodiscard]] std::size_t operator()(
-        const std::span<const MRVisualPrimitiveGPUV2> primitives
-    ) const noexcept {
-        std::uint64_t hash = 14695981039346656037ull;
-        for (const MRVisualPrimitiveGPUV2& primitive :
-             primitives) {
-            const std::array values{
-                primitive.geometry.x,
-                primitive.geometry.y,
-                primitive.geometry.z,
-            };
-            for (const std::uint32_t value : values) {
-                hash ^= value;
-                hash *= 1099511628211ull;
-            }
-        }
-        hash ^= primitives.size();
-        hash *= 1099511628211ull;
-        if constexpr (sizeof(std::size_t) < sizeof(hash)) {
-            hash ^= hash >> 32u;
-        }
-        return static_cast<std::size_t>(hash);
-    }
-};
 
 bool matchesRayGeometry(
     const RayGeometryKey& key,
@@ -4098,12 +4071,6 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
             rayGeometryKeys.reserve(runtime.instances.size());
             rayVisibleInstances.reserve(runtime.instances.size());
             rayBlasIndices.reserve(runtime.instances.size());
-            std::unordered_multimap<
-                std::size_t,
-                std::uint32_t
-            > rayGeometryLookup;
-            rayGeometryLookup.reserve(runtime.instances.size());
-            const RayGeometryHash hashRayGeometry;
             for (std::uint32_t instanceIndex = 0u;
                  instanceIndex < runtime.instances.size();
                  ++instanceIndex) {
@@ -4123,22 +4090,17 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                         instance.geometry.x,
                         instance.geometry.y
                     );
-                const std::size_t geometryHash =
-                    hashRayGeometry(primitives);
-                const auto [first, last] =
-                    rayGeometryLookup.equal_range(geometryHash);
-                const auto found = std::find_if(
-                    first,
-                    last,
-                    [&](const auto& entry) {
+                const auto found = std::ranges::find_if(
+                    rayGeometryKeys,
+                    [&](const RayGeometryKey& key) {
                         return matchesRayGeometry(
-                            rayGeometryKeys[entry.second],
+                            key,
                             primitives
                         );
                     }
                 );
                 std::uint32_t blasIndex = 0u;
-                if (found == last) {
+                if (found == rayGeometryKeys.end()) {
                     blasIndex = static_cast<std::uint32_t>(
                         rayGeometryKeys.size()
                     );
@@ -4153,12 +4115,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                         });
                     }
                     rayGeometryKeys.push_back(std::move(key));
-                    rayGeometryLookup.emplace(
-                        geometryHash,
-                        blasIndex
-                    );
                 } else {
-                    blasIndex = found->second;
+                    blasIndex = static_cast<std::uint32_t>(
+                        found - rayGeometryKeys.begin()
+                    );
                 }
                 rayVisibleInstances.push_back(instanceIndex);
                 rayBlasIndices.push_back(blasIndex);
