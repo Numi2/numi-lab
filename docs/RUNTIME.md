@@ -95,15 +95,17 @@ silently skipped or routed through Python.
 
 Native task kernels produce compact rollout streams and the same Metal command
 buffer publishes them into the leased shared slot. Swift neither allocates the
-Metal streams nor materializes, copies, or concatenates `[Float]` batches. MLX
-arrays are constructed with the underlying managed C API, retain the slot
-lease through an owning finalizer payload, and consume those shared buffers
-without an input copy.
+Metal streams nor materializes, copies, or concatenates `[Float]` batches. In
+leased mode, `MetalWorldResult` publishes status and diagnostics but allocates
+zero duplicate actor, critic, latent, value, or transition elements. Ordinary
+inspection calls retain those vectors explicitly. MLX arrays are constructed
+with the underlying managed C API, retain the slot lease through an owning
+finalizer payload, and consume those shared buffers without an input copy.
 
-The synchronous inspection-compatible C result still materializes compact
-host vectors after the command completes. Removing that redundant readback
-requires GPU-side validation of policy/task outputs plus a status-only wait
-path; it remains an explicit runtime optimization and transaction gate.
+After command completion, the runtime currently validates the leased bytes in
+place on the CPU before advancing the lease cursor. Replacing that scan with a
+GPU-reduced publication status remains an executor optimization and transaction
+gate; it is not required to copy or materialize the payload.
 
 Policy installation has two private native banks. The first installed policy
 locks a topology fingerprint containing its identity, task contract, operator

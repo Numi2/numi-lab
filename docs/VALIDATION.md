@@ -32,14 +32,16 @@ rollout ring. It therefore covers slot reuse, managed MLX payload release,
 monotonic policy revisions, native rollout serialization, learner checkpoints,
 deployment-policy publication, immutable policy topology, stale-revision
 rejection, transactional private-bank swapping, and direct native command-
-buffer publication into opaque rollout leases. It does not yet qualify a
-no-copy MLX-to-bank blit or removal of the parallel synchronous inspection
-readback.
+buffer publication into opaque rollout leases with no duplicate compact host
+result. It does not yet qualify a no-copy MLX-to-bank blit or GPU-side payload
+validation.
 
 The TaskIR owner fills a one-slot rollout in two native submissions, checks
 every compact float and transition byte against the owning Metal result,
 verifies the terminal bootstrap offset, rejects visibility before sealing and
-a second simultaneous lease, then releases and reuses the slot. This is the
+a second simultaneous lease, then releases and reuses the slot. A second
+leased-only execution requires zero compact learning elements in the ordinary
+result while retaining status records and exact payload parity. This is the
 offset, lifetime, and transactional-publication owner; PPO integration is the
 cross-language lifetime owner.
 
