@@ -6,7 +6,7 @@
 
 #include "metalrobo/gpu_types.h"
 
-#define MR_WORLD_COMPILER_ABI_VERSION 1u
+#define MR_WORLD_COMPILER_ABI_VERSION 2u
 
 enum MRWorldAssetRole : mr_u32 {
     MR_WORLD_ASSET_BACKGROUND = 0u,
@@ -61,6 +61,23 @@ enum MRWorldSensorParentKind : mr_u32 {
     MR_WORLD_SENSOR_PARENT_RIGID_BODY = 1u,
     MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK = 2u,
     MR_WORLD_SENSOR_PARENT_WORLD = 3u,
+};
+
+enum MRWorldSensorSchedulePhase : mr_u32 {
+    // Sample the accepted state before action application. This is the
+    // ordinary actor-observation boundary.
+    MR_WORLD_SENSOR_PHASE_PRE_CONTROL = 0u,
+    // Sample the newly accepted physical/contact state after integration.
+    MR_WORLD_SENSOR_PHASE_POST_PHYSICS = 1u,
+    // Sample on the native visual presentation timeline.
+    MR_WORLD_SENSOR_PHASE_PRESENTATION = 2u,
+};
+
+enum MRWorldSensorConsumerFlags : mr_u32 {
+    MR_WORLD_SENSOR_CONSUMER_ACTOR = 1u << 0u,
+    MR_WORLD_SENSOR_CONSUMER_CRITIC = 1u << 1u,
+    MR_WORLD_SENSOR_CONSUMER_TRUTH = 1u << 2u,
+    MR_WORLD_SENSOR_CONSUMER_RECORDER = 1u << 3u,
 };
 
 enum MRWorldVariationAxis : mr_u32 {

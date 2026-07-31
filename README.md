@@ -52,7 +52,9 @@ release blockers remain:
 - NumiSolver does not yet accept rod-bearing contact worlds.
 - General MJCF import is not implemented.
 - TaskIR lacks general body, site, and SE(3) goal operators.
-- Sensors do not yet share one compiled SensorIR schedule.
+- Sensor declarations now compile into one fingerprinted SensorIR layout, but
+  presentation, tactile, and state sampling do not yet execute on one session
+  schedule or bind directly into TaskIR observations.
 - PolicyIR does not yet support convolution, recurrence, or attention.
 - Native validity-aware adjoints are not implemented.
 - G1 standing and walking are not qualified.

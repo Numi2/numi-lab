@@ -121,6 +121,10 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
         hash,
         MR_POLICY_PROGRAM_ABI_VERSION
     );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_SENSOR_PROGRAM_ABI_VERSION
+    );
 
     hash = detail::appendRuntimeAbiType<MRWorldGPU>(hash);
     hash = detail::appendRuntimeAbiType<MRArticulationGPU>(hash);
@@ -176,6 +180,18 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     hash = detail::appendRuntimeAbiType<MRTaskTransitionGPU>(hash);
     hash = detail::appendRuntimeAbiType<
         MRPolicyProgramHeaderGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRSensorProgramHeaderGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRSensorDescriptorGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRSensorRuntimeStateGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRSensorSampleMetadataGPU
     >(hash);
     return hash;
 }

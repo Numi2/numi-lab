@@ -88,8 +88,10 @@ histories are never observable.
 ## Generated ABI
 
 `schemas/runtime_abi.json` is the source of truth for the world resource table,
-resource lifetimes, persistent input ownership, debug names, and shared kernel
-bindings. Code generation emits the C++/Metal header and Swift metadata.
+resource lifetimes, persistent input ownership, debug names, shared kernel
+bindings, and cross-language record fields/offsets/sizes/alignments. Code
+generation emits the C++/Metal declarations and assertions plus Swift layout
+metadata.
 
 Numeric buffer slots, duplicated host/shader enums, and handwritten lifetime
 switches are forbidden. Persisted ABI changes increment the ABI version;

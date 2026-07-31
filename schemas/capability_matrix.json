@@ -99,10 +99,10 @@
     },
     {
       "id": "sensors.unified_sensor_ir",
-      "status": "unsupported",
-      "owner": "none",
-      "artifact": "none",
-      "scope": "Renderer, tactile, contact, and range sensing do not yet compile through one SensorIR schedule."
+      "status": "experimental",
+      "owner": "sensors.tactile",
+      "artifact": "metalrobo_tactile_check",
+      "scope": "WorldPack image and tactile declarations compile transactionally into one generated-ABI descriptor table with stable parent indices, exact output/history layouts, schedule periods, permissions, and tactile bindings. One session-owned native scheduler, TaskIR sensor references, and contact/range/IMU execution are not yet implemented."
     },
     {
       "id": "policy.dense_native_inference",

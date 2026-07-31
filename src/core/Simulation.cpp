@@ -101,6 +101,63 @@ std::array<std::array<float, 3u>, 3u> rotationMatrix(
     }};
 }
 
+mr_float4 quaternionProduct(
+    const mr_float4 left,
+    const mr_float4 right
+) {
+    return normalizedQuaternion({
+        left.w * right.x + left.x * right.w +
+            left.y * right.z - left.z * right.y,
+        left.w * right.y - left.x * right.z +
+            left.y * right.w + left.z * right.x,
+        left.w * right.z + left.x * right.y -
+            left.y * right.x + left.z * right.w,
+        left.w * right.w - left.x * right.x -
+            left.y * right.y - left.z * right.z,
+    });
+}
+
+mr_float4 rotateVector(
+    const mr_float4 orientation,
+    const mr_float4 value
+) {
+    const auto rotation = rotationMatrix(orientation);
+    return {
+        rotation[0u][0u] * value.x +
+            rotation[0u][1u] * value.y +
+            rotation[0u][2u] * value.z,
+        rotation[1u][0u] * value.x +
+            rotation[1u][1u] * value.y +
+            rotation[1u][2u] * value.z,
+        rotation[2u][0u] * value.x +
+            rotation[2u][1u] * value.y +
+            rotation[2u][2u] * value.z,
+        value.w,
+    };
+}
+
+WorldPose composePose(
+    const WorldPose& parent,
+    const WorldPose& local
+) {
+    const mr_float4 translated = rotateVector(
+        parent.orientation,
+        local.position
+    );
+    return {
+        {
+            parent.position.x + translated.x,
+            parent.position.y + translated.y,
+            parent.position.z + translated.z,
+            0.0f,
+        },
+        quaternionProduct(
+            parent.orientation,
+            local.orientation
+        ),
+    };
+}
+
 void writeWorldInverseInertia(
     MRBodyStateGPU& state,
     const MRBodyPropertiesGPU& properties,
@@ -320,7 +377,8 @@ void appendTerrain(
 } // namespace
 
 bool CompiledSimulation::valid() const noexcept {
-    return world.valid() && task.valid() &&
+    return world.valid() && sensors.valid() && task.valid() &&
+        sensors.worldFingerprint() == world.fingerprint() &&
         (!policy.valid() ||
          policy.taskFingerprint() == task.fingerprint());
 }
@@ -331,6 +389,7 @@ std::uint64_t CompiledSimulation::fingerprint() const noexcept {
     }
     std::uint64_t hash = kFingerprintOffset;
     appendFingerprint(hash, world.fingerprint());
+    appendFingerprint(hash, sensors.fingerprint());
     appendFingerprint(hash, task.fingerprint());
     appendFingerprint(
         hash,
@@ -353,6 +412,15 @@ SimulationCompileDiagnostics compileSimulation(
         authored.task.capacities
     );
     if (!diagnostics.world.succeeded()) {
+        return diagnostics;
+    }
+    diagnostics.sensors = compileSensorProgram(
+        authored.sensors,
+        authored.tactileSystem,
+        staged.world,
+        staged.sensors
+    );
+    if (!diagnostics.sensors.succeeded()) {
         return diagnostics;
     }
     diagnostics.task = compileTaskProgram(
@@ -437,6 +505,8 @@ SimulationDescription makeWorldPackSimulation(
 
     SimulationDescription result;
     result.model = authored.engineModel;
+    result.sensors = authored.sensors;
+    result.tactileSystem = authored.tactileSystem;
     result.task = std::move(task);
     result.articulationIndex = robot.articulationIndex;
     std::vector<std::uint32_t> bodyToScene(
@@ -514,6 +584,45 @@ SimulationDescription makeWorldPackSimulation(
                 state,
                 properties,
                 asset.massScale
+            );
+        }
+    }
+    for (SensorSpec& sensor : result.sensors) {
+        if (sensor.parentKind !=
+            MR_WORLD_SENSOR_PARENT_ASSET) {
+            continue;
+        }
+        const std::uint32_t parentIndex =
+            authored.assetIndex(sensor.parentAssetId);
+        if (parentIndex == MR_INVALID_INDEX) {
+            throw std::invalid_argument(
+                "MRWorldPack sensor parent asset is unresolved"
+            );
+        }
+        const WorldAsset& parent = authored.assets[parentIndex];
+        if (parent.bodyIndices.size() == 1u) {
+            sensor.parentBodyIndex = parent.bodyIndices.front();
+            if (sensor.parentBodyIndex >= result.model.bodies.size()) {
+                throw std::invalid_argument(
+                    "MRWorldPack sensor parent body exceeds its topology"
+                );
+            }
+            sensor.parentKind =
+                result.model.bodies[sensor.parentBodyIndex]
+                        .articulationIndex == MR_INVALID_INDEX
+                ? MR_WORLD_SENSOR_PARENT_RIGID_BODY
+                : MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
+        } else if (parent.bodyIndices.empty()) {
+            sensor.localPose = composePose(
+                parent.initialPose,
+                sensor.localPose
+            );
+            sensor.parentKind = MR_WORLD_SENSOR_PARENT_WORLD;
+            sensor.parentBodyIndex = MR_INVALID_INDEX;
+        } else {
+            throw std::invalid_argument(
+                "MRWorldPack asset-relative sensor on a multi-body asset "
+                "must name its parent body"
             );
         }
     }

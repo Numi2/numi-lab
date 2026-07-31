@@ -1,6 +1,56 @@
 {
   "schema": 1,
-  "abi_version": 2,
+  "abi_version": 3,
+  "abi_constants": {
+    "MR_SENSOR_PROGRAM_ABI_VERSION": 1
+  },
+  "records": [
+    {
+      "name": "MRSensorProgramHeaderGPU",
+      "alignment": 16,
+      "fields": [
+        ["mr_u64", "sensorFingerprint"],
+        ["mr_u64", "worldFingerprint"],
+        ["mr_uint4", "counts"],
+        ["mr_uint4", "executionCounts"],
+        ["mr_uint4", "layout"],
+        ["mr_uint4", "reserved"]
+      ]
+    },
+    {
+      "name": "MRSensorDescriptorGPU",
+      "alignment": 16,
+      "fields": [
+        ["mr_uint4", "identity"],
+        ["mr_uint4", "output"],
+        ["mr_uint4", "schedule"],
+        ["mr_uint4", "dimensions"],
+        ["mr_float4", "localPosition"],
+        ["mr_float4", "localOrientation"],
+        ["mr_float4", "timing"],
+        ["mr_float4", "noise"],
+        ["mr_float4", "range"],
+        ["mr_float4", "intrinsics"],
+        ["mr_float4", "distortion"]
+      ]
+    },
+    {
+      "name": "MRSensorRuntimeStateGPU",
+      "alignment": 16,
+      "fields": [
+        ["mr_uint4", "phaseAndSequence"],
+        ["mr_uint4", "timestampAgeValidity" ]
+      ]
+    },
+    {
+      "name": "MRSensorSampleMetadataGPU",
+      "alignment": 16,
+      "fields": [
+        ["mr_uint4", "sequenceAndTimestamp"],
+        ["mr_uint4", "ageValidityAndLayout"]
+      ]
+    }
+  ],
   "world_buffers": {
     "count": 222,
     "entries": [

@@ -2,8 +2,13 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 2
+    static let version: UInt32 = 3
     static let worldBufferCount = 222
+    static let mrSensorProgramAbiVersion: UInt32 = 1
+    static let mrSensorProgramHeaderGPUSize = 80
+    static let mrSensorDescriptorGPUSize = 176
+    static let mrSensorRuntimeStateGPUSize = 32
+    static let mrSensorSampleMetadataGPUSize = 32
     static let worldBufferDebugNames: [String] = [
         "world",
         "articulations",

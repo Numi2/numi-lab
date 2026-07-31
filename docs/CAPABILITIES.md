@@ -6,7 +6,7 @@ A status is a product claim boundary, not a roadmap estimate. A
 qualified row is rejected unless an evidence manifest records its
 owning check as passed.
 
-Current registry: qualified: 7, implemented: 3, experimental: 3, unsupported: 5.
+Current registry: qualified: 7, implemented: 3, experimental: 4, unsupported: 4.
 
 | Capability | Status | Owning check | Executable | Last evidence | Exact scope |
 |---|---|---|---|---|---|
@@ -23,7 +23,7 @@ Current registry: qualified: 7, implemented: 3, experimental: 3, unsupported: 5.
 | `tasks.compiled_native_runtime` | **qualified** | `task.program` | `metalrobo_task_program_check` | `9e8ea7e` at 2026-07-31T23:06:33+02:00 (`evidence/baselines/2026-07-31-9e8ea7e.json`) | Fixed- and floating-base tasks share compiled semantic bindings, native joint/contact observations, reward, termination, reset, curriculum, and randomization. |
 | `tasks.generic_typed_operators` | **experimental** | `task.program` | `metalrobo_task_program_check` | `9e8ea7e` at 2026-07-31T23:06:33+02:00 (`evidence/baselines/2026-07-31-9e8ea7e.json`) | Compiled selected-articulation body frames, static SE(3) goals, pose observations, pose rewards, pose terminations, and reset-correct pre-policy kinematics are implemented. Scene-object/site semantics, twists, accelerations, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified. |
 | `sensors.native_tactile` | **qualified** | `sensors.tactile` | `metalrobo_tactile_check` | `9e8ea7e` at 2026-07-31T23:06:33+02:00 (`evidence/baselines/2026-07-31-9e8ea7e.json`) | Native deformation, contact evidence, wrench summaries, history, and device-buffer access. |
-| `sensors.unified_sensor_ir` | **unsupported** | `none` | `none` | none | Renderer, tactile, contact, and range sensing do not yet compile through one SensorIR schedule. |
+| `sensors.unified_sensor_ir` | **experimental** | `sensors.tactile` | `metalrobo_tactile_check` | `9e8ea7e` at 2026-07-31T23:06:33+02:00 (`evidence/baselines/2026-07-31-9e8ea7e.json`) | WorldPack image and tactile declarations compile transactionally into one generated-ABI descriptor table with stable parent indices, exact output/history layouts, schedule periods, permissions, and tactile bindings. One session-owned native scheduler, TaskIR sensor references, and contact/range/IMU execution are not yet implemented. |
 | `policy.dense_native_inference` | **qualified** | `task.program` | `metalrobo_task_program_check` | `9e8ea7e` at 2026-07-31T23:06:33+02:00 (`evidence/baselines/2026-07-31-9e8ea7e.json`) | Fingerprint-bound normalization, dense actor/critic layers, Gaussian behavior policy, and native inference. |
 | `policy.recurrent_visual_attention` | **unsupported** | `none` | `none` | none | Convolution, recurrence, and attention are not production PolicyIR operators. |
 | `differentiation.native_adjoint` | **unsupported** | `none` | `none` | none | Forward Jacobians exist, but no production tape, backward kernels, implicit adjoint, or validity-mask API exists. |

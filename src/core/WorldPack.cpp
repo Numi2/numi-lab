@@ -312,6 +312,12 @@ void writeSensor(PayloadWriter& writer, const SensorSpec& sensor) {
     writer.pod(sensor.depthDropout);
     writer.pod(sensor.latencySeconds);
     writer.pod(sensor.nominalRateHz);
+    writer.pod(sensor.schedulePhase);
+    writer.pod(sensor.historyLength);
+    writer.pod(sensor.consumerFlags);
+    writer.pod(sensor.valueNoiseSigma);
+    writer.pod(sensor.biasNoiseSigma);
+    writer.pod(sensor.dropoutProbability);
     writer.pod(sensor.exposureSeconds);
     writer.pod(sensor.shutterReadoutSeconds);
     writer.pod(sensor.shutterModel);
@@ -340,6 +346,12 @@ bool readSensor(PayloadReader& reader, SensorSpec& sensor) {
         reader.pod(sensor.depthDropout) &&
         reader.pod(sensor.latencySeconds) &&
         reader.pod(sensor.nominalRateHz) &&
+        reader.pod(sensor.schedulePhase) &&
+        reader.pod(sensor.historyLength) &&
+        reader.pod(sensor.consumerFlags) &&
+        reader.pod(sensor.valueNoiseSigma) &&
+        reader.pod(sensor.biasNoiseSigma) &&
+        reader.pod(sensor.dropoutProbability) &&
         reader.pod(sensor.exposureSeconds) &&
         reader.pod(sensor.shutterReadoutSeconds) &&
         reader.pod(sensor.shutterModel) &&

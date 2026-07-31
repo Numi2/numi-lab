@@ -107,6 +107,19 @@ struct SensorSpec {
     float depthDropout = 0.0f;
     float latencySeconds = 0.0f;
     float nominalRateHz = 15.0f;
+    MRWorldSensorSchedulePhase schedulePhase =
+        MR_WORLD_SENSOR_PHASE_POST_PHYSICS;
+    std::uint32_t historyLength = 1u;
+    std::uint32_t consumerFlags =
+        MR_WORLD_SENSOR_CONSUMER_ACTOR |
+        MR_WORLD_SENSOR_CONSUMER_CRITIC |
+        MR_WORLD_SENSOR_CONSUMER_TRUTH |
+        MR_WORLD_SENSOR_CONSUMER_RECORDER;
+    // Modality-independent corruption. Image-specific color/depth
+    // corruption remains below and is applied by the presentation pass.
+    float valueNoiseSigma = 0.0f;
+    float biasNoiseSigma = 0.0f;
+    float dropoutProbability = 0.0f;
     float exposureSeconds = 1.0f / 120.0f;
     float shutterReadoutSeconds = 0.0f;
     MRVisualShutterModel shutterModel =

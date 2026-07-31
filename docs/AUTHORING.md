@@ -104,18 +104,32 @@ pose goal does not add a robot-specific shader.
 
 ## Sensor authoring
 
-Each sensor declaration specifies:
+The current WorldPack sensor declaration persists:
 
 - modality and parent frame;
-- target or collision filter group;
-- dtype, shape, and observation layout;
-- sample phase/rate, exposure, latency, and history;
-- deterministic noise, bias, dropout, and reset state;
-- actor, critic, truth, recorder, and deployment permissions.
+- image/tactile dimensions and calibration;
+- sample phase/rate, exposure, latency, and history length;
+- modality-independent noise, bias, and dropout;
+- actor, critic, truth, and recorder permissions.
 
-Non-divisor rates use deterministic fixed-point phase accumulators. Randomness
-is counter-based and keyed by environment, episode, sensor, sample, and
-channel. Unobserved and unrecorded sensors are removed by the compiler.
+`SimulationCompiler` resolves asset-relative parents to a stable world/body
+index and compiles every declaration into one immutable descriptor table. Its
+output/history offsets, nanosecond schedule period, execution domain, tactile
+atlas binding, and fingerprint are topology-derived. Sensor compilation is
+transactional: duplicate names, unresolved parents, uncovered latency, and
+tactile metadata disagreement leave the previous program unchanged.
+
+Today this is the common SensorIR contract, not yet a common executor.
+Presentation sensors still execute in the native renderer and tactile sensors
+still execute in the native tactile context. Persistent session-owned phase
+accumulators, unified reset/history state, TaskIR sensor references, contact,
+ray/LiDAR/IMU operators, recorder routing, deterministic counter corruption,
+and compiler dead-code elimination are the next runtime tranche.
+
+The runtime target uses deterministic fixed-point phase accumulators and
+counter randomness keyed by environment, episode, sensor, sample, and channel.
+Unobserved and unrecorded sensors will be removed by the execution-plan
+compiler once TaskIR/recorder bindings own their liveness.
 
 RGB, depth, identities, normals, and motion consume only authored Visual
 Presentation V3 packs. Tactile deformation consumes authored undeformed and

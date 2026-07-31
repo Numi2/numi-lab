@@ -184,6 +184,12 @@ void appendSensor(HashBuilder& hash, const SensorSpec& sensor) {
     hash.appendScalar(sensor.depthDropout);
     hash.appendScalar(sensor.latencySeconds);
     hash.appendScalar(sensor.nominalRateHz);
+    hash.appendScalar(sensor.schedulePhase);
+    hash.appendScalar(sensor.historyLength);
+    hash.appendScalar(sensor.consumerFlags);
+    hash.appendScalar(sensor.valueNoiseSigma);
+    hash.appendScalar(sensor.biasNoiseSigma);
+    hash.appendScalar(sensor.dropoutProbability);
     hash.appendScalar(sensor.exposureSeconds);
     hash.appendScalar(sensor.shutterReadoutSeconds);
     hash.appendScalar(sensor.shutterModel);
@@ -799,6 +805,23 @@ bool validSensor(const SensorSpec& sensor, std::string* reason) {
         !(sensor.latencySeconds >= 0.0f) ||
         !finite(sensor.nominalRateHz) ||
         !(sensor.nominalRateHz > 0.0f) ||
+        sensor.schedulePhase >
+            MR_WORLD_SENSOR_PHASE_PRESENTATION ||
+        sensor.historyLength == 0u ||
+        sensor.historyLength > 4096u ||
+        sensor.consumerFlags == 0u ||
+        (sensor.consumerFlags &
+         ~(MR_WORLD_SENSOR_CONSUMER_ACTOR |
+           MR_WORLD_SENSOR_CONSUMER_CRITIC |
+           MR_WORLD_SENSOR_CONSUMER_TRUTH |
+           MR_WORLD_SENSOR_CONSUMER_RECORDER)) != 0u ||
+        !finite(sensor.valueNoiseSigma) ||
+        sensor.valueNoiseSigma < 0.0f ||
+        !finite(sensor.biasNoiseSigma) ||
+        sensor.biasNoiseSigma < 0.0f ||
+        !finite(sensor.dropoutProbability) ||
+        sensor.dropoutProbability < 0.0f ||
+        sensor.dropoutProbability > 1.0f ||
         !finite(sensor.exposureSeconds) ||
         !(sensor.exposureSeconds >= 0.0f) ||
         !finite(sensor.shutterReadoutSeconds) ||

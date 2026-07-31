@@ -70,6 +70,7 @@ struct MRSimulationHandle {
 
     metalrobo::EngineModel model;
     metalrobo::CompiledWorld world;
+    metalrobo::CompiledSensorProgram sensorProgram;
     metalrobo::CompiledTaskProgram taskProgram;
     metalrobo::MetalWorldContext context;
     metalrobo::MetalWorldResidentState residentState;
@@ -565,11 +566,22 @@ createCompiledSimulation(
             ": " + compiledStatus.task.message
         );
     }
+    if (!compiledStatus.sensors.succeeded()) {
+        throw std::runtime_error(
+            std::string{source} +
+            " SensorIR compile failed [" +
+            metalrobo::sensorCompileStatusName(
+                compiledStatus.sensors.status
+            ) + "]: " + compiledStatus.sensors.element +
+            ": " + compiledStatus.sensors.message
+        );
+    }
 
     handle->model = std::move(authored.model);
     handle->defaultSceneBodies =
         std::move(authored.sceneBodies);
     handle->world = std::move(compiled.world);
+    handle->sensorProgram = std::move(compiled.sensors);
     handle->taskProgram = std::move(compiled.task);
     if (handle->world.sceneBodyCount() !=
             handle->defaultSceneBodies.size()) {

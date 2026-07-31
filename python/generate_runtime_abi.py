@@ -11,12 +11,113 @@ from pathlib import Path
 
 LIFETIMES = ("boundary", "immutable", "persistent", "transient")
 
+SCALAR_TYPES = {
+    "float": (4, 4),
+    "mr_u32": (4, 4),
+    "mr_i32": (4, 4),
+    "mr_u64": (8, 8),
+    "mr_float4": (16, 16),
+    "mr_uint4": (16, 16),
+}
+
+
+def _align(value: int, alignment: int) -> int:
+    return (value + alignment - 1) // alignment * alignment
+
+
+def _validate_records(document: dict[str, object]) -> tuple[
+    dict[str, int],
+    list[dict[str, object]],
+]:
+    constants = document.get("abi_constants", {})
+    records = document.get("records", [])
+    if not isinstance(constants, dict) or not isinstance(records, list):
+        raise ValueError("runtime ABI record schema is invalid")
+    parsed_constants: dict[str, int] = {}
+    for name, value in constants.items():
+        if (
+            not isinstance(name, str)
+            or not name.startswith("MR_")
+            or not name.isidentifier()
+            or not isinstance(value, int)
+            or value <= 0
+        ):
+            raise ValueError(f"invalid ABI constant: {name!r}")
+        parsed_constants[name] = value
+
+    parsed_records: list[dict[str, object]] = []
+    names: set[str] = set()
+    for record in records:
+        if not isinstance(record, dict):
+            raise ValueError("runtime ABI record is not an object")
+        name = record.get("name")
+        alignment = record.get("alignment", 16)
+        fields = record.get("fields")
+        if (
+            not isinstance(name, str)
+            or not name.startswith("MR")
+            or not name.isidentifier()
+            or name in names
+            or not isinstance(alignment, int)
+            or alignment <= 0
+            or alignment & (alignment - 1)
+            or not isinstance(fields, list)
+            or not fields
+        ):
+            raise ValueError(f"invalid runtime ABI record: {name!r}")
+        names.add(name)
+        offset = 0
+        record_alignment = alignment
+        parsed_fields: list[dict[str, object]] = []
+        field_names: set[str] = set()
+        for field in fields:
+            if (
+                not isinstance(field, list)
+                or len(field) != 2
+                or field[0] not in SCALAR_TYPES
+                or not isinstance(field[1], str)
+                or not field[1].isidentifier()
+                or field[1] in field_names
+            ):
+                raise ValueError(
+                    f"invalid field in runtime ABI record {name}: {field!r}"
+                )
+            type_name = field[0]
+            field_name = field[1]
+            size, field_alignment = SCALAR_TYPES[type_name]
+            field_names.add(field_name)
+            record_alignment = max(record_alignment, field_alignment)
+            offset = _align(offset, field_alignment)
+            parsed_fields.append({
+                "type": type_name,
+                "name": field_name,
+                "offset": offset,
+            })
+            offset += size
+        size = _align(offset, record_alignment)
+        parsed_records.append({
+            "name": name,
+            "alignment": record_alignment,
+            "size": size,
+            "fields": parsed_fields,
+        })
+    return parsed_constants, parsed_records
+
 
 def _words(symbol: str) -> str:
     name = symbol[1:] if symbol.startswith("k") else symbol
     name = re.sub(r"(.)([A-Z][a-z]+)", r"\1 \2", name)
     name = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", name)
     return name.lower()
+
+
+def _swift_identifier(symbol: str) -> str:
+    if "_" in symbol:
+        words = [word.lower() for word in symbol.split("_") if word]
+        return words[0] + "".join(word.title() for word in words[1:])
+    if symbol.startswith("MR"):
+        return "mr" + symbol[2:]
+    return symbol[0].lower() + symbol[1:]
 
 
 def _validate(document: dict[str, object]) -> tuple[
@@ -142,6 +243,7 @@ def render_header(document: dict[str, object]) -> str:
         persistent_inputs,
         kernels,
     ) = _validate(document)
+    constants, records = _validate_records(document)
     kernel_declarations: list[str] = []
     kernel_assertions: list[str] = []
     for kernel in kernels:
@@ -160,6 +262,29 @@ def render_header(document: dict[str, object]) -> str:
         kernel_declarations.append("")
         kernel_assertions.append(
             f"static_assert({prefix}BUFFER_COUNT <= 31u);"
+        )
+
+    record_declarations: list[str] = []
+    record_assertions: list[str] = []
+    for record in records:
+        name = record["name"]
+        record_declarations.append(
+            f"typedef struct MR_ALIGN16 {name} {{"
+        )
+        record_declarations.extend(
+            f"    {field['type']} {field['name']};"
+            for field in record["fields"]
+        )
+        record_declarations.append(f"}} {name};")
+        record_declarations.append("")
+        record_assertions.extend([
+            f"static_assert(sizeof({name}) == {record['size']}u);",
+            f"static_assert(alignof({name}) == {record['alignment']}u);",
+        ])
+        record_assertions.extend(
+            f"static_assert(offsetof({name}, {field['name']}) == "
+            f"{field['offset']}u);"
+            for field in record["fields"]
         )
 
     symbol_by_index = {index: symbol for symbol, index in entries}
@@ -191,7 +316,12 @@ def render_header(document: dict[str, object]) -> str:
             "// One schema owns the native resource table and shared kernel",
             "// bindings. Any persisted layout change increments this version.",
             f"#define MR_RUNTIME_ABI_VERSION {version}u",
+            *[
+                f"#define {name} {value}u"
+                for name, value in constants.items()
+            ],
             "",
+            *record_declarations,
             *kernel_declarations,
             "#if defined(__cplusplus) && !defined(__METAL_VERSION__)",
             "#include <array>",
@@ -266,6 +396,7 @@ def render_header(document: dict[str, object]) -> str:
             "static_assert(kBufferLifetimes.size() == kRawBufferCount);",
             "static_assert(kPersistentInputs.size() == kRawBufferCount);",
             "static_assert(kBufferDebugNames.size() == kRawBufferCount);",
+            *record_assertions,
             *kernel_assertions,
             "",
             "} // namespace metalrobo::runtime_abi",
@@ -277,6 +408,7 @@ def render_header(document: dict[str, object]) -> str:
 
 def render_swift(document: dict[str, object]) -> str:
     version, count, entries, _, _, _ = _validate(document)
+    constants, records = _validate_records(document)
     symbol_by_index = {index: symbol for symbol, index in entries}
     names = [
         _words(symbol_by_index[index])
@@ -292,6 +424,15 @@ def render_swift(document: dict[str, object]) -> str:
             "enum MetalRoboRuntimeABI {",
             f"    static let version: UInt32 = {version}",
             f"    static let worldBufferCount = {count}",
+            *[
+                f"    static let {_swift_identifier(name)}: UInt32 = {value}"
+                for name, value in constants.items()
+            ],
+            *[
+                f"    static let {_swift_identifier(record['name'])}Size = "
+                f"{record['size']}"
+                for record in records
+            ],
             "    static let worldBufferDebugNames: [String] = [",
             *[f'        "{name}",' for name in names],
             "    ]",

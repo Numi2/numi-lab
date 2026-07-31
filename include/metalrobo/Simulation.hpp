@@ -2,6 +2,7 @@
 
 #include "metalrobo/G1.hpp"
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/SensorProgram.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -19,6 +20,8 @@ enum class BuiltinSurface : std::uint32_t {
 struct SimulationDescription {
     EngineModel model;
     std::vector<MRBodyStateGPU> sceneBodies;
+    std::vector<SensorSpec> sensors;
+    CookedTactileSystem tactileSystem;
     TaskPack task;
     std::optional<PolicyPack> policy;
     std::uint32_t articulationIndex = 0u;
@@ -26,6 +29,7 @@ struct SimulationDescription {
 
 struct CompiledSimulation {
     CompiledWorld world;
+    CompiledSensorProgram sensors;
     CompiledTaskProgram task;
     CompiledPolicyProgram policy;
 
@@ -35,12 +39,14 @@ struct CompiledSimulation {
 
 struct SimulationCompileDiagnostics {
     MetalWorldCompileDiagnostics world;
+    SensorCompileDiagnostics sensors;
     TaskCompileDiagnostics task;
     PolicyCompileDiagnostics policy;
     bool policyRequested = false;
 
     [[nodiscard]] bool succeeded() const noexcept {
-        return world.succeeded() && task.succeeded() &&
+        return world.succeeded() && sensors.succeeded() &&
+            task.succeeded() &&
             (!policyRequested || policy.succeeded());
     }
 };

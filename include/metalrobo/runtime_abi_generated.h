@@ -5,7 +5,41 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 2u
+#define MR_RUNTIME_ABI_VERSION 3u
+#define MR_SENSOR_PROGRAM_ABI_VERSION 1u
+
+typedef struct MR_ALIGN16 MRSensorProgramHeaderGPU {
+    mr_u64 sensorFingerprint;
+    mr_u64 worldFingerprint;
+    mr_uint4 counts;
+    mr_uint4 executionCounts;
+    mr_uint4 layout;
+    mr_uint4 reserved;
+} MRSensorProgramHeaderGPU;
+
+typedef struct MR_ALIGN16 MRSensorDescriptorGPU {
+    mr_uint4 identity;
+    mr_uint4 output;
+    mr_uint4 schedule;
+    mr_uint4 dimensions;
+    mr_float4 localPosition;
+    mr_float4 localOrientation;
+    mr_float4 timing;
+    mr_float4 noise;
+    mr_float4 range;
+    mr_float4 intrinsics;
+    mr_float4 distortion;
+} MRSensorDescriptorGPU;
+
+typedef struct MR_ALIGN16 MRSensorRuntimeStateGPU {
+    mr_uint4 phaseAndSequence;
+    mr_uint4 timestampAgeValidity;
+} MRSensorRuntimeStateGPU;
+
+typedef struct MR_ALIGN16 MRSensorSampleMetadataGPU {
+    mr_uint4 sequenceAndTimestamp;
+    mr_uint4 ageValidityAndLayout;
+} MRSensorSampleMetadataGPU;
 
 enum MRWorldManifoldRecordScatterBuffer : mr_u32 {
     MR_RECORD_SCATTER_DISPATCH = 0u,
@@ -1041,6 +1075,35 @@ inline constexpr std::array<const char*, kRawBufferCount>
 static_assert(kBufferLifetimes.size() == kRawBufferCount);
 static_assert(kPersistentInputs.size() == kRawBufferCount);
 static_assert(kBufferDebugNames.size() == kRawBufferCount);
+static_assert(sizeof(MRSensorProgramHeaderGPU) == 80u);
+static_assert(alignof(MRSensorProgramHeaderGPU) == 16u);
+static_assert(offsetof(MRSensorProgramHeaderGPU, sensorFingerprint) == 0u);
+static_assert(offsetof(MRSensorProgramHeaderGPU, worldFingerprint) == 8u);
+static_assert(offsetof(MRSensorProgramHeaderGPU, counts) == 16u);
+static_assert(offsetof(MRSensorProgramHeaderGPU, executionCounts) == 32u);
+static_assert(offsetof(MRSensorProgramHeaderGPU, layout) == 48u);
+static_assert(offsetof(MRSensorProgramHeaderGPU, reserved) == 64u);
+static_assert(sizeof(MRSensorDescriptorGPU) == 176u);
+static_assert(alignof(MRSensorDescriptorGPU) == 16u);
+static_assert(offsetof(MRSensorDescriptorGPU, identity) == 0u);
+static_assert(offsetof(MRSensorDescriptorGPU, output) == 16u);
+static_assert(offsetof(MRSensorDescriptorGPU, schedule) == 32u);
+static_assert(offsetof(MRSensorDescriptorGPU, dimensions) == 48u);
+static_assert(offsetof(MRSensorDescriptorGPU, localPosition) == 64u);
+static_assert(offsetof(MRSensorDescriptorGPU, localOrientation) == 80u);
+static_assert(offsetof(MRSensorDescriptorGPU, timing) == 96u);
+static_assert(offsetof(MRSensorDescriptorGPU, noise) == 112u);
+static_assert(offsetof(MRSensorDescriptorGPU, range) == 128u);
+static_assert(offsetof(MRSensorDescriptorGPU, intrinsics) == 144u);
+static_assert(offsetof(MRSensorDescriptorGPU, distortion) == 160u);
+static_assert(sizeof(MRSensorRuntimeStateGPU) == 32u);
+static_assert(alignof(MRSensorRuntimeStateGPU) == 16u);
+static_assert(offsetof(MRSensorRuntimeStateGPU, phaseAndSequence) == 0u);
+static_assert(offsetof(MRSensorRuntimeStateGPU, timestampAgeValidity) == 16u);
+static_assert(sizeof(MRSensorSampleMetadataGPU) == 32u);
+static_assert(alignof(MRSensorSampleMetadataGPU) == 16u);
+static_assert(offsetof(MRSensorSampleMetadataGPU, sequenceAndTimestamp) == 0u);
+static_assert(offsetof(MRSensorSampleMetadataGPU, ageValidityAndLayout) == 16u);
 static_assert(MR_RECORD_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_IR_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_NUMI_PREPARE_BUFFER_COUNT <= 31u);

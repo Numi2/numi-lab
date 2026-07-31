@@ -2,13 +2,17 @@
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/MetalTactile.hpp"
 #include "metalrobo/GeometryCooker.hpp"
+#include "metalrobo/SensorProgram.hpp"
+#include "metalrobo/Simulation.hpp"
 #include "metalrobo/SurgicalAssets.hpp"
+#include "metalrobo/WorldPack.hpp"
 
 #include <algorithm>
 #include <array>
 #include <charconv>
 #include <cmath>
 #include <cstdint>
+#include <filesystem>
 #include <iostream>
 #include <numbers>
 #include <ranges>
@@ -2023,6 +2027,151 @@ void validateEmbodiedTactileAtlases() {
     );
 }
 
+void validateCompiledSensorProgram() {
+    const metalrobo::EngineModel model =
+        metalrobo::makeFrankaTactileEngineModel();
+    const metalrobo::EpisodeTwin episode =
+        metalrobo::makeFrankaTactileEpisodeTwin();
+    metalrobo::WorldTemplate worldTemplate;
+    require(
+        metalrobo::compileEpisodeTwin(
+            episode,
+            model,
+            worldTemplate
+        ),
+        "compile tactile EpisodeTwin"
+    );
+    metalrobo::WorldFamily family;
+    require(
+        metalrobo::compileWorldFamily(
+            worldTemplate,
+            metalrobo::makeFrankaPickPlaceWorldProgram(),
+            family
+        ),
+        "compile tactile WorldFamily"
+    );
+    metalrobo::MRWorldPack pack;
+    require(
+        metalrobo::compileWorldPack(family, pack),
+        "compile tactile WorldPack"
+    );
+    const auto temporary =
+        std::filesystem::temp_directory_path() /
+        "metalrobo_sensor_ir_roundtrip.mrworld";
+    require(
+        metalrobo::writeWorldPack(pack, temporary),
+        "write tactile WorldPack"
+    );
+    metalrobo::MRWorldPack loaded;
+    const auto loadedStatus =
+        metalrobo::readWorldPack(temporary, loaded);
+    std::error_code ignored;
+    std::filesystem::remove(temporary, ignored);
+    require(loadedStatus, "read tactile WorldPack");
+
+    metalrobo::SimulationDescription simulation =
+        metalrobo::makeWorldPackSimulation(
+            loaded,
+            metalrobo::TaskPack{}
+        );
+    require(
+        simulation.sensors.size() ==
+            worldTemplate.sensors.size() &&
+            simulation.tactileSystem.fingerprint ==
+                worldTemplate.tactileSystem.fingerprint,
+        "WorldPack simulation discarded sensor or tactile ownership"
+    );
+    const auto fixed = std::ranges::find_if(
+        simulation.sensors,
+        [](const metalrobo::SensorSpec& sensor) {
+            return sensor.id == "fixed_rgbd";
+        }
+    );
+    require(
+        fixed != simulation.sensors.end() &&
+            fixed->parentKind ==
+                MR_WORLD_SENSOR_PARENT_RIGID_BODY &&
+            fixed->parentBodyIndex == 12u &&
+            fixed->schedulePhase ==
+                MR_WORLD_SENSOR_PHASE_PRESENTATION,
+        "asset-relative fixed camera did not compile to a stable body index"
+    );
+
+    metalrobo::CompiledWorld compiledWorld;
+    require(
+        metalrobo::compileMetalWorld(
+            simulation.model,
+            simulation.articulationIndex,
+            compiledWorld
+        ),
+        "compile tactile Metal world"
+    );
+    metalrobo::CompiledSensorProgram sensors;
+    const auto compiled = metalrobo::compileSensorProgram(
+        simulation.sensors,
+        simulation.tactileSystem,
+        compiledWorld,
+        sensors
+    );
+    require(compiled, "compile SensorIR");
+    require(
+        sensors.valid() &&
+            sensors.worldFingerprint() ==
+                compiledWorld.fingerprint() &&
+            sensors.layout().sensorCount == 4u &&
+            sensors.layout().presentationSensorCount == 2u &&
+            sensors.layout().tactileSensorCount == 2u &&
+            sensors.layout().nativeStateSensorCount == 0u &&
+            sensors.header().layout.y ==
+                sizeof(MRSensorDescriptorGPU) &&
+            sensors.header().layout.z ==
+                sizeof(MRSensorRuntimeStateGPU),
+        "compiled SensorIR header/layout is inconsistent"
+    );
+    for (std::uint32_t tactileIndex = 0u;
+         tactileIndex < simulation.tactileSystem.sensors.size();
+         ++tactileIndex) {
+        const std::string& id =
+            simulation.tactileSystem.sensorIds[tactileIndex];
+        const std::uint32_t genericIndex =
+            sensors.sensorIndex(id);
+        require(
+            genericIndex != MR_INVALID_INDEX,
+            "compiled SensorIR lost a tactile semantic id"
+        );
+        const MRSensorDescriptorGPU& descriptor =
+            sensors.descriptors()[genericIndex];
+        require(
+            descriptor.identity.x ==
+                MR_WORLD_SENSOR_TACTILE_DEPTH &&
+                descriptor.schedule.w == tactileIndex &&
+                descriptor.output.y ==
+                    simulation.tactileSystem
+                        .sensors[tactileIndex].topology.w + 9u,
+            "compiled tactile layout omitted deformation, wrench, or contact point"
+        );
+    }
+
+    const std::uint64_t acceptedFingerprint = sensors.fingerprint();
+    std::vector<metalrobo::SensorSpec> invalid =
+        simulation.sensors;
+    invalid.front().latencySeconds =
+        1.0f / invalid.front().nominalRateHz;
+    const auto rejected = metalrobo::compileSensorProgram(
+        invalid,
+        simulation.tactileSystem,
+        compiledWorld,
+        sensors
+    );
+    require(
+        !rejected.succeeded() &&
+            rejected.status ==
+                metalrobo::SensorCompileStatus::invalidSpec &&
+            sensors.fingerprint() == acceptedFingerprint,
+        "invalid sensor latency/history contract published partial state"
+    );
+}
+
 double validateMetal(
     const metalrobo::EngineModel& model,
     const metalrobo::CookedTactileSystem& tactile,
@@ -2159,6 +2308,7 @@ int main(const int argc, const char* const* argv) {
         validateCompoundBackingSurfaces();
         validateTwoSidedTactileContact();
         validateEmbodiedTactileAtlases();
+        validateCompiledSensorProgram();
 
         auto noContactBodies = sphereContactBodies(0.0f);
         noContactBodies[1].position =

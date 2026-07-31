@@ -491,6 +491,7 @@ add_library(
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
     src/core/Simulation.cpp
+    src/core/SensorProgram.cpp
     src/core/TaskProgram.cpp
     src/core/PolicyProgram.cpp
     src/core/LearningPacks.cpp

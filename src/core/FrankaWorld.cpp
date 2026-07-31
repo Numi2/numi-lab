@@ -477,6 +477,8 @@ EpisodeTwin makeFrankaPickPlaceEpisodeTwin() {
     fixedCamera.id = "fixed_rgbd";
     fixedCamera.parentAssetId = "workspace";
     fixedCamera.kind = MR_WORLD_SENSOR_RGBD;
+    fixedCamera.schedulePhase =
+        MR_WORLD_SENSOR_PHASE_PRESENTATION;
     fixedCamera.localPose.position = {0.8f, -0.6f, 0.8f, 0.0f};
     fixedCamera.localPose.orientation = cameraToward(
         fixedCamera.localPose.position,
