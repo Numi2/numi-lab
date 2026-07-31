@@ -754,6 +754,8 @@ if(METALROBO_HAS_SWIFT)
         GIT_SHALLOW TRUE
     )
     FetchContent_MakeAvailable(mlx_swift)
+    FetchContent_GetProperties(mlx-c)
+    FetchContent_GetProperties(swift-numerics)
     # The dependency mirrors MLX's C++17 setting inside its subdirectory.
     # Restore MetalRobo's numerical/ABI contract for following native targets.
     set(CMAKE_CXX_STANDARD 23)
@@ -792,15 +794,17 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_train
         PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo"
+            "${mlx_swift_BINARY_DIR}"
+            "${CMAKE_BINARY_DIR}/swift"
+            "${mlx_swift_SOURCE_DIR}/Source/Cmlx/include"
+            "${mlx-c_SOURCE_DIR}"
+            "${swift-numerics_SOURCE_DIR}/Sources/_NumericsShims/include"
     )
     target_link_libraries(
         metalrobo_task_train
         PRIVATE
             metalrobo
-            MLX
-            MLXNN
             MLXOptimizers
-            MLXRandom
     )
     set_target_properties(
         metalrobo_task_train
