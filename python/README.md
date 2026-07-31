@@ -191,6 +191,11 @@ float32 path.
 ```sh
 python3 -m pip install -e '.[g1-deployment]'
 
+metalrobo g1 import-unitree \
+  --official-repo /path/to/unitree_rl_lab \
+  --library ../build/lib/libmetalrobo.dylib \
+  --output-policy-pack /tmp/unitree-g1-velocity.policypack
+
 metalrobo g1 export \
   --policy-pack /path/to/policy.policypack \
   --library ../build/lib/libmetalrobo.dylib \
@@ -209,6 +214,12 @@ metalrobo g1 sim2sim \
   --official-model \
     /path/to/unitree_mujoco/unitree_robots/g1/scene_29dof.xml
 ```
+
+`import-unitree` accepts only the clean RL Lab revision pinned by the native
+G1 contract and verifies the official ONNX digest and deployment joint map.
+It folds Unitree's term-major history and interleaved joint ordering into the
+first and last dense layers once. The resulting PolicyPack therefore runs
+through the ordinary generic Metal policy engine with no runtime adapter.
 
 The promotion suite recomputes the low-level PD drive at every MuJoCo physics
 substep and reports realized local velocity, displacement, saturation and

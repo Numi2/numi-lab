@@ -18,6 +18,7 @@ from .g1_policy import (
     export_g1_coreml,
     export_g1_mlx,
     export_g1_onnx,
+    import_unitree_g1_velocity_policy,
 )
 from .mlx_policy_learning import (
     MLXActorCritic,
@@ -88,6 +89,7 @@ __all__ = [
     "export_g1_coreml",
     "export_g1_mlx",
     "export_g1_onnx",
+    "import_unitree_g1_velocity_policy",
     "library_version",
     "load_tactile_checkpoint_contract",
     "read_policy_pack",

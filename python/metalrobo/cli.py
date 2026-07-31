@@ -20,6 +20,7 @@ from .g1_policy import (
     export_g1_coreml,
     export_g1_mlx,
     export_g1_onnx,
+    import_unitree_g1_velocity_policy,
 )
 
 
@@ -81,6 +82,27 @@ def _g1_parser(parser: argparse.ArgumentParser) -> None:
         "--zero-action",
         action="store_true",
         help="run the default-pose controller baseline instead of the actor",
+    )
+
+    import_unitree = operations.add_parser(
+        "import-unitree",
+        help="convert Unitree's pinned official G1 actor to PolicyPack",
+    )
+    import_unitree.add_argument(
+        "--official-repo",
+        type=Path,
+        required=True,
+        help="clean pinned unitreerobotics/unitree_rl_lab checkout",
+    )
+    import_unitree.add_argument(
+        "--output-policy-pack",
+        type=Path,
+        required=True,
+    )
+    import_unitree.add_argument(
+        "--library",
+        type=Path,
+        help="native MetalRobo library used to write the PolicyPack",
     )
 
 
@@ -183,6 +205,25 @@ def _sim2sim_g1(args: argparse.Namespace) -> int:
     return 0
 
 
+def _import_unitree_g1(args: argparse.Namespace) -> int:
+    report = import_unitree_g1_velocity_policy(
+        args.official_repo,
+        args.output_policy_pack,
+        library_path=args.library,
+    )
+    print(
+        json.dumps(
+            {
+                "operation": "g1-import-unitree",
+                **report,
+            },
+            indent=2,
+            allow_nan=False,
+        )
+    )
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
@@ -190,6 +231,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _export_g1(args)
         if args.command == "g1" and args.g1_operation == "sim2sim":
             return _sim2sim_g1(args)
+        if args.command == "g1" and args.g1_operation == "import-unitree":
+            return _import_unitree_g1(args)
         raise AssertionError("unhandled command")
     except (OSError, RuntimeError, ValueError) as error:
         print(f"metalrobo: {error}", file=sys.stderr)

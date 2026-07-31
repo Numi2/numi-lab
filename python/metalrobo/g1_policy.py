@@ -18,6 +18,7 @@ from .mlx_policy_learning import (
     read_policy_pack,
 )
 from .native import unitree_g1_deployment_contract
+from .native import PolicyDenseLayerArtifact, write_policy_pack
 
 G1_ACTOR_FRAME_SIZE = 96
 G1_ACTOR_HISTORY = 5
@@ -25,6 +26,33 @@ G1_ACTOR_OBSERVATION_SIZE = (
     G1_ACTOR_FRAME_SIZE * G1_ACTOR_HISTORY
 )
 G1_ACTION_COUNT = (G1_ACTOR_FRAME_SIZE - 9) // 3
+
+UNITREE_RL_LAB_REVISION = (
+    "4960b84732b0c2ec593dccbfe963fda1bcd7b1e3"
+)
+UNITREE_G1_VELOCITY_POLICY_PATH = Path(
+    "deploy/robots/g1_29dof/config/policy/velocity/v0/"
+    "exported/policy.onnx"
+)
+UNITREE_G1_VELOCITY_DEPLOY_PATH = Path(
+    "deploy/robots/g1_29dof/config/policy/velocity/v0/"
+    "params/deploy.yaml"
+)
+UNITREE_G1_VELOCITY_POLICY_SHA256 = (
+    "610c27e463a8f666aa50a06346678c00b4df3859f10b54bcc1f817c28251406f"
+)
+
+# Unitree's velocity actor is trained in this interleaved order. Each value is
+# the corresponding Unitree SDK / MetalRobo action index. Keeping the pinned
+# table here makes the one-time conversion self-contained and reviewable; the
+# source deployment YAML is still verified before conversion.
+UNITREE_G1_POLICY_TO_SDK_JOINT = np.asarray(
+    (
+        0, 6, 12, 1, 7, 13, 2, 8, 14, 3, 9, 15, 22, 4, 10,
+        16, 23, 5, 11, 17, 24, 18, 25, 19, 26, 20, 27, 21, 28,
+    ),
+    dtype=np.int64,
+)
 
 G1_PROMOTION_COMMANDS = (
     ("idle", (0.0, 0.0, 0.0)),
@@ -80,6 +108,264 @@ def _g1_contract(
             "Native G1 deployment contract disagrees with the actor ABI"
         )
     return contract
+
+
+def _run_git(repository: Path, *arguments: str) -> str:
+    completed = subprocess.run(
+        ("git", "-C", str(repository), *arguments),
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=10.0,
+    )
+    return completed.stdout.strip()
+
+
+def _verify_unitree_velocity_policy_source(
+    repository: str | Path,
+) -> tuple[Path, dict[str, str]]:
+    root = Path(repository).expanduser().resolve()
+    policy = root / UNITREE_G1_VELOCITY_POLICY_PATH
+    deploy = root / UNITREE_G1_VELOCITY_DEPLOY_PATH
+    try:
+        revision = _run_git(root, "rev-parse", "HEAD")
+        dirty = _run_git(
+            root,
+            "status",
+            "--porcelain",
+            "--untracked-files=no",
+        )
+        _run_git(
+            root,
+            "ls-files",
+            "--error-unmatch",
+            UNITREE_G1_VELOCITY_POLICY_PATH.as_posix(),
+        )
+        _run_git(
+            root,
+            "ls-files",
+            "--error-unmatch",
+            UNITREE_G1_VELOCITY_DEPLOY_PATH.as_posix(),
+        )
+    except (OSError, subprocess.SubprocessError) as error:
+        raise ValueError(
+            "could not verify the official Unitree RL Lab checkout"
+        ) from error
+    if revision != UNITREE_RL_LAB_REVISION or dirty:
+        raise ValueError(
+            "Unitree RL Lab checkout is not the clean pinned revision"
+        )
+    digest = hashlib.sha256(policy.read_bytes()).hexdigest()
+    if digest != UNITREE_G1_VELOCITY_POLICY_SHA256:
+        raise ValueError("official Unitree G1 policy digest changed")
+    deploy_text = deploy.read_text(encoding="utf-8")
+    compact_deploy = "".join(deploy_text.split())
+    expected_mapping = "joint_ids_map:[" + ",".join(
+        str(int(value)) for value in UNITREE_G1_POLICY_TO_SDK_JOINT
+    ) + "]"
+    if expected_mapping not in compact_deploy:
+        raise ValueError(
+            "official Unitree G1 deployment joint mapping changed"
+        )
+    return policy, {
+        "source_repository": (
+            "https://github.com/unitreerobotics/unitree_rl_lab"
+        ),
+        "source_revision": revision,
+        "source_policy_path": (
+            UNITREE_G1_VELOCITY_POLICY_PATH.as_posix()
+        ),
+        "source_policy_sha256": digest,
+        "source_deploy_path": (
+            UNITREE_G1_VELOCITY_DEPLOY_PATH.as_posix()
+        ),
+    }
+
+
+def _unitree_actor_input_indices() -> np.ndarray:
+    """Map one Unitree term-major actor observation onto our frame-major ABI."""
+
+    indices: list[int] = []
+    for frame_offset, width, joint_ordered in (
+        (0, 3, False),
+        (3, 3, False),
+        (6, 3, False),
+        (9, G1_ACTION_COUNT, True),
+        (38, G1_ACTION_COUNT, True),
+        (67, G1_ACTION_COUNT, True),
+    ):
+        components = (
+            UNITREE_G1_POLICY_TO_SDK_JOINT
+            if joint_ordered
+            else np.arange(width, dtype=np.int64)
+        )
+        for history in range(G1_ACTOR_HISTORY):
+            indices.extend(
+                (
+                    history * G1_ACTOR_FRAME_SIZE
+                    + frame_offset
+                    + components
+                ).tolist()
+            )
+    result = np.asarray(indices, dtype=np.int64)
+    if (
+        result.shape != (G1_ACTOR_OBSERVATION_SIZE,)
+        or np.unique(result).size != G1_ACTOR_OBSERVATION_SIZE
+    ):
+        raise RuntimeError("Unitree G1 actor input permutation is invalid")
+    return result
+
+
+def import_unitree_g1_velocity_policy(
+    official_repository: str | Path,
+    output: str | Path,
+    *,
+    library_path: str | Path | None = None,
+) -> dict[str, Any]:
+    """Convert Unitree's pinned official G1 actor into one native PolicyPack."""
+
+    try:
+        import onnx
+        from onnx import numpy_helper
+        from onnx.reference import ReferenceEvaluator
+    except ImportError as error:
+        raise RuntimeError(
+            "Unitree policy import requires the optional 'onnx' package"
+        ) from error
+
+    source, provenance = _verify_unitree_velocity_policy_source(
+        official_repository
+    )
+    model = onnx.load(source)
+    onnx.checker.check_model(model)
+    if (
+        len(model.graph.input) != 1
+        or len(model.graph.output) != 1
+        or [dimension.dim_value for dimension in
+            model.graph.input[0].type.tensor_type.shape.dim]
+            != [1, G1_ACTOR_OBSERVATION_SIZE]
+        or [dimension.dim_value for dimension in
+            model.graph.output[0].type.tensor_type.shape.dim]
+            != [1, G1_ACTION_COUNT]
+    ):
+        raise ValueError("official Unitree G1 actor shape changed")
+    tensors = {
+        value.name: np.asarray(
+            numpy_helper.to_array(value), dtype=np.float32
+        )
+        for value in model.graph.initializer
+    }
+    layer_names = tuple(
+        (f"actor.{index}.weight", f"actor.{index}.bias")
+        for index in (0, 2, 4, 6)
+    )
+    expected_shapes = (
+        (512, G1_ACTOR_OBSERVATION_SIZE),
+        (256, 512),
+        (128, 256),
+        (G1_ACTION_COUNT, 128),
+    )
+    weights: list[np.ndarray] = []
+    biases: list[np.ndarray] = []
+    for names, shape in zip(layer_names, expected_shapes, strict=True):
+        try:
+            weight = np.ascontiguousarray(tensors[names[0]])
+            bias = np.ascontiguousarray(tensors[names[1]])
+        except KeyError as error:
+            raise ValueError(
+                "official Unitree G1 actor layer names changed"
+            ) from error
+        if weight.shape != shape or bias.shape != (shape[0],):
+            raise ValueError("official Unitree G1 actor topology changed")
+        weights.append(weight)
+        biases.append(bias)
+
+    input_indices = _unitree_actor_input_indices()
+    first_weight = np.empty_like(weights[0])
+    first_weight[:, input_indices] = weights[0]
+    final_weight = np.empty_like(weights[-1])
+    final_bias = np.empty_like(biases[-1])
+    final_weight[UNITREE_G1_POLICY_TO_SDK_JOINT] = weights[-1]
+    final_bias[UNITREE_G1_POLICY_TO_SDK_JOINT] = biases[-1]
+    converted_weights = (
+        first_weight,
+        weights[1],
+        weights[2],
+        final_weight,
+    )
+    converted_biases = (
+        biases[0], biases[1], biases[2], final_bias,
+    )
+    target = write_policy_pack(
+        output,
+        policy_id="unitree_g1_velocity_v0_4960b84",
+        revision=1,
+        layers=tuple(
+            PolicyDenseLayerArtifact(
+                weights=weight,
+                bias=bias,
+                activation=3 if index < 3 else 0,
+            )
+            for index, (weight, bias) in enumerate(
+                zip(
+                    converted_weights,
+                    converted_biases,
+                    strict=True,
+                )
+            )
+        ),
+        library_path=library_path,
+    )
+    converted = read_policy_pack(target, library_path=library_path)
+
+    sample_ids = np.arange(
+        3 * G1_ACTOR_OBSERVATION_SIZE,
+        dtype=np.float32,
+    ).reshape((3, G1_ACTOR_OBSERVATION_SIZE))
+    native_observations = (
+        0.35 * np.sin(0.013 * sample_ids)
+    ).astype(np.float32)
+    reference = ReferenceEvaluator(model)
+    unitree_actions = np.concatenate(
+        tuple(
+            np.asarray(
+                reference.run(
+                    None,
+                    {
+                        model.graph.input[0].name:
+                            native_observations[index:index + 1,
+                                                input_indices]
+                    },
+                )[0],
+                dtype=np.float32,
+            )
+            for index in range(native_observations.shape[0])
+        ),
+        axis=0,
+    )
+    expected_native_actions = np.empty_like(unitree_actions)
+    expected_native_actions[:, UNITREE_G1_POLICY_TO_SDK_JOINT] = (
+        unitree_actions
+    )
+    converted_actions = converted.actions(native_observations)
+    maximum_error = float(
+        np.max(np.abs(converted_actions - expected_native_actions))
+    )
+    if maximum_error > 5.0e-5:
+        raise RuntimeError(
+            "converted PolicyPack differs from the official Unitree actor: "
+            f"maximum absolute error {maximum_error:.9g}"
+        )
+    return {
+        **provenance,
+        "policy_pack": str(target),
+        "policy_pack_id": converted.id,
+        "policy_pack_revision": converted.revision,
+        "policy_pack_content_hash": converted.content_hash,
+        "actor_observation_count": converted.actor_observation_count,
+        "action_count": converted.action_count,
+        "reference_maximum_absolute_error": maximum_error,
+    }
 
 
 def _verify_simulator_source(
@@ -1313,4 +1599,5 @@ __all__ = [
     "export_g1_coreml",
     "export_g1_mlx",
     "export_g1_onnx",
+    "import_unitree_g1_velocity_policy",
 ]
