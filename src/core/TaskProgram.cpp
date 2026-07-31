@@ -1091,6 +1091,9 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::gaitPhase:
                 componentLimit = 2u;
                 break;
+            case TaskObservationSource::recoveryEvent:
+                componentLimit = 4u;
+                break;
             case TaskObservationSource::contactMetric: {
                 sourceIndex = namedGroup(
                     contactGroupIds,
@@ -1246,6 +1249,8 @@ TaskCompileDiagnostics compileTaskProgram(
     }
 
     staged->rewardOperators.reserve(pack.rewards.size());
+    bool hasRecoveryDefinition = false;
+    mr_float4 recoveryDefinition{};
     for (const TaskRewardOperatorSpec& reward : pack.rewards) {
         if (!finite(reward.weight) ||
             !finite(reward.parameters)) {
@@ -1278,6 +1283,8 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::forbiddenContact:
         case TaskRewardOperator::supportContactCount:
         case TaskRewardOperator::bodyHeightExponential:
+        case TaskRewardOperator::recoveryTiltProgress:
+        case TaskRewardOperator::recoveryCompletion:
             if (!reward.sourceGroup.empty()) {
                 sourceIndex = namedGroup(
                     contactGroupIds,
@@ -1368,6 +1375,37 @@ TaskCompileDiagnostics compileTaskProgram(
                 "standing_completion",
                 "standing completion requires positive height and cosine in (0, 1]"
             );
+        }
+        if ((reward.operation ==
+                 TaskRewardOperator::recoveryTiltProgress ||
+             reward.operation ==
+                 TaskRewardOperator::recoveryCompletion) &&
+            (reward.sourceGroup.empty() ||
+             !(reward.parameters.x > reward.parameters.y) ||
+             reward.parameters.y < 0.0f ||
+             !(reward.parameters.z > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "recovery_event",
+                "recovery event requires a contact group, activation tilt above a non-negative stable tilt, and positive stable duration"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::recoveryTiltProgress ||
+            reward.operation ==
+                TaskRewardOperator::recoveryCompletion) {
+            if (hasRecoveryDefinition &&
+                (reward.parameters.x != recoveryDefinition.x ||
+                 reward.parameters.y != recoveryDefinition.y ||
+                 reward.parameters.z != recoveryDefinition.z)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    "recovery_event",
+                    "all recovery reward operators must share one event definition"
+                );
+            }
+            hasRecoveryDefinition = true;
+            recoveryDefinition = reward.parameters;
         }
         if (!reward.sourceGroup.empty() &&
             sourceIndex == MR_INVALID_INDEX) {
@@ -1967,6 +2005,10 @@ TaskCompileDiagnostics compileTaskProgram(
     if (pack.criticIncludesCleanHistory) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY;
+    }
+    if (hasRecoveryDefinition) {
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_RECOVERY_CURRICULUM;
     }
     staged->header.locomotion = {
         pack.baseHeightTarget,

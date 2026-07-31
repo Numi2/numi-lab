@@ -466,6 +466,22 @@ inline float cleanObservation(
         }
         break;
     }
+    case MR_TASK_OBSERVE_RECOVERY_EVENT:
+        switch (operation.source.z) {
+        case 0u:
+            value = state.recovery.w;
+            break;
+        case 1u:
+            value = state.recovery.x;
+            break;
+        case 2u:
+            value = state.recovery.y;
+            break;
+        default:
+            value = state.recovery.z;
+            break;
+        }
+        break;
     default:
         value = 0.0f;
         break;
@@ -1366,6 +1382,8 @@ kernel void mr_locomotion_task_observe(
             0.0f,
             0.0f
         );
+        state.recovery = float4(0.0f);
+        state.recoveryStats = uint4(0u);
 
         device float* firstActor =
             actorHistory + historyBase;
@@ -2208,6 +2226,69 @@ kernel void mr_locomotion_task_complete(
         kTwoPi * dispatch.timing.x /
             program.locomotion.y;
     phase = fmod(phase, kTwoPi);
+
+    bool recoveryConfigured = false;
+    float recoveryActivationTilt = 0.0f;
+    float recoveryStableTilt = 0.0f;
+    float recoveryStableDuration = 0.0f;
+    uint recoveryContactGroup = MR_INVALID_INDEX;
+    for (uint rewardIndex = 0u;
+         rewardIndex < program.counts1.w;
+         ++rewardIndex) {
+        const MRTaskRewardOperatorGPU operation =
+            rewards[rewardIndex];
+        if (operation.source.x ==
+                MR_TASK_REWARD_RECOVERY_TILT_PROGRESS ||
+            operation.source.x ==
+                MR_TASK_REWARD_RECOVERY_COMPLETION) {
+            recoveryConfigured = true;
+            recoveryActivationTilt = operation.parameters.y;
+            recoveryStableTilt = operation.parameters.z;
+            recoveryStableDuration = operation.parameters.w;
+            recoveryContactGroup = operation.source.y;
+            break;
+        }
+    }
+    bool recoveryTouch = false;
+    if (recoveryContactGroup != MR_INVALID_INDEX) {
+        const MRTaskContactGroupGPU group =
+            contactGroups[recoveryContactGroup];
+        const uint wrench = compactBase + group.reference.y;
+        recoveryTouch = length(float3(
+            compactContact[wrench + 0u],
+            compactContact[wrench + 1u],
+            compactContact[wrench + 2u]
+        )) > program.dynamics.y;
+    }
+    const bool recoveryActiveBefore = state.recovery.w > 0.5f;
+    const bool recoveryTouchBefore = state.recoveryStats.z != 0u;
+    const bool recoveryActivated =
+        recoveryConfigured &&
+        !recoveryActiveBefore &&
+        ((recoveryTouch && !recoveryTouchBefore) ||
+         (state.recovery.x < recoveryActivationTilt &&
+          tilt >= recoveryActivationTilt));
+    const bool recoveryActive =
+        recoveryActiveBefore || recoveryActivated;
+    const float recoveryPeakTilt = recoveryActive
+        ? max(
+              recoveryActiveBefore ? state.recovery.y : tilt,
+              tilt
+          )
+        : 0.0f;
+    const float recoveryStableTime = recoveryActive
+        ? (tilt <= recoveryStableTilt
+            ? (recoveryActiveBefore ? state.recovery.z : 0.0f) +
+                dispatch.timing.x
+            : 0.0f)
+        : 0.0f;
+    const bool recoveryCompleted =
+        recoveryActive &&
+        recoveryStableTime >= recoveryStableDuration;
+    const uint recoveryEventCount =
+        state.recoveryStats.x + uint(recoveryActivated);
+    const uint recoveryCompletionCount =
+        state.recoveryStats.y + uint(recoveryCompleted);
     float reward = 0.0f;
     float4 rewardBreakdown0 = float4(0.0f);
     float4 rewardBreakdown1 = float4(0.0f);
@@ -2374,6 +2455,23 @@ kernel void mr_locomotion_task_complete(
             );
             break;
         }
+        case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
+            value = recoveryActiveBefore
+                ? clamp(
+                      (state.recovery.x - tilt) /
+                          dispatch.timing.x,
+                      -2.0f,
+                      2.0f
+                  )
+                : 0.0f;
+            break;
+        case MR_TASK_REWARD_RECOVERY_COMPLETION:
+            // Reward weights are rates. Dividing the one-shot event by dt
+            // makes its authored weight the integrated completion bonus.
+            value = recoveryCompleted
+                ? 1.0f / dispatch.timing.x
+                : 0.0f;
+            break;
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
             value = velocitySquared;
             break;
@@ -2637,6 +2735,8 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_SUPPORT_HEIGHT_EXPONENTIAL:
         case MR_TASK_REWARD_BODY_UP_EXPONENTIAL:
         case MR_TASK_REWARD_STANDING_COMPLETION:
+        case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
+        case MR_TASK_REWARD_RECOVERY_COMPLETION:
             rewardBreakdown0.y += contribution;
             break;
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
@@ -2739,9 +2839,20 @@ kernel void mr_locomotion_task_complete(
     // otherwise successful episode from expanding the x/y command range.
     const float episodeTracking =
         state.airReturnTracking.w + tracking;
-    const float episodeTrackingScore =
+    const float linearEpisodeTrackingScore =
         episodeTracking /
         max(float(episodeSteps), 1.0f);
+    const bool recoveryCurriculum =
+        (program.schedule.w &
+         MR_TASK_PROGRAM_RECOVERY_CURRICULUM) != 0u;
+    const float episodeRecoveryScore =
+        recoveryEventCount == 0u
+        ? 0.0f
+        : float(recoveryCompletionCount) /
+            float(recoveryEventCount);
+    const float episodeTrackingScore = recoveryCurriculum
+        ? episodeRecoveryScore
+        : linearEpisodeTrackingScore;
     const float trackingScore =
         0.5f * (tracking + yawTracking);
     const bool successful =
@@ -2817,6 +2928,22 @@ kernel void mr_locomotion_task_complete(
         done ? 0.0f : episodeReturn,
         done ? 0.0f : episodeTracking
     );
+    state.recovery = done
+        ? float4(0.0f)
+        : float4(
+              tilt,
+              recoveryCompleted ? 0.0f : recoveryPeakTilt,
+              recoveryCompleted ? 0.0f : recoveryStableTime,
+              recoveryActive && !recoveryCompleted ? 1.0f : 0.0f
+          );
+    state.recoveryStats = done
+        ? uint4(0u)
+        : uint4(
+              recoveryEventCount,
+              recoveryCompletionCount,
+              recoveryTouch ? 1u : 0u,
+              0u
+          );
 
     if (!done || (timeout && !physicsError)) {
         for (uint history = 0u;

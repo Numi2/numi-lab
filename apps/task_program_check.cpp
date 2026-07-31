@@ -471,12 +471,35 @@ int main() {
                 ballRecoveryStatus.task.message
             );
         }
-        if (compiledBallRecovery.task.header().counts2.y != 35u ||
+        if (compiledBallRecovery.task.header().counts2.y != 47u ||
+            compiledBallRecovery.task.layout().actorObservationSize != 98u ||
+            compiledBallRecovery.task.layout().criticObservationSize != 106u ||
+            compiledBallRecovery.task.layout().contactMetricCount != 43u ||
+            compiledBallRecovery.task.header().counts0.w != 5u ||
+            compiledBallRecovery.task.header().counts1.w != 20u ||
+            (compiledBallRecovery.task.header().schedule.w &
+             MR_TASK_PROGRAM_RECOVERY_CURRICULUM) == 0u ||
+            std::abs(
+                compiledBallRecovery.task.header().locomotion.w - 0.70f
+            ) > 1.0e-6f ||
             compiledBallRecovery.task.header().dynamics.x != 0.0f ||
             compiledBallRecovery.world.sceneBodyCount() != 5u ||
             compiledBallRecovery.world.capacities().candidatePairs != 256u ||
             compiledBallRecovery.world.capacities().constraintRows != 384u) {
             fail("compiled G1 physical-ball task is incomplete");
+        }
+        std::uint32_t stagedImpactVelocities = 0u;
+        for (const MRTaskRandomizationOperatorGPU& operation :
+             compiledBallRecovery.task.randomizationOperators()) {
+            if (operation.target.x ==
+                    MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY &&
+                operation.target.w >= 1u &&
+                operation.target.w <= 3u) {
+                ++stagedImpactVelocities;
+            }
+        }
+        if (stagedImpactVelocities != 12u) {
+            fail("G1 physical-ball velocity curriculum is incomplete");
         }
         metalrobo::LocomotionWorld disturbed = authored;
         const std::array disturbanceSpheres{

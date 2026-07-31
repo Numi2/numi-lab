@@ -33,6 +33,7 @@ enum class TaskObservationSource : std::uint32_t {
     contactWrenchLocal =
         MR_TASK_OBSERVE_CONTACT_WRENCH_LOCAL,
     gaitPhase = MR_TASK_OBSERVE_GAIT_PHASE,
+    recoveryEvent = MR_TASK_OBSERVE_RECOVERY_EVENT,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -76,6 +77,9 @@ enum class TaskRewardOperator : std::uint32_t {
         MR_TASK_REWARD_SUPPORT_HEIGHT_EXPONENTIAL,
     bodyUpExponential = MR_TASK_REWARD_BODY_UP_EXPONENTIAL,
     standingCompletion = MR_TASK_REWARD_STANDING_COMPLETION,
+    recoveryTiltProgress =
+        MR_TASK_REWARD_RECOVERY_TILT_PROGRESS,
+    recoveryCompletion = MR_TASK_REWARD_RECOVERY_COMPLETION,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {

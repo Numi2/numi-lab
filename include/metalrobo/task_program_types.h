@@ -2,11 +2,12 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 8u
+#define MR_TASK_PROGRAM_ABI_VERSION 10u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
     MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY = 1u << 1u,
+    MR_TASK_PROGRAM_RECOVERY_CURRICULUM = 1u << 2u,
 };
 
 enum MRTaskObservationOpcode : mr_u32 {
@@ -29,6 +30,9 @@ enum MRTaskObservationOpcode : mr_u32 {
     // Command-gated locomotion phase: sin/cos of the task phase, or zero
     // while the commanded xyz velocity magnitude is below 0.1.
     MR_TASK_OBSERVE_GAIT_PHASE = 14u,
+    // Privileged recovery-event state: active, previous tilt, peak tilt,
+    // and stable time. Intended for asymmetric critics, not deployed actors.
+    MR_TASK_OBSERVE_RECOVERY_EVENT = 15u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -70,6 +74,8 @@ enum MRTaskRewardOpcode : mr_u32 {
     MR_TASK_REWARD_SUPPORT_HEIGHT_EXPONENTIAL = 26u,
     MR_TASK_REWARD_BODY_UP_EXPONENTIAL = 27u,
     MR_TASK_REWARD_STANDING_COMPLETION = 28u,
+    MR_TASK_REWARD_RECOVERY_TILT_PROGRESS = 29u,
+    MR_TASK_REWARD_RECOVERY_COMPLETION = 30u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -240,6 +246,10 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     mr_float4 commandAndPhase;
     // current mechanical power, reserved, episode return, tracking score.
     mr_float4 airReturnTracking;
+    // previous tilt, peak event tilt, stable time, event active flag.
+    mr_float4 recovery;
+    // detected events, completed recoveries, previous touch, reserved.
+    mr_uint4 recoveryStats;
 } MRTaskStateGPU;
 
 // One compact task-wide curriculum controller remains device-resident across
@@ -285,7 +295,7 @@ static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
-static_assert(sizeof(MRTaskStateGPU) == 80u);
+static_assert(sizeof(MRTaskStateGPU) == 112u);
 static_assert(sizeof(MRTaskCurriculumStateGPU) == 48u);
 static_assert(sizeof(MRTaskTransitionGPU) == 96u);
 #endif

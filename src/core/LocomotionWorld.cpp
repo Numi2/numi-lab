@@ -1270,9 +1270,14 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
 TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
     const LocomotionSurface surface
 ) {
+    const G1ModelMetadata& metadata = unitreeG1Metadata();
     TaskPack task = makeUnitreeG1DisturbanceRecoveryTaskPack(surface);
     task.id = "unitree_g1_ball_disturbance_recovery";
     task.pushes.maximumVelocity = 0.0f;
+    // Three recovered strikes out of four is sufficient to expose the next
+    // speed tier; the independent survival gate still prevents promotion
+    // when early falls make that ratio misleading.
+    task.successTrackingThreshold = 0.70f;
     task.capacities.candidatePairs = 256u;
     task.capacities.rawContacts = 256u;
     task.capacities.manifolds = 64u;
@@ -1282,6 +1287,94 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
     task.capacities.articulationPointQueries = 256u;
     task.capacities.qualityRows = 384u;
     task.capacities.islandConstraintReferences = 128u;
+
+    // Solver-derived contact wrench is the native touch signal for impacts.
+    // G1's dense tactile atlases are plantar-only, so a separate semantic
+    // whole-body group detects ball contact without inventing skin sensors.
+    std::vector<std::string> impactBodies;
+    impactBodies.reserve(metadata.bodyNames.size() - 2u);
+    for (std::uint32_t body = 0u;
+         body < metadata.bodyNames.size();
+         ++body) {
+        if (body != 6u && body != 12u) {
+            impactBodies.emplace_back(metadata.bodyNames[body]);
+        }
+    }
+    task.contactGroups.push_back({
+        .id = "impact_contact",
+        .bodies = std::move(impactBodies),
+        .referenceBody = "torso_link",
+    });
+
+    // A launched ball touching the robot is not a policy failure. Falling is
+    // still penalized by height/tilt termination, while the event rewards
+    // measure what happens after accepted physical contact.
+    std::erase_if(
+        task.rewards,
+        [](const TaskRewardOperatorSpec& reward) {
+            return reward.operation ==
+                TaskRewardOperator::forbiddenContact;
+        }
+    );
+
+    // Preserve the deployed 98-value actor contract. The asymmetric critic
+    // receives physical root state plus the native recovery-event state so it
+    // can value the consequences of an impact without leaking privileged
+    // event labels into deployment.
+    const std::array<TaskObservationOperatorSpec, 8> recoveryCritic{
+        TaskObservationOperatorSpec{
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = 0u,
+        },
+        TaskObservationOperatorSpec{
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = 1u,
+        },
+        TaskObservationOperatorSpec{
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = 2u,
+        },
+        TaskObservationOperatorSpec{
+            .source = TaskObservationSource::rootHeight,
+            .scale = 2.0f,
+        },
+        TaskObservationOperatorSpec{
+            .source = TaskObservationSource::recoveryEvent,
+            .component = 0u,
+        },
+        TaskObservationOperatorSpec{
+            .source = TaskObservationSource::recoveryEvent,
+            .component = 1u,
+        },
+        TaskObservationOperatorSpec{
+            .source = TaskObservationSource::recoveryEvent,
+            .component = 2u,
+        },
+        TaskObservationOperatorSpec{
+            .source = TaskObservationSource::recoveryEvent,
+            .component = 3u,
+        },
+    };
+    task.critic.insert(
+        task.critic.end(),
+        recoveryCritic.begin(),
+        recoveryCritic.end()
+    );
+    constexpr mr_float4 recoveryDefinition{
+        0.04f, 0.02f, 0.30f, 0.0f,
+    };
+    task.rewards.push_back({
+        .operation = TaskRewardOperator::recoveryTiltProgress,
+        .sourceGroup = "impact_contact",
+        .weight = 3.0f,
+        .parameters = recoveryDefinition,
+    });
+    task.rewards.push_back({
+        .operation = TaskRewardOperator::recoveryCompletion,
+        .sourceGroup = "impact_contact",
+        .weight = 1.0f,
+        .parameters = recoveryDefinition,
+    });
 
     constexpr std::array<std::array<float, 3>, 4> positionLower{{
         {{-1.7f, -0.05f, 0.75f}},
@@ -1296,16 +1389,16 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
         {{ 0.05f,  1.7f, 1.25f}},
     }};
     constexpr std::array<std::array<float, 3>, 4> velocityLower{{
-        {{ 4.0f, -0.05f, 1.5f}},
-        {{-6.0f, -0.05f, 1.5f}},
-        {{-0.05f,  4.0f, 1.5f}},
-        {{-0.05f, -6.0f, 1.5f}},
+        {{ 2.0f, -0.05f, 1.5f}},
+        {{-3.0f, -0.05f, 1.5f}},
+        {{-0.05f,  2.0f, 1.5f}},
+        {{-0.05f, -3.0f, 1.5f}},
     }};
     constexpr std::array<std::array<float, 3>, 4> velocityUpper{{
-        {{ 6.0f,  0.05f, 3.5f}},
-        {{-4.0f,  0.05f, 3.5f}},
-        {{ 0.05f,  6.0f, 3.5f}},
-        {{ 0.05f, -4.0f, 3.5f}},
+        {{ 3.0f,  0.05f, 3.5f}},
+        {{-2.0f,  0.05f, 3.5f}},
+        {{ 0.05f,  3.0f, 3.5f}},
+        {{ 0.05f, -2.0f, 3.5f}},
     }};
     constexpr std::array<std::array<float, 2>, 4> launchSteps{{
         {{75.0f, 125.0f}},
@@ -1334,6 +1427,27 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
                     velocityLower[sphere][component],
                     velocityUpper[sphere][component], 0.0f, 0.0f,
                 },
+            });
+        }
+        const std::uint32_t impactAxis = sphere < 2u ? 0u : 1u;
+        const float direction =
+            sphere == 0u || sphere == 2u ? 1.0f : -1.0f;
+        for (std::uint32_t level = 1u; level <= 3u; ++level) {
+            const float speedLower = 2.0f + float(level);
+            const float speedUpper = 3.0f + float(level);
+            task.randomization.push_back({
+                .operation =
+                    TaskRandomizationOperator::sceneBodyVelocity,
+                .target = name,
+                .component = impactAxis,
+                .minimumCurriculumLevel = level,
+                .parameters = direction > 0.0f
+                    ? mr_float4{
+                          speedLower, speedUpper, 0.0f, 0.0f,
+                      }
+                    : mr_float4{
+                          -speedUpper, -speedLower, 0.0f, 0.0f,
+                      },
             });
         }
         task.randomization.push_back({
