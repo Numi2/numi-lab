@@ -1,10 +1,10 @@
+// GENERATED FILE: python/generate_contact_scatter_abi.py
 #pragma once
 
 #include "metalrobo/gpu_types.h"
 
-// One shared declaration owns the host/Metal argument table for the two
-// canonical manifold scatter kernels. Changing a slot requires an ABI-version
-// change and automatically updates both compilation units.
+// One schema owns host and Metal argument tables. Changing a
+// binding requires an ABI-version change.
 #define MR_CONTACT_SCATTER_ABI_VERSION 1u
 
 enum MRWorldManifoldRecordScatterBuffer : mr_u32 {

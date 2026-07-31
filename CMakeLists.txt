@@ -1968,6 +1968,21 @@ set_target_properties(
 find_package(Python3 QUIET COMPONENTS Interpreter)
 if(Python3_Interpreter_FOUND)
     add_custom_target(
+        metalrobo_contact_scatter_abi_check
+        COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/python/generate_contact_scatter_abi.py"
+            --schema
+            "${CMAKE_CURRENT_SOURCE_DIR}/schemas/contact_scatter_abi.json"
+            --output
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/contact_scatter_abi.h"
+            --check
+        VERBATIM
+    )
+    add_dependencies(
+        metalrobo_shaders
+        metalrobo_contact_scatter_abi_check
+    )
+    add_custom_target(
         metalrobo_capability_matrix_check
         COMMAND "${Python3_EXECUTABLE}"
             "${CMAKE_CURRENT_SOURCE_DIR}/python/generate_capability_matrix.py"

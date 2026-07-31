@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "abi_version": 1,
+  "kernels": [
+    {
+      "enum": "MRWorldManifoldRecordScatterBuffer",
+      "prefix": "MR_RECORD_SCATTER_",
+      "bindings": [
+        "DISPATCH",
+        "ELIGIBLE_PAIRS",
+        "RAW_STAGING",
+        "MANIFOLD_HEADERS",
+        "MANIFOLD_POINTS",
+        "RECORDS",
+        "STATUSES",
+        "OUTPUT_PAIRS",
+        "OUTPUT_RAW_CONTACTS",
+        "OUTPUT_RAW_PAIR_INDICES",
+        "OUTPUT_MANIFOLD_HEADERS",
+        "OUTPUT_MANIFOLD_POINTS"
+      ]
+    },
+    {
+      "enum": "MRWorldManifoldIRScatterBuffer",
+      "prefix": "MR_IR_SCATTER_",
+      "bindings": [
+        "DISPATCH",
+        "SHAPES",
+        "MATERIALS",
+        "BODIES",
+        "ARTICULATIONS",
+        "ELIGIBLE_PAIRS",
+        "MANIFOLD_HEADERS",
+        "MANIFOLD_POINTS",
+        "RECORDS",
+        "STATUSES",
+        "CONTACTS",
+        "CONTACT_METADATA",
+        "BLOCKS",
+        "ENDPOINTS",
+        "ENDPOINT_RUNTIME",
+        "ROWS",
+        "CONES",
+        "POINT_QUERIES",
+        "BODY_DYNAMIC_NODES",
+        "BODY_PARAMETERS"
+      ]
+    }
+  ]
+}
