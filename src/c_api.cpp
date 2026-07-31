@@ -342,17 +342,17 @@ void accumulateSimulationStageHighWater(
     maximum(target.rod_manifolds, source.rodManifolds);
     maximum(target.rod_ccd_events, source.rodCCDEvents);
     maximum(
-        target.quality_generalized_velocities,
-        source.qualityGeneralizedVelocities
+        target.numi_generalized_velocities,
+        source.numiGeneralizedVelocities
     );
-    maximum(target.quality_rows, source.qualityRows);
+    maximum(target.numi_rows, source.numiRows);
     maximum(
-        target.quality_krylov_vectors,
-        source.qualityKrylovVectors
+        target.numi_krylov_vectors,
+        source.numiKrylovVectors
     );
     maximum(
-        target.quality_direct_tiles,
-        source.qualityDirectTiles
+        target.numi_direct_tiles,
+        source.numiDirectTiles
     );
     maximum(target.dynamic_nodes, source.dynamicNodes);
     maximum(
@@ -462,12 +462,12 @@ void validateSimulationConfiguration(
             "simulation counts and timing must be finite and positive"
         );
     }
-    if (config.solver !=
-            MR_SIMULATION_SOLVER_NUMI &&
-        config.solver !=
-            MR_SIMULATION_SOLVER_QUALITY_NEWTON) {
+    if (config.numi_iteration_policy !=
+            MR_NUMI_ITERATION_FIXED_BUDGET &&
+        config.numi_iteration_policy !=
+            MR_NUMI_ITERATION_RESIDUAL_CONVERGED) {
         throw std::invalid_argument(
-            "simulation solver is invalid"
+            "NumiSolver iteration policy is invalid"
         );
     }
 }
@@ -584,11 +584,14 @@ createCompiledSimulation(
         config.control_timestep_seconds;
     handle->stepConfig.physicsSubsteps =
         config.physics_substeps;
-    handle->stepConfig.solverMode =
-        config.solver == MR_SIMULATION_SOLVER_QUALITY_NEWTON
-        ? metalrobo::MetalWorldSolverMode::qualityNewton
-        : metalrobo::MetalWorldSolverMode::numiSolver;
-    handle->stepConfig.temporalSubsteps =
+    handle->stepConfig.executionMode =
+        metalrobo::MetalWorldExecutionMode::numiSolver;
+    handle->stepConfig.numiSolver.iterationPolicy =
+        config.numi_iteration_policy ==
+                MR_NUMI_ITERATION_RESIDUAL_CONVERGED
+        ? metalrobo::NumiSolverIterationPolicy::residualConverged
+        : metalrobo::NumiSolverIterationPolicy::fixedBudget;
+    handle->stepConfig.numiSolver.temporalSubsteps =
         config.temporal_substeps;
     handle->stepConfig.actuationMode =
         metalrobo::MetalWorldActuationMode::

@@ -42,10 +42,10 @@ typedef enum MRG1ActuatorPresetC {
     MR_G1_ACTUATOR_UNITREE_RL_LAB_4960B84 = 2,
 } MRG1ActuatorPresetC;
 
-typedef enum MRSimulationSolverC {
-    MR_SIMULATION_SOLVER_NUMI = 0,
-    MR_SIMULATION_SOLVER_QUALITY_NEWTON = 1,
-} MRSimulationSolverC;
+typedef enum MRNumiIterationPolicyC {
+    MR_NUMI_ITERATION_FIXED_BUDGET = 0,
+    MR_NUMI_ITERATION_RESIDUAL_CONVERGED = 1,
+} MRNumiIterationPolicyC;
 
 typedef enum MRRobotRootModeC {
     MR_ROBOT_ROOT_FIXED = 0,
@@ -54,7 +54,7 @@ typedef enum MRRobotRootModeC {
 
 typedef struct MRSimulationConfigC {
     uint32_t environment_count;
-    uint32_t solver;
+    uint32_t numi_iteration_policy;
     uint32_t physics_substeps;
     uint32_t temporal_substeps;
     float control_timestep_seconds;
@@ -99,10 +99,10 @@ typedef struct MRSimulationStageHighWaterC {
     uint32_t rod_raw_contacts;
     uint32_t rod_manifolds;
     uint32_t rod_ccd_events;
-    uint32_t quality_generalized_velocities;
-    uint32_t quality_rows;
-    uint32_t quality_krylov_vectors;
-    uint32_t quality_direct_tiles;
+    uint32_t numi_generalized_velocities;
+    uint32_t numi_rows;
+    uint32_t numi_krylov_vectors;
+    uint32_t numi_direct_tiles;
     uint32_t dynamic_nodes;
     uint32_t island_node_references;
     uint32_t island_constraint_references;

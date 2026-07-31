@@ -2535,12 +2535,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "CompiledWorld is empty or invalid"
         );
     }
-    if (config.solverMode !=
-            MetalWorldSolverMode::freeMotionABA &&
-        config.solverMode !=
-            MetalWorldSolverMode::numiSolver &&
-        config.solverMode !=
-            MetalWorldSolverMode::qualityNewton) {
+    if (config.executionMode !=
+            MetalWorldExecutionMode::freeMotionABA &&
+        config.executionMode !=
+            MetalWorldExecutionMode::numiSolver) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedSolverMode,
@@ -2560,21 +2558,23 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
     const bool contactMode =
-        config.solverMode != MetalWorldSolverMode::freeMotionABA;
+        config.executionMode != MetalWorldExecutionMode::freeMotionABA;
     const bool qualityMode =
-        config.solverMode == MetalWorldSolverMode::qualityNewton;
+        config.numiSolver.iterationPolicy ==
+            NumiSolverIterationPolicy::residualConverged;
     const std::uint64_t executionSubsteps64 =
         static_cast<std::uint64_t>(config.physicsSubsteps) *
         (
-            config.solverMode ==
-                    MetalWorldSolverMode::numiSolver
-            ? config.temporalSubsteps
+            config.executionMode ==
+                    MetalWorldExecutionMode::numiSolver &&
+                !qualityMode
+            ? config.numiSolver.temporalSubsteps
             : 1u
         );
     if (!std::isfinite(config.timestepSeconds) ||
         !(config.timestepSeconds > 0.0f) ||
         config.physicsSubsteps == 0u ||
-        config.temporalSubsteps == 0u ||
+        config.numiSolver.temporalSubsteps == 0u ||
         executionSubsteps64 >
             MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS ||
         !std::isfinite(config.manifoldBreakingSeparation) ||
@@ -2614,37 +2614,41 @@ MetalWorldDiagnostics validateAndBuildLayout(
             MR_CCD_MAX_ZERO_TIME_REPLAYS ||
         config.maxConservativeAdvancementIterations == 0u ||
         config.maxConservativeAdvancementIterations > 128u ||
-        config.rodContactOuterIterations == 0u ||
-        config.rodContactOuterIterations > 4u ||
+        config.numiSolver.rodContactOuterIterations == 0u ||
+        config.numiSolver.rodContactOuterIterations > 4u ||
+        (config.numiSolver.iterationPolicy !=
+             NumiSolverIterationPolicy::fixedBudget &&
+         config.numiSolver.iterationPolicy !=
+             NumiSolverIterationPolicy::residualConverged) ||
         (qualityMode &&
          (
-             config.quality.maximumNewtonIterations == 0u ||
-             config.quality.maximumPCGIterations == 0u ||
-             config.quality.maximumLineSearchIterations == 0u ||
-             config.quality
+             config.numiSolver.maximumNewtonIterations == 0u ||
+             config.numiSolver.maximumPCGIterations == 0u ||
+             config.numiSolver.maximumLineSearchIterations == 0u ||
+             config.numiSolver
                      .directMaximumGeneralizedVelocities ==
                  0u ||
-             config.quality.directMaximumRows == 0u ||
+             config.numiSolver.directMaximumRows == 0u ||
              !std::isfinite(
-                 config.quality.optimalityTolerance
+                 config.numiSolver.optimalityTolerance
              ) ||
-             config.quality.optimalityTolerance <= 0.0f ||
+             config.numiSolver.optimalityTolerance <= 0.0f ||
              !std::isfinite(
-                 config.quality.feasibilityTolerance
+                 config.numiSolver.feasibilityTolerance
              ) ||
-             config.quality.feasibilityTolerance <= 0.0f ||
-             !std::isfinite(config.quality.armijoConstant) ||
-             config.quality.armijoConstant <= 0.0f ||
-             config.quality.armijoConstant >= 0.5f ||
+             config.numiSolver.feasibilityTolerance <= 0.0f ||
+             !std::isfinite(config.numiSolver.armijoConstant) ||
+             config.numiSolver.armijoConstant <= 0.0f ||
+             config.numiSolver.armijoConstant >= 0.5f ||
              !std::isfinite(
-                 config.quality.lineSearchContraction
+                 config.numiSolver.lineSearchContraction
              ) ||
-             config.quality.lineSearchContraction <= 0.0f ||
-             config.quality.lineSearchContraction >= 1.0f ||
+             config.numiSolver.lineSearchContraction <= 0.0f ||
+             config.numiSolver.lineSearchContraction >= 1.0f ||
              !std::isfinite(
-                 config.quality.complianceFloorMultiplier
+                 config.numiSolver.complianceFloorMultiplier
              ) ||
-             config.quality.complianceFloorMultiplier <= 0.0f
+             config.numiSolver.complianceFloorMultiplier <= 0.0f
          )) ||
         (config.ccdMode != MetalWorldCCDMode::disabled &&
          config.ccdMode != MetalWorldCCDMode::speculative &&
@@ -2674,16 +2678,6 @@ MetalWorldDiagnostics validateAndBuildLayout(
             MetalWorldHostStatus::unsupportedTopology,
             "native task execution requires an implicit-drive contact world "
             "matching the compiled task fingerprint"
-        );
-    }
-    if (config.solverMode == MetalWorldSolverMode::numiSolver &&
-        world.rodCount() != 0u) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::unsupportedTopology,
-            "NumiSolver does not approximate rod endpoints with diagonal "
-            "node mass; the retained banded rod operator must participate "
-            "in the nonlinear sweep before this topology is supported"
         );
     }
     if (nativePolicy &&
@@ -2718,7 +2712,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedSolverMode,
-            "qualityNewton currently requires disabled or speculative "
+            "residual-converged NumiSolver currently requires disabled or speculative "
             "CCD; event-time quality re-solves are not implemented"
         );
     }
@@ -2733,7 +2727,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedTopology,
-            "qualityNewton island exceeds the compiled generalized "
+            "residual-converged NumiSolver island exceeds the compiled generalized "
             "velocity bucket"
         );
     }
@@ -2954,10 +2948,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
     contact.environmentCount = dispatch.environmentCount;
     contact.articulationIndex = world.articulationIndex();
     contact.solverType =
-        config.solverMode == MetalWorldSolverMode::numiSolver
-        ? MR_SOLVER_NUMI
-        : config.solverMode == MetalWorldSolverMode::qualityNewton
+        qualityMode
         ? MR_SOLVER_QUALITY_NEWTON
+        : config.executionMode == MetalWorldExecutionMode::numiSolver
+        ? MR_SOLVER_NUMI
         : MR_SOLVER_REFERENCE_FP64;
     contact.bodyCount =
         static_cast<mr_u32>(world.model().bodies.size());
@@ -3004,7 +2998,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
                    MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS
                )
              : 0u) |
-        (config.solverMode == MetalWorldSolverMode::qualityNewton
+        (qualityMode
              ? static_cast<mr_u32>(
                    MR_METAL_WORLD_CONTACT_QUALITY
                )
@@ -3053,7 +3047,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     contact.qStride = dispatch.qStride;
     contact.vStride = dispatch.vStride;
     contact.rodContactOuterIterations =
-        config.rodContactOuterIterations;
+        config.numiSolver.rodContactOuterIterations;
     contact.authoredConstraintCount =
         static_cast<mr_u32>(
             world.model().constraintProgram.blocks.size()
@@ -3153,14 +3147,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
 
     MRUnifiedQualityDispatchGPU& quality =
         layout.qualityDispatch;
-    if (config.solverMode == MetalWorldSolverMode::qualityNewton) {
+    if (qualityMode) {
         const mr_u32 generalizedVelocityCount =
             contact.nv +
             6u * contact.sceneBodyCount +
             3u * contact.rodNodeCount +
             contact.rodEdgeCount;
         const mr_u32 requestedQualityBlocks =
-            world.capacities().qualityRows / 3u;
+            world.capacities().numiRows / 3u;
         const mr_u32 qualityBlockCount = std::min(
             contact.constraintStride,
             std::min<mr_u32>(
@@ -3188,35 +3182,35 @@ MetalWorldDiagnostics validateAndBuildLayout(
             qualityRowCount
         );
         quality.maximumNewtonIterations =
-            config.quality.maximumNewtonIterations;
+            config.numiSolver.maximumNewtonIterations;
         quality.maximumPCGIterations =
-            config.quality.maximumPCGIterations;
+            config.numiSolver.maximumPCGIterations;
         quality.maximumLineSearchIterations =
-            config.quality.maximumLineSearchIterations;
+            config.numiSolver.maximumLineSearchIterations;
         quality.directMaximumGeneralizedVelocities =
-            config.quality.directMaximumGeneralizedVelocities;
+            config.numiSolver.directMaximumGeneralizedVelocities;
         quality.directMaximumRows =
-            config.quality.directMaximumRows;
+            config.numiSolver.directMaximumRows;
         quality.derivativeStride =
             qualityBlockCount * 36u;
         quality.hessianStride =
             generalizedVelocityCount <=
-                    config.quality
+                    config.numiSolver
                         .directMaximumGeneralizedVelocities &&
                 qualityRowCount <=
-                    config.quality.directMaximumRows
+                    config.numiSolver.directMaximumRows
             ? generalizedVelocityCount *
                   generalizedVelocityCount
             : 1u;
         quality.blockStride = qualityBlockCount;
         quality.tolerances = {
-            config.quality.optimalityTolerance,
-            config.quality.feasibilityTolerance,
-            config.quality.armijoConstant,
-            config.quality.lineSearchContraction,
+            config.numiSolver.optimalityTolerance,
+            config.numiSolver.feasibilityTolerance,
+            config.numiSolver.armijoConstant,
+            config.numiSolver.lineSearchContraction,
         };
         quality.numerics = {
-            config.quality.complianceFloorMultiplier,
+            config.numiSolver.complianceFloorMultiplier,
             1.0e-10f,
             1.0e-20f,
             64.0f,
@@ -6073,7 +6067,7 @@ void uploadBatch(
         dispatch.toolContactIterations =
             pairCount == 0u
             ? 0u
-            : config.rodContactOuterIterations;
+            : config.numiSolver.rodContactOuterIterations;
         dispatch.rodMaterialIndex =
             program.collision.materialIndex;
         dispatch.rodNodeBase = nodeBase;
@@ -8587,8 +8581,8 @@ bool encodeRodContactSolve(
                 {4u, kCandidateBodies},
                 {5u, candidateRodNodes},
                 {6u, candidateRodEdges},
-                {7u, kRodInverseMasses},
-                {8u, kRodInverseRotationalInertias},
+                {7u, kRodFactorCaches},
+                {8u, kOperatorVelocityArena},
                 {9u, kRodColliders},
                 {10u, kContacts},
                 {11u, kIRBlocks},
@@ -10169,43 +10163,42 @@ bool encodeUnifiedQualitySolve(
     [prepare
         setComputePipelineState:
             context.qualityPreparePipeline];
-    const std::array<std::size_t, 29u> prepareBuffers{{
-        kContactDispatch,
-        kQualityDispatch,
-        kSceneBodyIndices,
-        kFactorMatrix,
-        kPointJacobians,
-        kCandidateV,
-        kCandidateBodies,
-        kContacts,
-        kContactMetadata,
-        kIRBlocks,
-        kEvaluatedRows,
-        kEvaluatedCones,
-        kContactStatuses,
-        kQualityBlocks,
-        kQualityDynamics,
-        kQualityJacobian,
-        kQualityBias,
-        kQualityFreeVelocity,
-        kQualityWarmVelocity,
-        kQualityWarmImpulses,
-        candidateRodNodes,
-        candidateRodEdges,
-        kRodInverseMasses,
-        kRodInverseRotationalInertias,
-        kRodColliders,
-        kCandidateRodWitnesses,
-        kRodConstraintWitnessIndices,
-        kRodFactorCaches,
-        kOperatorVelocityArena,
+    const std::array<
+        std::pair<NSUInteger, std::size_t>,
+        MR_NUMI_PREPARE_BUFFER_COUNT
+    > prepareBuffers{{
+        {MR_NUMI_PREPARE_DISPATCH, kContactDispatch},
+        {MR_NUMI_PREPARE_NUMERICS, kQualityDispatch},
+        {MR_NUMI_PREPARE_SCENE_BODY_INDICES, kSceneBodyIndices},
+        {MR_NUMI_PREPARE_ARTICULATION_FACTORS, kFactorMatrix},
+        {MR_NUMI_PREPARE_POINT_JACOBIANS, kPointJacobians},
+        {MR_NUMI_PREPARE_CANDIDATE_VELOCITY, kCandidateV},
+        {MR_NUMI_PREPARE_CANDIDATE_BODIES, kCandidateBodies},
+        {MR_NUMI_PREPARE_CONTACTS, kContacts},
+        {MR_NUMI_PREPARE_ENDPOINTS, kIREndpoints},
+        {MR_NUMI_PREPARE_BLOCKS, kIRBlocks},
+        {MR_NUMI_PREPARE_EVALUATED_ROWS, kEvaluatedRows},
+        {MR_NUMI_PREPARE_EVALUATED_CONES, kEvaluatedCones},
+        {MR_NUMI_PREPARE_STATUSES, kContactStatuses},
+        {MR_NUMI_PREPARE_SOLVER_BLOCKS, kQualityBlocks},
+        {MR_NUMI_PREPARE_DYNAMICS, kQualityDynamics},
+        {MR_NUMI_PREPARE_JACOBIAN, kQualityJacobian},
+        {MR_NUMI_PREPARE_BIAS, kQualityBias},
+        {MR_NUMI_PREPARE_FREE_VELOCITY, kQualityFreeVelocity},
+        {MR_NUMI_PREPARE_WARM_VELOCITY, kQualityWarmVelocity},
+        {MR_NUMI_PREPARE_WARM_IMPULSES, kQualityWarmImpulses},
+        {MR_NUMI_PREPARE_ROD_NODES, candidateRodNodes},
+        {MR_NUMI_PREPARE_ROD_EDGES, candidateRodEdges},
+        {MR_NUMI_PREPARE_ROD_COLLIDERS, kRodColliders},
+        {MR_NUMI_PREPARE_ROD_WITNESSES, kCandidateRodWitnesses},
+        {MR_NUMI_PREPARE_ROD_WITNESS_INDICES,
+         kRodConstraintWitnessIndices},
+        {MR_NUMI_PREPARE_ROD_FACTOR_CACHES, kRodFactorCaches},
+        {MR_NUMI_PREPARE_ROD_OPERATOR_ARENA,
+         kOperatorVelocityArena},
     }};
-    for (NSUInteger argument = 0u;
-         argument < prepareBuffers.size();
-         ++argument) {
-        [prepare setBuffer:context.buffers[
-                               prepareBuffers[argument]
-                           ]
+    for (const auto [argument, resource] : prepareBuffers) {
+        [prepare setBuffer:context.buffers[resource]
                     offset:0u
                    atIndex:argument];
     }
@@ -10456,7 +10449,8 @@ bool encodeContactSubstep(
                        {13u, kIRBlocks},
                        {14u, kIREndpoints},
                        {15u, candidateRodNodes},
-                       {16u, kRodInverseMasses},
+                       {16u, kRodFactorCaches},
+                       {17u, kOperatorVelocityArena},
                    },
                    &solverPass,
                    12u,
@@ -11285,15 +11279,15 @@ MetalWorldDiagnostics validateAndPublish(
                     contactStatus->solverIterations
                 );
                 updateMaximum(
-                    summary.maximumQualityNewtonIterations,
+                    summary.maximumNumiNewtonIterations,
                     contactStatus->qualityNewtonIterations
                 );
                 updateMaximum(
-                    summary.maximumQualityPCGIterations,
+                    summary.maximumNumiPCGIterations,
                     contactStatus->qualityPCGIterations
                 );
                 updateMaximum(
-                    summary.maximumQualityLineSearchBacktracks,
+                    summary.maximumNumiLineSearchBacktracks,
                     contactStatus->qualityLineSearchBacktracks
                 );
                 const std::array residuals{
@@ -11319,10 +11313,10 @@ MetalWorldDiagnostics validateAndPublish(
                 for (std::size_t index = 0u;
                      index < qualityCertificates.size();
                      ++index) {
-                    summary.maximumQualityCertificates[index] =
+                    summary.maximumNumiCertificates[index] =
                         std::max(
                             summary
-                                .maximumQualityCertificates[index],
+                                .maximumNumiCertificates[index],
                             std::abs(qualityCertificates[index])
                         );
                 }
@@ -12487,20 +12481,20 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             requestedCapacities.rodManifolds;
         staged.capacities_.rodCCDEvents =
             requestedCapacities.rodCCDEvents;
-        staged.capacities_.qualityGeneralizedVelocities = inferred(
-            requestedCapacities.qualityGeneralizedVelocities,
+        staged.capacities_.numiGeneralizedVelocities = inferred(
+            requestedCapacities.numiGeneralizedVelocities,
             qualityVelocities
         );
-        staged.capacities_.qualityRows = inferred(
-            requestedCapacities.qualityRows,
+        staged.capacities_.numiRows = inferred(
+            requestedCapacities.numiRows,
             staged.capacities_.constraintRows
         );
-        staged.capacities_.qualityKrylovVectors = inferred(
-            requestedCapacities.qualityKrylovVectors,
+        staged.capacities_.numiKrylovVectors = inferred(
+            requestedCapacities.numiKrylovVectors,
             8u
         );
-        staged.capacities_.qualityDirectTiles = inferred(
-            requestedCapacities.qualityDirectTiles,
+        staged.capacities_.numiDirectTiles = inferred(
+            requestedCapacities.numiDirectTiles,
             std::max<std::uint32_t>(
                 1u,
                 (
@@ -12558,11 +12552,11 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             ),
             .endpointRuntimeRecords = minimumEndpointRecords,
             .articulationPointQueries = minimumEndpointRecords,
-            .qualityGeneralizedVelocities =
+            .numiGeneralizedVelocities =
                 qualityVelocities,
-            .qualityRows = 3u * topologyConstraints,
-            .qualityKrylovVectors = 8u,
-            .qualityDirectTiles = std::max<std::uint32_t>(
+            .numiRows = 3u * topologyConstraints,
+            .numiKrylovVectors = 8u,
+            .numiDirectTiles = std::max<std::uint32_t>(
                 1u,
                 (
                     qualityVelocities +
@@ -12586,7 +12580,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 maximumConstraintCapacity ||
             staged.capacities_.constraintRows <
                 requiredRows ||
-            staged.capacities_.qualityRows <
+            staged.capacities_.numiRows <
                 staged.capacities_.constraintRows ||
             staged.capacities_.islands == 0u ||
             staged.capacities_.ccdEvents == 0u ||
@@ -12681,7 +12675,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         std::uint64_t rodAttachmentConstraintCount = 0u;
         std::uint64_t rodVelocityCursor =
             staged.minimumCapacities_
-                .qualityGeneralizedVelocities;
+                .numiGeneralizedVelocities;
         staged.rodDynamicNodes_.reserve(world.rods.size());
         for (std::uint32_t rodIndex = 0u;
              rodIndex < world.rods.size();
@@ -13260,22 +13254,22 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             !addCapacity(
                 "quality generalized velocity capacity",
                 requestedCapacities
-                    .qualityGeneralizedVelocities,
+                    .numiGeneralizedVelocities,
                 staged.minimumCapacities_
-                    .qualityGeneralizedVelocities,
+                    .numiGeneralizedVelocities,
                 requiredRodVelocities,
                 staged.capacities_
-                    .qualityGeneralizedVelocities,
+                    .numiGeneralizedVelocities,
                 staged.minimumCapacities_
-                    .qualityGeneralizedVelocities
+                    .numiGeneralizedVelocities
             ) ||
             !addCapacity(
                 "quality row capacity",
-                requestedCapacities.qualityRows,
-                staged.minimumCapacities_.qualityRows,
+                requestedCapacities.numiRows,
+                staged.minimumCapacities_.numiRows,
                 requiredRodRows,
-                staged.capacities_.qualityRows,
-                staged.minimumCapacities_.qualityRows
+                staged.capacities_.numiRows,
+                staged.minimumCapacities_.numiRows
             ) ||
             !addCapacity(
                 "dynamic-node capacity",
@@ -13671,7 +13665,7 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 );
                 if (staged.layout.contactDispatch.solverType ==
                     MR_SOLVER_QUALITY_NEWTON) {
-                    staged.qualityStatuses.resize(
+                    staged.numiConvergenceStatuses.resize(
                         staged.layout.dispatch.environmentCount
                     );
                 }
@@ -13818,7 +13812,7 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                     buffers[kPublicContactStatuses]
                 );
                 copyOutput(
-                    staged.qualityStatuses,
+                    staged.numiConvergenceStatuses,
                     buffers[kQualityStatuses]
                 );
                 if (pending->captureContactEvidence) {
@@ -14254,8 +14248,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 );
             }
             const bool contactMode =
-                config.solverMode !=
-                    MetalWorldSolverMode::freeMotionABA;
+                config.executionMode !=
+                    MetalWorldExecutionMode::freeMotionABA;
             const bool uploadInitialState =
                 !residentContinuation;
             const bool nativeTask = config.taskProgram.valid();
@@ -14601,9 +14595,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                               destinationManifoldHeaders,
                               destinationManifoldPoints,
                               destinationManifoldCounts,
-                              config.solverMode ==
-                                  MetalWorldSolverMode::
-                                      qualityNewton,
+                              config.numiSolver.iterationPolicy ==
+                                  NumiSolverIterationPolicy::
+                                      residualConverged,
                               activePairClassMask,
                               (
                                   diagnostics.layout

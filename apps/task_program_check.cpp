@@ -374,8 +374,8 @@ std::uint64_t compileFixedBaseTaskFixture() {
     metalrobo::MetalWorldStepConfig step;
     step.timestepSeconds = 0.02f;
     step.physicsSubsteps = 2u;
-    step.solverMode =
-        metalrobo::MetalWorldSolverMode::numiSolver;
+    step.executionMode =
+        metalrobo::MetalWorldExecutionMode::numiSolver;
     step.actuationMode =
         metalrobo::MetalWorldActuationMode::implicitPositionDrive;
     step.taskProgram = compiled.task;

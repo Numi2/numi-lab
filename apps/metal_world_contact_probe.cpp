@@ -2,6 +2,7 @@
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/Franka.hpp"
 #include "metalrobo/GeometryCooker.hpp"
+#include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalWorld.hpp"
 
 #include <algorithm>
@@ -232,9 +233,11 @@ void verifyCoupledLimitContactNumiSolver() {
     const metalrobo::MetalWorldStepConfig config{
         .timestepSeconds = 1.0f / 240.0f,
         .physicsSubsteps = 1u,
-        .temporalSubsteps = 1u,
-        .solverMode =
-            metalrobo::MetalWorldSolverMode::numiSolver,
+        .executionMode =
+            metalrobo::MetalWorldExecutionMode::numiSolver,
+        .numiSolver = {
+            .temporalSubsteps = 1u,
+        },
         .deterministic = true,
         .warmStart = true,
         .captureContactEvidence = true,
@@ -315,6 +318,128 @@ void verifyCoupledLimitContactNumiSolver() {
     );
 }
 
+double verifyRetainedRodCoupling() {
+    metalrobo::DualPsmNeedleThreadWorldConfig sourceConfig;
+    sourceConfig.threadNodeCount = 9u;
+    sourceConfig.threadLengthM = 0.12;
+    metalrobo::HeterogeneousWorld source;
+    const auto authored =
+        metalrobo::makeDualDvrkPsmNeedleThreadHeterogeneousWorld(
+            source,
+            sourceConfig
+        );
+    require(authored.succeeded(), "rod world authoring failed");
+
+    metalrobo::CompiledWorld world;
+    const auto compiled = metalrobo::compileMetalWorld(source, world);
+    require(
+        compiled.succeeded() && world.rodCount() == 1u,
+        "rod world compilation failed"
+    );
+    const std::vector<float> efforts(source.model.world.nv, 0.0f);
+    const metalrobo::MetalWorldBatch freeBatch{
+        .environmentCount = 1u,
+        .controlStepCount = 1u,
+        .initialQ = source.model.defaultQ,
+        .initialV = source.model.defaultV,
+        .efforts = efforts,
+    };
+    const metalrobo::MetalWorldBatch constrainedBatch{
+        .environmentCount = 1u,
+        .controlStepCount = 1u,
+        .initialQ = source.model.defaultQ,
+        .initialV = source.model.defaultV,
+        .efforts = efforts,
+        .initialSceneBodies = source.defaultSceneBodies,
+    };
+    metalrobo::MetalWorldStepConfig freeConfig;
+    freeConfig.executionMode =
+        metalrobo::MetalWorldExecutionMode::freeMotionABA;
+    freeConfig.timestepSeconds = 1.0f / 1000.0f;
+    freeConfig.physicsSubsteps = 1u;
+    freeConfig.ccdMode = metalrobo::MetalWorldCCDMode::disabled;
+    metalrobo::MetalWorldStepConfig constrainedConfig = freeConfig;
+    constrainedConfig.executionMode =
+        metalrobo::MetalWorldExecutionMode::numiSolver;
+    constrainedConfig.numiSolver.temporalSubsteps = 1u;
+
+    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldResult freeResult;
+    metalrobo::MetalWorldResult fixedResult;
+    const auto freeRun = context.run(
+        world,
+        freeBatch,
+        freeConfig,
+        freeResult
+    );
+    const auto fixedRun = context.run(
+        world,
+        constrainedBatch,
+        constrainedConfig,
+        fixedResult
+    );
+    require(
+        freeRun.succeeded() && fixedRun.succeeded() &&
+            fixedResult.statuses.size() == 1u &&
+            fixedResult.statuses[0].code == MR_STEP_SUCCESS &&
+            fixedResult.finalRodNodes.size() ==
+                freeResult.finalRodNodes.size(),
+        "fixed-budget retained rod solve failed"
+    );
+
+    const std::uint32_t attachedNode =
+        source.rods[0].attachments[0].nodeIndex;
+    double maximumRemoteResponse = 0.0;
+    for (std::size_t node = 0u;
+         node < fixedResult.finalRodNodes.size();
+         ++node) {
+        if (node == attachedNode) {
+            continue;
+        }
+        const std::array<float, 3u> fixedVelocity{
+            fixedResult.finalRodNodes[node].velocity.x,
+            fixedResult.finalRodNodes[node].velocity.y,
+            fixedResult.finalRodNodes[node].velocity.z,
+        };
+        const std::array<float, 3u> freeVelocity{
+            freeResult.finalRodNodes[node].velocity.x,
+            freeResult.finalRodNodes[node].velocity.y,
+            freeResult.finalRodNodes[node].velocity.z,
+        };
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            maximumRemoteResponse = std::max(
+                maximumRemoteResponse,
+                static_cast<double>(std::abs(
+                    fixedVelocity[axis] - freeVelocity[axis]
+                ))
+            );
+        }
+    }
+    require(
+        maximumRemoteResponse > 1.0e-9,
+        "rod attachment remained a local endpoint response"
+    );
+
+    auto residualConfig = constrainedConfig;
+    residualConfig.numiSolver.iterationPolicy =
+        metalrobo::NumiSolverIterationPolicy::residualConverged;
+    metalrobo::MetalWorldResult residualResult;
+    const auto residualRun = context.run(
+        world,
+        constrainedBatch,
+        residualConfig,
+        residualResult
+    );
+    require(
+        residualRun.succeeded() &&
+            residualResult.statuses.size() == 1u &&
+            residualResult.statuses[0].code == MR_STEP_SUCCESS &&
+            residualResult.numiConvergenceStatuses.size() == 1u,
+        "residual-converged retained rod solve failed"
+    );
+    return maximumRemoteResponse;
+}
+
 } // namespace
 
 int main(const int argc, char** argv) {
@@ -327,6 +452,8 @@ int main(const int argc, char** argv) {
         }
         constexpr std::size_t environmentCount = 4u;
         constexpr std::size_t controlStepCount = 12u;
+        const double retainedRodResponse =
+            verifyRetainedRodCoupling();
         metalrobo::EngineModel model =
             metalrobo::makeFreeSphereEngineModel();
         metalrobo::CompiledWorld world;
@@ -384,9 +511,11 @@ int main(const int argc, char** argv) {
         const metalrobo::MetalWorldStepConfig config{
             .timestepSeconds = 1.0f / 120.0f,
             .physicsSubsteps = 1u,
-            .temporalSubsteps = 4u,
-            .solverMode =
-                metalrobo::MetalWorldSolverMode::numiSolver,
+            .executionMode =
+                metalrobo::MetalWorldExecutionMode::numiSolver,
+            .numiSolver = {
+                .temporalSubsteps = 4u,
+            },
             .deterministic = true,
             .warmStart = true,
             .captureContactEvidence = true,
@@ -466,28 +595,29 @@ int main(const int argc, char** argv) {
             ),
             "resting sphere never produced a device contact"
         );
-        auto qualityConfig = config;
-        qualityConfig.solverMode =
-            metalrobo::MetalWorldSolverMode::qualityNewton;
-        qualityConfig.ccdMode =
+        auto residualConfig = config;
+        residualConfig.numiSolver.iterationPolicy =
+            metalrobo::NumiSolverIterationPolicy::
+                residualConverged;
+        residualConfig.ccdMode =
             metalrobo::MetalWorldCCDMode::disabled;
-        metalrobo::MetalWorldResult qualityResult;
-        const auto qualityDiagnostics = context.run(
+        metalrobo::MetalWorldResult residualResult;
+        const auto residualDiagnostics = context.run(
             world,
             batch,
-            qualityConfig,
-            qualityResult
+            residualConfig,
+            residualResult
         );
         require(
-            qualityDiagnostics.succeeded(),
-            qualityDiagnostics.message.c_str()
+            residualDiagnostics.succeeded(),
+            residualDiagnostics.message.c_str()
         );
         require(
-            qualityResult.qualityStatuses.size() ==
+            residualResult.numiConvergenceStatuses.size() ==
                     environmentCount &&
                 std::all_of(
-                    qualityResult.qualityStatuses.begin(),
-                    qualityResult.qualityStatuses.end(),
+                    residualResult.numiConvergenceStatuses.begin(),
+                    residualResult.numiConvergenceStatuses.end(),
                     [](const MRUnifiedQualityStatusGPU& status) {
                         return
                             status.code ==
@@ -501,25 +631,25 @@ int main(const int argc, char** argv) {
                     }
                 ) &&
                 std::all_of(
-                    qualityResult.environmentStatuses.begin(),
-                    qualityResult.environmentStatuses.end(),
+                    residualResult.environmentStatuses.begin(),
+                    residualResult.environmentStatuses.end(),
                     [environmentCount](
                         const metalrobo::MetalWorldStatus& status
                     ) {
                         return
                             status.code == MR_STEP_SUCCESS &&
                             status
-                                .maximumQualityNewtonIterations >
+                                .maximumNumiNewtonIterations >
                                 0u &&
                             status.maximumWorkerPackets ==
                                 environmentCount &&
                             std::isfinite(
                                 status
-                                    .maximumQualityCertificates[0]
+                                    .maximumNumiCertificates[0]
                             );
                     }
                 ),
-            "unified quality solver was not promoted through MetalWorld"
+            "residual-converged NumiSolver was not promoted through MetalWorld"
         );
         metalrobo::MetalWorldContext asynchronousContext(
             metalrobo::MetalWorldConfig{
@@ -739,7 +869,7 @@ int main(const int argc, char** argv) {
         meshCCDConfig.physicsSubsteps = 1u;
         // Hybrid CCD already advances to impact within the authored step;
         // isolate that contract from NumiSolver temporal refinement here.
-        meshCCDConfig.temporalSubsteps = 1u;
+        meshCCDConfig.numiSolver.temporalSubsteps = 1u;
         meshCCDConfig.ccdMode =
             metalrobo::MetalWorldCCDMode::hybrid;
         meshCCDConfig.maxConservativeAdvancementIterations =
@@ -866,7 +996,7 @@ int main(const int argc, char** argv) {
         metalrobo::MetalWorldStepConfig ccdConfig = config;
         ccdConfig.timestepSeconds = 1.0f / 60.0f;
         ccdConfig.physicsSubsteps = 1u;
-        ccdConfig.temporalSubsteps = 1u;
+        ccdConfig.numiSolver.temporalSubsteps = 1u;
         ccdConfig.ccdMode =
             metalrobo::MetalWorldCCDMode::hybrid;
         ccdConfig.maxConservativeAdvancementIterations = 32u;
@@ -1382,7 +1512,7 @@ int main(const int argc, char** argv) {
         };
         metalrobo::MetalWorldStepConfig largePairConfig = config;
         largePairConfig.physicsSubsteps = 1u;
-        largePairConfig.temporalSubsteps = 1u;
+        largePairConfig.numiSolver.temporalSubsteps = 1u;
         largePairConfig.captureContactEvidence = false;
         metalrobo::MetalWorldContext largePairContext;
         metalrobo::MetalWorldResult largePairResult;
@@ -1598,6 +1728,8 @@ int main(const int argc, char** argv) {
             << firstDiagnostics.gpuElapsedMilliseconds
             << " retained_manifolds="
             << first.contactStatuses.back().retainedPoints
+            << " retained_rod_response="
+            << retainedRodResponse
             << " async_slots=3"
             << " franka_cube_contacts="
             << frankaStatus.activeContacts

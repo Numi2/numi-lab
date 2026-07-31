@@ -134,7 +134,8 @@ private struct Options {
     var surface = MetalRoboBuiltinSurface.terrain
     var g1ActuatorPreset =
         MetalRoboG1ActuatorPreset.unitreeRLLab4960b84
-    var solver = MetalRoboSimulationSolver.numiSolver
+    var numiIterationPolicy =
+        MetalRoboNumiIterationPolicy.fixedBudget
     var seed: UInt64 = 20_260_731
     var curriculumLevel: UInt32 = 0
     var metallib = "build/shaders/MetalRobo.metallib"
@@ -219,15 +220,15 @@ private struct Options {
                     )
                 }
                 index += 1
-            case "--solver-mode":
+            case "--numi-iteration-policy":
                 switch try value() {
-                case "numi", "numisolver":
-                    solver = .numiSolver
-                case "quality", "quality_newton":
-                    solver = .qualityNewton
+                case "fixed", "fixed_budget":
+                    numiIterationPolicy = .fixedBudget
+                case "residual", "residual_converged":
+                    numiIterationPolicy = .residualConverged
                 default:
                     throw MetalRoboSimulationError.invalidShape(
-                        "--solver-mode must be numi or quality."
+                        "--numi-iteration-policy must be fixed or residual."
                     )
                 }
                 index += 1
@@ -338,7 +339,9 @@ private func makeContext(
 ) throws -> (MetalSimulationSession, String) {
     let configuration = MetalRoboSimulationConfiguration(
         environmentCount: UInt32(options.environments),
-        solver: options.solver,
+        numiSolver: .init(
+            iterationPolicy: options.numiIterationPolicy
+        ),
         seed: options.seed
     )
     if let worldPack = options.worldPack,
@@ -910,10 +913,12 @@ private enum SimulationMain {
                     ? "zero"
                     : "host_stream",
                 "device": context.deviceName,
-                "solver_mode":
-                    options.solver == .qualityNewton
-                    ? "quality_newton"
-                    : "numisolver",
+                "solver": "numisolver",
+                "numi_iteration_policy":
+                    options.numiIterationPolicy ==
+                        .residualConverged
+                    ? "residual_converged"
+                    : "fixed_budget",
                 "scene":
                     options.surface == .terrain
                     ? "terrain"

@@ -403,8 +403,8 @@ int main() {
             metalrobo::MetalWorldStepConfig config;
             config.timestepSeconds = 1.0e-3f;
             config.physicsSubsteps = 1u;
-            config.solverMode =
-                metalrobo::MetalWorldSolverMode::
+            config.executionMode =
+                metalrobo::MetalWorldExecutionMode::
                     freeMotionABA;
             config.actuationMode =
                 metalrobo::MetalWorldActuationMode::effort;

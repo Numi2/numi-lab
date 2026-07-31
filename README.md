@@ -100,7 +100,7 @@ Run the Swift-owned native session:
 ./build/bin/metalrobo_simulation \
   --metallib build/shaders/MetalRobo.metallib \
   --envs 32 --steps 48 --chunk 8 \
-  --scene terrain --solver-mode numisolver --native-policy
+  --scene terrain --numi-iteration-policy fixed --native-policy
 ```
 
 Run learning through the in-process Swift/MLX boundary:

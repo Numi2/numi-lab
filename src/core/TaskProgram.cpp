@@ -273,20 +273,20 @@ constexpr std::array kCapacityFields{
         &MetalWorldCapacityProfile::rodCCDEvents,
     },
     CapacityField{
-        "qualityGeneralizedVelocities",
-        &MetalWorldCapacityProfile::qualityGeneralizedVelocities,
+        "numiGeneralizedVelocities",
+        &MetalWorldCapacityProfile::numiGeneralizedVelocities,
     },
     CapacityField{
-        "qualityRows",
-        &MetalWorldCapacityProfile::qualityRows,
+        "numiRows",
+        &MetalWorldCapacityProfile::numiRows,
     },
     CapacityField{
-        "qualityKrylovVectors",
-        &MetalWorldCapacityProfile::qualityKrylovVectors,
+        "numiKrylovVectors",
+        &MetalWorldCapacityProfile::numiKrylovVectors,
     },
     CapacityField{
-        "qualityDirectTiles",
-        &MetalWorldCapacityProfile::qualityDirectTiles,
+        "numiDirectTiles",
+        &MetalWorldCapacityProfile::numiDirectTiles,
     },
     CapacityField{
         "dynamicNodes",

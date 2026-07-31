@@ -81,8 +81,8 @@
         }
       }
     },
-    "solver_mode": {
-      "enum": ["throughput_tgs", "quality_newton"]
+    "numi_iteration_policy": {
+      "enum": ["fixed_budget", "residual_converged"]
     },
     "residual_scales": {
       "type": "object",

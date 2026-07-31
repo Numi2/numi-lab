@@ -655,8 +655,8 @@ int main() {
         const metalrobo::MetalWorldStepConfig stepConfig{
             .timestepSeconds = 1.0f / 240.0f,
             .physicsSubsteps = 3u,
-            .solverMode =
-                metalrobo::MetalWorldSolverMode::freeMotionABA,
+            .executionMode =
+                metalrobo::MetalWorldExecutionMode::freeMotionABA,
             .applyBodyDamping = true,
             .deterministic = true,
         };
@@ -1013,8 +1013,8 @@ int main() {
             "reset rejection was not transactional"
         );
         auto unsupportedConfig = stepConfig;
-        unsupportedConfig.solverMode =
-            static_cast<metalrobo::MetalWorldSolverMode>(99u);
+        unsupportedConfig.executionMode =
+            static_cast<metalrobo::MetalWorldExecutionMode>(99u);
         const auto unsupported = context.run(
             compiled,
             small.view(),
@@ -1124,8 +1124,8 @@ int main() {
         const metalrobo::MetalWorldStepConfig g1Config{
             .timestepSeconds = 1.0f / 480.0f,
             .physicsSubsteps = 2u,
-            .solverMode =
-                metalrobo::MetalWorldSolverMode::freeMotionABA,
+            .executionMode =
+                metalrobo::MetalWorldExecutionMode::freeMotionABA,
             .applyBodyDamping = true,
             .deterministic = true,
         };
@@ -1233,8 +1233,8 @@ int main() {
         const metalrobo::MetalWorldStepConfig throughputConfig{
             .timestepSeconds = 1.0f / 240.0f,
             .physicsSubsteps = 4u,
-            .solverMode =
-                metalrobo::MetalWorldSolverMode::freeMotionABA,
+            .executionMode =
+                metalrobo::MetalWorldExecutionMode::freeMotionABA,
             .applyBodyDamping = true,
             .deterministic = true,
         };

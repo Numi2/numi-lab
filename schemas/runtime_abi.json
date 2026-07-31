@@ -465,6 +465,39 @@
         "BODY_DYNAMIC_NODES",
         "BODY_PARAMETERS"
       ]
+    },
+    {
+      "enum": "MRWorldNumiPreparationBuffer",
+      "prefix": "MR_NUMI_PREPARE_",
+      "bindings": [
+        "DISPATCH",
+        "NUMERICS",
+        "SCENE_BODY_INDICES",
+        "ARTICULATION_FACTORS",
+        "POINT_JACOBIANS",
+        "CANDIDATE_VELOCITY",
+        "CANDIDATE_BODIES",
+        "CONTACTS",
+        "ENDPOINTS",
+        "BLOCKS",
+        "EVALUATED_ROWS",
+        "EVALUATED_CONES",
+        "STATUSES",
+        "SOLVER_BLOCKS",
+        "DYNAMICS",
+        "JACOBIAN",
+        "BIAS",
+        "FREE_VELOCITY",
+        "WARM_VELOCITY",
+        "WARM_IMPULSES",
+        "ROD_NODES",
+        "ROD_EDGES",
+        "ROD_COLLIDERS",
+        "ROD_WITNESSES",
+        "ROD_WITNESS_INDICES",
+        "ROD_FACTOR_CACHES",
+        "ROD_OPERATOR_ARENA"
+      ]
     }
   ]
 }

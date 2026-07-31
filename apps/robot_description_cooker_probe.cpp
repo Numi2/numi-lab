@@ -1,5 +1,5 @@
 #include "metalrobo/RobotDescriptionCooker.hpp"
-#include "metalrobo/MetalMultiArticulatedConstraints.hpp"
+#include "metalrobo/ConstraintIR.hpp"
 
 #include <cmath>
 #include <cstring>
@@ -173,18 +173,11 @@ int main() {
             (model.dofs[1].flags & MR_DOF_FLAG_ACTUATED) == 0u,
             "mimic, transmission, or SRDF passive semantics were lost"
         );
-        metalrobo::CompiledMetalMultiArticulatedProgram
-            executableProgram;
-        const auto executableDiagnostics =
-            metalrobo::compileMetalMultiArticulatedProgram(
-                model,
-                executableProgram
-            );
         require(
-            executableDiagnostics.succeeded() &&
-                executableProgram.valid() &&
-                executableProgram.rowCount() == 1u,
-            "cooked mimic gear is not executable on Metal"
+            metalrobo::validateConstraintIR(
+                model.constraintProgram
+            ).succeeded(),
+            "cooked mimic gear did not produce canonical ConstraintIR"
         );
 
         const metalrobo::EngineModel unchanged = model;

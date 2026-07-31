@@ -147,18 +147,6 @@ set(METALROBO_DISCRETE_ELASTIC_ROD_SOURCE
 set(METALROBO_DISCRETE_ELASTIC_ROD_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboDiscreteElasticRod.air"
 )
-set(METALROBO_GENERALIZED_CONSTRAINT_SOURCE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalGeneralizedConstraints.metal"
-)
-set(METALROBO_MULTI_ARTICULATED_CONTACT_SOURCE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalMultiArticulatedContact.metal"
-)
-set(METALROBO_GENERALIZED_CONSTRAINT_AIR
-    "${METALROBO_SHADER_DIR}/MetalRoboGeneralizedConstraints.air"
-)
-set(METALROBO_MULTI_ARTICULATED_CONTACT_AIR
-    "${METALROBO_SHADER_DIR}/MetalRoboMultiArticulatedContact.air"
-)
 set(METALROBO_ARTICULATED_INVERSE_MASS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedInverseMass.air"
 )
@@ -301,20 +289,6 @@ add_custom_command(
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
-            -fno-fast-math
-            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
-            -c "${METALROBO_GENERALIZED_CONSTRAINT_SOURCE}"
-            -o "${METALROBO_GENERALIZED_CONSTRAINT_AIR}"
-    COMMAND xcrun -sdk macosx metal
-            -std=metal4.0
-            -O3
-            -fno-fast-math
-            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
-            -c "${METALROBO_MULTI_ARTICULATED_CONTACT_SOURCE}"
-            -o "${METALROBO_MULTI_ARTICULATED_CONTACT_AIR}"
-    COMMAND xcrun -sdk macosx metal
-            -std=metal4.0
-            -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
             -o "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
@@ -406,8 +380,6 @@ add_custom_command(
             "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
             "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
             "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
-            "${METALROBO_GENERALIZED_CONSTRAINT_AIR}"
-            "${METALROBO_MULTI_ARTICULATED_CONTACT_AIR}"
             "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_WORLD_AIR}"
@@ -432,8 +404,6 @@ add_custom_command(
         "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
         "${METALROBO_ARTICULATED_ABA_SOURCE}"
         "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
-        "${METALROBO_GENERALIZED_CONSTRAINT_SOURCE}"
-        "${METALROBO_MULTI_ARTICULATED_CONTACT_SOURCE}"
         "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
         "${METALROBO_WORLD_SOURCE}"
         "${METALROBO_WORLD_CONTACT_SOURCE}"
@@ -509,8 +479,6 @@ add_library(
     src/core/EngineModel.cpp
     src/core/EngineModelComposer.cpp
     src/core/ParallelABASchedule.cpp
-    src/core/CompiledMetalMultiArticulatedProgram.cpp
-    src/core/CompiledMetalMultiArticulatedContactProgram.cpp
     src/core/WorldCompiler.cpp
     src/core/WorldPack.cpp
     src/core/EpisodeTwinCompiler.cpp
@@ -562,8 +530,6 @@ add_library(
     src/metal/MetalDiscreteElasticRod.mm
     src/metal/MetalArticulatedInverseMass.mm
     src/metal/MetalMultiArticulatedInverseMass.mm
-    src/metal/MetalMultiArticulatedConstraints.mm
-    src/metal/MetalMultiArticulatedContact.mm
     src/metal/MetalQualityContactSolver.mm
     src/metal/MetalUnifiedQualitySolver.mm
     src/metal/MetalWorld.mm
@@ -944,30 +910,6 @@ set_target_properties(
 )
 
 add_executable(
-    metalrobo_metal_multi_articulated_contact_probe
-    apps/metal_multi_articulated_contact_probe.cpp
-)
-target_link_libraries(
-    metalrobo_metal_multi_articulated_contact_probe
-    PRIVATE
-        metalrobo
-)
-target_compile_options(
-    metalrobo_metal_multi_articulated_contact_probe
-    PRIVATE
-        -Wall
-        -Wextra
-        -Wpedantic
-        -Werror
-)
-set_target_properties(
-    metalrobo_metal_multi_articulated_contact_probe
-    PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
-        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
-)
-
-add_executable(
     metalrobo_parallel_aba_schedule_probe
     apps/parallel_aba_schedule_probe.cpp
 )
@@ -1022,24 +964,6 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_multi_articulated_inverse_mass_gpu_probe
-    PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
-        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
-)
-
-add_executable(
-    metalrobo_multi_articulated_constraint_gpu_probe
-    apps/multi_articulated_constraint_gpu_probe.mm
-)
-target_link_libraries(
-    metalrobo_multi_articulated_constraint_gpu_probe
-    PRIVATE
-        metalrobo
-        "${FOUNDATION_FRAMEWORK}"
-        "${METAL_FRAMEWORK}"
-)
-set_target_properties(
-    metalrobo_multi_articulated_constraint_gpu_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
@@ -1151,22 +1075,6 @@ target_link_libraries(
 )
 set_target_properties(
     metalrobo_engine_model_composer_probe
-    PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
-        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
-)
-
-add_executable(
-    metalrobo_heterogeneous_world_probe
-    apps/heterogeneous_world_probe.cpp
-)
-target_link_libraries(
-    metalrobo_heterogeneous_world_probe
-    PRIVATE
-        metalrobo
-)
-set_target_properties(
-    metalrobo_heterogeneous_world_probe
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
@@ -2041,7 +1949,7 @@ if(BUILD_TESTING)
                 --repeats 1
                 --chunk 1
                 --scene ground
-                --solver-mode numisolver
+                --numi-iteration-policy fixed
                 --zero-actions
                 --no-scheduled-resets
         )

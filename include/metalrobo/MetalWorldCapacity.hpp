@@ -30,10 +30,10 @@ struct MetalWorldCapacityProfile {
     std::uint32_t rodRawContacts = 0u;
     std::uint32_t rodManifolds = 0u;
     std::uint32_t rodCCDEvents = 0u;
-    std::uint32_t qualityGeneralizedVelocities = 0u;
-    std::uint32_t qualityRows = 0u;
-    std::uint32_t qualityKrylovVectors = 0u;
-    std::uint32_t qualityDirectTiles = 0u;
+    std::uint32_t numiGeneralizedVelocities = 0u;
+    std::uint32_t numiRows = 0u;
+    std::uint32_t numiKrylovVectors = 0u;
+    std::uint32_t numiDirectTiles = 0u;
     std::uint32_t dynamicNodes = 0u;
     std::uint32_t islandNodeReferences = 0u;
     std::uint32_t islandConstraintReferences = 0u;

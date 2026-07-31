@@ -6,14 +6,14 @@ A status is a product claim boundary, not a roadmap estimate. A
 qualified row is rejected unless an evidence manifest records its
 owning check as passed.
 
-Current registry: qualified: 7, implemented: 3, experimental: 3, unsupported: 5.
+Current registry: qualified: 6, implemented: 4, experimental: 3, unsupported: 5.
 
 | Capability | Status | Owning check | Executable | Last evidence | Exact scope |
 |---|---|---|---|---|---|
 | `compiler.urdf_srdf` | **qualified** | `compiler.robot_description` | `metalrobo_robot_description_cooker_probe` | `b7f03fb` at 2026-07-31T22:17:00+02:00 (`evidence/baselines/2026-07-31-b7f03fb.json`) | Rigid articulated URDF/SRDF import, semantic names, meshes, and deterministic fingerprints. |
 | `compiler.mjcf` | **unsupported** | `none` | `none` | none | No production MJCF parser. A pinned G1 companion-MJCF preset is data, not general MJCF support. |
-| `physics.numi_solver` | **qualified** | `physics.metal_contact` | `metalrobo_metal_world_contact_probe` | `b7f03fb` at 2026-07-31T22:17:00+02:00 (`evidence/baselines/2026-07-31-b7f03fb.json`) | Production Apple-Metal rigid/articulated solver: fixed temporal microsteps, one coupled nonlinear block sweep per microstep, immediate integration, and transactional warm state. Rod endpoints are rejected until the retained banded rod response participates in the sweep. |
-| `physics.quality_newton` | **experimental** | `none` | `metalrobo_metal_unified_quality_probe` | none | Available for focused study; not yet the qualified production solver. |
+| `physics.numi_solver` | **implemented** | `physics.metal_contact` | `metalrobo_metal_world_contact_probe` | `b7f03fb` at 2026-07-31T22:17:00+02:00 (`evidence/baselines/2026-07-31-b7f03fb.json`) | Apple-Metal rigid, articulated, and rod solver: fixed temporal microsteps, coupled nonlinear block sweeps, retained banded rod response for generalized and surface-contact rows, immediate integration, and transactional warm state. Requalification is pending the current revision artifact. |
+| `physics.numi_residual_converged` | **experimental** | `none` | `metalrobo_metal_unified_quality_probe` | none | Private residual-converged NumiSolver profile is available for focused study; its current backend is transitional and not yet the qualified production path. |
 | `physics.true_temporal_tgs` | **unsupported** | `none` | `none` | none | NumiSolver uses temporal small steps but does not claim the complete vendor-specific PhysX TGS contract. |
 | `physics.constraint_ir` | **implemented** | `physics.constraint_ir` | `metalrobo_constraint_ir_probe` | `b7f03fb` at 2026-07-31T22:17:00+02:00 (`evidence/baselines/2026-07-31-b7f03fb.json`) | Shared row, endpoint, cone, stable-key, and warm-start representation. Active scalar joint limits and contacts are coupled in NumiSolver; generic runtime widths beyond three rows remain incomplete. |
 | `physics.literal_convex_ccd` | **experimental** | `physics.metal_contact` | `metalrobo_metal_world_contact_probe` | `b7f03fb` at 2026-07-31T22:17:00+02:00 (`evidence/baselines/2026-07-31-b7f03fb.json`) | Selected convex event-time paths exist; complete advance-to-impact, solve, and continue coverage is not qualified. |

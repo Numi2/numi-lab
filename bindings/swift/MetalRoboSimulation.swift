@@ -59,9 +59,22 @@ public enum MetalRoboG1ActuatorPreset: UInt32, Sendable {
     case unitreeRLLab4960b84 = 2
 }
 
-public enum MetalRoboSimulationSolver: UInt32, Sendable {
-    case numiSolver = 0
-    case qualityNewton = 1
+public enum MetalRoboNumiIterationPolicy: UInt32, Sendable {
+    case fixedBudget = 0
+    case residualConverged = 1
+}
+
+public struct MetalRoboNumiSolverSettings: Sendable {
+    public var iterationPolicy: MetalRoboNumiIterationPolicy
+    public var temporalSubsteps: UInt32
+
+    public init(
+        iterationPolicy: MetalRoboNumiIterationPolicy = .fixedBudget,
+        temporalSubsteps: UInt32 = 4
+    ) {
+        self.iterationPolicy = iterationPolicy
+        self.temporalSubsteps = temporalSubsteps
+    }
 }
 
 public enum MetalRoboRobotRootMode: UInt32, Sendable {
@@ -288,24 +301,21 @@ private func withNativePolicyPack<Result>(
 
 public struct MetalRoboSimulationConfiguration: Sendable {
     public var environmentCount: UInt32
-    public var solver: MetalRoboSimulationSolver
+    public var numiSolver: MetalRoboNumiSolverSettings
     public var physicsSubsteps: UInt32
-    public var temporalSubsteps: UInt32
     public var controlTimestepSeconds: Float
     public var seed: UInt64
 
     public init(
         environmentCount: UInt32,
-        solver: MetalRoboSimulationSolver = .numiSolver,
+        numiSolver: MetalRoboNumiSolverSettings = .init(),
         physicsSubsteps: UInt32 = 1,
-        temporalSubsteps: UInt32 = 4,
         controlTimestepSeconds: Float = 0.02,
         seed: UInt64 = 0
     ) {
         self.environmentCount = environmentCount
-        self.solver = solver
+        self.numiSolver = numiSolver
         self.physicsSubsteps = physicsSubsteps
-        self.temporalSubsteps = temporalSubsteps
         self.controlTimestepSeconds = controlTimestepSeconds
         self.seed = seed
     }
@@ -413,13 +423,13 @@ public struct MetalRoboSimulationAdvance: Sendable {
                 Int(highWater.rod_raw_contacts),
             "rod_manifolds": Int(highWater.rod_manifolds),
             "rod_ccd_events": Int(highWater.rod_ccd_events),
-            "quality_generalized_velocities":
-                Int(highWater.quality_generalized_velocities),
-            "quality_rows": Int(highWater.quality_rows),
-            "quality_krylov_vectors":
-                Int(highWater.quality_krylov_vectors),
-            "quality_direct_tiles":
-                Int(highWater.quality_direct_tiles),
+            "numi_generalized_velocities":
+                Int(highWater.numi_generalized_velocities),
+            "numi_rows": Int(highWater.numi_rows),
+            "numi_krylov_vectors":
+                Int(highWater.numi_krylov_vectors),
+            "numi_direct_tiles":
+                Int(highWater.numi_direct_tiles),
             "dynamic_nodes": Int(highWater.dynamic_nodes),
             "island_node_references":
                 Int(highWater.island_node_references),
@@ -678,10 +688,11 @@ public final class MetalSimulationSession {
     ) -> MRSimulationConfigC {
         var native = MRSimulationConfigC()
         native.environment_count = configuration.environmentCount
-        native.solver = configuration.solver.rawValue
+        native.numi_iteration_policy =
+            configuration.numiSolver.iterationPolicy.rawValue
         native.physics_substeps = configuration.physicsSubsteps
         native.temporal_substeps =
-            configuration.temporalSubsteps
+            configuration.numiSolver.temporalSubsteps
         native.control_timestep_seconds =
             configuration.controlTimestepSeconds
         native.seed = configuration.seed

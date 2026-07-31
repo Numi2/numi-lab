@@ -21,17 +21,17 @@
     },
     {
       "id": "physics.numi_solver",
-      "status": "qualified",
+      "status": "implemented",
       "owner": "physics.metal_contact",
       "artifact": "metalrobo_metal_world_contact_probe",
-      "scope": "Production Apple-Metal rigid/articulated solver: fixed temporal microsteps, one coupled nonlinear block sweep per microstep, immediate integration, and transactional warm state. Rod endpoints are rejected until the retained banded rod response participates in the sweep."
+      "scope": "Apple-Metal rigid, articulated, and rod solver: fixed temporal microsteps, coupled nonlinear block sweeps, retained banded rod response for generalized and surface-contact rows, immediate integration, and transactional warm state. Requalification is pending the current revision artifact."
     },
     {
-      "id": "physics.quality_newton",
+      "id": "physics.numi_residual_converged",
       "status": "experimental",
       "owner": "none",
       "artifact": "metalrobo_metal_unified_quality_probe",
-      "scope": "Available for focused study; not yet the qualified production solver."
+      "scope": "Private residual-converged NumiSolver profile is available for focused study; its current backend is transitional and not yet the qualified production path."
     },
     {
       "id": "physics.true_temporal_tgs",

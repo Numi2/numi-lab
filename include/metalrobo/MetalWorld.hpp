@@ -27,16 +27,27 @@ struct MetalWorldResidentStateData;
 struct MetalWorldSubmissionState;
 } // namespace detail
 
-enum class MetalWorldSolverMode : std::uint32_t {
+enum class MetalWorldExecutionMode : std::uint32_t {
     freeMotionABA = 0u,
-    // NumiSolver: one coupled nonlinear block sweep per integrated and
-    // relinearized temporal microstep. Diagnostics fingerprint the concrete
-    // profile so the product name never hides numerical semantics.
     numiSolver = 1u,
-    qualityNewton = 2u,
 };
 
-struct MetalWorldQualityConfig {
+enum class NumiSolverIterationPolicy : std::uint32_t {
+    // Deterministic rollout profile. Work budgets are fixed even when a
+    // residual reaches tolerance early.
+    fixedBudget = 0u,
+    // Uses the same public NumiSolver contract with residual-based Newton and
+    // Krylov budgets. The concrete dense/matrix-free backend remains private.
+    residualConverged = 1u,
+};
+
+struct NumiSolverSettings {
+    NumiSolverIterationPolicy iterationPolicy =
+        NumiSolverIterationPolicy::fixedBudget;
+    // Every authored physics substep is divided into this many integrated and
+    // relinearized temporal microsteps in the fixed-budget profile.
+    std::uint32_t temporalSubsteps = 4u;
+    std::uint32_t rodContactOuterIterations = 2u;
     std::uint32_t maximumNewtonIterations = 20u;
     std::uint32_t maximumPCGIterations = 128u;
     std::uint32_t maximumLineSearchIterations = 16u;
@@ -271,13 +282,9 @@ struct MetalWorldStepConfig {
     // timestepSeconds / physicsSubsteps for this submission.
     float timestepSeconds = 1.0f / 60.0f;
     std::uint32_t physicsSubsteps = 1u;
-    // The throughput solver divides every authored physics substep into this
-    // many equal temporal microsteps. Each microstep refreshes geometry and
-    // limit activation, refactors articulation response, performs one coupled
-    // block sweep, and integrates before the next microstep.
-    std::uint32_t temporalSubsteps = 4u;
-    MetalWorldSolverMode solverMode =
-        MetalWorldSolverMode::numiSolver;
+    MetalWorldExecutionMode executionMode =
+        MetalWorldExecutionMode::numiSolver;
+    NumiSolverSettings numiSolver{};
     // In effort mode, MetalWorldBatch::efforts is generalized effort. In
     // implicitPositionDrive mode it is the desired position per scalar
     // driven DoF; floating-root and unactuated entries are ignored.
@@ -329,8 +336,6 @@ struct MetalWorldStepConfig {
     float ccdSimultaneousTolerance = 1.0e-5f;
     float speculativeMarginScale = 1.0f;
     float ccdSpeedEnvelope = 1.0e4f;
-    std::uint32_t rodContactOuterIterations = 2u;
-    MetalWorldQualityConfig quality{};
 };
 
 struct MetalWorldConfig {
@@ -445,10 +450,10 @@ struct MetalWorldStageCounts {
     std::uint32_t rodRawContacts = 0u;
     std::uint32_t rodManifolds = 0u;
     std::uint32_t rodCCDEvents = 0u;
-    std::uint32_t qualityGeneralizedVelocities = 0u;
-    std::uint32_t qualityRows = 0u;
-    std::uint32_t qualityKrylovVectors = 0u;
-    std::uint32_t qualityDirectTiles = 0u;
+    std::uint32_t numiGeneralizedVelocities = 0u;
+    std::uint32_t numiRows = 0u;
+    std::uint32_t numiKrylovVectors = 0u;
+    std::uint32_t numiDirectTiles = 0u;
     std::uint32_t dynamicNodes = 0u;
     std::uint32_t islandNodeReferences = 0u;
     std::uint32_t islandConstraintReferences = 0u;
@@ -480,13 +485,13 @@ struct MetalWorldStatus {
     std::uint32_t maximumClusteredCCDImpacts = 0u;
     std::uint32_t maximumZeroTimeCCDReplays = 0u;
     std::uint32_t maximumWorkerPackets = 0u;
-    std::uint32_t maximumQualityNewtonIterations = 0u;
-    std::uint32_t maximumQualityPCGIterations = 0u;
-    std::uint32_t maximumQualityLineSearchBacktracks = 0u;
+    std::uint32_t maximumNumiNewtonIterations = 0u;
+    std::uint32_t maximumNumiPCGIterations = 0u;
+    std::uint32_t maximumNumiLineSearchBacktracks = 0u;
     std::uint32_t maximumRodContacts = 0u;
     float maximumUnconsumedCCDTime = 0.0f;
     std::array<float, 4> maximumResiduals{};
-    std::array<float, 4> maximumQualityCertificates{};
+    std::array<float, 4> maximumNumiCertificates{};
 };
 
 struct MetalWorldResult {
@@ -511,8 +516,9 @@ struct MetalWorldResult {
     std::vector<float> accelerations;
     std::vector<MRMetalWorldStatusGPU> statuses;
     std::vector<MRMetalWorldContactStatusGPU> contactStatuses;
-    // One record per environment when qualityNewton is selected.
-    std::vector<MRUnifiedQualityStatusGPU> qualityStatuses;
+    // One record per environment when the residual-converged NumiSolver
+    // policy is selected.
+    std::vector<MRUnifiedQualityStatusGPU> numiConvergenceStatuses;
     std::vector<MetalWorldStatus> environmentStatuses;
     MetalWorldContactEvidence contactEvidence;
 };

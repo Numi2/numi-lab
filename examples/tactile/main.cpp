@@ -611,9 +611,9 @@ int runCompoundScenario(
     metalrobo::MetalWorldStepConfig physicsConfig;
     physicsConfig.timestepSeconds = controlTimestep;
     physicsConfig.physicsSubsteps = physicsSubsteps;
-    physicsConfig.temporalSubsteps = 1u;
-    physicsConfig.solverMode =
-        metalrobo::MetalWorldSolverMode::numiSolver;
+    physicsConfig.numiSolver.temporalSubsteps = 1u;
+    physicsConfig.executionMode =
+        metalrobo::MetalWorldExecutionMode::numiSolver;
     physicsConfig.actuationMode =
         metalrobo::MetalWorldActuationMode::
             implicitPositionDrive;
@@ -647,7 +647,7 @@ int runCompoundScenario(
         controlTimestep /
             static_cast<float>(
                 physicsConfig.physicsSubsteps *
-                physicsConfig.temporalSubsteps
+                physicsConfig.numiSolver.temporalSubsteps
             )
     );
 
@@ -1028,9 +1028,9 @@ int main(const int argc, const char* const* argv) {
         metalrobo::MetalWorldStepConfig physicsConfig;
         physicsConfig.timestepSeconds = 0.02f;
         physicsConfig.physicsSubsteps = 8u;
-        physicsConfig.temporalSubsteps = 4u;
-        physicsConfig.solverMode =
-            metalrobo::MetalWorldSolverMode::numiSolver;
+        physicsConfig.numiSolver.temporalSubsteps = 4u;
+        physicsConfig.executionMode =
+            metalrobo::MetalWorldExecutionMode::numiSolver;
         physicsConfig.actuationMode =
             metalrobo::MetalWorldActuationMode::
                 implicitPositionDrive;
@@ -1138,7 +1138,7 @@ int main(const int argc, const char* const* argv) {
             physicsConfig.timestepSeconds /
                 static_cast<float>(
                     physicsConfig.physicsSubsteps *
-                    physicsConfig.temporalSubsteps
+                    physicsConfig.numiSolver.temporalSubsteps
                 )
         );
         if (debugDirectory.has_value() &&
@@ -1209,7 +1209,7 @@ int main(const int argc, const char* const* argv) {
             physicsConfig.timestepSeconds /
             static_cast<float>(
                 physicsConfig.physicsSubsteps *
-                physicsConfig.temporalSubsteps
+                physicsConfig.numiSolver.temporalSubsteps
             );
         tactileFrame.frameIndex = controlSteps;
         tactileFrame.timestampSeconds =
