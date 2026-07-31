@@ -2,7 +2,7 @@
 
 #include "metalrobo/gpu_types.h"
 
-#define MR_POLICY_PROGRAM_ABI_VERSION 3u
+#define MR_POLICY_PROGRAM_ABI_VERSION 4u
 
 enum MRPolicyActivationOpcode : mr_u32 {
     MR_POLICY_ACTIVATION_IDENTITY = 0u,
@@ -59,7 +59,7 @@ typedef struct MR_ALIGN16 MRPolicyDenseDispatchGPU {
     mr_uint4 strides;
     // weights, bias, observation mean, observation inverse stddev.
     mr_uint4 offsets0;
-    // reserved, reserved, flags, reserved.
+    // SIMD width, SIMDgroups per threadgroup, flags, reserved.
     mr_uint4 offsets1;
     // observation clip, action clip, reserved, reserved.
     mr_float4 limits;

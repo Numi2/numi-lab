@@ -8285,8 +8285,20 @@ bool encodePolicyInference(
                 inverseStdOffset,
             };
             dispatch.offsets1 = {
-                0u,
-                0u,
+                static_cast<mr_u32>(
+                    context.policyDensePipeline
+                        .threadExecutionWidth
+                ),
+                static_cast<mr_u32>(std::min<NSUInteger>(
+                    8u,
+                    context.policyDensePipeline
+                        .maxTotalThreadsPerThreadgroup /
+                        std::max<NSUInteger>(
+                            1u,
+                            context.policyDensePipeline
+                                .threadExecutionWidth
+                        )
+                )),
                 layer.counts.w,
                 0u,
             };
@@ -8295,28 +8307,62 @@ bool encodePolicyInference(
                 program.fingerprint();
             dispatch.taskFingerprint =
                 program.taskFingerprint();
-            if (!encodeContactThreadKernel(
-                    context,
-                    commandBuffer,
-                    context.policyDensePipeline,
-                    label,
-                    {
-                        {0u, kPolicyProgramHeader},
-                        {1u, kPolicyProgramArena},
-                        {3u, source},
-                        {4u, destination},
-                    },
-                    nullptr,
-                    0u,
-                    environmentCount * layer.counts.y,
-                    false,
-                    0u,
-                    &dispatch,
-                    sizeof(dispatch),
-                    2u
+            const NSUInteger simdWidth =
+                dispatch.offsets1.x;
+            const NSUInteger simdgroupsPerThreadgroup =
+                dispatch.offsets1.y;
+            std::size_t outputElements = 0u;
+            if (simdWidth == 0u ||
+                simdgroupsPerThreadgroup == 0u ||
+                !checkedMultiply(
+                    environmentCount,
+                    layer.counts.y,
+                    outputElements
                 )) {
                 return false;
             }
+            id<MTLComputeCommandEncoder> encoder =
+                [commandBuffer computeCommandEncoder];
+            if (encoder == nil) {
+                return false;
+            }
+            encoder.label = label;
+            [encoder setComputePipelineState:
+                context.policyDensePipeline];
+            [encoder setBuffer:
+                context.buffers[kPolicyProgramHeader]
+                         offset:0u
+                        atIndex:0u];
+            [encoder setBuffer:
+                context.buffers[kPolicyProgramArena]
+                         offset:0u
+                        atIndex:1u];
+            [encoder setBytes:&dispatch
+                       length:sizeof(dispatch)
+                      atIndex:2u];
+            [encoder setBuffer:context.buffers[source]
+                         offset:0u
+                        atIndex:3u];
+            [encoder setBuffer:context.buffers[destination]
+                         offset:0u
+                        atIndex:4u];
+            const NSUInteger threadgroups =
+                (
+                    static_cast<NSUInteger>(outputElements) +
+                    simdgroupsPerThreadgroup - 1u
+                ) / simdgroupsPerThreadgroup;
+            [encoder
+                dispatchThreadgroups:MTLSizeMake(
+                    threadgroups,
+                    1u,
+                    1u
+                )
+                threadsPerThreadgroup:MTLSizeMake(
+                    simdWidth * simdgroupsPerThreadgroup,
+                    1u,
+                    1u
+                )];
+            [encoder endEncoding];
         }
         return true;
     };

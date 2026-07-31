@@ -496,8 +496,17 @@ std::uint64_t compileFixedBaseTaskFixture() {
         .inputCount = 12u,
         .outputCount = 1u,
         .activation = metalrobo::PolicyActivation::identity,
-        .weights = std::vector<float>(12u, 0.0f),
-        .bias = std::vector<float>(1u, 0.0f),
+        .weights = [] {
+            std::vector<float> values(12u);
+            for (std::size_t index = 0u;
+                 index < values.size();
+                 ++index) {
+                values[index] =
+                    0.01f * static_cast<float>(index + 1u);
+            }
+            return values;
+        }(),
+        .bias = std::vector<float>(1u, 0.05f),
     }};
     authored.policy = std::move(policy);
 
@@ -592,6 +601,8 @@ std::uint64_t compileFixedBaseTaskFixture() {
             environments * controlSteps ||
         result.actorObservations.size() !=
             environments * (controlSteps + 1u) * 12u ||
+        result.policyLatents.size() !=
+            environments * (controlSteps + 1u) ||
         result.sensorOutputs.size() != environments * 14u ||
         result.sensorMetadata.size() != environments * 2u ||
         std::any_of(
@@ -605,6 +616,38 @@ std::uint64_t compileFixedBaseTaskFixture() {
             "fixed-base task did not execute through the generic Metal task graph: " +
             executed.message
         );
+    }
+    for (std::size_t stepIndex = 0u;
+         stepIndex < controlSteps;
+         ++stepIndex) {
+        for (std::size_t environment = 0u;
+             environment < environments;
+             ++environment) {
+            const std::size_t observationBase =
+                stepIndex * environments * 12u +
+                environment * 12u;
+            float expected = 0.05f;
+            for (std::size_t feature = 0u;
+                 feature < 12u;
+                 ++feature) {
+                expected = std::fma(
+                    0.01f * static_cast<float>(feature + 1u),
+                    result.actorObservations[
+                        observationBase + feature
+                    ],
+                    expected
+                );
+            }
+            const float actual = result.policyLatents[
+                stepIndex * environments + environment
+            ];
+            if (std::abs(actual - expected) >
+                2.0e-5f * (1.0f + std::abs(expected))) {
+                fail(
+                    "SIMDgroup PolicyIR dense output disagrees with the host dot-product reference"
+                );
+            }
+        }
     }
     for (std::size_t environment = 0u;
          environment < environments;

@@ -73,8 +73,10 @@ inline float policyNormal(
 
 } // namespace
 
-// Shared dense policy operator. Robot and joint layout never appear here;
-// compiled dimensions and immutable byte offsets define each layer.
+// Shared dense policy operator. One SIMDgroup cooperatively evaluates one
+// output neuron; a threadgroup evaluates a compiler/host-selected output tile.
+// Robot and joint layout never appear here: compiled dimensions and immutable
+// byte offsets define each layer.
 kernel void mr_policy_dense_layer(
     device const MRPolicyProgramHeaderGPU& program
         [[buffer(0)]],
@@ -83,8 +85,17 @@ kernel void mr_policy_dense_layer(
         [[buffer(2)]],
     device const float* input [[buffer(3)]],
     device float* output [[buffer(4)]],
-    const uint flatOutput [[thread_position_in_grid]]
+    const uint threadgroupIndex
+        [[threadgroup_position_in_grid]],
+    const uint simdgroupIndex
+        [[simdgroup_index_in_threadgroup]],
+    const uint lane [[thread_index_in_simdgroup]]
 ) {
+    const uint simdWidth = dispatch.offsets1.x;
+    const uint simdgroupsPerThreadgroup = dispatch.offsets1.y;
+    const uint flatOutput =
+        threadgroupIndex * simdgroupsPerThreadgroup +
+        simdgroupIndex;
     const uint outputElements =
         dispatch.counts.x * dispatch.counts.z;
     if (flatOutput >= outputElements ||
@@ -94,7 +105,10 @@ kernel void mr_policy_dense_layer(
         dispatch.taskFingerprint !=
             program.taskFingerprint ||
         dispatch.counts.y == 0u ||
-        dispatch.counts.z == 0u) {
+        dispatch.counts.z == 0u ||
+        simdWidth == 0u ||
+        simdgroupsPerThreadgroup == 0u ||
+        simdgroupIndex >= simdgroupsPerThreadgroup) {
         return;
     }
 
@@ -113,23 +127,28 @@ kernel void mr_policy_dense_layer(
     const uint inputBase =
         dispatch.strides.z +
         environment * dispatch.strides.x;
-    float value = bias[neuron];
+    device const float* mean = nullptr;
+    device const float* inverseStd = nullptr;
+    const bool normalize =
+        (dispatch.offsets1.z &
+         MR_POLICY_DENSE_NORMALIZE_INPUT) != 0u;
+    if (normalize) {
+        mean = policyTable<float>(
+            arena,
+            dispatch.offsets0.z
+        );
+        inverseStd = policyTable<float>(
+            arena,
+            dispatch.offsets0.w
+        );
+    }
+    float partial = 0.0f;
     const uint weightBase = neuron * dispatch.counts.y;
-    for (uint feature = 0u;
+    for (uint feature = lane;
          feature < dispatch.counts.y;
-         ++feature) {
+         feature += simdWidth) {
         float sample = input[inputBase + feature];
-        if ((dispatch.offsets1.z &
-             MR_POLICY_DENSE_NORMALIZE_INPUT) != 0u) {
-            device const float* mean = policyTable<float>(
-                arena,
-                dispatch.offsets0.z
-            );
-            device const float* inverseStd =
-                policyTable<float>(
-                    arena,
-                    dispatch.offsets0.w
-                );
+        if (normalize) {
             sample = clamp(
                 (sample - mean[feature]) *
                     inverseStd[feature],
@@ -137,21 +156,23 @@ kernel void mr_policy_dense_layer(
                 dispatch.limits.x
             );
         }
-        value = fma(
+        partial = fma(
             weights[weightBase + feature],
             sample,
-            value
+            partial
         );
     }
-    value = policyActivation(
-        dispatch.counts.w,
-        value
-    );
-    output[
-        dispatch.strides.w +
-        environment * dispatch.strides.y +
-        neuron
-    ] = value;
+    const float dot = simd_sum(partial);
+    if (lane == 0u) {
+        output[
+            dispatch.strides.w +
+            environment * dispatch.strides.y +
+            neuron
+        ] = policyActivation(
+            dispatch.counts.w,
+            dot + bias[neuron]
+        );
+    }
 }
 
 kernel void mr_policy_sample_and_score(
