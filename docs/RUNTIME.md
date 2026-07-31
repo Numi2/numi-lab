@@ -28,12 +28,20 @@ because mutable state continuation has not yet been split from its arena slot.
 This is a remaining executor migration item, not a claim of three overlapping
 physics command buffers.
 
-The Swift learner boundary does use a three-slot rollout ring. Each slot owns
-separate page-aligned `storageModeShared` Metal buffers for actor and critic
-observations, latents, behavior metadata, values, bootstrap values, and native
-transitions. Fixed capacities are derived from the compiled layout and update
-horizon. A generation-checked lease prevents reuse while Swift or MLX retains
+The Swift learner boundary uses a three-slot rollout ring owned and allocated
+by the native runtime. Each slot contains separate `storageModeShared` Metal
+buffers for actor and critic observations, latents, behavior metadata, values,
+bootstrap values, and native transitions. Fixed capacities are derived from
+the compiled layout and update horizon. Swift receives an opaque lease rather
+than an `MTLBuffer`; its generation prevents reuse while Swift or MLX retains
 the slot.
+
+Each physics command buffer blits its compact streams directly into the
+pending lease before commit. The native submission owns the append token, and
+advances the lease cursor only after world-state validation and publication
+succeed. Failed validation leaves the cursor unchanged and permanently
+invalidates that lease. The last chunk alone may publish terminal bootstrap
+values and make a full lease sealable.
 
 The execution plan uses generated argument tables, queue residency sets,
 topology-derived private heaps, indirect dispatch for validated GPU counts,
@@ -85,14 +93,17 @@ silently skipped or routed through Python.
 
 ## MLX boundary
 
-Native task kernels produce compact rollout streams. The current publication
-path copies each completed compact stream once from the native result boundary
-into its preallocated shared Metal ring slot. Swift does not materialize or
-concatenate `[Float]` batches. MLX arrays are constructed with the underlying
-managed C API, retain the slot lease through an owning finalizer payload, and
-therefore consume the shared buffers without another input copy. Publishing
-directly into the leased ring from the native command buffer remains an
-explicit optimization gate.
+Native task kernels produce compact rollout streams and the same Metal command
+buffer publishes them into the leased shared slot. Swift neither allocates the
+Metal streams nor materializes, copies, or concatenates `[Float]` batches. MLX
+arrays are constructed with the underlying managed C API, retain the slot
+lease through an owning finalizer payload, and consume those shared buffers
+without an input copy.
+
+The synchronous inspection-compatible C result still materializes compact
+host vectors after the command completes. Removing that redundant readback
+requires GPU-side validation of policy/task outputs plus a status-only wait
+path; it remains an explicit runtime optimization and transaction gate.
 
 Policy installation has two private native banks. The first installed policy
 locks a topology fingerprint containing its identity, task contract, operator

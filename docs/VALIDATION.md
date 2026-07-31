@@ -31,8 +31,17 @@ The native integration owner runs five PPO updates through a three-slot shared
 rollout ring. It therefore covers slot reuse, managed MLX payload release,
 monotonic policy revisions, native rollout serialization, learner checkpoints,
 deployment-policy publication, immutable policy topology, stale-revision
-rejection, and transactional private-bank swapping. It does not yet qualify
-direct GPU writes into the rollout ring or a no-copy MLX-to-bank blit.
+rejection, transactional private-bank swapping, and direct native command-
+buffer publication into opaque rollout leases. It does not yet qualify a
+no-copy MLX-to-bank blit or removal of the parallel synchronous inspection
+readback.
+
+The TaskIR owner fills a one-slot rollout in two native submissions, checks
+every compact float and transition byte against the owning Metal result,
+verifies the terminal bootstrap offset, rejects visibility before sealing and
+a second simultaneous lease, then releases and reuses the slot. This is the
+offset, lifetime, and transactional-publication owner; PPO integration is the
+cross-language lifetime owner.
 
 The TaskIR owner also executes a nonzero deterministic dense policy over two
 environments and four control steps, then compares all eight native SIMDgroup

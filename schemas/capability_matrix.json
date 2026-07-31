@@ -8,7 +8,8 @@
     "evidence/baselines/2026-08-01-ec90c65.json",
     "evidence/baselines/2026-08-01-13b5bf5.json",
     "evidence/baselines/2026-08-01-b20fa57.json",
-    "evidence/baselines/2026-08-01-b1c311f.json"
+    "evidence/baselines/2026-08-01-b1c311f.json",
+    "evidence/baselines/2026-08-01-c4966e4.json"
   ],
   "capabilities": [
     {
@@ -79,14 +80,21 @@
       "status": "qualified",
       "owner": "integration.native_simulation",
       "artifact": "metalrobo_train",
-      "scope": "In-process Swift/MLX PPO consumes lifetime-scoped shared Metal rollout slots without Swift array concatenation or an MLX input copy. The integration owner advances beyond the three-slot ring and validates release, policy revision, checkpoints, and artifacts. One compact native-publication-to-ring host copy per chunk remains."
+      "scope": "In-process Swift/MLX PPO consumes lifetime-scoped native shared Metal rollout slots without Swift array concatenation, a Swift-side stream copy, or an MLX input copy. The integration owner advances beyond the three-slot ring and validates release, policy revision, checkpoints, and artifacts. The synchronous inspection result still materializes compact host vectors pending GPU-side validation."
     },
     {
       "id": "learning.leased_rollout_ring",
       "status": "qualified",
       "owner": "integration.native_simulation",
       "artifact": "metalrobo_train",
-      "scope": "Three fixed-capacity storageModeShared MTLBuffer slots publish actor and critic observations, latents, behavior metadata, values, bootstrap values, and native transitions under generation-checked leases. Managed MLX C arrays retain and release the slot payload deterministically."
+      "scope": "The native runtime owns three fixed-capacity shared Metal slots for actor and critic observations, latents, behavior metadata, values, bootstrap values, and transitions. Swift receives only opaque leases; managed MLX C arrays retain and release the slot payload deterministically."
+    },
+    {
+      "id": "learning.direct_gpu_rollout_publication",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "The world command buffer blits every compact learning stream directly into the pending native rollout lease. The lease cursor advances only with accepted world publication; the owner checks two-chunk offsets, bootstrap placement, byte-exact content, premature visibility rejection, exclusivity, and reuse."
     },
     {
       "id": "tasks.compiled_native_runtime",

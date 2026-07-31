@@ -82,7 +82,8 @@ Every accepted control transition follows one transaction:
 6. Solve into uncommitted state with NumiSolver.
 7. Integrate, complete tasks, sample the accepted state, update SensorIR-bound
    histories and terminal bootstrap views, and advance counters.
-8. Validate status and atomically publish state and compact outputs.
+8. Validate status, atomically publish state, and blit compact learning
+   outputs into the pending native rollout lease before command-buffer commit.
 
 Overflow, invalid dispatch, factorization failure, or nonfinite output keeps the
 last committed state. Partially scattered constraints or half-reset sensor

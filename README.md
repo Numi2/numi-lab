@@ -122,8 +122,17 @@ Run learning through the in-process Swift/MLX boundary:
 
 ```sh
 cmake --build build --target metalrobo_train
-./build/bin/metalrobo_train --help
+./build/bin/metalrobo_train \
+  --envs 32 --steps 48 --chunk 8 --updates 100 \
+  --initialize-policy g1-standing \
+  --policy-pack artifacts/g1-standing.initial.policypack \
+  --updated-policy-pack artifacts/g1-standing.policypack \
+  --rollout-pack artifacts/g1-standing.rolloutpack
 ```
+
+The native command buffer writes compact rollout streams directly into an
+opaque leased ring. Swift schedules chunks and MLX consumes managed no-copy
+views; neither owns simulator state.
 
 ## Repository map
 
