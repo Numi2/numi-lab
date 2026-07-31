@@ -1957,20 +1957,16 @@ if(BUILD_TESTING)
     if(METALROBO_HAS_SWIFT)
         add_test(
             NAME integration.native_simulation
-            COMMAND metalrobo_simulation
-                --metallib "${METALROBO_METALLIB}"
-                --envs 1
-                --steps 4
-                --repeats 1
-                --chunk 1
-                --scene ground
-                --numi-iteration-policy fixed
-                --zero-actions
-                --no-scheduled-resets
+            COMMAND "${CMAKE_COMMAND}"
+                -DMETALROBO_SIMULATION=$<TARGET_FILE:metalrobo_simulation>
+                -DMETALROBO_TRAIN=$<TARGET_FILE:metalrobo_train>
+                -DMETALROBO_METALLIB=${METALROBO_METALLIB}
+                -DMETALROBO_INTEGRATION_DIR=${CMAKE_CURRENT_BINARY_DIR}/native-integration
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/RunNativeIntegration.cmake"
         )
         set_tests_properties(
             integration.native_simulation
-            PROPERTIES TIMEOUT 120 LABELS "integration"
+            PROPERTIES TIMEOUT 180 LABELS "integration"
         )
     endif()
 endif()

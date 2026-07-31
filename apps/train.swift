@@ -485,40 +485,16 @@ private enum TrainMain {
             var stageHighWater: [String: Int] = [:]
             var failedSteps = 0
             var lastLearning: [String: Any] = [:]
-            let samplesPerUpdate =
-                options.environments * options.steps
-            var actorObservations: [Float] = []
-            var criticObservations: [Float] = []
-            var latents: [Float] = []
-            var logProbabilities: [Float] = []
-            var values: [Float] = []
-            var transitions: [MetalRoboTaskTransition] = []
-            actorObservations.reserveCapacity(
-                samplesPerUpdate *
-                    layout.actorObservationCount
+            let rolloutRing = try MetalRoboRolloutBufferRing(
+                layout: layout,
+                controlStepCapacity: options.steps,
+                slotCount: 3
             )
-            criticObservations.reserveCapacity(
-                samplesPerUpdate *
-                    layout.criticObservationCount
-            )
-            latents.reserveCapacity(
-                samplesPerUpdate * layout.actionCount
-            )
-            logProbabilities.reserveCapacity(samplesPerUpdate)
-            values.reserveCapacity(samplesPerUpdate)
-            transitions.reserveCapacity(samplesPerUpdate)
 
             for updateIndex in 0..<options.updates {
-                actorObservations.removeAll(
-                    keepingCapacity: true
+                let rollout = try rolloutRing.acquire(
+                    policyRevision: installedRevision
                 )
-                criticObservations.removeAll(
-                    keepingCapacity: true
-                )
-                latents.removeAll(keepingCapacity: true)
-                logProbabilities.removeAll(keepingCapacity: true)
-                values.removeAll(keepingCapacity: true)
-                transitions.removeAll(keepingCapacity: true)
                 var completed = 0
                 while completed < options.steps {
                     let stepCount = min(
@@ -536,29 +512,12 @@ private enum TrainMain {
                             "Native rollout returned a GPU failure."
                         )
                     }
-                    let transitionOffset =
-                        transitions.count
                     try context.appendCurrentPolicyRollout(
                         controlStepCount: stepCount,
-                        actorObservations:
-                            &actorObservations,
-                        criticObservations:
-                            &criticObservations,
-                        latents: &latents,
-                        logProbabilities:
-                            &logProbabilities,
-                        values: &values,
-                        transitions: &transitions
+                        to: rollout,
+                        includeBootstrapValues:
+                            completed + stepCount == options.steps
                     )
-                    guard transitions[
-                        transitionOffset...
-                    ].allSatisfy({
-                        $0.policyRevision == installedRevision
-                    }) else {
-                        throw MetalRoboSimulationError.native(
-                            "Policy revision changed inside a rollout."
-                        )
-                    }
                     totalResets += advance.hostRequestedResets
                     maximumContacts = max(
                         maximumContacts,
@@ -579,31 +538,16 @@ private enum TrainMain {
                     failedSteps += advance.failedEnvironmentSteps
                     completed += stepCount
                 }
-                let rollout = MetalRoboPolicyRolloutBatch(
-                    controlStepCount: options.steps,
-                    environmentCount: options.environments,
-                    actorObservationCount:
-                        layout.actorObservationCount,
-                    criticObservationCount:
-                        layout.criticObservationCount,
-                    actionCount: layout.actionCount,
-                    actorObservations: actorObservations,
-                    criticObservations: criticObservations,
-                    latents: latents,
-                    logProbabilities: logProbabilities,
-                    values: values,
-                    transitions: transitions
-                )
-                let bootstrapValues =
-                    try context.bootstrapPolicyValues()
+                try context.sealPolicyRollout(rollout)
                 try context.writePolicyRolloutPack(
                     rollout,
-                    bootstrapValues: bootstrapValues,
                     id: "swift_native_training_rollout",
                     to: URL(fileURLWithPath: rolloutPack)
                 )
-                guard let rolloutCurriculumLevel =
-                          transitions.last?.curriculumLevel,
+                let rolloutCurriculumLevel = try rollout.transition(
+                    at: rollout.sampleCount - 1
+                ).curriculumLevel
+                guard
                       rolloutCurriculumLevel >=
                           learner.taskCurriculumLevel
                 else {
@@ -613,7 +557,6 @@ private enum TrainMain {
                 }
                 lastLearning = try learner.update(
                     rollout: rollout,
-                    bootstrapValues: bootstrapValues,
                     curriculumLevel: rolloutCurriculumLevel
                 )
                 guard learner.taskCurriculumLevel ==
@@ -728,6 +671,7 @@ private enum TrainMain {
                     baseline.totalSubmissionMilliseconds,
                 "retained_buffer_bytes":
                     finalLayout.retainedBufferBytes,
+                "rollout_ring_bytes": rolloutRing.retainedBytes,
                 "transient_private_bytes":
                     finalLayout.transientPrivateBytes,
                 "host_requested_resets": totalResets,

@@ -1,9 +1,30 @@
 import Darwin
 import Foundation
+import Cmlx
 import MLX
 import MLXNN
 import MLXOptimizers
 import MLXRandom
+import MetalRoboC
+
+private final class MetalRoboMLXRolloutLeasePayload {
+    let rollout: MetalRoboRolloutBufferView
+
+    init(_ rollout: MetalRoboRolloutBufferView) {
+        self.rollout = rollout
+    }
+}
+
+private func metalRoboReleaseMLXRolloutLease(
+    _ payload: UnsafeMutableRawPointer?
+) {
+    guard let payload else {
+        return
+    }
+    Unmanaged<MetalRoboMLXRolloutLeasePayload>
+        .fromOpaque(payload)
+        .release()
+}
 
 /// PPO configuration for the in-process Apple-native learning boundary.
 /// Simulator state never enters MLX; only compact rollout tensors do.
@@ -343,14 +364,10 @@ final class MetalRoboMLXPPOTrainer {
     }
 
     func update(
-        rollout: MetalRoboPolicyRolloutBatch,
-        bootstrapValues: [Float],
+        rollout: MetalRoboRolloutBufferView,
         curriculumLevel: UInt32
     ) throws -> [String: Any] {
-        let sampleCount = try validate(
-            rollout: rollout,
-            bootstrapValues: bootstrapValues
-        )
+        let sampleCount = try validate(rollout: rollout)
         guard curriculumLevel >= taskCurriculumLevel else {
             throw MetalRoboSimulationError.invalidShape(
                 "Task curriculum cannot move backwards."
@@ -366,26 +383,52 @@ final class MetalRoboMLXPPOTrainer {
         let previousLearningRate = currentLearningRate
 
         do {
-            let prepared = prepareBatch(
-                rollout: rollout,
-                bootstrapValues: bootstrapValues
+            let prepared = try prepareBatch(
+                rollout: rollout
             )
-            let actorObservations = MLXArray(
-                rollout.actorObservations,
+            let pointers = try rollout.rawPointers()
+            func managedFloatArray(
+                _ pointer: UnsafeMutableRawPointer,
+                _ shape: [Int]
+            ) -> MLXArray {
+                let dimensions = shape.map(Int32.init)
+                let payload = Unmanaged.passRetained(
+                    MetalRoboMLXRolloutLeasePayload(rollout)
+                ).toOpaque()
+                return dimensions.withUnsafeBufferPointer {
+                    dimensions in
+                    MLXArray(
+                        mlx_array_new_data_managed_payload(
+                            pointer,
+                            dimensions.baseAddress,
+                            Int32(dimensions.count),
+                            MLX_FLOAT32,
+                            payload,
+                            metalRoboReleaseMLXRolloutLease
+                        )
+                    )
+                }
+            }
+            let actorObservations = managedFloatArray(
+                pointers.actor,
                 [sampleCount, actorObservationCount]
             )
-            let criticObservations = MLXArray(
-                rollout.criticObservations,
+            let criticObservations = managedFloatArray(
+                pointers.critic,
                 [sampleCount, criticObservationCount]
             )
-            let latents = MLXArray(
-                rollout.latents,
+            let latents = managedFloatArray(
+                pointers.latents,
                 [sampleCount, actionCount]
             )
-            let oldLogProbabilities = MLXArray(
-                rollout.logProbabilities
+            let oldLogProbabilities = managedFloatArray(
+                pointers.logProbabilities,
+                [sampleCount]
             )
-            let oldValues = MLXArray(rollout.values)
+            let oldValues = managedFloatArray(
+                pointers.values,
+                [sampleCount]
+            )
             let rawAdvantages = MLXArray(prepared.advantages)
             let advantages =
                 (rawAdvantages - MLX.mean(rawAdvantages)) /
@@ -510,7 +553,7 @@ final class MetalRoboMLXPPOTrainer {
                 )
             )
             MLX.eval(standardDeviation)
-            return metricsRecord(
+            return try metricsRecord(
                 rollout: rollout,
                 totals: totals,
                 denominator: denominator,
@@ -670,11 +713,17 @@ final class MetalRoboMLXPPOTrainer {
     }
 
     private func prepareBatch(
-        rollout: MetalRoboPolicyRolloutBatch,
-        bootstrapValues: [Float]
-    ) -> (advantages: [Float], returns: [Float]) {
+        rollout: MetalRoboRolloutBufferView
+    ) throws -> (advantages: [Float], returns: [Float]) {
         let steps = rollout.controlStepCount
         let environments = rollout.environmentCount
+        let pointers = try rollout.rawPointers()
+        let nativeTransitions = pointers.transitions
+            .assumingMemoryBound(to: MRTaskTransitionC.self)
+        let values = pointers.values
+            .assumingMemoryBound(to: Float.self)
+        let bootstrap = pointers.bootstrap
+            .assumingMemoryBound(to: Float.self)
         var advantages = Array(
             repeating: Float.zero,
             count: rollout.sampleCount
@@ -686,12 +735,14 @@ final class MetalRoboMLXPPOTrainer {
         for step in stride(from: steps - 1, through: 0, by: -1) {
             for environment in 0..<environments {
                 let index = step * environments + environment
-                let transition = rollout.transitions[index]
+                let transition = MetalRoboTaskTransition(
+                    nativeTransitions[index]
+                )
                 let continuing: Float = transition.done ? 0 : 1
                 let nextValue =
                     step + 1 == steps
-                    ? bootstrapValues[environment]
-                    : rollout.values[index + environments]
+                    ? bootstrap[environment]
+                    : values[index + environments]
                 let timeoutBootstrap: Float =
                     transition.timeout && !transition.physicsError
                     ? transition.timeoutBootstrapValue
@@ -700,7 +751,7 @@ final class MetalRoboMLXPPOTrainer {
                     transition.reward +
                     configuration.discount * timeoutBootstrap +
                     configuration.discount * continuing * nextValue -
-                    rollout.values[index]
+                    values[index]
                 running[environment] =
                     delta +
                     configuration.discount *
@@ -709,38 +760,63 @@ final class MetalRoboMLXPPOTrainer {
                 advantages[index] = running[environment]
             }
         }
-        let returns = zip(advantages, rollout.values).map(+)
+        var returns = advantages
+        for index in returns.indices {
+            returns[index] += values[index]
+        }
         return (advantages, returns)
     }
 
     private func validate(
-        rollout: MetalRoboPolicyRolloutBatch,
-        bootstrapValues: [Float]
+        rollout: MetalRoboRolloutBufferView
     ) throws -> Int {
         let samples = rollout.sampleCount
+        let pointers = try rollout.rawPointers()
+        let actor = UnsafeBufferPointer(
+            start: pointers.actor.assumingMemoryBound(to: Float.self),
+            count: samples * actorObservationCount
+        )
+        let critic = UnsafeBufferPointer(
+            start: pointers.critic.assumingMemoryBound(to: Float.self),
+            count: samples * criticObservationCount
+        )
+        let latents = UnsafeBufferPointer(
+            start: pointers.latents.assumingMemoryBound(to: Float.self),
+            count: samples * actionCount
+        )
+        let logProbabilities = UnsafeBufferPointer(
+            start: pointers.logProbabilities
+                .assumingMemoryBound(to: Float.self),
+            count: samples
+        )
+        let values = UnsafeBufferPointer(
+            start: pointers.values.assumingMemoryBound(to: Float.self),
+            count: samples
+        )
+        let bootstrap = UnsafeBufferPointer(
+            start: pointers.bootstrap.assumingMemoryBound(to: Float.self),
+            count: rollout.environmentCount
+        )
+        let transitions = UnsafeBufferPointer(
+            start: pointers.transitions
+                .assumingMemoryBound(to: MRTaskTransitionC.self),
+            count: samples
+        )
         guard rollout.controlStepCount > 0,
               rollout.environmentCount > 0,
               rollout.actorObservationCount == actorObservationCount,
               rollout.criticObservationCount == criticObservationCount,
               rollout.actionCount == actionCount,
-              rollout.actorObservations.count ==
-                  samples * actorObservationCount,
-              rollout.criticObservations.count ==
-                  samples * criticObservationCount,
-              rollout.latents.count == samples * actionCount,
-              rollout.logProbabilities.count == samples,
-              rollout.values.count == samples,
-              rollout.transitions.count == samples,
-              bootstrapValues.count == rollout.environmentCount,
-              rollout.actorObservations.allSatisfy(\.isFinite),
-              rollout.criticObservations.allSatisfy(\.isFinite),
-              rollout.latents.allSatisfy(\.isFinite),
-              rollout.logProbabilities.allSatisfy(\.isFinite),
-              rollout.values.allSatisfy(\.isFinite),
-              bootstrapValues.allSatisfy(\.isFinite),
-              rollout.transitions.allSatisfy({
-                  $0.reward.isFinite &&
-                      $0.timeoutBootstrapValue.isFinite
+              actor.allSatisfy(\.isFinite),
+              critic.allSatisfy(\.isFinite),
+              latents.allSatisfy(\.isFinite),
+              logProbabilities.allSatisfy(\.isFinite),
+              values.allSatisfy(\.isFinite),
+              bootstrap.allSatisfy(\.isFinite),
+              transitions.allSatisfy({ transition in
+                  transition.reward.isFinite &&
+                      transition.timeout_bootstrap_value.isFinite &&
+                      transition.policy_revision == rollout.policyRevision
               })
         else {
             throw MetalRoboSimulationError.invalidShape(
@@ -989,20 +1065,36 @@ final class MetalRoboMLXPPOTrainer {
     }
 
     private func metricsRecord(
-        rollout: MetalRoboPolicyRolloutBatch,
+        rollout: MetalRoboRolloutBufferView,
         totals: [Double],
         denominator: Double,
         meanGradientNorm: Double,
         updateSeconds: Double,
         minibatchUpdates: Int,
         meanActionStandardDeviation: Double
-    ) -> [String: Any] {
+    ) throws -> [String: Any] {
         let samples = Double(rollout.sampleCount)
-        let sum: ((MetalRoboTaskTransition) -> Float) -> Double = {
-            selector in
-            rollout.transitions.reduce(0) {
-                $0 + Double(selector($1))
-            }
+        var reward = 0.0
+        var tracking = 0.0
+        var rootHeight = 0.0
+        var tilt = 0.0
+        var doneCount = 0
+        var timeoutCount = 0
+        var physicsErrorCount = 0
+        let pointers = try rollout.rawPointers()
+        let transitions = pointers.transitions
+            .assumingMemoryBound(to: MRTaskTransitionC.self)
+        for index in 0..<rollout.sampleCount {
+            let transition = MetalRoboTaskTransition(
+                transitions[index]
+            )
+            reward += Double(transition.reward)
+            tracking += Double(transition.trackingScore)
+            rootHeight += Double(transition.rootHeight)
+            tilt += Double(transition.tilt)
+            doneCount += transition.done ? 1 : 0
+            timeoutCount += transition.timeout ? 1 : 0
+            physicsErrorCount += transition.physicsError ? 1 : 0
         }
         return [
             "loss": totals[0] / denominator,
@@ -1020,15 +1112,13 @@ final class MetalRoboMLXPPOTrainer {
             "task_curriculum_level": taskCurriculumLevel,
             "mean_action_standard_deviation":
                 meanActionStandardDeviation,
-            "mean_reward": sum(\.reward) / samples,
-            "mean_tracking_score": sum(\.trackingScore) / samples,
-            "mean_root_height": sum(\.rootHeight) / samples,
-            "mean_tilt": sum(\.tilt) / samples,
-            "done_count": rollout.transitions.filter(\.done).count,
-            "timeout_count":
-                rollout.transitions.filter(\.timeout).count,
-            "physics_error_count":
-                rollout.transitions.filter(\.physicsError).count,
+            "mean_reward": reward / samples,
+            "mean_tracking_score": tracking / samples,
+            "mean_root_height": rootHeight / samples,
+            "mean_tilt": tilt / samples,
+            "done_count": doneCount,
+            "timeout_count": timeoutCount,
+            "physics_error_count": physicsErrorCount,
         ]
     }
 }
