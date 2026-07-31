@@ -22,6 +22,11 @@ Evidence manifests record:
 Historical manifests remain immutable. A newer run supersedes evidence only
 for the checks and contracts it actually exercised.
 
+The TaskIR owner includes exact-rate and non-divisor SensorIR schedules,
+whole-sample latency, mid-rollout reset, actor/critic consumer permissions, and
+accepted-state ordering for final-policy observations. This is scheduling and
+contract evidence; it does not qualify unimplemented sensor modalities.
+
 ## Owning checks
 
 The intended consolidated suite is:

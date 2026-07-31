@@ -74,11 +74,13 @@ Every accepted control transition follows one transaction:
 
 1. Snapshot or identify the last committed environment state.
 2. Apply scheduled reset, command, randomization, and episode state.
-3. Refresh pre-control kinematics, sensors, observations, policy, and actions.
+3. Seed reset-only kinematics and SensorIR history, refresh TaskIR actor/critic
+   views, then execute policy and actions.
 4. Generate collision and constraint candidates.
 5. Validate all counts, scans, offsets, and capacities.
 6. Solve into uncommitted state with NumiSolver.
-7. Integrate and update post-physics tasks, sensors, histories, and counters.
+7. Integrate, complete tasks, sample the accepted state, update SensorIR-bound
+   histories and terminal bootstrap views, and advance counters.
 8. Validate status and atomically publish state and compact outputs.
 
 Overflow, invalid dispatch, factorization failure, or nonfinite output keeps the

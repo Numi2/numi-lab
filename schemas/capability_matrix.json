@@ -4,7 +4,8 @@
   "evidence_manifests": [
     "evidence/baselines/2026-07-31-b7f03fb.json",
     "evidence/baselines/2026-07-31-9e8ea7e.json",
-    "evidence/baselines/2026-08-01-db62e37.json"
+    "evidence/baselines/2026-08-01-db62e37.json",
+    "evidence/baselines/2026-08-01-ec90c65.json"
   ],
   "capabilities": [
     {
@@ -89,7 +90,14 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled selected-articulation body frames, static SE(3) goals, pose observations, pose rewards, pose terminations, and reset-correct pre-policy kinematics are implemented. Scene-object/site semantics, twists, accelerations, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified."
+      "scope": "Compiled selected-articulation body frames, static SE(3) goals, pose observations, pose rewards, pose terminations, SensorIR scalar/validity sources, and reset-correct pre-policy kinematics are implemented. Scene-object/site semantics, twists, accelerations, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified."
+    },
+    {
+      "id": "tasks.sensor_ir_observations",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "TaskIR resolves named SensorIR scalar values and validity bits, enforces actor/critic permissions, fingerprints the exact sensor program, seeds histories transactionally on reset, advances them from accepted post-physics state, and republishes terminal policy/value views before inference."
     },
     {
       "id": "sensors.native_tactile",
@@ -103,14 +111,14 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Native pre-control parent-frame pose sensors use topology-derived persistent buffers, deterministic nanosecond phase accumulation, whole-sample latency history, per-environment transactional reset, and compact value/age/validity publication. The owner covers an exact 50 Hz schedule and a 30 Hz non-divisor schedule over a 20 ms control period."
+      "scope": "Native parent-frame pose sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. The owner covers exact 50 Hz and non-divisor 30 Hz schedules over a 20 ms control period."
     },
     {
       "id": "sensors.unified_sensor_ir",
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "WorldPack state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose sensors now execute in the session-owned scheduler; presentation and tactile still use their existing native owners, and TaskIR sensor references, deterministic corruption, recorder routing, contact, ray, LiDAR, force-torque, and IMU operators remain incomplete."
+      "scope": "WorldPack state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose sensors execute in the session-owned scheduler and bind into TaskIR; presentation and tactile still use their existing native owners, while sensor-native corruption, recorder routing, contact, ray, LiDAR, force-torque, and IMU operators remain incomplete."
     },
     {
       "id": "policy.dense_native_inference",

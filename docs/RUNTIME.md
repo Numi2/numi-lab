@@ -55,13 +55,20 @@ consumers release it.
 
 ## Current SensorIR execution boundary
 
-The canonical MetalWorld session now owns persistent schedule, history, output,
-and metadata buffers for pre-control parent-frame pose sensors. One thread owns
-one environment/sensor history ring, so a reset clears its schedule and history
-without atomics or host reconstruction. Rates use integer nanosecond phase
-accumulators; whole-sample latency is selected from the retained ring. Compact
-latest values and timestamp/age/validity metadata cross the inspection boundary
-only when explicitly requested.
+The canonical MetalWorld session owns persistent schedule, history, output, and
+metadata buffers for parent-frame pose sensors. One thread owns one
+environment/sensor history ring, so a reset clears and seeds it without atomics
+or host reconstruction. A second boundary advances the schedule after physics
+accepts the next state; rollout-chunk boundaries therefore do not duplicate a
+sample. Rates use integer nanosecond phase accumulators and whole-sample latency
+is selected from the retained ring.
+
+Compiled TaskIR operators consume named SensorIR values and validity bits
+directly on-device. Reset refresh fills every actor/critic history slot before
+policy inference. Accepted-state refresh writes the shifted history tail and
+republishes final actor and critic views before terminal policy/value inference.
+Compact latest values and timestamp/age/validity metadata cross the inspection
+boundary only when explicitly requested.
 
 Presentation and tactile passes have not yet been folded into this scheduler.
 They remain native but are rejected by this execution gate instead of being

@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T00:39:41+02:00",
+  "source_revision": "ec90c65",
+  "metallib_sha256": "696cb114bbb6d8cce92c3ade1332851b82f40d2b2e3e926412775b5b146e9f8d",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 4.95,
+    "task_sensor_repeat_count": 20,
+    "task_sensor_repeat_failures": 0,
+    "gpu_restart_log_matches": 0,
+    "sensor_test_environment_count": 2,
+    "sensor_test_control_step_count": 4,
+    "sensor_test_control_period_seconds": 0.02,
+    "sensor_test_rates_hz": [50.0, 30.0],
+    "sensor_test_latency_samples": [1, 0],
+    "sensor_mid_rollout_reset_step": 2,
+    "sensor_state_output_elements": 7,
+    "task_sensor_observation_opcodes": 2,
+    "runtime_abi_version": 5,
+    "sensor_program_abi_version": 3,
+    "task_program_abi_version": 8,
+    "task_pack_format_version": 5
+  },
+  "known_release_blockers": [
+    "The runtime schema does not yet generate every canonical world dispatch and resource binding.",
+    "The canonical executor has not completed its Metal 4 command-allocator and residency-set migration.",
+    "No general MJCF importer is present.",
+    "TaskIR lacks scene-object and site frames, twist and acceleration sources, sampled goals, and general reductions.",
+    "SensorIR natively schedules parent-frame pose sensors only; presentation, tactile, force-torque, contact, ray, LiDAR, and IMU execution are not yet folded into the same session schedule.",
+    "PolicyIR has no recurrent, convolutional, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

@@ -49,12 +49,16 @@ joint/contact tasks, persistent Swift-scheduled Metal rollouts, dense policy
 inference, authored visual presentation, and native tactile output. Important
 release blockers remain:
 
-- NumiSolver does not yet accept rod-bearing contact worlds.
+- The fixed-budget NumiSolver path accepts retained-operator rod contacts, but
+  the residual-converged profile and the full rod mechanics corpus are not yet
+  qualified.
 - General MJCF import is not implemented.
-- TaskIR lacks general body, site, and SE(3) goal operators.
-- Sensor declarations now compile into one fingerprinted SensorIR layout, but
-  presentation, tactile, and state sampling do not yet execute on one session
-  schedule or bind directly into TaskIR observations.
+- TaskIR supports selected-articulation body frames, static SE(3) goals, and
+  fingerprint-bound SensorIR values/validity; scene-object sites, twist,
+  acceleration, sampled goals, and generic reductions remain incomplete.
+- State sensors execute on the session timeline and bind directly into TaskIR.
+  Presentation and tactile sensing remain native but have not yet been folded
+  into that same schedule.
 - PolicyIR does not yet support convolution, recurrence, or attention.
 - Native validity-aware adjoints are not implemented.
 - G1 standing and walking are not qualified.

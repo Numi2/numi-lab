@@ -86,6 +86,8 @@ supports:
 - maximum frame position/orientation error termination;
 - fixed-shape actor/critic histories, deterministic corruption, curriculum,
   randomization, and transactional reset.
+- named SensorIR scalar values and validity bits, with actor/critic permission
+  checks and an exact SensorIR fingerprint in the compiled TaskIR contract.
 
 Reset frame observations are evaluated from the randomized reset
 configuration through the generic articulated-kinematics operator before
@@ -96,7 +98,7 @@ The remaining TaskIR target is a phase-separated graph covering action,
 command/event, observation, reward, termination, recorder, reset, and
 curriculum phases. Site semantics, scene-object frames, frame twist and
 acceleration, point/Jacobian quantities, sampled and trajectory goals, generic
-gates/reductions, and sensor references are not yet production operators.
+gates/reductions are not yet production operators.
 
 All implemented names resolve at compilation. The GPU receives only typed
 indices, counts, and fixed output layouts. Adding another body layout or static
@@ -124,17 +126,27 @@ The compiler converts translation once to the COM-centred runtime origin;
 tactile descriptors instead use the cooked tactile surface transform as their
 spatial authority.
 
-The first common SensorIR executor now samples pre-control parent-frame pose
-sensors. It owns per-environment nanosecond phase accumulators, latency history,
-latest compact output, timestamp/age/validity metadata, and reset state in
-persistent private buffers. It supports the control rate or any slower rate,
-including non-divisor schedules, and never publishes its retained history as
-ordinary learner tensors.
+The first common SensorIR executor samples parent-frame pose sensors on two
+explicit control boundaries. A reset-only pass seeds the accepted randomized
+state before the first action; a post-physics pass advances the schedule from
+the newly accepted state for the next action and terminal value bootstrap. It
+owns per-environment nanosecond phase accumulators, latency history, latest
+compact output, timestamp/age/validity metadata, and reset state in persistent
+private buffers. It supports the control rate or any slower rate, including
+non-divisor schedules, and never publishes retained history as ordinary
+learner tensors.
+
+Task observations reference a sensor by authored ID. Compilation resolves that
+ID to a descriptor and output offset, enforces actor or critic permission, and
+fingerprints the exact SensorIR program. The runtime can bind either a scalar
+channel or one of the `valid`, `fresh`, `reset`, `stale`, and `nonfinite` bits.
+Task-level delay and corruption remain deterministic and apply after SensorIR
+latency selection.
 
 Presentation sensors still execute in the native renderer and tactile sensors
 still execute in the native tactile context. Folding those passes into the
-session schedule, TaskIR sensor references, force-torque/contact/ray/LiDAR/IMU
-operators, recorder routing, counter-based corruption, and compiler dead-code
+session schedule, force-torque/contact/ray/LiDAR/IMU operators, recorder
+routing, sensor-native counter-based corruption, and compiler dead-code
 elimination remain incomplete. Random corruption will be keyed by environment,
 episode, sensor, sample, and channel.
 
