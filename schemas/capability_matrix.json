@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "statuses": ["qualified", "implemented", "experimental", "unsupported"],
+  "capabilities": [
+    {
+      "id": "compiler.urdf_srdf",
+      "status": "qualified",
+      "owner": "compiler.robot_description",
+      "artifact": "metalrobo_robot_description_cooker_probe",
+      "scope": "Rigid articulated URDF/SRDF import, semantic names, meshes, and deterministic fingerprints."
+    },
+    {
+      "id": "compiler.mjcf",
+      "status": "unsupported",
+      "owner": "none",
+      "artifact": "none",
+      "scope": "No production MJCF parser. A pinned G1 companion-MJCF preset is data, not general MJCF support."
+    },
+    {
+      "id": "physics.throughput_pgs",
+      "status": "qualified",
+      "owner": "physics.metal_contact",
+      "artifact": "metalrobo_metal_world_contact_probe",
+      "scope": "Production default for rigid and articulated contacts on Apple Metal."
+    },
+    {
+      "id": "physics.quality_newton",
+      "status": "experimental",
+      "owner": "none",
+      "artifact": "metalrobo_metal_unified_quality_probe",
+      "scope": "Available for focused study; not yet the qualified production solver."
+    },
+    {
+      "id": "physics.true_temporal_tgs",
+      "status": "unsupported",
+      "owner": "none",
+      "artifact": "none",
+      "scope": "The former TGS label was removed. Internal Wave32 block-Jacobi is not temporal Gauss-Seidel."
+    },
+    {
+      "id": "physics.constraint_ir",
+      "status": "implemented",
+      "owner": "physics.constraint_ir",
+      "artifact": "metalrobo_constraint_ir_probe",
+      "scope": "Shared row, endpoint, cone, stable-key, and warm-start representation. Joint limits are not yet fully coupled through it."
+    },
+    {
+      "id": "physics.literal_convex_ccd",
+      "status": "experimental",
+      "owner": "physics.metal_contact",
+      "artifact": "metalrobo_metal_world_contact_probe",
+      "scope": "Selected convex event-time paths exist; complete advance-to-impact, solve, and continue coverage is not qualified."
+    },
+    {
+      "id": "mechanics.g1_source_exact_presets",
+      "status": "qualified",
+      "owner": "mechanics.actuation",
+      "artifact": "metalrobo_g1_model_probe",
+      "scope": "Distinct fingerprinted URDF, companion-MJCF, and RL Lab actuator contracts; no silent 25/35/50 N m mixing."
+    },
+    {
+      "id": "runtime.swift_metal_session",
+      "status": "qualified",
+      "owner": "integration.native_simulation",
+      "artifact": "metalrobo_simulation",
+      "scope": "Swift schedules bounded native submissions; Metal owns persistent simulator state and transactions."
+    },
+    {
+      "id": "learning.swift_mlx_ppo",
+      "status": "implemented",
+      "owner": "integration.native_simulation",
+      "artifact": "metalrobo_train",
+      "scope": "In-process Swift/MLX learner. Python PPO and learner-worker runtimes are removed."
+    },
+    {
+      "id": "tasks.compiled_locomotion",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "Compiled semantic bindings, native observations, reward, termination, reset, curriculum, and randomization."
+    },
+    {
+      "id": "tasks.generic_typed_operators",
+      "status": "experimental",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "TaskPack remains locomotion-shaped in several header fields and operators; three task families are not yet qualified."
+    },
+    {
+      "id": "sensors.native_tactile",
+      "status": "qualified",
+      "owner": "sensors.tactile",
+      "artifact": "metalrobo_tactile_check",
+      "scope": "Native deformation, contact evidence, wrench summaries, history, and device-buffer access."
+    },
+    {
+      "id": "sensors.unified_sensor_ir",
+      "status": "unsupported",
+      "owner": "none",
+      "artifact": "none",
+      "scope": "Renderer, tactile, contact, and range sensing do not yet compile through one SensorIR schedule."
+    },
+    {
+      "id": "policy.dense_native_inference",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "Fingerprint-bound normalization, dense actor/critic layers, Gaussian behavior policy, and native inference."
+    },
+    {
+      "id": "policy.recurrent_visual_attention",
+      "status": "unsupported",
+      "owner": "none",
+      "artifact": "none",
+      "scope": "Convolution, recurrence, and attention are not production PolicyIR operators."
+    },
+    {
+      "id": "differentiation.native_adjoint",
+      "status": "unsupported",
+      "owner": "none",
+      "artifact": "none",
+      "scope": "Forward Jacobians exist, but no production tape, backward kernels, implicit adjoint, or validity-mask API exists."
+    },
+    {
+      "id": "presentation.visual_v3",
+      "status": "qualified",
+      "owner": "presentation.visual_platform",
+      "artifact": "metalrobo_visual_platform_probe",
+      "scope": "Authored Visual Presentation V3 path; collision geometry is not a visual fallback."
+    }
+  ]
+}

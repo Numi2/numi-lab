@@ -1965,6 +1965,21 @@ set_target_properties(
 # One owning correctness entry per current subsystem. The remaining focused
 # executables are developer diagnostics or benchmarks; they are intentionally
 # not multiplied into a second regression suite.
+find_package(Python3 QUIET COMPONENTS Interpreter)
+if(Python3_Interpreter_FOUND)
+    add_custom_target(
+        metalrobo_capability_matrix_check
+        COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/python/generate_capability_matrix.py"
+            --registry
+            "${CMAKE_CURRENT_SOURCE_DIR}/schemas/capability_matrix.json"
+            --output
+            "${CMAKE_CURRENT_SOURCE_DIR}/docs/ENGINE_CAPABILITY_LEDGER.md"
+            --check
+        VERBATIM
+    )
+endif()
+
 if(BUILD_TESTING)
     add_test(
         NAME compiler.robot_description
