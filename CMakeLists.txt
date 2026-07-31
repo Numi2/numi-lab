@@ -7,6 +7,8 @@ project(
     LANGUAGES C CXX OBJCXX
 )
 
+include(CTest)
+
 if(NOT APPLE)
     message(FATAL_ERROR "MetalRobo 0.4 targets Apple Silicon macOS.")
 endif()
@@ -1959,6 +1961,60 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+# One owning correctness entry per current subsystem. The remaining focused
+# executables are developer diagnostics or benchmarks; they are intentionally
+# not multiplied into a second regression suite.
+if(BUILD_TESTING)
+    add_test(
+        NAME compiler.robot_description
+        COMMAND metalrobo_robot_description_cooker_probe
+    )
+    add_test(NAME task.program COMMAND metalrobo_task_program_check)
+    add_test(NAME physics.constraint_ir COMMAND metalrobo_constraint_ir_probe)
+    add_test(
+        NAME physics.metal_contact
+        COMMAND metalrobo_metal_world_contact_probe
+    )
+    add_test(
+        NAME mechanics.actuation
+        COMMAND metalrobo_articulated_actuation_probe
+    )
+    add_test(NAME sensors.tactile COMMAND metalrobo_tactile_check)
+    add_test(
+        NAME presentation.visual_platform
+        COMMAND metalrobo_visual_platform_probe
+    )
+    set_tests_properties(
+        compiler.robot_description
+        task.program
+        physics.constraint_ir
+        physics.metal_contact
+        mechanics.actuation
+        sensors.tactile
+        presentation.visual_platform
+        PROPERTIES TIMEOUT 120 LABELS "owner"
+    )
+    if(METALROBO_HAS_SWIFT)
+        add_test(
+            NAME integration.native_simulation
+            COMMAND metalrobo_simulation
+                --metallib "${METALROBO_METALLIB}"
+                --envs 1
+                --steps 4
+                --repeats 1
+                --chunk 1
+                --scene ground
+                --solver-mode pgs
+                --zero-actions
+                --no-scheduled-resets
+        )
+        set_tests_properties(
+            integration.native_simulation
+            PROPERTIES TIMEOUT 120 LABELS "integration"
+        )
+    endif()
+endif()
 
 install(
     TARGETS

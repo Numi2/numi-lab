@@ -1,8 +1,10 @@
 #include "metalrobo/ArticulatedActuation.hpp"
+#include "metalrobo/EngineModelComposer.hpp"
 #include "metalrobo/G1.hpp"
 #include "metalrobo/MetalWorld.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -72,100 +74,30 @@ bool bitwiseEqual(
 metalrobo::EngineModel prependFreeBody(
     const metalrobo::EngineModel& source
 ) {
-    metalrobo::EngineModel combined =
+    const metalrobo::EngineModel freeBody =
         metalrobo::makeFreeSphereEngineModel();
-    const std::uint32_t bodyBase =
-        static_cast<std::uint32_t>(combined.bodies.size());
-    const std::uint32_t jointBase =
-        static_cast<std::uint32_t>(combined.joints.size());
-    const std::uint32_t qBase =
-        static_cast<std::uint32_t>(combined.defaultQ.size());
-    const std::uint32_t vBase =
-        static_cast<std::uint32_t>(combined.defaultV.size());
-    const std::uint32_t materialBase =
-        static_cast<std::uint32_t>(combined.materials.size());
-    const std::uint32_t articulationBase =
-        static_cast<std::uint32_t>(
-            combined.articulations.size()
+    const std::array components{
+        metalrobo::EngineModelComponent{
+            .model = &freeBody,
+            .instanceId = "free_body",
+        },
+        metalrobo::EngineModelComponent{
+            .model = &source,
+            .instanceId = "g1",
+        },
+    };
+    metalrobo::EngineModel combined;
+    const auto diagnostics = metalrobo::composeEngineModels(
+        components,
+        combined,
+        {.name = "free_body_then_" + source.name}
+    );
+    if (!diagnostics.succeeded()) {
+        throw std::runtime_error(
+            "canonical model composition failed: " +
+            diagnostics.message
         );
-
-    for (MRArticulationGPU articulation :
-         source.articulations) {
-        articulation.rootBody += bodyBase;
-        articulation.firstBody += bodyBase;
-        articulation.firstJoint += jointBase;
-        articulation.qOffset += qBase;
-        articulation.vOffset += vBase;
-        combined.articulations.push_back(articulation);
     }
-    for (MRJointDescriptorGPU joint : source.joints) {
-        joint.parentBody += bodyBase;
-        joint.childBody += bodyBase;
-        joint.qOffset += qBase;
-        joint.vOffset += vBase;
-        combined.joints.push_back(joint);
-    }
-    for (MRDofPropertiesGPU dof : source.dofs) {
-        dof.articulationIndex += articulationBase;
-        if (dof.jointIndex != MR_INVALID_INDEX) {
-            dof.jointIndex += jointBase;
-        }
-        if (dof.qIndex != MR_INVALID_INDEX) {
-            dof.qIndex += qBase;
-        }
-        dof.vIndex += vBase;
-        combined.dofs.push_back(dof);
-    }
-    for (MRBodyPropertiesGPU body : source.bodies) {
-        if (body.articulationIndex != MR_INVALID_INDEX) {
-            body.articulationIndex += articulationBase;
-        }
-        if (body.parentBody != MR_INVALID_INDEX) {
-            body.parentBody += bodyBase;
-        }
-        if (body.inboundJoint != MR_INVALID_INDEX) {
-            body.inboundJoint += jointBase;
-        }
-        combined.bodies.push_back(body);
-    }
-    for (const MRMaterialGPU material : source.materials) {
-        combined.materials.push_back(material);
-    }
-    for (MRShapeGPU shape : source.shapes) {
-        shape.bodyIndex += bodyBase;
-        shape.materialIndex += materialBase;
-        combined.shapes.push_back(shape);
-    }
-
-    combined.defaultQ.insert(
-        combined.defaultQ.end(),
-        source.defaultQ.begin(),
-        source.defaultQ.end()
-    );
-    combined.defaultV.insert(
-        combined.defaultV.end(),
-        source.defaultV.begin(),
-        source.defaultV.end()
-    );
-    combined.world.bodyCount =
-        static_cast<mr_u32>(combined.bodies.size());
-    combined.world.articulationCount =
-        static_cast<mr_u32>(combined.articulations.size());
-    combined.world.jointCount =
-        static_cast<mr_u32>(combined.joints.size());
-    combined.world.shapeCount =
-        static_cast<mr_u32>(combined.shapes.size());
-    combined.world.materialCount =
-        static_cast<mr_u32>(combined.materials.size());
-    combined.world.nq =
-        static_cast<mr_u32>(combined.defaultQ.size());
-    combined.world.nv =
-        static_cast<mr_u32>(combined.defaultV.size());
-    combined.world.pairCapacity = 4096u;
-    combined.world.contactCapacity = 4096u;
-    combined.world.constraintCapacity = 4096u;
-    combined.world.islandCapacity = 64u;
-    combined.name = "free_body_then_" + source.name;
     return combined;
 }
 

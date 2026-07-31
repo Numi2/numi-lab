@@ -13,7 +13,7 @@ from typing import Any
 import mlx.core as mx
 import numpy as np
 
-from .mlx_policy_learning import (
+from .policy_artifacts import (
     NativePolicyPack,
     read_policy_pack,
 )

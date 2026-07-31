@@ -165,8 +165,10 @@ substep and reports realized local velocity, displacement, saturation and
 termination across idle, forward, reverse, lateral and yaw commands. Balance
 without command response cannot pass it.
 
-The old MLX-owned physics, world-state, contact, reset, reward, and rollout
-adapters have been removed. New robot mechanics enter through the native
+The old Python PPO worker and MLX-owned physics, world-state, contact, reset,
+reward, and rollout adapters have been removed. PolicyPack inspection is a
+read-only NumPy artifact boundary; production optimization is Swift/MLX. New
+robot mechanics enter through the native
 `EngineModel`/URDF route; new task semantics enter through a TaskPack; new
 networks enter through a PolicyPack. Only a genuinely new physics primitive,
 sensor modality, or task operator justifies new native code.

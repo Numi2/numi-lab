@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "metalrobo"
 version = "0.4.0"
-description = "MLX learning and data adapters for MetalRobo's native runtime"
+description = "Offline data, artifact, export, and comparison tools for MetalRobo"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

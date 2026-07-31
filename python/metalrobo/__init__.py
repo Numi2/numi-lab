@@ -1,8 +1,8 @@
 """Learning, data, and deployment tools for MetalRobo's native runtime.
 
 The Python package deliberately has no physics executor or rollout scheduler.
-Swift owns rollout orchestration, and persistent Metal contexts own simulation
-state. MLX consumes compact batches and publishes fingerprinted PolicyPacks.
+Swift owns rollout orchestration, the Swift/MLX learner publishes fingerprinted
+PolicyPacks, and persistent Metal contexts own simulation state.
 """
 
 from .episode import compile_episode_manifest
@@ -19,11 +19,7 @@ from .g1_policy import (
     export_g1_mlx,
     export_g1_onnx,
 )
-from .mlx_policy_learning import (
-    MLXActorCritic,
-    MLXPPOConfiguration,
-    MLXPolicyBatch,
-    MLXPolicyLearner,
+from .policy_artifacts import (
     NativePolicyDenseLayer,
     NativePolicyPack,
     NativePolicyRollout,
@@ -65,10 +61,6 @@ __all__ = [
     "G1DeployableSensors",
     "G1NumpyPolicy",
     "G1ObservationHistory",
-    "MLXActorCritic",
-    "MLXPPOConfiguration",
-    "MLXPolicyBatch",
-    "MLXPolicyLearner",
     "MetalRoboError",
     "NativePolicyDenseLayer",
     "NativePolicyPack",
