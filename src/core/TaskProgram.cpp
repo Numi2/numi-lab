@@ -746,7 +746,10 @@ TaskCompileDiagnostics compileTaskProgram(
                 articulation.nv
             ) ||
             !finite(binding.scale) ||
-            !(binding.scale > 0.0f)) {
+            !(binding.scale > 0.0f) ||
+            !finite(binding.response) ||
+            !(binding.response > 0.0f) ||
+            binding.response > 1.0f) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 binding.joint,
@@ -769,7 +772,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 binding.scale,
                 dofFound->limits.x,
                 dofFound->limits.y,
-                0.0f,
+                binding.response,
             },
         });
     }
@@ -1085,6 +1088,9 @@ TaskCompileDiagnostics compileTaskProgram(
                 break;
             }
             case TaskObservationSource::rootHeight:
+                break;
+            case TaskObservationSource::gaitPhase:
+                componentLimit = 2u;
                 break;
             case TaskObservationSource::contactMetric: {
                 sourceIndex = namedGroup(

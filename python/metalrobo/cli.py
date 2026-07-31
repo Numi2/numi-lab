@@ -20,8 +20,8 @@ from .g1_policy import (
     export_g1_coreml,
     export_g1_mlx,
     export_g1_onnx,
-    import_unitree_g1_velocity_policy,
 )
+from .unitree_mjlab_policy import import_unitree_g1_mjlab_policy
 
 
 def _g1_parser(parser: argparse.ArgumentParser) -> None:
@@ -92,7 +92,7 @@ def _g1_parser(parser: argparse.ArgumentParser) -> None:
         "--official-repo",
         type=Path,
         required=True,
-        help="clean pinned unitreerobotics/unitree_rl_lab checkout",
+        help="clean pinned unitreerobotics/unitree_rl_mjlab checkout",
     )
     import_unitree.add_argument(
         "--output-policy-pack",
@@ -206,7 +206,7 @@ def _sim2sim_g1(args: argparse.Namespace) -> int:
 
 
 def _import_unitree_g1(args: argparse.Namespace) -> int:
-    report = import_unitree_g1_velocity_policy(
+    report = import_unitree_g1_mjlab_policy(
         args.official_repo,
         args.output_policy_pack,
         library_path=args.library,

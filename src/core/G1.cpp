@@ -27,11 +27,10 @@
 //
 // The named PD/armature/reset preset is adapted from:
 //
-//   unitreerobotics/unitree_rl_lab
-//   source/unitree_rl_lab/unitree_rl_lab/assets/robots/unitree.py
-//   commit 4960b84732b0c2ec593dccbfe963fda1bcd7b1e3
-//   Copyright (c) 2022-2025, The Isaac Lab Project Developers.
-//   Per-file SPDX-License-Identifier: BSD-3-Clause
+//   unitreerobotics/unitree_rl_mjlab
+//   deploy/robots/g1/config/policy/velocity/v0/params/deploy.yaml
+//   commit 1425b15f73bd4095f0df53709d7c389c3eb9e790
+//   SPDX-License-Identifier: BSD-3-Clause
 //
 // Fixed-link inertials are folded with the parallel-axis theorem as documented
 // in docs/G1_SPEC.md. MetalRobo's storage layout and inverse calculation are
@@ -407,27 +406,35 @@ struct G1CollisionHullRecord {
 #include "G1CollisionHulls.inc"
 
 constexpr std::array<float, kUnitreeG1JointCount> kRLLabStiffness{{
-    100.0f, 100.0f, 100.0f, 150.0f, 40.0f, 40.0f,
-    100.0f, 100.0f, 100.0f, 150.0f, 40.0f, 40.0f,
-    200.0f, 40.0f, 40.0f,
-    40.0f, 40.0f, 40.0f, 40.0f, 40.0f, 40.0f, 40.0f,
-    40.0f, 40.0f, 40.0f, 40.0f, 40.0f, 40.0f, 40.0f,
+    40.2f, 99.1f, 40.2f, 99.1f, 28.5f, 28.5f,
+    40.2f, 99.1f, 40.2f, 99.1f, 28.5f, 28.5f,
+    40.2f, 28.5f, 28.5f,
+    14.3f, 14.3f, 14.3f, 14.3f, 14.3f, 16.8f, 16.8f,
+    14.3f, 14.3f, 14.3f, 14.3f, 14.3f, 16.8f, 16.8f,
 }};
 
 constexpr std::array<float, kUnitreeG1JointCount> kRLLabDamping{{
-    2.0f, 2.0f, 2.0f, 4.0f, 2.0f, 2.0f,
-    2.0f, 2.0f, 2.0f, 4.0f, 2.0f, 2.0f,
-    5.0f, 5.0f, 5.0f,
-    1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+    2.6f, 6.3f, 2.6f, 6.3f, 1.8f, 1.8f,
+    2.6f, 6.3f, 2.6f, 6.3f, 1.8f, 1.8f,
+    2.6f, 1.8f, 1.8f,
+    0.9f, 0.9f, 0.9f, 0.9f, 0.9f, 1.1f, 1.1f,
+    0.9f, 0.9f, 0.9f, 0.9f, 0.9f, 1.1f, 1.1f,
 }};
 
 constexpr std::array<float, kUnitreeG1JointCount> kRLLabResetQ{{
     -0.1f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
     -0.1f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
     0.0f, 0.0f, 0.0f,
-    0.3f, 0.25f, 0.0f, 0.97f, 0.15f, 0.0f, 0.0f,
-    0.3f, -0.25f, 0.0f, 0.97f, -0.15f, 0.0f, 0.0f,
+    0.35f, 0.18f, 0.0f, 0.87f, 0.0f, 0.0f, 0.0f,
+    0.35f, -0.18f, 0.0f, 0.87f, 0.0f, 0.0f, 0.0f,
+}};
+
+constexpr std::array<float, kUnitreeG1JointCount> kMjLabEffortLimit{{
+    88.0f, 139.0f, 88.0f, 139.0f, 50.0f, 50.0f,
+    88.0f, 139.0f, 88.0f, 139.0f, 50.0f, 50.0f,
+    88.0f, 50.0f, 50.0f,
+    25.0f, 25.0f, 25.0f, 25.0f, 25.0f, 5.0f, 5.0f,
+    25.0f, 25.0f, 25.0f, 25.0f, 25.0f, 5.0f, 5.0f,
 }};
 
 mr_float4 f4(
@@ -719,14 +726,13 @@ const G1ModelMetadata& unitreeG1Metadata() noexcept {
         value.simulatorModelPath =
             "unitree_robots/g1/scene_29dof.xml";
         value.rlPresetRepository =
-            "https://github.com/unitreerobotics/unitree_rl_lab";
+            "https://github.com/unitreerobotics/unitree_rl_mjlab";
         value.rlPresetCommit =
-            "4960b84732b0c2ec593dccbfe963fda1bcd7b1e3";
+            "1425b15f73bd4095f0df53709d7c389c3eb9e790";
         value.rlPresetLicense =
             "BSD-3-Clause per-file (repository LICENCE is Apache-2.0)";
         value.collisionMaterialPreset =
-            "Unitree RL Lab locomotion material: static=1 dynamic=1; "
-            "task randomizes robot material in [0.3,1.0]";
+            "Unitree MuJoCo-Lab locomotion material: friction=1";
         value.collisionCookMethod =
             "official STL deterministic V-HACD two-piece compound, "
             "normalized farthest-point compact support sets, uint16 "
@@ -747,14 +753,18 @@ const G1ModelMetadata& unitreeG1Metadata() noexcept {
                 joint.childBody,
                 static_cast<float>(joint.lower),
                 static_cast<float>(joint.upper),
-                static_cast<float>(joint.effort),
+                kMjLabEffortLimit[index],
                 static_cast<float>(joint.velocity),
             };
             value.rlLabDrives[index] = {
                 joint.name,
                 kRLLabStiffness[index],
                 kRLLabDamping[index],
-                0.01f,
+                kRLLabStiffness[index] /
+                    std::pow(
+                        20.0f * std::numbers::pi_v<float>,
+                        2.0f
+                    ),
             };
         }
 
@@ -935,30 +945,28 @@ EngineModel makeUnitreeG1EngineModel() {
     }
 
     MRMaterialGPU material{};
-    // Named Unitree RL Lab locomotion preset, not a hardware identification.
+    // Named Unitree MuJoCo-Lab locomotion preset, not hardware identification.
     material.friction = f4(1.0, 1.0, 0.0, 0.0);
     material.response = f4(0.0, 0.5, 0.0, 0.0);
     material.geometry = f4(0.0, 0.0, 0.0, 0.0);
     model.materials.push_back(material);
 
-    constexpr std::array<std::array<double, 3>, 4> kFootSphereCenters{{
-        {-0.05, 0.025, -0.03},
-        {-0.05, -0.025, -0.03},
-        {0.12, 0.03, -0.03},
-        {0.12, -0.03, -0.03},
-    }};
+    // One convex sole per foot preserves the MuJoCo-Lab support polygon
+    // without creating seven mutually overlapping contact manifolds.
     const mr_float4 identity = f4(0.0, 0.0, 0.0, 1.0);
     for (const std::uint32_t bodyIndex : {6u, 12u}) {
-        for (const auto& center : kFootSphereCenters) {
-            model.shapes.push_back(makePrimitive(
-                bodyIndex,
-                MR_SHAPE_SPHERE,
-                f4(center[0], center[1], center[2]),
-                identity,
-                f4(0.005, 0.0, 0.0, 0.0),
-                0.005
-            ));
-        }
+        model.shapes.push_back(makePrimitive(
+            bodyIndex,
+            MR_SHAPE_BOX,
+            f4(0.039, 0.0, -0.025),
+            identity,
+            f4(0.093, 0.036, 0.01, 0.0),
+            std::sqrt(
+                0.093 * 0.093 +
+                0.036 * 0.036 +
+                0.01 * 0.01
+            )
+        ));
     }
 
     const mr_float4 shoulderPitchRotation =
@@ -1073,6 +1081,7 @@ EngineModel makeUnitreeG1EngineModel() {
         kRLLabResetQ.begin(),
         kRLLabResetQ.end()
     );
+    model.name += "_mjlab_control";
     model.defaultV.assign(35u, 0.0f);
     return model;
 }

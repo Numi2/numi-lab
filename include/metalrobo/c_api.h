@@ -484,6 +484,13 @@ MR_API int mr_task_rollout_load_policy_pack(
 MR_API int mr_task_rollout_clear_policy(
     MRTaskRolloutHandle* handle
 );
+// Opt-in inspection/export readback. Disabled by default so training keeps
+// simulator state device-resident. When enabled, final_q aliases the last
+// accepted post-step state until the next advance, reset, or destroy.
+MR_API int mr_task_rollout_set_state_readback(
+    MRTaskRolloutHandle* handle,
+    uint32_t enabled
+);
 MR_API int mr_task_rollout_advance(
     MRTaskRolloutHandle* handle,
     const float* normalized_actions,
@@ -530,6 +537,9 @@ MR_API const float* mr_task_rollout_policy_values(
 // Value estimates for the accepted post-rollout state. Native policy
 // evaluation is encoded in the same submission without advancing physics.
 MR_API const float* mr_task_rollout_bootstrap_policy_values(
+    const MRTaskRolloutHandle* handle
+);
+MR_API const float* mr_task_rollout_final_q(
     const MRTaskRolloutHandle* handle
 );
 // Transactionally publishes an aggregated Swift-owned collection boundary.

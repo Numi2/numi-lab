@@ -737,6 +737,7 @@ std::vector<std::byte> serializeTask(
         [](Writer& target, const TaskActionBinding& value) {
             target.string(value.joint);
             target.pod(value.scale);
+            target.pod(value.response);
         }
     );
     writeRichVector(writer, pack.actorFrame, writeObservation);
@@ -847,7 +848,8 @@ bool deserializeTask(
             pack.actions,
             [](Reader& source, TaskActionBinding& value) {
                 return source.string(value.joint) &&
-                    source.pod(value.scale);
+                    source.pod(value.scale) &&
+                    source.pod(value.response);
             }
         ) ||
         !readRichVector(

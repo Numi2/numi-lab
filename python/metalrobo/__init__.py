@@ -18,7 +18,6 @@ from .g1_policy import (
     export_g1_coreml,
     export_g1_mlx,
     export_g1_onnx,
-    import_unitree_g1_velocity_policy,
 )
 from .mlx_policy_learning import (
     MLXActorCritic,
@@ -36,6 +35,7 @@ from .native import (
     library_version,
     unitree_g1_deployment_contract,
 )
+from .unitree_mjlab_policy import import_unitree_g1_mjlab_policy
 from .tactile import (
     CONTACT_VALID,
     DEPTH_SATURATED,
@@ -89,8 +89,8 @@ __all__ = [
     "export_g1_coreml",
     "export_g1_mlx",
     "export_g1_onnx",
-    "import_unitree_g1_velocity_policy",
     "library_version",
+    "import_unitree_g1_mjlab_policy",
     "load_tactile_checkpoint_contract",
     "read_policy_pack",
     "read_policy_rollout_pack",

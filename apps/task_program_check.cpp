@@ -324,12 +324,12 @@ int main() {
         const metalrobo::TaskProgramLayout& layout =
             program.layout();
         if (layout.actionCount != 29u ||
-            layout.actorFrameSize != 96u ||
-            layout.actorHistoryLength != 5u ||
-            layout.actorObservationSize != 480u ||
-            layout.criticFrameSize != 99u ||
-            layout.criticHistoryLength != 5u ||
-            layout.criticObservationSize != 495u ||
+            layout.actorFrameSize != 98u ||
+            layout.actorHistoryLength != 1u ||
+            layout.actorObservationSize != 98u ||
+            layout.criticFrameSize != 98u ||
+            layout.criticHistoryLength != 1u ||
+            layout.criticObservationSize != 98u ||
             layout.contactMetricCount != 37u ||
             layout.delayStateCount != 2u) {
             fail("compiled G1 task layout changed");
@@ -350,8 +350,8 @@ int main() {
             program.header().counts0.w != 4u ||
             program.header().counts1.w != 19u ||
             program.header().counts2.x != 2u ||
-            program.header().counts2.y != 5u ||
-            program.header().articulation.w != 5u ||
+            program.header().counts2.y != 0u ||
+            program.header().articulation.w != 1u ||
             program.header().commandLower.x != 0.0f ||
             program.header().commandLower.y != 0.0f ||
             program.header().commandLower.z != 0.0f ||
@@ -365,11 +365,7 @@ int main() {
                 -2.0f ||
             program.terminationOperators()[1].parameters.y !=
                 -2.0f ||
-            program.randomizationOperators()[0].target.w != 0u ||
-            program.randomizationOperators()[1].target.w != 0u ||
-            program.randomizationOperators()[2].target.w != 2u ||
-            program.randomizationOperators()[3].target.w != 2u ||
-            program.randomizationOperators()[4].target.w != 2u ||
+            !program.randomizationOperators().empty() ||
             program.terrainSampleOffsets().size() != 187u ||
             program.terrainResetTranslations().size() != 11u) {
             fail("compiled G1 task tables are incomplete");

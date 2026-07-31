@@ -479,7 +479,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
 ) {
     const G1ModelMetadata& metadata = unitreeG1Metadata();
     TaskPack task;
-    task.id = "unitree_g1_locomotion";
+    task.id = "unitree_g1_mjlab_velocity";
     // The topology envelope contains every eligible self-collision pair.
     // Locomotion instead compiles an explicit operational arena. Capacity
     // overflow is transactional and reports the exact required stage count,
@@ -499,15 +499,15 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         .qualityRows = 192u,
         .islandConstraintReferences = 64u,
     };
-    task.actorHistoryLength = 5u;
-    task.criticHistoryLength = 5u;
+    task.actorHistoryLength = 1u;
+    task.criticHistoryLength = 1u;
     task.criticIncludesCleanHistory = false;
     task.maximumEpisodeSteps = 1000u;
     task.maximumActionDelaySteps = 0u;
     task.maximumObservationDelaySteps = 0u;
     task.curriculumLevelCount = 11u;
     task.baseHeightTarget = 0.78f;
-    task.gaitPeriodSeconds = 0.8f;
+    task.gaitPeriodSeconds = 0.6f;
     task.clearanceTarget = 0.10f;
     task.successTrackingThreshold = 0.8f;
     task.supportForceThreshold = 1.0f;
@@ -517,28 +517,37 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     // and locomotion simultaneously.
     task.commands.lower = {0.0f, 0.0f, 0.0f, 0.0f};
     task.commands.upper = {0.0f, 0.0f, 0.0f, 0.0f};
-    task.commands.limitLower = {
-        -0.5f, -0.3f, -0.2f, 0.0f,
-    };
+    task.commands.limitLower = {-0.5f, -0.5f, -1.0f, 0.0f};
     task.commands.limitUpper = {
-        1.0f, 0.3f, 0.2f, 0.0f,
+        1.0f, 0.5f, 1.0f, 0.0f,
     };
     task.commands.curriculumStep = {
         0.1f, 0.1f, 0.1f, 0.0f,
     };
-    task.commands.standingProbability = 0.02f;
+    task.commands.standingProbability = 1.0f;
     task.commands.minimumEpisodeSurvivalFraction = 0.8f;
     task.commands.minimumDurationSeconds = 10.0f;
     task.commands.maximumDurationSeconds = 10.0f;
-    task.pushes.maximumVelocity = 0.5f;
+    task.pushes.maximumVelocity = 0.0f;
     task.pushes.minimumIntervalSeconds = 5.0f;
     task.pushes.maximumIntervalSeconds = 5.0f;
 
+    constexpr std::array<float, kUnitreeG1JointCount> actionScales{{
+        0.55f, 0.35f, 0.55f, 0.35f, 0.44f, 0.44f,
+        0.55f, 0.35f, 0.55f, 0.35f, 0.44f, 0.44f,
+        0.55f, 0.44f, 0.44f,
+        0.44f, 0.44f, 0.44f, 0.44f, 0.44f, 0.07f, 0.07f,
+        0.44f, 0.44f, 0.44f, 0.44f, 0.44f, 0.07f, 0.07f,
+    }};
     task.actions.reserve(metadata.jointLimits.size());
-    for (const G1JointLimit& joint : metadata.jointLimits) {
+    for (std::size_t index = 0u;
+         index < metadata.jointLimits.size();
+         ++index) {
+        const G1JointLimit& joint = metadata.jointLimits[index];
         task.actions.push_back({
             .joint = std::string{joint.name},
-            .scale = 0.25f,
+            .scale = actionScales[index],
+            .response = 0.1f,
         });
     }
 
@@ -568,9 +577,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         task.actorFrame.push_back(observation(
             TaskObservationSource::rootAngularVelocityLocal,
             {},
-            component,
-            0.2f,
-            0.04f
+            component
         ));
     }
     for (std::uint32_t component = 0u;
@@ -579,11 +586,16 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         task.actorFrame.push_back(observation(
             TaskObservationSource::projectedGravity,
             {},
-            component,
-            1.0f,
-            0.05f,
-            0.0f,
-            0.0f
+            component
+        ));
+    }
+    for (std::uint32_t component = 0u;
+         component < 2u;
+         ++component) {
+        task.actorFrame.push_back(observation(
+            TaskObservationSource::gaitPhase,
+            {},
+            component
         ));
     }
     for (std::uint32_t component = 0u;
@@ -599,20 +611,14 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         task.actorFrame.push_back(observation(
             TaskObservationSource::jointPositionError,
             joint.name,
-            0u,
-            1.0f,
-            0.01f,
-            0.0f,
-            0.0f
+            0u
         ));
     }
     for (const G1JointLimit& joint : metadata.jointLimits) {
         task.actorFrame.push_back(observation(
             TaskObservationSource::jointVelocity,
             joint.name,
-            0u,
-            0.05f,
-            0.075f
+            0u
         ));
     }
     for (const G1JointLimit& joint : metadata.jointLimits) {
@@ -622,6 +628,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             0u
         ));
     }
+    task.critic = task.actorFrame;
 
     const auto bodyNames =
         [&metadata](
@@ -724,69 +731,6 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         .id = "arms",
         .joints = std::move(armJoints),
     });
-
-    // Unitree's critic is a separate clean 99-value frame with five-frame
-    // history. Keep this authored as ordinary observation operators so every
-    // imported robot can define the same asymmetric actor/critic contract.
-    for (std::uint32_t component = 0u;
-         component < 3u;
-         ++component) {
-        task.critic.push_back(observation(
-            TaskObservationSource::rootLinearVelocityLocal,
-            {},
-            component
-        ));
-    }
-    for (std::uint32_t component = 0u;
-         component < 3u;
-         ++component) {
-        task.critic.push_back(observation(
-            TaskObservationSource::rootAngularVelocityLocal,
-            {},
-            component,
-            0.2f
-        ));
-    }
-    for (std::uint32_t component = 0u;
-         component < 3u;
-         ++component) {
-        task.critic.push_back(observation(
-            TaskObservationSource::projectedGravity,
-            {},
-            component
-        ));
-    }
-    for (std::uint32_t component = 0u;
-         component < 3u;
-         ++component) {
-        task.critic.push_back(observation(
-            TaskObservationSource::command,
-            {},
-            component
-        ));
-    }
-    for (const G1JointLimit& joint : metadata.jointLimits) {
-        task.critic.push_back(observation(
-            TaskObservationSource::jointPositionError,
-            joint.name,
-            0u
-        ));
-    }
-    for (const G1JointLimit& joint : metadata.jointLimits) {
-        task.critic.push_back(observation(
-            TaskObservationSource::jointVelocity,
-            joint.name,
-            0u,
-            0.05f
-        ));
-    }
-    for (const G1JointLimit& joint : metadata.jointLimits) {
-        task.critic.push_back(observation(
-            TaskObservationSource::previousAction,
-            joint.name,
-            0u
-        ));
-    }
 
     task.terrain.body =
         surface == LocomotionSurface::terrain
@@ -937,58 +881,6 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         },
     };
 
-    const auto random =
-        [&task](
-            const TaskRandomizationOperator operation,
-            const std::string_view target,
-            const std::uint32_t component,
-            const std::uint32_t minimumCurriculumLevel,
-            const mr_float4 parameters
-        ) {
-            task.randomization.push_back({
-                .operation = operation,
-                .target = std::string{target},
-                .component = component,
-                .minimumCurriculumLevel =
-                    minimumCurriculumLevel,
-                .parameters = parameters,
-            });
-        };
-    random(
-        TaskRandomizationOperator::rootPosition,
-        {},
-        0u,
-        0u,
-        {0.5f, 0.5f, 0.0f, 0.0f}
-    );
-    random(
-        TaskRandomizationOperator::rootYaw,
-        {},
-        0u,
-        0u,
-        {-3.14f, 3.14f, 0.0f, 0.0f}
-    );
-    random(
-        TaskRandomizationOperator::actionVelocity,
-        {},
-        0u,
-        2u,
-        {-1.0f, 1.0f, 0.0f, 0.0f}
-    );
-    random(
-        TaskRandomizationOperator::bodyParameter,
-        "robot",
-        1u,
-        2u,
-        {0.3f, 1.0f, 0.0f, 0.0f}
-    );
-    random(
-        TaskRandomizationOperator::bodyPayload,
-        "torso_link",
-        0u,
-        2u,
-        {-1.0f, 3.0f, 0.0f, 0.0f}
-    );
     return task;
 }
 

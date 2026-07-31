@@ -10,6 +10,39 @@ The raw frame and cooked robot/environment packs are transient build
 artifacts. Only the compact documentation images are retained in this
 repository.
 
+## G1 standing-policy transfer animations
+
+`g1-standing-best.gif` and `g1-standing-full-attempt.gif` show state from an
+actual one-environment, zero-command MetalRobo rollout driven by the official
+Unitree MuJoCo-Lab actor. The source checkout is pinned at revision
+`1425b15f73bd4095f0df53709d7c389c3eb9e790`; its ONNX policy SHA-256 is
+`2a66ca6336eadb3c0b34b557763f3e06d01ff8fcf6260dd4cedbd69d6093fc28`.
+The actor was converted once into the generic native PolicyPack format and ran
+through MetalRobo's Metal inference engine.
+
+The rollout used PGS contact, flat ground, a 20 ms control interval, four
+physics substeps, four velocity iterations plus two final iterations, seed
+`20260731`, and a zero velocity command. The best animation contains the first
+114 control steps; the full animation contains all 180 steps and therefore
+shows the instability, tilt termination, and reset. States were sampled every
+two control steps and encoded at 25 frames per second.
+
+Every frame is a native MetalRobo `sensor_reference` capture on Apple M4. The
+official G1 mesh geometry was posed from MetalRobo's final-q state, cooked
+through `metalrobo_visual_cook`, and rendered against the same Studio Small 03
+environment used by the static README captures. MuJoCo is not used for these
+pixels. ACES preview conversion, fixed labels, and GIF encoding are the only
+presentation-only stages; motion is not interpolated or generated. The
+retained hashes are:
+
+```text
+g1-standing-best.gif=sha256:99d40c12cb9f7910b7d1ea64b460a8dd2735dd784f64dec4f91ea855b95c18b2
+g1-standing-full-attempt.gif=sha256:897e70fc3e80b478f76f53fe511f438f5d9a0eda5761ce9ef553f39f26c4faa9
+```
+
+This is work-in-progress transfer evidence. It does not pass the 20-second
+standing gate and does not establish real-robot transfer.
+
 ## Native G1 policy-rollout animations
 
 `numi-lab-g1-native-rollout.gif` and

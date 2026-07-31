@@ -455,6 +455,17 @@ inline float cleanObservation(
         ];
         break;
     }
+    case MR_TASK_OBSERVE_GAIT_PHASE: {
+        const float commandMagnitude = length(
+            state.commandAndPhase.xyz
+        );
+        if (commandMagnitude >= 0.1f) {
+            value = operation.source.z == 0u
+                ? sin(state.commandAndPhase.w)
+                : cos(state.commandAndPhase.w);
+        }
+        break;
+    }
     default:
         value = 0.0f;
         break;
@@ -1482,14 +1493,26 @@ kernel void mr_locomotion_task_apply_actions(
                 action
             ];
         }
+        const float requested = clamp(
+            actionStream[actionBase + action],
+            -1.0f,
+            1.0f
+        );
+        const float previous = actionHistory[
+            delayBase +
+            (lastSlot - 1u) * program.counts0.x +
+            action
+        ];
+        const MRTaskActionBindingGPU binding =
+            actions[action];
         actionHistory[
             delayBase +
             lastSlot * program.counts0.x +
             action
-        ] = clamp(
-            actionStream[actionBase + action],
-            -1.0f,
-            1.0f
+        ] = mix(
+            previous,
+            requested,
+            binding.parameters.w
         );
         const uint selected =
             lastSlot - min(state.schedule.z, lastSlot);
@@ -1498,8 +1521,6 @@ kernel void mr_locomotion_task_apply_actions(
             selected * program.counts0.x +
             action
         ];
-        const MRTaskActionBindingGPU binding =
-            actions[action];
         effortTrajectory[
             pass.controlStep *
                 worldDispatch.effortStepStride +

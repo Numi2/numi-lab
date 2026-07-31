@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 5u
+#define MR_TASK_PROGRAM_ABI_VERSION 6u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -26,6 +26,9 @@ enum MRTaskObservationOpcode : mr_u32 {
     // Six-axis resultant contact wrench in the contact group's reference-body
     // frame: force xyz in newtons, torque xyz in newton-metres.
     MR_TASK_OBSERVE_CONTACT_WRENCH_LOCAL = 13u,
+    // Command-gated locomotion phase: sin/cos of the task phase, or zero
+    // while the commanded xyz velocity magnitude is below 0.1.
+    MR_TASK_OBSERVE_GAIT_PHASE = 14u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -153,7 +156,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
     // action index, global DoF index, q index, v index.
     mr_uint4 indices;
-    // normalized scale, lower target, upper target, reserved.
+    // normalized scale, lower target, upper target, response fraction.
     mr_float4 parameters;
 } MRTaskActionBindingGPU;
 

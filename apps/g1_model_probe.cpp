@@ -130,16 +130,9 @@ constexpr std::array<float, metalrobo::kUnitreeG1JointCount>
         -0.1f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
         -0.1f, 0.0f, 0.0f, 0.3f, -0.2f, 0.0f,
         0.0f, 0.0f, 0.0f,
-        0.3f, 0.25f, 0.0f, 0.97f, 0.15f, 0.0f, 0.0f,
-        0.3f, -0.25f, 0.0f, 0.97f, -0.15f, 0.0f, 0.0f,
+        0.35f, 0.18f, 0.0f, 0.87f, 0.0f, 0.0f, 0.0f,
+        0.35f, -0.18f, 0.0f, 0.87f, 0.0f, 0.0f, 0.0f,
     }};
-
-constexpr std::array<std::array<float, 3>, 4> kExpectedFootCenters{{
-    {-0.05f, 0.025f, -0.03f},
-    {-0.05f, -0.025f, -0.03f},
-    {0.12f, 0.03f, -0.03f},
-    {0.12f, -0.03f, -0.03f},
-}};
 
 } // namespace
 
@@ -227,7 +220,7 @@ int main() {
         for (std::size_t index = 0; index < kExpectedResetQ.size(); ++index) {
             require(
                 close(model.defaultQ[7u + index], kExpectedResetQ[index]),
-                "RL Lab reset joint vector is out of SDK order"
+                "MuJoCo-Lab reset joint vector is out of SDK order"
             );
         }
         require(
@@ -323,23 +316,23 @@ int main() {
             require(
                 metadata.rlLabDrives[index].stiffness > 0.0f &&
                     metadata.rlLabDrives[index].damping > 0.0f &&
-                    close(metadata.rlLabDrives[index].armature, 0.01),
-                "named RL Lab drive metadata is invalid"
+                    metadata.rlLabDrives[index].armature > 0.0f,
+                "named MuJoCo-Lab drive metadata is invalid"
             );
         }
         require(
-            close(metadata.jointLimits[4].maximumEffort, 35.0) &&
+            close(metadata.jointLimits[4].maximumEffort, 50.0) &&
                 close(metadata.jointLimits[4].maximumVelocity, 30.0) &&
-                close(metadata.jointLimits[13].maximumEffort, 35.0) &&
+                close(metadata.jointLimits[13].maximumEffort, 50.0) &&
                 close(metadata.jointLimits[13].maximumVelocity, 30.0),
-            "canonical URDF ankle/waist limits were replaced by a preset"
+            "MuJoCo-Lab ankle/waist effort limits are incorrect"
         );
         require(
-            close(metadata.rlLabDrives[3].stiffness, 150.0) &&
-                close(metadata.rlLabDrives[3].damping, 4.0) &&
-                close(metadata.rlLabDrives[12].stiffness, 200.0) &&
-                close(metadata.rlLabDrives[12].damping, 5.0),
-            "RL Lab knee or waist-yaw drive is incorrect"
+            close(metadata.rlLabDrives[3].stiffness, 99.1) &&
+                close(metadata.rlLabDrives[3].damping, 6.3) &&
+                close(metadata.rlLabDrives[12].stiffness, 40.2) &&
+                close(metadata.rlLabDrives[12].damping, 2.6),
+            "MuJoCo-Lab knee or waist-yaw drive is incorrect"
         );
 
         double totalMass = 0.0;
@@ -421,36 +414,17 @@ int main() {
                     close(foot.soleRotation.w, 1.0),
                 "derived G1 sole frame is incorrect"
             );
-            for (std::size_t point = 0; point < 4u; ++point) {
-                const MRShapeGPU& shape =
-                    model.shapes[foot.sphereShapeIndices[point]];
-                require(
-                    shape.bodyIndex == expectedBody &&
-                        shape.shapeType == MR_SHAPE_SPHERE &&
-                        close(shape.dimensions.x, 0.005) &&
-                        close(
-                            shape.localPosition.x +
-                                model.bodies[expectedBody]
-                                    .centerOfMass.x,
-                            kExpectedFootCenters[point][0]
-                        ) &&
-                        close(
-                            shape.localPosition.y +
-                                model.bodies[expectedBody]
-                                    .centerOfMass.y,
-                            kExpectedFootCenters[point][1]
-                        ) &&
-                        close(
-                            shape.localPosition.z +
-                                model.bodies[expectedBody]
-                                    .centerOfMass.z,
-                            kExpectedFootCenters[point][2]
-                        ),
-                    "official foot contact sphere is incorrect"
-                );
-            }
+            const MRShapeGPU& shape = model.shapes[footIndex];
+            require(
+                shape.bodyIndex == expectedBody &&
+                    shape.shapeType == MR_SHAPE_BOX &&
+                    close(shape.dimensions.x, 0.093) &&
+                    close(shape.dimensions.y, 0.036) &&
+                    close(shape.dimensions.z, 0.01),
+                "MuJoCo-Lab sole collision box is incorrect"
+            );
         }
-        for (std::size_t shape = 8u; shape < 12u; ++shape) {
+        for (std::size_t shape = 2u; shape < 6u; ++shape) {
             require(
                 model.shapes[shape].shapeType == MR_SHAPE_CYLINDER &&
                     (
@@ -560,7 +534,7 @@ int main() {
                          kUnitreeG1OfficialCollisionElementCount
                   << " executable_shapes="
                   << model.world.shapeCount
-                  << " foot_spheres=8"
+                  << " sole_boxes=2"
                   << " imus=" << metadata.imus.size()
                   << " max_inverse_error=" << std::scientific
                   << maximumInverseError

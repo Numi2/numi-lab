@@ -1301,6 +1301,21 @@ int mr_task_rollout_clear_policy(
     return 0;
 }
 
+int mr_task_rollout_set_state_readback(
+    MRTaskRolloutHandle* handle,
+    const uint32_t enabled
+) {
+    if (!requireTaskRolloutHandle(handle) || enabled > 1u) {
+        if (enabled > 1u) {
+            gLastError = "task-rollout state-readback flag is invalid.";
+        }
+        return -1;
+    }
+    handle->stepConfig.publishFinalState = enabled != 0u;
+    gLastError.clear();
+    return 0;
+}
+
 int mr_task_rollout_advance(
     MRTaskRolloutHandle* handle,
     const float* normalized_actions,
@@ -1667,6 +1682,15 @@ const float* mr_task_rollout_bootstrap_policy_values(
         offset + handle->environmentCount;
     return handle->result.policyValues.size() >= required
         ? handle->result.policyValues.data() + offset
+        : nullptr;
+}
+
+const float* mr_task_rollout_final_q(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.finalQ.empty()
+        ? handle->result.finalQ.data()
         : nullptr;
 }
 

@@ -32,6 +32,7 @@ enum class TaskObservationSource : std::uint32_t {
     controllerParameter = MR_TASK_OBSERVE_CONTROLLER_PARAMETER,
     contactWrenchLocal =
         MR_TASK_OBSERVE_CONTACT_WRENCH_LOCAL,
+    gaitPhase = MR_TASK_OBSERVE_GAIT_PHASE,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -91,6 +92,9 @@ enum class TaskRandomizationOperator : std::uint32_t {
 struct TaskActionBinding {
     std::string joint;
     float scale = 0.25f;
+    // Fraction of the requested action applied per control step. A value of
+    // one disables action filtering.
+    float response = 1.0f;
 };
 
 struct TaskObservationOperatorSpec {

@@ -13,11 +13,12 @@ inline constexpr std::size_t kUnitreeG1BodyCount = 30u;
 inline constexpr std::size_t kUnitreeG1JointCount = 29u;
 inline constexpr std::size_t kUnitreeG1FootCount = 2u;
 inline constexpr std::size_t kUnitreeG1ImuCount = 2u;
-inline constexpr std::size_t kUnitreeG1FootSphereCount = 8u;
+inline constexpr std::size_t kUnitreeG1SoleShapeCount = 2u;
+inline constexpr std::size_t kUnitreeG1FootSphereCount = 0u;
 inline constexpr std::size_t kUnitreeG1MeshCollisionCount = 24u;
-inline constexpr std::size_t kUnitreeG1PrimitiveShapeCount = 12u;
+inline constexpr std::size_t kUnitreeG1PrimitiveShapeCount = 6u;
 inline constexpr std::size_t kUnitreeG1OfficialCollisionElementCount = 36u;
-inline constexpr std::size_t kUnitreeG1ExecutableShapeCount = 60u;
+inline constexpr std::size_t kUnitreeG1ExecutableShapeCount = 54u;
 
 struct G1JointLimit {
     std::string_view name;

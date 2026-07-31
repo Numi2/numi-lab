@@ -42,24 +42,25 @@ concept art and no screenshot from another simulator.
 | **Tactile imitation** | Pinned LeRobot 3 season-safe ingestion, synchronized multi-view/wrench training, dual-time action-tube diffusion, reactive tactile replanning, and provenance-gated MLX checkpoints for Apple GPUs. |
 | **Reference robots** | Franka manipulation, the pinned 29-DoF Unitree G1, and a dVRK-style PSM research model with physical insertion and independent jaws. |
 
-## Native training rollout in motion
+## Official G1 standing-policy transfer
 
-![Official Unitree G1 geometry moving through a native numi-lab policy rollout](docs/media/numi-lab-g1-native-rollout.gif)
+![Best upright segment from the official Unitree G1 policy running in native MetalRobo](docs/media/g1-standing-best.gif)
 
-This is a real Apple M4 rollout and a real numi-lab `sensor_reference`
-rerender—not generated imagery or motion interpolation. The animation follows
-48 consecutive clean simulator states from the generic G1 locomotion task,
-shown at half speed while the robot remains rooted for a stable presentation
-camera. It demonstrates the compiled TaskPack → native Metal policy/physics →
-rollout-pack path; it is not a claim of learned locomotion quality or
-real-robot transfer.
+This is the best upright prefix from an actual zero-command MetalRobo rollout
+using Unitree's pinned MuJoCo-Lab actor. Policy inference, observation
+construction, contact, articulated physics, and `sensor_reference` rendering
+all run natively on Apple Metal. The 2.28-second clip stops before the first
+large tilt.
 
-![Synchronized RGB, metric depth, normals, and authored identities during the same native rollout](docs/media/numi-lab-g1-sensor-rollout.gif)
+![Full untrimmed official Unitree G1 standing attempt in MetalRobo](docs/media/g1-standing-full-attempt.gif)
 
-Every panel advances through the same consecutive states. Both animations use
-one stable color palette across the whole sequence to prevent temporal color
-shimmer; no intermediate frames are synthesized. Full capture provenance is
-recorded in [`docs/media/README.md`](docs/media/README.md).
+The full 3.6-second capture includes the lateral instability, tilt
+termination, and reset. It is retained deliberately: this branch has not yet
+passed the 20-second standing gate. Every displayed frame uses official G1
+visual geometry cooked by numi-lab and rendered by its native
+`sensor_reference` pipeline; no intermediate frames are synthesized. Full
+capture provenance is recorded in
+[`docs/media/README.md`](docs/media/README.md).
 
 ## The renderer is a sensor
 
