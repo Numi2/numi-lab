@@ -511,12 +511,12 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     task.clearanceTarget = 0.10f;
     task.successTrackingThreshold = 0.8f;
     task.supportForceThreshold = 1.0f;
-    // Level zero is a true standing task. Translational and yaw commands are
-    // introduced together only after the policy has demonstrated full-episode
-    // survival, rather than asking a noisy initial policy to discover balance
-    // and locomotion simultaneously.
-    task.commands.lower = {0.0f, 0.0f, 0.0f, 0.0f};
-    task.commands.upper = {0.0f, 0.0f, 0.0f, 0.0f};
+    // Level zero is a near-static balance task with a fixed 0.1 m/s forward
+    // command. This avoids an unnecessarily brittle inverted-pendulum optimum
+    // while remaining below the gait-reward threshold; lateral and yaw motion
+    // stay disabled until full-episode survival has been demonstrated.
+    task.commands.lower = {0.1f, 0.0f, 0.0f, 0.0f};
+    task.commands.upper = {0.1f, 0.0f, 0.0f, 0.0f};
     task.commands.limitLower = {
         -0.5f, -0.3f, -0.2f, 0.0f,
     };

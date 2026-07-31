@@ -498,6 +498,11 @@ MR_API int mr_task_rollout_advance(
 MR_API MRTaskRolloutLayoutC mr_task_rollout_layout(
     const MRTaskRolloutHandle* handle
 );
+// Stable compiled TaskPack fingerprint used by learner checkpoints to reject
+// semantically incompatible resume attempts.
+MR_API uint64_t mr_task_rollout_task_fingerprint(
+    const MRTaskRolloutHandle* handle
+);
 MR_API const char* mr_task_rollout_device_name(
     const MRTaskRolloutHandle* handle
 );

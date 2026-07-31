@@ -135,6 +135,144 @@ public struct MetalRoboPolicyPack: Sendable {
         self.observationClip = observationClip
         self.actionClip = actionClip
     }
+
+    /// Persists the canonical native PolicyPack consumed by Metal rollout and
+    /// deployment. The write is validated and transactional in native code.
+    public func write(to url: URL) throws {
+        let status = try withNativePolicyPack(self) { native in
+            url.path.withCString { path in
+                mr_write_policy_pack(native, path)
+            }
+        }
+        guard status == 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                String(cString: mr_last_error())
+            )
+        }
+    }
+}
+
+private func withNativePolicyPack<Result>(
+    _ policy: MetalRoboPolicyPack,
+    _ body: (UnsafePointer<MRPolicyPackC>) -> Result
+) throws -> Result {
+    let validLayer: (MetalRoboPolicyDenseLayer) -> Bool = { layer in
+        let product = layer.inputCount.multipliedReportingOverflow(
+            by: layer.outputCount
+        )
+        return layer.inputCount > 0 &&
+            layer.inputCount <= Int(UInt32.max) &&
+            layer.outputCount > 0 &&
+            layer.outputCount <= Int(UInt32.max) &&
+            !product.overflow &&
+            layer.weights.count == product.partialValue &&
+            layer.bias.count == layer.outputCount
+    }
+    guard !policy.id.isEmpty,
+          policy.revision != 0,
+          !policy.layers.isEmpty,
+          policy.layers.allSatisfy(validLayer),
+          policy.criticLayers.allSatisfy(validLayer),
+          policy.actionLogStandardDeviation.isEmpty ||
+              !policy.criticLayers.isEmpty
+    else {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "Policy identity, revision, or dense layer shape is invalid."
+        )
+    }
+
+    var allocations: [
+        (pointer: UnsafeMutablePointer<Float>, count: Int)
+    ] = []
+    func copy(_ values: [Float]) -> UnsafePointer<Float>? {
+        guard !values.isEmpty else {
+            return nil
+        }
+        let pointer = UnsafeMutablePointer<Float>.allocate(
+            capacity: values.count
+        )
+        values.withUnsafeBufferPointer { source in
+            pointer.initialize(
+                from: source.baseAddress!,
+                count: values.count
+            )
+        }
+        allocations.append((pointer, values.count))
+        return UnsafePointer(pointer)
+    }
+    defer {
+        for allocation in allocations {
+            allocation.pointer.deinitialize(count: allocation.count)
+            allocation.pointer.deallocate()
+        }
+    }
+
+    let nativeLayers = policy.layers.map { layer in
+        var native = MRPolicyDenseLayerC()
+        native.input_count = UInt32(layer.inputCount)
+        native.output_count = UInt32(layer.outputCount)
+        native.activation = layer.activation.rawValue
+        native.weights = copy(layer.weights)
+        native.weight_count = layer.weights.count
+        native.bias = copy(layer.bias)
+        native.bias_count = layer.bias.count
+        return native
+    }
+    let nativeCriticLayers = policy.criticLayers.map { layer in
+        var native = MRPolicyDenseLayerC()
+        native.input_count = UInt32(layer.inputCount)
+        native.output_count = UInt32(layer.outputCount)
+        native.activation = layer.activation.rawValue
+        native.weights = copy(layer.weights)
+        native.weight_count = layer.weights.count
+        native.bias = copy(layer.bias)
+        native.bias_count = layer.bias.count
+        return native
+    }
+    var native = MRPolicyPackC()
+    native.revision = policy.revision
+    native.observation_mean = copy(policy.observationMean)
+    native.observation_mean_count = policy.observationMean.count
+    native.observation_inverse_standard_deviation = copy(
+        policy.observationInverseStandardDeviation
+    )
+    native.observation_inverse_standard_deviation_count =
+        policy.observationInverseStandardDeviation.count
+    native.critic_observation_mean = copy(
+        policy.criticObservationMean
+    )
+    native.critic_observation_mean_count =
+        policy.criticObservationMean.count
+    native.critic_observation_inverse_standard_deviation = copy(
+        policy.criticObservationInverseStandardDeviation
+    )
+    native.critic_observation_inverse_standard_deviation_count =
+        policy.criticObservationInverseStandardDeviation.count
+    native.action_log_standard_deviation = copy(
+        policy.actionLogStandardDeviation
+    )
+    native.action_log_standard_deviation_count =
+        policy.actionLogStandardDeviation.count
+    native.action_bias = copy(policy.actionBias)
+    native.action_bias_count = policy.actionBias.count
+    native.action_scale = copy(policy.actionScale)
+    native.action_scale_count = policy.actionScale.count
+    native.observation_clip = policy.observationClip
+    native.action_clip = policy.actionClip
+
+    return policy.id.withCString { identifier in
+        native.id = identifier
+        return nativeLayers.withUnsafeBufferPointer { layers in
+            native.layers = layers.baseAddress
+            native.layer_count = layers.count
+            return nativeCriticLayers.withUnsafeBufferPointer {
+                criticLayers in
+                native.critic_layers = criticLayers.baseAddress
+                native.critic_layer_count = criticLayers.count
+                return withUnsafePointer(to: &native, body)
+            }
+        }
+    }
 }
 
 public struct MetalRoboTaskRolloutConfiguration: Sendable {
@@ -558,6 +696,10 @@ public final class MetalRoboTaskRolloutContext {
         String(cString: mr_task_rollout_device_name(handle))
     }
 
+    public var taskFingerprint: UInt64 {
+        mr_task_rollout_task_fingerprint(handle)
+    }
+
     public func reset(seed: UInt64) throws {
         guard mr_task_rollout_reset(handle, seed) == 0 else {
             throw MetalRoboTaskRolloutError.native(
@@ -580,147 +722,8 @@ public final class MetalRoboTaskRolloutContext {
     public func setPolicy(
         _ policy: MetalRoboPolicyPack
     ) throws {
-        let validLayer: (
-            MetalRoboPolicyDenseLayer
-        ) -> Bool = { layer in
-            let product =
-                layer.inputCount.multipliedReportingOverflow(
-                    by: layer.outputCount
-                )
-            return
-                layer.inputCount > 0 &&
-                layer.inputCount <= Int(UInt32.max) &&
-                layer.outputCount > 0 &&
-                layer.outputCount <= Int(UInt32.max) &&
-                !product.overflow &&
-                layer.weights.count == product.partialValue &&
-                layer.bias.count == layer.outputCount
-        }
-        let validLayers = policy.layers.allSatisfy(validLayer)
-        let validCriticLayers =
-            policy.criticLayers.allSatisfy(validLayer)
-        guard !policy.id.isEmpty,
-              policy.revision != 0,
-              !policy.layers.isEmpty,
-              validLayers,
-              validCriticLayers,
-              policy.actionLogStandardDeviation.isEmpty ||
-                  !policy.criticLayers.isEmpty
-        else {
-            throw MetalRoboTaskRolloutError.invalidShape(
-                "Policy identity, revision, or dense layer shape is invalid."
-            )
-        }
-        var allocations: [
-            (pointer: UnsafeMutablePointer<Float>, count: Int)
-        ] = []
-        func copy(
-            _ values: [Float]
-        ) -> UnsafePointer<Float>? {
-            guard !values.isEmpty else {
-                return nil
-            }
-            let pointer =
-                UnsafeMutablePointer<Float>.allocate(
-                    capacity: values.count
-                )
-            values.withUnsafeBufferPointer { source in
-                pointer.initialize(
-                    from: source.baseAddress!,
-                    count: values.count
-                )
-            }
-            allocations.append((pointer, values.count))
-            return UnsafePointer(pointer)
-        }
-        defer {
-            for allocation in allocations {
-                allocation.pointer.deinitialize(
-                    count: allocation.count
-                )
-                allocation.pointer.deallocate()
-            }
-        }
-
-        let nativeLayers = policy.layers.map { layer in
-            var native = MRPolicyDenseLayerC()
-            native.input_count = UInt32(layer.inputCount)
-            native.output_count = UInt32(layer.outputCount)
-            native.activation = layer.activation.rawValue
-            native.weights = copy(layer.weights)
-            native.weight_count = layer.weights.count
-            native.bias = copy(layer.bias)
-            native.bias_count = layer.bias.count
-            return native
-        }
-        let nativeCriticLayers =
-            policy.criticLayers.map { layer in
-                var native = MRPolicyDenseLayerC()
-                native.input_count =
-                    UInt32(layer.inputCount)
-                native.output_count =
-                    UInt32(layer.outputCount)
-                native.activation = layer.activation.rawValue
-                native.weights = copy(layer.weights)
-                native.weight_count = layer.weights.count
-                native.bias = copy(layer.bias)
-                native.bias_count = layer.bias.count
-                return native
-            }
-        var native = MRPolicyPackC()
-        native.revision = policy.revision
-        native.observation_mean = copy(
-            policy.observationMean
-        )
-        native.observation_mean_count =
-            policy.observationMean.count
-        native.observation_inverse_standard_deviation =
-            copy(
-                policy.observationInverseStandardDeviation
-            )
-        native.observation_inverse_standard_deviation_count =
-            policy.observationInverseStandardDeviation.count
-        native.critic_observation_mean = copy(
-            policy.criticObservationMean
-        )
-        native.critic_observation_mean_count =
-            policy.criticObservationMean.count
-        native.critic_observation_inverse_standard_deviation =
-            copy(
-                policy.criticObservationInverseStandardDeviation
-            )
-        native.critic_observation_inverse_standard_deviation_count =
-            policy.criticObservationInverseStandardDeviation.count
-        native.action_log_standard_deviation = copy(
-            policy.actionLogStandardDeviation
-        )
-        native.action_log_standard_deviation_count =
-            policy.actionLogStandardDeviation.count
-        native.action_bias = copy(policy.actionBias)
-        native.action_bias_count = policy.actionBias.count
-        native.action_scale = copy(policy.actionScale)
-        native.action_scale_count = policy.actionScale.count
-        native.observation_clip = policy.observationClip
-        native.action_clip = policy.actionClip
-
-        let status = policy.id.withCString { identifier in
-            native.id = identifier
-            return nativeLayers.withUnsafeBufferPointer {
-                layers in
-                native.layers = layers.baseAddress
-                native.layer_count = layers.count
-                return nativeCriticLayers
-                    .withUnsafeBufferPointer { criticLayers in
-                        native.critic_layers =
-                            criticLayers.baseAddress
-                        native.critic_layer_count =
-                            criticLayers.count
-                        return mr_task_rollout_set_policy(
-                            handle,
-                            &native
-                        )
-                    }
-            }
+        let status = try withNativePolicyPack(policy) { native in
+            mr_task_rollout_set_policy(handle, native)
         }
         guard status == 0 else {
             throw MetalRoboTaskRolloutError.native(

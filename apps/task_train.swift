@@ -10,9 +10,6 @@ private struct Options {
     var solver = MetalRoboTaskSolver.tgs
     var seed: UInt64 = 20_260_731
     var metallib = "build/shaders/MetalRobo.metallib"
-    var nativeLibrary = "build/lib/libmetalrobo.dylib"
-    var mlxPython: String?
-    var pythonRoot = "python"
     var policyPack: String?
     var initializePolicyID: String?
     var updatedPolicyPack: String?
@@ -40,7 +37,6 @@ private struct Options {
     var discount = 0.99
     var gaeLambda = 0.95
     var learnerSeed = 1
-    var learnerTimeoutSeconds = 120.0
     var verbose = false
 
     init(arguments: [String]) throws {
@@ -78,15 +74,6 @@ private struct Options {
                 index += 1
             case "--metallib":
                 metallib = try value()
-                index += 1
-            case "--native-library":
-                nativeLibrary = try value()
-                index += 1
-            case "--mlx-python":
-                mlxPython = try value()
-                index += 1
-            case "--python-root":
-                pythonRoot = try value()
                 index += 1
             case "--policy-pack":
                 policyPack = try value()
@@ -180,10 +167,6 @@ private struct Options {
             case "--learner-seed":
                 learnerSeed = try Self.integer(value(), option)
                 index += 1
-            case "--learner-timeout-seconds":
-                learnerTimeoutSeconds =
-                    try Self.double(value(), option)
-                index += 1
             case "--verbose":
                 verbose = true
             default:
@@ -200,8 +183,6 @@ private struct Options {
               updateEpochs > 0,
               minibatchSize >= 0,
               learnerSeed >= 0,
-              let mlxPython,
-              !mlxPython.isEmpty,
               let policyPack,
               !policyPack.isEmpty,
               let updatedPolicyPack,
@@ -210,7 +191,7 @@ private struct Options {
               !rolloutPack.isEmpty
         else {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "Positive rollout sizes and all policy, rollout, and MLX paths are required."
+                "Positive rollout sizes and all native learning artifact paths are required."
             )
         }
         let (sampleCount, sampleOverflow) =
@@ -247,7 +228,6 @@ private struct Options {
             targetKL,
             discount,
             gaeLambda,
-            learnerTimeoutSeconds,
         ]
         guard ppoValues.allSatisfy(\.isFinite),
               learningRate > 0,
@@ -257,8 +237,7 @@ private struct Options {
               initialLogStandardDeviation >= -5,
               initialLogStandardDeviation <= 2,
               maximumGradientNorm > 0,
-              targetKL >= 0,
-              learnerTimeoutSeconds > 0,
+              targetKL > 0,
               discount >= 0,
               discount <= 1,
               gaeLambda >= 0,
@@ -307,362 +286,6 @@ private struct Options {
             )
         }
         return parsed
-    }
-}
-
-private func mlxEnvironment(options: Options) -> [String: String] {
-    var environment = ProcessInfo.processInfo.environment
-    let existing = environment["PYTHONPATH"] ?? ""
-    environment["PYTHONPATH"] =
-        existing.isEmpty
-        ? options.pythonRoot
-        : "\(options.pythonRoot):\(existing)"
-    let libraryDirectory = URL(
-        fileURLWithPath: options.nativeLibrary
-    ).deletingLastPathComponent().path
-    let existingLibraries =
-        environment["DYLD_LIBRARY_PATH"] ?? ""
-    environment["DYLD_LIBRARY_PATH"] =
-        existingLibraries.isEmpty
-        ? libraryDirectory
-        : "\(libraryDirectory):\(existingLibraries)"
-    return environment
-}
-
-private func initializePolicyIfRequested(
-    options: Options,
-    layout: MetalRoboTaskRolloutLayout
-) throws {
-    guard let identifier = options.initializePolicyID else {
-        return
-    }
-    guard let executable = options.mlxPython,
-          let policyPack = options.policyPack,
-          !identifier.isEmpty
-    else {
-        throw MetalRoboTaskRolloutError.invalidShape(
-            "Policy initialization paths and identity are incomplete."
-        )
-    }
-    if FileManager.default.fileExists(atPath: policyPack) {
-        throw MetalRoboTaskRolloutError.invalidShape(
-            "--initialize-policy refuses to overwrite an existing PolicyPack."
-        )
-    }
-    try FileManager.default.createDirectory(
-        at: URL(fileURLWithPath: policyPack)
-            .deletingLastPathComponent(),
-        withIntermediateDirectories: true
-    )
-    let process = Process()
-    let output = Pipe()
-    process.executableURL = URL(fileURLWithPath: executable)
-    process.arguments = [
-        "-m",
-        "metalrobo.mlx_policy_worker",
-        "initialize",
-        "--actor-observations",
-        String(layout.actorObservationCount),
-        "--critic-observations",
-        String(layout.criticObservationCount),
-        "--actions",
-        String(layout.actionCount),
-        "--policy-id",
-        identifier,
-        "--output",
-        policyPack,
-        "--native-library",
-        options.nativeLibrary,
-        "--seed",
-        String(options.learnerSeed),
-        "--initial-log-standard-deviation",
-        String(options.initialLogStandardDeviation),
-    ]
-    process.environment = mlxEnvironment(options: options)
-    process.standardOutput = output
-    process.standardError = FileHandle.standardError
-    try process.run()
-    process.waitUntilExit()
-    guard process.terminationStatus == 0 else {
-        throw MetalRoboTaskRolloutError.native(
-            "MLX policy initialization exited with status "
-            + "\(process.terminationStatus)."
-        )
-    }
-    let data = output.fileHandleForReading.readDataToEndOfFile()
-    guard let record = try JSONSerialization.jsonObject(
-        with: data
-    ) as? [String: Any],
-          record["status"] as? String == "initialized"
-    else {
-        throw MetalRoboTaskRolloutError.native(
-            "MLX policy initialization returned an invalid record."
-        )
-    }
-}
-
-private final class MLXLearnerWorker {
-    private let process = Process()
-    private let input = Pipe()
-    private let output = Pipe()
-    private var pendingOutput = Data()
-    private let responseTimeoutMilliseconds: Int32
-    private(set) var revision: UInt64
-    private(set) var actorObservationCount: Int
-    private(set) var criticObservationCount: Int
-    private(set) var actionCount: Int
-    private(set) var policyPackPath: String
-    private(set) var deploymentPolicyPackPath: String
-    private(set) var stateRestored: Bool
-    private(set) var taskCurriculumLevel: UInt32
-    private var closed = false
-
-    init(options: Options) throws {
-        guard let executable = options.mlxPython,
-              let policyPack = options.policyPack,
-              let outputPolicyPack = options.updatedPolicyPack,
-              let deploymentPolicyPack =
-                  options.deploymentPolicyPack,
-              let learnerState = options.learnerState
-        else {
-            throw MetalRoboTaskRolloutError.invalidShape(
-                "MLX learner paths are incomplete."
-            )
-        }
-        process.executableURL = URL(fileURLWithPath: executable)
-        responseTimeoutMilliseconds = Int32(
-            min(
-                ceil(options.learnerTimeoutSeconds * 1_000),
-                Double(Int32.max)
-            )
-        )
-        process.arguments = [
-            "-m",
-            "metalrobo.mlx_policy_worker",
-            "serve",
-            "--policy-pack",
-            policyPack,
-            "--output-policy-pack",
-            outputPolicyPack,
-            "--deployment-policy-pack",
-            deploymentPolicyPack,
-            "--learner-state",
-            learnerState,
-            "--native-library",
-            options.nativeLibrary,
-            "--update-epochs",
-            String(options.updateEpochs),
-            "--minibatch-size",
-            String(options.minibatchSize),
-            "--learning-rate",
-            String(options.learningRate),
-            "--clip-ratio",
-            String(options.clipRatio),
-            "--value-coefficient",
-            String(options.valueCoefficient),
-            "--entropy-coefficient",
-            String(options.entropyCoefficient),
-            "--maximum-gradient-norm",
-            String(options.maximumGradientNorm),
-            "--target-kl",
-            String(options.targetKL),
-            "--discount",
-            String(options.discount),
-            "--gae-lambda",
-            String(options.gaeLambda),
-            "--initial-log-standard-deviation",
-            String(options.initialLogStandardDeviation),
-            "--seed",
-            String(options.learnerSeed),
-        ]
-        process.environment = mlxEnvironment(options: options)
-        process.standardInput = input
-        process.standardOutput = output
-        process.standardError = FileHandle.standardError
-        try process.run()
-
-        revision = 0
-        actorObservationCount = 0
-        criticObservationCount = 0
-        actionCount = 0
-        policyPackPath = ""
-        deploymentPolicyPackPath = ""
-        stateRestored = false
-        taskCurriculumLevel = 0
-        let ready = try response()
-        guard ready["status"] as? String == "ready",
-              let revisionValue =
-                  ready["policy_revision"] as? NSNumber,
-              let actorValue =
-                  ready["actor_observation_count"] as? NSNumber,
-              let criticValue =
-                  ready["critic_observation_count"] as? NSNumber,
-              let actionValue =
-                  ready["action_count"] as? NSNumber,
-              let readyPolicyPack =
-                  ready["policy_pack"] as? String,
-              let readyDeploymentPolicyPack =
-                  ready["deployment_policy_pack"] as? String,
-              let restored =
-                  ready["learner_state_restored"] as? Bool,
-              let curriculumValue =
-                  ready["task_curriculum_level"] as? NSNumber,
-              curriculumValue.uint64Value <= UInt64(UInt32.max)
-        else {
-            throw MetalRoboTaskRolloutError.native(
-                "MLX learner did not publish a valid ready record."
-            )
-        }
-        revision = revisionValue.uint64Value
-        actorObservationCount = actorValue.intValue
-        criticObservationCount = criticValue.intValue
-        actionCount = actionValue.intValue
-        policyPackPath = readyPolicyPack
-        deploymentPolicyPackPath =
-            readyDeploymentPolicyPack
-        stateRestored = restored
-        taskCurriculumLevel = curriculumValue.uint32Value
-    }
-
-    deinit {
-        if process.isRunning {
-            process.terminate()
-        }
-    }
-
-    func update(rolloutPack: String) throws -> [String: Any] {
-        try request(
-            [
-                "operation": "update",
-                "rollout_pack": rolloutPack,
-            ]
-        )
-        let result = try response()
-        guard result["status"] as? String == "updated",
-              let before =
-                  result["policy_revision_before"] as? NSNumber,
-              let after =
-                  result["policy_revision_after"] as? NSNumber,
-              let deploymentPolicyPack =
-                  result["deployment_policy_pack"] as? String,
-              let updatedCurriculum =
-                  result["task_curriculum_level"] as? NSNumber,
-              before.uint64Value == revision,
-              after.uint64Value == revision + 1,
-              updatedCurriculum.uint64Value <=
-                  UInt64(UInt32.max),
-              updatedCurriculum.uint64Value >=
-                  UInt64(taskCurriculumLevel),
-              deploymentPolicyPack ==
-                  deploymentPolicyPackPath
-        else {
-            let message =
-                result["error"] as? String ??
-                "MLX learner returned an invalid update record."
-            throw MetalRoboTaskRolloutError.native(message)
-        }
-        revision = after.uint64Value
-        taskCurriculumLevel = updatedCurriculum.uint32Value
-        return result
-    }
-
-    func close() throws {
-        guard !closed else {
-            return
-        }
-        try request(["operation": "close"])
-        let result = try response()
-        guard result["status"] as? String == "closed" else {
-            throw MetalRoboTaskRolloutError.native(
-                "MLX learner did not close cleanly."
-            )
-        }
-        closed = true
-        try input.fileHandleForWriting.close()
-        process.waitUntilExit()
-        guard process.terminationStatus == 0 else {
-            throw MetalRoboTaskRolloutError.native(
-                "MLX learner exited with status \(process.terminationStatus)."
-            )
-        }
-    }
-
-    private func request(_ object: [String: Any]) throws {
-        var data = try JSONSerialization.data(
-            withJSONObject: object
-        )
-        data.append(0x0a)
-        try input.fileHandleForWriting.write(contentsOf: data)
-    }
-
-    private func response() throws -> [String: Any] {
-        while true {
-            if let newline = pendingOutput.firstIndex(of: 0x0a) {
-                let line = pendingOutput[..<newline]
-                pendingOutput.removeSubrange(
-                    ...newline
-                )
-                let value = try JSONSerialization.jsonObject(
-                    with: Data(line)
-                )
-                guard let record = value as? [String: Any] else {
-                    throw MetalRoboTaskRolloutError.native(
-                        "MLX learner emitted a non-object JSON record."
-                    )
-                }
-                return record
-            }
-            var descriptor = pollfd(
-                fd: output.fileHandleForReading.fileDescriptor,
-                events: Int16(POLLIN | POLLHUP | POLLERR),
-                revents: 0
-            )
-            var pollStatus: Int32
-            repeat {
-                pollStatus = Darwin.poll(
-                    &descriptor,
-                    1,
-                    responseTimeoutMilliseconds
-                )
-            } while pollStatus < 0 && errno == EINTR
-            if pollStatus == 0 {
-                throw MetalRoboTaskRolloutError.native(
-                    "MLX learner did not answer within "
-                    + "\(Double(responseTimeoutMilliseconds) / 1_000) seconds."
-                )
-            }
-            guard pollStatus > 0,
-                  descriptor.revents & Int16(POLLNVAL) == 0
-            else {
-                throw MetalRoboTaskRolloutError.native(
-                    "MLX learner output polling failed."
-                )
-            }
-            var bytes = [UInt8](
-                repeating: 0,
-                count: 64 * 1_024
-            )
-            let count = bytes.withUnsafeMutableBytes {
-                storage -> Int in
-                var result: Int
-                repeat {
-                    result = Darwin.read(
-                        descriptor.fd,
-                        storage.baseAddress,
-                        storage.count
-                    )
-                } while result < 0 && errno == EINTR
-                return result
-            }
-            guard count > 0 else {
-                throw MetalRoboTaskRolloutError.native(
-                    "MLX learner closed its output unexpectedly."
-                )
-            }
-            pendingOutput.append(
-                contentsOf: bytes.prefix(count)
-            )
-        }
     }
 }
 
@@ -722,11 +345,8 @@ private enum TaskTrainMain {
             )
             let (context, worldSource) =
                 try makeContext(options: options)
-            try initializePolicyIfRequested(
-                options: options,
-                layout: context.layout
-            )
-            guard let updatedPolicyPack =
+            guard let policyPack = options.policyPack,
+                  let updatedPolicyPack =
                       options.updatedPolicyPack,
                   let deploymentPolicyPack =
                       options.deploymentPolicyPack,
@@ -737,25 +357,83 @@ private enum TaskTrainMain {
                     "Training artifact paths are incomplete."
                 )
             }
-            let learner = try MLXLearnerWorker(options: options)
+            let policyURL = URL(fileURLWithPath: policyPack)
+            let updatedPolicyURL = URL(
+                fileURLWithPath: updatedPolicyPack
+            )
+            let deploymentPolicyURL = URL(
+                fileURLWithPath: deploymentPolicyPack
+            )
+            let learnerStateURL = URL(
+                fileURLWithPath: learnerState
+            )
+            let initializeFresh = options.initializePolicyID != nil
+            if initializeFresh {
+                guard !FileManager.default.fileExists(
+                    atPath: policyURL.path
+                ),
+                !FileManager.default.fileExists(
+                    atPath: learnerStateURL.path
+                ) else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--initialize-policy refuses to overwrite an existing policy or learner state."
+                    )
+                }
+            } else {
+                guard FileManager.default.fileExists(
+                    atPath: learnerStateURL.path
+                ) else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "Native training requires --initialize-policy for a fresh run or an existing --learner-state to resume."
+                    )
+                }
+            }
+
+            let layout = context.layout
+            let learner = try MetalRoboMLXPPOTrainer(
+                actorObservationCount:
+                    layout.actorObservationCount,
+                criticObservationCount:
+                    layout.criticObservationCount,
+                actionCount: layout.actionCount,
+                policyID: options.initializePolicyID,
+                trainingPolicyURL: updatedPolicyURL,
+                deploymentPolicyURL: deploymentPolicyURL,
+                learnerStateURL: learnerStateURL,
+                taskFingerprint: context.taskFingerprint,
+                configuration: MetalRoboMLXPPOConfiguration(
+                    updateEpochs: options.updateEpochs,
+                    minibatchSize: options.minibatchSize,
+                    learningRate: Float(options.learningRate),
+                    clipRatio: Float(options.clipRatio),
+                    valueCoefficient:
+                        Float(options.valueCoefficient),
+                    entropyCoefficient:
+                        Float(options.entropyCoefficient),
+                    maximumGradientNorm:
+                        Float(options.maximumGradientNorm),
+                    targetKL: Float(options.targetKL),
+                    discount: Float(options.discount),
+                    gaeLambda: Float(options.gaeLambda),
+                    initialLogStandardDeviation:
+                        Float(options.initialLogStandardDeviation),
+                    seed: UInt64(options.learnerSeed)
+                ),
+                resumeIfPresent: !initializeFresh
+            )
+            let initialPolicy = try learner.initialPolicyPack()
+            if initializeFresh {
+                try FileManager.default.createDirectory(
+                    at: policyURL.deletingLastPathComponent(),
+                    withIntermediateDirectories: true
+                )
+                try initialPolicy.write(to: policyURL)
+            }
+            try learner.publishCurrentPolicies()
             try context.setCurriculumLevel(
                 learner.taskCurriculumLevel
             )
-            try context.loadPolicy(
-                at: URL(fileURLWithPath: learner.policyPackPath)
-            )
-            let layout = context.layout
-            guard learner.revision != 0,
-                  learner.actorObservationCount ==
-                      layout.actorObservationCount,
-                  learner.criticObservationCount ==
-                      layout.criticObservationCount,
-                  learner.actionCount == layout.actionCount
-            else {
-                throw MetalRoboTaskRolloutError.invalidShape(
-                    "PolicyPack dimensions do not match the compiled task."
-                )
-            }
+            try context.setPolicy(initialPolicy)
             let initialRevision = learner.revision
             let initialCurriculumLevel =
                 learner.taskCurriculumLevel
@@ -913,7 +591,9 @@ private enum TaskTrainMain {
                     )
                 }
                 lastLearning = try learner.update(
-                    rolloutPack: rolloutPack
+                    rollout: rollout,
+                    bootstrapValues: bootstrapValues,
+                    curriculumLevel: rolloutCurriculumLevel
                 )
                 guard learner.taskCurriculumLevel ==
                           rolloutCurriculumLevel
@@ -922,8 +602,8 @@ private enum TaskTrainMain {
                         "Learner checkpoint disagrees with the native rollout curriculum."
                     )
                 }
-                try context.loadPolicy(
-                    at: URL(fileURLWithPath: updatedPolicyPack)
+                try context.setPolicy(
+                    learner.initialPolicyPack()
                 )
                 installedRevision = learner.revision
                 if options.verbose {
@@ -981,8 +661,6 @@ private enum TaskTrainMain {
                     )
                 }
             }
-            try learner.close()
-
             let end = clock.now
             let elapsed = start.duration(to: end)
             let seconds =
@@ -997,7 +675,7 @@ private enum TaskTrainMain {
                 "operation": "swift_native_policy_training",
                 "scheduler": "swift",
                 "physics": "metal",
-                "learner": "mlx",
+                "learner": "mlx_swift",
                 "world_source": worldSource,
                 "device": context.deviceName,
                 "environments": options.environments,

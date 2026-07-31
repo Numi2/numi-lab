@@ -77,17 +77,12 @@ terminal state, evaluated before the next native reset, so GAE never
 bootstraps from the following episode.
 
 `TaskPack` and `PolicyPack` have deterministic, fingerprinted, transactional
-binary artifacts. MLX is a batch learning backend in
-`python/metalrobo/mlx_policy_learning.py`; it has no simulator or rollout
-scheduler dependency and publishes actors through the canonical PolicyPack
-writer. Its PPO minibatch compiles forward evaluation, backward evaluation,
-global policy gradient clipping, and Adam into one graph with explicit model
-and optimizer state capture. Swift reuses one preallocated rollout arena, lends
-its arrays directly to the synchronous native artifact writer, and applies a
-configurable timeout to the long-lived learner protocol. No per-chunk batch
-list, flattened duplicate, or second full tensor allocation remains; the
-writer reserves one exact-size serialized payload. Python memory-maps that
-payload and asks the native library to verify its canonical content hash.
+binary artifacts. MLX Swift is linked only into `metalrobo_task_train` as the
+batch tensor/autodiff backend. Swift owns GAE, deterministic minibatch order,
+bias-corrected Adam state, learning-rate adaptation, checkpointing, and direct
+resident-policy installation. There is no learner process, pipe protocol, or
+Python runtime. The rollout artifact remains a compact replay/evidence
+boundary; PPO consumes the same already-collected Swift arrays in process.
 It neither copies the complete file into a Python `bytes` object nor hashes
 each byte in the interpreter.
 
@@ -430,8 +425,6 @@ and rollout scheduling have one owner: the native compiled-task executor.
   --scene terrain --native-policy
 ./build/bin/metalrobo_task_train \
   --metallib build/shaders/MetalRobo.metallib \
-  --native-library build/lib/libmetalrobo.dylib \
-  --mlx-python python/.venv/bin/python --python-root python \
   --initialize-policy unitree_g1_native_locomotion \
   --policy-pack /tmp/g1-initial.policypack \
   --updated-policy-pack /tmp/g1-policy.policypack \
@@ -441,10 +434,6 @@ and rollout scheduling have one owner: the native compiled-task executor.
   --envs 1024 --steps 24 --chunk 8 --updates 100
 ./build/bin/metalrobo_metal_world_contact_probe
 ./build/bin/metalrobo_metal_world_probe
-
-cd python
-python3 probes/mlx_policy_learning_check.py \
-  --library ../build/lib/libmetalrobo.dylib
 ```
 
 The task-program check covers deterministic semantic compilation, imported

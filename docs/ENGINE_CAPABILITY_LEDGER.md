@@ -276,16 +276,15 @@ inspection, export, and external sim2sim comparison. Swift owns native rollout
 scheduling.
 
 ```sh
-python3 -m pip install -e python
 cmake --build build --target metalrobo_task_train
 ./build/bin/metalrobo_task_train \
   --metallib build/shaders/MetalRobo.metallib \
-  --native-library build/lib/libmetalrobo.dylib \
-  --mlx-python python/.venv/bin/python \
-  --python-root python \
+  --initialize-policy unitree_g1_native_locomotion \
   --policy-pack runs/g1/initial.policypack \
   --updated-policy-pack runs/g1/training.policypack \
-  --rollout-pack runs/g1/latest.rolloutpack
+  --deployment-policy-pack runs/g1/deployment.policypack \
+  --rollout-pack runs/g1/latest.rolloutpack \
+  --learner-state runs/g1/learner.safetensors
 ```
 
 The native engine has no third-party physics dependency. Factual robot model

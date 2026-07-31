@@ -93,20 +93,20 @@ so a real overflow is distinguishable from a driver failure.
 ## Swift rollout ownership
 
 The Swift executables own rollout length, submission chunking, completion and
-timeout handling, policy revision consistency, rollout artifact publication,
-and learner process lifecycle. Chunking bounds command-buffer work while the
-native context and its private state remain resident. An empty reset stream is
+error handling, policy revision consistency, rollout artifact publication,
+and in-process MLX Swift learning. Chunking bounds command-buffer work while
+the native context and its private state remain resident. An empty reset stream is
 passed as a null pointer and zero count; an authored reset stream must contain
 exactly `control_steps * environments` entries.
 
-`metalrobo_task_train` keeps one simulator context and one long-lived MLX
+`metalrobo_task_train` keeps one simulator context and one in-process MLX Swift
 learner. It appends native chunks directly into a preallocated rollout arena,
-writes one fingerprinted rollout artifact, requests one PPO update, then
-installs exactly the returned PolicyPack revision. Python is never in the
-control-step loop. The learner sidecar atomically checkpoints model and Adam
-state with the native task-wide curriculum level; resume restores that compact
-state before the first Metal submission and begins a new synchronized
-evaluation window.
+writes one fingerprinted rollout artifact, performs PPO at the declared batch
+boundary, and installs the resulting weights directly into the resident Metal
+world. Python is absent from the runtime. The safetensors sidecar atomically
+checkpoints model and bias-corrected Adam state with the native task-wide
+curriculum level; resume restores that compact state before the first Metal
+submission and begins a new synchronized evaluation window.
 
 ## MLX learning boundary
 

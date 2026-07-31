@@ -742,6 +742,22 @@ set_target_properties(
 )
 
 if(METALROBO_HAS_SWIFT)
+    # Pin the native learning backend at a reviewed release. Physics and task
+    # execution remain MetalRobo-owned; MLX Swift is linked only into the
+    # training executable for tensor algebra and automatic differentiation.
+    include(FetchContent)
+    set(MLX_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    FetchContent_Declare(
+        mlx_swift
+        GIT_REPOSITORY https://github.com/ml-explore/mlx-swift.git
+        GIT_TAG 61b9e011e09a62b489f6bd647958f1555bdf2896
+        GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(mlx_swift)
+    # The dependency mirrors MLX's C++17 setting inside its subdirectory.
+    # Restore MetalRobo's numerical/ABI contract for following native targets.
+    set(CMAKE_CXX_STANDARD 23)
+
     add_executable(
         metalrobo_task_rollout
         apps/task_rollout.swift
@@ -769,6 +785,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_train
         apps/task_train.swift
+        bindings/swift/MetalRoboMLXLearner.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(
@@ -780,6 +797,10 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_train
         PRIVATE
             metalrobo
+            MLX
+            MLXNN
+            MLXOptimizers
+            MLXRandom
     )
     set_target_properties(
         metalrobo_task_train

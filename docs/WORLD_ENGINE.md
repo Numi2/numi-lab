@@ -218,11 +218,11 @@ Swift retains one native world, preallocates one rollout arena, submits bounded
 chunks, handles completion/error reporting, and attaches a policy revision to
 every batch.
 
-The learner process receives a memory-mapped `PolicyRolloutPack` containing
-only actor/critic observations, actions/latents, old log probabilities, values,
-rewards, terminations, and compact diagnostics. MLX performs PPO updates and
-writes the next native PolicyPack through the canonical C++ writer. It never
-receives simulator caches or schedules a physics transition.
+The in-process MLX Swift learner receives only actor/critic observations,
+actions/latents, old log probabilities, values, rewards, terminations, and
+compact diagnostics. It performs PPO and writes the next PolicyPack through
+the canonical native writer. It never receives simulator caches or schedules
+a physics transition.
 
 Timeout transitions include one native critic scalar evaluated from the
 accepted post-transition history before reset. GAE uses that scalar while
@@ -230,8 +230,7 @@ still cutting recurrence at the episode boundary.
 
 The command curriculum is task-wide rather than environment-local. One native
 reduction advances it only at the authored episode boundary and publishes its
-level in every transition. The MLX worker derives the next checkpoint from
-that signed rollout record and atomically stores the level with model and
+level in every transition. Swift atomically stores that level with model and
 optimizer state. Resume restores it before the first resident submission. A
 new simulator context starts a fresh synchronized evaluation window rather
 than restoring a global clock without the corresponding in-flight episodes.
@@ -261,9 +260,7 @@ cmake --build build --target metalrobo_task_program_check
   --envs 32 --steps 48 --repeats 20 --chunk 8 \
   --scene terrain --native-policy
 
-cd python
-python3 probes/mlx_policy_learning_check.py \
-  --library ../build/lib/libmetalrobo.dylib
+cmake --build build --target metalrobo_task_train
 ```
 
 The task-program check owns semantic resolution, capacity invariants, artifact
@@ -290,5 +287,4 @@ importing or scheduling simulator state.
 - `bindings/swift/MetalRoboTaskRollout.swift`
 - `apps/task_rollout.swift`
 - `apps/task_train.swift`
-- `python/metalrobo/mlx_policy_learning.py`
-- `python/metalrobo/mlx_policy_worker.py`
+- `bindings/swift/MetalRoboMLXLearner.swift`

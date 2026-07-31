@@ -164,29 +164,20 @@ Cook authored presentation resources:
   --face-size 512 --source-color-space auto
 ```
 
-Validate the policy-learning boundary after the native engine:
+Build the Apple-native policy-learning boundary with the engine:
 
 ```sh
-cd python
-python3 -m pip install -e .
-python3 probes/mlx_policy_learning_check.py \
-  --library ../build/lib/libmetalrobo.dylib \
-  --output /tmp/metalrobo-policy.policypack
+cmake --build build --target metalrobo_task_train
 ```
 
-The Python package pins `mlx>=0.32,<0.33`. Its production learning surface
-owns actor/critic parameters, optimizer state, and PPO updates. The focused
-check performs a real update and writes the same fingerprinted PolicyPack
-consumed by the Swift/Metal rollout.
-
 `metalrobo_task_train` is the production scheduler: it keeps one native
-resident world, launches one persistent MLX learner process, collects compact
-rollouts, evaluates the terminal critic value without advancing physics, and
-installs each new PolicyPack revision transactionally. Every update also
-publishes a deterministic deployment PolicyPack with the same actor revision
-and no exploration distribution. Its atomic learner sidecar includes the
-native task-wide curriculum level, while a restarted simulator begins a fresh
-synchronized evaluation window with the restored policy and optimizer state.
+resident world and one in-process MLX Swift PPO learner, collects compact
+rollouts, evaluates terminal critic values without advancing physics, and
+installs each new PolicyPack revision directly. There is no subprocess or
+Python scheduling boundary. Every update also publishes a deterministic
+deployment PolicyPack with the same actor revision and no exploration
+distribution. The atomic safetensors sidecar includes bias-corrected Adam and
+the task-wide curriculum level.
 
 ## Repository map
 

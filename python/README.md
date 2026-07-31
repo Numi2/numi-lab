@@ -1,10 +1,11 @@
-# MetalRobo Python and MLX
+# MetalRobo Python data and deployment tools
 
-Python is the learning and data boundary, not the production simulator
-runtime. The current locomotion architecture is:
+Python is optional tooling for tactile datasets, policy export, artifact
+inspection, and independent MuJoCo comparison. It is not part of production
+simulation or policy learning. The current locomotion architecture is:
 
 ```text
-Swift rollout scheduler
+Swift rollout + PPO scheduler
         |
         v
 native persistent MetalWorld
@@ -12,10 +13,10 @@ native persistent MetalWorld
   + compiled PolicyPack
         |
         v
-compact actor/critic observations and transitions
+compact learning tensors
         |
         v
-MLX policy update
+in-process MLX Swift update
         |
         v
 next fingerprinted PolicyPack revision
@@ -34,57 +35,25 @@ Build the native library and Metal shaders first:
 cmake -S .. -B ../build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build ../build --target \
   metalrobo_task_program_check \
-  metalrobo_task_rollout
+  metalrobo_task_rollout \
+  metalrobo_task_train
 python3 -m pip install -e .
 ```
 
-The package pins `mlx>=0.32,<0.33`. It no longer builds a Python physics
-extension: native and shared rollout records carry an ABI fingerprint, and
-the learner rejects stale artifacts before an update.
+The Python package remains optional. Its MLX dependency supports deployment
+export and offline model/data work; the native learner pins MLX Swift in CMake.
 
-## Generic MLX policy learner
+## Native MLX Swift policy learner
 
-`MLXPolicyLearner` owns only actor/critic parameters, optimizer state, and PPO
-updates. It consumes a compact batch collected by Swift:
+Production PPO is implemented in
+`bindings/swift/MetalRoboMLXLearner.swift`. Swift owns GAE, deterministic
+minibatch scheduling, bias-corrected Adam, checkpoints, and PolicyPack
+publication; MLX Swift supplies GPU tensor algebra and autodiff. Python is not
+loaded or launched by the training runtime.
 
-```python
-from pathlib import Path
-
-from metalrobo import (
-    MLXPPOConfiguration,
-    MLXPolicyBatch,
-    MLXPolicyLearner,
-)
-
-learner = MLXPolicyLearner(
-    actor_observation_count=480,
-    critic_observation_count=495,
-    action_count=29,
-    configuration=MLXPPOConfiguration(
-        hidden_sizes=(512, 256, 128),
-    ),
-)
-
-batch = MLXPolicyBatch.from_numpy(
-    actor_observations=actor_observations,
-    critic_observations=critic_observations,
-    latents=sampled_latents,
-    old_log_probabilities=old_log_probabilities,
-    old_values=old_values,
-    advantages=advantages,
-    returns=returns,
-)
-metrics = learner.update(batch)
-learner.write_policy_pack(
-    Path("runs/policy.policypack"),
-    policy_id="locomotion_actor",
-    library_path="../build/lib/libmetalrobo.dylib",
-)
-```
-
-The canonical writer is implemented by the native library. It validates the
-network and writes a fingerprinted artifact transactionally. The Swift
-executable loads it without translating weights:
+The canonical native writer validates each network and writes a fingerprinted
+artifact transactionally. The Swift rollout executable loads the deterministic
+deployment artifact without translating weights:
 
 ```sh
 ../build/bin/metalrobo_task_rollout \
@@ -93,17 +62,13 @@ executable loads it without translating weights:
   --envs 32 --steps 48 --chunk 8 --scene terrain
 ```
 
-For production collection, Swift launches the long-lived MLX learner, retains
-the native simulator, and owns every rollout/update boundary. The first run
-can initialize its PolicyPack directly from the compiled TaskPack dimensions:
+The first training run initializes its PolicyPack directly from compiled
+TaskPack dimensions:
 
 ```sh
 mkdir -p runs/g1
 ../build/bin/metalrobo_task_train \
   --metallib ../build/shaders/MetalRobo.metallib \
-  --native-library ../build/lib/libmetalrobo.dylib \
-  --mlx-python .venv/bin/python \
-  --python-root . \
   --initialize-policy unitree_g1_native_locomotion \
   --policy-pack runs/g1/initial.policypack \
   --updated-policy-pack runs/g1/policy.policypack \
@@ -111,7 +76,6 @@ mkdir -p runs/g1
   --rollout-pack runs/g1/latest.rolloutpack \
   --learner-state runs/g1/learner.safetensors \
   --envs 1024 --steps 24 --chunk 8 --updates 1000 \
-  --learner-timeout-seconds 120 \
   --scene ground --verbose
 ```
 
@@ -120,34 +84,20 @@ inside the last Metal submission. It does not consume or discard a physics
 transition. The training PolicyPack retains the diagonal-Gaussian behavior
 distribution; the deployment PolicyPack contains the same actor revision
 without exploration. Re-running without `--initialize-policy` restores the
-model, Adam state, and native task-wide curriculum level from the learner
-sidecar. The worker derives curriculum state from the fingerprinted rollout;
-it does not trust a duplicate scheduler value. The current sidecar schema is
-strict; a new simulator context begins a fresh synchronized curriculum window
-because its environment episodes are also new.
+model, Adam state, and native task-wide curriculum level from safetensors. The
+checkpoint is bound to the compiled task fingerprint and exact PPO contract. A
+new simulator context begins a fresh synchronized curriculum window because
+its environment episodes are also new.
 
 PolicyPack v3 is the raw-Gaussian behavior boundary. Historical v2 packs remain
 readable by the independent deployment evaluator with their original tanh
 action semantics, but cannot resume PPO because that stochastic distribution
 has no exact v3 migration.
 
-The learner compiles each PPO minibatch as one forward/backward/clip/Adam
-graph. Swift appends native chunks directly into a single preallocated rollout
-arena and passes borrowed buffers to the native writer, so chunking bounds
-Metal submissions without duplicating the complete rollout on the host. The
-worker memory-maps the resulting artifact and validates its content hash in
-native C++ instead of copying and hashing tens of millions of bytes in Python.
-
-Run the focused handoff check:
-
-```sh
-python3 probes/mlx_policy_learning_check.py \
-  --library ../build/lib/libmetalrobo.dylib \
-  --output /tmp/metalrobo-learner.policypack
-```
-
-The check performs a real PPO update and publishes a PolicyPack. It does not
-construct a world, schedule a transition, or submit physics.
+Swift appends native chunks into one preallocated rollout arena, evaluates MLX
+once per PPO minibatch, and installs the resulting weights directly into the
+resident Metal context. The persisted rollout remains available for replay and
+audit; it is not an inter-process transport.
 
 ## Tactile-dataset learning
 

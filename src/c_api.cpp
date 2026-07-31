@@ -1573,6 +1573,14 @@ MRTaskRolloutLayoutC mr_task_rollout_layout(
     return result;
 }
 
+uint64_t mr_task_rollout_task_fingerprint(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle)
+        ? handle->taskProgram.fingerprint()
+        : 0u;
+}
+
 const char* mr_task_rollout_device_name(
     const MRTaskRolloutHandle* handle
 ) {

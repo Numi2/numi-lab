@@ -352,10 +352,10 @@ int main() {
             program.header().counts2.x != 2u ||
             program.header().counts2.y != 5u ||
             program.header().articulation.w != 5u ||
-            program.header().commandLower.x != 0.0f ||
+            program.header().commandLower.x != 0.1f ||
             program.header().commandLower.y != 0.0f ||
             program.header().commandLower.z != 0.0f ||
-            program.header().commandUpper.x != 0.0f ||
+            program.header().commandUpper.x != 0.1f ||
             program.header().commandUpper.y != 0.0f ||
             program.header().commandUpper.z != 0.0f ||
             std::abs(
