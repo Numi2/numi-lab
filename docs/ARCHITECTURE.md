@@ -73,13 +73,13 @@ IR types are private. Public authoring uses importers and validated packs.
 Every accepted control transition follows one transaction:
 
 1. Snapshot or identify the last committed environment state.
-2. Apply scheduled reset, command, randomization, and actuator inputs.
-3. Generate collision and constraint candidates.
-4. Validate all counts, scans, offsets, and capacities.
-5. Solve into uncommitted state with NumiSolver.
-6. Integrate and update native sensors, tasks, histories, and counters.
-7. Validate status and finite results.
-8. Atomically publish the new environment state and compact outputs.
+2. Apply scheduled reset, command, randomization, and episode state.
+3. Refresh pre-control kinematics, sensors, observations, policy, and actions.
+4. Generate collision and constraint candidates.
+5. Validate all counts, scans, offsets, and capacities.
+6. Solve into uncommitted state with NumiSolver.
+7. Integrate and update post-physics tasks, sensors, histories, and counters.
+8. Validate status and atomically publish state and compact outputs.
 
 Overflow, invalid dispatch, factorization failure, or nonfinite output keeps the
 last committed state. Partially scattered constraints or half-reset sensor

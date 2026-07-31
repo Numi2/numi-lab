@@ -3,7 +3,8 @@
   "statuses": ["qualified", "implemented", "experimental", "unsupported"],
   "evidence_manifests": [
     "evidence/baselines/2026-07-31-b7f03fb.json",
-    "evidence/baselines/2026-07-31-9e8ea7e.json"
+    "evidence/baselines/2026-07-31-9e8ea7e.json",
+    "evidence/baselines/2026-08-01-db62e37.json"
   ],
   "capabilities": [
     {
@@ -98,11 +99,18 @@
       "scope": "Native deformation, contact evidence, wrench summaries, history, and device-buffer access."
     },
     {
+      "id": "sensors.native_state_schedule",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "Native pre-control parent-frame pose sensors use topology-derived persistent buffers, deterministic nanosecond phase accumulation, whole-sample latency history, per-environment transactional reset, and compact value/age/validity publication. The owner covers an exact 50 Hz schedule and a 30 Hz non-divisor schedule over a 20 ms control period."
+    },
+    {
       "id": "sensors.unified_sensor_ir",
       "status": "experimental",
-      "owner": "sensors.tactile",
-      "artifact": "metalrobo_tactile_check",
-      "scope": "WorldPack image and tactile declarations compile transactionally into one generated-ABI descriptor table with stable parent indices, exact output/history layouts, schedule periods, permissions, and tactile bindings. One session-owned native scheduler, TaskIR sensor references, and contact/range/IMU execution are not yet implemented."
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "WorldPack state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose sensors now execute in the session-owned scheduler; presentation and tactile still use their existing native owners, and TaskIR sensor references, deterministic corruption, recorder routing, contact, ray, LiDAR, force-torque, and IMU operators remain incomplete."
     },
     {
       "id": "policy.dense_native_inference",

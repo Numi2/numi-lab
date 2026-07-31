@@ -53,6 +53,20 @@ Compact output is exposed through lifetime-scoped borrowed views:
 A view retains its ring slot. The slot cannot be reused until all Swift and MLX
 consumers release it.
 
+## Current SensorIR execution boundary
+
+The canonical MetalWorld session now owns persistent schedule, history, output,
+and metadata buffers for pre-control parent-frame pose sensors. One thread owns
+one environment/sensor history ring, so a reset clears its schedule and history
+without atomics or host reconstruction. Rates use integer nanosecond phase
+accumulators; whole-sample latency is selected from the retained ring. Compact
+latest values and timestamp/age/validity metadata cross the inspection boundary
+only when explicitly requested.
+
+Presentation and tactile passes have not yet been folded into this scheduler.
+They remain native but are rejected by this execution gate instead of being
+silently skipped or routed through Python.
+
 ## MLX boundary
 
 Native Metal writes compact rollouts into preallocated shared buffers. Swift

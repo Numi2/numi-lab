@@ -119,17 +119,24 @@ atlas binding, and fingerprint are topology-derived. Sensor compilation is
 transactional: duplicate names, unresolved parents, uncovered latency, and
 tactile metadata disagreement leave the previous program unchanged.
 
-Today this is the common SensorIR contract, not yet a common executor.
-Presentation sensors still execute in the native renderer and tactile sensors
-still execute in the native tactile context. Persistent session-owned phase
-accumulators, unified reset/history state, TaskIR sensor references, contact,
-ray/LiDAR/IMU operators, recorder routing, deterministic counter corruption,
-and compiler dead-code elimination are the next runtime tranche.
+Body-attached sensor transforms are authored in the imported link/body frame.
+The compiler converts translation once to the COM-centred runtime origin;
+tactile descriptors instead use the cooked tactile surface transform as their
+spatial authority.
 
-The runtime target uses deterministic fixed-point phase accumulators and
-counter randomness keyed by environment, episode, sensor, sample, and channel.
-Unobserved and unrecorded sensors will be removed by the execution-plan
-compiler once TaskIR/recorder bindings own their liveness.
+The first common SensorIR executor now samples pre-control parent-frame pose
+sensors. It owns per-environment nanosecond phase accumulators, latency history,
+latest compact output, timestamp/age/validity metadata, and reset state in
+persistent private buffers. It supports the control rate or any slower rate,
+including non-divisor schedules, and never publishes its retained history as
+ordinary learner tensors.
+
+Presentation sensors still execute in the native renderer and tactile sensors
+still execute in the native tactile context. Folding those passes into the
+session schedule, TaskIR sensor references, force-torque/contact/ray/LiDAR/IMU
+operators, recorder routing, counter-based corruption, and compiler dead-code
+elimination remain incomplete. Random corruption will be keyed by environment,
+episode, sensor, sample, and channel.
 
 RGB, depth, identities, normals, and motion consume only authored Visual
 Presentation V3 packs. Tactile deformation consumes authored undeformed and
