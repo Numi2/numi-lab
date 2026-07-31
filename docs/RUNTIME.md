@@ -12,19 +12,28 @@ state. Objective-C++ is a private bridge between them.
 - articulation, rigid-body, and rod state;
 - contact manifolds, active sets, and warm starts;
 - actuator delay/backlash and controller state;
-- sensor, tactile, recurrent-policy, and observation histories;
+- sensor, tactile, and observation histories; recurrent-policy state joins
+  this ownership boundary when recurrent PolicyIR operators land;
 - episode counters and counter-based RNG streams;
 - transaction checkpoints and structured failure status.
 
 Simulator internals are not ordinary MLX tensors and are never reconstructed
 by selecting or zeroing a world-shaped tensor tree.
 
-## Submission ring
+## Submission and rollout rings
 
-The production session uses three submission slots. Each slot owns all writable
-resources that can overlap another in-flight submission, including transient
-arenas, status, compact outputs, and command allocation. Immutable resources
-and explicitly synchronized persistent state may be shared.
+The core Metal context supports a configurable submission ring. The current
+resident C API session deliberately serializes one in-flight physics submission
+because mutable state continuation has not yet been split from its arena slot.
+This is a remaining executor migration item, not a claim of three overlapping
+physics command buffers.
+
+The Swift learner boundary does use a three-slot rollout ring. Each slot owns
+separate page-aligned `storageModeShared` Metal buffers for actor and critic
+observations, latents, behavior metadata, values, bootstrap values, and native
+transitions. Fixed capacities are derived from the compiled layout and update
+horizon. A generation-checked lease prevents reuse while Swift or MLX retains
+the slot.
 
 The execution plan uses generated argument tables, queue residency sets,
 topology-derived private heaps, indirect dispatch for validated GPU counts,
@@ -76,15 +85,19 @@ silently skipped or routed through Python.
 
 ## MLX boundary
 
-Native Metal writes compact rollouts into preallocated shared buffers. Swift
-wraps those buffers using MLX Swift's managed raw-pointer initializer and
-retains the underlying `MTLBuffer` through the finalizer. There is no
-intermediate `[Float]` concatenation.
+Native task kernels produce compact rollout streams. The current publication
+path copies each completed compact stream once from the native result boundary
+into its preallocated shared Metal ring slot. Swift does not materialize or
+concatenate `[Float]` batches. MLX arrays are constructed with the underlying
+managed C API, retain the slot lease through an owning finalizer payload, and
+therefore consume the shared buffers without another input copy. Publishing
+directly into the leased ring from the native command buffer remains an
+explicit optimization gate.
 
-For weight installation, the learner evaluates one contiguous MLX array,
-obtains its no-copy Metal view, and blits into an inactive private policy bank.
-The array remains alive until blit completion, then the session atomically
-publishes the new revision between chunks.
+Policy installation currently serializes and uploads the compiled PolicyPack
+between update chunks. Contiguous MLX weight flattening, inactive private
+weight banks, a no-copy Metal view, and an atomic blit-driven bank swap remain
+to be implemented.
 
 MLX lazy evaluation occurs at deliberate minibatch, update, and checkpoint
 boundaries. MLX does not borrow the physics encoder or decide per-step

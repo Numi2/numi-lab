@@ -27,6 +27,12 @@ whole-sample latency, mid-rollout reset, actor/critic consumer permissions, and
 accepted-state ordering for final-policy observations. This is scheduling and
 contract evidence; it does not qualify unimplemented sensor modalities.
 
+The native integration owner runs five PPO updates through a three-slot shared
+rollout ring. It therefore covers slot reuse, managed MLX payload release,
+monotonic policy revisions, native rollout serialization, learner checkpoints,
+and deployment-policy publication. It does not yet qualify direct GPU writes
+into the ring or inactive native weight-bank swapping.
+
 ## Owning checks
 
 The intended consolidated suite is:

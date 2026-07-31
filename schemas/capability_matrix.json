@@ -5,7 +5,8 @@
     "evidence/baselines/2026-07-31-b7f03fb.json",
     "evidence/baselines/2026-07-31-9e8ea7e.json",
     "evidence/baselines/2026-08-01-db62e37.json",
-    "evidence/baselines/2026-08-01-ec90c65.json"
+    "evidence/baselines/2026-08-01-ec90c65.json",
+    "evidence/baselines/2026-08-01-13b5bf5.json"
   ],
   "capabilities": [
     {
@@ -73,10 +74,17 @@
     },
     {
       "id": "learning.swift_mlx_ppo",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "integration.native_simulation",
       "artifact": "metalrobo_train",
-      "scope": "In-process Swift/MLX learner. Python PPO and learner-worker runtimes are removed."
+      "scope": "In-process Swift/MLX PPO consumes lifetime-scoped shared Metal rollout slots without Swift array concatenation or an MLX input copy. The integration owner advances beyond the three-slot ring and validates release, policy revision, checkpoints, and artifacts. One compact native-publication-to-ring host copy per chunk remains."
+    },
+    {
+      "id": "learning.leased_rollout_ring",
+      "status": "qualified",
+      "owner": "integration.native_simulation",
+      "artifact": "metalrobo_train",
+      "scope": "Three fixed-capacity storageModeShared MTLBuffer slots publish actor and critic observations, latents, behavior metadata, values, bootstrap values, and native transitions under generation-checked leases. Managed MLX C arrays retain and release the slot payload deterministically."
     },
     {
       "id": "tasks.compiled_native_runtime",

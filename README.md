@@ -59,6 +59,10 @@ release blockers remain:
 - State sensors execute on the session timeline and bind directly into TaskIR.
   Presentation and tactile sensing remain native but have not yet been folded
   into that same schedule.
+- Swift PPO now collects into a three-slot shared Metal rollout ring and MLX
+  consumes those buffers without Swift array concatenation or an MLX input
+  copy. Direct native command-buffer publication into the ring and inactive
+  policy weight banks remain unfinished.
 - PolicyIR does not yet support convolution, recurrence, or attention.
 - Native validity-aware adjoints are not implemented.
 - G1 standing and walking are not qualified.

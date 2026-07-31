@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T00:59:02+02:00",
+  "source_revision": "13b5bf53b1ad235b449d6ce4884b50597c1ba04c",
+  "metallib_sha256": "696cb114bbb6d8cce92c3ade1332851b82f40d2b2e3e926412775b5b146e9f8d",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 6.19,
+    "integration_ppo_updates": 5,
+    "integration_rollout_ring_slots": 3,
+    "integration_environment_count": 1,
+    "integration_steps_per_update": 2,
+    "integration_control_steps_per_submission": 1,
+    "integration_native_submission_count": 10,
+    "integration_training_samples": 10,
+    "integration_initial_policy_revision": 1,
+    "integration_final_policy_revision": 6,
+    "integration_failed_environment_steps": 0,
+    "integration_rollout_ring_bytes": 24732,
+    "integration_retained_native_buffer_bytes": 10328856,
+    "integration_transient_private_bytes": 2438112,
+    "integration_gpu_milliseconds": 325.79862501006573,
+    "integration_submission_milliseconds": 332.539791,
+    "integration_elapsed_seconds": 0.524722875,
+    "swift_rollout_array_materializations": 0,
+    "mlx_rollout_input_copies": 0,
+    "native_publication_to_ring_host_copies_per_chunk": 1,
+    "mlx_swift_revision": "61b9e011e09a62b489f6bd647958f1555bdf2896"
+  },
+  "known_release_blockers": [
+    "The current native publication boundary still performs one host copy per compact rollout stream into the leased shared MTLBuffer slot; direct command-buffer publication into the ring is not implemented.",
+    "Policy installation still rebuilds and uploads a PolicyPack instead of blitting one evaluated contiguous MLX weight bank into an inactive private native bank.",
+    "PolicyIR has no recurrent, convolutional, or attention operators.",
+    "The canonical executor has not completed its Metal 4 command-allocator and residency-set migration.",
+    "No general MJCF importer is present.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
