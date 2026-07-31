@@ -499,6 +499,19 @@ metalrobo::LocomotionSurface locomotionSurface(
     }
 }
 
+metalrobo::UnitreeG1Task unitreeG1Task(const std::uint32_t value) {
+    switch (value) {
+    case MR_UNITREE_G1_TASK_VELOCITY:
+        return metalrobo::UnitreeG1Task::velocity;
+    case MR_UNITREE_G1_TASK_DISTURBANCE_RECOVERY:
+        return metalrobo::UnitreeG1Task::disturbanceRecovery;
+    case MR_UNITREE_G1_TASK_SUPINE_GET_UP_DISCOVERY:
+        return metalrobo::UnitreeG1Task::supineGetUpDiscovery;
+    default:
+        throw std::invalid_argument("Unitree G1 task is invalid");
+    }
+}
+
 std::unique_ptr<MRTaskRolloutHandle>
 createCompiledTaskRollout(
     metalrobo::LocomotionWorld authored,
@@ -1081,6 +1094,20 @@ MRTaskRolloutHandle* mr_create_unitree_g1_locomotion_rollout(
     const uint32_t surface_value,
     const char* metallib_path
 ) {
+    return mr_create_unitree_g1_task_rollout(
+        config,
+        surface_value,
+        MR_UNITREE_G1_TASK_VELOCITY,
+        metallib_path
+    );
+}
+
+MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
+    const MRTaskRolloutConfigC* config,
+    const uint32_t surface_value,
+    const uint32_t task_value,
+    const char* metallib_path
+) {
     if (config == nullptr) {
         gLastError = "task-rollout config is null.";
         return nullptr;
@@ -1093,7 +1120,8 @@ MRTaskRolloutHandle* mr_create_unitree_g1_locomotion_rollout(
         auto handle =
             createCompiledTaskRollout(
                 metalrobo::makeUnitreeG1LocomotionWorld(
-                    surface
+                    surface,
+                    unitreeG1Task(task_value)
                 ),
                 *config,
                 metallib_path,

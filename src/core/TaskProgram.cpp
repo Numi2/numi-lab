@@ -1276,6 +1276,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::footClearance:
         case TaskRewardOperator::supportSlip:
         case TaskRewardOperator::forbiddenContact:
+        case TaskRewardOperator::supportContactCount:
             if (!reward.sourceGroup.empty()) {
                 sourceIndex = namedGroup(
                     contactGroupIds,
@@ -1298,6 +1299,9 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::jointLimitViolationSquared:
         case TaskRewardOperator::jointLimitViolationAbsolute:
         case TaskRewardOperator::mechanicalPower:
+        case TaskRewardOperator::rootHeightNormalized:
+        case TaskRewardOperator::rootHeightProgress:
+        case TaskRewardOperator::uprightness:
             break;
         default:
             return reject(
@@ -1534,6 +1538,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRandomizationOperator::actionPosition:
         case TaskRandomizationOperator::velocity:
         case TaskRandomizationOperator::actionVelocity:
+        case TaskRandomizationOperator::rootHeight:
             if (!orderedRange(random.parameters)) {
                 return reject(
                     TaskCompileStatus::invalidPack,
@@ -1542,6 +1547,62 @@ TaskCompileDiagnostics compileTaskProgram(
                 );
             }
             break;
+        case TaskRandomizationOperator::rootOrientation: {
+            const float squaredNorm =
+                random.parameters.x * random.parameters.x +
+                random.parameters.y * random.parameters.y +
+                random.parameters.z * random.parameters.z +
+                random.parameters.w * random.parameters.w;
+            if (!finite(squaredNorm) || !(squaredNorm > 1.0e-8f)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    "root",
+                    "root orientation must be a finite nonzero quaternion"
+                );
+            }
+            const float inverseNorm = 1.0f / std::sqrt(squaredNorm);
+            compiledParameters = {
+                random.parameters.x * inverseNorm,
+                random.parameters.y * inverseNorm,
+                random.parameters.z * inverseNorm,
+                random.parameters.w * inverseNorm,
+            };
+            break;
+        }
+        case TaskRandomizationOperator::jointPosition: {
+            bool ambiguous = false;
+            const std::uint32_t joint = uniqueIndex(
+                model.jointNames,
+                random.target,
+                ambiguous
+            );
+            const std::uint32_t action =
+                joint == MR_INVALID_INDEX
+                ? MR_INVALID_INDEX
+                : actionIndexForJoint(actionJoints, joint);
+            if (ambiguous || action == MR_INVALID_INDEX) {
+                return reject(
+                    ambiguous
+                        ? TaskCompileStatus::ambiguousSemantic
+                        : TaskCompileStatus::unresolvedSemantic,
+                    random.target,
+                    "joint reset target has no unique action binding"
+                );
+            }
+            const MRTaskActionBindingGPU& binding =
+                staged->actionBindings[action];
+            if (!orderedRange(random.parameters) ||
+                random.parameters.x < binding.parameters.y ||
+                random.parameters.y > binding.parameters.z) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    random.target,
+                    "joint reset range exceeds the authored joint limits"
+                );
+            }
+            targetIndex = binding.indices.z;
+            break;
+        }
         case TaskRandomizationOperator::actionDelay:
             if (!integerStepRange(
                     random.parameters,

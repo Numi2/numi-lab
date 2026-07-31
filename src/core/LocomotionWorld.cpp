@@ -1017,12 +1017,221 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     return task;
 }
 
-LocomotionWorld makeUnitreeG1LocomotionWorld(
+TaskPack makeUnitreeG1DisturbanceRecoveryTaskPack(
     const LocomotionSurface surface
+) {
+    TaskPack task = makeUnitreeG1LocomotionTaskPack(surface);
+    task.id = "unitree_g1_disturbance_recovery";
+
+    // This skill owns balance and recovery, not commanded locomotion. Keeping
+    // the actor contract unchanged permits exact initialization from the
+    // official Unitree velocity actor while the critic learns the new task.
+    task.commands.lower = {};
+    task.commands.upper = {};
+    task.commands.limitLower = {};
+    task.commands.limitUpper = {};
+    task.commands.curriculumStep = {};
+    task.commands.standingProbability = 1.0f;
+    task.commands.minimumEpisodeSurvivalFraction = 0.8f;
+    task.commands.minimumDurationSeconds = 10.0f;
+    task.commands.maximumDurationSeconds = 10.0f;
+
+    // The runtime scales the maximum impulse velocity by curriculum level.
+    // Level zero therefore proves quiet standing before disturbances ramp to
+    // 2.5 m/s from deterministic, replayable horizontal directions.
+    task.curriculumLevelCount = 11u;
+    task.pushes.maximumVelocity = 2.5f;
+    task.pushes.minimumIntervalSeconds = 1.5f;
+    task.pushes.maximumIntervalSeconds = 3.0f;
+    task.maximumActionDelaySteps = 2u;
+    task.randomization = {
+        {
+            .operation = TaskRandomizationOperator::rootPosition,
+            .minimumCurriculumLevel = 2u,
+            .parameters = {0.02f, 0.02f, 0.01f, 0.0f},
+        },
+        {
+            .operation = TaskRandomizationOperator::actionPosition,
+            .minimumCurriculumLevel = 3u,
+            .parameters = {-0.03f, 0.03f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRandomizationOperator::actionVelocity,
+            .minimumCurriculumLevel = 4u,
+            .parameters = {-0.10f, 0.10f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRandomizationOperator::bodyParameter,
+            .target = "robot",
+            .component = 0u,
+            .minimumCurriculumLevel = 5u,
+            .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRandomizationOperator::controllerParameter,
+            .component = 0u,
+            .minimumCurriculumLevel = 6u,
+            .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRandomizationOperator::controllerParameter,
+            .component = 1u,
+            .minimumCurriculumLevel = 7u,
+            .parameters = {0.9f, 1.1f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRandomizationOperator::actionDelay,
+            .minimumCurriculumLevel = 8u,
+            .parameters = {0.0f, 2.0f, 0.0f, 0.0f},
+        },
+    };
+    return task;
+}
+
+TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
+    const LocomotionSurface surface
+) {
+    const G1ModelMetadata& metadata = unitreeG1Metadata();
+    TaskPack task = makeUnitreeG1LocomotionTaskPack(surface);
+    task.id = "unitree_g1_supine_get_up_discovery";
+    task.maximumEpisodeSteps = 500u;
+    task.curriculumLevelCount = 1u;
+    task.commands.lower = {};
+    task.commands.upper = {};
+    task.commands.limitLower = {};
+    task.commands.limitUpper = {};
+    task.commands.curriculumStep = {};
+    task.commands.standingProbability = 1.0f;
+    task.pushes.maximumVelocity = 0.0f;
+    task.pushes.minimumIntervalSeconds = 10.0f;
+    task.pushes.maximumIntervalSeconds = 10.0f;
+    task.terminations.clear();
+
+    // Replace command/phase slots with state required for recovery while
+    // retaining the compact 98-value frame layout.
+    std::vector<TaskObservationOperatorSpec> recoveryState{
+        {
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = 0u,
+        },
+        {
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = 1u,
+        },
+        {
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = 2u,
+        },
+        {
+            .source = TaskObservationSource::rootHeight,
+            .scale = 2.0f,
+        },
+        {
+            .source = TaskObservationSource::contactMetric,
+            .target = "left_foot_contact",
+            .component = 0u,
+            .scale = 0.01f,
+        },
+    };
+    task.actorFrame.erase(
+        task.actorFrame.begin() + 6,
+        task.actorFrame.begin() + 11
+    );
+    task.actorFrame.insert(
+        task.actorFrame.begin() + 6,
+        recoveryState.begin(),
+        recoveryState.end()
+    );
+    task.critic = task.actorFrame;
+    task.actorHistoryLength = 4u;
+    task.criticHistoryLength = 4u;
+
+    task.rewards = {
+        {
+            .operation = TaskRewardOperator::rootHeightNormalized,
+            .weight = 5.0f,
+        },
+        {
+            .operation = TaskRewardOperator::rootHeightProgress,
+            .weight = 1.0f,
+        },
+        {
+            .operation = TaskRewardOperator::uprightness,
+            .weight = 4.0f,
+        },
+        {
+            .operation = TaskRewardOperator::supportContactCount,
+            .weight = 2.0f,
+        },
+        {
+            .operation = TaskRewardOperator::jointVelocitySquared,
+            .weight = -1.0e-4f,
+        },
+        {
+            .operation = TaskRewardOperator::jointAccelerationSquared,
+            .weight = -1.0e-8f,
+        },
+        {
+            .operation = TaskRewardOperator::actionRateSquared,
+            .weight = -0.01f,
+        },
+        {
+            .operation = TaskRewardOperator::jointLimitViolationAbsolute,
+            .weight = -5.0f,
+            .parameters = {0.95f, 0.0f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRewardOperator::mechanicalPower,
+            .weight = -1.0e-6f,
+        },
+    };
+
+    // Canonical supine seed adapted from HumanUP's public 23-DoF G1 pose.
+    // The two three-axis wrists absent from that model retain zero/default.
+    constexpr std::array<float, kUnitreeG1JointCount> supine{{
+        -0.3600f, 0.2481f, 1.6115f, -0.0647f, -0.8612f, -0.1226f,
+        -0.3878f, 0.3584f, 1.5328f, 0.1519f, -0.8651f, 0.2362f,
+        -0.0357f, 0.0685f, -0.5200f,
+        0.4665f, 0.8218f, 0.4253f, 1.2972f, 0.0f, 0.0f, 0.0f,
+        0.1429f, -1.0324f, -0.4241f, 1.4075f, 0.0f, 0.0f, 0.0f,
+    }};
+    task.randomization = {
+        {
+            .operation = TaskRandomizationOperator::rootOrientation,
+            .parameters = {
+                -0.0098234f, 0.49986f, 0.017525f, -0.86587f,
+            },
+        },
+        {
+            .operation = TaskRandomizationOperator::rootHeight,
+            .parameters = {
+                0.01850436f, 0.01850436f, 0.0f, 0.0f,
+            },
+        },
+    };
+    for (std::size_t index = 0u; index < supine.size(); ++index) {
+        task.randomization.push_back({
+            .operation = TaskRandomizationOperator::jointPosition,
+            .target = std::string{metadata.jointLimits[index].name},
+            .parameters = {
+                supine[index], supine[index], 0.0f, 0.0f,
+            },
+        });
+    }
+    return task;
+}
+
+LocomotionWorld makeUnitreeG1LocomotionWorld(
+    const LocomotionSurface surface,
+    const UnitreeG1Task task
 ) {
     LocomotionWorld world{
         .model = makeUnitreeG1EngineModel(),
-        .task = makeUnitreeG1LocomotionTaskPack(surface),
+        .task = task == UnitreeG1Task::disturbanceRecovery
+            ? makeUnitreeG1DisturbanceRecoveryTaskPack(surface)
+            : task == UnitreeG1Task::supineGetUpDiscovery
+                ? makeUnitreeG1SupineGetUpDiscoveryTaskPack(surface)
+                : makeUnitreeG1LocomotionTaskPack(surface),
     };
     appendLocomotionSurface(
         world.model,

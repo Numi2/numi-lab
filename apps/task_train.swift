@@ -7,13 +7,16 @@ private struct Options {
     var updates = 100
     var chunk = 8
     var surface = MetalRoboLocomotionSurface.terrain
+    var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
     var seed: UInt64 = 20_260_731
+    var initialCurriculumLevel: UInt32 = 0
     var metallib = "build/shaders/MetalRobo.metallib"
     var nativeLibrary = "build/lib/libmetalrobo.dylib"
     var mlxPython: String?
     var pythonRoot = "python"
     var policyPack: String?
     var initializePolicyID: String?
+    var initializeActorPolicyPack: String?
     var updatedPolicyPack: String?
     var deploymentPolicyPack: String?
     var rolloutPack: String?
@@ -75,6 +78,14 @@ private struct Options {
                 }
                 seed = parsed
                 index += 1
+            case "--initial-curriculum-level":
+                guard let parsed = UInt32(try value()) else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--initial-curriculum-level requires an unsigned 32-bit integer."
+                    )
+                }
+                initialCurriculumLevel = parsed
+                index += 1
             case "--metallib":
                 metallib = try value()
                 index += 1
@@ -92,6 +103,9 @@ private struct Options {
                 index += 1
             case "--initialize-policy":
                 initializePolicyID = try value()
+                index += 1
+            case "--initialize-actor-policy-pack":
+                initializeActorPolicyPack = try value()
                 index += 1
             case "--updated-policy-pack":
                 updatedPolicyPack = try value()
@@ -126,6 +140,20 @@ private struct Options {
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
                         "--scene must be ground or terrain."
+                    )
+                }
+                index += 1
+            case "--task":
+                switch try value() {
+                case "velocity":
+                    unitreeG1Task = .velocity
+                case "disturbance-recovery":
+                    unitreeG1Task = .disturbanceRecovery
+                case "supine-get-up":
+                    unitreeG1Task = .supineGetUpDiscovery
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--task must be velocity, disturbance-recovery, or supine-get-up."
                     )
                 }
                 index += 1
@@ -344,7 +372,7 @@ private func initializePolicyIfRequested(
     let process = Process()
     let output = Pipe()
     process.executableURL = URL(fileURLWithPath: executable)
-    process.arguments = [
+    var arguments = [
         "-m",
         "metalrobo.mlx_policy_worker",
         "initialize",
@@ -365,6 +393,12 @@ private func initializePolicyIfRequested(
         "--initial-log-standard-deviation",
         String(options.initialLogStandardDeviation),
     ]
+    if let actor = options.initializeActorPolicyPack {
+        arguments.append(contentsOf: [
+            "--actor-policy-pack", actor,
+        ])
+    }
+    process.arguments = arguments
     process.environment = mlxEnvironment(options: options)
     process.standardOutput = output
     process.standardError = FileHandle.standardError
@@ -437,6 +471,8 @@ private final class MLXLearnerWorker {
             learnerState,
             "--native-library",
             options.nativeLibrary,
+            "--initial-task-curriculum-level",
+            String(options.initialCurriculumLevel),
             "--update-epochs",
             String(options.updateEpochs),
             "--minibatch-size",
@@ -659,7 +695,8 @@ private func makeContext(
     let configuration = MetalRoboTaskRolloutConfiguration(
         environmentCount: UInt32(options.environments),
         surface: options.surface,
-        seed: options.seed
+        seed: options.seed,
+        unitreeG1Task: options.unitreeG1Task
     )
     if let worldPack = options.worldPack,
        let taskPack = options.taskPack

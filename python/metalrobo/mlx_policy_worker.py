@@ -90,6 +90,8 @@ def _write_learner_state(
         raise ValueError("task curriculum level exceeds uint32")
     learner._require_finite_training_state()
     target = path.expanduser().resolve()
+    if target.suffix != ".safetensors":
+        raise ValueError("learner state path must end in .safetensors")
     target.parent.mkdir(parents=True, exist_ok=True)
     arrays = {
         f"model.{name}": value
@@ -139,6 +141,8 @@ def _restore_learner_state(
     path: Path,
 ) -> tuple[bool, int]:
     target = path.expanduser().resolve()
+    if target.suffix != ".safetensors":
+        raise ValueError("learner state path must end in .safetensors")
     if not target.is_file():
         return False, 0
     loaded = mx.load(target, return_metadata=True)
@@ -359,6 +363,10 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
 
 
 def _serve(arguments: argparse.Namespace) -> int:
+    if not 0 <= arguments.initial_task_curriculum_level <= np.iinfo(
+        np.uint32
+    ).max:
+        raise ValueError("initial task curriculum level exceeds uint32")
     learner = MLXPolicyLearner.from_policy_pack(
         arguments.policy_pack,
         _configuration(arguments),
@@ -368,6 +376,8 @@ def _serve(arguments: argparse.Namespace) -> int:
         learner,
         arguments.learner_state,
     )
+    if not restored:
+        task_curriculum_level = arguments.initial_task_curriculum_level
     current_policy = learner.write_policy_pack(
         arguments.output_policy_pack,
         library_path=arguments.native_library,
@@ -481,12 +491,28 @@ def _serve(arguments: argparse.Namespace) -> int:
 
 
 def _initialize(arguments: argparse.Namespace) -> int:
-    learner = MLXPolicyLearner(
-        arguments.actor_observations,
-        arguments.critic_observations,
-        arguments.actions,
-        _configuration(arguments),
-    )
+    if arguments.actor_policy_pack is None:
+        learner = MLXPolicyLearner(
+            arguments.actor_observations,
+            arguments.critic_observations,
+            arguments.actions,
+            _configuration(arguments),
+        )
+    else:
+        learner = MLXPolicyLearner.from_actor_policy_pack(
+            arguments.actor_policy_pack,
+            arguments.critic_observations,
+            _configuration(arguments),
+            library_path=arguments.native_library,
+        )
+        if (
+            learner.actor_observation_count != arguments.actor_observations
+            or learner.action_count != arguments.actions
+        ):
+            raise ValueError(
+                "actor initialization PolicyPack disagrees with the native "
+                "task observation or action contract"
+            )
     artifact = learner.write_policy_pack(
         arguments.output,
         policy_id=arguments.policy_id,
@@ -592,6 +618,11 @@ def main() -> int:
     initialize.add_argument("--policy-id", required=True)
     initialize.add_argument("--output", type=Path, required=True)
     initialize.add_argument(
+        "--actor-policy-pack",
+        type=Path,
+        help="initialize the actor from a deterministic PolicyPack",
+    )
+    initialize.add_argument(
         "--native-library",
         type=Path,
         required=True,
@@ -623,6 +654,11 @@ def main() -> int:
         "--native-library",
         type=Path,
         required=True,
+    )
+    serve.add_argument(
+        "--initial-task-curriculum-level",
+        type=int,
+        default=0,
     )
     _add_ppo_arguments(serve)
 

@@ -42,6 +42,12 @@ typedef enum MRLocomotionSurfaceC {
     MR_LOCOMOTION_SURFACE_TERRAIN = 1,
 } MRLocomotionSurfaceC;
 
+typedef enum MRUnitreeG1TaskC {
+    MR_UNITREE_G1_TASK_VELOCITY = 0,
+    MR_UNITREE_G1_TASK_DISTURBANCE_RECOVERY = 1,
+    MR_UNITREE_G1_TASK_SUPINE_GET_UP_DISCOVERY = 2,
+} MRUnitreeG1TaskC;
+
 typedef struct MRTaskRolloutDynamicSphereC {
     float position[3];
     float linear_velocity[3];
@@ -440,6 +446,14 @@ MR_API MRTaskRolloutHandle*
 mr_create_unitree_g1_locomotion_rollout(
     const MRTaskRolloutConfigC* config,
     uint32_t surface,
+    const char* metallib_path
+);
+// Selects another bundled G1 TaskPack without changing the generic executor
+// or the stable rollout-configuration ABI above.
+MR_API MRTaskRolloutHandle* mr_create_unitree_g1_task_rollout(
+    const MRTaskRolloutConfigC* config,
+    uint32_t surface,
+    uint32_t task,
     const char* metallib_path
 );
 // Cooks a floating-base URDF/SRDF, loads its authored TaskPack, resolves every

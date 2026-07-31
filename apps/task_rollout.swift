@@ -135,6 +135,7 @@ private struct Options {
     var velocityIterations = 4
     var finalVelocityIterations = 2
     var surface = MetalRoboLocomotionSurface.terrain
+    var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
     var seed: UInt64 = 20_260_731
     var curriculumLevel: UInt32 = 0
     var metallib = "build/shaders/MetalRobo.metallib"
@@ -214,6 +215,20 @@ private struct Options {
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
                         "--scene must be ground or terrain."
+                    )
+                }
+                index += 1
+            case "--task":
+                switch try value() {
+                case "velocity":
+                    unitreeG1Task = .velocity
+                case "disturbance-recovery":
+                    unitreeG1Task = .disturbanceRecovery
+                case "supine-get-up":
+                    unitreeG1Task = .supineGetUpDiscovery
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--task must be velocity, disturbance-recovery, or supine-get-up."
                     )
                 }
                 index += 1
@@ -367,7 +382,8 @@ private func makeContext(
             UInt32(options.finalVelocityIterations),
         seed: options.seed,
         dynamicSpheres: options.dynamicSpheres,
-        disableTaskTerminations: options.disableTaskTerminations
+        disableTaskTerminations: options.disableTaskTerminations,
+        unitreeG1Task: options.unitreeG1Task
     )
     if let worldPack = options.worldPack,
        let taskPack = options.taskPack

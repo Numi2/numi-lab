@@ -409,6 +409,33 @@ def main() -> int:
         )
         if not artifact.is_file() or artifact.stat().st_size <= 32:
             raise RuntimeError("PolicyPack artifact was not published")
+        with tempfile.TemporaryDirectory() as actor_directory:
+            deployment = learner.write_policy_pack(
+                Path(actor_directory) / "deployment.policypack",
+                stochastic=False,
+                library_path=arguments.library,
+            )
+            initialized = MLXPolicyLearner.from_actor_policy_pack(
+                deployment,
+                critic_count,
+                learner.configuration,
+                library_path=arguments.library,
+            )
+            expected_actor = learner.model.actor_mean(actor)
+            initialized_actor = initialized.model.actor_mean(actor)
+            mx.eval(expected_actor, initialized_actor)
+            actor_initialization_error = float(
+                np.max(
+                    np.abs(
+                        np.asarray(expected_actor) -
+                        np.asarray(initialized_actor)
+                    )
+                )
+            )
+            if actor_initialization_error != 0.0:
+                raise RuntimeError(
+                    "deployment actor initialization changed policy output"
+                )
         print(
             json.dumps(
                 {
@@ -420,6 +447,8 @@ def main() -> int:
                     "loss": metrics["loss"],
                     "artifact": str(artifact),
                     "artifact_bytes": artifact.stat().st_size,
+                    "actor_initialization_max_error":
+                        actor_initialization_error,
                 },
                 sort_keys=True,
                 allow_nan=False,

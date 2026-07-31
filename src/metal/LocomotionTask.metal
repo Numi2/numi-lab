@@ -1062,6 +1062,34 @@ kernel void mr_locomotion_task_observe(
                     randomized.w;
                 break;
             }
+            case MR_TASK_RANDOMIZE_ROOT_HEIGHT:
+                resetQ[qBase + program.root.z + 2u] = randomRange(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    channel,
+                    operation.parameters.x,
+                    operation.parameters.y
+                );
+                break;
+            case MR_TASK_RANDOMIZE_ROOT_ORIENTATION:
+                for (uint component = 0u; component < 4u; ++component) {
+                    resetQ[qBase + program.root.z + 3u + component] =
+                        operation.parameters[component];
+                }
+                break;
+            case MR_TASK_RANDOMIZE_JOINT_POSITION:
+                resetQ[qBase + operation.target.y] = randomRange(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    channel,
+                    operation.parameters.x,
+                    operation.parameters.y
+                );
+                break;
             case MR_TASK_RANDOMIZE_ACTION_POSITION:
                 for (uint action = 0u;
                      action < program.counts0.x;
@@ -1282,7 +1310,12 @@ kernel void mr_locomotion_task_observe(
             ),
             0.0f
         );
-        state.airReturnTracking = float4(0.0f);
+        state.airReturnTracking = float4(
+            0.0f,
+            rootHeight(program, resetQ + qBase),
+            0.0f,
+            0.0f
+        );
 
         device float* firstActor =
             actorHistory + historyBase;
@@ -2168,6 +2201,48 @@ kernel void mr_locomotion_task_complete(
             value = error * error;
             break;
         }
+        case MR_TASK_REWARD_ROOT_HEIGHT_NORMALIZED:
+            value = clamp(
+                height / max(program.locomotion.x, 1.0e-6f),
+                0.0f,
+                1.0f
+            );
+            break;
+        case MR_TASK_REWARD_ROOT_HEIGHT_PROGRESS:
+            value = min(
+                max(
+                    height - state.airReturnTracking.y,
+                    0.0f
+                ) / dispatch.timing.x,
+                2.0f
+            );
+            break;
+        case MR_TASK_REWARD_UPRIGHTNESS:
+            value = clamp(0.5f * (1.0f - gravity.z), 0.0f, 1.0f);
+            break;
+        case MR_TASK_REWARD_SUPPORT_CONTACT_COUNT: {
+            float supportCount = 0.0f;
+            float supportTotal = 0.0f;
+            for (uint groupIndex = 0u;
+                 groupIndex < program.counts0.w;
+                 ++groupIndex) {
+                const MRTaskContactGroupGPU group =
+                    contactGroups[groupIndex];
+                if ((group.members.z & MR_TASK_CONTACT_SUPPORT) == 0u ||
+                    (operation.source.y != MR_INVALID_INDEX &&
+                     operation.source.y != groupIndex)) {
+                    continue;
+                }
+                supportCount += float(
+                    compactContact[
+                        compactBase + group.members.w
+                    ] > program.dynamics.y
+                );
+                supportTotal += 1.0f;
+            }
+            value = supportCount / max(supportTotal, 1.0f);
+            break;
+        }
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
             value = velocitySquared;
             break;
@@ -2423,6 +2498,10 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_TILT_SQUARED:
         case MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED:
         case MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED:
+        case MR_TASK_REWARD_ROOT_HEIGHT_NORMALIZED:
+        case MR_TASK_REWARD_ROOT_HEIGHT_PROGRESS:
+        case MR_TASK_REWARD_UPRIGHTNESS:
+        case MR_TASK_REWARD_SUPPORT_CONTACT_COUNT:
             rewardBreakdown0.y += contribution;
             break;
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
@@ -2599,7 +2678,7 @@ kernel void mr_locomotion_task_complete(
     state.commandAndPhase.w = phase;
     state.airReturnTracking = float4(
         0.0f,
-        0.0f,
+        height,
         done ? 0.0f : episodeReturn,
         done ? 0.0f : episodeTracking
     );

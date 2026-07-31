@@ -441,6 +441,24 @@ The former Python/MLX physics extension and MLX-owned task frontends have been
 removed. Simulator state, reset, reward, termination, observation construction,
 and rollout scheduling have one owner: the native compiled-task executor.
 
+### Balance recovery and get-up training
+
+Bundled G1 recovery uses the generic compiled TaskPack path. Select
+`--task disturbance-recovery` to fine-tune a standing actor through a native
+curriculum of horizontal impulses, reset noise, mass/controller variation,
+and action delay. `--initialize-actor-policy-pack` copies an existing
+deployment actor exactly, creates a fresh critic and exploration head, and
+therefore initializes a new task without pretending to resume missing
+optimizer state. Ordinary dynamic balls remain the physical promotion test.
+
+Select `--task supine-get-up` for Stage-I get-up discovery. This task uses a
+fixed supine reset, four-frame state history, full-body collision, no fall
+termination, and generic height-progress, uprightness, and bilateral support
+rewards. It intentionally starts a separate policy: standing recovery and
+fallen get-up have different observation meanings and termination contracts.
+Learner checkpoints must use the `.safetensors` suffix because MLX selects its
+metadata-capable loader from that extension.
+
 ## Decisive probes
 
 ```sh

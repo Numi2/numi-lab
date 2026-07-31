@@ -53,6 +53,12 @@ public enum MetalRoboLocomotionSurface: UInt32, Sendable {
     case terrain = 1
 }
 
+public enum MetalRoboUnitreeG1Task: UInt32, Sendable {
+    case velocity = 0
+    case disturbanceRecovery = 1
+    case supineGetUpDiscovery = 2
+}
+
 public struct MetalRoboDynamicSphere: Sendable {
     public var position: SIMD3<Float>
     public var linearVelocity: SIMD3<Float>
@@ -164,6 +170,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var seed: UInt64
     public var dynamicSpheres: [MetalRoboDynamicSphere]
     public var disableTaskTerminations: Bool
+    public var unitreeG1Task: MetalRoboUnitreeG1Task
 
     public init(
         environmentCount: UInt32,
@@ -174,7 +181,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         controlTimestepSeconds: Float = 0.02,
         seed: UInt64 = 0,
         dynamicSpheres: [MetalRoboDynamicSphere] = [],
-        disableTaskTerminations: Bool = false
+        disableTaskTerminations: Bool = false,
+        unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
         self.environmentCount = environmentCount
         self.surface = surface
@@ -185,6 +193,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.seed = seed
         self.dynamicSpheres = dynamicSpheres
         self.disableTaskTerminations = disableTaskTerminations
+        self.unitreeG1Task = unitreeG1Task
     }
 }
 
@@ -454,9 +463,10 @@ public final class MetalRoboTaskRolloutContext {
             Self.withNativeConfiguration(configuration) { config in
                 withOptionalCString(metallibPath) {
                     metallib in
-                    mr_create_unitree_g1_locomotion_rollout(
+                    mr_create_unitree_g1_task_rollout(
                         config,
                         configuration.surface.rawValue,
+                        configuration.unitreeG1Task.rawValue,
                         metallib
                     )
                 }

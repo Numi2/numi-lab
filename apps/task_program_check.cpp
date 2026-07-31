@@ -371,6 +371,57 @@ int main() {
             program.terrainResetTranslations().size() != 11u) {
             fail("compiled G1 task tables are incomplete");
         }
+        metalrobo::LocomotionWorld recovery =
+            metalrobo::makeUnitreeG1LocomotionWorld(
+                metalrobo::LocomotionSurface::terrain,
+                metalrobo::UnitreeG1Task::disturbanceRecovery
+            );
+        metalrobo::CompiledLocomotionWorld compiledRecovery;
+        const auto recoveryStatus =
+            metalrobo::compileLocomotionWorld(
+                recovery,
+                0u,
+                compiledRecovery
+            );
+        if (!recoveryStatus.succeeded() ||
+            compiledRecovery.task.layout().actorObservationSize != 98u ||
+            compiledRecovery.task.layout().criticObservationSize != 98u ||
+            compiledRecovery.task.header().counts2.y != 7u ||
+            compiledRecovery.task.header().layout.w != 5u ||
+            std::abs(
+                compiledRecovery.task.header().dynamics.x - 2.5f
+            ) > 1.0e-6f ||
+            compiledRecovery.task.header().commandLower.x != 0.0f ||
+            compiledRecovery.task.header().commandUpper.x != 0.0f) {
+            fail(
+                "compiled G1 disturbance-recovery task is incomplete"
+            );
+        }
+        metalrobo::LocomotionWorld getUp =
+            metalrobo::makeUnitreeG1LocomotionWorld(
+                metalrobo::LocomotionSurface::ground,
+                metalrobo::UnitreeG1Task::supineGetUpDiscovery
+            );
+        metalrobo::CompiledLocomotionWorld compiledGetUp;
+        const auto getUpStatus = metalrobo::compileLocomotionWorld(
+            getUp,
+            0u,
+            compiledGetUp
+        );
+        if (!getUpStatus.succeeded()) {
+            fail(
+                "G1 supine get-up task failed to compile: " +
+                getUpStatus.task.element + ": " +
+                getUpStatus.task.message
+            );
+        }
+        if (compiledGetUp.task.layout().actorObservationSize != 392u ||
+            compiledGetUp.task.layout().criticObservationSize != 392u ||
+            compiledGetUp.task.header().counts1.w != 9u ||
+            compiledGetUp.task.header().counts2.x != 0u ||
+            compiledGetUp.task.header().counts2.y != 31u) {
+            fail("compiled G1 supine get-up task is incomplete");
+        }
         metalrobo::LocomotionWorld disturbed = authored;
         const std::array disturbanceSpheres{
             metalrobo::LocomotionDynamicSphere{

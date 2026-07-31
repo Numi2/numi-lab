@@ -1367,6 +1367,78 @@ class MLXPolicyLearner:
         )
         return learner
 
+    @classmethod
+    def from_actor_policy_pack(
+        cls,
+        path: str | Path,
+        critic_observation_count: int,
+        configuration: MLXPPOConfiguration = MLXPPOConfiguration(),
+        *,
+        library_path: str | Path | None = None,
+    ) -> "MLXPolicyLearner":
+        """Start PPO from a deterministic deployment actor.
+
+        Deployment PolicyPacks intentionally omit optimizer state and a
+        critic. This path preserves the exact actor and normalization
+        contract, creates a fresh critic for the new task, and initializes a
+        new stochastic exploration head. It is initialization, not resume.
+        """
+
+        pack = read_policy_pack(path, library_path=library_path)
+        expected_activations = [3] * (len(pack.layers) - 1) + [0]
+        if [layer.activation for layer in pack.layers] != expected_activations:
+            raise ValueError(
+                "actor initialization supports ELU hidden layers and an "
+                "identity output layer"
+            )
+        restored_configuration = replace(
+            configuration,
+            hidden_sizes=tuple(
+                layer.output_count for layer in pack.layers[:-1]
+            ),
+            observation_clip=pack.observation_clip,
+        )
+        learner = cls(
+            pack.actor_observation_count,
+            critic_observation_count,
+            pack.action_count,
+            restored_configuration,
+        )
+        destination = [
+            layer
+            for layer in learner.model.actor.layers
+            if isinstance(layer, nn.Linear)
+        ]
+        if len(destination) != len(pack.layers):
+            raise RuntimeError(
+                "MLX actor construction disagrees with PolicyPack"
+            )
+        for target, artifact in zip(destination, pack.layers, strict=True):
+            target.weight = mx.array(artifact.weights, dtype=mx.float32)
+            target.bias = mx.array(artifact.bias, dtype=mx.float32)
+        learner.set_observation_normalization(
+            actor_mean=pack.effective_observation_mean,
+            actor_inverse_standard_deviation=(
+                pack.effective_observation_inverse_standard_deviation
+            ),
+            observation_clip=pack.observation_clip,
+        )
+        learner.set_action_contract(
+            action_bias=pack.effective_action_bias,
+            action_scale=pack.effective_action_scale,
+            action_clip=pack.action_clip,
+        )
+        learner.policy_id = pack.id
+        learner.revision = 1
+        learner.optimizer = optim.Adam(
+            learning_rate=restored_configuration.learning_rate,
+            bias_correction=True,
+        )
+        learner.optimizer.init(learner.model.trainable_parameters())
+        learner.refresh_compiled_training_state()
+        mx.eval(learner.model.parameters(), learner.optimizer.state)
+        return learner
+
     @staticmethod
     def _normalization_array(
         values: np.ndarray | tuple[float, ...],

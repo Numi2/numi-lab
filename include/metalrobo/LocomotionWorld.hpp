@@ -15,6 +15,15 @@ enum class LocomotionSurface : std::uint32_t {
     terrain = 1u,
 };
 
+// Bundled G1 task presets compile through the same generic TaskPack route.
+// The value selects authored data only; it does not select a robot-specific
+// Metal kernel.
+enum class UnitreeG1Task : std::uint32_t {
+    velocity = 0u,
+    disturbanceRecovery = 1u,
+    supineGetUpDiscovery = 2u,
+};
+
 struct LocomotionWorld {
     EngineModel model;
     std::vector<MRBodyStateGPU> sceneBodies;
@@ -82,12 +91,26 @@ void appendLocomotionDynamicSpheres(
 
 // Official 29-DoF Unitree G1 mechanics plus the current locomotion surface.
 [[nodiscard]] LocomotionWorld makeUnitreeG1LocomotionWorld(
-    LocomotionSurface surface
+    LocomotionSurface surface,
+    UnitreeG1Task task = UnitreeG1Task::velocity
 );
 
 // Bundled policy/task contract expressed entirely through the same authored
 // TaskPack accepted for imported robots.
 [[nodiscard]] TaskPack makeUnitreeG1LocomotionTaskPack(
+    LocomotionSurface surface
+);
+
+// Zero-command standing and balance-recovery curriculum. Native randomized
+// impulses are the high-throughput training proxy; ordinary dynamic bodies
+// remain the promotion test for physical impact transfer.
+[[nodiscard]] TaskPack makeUnitreeG1DisturbanceRecoveryTaskPack(
+    LocomotionSurface surface
+);
+
+// HumanUP-style Stage-I discovery task: fixed supine reset, full-body
+// collision, dense height/upright/support shaping, and weak regularization.
+[[nodiscard]] TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     LocomotionSurface surface
 );
 
