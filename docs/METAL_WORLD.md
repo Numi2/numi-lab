@@ -452,12 +452,23 @@ therefore initializes a new task without pretending to resume missing
 optimizer state. Ordinary dynamic balls remain the physical promotion test.
 
 Select `--task supine-get-up` for Stage-I get-up discovery. This task uses a
-fixed supine reset, four-frame state history, full-body collision, no fall
-termination, and generic height-progress, uprightness, and bilateral support
-rewards. It intentionally starts a separate policy: standing recovery and
-fallen get-up have different observation meanings and termination contracts.
-Learner checkpoints must use the `.safetensors` suffix because MLX selects its
+fixed supine reset, ten-frame meaningful proprioceptive history, an asymmetric
+critic with root/support state, full-body collision, no fall termination, and
+generic pelvis/torso height, body-up, low-foot, bilateral-support, and standing
+completion rewards. It intentionally starts a separate policy: standing
+recovery and fallen get-up have different observation meanings and termination
+contracts. Trajectory refinement begins only after Stage I records an actual
+standing transition; a higher fallen-pose reward is not a trajectory. Learner
+checkpoints must use the `.safetensors` suffix because MLX selects its
 metadata-capable loader from that extension.
+
+Select `--task ball-recovery` to train and evaluate against four ordinary
+dynamic rigid spheres. The bundled app supplies their authored mechanics while
+the generic TaskPack randomizes position, velocity, height, direction, and
+launch step per environment and episode. They use the same broadphase,
+manifolds, islands, and temporal-cone solve as every other scene body. This is
+the physical disturbance curriculum; native root-velocity impulses remain a
+fast early curriculum, not the final promotion evidence.
 
 ## Decisive probes
 

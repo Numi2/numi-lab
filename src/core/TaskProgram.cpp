@@ -1277,6 +1277,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::supportSlip:
         case TaskRewardOperator::forbiddenContact:
         case TaskRewardOperator::supportContactCount:
+        case TaskRewardOperator::bodyHeightExponential:
             if (!reward.sourceGroup.empty()) {
                 sourceIndex = namedGroup(
                     contactGroupIds,
@@ -1302,6 +1303,9 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::rootHeightNormalized:
         case TaskRewardOperator::rootHeightProgress:
         case TaskRewardOperator::uprightness:
+        case TaskRewardOperator::supportHeightExponential:
+        case TaskRewardOperator::bodyUpExponential:
+        case TaskRewardOperator::standingCompletion:
             break;
         default:
             return reject(
@@ -1333,6 +1337,36 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 reward.sourceGroup,
                 "soft joint-limit factor must be in (0, 1]"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::bodyHeightExponential &&
+            (reward.sourceGroup.empty() ||
+             !(reward.parameters.x > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.sourceGroup,
+                "body-height reward requires a group and positive target"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::supportHeightExponential &&
+            !(reward.parameters.x > 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "support_height",
+                "support-height reward decay must be positive"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::standingCompletion &&
+            (!(reward.parameters.x > 0.0f) ||
+             !(reward.parameters.y > 0.0f) ||
+             reward.parameters.y > 1.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "standing_completion",
+                "standing completion requires positive height and cosine in (0, 1]"
             );
         }
         if (!reward.sourceGroup.empty() &&
@@ -1601,6 +1635,64 @@ TaskCompileDiagnostics compileTaskProgram(
                 );
             }
             targetIndex = binding.indices.z;
+            break;
+        }
+        case TaskRandomizationOperator::sceneBodyPosition:
+        case TaskRandomizationOperator::sceneBodyVelocity:
+        case TaskRandomizationOperator::sceneBodyLaunchStep: {
+            bool ambiguous = false;
+            const std::uint32_t body = uniqueIndex(
+                model.bodyNames,
+                random.target,
+                ambiguous
+            );
+            if (ambiguous || body == MR_INVALID_INDEX) {
+                return reject(
+                    ambiguous
+                        ? TaskCompileStatus::ambiguousSemantic
+                        : TaskCompileStatus::unresolvedSemantic,
+                    random.target,
+                    "scene randomization target is unresolved"
+                );
+            }
+            const auto sceneBody = std::find(
+                world.sceneBodyIndices().begin(),
+                world.sceneBodyIndices().end(),
+                body
+            );
+            if (sceneBody == world.sceneBodyIndices().end()) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    random.target,
+                    "scene randomization target is not a scene body"
+                );
+            }
+            targetIndex = static_cast<std::uint32_t>(
+                sceneBody - world.sceneBodyIndices().begin()
+            );
+            if (random.operation ==
+                    TaskRandomizationOperator::sceneBodyLaunchStep) {
+                constexpr std::uint32_t maximumLaunchStep =
+                    MR_BODY_STATE_LAUNCH_STEP_MASK >>
+                    MR_BODY_STATE_LAUNCH_STEP_SHIFT;
+                if (!integerStepRange(
+                        random.parameters,
+                        maximumLaunchStep
+                    )) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        random.target,
+                        "scene launch-step range exceeds its packed capacity"
+                    );
+                }
+            } else if (random.component >= 3u ||
+                       !orderedRange(random.parameters)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    random.target,
+                    "scene position or velocity randomization is invalid"
+                );
+            }
             break;
         }
         case TaskRandomizationOperator::actionDelay:

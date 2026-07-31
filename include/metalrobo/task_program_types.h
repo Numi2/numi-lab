@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 7u
+#define MR_TASK_PROGRAM_ABI_VERSION 8u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -66,6 +66,10 @@ enum MRTaskRewardOpcode : mr_u32 {
     MR_TASK_REWARD_ROOT_HEIGHT_PROGRESS = 22u,
     MR_TASK_REWARD_UPRIGHTNESS = 23u,
     MR_TASK_REWARD_SUPPORT_CONTACT_COUNT = 24u,
+    MR_TASK_REWARD_BODY_HEIGHT_EXPONENTIAL = 25u,
+    MR_TASK_REWARD_SUPPORT_HEIGHT_EXPONENTIAL = 26u,
+    MR_TASK_REWARD_BODY_UP_EXPONENTIAL = 27u,
+    MR_TASK_REWARD_STANDING_COMPLETION = 28u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -97,6 +101,9 @@ enum MRTaskRandomizationOpcode : mr_u32 {
     MR_TASK_RANDOMIZE_ROOT_HEIGHT = 10u,
     MR_TASK_RANDOMIZE_ROOT_ORIENTATION = 11u,
     MR_TASK_RANDOMIZE_JOINT_POSITION = 12u,
+    MR_TASK_RANDOMIZE_SCENE_BODY_POSITION = 13u,
+    MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY = 14u,
+    MR_TASK_RANDOMIZE_SCENE_BODY_LAUNCH_STEP = 15u,
 };
 
 // Per-submission dimensions and attribution. Every stride is in elements.

@@ -1107,9 +1107,25 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     task.pushes.maximumIntervalSeconds = 10.0f;
     task.terminations.clear();
 
-    // Replace command/phase slots with state required for recovery while
-    // retaining the compact 98-value frame layout.
-    std::vector<TaskObservationOperatorSpec> recoveryState{
+    // HumanUP's successful Stage-I actor uses ten meaningful proprioceptive
+    // frames rather than exposing command and gait-phase slots that are
+    // constant in a get-up task. The critic additionally sees translational
+    // state, height, and bilateral support contact.
+    std::vector<TaskObservationOperatorSpec> actorFrame;
+    actorFrame.reserve(92u);
+    actorFrame.insert(
+        actorFrame.end(),
+        task.actorFrame.begin(),
+        task.actorFrame.begin() + 5
+    );
+    actorFrame.insert(
+        actorFrame.end(),
+        task.actorFrame.begin() + 11,
+        task.actorFrame.end()
+    );
+    task.actorFrame = std::move(actorFrame);
+    task.critic = task.actorFrame;
+    const std::vector<TaskObservationOperatorSpec> privilegedState{
         {
             .source = TaskObservationSource::rootLinearVelocityLocal,
             .component = 0u,
@@ -1132,19 +1148,33 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             .component = 0u,
             .scale = 0.01f,
         },
+        {
+            .source = TaskObservationSource::contactMetric,
+            .target = "right_foot_contact",
+            .component = 0u,
+            .scale = 0.01f,
+        },
     };
-    task.actorFrame.erase(
-        task.actorFrame.begin() + 6,
-        task.actorFrame.begin() + 11
+    task.critic.insert(
+        task.critic.end(),
+        privilegedState.begin(),
+        privilegedState.end()
     );
-    task.actorFrame.insert(
-        task.actorFrame.begin() + 6,
-        recoveryState.begin(),
-        recoveryState.end()
-    );
-    task.critic = task.actorFrame;
-    task.actorHistoryLength = 4u;
-    task.criticHistoryLength = 4u;
+    task.actorHistoryLength = 10u;
+    task.criticHistoryLength = 10u;
+
+    task.contactGroups.push_back({
+        .id = "torso_reference",
+        .bodies = {"torso_link"},
+        .referenceBody = "torso_link",
+        // G1 authored body positions are centers of mass. This reference is
+        // the torso link-frame origin used by the source task's head/upper-
+        // body height shaping.
+        .localReference = {
+            -0.0020313345f, -0.00033972675f,
+            -0.18459715f, 0.0f,
+        },
+    });
 
     task.rewards = {
         {
@@ -1152,16 +1182,32 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
             .weight = 5.0f,
         },
         {
+            .operation = TaskRewardOperator::bodyHeightExponential,
+            .sourceGroup = "torso_reference",
+            .weight = 5.0f,
+            .parameters = {1.0f, 0.0f, 0.0f, 0.0f},
+        },
+        {
             .operation = TaskRewardOperator::rootHeightProgress,
             .weight = 1.0f,
         },
         {
-            .operation = TaskRewardOperator::uprightness,
-            .weight = 4.0f,
+            .operation = TaskRewardOperator::bodyUpExponential,
+            .weight = 0.25f,
         },
         {
             .operation = TaskRewardOperator::supportContactCount,
-            .weight = 2.0f,
+            .weight = 2.5f,
+        },
+        {
+            .operation = TaskRewardOperator::supportHeightExponential,
+            .weight = 2.5f,
+            .parameters = {10.0f, 0.0f, 0.0f, 0.0f},
+        },
+        {
+            .operation = TaskRewardOperator::standingCompletion,
+            .weight = 10.0f,
+            .parameters = {0.65f, 0.8f, 0.0f, 0.0f},
         },
         {
             .operation = TaskRewardOperator::jointVelocitySquared,
@@ -1221,6 +1267,87 @@ TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
     return task;
 }
 
+TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
+    const LocomotionSurface surface
+) {
+    TaskPack task = makeUnitreeG1DisturbanceRecoveryTaskPack(surface);
+    task.id = "unitree_g1_ball_disturbance_recovery";
+    task.pushes.maximumVelocity = 0.0f;
+    task.capacities.candidatePairs = 256u;
+    task.capacities.rawContacts = 256u;
+    task.capacities.manifolds = 64u;
+    task.capacities.constraintBlocks = 128u;
+    task.capacities.constraintRows = 384u;
+    task.capacities.endpointRuntimeRecords = 256u;
+    task.capacities.articulationPointQueries = 256u;
+    task.capacities.qualityRows = 384u;
+    task.capacities.islandConstraintReferences = 128u;
+
+    constexpr std::array<std::array<float, 3>, 4> positionLower{{
+        {{-1.7f, -0.05f, 0.75f}},
+        {{ 1.3f, -0.05f, 0.75f}},
+        {{-0.05f, -1.7f, 0.75f}},
+        {{-0.05f,  1.3f, 0.75f}},
+    }};
+    constexpr std::array<std::array<float, 3>, 4> positionUpper{{
+        {{-1.3f,  0.05f, 1.25f}},
+        {{ 1.7f,  0.05f, 1.25f}},
+        {{ 0.05f, -1.3f, 1.25f}},
+        {{ 0.05f,  1.7f, 1.25f}},
+    }};
+    constexpr std::array<std::array<float, 3>, 4> velocityLower{{
+        {{ 4.0f, -0.05f, 1.5f}},
+        {{-6.0f, -0.05f, 1.5f}},
+        {{-0.05f,  4.0f, 1.5f}},
+        {{-0.05f, -6.0f, 1.5f}},
+    }};
+    constexpr std::array<std::array<float, 3>, 4> velocityUpper{{
+        {{ 6.0f,  0.05f, 3.5f}},
+        {{-4.0f,  0.05f, 3.5f}},
+        {{ 0.05f,  6.0f, 3.5f}},
+        {{ 0.05f, -4.0f, 3.5f}},
+    }};
+    constexpr std::array<std::array<float, 2>, 4> launchSteps{{
+        {{75.0f, 125.0f}},
+        {{175.0f, 225.0f}},
+        {{275.0f, 325.0f}},
+        {{375.0f, 425.0f}},
+    }};
+    for (std::uint32_t sphere = 0u; sphere < 4u; ++sphere) {
+        const std::string name =
+            "locomotion_dynamic_sphere_" + std::to_string(sphere);
+        for (std::uint32_t component = 0u; component < 3u; ++component) {
+            task.randomization.push_back({
+                .operation = TaskRandomizationOperator::sceneBodyPosition,
+                .target = name,
+                .component = component,
+                .parameters = {
+                    positionLower[sphere][component],
+                    positionUpper[sphere][component], 0.0f, 0.0f,
+                },
+            });
+            task.randomization.push_back({
+                .operation = TaskRandomizationOperator::sceneBodyVelocity,
+                .target = name,
+                .component = component,
+                .parameters = {
+                    velocityLower[sphere][component],
+                    velocityUpper[sphere][component], 0.0f, 0.0f,
+                },
+            });
+        }
+        task.randomization.push_back({
+            .operation = TaskRandomizationOperator::sceneBodyLaunchStep,
+            .target = name,
+            .parameters = {
+                launchSteps[sphere][0], launchSteps[sphere][1],
+                0.0f, 0.0f,
+            },
+        });
+    }
+    return task;
+}
+
 LocomotionWorld makeUnitreeG1LocomotionWorld(
     const LocomotionSurface surface,
     const UnitreeG1Task task
@@ -1229,6 +1356,8 @@ LocomotionWorld makeUnitreeG1LocomotionWorld(
         .model = makeUnitreeG1EngineModel(),
         .task = task == UnitreeG1Task::disturbanceRecovery
             ? makeUnitreeG1DisturbanceRecoveryTaskPack(surface)
+            : task == UnitreeG1Task::ballDisturbanceRecovery
+                ? makeUnitreeG1BallDisturbanceRecoveryTaskPack(surface)
             : task == UnitreeG1Task::supineGetUpDiscovery
                 ? makeUnitreeG1SupineGetUpDiscoveryTaskPack(surface)
                 : makeUnitreeG1LocomotionTaskPack(surface),

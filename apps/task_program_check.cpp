@@ -415,12 +415,68 @@ int main() {
                 getUpStatus.task.message
             );
         }
-        if (compiledGetUp.task.layout().actorObservationSize != 392u ||
-            compiledGetUp.task.layout().criticObservationSize != 392u ||
-            compiledGetUp.task.header().counts1.w != 9u ||
+        if (compiledGetUp.task.layout().actorFrameSize != 92u ||
+            compiledGetUp.task.layout().actorObservationSize != 920u ||
+            compiledGetUp.task.layout().criticFrameSize != 98u ||
+            compiledGetUp.task.layout().criticObservationSize != 980u ||
+            compiledGetUp.task.layout().contactMetricCount != 43u ||
+            compiledGetUp.task.header().counts1.w != 12u ||
             compiledGetUp.task.header().counts2.x != 0u ||
             compiledGetUp.task.header().counts2.y != 31u) {
             fail("compiled G1 supine get-up task is incomplete");
+        }
+        metalrobo::LocomotionWorld ballRecovery =
+            metalrobo::makeUnitreeG1LocomotionWorld(
+                metalrobo::LocomotionSurface::ground,
+                metalrobo::UnitreeG1Task::ballDisturbanceRecovery
+            );
+        const std::array recoverySpheres{
+            metalrobo::LocomotionDynamicSphere{
+                .position = {-2.0f, 0.0f, 1.0f, 1.0f},
+                .linearVelocity = {3.0f, 0.0f, 1.0f, 0.0f},
+                .radius = 0.10f, .mass = 0.10f, .launchStep = 100u,
+            },
+            metalrobo::LocomotionDynamicSphere{
+                .position = {2.0f, 0.0f, 1.0f, 1.0f},
+                .linearVelocity = {-3.0f, 0.0f, 1.0f, 0.0f},
+                .radius = 0.12f, .mass = 0.25f, .launchStep = 200u,
+            },
+            metalrobo::LocomotionDynamicSphere{
+                .position = {0.0f, -2.0f, 1.0f, 1.0f},
+                .linearVelocity = {0.0f, 3.0f, 1.0f, 0.0f},
+                .radius = 0.14f, .mass = 0.50f, .launchStep = 300u,
+            },
+            metalrobo::LocomotionDynamicSphere{
+                .position = {0.0f, 2.0f, 1.0f, 1.0f},
+                .linearVelocity = {0.0f, -3.0f, 1.0f, 0.0f},
+                .radius = 0.16f, .mass = 1.00f, .launchStep = 400u,
+            },
+        };
+        metalrobo::appendLocomotionDynamicSpheres(
+            ballRecovery,
+            recoverySpheres
+        );
+        metalrobo::CompiledLocomotionWorld compiledBallRecovery;
+        const auto ballRecoveryStatus =
+            metalrobo::compileLocomotionWorld(
+                ballRecovery,
+                0u,
+                compiledBallRecovery
+            );
+        if (!ballRecoveryStatus.succeeded()) {
+            fail(
+                "G1 ball-recovery task failed to compile: " +
+                ballRecoveryStatus.world.message + " " +
+                ballRecoveryStatus.task.element + ": " +
+                ballRecoveryStatus.task.message
+            );
+        }
+        if (compiledBallRecovery.task.header().counts2.y != 35u ||
+            compiledBallRecovery.task.header().dynamics.x != 0.0f ||
+            compiledBallRecovery.world.sceneBodyCount() != 5u ||
+            compiledBallRecovery.world.capacities().candidatePairs != 256u ||
+            compiledBallRecovery.world.capacities().constraintRows != 384u) {
+            fail("compiled G1 physical-ball task is incomplete");
         }
         metalrobo::LocomotionWorld disturbed = authored;
         const std::array disturbanceSpheres{

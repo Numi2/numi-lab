@@ -1090,6 +1090,56 @@ kernel void mr_locomotion_task_observe(
                     operation.parameters.y
                 );
                 break;
+            case MR_TASK_RANDOMIZE_SCENE_BODY_POSITION:
+                resetScene[
+                    sceneBase + operation.target.y
+                ].position[operation.target.z] = randomRange(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    channel,
+                    operation.parameters.x,
+                    operation.parameters.y
+                );
+                break;
+            case MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY:
+                resetScene[
+                    sceneBase + operation.target.y
+                ].linearVelocityAndInverseMass[
+                    operation.target.z
+                ] = randomRange(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    channel,
+                    operation.parameters.x,
+                    operation.parameters.y
+                );
+                break;
+            case MR_TASK_RANDOMIZE_SCENE_BODY_LAUNCH_STEP: {
+                const uint lower = uint(operation.parameters.x);
+                const uint upper = uint(operation.parameters.y);
+                const uint launchStep = lower + uint(floor(
+                    float(upper - lower + 1u) * randomUnit(
+                        dispatch,
+                        environment,
+                        episode,
+                        0u,
+                        channel
+                    )
+                ));
+                device MRBodyStateGPU& scene = resetScene[
+                    sceneBase + operation.target.y
+                ];
+                scene.flagsAndIndices[3] =
+                    (scene.flagsAndIndices[3] &
+                     ~MR_BODY_STATE_LAUNCH_STEP_MASK) |
+                    ((launchStep << MR_BODY_STATE_LAUNCH_STEP_SHIFT) &
+                     MR_BODY_STATE_LAUNCH_STEP_MASK);
+                break;
+            }
             case MR_TASK_RANDOMIZE_ACTION_POSITION:
                 for (uint action = 0u;
                      action < program.counts0.x;
@@ -1407,7 +1457,7 @@ kernel void mr_locomotion_task_observe(
              localScene < dispatch.strides.w;
              ++localScene) {
             const MRBodyStateGPU authored =
-                initialScene[sceneBase + localScene];
+                resetScene[sceneBase + localScene];
             const uint launchStep =
                 (authored.flagsAndIndices[3] &
                  MR_BODY_STATE_LAUNCH_STEP_MASK) >>
@@ -2243,6 +2293,87 @@ kernel void mr_locomotion_task_complete(
             value = supportCount / max(supportTotal, 1.0f);
             break;
         }
+        case MR_TASK_REWARD_BODY_HEIGHT_EXPONENTIAL: {
+            const MRTaskContactGroupGPU group =
+                contactGroups[operation.source.y];
+            const MRBodyStateGPU body = bodyStates[
+                bodyBase + group.reference.x
+            ];
+            const float bodyHeight =
+                body.position.z +
+                rotate(
+                    body.orientation,
+                    group.kinematicReference.xyz
+                ).z;
+            value = exp(
+                clamp(
+                    bodyHeight,
+                    0.0f,
+                    operation.parameters.y
+                )
+            ) - 1.0f;
+            break;
+        }
+        case MR_TASK_REWARD_SUPPORT_HEIGHT_EXPONENTIAL: {
+            float supportHeight = 0.0f;
+            float supportTotal = 0.0f;
+            for (uint groupIndex = 0u;
+                 groupIndex < program.counts0.w;
+                 ++groupIndex) {
+                const MRTaskContactGroupGPU group =
+                    contactGroups[groupIndex];
+                if ((group.members.z & MR_TASK_CONTACT_SUPPORT) == 0u ||
+                    (operation.source.y != MR_INVALID_INDEX &&
+                     operation.source.y != groupIndex)) {
+                    continue;
+                }
+                const MRBodyStateGPU body = bodyStates[
+                    bodyBase + group.reference.x
+                ];
+                supportHeight += max(
+                    body.position.z +
+                        rotate(
+                            body.orientation,
+                            group.kinematicReference.xyz
+                        ).z,
+                    0.0f
+                );
+                supportTotal += 1.0f;
+            }
+            value = exp(
+                -operation.parameters.y *
+                supportHeight / max(supportTotal, 1.0f)
+            );
+            break;
+        }
+        case MR_TASK_REWARD_BODY_UP_EXPONENTIAL:
+            value = exp(-gravity.z);
+            break;
+        case MR_TASK_REWARD_STANDING_COMPLETION: {
+            bool bothSupported = true;
+            uint supportTotal = 0u;
+            for (uint groupIndex = 0u;
+                 groupIndex < program.counts0.w;
+                 ++groupIndex) {
+                const MRTaskContactGroupGPU group =
+                    contactGroups[groupIndex];
+                if ((group.members.z & MR_TASK_CONTACT_SUPPORT) == 0u) {
+                    continue;
+                }
+                bothSupported = bothSupported &&
+                    compactContact[
+                        compactBase + group.members.w
+                    ] > program.dynamics.y;
+                ++supportTotal;
+            }
+            value = float(
+                supportTotal > 0u &&
+                bothSupported &&
+                height >= operation.parameters.y &&
+                gravity.z <= -operation.parameters.z
+            );
+            break;
+        }
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
             value = velocitySquared;
             break;
@@ -2502,6 +2633,10 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_ROOT_HEIGHT_PROGRESS:
         case MR_TASK_REWARD_UPRIGHTNESS:
         case MR_TASK_REWARD_SUPPORT_CONTACT_COUNT:
+        case MR_TASK_REWARD_BODY_HEIGHT_EXPONENTIAL:
+        case MR_TASK_REWARD_SUPPORT_HEIGHT_EXPONENTIAL:
+        case MR_TASK_REWARD_BODY_UP_EXPONENTIAL:
+        case MR_TASK_REWARD_STANDING_COMPLETION:
             rewardBreakdown0.y += contribution;
             break;
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:

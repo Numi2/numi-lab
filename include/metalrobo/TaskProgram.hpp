@@ -71,6 +71,11 @@ enum class TaskRewardOperator : std::uint32_t {
     rootHeightProgress = MR_TASK_REWARD_ROOT_HEIGHT_PROGRESS,
     uprightness = MR_TASK_REWARD_UPRIGHTNESS,
     supportContactCount = MR_TASK_REWARD_SUPPORT_CONTACT_COUNT,
+    bodyHeightExponential = MR_TASK_REWARD_BODY_HEIGHT_EXPONENTIAL,
+    supportHeightExponential =
+        MR_TASK_REWARD_SUPPORT_HEIGHT_EXPONENTIAL,
+    bodyUpExponential = MR_TASK_REWARD_BODY_UP_EXPONENTIAL,
+    standingCompletion = MR_TASK_REWARD_STANDING_COMPLETION,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -94,6 +99,9 @@ enum class TaskRandomizationOperator : std::uint32_t {
     rootHeight = MR_TASK_RANDOMIZE_ROOT_HEIGHT,
     rootOrientation = MR_TASK_RANDOMIZE_ROOT_ORIENTATION,
     jointPosition = MR_TASK_RANDOMIZE_JOINT_POSITION,
+    sceneBodyPosition = MR_TASK_RANDOMIZE_SCENE_BODY_POSITION,
+    sceneBodyVelocity = MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY,
+    sceneBodyLaunchStep = MR_TASK_RANDOMIZE_SCENE_BODY_LAUNCH_STEP,
 };
 
 struct TaskActionBinding {

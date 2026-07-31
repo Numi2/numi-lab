@@ -22,6 +22,7 @@ enum class UnitreeG1Task : std::uint32_t {
     velocity = 0u,
     disturbanceRecovery = 1u,
     supineGetUpDiscovery = 2u,
+    ballDisturbanceRecovery = 3u,
 };
 
 struct LocomotionWorld {
@@ -111,6 +112,13 @@ void appendLocomotionDynamicSpheres(
 // HumanUP-style Stage-I discovery task: fixed supine reset, full-body
 // collision, dense height/upright/support shaping, and weak regularization.
 [[nodiscard]] TaskPack makeUnitreeG1SupineGetUpDiscoveryTaskPack(
+    LocomotionSurface surface
+);
+
+// Balance recovery driven by randomized ordinary rigid spheres. Sphere
+// mechanics are supplied by the world while this TaskPack only authors their
+// per-episode launch envelopes through generic scene-body operators.
+[[nodiscard]] TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
     LocomotionSurface surface
 );
 

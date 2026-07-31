@@ -226,9 +226,11 @@ private struct Options {
                     unitreeG1Task = .disturbanceRecovery
                 case "supine-get-up":
                     unitreeG1Task = .supineGetUpDiscovery
+                case "ball-recovery":
+                    unitreeG1Task = .ballDisturbanceRecovery
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be velocity, disturbance-recovery, or supine-get-up."
+                        "--task must be velocity, disturbance-recovery, supine-get-up, or ball-recovery."
                     )
                 }
                 index += 1
@@ -373,6 +375,11 @@ private struct Options {
 private func makeContext(
     options: Options
 ) throws -> (MetalRoboTaskRolloutContext, String) {
+    let dynamicSpheres =
+        options.unitreeG1Task == .ballDisturbanceRecovery &&
+        options.dynamicSpheres.isEmpty
+        ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
+        : options.dynamicSpheres
     let configuration = MetalRoboTaskRolloutConfiguration(
         environmentCount: UInt32(options.environments),
         surface: options.surface,
@@ -381,7 +388,7 @@ private func makeContext(
         finalVelocityIterations:
             UInt32(options.finalVelocityIterations),
         seed: options.seed,
-        dynamicSpheres: options.dynamicSpheres,
+        dynamicSpheres: dynamicSpheres,
         disableTaskTerminations: options.disableTaskTerminations,
         unitreeG1Task: options.unitreeG1Task
     )
@@ -702,7 +709,9 @@ private enum TaskRolloutMain {
             var trackingSum = 0.0
             var rootHeightSum = 0.0
             var tiltSum = 0.0
+            var maximumRootHeight = 0.0
             var maximumTilt = 0.0
+            var standingStepCount = 0
             var taskRewardSum = 0.0
             var baseRewardSum = 0.0
             var jointVelocityRewardSum = 0.0
@@ -851,10 +860,19 @@ private enum TaskRolloutMain {
                         rootHeightSum +=
                             Double(transition.rootHeight)
                         tiltSum += Double(transition.tilt)
+                        maximumRootHeight = max(
+                            maximumRootHeight,
+                            Double(transition.rootHeight)
+                        )
                         maximumTilt = max(
                             maximumTilt,
                             Double(transition.tilt)
                         )
+                        if transition.rootHeight >= 0.65 &&
+                            transition.tilt <= 0.6435011
+                        {
+                            standingStepCount += 1
+                        }
                         taskRewardSum +=
                             Double(transition.taskReward)
                         baseRewardSum +=
@@ -991,7 +1009,11 @@ private enum TaskRolloutMain {
                     options.surface == .terrain
                     ? "terrain"
                     : "ground",
-                "dynamic_sphere_count": options.dynamicSpheres.count,
+                "dynamic_sphere_count":
+                    options.unitreeG1Task == .ballDisturbanceRecovery &&
+                    options.dynamicSpheres.isEmpty
+                    ? MetalRoboDynamicSphere.g1BallRecoveryDefaults.count
+                    : options.dynamicSpheres.count,
                 "state_trace": options.stateTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,
@@ -1053,7 +1075,9 @@ private enum TaskRolloutMain {
                     Double(max(transitionCount, 1)),
                 "mean_tilt":
                     tiltSum / Double(max(transitionCount, 1)),
+                "maximum_root_height": maximumRootHeight,
                 "maximum_tilt": maximumTilt,
+                "standing_step_count": standingStepCount,
                 "mean_task_reward":
                     taskRewardSum /
                     Double(max(transitionCount, 1)),

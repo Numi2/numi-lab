@@ -151,9 +151,11 @@ private struct Options {
                     unitreeG1Task = .disturbanceRecovery
                 case "supine-get-up":
                     unitreeG1Task = .supineGetUpDiscovery
+                case "ball-recovery":
+                    unitreeG1Task = .ballDisturbanceRecovery
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be velocity, disturbance-recovery, or supine-get-up."
+                        "--task must be velocity, disturbance-recovery, supine-get-up, or ball-recovery."
                     )
                 }
                 index += 1
@@ -692,10 +694,15 @@ private final class MLXLearnerWorker {
 private func makeContext(
     options: Options
 ) throws -> (MetalRoboTaskRolloutContext, String) {
+    let dynamicSpheres =
+        options.unitreeG1Task == .ballDisturbanceRecovery
+        ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
+        : []
     let configuration = MetalRoboTaskRolloutConfiguration(
         environmentCount: UInt32(options.environments),
         surface: options.surface,
         seed: options.seed,
+        dynamicSpheres: dynamicSpheres,
         unitreeG1Task: options.unitreeG1Task
     )
     if let worldPack = options.worldPack,

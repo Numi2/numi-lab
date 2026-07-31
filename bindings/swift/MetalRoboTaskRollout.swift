@@ -57,6 +57,7 @@ public enum MetalRoboUnitreeG1Task: UInt32, Sendable {
     case velocity = 0
     case disturbanceRecovery = 1
     case supineGetUpDiscovery = 2
+    case ballDisturbanceRecovery = 3
 }
 
 public struct MetalRoboDynamicSphere: Sendable {
@@ -79,6 +80,37 @@ public struct MetalRoboDynamicSphere: Sendable {
         self.mass = mass
         self.launchStep = launchStep
     }
+
+    public static let g1BallRecoveryDefaults: [Self] = [
+        .init(
+            position: SIMD3(-1.5, 0.0, 1.0),
+            linearVelocity: SIMD3(5.0, 0.0, 2.5),
+            radius: 0.10,
+            mass: 0.10,
+            launchStep: 100
+        ),
+        .init(
+            position: SIMD3(1.5, 0.0, 1.0),
+            linearVelocity: SIMD3(-5.0, 0.0, 2.5),
+            radius: 0.12,
+            mass: 0.25,
+            launchStep: 200
+        ),
+        .init(
+            position: SIMD3(0.0, -1.5, 1.0),
+            linearVelocity: SIMD3(0.0, 5.0, 2.5),
+            radius: 0.14,
+            mass: 0.50,
+            launchStep: 300
+        ),
+        .init(
+            position: SIMD3(0.0, 1.5, 1.0),
+            linearVelocity: SIMD3(0.0, -5.0, 2.5),
+            radius: 0.16,
+            mass: 1.00,
+            launchStep: 400
+        ),
+    ]
 }
 
 public enum MetalRoboPolicyActivation: UInt32, Sendable {
