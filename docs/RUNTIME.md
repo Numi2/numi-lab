@@ -99,6 +99,13 @@ between update chunks. Contiguous MLX weight flattening, inactive private
 weight banks, a no-copy Metal view, and an atomic blit-driven bank swap remain
 to be implemented.
 
+Dense native inference assigns one output neuron to one cooperative
+SIMDgroup. Lanes accumulate strided features in FP32, use a deterministic SIMD
+reduction, and lane zero applies bias and activation. Up to eight output
+SIMDgroups share one threadgroup. This removes the former serial per-neuron
+feature loop, but it is not yet the final shape-specialized matrix-tile,
+fp16/bfloat16, convolutional, or recurrent PolicyIR backend.
+
 MLX lazy evaluation occurs at deliberate minibatch, update, and checkpoint
 boundaries. MLX does not borrow the physics encoder or decide per-step
 evaluation boundaries.

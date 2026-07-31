@@ -63,7 +63,10 @@ release blockers remain:
   consumes those buffers without Swift array concatenation or an MLX input
   copy. Direct native command-buffer publication into the ring and inactive
   policy weight banks remain unfinished.
-- PolicyIR does not yet support convolution, recurrence, or attention.
+- Dense PolicyIR inference now cooperatively reduces each output in an Apple
+  GPU SIMDgroup instead of serially accumulating a neuron in one thread.
+  Shape-specialized matrix tiles, reduced-precision weights, convolution,
+  recurrence, and attention remain incomplete.
 - Native validity-aware adjoints are not implemented.
 - G1 standing and walking are not qualified.
 - The ten-million-transition release soak has not run.

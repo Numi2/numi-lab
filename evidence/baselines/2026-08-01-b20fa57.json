@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T01:05:49+02:00",
+  "source_revision": "b20fa57c73c0933cc913ce64eefc00d312bf45e4",
+  "metallib_sha256": "657926ef5c84132f524912c001755dfd0277597af5181668626f6923b72f2c7b",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 5.31,
+    "policy_program_abi_version": 4,
+    "dense_execution": "one output neuron per SIMDgroup, up to eight SIMDgroups per threadgroup",
+    "dense_accumulation_dtype": "float32",
+    "dense_reference_environment_count": 2,
+    "dense_reference_control_step_count": 4,
+    "dense_reference_output_count": 8,
+    "dense_reference_relative_tolerance": 0.00002
+  },
+  "known_release_blockers": [
+    "Dense PolicyIR is SIMDgroup-parallel but does not yet use shape-specialized SIMDgroup matrix tiles or reduced-precision weight storage.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "Recurrent policy state and reset masks are not part of the native session contract.",
+    "Policy installation does not yet use inactive private weight banks and atomic revision swaps.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

@@ -6,7 +6,8 @@
     "evidence/baselines/2026-07-31-9e8ea7e.json",
     "evidence/baselines/2026-08-01-db62e37.json",
     "evidence/baselines/2026-08-01-ec90c65.json",
-    "evidence/baselines/2026-08-01-13b5bf5.json"
+    "evidence/baselines/2026-08-01-13b5bf5.json",
+    "evidence/baselines/2026-08-01-b20fa57.json"
   ],
   "capabilities": [
     {
@@ -133,7 +134,7 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Fingerprint-bound normalization, dense actor/critic layers, Gaussian behavior policy, and native inference."
+      "scope": "Fingerprint-bound normalization, dense actor/critic layers, Gaussian behavior policy, and native inference. Each dense output is reduced cooperatively in FP32 by one SIMDgroup, up to eight outputs share a threadgroup, and the owner compares nonzero rollout outputs with a host dot-product reference. SIMDgroup matrix tiles and reduced-precision storage remain unqualified."
     },
     {
       "id": "policy.recurrent_visual_attention",

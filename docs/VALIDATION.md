@@ -33,6 +33,12 @@ monotonic policy revisions, native rollout serialization, learner checkpoints,
 and deployment-policy publication. It does not yet qualify direct GPU writes
 into the ring or inactive native weight-bank swapping.
 
+The TaskIR owner also executes a nonzero deterministic dense policy over two
+environments and four control steps, then compares all eight native SIMDgroup
+outputs against an FP32 host dot-product reference. This qualifies the current
+dense operator contract, not convolution, recurrence, attention, reduced
+precision, or performance floors.
+
 ## Owning checks
 
 The intended consolidated suite is:
