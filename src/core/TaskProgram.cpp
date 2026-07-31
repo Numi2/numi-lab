@@ -1094,6 +1094,40 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::recoveryEvent:
                 componentLimit = 4u;
                 break;
+            case TaskObservationSource::objectTrack: {
+                bool ambiguous = false;
+                const std::uint32_t body = uniqueIndex(
+                    model.bodyNames,
+                    spec.target,
+                    ambiguous
+                );
+                if (ambiguous || body == MR_INVALID_INDEX) {
+                    return reject(
+                        ambiguous
+                            ? TaskCompileStatus::ambiguousSemantic
+                            : TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "tracked object identity is unresolved"
+                    );
+                }
+                const auto sceneBody = std::find(
+                    world.sceneBodyIndices().begin(),
+                    world.sceneBodyIndices().end(),
+                    body
+                );
+                if (sceneBody == world.sceneBodyIndices().end()) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        spec.target,
+                        "tracked object is not a scene body"
+                    );
+                }
+                sourceIndex = static_cast<std::uint32_t>(
+                    sceneBody - world.sceneBodyIndices().begin()
+                );
+                componentLimit = 7u;
+                break;
+            }
             case TaskObservationSource::contactMetric: {
                 sourceIndex = namedGroup(
                     contactGroupIds,
@@ -2006,7 +2040,15 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY;
     }
-    if (hasRecoveryDefinition) {
+    if (pack.recoveryCompletionCurriculum &&
+        !hasRecoveryDefinition) {
+        return reject(
+            TaskCompileStatus::invalidPack,
+            "recovery_curriculum",
+            "recovery-completion curriculum requires a recovery event definition"
+        );
+    }
+    if (pack.recoveryCompletionCurriculum) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_RECOVERY_CURRICULUM;
     }

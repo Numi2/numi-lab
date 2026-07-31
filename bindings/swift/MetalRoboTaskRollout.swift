@@ -110,6 +110,20 @@ public struct MetalRoboDynamicSphere: Sendable {
             mass: 4.00,
             launchStep: 400
         ),
+        .init(
+            position: SIMD3(-1.5, 0.25, 1.0),
+            linearVelocity: SIMD3(5.0, 0.0, 2.5),
+            radius: 0.18,
+            mass: 5.00,
+            launchStep: 500
+        ),
+        .init(
+            position: SIMD3(1.5, -0.25, 1.0),
+            linearVelocity: SIMD3(-5.0, 0.0, 2.5),
+            radius: 0.20,
+            mass: 6.00,
+            launchStep: 600
+        ),
     ]
 }
 

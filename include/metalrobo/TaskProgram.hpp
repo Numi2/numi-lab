@@ -34,6 +34,7 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_CONTACT_WRENCH_LOCAL,
     gaitPhase = MR_TASK_OBSERVE_GAIT_PHASE,
     recoveryEvent = MR_TASK_OBSERVE_RECOVERY_EVENT,
+    objectTrack = MR_TASK_OBSERVE_OBJECT_TRACK,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -119,7 +120,8 @@ struct TaskActionBinding {
 struct TaskObservationOperatorSpec {
     TaskObservationSource source =
         TaskObservationSource::rootAngularVelocityLocal;
-    // Joint, contact-group, or body identity when the source requires one.
+    // Joint, contact-group, body, or tracked scene-body identity when the
+    // source requires one.
     std::string target;
     std::uint32_t component = 0u;
     float scale = 1.0f;
@@ -222,6 +224,10 @@ struct TaskPack {
     std::vector<TaskObservationOperatorSpec> critic;
     std::uint32_t criticHistoryLength = 1u;
     bool criticIncludesCleanHistory = true;
+    // Selects recovery-completion ratio instead of ordinary task tracking as
+    // curriculum evidence. Recovery rewards and touch events remain usable
+    // independently when this is false.
+    bool recoveryCompletionCurriculum = false;
     std::vector<TaskContactGroup> contactGroups;
     std::vector<TaskJointGroup> jointGroups;
     std::vector<TaskRewardOperatorSpec> rewards;

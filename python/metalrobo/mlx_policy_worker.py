@@ -503,6 +503,7 @@ def _initialize(arguments: argparse.Namespace) -> int:
             arguments.actor_policy_pack,
             arguments.critic_observations,
             _configuration(arguments),
+            actor_observation_count=arguments.actor_observations,
             library_path=arguments.native_library,
         )
         if (

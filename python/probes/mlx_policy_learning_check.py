@@ -436,6 +436,32 @@ def main() -> int:
                 raise RuntimeError(
                     "deployment actor initialization changed policy output"
                 )
+            expanded = MLXPolicyLearner.from_actor_policy_pack(
+                deployment,
+                critic_count + 7,
+                learner.configuration,
+                actor_observation_count=actor_count + 7,
+                library_path=arguments.library,
+            )
+            expanded_actor = expanded.model.actor_mean(
+                mx.concatenate(
+                    (actor, mx.zeros((sample_count, 7))),
+                    axis=1,
+                )
+            )
+            mx.eval(expanded_actor)
+            actor_expansion_error = float(
+                np.max(
+                    np.abs(
+                        np.asarray(expected_actor) -
+                        np.asarray(expanded_actor)
+                    )
+                )
+            )
+            if actor_expansion_error != 0.0:
+                raise RuntimeError(
+                    "zero-connected observation expansion changed policy output"
+                )
         print(
             json.dumps(
                 {
@@ -449,6 +475,7 @@ def main() -> int:
                     "artifact_bytes": artifact.stat().st_size,
                     "actor_initialization_max_error":
                         actor_initialization_error,
+                    "actor_expansion_max_error": actor_expansion_error,
                 },
                 sort_keys=True,
                 allow_nan=False,

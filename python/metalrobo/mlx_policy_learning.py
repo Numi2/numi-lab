@@ -1374,6 +1374,7 @@ class MLXPolicyLearner:
         critic_observation_count: int,
         configuration: MLXPPOConfiguration = MLXPPOConfiguration(),
         *,
+        actor_observation_count: int | None = None,
         library_path: str | Path | None = None,
     ) -> "MLXPolicyLearner":
         """Start PPO from a deterministic deployment actor.
@@ -1381,7 +1382,10 @@ class MLXPolicyLearner:
         Deployment PolicyPacks intentionally omit optimizer state and a
         critic. This path preserves the exact actor and normalization
         contract, creates a fresh critic for the new task, and initializes a
-        new stochastic exploration head. It is initialization, not resume.
+        new stochastic exploration head. A wider observation contract is
+        initialized with zero-connected new inputs, preserving the actor's
+        exact output until learning uses them. It is initialization, not
+        resume.
         """
 
         pack = read_policy_pack(path, library_path=library_path)
@@ -1398,8 +1402,17 @@ class MLXPolicyLearner:
             ),
             observation_clip=pack.observation_clip,
         )
+        target_actor_observations = (
+            pack.actor_observation_count
+            if actor_observation_count is None
+            else actor_observation_count
+        )
+        if target_actor_observations < pack.actor_observation_count:
+            raise ValueError(
+                "actor initialization cannot discard PolicyPack observations"
+            )
         learner = cls(
-            pack.actor_observation_count,
+            target_actor_observations,
             critic_observation_count,
             pack.action_count,
             restored_configuration,
@@ -1413,13 +1426,39 @@ class MLXPolicyLearner:
             raise RuntimeError(
                 "MLX actor construction disagrees with PolicyPack"
             )
-        for target, artifact in zip(destination, pack.layers, strict=True):
-            target.weight = mx.array(artifact.weights, dtype=mx.float32)
+        for layer_index, (target, artifact) in enumerate(
+            zip(destination, pack.layers, strict=True)
+        ):
+            weights = np.asarray(artifact.weights, dtype=np.float32)
+            if layer_index == 0 and (
+                target_actor_observations > pack.actor_observation_count
+            ):
+                weights = np.pad(
+                    weights,
+                    (
+                        (0, 0),
+                        (
+                            0,
+                            target_actor_observations -
+                            pack.actor_observation_count,
+                        ),
+                    ),
+                )
+            target.weight = mx.array(weights, dtype=mx.float32)
             target.bias = mx.array(artifact.bias, dtype=mx.float32)
+        actor_mean = np.pad(
+            pack.effective_observation_mean,
+            (0, target_actor_observations - pack.actor_observation_count),
+        )
+        actor_inverse_standard_deviation = np.pad(
+            pack.effective_observation_inverse_standard_deviation,
+            (0, target_actor_observations - pack.actor_observation_count),
+            constant_values=1.0,
+        )
         learner.set_observation_normalization(
-            actor_mean=pack.effective_observation_mean,
+            actor_mean=actor_mean,
             actor_inverse_standard_deviation=(
-                pack.effective_observation_inverse_standard_deviation
+                actor_inverse_standard_deviation
             ),
             observation_clip=pack.observation_clip,
         )

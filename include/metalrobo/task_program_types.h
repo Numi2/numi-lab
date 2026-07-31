@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 10u
+#define MR_TASK_PROGRAM_ABI_VERSION 11u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -33,6 +33,11 @@ enum MRTaskObservationOpcode : mr_u32 {
     // Privileged recovery-event state: active, previous tilt, peak tilt,
     // and stable time. Intended for asymmetric critics, not deployed actors.
     MR_TASK_OBSERVE_RECOVERY_EVENT = 15u,
+    // Deployable object-centric perception contract for one tracked scene
+    // body: confidence, root-local position xyz, and root-local relative
+    // velocity xyz. Simulation supplies the contract natively; deployment
+    // may populate the same slots from an RGB-D perception provider.
+    MR_TASK_OBSERVE_OBJECT_TRACK = 16u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {

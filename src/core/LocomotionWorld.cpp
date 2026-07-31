@@ -1274,9 +1274,9 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
     TaskPack task = makeUnitreeG1DisturbanceRecoveryTaskPack(surface);
     task.id = "unitree_g1_ball_disturbance_recovery";
     task.pushes.maximumVelocity = 0.0f;
-    // Three recovered strikes out of four is sufficient to expose the next
-    // speed tier; the independent survival gate still prevents promotion
-    // when early falls make that ratio misleading.
+    // This stage learns pre-fall stability. Promotion is based on completing
+    // the episode while remaining stationary, not on recovery completion;
+    // recovery events below are shaping signals only.
     task.successTrackingThreshold = 0.70f;
     task.capacities.candidatePairs = 256u;
     task.capacities.rawContacts = 256u;
@@ -1306,6 +1306,35 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
         .referenceBody = "torso_link",
     });
 
+    // The actor consumes the compact object-track contract produced by the
+    // native simulation sensor and by the deployment RGB-D perception
+    // provider. Exact recovery-event labels remain critic-only below.
+    for (std::uint32_t sphere = 0u; sphere < 6u; ++sphere) {
+        const std::string name =
+            "locomotion_dynamic_sphere_" + std::to_string(sphere);
+        const TaskObservationOperatorSpec confidence{
+            .source = TaskObservationSource::objectTrack,
+            .target = name,
+            .component = 0u,
+        };
+        task.actorFrame.push_back(confidence);
+        task.critic.push_back(confidence);
+        for (std::uint32_t component = 1u;
+             component < 7u;
+             ++component) {
+            const bool position = component <= 3u;
+            const TaskObservationOperatorSpec track{
+                .source = TaskObservationSource::objectTrack,
+                .target = name,
+                .component = component,
+                .scale = position ? 0.5f : 0.2f,
+                .noiseAmplitude = position ? 0.01f : 0.02f,
+            };
+            task.actorFrame.push_back(track);
+            task.critic.push_back(track);
+        }
+    }
+
     // A launched ball touching the robot is not a policy failure. Falling is
     // still penalized by height/tilt termination, while the event rewards
     // measure what happens after accepted physical contact.
@@ -1317,10 +1346,9 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
         }
     );
 
-    // Preserve the deployed 98-value actor contract. The asymmetric critic
-    // receives physical root state plus the native recovery-event state so it
-    // can value the consequences of an impact without leaking privileged
-    // event labels into deployment.
+    // The asymmetric critic additionally receives physical root state plus
+    // native recovery-event state so it can value impact consequences without
+    // leaking privileged event labels into deployment.
     const std::array<TaskObservationOperatorSpec, 8> recoveryCritic{
         TaskObservationOperatorSpec{
             .source = TaskObservationSource::rootLinearVelocityLocal,
@@ -1376,37 +1404,47 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
         .parameters = recoveryDefinition,
     });
 
-    constexpr std::array<std::array<float, 3>, 4> positionLower{{
+    constexpr std::array<std::array<float, 3>, 6> positionLower{{
         {{-1.7f, -0.05f, 0.75f}},
         {{ 1.3f, -0.05f, 0.75f}},
         {{-0.05f, -1.7f, 0.75f}},
         {{-0.05f,  1.3f, 0.75f}},
+        {{-1.7f,  0.20f, 0.75f}},
+        {{ 1.3f, -0.30f, 0.75f}},
     }};
-    constexpr std::array<std::array<float, 3>, 4> positionUpper{{
+    constexpr std::array<std::array<float, 3>, 6> positionUpper{{
         {{-1.3f,  0.05f, 1.25f}},
         {{ 1.7f,  0.05f, 1.25f}},
         {{ 0.05f, -1.3f, 1.25f}},
         {{ 0.05f,  1.7f, 1.25f}},
+        {{-1.3f,  0.30f, 1.25f}},
+        {{ 1.7f, -0.20f, 1.25f}},
     }};
-    constexpr std::array<std::array<float, 3>, 4> velocityLower{{
+    constexpr std::array<std::array<float, 3>, 6> velocityLower{{
         {{ 2.0f, -0.05f, 1.5f}},
         {{-3.0f, -0.05f, 1.5f}},
         {{-0.05f,  2.0f, 1.5f}},
         {{-0.05f, -3.0f, 1.5f}},
+        {{ 2.0f, -0.05f, 1.5f}},
+        {{-3.0f, -0.05f, 1.5f}},
     }};
-    constexpr std::array<std::array<float, 3>, 4> velocityUpper{{
+    constexpr std::array<std::array<float, 3>, 6> velocityUpper{{
         {{ 3.0f,  0.05f, 3.5f}},
         {{-2.0f,  0.05f, 3.5f}},
         {{ 0.05f,  3.0f, 3.5f}},
         {{ 0.05f, -2.0f, 3.5f}},
+        {{ 3.0f,  0.05f, 3.5f}},
+        {{-2.0f,  0.05f, 3.5f}},
     }};
-    constexpr std::array<std::array<float, 2>, 4> launchSteps{{
+    constexpr std::array<std::array<float, 2>, 6> launchSteps{{
         {{75.0f, 125.0f}},
         {{175.0f, 225.0f}},
         {{275.0f, 325.0f}},
         {{375.0f, 425.0f}},
+        {{475.0f, 525.0f}},
+        {{575.0f, 625.0f}},
     }};
-    for (std::uint32_t sphere = 0u; sphere < 4u; ++sphere) {
+    for (std::uint32_t sphere = 0u; sphere < 6u; ++sphere) {
         const std::string name =
             "locomotion_dynamic_sphere_" + std::to_string(sphere);
         for (std::uint32_t component = 0u; component < 3u; ++component) {
@@ -1429,9 +1467,12 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
                 },
             });
         }
-        const std::uint32_t impactAxis = sphere < 2u ? 0u : 1u;
+        const std::uint32_t impactAxis =
+            sphere == 2u || sphere == 3u ? 1u : 0u;
         const float direction =
-            sphere == 0u || sphere == 2u ? 1.0f : -1.0f;
+            sphere == 0u || sphere == 2u || sphere == 4u
+            ? 1.0f
+            : -1.0f;
         for (std::uint32_t level = 1u; level <= 3u; ++level) {
             const float speedLower = 2.0f + float(level);
             const float speedUpper = 3.0f + float(level);

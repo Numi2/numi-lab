@@ -482,6 +482,39 @@ inline float cleanObservation(
             break;
         }
         break;
+    case MR_TASK_OBSERVE_OBJECT_TRACK: {
+        const MRBodyStateGPU object =
+            sceneBodies[operation.source.y];
+        const uint launchStep =
+            (object.flagsAndIndices[3] &
+             MR_BODY_STATE_LAUNCH_STEP_MASK) >>
+            MR_BODY_STATE_LAUNCH_STEP_SHIFT;
+        const bool visible =
+            launchStep == 0u || state.episode.x >= launchStep;
+        if (operation.source.z == 0u) {
+            value = visible ? 1.0f : 0.0f;
+            break;
+        }
+        if (!visible) {
+            value = 0.0f;
+            break;
+        }
+        const float3 relativePosition = rotateInverse(
+            orientation,
+            object.position.xyz - rootWorldPosition(program, q)
+        );
+        if (operation.source.z <= 3u) {
+            value = relativePosition[operation.source.z - 1u];
+            break;
+        }
+        const float3 relativeVelocity = rotateInverse(
+            orientation,
+            object.linearVelocityAndInverseMass.xyz -
+                rootWorldLinearVelocity(program, q, v)
+        );
+        value = relativeVelocity[operation.source.z - 4u];
+        break;
+    }
     default:
         value = 0.0f;
         break;
