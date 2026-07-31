@@ -1284,6 +1284,18 @@ public final class MetalSimulationSession {
         mr_simulation_task_fingerprint(handle)
     }
 
+    public var policyFingerprint: UInt64 {
+        mr_simulation_policy_fingerprint(handle)
+    }
+
+    public var policyTopologyFingerprint: UInt64 {
+        mr_simulation_policy_topology_fingerprint(handle)
+    }
+
+    public var policyRevision: UInt64 {
+        mr_simulation_policy_revision(handle)
+    }
+
     public func reset(seed: UInt64) throws {
         guard mr_simulation_reset(handle, seed) == 0 else {
             throw MetalRoboSimulationError.native(

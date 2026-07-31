@@ -5,7 +5,7 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 5u
+#define MR_RUNTIME_ABI_VERSION 6u
 #define MR_SENSOR_PROGRAM_ABI_VERSION 3u
 
 typedef struct MR_ALIGN16 MRSensorProgramHeaderGPU {
@@ -382,8 +382,8 @@ enum BufferIndex : std::size_t {
     kTaskDefaultQ = 208u,
     kTaskProgramHeader = 209u,
     kTaskProgramArena = 210u,
-    kPolicyProgramHeader = 211u,
-    kPolicyProgramArena = 212u,
+    kPolicyProgramHeaderA = 211u,
+    kPolicyProgramArenaA = 212u,
     kPolicyScratchA = 213u,
     kPolicyScratchB = 214u,
     kPolicyActorMean = 215u,
@@ -399,7 +399,9 @@ enum BufferIndex : std::size_t {
     kSensorHistory = 225u,
     kSensorOutputs = 226u,
     kSensorMetadata = 227u,
-    kRawBufferCount = 228u,
+    kPolicyProgramHeaderB = 228u,
+    kPolicyProgramArenaB = 229u,
+    kRawBufferCount = 230u,
 };
 
 enum class BufferLifetime : std::uint8_t {
@@ -640,6 +642,8 @@ inline constexpr std::array<BufferLifetime, kRawBufferCount>
         BufferLifetime::persistent,
         BufferLifetime::persistent,
         BufferLifetime::persistent,
+        BufferLifetime::immutable,
+        BufferLifetime::immutable,
     }};
 inline constexpr std::array<bool, kRawBufferCount>
     kPersistentInputs{{
@@ -871,6 +875,8 @@ inline constexpr std::array<bool, kRawBufferCount>
         true,
         true,
         true,
+        false,
+        false,
     }};
 inline constexpr std::array<const char*, kRawBufferCount>
     kBufferDebugNames{{
@@ -1085,8 +1091,8 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "task default q",
         "task program header",
         "task program arena",
-        "policy program header",
-        "policy program arena",
+        "policy program header a",
+        "policy program arena a",
         "policy scratch a",
         "policy scratch b",
         "policy actor mean",
@@ -1102,6 +1108,8 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "sensor history",
         "sensor outputs",
         "sensor metadata",
+        "policy program header b",
+        "policy program arena b",
     }};
 
 [[nodiscard]] constexpr bool validBufferIndex(

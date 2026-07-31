@@ -582,7 +582,9 @@ std::uint64_t compileFixedBaseTaskFixture() {
     step.evaluateFinalPolicy = true;
     step.publishSensorOutputs = true;
     step.ccdMode = metalrobo::MetalWorldCCDMode::disabled;
-    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldConfig contextConfiguration;
+    contextConfiguration.maximumInFlightSubmissions = 1u;
+    metalrobo::MetalWorldContext context(contextConfiguration);
     metalrobo::MetalWorldResult result;
     const auto executed = context.run(
         compiled.world,
@@ -645,6 +647,112 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 2.0e-5f * (1.0f + std::abs(expected))) {
                 fail(
                     "SIMDgroup PolicyIR dense output disagrees with the host dot-product reference"
+                );
+            }
+        }
+    }
+    metalrobo::PolicyPack revisedPolicy = *authored.policy;
+    revisedPolicy.revision = 2u;
+    std::fill(
+        revisedPolicy.layers.front().weights.begin(),
+        revisedPolicy.layers.front().weights.end(),
+        0.0f
+    );
+    revisedPolicy.layers.front().bias.front() = 0.25f;
+    metalrobo::CompiledPolicyProgram revisedProgram;
+    const auto revisedStatus = metalrobo::compilePolicyProgram(
+        revisedPolicy,
+        compiled.task,
+        revisedProgram
+    );
+    if (!revisedStatus.succeeded() ||
+        revisedProgram.topologyFingerprint() !=
+            compiled.policy.topologyFingerprint() ||
+        revisedProgram.fingerprint() ==
+            compiled.policy.fingerprint()) {
+        fail(
+            "weight-only policy revision changed its native topology contract"
+        );
+    }
+    step.policyProgram = revisedProgram;
+    metalrobo::MetalWorldResult revisedResult;
+    const auto revisedExecution = context.run(
+        compiled.world,
+        {
+            .environmentCount = environments,
+            .controlStepCount = controlSteps,
+            .initialQ = initialQ,
+            .initialV = initialV,
+            .resetMasks = resetMasks,
+        },
+        step,
+        revisedResult
+    );
+    if (!revisedExecution.succeeded() ||
+        revisedResult.policyLatents.size() !=
+            environments * (controlSteps + 1u) ||
+        std::any_of(
+            revisedResult.policyLatents.begin(),
+            revisedResult.policyLatents.end(),
+            [](const float value) {
+                return std::abs(value - 0.25f) > 2.0e-6f;
+            }
+        )) {
+        fail(
+            "inactive native policy bank did not publish the revised weights"
+        );
+    }
+    step.policyProgram = compiled.policy;
+    metalrobo::MetalWorldResult reusedResult;
+    const auto reusedExecution = context.run(
+        compiled.world,
+        {
+            .environmentCount = environments,
+            .controlStepCount = controlSteps,
+            .initialQ = initialQ,
+            .initialV = initialV,
+            .resetMasks = resetMasks,
+        },
+        step,
+        reusedResult
+    );
+    const metalrobo::MetalWorldContextStats policyStats =
+        context.stats();
+    if (!reusedExecution.succeeded() ||
+        policyStats.policyBankUploadCount != 2u ||
+        policyStats.policyBankReuseCount != 1u) {
+        fail(
+            "native policy bank swap did not reuse the retained prior revision"
+        );
+    }
+    for (std::size_t stepIndex = 0u;
+         stepIndex < controlSteps;
+         ++stepIndex) {
+        for (std::size_t environment = 0u;
+             environment < environments;
+             ++environment) {
+            const std::size_t observationBase =
+                stepIndex * environments * 12u +
+                environment * 12u;
+            float expected = 0.05f;
+            for (std::size_t feature = 0u;
+                 feature < 12u;
+                 ++feature) {
+                expected = std::fma(
+                    0.01f * static_cast<float>(feature + 1u),
+                    reusedResult.actorObservations[
+                        observationBase + feature
+                    ],
+                    expected
+                );
+            }
+            const float actual = reusedResult.policyLatents[
+                stepIndex * environments + environment
+            ];
+            if (std::abs(actual - expected) >
+                2.0e-5f * (1.0f + std::abs(expected))) {
+                fail(
+                    "reactivated native policy bank lost its retained weights"
                 );
             }
         }
@@ -1215,6 +1323,7 @@ int main() {
             );
         if (!policyStatus.succeeded() ||
             !compiledPolicy.valid() ||
+            compiledPolicy.topologyFingerprint() == 0u ||
             compiledPolicy.taskFingerprint() !=
                 program.fingerprint() ||
             compiledPolicy.revision() != 7u ||
@@ -1230,6 +1339,43 @@ int main() {
             compiledPolicy.actorLayers().size() != 2u ||
             compiledPolicy.criticLayers().size() != 2u) {
             fail("generic PolicyPack compilation failed");
+        }
+        metalrobo::PolicyPack weightRevision = policy;
+        weightRevision.revision = 8u;
+        weightRevision.layers.front().bias.front() = 0.125f;
+        metalrobo::CompiledPolicyProgram revisedPolicyProgram;
+        const auto weightRevisionStatus =
+            metalrobo::compilePolicyProgram(
+                weightRevision,
+                program,
+                revisedPolicyProgram
+            );
+        if (!weightRevisionStatus.succeeded() ||
+            revisedPolicyProgram.fingerprint() ==
+                compiledPolicy.fingerprint() ||
+            revisedPolicyProgram.topologyFingerprint() !=
+                compiledPolicy.topologyFingerprint()) {
+            fail(
+                "PolicyIR topology fingerprint changed across a weight-only revision"
+            );
+        }
+        metalrobo::PolicyPack topologyRevision = policy;
+        topologyRevision.revision = 9u;
+        topologyRevision.layers.front().activation =
+            metalrobo::PolicyActivation::relu;
+        metalrobo::CompiledPolicyProgram changedTopologyProgram;
+        const auto topologyRevisionStatus =
+            metalrobo::compilePolicyProgram(
+                topologyRevision,
+                program,
+                changedTopologyProgram
+            );
+        if (!topologyRevisionStatus.succeeded() ||
+            changedTopologyProgram.topologyFingerprint() ==
+                compiledPolicy.topologyFingerprint()) {
+            fail(
+                "PolicyIR topology fingerprint ignored an operator change"
+            );
         }
         metalrobo::PolicyPack badPolicy = policy;
         --badPolicy.layers.front().inputCount;

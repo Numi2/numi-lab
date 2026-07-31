@@ -480,6 +480,18 @@ MR_API MRSimulationLayoutC mr_simulation_layout(
 MR_API uint64_t mr_simulation_task_fingerprint(
     const MRSimulationHandle* handle
 );
+// The full fingerprint changes with learned values. The topology fingerprint
+// is fixed by the first installed policy and proves subsequent revisions can
+// use the preallocated native policy banks without changing dispatch shape.
+MR_API uint64_t mr_simulation_policy_fingerprint(
+    const MRSimulationHandle* handle
+);
+MR_API uint64_t mr_simulation_policy_topology_fingerprint(
+    const MRSimulationHandle* handle
+);
+MR_API uint64_t mr_simulation_policy_revision(
+    const MRSimulationHandle* handle
+);
 MR_API const char* mr_simulation_device_name(
     const MRSimulationHandle* handle
 );

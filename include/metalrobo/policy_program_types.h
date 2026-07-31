@@ -2,7 +2,7 @@
 
 #include "metalrobo/gpu_types.h"
 
-#define MR_POLICY_PROGRAM_ABI_VERSION 4u
+#define MR_POLICY_PROGRAM_ABI_VERSION 5u
 
 enum MRPolicyActivationOpcode : mr_u32 {
     MR_POLICY_ACTIVATION_IDENTITY = 0u,
@@ -38,7 +38,9 @@ typedef struct MR_ALIGN16 MRPolicyProgramHeaderGPU {
     mr_u64 policyFingerprint;
     mr_u64 taskFingerprint;
     mr_u64 revision;
-    mr_u64 reserved;
+    // Stable across weight-only revisions. Includes the PolicyPack identity,
+    // task contract, operator shapes, activations, offsets, and arena size.
+    mr_u64 topologyFingerprint;
     // ABI version and reserved values.
     mr_uint4 abi;
 } MRPolicyProgramHeaderGPU;

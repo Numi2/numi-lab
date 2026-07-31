@@ -93,11 +93,22 @@ string(FIND "${training_output}" "\"failed_environment_steps\" : 0"
     no_failures)
 string(FIND "${training_output}" "\"rollout_ring_bytes\""
     ring_evidence)
+string(FIND "${training_output}"
+    "\"stale_policy_revision_rejected\" : true"
+    stale_revision_rejected)
+string(FIND "${training_output}"
+    "\"policy_topology_change_rejected\" : true"
+    topology_change_rejected)
+string(FIND "${training_output}" "\"policy_topology_fingerprint\""
+    topology_fingerprint)
 if(final_revision EQUAL -1 OR
    no_failures EQUAL -1 OR
-   ring_evidence EQUAL -1)
+   ring_evidence EQUAL -1 OR
+   stale_revision_rejected EQUAL -1 OR
+   topology_change_rejected EQUAL -1 OR
+   topology_fingerprint EQUAL -1)
     message(FATAL_ERROR
-        "Native integration output lacks rollout-ring qualification evidence\n"
+        "Native integration output lacks rollout-ring or policy-bank qualification evidence\n"
         "${training_output}"
     )
 endif()

@@ -456,6 +456,45 @@ private enum TrainMain {
             )
             try context.setPolicy(initialPolicy)
             let initialRevision = learner.revision
+            let policyTopologyFingerprint =
+                context.policyTopologyFingerprint
+            let initialPolicyFingerprint =
+                context.policyFingerprint
+            guard policyTopologyFingerprint != 0,
+                  initialPolicyFingerprint != 0,
+                  context.policyRevision == initialRevision
+            else {
+                throw MetalRoboSimulationError.native(
+                    "Native policy contract was not installed atomically."
+                )
+            }
+            var stalePolicy = initialPolicy
+            stalePolicy.layers[0].bias[0] += 1.0e-5
+            var rejectedStaleRevision = false
+            do {
+                try context.setPolicy(stalePolicy)
+            } catch {
+                rejectedStaleRevision = true
+            }
+            var incompatiblePolicy = initialPolicy
+            incompatiblePolicy.revision += 1
+            incompatiblePolicy.layers[0].activation = .relu
+            var rejectedTopologyChange = false
+            do {
+                try context.setPolicy(incompatiblePolicy)
+            } catch {
+                rejectedTopologyChange = true
+            }
+            guard rejectedStaleRevision,
+                  rejectedTopologyChange,
+                  context.policyFingerprint ==
+                      initialPolicyFingerprint,
+                  context.policyRevision == initialRevision
+            else {
+                throw MetalRoboSimulationError.native(
+                    "Native policy revision/topology rejection was not transactional."
+                )
+            }
             let initialCurriculumLevel =
                 learner.taskCurriculumLevel
             var installedRevision = learner.revision
@@ -570,6 +609,15 @@ private enum TrainMain {
                     learner.initialPolicyPack()
                 )
                 installedRevision = learner.revision
+                guard context.policyRevision == installedRevision,
+                      context.policyTopologyFingerprint ==
+                          policyTopologyFingerprint,
+                      context.policyFingerprint != 0
+                else {
+                    throw MetalRoboSimulationError.native(
+                        "Native policy bank violated its immutable topology or revision contract."
+                    )
+                }
                 if options.verbose {
                     let reward =
                         (lastLearning["mean_reward"] as? NSNumber)?
@@ -649,6 +697,19 @@ private enum TrainMain {
                 "training_samples": sampleCount,
                 "initial_policy_revision": initialRevision,
                 "final_policy_revision": installedRevision,
+                "initial_policy_fingerprint": String(
+                    initialPolicyFingerprint
+                ),
+                "final_policy_fingerprint": String(
+                    context.policyFingerprint
+                ),
+                "policy_topology_fingerprint": String(
+                    policyTopologyFingerprint
+                ),
+                "stale_policy_revision_rejected":
+                    rejectedStaleRevision,
+                "policy_topology_change_rejected":
+                    rejectedTopologyChange,
                 "initial_task_curriculum_level":
                     initialCurriculumLevel,
                 "final_task_curriculum_level":

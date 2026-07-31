@@ -200,7 +200,8 @@ struct MetalWorldContextState {
     std::uint64_t boundModelFingerprint = 0u;
     std::uint64_t boundTaskFingerprint = 0u;
     std::uint64_t boundSensorFingerprint = 0u;
-    std::uint64_t boundPolicyFingerprint = 0u;
+    std::array<std::uint64_t, 2u> boundPolicyFingerprints{};
+    std::uint32_t activePolicyBank = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     std::weak_ptr<MetalWorldResidentStateData> residentOwner;
     MetalWorldContextStats stats{};
@@ -2474,14 +2475,24 @@ bool buildRequirements(
             requirements.entries[kTaskProgramArena]
         ) ||
         !makeRequirement<MRPolicyProgramHeaderGPU>(
-            "compiled policy header",
+            "compiled policy header bank A",
             nativePolicy ? 1u : 0u,
-            requirements.entries[kPolicyProgramHeader]
+            requirements.entries[kPolicyProgramHeaderA]
         ) ||
         !makeRequirement<std::uint8_t>(
-            "compiled policy arena",
+            "compiled policy arena bank A",
             policyProgram.arena().size(),
-            requirements.entries[kPolicyProgramArena]
+            requirements.entries[kPolicyProgramArenaA]
+        ) ||
+        !makeRequirement<MRPolicyProgramHeaderGPU>(
+            "compiled policy header bank B",
+            nativePolicy ? 1u : 0u,
+            requirements.entries[kPolicyProgramHeaderB]
+        ) ||
+        !makeRequirement<std::uint8_t>(
+            "compiled policy arena bank B",
+            policyProgram.arena().size(),
+            requirements.entries[kPolicyProgramArenaB]
         ) ||
         !makeRequirement<float>(
             "native policy scratch A",
@@ -4069,10 +4080,14 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld compiled task header";
     case kTaskProgramArena:
         return @"MetalWorld compiled task arena";
-    case kPolicyProgramHeader:
-        return @"MetalWorld compiled policy header";
-    case kPolicyProgramArena:
-        return @"MetalWorld compiled policy arena";
+    case kPolicyProgramHeaderA:
+        return @"MetalWorld compiled policy header bank A";
+    case kPolicyProgramArenaA:
+        return @"MetalWorld compiled policy arena bank A";
+    case kPolicyProgramHeaderB:
+        return @"MetalWorld compiled policy header bank B";
+    case kPolicyProgramArenaB:
+        return @"MetalWorld compiled policy arena bank B";
     case kPolicyScratchA:
         return @"MetalWorld policy scratch A";
     case kPolicyScratchB:
@@ -5368,7 +5383,8 @@ MetalWorldDiagnostics ensureBufferArena(
         context.boundModelFingerprint = 0u;
         context.boundTaskFingerprint = 0u;
         context.boundSensorFingerprint = 0u;
-        context.boundPolicyFingerprint = 0u;
+        context.boundPolicyFingerprints = {};
+        context.activePolicyBank = 0u;
     }
     if (persistentStateBufferReplaced) {
         ++context.stateArenaGeneration;
@@ -6170,43 +6186,79 @@ void uploadBatch(
         context.boundSensorFingerprint =
             config.sensorProgram.fingerprint();
     }
-    if (nativePolicy &&
-        context.boundPolicyFingerprint !=
-            config.policyProgram.fingerprint()) {
-        id<MTLBlitCommandEncoder> policyUpload = nil;
-        if (context.config.preferPrivateHeaps) {
-            policyUpload = [commandBuffer blitCommandEncoder];
-            if (policyUpload == nil) {
-                throw std::runtime_error(
-                    "failed to create compiled-policy upload encoder"
-                );
-            }
-            policyUpload.label =
-                @"MetalWorld immutable compiled policy upload";
-        }
-        const auto stagePolicy =
-            [&](const std::size_t index, const void* source) {
-                stagePrivateBuffer(
-                    context,
-                    index,
-                    source,
-                    requirements.entries[index],
-                    policyUpload
-                );
-            };
-        stagePolicy(
-            kPolicyProgramHeader,
-            &config.policyProgram.header()
-        );
-        stagePolicy(
-            kPolicyProgramArena,
-            config.policyProgram.arena().data()
-        );
-        if (policyUpload != nil) {
-            [policyUpload endEncoding];
-        }
-        context.boundPolicyFingerprint =
+    if (nativePolicy) {
+        constexpr std::array<std::size_t, 2u> policyHeaders{
+            kPolicyProgramHeaderA,
+            kPolicyProgramHeaderB,
+        };
+        constexpr std::array<std::size_t, 2u> policyArenas{
+            kPolicyProgramArenaA,
+            kPolicyProgramArenaB,
+        };
+        const std::uint64_t fingerprint =
             config.policyProgram.fingerprint();
+        const auto existing = std::find(
+            context.boundPolicyFingerprints.begin(),
+            context.boundPolicyFingerprints.end(),
+            fingerprint
+        );
+        if (existing !=
+            context.boundPolicyFingerprints.end()) {
+            context.activePolicyBank =
+                static_cast<std::uint32_t>(
+                    existing -
+                    context.boundPolicyFingerprints.begin()
+                );
+            ++context.stats.policyBankReuseCount;
+        } else {
+            const bool anyBankBound = std::any_of(
+                context.boundPolicyFingerprints.begin(),
+                context.boundPolicyFingerprints.end(),
+                [](const std::uint64_t value) {
+                    return value != 0u;
+                }
+            );
+            const std::uint32_t targetBank =
+                anyBankBound
+                ? context.activePolicyBank ^ 1u
+                : 0u;
+            id<MTLBlitCommandEncoder> policyUpload = nil;
+            if (context.config.preferPrivateHeaps) {
+                policyUpload = [commandBuffer blitCommandEncoder];
+                if (policyUpload == nil) {
+                    throw std::runtime_error(
+                        "failed to create compiled-policy bank upload encoder"
+                    );
+                }
+                policyUpload.label =
+                    @"MetalWorld inactive private policy bank upload";
+            }
+            const auto stagePolicy =
+                [&](const std::size_t index, const void* source) {
+                    stagePrivateBuffer(
+                        context,
+                        index,
+                        source,
+                        requirements.entries[index],
+                        policyUpload
+                    );
+                };
+            stagePolicy(
+                policyHeaders[targetBank],
+                &config.policyProgram.header()
+            );
+            stagePolicy(
+                policyArenas[targetBank],
+                config.policyProgram.arena().data()
+            );
+            if (policyUpload != nil) {
+                [policyUpload endEncoding];
+            }
+            context.boundPolicyFingerprints[targetBank] =
+                fingerprint;
+            context.activePolicyBank = targetBank;
+            ++context.stats.policyBankUploadCount;
+        }
     }
 
     copyToBuffer(
@@ -8227,6 +8279,20 @@ bool encodePolicyInference(
     const mr_u32 terminalObservationStep = 0u
 ) {
     const auto& header = program.header();
+    if (context.activePolicyBank > 1u ||
+        context.boundPolicyFingerprints[
+            context.activePolicyBank
+        ] != program.fingerprint()) {
+        return false;
+    }
+    const std::size_t policyHeaderBuffer =
+        context.activePolicyBank == 0u
+        ? kPolicyProgramHeaderA
+        : kPolicyProgramHeaderB;
+    const std::size_t policyArenaBuffer =
+        context.activePolicyBank == 0u
+        ? kPolicyProgramArenaA
+        : kPolicyProgramArenaB;
     const auto encodeNetwork = [&](
         const std::span<const MRPolicyDenseLayerGPU> layers,
         const std::size_t observationBuffer,
@@ -8330,11 +8396,11 @@ bool encodePolicyInference(
             [encoder setComputePipelineState:
                 context.policyDensePipeline];
             [encoder setBuffer:
-                context.buffers[kPolicyProgramHeader]
+                context.buffers[policyHeaderBuffer]
                          offset:0u
                         atIndex:0u];
             [encoder setBuffer:
-                context.buffers[kPolicyProgramArena]
+                context.buffers[policyArenaBuffer]
                          offset:0u
                         atIndex:1u];
             [encoder setBytes:&dispatch
@@ -8450,8 +8516,8 @@ bool encodePolicyInference(
         context.policySamplePipeline,
         @"compiled policy sampling and scoring",
         {
-            {0u, kPolicyProgramHeader},
-            {1u, kPolicyProgramArena},
+            {0u, policyHeaderBuffer},
+            {1u, policyArenaBuffer},
             {3u, kTaskDispatch},
             {4u, kTaskState},
             {5u, kPolicyActorMean},
@@ -15484,6 +15550,10 @@ MetalWorldContextStats MetalWorldContext::stats()
                 source.pipelineCreationCount;
             aggregate.modelUploadCount +=
                 source.modelUploadCount;
+            aggregate.policyBankUploadCount +=
+                source.policyBankUploadCount;
+            aggregate.policyBankReuseCount +=
+                source.policyBankReuseCount;
             aggregate.bufferAllocationCount +=
                 source.bufferAllocationCount;
             aggregate.bufferGrowthCount +=

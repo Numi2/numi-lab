@@ -564,6 +564,8 @@ struct MetalWorldDiagnostics {
 struct MetalWorldContextStats {
     std::uint64_t pipelineCreationCount = 0u;
     std::uint64_t modelUploadCount = 0u;
+    std::uint64_t policyBankUploadCount = 0u;
+    std::uint64_t policyBankReuseCount = 0u;
     std::uint64_t bufferAllocationCount = 0u;
     std::uint64_t bufferGrowthCount = 0u;
     std::uint64_t submissionCount = 0u;

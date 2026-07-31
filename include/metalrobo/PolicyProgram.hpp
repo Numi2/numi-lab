@@ -90,6 +90,7 @@ public:
 
     [[nodiscard]] bool valid() const noexcept;
     [[nodiscard]] std::uint64_t fingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t topologyFingerprint() const noexcept;
     [[nodiscard]] std::uint64_t taskFingerprint() const noexcept;
     [[nodiscard]] std::uint64_t revision() const noexcept;
     [[nodiscard]] const PolicyProgramLayout& layout() const noexcept;

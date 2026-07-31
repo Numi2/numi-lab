@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 5,
+  "abi_version": 6,
   "abi_constants": {
     "MR_SENSOR_PROGRAM_ABI_VERSION": 3
   },
@@ -63,7 +63,7 @@
     }
   ],
   "world_buffers": {
-    "count": 228,
+    "count": 230,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -268,8 +268,8 @@
       ["kTaskDefaultQ", 208],
       ["kTaskProgramHeader", 209],
       ["kTaskProgramArena", 210],
-      ["kPolicyProgramHeader", 211],
-      ["kPolicyProgramArena", 212],
+      ["kPolicyProgramHeaderA", 211],
+      ["kPolicyProgramArenaA", 212],
       ["kPolicyScratchA", 213],
       ["kPolicyScratchB", 214],
       ["kPolicyActorMean", 215],
@@ -284,7 +284,9 @@
       ["kSensorRuntimeStates", 224],
       ["kSensorHistory", 225],
       ["kSensorOutputs", 226],
-      ["kSensorMetadata", 227]
+      ["kSensorMetadata", 227],
+      ["kPolicyProgramHeaderB", 228],
+      ["kPolicyProgramArenaB", 229]
     ],
     "classifications": {
       "immutable": [
@@ -325,8 +327,10 @@
         "kTaskDefaultQ",
         "kTaskProgramHeader",
         "kTaskProgramArena",
-        "kPolicyProgramHeader",
-        "kPolicyProgramArena",
+        "kPolicyProgramHeaderA",
+        "kPolicyProgramArenaA",
+        "kPolicyProgramHeaderB",
+        "kPolicyProgramArenaB",
         "kSensorProgramHeader",
         "kSensorDescriptors"
       ],

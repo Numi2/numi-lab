@@ -2,8 +2,8 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 5
-    static let worldBufferCount = 228
+    static let version: UInt32 = 6
+    static let worldBufferCount = 230
     static let mrSensorProgramAbiVersion: UInt32 = 3
     static let mrSensorProgramHeaderGPUSize = 80
     static let mrSensorDescriptorGPUSize = 192
@@ -222,8 +222,8 @@ enum MetalRoboRuntimeABI {
         "task default q",
         "task program header",
         "task program arena",
-        "policy program header",
-        "policy program arena",
+        "policy program header a",
+        "policy program arena a",
         "policy scratch a",
         "policy scratch b",
         "policy actor mean",
@@ -239,5 +239,7 @@ enum MetalRoboRuntimeABI {
         "sensor history",
         "sensor outputs",
         "sensor metadata",
+        "policy program header b",
+        "policy program arena b",
     ]
 }

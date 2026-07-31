@@ -88,6 +88,9 @@ struct MRSimulationHandle {
     std::uint64_t submittedControlSteps = 0u;
     std::uint64_t completedEnvironmentSteps = 0u;
     std::uint64_t submissionCount = 0u;
+    std::uint64_t policyTopologyFingerprint = 0u;
+    std::uint64_t lastInstalledPolicyFingerprint = 0u;
+    std::uint64_t lastInstalledPolicyRevision = 0u;
     double totalGPUMilliseconds = 0.0;
     double totalSubmissionMilliseconds = 0.0;
 };
@@ -777,7 +780,34 @@ void installPolicyPack(
             status.message
         );
     }
+    if (handle.policyTopologyFingerprint != 0u &&
+        compiled.topologyFingerprint() !=
+            handle.policyTopologyFingerprint) {
+        throw std::invalid_argument(
+            "PolicyPack topology differs from the immutable compiled simulation contract"
+        );
+    }
+    if (handle.lastInstalledPolicyRevision != 0u &&
+        compiled.revision() <=
+            handle.lastInstalledPolicyRevision &&
+        compiled.fingerprint() !=
+            handle.lastInstalledPolicyFingerprint) {
+        throw std::invalid_argument(
+            "PolicyPack revision must increase for every changed native policy"
+        );
+    }
+    if (compiled.fingerprint() ==
+            handle.lastInstalledPolicyFingerprint &&
+        handle.stepConfig.policyProgram.valid()) {
+        return;
+    }
     handle.stepConfig.policyProgram = std::move(compiled);
+    handle.policyTopologyFingerprint =
+        handle.stepConfig.policyProgram.topologyFingerprint();
+    handle.lastInstalledPolicyFingerprint =
+        handle.stepConfig.policyProgram.fingerprint();
+    handle.lastInstalledPolicyRevision =
+        handle.stepConfig.policyProgram.revision();
 }
 
 std::runtime_error worldFamilyError(
@@ -1512,6 +1542,32 @@ uint64_t mr_simulation_task_fingerprint(
 ) {
     return requireSimulationHandle(handle)
         ? handle->taskProgram.fingerprint()
+        : 0u;
+}
+
+uint64_t mr_simulation_policy_fingerprint(
+    const MRSimulationHandle* handle
+) {
+    return requireSimulationHandle(handle) &&
+        handle->stepConfig.policyProgram.valid()
+        ? handle->stepConfig.policyProgram.fingerprint()
+        : 0u;
+}
+
+uint64_t mr_simulation_policy_topology_fingerprint(
+    const MRSimulationHandle* handle
+) {
+    return requireSimulationHandle(handle)
+        ? handle->policyTopologyFingerprint
+        : 0u;
+}
+
+uint64_t mr_simulation_policy_revision(
+    const MRSimulationHandle* handle
+) {
+    return requireSimulationHandle(handle) &&
+        handle->stepConfig.policyProgram.valid()
+        ? handle->stepConfig.policyProgram.revision()
         : 0u;
 }
 

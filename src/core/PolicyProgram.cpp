@@ -19,6 +19,7 @@ namespace metalrobo {
 
 struct CompiledPolicyProgram::Storage {
     std::uint64_t fingerprint = 0u;
+    std::uint64_t topologyFingerprint = 0u;
     std::uint64_t taskFingerprint = 0u;
     std::uint64_t revision = 0u;
     PolicyProgramLayout layout{};
@@ -140,6 +141,9 @@ bool CompiledPolicyProgram::valid() const noexcept {
         storage_->revision != 0u &&
         storage_->header.policyFingerprint ==
             storage_->fingerprint &&
+        storage_->header.topologyFingerprint ==
+            storage_->topologyFingerprint &&
+        storage_->topologyFingerprint != 0u &&
         storage_->header.taskFingerprint ==
             storage_->taskFingerprint &&
         storage_->header.revision == storage_->revision &&
@@ -152,6 +156,11 @@ bool CompiledPolicyProgram::valid() const noexcept {
 
 std::uint64_t CompiledPolicyProgram::fingerprint() const noexcept {
     return valid() ? storage_->fingerprint : 0u;
+}
+
+std::uint64_t
+CompiledPolicyProgram::topologyFingerprint() const noexcept {
+    return valid() ? storage_->topologyFingerprint : 0u;
 }
 
 std::uint64_t CompiledPolicyProgram::taskFingerprint() const noexcept {
@@ -742,6 +751,34 @@ PolicyCompileDiagnostics compilePolicyProgram(
         0u,
         0u,
     };
+
+    // The topology fingerprint deliberately excludes learned values,
+    // normalization values, clipping limits, and revision. Equal topology
+    // fingerprints therefore prove that every byte offset and dispatch shape
+    // can reuse an already allocated native policy bank.
+    Hash topologyHash;
+    topologyHash.string(pack.id);
+    topologyHash.scalar(staged->taskFingerprint);
+    topologyHash.scalar(staged->header.counts0);
+    topologyHash.scalar(staged->header.counts1);
+    topologyHash.scalar(staged->header.offsets0);
+    topologyHash.scalar(staged->header.offsets1);
+    topologyHash.scalar(staged->header.offsets2);
+    topologyHash.scalar(staged->header.abi);
+    topologyHash.scalar<std::uint64_t>(staged->arena.size());
+    topologyHash.bytes(
+        staged->actorLayers.data(),
+        staged->actorLayers.size() *
+            sizeof(MRPolicyDenseLayerGPU)
+    );
+    topologyHash.bytes(
+        staged->criticLayers.data(),
+        staged->criticLayers.size() *
+            sizeof(MRPolicyDenseLayerGPU)
+    );
+    staged->topologyFingerprint = topologyHash.finish();
+    staged->header.topologyFingerprint =
+        staged->topologyFingerprint;
 
     Hash hash;
     hash.string(pack.id);
