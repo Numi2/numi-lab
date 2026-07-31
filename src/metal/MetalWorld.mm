@@ -23,6 +23,7 @@
 #include <new>
 #include <set>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <system_error>
 #include <utility>
@@ -70,6 +71,48 @@ struct RequiredBuffers {
 } // namespace
 
 namespace detail {
+
+enum class MetalRolloutSlotState : std::uint32_t {
+    available = 0u,
+    collecting = 1u,
+    sealed = 2u,
+};
+
+struct MetalRolloutSlotData {
+    __strong id<MTLBuffer> actorObservations = nil;
+    __strong id<MTLBuffer> criticObservations = nil;
+    __strong id<MTLBuffer> latents = nil;
+    __strong id<MTLBuffer> logProbabilities = nil;
+    __strong id<MTLBuffer> values = nil;
+    __strong id<MTLBuffer> bootstrapValues = nil;
+    __strong id<MTLBuffer> transitions = nil;
+    MetalRolloutSlotState state =
+        MetalRolloutSlotState::available;
+    std::uint64_t generation = 0u;
+    std::uint64_t policyRevision = 0u;
+    std::uint32_t writtenControlSteps = 0u;
+    bool bootstrapWritten = false;
+    bool appendPending = false;
+    bool failed = false;
+    bool releaseRequested = false;
+};
+
+struct MetalRolloutRingData {
+    mutable std::mutex mutex;
+    MetalRolloutRingLayout layout{};
+    std::vector<MetalRolloutSlotData> slots;
+    std::uint32_t nextSlot = 0u;
+};
+
+struct MetalRolloutAppendData {
+    std::shared_ptr<MetalRolloutRingData> ring;
+    std::uint32_t slotIndex = MR_INVALID_INDEX;
+    std::uint64_t generation = 0u;
+    std::uint64_t policyRevision = 0u;
+    std::uint32_t destinationControlStep = 0u;
+    std::uint32_t controlStepCount = 0u;
+    bool includeBootstrapValues = false;
+};
 
 struct MetalWorldContextState {
     explicit MetalWorldContextState(MetalWorldConfig configured)
@@ -289,6 +332,51 @@ struct MetalWorldResidentReservation {
 };
 
 struct MetalWorldSubmissionState {
+    void finishRollout(const bool accepted) noexcept {
+        if (rolloutFinished || rollout == nullptr ||
+            rollout->ring == nullptr) {
+            rolloutFinished = true;
+            return;
+        }
+        try {
+            const std::lock_guard lock(rollout->ring->mutex);
+            if (rollout->slotIndex <
+                rollout->ring->slots.size()) {
+                MetalRolloutSlotData& slot =
+                    rollout->ring->slots[rollout->slotIndex];
+                if (slot.generation == rollout->generation &&
+                    slot.state ==
+                        MetalRolloutSlotState::collecting &&
+                    slot.appendPending) {
+                    slot.appendPending = false;
+                    if (accepted && !slot.failed &&
+                        slot.writtenControlSteps ==
+                            rollout->destinationControlStep) {
+                        slot.writtenControlSteps +=
+                            rollout->controlStepCount;
+                        if (rollout->includeBootstrapValues) {
+                            slot.bootstrapWritten = true;
+                        }
+                    } else {
+                        slot.failed = true;
+                    }
+                    if (slot.releaseRequested) {
+                        slot.state =
+                            MetalRolloutSlotState::available;
+                        slot.policyRevision = 0u;
+                        slot.writtenControlSteps = 0u;
+                        slot.bootstrapWritten = false;
+                        slot.failed = false;
+                        slot.releaseRequested = false;
+                    }
+                }
+            }
+        } catch (...) {
+        }
+        rolloutFinished = true;
+        rollout.reset();
+    }
+
     void finishResident(const bool commandCompleted) noexcept {
         if (resident == nullptr) {
             return;
@@ -332,6 +420,7 @@ struct MetalWorldSubmissionState {
             commandBuffer.status ==
                 MTLCommandBufferStatusCompleted
         );
+        finishRollout(false);
         try {
             const std::lock_guard lock(context->mutex);
             context->inFlight = false;
@@ -359,6 +448,7 @@ struct MetalWorldSubmissionState {
     std::size_t finalRodEdgeBuffer = kRodEdgesA;
     std::size_t finalRodWitnessBuffer = kRodWitnessesA;
     std::shared_ptr<MetalWorldResidentStateData> resident;
+    std::shared_ptr<MetalRolloutAppendData> rollout;
     std::uint64_t policyRevision = 0u;
     bool hasRods = false;
     bool contactMode = false;
@@ -366,6 +456,7 @@ struct MetalWorldSubmissionState {
     bool publishFinalState = true;
     bool publishStateTrajectory = true;
     bool publishSensorOutputs = false;
+    bool rolloutFinished = false;
     bool ownsInFlight = false;
 };
 
@@ -5549,6 +5640,269 @@ MetalWorldDiagnostics encodeReadbacks(
     }
     [encoder endEncoding];
     return diagnostics;
+}
+
+MetalWorldDiagnostics validateRolloutAppend(
+    const MetalWorldBatch& batch,
+    const MetalWorldStepConfig& config,
+    const MetalWorldLayout& layout,
+    const std::shared_ptr<detail::MetalRolloutAppendData>& append,
+    MetalWorldDiagnostics diagnostics
+) {
+    if (append == nullptr) {
+        return diagnostics;
+    }
+    if (append->ring == nullptr ||
+        !config.taskProgram.valid() ||
+        !config.policyProgram.valid() ||
+        config.policyProgram.criticLayers().empty() ||
+        append->controlStepCount != batch.controlStepCount ||
+        append->policyRevision !=
+            config.policyProgram.revision() ||
+        append->includeBootstrapValues !=
+            config.evaluateFinalPolicy) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "native rollout target does not match the compiled policy submission"
+        );
+    }
+    const MetalRolloutRingLayout& ring = append->ring->layout;
+    const TaskProgramLayout& task = config.taskProgram.layout();
+    const std::uint64_t destinationEnd =
+        static_cast<std::uint64_t>(
+            append->destinationControlStep
+        ) + append->controlStepCount;
+    std::size_t sampleCount = 0u;
+    std::size_t actorElements = 0u;
+    std::size_t criticElements = 0u;
+    std::size_t latentElements = 0u;
+    if (ring.environmentCount != batch.environmentCount ||
+        ring.actorObservationCount !=
+            task.actorObservationSize ||
+        ring.criticObservationCount !=
+            task.criticObservationSize ||
+        ring.actionCount != task.actionCount ||
+        destinationEnd > ring.controlStepCapacity ||
+        !checkedMultiply(
+            batch.controlStepCount,
+            batch.environmentCount,
+            sampleCount
+        ) ||
+        !checkedMultiply(
+            sampleCount,
+            task.actorObservationSize,
+            actorElements
+        ) ||
+        !checkedMultiply(
+            sampleCount,
+            task.criticObservationSize,
+            criticElements
+        ) ||
+        !checkedMultiply(
+            sampleCount,
+            task.actionCount,
+            latentElements
+        ) ||
+        layout.transitionElements != sampleCount ||
+        layout.actorObservationElements < actorElements ||
+        layout.criticObservationElements < criticElements ||
+        layout.policyLatentElements < latentElements ||
+        layout.policyLogProbabilityElements < sampleCount ||
+        layout.policyValueElements <
+            sampleCount +
+                (append->includeBootstrapValues
+                     ? batch.environmentCount
+                     : 0u)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "native rollout target dimensions or source stream lengths are invalid"
+        );
+    }
+    const std::lock_guard lock(append->ring->mutex);
+    if (append->slotIndex >= append->ring->slots.size()) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "native rollout target references an invalid slot"
+        );
+    }
+    const detail::MetalRolloutSlotData& slot =
+        append->ring->slots[append->slotIndex];
+    if (slot.generation != append->generation ||
+        slot.state !=
+            detail::MetalRolloutSlotState::collecting ||
+        !slot.appendPending || slot.failed ||
+        slot.policyRevision != append->policyRevision ||
+        slot.writtenControlSteps !=
+            append->destinationControlStep) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "native rollout target lease is stale or not appendable"
+        );
+    }
+    return diagnostics;
+}
+
+bool encodeRolloutAppend(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MetalWorldLayout& layout,
+    const std::shared_ptr<detail::MetalRolloutAppendData>& append
+) {
+    if (append == nullptr || append->ring == nullptr) {
+        return true;
+    }
+    const MetalRolloutRingLayout& ring = append->ring->layout;
+    std::size_t sampleCount = 0u;
+    std::size_t destinationSample = 0u;
+    if (!checkedMultiply(
+            append->controlStepCount,
+            ring.environmentCount,
+            sampleCount
+        ) ||
+        !checkedMultiply(
+            append->destinationControlStep,
+            ring.environmentCount,
+            destinationSample
+        )) {
+        return false;
+    }
+    const std::lock_guard lock(append->ring->mutex);
+    if (append->slotIndex >= append->ring->slots.size()) {
+        return false;
+    }
+    const detail::MetalRolloutSlotData& slot =
+        append->ring->slots[append->slotIndex];
+    if (slot.generation != append->generation ||
+        !slot.appendPending) {
+        return false;
+    }
+    id<MTLBlitCommandEncoder> encoder =
+        [commandBuffer blitCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = @"MetalWorld direct leased rollout publication";
+    const auto copy = [&encoder](
+        id<MTLBuffer> source,
+        const std::size_t sourceOffset,
+        id<MTLBuffer> destination,
+        const std::size_t destinationOffset,
+        const std::size_t bytes
+    ) {
+        if (source == nil || destination == nil || bytes == 0u ||
+            source.device != destination.device ||
+            sourceOffset > source.length ||
+            bytes > source.length - sourceOffset ||
+            destinationOffset > destination.length ||
+            bytes > destination.length - destinationOffset) {
+            return false;
+        }
+        [encoder
+            copyFromBuffer:source
+              sourceOffset:static_cast<NSUInteger>(sourceOffset)
+                  toBuffer:destination
+         destinationOffset:static_cast<NSUInteger>(destinationOffset)
+                      size:static_cast<NSUInteger>(bytes)];
+        return true;
+    };
+    const auto streamCopy = [
+        &copy,
+        sampleCount,
+        destinationSample
+    ](
+        id<MTLBuffer> source,
+        id<MTLBuffer> destination,
+        const std::size_t width,
+        const std::size_t elementBytes
+    ) {
+        std::size_t sourceElements = 0u;
+        std::size_t destinationElements = 0u;
+        std::size_t bytes = 0u;
+        std::size_t destinationOffset = 0u;
+        return checkedMultiply(sampleCount, width, sourceElements) &&
+            checkedMultiply(
+                destinationSample,
+                width,
+                destinationElements
+            ) &&
+            checkedMultiply(sourceElements, elementBytes, bytes) &&
+            checkedMultiply(
+                destinationElements,
+                elementBytes,
+                destinationOffset
+            ) &&
+            copy(
+                source,
+                0u,
+                destination,
+                destinationOffset,
+                bytes
+            );
+    };
+    bool encoded =
+        streamCopy(
+            context.buffers[kTaskActorObservations],
+            slot.actorObservations,
+            ring.actorObservationCount,
+            sizeof(float)
+        ) &&
+        streamCopy(
+            context.buffers[kTaskCriticObservations],
+            slot.criticObservations,
+            ring.criticObservationCount,
+            sizeof(float)
+        ) &&
+        streamCopy(
+            context.buffers[kPolicyLatents],
+            slot.latents,
+            ring.actionCount,
+            sizeof(float)
+        ) &&
+        streamCopy(
+            context.buffers[kPolicyLogProbabilities],
+            slot.logProbabilities,
+            1u,
+            sizeof(float)
+        ) &&
+        streamCopy(
+            context.buffers[kPolicyValues],
+            slot.values,
+            1u,
+            sizeof(float)
+        ) &&
+        streamCopy(
+            context.buffers[kTaskTransitions],
+            slot.transitions,
+            1u,
+            sizeof(MRTaskTransitionGPU)
+        );
+    if (encoded && append->includeBootstrapValues) {
+        std::size_t sourceOffset = 0u;
+        std::size_t bytes = 0u;
+        encoded = checkedMultiply(
+                      layout.transitionElements,
+                      sizeof(float),
+                      sourceOffset
+                  ) &&
+            checkedMultiply(
+                ring.environmentCount,
+                sizeof(float),
+                bytes
+            ) &&
+            copy(
+                context.buffers[kPolicyValues],
+                sourceOffset,
+                slot.bootstrapValues,
+                0u,
+                bytes
+            );
+    }
+    [encoder endEncoding];
+    return encoded;
 }
 
 void copyToBuffer(
@@ -12188,6 +12542,558 @@ bool appendCanonicalJointLimitCandidates(
 
 } // namespace
 
+bool MetalRolloutAppendTarget::valid() const noexcept {
+    return state_ != nullptr && state_->ring != nullptr &&
+        state_->slotIndex != MR_INVALID_INDEX &&
+        state_->controlStepCount != 0u &&
+        state_->policyRevision != 0u;
+}
+
+MetalRolloutBufferView::MetalRolloutBufferView() noexcept = default;
+
+MetalRolloutBufferView::~MetalRolloutBufferView() {
+    release();
+}
+
+MetalRolloutBufferView::MetalRolloutBufferView(
+    MetalRolloutBufferView&& other
+) noexcept
+    : ring_(std::move(other.ring_)),
+      slotIndex_(std::exchange(
+          other.slotIndex_,
+          MR_INVALID_INDEX
+      )),
+      generation_(std::exchange(other.generation_, 0u)) {}
+
+MetalRolloutBufferView& MetalRolloutBufferView::operator=(
+    MetalRolloutBufferView&& other
+) noexcept {
+    if (this == &other) {
+        return *this;
+    }
+    release();
+    ring_ = std::move(other.ring_);
+    slotIndex_ = std::exchange(
+        other.slotIndex_,
+        MR_INVALID_INDEX
+    );
+    generation_ = std::exchange(other.generation_, 0u);
+    return *this;
+}
+
+void MetalRolloutBufferView::release() noexcept {
+    if (ring_ == nullptr || slotIndex_ == MR_INVALID_INDEX) {
+        ring_.reset();
+        slotIndex_ = MR_INVALID_INDEX;
+        generation_ = 0u;
+        return;
+    }
+    try {
+        const std::lock_guard lock(ring_->mutex);
+        if (slotIndex_ < ring_->slots.size()) {
+            detail::MetalRolloutSlotData& slot =
+                ring_->slots[slotIndex_];
+            if (slot.generation == generation_ &&
+                slot.state !=
+                    detail::MetalRolloutSlotState::available) {
+                if (slot.appendPending) {
+                    slot.releaseRequested = true;
+                } else {
+                    slot.state =
+                        detail::MetalRolloutSlotState::available;
+                    slot.policyRevision = 0u;
+                    slot.writtenControlSteps = 0u;
+                    slot.bootstrapWritten = false;
+                    slot.failed = false;
+                    slot.releaseRequested = false;
+                }
+            }
+        }
+    } catch (...) {
+    }
+    ring_.reset();
+    slotIndex_ = MR_INVALID_INDEX;
+    generation_ = 0u;
+}
+
+bool MetalRolloutBufferView::valid() const noexcept {
+    if (ring_ == nullptr || slotIndex_ == MR_INVALID_INDEX) {
+        return false;
+    }
+    try {
+        const std::lock_guard lock(ring_->mutex);
+        return slotIndex_ < ring_->slots.size() &&
+            ring_->slots[slotIndex_].generation == generation_ &&
+            ring_->slots[slotIndex_].state !=
+                detail::MetalRolloutSlotState::available;
+    } catch (...) {
+        return false;
+    }
+}
+
+const MetalRolloutRingLayout&
+MetalRolloutBufferView::layout() const noexcept {
+    static const MetalRolloutRingLayout empty{};
+    return ring_ != nullptr ? ring_->layout : empty;
+}
+
+std::uint64_t
+MetalRolloutBufferView::policyRevision() const noexcept {
+    if (ring_ == nullptr || slotIndex_ == MR_INVALID_INDEX) {
+        return 0u;
+    }
+    try {
+        const std::lock_guard lock(ring_->mutex);
+        return slotIndex_ < ring_->slots.size() &&
+                ring_->slots[slotIndex_].generation == generation_
+            ? ring_->slots[slotIndex_].policyRevision
+            : 0u;
+    } catch (...) {
+        return 0u;
+    }
+}
+
+std::uint32_t
+MetalRolloutBufferView::writtenControlSteps() const noexcept {
+    if (ring_ == nullptr || slotIndex_ == MR_INVALID_INDEX) {
+        return 0u;
+    }
+    try {
+        const std::lock_guard lock(ring_->mutex);
+        return slotIndex_ < ring_->slots.size() &&
+                ring_->slots[slotIndex_].generation == generation_
+            ? ring_->slots[slotIndex_].writtenControlSteps
+            : 0u;
+    } catch (...) {
+        return 0u;
+    }
+}
+
+MetalRolloutAppendTarget MetalRolloutBufferView::beginAppend(
+    const std::uint32_t controlStepCount,
+    const bool includeBootstrapValues
+) {
+    if (ring_ == nullptr || slotIndex_ == MR_INVALID_INDEX ||
+        controlStepCount == 0u) {
+        throw std::invalid_argument(
+            "rollout append requires a live lease and positive step count"
+        );
+    }
+    const std::lock_guard lock(ring_->mutex);
+    if (slotIndex_ >= ring_->slots.size()) {
+        throw std::logic_error(
+            "rollout lease references an invalid native slot"
+        );
+    }
+    detail::MetalRolloutSlotData& slot =
+        ring_->slots[slotIndex_];
+    const std::uint64_t destinationEnd =
+        static_cast<std::uint64_t>(
+            slot.writtenControlSteps
+        ) + controlStepCount;
+    if (slot.generation != generation_ ||
+        slot.state !=
+            detail::MetalRolloutSlotState::collecting ||
+        slot.appendPending || slot.failed ||
+        destinationEnd >
+            ring_->layout.controlStepCapacity ||
+        (includeBootstrapValues &&
+         (destinationEnd !=
+              ring_->layout.controlStepCapacity ||
+          slot.bootstrapWritten))) {
+        throw std::logic_error(
+            "rollout append violates its native lease or capacity"
+        );
+    }
+    slot.appendPending = true;
+    auto append =
+        std::make_shared<detail::MetalRolloutAppendData>();
+    append->ring = ring_;
+    append->slotIndex = slotIndex_;
+    append->generation = generation_;
+    append->policyRevision = slot.policyRevision;
+    append->destinationControlStep =
+        slot.writtenControlSteps;
+    append->controlStepCount = controlStepCount;
+    append->includeBootstrapValues =
+        includeBootstrapValues;
+    MetalRolloutAppendTarget result;
+    result.state_ = std::move(append);
+    return result;
+}
+
+void MetalRolloutBufferView::cancelPendingAppend() noexcept {
+    if (ring_ == nullptr || slotIndex_ == MR_INVALID_INDEX) {
+        return;
+    }
+    try {
+        const std::lock_guard lock(ring_->mutex);
+        if (slotIndex_ < ring_->slots.size()) {
+            detail::MetalRolloutSlotData& slot =
+                ring_->slots[slotIndex_];
+            if (slot.generation == generation_ &&
+                slot.state ==
+                    detail::MetalRolloutSlotState::collecting &&
+                slot.appendPending) {
+                slot.appendPending = false;
+                slot.failed = true;
+            }
+        }
+    } catch (...) {
+    }
+}
+
+void MetalRolloutBufferView::seal() {
+    if (ring_ == nullptr || slotIndex_ == MR_INVALID_INDEX) {
+        throw std::logic_error("cannot seal an empty rollout lease");
+    }
+    const std::lock_guard lock(ring_->mutex);
+    if (slotIndex_ >= ring_->slots.size()) {
+        throw std::logic_error(
+            "rollout lease references an invalid native slot"
+        );
+    }
+    detail::MetalRolloutSlotData& slot =
+        ring_->slots[slotIndex_];
+    if (slot.generation != generation_ ||
+        slot.state !=
+            detail::MetalRolloutSlotState::collecting ||
+        slot.appendPending || slot.failed ||
+        slot.writtenControlSteps !=
+            ring_->layout.controlStepCapacity ||
+        !slot.bootstrapWritten) {
+        throw std::logic_error(
+            "native rollout cannot seal before every step and bootstrap value is committed"
+        );
+    }
+    slot.state = detail::MetalRolloutSlotState::sealed;
+}
+
+bool MetalRolloutBufferView::sealed() const noexcept {
+    if (ring_ == nullptr || slotIndex_ == MR_INVALID_INDEX) {
+        return false;
+    }
+    try {
+        const std::lock_guard lock(ring_->mutex);
+        return slotIndex_ < ring_->slots.size() &&
+            ring_->slots[slotIndex_].generation == generation_ &&
+            ring_->slots[slotIndex_].state ==
+                detail::MetalRolloutSlotState::sealed;
+    } catch (...) {
+        return false;
+    }
+}
+
+void* MetalRolloutBufferView::streamData(
+    const std::uint32_t stream
+) const noexcept {
+    if (ring_ == nullptr || slotIndex_ == MR_INVALID_INDEX) {
+        return nullptr;
+    }
+    try {
+        const std::lock_guard lock(ring_->mutex);
+        if (slotIndex_ >= ring_->slots.size()) {
+            return nullptr;
+        }
+        const detail::MetalRolloutSlotData& slot =
+            ring_->slots[slotIndex_];
+        if (slot.generation != generation_ ||
+            slot.state !=
+                detail::MetalRolloutSlotState::sealed) {
+            return nullptr;
+        }
+        id<MTLBuffer> buffer = nil;
+        switch (stream) {
+        case 0u:
+            buffer = slot.actorObservations;
+            break;
+        case 1u:
+            buffer = slot.criticObservations;
+            break;
+        case 2u:
+            buffer = slot.latents;
+            break;
+        case 3u:
+            buffer = slot.logProbabilities;
+            break;
+        case 4u:
+            buffer = slot.values;
+            break;
+        case 5u:
+            buffer = slot.bootstrapValues;
+            break;
+        case 6u:
+            buffer = slot.transitions;
+            break;
+        default:
+            return nullptr;
+        }
+        return buffer.contents;
+    } catch (...) {
+        return nullptr;
+    }
+}
+
+float* MetalRolloutBufferView::actorObservations() const noexcept {
+    return static_cast<float*>(streamData(0u));
+}
+
+float* MetalRolloutBufferView::criticObservations() const noexcept {
+    return static_cast<float*>(streamData(1u));
+}
+
+float* MetalRolloutBufferView::latents() const noexcept {
+    return static_cast<float*>(streamData(2u));
+}
+
+float* MetalRolloutBufferView::logProbabilities() const noexcept {
+    return static_cast<float*>(streamData(3u));
+}
+
+float* MetalRolloutBufferView::values() const noexcept {
+    return static_cast<float*>(streamData(4u));
+}
+
+float* MetalRolloutBufferView::bootstrapValues() const noexcept {
+    return static_cast<float*>(streamData(5u));
+}
+
+MRTaskTransitionGPU*
+MetalRolloutBufferView::transitions() const noexcept {
+    return static_cast<MRTaskTransitionGPU*>(streamData(6u));
+}
+
+MetalRolloutRing::MetalRolloutRing(
+    const MetalRolloutRingConfig config
+) {
+    if (config.environmentCount == 0u ||
+        config.controlStepCapacity == 0u ||
+        config.actorObservationCount == 0u ||
+        config.criticObservationCount == 0u ||
+        config.actionCount == 0u ||
+        config.slotCount == 0u || config.slotCount > 8u) {
+        throw std::invalid_argument(
+            "native rollout ring dimensions or slot count are invalid"
+        );
+    }
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    if (device == nil) {
+        throw std::runtime_error(
+            "native rollout ring could not acquire the default Metal device"
+        );
+    }
+
+    std::size_t sampleCount = 0u;
+    std::size_t actorBytes = 0u;
+    std::size_t criticBytes = 0u;
+    std::size_t latentBytes = 0u;
+    std::size_t scalarBytes = 0u;
+    std::size_t bootstrapBytes = 0u;
+    std::size_t transitionBytes = 0u;
+    std::size_t bytesPerSlot = 0u;
+    std::size_t retainedBytes = 0u;
+    if (!checkedMultiply(
+            config.environmentCount,
+            config.controlStepCapacity,
+            sampleCount
+        ) ||
+        !checkedMultiply(
+            sampleCount,
+            config.actorObservationCount * sizeof(float),
+            actorBytes
+        ) ||
+        !checkedMultiply(
+            sampleCount,
+            config.criticObservationCount * sizeof(float),
+            criticBytes
+        ) ||
+        !checkedMultiply(
+            sampleCount,
+            config.actionCount * sizeof(float),
+            latentBytes
+        ) ||
+        !checkedMultiply(sampleCount, sizeof(float), scalarBytes) ||
+        !checkedMultiply(
+            config.environmentCount,
+            sizeof(float),
+            bootstrapBytes
+        ) ||
+        !checkedMultiply(
+            sampleCount,
+            sizeof(MRTaskTransitionGPU),
+            transitionBytes
+        ) ||
+        !checkedAdd(actorBytes, criticBytes, bytesPerSlot) ||
+        !checkedAdd(bytesPerSlot, latentBytes, bytesPerSlot) ||
+        !checkedAdd(bytesPerSlot, scalarBytes, bytesPerSlot) ||
+        !checkedAdd(bytesPerSlot, scalarBytes, bytesPerSlot) ||
+        !checkedAdd(bytesPerSlot, bootstrapBytes, bytesPerSlot) ||
+        !checkedAdd(bytesPerSlot, transitionBytes, bytesPerSlot) ||
+        !checkedMultiply(
+            bytesPerSlot,
+            config.slotCount,
+            retainedBytes
+        )) {
+        throw std::overflow_error(
+            "native rollout ring byte count overflows size_t"
+        );
+    }
+    const std::size_t maximumBufferLength =
+        static_cast<std::size_t>(device.maxBufferLength);
+    if (std::max({
+            actorBytes,
+            criticBytes,
+            latentBytes,
+            scalarBytes,
+            bootstrapBytes,
+            transitionBytes,
+        }) > maximumBufferLength) {
+        throw std::length_error(
+            "native rollout stream exceeds device.maxBufferLength"
+        );
+    }
+
+    auto staged =
+        std::make_shared<detail::MetalRolloutRingData>();
+    staged->layout.environmentCount = config.environmentCount;
+    staged->layout.controlStepCapacity =
+        config.controlStepCapacity;
+    staged->layout.actorObservationCount =
+        config.actorObservationCount;
+    staged->layout.criticObservationCount =
+        config.criticObservationCount;
+    staged->layout.actionCount = config.actionCount;
+    staged->layout.slotCount = config.slotCount;
+    staged->layout.retainedBytes = retainedBytes;
+    staged->slots.resize(config.slotCount);
+    const auto allocate = [device](
+        const std::size_t bytes,
+        NSString* label
+    ) -> id<MTLBuffer> {
+        id<MTLBuffer> buffer = [device
+            newBufferWithLength:static_cast<NSUInteger>(bytes)
+                       options:MTLResourceStorageModeShared |
+                           MTLResourceHazardTrackingModeTracked];
+        if (buffer == nil || buffer.contents == nullptr ||
+            buffer.length < bytes) {
+            throw std::runtime_error(
+                "native shared rollout buffer allocation failed"
+            );
+        }
+        buffer.label = label;
+        return buffer;
+    };
+    for (std::uint32_t index = 0u;
+         index < config.slotCount;
+         ++index) {
+        detail::MetalRolloutSlotData& slot =
+            staged->slots[index];
+        slot.actorObservations = allocate(
+            actorBytes,
+            [NSString stringWithFormat:
+                @"MetalRobo native rollout %u actor observations",
+                index]
+        );
+        slot.criticObservations = allocate(
+            criticBytes,
+            [NSString stringWithFormat:
+                @"MetalRobo native rollout %u critic observations",
+                index]
+        );
+        slot.latents = allocate(
+            latentBytes,
+            [NSString stringWithFormat:
+                @"MetalRobo native rollout %u policy latents",
+                index]
+        );
+        slot.logProbabilities = allocate(
+            scalarBytes,
+            [NSString stringWithFormat:
+                @"MetalRobo native rollout %u log probabilities",
+                index]
+        );
+        slot.values = allocate(
+            scalarBytes,
+            [NSString stringWithFormat:
+                @"MetalRobo native rollout %u values",
+                index]
+        );
+        slot.bootstrapValues = allocate(
+            bootstrapBytes,
+            [NSString stringWithFormat:
+                @"MetalRobo native rollout %u bootstrap values",
+                index]
+        );
+        slot.transitions = allocate(
+            transitionBytes,
+            [NSString stringWithFormat:
+                @"MetalRobo native rollout %u transitions",
+                index]
+        );
+    }
+    state_ = std::move(staged);
+}
+
+MetalRolloutRing::~MetalRolloutRing() = default;
+MetalRolloutRing::MetalRolloutRing(MetalRolloutRing&&) noexcept =
+    default;
+MetalRolloutRing& MetalRolloutRing::operator=(
+    MetalRolloutRing&&
+) noexcept = default;
+
+const MetalRolloutRingLayout&
+MetalRolloutRing::layout() const noexcept {
+    static const MetalRolloutRingLayout empty{};
+    return state_ != nullptr ? state_->layout : empty;
+}
+
+MetalRolloutBufferView MetalRolloutRing::acquire(
+    const std::uint64_t policyRevision
+) {
+    if (state_ == nullptr || policyRevision == 0u) {
+        throw std::invalid_argument(
+            "native rollout acquisition requires a ring and policy revision"
+        );
+    }
+    const std::lock_guard lock(state_->mutex);
+    for (std::uint32_t offset = 0u;
+         offset < state_->slots.size();
+         ++offset) {
+        const std::uint32_t index =
+            (state_->nextSlot + offset) %
+            static_cast<std::uint32_t>(state_->slots.size());
+        detail::MetalRolloutSlotData& slot =
+            state_->slots[index];
+        if (slot.state !=
+            detail::MetalRolloutSlotState::available) {
+            continue;
+        }
+        slot.state =
+            detail::MetalRolloutSlotState::collecting;
+        ++slot.generation;
+        if (slot.generation == 0u) {
+            slot.generation = 1u;
+        }
+        slot.policyRevision = policyRevision;
+        slot.writtenControlSteps = 0u;
+        slot.bootstrapWritten = false;
+        slot.appendPending = false;
+        slot.failed = false;
+        slot.releaseRequested = false;
+        state_->nextSlot =
+            (index + 1u) %
+            static_cast<std::uint32_t>(state_->slots.size());
+        MetalRolloutBufferView result;
+        result.ring_ = state_;
+        result.slotIndex_ = index;
+        result.generation_ = slot.generation;
+        return result;
+    }
+    throw std::runtime_error(
+        "all native rollout ring slots are leased"
+    );
+}
+
 bool CompiledWorld::valid() const noexcept {
     return fingerprint_ != 0u &&
         articulationIndex_ < model_.articulations.size() &&
@@ -14392,7 +15298,7 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             }
         }
 
-        return validateAndPublish(
+        MetalWorldDiagnostics published = validateAndPublish(
             std::move(staged),
             std::move(diagnostics),
             pending->publishFinalState,
@@ -14400,6 +15306,8 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             pending->policyRevision,
             result
         );
+        pending->finishRollout(published.succeeded());
+        return published;
     } catch (const std::bad_alloc&) {
         return reject(
             std::move(diagnostics),
@@ -14638,6 +15546,18 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             config,
             residentContinuation,
             requirements
+        );
+        if (!diagnostics.succeeded()) {
+            return diagnostics;
+        }
+        const std::shared_ptr<detail::MetalRolloutAppendData>
+            rolloutAppend = batch.rolloutTarget.state_;
+        diagnostics = validateRolloutAppend(
+            batch,
+            config,
+            diagnostics.layout,
+            rolloutAppend,
+            std::move(diagnostics)
         );
         if (!diagnostics.succeeded()) {
             return diagnostics;
@@ -15385,6 +16305,19 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 }
             }
 
+            if (!encodeRolloutAppend(
+                    *selectedState,
+                    commandBuffer,
+                    diagnostics.layout,
+                    rolloutAppend
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::metalCommandFailure,
+                    "failed to encode direct leased rollout publication"
+                );
+            }
+
             std::vector<std::size_t> readbackIndices;
             if (config.publishFinalState) {
                 readbackIndices.push_back(sourceQ);
@@ -15465,6 +16398,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             pending->finalRodWitnessBuffer =
                 sourceRodWitnesses;
             pending->resident = residentData;
+            pending->rollout = rolloutAppend;
             pending->policyRevision =
                 config.policyProgram.valid()
                 ? config.policyProgram.revision()

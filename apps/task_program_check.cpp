@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -508,6 +509,13 @@ std::uint64_t compileFixedBaseTaskFixture() {
         }(),
         .bias = std::vector<float>(1u, 0.05f),
     }};
+    policy.criticLayers = {{
+        .inputCount = 6u,
+        .outputCount = 1u,
+        .activation = metalrobo::PolicyActivation::identity,
+        .weights = std::vector<float>(6u, 0.02f),
+        .bias = std::vector<float>(1u, 0.1f),
+    }};
     authored.policy = std::move(policy);
 
     metalrobo::CompiledSimulation compiled;
@@ -650,6 +658,201 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 );
             }
         }
+    }
+    {
+        constexpr std::uint32_t chunkSteps = 2u;
+        metalrobo::MetalRolloutRing rolloutRing({
+            .environmentCount =
+                static_cast<std::uint32_t>(environments),
+            .controlStepCapacity =
+                static_cast<std::uint32_t>(controlSteps),
+            .actorObservationCount = 12u,
+            .criticObservationCount = 6u,
+            .actionCount = 1u,
+            .slotCount = 1u,
+        });
+        if (rolloutRing.layout().retainedBytes == 0u) {
+            fail("native rollout ring did not report retained storage");
+        }
+        metalrobo::MetalWorldContext rolloutContext(
+            contextConfiguration
+        );
+        std::vector<float> expectedActor;
+        std::vector<float> expectedCritic;
+        std::vector<float> expectedLatents;
+        std::vector<float> expectedLogProbabilities;
+        std::vector<float> expectedValues;
+        std::vector<MRTaskTransitionGPU> expectedTransitions;
+        std::vector<float> expectedBootstrap;
+        const std::vector<std::uint32_t> rolloutResetMasks(
+            chunkSteps * environments,
+            0u
+        );
+        {
+            auto rollout = rolloutRing.acquire(
+                compiled.policy.revision()
+            );
+            bool rejectedSecondLease = false;
+            try {
+                auto unavailable = rolloutRing.acquire(
+                    compiled.policy.revision()
+                );
+                (void)unavailable;
+            } catch (const std::runtime_error&) {
+                rejectedSecondLease = true;
+            }
+            if (!rejectedSecondLease ||
+                rollout.actorObservations() != nullptr) {
+                fail(
+                    "native rollout ring exposed or reused an unsealed lease"
+                );
+            }
+
+            for (std::uint32_t chunk = 0u; chunk < 2u; ++chunk) {
+                const bool finalChunk = chunk == 1u;
+                step.evaluateFinalPolicy = finalChunk;
+                const metalrobo::MetalRolloutAppendTarget target =
+                    rollout.beginAppend(chunkSteps, finalChunk);
+                metalrobo::MetalWorldResult chunkResult;
+                const auto chunkExecution = rolloutContext.run(
+                    compiled.world,
+                    {
+                        .environmentCount = environments,
+                        .controlStepCount = chunkSteps,
+                        .initialQ = initialQ,
+                        .initialV = initialV,
+                        .resetMasks = rolloutResetMasks,
+                        .rolloutTarget = target,
+                    },
+                    step,
+                    chunkResult
+                );
+                const std::size_t samples =
+                    chunkSteps * environments;
+                const auto appendPrefix = [samples](
+                    std::vector<float>& destination,
+                    const std::vector<float>& source,
+                    const std::size_t width
+                ) {
+                    const std::size_t count = samples * width;
+                    if (source.size() < count) {
+                        fail(
+                            "native rollout source stream is shorter than its compiled layout"
+                        );
+                    }
+                    destination.insert(
+                        destination.end(),
+                        source.begin(),
+                        source.begin() +
+                            static_cast<std::ptrdiff_t>(count)
+                    );
+                };
+                if (!chunkExecution.succeeded() ||
+                    rollout.writtenControlSteps() !=
+                        (chunk + 1u) * chunkSteps) {
+                    fail(
+                        "direct native rollout append did not commit with world state: " +
+                        chunkExecution.message
+                    );
+                }
+                appendPrefix(
+                    expectedActor,
+                    chunkResult.actorObservations,
+                    12u
+                );
+                appendPrefix(
+                    expectedCritic,
+                    chunkResult.criticObservations,
+                    6u
+                );
+                appendPrefix(
+                    expectedLatents,
+                    chunkResult.policyLatents,
+                    1u
+                );
+                appendPrefix(
+                    expectedLogProbabilities,
+                    chunkResult.policyLogProbabilities,
+                    1u
+                );
+                appendPrefix(
+                    expectedValues,
+                    chunkResult.policyValues,
+                    1u
+                );
+                expectedTransitions.insert(
+                    expectedTransitions.end(),
+                    chunkResult.transitions.begin(),
+                    chunkResult.transitions.end()
+                );
+                if (finalChunk) {
+                    expectedBootstrap.assign(
+                        chunkResult.policyValues.begin() +
+                            static_cast<std::ptrdiff_t>(samples),
+                        chunkResult.policyValues.end()
+                    );
+                }
+            }
+            rollout.seal();
+            const auto equalFloats = [](
+                const std::vector<float>& expected,
+                const float* actual
+            ) {
+                return actual != nullptr &&
+                    std::equal(
+                        expected.begin(),
+                        expected.end(),
+                        actual
+                    );
+            };
+            const MRTaskTransitionGPU* transitions =
+                rollout.transitions();
+            if (!rollout.sealed() ||
+                !equalFloats(
+                    expectedActor,
+                    rollout.actorObservations()
+                ) ||
+                !equalFloats(
+                    expectedCritic,
+                    rollout.criticObservations()
+                ) ||
+                !equalFloats(
+                    expectedLatents,
+                    rollout.latents()
+                ) ||
+                !equalFloats(
+                    expectedLogProbabilities,
+                    rollout.logProbabilities()
+                ) ||
+                !equalFloats(
+                    expectedValues,
+                    rollout.values()
+                ) ||
+                !equalFloats(
+                    expectedBootstrap,
+                    rollout.bootstrapValues()
+                ) ||
+                transitions == nullptr ||
+                std::memcmp(
+                    expectedTransitions.data(),
+                    transitions,
+                    expectedTransitions.size() *
+                        sizeof(MRTaskTransitionGPU)
+                ) != 0) {
+                fail(
+                    "direct Metal rollout publication changed a compact learning stream"
+                );
+            }
+        }
+        auto recycled = rolloutRing.acquire(3u);
+        if (!recycled.valid() ||
+            recycled.policyRevision() != 3u ||
+            recycled.writtenControlSteps() != 0u) {
+            fail(
+                "native rollout slot was not reusable after lease release"
+            );
+        }
+        step.evaluateFinalPolicy = true;
     }
     metalrobo::PolicyPack revisedPolicy = *authored.policy;
     revisedPolicy.revision = 2u;

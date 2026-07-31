@@ -21,6 +21,9 @@ typedef struct MRWorldFamilyHandle MRWorldFamilyHandle;
 typedef struct MRHybridRendererHandle MRHybridRendererHandle;
 typedef struct MRTactileHandle MRTactileHandle;
 typedef struct MRSimulationHandle MRSimulationHandle;
+typedef struct MRRolloutRingHandle MRRolloutRingHandle;
+typedef struct MRRolloutBufferViewHandle
+    MRRolloutBufferViewHandle;
 typedef struct MRWorldInstanceHeaderGPU MRWorldInstanceHeaderGPU;
 typedef struct MRWorldAssetInstanceGPU MRWorldAssetInstanceGPU;
 typedef struct MRWorldSensorInstanceGPU MRWorldSensorInstanceGPU;
@@ -81,6 +84,16 @@ typedef struct MRSimulationLayoutC {
     double total_gpu_milliseconds;
     double total_submission_milliseconds;
 } MRSimulationLayoutC;
+
+typedef struct MRRolloutRingLayoutC {
+    uint32_t environment_count;
+    uint32_t control_step_capacity;
+    uint32_t actor_observation_count;
+    uint32_t critic_observation_count;
+    uint32_t action_count;
+    uint32_t slot_count;
+    size_t retained_bytes;
+} MRRolloutRingLayoutC;
 
 typedef struct MRSimulationStageHighWaterC {
     uint32_t candidate_pairs;
@@ -460,6 +473,66 @@ MR_API int mr_simulation_load_policy_pack(
 );
 MR_API int mr_simulation_clear_policy(
     MRSimulationHandle* handle
+);
+// Allocates a session-compatible native shared rollout ring. The opaque view
+// is a lifetime lease; destroying it is the only way to return its slot.
+MR_API MRRolloutRingHandle* mr_rollout_ring_create(
+    const MRSimulationHandle* simulation,
+    uint32_t control_step_capacity,
+    uint32_t slot_count
+);
+MR_API void mr_rollout_ring_destroy(MRRolloutRingHandle* ring);
+MR_API MRRolloutRingLayoutC mr_rollout_ring_layout(
+    const MRRolloutRingHandle* ring
+);
+MR_API MRRolloutBufferViewHandle* mr_rollout_ring_acquire(
+    MRRolloutRingHandle* ring,
+    uint64_t policy_revision
+);
+MR_API void mr_rollout_buffer_view_destroy(
+    MRRolloutBufferViewHandle* view
+);
+MR_API uint64_t mr_rollout_buffer_view_policy_revision(
+    const MRRolloutBufferViewHandle* view
+);
+MR_API uint32_t mr_rollout_buffer_view_written_steps(
+    const MRRolloutBufferViewHandle* view
+);
+MR_API int mr_rollout_buffer_view_seal(
+    MRRolloutBufferViewHandle* view
+);
+MR_API float* mr_rollout_buffer_view_actor_observations(
+    const MRRolloutBufferViewHandle* view
+);
+MR_API float* mr_rollout_buffer_view_critic_observations(
+    const MRRolloutBufferViewHandle* view
+);
+MR_API float* mr_rollout_buffer_view_latents(
+    const MRRolloutBufferViewHandle* view
+);
+MR_API float* mr_rollout_buffer_view_log_probabilities(
+    const MRRolloutBufferViewHandle* view
+);
+MR_API float* mr_rollout_buffer_view_values(
+    const MRRolloutBufferViewHandle* view
+);
+MR_API float* mr_rollout_buffer_view_bootstrap_values(
+    const MRRolloutBufferViewHandle* view
+);
+MR_API MRTaskTransitionC* mr_rollout_buffer_view_transitions(
+    const MRRolloutBufferViewHandle* view
+);
+// Runs one native policy chunk and encodes compact stream copies directly
+// into the leased ring slot before the world command buffer is committed.
+MR_API int mr_simulation_advance_policy_rollout(
+    MRSimulationHandle* handle,
+    MRRolloutBufferViewHandle* view,
+    const uint32_t* reset_masks,
+    size_t reset_mask_count,
+    uint32_t control_step_count,
+    uint64_t policy_revision,
+    uint32_t include_bootstrap_values,
+    MRSimulationAdvanceC* advance
 );
 MR_API int mr_simulation_advance(
     MRSimulationHandle* handle,

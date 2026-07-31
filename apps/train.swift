@@ -524,8 +524,7 @@ private enum TrainMain {
             var stageHighWater: [String: Int] = [:]
             var failedSteps = 0
             var lastLearning: [String: Any] = [:]
-            let rolloutRing = try MetalRoboRolloutBufferRing(
-                layout: layout,
+            let rolloutRing = try context.makePolicyRolloutRing(
                 controlStepCapacity: options.steps,
                 slotCount: 3
             )
@@ -540,10 +539,11 @@ private enum TrainMain {
                         options.chunk,
                         options.steps - completed
                     )
-                    let advance = try context.advanceWithPolicy(
+                    let advance = try context.advancePolicyRollout(
+                        into: rollout,
                         controlStepCount: stepCount,
                         policyRevision: installedRevision,
-                        evaluateFinalPolicy:
+                        includeBootstrapValues:
                             completed + stepCount == options.steps
                     )
                     guard advance.failedEnvironmentSteps == 0 else {
@@ -551,12 +551,6 @@ private enum TrainMain {
                             "Native rollout returned a GPU failure."
                         )
                     }
-                    try context.appendCurrentPolicyRollout(
-                        controlStepCount: stepCount,
-                        to: rollout,
-                        includeBootstrapValues:
-                            completed + stepCount == options.steps
-                    )
                     totalResets += advance.hostRequestedResets
                     maximumContacts = max(
                         maximumContacts,

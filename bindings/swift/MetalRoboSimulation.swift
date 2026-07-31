@@ -1,5 +1,4 @@
 import Foundation
-import Metal
 import MetalRoboC
 
 private func withOptionalCString<Result>(
@@ -570,486 +569,126 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
     }
 }
 
-/// A fixed-capacity Apple-Silicon rollout boundary. Each slot is backed by
-/// separate `storageModeShared` Metal buffers so MLX can wrap every tensor at
-/// its page-aligned base address without copying. A slot is returned to the
-/// ring only after its lifetime-scoped view (and every managed MLX view that
-/// retained it) has been released.
+/// A fixed-capacity native rollout boundary. Metal allocates and owns every
+/// shared stream; Swift receives only opaque lifetime-scoped leases. A slot
+/// returns to the ring after the view and all managed MLX arrays retaining it
+/// have been released.
 public final class MetalRoboRolloutBufferRing: @unchecked Sendable {
-    private enum SlotState {
-        case available
-        case collecting
-        case sealed
-    }
-
-    private final class Slot {
-        let actorObservations: any MTLBuffer
-        let criticObservations: any MTLBuffer
-        let latents: any MTLBuffer
-        let logProbabilities: any MTLBuffer
-        let values: any MTLBuffer
-        let bootstrapValues: any MTLBuffer
-        let transitions: any MTLBuffer
-        var state = SlotState.available
-        var generation: UInt64 = 0
-        var writtenControlSteps = 0
-        var bootstrapWritten = false
-        var policyRevision: UInt64 = 0
-
-        init(
-            device: any MTLDevice,
-            actorObservationBytes: Int,
-            criticObservationBytes: Int,
-            latentBytes: Int,
-            scalarBytes: Int,
-            bootstrapBytes: Int,
-            transitionBytes: Int
-        ) throws {
-            func allocate(
-                _ bytes: Int,
-                label: String
-            ) throws -> any MTLBuffer {
-                guard bytes > 0,
-                      let buffer = device.makeBuffer(
-                          length: bytes,
-                          options: .storageModeShared
-                      )
-                else {
-                    throw MetalRoboSimulationError.native(
-                        "Could not allocate shared rollout buffer: \(label)."
-                    )
-                }
-                buffer.label = label
-                return buffer
-            }
-            actorObservations = try allocate(
-                actorObservationBytes,
-                label: "MetalRobo rollout actor observations"
-            )
-            criticObservations = try allocate(
-                criticObservationBytes,
-                label: "MetalRobo rollout critic observations"
-            )
-            latents = try allocate(
-                latentBytes,
-                label: "MetalRobo rollout policy latents"
-            )
-            logProbabilities = try allocate(
-                scalarBytes,
-                label: "MetalRobo rollout log probabilities"
-            )
-            values = try allocate(
-                scalarBytes,
-                label: "MetalRobo rollout values"
-            )
-            bootstrapValues = try allocate(
-                bootstrapBytes,
-                label: "MetalRobo rollout bootstrap values"
-            )
-            transitions = try allocate(
-                transitionBytes,
-                label: "MetalRobo rollout transitions"
-            )
-        }
-    }
+    fileprivate var handle: OpaquePointer?
 
     public let controlStepCapacity: Int
     public let environmentCount: Int
     public let actorObservationCount: Int
     public let criticObservationCount: Int
     public let actionCount: Int
+    public let slotCount: Int
     public let retainedBytes: Int
 
-    private let lock = NSLock()
-    private let slots: [Slot]
-    private var nextSlot = 0
-
-    public init(
-        layout: MetalRoboSimulationLayout,
+    fileprivate init(
+        session: MetalSimulationSession,
         controlStepCapacity: Int,
-        slotCount: Int = 3,
-        device: (any MTLDevice)? = MTLCreateSystemDefaultDevice()
+        slotCount: Int
     ) throws {
         guard controlStepCapacity > 0,
               controlStepCapacity <= Int(UInt32.max),
-              (1...8).contains(slotCount),
-              layout.environmentCount > 0,
-              layout.actorObservationCount > 0,
-              layout.criticObservationCount > 0,
-              layout.actionCount > 0,
-              let device
+              (1...8).contains(slotCount)
         else {
             throw MetalRoboSimulationError.invalidShape(
-                "A rollout ring requires a Metal device, 1-8 slots, and positive compiled dimensions."
+                "A rollout ring requires 1-8 slots and a positive UInt32 control-step capacity."
+            )
+        }
+        guard let created = mr_rollout_ring_create(
+            session.handle,
+            UInt32(controlStepCapacity),
+            UInt32(slotCount)
+        ) else {
+            throw MetalRoboSimulationError.native(
+                MetalSimulationSession.lastError()
+            )
+        }
+        let native = mr_rollout_ring_layout(created)
+        let simulation = session.layout
+        guard native.environment_count ==
+                  UInt32(simulation.environmentCount),
+              native.control_step_capacity ==
+                  UInt32(controlStepCapacity),
+              native.actor_observation_count ==
+                  UInt32(simulation.actorObservationCount),
+              native.critic_observation_count ==
+                  UInt32(simulation.criticObservationCount),
+              native.action_count ==
+                  UInt32(simulation.actionCount),
+              native.slot_count == UInt32(slotCount)
+        else {
+            mr_rollout_ring_destroy(created)
+            throw MetalRoboSimulationError.native(
+                "Native rollout ring layout does not match the compiled simulation."
             )
         }
 
-        func product(_ values: [Int], label: String) throws -> Int {
-            var result = 1
-            for value in values {
-                let multiplication = result.multipliedReportingOverflow(
-                    by: value
-                )
-                guard value > 0,
-                      !multiplication.overflow
-                else {
-                    throw MetalRoboSimulationError.invalidShape(
-                        "\(label) exceeds the native buffer boundary."
-                    )
-                }
-                result = multiplication.partialValue
-            }
-            return result
-        }
+        handle = created
+        self.controlStepCapacity =
+            Int(native.control_step_capacity)
+        environmentCount = Int(native.environment_count)
+        actorObservationCount =
+            Int(native.actor_observation_count)
+        criticObservationCount =
+            Int(native.critic_observation_count)
+        actionCount = Int(native.action_count)
+        self.slotCount = Int(native.slot_count)
+        retainedBytes = Int(native.retained_bytes)
+    }
 
-        let samples = try product(
-            [controlStepCapacity, layout.environmentCount],
-            label: "Rollout sample count"
-        )
-        let floatBytes = MemoryLayout<Float>.stride
-        let actorBytes = try product(
-            [samples, layout.actorObservationCount, floatBytes],
-            label: "Actor rollout buffer"
-        )
-        let criticBytes = try product(
-            [samples, layout.criticObservationCount, floatBytes],
-            label: "Critic rollout buffer"
-        )
-        let latentBytes = try product(
-            [samples, layout.actionCount, floatBytes],
-            label: "Latent rollout buffer"
-        )
-        let scalarBytes = try product(
-            [samples, floatBytes],
-            label: "Scalar rollout buffer"
-        )
-        let bootstrapBytes = try product(
-            [layout.environmentCount, floatBytes],
-            label: "Bootstrap rollout buffer"
-        )
-        let transitionBytes = try product(
-            [samples, MemoryLayout<MRTaskTransitionC>.stride],
-            label: "Transition rollout buffer"
-        )
-        var bytesPerSlot = 0
-        for bytes in [
-            actorBytes,
-            criticBytes,
-            latentBytes,
-            scalarBytes,
-            scalarBytes,
-            bootstrapBytes,
-            transitionBytes,
-        ] {
-            let addition = bytesPerSlot.addingReportingOverflow(bytes)
-            guard !addition.overflow else {
-                throw MetalRoboSimulationError.invalidShape(
-                    "Rollout slot retained bytes overflow Int."
-                )
-            }
-            bytesPerSlot = addition.partialValue
+    deinit {
+        if let handle {
+            mr_rollout_ring_destroy(handle)
         }
-        let retained = bytesPerSlot.multipliedReportingOverflow(
-            by: slotCount
-        )
-        guard !retained.overflow else {
-            throw MetalRoboSimulationError.invalidShape(
-                "Rollout ring retained bytes overflow Int."
-            )
-        }
-
-        self.controlStepCapacity = controlStepCapacity
-        environmentCount = layout.environmentCount
-        actorObservationCount = layout.actorObservationCount
-        criticObservationCount = layout.criticObservationCount
-        actionCount = layout.actionCount
-        retainedBytes = retained.partialValue
-        var allocated: [Slot] = []
-        allocated.reserveCapacity(slotCount)
-        for _ in 0..<slotCount {
-            allocated.append(
-                try Slot(
-                    device: device,
-                    actorObservationBytes: actorBytes,
-                    criticObservationBytes: criticBytes,
-                    latentBytes: latentBytes,
-                    scalarBytes: scalarBytes,
-                    bootstrapBytes: bootstrapBytes,
-                    transitionBytes: transitionBytes
-                )
-            )
-        }
-        slots = allocated
     }
 
     public func acquire(
         policyRevision: UInt64
     ) throws -> MetalRoboRolloutBufferView {
-        lock.lock()
-        defer { lock.unlock() }
-        for offset in slots.indices {
-            let index = (nextSlot + offset) % slots.count
-            let slot = slots[index]
-            guard slot.state == .available else {
-                continue
-            }
-            slot.state = .collecting
-            slot.generation &+= 1
-            slot.writtenControlSteps = 0
-            slot.bootstrapWritten = false
-            slot.policyRevision = policyRevision
-            nextSlot = (index + 1) % slots.count
-            return MetalRoboRolloutBufferView(
-                ring: self,
-                slotIndex: index,
-                generation: slot.generation,
-                policyRevision: policyRevision
-            )
-        }
-        throw MetalRoboSimulationError.native(
-            "All rollout ring slots are leased by the learner."
-        )
-    }
-
-    fileprivate func append(
-        slotIndex: Int,
-        generation: UInt64,
-        controlStepCount: Int,
-        actor: UnsafePointer<Float>,
-        critic: UnsafePointer<Float>,
-        latents: UnsafePointer<Float>,
-        logProbabilities: UnsafePointer<Float>,
-        values: UnsafePointer<Float>,
-        transitions: UnsafePointer<MRTaskTransitionC>,
-        bootstrap: UnsafePointer<Float>?
-    ) throws {
-        lock.lock()
-        defer { lock.unlock() }
-        guard slots.indices.contains(slotIndex) else {
-            throw MetalRoboSimulationError.native(
-                "Rollout lease refers to an invalid ring slot."
-            )
-        }
-        let slot = slots[slotIndex]
-        guard slot.state == .collecting,
-              slot.generation == generation,
-              controlStepCount > 0,
-              slot.writtenControlSteps + controlStepCount <=
-                  controlStepCapacity
-        else {
-            throw MetalRoboSimulationError.native(
-                "Rollout append violates its slot lease or capacity."
-            )
-        }
-        if bootstrap != nil {
-            guard slot.writtenControlSteps + controlStepCount ==
-                    controlStepCapacity,
-                  !slot.bootstrapWritten
-            else {
-                throw MetalRoboSimulationError.native(
-                    "Bootstrap values may be published only at the completed rollout boundary."
-                )
-            }
-        }
-        let sampleProduct = controlStepCount.multipliedReportingOverflow(
-            by: environmentCount
-        )
-        guard !sampleProduct.overflow else {
+        guard policyRevision > 0 else {
             throw MetalRoboSimulationError.invalidShape(
-                "Rollout chunk sample count overflows Int."
+                "A rollout lease requires a positive policy revision."
             )
         }
-        let chunkSamples = sampleProduct.partialValue
-        for index in 0..<chunkSamples where
-            transitions[index].policy_revision != slot.policyRevision
-        {
+        guard let acquired = mr_rollout_ring_acquire(
+            handle,
+            policyRevision
+        ) else {
             throw MetalRoboSimulationError.native(
-                "Policy revision changed inside a native rollout chunk."
+                MetalSimulationSession.lastError()
             )
         }
-        let destinationSample =
-            slot.writtenControlSteps * environmentCount
-        func copyFloats(
-            _ source: UnsafePointer<Float>,
-            to buffer: any MTLBuffer,
-            destinationElement: Int,
-            count: Int
-        ) {
-            buffer.contents()
-                .advanced(
-                    by: destinationElement *
-                        MemoryLayout<Float>.stride
-                )
-                .copyMemory(
-                    from: UnsafeRawPointer(source),
-                    byteCount: count * MemoryLayout<Float>.stride
-                )
-        }
-        copyFloats(
-            actor,
-            to: slot.actorObservations,
-            destinationElement:
-                destinationSample * actorObservationCount,
-            count: chunkSamples * actorObservationCount
-        )
-        copyFloats(
-            critic,
-            to: slot.criticObservations,
-            destinationElement:
-                destinationSample * criticObservationCount,
-            count: chunkSamples * criticObservationCount
-        )
-        copyFloats(
-            latents,
-            to: slot.latents,
-            destinationElement: destinationSample * actionCount,
-            count: chunkSamples * actionCount
-        )
-        copyFloats(
-            logProbabilities,
-            to: slot.logProbabilities,
-            destinationElement: destinationSample,
-            count: chunkSamples
-        )
-        copyFloats(
-            values,
-            to: slot.values,
-            destinationElement: destinationSample,
-            count: chunkSamples
-        )
-        slot.transitions.contents()
-            .advanced(
-                by: destinationSample *
-                    MemoryLayout<MRTaskTransitionC>.stride
-            )
-            .copyMemory(
-                from: UnsafeRawPointer(transitions),
-                byteCount: chunkSamples *
-                    MemoryLayout<MRTaskTransitionC>.stride
-            )
-        slot.writtenControlSteps += controlStepCount
-        if let bootstrap {
-            copyFloats(
-                bootstrap,
-                to: slot.bootstrapValues,
-                destinationElement: 0,
-                count: environmentCount
-            )
-            slot.bootstrapWritten = true
-        }
-    }
-
-    fileprivate func seal(
-        slotIndex: Int,
-        generation: UInt64
-    ) throws {
-        lock.lock()
-        defer { lock.unlock() }
-        guard slots.indices.contains(slotIndex) else {
-            throw MetalRoboSimulationError.native(
-                "Rollout lease refers to an invalid ring slot."
-            )
-        }
-        let slot = slots[slotIndex]
-        guard slot.state == .collecting,
-              slot.generation == generation,
-              slot.writtenControlSteps == controlStepCapacity,
-              slot.bootstrapWritten
-        else {
-            throw MetalRoboSimulationError.native(
-                "A rollout slot cannot be sealed before all steps and bootstrap values are present."
-            )
-        }
-        slot.state = .sealed
-    }
-
-    fileprivate func release(
-        slotIndex: Int,
-        generation: UInt64
-    ) {
-        lock.lock()
-        defer { lock.unlock() }
-        guard slots.indices.contains(slotIndex) else {
-            return
-        }
-        let slot = slots[slotIndex]
-        guard slot.generation == generation,
-              slot.state != .available
-        else {
-            return
-        }
-        slot.state = .available
-        slot.writtenControlSteps = 0
-        slot.bootstrapWritten = false
-        slot.policyRevision = 0
-    }
-
-    fileprivate func pointers(
-        slotIndex: Int,
-        generation: UInt64
-    ) throws -> (
-        actor: UnsafeMutableRawPointer,
-        critic: UnsafeMutableRawPointer,
-        latents: UnsafeMutableRawPointer,
-        logProbabilities: UnsafeMutableRawPointer,
-        values: UnsafeMutableRawPointer,
-        bootstrap: UnsafeMutableRawPointer,
-        transitions: UnsafeMutableRawPointer
-    ) {
-        lock.lock()
-        defer { lock.unlock() }
-        guard slots.indices.contains(slotIndex) else {
-            throw MetalRoboSimulationError.native(
-                "Rollout lease refers to an invalid ring slot."
-            )
-        }
-        let slot = slots[slotIndex]
-        guard slot.state == .sealed,
-              slot.generation == generation
-        else {
-            throw MetalRoboSimulationError.native(
-                "Rollout buffers are visible only through a sealed live lease."
-            )
-        }
-        return (
-            slot.actorObservations.contents(),
-            slot.criticObservations.contents(),
-            slot.latents.contents(),
-            slot.logProbabilities.contents(),
-            slot.values.contents(),
-            slot.bootstrapValues.contents(),
-            slot.transitions.contents()
+        return MetalRoboRolloutBufferView(
+            ring: self,
+            handle: acquired
         )
     }
 }
 
-/// Lifetime-scoped view of one complete rollout slot. Do not retain raw
-/// pointers beyond a `with...` closure. MLX integration retains this object in
-/// each managed-array finalizer, which prevents slot reuse while lazy work is
-/// still outstanding.
+/// Lifetime-scoped view of one complete rollout slot. Raw pointers are visible
+/// only after the native transaction has filled and sealed the lease.
 public final class MetalRoboRolloutBufferView: @unchecked Sendable {
     fileprivate let ring: MetalRoboRolloutBufferRing
-    fileprivate let slotIndex: Int
-    fileprivate let generation: UInt64
+    fileprivate var handle: OpaquePointer?
     public let policyRevision: UInt64
 
     fileprivate init(
         ring: MetalRoboRolloutBufferRing,
-        slotIndex: Int,
-        generation: UInt64,
-        policyRevision: UInt64
+        handle: OpaquePointer
     ) {
         self.ring = ring
-        self.slotIndex = slotIndex
-        self.generation = generation
-        self.policyRevision = policyRevision
+        self.handle = handle
+        policyRevision =
+            mr_rollout_buffer_view_policy_revision(handle)
     }
 
     deinit {
-        ring.release(
-            slotIndex: slotIndex,
-            generation: generation
-        )
+        if let handle {
+            mr_rollout_buffer_view_destroy(handle)
+        }
     }
 
     public var controlStepCount: Int {
@@ -1076,11 +715,16 @@ public final class MetalRoboRolloutBufferView: @unchecked Sendable {
         controlStepCount * environmentCount
     }
 
+    public var writtenControlSteps: Int {
+        Int(mr_rollout_buffer_view_written_steps(handle))
+    }
+
     fileprivate func seal() throws {
-        try ring.seal(
-            slotIndex: slotIndex,
-            generation: generation
-        )
+        guard mr_rollout_buffer_view_seal(handle) == 0 else {
+            throw MetalRoboSimulationError.native(
+                MetalSimulationSession.lastError()
+            )
+        }
     }
 
     func rawPointers() throws -> (
@@ -1092,9 +736,33 @@ public final class MetalRoboRolloutBufferView: @unchecked Sendable {
         bootstrap: UnsafeMutableRawPointer,
         transitions: UnsafeMutableRawPointer
     ) {
-        try ring.pointers(
-            slotIndex: slotIndex,
-            generation: generation
+        guard let actor =
+                  mr_rollout_buffer_view_actor_observations(handle),
+              let critic =
+                  mr_rollout_buffer_view_critic_observations(handle),
+              let latents =
+                  mr_rollout_buffer_view_latents(handle),
+              let logProbabilities =
+                  mr_rollout_buffer_view_log_probabilities(handle),
+              let values =
+                  mr_rollout_buffer_view_values(handle),
+              let bootstrap =
+                  mr_rollout_buffer_view_bootstrap_values(handle),
+              let transitions =
+                  mr_rollout_buffer_view_transitions(handle)
+        else {
+            throw MetalRoboSimulationError.native(
+                "Rollout buffers are visible only through a sealed live lease."
+            )
+        }
+        return (
+            UnsafeMutableRawPointer(actor),
+            UnsafeMutableRawPointer(critic),
+            UnsafeMutableRawPointer(latents),
+            UnsafeMutableRawPointer(logProbabilities),
+            UnsafeMutableRawPointer(values),
+            UnsafeMutableRawPointer(bootstrap),
+            UnsafeMutableRawPointer(transitions)
         )
     }
 
@@ -1123,7 +791,9 @@ public final class MetalRoboRolloutBufferView: @unchecked Sendable {
             .assumingMemoryBound(to: Float.self)[index]
     }
 
-    public func bootstrapValue(at environment: Int) throws -> Float {
+    public func bootstrapValue(
+        at environment: Int
+    ) throws -> Float {
         guard (0..<environmentCount).contains(environment) else {
             throw MetalRoboSimulationError.invalidShape(
                 "Bootstrap index is outside the rollout lease."
@@ -1138,7 +808,7 @@ public final class MetalRoboRolloutBufferView: @unchecked Sendable {
 /// compiled world and task program, persistent private Metal state, reset
 /// transaction, and compact learning publication.
 public final class MetalSimulationSession {
-    private var handle: OpaquePointer?
+    fileprivate var handle: OpaquePointer?
 
     /// Bundled G1 is a mechanics + TaskPack preset; execution uses the same
     /// generic compiled task path as imported robots.
@@ -1294,6 +964,17 @@ public final class MetalSimulationSession {
 
     public var policyRevision: UInt64 {
         mr_simulation_policy_revision(handle)
+    }
+
+    public func makePolicyRolloutRing(
+        controlStepCapacity: Int,
+        slotCount: Int = 3
+    ) throws -> MetalRoboRolloutBufferRing {
+        try MetalRoboRolloutBufferRing(
+            session: self,
+            controlStepCapacity: controlStepCapacity,
+            slotCount: slotCount
+        )
     }
 
     public func reset(seed: UInt64) throws {
@@ -1675,17 +1356,22 @@ public final class MetalSimulationSession {
         )
     }
 
-    /// Copies one completed native chunk into its leased shared Metal slot.
-    /// The destination is fixed-capacity and environment-major; no Swift
-    /// arrays are grown or concatenated. On the last chunk, the accepted
-    /// post-rollout bootstrap values are captured into the same lease.
-    public func appendCurrentPolicyRollout(
+    /// Advances one native policy chunk and publishes its compact learning
+    /// streams directly into the leased shared-buffer slot in the same Metal
+    /// command buffer. The rollout cursor advances only when world-state
+    /// publication succeeds.
+    public func advancePolicyRollout(
+        into rollout: MetalRoboRolloutBufferView,
+        resetMasks: [UInt32] = [],
         controlStepCount: Int,
-        to rollout: MetalRoboRolloutBufferView,
+        policyRevision: UInt64,
         includeBootstrapValues: Bool = false
-    ) throws {
+    ) throws -> MetalRoboSimulationAdvance {
         let current = layout
         guard controlStepCount > 0,
+              controlStepCount <= Int(UInt32.max),
+              policyRevision > 0,
+              rollout.policyRevision == policyRevision,
               rollout.environmentCount == current.environmentCount,
               rollout.actorObservationCount ==
                   current.actorObservationCount,
@@ -1697,39 +1383,46 @@ public final class MetalSimulationSession {
                 "Policy rollout lease does not match the installed simulation."
             )
         }
-        guard let actor =
-                  mr_simulation_actor_observations(handle),
-              let critic =
-                  mr_simulation_critic_observations(handle),
-              let latent =
-                  mr_simulation_policy_latents(handle),
-              let logProbability =
-                  mr_simulation_policy_log_probabilities(handle),
-              let value =
-                  mr_simulation_policy_values(handle),
-              let transition =
-                  mr_simulation_transitions(handle),
-              !includeBootstrapValues ||
-                  mr_simulation_bootstrap_policy_values(handle) != nil
+        let maskCount = controlStepCount * current.environmentCount
+        guard resetMasks.isEmpty || resetMasks.count == maskCount
         else {
-            throw MetalRoboSimulationError.native(
-                "Native policy rollout streams are unavailable."
+            throw MetalRoboSimulationError.invalidShape(
+                "Reset masks must be empty or contain \(maskCount) values."
             )
         }
-        try rollout.ring.append(
-            slotIndex: rollout.slotIndex,
-            generation: rollout.generation,
-            controlStepCount: controlStepCount,
-            actor: actor,
-            critic: critic,
-            latents: latent,
-            logProbabilities: logProbability,
-            values: value,
-            transitions: transition,
-            bootstrap: includeBootstrapValues
-                ? mr_simulation_bootstrap_policy_values(handle)
-                : nil
-        )
+        var native = MRSimulationAdvanceC()
+        let status: Int32
+        if resetMasks.isEmpty {
+            status = mr_simulation_advance_policy_rollout(
+                handle,
+                rollout.handle,
+                nil,
+                0,
+                UInt32(controlStepCount),
+                policyRevision,
+                includeBootstrapValues ? 1 : 0,
+                &native
+            )
+        } else {
+            status = resetMasks.withUnsafeBufferPointer { masks in
+                mr_simulation_advance_policy_rollout(
+                    handle,
+                    rollout.handle,
+                    masks.baseAddress,
+                    masks.count,
+                    UInt32(controlStepCount),
+                    policyRevision,
+                    includeBootstrapValues ? 1 : 0,
+                    &native
+                )
+            }
+        }
+        guard status == 0 else {
+            throw MetalRoboSimulationError.native(
+                Self.lastError()
+            )
+        }
+        return MetalRoboSimulationAdvance(native)
     }
 
     public func sealPolicyRollout(
@@ -1937,7 +1630,7 @@ public final class MetalSimulationSession {
         }
     }
 
-    private static func lastError() -> String {
+    fileprivate static func lastError() -> String {
         guard let pointer = mr_last_error() else {
             return "MetalRobo simulation operation failed."
         }

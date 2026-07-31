@@ -75,6 +75,7 @@ struct MRSimulationHandle {
     metalrobo::MetalWorldContext context;
     metalrobo::MetalWorldResidentState residentState;
     metalrobo::MetalWorldStepConfig stepConfig;
+    metalrobo::MetalRolloutAppendTarget pendingRolloutTarget;
     std::vector<MRBodyStateGPU> defaultSceneBodies;
     std::vector<float> resetQ;
     std::vector<float> resetV;
@@ -93,6 +94,22 @@ struct MRSimulationHandle {
     std::uint64_t lastInstalledPolicyRevision = 0u;
     double totalGPUMilliseconds = 0.0;
     double totalSubmissionMilliseconds = 0.0;
+};
+
+struct MRRolloutRingHandle {
+    explicit MRRolloutRingHandle(
+        const metalrobo::MetalRolloutRingConfig& config
+    ) : ring(config) {}
+
+    metalrobo::MetalRolloutRing ring;
+};
+
+struct MRRolloutBufferViewHandle {
+    explicit MRRolloutBufferViewHandle(
+        metalrobo::MetalRolloutBufferView acquired
+    ) : view(std::move(acquired)) {}
+
+    metalrobo::MetalRolloutBufferView view;
 };
 
 static_assert(sizeof(MRHybridGaussianC) == 80u);
@@ -310,6 +327,26 @@ bool requireSimulationHandle(
         return true;
     }
     gLastError = "MetalRobo simulation handle is null.";
+    return false;
+}
+
+bool requireRolloutRingHandle(
+    const MRRolloutRingHandle* handle
+) {
+    if (handle != nullptr) {
+        return true;
+    }
+    gLastError = "MetalRobo rollout-ring handle is null.";
+    return false;
+}
+
+bool requireRolloutViewHandle(
+    const MRRolloutBufferViewHandle* handle
+) {
+    if (handle != nullptr && handle->view.valid()) {
+        return true;
+    }
+    gLastError = "MetalRobo rollout-buffer lease is null or stale.";
     return false;
 }
 
@@ -1228,6 +1265,242 @@ int mr_simulation_clear_policy(
     return 0;
 }
 
+MRRolloutRingHandle* mr_rollout_ring_create(
+    const MRSimulationHandle* simulation,
+    const uint32_t control_step_capacity,
+    const uint32_t slot_count
+) {
+    if (!requireSimulationHandle(simulation)) {
+        return nullptr;
+    }
+    MRRolloutRingHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        const metalrobo::TaskProgramLayout& task =
+            simulation->taskProgram.layout();
+        auto handle = std::make_unique<MRRolloutRingHandle>(
+            metalrobo::MetalRolloutRingConfig{
+                .environmentCount = simulation->environmentCount,
+                .controlStepCapacity = control_step_capacity,
+                .actorObservationCount =
+                    task.actorObservationSize,
+                .criticObservationCount =
+                    task.criticObservationSize,
+                .actionCount = task.actionCount,
+                .slotCount = slot_count,
+            }
+        );
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
+void mr_rollout_ring_destroy(MRRolloutRingHandle* ring) {
+    delete ring;
+}
+
+MRRolloutRingLayoutC mr_rollout_ring_layout(
+    const MRRolloutRingHandle* ring
+) {
+    MRRolloutRingLayoutC result{};
+    if (!requireRolloutRingHandle(ring)) {
+        return result;
+    }
+    const metalrobo::MetalRolloutRingLayout& layout =
+        ring->ring.layout();
+    result.environment_count = layout.environmentCount;
+    result.control_step_capacity =
+        layout.controlStepCapacity;
+    result.actor_observation_count =
+        layout.actorObservationCount;
+    result.critic_observation_count =
+        layout.criticObservationCount;
+    result.action_count = layout.actionCount;
+    result.slot_count = layout.slotCount;
+    result.retained_bytes = layout.retainedBytes;
+    return result;
+}
+
+MRRolloutBufferViewHandle* mr_rollout_ring_acquire(
+    MRRolloutRingHandle* ring,
+    const uint64_t policy_revision
+) {
+    if (!requireRolloutRingHandle(ring)) {
+        return nullptr;
+    }
+    MRRolloutBufferViewHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        auto handle =
+            std::make_unique<MRRolloutBufferViewHandle>(
+                ring->ring.acquire(policy_revision)
+            );
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
+void mr_rollout_buffer_view_destroy(
+    MRRolloutBufferViewHandle* view
+) {
+    delete view;
+}
+
+uint64_t mr_rollout_buffer_view_policy_revision(
+    const MRRolloutBufferViewHandle* view
+) {
+    return requireRolloutViewHandle(view)
+        ? view->view.policyRevision()
+        : 0u;
+}
+
+uint32_t mr_rollout_buffer_view_written_steps(
+    const MRRolloutBufferViewHandle* view
+) {
+    return requireRolloutViewHandle(view)
+        ? view->view.writtenControlSteps()
+        : 0u;
+}
+
+int mr_rollout_buffer_view_seal(
+    MRRolloutBufferViewHandle* view
+) {
+    if (!requireRolloutViewHandle(view)) {
+        return -1;
+    }
+    return translateErrors([&] { view->view.seal(); });
+}
+
+float* mr_rollout_buffer_view_actor_observations(
+    const MRRolloutBufferViewHandle* view
+) {
+    return requireRolloutViewHandle(view)
+        ? view->view.actorObservations()
+        : nullptr;
+}
+
+float* mr_rollout_buffer_view_critic_observations(
+    const MRRolloutBufferViewHandle* view
+) {
+    return requireRolloutViewHandle(view)
+        ? view->view.criticObservations()
+        : nullptr;
+}
+
+float* mr_rollout_buffer_view_latents(
+    const MRRolloutBufferViewHandle* view
+) {
+    return requireRolloutViewHandle(view)
+        ? view->view.latents()
+        : nullptr;
+}
+
+float* mr_rollout_buffer_view_log_probabilities(
+    const MRRolloutBufferViewHandle* view
+) {
+    return requireRolloutViewHandle(view)
+        ? view->view.logProbabilities()
+        : nullptr;
+}
+
+float* mr_rollout_buffer_view_values(
+    const MRRolloutBufferViewHandle* view
+) {
+    return requireRolloutViewHandle(view)
+        ? view->view.values()
+        : nullptr;
+}
+
+float* mr_rollout_buffer_view_bootstrap_values(
+    const MRRolloutBufferViewHandle* view
+) {
+    return requireRolloutViewHandle(view)
+        ? view->view.bootstrapValues()
+        : nullptr;
+}
+
+MRTaskTransitionC* mr_rollout_buffer_view_transitions(
+    const MRRolloutBufferViewHandle* view
+) {
+    return requireRolloutViewHandle(view)
+        ? reinterpret_cast<MRTaskTransitionC*>(
+              view->view.transitions()
+          )
+        : nullptr;
+}
+
+int mr_simulation_advance_policy_rollout(
+    MRSimulationHandle* handle,
+    MRRolloutBufferViewHandle* view,
+    const uint32_t* reset_masks,
+    const size_t reset_mask_count,
+    const uint32_t control_step_count,
+    const uint64_t policy_revision,
+    const uint32_t include_bootstrap_values,
+    MRSimulationAdvanceC* advance
+) {
+    if (!requireSimulationHandle(handle) ||
+        !requireRolloutViewHandle(view)) {
+        return -1;
+    }
+
+    metalrobo::MetalRolloutAppendTarget append;
+    const int prepared = translateErrors([&] {
+        if (handle->pendingRolloutTarget.valid()) {
+            throw std::logic_error(
+                "simulation already owns a pending rollout append"
+            );
+        }
+        if (!handle->stepConfig.policyProgram.valid() ||
+            policy_revision == 0u ||
+            policy_revision !=
+                handle->stepConfig.policyProgram.revision() ||
+            policy_revision != view->view.policyRevision()) {
+            throw std::invalid_argument(
+                "rollout lease revision does not match the installed policy"
+            );
+        }
+        const metalrobo::MetalRolloutRingLayout& ring =
+            view->view.layout();
+        const metalrobo::TaskProgramLayout& task =
+            handle->taskProgram.layout();
+        if (ring.environmentCount != handle->environmentCount ||
+            ring.actorObservationCount !=
+                task.actorObservationSize ||
+            ring.criticObservationCount !=
+                task.criticObservationSize ||
+            ring.actionCount != task.actionCount) {
+            throw std::invalid_argument(
+                "rollout lease dimensions do not match the simulation"
+            );
+        }
+        append = view->view.beginAppend(
+            control_step_count,
+            include_bootstrap_values != 0u
+        );
+        handle->pendingRolloutTarget = append;
+    });
+    if (prepared != 0) {
+        return -1;
+    }
+
+    const int status = mr_simulation_advance(
+        handle,
+        nullptr,
+        0u,
+        reset_masks,
+        reset_mask_count,
+        control_step_count,
+        policy_revision,
+        include_bootstrap_values,
+        advance
+    );
+    handle->pendingRolloutTarget = {};
+    append = {};
+    if (status != 0) {
+        view->view.cancelPendingAppend();
+    }
+    return status;
+}
+
 int mr_simulation_advance(
     MRSimulationHandle* handle,
     const float* normalized_actions,
@@ -1346,6 +1619,7 @@ int mr_simulation_advance(
                       handle->resetSceneBodies
                   }
                 : std::span<const MRBodyStateGPU>{},
+            .rolloutTarget = handle->pendingRolloutTarget,
         };
         metalrobo::MetalWorldSubmission submission;
         metalrobo::MetalWorldResult published;

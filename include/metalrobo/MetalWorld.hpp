@@ -26,6 +26,8 @@ struct MetalWorldContextState;
 struct MetalWorldContextPool;
 struct MetalWorldResidentStateData;
 struct MetalWorldSubmissionState;
+struct MetalRolloutRingData;
+struct MetalRolloutAppendData;
 } // namespace detail
 
 enum class MetalWorldExecutionMode : std::uint32_t {
@@ -239,6 +241,96 @@ private:
     const MetalWorldCapacityProfile& capacities = {}
 );
 
+struct MetalRolloutRingConfig {
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t controlStepCapacity = 0u;
+    std::uint32_t actorObservationCount = 0u;
+    std::uint32_t criticObservationCount = 0u;
+    std::uint32_t actionCount = 0u;
+    std::uint32_t slotCount = 3u;
+};
+
+struct MetalRolloutRingLayout : MetalRolloutRingConfig {
+    std::size_t retainedBytes = 0u;
+};
+
+// Opaque append token produced only by a live rollout lease. It contains no
+// public raw Metal bindings and can be copied into an asynchronous world
+// batch; the command buffer retains the underlying resources until completion.
+class MetalRolloutAppendTarget {
+public:
+    MetalRolloutAppendTarget() = default;
+    [[nodiscard]] bool valid() const noexcept;
+
+private:
+    friend class MetalRolloutBufferView;
+    friend class MetalWorldContext;
+    std::shared_ptr<detail::MetalRolloutAppendData> state_;
+};
+
+class MetalRolloutBufferView {
+public:
+    MetalRolloutBufferView() noexcept;
+    ~MetalRolloutBufferView();
+    MetalRolloutBufferView(MetalRolloutBufferView&&) noexcept;
+    MetalRolloutBufferView& operator=(
+        MetalRolloutBufferView&&
+    ) noexcept;
+    MetalRolloutBufferView(const MetalRolloutBufferView&) = delete;
+    MetalRolloutBufferView& operator=(
+        const MetalRolloutBufferView&
+    ) = delete;
+
+    [[nodiscard]] bool valid() const noexcept;
+    [[nodiscard]] const MetalRolloutRingLayout& layout() const noexcept;
+    [[nodiscard]] std::uint64_t policyRevision() const noexcept;
+    [[nodiscard]] std::uint32_t writtenControlSteps() const noexcept;
+    [[nodiscard]] MetalRolloutAppendTarget beginAppend(
+        std::uint32_t controlStepCount,
+        bool includeBootstrapValues
+    );
+    void cancelPendingAppend() noexcept;
+    void seal();
+    [[nodiscard]] bool sealed() const noexcept;
+
+    [[nodiscard]] float* actorObservations() const noexcept;
+    [[nodiscard]] float* criticObservations() const noexcept;
+    [[nodiscard]] float* latents() const noexcept;
+    [[nodiscard]] float* logProbabilities() const noexcept;
+    [[nodiscard]] float* values() const noexcept;
+    [[nodiscard]] float* bootstrapValues() const noexcept;
+    [[nodiscard]] MRTaskTransitionGPU* transitions() const noexcept;
+
+private:
+    friend class MetalRolloutRing;
+    void release() noexcept;
+    [[nodiscard]] void* streamData(std::uint32_t stream) const noexcept;
+    std::shared_ptr<detail::MetalRolloutRingData> ring_;
+    std::uint32_t slotIndex_ = MR_INVALID_INDEX;
+    std::uint64_t generation_ = 0u;
+};
+
+// Native fixed-capacity shared-buffer ring. The buffers are allocated by the
+// runtime on the same default Apple GPU used by MetalWorld; Swift receives
+// only opaque leases and compact CPU-addressable views after sealing.
+class MetalRolloutRing {
+public:
+    explicit MetalRolloutRing(MetalRolloutRingConfig config);
+    ~MetalRolloutRing();
+    MetalRolloutRing(MetalRolloutRing&&) noexcept;
+    MetalRolloutRing& operator=(MetalRolloutRing&&) noexcept;
+    MetalRolloutRing(const MetalRolloutRing&) = delete;
+    MetalRolloutRing& operator=(const MetalRolloutRing&) = delete;
+
+    [[nodiscard]] const MetalRolloutRingLayout& layout() const noexcept;
+    [[nodiscard]] MetalRolloutBufferView acquire(
+        std::uint64_t policyRevision
+    );
+
+private:
+    std::shared_ptr<detail::MetalRolloutRingData> state_;
+};
+
 // One submission encodes controlStepCount control steps. initialQ/initialV are
 // packed [environment][local coordinate]. efforts are packed
 // [control step][environment][local v]. Optional reset masks are packed
@@ -275,6 +367,9 @@ struct MetalWorldBatch {
     std::span<const MRRodEdgeStateGPU> initialRodEdges{};
     std::span<const MRRodNodeStateGPU> resetRodNodes{};
     std::span<const MRRodEdgeStateGPU> resetRodEdges{};
+    // Optional compact rollout destination. Its dimensions, policy revision,
+    // cursor, and bootstrap boundary are validated before any GPU work.
+    MetalRolloutAppendTarget rolloutTarget{};
 };
 
 struct MetalWorldStepConfig {
