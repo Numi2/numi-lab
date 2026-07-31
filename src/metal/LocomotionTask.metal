@@ -782,7 +782,7 @@ kernel void mr_locomotion_task_observe(
     device float* sourceQ [[buffer(10)]],
     device float* sourceV [[buffer(11)]],
     device const MRBodyStateGPU* initialScene [[buffer(12)]],
-    device const MRBodyStateGPU* sourceScene [[buffer(15)]],
+    device MRBodyStateGPU* sourceScene [[buffer(15)]],
     device const float* defaultQ [[buffer(16)]],
     device MRTaskStateGPU* taskStates [[buffer(17)]],
     device float* actionHistory [[buffer(18)]],
@@ -930,7 +930,12 @@ kernel void mr_locomotion_task_observe(
              ++localScene) {
             MRBodyStateGPU scene =
                 initialScene[sceneBase + localScene];
-            if ((scene.flagsAndIndices[3] &
+            const uint launchStep =
+                (scene.flagsAndIndices[3] &
+                 MR_BODY_STATE_LAUNCH_STEP_MASK) >>
+                MR_BODY_STATE_LAUNCH_STEP_SHIFT;
+            if (launchStep != 0u ||
+                (scene.flagsAndIndices[3] &
                  MR_BODY_STATE_PRESERVE_RESET_VELOCITY) == 0u) {
                 scene.linearVelocityAndInverseMass.xyz =
                     float3(0.0f);
@@ -1361,6 +1366,30 @@ kernel void mr_locomotion_task_observe(
                     index
                 ] = firstCritic[index];
             }
+        }
+    }
+
+    if (!reset) {
+        for (uint localScene = 0u;
+             localScene < dispatch.strides.w;
+             ++localScene) {
+            const MRBodyStateGPU authored =
+                initialScene[sceneBase + localScene];
+            const uint launchStep =
+                (authored.flagsAndIndices[3] &
+                 MR_BODY_STATE_LAUNCH_STEP_MASK) >>
+                MR_BODY_STATE_LAUNCH_STEP_SHIFT;
+            if (launchStep == 0u ||
+                state.episode.x > launchStep) {
+                continue;
+            }
+            MRBodyStateGPU scheduled = authored;
+            if (state.episode.x < launchStep) {
+                scheduled.linearVelocityAndInverseMass.xyz =
+                    float3(0.0f);
+                scheduled.angularVelocity = float4(0.0f);
+            }
+            sourceScene[sceneBase + localScene] = scheduled;
         }
     }
 

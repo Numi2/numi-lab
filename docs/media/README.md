@@ -73,6 +73,37 @@ g1-standing-ball-disturbance-20s.mp4=sha256:e1fcce61903081f8a7a2640dd140ef8354a7
 
 This is simulator disturbance-recovery evidence, not a hardware claim.
 
+## G1 escalating twelve-ball impact animation
+
+`g1-twelve-ball-escalation.gif` and `g1-twelve-ball-escalation.mp4` show one
+continuous 8.5-second native rollout at a 20 ms control interval. The original
+four `0.05–0.08 kg` disturbances are followed by eight spheres with masses
+`1`, `2`, `3`, `4`, `5`, `6`, `7`, and `8 kg`. The heavy spheres are released
+in ascending order at half-second intervals, with nominal body-crossing times
+from `2.0 s` through `5.5 s`; radii increase from `0.13 m` to `0.20 m`.
+
+The `6 kg` strike knocks G1 down. For this inspection capture the authored
+height/tilt termination operators were omitted at task compilation, so the
+same physical state continues through the `7 kg` and `8 kg` strikes and for
+three seconds afterward instead of being replaced by an episode reset. This
+does not change contact, articulated dynamics, policy inference, or rigid-body
+integration. All 425 Apple M4 control steps completed with zero failed physics
+steps; maximum active contacts were 19 and maximum manifolds were 17.
+
+The 85 displayed states sample every fifth accepted control step and play at
+10 Hz. Future spheres are presentation-hidden until their compiled launch
+step, but their visible motion and every robot pose come directly from the
+native state trace. MuJoCo supplies no state, contact, motion, or pixels. The
+retained hashes are:
+
+```text
+g1-twelve-ball-escalation.gif=sha256:1c4fa92571362d04f5b74ad7582e5761eb79da21bbfa4fe20f022707d41799f5
+g1-twelve-ball-escalation.mp4=sha256:753aad266ae44b8452c4f9044427ef3923034756bd40aa63445925f855cd4c61
+```
+
+This is a deliberately destructive simulator stress test, not recovery or
+hardware evidence.
+
 ## Native G1 policy-rollout animations
 
 `numi-lab-g1-native-rollout.gif` and

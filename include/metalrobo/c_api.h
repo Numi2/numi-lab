@@ -47,6 +47,7 @@ typedef struct MRTaskRolloutDynamicSphereC {
     float linear_velocity[3];
     float radius;
     float mass;
+    uint32_t launch_step;
 } MRTaskRolloutDynamicSphereC;
 
 typedef struct MRTaskRolloutConfigC {
@@ -58,6 +59,7 @@ typedef struct MRTaskRolloutConfigC {
     uint64_t seed;
     const MRTaskRolloutDynamicSphereC* dynamic_spheres;
     uint32_t dynamic_sphere_count;
+    uint32_t disable_task_terminations;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskRolloutLayoutC {

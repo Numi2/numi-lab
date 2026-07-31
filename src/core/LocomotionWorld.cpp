@@ -391,7 +391,10 @@ void appendLocomotionDynamicSpheres(
             !std::isfinite(source.radius) ||
             !std::isfinite(source.mass) ||
             !(source.radius > 0.0f) ||
-            !(source.mass > 0.0f)) {
+            !(source.mass > 0.0f) ||
+            source.launchStep >
+                (MR_BODY_STATE_LAUNCH_STEP_MASK >>
+                 MR_BODY_STATE_LAUNCH_STEP_SHIFT)) {
             throw std::invalid_argument(
                 "dynamic locomotion sphere parameters must be finite and positive"
             );
@@ -476,7 +479,9 @@ void appendLocomotionDynamicSpheres(
         state.flagsAndIndices[1] = MR_INVALID_INDEX;
         state.flagsAndIndices[2] = bodyIndex;
         state.flagsAndIndices[3] =
-            MR_BODY_STATE_PRESERVE_RESET_VELOCITY;
+            MR_BODY_STATE_PRESERVE_RESET_VELOCITY |
+            (source.launchStep <<
+             MR_BODY_STATE_LAUNCH_STEP_SHIFT);
         world.sceneBodies.push_back(state);
     }
 

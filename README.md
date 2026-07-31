@@ -79,6 +79,20 @@ pushes. G1 completes the 20-second gate with zero failed physics steps, peaks
 at `0.0168 rad` (`0.96°`) tilt, and returns below `0.012 rad` for a sustained
 half-second by `0.92 s`.
 
+### Escalating native impact test
+
+![Four light balls followed by 1 through 8 kg spheres striking G1 in one native MetalRobo rollout](docs/media/g1-twelve-ball-escalation.gif)
+
+[Play or download the 8.5-second H.264 impact capture](docs/media/g1-twelve-ball-escalation.mp4).
+The same four light spheres are followed by eight growing spheres from `1 kg`
+through `8 kg`, released in ascending order at half-second intervals. This is
+an intentionally destructive stress test: the `6 kg` impact knocks G1 down,
+the episode is left physically continuous with no reset, and the `7 kg` and
+`8 kg` impacts plus three seconds of aftermath remain visible. All 425 control
+steps completed on Apple M4 with zero failed physics steps; the balls are
+ordinary rigid bodies and every displayed pose comes from the accepted native
+state trace.
+
 ## The renderer is a sensor
 
 ![RGB, metric depth, surface normals, and authored identities from the same numi-lab frame](docs/media/metalrobo-sensor-gallery.webp)

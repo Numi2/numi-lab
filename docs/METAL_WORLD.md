@@ -62,7 +62,13 @@ scenes; the resulting bodies use the same broadphase, manifolds, islands, and
 temporal-cone solve as every other rigid object. An authored scene-state flag
 may preserve initial linear/angular velocity across transactional task reset,
 which supports launched bodies without a scripted impulse or robot-specific
-kernel. Final robot configuration and packed scene-body state are optional
+kernel. A launch step may also be compiled into that body state: the generic
+task kernel holds the body at its authored pose with zero velocity, releases
+it deterministically at the requested control step, and rearms it on a
+transactional reset. Rollout inspection can compile without task termination
+operators when a continuous post-failure trajectory is required; production
+training retains the authored termination and reset contract. Final robot
+configuration and packed scene-body state are optional
 explicit readbacks for inspection and native presentation capture; training
 keeps them disabled.
 

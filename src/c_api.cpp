@@ -527,12 +527,16 @@ createCompiledTaskRollout(
             },
             .radius = source.radius,
             .mass = source.mass,
+            .launchStep = source.launch_step,
         });
     }
     metalrobo::appendLocomotionDynamicSpheres(
         authored,
         spheres
     );
+    if (config.disable_task_terminations != 0u) {
+        authored.task.terminations.clear();
+    }
 
     metalrobo::MetalWorldConfig worldConfig;
     if (metallibPath != nullptr &&

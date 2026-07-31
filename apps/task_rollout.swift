@@ -149,6 +149,7 @@ private struct Options {
     var urdf: String?
     var srdf: String?
     var dynamicSpheres: [MetalRoboDynamicSphere] = []
+    var disableTaskTerminations = false
     var stateTrace: String?
 
     init(arguments: [String]) throws {
@@ -224,6 +225,8 @@ private struct Options {
                 zeroActions = true
             case "--no-scheduled-resets":
                 scheduledResets = false
+            case "--continue-after-termination":
+                disableTaskTerminations = true
             case "--policy-pack":
                 policyPack = try value()
                 index += 1
@@ -245,14 +248,18 @@ private struct Options {
             case "--ball":
                 let fields = try value().split(separator: ",")
                 let values = fields.compactMap(Float.init)
-                guard values.count == 8 else {
+                guard values.count == 8 || values.count == 9 else {
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--ball requires x,y,z,vx,vy,vz,radius,mass."
+                        "--ball requires x,y,z,vx,vy,vz,radius,mass[,launch_step]."
                     )
                 }
                 guard values.allSatisfy(\.isFinite),
                       values[6] > 0,
-                      values[7] > 0
+                      values[7] > 0,
+                      values.count == 8 ||
+                        (values[8] >= 0 &&
+                         values[8] <= Float(0x00ff_ffff) &&
+                         values[8].rounded() == values[8])
                 else {
                     throw MetalRoboTaskRolloutError.invalidShape(
                         "--ball values must be finite with positive radius and mass."
@@ -265,7 +272,11 @@ private struct Options {
                             values[3], values[4], values[5]
                         ),
                         radius: values[6],
-                        mass: values[7]
+                        mass: values[7],
+                        launchStep:
+                            values.count == 9
+                            ? UInt32(values[8])
+                            : 0
                     )
                 )
                 index += 1
@@ -355,7 +366,8 @@ private func makeContext(
         finalVelocityIterations:
             UInt32(options.finalVelocityIterations),
         seed: options.seed,
-        dynamicSpheres: options.dynamicSpheres
+        dynamicSpheres: options.dynamicSpheres,
+        disableTaskTerminations: options.disableTaskTerminations
     )
     if let worldPack = options.worldPack,
        let taskPack = options.taskPack

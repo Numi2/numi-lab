@@ -58,17 +58,20 @@ public struct MetalRoboDynamicSphere: Sendable {
     public var linearVelocity: SIMD3<Float>
     public var radius: Float
     public var mass: Float
+    public var launchStep: UInt32
 
     public init(
         position: SIMD3<Float>,
         linearVelocity: SIMD3<Float>,
         radius: Float,
-        mass: Float
+        mass: Float,
+        launchStep: UInt32 = 0
     ) {
         self.position = position
         self.linearVelocity = linearVelocity
         self.radius = radius
         self.mass = mass
+        self.launchStep = launchStep
     }
 }
 
@@ -160,6 +163,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var controlTimestepSeconds: Float
     public var seed: UInt64
     public var dynamicSpheres: [MetalRoboDynamicSphere]
+    public var disableTaskTerminations: Bool
 
     public init(
         environmentCount: UInt32,
@@ -169,7 +173,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         finalVelocityIterations: UInt32 = 2,
         controlTimestepSeconds: Float = 0.02,
         seed: UInt64 = 0,
-        dynamicSpheres: [MetalRoboDynamicSphere] = []
+        dynamicSpheres: [MetalRoboDynamicSphere] = [],
+        disableTaskTerminations: Bool = false
     ) {
         self.environmentCount = environmentCount
         self.surface = surface
@@ -179,6 +184,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.controlTimestepSeconds = controlTimestepSeconds
         self.seed = seed
         self.dynamicSpheres = dynamicSpheres
+        self.disableTaskTerminations = disableTaskTerminations
     }
 }
 
@@ -546,6 +552,8 @@ public final class MetalRoboTaskRolloutContext {
         native.control_timestep_seconds =
             configuration.controlTimestepSeconds
         native.seed = configuration.seed
+        native.disable_task_terminations =
+            configuration.disableTaskTerminations ? 1 : 0
         return native
     }
 
@@ -567,6 +575,7 @@ public final class MetalRoboTaskRolloutContext {
             )
             sphere.radius = source.radius
             sphere.mass = source.mass
+            sphere.launch_step = source.launchStep
             return sphere
         }
         return spheres.withUnsafeBufferPointer { buffer in

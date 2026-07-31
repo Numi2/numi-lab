@@ -27,6 +27,7 @@ struct LocomotionDynamicSphere {
     mr_float4 linearVelocity{};
     float radius = 0.1f;
     float mass = 0.1f;
+    std::uint32_t launchStep = 0u;
 };
 
 struct CompiledLocomotionWorld {

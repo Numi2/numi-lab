@@ -105,6 +105,9 @@ enum MRBodyStateFlags : mr_u32 {
     MR_BODY_STATE_PRESERVE_RESET_VELOCITY = 1u << 0u,
 };
 
+#define MR_BODY_STATE_LAUNCH_STEP_SHIFT 8u
+#define MR_BODY_STATE_LAUNCH_STEP_MASK 0xffffff00u
+
 enum MRRootType : mr_u32 {
     MR_ROOT_FIXED = 0u,
     MR_ROOT_FLOATING = 1u,

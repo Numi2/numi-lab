@@ -378,6 +378,7 @@ int main() {
                 .linearVelocity = {2.0f, 0.0f, 0.5f, 0.0f},
                 .radius = 0.1f,
                 .mass = 0.08f,
+                .launchStep = 17u,
             },
         };
         metalrobo::appendLocomotionDynamicSpheres(
@@ -404,6 +405,9 @@ int main() {
             disturbanceState.linearVelocityAndInverseMass.w != 12.5f ||
             (disturbanceState.flagsAndIndices[3] &
              MR_BODY_STATE_PRESERVE_RESET_VELOCITY) == 0u ||
+            ((disturbanceState.flagsAndIndices[3] &
+              MR_BODY_STATE_LAUNCH_STEP_MASK) >>
+             MR_BODY_STATE_LAUNCH_STEP_SHIFT) != 17u ||
             disturbedCompiled.world.fingerprint() ==
                 world.fingerprint()) {
             fail(
