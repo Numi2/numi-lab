@@ -11,7 +11,6 @@ import tempfile
 from pathlib import Path
 
 import mlx.core as mx
-from mlx.utils import tree_flatten
 import numpy as np
 
 from metalrobo.mlx_policy_learning import (
@@ -47,11 +46,14 @@ def check_gae_boundaries() -> None:
             ("reward", "<f4"),
             ("done", "<u4"),
             ("timeout", "<u4"),
+            ("physics_error", "<u4"),
+            ("timeout_bootstrap_value", "<f4"),
         ],
     )
     transitions["reward"] = (1.0, 1.0)
     transitions["done"][0] = 1
     transitions["timeout"][0] = 1
+    transitions["timeout_bootstrap_value"][0] = 5.0
     rollout = NativePolicyRollout(
         id="gae_boundary_check",
         task_fingerprint=1,
@@ -76,49 +78,11 @@ def check_gae_boundaries() -> None:
             gae_lambda=0.95,
         ).advantages
     )
-    expected = np.asarray((-1.0, 4.92), dtype=np.float32)
+    expected = np.asarray((3.95, 4.92), dtype=np.float32)
     if not np.allclose(advantages, expected, atol=1.0e-6):
         raise RuntimeError(
             "GAE crossed an episode boundary or bootstrapped a timeout "
             f"from the wrong state: {advantages}"
-        )
-
-
-def check_exploration_restart() -> None:
-    learner = make_learner()
-    before = {
-        name: np.asarray(value).copy()
-        for name, value in tree_flatten(
-            learner.model.actor.parameters()
-        )
-    }
-    revision = learner.revision
-    learner.restart_exploration(-0.25)
-    mx.eval(
-        learner.model.parameters(),
-        learner.optimizer.state,
-    )
-    after = {
-        name: np.asarray(value)
-        for name, value in tree_flatten(
-            learner.model.actor.parameters()
-        )
-    }
-    log_standard_deviation = np.asarray(
-        learner.model.log_standard_deviation
-    )
-    if (
-        learner.revision != revision + 1
-        or before.keys() != after.keys()
-        or any(
-            not np.array_equal(before[name], after[name])
-            for name in before
-        )
-        or not np.all(log_standard_deviation == -0.25)
-    ):
-        raise RuntimeError(
-            "exploration restart changed actor weights or failed "
-            "to advance the behavior revision"
         )
 
 
@@ -347,7 +311,6 @@ def main() -> int:
     parser.add_argument("--chunk", type=int, default=4)
     arguments = parser.parse_args()
     check_gae_boundaries()
-    check_exploration_restart()
 
     if arguments.collector is not None:
         if arguments.metallib is None or arguments.library is None:

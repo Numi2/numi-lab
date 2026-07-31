@@ -26,6 +26,17 @@ G1_ACTOR_OBSERVATION_SIZE = (
 )
 G1_ACTION_COUNT = (G1_ACTOR_FRAME_SIZE - 9) // 3
 
+G1_PROMOTION_COMMANDS = (
+    ("idle", (0.0, 0.0, 0.0)),
+    ("forward_slow", (0.1, 0.0, 0.0)),
+    ("forward", (0.5, 0.0, 0.0)),
+    ("reverse", (-0.5, 0.0, 0.0)),
+    ("left", (0.0, 0.3, 0.0)),
+    ("right", (0.0, -0.3, 0.0)),
+    ("yaw_left", (0.0, 0.0, 0.2)),
+    ("yaw_right", (0.0, 0.0, -0.2)),
+)
+
 
 @dataclass(frozen=True, slots=True)
 class G1DeployableSensors:
@@ -369,16 +380,20 @@ def export_g1_onnx(
             source = activated
         else:
             source = linear_name
-    nodes.extend(
-        (
+    if pack.format_version == 2:
+        nodes.append(
             helper.make_node(
                 "Tanh",
                 (source,),
-                ("squashed_action",),
-            ),
+                ("legacy_squashed_action",),
+            )
+        )
+        source = "legacy_squashed_action"
+    nodes.extend(
+        (
             helper.make_node(
                 "Mul",
-                ("squashed_action", "action_scale"),
+                (source, "action_scale"),
                 ("scaled_action",),
             ),
             helper.make_node(
@@ -640,6 +655,7 @@ def export_g1_coreml(
             input_name=source,
             output_name=linear,
         )
+        source = linear
         if index + 1 < len(pack.layers):
             activated = f"actor_elu_{index}"
             builder.add_activation(
@@ -650,13 +666,14 @@ def export_g1_coreml(
                 params=1.0,
             )
             source = activated
-        else:
-            builder.add_activation(
-                name="squashed_action",
-                non_linearity="TANH",
-                input_name=linear,
-                output_name="squashed_action",
-            )
+    if pack.format_version == 2:
+        builder.add_activation(
+            name="legacy_squashed_action",
+            non_linearity="TANH",
+            input_name=source,
+            output_name="legacy_squashed_action",
+        )
+        source = "legacy_squashed_action"
     builder.add_load_constant_nd(
         name="action_scale",
         output_name="action_scale",
@@ -665,7 +682,7 @@ def export_g1_coreml(
     )
     builder.add_elementwise(
         name="scale_action",
-        input_names=["squashed_action", "action_scale"],
+        input_names=[source, "action_scale"],
         output_name="scaled_action",
         mode="MULTIPLY",
     )
@@ -935,6 +952,18 @@ class UnitreeG1MuJoCoRunner:
         )
         if np.any(np.abs(self.actuator_gears) < 1.0e-8):
             raise ValueError("MuJoCo actuator gear cannot be zero")
+        self.actuator_control_limited = np.asarray(
+            self.model.actuator_ctrllimited[
+                self.actuator_addresses
+            ],
+            dtype=bool,
+        )
+        self.actuator_control_ranges = np.asarray(
+            self.model.actuator_ctrlrange[
+                self.actuator_addresses
+            ],
+            dtype=np.float64,
+        )
         self.history = G1ObservationHistory(self.default_pose)
 
     def _sensors(self) -> G1DeployableSensors:
@@ -974,6 +1003,52 @@ class UnitreeG1MuJoCoRunner:
         self.mujoco.mj_forward(self.model, self.data)
         return self.history.reset(self._sensors(), command)
 
+    def _apply_joint_target(self, target: np.ndarray) -> int:
+        """Evaluate the joint servo at the native physics cadence."""
+
+        joint_position = np.asarray(
+            self.data.qpos[self.qpos_addresses],
+            dtype=np.float64,
+        )
+        joint_velocity = np.asarray(
+            self.data.qvel[self.qvel_addresses],
+            dtype=np.float64,
+        )
+        unclipped_torque = (
+            self.stiffness
+            * (
+                target
+                - joint_position
+                - self.drive_prediction_seconds * joint_velocity
+            )
+            - self.damping * joint_velocity
+        )
+        desired_torque = np.clip(
+            unclipped_torque,
+            -self.effort_limits,
+            self.effort_limits,
+        )
+        control = desired_torque / self.actuator_gears
+        limited_control = np.where(
+            self.actuator_control_limited,
+            np.clip(
+                control,
+                self.actuator_control_ranges[:, 0],
+                self.actuator_control_ranges[:, 1],
+            ),
+            control,
+        )
+        self.data.ctrl[self.actuator_addresses] = limited_control
+        effort_saturated = np.abs(unclipped_torque) > (
+            self.effort_limits + 1.0e-9
+        )
+        control_saturated = self.actuator_control_limited & (
+            np.abs(limited_control - control) > 1.0e-9
+        )
+        return int(np.count_nonzero(
+            effort_saturated | control_saturated
+        ))
+
     def run(
         self,
         command: np.ndarray,
@@ -992,6 +1067,15 @@ class UnitreeG1MuJoCoRunner:
         survived = 0
         squared_planar_error = 0.0
         squared_yaw_error = 0.0
+        summed_local_velocity = np.zeros(3, dtype=np.float64)
+        maximum_absolute_yaw_velocity = 0.0
+        maximum_absolute_joint_velocity = 0.0
+        saturated_joint_samples = 0
+        initial_pelvis_position = np.asarray(
+            self.data.xpos[self.pelvis_body],
+            dtype=np.float64,
+        ).copy()
+        termination_reason = "duration"
         for _ in range(control_steps):
             action = (
                 np.zeros(G1_ACTION_COUNT, dtype=np.float32)
@@ -1007,48 +1091,10 @@ class UnitreeG1MuJoCoRunner:
                 self.position_limits[:, 0],
                 self.position_limits[:, 1],
             )
-            joint_position = np.asarray(
-                self.data.qpos[self.qpos_addresses],
-                dtype=np.float64,
-            )
-            joint_velocity = np.asarray(
-                self.data.qvel[self.qvel_addresses],
-                dtype=np.float64,
-            )
-            desired_torque = (
-                self.stiffness
-                * (
-                    target
-                    - joint_position
-                    - self.drive_prediction_seconds * joint_velocity
-                )
-                - self.damping * joint_velocity
-            )
-            desired_torque = np.clip(
-                desired_torque,
-                -self.effort_limits,
-                self.effort_limits,
-            )
-            control = desired_torque / self.actuator_gears
-            limited = np.asarray(
-                self.model.actuator_ctrllimited[
-                    self.actuator_addresses
-                ],
-                dtype=bool,
-            )
-            ranges = np.asarray(
-                self.model.actuator_ctrlrange[
-                    self.actuator_addresses
-                ],
-                dtype=np.float64,
-            )
-            control = np.where(
-                limited,
-                np.clip(control, ranges[:, 0], ranges[:, 1]),
-                control,
-            )
-            self.data.ctrl[self.actuator_addresses] = control
             for _ in range(self.physics_substeps):
+                saturated_joint_samples += (
+                    self._apply_joint_target(target)
+                )
                 self.mujoco.mj_step(self.model, self.data)
             sensors = self._sensors()
             observation = self.history.update(
@@ -1069,6 +1115,9 @@ class UnitreeG1MuJoCoRunner:
                 )
             )
             if pelvis_height < 0.2 or tilt > 0.8:
+                termination_reason = (
+                    "height" if pelvis_height < 0.2 else "tilt"
+                )
                 break
             survived += 1
             local_velocity = np.zeros(6, dtype=np.float64)
@@ -1079,6 +1128,17 @@ class UnitreeG1MuJoCoRunner:
                 self.pelvis_body,
                 local_velocity,
                 1,
+            )
+            summed_local_velocity += local_velocity[[3, 4, 2]]
+            maximum_absolute_yaw_velocity = max(
+                maximum_absolute_yaw_velocity,
+                abs(float(local_velocity[2])),
+            )
+            maximum_absolute_joint_velocity = max(
+                maximum_absolute_joint_velocity,
+                float(np.max(np.abs(
+                    self.data.qvel[self.qvel_addresses]
+                ))),
             )
             squared_planar_error += float(
                 np.sum(
@@ -1094,6 +1154,30 @@ class UnitreeG1MuJoCoRunner:
                 ** 2
             )
         denominator = max(survived, 1)
+        mean_local_velocity = summed_local_velocity / denominator
+        final_pelvis_position = np.asarray(
+            self.data.xpos[self.pelvis_body],
+            dtype=np.float64,
+        )
+        displacement = final_pelvis_position - initial_pelvis_position
+        planar_command_squared = float(
+            np.dot(command_array[:2], command_array[:2])
+        )
+        planar_response_ratio = (
+            float(
+                np.dot(
+                    mean_local_velocity[:2],
+                    command_array[:2],
+                ) / planar_command_squared
+            )
+            if planar_command_squared > 1.0e-8
+            else 0.0
+        )
+        yaw_response_ratio = (
+            float(mean_local_velocity[2] / command_array[2])
+            if abs(float(command_array[2])) > 1.0e-8
+            else 0.0
+        )
         return {
             "policy_id": self.policy.pack.id,
             "policy_revision": self.policy.pack.revision,
@@ -1108,6 +1192,9 @@ class UnitreeG1MuJoCoRunner:
             "unitree_source_model_path":
                 self.contract["source_model_path"],
             "requested_seconds": float(seconds),
+            "command_vx": float(command_array[0]),
+            "command_vy": float(command_array[1]),
+            "command_yaw": float(command_array[2]),
             "controller": (
                 "zero_action_baseline"
                 if zero_action
@@ -1116,12 +1203,104 @@ class UnitreeG1MuJoCoRunner:
             "survival_seconds":
                 survived * self.policy_timestep,
             "survival_fraction": survived / control_steps,
+            "termination_reason": termination_reason,
             "planar_velocity_rmse": math.sqrt(
                 squared_planar_error / denominator
             ),
             "yaw_velocity_rmse": math.sqrt(
                 squared_yaw_error / denominator
             ),
+            "mean_local_vx": float(mean_local_velocity[0]),
+            "mean_local_vy": float(mean_local_velocity[1]),
+            "mean_local_yaw_velocity": float(
+                mean_local_velocity[2]
+            ),
+            "world_displacement_x": float(displacement[0]),
+            "world_displacement_y": float(displacement[1]),
+            "planar_response_ratio": planar_response_ratio,
+            "yaw_response_ratio": yaw_response_ratio,
+            "maximum_absolute_yaw_velocity": (
+                maximum_absolute_yaw_velocity
+            ),
+            "maximum_absolute_joint_velocity": (
+                maximum_absolute_joint_velocity
+            ),
+            "saturated_joint_samples": saturated_joint_samples,
+        }
+
+    def run_promotion_suite(
+        self,
+        *,
+        seconds: float = 20.0,
+        zero_action: bool = False,
+        minimum_survival_fraction: float = 0.99,
+        minimum_response_ratio: float = 0.25,
+    ) -> dict[str, Any]:
+        """Run deterministic commands that distinguish balance from gait."""
+
+        if not 0.0 < minimum_survival_fraction <= 1.0:
+            raise ValueError(
+                "minimum survival fraction must be in (0, 1]"
+            )
+        if not math.isfinite(minimum_response_ratio) or (
+            minimum_response_ratio <= 0.0
+        ):
+            raise ValueError("minimum response ratio must be positive")
+        reports: list[dict[str, Any]] = []
+        failures: list[str] = []
+        for name, command in G1_PROMOTION_COMMANDS:
+            report = self.run(
+                np.asarray(command, dtype=np.float32),
+                seconds=seconds,
+                zero_action=zero_action,
+            )
+            report["case"] = name
+            survived = (
+                report["survival_fraction"]
+                >= minimum_survival_fraction
+            )
+            response = True
+            if abs(command[0]) + abs(command[1]) > 0.0:
+                response = (
+                    report["planar_response_ratio"]
+                    >= minimum_response_ratio
+                )
+            elif abs(command[2]) > 0.0:
+                response = (
+                    report["yaw_response_ratio"]
+                    >= minimum_response_ratio
+                )
+            else:
+                response = (
+                    math.hypot(
+                        report["mean_local_vx"],
+                        report["mean_local_vy"],
+                    ) <= 0.1
+                    and abs(report["mean_local_yaw_velocity"])
+                    <= 0.2
+                )
+            report["survival_pass"] = survived
+            report["response_pass"] = response
+            report["case_pass"] = survived and response
+            if not report["case_pass"]:
+                failures.append(name)
+            reports.append(report)
+        return {
+            "policy_id": self.policy.pack.id,
+            "policy_revision": self.policy.pack.revision,
+            "controller": (
+                "zero_action_baseline"
+                if zero_action
+                else "policy"
+            ),
+            "requested_seconds_per_case": float(seconds),
+            "minimum_survival_fraction": (
+                minimum_survival_fraction
+            ),
+            "minimum_response_ratio": minimum_response_ratio,
+            "promotion_ready": not failures,
+            "failed_cases": failures,
+            "cases": reports,
         }
 
 
@@ -1129,6 +1308,7 @@ __all__ = [
     "G1DeployableSensors",
     "G1NumpyPolicy",
     "G1ObservationHistory",
+    "G1_PROMOTION_COMMANDS",
     "UnitreeG1MuJoCoRunner",
     "export_g1_coreml",
     "export_g1_mlx",

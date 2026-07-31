@@ -4,10 +4,12 @@
 #include "metalrobo/generalized_constraint_shared.h"
 #include "metalrobo/multi_contact_shared.h"
 #include "metalrobo/parallel_aba_shared.h"
+#include "metalrobo/policy_program_types.h"
 #include "metalrobo/r2s2r_types.h"
 #include "metalrobo/rod_gpu_shared.h"
 #include "metalrobo/scene_query_types.h"
 #include "metalrobo/tactile_types.h"
+#include "metalrobo/task_program_types.h"
 #include "metalrobo/unified_quality_shared.h"
 #include "metalrobo/world_compiler_types.h"
 
@@ -108,6 +110,14 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
         hash,
         MR_UNIFIED_QUALITY_ABI_VERSION
     );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_TASK_PROGRAM_ABI_VERSION
+    );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_POLICY_PROGRAM_ABI_VERSION
+    );
 
     hash = detail::appendRuntimeAbiType<MRWorldGPU>(hash);
     hash = detail::appendRuntimeAbiType<MRArticulationGPU>(hash);
@@ -151,6 +161,18 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     >(hash);
     hash = detail::appendRuntimeAbiType<
         MRUnifiedQualityDispatchGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<MRTaskDispatchGPU>(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRTaskProgramHeaderGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<MRTaskStateGPU>(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRTaskCurriculumStateGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<MRTaskTransitionGPU>(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRPolicyProgramHeaderGPU
     >(hash);
     return hash;
 }

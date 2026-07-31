@@ -595,6 +595,11 @@ TaskCompileDiagnostics compileTaskProgram(
         !finite(pack.commands.standingProbability) ||
         pack.commands.standingProbability < 0.0f ||
         pack.commands.standingProbability > 1.0f ||
+        !finite(
+            pack.commands.minimumEpisodeSurvivalFraction
+        ) ||
+        pack.commands.minimumEpisodeSurvivalFraction < 0.0f ||
+        pack.commands.minimumEpisodeSurvivalFraction > 1.0f ||
         !finite(pack.commands.minimumDurationSeconds) ||
         !finite(pack.commands.maximumDurationSeconds) ||
         !(pack.commands.minimumDurationSeconds > 0.0f) ||
@@ -1351,6 +1356,8 @@ TaskCompileDiagnostics compileTaskProgram(
     for (const TaskTerminationOperatorSpec& termination :
          pack.terminations) {
         if (!finite(termination.threshold) ||
+            !finite(termination.failurePenalty) ||
+            termination.failurePenalty > 0.0f ||
             termination.reason ==
                 MR_TASK_TERMINATION_CONTINUING ||
             termination.reason >
@@ -1358,7 +1365,7 @@ TaskCompileDiagnostics compileTaskProgram(
             return reject(
                 TaskCompileStatus::invalidPack,
                 termination.sourceGroup,
-                "termination threshold or reason is invalid"
+                "termination threshold, failure penalty, or reason is invalid"
             );
         }
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
@@ -1395,7 +1402,12 @@ TaskCompileDiagnostics compileTaskProgram(
                 termination.reason,
                 termination.priority,
             },
-            {termination.threshold, 0.0f, 0.0f, 0.0f},
+            {
+                termination.threshold,
+                termination.failurePenalty,
+                0.0f,
+                0.0f,
+            },
         });
     }
 
@@ -1407,11 +1419,13 @@ TaskCompileDiagnostics compileTaskProgram(
          ++operatorIndex) {
         const TaskRandomizationOperatorSpec& random =
             pack.randomization[operatorIndex];
-        if (!finite(random.parameters)) {
+        if (!finite(random.parameters) ||
+            random.minimumCurriculumLevel >=
+                pack.curriculumLevelCount) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 random.target,
-                "randomization parameters are non-finite"
+                "randomization parameters or curriculum gate are invalid"
             );
         }
         std::uint32_t targetIndex = MR_INVALID_INDEX;
@@ -1559,10 +1573,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 static_cast<std::uint32_t>(random.operation),
                 targetIndex,
                 random.component,
-                2048u +
-                    static_cast<std::uint32_t>(
-                        operatorIndex
-                    ),
+                random.minimumCurriculumLevel,
             },
             compiledParameters,
         });
@@ -1810,6 +1821,8 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.commandLower.w =
         pack.commands.standingProbability;
     staged->header.commandUpper = pack.commands.upper;
+    staged->header.commandUpper.w =
+        pack.commands.minimumEpisodeSurvivalFraction;
     staged->commandCurriculum = {
         pack.commands.limitLower,
         pack.commands.limitUpper,

@@ -291,6 +291,9 @@ struct MetalWorldStepConfig {
     // buffer. This does not apply the sampled action or advance physics.
     bool evaluateFinalPolicy = false;
     std::uint64_t taskSeed = 0u;
+    // Initial task-wide command curriculum restored at a training boundary.
+    // It is consumed only when a new resident state is initialized.
+    std::uint32_t taskCurriculumLevel = 0u;
     std::uint32_t velocityIterations = 1u;
     std::uint32_t finalVelocityIterations = 1u;
     MetalWorldCCDMode ccdMode = MetalWorldCCDMode::speculative;

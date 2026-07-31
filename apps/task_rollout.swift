@@ -103,6 +103,26 @@ private func fingerprint(
             byteCount: 8,
             into: &hash
         )
+        fingerprintWord(
+            UInt64(transition.timeoutBootstrapValue.bitPattern),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.episodeTrackingScore.bitPattern),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.curriculumLevel),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.terrainLevel),
+            byteCount: 4,
+            into: &hash
+        )
     }
 }
 
@@ -114,10 +134,12 @@ private struct Options {
     var surface = MetalRoboLocomotionSurface.terrain
     var solver = MetalRoboTaskSolver.tgs
     var seed: UInt64 = 20_260_731
+    var curriculumLevel: UInt32 = 0
     var metallib = "build/shaders/MetalRobo.metallib"
     var verbose = false
     var nativePolicy = false
     var zeroActions = false
+    var scheduledResets = true
     var policyPack: String?
     var rolloutPack: String?
     var worldPack: String?
@@ -158,6 +180,14 @@ private struct Options {
                 }
                 seed = parsed
                 index += 1
+            case "--curriculum-level":
+                guard let parsed = UInt32(try value()) else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--curriculum-level requires an unsigned 32-bit integer."
+                    )
+                }
+                curriculumLevel = parsed
+                index += 1
             case "--metallib":
                 metallib = try value()
                 index += 1
@@ -191,6 +221,8 @@ private struct Options {
                 nativePolicy = true
             case "--zero-actions":
                 zeroActions = true
+            case "--no-scheduled-resets":
+                scheduledResets = false
             case "--policy-pack":
                 policyPack = try value()
                 index += 1
@@ -388,6 +420,9 @@ private enum TaskRolloutMain {
             )
             let (context, worldSource) =
                 try makeContext(options: options)
+            try context.setCurriculumLevel(
+                options.curriculumLevel
+            )
             let usesCompiledPolicy =
                 options.nativePolicy || options.policyPack != nil
             if let policyPack = options.policyPack {
@@ -532,18 +567,11 @@ private enum TaskRolloutMain {
                             )
                             let normal =
                                 latent / standardDeviation
-                            let squashed = Foundation.tanh(latent)
                             let gaussian =
                                 -0.5 * normal * normal -
                                 logStandardDeviation -
                                 halfLogTwoPi
-                            let jacobian = Foundation.log(
-                                max(
-                                    1 - squashed * squashed,
-                                    1.0e-6
-                                )
-                            )
-                            expected += gaussian - jacobian
+                            expected += gaussian
                         }
                         guard abs(
                             expected -
@@ -592,6 +620,8 @@ private enum TaskRolloutMain {
             var failedSteps = 0
             var policySampleCount = 0
             var transitionCount = 0
+            var minimumCurriculumLevel = UInt32.max
+            var finalCurriculumLevel = options.curriculumLevel
             var terminationCount = 0
             var rewardSum = 0.0
             var trackingSum = 0.0
@@ -621,12 +651,14 @@ private enum TaskRolloutMain {
                         options.chunk,
                         options.steps - completed
                     )
-                    let resetBatch = masks(
-                        startStep: globalStep,
-                        stepCount: stepCount,
-                        environmentCount: options.environments,
-                        pending: &pending
-                    )
+                    let resetBatch = options.scheduledResets
+                        ? masks(
+                            startStep: globalStep,
+                            stepCount: stepCount,
+                            environmentCount: options.environments,
+                            pending: &pending
+                        )
+                        : []
                     let advance: MetalRoboTaskRolloutAdvance
                     if usesCompiledPolicy {
                         advance = try context.advanceWithPolicy(
@@ -715,6 +747,19 @@ private enum TaskRolloutMain {
                     }
                     for transition in observedTransitions {
                         transitionCount += 1
+                        minimumCurriculumLevel = min(
+                            minimumCurriculumLevel,
+                            transition.curriculumLevel
+                        )
+                        guard transition.curriculumLevel >=
+                                finalCurriculumLevel
+                        else {
+                            throw MetalRoboTaskRolloutError.native(
+                                "Native task curriculum regressed."
+                            )
+                        }
+                        finalCurriculumLevel =
+                            transition.curriculumLevel
                         rewardSum += Double(transition.reward)
                         trackingSum +=
                             Double(transition.trackingScore)
@@ -845,6 +890,12 @@ private enum TaskRolloutMain {
                 "steps_per_repeat": options.steps,
                 "repeats": options.repeats,
                 "control_steps_per_submission": options.chunk,
+                "initial_task_curriculum_level":
+                    options.curriculumLevel,
+                "minimum_task_curriculum_level":
+                    minimumCurriculumLevel,
+                "final_task_curriculum_level":
+                    finalCurriculumLevel,
                 "submission_count":
                     NSNumber(
                         value:
@@ -873,6 +924,7 @@ private enum TaskRolloutMain {
                 "peak_aliased_bytes":
                     layout.peakAliasedBytes,
                 "host_requested_resets": totalResets,
+                "scheduled_resets": options.scheduledResets,
                 "maximum_active_contacts": maximumContacts,
                 "maximum_manifolds": maximumManifolds,
                 "stage_high_water": stageHighWater,

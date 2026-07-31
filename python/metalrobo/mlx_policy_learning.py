@@ -29,9 +29,9 @@ from .native import (
 
 _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
 _POLICY_KIND = 2
-_POLICY_FORMAT_VERSION = 2
+_POLICY_FORMAT_VERSION = 3
 _POLICY_ROLLOUT_KIND = 3
-_POLICY_ROLLOUT_FORMAT_VERSION = 2
+_POLICY_ROLLOUT_FORMAT_VERSION = 3
 _TRANSITION_DTYPE = np.dtype(
     [
         ("reward", "<f4"),
@@ -51,7 +51,12 @@ _TRANSITION_DTYPE = np.dtype(
         ("energy_reward", "<f4"),
         ("contact_reward", "<f4"),
         ("policy_revision", "<u8"),
-        ("reserved", "<u8"),
+        ("timeout_bootstrap_value", "<f4"),
+        ("episode_tracking_score", "<f4"),
+        ("curriculum_level", "<u4"),
+        ("terrain_level", "<u4"),
+        ("reserved_0", "<u4"),
+        ("reserved_1", "<u4"),
     ],
     align=False,
 )
@@ -104,12 +109,18 @@ class NativePolicyRollout:
             steps,
             environments,
         ).astype(np.float32)
+        timeout = self.transitions["timeout"].reshape(
+            steps,
+            environments,
+        ).astype(np.float32)
+        physics_error = self.transitions["physics_error"].reshape(
+            steps,
+            environments,
+        ).astype(np.float32)
+        timeout_values = self.transitions[
+            "timeout_bootstrap_value"
+        ].reshape(steps, environments)
         values = self.old_values.reshape(steps, environments)
-        # A native timeout is an episode boundary. Its post-transition
-        # observation is intentionally not replaced with the next episode's
-        # reset observation, so do not invent a bootstrap from V(s_t).
-        # Treat it as terminal until the rollout ABI publishes an explicit
-        # terminal-observation value.
         advantages = np.zeros_like(values, dtype=np.float32)
         running = np.zeros((environments,), dtype=np.float32)
         for step in range(steps - 1, -1, -1):
@@ -119,8 +130,14 @@ class NativePolicyRollout:
                 else values[step + 1]
             )
             continuing = 1.0 - done[step]
+            timeout_bootstrap = (
+                timeout[step]
+                * (1.0 - physics_error[step])
+                * timeout_values[step]
+            )
             delta = (
                 rewards[step]
+                + discount * timeout_bootstrap
                 + discount * continuing * next_values
                 - values[step]
             )
@@ -180,6 +197,7 @@ class NativePolicyPack:
     observation_clip: float
     action_clip: float
     content_hash: int
+    format_version: int
 
     @property
     def actor_observation_count(self) -> int:
@@ -302,9 +320,14 @@ class NativePolicyPack:
         return value.astype(np.float32, copy=False)
 
     def actions(self, observations: np.ndarray) -> np.ndarray:
-        squashed = np.tanh(self.actor_mean(observations))
+        mean = self.actor_mean(observations)
+        # V2 is readable only for truthful historical deployment evidence.
+        # Its persisted action contract was tanh(mean); V3 is raw Gaussian.
+        policy_output = (
+            np.tanh(mean) if self.format_version == 2 else mean
+        )
         return np.clip(
-            self.effective_action_scale * squashed
+            self.effective_action_scale * policy_output
             + self.effective_action_bias,
             -self.action_clip,
             self.action_clip,
@@ -434,7 +457,7 @@ def read_policy_pack(
     ) = _LEARNING_PACK_HEADER.unpack_from(data)
     if magic != b"MRLEARN\0":
         raise ValueError("PolicyPack magic is invalid")
-    if format_version != _POLICY_FORMAT_VERSION:
+    if format_version not in (2, _POLICY_FORMAT_VERSION):
         raise ValueError("PolicyPack format version is unsupported")
     if kind != _POLICY_KIND:
         raise ValueError("Learning artifact is not a PolicyPack")
@@ -547,6 +570,7 @@ def read_policy_pack(
         observation_clip=observation_clip,
         action_clip=action_clip,
         content_hash=expected_hash,
+        format_version=format_version,
     )
 
 
@@ -663,6 +687,8 @@ def read_policy_rollout_pack(
         transitions["posture_reward"],
         transitions["energy_reward"],
         transitions["contact_reward"],
+        transitions["timeout_bootstrap_value"],
+        transitions["episode_tracking_score"],
     )
     if not all(np.isfinite(table).all() for table in float_tables):
         raise ValueError("PolicyRolloutPack contains non-finite values")
@@ -706,7 +732,7 @@ class MLXPPOConfiguration:
     learning_rate: float = 1.0e-3
     clip_ratio: float = 0.2
     value_coefficient: float = 1.0
-    entropy_coefficient: float = 0.01
+    entropy_coefficient: float = 0.001
     maximum_gradient_norm: float = 1.0
     target_kl: float | None = 0.01
     adaptive_learning_rate: bool = True
@@ -714,11 +740,10 @@ class MLXPPOConfiguration:
     maximum_learning_rate: float = 1.0e-2
     discount: float = 0.99
     gae_lambda: float = 0.95
-    # Match the pinned Unitree/RSL-RL exploration contract: initial standard
-    # deviation is one in policy coordinates. MetalRobo scores the exact
-    # bounded tanh-transformed distribution instead of clipping an unbounded
-    # sample after the fact.
-    initial_log_standard_deviation: float = 0.0
+    # Native stand-first production begins at 0.2 standard deviation in policy
+    # coordinates. Unit-standard-deviation parity remains available through
+    # the explicit CLI/configuration field.
+    initial_log_standard_deviation: float = -1.6094379124341003
     observation_clip: float = 100.0
     seed: int = 1
 
@@ -927,55 +952,31 @@ def _elu_mlp(
     return nn.Sequential(*layers)
 
 
-def _orthogonal_weight(
-    shape: tuple[int, ...],
-    gain: float,
-    generator: np.random.Generator,
-) -> mx.array:
-    rows = shape[0]
-    columns = int(np.prod(shape[1:]))
-    sample = generator.standard_normal(
-        (max(rows, columns), min(rows, columns)),
-        dtype=np.float32,
-    )
-    q, r = np.linalg.qr(sample, mode="reduced")
-    signs = np.sign(np.diag(r))
-    signs[signs == 0.0] = 1.0
-    q *= signs[None, :]
-    if rows < columns:
-        q = q.T
-    return mx.array(
-        gain
-        * q[:rows, :columns]
-        .reshape(shape)
-        .astype(np.float32, copy=False),
-        dtype=mx.float32,
-    )
-
-
 def _initialize_mlp(
     network: nn.Sequential,
     *,
-    output_gain: float,
     generator: np.random.Generator,
 ) -> None:
-    linear = [
-        layer
-        for layer in network.layers
-        if isinstance(layer, nn.Linear)
-    ]
-    for index, layer in enumerate(linear):
-        layer.weight = _orthogonal_weight(
-            tuple(int(value) for value in layer.weight.shape),
-            (
-                output_gain
-                if index + 1 == len(linear)
-                else math.sqrt(2.0)
-            ),
-            generator,
+    """Match the default linear-layer scale used by pinned RSL-RL."""
+
+    for layer in network.layers:
+        if not isinstance(layer, nn.Linear):
+            continue
+        shape = tuple(int(value) for value in layer.weight.shape)
+        bound = 1.0 / math.sqrt(float(shape[1]))
+        layer.weight = mx.array(
+            generator.uniform(-bound, bound, shape).astype(np.float32),
+            dtype=mx.float32,
         )
         if getattr(layer, "bias", None) is not None:
-            layer.bias = mx.zeros_like(layer.bias)
+            layer.bias = mx.array(
+                generator.uniform(
+                    -bound,
+                    bound,
+                    tuple(int(value) for value in layer.bias.shape),
+                ).astype(np.float32),
+                dtype=mx.float32,
+            )
 
 
 class MLXActorCritic(nn.Module):
@@ -1043,12 +1044,10 @@ class MLXActorCritic(nn.Module):
         generator = np.random.default_rng(configuration.seed)
         _initialize_mlp(
             self.actor,
-            output_gain=0.01,
             generator=generator,
         )
         _initialize_mlp(
             self.critic,
-            output_gain=1.0,
             generator=generator,
         )
         self.log_standard_deviation = mx.full(
@@ -1095,62 +1094,20 @@ class MLXActorCritic(nn.Module):
             - log_standard_deviation
             - 0.5 * math.log(2.0 * math.pi)
         )
-        magnitude = mx.abs(latent)
-        log_jacobian = 2.0 * (
-            math.log(2.0)
-            - magnitude
-            - mx.log1p(mx.exp(-2.0 * magnitude))
-        )
-        return mx.sum(gaussian - log_jacobian, axis=-1)
+        return mx.sum(gaussian, axis=-1)
 
     @staticmethod
     def entropy(
         mean: mx.array,
         log_standard_deviation: mx.array,
     ) -> mx.array:
-        """Five-point Gauss-Hermite entropy of the squashed distribution."""
+        """Exact entropy of a diagonal Gaussian."""
 
-        nodes = mx.array(
-            (
-                -2.0201828704560856,
-                -0.9585724646138185,
-                0.0,
-                0.9585724646138185,
-                2.0201828704560856,
-            ),
-            dtype=mx.float32,
-        )
-        weights = mx.array(
-            (
-                0.011257411327720689,
-                0.22207592200561266,
-                0.5333333333333333,
-                0.22207592200561266,
-                0.011257411327720689,
-            ),
-            dtype=mx.float32,
-        )
-        latent = (
-            mean[..., None]
-            + math.sqrt(2.0)
-            * mx.exp(log_standard_deviation)[None, :, None]
-            * nodes[None, None, :]
-        )
-        magnitude = mx.abs(latent)
-        log_jacobian = 2.0 * (
-            math.log(2.0)
-            - magnitude
-            - mx.log1p(mx.exp(-2.0 * magnitude))
-        )
-        transformed = (
+        entropy = mx.sum(
             log_standard_deviation
             + 0.5 * (1.0 + math.log(2.0 * math.pi))
-            + mx.sum(
-                weights[None, None, :] * log_jacobian,
-                axis=-1,
-            )
         )
-        return mx.sum(transformed, axis=-1)
+        return mx.broadcast_to(entropy, mean.shape[:-1])
 
     def evaluate(
         self,
@@ -1218,7 +1175,7 @@ class MLXPolicyLearner:
             (action_count,),
             dtype=np.float32,
         )
-        self.action_clip = 1.0
+        self.action_clip = float(np.finfo(np.float32).max)
         self.revision = 1
         mx.eval(self.model.parameters(), self.optimizer.state)
 
@@ -1285,42 +1242,6 @@ class MLXPolicyLearner:
                 + ", ".join(invalid)
             )
 
-    def restart_exploration(
-        self,
-        log_standard_deviation: float,
-    ) -> None:
-        """Start a fresh PPO optimizer from the current policy weights.
-
-        This is the explicit curriculum boundary for changing the behavior
-        distribution. Actor, critic, normalization, and action contracts are
-        retained; exploration and every Adam moment are replaced atomically,
-        and the behavior revision advances before another rollout is legal.
-        """
-
-        value = float(log_standard_deviation)
-        if not np.isfinite(value) or value < -5.0 or value > 2.0:
-            raise ValueError(
-                "log_standard_deviation must be finite and in [-5, 2]"
-            )
-        if self.revision >= np.iinfo(np.uint64).max:
-            raise OverflowError("policy revision cannot advance")
-        self.model.log_standard_deviation = mx.full(
-            (self.action_count,),
-            value,
-            dtype=mx.float32,
-        )
-        self.optimizer = optim.Adam(
-            learning_rate=self.configuration.learning_rate,
-            bias_correction=True,
-        )
-        self.optimizer.init(self.model.trainable_parameters())
-        self.revision += 1
-        self.refresh_compiled_training_state()
-        mx.eval(
-            self.model.parameters(),
-            self.optimizer.state,
-        )
-
     @classmethod
     def from_policy_pack(
         cls,
@@ -1335,6 +1256,12 @@ class MLXPolicyLearner:
             path,
             library_path=library_path,
         )
+        if pack.format_version != _POLICY_FORMAT_VERSION:
+            raise ValueError(
+                "PPO resume requires a current v3 raw-Gaussian "
+                "PolicyPack; v2 is evaluation-only because its squashed "
+                "behavior distribution cannot be migrated exactly"
+            )
         if not pack.critic_layers:
             raise ValueError(
                 "PPO resume requires a PolicyPack critic network"

@@ -33,7 +33,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 219u;
+constexpr std::size_t kRawBufferCount = 220u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -274,6 +274,7 @@ enum BufferIndex : std::size_t {
     kPolicyLatents = 216u,
     kPolicyLogProbabilities = 217u,
     kPolicyValues = 218u,
+    kTaskCurriculumState = 219u,
 };
 
 struct BufferRequirement {
@@ -321,6 +322,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> taskApplyPipeline = nil;
     __strong id<MTLComputePipelineState> taskEffortPipeline = nil;
     __strong id<MTLComputePipelineState> taskCompletePipeline = nil;
+    __strong id<MTLComputePipelineState> taskCurriculumPipeline = nil;
     __strong id<MTLComputePipelineState> policyDensePipeline = nil;
     __strong id<MTLComputePipelineState> policySamplePipeline = nil;
     __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
@@ -2707,6 +2709,11 @@ bool buildRequirements(
             taskEnvironments,
             requirements.entries[kTaskState]
         ) ||
+        !makeRequirement<MRTaskCurriculumStateGPU>(
+            "native resident task curriculum state",
+            nativeTask ? 1u : 0u,
+            requirements.entries[kTaskCurriculumState]
+        ) ||
         !makeRequirement<float>(
             "native delayed action history",
             taskActionHistoryElements,
@@ -2808,7 +2815,7 @@ bool buildRequirements(
             requirements.entries[kPolicyActorMean]
         ) ||
         !makeRequirement<float>(
-            "native policy pre-tanh latents",
+            "native policy Gaussian samples",
             layout.policyLatentElements,
             requirements.entries[kPolicyLatents]
         ) ||
@@ -3571,7 +3578,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
         const bool finalPolicyEvaluation =
             nativePolicy && config.evaluateFinalPolicy;
         std::size_t transitionCount = 0u;
-        std::size_t policyEvaluationCount = 0u;
+        std::size_t actorEvaluationCount = 0u;
+        std::size_t criticObservationCount = 0u;
         std::size_t policyScratchElements = 0u;
         if (!checkedMultiply(
                 batch.controlStepCount,
@@ -3583,20 +3591,28 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 finalPolicyEvaluation
                     ? batch.environmentCount
                     : 0u,
-                policyEvaluationCount
+                actorEvaluationCount
+            ) ||
+            !checkedAdd(
+                transitionCount,
+                nativePolicy &&
+                        !config.policyProgram.criticLayers().empty()
+                    ? batch.environmentCount
+                    : 0u,
+                criticObservationCount
             ) ||
             !checkedMultiply(
-                policyEvaluationCount,
+                actorEvaluationCount,
                 taskLayout.actionCount,
                 layout.actionElements
             ) ||
             !checkedMultiply(
-                policyEvaluationCount,
+                actorEvaluationCount,
                 taskLayout.actorObservationSize,
                 layout.actorObservationElements
             ) ||
             !checkedMultiply(
-                policyEvaluationCount,
+                criticObservationCount,
                 taskLayout.criticObservationSize,
                 layout.criticObservationElements
             ) ||
@@ -3609,7 +3625,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 policyScratchElements
             ) ||
             !checkedMultiply(
-                nativePolicy ? policyEvaluationCount : 0u,
+                nativePolicy ? actorEvaluationCount : 0u,
                 taskLayout.actionCount,
                 layout.policyLatentElements
             )) {
@@ -3629,9 +3645,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
         }
         layout.transitionElements = transitionCount;
         layout.policyLogProbabilityElements =
-            nativePolicy ? policyEvaluationCount : 0u;
+            nativePolicy ? actorEvaluationCount : 0u;
         layout.policyValueElements =
-            nativePolicy ? policyEvaluationCount : 0u;
+            nativePolicy ? actorEvaluationCount : 0u;
     }
     layout.resetQElements = batch.resetMasks.empty()
         ? 0u
@@ -4196,6 +4212,8 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld normalized task actions";
     case kTaskState:
         return @"MetalWorld resident task state";
+    case kTaskCurriculumState:
+        return @"MetalWorld resident task curriculum state";
     case kTaskActionHistory:
         return @"MetalWorld resident action history";
     case kTaskActorHistory:
@@ -4237,7 +4255,7 @@ NSString* bufferLabel(const std::size_t index) {
     case kPolicyActorMean:
         return @"MetalWorld policy actor mean";
     case kPolicyLatents:
-        return @"MetalWorld policy pre-tanh latents";
+        return @"MetalWorld policy Gaussian samples";
     case kPolicyLogProbabilities:
         return @"MetalWorld policy log probabilities";
     case kPolicyValues:
@@ -4464,6 +4482,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> taskApply = nil;
     __strong id<MTLComputePipelineState> taskEffort = nil;
     __strong id<MTLComputePipelineState> taskComplete = nil;
+    __strong id<MTLComputePipelineState> taskCurriculum = nil;
     __strong id<MTLComputePipelineState> policyDense = nil;
     __strong id<MTLComputePipelineState> policySample = nil;
     __strong id<MTLComputePipelineState> contactPrepare = nil;
@@ -4574,6 +4593,9 @@ MetalWorldDiagnostics initializeContext(
         createContactPipeline(@"mr_locomotion_task_measure_effort");
     taskComplete =
         createContactPipeline(@"mr_locomotion_task_complete");
+    taskCurriculum = createContactPipeline(
+        @"mr_locomotion_task_update_curriculum"
+    );
     policyDense =
         createContactPipeline(@"mr_policy_dense_layer");
     policySample = createContactPipeline(
@@ -4803,6 +4825,7 @@ MetalWorldDiagnostics initializeContext(
         taskApply == nil ||
         taskEffort == nil ||
         taskComplete == nil ||
+        taskCurriculum == nil ||
         policyDense == nil ||
         policySample == nil ||
         contactPrepare == nil ||
@@ -4918,6 +4941,7 @@ MetalWorldDiagnostics initializeContext(
         taskApply.maxTotalThreadsPerThreadgroup == 0u ||
         taskEffort.maxTotalThreadsPerThreadgroup == 0u ||
         taskComplete.maxTotalThreadsPerThreadgroup == 0u ||
+        taskCurriculum.maxTotalThreadsPerThreadgroup == 0u ||
         policyDense.maxTotalThreadsPerThreadgroup == 0u ||
         policySample.maxTotalThreadsPerThreadgroup == 0u ||
         contactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
@@ -5097,6 +5121,7 @@ MetalWorldDiagnostics initializeContext(
     context.taskApplyPipeline = taskApply;
     context.taskEffortPipeline = taskEffort;
     context.taskCompletePipeline = taskComplete;
+    context.taskCurriculumPipeline = taskCurriculum;
     context.policyDensePipeline = policyDense;
     context.policySamplePipeline = policySample;
     context.contactPreparePipeline = contactPrepare;
@@ -5369,6 +5394,7 @@ bool privatePersistentBuffer(const std::size_t index) {
     case kRodWitnessesA:
     case kRodWitnessesB:
     case kTaskState:
+    case kTaskCurriculumState:
     case kTaskActionHistory:
     case kTaskActorHistory:
     case kTaskCleanHistory:
@@ -5396,6 +5422,7 @@ bool privatePersistentInputBuffer(const std::size_t index) {
     case kResetRodEdges:
     case kRodNodesA:
     case kRodEdgesA:
+    case kTaskCurriculumState:
         return true;
     default:
         return false;
@@ -6947,7 +6974,10 @@ void uploadBatch(
             config.timestepSeconds /
                 static_cast<float>(config.physicsSubsteps),
             config.evaluateFinalPolicy ? 1.0f : 0.0f,
-            0.0f,
+            nativePolicy &&
+                    !config.policyProgram.criticLayers().empty()
+                ? 1.0f
+                : 0.0f,
         };
         task.seed = config.taskSeed;
         task.policyRevision =
@@ -7213,8 +7243,25 @@ bool encodeResidentStateInitialization(
     const RequiredBuffers& requirements,
     const bool contactMode,
     const bool hasRods,
-    const bool nativeTask
+    const bool nativeTask,
+    const std::uint32_t initialCurriculumLevel
 ) {
+    if (nativeTask) {
+        const MRTaskCurriculumStateGPU initialCurriculum{
+            .controlSteps = 0u,
+            .completedEpisodeCount = 0u,
+            .timeoutEpisodeCount = 0u,
+            .trackingScoreSum = 0.0f,
+            .commandLevel = initialCurriculumLevel,
+            .reserved0 = 0u,
+            .reserved1 = 0u,
+        };
+        copyToBuffer(
+            context.uploadBuffers[kTaskCurriculumState],
+            &initialCurriculum,
+            requirements.entries[kTaskCurriculumState]
+        );
+    }
     id<MTLBlitCommandEncoder> encoder =
         [commandBuffer blitCommandEncoder];
     if (encoder == nil) {
@@ -7254,6 +7301,7 @@ bool encodeResidentStateInitialization(
     }
     if (nativeTask) {
         clear(kTaskState);
+        clear(kTaskCurriculumState);
         clear(kTaskActionHistory);
         clear(kTaskActorHistory);
         clear(kTaskCleanHistory);
@@ -7263,6 +7311,16 @@ bool encodeResidentStateInitialization(
         clear(kTaskBodyParameters);
         clear(kTaskControllerParameters);
         clear(kTaskContactCompact);
+        [encoder
+            copyFromBuffer:
+                context.uploadBuffers[kTaskCurriculumState]
+              sourceOffset:0u
+                  toBuffer:
+                context.buffers[kTaskCurriculumState]
+         destinationOffset:0u
+                     size:requirements
+                              .entries[kTaskCurriculumState]
+                              .logicalBytes];
     }
     [encoder endEncoding];
     return true;
@@ -8395,6 +8453,7 @@ bool encodeTaskObserve(
             {28u, kShapes},
             {29u, kGeometryHeaders},
             {30u, kGeometryVertices},
+            {5u, kTaskCurriculumState},
         },
         &pass,
         4u,
@@ -8407,7 +8466,9 @@ bool encodePolicyInference(
     id<MTLCommandBuffer> commandBuffer,
     const CompiledPolicyProgram& program,
     const MRMetalWorldPassGPU& pass,
-    const std::size_t environmentCount
+    const std::size_t environmentCount,
+    const bool terminalValueOnly = false,
+    const mr_u32 terminalObservationStep = 0u
 ) {
     const auto& header = program.header();
     const auto encodeNetwork = [&](
@@ -8419,6 +8480,7 @@ bool encodePolicyInference(
         const mr_u32 finalBase,
         const mr_u32 meanOffset,
         const mr_u32 inverseStdOffset,
+        const mr_u32 observationStep,
         NSString* label
     ) {
         for (std::size_t layerIndex = 0u;
@@ -8453,7 +8515,7 @@ bool encodePolicyInference(
                 final ? finalStride : layer.counts.y,
                 first
                     ? static_cast<mr_u32>(
-                          pass.controlStep *
+                          observationStep *
                           environmentCount *
                           observationCount
                       )
@@ -8503,7 +8565,7 @@ bool encodePolicyInference(
         return true;
     };
 
-    if (!encodeNetwork(
+    if (!terminalValueOnly && !encodeNetwork(
             program.actorLayers(),
             kTaskActorObservations,
             kPolicyActorMean,
@@ -8512,6 +8574,7 @@ bool encodePolicyInference(
             0u,
             header.offsets0.z,
             header.offsets0.w,
+            pass.controlStep,
             @"compiled actor inference"
         )) {
         return false;
@@ -8520,17 +8583,46 @@ bool encodePolicyInference(
         !encodeNetwork(
             program.criticLayers(),
             kTaskCriticObservations,
-            kPolicyValues,
+            terminalValueOnly
+                ? kTaskTransitions
+                : kPolicyValues,
             header.counts0.w,
-            1u,
-            static_cast<mr_u32>(
-                pass.controlStep * environmentCount
-            ),
+            terminalValueOnly
+                ? static_cast<mr_u32>(
+                      sizeof(MRTaskTransitionGPU) /
+                      sizeof(float)
+                  )
+                : 1u,
+            terminalValueOnly
+                ? static_cast<mr_u32>(
+                      pass.controlStep *
+                          environmentCount *
+                          (
+                              sizeof(MRTaskTransitionGPU) /
+                              sizeof(float)
+                          ) +
+                      offsetof(
+                          MRTaskTransitionGPU,
+                          timeoutBootstrapValue
+                      ) /
+                          sizeof(float)
+                  )
+                : static_cast<mr_u32>(
+                      pass.controlStep * environmentCount
+                  ),
             header.offsets1.x,
             header.offsets1.y,
-            @"compiled critic inference"
+            terminalValueOnly
+                ? terminalObservationStep
+                : pass.controlStep,
+            terminalValueOnly
+                ? @"compiled timeout bootstrap value"
+                : @"compiled critic inference"
         )) {
         return false;
+    }
+    if (terminalValueOnly) {
+        return true;
     }
 
     MRPolicySampleDispatchGPU dispatch{};
@@ -8649,7 +8741,7 @@ bool encodeTaskComplete(
             {0u, kTaskDispatch},
             {1u, kTaskProgramHeader},
             {2u, kTaskProgramArena},
-            {3u, kWorldDispatch},
+            {3u, kTaskCurriculumState},
             {4u, kContactDispatch},
             {6u, qState},
             {7u, vState},
@@ -8680,6 +8772,28 @@ bool encodeTaskComplete(
         &pass,
         5u,
         environmentCount
+    );
+}
+
+bool encodeTaskCurriculum(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskCurriculumPipeline,
+        @"compiled task curriculum reduction",
+        {
+            {0u, kTaskDispatch},
+            {1u, kTaskProgramHeader},
+            {2u, kTaskCurriculumState},
+            {3u, kTaskTransitions},
+        },
+        &pass,
+        4u,
+        1u
     );
 }
 
@@ -15322,7 +15436,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     requirements,
                     contactMode,
                     world.rodCount() != 0u,
-                    nativeTask
+                    nativeTask,
+                    config.taskCurriculumLevel
                 )) {
                 return reject(
                     std::move(diagnostics),
@@ -15770,6 +15885,11 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                              sourceV,
                              sourceScene,
                              batch.environmentCount
+                         ) ||
+                         !encodeTaskCurriculum(
+                             *selectedState,
+                             commandBuffer,
+                             pass
                          )
                      )) ||
                     !encodeCapture(
@@ -15793,6 +15913,24 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         MetalWorldHostStatus::metalCommandFailure,
                         "failed to encode native task or MetalWorld "
                         "capture pass"
+                    );
+                }
+                if (nativeTask &&
+                    config.policyProgram.valid() &&
+                    !config.policyProgram.criticLayers().empty() &&
+                    !encodePolicyInference(
+                        *selectedState,
+                        commandBuffer,
+                        config.policyProgram,
+                        pass,
+                        batch.environmentCount,
+                        true,
+                        diagnostics.layout.dispatch.controlStepCount
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode timeout bootstrap value"
                     );
                 }
             }

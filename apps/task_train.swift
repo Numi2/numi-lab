@@ -30,8 +30,11 @@ private struct Options {
     var learningRate = 1.0e-3
     var clipRatio = 0.2
     var valueCoefficient = 1.0
-    var entropyCoefficient = 0.01
-    var initialLogStandardDeviation = 0.0
+    // The production default starts with a 0.2 standard deviation in policy
+    // coordinates. With the bundled 0.25-radian action scale this is 0.05 rad
+    // of target exploration, rather than a new order-one target every 20 ms.
+    var entropyCoefficient = 0.001
+    var initialLogStandardDeviation = -1.6094379124341003
     var maximumGradientNorm = 1.0
     var targetKL = 0.01
     var discount = 0.99
@@ -411,6 +414,7 @@ private final class MLXLearnerWorker {
     private(set) var policyPackPath: String
     private(set) var deploymentPolicyPackPath: String
     private(set) var stateRestored: Bool
+    private(set) var taskCurriculumLevel: UInt32
     private var closed = false
 
     init(options: Options) throws {
@@ -484,6 +488,7 @@ private final class MLXLearnerWorker {
         policyPackPath = ""
         deploymentPolicyPackPath = ""
         stateRestored = false
+        taskCurriculumLevel = 0
         let ready = try response()
         guard ready["status"] as? String == "ready",
               let revisionValue =
@@ -499,7 +504,10 @@ private final class MLXLearnerWorker {
               let readyDeploymentPolicyPack =
                   ready["deployment_policy_pack"] as? String,
               let restored =
-                  ready["learner_state_restored"] as? Bool
+                  ready["learner_state_restored"] as? Bool,
+              let curriculumValue =
+                  ready["task_curriculum_level"] as? NSNumber,
+              curriculumValue.uint64Value <= UInt64(UInt32.max)
         else {
             throw MetalRoboTaskRolloutError.native(
                 "MLX learner did not publish a valid ready record."
@@ -513,6 +521,7 @@ private final class MLXLearnerWorker {
         deploymentPolicyPackPath =
             readyDeploymentPolicyPack
         stateRestored = restored
+        taskCurriculumLevel = curriculumValue.uint32Value
     }
 
     deinit {
@@ -521,9 +530,7 @@ private final class MLXLearnerWorker {
         }
     }
 
-    func update(
-        rolloutPack: String
-    ) throws -> [String: Any] {
+    func update(rolloutPack: String) throws -> [String: Any] {
         try request(
             [
                 "operation": "update",
@@ -538,8 +545,14 @@ private final class MLXLearnerWorker {
                   result["policy_revision_after"] as? NSNumber,
               let deploymentPolicyPack =
                   result["deployment_policy_pack"] as? String,
+              let updatedCurriculum =
+                  result["task_curriculum_level"] as? NSNumber,
               before.uint64Value == revision,
               after.uint64Value == revision + 1,
+              updatedCurriculum.uint64Value <=
+                  UInt64(UInt32.max),
+              updatedCurriculum.uint64Value >=
+                  UInt64(taskCurriculumLevel),
               deploymentPolicyPack ==
                   deploymentPolicyPackPath
         else {
@@ -549,6 +562,7 @@ private final class MLXLearnerWorker {
             throw MetalRoboTaskRolloutError.native(message)
         }
         revision = after.uint64Value
+        taskCurriculumLevel = updatedCurriculum.uint32Value
         return result
     }
 
@@ -724,6 +738,9 @@ private enum TaskTrainMain {
                 )
             }
             let learner = try MLXLearnerWorker(options: options)
+            try context.setCurriculumLevel(
+                learner.taskCurriculumLevel
+            )
             try context.loadPolicy(
                 at: URL(fileURLWithPath: learner.policyPackPath)
             )
@@ -740,6 +757,8 @@ private enum TaskTrainMain {
                 )
             }
             let initialRevision = learner.revision
+            let initialCurriculumLevel =
+                learner.taskCurriculumLevel
             var installedRevision = learner.revision
             let warmup = try context.advanceWithPolicy(
                 controlStepCount: 1,
@@ -884,9 +903,25 @@ private enum TaskTrainMain {
                     id: "swift_native_training_rollout",
                     to: URL(fileURLWithPath: rolloutPack)
                 )
+                guard let rolloutCurriculumLevel =
+                          transitions.last?.curriculumLevel,
+                      rolloutCurriculumLevel >=
+                          learner.taskCurriculumLevel
+                else {
+                    throw MetalRoboTaskRolloutError.native(
+                        "Native rollout did not publish a monotonic task curriculum."
+                    )
+                }
                 lastLearning = try learner.update(
                     rolloutPack: rolloutPack
                 )
+                guard learner.taskCurriculumLevel ==
+                          rolloutCurriculumLevel
+                else {
+                    throw MetalRoboTaskRolloutError.native(
+                        "Learner checkpoint disagrees with the native rollout curriculum."
+                    )
+                }
                 try context.loadPolicy(
                     at: URL(fileURLWithPath: updatedPolicyPack)
                 )
@@ -933,6 +968,7 @@ private enum TaskTrainMain {
                             (
                                 "update=\(updateIndex + 1) " +
                                 "revision=\(installedRevision) " +
+                                "curriculum=\(learner.taskCurriculumLevel) " +
                                 "reward=\(reward) " +
                                 "tracking=\(tracking) " +
                                 "height=\(height) " +
@@ -971,6 +1007,10 @@ private enum TaskTrainMain {
                 "training_samples": sampleCount,
                 "initial_policy_revision": initialRevision,
                 "final_policy_revision": installedRevision,
+                "initial_task_curriculum_level":
+                    initialCurriculumLevel,
+                "final_task_curriculum_level":
+                    learner.taskCurriculumLevel,
                 "learner_state_restored":
                     learner.stateRestored,
                 "native_submission_count": NSNumber(

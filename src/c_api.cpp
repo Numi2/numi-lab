@@ -116,6 +116,18 @@ static_assert(
     offsetof(MRTaskTransitionC, policy_revision) ==
     offsetof(MRTaskTransitionGPU, policyRevision)
 );
+static_assert(
+    offsetof(MRTaskTransitionC, timeout_bootstrap_value) ==
+    offsetof(MRTaskTransitionGPU, timeoutBootstrapValue)
+);
+static_assert(
+    offsetof(MRTaskTransitionC, episode_tracking_score) ==
+    offsetof(MRTaskTransitionGPU, episodeTrackingScore)
+);
+static_assert(
+    offsetof(MRTaskTransitionC, curriculum_level) ==
+    offsetof(MRTaskTransitionGPU, taskProgress)
+);
 
 namespace {
 
@@ -1204,6 +1216,28 @@ int mr_task_rollout_reset(
     return translateErrors(
         [&] { resetTaskRolloutState(*handle, seed); }
     );
+}
+
+int mr_task_rollout_set_curriculum_level(
+    MRTaskRolloutHandle* handle,
+    const uint32_t level
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    return translateErrors([&] {
+        if (handle->residentState.valid()) {
+            throw std::logic_error(
+                "task curriculum must be restored before resident initialization"
+            );
+        }
+        if (level >= handle->taskProgram.header().schedule.z) {
+            throw std::invalid_argument(
+                "task curriculum level exceeds the compiled TaskPack"
+            );
+        }
+        handle->stepConfig.taskCurriculumLevel = level;
+    });
 }
 
 int mr_task_rollout_set_policy(

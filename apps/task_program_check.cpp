@@ -350,7 +350,26 @@ int main() {
             program.header().counts0.w != 4u ||
             program.header().counts1.w != 19u ||
             program.header().counts2.x != 2u ||
+            program.header().counts2.y != 5u ||
             program.header().articulation.w != 5u ||
+            program.header().commandLower.x != 0.0f ||
+            program.header().commandLower.y != 0.0f ||
+            program.header().commandLower.z != 0.0f ||
+            program.header().commandUpper.x != 0.0f ||
+            program.header().commandUpper.y != 0.0f ||
+            program.header().commandUpper.z != 0.0f ||
+            std::abs(
+                program.header().commandUpper.w - 0.8f
+            ) > 1.0e-6f ||
+            program.terminationOperators()[0].parameters.y !=
+                -2.0f ||
+            program.terminationOperators()[1].parameters.y !=
+                -2.0f ||
+            program.randomizationOperators()[0].target.w != 0u ||
+            program.randomizationOperators()[1].target.w != 0u ||
+            program.randomizationOperators()[2].target.w != 2u ||
+            program.randomizationOperators()[3].target.w != 2u ||
+            program.randomizationOperators()[4].target.w != 2u ||
             program.terrainSampleOffsets().size() != 187u ||
             program.terrainResetTranslations().size() != 11u) {
             fail("compiled G1 task tables are incomplete");

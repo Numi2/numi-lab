@@ -80,11 +80,14 @@ def _configuration_record(learner: MLXPolicyLearner) -> str:
 def _write_learner_state(
     learner: MLXPolicyLearner,
     path: Path,
+    task_curriculum_level: int,
 ) -> Path:
     """Atomically checkpoint model parameters and Adam moments."""
 
     if not learner.policy_id:
         raise ValueError("learner state requires a policy identity")
+    if not 0 <= task_curriculum_level <= np.iinfo(np.uint32).max:
+        raise ValueError("task curriculum level exceeds uint32")
     learner._require_finite_training_state()
     target = path.expanduser().resolve()
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -105,7 +108,7 @@ def _write_learner_state(
     mx.eval(*arrays.values())
     metadata = {
         "format": "metalrobo.mlx-learner-state",
-        "schema": "1",
+        "schema": "2",
         "policy_id": learner.policy_id,
         "policy_revision": str(learner.revision),
         "actor_observation_count": str(
@@ -116,6 +119,7 @@ def _write_learner_state(
         ),
         "action_count": str(learner.action_count),
         "configuration": _configuration_record(learner),
+        "task_curriculum_level": str(task_curriculum_level),
     }
     temporary = target.with_name(
         f".{target.name}.{os.getpid()}.tmp.safetensors"
@@ -133,10 +137,10 @@ def _write_learner_state(
 def _restore_learner_state(
     learner: MLXPolicyLearner,
     path: Path,
-) -> bool:
+) -> tuple[bool, int]:
     target = path.expanduser().resolve()
     if not target.is_file():
-        return False
+        return False, 0
     loaded = mx.load(target, return_metadata=True)
     if not isinstance(loaded, tuple) or len(loaded) != 2:
         raise ValueError("MLX learner state has no metadata")
@@ -145,7 +149,7 @@ def _restore_learner_state(
         raise ValueError("MLX learner state payload is invalid")
     expected_metadata = {
         "format": "metalrobo.mlx-learner-state",
-        "schema": "1",
+        "schema": "2",
         "policy_id": learner.policy_id,
         "actor_observation_count": str(
             learner.actor_observation_count
@@ -165,14 +169,19 @@ def _restore_learner_state(
         )
     try:
         revision = int(metadata["policy_revision"])
+        task_curriculum_level = int(
+            metadata["task_curriculum_level"]
+        )
     except (KeyError, TypeError, ValueError) as error:
         raise ValueError(
-            "MLX learner state revision is invalid"
+            "MLX learner state revision or task curriculum is invalid"
         ) from error
     if revision < learner.revision:
         raise ValueError(
             "MLX learner state is older than the supplied PolicyPack"
         )
+    if not 0 <= task_curriculum_level <= np.iinfo(np.uint32).max:
+        raise ValueError("MLX learner task curriculum exceeds uint32")
 
     expected_model = dict(
         tree_flatten(learner.model.trainable_parameters())
@@ -231,15 +240,16 @@ def _restore_learner_state(
         learner.optimizer.state,
     )
     learner._require_finite_training_state()
-    return True
+    return True, task_curriculum_level
 
 
 def _validate_rollout(
     learner: MLXPolicyLearner,
     rollout_path: Path,
     expected_task_fingerprint: int | None,
+    task_curriculum_level: int,
     native_library: Path,
-) -> tuple[Any, int]:
+) -> tuple[Any, int, int]:
     rollout = read_policy_rollout_pack(
         rollout_path,
         library_path=native_library,
@@ -269,7 +279,29 @@ def _validate_rollout(
         raise ValueError(
             "PolicyRolloutPack contains a physics failure"
         )
-    return rollout, rollout.task_fingerprint
+    levels = rollout.transitions["curriculum_level"].reshape(
+        rollout.control_step_count,
+        rollout.environment_count,
+    )
+    if np.any(levels != levels[:, :1]):
+        raise ValueError(
+            "PolicyRolloutPack task-wide curriculum differs across environments"
+        )
+    level_series = levels[:, 0].astype(np.int64)
+    if (
+        int(level_series[0]) < task_curriculum_level
+        or int(level_series[0]) > task_curriculum_level + 1
+        or np.any(np.diff(level_series) < 0)
+        or np.any(np.diff(level_series) > 1)
+    ):
+        raise ValueError(
+            "PolicyRolloutPack task curriculum is not monotonic"
+        )
+    return (
+        rollout,
+        rollout.task_fingerprint,
+        int(level_series[-1]),
+    )
 
 
 def _rollout_metrics(rollout: Any) -> dict[str, Any]:
@@ -332,7 +364,7 @@ def _serve(arguments: argparse.Namespace) -> int:
         _configuration(arguments),
         library_path=arguments.native_library,
     )
-    restored = _restore_learner_state(
+    restored, task_curriculum_level = _restore_learner_state(
         learner,
         arguments.learner_state,
     )
@@ -358,6 +390,7 @@ def _serve(arguments: argparse.Namespace) -> int:
                 learner.critic_observation_count,
             "action_count": learner.action_count,
             "learner_state_restored": restored,
+            "task_curriculum_level": task_curriculum_level,
             "policy_pack": str(current_policy),
             "deployment_policy_pack":
                 str(current_deployment_policy),
@@ -383,10 +416,15 @@ def _serve(arguments: argparse.Namespace) -> int:
             rollout_value = request.get("rollout_pack")
             if not isinstance(rollout_value, str) or not rollout_value:
                 raise ValueError("update requires rollout_pack")
-            rollout, expected_task_fingerprint = _validate_rollout(
+            (
+                rollout,
+                expected_task_fingerprint,
+                rollout_curriculum_level,
+            ) = _validate_rollout(
                 learner,
                 Path(rollout_value).expanduser().resolve(),
                 expected_task_fingerprint,
+                task_curriculum_level,
                 arguments.native_library,
             )
             revision_before = learner.revision
@@ -408,7 +446,9 @@ def _serve(arguments: argparse.Namespace) -> int:
             learner_state = _write_learner_state(
                 learner,
                 arguments.learner_state,
+                rollout_curriculum_level,
             )
+            task_curriculum_level = rollout_curriculum_level
             _emit(
                 sys.stdout,
                 {
@@ -424,6 +464,7 @@ def _serve(arguments: argparse.Namespace) -> int:
                     "deployment_policy_pack":
                         str(deployment_artifact),
                     "learner_state": str(learner_state),
+                    "task_curriculum_level": task_curriculum_level,
                     **_rollout_metrics(rollout),
                     **metrics,
                 },
@@ -469,37 +510,6 @@ def _initialize(arguments: argparse.Namespace) -> int:
     return 0
 
 
-def _restart_exploration(arguments: argparse.Namespace) -> int:
-    learner = MLXPolicyLearner.from_policy_pack(
-        arguments.policy_pack,
-        _configuration(arguments),
-        library_path=arguments.native_library,
-    )
-    revision_before = learner.revision
-    learner.restart_exploration(
-        arguments.initial_log_standard_deviation
-    )
-    artifact = learner.write_policy_pack(
-        arguments.output,
-        library_path=arguments.native_library,
-    )
-    _emit(
-        sys.stdout,
-        {
-            "status": "exploration_restarted",
-            "policy_id": learner.policy_id,
-            "policy_revision_before": revision_before,
-            "policy_revision_after": learner.revision,
-            "log_standard_deviation":
-                arguments.initial_log_standard_deviation,
-            "policy_pack": str(artifact),
-            "policy_pack_bytes": artifact.stat().st_size,
-            "optimizer_state": "fresh",
-        },
-    )
-    return 0
-
-
 def _add_ppo_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--update-epochs", type=int, default=5)
     parser.add_argument("--minibatch-size", type=int, default=8192)
@@ -512,7 +522,7 @@ def _add_ppo_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--learning-rate", type=float, default=1.0e-3)
     parser.add_argument("--clip-ratio", type=float, default=0.2)
     parser.add_argument("--value-coefficient", type=float, default=1.0)
-    parser.add_argument("--entropy-coefficient", type=float, default=0.01)
+    parser.add_argument("--entropy-coefficient", type=float, default=0.001)
     parser.add_argument(
         "--maximum-gradient-norm",
         type=float,
@@ -543,7 +553,7 @@ def _add_ppo_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--initial-log-standard-deviation",
         type=float,
-        default=0.0,
+        default=-1.6094379124341003,
     )
     parser.add_argument("--observation-clip", type=float, default=100.0)
     parser.add_argument("--seed", type=int, default=1)
@@ -588,26 +598,6 @@ def main() -> int:
     )
     _add_ppo_arguments(initialize)
 
-    restart = operations.add_parser(
-        "restart-exploration",
-        help=(
-            "retain actor and critic weights while replacing exploration "
-            "and Adam state at a curriculum boundary"
-        ),
-    )
-    restart.add_argument(
-        "--policy-pack",
-        type=Path,
-        required=True,
-    )
-    restart.add_argument("--output", type=Path, required=True)
-    restart.add_argument(
-        "--native-library",
-        type=Path,
-        required=True,
-    )
-    _add_ppo_arguments(restart)
-
     serve = operations.add_parser(
         "serve",
         help="retain optimizer state while Swift schedules rollout updates",
@@ -641,8 +631,6 @@ def main() -> int:
     configuration.validate()
     if arguments.operation == "initialize":
         return _initialize(arguments)
-    if arguments.operation == "restart-exploration":
-        return _restart_exploration(arguments)
     if arguments.operation == "serve":
         return _serve(arguments)
     raise AssertionError(f"unhandled operation: {arguments.operation}")

@@ -116,7 +116,7 @@ public struct MetalRoboPolicyPack: Sendable {
         actionBias: [Float] = [],
         actionScale: [Float] = [],
         observationClip: Float = 100,
-        actionClip: Float = 1
+        actionClip: Float = Float.greatestFiniteMagnitude
     ) {
         self.id = id
         self.revision = revision
@@ -312,6 +312,10 @@ public struct MetalRoboTaskTransition: Sendable {
     public let energyReward: Float
     public let contactReward: Float
     public let policyRevision: UInt64
+    public let timeoutBootstrapValue: Float
+    public let episodeTrackingScore: Float
+    public let curriculumLevel: UInt32
+    public let terrainLevel: UInt32
 
     init(_ native: MRTaskTransitionC) {
         reward = native.reward
@@ -332,6 +336,12 @@ public struct MetalRoboTaskTransition: Sendable {
         energyReward = native.energy_reward
         contactReward = native.contact_reward
         policyRevision = native.policy_revision
+        timeoutBootstrapValue =
+            native.timeout_bootstrap_value
+        episodeTrackingScore =
+            native.episode_tracking_score
+        curriculumLevel = native.curriculum_level
+        terrainLevel = native.terrain_level
     }
 }
 
@@ -550,6 +560,17 @@ public final class MetalRoboTaskRolloutContext {
 
     public func reset(seed: UInt64) throws {
         guard mr_task_rollout_reset(handle, seed) == 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                Self.lastError()
+            )
+        }
+    }
+
+    public func setCurriculumLevel(_ level: UInt32) throws {
+        guard mr_task_rollout_set_curriculum_level(
+            handle,
+            level
+        ) == 0 else {
             throw MetalRoboTaskRolloutError.native(
                 Self.lastError()
             )
@@ -1212,6 +1233,13 @@ public final class MetalRoboTaskRolloutContext {
             value.contact_reward = transition.contactReward
             value.policy_revision =
                 transition.policyRevision
+            value.timeout_bootstrap_value =
+                transition.timeoutBootstrapValue
+            value.episode_tracking_score =
+                transition.episodeTrackingScore
+            value.curriculum_level =
+                transition.curriculumLevel
+            value.terrain_level = transition.terrainLevel
             return value
         }
         let status = withUnsafeFloatBuffers(

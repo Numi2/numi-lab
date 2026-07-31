@@ -132,7 +132,7 @@ modality, or task operator. A different joint layout is data, not shader code.
 
 - actor normalization, dense layers, activations, and action transform;
 - optional asymmetric critic normalization and layers;
-- optional diagonal pre-tanh exploration distribution;
+- optional diagonal Gaussian exploration distribution;
 - observation/action clips, policy identity, and revision.
 
 `compilePolicyProgram` verifies actor/action dimensions against the compiled
@@ -223,6 +223,18 @@ only actor/critic observations, actions/latents, old log probabilities, values,
 rewards, terminations, and compact diagnostics. MLX performs PPO updates and
 writes the next native PolicyPack through the canonical C++ writer. It never
 receives simulator caches or schedules a physics transition.
+
+Timeout transitions include one native critic scalar evaluated from the
+accepted post-transition history before reset. GAE uses that scalar while
+still cutting recurrence at the episode boundary.
+
+The command curriculum is task-wide rather than environment-local. One native
+reduction advances it only at the authored episode boundary and publishes its
+level in every transition. The MLX worker derives the next checkpoint from
+that signed rollout record and atomically stores the level with model and
+optimizer state. Resume restores it before the first resident submission. A
+new simulator context starts a fresh synchronized evaluation window rather
+than restoring a global clock without the corresponding in-flight episodes.
 
 The former Python/MLX physics extension, MLX world state, task-specific PPO
 collectors, and Python rollout/benchmark entry points have been removed.

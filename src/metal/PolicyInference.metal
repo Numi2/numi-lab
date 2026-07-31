@@ -236,29 +236,16 @@ kernel void mr_policy_sample_and_score(
             const float normal =
                 policyNormal(randomKey, action);
             latent = fma(exp(logStd), normal, mean);
-            const float magnitude = abs(latent);
-            const float logJacobian =
-                2.0f *
-                (
-                    log(2.0f) -
-                    magnitude -
-                    log(
-                        1.0f +
-                        exp(-2.0f * magnitude)
-                    )
-                );
             logProbability +=
                 -0.5f * normal * normal -
                 logStd -
-                kHalfLogTwoPi -
-                logJacobian;
+                kHalfLogTwoPi;
         }
-        const float squashed = tanh(latent);
         latents[actionBase + action] = latent;
         actions[actionBase + action] = clamp(
             fma(
                 actionScale[action],
-                squashed,
+                latent,
                 actionBias[action]
             ),
             -program.limits.y,

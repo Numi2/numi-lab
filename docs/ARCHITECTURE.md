@@ -65,7 +65,7 @@ task operator.
 
 A PolicyPack seals actor and critic topology, normalization, stochastic action
 state, action scaling, task compatibility, content hash, identity, and
-revision. The training pack retains the bounded stochastic actor and critic;
+revision. The training pack retains the Gaussian behavior actor and critic;
 the deployment pack strips exploration and critic state while preserving the
 same actor revision. Native inference rejects incompatible dimensions and
 fingerprints before a rollout.
@@ -103,7 +103,10 @@ exactly `control_steps * environments` entries.
 learner. It appends native chunks directly into a preallocated rollout arena,
 writes one fingerprinted rollout artifact, requests one PPO update, then
 installs exactly the returned PolicyPack revision. Python is never in the
-control-step loop.
+control-step loop. The learner sidecar atomically checkpoints model and Adam
+state with the native task-wide curriculum level; resume restores that compact
+state before the first Metal submission and begins a new synchronized
+evaluation window.
 
 ## MLX learning boundary
 

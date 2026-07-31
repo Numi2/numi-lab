@@ -788,6 +788,8 @@ kernel void mr_locomotion_task_observe(
     device const MRGeometryHeaderGPU* geometryHeaders
         [[buffer(29)]],
     device const float4* geometryVertices [[buffer(30)]],
+    device const MRTaskCurriculumStateGPU* curriculumState
+        [[buffer(5)]],
     device float* criticHistory [[buffer(13)]],
     const uint environment [[thread_position_in_grid]]
 ) {
@@ -880,6 +882,11 @@ kernel void mr_locomotion_task_observe(
     const uint sceneBase =
         environment * dispatch.strides.w;
     MRTaskStateGPU state = taskStates[environment];
+    const uint globalCurriculum = min(
+        curriculumState[0].commandLevel,
+        program.schedule.z - 1u
+    );
+    state.episode.z = globalCurriculum;
     const bool reset =
         state.status.x == 0u ||
         state.status.y != 0u ||
@@ -888,10 +895,7 @@ kernel void mr_locomotion_task_observe(
 
     if (reset) {
         const uint episode = state.episode.y + 1u;
-        const uint curriculum = min(
-            state.episode.z,
-            program.schedule.z - 1u
-        );
+        const uint curriculum = globalCurriculum;
         const uint terrainLevel =
             program.terrain.w == 0u
             ? 0u
@@ -980,7 +984,10 @@ kernel void mr_locomotion_task_observe(
              ++index) {
             const MRTaskRandomizationOperatorGPU operation =
                 randomization[index];
-            const uint channel = operation.target.w;
+            if (curriculum < operation.target.w) {
+                continue;
+            }
+            const uint channel = 2048u + index;
             switch (operation.target.x) {
             case MR_TASK_RANDOMIZE_ROOT_POSITION:
                 for (uint component = 0u;
@@ -1554,7 +1561,7 @@ kernel void mr_locomotion_task_complete(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
     device const uchar* arena [[buffer(2)]],
-    device const MRMetalWorldDispatchGPU& worldDispatch
+    device const MRTaskCurriculumStateGPU* curriculumState
         [[buffer(3)]],
     device const MRMetalWorldContactDispatchGPU& contactDispatch
         [[buffer(4)]],
@@ -1676,6 +1683,11 @@ kernel void mr_locomotion_task_complete(
     const uint contactBase =
         environment * contactDispatch.constraintStride;
     MRTaskStateGPU state = taskStates[environment];
+    const uint curriculum = min(
+        curriculumState[0].commandLevel,
+        program.schedule.z - 1u
+    );
+    state.episode.z = curriculum;
     const MRMetalWorldStatusGPU worldStatus =
         worldStatuses[environment];
     const MRMetalWorldContactStatusGPU contactStatus =
@@ -2376,6 +2388,7 @@ kernel void mr_locomotion_task_complete(
     bool done = false;
     uint reason = MR_TASK_TERMINATION_CONTINUING;
     uint selectedPriority = 0u;
+    float failurePenalty = 0.0f;
     for (uint index = 0u;
          index < program.counts2.x;
          ++index) {
@@ -2409,6 +2422,7 @@ kernel void mr_locomotion_task_complete(
             done = true;
             reason = operation.source.z;
             selectedPriority = operation.source.w;
+            failurePenalty = operation.parameters.y;
         }
     }
     if (timeout) {
@@ -2418,6 +2432,12 @@ kernel void mr_locomotion_task_complete(
     if (physicsError) {
         done = true;
         reason = MR_TASK_TERMINATION_PHYSICS_ERROR;
+    }
+    if (done &&
+        reason != MR_TASK_TERMINATION_TIMEOUT &&
+        reason != MR_TASK_TERMINATION_PHYSICS_ERROR) {
+        reward += failurePenalty;
+        rewardBreakdown0.y += failurePenalty;
     }
 
     const float episodeReturn =
@@ -2437,14 +2457,9 @@ kernel void mr_locomotion_task_complete(
         timeout &&
         !physicsError &&
         episodeTrackingScore >= program.locomotion.w;
-    uint curriculum = state.episode.z;
     uint terrainLevel = state.episode.w;
     if (done) {
         if (successful) {
-            curriculum = min(
-                curriculum + 1u,
-                program.schedule.z - 1u
-            );
             if (program.terrain.w != 0u &&
                 curriculum >= min(3u, program.schedule.z - 1u)) {
                 terrainLevel = min(
@@ -2452,11 +2467,7 @@ kernel void mr_locomotion_task_complete(
                     program.terrain.w - 1u
                 );
             }
-        } else {
-            curriculum =
-                curriculum == 0u
-                ? 0u
-                : curriculum - 1u;
+        } else if (program.terrain.w != 0u) {
             terrainLevel =
                 terrainLevel == 0u
                 ? 0u
@@ -2516,7 +2527,7 @@ kernel void mr_locomotion_task_complete(
         done ? 0.0f : episodeTracking
     );
 
-    if (!done) {
+    if (!done || (timeout && !physicsError)) {
         for (uint history = 0u;
              history + 1u < program.layout.y;
              ++history) {
@@ -2657,8 +2668,10 @@ kernel void mr_locomotion_task_complete(
         }
     }
 
-    if (dispatch.timing.z != 0.0f &&
-        pass.controlStep + 1u == dispatch.counts.y) {
+    const bool finalPolicyObservation =
+        dispatch.timing.z != 0.0f &&
+        pass.controlStep + 1u == dispatch.counts.y;
+    if (finalPolicyObservation) {
         const uint actorOutputBase =
             dispatch.counts.y * dispatch.outputs.x +
             environment * historyElements;
@@ -2668,6 +2681,8 @@ kernel void mr_locomotion_task_complete(
             actorObservations[actorOutputBase + index] =
                 actorHistory[historyBase + index];
         }
+    }
+    if (dispatch.timing.w != 0.0f) {
         const uint criticObservationSize =
             (
                 (program.schedule.w &
@@ -2703,6 +2718,96 @@ kernel void mr_locomotion_task_complete(
     transition.rewardBreakdown1 = rewardBreakdown1;
     transition.policyRevision =
         dispatch.policyRevision;
+    transition.episodeTrackingScore =
+        done && !physicsError
+        ? episodeTrackingScore
+        : 0.0f;
+    transition.taskProgress = uint4(
+        curriculum,
+        terrainLevel,
+        0u,
+        0u
+    );
     transitions[transitionIndex] = transition;
-    (void)worldDispatch;
+}
+
+// One native thread owns the global command curriculum. Episode outcomes are
+// accumulated across the whole evaluation window, so early-reset environments
+// rejoin the promotion evidence instead of becoming permanently phase-shifted.
+kernel void mr_locomotion_task_update_curriculum(
+    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
+    device MRTaskCurriculumStateGPU* curriculumState
+        [[buffer(2)]],
+    device MRTaskTransitionGPU* transitions [[buffer(3)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
+    const uint gridIndex [[thread_position_in_grid]]
+) {
+    if (gridIndex != 0u ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        program.schedule.x == 0u ||
+        program.schedule.z == 0u) {
+        return;
+    }
+
+    MRTaskCurriculumStateGPU state = curriculumState[0];
+    const ulong completedSteps = state.controlSteps + 1ul;
+    uint level = min(
+        state.commandLevel,
+        program.schedule.z - 1u
+    );
+    const uint transitionBase =
+        pass.controlStep * dispatch.outputs.z;
+    for (uint environment = 0u;
+         environment < dispatch.counts.x;
+         ++environment) {
+        const MRTaskTransitionGPU transition =
+            transitions[transitionBase + environment];
+        if (transition.termination.x != 0u &&
+            transition.termination.z == 0u) {
+            state.trackingScoreSum +=
+                transition.episodeTrackingScore;
+            ++state.completedEpisodeCount;
+            if (transition.termination.y != 0u) {
+                ++state.timeoutEpisodeCount;
+            }
+        }
+    }
+    if (completedSteps % ulong(program.schedule.x) == 0ul &&
+        level + 1u < program.schedule.z) {
+        const float completed =
+            float(state.completedEpisodeCount);
+        const float meanTracking =
+            state.trackingScoreSum / max(completed, 1.0f);
+        const float survivalFraction =
+            float(state.timeoutEpisodeCount) /
+            max(completed, 1.0f);
+        if (state.completedEpisodeCount != 0ul &&
+            meanTracking > program.locomotion.w &&
+            survivalFraction >= program.commandUpper.w) {
+            ++level;
+        }
+    }
+    if (completedSteps % ulong(program.schedule.x) == 0ul) {
+        state.completedEpisodeCount = 0ul;
+        state.timeoutEpisodeCount = 0ul;
+        state.trackingScoreSum = 0.0f;
+    }
+    state.controlSteps = completedSteps;
+    state.commandLevel = level;
+    curriculumState[0] = state;
+    for (uint environment = 0u;
+         environment < dispatch.counts.x;
+         ++environment) {
+        device MRTaskTransitionGPU& transition =
+            transitions[transitionBase + environment];
+        transition.taskProgress = uint4(
+            level,
+            transition.taskProgress.y,
+            0u,
+            0u
+        );
+    }
 }

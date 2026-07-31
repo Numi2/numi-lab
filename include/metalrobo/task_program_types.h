@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 3u
+#define MR_TASK_PROGRAM_ABI_VERSION 5u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -97,7 +97,7 @@ typedef struct MR_ALIGN16 MRTaskDispatchGPU {
     mr_uint4 strides;
     // actor step, critic step, transition step, physics status stride.
     mr_uint4 outputs;
-    // control dt, physics dt, reserved, reserved.
+    // control dt, physics dt, publish final actor, publish terminal critic.
     mr_float4 timing;
     mr_u64 seed;
     mr_u64 policyRevision;
@@ -126,7 +126,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_float4 locomotion;
     // xyz command lower bound; w standing-command probability.
     mr_float4 commandLower;
-    // xyz command upper bound; w reserved.
+    // xyz command upper bound; w minimum episode-survival fraction.
     mr_float4 commandUpper;
     // command duration min/max and push interval min/max, seconds.
     mr_float4 scheduleSeconds;
@@ -194,12 +194,12 @@ typedef struct MR_ALIGN16 MRTaskRewardOperatorGPU {
 typedef struct MR_ALIGN16 MRTaskTerminationOperatorGPU {
     // opcode, resolved group/index, reason, priority.
     mr_uint4 source;
-    // threshold and reserved values.
+    // threshold, one-shot failure penalty, and reserved values.
     mr_float4 parameters;
 } MRTaskTerminationOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskRandomizationOperatorGPU {
-    // opcode, resolved group/index, component, random channel.
+    // opcode, resolved group/index, component, minimum curriculum level.
     mr_uint4 target;
     // lower, upper, auxiliary lower, auxiliary upper.
     mr_float4 parameters;
@@ -225,6 +225,19 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     mr_float4 airReturnTracking;
 } MRTaskStateGPU;
 
+// One compact task-wide curriculum controller remains device-resident across
+// submissions. The command level is global, matching the authored Unitree
+// curriculum, while terrain difficulty remains environment-local.
+typedef struct MR_ALIGN16 MRTaskCurriculumStateGPU {
+    mr_u64 controlSteps;
+    mr_u64 completedEpisodeCount;
+    mr_u64 timeoutEpisodeCount;
+    float trackingScoreSum;
+    mr_u32 commandLevel;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+} MRTaskCurriculumStateGPU;
+
 typedef struct MR_ALIGN16 MRTaskTransitionGPU {
     // reward, tracking score, root height, tilt.
     mr_float4 rewardAndState;
@@ -235,7 +248,12 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
     // action-control, posture/limits, energy, and contact contributions.
     mr_float4 rewardBreakdown1;
     mr_u64 policyRevision;
-    mr_u64 reserved;
+    // V of the accepted post-transition state for timeout bootstrapping.
+    float timeoutBootstrapValue;
+    // Mean linear tracking score for a non-physics episode ending here.
+    float episodeTrackingScore;
+    // Global command curriculum and environment-local terrain levels.
+    mr_uint4 taskProgress;
 } MRTaskTransitionGPU;
 
 #ifndef __METAL_VERSION__
@@ -251,6 +269,7 @@ static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 80u);
-static_assert(sizeof(MRTaskTransitionGPU) == 80u);
+static_assert(sizeof(MRTaskCurriculumStateGPU) == 48u);
+static_assert(sizeof(MRTaskTransitionGPU) == 96u);
 #endif
 #endif

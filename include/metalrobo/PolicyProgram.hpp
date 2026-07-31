@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <span>
 #include <string>
@@ -44,13 +45,13 @@ struct PolicyPack {
     std::vector<float>
         criticObservationInverseStandardDeviation;
     std::vector<PolicyDenseLayer> criticLayers;
-    // Empty selects deterministic tanh(mean). A full action-width vector
-    // selects a diagonal Gaussian in pre-tanh latent space.
+    // Empty selects the deterministic actor mean. A full action-width vector
+    // selects a diagonal Gaussian in actor coordinates.
     std::vector<float> actionLogStandardDeviation;
     std::vector<float> actionBias;
     std::vector<float> actionScale;
     float observationClip = 100.0f;
-    float actionClip = 1.0f;
+    float actionClip = std::numeric_limits<float>::max();
 };
 
 enum class PolicyCompileStatus : std::uint32_t {

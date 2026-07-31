@@ -511,8 +511,12 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     task.clearanceTarget = 0.10f;
     task.successTrackingThreshold = 0.8f;
     task.supportForceThreshold = 1.0f;
-    task.commands.lower = {-0.1f, -0.1f, -0.1f, 0.0f};
-    task.commands.upper = {0.1f, 0.1f, 0.1f, 0.0f};
+    // Level zero is a true standing task. Translational and yaw commands are
+    // introduced together only after the policy has demonstrated full-episode
+    // survival, rather than asking a noisy initial policy to discover balance
+    // and locomotion simultaneously.
+    task.commands.lower = {0.0f, 0.0f, 0.0f, 0.0f};
+    task.commands.upper = {0.0f, 0.0f, 0.0f, 0.0f};
     task.commands.limitLower = {
         -0.5f, -0.3f, -0.2f, 0.0f,
     };
@@ -520,9 +524,10 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         1.0f, 0.3f, 0.2f, 0.0f,
     };
     task.commands.curriculumStep = {
-        0.1f, 0.1f, 0.0f, 0.0f,
+        0.1f, 0.1f, 0.1f, 0.0f,
     };
     task.commands.standingProbability = 0.02f;
+    task.commands.minimumEpisodeSurvivalFraction = 0.8f;
     task.commands.minimumDurationSeconds = 10.0f;
     task.commands.maximumDurationSeconds = 10.0f;
     task.pushes.maximumVelocity = 0.5f;
@@ -921,12 +926,14 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             .reason = MR_TASK_TERMINATION_HEIGHT,
             .priority = 1u,
             .threshold = 0.2f,
+            .failurePenalty = -2.0f,
         },
         {
             .operation = TaskTerminationOperator::maximumTilt,
             .reason = MR_TASK_TERMINATION_TILT,
             .priority = 2u,
             .threshold = 0.8f,
+            .failurePenalty = -2.0f,
         },
     };
 
@@ -935,12 +942,15 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             const TaskRandomizationOperator operation,
             const std::string_view target,
             const std::uint32_t component,
+            const std::uint32_t minimumCurriculumLevel,
             const mr_float4 parameters
         ) {
             task.randomization.push_back({
                 .operation = operation,
                 .target = std::string{target},
                 .component = component,
+                .minimumCurriculumLevel =
+                    minimumCurriculumLevel,
                 .parameters = parameters,
             });
         };
@@ -948,11 +958,13 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         TaskRandomizationOperator::rootPosition,
         {},
         0u,
+        0u,
         {0.5f, 0.5f, 0.0f, 0.0f}
     );
     random(
         TaskRandomizationOperator::rootYaw,
         {},
+        0u,
         0u,
         {-3.14f, 3.14f, 0.0f, 0.0f}
     );
@@ -960,18 +972,21 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         TaskRandomizationOperator::actionVelocity,
         {},
         0u,
+        2u,
         {-1.0f, 1.0f, 0.0f, 0.0f}
     );
     random(
         TaskRandomizationOperator::bodyParameter,
         "robot",
         1u,
+        2u,
         {0.3f, 1.0f, 0.0f, 0.0f}
     );
     random(
         TaskRandomizationOperator::bodyPayload,
         "torso_link",
         0u,
+        2u,
         {-1.0f, 3.0f, 0.0f, 0.0f}
     );
     return task;

@@ -184,7 +184,9 @@ resident world, launches one persistent MLX learner process, collects compact
 rollouts, evaluates the terminal critic value without advancing physics, and
 installs each new PolicyPack revision transactionally. Every update also
 publishes a deterministic deployment PolicyPack with the same actor revision
-and no exploration distribution.
+and no exploration distribution. Its atomic learner sidecar includes the
+native task-wide curriculum level, while a restarted simulator begins a fresh
+synchronized evaluation window with the restored policy and optimizer state.
 
 ## Repository map
 

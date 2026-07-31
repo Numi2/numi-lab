@@ -422,6 +422,12 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
                     std::isfinite(
                         transition.rewardBreakdown1.w
                     ) &&
+                    std::isfinite(
+                        transition.timeoutBootstrapValue
+                    ) &&
+                    std::isfinite(
+                        transition.episodeTrackingScore
+                    ) &&
                     transition.termination.x <= 1u &&
                     transition.termination.y <= 1u &&
                     transition.termination.z <= 1u;
@@ -786,6 +792,7 @@ std::vector<std::byte> serializeTask(
             target.pod(value.reason);
             target.pod(value.priority);
             target.pod(value.threshold);
+            target.pod(value.failurePenalty);
         }
     );
     writeRichVector(
@@ -796,6 +803,7 @@ std::vector<std::byte> serializeTask(
             writeEnum(target, value.operation);
             target.string(value.target);
             target.pod(value.component);
+            target.pod(value.minimumCurriculumLevel);
             target.pod(value.parameters);
         }
     );
@@ -805,6 +813,7 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.commands.limitUpper);
     writer.pod(pack.commands.curriculumStep);
     writer.pod(pack.commands.standingProbability);
+    writer.pod(pack.commands.minimumEpisodeSurvivalFraction);
     writer.pod(pack.commands.minimumDurationSeconds);
     writer.pod(pack.commands.maximumDurationSeconds);
     writer.pod(pack.pushes.maximumVelocity);
@@ -903,7 +912,8 @@ bool deserializeTask(
                     source.string(value.sourceGroup) &&
                     source.pod(value.reason) &&
                     source.pod(value.priority) &&
-                    source.pod(value.threshold);
+                    source.pod(value.threshold) &&
+                    source.pod(value.failurePenalty);
             }
         ) ||
         !readRichVector(
@@ -914,6 +924,7 @@ bool deserializeTask(
                 return readEnum(source, value.operation) &&
                     source.string(value.target) &&
                     source.pod(value.component) &&
+                    source.pod(value.minimumCurriculumLevel) &&
                     source.pod(value.parameters);
             }
         ) ||
@@ -923,6 +934,9 @@ bool deserializeTask(
         !reader.pod(pack.commands.limitUpper) ||
         !reader.pod(pack.commands.curriculumStep) ||
         !reader.pod(pack.commands.standingProbability) ||
+        !reader.pod(
+            pack.commands.minimumEpisodeSurvivalFraction
+        ) ||
         !reader.pod(pack.commands.minimumDurationSeconds) ||
         !reader.pod(pack.commands.maximumDurationSeconds) ||
         !reader.pod(pack.pushes.maximumVelocity) ||

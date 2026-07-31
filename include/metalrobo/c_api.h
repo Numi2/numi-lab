@@ -141,7 +141,11 @@ typedef struct MRTaskTransitionC {
     float energy_reward;
     float contact_reward;
     uint64_t policy_revision;
-    uint64_t reserved;
+    float timeout_bootstrap_value;
+    float episode_tracking_score;
+    uint32_t curriculum_level;
+    uint32_t terrain_level;
+    uint32_t reserved[2];
 } MRTaskTransitionC;
 
 typedef enum MRPolicyActivationC {
@@ -457,6 +461,12 @@ MR_API void mr_task_rollout_destroy(MRTaskRolloutHandle* handle);
 MR_API int mr_task_rollout_reset(
     MRTaskRolloutHandle* handle,
     uint64_t seed
+);
+// Restores the compact task-wide curriculum checkpoint before the first
+// resident submission. Per-environment simulator state remains native.
+MR_API int mr_task_rollout_set_curriculum_level(
+    MRTaskRolloutHandle* handle,
+    uint32_t level
 );
 // Installs one immutable compiled policy artifact. The call copies all
 // caller-owned spans; subsequent advances take no action stream and run

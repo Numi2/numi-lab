@@ -675,7 +675,7 @@ def write_policy_pack(
     action_bias: npt.ArrayLike = (),
     action_scale: npt.ArrayLike = (),
     observation_clip: float = 100.0,
-    action_clip: float = 1.0,
+    action_clip: float = float(np.finfo(np.float32).max),
     library_path: str | os.PathLike[str] | None = None,
 ) -> Path:
     """Publish actor/critic weights through the canonical native writer."""

@@ -143,6 +143,10 @@ struct TaskTerminationOperatorSpec {
     std::uint32_t reason = MR_TASK_TERMINATION_HEIGHT;
     std::uint32_t priority = 0u;
     float threshold = 0.0f;
+    // One-shot reward applied when this non-timeout termination wins the
+    // priority reduction. This closes the early-termination loophole when
+    // the task also contains per-step penalties.
+    float failurePenalty = 0.0f;
 };
 
 struct TaskRandomizationOperatorSpec {
@@ -150,6 +154,8 @@ struct TaskRandomizationOperatorSpec {
         TaskRandomizationOperator::rootPosition;
     std::string target;
     std::uint32_t component = 0u;
+    // The operator is inactive below this global task-curriculum level.
+    std::uint32_t minimumCurriculumLevel = 0u;
     mr_float4 parameters{};
 };
 
@@ -161,6 +167,9 @@ struct TaskCommandProgram {
     mr_float4 limitUpper{};
     mr_float4 curriculumStep{};
     float standingProbability = 0.0f;
+    // Fraction of completed, non-physics episodes that must reach the time
+    // limit during a curriculum window before command difficulty advances.
+    float minimumEpisodeSurvivalFraction = 0.0f;
     float minimumDurationSeconds = 5.0f;
     float maximumDurationSeconds = 10.0f;
 };

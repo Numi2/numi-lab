@@ -2,7 +2,7 @@
 
 #include "metalrobo/gpu_types.h"
 
-#define MR_POLICY_PROGRAM_ABI_VERSION 2u
+#define MR_POLICY_PROGRAM_ABI_VERSION 3u
 
 enum MRPolicyActivationOpcode : mr_u32 {
     MR_POLICY_ACTIVATION_IDENTITY = 0u,
@@ -68,8 +68,8 @@ typedef struct MR_ALIGN16 MRPolicyDenseDispatchGPU {
 } MRPolicyDenseDispatchGPU;
 
 // One environment per thread finalizes the actor distribution. It preserves
-// the pre-tanh latent and exact old-policy log probability for PPO while
-// publishing transformed actions to the task graph.
+// the diagonal-Gaussian sample and exact old-policy log probability for PPO
+// while publishing transformed actions to the task graph.
 typedef struct MR_ALIGN16 MRPolicySampleDispatchGPU {
     // environments, actions, control step, program flags.
     mr_uint4 counts;

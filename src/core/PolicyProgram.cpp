@@ -278,7 +278,7 @@ PolicyCompileDiagnostics compilePolicyProgram(
         return reject(
             PolicyCompileStatus::invalidPack,
             "actionLogStandardDeviation",
-            "pre-tanh log standard deviations must be within [-5, 2]"
+            "Gaussian log standard deviations must be within [-5, 2]"
         );
     }
 
@@ -451,7 +451,8 @@ PolicyCompileDiagnostics compilePolicyProgram(
     const auto proveNetwork = [&](
         const std::span<const PolicyDenseLayer> layers,
         const std::uint32_t inputCount,
-        const std::string_view name
+        const std::string_view name,
+        std::vector<double>* finalBounds
     ) -> PolicyCompileDiagnostics {
         std::vector<double> inputBounds(
             inputCount,
@@ -516,12 +517,17 @@ PolicyCompileDiagnostics compilePolicyProgram(
             }
             inputBounds = std::move(outputBounds);
         }
+        if (finalBounds != nullptr) {
+            *finalBounds = std::move(inputBounds);
+        }
         return {};
     };
+    std::vector<double> actorOutputBounds;
     networkStatus = proveNetwork(
         pack.layers,
         taskLayout.actorObservationSize,
-        "actor"
+        "actor",
+        &actorOutputBounds
     );
     if (!networkStatus.succeeded()) {
         return networkStatus;
@@ -530,7 +536,8 @@ PolicyCompileDiagnostics compilePolicyProgram(
         networkStatus = proveNetwork(
             pack.criticLayers,
             taskLayout.criticObservationSize,
-            "critic"
+            "critic",
+            nullptr
         );
         if (!networkStatus.succeeded()) {
             return networkStatus;
@@ -545,13 +552,13 @@ PolicyCompileDiagnostics compilePolicyProgram(
             )) +
             std::abs(static_cast<double>(
                 actionScale[action]
-            ));
+            )) * actorOutputBounds[action];
         if (!std::isfinite(transformedBound) ||
             transformedBound > kAccumulatorLimit) {
             return reject(
                 PolicyCompileStatus::invalidPack,
                 "actionTransform",
-                "tanh action transform can overflow before clipping"
+                "Gaussian action transform can overflow before clipping"
             );
         }
     }

@@ -72,14 +72,17 @@ records, and explicit diagnostics cross the learning boundary.
 The final rollout chunk appends a value-only policy evaluation for the
 accepted post-step state to the same command buffer. Bootstrap values
 therefore do not require a discarded physics step or another submission.
+Every timeout transition likewise carries the critic value of its accepted
+terminal state, evaluated before the next native reset, so GAE never
+bootstraps from the following episode.
 
 `TaskPack` and `PolicyPack` have deterministic, fingerprinted, transactional
 binary artifacts. MLX is a batch learning backend in
 `python/metalrobo/mlx_policy_learning.py`; it has no simulator or rollout
 scheduler dependency and publishes actors through the canonical PolicyPack
 writer. Its PPO minibatch compiles forward evaluation, backward evaluation,
-global gradient clipping, and Adam into one graph with explicit model and
-optimizer state capture. Swift reuses one preallocated rollout arena, lends
+global policy gradient clipping, and Adam into one graph with explicit model
+and optimizer state capture. Swift reuses one preallocated rollout arena, lends
 its arrays directly to the synchronous native artifact writer, and applies a
 configurable timeout to the long-lived learner protocol. No per-chunk batch
 list, flattened duplicate, or second full tensor allocation remains; the
@@ -96,8 +99,14 @@ sampling therefore agree with URDF link frames without a runtime name lookup.
 The mechanical-power reward consumes the actual effort after actuator
 limiting and the torque-speed envelope; it does not reconstruct a nominal
 controller torque from post-step state. Unitree's x/y command curriculum is
-gated by episode-mean linear tracking alone; yaw tracking remains a reward and
-reported rollout metric but cannot incorrectly block linear range expansion.
+one task-wide native controller, gated by mean episode linear tracking at the
+authored episode boundary. Yaw tracking remains a reward and reported rollout
+metric but cannot incorrectly block linear range expansion. Each transition
+publishes the accepted level. The learner derives its checkpoint from those
+records; Swift cannot claim a different level. The level, model parameters,
+and Adam moments are restored together before the next resident Metal state
+is initialized. A restarted simulator begins a fresh synchronized curriculum
+evaluation window because its environment episodes are also new.
 
 ## Encoded graphs
 
