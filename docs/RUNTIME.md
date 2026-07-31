@@ -94,10 +94,17 @@ therefore consume the shared buffers without another input copy. Publishing
 directly into the leased ring from the native command buffer remains an
 explicit optimization gate.
 
-Policy installation currently serializes and uploads the compiled PolicyPack
-between update chunks. Contiguous MLX weight flattening, inactive private
-weight banks, a no-copy Metal view, and an atomic blit-driven bank swap remain
-to be implemented.
+Policy installation has two private native banks. The first installed policy
+locks a topology fingerprint containing its identity, task contract, operator
+shapes, activations, offsets, and arena size. A changed policy must carry a
+strictly newer revision. Its complete header and arena are staged into the
+inactive bank, and that bank becomes active only while encoding the next
+submission; an already encoded command buffer retains the old Metal resources.
+Returning to a retained fingerprint reuses its bank without another upload.
+
+The learner still converts evaluated MLX parameters into host PolicyPack
+arrays before native staging. Contiguous MLX weight flattening, a no-copy Metal
+view, and a direct blit into the inactive bank remain optimization gates.
 
 Dense native inference assigns one output neuron to one cooperative
 SIMDgroup. Lanes accumulate strided features in FP32, use a deterministic SIMD

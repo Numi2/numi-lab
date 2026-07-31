@@ -61,8 +61,10 @@ release blockers remain:
   into that same schedule.
 - Swift PPO now collects into a three-slot shared Metal rollout ring and MLX
   consumes those buffers without Swift array concatenation or an MLX input
-  copy. Direct native command-buffer publication into the ring and inactive
-  policy weight banks remain unfinished.
+  copy. Native inference keeps two private policy banks, locks their compiled
+  topology fingerprint, and swaps monotonic revisions at submission
+  boundaries. Direct command-buffer rollout publication and a no-copy
+  MLX-to-policy-bank blit remain unfinished.
 - Dense PolicyIR inference now cooperatively reduces each output in an Apple
   GPU SIMDgroup instead of serially accumulating a neuron in one thread.
   Shape-specialized matrix tiles, reduced-precision weights, convolution,

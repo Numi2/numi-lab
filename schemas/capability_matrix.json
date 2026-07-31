@@ -7,7 +7,8 @@
     "evidence/baselines/2026-08-01-db62e37.json",
     "evidence/baselines/2026-08-01-ec90c65.json",
     "evidence/baselines/2026-08-01-13b5bf5.json",
-    "evidence/baselines/2026-08-01-b20fa57.json"
+    "evidence/baselines/2026-08-01-b20fa57.json",
+    "evidence/baselines/2026-08-01-b1c311f.json"
   ],
   "capabilities": [
     {
@@ -135,6 +136,13 @@
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "Fingerprint-bound normalization, dense actor/critic layers, Gaussian behavior policy, and native inference. Each dense output is reduced cooperatively in FP32 by one SIMDgroup, up to eight outputs share a threadgroup, and the owner compares nonzero rollout outputs with a host dot-product reference. SIMDgroup matrix tiles and reduced-precision storage remain unqualified."
+    },
+    {
+      "id": "policy.atomic_private_banks",
+      "status": "qualified",
+      "owner": "integration.native_simulation",
+      "artifact": "metalrobo_train",
+      "scope": "A stable topology fingerprint locks the compiled policy shape. Changed parameters require a monotonic revision, upload into the inactive one of two private Metal banks, and become active only at a native submission boundary. The task owner proves A-to-B-to-A reuse; the Swift integration rejects stale and topology-changing updates transactionally. Direct no-copy MLX-to-bank blits remain incomplete."
     },
     {
       "id": "policy.recurrent_visual_attention",

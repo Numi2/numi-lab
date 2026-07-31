@@ -63,7 +63,8 @@ may construct packed GPU offsets or mutate compiled topology.
 - `SensorIR` defines native scheduling, latency, history, noise, reset, and
   observation/recorder bindings for every sensor.
 - `PolicyIR` defines inference topology, normalization, action transforms,
-  recurrent state, and weight layouts.
+  recurrent state, and weight layouts. Its topology fingerprint is immutable
+  for a session; learned revisions alternate between two private Metal banks.
 - `ExecutionPlan` is the generated resource and pass graph consumed by Metal.
 
 IR types are private. Public authoring uses importers and validated packs.

@@ -30,14 +30,20 @@ contract evidence; it does not qualify unimplemented sensor modalities.
 The native integration owner runs five PPO updates through a three-slot shared
 rollout ring. It therefore covers slot reuse, managed MLX payload release,
 monotonic policy revisions, native rollout serialization, learner checkpoints,
-and deployment-policy publication. It does not yet qualify direct GPU writes
-into the ring or inactive native weight-bank swapping.
+deployment-policy publication, immutable policy topology, stale-revision
+rejection, and transactional private-bank swapping. It does not yet qualify
+direct GPU writes into the rollout ring or a no-copy MLX-to-bank blit.
 
 The TaskIR owner also executes a nonzero deterministic dense policy over two
 environments and four control steps, then compares all eight native SIMDgroup
 outputs against an FP32 host dot-product reference. This qualifies the current
 dense operator contract, not convolution, recurrence, attention, reduced
 precision, or performance floors.
+
+The same owner uploads policy A, uploads a weight-only revision B with the same
+topology fingerprint, then reactivates retained A. It requires exactly two
+bank uploads and one reuse and verifies both numerical outputs. An activation
+change must produce a distinct topology fingerprint.
 
 ## Owning checks
 
