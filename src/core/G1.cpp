@@ -32,9 +32,9 @@
 //   commit 1425b15f73bd4095f0df53709d7c389c3eb9e790
 //   SPDX-License-Identifier: BSD-3-Clause
 //
-// Fixed-link inertials are folded with the parallel-axis theorem as documented
-// in docs/G1_SPEC.md. MetalRobo's storage layout and inverse calculation are
-// original implementation work.
+// Fixed-link inertials are folded from the pinned upstream values with the
+// parallel-axis theorem. MetalRobo's storage layout and inverse calculation
+// are original implementation work.
 
 namespace metalrobo {
 namespace {

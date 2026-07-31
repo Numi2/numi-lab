@@ -495,7 +495,8 @@ median/p95/min/max observation time, tactile frames/s, samples/s, backing and
 lookup storage, retained bytes, per-environment bytes, and explicit
 diagnostic-readback time as one JSON object. It does not invent stage timings
 that Metal has not counter-sampled.
-The measured Apple M4 matrix is recorded in `docs/TACTILE_PERFORMANCE.md`.
+The benchmark JSON is the authoritative measurement record for its exact
+device, build, task shape, and invocation.
 
 ```sh
 ./build/bin/metalrobo_tactile_benchmark \

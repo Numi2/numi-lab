@@ -190,16 +190,9 @@ geometry safely.
 ## Current accuracy boundary
 
 The implemented probes establish internal analytical cases, CPU/Metal
-component parity, finite behavior, conservation on narrow unforced scenes,
-and deterministic replay where stated. They do not yet establish:
-
-- trajectory/contact agreement with a pinned external simulator;
-- external articulated-contact accuracy and joint-limit impulses;
-- convex, mesh, heightfield, or deformable collision accuracy;
-- CCD or high-speed impact accuracy;
-- long-horizon G1 locomotion stability;
-- production generic Metal contact throughput. Free-motion canonical
-  Metal-world throughput is now measured separately.
-
-The dated acceptance thresholds for making broader claims are defined in
-[ENGINE_TARGET](ENGINE_TARGET.md).
+component parity, finite behavior, selected conservation cases,
+deterministic replay where stated, native G1 standing, and batched contact
+execution. They do not establish universal agreement with an external
+simulator, complete unilateral joint-limit behavior, high-speed impact
+accuracy, real-hardware fidelity, safety, or sim-to-real transfer. Those
+claims require their own pinned comparisons and physical evidence.
