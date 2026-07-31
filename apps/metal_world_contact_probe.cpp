@@ -104,10 +104,227 @@ MRShapeGPU cubeShape(const std::uint32_t bodyIndex) {
     return shape;
 }
 
+void verifyCoupledLimitContactNumiSolver() {
+    metalrobo::EngineModel model =
+        metalrobo::makeFrankaPandaEngineModel();
+    const auto limited = std::find_if(
+        model.dofs.begin(),
+        model.dofs.end(),
+        [](const MRDofPropertiesGPU& dof) {
+            return
+                (dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
+                dof.qIndex != MR_INVALID_INDEX &&
+                dof.vIndex != MR_INVALID_INDEX;
+        }
+    );
+    require(
+        limited != model.dofs.end(),
+        "Franka has no scalar position-limit witness"
+    );
+    const std::uint32_t limitedV = limited->vIndex;
+    const std::uint32_t limitedQ = limited->qIndex;
+    const float upper = limited->limits.y;
+    model.defaultQ[limitedQ] = upper - 5.0e-4f;
+    model.defaultV[limitedV] = 0.5f;
+
+    const MRShapeGPU witnessShape = model.shapes.back();
+    const std::vector<double> q(
+        model.defaultQ.begin(),
+        model.defaultQ.end()
+    );
+    const std::vector<double> v(
+        model.defaultV.begin(),
+        model.defaultV.end()
+    );
+    const metalrobo::ArticulatedPointQuery query{
+        .bodyIndex = witnessShape.bodyIndex,
+        .localPoint = {
+            witnessShape.localPosition.x,
+            witnessShape.localPosition.y,
+            witnessShape.localPosition.z,
+        },
+    };
+    metalrobo::ArticulatedPointKinematics witness{};
+    std::vector<double> jacobian(
+        3u * model.articulations[0].nv
+    );
+    const auto kinematics =
+        metalrobo::computeArticulatedPointJacobians(
+            model,
+            0u,
+            q,
+            v,
+            std::span{&query, 1u},
+            std::span{&witness, 1u},
+            jacobian
+        );
+    require(
+        kinematics.succeeded(),
+        "coupled limit/contact witness kinematics failed"
+    );
+
+    const std::uint32_t cubeBody =
+        static_cast<std::uint32_t>(model.bodies.size());
+    model.bodies.push_back(cubeProperties());
+    model.shapes.push_back(cubeShape(cubeBody));
+    model.world.bodyCount =
+        static_cast<std::uint32_t>(model.bodies.size());
+    model.world.shapeCount =
+        static_cast<std::uint32_t>(model.shapes.size());
+
+    metalrobo::CompiledWorld world;
+    const auto compiled = metalrobo::compileMetalWorld(
+        model,
+        0u,
+        world
+    );
+    require(
+        compiled.succeeded(),
+        compiled.message.c_str()
+    );
+    const auto& program = world.model().constraintProgram;
+    const auto upperCandidate = std::find_if(
+        program.blocks.begin(),
+        program.blocks.end(),
+        [limitedV](const MRConstraintIRBlockGPU& block) {
+            return block.type == MR_CONSTRAINT_LIMIT &&
+                block.key.words[0] == 0x4c494d54u &&
+                block.key.words[2] == limitedV &&
+                block.key.words[3] == 1u;
+        }
+    );
+    require(
+        upperCandidate != program.blocks.end() &&
+            std::count_if(
+                program.blocks.begin(),
+                program.blocks.end(),
+                [limitedV](const MRConstraintIRBlockGPU& block) {
+                    return block.type == MR_CONSTRAINT_LIMIT &&
+                        block.key.words[0] == 0x4c494d54u &&
+                        block.key.words[2] == limitedV;
+                }
+            ) == 2,
+        "compiler did not emit stable paired limit candidates"
+    );
+
+    MRBodyStateGPU cube{};
+    cube.position = f4(
+        static_cast<float>(witness.position[0]) +
+            witnessShape.dimensions.x + 0.047f,
+        static_cast<float>(witness.position[1]),
+        static_cast<float>(witness.position[2]),
+        1.0f
+    );
+    cube.orientation.w = 1.0f;
+    cube.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+    cube.flagsAndIndices[1] = MR_INVALID_INDEX;
+    cube.flagsAndIndices[2] = cubeBody;
+
+    const std::vector<float> efforts(world.nv(), 0.0f);
+    const metalrobo::MetalWorldBatch batch{
+        .environmentCount = 1u,
+        .controlStepCount = 1u,
+        .initialQ = model.defaultQ,
+        .initialV = model.defaultV,
+        .efforts = efforts,
+        .initialSceneBodies = std::span{&cube, 1u},
+    };
+    const metalrobo::MetalWorldStepConfig config{
+        .timestepSeconds = 1.0f / 240.0f,
+        .physicsSubsteps = 1u,
+        .temporalSubsteps = 1u,
+        .solverMode =
+            metalrobo::MetalWorldSolverMode::numiSolver,
+        .deterministic = true,
+        .warmStart = true,
+        .captureContactEvidence = true,
+    };
+    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldResult result;
+    const auto run = context.run(world, batch, config, result);
+    if (!run.succeeded() && !result.contactStatuses.empty()) {
+        const auto& status = result.contactStatuses.front();
+        std::cerr
+            << "coupled_limit_status=" << status.code
+            << " constraint=" << status.firstFailingConstraint
+            << " rows=" << status.requiredRows
+            << " blocks=" << status.requiredConstraints
+            << " residuals=(" << status.residuals.x << ','
+            << status.residuals.y << ',' << status.residuals.z
+            << ',' << status.residuals.w << ")\n";
+    }
+    require(run.succeeded(), run.message.c_str());
+    require(
+        result.finalQ[limitedQ] <=
+            upper + config.jointLimitPositionSlop + 1.0e-5f,
+        "NumiSolver crossed the coupled scalar upper limit"
+    );
+
+    const std::size_t required =
+        result.contactStatuses.front().requiredConstraints;
+    bool activeUpperLimit = false;
+    bool activeContact = false;
+    for (std::size_t index = 0u;
+         index < required;
+         ++index) {
+        const auto& block = result.contactEvidence.blocks[index];
+        const auto& contact = result.contactEvidence.contacts[index];
+        if (block.type == MR_CONSTRAINT_LIMIT &&
+            block.key.words[0] == 0x4c494d54u &&
+            block.key.words[2] == limitedV &&
+            block.key.words[3] == 1u &&
+            (block.flags &
+             MR_CONSTRAINT_IR_BLOCK_DISABLED) == 0u &&
+            contact.impulses.x > 0.0f) {
+            activeUpperLimit = true;
+        }
+        if (block.type == MR_CONSTRAINT_CONTACT &&
+            contact.impulses.x > 0.0f) {
+            activeContact = true;
+        }
+    }
+    if (!activeUpperLimit || !activeContact) {
+        std::cerr
+            << "coupled_limit_evidence"
+            << " final_q=" << result.finalQ[limitedQ]
+            << " final_v=" << result.finalV[limitedV]
+            << " required=" << required << '\n';
+        for (std::size_t index = 0u;
+             index < required;
+             ++index) {
+            const auto& block =
+                result.contactEvidence.blocks[index];
+            const auto& contact =
+                result.contactEvidence.contacts[index];
+            std::cerr
+                << "  block=" << index
+                << " type=" << block.type
+                << " flags=" << block.flags
+                << " key=(" << block.key.words[0]
+                << ',' << block.key.words[1]
+                << ',' << block.key.words[2]
+                << ',' << block.key.words[3] << ')'
+                << " impulse=(" << contact.impulses.x
+                << ',' << contact.impulses.y
+                << ',' << contact.impulses.z << ")\n";
+        }
+    }
+    require(
+        activeUpperLimit && activeContact,
+        "limit and contact were not both active in NumiSolver"
+    );
+}
+
 } // namespace
 
-int main() {
+int main(const int argc, char** argv) {
     try {
+        if (argc == 2 &&
+            std::strcmp(argv[1], "--coupled-limit-only") == 0) {
+            verifyCoupledLimitContactNumiSolver();
+            std::cout << "coupled_limit_contact_numisolver=pass\n";
+            return 0;
+        }
         constexpr std::size_t environmentCount = 4u;
         constexpr std::size_t controlStepCount = 12u;
         metalrobo::EngineModel model =
@@ -166,11 +383,10 @@ int main() {
         };
         const metalrobo::MetalWorldStepConfig config{
             .timestepSeconds = 1.0f / 120.0f,
-            .physicsSubsteps = 4u,
+            .physicsSubsteps = 1u,
+            .temporalSubsteps = 4u,
             .solverMode =
-                metalrobo::MetalWorldSolverMode::waveJacobiExperimental,
-            .velocityIterations = 2u,
-            .finalVelocityIterations = 1u,
+                metalrobo::MetalWorldSolverMode::numiSolver,
             .deterministic = true,
             .warmStart = true,
             .captureContactEvidence = true,
@@ -237,9 +453,7 @@ int main() {
                     environmentCount &&
                 first.contactEvidence.manifoldCounts.size() ==
                     environmentCount &&
-                first.contactStatuses.back().solverIterations ==
-                    config.velocityIterations +
-                        config.finalVelocityIterations,
+                first.contactStatuses.back().solverIterations == 1u,
             "contact result dimensions or accounting are invalid"
         );
         require(
@@ -523,6 +737,9 @@ int main() {
         metalrobo::MetalWorldStepConfig meshCCDConfig = config;
         meshCCDConfig.timestepSeconds = 1.0f / 60.0f;
         meshCCDConfig.physicsSubsteps = 1u;
+        // Hybrid CCD already advances to impact within the authored step;
+        // isolate that contract from NumiSolver temporal refinement here.
+        meshCCDConfig.temporalSubsteps = 1u;
         meshCCDConfig.ccdMode =
             metalrobo::MetalWorldCCDMode::hybrid;
         meshCCDConfig.maxConservativeAdvancementIterations =
@@ -649,8 +866,7 @@ int main() {
         metalrobo::MetalWorldStepConfig ccdConfig = config;
         ccdConfig.timestepSeconds = 1.0f / 60.0f;
         ccdConfig.physicsSubsteps = 1u;
-        ccdConfig.velocityIterations = 2u;
-        ccdConfig.finalVelocityIterations = 1u;
+        ccdConfig.temporalSubsteps = 1u;
         ccdConfig.ccdMode =
             metalrobo::MetalWorldCCDMode::hybrid;
         ccdConfig.maxConservativeAdvancementIterations = 32u;
@@ -860,15 +1076,22 @@ int main() {
         require(
             std::any_of(
                 frankaResult.contactEvidence.contacts.begin() +
-                    static_cast<std::ptrdiff_t>(contactBase),
+                    static_cast<std::ptrdiff_t>(
+                        contactBase +
+                        frankaResult.layout.contactDispatch.
+                            authoredConstraintCount
+                    ),
                 frankaResult.contactEvidence.contacts.begin() +
                     static_cast<std::ptrdiff_t>(
                         contactBase +
-                        frankaStatus.activeContacts
+                        frankaStatus.requiredConstraints
                     ),
                 [cubeBody](const MRContactConstraintGPU& contact) {
-                    return contact.bodyA == cubeBody ||
-                        contact.bodyB == cubeBody;
+                    return
+                        (contact.flags &
+                         MR_CONSTRAINT_FLAG_GENERALIZED) == 0u &&
+                        (contact.bodyA == cubeBody ||
+                         contact.bodyB == cubeBody);
                 }
             ),
             "Franka-plus-cube graph did not compile a mixed contact"
@@ -1159,8 +1382,7 @@ int main() {
         };
         metalrobo::MetalWorldStepConfig largePairConfig = config;
         largePairConfig.physicsSubsteps = 1u;
-        largePairConfig.velocityIterations = 1u;
-        largePairConfig.finalVelocityIterations = 0u;
+        largePairConfig.temporalSubsteps = 1u;
         largePairConfig.captureContactEvidence = false;
         metalrobo::MetalWorldContext largePairContext;
         metalrobo::MetalWorldResult largePairResult;
@@ -1180,153 +1402,6 @@ int main() {
             "large device pair stream missed its final eligible pair"
         );
 
-        const auto runTileProbe = [&](
-            const std::uint32_t activeContacts
-        ) {
-            metalrobo::EngineModel tileModel =
-                metalrobo::makeFreeSphereEngineModel();
-            const MRShapeGPU tileSphere =
-                tileModel.shapes.back();
-            tileModel.shapes.clear();
-            tileModel.shapes.reserve(2u * activeContacts);
-            for (std::uint32_t body = 0u; body < 2u; ++body) {
-                for (std::uint32_t local = 0u;
-                     local < activeContacts;
-                     ++local) {
-                    MRShapeGPU shape = tileSphere;
-                    shape.bodyIndex = body;
-                    shape.slotGeneration =
-                        body * activeContacts + local + 1u;
-                    shape.localPosition.x =
-                        0.05f * static_cast<float>(local);
-                    shape.dimensions.x = 0.01f;
-                    shape.contactRestAndBoundingRadius =
-                        f4(0.001f, 0.0f, 0.01f);
-                    tileModel.shapes.push_back(shape);
-                }
-            }
-            tileModel.world.shapeCount =
-                static_cast<std::uint32_t>(
-                    tileModel.shapes.size()
-                );
-            const std::uint32_t requiredTiles =
-                (
-                    activeContacts +
-                    MR_WAVE32_CONTACTS_PER_TILE - 1u
-                ) / MR_WAVE32_CONTACTS_PER_TILE;
-            const std::uint32_t requiredSpillRows =
-                activeContacts > MR_WAVE32_CONTACTS_PER_TILE
-                ? 3u * (
-                      activeContacts -
-                      MR_WAVE32_CONTACTS_PER_TILE
-                  )
-                : 0u;
-            metalrobo::CompiledWorld tileWorld;
-            const auto tileCompiled =
-                metalrobo::compileMetalWorld(
-                    tileModel,
-                    0u,
-                    tileWorld,
-                    metalrobo::MetalWorldCapacityProfile{
-                        .candidatePairs = activeContacts,
-                        .rawContacts = activeContacts,
-                        .manifolds = activeContacts,
-                        .constraintBlocks = activeContacts,
-                        .constraintRows = 3u * activeContacts,
-                        .islands = 2u,
-                        .solverTiles = requiredTiles,
-                        .spillRows = requiredSpillRows,
-                    }
-                );
-            require(
-                tileCompiled.succeeded(),
-                "Wave32 tile world compilation failed"
-            );
-            std::vector<float> tileQ = tileModel.defaultQ;
-            tileQ[1] = 0.0f;
-            const std::vector<float> tileEffort(
-                tileWorld.nv(),
-                0.0f
-            );
-            const std::vector<MRBodyStateGPU> tileScene{
-                groundState(),
-            };
-            const metalrobo::MetalWorldBatch tileBatch{
-                .environmentCount = 1u,
-                .controlStepCount = 1u,
-                .initialQ = tileQ,
-                .initialV = tileModel.defaultV,
-                .efforts = tileEffort,
-                .initialSceneBodies = tileScene,
-            };
-            metalrobo::MetalWorldStepConfig tileConfig = config;
-            tileConfig.physicsSubsteps = 1u;
-            tileConfig.velocityIterations = 1u;
-            tileConfig.finalVelocityIterations = 0u;
-            tileConfig.captureContactEvidence = false;
-            tileConfig.ccdMode =
-                metalrobo::MetalWorldCCDMode::disabled;
-            metalrobo::MetalWorldContext tileContext;
-            metalrobo::MetalWorldResult tileResult;
-            const auto tileRun = tileContext.run(
-                tileWorld,
-                tileBatch,
-                tileConfig,
-                tileResult
-            );
-            require(
-                tileRun.succeeded() &&
-                    tileResult.contactStatuses.size() == 1u,
-                "Wave32 tiled contact solve failed"
-            );
-            const auto& tileStatus =
-                tileResult.contactStatuses.front();
-            if (tileStatus.activeContacts != activeContacts ||
-                tileStatus.requiredSolverTiles !=
-                    requiredTiles ||
-                tileStatus.requiredSpillRows !=
-                    requiredSpillRows ||
-                tileStatus.spillRows != requiredSpillRows) {
-                std::cerr
-                    << "tile_probe_contacts=" << activeContacts
-                    << " active=" << tileStatus.activeContacts
-                    << " pairs=" << tileStatus.requiredPairs
-                    << " raw="
-                    << tileStatus.requiredRawContacts
-                    << " manifolds="
-                    << tileStatus.requiredManifolds
-                    << " constraints="
-                    << tileStatus.requiredConstraints
-                    << " tiles="
-                    << tileStatus.requiredSolverTiles
-                    << " expected_tiles=" << requiredTiles
-                    << " spill="
-                    << tileStatus.requiredSpillRows
-                    << " expected_spill="
-                    << requiredSpillRows
-                    << " constraint_cap="
-                    << tileWorld.capacities().constraintBlocks
-                    << " pair_cap="
-                    << tileWorld.capacities().candidatePairs
-                    << " code=" << tileStatus.code
-                    << '\n';
-            }
-            require(
-                tileStatus.activeContacts == activeContacts &&
-                    tileStatus.requiredSolverTiles ==
-                        requiredTiles &&
-                tileStatus.requiredSpillRows ==
-                        requiredSpillRows &&
-                    (
-                        activeContacts <= 256u ||
-                        (tileStatus.queueFlags &
-                         MR_ISLAND_WORK_DISTRIBUTED) != 0u
-                    ) &&
-                    tileStatus.spillRows == requiredSpillRows,
-                "Wave32 tile/spill accounting diverged"
-            );
-            return tileStatus;
-        };
         constexpr std::size_t throughputEnvironments = 1024u;
         constexpr std::size_t throughputSteps = 4u;
         metalrobo::CompiledWorld throughputWorld;
@@ -1395,8 +1470,6 @@ int main() {
         };
         metalrobo::MetalWorldStepConfig throughputConfig = config;
         throughputConfig.captureContactEvidence = false;
-        throughputConfig.velocityIterations = 1u;
-        throughputConfig.finalVelocityIterations = 1u;
         metalrobo::MetalWorldResult throughputWarmup;
         metalrobo::MetalWorldContext throughputContext;
         const auto warmup = throughputContext.run(
@@ -1492,26 +1565,15 @@ int main() {
                 highWater.islands,
                 status.highWater.islands
             );
-            highWater.spillRows = std::max(
-                highWater.spillRows,
-                status.highWater.spillRows
-            );
         }
         std::uint32_t throughputActiveContacts = 0u;
-        std::uint32_t throughputQueueFlags = 0u;
         for (const auto& status :
              throughputResult.contactStatuses) {
             throughputActiveContacts = std::max(
                 throughputActiveContacts,
                 status.activeContacts
             );
-            throughputQueueFlags |= status.queueFlags;
         }
-        require(
-            (throughputQueueFlags &
-             MR_WORLD_QUEUE_COHORT_8) != 0u,
-            "Franka compact islands did not use 8-lane cohorts"
-        );
         const double gpuBatchStepP50 =
             percentile(gpuMilliseconds, 0.50) /
             static_cast<double>(throughputSteps);
@@ -1527,11 +1589,6 @@ int main() {
         const bool throughputGatePassed =
             gpuStepsPerSecond >= 40000.0 &&
             wallStepsPerSecond >= 40000.0;
-
-        const auto tile33 = runTileProbe(33u);
-        const auto tile96 = runTileProbe(96u);
-        const auto tile257 = runTileProbe(257u);
-        const auto tile513 = runTileProbe(513u);
 
         std::cout
             << "metal_world_contact=ok"
@@ -1564,14 +1621,6 @@ int main() {
             << " cylinder_convex_ccd_events="
             << ccdResult.contactStatuses[0]
                    .requiredCCDEvents
-            << " tile33=" << tile33.activeContacts
-            << " tile96=" << tile96.activeContacts
-            << " tile257=" << tile257.activeContacts
-            << " tile257_spill_rows="
-            << tile257.requiredSpillRows
-            << " tile513=" << tile513.activeContacts
-            << " tile513_spill_rows="
-            << tile513.requiredSpillRows
             << " throughput_envs="
             << throughputEnvironments
             << " throughput_gpu_steps_per_s="
@@ -1588,7 +1637,7 @@ int main() {
             << wallBatchStepP95
             << " throughput_active_contacts="
             << throughputActiveContacts
-            << " wave_cohort=8"
+            << " solver=numisolver"
             << " high_water_pairs="
             << highWater.candidatePairs
             << " high_water_raw=" << highWater.rawContacts
@@ -1600,8 +1649,6 @@ int main() {
             << highWater.constraintRows
             << " high_water_islands="
             << highWater.islands
-            << " high_water_spill="
-            << highWater.spillRows
             << " retained_bytes="
             << throughputContext.stats().retainedBufferBytes
             << " thermal=" << throughputRun.thermalState

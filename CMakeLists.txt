@@ -2035,7 +2035,7 @@ if(BUILD_TESTING)
                 --repeats 1
                 --chunk 1
                 --scene ground
-                --solver-mode pgs
+                --solver-mode numisolver
                 --zero-actions
                 --no-scheduled-resets
         )

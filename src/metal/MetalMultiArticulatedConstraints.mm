@@ -143,7 +143,7 @@ bool validConfiguration(
 ) {
     return
         (config.solverMode ==
-             MetalGeneralizedConstraintSolverMode::throughputPGS ||
+             MetalGeneralizedConstraintSolverMode::legacyProjected ||
          config.solverMode ==
              MetalGeneralizedConstraintSolverMode::
                  qualitySemismoothNewton) &&

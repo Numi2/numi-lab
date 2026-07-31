@@ -60,7 +60,7 @@ public enum MetalRoboG1ActuatorPreset: UInt32, Sendable {
 }
 
 public enum MetalRoboSimulationSolver: UInt32, Sendable {
-    case throughputPGS = 0
+    case numiSolver = 0
     case qualityNewton = 1
 }
 
@@ -290,25 +290,22 @@ public struct MetalRoboSimulationConfiguration: Sendable {
     public var environmentCount: UInt32
     public var solver: MetalRoboSimulationSolver
     public var physicsSubsteps: UInt32
-    public var velocityIterations: UInt32
-    public var finalVelocityIterations: UInt32
+    public var temporalSubsteps: UInt32
     public var controlTimestepSeconds: Float
     public var seed: UInt64
 
     public init(
         environmentCount: UInt32,
-        solver: MetalRoboSimulationSolver = .throughputPGS,
-        physicsSubsteps: UInt32 = 4,
-        velocityIterations: UInt32 = 4,
-        finalVelocityIterations: UInt32 = 2,
+        solver: MetalRoboSimulationSolver = .numiSolver,
+        physicsSubsteps: UInt32 = 1,
+        temporalSubsteps: UInt32 = 4,
         controlTimestepSeconds: Float = 0.02,
         seed: UInt64 = 0
     ) {
         self.environmentCount = environmentCount
         self.solver = solver
         self.physicsSubsteps = physicsSubsteps
-        self.velocityIterations = velocityIterations
-        self.finalVelocityIterations = finalVelocityIterations
+        self.temporalSubsteps = temporalSubsteps
         self.controlTimestepSeconds = controlTimestepSeconds
         self.seed = seed
     }
@@ -404,8 +401,6 @@ public struct MetalRoboSimulationAdvance: Sendable {
                 Int(highWater.hard_convex_pairs),
             "mesh_triangle_candidates":
                 Int(highWater.mesh_triangle_candidates),
-            "solver_tiles": Int(highWater.solver_tiles),
-            "spill_rows": Int(highWater.spill_rows),
             "ccd_candidates": Int(highWater.ccd_candidates),
             "ccd_events": Int(highWater.ccd_events),
             "endpoint_runtime_records":
@@ -685,10 +680,8 @@ public final class MetalSimulationSession {
         native.environment_count = configuration.environmentCount
         native.solver = configuration.solver.rawValue
         native.physics_substeps = configuration.physicsSubsteps
-        native.velocity_iterations =
-            configuration.velocityIterations
-        native.final_velocity_iterations =
-            configuration.finalVelocityIterations
+        native.temporal_substeps =
+            configuration.temporalSubsteps
         native.control_timestep_seconds =
             configuration.controlTimestepSeconds
         native.seed = configuration.seed

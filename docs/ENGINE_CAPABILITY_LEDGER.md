@@ -10,10 +10,10 @@ Current registry: qualified: 8, implemented: 2, experimental: 3, unsupported: 5.
 |---|---|---|---|---|
 | `compiler.urdf_srdf` | **qualified** | `compiler.robot_description` | `metalrobo_robot_description_cooker_probe` | Rigid articulated URDF/SRDF import, semantic names, meshes, and deterministic fingerprints. |
 | `compiler.mjcf` | **unsupported** | `none` | `none` | No production MJCF parser. A pinned G1 companion-MJCF preset is data, not general MJCF support. |
-| `physics.throughput_pgs` | **qualified** | `physics.metal_contact` | `metalrobo_metal_world_contact_probe` | Production default for rigid and articulated contacts on Apple Metal. |
+| `physics.numi_solver` | **qualified** | `physics.metal_contact` | `metalrobo_metal_world_contact_probe` | Production Apple-Metal rigid/articulated solver: fixed temporal microsteps, one coupled nonlinear block sweep per microstep, immediate integration, and transactional warm state. Rod endpoints are rejected until the retained banded rod response participates in the sweep. |
 | `physics.quality_newton` | **experimental** | `none` | `metalrobo_metal_unified_quality_probe` | Available for focused study; not yet the qualified production solver. |
-| `physics.true_temporal_tgs` | **unsupported** | `none` | `none` | The former TGS label was removed. Internal Wave32 block-Jacobi is not temporal Gauss-Seidel. |
-| `physics.constraint_ir` | **implemented** | `physics.constraint_ir` | `metalrobo_constraint_ir_probe` | Shared row, endpoint, cone, stable-key, and warm-start representation. Joint limits are not yet fully coupled through it. |
+| `physics.true_temporal_tgs` | **unsupported** | `none` | `none` | NumiSolver uses temporal small steps but does not claim the complete vendor-specific PhysX TGS contract. |
+| `physics.constraint_ir` | **implemented** | `physics.constraint_ir` | `metalrobo_constraint_ir_probe` | Shared row, endpoint, cone, stable-key, and warm-start representation. Active scalar joint limits and contacts are coupled in NumiSolver; generic runtime widths beyond three rows remain incomplete. |
 | `physics.literal_convex_ccd` | **experimental** | `physics.metal_contact` | `metalrobo_metal_world_contact_probe` | Selected convex event-time paths exist; complete advance-to-impact, solve, and continue coverage is not qualified. |
 | `mechanics.g1_source_exact_presets` | **qualified** | `mechanics.actuation` | `metalrobo_g1_model_probe` | Distinct fingerprinted URDF, companion-MJCF, and RL Lab actuator contracts; no silent 25/35/50 N m mixing. |
 | `runtime.swift_metal_session` | **qualified** | `integration.native_simulation` | `metalrobo_simulation` | Swift schedules bounded native submissions; Metal owns persistent simulator state and transactions. |

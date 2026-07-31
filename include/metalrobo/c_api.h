@@ -43,7 +43,7 @@ typedef enum MRG1ActuatorPresetC {
 } MRG1ActuatorPresetC;
 
 typedef enum MRSimulationSolverC {
-    MR_SIMULATION_SOLVER_THROUGHPUT_PGS = 0,
+    MR_SIMULATION_SOLVER_NUMI = 0,
     MR_SIMULATION_SOLVER_QUALITY_NEWTON = 1,
 } MRSimulationSolverC;
 
@@ -56,8 +56,7 @@ typedef struct MRSimulationConfigC {
     uint32_t environment_count;
     uint32_t solver;
     uint32_t physics_substeps;
-    uint32_t velocity_iterations;
-    uint32_t final_velocity_iterations;
+    uint32_t temporal_substeps;
     float control_timestep_seconds;
     uint64_t seed;
 } MRSimulationConfigC;
@@ -92,8 +91,6 @@ typedef struct MRSimulationStageHighWaterC {
     uint32_t islands;
     uint32_t hard_convex_pairs;
     uint32_t mesh_triangle_candidates;
-    uint32_t solver_tiles;
-    uint32_t spill_rows;
     uint32_t ccd_candidates;
     uint32_t ccd_events;
     uint32_t endpoint_runtime_records;

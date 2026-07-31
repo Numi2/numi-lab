@@ -241,14 +241,6 @@ constexpr std::array kCapacityFields{
         &MetalWorldCapacityProfile::meshTriangleCandidates,
     },
     CapacityField{
-        "solverTiles",
-        &MetalWorldCapacityProfile::solverTiles,
-    },
-    CapacityField{
-        "spillRows",
-        &MetalWorldCapacityProfile::spillRows,
-    },
-    CapacityField{
         "ccdCandidates",
         &MetalWorldCapacityProfile::ccdCandidates,
     },

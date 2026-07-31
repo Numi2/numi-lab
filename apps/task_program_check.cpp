@@ -375,7 +375,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
     step.timestepSeconds = 0.02f;
     step.physicsSubsteps = 2u;
     step.solverMode =
-        metalrobo::MetalWorldSolverMode::throughputPGS;
+        metalrobo::MetalWorldSolverMode::numiSolver;
     step.actuationMode =
         metalrobo::MetalWorldActuationMode::implicitPositionDrive;
     step.taskProgram = compiled.task;
@@ -548,6 +548,12 @@ int main() {
         }
         const metalrobo::TaskProgramLayout& layout =
             program.layout();
+        const std::uint32_t expectedConstraintBlocks =
+            static_cast<std::uint32_t>(
+                world.model().constraintProgram.blocks.size()
+            ) +
+            MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY *
+                world.capacities().manifolds;
         if (layout.actionCount != 29u ||
             layout.actorFrameSize != 96u ||
             layout.actorHistoryLength != 5u ||
@@ -563,10 +569,14 @@ int main() {
             world.capacities().candidatePairs != 128u ||
             world.capacities().rawContacts != 128u ||
             world.capacities().manifolds != 32u ||
-            world.capacities().constraintBlocks != 64u ||
-            world.capacities().constraintRows != 192u ||
-            world.capacities().endpointRuntimeRecords != 128u ||
-            world.capacities().articulationPointQueries != 128u ||
+            world.capacities().constraintBlocks !=
+                expectedConstraintBlocks ||
+            world.capacities().constraintRows !=
+                3u * expectedConstraintBlocks ||
+            world.capacities().endpointRuntimeRecords !=
+                2u * expectedConstraintBlocks ||
+            world.capacities().articulationPointQueries !=
+                2u * expectedConstraintBlocks ||
             program.header().root.y != 0u ||
             std::abs(
                 program.header().rootReference.z -
@@ -602,7 +612,8 @@ int main() {
         metalrobo::SimulationDescription invalidEndpointCapacity =
             authored;
         invalidEndpointCapacity.task.capacities
-            .endpointRuntimeRecords -= 1u;
+            .endpointRuntimeRecords =
+                world.capacities().endpointRuntimeRecords - 1u;
         metalrobo::CompiledSimulation invalidCompiledWorld;
         const auto invalidEndpointStatus =
             metalrobo::compileSimulation(
@@ -619,7 +630,8 @@ int main() {
         metalrobo::SimulationDescription invalidQueryCapacity =
             authored;
         invalidQueryCapacity.task.capacities
-            .articulationPointQueries += 1u;
+            .articulationPointQueries =
+                world.capacities().articulationPointQueries + 1u;
         const auto invalidQueryStatus =
             metalrobo::compileSimulation(
                 invalidQueryCapacity,

@@ -867,6 +867,8 @@ kernel void mr_world_latch_rod_contact_status(
             status.firstFailingStableKeyLow;
         status.firstFailingEventKeyHigh =
             status.firstFailingStableKeyHigh;
+        status.solverIterations = rodStatus.iterations;
+        status.residuals = rodStatus.diagnostics;
         statuses[environment] = status;
         return;
     }

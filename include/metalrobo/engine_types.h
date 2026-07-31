@@ -43,13 +43,9 @@
 // a command-buffer completion or CPU-visible intermediate state.
 #define MR_METAL_WORLD_ABI_VERSION 5u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
-#define MR_METAL_WORLD_CONTACT_ABI_VERSION 7u
+#define MR_METAL_WORLD_CONTACT_ABI_VERSION 8u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
 #define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
-#define MR_WAVE32_CONTACTS_PER_TILE 32u
-#define MR_WAVE32_ROWS_PER_TILE \
-    (3u * MR_WAVE32_CONTACTS_PER_TILE)
-#define MR_WAVE32_DISTRIBUTED_TILE_THRESHOLD 8u
 #define MR_WORLD_QUEUE_THREADS_PER_THREADGROUP 64u
 #define MR_WORLD_MAX_DYNAMIC_NODES 256u
 #define MR_CONVEX_SIMPLEX_CAPACITY 4u
@@ -150,8 +146,10 @@ enum MRFrictionConeType : mr_u32 {
 enum MRSolverType : mr_u32 {
     MR_SOLVER_REFERENCE_FP64 = 0u,
     MR_SOLVER_QUALITY_NEWTON = 1u,
-    MR_SOLVER_WAVE_JACOBI_EXPERIMENTAL = 2u,
-    MR_SOLVER_THROUGHPUT_PGS = 3u,
+    // Retained only for standalone reference executors while they are folded
+    // into MetalWorld. It is not exposed by the production simulation API.
+    MR_SOLVER_LEGACY_PROJECTED = 2u,
+    MR_SOLVER_NUMI = 3u,
 };
 
 enum MRFreeBodyIntegratorType : mr_u32 {
@@ -217,17 +215,12 @@ enum MRWorldWorkClass : mr_u32 {
     MR_WORLD_WORK_HARD_CONVEX = 4u,
     MR_WORLD_WORK_MESH = 5u,
     MR_WORLD_WORK_MANIFOLD = 6u,
-    MR_WORLD_WORK_SOLVER = 7u,
-    MR_WORLD_WORK_SOLVER_SPILL = 8u,
-    MR_WORLD_WORK_CCD = 9u,
-    MR_WORLD_WORK_SOLVER_DISTRIBUTED = 10u,
-    MR_WORLD_WORK_CLASS_COUNT = 11u,
+    MR_WORLD_WORK_CCD = 7u,
+    MR_WORLD_WORK_CLASS_COUNT = 8u,
 };
 
 enum MRWorldQueueFlags : mr_u32 {
     MR_WORLD_QUEUE_PERSISTENT_WORKER = 1u << 27u,
-    MR_WORLD_QUEUE_COHORT_8 = 1u << 28u,
-    MR_WORLD_QUEUE_COHORT_16 = 1u << 29u,
 };
 
 enum MRWorldCCDMode : mr_u32 {
@@ -726,7 +719,6 @@ enum MRMetalWorldContactFlags : mr_u32 {
     MR_METAL_WORLD_CONTACT_WARM_START = 1u << 1u,
     MR_METAL_WORLD_CONTACT_CAPTURE_EVIDENCE = 1u << 2u,
     MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS = 1u << 3u,
-    MR_METAL_WORLD_CONTACT_WAVE32 = 1u << 4u,
     MR_METAL_WORLD_CONTACT_CCD = 1u << 5u,
     MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS = 1u << 6u,
     MR_METAL_WORLD_CONTACT_QUALITY = 1u << 7u,
@@ -778,13 +770,16 @@ typedef struct MR_ALIGN16 MRMetalWorldContactDispatchGPU {
 
     mr_u32 nv;
     mr_u32 flags;
-    mr_u32 velocityIterations;
-    mr_u32 finalVelocityIterations;
+    // The throughput path performs exactly one coupled block sweep per
+    // integrated temporal microstep. An optional unbiased sweep is reserved
+    // for a separately qualified final-microstep pass.
+    mr_u32 positionSweeps;
+    mr_u32 unbiasedVelocitySweeps;
 
     mr_u32 hardConvexCapacity;
     mr_u32 meshCandidateCapacity;
-    mr_u32 solverTileCapacity;
-    mr_u32 spillRowCapacity;
+    mr_u32 reservedSolverCapacity0;
+    mr_u32 reservedSolverCapacity1;
 
     mr_u32 ccdCandidateCapacity;
     mr_u32 ccdEventCapacity;
@@ -798,7 +793,7 @@ typedef struct MR_ALIGN16 MRMetalWorldContactDispatchGPU {
 
     mr_u32 maxCCDAdvanceSolvePasses;
     mr_u32 maxCCDZeroTimeReplays;
-    mr_u32 waveWorkerGroupCount;
+    mr_u32 workerGroupCount;
     mr_u32 rodToolPairCount;
 
     mr_u32 articulationCount;
@@ -827,6 +822,10 @@ typedef struct MR_ALIGN16 MRMetalWorldContactDispatchGPU {
 
     // timestep, penetration slop, maximum depenetration speed, warm scale.
     mr_float4 timestepAndBias;
+    // Joint-limit activation distance, position slop, recovery fraction, and
+    // direct scalar regularization. Position limits are unilateral
+    // ConstraintIR rows; these values never authorize a post-solve clamp.
+    mr_float4 jointLimitParameters;
     // separation break, tangential break, merge distance, normal cosine.
     mr_float4 manifoldThresholds;
     // minimum advancement, TOI tolerance, speculative scale, speed envelope.
@@ -889,71 +888,6 @@ typedef struct MR_ALIGN16 MRPairWorkGPU {
     mr_u32 flags;
     mr_u32 reserved;
 } MRPairWorkGPU;
-
-typedef struct MR_ALIGN16 MRIslandWorkGPU {
-    mr_u32 environment;
-    mr_u32 islandIndex;
-    mr_u32 firstConstraint;
-    mr_u32 constraintCount;
-
-    mr_u32 firstTile;
-    mr_u32 tileCount;
-    mr_u32 dofClass;
-    mr_u32 flags;
-} MRIslandWorkGPU;
-
-// Stable SIMD32 packet. The first four island slots form four wave8 cohorts,
-// the first two form two wave16 cohorts, and the first slot owns wave32 or
-// spill work. Packet construction is scan ordered; worker atomics only claim
-// these immutable records.
-typedef struct MR_ALIGN16 MRWaveWorkPacketGPU {
-    mr_uint4 islandSlots;
-    mr_uint4 stableKeyLow;
-    mr_uint4 stableKeyHigh;
-    // x cohort width, y valid cohort count, z event generation, w phase.
-    mr_uint4 metadata;
-} MRWaveWorkPacketGPU;
-
-enum MRIslandWorkFlags : mr_u32 {
-    MR_ISLAND_WORK_VALID = 1u << 0u,
-    MR_ISLAND_WORK_HAS_ARTICULATION = 1u << 1u,
-    MR_ISLAND_WORK_SPILL = 1u << 2u,
-    MR_ISLAND_WORK_DISTRIBUTED = 1u << 3u,
-    MR_ISLAND_WORK_STIFF_REPLAY = 1u << 4u,
-    // The island owns at least one deforming rod dynamic node. Wave32 uses
-    // this bit to select the typed endpoint operator and to assign unique
-    // lane ownership to nodal and twist velocity updates.
-    MR_ISLAND_WORK_HAS_ROD = 1u << 5u,
-};
-
-typedef struct MR_ALIGN16 MRContactTileGPU {
-    mr_u32 environment;
-    mr_u32 islandIndex;
-    mr_u32 firstConstraint;
-    mr_u32 constraintCount;
-
-    mr_u32 nextTile;
-    mr_u32 partialOffset;
-    mr_u32 flags;
-    mr_u32 reserved;
-} MRContactTileGPU;
-
-typedef struct MR_ALIGN16 MRWave32PreconditionerGPU {
-    // xyz are rows of the inverse coupled normal/tangent response.
-    mr_float4 row0;
-    mr_float4 row1;
-    mr_float4 row2;
-} MRWave32PreconditionerGPU;
-
-typedef struct MR_ALIGN16 MRWave32IslandStatusGPU {
-    mr_u32 code;
-    mr_u32 environment;
-    mr_u32 islandIndex;
-    mr_u32 iterations;
-
-    // impulse delta, normal residual, cone violation, stiffness indicator.
-    mr_float4 residuals;
-} MRWave32IslandStatusGPU;
 
 typedef struct MR_ALIGN16 MRCCDPairGPU {
     mr_u32 environment;
@@ -1209,7 +1143,7 @@ typedef struct MR_ALIGN16 MRMetalWorldContactStatusGPU {
     mr_u32 retainedPoints;
     mr_u32 newPoints;
     mr_u32 islandCount;
-    mr_u32 spillRows;
+    mr_u32 reservedSolverStatus0;
 
     mr_u32 firstFailingPair;
     mr_u32 firstFailingConstraint;
@@ -1218,15 +1152,15 @@ typedef struct MR_ALIGN16 MRMetalWorldContactStatusGPU {
 
     mr_u32 requiredHardConvexPairs;
     mr_u32 requiredMeshCandidates;
-    mr_u32 requiredSolverTiles;
-    mr_u32 requiredSpillRows;
+    mr_u32 reservedSolverStatus1;
+    mr_u32 reservedSolverStatus2;
 
     mr_u32 requiredCCDCandidates;
     mr_u32 requiredCCDEvents;
     mr_u32 hardConvexPairs;
     mr_u32 meshCandidates;
 
-    mr_u32 solverTiles;
+    mr_u32 reservedSolverStatus3;
     mr_u32 ccdCandidates;
     mr_u32 ccdEvents;
     mr_u32 hardFallbacks;
@@ -1608,16 +1542,11 @@ static_assert(sizeof(MRMetalWorldDispatchGPU) == 64);
 static_assert(sizeof(MRMetalWorldPassGPU) == 16);
 static_assert(sizeof(MRMetalWorldStatusGPU) == 48);
 static_assert(sizeof(MRCompiledCollisionPairGPU) == 16);
-static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 304);
+static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 320);
 static_assert(sizeof(MRIndirectDispatchArgumentsGPU) == 16);
 static_assert(sizeof(MRWorkQueueHeaderGPU) == 64);
 static_assert(sizeof(MRScanLevelGPU) == 32);
 static_assert(sizeof(MRPairWorkGPU) == 32);
-static_assert(sizeof(MRIslandWorkGPU) == 32);
-static_assert(sizeof(MRWaveWorkPacketGPU) == 64);
-static_assert(sizeof(MRContactTileGPU) == 32);
-static_assert(sizeof(MRWave32PreconditionerGPU) == 48);
-static_assert(sizeof(MRWave32IslandStatusGPU) == 32);
 static_assert(sizeof(MRCCDPairGPU) == 64);
 static_assert(sizeof(MRCCDEventStateGPU) == 64);
 static_assert(sizeof(MRCCDImpactClusterGPU) == 48);

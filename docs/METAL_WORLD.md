@@ -113,11 +113,12 @@ prepare/reset/checkpoint
   -> observation/status capture
 ```
 
-`throughputPGS` and `qualityNewton` execute the contact graph:
+`numiSolver` and `qualityNewton` execute the contact graph. NumiSolver expands
+each authored physics substep into a fixed number of temporal microsteps:
 
 ```text
-actions/reset
-  -> ABA candidate
+actions/reset/checkpoint
+  -> [ABA candidate
   -> articulation forward kinematics
   -> articulation/free/static body projection
   -> free-body prediction
@@ -131,7 +132,7 @@ actions/reset
   -> coupled circular/elliptic-cone solve
   -> constrained integration
   -> per-environment failure latch
-  -> transactional q/v/body/manifold commit
+  -> transactional q/v/body/manifold/warm-start commit] x temporal microsteps
 ```
 
 The complete horizon is encoded before one command-buffer commit. Normal
@@ -144,23 +145,35 @@ only overlap in the final pair slot. Accepted pairs are consumed in compiled
 order, so manifold identity and capacity-failure precedence remain
 deterministic without global append atomics.
 
-PGS solves normal and both tangential directions as one 3D block, with the
-tangential pair projected onto the circular or elliptical Coulomb cone.
-Quality Newton consumes the same manifold, ConstraintIR, material,
-restitution, compliance, sign, and response records. The internal Wave32
-block-Jacobi experiment is not temporal Gauss-Seidel, is not a public solver,
-and is never selected by a task or model default.
+NumiSolver performs one deterministic nonlinear block sweep at each temporal
+microstep. Every block recomputes `Jv` from the velocities produced by all
+earlier blocks in that sweep and applies its impulse immediately. Contact
+normal and two tangential directions remain one exact circular or elliptical
+Coulomb-cone block; active joint limits and authored scalar constraints share
+the same island, response operator, and ordered sweep. Geometry, limit
+activation, articulation factors, and Jacobians are refreshed before the next
+integrated microstep. Quality Newton consumes the same manifold, ConstraintIR,
+material, restitution, compliance, sign, and response records.
+
+NumiSolver is MetalRobo's solver contract, not an alias for PhysX TGS. Its
+temporal refinement follows the small-step principle, while its exact
+microstep order, constraint blocks, residuals, and failure rules remain owned
+and fingerprinted by MetalRobo. Its production response operator currently
+covers rigid and articulated endpoints. A rod endpoint is rejected before
+encoding rather than approximated with independent node mass; support requires
+the retained banded rod operator to participate in the nonlinear sweep.
 
 ## Persistence and transactionality
 
-Published q/v, scene bodies, and manifold caches are immutable inputs to a
-control step. Candidate state uses independent ping-pong storage. The first
+Published q/v, scene bodies, manifold caches, and generalized warm impulses
+are immutable inputs to a control step. Candidate state uses independent
+ping-pong storage. The first
 capacity, finite-value, factorization, or solver failure latches its typed
 status. The final commit then:
 
 - publishes every candidate for a healthy environment;
-- restores that environment's control-step q/v, scene-body, and manifold
-  checkpoint after a failure;
+- restores that environment's control-step q/v, scene-body, manifold, and
+  generalized-warm-start checkpoint after a failure;
 - writes zero acceleration for the failed control step;
 - continues all already-encoded work for unrelated environments.
 
@@ -169,36 +182,38 @@ collider generations, and patch slot. Old local anchors are refreshed, broken
 anchors are rejected, new witnesses are matched first by feature and then by
 anchor proximity, and candidates reduce deterministically to four points.
 The old tangent is transported onto the new plane with a least-aligned-axis
-fallback. Warm-start impulses remain a coupled normal/tangent triplet.
+fallback. Contact warm starts remain a coupled normal/tangent triplet.
+Authored generalized rows use a separate persistent environment-major warm
+state. Reset clears it atomically; an unsuccessful control step restores its
+checkpoint instead of publishing a partial microstep impulse.
 
 ## Current capacity and execution boundary
 
 The production-shaped contact graph now includes:
 
 - stable count/scan/scatter pair and island queues;
-- Wave32 exact-cone 8/16/32-contact cohorts;
-- deterministic 32-contact tiles, single-group spill through 256 contacts,
-  and stable distributed reductions beyond 256;
+- deterministic environment/island parallelism with one ordered coupled
+  block sweep inside each normal robot-sized island;
+- one compiler-owned count, offset, and capacity domain for authored limits,
+  contacts, endpoints, rows, and islands;
 - private immutable, persistent-state, and transient placement heaps in the
   standalone three-slot submission ring;
 - exact capacity reporting and per-environment transactional rollback;
-- native Wave32 workers that pull compact packets from an invocation-local
-  cursor through indirect dispatch. Their fixed worker grid comes from the
-  compiled Apple-device profile rather than a per-step scheduling decision.
+- persistent generalized and contact warm starts that obey the same reset and
+  rollback transaction as physical state.
 
-The bundled G1 TaskPack uses a measured operational profile rather than the
-all-self-pair topology envelope: 128 candidate/raw pairs, 32 manifolds, 64
-constraint blocks, 192 rows, 1,024 mesh candidates, and corresponding
-fixed-capacity endpoint/query/island tables. Endpoint-runtime and articulation
-point-query counts are canonical, not independent tuning knobs: each must be
-exactly twice the constraint-block capacity, and the host rejects a mismatched
-pack before allocating or dispatching. A 1,024-environment,
-204,800-step randomized run reached 88 candidate pairs, 28 raw contacts, 11
-manifolds, 25 blocks, 75 rows, and 248 mesh candidates. Training has so far
-raised the candidate and mesh high-water marks to 100 and 272. Physical
-outputs were identical to the previous oversized profile, retained device
-storage fell to 2,314,985,006 bytes, and any future overrun remains a typed
-transactional failure. This is not an arbitrary one-gigabyte cap.
+The bundled G1 TaskPack retains measured operational bounds of 128
+candidate/raw pairs, 32 manifolds, and 1,024 mesh candidates rather than the
+all-self-pair topology envelope. The compiler derives its constraint arena as
+the immutable authored/limit prefix plus four contact blocks per selected
+manifold. Rows are three times that canonical block count; runtime endpoints
+and articulation point queries are each twice it. These dependent capacities
+are not tuning knobs, and the host rejects a mismatched pack before allocation
+or dispatch. This replaces the old 64-block hand-authored bound, which could
+not hold G1's stable limit candidates and a normal contact set. Any operational
+bound overrun remains a typed transactional failure. Memory reports the
+topology-derived allocation by category; there is no arbitrary one-gigabyte
+cap.
 
 Analytic/SAT paths cover the inexpensive primitive pairs. Exact cylinder
 support, robust GJK with MPR/EPA fallback, cooked convex patches, static or
@@ -312,8 +327,9 @@ rod and rigid output together. Non-adjacent edges are now radius-correct
 capsules: closest witnesses, coincident normals, four-node inverse-mass
 response, and contact refresh run inside every DER sweep on FP64 and Metal.
 The versioned heterogeneous rod program owns and fingerprints this policy.
-Promotion into persistent `MetalWorld`, thread-tool witness generation, and
-strong coupled rod/rigid iterations remain open.
+Persistent `MetalWorld` owns rod state, reset, and compiled attachment rows,
+but strong coupled rod/rigid NumiSolver iterations remain open and are rejected
+until they consume the retained banded response.
 
 `HeterogeneousWorld` is the owned compilation boundary above those executors.
 It composes `EngineModel` instances transactionally, records the exact global
@@ -441,7 +457,7 @@ URDF mechanics, capacity contracts, transactionality, PolicyPack compatibility,
 and TaskPack/PolicyPack artifact round trips. The Swift rollout executable
 covers resident state, bounded native submissions, randomized actions,
 compiled policy inference, scheduled resets, compact publication, memory
-accounting, and both throughput solvers.
+accounting, and the public NumiSolver/qualityNewton selection.
 
 The contact probe covers a resting sphere/plane cache, greater than 99 percent
 unchanged-frame retention, deterministic replay, a mixed Franka/1 kg cube

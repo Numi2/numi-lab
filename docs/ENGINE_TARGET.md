@@ -1,8 +1,8 @@
 # MetalRobo rigid-body engine target
 
-Research snapshot: **2026-07-28**. This is the engineering contract for the
-engine MetalRobo is intended to become. It is not a description of the current
-implementation.
+Historical research snapshot: **2026-07-28**. This is not a current
+engineering contract or implementation description. The generated
+[capability matrix](ENGINE_CAPABILITY_LEDGER.md) is authoritative.
 
 MetalRobo v0.4 is an executable engine spine: fixed-base batched Franka ABA;
 an ABI-v2 floating-root `nq != nv` model with authoritative per-DoF

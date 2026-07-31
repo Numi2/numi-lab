@@ -1,7 +1,8 @@
 # Heavy-lifting roadmap
 
-The normative capability and accuracy gates live in
-[ENGINE_TARGET](ENGINE_TARGET.md). This file tracks implementation order.
+Historical implementation-order snapshot. It is non-normative; current claim
+boundaries live in the generated
+[capability matrix](ENGINE_CAPABILITY_LEDGER.md).
 Items in S0 are executable foundations, not an integrated simulator claim.
 The composed CPU path advances one reduced-coordinate articulation against
 static/kinematic/dynamic geometry. The persistent Metal graph and MLX

@@ -676,7 +676,7 @@ EngineModel makeDvrkPsmLargeNeedleDriverEngineModel() {
     model.world.contactCapacity = 256u;
     model.world.constraintCapacity = 512u;
     model.world.islandCapacity = 8u;
-    model.world.solverType = MR_SOLVER_THROUGHPUT_PGS;
+    model.world.solverType = MR_SOLVER_LEGACY_PROJECTED;
     model.world.frictionConeType = MR_FRICTION_CONE_ELLIPTIC;
     model.world.gravityAndTimestep = f4(0.0, 0.0, -9.81, 1.0 / 1000.0);
     model.world.solverScales = f4(1.0e-7, 1.0e-9, 2.0, 1.0e-5);

@@ -76,14 +76,14 @@ struct MetalMultiArticulatedConstraintInput {
 };
 
 enum class MetalGeneralizedConstraintSolverMode : std::uint32_t {
-    throughputPGS = 0u,
+    legacyProjected = 0u,
     qualitySemismoothNewton = 1u,
 };
 
 struct MetalMultiArticulatedConstraintConfig {
     ConstraintIREvaluationConfig evaluation{};
     MetalGeneralizedConstraintSolverMode solverMode =
-        MetalGeneralizedConstraintSolverMode::throughputPGS;
+        MetalGeneralizedConstraintSolverMode::legacyProjected;
     std::uint32_t solverIterations = 128u;
     std::uint32_t qualityCGIterations = 96u;
     std::uint32_t qualityLineSearchIterations = 16u;

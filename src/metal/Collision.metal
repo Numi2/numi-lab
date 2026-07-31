@@ -5582,7 +5582,6 @@ inline bool finiteContactDispatch(
         MR_METAL_WORLD_CONTACT_WARM_START |
         MR_METAL_WORLD_CONTACT_CAPTURE_EVIDENCE |
         MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS |
-        MR_METAL_WORLD_CONTACT_WAVE32 |
         MR_METAL_WORLD_CONTACT_CCD |
         MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS |
         MR_METAL_WORLD_CONTACT_QUALITY |
@@ -5607,7 +5606,6 @@ inline bool finiteContactDispatch(
         dispatch.workQueueClassCount ==
             MR_WORLD_WORK_CLASS_COUNT &&
         dispatch.queueStride >= dispatch.islandCapacity &&
-        dispatch.solverTileCapacity > 0u &&
         dispatch.ccdMode <= MR_WORLD_CCD_HYBRID &&
         dispatch.maxCCDEvents > 0u &&
         dispatch.maxCCDEvents <= MR_CCD_MAX_EVENTS &&
@@ -5616,7 +5614,7 @@ inline bool finiteContactDispatch(
             MR_CCD_MAX_ADVANCE_SOLVE_PASSES &&
         dispatch.maxCCDZeroTimeReplays <=
             MR_CCD_MAX_ZERO_TIME_REPLAYS &&
-        dispatch.waveWorkerGroupCount > 0u &&
+        dispatch.workerGroupCount > 0u &&
         dispatch.articulationCount > 0u &&
         dispatch.dynamicNodeCount > 0u &&
         dispatch.dynamicNodeCount <=
@@ -5629,16 +5627,11 @@ inline bool finiteContactDispatch(
         dispatch.maxConservativeAdvancementIterations > 0u &&
         dispatch.rowCapacity > 0u &&
         dispatch.nv > 0u &&
-        dispatch.velocityIterations > 0u &&
+        dispatch.positionSweeps == 1u &&
         (
             dispatch.solverType ==
                 MR_SOLVER_QUALITY_NEWTON ||
-            (
-                dispatch.solverType >=
-                    MR_SOLVER_WAVE_JACOBI_EXPERIMENTAL &&
-                dispatch.solverType <=
-                    MR_SOLVER_THROUGHPUT_PGS
-            )
+            dispatch.solverType == MR_SOLVER_NUMI
         ) &&
         (dispatch.flags & ~knownFlags) == 0u &&
         finiteFloat4(dispatch.timestepAndBias) &&
@@ -8200,7 +8193,7 @@ kernel void mr_world_narrowphase_pair_queue(
             if (lane == 0u) {
                 claimedBase = atomic_fetch_add_explicit(
                     workerCursor,
-                    MR_WAVE32_CONTACTS_PER_TILE,
+                    MR_SIMD_WIDTH,
                     memory_order_relaxed
                 );
             }
@@ -8329,7 +8322,7 @@ kernel void mr_world_narrowphase_convex_queue(
             if (lane == 0u) {
                 claimedBase = atomic_fetch_add_explicit(
                     workerCursor,
-                    MR_WAVE32_CONTACTS_PER_TILE,
+                    MR_SIMD_WIDTH,
                     memory_order_relaxed
                 );
             }
@@ -8496,7 +8489,7 @@ kernel void mr_world_narrowphase_hull_queue(
             if (lane == 0u) {
                 claimedBase = atomic_fetch_add_explicit(
                     workerCursor,
-                    MR_WAVE32_CONTACTS_PER_TILE,
+                    MR_SIMD_WIDTH,
                     memory_order_relaxed
                 );
             }
@@ -8658,7 +8651,7 @@ kernel void mr_world_narrowphase_mesh_queue(
             if (lane == 0u) {
                 claimedBase = atomic_fetch_add_explicit(
                     workerCursor,
-                    MR_WAVE32_CONTACTS_PER_TILE,
+                    MR_SIMD_WIDTH,
                     memory_order_relaxed
                 );
             }
@@ -10080,7 +10073,10 @@ kernel void mr_world_scan_manifold_ir(
     );
     status.hardFallbacks = fallbacks;
     status.activePairs = totals0.x;
-    status.activeContacts = totals0.w;
+    status.activeContacts = totals0.w >=
+            dispatch.authoredConstraintCount
+        ? totals0.w - dispatch.authoredConstraintCount
+        : 0u;
     status.retainedPoints = retained;
     status.newPoints = fresh;
     status.diagnostics.x =
@@ -11265,7 +11261,10 @@ kernel void mr_world_scan_rod_contact_ir(
     status.requiredRows = static_cast<uint>(
         min(requiredRows, 0xfffffffful)
     );
-    status.activeContacts = status.requiredConstraints;
+    status.activeContacts = running >
+            0xffffffffu - status.activeContacts
+        ? 0xffffffffu
+        : status.activeContacts + running;
     status.newPoints =
         running > 0xffffffffu - status.newPoints
         ? 0xffffffffu

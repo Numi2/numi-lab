@@ -17,11 +17,11 @@
       "scope": "No production MJCF parser. A pinned G1 companion-MJCF preset is data, not general MJCF support."
     },
     {
-      "id": "physics.throughput_pgs",
+      "id": "physics.numi_solver",
       "status": "qualified",
       "owner": "physics.metal_contact",
       "artifact": "metalrobo_metal_world_contact_probe",
-      "scope": "Production default for rigid and articulated contacts on Apple Metal."
+      "scope": "Production Apple-Metal rigid/articulated solver: fixed temporal microsteps, one coupled nonlinear block sweep per microstep, immediate integration, and transactional warm state. Rod endpoints are rejected until the retained banded rod response participates in the sweep."
     },
     {
       "id": "physics.quality_newton",
@@ -35,14 +35,14 @@
       "status": "unsupported",
       "owner": "none",
       "artifact": "none",
-      "scope": "The former TGS label was removed. Internal Wave32 block-Jacobi is not temporal Gauss-Seidel."
+      "scope": "NumiSolver uses temporal small steps but does not claim the complete vendor-specific PhysX TGS contract."
     },
     {
       "id": "physics.constraint_ir",
       "status": "implemented",
       "owner": "physics.constraint_ir",
       "artifact": "metalrobo_constraint_ir_probe",
-      "scope": "Shared row, endpoint, cone, stable-key, and warm-start representation. Joint limits are not yet fully coupled through it."
+      "scope": "Shared row, endpoint, cone, stable-key, and warm-start representation. Active scalar joint limits and contacts are coupled in NumiSolver; generic runtime widths beyond three rows remain incomplete."
     },
     {
       "id": "physics.literal_convex_ccd",

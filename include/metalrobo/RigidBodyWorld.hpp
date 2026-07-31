@@ -29,7 +29,7 @@ struct RigidBodyWorldConfig {
     CollisionConfig collision{};
     ContactSolverConfig contact{};
     QualityContactSolverConfig quality{};
-    MRSolverType solverType = MR_SOLVER_THROUGHPUT_PGS;
+    MRSolverType solverType = MR_SOLVER_LEGACY_PROJECTED;
     // Strictly-positive diagonal regularization used for tangent rows in the
     // strongly-convex quality QP.
     double qualityTangentialRegularization = 1.0e-9;

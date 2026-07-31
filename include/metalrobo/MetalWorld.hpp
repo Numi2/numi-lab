@@ -29,11 +29,11 @@ struct MetalWorldSubmissionState;
 
 enum class MetalWorldSolverMode : std::uint32_t {
     freeMotionABA = 0u,
-    throughputPGS = 1u,
-    // Internal comparison mode. This is block-Jacobi over Wave32 cohorts,
-    // not temporal Gauss-Seidel and therefore is never the public default.
-    waveJacobiExperimental = 2u,
-    qualityNewton = 3u,
+    // NumiSolver: one coupled nonlinear block sweep per integrated and
+    // relinearized temporal microstep. Diagnostics fingerprint the concrete
+    // profile so the product name never hides numerical semantics.
+    numiSolver = 1u,
+    qualityNewton = 2u,
 };
 
 struct MetalWorldQualityConfig {
@@ -271,8 +271,13 @@ struct MetalWorldStepConfig {
     // timestepSeconds / physicsSubsteps for this submission.
     float timestepSeconds = 1.0f / 60.0f;
     std::uint32_t physicsSubsteps = 1u;
+    // The throughput solver divides every authored physics substep into this
+    // many equal temporal microsteps. Each microstep refreshes geometry and
+    // limit activation, refactors articulation response, performs one coupled
+    // block sweep, and integrates before the next microstep.
+    std::uint32_t temporalSubsteps = 4u;
     MetalWorldSolverMode solverMode =
-        MetalWorldSolverMode::throughputPGS;
+        MetalWorldSolverMode::numiSolver;
     // In effort mode, MetalWorldBatch::efforts is generalized effort. In
     // implicitPositionDrive mode it is the desired position per scalar
     // driven DoF; floating-root and unactuated entries are ignored.
@@ -292,8 +297,13 @@ struct MetalWorldStepConfig {
     // Initial task-wide command curriculum restored at a training boundary.
     // It is consumed only when a new resident state is initialized.
     std::uint32_t taskCurriculumLevel = 0u;
-    std::uint32_t velocityIterations = 1u;
-    std::uint32_t finalVelocityIterations = 1u;
+    // Scalar position limits are compiled as paired unilateral ConstraintIR
+    // candidates and solved in the same island as contact. These defaults
+    // intentionally match the FP64 articulated joint-limit reference.
+    float jointLimitActivationDistance = 2.0e-3f;
+    float jointLimitPositionSlop = 1.0e-8f;
+    float jointLimitRecoveryFraction = 0.2f;
+    float jointLimitRegularization = 1.0e-10f;
     MetalWorldCCDMode ccdMode = MetalWorldCCDMode::speculative;
     std::uint32_t maxCCDEvents = MR_CCD_DEFAULT_MAX_EVENTS;
     std::uint32_t maxCCDAdvanceSolvePasses =
@@ -378,13 +388,10 @@ struct MetalWorldLayout {
     std::size_t workQueueHeaderElements = 0u;
     std::size_t pairWorkElements = 0u;
     std::size_t pairRawStagingElements = 0u;
-    std::size_t islandWorkElements = 0u;
-    std::size_t contactTileElements = 0u;
     std::size_t convexCacheElements = 0u;
     std::size_t ccdPairElements = 0u;
     std::size_t ccdEventStateElements = 0u;
     std::size_t ccdImpactClusterElements = 0u;
-    std::size_t waveWorkPacketElements = 0u;
     std::size_t manifoldScatterElements = 0u;
     std::size_t endpointRuntimeElements = 0u;
     std::size_t rodNodeStateElements = 0u;
@@ -419,8 +426,6 @@ struct MetalWorldContactEvidence {
     std::vector<MRContactIslandGPU> islands;
     std::vector<MRIslandNodeRefGPU> islandNodes;
     std::vector<MRIslandConstraintRefGPU> islandConstraints;
-    std::vector<MRIslandWorkGPU> islandWork;
-    std::vector<MRContactTileGPU> contactTiles;
 };
 
 struct MetalWorldStageCounts {
@@ -432,8 +437,6 @@ struct MetalWorldStageCounts {
     std::uint32_t islands = 0u;
     std::uint32_t hardConvexPairs = 0u;
     std::uint32_t meshTriangleCandidates = 0u;
-    std::uint32_t solverTiles = 0u;
-    std::uint32_t spillRows = 0u;
     std::uint32_t ccdCandidates = 0u;
     std::uint32_t ccdEvents = 0u;
     std::uint32_t endpointRuntimeRecords = 0u;

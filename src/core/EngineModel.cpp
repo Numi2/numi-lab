@@ -361,7 +361,7 @@ bool EngineModel::valid(std::string* reason) const {
             "topology-sized"
         );
     }
-    if (world.solverType > MR_SOLVER_THROUGHPUT_PGS ||
+    if (world.solverType > MR_SOLVER_LEGACY_PROJECTED ||
         world.frictionConeType > MR_FRICTION_CONE_PYRAMID_8) {
         return fail(reason, "unknown solver or friction-cone type");
     }

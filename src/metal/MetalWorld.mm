@@ -34,7 +34,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 220u;
+constexpr std::size_t kRawBufferCount = 222u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -143,11 +143,6 @@ enum BufferIndex : std::size_t {
     kCompactionOffsets = 84u,
     kCompactionScratch = 85u,
     kCompactionFlags = 86u,
-    kIslandWorkQueue = 87u,
-    kContactTiles = 88u,
-    kTileConstraintIndices = 89u,
-    kWave32ImpulseDeltas = 90u,
-    kWave32IslandStatuses = 91u,
     kConvexCaches = 92u,
     kCCDPairs = 93u,
     kGeometryHeaders = 94u,
@@ -158,15 +153,12 @@ enum BufferIndex : std::size_t {
     kMeshBvhNodes = 99u,
     kMeshTriangles = 100u,
     kPairRawContactStaging = 101u,
-    kWave32Preconditioners = 102u,
-    kIslandWorkDense = 103u,
     kFutureBodyPoses = 104u,
     kFutureProjectedColliders = 105u,
     kCandidateConvexCaches = 106u,
     kCCDEventStatesA = 107u,
     kCCDEventStatesB = 108u,
     kCCDImpactClusters = 109u,
-    kWaveWorkPackets = 110u,
     kPairManifoldHeaders = 111u,
     kPairManifoldPoints = 112u,
     kManifoldIRScatter = 113u,
@@ -276,6 +268,8 @@ enum BufferIndex : std::size_t {
     kPolicyLogProbabilities = 217u,
     kPolicyValues = 218u,
     kTaskCurriculumState = 219u,
+    kGeneralizedWarmState = 220u,
+    kCheckpointGeneralizedWarmState = 221u,
 };
 
 struct BufferRequirement {
@@ -339,7 +333,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> eventArticulationPipeline = nil;
     __strong id<MTLComputePipelineState> eventScenePredictionPipeline = nil;
     __strong id<MTLComputePipelineState> eventBodyOverlayPipeline = nil;
-    __strong id<MTLComputePipelineState> jointLimitPipeline = nil;
+    __strong id<MTLComputePipelineState> velocitySafetyPipeline = nil;
     __strong id<MTLComputePipelineState> eventColliderProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> inactiveEventRestorePipeline = nil;
     __strong id<MTLComputePipelineState> eventSegmentPublishPipeline = nil;
@@ -370,19 +364,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> pointQueryTailPipeline = nil;
     __strong id<MTLComputePipelineState> evaluateIRPipeline = nil;
     __strong id<MTLComputePipelineState> islandPipeline = nil;
-    __strong id<MTLComputePipelineState> buildTilesPipeline = nil;
-    __strong id<MTLComputePipelineState> islandQueueScatterPipeline = nil;
-    __strong id<MTLComputePipelineState> solverCohortPipeline = nil;
-    __strong id<MTLComputePipelineState> distributedIslandFlagPipeline = nil;
-    __strong id<MTLComputePipelineState> distributedIslandScatterPipeline = nil;
-    __strong id<MTLComputePipelineState> distributedTileFlagPipeline = nil;
-    __strong id<MTLComputePipelineState> distributedTileScatterPipeline = nil;
-    __strong id<MTLComputePipelineState> contactSolvePipeline = nil;
-    __strong id<MTLComputePipelineState> wave32SolvePipeline = nil;
-    __strong id<MTLComputePipelineState> wave32DistributedPreparePipeline = nil;
-    __strong id<MTLComputePipelineState> wave32DistributedDeltaPipeline = nil;
-    __strong id<MTLComputePipelineState> wave32DistributedReducePipeline = nil;
-    __strong id<MTLComputePipelineState> wave32ReducePipeline = nil;
+    __strong id<MTLComputePipelineState> numiSweepPipeline = nil;
     __strong id<MTLComputePipelineState> contactIntegratePipeline = nil;
     __strong id<MTLComputePipelineState> contactLatchPipeline = nil;
     __strong id<MTLComputePipelineState> contactCommitPipeline = nil;
@@ -415,8 +397,6 @@ struct MetalWorldContextState {
         rodContactCommitPipeline = nil;
     __strong id<MTLComputePipelineState>
         authoredIRSeedPipeline = nil;
-    __strong id<MTLComputePipelineState>
-        generalizedConstraintSolvePipeline = nil;
     __strong id<MTLHeap> immutableHeap = nil;
     __strong id<MTLHeap> persistentHeap = nil;
     __strong id<MTLHeap> transientHeap = nil;
@@ -717,71 +697,6 @@ bool checkedAdd(
     }
     result = left + right;
     return true;
-}
-
-std::uint32_t contactConstraintCapacity(
-    const std::uint32_t constraintCapacity,
-    const std::size_t authoredConstraintCount
-) {
-    const std::uint64_t authored = std::min<std::uint64_t>(
-        authoredConstraintCount,
-        constraintCapacity
-    );
-    return static_cast<std::uint32_t>(
-        static_cast<std::uint64_t>(constraintCapacity) -
-        authored
-    );
-}
-
-std::uint32_t requiredSolverTileCapacity(
-    const std::uint32_t constraintCapacity,
-    const std::size_t authoredConstraintCount,
-    const std::uint32_t islandCapacity,
-    const std::size_t dynamicNodeCount
-) {
-    const std::uint32_t contacts = contactConstraintCapacity(
-        constraintCapacity,
-        authoredConstraintCount
-    );
-    if (contacts == 0u) {
-        // The contact dispatch ABI intentionally keeps a valid empty tile
-        // arena so authored-only worlds use the same persistent graph.
-        return 1u;
-    }
-    const std::uint32_t nonemptyIslands =
-        std::min<std::uint32_t>(
-            contacts,
-            std::min<std::uint32_t>(
-                islandCapacity,
-                static_cast<std::uint32_t>(
-                    std::min<std::size_t>(
-                        dynamicNodeCount,
-                        std::numeric_limits<std::uint32_t>::max()
-                    )
-                )
-            )
-        );
-    // For C constraints distributed across K nonempty islands, the maximum
-    // sum of ceil(c_i / 32) is K + floor((C - K) / 32).
-    return std::max<std::uint32_t>(
-        1u,
-        nonemptyIslands +
-            (contacts - nonemptyIslands) /
-                MR_WAVE32_CONTACTS_PER_TILE
-    );
-}
-
-std::uint32_t requiredSpillRowCapacity(
-    const std::uint32_t constraintCapacity,
-    const std::size_t authoredConstraintCount
-) {
-    const std::uint32_t contacts = contactConstraintCapacity(
-        constraintCapacity,
-        authoredConstraintCount
-    );
-    return contacts > MR_WAVE32_CONTACTS_PER_TILE
-        ? 3u * (contacts - MR_WAVE32_CONTACTS_PER_TILE)
-        : 0u;
 }
 
 template <typename T>
@@ -1477,6 +1392,8 @@ bool buildRequirements(
     std::size_t taskContactElements = 0u;
     std::size_t policyScratchElements = 0u;
     std::size_t policyActorMeanElements = 0u;
+    std::size_t authoredRuntimeRows = 0u;
+    std::size_t generalizedWarmElements = 0u;
     if (!checkedMultiply(
             taskLayout.delayStateCount,
             taskLayout.actionCount,
@@ -1518,6 +1435,16 @@ bool buildRequirements(
             nativePolicy ? taskEnvironments : 0u,
             policyProgram.layout().actionCount,
             policyActorMeanElements
+        ) ||
+        !checkedMultiply(
+            model.constraintProgram.blocks.size(),
+            3u,
+            authoredRuntimeRows
+        ) ||
+        !checkedMultiply(
+            contactEnvironments,
+            authoredRuntimeRows,
+            generalizedWarmElements
         )) {
         return false;
     }
@@ -1830,10 +1757,7 @@ bool buildRequirements(
     }
     compactionElements = std::max(
         eligiblePairFlagElements,
-        std::max(
-            layout.islandElements,
-            layout.contactTileElements
-        )
+        layout.islandElements
     );
     const std::size_t immutableShapeElements =
         std::max<std::size_t>(model.shapes.size(), 1u);
@@ -2189,31 +2113,6 @@ bool buildRequirements(
             compactionElements,
             requirements.entries[kCompactionFlags]
         ) ||
-        !makeRequirement<MRIslandWorkGPU>(
-            "compacted island work",
-            2u * layout.islandWorkElements,
-            requirements.entries[kIslandWorkQueue]
-        ) ||
-        !makeRequirement<MRContactTileGPU>(
-            "contact tiles",
-            2u * layout.contactTileElements,
-            requirements.entries[kContactTiles]
-        ) ||
-        !makeRequirement<mr_u32>(
-            "tile constraint indices",
-            layout.contactConstraintElements,
-            requirements.entries[kTileConstraintIndices]
-        ) ||
-        !makeRequirement<mr_float4>(
-            "Wave32 impulse deltas",
-            layout.contactConstraintElements,
-            requirements.entries[kWave32ImpulseDeltas]
-        ) ||
-        !makeRequirement<MRWave32IslandStatusGPU>(
-            "Wave32 island statuses",
-            layout.islandWorkElements,
-            requirements.entries[kWave32IslandStatuses]
-        ) ||
         !makeRequirement<MRConvexQueryCacheGPU>(
             "persistent convex query cache",
             layout.convexCacheElements,
@@ -2243,11 +2142,6 @@ bool buildRequirements(
             "CCD impact clusters",
             layout.ccdImpactClusterElements,
             requirements.entries[kCCDImpactClusters]
-        ) ||
-        !makeRequirement<MRWaveWorkPacketGPU>(
-            "Wave32 work packets",
-            layout.waveWorkPacketElements,
-            requirements.entries[kWaveWorkPackets]
         ) ||
         !makeRequirement<MRGeometryHeaderGPU>(
             "geometry headers",
@@ -2309,16 +2203,6 @@ bool buildRequirements(
             "pair raw contact staging",
             layout.pairRawStagingElements,
             requirements.entries[kPairRawContactStaging]
-        ) ||
-        !makeRequirement<MRWave32PreconditionerGPU>(
-            "Wave32 coupled block preconditioners",
-            layout.contactConstraintElements,
-            requirements.entries[kWave32Preconditioners]
-        ) ||
-        !makeRequirement<MRIslandWorkGPU>(
-            "dense island work staging",
-            layout.islandWorkElements,
-            requirements.entries[kIslandWorkDense]
         ) ||
         !makeRequirement<MRUnifiedQualityDispatchGPU>(
             "unified quality dispatch",
@@ -2695,6 +2579,16 @@ bool buildRequirements(
             model.constraintProgram.warmImpulses.size(),
             requirements.entries[kAuthoredIRWarmImpulses]
         ) ||
+        !makeRequirement<float>(
+            "resident generalized warm impulses",
+            generalizedWarmElements,
+            requirements.entries[kGeneralizedWarmState]
+        ) ||
+        !makeRequirement<float>(
+            "checkpoint generalized warm impulses",
+            generalizedWarmElements,
+            requirements.entries[kCheckpointGeneralizedWarmState]
+        ) ||
         !makeRequirement<MRTaskDispatchGPU>(
             "native task dispatch",
             nativeTask ? 1u : 0u,
@@ -2865,9 +2759,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     if (config.solverMode !=
             MetalWorldSolverMode::freeMotionABA &&
         config.solverMode !=
-            MetalWorldSolverMode::throughputPGS &&
-        config.solverMode !=
-            MetalWorldSolverMode::waveJacobiExperimental &&
+            MetalWorldSolverMode::numiSolver &&
         config.solverMode !=
             MetalWorldSolverMode::qualityNewton) {
         return reject(
@@ -2892,19 +2784,28 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
     const bool qualityMode =
         config.solverMode == MetalWorldSolverMode::qualityNewton;
+    const std::uint64_t executionSubsteps64 =
+        static_cast<std::uint64_t>(config.physicsSubsteps) *
+        (
+            config.solverMode ==
+                    MetalWorldSolverMode::numiSolver
+            ? config.temporalSubsteps
+            : 1u
+        );
     if (!std::isfinite(config.timestepSeconds) ||
         !(config.timestepSeconds > 0.0f) ||
         config.physicsSubsteps == 0u ||
-        config.physicsSubsteps >
+        config.temporalSubsteps == 0u ||
+        executionSubsteps64 >
             MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS ||
-        (contactMode &&
-         (config.velocityIterations == 0u ||
-          config.velocityIterations > 128u ||
-          config.finalVelocityIterations > 128u)) ||
         !std::isfinite(config.manifoldBreakingSeparation) ||
         !std::isfinite(config.manifoldBreakingTangential) ||
         !std::isfinite(config.manifoldMergeDistance) ||
         !std::isfinite(config.manifoldNormalCosine) ||
+        !std::isfinite(config.jointLimitActivationDistance) ||
+        !std::isfinite(config.jointLimitPositionSlop) ||
+        !std::isfinite(config.jointLimitRecoveryFraction) ||
+        !std::isfinite(config.jointLimitRegularization) ||
         !std::isfinite(config.ccdMinimumAdvance) ||
         !std::isfinite(config.ccdTimeTolerance) ||
         !std::isfinite(config.ccdSimultaneousTolerance) ||
@@ -2915,6 +2816,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.manifoldMergeDistance < 0.0f ||
         config.manifoldNormalCosine < -1.0f ||
         config.manifoldNormalCosine > 1.0f ||
+        config.jointLimitActivationDistance < 0.0f ||
+        config.jointLimitPositionSlop < 0.0f ||
+        config.jointLimitRecoveryFraction < 0.0f ||
+        config.jointLimitRecoveryFraction > 1.0f ||
+        config.jointLimitRegularization < 0.0f ||
         config.ccdMinimumAdvance <= 0.0f ||
         config.ccdTimeTolerance <= 0.0f ||
         config.ccdSimultaneousTolerance <= 0.0f ||
@@ -2968,10 +2874,12 @@ MetalWorldDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
             "timestepSeconds must be finite and positive and "
-            "physicsSubsteps, solver iterations, or manifold "
+            "physicsSubsteps, temporalSubsteps, or manifold "
             "thresholds are outside the supported range"
         );
     }
+    const auto executionSubsteps =
+        static_cast<std::uint32_t>(executionSubsteps64);
     if (nativeTask &&
         (
             !contactMode ||
@@ -2987,6 +2895,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
             MetalWorldHostStatus::unsupportedTopology,
             "native task execution requires an implicit-drive contact world "
             "matching the compiled task fingerprint"
+        );
+    }
+    if (config.solverMode == MetalWorldSolverMode::numiSolver &&
+        world.rodCount() != 0u) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::unsupportedTopology,
+            "NumiSolver does not approximate rod endpoints with diagonal "
+            "node mass; the retained banded rod operator must participate "
+            "in the nonlinear sweep before this topology is supported"
         );
     }
     if (nativePolicy &&
@@ -3022,8 +2940,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedSolverMode,
             "qualityNewton currently requires disabled or speculative "
-            "CCD; event-time quality re-solves are not silently routed "
-            "through the experimental Wave-Jacobi solver"
+            "CCD; event-time quality re-solves are not implemented"
         );
     }
     const std::size_t qualityNv =
@@ -3043,7 +2960,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     const float substepTimestep =
         config.timestepSeconds /
-        static_cast<float>(config.physicsSubsteps);
+        static_cast<float>(executionSubsteps);
     if (!std::isfinite(substepTimestep) ||
         substepTimestep <
             std::numeric_limits<float>::min()) {
@@ -3081,7 +2998,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         static_cast<mr_u32>(batch.environmentCount);
     dispatch.controlStepCount =
         static_cast<mr_u32>(batch.controlStepCount);
-    dispatch.physicsSubsteps = config.physicsSubsteps;
+    dispatch.physicsSubsteps = executionSubsteps;
     dispatch.flags = (
         contactMode
             ? static_cast<mr_u32>(MR_METAL_WORLD_CONTACTS)
@@ -3258,11 +3175,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
     contact.environmentCount = dispatch.environmentCount;
     contact.articulationIndex = world.articulationIndex();
     contact.solverType =
-        config.solverMode == MetalWorldSolverMode::throughputPGS
-        ? MR_SOLVER_THROUGHPUT_PGS
+        config.solverMode == MetalWorldSolverMode::numiSolver
+        ? MR_SOLVER_NUMI
         : config.solverMode == MetalWorldSolverMode::qualityNewton
         ? MR_SOLVER_QUALITY_NEWTON
-        : MR_SOLVER_WAVE_JACOBI_EXPERIMENTAL;
+        : MR_SOLVER_REFERENCE_FP64;
     contact.bodyCount =
         static_cast<mr_u32>(world.model().bodies.size());
     contact.sceneBodyCount = world.sceneBodyCount();
@@ -3313,16 +3230,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
                    MR_METAL_WORLD_CONTACT_QUALITY
                )
              : 0u);
-    contact.velocityIterations = config.velocityIterations;
-    contact.finalVelocityIterations =
-        config.finalVelocityIterations;
+    contact.positionSweeps = 1u;
+    contact.unbiasedVelocitySweeps = 0u;
     contact.hardConvexCapacity =
         world.capacities().hardConvexPairs;
     contact.meshCandidateCapacity =
         world.capacities().meshTriangleCandidates;
-    contact.solverTileCapacity =
-        world.capacities().solverTiles;
-    contact.spillRowCapacity = world.capacities().spillRows;
+    contact.reservedSolverCapacity0 = 0u;
+    contact.reservedSolverCapacity1 = 0u;
     contact.ccdCandidateCapacity =
         world.capacities().ccdCandidates;
     contact.ccdEventCapacity = world.capacities().ccdEvents;
@@ -3333,17 +3248,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
     contact.workQueueClassCount = MR_WORLD_WORK_CLASS_COUNT;
     contact.queueStride = std::max(
         contact.pairCapacity,
-        std::max(
-            contact.islandCapacity,
-            contact.solverTileCapacity
-        )
+        contact.islandCapacity
     );
     contact.convexCacheStride = contact.eligiblePairCount;
     contact.maxCCDAdvanceSolvePasses =
         config.maxCCDAdvanceSolvePasses;
     contact.maxCCDZeroTimeReplays =
         config.maxCCDZeroTimeReplays;
-    contact.waveWorkerGroupCount = 64u;
+    contact.workerGroupCount = 64u;
     contact.rodToolPairCount =
         static_cast<mr_u32>(world.rodToolPairs().size());
     contact.articulationCount = world.articulationCount();
@@ -3379,7 +3291,6 @@ MetalWorldDiagnostics validateAndBuildLayout(
         static_cast<mr_u32>(
             world.model().constraintProgram.cones.size()
         );
-    contact.flags |= MR_METAL_WORLD_CONTACT_WAVE32;
     if (nativeTask) {
         contact.flags |=
             MR_METAL_WORLD_CONTACT_BODY_PARAMETERS;
@@ -3405,6 +3316,12 @@ MetalWorldDiagnostics validateAndBuildLayout(
         world.model().world.solverScales.w,
         world.model().world.solverScales.z,
         config.warmStart ? 1.0f : 0.0f,
+    };
+    contact.jointLimitParameters = {
+        config.jointLimitActivationDistance,
+        config.jointLimitPositionSlop,
+        config.jointLimitRecoveryFraction,
+        config.jointLimitRegularization,
     };
     contact.manifoldThresholds = {
         config.manifoldBreakingSeparation,
@@ -3765,16 +3682,6 @@ MetalWorldDiagnostics validateAndBuildLayout(
             ) ||
             !checkedMultiply(
                 batch.environmentCount,
-                contact.islandCapacity,
-                layout.islandWorkElements
-            ) ||
-            !checkedMultiply(
-                batch.environmentCount,
-                contact.solverTileCapacity,
-                layout.contactTileElements
-            ) ||
-            !checkedMultiply(
-                batch.environmentCount,
                 contact.convexCacheStride,
                 layout.convexCacheElements
             ) ||
@@ -3792,11 +3699,6 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 batch.environmentCount,
                 1u,
                 layout.ccdImpactClusterElements
-            ) ||
-            !checkedMultiply(
-                batch.environmentCount,
-                contact.islandCapacity,
-                layout.waveWorkPacketElements
             )) {
             return reject(
                 std::move(diagnostics),
@@ -3864,13 +3766,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.workQueueHeaderElements,
         layout.pairWorkElements,
         layout.pairRawStagingElements,
-        layout.islandWorkElements,
-        layout.contactTileElements,
         layout.convexCacheElements,
         layout.ccdPairElements,
         layout.ccdEventStateElements,
         layout.ccdImpactClusterElements,
-        layout.waveWorkPacketElements,
         layout.rodNodeStateElements,
         layout.rodEdgeStateElements,
         layout.resetRodNodeStateElements,
@@ -4207,6 +4106,10 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld checkpoint q";
     case kCheckpointV:
         return @"MetalWorld checkpoint v";
+    case kGeneralizedWarmState:
+        return @"MetalWorld resident generalized warm impulses";
+    case kCheckpointGeneralizedWarmState:
+        return @"MetalWorld checkpoint generalized warm impulses";
     case kTaskDispatch:
         return @"MetalWorld task dispatch";
     case kTaskActions:
@@ -4499,7 +4402,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> eventArticulation = nil;
     __strong id<MTLComputePipelineState> eventScenePrediction = nil;
     __strong id<MTLComputePipelineState> eventBodyOverlay = nil;
-    __strong id<MTLComputePipelineState> jointLimits = nil;
+    __strong id<MTLComputePipelineState> velocitySafety = nil;
     __strong id<MTLComputePipelineState> eventColliderProjection = nil;
     __strong id<MTLComputePipelineState> inactiveEventRestore = nil;
     __strong id<MTLComputePipelineState> eventSegmentPublish = nil;
@@ -4523,19 +4426,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> pointQueryTail = nil;
     __strong id<MTLComputePipelineState> evaluateIR = nil;
     __strong id<MTLComputePipelineState> islands = nil;
-    __strong id<MTLComputePipelineState> buildTiles = nil;
-    __strong id<MTLComputePipelineState> islandQueueScatter = nil;
-    __strong id<MTLComputePipelineState> solverCohort = nil;
-    __strong id<MTLComputePipelineState> distributedIslandFlags = nil;
-    __strong id<MTLComputePipelineState> distributedIslandScatter = nil;
-    __strong id<MTLComputePipelineState> distributedTileFlags = nil;
-    __strong id<MTLComputePipelineState> distributedTileScatter = nil;
-    __strong id<MTLComputePipelineState> contactSolve = nil;
-    __strong id<MTLComputePipelineState> wave32Solve = nil;
-    __strong id<MTLComputePipelineState> wave32DistributedPrepare = nil;
-    __strong id<MTLComputePipelineState> wave32DistributedDelta = nil;
-    __strong id<MTLComputePipelineState> wave32DistributedReduce = nil;
-    __strong id<MTLComputePipelineState> wave32Reduce = nil;
+    __strong id<MTLComputePipelineState> numiSweep = nil;
     __strong id<MTLComputePipelineState> contactIntegrate = nil;
     __strong id<MTLComputePipelineState> contactLatch = nil;
     __strong id<MTLComputePipelineState> contactCommit = nil;
@@ -4568,8 +4459,6 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> rodCCD = nil;
     __strong id<MTLComputePipelineState> rodCCDWitnessTag = nil;
     __strong id<MTLComputePipelineState> authoredIRSeed = nil;
-    __strong id<MTLComputePipelineState>
-        generalizedConstraintSolve = nil;
     auto createContactPipeline = [&](
         NSString* functionName
     ) {
@@ -4633,8 +4522,8 @@ MetalWorldDiagnostics initializeContext(
     eventBodyOverlay = createContactPipeline(
         @"mr_world_overlay_event_articulation_bodies"
     );
-    jointLimits = createContactPipeline(
-        @"mr_world_project_joint_limits"
+    velocitySafety = createContactPipeline(
+        @"mr_world_apply_velocity_safety_envelope"
     );
     eventColliderProjection = createContactPipeline(
         @"mr_world_project_event_colliders"
@@ -4711,39 +4600,8 @@ MetalWorldDiagnostics initializeContext(
         createContactPipeline(@"mr_world_evaluate_constraint_ir");
     islands =
         createContactPipeline(@"mr_world_build_contact_islands");
-    buildTiles =
-        createContactPipeline(@"mr_world_build_contact_tiles");
-    islandQueueScatter =
-        createContactPipeline(@"mr_world_scatter_island_queue");
-    solverCohort =
-        createContactPipeline(@"mr_world_select_solver_cohort");
-    distributedIslandFlags = createContactPipeline(
-        @"mr_world_flag_distributed_islands"
-    );
-    distributedIslandScatter = createContactPipeline(
-        @"mr_world_scatter_distributed_island_queue"
-    );
-    distributedTileFlags = createContactPipeline(
-        @"mr_world_flag_distributed_tiles"
-    );
-    distributedTileScatter = createContactPipeline(
-        @"mr_world_scatter_distributed_tile_queue"
-    );
-    contactSolve =
-        createContactPipeline(@"mr_world_solve_contact_islands");
-    wave32Solve =
-        createContactPipeline(@"mr_world_wave32_solve");
-    wave32DistributedPrepare = createContactPipeline(
-        @"mr_world_wave32_distributed_prepare"
-    );
-    wave32DistributedDelta = createContactPipeline(
-        @"mr_world_wave32_distributed_delta"
-    );
-    wave32DistributedReduce = createContactPipeline(
-        @"mr_world_wave32_distributed_reduce"
-    );
-    wave32Reduce =
-        createContactPipeline(@"mr_world_reduce_wave32_status");
+    numiSweep =
+        createContactPipeline(@"mr_world_numi_constraint_sweep");
     contactIntegrate =
         createContactPipeline(@"mr_world_integrate_contact_state");
     contactLatch =
@@ -4817,9 +4675,6 @@ MetalWorldDiagnostics initializeContext(
     authoredIRSeed = createContactPipeline(
         @"mr_world_seed_authored_constraint_ir"
     );
-    generalizedConstraintSolve = createContactPipeline(
-        @"mr_world_solve_generalized_constraints"
-    );
     if (operatorPipeline == nil ||
         parameterizedOperatorPipeline == nil ||
         taskObserve == nil ||
@@ -4842,7 +4697,7 @@ MetalWorldDiagnostics initializeContext(
         eventArticulation == nil ||
         eventScenePrediction == nil ||
         eventBodyOverlay == nil ||
-        jointLimits == nil ||
+        velocitySafety == nil ||
         eventColliderProjection == nil ||
         inactiveEventRestore == nil ||
         eventSegmentPublish == nil ||
@@ -4872,19 +4727,7 @@ MetalWorldDiagnostics initializeContext(
         pointQueryTail == nil ||
         evaluateIR == nil ||
         islands == nil ||
-        buildTiles == nil ||
-        islandQueueScatter == nil ||
-        solverCohort == nil ||
-        distributedIslandFlags == nil ||
-        distributedIslandScatter == nil ||
-        distributedTileFlags == nil ||
-        distributedTileScatter == nil ||
-        contactSolve == nil ||
-        wave32Solve == nil ||
-        wave32DistributedPrepare == nil ||
-        wave32DistributedDelta == nil ||
-        wave32DistributedReduce == nil ||
-        wave32Reduce == nil ||
+        numiSweep == nil ||
         contactIntegrate == nil ||
         contactLatch == nil ||
         contactCommit == nil ||
@@ -4909,8 +4752,7 @@ MetalWorldDiagnostics initializeContext(
         rodContactSolve == nil ||
         rodCommit == nil ||
         rodContactCommit == nil ||
-        authoredIRSeed == nil ||
-        generalizedConstraintSolve == nil) {
+        authoredIRSeed == nil) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::metalPipelineFailure,
@@ -4958,7 +4800,7 @@ MetalWorldDiagnostics initializeContext(
         eventArticulation.maxTotalThreadsPerThreadgroup == 0u ||
         eventScenePrediction.maxTotalThreadsPerThreadgroup == 0u ||
         eventBodyOverlay.maxTotalThreadsPerThreadgroup == 0u ||
-        jointLimits.maxTotalThreadsPerThreadgroup == 0u ||
+        velocitySafety.maxTotalThreadsPerThreadgroup == 0u ||
         eventColliderProjection.maxTotalThreadsPerThreadgroup == 0u ||
         inactiveEventRestore.maxTotalThreadsPerThreadgroup == 0u ||
         eventSegmentPublish.maxTotalThreadsPerThreadgroup == 0u ||
@@ -4994,31 +4836,7 @@ MetalWorldDiagnostics initializeContext(
             kWorldThreadsPerThreadgroup ||
         islands.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
-        buildTiles.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        islandQueueScatter.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        solverCohort.maxTotalThreadsPerThreadgroup <
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        distributedIslandFlags.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        distributedIslandScatter.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        distributedTileFlags.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        distributedTileScatter.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        contactSolve.maxTotalThreadsPerThreadgroup <
-            kWorldThreadsPerThreadgroup ||
-        wave32Solve.maxTotalThreadsPerThreadgroup <
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        wave32DistributedPrepare.maxTotalThreadsPerThreadgroup <
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        wave32DistributedDelta.maxTotalThreadsPerThreadgroup <
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        wave32DistributedReduce.maxTotalThreadsPerThreadgroup <
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        wave32Reduce.maxTotalThreadsPerThreadgroup <
+        numiSweep.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
         contactIntegrate.maxTotalThreadsPerThreadgroup == 0u ||
         contactLatch.maxTotalThreadsPerThreadgroup == 0u ||
@@ -5046,14 +4864,12 @@ MetalWorldDiagnostics initializeContext(
         rodContactLatch.maxTotalThreadsPerThreadgroup == 0u ||
         rodToolNarrowphase.maxTotalThreadsPerThreadgroup == 0u ||
         rodContactScan.maxTotalThreadsPerThreadgroup <
-            MR_WAVE32_CONTACTS_PER_TILE ||
+            MR_SIMD_WIDTH ||
         rodContactScatter.maxTotalThreadsPerThreadgroup == 0u ||
         rodContactSolve.maxTotalThreadsPerThreadgroup == 0u ||
         rodCommit.maxTotalThreadsPerThreadgroup == 0u ||
         rodContactCommit.maxTotalThreadsPerThreadgroup == 0u ||
         authoredIRSeed.maxTotalThreadsPerThreadgroup == 0u ||
-        generalizedConstraintSolve
-                .maxTotalThreadsPerThreadgroup == 0u ||
         rodStep.staticThreadgroupMemoryLength >
             device.maxThreadgroupMemoryLength ||
         qualityPrepare.staticThreadgroupMemoryLength >
@@ -5071,33 +4887,23 @@ MetalWorldDiagnostics initializeContext(
         );
     }
     if (pairNarrowphase.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
+            MR_SIMD_WIDTH ||
         manifoldScan.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        solverCohort.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        wave32Solve.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        wave32DistributedPrepare.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        wave32DistributedDelta.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
-        wave32DistributedReduce.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
+            MR_SIMD_WIDTH ||
         qualityPrepare.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
+            MR_SIMD_WIDTH ||
         qualityWarmStart.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
+            MR_SIMD_WIDTH ||
         qualityQueue.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
+            MR_SIMD_WIDTH ||
         qualitySolve.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
+            MR_SIMD_WIDTH ||
         rodToolNarrowphase.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
+            MR_SIMD_WIDTH ||
         rodContactScan.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE ||
+            MR_SIMD_WIDTH ||
         rodStep.threadExecutionWidth !=
-            MR_WAVE32_CONTACTS_PER_TILE) {
+            MR_SIMD_WIDTH) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::metalDeviceUnsupported,
@@ -5138,7 +4944,7 @@ MetalWorldDiagnostics initializeContext(
     context.eventArticulationPipeline = eventArticulation;
     context.eventScenePredictionPipeline = eventScenePrediction;
     context.eventBodyOverlayPipeline = eventBodyOverlay;
-    context.jointLimitPipeline = jointLimits;
+    context.velocitySafetyPipeline = velocitySafety;
     context.eventColliderProjectionPipeline = eventColliderProjection;
     context.inactiveEventRestorePipeline = inactiveEventRestore;
     context.eventSegmentPublishPipeline = eventSegmentPublish;
@@ -5173,26 +4979,7 @@ MetalWorldDiagnostics initializeContext(
     context.pointQueryTailPipeline = pointQueryTail;
     context.evaluateIRPipeline = evaluateIR;
     context.islandPipeline = islands;
-    context.buildTilesPipeline = buildTiles;
-    context.islandQueueScatterPipeline = islandQueueScatter;
-    context.solverCohortPipeline = solverCohort;
-    context.distributedIslandFlagPipeline =
-        distributedIslandFlags;
-    context.distributedIslandScatterPipeline =
-        distributedIslandScatter;
-    context.distributedTileFlagPipeline =
-        distributedTileFlags;
-    context.distributedTileScatterPipeline =
-        distributedTileScatter;
-    context.contactSolvePipeline = contactSolve;
-    context.wave32SolvePipeline = wave32Solve;
-    context.wave32DistributedPreparePipeline =
-        wave32DistributedPrepare;
-    context.wave32DistributedDeltaPipeline =
-        wave32DistributedDelta;
-    context.wave32DistributedReducePipeline =
-        wave32DistributedReduce;
-    context.wave32ReducePipeline = wave32Reduce;
+    context.numiSweepPipeline = numiSweep;
     context.contactIntegratePipeline = contactIntegrate;
     context.contactLatchPipeline = contactLatch;
     context.contactCommitPipeline = contactCommit;
@@ -5219,8 +5006,6 @@ MetalWorldDiagnostics initializeContext(
     context.rodCommitPipeline = rodCommit;
     context.rodContactCommitPipeline = rodContactCommit;
     context.authoredIRSeedPipeline = authoredIRSeed;
-    context.generalizedConstraintSolvePipeline =
-        generalizedConstraintSolve;
     context.stats.queriedThreadExecutionWidth =
         static_cast<std::uint32_t>(
             pairNarrowphase.threadExecutionWidth
@@ -5296,24 +5081,16 @@ bool privateTransientBuffer(const std::size_t index) {
     case kCompactionOffsets:
     case kCompactionScratch:
     case kCompactionFlags:
-    case kIslandWorkQueue:
-    case kContactTiles:
-    case kTileConstraintIndices:
-    case kWave32ImpulseDeltas:
-    case kWave32IslandStatuses:
     case kCandidateConvexCaches:
     case kCCDPairs:
     case kCCDEventStatesA:
     case kCCDEventStatesB:
     case kCCDImpactClusters:
-    case kWaveWorkPackets:
     case kPairRawContactStaging:
     case kPairManifoldHeaders:
     case kPairManifoldPoints:
     case kManifoldIRScatter:
     case kEndpointRuntime:
-    case kWave32Preconditioners:
-    case kIslandWorkDense:
     case kQualityBlocks:
     case kQualityDynamics:
     case kQualityJacobian:
@@ -5362,6 +5139,7 @@ bool privateTransientBuffer(const std::size_t index) {
     case kPolicyScratchA:
     case kPolicyScratchB:
     case kPolicyActorMean:
+    case kCheckpointGeneralizedWarmState:
         return true;
     default:
         return false;
@@ -5405,6 +5183,7 @@ bool privatePersistentBuffer(const std::size_t index) {
     case kTaskBodyParameters:
     case kTaskControllerParameters:
     case kTaskContactCompact:
+    case kGeneralizedWarmState:
         return true;
     default:
         return false;
@@ -5424,6 +5203,7 @@ bool privatePersistentInputBuffer(const std::size_t index) {
     case kRodNodesA:
     case kRodEdgesA:
     case kTaskCurriculumState:
+    case kGeneralizedWarmState:
         return true;
     default:
         return false;
@@ -6113,7 +5893,7 @@ void uploadBatch(
     MRWorldGPU runtimeWorld = model.world;
     runtimeWorld.gravityAndTimestep.w =
         config.timestepSeconds /
-        static_cast<float>(config.physicsSubsteps);
+        static_cast<float>(layout.dispatch.physicsSubsteps);
     copyToBuffer(
         context.buffers[kWorld],
         &runtimeWorld,
@@ -6854,6 +6634,45 @@ void uploadBatch(
             requirements.entries[kStateVA],
             stateUpload
         );
+        if (!model.constraintProgram.blocks.empty()) {
+            const std::size_t runtimeRowsPerEnvironment =
+                3u * model.constraintProgram.blocks.size();
+            std::vector<float> warmState(
+                batch.environmentCount *
+                    runtimeRowsPerEnvironment,
+                0.0f
+            );
+            for (std::size_t environment = 0u;
+                 environment < batch.environmentCount;
+                 ++environment) {
+                const std::size_t environmentBase =
+                    environment * runtimeRowsPerEnvironment;
+                for (std::size_t blockIndex = 0u;
+                     blockIndex <
+                         model.constraintProgram.blocks.size();
+                     ++blockIndex) {
+                    const auto& block =
+                        model.constraintProgram.blocks[blockIndex];
+                    for (std::size_t row = 0u;
+                         row < block.dimension;
+                         ++row) {
+                        warmState[
+                            environmentBase +
+                            3u * blockIndex + row
+                        ] = model.constraintProgram.warmImpulses[
+                            block.impulseOffset + row
+                        ];
+                    }
+                }
+            }
+            stagePrivateBuffer(
+                context,
+                kGeneralizedWarmState,
+                warmState.data(),
+                requirements.entries[kGeneralizedWarmState],
+                stateUpload
+            );
+        }
     }
     if (!nativeTask) {
         copyToBuffer(
@@ -6973,7 +6792,7 @@ void uploadBatch(
         task.timing = {
             config.timestepSeconds,
             config.timestepSeconds /
-                static_cast<float>(config.physicsSubsteps),
+                static_cast<float>(layout.dispatch.physicsSubsteps),
             config.evaluateFinalPolicy ? 1.0f : 0.0f,
             nativePolicy &&
                     !config.policyProgram.criticLayers().empty()
@@ -7146,6 +6965,7 @@ void uploadBatch(
         kPublicStatuses,
         kEnvironmentStatuses,
         kCheckpointQ,
+        kCheckpointGeneralizedWarmState,
         kSceneBodiesB,
         kCheckpointSceneBodies,
         kBodyPoses,
@@ -7197,11 +7017,6 @@ void uploadBatch(
         kCompactionOffsets,
         kCompactionScratch,
         kCompactionFlags,
-        kIslandWorkQueue,
-        kContactTiles,
-        kTileConstraintIndices,
-        kWave32ImpulseDeltas,
-        kWave32IslandStatuses,
         kConvexCaches,
         kCandidateConvexCaches,
         kCCDPairs,
@@ -7210,8 +7025,6 @@ void uploadBatch(
         kPairManifoldPoints,
         kManifoldIRScatter,
         kEndpointRuntime,
-        kWave32Preconditioners,
-        kIslandWorkDense,
         kQualityStatuses,
         kRodNodesB,
         kRodEdgesB,
@@ -9490,585 +9303,19 @@ bool encodeContactControlPrepare(
             {15u, kCheckpointManifoldCounts},
             {16u, kContactStatuses},
             {17u, kConvexCaches},
+            {18u, kGeneralizedWarmState},
+            {19u, kCheckpointGeneralizedWarmState},
         },
         &pass,
         2u,
         environmentCount
     );
 }
-
-bool encodeWave32ContactSolve(
-    detail::MetalWorldContextState& context,
-    id<MTLCommandBuffer> commandBuffer,
-    const MRMetalWorldPassGPU& solverPass,
-    const mr_u32 solverIterationCount,
-    const bool enableDistributed,
-    const std::size_t candidateRodNodes,
-    const std::size_t candidateRodEdges,
-    const std::size_t environmentCount,
-    const std::size_t islandWorkCount,
-    const std::size_t tileWorkCount
-) {
-    if (!encodeContactThreadKernel(
-            context,
-            commandBuffer,
-            context.buildTilesPipeline,
-            @"MetalWorld 32-contact tile construction",
-            {
-                {0u, kContactDispatch},
-                {1u, kCandidateBodies},
-                {2u, kContacts},
-                {3u, kIslands},
-                {4u, kIslandWorkDense},
-                {5u, kContactTiles},
-                {6u, kTileConstraintIndices},
-                {7u, kContactStatuses},
-                {8u, kCompactionFlags},
-            },
-            nullptr,
-            0u,
-            environmentCount
-        )) {
-        return false;
-    }
-    if (!encodeStableBooleanScan(
-            context,
-            commandBuffer,
-            kCompactionFlags,
-            islandWorkCount,
-            MR_WORLD_WORK_SOLVER
-        )) {
-        return false;
-    }
-
-    id<MTLComputeCommandEncoder> scatter =
-        [commandBuffer computeCommandEncoder];
-    if (scatter == nil) {
-        return false;
-    }
-    scatter.label = @"MetalWorld stable compact island scatter";
-    [scatter
-        setComputePipelineState:
-            context.islandQueueScatterPipeline];
-    const std::array<std::size_t, 6u> scatterBuffers{{
-        kContactDispatch,
-        kCompactionFlags,
-        kCompactionOffsets,
-        kIslandWorkDense,
-        kIslandWorkQueue,
-        kWorkQueueHeaders,
-    }};
-    for (NSUInteger argument = 0u;
-         argument < scatterBuffers.size();
-         ++argument) {
-        [scatter setBuffer:context.buffers[
-                               scatterBuffers[argument]
-                           ]
-                    offset:0u
-                   atIndex:argument];
-    }
-    [scatter
-        dispatchThreads:MTLSizeMake(
-            static_cast<NSUInteger>(
-                std::max<std::size_t>(islandWorkCount, 1u)
-            ),
-            1u,
-            1u
-        )
-        threadsPerThreadgroup:MTLSizeMake(
-            kWorldThreadsPerThreadgroup,
-            1u,
-            1u
-        )];
-    [scatter endEncoding];
-
-    id<MTLComputeCommandEncoder> cohort =
-        [commandBuffer computeCommandEncoder];
-    if (cohort == nil) {
-        return false;
-    }
-    cohort.label = @"MetalWorld homogeneous solver cohort selection";
-    [cohort setComputePipelineState:context.solverCohortPipeline];
-    [cohort setBuffer:context.buffers[kIslandWorkQueue]
-               offset:0u
-              atIndex:0u];
-    [cohort setBuffer:context.buffers[kWorkQueueHeaders]
-               offset:0u
-              atIndex:1u];
-    [cohort setBuffer:context.buffers[kWaveWorkPackets]
-               offset:0u
-              atIndex:2u];
-    [cohort
-        dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
-        threadsPerThreadgroup:MTLSizeMake(
-            MR_WAVE32_CONTACTS_PER_TILE,
-            1u,
-            1u
-        )];
-    [cohort endEncoding];
-
-    if (enableDistributed) {
-        if (!encodeContactThreadKernel(
-            context,
-            commandBuffer,
-            context.distributedIslandFlagPipeline,
-            @"MetalWorld distributed-island flags",
-            {
-                {0u, kContactDispatch},
-                {1u, kIslandWorkDense},
-                {2u, kCompactionFlags},
-            },
-            nullptr,
-            0u,
-            islandWorkCount
-        ) ||
-        !encodeStableBooleanScan(
-            context,
-            commandBuffer,
-            kCompactionFlags,
-            islandWorkCount,
-            MR_WORLD_WORK_SOLVER_DISTRIBUTED
-        )) {
-            return false;
-        }
-    id<MTLComputeCommandEncoder> distributedIslandScatter =
-        [commandBuffer computeCommandEncoder];
-    if (distributedIslandScatter == nil) {
-        return false;
-    }
-    distributedIslandScatter.label =
-        @"MetalWorld compact distributed-island scatter";
-    [distributedIslandScatter
-        setComputePipelineState:
-            context.distributedIslandScatterPipeline];
-    const std::array<std::size_t, 6u>
-        distributedIslandScatterBuffers{{
-            kContactDispatch,
-            kCompactionFlags,
-            kCompactionOffsets,
-            kIslandWorkDense,
-            kIslandWorkQueue,
-            kWorkQueueHeaders,
-        }};
-    for (NSUInteger argument = 0u;
-         argument < distributedIslandScatterBuffers.size();
-         ++argument) {
-        [distributedIslandScatter
-            setBuffer:context.buffers[
-                          distributedIslandScatterBuffers[
-                              argument
-                          ]
-                      ]
-            offset:0u
-            atIndex:argument];
-    }
-    [distributedIslandScatter
-        dispatchThreads:MTLSizeMake(
-            static_cast<NSUInteger>(
-                std::max<std::size_t>(
-                    islandWorkCount,
-                    1u
-                )
-            ),
-            1u,
-            1u
-        )
-        threadsPerThreadgroup:MTLSizeMake(
-            kWorldThreadsPerThreadgroup,
-            1u,
-            1u
-        )];
-        [distributedIslandScatter endEncoding];
-
-    if (!encodeContactThreadKernel(
-            context,
-            commandBuffer,
-            context.distributedTileFlagPipeline,
-            @"MetalWorld distributed-tile flags",
-            {
-                {0u, kContactDispatch},
-                {1u, kContactStatuses},
-                {2u, kIslandWorkDense},
-                {3u, kContactTiles},
-                {4u, kCompactionFlags},
-            },
-            nullptr,
-            0u,
-            tileWorkCount
-        ) ||
-        !encodeStableBooleanScan(
-            context,
-            commandBuffer,
-            kCompactionFlags,
-            tileWorkCount,
-            MR_WORLD_WORK_SOLVER_SPILL
-        )) {
-            return false;
-        }
-    id<MTLComputeCommandEncoder> distributedTileScatter =
-        [commandBuffer computeCommandEncoder];
-    if (distributedTileScatter == nil) {
-        return false;
-    }
-    distributedTileScatter.label =
-        @"MetalWorld compact distributed-tile scatter";
-    [distributedTileScatter
-        setComputePipelineState:
-            context.distributedTileScatterPipeline];
-    const std::array<std::size_t, 6u>
-        distributedTileScatterBuffers{{
-            kContactDispatch,
-            kCompactionFlags,
-            kCompactionOffsets,
-            kContactTiles,
-            kContactTiles,
-            kWorkQueueHeaders,
-        }};
-    for (NSUInteger argument = 0u;
-         argument < distributedTileScatterBuffers.size();
-         ++argument) {
-        [distributedTileScatter
-            setBuffer:context.buffers[
-                          distributedTileScatterBuffers[
-                              argument
-                          ]
-                      ]
-            offset:0u
-            atIndex:argument];
-    }
-    [distributedTileScatter
-        dispatchThreads:MTLSizeMake(
-            static_cast<NSUInteger>(
-                std::max<std::size_t>(tileWorkCount, 1u)
-            ),
-            1u,
-            1u
-        )
-        threadsPerThreadgroup:MTLSizeMake(
-            kWorldThreadsPerThreadgroup,
-            1u,
-            1u
-        )];
-        [distributedTileScatter endEncoding];
-
-    const auto encodeDistributedPrepare = [&]() {
-        id<MTLComputeCommandEncoder> encoder =
-            [commandBuffer computeCommandEncoder];
-        if (encoder == nil) {
-            return false;
-        }
-        encoder.label =
-            @"MetalWorld distributed Wave32 block preparation";
-        [encoder
-            setComputePipelineState:
-                context.wave32DistributedPreparePipeline];
-        const std::array<std::size_t, 15u> buffers{{
-            kContactDispatch,
-            kFactorMatrix,
-            kPointJacobians,
-            kCandidateBodies,
-            kContacts,
-            kEvaluatedRows,
-            kEvaluatedCones,
-            kResponseColumns,
-            kWave32ImpulseDeltas,
-            kWave32Preconditioners,
-            kContactStatuses,
-            kIslandWorkDense,
-            kContactTiles,
-            kTileConstraintIndices,
-            kWorkQueueHeaders,
-        }};
-        for (NSUInteger argument = 0u;
-             argument < buffers.size();
-             ++argument) {
-            [encoder setBuffer:context.buffers[
-                                   buffers[argument]
-                               ]
-                        offset:0u
-                       atIndex:argument];
-        }
-        [encoder
-            dispatchThreadgroupsWithIndirectBuffer:
-                context.buffers[kWorkQueueHeaders]
-            indirectBufferOffset:
-                MR_WORLD_WORK_SOLVER_SPILL *
-                    sizeof(MRWorkQueueHeaderGPU) +
-                offsetof(
-                    MRWorkQueueHeaderGPU,
-                    indirect
-                )
-            threadsPerThreadgroup:MTLSizeMake(
-                MR_WAVE32_CONTACTS_PER_TILE,
-                1u,
-                1u
-            )];
-        [encoder endEncoding];
-        return true;
-    };
-    const auto encodeDistributedDelta = [&]() {
-        id<MTLComputeCommandEncoder> encoder =
-            [commandBuffer computeCommandEncoder];
-        if (encoder == nil) {
-            return false;
-        }
-        encoder.label =
-            @"MetalWorld distributed Wave32 cone update";
-        [encoder
-            setComputePipelineState:
-                context.wave32DistributedDeltaPipeline];
-        const std::array<std::size_t, 13u> buffers{{
-            kContactDispatch,
-            kPointJacobians,
-            kCandidateV,
-            kCandidateBodies,
-            kContacts,
-            kEvaluatedRows,
-            kEvaluatedCones,
-            kWave32Preconditioners,
-            kWave32ImpulseDeltas,
-            kContactStatuses,
-            kContactTiles,
-            kTileConstraintIndices,
-            kWorkQueueHeaders,
-        }};
-        for (NSUInteger argument = 0u;
-             argument < buffers.size();
-             ++argument) {
-            [encoder setBuffer:context.buffers[
-                                   buffers[argument]
-                               ]
-                        offset:0u
-                       atIndex:argument];
-        }
-        [encoder
-            dispatchThreadgroupsWithIndirectBuffer:
-                context.buffers[kWorkQueueHeaders]
-            indirectBufferOffset:
-                MR_WORLD_WORK_SOLVER_SPILL *
-                    sizeof(MRWorkQueueHeaderGPU) +
-                offsetof(
-                    MRWorkQueueHeaderGPU,
-                    indirect
-                )
-            threadsPerThreadgroup:MTLSizeMake(
-                MR_WAVE32_CONTACTS_PER_TILE,
-                1u,
-                1u
-            )];
-        [encoder endEncoding];
-        return true;
-    };
-    const auto encodeDistributedReduce = [&](
-        const mr_u32 mode
-    ) {
-        id<MTLComputeCommandEncoder> encoder =
-            [commandBuffer computeCommandEncoder];
-        if (encoder == nil) {
-            return false;
-        }
-        encoder.label =
-            @"MetalWorld deterministic distributed reduction";
-        [encoder
-            setComputePipelineState:
-                context.wave32DistributedReducePipeline];
-        const std::array<std::size_t, 18u> buffers{{
-            kContactDispatch,
-            kPointJacobians,
-            kCandidateV,
-            kCandidateBodies,
-            kContacts,
-            kContactMetadata,
-            kEvaluatedRows,
-            kEvaluatedCones,
-            kResponseColumns,
-            kWave32ImpulseDeltas,
-            kWave32Preconditioners,
-            kCandidateManifoldPoints,
-            kContactStatuses,
-            kIslandWorkQueue,
-            kContactTiles,
-            kTileConstraintIndices,
-            kWave32IslandStatuses,
-            kWorkQueueHeaders,
-        }};
-        for (NSUInteger argument = 0u;
-             argument < buffers.size();
-             ++argument) {
-            [encoder setBuffer:context.buffers[
-                                   buffers[argument]
-                               ]
-                        offset:0u
-                       atIndex:argument];
-        }
-        MRMetalWorldPassGPU distributedPass = solverPass;
-        distributedPass.reserved0 = solverIterationCount;
-        distributedPass.reserved1 = mode;
-        [encoder setBytes:&distributedPass
-                   length:sizeof(distributedPass)
-                  atIndex:18u];
-        [encoder
-            dispatchThreadgroupsWithIndirectBuffer:
-                context.buffers[kWorkQueueHeaders]
-            indirectBufferOffset:
-                MR_WORLD_WORK_SOLVER_DISTRIBUTED *
-                    sizeof(MRWorkQueueHeaderGPU) +
-                offsetof(
-                    MRWorkQueueHeaderGPU,
-                    indirect
-                )
-            threadsPerThreadgroup:MTLSizeMake(
-                MR_WAVE32_CONTACTS_PER_TILE,
-                1u,
-                1u
-            )];
-        [encoder endEncoding];
-        return true;
-    };
-        if (!encodeDistributedPrepare() ||
-            !encodeDistributedReduce(0u)) {
-            return false;
-        }
-        for (mr_u32 iteration = 0u;
-             iteration < solverIterationCount;
-             ++iteration) {
-            if (!encodeDistributedDelta() ||
-                !encodeDistributedReduce(
-                    iteration + 1u ==
-                            solverIterationCount
-                    ? 2u
-                    : 1u
-                )) {
-                return false;
-            }
-        }
-    }
-
-    id<MTLComputeCommandEncoder> wave =
-        [commandBuffer computeCommandEncoder];
-    if (wave == nil) {
-        return false;
-    }
-    wave.label = @"MetalWorld Wave32 matrix-free cone Jacobi";
-    [wave setComputePipelineState:context.wave32SolvePipeline];
-    const std::array<std::size_t, 19u> buffers{{
-        kContactDispatch,
-        kFactorMatrix,
-        kPointJacobians,
-        kCandidateV,
-        kCandidateBodies,
-        kContacts,
-        kContactMetadata,
-        kEvaluatedRows,
-        kEvaluatedCones,
-        kResponseColumns,
-        kCandidateManifoldPoints,
-        kContactStatuses,
-        kIslandWorkQueue,
-        kContactTiles,
-        kTileConstraintIndices,
-        kWave32ImpulseDeltas,
-        kWave32Preconditioners,
-        kWave32IslandStatuses,
-        kWorkQueueHeaders,
-    }};
-    for (NSUInteger argument = 0u;
-         argument < buffers.size();
-         ++argument) {
-        [wave setBuffer:context.buffers[buffers[argument]]
-                 offset:0u
-                atIndex:argument];
-    }
-    [wave setBytes:&solverPass
-            length:sizeof(solverPass)
-           atIndex:19u];
-    [wave setBuffer:context.buffers[kWaveWorkPackets]
-             offset:0u
-            atIndex:20u];
-    const std::array<std::size_t, 7u> rodBuffers{{
-        candidateRodNodes,
-        candidateRodEdges,
-        kRodInverseMasses,
-        kRodInverseRotationalInertias,
-        kRodColliders,
-        kCandidateRodWitnesses,
-        kRodConstraintWitnessIndices,
-    }};
-    for (NSUInteger argument = 0u;
-         argument < rodBuffers.size();
-         ++argument) {
-        [wave setBuffer:context.buffers[rodBuffers[argument]]
-                 offset:0u
-                atIndex:21u + argument];
-    }
-    [wave setBuffer:context.buffers[kRodFactorCaches]
-             offset:0u
-            atIndex:28u];
-    [wave setBuffer:context.buffers[kOperatorVelocityArena]
-             offset:0u
-            atIndex:29u];
-    [wave
-        dispatchThreadgroupsWithIndirectBuffer:
-            context.buffers[kWorkQueueHeaders]
-        indirectBufferOffset:
-            MR_WORLD_WORK_SOLVER *
-                sizeof(MRWorkQueueHeaderGPU) +
-            offsetof(MRWorkQueueHeaderGPU, indirect)
-        threadsPerThreadgroup:MTLSizeMake(
-            MR_WAVE32_CONTACTS_PER_TILE,
-            1u,
-            1u
-        )];
-    [wave endEncoding];
-
-    if (!encodeContactThreadKernel(
-            context,
-            commandBuffer,
-            context.wave32ReducePipeline,
-            @"MetalWorld Wave32 island status reduction",
-            {
-                {0u, kContactDispatch},
-                {1u, kWave32IslandStatuses},
-                {2u, kContactStatuses},
-                {3u, kWorkQueueHeaders},
-            },
-            nullptr,
-            0u,
-            environmentCount
-        )) {
-        return false;
-    }
-    MRMetalWorldPassGPU replayPass = solverPass;
-    replayPass.reserved1 = 1u;
-    return encodeContactThreadKernel(
-        context,
-        commandBuffer,
-        context.contactSolvePipeline,
-        @"MetalWorld stiff-island ordered cone replay",
-        {
-            {0u, kContactDispatch},
-            {1u, kFactorMatrix},
-            {2u, kPointJacobians},
-            {3u, kCandidateV},
-            {4u, kCandidateBodies},
-            {5u, kContacts},
-            {6u, kContactMetadata},
-            {7u, kEvaluatedRows},
-            {8u, kEvaluatedCones},
-            {9u, kResponseColumns},
-            {10u, kCandidateManifoldPoints},
-            {11u, kContactStatuses},
-        },
-        &replayPass,
-        12u,
-        environmentCount
-    );
-}
-
 bool encodeParallelManifoldCompile(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
     const MRMetalWorldPassGPU& pass,
+    const std::size_t sourceQ,
     const std::size_t sourceManifoldHeaders,
     const std::size_t sourceManifoldPoints,
     const std::size_t sourceManifoldCounts,
@@ -10207,6 +9454,9 @@ bool encodeParallelManifoldCompile(
                 {15u, kBodyDynamicNodes},
                 {16u, kCandidateBodies},
                 {17u, candidateRodNodes},
+                {18u, sourceQ},
+                {19u, kCandidateV},
+                {20u, kGeneralizedWarmState},
             },
             nullptr,
             0u,
@@ -10348,13 +9598,8 @@ bool encodeContactCollisionAndSolve(
     const std::size_t candidateRodEdges,
     const std::size_t rodWitnessThreadCount,
     const std::size_t rodWitnessCount,
-    const bool useWave32,
     const mr_u32 activePairClassMask,
-    const mr_u32 solverIterationCount,
-    const bool enableDistributed,
     const std::size_t environmentCount,
-    const std::size_t islandWorkCount,
-    const std::size_t tileWorkCount,
     const std::size_t pairFlagThreadCount
 ) {
     return
@@ -10368,6 +9613,7 @@ bool encodeContactCollisionAndSolve(
             context,
             commandBuffer,
             pass,
+            factorQ,
             sourceManifoldHeaders,
             sourceManifoldPoints,
             sourceManifoldCounts,
@@ -10473,54 +9719,43 @@ bool encodeContactCollisionAndSolve(
             true,
             sizeof(MRIndirectDispatchArgumentsGPU)
         ) &&
-        (
-            useWave32
-            ? encodeWave32ContactSolve(
-                  context,
-                  commandBuffer,
-                  solverPass,
-                  solverIterationCount,
-                  enableDistributed,
-                  candidateRodNodes,
-                  candidateRodEdges,
-                  environmentCount,
-                  islandWorkCount,
-                  tileWorkCount
-              )
-            : encodeContactThreadKernel(
-                  context,
-                  commandBuffer,
-                  context.contactSolvePipeline,
-                  @"MetalWorld exact-cone contact solve",
-                  {
-                      {0u, kContactDispatch},
-                      {1u, kFactorMatrix},
-                      {2u, kPointJacobians},
-                      {3u, kCandidateV},
-                      {4u, kCandidateBodies},
-                      {5u, kContacts},
-                      {6u, kContactMetadata},
-                      {7u, kEvaluatedRows},
-                      {8u, kEvaluatedCones},
-                      {9u, kResponseColumns},
-                      {10u, kCandidateManifoldPoints},
-                      {11u, kContactStatuses},
-                  },
-                  &solverPass,
-                  12u,
-                  environmentCount,
-                  true,
-                  sizeof(MRIndirectDispatchArgumentsGPU)
-              ) &&
-                  encodeRodContactSolve(
-                      context,
-                      commandBuffer,
-                      solverPass,
-                      candidateRodNodes,
-                      candidateRodEdges,
-                      rodWitnessCount,
-                      environmentCount
-                  )
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.numiSweepPipeline,
+            @"NumiSolver coupled constraint sweep",
+            {
+                {0u, kContactDispatch},
+                {1u, kFactorMatrix},
+                {2u, kPointJacobians},
+                {3u, kCandidateV},
+                {4u, kCandidateBodies},
+                {5u, kContacts},
+                {6u, kContactMetadata},
+                {7u, kEvaluatedRows},
+                {8u, kEvaluatedCones},
+                {9u, kResponseColumns},
+                {10u, kCandidateManifoldPoints},
+                {11u, kContactStatuses},
+                {13u, kIRBlocks},
+                {14u, kIREndpoints},
+                {15u, candidateRodNodes},
+                {16u, kRodInverseMasses},
+            },
+            &solverPass,
+            12u,
+            environmentCount,
+            true,
+            sizeof(MRIndirectDispatchArgumentsGPU)
+        ) &&
+        encodeRodContactSolve(
+            context,
+            commandBuffer,
+            solverPass,
+            candidateRodNodes,
+            candidateRodEdges,
+            rodWitnessCount,
+            environmentCount
         );
 }
 
@@ -10549,15 +9784,10 @@ bool encodeHybridContactSubstep(
     const std::size_t candidateRodEdges,
     const std::size_t sourceRodWitnesses,
     const std::size_t rodWitnessCount,
-    const bool useWave32,
     const mr_u32 activePairClassMask,
-    const mr_u32 solverIterationCount,
-    const bool enableDistributed,
     const mr_u32 eventPassCount,
     const std::size_t articulationCount,
     const std::size_t environmentCount,
-    const std::size_t islandWorkCount,
-    const std::size_t tileWorkCount,
     const std::size_t colliderThreadCount,
     const std::size_t pairFlagThreadCount
 ) {
@@ -11079,20 +10309,15 @@ bool encodeHybridContactSubstep(
                 candidateRodEdges,
                 rodWitnessCount,
                 rodWitnessCount,
-                useWave32,
                 activePairClassMask,
-                solverIterationCount,
-                enableDistributed,
                 environmentCount,
-                islandWorkCount,
-                tileWorkCount,
                 pairFlagThreadCount
             ) ||
             !encodeContactThreadKernel(
                 context,
                 commandBuffer,
-                context.jointLimitPipeline,
-                @"MetalWorld selected-TOI joint limits",
+                context.velocitySafetyPipeline,
+                @"MetalWorld selected-TOI limit verification",
                 {
                     {0u, kContactDispatch},
                     {1u, kArticulations},
@@ -11320,6 +10545,9 @@ bool encodeHybridContactSubstep(
                 {14u, destinationManifoldHeaders},
                 {15u, destinationManifoldPoints},
                 {16u, destinationManifoldCounts},
+                {17u, kContacts},
+                {18u, kGeneralizedWarmState},
+                {19u, kCheckpointGeneralizedWarmState},
             },
             &pass,
             2u,
@@ -11607,16 +10835,11 @@ bool encodeContactSubstep(
     const std::size_t destinationManifoldHeaders,
     const std::size_t destinationManifoldPoints,
     const std::size_t destinationManifoldCounts,
-    const bool useWave32,
     const bool useQuality,
     const mr_u32 activePairClassMask,
     const bool hasFutureKinematics,
     const bool useHybridCCD,
-    const mr_u32 solverIterationCount,
-    const bool enableDistributed,
     const std::size_t environmentCount,
-    const std::size_t islandWorkCount,
-    const std::size_t tileWorkCount,
     const std::size_t colliderThreadCount,
     const std::size_t pairFlagThreadCount
 ) {
@@ -11624,6 +10847,56 @@ bool encodeContactSubstep(
     solverPass.reserved0 = finalPhysicsSubstep ? 1u : 0u;
     const mr_u32 eventPass = 0u;
     const mr_u32 stateNotIntegrated = 0u;
+    const mr_u32 stateIntegrated = 1u;
+    const auto encodeConstraintSolve = [&]() {
+        if (useQuality) {
+            return encodeUnifiedQualitySolve(
+                context,
+                commandBuffer,
+                candidateRodNodes,
+                candidateRodEdges,
+                environmentCount
+            );
+        }
+        return encodeContactThreadKernel(
+                   context,
+                   commandBuffer,
+                   context.numiSweepPipeline,
+                   @"NumiSolver coupled constraint sweep",
+                   {
+                       {0u, kContactDispatch},
+                       {1u, kFactorMatrix},
+                       {2u, kPointJacobians},
+                       {3u, kCandidateV},
+                       {4u, kCandidateBodies},
+                       {5u, kContacts},
+                       {6u, kContactMetadata},
+                       {7u, kEvaluatedRows},
+                       {8u, kEvaluatedCones},
+                       {9u, kResponseColumns},
+                       {10u, kCandidateManifoldPoints},
+                       {11u, kContactStatuses},
+                       {13u, kIRBlocks},
+                       {14u, kIREndpoints},
+                       {15u, candidateRodNodes},
+                       {16u, kRodInverseMasses},
+                   },
+                   &solverPass,
+                   12u,
+                   environmentCount,
+                   true,
+                   sizeof(MRIndirectDispatchArgumentsGPU)
+               ) &&
+               encodeRodContactSolve(
+                   context,
+                   commandBuffer,
+                   solverPass,
+                   candidateRodNodes,
+                   candidateRodEdges,
+                   rodWitnessCount,
+                   environmentCount
+               );
+    };
     if ((useHybridCCD &&
          !encodeContactThreadKernel(
              context,
@@ -11806,6 +11079,7 @@ bool encodeContactSubstep(
             context,
             commandBuffer,
             pass,
+            sourceQ,
             sourceManifoldHeaders,
             sourceManifoldPoints,
             sourceManifoldCounts,
@@ -11913,120 +11187,12 @@ bool encodeContactSubstep(
             true,
             sizeof(MRIndirectDispatchArgumentsGPU)
         ) ||
-        (
-            !useQuality &&
-            !encodeContactThreadKernel(
-                context,
-                commandBuffer,
-                context.generalizedConstraintSolvePipeline,
-                @"MetalWorld pre-contact typed scalar IR sweep",
-                {
-                    {0u, kContactDispatch},
-                    {1u, kFactorMatrix},
-                    {2u, kCandidateV},
-                    {3u, kContacts},
-                    {4u, kIRBlocks},
-                    {5u, kIREndpoints},
-                    {6u, kEvaluatedRows},
-                    {7u, kContactStatuses},
-                    {9u, kCandidateBodies},
-                    {10u, candidateRodNodes},
-                    {11u, kRodInverseMasses},
-                },
-                &solverPass,
-                8u,
-                environmentCount
-            )
-        ) ||
-        !(useQuality
-              ? encodeUnifiedQualitySolve(
-                    context,
-                    commandBuffer,
-                    candidateRodNodes,
-                    candidateRodEdges,
-                    environmentCount
-                )
-              : useWave32
-              ? encodeWave32ContactSolve(
-                    context,
-                    commandBuffer,
-                    solverPass,
-                    solverIterationCount,
-                    enableDistributed,
-                    candidateRodNodes,
-                    candidateRodEdges,
-                    environmentCount,
-                    islandWorkCount,
-                    tileWorkCount
-                )
-              : encodeContactThreadKernel(
-                    context,
-                    commandBuffer,
-                    context.contactSolvePipeline,
-                    @"MetalWorld exact-cone contact solve",
-                    {
-                        {0u, kContactDispatch},
-                        {1u, kFactorMatrix},
-                        {2u, kPointJacobians},
-                        {3u, kCandidateV},
-                        {4u, kCandidateBodies},
-                        {5u, kContacts},
-                        {6u, kContactMetadata},
-                        {7u, kEvaluatedRows},
-                        {8u, kEvaluatedCones},
-                        {9u, kResponseColumns},
-                        {10u, kCandidateManifoldPoints},
-                        {11u, kContactStatuses},
-                    },
-                    &solverPass,
-                    12u,
-                    environmentCount,
-                    true,
-                    sizeof(MRIndirectDispatchArgumentsGPU)
-                )) ||
-        (
-            !useQuality &&
-            !useWave32 &&
-            !encodeRodContactSolve(
-                context,
-                commandBuffer,
-                solverPass,
-                candidateRodNodes,
-                candidateRodEdges,
-                rodWitnessCount,
-                environmentCount
-            )
-        ) ||
-        (
-            !useQuality &&
-            !encodeContactThreadKernel(
-                context,
-                commandBuffer,
-                context.generalizedConstraintSolvePipeline,
-                @"MetalWorld canonical generalized ConstraintIR solve",
-                {
-                    {0u, kContactDispatch},
-                    {1u, kFactorMatrix},
-                    {2u, kCandidateV},
-                    {3u, kContacts},
-                    {4u, kIRBlocks},
-                    {5u, kIREndpoints},
-                    {6u, kEvaluatedRows},
-                    {7u, kContactStatuses},
-                    {9u, kCandidateBodies},
-                    {10u, candidateRodNodes},
-                    {11u, kRodInverseMasses},
-                },
-                &solverPass,
-                8u,
-                environmentCount
-            )
-        ) ||
+        !encodeConstraintSolve() ||
         !encodeContactThreadKernel(
             context,
             commandBuffer,
-            context.jointLimitPipeline,
-            @"MetalWorld constrained joint limits",
+            context.velocitySafetyPipeline,
+            @"MetalWorld velocity safety envelope",
             {
                 {0u, kContactDispatch},
                 {1u, kArticulations},
@@ -12065,6 +11231,29 @@ bool encodeContactSubstep(
             nullptr,
             0u,
             environmentCount
+        ) ||
+        !encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.velocitySafetyPipeline,
+            @"MetalWorld post-integration limit verification",
+            {
+                {0u, kContactDispatch},
+                {1u, kArticulations},
+                {2u, kDofs},
+                {3u, sourceQ},
+                {4u, kCandidateQ},
+                {5u, kCandidateV},
+                {6u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount,
+            false,
+            0u,
+            &stateIntegrated,
+            sizeof(stateIntegrated),
+            7u
         ) ||
         (useHybridCCD &&
          !encodeContactThreadKernel(
@@ -12130,6 +11319,9 @@ bool encodeContactSubstep(
                 {14u, destinationManifoldHeaders},
                 {15u, destinationManifoldPoints},
                 {16u, destinationManifoldCounts},
+                {17u, kContacts},
+                {18u, kGeneralizedWarmState},
+                {19u, kCheckpointGeneralizedWarmState},
             },
             &pass,
             2u,
@@ -12406,14 +11598,6 @@ MetalWorldDiagnostics validateAndPublish(
                     contactStatus->requiredMeshCandidates
                 );
                 updateMaximum(
-                    summary.required.solverTiles,
-                    contactStatus->requiredSolverTiles
-                );
-                updateMaximum(
-                    summary.required.spillRows,
-                    contactStatus->requiredSpillRows
-                );
-                updateMaximum(
                     summary.required.ccdCandidates,
                     contactStatus->requiredCCDCandidates
                 );
@@ -12445,7 +11629,7 @@ MetalWorldDiagnostics validateAndPublish(
                 updateMaximum(
                     summary.highWater.constraintBlocks,
                     std::min(
-                        contactStatus->activeContacts,
+                        contactStatus->requiredConstraints,
                         contactDispatch.constraintCapacity
                     )
                 );
@@ -12476,17 +11660,6 @@ MetalWorldDiagnostics validateAndPublish(
                         contactStatus->meshCandidates,
                         contactDispatch.meshCandidateCapacity
                     )
-                );
-                updateMaximum(
-                    summary.highWater.solverTiles,
-                    std::min(
-                        contactStatus->solverTiles,
-                        contactDispatch.solverTileCapacity
-                    )
-                );
-                updateMaximum(
-                    summary.highWater.spillRows,
-                    contactStatus->spillRows
                 );
                 updateMaximum(
                     summary.highWater.ccdCandidates,
@@ -12824,6 +11997,141 @@ MetalWorldDiagnostics validateAndPublish(
     return diagnostics;
 }
 
+struct JointLimitConstraintStorage {
+    ConstraintIRStableKey key{};
+    std::array<ConstraintIREndpoint, 1u> endpoints{};
+    std::array<ConstraintIRRow, 1u> rows{};
+    std::array<float, 1u> warmImpulses{};
+};
+
+bool appendCanonicalJointLimitCandidates(
+    EngineModel& model,
+    std::string& reason
+) {
+    std::vector<JointLimitConstraintStorage> limitStorage;
+    limitStorage.reserve(2u * model.dofs.size());
+    for (const MRDofPropertiesGPU& dof : model.dofs) {
+        if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u) {
+            continue;
+        }
+        if (dof.articulationIndex >= model.articulations.size() ||
+            dof.vIndex >= model.world.nv ||
+            dof.qIndex == MR_INVALID_INDEX ||
+            dof.qIndex >= model.world.nq ||
+            !std::isfinite(dof.limits.x) ||
+            !std::isfinite(dof.limits.y) ||
+            dof.limits.x > dof.limits.y) {
+            reason = "position-limit metadata cannot compile to ConstraintIR";
+            return false;
+        }
+        for (std::uint32_t side = 0u; side < 2u; ++side) {
+            const bool lower = side == 0u;
+            JointLimitConstraintStorage storage{};
+            // LIMIT is a reserved compiler namespace. The remaining words
+            // retain stable articulation/DoF/side identity across capacities,
+            // environment counts, and runtime activation changes.
+            storage.key.words[0] = 0x4c494d54u;
+            storage.key.words[1] = dof.articulationIndex;
+            storage.key.words[2] = dof.vIndex;
+            storage.key.words[3] = side;
+            storage.endpoints[0] =
+                makeConstraintIRGeneralizedEndpoint(
+                    dof.articulationIndex,
+                    dof.qIndex,
+                    dof.vIndex,
+                    0u,
+                    lower ? 1.0f : -1.0f
+                );
+            // Immutable LIMIT rows store the authored boundary here. The
+            // Metal seeding pass replaces it with the current signed gap and
+            // evaluates the FP64 reference target-velocity rule.
+            storage.rows[0].positionError =
+                lower ? dof.limits.x : dof.limits.y;
+            storage.rows[0].targetVelocity = 0.0f;
+            storage.rows[0].compliance = 0.0f;
+            storage.rows[0].dissipation = 0.0f;
+            storage.rows[0].impulseLower = 0.0f;
+            storage.rows[0].impulseUpper =
+                kConstraintIRUnbounded;
+            storage.rows[0].flags =
+                constraintIRRowUnilateral;
+            limitStorage.push_back(storage);
+        }
+    }
+    if (limitStorage.empty()) {
+        return true;
+    }
+
+    const ConstraintIR& existing = model.constraintProgram;
+    std::vector<ConstraintIRSourceBlock> sources;
+    sources.reserve(existing.blocks.size() + limitStorage.size());
+    for (const ConstraintIRBlock& block : existing.blocks) {
+        // Recompiling a previously compiled model must replace, not append,
+        // compiler-owned LIMIT candidates. Authored limit blocks use their
+        // own namespace and remain untouched.
+        if (block.type == MR_CONSTRAINT_LIMIT &&
+            block.key.words[0] == 0x4c494d54u) {
+            continue;
+        }
+        sources.push_back({
+            .key = block.key,
+            .type = block.type,
+            .flags = block.flags,
+            .islandIndex = block.islandIndex,
+            .eventSlot = block.eventSlot,
+            .endpoints = std::span{
+                existing.endpoints.data() + block.endpointOffset,
+                block.endpointCount,
+            },
+            .rows = std::span{
+                existing.rows.data() + block.rowOffset,
+                block.dimension,
+            },
+            .cone = block.coneIndex == kConstraintIRInvalidIndex
+                ? std::optional<ConstraintIRCone>{}
+                : std::optional<ConstraintIRCone>{
+                      existing.cones[block.coneIndex]
+                  },
+            .warmImpulses = std::span{
+                existing.warmImpulses.data() + block.impulseOffset,
+                block.dimension,
+            },
+        });
+    }
+    for (const JointLimitConstraintStorage& storage : limitStorage) {
+        sources.push_back({
+            .key = storage.key,
+            .type = MR_CONSTRAINT_LIMIT,
+            .flags = 0u,
+            .islandIndex = 0u,
+            .eventSlot = kConstraintIRInvalidIndex,
+            .endpoints = storage.endpoints,
+            .rows = storage.rows,
+            .cone = std::nullopt,
+            .warmImpulses = storage.warmImpulses,
+        });
+    }
+    ConstraintIRCompilationResult compiled =
+        compileConstraintIR(sources);
+    if (!compiled.succeeded()) {
+        reason = "joint-limit ConstraintIR compilation failed: " +
+            compiled.diagnostics.message;
+        return false;
+    }
+    model.constraintProgram = std::move(compiled.ir);
+    model.world.constraintCapacity = std::max<std::uint32_t>(
+        model.world.constraintCapacity,
+        static_cast<std::uint32_t>(
+            model.constraintProgram.blocks.size()
+        )
+    );
+    if (!model.valid(&reason)) {
+        reason = "joint-limit augmented model is invalid: " + reason;
+        return false;
+    }
+    return true;
+}
+
 } // namespace
 
 bool CompiledWorld::valid() const noexcept {
@@ -13097,6 +12405,17 @@ MetalWorldCompileDiagnostics compileMetalWorld(
 
         CompiledWorld staged;
         staged.model_ = model;
+        std::string limitReason;
+        if (!appendCanonicalJointLimitCandidates(
+                staged.model_,
+                limitReason
+            )) {
+            return rejectCompile(
+                std::move(diagnostics),
+                MetalWorldHostStatus::invalidModel,
+                limitReason
+            );
+        }
         staged.articulationIndex_ = articulationIndex;
         staged.capacityClass_ =
             std::all_of(
@@ -13429,7 +12748,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                     )
                 )
             );
-        const std::uint32_t defaultContactConstraints =
+        const std::uint32_t topologyContactConstraints =
             static_cast<std::uint32_t>(
                 std::min<std::uint64_t>(
                     4u * eligibleCount,
@@ -13437,10 +12756,10 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                         authoredBlockCount
                 )
             );
-        const std::uint32_t defaultConstraints =
+        const std::uint32_t topologyConstraints =
             std::max<std::uint32_t>(
                 authoredBlockCount +
-                    defaultContactConstraints,
+                    topologyContactConstraints,
                 1u
             );
         staged.capacities_.candidatePairs = inferred(
@@ -13455,9 +12774,28 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             requestedCapacities.manifolds,
             std::max(eligibleU32, 1u)
         );
+        // A finalized manifold owns at most four canonical contact points.
+        // Derive the ordinary runtime graph from the selected manifold arena,
+        // not from a second handwritten constraint ceiling. Explicitly smaller
+        // block arenas remain legal operational contracts and fail the whole
+        // transaction if their certified count is exceeded.
+        const std::uint32_t operationalContactConstraints =
+            static_cast<std::uint32_t>(
+                std::min<std::uint64_t>(
+                    4ull * staged.capacities_.manifolds,
+                    maximumConstraintCapacity -
+                        authoredBlockCount
+                )
+            );
+        const std::uint32_t derivedConstraints =
+            std::max<std::uint32_t>(
+                authoredBlockCount +
+                    operationalContactConstraints,
+                1u
+            );
         staged.capacities_.constraintBlocks = inferred(
             requestedCapacities.constraintBlocks,
-            defaultConstraints
+            derivedConstraints
         );
         if (staged.capacities_.constraintBlocks <
             authoredBlockCount) {
@@ -13502,26 +12840,6 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             requestedCapacities.meshTriangleCandidates,
             defaultRaw
         );
-        const std::uint32_t minimumSolverTiles =
-            requiredSolverTileCapacity(
-                staged.capacities_.constraintBlocks,
-                authoredBlockCount,
-                staged.capacities_.islands,
-                staged.dynamicNodes_.size()
-            );
-        staged.capacities_.solverTiles = inferred(
-            requestedCapacities.solverTiles,
-            minimumSolverTiles
-        );
-        const std::uint32_t defaultSpillRows =
-            requiredSpillRowCapacity(
-                staged.capacities_.constraintBlocks,
-                authoredBlockCount
-            );
-        staged.capacities_.spillRows = inferred(
-            requestedCapacities.spillRows,
-            defaultSpillRows
-        );
         staged.capacities_.ccdCandidates = inferred(
             requestedCapacities.ccdCandidates,
             eligibleU32
@@ -13542,9 +12860,9 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             ? 0xffffffffu
             : 2u * staged.capacities_.constraintBlocks;
         const std::uint32_t minimumEndpointRecords =
-            defaultConstraints > 0x7fffffffu
+            topologyConstraints > 0x7fffffffu
             ? 0xffffffffu
-            : 2u * defaultConstraints;
+            : 2u * topologyConstraints;
         std::uint32_t dynamicSceneBodies = 0u;
         for (const std::uint32_t body :
              staged.sceneBodyIndices_) {
@@ -13640,8 +12958,8 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             .candidatePairs = std::max(eligibleU32, 1u),
             .rawContacts = defaultRaw,
             .manifolds = std::max(eligibleU32, 1u),
-            .constraintBlocks = defaultConstraints,
-            .constraintRows = 3u * defaultConstraints,
+            .constraintBlocks = topologyConstraints,
+            .constraintRows = 3u * topologyConstraints,
             .islands = std::max(
                 staged.model_.world.islandCapacity,
                 static_cast<std::uint32_t>(
@@ -13653,8 +12971,6 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             ),
             .hardConvexPairs = eligibleU32,
             .meshTriangleCandidates = defaultRaw,
-            .solverTiles = minimumSolverTiles,
-            .spillRows = defaultSpillRows,
             .ccdCandidates = eligibleU32,
             .ccdEvents = std::max<std::uint32_t>(
                 1u,
@@ -13667,7 +12983,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             .articulationPointQueries = minimumEndpointRecords,
             .qualityGeneralizedVelocities =
                 qualityVelocities,
-            .qualityRows = 3u * defaultConstraints,
+            .qualityRows = 3u * topologyConstraints,
             .qualityKrylovVectors = 8u,
             .qualityDirectTiles = std::max<std::uint32_t>(
                 1u,
@@ -13680,7 +12996,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             .islandNodeReferences =
                 std::max(dynamicNodeCount, 1u),
             .islandConstraintReferences =
-                defaultConstraints,
+                topologyConstraints,
             .rodFactorBlocks = 0u,
             .operatorVelocityElements =
                 std::max(qualityVelocities, 1u),
@@ -13693,9 +13009,9 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 maximumConstraintCapacity ||
             staged.capacities_.constraintRows <
                 requiredRows ||
+            staged.capacities_.qualityRows <
+                staged.capacities_.constraintRows ||
             staged.capacities_.islands == 0u ||
-            staged.capacities_.solverTiles <
-                minimumSolverTiles ||
             staged.capacities_.ccdEvents == 0u ||
             staged.capacities_.dynamicNodes <
                 dynamicNodeCount ||
@@ -14565,46 +13881,6 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             ? staged.minimumCapacities_
                   .meshTriangleCandidates
             : requestedCapacities.meshTriangleCandidates;
-        const std::uint32_t solverTiles =
-            requiredSolverTileCapacity(
-                staged.capacities_.constraintBlocks,
-                staged.model_.constraintProgram.blocks.size(),
-                staged.capacities_.islands,
-                staged.dynamicNodes_.size()
-            );
-        if (requestedCapacities.solverTiles != 0u &&
-            requestedCapacities.solverTiles < solverTiles) {
-            return rejectCompile(
-                std::move(diagnostics),
-                MetalWorldHostStatus::capacityOverflow,
-                "solver-tile capacity is below the heterogeneous "
-                "topology minimum"
-            );
-        }
-        staged.minimumCapacities_.solverTiles = solverTiles;
-        staged.capacities_.solverTiles =
-            requestedCapacities.solverTiles == 0u
-            ? solverTiles
-            : requestedCapacities.solverTiles;
-        const std::uint32_t spillRows =
-            requiredSpillRowCapacity(
-                staged.capacities_.constraintBlocks,
-                staged.model_.constraintProgram.blocks.size()
-            );
-        if (requestedCapacities.spillRows != 0u &&
-            requestedCapacities.spillRows < spillRows) {
-            return rejectCompile(
-                std::move(diagnostics),
-                MetalWorldHostStatus::capacityOverflow,
-                "spill-row capacity is below the heterogeneous "
-                "topology minimum"
-            );
-        }
-        staged.minimumCapacities_.spillRows = spillRows;
-        staged.capacities_.spillRows =
-            requestedCapacities.spillRows == 0u
-            ? spillRows
-            : requestedCapacities.spillRows;
         if (staged.dynamicNodes_.size() >
             MR_WORLD_MAX_DYNAMIC_NODES) {
             return rejectCompile(
@@ -15638,10 +14914,12 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     );
                 }
 
-                for (std::uint32_t physicsSubstep = 0u;
-                     physicsSubstep < config.physicsSubsteps;
-                     ++physicsSubstep) {
-                    pass.physicsSubstep = physicsSubstep;
+                const std::uint32_t executionSubsteps =
+                    diagnostics.layout.dispatch.physicsSubsteps;
+                for (std::uint32_t temporalSubstep = 0u;
+                     temporalSubstep < executionSubsteps;
+                     ++temporalSubstep) {
+                    pass.physicsSubstep = temporalSubstep;
                     const bool useHybridContact =
                         contactMode &&
                         config.ccdMode ==
@@ -15685,8 +14963,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
 	                              selectedABAPipeline,
 	                              world,
 	                              pass,
-                              physicsSubstep + 1u ==
-                                  config.physicsSubsteps,
+                              temporalSubstep + 1u ==
+                                  executionSubsteps,
                               sourceQ,
                               sourceV,
                               destinationQ,
@@ -15703,30 +14981,14 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
 	                              sourceRodEdges,
 	                              destinationRodNodes,
 	                              destinationRodEdges,
-	                              physicsSubstep == 0u
+	                              temporalSubstep == 0u
 	                                  ? kCheckpointRodWitnesses
 	                                  : sourceRodWitnesses,
 	                              rodWitnessCount,
-                              config.solverMode ==
-                                  MetalWorldSolverMode::
-                                      waveJacobiExperimental,
                               activePairClassMask,
-                              config.velocityIterations +
-                                  (
-                                      physicsSubstep + 1u ==
-                                              config.physicsSubsteps
-                                      ? config.finalVelocityIterations
-                                      : 0u
-                                  ),
-                              diagnostics.layout.contactDispatch
-                                      .constraintCapacity > 256u,
                               config.maxCCDAdvanceSolvePasses,
                               world.articulationCount(),
                               batch.environmentCount,
-                              diagnostics.layout
-                                  .islandWorkElements,
-                              diagnostics.layout
-                                  .contactTileElements,
                               requirements.entries[
                                   kProjectedColliders
                               ].logicalElements,
@@ -15743,8 +15005,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                               commandBuffer,
                               world,
                               pass,
-                              physicsSubstep + 1u ==
-                                  config.physicsSubsteps,
+                              temporalSubstep + 1u ==
+                                  executionSubsteps,
                               sourceQ,
                               destinationQ,
                               destinationV,
@@ -15753,7 +15015,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                               sourceManifoldHeaders,
                               sourceManifoldPoints,
                               sourceManifoldCounts,
-                              physicsSubstep == 0u
+                              temporalSubstep == 0u
                                   ? kCheckpointRodWitnesses
                                   : sourceRodWitnesses,
                               destinationRodNodes,
@@ -15764,9 +15026,6 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                               destinationManifoldCounts,
                               config.solverMode ==
                                   MetalWorldSolverMode::
-                                      waveJacobiExperimental,
-                              config.solverMode ==
-                                  MetalWorldSolverMode::
                                       qualityNewton,
                               activePairClassMask,
                               (
@@ -15775,20 +15034,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                   MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS
                               ) != 0u,
                               false,
-                              config.velocityIterations +
-                                  (
-                                      physicsSubstep + 1u ==
-                                              config.physicsSubsteps
-                                      ? config.finalVelocityIterations
-                                      : 0u
-                                  ),
-                              diagnostics.layout.contactDispatch
-                                      .constraintCapacity > 256u,
                               batch.environmentCount,
-                              diagnostics.layout
-                                  .islandWorkElements,
-                              diagnostics.layout
-                                  .contactTileElements,
                               requirements.entries[
                                   kProjectedColliders
                               ].logicalElements,

@@ -450,7 +450,7 @@ EngineModelComposeDiagnostics composeEngineModels(
         !finite(config.gravityAndTimestep) ||
         !(config.gravityAndTimestep.w > 0.0f) ||
         !finite(config.solverScales) ||
-        config.solverType > MR_SOLVER_THROUGHPUT_PGS ||
+        config.solverType > MR_SOLVER_LEGACY_PROJECTED ||
         config.frictionConeType > MR_FRICTION_CONE_PYRAMID_8 ||
         config.contactsPerPair == 0u) {
         return fail(

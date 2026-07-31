@@ -831,344 +831,6 @@ inline float3 rodToolJacobianColumn(
     );
 }
 
-inline float3 sceneCrossPointResponse(
-    device const MRBodyStateGPU& body,
-    const float3 targetPoint,
-    const float3 sourcePoint,
-    const float3 sourceImpulse
-) {
-    if (body.flagsAndIndices[0] != MR_MOTION_DYNAMIC) {
-        return float3(0.0f);
-    }
-    const float3 angularDelta = multiply(
-        stateInverseInertia(body),
-        cross(
-            sourcePoint - body.position.xyz,
-            sourceImpulse
-        )
-    );
-    return
-        body.linearVelocityAndInverseMass.w * sourceImpulse +
-        cross(
-            angularDelta,
-            targetPoint - body.position.xyz
-        );
-}
-
-inline bool typedRodConstraint(
-    device const MRContactConstraintGPU& contact
-) {
-    return
-        (contact.flags & MR_CONSTRAINT_FLAG_ROD_ENDPOINT) !=
-        0u;
-}
-
-inline float3 typedArticulationJacobianColumn(
-    const uint localConstraint,
-    device const MRContactConstraintGPU& contact,
-    device const MRBodyStateGPU* bodies,
-    device const float* pointJacobians,
-    const uint pointJacobianBase,
-    const uint dof,
-    const uint nv,
-    device const MRRodToolWitnessGPU* rodWitnesses,
-    device const uint* constraintWitnessIndices,
-    const uint constraintBase
-) {
-    if (typedRodConstraint(contact)) {
-        const uint witnessIndex =
-            constraintWitnessIndices[
-                constraintBase + localConstraint
-            ];
-        if (witnessIndex == MR_INVALID_INDEX) {
-            return float3(0.0f);
-        }
-        const MRRodToolWitnessGPU witness =
-            rodWitnesses[witnessIndex];
-        device const MRBodyStateGPU& tool =
-            bodies[witness.featuresAndFlags.z];
-        return
-            tool.flagsAndIndices[1] != MR_INVALID_INDEX
-            ? rodToolJacobianColumn(
-                  pointJacobians,
-                  pointJacobianBase,
-                  localConstraint,
-                  dof,
-                  nv
-              )
-            : float3(0.0f);
-    }
-    const bool articulatedA =
-        bodies[contact.bodyA].flagsAndIndices[1] !=
-        MR_INVALID_INDEX;
-    const bool articulatedB =
-        bodies[contact.bodyB].flagsAndIndices[1] !=
-        MR_INVALID_INDEX;
-    return combinedJacobianColumn(
-        pointJacobians,
-        pointJacobianBase,
-        localConstraint,
-        dof,
-        nv,
-        articulatedA,
-        articulatedB
-    );
-}
-
-inline float3 typedRelativePointVelocity(
-    const uint localConstraint,
-    device const MRContactConstraintGPU& contact,
-    device const MRBodyStateGPU* bodies,
-    const uint articulationIndex,
-    device const float* pointJacobians,
-    const uint pointJacobianBase,
-    const uint nv,
-    device const float* articulationVelocity,
-    device const MRRodNodeStateGPU* rodNodes,
-    device const MRRodEdgeStateGPU* rodEdges,
-    device const MRRodColliderGPU* rodColliders,
-    device const MRRodToolWitnessGPU* rodWitnesses,
-    device const uint* constraintWitnessIndices,
-    const uint constraintBase
-) {
-    if (!typedRodConstraint(contact)) {
-        return relativePointVelocity(
-            localConstraint,
-            contact,
-            bodies,
-            articulationIndex,
-            pointJacobians,
-            pointJacobianBase,
-            nv,
-            articulationVelocity
-        );
-    }
-    const uint witnessIndex =
-        constraintWitnessIndices[
-            constraintBase + localConstraint
-        ];
-    if (witnessIndex == MR_INVALID_INDEX) {
-        return float3(0.0f);
-    }
-    const MRRodToolWitnessGPU witness =
-        rodWitnesses[witnessIndex];
-    const MRRodColliderGPU collider =
-        rodColliders[witness.identity.z];
-    device const MRBodyStateGPU& tool =
-        bodies[witness.featuresAndFlags.z];
-    const float3 toolVelocity =
-        tool.flagsAndIndices[1] != MR_INVALID_INDEX
-        ? articulatedPointVelocity(
-              pointJacobians,
-              pointJacobianBase,
-              2u * localConstraint + 1u,
-              nv,
-              articulationVelocity
-          )
-        : pointVelocity(
-              tool,
-              witness.toolPointAndSeparation.xyz
-          );
-    const float3 rodVelocity = rodSurfaceVelocity(
-        rodNodes[collider.nodeA],
-        rodNodes[collider.nodeB],
-        rodEdges[collider.edgeIndex],
-        witness.rodPointAndWeight.w,
-        witness.radialAndTwistJacobianV.xyz,
-        collider.radiusAndOffsets.x
-    );
-    return toolVelocity - rodVelocity;
-}
-
-inline float3 rodNodeImpulseForce(
-    const MRRodColliderGPU collider,
-    const MRRodToolWitnessGPU witness,
-    device const MRRodNodeStateGPU* rodNodes,
-    const uint nodeIndex,
-    const float3 rodImpulse
-) {
-    if (nodeIndex != collider.nodeA &&
-        nodeIndex != collider.nodeB) {
-        return float3(0.0f);
-    }
-    const float3 edge =
-        rodNodes[collider.nodeB].position.xyz -
-        rodNodes[collider.nodeA].position.xyz;
-    const float lengthSquared = dot(edge, edge);
-    if (!(lengthSquared > 1.0e-20f)) {
-        return float3(0.0f);
-    }
-    const float length = sqrt(lengthSquared);
-    const float3 tangent = edge / length;
-    const float3 surfaceRadius =
-        collider.radiusAndOffsets.x *
-        witness.radialAndTwistJacobianV.xyz;
-    const float3 angularImpulse =
-        cross(surfaceRadius, rodImpulse);
-    const float3 crossed =
-        cross(angularImpulse, tangent);
-    const float3 bendTranspose =
-        (
-            crossed - tangent * dot(tangent, crossed)
-        ) / length;
-    const float weight = witness.rodPointAndWeight.w;
-    const float3 force =
-        nodeIndex == collider.nodeA
-        ? (1.0f - weight) * rodImpulse - bendTranspose
-        : weight * rodImpulse + bendTranspose;
-    return force;
-}
-
-inline float3 rodNodeImpulseVelocityDelta(
-    const MRRodColliderGPU collider,
-    const MRRodToolWitnessGPU witness,
-    device const MRRodNodeStateGPU* rodNodes,
-    device const float* inverseRodMasses,
-    const uint nodeIndex,
-    const float3 rodImpulse
-) {
-    return inverseRodMasses[nodeIndex] *
-        rodNodeImpulseForce(
-            collider,
-            witness,
-            rodNodes,
-            nodeIndex,
-            rodImpulse
-        );
-}
-
-inline float rodTwistImpulseTorque(
-    const MRRodColliderGPU collider,
-    const MRRodToolWitnessGPU witness,
-    device const MRRodNodeStateGPU* rodNodes,
-    const uint edgeIndex,
-    const float3 rodImpulse
-) {
-    if (edgeIndex != collider.edgeIndex) {
-        return 0.0f;
-    }
-    const float3 edge =
-        rodNodes[collider.nodeB].position.xyz -
-        rodNodes[collider.nodeA].position.xyz;
-    const float lengthSquared = dot(edge, edge);
-    if (!(lengthSquared > 1.0e-20f)) {
-        return 0.0f;
-    }
-    const float3 tangent =
-        edge * rsqrt(lengthSquared);
-    const float3 surfaceRadius =
-        collider.radiusAndOffsets.x *
-        witness.radialAndTwistJacobianV.xyz;
-    return dot(
-        cross(tangent, surfaceRadius),
-        rodImpulse
-    );
-}
-
-inline float rodTwistImpulseVelocityDelta(
-    const MRRodColliderGPU collider,
-    const MRRodToolWitnessGPU witness,
-    device const MRRodNodeStateGPU* rodNodes,
-    device const float* inverseRodTwistInertias,
-    const uint edgeIndex,
-    const float3 rodImpulse
-) {
-    return inverseRodTwistInertias[edgeIndex] *
-        rodTwistImpulseTorque(
-            collider,
-            witness,
-            rodNodes,
-            edgeIndex,
-            rodImpulse
-        );
-}
-
-// Exact frozen-geometry rod part of J_i A^-1 J_j^T. Only shared nodal and
-// twist coordinates contribute, so adjacent procedural capsules couple
-// without atomics or a materialized rod Delassus matrix.
-inline float rodCrossContactResponse(
-    const MRRodColliderGPU targetCollider,
-    const MRRodToolWitnessGPU targetWitness,
-    const MRRodColliderGPU sourceCollider,
-    const MRRodToolWitnessGPU sourceWitness,
-    device const MRRodNodeStateGPU* rodNodes,
-    device const float* inverseRodMasses,
-    device const float* inverseRodTwistInertias,
-    const float3 targetDirection,
-    const float3 sourceDirection
-) {
-    const float3 sourceRodImpulse = -sourceDirection;
-    float3 targetDeltaA = float3(0.0f);
-    float3 targetDeltaB = float3(0.0f);
-    const uint sourceNodes[2] = {
-        sourceCollider.nodeA,
-        sourceCollider.nodeB,
-    };
-    for (uint sourceNode = 0u;
-         sourceNode < 2u;
-         ++sourceNode) {
-        const uint node = sourceNodes[sourceNode];
-        const float3 delta = rodNodeImpulseVelocityDelta(
-            sourceCollider,
-            sourceWitness,
-            rodNodes,
-            inverseRodMasses,
-            node,
-            sourceRodImpulse
-        );
-        if (node == targetCollider.nodeA) {
-            targetDeltaA += delta;
-        }
-        if (node == targetCollider.nodeB) {
-            targetDeltaB += delta;
-        }
-    }
-    const float3 targetEdge =
-        rodNodes[targetCollider.nodeB].position.xyz -
-        rodNodes[targetCollider.nodeA].position.xyz;
-    const float lengthSquared = dot(targetEdge, targetEdge);
-    if (!(lengthSquared > 1.0e-20f)) {
-        return 0.0f;
-    }
-    const float length = sqrt(lengthSquared);
-    const float3 tangent = targetEdge / length;
-    const float3 deltaDifference =
-        targetDeltaB - targetDeltaA;
-    const float3 tangentRate =
-        (
-            deltaDifference -
-            tangent * dot(tangent, deltaDifference)
-        ) / length;
-    const float twistRate =
-        targetCollider.edgeIndex ==
-            sourceCollider.edgeIndex
-        ? rodTwistImpulseVelocityDelta(
-              sourceCollider,
-              sourceWitness,
-              rodNodes,
-              inverseRodTwistInertias,
-              sourceCollider.edgeIndex,
-              sourceRodImpulse
-          )
-        : 0.0f;
-    const float3 targetSurfaceRadius =
-        targetCollider.radiusAndOffsets.x *
-        targetWitness.radialAndTwistJacobianV.xyz;
-    const float3 surfaceDelta =
-        mix(
-            targetDeltaA,
-            targetDeltaB,
-            targetWitness.rodPointAndWeight.w
-        ) +
-        cross(
-            cross(tangent, tangentRate) +
-                twistRate * tangent,
-            targetSurfaceRadius
-        );
-    // Relative velocity is v_tool - v_rod.
-    return dot(targetDirection, -surfaceDelta);
-}
-
 inline uint rodFactorElementStride(
     device const MRMetalWorldContactDispatchGPU& dispatch
 ) {
@@ -1707,129 +1369,6 @@ inline bool solveRodTwistFactor(
     return true;
 }
 
-// Device-arena variants are used by persistent Wave32 packets. The arena is
-// invocation-local, and every connected rod has one island owner, so the
-// serialized band solve never races even when packet claims execute in a
-// different order.
-inline bool solveRodTranslationFactorDevice(
-    device const float* factors,
-    const uint factorBase,
-    const uint rowCount,
-    device float* vector,
-    const uint vectorBase
-) {
-    for (uint row = 0u; row < rowCount; ++row) {
-        float value = vector[vectorBase + row];
-        const uint first = row >
-                MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH - 1u
-            ? row -
-                (MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH - 1u)
-            : 0u;
-        for (uint column = first;
-             column < row;
-             ++column) {
-            value = fma(
-                -rodTranslationFactorValue(
-                    factors,
-                    factorBase,
-                    row,
-                    column
-                ),
-                vector[vectorBase + column],
-                value
-            );
-        }
-        const float diagonal = rodTranslationFactorValue(
-            factors,
-            factorBase,
-            row,
-            row
-        );
-        if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
-            return false;
-        }
-        vector[vectorBase + row] = value / diagonal;
-    }
-    for (uint reverse = 0u; reverse < rowCount; ++reverse) {
-        const uint row = rowCount - 1u - reverse;
-        float value = vector[vectorBase + row];
-        const uint last = min(
-            rowCount,
-            row + MR_ROD_FACTOR_TRANSLATION_BAND_WIDTH
-        );
-        for (uint source = row + 1u;
-             source < last;
-             ++source) {
-            value = fma(
-                -rodTranslationFactorValue(
-                    factors,
-                    factorBase,
-                    source,
-                    row
-                ),
-                vector[vectorBase + source],
-                value
-            );
-        }
-        const float diagonal = rodTranslationFactorValue(
-            factors,
-            factorBase,
-            row,
-            row
-        );
-        vector[vectorBase + row] = value / diagonal;
-        if (!isfinite(vector[vectorBase + row])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-inline bool solveRodTwistFactorDevice(
-    device const float* factors,
-    const uint factorBase,
-    const uint rowCount,
-    device float* vector,
-    const uint vectorBase
-) {
-    for (uint row = 0u; row < rowCount; ++row) {
-        float value = vector[vectorBase + row];
-        if (row != 0u) {
-            value = fma(
-                -factors[factorBase + 2u * row + 1u],
-                vector[vectorBase + row - 1u],
-                value
-            );
-        }
-        const float diagonal =
-            factors[factorBase + 2u * row];
-        if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
-            return false;
-        }
-        vector[vectorBase + row] = value / diagonal;
-    }
-    for (uint reverse = 0u; reverse < rowCount; ++reverse) {
-        const uint row = rowCount - 1u - reverse;
-        float value = vector[vectorBase + row];
-        if (row + 1u < rowCount) {
-            value = fma(
-                -factors[
-                    factorBase + 2u * (row + 1u) + 1u
-                ],
-                vector[vectorBase + row + 1u],
-                value
-            );
-        }
-        const float diagonal =
-            factors[factorBase + 2u * row];
-        vector[vectorBase + row] = value / diagonal;
-        if (!isfinite(vector[vectorBase + row])) {
-            return false;
-        }
-    }
-    return true;
-}
-
 } // namespace
 
 // Factors the implicit DER response A = M + hD + h^2K once per rod and
@@ -2203,6 +1742,8 @@ kernel void mr_world_prepare_contact_step(
     device uint* checkpointCounts [[buffer(15)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(16)]],
     device MRConvexQueryCacheGPU* convexCaches [[buffer(17)]],
+    device float* generalizedWarmState [[buffer(18)]],
+    device float* checkpointGeneralizedWarmState [[buffer(19)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -2274,6 +1815,24 @@ kernel void mr_world_prepare_contact_step(
              ++pair) {
             convexCaches[cacheBase + pair] = {};
         }
+    }
+    const uint generalizedWarmStride =
+        3u * dispatch.authoredConstraintCount;
+    const uint generalizedWarmBase =
+        environment * generalizedWarmStride;
+    for (uint row = 0u;
+         row < generalizedWarmStride;
+         ++row) {
+        const float value = applyReset
+            ? 0.0f
+            : generalizedWarmState[
+                  generalizedWarmBase + row
+              ];
+        generalizedWarmState[generalizedWarmBase + row] =
+            value;
+        checkpointGeneralizedWarmState[
+            generalizedWarmBase + row
+        ] = value;
     }
     for (uint manifold = 0u;
          manifold < dispatch.manifoldCapacity;
@@ -2811,11 +2370,11 @@ kernel void mr_world_overlay_event_articulation_bodies(
     }
 }
 
-// Enforces scalar position/velocity limits on the constrained candidate.
-// Before ordinary integration it clips velocity to the admissible one-step
-// interval; selected-TOI mode repairs a roundoff-scale boundary crossing and
-// removes only the outward velocity component.
-kernel void mr_world_project_joint_limits(
+// Velocity caps are an explicit actuator/safety envelope, not positional
+// constraints. Position limits are solved as unilateral ConstraintIR rows.
+// After integration this same kernel is a non-mutating transaction verifier:
+// any crossing beyond the configured tolerance rejects the candidate state.
+kernel void mr_world_apply_velocity_safety_envelope(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
     device const MRDofPropertiesGPU* dofs [[buffer(2)]],
@@ -2832,12 +2391,7 @@ kernel void mr_world_project_joint_limits(
     }
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
-    const float timestep = max(
-        dispatch.ccdMode == MR_WORLD_CCD_HYBRID
-            ? statuses[environment].eventTimes.w
-            : dispatch.timestepAndBias.x,
-        1.0e-8f
-    );
+    (void)sourceQ;
     for (uint owner = 0u;
          owner < dispatch.articulationCount;
          ++owner) {
@@ -2851,7 +2405,8 @@ kernel void mr_world_project_joint_limits(
             device const MRDofPropertiesGPU& dof =
                 dofs[globalV];
             float velocity = candidateV[vBase + globalV];
-            if ((dof.flags &
+            if (stateAlreadyIntegrated == 0u &&
+                (dof.flags &
                  MR_DOF_FLAG_VELOCITY_LIMIT) != 0u) {
                 velocity = clamp(
                     velocity,
@@ -2864,31 +2419,31 @@ kernel void mr_world_project_joint_limits(
                 dof.qIndex != MR_INVALID_INDEX &&
                 dof.qIndex >= articulation.qOffset &&
                 dof.qIndex <
-                    articulation.qOffset + articulation.nq) {
+                    articulation.qOffset + articulation.nq &&
+                stateAlreadyIntegrated != 0u) {
                 const uint globalQ = dof.qIndex;
-                if (stateAlreadyIntegrated != 0u) {
-                    float position =
-                        candidateQ[qBase + globalQ];
-                    if (position < dof.limits.x) {
-                        position = dof.limits.x;
-                        velocity = max(velocity, 0.0f);
-                    } else if (position > dof.limits.y) {
-                        position = dof.limits.y;
-                        velocity = min(velocity, 0.0f);
-                    }
-                    candidateQ[qBase + globalQ] = position;
-                } else {
-                    const float position =
-                        sourceQ[qBase + globalQ];
-                    const float minimumVelocity =
-                        (dof.limits.x - position) / timestep;
-                    const float maximumVelocity =
-                        (dof.limits.y - position) / timestep;
-                    velocity = clamp(
-                        velocity,
-                        minimumVelocity,
-                        maximumVelocity
+                const float position =
+                    candidateQ[qBase + globalQ];
+                const float tolerance =
+                    dispatch.jointLimitParameters.y + 1.0e-5f;
+                const float correction = max(
+                    dof.limits.x - position,
+                    max(position - dof.limits.y, 0.0f)
+                );
+                if (!isfinite(position) ||
+                    correction > tolerance) {
+                    MRMetalWorldContactStatusGPU status =
+                        statuses[environment];
+                    status.code = isfinite(position)
+                        ? MR_STEP_DID_NOT_CONVERGE
+                        : MR_STEP_NONFINITE_RESULT;
+                    status.firstFailingConstraint = globalV;
+                    status.residuals.y = max(
+                        status.residuals.y,
+                        correction
                     );
+                    statuses[environment] = status;
+                    return;
                 }
             }
             if (!isfinite(velocity)) {
@@ -3198,6 +2753,9 @@ kernel void mr_world_seed_authored_constraint_ir(
     device const uint* bodyDynamicNodes [[buffer(15)]],
     device const MRBodyStateGPU* candidateBodies [[buffer(16)]],
     device const MRRodNodeStateGPU* candidateRodNodes [[buffer(17)]],
+    device const float* sourceQ [[buffer(18)]],
+    device const float* candidateV [[buffer(19)]],
+    device const float* generalizedWarmState [[buffer(20)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -3233,6 +2791,16 @@ kernel void mr_world_seed_authored_constraint_ir(
         environment * dispatch.bodyStateStride;
     const uint rodNodeBase =
         environment * dispatch.rodNodeCount;
+    const uint qBase = environment * dispatch.qStride;
+    const uint velocityBase = environment * dispatch.vStride;
+    const uint generalizedWarmBase =
+        environment * 3u * dispatch.authoredConstraintCount;
+    const float timestep = max(
+        dispatch.ccdMode == MR_WORLD_CCD_HYBRID
+            ? status.eventTimes.w
+            : dispatch.timestepAndBias.x,
+        1.0e-8f
+    );
     for (uint localBlock = 0u;
          localBlock < dispatch.authoredConstraintCount;
          ++localBlock) {
@@ -3261,11 +2829,92 @@ kernel void mr_world_seed_authored_constraint_ir(
             return;
         }
 
+        // Compiler-owned LIMIT records retain an immutable boundary and a
+        // stable lower/upper key. Activation is invocation-local: inactive
+        // rows remain in the canonical fixed-capacity stream but publish no
+        // warm impulse and never enter the solve. This keeps scan offsets and
+        // stable keys deterministic without treating inactive limits as
+        // contacts or mutating the authored program.
+        const bool compiledLimit =
+            source.type == MR_CONSTRAINT_LIMIT &&
+            source.key.words[0] == 0x4c494d54u;
+        bool runtimeDisabled =
+            (source.flags &
+             MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u;
+        float limitGap = 0.0f;
+        float limitTargetVelocity = 0.0f;
+        if (compiledLimit) {
+            if (source.dimension != 1u ||
+                source.endpointCount != 1u) {
+                status.code = MR_STEP_UNSUPPORTED;
+                status.firstFailingConstraint = localBlock;
+                statuses[environment] = status;
+                return;
+            }
+            const MRConstraintIREndpointGPU limitEndpoint =
+                sourceEndpoints[source.endpointOffset];
+            const MRConstraintIRRowGPU limitRow =
+                sourceRows[source.rowOffset];
+            const float coefficient = limitEndpoint.axis.x;
+            if (limitEndpoint.jacobianKind !=
+                    MR_CONSTRAINT_IR_JACOBIAN_GENERALIZED ||
+                (limitEndpoint.flags &
+                 MR_CONSTRAINT_IR_ENDPOINT_Q_INDEX_VALID) == 0u ||
+                limitEndpoint.linkIndex >= dispatch.nq ||
+                limitEndpoint.objectIndex >= dispatch.nv ||
+                abs(abs(coefficient) - 1.0f) > 1.0e-6f ||
+                !isfinite(limitRow.positionError)) {
+                status.code = MR_STEP_UNSUPPORTED;
+                status.firstFailingConstraint = localBlock;
+                statuses[environment] = status;
+                return;
+            }
+            limitGap = coefficient *
+                (sourceQ[qBase + limitEndpoint.linkIndex] -
+                 limitRow.positionError);
+            const float normalVelocity = coefficient *
+                candidateV[
+                    velocityBase + limitEndpoint.objectIndex
+                ];
+            const float predictedGap =
+                limitGap + timestep * normalVelocity;
+            runtimeDisabled =
+                min(limitGap, predictedGap) >
+                dispatch.jointLimitParameters.x;
+            if (limitGap <
+                -dispatch.jointLimitParameters.y) {
+                limitTargetVelocity = min(
+                    dispatch.timestepAndBias.z,
+                    dispatch.jointLimitParameters.z *
+                        (
+                            -limitGap -
+                            dispatch.jointLimitParameters.y
+                        ) /
+                        timestep
+                );
+            } else {
+                limitTargetVelocity =
+                    -max(
+                        limitGap -
+                            dispatch.jointLimitParameters.y,
+                        0.0f
+                    ) /
+                    timestep;
+            }
+        }
+
         const uint outputConstraint =
             constraintBase + localBlock;
         MRConstraintIRBlockGPU runtime = source;
         runtime.flags |=
             MR_CONSTRAINT_IR_BLOCK_GENERALIZED;
+        if (runtimeDisabled) {
+            runtime.flags |=
+                MR_CONSTRAINT_IR_BLOCK_DISABLED;
+        } else {
+            runtime.flags &=
+                ~MR_CONSTRAINT_IR_BLOCK_DISABLED;
+        }
         runtime.islandIndex = MR_INVALID_INDEX;
         runtime.endpointOffset = 2u * localBlock;
         runtime.endpointCount = 2u;
@@ -3279,12 +2928,9 @@ kernel void mr_world_seed_authored_constraint_ir(
         compatibility.bodyB = MR_INVALID_INDEX;
         compatibility.flags =
             MR_CONSTRAINT_FLAG_GENERALIZED |
-            (
-                (source.flags &
-                 MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u
-                ? MR_CONSTRAINT_FLAG_DISABLED
-                : 0u
-            );
+            (runtimeDisabled
+                 ? MR_CONSTRAINT_FLAG_DISABLED
+                 : 0u);
         compatibility.islandIndex = MR_INVALID_INDEX;
         compatibility.pairKey =
             (static_cast<ulong>(source.key.words[0]) << 32u) |
@@ -3296,9 +2942,12 @@ kernel void mr_world_seed_authored_constraint_ir(
              localRow < source.dimension;
              ++localRow) {
             compatibility.impulses[localRow] =
-                sourceWarmImpulses[
-                    source.impulseOffset + localRow
-                ];
+                runtimeDisabled
+                ? 0.0f
+                : generalizedWarmState[
+                      generalizedWarmBase +
+                      3u * localBlock + localRow
+                  ];
         }
         contacts[outputConstraint] = compatibility;
         MRContactPointMetaGPU emptyMetadata = {};
@@ -3469,6 +3118,14 @@ kernel void mr_world_seed_authored_constraint_ir(
             if (slot < source.dimension) {
                 row = sourceRows[source.rowOffset + slot];
             }
+            if (compiledLimit && slot == 0u) {
+                row.positionError = limitGap;
+                row.targetVelocity = limitTargetVelocity;
+                row.compliance =
+                    dispatch.jointLimitParameters.w *
+                    timestep * timestep;
+                row.dissipation = 0.0f;
+            }
             if (slot < source.dimension &&
                 (source.flags &
                  MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT) !=
@@ -3510,6 +3167,7 @@ kernel void mr_world_seed_authored_constraint_ir(
         }
         cones[outputConstraint] = cone;
     }
+    (void)sourceWarmImpulses;
     statuses[environment] = status;
 }
 
@@ -4235,3553 +3893,323 @@ kernel void mr_world_build_contact_islands(
 // contact-index arena is environment-major and preserves canonical constraint
 // order even when constraints belonging to different islands were interleaved
 // by the manifold compiler.
-kernel void mr_world_build_contact_tiles(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const MRBodyStateGPU* bodies [[buffer(1)]],
-    device const MRContactConstraintGPU* contacts [[buffer(2)]],
-    device const MRContactIslandGPU* islands [[buffer(3)]],
-    device MRIslandWorkGPU* islandWork [[buffer(4)]],
-    device MRContactTileGPU* tiles [[buffer(5)]],
-    device uint* tileConstraintIndices [[buffer(6)]],
-    device MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
-    device uint* islandWorkFlags [[buffer(8)]],
-    const uint environment [[thread_position_in_grid]]
-) {
-    if (environment >= dispatch.environmentCount) {
-        return;
-    }
-    const uint islandBase =
-        environment * dispatch.islandStride;
-    for (uint islandIndex = 0u;
-         islandIndex < dispatch.islandCapacity;
-         ++islandIndex) {
-        islandWorkFlags[islandBase + islandIndex] = 0u;
-    }
-    MRMetalWorldContactStatusGPU status = statuses[environment];
-    if (status.code != MR_STEP_SUCCESS) {
-        return;
-    }
-    status.requiredSolverTiles = 0u;
-    status.requiredSpillRows = 0u;
-    status.solverTiles = 0u;
-    status.spillRows = 0u;
-    if (status.requiredConstraints == 0u) {
-        statuses[environment] = status;
-        return;
-    }
-
-    (void)bodies;
-    const uint constraintBase =
-        environment * dispatch.constraintStride;
-    const uint tileBase =
-        environment * dispatch.solverTileCapacity;
-    uint tileCursor = 0u;
-    uint constraintIndexCursor = 0u;
-    uint generalizedConstraintCursor = 0u;
-    ulong requiredSpillRows = 0u;
-    for (uint islandIndex = 0u;
-         islandIndex < status.islandCount;
-         ++islandIndex) {
-        const MRContactIslandGPU island =
-            islands[islandBase + islandIndex];
-        const uint islandIndexStart = constraintIndexCursor;
-        const bool hasArticulation =
-            island.articulationNodeCount != 0u;
-        const bool hasRod = island.rodNodeCount != 0u;
-        uint generalizedConstraintCount = 0u;
-        for (uint localConstraint = 0u;
-             localConstraint < status.requiredConstraints;
-             ++localConstraint) {
-            const MRContactConstraintGPU contact =
-                contacts[constraintBase + localConstraint];
-            if (contact.islandIndex != islandIndex) {
-                continue;
-            }
-            if ((contact.flags &
-                 MR_CONSTRAINT_FLAG_GENERALIZED) != 0u) {
-                ++generalizedConstraintCount;
-                continue;
-            }
-            if (constraintIndexCursor <
-                dispatch.constraintCapacity) {
-                tileConstraintIndices[
-                    constraintBase + constraintIndexCursor
-                ] = localConstraint;
-            }
-            ++constraintIndexCursor;
-        }
-        const uint packedCount =
-            constraintIndexCursor - islandIndexStart;
-        if (packedCount + generalizedConstraintCount !=
-            island.constraintCount) {
-            status.code = MR_STEP_NONFINITE_RESULT;
-            status.firstFailingConstraint =
-                island.firstConstraint;
-            statuses[environment] = status;
-            return;
-        }
-        generalizedConstraintCursor +=
-            generalizedConstraintCount;
-        if (packedCount == 0u) {
-            islandWork[islandBase + islandIndex] = {};
-            islandWorkFlags[islandBase + islandIndex] = 0u;
-            continue;
-        }
-        const uint tileCount =
-            (packedCount + MR_WAVE32_CONTACTS_PER_TILE - 1u) /
-            MR_WAVE32_CONTACTS_PER_TILE;
-        MRIslandWorkGPU work = {};
-        work.environment = environment;
-        work.islandIndex = islandIndex;
-        work.firstConstraint = island.firstConstraint;
-        work.constraintCount = packedCount;
-        work.firstTile = tileCursor;
-        work.tileCount = tileCount;
-        work.dofClass =
-            island.operatorBucket <= 8u ? 8u :
-            island.operatorBucket <= 16u ? 16u :
-            32u;
-        work.flags = MR_ISLAND_WORK_VALID |
-            (hasArticulation
-                 ? MR_ISLAND_WORK_HAS_ARTICULATION
-                 : 0u) |
-            (hasRod
-                 ? MR_ISLAND_WORK_HAS_ROD
-                 : 0u) |
-            (packedCount > MR_WAVE32_CONTACTS_PER_TILE
-                 ? MR_ISLAND_WORK_SPILL
-                 : 0u) |
-            // The distributed rigid path uses three grid-wide phases.
-            // Rod islands instead stream arbitrarily many stable tiles in
-            // one owning SIMDgroup so nodal/twist writes retain a unique
-            // owner without atomics or a second semantic solver.
-            (packedCount > 256u && !hasRod
-                 ? MR_ISLAND_WORK_DISTRIBUTED
-                 : 0u);
-        if (packedCount > 256u && !hasRod) {
-            status.queueFlags |=
-                MR_ISLAND_WORK_DISTRIBUTED;
-        }
-        islandWork[islandBase + islandIndex] = work;
-        islandWorkFlags[islandBase + islandIndex] = 1u;
-
-        for (uint localTile = 0u;
-             localTile < tileCount;
-             ++localTile) {
-            const uint tileConstraintOffset =
-                islandIndexStart +
-                localTile * MR_WAVE32_CONTACTS_PER_TILE;
-            const uint tileConstraintCount = min(
-                MR_WAVE32_CONTACTS_PER_TILE,
-                packedCount -
-                    localTile * MR_WAVE32_CONTACTS_PER_TILE
-            );
-            if (tileCursor < dispatch.solverTileCapacity) {
-                MRContactTileGPU tile = {};
-                tile.environment = environment;
-                tile.islandIndex = islandIndex;
-                tile.firstConstraint =
-                    tileConstraintCount == 0u
-                    ? MR_INVALID_INDEX
-                    : tileConstraintIndices[
-                          constraintBase +
-                          tileConstraintOffset
-                      ];
-                tile.constraintCount = tileConstraintCount;
-                tile.nextTile =
-                    localTile + 1u < tileCount
-                    ? tileCursor + 1u
-                    : MR_INVALID_INDEX;
-                tile.partialOffset = tileConstraintOffset;
-                tile.flags = MR_ISLAND_WORK_VALID;
-                tiles[tileBase + tileCursor] = tile;
-            }
-            ++tileCursor;
-        }
-        if (packedCount > MR_WAVE32_CONTACTS_PER_TILE) {
-            requiredSpillRows +=
-                static_cast<ulong>(
-                    packedCount -
-                    MR_WAVE32_CONTACTS_PER_TILE
-                ) * 3u;
-        }
-    }
-    status.requiredSolverTiles = tileCursor;
-    status.solverTiles = min(
-        tileCursor,
-        dispatch.solverTileCapacity
-    );
-    status.requiredSpillRows = static_cast<uint>(
-        min(
-            requiredSpillRows,
-            static_cast<ulong>(0xffffffffu)
-        )
-    );
-    status.spillRows = min(
-        status.requiredSpillRows,
-        dispatch.spillRowCapacity
-    );
-    if (constraintIndexCursor +
-            generalizedConstraintCursor !=
-            status.requiredConstraints ||
-        tileCursor > dispatch.solverTileCapacity ||
-        requiredSpillRows > dispatch.spillRowCapacity) {
-        status.code = MR_STEP_CONSTRAINT_CAPACITY_OVERFLOW;
-        status.firstFailingStableKeyLow =
-            status.islandCount == 0u
-            ? MR_INVALID_INDEX
-            : status.islandCount - 1u;
-        status.firstFailingStableKeyHigh = environment;
-    }
-    statuses[environment] = status;
-}
-
-kernel void mr_world_scatter_island_queue(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const uint* flags [[buffer(1)]],
-    device const uint* offsets [[buffer(2)]],
-    device const MRIslandWorkGPU* denseWork [[buffer(3)]],
-    device MRIslandWorkGPU* compactWork [[buffer(4)]],
-    device MRWorkQueueHeaderGPU* headers [[buffer(5)]],
-    const uint globalIndex [[thread_position_in_grid]]
-) {
-    const uint total =
-        dispatch.environmentCount * dispatch.islandCapacity;
-    if (globalIndex == 0u) {
-        device MRWorkQueueHeaderGPU& header =
-            headers[MR_WORLD_WORK_SOLVER];
-        const uint count =
-            total == 0u
-            ? 0u
-            : offsets[total - 1u] +
-                (flags[total - 1u] == 1u ? 1u : 0u);
-        header = {};
-        header.count = min(count, total);
-        header.capacity = total;
-        header.required = count;
-        header.workClass = MR_WORLD_WORK_SOLVER;
-        header.overflow = count > total ? 1u : 0u;
-        // A following single-SIMDgroup reduction selects a homogeneous
-        // 8/16-lane packet width without making any count host-visible.
-        header.reserved0 = MR_WAVE32_CONTACTS_PER_TILE;
-        header.indirect.threadgroupsX = header.count;
-        header.indirect.threadgroupsY = 1u;
-        header.indirect.threadgroupsZ = 1u;
-        header.indirect.activeCount = header.count;
-    }
-    if (globalIndex >= total || flags[globalIndex] != 1u) {
-        return;
-    }
-    const uint destination = offsets[globalIndex];
-    if (destination < total) {
-        compactWork[destination] = denseWork[globalIndex];
-    }
-}
-
-kernel void mr_world_select_solver_cohort(
-    device const MRIslandWorkGPU* compactWork [[buffer(0)]],
-    device MRWorkQueueHeaderGPU* headers [[buffer(1)]],
-    device MRWaveWorkPacketGPU* packets [[buffer(2)]],
-    const uint lane [[thread_index_in_simdgroup]]
-) {
-    device MRWorkQueueHeaderGPU& header =
-        headers[MR_WORLD_WORK_SOLVER];
-    const uint count = header.count;
-    uint requiredWidth = 8u;
-    for (uint workSlot = lane;
-         workSlot < count;
-         workSlot += MR_WAVE32_CONTACTS_PER_TILE) {
-        const MRIslandWorkGPU work = compactWork[workSlot];
-        const bool distributed =
-            (work.flags & MR_ISLAND_WORK_DISTRIBUTED) != 0u;
-        const uint width =
-            !distributed &&
-            work.dofClass <= 8u &&
-            work.constraintCount <= 8u
-            ? 8u
-            : !distributed &&
-              work.dofClass <= 16u &&
-              work.constraintCount <= 16u
-            ? 16u
-            : MR_WAVE32_CONTACTS_PER_TILE;
-        requiredWidth = max(requiredWidth, width);
-    }
-    requiredWidth = simd_max(requiredWidth);
-    if (lane == 0u) {
-        // The packet solver contains SIMDgroup-wide barriers. Select a compact
-        // width only when the entire scan-ordered topology cohort is
-        // homogeneous and divides into complete packets; otherwise every
-        // island receives a full SIMD32 group. No inactive cohort can then
-        // diverge around a barrier.
-        const uint cohortWidth =
-            count != 0u &&
-            requiredWidth <= 8u &&
-            (count & 3u) == 0u
-            ? 8u
-            : count != 0u &&
-              requiredWidth <= 16u &&
-              (count & 1u) == 0u
-            ? 16u
-            : MR_WAVE32_CONTACTS_PER_TILE;
-        const uint cohortsPerPacket =
-            MR_WAVE32_CONTACTS_PER_TILE / cohortWidth;
-        const uint packetCount =
-            count / cohortsPerPacket;
-        header.reserved0 = cohortWidth;
-        header.indirect.threadgroupsX = packetCount;
-        header.indirect.activeCount = packetCount;
-        header.flags &=
-            ~(MR_WORLD_QUEUE_COHORT_8 |
-              MR_WORLD_QUEUE_COHORT_16);
-        header.flags |=
-            cohortWidth == 8u
-            ? MR_WORLD_QUEUE_COHORT_8
-            : cohortWidth == 16u
-            ? MR_WORLD_QUEUE_COHORT_16
-            : 0u;
-    }
-    threadgroup_barrier(mem_flags::mem_device);
-
-    const uint cohortWidth = header.reserved0;
-    const uint cohortsPerPacket =
-        MR_WAVE32_CONTACTS_PER_TILE / cohortWidth;
-    const uint packetCount =
-        header.indirect.threadgroupsX;
-    for (uint packetSlot = lane;
-         packetSlot < packetCount;
-         packetSlot += MR_WAVE32_CONTACTS_PER_TILE) {
-        const uint firstWork =
-            packetSlot * cohortsPerPacket;
-        MRWaveWorkPacketGPU packet = {};
-        packet.islandSlots = uint4(MR_INVALID_INDEX);
-        packet.stableKeyLow = uint4(MR_INVALID_INDEX);
-        packet.stableKeyHigh = uint4(MR_INVALID_INDEX);
-        for (uint cohort = 0u;
-             cohort < cohortsPerPacket;
-             ++cohort) {
-            const uint sourceSlot = firstWork + cohort;
-            const MRIslandWorkGPU work =
-                compactWork[sourceSlot];
-            packet.islandSlots[cohort] = sourceSlot;
-            packet.stableKeyLow[cohort] =
-                work.islandIndex;
-            packet.stableKeyHigh[cohort] =
-                work.environment;
-        }
-        packet.metadata = uint4(
-            cohortWidth,
-            cohortsPerPacket,
-            0u,
-            0u
-        );
-        packets[packetSlot] = packet;
-    }
-}
-
-kernel void mr_world_flag_distributed_islands(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const MRIslandWorkGPU* denseWork [[buffer(1)]],
-    device uint* flags [[buffer(2)]],
-    const uint globalIndex [[thread_position_in_grid]]
-) {
-    const uint total =
-        dispatch.environmentCount * dispatch.islandCapacity;
-    if (globalIndex >= total) {
-        return;
-    }
-    const MRIslandWorkGPU work = denseWork[globalIndex];
-    flags[globalIndex] =
-        (work.flags &
-         (
-             MR_ISLAND_WORK_VALID |
-             MR_ISLAND_WORK_DISTRIBUTED
-         )) ==
-            (
-                MR_ISLAND_WORK_VALID |
-                MR_ISLAND_WORK_DISTRIBUTED
-            )
-        ? 1u
-        : 0u;
-}
-
-kernel void mr_world_scatter_distributed_island_queue(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const uint* flags [[buffer(1)]],
-    device const uint* offsets [[buffer(2)]],
-    device const MRIslandWorkGPU* denseWork [[buffer(3)]],
-    device MRIslandWorkGPU* compactWork [[buffer(4)]],
-    device MRWorkQueueHeaderGPU* headers [[buffer(5)]],
-    const uint globalIndex [[thread_position_in_grid]]
-) {
-    const uint total =
-        dispatch.environmentCount * dispatch.islandCapacity;
-    if (globalIndex == 0u) {
-        device MRWorkQueueHeaderGPU& header =
-            headers[MR_WORLD_WORK_SOLVER_DISTRIBUTED];
-        const uint count =
-            total == 0u
-            ? 0u
-            : offsets[total - 1u] +
-                (flags[total - 1u] == 1u ? 1u : 0u);
-        header = {};
-        header.count = min(count, total);
-        header.capacity = total;
-        header.required = count;
-        header.workClass =
-            MR_WORLD_WORK_SOLVER_DISTRIBUTED;
-        header.overflow = count > total ? 1u : 0u;
-        header.indirect.threadgroupsX = header.count;
-        header.indirect.threadgroupsY = 1u;
-        header.indirect.threadgroupsZ = 1u;
-        header.indirect.activeCount = header.count;
-        header.reserved0 = total;
-    }
-    if (globalIndex >= total || flags[globalIndex] != 1u) {
-        return;
-    }
-    const uint destination = offsets[globalIndex];
-    if (destination < total) {
-        compactWork[total + destination] =
-            denseWork[globalIndex];
-    }
-}
-
-kernel void mr_world_flag_distributed_tiles(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(1)]],
-    device const MRIslandWorkGPU* denseWork [[buffer(2)]],
-    device const MRContactTileGPU* denseTiles [[buffer(3)]],
-    device uint* flags [[buffer(4)]],
-    const uint globalIndex [[thread_position_in_grid]]
-) {
-    const uint total =
-        dispatch.environmentCount *
-        dispatch.solverTileCapacity;
-    if (globalIndex >= total) {
-        return;
-    }
-    const uint environment =
-        globalIndex / dispatch.solverTileCapacity;
-    const uint localTile =
-        globalIndex -
-        environment * dispatch.solverTileCapacity;
-    const MRMetalWorldContactStatusGPU status =
-        statuses[environment];
-    if (status.code != MR_STEP_SUCCESS ||
-        localTile >= status.solverTiles) {
-        flags[globalIndex] = 0u;
-        return;
-    }
-    const MRContactTileGPU tile = denseTiles[globalIndex];
-    if ((tile.flags & MR_ISLAND_WORK_VALID) == 0u ||
-        tile.environment != environment ||
-        tile.islandIndex >= status.islandCount) {
-        flags[globalIndex] = 0u;
-        return;
-    }
-    const MRIslandWorkGPU work =
-        denseWork[
-            environment * dispatch.islandCapacity +
-            tile.islandIndex
-        ];
-    flags[globalIndex] =
-        (work.flags &
-         MR_ISLAND_WORK_DISTRIBUTED) != 0u
-        ? 1u
-        : 0u;
-}
-
-kernel void mr_world_scatter_distributed_tile_queue(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const uint* flags [[buffer(1)]],
-    device const uint* offsets [[buffer(2)]],
-    device const MRContactTileGPU* denseTiles [[buffer(3)]],
-    device MRContactTileGPU* compactTiles [[buffer(4)]],
-    device MRWorkQueueHeaderGPU* headers [[buffer(5)]],
-    const uint globalIndex [[thread_position_in_grid]]
-) {
-    const uint total =
-        dispatch.environmentCount *
-        dispatch.solverTileCapacity;
-    if (globalIndex == 0u) {
-        device MRWorkQueueHeaderGPU& header =
-            headers[MR_WORLD_WORK_SOLVER_SPILL];
-        const uint count =
-            total == 0u
-            ? 0u
-            : offsets[total - 1u] +
-                (flags[total - 1u] == 1u ? 1u : 0u);
-        header = {};
-        header.count = min(count, total);
-        header.capacity = total;
-        header.required = count;
-        header.workClass = MR_WORLD_WORK_SOLVER_SPILL;
-        header.overflow = count > total ? 1u : 0u;
-        header.indirect.threadgroupsX = header.count;
-        header.indirect.threadgroupsY = 1u;
-        header.indirect.threadgroupsZ = 1u;
-        header.indirect.activeCount = header.count;
-        header.reserved0 = total;
-    }
-    if (globalIndex >= total || flags[globalIndex] != 1u) {
-        return;
-    }
-    const uint destination = offsets[globalIndex];
-    if (destination < total) {
-        compactTiles[total + destination] =
-            denseTiles[globalIndex];
-    }
-}
-
-// Distributed islands use one SIMDgroup per compacted 32-contact tile for
-// the expensive factor solves and 3x3 block construction. Per-contact output
-// slots are unique; a later single-group segmented reducer applies them in
-// canonical tile/contact order, so no atomic velocity accumulation is used.
-kernel void mr_world_wave32_distributed_prepare(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const float* factors [[buffer(1)]],
-    device const float* pointJacobians [[buffer(2)]],
-    device const MRBodyStateGPU* candidateBodies [[buffer(3)]],
-    device MRContactConstraintGPU* contacts [[buffer(4)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(5)]],
-    device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(6)]],
-    device float* responseColumns [[buffer(7)]],
-    device float4* impulseDeltas [[buffer(8)]],
-    device MRWave32PreconditionerGPU* preconditioners [[buffer(9)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(10)]],
-    device const MRIslandWorkGPU* denseIslandWork [[buffer(11)]],
-    device const MRContactTileGPU* compactTiles [[buffer(12)]],
-    device const uint* tileConstraintIndices [[buffer(13)]],
-    device const MRWorkQueueHeaderGPU* workHeaders [[buffer(14)]],
-    const uint3 workGroup [[threadgroup_position_in_grid]],
-    const uint3 groupCount [[threadgroups_per_grid]],
-    const uint lane [[thread_index_in_simdgroup]]
-) {
-    const MRWorkQueueHeaderGPU header =
-        workHeaders[MR_WORLD_WORK_SOLVER_SPILL];
-    const uint stride = max(groupCount.x, 1u);
-    for (uint queueSlot = workGroup.x;
-         queueSlot < header.count;
-         queueSlot += stride) {
-        const MRContactTileGPU tile =
-            compactTiles[header.reserved0 + queueSlot];
-        const uint environment = tile.environment;
-        if (environment >= dispatch.environmentCount ||
-            lane >= tile.constraintCount) {
-            continue;
-        }
-        const MRMetalWorldContactStatusGPU environmentStatus =
-            statuses[environment];
-        if (environmentStatus.code != MR_STEP_SUCCESS ||
-            tile.islandIndex >= environmentStatus.islandCount) {
-            continue;
-        }
-        const MRIslandWorkGPU work =
-            denseIslandWork[
-                environment * dispatch.islandCapacity +
-                tile.islandIndex
-            ];
-        if ((work.flags &
-             (
-                 MR_ISLAND_WORK_VALID |
-                 MR_ISLAND_WORK_DISTRIBUTED
-             )) !=
-            (
-                MR_ISLAND_WORK_VALID |
-                MR_ISLAND_WORK_DISTRIBUTED
-            )) {
-            continue;
-        }
-
-        const uint constraintBase =
-            environment * dispatch.constraintStride;
-        const uint rowBase =
-            environment * dispatch.rowStride;
-        const uint bodyBase =
-            environment * dispatch.bodyStateStride;
-        const uint factorBase =
-            environment * dispatch.factorStride;
-        const uint pointJacobianBase =
-            environment *
-            (dispatch.pointQueryStride * 3u * dispatch.nv);
-        const uint responseBase =
-            environment *
-            (dispatch.constraintStride * 3u * dispatch.nv);
-        const uint localConstraint =
-            tileConstraintIndices[
-                constraintBase + tile.partialOffset + lane
-            ];
-        device MRContactConstraintGPU& contact =
-            contacts[constraintBase + localConstraint];
-        device const MRBodyStateGPU* bodies =
-            candidateBodies + bodyBase;
-        const bool articulatedA =
-            bodies[contact.bodyA].flagsAndIndices[1] !=
-                MR_INVALID_INDEX;
-        const bool articulatedB =
-            bodies[contact.bodyB].flagsAndIndices[1] !=
-                MR_INVALID_INDEX;
-
-        uint failure = MR_STEP_SUCCESS;
-        float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
-        float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
-        float solution[MR_ARTICULATED_ABA_MAX_DOFS];
-        for (uint axis = 0u; axis < 3u; ++axis) {
-            const float3 direction =
-                evaluatedRows[
-                    rowBase + 3u * localConstraint + axis
-                ].direction.xyz;
-            for (uint dof = 0u; dof < dispatch.nv; ++dof) {
-                rightHandSide[dof] = dot(
-                    direction,
-                    combinedJacobianColumn(
-                        pointJacobians,
-                        pointJacobianBase,
-                        localConstraint,
-                        dof,
-                        dispatch.nv,
-                        articulatedA,
-                        articulatedB
-                    )
-                );
-                intermediate[dof] = 0.0f;
-                solution[dof] = 0.0f;
-            }
-            if (!solveCholesky(
-                    factors,
-                    factorBase,
-                    dispatch.nv,
-                    rightHandSide,
-                    intermediate,
-                    solution
-                )) {
-                failure = MR_STEP_FACTORIZATION_FAILED;
-                break;
-            }
-            for (uint dof = 0u; dof < dispatch.nv; ++dof) {
-                responseColumns[
-                    responseBase +
-                    (localConstraint * 3u + axis) *
-                        dispatch.nv +
-                    dof
-                ] = solution[dof];
-            }
-        }
-
-        MRWave32PreconditionerGPU preconditioner = {};
-        if (failure == MR_STEP_SUCCESS) {
-            device const MREvaluatedConstraintIRRowGPU*
-                localRows =
-                    evaluatedRows +
-                    rowBase + 3u * localConstraint;
-            const float3 directions[3] = {
-                localRows[0].direction.xyz,
-                localRows[1].direction.xyz,
-                localRows[2].direction.xyz,
-            };
-            float effective[3][3];
-            for (uint row = 0u; row < 3u; ++row) {
-                for (uint column = 0u;
-                     column < 3u;
-                     ++column) {
-                    float value = 0.0f;
-                    for (uint dof = 0u;
-                         dof < dispatch.nv;
-                         ++dof) {
-                        const float rowJacobian = dot(
-                            directions[row],
-                            combinedJacobianColumn(
-                                pointJacobians,
-                                pointJacobianBase,
-                                localConstraint,
-                                dof,
-                                dispatch.nv,
-                                articulatedA,
-                                articulatedB
-                            )
-                        );
-                        value += rowJacobian *
-                            responseColumns[
-                                responseBase +
-                                (
-                                    localConstraint * 3u +
-                                    column
-                                ) * dispatch.nv +
-                                dof
-                            ];
-                    }
-                    if (dynamicSceneEndpoint(
-                            bodies[contact.bodyA],
-                            dispatch.articulationIndex
-                        )) {
-                        value += dot(
-                            directions[row],
-                            -scenePointResponse(
-                                bodies[contact.bodyA],
-                                contact.pointAndSeparation.xyz,
-                                -directions[column]
-                            )
-                        );
-                    }
-                    if (dynamicSceneEndpoint(
-                            bodies[contact.bodyB],
-                            dispatch.articulationIndex
-                        )) {
-                        value += dot(
-                            directions[row],
-                            scenePointResponse(
-                                bodies[contact.bodyB],
-                                contact.pointAndSeparation.xyz,
-                                directions[column]
-                            )
-                        );
-                    }
-                    if (row == column) {
-                        value +=
-                            localRows[row].regularization;
-                    }
-                    effective[row][column] = value;
-                }
-            }
-            float inverse[3][3];
-            if (!invert3x3(effective, inverse)) {
-                failure = MR_STEP_FACTORIZATION_FAILED;
-            } else {
-                preconditioner.row0.xyz = float3(
-                    inverse[0][0],
-                    inverse[0][1],
-                    inverse[0][2]
-                );
-                preconditioner.row1.xyz = float3(
-                    inverse[1][0],
-                    inverse[1][1],
-                    inverse[1][2]
-                );
-                preconditioner.row2.xyz = float3(
-                    inverse[2][0],
-                    inverse[2][1],
-                    inverse[2][2]
-                );
-            }
-        }
-        preconditioner.row0.w =
-            static_cast<float>(failure);
-        preconditioner.row1.w =
-            static_cast<float>(localConstraint);
-        preconditioners[
-            constraintBase + localConstraint
-        ] = preconditioner;
-        if (failure == MR_STEP_SUCCESS) {
-            const float3 warm = projectFrictionCone(
-                contact.impulses.xyz,
-                evaluatedCones[
-                    constraintBase + localConstraint
-                ]
-            );
-            contact.impulses.xyz = warm;
-            impulseDeltas[
-                constraintBase + localConstraint
-            ] = float4(warm, 0.0f);
-        } else {
-            impulseDeltas[
-                constraintBase + localConstraint
-            ] = float4(
-                0.0f,
-                0.0f,
-                0.0f,
-                static_cast<float>(failure)
-            );
-        }
-    }
-}
-
-// All contacts in a distributed island evaluate their block-Jacobi cone
-// update against the same accepted island velocity. Each compact tile is
-// independent until the canonical segmented reducer applies these deltas.
-kernel void mr_world_wave32_distributed_delta(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const float* pointJacobians [[buffer(1)]],
-    device const float* candidateV [[buffer(2)]],
-    device const MRBodyStateGPU* candidateBodies [[buffer(3)]],
-    device MRContactConstraintGPU* contacts [[buffer(4)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(5)]],
-    device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(6)]],
-    device const MRWave32PreconditionerGPU* preconditioners [[buffer(7)]],
-    device float4* impulseDeltas [[buffer(8)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(9)]],
-    device const MRContactTileGPU* compactTiles [[buffer(10)]],
-    device const uint* tileConstraintIndices [[buffer(11)]],
-    device const MRWorkQueueHeaderGPU* workHeaders [[buffer(12)]],
-    const uint3 workGroup [[threadgroup_position_in_grid]],
-    const uint3 groupCount [[threadgroups_per_grid]],
-    const uint lane [[thread_index_in_simdgroup]]
-) {
-    const MRWorkQueueHeaderGPU header =
-        workHeaders[MR_WORLD_WORK_SOLVER_SPILL];
-    const uint stride = max(groupCount.x, 1u);
-    for (uint queueSlot = workGroup.x;
-         queueSlot < header.count;
-         queueSlot += stride) {
-        const MRContactTileGPU tile =
-            compactTiles[header.reserved0 + queueSlot];
-        const uint environment = tile.environment;
-        if (environment >= dispatch.environmentCount ||
-            lane >= tile.constraintCount ||
-            statuses[environment].code != MR_STEP_SUCCESS) {
-            continue;
-        }
-        const uint constraintBase =
-            environment * dispatch.constraintStride;
-        const uint rowBase =
-            environment * dispatch.rowStride;
-        const uint bodyBase =
-            environment * dispatch.bodyStateStride;
-        const uint pointJacobianBase =
-            environment *
-            (dispatch.pointQueryStride * 3u * dispatch.nv);
-        const uint localConstraint =
-            tileConstraintIndices[
-                constraintBase + tile.partialOffset + lane
-            ];
-        const MRWave32PreconditionerGPU preconditioner =
-            preconditioners[
-                constraintBase + localConstraint
-            ];
-        if (static_cast<uint>(
-                preconditioner.row0.w
-            ) != MR_STEP_SUCCESS) {
-            continue;
-        }
-        device MRContactConstraintGPU& contact =
-            contacts[constraintBase + localConstraint];
-        device const MREvaluatedConstraintIRRowGPU* localRows =
-            evaluatedRows + rowBase + 3u * localConstraint;
-        const float3 relative = relativePointVelocity(
-            localConstraint,
-            contact,
-            candidateBodies + bodyBase,
-            dispatch.articulationIndex,
-            pointJacobians,
-            pointJacobianBase,
-            dispatch.nv,
-            candidateV + environment * dispatch.nv
-        );
-        const float3 previous = contact.impulses.xyz;
-        const float3 rhs = float3(
-            localRows[0].targetVelocity -
-                dot(localRows[0].direction.xyz, relative) -
-                localRows[0].regularization * previous.x,
-            localRows[1].targetVelocity -
-                dot(localRows[1].direction.xyz, relative) -
-                localRows[1].regularization * previous.y,
-            localRows[2].targetVelocity -
-                dot(localRows[2].direction.xyz, relative) -
-                localRows[2].regularization * previous.z
-        );
-        float3 candidate = previous + float3(
-            dot(preconditioner.row0.xyz, rhs),
-            dot(preconditioner.row1.xyz, rhs),
-            dot(preconditioner.row2.xyz, rhs)
-        );
-        candidate = projectFrictionCone(
-            candidate,
-            evaluatedCones[
-                constraintBase + localConstraint
-            ]
-        );
-        const float3 delta = candidate - previous;
-        if (!finite3(candidate) || !finite3(delta)) {
-            impulseDeltas[
-                constraintBase + localConstraint
-            ] = float4(
-                0.0f,
-                0.0f,
-                0.0f,
-                static_cast<float>(MR_STEP_NONFINITE_RESULT)
-            );
-            continue;
-        }
-        contact.impulses.xyz = candidate;
-        impulseDeltas[
-            constraintBase + localConstraint
-        ] = float4(delta, 0.0f);
-    }
-}
-
-// One SIMDgroup deterministically reduces per-contact tile output across a
-// distributed island. Lane ownership of articulation DoFs and scene bodies
-// prevents write conflicts, and stable tile order makes the reduction
-// bitwise replayable.
-kernel void mr_world_wave32_distributed_reduce(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const float* pointJacobians [[buffer(1)]],
-    device float* candidateV [[buffer(2)]],
-    device MRBodyStateGPU* candidateBodies [[buffer(3)]],
-    device MRContactConstraintGPU* contacts [[buffer(4)]],
-    device const MRContactPointMetaGPU* contactMetadata [[buffer(5)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(6)]],
-    device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(7)]],
-    device const float* responseColumns [[buffer(8)]],
-    device const float4* impulseDeltas [[buffer(9)]],
-    device const MRWave32PreconditionerGPU* preconditioners [[buffer(10)]],
-    device MRManifoldPointGPU* candidateManifoldPoints [[buffer(11)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(12)]],
-    device const MRIslandWorkGPU* compactIslandWork [[buffer(13)]],
-    device const MRContactTileGPU* denseTiles [[buffer(14)]],
-    device const uint* tileConstraintIndices [[buffer(15)]],
-    device MRWave32IslandStatusGPU* waveStatuses [[buffer(16)]],
-    device const MRWorkQueueHeaderGPU* workHeaders [[buffer(17)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(18)]],
-    const uint3 workGroup [[threadgroup_position_in_grid]],
-    const uint3 groupCount [[threadgroups_per_grid]],
-    const uint lane [[thread_index_in_simdgroup]]
-) {
-    const MRWorkQueueHeaderGPU header =
-        workHeaders[MR_WORLD_WORK_SOLVER_DISTRIBUTED];
-    const uint stride = max(groupCount.x, 1u);
-    for (uint queueSlot = workGroup.x;
-         queueSlot < header.count;
-         queueSlot += stride) {
-        const MRIslandWorkGPU work =
-            compactIslandWork[header.reserved0 + queueSlot];
-        const uint environment = work.environment;
-        const uint islandIndex = work.islandIndex;
-        if (environment >= dispatch.environmentCount ||
-            statuses[environment].code != MR_STEP_SUCCESS ||
-            (work.flags &
-             MR_ISLAND_WORK_DISTRIBUTED) == 0u) {
-            continue;
-        }
-        const uint constraintBase =
-            environment * dispatch.constraintStride;
-        const uint rowBase =
-            environment * dispatch.rowStride;
-        const uint bodyBase =
-            environment * dispatch.bodyStateStride;
-        const uint pointJacobianBase =
-            environment *
-            (dispatch.pointQueryStride * 3u * dispatch.nv);
-        const uint responseBase =
-            environment *
-            (dispatch.constraintStride * 3u * dispatch.nv);
-        const uint manifoldPointBase =
-            environment * dispatch.manifoldStride *
-            MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
-        const uint tileBase =
-            environment * dispatch.solverTileCapacity;
-        device float* articulationVelocity =
-            candidateV + environment * dispatch.nv;
-        device MRBodyStateGPU* bodies =
-            candidateBodies + bodyBase;
-
-        uint laneFailure = MR_STEP_SUCCESS;
-        uint laneFailureConstraint = MR_INVALID_INDEX;
-        float laneMaximumDelta = 0.0f;
-        for (uint localTile = 0u;
-             localTile < work.tileCount;
-             ++localTile) {
-            const MRContactTileGPU tile =
-                denseTiles[
-                    tileBase + work.firstTile + localTile
-                ];
-            if (lane >= tile.constraintCount) {
-                continue;
-            }
-            const uint localConstraint =
-                tileConstraintIndices[
-                    constraintBase +
-                    tile.partialOffset + lane
-                ];
-            const uint prepareFailure = static_cast<uint>(
-                preconditioners[
-                    constraintBase + localConstraint
-                ].row0.w
-            );
-            const uint deltaFailure = static_cast<uint>(
-                impulseDeltas[
-                    constraintBase + localConstraint
-                ].w
-            );
-            const uint failure = max(
-                prepareFailure,
-                deltaFailure
-            );
-            if (failure != MR_STEP_SUCCESS) {
-                laneFailure = max(laneFailure, failure);
-                laneFailureConstraint = min(
-                    laneFailureConstraint,
-                    localConstraint
-                );
-            }
-            const float3 delta =
-                impulseDeltas[
-                    constraintBase + localConstraint
-                ].xyz;
-            laneMaximumDelta = max(
-                laneMaximumDelta,
-                max(
-                    abs(delta.x),
-                    max(abs(delta.y), abs(delta.z))
-                )
-            );
-        }
-        const uint maximumFailure = simd_max(laneFailure);
-        const uint firstFailureConstraint =
-            simd_min(laneFailureConstraint);
-        if (maximumFailure != MR_STEP_SUCCESS) {
-            if (lane == 0u) {
-                MRWave32IslandStatusGPU failed = {};
-                failed.code = maximumFailure;
-                failed.environment = environment;
-                failed.islandIndex = islandIndex;
-                failed.residuals.w = static_cast<float>(
-                    firstFailureConstraint
-                );
-                waveStatuses[
-                    environment * dispatch.islandStride +
-                    islandIndex
-                ] = failed;
-            }
-            continue;
-        }
-
-        if ((work.flags &
-             MR_ISLAND_WORK_HAS_ARTICULATION) != 0u) {
-            for (uint dof = lane;
-                 dof < dispatch.nv;
-                 dof += MR_WAVE32_CONTACTS_PER_TILE) {
-                float velocityDelta = 0.0f;
-                for (uint localTile = 0u;
-                     localTile < work.tileCount;
-                     ++localTile) {
-                    const MRContactTileGPU tile =
-                        denseTiles[
-                            tileBase +
-                            work.firstTile + localTile
-                        ];
-                    for (uint slot = 0u;
-                         slot < tile.constraintCount;
-                         ++slot) {
-                        const uint localConstraint =
-                            tileConstraintIndices[
-                                constraintBase +
-                                tile.partialOffset + slot
-                            ];
-                        const float3 delta =
-                            impulseDeltas[
-                                constraintBase +
-                                localConstraint
-                            ].xyz;
-                        velocityDelta +=
-                            responseColumns[
-                                responseBase +
-                                (localConstraint * 3u + 0u) *
-                                    dispatch.nv +
-                                dof
-                            ] * delta.x +
-                            responseColumns[
-                                responseBase +
-                                (localConstraint * 3u + 1u) *
-                                    dispatch.nv +
-                                dof
-                            ] * delta.y +
-                            responseColumns[
-                                responseBase +
-                                (localConstraint * 3u + 2u) *
-                                    dispatch.nv +
-                                dof
-                            ] * delta.z;
-                    }
-                }
-                articulationVelocity[dof] += velocityDelta;
-            }
-        }
-        for (uint bodyIndex = lane;
-             bodyIndex < dispatch.bodyCount;
-             bodyIndex += MR_WAVE32_CONTACTS_PER_TILE) {
-            device MRBodyStateGPU& body = bodies[bodyIndex];
-            if (!dynamicSceneEndpoint(
-                    body,
-                    dispatch.articulationIndex
-                )) {
-                continue;
-            }
-            float3 linearImpulse = float3(0.0f);
-            float3 angularImpulse = float3(0.0f);
-            for (uint localTile = 0u;
-                 localTile < work.tileCount;
-                 ++localTile) {
-                const MRContactTileGPU tile =
-                    denseTiles[
-                        tileBase + work.firstTile + localTile
-                    ];
-                for (uint slot = 0u;
-                     slot < tile.constraintCount;
-                     ++slot) {
-                    const uint localConstraint =
-                        tileConstraintIndices[
-                            constraintBase +
-                            tile.partialOffset + slot
-                        ];
-                    const MRContactConstraintGPU contact =
-                        contacts[
-                            constraintBase + localConstraint
-                        ];
-                    const float3 delta =
-                        impulseDeltas[
-                            constraintBase + localConstraint
-                        ].xyz;
-                    device const MREvaluatedConstraintIRRowGPU*
-                        localRows =
-                            evaluatedRows +
-                            rowBase + 3u * localConstraint;
-                    const float3 impulse =
-                        localRows[0].direction.xyz * delta.x +
-                        localRows[1].direction.xyz * delta.y +
-                        localRows[2].direction.xyz * delta.z;
-                    if (contact.bodyA == bodyIndex) {
-                        linearImpulse -= impulse;
-                        angularImpulse += cross(
-                            contact.pointAndSeparation.xyz -
-                                body.position.xyz,
-                            -impulse
-                        );
-                    }
-                    if (contact.bodyB == bodyIndex) {
-                        linearImpulse += impulse;
-                        angularImpulse += cross(
-                            contact.pointAndSeparation.xyz -
-                                body.position.xyz,
-                            impulse
-                        );
-                    }
-                }
-            }
-            body.linearVelocityAndInverseMass.xyz +=
-                body.linearVelocityAndInverseMass.w *
-                linearImpulse;
-            body.angularVelocity.xyz += multiply(
-                stateInverseInertia(body),
-                angularImpulse
-            );
-        }
-        threadgroup_barrier(mem_flags::mem_device);
-
-        // reserved1==2 marks the last distributed sweep for this
-        // microstep. Only then publish manifold impulses and residuals.
-        if (pass.reserved1 != 2u) {
-            continue;
-        }
-        float laneNormalResidual = 0.0f;
-        float laneConeViolation = 0.0f;
-        for (uint localTile = 0u;
-             localTile < work.tileCount;
-             ++localTile) {
-            const MRContactTileGPU tile =
-                denseTiles[
-                    tileBase + work.firstTile + localTile
-                ];
-            if (lane >= tile.constraintCount) {
-                continue;
-            }
-            const uint localConstraint =
-                tileConstraintIndices[
-                    constraintBase +
-                    tile.partialOffset + lane
-                ];
-            device MRContactConstraintGPU& contact =
-                contacts[constraintBase + localConstraint];
-            device const MREvaluatedConstraintIRRowGPU*
-                localRows =
-                    evaluatedRows +
-                    rowBase + 3u * localConstraint;
-            const float3 relative = relativePointVelocity(
-                localConstraint,
-                contact,
-                bodies,
-                dispatch.articulationIndex,
-                pointJacobians,
-                pointJacobianBase,
-                dispatch.nv,
-                articulationVelocity
-            );
-            const float normalEquation =
-                dot(
-                    localRows[0].direction.xyz,
-                    relative
-                ) -
-                localRows[0].targetVelocity +
-                localRows[0].regularization *
-                    contact.impulses.x;
-            laneNormalResidual = max(
-                laneNormalResidual,
-                contact.impulses.x > kConeEpsilon
-                ? abs(normalEquation)
-                : max(-normalEquation, 0.0f)
-            );
-            const MREvaluatedConstraintIRConeGPU cone =
-                evaluatedCones[
-                    constraintBase + localConstraint
-                ];
-            const float limitU =
-                cone.effectiveFrictionU *
-                contact.impulses.x;
-            const float limitV =
-                cone.effectiveFrictionV *
-                contact.impulses.x;
-            float coneViolation = 0.0f;
-            if (limitU > 0.0f && limitV > 0.0f) {
-                coneViolation = max(
-                    sqrt(
-                        (
-                            contact.impulses.y *
-                            contact.impulses.y
-                        ) / (limitU * limitU) +
-                        (
-                            contact.impulses.z *
-                            contact.impulses.z
-                        ) / (limitV * limitV)
-                    ) - 1.0f,
-                    0.0f
-                );
-            } else {
-                coneViolation =
-                    length(contact.impulses.yz);
-            }
-            laneConeViolation = max(
-                laneConeViolation,
-                coneViolation
-            );
-            const MRContactPointMetaGPU metadata =
-                contactMetadata[
-                    constraintBase + localConstraint
-                ];
-            if (metadata.manifoldIndex <
-                    dispatch.manifoldCapacity &&
-                metadata.pointIndex <
-                    MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY) {
-                candidateManifoldPoints[
-                    manifoldPointBase +
-                    metadata.manifoldIndex *
-                        MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
-                    metadata.pointIndex
-                ].impulses = contact.impulses;
-            }
-        }
-        const float maximumImpulseDelta =
-            simd_max(laneMaximumDelta);
-        const float maximumNormalResidual =
-            simd_max(laneNormalResidual);
-        const float maximumConeViolation =
-            simd_max(laneConeViolation);
-        if (lane == 0u) {
-            MRWave32IslandStatusGPU result = {};
-            result.code = MR_STEP_SUCCESS;
-            result.environment = environment;
-            result.islandIndex = islandIndex;
-            result.iterations = pass.reserved0;
-            result.residuals = float4(
-                maximumImpulseDelta,
-                maximumNormalResidual,
-                maximumConeViolation,
-                0.0f
-            );
-            waveStatuses[
-                environment * dispatch.islandStride +
-                islandIndex
-            ] = result;
-        }
-    }
-}
-
-float waveCohortMaximum(
-    float value,
-    const uint cohortWidth
-) {
-    for (uint mask = cohortWidth >> 1u;
-         mask != 0u;
-         mask >>= 1u) {
-        value = max(value, simd_shuffle_xor(value, mask));
-    }
-    return value;
-}
-
-uint waveCohortMaximum(
-    uint value,
-    const uint cohortWidth
-) {
-    for (uint mask = cohortWidth >> 1u;
-         mask != 0u;
-         mask >>= 1u) {
-        value = max(value, simd_shuffle_xor(value, mask));
-    }
-    return value;
-}
-
-uint waveCohortMinimum(
-    uint value,
-    const uint cohortWidth
-) {
-    for (uint mask = cohortWidth >> 1u;
-         mask != 0u;
-         mask >>= 1u) {
-        value = min(value, simd_shuffle_xor(value, mask));
-    }
-    return value;
-}
-
-inline bool waveIslandContainsBody(
-    thread const MRIslandWorkGPU& work,
-    const uint bodyIndex,
-    device const MRContactConstraintGPU* contacts,
-    const uint constraintBase,
-    device const MRContactTileGPU* tiles,
-    const uint tileBase,
-    device const uint* tileConstraintIndices,
-    device const MRRodToolWitnessGPU* rodWitnesses,
-    device const uint* constraintWitnessIndices
-) {
-    for (uint localTile = 0u;
-         localTile < work.tileCount;
-         ++localTile) {
-        const MRContactTileGPU tile =
-            tiles[tileBase + work.firstTile + localTile];
-        for (uint slot = 0u;
-             slot < tile.constraintCount;
-             ++slot) {
-            const uint localConstraint =
-                tileConstraintIndices[
-                    constraintBase + tile.partialOffset + slot
-                ];
-            device const MRContactConstraintGPU& contact =
-                contacts[constraintBase + localConstraint];
-            if (typedRodConstraint(contact)) {
-                const uint witnessIndex =
-                    constraintWitnessIndices[
-                        constraintBase + localConstraint
-                    ];
-                if (witnessIndex != MR_INVALID_INDEX &&
-                    rodWitnesses[
-                        witnessIndex
-                    ].featuresAndFlags.z == bodyIndex) {
-                    return true;
-                }
-                continue;
-            }
-            if (contact.bodyA == bodyIndex ||
-                contact.bodyB == bodyIndex) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-inline float typedNormalCrossContactResponse(
-    const uint targetConstraint,
-    const uint sourceConstraint,
-    const uint sourceAxis,
-    device const MRContactConstraintGPU& target,
-    device const MRContactConstraintGPU& source,
-    const float3 targetNormal,
-    const float3 sourceNormal,
+inline float currentGeneralizedRowVelocity(
+    device const MRMetalWorldContactDispatchGPU& dispatch,
+    const MRConstraintIRBlockGPU block,
+    const uint localRow,
+    device const MRConstraintIREndpointGPU* endpoints,
+    const uint endpointBase,
+    const float3 direction,
+    device const float* articulationVelocity,
     device const MRBodyStateGPU* bodies,
-    device const float* pointJacobians,
-    const uint pointJacobianBase,
-    device const float* responseColumns,
-    const uint responseBase,
-    const uint nv,
-    const uint articulationIndex,
     device const MRRodNodeStateGPU* rodNodes,
-    device const float* inverseRodMasses,
-    device const float* inverseRodTwistInertias,
-    device const MRRodColliderGPU* rodColliders,
-    device const MRRodToolWitnessGPU* rodWitnesses,
-    device const uint* constraintWitnessIndices,
-    const uint constraintBase
+    thread bool& valid
 ) {
-    float response = 0.0f;
-    for (uint dof = 0u; dof < nv; ++dof) {
-        response += dot(
-            targetNormal,
-            typedArticulationJacobianColumn(
-                targetConstraint,
-                target,
-                bodies,
-                pointJacobians,
-                pointJacobianBase,
-                dof,
-                nv,
-                rodWitnesses,
-                constraintWitnessIndices,
-                constraintBase
-            )
-        ) * responseColumns[
-            responseBase +
-            (sourceConstraint * 3u + sourceAxis) * nv +
-            dof
-        ];
-    }
-
-    const bool targetRod = typedRodConstraint(target);
-    const bool sourceRod = typedRodConstraint(source);
-    MRRodToolWitnessGPU targetWitness = {};
-    MRRodToolWitnessGPU sourceWitness = {};
-    if (targetRod) {
-        targetWitness = rodWitnesses[
-            constraintWitnessIndices[
-                constraintBase + targetConstraint
-            ]
-        ];
-    }
-    if (sourceRod) {
-        sourceWitness = rodWitnesses[
-            constraintWitnessIndices[
-                constraintBase + sourceConstraint
-            ]
-        ];
-    }
-
-    const uint targetEndpointCount = targetRod ? 1u : 2u;
-    const uint sourceEndpointCount = sourceRod ? 1u : 2u;
-    for (uint targetEndpoint = 0u;
-         targetEndpoint < targetEndpointCount;
-         ++targetEndpoint) {
-        const uint targetBody =
-            targetRod
-            ? targetWitness.featuresAndFlags.z
-            : targetEndpoint == 0u
-            ? target.bodyA
-            : target.bodyB;
-        const float targetSign =
-            targetRod
-            ? 1.0f
-            : targetEndpoint == 0u
+    float relative = 0.0f;
+    valid = true;
+    for (uint endpointIndex = 0u;
+         endpointIndex < block.endpointCount;
+         ++endpointIndex) {
+        const MRConstraintIREndpointGPU endpoint =
+            endpoints[
+                endpointBase +
+                block.endpointOffset +
+                endpointIndex
+            ];
+        if (endpoint.role ==
+            MR_CONSTRAINT_IR_ENDPOINT_WORLD) {
+            continue;
+        }
+        const uint endpointRow =
+            endpoint.flags &
+            MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK;
+        if (endpointRow >= block.dimension ||
+            endpointRow >= 3u) {
+            valid = false;
+            return 0.0f;
+        }
+        if (endpointRow != localRow) {
+            continue;
+        }
+        const float sign =
+            endpoint.role == MR_CONSTRAINT_IR_ENDPOINT_A
             ? -1.0f
             : 1.0f;
-        const float3 targetPoint =
-            targetRod
-            ? targetWitness.toolPointAndSeparation.xyz
-            : target.pointAndSeparation.xyz;
-        device const MRBodyStateGPU& body =
-            bodies[targetBody];
-        if (!dynamicSceneEndpoint(body, articulationIndex)) {
-            continue;
-        }
-        for (uint sourceEndpoint = 0u;
-             sourceEndpoint < sourceEndpointCount;
-             ++sourceEndpoint) {
-            const uint sourceBody =
-                sourceRod
-                ? sourceWitness.featuresAndFlags.z
-                : sourceEndpoint == 0u
-                ? source.bodyA
-                : source.bodyB;
-            if (sourceBody != targetBody) {
-                continue;
+        if (endpoint.jacobianKind ==
+            MR_CONSTRAINT_IR_JACOBIAN_GENERALIZED) {
+            if (endpoint.objectIndex >= dispatch.nv) {
+                valid = false;
+                return 0.0f;
             }
-            const float sourceSign =
-                sourceRod
-                ? 1.0f
-                : sourceEndpoint == 0u
-                ? -1.0f
-                : 1.0f;
-            const float3 sourcePoint =
-                sourceRod
-                ? sourceWitness.toolPointAndSeparation.xyz
-                : source.pointAndSeparation.xyz;
-            response += targetSign * dot(
-                targetNormal,
-                sceneCrossPointResponse(
-                    body,
-                    targetPoint,
-                    sourcePoint,
-                    sourceSign * sourceNormal
-                )
+            relative = fma(
+                endpoint.axis.x,
+                articulationVelocity[endpoint.objectIndex],
+                relative
             );
+        } else if (
+            endpoint.jacobianKind ==
+            MR_CONSTRAINT_IR_JACOBIAN_ROD_NODE
+        ) {
+            if (endpoint.objectIndex >=
+                dispatch.rodNodeCount) {
+                valid = false;
+                return 0.0f;
+            }
+            relative += sign * dot(
+                direction,
+                rodNodes[endpoint.objectIndex].velocity.xyz
+            );
+        } else if (
+            endpoint.jacobianKind ==
+            MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT
+        ) {
+            if (endpoint.objectIndex >= dispatch.bodyCount) {
+                valid = false;
+                return 0.0f;
+            }
+            device const MRBodyStateGPU& body =
+                bodies[endpoint.objectIndex];
+            const float3 lever = multiply(
+                rotationMatrix(body.orientation),
+                endpoint.anchor.xyz
+            );
+            const float3 pointVelocity =
+                body.linearVelocityAndInverseMass.xyz +
+                cross(body.angularVelocity.xyz, lever);
+            relative += sign * dot(
+                direction,
+                pointVelocity
+            );
+        } else {
+            valid = false;
+            return 0.0f;
         }
     }
-
-    if (targetRod && sourceRod) {
-        const MRRodColliderGPU targetCollider =
-            rodColliders[targetWitness.identity.z];
-        const MRRodColliderGPU sourceCollider =
-            rodColliders[sourceWitness.identity.z];
-        if (targetCollider.rodIndex ==
-            sourceCollider.rodIndex) {
-            response += rodCrossContactResponse(
-                targetCollider,
-                targetWitness,
-                sourceCollider,
-                sourceWitness,
-                rodNodes,
-                inverseRodMasses,
-                inverseRodTwistInertias,
-                targetNormal,
-                sourceNormal
-            );
-        }
-    }
-    return response;
+    valid = isfinite(relative);
+    return relative;
 }
 
-// Applies one island's complete rod generalized impulse through the retained
-// implicit DER factor. A connected rod is represented by exactly one dynamic
-// node and therefore has one island owner; lane zero of that packet cohort can
-// safely reuse the rod's private workspace without atomics. The band solve is
-// matrix-free with respect to contacts and replaces the former diagonal
-// inverse-mass approximation in the authoritative velocity update.
-inline bool applyFactorizedRodIslandImpulse(
+inline bool cacheGeneralizedRowResponse(
     device const MRMetalWorldContactDispatchGPU& dispatch,
-    constant MRMetalWorldPassGPU& pass,
-    const uint environment,
-    const MRIslandWorkGPU work,
-    const uint constraintBase,
-    const uint rowBase,
-    const uint tileBase,
-    device const MRContactConstraintGPU* contacts,
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows,
-    device const MRContactTileGPU* tiles,
-    device const uint* tileConstraintIndices,
-    device const float4* impulseDeltas,
-    device MRRodNodeStateGPU* rodNodes,
-    device MRRodEdgeStateGPU* rodEdges,
-    device const MRRodColliderGPU* rodColliders,
-    device const MRRodToolWitnessGPU* rodWitnesses,
-    device const uint* constraintWitnessIndices,
-    device const MRRodFactorCacheGPU* rodFactorCaches,
-    device float* rodOperatorArena,
-    thread uint& firstFailingConstraint
+    const uint localConstraint,
+    const MRConstraintIRBlockGPU block,
+    const uint localRow,
+    device const MRConstraintIREndpointGPU* endpoints,
+    const uint endpointBase,
+    const MREvaluatedConstraintIRRowGPU row,
+    device const float* factors,
+    const uint factorBase,
+    device const MRBodyStateGPU* bodies,
+    device const float* inverseRodMasses,
+    device float* responseColumns,
+    const uint responseBase,
+    thread float* rightHandSide,
+    thread float* intermediate,
+    thread float* solution,
+    thread float& diagonal
 ) {
-    const uint factorStride = rodFactorElementStride(dispatch);
-    const uint required =
-        factorStride +
-        3u * dispatch.rodNodeCount +
-        dispatch.rodEdgeCount;
-    if (dispatch.operatorVelocityCapacity < required) {
-        return false;
+    for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+        rightHandSide[dof] = 0.0f;
+        intermediate[dof] = 0.0f;
+        solution[dof] = 0.0f;
     }
-    const uint environmentArenaBase =
-        environment * dispatch.operatorVelocityCapacity;
-    const uint workspaceBase =
-        environmentArenaBase + factorStride;
-    const uint expectedGeneration =
-        pass.physicsSubstep +
-        pass.controlStep * max(dispatch.rodCount, 1u);
-
-    for (uint rodIndex = 0u;
-         rodIndex < dispatch.rodCount;
-         ++rodIndex) {
-        bool participates = false;
-        uint firstRodConstraint = MR_INVALID_INDEX;
-        for (uint localTile = 0u;
-             localTile < work.tileCount;
-             ++localTile) {
-            const MRContactTileGPU tile =
-                tiles[tileBase + work.firstTile + localTile];
-            for (uint slot = 0u;
-                 slot < tile.constraintCount;
-                 ++slot) {
-                const uint localConstraint =
-                    tileConstraintIndices[
-                        constraintBase +
-                        tile.partialOffset + slot
-                    ];
-                device const MRContactConstraintGPU& contact =
-                    contacts[constraintBase + localConstraint];
-                if (!typedRodConstraint(contact)) {
-                    continue;
-                }
-                const uint witnessIndex =
-                    constraintWitnessIndices[
-                        constraintBase + localConstraint
-                    ];
-                if (witnessIndex == MR_INVALID_INDEX) {
-                    continue;
-                }
-                const MRRodToolWitnessGPU witness =
-                    rodWitnesses[witnessIndex];
-                if ((witness.featuresAndFlags.w &
-                     MR_ROD_TOOL_WITNESS_VALID) == 0u) {
-                    continue;
-                }
-                const MRRodColliderGPU collider =
-                    rodColliders[witness.identity.z];
-                if (collider.rodIndex != rodIndex) {
-                    continue;
-                }
-                participates = true;
-                firstRodConstraint = min(
-                    firstRodConstraint,
-                    localConstraint
-                );
-            }
-        }
-        if (!participates) {
+    diagonal = row.regularization;
+    bool hasArticulation = false;
+    const float3 direction = row.direction.xyz;
+    for (uint endpointIndex = 0u;
+         endpointIndex < block.endpointCount;
+         ++endpointIndex) {
+        const MRConstraintIREndpointGPU endpoint =
+            endpoints[
+                endpointBase +
+                block.endpointOffset +
+                endpointIndex
+            ];
+        if (endpoint.role ==
+            MR_CONSTRAINT_IR_ENDPOINT_WORLD) {
             continue;
         }
-
-        const MRRodFactorCacheGPU cache =
-            rodFactorCaches[
-                environment * dispatch.rodCount + rodIndex
-            ];
-        const uint nodeBase = cache.velocityOffset;
-        const uint nodeCount = cache.velocityCount;
-        const uint edgeBase = cache.blockCount;
-        const uint edgeCount = cache.blockWidth;
-        const uint factorEnd =
-            cache.firstBlock +
-            MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
-                nodeCount +
-            MR_ROD_FACTOR_TWIST_FLOATS_PER_EDGE *
-                edgeCount;
-        const bool cacheValid =
-            cache.environment == environment &&
-            cache.rodIndex == rodIndex &&
-            cache.generation == expectedGeneration &&
-            cache.code == MR_ROD_GPU_SUCCESS &&
-            (cache.flags & MR_ROD_FACTOR_CACHE_VALID) != 0u &&
-            nodeCount != 0u &&
-            edgeCount + 1u == nodeCount &&
-            nodeBase + nodeCount <= dispatch.rodNodeCount &&
-            edgeBase + edgeCount <= dispatch.rodEdgeCount &&
-            cache.firstBlock >= environmentArenaBase &&
-            factorEnd <= environmentArenaBase + factorStride;
-        if (!cacheValid) {
-            firstFailingConstraint = min(
-                firstFailingConstraint,
-                firstRodConstraint
-            );
+        const uint endpointRow =
+            endpoint.flags &
+            MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK;
+        if (endpointRow >= block.dimension ||
+            endpointRow >= 3u) {
             return false;
         }
-
-        const uint translationWorkspace =
-            workspaceBase + 3u * nodeBase;
-        const uint twistWorkspace =
-            workspaceBase +
-            3u * dispatch.rodNodeCount +
-            edgeBase;
-        for (uint localNode = 0u;
-             localNode < nodeCount;
-             ++localNode) {
-            const uint nodeIndex = nodeBase + localNode;
-            float3 force = float3(0.0f);
-            for (uint localTile = 0u;
-                 localTile < work.tileCount;
-                 ++localTile) {
-                const MRContactTileGPU tile =
-                    tiles[tileBase + work.firstTile + localTile];
-                for (uint slot = 0u;
-                     slot < tile.constraintCount;
-                     ++slot) {
-                    const uint localConstraint =
-                        tileConstraintIndices[
-                            constraintBase +
-                            tile.partialOffset + slot
-                        ];
-                    device const MRContactConstraintGPU& contact =
-                        contacts[
-                            constraintBase + localConstraint
-                        ];
-                    if (!typedRodConstraint(contact)) {
-                        continue;
-                    }
-                    const uint witnessIndex =
-                        constraintWitnessIndices[
-                            constraintBase + localConstraint
-                        ];
-                    if (witnessIndex == MR_INVALID_INDEX) {
-                        continue;
-                    }
-                    const MRRodToolWitnessGPU witness =
-                        rodWitnesses[witnessIndex];
-                    const MRRodColliderGPU collider =
-                        rodColliders[witness.identity.z];
-                    if (collider.rodIndex != rodIndex ||
-                        (nodeIndex != collider.nodeA &&
-                         nodeIndex != collider.nodeB)) {
-                        continue;
-                    }
-                    const float3 delta =
-                        impulseDeltas[
-                            constraintBase + localConstraint
-                        ].xyz;
-                    device const MREvaluatedConstraintIRRowGPU*
-                        localRows =
-                            evaluatedRows +
-                            rowBase + 3u * localConstraint;
-                    const float3 worldImpulse =
-                        localRows[0].direction.xyz * delta.x +
-                        localRows[1].direction.xyz * delta.y +
-                        localRows[2].direction.xyz * delta.z;
-                    force += rodNodeImpulseForce(
-                        collider,
-                        witness,
-                        rodNodes,
-                        nodeIndex,
-                        -worldImpulse
-                    );
-                }
-            }
-            rodOperatorArena[
-                translationWorkspace + 3u * localNode + 0u
-            ] = force.x;
-            rodOperatorArena[
-                translationWorkspace + 3u * localNode + 1u
-            ] = force.y;
-            rodOperatorArena[
-                translationWorkspace + 3u * localNode + 2u
-            ] = force.z;
+        if (endpointRow != localRow) {
+            continue;
         }
-        for (uint localEdge = 0u;
-             localEdge < edgeCount;
-             ++localEdge) {
-            const uint edgeIndex = edgeBase + localEdge;
-            float torque = 0.0f;
-            for (uint localTile = 0u;
-                 localTile < work.tileCount;
-                 ++localTile) {
-                const MRContactTileGPU tile =
-                    tiles[tileBase + work.firstTile + localTile];
-                for (uint slot = 0u;
-                     slot < tile.constraintCount;
-                     ++slot) {
-                    const uint localConstraint =
-                        tileConstraintIndices[
-                            constraintBase +
-                            tile.partialOffset + slot
-                        ];
-                    device const MRContactConstraintGPU& contact =
-                        contacts[
-                            constraintBase + localConstraint
-                        ];
-                    if (!typedRodConstraint(contact)) {
-                        continue;
-                    }
-                    const uint witnessIndex =
-                        constraintWitnessIndices[
-                            constraintBase + localConstraint
-                        ];
-                    if (witnessIndex == MR_INVALID_INDEX) {
-                        continue;
-                    }
-                    const MRRodToolWitnessGPU witness =
-                        rodWitnesses[witnessIndex];
-                    const MRRodColliderGPU collider =
-                        rodColliders[witness.identity.z];
-                    if (collider.rodIndex != rodIndex ||
-                        edgeIndex != collider.edgeIndex) {
-                        continue;
-                    }
-                    const float3 delta =
-                        impulseDeltas[
-                            constraintBase + localConstraint
-                        ].xyz;
-                    device const MREvaluatedConstraintIRRowGPU*
-                        localRows =
-                            evaluatedRows +
-                            rowBase + 3u * localConstraint;
-                    const float3 worldImpulse =
-                        localRows[0].direction.xyz * delta.x +
-                        localRows[1].direction.xyz * delta.y +
-                        localRows[2].direction.xyz * delta.z;
-                    torque += rodTwistImpulseTorque(
-                        collider,
-                        witness,
-                        rodNodes,
-                        edgeIndex,
-                        -worldImpulse
-                    );
-                }
+        const float sign =
+            endpoint.role == MR_CONSTRAINT_IR_ENDPOINT_A
+            ? -1.0f
+            : 1.0f;
+        if (endpoint.jacobianKind ==
+            MR_CONSTRAINT_IR_JACOBIAN_GENERALIZED) {
+            if (endpoint.objectIndex >= dispatch.nv) {
+                return false;
             }
-            rodOperatorArena[twistWorkspace + localEdge] =
-                torque;
+            rightHandSide[endpoint.objectIndex] +=
+                endpoint.axis.x;
+            hasArticulation = true;
+        } else if (
+            endpoint.jacobianKind ==
+            MR_CONSTRAINT_IR_JACOBIAN_ROD_NODE
+        ) {
+            if (endpoint.objectIndex >=
+                dispatch.rodNodeCount) {
+                return false;
+            }
+            diagonal +=
+                inverseRodMasses[endpoint.objectIndex] *
+                dot(direction, direction);
+        } else if (
+            endpoint.jacobianKind ==
+            MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT
+        ) {
+            if (endpoint.objectIndex >= dispatch.bodyCount) {
+                return false;
+            }
+            device const MRBodyStateGPU& body =
+                bodies[endpoint.objectIndex];
+            const float3 point =
+                body.position.xyz +
+                multiply(
+                    rotationMatrix(body.orientation),
+                    endpoint.anchor.xyz
+                );
+            const float3 impulse = sign * direction;
+            diagonal += dot(
+                impulse,
+                scenePointResponse(body, point, impulse)
+            );
+        } else {
+            return false;
         }
-
-        bool valid = solveRodTranslationFactorDevice(
-            rodOperatorArena,
-            cache.firstBlock,
-            3u * nodeCount,
-            rodOperatorArena,
-            translationWorkspace
+    }
+    if (hasArticulation &&
+        !solveCholesky(
+            factors,
+            factorBase,
+            dispatch.nv,
+            rightHandSide,
+            intermediate,
+            solution
+        )) {
+        return false;
+    }
+    for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+        diagonal = fma(
+            rightHandSide[dof],
+            solution[dof],
+            diagonal
         );
-        if (valid) {
-            valid = solveRodTwistFactorDevice(
-                rodOperatorArena,
-                cache.firstBlock +
-                    MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
-                        nodeCount,
-                edgeCount,
-                rodOperatorArena,
-                twistWorkspace
-            );
+        responseColumns[
+            responseBase +
+            (localConstraint * 3u + localRow) *
+                dispatch.nv +
+            dof
+        ] = solution[dof];
+    }
+    return diagonal > 1.0e-12f && isfinite(diagonal);
+}
+
+inline bool applyGeneralizedRowDelta(
+    device const MRMetalWorldContactDispatchGPU& dispatch,
+    const uint localConstraint,
+    const MRConstraintIRBlockGPU block,
+    const uint localRow,
+    device const MRConstraintIREndpointGPU* endpoints,
+    const uint endpointBase,
+    const float3 direction,
+    const float delta,
+    device float* articulationVelocity,
+    device MRBodyStateGPU* bodies,
+    device MRRodNodeStateGPU* rodNodes,
+    device const float* inverseRodMasses,
+    device const float* responseColumns,
+    const uint responseBase
+) {
+    for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+        articulationVelocity[dof] = fma(
+            responseColumns[
+                responseBase +
+                (localConstraint * 3u + localRow) *
+                    dispatch.nv +
+                dof
+            ],
+            delta,
+            articulationVelocity[dof]
+        );
+    }
+    for (uint endpointIndex = 0u;
+         endpointIndex < block.endpointCount;
+         ++endpointIndex) {
+        const MRConstraintIREndpointGPU endpoint =
+            endpoints[
+                endpointBase +
+                block.endpointOffset +
+                endpointIndex
+            ];
+        if (endpoint.role ==
+            MR_CONSTRAINT_IR_ENDPOINT_WORLD) {
+            continue;
         }
-        if (!valid) {
-            firstFailingConstraint = min(
-                firstFailingConstraint,
-                firstRodConstraint
-            );
+        const uint endpointRow =
+            endpoint.flags &
+            MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK;
+        if (endpointRow >= block.dimension ||
+            endpointRow >= 3u) {
             return false;
         }
-        for (uint localNode = 0u;
-             localNode < nodeCount;
-             ++localNode) {
-            const uint nodeIndex = nodeBase + localNode;
-            const float3 velocityDelta = float3(
-                rodOperatorArena[
-                    translationWorkspace +
-                    3u * localNode + 0u
-                ],
-                rodOperatorArena[
-                    translationWorkspace +
-                    3u * localNode + 1u
-                ],
-                rodOperatorArena[
-                    translationWorkspace +
-                    3u * localNode + 2u
-                ]
-            );
-            if (!finite3(velocityDelta)) {
-                firstFailingConstraint = min(
-                    firstFailingConstraint,
-                    firstRodConstraint
-                );
-                return false;
-            }
-            rodNodes[nodeIndex].velocity.xyz += velocityDelta;
+        if (endpointRow != localRow ||
+            endpoint.jacobianKind ==
+                MR_CONSTRAINT_IR_JACOBIAN_GENERALIZED) {
+            continue;
         }
-        for (uint localEdge = 0u;
-             localEdge < edgeCount;
-             ++localEdge) {
-            const float twistDelta =
-                rodOperatorArena[twistWorkspace + localEdge];
-            if (!isfinite(twistDelta)) {
-                firstFailingConstraint = min(
-                    firstFailingConstraint,
-                    firstRodConstraint
-                );
+        const float sign =
+            endpoint.role == MR_CONSTRAINT_IR_ENDPOINT_A
+            ? -1.0f
+            : 1.0f;
+        if (endpoint.jacobianKind ==
+            MR_CONSTRAINT_IR_JACOBIAN_ROD_NODE) {
+            if (endpoint.objectIndex >=
+                dispatch.rodNodeCount) {
                 return false;
             }
-            rodEdges[edgeBase + localEdge].twistAndRate.y +=
-                twistDelta;
+            rodNodes[endpoint.objectIndex].velocity.xyz +=
+                inverseRodMasses[endpoint.objectIndex] *
+                sign * direction * delta;
+        } else if (
+            endpoint.jacobianKind ==
+            MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT
+        ) {
+            if (endpoint.objectIndex >= dispatch.bodyCount) {
+                return false;
+            }
+            device MRBodyStateGPU& body =
+                bodies[endpoint.objectIndex];
+            const float3 point =
+                body.position.xyz +
+                multiply(
+                    rotationMatrix(body.orientation),
+                    endpoint.anchor.xyz
+                );
+            applySceneImpulse(
+                body,
+                point,
+                sign * direction * delta
+            );
+        } else {
+            return false;
         }
     }
     return true;
 }
 
-// Shared packet body. Standalone Metal obtains packet slots through indirect
-// dispatch while MLX uses a fixed worker grid that repeatedly claims slots
-// from the invocation-local queue cursor.
-inline void mrWorldWave32SolvePacket(
-    device const MRMetalWorldContactDispatchGPU& dispatch,
-    device const float* factors,
-    device const float* pointJacobians,
-    device float* candidateV,
-    device MRBodyStateGPU* candidateBodies,
-    device MRContactConstraintGPU* contacts,
-    device const MRContactPointMetaGPU* contactMetadata,
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows,
-    device const MREvaluatedConstraintIRConeGPU* evaluatedCones,
-    device float* responseColumns,
-    device MRManifoldPointGPU* candidateManifoldPoints,
-    device const MRMetalWorldContactStatusGPU* statuses,
-    device const MRIslandWorkGPU* islandWork,
-    device const MRContactTileGPU* tiles,
-    device const uint* tileConstraintIndices,
-    device float4* impulseDeltas,
-    device MRWave32PreconditionerGPU* preconditioners,
-    device MRWave32IslandStatusGPU* waveStatuses,
-    device const MRWorkQueueHeaderGPU* workHeaders,
-    device const MRWaveWorkPacketGPU* workPackets,
-    device MRRodNodeStateGPU* candidateRodNodes,
-    device MRRodEdgeStateGPU* candidateRodEdges,
-    device const float* inverseRodMasses,
-    device const float* inverseRodTwistInertias,
-    device const MRRodColliderGPU* rodColliders,
-    device MRRodToolWitnessGPU* rodWitnesses,
-    device const uint* constraintWitnessIndices,
-    device const MRRodFactorCacheGPU* rodFactorCaches,
-    device float* rodOperatorArena,
-    constant MRMetalWorldPassGPU& pass,
-    const uint packetSlot,
-    const uint lane,
-    threadgroup uint* failureCodes,
-    threadgroup uint* failureConstraints,
-    threadgroup uint* sharedFailure
-) {
-    const MRWorkQueueHeaderGPU workHeader =
-        workHeaders[MR_WORLD_WORK_SOLVER];
-    const MRWaveWorkPacketGPU packet =
-        workPackets[packetSlot];
-    const uint cohortWidth =
-        packet.metadata.x == 8u ||
-        packet.metadata.x == 16u
-        ? packet.metadata.x
-        : MR_WAVE32_CONTACTS_PER_TILE;
-    const uint cohortIndex = lane / cohortWidth;
-    const uint localLane =
-        lane - cohortIndex * cohortWidth;
-    if (cohortIndex >= packet.metadata.y) {
-        return;
-    }
-    const uint workSlot = packet.islandSlots[cohortIndex];
-    if (workSlot >= workHeader.count) {
-        return;
-    }
-    const MRIslandWorkGPU work = islandWork[workSlot];
-    const uint environment = work.environment;
-    const uint islandIndex = work.islandIndex;
-    if (environment >= dispatch.environmentCount) {
-        return;
-    }
-    const uint islandBase =
-        environment * dispatch.islandStride;
-    const MRMetalWorldContactStatusGPU environmentStatus =
-        statuses[environment];
-    if (environmentStatus.code != MR_STEP_SUCCESS ||
-        islandIndex >= environmentStatus.islandCount) {
-        return;
-    }
-    if ((work.flags & MR_ISLAND_WORK_VALID) == 0u ||
-        work.environment != environment ||
-        work.islandIndex != islandIndex ||
-        packet.stableKeyLow[cohortIndex] != islandIndex ||
-        packet.stableKeyHigh[cohortIndex] != environment) {
-        return;
-    }
-    if ((work.flags & MR_ISLAND_WORK_DISTRIBUTED) != 0u) {
-        return;
-    }
-
-    const uint constraintBase =
-        environment * dispatch.constraintStride;
-    const uint rowBase =
-        environment * dispatch.rowStride;
-    const uint bodyBase =
-        environment * dispatch.bodyStateStride;
-    const uint velocityBase = environment * dispatch.nv;
-    const uint factorBase =
-        environment * dispatch.factorStride;
-    const uint pointJacobianBase =
-        environment *
-        (dispatch.pointQueryStride * 3u * dispatch.nv);
-    const uint responseBase =
-        environment *
-        (dispatch.constraintStride * 3u * dispatch.nv);
-    const uint manifoldPointBase =
-        environment * dispatch.manifoldStride *
-        MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
-    const uint tileBase =
-        environment * dispatch.solverTileCapacity;
-    device float* articulationVelocity =
-        candidateV + velocityBase;
-    device MRBodyStateGPU* bodies =
-        candidateBodies + bodyBase;
-    device MRRodNodeStateGPU* rodNodes =
-        candidateRodNodes +
-        environment * dispatch.rodNodeCount;
-    device MRRodEdgeStateGPU* rodEdges =
-        candidateRodEdges +
-        environment * dispatch.rodEdgeCount;
-
-    uint localFailure = MR_STEP_SUCCESS;
-    uint localFailureConstraint = MR_INVALID_INDEX;
-    float laneMaximumDelta = 0.0f;
-    float laneFailureRhs = 0.0f;
-    float laneFailureInverse = 0.0f;
-    float laneFailureRelaxation = 0.0f;
-    if (localLane == 0u) {
-        sharedFailure[cohortIndex] = MR_STEP_SUCCESS;
-    }
-    threadgroup_barrier(mem_flags::mem_threadgroup);
-
-    // SIMD-saturated response/preconditioner construction and warm-start
-    // projection. Each lane solves its own three factorized RHS values.
-    for (uint localTile = 0u;
-         localTile < work.tileCount;
-         ++localTile) {
-        const MRContactTileGPU tile =
-            tiles[tileBase + work.firstTile + localTile];
-        if (localLane >= tile.constraintCount) {
-            continue;
-        }
-        const uint localConstraint =
-            tileConstraintIndices[
-                constraintBase + tile.partialOffset + localLane
-            ];
-        device MRContactConstraintGPU& contact =
-            contacts[constraintBase + localConstraint];
-        float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
-        float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
-        float solution[MR_ARTICULATED_ABA_MAX_DOFS];
-        for (uint axis = 0u; axis < 3u; ++axis) {
-            const float3 direction =
-                evaluatedRows[
-                    rowBase + 3u * localConstraint + axis
-                ].direction.xyz;
-            for (uint dof = 0u; dof < dispatch.nv; ++dof) {
-                rightHandSide[dof] = dot(
-                    direction,
-                    typedArticulationJacobianColumn(
-                        localConstraint,
-                        contact,
-                        bodies,
-                        pointJacobians,
-                        pointJacobianBase,
-                        dof,
-                        dispatch.nv,
-                        rodWitnesses,
-                        constraintWitnessIndices,
-                        constraintBase
-                    )
-                );
-                intermediate[dof] = 0.0f;
-                solution[dof] = 0.0f;
-            }
-            if (!solveCholesky(
-                    factors,
-                    factorBase,
-                    dispatch.nv,
-                    rightHandSide,
-                    intermediate,
-                    solution
-                )) {
-                localFailure = MR_STEP_FACTORIZATION_FAILED;
-                localFailureConstraint = min(
-                    localFailureConstraint,
-                    localConstraint
-                );
-                break;
-            }
-            for (uint dof = 0u; dof < dispatch.nv; ++dof) {
-                responseColumns[
-                    responseBase +
-                    (localConstraint * 3u + axis) *
-                        dispatch.nv +
-                    dof
-                ] = solution[dof];
-            }
-        }
-        if (localFailure != MR_STEP_SUCCESS) {
-            continue;
-        }
-
-        device const MREvaluatedConstraintIRRowGPU* localRows =
-            evaluatedRows + rowBase + 3u * localConstraint;
-        const float3 directions[3] = {
-            localRows[0].direction.xyz,
-            localRows[1].direction.xyz,
-            localRows[2].direction.xyz,
-        };
-        float effective[3][3];
-        for (uint row = 0u; row < 3u; ++row) {
-            for (uint column = 0u; column < 3u; ++column) {
-                float value = typedNormalCrossContactResponse(
-                    localConstraint,
-                    localConstraint,
-                    column,
-                    contact,
-                    contact,
-                    directions[row],
-                    directions[column],
-                    bodies,
-                    pointJacobians,
-                    pointJacobianBase,
-                    responseColumns,
-                    responseBase,
-                    dispatch.nv,
-                    dispatch.articulationIndex,
-                    rodNodes,
-                    inverseRodMasses,
-                    inverseRodTwistInertias,
-                    rodColliders,
-                    rodWitnesses,
-                    constraintWitnessIndices,
-                    constraintBase
-                );
-                if (row == column) {
-                    value += localRows[row].regularization;
-                }
-                effective[row][column] = value;
-            }
-        }
-        float inverse[3][3];
-        if (!invert3x3(effective, inverse)) {
-            localFailure = MR_STEP_FACTORIZATION_FAILED;
-            localFailureConstraint = min(
-                localFailureConstraint,
-                localConstraint
-            );
-            continue;
-        }
-        MRWave32PreconditionerGPU preconditioner = {};
-        preconditioner.row0.xyz = float3(
-            inverse[0][0],
-            inverse[0][1],
-            inverse[0][2]
-        );
-        preconditioner.row1.xyz = float3(
-            inverse[1][0],
-            inverse[1][1],
-            inverse[1][2]
-        );
-        preconditioner.row2.xyz = float3(
-            inverse[2][0],
-            inverse[2][1],
-            inverse[2][2]
-        );
-        preconditioners[
-            constraintBase + localConstraint
-        ] = preconditioner;
-        const float3 warm = projectFrictionCone(
-            contact.impulses.xyz,
-            evaluatedCones[constraintBase + localConstraint]
-        );
-        contact.impulses.xyz = warm;
-        impulseDeltas[
-            constraintBase + localConstraint
-        ] = float4(warm, 0.0f);
-    }
-
-    failureCodes[lane] = localFailure;
-    failureConstraints[lane] = localFailureConstraint;
-    threadgroup_barrier(mem_flags::mem_device |
-                        mem_flags::mem_threadgroup);
-    if (localLane == 0u) {
-        sharedFailure[cohortIndex] = MR_STEP_SUCCESS;
-        uint firstConstraint = MR_INVALID_INDEX;
-        const uint firstCohortLane =
-            cohortIndex * cohortWidth;
-        for (uint sourceLane = firstCohortLane;
-             sourceLane < firstCohortLane + cohortWidth;
-             ++sourceLane) {
-            if (failureCodes[sourceLane] == MR_STEP_SUCCESS) {
-                continue;
-            }
-            sharedFailure[cohortIndex] =
-                failureCodes[sourceLane];
-            firstConstraint = min(
-                firstConstraint,
-                failureConstraints[sourceLane]
-            );
-        }
-        if (sharedFailure[cohortIndex] != MR_STEP_SUCCESS) {
-            MRWave32IslandStatusGPU failed = {};
-            failed.code = sharedFailure[cohortIndex];
-            failed.environment = environment;
-            failed.islandIndex = islandIndex;
-            failed.residuals.w =
-                static_cast<float>(firstConstraint);
-            waveStatuses[islandBase + islandIndex] = failed;
-        }
-    }
-    threadgroup_barrier(mem_flags::mem_threadgroup);
-    const uint groupFailure = simd_max(localFailure);
-    if (groupFailure != MR_STEP_SUCCESS) {
-        if (localLane == 0u &&
-            sharedFailure[cohortIndex] == MR_STEP_SUCCESS) {
-            // A sibling cohort failed its factor solve. Route this healthy
-            // island through the deterministic ordered replay so every lane
-            // exits the packet uniformly without sacrificing per-environment
-            // transactional isolation.
-            MRWave32IslandStatusGPU replay = {};
-            replay.code = MR_STEP_SUCCESS;
-            replay.environment = environment;
-            replay.islandIndex = islandIndex;
-            replay.residuals.w = 1.0f;
-            waveStatuses[islandBase + islandIndex] = replay;
-        }
-        return;
-    }
-
-    // Apply every warm-start impulse exactly once. Articulation DoFs and free
-    // bodies have unique lane owners, eliminating conflicting atomic writes.
-    if ((work.flags & MR_ISLAND_WORK_HAS_ARTICULATION) != 0u) {
-        for (uint dof = localLane;
-             dof < dispatch.nv;
-             dof += cohortWidth) {
-            float velocityDelta = 0.0f;
-            bool participates = false;
-            for (uint localTile = 0u;
-                 localTile < work.tileCount;
-                 ++localTile) {
-                const MRContactTileGPU tile =
-                    tiles[tileBase + work.firstTile + localTile];
-                for (uint slot = 0u;
-                     slot < tile.constraintCount;
-                     ++slot) {
-                    const uint localConstraint =
-                        tileConstraintIndices[
-                            constraintBase +
-                            tile.partialOffset + slot
-                        ];
-                    const float3 delta =
-                        impulseDeltas[
-                            constraintBase + localConstraint
-                        ].xyz;
-                    const float response0 =
-                        responseColumns[
-                            responseBase +
-                                (localConstraint * 3u + 0u) *
-                                    dispatch.nv +
-                                dof
-                        ];
-                    const float response1 =
-                        responseColumns[
-                            responseBase +
-                                (localConstraint * 3u + 1u) *
-                                    dispatch.nv +
-                                dof
-                        ];
-                    const float response2 =
-                        responseColumns[
-                            responseBase +
-                                (localConstraint * 3u + 2u) *
-                                    dispatch.nv +
-                                dof
-                        ];
-                    participates =
-                        participates ||
-                        response0 != 0.0f ||
-                        response1 != 0.0f ||
-                        response2 != 0.0f;
-                    velocityDelta +=
-                        response0 * delta.x +
-                        response1 * delta.y +
-                        response2 * delta.z;
-                }
-            }
-            if (participates) {
-                articulationVelocity[dof] += velocityDelta;
-            }
-        }
-    }
-    for (uint bodyIndex = localLane;
-         bodyIndex < dispatch.bodyCount;
-         bodyIndex += cohortWidth) {
-        device MRBodyStateGPU& body = bodies[bodyIndex];
-        if (!dynamicSceneEndpoint(
-                body,
-                dispatch.articulationIndex
-            ) ||
-            !waveIslandContainsBody(
-                work,
-                bodyIndex,
-                contacts,
-                constraintBase,
-                tiles,
-                tileBase,
-                tileConstraintIndices,
-                rodWitnesses,
-                constraintWitnessIndices
-            )) {
-            continue;
-        }
-        float3 linearImpulse = float3(0.0f);
-        float3 angularImpulse = float3(0.0f);
-        for (uint localTile = 0u;
-             localTile < work.tileCount;
-             ++localTile) {
-            const MRContactTileGPU tile =
-                tiles[tileBase + work.firstTile + localTile];
-            for (uint slot = 0u;
-                 slot < tile.constraintCount;
-                 ++slot) {
-                const uint localConstraint =
-                    tileConstraintIndices[
-                        constraintBase +
-                        tile.partialOffset + slot
-                    ];
-                device const MRContactConstraintGPU& contact =
-                    contacts[constraintBase + localConstraint];
-                const float3 delta =
-                    impulseDeltas[
-                        constraintBase + localConstraint
-                    ].xyz;
-                device const MREvaluatedConstraintIRRowGPU*
-                    localRows =
-                        evaluatedRows +
-                        rowBase + 3u * localConstraint;
-                const float3 impulse =
-                    localRows[0].direction.xyz * delta.x +
-                    localRows[1].direction.xyz * delta.y +
-                    localRows[2].direction.xyz * delta.z;
-                if (typedRodConstraint(contact)) {
-                    const uint witnessIndex =
-                        constraintWitnessIndices[
-                            constraintBase + localConstraint
-                        ];
-                    if (witnessIndex != MR_INVALID_INDEX) {
-                        const MRRodToolWitnessGPU witness =
-                            rodWitnesses[witnessIndex];
-                        if (witness.featuresAndFlags.z ==
-                            bodyIndex) {
-                            linearImpulse += impulse;
-                            angularImpulse += cross(
-                                witness
-                                    .toolPointAndSeparation.xyz -
-                                    body.position.xyz,
-                                impulse
-                            );
-                        }
-                    }
-                    continue;
-                }
-                if (contact.bodyA == bodyIndex) {
-                    linearImpulse -= impulse;
-                    angularImpulse += cross(
-                        contact.pointAndSeparation.xyz -
-                            body.position.xyz,
-                        -impulse
-                    );
-                }
-                if (contact.bodyB == bodyIndex) {
-                    linearImpulse += impulse;
-                    angularImpulse += cross(
-                        contact.pointAndSeparation.xyz -
-                            body.position.xyz,
-                        impulse
-                    );
-                }
-            }
-        }
-        body.linearVelocityAndInverseMass.xyz +=
-            body.linearVelocityAndInverseMass.w *
-            linearImpulse;
-        body.angularVelocity.xyz += multiply(
-            stateInverseInertia(body),
-            angularImpulse
-        );
-    }
-    if ((work.flags & MR_ISLAND_WORK_HAS_ROD) != 0u &&
-        localLane == 0u &&
-        !applyFactorizedRodIslandImpulse(
-            dispatch,
-            pass,
-            environment,
-            work,
-            constraintBase,
-            rowBase,
-            tileBase,
-            contacts,
-            evaluatedRows,
-            tiles,
-            tileConstraintIndices,
-            impulseDeltas,
-            rodNodes,
-            rodEdges,
-            rodColliders,
-            rodWitnesses,
-            constraintWitnessIndices,
-            rodFactorCaches,
-            rodOperatorArena,
-            localFailureConstraint
-        )) {
-        localFailure = MR_STEP_FACTORIZATION_FAILED;
-    }
-    threadgroup_barrier(mem_flags::mem_device);
-
-    const uint solverIterations =
-        dispatch.velocityIterations +
-        (pass.reserved0 != 0u
-             ? dispatch.finalVelocityIterations
-             : 0u);
-    for (uint iteration = 0u;
-         iteration < solverIterations;
-         ++iteration) {
-        for (uint localTile = 0u;
-             localTile < work.tileCount;
-             ++localTile) {
-            const MRContactTileGPU tile =
-                tiles[tileBase + work.firstTile + localTile];
-            if (localLane >= tile.constraintCount) {
-                continue;
-            }
-            const uint localConstraint =
-                tileConstraintIndices[
-                    constraintBase +
-                    tile.partialOffset +
-                    localLane
-                ];
-            device MRContactConstraintGPU& contact =
-                contacts[constraintBase + localConstraint];
-            device const MREvaluatedConstraintIRRowGPU*
-                localRows =
-                    evaluatedRows +
-                    rowBase + 3u * localConstraint;
-            const float3 relative = typedRelativePointVelocity(
-                localConstraint,
-                contact,
-                bodies,
-                dispatch.articulationIndex,
-                pointJacobians,
-                pointJacobianBase,
-                dispatch.nv,
-                articulationVelocity,
-                rodNodes,
-                rodEdges,
-                rodColliders,
-                rodWitnesses,
-                constraintWitnessIndices,
-                constraintBase
-            );
-            const float3 previous = contact.impulses.xyz;
-            const float3 rhs = float3(
-                localRows[0].targetVelocity -
-                    dot(localRows[0].direction.xyz, relative) -
-                    localRows[0].regularization * previous.x,
-                localRows[1].targetVelocity -
-                    dot(localRows[1].direction.xyz, relative) -
-                    localRows[1].regularization * previous.y,
-                localRows[2].targetVelocity -
-                    dot(localRows[2].direction.xyz, relative) -
-                    localRows[2].regularization * previous.z
-            );
-            const MRWave32PreconditionerGPU preconditioner =
-                preconditioners[
-                    constraintBase + localConstraint
-                ];
-            float3 proposed = previous + float3(
-                dot(preconditioner.row0.xyz, rhs),
-                dot(preconditioner.row1.xyz, rhs),
-                dot(preconditioner.row2.xyz, rhs)
-            );
-            proposed = projectFrictionCone(
-                proposed,
-                evaluatedCones[
-                    constraintBase + localConstraint
-                ]
-            );
-            float absoluteNormalRowSum = 0.0f;
-            float diagonalNormalResponse = 0.0f;
-            for (uint sourceTile = 0u;
-                 sourceTile < work.tileCount;
-                 ++sourceTile) {
-                const MRContactTileGPU source =
-                    tiles[
-                        tileBase + work.firstTile + sourceTile
-                    ];
-                for (uint sourceSlot = 0u;
-                     sourceSlot < source.constraintCount;
-                     ++sourceSlot) {
-                    const uint sourceConstraint =
-                        tileConstraintIndices[
-                            constraintBase +
-                            source.partialOffset +
-                            sourceSlot
-                        ];
-                    device const MRContactConstraintGPU&
-                        sourceContact =
-                            contacts[
-                                constraintBase +
-                                sourceConstraint
-                            ];
-                    const float3 sourceNormal =
-                        evaluatedRows[
-                            rowBase +
-                            3u * sourceConstraint
-                        ].direction.xyz;
-                    const float crossResponse =
-                        typedNormalCrossContactResponse(
-                            localConstraint,
-                            sourceConstraint,
-                            0u,
-                            contact,
-                            sourceContact,
-                            localRows[0].direction.xyz,
-                            sourceNormal,
-                            bodies,
-                            pointJacobians,
-                            pointJacobianBase,
-                            responseColumns,
-                            responseBase,
-                            dispatch.nv,
-                            dispatch.articulationIndex,
-                            rodNodes,
-                            inverseRodMasses,
-                            inverseRodTwistInertias,
-                            rodColliders,
-                            rodWitnesses,
-                            constraintWitnessIndices,
-                            constraintBase
-                        );
-                    absoluteNormalRowSum += abs(crossResponse);
-                    if (sourceConstraint == localConstraint) {
-                        diagonalNormalResponse =
-                            abs(crossResponse) +
-                            localRows[0].regularization;
-                    }
-                }
-            }
-            const float relaxation =
-                absoluteNormalRowSum >
-                    max(diagonalNormalResponse, kMatrixFloor)
-                ? clamp(
-                      diagonalNormalResponse /
-                          absoluteNormalRowSum,
-                      1.0f / 32.0f,
-                      1.0f
-                  )
-                : 1.0f;
-            const float3 delta =
-                relaxation * (proposed - previous);
-            const float3 candidate = previous + delta;
-            if (!finite3(candidate) || !finite3(delta)) {
-                laneFailureRhs = max(
-                    abs(rhs.x),
-                    max(abs(rhs.y), abs(rhs.z))
-                );
-                laneFailureInverse = max(
-                    max(
-                        abs(preconditioner.row0.x),
-                        max(
-                            abs(preconditioner.row0.y),
-                            abs(preconditioner.row0.z)
-                        )
-                    ),
-                    max(
-                        max(
-                            abs(preconditioner.row1.x),
-                            max(
-                                abs(preconditioner.row1.y),
-                                abs(preconditioner.row1.z)
-                            )
-                        ),
-                        max(
-                            abs(preconditioner.row2.x),
-                            max(
-                                abs(preconditioner.row2.y),
-                                abs(preconditioner.row2.z)
-                            )
-                        )
-                    )
-                );
-                laneFailureRelaxation = relaxation;
-                localFailure = MR_STEP_NONFINITE_RESULT;
-                localFailureConstraint = min(
-                    localFailureConstraint,
-                    localConstraint
-                );
-                impulseDeltas[
-                    constraintBase + localConstraint
-                ] = float4(0.0f);
-                continue;
-            }
-            contact.impulses.xyz = candidate;
-            impulseDeltas[
-                constraintBase + localConstraint
-            ] = float4(delta, 0.0f);
-            laneMaximumDelta = max(
-                laneMaximumDelta,
-                max(
-                    abs(delta.x),
-                    max(abs(delta.y), abs(delta.z))
-                )
-            );
-        }
-        threadgroup_barrier(mem_flags::mem_device);
-
-        if ((work.flags &
-             MR_ISLAND_WORK_HAS_ARTICULATION) != 0u) {
-            for (uint dof = localLane;
-                 dof < dispatch.nv;
-                 dof += cohortWidth) {
-                float velocityDelta = 0.0f;
-                bool participates = false;
-                for (uint localTile = 0u;
-                     localTile < work.tileCount;
-                     ++localTile) {
-                    const MRContactTileGPU tile =
-                        tiles[
-                            tileBase +
-                            work.firstTile + localTile
-                        ];
-                    for (uint slot = 0u;
-                         slot < tile.constraintCount;
-                         ++slot) {
-                        const uint localConstraint =
-                            tileConstraintIndices[
-                                constraintBase +
-                                tile.partialOffset + slot
-                            ];
-                        const float3 delta =
-                            impulseDeltas[
-                                constraintBase +
-                                localConstraint
-                            ].xyz;
-                        const float response0 =
-                            responseColumns[
-                                responseBase +
-                                    (localConstraint * 3u + 0u) *
-                                        dispatch.nv +
-                                    dof
-                            ];
-                        const float response1 =
-                            responseColumns[
-                                responseBase +
-                                    (localConstraint * 3u + 1u) *
-                                        dispatch.nv +
-                                    dof
-                            ];
-                        const float response2 =
-                            responseColumns[
-                                responseBase +
-                                    (localConstraint * 3u + 2u) *
-                                        dispatch.nv +
-                                    dof
-                            ];
-                        participates =
-                            participates ||
-                            response0 != 0.0f ||
-                            response1 != 0.0f ||
-                            response2 != 0.0f;
-                        velocityDelta +=
-                            response0 * delta.x +
-                            response1 * delta.y +
-                            response2 * delta.z;
-                    }
-                }
-                if (participates) {
-                    articulationVelocity[dof] +=
-                        velocityDelta;
-                }
-            }
-        }
-        for (uint bodyIndex = localLane;
-             bodyIndex < dispatch.bodyCount;
-             bodyIndex += cohortWidth) {
-            device MRBodyStateGPU& body = bodies[bodyIndex];
-            if (!dynamicSceneEndpoint(
-                    body,
-                    dispatch.articulationIndex
-                ) ||
-                !waveIslandContainsBody(
-                    work,
-                    bodyIndex,
-                    contacts,
-                    constraintBase,
-                    tiles,
-                    tileBase,
-                    tileConstraintIndices,
-                    rodWitnesses,
-                    constraintWitnessIndices
-                )) {
-                continue;
-            }
-            float3 linearImpulse = float3(0.0f);
-            float3 angularImpulse = float3(0.0f);
-            for (uint localTile = 0u;
-                 localTile < work.tileCount;
-                 ++localTile) {
-                const MRContactTileGPU tile =
-                    tiles[
-                        tileBase + work.firstTile + localTile
-                    ];
-                for (uint slot = 0u;
-                     slot < tile.constraintCount;
-                     ++slot) {
-                    const uint localConstraint =
-                        tileConstraintIndices[
-                            constraintBase +
-                            tile.partialOffset + slot
-                        ];
-                    device const MRContactConstraintGPU& contact =
-                        contacts[
-                            constraintBase + localConstraint
-                        ];
-                    const float3 delta =
-                        impulseDeltas[
-                            constraintBase + localConstraint
-                        ].xyz;
-                    device const MREvaluatedConstraintIRRowGPU*
-                        localRows =
-                            evaluatedRows +
-                            rowBase + 3u * localConstraint;
-                    const float3 impulse =
-                        localRows[0].direction.xyz * delta.x +
-                        localRows[1].direction.xyz * delta.y +
-                        localRows[2].direction.xyz * delta.z;
-                    if (typedRodConstraint(contact)) {
-                        const uint witnessIndex =
-                            constraintWitnessIndices[
-                                constraintBase +
-                                localConstraint
-                            ];
-                        if (witnessIndex != MR_INVALID_INDEX) {
-                            const MRRodToolWitnessGPU witness =
-                                rodWitnesses[witnessIndex];
-                            if (witness.featuresAndFlags.z ==
-                                bodyIndex) {
-                                linearImpulse += impulse;
-                                angularImpulse += cross(
-                                    witness
-                                        .toolPointAndSeparation
-                                        .xyz -
-                                        body.position.xyz,
-                                    impulse
-                                );
-                            }
-                        }
-                        continue;
-                    }
-                    if (contact.bodyA == bodyIndex) {
-                        linearImpulse -= impulse;
-                        angularImpulse += cross(
-                            contact.pointAndSeparation.xyz -
-                                body.position.xyz,
-                            -impulse
-                        );
-                    }
-                    if (contact.bodyB == bodyIndex) {
-                        linearImpulse += impulse;
-                        angularImpulse += cross(
-                            contact.pointAndSeparation.xyz -
-                                body.position.xyz,
-                            impulse
-                        );
-                    }
-                }
-            }
-            body.linearVelocityAndInverseMass.xyz +=
-                body.linearVelocityAndInverseMass.w *
-                linearImpulse;
-            body.angularVelocity.xyz += multiply(
-                stateInverseInertia(body),
-                angularImpulse
-            );
-        }
-        if ((work.flags & MR_ISLAND_WORK_HAS_ROD) != 0u &&
-            localLane == 0u &&
-            !applyFactorizedRodIslandImpulse(
-                dispatch,
-                pass,
-                environment,
-                work,
-                constraintBase,
-                rowBase,
-                tileBase,
-                contacts,
-                evaluatedRows,
-                tiles,
-                tileConstraintIndices,
-                impulseDeltas,
-                rodNodes,
-                rodEdges,
-                rodColliders,
-                rodWitnesses,
-                constraintWitnessIndices,
-                rodFactorCaches,
-                rodOperatorArena,
-                localFailureConstraint
-            )) {
-            localFailure = MR_STEP_FACTORIZATION_FAILED;
-        }
-        threadgroup_barrier(mem_flags::mem_device);
-    }
-
-    float laneNormalResidual = 0.0f;
-    float laneConeViolation = 0.0f;
-    for (uint localTile = 0u;
-         localTile < work.tileCount;
-         ++localTile) {
-        const MRContactTileGPU tile =
-            tiles[tileBase + work.firstTile + localTile];
-        if (localLane >= tile.constraintCount) {
-            continue;
-        }
-        const uint localConstraint =
-            tileConstraintIndices[
-                constraintBase +
-                tile.partialOffset +
-                localLane
-            ];
-        device MRContactConstraintGPU& contact =
-            contacts[constraintBase + localConstraint];
-        device const MREvaluatedConstraintIRRowGPU* localRows =
-            evaluatedRows + rowBase + 3u * localConstraint;
-        const float3 relative = typedRelativePointVelocity(
-            localConstraint,
-            contact,
-            bodies,
-            dispatch.articulationIndex,
-            pointJacobians,
-            pointJacobianBase,
-            dispatch.nv,
-            articulationVelocity,
-            rodNodes,
-            rodEdges,
-            rodColliders,
-            rodWitnesses,
-            constraintWitnessIndices,
-            constraintBase
-        );
-        const float normalEquation =
-            dot(localRows[0].direction.xyz, relative) -
-            localRows[0].targetVelocity +
-            localRows[0].regularization *
-                contact.impulses.x;
-        laneNormalResidual = max(
-            laneNormalResidual,
-            contact.impulses.x > kConeEpsilon
-            ? abs(normalEquation)
-            : max(-normalEquation, 0.0f)
-        );
-        const MREvaluatedConstraintIRConeGPU cone =
-            evaluatedCones[
-                constraintBase + localConstraint
-            ];
-        const float limitU =
-            cone.effectiveFrictionU * contact.impulses.x;
-        const float limitV =
-            cone.effectiveFrictionV * contact.impulses.x;
-        float coneViolation = 0.0f;
-        if (limitU > 0.0f && limitV > 0.0f) {
-            coneViolation = max(
-                sqrt(
-                    (contact.impulses.y * contact.impulses.y) /
-                        (limitU * limitU) +
-                    (contact.impulses.z * contact.impulses.z) /
-                        (limitV * limitV)
-                ) - 1.0f,
-                0.0f
-            );
-        } else {
-            coneViolation = length(contact.impulses.yz);
-        }
-        laneConeViolation = max(
-            laneConeViolation,
-            coneViolation
-        );
-
-        const MRContactPointMetaGPU metadata =
-            contactMetadata[constraintBase + localConstraint];
-        if (typedRodConstraint(contact)) {
-            const uint witnessIndex =
-                constraintWitnessIndices[
-                    constraintBase + localConstraint
-                ];
-            if (witnessIndex != MR_INVALID_INDEX) {
-                rodWitnesses[witnessIndex].impulses =
-                    contact.impulses;
-            }
-        }
-        if (metadata.manifoldIndex <
-                dispatch.manifoldCapacity &&
-            metadata.pointIndex <
-                MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY) {
-            candidateManifoldPoints[
-                manifoldPointBase +
-                metadata.manifoldIndex *
-                    MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
-                metadata.pointIndex
-            ].impulses = contact.impulses;
-        }
-    }
-    const float maximumImpulseDelta = waveCohortMaximum(
-        laneMaximumDelta,
-        cohortWidth
-    );
-    const float maximumNormalResidual = waveCohortMaximum(
-        laneNormalResidual,
-        cohortWidth
-    );
-    const float maximumConeViolation = waveCohortMaximum(
-        laneConeViolation,
-        cohortWidth
-    );
-    const uint maximumFailureCode = waveCohortMaximum(
-        localFailure,
-        cohortWidth
-    );
-    const uint firstFailureConstraint =
-        waveCohortMinimum(
-            localFailureConstraint,
-            cohortWidth
-        );
-    const float maximumFailureRhs = waveCohortMaximum(
-        laneFailureRhs,
-        cohortWidth
-    );
-    const float maximumFailureInverse = waveCohortMaximum(
-        laneFailureInverse,
-        cohortWidth
-    );
-    const float maximumFailureRelaxation = waveCohortMaximum(
-        laneFailureRelaxation,
-        cohortWidth
-    );
-    if (localLane == 0u) {
-        MRWave32IslandStatusGPU result = {};
-        result.code =
-            maximumFailureCode;
-        result.environment = environment;
-        result.islandIndex = islandIndex;
-        result.iterations = solverIterations;
-        if (maximumFailureCode != MR_STEP_SUCCESS) {
-            result.residuals = float4(
-                maximumFailureRhs,
-                maximumFailureInverse,
-                maximumFailureRelaxation,
-                static_cast<float>(firstFailureConstraint)
-            );
-        } else {
-            result.residuals = float4(
-                maximumImpulseDelta,
-                maximumNormalResidual,
-                maximumConeViolation,
-                0.0f
-            );
-        }
-        waveStatuses[islandBase + islandIndex] = result;
-    }
-}
-
-// One SIMD32 group owns one full mixed-contact island or a deterministic
-// packet of two/four homogeneous compact islands. Within a packet, contiguous
-// 16/8-lane cohorts own independent islands. A cohort lane owns one coupled
-// normal/tangent block in each tile, then cooperatively assembles a single
-// articulation/free-body velocity update without atomics.
-kernel void mr_world_wave32_solve(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const float* factors [[buffer(1)]],
-    device const float* pointJacobians [[buffer(2)]],
-    device float* candidateV [[buffer(3)]],
-    device MRBodyStateGPU* candidateBodies [[buffer(4)]],
-    device MRContactConstraintGPU* contacts [[buffer(5)]],
-    device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
-    device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
-    device float* responseColumns [[buffer(9)]],
-    device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(11)]],
-    device const MRIslandWorkGPU* islandWork [[buffer(12)]],
-    device const MRContactTileGPU* tiles [[buffer(13)]],
-    device const uint* tileConstraintIndices [[buffer(14)]],
-    device float4* impulseDeltas [[buffer(15)]],
-    device MRWave32PreconditionerGPU* preconditioners [[buffer(16)]],
-    device MRWave32IslandStatusGPU* waveStatuses [[buffer(17)]],
-    device const MRWorkQueueHeaderGPU* workHeaders [[buffer(18)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(19)]],
-    device const MRWaveWorkPacketGPU* workPackets [[buffer(20)]],
-    device MRRodNodeStateGPU* candidateRodNodes [[buffer(21)]],
-    device MRRodEdgeStateGPU* candidateRodEdges [[buffer(22)]],
-    device const float* inverseRodMasses [[buffer(23)]],
-    device const float* inverseRodTwistInertias [[buffer(24)]],
-    device const MRRodColliderGPU* rodColliders [[buffer(25)]],
-    device MRRodToolWitnessGPU* rodWitnesses [[buffer(26)]],
-    device const uint* constraintWitnessIndices [[buffer(27)]],
-    device const MRRodFactorCacheGPU* rodFactorCaches [[buffer(28)]],
-    device float* rodOperatorArena [[buffer(29)]],
-    const uint packetSlot [[threadgroup_position_in_grid]],
-    const uint lane [[thread_index_in_simdgroup]]
-) {
-    threadgroup uint failureCodes[
-        MR_WAVE32_CONTACTS_PER_TILE
-    ];
-    threadgroup uint failureConstraints[
-        MR_WAVE32_CONTACTS_PER_TILE
-    ];
-    threadgroup uint sharedFailure[4u];
-    mrWorldWave32SolvePacket(
-        dispatch,
-        factors,
-        pointJacobians,
-        candidateV,
-        candidateBodies,
-        contacts,
-        contactMetadata,
-        evaluatedRows,
-        evaluatedCones,
-        responseColumns,
-        candidateManifoldPoints,
-        statuses,
-        islandWork,
-        tiles,
-        tileConstraintIndices,
-        impulseDeltas,
-        preconditioners,
-        waveStatuses,
-        workHeaders,
-        workPackets,
-        candidateRodNodes,
-        candidateRodEdges,
-        inverseRodMasses,
-        inverseRodTwistInertias,
-        rodColliders,
-        rodWitnesses,
-        constraintWitnessIndices,
-        rodFactorCaches,
-        rodOperatorArena,
-        pass,
-        packetSlot,
-        lane,
-        failureCodes,
-        failureConstraints,
-        sharedFailure
-    );
-}
-
-// MLX cannot issue an indirect dispatch through its active encoder. A bounded
-// occupancy-sized grid therefore remains resident and claims deterministic
-// packet slots through one relaxed atomic per packet. Packet writes are
-// disjoint, so claim order cannot affect physical ordering or replay hashes.
-kernel void mr_world_wave32_solve_persistent(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const float* factors [[buffer(1)]],
-    device const float* pointJacobians [[buffer(2)]],
-    device float* candidateV [[buffer(3)]],
-    device MRBodyStateGPU* candidateBodies [[buffer(4)]],
-    device MRContactConstraintGPU* contacts [[buffer(5)]],
-    device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
-    device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
-    device float* responseColumns [[buffer(9)]],
-    device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(11)]],
-    device const MRIslandWorkGPU* islandWork [[buffer(12)]],
-    device const MRContactTileGPU* tiles [[buffer(13)]],
-    device const uint* tileConstraintIndices [[buffer(14)]],
-    device float4* impulseDeltas [[buffer(15)]],
-    device MRWave32PreconditionerGPU* preconditioners [[buffer(16)]],
-    device MRWave32IslandStatusGPU* waveStatuses [[buffer(17)]],
-    device MRWorkQueueHeaderGPU* workHeaders [[buffer(18)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(19)]],
-    device const MRWaveWorkPacketGPU* workPackets [[buffer(20)]],
-    device MRRodNodeStateGPU* candidateRodNodes [[buffer(21)]],
-    device MRRodEdgeStateGPU* candidateRodEdges [[buffer(22)]],
-    device const float* inverseRodMasses [[buffer(23)]],
-    device const float* inverseRodTwistInertias [[buffer(24)]],
-    device const MRRodColliderGPU* rodColliders [[buffer(25)]],
-    device MRRodToolWitnessGPU* rodWitnesses [[buffer(26)]],
-    device const uint* constraintWitnessIndices [[buffer(27)]],
-    device const MRRodFactorCacheGPU* rodFactorCaches [[buffer(28)]],
-    device float* rodOperatorArena [[buffer(29)]],
-    const uint lane [[thread_index_in_simdgroup]]
-) {
-    constexpr uint kPacketClaimBatch = 4u;
-    threadgroup uint claimedPacketBase;
-    threadgroup uint failureCodes[
-        MR_WAVE32_CONTACTS_PER_TILE
-    ];
-    threadgroup uint failureConstraints[
-        MR_WAVE32_CONTACTS_PER_TILE
-    ];
-    threadgroup uint sharedFailure[4u];
-    device MRWorkQueueHeaderGPU& header =
-        workHeaders[MR_WORLD_WORK_SOLVER];
-    device atomic_uint* cursor =
-        reinterpret_cast<device atomic_uint*>(
-            &header.workerCursor
-        );
-    if (lane == 0u) {
-        device atomic_uint* flags =
-            reinterpret_cast<device atomic_uint*>(
-                &header.flags
-            );
-        atomic_fetch_or_explicit(
-            flags,
-            static_cast<uint>(
-                MR_WORLD_QUEUE_PERSISTENT_WORKER
-            ),
-            memory_order_relaxed
-        );
-    }
-    threadgroup_barrier(mem_flags::mem_threadgroup);
-    while (true) {
-        if (lane == 0u) {
-            claimedPacketBase = atomic_fetch_add_explicit(
-                cursor,
-                kPacketClaimBatch,
-                memory_order_relaxed
-            );
-        }
-        threadgroup_barrier(mem_flags::mem_threadgroup);
-        if (claimedPacketBase >=
-            header.indirect.threadgroupsX) {
-            break;
-        }
-        for (uint localPacket = 0u;
-             localPacket < kPacketClaimBatch;
-             ++localPacket) {
-            const uint packetSlot =
-                claimedPacketBase + localPacket;
-            if (packetSlot >=
-                header.indirect.threadgroupsX) {
-                break;
-            }
-            mrWorldWave32SolvePacket(
-                dispatch,
-                factors,
-                pointJacobians,
-                candidateV,
-                candidateBodies,
-                contacts,
-                contactMetadata,
-                evaluatedRows,
-                evaluatedCones,
-                responseColumns,
-                candidateManifoldPoints,
-                statuses,
-                islandWork,
-                tiles,
-                tileConstraintIndices,
-                impulseDeltas,
-                preconditioners,
-                waveStatuses,
-                workHeaders,
-                workPackets,
-                candidateRodNodes,
-                candidateRodEdges,
-                inverseRodMasses,
-                inverseRodTwistInertias,
-                rodColliders,
-                rodWitnesses,
-                constraintWitnessIndices,
-                rodFactorCaches,
-                rodOperatorArena,
-                pass,
-                packetSlot,
-                lane,
-                failureCodes,
-                failureConstraints,
-                sharedFailure
-            );
-            threadgroup_barrier(
-                mem_flags::mem_device |
-                mem_flags::mem_threadgroup
-            );
-        }
-    }
-}
-
-// Environment-level reduction is deliberately separate from the island
-// kernels: islands never contend on status publication and failed
-// environments remain transactionally isolated.
-kernel void mr_world_reduce_wave32_status(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const MRWave32IslandStatusGPU* waveStatuses [[buffer(1)]],
-    device MRMetalWorldContactStatusGPU* statuses [[buffer(2)]],
-    device const MRWorkQueueHeaderGPU* workHeaders [[buffer(3)]],
-    const uint environment [[thread_position_in_grid]]
-) {
-    if (environment >= dispatch.environmentCount) {
-        return;
-    }
-    MRMetalWorldContactStatusGPU status = statuses[environment];
-    if (status.code != MR_STEP_SUCCESS) {
-        return;
-    }
-    const uint islandBase =
-        environment * dispatch.islandStride;
-    float4 residuals = float4(0.0f);
-    uint iterations = 0u;
-    for (uint island = 0u;
-         island < status.islandCount;
-         ++island) {
-        const MRWave32IslandStatusGPU source =
-            waveStatuses[islandBase + island];
-        if (source.code != MR_STEP_SUCCESS) {
-            status.code = source.code;
-            if (source.iterations == MR_INVALID_INDEX) {
-                status.firstFailingConstraint =
-                    MR_INVALID_INDEX;
-                status.firstFailingStableKeyLow =
-                    source.islandIndex;
-                status.firstFailingStableKeyHigh =
-                    source.environment;
-            } else {
-                status.firstFailingConstraint =
-                    static_cast<uint>(source.residuals.w);
-                status.firstFailingStableKeyLow = 0u;
-                status.firstFailingStableKeyHigh = 0u;
-                residuals = source.residuals;
-            }
-            break;
-        }
-        residuals = max(residuals, source.residuals);
-        iterations = max(iterations, source.iterations);
-    }
-    status.solverIterations = iterations;
-    status.residuals = residuals;
-    const MRWorkQueueHeaderGPU solverHeader =
-        workHeaders[MR_WORLD_WORK_SOLVER];
-    status.queueFlags |=
-        solverHeader.flags &
-        (
-            MR_WORLD_QUEUE_COHORT_8 |
-            MR_WORLD_QUEUE_COHORT_16
-        );
-    if ((solverHeader.flags &
-         MR_WORLD_QUEUE_PERSISTENT_WORKER) != 0u) {
-        status.queueFlags |=
-            MR_WORLD_QUEUE_PERSISTENT_WORKER;
-        status.workerPackets =
-            solverHeader.indirect.threadgroupsX;
-        status.workerHighWater = max(
-            status.workerHighWater,
-            solverHeader.indirect.threadgroupsX
-        );
-        const uint roundedPacketClaims =
-            (
-                solverHeader.indirect.threadgroupsX + 3u
-            ) & ~3u;
-        status.workerEmptyPulls =
-            solverHeader.workerCursor >
-                    roundedPacketClaims
-            ? (
-                  solverHeader.workerCursor -
-                  roundedPacketClaims
-              ) / 4u
-            : 0u;
-    }
-    if (residuals.w > 0.0f) {
-        status.queueFlags |=
-            MR_ISLAND_WORK_STIFF_REPLAY;
-    }
-    statuses[environment] = status;
-}
-
-// Ordered sparse generalized blocks share the composed block-diagonal
-// articulation factor and canonical ConstraintIR stream. Contact/rod blocks
-// are handled by Wave32; this pass closes limits/equalities/gears/tendons
-// without routing through the compatibility multi-articulation solver.
-kernel void mr_world_solve_generalized_constraints(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const float* factors [[buffer(1)]],
-    device float* candidateV [[buffer(2)]],
-    device MRContactConstraintGPU* contacts [[buffer(3)]],
-    device const MRConstraintIRBlockGPU* blocks [[buffer(4)]],
-    device const MRConstraintIREndpointGPU* endpoints [[buffer(5)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(6)]],
-    device MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(8)]],
-    device MRBodyStateGPU* candidateBodies [[buffer(9)]],
-    device MRRodNodeStateGPU* candidateRodNodes [[buffer(10)]],
-    device const float* inverseRodMasses [[buffer(11)]],
-    const uint environment [[thread_position_in_grid]]
-) {
-    if (environment >= dispatch.environmentCount ||
-        dispatch.authoredConstraintCount == 0u) {
-        return;
-    }
-    MRMetalWorldContactStatusGPU status = statuses[environment];
-    if (status.code != MR_STEP_SUCCESS ||
-        dispatch.nv > MR_ARTICULATED_ABA_MAX_DOFS) {
-        return;
-    }
-    const uint constraintBase =
-        environment * dispatch.constraintStride;
-    const uint endpointBase =
-        2u * environment * dispatch.constraintStride;
-    const uint rowBase =
-        environment * dispatch.rowStride;
-    const uint velocityBase = environment * dispatch.nv;
-    const uint factorBase =
-        environment * dispatch.factorStride;
-    const uint bodyBase =
-        environment * dispatch.bodyStateStride;
-    const uint rodNodeBase =
-        environment * dispatch.rodNodeCount;
-    device float* velocity =
-        candidateV + velocityBase;
-    float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
-    float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
-    float solution[MR_ARTICULATED_ABA_MAX_DOFS];
-    float maximumResidual = 0.0f;
-    const uint iterations = max(
-        dispatch.velocityIterations +
-            (pass.reserved0 != 0u
-                 ? dispatch.finalVelocityIterations
-                 : 0u),
-        1u
-    );
-
-    for (uint iteration = 0u;
-         iteration < iterations;
-         ++iteration) {
-        for (uint localConstraint = 0u;
-             localConstraint <
-                 min(
-                     status.requiredConstraints,
-                     dispatch.authoredConstraintCount
-                 );
-             ++localConstraint) {
-            const uint constraintIndex =
-                constraintBase + localConstraint;
-            device MRContactConstraintGPU& compatibility =
-                contacts[constraintIndex];
-            const MRConstraintIRBlockGPU block =
-                blocks[constraintIndex];
-            if ((block.flags &
-                 MR_CONSTRAINT_IR_BLOCK_GENERALIZED) == 0u ||
-                (block.flags &
-                 MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u) {
-                continue;
-            }
-            for (uint localRow = 0u;
-                 localRow < block.dimension;
-                 ++localRow) {
-                for (uint dof = 0u;
-                     dof < dispatch.nv;
-                     ++dof) {
-                    rightHandSide[dof] = 0.0f;
-                    intermediate[dof] = 0.0f;
-                    solution[dof] = 0.0f;
-                }
-                const MREvaluatedConstraintIRRowGPU row =
-                    evaluatedRows[
-                        rowBase + block.rowOffset + localRow
-                    ];
-                const float3 direction =
-                    row.direction.xyz;
-                float response = row.regularization;
-                bool hasArticulation = false;
-                for (uint endpointIndex = 0u;
-                     endpointIndex < block.endpointCount;
-                     ++endpointIndex) {
-                    const MRConstraintIREndpointGPU endpoint =
-                        endpoints[
-                            endpointBase +
-                            block.endpointOffset +
-                            endpointIndex
-                        ];
-                    if (endpoint.role ==
-                        MR_CONSTRAINT_IR_ENDPOINT_WORLD) {
-                        continue;
-                    }
-                    const uint endpointRow =
-                        endpoint.flags &
-                        MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK;
-                    if (endpointRow >= block.dimension) {
-                        status.code = MR_STEP_UNSUPPORTED;
-                        status.firstFailingConstraint =
-                            localConstraint;
-                        statuses[environment] = status;
-                        return;
-                    }
-                    if (endpointRow != localRow) {
-                        continue;
-                    }
-                    const float sign =
-                        endpoint.role ==
-                            MR_CONSTRAINT_IR_ENDPOINT_A
-                        ? -1.0f
-                        : 1.0f;
-                    if (endpoint.jacobianKind ==
-                        MR_CONSTRAINT_IR_JACOBIAN_GENERALIZED) {
-                        if (endpoint.objectIndex >= dispatch.nv) {
-                            status.code = MR_STEP_UNSUPPORTED;
-                            status.firstFailingConstraint =
-                                localConstraint;
-                            statuses[environment] = status;
-                            return;
-                        }
-                        rightHandSide[
-                            endpoint.objectIndex
-                        ] += endpoint.axis.x;
-                        hasArticulation = true;
-                    } else if (
-                        endpoint.jacobianKind ==
-                        MR_CONSTRAINT_IR_JACOBIAN_ROD_NODE
-                    ) {
-                        if (endpoint.objectIndex >=
-                            dispatch.rodNodeCount) {
-                            status.code = MR_STEP_UNSUPPORTED;
-                            status.firstFailingConstraint =
-                                localConstraint;
-                            statuses[environment] = status;
-                            return;
-                        }
-                        response +=
-                            inverseRodMasses[
-                                endpoint.objectIndex
-                            ] * dot(direction, direction);
-                    } else if (
-                        endpoint.jacobianKind ==
-                        MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT
-                    ) {
-                        if (endpoint.objectIndex >=
-                            dispatch.bodyCount) {
-                            status.code = MR_STEP_UNSUPPORTED;
-                            status.firstFailingConstraint =
-                                localConstraint;
-                            statuses[environment] = status;
-                            return;
-                        }
-                        device const MRBodyStateGPU& body =
-                            candidateBodies[
-                                bodyBase + endpoint.objectIndex
-                            ];
-                        const float3 point =
-                            body.position.xyz +
-                            multiply(
-                                rotationMatrix(
-                                    body.orientation
-                                ),
-                                endpoint.anchor.xyz
-                            );
-                        const float3 endpointImpulse =
-                            sign * direction;
-                        response += dot(
-                            endpointImpulse,
-                            scenePointResponse(
-                                body,
-                                point,
-                                endpointImpulse
-                            )
-                        );
-                    } else {
-                        status.code = MR_STEP_UNSUPPORTED;
-                        status.firstFailingConstraint =
-                            localConstraint;
-                        statuses[environment] = status;
-                        return;
-                    }
-                }
-                if (hasArticulation &&
-                    !solveCholesky(
-                        factors,
-                        factorBase,
-                        dispatch.nv,
-                        rightHandSide,
-                        intermediate,
-                        solution
-                    )) {
-                    status.code =
-                        MR_STEP_FACTORIZATION_FAILED;
-                    status.firstFailingConstraint =
-                        localConstraint;
-                    statuses[environment] = status;
-                    return;
-                }
-                for (uint dof = 0u;
-                     dof < dispatch.nv;
-                     ++dof) {
-                    response = fma(
-                        rightHandSide[dof],
-                        solution[dof],
-                        response
-                    );
-                }
-                const float relative = row.relativeVelocity;
-                if (!(response > 1.0e-12f) ||
-                    !isfinite(response) ||
-                    !isfinite(relative)) {
-                    status.code =
-                        MR_STEP_FACTORIZATION_FAILED;
-                    status.firstFailingConstraint =
-                        localConstraint;
-                    statuses[environment] = status;
-                    return;
-                }
-                const float previous =
-                    compatibility.impulses[localRow];
-                const float residual =
-                    relative - row.targetVelocity +
-                    row.regularization * previous;
-                const float proposed = clamp(
-                    previous - residual / response,
-                    row.impulseLower,
-                    row.impulseUpper
-                );
-                const float delta = proposed - previous;
-                if (!isfinite(proposed) ||
-                    !isfinite(delta)) {
-                    status.code = MR_STEP_NONFINITE_RESULT;
-                    status.firstFailingConstraint =
-                        localConstraint;
-                    statuses[environment] = status;
-                    return;
-                }
-                compatibility.impulses[localRow] = proposed;
-                for (uint dof = 0u;
-                     dof < dispatch.nv;
-                     ++dof) {
-                    velocity[dof] = fma(
-                        solution[dof],
-                        delta,
-                        velocity[dof]
-                    );
-                }
-                for (uint endpointIndex = 0u;
-                     endpointIndex < block.endpointCount;
-                     ++endpointIndex) {
-                    const MRConstraintIREndpointGPU endpoint =
-                        endpoints[
-                            endpointBase +
-                            block.endpointOffset +
-                            endpointIndex
-                        ];
-                    if (endpoint.role ==
-                        MR_CONSTRAINT_IR_ENDPOINT_WORLD) {
-                        continue;
-                    }
-                    const uint endpointRow =
-                        endpoint.flags &
-                        MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK;
-                    if (endpointRow != localRow) {
-                        continue;
-                    }
-                    const float sign =
-                        endpoint.role ==
-                            MR_CONSTRAINT_IR_ENDPOINT_A
-                        ? -1.0f
-                        : 1.0f;
-                    if (endpoint.jacobianKind ==
-                        MR_CONSTRAINT_IR_JACOBIAN_ROD_NODE) {
-                        candidateRodNodes[
-                            rodNodeBase +
-                            endpoint.objectIndex
-                        ].velocity.xyz +=
-                            inverseRodMasses[
-                                endpoint.objectIndex
-                            ] *
-                            sign * direction * delta;
-                    } else if (
-                        endpoint.jacobianKind ==
-                        MR_CONSTRAINT_IR_JACOBIAN_BODY_LOCAL_POINT
-                    ) {
-                        device MRBodyStateGPU& body =
-                            candidateBodies[
-                                bodyBase + endpoint.objectIndex
-                            ];
-                        const float3 point =
-                            body.position.xyz +
-                            multiply(
-                                rotationMatrix(
-                                    body.orientation
-                                ),
-                                endpoint.anchor.xyz
-                            );
-                        applySceneImpulse(
-                            body,
-                            point,
-                            sign * direction * delta
-                        );
-                    }
-                }
-                maximumResidual = max(
-                    maximumResidual,
-                    abs(residual)
-                );
-            }
-        }
-    }
-    status.solverIterations = max(
-        status.solverIterations,
-        iterations
-    );
-    status.residuals.y = max(
-        status.residuals.y,
-        maximumResidual
-    );
-    statuses[environment] = status;
-}
-
-// Exact-cone block PGS velocity solve for one articulation plus arbitrary
-// free rigid bodies. The articulation Cholesky factor is reused for all three
-// RHS of every contact; no dense inverse is formed.
-kernel void mr_world_solve_contact_islands(
+// NumiSolver owns the canonical ConstraintIR stream for this temporal
+// microstep. Generalized rows and contact cones read current velocity after
+// every preceding block update, then publish their impulse immediately.
+kernel void mr_world_numi_constraint_sweep(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device const float* factors [[buffer(1)]],
     device const float* pointJacobians [[buffer(2)]],
@@ -7795,6 +4223,10 @@ kernel void mr_world_solve_contact_islands(
     device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(11)]],
     constant MRMetalWorldPassGPU& pass [[buffer(12)]],
+    device const MRConstraintIRBlockGPU* blocks [[buffer(13)]],
+    device const MRConstraintIREndpointGPU* endpoints [[buffer(14)]],
+    device MRRodNodeStateGPU* candidateRodNodes [[buffer(15)]],
+    device const float* inverseRodMasses [[buffer(16)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -7802,12 +4234,6 @@ kernel void mr_world_solve_contact_islands(
     }
     MRMetalWorldContactStatusGPU status = statuses[environment];
     if (status.code != MR_STEP_SUCCESS) {
-        return;
-    }
-    const bool stiffReplay = pass.reserved1 != 0u;
-    if (stiffReplay &&
-        (status.queueFlags &
-         MR_ISLAND_WORK_STIFF_REPLAY) == 0u) {
         return;
     }
     if (status.requiredConstraints == 0u) {
@@ -7818,7 +4244,7 @@ kernel void mr_world_solve_contact_islands(
     }
     if (dispatch.nv > MR_ARTICULATED_ABA_MAX_DOFS ||
         pass.reserved0 > 1u ||
-        pass.reserved1 > 1u) {
+        pass.reserved1 != 0u) {
         status.code = MR_STEP_UNSUPPORTED;
         statuses[environment] = status;
         return;
@@ -7839,6 +4265,10 @@ kernel void mr_world_solve_contact_islands(
     const uint responseBase =
         environment *
         (dispatch.constraintStride * 3u * dispatch.nv);
+    const uint endpointBase =
+        2u * environment * dispatch.constraintStride;
+    const uint rodNodeBase =
+        environment * dispatch.rodNodeCount;
     const uint manifoldPointBase =
         environment * dispatch.manifoldStride *
         MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
@@ -7850,18 +4280,72 @@ kernel void mr_world_solve_contact_islands(
         candidateV + velocityBase;
     device MRBodyStateGPU* bodies =
         candidateBodies + bodyBase;
+    device MRRodNodeStateGPU* rodNodes =
+        candidateRodNodes + rodNodeBase;
 
-    // Cache M^-1 J^T for normal/u/v.
+    // Cache M^-1 J^T for every contact and sparse generalized row. Scalar
+    // rows retain their effective diagonal in the compatibility record so
+    // the current sweep can recompute Jv without refactorizing the articulation.
     for (uint localConstraint = 0u;
          localConstraint < status.requiredConstraints;
          ++localConstraint) {
-        device const MRContactConstraintGPU& contact =
+        device MRContactConstraintGPU& contact =
             contacts[constraintBase + localConstraint];
+        const MRConstraintIRBlockGPU block =
+            blocks[constraintBase + localConstraint];
+        if ((block.flags &
+             MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u ||
+            (contact.flags &
+             MR_CONSTRAINT_FLAG_DISABLED) != 0u) {
+            contact.impulses = float4(0.0f);
+            continue;
+        }
         if ((contact.flags &
-             (
-                 MR_CONSTRAINT_FLAG_ROD_ENDPOINT |
-                 MR_CONSTRAINT_FLAG_GENERALIZED
-             )) != 0u) {
+             MR_CONSTRAINT_FLAG_GENERALIZED) != 0u) {
+            for (uint localRow = 0u;
+                 localRow < block.dimension;
+                 ++localRow) {
+                float diagonal = 0.0f;
+                if (!cacheGeneralizedRowResponse(
+                        dispatch,
+                        localConstraint,
+                        block,
+                        localRow,
+                        endpoints,
+                        endpointBase,
+                        evaluatedRows[
+                            rowBase +
+                            block.rowOffset +
+                            localRow
+                        ],
+                        factors,
+                        factorBase,
+                        bodies,
+                        inverseRodMasses,
+                        responseColumns,
+                        responseBase,
+                        rightHandSide,
+                        intermediate,
+                        solution,
+                        diagonal
+                    )) {
+                    status.code =
+                        MR_STEP_FACTORIZATION_FAILED;
+                    status.firstFailingConstraint =
+                        localConstraint;
+                    status.firstFailingStableKeyLow =
+                        block.key.words[0];
+                    status.firstFailingStableKeyHigh =
+                        block.key.words[1];
+                    statuses[environment] = status;
+                    return;
+                }
+                contact.response[localRow] = diagonal;
+            }
+            continue;
+        }
+        if ((contact.flags &
+             MR_CONSTRAINT_FLAG_ROD_ENDPOINT) != 0u) {
             continue;
         }
         const bool articulatedA =
@@ -7920,20 +4404,65 @@ kernel void mr_world_solve_contact_islands(
         }
     }
 
-    // Initial ordered solve warm-starts from persistent manifolds. A stiff
-    // replay starts from the velocity/impulse state already accepted by the
-    // Wave32 sweep, so applying the full warm impulse again would double it.
-    if (!stiffReplay) {
-        for (uint localConstraint = 0u;
-             localConstraint < status.requiredConstraints;
-             ++localConstraint) {
+    // Warm-start from persistent manifolds and authored stable-key impulses.
+    for (uint localConstraint = 0u;
+         localConstraint < status.requiredConstraints;
+         ++localConstraint) {
             device MRContactConstraintGPU& contact =
                 contacts[constraintBase + localConstraint];
+            const MRConstraintIRBlockGPU block =
+                blocks[constraintBase + localConstraint];
+            if ((block.flags &
+                 MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u ||
+                (contact.flags &
+                 MR_CONSTRAINT_FLAG_DISABLED) != 0u) {
+                contact.impulses = float4(0.0f);
+                continue;
+            }
             if ((contact.flags &
-                 (
-                     MR_CONSTRAINT_FLAG_ROD_ENDPOINT |
-                     MR_CONSTRAINT_FLAG_GENERALIZED
-                 )) != 0u) {
+                 MR_CONSTRAINT_FLAG_GENERALIZED) != 0u) {
+                for (uint localRow = 0u;
+                     localRow < block.dimension;
+                     ++localRow) {
+                    const MREvaluatedConstraintIRRowGPU row =
+                        evaluatedRows[
+                            rowBase +
+                            block.rowOffset +
+                            localRow
+                        ];
+                    const float warm = clamp(
+                        contact.impulses[localRow],
+                        row.impulseLower,
+                        row.impulseUpper
+                    );
+                    contact.impulses[localRow] = warm;
+                    if (!applyGeneralizedRowDelta(
+                            dispatch,
+                            localConstraint,
+                            block,
+                            localRow,
+                            endpoints,
+                            endpointBase,
+                            row.direction.xyz,
+                            warm,
+                            articulationVelocity,
+                            bodies,
+                            rodNodes,
+                            inverseRodMasses,
+                            responseColumns,
+                            responseBase
+                        )) {
+                        status.code = MR_STEP_UNSUPPORTED;
+                        status.firstFailingConstraint =
+                            localConstraint;
+                        statuses[environment] = status;
+                        return;
+                    }
+                }
+                continue;
+            }
+            if ((contact.flags &
+                 MR_CONSTRAINT_FLAG_ROD_ENDPOINT) != 0u) {
                 continue;
             }
             const float3 warm = projectFrictionCone(
@@ -7956,14 +4485,13 @@ kernel void mr_world_solve_contact_islands(
                 dispatch.nv,
                 dispatch.articulationIndex
             );
-        }
     }
 
     float maximumImpulseDelta = 0.0f;
     const uint solverIterations =
-        dispatch.velocityIterations +
+        dispatch.positionSweeps +
         (pass.reserved0 != 0u
-             ? dispatch.finalVelocityIterations
+             ? dispatch.unbiasedVelocitySweeps
              : 0u);
     for (uint iteration = 0u;
          iteration < solverIterations;
@@ -7973,11 +4501,96 @@ kernel void mr_world_solve_contact_islands(
              ++localConstraint) {
             device MRContactConstraintGPU& contact =
                 contacts[constraintBase + localConstraint];
+            const MRConstraintIRBlockGPU block =
+                blocks[constraintBase + localConstraint];
+            if ((block.flags &
+                 MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u ||
+                (contact.flags &
+                 MR_CONSTRAINT_FLAG_DISABLED) != 0u) {
+                continue;
+            }
             if ((contact.flags &
-                 (
-                     MR_CONSTRAINT_FLAG_ROD_ENDPOINT |
-                     MR_CONSTRAINT_FLAG_GENERALIZED
-                 )) != 0u) {
+                 MR_CONSTRAINT_FLAG_GENERALIZED) != 0u) {
+                for (uint localRow = 0u;
+                     localRow < block.dimension;
+                     ++localRow) {
+                    const MREvaluatedConstraintIRRowGPU row =
+                        evaluatedRows[
+                            rowBase +
+                            block.rowOffset +
+                            localRow
+                        ];
+                    bool relativeValid = false;
+                    const float relative =
+                        currentGeneralizedRowVelocity(
+                            dispatch,
+                            block,
+                            localRow,
+                            endpoints,
+                            endpointBase,
+                            row.direction.xyz,
+                            articulationVelocity,
+                            bodies,
+                            rodNodes,
+                            relativeValid
+                        );
+                    const float diagonal =
+                        contact.response[localRow];
+                    if (!relativeValid ||
+                        !(diagonal > 1.0e-12f) ||
+                        !isfinite(diagonal)) {
+                        status.code =
+                            MR_STEP_FACTORIZATION_FAILED;
+                        status.firstFailingConstraint =
+                            localConstraint;
+                        statuses[environment] = status;
+                        return;
+                    }
+                    const float previous =
+                        contact.impulses[localRow];
+                    const float residual =
+                        relative - row.targetVelocity +
+                        row.regularization * previous;
+                    const float proposed = clamp(
+                        previous - residual / diagonal,
+                        row.impulseLower,
+                        row.impulseUpper
+                    );
+                    const float delta = proposed - previous;
+                    if (!isfinite(proposed) ||
+                        !isfinite(delta) ||
+                        !applyGeneralizedRowDelta(
+                            dispatch,
+                            localConstraint,
+                            block,
+                            localRow,
+                            endpoints,
+                            endpointBase,
+                            row.direction.xyz,
+                            delta,
+                            articulationVelocity,
+                            bodies,
+                            rodNodes,
+                            inverseRodMasses,
+                            responseColumns,
+                            responseBase
+                        )) {
+                        status.code = MR_STEP_NONFINITE_RESULT;
+                        status.firstFailingConstraint =
+                            localConstraint;
+                        statuses[environment] = status;
+                        return;
+                    }
+                    contact.impulses[localRow] = proposed;
+                    maximumImpulseDelta = max(
+                        maximumImpulseDelta,
+                        abs(delta)
+                    );
+                }
+                continue;
+            }
+            if ((contact.flags &
+                 MR_CONSTRAINT_FLAG_ROD_ENDPOINT) != 0u) {
                 continue;
             }
             device const MREvaluatedConstraintIRRowGPU* localRows =
@@ -8152,11 +4765,69 @@ kernel void mr_world_solve_contact_islands(
          ++localConstraint) {
         device MRContactConstraintGPU& contact =
             contacts[constraintBase + localConstraint];
+        const MRConstraintIRBlockGPU block =
+            blocks[constraintBase + localConstraint];
+        if ((block.flags &
+             MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u ||
+            (contact.flags &
+             MR_CONSTRAINT_FLAG_DISABLED) != 0u) {
+            continue;
+        }
         if ((contact.flags &
-             (
-                 MR_CONSTRAINT_FLAG_ROD_ENDPOINT |
-                 MR_CONSTRAINT_FLAG_GENERALIZED
-             )) != 0u) {
+             MR_CONSTRAINT_FLAG_GENERALIZED) != 0u) {
+            for (uint localRow = 0u;
+                 localRow < block.dimension;
+                 ++localRow) {
+                const MREvaluatedConstraintIRRowGPU row =
+                    evaluatedRows[
+                        rowBase +
+                        block.rowOffset +
+                        localRow
+                    ];
+                bool relativeValid = false;
+                const float relative =
+                    currentGeneralizedRowVelocity(
+                        dispatch,
+                        block,
+                        localRow,
+                        endpoints,
+                        endpointBase,
+                        row.direction.xyz,
+                        articulationVelocity,
+                        bodies,
+                        rodNodes,
+                        relativeValid
+                    );
+                const float impulse =
+                    contact.impulses[localRow];
+                const float equation =
+                    relative - row.targetVelocity +
+                    row.regularization * impulse;
+                const float projectedResidual = abs(
+                    impulse -
+                    clamp(
+                        impulse - equation,
+                        row.impulseLower,
+                        row.impulseUpper
+                    )
+                );
+                if (!relativeValid ||
+                    !isfinite(projectedResidual)) {
+                    status.code = MR_STEP_NONFINITE_RESULT;
+                    status.firstFailingConstraint =
+                        localConstraint;
+                    statuses[environment] = status;
+                    return;
+                }
+                maximumNormalResidual = max(
+                    maximumNormalResidual,
+                    projectedResidual
+                );
+            }
+            continue;
+        }
+        if ((contact.flags &
+             MR_CONSTRAINT_FLAG_ROD_ENDPOINT) != 0u) {
             continue;
         }
         device const MREvaluatedConstraintIRRowGPU* localRows =
@@ -8237,10 +4908,6 @@ kernel void mr_world_solve_contact_islands(
     status.residuals.x = maximumImpulseDelta;
     status.residuals.y = maximumNormalResidual;
     status.residuals.z = maximumConeViolation;
-    if (stiffReplay) {
-        status.queueFlags &=
-            ~MR_ISLAND_WORK_STIFF_REPLAY;
-    }
     statuses[environment] = status;
 }
 
@@ -8288,7 +4955,7 @@ inline void rodSurfaceImpulseTranspose(
 }
 
 // Ordered rod blocks consume the same IR, rows, cones, factor cache and
-// articulation Jacobians as Wave32. The current rod solveA is the positive
+// articulation Jacobians as NumiSolver. The current rod solveA is the positive
 // diagonal of the implicit DER operator; the endpoint Jacobian and transpose
 // are exact for the frozen microstep, including bending-frame and twist
 // surface velocity. Replacing solveA with the retained band factor therefore
@@ -9207,6 +5874,10 @@ kernel void mr_world_commit_contact_state(
     device MRManifoldHeaderGPU* destinationHeaders [[buffer(14)]],
     device MRManifoldPointGPU* destinationPoints [[buffer(15)]],
     device uint* destinationCounts [[buffer(16)]],
+    device const MRContactConstraintGPU* contacts [[buffer(17)]],
+    device float* generalizedWarmState [[buffer(18)]],
+    device const float* checkpointGeneralizedWarmState
+        [[buffer(19)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -9256,6 +5927,28 @@ kernel void mr_world_commit_contact_state(
             destinationPoints[index] = publish
                 ? candidatePoints[index]
                 : checkpointPoints[index];
+        }
+    }
+    const uint generalizedWarmStride =
+        3u * dispatch.authoredConstraintCount;
+    const uint generalizedWarmBase =
+        environment * generalizedWarmStride;
+    const uint constraintBase =
+        environment * dispatch.constraintStride;
+    for (uint localConstraint = 0u;
+         localConstraint < dispatch.authoredConstraintCount;
+         ++localConstraint) {
+        for (uint localRow = 0u;
+             localRow < 3u;
+             ++localRow) {
+            const uint warmIndex =
+                generalizedWarmBase +
+                3u * localConstraint + localRow;
+            generalizedWarmState[warmIndex] = publish
+                ? contacts[
+                      constraintBase + localConstraint
+                  ].impulses[localRow]
+                : checkpointGeneralizedWarmState[warmIndex];
         }
     }
 }
@@ -10904,7 +7597,7 @@ kernel void mr_world_build_unified_quality_queue(
         next.required = total;
         next.cursor = 0u;
         next.workerGroups = max(
-            dispatch.waveWorkerGroupCount,
+            dispatch.workerGroupCount,
             1u
         );
         next.flags =

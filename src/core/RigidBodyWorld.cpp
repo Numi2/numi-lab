@@ -789,7 +789,7 @@ RigidBodyStepDiagnostics stepRigidBodyWorldCpu(
         !(config.qualityTangentialRegularization > 0.0) ||
         !std::isfinite(config.qualityTangentialRegularization) ||
         (
-            config.solverType != MR_SOLVER_THROUGHPUT_PGS &&
+            config.solverType != MR_SOLVER_LEGACY_PROJECTED &&
             config.solverType != MR_SOLVER_QUALITY_NEWTON
         )) {
         diagnostics.code = MR_STEP_NONFINITE_INPUT;

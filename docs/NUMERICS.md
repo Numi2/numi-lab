@@ -30,15 +30,14 @@ Every CPU reference path validates dimensions and finite inputs before
 publication. Capacity, factorization, convergence, and unsupported-feature
 failures have explicit status codes. The composed CPU maximal-coordinate and
 one-articulation world paths are transactional: state and persistent caches
-remain unchanged when a step fails. The bounded Metal contact kernel backs up
-the dynamic velocities and contact records it can mutate, then restores them
-after an arithmetic failure.
-A fully contact-composed production Metal world remains open, but the
-free-motion orchestration layer now has versioned dispatch/status buffers.
-The standalone generic articulated operator retains its checked synchronous
-host boundary. `MetalWorldContext` adds derived compact horizon strides,
-32-bit element-address limits, actual allocation and working-set checks,
-typed zero-length bindings, cached immutable topology, a grow-only arena, and
+remain unchanged when a step fails. The production Metal world checkpoints q,
+v, scene bodies, manifolds, and generalized warm impulses before its composed
+contact graph, then restores the complete environment transaction after any
+capacity, arithmetic, factorization, or convergence failure. The standalone
+generic articulated operator retains its checked synchronous reference
+boundary. `MetalWorldContext` adds derived compact horizon strides, 32-bit
+element-address limits, actual allocation and working-set checks, typed
+zero-length bindings, cached immutable topology, a grow-only arena, and
 asynchronous multi-control-step execution.
 
 Each control step takes an immutable q/v checkpoint after applying its reset.
@@ -145,9 +144,12 @@ FP32/FP64 threshold. Contacts outside that band must agree within witness
 tolerances; inside it, bounded speculative contacts are permitted but missing
 an oracle contact is not.
 
-No CCD algorithm is implemented. Fast bodies can therefore tunnel; substeps
-are not a semantic substitute for conservative advancement, speculative CCD,
-or time-of-impact island stepping.
+Speculative contact and capacity-bounded hybrid conservative advancement are
+implemented for the qualified analytic, support-mapped, and convex-mesh
+paths. Certified events are clustered deterministically. The current hybrid
+path uses speculative contact to consume the remainder of a microstep after
+the selected event; repeated literal advance/solve/continue publication is
+still incomplete and is not claimed as general CCD.
 
 The contact portfolio has three distinct numerical contracts:
 
@@ -158,13 +160,20 @@ The contact portfolio has three distinct numerical contracts:
   search, Gauss-Newton retry, projected-gradient safety fallback, and
   KKT/cone diagnostics, accepting either a legacy dense oracle problem or a
   production contact-space Delassus problem;
-- a fixed-budget CPU/Metal PGS throughput block with normal, coupled
-  two-tangent radial projection, torsional friction, and warm starts.
+- NumiSolver, the fixed-budget Metal throughput path: fixed temporal
+  microsteps, one ordered nonlinear block sweep per microstep, immediate
+  impulse application and integration, exact coupled two-tangent cone
+  projection, and transactional contact/generalized warm starts.
 
-The production throughput block is PGS, not temporal Gauss-Seidel. The
-internal Wave32 path is block-Jacobi and remains experimental. Rolling
-resistance is explicitly unsupported. One throughput dispatch holds at most
-128 contacts.
+NumiSolver re-evaluates active limits, contacts, `Jv`, response factors, and
+geometry at each integrated microstep. Active scalar joint limits and contact
+blocks are solved in one ordered island stream; no post-solve position clamp
+is part of the mechanics. The name does not claim bit-for-bit PhysX TGS
+semantics. Rolling resistance is explicitly unsupported. Capacities are
+compiled from topology and authored limits rather than imposed by one global
+contact-count ceiling. NumiSolver currently accepts rigid and articulated
+endpoints only; rod endpoints fail validation until the retained banded rod
+operator supplies their `M^-1 J'` response.
 The composed CPU world partitions independent connected islands, so any one
 connected island above 128 contacts returns capacity overflow. It does not
 drop the excess contacts.

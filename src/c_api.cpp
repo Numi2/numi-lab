@@ -327,8 +327,6 @@ void accumulateSimulationStageHighWater(
         target.mesh_triangle_candidates,
         source.meshTriangleCandidates
     );
-    maximum(target.solver_tiles, source.solverTiles);
-    maximum(target.spill_rows, source.spillRows);
     maximum(target.ccd_candidates, source.ccdCandidates);
     maximum(target.ccd_events, source.ccdEvents);
     maximum(
@@ -457,7 +455,7 @@ void validateSimulationConfiguration(
 ) {
     if (config.environment_count == 0u ||
         config.physics_substeps == 0u ||
-        config.velocity_iterations == 0u ||
+        config.temporal_substeps == 0u ||
         !std::isfinite(config.control_timestep_seconds) ||
         !(config.control_timestep_seconds > 0.0f)) {
         throw std::invalid_argument(
@@ -465,7 +463,7 @@ void validateSimulationConfiguration(
         );
     }
     if (config.solver !=
-            MR_SIMULATION_SOLVER_THROUGHPUT_PGS &&
+            MR_SIMULATION_SOLVER_NUMI &&
         config.solver !=
             MR_SIMULATION_SOLVER_QUALITY_NEWTON) {
         throw std::invalid_argument(
@@ -589,14 +587,12 @@ createCompiledSimulation(
     handle->stepConfig.solverMode =
         config.solver == MR_SIMULATION_SOLVER_QUALITY_NEWTON
         ? metalrobo::MetalWorldSolverMode::qualityNewton
-        : metalrobo::MetalWorldSolverMode::throughputPGS;
+        : metalrobo::MetalWorldSolverMode::numiSolver;
+    handle->stepConfig.temporalSubsteps =
+        config.temporal_substeps;
     handle->stepConfig.actuationMode =
         metalrobo::MetalWorldActuationMode::
             implicitPositionDrive;
-    handle->stepConfig.velocityIterations =
-        config.velocity_iterations;
-    handle->stepConfig.finalVelocityIterations =
-        config.final_velocity_iterations;
     handle->stepConfig.ccdMode =
         metalrobo::MetalWorldCCDMode::disabled;
     handle->stepConfig.applyBodyDamping = true;
@@ -1404,11 +1400,48 @@ int mr_simulation_advance(
         handle->totalSubmissionMilliseconds +=
             diagnostics.submissionElapsedMilliseconds;
         if (!diagnostics.succeeded()) {
+            std::string contactEvidence;
+            const std::size_t failingIndex =
+                static_cast<std::size_t>(
+                    diagnostics.firstFailingControlStep
+                ) * handle->environmentCount +
+                diagnostics.firstFailingEnvironment;
+            if (failingIndex <
+                handle->result.contactStatuses.size()) {
+                const auto& contact =
+                    handle->result.contactStatuses[failingIndex];
+                contactEvidence =
+                    " required_constraints=" +
+                    std::to_string(contact.requiredConstraints) +
+                    " constraint_capacity=" +
+                    std::to_string(
+                        handle->world.capacities().constraintBlocks
+                    ) +
+                    " required_rows=" +
+                    std::to_string(contact.requiredRows) +
+                    " row_capacity=" +
+                    std::to_string(
+                        handle->world.capacities().constraintRows
+                    ) +
+                    " failing_constraint=" +
+                    std::to_string(contact.firstFailingConstraint);
+            }
             throw std::runtime_error(
                 std::string{"simulation GPU step failed ["} +
                 metalrobo::metalWorldHostStatusName(
                     diagnostics.status
-                ) + "]: " + diagnostics.message
+                ) + "]: " + diagnostics.message +
+                " environment=" +
+                std::to_string(
+                    diagnostics.firstFailingEnvironment
+                ) +
+                " control_step=" +
+                std::to_string(
+                    diagnostics.firstFailingControlStep
+                ) +
+                " gpu_status=" +
+                std::to_string(diagnostics.firstGPUStatusCode) +
+                contactEvidence
             );
         }
     });

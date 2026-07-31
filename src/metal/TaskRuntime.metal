@@ -1717,10 +1717,10 @@ kernel void mr_task_complete(
     const bool physicsError =
         worldStatus.code != MR_STEP_SUCCESS ||
         contactStatus.code != MR_STEP_SUCCESS;
-    const uint activeContacts = physicsError
+    const uint publishedConstraints = physicsError
         ? 0u
         : min(
-              contactStatus.activeContacts,
+              contactStatus.requiredConstraints,
               contactDispatch.constraintCapacity
           );
 
@@ -1755,11 +1755,20 @@ kernel void mr_task_complete(
     const uint robotFirst = program.articulation.x;
     const uint robotEnd =
         robotFirst + program.articulation.y;
-    for (uint contact = 0u;
-         contact < activeContacts;
-         ++contact) {
+    for (uint constraintIndex =
+             min(
+                 contactDispatch.authoredConstraintCount,
+                 publishedConstraints
+             );
+         constraintIndex < publishedConstraints;
+         ++constraintIndex) {
         const MRContactConstraintGPU constraint =
-            contacts[contactBase + contact];
+            contacts[contactBase + constraintIndex];
+        if ((constraint.flags &
+             (MR_CONSTRAINT_FLAG_DISABLED |
+              MR_CONSTRAINT_FLAG_GENERALIZED)) != 0u) {
+            continue;
+        }
         const bool robotA =
             constraint.bodyA >= robotFirst &&
             constraint.bodyA < robotEnd;

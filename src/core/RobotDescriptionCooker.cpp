@@ -1840,7 +1840,7 @@ RobotDescriptionDiagnostics cookRobotDescription(
             static_cast<mr_u32>(links.size());
         staged.world.materialCount = 1u;
         staged.world.solverType =
-            MR_SOLVER_THROUGHPUT_PGS;
+            MR_SOLVER_LEGACY_PROJECTED;
         staged.world.frictionConeType =
             MR_FRICTION_CONE_ELLIPTIC;
         staged.world.gravityAndTimestep =

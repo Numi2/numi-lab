@@ -702,7 +702,7 @@ inline void qualityNormalEquationAction(
 
 // Safeguarded semismooth Newton solve for scalar bilateral, unilateral, and
 // bounded ConstraintIR rows. It consumes the same ABA-built Delassus matrix
-// and response columns as throughput PGS. This is the quality path for
+// and response columns as the legacy projected reference. This is the quality path for
 // generalized/equality constraints; exact friction-cone blocks remain in the
 // contact quality kernel.
 kernel void mr_generalized_constraint_quality_solve(

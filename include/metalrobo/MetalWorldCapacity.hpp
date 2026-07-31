@@ -5,9 +5,11 @@
 namespace metalrobo {
 
 // Fixed per-environment capacities for the device-resident contact graph.
-// Zero fields request the compiler's topology-derived envelope. A task may
-// author smaller operational capacities; overflow remains transactional and
-// reports the exact required count instead of truncating physics.
+// Zero fields request compiler derivation. Contact-block capacity is derived
+// from the authored mechanism prefix plus the selected manifold arena; the
+// remaining dependent arenas derive from that canonical block count. A task
+// may author smaller operational capacities; overflow remains transactional
+// and reports the exact required count instead of truncating physics.
 struct MetalWorldCapacityProfile {
     std::uint32_t candidatePairs = 0u;
     std::uint32_t rawContacts = 0u;
@@ -17,8 +19,6 @@ struct MetalWorldCapacityProfile {
     std::uint32_t islands = 0u;
     std::uint32_t hardConvexPairs = 0u;
     std::uint32_t meshTriangleCandidates = 0u;
-    std::uint32_t solverTiles = 0u;
-    std::uint32_t spillRows = 0u;
     std::uint32_t ccdCandidates = 0u;
     std::uint32_t ccdEvents = 0u;
     // Canonical ConstraintIR uses exactly two runtime endpoints and two point

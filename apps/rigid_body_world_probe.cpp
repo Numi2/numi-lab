@@ -167,7 +167,7 @@ struct RunResult {
 
 RunResult runStack(
     const std::uint32_t stepCount = 1200u,
-    const MRSolverType solverType = MR_SOLVER_THROUGHPUT_PGS
+    const MRSolverType solverType = MR_SOLVER_LEGACY_PROJECTED
 ) {
     RunResult result{.scene = makeScene()};
     auto config = makeConfig();

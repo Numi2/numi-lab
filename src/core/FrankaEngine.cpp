@@ -216,7 +216,7 @@ EngineModel makeFrankaPandaEngineModel() {
     model.world.contactCapacity = 512u;
     model.world.constraintCapacity = 1024u;
     model.world.islandCapacity = 8u;
-    model.world.solverType = MR_SOLVER_THROUGHPUT_PGS;
+    model.world.solverType = MR_SOLVER_LEGACY_PROJECTED;
     model.world.frictionConeType = MR_FRICTION_CONE_ELLIPTIC;
     const double substeps = source.gpu.substeps > 0u
         ? static_cast<double>(source.gpu.substeps)

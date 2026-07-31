@@ -134,7 +134,7 @@ private struct Options {
     var surface = MetalRoboBuiltinSurface.terrain
     var g1ActuatorPreset =
         MetalRoboG1ActuatorPreset.unitreeRLLab4960b84
-    var solver = MetalRoboSimulationSolver.throughputPGS
+    var solver = MetalRoboSimulationSolver.numiSolver
     var seed: UInt64 = 20_260_731
     var curriculumLevel: UInt32 = 0
     var metallib = "build/shaders/MetalRobo.metallib"
@@ -221,13 +221,13 @@ private struct Options {
                 index += 1
             case "--solver-mode":
                 switch try value() {
-                case "pgs", "throughput_pgs":
-                    solver = .throughputPGS
+                case "numi", "numisolver":
+                    solver = .numiSolver
                 case "quality", "quality_newton":
                     solver = .qualityNewton
                 default:
                     throw MetalRoboSimulationError.invalidShape(
-                        "--solver-mode must be pgs or quality."
+                        "--solver-mode must be numi or quality."
                     )
                 }
                 index += 1
@@ -913,7 +913,7 @@ private enum SimulationMain {
                 "solver_mode":
                     options.solver == .qualityNewton
                     ? "quality_newton"
-                    : "throughput_pgs",
+                    : "numisolver",
                 "scene":
                     options.surface == .terrain
                     ? "terrain"

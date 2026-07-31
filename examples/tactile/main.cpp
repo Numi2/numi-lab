@@ -328,7 +328,9 @@ metalrobo::TactileObservationBatch tactileObservation(
     const metalrobo::WorldTemplate& world,
     const std::span<const MRBodyStateGPU> bodies,
     const metalrobo::TactileSolverContactBatch& contacts,
-    const std::uint64_t frameIndex
+    const std::uint64_t frameIndex,
+    const float observationTimestepSeconds,
+    const float contactImpulseTimestepSeconds
 ) {
     metalrobo::TactileCpuFrame frame;
     frame.environmentCount = 1u;
@@ -337,11 +339,14 @@ metalrobo::TactileObservationBatch tactileObservation(
     frame.contactCounts = contacts.counts;
     frame.contactCapacityPerEnvironment =
         contacts.capacityPerEnvironment;
-    frame.observationTimestepSeconds = 0.02f;
+    frame.observationTimestepSeconds = observationTimestepSeconds;
     frame.contactImpulseTimestepSeconds =
-        contacts.contacts.empty() ? 0.0f : 0.02f / 8.0f;
+        contacts.contacts.empty()
+        ? 0.0f
+        : contactImpulseTimestepSeconds;
     frame.frameIndex = frameIndex;
-    frame.timestampSeconds = frameIndex * 0.02;
+    frame.timestampSeconds =
+        frameIndex * observationTimestepSeconds;
     metalrobo::TactileObservationBatch result;
     require(
         metalrobo::observeTactileCpuReference(
@@ -606,13 +611,12 @@ int runCompoundScenario(
     metalrobo::MetalWorldStepConfig physicsConfig;
     physicsConfig.timestepSeconds = controlTimestep;
     physicsConfig.physicsSubsteps = physicsSubsteps;
+    physicsConfig.temporalSubsteps = 1u;
     physicsConfig.solverMode =
-        metalrobo::MetalWorldSolverMode::throughputTGS;
+        metalrobo::MetalWorldSolverMode::numiSolver;
     physicsConfig.actuationMode =
         metalrobo::MetalWorldActuationMode::
             implicitPositionDrive;
-    physicsConfig.velocityIterations = 16u;
-    physicsConfig.finalVelocityIterations = 8u;
     physicsConfig.ccdMode = ccdMode;
     physicsConfig.deterministic = true;
     physicsConfig.captureContactEvidence = true;
@@ -638,7 +642,13 @@ int runCompoundScenario(
         worldTemplate,
         finalBodies,
         solverContacts,
-        controlSteps
+        controlSteps,
+        controlTimestep,
+        controlTimestep /
+            static_cast<float>(
+                physicsConfig.physicsSubsteps *
+                physicsConfig.temporalSubsteps
+            )
     );
 
     metalrobo::MetalTactileConfig tactileConfig;
@@ -945,7 +955,9 @@ int main(const int argc, const char* const* argv) {
             worldTemplate,
             initialBodies,
             noContacts,
-            0u
+            0u,
+            0.02f,
+            0.0f
         );
         if (debugDirectory.has_value()) {
             std::cerr
@@ -1000,8 +1012,8 @@ int main(const int argc, const char* const* argv) {
                 actions[step * compiled.nv() + coordinate] =
                     static_cast<float>(q[coordinate]);
             }
-            actions[step * compiled.nv() + 7u] -= 0.0001f;
-            actions[step * compiled.nv() + 8u] -= 0.0001f;
+            actions[step * compiled.nv() + 7u] -= 0.0003f;
+            actions[step * compiled.nv() + 8u] -= 0.0003f;
         }
         const std::vector<float> initialQ = floatVector(q);
         const std::vector<float> initialV = floatVector(v);
@@ -1016,13 +1028,12 @@ int main(const int argc, const char* const* argv) {
         metalrobo::MetalWorldStepConfig physicsConfig;
         physicsConfig.timestepSeconds = 0.02f;
         physicsConfig.physicsSubsteps = 8u;
+        physicsConfig.temporalSubsteps = 4u;
         physicsConfig.solverMode =
-            metalrobo::MetalWorldSolverMode::throughputTGS;
+            metalrobo::MetalWorldSolverMode::numiSolver;
         physicsConfig.actuationMode =
             metalrobo::MetalWorldActuationMode::
                 implicitPositionDrive;
-        physicsConfig.velocityIterations = 16u;
-        physicsConfig.finalVelocityIterations = 8u;
         physicsConfig.deterministic = true;
         physicsConfig.captureContactEvidence = true;
         metalrobo::MetalWorldContext physics;
@@ -1122,7 +1133,13 @@ int main(const int argc, const char* const* argv) {
             worldTemplate,
             finalBodies,
             solverContacts,
-            controlSteps
+            controlSteps,
+            physicsConfig.timestepSeconds,
+            physicsConfig.timestepSeconds /
+                static_cast<float>(
+                    physicsConfig.physicsSubsteps *
+                    physicsConfig.temporalSubsteps
+                )
         );
         if (debugDirectory.has_value() &&
             tactile.summaries.size() == 2u) {
@@ -1189,7 +1206,11 @@ int main(const int argc, const char* const* argv) {
         tactileFrame.contactCounts = solverContacts.counts;
         tactileFrame.observationTimestepSeconds = 0.02f;
         tactileFrame.contactImpulseTimestepSeconds =
-            0.02f / 8.0f;
+            physicsConfig.timestepSeconds /
+            static_cast<float>(
+                physicsConfig.physicsSubsteps *
+                physicsConfig.temporalSubsteps
+            );
         tactileFrame.frameIndex = controlSteps;
         tactileFrame.timestampSeconds =
             controlSteps * 0.02;

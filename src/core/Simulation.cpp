@@ -534,16 +534,10 @@ TaskPack makeUnitreeG1TaskPack(
         .candidatePairs = 128u,
         .rawContacts = 128u,
         .manifolds = 32u,
-        .constraintBlocks = 64u,
-        .constraintRows = 192u,
         .hardConvexPairs = 64u,
         .meshTriangleCandidates = 1024u,
         .ccdCandidates = 64u,
         .ccdEvents = 8u,
-        .endpointRuntimeRecords = 128u,
-        .articulationPointQueries = 128u,
-        .qualityRows = 192u,
-        .islandConstraintReferences = 64u,
     };
     task.actorHistoryLength = 5u;
     task.criticHistoryLength = 5u;

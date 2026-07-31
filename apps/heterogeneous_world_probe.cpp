@@ -84,17 +84,34 @@ int main() {
         );
         const auto& compiledProgram =
             persistentWorld.model().constraintProgram;
+        const std::size_t attachmentBlockCount = 3u;
+        const std::size_t attachmentBlockBegin =
+            compiledProgram.blocks.size() >= attachmentBlockCount
+            ? compiledProgram.blocks.size() - attachmentBlockCount
+            : 0u;
         require(
-            compiledProgram.blocks.size() == 17u &&
+            compiledProgram.blocks.size() >=
+                world.model.constraintProgram.blocks.size() +
+                    attachmentBlockCount &&
                 persistentWorld.dynamicNodes().size() == 4u &&
                 persistentWorld.minimumCapacities()
                         .constraintBlocks >=
-                    17u,
+                    compiledProgram.blocks.size(),
             "persistent cooker did not promote the swage attachment "
-            "into the common constraint graph"
+            "into the common constraint graph: blocks=" +
+                std::to_string(compiledProgram.blocks.size()) +
+                " nodes=" +
+                std::to_string(
+                    persistentWorld.dynamicNodes().size()
+                ) +
+                " minimum_blocks=" +
+                std::to_string(
+                    persistentWorld.minimumCapacities()
+                        .constraintBlocks
+                )
         );
-        for (std::size_t blockIndex = 14u;
-             blockIndex < 17u;
+        for (std::size_t blockIndex = attachmentBlockBegin;
+             blockIndex < compiledProgram.blocks.size();
              ++blockIndex) {
             const auto& block =
                 compiledProgram.blocks[blockIndex];
@@ -159,11 +176,9 @@ int main() {
                 persistentRun.message
         );
 
-        // Exercise the same persistent state through the composed contact
-        // graph. Even when this authored reset has no active rigid contact,
-        // the fixed-capacity factor/Jacobian pass must execute both PSM
-        // trees, assemble the global operator, and publish the rod in the
-        // same transaction.
+        // NumiSolver must not approximate a rod endpoint with independent
+        // node mass. Until its nonlinear sweep consumes the retained banded
+        // rod operator, reject this topology before command encoding.
         const metalrobo::MetalWorldBatch persistentContactBatch{
             .environmentCount = 1u,
             .controlStepCount = 1u,
@@ -175,8 +190,7 @@ int main() {
         metalrobo::MetalWorldStepConfig
             persistentContactConfig = persistentConfig;
         persistentContactConfig.solverMode =
-            metalrobo::MetalWorldSolverMode::waveJacobiExperimental;
-        persistentContactConfig.captureContactEvidence = true;
+            metalrobo::MetalWorldSolverMode::numiSolver;
         metalrobo::MetalWorldResult persistentContactResult;
         const auto persistentContactRun =
             persistentContext.run(
@@ -185,164 +199,15 @@ int main() {
                 persistentContactConfig,
                 persistentContactResult
             );
-        std::size_t persistentRodConstraints = 0u;
-        bool persistentRodEndpoint = false;
-        bool persistentRodIsland = false;
-        if (!persistentContactResult.contactStatuses.empty()) {
-            const std::size_t constraintCount =
-                persistentContactResult.contactStatuses[0]
-                    .requiredConstraints;
-            for (std::size_t constraint = 0u;
-                 constraint < constraintCount &&
-                 constraint <
-                     persistentContactResult
-                         .contactEvidence.blocks.size();
-                 ++constraint) {
-                const auto& block =
-                    persistentContactResult
-                        .contactEvidence.blocks[constraint];
-                if ((block.flags &
-                     MR_CONSTRAINT_IR_BLOCK_ROD_ENDPOINT) ==
-                    0u) {
-                    continue;
-                }
-                ++persistentRodConstraints;
-                const std::size_t endpoint =
-                    block.endpointOffset;
-                persistentRodEndpoint =
-                    persistentRodEndpoint ||
-                    (
-                        endpoint <
-                            persistentContactResult
-                                .contactEvidence
-                                .endpointRuntime.size() &&
-                        persistentContactResult
-                                .contactEvidence
-                                .endpointRuntime[endpoint]
-                                .ownerKind ==
-                            MR_CONSTRAINT_IR_OWNER_ROD_EDGE
-                    );
-            }
-            const std::size_t islandCount =
-                persistentContactResult.contactStatuses[0]
-                    .islandCount;
-            for (std::size_t island = 0u;
-                 island < islandCount &&
-                 island <
-                     persistentContactResult
-                         .contactEvidence.islands.size();
-                 ++island) {
-                persistentRodIsland =
-                    persistentRodIsland ||
-                    persistentContactResult
-                            .contactEvidence.islands[island]
-                            .rodNodeCount != 0u;
-            }
-        }
         require(
-            persistentContactRun.succeeded() &&
-                persistentContactResult.statuses.size() == 1u &&
-                persistentContactResult.statuses[0].code ==
-                    MR_STEP_SUCCESS &&
-                persistentContactResult.finalQ.size() ==
-                    world.model.defaultQ.size() &&
-                persistentContactResult.finalRodNodes.size() ==
-                    persistentWorld.rodNodeCount() &&
-                persistentRodConstraints != 0u &&
-                persistentRodEndpoint &&
-                persistentRodIsland,
-            "persistent composed multi-articulation contact step failed: " +
-                persistentContactRun.message +
-                (
-                    persistentContactResult.statuses.empty()
-                    ? std::string{}
-                    : " code=" +
-                          std::to_string(
-                              persistentContactResult.statuses[0]
-                                  .code
-                          ) +
-                          " failing=" +
-                          std::to_string(
-                              persistentContactResult.statuses[0]
-                                  .failingIndex
-                          )
-                ) +
-                (
-                    persistentContactResult.contactStatuses.empty()
-                    ? std::string{}
-                    : " contact=" +
-                          std::to_string(
-                              persistentContactResult
-                                  .contactStatuses[0]
-                                  .code
-                          ) +
-                          " pair=" +
-                          std::to_string(
-                              persistentContactResult
-                                  .contactStatuses[0]
-                                  .firstFailingPair
-                          ) +
-                          " constraint=" +
-                          std::to_string(
-                              persistentContactResult
-                                  .contactStatuses[0]
-                                  .firstFailingConstraint
-                          ) +
-                          " required=" +
-                          std::to_string(
-                              persistentContactResult
-                                  .contactStatuses[0]
-                                  .requiredConstraints
-                          ) +
-                          " stable=" +
-                          std::to_string(
-                              persistentContactResult
-                                  .contactStatuses[0]
-                                  .firstFailingStableKeyLow
-                          ) +
-                          "/" +
-                          std::to_string(
-                              persistentContactResult
-                                  .contactStatuses[0]
-                                  .firstFailingStableKeyHigh
-                          )
-                ) +
-                " shape0=" +
-                std::to_string(
-                    world.model.shapes[0].shapeType
-                ) +
-                "/" +
-                std::to_string(
-                    world.model.shapes[0].bodyIndex
-                ) +
-                "/" +
-                std::to_string(world.model.shapes[0].flags) +
-                " pair0=" +
-                std::to_string(
-                    persistentWorld.eligiblePairs()[0].colliderA
-                ) +
-                "/" +
-                std::to_string(
-                    persistentWorld.eligiblePairs()[0].colliderB
-                ) +
-                "/" +
-                std::to_string(
-                    persistentWorld.eligiblePairs()[0].pairClass
-                ) +
-                " shapeB=" +
-                std::to_string(
-                    world.model.shapes[
-                        persistentWorld.eligiblePairs()[0]
-                            .colliderB
-                    ].shapeType
-                ) +
-                "/" +
-                std::to_string(
-                    world.model.shapes[
-                        persistentWorld.eligiblePairs()[0]
-                            .colliderB
-                    ].flags
-                )
+            !persistentContactRun.succeeded() &&
+                persistentContactRun.status ==
+                    metalrobo::MetalWorldHostStatus::
+                        unsupportedTopology &&
+                persistentContactRun.message.find(
+                    "retained banded rod operator"
+                ) != std::string::npos,
+            "NumiSolver accepted an uncoupled rod response"
         );
 
         metalrobo::CompiledMetalMultiArticulatedProgram program;
@@ -894,11 +759,7 @@ int main() {
             << " rods=" << world.rods.size()
             << " persistent_rod_nodes="
             << persistentResult.finalRodNodes.size()
-            << " composed_constraints="
-            << persistentContactResult.contactStatuses[0]
-                   .requiredConstraints
-            << " rod_constraints="
-            << persistentRodConstraints
+            << " numi_rod_rejected=yes"
             << " contact_nv=" << psmNeedleProblem.nv
             << " needle_contact_impulses="
             << psmNeedleSolution.impulses[0] << "/"
