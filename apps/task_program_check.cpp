@@ -331,6 +331,21 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .goal = "home",
             .component = 2u,
         },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValue,
+            .target = "tool_pose_delayed",
+            .component = 2u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValidity,
+            .target = "tool_pose_delayed",
+            .component = 0u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValidity,
+            .target = "tool_pose_30hz",
+            .component = 1u,
+        },
     };
     authored.task.criticIncludesCleanHistory = false;
     authored.task.critic = {
@@ -359,6 +374,16 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .target = "tool_tip",
             .goal = "home",
             .component = 2u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValue,
+            .target = "tool_pose_30hz",
+            .component = 2u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValidity,
+            .target = "tool_pose_30hz",
+            .component = 3u,
         },
     };
     authored.task.frames = {{
@@ -441,7 +466,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
             .historyLength = 2u,
             .consumerFlags =
-                MR_WORLD_SENSOR_CONSUMER_TRUTH |
+                MR_WORLD_SENSOR_CONSUMER_ACTOR |
                 MR_WORLD_SENSOR_CONSUMER_RECORDER,
         },
         {
@@ -459,10 +484,22 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
             .historyLength = 2u,
             .consumerFlags =
-                MR_WORLD_SENSOR_CONSUMER_TRUTH |
+                MR_WORLD_SENSOR_CONSUMER_ACTOR |
+                MR_WORLD_SENSOR_CONSUMER_CRITIC |
                 MR_WORLD_SENSOR_CONSUMER_RECORDER,
         },
     };
+
+    metalrobo::PolicyPack policy;
+    policy.id = "fixed_base_sensor_policy";
+    policy.layers = {{
+        .inputCount = 12u,
+        .outputCount = 1u,
+        .activation = metalrobo::PolicyActivation::identity,
+        .weights = std::vector<float>(12u, 0.0f),
+        .bias = std::vector<float>(1u, 0.0f),
+    }};
+    authored.policy = std::move(policy);
 
     metalrobo::CompiledSimulation compiled;
     const auto status = metalrobo::compileSimulation(
@@ -477,8 +514,10 @@ std::uint64_t compileFixedBaseTaskFixture() {
         compiled.sensors.layout().outputElementCount != 14u ||
         compiled.sensors.layout().historyElementCount != 28u ||
         compiled.task.layout().actionCount != 1u ||
-        compiled.task.layout().actorObservationSize != 9u ||
-        compiled.task.layout().criticObservationSize != 4u ||
+        compiled.task.layout().actorObservationSize != 12u ||
+        compiled.task.layout().criticObservationSize != 6u ||
+        compiled.task.sensorFingerprint() !=
+            compiled.sensors.fingerprint() ||
         compiled.task.header().typedCounts.x != 1u ||
         compiled.task.header().typedCounts.y != 1u ||
         compiled.task.frames().size() != 1u ||
@@ -516,10 +555,6 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 )
         );
     }
-    const std::vector<float> actions(
-        environments * controlSteps,
-        0.0f
-    );
     std::vector<std::uint32_t> resetMasks(
         environments * controlSteps,
         0u
@@ -534,6 +569,8 @@ std::uint64_t compileFixedBaseTaskFixture() {
         metalrobo::MetalWorldActuationMode::implicitPositionDrive;
     step.taskProgram = compiled.task;
     step.sensorProgram = compiled.sensors;
+    step.policyProgram = compiled.policy;
+    step.evaluateFinalPolicy = true;
     step.publishSensorOutputs = true;
     step.ccdMode = metalrobo::MetalWorldCCDMode::disabled;
     metalrobo::MetalWorldContext context;
@@ -545,7 +582,6 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .controlStepCount = controlSteps,
             .initialQ = initialQ,
             .initialV = initialV,
-            .actions = actions,
             .resetMasks = resetMasks,
         },
         step,
@@ -555,7 +591,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
         result.transitions.size() !=
             environments * controlSteps ||
         result.actorObservations.size() !=
-            environments * controlSteps * 9u ||
+            environments * (controlSteps + 1u) * 12u ||
         result.sensorOutputs.size() != environments * 14u ||
         result.sensorMetadata.size() != environments * 2u ||
         std::any_of(
@@ -604,7 +640,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
                  delayed.sequenceAndTimestamp.y
              ) << 32u);
         const std::uint64_t expectedDelayedSequence =
-            environment == 0u ? 2u : controlSteps;
+            environment == 0u ? 3u : controlSteps + 1u;
         const MRSensorSampleMetadataGPU& nonDivisor =
             result.sensorMetadata[metadataBase + 1u];
         const std::uint64_t nonDivisorSequence =
@@ -615,7 +651,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
                  nonDivisor.sequenceAndTimestamp.y
              ) << 32u);
         const std::uint64_t expectedNonDivisorSequence =
-            environment == 0u ? 1u : 2u;
+            environment == 0u ? 2u : 3u;
         if (!validPose(outputBase) ||
             delayedSequence != expectedDelayedSequence ||
             delayed.ageValidityAndLayout.x != 0u ||
@@ -628,14 +664,12 @@ std::uint64_t compileFixedBaseTaskFixture() {
             delayed.ageValidityAndLayout.w != 7u ||
             !validPose(outputBase + 7u) ||
             nonDivisorSequence != expectedNonDivisorSequence ||
-            nonDivisor.ageValidityAndLayout.x != 1u ||
+            nonDivisor.ageValidityAndLayout.x != 0u ||
             (nonDivisor.ageValidityAndLayout.y &
              (MR_SENSOR_SAMPLE_VALID |
-              MR_SENSOR_SAMPLE_STALE)) !=
+              MR_SENSOR_SAMPLE_FRESH)) !=
                 (MR_SENSOR_SAMPLE_VALID |
-                 MR_SENSOR_SAMPLE_STALE) ||
-            (nonDivisor.ageValidityAndLayout.y &
-             MR_SENSOR_SAMPLE_FRESH) != 0u ||
+                 MR_SENSOR_SAMPLE_FRESH) ||
             nonDivisor.ageValidityAndLayout.z != 7u ||
             nonDivisor.ageValidityAndLayout.w != 7u) {
             fail(
@@ -647,7 +681,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
              std::size_t{0u},
              std::size_t{2u * environments},
          }) {
-        const std::size_t base = sample * 9u;
+        const std::size_t base = sample * 12u;
         if (std::abs(result.actorObservations[base + 5u] - 0.3f) >
                 2.0e-4f ||
             std::abs(result.actorObservations[base + 6u]) > 2.0e-4f ||
@@ -655,6 +689,66 @@ std::uint64_t compileFixedBaseTaskFixture() {
             std::abs(result.actorObservations[base + 8u]) > 2.0e-4f) {
             fail(
                 "reset frame observations were not refreshed from reset kinematics"
+            );
+        }
+    }
+    for (std::size_t stepIndex = 0u;
+         stepIndex < controlSteps;
+         ++stepIndex) {
+        for (std::size_t environment = 0u;
+             environment < environments;
+             ++environment) {
+            const std::size_t sample =
+                stepIndex * environments + environment;
+            const std::size_t actorBase = sample * 12u;
+            const bool reset =
+                stepIndex == 0u ||
+                (stepIndex == 2u && environment == 0u);
+            const float delayedValue = reset ? 0.0f : 0.3f;
+            const float delayedValid = reset ? 0.0f : 1.0f;
+            const bool thirtyHertzFresh =
+                stepIndex == 0u || stepIndex == 2u;
+            if (std::abs(
+                    result.actorObservations[actorBase + 9u] -
+                    delayedValue
+                ) > 2.0e-4f ||
+                std::abs(
+                    result.actorObservations[actorBase + 10u] -
+                    delayedValid
+                ) > 2.0e-4f ||
+                std::abs(
+                    result.actorObservations[actorBase + 11u] -
+                    (thirtyHertzFresh ? 1.0f : 0.0f)
+                ) > 2.0e-4f) {
+                fail(
+                    "TaskIR actor observations did not consume the scheduled SensorIR boundary"
+                );
+            }
+            const std::size_t criticBase = sample * 6u;
+            if (std::abs(
+                    result.criticObservations[criticBase + 4u] -
+                    0.3f
+                ) > 2.0e-4f ||
+                std::abs(
+                    result.criticObservations[criticBase + 5u] -
+                    (thirtyHertzFresh ? 0.0f : 1.0f)
+                ) > 2.0e-4f) {
+                fail(
+                    "TaskIR critic observations did not consume SensorIR value and validity"
+                );
+            }
+        }
+    }
+    for (std::size_t environment = 0u;
+         environment < environments;
+         ++environment) {
+        const std::size_t finalActorBase =
+            (controlSteps * environments + environment) * 12u;
+        if (std::abs(
+                result.actorObservations[finalActorBase + 11u] - 1.0f
+            ) > 2.0e-4f) {
+            fail(
+                "terminal actor observation was published before the accepted-state sensor sample"
             );
         }
     }
@@ -685,6 +779,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
     const auto roundTripStatus = metalrobo::compileTaskProgram(
         restored,
         compiled.world,
+        compiled.sensors,
         roundTrip
     );
     if (!taskWrite.succeeded() ||
@@ -692,6 +787,29 @@ std::uint64_t compileFixedBaseTaskFixture() {
         !roundTripStatus.succeeded() ||
         roundTrip.fingerprint() != compiled.task.fingerprint()) {
         fail("typed TaskPack round trip changed frame or goal semantics");
+    }
+
+    metalrobo::TaskPack unauthorized = authored.task;
+    unauthorized.critic.push_back({
+        .source = metalrobo::TaskObservationSource::sensorValue,
+        .target = "tool_pose_delayed",
+        .component = 2u,
+    });
+    metalrobo::CompiledTaskProgram preservedSensorTask = compiled.task;
+    const std::uint64_t sensorTaskFingerprint =
+        preservedSensorTask.fingerprint();
+    const auto unauthorizedStatus = metalrobo::compileTaskProgram(
+        unauthorized,
+        compiled.world,
+        compiled.sensors,
+        preservedSensorTask
+    );
+    if (unauthorizedStatus.status !=
+            metalrobo::TaskCompileStatus::invalidPack ||
+        preservedSensorTask.fingerprint() != sensorTaskFingerprint) {
+        fail(
+            "SensorIR consumer permission was not transactionally enforced"
+        );
     }
 
     metalrobo::TaskPack invalid = authored.task;
@@ -703,6 +821,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
     const auto rejected = metalrobo::compileTaskProgram(
         invalid,
         compiled.world,
+        compiled.sensors,
         preserved
     );
     if (rejected.status !=
@@ -943,6 +1062,7 @@ int main() {
             metalrobo::compileTaskProgram(
                 authored.task,
                 world,
+                compiledWorld.sensors,
                 repeated
             );
         if (!repeatedStatus.succeeded() ||
@@ -959,6 +1079,7 @@ int main() {
             metalrobo::compileTaskProgram(
                 broken,
                 world,
+                compiledWorld.sensors,
                 repeated
             );
         if (rejected.status !=
@@ -975,6 +1096,7 @@ int main() {
             capacityRejected = metalrobo::compileTaskProgram(
                 mismatched,
                 world,
+                compiledWorld.sensors,
                 repeated
             );
         if (capacityRejected.status !=
@@ -1122,6 +1244,7 @@ int main() {
                 metalrobo::compileTaskProgram(
                     loadedTask,
                     world,
+                    compiledWorld.sensors,
                     roundTripTask
                 );
         metalrobo::CompiledPolicyProgram roundTripPolicy;

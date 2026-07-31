@@ -3,6 +3,7 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/runtime_abi_generated.h"
 #include "metalrobo/task_program_types.h"
+#include "metalrobo/world_compiler_types.h"
 
 using namespace metal;
 
@@ -190,6 +191,44 @@ inline float3 taskOrientationError(
 inline bool frameObservationOpcode(const uint opcode) {
     return opcode >= MR_TASK_OBSERVE_FRAME_POSITION_WORLD &&
         opcode <= MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR;
+}
+
+inline bool sensorObservationOpcode(const uint opcode) {
+    return opcode == MR_TASK_OBSERVE_SENSOR_VALUE ||
+        opcode == MR_TASK_OBSERVE_SENSOR_VALIDITY;
+}
+
+inline ulong taskSensorFingerprint(
+    device const MRTaskProgramHeaderGPU& program
+) {
+    return static_cast<ulong>(program.typedCounts.z) |
+        (static_cast<ulong>(program.typedCounts.w) << 32u);
+}
+
+inline float taskSensorObservationValue(
+    device const MRSensorProgramHeaderGPU& sensorProgram,
+    const MRTaskObservationOperatorGPU operation,
+    device const float* sensorOutputs,
+    device const MRSensorSampleMetadataGPU* sensorMetadata,
+    const uint environment
+) {
+    float value = 0.0f;
+    if (operation.source.x == MR_TASK_OBSERVE_SENSOR_VALUE) {
+        value = sensorOutputs[
+            environment * sensorProgram.counts.y +
+            operation.auxiliary.z + operation.source.z
+        ];
+    } else {
+        const uint validity = sensorMetadata[
+            environment * sensorProgram.counts.x +
+            operation.source.y
+        ].ageValidityAndLayout.y;
+        value =
+            (validity & (1u << operation.source.z)) != 0u
+            ? 1.0f
+            : 0.0f;
+    }
+    return operation.transform.x * value + operation.transform.y;
 }
 
 inline float taskFrameObservationValue(
@@ -709,6 +748,11 @@ inline void writeFrame(
          ++index) {
         const MRTaskObservationOperatorGPU operation =
             actorOperators[index];
+        if (sensorObservationOpcode(operation.source.x)) {
+            // SensorIR owns this sample. The boundary refresh kernel writes
+            // it after reset or after the accepted physics state.
+            continue;
+        }
         const float value = cleanObservation(
             program,
             operation,
@@ -785,6 +829,9 @@ inline void writeCriticFrame(
          ++index) {
         const MRTaskObservationOperatorGPU operation =
             criticOperators[index];
+        if (sensorObservationOpcode(operation.source.x)) {
+            continue;
+        }
         output[index] = cleanObservation(
             program,
             operation,
@@ -1800,6 +1847,233 @@ kernel void mr_task_refresh_frame_observations(
                 history * program.counts0.z + index
             ] = clean;
         }
+    }
+}
+
+// Bind compiled SensorIR outputs into TaskIR histories without exposing
+// simulator state to the learner. Reset-only mode seeds every history slot
+// before the first action of an episode. Advance mode writes the tail that
+// mr_task_complete already shifted, then republishes the terminal views used
+// by value bootstrapping and optional final-policy evaluation.
+kernel void mr_task_refresh_sensor_observations(
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_SENSOR_REFRESH_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_SENSOR_REFRESH_PROGRAM)]],
+    device const uchar* arena
+        [[buffer(MR_TASK_SENSOR_REFRESH_ARENA)]],
+    device const MRSensorProgramHeaderGPU& sensorProgram
+        [[buffer(MR_TASK_SENSOR_REFRESH_SENSOR_PROGRAM)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_SENSOR_REFRESH_PASS)]],
+    device const uint* resetMasks
+        [[buffer(MR_TASK_SENSOR_REFRESH_RESET_MASKS)]],
+    device const MRTaskStateGPU* taskStates
+        [[buffer(MR_TASK_SENSOR_REFRESH_TASK_STATES)]],
+    device const float* sensorOutputs
+        [[buffer(MR_TASK_SENSOR_REFRESH_SENSOR_OUTPUTS)]],
+    device const MRSensorSampleMetadataGPU* sensorMetadata
+        [[buffer(MR_TASK_SENSOR_REFRESH_SENSOR_METADATA)]],
+    device const float* sensorBias
+        [[buffer(MR_TASK_SENSOR_REFRESH_SENSOR_BIAS)]],
+    device float* actorHistory
+        [[buffer(MR_TASK_SENSOR_REFRESH_ACTOR_HISTORY)]],
+    device float* cleanHistory
+        [[buffer(MR_TASK_SENSOR_REFRESH_CLEAN_HISTORY)]],
+    device float* criticHistory
+        [[buffer(MR_TASK_SENSOR_REFRESH_CRITIC_HISTORY)]],
+    device float* actorObservations
+        [[buffer(MR_TASK_SENSOR_REFRESH_ACTOR_OBSERVATIONS)]],
+    device float* criticObservations
+        [[buffer(MR_TASK_SENSOR_REFRESH_CRITIC_OBSERVATIONS)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    const bool resetOnly =
+        pass.reserved0 == MR_SENSOR_EXECUTION_RESET_ONLY;
+    const bool advance =
+        pass.reserved0 == MR_SENSOR_EXECUTION_ADVANCE;
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        (!resetOnly && !advance) ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        sensorProgram.reserved.x !=
+            MR_SENSOR_PROGRAM_ABI_VERSION ||
+        taskSensorFingerprint(program) == 0u ||
+        taskSensorFingerprint(program) !=
+            sensorProgram.sensorFingerprint ||
+        sensorProgram.worldFingerprint !=
+            program.worldFingerprint ||
+        program.layout.y == 0u ||
+        program.articulation.w == 0u) {
+        return;
+    }
+
+    const uint maskIndex =
+        pass.controlStep * dispatch.counts.x + environment;
+    if (resetOnly && resetMasks[maskIndex] == 0u) {
+        return;
+    }
+    const MRTaskStateGPU state = taskStates[environment];
+    // mr_task_complete intentionally preserves the previous terminal frame
+    // for failed (non-timeout) episodes. Match that transaction here.
+    if (advance && state.status.y != 0u &&
+        state.status.z != MR_TASK_TERMINATION_TIMEOUT) {
+        return;
+    }
+
+    device const MRTaskObservationOperatorGPU* actorOperators =
+        taskTable<MRTaskObservationOperatorGPU>(
+            arena,
+            program.offsets0.y
+        );
+    device const MRTaskObservationOperatorGPU* criticOperators =
+        taskTable<MRTaskObservationOperatorGPU>(
+            arena,
+            program.offsets0.z
+        );
+    const uint historyElements =
+        program.layout.x * program.layout.y;
+    const uint historyBase = environment * historyElements;
+    const uint actorTailBase =
+        historyBase +
+        (program.layout.y - 1u) * program.layout.x;
+    const uint criticHistoryElements =
+        program.counts0.z * program.articulation.w;
+    const uint criticHistoryBase =
+        environment * criticHistoryElements;
+    const uint criticTailBase =
+        criticHistoryBase +
+        (program.articulation.w - 1u) * program.counts0.z;
+    const uint biasBase = environment * program.counts2.z;
+    const uint episodeStep = resetOnly ? 0u : state.episode.x;
+
+    for (uint index = 0u;
+         index < program.counts0.y;
+         ++index) {
+        const MRTaskObservationOperatorGPU operation =
+            actorOperators[index];
+        if (!sensorObservationOpcode(operation.source.x)) {
+            continue;
+        }
+        const float clean = taskSensorObservationValue(
+            sensorProgram,
+            operation,
+            sensorOutputs,
+            sensorMetadata,
+            environment
+        );
+        float corrupted =
+            clean +
+            operation.transform.z *
+                randomSigned(
+                    dispatch,
+                    environment,
+                    state.episode.y,
+                    episodeStep,
+                    operation.auxiliary.y
+                );
+        if (operation.auxiliary.x != MR_INVALID_INDEX) {
+            corrupted += sensorBias[
+                biasBase + operation.auxiliary.x
+            ];
+        }
+        if (resetOnly) {
+            for (uint history = 0u;
+                 history < program.layout.y;
+                 ++history) {
+                const uint destination =
+                    historyBase + history * program.layout.x + index;
+                actorHistory[destination] = corrupted;
+                cleanHistory[destination] = clean;
+            }
+        } else {
+            cleanHistory[actorTailBase + index] = clean;
+            if (state.schedule.w != 0u &&
+                program.layout.y > 1u) {
+                const uint delay = min(
+                    state.schedule.w,
+                    program.layout.y - 1u
+                );
+                const uint sourceHistory =
+                    program.layout.y - 1u - delay;
+                actorHistory[actorTailBase + index] =
+                    actorHistory[
+                        historyBase +
+                        sourceHistory * program.layout.x + index
+                    ];
+            } else {
+                actorHistory[actorTailBase + index] = corrupted;
+            }
+        }
+    }
+
+    for (uint index = 0u;
+         index < program.counts0.z;
+         ++index) {
+        const MRTaskObservationOperatorGPU operation =
+            criticOperators[index];
+        if (!sensorObservationOpcode(operation.source.x)) {
+            continue;
+        }
+        const float clean = taskSensorObservationValue(
+            sensorProgram,
+            operation,
+            sensorOutputs,
+            sensorMetadata,
+            environment
+        );
+        if (resetOnly) {
+            for (uint history = 0u;
+                 history < program.articulation.w;
+                 ++history) {
+                criticHistory[
+                    criticHistoryBase +
+                    history * program.counts0.z + index
+                ] = clean;
+            }
+        } else {
+            criticHistory[criticTailBase + index] = clean;
+        }
+    }
+
+    const bool finalActor =
+        advance && dispatch.timing.z != 0.0f &&
+        pass.controlStep + 1u == dispatch.counts.y;
+    if (resetOnly || finalActor) {
+        const uint observationStep =
+            resetOnly ? pass.controlStep : dispatch.counts.y;
+        const uint actorOutputBase =
+            observationStep * dispatch.outputs.x +
+            environment * historyElements;
+        for (uint index = 0u;
+             index < historyElements;
+             ++index) {
+            actorObservations[actorOutputBase + index] =
+                actorHistory[historyBase + index];
+        }
+    }
+
+    if (resetOnly ||
+        (advance && dispatch.timing.w != 0.0f)) {
+        const uint observationStep =
+            resetOnly ? pass.controlStep : dispatch.counts.y;
+        const uint criticObservationSize =
+            ((program.schedule.w &
+              MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY) != 0u
+                 ? historyElements
+                 : 0u) +
+            criticHistoryElements;
+        const uint criticOutputBase =
+            observationStep * dispatch.outputs.y +
+            environment * criticObservationSize;
+        publishCritic(
+            program,
+            cleanHistory + historyBase,
+            criticHistory + criticHistoryBase,
+            criticObservations + criticOutputBase
+        );
     }
 }
 

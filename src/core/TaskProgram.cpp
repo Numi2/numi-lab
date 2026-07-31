@@ -1,6 +1,7 @@
 #include "metalrobo/TaskProgram.hpp"
 
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/SensorProgram.hpp"
 
 #include <algorithm>
 #include <array>
@@ -21,6 +22,7 @@ namespace metalrobo {
 struct CompiledTaskProgram::Storage {
     std::uint64_t fingerprint = 0u;
     std::uint64_t worldFingerprint = 0u;
+    std::uint64_t sensorFingerprint = 0u;
     TaskProgramLayout layout{};
     MRTaskProgramHeaderGPU header{};
     std::vector<MRTaskActionBindingGPU> actionBindings;
@@ -343,6 +345,15 @@ constexpr std::array kCapacityFields{
 } // namespace
 
 bool CompiledTaskProgram::valid() const noexcept {
+    const std::uint64_t headerSensorFingerprint =
+        storage_ == nullptr
+        ? 0u
+        : static_cast<std::uint64_t>(
+              storage_->header.typedCounts.z
+          ) |
+              (static_cast<std::uint64_t>(
+                   storage_->header.typedCounts.w
+               ) << 32u);
     return storage_ != nullptr &&
         storage_->fingerprint != 0u &&
         storage_->worldFingerprint != 0u &&
@@ -350,6 +361,8 @@ bool CompiledTaskProgram::valid() const noexcept {
             storage_->fingerprint &&
         storage_->header.worldFingerprint ==
             storage_->worldFingerprint &&
+        headerSensorFingerprint ==
+            storage_->sensorFingerprint &&
         storage_->layout.actionCount != 0u &&
         storage_->layout.actorFrameSize != 0u &&
         storage_->layout.actorHistoryLength != 0u;
@@ -361,6 +374,10 @@ std::uint64_t CompiledTaskProgram::fingerprint() const noexcept {
 
 std::uint64_t CompiledTaskProgram::worldFingerprint() const noexcept {
     return valid() ? storage_->worldFingerprint : 0u;
+}
+
+std::uint64_t CompiledTaskProgram::sensorFingerprint() const noexcept {
+    return valid() ? storage_->sensorFingerprint : 0u;
 }
 
 const TaskProgramLayout& CompiledTaskProgram::layout() const noexcept {
@@ -515,6 +532,7 @@ CompiledTaskProgram::arena() const noexcept {
 TaskCompileDiagnostics compileTaskProgram(
     const TaskPack& pack,
     const CompiledWorld& world,
+    const CompiledSensorProgram& sensors,
     CompiledTaskProgram& output
 ) {
     if (!world.valid()) {
@@ -541,6 +559,14 @@ TaskCompileDiagnostics compileTaskProgram(
             TaskCompileStatus::invalidWorld,
             "world.articulation",
             "compiled world has no selected articulation"
+        );
+    }
+    if (sensors.valid() &&
+        sensors.worldFingerprint() != world.fingerprint()) {
+        return reject(
+            TaskCompileStatus::invalidWorld,
+            "sensors",
+            "compiled sensors do not match the task world"
         );
     }
     for (const CapacityField& field : kCapacityFields) {
@@ -1242,9 +1268,11 @@ TaskCompileDiagnostics compileTaskProgram(
         jointGroupIds.push_back(group.id);
     }
 
+    bool usesSensors = false;
     const auto compileObservations =
         [&](const std::vector<TaskObservationOperatorSpec>& specs,
-            std::vector<MRTaskObservationOperatorGPU>& compiled)
+            std::vector<MRTaskObservationOperatorGPU>& compiled,
+            const std::uint32_t requiredConsumer)
         -> TaskCompileDiagnostics {
         compiled.reserve(specs.size());
         for (std::size_t operatorIndex = 0u;
@@ -1431,6 +1459,50 @@ TaskCompileDiagnostics compileTaskProgram(
                     );
                 }
                 break;
+            case TaskObservationSource::sensorValue:
+            case TaskObservationSource::sensorValidity: {
+                if (!sensors.valid()) {
+                    return reject(
+                        TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "sensor observation requires a compiled SensorIR program"
+                    );
+                }
+                sourceIndex = sensors.sensorIndex(spec.target);
+                if (sourceIndex == MR_INVALID_INDEX) {
+                    return reject(
+                        TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "observation sensor does not exist"
+                    );
+                }
+                const MRSensorDescriptorGPU descriptor =
+                    sensors.descriptors()[sourceIndex];
+                if ((descriptor.identity.w & requiredConsumer) == 0u) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        spec.target,
+                        "observation sensor is not authorized for this task consumer"
+                    );
+                }
+                if (!spec.goal.empty()) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        spec.goal,
+                        "sensor observations cannot bind a task goal"
+                    );
+                }
+                componentLimit =
+                    spec.source == TaskObservationSource::sensorValue
+                    ? descriptor.output.y
+                    : 5u;
+                // auxiliary.z stores the environment-local SensorIR output
+                // offset. Validity reads metadata at source.y but retains the
+                // offset so both opcodes share one generated record layout.
+                goalIndex = descriptor.output.x;
+                usesSensors = true;
+                break;
+            }
             default:
                 return reject(
                     TaskCompileStatus::unsupportedOperator,
@@ -1495,14 +1567,16 @@ TaskCompileDiagnostics compileTaskProgram(
     TaskCompileDiagnostics observationStatus =
         compileObservations(
             pack.actorFrame,
-            staged->actorOperators
+            staged->actorOperators,
+            MR_WORLD_SENSOR_CONSUMER_ACTOR
         );
     if (!observationStatus.succeeded()) {
         return observationStatus;
     }
     observationStatus = compileObservations(
         pack.critic,
-        staged->criticOperators
+        staged->criticOperators,
+        MR_WORLD_SENSOR_CONSUMER_CRITIC
     );
     if (!observationStatus.succeeded()) {
         return observationStatus;
@@ -2209,11 +2283,18 @@ TaskCompileDiagnostics compileTaskProgram(
         -rootCenterOfMass.z,
         0.0f,
     };
+    staged->sensorFingerprint = usesSensors
+        ? sensors.fingerprint()
+        : 0u;
     staged->header.typedCounts = {
         static_cast<std::uint32_t>(staged->frames.size()),
         static_cast<std::uint32_t>(staged->goals.size()),
-        0u,
-        0u,
+        static_cast<std::uint32_t>(
+            staged->sensorFingerprint
+        ),
+        static_cast<std::uint32_t>(
+            staged->sensorFingerprint >> 32u
+        ),
     };
 
     const auto appendArena =
@@ -2377,10 +2458,12 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     for (const TaskObservationOperatorSpec& observation :
          pack.actorFrame) {
+        hash.string(observation.target);
         hash.string(observation.goal);
     }
     for (const TaskObservationOperatorSpec& observation :
          pack.critic) {
+        hash.string(observation.target);
         hash.string(observation.goal);
     }
     for (const TaskRewardOperatorSpec& reward : pack.rewards) {

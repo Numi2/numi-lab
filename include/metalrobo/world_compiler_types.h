@@ -88,6 +88,15 @@ enum MRSensorSampleValidityFlags : mr_u32 {
     MR_SENSOR_SAMPLE_NONFINITE = 1u << 4u,
 };
 
+// Native schedule execution boundary. Reset-only seeds the new episode at
+// its accepted initial state without advancing ordinary environments.
+// Advance samples the newly accepted post-physics state for the next control
+// boundary. These modes prevent duplicate sampling across rollout chunks.
+enum MRSensorExecutionMode : mr_u32 {
+    MR_SENSOR_EXECUTION_RESET_ONLY = 0u,
+    MR_SENSOR_EXECUTION_ADVANCE = 1u,
+};
+
 enum MRWorldVariationAxis : mr_u32 {
     MR_WORLD_VARIATION_APPEARANCE = 0u,
     MR_WORLD_VARIATION_OBJECT_CONFIGURATION = 1u,

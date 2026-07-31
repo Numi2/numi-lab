@@ -13,6 +13,7 @@
 namespace metalrobo {
 
 class CompiledWorld;
+class CompiledSensorProgram;
 
 enum class TaskObservationSource : std::uint32_t {
     rootAngularVelocityLocal =
@@ -39,6 +40,8 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_FRAME_GOAL_POSITION_ERROR,
     frameGoalOrientationError =
         MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR,
+    sensorValue = MR_TASK_OBSERVE_SENSOR_VALUE,
+    sensorValidity = MR_TASK_OBSERVE_SENSOR_VALIDITY,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -305,6 +308,7 @@ public:
     [[nodiscard]] bool valid() const noexcept;
     [[nodiscard]] std::uint64_t fingerprint() const noexcept;
     [[nodiscard]] std::uint64_t worldFingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t sensorFingerprint() const noexcept;
     [[nodiscard]] const TaskProgramLayout& layout() const noexcept;
     [[nodiscard]] const MRTaskProgramHeaderGPU& header() const noexcept;
     [[nodiscard]] std::span<const MRTaskActionBindingGPU>
@@ -347,6 +351,7 @@ private:
     friend TaskCompileDiagnostics compileTaskProgram(
         const TaskPack&,
         const CompiledWorld&,
+        const CompiledSensorProgram&,
         CompiledTaskProgram&
     );
 };
@@ -354,6 +359,7 @@ private:
 [[nodiscard]] TaskCompileDiagnostics compileTaskProgram(
     const TaskPack& pack,
     const CompiledWorld& world,
+    const CompiledSensorProgram& sensors,
     CompiledTaskProgram& output
 );
 

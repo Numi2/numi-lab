@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "abi_version": 4,
+  "abi_version": 5,
   "abi_constants": {
-    "MR_SENSOR_PROGRAM_ABI_VERSION": 2
+    "MR_SENSOR_PROGRAM_ABI_VERSION": 3
   },
   "records": [
     {
@@ -610,6 +610,27 @@
         "HISTORY",
         "OUTPUTS",
         "METADATA"
+      ]
+    },
+    {
+      "enum": "MRTaskSensorRefreshBuffer",
+      "prefix": "MR_TASK_SENSOR_REFRESH_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "ARENA",
+        "SENSOR_PROGRAM",
+        "PASS",
+        "RESET_MASKS",
+        "TASK_STATES",
+        "SENSOR_OUTPUTS",
+        "SENSOR_METADATA",
+        "SENSOR_BIAS",
+        "ACTOR_HISTORY",
+        "CLEAN_HISTORY",
+        "CRITIC_HISTORY",
+        "ACTOR_OBSERVATIONS",
+        "CRITIC_OBSERVATIONS"
       ]
     }
   ]

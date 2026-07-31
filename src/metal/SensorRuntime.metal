@@ -67,13 +67,15 @@ inline bool normalizedQuaternion(
 
 } // namespace
 
-// First canonical SensorIR executor: parent-frame pose sampling at the
-// pre-control boundary. One thread owns one environment/sensor history ring,
-// so reset and publication are transactional without atomics. Presentation
-// and tactile domains remain separate until their existing native kernels are
+// First canonical SensorIR executor: parent-frame pose sampling across the
+// two control boundaries. Reset-only execution seeds a new episode before its
+// first action; advance execution samples the accepted post-physics state for
+// the next action. One thread owns one environment/sensor history ring, so
+// reset and publication are transactional without atomics. Presentation and
+// tactile domains remain separate until their existing native kernels are
 // folded into this schedule; descriptors for those domains are rejected by
 // the host execution gate rather than silently skipped in production.
-kernel void mr_sensor_sample_pre_control(
+kernel void mr_sensor_sample_control_boundary(
     constant MRSensorDispatchGPU& dispatch
         [[buffer(MR_SENSOR_SAMPLE_DISPATCH)]],
     device const MRSensorProgramHeaderGPU& program
@@ -103,7 +105,10 @@ kernel void mr_sensor_sample_pre_control(
     const uint total = environmentCount * sensorCount;
     if (threadIndex >= total || sensorCount == 0u ||
         program.sensorFingerprint != dispatch.sensorFingerprint ||
-        program.counts.x != sensorCount) {
+        program.reserved.x != MR_SENSOR_PROGRAM_ABI_VERSION ||
+        program.counts.x != sensorCount ||
+        (dispatch.counts.z != MR_SENSOR_EXECUTION_RESET_ONLY &&
+         dispatch.counts.z != MR_SENSOR_EXECUTION_ADVANCE)) {
         return;
     }
     const uint environment = threadIndex / sensorCount;
@@ -121,11 +126,16 @@ kernel void mr_sensor_sample_pre_control(
 
     const uint stateIndex = environment * sensorCount + sensorIndex;
     MRSensorRuntimeStateGPU state = states[stateIndex];
-    const bool hasResets = (dispatch.counts.w & 1u) != 0u;
-    const bool reset = hasResets &&
+    const bool reset =
+        dispatch.counts.z == MR_SENSOR_EXECUTION_RESET_ONLY &&
+        (dispatch.counts.w & 1u) != 0u &&
         resetMasks[
             pass.controlStep * environmentCount + environment
         ] != 0u;
+    if (dispatch.counts.z == MR_SENSOR_EXECUTION_RESET_ONLY &&
+        !reset) {
+        return;
+    }
     const uint outputEnvironmentBase =
         environment * program.counts.y;
     const uint historyEnvironmentBase =
@@ -179,14 +189,18 @@ kernel void mr_sensor_sample_pre_control(
         return;
     }
 
-    bool sample = sequence == 0u;
-    if (!sample) {
+    bool sample = reset;
+    if (dispatch.counts.z == MR_SENSOR_EXECUTION_ADVANCE) {
         timestamp += controlPeriod;
         phase += controlPeriod;
         if (phase >= samplePeriod) {
             phase %= samplePeriod;
             sample = true;
         }
+        // A zero sequence means no reset boundary was available (for
+        // example, a recovered offline state). Publish a coherent first
+        // sample rather than leaving an uninitialized output indefinitely.
+        sample = sample || sequence == 0u;
     }
     if (!sample) {
         state.phaseAndSequence.x = low32(phase);

@@ -426,6 +426,7 @@ SimulationCompileDiagnostics compileSimulation(
     diagnostics.task = compileTaskProgram(
         authored.task,
         staged.world,
+        staged.sensors,
         staged.task
     );
     if (!diagnostics.task.succeeded()) {

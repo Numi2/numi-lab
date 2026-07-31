@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 7u
+#define MR_TASK_PROGRAM_ABI_VERSION 8u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -31,6 +31,13 @@ enum MRTaskObservationOpcode : mr_u32 {
     MR_TASK_OBSERVE_FRAME_ORIENTATION_WORLD = 15u,
     MR_TASK_OBSERVE_FRAME_GOAL_POSITION_ERROR = 16u,
     MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR = 17u,
+    // Named SensorIR scalar output. source.y is the compiled sensor index,
+    // source.z is the channel, and auxiliary.z is the environment-local
+    // output offset. The TaskIR fingerprint binds the exact SensorIR program.
+    MR_TASK_OBSERVE_SENSOR_VALUE = 18u,
+    // One scalar validity bit selected by source.z from
+    // MRSensorSampleValidityFlags (valid, fresh, reset, stale, nonfinite).
+    MR_TASK_OBSERVE_SENSOR_VALIDITY = 19u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -163,7 +170,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 articulation;
     // Root link-frame origin relative to the root COM, in root body axes.
     mr_float4 rootReference;
-    // named frames, static SE(3) goals, reserved, reserved.
+    // named frames, static SE(3) goals, SensorIR fingerprint low/high.
     mr_uint4 typedCounts;
 } MRTaskProgramHeaderGPU;
 

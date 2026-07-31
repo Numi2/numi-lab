@@ -96,6 +96,8 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState>
         taskFrameRefreshPipeline = nil;
     __strong id<MTLComputePipelineState> sensorSamplePipeline = nil;
+    __strong id<MTLComputePipelineState>
+        taskSensorRefreshPipeline = nil;
     __strong id<MTLComputePipelineState> taskApplyPipeline = nil;
     __strong id<MTLComputePipelineState> taskEffortPipeline = nil;
     __strong id<MTLComputePipelineState> taskCompletePipeline = nil;
@@ -2712,13 +2714,17 @@ MetalWorldDiagnostics validateAndBuildLayout(
                     implicitPositionDrive ||
             world.rodCount() != 0u ||
             config.taskProgram.worldFingerprint() !=
-                world.fingerprint()
+                world.fingerprint() ||
+            (config.taskProgram.sensorFingerprint() != 0u &&
+             (!nativeSensors ||
+              config.taskProgram.sensorFingerprint() !=
+                  config.sensorProgram.fingerprint()))
         )) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedTopology,
             "native task execution requires an implicit-drive contact world "
-            "matching the compiled task fingerprint"
+            "and the exact SensorIR program bound by TaskIR"
         );
     }
     if (config.publishSensorOutputs && !nativeSensors) {
@@ -2734,6 +2740,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
         if (!nativeTask ||
             config.sensorProgram.worldFingerprint() !=
                 world.fingerprint() ||
+            config.sensorProgram.header().reserved.x !=
+                MR_SENSOR_PROGRAM_ABI_VERSION ||
             config.sensorProgram.layout()
                     .presentationSensorCount != 0u ||
             config.sensorProgram.layout().tactileSensorCount != 0u ||
@@ -4298,6 +4306,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> taskObserve = nil;
     __strong id<MTLComputePipelineState> taskFrameRefresh = nil;
     __strong id<MTLComputePipelineState> sensorSample = nil;
+    __strong id<MTLComputePipelineState> taskSensorRefresh = nil;
     __strong id<MTLComputePipelineState> taskApply = nil;
     __strong id<MTLComputePipelineState> taskEffort = nil;
     __strong id<MTLComputePipelineState> taskComplete = nil;
@@ -4396,7 +4405,10 @@ MetalWorldDiagnostics initializeContext(
         @"mr_task_refresh_frame_observations"
     );
     sensorSample = createContactPipeline(
-        @"mr_sensor_sample_pre_control"
+        @"mr_sensor_sample_control_boundary"
+    );
+    taskSensorRefresh = createContactPipeline(
+        @"mr_task_refresh_sensor_observations"
     );
     taskApply =
         createContactPipeline(@"mr_task_apply_actions");
@@ -4601,6 +4613,7 @@ MetalWorldDiagnostics initializeContext(
         taskObserve == nil ||
         taskFrameRefresh == nil ||
         sensorSample == nil ||
+        taskSensorRefresh == nil ||
         taskApply == nil ||
         taskEffort == nil ||
         taskComplete == nil ||
@@ -4704,7 +4717,9 @@ MetalWorldDiagnostics initializeContext(
         commit.maxTotalThreadsPerThreadgroup == 0u ||
         capture.maxTotalThreadsPerThreadgroup == 0u ||
         taskObserve.maxTotalThreadsPerThreadgroup == 0u ||
+        taskFrameRefresh.maxTotalThreadsPerThreadgroup == 0u ||
         sensorSample.maxTotalThreadsPerThreadgroup == 0u ||
+        taskSensorRefresh.maxTotalThreadsPerThreadgroup == 0u ||
         taskApply.maxTotalThreadsPerThreadgroup == 0u ||
         taskEffort.maxTotalThreadsPerThreadgroup == 0u ||
         taskComplete.maxTotalThreadsPerThreadgroup == 0u ||
@@ -4851,6 +4866,7 @@ MetalWorldDiagnostics initializeContext(
     context.taskObservePipeline = taskObserve;
     context.taskFrameRefreshPipeline = taskFrameRefresh;
     context.sensorSamplePipeline = sensorSample;
+    context.taskSensorRefreshPipeline = taskSensorRefresh;
     context.taskApplyPipeline = taskApply;
     context.taskEffortPipeline = taskEffort;
     context.taskCompletePipeline = taskComplete;
@@ -8095,7 +8111,8 @@ bool encodeSensorSample(
     const std::uint32_t sceneStride,
     const float controlPeriodSeconds,
     const std::uint64_t seed,
-    const bool hasResets
+    const bool hasResets,
+    const std::uint32_t executionMode
 ) {
     const auto controlPeriodTicks =
         static_cast<std::uint64_t>(std::llround(
@@ -8105,7 +8122,7 @@ bool encodeSensorSample(
     dispatch.counts = {
         static_cast<std::uint32_t>(environmentCount),
         program.layout().sensorCount,
-        0u,
+        executionMode,
         hasResets ? 1u : 0u,
     };
     dispatch.controlPeriodAndStrides = {
@@ -8128,7 +8145,9 @@ bool encodeSensorSample(
         context,
         commandBuffer,
         context.sensorSamplePipeline,
-        @"compiled SensorIR pre-control sample",
+        executionMode == MR_SENSOR_EXECUTION_RESET_ONLY
+            ? @"compiled SensorIR reset-boundary sample"
+            : @"compiled SensorIR accepted-state sample",
         {
             {MR_SENSOR_SAMPLE_PROGRAM, kSensorProgramHeader},
             {MR_SENSOR_SAMPLE_DESCRIPTORS, kSensorDescriptors},
@@ -8148,6 +8167,53 @@ bool encodeSensorSample(
         &dispatch,
         sizeof(dispatch),
         MR_SENSOR_SAMPLE_DISPATCH
+    );
+}
+
+bool encodeTaskSensorRefresh(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskSensorRefreshPipeline,
+        pass.reserved0 == MR_SENSOR_EXECUTION_RESET_ONLY
+            ? @"compiled TaskIR reset SensorIR binding"
+            : @"compiled TaskIR accepted-state SensorIR binding",
+        {
+            {MR_TASK_SENSOR_REFRESH_DISPATCH, kTaskDispatch},
+            {MR_TASK_SENSOR_REFRESH_PROGRAM, kTaskProgramHeader},
+            {MR_TASK_SENSOR_REFRESH_ARENA, kTaskProgramArena},
+            {
+                MR_TASK_SENSOR_REFRESH_SENSOR_PROGRAM,
+                kSensorProgramHeader,
+            },
+            {MR_TASK_SENSOR_REFRESH_RESET_MASKS, kResetMasks},
+            {MR_TASK_SENSOR_REFRESH_TASK_STATES, kTaskState},
+            {MR_TASK_SENSOR_REFRESH_SENSOR_OUTPUTS, kSensorOutputs},
+            {
+                MR_TASK_SENSOR_REFRESH_SENSOR_METADATA,
+                kSensorMetadata,
+            },
+            {MR_TASK_SENSOR_REFRESH_SENSOR_BIAS, kTaskEncoderBias},
+            {MR_TASK_SENSOR_REFRESH_ACTOR_HISTORY, kTaskActorHistory},
+            {MR_TASK_SENSOR_REFRESH_CLEAN_HISTORY, kTaskCleanHistory},
+            {MR_TASK_SENSOR_REFRESH_CRITIC_HISTORY, kTaskCriticHistory},
+            {
+                MR_TASK_SENSOR_REFRESH_ACTOR_OBSERVATIONS,
+                kTaskActorObservations,
+            },
+            {
+                MR_TASK_SENSOR_REFRESH_CRITIC_OBSERVATIONS,
+                kTaskCriticObservations,
+            },
+        },
+        &pass,
+        MR_TASK_SENSOR_REFRESH_PASS,
+        environmentCount
     );
 }
 
@@ -14734,6 +14800,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 const bool taskUsesFrames =
                     nativeTask &&
                     config.taskProgram.header().typedCounts.x != 0u;
+                const bool taskUsesSensors =
+                    nativeTask &&
+                    config.taskProgram.sensorFingerprint() != 0u;
                 if (nativeTask &&
                     (
                         !encodeTaskObserve(
@@ -14783,7 +14852,17 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 world.sceneBodyCount(),
                                 config.timestepSeconds,
                                 config.taskSeed,
-                                !batch.resetMasks.empty()
+                                true,
+                                MR_SENSOR_EXECUTION_RESET_ONLY
+                            )
+                        ) ||
+                        (
+                            taskUsesSensors &&
+                            !encodeTaskSensorRefresh(
+                                *selectedState,
+                                commandBuffer,
+                                pass,
+                                batch.environmentCount
                             )
                         ) ||
                         (
@@ -15059,29 +15138,75 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 }
 
                 pass.physicsSubstep = MR_INVALID_INDEX;
+                if (nativeTask &&
+                    (!encodeTaskEffort(
+                         *selectedState,
+                         commandBuffer,
+                         pass,
+                         sourceV,
+                         batch.environmentCount
+                     ) ||
+                     !encodeTaskComplete(
+                         *selectedState,
+                         commandBuffer,
+                         pass,
+                         sourceQ,
+                         sourceV,
+                         sourceScene,
+                         batch.environmentCount
+                     ))) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode native task completion"
+                    );
+                }
+                MRMetalWorldPassGPU sensorPass = pass;
+                sensorPass.reserved0 = MR_SENSOR_EXECUTION_ADVANCE;
+                if (nativeSensors &&
+                    (!encodeArticulatedOperator(
+                         *selectedState,
+                         commandBuffer,
+                         kOperatorKinematicsDispatch,
+                         sourceQ,
+                         kPointQueries,
+                         kBodyPoses,
+                         batch.environmentCount,
+                         @"compiled sensor accepted-state kinematics",
+                         false
+                     ) ||
+                     !encodeSensorSample(
+                         *selectedState,
+                         commandBuffer,
+                         config.sensorProgram,
+                         sensorPass,
+                         sourceScene,
+                         batch.environmentCount,
+                         world.bodyCount(),
+                         world.sceneBodyCount(),
+                         config.timestepSeconds,
+                         config.taskSeed,
+                         true,
+                         MR_SENSOR_EXECUTION_ADVANCE
+                     ) ||
+                     (taskUsesSensors &&
+                      !encodeTaskSensorRefresh(
+                          *selectedState,
+                          commandBuffer,
+                          sensorPass,
+                          batch.environmentCount
+                      )))) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode accepted-state sensor boundary"
+                    );
+                }
                 if ((nativeTask &&
-                     (
-                         !encodeTaskEffort(
-                             *selectedState,
-                             commandBuffer,
-                             pass,
-                             sourceV,
-                             batch.environmentCount
-                         ) ||
-                         !encodeTaskComplete(
-                             *selectedState,
-                             commandBuffer,
-                             pass,
-                             sourceQ,
-                             sourceV,
-                             sourceScene,
-                             batch.environmentCount
-                         ) ||
-                         !encodeTaskCurriculum(
-                             *selectedState,
-                             commandBuffer,
-                             pass
-                         )
+                     !encodeTaskCurriculum(
+                         *selectedState,
+                         commandBuffer,
+                         pass
                      )) ||
                     !encodeCapture(
                         *selectedState,

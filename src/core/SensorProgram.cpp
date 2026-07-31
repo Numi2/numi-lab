@@ -202,6 +202,8 @@ bool CompiledSensorProgram::valid() const noexcept {
         storage_->header.sensorFingerprint == storage_->fingerprint &&
         storage_->header.worldFingerprint ==
             storage_->worldFingerprint &&
+        storage_->header.reserved.x ==
+            MR_SENSOR_PROGRAM_ABI_VERSION &&
         storage_->descriptors.size() ==
             storage_->layout.sensorCount &&
         storage_->sensorIds.size() == storage_->layout.sensorCount;
@@ -680,6 +682,7 @@ SensorCompileDiagnostics compileSensorProgram(
             sizeof(MRSensorSampleMetadataGPU)
         ),
     };
+    staged->header.reserved.x = MR_SENSOR_PROGRAM_ABI_VERSION;
 
     SensorCompileDiagnostics diagnostics;
     diagnostics.fingerprint = staged->fingerprint;

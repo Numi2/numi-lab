@@ -5,8 +5,8 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 4u
-#define MR_SENSOR_PROGRAM_ABI_VERSION 2u
+#define MR_RUNTIME_ABI_VERSION 5u
+#define MR_SENSOR_PROGRAM_ABI_VERSION 3u
 
 typedef struct MR_ALIGN16 MRSensorProgramHeaderGPU {
     mr_u64 sensorFingerprint;
@@ -150,6 +150,25 @@ enum MRSensorSampleBuffer : mr_u32 {
     MR_SENSOR_SAMPLE_OUTPUTS = 9u,
     MR_SENSOR_SAMPLE_METADATA = 10u,
     MR_SENSOR_SAMPLE_BUFFER_COUNT = 11u,
+};
+
+enum MRTaskSensorRefreshBuffer : mr_u32 {
+    MR_TASK_SENSOR_REFRESH_DISPATCH = 0u,
+    MR_TASK_SENSOR_REFRESH_PROGRAM = 1u,
+    MR_TASK_SENSOR_REFRESH_ARENA = 2u,
+    MR_TASK_SENSOR_REFRESH_SENSOR_PROGRAM = 3u,
+    MR_TASK_SENSOR_REFRESH_PASS = 4u,
+    MR_TASK_SENSOR_REFRESH_RESET_MASKS = 5u,
+    MR_TASK_SENSOR_REFRESH_TASK_STATES = 6u,
+    MR_TASK_SENSOR_REFRESH_SENSOR_OUTPUTS = 7u,
+    MR_TASK_SENSOR_REFRESH_SENSOR_METADATA = 8u,
+    MR_TASK_SENSOR_REFRESH_SENSOR_BIAS = 9u,
+    MR_TASK_SENSOR_REFRESH_ACTOR_HISTORY = 10u,
+    MR_TASK_SENSOR_REFRESH_CLEAN_HISTORY = 11u,
+    MR_TASK_SENSOR_REFRESH_CRITIC_HISTORY = 12u,
+    MR_TASK_SENSOR_REFRESH_ACTOR_OBSERVATIONS = 13u,
+    MR_TASK_SENSOR_REFRESH_CRITIC_OBSERVATIONS = 14u,
+    MR_TASK_SENSOR_REFRESH_BUFFER_COUNT = 15u,
 };
 
 #if defined(__cplusplus) && !defined(__METAL_VERSION__)
@@ -1163,6 +1182,7 @@ static_assert(MR_IR_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_NUMI_PREPARE_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_FRAME_REFRESH_BUFFER_COUNT <= 31u);
 static_assert(MR_SENSOR_SAMPLE_BUFFER_COUNT <= 31u);
+static_assert(MR_TASK_SENSOR_REFRESH_BUFFER_COUNT <= 31u);
 
 } // namespace metalrobo::runtime_abi
 #endif
