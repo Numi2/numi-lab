@@ -1,6 +1,6 @@
 #include <metal_stdlib>
 
-#include "metalrobo/contact_scatter_abi.h"
+#include "metalrobo/runtime_abi_generated.h"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/rod_gpu_shared.h"
 

@@ -1,6 +1,9 @@
 {
   "schema": 1,
   "statuses": ["qualified", "implemented", "experimental", "unsupported"],
+  "evidence_manifests": [
+    "evidence/baselines/2026-07-31-b7f03fb.json"
+  ],
   "capabilities": [
     {
       "id": "compiler.urdf_srdf",
@@ -53,7 +56,7 @@
     },
     {
       "id": "mechanics.g1_source_exact_presets",
-      "status": "qualified",
+      "status": "implemented",
       "owner": "mechanics.actuation",
       "artifact": "metalrobo_g1_model_probe",
       "scope": "Distinct fingerprinted URDF, companion-MJCF, and RL Lab actuator contracts; no silent 25/35/50 N m mixing."

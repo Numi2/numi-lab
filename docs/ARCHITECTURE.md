@@ -1,154 +1,119 @@
-# MetalRobo architecture
+# Architecture
 
-MetalRobo has one production execution path. Robot mechanics and task policy
-contracts are compiled on the host; persistent simulation, task evaluation,
-and policy inference execute in native Metal; Swift owns rollout scheduling;
-MLX owns only differentiable learning.
+This document defines the one allowed MetalRobo product architecture. The
+generated [capability matrix](CAPABILITIES.md) records which parts are
+qualified today. Code that bypasses this architecture is migration material,
+not an alternative product path.
+
+## Compiled model, mutable session
 
 ```text
-WorldPack or imported URDF
-        +
-TaskPack
-        +
-PolicyPack
-        |
-        v
-compiled stable indices, tables, capacities, and fingerprints
-        |
-        v
-MetalWorldContext
-  physics + contact + terrain + task + policy inference
-        |
-        v
-compact rollout artifact
-        |
-        v
-MLX learner -> next PolicyPack revision
+WorldSource + TaskPack + PolicyPack + settings
+                         |
+                         v
+                 SimulationCompiler
+                         |
+                         v
+                 CompiledSimulation
+  ModelIR | ActuatorIR | ConstraintIR | RodOperatorIR
+  TaskIR  | SensorIR   | PolicyIR     | ExecutionPlan
+                         |
+                         v
+               MetalSimulationSession
+  queues | heaps | physical state | contacts | histories | RNG
+                         |
+              +----------+-----------+
+              |                      |
+              v                      v
+        RolloutSession       DifferentiableSession
+              |                      |
+              +----------+-----------+
+                         v
+                 bounded buffer views
 ```
 
-No Python object owns simulator state, schedules a transition, or borrows an
-MLX command encoder for physics. No external physics engine is linked or
-called by the runtime. MuJoCo is used only by an explicit deployment
-comparator against pinned upstream Unitree assets.
+`CompiledSimulation` is immutable. It owns stable indices, topology-derived
+capacities, layouts, schedules, pipelines, and fingerprints. A
+`MetalSimulationSession` owns all mutable state and synchronization. No caller
+may construct packed GPU offsets or mutate compiled topology.
 
-## Authored artifacts
+## Ownership
 
-### WorldPack
+| Layer | Owns | Must not own |
+|---|---|---|
+| Import/compiler | Parsing, defaults, semantic resolution, validation, capacities, fingerprints | Runtime state or command scheduling |
+| Swift | Sessions, tickets, rollout chunks, timeouts, policy revisions, deployment, checkpoints | Physics equations or per-step tensor graphs |
+| Objective-C++ bridge | Private translation between Swift contracts and Metal objects | Public robot/task APIs |
+| Metal runtime | Physics, contacts, actuators, RNG, tasks, sensors, reset, inference, tapes | String lookup or robot-specific dispatch |
+| MLX Swift | Networks, losses, optimizers, minibatches, learned checkpoints | Simulator state, physics encoder, reset, rollout scheduling |
+| Python tools | Offline conversion, datasets, code generation, external comparison | Production execution or learning orchestration |
 
-A WorldPack contains pointer-free mechanics: bodies, joints, inertias,
-actuators, shapes, materials, sensors, collision filters, and capacity
-requirements. The native URDF/SRDF importer compiles into the same model. A
-bundled factory such as Unitree G1 is a preset, not a separate execution
-architecture.
+## Internal IRs
 
-The canonical body translation and linear velocity are measured at center of
-mass. Joint anchors are stored relative to body COMs. Floating roots use world
-COM `xyz` plus quaternion `xyzw` in configuration and world COM linear plus
-world angular velocity in generalized velocity.
+- `ModelIR` contains validated bodies, joints, inertials, collision geometry,
+  materials, sites, and semantic groups.
+- `ActuatorIR` is the canonical actuator graph used by both the FP64 oracle and
+  Metal execution.
+- `ConstraintIR` represents contacts, joint limits, equality constraints,
+  tendons, gears, attachments, and friction blocks with variable row and
+  endpoint ranges.
+- `RodOperatorIR` contains topology, tangent coordinates, block bandwidth,
+  factor storage, and material parameters for a connected rod component.
+- `TaskIR` is a typed, phase-separated, fixed-shape operator graph.
+- `SensorIR` defines native scheduling, latency, history, noise, reset, and
+  observation/recorder bindings for every sensor.
+- `PolicyIR` defines inference topology, normalization, action transforms,
+  recurrent state, and weight layouts.
+- `ExecutionPlan` is the generated resource and pass graph consumed by Metal.
 
-### TaskPack
+IR types are private. Public authoring uses importers and validated packs.
 
-A TaskPack declares action-to-DoF bindings, observations and history,
-semantic contact groups, reward operators, termination rules, reset and
-randomization distributions, and terrain samples. Compilation resolves names
-such as `left_ankle_pitch` or `foot_contact` once. The GPU consumes fixed
-indices, ranges, and counts; it performs no string lookup and has no
-per-robot shader branch.
+## One native transaction
 
-`TaskRuntime.metal` executes compiled task operators. The bundled G1
-task is data compiled through the same TaskProgram as an imported robot. A new
-robot therefore requires mechanics and task data, not a new `.metal` file.
-Custom Metal is reserved for a new physics primitive, sensor modality, or
-task operator.
+Every accepted control transition follows one transaction:
 
-### PolicyPack
+1. Snapshot or identify the last committed environment state.
+2. Apply scheduled reset, command, randomization, and actuator inputs.
+3. Generate collision and constraint candidates.
+4. Validate all counts, scans, offsets, and capacities.
+5. Solve into uncommitted state with NumiSolver.
+6. Integrate and update native sensors, tasks, histories, and counters.
+7. Validate status and finite results.
+8. Atomically publish the new environment state and compact outputs.
 
-A PolicyPack seals actor and critic topology, normalization, stochastic action
-state, action scaling, task compatibility, content hash, identity, and
-revision. The training pack retains the Gaussian behavior actor and critic;
-the deployment pack strips exploration and critic state while preserving the
-same actor revision. Native inference rejects incompatible dimensions and
-fingerprints before a rollout.
+Overflow, invalid dispatch, factorization failure, or nonfinite output keeps the
+last committed state. Partially scattered constraints or half-reset sensor
+histories are never observable.
 
-## Native execution
+## Generated ABI
 
-`MetalWorldContext` owns the command queue, pipeline cache, persistent private
-buffers, scratch arena, and asynchronous submission tickets. Its resident
-state includes articulation and scene state, contact manifolds and warm
-starts, actuator delay/backlash, tactile history, observation history,
-episode counters, and counter-based RNG streams.
+`schemas/runtime_abi.json` is the source of truth for the world resource table,
+resource lifetimes, persistent input ownership, debug names, and shared kernel
+bindings. Code generation emits the C++/Metal header and Swift metadata.
 
-One native transaction performs action application, randomized physical
-inputs, physics substeps, collision and contact, terrain interaction,
-observation construction, reward, termination, and reset publication. Reset
-atomically replaces all episode-owned state. A failed environment restores
-its prior state and reports a typed stage/status record without publishing a
-partial transition.
+Numeric buffer slots, duplicated host/shader enums, and handwritten lifetime
+switches are forbidden. Persisted ABI changes increment the ABI version;
+ordinary internal refactors do not create version-suffixed types.
 
-Collision streams use deterministic count, scan, and canonical scatter.
-Compiled capacities are derived from the model and task rather than guessed
-from environment count. Every hot stage reports a retained high-water value
-so a real overflow is distinguishable from a driver failure.
+## Extension boundary
 
-## Swift rollout ownership
+A native extension is justified only for a new physics primitive, actuator,
+sensor modality, task operator, or policy operator. It declares:
 
-The Swift executables own rollout length, submission chunking, completion and
-error handling, policy revision consistency, rollout artifact publication,
-and in-process MLX Swift learning. Chunking bounds command-buffer work while
-the native context and its private state remain resident. An empty reset stream is
-passed as a null pointer and zero count; an authored reset stream must contain
-exactly `control_steps * environments` entries.
+- immutable parameters and persistent state;
+- capacity and alignment rules;
+- reset, serialization, and fingerprint behavior;
+- forward execution and optional backward execution;
+- validity and failure publication.
 
-`metalrobo_train` keeps one simulator context and one in-process MLX Swift
-learner. It appends native chunks directly into a preallocated rollout arena,
-writes one fingerprinted rollout artifact, performs PPO at the declared batch
-boundary, and installs the resulting weights directly into the resident Metal
-world. Python is absent from the runtime. The safetensors sidecar atomically
-checkpoints model and bias-corrected Adam state with the native task-wide
-curriculum level; resume restores that compact state before the first Metal
-submission and begins a new synchronized evaluation window.
+A new robot layout, semantic group, goal, reward, or observation is data and
+does not justify a new shader.
 
-## MLX learning boundary
+## Explicit boundaries
 
-MLX receives compact actor observations, critic observations, sampled latent
-actions, log probabilities, values, transition records, and bootstrap values.
-It computes GAE and compiled PPO forward/backward/gradient-clip/Adam updates.
-It does not receive manifold caches, scene state, actuator state, tactile
-history, or mutable simulator buffers.
-
-Offline visual-tactile representation and imitation learning also remain in
-MLX because they operate on datasets and model parameters. Any temporal state
-used by those models is learner state, not simulator state.
-
-## Sensors and presentation
-
-Visual Presentation V3 consumes authoritative native pose buffers and authored
-V2 asset/environment packs. It never reconstructs visuals from collision
-geometry. Tactile simulation consumes geometry plus exact solver contact
-bases and impulses, producing metric deformation, motion, wrench, center of
-pressure, and validity evidence. TaskPack contact-wrench observations use the
-same retained contact basis in a named body frame.
-
-## Memory and synchronization
-
-Persistent simulator internals use Metal private buffers. Only compact
-rollout and artifact boundaries become host-visible. Allocation is preflighted
-against `MTLDevice.maxBufferLength` and the recommended working set while
-reserving unified-memory headroom for MLX parameters, rollout publication,
-macOS, and optional presentation.
-
-Fingerprints occur at WorldPack, TaskPack, PolicyPack, rollout, replay, cache,
-and deployment boundaries. They are not recomputed per frame.
-
-## Evidence boundary
-
-Focused correctness executables own their subsystem invariants. Long native
-rollouts prove runtime stability and high-water behavior. A policy is not a
-deployment result until it independently beats the default-pose comparator in
-the pinned official Unitree MuJoCo model. Build success, learner loss, and
-in-simulator reward do not substitute for that evidence.
-
-Detailed subsystem contracts live in [WORLD_ENGINE](WORLD_ENGINE.md),
-[METAL_WORLD](METAL_WORLD.md),
-[TACTILE_GEOMETRY_BRIDGE](TACTILE_GEOMETRY_BRIDGE.md), and
-[VISUAL_PLATFORM](VISUAL_PLATFORM.md).
+- Visual Presentation V3 is the only visual authoring path.
+- MuJoCo is an offline numerical comparator, never a runtime fallback.
+- Rigid bodies, articulated bodies, and first-party rods are in scope.
+- Dynamic concave geometry requires convex decomposition.
+- Cloth, fluids, general deformables, MJCF plugins, and SDF dynamics are
+  unsupported until explicitly added to the capability registry.

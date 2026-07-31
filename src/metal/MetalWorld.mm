@@ -3,7 +3,7 @@
 
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
-#include "metalrobo/contact_scatter_abi.h"
+#include "metalrobo/runtime_abi_generated.h"
 #include "metalrobo/unified_quality_shared.h"
 
 #include <dlfcn.h>
@@ -34,7 +34,8 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 222u;
+using namespace runtime_abi;
+
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -55,223 +56,6 @@ constexpr std::uint64_t kFNVOffset =
 constexpr std::uint64_t kFNVPrime = 1099511628211ull;
 const char kMetalRoboWorldImageAnchor = 0;
 
-enum BufferIndex : std::size_t {
-    kWorld = 0u,
-    kArticulations = 1u,
-    kJoints = 2u,
-    kDofs = 3u,
-    kBodies = 4u,
-    kABADispatch = 5u,
-    kStateQA = 6u,
-    kStateVA = 7u,
-    kWorkingEffort = 8u,
-    kBodyWrenchPlaceholder = 9u,
-    kCandidateAcceleration = 10u,
-    kCandidateV = 11u,
-    kCandidateQ = 12u,
-    kABAStatuses = 13u,
-    kStateQB = 14u,
-    kStateVB = 15u,
-    kEffortTrajectory = 16u,
-    kResetMasks = 17u,
-    kResetQ = 18u,
-    kResetV = 19u,
-    kObservations = 20u,
-    kAccelerationTrajectory = 21u,
-    kPublicStatuses = 22u,
-    kWorldDispatch = 23u,
-    kEnvironmentStatuses = 24u,
-    kCheckpointQ = 25u,
-    kCheckpointV = 26u,
-    kShapes = 27u,
-    kMaterials = 28u,
-    kSceneBodyIndices = 29u,
-    kEligiblePairs = 30u,
-    kContactDispatch = 31u,
-    kOperatorKinematicsDispatch = 32u,
-    kOperatorFactorDispatch = 33u,
-    kInitialSceneBodies = 34u,
-    kResetSceneBodies = 35u,
-    kKinematicTargets = 36u,
-    kSceneBodiesA = 37u,
-    kSceneBodiesB = 38u,
-    kCheckpointSceneBodies = 39u,
-    kBodyPoses = 40u,
-    kPointWorld = 41u,
-    kFactorMatrix = 42u,
-    kPointJacobians = 43u,
-    kGeneralizedImpulse = 44u,
-    kDeltaVelocity = 45u,
-    kOperatorStatuses = 46u,
-    kCurrentBodies = 47u,
-    kCandidateBodies = 48u,
-    kManifoldHeadersA = 49u,
-    kManifoldPointsA = 50u,
-    kManifoldCountsA = 51u,
-    kManifoldHeadersB = 52u,
-    kManifoldPointsB = 53u,
-    kManifoldCountsB = 54u,
-    kCandidateManifoldHeaders = 55u,
-    kCandidateManifoldPoints = 56u,
-    kCandidateManifoldCounts = 57u,
-    kCheckpointManifoldHeaders = 58u,
-    kCheckpointManifoldPoints = 59u,
-    kCheckpointManifoldCounts = 60u,
-    kCandidatePairs = 61u,
-    kRawContacts = 62u,
-    kRawPairIndices = 63u,
-    kContacts = 64u,
-    kContactMetadata = 65u,
-    kIRBlocks = 66u,
-    kIREndpoints = 67u,
-    kIRRows = 68u,
-    kIRCones = 69u,
-    kPointQueries = 70u,
-    kEvaluatedRows = 71u,
-    kEvaluatedCones = 72u,
-    kFactorCaches = 73u,
-    kIslands = 74u,
-    kResponseColumns = 75u,
-    kContactStatuses = 76u,
-    kPublicContactStatuses = 77u,
-    kActiveIndirectDispatch = 78u,
-    kProjectedColliders = 79u,
-    kPairOverlapFlags = 80u,
-    kWorkQueueHeaders = 81u,
-    kPairWorkQueue = 82u,
-    kPairRawCounts = 83u,
-    kCompactionOffsets = 84u,
-    kCompactionScratch = 85u,
-    kCompactionFlags = 86u,
-    kConvexCaches = 92u,
-    kCCDPairs = 93u,
-    kGeometryHeaders = 94u,
-    kGeometryVertices = 95u,
-    kGeometryIndices = 96u,
-    kConvexFaces = 97u,
-    kConvexHalfEdges = 98u,
-    kMeshBvhNodes = 99u,
-    kMeshTriangles = 100u,
-    kPairRawContactStaging = 101u,
-    kFutureBodyPoses = 104u,
-    kFutureProjectedColliders = 105u,
-    kCandidateConvexCaches = 106u,
-    kCCDEventStatesA = 107u,
-    kCCDEventStatesB = 108u,
-    kCCDImpactClusters = 109u,
-    kPairManifoldHeaders = 111u,
-    kPairManifoldPoints = 112u,
-    kManifoldIRScatter = 113u,
-    kEndpointRuntime = 114u,
-    kQualityDispatch = 115u,
-    kQualityBlocks = 116u,
-    kQualityDynamics = 117u,
-    kQualityJacobian = 118u,
-    kQualityBias = 119u,
-    kQualityFreeVelocity = 120u,
-    kQualityWarmVelocity = 121u,
-    kQualityWarmImpulses = 122u,
-    kQualityOutputVelocity = 123u,
-    kQualityOutputImpulses = 124u,
-    kQualityDerivatives = 125u,
-    kQualityHessian = 126u,
-    kQualityStatuses = 127u,
-    kQualityWorkQueue = 128u,
-    kQualityWorkPackets = 129u,
-    kDynamicNodes = 130u,
-    kBodyDynamicNodes = 131u,
-    kIslandNodeReferences = 132u,
-    kIslandConstraintReferences = 133u,
-    kRodFactorCaches = 134u,
-    kOperatorVelocityArena = 135u,
-    kInitialRodNodes = 136u,
-    kInitialRodEdges = 137u,
-    kResetRodNodes = 138u,
-    kResetRodEdges = 139u,
-    kRodNodesA = 140u,
-    kRodEdgesA = 141u,
-    kRodNodesB = 142u,
-    kRodEdgesB = 143u,
-    kCheckpointRodNodes = 144u,
-    kCheckpointRodEdges = 145u,
-    kRodDispatches = 146u,
-    kRodRestLengths = 147u,
-    kRodRestTwists = 148u,
-    kRodRestCurvatures = 149u,
-    kRodInverseMasses = 150u,
-    kRodInverseRotationalInertias = 151u,
-    kRodStretchStiffness = 152u,
-    kRodBendStiffness = 153u,
-    kRodTwistStiffness = 154u,
-    kRodInputPositions = 155u,
-    kRodInputVelocities = 156u,
-    kRodInputTwists = 157u,
-    kRodInputTwistRates = 158u,
-    kRodOutputPositions = 159u,
-    kRodOutputVelocities = 160u,
-    kRodOutputTwists = 161u,
-    kRodOutputTwistRates = 162u,
-    kRodStatuses = 163u,
-    kRodAttachments = 164u,
-    kRodReactions = 165u,
-    kFactorMatrixStaging = 166u,
-    kPointJacobiansStaging = 167u,
-    kRodColliders = 168u,
-    kRodShapeSources = 169u,
-    kRodToolPairs = 170u,
-    kRodWitnessCounts = 171u,
-    kRodWitnessesA = 172u,
-    kRodWitnessesB = 173u,
-    kCandidateRodWitnesses = 174u,
-    kCheckpointRodWitnesses = 175u,
-    kRodConstraintWitnessIndices = 176u,
-    kRodCollisionDispatches = 177u,
-    kRodContactScratch = 178u,
-    kAuthoredIRBlocks = 179u,
-    kAuthoredIREndpoints = 180u,
-    kAuthoredIRRows = 181u,
-    kAuthoredIRCones = 182u,
-    kAuthoredIRWarmImpulses = 183u,
-    kCCDEventRodNodesA = 184u,
-    kCCDEventRodEdgesA = 185u,
-    kCCDEventRodWitnessesA = 186u,
-    kCCDEventRodNodesB = 187u,
-    kCCDEventRodEdgesB = 188u,
-    kCCDEventRodWitnessesB = 189u,
-    kProjectedRodColliders = 190u,
-    kFutureProjectedRodColliders = 191u,
-    kActuatorProfiles = 192u,
-    kTaskDispatch = 193u,
-    kTaskActions = 194u,
-    kTaskState = 195u,
-    kTaskActionHistory = 196u,
-    kTaskActorHistory = 197u,
-    kTaskCleanHistory = 198u,
-    kTaskCriticHistory = 199u,
-    kTaskPreviousJointVelocity = 200u,
-    kTaskEncoderBias = 201u,
-    kTaskBodyParameters = 202u,
-    kTaskControllerParameters = 203u,
-    kTaskActorObservations = 204u,
-    kTaskCriticObservations = 205u,
-    kTaskTransitions = 206u,
-    kTaskContactCompact = 207u,
-    kTaskDefaultQ = 208u,
-    kTaskProgramHeader = 209u,
-    kTaskProgramArena = 210u,
-    kPolicyProgramHeader = 211u,
-    kPolicyProgramArena = 212u,
-    kPolicyScratchA = 213u,
-    kPolicyScratchB = 214u,
-    kPolicyActorMean = 215u,
-    kPolicyLatents = 216u,
-    kPolicyLogProbabilities = 217u,
-    kPolicyValues = 218u,
-    kTaskCurriculumState = 219u,
-    kGeneralizedWarmState = 220u,
-    kCheckpointGeneralizedWarmState = 221u,
-};
-
 struct BufferRequirement {
     const char* label = "";
     std::size_t logicalElements = 0u;
@@ -282,11 +66,6 @@ struct BufferRequirement {
 struct RequiredBuffers {
     std::array<BufferRequirement, kRawBufferCount> entries{};
 };
-
-bool privateTransientBuffer(std::size_t index);
-bool privatePersistentBuffer(std::size_t index);
-bool privatePersistentInputBuffer(std::size_t index);
-bool privateImmutableBuffer(std::size_t index);
 
 } // namespace
 
@@ -3819,14 +3598,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
          ++index) {
         const std::size_t bytes =
             requirements.entries[index].allocationBytes;
-        if (privateImmutableBuffer(index)) {
+        if (runtime_abi::isImmutable(index)) {
             layout.memoryPlan.immutablePrivateBytes += bytes;
             // Standalone uploads are explicit, retained shared staging
             // boundaries; normal steps never map the private destination.
             layout.memoryPlan.sharedBoundaryBytes += bytes;
-        } else if (privatePersistentBuffer(index)) {
+        } else if (runtime_abi::isPersistent(index)) {
             layout.memoryPlan.persistentStatePrivateBytes += bytes;
-        } else if (privateTransientBuffer(index)) {
+        } else if (runtime_abi::isTransient(index)) {
             layout.memoryPlan.transientPrivateBytes += bytes;
             layout.memoryPlan.peakAliasedBytes += bytes;
         } else {
@@ -5034,208 +4813,6 @@ std::size_t growthCapacity(
     return std::max(required, grown);
 }
 
-bool privateTransientBuffer(const std::size_t index) {
-    switch (index) {
-    case kWorkingEffort:
-    case kCandidateAcceleration:
-    case kCandidateV:
-    case kCandidateQ:
-    case kABAStatuses:
-    case kBodyWrenchPlaceholder:
-    case kBodyPoses:
-    case kFutureBodyPoses:
-    case kPointWorld:
-    case kFactorMatrix:
-    case kPointJacobians:
-    case kGeneralizedImpulse:
-    case kDeltaVelocity:
-    case kOperatorStatuses:
-    case kCurrentBodies:
-    case kCandidateBodies:
-    case kCandidateManifoldHeaders:
-    case kCandidateManifoldPoints:
-    case kCandidateManifoldCounts:
-    case kCandidatePairs:
-    case kRawContacts:
-    case kRawPairIndices:
-    case kContacts:
-    case kContactMetadata:
-    case kIRBlocks:
-    case kIREndpoints:
-    case kIRRows:
-    case kIRCones:
-    case kPointQueries:
-    case kEvaluatedRows:
-    case kEvaluatedCones:
-    case kFactorCaches:
-    case kIslands:
-    case kResponseColumns:
-    case kContactStatuses:
-    case kActiveIndirectDispatch:
-    case kProjectedColliders:
-    case kFutureProjectedColliders:
-    case kPairOverlapFlags:
-    case kWorkQueueHeaders:
-    case kPairWorkQueue:
-    case kPairRawCounts:
-    case kCompactionOffsets:
-    case kCompactionScratch:
-    case kCompactionFlags:
-    case kCandidateConvexCaches:
-    case kCCDPairs:
-    case kCCDEventStatesA:
-    case kCCDEventStatesB:
-    case kCCDImpactClusters:
-    case kPairRawContactStaging:
-    case kPairManifoldHeaders:
-    case kPairManifoldPoints:
-    case kManifoldIRScatter:
-    case kEndpointRuntime:
-    case kQualityBlocks:
-    case kQualityDynamics:
-    case kQualityJacobian:
-    case kQualityBias:
-    case kQualityFreeVelocity:
-    case kQualityWarmVelocity:
-    case kQualityWarmImpulses:
-    case kQualityOutputVelocity:
-    case kQualityOutputImpulses:
-    case kQualityDerivatives:
-    case kQualityHessian:
-    case kQualityWorkQueue:
-    case kQualityWorkPackets:
-    case kRodFactorCaches:
-    case kOperatorVelocityArena:
-    case kIslandNodeReferences:
-    case kIslandConstraintReferences:
-    case kCheckpointRodNodes:
-    case kCheckpointRodEdges:
-    case kRodInputPositions:
-    case kRodInputVelocities:
-    case kRodInputTwists:
-    case kRodInputTwistRates:
-    case kRodOutputPositions:
-    case kRodOutputVelocities:
-    case kRodOutputTwists:
-    case kRodOutputTwistRates:
-    case kRodStatuses:
-    case kRodAttachments:
-    case kRodReactions:
-    case kFactorMatrixStaging:
-    case kPointJacobiansStaging:
-    case kRodWitnessCounts:
-    case kCandidateRodWitnesses:
-    case kCheckpointRodWitnesses:
-    case kRodConstraintWitnessIndices:
-    case kRodContactScratch:
-    case kCCDEventRodNodesA:
-    case kCCDEventRodEdgesA:
-    case kCCDEventRodWitnessesA:
-    case kCCDEventRodNodesB:
-    case kCCDEventRodEdgesB:
-    case kCCDEventRodWitnessesB:
-    case kProjectedRodColliders:
-    case kFutureProjectedRodColliders:
-    case kPolicyScratchA:
-    case kPolicyScratchB:
-    case kPolicyActorMean:
-    case kCheckpointGeneralizedWarmState:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool privatePersistentBuffer(const std::size_t index) {
-    switch (index) {
-    case kStateQA:
-    case kStateVA:
-    case kStateQB:
-    case kStateVB:
-    case kResetQ:
-    case kResetV:
-    case kResetSceneBodies:
-    case kSceneBodiesA:
-    case kSceneBodiesB:
-    case kManifoldHeadersA:
-    case kManifoldPointsA:
-    case kManifoldCountsA:
-    case kManifoldHeadersB:
-    case kManifoldPointsB:
-    case kManifoldCountsB:
-    case kConvexCaches:
-    case kResetRodNodes:
-    case kResetRodEdges:
-    case kRodNodesA:
-    case kRodEdgesA:
-    case kRodNodesB:
-    case kRodEdgesB:
-    case kRodWitnessesA:
-    case kRodWitnessesB:
-    case kTaskState:
-    case kTaskCurriculumState:
-    case kTaskActionHistory:
-    case kTaskActorHistory:
-    case kTaskCleanHistory:
-    case kTaskCriticHistory:
-    case kTaskPreviousJointVelocity:
-    case kTaskEncoderBias:
-    case kTaskBodyParameters:
-    case kTaskControllerParameters:
-    case kTaskContactCompact:
-    case kGeneralizedWarmState:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool privatePersistentInputBuffer(const std::size_t index) {
-    switch (index) {
-    case kStateQA:
-    case kStateVA:
-    case kResetQ:
-    case kResetV:
-    case kResetSceneBodies:
-    case kSceneBodiesA:
-    case kResetRodNodes:
-    case kResetRodEdges:
-    case kRodNodesA:
-    case kRodEdgesA:
-    case kTaskCurriculumState:
-    case kGeneralizedWarmState:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool privateImmutableBuffer(const std::size_t index) {
-    return
-        (index >= kArticulations && index <= kBodies) ||
-        index == kActuatorProfiles ||
-        index == kTaskDefaultQ ||
-        (index >= kTaskProgramHeader &&
-         index <= kTaskProgramArena) ||
-        (index >= kPolicyProgramHeader &&
-         index <= kPolicyProgramArena) ||
-        index == kShapes ||
-        index == kMaterials ||
-        index == kSceneBodyIndices ||
-        index == kEligiblePairs ||
-        index == kDynamicNodes ||
-        index == kBodyDynamicNodes ||
-        index == kRodColliders ||
-        index == kRodShapeSources ||
-        index == kRodToolPairs ||
-        (index >= kAuthoredIRBlocks &&
-         index <= kAuthoredIRWarmImpulses) ||
-        (index >= kRodRestLengths &&
-         index <= kRodTwistStiffness) ||
-        (index >= kGeometryHeaders &&
-         index <= kMeshTriangles);
-}
-
 std::size_t alignUp(
     const std::size_t value,
     const std::size_t alignment
@@ -5352,15 +4929,15 @@ MetalWorldDiagnostics ensureBufferArena(
         return false;
     };
     const bool rebuildImmutableHeap = needsHeapRebuild(
-        privateImmutableBuffer,
+        runtime_abi::isImmutable,
         context.immutableHeap
     );
     const bool rebuildPersistentHeap = needsHeapRebuild(
-        privatePersistentBuffer,
+        runtime_abi::isPersistent,
         context.persistentHeap
     );
     const bool rebuildTransientHeap = needsHeapRebuild(
-        privateTransientBuffer,
+        runtime_abi::isTransient,
         context.transientHeap
     );
 
@@ -5449,19 +5026,19 @@ MetalWorldDiagnostics ensureBufferArena(
     };
     if ((rebuildImmutableHeap &&
          !buildPlacementHeap(
-             privateImmutableBuffer,
+             runtime_abi::isImmutable,
              @"MetalWorld immutable private placement heap",
              replacementImmutableHeap
          )) ||
         (rebuildPersistentHeap &&
          !buildPlacementHeap(
-             privatePersistentBuffer,
+             runtime_abi::isPersistent,
              @"MetalWorld persistent-state private placement heap",
              replacementPersistentHeap
          )) ||
         (rebuildTransientHeap &&
          !buildPlacementHeap(
-             privateTransientBuffer,
+             runtime_abi::isTransient,
              @"MetalWorld transient private placement heap",
              replacementTransientHeap
          ))) {
@@ -5480,10 +5057,10 @@ MetalWorldDiagnostics ensureBufferArena(
              ++index) {
             const bool needsImmutableUpload =
                 rebuildImmutableHeap &&
-                privateImmutableBuffer(index);
+                runtime_abi::isImmutable(index);
             const bool needsPersistentUpload =
                 rebuildPersistentHeap &&
-                privatePersistentInputBuffer(index);
+                runtime_abi::isPersistentInput(index);
             if (!needsImmutableUpload &&
                 !needsPersistentUpload) {
                 continue;
@@ -5512,9 +5089,9 @@ MetalWorldDiagnostics ensureBufferArena(
          ++index) {
         if (usePrivateHeap &&
             (
-                privateImmutableBuffer(index) ||
-                privatePersistentBuffer(index) ||
-                privateTransientBuffer(index)
+                runtime_abi::isImmutable(index) ||
+                runtime_abi::isPersistent(index) ||
+                runtime_abi::isTransient(index)
             )) {
             continue;
         }
@@ -5581,7 +5158,7 @@ MetalWorldDiagnostics ensureBufferArena(
              index <= kMeshTriangles);
         persistentStateBufferReplaced =
             persistentStateBufferReplaced ||
-            privatePersistentBuffer(index);
+            runtime_abi::isPersistent(index);
     }
     std::size_t retainedBytes = 0u;
     if (!checkedAdd(
@@ -5609,8 +5186,8 @@ MetalWorldDiagnostics ensureBufferArena(
                 context.uploadCapacities[index] =
                     proposed[index];
             }
-            if ((privateImmutableBuffer(index) ||
-                 privatePersistentInputBuffer(index)) &&
+            if ((runtime_abi::isImmutable(index) ||
+                 runtime_abi::isPersistentInput(index)) &&
                 !checkedAdd(
                     retainedBytes,
                     proposed[index],

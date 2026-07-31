@@ -1,211 +1,137 @@
 <div align="center">
 
-<h1>numi-lab</h1>
+# MetalRobo
 
-<p><strong>Metal-native robotics simulation, sensing, and MLX policy infrastructure for Apple Silicon</strong></p>
+**Apple-native robotics simulation, sensing, rollout, and learning infrastructure**
 
-<p><code>C++23</code> · <code>Metal 4</code> · <code>MLX</code> · <code>Model I/O</code> · <code>Core ML-ready</code></p>
+`Swift 6` · `C++23` · `Metal` · `MLX Swift`
 
-<img src="docs/media/metalrobo-unitree-g1.webp" alt="Official Unitree G1 geometry rendered by numi-lab" width="100%" />
-
-<p><sub>
-numi-lab <code>sensor_reference</code> render on Apple M4 using the
-<a href="https://github.com/unitreerobotics/unitree_ros/tree/aa0f5c68b5aba347bad409e71b6430407da758d7/robots/g1_description">official Unitree G1 visual geometry</a>.
-Robot geometry is upstream-authored; the presentation stage and lighting are numi-lab-authored.
-</sub></p>
+<img src="docs/media/metalrobo-unitree-g1.webp" alt="Official Unitree G1 geometry rendered by MetalRobo" width="100%" />
 
 </div>
 
-numi-lab turns authored robots, worlds, and sensors into immutable runtime
-packs, advances them in persistent Metal memory, and exposes synchronized
-observations to MLX, Core ML, Swift, C++, and Python. The runtime does not link
-or call an external physics engine.
+MetalRobo is a pre-release robotics engine for Apple Silicon. Its production
+direction is one compiled simulation, one persistent Metal session, native
+Swift rollout scheduling, and MLX used only for learning.
 
-Every image below is a native numi-lab sensor output. There is no generated
-concept art and no screenshot from another simulator.
-
-> One authoritative state drives physics, contact, vision, tactile sensing,
-> supervisory truth, and policy observations.
-
-## What is implemented
-
-| System | Current capability |
-| --- | --- |
-| **Dynamics and contact** | Rigid and articulated dynamics, fixed and floating roots, revolute and prismatic joints, deterministic broadphase/manifolds, Coulomb contact, joint limits, and transactional state publication. |
-| **Persistent Metal execution** | Batched worlds, fixed-capacity device graphs, private GPU resources, transactional resets, and Swift-scheduled native task/policy rollouts. |
-| **Robot-independent tasks** | Authored TaskPacks resolve semantic joint/body names into immutable action, observation, contact, reward, termination, randomization, and terrain tables consumed by generic Metal kernels. |
-| **Native policy execution** | Fingerprinted PolicyPacks carry normalization and dense actor weights into generic Metal inference; MLX owns PPO updates and publishes the next policy revision. |
-| **GPU-native scene queries** | Vectorized world or body-mounted grid/LiDAR rays against dynamic analytic, convex, and authored mesh geometry, with metric hits and stable identities retained in native Metal buffers. |
-| **Visual Presentation V3** | Direct USD/USDZ/GLB cooking, native textures, glTF metallic-roughness PBR, visible HDR environments, shadows, global or rolling shutter, and fast/reference sensor profiles. |
-| **Policy-ready sensing** | Scene-linear RGB, metric depth, normals, semantic/instance/link identities, motion, validity, calibration, tactile depth, solver wrench, and center of pressure. |
-| **Perception and data plane** | Replaceable perception providers, separate deployable and privileged streams, synchronized policy assembly, deterministic visual episodes, and a LeRobot v3 exporter. |
-| **Tactile imitation** | Pinned LeRobot 3 season-safe ingestion, synchronized multi-view/wrench training, dual-time action-tube diffusion, reactive tactile replanning, and provenance-gated MLX checkpoints for Apple GPUs. |
-| **Reference robots** | Franka manipulation, the pinned 29-DoF Unitree G1, and a dVRK-style PSM research model with physical insertion and independent jaws. |
-
-## Native training rollout in motion
-
-![Official Unitree G1 geometry moving through a native numi-lab policy rollout](docs/media/numi-lab-g1-native-rollout.gif)
-
-This is a real Apple M4 rollout and a real numi-lab `sensor_reference`
-rerender—not generated imagery or motion interpolation. The animation follows
-48 consecutive clean simulator states from the generic G1 locomotion task,
-shown at half speed while the robot remains rooted for a stable presentation
-camera. It demonstrates the compiled TaskPack → native Metal policy/physics →
-rollout-pack path; it is not a claim of learned locomotion quality or
-real-robot transfer.
-
-![Synchronized RGB, metric depth, normals, and authored identities during the same native rollout](docs/media/numi-lab-g1-sensor-rollout.gif)
-
-Every panel advances through the same consecutive states. Both animations use
-one stable color palette across the whole sequence to prevent temporal color
-shimmer; no intermediate frames are synthesized. Full capture provenance is
-recorded in [`docs/media/README.md`](docs/media/README.md).
-
-## The renderer is a sensor
-
-![RGB, metric depth, surface normals, and authored identities from the same numi-lab frame](docs/media/metalrobo-sensor-gallery.webp)
-
-These four panels are read from the same `sensor_reference` frame. RGB remains
-scene-linear in the policy path; tone mapping is applied only to the preview.
-Depth is metric, identities stay integer-typed, and every output shares the
-same camera, timestamp, physics state, and immutable provenance.
-
-Two profiles use the same assets, materials, lighting, truth buffers, and
-perception contract:
-
-- `sensor_fast` uses GPU-built mesh clusters, parallel frustum and shutter-band
-  culling, hierarchical tile visibility, parallel near-plane resolve, shadow
-  atlases, and two-sample space-time integration for online observations.
-- `sensor_reference` uses compacted mesh BLASes, grouped motion-instance
-  TLASes, Metal ray queries, stratified space-time samples, direct shadow
-  rays, and exact per-row exposure timing for deterministic high-fidelity
-  rerendering.
-
-`metalrobo_visual_cook` writes sectioned, content-addressed packs from GLB,
-glTF, USD, USDA, USDC, or USDZ. `metalrobo_environment_cook` converts HDR/EXR
-sources into diffuse irradiance, a prefiltered GGX cubemap, and a split-sum
-BRDF LUT. Runtime geometry and texture payloads load into private Metal heaps;
-there is no collision-derived presentation path.
-
-## Architecture
-
-```mermaid
-flowchart LR
-    A["URDF/SRDF or authored EngineModel"] --> B["World compiler"]
-    C["TaskPack"] --> B
-    D["PolicyPack"] --> B
-    B --> E["Stable indices, tables, capacities, fingerprints"]
-    E --> F["Persistent Metal runtime"]
-    F --> G["Physics, contact, task operators, inference"]
-    F --> H["Visual and tactile sensors"]
-    G --> I["Compact rollout batches"]
-    H --> I
-    I --> J["MLX policy learner"]
-    J --> D
+```text
+URDF / SRDF / MJCF / WorldPack
+              +
+         TaskPack + PolicyPack
+              |
+              v
+       SimulationCompiler
+              |
+              v
+       CompiledSimulation
+              |
+              v
+    MetalSimulationSession
+    physics + tasks + sensors + policy
+              |
+              v
+       compact rollout views
+              |
+              v
+           MLX learner
 ```
 
-C++ owns model compilation and public contracts. Metal owns batched execution
-and sensor generation. Swift owns rollout length, submission chunking,
-completion, reset requests, and policy revisions. MLX receives compact
-learning batches and returns PolicyPacks; it does not own production physics
-state or rollout scheduling.
+The diagram is the required product architecture. It is not a declaration
+that every component is complete. The generated
+[capability matrix](docs/CAPABILITIES.md) is the sole present-tense feature
+record and refuses qualified claims without an owning passing check and
+evidence manifest.
 
-## Robots and research worlds
+## Current boundary
 
-| Robot | numi-lab integration |
-| --- | --- |
-| **Franka** | Fixed-base manipulation, pick-and-place world family, fixed and wrist cameras, tactile fingertip atlases, and deterministic replay. |
-| **Unitree G1** | COM-consistent floating-base 29-DoF model with pinned topology, inertials, limits, collision geometry, IMU frames, and named locomotion presets. |
-| **Surgical PSM** | Fixed-base serial research model with a true prismatic insertion axis, independent jaws, mixed articulated/rigid contact, needle and thread infrastructure, and multi-PSM composition. |
+The qualified path includes native rigid and articulated dynamics, compiled
+joint/contact tasks, persistent Swift-scheduled Metal rollouts, dense policy
+inference, authored visual presentation, and native tactile output. Important
+release blockers remain:
 
-![Official Franka FR3v2 geometry in a numi-lab pick-and-place sensor scene](docs/media/metalrobo-franka-fr3v2.webp)
+- NumiSolver does not yet accept rod-bearing contact worlds.
+- General MJCF import is not implemented.
+- TaskIR lacks general body, site, and SE(3) goal operators.
+- Sensors do not yet share one compiled SensorIR schedule.
+- PolicyIR does not yet support convolution, recurrence, or attention.
+- Native validity-aware adjoints are not implemented.
+- G1 standing and walking are not qualified.
+- The ten-million-transition release soak has not run.
 
-<p><sub>
-numi-lab <code>sensor_reference</code> render on Apple M4 using the
-<a href="https://github.com/frankarobotics/franka_description/tree/02afaae282d4a8e10d7d2f781b23b3515c303ce5/meshes/robots/fr3v2/visual">official Franka FR3v2 visual geometry</a>.
-The calibrated camera, pick-and-place workcell, materials, lighting, and
-supervisory buffers are produced by numi-lab.
-</sub></p>
+MetalRobo therefore does not currently claim MuJoCo/Isaac equivalence,
+state-of-the-art performance, sim-to-real transfer, or complete
+differentiability.
 
-The Surgical PSM integration is a robotics research world, not a clinical
-simulator; it makes no biomechanical, procedural, safety, or real-hardware
-transfer claim.
+## Product rules
 
-## Quick start
+- Physics, contact, actuator, RNG, reset, and sensor history remain in native
+  persistent buffers.
+- Swift owns submission scheduling, rollout lifetimes, policy revisions,
+  failures, and deployment.
+- MLX owns networks, losses, optimizers, minibatches, and checkpoints—not the
+  simulation command encoder or simulator state.
+- Python is permitted only for offline import, conversion, dataset, and
+  external-comparator tooling.
+- A new supported robot or task must compile from assets and packs without a
+  new robot-specific C++, Swift, or Metal runtime path.
+- Visual Presentation V3 is the only authored visual route. Collision geometry
+  is never a presentation fallback.
+- Unsupported topology fails compilation explicitly; the runtime does not
+  silently substitute another physics engine.
 
-numi-lab currently targets Apple Silicon, macOS 26 / Metal 4, and the Xcode
-toolchain. The build requires CMake 3.28 or newer, Ninja, SQLite3, and LibXml2.
+## Build and focused checks
+
+MetalRobo targets Apple Silicon and the macOS 26 SDK.
 
 ```sh
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
+cmake --build build --target \
+  metalrobo_runtime_abi_check \
+  metalrobo_capability_matrix_check \
+  metalrobo_metal_world_contact_probe \
+  metalrobo_task_program_check \
+  metalrobo_tactile_check
+ctest --test-dir build --output-on-failure -L owner
 ```
 
-Run focused product probes:
+Run the Swift-owned native session:
 
 ```sh
-./build/bin/metalrobo_task_program_check
 ./build/bin/metalrobo_simulation \
   --metallib build/shaders/MetalRobo.metallib \
-  --envs 32 --steps 48 --chunk 8 --scene terrain --native-policy
-./build/bin/metalrobo_visual_platform_probe
-./build/bin/metalrobo_tactile_check
-./build/bin/metalrobo_g1_model_probe
-./build/bin/metalrobo_surgical_psm_probe
+  --envs 32 --steps 48 --chunk 8 \
+  --scene terrain --solver-mode numisolver --native-policy
 ```
 
-Cook authored presentation resources:
-
-```sh
-./build/bin/metalrobo_visual_cook scene.usdz scene.mrvpack \
-  --license NOASSERTION --provenance authored-source
-
-./build/bin/metalrobo_environment_cook studio.exr studio.mrenv \
-  --face-size 512 --source-color-space auto
-```
-
-Build the Apple-native policy-learning boundary with the engine:
+Run learning through the in-process Swift/MLX boundary:
 
 ```sh
 cmake --build build --target metalrobo_train
+./build/bin/metalrobo_train --help
 ```
-
-`metalrobo_train` is the production scheduler: it keeps one native
-resident world and one in-process MLX Swift PPO learner, collects compact
-rollouts, evaluates terminal critic values without advancing physics, and
-installs each new PolicyPack revision directly. There is no subprocess or
-Python scheduling boundary. Every update also publishes a deterministic
-deployment PolicyPack with the same actor revision and no exploration
-distribution. The atomic safetensors sidecar includes bias-corrected Adam and
-the task-wide curriculum level.
 
 ## Repository map
 
-| Path | Purpose |
-| --- | --- |
-| [`include/metalrobo`](include/metalrobo) | Public C++ and shared CPU/Metal contracts. |
-| [`src/core`](src/core) | Models, compilers, world families, contact, observation, and episode logic. |
-| [`src/metal`](src/metal) | Physics, collision, solvers, rendering, IBL, tactile, and sensor kernels. |
-| [`src/apple`](src/apple) | Model I/O, Core Image, Metal I/O, and Apple-native asset/environment cooking. |
-| [`python`](python) | MLX batch learning, tactile-dataset ingestion, perception/data adapters, policy export, and independent sim2sim checks. |
-| [`schemas`](schemas) | Persisted world, visual, sensor, perception, and episode contracts. |
-| [`apps`](apps) | Focused probes, cookers, examples, and benchmarks. |
+| Path | Ownership |
+|---|---|
+| `include/metalrobo` | Public/native contracts and shared generated ABI. |
+| `src/core` | Compilers, reference mechanics, authored packs, and CPU oracle code. |
+| `src/metal` | Production physics, contact, task, policy, visual, and tactile kernels. |
+| `bindings/swift` | Public scheduling and learner boundary. |
+| `schemas` | Persisted formats, generated ABI source, and capability registry. |
+| `evidence` | Revision- and hardware-bound qualification manifests. |
+| `python` | Code generation and offline tooling; not a production scheduler. |
+| `apps` | Owning checks, product tools, diagnostics pending consolidation, and benchmarks. |
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [Persistent Metal execution](docs/METAL_WORLD.md)
-- [World authoring and packs](docs/WORLD_ENGINE.md)
-- [Visual simulation and perception](docs/VISUAL_PLATFORM.md)
-- [Geometry-native tactile sensing](docs/TACTILE_GEOMETRY_BRIDGE.md)
-- [Python and MLX](python/README.md)
+- [Architecture and ownership](docs/ARCHITECTURE.md)
+- [Authoring and compilation](docs/AUTHORING.md)
+- [Native runtime](docs/RUNTIME.md)
 - [Numerical contract](docs/NUMERICS.md)
-- [Validation record](docs/VALIDATION.md)
-- [Detailed capability ledger](docs/ENGINE_CAPABILITY_LEDGER.md)
+- [Validation and release gates](docs/VALIDATION.md)
+- [Generated capabilities](docs/CAPABILITIES.md)
+- [Media provenance](docs/media/README.md)
 
-numi-lab is a pre-release research platform. It supplies simulation,
-perception, and policy-training infrastructure; it does not ship or train a
-particular vision or policy model. Robot sources, adaptations, and required
-upstream notices are recorded in
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). README render provenance is
-recorded in [`docs/media/README.md`](docs/media/README.md).
+Robot assets and third-party attributions are recorded in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

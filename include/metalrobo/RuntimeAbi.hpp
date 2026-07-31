@@ -1,7 +1,7 @@
 #pragma once
 
 #include "metalrobo/engine_types.h"
-#include "metalrobo/contact_scatter_abi.h"
+#include "metalrobo/runtime_abi_generated.h"
 #include "metalrobo/generalized_constraint_shared.h"
 #include "metalrobo/multi_contact_shared.h"
 #include "metalrobo/parallel_aba_shared.h"
@@ -60,7 +60,7 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     );
     hash = detail::appendRuntimeAbiWord(
         hash,
-        MR_CONTACT_SCATTER_ABI_VERSION
+        MR_RUNTIME_ABI_VERSION
     );
     hash = detail::appendRuntimeAbiWord(
         hash,

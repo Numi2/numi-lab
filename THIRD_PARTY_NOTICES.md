@@ -84,7 +84,8 @@ SPDX-License-Identifier: BSD-3-Clause.
 
 The BSD 3-Clause terms reproduced above apply to that per-file source. The
 upstream repository also contains an Apache-2.0 `LICENCE`; the exact
-provenance and boundary are recorded in `docs/G1_SPEC.md`. MetalRobo keeps the
+provenance and boundary are recorded by the pinned bundled-asset manifest and
+the authoring rules in `docs/AUTHORING.md`. MetalRobo keeps the
 training preset named and separate from the physical Unitree asset so it is
 not presented as hardware truth.
 

@@ -5,16 +5,16 @@ as historical context, not as implementation choices.
 
 ## Start here
 
-Read only the subsystem document relevant to the change:
+Read only the current document relevant to the change:
 
-- world authoring and packs: `docs/WORLD_ENGINE.md`
-- Metal execution: `docs/METAL_WORLD.md`
-- visual presentation: `docs/VISUAL_PLATFORM.md`
-- tactile sensing: `docs/TACTILE_GEOMETRY_BRIDGE.md`
+- ownership and subsystem boundaries: `docs/ARCHITECTURE.md`
+- models, tasks, sensors, policies, and packs: `docs/AUTHORING.md`
+- Metal/Swift execution and memory: `docs/RUNTIME.md`
 - numerical rules: `docs/NUMERICS.md`
+- evidence and release gates: `docs/VALIDATION.md`
 
-Do not begin by reading the detailed capability ledger or by running every
-executable in the repository.
+`docs/CAPABILITIES.md` is generated claim evidence, not a design document.
+Do not begin by running every executable in the repository.
 
 ## Architecture rules
 

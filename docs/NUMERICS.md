@@ -1,215 +1,119 @@
 # Numerical contract
 
-## Coordinates and units
+This document defines the numerical behavior that implementation and evidence
+must satisfy. Unsupported behavior is recorded in
+[CAPABILITIES.md](CAPABILITIES.md), not disguised by fallback logic.
 
-- Positions use metres, time seconds, mass kilograms, angles radians, and
-  forces/torques SI units.
-- Canonical rigid-body position and linear velocity are measured at the center
-  of mass. Orientation is the body/link-frame orientation.
-- Joint anchors are expressed from each body's COM, even when source robot
-  data describes a joint relative to a URDF link origin.
-- Quaternions use `(x, y, z, w)`, represent body-to-world rotation, and are
-  normalized after composition.
-- A floating articulation uses root COM `xyz` plus quaternion in `q`
-  (`nq = 7 + joint nq`) and world COM linear velocity plus world angular
-  velocity in `v` (`nv = 6 + joint nv`).
-- Contact normals point from body A to body B. Geometric witnesses retain
-  separate points on A and B and signed separation.
+## Coordinates and integration
 
-## Precision boundary
+- All external quantities use SI units.
+- Scalar hinge and slide joints use their natural generalized coordinates.
+- Ball and free rotations integrate in tangent space and renormalize only as a
+  representation operation, not as a constraint substitute.
+- Body translation and linear velocity are centre-of-mass quantities.
+- Temporal microsteps re-evaluate geometry, limit activation, actuator state,
+  and response factors before integration.
+- Velocity or effort safety caps are explicit actuator/safety-envelope stages;
+  they are not positional constraints.
 
-Metal physics is FP32 because Metal shaders do not provide native `double`.
-The canonical ABI and compiled robot inertial records are FP32. CPU reference
-paths promote those records and evaluate dynamics, collision, and quality
-solver intermediates in FP64; promotion does not recover precision absent
-from the compiled record. Collision admission uses direct FP32 source-field
-checks rather than comparing independently rounded derived bounds at the same
-hard threshold. Accepted geometry is then promoted for the FP64 narrowphase.
+## NumiSolver
 
-Every CPU reference path validates dimensions and finite inputs before
-publication. Capacity, factorization, convergence, and unsupported-feature
-failures have explicit status codes. The composed CPU maximal-coordinate and
-one-articulation world paths are transactional: state and persistent caches
-remain unchanged when a step fails. The production Metal world checkpoints q,
-v, scene bodies, manifolds, and generalized warm impulses before its composed
-contact graph, then restores the complete environment transaction after any
-capacity, arithmetic, factorization, or convergence failure. The standalone
-generic articulated operator retains its checked synchronous reference
-boundary. `MetalWorldContext` adds derived compact horizon strides, 32-bit
-element-address limits, actual allocation and working-set checks, typed
-zero-length bindings, cached immutable topology, a grow-only arena, and
-asynchronous multi-control-step execution.
+`NumiSolver` is the only public constrained-solver identity. Internal topology
+selection is not a user-visible solver mode:
 
-Each control step takes an immutable q/v checkpoint after applying its reset.
-ABA produces candidate state only. A successful substep is copied into the
-accepted ping-pong state; the first failed substep latches its typed failure
-and all remaining passes restore the checkpoint. Failed observations are
-finite checkpoint state and their acceleration is exactly zero. Host
-validation or malformed GPU output leaves the caller's previous result
-unchanged. This is per-environment transactionality across one device
-horizon; collision manifolds and impulses are not yet members of that
-transaction.
+- compact islands use reduced-primal semismooth Newton and deterministic block
+  factorization;
+- large or rod-rich islands use matrix-free semismooth Newton with
+  preconditioned CG;
+- training uses fixed iteration budgets;
+- tighter quality settings use the same equations and operators with larger
+  budgets and stricter tolerances.
 
-## Articulated dynamics
+Contacts, scalar/cone limits, equality constraints, tendons, gears,
+attachments, rolling/torsional friction, and rod endpoints participate in one
+island graph and one residual. Warm starts are used only when their initial
+merit is better than the zero-impulse state.
 
-The generalized CPU reference supports fixed or floating trees containing
-revolute, continuous, and fixed joints. It:
+The implementation must not expose PGS, TGS, Wave, or a separate quality
+solver as interchangeable product choices. Temporal microsteps alone do not
+constitute a TGS implementation.
 
-- forms a dense FP64 mass matrix with a world-coordinate
-  composite-rigid-body recursion;
-- verifies positive definiteness and solves forward dynamics with Cholesky;
-- computes velocity, gyroscopic, gravity, damping, and external-wrench terms
-  through recursive Newton-Euler kinematics and analytic generalized-force
-  projection;
-- treats per-DoF armature as generalized inertia in CRBA, RNEA, invariant
-  energy, contact effective mass, and impulse response;
-- integrates with symplectic Euler or a converged implicit-midpoint solve;
-- composes floating orientation with the SO(3) exponential of world angular
-  velocity.
+## ConstraintIR
 
-The FP64 articulated-actuation evaluator consumes the same immutable per-DoF
-stream. It supports disabled, named-model PD, command-local PD, and direct
-effort modes; forbids floating-root actuation; evaluates feed-forward plus PD;
-uses the shortest signed modulo-\(2\pi\) error for continuous joints; clamps
-actuator effort before applying passive dry friction; and publishes results
-transactionally. Moving Coulomb friction strictly opposes velocity. Inside
-the configured near-zero-speed band it can cancel only the local actuator
-load, because gravity, bias, external, and contact loads are not inputs to
-this evaluator. That branch is a controller-local approximation, not a
-complete set-valued stiction solve.
+Each block has variable `rowOffset/rowCount` and
+`endpointOffset/endpointCount`. Common widths 1, 3, and 6 may use specialized
+kernels, with a bounded generic path for other supported widths.
 
-Optional coordinate and body-speed limits are validation boundaries. They
-reject an invalid state transactionally; they are not yet unilateral
-joint-limit constraints that generate impulses. The actual G1 topology passes
-the internal FP64 analytical and forward/inverse probes. Analytic point
-Jacobians and a retained CRBA factor now provide `J`, `Jᵀ`, and
-`J M⁻¹ Jᵀ` contact actions. The transactional CPU world composes this with
-collision, evaluated ConstraintIR, exact-cone contact, the common residual,
-and integration for G1 ground contact. A correctness-first Metal operator
-executes the same G1 mass/Jacobian/impulse equations, but a batched parallel
-Metal timestep remains open.
+Scalar limits compile as stable paired candidates:
 
-The original Franka runtime remains a separate compatibility API. The
-canonical Metal world now reuses the generic FP32 articulated-body kernel and
-checks multi-step q/v/acceleration against the FP64 generalized oracle. On the
-same device and build its complete output/status stream replays bitwise.
-Neither internal agreement is an external-simulator accuracy promise.
+- lower gap `q - lower`, Jacobian sign `+1`, impulse `[0,+inf)`;
+- upper gap `upper - q`, Jacobian sign `-1`, impulse `[0,+inf)`.
 
-## Free-body integration
+Activation uses current or predicted gap, configured slop, and bounded recovery
+velocity. Lower and upper warm impulses are independent and decay when
+inactive. A post-integration verifier may record hypothetical correction but
+must never mutate production state.
 
-Independent free bodies include the gyroscopic term
-`omega × (I omega)`. Symplectic Euler is the throughput-oriented option.
-Implicit midpoint solves the anisotropic angular update nonlinearly and is a
-conservation-oriented reference. Both CPU and Metal use SO(3) exponential
-quaternion composition. Neither integrator alone supplies collision
-time-of-impact handling.
+## Rod operator
 
-## Collision and contact
+A connected rod uses tangent coordinates `[translation(3), twist]` and a
+compiler-derived block-banded operator
 
-The CPU collision oracle uses FP64 sweep-and-prune, analytic primitive
-witnesses, stable feature identifiers, and deterministic four-point manifold
-reduction. The Metal collision path is currently an FP32, one-thread `O(n²)`
-correctness narrowphase baseline for sphere/sphere, sphere/plane,
-capsule/plane, box/plane, and oriented cylinder/plane. A separate
-deterministic parallel micro
-broadphase uses flag/scan/scatter without global append atomics. The two are
-not yet a production LBVH/manifold stream, and Metal does not perform
-persistent-manifold refresh.
+```text
+A = M + h D + h^2 K.
+```
 
-The executable collision ABI has two deliberate numerical domains. Authored
-body/local positions, primitive dimensions, and contact/rest/bounding-radius
-fields must lie in `[-100,000, 100,000]` metres. Derived transforms and finite
-AABBs have a separate `[-1,000,000, 1,000,000]` metre sanity domain. For
-normalized supported primitives, the first domain proves a derived bound
-below roughly `5.5 * 100,000` metres, leaving deterministic slack instead of
-placing backend-specific FP32/FP64 arithmetic on an admission boundary.
-Active non-plane dimensions must be at least `1e-9` metres. Nonzero FP32
-subnormals are rejected from collision records and external AABBs by raw-bit
-classification, so Metal flush-to-zero cannot change acceptance. Larger
-worlds must rebase each environment. These checks apply before shape-type
-classification and use the same status policy on CPU and Metal.
+Production uses a positive-semidefinite Gauss–Newton material tangent. The FP64
+oracle may use an exact Newton tangent. The retained factor is built once per
+accepted microstep and reused for free motion, constraint response, and
+adjoints.
 
-Quaternion scale is not physical. Collision records admit canonical finite
-components when `max(abs(q))` is in `[0.25, 1.001]`, then normalize. This
-direct component contract admits every unit orientation and modest authored
-drift without putting a hard decision on an FMA-sensitive `dot(q,q)`
-tolerance.
+Rod contact response is global. All endpoint impulses are accumulated into one
+rod RHS, the band system is solved, and velocities are projected back through
+every endpoint Jacobian. Local inverse-node-mass contact approximations are not
+permitted in NumiSolver.
 
-Broadphase bounds are conservative, not nearest-rounded. CPU bounds start
-from FP64 geometry, receive a scale-aware `64 * FLT_EPSILON` outward pad, and
-are cast with directed `nextafter` correction. Metal applies the same
-scale-aware outward pad. Contact eligibility on Metal uses a matching
-roundoff band, making the GPU result a conservative superset near an exact
-FP32/FP64 threshold. Contacts outside that band must agree within witness
-tolerances; inside it, bounded speculative contacts are permitted but missing
-an oracle contact is not.
+## Contact and CCD
 
-Speculative contact and capacity-bounded hybrid conservative advancement are
-implemented for the qualified analytic, support-mapped, and convex-mesh
-paths. Certified events are clustered deterministically. The current hybrid
-path uses speculative contact to consume the remainder of a microstep after
-the selected event; repeated literal advance/solve/continue publication is
-still incomplete and is not claimed as general CCD.
+- Solver impulses are the force and wrench authority for physical sensors.
+- Static/dynamic anisotropic friction uses a declared cone or bounded block.
+- Restitution consumes pre-impact normal velocity only for a newly detected
+  impact.
+- Speculative contact is named speculative contact.
+- A path is called CCD only when it advances to impact, solves, and continues
+  the remaining step for its declared pair types.
 
-The contact portfolio has three distinct numerical contracts:
+## Residuals and acceptance
 
-- an independent FP64 accelerated projected-gradient exact circular-cone
-  oracle;
-- a safeguarded FP64 semismooth-Newton quality solve with overflow-safe
-  residual/KKT scaling, a four-merit GLL globalization, bounded direct-Newton
-  search, Gauss-Newton retry, projected-gradient safety fallback, and
-  KKT/cone diagnostics, accepting either a legacy dense oracle problem or a
-  production contact-space Delassus problem;
-- NumiSolver, the fixed-budget Metal throughput path: fixed temporal
-  microsteps, one ordered nonlinear block sweep per microstep, immediate
-  impulse application and integration, exact coupled two-tangent cone
-  projection, and transactional contact/generalized warm starts.
+Every constrained solve reports normalized primal, dual, cone, and
+complementarity residuals plus regularization and iteration counts. Fixed
+training budgets do not suppress residual publication.
 
-NumiSolver re-evaluates active limits, contacts, `Jv`, response factors, and
-geometry at each integrated microstep. Active scalar joint limits and contact
-blocks are solved in one ordered island stream; no post-solve position clamp
-is part of the mechanics. The name does not claim bit-for-bit PhysX TGS
-semantics. Rolling resistance is explicitly unsupported. Capacities are
-compiled from topology and authored limits rather than imposed by one global
-contact-count ceiling. NumiSolver currently accepts rigid and articulated
-endpoints only; rod endpoints fail validation until the retained banded rod
-operator supplies their `M^-1 J'` response.
-The composed CPU world partitions independent connected islands, so any one
-connected island above 128 contacts returns capacity overflow. It does not
-drop the excess contacts.
+Release constraint gates are:
 
-The currently composed quality world accepts one isotropic Coulomb
-coefficient. A material with distinct static and dynamic coefficients,
-torsional/rolling friction, or a hard impulse cap returns `MR_STEP_UNSUPPORTED`
-transactionally instead of changing material semantics when solver mode
-changes. A shared convex stiction model remains open.
+- normalized complementarity residual at or below `1e-4`;
+- scalar limit violation at or below configured slop plus `1e-5` in joint
+  units;
+- no debug post-solve correction above numerical round-off;
+- active side, impulse sign, and physical outcome agree with the FP64 oracle
+  and matched MuJoCo cases within scenario tolerances.
 
-The reduced-coordinate quality path constructs the physical contact-space
-operator `W = J M⁻¹ Jᵀ` with checked factor solves. It does not materialize
-`M⁻¹`. Solver-reported contact velocity is compared with `J` applied to the
-independently factor-corrected generalized velocity before the common
-ConstraintIR residual can accept the step. The dense inverse adapter exists
-only for the independent FP64 oracle.
+## Differentiation
 
-Metal contact dispatch validates inputs and capacities before its in-place
-solve and rolls back touched dynamic velocities, impulses, and warm-start
-flags after an arithmetic failure. Static/kinematic endpoints are never
-written during solve or rollback, allowing independent islands to share static
-geometry safely.
+The production forward solver remains authoritative. Reverse execution does
+not unroll iterative solver history. For a converged, stable active set it
+linearizes the constraint system and solves the transposed system using the
+same compact, banded, or matrix-free response operators.
 
-## Current accuracy boundary
+Forward tapes retain accepted substeps, checkpoints, active stable keys,
+contact features, friction regimes, actuator/sensor intermediates, factor
+handles, and residuals within a declared bytes-per-environment budget.
 
-The implemented probes establish internal analytical cases, CPU/Metal
-component parity, finite behavior, conservation on narrow unforced scenes,
-and deterministic replay where stated. They do not yet establish:
+Gradients are invalid when relevant discrete behavior changes, including
+contact topology, collision feature, stick/slip regime, CCD event, reset,
+termination, sleep/wake state, excessive regularization, or unconverged
+forward solve. Validity reason bits are part of the result; invalid gradients
+are never returned as plausible numbers.
 
-- trajectory/contact agreement with a pinned external simulator;
-- external articulated-contact accuracy and joint-limit impulses;
-- convex, mesh, heightfield, or deformable collision accuracy;
-- CCD or high-speed impact accuracy;
-- long-horizon G1 locomotion stability;
-- production generic Metal contact throughput. Free-motion canonical
-  Metal-world throughput is now measured separately.
-
-The dated acceptance thresholds for making broader claims are defined in
-[ENGINE_TARGET](ENGINE_TARGET.md).
+Acceptance is relative error below `1e-3` for smooth contact-free cases and
+below `1e-2` for stable fixed-active-set constrained cases.

@@ -448,7 +448,7 @@ add_custom_command(
         "${METALROBO_SCENE_QUERY_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/contact_scatter_abi.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/runtime_abi_generated.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
@@ -737,6 +737,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_simulation
         apps/simulation.swift
+        bindings/swift/MetalRoboRuntimeABI.generated.swift
         bindings/swift/MetalRoboSimulation.swift
     )
     target_include_directories(
@@ -761,6 +762,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_train
         apps/train.swift
+        bindings/swift/MetalRoboRuntimeABI.generated.swift
         bindings/swift/MetalRoboMLXLearner.swift
         bindings/swift/MetalRoboSimulation.swift
     )
@@ -1968,19 +1970,21 @@ set_target_properties(
 find_package(Python3 QUIET COMPONENTS Interpreter)
 if(Python3_Interpreter_FOUND)
     add_custom_target(
-        metalrobo_contact_scatter_abi_check
+        metalrobo_runtime_abi_check
         COMMAND "${Python3_EXECUTABLE}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/python/generate_contact_scatter_abi.py"
+            "${CMAKE_CURRENT_SOURCE_DIR}/python/generate_runtime_abi.py"
             --schema
-            "${CMAKE_CURRENT_SOURCE_DIR}/schemas/contact_scatter_abi.json"
-            --output
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/contact_scatter_abi.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/schemas/runtime_abi.json"
+            --header
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/runtime_abi_generated.h"
+            --swift
+            "${CMAKE_CURRENT_SOURCE_DIR}/bindings/swift/MetalRoboRuntimeABI.generated.swift"
             --check
         VERBATIM
     )
     add_dependencies(
         metalrobo_shaders
-        metalrobo_contact_scatter_abi_check
+        metalrobo_runtime_abi_check
     )
     add_custom_target(
         metalrobo_capability_matrix_check
@@ -1988,8 +1992,10 @@ if(Python3_Interpreter_FOUND)
             "${CMAKE_CURRENT_SOURCE_DIR}/python/generate_capability_matrix.py"
             --registry
             "${CMAKE_CURRENT_SOURCE_DIR}/schemas/capability_matrix.json"
+            --root
+            "${CMAKE_CURRENT_SOURCE_DIR}"
             --output
-            "${CMAKE_CURRENT_SOURCE_DIR}/docs/ENGINE_CAPABILITY_LEDGER.md"
+            "${CMAKE_CURRENT_SOURCE_DIR}/docs/CAPABILITIES.md"
             --check
         VERBATIM
     )
