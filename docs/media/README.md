@@ -44,6 +44,35 @@ g1-standing-native-20s.mp4=sha256:05b47c635024a25864b63e806fa23105ae8ae5ad014e72
 This validates the native 20-second simulation gate. It does not establish
 real-robot transfer.
 
+## G1 dynamic-ball disturbance animation
+
+`g1-standing-ball-disturbance-20s.gif` and
+`g1-standing-ball-disturbance-20s.mp4` use the same policy, zero command,
+20 ms control interval, four microsteps, and native rendering path as the
+standing capture above. Four authored dynamic spheres enter the shared scene
+body/contact graph with masses `0.08`, `0.06`, `0.08`, and `0.05 kg`. Their
+radii are `0.12`, `0.11`, `0.13`, and `0.10 m`; launch speed is `3 m/s` in the
+horizontal plane with ballistic vertical velocity.
+
+The traced contacts occur at `0.36`, `0.48`, `0.56`, and `0.68 s`. The
+1,000-step rollout reports zero failed physics steps, maximum tilt
+`0.0167597 rad`, 19 maximum active contact blocks, nine maximum manifolds, and
+only the expected episode timeout. Tilt remains below `0.012 rad` for a
+sustained half-second beginning at `0.92 s`. All robot and sphere poses come
+from the accepted MetalRobo state trace. The visual spheres are authored
+colored meshes cooked together with the official G1 visual scene; collision
+geometry is not used as a presentation fallback.
+
+The 100 displayed states sample every tenth control step. MuJoCo supplies no
+pixels, contact, motion, or state. Retained hashes are:
+
+```text
+g1-standing-ball-disturbance-20s.gif=sha256:88ba9eeb66280de173c4fdbcb2e643affaa2cdec4aff54134deaad973029d7f1
+g1-standing-ball-disturbance-20s.mp4=sha256:e1fcce61903081f8a7a2640dd140ef8354a7155e160a73769f6f5f2de1dc53e5
+```
+
+This is simulator disturbance-recovery evidence, not a hardware claim.
+
 ## Native G1 policy-rollout animations
 
 `numi-lab-g1-native-rollout.gif` and

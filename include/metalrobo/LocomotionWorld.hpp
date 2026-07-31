@@ -3,6 +3,7 @@
 #include "metalrobo/MetalWorld.hpp"
 
 #include <cstdint>
+#include <span>
 #include <vector>
 
 namespace metalrobo {
@@ -19,6 +20,13 @@ struct LocomotionWorld {
     std::vector<MRBodyStateGPU> sceneBodies;
     TaskPack task;
     std::uint32_t articulationIndex = 0u;
+};
+
+struct LocomotionDynamicSphere {
+    mr_float4 position{0.0f, 0.0f, 0.0f, 1.0f};
+    mr_float4 linearVelocity{};
+    float radius = 0.1f;
+    float mass = 0.1f;
 };
 
 struct CompiledLocomotionWorld {
@@ -52,6 +60,15 @@ void appendLocomotionSurface(
     EngineModel& model,
     std::vector<MRBodyStateGPU>& sceneBodies,
     LocomotionSurface surface
+);
+
+// Appends ordinary dynamic rigid bodies to any authored locomotion world.
+// These bodies participate in the same broadphase, manifold, island, and
+// temporal-cone solve as the robot and surface; no task-specific impulse path
+// or robot-specific shader is involved.
+void appendLocomotionDynamicSpheres(
+    LocomotionWorld& world,
+    std::span<const LocomotionDynamicSphere> spheres
 );
 
 // Materializes the authored base state from one complete MRWorldPack. The

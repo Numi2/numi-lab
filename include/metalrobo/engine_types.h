@@ -99,6 +99,12 @@ enum MRMotionType : mr_u32 {
     MR_MOTION_DYNAMIC = 2u,
 };
 
+enum MRBodyStateFlags : mr_u32 {
+    // Task reset restores the authored scene-state velocity instead of
+    // clearing it. Used by launched objects and moving reset fixtures.
+    MR_BODY_STATE_PRESERVE_RESET_VELOCITY = 1u << 0u,
+};
+
 enum MRRootType : mr_u32 {
     MR_ROOT_FIXED = 0u,
     MR_ROOT_FLOATING = 1u,
@@ -420,7 +426,7 @@ typedef struct MR_ALIGN16 MRBodyStateGPU {
     mr_float4 inverseInertiaWorldRow0;
     mr_float4 inverseInertiaWorldRow1;
     mr_float4 inverseInertiaWorldRow2;
-    // x = MRMotionType, y = articulation, z = link, w = sleep/other flags.
+    // x = MRMotionType, y = articulation, z = link, w = MRBodyStateFlags.
     mr_u32 flagsAndIndices[4];
 } MRBodyStateGPU;
 

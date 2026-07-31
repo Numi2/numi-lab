@@ -67,6 +67,18 @@ pipeline. MuJoCo supplies no pixels and no intermediate motion is synthesized.
 Full capture provenance is recorded in
 [`docs/media/README.md`](docs/media/README.md).
 
+### Native disturbance recovery
+
+![Four lightweight rigid balls striking G1 during the native standing rollout](docs/media/g1-standing-ball-disturbance-20s.gif)
+
+[Play or download the 20-second H.264 disturbance capture](docs/media/g1-standing-ball-disturbance-20s.mp4).
+Four independently authored `0.05–0.08 kg` spheres strike the upper body from
+four directions between `0.36 s` and `0.68 s`. They are ordinary dynamic scene
+bodies in the shared Metal contact graph—not visual effects or scripted base
+pushes. G1 completes the 20-second gate with zero failed physics steps, peaks
+at `0.0168 rad` (`0.96°`) tilt, and returns below `0.012 rad` for a sustained
+half-second by `0.92 s`.
+
 ## The renderer is a sensor
 
 ![RGB, metric depth, surface normals, and authored identities from the same numi-lab frame](docs/media/metalrobo-sensor-gallery.webp)

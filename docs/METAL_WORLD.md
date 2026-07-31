@@ -56,6 +56,16 @@ observation/action contract against the compiled task and proves finite
 accumulator bounds before publishing immutable GPU tables. The generic dense
 kernel has no robot, joint, or network-width branches.
 
+Locomotion worlds may also author independent dynamic scene bodies. The
+generic sphere helper is a convenience builder for projectile and disturbance
+scenes; the resulting bodies use the same broadphase, manifolds, islands, and
+temporal-cone solve as every other rigid object. An authored scene-state flag
+may preserve initial linear/angular velocity across transactional task reset,
+which supports launched bodies without a scripted impulse or robot-specific
+kernel. Final robot configuration and packed scene-body state are optional
+explicit readbacks for inspection and native presentation capture; training
+keeps them disabled.
+
 The bundled Unitree G1 factory is mechanics plus one bundled TaskPack. Imported
 floating-base URDF/SRDF models use the same `compileLocomotionWorld` path and
 the Swift `MetalRoboTaskRolloutContext` initializer accepts a persisted

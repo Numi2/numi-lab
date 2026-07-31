@@ -8,6 +8,7 @@
 #include "metalrobo/WorldPack.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
@@ -369,6 +370,45 @@ int main() {
             program.terrainSampleOffsets().size() != 187u ||
             program.terrainResetTranslations().size() != 11u) {
             fail("compiled G1 task tables are incomplete");
+        }
+        metalrobo::LocomotionWorld disturbed = authored;
+        const std::array disturbanceSpheres{
+            metalrobo::LocomotionDynamicSphere{
+                .position = {-1.0f, 0.0f, 1.0f, 1.0f},
+                .linearVelocity = {2.0f, 0.0f, 0.5f, 0.0f},
+                .radius = 0.1f,
+                .mass = 0.08f,
+            },
+        };
+        metalrobo::appendLocomotionDynamicSpheres(
+            disturbed,
+            disturbanceSpheres
+        );
+        metalrobo::CompiledLocomotionWorld disturbedCompiled;
+        const auto disturbedStatus =
+            metalrobo::compileLocomotionWorld(
+                disturbed,
+                0u,
+                disturbedCompiled
+            );
+        const MRBodyStateGPU& disturbanceState =
+            disturbed.sceneBodies.back();
+        if (!disturbedStatus.succeeded() ||
+            disturbed.model.bodies.size() !=
+                authored.model.bodies.size() + 1u ||
+            disturbed.model.shapes.size() !=
+                authored.model.shapes.size() + 1u ||
+            disturbed.sceneBodies.size() !=
+                authored.sceneBodies.size() + 1u ||
+            disturbanceState.linearVelocityAndInverseMass.x != 2.0f ||
+            disturbanceState.linearVelocityAndInverseMass.w != 12.5f ||
+            (disturbanceState.flagsAndIndices[3] &
+             MR_BODY_STATE_PRESERVE_RESET_VELOCITY) == 0u ||
+            disturbedCompiled.world.fingerprint() ==
+                world.fingerprint()) {
+            fail(
+                "generic dynamic locomotion sphere did not enter the compiled world"
+            );
         }
         metalrobo::LocomotionWorld invalidEndpointCapacity =
             authored;

@@ -471,6 +471,17 @@ void validateTaskRolloutConfiguration(
             "task-rollout counts and timing must be finite and positive"
         );
     }
+    if (config.dynamic_sphere_count > 0u &&
+        config.dynamic_spheres == nullptr) {
+        throw std::invalid_argument(
+            "task-rollout dynamic sphere storage is null"
+        );
+    }
+    if (config.dynamic_sphere_count > 64u) {
+        throw std::invalid_argument(
+            "task-rollout dynamic sphere count exceeds 64"
+        );
+    }
 }
 
 metalrobo::LocomotionSurface locomotionSurface(
@@ -496,6 +507,32 @@ createCompiledTaskRollout(
     const std::string_view source
 ) {
     validateTaskRolloutConfiguration(config);
+
+    std::vector<metalrobo::LocomotionDynamicSphere> spheres;
+    spheres.reserve(config.dynamic_sphere_count);
+    for (std::uint32_t index = 0u;
+         index < config.dynamic_sphere_count;
+         ++index) {
+        const MRTaskRolloutDynamicSphereC& source =
+            config.dynamic_spheres[index];
+        spheres.push_back({
+            .position = {
+                source.position[0], source.position[1],
+                source.position[2], 1.0f,
+            },
+            .linearVelocity = {
+                source.linear_velocity[0],
+                source.linear_velocity[1],
+                source.linear_velocity[2], 0.0f,
+            },
+            .radius = source.radius,
+            .mass = source.mass,
+        });
+    }
+    metalrobo::appendLocomotionDynamicSpheres(
+        authored,
+        spheres
+    );
 
     metalrobo::MetalWorldConfig worldConfig;
     if (metallibPath != nullptr &&
@@ -1684,6 +1721,42 @@ const float* mr_task_rollout_final_q(
         !handle->result.finalQ.empty()
         ? handle->result.finalQ.data()
         : nullptr;
+}
+
+int mr_task_rollout_copy_final_scene_states(
+    const MRTaskRolloutHandle* handle,
+    float* output,
+    const size_t output_count
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    constexpr std::size_t stride = 13u;
+    const std::size_t required =
+        handle->result.finalSceneBodies.size() * stride;
+    if (required == 0u || output == nullptr ||
+        output_count != required) {
+        gLastError =
+            "final scene-state output has the wrong size";
+        return -1;
+    }
+    std::size_t cursor = 0u;
+    for (const MRBodyStateGPU& state :
+         handle->result.finalSceneBodies) {
+        for (const float value : {
+            state.position.x, state.position.y, state.position.z,
+            state.orientation.x, state.orientation.y,
+            state.orientation.z, state.orientation.w,
+            state.linearVelocityAndInverseMass.x,
+            state.linearVelocityAndInverseMass.y,
+            state.linearVelocityAndInverseMass.z,
+            state.angularVelocity.x, state.angularVelocity.y,
+            state.angularVelocity.z,
+        }) {
+            output[cursor++] = value;
+        }
+    }
+    return 0;
 }
 
 int mr_task_rollout_write_policy_rollout_pack(

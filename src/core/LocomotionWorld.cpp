@@ -360,6 +360,134 @@ void appendLocomotionSurface(
         static_cast<std::uint32_t>(model.shapes.size());
 }
 
+void appendLocomotionDynamicSpheres(
+    LocomotionWorld& world,
+    const std::span<const LocomotionDynamicSphere> spheres
+) {
+    if (spheres.empty()) {
+        return;
+    }
+    if (world.model.materials.empty()) {
+        throw std::invalid_argument(
+            "dynamic locomotion spheres require a model material"
+        );
+    }
+
+    MRMaterialGPU ballMaterial = world.model.materials.front();
+    ballMaterial.friction = {0.35f, 0.30f, 0.0f, 0.0f};
+    ballMaterial.response = {0.35f, 0.25f, 0.0f, 0.0f};
+    const std::uint32_t materialIndex =
+        static_cast<std::uint32_t>(world.model.materials.size());
+    world.model.materials.push_back(ballMaterial);
+
+    for (std::size_t index = 0u; index < spheres.size(); ++index) {
+        const LocomotionDynamicSphere& source = spheres[index];
+        if (!std::isfinite(source.position.x) ||
+            !std::isfinite(source.position.y) ||
+            !std::isfinite(source.position.z) ||
+            !std::isfinite(source.linearVelocity.x) ||
+            !std::isfinite(source.linearVelocity.y) ||
+            !std::isfinite(source.linearVelocity.z) ||
+            !std::isfinite(source.radius) ||
+            !std::isfinite(source.mass) ||
+            !(source.radius > 0.0f) ||
+            !(source.mass > 0.0f)) {
+            throw std::invalid_argument(
+                "dynamic locomotion sphere parameters must be finite and positive"
+            );
+        }
+
+        const std::uint32_t bodyIndex =
+            static_cast<std::uint32_t>(world.model.bodies.size());
+        const float inertia =
+            0.4f * source.mass * source.radius * source.radius;
+        const float inverseInertia = 1.0f / inertia;
+        MRBodyPropertiesGPU body{};
+        body.articulationIndex = MR_INVALID_INDEX;
+        body.parentBody = MR_INVALID_INDEX;
+        body.inboundJoint = MR_INVALID_INDEX;
+        body.motionType = MR_MOTION_DYNAMIC;
+        body.massAndInverseMass = {
+            source.mass, 1.0f / source.mass, 0.0f, 0.0f,
+        };
+        body.inertiaRow0 = {inertia, 0.0f, 0.0f, 0.0f};
+        body.inertiaRow1 = {0.0f, inertia, 0.0f, 0.0f};
+        body.inertiaRow2 = {0.0f, 0.0f, inertia, 0.0f};
+        body.inverseInertiaRow0 = {
+            inverseInertia, 0.0f, 0.0f, 0.0f,
+        };
+        body.inverseInertiaRow1 = {
+            0.0f, inverseInertia, 0.0f, 0.0f,
+        };
+        body.inverseInertiaRow2 = {
+            0.0f, 0.0f, inverseInertia, 0.0f,
+        };
+        body.dampingAndSpeedLimits = {
+            0.01f, 0.01f, 100.0f, 100.0f,
+        };
+        world.model.bodies.push_back(body);
+        if (!world.model.bodyNames.empty()) {
+            world.model.bodyNames.push_back(
+                "locomotion_dynamic_sphere_" +
+                std::to_string(index)
+            );
+        }
+
+        MRShapeGPU shape{};
+        shape.bodyIndex = bodyIndex;
+        shape.shapeType = MR_SHAPE_SPHERE;
+        shape.materialIndex = materialIndex;
+        shape.collisionGroup = 1u;
+        shape.collisionMask = ~0u;
+        shape.slotGeneration =
+            static_cast<std::uint32_t>(index + 1u);
+        shape.localPosition.w = 1.0f;
+        shape.localRotation.w = 1.0f;
+        shape.dimensions = {source.radius, 0.0f, 0.0f, 0.0f};
+        shape.contactRestAndBoundingRadius = {
+            0.002f, 0.0f, source.radius, 0.0f,
+        };
+        world.model.shapes.push_back(shape);
+        if (!world.model.shapeNames.empty()) {
+            world.model.shapeNames.push_back(
+                "locomotion_dynamic_sphere_" +
+                std::to_string(index) + "/collision"
+            );
+        }
+
+        MRBodyStateGPU state{};
+        state.position = {
+            source.position.x,
+            source.position.y,
+            source.position.z,
+            1.0f,
+        };
+        state.orientation.w = 1.0f;
+        state.linearVelocityAndInverseMass = {
+            source.linearVelocity.x,
+            source.linearVelocity.y,
+            source.linearVelocity.z,
+            1.0f / source.mass,
+        };
+        state.inverseInertiaWorldRow0 = body.inverseInertiaRow0;
+        state.inverseInertiaWorldRow1 = body.inverseInertiaRow1;
+        state.inverseInertiaWorldRow2 = body.inverseInertiaRow2;
+        state.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+        state.flagsAndIndices[1] = MR_INVALID_INDEX;
+        state.flagsAndIndices[2] = bodyIndex;
+        state.flagsAndIndices[3] =
+            MR_BODY_STATE_PRESERVE_RESET_VELOCITY;
+        world.sceneBodies.push_back(state);
+    }
+
+    world.model.world.bodyCount =
+        static_cast<std::uint32_t>(world.model.bodies.size());
+    world.model.world.shapeCount =
+        static_cast<std::uint32_t>(world.model.shapes.size());
+    world.model.world.materialCount =
+        static_cast<std::uint32_t>(world.model.materials.size());
+}
+
 LocomotionWorld makeWorldPackLocomotionWorld(
     const MRWorldPack& worldPack,
     TaskPack task

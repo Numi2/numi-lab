@@ -53,6 +53,25 @@ public enum MetalRoboLocomotionSurface: UInt32, Sendable {
     case terrain = 1
 }
 
+public struct MetalRoboDynamicSphere: Sendable {
+    public var position: SIMD3<Float>
+    public var linearVelocity: SIMD3<Float>
+    public var radius: Float
+    public var mass: Float
+
+    public init(
+        position: SIMD3<Float>,
+        linearVelocity: SIMD3<Float>,
+        radius: Float,
+        mass: Float
+    ) {
+        self.position = position
+        self.linearVelocity = linearVelocity
+        self.radius = radius
+        self.mass = mass
+    }
+}
+
 public enum MetalRoboPolicyActivation: UInt32, Sendable {
     case identity = 0
     case relu = 1
@@ -140,6 +159,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var finalVelocityIterations: UInt32
     public var controlTimestepSeconds: Float
     public var seed: UInt64
+    public var dynamicSpheres: [MetalRoboDynamicSphere]
 
     public init(
         environmentCount: UInt32,
@@ -148,7 +168,8 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         velocityIterations: UInt32 = 4,
         finalVelocityIterations: UInt32 = 2,
         controlTimestepSeconds: Float = 0.02,
-        seed: UInt64 = 0
+        seed: UInt64 = 0,
+        dynamicSpheres: [MetalRoboDynamicSphere] = []
     ) {
         self.environmentCount = environmentCount
         self.surface = surface
@@ -157,6 +178,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.finalVelocityIterations = finalVelocityIterations
         self.controlTimestepSeconds = controlTimestepSeconds
         self.seed = seed
+        self.dynamicSpheres = dynamicSpheres
     }
 }
 
@@ -422,19 +444,17 @@ public final class MetalRoboTaskRolloutContext {
         unitreeG1 configuration: MetalRoboTaskRolloutConfiguration,
         metallibPath: String? = nil
     ) throws {
-        var native = Self.nativeConfiguration(configuration)
-
-        let created: OpaquePointer? = withUnsafePointer(to: &native) {
-            config in
-            withOptionalCString(metallibPath) {
-                metallib in
-                mr_create_unitree_g1_locomotion_rollout(
-                    config,
-                    configuration.surface.rawValue,
-                    metallib
-                )
+        let created: OpaquePointer? =
+            Self.withNativeConfiguration(configuration) { config in
+                withOptionalCString(metallibPath) {
+                    metallib in
+                    mr_create_unitree_g1_locomotion_rollout(
+                        config,
+                        configuration.surface.rawValue,
+                        metallib
+                    )
+                }
             }
-        }
         guard let created else {
             throw MetalRoboTaskRolloutError.native(
                 Self.lastError()
@@ -452,16 +472,14 @@ public final class MetalRoboTaskRolloutContext {
         configuration: MetalRoboTaskRolloutConfiguration,
         metallibPath: String? = nil
     ) throws {
-        var native = Self.nativeConfiguration(configuration)
         let created: OpaquePointer? =
-            urdfURL.path.withCString { urdf in
-                taskPackURL.path.withCString { taskPack in
-                    withOptionalCString(srdfURL?.path) {
-                        srdf in
-                        withOptionalCString(metallibPath) {
-                            metallib in
-                            withUnsafePointer(to: &native) {
-                                config in
+            Self.withNativeConfiguration(configuration) { config in
+                urdfURL.path.withCString { urdf in
+                    taskPackURL.path.withCString { taskPack in
+                        withOptionalCString(srdfURL?.path) {
+                            srdf in
+                            withOptionalCString(metallibPath) {
+                                metallib in
                                 mr_create_urdf_locomotion_rollout(
                                     urdf,
                                     srdf,
@@ -491,14 +509,12 @@ public final class MetalRoboTaskRolloutContext {
         configuration: MetalRoboTaskRolloutConfiguration,
         metallibPath: String? = nil
     ) throws {
-        var native = Self.nativeConfiguration(configuration)
         let created: OpaquePointer? =
-            worldPackURL.path.withCString { worldPack in
-                taskPackURL.path.withCString { taskPack in
-                    withOptionalCString(metallibPath) {
-                        metallib in
-                        withUnsafePointer(to: &native) {
-                            config in
+            Self.withNativeConfiguration(configuration) { config in
+                worldPackURL.path.withCString { worldPack in
+                    taskPackURL.path.withCString { taskPack in
+                        withOptionalCString(metallibPath) {
+                            metallib in
                             mr_create_world_pack_locomotion_rollout(
                                 worldPack,
                                 taskPack,
@@ -533,6 +549,34 @@ public final class MetalRoboTaskRolloutContext {
         return native
     }
 
+    private static func withNativeConfiguration<Result>(
+        _ configuration: MetalRoboTaskRolloutConfiguration,
+        _ body: (UnsafePointer<MRTaskRolloutConfigC>) -> Result
+    ) -> Result {
+        let spheres = configuration.dynamicSpheres.map { source in
+            var sphere = MRTaskRolloutDynamicSphereC()
+            sphere.position = (
+                source.position.x,
+                source.position.y,
+                source.position.z
+            )
+            sphere.linear_velocity = (
+                source.linearVelocity.x,
+                source.linearVelocity.y,
+                source.linearVelocity.z
+            )
+            sphere.radius = source.radius
+            sphere.mass = source.mass
+            return sphere
+        }
+        return spheres.withUnsafeBufferPointer { buffer in
+            var native = nativeConfiguration(configuration)
+            native.dynamic_spheres = buffer.baseAddress
+            native.dynamic_sphere_count = UInt32(buffer.count)
+            return withUnsafePointer(to: &native, body)
+        }
+    }
+
     deinit {
         if let handle {
             mr_task_rollout_destroy(handle)
@@ -565,6 +609,15 @@ public final class MetalRoboTaskRolloutContext {
             throw MetalRoboTaskRolloutError.native(
                 Self.lastError()
             )
+        }
+    }
+
+    public func setStateReadback(_ enabled: Bool) throws {
+        guard mr_task_rollout_set_state_readback(
+            handle,
+            enabled ? 1 : 0
+        ) == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
         }
     }
 
@@ -1026,6 +1079,36 @@ public final class MetalRoboTaskRolloutContext {
         return Array(
             UnsafeBufferPointer(start: values, count: count)
         )
+    }
+
+    public func finalConfiguration() throws -> [Float] {
+        let count = layout.environmentCount * layout.configurationCount
+        guard let values = mr_task_rollout_final_q(handle) else {
+            throw MetalRoboTaskRolloutError.native(
+                "Final configuration is unavailable."
+            )
+        }
+        return Array(
+            UnsafeBufferPointer(start: values, count: count)
+        )
+    }
+
+    public func finalSceneStates() throws -> [Float] {
+        let current = layout
+        let count =
+            current.environmentCount * current.sceneBodyCount * 13
+        var output = [Float](repeating: 0, count: count)
+        let status = output.withUnsafeMutableBufferPointer { buffer in
+            mr_task_rollout_copy_final_scene_states(
+                handle,
+                buffer.baseAddress,
+                buffer.count
+            )
+        }
+        guard status == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+        return output
     }
 
     public func policyRolloutBatch(

@@ -930,9 +930,12 @@ kernel void mr_locomotion_task_observe(
              ++localScene) {
             MRBodyStateGPU scene =
                 initialScene[sceneBase + localScene];
-            scene.linearVelocityAndInverseMass.xyz =
-                float3(0.0f);
-            scene.angularVelocity = float4(0.0f);
+            if ((scene.flagsAndIndices[3] &
+                 MR_BODY_STATE_PRESERVE_RESET_VELOCITY) == 0u) {
+                scene.linearVelocityAndInverseMass.xyz =
+                    float3(0.0f);
+                scene.angularVelocity = float4(0.0f);
+            }
             resetScene[sceneBase + localScene] = scene;
         }
         if (program.terrain.x != MR_INVALID_INDEX &&

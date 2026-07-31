@@ -148,6 +148,8 @@ private struct Options {
     var taskPack: String?
     var urdf: String?
     var srdf: String?
+    var dynamicSpheres: [MetalRoboDynamicSphere] = []
+    var stateTrace: String?
 
     init(arguments: [String]) throws {
         var index = 1
@@ -240,6 +242,36 @@ private struct Options {
             case "--srdf":
                 srdf = try value()
                 index += 1
+            case "--ball":
+                let fields = try value().split(separator: ",")
+                let values = fields.compactMap(Float.init)
+                guard values.count == 8 else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--ball requires x,y,z,vx,vy,vz,radius,mass."
+                    )
+                }
+                guard values.allSatisfy(\.isFinite),
+                      values[6] > 0,
+                      values[7] > 0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--ball values must be finite with positive radius and mass."
+                    )
+                }
+                dynamicSpheres.append(
+                    MetalRoboDynamicSphere(
+                        position: SIMD3(values[0], values[1], values[2]),
+                        linearVelocity: SIMD3(
+                            values[3], values[4], values[5]
+                        ),
+                        radius: values[6],
+                        mass: values[7]
+                    )
+                )
+                index += 1
+            case "--state-trace":
+                stateTrace = try value()
+                index += 1
             default:
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Unknown option \(option)."
@@ -291,6 +323,12 @@ private struct Options {
                 "--srdf requires --urdf."
             )
         }
+        if stateTrace != nil &&
+            (environments != 1 || repeats != 1 || chunk != 1) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--state-trace requires --envs 1 --repeats 1 --chunk 1."
+            )
+        }
     }
 
     private static func integer(
@@ -316,7 +354,8 @@ private func makeContext(
         velocityIterations: UInt32(options.velocityIterations),
         finalVelocityIterations:
             UInt32(options.finalVelocityIterations),
-        seed: options.seed
+        seed: options.seed,
+        dynamicSpheres: options.dynamicSpheres
     )
     if let worldPack = options.worldPack,
        let taskPack = options.taskPack
@@ -425,6 +464,9 @@ private enum TaskRolloutMain {
             )
             let (context, worldSource) =
                 try makeContext(options: options)
+            if options.stateTrace != nil {
+                try context.setStateReadback(true)
+            }
             try context.setCurriculumLevel(
                 options.curriculumLevel
             )
@@ -632,6 +674,7 @@ private enum TaskRolloutMain {
             var trackingSum = 0.0
             var rootHeightSum = 0.0
             var tiltSum = 0.0
+            var maximumTilt = 0.0
             var taskRewardSum = 0.0
             var baseRewardSum = 0.0
             var jointVelocityRewardSum = 0.0
@@ -645,6 +688,15 @@ private enum TaskRolloutMain {
                 UInt64 = 1_469_598_103_934_665_603
             var collectedPolicyBatches:
                 [MetalRoboPolicyRolloutBatch] = []
+            var stateTraceLines: [String] = []
+            if options.stateTrace != nil {
+                let traceLayout = context.layout
+                stateTraceLines.append(
+                    "# step nq=\(traceLayout.configurationCount) " +
+                    "scene_bodies=\(traceLayout.sceneBodyCount) " +
+                    "scene_stride=13 timestep=0.02"
+                )
+            }
             let clock = ContinuousClock()
             let start = clock.now
 
@@ -771,6 +823,10 @@ private enum TaskRolloutMain {
                         rootHeightSum +=
                             Double(transition.rootHeight)
                         tiltSum += Double(transition.tilt)
+                        maximumTilt = max(
+                            maximumTilt,
+                            Double(transition.tilt)
+                        )
                         taskRewardSum +=
                             Double(transition.taskReward)
                         baseRewardSum +=
@@ -816,6 +872,17 @@ private enum TaskRolloutMain {
                         )
                     }
                     failedSteps += advance.failedEnvironmentSteps
+                    if options.stateTrace != nil {
+                        let values =
+                            try context.finalConfiguration() +
+                            context.finalSceneStates()
+                        let payload = values.map {
+                            String(format: "%.9g", $0)
+                        }.joined(separator: "\t")
+                        stateTraceLines.append(
+                            "\(globalStep + stepCount)\t\(payload)"
+                        )
+                    }
                     completed += stepCount
                     globalStep += stepCount
                 }
@@ -835,6 +902,14 @@ private enum TaskRolloutMain {
 
             let collectionEnd = clock.now
             let collectionLayout = context.layout
+            if let stateTrace = options.stateTrace {
+                try (stateTraceLines.joined(separator: "\n") + "\n")
+                    .write(
+                        to: URL(fileURLWithPath: stateTrace),
+                        atomically: true,
+                        encoding: .utf8
+                    )
+            }
             var rolloutPackBytes = 0
             if let rolloutPack = options.rolloutPack {
                 let batch =
@@ -888,6 +963,8 @@ private enum TaskRolloutMain {
                     options.surface == .terrain
                     ? "terrain"
                     : "ground",
+                "dynamic_sphere_count": options.dynamicSpheres.count,
+                "state_trace": options.stateTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,
                 "repeats": options.repeats,
@@ -948,6 +1025,7 @@ private enum TaskRolloutMain {
                     Double(max(transitionCount, 1)),
                 "mean_tilt":
                     tiltSum / Double(max(transitionCount, 1)),
+                "maximum_tilt": maximumTilt,
                 "mean_task_reward":
                     taskRewardSum /
                     Double(max(transitionCount, 1)),

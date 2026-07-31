@@ -42,6 +42,13 @@ typedef enum MRLocomotionSurfaceC {
     MR_LOCOMOTION_SURFACE_TERRAIN = 1,
 } MRLocomotionSurfaceC;
 
+typedef struct MRTaskRolloutDynamicSphereC {
+    float position[3];
+    float linear_velocity[3];
+    float radius;
+    float mass;
+} MRTaskRolloutDynamicSphereC;
+
 typedef struct MRTaskRolloutConfigC {
     uint32_t environment_count;
     uint32_t physics_substeps;
@@ -49,6 +56,8 @@ typedef struct MRTaskRolloutConfigC {
     uint32_t final_velocity_iterations;
     float control_timestep_seconds;
     uint64_t seed;
+    const MRTaskRolloutDynamicSphereC* dynamic_spheres;
+    uint32_t dynamic_sphere_count;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskRolloutLayoutC {
@@ -535,6 +544,14 @@ MR_API const float* mr_task_rollout_bootstrap_policy_values(
 );
 MR_API const float* mr_task_rollout_final_q(
     const MRTaskRolloutHandle* handle
+);
+// Copies accepted final scene-body states as packed
+// [environment][scene body][position xyz, orientation xyzw,
+// linear velocity xyz, angular velocity xyz].
+MR_API int mr_task_rollout_copy_final_scene_states(
+    const MRTaskRolloutHandle* handle,
+    float* output,
+    size_t output_count
 );
 // Transactionally publishes an aggregated Swift-owned collection boundary.
 // Dimensions and fingerprints are derived from the installed task/policy;
