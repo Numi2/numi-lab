@@ -4,6 +4,7 @@
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalWorldCapacity.hpp"
 #include "metalrobo/PolicyProgram.hpp"
+#include "metalrobo/SensorProgram.hpp"
 #include "metalrobo/TaskProgram.hpp"
 #include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/rod_gpu_shared.h"
@@ -294,6 +295,10 @@ struct MetalWorldStepConfig {
     // program owns reset, control, observation, reward, and termination
     // semantics without selecting a robot-specific shader path.
     CompiledTaskProgram taskProgram{};
+    // Optional canonical native sensor schedule. The first executable
+    // tranche supports pre-control parent-frame pose sensors; unsupported
+    // domains fail validation instead of falling back to a parallel runtime.
+    CompiledSensorProgram sensorProgram{};
     // Optional generic native inference program. With no policy program,
     // normalized actions remain an explicit learner/deployment input.
     CompiledPolicyProgram policyProgram{};
@@ -327,6 +332,9 @@ struct MetalWorldStepConfig {
     // device while still publishing checked status records.
     bool publishFinalState = true;
     bool publishStateTrajectory = true;
+    // Explicit inspection boundary for compact latest sensor values and
+    // metadata. Persistent histories remain device-owned.
+    bool publishSensorOutputs = false;
     float manifoldBreakingSeparation = 0.02f;
     float manifoldBreakingTangential = 0.02f;
     float manifoldMergeDistance = 0.002f;
@@ -378,6 +386,10 @@ struct MetalWorldLayout {
     std::size_t actorObservationElements = 0u;
     std::size_t criticObservationElements = 0u;
     std::size_t transitionElements = 0u;
+    std::size_t sensorStateElements = 0u;
+    std::size_t sensorHistoryElements = 0u;
+    std::size_t sensorOutputElements = 0u;
+    std::size_t sensorMetadataElements = 0u;
     std::size_t policyLatentElements = 0u;
     std::size_t policyLogProbabilityElements = 0u;
     std::size_t policyValueElements = 0u;
@@ -508,6 +520,8 @@ struct MetalWorldResult {
     std::vector<float> actorObservations;
     std::vector<float> criticObservations;
     std::vector<MRTaskTransitionGPU> transitions;
+    std::vector<float> sensorOutputs;
+    std::vector<MRSensorSampleMetadataGPU> sensorMetadata;
     std::vector<float> policyLatents;
     std::vector<float> policyLogProbabilities;
     std::vector<float> policyValues;

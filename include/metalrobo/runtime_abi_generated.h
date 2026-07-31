@@ -5,8 +5,8 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 3u
-#define MR_SENSOR_PROGRAM_ABI_VERSION 1u
+#define MR_RUNTIME_ABI_VERSION 4u
+#define MR_SENSOR_PROGRAM_ABI_VERSION 2u
 
 typedef struct MR_ALIGN16 MRSensorProgramHeaderGPU {
     mr_u64 sensorFingerprint;
@@ -22,6 +22,7 @@ typedef struct MR_ALIGN16 MRSensorDescriptorGPU {
     mr_uint4 output;
     mr_uint4 schedule;
     mr_uint4 dimensions;
+    mr_uint4 source;
     mr_float4 localPosition;
     mr_float4 localOrientation;
     mr_float4 timing;
@@ -30,6 +31,13 @@ typedef struct MR_ALIGN16 MRSensorDescriptorGPU {
     mr_float4 intrinsics;
     mr_float4 distortion;
 } MRSensorDescriptorGPU;
+
+typedef struct MR_ALIGN16 MRSensorDispatchGPU {
+    mr_uint4 counts;
+    mr_uint4 controlPeriodAndStrides;
+    mr_u64 seed;
+    mr_u64 sensorFingerprint;
+} MRSensorDispatchGPU;
 
 typedef struct MR_ALIGN16 MRSensorRuntimeStateGPU {
     mr_uint4 phaseAndSequence;
@@ -127,6 +135,21 @@ enum MRTaskFrameRefreshBuffer : mr_u32 {
     MR_TASK_FRAME_REFRESH_ACTOR_OBSERVATIONS = 11u,
     MR_TASK_FRAME_REFRESH_CRITIC_OBSERVATIONS = 12u,
     MR_TASK_FRAME_REFRESH_BUFFER_COUNT = 13u,
+};
+
+enum MRSensorSampleBuffer : mr_u32 {
+    MR_SENSOR_SAMPLE_DISPATCH = 0u,
+    MR_SENSOR_SAMPLE_PROGRAM = 1u,
+    MR_SENSOR_SAMPLE_DESCRIPTORS = 2u,
+    MR_SENSOR_SAMPLE_PASS = 3u,
+    MR_SENSOR_SAMPLE_RESET_MASKS = 4u,
+    MR_SENSOR_SAMPLE_BODY_POSES = 5u,
+    MR_SENSOR_SAMPLE_SCENE_BODIES = 6u,
+    MR_SENSOR_SAMPLE_STATES = 7u,
+    MR_SENSOR_SAMPLE_HISTORY = 8u,
+    MR_SENSOR_SAMPLE_OUTPUTS = 9u,
+    MR_SENSOR_SAMPLE_METADATA = 10u,
+    MR_SENSOR_SAMPLE_BUFFER_COUNT = 11u,
 };
 
 #if defined(__cplusplus) && !defined(__METAL_VERSION__)
@@ -351,7 +374,13 @@ enum BufferIndex : std::size_t {
     kTaskCurriculumState = 219u,
     kGeneralizedWarmState = 220u,
     kCheckpointGeneralizedWarmState = 221u,
-    kRawBufferCount = 222u,
+    kSensorProgramHeader = 222u,
+    kSensorDescriptors = 223u,
+    kSensorRuntimeStates = 224u,
+    kSensorHistory = 225u,
+    kSensorOutputs = 226u,
+    kSensorMetadata = 227u,
+    kRawBufferCount = 228u,
 };
 
 enum class BufferLifetime : std::uint8_t {
@@ -586,6 +615,12 @@ inline constexpr std::array<BufferLifetime, kRawBufferCount>
         BufferLifetime::persistent,
         BufferLifetime::persistent,
         BufferLifetime::transient,
+        BufferLifetime::immutable,
+        BufferLifetime::immutable,
+        BufferLifetime::persistent,
+        BufferLifetime::persistent,
+        BufferLifetime::persistent,
+        BufferLifetime::persistent,
     }};
 inline constexpr std::array<bool, kRawBufferCount>
     kPersistentInputs{{
@@ -811,6 +846,12 @@ inline constexpr std::array<bool, kRawBufferCount>
         true,
         true,
         false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
     }};
 inline constexpr std::array<const char*, kRawBufferCount>
     kBufferDebugNames{{
@@ -1036,6 +1077,12 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "task curriculum state",
         "generalized warm state",
         "checkpoint generalized warm state",
+        "sensor program header",
+        "sensor descriptors",
+        "sensor runtime states",
+        "sensor history",
+        "sensor outputs",
+        "sensor metadata",
     }};
 
 [[nodiscard]] constexpr bool validBufferIndex(
@@ -1083,19 +1130,26 @@ static_assert(offsetof(MRSensorProgramHeaderGPU, counts) == 16u);
 static_assert(offsetof(MRSensorProgramHeaderGPU, executionCounts) == 32u);
 static_assert(offsetof(MRSensorProgramHeaderGPU, layout) == 48u);
 static_assert(offsetof(MRSensorProgramHeaderGPU, reserved) == 64u);
-static_assert(sizeof(MRSensorDescriptorGPU) == 176u);
+static_assert(sizeof(MRSensorDescriptorGPU) == 192u);
 static_assert(alignof(MRSensorDescriptorGPU) == 16u);
 static_assert(offsetof(MRSensorDescriptorGPU, identity) == 0u);
 static_assert(offsetof(MRSensorDescriptorGPU, output) == 16u);
 static_assert(offsetof(MRSensorDescriptorGPU, schedule) == 32u);
 static_assert(offsetof(MRSensorDescriptorGPU, dimensions) == 48u);
-static_assert(offsetof(MRSensorDescriptorGPU, localPosition) == 64u);
-static_assert(offsetof(MRSensorDescriptorGPU, localOrientation) == 80u);
-static_assert(offsetof(MRSensorDescriptorGPU, timing) == 96u);
-static_assert(offsetof(MRSensorDescriptorGPU, noise) == 112u);
-static_assert(offsetof(MRSensorDescriptorGPU, range) == 128u);
-static_assert(offsetof(MRSensorDescriptorGPU, intrinsics) == 144u);
-static_assert(offsetof(MRSensorDescriptorGPU, distortion) == 160u);
+static_assert(offsetof(MRSensorDescriptorGPU, source) == 64u);
+static_assert(offsetof(MRSensorDescriptorGPU, localPosition) == 80u);
+static_assert(offsetof(MRSensorDescriptorGPU, localOrientation) == 96u);
+static_assert(offsetof(MRSensorDescriptorGPU, timing) == 112u);
+static_assert(offsetof(MRSensorDescriptorGPU, noise) == 128u);
+static_assert(offsetof(MRSensorDescriptorGPU, range) == 144u);
+static_assert(offsetof(MRSensorDescriptorGPU, intrinsics) == 160u);
+static_assert(offsetof(MRSensorDescriptorGPU, distortion) == 176u);
+static_assert(sizeof(MRSensorDispatchGPU) == 48u);
+static_assert(alignof(MRSensorDispatchGPU) == 16u);
+static_assert(offsetof(MRSensorDispatchGPU, counts) == 0u);
+static_assert(offsetof(MRSensorDispatchGPU, controlPeriodAndStrides) == 16u);
+static_assert(offsetof(MRSensorDispatchGPU, seed) == 32u);
+static_assert(offsetof(MRSensorDispatchGPU, sensorFingerprint) == 40u);
 static_assert(sizeof(MRSensorRuntimeStateGPU) == 32u);
 static_assert(alignof(MRSensorRuntimeStateGPU) == 16u);
 static_assert(offsetof(MRSensorRuntimeStateGPU, phaseAndSequence) == 0u);
@@ -1108,6 +1162,7 @@ static_assert(MR_RECORD_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_IR_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_NUMI_PREPARE_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_FRAME_REFRESH_BUFFER_COUNT <= 31u);
+static_assert(MR_SENSOR_SAMPLE_BUFFER_COUNT <= 31u);
 
 } // namespace metalrobo::runtime_abi
 #endif

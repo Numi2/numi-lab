@@ -80,6 +80,14 @@ enum MRWorldSensorConsumerFlags : mr_u32 {
     MR_WORLD_SENSOR_CONSUMER_RECORDER = 1u << 3u,
 };
 
+enum MRSensorSampleValidityFlags : mr_u32 {
+    MR_SENSOR_SAMPLE_VALID = 1u << 0u,
+    MR_SENSOR_SAMPLE_FRESH = 1u << 1u,
+    MR_SENSOR_SAMPLE_RESET = 1u << 2u,
+    MR_SENSOR_SAMPLE_STALE = 1u << 3u,
+    MR_SENSOR_SAMPLE_NONFINITE = 1u << 4u,
+};
+
 enum MRWorldVariationAxis : mr_u32 {
     MR_WORLD_VARIATION_APPEARANCE = 0u,
     MR_WORLD_VARIATION_OBJECT_CONFIGURATION = 1u,

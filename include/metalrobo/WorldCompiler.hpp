@@ -96,6 +96,10 @@ struct SensorSpec {
     // parents. Asset/world parents require MR_INVALID_INDEX.
     std::uint32_t parentBodyIndex = MR_INVALID_INDEX;
     MRWorldSensorKind kind = MR_WORLD_SENSOR_STATE;
+    // Asset/body-frame authored transform. For body parents the sensor
+    // compiler converts this once to the COM-centred runtime origin used by
+    // articulated and rigid-body state. Tactile geometry retains the cooked
+    // tactile transform as its canonical spatial authority.
     WorldPose localPose;
     std::uint32_t width = 0u;
     std::uint32_t height = 0u;

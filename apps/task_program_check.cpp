@@ -413,6 +413,57 @@ std::uint64_t compileFixedBaseTaskFixture() {
     };
     authored.task.maximumEpisodeSteps = 64u;
 
+    const auto toolBody = std::find(
+        authored.model.bodyNames.begin(),
+        authored.model.bodyNames.end(),
+        "tool"
+    );
+    if (toolBody == authored.model.bodyNames.end()) {
+        fail("fixed-base sensor parent body did not resolve");
+    }
+    const std::uint32_t toolBodyIndex =
+        static_cast<std::uint32_t>(
+            toolBody - authored.model.bodyNames.begin()
+        );
+    authored.sensors = {
+        {
+            .id = "tool_pose_delayed",
+            .parentKind =
+                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+            .parentBodyIndex = toolBodyIndex,
+            .kind = MR_WORLD_SENSOR_STATE,
+            .localPose = {
+                .position = {0.0f, 0.0f, 0.2f, 0.0f},
+            },
+            .latencySeconds = 0.02f,
+            .nominalRateHz = 50.0f,
+            .schedulePhase =
+                MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 2u,
+            .consumerFlags =
+                MR_WORLD_SENSOR_CONSUMER_TRUTH |
+                MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        },
+        {
+            .id = "tool_pose_30hz",
+            .parentKind =
+                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+            .parentBodyIndex = toolBodyIndex,
+            .kind = MR_WORLD_SENSOR_STATE,
+            .localPose = {
+                .position = {0.0f, 0.0f, 0.2f, 0.0f},
+            },
+            .latencySeconds = 0.0f,
+            .nominalRateHz = 30.0f,
+            .schedulePhase =
+                MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 2u,
+            .consumerFlags =
+                MR_WORLD_SENSOR_CONSUMER_TRUTH |
+                MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        },
+    };
+
     metalrobo::CompiledSimulation compiled;
     const auto status = metalrobo::compileSimulation(
         authored,
@@ -421,6 +472,10 @@ std::uint64_t compileFixedBaseTaskFixture() {
     );
     if (!status.succeeded() ||
         !compiled.valid() ||
+        !compiled.sensors.valid() ||
+        compiled.sensors.layout().sensorCount != 2u ||
+        compiled.sensors.layout().outputElementCount != 14u ||
+        compiled.sensors.layout().historyElementCount != 28u ||
         compiled.task.layout().actionCount != 1u ||
         compiled.task.layout().actorObservationSize != 9u ||
         compiled.task.layout().criticObservationSize != 4u ||
@@ -478,6 +533,8 @@ std::uint64_t compileFixedBaseTaskFixture() {
     step.actuationMode =
         metalrobo::MetalWorldActuationMode::implicitPositionDrive;
     step.taskProgram = compiled.task;
+    step.sensorProgram = compiled.sensors;
+    step.publishSensorOutputs = true;
     step.ccdMode = metalrobo::MetalWorldCCDMode::disabled;
     metalrobo::MetalWorldContext context;
     metalrobo::MetalWorldResult result;
@@ -499,6 +556,8 @@ std::uint64_t compileFixedBaseTaskFixture() {
             environments * controlSteps ||
         result.actorObservations.size() !=
             environments * controlSteps * 9u ||
+        result.sensorOutputs.size() != environments * 14u ||
+        result.sensorMetadata.size() != environments * 2u ||
         std::any_of(
             result.environmentStatuses.begin(),
             result.environmentStatuses.end(),
@@ -510,6 +569,79 @@ std::uint64_t compileFixedBaseTaskFixture() {
             "fixed-base task did not execute through the generic Metal task graph: " +
             executed.message
         );
+    }
+    for (std::size_t environment = 0u;
+         environment < environments;
+         ++environment) {
+        const std::size_t outputBase = environment * 14u;
+        const std::size_t metadataBase = environment * 2u;
+        const auto validPose = [&](const std::size_t base) {
+            return
+                std::abs(result.sensorOutputs[base + 0u]) <=
+                    2.0e-4f &&
+                std::abs(result.sensorOutputs[base + 1u]) <=
+                    2.0e-4f &&
+                std::abs(
+                    result.sensorOutputs[base + 2u] - 0.3f
+                ) <= 2.0e-4f &&
+                std::abs(result.sensorOutputs[base + 3u]) <=
+                    2.0e-4f &&
+                std::abs(result.sensorOutputs[base + 4u]) <=
+                    2.0e-4f &&
+                std::abs(result.sensorOutputs[base + 5u]) <=
+                    2.0e-4f &&
+                std::abs(
+                    result.sensorOutputs[base + 6u] - 1.0f
+                ) <= 2.0e-4f;
+        };
+        const MRSensorSampleMetadataGPU& delayed =
+            result.sensorMetadata[metadataBase];
+        const std::uint64_t delayedSequence =
+            static_cast<std::uint64_t>(
+                delayed.sequenceAndTimestamp.x
+            ) |
+            (static_cast<std::uint64_t>(
+                 delayed.sequenceAndTimestamp.y
+             ) << 32u);
+        const std::uint64_t expectedDelayedSequence =
+            environment == 0u ? 2u : controlSteps;
+        const MRSensorSampleMetadataGPU& nonDivisor =
+            result.sensorMetadata[metadataBase + 1u];
+        const std::uint64_t nonDivisorSequence =
+            static_cast<std::uint64_t>(
+                nonDivisor.sequenceAndTimestamp.x
+            ) |
+            (static_cast<std::uint64_t>(
+                 nonDivisor.sequenceAndTimestamp.y
+             ) << 32u);
+        const std::uint64_t expectedNonDivisorSequence =
+            environment == 0u ? 1u : 2u;
+        if (!validPose(outputBase) ||
+            delayedSequence != expectedDelayedSequence ||
+            delayed.ageValidityAndLayout.x != 0u ||
+            (delayed.ageValidityAndLayout.y &
+             (MR_SENSOR_SAMPLE_VALID |
+              MR_SENSOR_SAMPLE_FRESH)) !=
+                (MR_SENSOR_SAMPLE_VALID |
+                 MR_SENSOR_SAMPLE_FRESH) ||
+            delayed.ageValidityAndLayout.z != 0u ||
+            delayed.ageValidityAndLayout.w != 7u ||
+            !validPose(outputBase + 7u) ||
+            nonDivisorSequence != expectedNonDivisorSequence ||
+            nonDivisor.ageValidityAndLayout.x != 1u ||
+            (nonDivisor.ageValidityAndLayout.y &
+             (MR_SENSOR_SAMPLE_VALID |
+              MR_SENSOR_SAMPLE_STALE)) !=
+                (MR_SENSOR_SAMPLE_VALID |
+                 MR_SENSOR_SAMPLE_STALE) ||
+            (nonDivisor.ageValidityAndLayout.y &
+             MR_SENSOR_SAMPLE_FRESH) != 0u ||
+            nonDivisor.ageValidityAndLayout.z != 7u ||
+            nonDivisor.ageValidityAndLayout.w != 7u) {
+            fail(
+                "native SensorIR did not preserve pose, latency, or reset scheduling"
+            );
+        }
     }
     for (const std::size_t sample : {
              std::size_t{0u},

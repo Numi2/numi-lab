@@ -95,6 +95,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> taskObservePipeline = nil;
     __strong id<MTLComputePipelineState>
         taskFrameRefreshPipeline = nil;
+    __strong id<MTLComputePipelineState> sensorSamplePipeline = nil;
     __strong id<MTLComputePipelineState> taskApplyPipeline = nil;
     __strong id<MTLComputePipelineState> taskEffortPipeline = nil;
     __strong id<MTLComputePipelineState> taskCompletePipeline = nil;
@@ -196,6 +197,7 @@ struct MetalWorldContextState {
     bool useTaskBodyParameters = false;
     std::uint64_t boundModelFingerprint = 0u;
     std::uint64_t boundTaskFingerprint = 0u;
+    std::uint64_t boundSensorFingerprint = 0u;
     std::uint64_t boundPolicyFingerprint = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     std::weak_ptr<MetalWorldResidentStateData> residentOwner;
@@ -240,6 +242,7 @@ struct MetalWorldResidentStateData {
     std::shared_ptr<MetalWorldContextState> context;
     std::uint64_t worldFingerprint = 0u;
     std::uint64_t taskFingerprint = 0u;
+    std::uint64_t sensorFingerprint = 0u;
     std::uint64_t taskSeed = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     std::size_t environmentCount = 0u;
@@ -359,6 +362,7 @@ struct MetalWorldSubmissionState {
     bool captureContactEvidence = false;
     bool publishFinalState = true;
     bool publishStateTrajectory = true;
+    bool publishSensorOutputs = false;
     bool ownsInFlight = false;
 };
 
@@ -1142,6 +1146,7 @@ bool buildRequirements(
     const CompiledWorld& world,
     const MetalWorldLayout& layout,
     const CompiledTaskProgram& taskProgram,
+    const CompiledSensorProgram& sensorProgram,
     const CompiledPolicyProgram& policyProgram,
     RequiredBuffers& requirements,
     std::size_t& totalRequiredBytes
@@ -1160,6 +1165,7 @@ bool buildRequirements(
         ? environments
         : 0u;
     const bool nativeTask = taskProgram.valid();
+    const bool nativeSensors = sensorProgram.valid();
     const bool nativePolicy = policyProgram.valid();
     const std::size_t taskEnvironments =
         nativeTask ? environments : 0u;
@@ -2504,6 +2510,38 @@ bool buildRequirements(
             "native policy values",
             layout.policyValueElements,
             requirements.entries[kPolicyValues]
+        ) ||
+        !makeRequirement<MRSensorProgramHeaderGPU>(
+            "compiled sensor header",
+            nativeSensors ? 1u : 0u,
+            requirements.entries[kSensorProgramHeader]
+        ) ||
+        !makeRequirement<MRSensorDescriptorGPU>(
+            "compiled sensor descriptors",
+            nativeSensors
+                ? sensorProgram.descriptors().size()
+                : 0u,
+            requirements.entries[kSensorDescriptors]
+        ) ||
+        !makeRequirement<MRSensorRuntimeStateGPU>(
+            "native resident sensor schedule state",
+            layout.sensorStateElements,
+            requirements.entries[kSensorRuntimeStates]
+        ) ||
+        !makeRequirement<float>(
+            "native resident sensor history",
+            layout.sensorHistoryElements,
+            requirements.entries[kSensorHistory]
+        ) ||
+        !makeRequirement<float>(
+            "native compact sensor outputs",
+            layout.sensorOutputElements,
+            requirements.entries[kSensorOutputs]
+        ) ||
+        !makeRequirement<MRSensorSampleMetadataGPU>(
+            "native compact sensor metadata",
+            layout.sensorMetadataElements,
+            requirements.entries[kSensorMetadata]
         )) {
         return false;
     }
@@ -2558,6 +2596,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         );
     }
     const bool nativeTask = config.taskProgram.valid();
+    const bool nativeSensors = config.sensorProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
     const bool contactMode =
         config.executionMode != MetalWorldExecutionMode::freeMotionABA;
@@ -2681,6 +2720,68 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "native task execution requires an implicit-drive contact world "
             "matching the compiled task fingerprint"
         );
+    }
+    if (config.publishSensorOutputs && !nativeSensors) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "sensor output publication requires a compiled SensorIR program"
+        );
+    }
+    const double controlPeriodNanosecondsWide =
+        static_cast<double>(config.timestepSeconds) * 1.0e9;
+    if (nativeSensors) {
+        if (!nativeTask ||
+            config.sensorProgram.worldFingerprint() !=
+                world.fingerprint() ||
+            config.sensorProgram.layout()
+                    .presentationSensorCount != 0u ||
+            config.sensorProgram.layout().tactileSensorCount != 0u ||
+            config.sensorProgram.layout()
+                    .nativeStateSensorCount !=
+                config.sensorProgram.layout().sensorCount ||
+            !std::isfinite(controlPeriodNanosecondsWide) ||
+            controlPeriodNanosecondsWide < 0.5 ||
+            controlPeriodNanosecondsWide >
+                static_cast<double>(
+                    std::numeric_limits<std::int64_t>::max()
+                )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::unsupportedTopology,
+                "native SensorIR execution currently requires only pre-control "
+                "frame-state sensors attached to a compiled native task"
+            );
+        }
+        const std::uint64_t controlPeriodTicks =
+            static_cast<std::uint64_t>(std::llround(
+                controlPeriodNanosecondsWide
+            ));
+        for (const MRSensorDescriptorGPU& descriptor :
+             config.sensorProgram.descriptors()) {
+            const std::uint64_t samplePeriod =
+                static_cast<std::uint64_t>(descriptor.schedule.x) |
+                (static_cast<std::uint64_t>(
+                     descriptor.schedule.y
+                 ) << 32u);
+            if (descriptor.identity.x !=
+                    MR_WORLD_SENSOR_STATE ||
+                descriptor.schedule.z !=
+                    MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
+                descriptor.source.w !=
+                    static_cast<std::uint32_t>(
+                        SensorExecutionDomain::nativeState
+                    ) ||
+                descriptor.output.y != 7u ||
+                samplePeriod < controlPeriodTicks) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::unsupportedTopology,
+                    "native SensorIR frame sampling requires pre-control pose "
+                    "descriptors at no more than the control rate"
+                );
+            }
+        }
     }
     if (nativePolicy &&
         (
@@ -2806,6 +2907,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
         (nativeTask
              ? static_cast<mr_u32>(
                    MR_METAL_WORLD_NATIVE_TASK
+               )
+             : 0u) |
+        (nativeSensors
+             ? static_cast<mr_u32>(
+                   MR_METAL_WORLD_NATIVE_SENSORS
                )
              : 0u);
     dispatch.nq = world.model().world.nq;
@@ -3342,6 +3448,33 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.policyValueElements =
             nativePolicy ? actorEvaluationCount : 0u;
     }
+    if (nativeSensors &&
+        (!checkedMultiply(
+             batch.environmentCount,
+             config.sensorProgram.layout().sensorCount,
+             layout.sensorStateElements
+         ) ||
+         !checkedMultiply(
+             batch.environmentCount,
+             config.sensorProgram.layout().historyElementCount,
+             layout.sensorHistoryElements
+         ) ||
+         !checkedMultiply(
+             batch.environmentCount,
+             config.sensorProgram.layout().outputElementCount,
+             layout.sensorOutputElements
+         ) ||
+         !checkedMultiply(
+             batch.environmentCount,
+             config.sensorProgram.layout().sensorCount,
+             layout.sensorMetadataElements
+         ))) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::arithmeticOverflow,
+            "native SensorIR persistent layout overflows"
+        );
+    }
     layout.resetQElements = batch.resetMasks.empty()
         ? 0u
         : layout.initialQElements;
@@ -3524,6 +3657,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.actorObservationElements,
         layout.criticObservationElements,
         layout.transitionElements,
+        layout.sensorStateElements,
+        layout.sensorHistoryElements,
+        layout.sensorOutputElements,
+        layout.sensorMetadataElements,
         layout.policyLatentElements,
         layout.policyLogProbabilityElements,
         layout.policyValueElements,
@@ -3578,6 +3715,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             world,
             layout,
             config.taskProgram,
+            config.sensorProgram,
             config.policyProgram,
             requirements,
             totalRequiredBytes
@@ -4159,6 +4297,7 @@ MetalWorldDiagnostics initializeContext(
         parameterizedOperatorPipeline = nil;
     __strong id<MTLComputePipelineState> taskObserve = nil;
     __strong id<MTLComputePipelineState> taskFrameRefresh = nil;
+    __strong id<MTLComputePipelineState> sensorSample = nil;
     __strong id<MTLComputePipelineState> taskApply = nil;
     __strong id<MTLComputePipelineState> taskEffort = nil;
     __strong id<MTLComputePipelineState> taskComplete = nil;
@@ -4255,6 +4394,9 @@ MetalWorldDiagnostics initializeContext(
         createContactPipeline(@"mr_task_observe");
     taskFrameRefresh = createContactPipeline(
         @"mr_task_refresh_frame_observations"
+    );
+    sensorSample = createContactPipeline(
+        @"mr_sensor_sample_pre_control"
     );
     taskApply =
         createContactPipeline(@"mr_task_apply_actions");
@@ -4458,6 +4600,7 @@ MetalWorldDiagnostics initializeContext(
         parameterizedOperatorPipeline == nil ||
         taskObserve == nil ||
         taskFrameRefresh == nil ||
+        sensorSample == nil ||
         taskApply == nil ||
         taskEffort == nil ||
         taskComplete == nil ||
@@ -4561,6 +4704,7 @@ MetalWorldDiagnostics initializeContext(
         commit.maxTotalThreadsPerThreadgroup == 0u ||
         capture.maxTotalThreadsPerThreadgroup == 0u ||
         taskObserve.maxTotalThreadsPerThreadgroup == 0u ||
+        sensorSample.maxTotalThreadsPerThreadgroup == 0u ||
         taskApply.maxTotalThreadsPerThreadgroup == 0u ||
         taskEffort.maxTotalThreadsPerThreadgroup == 0u ||
         taskComplete.maxTotalThreadsPerThreadgroup == 0u ||
@@ -4706,6 +4850,7 @@ MetalWorldDiagnostics initializeContext(
         parameterizedOperatorPipeline;
     context.taskObservePipeline = taskObserve;
     context.taskFrameRefreshPipeline = taskFrameRefresh;
+    context.sensorSamplePipeline = sensorSample;
     context.taskApplyPipeline = taskApply;
     context.taskEffortPipeline = taskEffort;
     context.taskCompletePipeline = taskComplete;
@@ -5206,6 +5351,7 @@ MetalWorldDiagnostics ensureBufferArena(
     if (immutableBufferReplaced) {
         context.boundModelFingerprint = 0u;
         context.boundTaskFingerprint = 0u;
+        context.boundSensorFingerprint = 0u;
         context.boundPolicyFingerprint = 0u;
     }
     if (persistentStateBufferReplaced) {
@@ -5930,6 +6076,7 @@ void uploadBatch(
     }
 
     const bool nativeTask = config.taskProgram.valid();
+    const bool nativeSensors = config.sensorProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
     if (nativeTask &&
         context.boundTaskFingerprint !=
@@ -5968,6 +6115,44 @@ void uploadBatch(
         }
         context.boundTaskFingerprint =
             config.taskProgram.fingerprint();
+    }
+    if (nativeSensors &&
+        context.boundSensorFingerprint !=
+            config.sensorProgram.fingerprint()) {
+        id<MTLBlitCommandEncoder> sensorUpload = nil;
+        if (context.config.preferPrivateHeaps) {
+            sensorUpload = [commandBuffer blitCommandEncoder];
+            if (sensorUpload == nil) {
+                throw std::runtime_error(
+                    "failed to create compiled-sensor upload encoder"
+                );
+            }
+            sensorUpload.label =
+                @"MetalWorld immutable compiled sensor upload";
+        }
+        const auto stageSensor =
+            [&](const std::size_t index, const void* source) {
+                stagePrivateBuffer(
+                    context,
+                    index,
+                    source,
+                    requirements.entries[index],
+                    sensorUpload
+                );
+            };
+        stageSensor(
+            kSensorProgramHeader,
+            &config.sensorProgram.header()
+        );
+        stageSensor(
+            kSensorDescriptors,
+            config.sensorProgram.descriptors().data()
+        );
+        if (sensorUpload != nil) {
+            [sensorUpload endEncoding];
+        }
+        context.boundSensorFingerprint =
+            config.sensorProgram.fingerprint();
     }
     if (nativePolicy &&
         context.boundPolicyFingerprint !=
@@ -6637,6 +6822,7 @@ bool encodeResidentStateInitialization(
     const bool contactMode,
     const bool hasRods,
     const bool nativeTask,
+    const bool nativeSensors,
     const std::uint32_t initialCurriculumLevel
 ) {
     if (nativeTask) {
@@ -6672,6 +6858,12 @@ bool encodeResidentStateInitialization(
     };
     clear(kStateQB);
     clear(kStateVB);
+    if (nativeSensors) {
+        clear(kSensorRuntimeStates);
+        clear(kSensorHistory);
+        clear(kSensorOutputs);
+        clear(kSensorMetadata);
+    }
     if (contactMode) {
         clear(kSceneBodiesB);
         clear(kManifoldHeadersA);
@@ -7889,6 +8081,73 @@ bool encodeTaskFrameRefresh(
         &pass,
         MR_TASK_FRAME_REFRESH_PASS,
         environmentCount
+    );
+}
+
+bool encodeSensorSample(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const CompiledSensorProgram& program,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t sourceScene,
+    const std::size_t environmentCount,
+    const std::uint32_t bodyStride,
+    const std::uint32_t sceneStride,
+    const float controlPeriodSeconds,
+    const std::uint64_t seed,
+    const bool hasResets
+) {
+    const auto controlPeriodTicks =
+        static_cast<std::uint64_t>(std::llround(
+            static_cast<double>(controlPeriodSeconds) * 1.0e9
+        ));
+    MRSensorDispatchGPU dispatch{};
+    dispatch.counts = {
+        static_cast<std::uint32_t>(environmentCount),
+        program.layout().sensorCount,
+        0u,
+        hasResets ? 1u : 0u,
+    };
+    dispatch.controlPeriodAndStrides = {
+        static_cast<std::uint32_t>(controlPeriodTicks),
+        static_cast<std::uint32_t>(controlPeriodTicks >> 32u),
+        sceneStride,
+        bodyStride,
+    };
+    dispatch.seed = seed;
+    dispatch.sensorFingerprint = program.fingerprint();
+    std::size_t threadCount = 0u;
+    if (!checkedMultiply(
+            environmentCount,
+            program.layout().sensorCount,
+            threadCount
+        )) {
+        return false;
+    }
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.sensorSamplePipeline,
+        @"compiled SensorIR pre-control sample",
+        {
+            {MR_SENSOR_SAMPLE_PROGRAM, kSensorProgramHeader},
+            {MR_SENSOR_SAMPLE_DESCRIPTORS, kSensorDescriptors},
+            {MR_SENSOR_SAMPLE_RESET_MASKS, kResetMasks},
+            {MR_SENSOR_SAMPLE_BODY_POSES, kBodyPoses},
+            {MR_SENSOR_SAMPLE_SCENE_BODIES, sourceScene},
+            {MR_SENSOR_SAMPLE_STATES, kSensorRuntimeStates},
+            {MR_SENSOR_SAMPLE_HISTORY, kSensorHistory},
+            {MR_SENSOR_SAMPLE_OUTPUTS, kSensorOutputs},
+            {MR_SENSOR_SAMPLE_METADATA, kSensorMetadata},
+        },
+        &pass,
+        MR_SENSOR_SAMPLE_PASS,
+        threadCount,
+        false,
+        0u,
+        &dispatch,
+        sizeof(dispatch),
+        MR_SENSOR_SAMPLE_DISPATCH
     );
 }
 
@@ -13666,6 +13925,14 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                     staged.layout.accelerationElements
                 );
             }
+            if (pending->publishSensorOutputs) {
+                staged.sensorOutputs.resize(
+                    staged.layout.sensorOutputElements
+                );
+                staged.sensorMetadata.resize(
+                    staged.layout.sensorMetadataElements
+                );
+            }
             staged.statuses.resize(
                 staged.layout.statusElements
             );
@@ -13795,6 +14062,16 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 copyOutput(
                     staged.accelerations,
                     buffers[kAccelerationTrajectory]
+                );
+            }
+            if (pending->publishSensorOutputs) {
+                copyOutput(
+                    staged.sensorOutputs,
+                    stateOutputBuffer(kSensorOutputs)
+                );
+                copyOutput(
+                    staged.sensorMetadata,
+                    stateOutputBuffer(kSensorMetadata)
                 );
             }
             copyOutput(
@@ -14132,13 +14409,15 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     world.fingerprint() ||
                 residentData->taskFingerprint !=
                     config.taskProgram.fingerprint() ||
+                residentData->sensorFingerprint !=
+                    config.sensorProgram.fingerprint() ||
                 residentData->taskSeed != config.taskSeed ||
                 residentData->environmentCount !=
                     batch.environmentCount) {
                 return reject(
                     std::move(diagnostics),
                     MetalWorldHostStatus::invalidDimensions,
-                    "resident world, task, seed, or environment count "
+                    "resident world, task, sensor, seed, or environment count "
                     "changed"
                 );
             }
@@ -14234,6 +14513,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     world.fingerprint();
                 residentData->taskFingerprint =
                     config.taskProgram.fingerprint();
+                residentData->sensorFingerprint =
+                    config.sensorProgram.fingerprint();
                 residentData->taskSeed = config.taskSeed;
                 residentData->environmentCount =
                     batch.environmentCount;
@@ -14299,6 +14580,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             const bool uploadInitialState =
                 !residentContinuation;
             const bool nativeTask = config.taskProgram.valid();
+            const bool nativeSensors = config.sensorProgram.valid();
             selectedState->useTaskBodyParameters = nativeTask;
             selectedState->stats.memoryPlan =
                 diagnostics.layout.memoryPlan;
@@ -14331,6 +14613,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     contactMode,
                     world.rodCount() != 0u,
                     nativeTask,
+                    nativeSensors,
                     config.taskCurriculumLevel
                 )) {
                 return reject(
@@ -14463,7 +14746,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             batch.environmentCount
                         ) ||
                         (
-                            taskUsesFrames &&
+                            (taskUsesFrames || nativeSensors) &&
                             (
                                 !encodeArticulatedOperator(
                                     *selectedState,
@@ -14476,12 +14759,31 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                     @"compiled task reset kinematics",
                                     false
                                 ) ||
-                                !encodeTaskFrameRefresh(
-                                    *selectedState,
-                                    commandBuffer,
-                                    pass,
-                                    batch.environmentCount
+                                (
+                                    taskUsesFrames &&
+                                    !encodeTaskFrameRefresh(
+                                        *selectedState,
+                                        commandBuffer,
+                                        pass,
+                                        batch.environmentCount
+                                    )
                                 )
+                            )
+                        ) ||
+                        (
+                            nativeSensors &&
+                            !encodeSensorSample(
+                                *selectedState,
+                                commandBuffer,
+                                config.sensorProgram,
+                                pass,
+                                sourceScene,
+                                batch.environmentCount,
+                                world.bodyCount(),
+                                world.sceneBodyCount(),
+                                config.timestepSeconds,
+                                config.taskSeed,
+                                !batch.resetMasks.empty()
                             )
                         ) ||
                         (
@@ -14885,6 +15187,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     kIslandConstraintReferences
                 );
             }
+            if (config.publishSensorOutputs) {
+                readbackIndices.push_back(kSensorOutputs);
+                readbackIndices.push_back(kSensorMetadata);
+            }
             diagnostics = encodeReadbacks(
                 *selectedState,
                 commandBuffer,
@@ -14934,6 +15240,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 config.publishFinalState;
             pending->publishStateTrajectory =
                 config.publishStateTrajectory;
+            pending->publishSensorOutputs =
+                config.publishSensorOutputs;
             pending->start = std::chrono::steady_clock::now();
             pending->ownsInFlight = true;
 

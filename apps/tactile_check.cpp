@@ -2144,7 +2144,7 @@ void validateCompiledSensorProgram() {
         require(
             descriptor.identity.x ==
                 MR_WORLD_SENSOR_TACTILE_DEPTH &&
-                descriptor.schedule.w == tactileIndex &&
+                descriptor.source.z == tactileIndex &&
                 descriptor.output.y ==
                     simulation.tactileSystem
                         .sensors[tactileIndex].topology.w + 9u,

@@ -10,7 +10,7 @@
 #include "metalrobo/gpu_types.h"
 #include "metalrobo/constraint_ir_shared.h"
 
-#define MR_ENGINE_ABI_VERSION 4u
+#define MR_ENGINE_ABI_VERSION 5u
 #define MR_INVALID_INDEX 0xffffffffu
 #define MR_MAX_CONTACTS_PER_SOLVER_BATCH 128u
 #define MR_MAX_BODIES_PER_SOLVER_BATCH \
@@ -41,7 +41,7 @@
 // Versioned first generic Metal-world graph. One submission may encode many
 // control steps, each with a bounded number of ABA physics substeps, without
 // a command-buffer completion or CPU-visible intermediate state.
-#define MR_METAL_WORLD_ABI_VERSION 5u
+#define MR_METAL_WORLD_ABI_VERSION 6u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
 #define MR_METAL_WORLD_CONTACT_ABI_VERSION 8u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
@@ -660,6 +660,8 @@ enum MRMetalWorldFlags : mr_u32 {
     // Native task kernels own reset, control, randomization, observation,
     // reward, and termination around the physics graph.
     MR_METAL_WORLD_NATIVE_TASK = 1u << 6u,
+    // A compiled SensorIR program owns persistent schedule/history state.
+    MR_METAL_WORLD_NATIVE_SENSORS = 1u << 7u,
 };
 
 // Immutable strides and dimensions for one environment-major rollout.

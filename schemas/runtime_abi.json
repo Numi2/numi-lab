@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "abi_version": 3,
+  "abi_version": 4,
   "abi_constants": {
-    "MR_SENSOR_PROGRAM_ABI_VERSION": 1
+    "MR_SENSOR_PROGRAM_ABI_VERSION": 2
   },
   "records": [
     {
@@ -25,6 +25,7 @@
         ["mr_uint4", "output"],
         ["mr_uint4", "schedule"],
         ["mr_uint4", "dimensions"],
+        ["mr_uint4", "source"],
         ["mr_float4", "localPosition"],
         ["mr_float4", "localOrientation"],
         ["mr_float4", "timing"],
@@ -32,6 +33,16 @@
         ["mr_float4", "range"],
         ["mr_float4", "intrinsics"],
         ["mr_float4", "distortion"]
+      ]
+    },
+    {
+      "name": "MRSensorDispatchGPU",
+      "alignment": 16,
+      "fields": [
+        ["mr_uint4", "counts"],
+        ["mr_uint4", "controlPeriodAndStrides"],
+        ["mr_u64", "seed"],
+        ["mr_u64", "sensorFingerprint"]
       ]
     },
     {
@@ -52,7 +63,7 @@
     }
   ],
   "world_buffers": {
-    "count": 222,
+    "count": 228,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -267,7 +278,13 @@
       ["kPolicyValues", 218],
       ["kTaskCurriculumState", 219],
       ["kGeneralizedWarmState", 220],
-      ["kCheckpointGeneralizedWarmState", 221]
+      ["kCheckpointGeneralizedWarmState", 221],
+      ["kSensorProgramHeader", 222],
+      ["kSensorDescriptors", 223],
+      ["kSensorRuntimeStates", 224],
+      ["kSensorHistory", 225],
+      ["kSensorOutputs", 226],
+      ["kSensorMetadata", 227]
     ],
     "classifications": {
       "immutable": [
@@ -309,7 +326,9 @@
         "kTaskProgramHeader",
         "kTaskProgramArena",
         "kPolicyProgramHeader",
-        "kPolicyProgramArena"
+        "kPolicyProgramArena",
+        "kSensorProgramHeader",
+        "kSensorDescriptors"
       ],
       "persistent": [
         "kStateQA",
@@ -347,7 +366,11 @@
         "kTaskControllerParameters",
         "kTaskContactCompact",
         "kTaskCurriculumState",
-        "kGeneralizedWarmState"
+        "kGeneralizedWarmState",
+        "kSensorRuntimeStates",
+        "kSensorHistory",
+        "kSensorOutputs",
+        "kSensorMetadata"
       ],
       "transient": [
         "kWorkingEffort",
@@ -468,7 +491,11 @@
       "kRodNodesA",
       "kRodEdgesA",
       "kTaskCurriculumState",
-      "kGeneralizedWarmState"
+      "kGeneralizedWarmState",
+      "kSensorRuntimeStates",
+      "kSensorHistory",
+      "kSensorOutputs",
+      "kSensorMetadata"
     ]
   },
   "kernels": [
@@ -566,6 +593,23 @@
         "CRITIC_HISTORY",
         "ACTOR_OBSERVATIONS",
         "CRITIC_OBSERVATIONS"
+      ]
+    },
+    {
+      "enum": "MRSensorSampleBuffer",
+      "prefix": "MR_SENSOR_SAMPLE_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "DESCRIPTORS",
+        "PASS",
+        "RESET_MASKS",
+        "BODY_POSES",
+        "SCENE_BODIES",
+        "STATES",
+        "HISTORY",
+        "OUTPUTS",
+        "METADATA"
       ]
     }
   ]

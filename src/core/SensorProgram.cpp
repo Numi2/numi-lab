@@ -168,8 +168,10 @@ std::uint32_t channelCount(const MRWorldSensorKind kind) {
     case MR_WORLD_SENSOR_RGBD:
         return 5u;
     case MR_WORLD_SENSOR_STATE:
-        // xyz, quaternion, linear velocity, angular velocity.
-        return 13u;
+        // Parent-frame xyz plus quaternion. Twist and acceleration are
+        // separate explicit modalities rather than silently zero-filled
+        // channels in this persisted perception-contract kind.
+        return 7u;
     case MR_WORLD_SENSOR_FORCE_TORQUE:
         return 6u;
     }
@@ -376,6 +378,33 @@ SensorCompileDiagnostics compileSensorProgram(
                 );
             }
         }
+        std::uint32_t sourceIndex = MR_INVALID_INDEX;
+        std::uint32_t sourceOwner = MR_INVALID_INDEX;
+        if (bodyParent) {
+            if (sensor.parentKind ==
+                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK) {
+                sourceIndex = sensor.parentBodyIndex;
+                sourceOwner = world.model()
+                    .bodies[sensor.parentBodyIndex]
+                    .articulationIndex;
+            } else {
+                const auto found = std::find(
+                    world.sceneBodyIndices().begin(),
+                    world.sceneBodyIndices().end(),
+                    sensor.parentBodyIndex
+                );
+                if (found == world.sceneBodyIndices().end()) {
+                    return reject(
+                        SensorCompileStatus::unresolvedSemantic,
+                        element + ".parent",
+                        "rigid sensor parent is not in the compiled scene-state layout"
+                    );
+                }
+                sourceIndex = static_cast<std::uint32_t>(
+                    found - world.sceneBodyIndices().begin()
+                );
+            }
+        }
         if ((sensor.kind == MR_WORLD_SENSOR_STATE ||
              sensor.kind == MR_WORLD_SENSOR_FORCE_TORQUE ||
              sensor.kind == MR_WORLD_SENSOR_TACTILE_DEPTH) &&
@@ -397,13 +426,15 @@ SensorCompileDiagnostics compileSensorProgram(
                 "image sensor dimensions or intrinsics are invalid"
             );
         }
-        const double historyNeeded =
-            std::ceil(
-                static_cast<double>(sensor.latencySeconds) *
-                sensor.nominalRateHz
-            ) + 1.0;
+        const double latencySamplesWide = std::ceil(
+            static_cast<double>(sensor.latencySeconds) *
+            sensor.nominalRateHz
+        );
+        const double historyNeeded = latencySamplesWide + 1.0;
         if (!std::isfinite(historyNeeded) ||
-            historyNeeded > sensor.historyLength) {
+            historyNeeded > sensor.historyLength ||
+            latencySamplesWide >
+                std::numeric_limits<std::uint32_t>::max()) {
             return reject(
                 SensorCompileStatus::invalidSpec,
                 element + ".historyLength",
@@ -411,19 +442,22 @@ SensorCompileDiagnostics compileSensorProgram(
             );
         }
 
-        const std::uint64_t period = static_cast<std::uint64_t>(
-            std::llround(
-                static_cast<double>(kNanosecondsPerSecond) /
-                sensor.nominalRateHz
-            )
-        );
-        if (period == 0u) {
+        const double periodWide =
+            static_cast<double>(kNanosecondsPerSecond) /
+            sensor.nominalRateHz;
+        if (!std::isfinite(periodWide) || periodWide < 0.5 ||
+            periodWide > static_cast<double>(
+                std::numeric_limits<std::int64_t>::max()
+            )) {
             return reject(
                 SensorCompileStatus::invalidSpec,
                 element + ".nominalRateHz",
-                "sensor rate exceeds the deterministic scheduler tick resolution"
+                "sensor rate is outside the deterministic scheduler tick range"
             );
         }
+        const std::uint64_t period = static_cast<std::uint64_t>(
+            std::llround(periodWide)
+        );
 
         std::uint32_t channels = channelCount(sensor.kind);
         std::uint32_t outputCount = channels;
@@ -512,16 +546,45 @@ SensorCompileDiagnostics compileSensorProgram(
             static_cast<std::uint32_t>(period),
             static_cast<std::uint32_t>(period >> 32u),
             sensor.schedulePhase,
-            tactileOrdinal,
+            static_cast<std::uint32_t>(latencySamplesWide),
         };
         descriptor.dimensions = {
             sensor.width,
             sensor.height,
             channels,
+            0u,
+        };
+        descriptor.source = {
+            sourceIndex,
+            sourceOwner,
+            tactileOrdinal,
             static_cast<std::uint32_t>(domain),
         };
         descriptor.localPosition = sensor.localPose.position;
         descriptor.localOrientation = sensor.localPose.orientation;
+        if (tactileOrdinal != MR_INVALID_INDEX) {
+            const MRTactileSensorGPU& cooked =
+                tactile.sensors[tactileOrdinal];
+            descriptor.localPosition = {
+                cooked.localPositionAndQueryEpsilon.x,
+                cooked.localPositionAndQueryEpsilon.y,
+                cooked.localPositionAndQueryEpsilon.z,
+                0.0f,
+            };
+            descriptor.localOrientation =
+                cooked.localOrientation;
+        } else if (bodyParent) {
+            const mr_float4 centerOfMass =
+                world.model()
+                    .bodies[sensor.parentBodyIndex]
+                    .centerOfMass;
+            descriptor.localPosition = {
+                sensor.localPose.position.x - centerOfMass.x,
+                sensor.localPose.position.y - centerOfMass.y,
+                sensor.localPose.position.z - centerOfMass.z,
+                0.0f,
+            };
+        }
         descriptor.timing = {
             sensor.latencySeconds,
             sensor.nominalRateHz,

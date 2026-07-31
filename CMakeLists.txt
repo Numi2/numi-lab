@@ -84,6 +84,9 @@ set(METALROBO_WORLD_COMPILER_SOURCE
 set(METALROBO_TASK_RUNTIME_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/TaskRuntime.metal"
 )
+set(METALROBO_SENSOR_RUNTIME_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/SensorRuntime.metal"
+)
 set(METALROBO_POLICY_INFERENCE_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PolicyInference.metal"
 )
@@ -164,6 +167,9 @@ set(METALROBO_WORLD_COMPILER_AIR
 )
 set(METALROBO_TASK_RUNTIME_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboTaskRuntime.air"
+)
+set(METALROBO_SENSOR_RUNTIME_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboSensorRuntime.air"
 )
 set(METALROBO_POLICY_INFERENCE_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboPolicyInference.air"
@@ -328,6 +334,12 @@ add_custom_command(
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_SENSOR_RUNTIME_SOURCE}"
+            -o "${METALROBO_SENSOR_RUNTIME_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_POLICY_INFERENCE_SOURCE}"
             -o "${METALROBO_POLICY_INFERENCE_AIR}"
     COMMAND xcrun -sdk macosx metal
@@ -386,6 +398,7 @@ add_custom_command(
             "${METALROBO_WORLD_CONTACT_AIR}"
             "${METALROBO_WORLD_COMPILER_AIR}"
             "${METALROBO_TASK_RUNTIME_AIR}"
+            "${METALROBO_SENSOR_RUNTIME_AIR}"
             "${METALROBO_POLICY_INFERENCE_AIR}"
             "${METALROBO_HYBRID_RENDERER_AIR}"
             "${METALROBO_ENVIRONMENT_PREFILTER_AIR}"
@@ -409,6 +422,7 @@ add_custom_command(
         "${METALROBO_WORLD_CONTACT_SOURCE}"
         "${METALROBO_WORLD_COMPILER_SOURCE}"
         "${METALROBO_TASK_RUNTIME_SOURCE}"
+        "${METALROBO_SENSOR_RUNTIME_SOURCE}"
         "${METALROBO_POLICY_INFERENCE_SOURCE}"
         "${METALROBO_HYBRID_RENDERER_SOURCE}"
         "${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"

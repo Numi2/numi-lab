@@ -2,11 +2,12 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 3
-    static let worldBufferCount = 222
-    static let mrSensorProgramAbiVersion: UInt32 = 1
+    static let version: UInt32 = 4
+    static let worldBufferCount = 228
+    static let mrSensorProgramAbiVersion: UInt32 = 2
     static let mrSensorProgramHeaderGPUSize = 80
-    static let mrSensorDescriptorGPUSize = 176
+    static let mrSensorDescriptorGPUSize = 192
+    static let mrSensorDispatchGPUSize = 48
     static let mrSensorRuntimeStateGPUSize = 32
     static let mrSensorSampleMetadataGPUSize = 32
     static let worldBufferDebugNames: [String] = [
@@ -232,5 +233,11 @@ enum MetalRoboRuntimeABI {
         "task curriculum state",
         "generalized warm state",
         "checkpoint generalized warm state",
+        "sensor program header",
+        "sensor descriptors",
+        "sensor runtime states",
+        "sensor history",
+        "sensor outputs",
+        "sensor metadata",
     ]
 }
