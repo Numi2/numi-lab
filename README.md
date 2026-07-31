@@ -44,20 +44,31 @@ concept art and no screenshot from another simulator.
 
 ## Official G1 standing-policy transfer
 
+The pinned official Unitree MuJoCo-Lab policy now completes the native
+20-second zero-command gate through MetalRobo's `temporalCone` path. On Apple
+M4 the 1,000-step run reported mean tilt `0.009 rad`, mean pelvis height
+`0.785 m`, tracking `0.9998`, zero failed physics steps, and only the expected
+episode-timeout termination. A pinned MuJoCo oracle reported `0.015 rad` mean
+tilt and `0.784 m` mean pelvis height for the same policy contract.
+
+The fix was in the generic dynamics loop: a held position target now refreshes
+implicit PD effort from current `q,v` before every physics microstep. Reusing
+the effort computed at the beginning of a 20 ms control step caused the visible
+shaking and falls. The policy, observation construction, contact, articulated
+physics, and rollout scheduler remain native Metal execution.
+
 ![Best upright segment from the official Unitree G1 policy running in native MetalRobo](docs/media/g1-standing-best.gif)
 
-This is the best upright prefix from an actual zero-command MetalRobo rollout
-using Unitree's pinned MuJoCo-Lab actor. Policy inference, observation
-construction, contact, articulated physics, and `sensor_reference` rendering
-all run natively on Apple Metal. The 2.28-second clip stops before the first
-large tilt.
+This native `sensor_reference` animation is the best upright prefix retained
+from the earlier transfer-debugging rollout. It predates the microstep drive
+fix and stops before that old run's first large tilt.
 
 ![Full untrimmed official Unitree G1 standing attempt in MetalRobo](docs/media/g1-standing-full-attempt.gif)
 
-The full 3.6-second capture includes the lateral instability, tilt
-termination, and reset. It is retained deliberately: this branch has not yet
-passed the 20-second standing gate. Every displayed frame uses official G1
-visual geometry cooked by numi-lab and rendered by its native
+The full 3.6-second historical capture includes the former lateral
+instability, tilt termination, and reset. It is retained as before/after
+debugging evidence, not as the current standing result. Every displayed frame
+uses official G1 visual geometry cooked by numi-lab and rendered by its native
 `sensor_reference` pipeline; no intermediate frames are synthesized. Full
 capture provenance is recorded in
 [`docs/media/README.md`](docs/media/README.md).

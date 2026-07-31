@@ -732,7 +732,7 @@ const G1ModelMetadata& unitreeG1Metadata() noexcept {
         value.rlPresetLicense =
             "BSD-3-Clause per-file (repository LICENCE is Apache-2.0)";
         value.collisionMaterialPreset =
-            "Unitree MuJoCo-Lab locomotion material: friction=1";
+            "Unitree MuJoCo-Lab locomotion material: friction=0.6";
         value.collisionCookMethod =
             "official STL deterministic V-HACD two-piece compound, "
             "normalized farthest-point compact support sets, uint16 "
@@ -867,7 +867,7 @@ EngineModel makeUnitreeG1EngineModel() {
     model.world.contactCapacity = 1024u;
     model.world.constraintCapacity = 2048u;
     model.world.islandCapacity = 32u;
-    model.world.solverType = MR_SOLVER_THROUGHPUT_TGS;
+    model.world.solverType = MR_SOLVER_TEMPORAL_CONE;
     model.world.frictionConeType = MR_FRICTION_CONE_ELLIPTIC;
     model.world.gravityAndTimestep = f4(0.0, 0.0, -9.81, 1.0 / 240.0);
     model.world.solverScales = f4(1.0e-7, 1.0e-9, 2.0, 1.0e-4);
@@ -946,7 +946,7 @@ EngineModel makeUnitreeG1EngineModel() {
 
     MRMaterialGPU material{};
     // Named Unitree MuJoCo-Lab locomotion preset, not hardware identification.
-    material.friction = f4(1.0, 1.0, 0.0, 0.0);
+    material.friction = f4(0.6, 0.6, 0.0, 0.0);
     material.response = f4(0.0, 0.5, 0.0, 0.0);
     material.geometry = f4(0.0, 0.0, 0.0, 0.0);
     model.materials.push_back(material);

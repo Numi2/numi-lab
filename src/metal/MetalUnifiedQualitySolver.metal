@@ -1981,7 +1981,7 @@ inline void mrUnifiedQualitySolveProblem(
         if (!accepted) {
             // One visible safeguarded retry remains within the same primal
             // objective. It is a diagonally preconditioned gradient step,
-            // not a TGS/contact-space fallback.
+            // not a temporal/contact-space fallback.
             for (uint dof = lane;
                  dof < nv;
                  dof += kWidth) {

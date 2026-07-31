@@ -471,12 +471,6 @@ void validateTaskRolloutConfiguration(
             "task-rollout counts and timing must be finite and positive"
         );
     }
-    if (config.solver != MR_TASK_ROLLOUT_SOLVER_PGS &&
-        config.solver != MR_TASK_ROLLOUT_SOLVER_TGS) {
-        throw std::invalid_argument(
-            "task-rollout solver is invalid"
-        );
-    }
 }
 
 metalrobo::LocomotionSurface locomotionSurface(
@@ -560,9 +554,7 @@ createCompiledTaskRollout(
     handle->stepConfig.physicsSubsteps =
         config.physics_substeps;
     handle->stepConfig.solverMode =
-        config.solver == MR_TASK_ROLLOUT_SOLVER_TGS
-        ? metalrobo::MetalWorldSolverMode::throughputTGS
-        : metalrobo::MetalWorldSolverMode::throughputPGS;
+        metalrobo::MetalWorldSolverMode::temporalCone;
     handle->stepConfig.actuationMode =
         metalrobo::MetalWorldActuationMode::
             implicitPositionDrive;

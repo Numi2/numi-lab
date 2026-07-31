@@ -150,7 +150,7 @@ enum MRFrictionConeType : mr_u32 {
 enum MRSolverType : mr_u32 {
     MR_SOLVER_REFERENCE_FP64 = 0u,
     MR_SOLVER_QUALITY_NEWTON = 1u,
-    MR_SOLVER_THROUGHPUT_TGS = 2u,
+    MR_SOLVER_TEMPORAL_CONE = 2u,
     MR_SOLVER_THROUGHPUT_PGS = 3u,
 };
 

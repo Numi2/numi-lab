@@ -7778,7 +7778,7 @@ kernel void mr_world_solve_generalized_constraints(
     statuses[environment] = status;
 }
 
-// Exact-cone block PGS/TGS velocity solve for one articulation plus arbitrary
+// Coupled cone velocity solve for one articulation plus arbitrary
 // free rigid bodies. The articulation Cholesky factor is reused for all three
 // RHS of every contact; no dense inverse is formed.
 kernel void mr_world_solve_contact_islands(

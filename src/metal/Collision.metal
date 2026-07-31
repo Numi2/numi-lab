@@ -5634,7 +5634,7 @@ inline bool finiteContactDispatch(
                 MR_SOLVER_QUALITY_NEWTON ||
             (
                 dispatch.solverType >=
-                    MR_SOLVER_THROUGHPUT_TGS &&
+                    MR_SOLVER_TEMPORAL_CONE &&
                 dispatch.solverType <=
                     MR_SOLVER_THROUGHPUT_PGS
             )

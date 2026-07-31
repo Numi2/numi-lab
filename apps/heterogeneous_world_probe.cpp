@@ -175,7 +175,7 @@ int main() {
         metalrobo::MetalWorldStepConfig
             persistentContactConfig = persistentConfig;
         persistentContactConfig.solverMode =
-            metalrobo::MetalWorldSolverMode::throughputTGS;
+            metalrobo::MetalWorldSolverMode::temporalCone;
         persistentContactConfig.captureContactEvidence = true;
         metalrobo::MetalWorldResult persistentContactResult;
         const auto persistentContactRun =

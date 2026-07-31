@@ -131,8 +131,10 @@ private struct Options {
     var steps = 48
     var repeats = 20
     var chunk = 8
+    var physicsSubsteps = 4
+    var velocityIterations = 4
+    var finalVelocityIterations = 2
     var surface = MetalRoboLocomotionSurface.terrain
-    var solver = MetalRoboTaskSolver.tgs
     var seed: UInt64 = 20_260_731
     var curriculumLevel: UInt32 = 0
     var metallib = "build/shaders/MetalRobo.metallib"
@@ -172,6 +174,15 @@ private struct Options {
             case "--chunk":
                 chunk = try Self.integer(value(), option)
                 index += 1
+            case "--physics-substeps":
+                physicsSubsteps = try Self.integer(value(), option)
+                index += 1
+            case "--velocity-iterations":
+                velocityIterations = try Self.integer(value(), option)
+                index += 1
+            case "--final-velocity-iterations":
+                finalVelocityIterations = try Self.integer(value(), option)
+                index += 1
             case "--seed":
                 guard let parsed = UInt64(try value()) else {
                     throw MetalRoboTaskRolloutError.invalidShape(
@@ -200,18 +211,6 @@ private struct Options {
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
                         "--scene must be ground or terrain."
-                    )
-                }
-                index += 1
-            case "--solver-mode":
-                switch try value() {
-                case "pgs", "throughput_pgs":
-                    solver = .pgs
-                case "tgs", "throughput_tgs":
-                    solver = .tgs
-                default:
-                    throw MetalRoboTaskRolloutError.invalidShape(
-                        "--solver-mode must be pgs or tgs."
                     )
                 }
                 index += 1
@@ -251,10 +250,13 @@ private struct Options {
         guard environments > 0,
               steps > 0,
               repeats > 0,
-              chunk > 0
+              chunk > 0,
+              physicsSubsteps > 0,
+              velocityIterations > 0,
+              finalVelocityIterations >= 0
         else {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "envs, steps, repeats, and chunk must be positive."
+                "envs, steps, repeats, chunk, physics substeps, and velocity iterations must be positive; final velocity iterations must be non-negative."
             )
         }
         if nativePolicy && policyPack != nil {
@@ -310,7 +312,10 @@ private func makeContext(
     let configuration = MetalRoboTaskRolloutConfiguration(
         environmentCount: UInt32(options.environments),
         surface: options.surface,
-        solver: options.solver,
+        physicsSubsteps: UInt32(options.physicsSubsteps),
+        velocityIterations: UInt32(options.velocityIterations),
+        finalVelocityIterations:
+            UInt32(options.finalVelocityIterations),
         seed: options.seed
     )
     if let worldPack = options.worldPack,
@@ -878,10 +883,7 @@ private enum TaskRolloutMain {
                     ? "zero"
                     : "host_stream",
                 "device": context.deviceName,
-                "solver_mode":
-                    options.solver == .tgs
-                    ? "throughput_tgs"
-                    : "throughput_pgs",
+                "solver_mode": "temporal_cone",
                 "scene":
                     options.surface == .terrain
                     ? "terrain"
@@ -890,6 +892,10 @@ private enum TaskRolloutMain {
                 "steps_per_repeat": options.steps,
                 "repeats": options.repeats,
                 "control_steps_per_submission": options.chunk,
+                "physics_substeps": options.physicsSubsteps,
+                "velocity_iterations": options.velocityIterations,
+                "final_velocity_iterations":
+                    options.finalVelocityIterations,
                 "initial_task_curriculum_level":
                     options.curriculumLevel,
                 "minimum_task_curriculum_level":

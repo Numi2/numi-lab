@@ -607,7 +607,7 @@ int runCompoundScenario(
     physicsConfig.timestepSeconds = controlTimestep;
     physicsConfig.physicsSubsteps = physicsSubsteps;
     physicsConfig.solverMode =
-        metalrobo::MetalWorldSolverMode::throughputTGS;
+        metalrobo::MetalWorldSolverMode::temporalCone;
     physicsConfig.actuationMode =
         metalrobo::MetalWorldActuationMode::
             implicitPositionDrive;
@@ -1017,7 +1017,7 @@ int main(const int argc, const char* const* argv) {
         physicsConfig.timestepSeconds = 0.02f;
         physicsConfig.physicsSubsteps = 8u;
         physicsConfig.solverMode =
-            metalrobo::MetalWorldSolverMode::throughputTGS;
+            metalrobo::MetalWorldSolverMode::temporalCone;
         physicsConfig.actuationMode =
             metalrobo::MetalWorldActuationMode::
                 implicitPositionDrive;

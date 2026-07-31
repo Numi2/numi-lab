@@ -53,11 +53,6 @@ public enum MetalRoboLocomotionSurface: UInt32, Sendable {
     case terrain = 1
 }
 
-public enum MetalRoboTaskSolver: UInt32, Sendable {
-    case pgs = 0
-    case tgs = 1
-}
-
 public enum MetalRoboPolicyActivation: UInt32, Sendable {
     case identity = 0
     case relu = 1
@@ -140,7 +135,6 @@ public struct MetalRoboPolicyPack: Sendable {
 public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var environmentCount: UInt32
     public var surface: MetalRoboLocomotionSurface
-    public var solver: MetalRoboTaskSolver
     public var physicsSubsteps: UInt32
     public var velocityIterations: UInt32
     public var finalVelocityIterations: UInt32
@@ -150,7 +144,6 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public init(
         environmentCount: UInt32,
         surface: MetalRoboLocomotionSurface = .terrain,
-        solver: MetalRoboTaskSolver = .tgs,
         physicsSubsteps: UInt32 = 4,
         velocityIterations: UInt32 = 4,
         finalVelocityIterations: UInt32 = 2,
@@ -159,7 +152,6 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     ) {
         self.environmentCount = environmentCount
         self.surface = surface
-        self.solver = solver
         self.physicsSubsteps = physicsSubsteps
         self.velocityIterations = velocityIterations
         self.finalVelocityIterations = finalVelocityIterations
@@ -530,7 +522,6 @@ public final class MetalRoboTaskRolloutContext {
     ) -> MRTaskRolloutConfigC {
         var native = MRTaskRolloutConfigC()
         native.environment_count = configuration.environmentCount
-        native.solver = configuration.solver.rawValue
         native.physics_substeps = configuration.physicsSubsteps
         native.velocity_iterations =
             configuration.velocityIterations

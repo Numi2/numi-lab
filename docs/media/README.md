@@ -40,8 +40,11 @@ g1-standing-best.gif=sha256:99d40c12cb9f7910b7d1ea64b460a8dd2735dd784f64dec4f91e
 g1-standing-full-attempt.gif=sha256:897e70fc3e80b478f76f53fe511f438f5d9a0eda5761ce9ef553f39f26c4faa9
 ```
 
-This is work-in-progress transfer evidence. It does not pass the 20-second
-standing gate and does not establish real-robot transfer.
+These two retained animations are historical transfer evidence and do not
+pass the 20-second standing gate. The current temporal-cone implementation
+does pass that native simulation gate after per-microstep drive refresh; the
+historical pixels are not relabeled as a later run. Neither result establishes
+real-robot transfer.
 
 ## Native G1 policy-rollout animations
 

@@ -331,7 +331,7 @@ int main() {
             layout.criticHistoryLength != 1u ||
             layout.criticObservationSize != 98u ||
             layout.contactMetricCount != 37u ||
-            layout.delayStateCount != 2u) {
+            layout.delayStateCount != 3u) {
             fail("compiled G1 task layout changed");
         }
         if (program.worldFingerprint() != world.fingerprint() ||

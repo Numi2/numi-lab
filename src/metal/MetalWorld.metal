@@ -274,6 +274,97 @@ kernel void mr_metal_world_prepare(
     statuses[environment] = status;
 }
 
+// Refreshes implicit position-drive effort from the current microstep state.
+// The control target is held for the full control step; q and v are not.
+kernel void mr_metal_world_refresh_drives(
+    device const MRMetalWorldDispatchGPU& dispatch [[buffer(0)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(1)]],
+    device const float* effortTrajectory [[buffer(2)]],
+    device const float* stateQ [[buffer(3)]],
+    device const float* stateV [[buffer(4)]],
+    device float* workingEffort [[buffer(5)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(6)]],
+    device const MRActuatorProfileGPU* actuatorProfiles [[buffer(7)]],
+    device const float4* taskControllerParameters [[buffer(8)]],
+    device const MRWorldGPU& world [[buffer(9)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        !validWorldDispatch(dispatch) ||
+        pass.controlStep >= dispatch.controlStepCount ||
+        pass.physicsSubstep >= dispatch.physicsSubsteps ||
+        (dispatch.flags &
+         MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) == 0u) {
+        return;
+    }
+    const uint qBase = environment * dispatch.qStride;
+    const uint vBase = environment * dispatch.vStride;
+    const float4 controller =
+        (dispatch.flags & MR_METAL_WORLD_NATIVE_TASK) != 0u
+        ? taskControllerParameters[environment]
+        : float4(1.0f);
+    for (uint coordinate = 0u;
+         coordinate < dispatch.nv;
+         ++coordinate) {
+        device const MRDofPropertiesGPU& dof = dofs[coordinate];
+        const float velocity = stateV[vBase + coordinate];
+        float command = 0.0f;
+        if ((dof.flags & MR_DOF_FLAG_DRIVE) != 0u &&
+            dof.qIndex != MR_INVALID_INDEX &&
+            dof.qIndex < dispatch.nq) {
+            float target = effortTrajectory[
+                pass.controlStep * dispatch.effortStepStride +
+                environment * dispatch.effortEnvironmentStride +
+                coordinate
+            ];
+            if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u) {
+                target = clamp(target, dof.limits.x, dof.limits.y);
+            }
+            const float timestep = world.gravityAndTimestep.w;
+            command =
+                controller.x * dof.drive.x *
+                    (target - stateQ[qBase + dof.qIndex] -
+                     timestep * velocity) -
+                controller.y * dof.drive.y * velocity;
+            const float dryFriction = dof.drive.w;
+            if (dryFriction > 0.0f) {
+                if (abs(velocity) > 1.0e-4f) {
+                    command -= copysign(dryFriction, velocity);
+                } else {
+                    command -= clamp(
+                        command,
+                        -dryFriction,
+                        dryFriction
+                    );
+                }
+            }
+            if ((dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
+                dof.limits.w > 0.0f) {
+                command = clamp(command, -dof.limits.w, dof.limits.w);
+            }
+            command *= controller.w;
+        }
+        device const MRActuatorProfileGPU& actuator =
+            actuatorProfiles[coordinate];
+        const float speedFraction = clamp(
+            abs(velocity) /
+                max(actuator.motorAndSpeed.z, 1.175494351e-38f),
+            0.0f,
+            1.0f
+        );
+        const float envelope = min(
+            dof.limits.w,
+            actuator.transmissionAndEnvelope.z *
+                actuator.motorAndSpeed.w *
+                (1.0f - speedFraction)
+        );
+        workingEffort[
+            environment * dispatch.effortEnvironmentStride +
+            coordinate
+        ] = clamp(command, -envelope, envelope);
+    }
+}
+
 // Commits one ABA candidate into the ping-pong state. The first failed
 // substep latches a typed status and every later pass restores the immutable
 // checkpoint, making the entire control step transactional per environment.

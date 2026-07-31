@@ -330,7 +330,7 @@ EngineModel makeNeedleSceneModel(
     world.constraintCapacity =
         std::max<std::uint32_t>(world.contactCapacity, 8u);
     world.islandCapacity = 1u;
-    world.solverType = MR_SOLVER_THROUGHPUT_TGS;
+    world.solverType = MR_SOLVER_TEMPORAL_CONE;
     world.frictionConeType = MR_FRICTION_CONE_ELLIPTIC;
     world.gravityAndTimestep = gravityAndTimestep;
     world.solverScales = {

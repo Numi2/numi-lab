@@ -168,7 +168,7 @@ int main() {
             .timestepSeconds = 1.0f / 120.0f,
             .physicsSubsteps = 4u,
             .solverMode =
-                metalrobo::MetalWorldSolverMode::throughputTGS,
+                metalrobo::MetalWorldSolverMode::temporalCone,
             .velocityIterations = 2u,
             .finalVelocityIterations = 1u,
             .deterministic = true,

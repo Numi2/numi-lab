@@ -118,10 +118,11 @@ prepare/reset/checkpoint
   -> observation/status capture
 ```
 
-`throughputTGS` and `throughputPGS` execute the contact graph:
+`temporalCone` is the single production contact graph:
 
 ```text
 actions/reset
+  -> current-state implicit-drive refresh
   -> ABA candidate
   -> articulation forward kinematics
   -> articulation/free/static body projection
@@ -149,12 +150,16 @@ only overlap in the final pair slot. Accepted pairs are consumed in compiled
 order, so manifold identity and capacity-failure precedence remain
 deterministic without global append atomics.
 
-Temporal TGS rebuilds body transforms, contacts, manifolds, point Jacobians,
-and factor-backed response columns on every microstep. Normal and both
-tangential directions are solved as one 3D block, with the tangential pair
-projected onto the exact circular or elliptical Coulomb cone. PGS consumes the
-same manifold, ConstraintIR, material, restitution, compliance, sign, and
-response records.
+The temporal cone solver rebuilds body transforms, contacts, manifolds, point
+Jacobians, and factor-backed response columns on every microstep. Normal and
+both tangential directions are solved as one coupled 3D block, with the
+tangential pair projected onto the exact circular or elliptical Coulomb cone.
+The held control target is converted to effort from the current q/v before
+every microstep; reusing a control-step-start PD effort across later microsteps
+is not dynamically equivalent. Each microstep integrates immediately before
+contact is refreshed. Sequential cone projection is an inner numerical
+operation, not a second selectable world solver. Parallelism is across
+environments, islands, and bounded work cohorts.
 
 ## Persistence and transactionality
 
@@ -215,7 +220,7 @@ Hybrid CCD computes deterministic, capacity-bounded event intervals for
 analytic, support-mapped, and convex-mesh paths. ABI v4 carries event cursors,
 simultaneous-impact clusters, split budgets, zero-time replay limits, consumed
 time, and first failing event keys. The current step clusters certified events
-and uses speculative TGS to consume the complete microstep; literal repeated
+and uses speculative temporal cone solves to consume the complete microstep; literal repeated
 TOI advance/solve/continue publication remains the next collision milestone.
 
 ## Native sensors and specialized physics

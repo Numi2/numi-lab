@@ -92,9 +92,9 @@ enum class TaskRandomizationOperator : std::uint32_t {
 struct TaskActionBinding {
     std::string joint;
     float scale = 0.25f;
-    // Fraction of the requested action applied per control step. A value of
-    // one disables action filtering.
-    float response = 1.0f;
+    // First-order target-filter time constant in seconds. Zero disables
+    // filtering, so the physical response is independent of control rate.
+    float responseTimeSeconds = 0.0f;
 };
 
 struct TaskObservationOperatorSpec {

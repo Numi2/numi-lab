@@ -42,14 +42,8 @@ typedef enum MRLocomotionSurfaceC {
     MR_LOCOMOTION_SURFACE_TERRAIN = 1,
 } MRLocomotionSurfaceC;
 
-typedef enum MRTaskRolloutSolverC {
-    MR_TASK_ROLLOUT_SOLVER_PGS = 0,
-    MR_TASK_ROLLOUT_SOLVER_TGS = 1,
-} MRTaskRolloutSolverC;
-
 typedef struct MRTaskRolloutConfigC {
     uint32_t environment_count;
-    uint32_t solver;
     uint32_t physics_substeps;
     uint32_t velocity_iterations;
     uint32_t final_velocity_iterations;

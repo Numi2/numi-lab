@@ -313,6 +313,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> smallABAPipeline = nil;
     __strong id<MTLComputePipelineState> multiABAPipeline = nil;
     __strong id<MTLComputePipelineState> preparePipeline = nil;
+    __strong id<MTLComputePipelineState> driveRefreshPipeline = nil;
     __strong id<MTLComputePipelineState> commitPipeline = nil;
     __strong id<MTLComputePipelineState> capturePipeline = nil;
     __strong id<MTLComputePipelineState> operatorPipeline = nil;
@@ -2864,9 +2865,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     if (config.solverMode !=
             MetalWorldSolverMode::freeMotionABA &&
         config.solverMode !=
-            MetalWorldSolverMode::throughputPGS &&
-        config.solverMode !=
-            MetalWorldSolverMode::throughputTGS &&
+            MetalWorldSolverMode::temporalCone &&
         config.solverMode !=
             MetalWorldSolverMode::qualityNewton) {
         return reject(
@@ -3022,7 +3021,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             MetalWorldHostStatus::unsupportedSolverMode,
             "qualityNewton currently requires disabled or speculative "
             "CCD; event-time quality re-solves are not silently routed "
-            "through TGS"
+            "through the temporal cone solver"
         );
     }
     const std::size_t qualityNv =
@@ -3257,11 +3256,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
     contact.environmentCount = dispatch.environmentCount;
     contact.articulationIndex = world.articulationIndex();
     contact.solverType =
-        config.solverMode == MetalWorldSolverMode::throughputPGS
-        ? MR_SOLVER_THROUGHPUT_PGS
-        : config.solverMode == MetalWorldSolverMode::qualityNewton
+        config.solverMode == MetalWorldSolverMode::qualityNewton
         ? MR_SOLVER_QUALITY_NEWTON
-        : MR_SOLVER_THROUGHPUT_TGS;
+        : MR_SOLVER_TEMPORAL_CONE;
     contact.bodyCount =
         static_cast<mr_u32>(world.model().bodies.size());
     contact.sceneBodyCount = world.sceneBodyCount();
@@ -4445,6 +4442,21 @@ MetalWorldDiagnostics initializeContext(
         );
     }
     error = nil;
+    id<MTLComputePipelineState> driveRefresh = makePipeline(
+        device,
+        library,
+        @"mr_metal_world_refresh_drives",
+        &error
+    );
+    if (driveRefresh == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create MetalWorld drive-refresh pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
     id<MTLComputePipelineState> commit = makePipeline(
         device,
         library,
@@ -5112,6 +5124,7 @@ MetalWorldDiagnostics initializeContext(
     context.smallABAPipeline = smallABA;
     context.multiABAPipeline = multiABA;
     context.preparePipeline = prepare;
+    context.driveRefreshPipeline = driveRefresh;
     context.commitPipeline = commit;
     context.capturePipeline = capture;
     context.operatorPipeline = operatorPipeline;
@@ -8410,6 +8423,58 @@ bool encodePrepare(
     return true;
 }
 
+bool encodeDriveRefresh(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t sourceQ,
+    const std::size_t sourceV,
+    const std::size_t environmentCount
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = @"MetalWorld microstep drive refresh";
+    [encoder setComputePipelineState:context.driveRefreshPipeline];
+    [encoder setBuffer:context.buffers[kWorldDispatch]
+                 offset:0u
+                atIndex:0u];
+    [encoder setBytes:&pass length:sizeof(pass) atIndex:1u];
+    [encoder setBuffer:context.buffers[kEffortTrajectory]
+                 offset:0u
+                atIndex:2u];
+    [encoder setBuffer:context.buffers[sourceQ]
+                 offset:0u
+                atIndex:3u];
+    [encoder setBuffer:context.buffers[sourceV]
+                 offset:0u
+                atIndex:4u];
+    [encoder setBuffer:context.buffers[kWorkingEffort]
+                 offset:0u
+                atIndex:5u];
+    [encoder setBuffer:context.buffers[kDofs]
+                 offset:0u
+                atIndex:6u];
+    [encoder setBuffer:context.buffers[kActuatorProfiles]
+                 offset:0u
+                atIndex:7u];
+    [encoder setBuffer:context.buffers[kTaskControllerParameters]
+                 offset:0u
+                atIndex:8u];
+    [encoder setBuffer:context.buffers[kWorld]
+                 offset:0u
+                atIndex:9u];
+    dispatchWorldThreads(
+        encoder,
+        context.driveRefreshPipeline,
+        environmentCount
+    );
+    [encoder endEncoding];
+    return true;
+}
+
 bool encodeTaskObserve(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -9948,7 +10013,7 @@ bool encodeWave32ContactSolve(
     if (wave == nil) {
         return false;
     }
-    wave.label = @"MetalWorld Wave32 matrix-free cone TGS";
+    wave.label = @"MetalWorld Wave32 temporal cone solve";
     [wave setComputePipelineState:context.wave32SolvePipeline];
     const std::array<std::size_t, 19u> buffers{{
         kContactDispatch,
@@ -15646,15 +15711,30 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         config.ccdMode ==
                             MetalWorldCCDMode::hybrid;
                     const bool encodedABA =
-                        useHybridContact ||
-                        encodeABA(
-                            *selectedState,
-                            commandBuffer,
-                            selectedABAPipeline,
-                            sourceQ,
-                            sourceV,
-                            world.articulationCount(),
-                            batch.environmentCount
+                        (
+                            config.actuationMode !=
+                                MetalWorldActuationMode::
+                                    implicitPositionDrive ||
+                            encodeDriveRefresh(
+                                *selectedState,
+                                commandBuffer,
+                                pass,
+                                sourceQ,
+                                sourceV,
+                                batch.environmentCount
+                            )
+                        ) &&
+                        (
+                            useHybridContact ||
+                            encodeABA(
+                                *selectedState,
+                                commandBuffer,
+                                selectedABAPipeline,
+                                sourceQ,
+                                sourceV,
+                                world.articulationCount(),
+                                batch.environmentCount
+                            )
                         );
                     const bool encodedRod =
                         encodedABA &&
@@ -15708,7 +15788,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
 	                              rodWitnessCount,
                               config.solverMode ==
                                   MetalWorldSolverMode::
-                                      throughputTGS,
+                                      temporalCone,
                               activePairClassMask,
                               config.velocityIterations +
                                   (
@@ -15763,7 +15843,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                               destinationManifoldCounts,
                               config.solverMode ==
                                   MetalWorldSolverMode::
-                                      throughputTGS,
+                                      temporalCone,
                               config.solverMode ==
                                   MetalWorldSolverMode::
                                       qualityNewton,

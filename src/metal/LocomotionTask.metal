@@ -1476,12 +1476,13 @@ kernel void mr_locomotion_task_apply_actions(
             coordinate
         ] = 0.0f;
     }
-    const uint lastSlot = program.layout.w - 1u;
+    const uint filterSlot = program.layout.w - 1u;
+    const uint rawLastSlot = filterSlot - 1u;
     for (uint action = 0u;
          action < program.counts0.x;
          ++action) {
         for (uint delay = 0u;
-             delay + 1u < program.layout.w;
+             delay < rawLastSlot;
              ++delay) {
             actionHistory[
                 delayBase +
@@ -1500,25 +1501,48 @@ kernel void mr_locomotion_task_apply_actions(
         );
         const float previous = actionHistory[
             delayBase +
-            (lastSlot - 1u) * program.counts0.x +
+            filterSlot * program.counts0.x +
             action
         ];
         const MRTaskActionBindingGPU binding =
             actions[action];
+        const float responseTimeSeconds = binding.parameters.w;
+        const float responseFraction =
+            responseTimeSeconds > 0.0f
+            ? clamp(
+                  1.0f - exp(
+                      -dispatch.timing.x /
+                      responseTimeSeconds
+                  ),
+                  0.0f,
+                  1.0f
+              )
+            : 1.0f;
         actionHistory[
             delayBase +
-            lastSlot * program.counts0.x +
+            rawLastSlot * program.counts0.x +
             action
-        ] = mix(
-            previous,
-            requested,
-            binding.parameters.w
-        );
+        ] = requested;
         const uint selected =
-            lastSlot - min(state.schedule.z, lastSlot);
+            rawLastSlot -
+            min(state.schedule.z, rawLastSlot);
         const float delayed = actionHistory[
             delayBase +
             selected * program.counts0.x +
+            action
+        ];
+        actionHistory[
+            delayBase +
+            filterSlot * program.counts0.x +
+            action
+        ] = mix(
+            previous,
+            delayed,
+            responseFraction
+        );
+        const float filtered = actionHistory[
+            delayBase +
+            filterSlot * program.counts0.x +
             action
         ];
         effortTrajectory[
@@ -1529,7 +1553,7 @@ kernel void mr_locomotion_task_apply_actions(
             binding.indices.w
         ] = clamp(
             defaultQ[binding.indices.z] +
-                binding.parameters.x * delayed,
+                binding.parameters.x * filtered,
             binding.parameters.y,
             binding.parameters.z
         );
@@ -2014,8 +2038,8 @@ kernel void mr_locomotion_task_complete(
     float limitViolationSquared = 0.0f;
     const float mechanicalPower =
         state.airReturnTracking.x;
-    const uint lastSlot = program.layout.w - 1u;
-    const uint previousSlot = lastSlot - 1u;
+    const uint rawLastSlot = program.layout.w - 2u;
+    const uint previousRawSlot = rawLastSlot - 1u;
     for (uint action = 0u;
          action < program.counts0.x;
          ++action) {
@@ -2037,12 +2061,12 @@ kernel void mr_locomotion_task_complete(
             dispatch.timing.x;
         const float currentAction = actionHistory[
             delayBase +
-            lastSlot * program.counts0.x +
+            rawLastSlot * program.counts0.x +
             action
         ];
         const float previousAction = actionHistory[
             delayBase +
-            previousSlot * program.counts0.x +
+            previousRawSlot * program.counts0.x +
             action
         ];
         const float actionDelta =
@@ -2590,7 +2614,7 @@ kernel void mr_locomotion_task_complete(
         device const float* currentAction =
             actionHistory +
             delayBase +
-            lastSlot * program.counts0.x;
+            (program.layout.w - 2u) * program.counts0.x;
         writeFrame(
             dispatch,
             program,

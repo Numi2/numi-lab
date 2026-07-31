@@ -7,7 +7,6 @@ private struct Options {
     var updates = 100
     var chunk = 8
     var surface = MetalRoboLocomotionSurface.terrain
-    var solver = MetalRoboTaskSolver.tgs
     var seed: UInt64 = 20_260_731
     var metallib = "build/shaders/MetalRobo.metallib"
     var nativeLibrary = "build/lib/libmetalrobo.dylib"
@@ -127,18 +126,6 @@ private struct Options {
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
                         "--scene must be ground or terrain."
-                    )
-                }
-                index += 1
-            case "--solver-mode":
-                switch try value() {
-                case "pgs", "throughput_pgs":
-                    solver = .pgs
-                case "tgs", "throughput_tgs":
-                    solver = .tgs
-                default:
-                    throw MetalRoboTaskRolloutError.invalidShape(
-                        "--solver-mode must be pgs or tgs."
                     )
                 }
                 index += 1
@@ -672,7 +659,6 @@ private func makeContext(
     let configuration = MetalRoboTaskRolloutConfiguration(
         environmentCount: UInt32(options.environments),
         surface: options.surface,
-        solver: options.solver,
         seed: options.seed
     )
     if let worldPack = options.worldPack,

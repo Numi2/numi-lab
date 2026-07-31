@@ -547,7 +547,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         task.actions.push_back({
             .joint = std::string{joint.name},
             .scale = actionScales[index],
-            .response = 0.1f,
+            .responseTimeSeconds = 0.0f,
         });
     }
 
@@ -590,19 +590,19 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         ));
     }
     for (std::uint32_t component = 0u;
-         component < 2u;
+         component < 3u;
          ++component) {
         task.actorFrame.push_back(observation(
-            TaskObservationSource::gaitPhase,
+            TaskObservationSource::command,
             {},
             component
         ));
     }
     for (std::uint32_t component = 0u;
-         component < 3u;
+         component < 2u;
          ++component) {
         task.actorFrame.push_back(observation(
-            TaskObservationSource::command,
+            TaskObservationSource::gaitPhase,
             {},
             component
         ));
@@ -876,7 +876,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             .operation = TaskTerminationOperator::maximumTilt,
             .reason = MR_TASK_TERMINATION_TILT,
             .priority = 2u,
-            .threshold = 0.8f,
+            .threshold = 1.22173048f,
             .failurePenalty = -2.0f,
         },
     };

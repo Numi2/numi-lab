@@ -29,7 +29,7 @@ struct EngineModelComposeConfig {
         2.0f,
         1.0e-5f,
     };
-    std::uint32_t solverType = MR_SOLVER_THROUGHPUT_TGS;
+    std::uint32_t solverType = MR_SOLVER_TEMPORAL_CONE;
     std::uint32_t frictionConeType =
         MR_FRICTION_CONE_ELLIPTIC;
     // Deterministic raw-contact budget per eligible pair.

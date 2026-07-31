@@ -156,7 +156,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
     // action index, global DoF index, q index, v index.
     mr_uint4 indices;
-    // normalized scale, lower target, upper target, response fraction.
+    // normalized scale, lower target, upper target, response time seconds.
     mr_float4 parameters;
 } MRTaskActionBindingGPU;
 

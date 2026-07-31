@@ -747,9 +747,8 @@ TaskCompileDiagnostics compileTaskProgram(
             ) ||
             !finite(binding.scale) ||
             !(binding.scale > 0.0f) ||
-            !finite(binding.response) ||
-            !(binding.response > 0.0f) ||
-            binding.response > 1.0f) {
+            !finite(binding.responseTimeSeconds) ||
+            binding.responseTimeSeconds < 0.0f) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 binding.joint,
@@ -772,7 +771,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 binding.scale,
                 dofFound->limits.x,
                 dofFound->limits.y,
-                binding.response,
+                binding.responseTimeSeconds,
             },
         });
     }
@@ -1721,8 +1720,8 @@ TaskCompileDiagnostics compileTaskProgram(
             std::numeric_limits<std::uint32_t>::max() ||
         criticObservationSize >
             std::numeric_limits<std::uint32_t>::max() ||
-        pack.maximumActionDelaySteps ==
-            std::numeric_limits<std::uint32_t>::max()) {
+        pack.maximumActionDelaySteps >
+            std::numeric_limits<std::uint32_t>::max() - 3u) {
         return reject(
             TaskCompileStatus::arithmeticOverflow,
             "layout",
@@ -1741,10 +1740,9 @@ TaskCompileDiagnostics compileTaskProgram(
             static_cast<std::uint32_t>(criticObservationSize),
         .contactMetricCount = contactMetricCount,
         .biasCount = biasCount,
-        .delayStateCount = std::max(
-            pack.maximumActionDelaySteps + 1u,
-            2u
-        ),
+        // Raw actions retain one preceding sample beyond the delay window;
+        // the final slot is the independent filtered actuator target.
+        .delayStateCount = pack.maximumActionDelaySteps + 3u,
     };
 
     staged->header.counts0 = {
