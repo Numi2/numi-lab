@@ -85,6 +85,7 @@ def _write_learner_state(
 
     if not learner.policy_id:
         raise ValueError("learner state requires a policy identity")
+    learner._require_finite_training_state()
     target = path.expanduser().resolve()
     target.parent.mkdir(parents=True, exist_ok=True)
     arrays = {
@@ -229,6 +230,7 @@ def _restore_learner_state(
         learner.model.parameters(),
         learner.optimizer.state,
     )
+    learner._require_finite_training_state()
     return True
 
 
@@ -394,10 +396,6 @@ def _serve(arguments: argparse.Namespace) -> int:
                     gae_lambda=learner.configuration.gae_lambda,
                 )
             )
-            learner_state = _write_learner_state(
-                learner,
-                arguments.learner_state,
-            )
             artifact = learner.write_policy_pack(
                 arguments.output_policy_pack,
                 library_path=arguments.native_library,
@@ -406,6 +404,10 @@ def _serve(arguments: argparse.Namespace) -> int:
                 arguments.deployment_policy_pack,
                 stochastic=False,
                 library_path=arguments.native_library,
+            )
+            learner_state = _write_learner_state(
+                learner,
+                arguments.learner_state,
             )
             _emit(
                 sys.stdout,
