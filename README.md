@@ -225,6 +225,16 @@ Only current subsystem contracts remain under `docs`:
 - [Visual presentation](docs/VISUAL_PLATFORM.md)
 - [Tactile geometry](docs/TACTILE_GEOMETRY_BRIDGE.md)
 
+## Roadmap
+
+- Solve G1 get-up, recovery, locomotion, and dexterity in one native stack.
+- Scale persistent Metal worlds, exact contact, inference, and sensors to the
+  full Apple GPU memory and execution envelope.
+- Train vision-tactile policies directly from synchronized native RGB-D,
+  force, deformation, and robot state.
+- Close the loop from authored worlds to sim2sim qualification and deployed
+  Apple-native robot control.
+
 ## Provenance and boundaries
 
 - G1 mechanics and visual assets are pinned to official Unitree sources; the
