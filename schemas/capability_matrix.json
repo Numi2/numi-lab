@@ -2,7 +2,8 @@
   "schema": 1,
   "statuses": ["qualified", "implemented", "experimental", "unsupported"],
   "evidence_manifests": [
-    "evidence/baselines/2026-07-31-b7f03fb.json"
+    "evidence/baselines/2026-07-31-b7f03fb.json",
+    "evidence/baselines/2026-07-31-9e8ea7e.json"
   ],
   "capabilities": [
     {
@@ -21,10 +22,10 @@
     },
     {
       "id": "physics.numi_solver",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "physics.metal_contact",
       "artifact": "metalrobo_metal_world_contact_probe",
-      "scope": "Apple-Metal rigid, articulated, and rod solver: fixed temporal microsteps, coupled nonlinear block sweeps, retained banded rod response for generalized and surface-contact rows, immediate integration, and transactional warm state. Requalification is pending the current revision artifact."
+      "scope": "Qualified Apple-Metal rigid, articulated, and rod solver path: fixed temporal microsteps, coupled nonlinear block sweeps, retained banded rod response for generalized and surface-contact rows, immediate integration, and transactional warm state. This does not qualify all rod mechanics or the residual-converged profile."
     },
     {
       "id": "physics.numi_residual_converged",

@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "captured_at": "2026-07-31T23:06:33+02:00",
+  "source_revision": "9e8ea7e",
+  "metallib_sha256": "33b7e132a1aa83ca8bdda5c1ae3216d5f3064f38f453cf296f434b4435aa8ea2",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "nominal"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "contact_environment_count": 1024,
+    "contact_gpu_control_steps_per_second": 49513.0,
+    "contact_wall_control_steps_per_second": 48854.9,
+    "contact_gpu_batch_step_p50_ms": 20.3085,
+    "contact_gpu_batch_step_p95_ms": 21.3732,
+    "contact_wall_batch_step_p50_ms": 20.5546,
+    "contact_wall_batch_step_p95_ms": 21.6822,
+    "contact_retained_bytes": 336102928,
+    "retained_rod_remote_velocity_response": 3.05482,
+    "tactile_max_cpu_gpu_error_m": 1.20781e-9
+  },
+  "known_release_blockers": [
+    "The runtime schema does not yet generate every canonical world dispatch and resource binding.",
+    "The canonical executor has not completed its Metal 4 command-allocator and residency-set migration.",
+    "No general MJCF importer is present.",
+    "TaskIR lacks general body, site, and SE(3) goal operators.",
+    "Sensors do not share one SensorIR scheduler.",
+    "PolicyIR has no recurrent, convolutional, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
