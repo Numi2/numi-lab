@@ -47,6 +47,11 @@ typedef enum MRSimulationSolverC {
     MR_SIMULATION_SOLVER_QUALITY_NEWTON = 1,
 } MRSimulationSolverC;
 
+typedef enum MRRobotRootModeC {
+    MR_ROBOT_ROOT_FIXED = 0,
+    MR_ROBOT_ROOT_FLOATING = 1,
+} MRRobotRootModeC;
+
 typedef struct MRSimulationConfigC {
     uint32_t environment_count;
     uint32_t solver;
@@ -410,14 +415,16 @@ mr_create_unitree_g1_simulation(
     uint32_t surface,
     const char* metallib_path
 );
-// Cooks a floating-base URDF/SRDF, loads its authored TaskPack, resolves every
-// semantic binding, and creates the same generic native executor used by G1.
+// Cooks a fixed- or floating-base URDF/SRDF, loads its authored TaskPack,
+// resolves every semantic binding, and creates the same generic native
+// executor used by bundled simulations.
 // srdf_path and metallib_path may be null; all other pointers are required.
 MR_API MRSimulationHandle* mr_create_urdf_simulation(
     const char* urdf_path,
     const char* srdf_path,
     const char* task_pack_path,
     const MRSimulationConfigC* config,
+    uint32_t root_mode,
     uint32_t surface,
     const char* metallib_path
 );

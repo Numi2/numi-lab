@@ -64,6 +64,11 @@ public enum MetalRoboSimulationSolver: UInt32, Sendable {
     case qualityNewton = 1
 }
 
+public enum MetalRoboRobotRootMode: UInt32, Sendable {
+    case fixed = 0
+    case floating = 1
+}
+
 public enum MetalRoboPolicyActivation: UInt32, Sendable {
     case identity = 0
     case relu = 1
@@ -603,6 +608,7 @@ public final class MetalSimulationSession {
         srdf srdfURL: URL? = nil,
         taskPack taskPackURL: URL,
         configuration: MetalRoboSimulationConfiguration,
+        rootMode: MetalRoboRobotRootMode = .floating,
         surface: MetalRoboBuiltinSurface = .terrain,
         metallibPath: String? = nil
     ) throws {
@@ -621,6 +627,7 @@ public final class MetalSimulationSession {
                                     srdf,
                                     taskPack,
                                     config,
+                                    rootMode.rawValue,
                                     surface.rawValue,
                                     metallib
                                 )

@@ -57,7 +57,7 @@ accumulator bounds before publishing immutable GPU tables. The generic dense
 kernel has no robot, joint, or network-width branches.
 
 The bundled Unitree G1 factory is mechanics plus one bundled TaskPack. Imported
-floating-base URDF/SRDF models use the same `compileSimulation` path and
+fixed- and floating-base URDF/SRDF models use the same `compileSimulation` path and
 the Swift `MetalSimulationSession` initializer accepts a persisted
 TaskPack directly. Other importers can construct the same `EngineModel` C++
 boundary; a new `.metal` extension is appropriate only for a new physics

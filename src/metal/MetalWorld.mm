@@ -2985,7 +2985,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::unsupportedTopology,
-            "native locomotion requires an implicit-drive contact world "
+            "native task execution requires an implicit-drive contact world "
             "matching the compiled task fingerprint"
         );
     }
@@ -4587,15 +4587,15 @@ MetalWorldDiagnostics initializeContext(
         @"mr_parameterized_articulated_operator"
     );
     taskObserve =
-        createContactPipeline(@"mr_locomotion_task_observe");
+        createContactPipeline(@"mr_task_observe");
     taskApply =
-        createContactPipeline(@"mr_locomotion_task_apply_actions");
+        createContactPipeline(@"mr_task_apply_actions");
     taskEffort =
-        createContactPipeline(@"mr_locomotion_task_measure_effort");
+        createContactPipeline(@"mr_task_measure_effort");
     taskComplete =
-        createContactPipeline(@"mr_locomotion_task_complete");
+        createContactPipeline(@"mr_task_complete");
     taskCurriculum = createContactPipeline(
-        @"mr_locomotion_task_update_curriculum"
+        @"mr_task_update_curriculum"
     );
     policyDense =
         createContactPipeline(@"mr_policy_dense_layer");

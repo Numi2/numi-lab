@@ -489,6 +489,21 @@ metalrobo::BuiltinSurface builtinSurface(
     }
 }
 
+metalrobo::RobotDescriptionRootMode robotRootMode(
+    const std::uint32_t value
+) {
+    switch (value) {
+    case MR_ROBOT_ROOT_FIXED:
+        return metalrobo::RobotDescriptionRootMode::fixed;
+    case MR_ROBOT_ROOT_FLOATING:
+        return metalrobo::RobotDescriptionRootMode::floating;
+    default:
+        throw std::invalid_argument(
+            "robot root mode is invalid"
+        );
+    }
+}
+
 metalrobo::G1ActuatorPresetId g1ActuatorPreset(
     const std::uint32_t value
 ) {
@@ -947,6 +962,7 @@ MRSimulationHandle* mr_create_urdf_simulation(
     const char* srdf_path,
     const char* task_pack_path,
     const MRSimulationConfigC* config,
+    const uint32_t root_mode,
     const uint32_t surface_value,
     const char* metallib_path
 ) {
@@ -976,8 +992,7 @@ MRSimulationHandle* mr_create_urdf_simulation(
         }
 
         metalrobo::RobotDescriptionCookOptions options;
-        options.rootMode =
-            metalrobo::RobotDescriptionRootMode::floating;
+        options.rootMode = robotRootMode(root_mode);
         options.meshMode =
             metalrobo::RobotDescriptionMeshMode::convexHull;
         metalrobo::SimulationDescription authored;

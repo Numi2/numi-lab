@@ -267,6 +267,10 @@ inline float4 rootOrientation(
     device const MRTaskProgramHeaderGPU& program,
     device const float* q
 ) {
+    if ((program.schedule.w &
+         MR_TASK_PROGRAM_FLOATING_ROOT) == 0u) {
+        return float4(0.0f, 0.0f, 0.0f, 1.0f);
+    }
     return float4(
         q[program.root.z + 3u],
         q[program.root.z + 4u],
@@ -279,6 +283,10 @@ inline float3 rootReferenceOffset(
     device const MRTaskProgramHeaderGPU& program,
     device const float* q
 ) {
+    if ((program.schedule.w &
+         MR_TASK_PROGRAM_FLOATING_ROOT) == 0u) {
+        return float3(0.0f);
+    }
     return rotate(
         rootOrientation(program, q),
         program.rootReference.xyz
@@ -289,6 +297,10 @@ inline float3 rootWorldPosition(
     device const MRTaskProgramHeaderGPU& program,
     device const float* q
 ) {
+    if ((program.schedule.w &
+         MR_TASK_PROGRAM_FLOATING_ROOT) == 0u) {
+        return float3(0.0f);
+    }
     return float3(
         q[program.root.z + 0u],
         q[program.root.z + 1u],
@@ -301,6 +313,10 @@ inline float3 rootWorldLinearVelocity(
     device const float* q,
     device const float* v
 ) {
+    if ((program.schedule.w &
+         MR_TASK_PROGRAM_FLOATING_ROOT) == 0u) {
+        return float3(0.0f);
+    }
     const float3 offset =
         rootReferenceOffset(program, q);
     return float3(
@@ -347,6 +363,10 @@ inline float cleanObservation(
     float value = 0.0f;
     switch (operation.source.x) {
     case MR_TASK_OBSERVE_ROOT_ANGULAR_VELOCITY_LOCAL:
+        if ((program.schedule.w &
+             MR_TASK_PROGRAM_FLOATING_ROOT) == 0u) {
+            break;
+        }
         value = rotateInverse(
             orientation,
             float3(
@@ -757,7 +777,7 @@ inline bool desiredSupportContact(
 
 } // namespace
 
-kernel void mr_locomotion_task_observe(
+kernel void mr_task_observe(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
     device const uchar* arena [[buffer(2)]],
@@ -1380,6 +1400,8 @@ kernel void mr_locomotion_task_observe(
     );
 
     if (!reset && state.schedule.y == 0u &&
+        (program.schedule.w &
+         MR_TASK_PROGRAM_FLOATING_ROOT) != 0u &&
         program.dynamics.x > 0.0f) {
         const float progress = clamp(
             float(state.episode.z) /
@@ -1409,7 +1431,7 @@ kernel void mr_locomotion_task_observe(
 
 }
 
-kernel void mr_locomotion_task_apply_actions(
+kernel void mr_task_apply_actions(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
     device const uchar* arena [[buffer(2)]],
@@ -1515,7 +1537,7 @@ kernel void mr_locomotion_task_apply_actions(
     }
 }
 
-kernel void mr_locomotion_task_measure_effort(
+kernel void mr_task_measure_effort(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
     device const uchar* arena [[buffer(2)]],
@@ -1557,7 +1579,7 @@ kernel void mr_locomotion_task_measure_effort(
     taskStates[environment] = state;
 }
 
-kernel void mr_locomotion_task_complete(
+kernel void mr_task_complete(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
     device const uchar* arena [[buffer(2)]],
@@ -1930,14 +1952,18 @@ kernel void mr_locomotion_task_complete(
         orientation,
         rootLinearVelocity
     );
-    const float3 baseAngular = rotateInverse(
-        orientation,
-        float3(
-            vState[vBase + program.root.w + 3u],
-            vState[vBase + program.root.w + 4u],
-            vState[vBase + program.root.w + 5u]
-        )
-    );
+    const float3 baseAngular =
+        (program.schedule.w &
+         MR_TASK_PROGRAM_FLOATING_ROOT) != 0u
+        ? rotateInverse(
+              orientation,
+              float3(
+                  vState[vBase + program.root.w + 3u],
+                  vState[vBase + program.root.w + 4u],
+                  vState[vBase + program.root.w + 5u]
+              )
+          )
+        : float3(0.0f);
     const float3 gravity = normalizedOr(
         rotateInverse(
             orientation,
@@ -2046,7 +2072,7 @@ kernel void mr_locomotion_task_complete(
     float phase =
         state.commandAndPhase.w +
         kTwoPi * dispatch.timing.x /
-            program.locomotion.y;
+            program.taskScalars.y;
     phase = fmod(phase, kTwoPi);
     float reward = 0.0f;
     float4 rewardBreakdown0 = float4(0.0f);
@@ -2087,7 +2113,7 @@ kernel void mr_locomotion_task_complete(
             break;
         case MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED: {
             const float error =
-                height - program.locomotion.x;
+                height - program.taskScalars.x;
             value = error * error;
             break;
         }
@@ -2228,7 +2254,7 @@ kernel void mr_locomotion_task_complete(
                         compactBase +
                         group.members.w + 3u
                     ] -
-                    program.locomotion.z;
+                    program.taskScalars.z;
                 clearanceReward += exp(
                     -(error * error) /
                     max(
@@ -2273,7 +2299,7 @@ kernel void mr_locomotion_task_complete(
                     );
                 const float heightError =
                     position.z -
-                    program.locomotion.z;
+                    program.taskScalars.z;
                 const float velocityWeight = tanh(
                     operation.parameters.z *
                     length(velocity.xy)
@@ -2456,7 +2482,7 @@ kernel void mr_locomotion_task_complete(
     const bool successful =
         timeout &&
         !physicsError &&
-        episodeTrackingScore >= program.locomotion.w;
+        episodeTrackingScore >= program.taskScalars.w;
     uint terrainLevel = state.episode.w;
     if (done) {
         if (successful) {
@@ -2734,7 +2760,7 @@ kernel void mr_locomotion_task_complete(
 // One native thread owns the global command curriculum. Episode outcomes are
 // accumulated across the whole evaluation window, so early-reset environments
 // rejoin the promotion evidence instead of becoming permanently phase-shifted.
-kernel void mr_locomotion_task_update_curriculum(
+kernel void mr_task_update_curriculum(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
     device MRTaskCurriculumStateGPU* curriculumState
@@ -2785,7 +2811,7 @@ kernel void mr_locomotion_task_update_curriculum(
             float(state.timeoutEpisodeCount) /
             max(completed, 1.0f);
         if (state.completedEpisodeCount != 0ul &&
-            meanTracking > program.locomotion.w &&
+            meanTracking > program.taskScalars.w &&
             survivalFraction >= program.commandUpper.w) {
             ++level;
         }

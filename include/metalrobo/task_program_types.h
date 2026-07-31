@@ -2,11 +2,12 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 5u
+#define MR_TASK_PROGRAM_ABI_VERSION 6u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
     MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY = 1u << 1u,
+    MR_TASK_PROGRAM_FLOATING_ROOT = 1u << 2u,
 };
 
 enum MRTaskObservationOpcode : mr_u32 {
@@ -122,8 +123,11 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 terrain;
     // max episode steps, max observation delay, curriculum levels, flags.
     mr_uint4 schedule;
-    // base height target, gait period, clearance target, success threshold.
-    mr_float4 locomotion;
+    // Root-height target, periodic-task interval, clearance target, and
+    // curriculum success threshold. Operators that consume these values are
+    // validated by the compiler; fixed-base tasks need not read floating-root
+    // state.
+    mr_float4 taskScalars;
     // xyz command lower bound; w standing-command probability.
     mr_float4 commandLower;
     // xyz command upper bound; w minimum episode-survival fraction.

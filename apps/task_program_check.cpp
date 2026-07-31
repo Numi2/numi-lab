@@ -61,7 +61,7 @@ public:
     throw std::runtime_error(message);
 }
 
-std::uint64_t compileImportedRobotFixture() {
+std::uint64_t compileFloatingBaseTaskFixture() {
     constexpr std::string_view urdf = R"(
 <robot name="generic_locomotion_fixture">
   <link name="base">
@@ -187,7 +187,7 @@ std::uint64_t compileImportedRobotFixture() {
     if (!status.world.succeeded() ||
         !status.task.succeeded()) {
         fail(
-            "generic imported locomotion compile failed: " +
+            "generic imported floating-base task compile failed: " +
             status.world.message + " " +
             status.task.element + ": " +
             status.task.message
@@ -230,7 +230,211 @@ std::uint64_t compileImportedRobotFixture() {
     return compiled.task.fingerprint();
 }
 
-std::uint64_t checkWorldPackLocomotionImport() {
+std::uint64_t compileFixedBaseTaskFixture() {
+    constexpr std::string_view urdf = R"(
+<robot name="fixed_base_task_fixture">
+  <link name="mount">
+    <inertial>
+      <mass value="5"/>
+      <inertia ixx="0.2" ixy="0" ixz="0"
+               iyy="0.2" iyz="0" izz="0.2"/>
+    </inertial>
+    <collision><geometry><box size="0.2 0.2 0.2"/></geometry></collision>
+  </link>
+  <link name="tool">
+    <inertial>
+      <origin xyz="0 0 0.1"/>
+      <mass value="1"/>
+      <inertia ixx="0.02" ixy="0" ixz="0"
+               iyy="0.02" iyz="0" izz="0.01"/>
+    </inertial>
+    <collision><geometry><capsule radius="0.04" length="0.2"/></geometry></collision>
+  </link>
+  <joint name="axis" type="revolute">
+    <parent link="mount"/>
+    <child link="tool"/>
+    <origin xyz="0 0 0.1"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1" upper="1" effort="20" velocity="3"/>
+  </joint>
+</robot>
+)";
+    metalrobo::SimulationDescription authored;
+    metalrobo::RobotDescriptionCookOptions options;
+    options.rootMode =
+        metalrobo::RobotDescriptionRootMode::fixed;
+    const auto cooked = metalrobo::cookRobotDescription(
+        urdf,
+        {},
+        authored.model,
+        options,
+        "fixed_base_task_fixture.urdf"
+    );
+    if (!cooked.succeeded()) {
+        fail("fixed-base URDF cook failed: " + cooked.message);
+    }
+    authored.task.id = "fixed_base_joint_control";
+    authored.task.actions = {{
+        .joint = "axis",
+        .scale = 0.15f,
+    }};
+    authored.task.actorFrame = {
+        {
+            .source =
+                metalrobo::TaskObservationSource::jointPositionError,
+            .target = "axis",
+        },
+        {
+            .source = metalrobo::TaskObservationSource::jointVelocity,
+            .target = "axis",
+        },
+        {
+            .source = metalrobo::TaskObservationSource::previousAction,
+            .target = "axis",
+        },
+    };
+    authored.task.criticIncludesCleanHistory = false;
+    authored.task.critic = {{
+        .source = metalrobo::TaskObservationSource::jointPositionError,
+        .target = "axis",
+    }};
+    authored.task.rewards = {
+        {
+            .operation = metalrobo::TaskRewardOperator::constant,
+            .weight = 1.0f,
+        },
+        {
+            .operation =
+                metalrobo::TaskRewardOperator::jointVelocitySquared,
+            .weight = -0.01f,
+        },
+    };
+    authored.task.randomization = {
+        {
+            .operation =
+                metalrobo::TaskRandomizationOperator::actionPosition,
+            .parameters = {-0.05f, 0.05f, 0.0f, 0.0f},
+        },
+        {
+            .operation =
+                metalrobo::TaskRandomizationOperator::actionVelocity,
+            .parameters = {-0.1f, 0.1f, 0.0f, 0.0f},
+        },
+    };
+    authored.task.maximumEpisodeSteps = 64u;
+
+    metalrobo::CompiledSimulation compiled;
+    const auto status = metalrobo::compileSimulation(
+        authored,
+        0u,
+        compiled
+    );
+    if (!status.succeeded() ||
+        !compiled.valid() ||
+        compiled.task.layout().actionCount != 1u ||
+        compiled.task.layout().actorObservationSize != 3u ||
+        compiled.task.layout().criticObservationSize != 1u ||
+        (compiled.task.header().schedule.w &
+         MR_TASK_PROGRAM_FLOATING_ROOT) != 0u) {
+        fail(
+            "fixed-base task did not compile through the generic task route: " +
+            status.task.message
+        );
+    }
+
+    constexpr std::size_t environments = 2u;
+    constexpr std::size_t controlSteps = 4u;
+    std::vector<float> initialQ(
+        environments * compiled.world.nq()
+    );
+    std::vector<float> initialV(
+        environments * compiled.world.nv(),
+        0.0f
+    );
+    for (std::size_t environment = 0u;
+         environment < environments;
+         ++environment) {
+        std::copy(
+            authored.model.defaultQ.begin(),
+            authored.model.defaultQ.end(),
+            initialQ.begin() +
+                static_cast<std::ptrdiff_t>(
+                    environment * compiled.world.nq()
+                )
+        );
+    }
+    const std::vector<float> actions(
+        environments * controlSteps,
+        0.0f
+    );
+    const std::vector<std::uint32_t> resetMasks(
+        environments * controlSteps,
+        0u
+    );
+    metalrobo::MetalWorldStepConfig step;
+    step.timestepSeconds = 0.02f;
+    step.physicsSubsteps = 2u;
+    step.solverMode =
+        metalrobo::MetalWorldSolverMode::throughputPGS;
+    step.actuationMode =
+        metalrobo::MetalWorldActuationMode::implicitPositionDrive;
+    step.taskProgram = compiled.task;
+    step.ccdMode = metalrobo::MetalWorldCCDMode::disabled;
+    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldResult result;
+    const auto executed = context.run(
+        compiled.world,
+        {
+            .environmentCount = environments,
+            .controlStepCount = controlSteps,
+            .initialQ = initialQ,
+            .initialV = initialV,
+            .actions = actions,
+            .resetMasks = resetMasks,
+        },
+        step,
+        result
+    );
+    if (!executed.succeeded() ||
+        result.transitions.size() !=
+            environments * controlSteps ||
+        result.actorObservations.size() !=
+            environments * controlSteps * 3u ||
+        std::any_of(
+            result.environmentStatuses.begin(),
+            result.environmentStatuses.end(),
+            [](const metalrobo::MetalWorldStatus& status) {
+                return status.code != MR_STEP_SUCCESS;
+            }
+        )) {
+        fail(
+            "fixed-base task did not execute through the generic Metal task graph: " +
+            executed.message
+        );
+    }
+
+    metalrobo::TaskPack invalid = authored.task;
+    invalid.actorFrame.push_back({
+        .source = metalrobo::TaskObservationSource::rootHeight,
+    });
+    metalrobo::CompiledTaskProgram preserved = compiled.task;
+    const std::uint64_t fingerprint = preserved.fingerprint();
+    const auto rejected = metalrobo::compileTaskProgram(
+        invalid,
+        compiled.world,
+        preserved
+    );
+    if (rejected.status !=
+            metalrobo::TaskCompileStatus::unsupportedOperator ||
+        preserved.fingerprint() != fingerprint) {
+        fail(
+            "fixed-base floating-root operator was not transactionally rejected"
+        );
+    }
+    return compiled.task.fingerprint();
+}
+
+std::uint64_t checkWorldPackSimulationImport() {
     metalrobo::WorldTemplate worldTemplate;
     const metalrobo::WorldCompileResult templateStatus =
         metalrobo::compileEpisodeTwin(
@@ -251,7 +455,7 @@ std::uint64_t checkWorldPackLocomotionImport() {
     if (!templateStatus.succeeded() ||
         !familyStatus.succeeded() ||
         !packStatus.succeeded()) {
-        fail("WorldPack locomotion fixture did not compile");
+        fail("WorldPack simulation fixture did not compile");
     }
     metalrobo::TaskPack task;
     task.id = "world_pack_import_fixture";
@@ -754,9 +958,11 @@ int main() {
             );
         }
         const std::uint64_t importedFingerprint =
-            compileImportedRobotFixture();
+            compileFloatingBaseTaskFixture();
+        const std::uint64_t fixedBaseFingerprint =
+            compileFixedBaseTaskFixture();
         const std::uint64_t worldPackFingerprint =
-            checkWorldPackLocomotionImport();
+            checkWorldPackSimulationImport();
 
         std::cout
             << "task_program_check passed"
@@ -771,6 +977,7 @@ int main() {
             << " rollout_artifact="
             << rolloutWrite.contentHash
             << " imported=" << importedFingerprint
+            << " fixed_base=" << fixedBaseFingerprint
             << " world_pack=" << worldPackFingerprint
             << '\n';
         return 0;

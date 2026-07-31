@@ -522,14 +522,95 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     const MRArticulationGPU& articulation =
         model.articulations[world.articulationIndex()];
-    if (articulation.rootType != MR_ROOT_FLOATING ||
-        articulation.nq < 7u ||
-        articulation.nv < 6u) {
+    const bool floatingRoot =
+        articulation.rootType == MR_ROOT_FLOATING &&
+        articulation.nq >= 7u && articulation.nv >= 6u;
+    const bool fixedRoot =
+        articulation.rootType == MR_ROOT_FIXED;
+    if (!floatingRoot && !fixedRoot) {
         return reject(
             TaskCompileStatus::invalidWorld,
             "world.articulation",
-            "locomotion task programs require a floating root"
+            "native task programs require a fixed or floating articulation root"
         );
+    }
+    if (fixedRoot) {
+        const auto rootObservation = [](const TaskObservationSource source) {
+            switch (source) {
+            case TaskObservationSource::rootAngularVelocityLocal:
+            case TaskObservationSource::projectedGravity:
+            case TaskObservationSource::rootLinearVelocityLocal:
+            case TaskObservationSource::rootHeight:
+            case TaskObservationSource::terrainHeight:
+                return true;
+            default:
+                return false;
+            }
+        };
+        const auto rootReward = [](const TaskRewardOperator operation) {
+            switch (operation) {
+            case TaskRewardOperator::linearVelocityTracking:
+            case TaskRewardOperator::yawVelocityTracking:
+            case TaskRewardOperator::rootVerticalVelocitySquared:
+            case TaskRewardOperator::rootRollPitchVelocitySquared:
+            case TaskRewardOperator::tiltSquared:
+            case TaskRewardOperator::rootHeightErrorSquared:
+            case TaskRewardOperator::projectedGravityHorizontalSquared:
+                return true;
+            default:
+                return false;
+            }
+        };
+        const bool requiresFloatingRoot =
+            std::any_of(
+                pack.actorFrame.begin(),
+                pack.actorFrame.end(),
+                [&](const TaskObservationOperatorSpec& operation) {
+                    return rootObservation(operation.source);
+                }
+            ) ||
+            std::any_of(
+                pack.critic.begin(),
+                pack.critic.end(),
+                [&](const TaskObservationOperatorSpec& operation) {
+                    return rootObservation(operation.source);
+                }
+            ) ||
+            std::any_of(
+                pack.rewards.begin(),
+                pack.rewards.end(),
+                [&](const TaskRewardOperatorSpec& operation) {
+                    return rootReward(operation.operation);
+                }
+            ) ||
+            std::any_of(
+                pack.terminations.begin(),
+                pack.terminations.end(),
+                [](const TaskTerminationOperatorSpec& operation) {
+                    return operation.operation ==
+                            TaskTerminationOperator::minimumRootHeight ||
+                        operation.operation ==
+                            TaskTerminationOperator::maximumTilt;
+                }
+            ) ||
+            std::any_of(
+                pack.randomization.begin(),
+                pack.randomization.end(),
+                [](const TaskRandomizationOperatorSpec& operation) {
+                    return operation.operation ==
+                            TaskRandomizationOperator::rootPosition ||
+                        operation.operation ==
+                            TaskRandomizationOperator::rootYaw;
+                }
+            ) ||
+            pack.pushes.maximumVelocity > 0.0f;
+        if (requiresFloatingRoot) {
+            return reject(
+                TaskCompileStatus::unsupportedOperator,
+                "world.articulation.root",
+                "the authored task uses a floating-root operator on a fixed-base articulation"
+            );
+        }
     }
     const auto countFits = [](const std::size_t count) {
         return count <
@@ -1811,7 +1892,11 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY;
     }
-    staged->header.locomotion = {
+    if (floatingRoot) {
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_FLOATING_ROOT;
+    }
+    staged->header.taskScalars = {
         pack.baseHeightTarget,
         pack.gaitPeriodSeconds,
         pack.clearanceTarget,
