@@ -1,5 +1,6 @@
 #pragma once
 
+#include "metalrobo/G1.hpp"
 #include "metalrobo/MetalWorld.hpp"
 
 #include <cstdint>
@@ -73,7 +74,9 @@ void appendBuiltinSurface(
 
 // Official 29-DoF Unitree G1 mechanics plus the current locomotion surface.
 [[nodiscard]] SimulationDescription makeUnitreeG1Simulation(
-    BuiltinSurface surface
+    BuiltinSurface surface,
+    G1ActuatorPresetId actuatorPreset =
+        G1ActuatorPresetId::unitreeRLLab4960b84
 );
 
 // Bundled policy/task contract expressed entirely through the same authored

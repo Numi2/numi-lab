@@ -19,6 +19,12 @@ inline constexpr std::size_t kUnitreeG1PrimitiveShapeCount = 12u;
 inline constexpr std::size_t kUnitreeG1OfficialCollisionElementCount = 36u;
 inline constexpr std::size_t kUnitreeG1ExecutableShapeCount = 60u;
 
+enum class G1ActuatorPresetId : std::uint32_t {
+    unitreeUrdfRev10 = 0u,
+    unitreeMjcfRev10 = 1u,
+    unitreeRLLab4960b84 = 2u,
+};
+
 struct G1JointLimit {
     std::string_view name;
     std::uint32_t parentBody = 0u;
@@ -35,6 +41,27 @@ struct G1RLLabJointDrive {
     float stiffness = 0.0f;
     float damping = 0.0f;
     float armature = 0.0f;
+};
+
+struct G1ActuatorPresetJoint {
+    std::string_view name;
+    float maximumEffort = 0.0f;
+    // Zero means the source does not define a velocity saturation.
+    float maximumVelocity = 0.0f;
+    float stiffness = 0.0f;
+    float damping = 0.0f;
+    float armature = 0.0f;
+};
+
+struct G1ActuatorPreset {
+    G1ActuatorPresetId id =
+        G1ActuatorPresetId::unitreeRLLab4960b84;
+    std::string_view name;
+    std::string_view sourceRepository;
+    std::string_view sourceCommit;
+    std::string_view sourcePath;
+    std::uint64_t fingerprint = 0u;
+    std::array<G1ActuatorPresetJoint, kUnitreeG1JointCount> joints{};
 };
 
 struct G1FootFrame {
@@ -98,9 +125,18 @@ struct G1ModelMetadata {
 // Developers, SPDX-License-Identifier: BSD-3-Clause.
 [[nodiscard]] const G1ModelMetadata& unitreeG1Metadata() noexcept;
 
+// Exact, source-named actuator/controller contract. URDF, companion MJCF, and
+// RL Lab values are never merged implicitly.
+[[nodiscard]] const G1ActuatorPreset& unitreeG1ActuatorPreset(
+    G1ActuatorPresetId id
+);
+
 // Compiles the pinned mode_machine=5, mode_pr=0 G1 revision into the generic
 // engine ABI. Root q = COM xyz + body/link orientation quaternion xyzw;
 // root v = COM linear velocity + world angular velocity.
-[[nodiscard]] EngineModel makeUnitreeG1EngineModel();
+[[nodiscard]] EngineModel makeUnitreeG1EngineModel(
+    G1ActuatorPresetId preset =
+        G1ActuatorPresetId::unitreeRLLab4960b84
+);
 
 } // namespace metalrobo

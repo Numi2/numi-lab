@@ -42,11 +42,12 @@ requirements. The licenses do not grant trademark endorsement.
 ### Source precedence
 
 The selected URDF is canonical for topology, transforms, full inertia tensors,
-position limits, effort limits, velocity limits, and declared collision
-geometry. The SDK is canonical for the 29-element motor order and low-level
-command fields. The companion MJCF supplies an explicit free root and IMU
-sensor declarations, but does not override conflicting URDF limits. RL Lab
-supplies a reproducible training preset, not hardware truth.
+position limits and declared collision geometry. The SDK is canonical for the
+29-element motor order and low-level command fields. URDF, companion MJCF, and
+RL Lab actuator limits are independent named presets because the official
+sources conflict. The companion MJCF also supplies an explicit free root and
+IMU declarations. RL Lab supplies a reproducible training controller, not
+hardware truth.
 
 This precedence matters because the official files disagree in a few places;
 those differences are recorded below rather than averaged away.
@@ -238,11 +239,14 @@ gains:
 - shoulder, elbow, and all wrists: Kp 40, Kd 1.
 
 The selected URDF itself supplies no armature or controller gains.
-`makeUnitreeG1EngineModel()` currently selects the explicitly named
-`unitree_rl_lab_4960b84` dynamics preset and compiles its Kp/Kd/armature into
-the per-DoF stream alongside the separate URDF limits. Code and validation
-must keep that preset identity visible; these values are not reclassified as
-URDF or hardware facts.
+`makeUnitreeG1EngineModel()` defaults to the exact, explicitly named
+`unitree_rl_lab_4960b84` actuator preset: effort and velocity limits, Kp/Kd,
+and armature all come from the pinned RL Lab record. The source-exact
+`unitree_urdf_rev_1_0` and `unitree_mjcf_rev_1_0` presets are separately
+selectable. Their fingerprints differ and therefore change the compiled world
+and task fingerprints; values are never silently mixed across sources. In
+particular, ankle and waist roll/pitch effort is 25 N m for RL Lab, 35 N m for
+URDF, and 50 N m for the companion MJCF.
 
 An official RL Lab-compatible reset pose uses pelvis link-origin position
 `(0, 0, 0.8)`, zero joint velocities, and zero joint positions except:

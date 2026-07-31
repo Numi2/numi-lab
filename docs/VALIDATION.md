@@ -841,8 +841,9 @@ primitive_shapes=12 executable_shapes=8 foot_spheres=8
 imus=2 max_inverse_error=1.02104631e-07 status=ok
 ```
 
-The model retains factual URDF limits separately from the named Unitree RL Lab
-drive/armature preset. Eight foot spheres are executable. Four shoulder
+The model retains source-exact, fingerprinted URDF, companion-MJCF, and RL Lab
+actuator presets. The default RL Lab model no longer combines its controller
+with URDF effort limits. Eight foot spheres are executable. Four shoulder
 cylinders remain present but simulation-disabled for the collision-coverage
 reason stated above.
 

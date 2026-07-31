@@ -129,6 +129,11 @@ thread_local std::string gLastError;
 std::string unitreeG1DeploymentContractJSON() {
     const metalrobo::G1ModelMetadata& metadata =
         metalrobo::unitreeG1Metadata();
+    const metalrobo::G1ActuatorPreset& preset =
+        metalrobo::unitreeG1ActuatorPreset(
+            metalrobo::G1ActuatorPresetId::
+                unitreeRLLab4960b84
+        );
     const metalrobo::EngineModel model =
         metalrobo::makeUnitreeG1EngineModel();
     const MRArticulationGPU& articulation =
@@ -150,6 +155,11 @@ std::string unitreeG1DeploymentContractJSON() {
         << "\"source_model_path\":" << std::quoted(
             std::string{metadata.sourceModelPath}
         ) << ","
+        << "\"actuator_preset\":" << std::quoted(
+            std::string{preset.name}
+        ) << ","
+        << "\"actuator_preset_fingerprint\":"
+        << std::quoted(std::to_string(preset.fingerprint)) << ","
         << "\"simulator_repository\":" << std::quoted(
             std::string{metadata.simulatorRepository}
         ) << ","
@@ -215,14 +225,12 @@ std::string unitreeG1DeploymentContractJSON() {
             model.defaultQ[
                 articulation.qOffset + 7u + index
             ];
-        stiffness[index] =
-            metadata.rlLabDrives[index].stiffness;
-        damping[index] =
-            metadata.rlLabDrives[index].damping;
-        velocityLimits[index] =
-            metadata.jointLimits[index].maximumVelocity;
-        effortLimits[index] =
-            metadata.jointLimits[index].maximumEffort;
+        const MRDofPropertiesGPU& dof =
+            model.dofs[articulation.vOffset + 6u + index];
+        stiffness[index] = dof.drive.x;
+        damping[index] = dof.drive.y;
+        velocityLimits[index] = dof.limits.z;
+        effortLimits[index] = dof.limits.w;
     }
     writeScalarArray("default_pose", defaultPose);
     output << ',';
@@ -477,6 +485,23 @@ metalrobo::BuiltinSurface builtinSurface(
     default:
         throw std::invalid_argument(
             "builtin surface is invalid"
+        );
+    }
+}
+
+metalrobo::G1ActuatorPresetId g1ActuatorPreset(
+    const std::uint32_t value
+) {
+    switch (value) {
+    case MR_G1_ACTUATOR_UNITREE_URDF_REV_1_0:
+        return metalrobo::G1ActuatorPresetId::unitreeUrdfRev10;
+    case MR_G1_ACTUATOR_UNITREE_MJCF_REV_1_0:
+        return metalrobo::G1ActuatorPresetId::unitreeMjcfRev10;
+    case MR_G1_ACTUATOR_UNITREE_RL_LAB_4960B84:
+        return metalrobo::G1ActuatorPresetId::unitreeRLLab4960b84;
+    default:
+        throw std::invalid_argument(
+            "Unitree G1 actuator preset is invalid"
         );
     }
 }
@@ -889,6 +914,7 @@ int mr_compile_episode_manifest(
 
 MRSimulationHandle* mr_create_unitree_g1_simulation(
     const MRSimulationConfigC* config,
+    const uint32_t actuator_preset,
     const uint32_t surface_value,
     const char* metallib_path
 ) {
@@ -904,7 +930,8 @@ MRSimulationHandle* mr_create_unitree_g1_simulation(
         auto handle =
             createCompiledSimulation(
                 metalrobo::makeUnitreeG1Simulation(
-                    surface
+                    surface,
+                    g1ActuatorPreset(actuator_preset)
                 ),
                 *config,
                 metallib_path,

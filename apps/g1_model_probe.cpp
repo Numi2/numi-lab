@@ -149,6 +149,11 @@ int main() {
             metalrobo::makeUnitreeG1EngineModel();
         const metalrobo::G1ModelMetadata& metadata =
             metalrobo::unitreeG1Metadata();
+        const metalrobo::G1ActuatorPreset& actuatorPreset =
+            metalrobo::unitreeG1ActuatorPreset(
+                metalrobo::G1ActuatorPresetId::
+                    unitreeRLLab4960b84
+            );
 
         std::string reason;
         require(
@@ -241,8 +246,8 @@ int main() {
             const MRJointDescriptorGPU& joint = model.joints[index];
             const metalrobo::G1JointLimit& limit =
                 metadata.jointLimits[index];
-            const metalrobo::G1RLLabJointDrive& drive =
-                metadata.rlLabDrives[index];
+            const metalrobo::G1ActuatorPresetJoint& actuator =
+                actuatorPreset.joints[index];
             const MRDofPropertiesGPU& dof =
                 model.dofs[6u + index];
             require(
@@ -269,11 +274,11 @@ int main() {
                         ) &&
                     close(dof.limits.x, limit.lowerPosition) &&
                     close(dof.limits.y, limit.upperPosition) &&
-                    close(dof.limits.z, limit.maximumVelocity) &&
-                    close(dof.limits.w, limit.maximumEffort) &&
-                    close(dof.drive.x, drive.stiffness) &&
-                    close(dof.drive.y, drive.damping) &&
-                    close(dof.drive.z, drive.armature) &&
+                    close(dof.limits.z, actuator.maximumVelocity) &&
+                    close(dof.limits.w, actuator.maximumEffort) &&
+                    close(dof.drive.x, actuator.stiffness) &&
+                    close(dof.drive.y, actuator.damping) &&
+                    close(dof.drive.z, actuator.armature) &&
                     dof.drive.w == 0.0f,
                 "compiled per-DoF limits or drive are incorrect"
             );
@@ -340,6 +345,47 @@ int main() {
                 close(metadata.rlLabDrives[12].stiffness, 200.0) &&
                 close(metadata.rlLabDrives[12].damping, 5.0),
             "RL Lab knee or waist-yaw drive is incorrect"
+        );
+        const auto& urdfPreset = metalrobo::unitreeG1ActuatorPreset(
+            metalrobo::G1ActuatorPresetId::unitreeUrdfRev10
+        );
+        const auto& mjcfPreset = metalrobo::unitreeG1ActuatorPreset(
+            metalrobo::G1ActuatorPresetId::unitreeMjcfRev10
+        );
+        require(
+            actuatorPreset.fingerprint != 0u &&
+                urdfPreset.fingerprint != 0u &&
+                mjcfPreset.fingerprint != 0u &&
+                actuatorPreset.fingerprint != urdfPreset.fingerprint &&
+                actuatorPreset.fingerprint != mjcfPreset.fingerprint &&
+                urdfPreset.fingerprint != mjcfPreset.fingerprint &&
+                close(actuatorPreset.joints[4].maximumEffort, 25.0) &&
+                close(urdfPreset.joints[4].maximumEffort, 35.0) &&
+                close(mjcfPreset.joints[4].maximumEffort, 50.0) &&
+                close(actuatorPreset.joints[13].maximumEffort, 25.0) &&
+                close(urdfPreset.joints[13].maximumEffort, 35.0) &&
+                close(mjcfPreset.joints[13].maximumEffort, 50.0) &&
+                mjcfPreset.joints[4].maximumVelocity == 0.0f &&
+                mjcfPreset.joints[4].stiffness == 0.0f,
+            "named G1 actuator presets were mixed or lost provenance"
+        );
+        const metalrobo::EngineModel urdfModel =
+            metalrobo::makeUnitreeG1EngineModel(
+                metalrobo::G1ActuatorPresetId::unitreeUrdfRev10
+            );
+        const metalrobo::EngineModel mjcfModel =
+            metalrobo::makeUnitreeG1EngineModel(
+                metalrobo::G1ActuatorPresetId::unitreeMjcfRev10
+            );
+        require(
+            urdfModel.valid(&reason) &&
+                mjcfModel.valid(&reason) &&
+                (urdfModel.dofs[10].flags & MR_DOF_FLAG_DRIVE) == 0u &&
+                (mjcfModel.dofs[10].flags &
+                 MR_DOF_FLAG_VELOCITY_LIMIT) == 0u &&
+                close(urdfModel.dofs[10].limits.w, 35.0) &&
+                close(mjcfModel.dofs[10].limits.w, 50.0),
+            "source-exact G1 mechanics presets are not executable"
         );
 
         double totalMass = 0.0;
@@ -549,6 +595,9 @@ int main() {
                   << "model=\"" << model.name << "\""
                   << " mode_machine=" << metadata.modeMachine
                   << " mode_pr=" << metadata.modePr
+                  << " actuator_preset=" << actuatorPreset.name
+                  << " actuator_fingerprint="
+                  << actuatorPreset.fingerprint
                   << " bodies=" << model.world.bodyCount
                   << " joints=" << model.world.jointCount
                   << " nq=" << model.world.nq

@@ -53,6 +53,12 @@ public enum MetalRoboBuiltinSurface: UInt32, Sendable {
     case terrain = 1
 }
 
+public enum MetalRoboG1ActuatorPreset: UInt32, Sendable {
+    case unitreeURDFRev10 = 0
+    case unitreeMJCFRev10 = 1
+    case unitreeRLLab4960b84 = 2
+}
+
 public enum MetalRoboSimulationSolver: UInt32, Sendable {
     case throughputPGS = 0
     case qualityNewton = 1
@@ -563,6 +569,8 @@ public final class MetalSimulationSession {
     /// generic compiled task path as imported robots.
     public init(
         unitreeG1 configuration: MetalRoboSimulationConfiguration,
+        actuatorPreset: MetalRoboG1ActuatorPreset =
+            .unitreeRLLab4960b84,
         surface: MetalRoboBuiltinSurface = .terrain,
         metallibPath: String? = nil
     ) throws {
@@ -574,6 +582,7 @@ public final class MetalSimulationSession {
                 metallib in
                 mr_create_unitree_g1_simulation(
                     config,
+                    actuatorPreset.rawValue,
                     surface.rawValue,
                     metallib
                 )

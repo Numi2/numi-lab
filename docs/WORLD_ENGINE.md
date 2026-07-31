@@ -113,8 +113,8 @@ URDF robots and WorldPacks use the same compiler and executor:
 
 ```text
 makeUnitreeG1Simulation
-mr_create_urdf_locomotion_rollout
-mr_create_world_pack_locomotion_rollout
+mr_create_urdf_simulation
+mr_create_world_pack_simulation
               |
               v
       compileSimulation

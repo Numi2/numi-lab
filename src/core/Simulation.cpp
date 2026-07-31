@@ -1039,10 +1039,11 @@ TaskPack makeUnitreeG1TaskPack(
 }
 
 SimulationDescription makeUnitreeG1Simulation(
-    const BuiltinSurface surface
+    const BuiltinSurface surface,
+    const G1ActuatorPresetId actuatorPreset
 ) {
     SimulationDescription world{
-        .model = makeUnitreeG1EngineModel(),
+        .model = makeUnitreeG1EngineModel(actuatorPreset),
         .task = makeUnitreeG1TaskPack(surface),
     };
     appendBuiltinSurface(

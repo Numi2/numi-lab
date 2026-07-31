@@ -132,6 +132,8 @@ private struct Options {
     var repeats = 20
     var chunk = 8
     var surface = MetalRoboBuiltinSurface.terrain
+    var g1ActuatorPreset =
+        MetalRoboG1ActuatorPreset.unitreeRLLab4960b84
     var solver = MetalRoboSimulationSolver.throughputPGS
     var seed: UInt64 = 20_260_731
     var curriculumLevel: UInt32 = 0
@@ -200,6 +202,20 @@ private struct Options {
                 default:
                     throw MetalRoboSimulationError.invalidShape(
                         "--scene must be ground or terrain."
+                    )
+                }
+                index += 1
+            case "--g1-actuator-preset":
+                switch try value() {
+                case "urdf", "unitree_urdf_rev_1_0":
+                    g1ActuatorPreset = .unitreeURDFRev10
+                case "mjcf", "unitree_mjcf_rev_1_0":
+                    g1ActuatorPreset = .unitreeMJCFRev10
+                case "rl_lab", "unitree_rl_lab_4960b84":
+                    g1ActuatorPreset = .unitreeRLLab4960b84
+                default:
+                    throw MetalRoboSimulationError.invalidShape(
+                        "--g1-actuator-preset must be urdf, mjcf, or rl_lab."
                     )
                 }
                 index += 1
@@ -304,6 +320,19 @@ private struct Options {
     }
 }
 
+private func g1ActuatorPresetName(
+    _ preset: MetalRoboG1ActuatorPreset
+) -> String {
+    switch preset {
+    case .unitreeURDFRev10:
+        return "unitree_urdf_rev_1_0"
+    case .unitreeMJCFRev10:
+        return "unitree_mjcf_rev_1_0"
+    case .unitreeRLLab4960b84:
+        return "unitree_rl_lab_4960b84"
+    }
+}
+
 private func makeContext(
     options: Options
 ) throws -> (MetalSimulationSession, String) {
@@ -345,10 +374,12 @@ private func makeContext(
     return (
         try MetalSimulationSession(
             unitreeG1: configuration,
+            actuatorPreset: options.g1ActuatorPreset,
             surface: options.surface,
             metallibPath: options.metallib
         ),
-        "bundled_g1"
+        "bundled_g1@" +
+            g1ActuatorPresetName(options.g1ActuatorPreset)
     )
 }
 

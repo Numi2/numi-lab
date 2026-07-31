@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -430,6 +431,139 @@ constexpr std::array<float, kUnitreeG1JointCount> kRLLabResetQ{{
     0.3f, -0.25f, 0.0f, 0.97f, -0.15f, 0.0f, 0.0f,
 }};
 
+constexpr std::array<float, kUnitreeG1JointCount> kRLLabEffort{{
+    88.0f, 139.0f, 88.0f, 139.0f, 25.0f, 25.0f,
+    88.0f, 139.0f, 88.0f, 139.0f, 25.0f, 25.0f,
+    88.0f, 25.0f, 25.0f,
+    25.0f, 25.0f, 25.0f, 25.0f, 25.0f, 5.0f, 5.0f,
+    25.0f, 25.0f, 25.0f, 25.0f, 25.0f, 5.0f, 5.0f,
+}};
+
+constexpr std::array<float, kUnitreeG1JointCount> kRLLabVelocity{{
+    32.0f, 20.0f, 32.0f, 20.0f, 37.0f, 37.0f,
+    32.0f, 20.0f, 32.0f, 20.0f, 37.0f, 37.0f,
+    32.0f, 37.0f, 37.0f,
+    37.0f, 37.0f, 37.0f, 37.0f, 37.0f, 22.0f, 22.0f,
+    37.0f, 37.0f, 37.0f, 37.0f, 37.0f, 22.0f, 22.0f,
+}};
+
+constexpr std::array<float, kUnitreeG1JointCount> kMjcfEffort{{
+    88.0f, 139.0f, 88.0f, 139.0f, 50.0f, 50.0f,
+    88.0f, 139.0f, 88.0f, 139.0f, 50.0f, 50.0f,
+    88.0f, 50.0f, 50.0f,
+    25.0f, 25.0f, 25.0f, 25.0f, 25.0f, 5.0f, 5.0f,
+    25.0f, 25.0f, 25.0f, 25.0f, 25.0f, 5.0f, 5.0f,
+}};
+
+std::uint64_t appendPresetWord(
+    std::uint64_t hash,
+    const std::uint32_t word
+) {
+    for (std::uint32_t byte = 0u; byte < 4u; ++byte) {
+        hash ^= (word >> (8u * byte)) & 0xffu;
+        hash *= 1099511628211ull;
+    }
+    return hash;
+}
+
+std::uint64_t appendPresetText(
+    std::uint64_t hash,
+    const std::string_view text
+) {
+    for (const unsigned char byte : text) {
+        hash ^= byte;
+        hash *= 1099511628211ull;
+    }
+    return hash;
+}
+
+G1ActuatorPreset makeActuatorPreset(
+    const G1ActuatorPresetId id
+) {
+    G1ActuatorPreset preset;
+    preset.id = id;
+    switch (id) {
+    case G1ActuatorPresetId::unitreeUrdfRev10:
+        preset.name = "unitree_urdf_rev_1_0";
+        preset.sourceRepository =
+            "https://github.com/unitreerobotics/unitree_ros";
+        preset.sourceCommit =
+            "aa0f5c68b5aba347bad409e71b6430407da758d7";
+        preset.sourcePath =
+            "robots/g1_description/g1_29dof_rev_1_0.urdf";
+        break;
+    case G1ActuatorPresetId::unitreeMjcfRev10:
+        preset.name = "unitree_mjcf_rev_1_0";
+        preset.sourceRepository =
+            "https://github.com/unitreerobotics/unitree_ros";
+        preset.sourceCommit =
+            "aa0f5c68b5aba347bad409e71b6430407da758d7";
+        preset.sourcePath =
+            "robots/g1_description/g1_29dof_rev_1_0.xml";
+        break;
+    case G1ActuatorPresetId::unitreeRLLab4960b84:
+        preset.name = "unitree_rl_lab_4960b84";
+        preset.sourceRepository =
+            "https://github.com/unitreerobotics/unitree_rl_lab";
+        preset.sourceCommit =
+            "4960b84732b0c2ec593dccbfe963fda1bcd7b1e3";
+        preset.sourcePath =
+            "source/unitree_rl_lab/unitree_rl_lab/assets/robots/unitree.py";
+        break;
+    }
+
+    for (std::size_t index = 0u; index < kJoints.size(); ++index) {
+        const bool rl =
+            id == G1ActuatorPresetId::unitreeRLLab4960b84;
+        const bool mjcf =
+            id == G1ActuatorPresetId::unitreeMjcfRev10;
+        preset.joints[index] = {
+            .name = kJoints[index].name,
+            .maximumEffort = rl
+                ? kRLLabEffort[index]
+                : mjcf
+                ? kMjcfEffort[index]
+                : static_cast<float>(kJoints[index].effort),
+            .maximumVelocity = rl
+                ? kRLLabVelocity[index]
+                : mjcf
+                ? 0.0f
+                : static_cast<float>(kJoints[index].velocity),
+            .stiffness = rl ? kRLLabStiffness[index] : 0.0f,
+            .damping = rl ? kRLLabDamping[index] : 0.0f,
+            .armature = rl ? 0.01f : 0.0f,
+        };
+    }
+
+    std::uint64_t fingerprint = appendPresetWord(
+        14695981039346656037ull,
+        static_cast<std::uint32_t>(id)
+    );
+    fingerprint = appendPresetText(fingerprint, preset.name);
+    fingerprint = appendPresetText(
+        fingerprint,
+        preset.sourceCommit
+    );
+    fingerprint = appendPresetText(fingerprint, preset.sourcePath);
+    for (const G1ActuatorPresetJoint& joint : preset.joints) {
+        fingerprint = appendPresetText(fingerprint, joint.name);
+        for (const float value : {
+                 joint.maximumEffort,
+                 joint.maximumVelocity,
+                 joint.stiffness,
+                 joint.damping,
+                 joint.armature,
+             }) {
+            fingerprint = appendPresetWord(
+                fingerprint,
+                std::bit_cast<std::uint32_t>(value)
+            );
+        }
+    }
+    preset.fingerprint = fingerprint;
+    return preset;
+}
+
 mr_float4 f4(
     const double x,
     const double y,
@@ -820,10 +954,38 @@ const G1ModelMetadata& unitreeG1Metadata() noexcept {
     return metadata;
 }
 
-EngineModel makeUnitreeG1EngineModel() {
+const G1ActuatorPreset& unitreeG1ActuatorPreset(
+    const G1ActuatorPresetId id
+) {
+    static const G1ActuatorPreset urdf = makeActuatorPreset(
+        G1ActuatorPresetId::unitreeUrdfRev10
+    );
+    static const G1ActuatorPreset mjcf = makeActuatorPreset(
+        G1ActuatorPresetId::unitreeMjcfRev10
+    );
+    static const G1ActuatorPreset rlLab = makeActuatorPreset(
+        G1ActuatorPresetId::unitreeRLLab4960b84
+    );
+    switch (id) {
+    case G1ActuatorPresetId::unitreeUrdfRev10:
+        return urdf;
+    case G1ActuatorPresetId::unitreeMjcfRev10:
+        return mjcf;
+    case G1ActuatorPresetId::unitreeRLLab4960b84:
+        return rlLab;
+    }
+    throw std::invalid_argument("unknown Unitree G1 actuator preset");
+}
+
+EngineModel makeUnitreeG1EngineModel(
+    const G1ActuatorPresetId presetId
+) {
     EngineModel model;
     const G1ModelMetadata& metadata = unitreeG1Metadata();
-    model.name = std::string{metadata.modelName};
+    const G1ActuatorPreset& preset =
+        unitreeG1ActuatorPreset(presetId);
+    model.name = std::string{metadata.modelName} + "@" +
+        std::string{preset.name};
     model.bodyNames.reserve(metadata.bodyNames.size());
     for (const std::string_view name : metadata.bodyNames) {
         model.bodyNames.emplace_back(name);
@@ -905,8 +1067,8 @@ EngineModel makeUnitreeG1EngineModel() {
          index < kUnitreeG1JointCount;
          ++index) {
         const G1JointLimit& limit = metadata.jointLimits[index];
-        const G1RLLabJointDrive& drive =
-            metadata.rlLabDrives[index];
+        const G1ActuatorPresetJoint& actuator =
+            preset.joints[index];
         MRDofPropertiesGPU dof{};
         dof.articulationIndex = 0u;
         dof.jointIndex = static_cast<mr_u32>(index);
@@ -916,19 +1078,24 @@ EngineModel makeUnitreeG1EngineModel() {
         dof.flags =
             MR_DOF_FLAG_ACTUATED |
             MR_DOF_FLAG_POSITION_LIMIT |
-            MR_DOF_FLAG_VELOCITY_LIMIT |
             MR_DOF_FLAG_EFFORT_LIMIT |
-            MR_DOF_FLAG_DRIVE;
+            (actuator.maximumVelocity > 0.0f
+                 ? MR_DOF_FLAG_VELOCITY_LIMIT
+                 : 0u) |
+            ((actuator.stiffness > 0.0f ||
+              actuator.damping > 0.0f)
+                 ? MR_DOF_FLAG_DRIVE
+                 : 0u);
         dof.limits = f4(
             limit.lowerPosition,
             limit.upperPosition,
-            limit.maximumVelocity,
-            limit.maximumEffort
+            actuator.maximumVelocity,
+            actuator.maximumEffort
         );
         dof.drive = f4(
-            drive.stiffness,
-            drive.damping,
-            drive.armature,
+            actuator.stiffness,
+            actuator.damping,
+            actuator.armature,
             0.0f
         );
         model.dofs.push_back(dof);

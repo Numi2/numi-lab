@@ -7,6 +7,8 @@ private struct Options {
     var updates = 100
     var chunk = 8
     var surface = MetalRoboBuiltinSurface.terrain
+    var g1ActuatorPreset =
+        MetalRoboG1ActuatorPreset.unitreeRLLab4960b84
     var solver = MetalRoboSimulationSolver.throughputPGS
     var seed: UInt64 = 20_260_731
     var metallib = "build/shaders/MetalRobo.metallib"
@@ -114,6 +116,20 @@ private struct Options {
                 default:
                     throw MetalRoboSimulationError.invalidShape(
                         "--scene must be ground or terrain."
+                    )
+                }
+                index += 1
+            case "--g1-actuator-preset":
+                switch try value() {
+                case "urdf", "unitree_urdf_rev_1_0":
+                    g1ActuatorPreset = .unitreeURDFRev10
+                case "mjcf", "unitree_mjcf_rev_1_0":
+                    g1ActuatorPreset = .unitreeMJCFRev10
+                case "rl_lab", "unitree_rl_lab_4960b84":
+                    g1ActuatorPreset = .unitreeRLLab4960b84
+                default:
+                    throw MetalRoboSimulationError.invalidShape(
+                        "--g1-actuator-preset must be urdf, mjcf, or rl_lab."
                     )
                 }
                 index += 1
@@ -330,6 +346,7 @@ private func makeContext(
     return (
         try MetalSimulationSession(
             unitreeG1: configuration,
+            actuatorPreset: options.g1ActuatorPreset,
             surface: options.surface,
             metallibPath: options.metallib
         ),

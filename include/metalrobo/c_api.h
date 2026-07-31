@@ -36,6 +36,12 @@ typedef enum MRBuiltinSurfaceC {
     MR_BUILTIN_SURFACE_TERRAIN = 1,
 } MRBuiltinSurfaceC;
 
+typedef enum MRG1ActuatorPresetC {
+    MR_G1_ACTUATOR_UNITREE_URDF_REV_1_0 = 0,
+    MR_G1_ACTUATOR_UNITREE_MJCF_REV_1_0 = 1,
+    MR_G1_ACTUATOR_UNITREE_RL_LAB_4960B84 = 2,
+} MRG1ActuatorPresetC;
+
 typedef enum MRSimulationSolverC {
     MR_SIMULATION_SOLVER_THROUGHPUT_PGS = 0,
     MR_SIMULATION_SOLVER_QUALITY_NEWTON = 1,
@@ -391,14 +397,16 @@ MR_API int mr_compile_episode_manifest(
 );
 
 // Creates the bundled G1 mechanics and locomotion TaskPack through the same
-// compiled task-program route used by imported robots. The returned executor
-// is robot-independent: the caller owns rollout chunking and supplies packed
+// compiled task-program route used by imported robots. The explicit actuator
+// preset participates in compiled world/task fingerprints. The returned
+// executor is robot-independent: the caller owns rollout chunking and supplies packed
 // normalized [step][environment][compiled action] values plus an optional
 // [step][environment] reset mask. One advance call submits and waits for
 // exactly one native Metal command buffer.
 MR_API MRSimulationHandle*
 mr_create_unitree_g1_simulation(
     const MRSimulationConfigC* config,
+    uint32_t actuator_preset,
     uint32_t surface,
     const char* metallib_path
 );

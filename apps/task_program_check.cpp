@@ -321,6 +321,27 @@ int main() {
             compiledWorld.world;
         const metalrobo::CompiledTaskProgram& program =
             compiledWorld.task;
+        for (const metalrobo::G1ActuatorPresetId preset : {
+                 metalrobo::G1ActuatorPresetId::unitreeUrdfRev10,
+                 metalrobo::G1ActuatorPresetId::unitreeMjcfRev10,
+             }) {
+            metalrobo::CompiledSimulation variant;
+            const auto variantStatus = metalrobo::compileSimulation(
+                metalrobo::makeUnitreeG1Simulation(
+                    metalrobo::BuiltinSurface::terrain,
+                    preset
+                ),
+                0u,
+                variant
+            );
+            if (!variantStatus.succeeded() ||
+                variant.world.fingerprint() == world.fingerprint() ||
+                variant.task.fingerprint() == program.fingerprint()) {
+                fail(
+                    "G1 actuator preset is not bound into world/task fingerprints"
+                );
+            }
+        }
         const metalrobo::TaskProgramLayout& layout =
             program.layout();
         if (layout.actionCount != 29u ||
