@@ -240,3 +240,6 @@ Only current subsystem contracts remain under `docs`:
 
 Third-party sources and required notices are recorded in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Copyright © 2026 Numan Thabit. All rights reserved. Third-party components
+remain subject to their respective copyrights and licenses.
