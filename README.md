@@ -48,17 +48,18 @@ concept art and no screenshot from another simulator.
 
 This is a real Apple M4 rollout and a real numi-lab `sensor_reference`
 rerender—not generated imagery or motion interpolation. The animation follows
-recorded actor observations from the generic G1 locomotion task while the
-robot remains rooted for a stable presentation camera. It demonstrates the
-compiled TaskPack → native Metal policy/physics → rollout-pack path; it is not
-a claim of learned locomotion quality or real-robot transfer.
+48 consecutive clean simulator states from the generic G1 locomotion task,
+shown at half speed while the robot remains rooted for a stable presentation
+camera. It demonstrates the compiled TaskPack → native Metal policy/physics →
+rollout-pack path; it is not a claim of learned locomotion quality or
+real-robot transfer.
 
 ![Synchronized RGB, metric depth, normals, and authored identities during the same native rollout](docs/media/numi-lab-g1-sensor-rollout.gif)
 
-Every panel advances through the same captured poses. The forward frames are
-shown in reverse after the final pose to form a clean loop; no intermediate
-frames are synthesized. Full capture provenance is recorded in
-[`docs/media/README.md`](docs/media/README.md).
+Every panel advances through the same consecutive states. Both animations use
+one stable color palette across the whole sequence to prevent temporal color
+shimmer; no intermediate frames are synthesized. Full capture provenance is
+recorded in [`docs/media/README.md`](docs/media/README.md).
 
 ## The renderer is a sensor
 

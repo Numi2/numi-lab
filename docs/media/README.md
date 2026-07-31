@@ -18,20 +18,23 @@ images. The source was a 96-control-step, one-environment G1 terrain rollout
 executed on Apple M4 through `metalrobo_task_rollout` with the compiled native
 policy path, TGS, eight-step submissions, and seed `20260731`.
 
-The animation selects recorded actor-observation steps 0 through 44 at a
-four-step interval. Each displayed joint configuration is reconstructed from
-the rollout's policy-facing joint-position-error observation plus the pinned
-G1 reset pose. The robot root is held fixed for the presentation camera. The
-12 captured poses play forward and then backward without interpolated frames,
-giving each 640x360 GIF 21 frames and a 2.42-second loop.
+The animation uses all 48 consecutive rollout steps from 7 through 54. Each
+displayed joint configuration is reconstructed from the rollout's clean
+critic joint-position state plus the pinned G1 reset pose. This removes
+policy-observation noise from the presentation without filtering, smoothing,
+or synthesizing motion. The robot root is held fixed for the presentation
+camera. Each 20 ms simulator state is displayed for 40 ms, giving each
+720x405 GIF a 48-frame, 1.92-second half-speed loop.
 
 Each pose was assembled from the official G1 visual geometry, cooked through
 `metalrobo_visual_cook`, and rendered through numi-lab
 `sensor_reference` against the same Studio Small 03 environment used by the
 static README captures. The sensor animation reads scene-linear RGB, metric
 depth, camera-space normals, and packed authored identities from each native
-frame. ACES preview conversion, panel layout, labels, and GIF encoding are
-presentation-only.
+frame. ACES preview conversion, panel layout, labels, half-speed playback, and
+GIF encoding are presentation-only. Both GIFs use a single sequence-wide
+palette so material highlights and sensor colors do not flicker between
+frames.
 
 The retained provenance is:
 
@@ -41,8 +44,8 @@ policy fingerprint=7205423632253474391
 task fingerprint=15986245760138582396
 maximum active contacts=13
 failed environment steps=0
-numi-lab-g1-native-rollout.gif=sha256:dfa9ba80f8b65edd4b456b2a38131db9ea693937b5a97b3c0a5fdc1bb6f5bcf5
-numi-lab-g1-sensor-rollout.gif=sha256:f6d016cc20f75f30f11fb596fecab862c9e3d3bb85215e3fff3418c100f4293b
+numi-lab-g1-native-rollout.gif=sha256:264bb2005ed6cf47af4f0c40d6dca8ab497a9d590dc3037a3db818396b40b7f8
+numi-lab-g1-sensor-rollout.gif=sha256:08dc33bb42658a8478687651354d813cf4dff55d40b5270f3b8c7857d79a7ff2
 ```
 
 This capture validates presentation and rollout integration only. It does not
