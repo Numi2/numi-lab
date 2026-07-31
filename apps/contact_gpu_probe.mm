@@ -175,6 +175,7 @@ MRContactConstraintGPU makeContact(
         static_cast<float>(separation)
     );
     contact.normal = makeFloat4(0.0f, 0.0f, 1.0f);
+    contact.tangent = makeFloat4(1.0f, 0.0f, 0.0f);
     contact.friction = makeFloat4(
         static_cast<float>(staticFriction),
         static_cast<float>(dynamicFriction),
@@ -589,6 +590,60 @@ void verifyTransactionalArithmeticFailure(
     );
 }
 
+void verifyInvalidTangentRejected(
+    const metalrobo::ContactSolverConfig& config
+) {
+    auto [bodies, contacts] = makeStackCase();
+    contacts[0].tangent = contacts[0].normal;
+    const Bodies originalBodies = bodies;
+    const Contacts originalContacts = contacts;
+
+    Bodies cpuBodies = bodies;
+    Contacts cpuContacts = contacts;
+    const auto cpu = metalrobo::solveContactConstraints(
+        cpuBodies,
+        cpuContacts,
+        config
+    );
+    require(
+        cpu.code == MR_STEP_NONFINITE_INPUT &&
+            std::memcmp(
+                cpuBodies.data(),
+                originalBodies.data(),
+                sizeof(cpuBodies)
+            ) == 0 &&
+            std::memcmp(
+                cpuContacts.data(),
+                originalContacts.data(),
+                sizeof(cpuContacts)
+            ) == 0,
+        "CPU solver accepted a non-orthogonal contact tangent"
+    );
+
+    const MRSolverBatchGPU batch = metalrobo::makeSolverBatch(
+        0u,
+        static_cast<std::uint32_t>(bodies.size()),
+        0u,
+        static_cast<std::uint32_t>(contacts.size()),
+        config
+    );
+    const MetalResult gpu = solveOnMetal(bodies, contacts, batch);
+    require(
+        gpu.status.code == MR_STEP_NONFINITE_INPUT &&
+            std::memcmp(
+                gpu.bodies.data(),
+                originalBodies.data(),
+                sizeof(gpu.bodies)
+            ) == 0 &&
+            std::memcmp(
+                gpu.contacts.data(),
+                originalContacts.data(),
+                sizeof(gpu.contacts)
+            ) == 0,
+        "Metal solver accepted a non-orthogonal contact tangent"
+    );
+}
+
 } // namespace
 
 int main() {
@@ -816,6 +871,7 @@ int main() {
             gpu.status.residuals.z <= kInvariantTolerance,
             "Metal solver reported a friction-cone violation"
         );
+        verifyInvalidTangentRejected(config);
         verifyTransactionalArithmeticFailure(config);
 
         std::cout << std::scientific << std::setprecision(6)
@@ -831,6 +887,7 @@ int main() {
                   << " momentum_xy_error="
                   << std::max(cpuMomentumXYError, gpuMomentumXYError)
                   << " friction_impulse=" << gpuFrictionImpulse
+                  << " tangent_contract=yes"
                   << " arithmetic_rollback=yes"
                   << " status=ok\n";
         return 0;

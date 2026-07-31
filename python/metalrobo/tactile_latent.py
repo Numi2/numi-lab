@@ -36,7 +36,7 @@ SUPPORTED_TACTILE_MODALITIES = frozenset(
 
 
 class TactileLatentState(NamedTuple):
-    """Explicit recurrent sensor state carried by an MLX rollout."""
+    """Explicit recurrent state carried by an offline MLX sequence model."""
 
     hidden: mx.array
 

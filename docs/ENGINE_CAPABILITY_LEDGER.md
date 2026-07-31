@@ -111,34 +111,25 @@ linked or called at runtime.
 - Exact per-environment capacity requirements, high-water counts, manifold
   retention, solver residuals, and stable first-failure indices, plus optional
   fixed-capacity contact/ConstraintIR/island evidence
-- MLX 0.32 active-encoder custom primitive for Franka/G1 free-motion ABA with
-  the same contact and direct/PCG quality graph used by standalone Metal,
-  explicit PyTree rod/manifold/convex state, MLX-owned output/scratch buffers,
-  `mx.compile`, isolated transactional rollback, no CPU fallback, and explicit
-  autodiff rejection. Wave32 TGS and quality Newton use fixed worker grids
-  that persistently pull stable compact packets because MLX's active encoder
-  does not expose indirect dispatch. Worker-grid occupancy is selected before
-  lazy execution from a device profile or an explicit 32/64/96/128 benchmark
-  override. Policy
-  inference, physics, reward/termination, GAE, rollout
-  storage, and PPO updates have a NumPy-free MLX path
+- Native TaskProgram and PolicyProgram execution in `MetalWorldContext`:
+  persistent private simulator state, generic table-driven locomotion,
+  stochastic actor/critic inference, transactional reset, native observation,
+  reward and termination, and typed per-stage high-water evidence. Swift owns
+  submission chunking and rollout publication; MLX receives only compact
+  rollout artifacts for compiled PPO updates
 - Literal hybrid-CCD event splitting on standalone Metal and MLX: each
   microstep repeatedly advances to the earliest deterministic TOI cluster,
   solves it with impact-only restitution, and continues the unused time.
   Event state, manifolds, and pair caches remain transactional, and an
   uncertified remainder fails instead of silently losing time
-- Pure-MLX G1 contact rollout and PPO path using implicit position drives,
-  floating-root acceleration/load/contact-count sensor evidence, and
-  transactional resets; episodic planar/yaw commands remain in the compiled
-  observation/reset graph, root/joint/velocity reset randomization remains
-  device-native, and rough terrain executes through the authoritative cooked
-  static-mesh BVH4 contact path
-- Contact-capable MLX PSM scene with the generic dynamic curved-needle asset,
-  exact-CCD shape flags, persistent contact state, and a pure-array logical
-  aperture-to-independent-jaw target map; a physics-owned needle hold/lift
-  PPO task scores measured rigid-body pose and contact evidence without a
-  weld or hidden grasp state. Fixed- and floating-base contact worlds share
-  an eight-channel acceleration/load/contact sensor summary
+- Generic G1 native contact rollout and PPO handoff using compiled position
+  drives, floating-root sensor evidence, transactional resets, episodic
+  planar/yaw commands, native randomization, and the authoritative cooked
+  static-mesh BVH4 terrain path
+- Contact-capable native PSM scene with the generic dynamic curved-needle
+  asset, exact-CCD shape flags, persistent contact state, and a logical
+  aperture-to-independent-jaw target map. Physics-owned evidence scores the
+  measured rigid-body pose and contacts without a weld or hidden grasp state
 - First-class dual-PSM/needle/thread composition: a geometry-derived rear
   swage anchor drives the Metal DER endpoint, every attachment projection
   emits fixed-slot impulse/force evidence, and an equal-and-opposite wrench is
@@ -280,27 +271,27 @@ cmake --build build
 ./build/bin/metalrobo_bench --envs 1024 --steps 1000
 ```
 
-Python support lives under `python/` and loads the native library from the
-CMake build tree by default.
+Python support under `python/` is restricted to learning, data, artifact
+inspection, export, and external sim2sim comparison. Swift owns native rollout
+scheduling.
 
 ```sh
 python3 -m pip install -e python
-cd python
-python3 probes/mlx_world_probe.py
-
-metalrobo train \
-  --backend mlx \
-  --envs 1024 \
-  --rollout-steps 32 \
-  --iterations 1000 \
-  --minibatch-size 8192
+cmake --build build --target metalrobo_task_train
+./build/bin/metalrobo_task_train \
+  --metallib build/shaders/MetalRobo.metallib \
+  --native-library build/lib/libmetalrobo.dylib \
+  --mlx-python python/.venv/bin/python \
+  --python-root python \
+  --policy-pack runs/g1/initial.policypack \
+  --updated-policy-pack runs/g1/training.policypack \
+  --rollout-pack runs/g1/latest.rolloutpack
 ```
 
 The native engine has no third-party physics dependency. Factual robot model
 data retains its upstream notices in
 [THIRD_PARTY_NOTICES](../THIRD_PARTY_NOTICES.md). Python training requires Python
-3.10+, MLX 0.32 for the device-native path, and NumPy only for the legacy
-debug adapter. On the local 10-GPU-core Apple M4, the current canonical
+3.10+ and MLX 0.32 for the learner. On the local 10-GPU-core Apple M4, the current canonical
 Franka Metal-world gate measured 221,219 device-timestamped and 218,616
 end-to-end wall-timed
 control-steps/s for 4,096 environments over a 16-step horizon, with four

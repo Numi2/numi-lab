@@ -35,7 +35,7 @@ concept art and no screenshot from another simulator.
 | **Persistent Metal execution** | Batched worlds, fixed-capacity device graphs, private GPU resources, transactional resets, and Swift-scheduled native task/policy rollouts. |
 | **Robot-independent tasks** | Authored TaskPacks resolve semantic joint/body names into immutable action, observation, contact, reward, termination, randomization, and terrain tables consumed by generic Metal kernels. |
 | **Native policy execution** | Fingerprinted PolicyPacks carry normalization and dense actor weights into generic Metal inference; MLX owns PPO updates and publishes the next policy revision. |
-| **GPU-native scene queries** | Vectorized world or body-mounted grid/LiDAR rays against dynamic analytic, convex, and authored mesh geometry, with metric hits and stable identities returned directly as MLX arrays. |
+| **GPU-native scene queries** | Vectorized world or body-mounted grid/LiDAR rays against dynamic analytic, convex, and authored mesh geometry, with metric hits and stable identities retained in native Metal buffers. |
 | **Visual Presentation V3** | Direct USD/USDZ/GLB cooking, native textures, glTF metallic-roughness PBR, visible HDR environments, shadows, global or rolling shutter, and fast/reference sensor profiles. |
 | **Policy-ready sensing** | Scene-linear RGB, metric depth, normals, semantic/instance/link identities, motion, validity, calibration, tactile depth, solver wrench, and center of pressure. |
 | **Perception and data plane** | Replaceable perception providers, separate deployable and privileged streams, synchronized policy assembly, deterministic visual episodes, and a LeRobot v3 exporter. |
@@ -157,8 +157,15 @@ python3 probes/mlx_policy_learning_check.py \
 
 The Python package pins `mlx>=0.32,<0.33`. Its production learning surface
 owns actor/critic parameters, optimizer state, and PPO updates. The focused
-check performs a real update and writes the same deterministic PolicyPack
+check performs a real update and writes the same fingerprinted PolicyPack
 consumed by the Swift/Metal rollout.
+
+`metalrobo_task_train` is the production scheduler: it keeps one native
+resident world, launches one persistent MLX learner process, collects compact
+rollouts, evaluates the terminal critic value without advancing physics, and
+installs each new PolicyPack revision transactionally. Every update also
+publishes a deterministic deployment PolicyPack with the same actor revision
+and no exploration distribution.
 
 ## Repository map
 
@@ -168,7 +175,7 @@ consumed by the Swift/Metal rollout.
 | [`src/core`](src/core) | Models, compilers, world families, contact, observation, and episode logic. |
 | [`src/metal`](src/metal) | Physics, collision, solvers, rendering, IBL, tactile, and sensor kernels. |
 | [`src/apple`](src/apple) | Model I/O, Core Image, Metal I/O, and Apple-native asset/environment cooking. |
-| [`python`](python) | MLX learning, tactile-dataset ingestion, perception/data adapters, policy export, and explicitly isolated research oracles. |
+| [`python`](python) | MLX batch learning, tactile-dataset ingestion, perception/data adapters, policy export, and independent sim2sim checks. |
 | [`schemas`](schemas) | Persisted world, visual, sensor, perception, and episode contracts. |
 | [`apps`](apps) | Focused probes, cookers, examples, and benchmarks. |
 

@@ -7,6 +7,8 @@
 
 namespace metalrobo {
 
+struct MRWorldPack;
+
 enum class LocomotionSurface : std::uint32_t {
     ground = 0u,
     terrain = 1u,
@@ -16,6 +18,7 @@ struct LocomotionWorld {
     EngineModel model;
     std::vector<MRBodyStateGPU> sceneBodies;
     TaskPack task;
+    std::uint32_t articulationIndex = 0u;
 };
 
 struct CompiledLocomotionWorld {
@@ -49,6 +52,14 @@ void appendLocomotionSurface(
     EngineModel& model,
     std::vector<MRBodyStateGPU>& sceneBodies,
     LocomotionSurface surface
+);
+
+// Materializes the authored base state from one complete MRWorldPack. The
+// pack owns mechanics and scene composition; TaskPack remains a separate
+// learning contract resolved against those exact semantic names.
+[[nodiscard]] LocomotionWorld makeWorldPackLocomotionWorld(
+    const MRWorldPack& worldPack,
+    TaskPack task
 );
 
 // Official 29-DoF Unitree G1 mechanics plus the current locomotion surface.

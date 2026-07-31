@@ -21,6 +21,9 @@ struct MetalWorldCapacityProfile {
     std::uint32_t spillRows = 0u;
     std::uint32_t ccdCandidates = 0u;
     std::uint32_t ccdEvents = 0u;
+    // Canonical ConstraintIR uses exactly two runtime endpoints and two point
+    // queries per block. Nonzero authored values must therefore equal
+    // 2 * constraintBlocks; they are not independent tuning dimensions.
     std::uint32_t endpointRuntimeRecords = 0u;
     std::uint32_t articulationPointQueries = 0u;
     std::uint32_t rodCandidatePairs = 0u;

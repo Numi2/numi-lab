@@ -1,10 +1,11 @@
-"""Deployment artifacts and independent Unitree MuJoCo playback for G1."""
+"""Canonical PolicyPack export and independent Unitree MuJoCo playback."""
 
 from __future__ import annotations
 
-import hashlib
 import json
+import hashlib
 import math
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -12,42 +13,18 @@ from typing import Any
 import mlx.core as mx
 import numpy as np
 
-G1_JOINT_ORDER = (
-    "left_hip_pitch_joint",
-    "left_hip_roll_joint",
-    "left_hip_yaw_joint",
-    "left_knee_joint",
-    "left_ankle_pitch_joint",
-    "left_ankle_roll_joint",
-    "right_hip_pitch_joint",
-    "right_hip_roll_joint",
-    "right_hip_yaw_joint",
-    "right_knee_joint",
-    "right_ankle_pitch_joint",
-    "right_ankle_roll_joint",
-    "waist_yaw_joint",
-    "waist_roll_joint",
-    "waist_pitch_joint",
-    "left_shoulder_pitch_joint",
-    "left_shoulder_roll_joint",
-    "left_shoulder_yaw_joint",
-    "left_elbow_joint",
-    "left_wrist_roll_joint",
-    "left_wrist_pitch_joint",
-    "left_wrist_yaw_joint",
-    "right_shoulder_pitch_joint",
-    "right_shoulder_roll_joint",
-    "right_shoulder_yaw_joint",
-    "right_elbow_joint",
-    "right_wrist_roll_joint",
-    "right_wrist_pitch_joint",
-    "right_wrist_yaw_joint",
+from .mlx_policy_learning import (
+    NativePolicyPack,
+    read_policy_pack,
 )
+from .native import unitree_g1_deployment_contract
+
 G1_ACTOR_FRAME_SIZE = 96
 G1_ACTOR_HISTORY = 5
 G1_ACTOR_OBSERVATION_SIZE = (
     G1_ACTOR_FRAME_SIZE * G1_ACTOR_HISTORY
 )
+G1_ACTION_COUNT = (G1_ACTOR_FRAME_SIZE - 9) // 3
 
 
 @dataclass(frozen=True, slots=True)
@@ -60,79 +37,117 @@ class G1DeployableSensors:
     joint_velocity: np.ndarray
 
 
-def _policy_record(checkpoint: Path) -> dict[str, Any]:
-    record = json.loads(
-        (checkpoint / "policy.json").read_text(encoding="utf-8")
+def _g1_policy(
+    path: str | Path,
+    library_path: str | Path | None = None,
+) -> NativePolicyPack:
+    pack = read_policy_pack(
+        path,
+        library_path=library_path,
     )
     if (
-        record.get("format") != "metalrobo.g1-policy-pack"
-        or record.get("actor_observation_size")
+        pack.actor_observation_count
         != G1_ACTOR_OBSERVATION_SIZE
-        or tuple(record.get("joint_order", ())) != G1_JOINT_ORDER
+        or pack.action_count != G1_ACTION_COUNT
     ):
-        raise ValueError("policy pack does not match the G1 actor ABI")
-    weight_path = checkpoint / "model.safetensors"
-    if not weight_path.is_file():
-        raise ValueError("G1 policy pack has no model weights")
-    with weight_path.open("rb") as weight_file:
-        weight_hash = hashlib.file_digest(
-            weight_file,
-            "sha256",
-        ).hexdigest()
-    if weight_hash != record.get("weights_sha256"):
-        raise ValueError("G1 policy weight identity does not match its pack")
-    return record
+        raise ValueError(
+            "PolicyPack dimensions do not match the bundled G1 TaskPack"
+        )
+    return pack
 
 
-def _actor_layers(
-    checkpoint: Path,
-) -> list[tuple[np.ndarray, np.ndarray]]:
-    weights = mx.load(str(checkpoint / "model.safetensors"))
-    if not isinstance(weights, dict):
-        raise ValueError("G1 policy weights are not a named tensor map")
-    layers = []
-    index = 0
-    while True:
-        weight_name = f"actor.layers.{index}.weight"
-        bias_name = f"actor.layers.{index}.bias"
-        if weight_name in weights:
-            layers.append(
-                (
-                    np.asarray(weights[weight_name], dtype=np.float32),
-                    np.asarray(weights[bias_name], dtype=np.float32),
-                )
-            )
-        index += 1
-        if index > 32:
+def _g1_contract(
+    library_path: str | Path | None,
+) -> dict[str, Any]:
+    contract = unitree_g1_deployment_contract(library_path)
+    if (
+        len(contract["joint_order"]) != G1_ACTION_COUNT
+        or contract["actor_frame_size"] != G1_ACTOR_FRAME_SIZE
+        or contract["actor_history_length"] != G1_ACTOR_HISTORY
+    ):
+        raise RuntimeError(
+            "Native G1 deployment contract disagrees with the actor ABI"
+        )
+    return contract
+
+
+def _verify_simulator_source(
+    model_path: Path,
+    contract: dict[str, Any],
+) -> dict[str, str]:
+    expected_commit = str(contract["simulator_commit"])
+    expected_path = str(contract["simulator_model_path"])
+    repository_root: Path | None = None
+    for candidate in (model_path.parent, *model_path.parents):
+        if (candidate / ".git").exists():
+            repository_root = candidate
             break
-    if len(layers) < 2:
-        raise ValueError("G1 actor does not contain a complete MLP")
-    return layers
+    if repository_root is None:
+        raise ValueError(
+            "official sim2sim evidence requires the model inside its "
+            "pinned Unitree MuJoCo Git checkout"
+        )
+    relative_path = model_path.relative_to(
+        repository_root
+    ).as_posix()
+    if relative_path != expected_path:
+        raise ValueError(
+            "MuJoCo model path differs from the pinned native contract"
+        )
+
+    def git(*arguments: str) -> str:
+        completed = subprocess.run(
+            ("git", "-C", str(repository_root), *arguments),
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10.0,
+        )
+        return completed.stdout.strip()
+
+    try:
+        revision = git("rev-parse", "HEAD")
+        git("ls-files", "--error-unmatch", relative_path)
+        dirty = git(
+            "status",
+            "--porcelain",
+            "--untracked-files=no",
+        )
+    except (OSError, subprocess.SubprocessError) as error:
+        raise ValueError(
+            "could not verify the official Unitree MuJoCo source"
+        ) from error
+    if revision != expected_commit or dirty:
+        raise ValueError(
+            "Unitree MuJoCo checkout is not the clean pinned revision"
+        )
+    return {
+        "simulator_repository":
+            str(contract["simulator_repository"]),
+        "simulator_commit": revision,
+        "simulator_model_path": relative_path,
+    }
 
 
 class G1NumpyPolicy:
     """Portable deterministic actor used by sim2sim and export parity."""
 
-    def __init__(self, checkpoint: str | Path) -> None:
-        self.checkpoint = Path(checkpoint).expanduser().resolve()
-        self.record = _policy_record(self.checkpoint)
-        self.layers = _actor_layers(self.checkpoint)
+    def __init__(
+        self,
+        policy_pack: str | Path,
+        *,
+        library_path: str | Path | None = None,
+    ) -> None:
+        self.policy_pack_path = (
+            Path(policy_pack).expanduser().resolve()
+        )
+        self.pack = _g1_policy(
+            self.policy_pack_path,
+            library_path,
+        )
 
     def __call__(self, observation: np.ndarray) -> np.ndarray:
-        value = np.asarray(observation, dtype=np.float32)
-        if value.shape[-1] != G1_ACTOR_OBSERVATION_SIZE:
-            raise ValueError(
-                "G1 actor observation must contain 480 values"
-            )
-        for index, (weight, bias) in enumerate(self.layers):
-            value = value @ weight.T + bias
-            if index + 1 < len(self.layers):
-                value = np.where(
-                    value >= 0.0,
-                    value,
-                    np.expm1(value),
-                )
-        return np.tanh(value).astype(np.float32, copy=False)
+        return self.pack.actions(observation)
 
 
 class G1ObservationHistory:
@@ -140,10 +155,15 @@ class G1ObservationHistory:
 
     def __init__(self, default_pose: np.ndarray) -> None:
         pose = np.asarray(default_pose, dtype=np.float32)
-        if pose.shape != (29,):
-            raise ValueError("G1 default pose must contain 29 joints")
+        if pose.shape != (G1_ACTION_COUNT,):
+            raise ValueError(
+                "G1 default pose does not match the actor action count"
+            )
         self.default_pose = pose
-        self.previous_action = np.zeros(29, dtype=np.float32)
+        self.previous_action = np.zeros(
+            G1_ACTION_COUNT,
+            dtype=np.float32,
+        )
         self.history = np.zeros(
             (G1_ACTOR_HISTORY, G1_ACTOR_FRAME_SIZE),
             dtype=np.float32,
@@ -226,10 +246,12 @@ def _parity_observations() -> np.ndarray:
 
 
 def export_g1_onnx(
-    checkpoint: str | Path,
+    policy_pack: str | Path,
     output: str | Path,
+    *,
+    library_path: str | Path | None = None,
 ) -> Path:
-    """Write a dependency-light ONNX graph with the packaged joint order."""
+    """Export the canonical G1 PolicyPack actor with parity evidence."""
 
     try:
         import onnx
@@ -238,20 +260,79 @@ def export_g1_onnx(
         raise RuntimeError(
             "ONNX export requires the optional 'onnx' package"
         ) from error
-    checkpoint_path = Path(checkpoint).expanduser().resolve()
-    record = _policy_record(checkpoint_path)
-    layers = _actor_layers(checkpoint_path)
+    pack = _g1_policy(policy_pack, library_path)
+    contract = _g1_contract(library_path)
     nodes = []
-    initializers = []
+    initializers = [
+        numpy_helper.from_array(
+            pack.effective_observation_mean,
+            "observation_mean",
+        ),
+        numpy_helper.from_array(
+            pack.effective_observation_inverse_standard_deviation,
+            "observation_inverse_standard_deviation",
+        ),
+        numpy_helper.from_array(
+            np.asarray(-pack.observation_clip, dtype=np.float32),
+            "observation_clip_minimum",
+        ),
+        numpy_helper.from_array(
+            np.asarray(pack.observation_clip, dtype=np.float32),
+            "observation_clip_maximum",
+        ),
+        numpy_helper.from_array(
+            pack.effective_action_scale,
+            "action_scale",
+        ),
+        numpy_helper.from_array(
+            pack.effective_action_bias,
+            "action_bias",
+        ),
+        numpy_helper.from_array(
+            np.asarray(-pack.action_clip, dtype=np.float32),
+            "action_clip_minimum",
+        ),
+        numpy_helper.from_array(
+            np.asarray(pack.action_clip, dtype=np.float32),
+            "action_clip_maximum",
+        ),
+    ]
     source = "actor_observation"
-    for index, (weight, bias) in enumerate(layers):
+    nodes.extend(
+        (
+            helper.make_node(
+                "Sub",
+                (source, "observation_mean"),
+                ("centered_observation",),
+            ),
+            helper.make_node(
+                "Mul",
+                (
+                    "centered_observation",
+                    "observation_inverse_standard_deviation",
+                ),
+                ("normalized_observation",),
+            ),
+            helper.make_node(
+                "Clip",
+                (
+                    "normalized_observation",
+                    "observation_clip_minimum",
+                    "observation_clip_maximum",
+                ),
+                ("clipped_observation",),
+            ),
+        )
+    )
+    source = "clipped_observation"
+    for index, layer in enumerate(pack.layers):
         weight_name = f"actor_weight_{index}"
         bias_name = f"actor_bias_{index}"
         linear_name = f"actor_linear_{index}"
         initializers.extend(
             (
-                numpy_helper.from_array(weight, weight_name),
-                numpy_helper.from_array(bias, bias_name),
+                numpy_helper.from_array(layer.weights, weight_name),
+                numpy_helper.from_array(layer.bias, bias_name),
             )
         )
         nodes.append(
@@ -262,25 +343,60 @@ def export_g1_onnx(
                 transB=1,
             )
         )
-        if index + 1 < len(layers):
-            activated = f"actor_elu_{index}"
+        if layer.activation != 0:
+            activated = f"actor_activation_{index}"
+            activation = {
+                1: "Relu",
+                2: "Tanh",
+                3: "Elu",
+            }.get(layer.activation)
+            if activation is None:
+                raise ValueError(
+                    "ONNX G1 export does not support this PolicyPack activation"
+                )
             nodes.append(
                 helper.make_node(
-                    "Elu",
+                    activation,
                     (linear_name,),
                     (activated,),
-                    alpha=1.0,
+                    **(
+                        {"alpha": 1.0}
+                        if activation == "Elu"
+                        else {}
+                    ),
                 )
             )
             source = activated
         else:
-            nodes.append(
-                helper.make_node(
-                    "Tanh",
-                    (linear_name,),
-                    ("normalized_action",),
-                )
-            )
+            source = linear_name
+    nodes.extend(
+        (
+            helper.make_node(
+                "Tanh",
+                (source,),
+                ("squashed_action",),
+            ),
+            helper.make_node(
+                "Mul",
+                ("squashed_action", "action_scale"),
+                ("scaled_action",),
+            ),
+            helper.make_node(
+                "Add",
+                ("scaled_action", "action_bias"),
+                ("biased_action",),
+            ),
+            helper.make_node(
+                "Clip",
+                (
+                    "biased_action",
+                    "action_clip_minimum",
+                    "action_clip_maximum",
+                ),
+                ("normalized_action",),
+            ),
+        )
+    )
     graph = helper.make_graph(
         nodes,
         "MetalRoboG1Locomotion",
@@ -295,7 +411,7 @@ def export_g1_onnx(
             helper.make_tensor_value_info(
                 "normalized_action",
                 TensorProto.FLOAT,
-                (None, 29),
+                (None, G1_ACTION_COUNT),
             ),
         ),
         initializer=initializers,
@@ -306,11 +422,13 @@ def export_g1_onnx(
         opset_imports=[helper.make_opsetid("", 17)],
     )
     for key, value in {
-        "joint_order": ",".join(G1_JOINT_ORDER),
+        "joint_order": ",".join(contract["joint_order"]),
         "action_scale_radians": str(
-            record["action_scale_radians"]
+            contract["action_scale_radians"]
         ),
-        "source_revision": str(record["source_revision"]),
+        "policy_id": pack.id,
+        "policy_revision": str(pack.revision),
+        "policy_content_hash": str(pack.content_hash),
     }.items():
         metadata = model.metadata_props.add()
         metadata.key = key
@@ -319,7 +437,10 @@ def export_g1_onnx(
     from onnx.reference import ReferenceEvaluator
 
     parity_input = _parity_observations()
-    expected = G1NumpyPolicy(checkpoint_path)(parity_input)
+    expected = G1NumpyPolicy(
+        policy_pack,
+        library_path=library_path,
+    )(parity_input)
     actual = ReferenceEvaluator(model).run(
         None,
         {"actor_observation": parity_input},
@@ -333,44 +454,60 @@ def export_g1_onnx(
 
 
 def export_g1_mlx(
-    checkpoint: str | Path,
+    policy_pack: str | Path,
     output_directory: str | Path,
+    *,
+    library_path: str | Path | None = None,
 ) -> Path:
-    """Write compact MLX actor weights and the complete deployment contract."""
+    """Write MLX actor tensors plus the native deployment contract."""
 
-    checkpoint_path = Path(checkpoint).expanduser().resolve()
-    record = _policy_record(checkpoint_path)
-    weights = mx.load(str(checkpoint_path / "model.safetensors"))
-    if not isinstance(weights, dict):
-        raise ValueError("G1 policy weights are not a named tensor map")
-    actor_weights = {
-        name: value
-        for name, value in weights.items()
-        if name.startswith("actor.")
-    }
-    if not actor_weights:
-        raise ValueError("G1 checkpoint has no deployable actor weights")
+    pack = _g1_policy(policy_pack, library_path)
+    contract = _g1_contract(library_path)
+    actor_weights: dict[str, mx.array] = {}
+    for index, layer in enumerate(pack.layers):
+        actor_weights[
+            f"actor.layers.{index}.weight"
+        ] = mx.array(layer.weights)
+        actor_weights[
+            f"actor.layers.{index}.bias"
+        ] = mx.array(layer.bias)
+    actor_weights.update(
+        {
+            "actor.observation_mean": mx.array(
+                pack.effective_observation_mean
+            ),
+            "actor.observation_inverse_standard_deviation":
+                mx.array(
+                    pack
+                        .effective_observation_inverse_standard_deviation
+                ),
+            "actor.action_scale": mx.array(
+                pack.effective_action_scale
+            ),
+            "actor.action_bias": mx.array(
+                pack.effective_action_bias
+            ),
+        }
+    )
     target = Path(output_directory).expanduser().resolve()
     target.mkdir(parents=True, exist_ok=True)
     mx.save_safetensors(
         str(target / "g1-locomotion.safetensors"),
         actor_weights,
+        metadata={
+            "format": "metalrobo.policy-pack-mlx-actor",
+            "schema": "1",
+            "policy_id": pack.id,
+            "policy_revision": str(pack.revision),
+            "policy_content_hash": str(pack.content_hash),
+            "observation_clip": str(pack.observation_clip),
+            "action_clip": str(pack.action_clip),
+        },
     )
     deployment = {
-        "format": "metalrobo.g1-deployment",
-        "physics_timestep_seconds": 0.005,
-        "policy_timestep_seconds": 0.02,
-        "joint_order": record["joint_order"],
-        "default_pose": record["default_pose"],
-        "stiffness": record["stiffness"],
-        "damping": record["damping"],
-        "position_limits": record["position_limits"],
-        "velocity_limits": record["velocity_limits"],
-        "effort_limits": record["effort_limits"],
-        "action_scale_radians": record["action_scale_radians"],
-        "drive_prediction_seconds":
-            record["drive_prediction_seconds"],
-        "command_limits": record["command_limits"],
+        **contract,
+        "format": "metalrobo.g1-policy-deployment",
+        "schema": 1,
         "observation": {
             "history_frames": G1_ACTOR_HISTORY,
             "frame_size": G1_ACTOR_FRAME_SIZE,
@@ -383,9 +520,13 @@ def export_g1_mlx(
                 "previous_normalized_action",
             ),
         },
-        "source_revision": record["source_revision"],
-        "source_model": record["source_model"],
-        "policy_fingerprint": record["fingerprint"],
+        "policy": {
+            "id": pack.id,
+            "revision": pack.revision,
+            "content_hash": pack.content_hash,
+            "observation_clip": pack.observation_clip,
+            "action_clip": pack.action_clip,
+        },
     }
     (target / "g1-locomotion-deployment.json").write_text(
         json.dumps(
@@ -401,10 +542,12 @@ def export_g1_mlx(
 
 
 def export_g1_coreml(
-    checkpoint: str | Path,
+    policy_pack: str | Path,
     output: str | Path,
+    *,
+    library_path: str | Path | None = None,
 ) -> Path:
-    """Write a Core ML neural-network package with scene-free inputs."""
+    """Write a Core ML package from the canonical PolicyPack actor."""
 
     try:
         import coremltools as ct
@@ -416,9 +559,15 @@ def export_g1_coreml(
         raise RuntimeError(
             "Core ML export requires the optional 'coremltools' package"
         ) from error
-    checkpoint_path = Path(checkpoint).expanduser().resolve()
-    record = _policy_record(checkpoint_path)
-    layers = _actor_layers(checkpoint_path)
+    pack = _g1_policy(policy_pack, library_path)
+    contract = _g1_contract(library_path)
+    expected_activations = [3] * (len(pack.layers) - 1) + [0]
+    if [
+        layer.activation for layer in pack.layers
+    ] != expected_activations:
+        raise ValueError(
+            "Core ML G1 export requires ELU hidden layers and an identity output"
+        )
     builder = NeuralNetworkBuilder(
         [
             (
@@ -426,64 +575,201 @@ def export_g1_coreml(
                 datatypes.Array(G1_ACTOR_OBSERVATION_SIZE),
             )
         ],
-        [("normalized_action", datatypes.Array(29))],
+        [
+            (
+                "normalized_action",
+                datatypes.Array(G1_ACTION_COUNT),
+            )
+        ],
+        disable_rank5_shape_mapping=True,
+        use_float_arraytype=True,
     )
-    source = "actor_observation"
-    for index, (weight, bias) in enumerate(layers):
+    observation_inverse_standard_deviation = (
+        pack.effective_observation_inverse_standard_deviation
+    )
+    builder.add_load_constant_nd(
+        name="observation_inverse_standard_deviation",
+        output_name="observation_inverse_standard_deviation",
+        constant_value=observation_inverse_standard_deviation,
+        shape=[G1_ACTOR_OBSERVATION_SIZE],
+    )
+    builder.add_elementwise(
+        name="scale_observation",
+        input_names=[
+            "actor_observation",
+            "observation_inverse_standard_deviation",
+        ],
+        output_name="scaled_observation",
+        mode="MULTIPLY",
+    )
+    builder.add_load_constant_nd(
+        name="observation_normalization_bias",
+        output_name="observation_normalization_bias",
+        constant_value=(
+            -pack.effective_observation_mean
+            * observation_inverse_standard_deviation
+        ),
+        shape=[G1_ACTOR_OBSERVATION_SIZE],
+    )
+    builder.add_elementwise(
+        name="normalize_observation",
+        input_names=[
+            "scaled_observation",
+            "observation_normalization_bias",
+        ],
+        output_name="normalized_observation",
+        mode="ADD",
+    )
+    builder.add_clip(
+        name="clip_observation",
+        input_name="normalized_observation",
+        output_name="clipped_observation",
+        min_value=-pack.observation_clip,
+        max_value=pack.observation_clip,
+    )
+    source = "clipped_observation"
+    for index, layer in enumerate(pack.layers):
         linear = f"actor_linear_{index}"
         builder.add_inner_product(
             name=linear,
-            W=weight,
-            b=bias,
-            input_channels=weight.shape[1],
-            output_channels=weight.shape[0],
+            W=layer.weights,
+            b=layer.bias,
+            input_channels=layer.weights.shape[1],
+            output_channels=layer.weights.shape[0],
             has_bias=True,
             input_name=source,
             output_name=linear,
         )
-        if index + 1 < len(layers):
+        if index + 1 < len(pack.layers):
             activated = f"actor_elu_{index}"
             builder.add_activation(
                 name=activated,
                 non_linearity="ELU",
                 input_name=linear,
                 output_name=activated,
-                params=(1.0,),
+                params=1.0,
             )
             source = activated
         else:
             builder.add_activation(
-                name="normalized_action",
+                name="squashed_action",
                 non_linearity="TANH",
                 input_name=linear,
-                output_name="normalized_action",
+                output_name="squashed_action",
             )
+    builder.add_load_constant_nd(
+        name="action_scale",
+        output_name="action_scale",
+        constant_value=pack.effective_action_scale,
+        shape=[G1_ACTION_COUNT],
+    )
+    builder.add_elementwise(
+        name="scale_action",
+        input_names=["squashed_action", "action_scale"],
+        output_name="scaled_action",
+        mode="MULTIPLY",
+    )
+    builder.add_load_constant_nd(
+        name="action_bias",
+        output_name="action_bias",
+        constant_value=pack.effective_action_bias,
+        shape=[G1_ACTION_COUNT],
+    )
+    builder.add_elementwise(
+        name="transform_action",
+        input_names=["scaled_action", "action_bias"],
+        output_name="transformed_action",
+        mode="ADD",
+    )
+    builder.add_clip(
+        name="normalized_action",
+        input_name="transformed_action",
+        output_name="normalized_action",
+        min_value=-pack.action_clip,
+        max_value=pack.action_clip,
+    )
     specification = builder.spec
     specification.description.metadata.shortDescription = (
         "MetalRobo G1 29-DoF proprioceptive locomotion actor"
     )
     specification.description.metadata.userDefined.update(
         {
-            "joint_order": ",".join(G1_JOINT_ORDER),
+            "joint_order": ",".join(contract["joint_order"]),
             "action_scale_radians": str(
-                record["action_scale_radians"]
+                contract["action_scale_radians"]
             ),
-            "source_revision": str(record["source_revision"]),
+            "policy_id": pack.id,
+            "policy_revision": str(pack.revision),
+            "policy_content_hash": str(pack.content_hash),
+            "recommended_compute_units": "cpuAndGPU",
         }
     )
-    model = ct.models.MLModel(specification)
-    parity_input = _parity_observations()[0]
-    expected = G1NumpyPolicy(checkpoint_path)(
-        parity_input[None, :]
-    )[0]
-    actual = np.asarray(
-        model.predict(
-            {"actor_observation": parity_input}
-        )["normalized_action"],
-        dtype=np.float32,
+    parity_observations = _parity_observations()
+    expected = G1NumpyPolicy(
+        policy_pack,
+        library_path=library_path,
+    )(parity_observations)
+
+    def predict(
+        model: object,
+    ) -> np.ndarray:
+        return np.stack(
+            [
+                np.asarray(
+                    model.predict(
+                        {"actor_observation": observation}
+                    )["normalized_action"],
+                    dtype=np.float32,
+                )
+                for observation in parity_observations
+            ]
+        )
+
+    cpu_gpu_model = ct.models.MLModel(
+        specification,
+        compute_units=ct.ComputeUnit.CPU_AND_GPU,
     )
-    if not np.allclose(actual, expected, rtol=1.0e-4, atol=1.0e-4):
-        raise RuntimeError("Core ML G1 policy failed export parity")
+    cpu_gpu_actual = predict(cpu_gpu_model)
+    cpu_gpu_maximum_absolute_error = float(
+        np.max(np.abs(cpu_gpu_actual - expected))
+    )
+    if not np.allclose(
+        cpu_gpu_actual,
+        expected,
+        rtol=1.0e-4,
+        atol=1.0e-4,
+    ):
+        raise RuntimeError(
+            "Core ML G1 policy failed CPU/GPU export parity: "
+            "maximum_absolute_error="
+            f"{cpu_gpu_maximum_absolute_error:.9g}"
+        )
+    all_compute_units_model = ct.models.MLModel(
+        specification,
+        compute_units=ct.ComputeUnit.ALL,
+    )
+    all_compute_units_actual = predict(all_compute_units_model)
+    all_compute_units_maximum_absolute_error = float(
+        np.max(np.abs(all_compute_units_actual - expected))
+    )
+    if all_compute_units_maximum_absolute_error > 5.0e-3:
+        raise RuntimeError(
+            "Core ML G1 policy failed all-compute-units export parity: "
+            "maximum_absolute_error="
+            f"{all_compute_units_maximum_absolute_error:.9g}"
+        )
+    specification.description.metadata.userDefined.update(
+        {
+            "cpu_gpu_parity_maximum_absolute_error":
+                f"{cpu_gpu_maximum_absolute_error:.9g}",
+            "all_compute_units_parity_maximum_absolute_error":
+                f"{all_compute_units_maximum_absolute_error:.9g}",
+        }
+    )
+    model = ct.models.MLModel(
+        specification,
+        compute_units=ct.ComputeUnit.CPU_AND_GPU,
+    )
     target = Path(output).expanduser().resolve()
     target.parent.mkdir(parents=True, exist_ok=True)
     model.save(str(target))
@@ -495,8 +781,10 @@ class UnitreeG1MuJoCoRunner:
 
     def __init__(
         self,
-        checkpoint: str | Path,
+        policy_pack: str | Path,
         model_path: str | Path,
+        *,
+        library_path: str | Path | None = None,
     ) -> None:
         try:
             import mujoco
@@ -505,15 +793,47 @@ class UnitreeG1MuJoCoRunner:
                 "sim2sim requires the optional official 'mujoco' package"
             ) from error
         self.mujoco = mujoco
-        self.policy = G1NumpyPolicy(checkpoint)
-        self.record = self.policy.record
+        self.policy = G1NumpyPolicy(
+            policy_pack,
+            library_path=library_path,
+        )
+        self.contract = _g1_contract(library_path)
         self.model_path = Path(model_path).expanduser().resolve()
         if not self.model_path.is_file():
             raise ValueError("official Unitree MuJoCo model was not found")
+        self.simulator_source = _verify_simulator_source(
+            self.model_path,
+            self.contract,
+        )
+        self.model_sha256 = hashlib.sha256(
+            self.model_path.read_bytes()
+        ).hexdigest()
         self.model = mujoco.MjModel.from_xml_path(
             str(self.model_path)
         )
-        self.model.opt.timestep = 0.005
+        self.physics_timestep = float(
+            self.contract["physics_timestep_seconds"]
+        )
+        self.policy_timestep = float(
+            self.contract["policy_timestep_seconds"]
+        )
+        substeps = self.policy_timestep / self.physics_timestep
+        self.physics_substeps = int(round(substeps))
+        if (
+            self.physics_timestep <= 0.0
+            or self.policy_timestep <= 0.0
+            or self.physics_substeps <= 0
+            or not math.isclose(
+                substeps,
+                self.physics_substeps,
+                rel_tol=0.0,
+                abs_tol=1.0e-7,
+            )
+        ):
+            raise ValueError(
+                "native G1 policy and physics timesteps are incompatible"
+            )
+        self.model.opt.timestep = self.physics_timestep
         self.data = mujoco.MjData(self.model)
         self.pelvis_body = mujoco.mj_name2id(
             self.model,
@@ -526,7 +846,7 @@ class UnitreeG1MuJoCoRunner:
         self.qvel_addresses = []
         self.actuator_addresses = []
         self._joint_ids = []
-        for joint_name in G1_JOINT_ORDER:
+        for joint_name in self.contract["joint_order"]:
             joint = mujoco.mj_name2id(
                 self.model,
                 mujoco.mjtObj.mjOBJ_JOINT,
@@ -560,30 +880,36 @@ class UnitreeG1MuJoCoRunner:
                 actuator = int(matches[0])
             self.actuator_addresses.append(actuator)
         self.default_pose = np.asarray(
-            self.record["default_pose"],
+            self.contract["default_pose"],
             dtype=np.float32,
         )
         self.stiffness = np.asarray(
-            self.record["stiffness"],
+            self.contract["stiffness"],
             dtype=np.float64,
         )
         self.damping = np.asarray(
-            self.record["damping"],
+            self.contract["damping"],
             dtype=np.float64,
         )
         self.effort_limits = np.asarray(
-            self.record["effort_limits"],
+            self.contract["effort_limits"],
             dtype=np.float64,
         )
         self.position_limits = np.asarray(
-            self.record["position_limits"],
+            self.contract["position_limits"],
             dtype=np.float64,
         )
+        self.action_scale_radians = float(
+            self.contract["action_scale_radians"]
+        )
+        self.drive_prediction_seconds = float(
+            self.contract["drive_prediction_seconds"]
+        )
         if (
-            self.stiffness.shape != (29,)
-            or self.damping.shape != (29,)
-            or self.effort_limits.shape != (29,)
-            or self.position_limits.shape != (29, 2)
+            self.stiffness.shape != (G1_ACTION_COUNT,)
+            or self.damping.shape != (G1_ACTION_COUNT,)
+            or self.effort_limits.shape != (G1_ACTION_COUNT,)
+            or self.position_limits.shape != (G1_ACTION_COUNT, 2)
         ):
             raise ValueError(
                 "G1 policy pack has incomplete actuator metadata"
@@ -653,21 +979,28 @@ class UnitreeG1MuJoCoRunner:
         command: np.ndarray,
         *,
         seconds: float = 20.0,
+        zero_action: bool = False,
     ) -> dict[str, float]:
         if not math.isfinite(seconds) or seconds <= 0.0:
             raise ValueError("sim2sim duration must be positive")
         command_array = np.asarray(command, dtype=np.float32)
         observation = self.reset(command_array)
-        action = np.zeros(29, dtype=np.float32)
-        control_steps = int(math.ceil(seconds / 0.02))
+        action = np.zeros(G1_ACTION_COUNT, dtype=np.float32)
+        control_steps = int(
+            math.ceil(seconds / self.policy_timestep)
+        )
         survived = 0
         squared_planar_error = 0.0
         squared_yaw_error = 0.0
         for _ in range(control_steps):
-            action = self.policy(observation[None, :])[0]
+            action = (
+                np.zeros(G1_ACTION_COUNT, dtype=np.float32)
+                if zero_action
+                else self.policy(observation[None, :])[0]
+            )
             target = (
                 self.default_pose
-                + float(self.record["action_scale_radians"]) * action
+                + self.action_scale_radians * action
             )
             target = np.clip(
                 target,
@@ -687,10 +1020,7 @@ class UnitreeG1MuJoCoRunner:
                 * (
                     target
                     - joint_position
-                    - float(
-                        self.record["drive_prediction_seconds"]
-                    )
-                    * joint_velocity
+                    - self.drive_prediction_seconds * joint_velocity
                 )
                 - self.damping * joint_velocity
             )
@@ -718,7 +1048,7 @@ class UnitreeG1MuJoCoRunner:
                 control,
             )
             self.data.ctrl[self.actuator_addresses] = control
-            for _ in range(4):
+            for _ in range(self.physics_substeps):
                 self.mujoco.mj_step(self.model, self.data)
             sensors = self._sensors()
             observation = self.history.update(
@@ -765,8 +1095,26 @@ class UnitreeG1MuJoCoRunner:
             )
         denominator = max(survived, 1)
         return {
+            "policy_id": self.policy.pack.id,
+            "policy_revision": self.policy.pack.revision,
+            "policy_content_hash": self.policy.pack.content_hash,
+            "official_model": str(self.model_path),
+            "official_model_sha256": self.model_sha256,
+            "official_source_verified": True,
+            **self.simulator_source,
+            "unitree_source_repository":
+                self.contract["source_repository"],
+            "unitree_source_commit": self.contract["source_commit"],
+            "unitree_source_model_path":
+                self.contract["source_model_path"],
             "requested_seconds": float(seconds),
-            "survival_seconds": survived * 0.02,
+            "controller": (
+                "zero_action_baseline"
+                if zero_action
+                else "policy"
+            ),
+            "survival_seconds":
+                survived * self.policy_timestep,
             "survival_fraction": survived / control_steps,
             "planar_velocity_rmse": math.sqrt(
                 squared_planar_error / denominator

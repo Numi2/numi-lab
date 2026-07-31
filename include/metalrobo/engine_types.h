@@ -1519,6 +1519,10 @@ typedef struct MR_ALIGN16 MRContactConstraintGPU {
     mr_float4 pointAndSeparation;
     // xyz = unit normal from body A toward body B.
     mr_float4 normal;
+    // xyz = unit tangent-u used by the impulse y component. Tangent-v is
+    // cross(normal, tangent). Retaining the basis makes solved impulses
+    // directly interpretable by tactile, wrench, and logging stages.
+    mr_float4 tangent;
     // Static/dynamic coefficients; effective rolling/torsional lengths (m).
     mr_float4 friction;
     // restitution, threshold, compliance, maximum normal impulse (0=unbounded).

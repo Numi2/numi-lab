@@ -228,14 +228,10 @@ struct TactileObserveResult {
 
 struct TactileSolverContactFrame {
     std::uint32_t environmentCount = 0u;
-    std::uint32_t bodyCount = 0u;
     std::uint32_t contactCapacityPerEnvironment = 0u;
-    std::uint32_t manifoldCapacityPerEnvironment = 0u;
     std::span<const MRShapeGPU> shapes;
-    std::span<const MRBodyStateGPU> bodies;
     std::span<const MRContactConstraintGPU> constraints;
     std::span<const MRContactPointMetaGPU> metadata;
-    std::span<const MRManifoldHeaderGPU> manifoldHeaders;
     std::span<const std::uint32_t> activeContactCounts;
 };
 
@@ -248,8 +244,8 @@ struct TactileSolverContactBatch {
 
 // Converts the physics engine's final solved contact cache into the explicit
 // world-impulse records consumed by tactile reductions. Tangential impulses
-// use the same persisted manifold frame as the solver; no force is inferred
-// from penetration depth.
+// use the exact tangent frame retained by each solved constraint; no force is
+// inferred from penetration depth and no manifold lookup is required.
 [[nodiscard]] TactileObserveResult packTactileSolverContacts(
     const TactileSolverContactFrame& frame,
     TactileSolverContactBatch& output

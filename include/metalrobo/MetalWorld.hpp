@@ -287,6 +287,9 @@ struct MetalWorldStepConfig {
     // Optional generic native inference program. With no policy program,
     // normalized actions remain an explicit learner/deployment input.
     CompiledPolicyProgram policyProgram{};
+    // Publish V(s_T) from the accepted post-rollout state in the same command
+    // buffer. This does not apply the sampled action or advance physics.
+    bool evaluateFinalPolicy = false;
     std::uint64_t taskSeed = 0u;
     std::uint32_t velocityIterations = 1u;
     std::uint32_t finalVelocityIterations = 1u;
@@ -359,6 +362,9 @@ struct MetalWorldLayout {
     std::size_t actorObservationElements = 0u;
     std::size_t criticObservationElements = 0u;
     std::size_t transitionElements = 0u;
+    std::size_t policyLatentElements = 0u;
+    std::size_t policyLogProbabilityElements = 0u;
+    std::size_t policyValueElements = 0u;
     std::size_t accelerationElements = 0u;
     std::size_t statusElements = 0u;
     std::size_t articulationStatusElements = 0u;
@@ -493,6 +499,9 @@ struct MetalWorldResult {
     std::vector<float> actorObservations;
     std::vector<float> criticObservations;
     std::vector<MRTaskTransitionGPU> transitions;
+    std::vector<float> policyLatents;
+    std::vector<float> policyLogProbabilities;
+    std::vector<float> policyValues;
     // Packed [control step][environment][local v]. Failed steps publish zero
     // acceleration and preserve their pre-step accepted state.
     std::vector<float> accelerations;

@@ -239,22 +239,14 @@ double angularCoupling(
     return result;
 }
 
-std::pair<Vec3, Vec3> contactBasis(const Vec3 unitNormal) {
-    const Vec3 absolute{
-        std::abs(unitNormal.x),
-        std::abs(unitNormal.y),
-        std::abs(unitNormal.z),
-    };
-    Vec3 reference{};
-    if (absolute.x <= absolute.y && absolute.x <= absolute.z) {
-        reference = {1.0, 0.0, 0.0};
-    } else if (absolute.y <= absolute.z) {
-        reference = {0.0, 1.0, 0.0};
-    } else {
-        reference = {0.0, 0.0, 1.0};
-    }
-    const Vec3 tangentU = cross(reference, unitNormal);
-    const Vec3 normalizedU = tangentU / length(tangentU);
+std::pair<Vec3, Vec3> contactBasis(
+    const Vec3 unitNormal,
+    const Vec3 authoredTangent
+) {
+    const Vec3 projected =
+        authoredTangent -
+        unitNormal * dot(unitNormal, authoredTangent);
+    const Vec3 normalizedU = projected / length(projected);
     return {normalizedU, cross(unitNormal, normalizedU)};
 }
 
@@ -270,17 +262,23 @@ bool validBody(const MRBodyStateGPU& body) {
 }
 
 bool validContact(const MRContactConstraintGPU& contact) {
+    const Vec3 normal = xyz(contact.normal);
+    const Vec3 tangent = xyz(contact.tangent);
     const double normalLengthSquared = dot(
-        xyz(contact.normal),
-        xyz(contact.normal)
+        normal,
+        normal
     );
+    const double tangentLengthSquared = dot(tangent, tangent);
     return finite(contact.pointAndSeparation) &&
         finite(contact.normal) &&
+        finite(contact.tangent) &&
         finite(contact.friction) &&
         finite(contact.response) &&
         finite(contact.targetVelocityAndPreSolveNormal) &&
         finite(contact.impulses) &&
         std::abs(normalLengthSquared - 1.0) <= 2.0e-4 &&
+        std::abs(tangentLengthSquared - 1.0) <= 2.0e-4 &&
+        std::abs(dot(normal, tangent)) <= 2.0e-4 &&
         contact.friction.x >= 0.0f &&
         contact.friction.y >= 0.0f &&
         contact.friction.x >= contact.friction.y &&
@@ -470,7 +468,8 @@ bool validateEffectiveMasses(
         range.maximum = std::max(range.maximum, normalMass);
 
         if (std::max(contact.friction.x, contact.friction.y) > 0.0f) {
-            const auto [tangentU, tangentV] = contactBasis(normal);
+            const auto [tangentU, tangentV] =
+                contactBasis(normal, xyz(contact.tangent));
             const double kuu = directionalCoupling(
                 bodyA, bodyB, offsetA, offsetB, tangentU, tangentU
             );
@@ -533,7 +532,8 @@ bool warmStart(
         const Vec3 offsetB = point - xyz(bodyB.position);
         const Vec3 normal =
             xyz(contact.normal) / length(xyz(contact.normal));
-        const auto [tangentU, tangentV] = contactBasis(normal);
+        const auto [tangentU, tangentV] =
+            contactBasis(normal, xyz(contact.tangent));
 
         double normalImpulse =
             std::max(static_cast<double>(contact.impulses.x) * scale, 0.0);
@@ -610,7 +610,8 @@ bool solveOne(
     const Vec3 offsetB = point - xyz(bodyB.position);
     const Vec3 normal =
         xyz(contact.normal) / length(xyz(contact.normal));
-    const auto [tangentU, tangentV] = contactBasis(normal);
+    const auto [tangentU, tangentV] =
+        contactBasis(normal, xyz(contact.tangent));
 
     const double softness = normalSoftness(contact, config);
     const double normalDenominator = directionalCoupling(
@@ -985,7 +986,7 @@ void ContactImpulseCache::seed(
             continue;
         }
         const auto [newTangentU, newTangentV] =
-            contactBasis(newNormal);
+            contactBasis(newNormal, xyz(contact.tangent));
         const Vec3 oldTangentU = xyz(entry->second.tangentU);
         const Vec3 oldTangentV = cross(oldNormal, oldTangentU);
         const Vec3 tangentWorld =
@@ -1016,7 +1017,8 @@ void ContactImpulseCache::commit(
         }
         const Vec3 normal =
             xyz(contact.normal) / length(xyz(contact.normal));
-        const auto [tangentU, tangentV] = contactBasis(normal);
+        const auto [tangentU, tangentV] =
+            contactBasis(normal, xyz(contact.tangent));
         static_cast<void>(tangentV);
         entries_[{contact.pairKey, contact.featureKey}] = {
             contact.impulses,

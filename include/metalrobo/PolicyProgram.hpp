@@ -35,9 +35,18 @@ struct PolicyDenseLayer {
 struct PolicyPack {
     std::string id;
     std::uint64_t revision = 1u;
+    // Actor normalization and actor dense network.
     std::vector<float> observationMean;
     std::vector<float> observationInverseStandardDeviation;
     std::vector<PolicyDenseLayer> layers;
+    // Optional asymmetric critic. A stochastic policy requires this network.
+    std::vector<float> criticObservationMean;
+    std::vector<float>
+        criticObservationInverseStandardDeviation;
+    std::vector<PolicyDenseLayer> criticLayers;
+    // Empty selects deterministic tanh(mean). A full action-width vector
+    // selects a diagonal Gaussian in pre-tanh latent space.
+    std::vector<float> actionLogStandardDeviation;
     std::vector<float> actionBias;
     std::vector<float> actionScale;
     float observationClip = 100.0f;
@@ -65,10 +74,13 @@ struct PolicyCompileDiagnostics {
 };
 
 struct PolicyProgramLayout {
-    std::uint32_t layerCount = 0u;
-    std::uint32_t observationCount = 0u;
+    std::uint32_t actorLayerCount = 0u;
+    std::uint32_t criticLayerCount = 0u;
+    std::uint32_t actorObservationCount = 0u;
+    std::uint32_t criticObservationCount = 0u;
     std::uint32_t actionCount = 0u;
     std::uint32_t maximumHiddenCount = 0u;
+    bool stochastic = false;
 };
 
 class CompiledPolicyProgram {
@@ -82,7 +94,9 @@ public:
     [[nodiscard]] const PolicyProgramLayout& layout() const noexcept;
     [[nodiscard]] const MRPolicyProgramHeaderGPU& header() const noexcept;
     [[nodiscard]] std::span<const MRPolicyDenseLayerGPU>
-    layers() const noexcept;
+    actorLayers() const noexcept;
+    [[nodiscard]] std::span<const MRPolicyDenseLayerGPU>
+    criticLayers() const noexcept;
     [[nodiscard]] std::span<const std::byte> arena() const noexcept;
 
 private:

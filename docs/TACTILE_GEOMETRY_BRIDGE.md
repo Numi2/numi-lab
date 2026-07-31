@@ -32,8 +32,8 @@ code.
   RMS tangential speed, maximum motion, and friction-utilization summaries.
 - World compiler and `MRWorldPack` persistence.
 - C++, C, Swift, and Python interfaces.
-- Direct authored-pack execution in `WorldStepPrimitive`, with explicit MLX
-  tactile history and no intermediate command buffer or host bridge.
+- Generic TaskPack observation operators for named 6-axis contact-group
+  wrenches in a reference-body frame.
 - Fixed-capacity masked object-local contact labels for estimator training.
 - An opt-in metric-map and 3D query debugger.
 - A paired-data MLX camera-to-depth translator trainer for the physical side.
@@ -100,7 +100,7 @@ impulses divided by the explicitly supplied impulse interval.
 | Collision/contact | Target geometry reuses cooked engine shapes and BVH4; each solved contact contributes to at most two directly looked-up tactile sensors with opposite wrench signs. |
 | Physics stepping | The tactile encoder accepts body states and solver contacts from the same step and distinguishes observation `dt` from impulse `dt`. |
 | Metal resources | Static geometry is shared; dense outputs/history are fixed-capacity environment-major private buffers. |
-| RL observations | Depth, depth velocity, tangent motion, validity, identity, named summaries, and status are directly borrowable `MTLBuffer` objects or named MLX arrays. |
+| RL observations | Depth, depth velocity, tangent motion, validity, identity, named summaries, and status remain in native Metal buffers. TaskPacks can directly select named 6-axis contact-group wrench channels. |
 | Checkpoints | One exact tactile JSON contract is stored beside the policy. |
 | Replay | Frame index, reset mask, timestamp, and the existing world identity make the temporal contract explicit. |
 | Debugging | Optional PGM, CSV, OBJ, and JSON export; no renderer or readback is required in headless training. |
@@ -191,15 +191,12 @@ them.
 | Apple execution | AdamW, gradient clipping, EMA weights, DDIM inference, streaming correction, and evaluation execute through MLX on the Apple GPU. |
 | Evaluation | Whole-season action MAE/RMSE, streaming MAE/RMSE, tactile ablations, next-wrench RMSE, and correction magnitude. |
 | Artifacts | Safetensors plus SHA-256-sealed config/optimizer/training/EMA weights, source revision, stream and dataset fingerprints, capability declaration, and promotion blockers. |
-| Replay alignment | Verified physical wrench and metric-depth traces add force, torque, and dense-depth residuals to exact-candidate MLX replay. Sensor order and canonical tactile fingerprint must match the compiled world. |
+| Replay alignment | Verified physical wrench and metric-depth traces add force, torque, and dense-depth residuals to native replay evidence. Sensor order and the canonical tactile fingerprint must match the compiled world. |
 
-The replay boundary rejects a stale MLX extension before any custom primitive
-can submit work: its compile-time native/Metal record fingerprint must equal
-the fingerprint exported by the loaded engine library. The physical replay
-probe also provides a host-only pack preflight, flushed stage timings, a
-no-progress worker watchdog, and one-control-step command-buffer boundaries
-for tactile worlds. These controls protect display scheduling; they do not
-turn an interrupted or compiler-service-blocked run into replay evidence.
+The replay boundary checks the runtime ABI and world/tactile fingerprints
+before native GPU work. Physical replay uses bounded native submissions and a
+no-progress watchdog. These controls protect display scheduling; they do not
+turn an interrupted run into replay evidence.
 
 The policy follows
 [Tube Diffusion Policy](https://arxiv.org/abs/2604.23609)'s dual-time idea:
@@ -330,15 +327,13 @@ The C, Swift, and Python native contexts require an explicit `.mrworld` pack
 and compile its cooked tactile system. They do not construct a hidden Franka
 scene or infer sensors from collision geometry.
 
-The authored-pack MLX path owns the same cooked sensor and backing arenas.
-After the final
-solver microstep, `WorldStepPrimitive` materializes committed body velocity,
-packs final solver contacts, samples tactile geometry, reduces summaries, and
-publishes named arrays on MLX's active command encoder. Previous depth,
-validity, object identity, tangent motion, anchors, frame index, time, and
-reset are ordinary `WorldState` arrays. A pack with no tactile sensors has
-zero-sized tactile state, creates no tactile pipelines or resources, and
-encodes no tactile dispatch.
+The native compiled-task path reconstructs named contact-group wrenches
+directly from solved impulses. `MRContactConstraintGPU` retains the exact
+tangent basis for those impulse components, so the six-axis result is
+well-defined in the group reference-body frame. Dense tactile geometry and
+history remain owned by `MetalTactileContext`; composing its summaries and
+maps into the generic task executor is a separate explicit integration. A
+pack with no tactile sensors creates no tactile pipelines or resources.
 
 Debug hits are disabled by default. The choice is specialized when the Metal
 pipelines are created, not carried as a per-frame flag. In headless mode the
@@ -535,3 +530,8 @@ The measured Apple M4 matrix is recorded in `docs/TACTILE_PERFORMANCE.md`.
 - Official Wave hand geometry and tactile maps are cooked exactly, but the
   unpublished collection arms/torso and calibrated elastomer mechanics remain
   outside the current asset contract.
+- Dataset imitation and tactile representation learning plus native TaskPack
+  6-axis wrench observations are available today. The generic native rollout
+  does not yet publish dense maps or `MetalTactileContext` summaries as
+  observation operators. Closing that device-resident dense-sensor-to-policy
+  edge is required before claiming native Tacmap-feature RL.

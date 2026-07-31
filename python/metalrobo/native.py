@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ctypes as ct
 import ctypes.util
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,25 +13,12 @@ from typing import Final, Sequence
 import numpy as np
 import numpy.typing as npt
 
-FloatArray = npt.NDArray[np.float32]
-BoolArray = npt.NDArray[np.bool_]
-UInt8Array = npt.NDArray[np.uint8]
-
 _LIBRARY_ENV: Final = "METALROBO_LIBRARY"
 _METALLIB_ENV: Final = "METALROBO_METALLIB"
 
 
 class MetalRoboError(RuntimeError):
     """Raised when the native MetalRobo runtime reports an error."""
-
-
-class _RuntimeStatsC(ct.Structure):
-    _fields_ = [
-        ("last_gpu_milliseconds", ct.c_double),
-        ("total_gpu_milliseconds", ct.c_double),
-        ("control_steps", ct.c_uint64),
-        ("physics_steps", ct.c_uint64),
-    ]
 
 
 class _WorldFamilyLayoutC(ct.Structure):
@@ -101,6 +89,23 @@ class _PolicyPackC(ct.Structure):
         ),
         ("layers", ct.POINTER(_PolicyDenseLayerC)),
         ("layer_count", ct.c_size_t),
+        ("critic_observation_mean", ct.POINTER(ct.c_float)),
+        ("critic_observation_mean_count", ct.c_size_t),
+        (
+            "critic_observation_inverse_standard_deviation",
+            ct.POINTER(ct.c_float),
+        ),
+        (
+            "critic_observation_inverse_standard_deviation_count",
+            ct.c_size_t,
+        ),
+        ("critic_layers", ct.POINTER(_PolicyDenseLayerC)),
+        ("critic_layer_count", ct.c_size_t),
+        (
+            "action_log_standard_deviation",
+            ct.POINTER(ct.c_float),
+        ),
+        ("action_log_standard_deviation_count", ct.c_size_t),
         ("action_bias", ct.POINTER(ct.c_float)),
         ("action_bias_count", ct.c_size_t),
         ("action_scale", ct.POINTER(ct.c_float)),
@@ -194,16 +199,6 @@ class _TactileSummaryC(ct.Structure):
         ("tangential_motion_and_friction", ct.c_float * 4),
         ("statistics_and_identity", ct.c_uint32 * 4),
     ]
-
-
-@dataclass(frozen=True, slots=True)
-class RuntimeStats:
-    """A snapshot of native runtime counters."""
-
-    last_gpu_milliseconds: float
-    total_gpu_milliseconds: float
-    control_steps: int
-    physics_steps: int
 
 
 def _decode(value: bytes | None) -> str:
@@ -316,11 +311,20 @@ class _Bindings:
         self.lib.mr_version.restype = ct.c_char_p
         self.lib.mr_last_error.argtypes = []
         self.lib.mr_last_error.restype = ct.c_char_p
+        self.lib.mr_unitree_g1_deployment_contract_json.argtypes = []
+        self.lib.mr_unitree_g1_deployment_contract_json.restype = (
+            ct.c_char_p
+        )
         self.lib.mr_write_policy_pack.argtypes = [
             ct.POINTER(_PolicyPackC),
             ct.c_char_p,
         ]
         self.lib.mr_write_policy_pack.restype = ct.c_int
+        self.lib.mr_learning_pack_content_hash.argtypes = [
+            ct.c_void_p,
+            ct.c_size_t,
+        ]
+        self.lib.mr_learning_pack_content_hash.restype = ct.c_uint64
 
         self.lib.mr_compile_episode_manifest.argtypes = [
             ct.c_char_p,
@@ -328,50 +332,6 @@ class _Bindings:
             ct.c_char_p,
         ]
         self.lib.mr_compile_episode_manifest.restype = ct.c_int
-
-        self.lib.mr_create_franka.argtypes = [
-            ct.c_uint32,
-            ct.c_uint64,
-            ct.c_char_p,
-        ]
-        self.lib.mr_create_franka.restype = ct.c_void_p
-        self.lib.mr_destroy.argtypes = [ct.c_void_p]
-        self.lib.mr_destroy.restype = None
-
-        self.lib.mr_reset.argtypes = [ct.c_void_p, ct.c_uint64]
-        self.lib.mr_reset.restype = ct.c_int
-        self.lib.mr_step.argtypes = [
-            ct.c_void_p,
-            ct.POINTER(ct.c_float),
-            ct.c_size_t,
-        ]
-        self.lib.mr_step.restype = ct.c_int
-
-        for name in (
-            "mr_environment_count",
-            "mr_action_count",
-            "mr_observation_count",
-            "mr_link_count",
-        ):
-            function = getattr(self.lib, name)
-            function.argtypes = [ct.c_void_p]
-            function.restype = ct.c_uint32
-
-        self.lib.mr_observations.argtypes = [ct.c_void_p]
-        self.lib.mr_observations.restype = ct.POINTER(ct.c_float)
-        self.lib.mr_rewards.argtypes = [ct.c_void_p]
-        self.lib.mr_rewards.restype = ct.POINTER(ct.c_float)
-        self.lib.mr_terminated.argtypes = [ct.c_void_p]
-        self.lib.mr_terminated.restype = ct.POINTER(ct.c_uint8)
-        self.lib.mr_body_positions.argtypes = [ct.c_void_p]
-        self.lib.mr_body_positions.restype = ct.POINTER(ct.c_float)
-        self.lib.mr_body_rotations.argtypes = [ct.c_void_p]
-        self.lib.mr_body_rotations.restype = ct.POINTER(ct.c_float)
-
-        self.lib.mr_stats.argtypes = [ct.c_void_p]
-        self.lib.mr_stats.restype = _RuntimeStatsC
-        self.lib.mr_device_name.argtypes = [ct.c_void_p]
-        self.lib.mr_device_name.restype = ct.c_char_p
 
         self.lib.mr_create_franka_pick_place_world_family.argtypes = [
             ct.c_uint32,
@@ -643,21 +603,82 @@ def library_version(path: str | os.PathLike[str] | None = None) -> str:
     return _decode(_load_bindings(path).lib.mr_version())
 
 
+def learning_pack_content_hash(
+    payload: npt.ArrayLike,
+    path: str | os.PathLike[str] | None = None,
+) -> int:
+    """Hash one contiguous mapped learning-pack payload through native C++."""
+
+    values = np.asarray(payload)
+    if values.dtype != np.uint8 or values.ndim != 1:
+        raise ValueError(
+            "learning-pack payload must be a one-dimensional uint8 array"
+        )
+    if not values.flags.c_contiguous:
+        raise ValueError("learning-pack payload must be contiguous")
+    pointer = (
+        values.ctypes.data_as(ct.c_void_p)
+        if values.size
+        else None
+    )
+    result = int(
+        _load_bindings(path).lib.mr_learning_pack_content_hash(
+            pointer,
+            values.nbytes,
+        )
+    )
+    if result == 0:
+        raise MetalRoboError("native learning-pack hash failed")
+    return result
+
+
+def unitree_g1_deployment_contract(
+    path: str | os.PathLike[str] | None = None,
+) -> dict[str, object]:
+    """Return the native bundled G1 deployment/mechanics contract."""
+
+    bindings = _load_bindings(path)
+    encoded = (
+        bindings.lib.mr_unitree_g1_deployment_contract_json()
+    )
+    if not encoded:
+        raise MetalRoboError(
+            "G1 deployment contract failed: "
+            + bindings.last_error()
+        )
+    record = json.loads(_decode(encoded))
+    if (
+        not isinstance(record, dict)
+        or record.get("format")
+            != "metalrobo.unitree-g1-deployment"
+        or record.get("schema") != 1
+    ):
+        raise MetalRoboError(
+            "Native G1 deployment contract is malformed"
+        )
+    return record
+
+
 def write_policy_pack(
     output: str | os.PathLike[str],
     *,
     policy_id: str,
     revision: int,
     layers: Sequence[PolicyDenseLayerArtifact],
+    critic_layers: Sequence[PolicyDenseLayerArtifact] = (),
     observation_mean: npt.ArrayLike = (),
     observation_inverse_standard_deviation: npt.ArrayLike = (),
+    critic_observation_mean: npt.ArrayLike = (),
+    critic_observation_inverse_standard_deviation:
+        npt.ArrayLike = (),
+    action_log_standard_deviation: npt.ArrayLike = (),
     action_bias: npt.ArrayLike = (),
     action_scale: npt.ArrayLike = (),
     observation_clip: float = 100.0,
     action_clip: float = 1.0,
     library_path: str | os.PathLike[str] | None = None,
 ) -> Path:
-    """Publish a learner-produced actor through the canonical native writer."""
+    """Publish actor/critic weights through the canonical native writer."""
 
     if not policy_id or not 0 < int(revision) <= np.iinfo(np.uint64).max:
         raise ValueError("policy_id and a nonzero uint64 revision are required")
@@ -678,36 +699,71 @@ def write_policy_pack(
         observation_inverse_standard_deviation,
         "observation_inverse_standard_deviation",
     )
+    critic_mean = values(
+        critic_observation_mean,
+        "critic_observation_mean",
+    )
+    critic_inverse_std = values(
+        critic_observation_inverse_standard_deviation,
+        "critic_observation_inverse_standard_deviation",
+    )
+    log_standard_deviation = values(
+        action_log_standard_deviation,
+        "action_log_standard_deviation",
+    )
     bias = values(action_bias, "action_bias")
     scale = values(action_scale, "action_scale")
-    native_layers = (_PolicyDenseLayerC * len(layers))()
-    for index, layer in enumerate(layers):
-        weights = np.ascontiguousarray(
-            layer.weights,
-            dtype=np.float32,
-        )
-        layer_bias = values(layer.bias, f"layers[{index}].bias")
-        if weights.ndim != 2 or weights.shape[0] != layer_bias.size:
-            raise ValueError(
-                f"layers[{index}] weights must be [output, input] "
-                "with one bias per output"
+    def native_layer_table(
+        source: Sequence[PolicyDenseLayerArtifact],
+        label: str,
+    ) -> ct.Array:
+        native = (_PolicyDenseLayerC * len(source))()
+        for index, layer in enumerate(source):
+            weights = np.ascontiguousarray(
+                layer.weights,
+                dtype=np.float32,
             )
-        if not np.isfinite(weights).all():
-            raise ValueError(
-                f"layers[{index}].weights must contain only finite values"
+            layer_bias = values(
+                layer.bias,
+                f"{label}[{index}].bias",
             )
-        retained.append(weights)
-        if not 0 <= int(layer.activation) <= 4:
-            raise ValueError(f"layers[{index}] activation is unsupported")
-        native_layers[index] = _PolicyDenseLayerC(
-            input_count=weights.shape[1],
-            output_count=weights.shape[0],
-            activation=int(layer.activation),
-            weights=weights.ctypes.data_as(ct.POINTER(ct.c_float)),
-            weight_count=weights.size,
-            bias=layer_bias.ctypes.data_as(ct.POINTER(ct.c_float)),
-            bias_count=layer_bias.size,
-        )
+            if (
+                weights.ndim != 2
+                or weights.shape[0] != layer_bias.size
+            ):
+                raise ValueError(
+                    f"{label}[{index}] weights must be [output, input] "
+                    "with one bias per output"
+                )
+            if not np.isfinite(weights).all():
+                raise ValueError(
+                    f"{label}[{index}].weights must contain only finite values"
+                )
+            retained.append(weights)
+            if not 0 <= int(layer.activation) <= 4:
+                raise ValueError(
+                    f"{label}[{index}] activation is unsupported"
+                )
+            native[index] = _PolicyDenseLayerC(
+                input_count=weights.shape[1],
+                output_count=weights.shape[0],
+                activation=int(layer.activation),
+                weights=weights.ctypes.data_as(
+                    ct.POINTER(ct.c_float)
+                ),
+                weight_count=weights.size,
+                bias=layer_bias.ctypes.data_as(
+                    ct.POINTER(ct.c_float)
+                ),
+                bias_count=layer_bias.size,
+            )
+        return native
+
+    native_layers = native_layer_table(layers, "layers")
+    native_critic_layers = native_layer_table(
+        critic_layers,
+        "critic_layers",
+    )
 
     def pointer(array: np.ndarray) -> ct.POINTER(ct.c_float) | None:
         return (
@@ -726,6 +782,22 @@ def write_policy_pack(
         observation_inverse_standard_deviation_count=inverse_std.size,
         layers=native_layers,
         layer_count=len(layers),
+        critic_observation_mean=pointer(critic_mean),
+        critic_observation_mean_count=critic_mean.size,
+        critic_observation_inverse_standard_deviation=pointer(
+            critic_inverse_std
+        ),
+        critic_observation_inverse_standard_deviation_count=(
+            critic_inverse_std.size
+        ),
+        critic_layers=native_critic_layers,
+        critic_layer_count=len(critic_layers),
+        action_log_standard_deviation=pointer(
+            log_standard_deviation
+        ),
+        action_log_standard_deviation_count=(
+            log_standard_deviation.size
+        ),
         action_bias=pointer(bias),
         action_bias_count=bias.size,
         action_scale=pointer(scale),
@@ -745,222 +817,3 @@ def write_policy_pack(
             f"PolicyPack write failed: {bindings.last_error()}"
         )
     return target
-
-
-def _readonly_view(
-    pointer: ct._Pointer,  # type: ignore[name-defined]
-    shape: tuple[int, ...],
-    *,
-    dtype: npt.DTypeLike,
-    label: str,
-) -> np.ndarray:
-    size = int(np.prod(shape, dtype=np.int64))
-    if size and not bool(pointer):
-        raise MetalRoboError(f"Native runtime returned a null {label} pointer")
-    view = np.ctypeslib.as_array(pointer, shape=(size,)).view(dtype)
-    view = view.reshape(shape)
-    view.setflags(write=False)
-    return view
-
-
-class NativeRuntime:
-    """Own a batched Franka simulator and its zero-copy NumPy views.
-
-    Returned arrays alias native shared memory. Their addresses remain stable
-    until :meth:`close`, while their contents are updated in place on every
-    reset and step. The runtime is intentionally not thread-safe.
-    """
-
-    def __init__(
-        self,
-        environment_count: int = 1024,
-        *,
-        seed: int = 1,
-        library_path: str | os.PathLike[str] | None = None,
-        metallib_path: str | os.PathLike[str] | None = None,
-    ) -> None:
-        if not 1 <= int(environment_count) <= np.iinfo(np.uint32).max:
-            raise ValueError("environment_count must fit in a nonzero uint32")
-        if not 0 <= int(seed) <= np.iinfo(np.uint64).max:
-            raise ValueError("seed must fit in a uint64")
-
-        self._bindings = _load_bindings(library_path)
-        self.library_path = self._bindings.path
-        self.metallib_path = resolve_metallib_path(
-            metallib_path, library_path=self.library_path
-        )
-        encoded_metallib = (
-            os.fsencode(self.metallib_path) if self.metallib_path is not None else None
-        )
-        self._handle = self._bindings.lib.mr_create_franka(
-            ct.c_uint32(environment_count),
-            ct.c_uint64(seed),
-            encoded_metallib,
-        )
-        if not self._handle:
-            raise MetalRoboError(
-                f"Could not create Franka runtime: {self._bindings.last_error()}"
-            )
-
-        try:
-            self.environment_count = int(
-                self._bindings.lib.mr_environment_count(self._handle)
-            )
-            self.action_count = int(
-                self._bindings.lib.mr_action_count(self._handle)
-            )
-            self.observation_count = int(
-                self._bindings.lib.mr_observation_count(self._handle)
-            )
-            self.link_count = int(self._bindings.lib.mr_link_count(self._handle))
-            if min(
-                self.environment_count,
-                self.action_count,
-                self.observation_count,
-                self.link_count,
-            ) <= 0:
-                raise MetalRoboError("Native runtime reported an invalid model shape")
-
-            lib = self._bindings.lib
-            self._observations = _readonly_view(
-                lib.mr_observations(self._handle),
-                (self.environment_count, self.observation_count),
-                dtype=np.float32,
-                label="observation",
-            )
-            self._rewards = _readonly_view(
-                lib.mr_rewards(self._handle),
-                (self.environment_count,),
-                dtype=np.float32,
-                label="reward",
-            )
-            self._terminated_u8 = _readonly_view(
-                lib.mr_terminated(self._handle),
-                (self.environment_count,),
-                dtype=np.uint8,
-                label="termination",
-            )
-            self._terminated = self._terminated_u8.view(np.bool_)
-            self._terminated.setflags(write=False)
-            self._body_positions = _readonly_view(
-                lib.mr_body_positions(self._handle),
-                (self.environment_count, self.link_count, 4),
-                dtype=np.float32,
-                label="body position",
-            )
-            self._body_rotations = _readonly_view(
-                lib.mr_body_rotations(self._handle),
-                (self.environment_count, self.link_count, 4),
-                dtype=np.float32,
-                label="body rotation",
-            )
-        except BaseException:
-            self.close()
-            raise
-
-    def _require_open(self) -> ct.c_void_p:
-        handle = getattr(self, "_handle", None)
-        if not handle:
-            raise MetalRoboError("NativeRuntime is closed")
-        return handle
-
-    @property
-    def observations(self) -> FloatArray:
-        self._require_open()
-        return self._observations
-
-    @property
-    def rewards(self) -> FloatArray:
-        self._require_open()
-        return self._rewards
-
-    @property
-    def terminated(self) -> BoolArray:
-        self._require_open()
-        return self._terminated
-
-    @property
-    def body_positions(self) -> FloatArray:
-        self._require_open()
-        return self._body_positions
-
-    @property
-    def body_rotations(self) -> FloatArray:
-        self._require_open()
-        return self._body_rotations
-
-    @property
-    def version(self) -> str:
-        return _decode(self._bindings.lib.mr_version())
-
-    @property
-    def device_name(self) -> str:
-        handle = self._require_open()
-        return _decode(self._bindings.lib.mr_device_name(handle))
-
-    @property
-    def stats(self) -> RuntimeStats:
-        handle = self._require_open()
-        stats = self._bindings.lib.mr_stats(handle)
-        return RuntimeStats(
-            last_gpu_milliseconds=float(stats.last_gpu_milliseconds),
-            total_gpu_milliseconds=float(stats.total_gpu_milliseconds),
-            control_steps=int(stats.control_steps),
-            physics_steps=int(stats.physics_steps),
-        )
-
-    def reset(self, seed: int = 1) -> FloatArray:
-        """Reset every environment and return the live observation view."""
-
-        if not 0 <= int(seed) <= np.iinfo(np.uint64).max:
-            raise ValueError("seed must fit in a uint64")
-        handle = self._require_open()
-        result = self._bindings.lib.mr_reset(handle, ct.c_uint64(seed))
-        if result != 0:
-            raise MetalRoboError(f"Reset failed: {self._bindings.last_error()}")
-        return self._observations
-
-    def step(self, actions: npt.ArrayLike) -> FloatArray:
-        """Advance one control step using an ``(envs, actions)`` float array."""
-
-        handle = self._require_open()
-        contiguous = np.ascontiguousarray(actions, dtype=np.float32)
-        expected = self.environment_count * self.action_count
-        if contiguous.size != expected:
-            raise ValueError(
-                f"Expected {expected} actions shaped "
-                f"({self.environment_count}, {self.action_count}), got "
-                f"{contiguous.shape} ({contiguous.size} values)"
-            )
-        contiguous = contiguous.reshape(self.environment_count, self.action_count)
-        if not np.isfinite(contiguous).all():
-            raise ValueError("actions must contain only finite values")
-        result = self._bindings.lib.mr_step(
-            handle,
-            contiguous.ctypes.data_as(ct.POINTER(ct.c_float)),
-            ct.c_size_t(expected),
-        )
-        if result != 0:
-            raise MetalRoboError(f"Step failed: {self._bindings.last_error()}")
-        return self._observations
-
-    def close(self) -> None:
-        """Destroy the native runtime. Existing NumPy views become invalid."""
-
-        handle = getattr(self, "_handle", None)
-        if handle:
-            self._handle = None
-            self._bindings.lib.mr_destroy(handle)
-
-    def __enter__(self) -> NativeRuntime:
-        self._require_open()
-        return self
-
-    def __exit__(self, *_: object) -> None:
-        self.close()
-
-    def __del__(self) -> None:
-        try:
-            self.close()
-        except Exception:
-            pass

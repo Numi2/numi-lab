@@ -2,7 +2,7 @@
 
 #include "metalrobo/gpu_types.h"
 
-#define MR_POLICY_PROGRAM_ABI_VERSION 1u
+#define MR_POLICY_PROGRAM_ABI_VERSION 2u
 
 enum MRPolicyActivationOpcode : mr_u32 {
     MR_POLICY_ACTIVATION_IDENTITY = 0u,
@@ -14,17 +14,25 @@ enum MRPolicyActivationOpcode : mr_u32 {
 
 enum MRPolicyDenseFlags : mr_u32 {
     MR_POLICY_DENSE_NORMALIZE_INPUT = 1u << 0u,
-    MR_POLICY_DENSE_TRANSFORM_OUTPUT = 1u << 1u,
-    MR_POLICY_DENSE_CLAMP_OUTPUT = 1u << 2u,
+};
+
+enum MRPolicyProgramFlags : mr_u32 {
+    MR_POLICY_PROGRAM_HAS_CRITIC = 1u << 0u,
+    MR_POLICY_PROGRAM_STOCHASTIC = 1u << 1u,
 };
 
 typedef struct MR_ALIGN16 MRPolicyProgramHeaderGPU {
-    // dense layers, observation width, action width, maximum hidden width.
-    mr_uint4 counts;
-    // layer table, observation mean, observation inverse stddev, action bias.
+    // actor layers, critic layers, actor observation width,
+    // critic observation width.
+    mr_uint4 counts0;
+    // action width, maximum hidden width, program flags, reserved.
+    mr_uint4 counts1;
+    // actor layer table, critic layer table, actor mean, actor inverse stddev.
     mr_uint4 offsets0;
-    // action scale and reserved byte offsets.
+    // critic mean, critic inverse stddev, action bias, action scale.
     mr_uint4 offsets1;
+    // action log standard deviation and reserved byte offsets.
+    mr_uint4 offsets2;
     // observation clip, action clip, reserved, reserved.
     mr_float4 limits;
     mr_u64 policyFingerprint;
@@ -51,7 +59,7 @@ typedef struct MR_ALIGN16 MRPolicyDenseDispatchGPU {
     mr_uint4 strides;
     // weights, bias, observation mean, observation inverse stddev.
     mr_uint4 offsets0;
-    // action bias, action scale, flags, reserved.
+    // reserved, reserved, flags, reserved.
     mr_uint4 offsets1;
     // observation clip, action clip, reserved, reserved.
     mr_float4 limits;
@@ -59,10 +67,24 @@ typedef struct MR_ALIGN16 MRPolicyDenseDispatchGPU {
     mr_u64 taskFingerprint;
 } MRPolicyDenseDispatchGPU;
 
+// One environment per thread finalizes the actor distribution. It preserves
+// the pre-tanh latent and exact old-policy log probability for PPO while
+// publishing transformed actions to the task graph.
+typedef struct MR_ALIGN16 MRPolicySampleDispatchGPU {
+    // environments, actions, control step, program flags.
+    mr_uint4 counts;
+    // action step stride, scalar step stride, actor-mean environment stride,
+    // reserved.
+    mr_uint4 strides;
+    mr_u64 policyFingerprint;
+    mr_u64 taskFingerprint;
+} MRPolicySampleDispatchGPU;
+
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
-static_assert(sizeof(MRPolicyProgramHeaderGPU) == 112u);
+static_assert(sizeof(MRPolicyProgramHeaderGPU) == 144u);
 static_assert(sizeof(MRPolicyDenseLayerGPU) == 32u);
 static_assert(sizeof(MRPolicyDenseDispatchGPU) == 96u);
+static_assert(sizeof(MRPolicySampleDispatchGPU) == 48u);
 #endif
 #endif

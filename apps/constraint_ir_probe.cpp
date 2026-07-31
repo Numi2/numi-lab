@@ -48,6 +48,7 @@ MRContactConstraintGPU makeContact(
     contact.pointAndSeparation =
         {0.25F, 0.50F, -0.125F, separation};
     contact.normal = {0.0F, 1.0F, 0.0F, 0.0F};
+    contact.tangent = {1.0F, 0.0F, 0.0F, 0.0F};
     contact.friction = {
         newImpact ? 0.80F : 0.70F,
         newImpact ? 0.50F : 0.40F,
@@ -222,13 +223,13 @@ int main() {
                 bodyVelocity.relativeVelocities[
                     lowBlock.rowOffset + 1u
                 ],
-                5.0
+                3.0
             ) &&
             near(
                 bodyVelocity.relativeVelocities[
                     lowBlock.rowOffset + 2u
                 ],
-                3.0
+                -5.0
             ) &&
             near(
                 bodyVelocity.relativeVelocities[

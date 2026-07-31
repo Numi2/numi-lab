@@ -517,12 +517,18 @@ EngineModel makeUnitreeG1TactileEngineModel() {
     const std::uint32_t groundBody =
         static_cast<std::uint32_t>(model.bodies.size());
     model.bodies.push_back(staticBody());
+    if (!model.bodyNames.empty()) {
+        model.bodyNames.emplace_back("ground");
+    }
     model.shapes.push_back(staticBox(
         groundBody,
         0u,
         {2.0f, 2.0f, 0.05f, 0.0f},
         900001u
     ));
+    if (!model.shapeNames.empty()) {
+        model.shapeNames.emplace_back("ground_collision");
+    }
     model.world.bodyCount =
         static_cast<std::uint32_t>(model.bodies.size());
     model.world.shapeCount =

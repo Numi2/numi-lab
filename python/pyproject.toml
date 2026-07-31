@@ -1,9 +1,6 @@
 [build-system]
 requires = [
     "setuptools>=69",
-    "cmake>=3.27",
-    "nanobind>=2.13,<3",
-    "mlx>=0.32,<0.33",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -20,9 +17,6 @@ dependencies = [
 
 [project.scripts]
 metalrobo = "metalrobo.cli:main"
-metalrobo-train = "metalrobo.cli:train_main"
-metalrobo-benchmark = "metalrobo.cli:benchmark_main"
-metalrobo-rollout = "metalrobo.cli:rollout_main"
 metalrobo-tactile = "metalrobo.tactile_cli:main"
 
 [project.optional-dependencies]
@@ -30,6 +24,11 @@ tactile-dataset = [
     "av>=12,<17",
     "huggingface_hub>=0.29,<2",
     "pyarrow>=18,<24",
+]
+g1-deployment = [
+    "coremltools>=8,<10",
+    "mujoco>=3.2,<4",
+    "onnx>=1.17,<2",
 ]
 
 [tool.setuptools]

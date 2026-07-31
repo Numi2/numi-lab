@@ -31,6 +31,7 @@ constexpr std::array<char, 8u> kMagic{
 };
 constexpr std::uint32_t kTaskKind = 1u;
 constexpr std::uint32_t kPolicyKind = 2u;
+constexpr std::uint32_t kPolicyRolloutKind = 3u;
 constexpr std::uint64_t kFNVOffset = 14695981039346656037ull;
 constexpr std::uint64_t kFNVPrime = 1099511628211ull;
 constexpr std::uint64_t kMaximumPayloadBytes =
@@ -64,7 +65,7 @@ bool countFits(const std::size_t count) noexcept {
     return count <= std::numeric_limits<std::uint32_t>::max();
 }
 
-bool stringFits(const std::string& value) noexcept {
+bool stringFits(const std::string_view value) noexcept {
     return countFits(value.size());
 }
 
@@ -75,6 +76,7 @@ LearningPackResult validateTaskArtifact(
         pack.actions.empty() ||
         pack.actorFrame.empty() ||
         pack.actorHistoryLength == 0u ||
+        pack.criticHistoryLength == 0u ||
         pack.maximumEpisodeSteps == 0u ||
         pack.curriculumLevelCount == 0u) {
         return fail(
@@ -197,9 +199,17 @@ LearningPackResult validatePolicyArtifact(
         );
     }
     if (!countFits(pack.layers.size()) ||
+        !countFits(pack.criticLayers.size()) ||
         !countFits(pack.observationMean.size()) ||
         !countFits(
             pack.observationInverseStandardDeviation.size()
+        ) ||
+        !countFits(pack.criticObservationMean.size()) ||
+        !countFits(
+            pack.criticObservationInverseStandardDeviation.size()
+        ) ||
+        !countFits(
+            pack.actionLogStandardDeviation.size()
         ) ||
         !countFits(pack.actionBias.size()) ||
         !countFits(pack.actionScale.size())) {
@@ -208,21 +218,256 @@ LearningPackResult validatePolicyArtifact(
             "PolicyPack table count exceeds the 32-bit artifact boundary"
         );
     }
-    for (const PolicyDenseLayer& layer : pack.layers) {
-        const std::uint64_t expectedWeights =
-            static_cast<std::uint64_t>(layer.inputCount) *
-            layer.outputCount;
-        if (layer.inputCount == 0u ||
-            layer.outputCount == 0u ||
-            expectedWeights != layer.weights.size() ||
-            layer.bias.size() != layer.outputCount ||
-            !countFits(layer.weights.size()) ||
-            !countFits(layer.bias.size())) {
-            return fail(
-                LearningPackStatus::invalidPack,
-                "PolicyPack dense-layer shape is invalid"
-            );
+    const auto validLayerTable = [](
+        const std::span<const PolicyDenseLayer> layers
+    ) {
+        return std::all_of(
+            layers.begin(),
+            layers.end(),
+            [](const PolicyDenseLayer& layer) {
+                const std::uint64_t expectedWeights =
+                    static_cast<std::uint64_t>(
+                        layer.inputCount
+                    ) * layer.outputCount;
+                const auto finiteValues = [](
+                    const std::span<const float> values
+                ) {
+                    return std::all_of(
+                        values.begin(),
+                        values.end(),
+                        [](const float value) {
+                            return std::isfinite(value);
+                        }
+                    );
+                };
+                return layer.inputCount != 0u &&
+                    layer.outputCount != 0u &&
+                    static_cast<std::uint32_t>(
+                        layer.activation
+                    ) <= MR_POLICY_ACTIVATION_SILU &&
+                    expectedWeights == layer.weights.size() &&
+                    layer.bias.size() == layer.outputCount &&
+                    countFits(layer.weights.size()) &&
+                    countFits(layer.bias.size()) &&
+                    finiteValues(layer.weights) &&
+                    finiteValues(layer.bias);
+            }
+        );
+    };
+    const auto finiteValues = [](
+        const std::span<const float> values
+    ) {
+        return std::all_of(
+            values.begin(),
+            values.end(),
+            [](const float value) {
+                return std::isfinite(value);
+            }
+        );
+    };
+    if (!validLayerTable(pack.layers) ||
+        !validLayerTable(pack.criticLayers) ||
+        (!pack.actionLogStandardDeviation.empty() &&
+         pack.criticLayers.empty()) ||
+        !finiteValues(pack.observationMean) ||
+        !finiteValues(
+            pack.observationInverseStandardDeviation
+        ) ||
+        !finiteValues(pack.criticObservationMean) ||
+        !finiteValues(
+            pack.criticObservationInverseStandardDeviation
+        ) ||
+        !finiteValues(pack.actionLogStandardDeviation) ||
+        !finiteValues(pack.actionBias) ||
+        !finiteValues(pack.actionScale)) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "PolicyPack dense-layer shape or stochastic contract is invalid"
+        );
+    }
+    return {};
+}
+
+template <typename Pack>
+LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
+    if (pack.id.empty() || !stringFits(pack.id) ||
+        pack.taskFingerprint == 0u ||
+        pack.policyFingerprint == 0u ||
+        pack.policyRevision == 0u ||
+        pack.environmentCount == 0u ||
+        pack.controlStepCount == 0u ||
+        pack.actorObservationCount == 0u ||
+        pack.criticObservationCount == 0u ||
+        pack.actionCount == 0u) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "PolicyRolloutPack identity, fingerprints, or dimensions are invalid"
+        );
+    }
+    const auto multiply = [](
+        const std::uint64_t left,
+        const std::uint64_t right,
+        std::uint64_t& output
+    ) {
+        if (right != 0u &&
+            left >
+                std::numeric_limits<std::uint64_t>::max() /
+                    right) {
+            return false;
         }
+        output = left * right;
+        return true;
+    };
+    std::uint64_t samples = 0u;
+    std::uint64_t actorElements = 0u;
+    std::uint64_t criticElements = 0u;
+    std::uint64_t actionElements = 0u;
+    if (!multiply(
+            pack.environmentCount,
+            pack.controlStepCount,
+            samples
+        ) ||
+        !multiply(
+            samples,
+            pack.actorObservationCount,
+            actorElements
+        ) ||
+        !multiply(
+            samples,
+            pack.criticObservationCount,
+            criticElements
+        ) ||
+        !multiply(
+            samples,
+            pack.actionCount,
+            actionElements
+        ) ||
+        samples >
+            std::numeric_limits<std::size_t>::max() ||
+        actorElements >
+            std::numeric_limits<std::size_t>::max() ||
+        criticElements >
+            std::numeric_limits<std::size_t>::max() ||
+        actionElements >
+            std::numeric_limits<std::size_t>::max() ||
+        pack.actorObservations.size() != actorElements ||
+        pack.criticObservations.size() != criticElements ||
+        pack.latents.size() != actionElements ||
+        pack.logProbabilities.size() != samples ||
+        pack.values.size() != samples ||
+        pack.bootstrapValues.size() !=
+            pack.environmentCount ||
+        pack.transitions.size() != samples) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "PolicyRolloutPack tensors do not match its declared dimensions"
+        );
+    }
+    const auto finiteValues = [](
+        const std::span<const float> values
+    ) {
+        return std::all_of(
+            values.begin(),
+            values.end(),
+            [](const float value) {
+                return std::isfinite(value);
+            }
+        );
+    };
+    if (!finiteValues(pack.actorObservations) ||
+        !finiteValues(pack.criticObservations) ||
+        !finiteValues(pack.latents) ||
+        !finiteValues(pack.logProbabilities) ||
+        !finiteValues(pack.values) ||
+        !finiteValues(pack.bootstrapValues) ||
+        !std::all_of(
+            pack.transitions.begin(),
+            pack.transitions.end(),
+            [&](const MRTaskTransitionGPU& transition) {
+                return transition.policyRevision ==
+                        pack.policyRevision &&
+                    std::isfinite(
+                        transition.rewardAndState.x
+                    ) &&
+                    std::isfinite(
+                        transition.rewardAndState.y
+                    ) &&
+                    std::isfinite(
+                        transition.rewardAndState.z
+                    ) &&
+                    std::isfinite(
+                        transition.rewardAndState.w
+                    ) &&
+                    std::isfinite(
+                        transition.rewardBreakdown0.x
+                    ) &&
+                    std::isfinite(
+                        transition.rewardBreakdown0.y
+                    ) &&
+                    std::isfinite(
+                        transition.rewardBreakdown0.z
+                    ) &&
+                    std::isfinite(
+                        transition.rewardBreakdown0.w
+                    ) &&
+                    std::isfinite(
+                        transition.rewardBreakdown1.x
+                    ) &&
+                    std::isfinite(
+                        transition.rewardBreakdown1.y
+                    ) &&
+                    std::isfinite(
+                        transition.rewardBreakdown1.z
+                    ) &&
+                    std::isfinite(
+                        transition.rewardBreakdown1.w
+                    ) &&
+                    transition.termination.x <= 1u &&
+                    transition.termination.y <= 1u &&
+                    transition.termination.z <= 1u;
+            }
+        )) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "PolicyRolloutPack contains non-finite or inconsistent samples"
+        );
+    }
+    std::uint64_t payloadBytes =
+        8u + pack.id.size() +
+        3u * sizeof(std::uint64_t) +
+        5u * sizeof(std::uint32_t) +
+        7u * sizeof(std::uint64_t);
+    if (payloadBytes > kMaximumPayloadBytes) {
+        return fail(
+            LearningPackStatus::capacityOverflow,
+            "PolicyRolloutPack payload exceeds the 32-bit artifact boundary"
+        );
+    }
+    const auto addTable = [&]<typename Table>(
+        const Table& values
+    ) {
+        using Value = typename Table::value_type;
+        const std::uint64_t available =
+            kMaximumPayloadBytes - payloadBytes;
+        if (values.size() > available / sizeof(Value)) {
+            return false;
+        }
+        payloadBytes +=
+            static_cast<std::uint64_t>(values.size()) *
+            sizeof(Value);
+        return true;
+    };
+    if (!addTable(pack.actorObservations) ||
+        !addTable(pack.criticObservations) ||
+        !addTable(pack.latents) ||
+        !addTable(pack.logProbabilities) ||
+        !addTable(pack.values) ||
+        !addTable(pack.bootstrapValues) ||
+        !addTable(pack.transitions)) {
+        return fail(
+            LearningPackStatus::capacityOverflow,
+            "PolicyRolloutPack payload exceeds the 32-bit artifact boundary"
+        );
     }
     return {};
 }
@@ -240,6 +485,10 @@ std::uint64_t contentHash(
 
 class Writer {
 public:
+    explicit Writer(const std::size_t reservedBytes = 0u) {
+        data_.reserve(reservedBytes);
+    }
+
     template <typename T>
     void pod(const T& value) {
         static_assert(std::is_trivially_copyable_v<T>);
@@ -248,7 +497,7 @@ public:
         data_.insert(data_.end(), bytes, bytes + sizeof(T));
     }
 
-    void string(const std::string& value) {
+    void string(const std::string_view value) {
         const std::uint64_t count = value.size();
         pod(count);
         const auto* bytes =
@@ -259,7 +508,7 @@ public:
     }
 
     template <typename T>
-    void vector(const std::vector<T>& values) {
+    void vector(const std::span<const T> values) {
         static_assert(std::is_trivially_copyable_v<T>);
         const std::uint64_t count = values.size();
         pod(count);
@@ -274,6 +523,11 @@ public:
                 bytes + values.size() * sizeof(T)
             );
         }
+    }
+
+    template <typename T>
+    void vector(const std::vector<T>& values) {
+        vector(std::span<const T>{values});
     }
 
     void strings(const std::vector<std::string>& values) {
@@ -482,6 +736,7 @@ std::vector<std::byte> serializeTask(
     writeRichVector(writer, pack.actorFrame, writeObservation);
     writer.pod(pack.actorHistoryLength);
     writeRichVector(writer, pack.critic, writeObservation);
+    writer.pod(pack.criticHistoryLength);
     writer.pod(static_cast<std::uint8_t>(
         pack.criticIncludesCleanHistory
     ));
@@ -546,6 +801,9 @@ std::vector<std::byte> serializeTask(
     );
     writer.pod(pack.commands.lower);
     writer.pod(pack.commands.upper);
+    writer.pod(pack.commands.limitLower);
+    writer.pod(pack.commands.limitUpper);
+    writer.pod(pack.commands.curriculumStep);
     writer.pod(pack.commands.standingProbability);
     writer.pod(pack.commands.minimumDurationSeconds);
     writer.pod(pack.commands.maximumDurationSeconds);
@@ -590,6 +848,7 @@ bool deserializeTask(
         ) ||
         !reader.pod(pack.actorHistoryLength) ||
         !readRichVector(reader, pack.critic, readObservation) ||
+        !reader.pod(pack.criticHistoryLength) ||
         !reader.pod(cleanHistory) ||
         cleanHistory > 1u ||
         !readRichVector(
@@ -660,6 +919,9 @@ bool deserializeTask(
         ) ||
         !reader.pod(pack.commands.lower) ||
         !reader.pod(pack.commands.upper) ||
+        !reader.pod(pack.commands.limitLower) ||
+        !reader.pod(pack.commands.limitUpper) ||
+        !reader.pod(pack.commands.curriculumStep) ||
         !reader.pod(pack.commands.standingProbability) ||
         !reader.pod(pack.commands.minimumDurationSeconds) ||
         !reader.pod(pack.commands.maximumDurationSeconds) ||
@@ -706,6 +968,22 @@ std::vector<std::byte> serializePolicy(
             target.vector(layer.bias);
         }
     );
+    writer.vector(pack.criticObservationMean);
+    writer.vector(
+        pack.criticObservationInverseStandardDeviation
+    );
+    writeRichVector(
+        writer,
+        pack.criticLayers,
+        [](Writer& target, const PolicyDenseLayer& layer) {
+            target.pod(layer.inputCount);
+            target.pod(layer.outputCount);
+            writeEnum(target, layer.activation);
+            target.vector(layer.weights);
+            target.vector(layer.bias);
+        }
+    );
+    writer.vector(pack.actionLogStandardDeviation);
     writer.vector(pack.actionBias);
     writer.vector(pack.actionScale);
     writer.pod(pack.observationClip);
@@ -735,10 +1013,85 @@ bool deserializePolicy(
                     source.vector(layer.bias);
             }
         ) &&
+        reader.vector(pack.criticObservationMean) &&
+        reader.vector(
+            pack.criticObservationInverseStandardDeviation
+        ) &&
+        readRichVector(
+            reader,
+            pack.criticLayers,
+            [](Reader& source, PolicyDenseLayer& layer) {
+                return source.pod(layer.inputCount) &&
+                    source.pod(layer.outputCount) &&
+                    readEnum(source, layer.activation) &&
+                    source.vector(layer.weights) &&
+                    source.vector(layer.bias);
+            }
+        ) &&
+        reader.vector(pack.actionLogStandardDeviation) &&
         reader.vector(pack.actionBias) &&
         reader.vector(pack.actionScale) &&
         reader.pod(pack.observationClip) &&
         reader.pod(pack.actionClip) &&
+        reader.finished();
+}
+
+template <typename Pack>
+std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
+    const std::size_t payloadBytes =
+        8u + pack.id.size() +
+        3u * sizeof(std::uint64_t) +
+        5u * sizeof(std::uint32_t) +
+        7u * sizeof(std::uint64_t) +
+        pack.actorObservations.size() * sizeof(float) +
+        pack.criticObservations.size() * sizeof(float) +
+        pack.latents.size() * sizeof(float) +
+        pack.logProbabilities.size() * sizeof(float) +
+        pack.values.size() * sizeof(float) +
+        pack.bootstrapValues.size() * sizeof(float) +
+        pack.transitions.size() *
+            sizeof(MRTaskTransitionGPU);
+    Writer writer{payloadBytes};
+    writer.string(pack.id);
+    writer.pod(pack.taskFingerprint);
+    writer.pod(pack.policyFingerprint);
+    writer.pod(pack.policyRevision);
+    writer.pod(pack.environmentCount);
+    writer.pod(pack.controlStepCount);
+    writer.pod(pack.actorObservationCount);
+    writer.pod(pack.criticObservationCount);
+    writer.pod(pack.actionCount);
+    writer.vector(pack.actorObservations);
+    writer.vector(pack.criticObservations);
+    writer.vector(pack.latents);
+    writer.vector(pack.logProbabilities);
+    writer.vector(pack.values);
+    writer.vector(pack.bootstrapValues);
+    writer.vector(pack.transitions);
+    return writer.data();
+}
+
+bool deserializePolicyRollout(
+    const std::span<const std::byte> payload,
+    PolicyRolloutPack& pack
+) {
+    Reader reader{payload};
+    return reader.string(pack.id) &&
+        reader.pod(pack.taskFingerprint) &&
+        reader.pod(pack.policyFingerprint) &&
+        reader.pod(pack.policyRevision) &&
+        reader.pod(pack.environmentCount) &&
+        reader.pod(pack.controlStepCount) &&
+        reader.pod(pack.actorObservationCount) &&
+        reader.pod(pack.criticObservationCount) &&
+        reader.pod(pack.actionCount) &&
+        reader.vector(pack.actorObservations) &&
+        reader.vector(pack.criticObservations) &&
+        reader.vector(pack.latents) &&
+        reader.vector(pack.logProbabilities) &&
+        reader.vector(pack.values) &&
+        reader.vector(pack.bootstrapValues) &&
+        reader.vector(pack.transitions) &&
         reader.finished();
 }
 
@@ -953,6 +1306,12 @@ LearningPackResult readPack(
 
 } // namespace
 
+std::uint64_t learningPackContentHash(
+    const std::span<const std::byte> payload
+) noexcept {
+    return contentHash(payload);
+}
+
 LearningPackResult writeTaskPack(
     const TaskPack& pack,
     const std::filesystem::path& path
@@ -1035,6 +1394,88 @@ LearningPackResult readPolicyPack(
         output,
         deserializePolicy
     );
+}
+
+LearningPackResult writePolicyRolloutPack(
+    const PolicyRolloutPack& pack,
+    const std::filesystem::path& path
+) {
+    return writePolicyRolloutPack(
+        PolicyRolloutPackView{
+            .id = pack.id,
+            .taskFingerprint = pack.taskFingerprint,
+            .policyFingerprint = pack.policyFingerprint,
+            .policyRevision = pack.policyRevision,
+            .environmentCount = pack.environmentCount,
+            .controlStepCount = pack.controlStepCount,
+            .actorObservationCount =
+                pack.actorObservationCount,
+            .criticObservationCount =
+                pack.criticObservationCount,
+            .actionCount = pack.actionCount,
+            .actorObservations = pack.actorObservations,
+            .criticObservations = pack.criticObservations,
+            .latents = pack.latents,
+            .logProbabilities = pack.logProbabilities,
+            .values = pack.values,
+            .bootstrapValues = pack.bootstrapValues,
+            .transitions = pack.transitions,
+        },
+        path
+    );
+}
+
+LearningPackResult writePolicyRolloutPack(
+    const PolicyRolloutPackView& pack,
+    const std::filesystem::path& path
+) {
+    try {
+        const LearningPackResult validation =
+            validatePolicyRolloutArtifact(pack);
+        if (!validation.succeeded()) {
+            return validation;
+        }
+        return writePack(
+            serializePolicyRollout(pack),
+            kPolicyRolloutKind,
+            kPolicyRolloutPackFormatVersion,
+            path
+        );
+    } catch (const std::bad_alloc&) {
+        return fail(
+            LearningPackStatus::capacityOverflow,
+            "PolicyRolloutPack serialization allocation failed"
+        );
+    } catch (const std::exception& error) {
+        return fail(
+            LearningPackStatus::internalFailure,
+            error.what()
+        );
+    }
+}
+
+LearningPackResult readPolicyRolloutPack(
+    const std::filesystem::path& path,
+    PolicyRolloutPack& output
+) {
+    PolicyRolloutPack staged;
+    LearningPackResult result = readPack(
+        path,
+        kPolicyRolloutKind,
+        kPolicyRolloutPackFormatVersion,
+        staged,
+        deserializePolicyRollout
+    );
+    if (!result.succeeded()) {
+        return result;
+    }
+    result = validatePolicyRolloutArtifact(staged);
+    if (!result.succeeded()) {
+        result.status = LearningPackStatus::corruptPayload;
+        return result;
+    }
+    output = std::move(staged);
+    return result;
 }
 
 const char* learningPackStatusName(

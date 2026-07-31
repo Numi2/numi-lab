@@ -1,8 +1,10 @@
 #include "metalrobo/LocomotionWorld.hpp"
 
 #include "metalrobo/G1.hpp"
+#include "metalrobo/WorldPack.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
@@ -30,6 +32,129 @@ MRBodyStateGPU staticState(const std::uint32_t bodyIndex) {
     state.flagsAndIndices[1] = MR_INVALID_INDEX;
     state.flagsAndIndices[2] = bodyIndex;
     return state;
+}
+
+mr_float4 normalizedQuaternion(
+    const mr_float4 authored
+) {
+    const double normSquared =
+        static_cast<double>(authored.x) * authored.x +
+        static_cast<double>(authored.y) * authored.y +
+        static_cast<double>(authored.z) * authored.z +
+        static_cast<double>(authored.w) * authored.w;
+    if (!std::isfinite(normSquared) ||
+        !(normSquared > 0.0)) {
+        throw std::invalid_argument(
+            "WorldPack asset orientation is invalid"
+        );
+    }
+    const float inverseNorm =
+        static_cast<float>(1.0 / std::sqrt(normSquared));
+    return {
+        authored.x * inverseNorm,
+        authored.y * inverseNorm,
+        authored.z * inverseNorm,
+        authored.w * inverseNorm,
+    };
+}
+
+std::array<std::array<float, 3u>, 3u> rotationMatrix(
+    const mr_float4 authored
+) {
+    const mr_float4 normalized =
+        normalizedQuaternion(authored);
+    const float x = normalized.x;
+    const float y = normalized.y;
+    const float z = normalized.z;
+    const float w = normalized.w;
+    return {{
+        {{
+            1.0f - 2.0f * (y * y + z * z),
+            2.0f * (x * y - z * w),
+            2.0f * (x * z + y * w),
+        }},
+        {{
+            2.0f * (x * y + z * w),
+            1.0f - 2.0f * (x * x + z * z),
+            2.0f * (y * z - x * w),
+        }},
+        {{
+            2.0f * (x * z - y * w),
+            2.0f * (y * z + x * w),
+            1.0f - 2.0f * (x * x + y * y),
+        }},
+    }};
+}
+
+void writeWorldInverseInertia(
+    MRBodyStateGPU& state,
+    const MRBodyPropertiesGPU& properties,
+    const float massScale
+) {
+    if (properties.motionType != MR_MOTION_DYNAMIC) {
+        return;
+    }
+    if (!std::isfinite(massScale) || !(massScale > 0.0f)) {
+        throw std::invalid_argument(
+            "WorldPack dynamic asset mass scale is invalid"
+        );
+    }
+    const auto rotation = rotationMatrix(state.orientation);
+    const std::array<std::array<float, 3u>, 3u> body{{
+        std::array{
+            properties.inverseInertiaRow0.x,
+            properties.inverseInertiaRow0.y,
+            properties.inverseInertiaRow0.z,
+        },
+        std::array{
+            properties.inverseInertiaRow1.x,
+            properties.inverseInertiaRow1.y,
+            properties.inverseInertiaRow1.z,
+        },
+        std::array{
+            properties.inverseInertiaRow2.x,
+            properties.inverseInertiaRow2.y,
+            properties.inverseInertiaRow2.z,
+        },
+    }};
+    float world[3u][3u]{};
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u;
+             column < 3u;
+             ++column) {
+            for (std::size_t left = 0u;
+                 left < 3u;
+                 ++left) {
+                for (std::size_t right = 0u;
+                     right < 3u;
+                     ++right) {
+                    world[row][column] +=
+                        rotation[row][left] *
+                        body[left][right] *
+                        rotation[column][right] /
+                        massScale;
+                }
+            }
+        }
+    }
+    state.inverseInertiaWorldRow0 = {
+        world[0u][0u],
+        world[0u][1u],
+        world[0u][2u],
+        0.0f,
+    };
+    state.inverseInertiaWorldRow1 = {
+        world[1u][0u],
+        world[1u][1u],
+        world[1u][2u],
+        0.0f,
+    };
+    state.inverseInertiaWorldRow2 = {
+        world[2u][0u],
+        world[2u][1u],
+        world[2u][2u],
+        0.0f,
+    };
 }
 
 void appendGround(
@@ -235,6 +360,120 @@ void appendLocomotionSurface(
         static_cast<std::uint32_t>(model.shapes.size());
 }
 
+LocomotionWorld makeWorldPackLocomotionWorld(
+    const MRWorldPack& worldPack,
+    TaskPack task
+) {
+    std::string reason;
+    if (!worldPack.valid(&reason)) {
+        throw std::invalid_argument(
+            "invalid MRWorldPack: " + reason
+        );
+    }
+    const WorldTemplate& authored =
+        worldPack.family.worldTemplate;
+    const std::uint32_t robotAssetIndex =
+        authored.assetIndex(authored.task.robotAssetId);
+    if (robotAssetIndex == MR_INVALID_INDEX) {
+        throw std::invalid_argument(
+            "MRWorldPack task robot asset is unresolved"
+        );
+    }
+    const WorldAsset& robot =
+        authored.assets[robotAssetIndex];
+    if (robot.articulationIndex == MR_INVALID_INDEX ||
+        robot.articulationIndex >=
+            authored.engineModel.articulations.size()) {
+        throw std::invalid_argument(
+            "MRWorldPack task robot has no executable articulation"
+        );
+    }
+
+    LocomotionWorld result;
+    result.model = authored.engineModel;
+    result.task = std::move(task);
+    result.articulationIndex = robot.articulationIndex;
+    std::vector<std::uint32_t> bodyToScene(
+        result.model.bodies.size(),
+        MR_INVALID_INDEX
+    );
+    for (std::uint32_t body = 0u;
+         body < result.model.bodies.size();
+         ++body) {
+        const MRBodyPropertiesGPU& properties =
+            result.model.bodies[body];
+        if (properties.articulationIndex !=
+            MR_INVALID_INDEX) {
+            continue;
+        }
+        bodyToScene[body] =
+            static_cast<std::uint32_t>(
+                result.sceneBodies.size()
+            );
+        MRBodyStateGPU state{};
+        state.position.w = 1.0f;
+        state.orientation.w = 1.0f;
+        state.flagsAndIndices[0] = properties.motionType;
+        state.flagsAndIndices[1] = MR_INVALID_INDEX;
+        state.flagsAndIndices[2] = body;
+        if (properties.motionType == MR_MOTION_DYNAMIC) {
+            state.linearVelocityAndInverseMass.w =
+                properties.massAndInverseMass.y;
+            writeWorldInverseInertia(
+                state,
+                properties,
+                1.0f
+            );
+        }
+        result.sceneBodies.push_back(state);
+    }
+    for (const WorldAsset& asset : authored.assets) {
+        for (const std::uint32_t body : asset.bodyIndices) {
+            if (body >= bodyToScene.size()) {
+                throw std::invalid_argument(
+                    "MRWorldPack asset body mapping exceeds its topology"
+                );
+            }
+            const std::uint32_t localScene =
+                bodyToScene[body];
+            if (localScene == MR_INVALID_INDEX) {
+                continue;
+            }
+            MRBodyStateGPU& state =
+                result.sceneBodies[localScene];
+            state.position = {
+                asset.initialPose.position.x,
+                asset.initialPose.position.y,
+                asset.initialPose.position.z,
+                1.0f,
+            };
+            state.orientation = normalizedQuaternion(
+                asset.initialPose.orientation
+            );
+            const MRBodyPropertiesGPU& properties =
+                result.model.bodies[body];
+            if (properties.motionType == MR_MOTION_DYNAMIC &&
+                (!std::isfinite(asset.massScale) ||
+                 !(asset.massScale > 0.0f))) {
+                throw std::invalid_argument(
+                    "MRWorldPack dynamic asset mass scale is invalid"
+                );
+            }
+            state.linearVelocityAndInverseMass.w =
+                properties.motionType == MR_MOTION_DYNAMIC
+                ? properties.massAndInverseMass.y /
+                    asset.massScale
+                : 0.0f;
+            writeWorldInverseInertia(
+                state,
+                properties,
+                asset.massScale
+            );
+        }
+    }
+    return result;
+}
+
 TaskPack makeUnitreeG1LocomotionTaskPack(
     const LocomotionSurface surface
 ) {
@@ -246,37 +485,48 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     // overflow is transactional and reports the exact required stage count,
     // so this is a replayable task contract rather than silent truncation.
     task.capacities = {
-        .candidatePairs = 256u,
-        .rawContacts = 2048u,
-        .manifolds = 256u,
-        .constraintBlocks = 1024u,
-        .constraintRows = 3072u,
-        .hardConvexPairs = 256u,
-        .meshTriangleCandidates = 2048u,
-        .ccdCandidates = 256u,
+        .candidatePairs = 128u,
+        .rawContacts = 128u,
+        .manifolds = 32u,
+        .constraintBlocks = 64u,
+        .constraintRows = 192u,
+        .hardConvexPairs = 64u,
+        .meshTriangleCandidates = 1024u,
+        .ccdCandidates = 64u,
         .ccdEvents = 8u,
-        .endpointRuntimeRecords = 2048u,
-        .articulationPointQueries = 2048u,
-        .qualityRows = 3072u,
-        .islandConstraintReferences = 1024u,
+        .endpointRuntimeRecords = 128u,
+        .articulationPointQueries = 128u,
+        .qualityRows = 192u,
+        .islandConstraintReferences = 64u,
     };
     task.actorHistoryLength = 5u;
+    task.criticHistoryLength = 5u;
+    task.criticIncludesCleanHistory = false;
     task.maximumEpisodeSteps = 1000u;
-    task.maximumActionDelaySteps = 2u;
-    task.maximumObservationDelaySteps = 1u;
+    task.maximumActionDelaySteps = 0u;
+    task.maximumObservationDelaySteps = 0u;
     task.curriculumLevelCount = 11u;
     task.baseHeightTarget = 0.78f;
     task.gaitPeriodSeconds = 0.8f;
     task.clearanceTarget = 0.10f;
     task.successTrackingThreshold = 0.8f;
     task.supportForceThreshold = 1.0f;
-    task.commands.lower = {-0.5f, -0.3f, -0.2f, 0.0f};
-    task.commands.upper = {1.0f, 0.3f, 0.2f, 0.0f};
-    task.commands.standingProbability = 0.15f;
-    task.commands.minimumDurationSeconds = 5.0f;
+    task.commands.lower = {-0.1f, -0.1f, -0.1f, 0.0f};
+    task.commands.upper = {0.1f, 0.1f, 0.1f, 0.0f};
+    task.commands.limitLower = {
+        -0.5f, -0.3f, -0.2f, 0.0f,
+    };
+    task.commands.limitUpper = {
+        1.0f, 0.3f, 0.2f, 0.0f,
+    };
+    task.commands.curriculumStep = {
+        0.1f, 0.1f, 0.0f, 0.0f,
+    };
+    task.commands.standingProbability = 0.02f;
+    task.commands.minimumDurationSeconds = 10.0f;
     task.commands.maximumDurationSeconds = 10.0f;
     task.pushes.maximumVelocity = 0.5f;
-    task.pushes.minimumIntervalSeconds = 2.0f;
+    task.pushes.minimumIntervalSeconds = 5.0f;
     task.pushes.maximumIntervalSeconds = 5.0f;
 
     task.actions.reserve(metadata.jointLimits.size());
@@ -315,9 +565,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             {},
             component,
             0.2f,
-            0.04f,
-            -0.004f,
-            0.004f
+            0.04f
         ));
     }
     for (std::uint32_t component = 0u;
@@ -330,8 +578,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             1.0f,
             0.05f,
             0.0f,
-            0.0f,
-            true
+            0.0f
         ));
     }
     for (std::uint32_t component = 0u;
@@ -350,8 +597,8 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             0u,
             1.0f,
             0.01f,
-            -0.005f,
-            0.005f
+            0.0f,
+            0.0f
         ));
     }
     for (const G1JointLimit& joint : metadata.jointLimits) {
@@ -395,7 +642,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             0.0f,
         },
         .gaitPhaseOffsetRadians = 0.0f,
-        .stanceFraction = 0.5f,
+        .stanceFraction = 0.55f,
     });
     task.contactGroups.push_back({
         .id = "right_foot_contact",
@@ -411,30 +658,24 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         },
         .gaitPhaseOffsetRadians =
             3.14159265358979323846f,
-        .stanceFraction = 0.5f,
+        .stanceFraction = 0.55f,
     });
-    task.contactGroups.push_back({
-        .id = "lower_leg_contact",
-        .bodies = bodyNames({4u, 10u}),
-        .forbidden = true,
-    });
-    task.contactGroups.push_back({
-        .id = "pelvis_contact",
-        .bodies = bodyNames({0u}),
-        .forbidden = true,
-    });
-    task.contactGroups.push_back({
-        .id = "torso_contact",
-        .bodies = bodyNames({15u}),
-        .forbidden = true,
-    });
-    std::vector<std::string> arms;
-    for (std::uint32_t body = 16u; body < 30u; ++body) {
-        arms.emplace_back(metadata.bodyNames[body]);
+    std::vector<std::string> undesiredContactBodies;
+    undesiredContactBodies.reserve(
+        metadata.bodyNames.size() - 2u
+    );
+    for (std::uint32_t body = 0u;
+         body < metadata.bodyNames.size();
+         ++body) {
+        if (body != 6u && body != 12u) {
+            undesiredContactBodies.emplace_back(
+                metadata.bodyNames[body]
+            );
+        }
     }
     task.contactGroups.push_back({
-        .id = "arm_contact",
-        .bodies = std::move(arms),
+        .id = "undesired_contact",
+        .bodies = std::move(undesiredContactBodies),
         .forbidden = true,
     });
     std::vector<std::string> robotBodies;
@@ -479,6 +720,9 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         .joints = std::move(armJoints),
     });
 
+    // Unitree's critic is a separate clean 99-value frame with five-frame
+    // history. Keep this authored as ordinary observation operators so every
+    // imported robot can define the same asymmetric actor/critic contract.
     for (std::uint32_t component = 0u;
          component < 3u;
          ++component) {
@@ -488,33 +732,53 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             component
         ));
     }
-    task.critic.push_back(observation(
-        TaskObservationSource::rootHeight,
-        {},
-        0u
-    ));
-    for (const std::string_view group :
-         {"left_foot_contact", "right_foot_contact"}) {
-        for (std::uint32_t component = 0u;
-             component < 6u;
-             ++component) {
-            task.critic.push_back(observation(
-                TaskObservationSource::contactMetric,
-                group,
-                component
-            ));
-        }
-    }
-    for (const std::string_view group :
-         {
-             "lower_leg_contact",
-             "pelvis_contact",
-             "torso_contact",
-             "arm_contact",
-         }) {
+    for (std::uint32_t component = 0u;
+         component < 3u;
+         ++component) {
         task.critic.push_back(observation(
-            TaskObservationSource::contactMetric,
-            group,
+            TaskObservationSource::rootAngularVelocityLocal,
+            {},
+            component,
+            0.2f
+        ));
+    }
+    for (std::uint32_t component = 0u;
+         component < 3u;
+         ++component) {
+        task.critic.push_back(observation(
+            TaskObservationSource::projectedGravity,
+            {},
+            component
+        ));
+    }
+    for (std::uint32_t component = 0u;
+         component < 3u;
+         ++component) {
+        task.critic.push_back(observation(
+            TaskObservationSource::command,
+            {},
+            component
+        ));
+    }
+    for (const G1JointLimit& joint : metadata.jointLimits) {
+        task.critic.push_back(observation(
+            TaskObservationSource::jointPositionError,
+            joint.name,
+            0u
+        ));
+    }
+    for (const G1JointLimit& joint : metadata.jointLimits) {
+        task.critic.push_back(observation(
+            TaskObservationSource::jointVelocity,
+            joint.name,
+            0u,
+            0.05f
+        ));
+    }
+    for (const G1JointLimit& joint : metadata.jointLimits) {
+        task.critic.push_back(observation(
+            TaskObservationSource::previousAction,
+            joint.name,
             0u
         ));
     }
@@ -532,13 +796,6 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
                 0.0f,
                 0.0f,
             });
-            task.critic.push_back(observation(
-                TaskObservationSource::terrainHeight,
-                {},
-                static_cast<std::uint32_t>(
-                    task.terrain.sampleOffsets.size() - 1u
-                )
-            ));
         }
     }
     if (surface == LocomotionSurface::terrain) {
@@ -560,60 +817,31 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             {0.0f, 0.0f, 0.0f, 0.0f},
         };
     }
-    task.critic.push_back(observation(
-        TaskObservationSource::bodyParameterMean,
-        {},
-        0u
-    ));
-    task.critic.push_back(observation(
-        TaskObservationSource::bodyParameter,
-        "torso_link",
-        0u
-    ));
-    for (std::uint32_t component = 1u;
-         component < 4u;
-         ++component) {
-        task.critic.push_back(observation(
-            TaskObservationSource::bodyParameterMean,
-            {},
-            component
-        ));
-    }
-    for (std::uint32_t component = 0u;
-         component < 4u;
-         ++component) {
-        task.critic.push_back(observation(
-            TaskObservationSource::controllerParameter,
-            {},
-            component
-        ));
-    }
-
     const auto reward =
         [&task](
             const TaskRewardOperator operation,
             const float weight,
             const std::string_view group = {},
-            const float parameter = 0.0f
+            const mr_float4 parameters = {}
         ) {
             task.rewards.push_back({
                 .operation = operation,
                 .sourceGroup = std::string{group},
                 .weight = weight,
-                .parameters = {parameter, 0.0f, 0.0f, 0.0f},
+                .parameters = parameters,
             });
         };
     reward(
         TaskRewardOperator::linearVelocityTracking,
         1.0f,
         {},
-        0.25f
+        {0.25f, 0.0f, 0.0f, 0.0f}
     );
     reward(
         TaskRewardOperator::yawVelocityTracking,
         0.5f,
         {},
-        0.25f
+        {0.25f, 0.0f, 0.0f, 0.0f}
     );
     reward(TaskRewardOperator::constant, 0.15f);
     reward(
@@ -624,7 +852,10 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         TaskRewardOperator::rootRollPitchVelocitySquared,
         -0.05f
     );
-    reward(TaskRewardOperator::tiltSquared, -5.0f);
+    reward(
+        TaskRewardOperator::projectedGravityHorizontalSquared,
+        -5.0f
+    );
     reward(
         TaskRewardOperator::rootHeightErrorSquared,
         -10.0f
@@ -642,26 +873,28 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         -0.05f
     );
     reward(
-        TaskRewardOperator::jointLimitViolationSquared,
-        -5.0f
+        TaskRewardOperator::jointLimitViolationAbsolute,
+        -5.0f,
+        {},
+        {0.9f, 0.0f, 0.0f, 0.0f}
     );
     reward(
         TaskRewardOperator::mechanicalPower,
         -2.0e-5f
     );
     reward(
-        TaskRewardOperator::jointGroupPostureSquared,
-        -0.2f,
+        TaskRewardOperator::jointGroupPostureAbsolute,
+        -1.0f,
         "waist"
     );
     reward(
-        TaskRewardOperator::jointGroupPostureSquared,
-        -0.1f,
+        TaskRewardOperator::jointGroupPostureAbsolute,
+        -1.0f,
         "hips"
     );
     reward(
-        TaskRewardOperator::jointGroupPostureSquared,
-        -0.05f,
+        TaskRewardOperator::jointGroupPostureAbsolute,
+        -0.1f,
         "arms"
     );
     reward(
@@ -669,13 +902,17 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         0.5f
     );
     reward(
-        TaskRewardOperator::swingClearance,
+        TaskRewardOperator::footClearance,
         1.0f,
         {},
-        0.0025f
+        {0.05f, 2.0f, 0.0f, 0.0f}
     );
-    reward(TaskRewardOperator::supportSlip, -0.1f);
-    reward(TaskRewardOperator::forbiddenContact, -1.0f);
+    reward(TaskRewardOperator::supportSlip, -0.2f);
+    reward(
+        TaskRewardOperator::forbiddenContact,
+        -1.0f,
+        "undesired_contact"
+    );
 
     task.terminations = {
         {
@@ -690,20 +927,6 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             .reason = MR_TASK_TERMINATION_TILT,
             .priority = 2u,
             .threshold = 0.8f,
-        },
-        {
-            .operation = TaskTerminationOperator::contactGroup,
-            .sourceGroup = "pelvis_contact",
-            .reason = MR_TASK_TERMINATION_CONTACT,
-            .priority = 3u,
-            .threshold = 0.0f,
-        },
-        {
-            .operation = TaskTerminationOperator::contactGroup,
-            .sourceGroup = "torso_contact",
-            .reason = MR_TASK_TERMINATION_CONTACT,
-            .priority = 3u,
-            .threshold = 0.0f,
         },
     };
 
@@ -725,31 +948,19 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         TaskRandomizationOperator::rootPosition,
         {},
         0u,
-        {0.015f, 0.015f, 0.0f, 0.0f}
+        {0.5f, 0.5f, 0.0f, 0.0f}
     );
     random(
         TaskRandomizationOperator::rootYaw,
         {},
         0u,
-        {-0.08f, 0.08f, 0.0f, 0.0f}
+        {-3.14f, 3.14f, 0.0f, 0.0f}
     );
     random(
-        TaskRandomizationOperator::actionPosition,
+        TaskRandomizationOperator::actionVelocity,
         {},
         0u,
-        {-0.025f, 0.025f, 0.0f, 0.0f}
-    );
-    random(
-        TaskRandomizationOperator::velocity,
-        {},
-        0u,
-        {-0.05f, 0.05f, 0.0f, 0.0f}
-    );
-    random(
-        TaskRandomizationOperator::bodyParameter,
-        "robot",
-        0u,
-        {0.9f, 1.1f, 0.0f, 0.0f}
+        {-1.0f, 1.0f, 0.0f, 0.0f}
     );
     random(
         TaskRandomizationOperator::bodyParameter,
@@ -758,44 +969,11 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
         {0.3f, 1.0f, 0.0f, 0.0f}
     );
     random(
-        TaskRandomizationOperator::bodyParameter,
-        "robot",
-        2u,
-        {0.9f, 1.1f, 0.0f, 0.0f}
-    );
-    random(
-        TaskRandomizationOperator::bodyParameter,
-        "robot",
-        3u,
-        {0.8f, 1.2f, 0.0f, 0.0f}
-    );
-    random(
         TaskRandomizationOperator::bodyPayload,
         "torso_link",
         0u,
         {-1.0f, 3.0f, 0.0f, 0.0f}
     );
-    for (const std::uint32_t component : {0u, 1u, 3u}) {
-        random(
-            TaskRandomizationOperator::controllerParameter,
-            {},
-            component,
-            {0.8f, 1.2f, 0.0f, 0.0f}
-        );
-    }
-    random(
-        TaskRandomizationOperator::actionDelay,
-        {},
-        0u,
-        {0.0f, 2.0f, 0.0f, 0.0f}
-    );
-    random(
-        TaskRandomizationOperator::observationDelay,
-        {},
-        0u,
-        {0.0f, 1.0f, 0.0f, 0.0f}
-    );
-
     return task;
 }
 

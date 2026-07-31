@@ -198,16 +198,21 @@ bool validState(const MRBodyStateGPU& state) {
 
 bool validConstraint(const MRContactConstraintGPU& contact) {
     const Vec3 normal = xyz(contact.normal);
+    const Vec3 tangent = xyz(contact.tangent);
     const double normalSquared = dot(normal, normal);
+    const double tangentSquared = dot(tangent, tangent);
     return
         (contact.flags & ~kKnownConstraintFlags) == 0u &&
         finite(contact.pointAndSeparation) &&
         finite(contact.normal) &&
+        finite(contact.tangent) &&
         finite(contact.friction) &&
         finite(contact.response) &&
         finite(contact.targetVelocityAndPreSolveNormal) &&
         finite(contact.impulses) &&
         std::abs(normalSquared - 1.0) <= 2.0e-4 &&
+        std::abs(tangentSquared - 1.0) <= 2.0e-4 &&
+        std::abs(dot(normal, tangent)) <= 2.0e-4 &&
         contact.friction.x >= 0.0f &&
         contact.friction.y >= 0.0f &&
         contact.friction.x >= contact.friction.y &&

@@ -712,6 +712,12 @@ const G1ModelMetadata& unitreeG1Metadata() noexcept {
         value.sourceModelPath =
             "robots/g1_description/g1_29dof_rev_1_0.urdf";
         value.sourceLicense = "BSD-3-Clause";
+        value.simulatorRepository =
+            "https://github.com/unitreerobotics/unitree_mujoco";
+        value.simulatorCommit =
+            "ae6a8403e272733e9996ef59990880330496177f";
+        value.simulatorModelPath =
+            "unitree_robots/g1/scene_29dof.xml";
         value.rlPresetRepository =
             "https://github.com/unitreerobotics/unitree_rl_lab";
         value.rlPresetCommit =

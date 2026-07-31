@@ -108,20 +108,13 @@ inline float angularCoupling(
 
 inline void contactBasis(
     const float3 normal,
+    const float3 authoredTangent,
     thread float3& tangentU,
     thread float3& tangentV
 ) {
-    const float3 absoluteNormal = abs(normal);
-    float3 reference;
-    if (absoluteNormal.x <= absoluteNormal.y &&
-        absoluteNormal.x <= absoluteNormal.z) {
-        reference = float3(1.0f, 0.0f, 0.0f);
-    } else if (absoluteNormal.y <= absoluteNormal.z) {
-        reference = float3(0.0f, 1.0f, 0.0f);
-    } else {
-        reference = float3(0.0f, 0.0f, 1.0f);
-    }
-    tangentU = normalize(cross(reference, normal));
+    tangentU = normalize(
+        authoredTangent - normal * dot(normal, authoredTangent)
+    );
     tangentV = cross(normal, tangentU);
 }
 
@@ -143,6 +136,7 @@ inline bool validContactInput(
 ) {
     if (!finiteFloat4(contact.pointAndSeparation) ||
         !finiteFloat4(contact.normal) ||
+        !finiteFloat4(contact.tangent) ||
         !finiteFloat4(contact.friction) ||
         !finiteFloat4(contact.response) ||
         !finiteFloat4(contact.targetVelocityAndPreSolveNormal) ||
@@ -152,8 +146,12 @@ inline bool validContactInput(
 
     const float normalLengthSquared =
         dot(contact.normal.xyz, contact.normal.xyz);
+    const float tangentLengthSquared =
+        dot(contact.tangent.xyz, contact.tangent.xyz);
     return
         abs(normalLengthSquared - 1.0f) <= 2.0e-4f &&
+        abs(tangentLengthSquared - 1.0f) <= 2.0e-4f &&
+        abs(dot(contact.normal.xyz, contact.tangent.xyz)) <= 2.0e-4f &&
         all(contact.friction >= 0.0f) &&
         contact.friction.x >= contact.friction.y &&
         all(contact.response >= 0.0f) &&
@@ -352,7 +350,12 @@ inline bool validateEffectiveMasses(
         if (max(contact.friction.x, contact.friction.y) > 0.0f) {
             float3 tangentU;
             float3 tangentV;
-            contactBasis(normal, tangentU, tangentV);
+            contactBasis(
+                normal,
+                contact.tangent.xyz,
+                tangentU,
+                tangentV
+            );
 
             const float kuu = directionalCoupling(
                 bodyA,
@@ -460,7 +463,12 @@ inline bool warmStartContacts(
         const float3 normal = normalize(contact.normal.xyz);
         float3 tangentU;
         float3 tangentV;
-        contactBasis(normal, tangentU, tangentV);
+        contactBasis(
+            normal,
+            contact.tangent.xyz,
+            tangentU,
+            tangentV
+        );
 
         float normalImpulse =
             max(contact.impulses.x * warmStartScale, 0.0f);
@@ -536,7 +544,12 @@ inline bool solveOneContact(
     const float3 normal = normalize(contact.normal.xyz);
     float3 tangentU;
     float3 tangentV;
-    contactBasis(normal, tangentU, tangentV);
+    contactBasis(
+        normal,
+        contact.tangent.xyz,
+        tangentU,
+        tangentV
+    );
 
     const float softness = normalSoftness(contact, batch);
     const float normalDenominator =

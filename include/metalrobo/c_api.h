@@ -78,6 +78,36 @@ typedef struct MRTaskRolloutLayoutC {
     double total_submission_milliseconds;
 } MRTaskRolloutLayoutC;
 
+typedef struct MRTaskRolloutStageHighWaterC {
+    uint32_t candidate_pairs;
+    uint32_t raw_contacts;
+    uint32_t manifolds;
+    uint32_t constraint_blocks;
+    uint32_t constraint_rows;
+    uint32_t islands;
+    uint32_t hard_convex_pairs;
+    uint32_t mesh_triangle_candidates;
+    uint32_t solver_tiles;
+    uint32_t spill_rows;
+    uint32_t ccd_candidates;
+    uint32_t ccd_events;
+    uint32_t endpoint_runtime_records;
+    uint32_t articulation_point_queries;
+    uint32_t rod_candidate_pairs;
+    uint32_t rod_raw_contacts;
+    uint32_t rod_manifolds;
+    uint32_t rod_ccd_events;
+    uint32_t quality_generalized_velocities;
+    uint32_t quality_rows;
+    uint32_t quality_krylov_vectors;
+    uint32_t quality_direct_tiles;
+    uint32_t dynamic_nodes;
+    uint32_t island_node_references;
+    uint32_t island_constraint_references;
+    uint32_t rod_factor_blocks;
+    uint32_t operator_velocity_elements;
+} MRTaskRolloutStageHighWaterC;
+
 typedef struct MRTaskRolloutAdvanceC {
     uint32_t control_step_count;
     uint32_t successful_environment_steps;
@@ -85,9 +115,10 @@ typedef struct MRTaskRolloutAdvanceC {
     uint32_t first_failing_environment;
     uint32_t first_failing_control_step;
     uint32_t first_gpu_status_code;
-    uint32_t scheduled_resets;
+    uint32_t host_requested_resets;
     uint32_t maximum_active_contacts;
     uint32_t maximum_manifolds;
+    MRTaskRolloutStageHighWaterC high_water;
     double gpu_milliseconds;
     double submission_milliseconds;
 } MRTaskRolloutAdvanceC;
@@ -101,6 +132,14 @@ typedef struct MRTaskTransitionC {
     uint32_t timeout;
     uint32_t physics_error;
     uint32_t termination_reason;
+    float task_reward;
+    float base_reward;
+    float joint_velocity_reward;
+    float joint_acceleration_reward;
+    float control_reward;
+    float posture_reward;
+    float energy_reward;
+    float contact_reward;
     uint64_t policy_revision;
     uint64_t reserved;
 } MRTaskTransitionC;
@@ -132,6 +171,14 @@ typedef struct MRPolicyPackC {
     size_t observation_inverse_standard_deviation_count;
     const MRPolicyDenseLayerC* layers;
     size_t layer_count;
+    const float* critic_observation_mean;
+    size_t critic_observation_mean_count;
+    const float* critic_observation_inverse_standard_deviation;
+    size_t critic_observation_inverse_standard_deviation_count;
+    const MRPolicyDenseLayerC* critic_layers;
+    size_t critic_layer_count;
+    const float* action_log_standard_deviation;
+    size_t action_log_standard_deviation_count;
     const float* action_bias;
     size_t action_bias_count;
     const float* action_scale;
@@ -139,6 +186,24 @@ typedef struct MRPolicyPackC {
     float observation_clip;
     float action_clip;
 } MRPolicyPackC;
+
+typedef struct MRPolicyRolloutBatchC {
+    uint32_t control_step_count;
+    const float* actor_observations;
+    size_t actor_observation_count;
+    const float* critic_observations;
+    size_t critic_observation_count;
+    const float* latents;
+    size_t latent_count;
+    const float* log_probabilities;
+    size_t log_probability_count;
+    const float* values;
+    size_t value_count;
+    const float* bootstrap_values;
+    size_t bootstrap_value_count;
+    const MRTaskTransitionC* transitions;
+    size_t transition_count;
+} MRPolicyRolloutBatchC;
 
 typedef struct MRWorldFamilyLayoutC {
     uint32_t capacity;
@@ -302,11 +367,21 @@ MR_API const char* mr_version(void);
 // A consumer must reject a mismatch before submitting GPU work.
 MR_API uint64_t mr_runtime_abi_fingerprint(void);
 MR_API const char* mr_last_error(void);
+// Process-lifetime JSON contract for the bundled Unitree G1 mechanics/task
+// preset. Deployment comparators use this instead of duplicating joint order,
+// nominal drives, limits, or action scaling in another language.
+MR_API const char* mr_unitree_g1_deployment_contract_json(void);
 // Writes the same deterministic PolicyPack artifact consumed by Swift and
 // native Metal rollout. All caller-owned spans are copied before return.
 MR_API int mr_write_policy_pack(
     const MRPolicyPackC* policy,
     const char* policy_pack_path
+);
+// Hashes one already-mapped learning-pack payload with the exact native wire
+// algorithm. Null is valid only when byte_count is zero.
+MR_API uint64_t mr_learning_pack_content_hash(
+    const void* payload,
+    size_t byte_count
 );
 
 // Compile an Apple-native capture manifest into a portable MRWorldPack.
@@ -369,6 +444,15 @@ MR_API MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
     uint32_t surface,
     const char* metallib_path
 );
+// Loads complete mechanics/scene composition from MRWorldPack and resolves a
+// separate TaskPack against it. The authored pack, not a runtime preset,
+// owns terrain and other scene bodies.
+MR_API MRTaskRolloutHandle* mr_create_world_pack_locomotion_rollout(
+    const char* world_pack_path,
+    const char* task_pack_path,
+    const MRTaskRolloutConfigC* config,
+    const char* metallib_path
+);
 MR_API void mr_task_rollout_destroy(MRTaskRolloutHandle* handle);
 MR_API int mr_task_rollout_reset(
     MRTaskRolloutHandle* handle,
@@ -398,6 +482,7 @@ MR_API int mr_task_rollout_advance(
     size_t reset_mask_count,
     uint32_t control_step_count,
     uint64_t policy_revision,
+    uint32_t evaluate_final_policy,
     MRTaskRolloutAdvanceC* advance
 );
 MR_API MRTaskRolloutLayoutC mr_task_rollout_layout(
@@ -422,6 +507,29 @@ MR_API const float* mr_task_rollout_critic_observations(
 );
 MR_API const MRTaskTransitionC* mr_task_rollout_transitions(
     const MRTaskRolloutHandle* handle
+);
+MR_API const float* mr_task_rollout_policy_latents(
+    const MRTaskRolloutHandle* handle
+);
+MR_API const float* mr_task_rollout_policy_log_probabilities(
+    const MRTaskRolloutHandle* handle
+);
+MR_API const float* mr_task_rollout_policy_values(
+    const MRTaskRolloutHandle* handle
+);
+// Value estimates for the accepted post-rollout state. Native policy
+// evaluation is encoded in the same submission without advancing physics.
+MR_API const float* mr_task_rollout_bootstrap_policy_values(
+    const MRTaskRolloutHandle* handle
+);
+// Transactionally publishes an aggregated Swift-owned collection boundary.
+// Dimensions and fingerprints are derived from the installed task/policy;
+// caller spans are copied before return.
+MR_API int mr_task_rollout_write_policy_rollout_pack(
+    const MRTaskRolloutHandle* handle,
+    const MRPolicyRolloutBatchC* batch,
+    const char* batch_id,
+    const char* output_path
 );
 
 // Canonical first world-family frontend. Sampling writes private Metal buffers

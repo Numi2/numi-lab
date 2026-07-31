@@ -37,6 +37,7 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskBiasSpecGPU> biasSpecs;
     std::vector<mr_float4> terrainSampleOffsets;
     std::vector<mr_float4> terrainResetTranslations;
+    std::array<mr_float4, 3u> commandCurriculum{};
     std::vector<std::byte> arena;
 };
 
@@ -576,6 +577,7 @@ TaskCompileDiagnostics compileTaskProgram(
     if (pack.id.empty() || pack.actions.empty() ||
         pack.actorFrame.empty() ||
         pack.actorHistoryLength == 0u ||
+        pack.criticHistoryLength == 0u ||
         pack.maximumEpisodeSteps == 0u ||
         pack.curriculumLevelCount == 0u ||
         !finite(pack.baseHeightTarget) ||
@@ -587,6 +589,9 @@ TaskCompileDiagnostics compileTaskProgram(
         !(pack.supportForceThreshold >= 0.0f) ||
         !finite(pack.commands.lower) ||
         !finite(pack.commands.upper) ||
+        !finite(pack.commands.limitLower) ||
+        !finite(pack.commands.limitUpper) ||
+        !finite(pack.commands.curriculumStep) ||
         !finite(pack.commands.standingProbability) ||
         pack.commands.standingProbability < 0.0f ||
         pack.commands.standingProbability > 1.0f ||
@@ -620,16 +625,35 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.commands.upper.y,
         pack.commands.upper.z,
     };
+    const std::array commandLimitLower{
+        pack.commands.limitLower.x,
+        pack.commands.limitLower.y,
+        pack.commands.limitLower.z,
+    };
+    const std::array commandLimitUpper{
+        pack.commands.limitUpper.x,
+        pack.commands.limitUpper.y,
+        pack.commands.limitUpper.z,
+    };
+    const std::array commandCurriculumStep{
+        pack.commands.curriculumStep.x,
+        pack.commands.curriculumStep.y,
+        pack.commands.curriculumStep.z,
+    };
     for (std::size_t component = 0u;
          component < commandLower.size();
          ++component) {
-        const float lower = commandLower[component];
-        const float upper = commandUpper[component];
-        if (lower > upper) {
+        if (commandLower[component] >
+                commandUpper[component] ||
+            commandLimitLower[component] >
+                commandLower[component] ||
+            commandUpper[component] >
+                commandLimitUpper[component] ||
+            commandCurriculumStep[component] < 0.0f) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 "commands",
-                "command lower bound exceeds its upper bound"
+                "command range, limits, or curriculum step are invalid"
             );
         }
     }
@@ -867,8 +891,11 @@ TaskCompileDiagnostics compileTaskProgram(
         }
         const std::uint32_t metricOffset =
             contactMetricCount;
-        const std::uint32_t metricWidth =
+        const std::uint32_t baseMetricWidth =
             group.support ? 6u : group.forbidden ? 1u : 0u;
+        constexpr std::uint32_t localWrenchWidth = 6u;
+        const std::uint32_t metricWidth =
+            baseMetricWidth + localWrenchWidth;
         if (contactMetricCount >
             std::numeric_limits<std::uint32_t>::max() -
                 metricWidth) {
@@ -879,6 +906,8 @@ TaskCompileDiagnostics compileTaskProgram(
             );
         }
         contactMetricCount += metricWidth;
+        const mr_float4 centerOfMass =
+            model.bodies[referenceBody].centerOfMass;
         staged->contactGroups.push_back({
             {
                 memberOffset,
@@ -888,8 +917,19 @@ TaskCompileDiagnostics compileTaskProgram(
                 flags,
                 metricOffset,
             },
-            {referenceBody, 0u, 0u, 0u},
+            {
+                referenceBody,
+                metricOffset + baseMetricWidth,
+                0u,
+                0u,
+            },
             group.localReference,
+            {
+                -centerOfMass.x,
+                -centerOfMass.y,
+                -centerOfMass.z,
+                0.0f,
+            },
             {
                 group.gaitPhaseOffsetRadians,
                 group.stanceFraction,
@@ -1064,6 +1104,20 @@ TaskCompileDiagnostics compileTaskProgram(
                     : 0u;
                 break;
             }
+            case TaskObservationSource::contactWrenchLocal:
+                sourceIndex = namedGroup(
+                    contactGroupIds,
+                    spec.target
+                );
+                if (sourceIndex == MR_INVALID_INDEX) {
+                    return reject(
+                        TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "observation contact group does not exist"
+                    );
+                }
+                componentLimit = 6u;
+                break;
             case TaskObservationSource::terrainHeight:
                 sourceIndex = spec.component;
                 componentLimit = 1u;
@@ -1194,6 +1248,7 @@ TaskCompileDiagnostics compileTaskProgram(
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
         switch (reward.operation) {
         case TaskRewardOperator::jointGroupPostureSquared:
+        case TaskRewardOperator::jointGroupPostureAbsolute:
             if (reward.sourceGroup.empty()) {
                 return reject(
                     TaskCompileStatus::invalidPack,
@@ -1208,6 +1263,7 @@ TaskCompileDiagnostics compileTaskProgram(
             break;
         case TaskRewardOperator::gaitContactMatch:
         case TaskRewardOperator::swingClearance:
+        case TaskRewardOperator::footClearance:
         case TaskRewardOperator::supportSlip:
         case TaskRewardOperator::forbiddenContact:
             if (!reward.sourceGroup.empty()) {
@@ -1223,11 +1279,14 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::rootVerticalVelocitySquared:
         case TaskRewardOperator::rootRollPitchVelocitySquared:
         case TaskRewardOperator::tiltSquared:
+        case TaskRewardOperator::
+            projectedGravityHorizontalSquared:
         case TaskRewardOperator::rootHeightErrorSquared:
         case TaskRewardOperator::jointVelocitySquared:
         case TaskRewardOperator::jointAccelerationSquared:
         case TaskRewardOperator::actionRateSquared:
         case TaskRewardOperator::jointLimitViolationSquared:
+        case TaskRewardOperator::jointLimitViolationAbsolute:
         case TaskRewardOperator::mechanicalPower:
             break;
         default:
@@ -1242,12 +1301,24 @@ TaskCompileDiagnostics compileTaskProgram(
              reward.operation ==
                  TaskRewardOperator::yawVelocityTracking ||
              reward.operation ==
-                 TaskRewardOperator::swingClearance) &&
+                 TaskRewardOperator::swingClearance ||
+             reward.operation ==
+                 TaskRewardOperator::footClearance) &&
             !(reward.parameters.x > 0.0f)) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 reward.sourceGroup,
                 "tracking and clearance reward widths must be positive"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::jointLimitViolationAbsolute &&
+            (!(reward.parameters.x > 0.0f) ||
+             reward.parameters.x > 1.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.sourceGroup,
+                "soft joint-limit factor must be in (0, 1]"
             );
         }
         if (!reward.sourceGroup.empty() &&
@@ -1443,6 +1514,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRandomizationOperator::rootYaw:
         case TaskRandomizationOperator::actionPosition:
         case TaskRandomizationOperator::velocity:
+        case TaskRandomizationOperator::actionVelocity:
             if (!orderedRange(random.parameters)) {
                 return reject(
                     TaskCompileStatus::invalidPack,
@@ -1626,7 +1698,8 @@ TaskCompileDiagnostics compileTaskProgram(
         (pack.criticIncludesCleanHistory
              ? actorObservationSize
              : 0u) +
-        criticOperatorCount;
+        static_cast<std::uint64_t>(criticOperatorCount) *
+            pack.criticHistoryLength;
     if (actorObservationSize >
             std::numeric_limits<std::uint32_t>::max() ||
         criticObservationSize >
@@ -1645,6 +1718,8 @@ TaskCompileDiagnostics compileTaskProgram(
         .actorHistoryLength = pack.actorHistoryLength,
         .actorObservationSize =
             static_cast<std::uint32_t>(actorObservationSize),
+        .criticFrameSize = criticOperatorCount,
+        .criticHistoryLength = pack.criticHistoryLength,
         .criticObservationSize =
             static_cast<std::uint32_t>(criticObservationSize),
         .contactMetricCount = contactMetricCount,
@@ -1735,6 +1810,11 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.commandLower.w =
         pack.commands.standingProbability;
     staged->header.commandUpper = pack.commands.upper;
+    staged->commandCurriculum = {
+        pack.commands.limitLower,
+        pack.commands.limitUpper,
+        pack.commands.curriculumStep,
+    };
     staged->header.scheduleSeconds = {
         pack.commands.minimumDurationSeconds,
         pack.commands.maximumDurationSeconds,
@@ -1751,7 +1831,15 @@ TaskCompileDiagnostics compileTaskProgram(
         articulation.firstBody,
         articulation.bodyCount,
         MR_TASK_PROGRAM_ABI_VERSION,
-        0u,
+        pack.criticHistoryLength,
+    };
+    const mr_float4 rootCenterOfMass =
+        model.bodies[articulation.rootBody].centerOfMass;
+    staged->header.rootReference = {
+        -rootCenterOfMass.x,
+        -rootCenterOfMass.y,
+        -rootCenterOfMass.z,
+        0.0f,
     };
 
     const auto appendArena =
@@ -1854,7 +1942,11 @@ TaskCompileDiagnostics compileTaskProgram(
                 staged->terrainResetTranslations
             }
         ),
-        0u,
+        appendArena(
+            std::span<const mr_float4>{
+                staged->commandCurriculum
+            }
+        ),
         0u,
         0u,
     };

@@ -68,6 +68,9 @@ struct G1ModelMetadata {
     std::string_view sourceCommit;
     std::string_view sourceModelPath;
     std::string_view sourceLicense;
+    std::string_view simulatorRepository;
+    std::string_view simulatorCommit;
+    std::string_view simulatorModelPath;
     std::string_view rlPresetRepository;
     std::string_view rlPresetCommit;
     std::string_view rlPresetLicense;

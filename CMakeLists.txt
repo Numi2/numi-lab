@@ -765,6 +765,30 @@ if(METALROBO_HAS_SWIFT)
             BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
             INSTALL_RPATH "@loader_path/../lib"
     )
+
+    add_executable(
+        metalrobo_task_train
+        apps/task_train.swift
+        bindings/swift/MetalRoboTaskRollout.swift
+    )
+    target_include_directories(
+        metalrobo_task_train
+        PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo"
+    )
+    target_link_libraries(
+        metalrobo_task_train
+        PRIVATE
+            metalrobo
+    )
+    set_target_properties(
+        metalrobo_task_train
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+            INSTALL_RPATH "@loader_path/../lib"
+    )
 endif()
 
 add_executable(

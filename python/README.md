@@ -38,8 +38,9 @@ cmake --build ../build --target \
 python3 -m pip install -e .
 ```
 
-The package pins `mlx>=0.32,<0.33`. Native and shared Metal records carry an
-ABI fingerprint; stale compiled extensions are rejected before GPU work.
+The package pins `mlx>=0.32,<0.33`. It no longer builds a Python physics
+extension: native and shared rollout records carry an ABI fingerprint, and
+the learner rejects stale artifacts before an update.
 
 ## Generic MLX policy learner
 
@@ -57,7 +58,7 @@ from metalrobo import (
 
 learner = MLXPolicyLearner(
     actor_observation_count=480,
-    critic_observation_count=696,
+    critic_observation_count=495,
     action_count=29,
     configuration=MLXPPOConfiguration(
         hidden_sizes=(512, 256, 128),
@@ -82,8 +83,8 @@ learner.write_policy_pack(
 ```
 
 The canonical writer is implemented by the native library. It validates the
-network and writes a deterministic, fingerprinted artifact transactionally.
-The Swift executable loads it without translating weights:
+network and writes a fingerprinted artifact transactionally. The Swift
+executable loads it without translating weights:
 
 ```sh
 ../build/bin/metalrobo_task_rollout \
@@ -91,6 +92,42 @@ The Swift executable loads it without translating weights:
   --policy-pack runs/policy.policypack \
   --envs 32 --steps 48 --chunk 8 --scene terrain
 ```
+
+For production collection, Swift launches the long-lived MLX learner, retains
+the native simulator, and owns every rollout/update boundary. The first run
+can initialize its PolicyPack directly from the compiled TaskPack dimensions:
+
+```sh
+mkdir -p runs/g1
+../build/bin/metalrobo_task_train \
+  --metallib ../build/shaders/MetalRobo.metallib \
+  --native-library ../build/lib/libmetalrobo.dylib \
+  --mlx-python .venv/bin/python \
+  --python-root . \
+  --initialize-policy unitree_g1_native_locomotion \
+  --policy-pack runs/g1/initial.policypack \
+  --updated-policy-pack runs/g1/policy.policypack \
+  --deployment-policy-pack runs/g1/deployment.policypack \
+  --rollout-pack runs/g1/latest.rolloutpack \
+  --learner-state runs/g1/learner.safetensors \
+  --envs 1024 --steps 24 --chunk 8 --updates 1000 \
+  --learner-timeout-seconds 120 \
+  --scene ground --verbose
+```
+
+The final critic value is evaluated against the accepted post-rollout state
+inside the last Metal submission. It does not consume or discard a physics
+transition. The training PolicyPack retains the bounded stochastic
+distribution; the deployment PolicyPack contains the same actor revision
+without exploration. Re-running without `--initialize-policy` restores the
+model and Adam state from the learner sidecar.
+
+The learner compiles each PPO minibatch as one forward/backward/clip/Adam
+graph. Swift appends native chunks directly into a single preallocated rollout
+arena and passes borrowed buffers to the native writer, so chunking bounds
+Metal submissions without duplicating the complete rollout on the host. The
+worker memory-maps the resulting artifact and validates its content hash in
+native C++ instead of copying and hashing tens of millions of bytes in Python.
 
 Run the focused handoff check:
 
@@ -136,24 +173,29 @@ deployment contract supplies them.
 The bundled G1 policy utilities retain Core ML, MLX, and ONNX export plus the
 independent official Unitree MuJoCo comparator. They operate at the
 PolicyPack/deployment boundary and do not schedule MetalRobo physics.
+Core ML preserves the actor's rank-1 input/output contract. Export performs
+strict CPU/GPU parity and separately records the bounded all-compute-units
+error caused by Neural Engine reduced precision; deployment should select
+`MLModelConfiguration.computeUnits = .cpuAndGPU` for the validated
+float32 path.
 
 ```sh
-metalrobo g1-locomotion export \
-  --checkpoint /path/to/checkpoint \
+python3 -m pip install -e '.[g1-deployment]'
+
+metalrobo g1 export \
+  --policy-pack /path/to/policy.policypack \
+  --library ../build/lib/libmetalrobo.dylib \
   --output-dir /tmp/g1-export
 
-metalrobo g1-locomotion sim2sim \
-  --checkpoint /path/to/checkpoint \
-  --official-model /path/to/unitree_mujoco/g1_29dof_rev_1_0.xml
+metalrobo g1 sim2sim \
+  --policy-pack /path/to/policy.policypack \
+  --library ../build/lib/libmetalrobo.dylib \
+  --official-model \
+    /path/to/unitree_mujoco/unitree_robots/g1/scene_29dof.xml
 ```
 
-## Research adapters
-
-The source tree still contains isolated active-encoder adapters for numerical
-oracles and unfinished manipulation/perception migration work. They are not
-the public locomotion architecture, are not imported by
-`mlx_policy_learning.py`, and must not be copied when adding a robot. New
-robot mechanics enter through the native `EngineModel`/URDF route; new task
-semantics enter through a TaskPack; new networks enter through a PolicyPack.
-Only a genuinely new physics primitive, sensor modality, or task operator
-justifies new native code.
+The old MLX-owned physics, world-state, contact, reset, reward, and rollout
+adapters have been removed. New robot mechanics enter through the native
+`EngineModel`/URDF route; new task semantics enter through a TaskPack; new
+networks enter through a PolicyPack. Only a genuinely new physics primitive,
+sensor modality, or task operator justifies new native code.

@@ -26,6 +26,86 @@ private struct SplitMix64 {
     }
 }
 
+private func fingerprintWord(
+    _ value: UInt64,
+    byteCount: Int,
+    into hash: inout UInt64
+) {
+    for byte in 0..<byteCount {
+        hash ^= (value >> UInt64(8 * byte)) & 0xff
+        hash &*= 1_099_511_628_211
+    }
+}
+
+private func fingerprint(
+    _ batch: MetalRoboPolicyRolloutBatch,
+    into hash: inout UInt64
+) {
+    let floatTables = [
+        batch.actorObservations,
+        batch.criticObservations,
+        batch.latents,
+        batch.logProbabilities,
+        batch.values,
+    ]
+    for table in floatTables {
+        for value in table {
+            fingerprintWord(
+                UInt64(value.bitPattern),
+                byteCount: 4,
+                into: &hash
+            )
+        }
+    }
+    for transition in batch.transitions {
+        for value in [
+            transition.reward,
+            transition.trackingScore,
+            transition.rootHeight,
+            transition.tilt,
+            transition.taskReward,
+            transition.baseReward,
+            transition.jointVelocityReward,
+            transition.jointAccelerationReward,
+            transition.controlReward,
+            transition.postureReward,
+            transition.energyReward,
+            transition.contactReward,
+        ] {
+            fingerprintWord(
+                UInt64(value.bitPattern),
+                byteCount: 4,
+                into: &hash
+            )
+        }
+        fingerprintWord(
+            transition.done ? 1 : 0,
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            transition.timeout ? 1 : 0,
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            transition.physicsError ? 1 : 0,
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.terminationReason),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            transition.policyRevision,
+            byteCount: 8,
+            into: &hash
+        )
+    }
+}
+
 private struct Options {
     var environments = 32
     var steps = 48
@@ -37,7 +117,13 @@ private struct Options {
     var metallib = "build/shaders/MetalRobo.metallib"
     var verbose = false
     var nativePolicy = false
+    var zeroActions = false
     var policyPack: String?
+    var rolloutPack: String?
+    var worldPack: String?
+    var taskPack: String?
+    var urdf: String?
+    var srdf: String?
 
     init(arguments: [String]) throws {
         var index = 1
@@ -103,8 +189,25 @@ private struct Options {
                 verbose = true
             case "--native-policy":
                 nativePolicy = true
+            case "--zero-actions":
+                zeroActions = true
             case "--policy-pack":
                 policyPack = try value()
+                index += 1
+            case "--rollout-pack":
+                rolloutPack = try value()
+                index += 1
+            case "--world-pack":
+                worldPack = try value()
+                index += 1
+            case "--task-pack":
+                taskPack = try value()
+                index += 1
+            case "--urdf":
+                urdf = try value()
+                index += 1
+            case "--srdf":
+                srdf = try value()
                 index += 1
             default:
                 throw MetalRoboTaskRolloutError.invalidShape(
@@ -127,6 +230,33 @@ private struct Options {
                 "--native-policy and --policy-pack are mutually exclusive."
             )
         }
+        if zeroActions && (nativePolicy || policyPack != nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--zero-actions cannot be combined with a compiled policy."
+            )
+        }
+        if rolloutPack != nil &&
+            !nativePolicy && policyPack == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--rollout-pack requires --native-policy or --policy-pack."
+            )
+        }
+        if worldPack != nil && urdf != nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--world-pack and --urdf are mutually exclusive."
+            )
+        }
+        if (worldPack != nil || urdf != nil) != (taskPack != nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Imported mechanics require exactly one --task-pack."
+            )
+        }
+        if srdf != nil && urdf == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--srdf requires --urdf."
+            )
+        }
     }
 
     private static func integer(
@@ -140,6 +270,53 @@ private struct Options {
         }
         return parsed
     }
+}
+
+private func makeContext(
+    options: Options
+) throws -> (MetalRoboTaskRolloutContext, String) {
+    let configuration = MetalRoboTaskRolloutConfiguration(
+        environmentCount: UInt32(options.environments),
+        surface: options.surface,
+        solver: options.solver,
+        seed: options.seed
+    )
+    if let worldPack = options.worldPack,
+       let taskPack = options.taskPack
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                worldPack: URL(fileURLWithPath: worldPack),
+                taskPack: URL(fileURLWithPath: taskPack),
+                configuration: configuration,
+                metallibPath: options.metallib
+            ),
+            "world_pack"
+        )
+    }
+    if let urdf = options.urdf,
+       let taskPack = options.taskPack
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                importedURDF: URL(fileURLWithPath: urdf),
+                srdf: options.srdf.map {
+                    URL(fileURLWithPath: $0)
+                },
+                taskPack: URL(fileURLWithPath: taskPack),
+                configuration: configuration,
+                metallibPath: options.metallib
+            ),
+            "urdf"
+        )
+    }
+    return (
+        try MetalRoboTaskRolloutContext(
+            unitreeG1: configuration,
+            metallibPath: options.metallib
+        ),
+        "bundled_g1"
+    )
 }
 
 private func actions(
@@ -209,15 +386,8 @@ private enum TaskRolloutMain {
             let options = try Options(
                 arguments: CommandLine.arguments
             )
-            let context = try MetalRoboTaskRolloutContext(
-                unitreeG1: .init(
-                    environmentCount: UInt32(options.environments),
-                    surface: options.surface,
-                    solver: options.solver,
-                    seed: options.seed
-                ),
-                metallibPath: options.metallib
-            )
+            let (context, worldSource) =
+                try makeContext(options: options)
             let usesCompiledPolicy =
                 options.nativePolicy || options.policyPack != nil
             if let policyPack = options.policyPack {
@@ -251,7 +421,7 @@ private enum TaskRolloutMain {
                             .init(
                                 inputCount: hiddenCount,
                                 outputCount: layout.actionCount,
-                                activation: .tanh,
+                                activation: .identity,
                                 weights: [Float](
                                     repeating: 0,
                                     count:
@@ -263,7 +433,39 @@ private enum TaskRolloutMain {
                                     count: layout.actionCount
                                 )
                             ),
-                        ]
+                        ],
+                        criticLayers: [
+                            .init(
+                                inputCount:
+                                    layout.criticObservationCount,
+                                outputCount: hiddenCount,
+                                activation: .elu,
+                                weights: [Float](
+                                    repeating: 0,
+                                    count:
+                                        layout.criticObservationCount *
+                                        hiddenCount
+                                ),
+                                bias: [Float](
+                                    repeating: 0,
+                                    count: hiddenCount
+                                )
+                            ),
+                            .init(
+                                inputCount: hiddenCount,
+                                outputCount: 1,
+                                activation: .identity,
+                                weights: [Float](
+                                    repeating: 0,
+                                    count: hiddenCount
+                                ),
+                                bias: [0]
+                            ),
+                        ],
+                        actionLogStandardDeviation: [Float](
+                            repeating: -2,
+                            count: layout.actionCount
+                        )
                     )
                 )
             }
@@ -288,6 +490,78 @@ private enum TaskRolloutMain {
                     )
                 }
                 installedPolicyRevision = revision
+                let policyLogProbabilities =
+                    try context.policyLogProbabilities(
+                        controlStepCount: 1
+                    )
+                let policyValues =
+                    try context.policyValues(
+                        controlStepCount: 1
+                    )
+                let policyLatents =
+                    try context.policyLatents(
+                        controlStepCount: 1
+                    )
+                guard
+                    policyLogProbabilities
+                        .allSatisfy(\.isFinite),
+                    policyValues.allSatisfy(\.isFinite),
+                    policyLatents.allSatisfy(\.isFinite)
+                else {
+                    throw MetalRoboTaskRolloutError.native(
+                        "Native policy produced non-finite PPO records."
+                    )
+                }
+                if options.nativePolicy {
+                    let currentLayout = context.layout
+                    let logStandardDeviation = -2.0
+                    let standardDeviation =
+                        Foundation.exp(logStandardDeviation)
+                    let halfLogTwoPi =
+                        0.5 * Foundation.log(2 * Double.pi)
+                    for environment in 0..<options.environments {
+                        var expected = 0.0
+                        let base =
+                            environment *
+                            currentLayout.actionCount
+                        for action in
+                            0..<currentLayout.actionCount
+                        {
+                            let latent = Double(
+                                policyLatents[base + action]
+                            )
+                            let normal =
+                                latent / standardDeviation
+                            let squashed = Foundation.tanh(latent)
+                            let gaussian =
+                                -0.5 * normal * normal -
+                                logStandardDeviation -
+                                halfLogTwoPi
+                            let jacobian = Foundation.log(
+                                max(
+                                    1 - squashed * squashed,
+                                    1.0e-6
+                                )
+                            )
+                            expected += gaussian - jacobian
+                        }
+                        guard abs(
+                            expected -
+                            Double(
+                                policyLogProbabilities[
+                                    environment
+                                ]
+                            )
+                        ) < 2.0e-3,
+                              abs(policyValues[environment]) <
+                                  1.0e-6
+                        else {
+                            throw MetalRoboTaskRolloutError.native(
+                                "Native stochastic-policy record disagrees with the reference distribution."
+                            )
+                        }
+                    }
+                }
             } else {
                 _ = try context.advance(
                     normalizedActions: [Float](
@@ -314,7 +588,28 @@ private enum TaskRolloutMain {
             var totalResets = 0
             var maximumContacts = 0
             var maximumManifolds = 0
+            var stageHighWater: [String: Int] = [:]
             var failedSteps = 0
+            var policySampleCount = 0
+            var transitionCount = 0
+            var terminationCount = 0
+            var rewardSum = 0.0
+            var trackingSum = 0.0
+            var rootHeightSum = 0.0
+            var tiltSum = 0.0
+            var taskRewardSum = 0.0
+            var baseRewardSum = 0.0
+            var jointVelocityRewardSum = 0.0
+            var jointAccelerationRewardSum = 0.0
+            var controlRewardSum = 0.0
+            var postureRewardSum = 0.0
+            var energyRewardSum = 0.0
+            var contactRewardSum = 0.0
+            var terminationReasonCounts: [String: Int] = [:]
+            var policyRolloutFingerprint:
+                UInt64 = 1_469_598_103_934_665_603
+            var collectedPolicyBatches:
+                [MetalRoboPolicyRolloutBatch] = []
             let clock = ContinuousClock()
             let start = clock.now
 
@@ -338,18 +633,35 @@ private enum TaskRolloutMain {
                             resetMasks: resetBatch,
                             controlStepCount: stepCount,
                             policyRevision:
-                                installedPolicyRevision
+                                installedPolicyRevision,
+                            evaluateFinalPolicy:
+                                options.rolloutPack != nil &&
+                                repeatIndex + 1 ==
+                                    options.repeats &&
+                                completed + stepCount ==
+                                    options.steps
                         )
                     } else {
-                        let actionBatch = actions(
-                            startStep: globalStep,
-                            stepCount: stepCount,
-                            environmentCount:
-                                options.environments,
-                            actionCount:
-                                context.layout.actionCount,
-                            generator: &generator
-                        )
+                        let actionBatch: [Float]
+                        if options.zeroActions {
+                            actionBatch = [Float](
+                                repeating: 0,
+                                count:
+                                    stepCount *
+                                    options.environments *
+                                    context.layout.actionCount
+                            )
+                        } else {
+                            actionBatch = actions(
+                                startStep: globalStep,
+                                stepCount: stepCount,
+                                environmentCount:
+                                    options.environments,
+                                actionCount:
+                                    context.layout.actionCount,
+                                generator: &generator
+                            )
+                        }
                         advance = try context.advance(
                             normalizedActions: actionBatch,
                             resetMasks: resetBatch,
@@ -365,7 +677,78 @@ private enum TaskRolloutMain {
                             "Task rollout returned a nonzero GPU status."
                         )
                     }
-                    totalResets += advance.scheduledResets
+                    let observedTransitions:
+                        [MetalRoboTaskTransition]
+                    if usesCompiledPolicy {
+                        let policyBatch =
+                            try context.policyRolloutBatch(
+                                controlStepCount: stepCount
+                            )
+                        guard policyBatch.transitions
+                            .allSatisfy({
+                                $0.policyRevision ==
+                                    installedPolicyRevision
+                            })
+                        else {
+                            throw MetalRoboTaskRolloutError.native(
+                                "Policy revision changed inside a collected rollout batch."
+                            )
+                        }
+                        fingerprint(
+                            policyBatch,
+                            into: &policyRolloutFingerprint
+                        )
+                        policySampleCount +=
+                            policyBatch.sampleCount
+                        if options.rolloutPack != nil {
+                            collectedPolicyBatches.append(
+                                policyBatch
+                            )
+                        }
+                        observedTransitions =
+                            policyBatch.transitions
+                    } else {
+                        observedTransitions =
+                            try context.transitions(
+                                controlStepCount: stepCount
+                            )
+                    }
+                    for transition in observedTransitions {
+                        transitionCount += 1
+                        rewardSum += Double(transition.reward)
+                        trackingSum +=
+                            Double(transition.trackingScore)
+                        rootHeightSum +=
+                            Double(transition.rootHeight)
+                        tiltSum += Double(transition.tilt)
+                        taskRewardSum +=
+                            Double(transition.taskReward)
+                        baseRewardSum +=
+                            Double(transition.baseReward)
+                        jointVelocityRewardSum +=
+                            Double(transition.jointVelocityReward)
+                        jointAccelerationRewardSum +=
+                            Double(transition.jointAccelerationReward)
+                        controlRewardSum +=
+                            Double(transition.controlReward)
+                        postureRewardSum +=
+                            Double(transition.postureReward)
+                        energyRewardSum +=
+                            Double(transition.energyReward)
+                        contactRewardSum +=
+                            Double(transition.contactReward)
+                        if transition.done {
+                            terminationCount += 1
+                            let reason = String(
+                                transition.terminationReason
+                            )
+                            terminationReasonCounts[
+                                reason,
+                                default: 0
+                            ] += 1
+                        }
+                    }
+                    totalResets += advance.hostRequestedResets
                     maximumContacts = max(
                         maximumContacts,
                         advance.maximumActiveContacts
@@ -374,6 +757,14 @@ private enum TaskRolloutMain {
                         maximumManifolds,
                         advance.maximumManifolds
                     )
+                    for (stage, count) in
+                        advance.stageHighWater
+                    {
+                        stageHighWater[stage] = max(
+                            stageHighWater[stage, default: 0],
+                            count
+                        )
+                    }
                     failedSteps += advance.failedEnvironmentSteps
                     completed += stepCount
                     globalStep += stepCount
@@ -392,22 +783,54 @@ private enum TaskRolloutMain {
                 }
             }
 
-            let elapsed = start.duration(to: clock.now)
+            let collectionEnd = clock.now
+            let collectionLayout = context.layout
+            var rolloutPackBytes = 0
+            if let rolloutPack = options.rolloutPack {
+                let batch =
+                    try MetalRoboPolicyRolloutBatch
+                        .concatenating(
+                            collectedPolicyBatches
+                        )
+                let bootstrapValues =
+                    try context.bootstrapPolicyValues()
+                let outputURL = URL(
+                    fileURLWithPath: rolloutPack
+                )
+                try context.writePolicyRolloutPack(
+                    batch,
+                    bootstrapValues: bootstrapValues,
+                    id: "swift_native_task_rollout",
+                    to: outputURL
+                )
+                let attributes =
+                    try FileManager.default.attributesOfItem(
+                        atPath: outputURL.path
+                    )
+                rolloutPackBytes =
+                    (attributes[.size] as? NSNumber)?
+                        .intValue ?? 0
+            }
+
+            let elapsed = start.duration(to: collectionEnd)
             let seconds =
                 Double(elapsed.components.seconds) +
                 Double(elapsed.components.attoseconds) / 1e18
-            let layout = context.layout
+            let layout = collectionLayout
             let environmentSteps =
                 options.environments *
                 options.steps *
                 options.repeats
             let output: [String: Any] = [
                 "benchmark": "swift_native_task_rollout",
+                "world_source": worldSource,
                 "action_source":
                     options.policyPack != nil
                     ? "policy_pack"
                     : options.nativePolicy
                     ? "compiled_policy"
+                    : options.zeroActions
+                    ? "zero"
                     : "host_stream",
                 "device": context.deviceName,
                 "solver_mode":
@@ -449,10 +872,55 @@ private enum TaskRolloutMain {
                     layout.sharedBoundaryBytes,
                 "peak_aliased_bytes":
                     layout.peakAliasedBytes,
-                "scheduled_resets": totalResets,
+                "host_requested_resets": totalResets,
                 "maximum_active_contacts": maximumContacts,
                 "maximum_manifolds": maximumManifolds,
+                "stage_high_water": stageHighWater,
                 "failed_environment_steps": failedSteps,
+                "termination_count": terminationCount,
+                "termination_reason_counts":
+                    terminationReasonCounts,
+                "mean_reward":
+                    rewardSum / Double(max(transitionCount, 1)),
+                "mean_tracking_score":
+                    trackingSum /
+                    Double(max(transitionCount, 1)),
+                "mean_root_height":
+                    rootHeightSum /
+                    Double(max(transitionCount, 1)),
+                "mean_tilt":
+                    tiltSum / Double(max(transitionCount, 1)),
+                "mean_task_reward":
+                    taskRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_base_reward":
+                    baseRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_joint_velocity_reward":
+                    jointVelocityRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_joint_acceleration_reward":
+                    jointAccelerationRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_control_reward":
+                    controlRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_posture_reward":
+                    postureRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_energy_reward":
+                    energyRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_contact_reward":
+                    contactRewardSum /
+                    Double(max(transitionCount, 1)),
+                "policy_sample_count": policySampleCount,
+                "policy_rollout_fingerprint":
+                    usesCompiledPolicy
+                    ? String(policyRolloutFingerprint)
+                    : "",
+                "rollout_pack": options.rolloutPack ?? "",
+                "rollout_pack_bytes": rolloutPackBytes,
             ]
             let data = try JSONSerialization.data(
                 withJSONObject: output,

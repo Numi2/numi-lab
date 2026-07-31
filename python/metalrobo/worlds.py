@@ -1,8 +1,8 @@
-"""GPU-resident world-family compiler frontend.
+"""Authoring and inspection frontend for a native GPU-resident world family.
 
-The normal path calls :meth:`FrankaPickPlaceWorldFamily.sample` and hands the
-borrowed Metal buffers to a native MLX primitive. ``snapshot`` is intentionally
-an explicit CPU inspection/export boundary.
+The normal path calls :meth:`FrankaPickPlaceWorldFamily.sample` and keeps the
+result in the native runtime. ``snapshot`` is intentionally an explicit CPU
+inspection/export boundary; this module does not schedule physics.
 """
 
 from __future__ import annotations
@@ -122,7 +122,7 @@ class ScenarioSchema:
 
 @dataclass(frozen=True, slots=True)
 class WorldFamilyDeviceBuffers:
-    """Borrowed ``id<MTLBuffer>`` addresses for native/MLX graph composition."""
+    """Borrowed ``id<MTLBuffer>`` addresses for native graph composition."""
 
     instance_headers: int
     asset_instances: int

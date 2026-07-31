@@ -23,7 +23,8 @@ struct CompiledPolicyProgram::Storage {
     std::uint64_t revision = 0u;
     PolicyProgramLayout layout{};
     MRPolicyProgramHeaderGPU header{};
-    std::vector<MRPolicyDenseLayerGPU> layers;
+    std::vector<MRPolicyDenseLayerGPU> actorLayers;
+    std::vector<MRPolicyDenseLayerGPU> criticLayers;
     std::vector<std::byte> arena;
 };
 
@@ -144,8 +145,8 @@ bool CompiledPolicyProgram::valid() const noexcept {
         storage_->header.revision == storage_->revision &&
         storage_->header.abi.x ==
             MR_POLICY_PROGRAM_ABI_VERSION &&
-        storage_->layout.layerCount != 0u &&
-        storage_->layout.observationCount != 0u &&
+        storage_->layout.actorLayerCount != 0u &&
+        storage_->layout.actorObservationCount != 0u &&
         storage_->layout.actionCount != 0u;
 }
 
@@ -174,10 +175,19 @@ CompiledPolicyProgram::header() const noexcept {
 }
 
 std::span<const MRPolicyDenseLayerGPU>
-CompiledPolicyProgram::layers() const noexcept {
+CompiledPolicyProgram::actorLayers() const noexcept {
     return valid()
         ? std::span<const MRPolicyDenseLayerGPU>{
-              storage_->layers
+              storage_->actorLayers
+          }
+        : std::span<const MRPolicyDenseLayerGPU>{};
+}
+
+std::span<const MRPolicyDenseLayerGPU>
+CompiledPolicyProgram::criticLayers() const noexcept {
+    return valid()
+        ? std::span<const MRPolicyDenseLayerGPU>{
+              storage_->criticLayers
           }
         : std::span<const MRPolicyDenseLayerGPU>{};
 }
@@ -202,10 +212,16 @@ PolicyCompileDiagnostics compilePolicyProgram(
         );
     }
     const TaskProgramLayout& taskLayout = task.layout();
+    const bool hasCritic = !pack.criticLayers.empty();
+    const bool stochastic =
+        !pack.actionLogStandardDeviation.empty();
     if (pack.id.empty() || pack.revision == 0u ||
         pack.layers.empty() ||
         pack.layers.size() >
             std::numeric_limits<std::uint32_t>::max() ||
+        pack.criticLayers.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
+        (stochastic && !hasCritic) ||
         !std::isfinite(pack.observationClip) ||
         !(pack.observationClip > 0.0f) ||
         !std::isfinite(pack.actionClip) ||
@@ -213,7 +229,7 @@ PolicyCompileDiagnostics compilePolicyProgram(
         return reject(
             PolicyCompileStatus::invalidPack,
             "policy",
-            "policy identity, revision, layers, or clipping is invalid"
+            "policy identity, revision, networks, distribution, or clipping is invalid"
         );
     }
     if ((!pack.observationMean.empty() &&
@@ -222,67 +238,139 @@ PolicyCompileDiagnostics compilePolicyProgram(
         (!pack.observationInverseStandardDeviation.empty() &&
          pack.observationInverseStandardDeviation.size() !=
              taskLayout.actorObservationSize) ||
+        (!pack.criticObservationMean.empty() &&
+         (!hasCritic ||
+          pack.criticObservationMean.size() !=
+              taskLayout.criticObservationSize)) ||
+        (!pack.criticObservationInverseStandardDeviation.empty() &&
+         (!hasCritic ||
+          pack.criticObservationInverseStandardDeviation.size() !=
+              taskLayout.criticObservationSize)) ||
+        (stochastic &&
+         pack.actionLogStandardDeviation.size() !=
+             taskLayout.actionCount) ||
         (!pack.actionBias.empty() &&
          pack.actionBias.size() != taskLayout.actionCount) ||
         (!pack.actionScale.empty() &&
          pack.actionScale.size() != taskLayout.actionCount) ||
         !finite(pack.observationMean) ||
         !finite(pack.observationInverseStandardDeviation) ||
+        !finite(pack.criticObservationMean) ||
+        !finite(
+            pack.criticObservationInverseStandardDeviation
+        ) ||
+        !finite(pack.actionLogStandardDeviation) ||
         !finite(pack.actionBias) ||
         !finite(pack.actionScale)) {
         return reject(
             PolicyCompileStatus::incompatibleContract,
             "normalization",
-            "normalization and action transforms must match the task contract"
+            "actor, critic, distribution, and action transforms must match the task contract"
+        );
+    }
+    if (stochastic && std::any_of(
+            pack.actionLogStandardDeviation.begin(),
+            pack.actionLogStandardDeviation.end(),
+            [](const float value) {
+                return value < -5.0f || value > 2.0f;
+            }
+        )) {
+        return reject(
+            PolicyCompileStatus::invalidPack,
+            "actionLogStandardDeviation",
+            "pre-tanh log standard deviations must be within [-5, 2]"
         );
     }
 
     auto staged = std::make_shared<CompiledPolicyProgram::Storage>();
     staged->taskFingerprint = task.fingerprint();
     staged->revision = pack.revision;
-    staged->layout.layerCount =
+    staged->layout.actorLayerCount =
         static_cast<std::uint32_t>(pack.layers.size());
-    staged->layout.observationCount =
+    staged->layout.criticLayerCount =
+        static_cast<std::uint32_t>(
+            pack.criticLayers.size()
+        );
+    staged->layout.actorObservationCount =
         taskLayout.actorObservationSize;
+    staged->layout.criticObservationCount =
+        hasCritic ? taskLayout.criticObservationSize : 0u;
     staged->layout.actionCount = taskLayout.actionCount;
+    staged->layout.stochastic = stochastic;
 
-    std::uint32_t expectedInput =
-        taskLayout.actorObservationSize;
-    staged->layers.resize(pack.layers.size());
-    for (std::size_t index = 0u;
-         index < pack.layers.size();
-         ++index) {
-        const PolicyDenseLayer& layer = pack.layers[index];
-        const std::uint64_t weightCount =
-            static_cast<std::uint64_t>(layer.inputCount) *
-            layer.outputCount;
-        if (layer.inputCount != expectedInput ||
-            layer.outputCount == 0u ||
-            weightCount != layer.weights.size() ||
-            layer.bias.size() != layer.outputCount ||
-            !supportedActivation(layer.activation) ||
-            !finite(layer.weights) ||
-            !finite(layer.bias)) {
-            return reject(
-                PolicyCompileStatus::incompatibleContract,
-                "layers[" + std::to_string(index) + "]",
-                "dense layer shape, activation, or parameters are invalid"
-            );
+    const auto validateNetwork = [&](
+        const std::span<const PolicyDenseLayer> layers,
+        const std::uint32_t inputCount,
+        const std::uint32_t outputCount,
+        const std::string_view name
+    ) -> PolicyCompileDiagnostics {
+        std::uint32_t expectedInput = inputCount;
+        for (std::size_t index = 0u;
+             index < layers.size();
+             ++index) {
+            const PolicyDenseLayer& layer = layers[index];
+            const std::uint64_t weightCount =
+                static_cast<std::uint64_t>(
+                    layer.inputCount
+                ) * layer.outputCount;
+            if (layer.inputCount != expectedInput ||
+                layer.outputCount == 0u ||
+                weightCount != layer.weights.size() ||
+                layer.bias.size() != layer.outputCount ||
+                !supportedActivation(layer.activation) ||
+                !finite(layer.weights) ||
+                !finite(layer.bias)) {
+                return reject(
+                    PolicyCompileStatus::
+                        incompatibleContract,
+                    std::string{name} + "Layers[" +
+                        std::to_string(index) + "]",
+                    "dense layer shape, activation, or parameters are invalid"
+                );
+            }
+            const bool final =
+                index + 1u == layers.size();
+            if (!final) {
+                staged->layout.maximumHiddenCount =
+                    std::max(
+                        staged->layout.maximumHiddenCount,
+                        layer.outputCount
+                    );
+            } else if (layer.outputCount != outputCount ||
+                       layer.activation !=
+                           PolicyActivation::identity) {
+                return reject(
+                    PolicyCompileStatus::
+                        incompatibleContract,
+                    std::string{name} + "Layers[" +
+                        std::to_string(index) + "]",
+                    "final dense layer must use identity activation and match the compiled contract"
+                );
+            }
+            expectedInput = layer.outputCount;
         }
-        if (index + 1u < pack.layers.size()) {
-            staged->layout.maximumHiddenCount = std::max(
-                staged->layout.maximumHiddenCount,
-                layer.outputCount
-            );
-        } else if (layer.outputCount !=
-                   taskLayout.actionCount) {
-            return reject(
-                PolicyCompileStatus::incompatibleContract,
-                "layers[" + std::to_string(index) + "]",
-                "final dense layer width does not match task actions"
-            );
+        return {};
+    };
+    PolicyCompileDiagnostics networkStatus =
+        validateNetwork(
+            pack.layers,
+            taskLayout.actorObservationSize,
+            taskLayout.actionCount,
+            "actor"
+        );
+    if (!networkStatus.succeeded()) {
+        return networkStatus;
+    }
+    if (hasCritic) {
+        networkStatus = validateNetwork(
+            pack.criticLayers,
+            taskLayout.criticObservationSize,
+            1u,
+            "critic"
+        );
+        if (!networkStatus.succeeded()) {
+            return networkStatus;
         }
-        expectedInput = layer.outputCount;
     }
 
     std::vector<float> observationMean =
@@ -314,6 +402,37 @@ PolicyCompileDiagnostics compilePolicyProgram(
             "inverse standard deviations must be finite and positive"
         );
     }
+    std::vector<float> criticObservationMean =
+        pack.criticObservationMean;
+    std::vector<float> criticObservationInverseStd =
+        pack.criticObservationInverseStandardDeviation;
+    if (hasCritic) {
+        if (criticObservationMean.empty()) {
+            criticObservationMean.assign(
+                taskLayout.criticObservationSize,
+                0.0f
+            );
+        }
+        if (criticObservationInverseStd.empty()) {
+            criticObservationInverseStd.assign(
+                taskLayout.criticObservationSize,
+                1.0f
+            );
+        }
+        if (std::any_of(
+                criticObservationInverseStd.begin(),
+                criticObservationInverseStd.end(),
+                [](const float value) {
+                    return !(value > 0.0f);
+                }
+            )) {
+            return reject(
+                PolicyCompileStatus::invalidPack,
+                "criticObservationInverseStandardDeviation",
+                "critic inverse standard deviations must be finite and positive"
+            );
+        }
+    }
     std::vector<float> actionBias = pack.actionBias;
     if (actionBias.empty()) {
         actionBias.assign(taskLayout.actionCount, 0.0f);
@@ -324,157 +443,195 @@ PolicyCompileDiagnostics compilePolicyProgram(
     }
 
     // Prove a finite bound for every dense accumulator from the authored
-    // observation clip. The hot kernel can then stay branch-free and does
-    // not need to mask a malformed policy after the fact.
+    // observation clip. The hot kernels can then stay branch-free.
     constexpr double kAccumulatorLimit =
         static_cast<double>(
             std::numeric_limits<float>::max()
         ) / 8.0;
-    std::vector<double> inputBounds(
-        taskLayout.actorObservationSize,
-        pack.observationClip
-    );
-    for (std::size_t layerIndex = 0u;
-         layerIndex < pack.layers.size();
-         ++layerIndex) {
-        const PolicyDenseLayer& layer =
-            pack.layers[layerIndex];
-        std::vector<double> outputBounds(
-            layer.outputCount,
-            0.0
+    const auto proveNetwork = [&](
+        const std::span<const PolicyDenseLayer> layers,
+        const std::uint32_t inputCount,
+        const std::string_view name
+    ) -> PolicyCompileDiagnostics {
+        std::vector<double> inputBounds(
+            inputCount,
+            pack.observationClip
         );
-        for (std::uint32_t outputIndex = 0u;
-             outputIndex < layer.outputCount;
-             ++outputIndex) {
-            double bound = std::abs(
-                static_cast<double>(
-                    layer.bias[outputIndex]
-                )
+        for (std::size_t layerIndex = 0u;
+             layerIndex < layers.size();
+             ++layerIndex) {
+            const PolicyDenseLayer& layer =
+                layers[layerIndex];
+            std::vector<double> outputBounds(
+                layer.outputCount,
+                0.0
             );
-            const std::size_t weightBase =
-                static_cast<std::size_t>(outputIndex) *
-                layer.inputCount;
-            for (std::uint32_t inputIndex = 0u;
-                 inputIndex < layer.inputCount;
-                 ++inputIndex) {
-                bound +=
-                    std::abs(static_cast<double>(
-                        layer.weights[
-                            weightBase + inputIndex
-                        ]
-                    )) *
-                    inputBounds[inputIndex];
-                if (!std::isfinite(bound) ||
-                    bound > kAccumulatorLimit) {
-                    return reject(
-                        PolicyCompileStatus::invalidPack,
-                        "layers[" +
-                            std::to_string(layerIndex) +
-                            "]",
-                        "dense accumulator can overflow within the authored observation bounds"
-                    );
-                }
-            }
-            switch (layer.activation) {
-            case PolicyActivation::tanh:
-                bound = 1.0;
-                break;
-            case PolicyActivation::elu:
-            case PolicyActivation::silu:
-                bound = std::max(bound, 1.0);
-                break;
-            case PolicyActivation::identity:
-            case PolicyActivation::relu:
-                break;
-            }
-            if (layerIndex + 1u == pack.layers.size()) {
-                bound =
-                    std::abs(static_cast<double>(
-                        actionBias[outputIndex]
-                    )) +
-                    std::abs(static_cast<double>(
-                        actionScale[outputIndex]
-                    )) *
-                    bound;
-                if (!std::isfinite(bound) ||
-                    bound > kAccumulatorLimit) {
-                    return reject(
-                        PolicyCompileStatus::invalidPack,
-                        "actionTransform",
-                        "action transform can overflow before clipping"
-                    );
-                }
-                bound = std::min<double>(
-                    bound,
-                    pack.actionClip
+            for (std::uint32_t outputIndex = 0u;
+                 outputIndex < layer.outputCount;
+                 ++outputIndex) {
+                double bound = std::abs(
+                    static_cast<double>(
+                        layer.bias[outputIndex]
+                    )
                 );
+                const std::size_t weightBase =
+                    static_cast<std::size_t>(
+                        outputIndex
+                    ) * layer.inputCount;
+                for (std::uint32_t inputIndex = 0u;
+                     inputIndex < layer.inputCount;
+                     ++inputIndex) {
+                    bound +=
+                        std::abs(static_cast<double>(
+                            layer.weights[
+                                weightBase + inputIndex
+                            ]
+                        )) *
+                        inputBounds[inputIndex];
+                    if (!std::isfinite(bound) ||
+                        bound > kAccumulatorLimit) {
+                        return reject(
+                            PolicyCompileStatus::invalidPack,
+                            std::string{name} + "Layers[" +
+                                std::to_string(
+                                    layerIndex
+                                ) + "]",
+                            "dense accumulator can overflow within the authored observation bounds"
+                        );
+                    }
+                }
+                switch (layer.activation) {
+                case PolicyActivation::tanh:
+                    bound = 1.0;
+                    break;
+                case PolicyActivation::elu:
+                case PolicyActivation::silu:
+                    bound = std::max(bound, 1.0);
+                    break;
+                case PolicyActivation::identity:
+                case PolicyActivation::relu:
+                    break;
+                }
+                outputBounds[outputIndex] = bound;
             }
-            outputBounds[outputIndex] = bound;
+            inputBounds = std::move(outputBounds);
         }
-        inputBounds = std::move(outputBounds);
+        return {};
+    };
+    networkStatus = proveNetwork(
+        pack.layers,
+        taskLayout.actorObservationSize,
+        "actor"
+    );
+    if (!networkStatus.succeeded()) {
+        return networkStatus;
+    }
+    if (hasCritic) {
+        networkStatus = proveNetwork(
+            pack.criticLayers,
+            taskLayout.criticObservationSize,
+            "critic"
+        );
+        if (!networkStatus.succeeded()) {
+            return networkStatus;
+        }
+    }
+    for (std::uint32_t action = 0u;
+         action < taskLayout.actionCount;
+         ++action) {
+        const double transformedBound =
+            std::abs(static_cast<double>(
+                actionBias[action]
+            )) +
+            std::abs(static_cast<double>(
+                actionScale[action]
+            ));
+        if (!std::isfinite(transformedBound) ||
+            transformedBound > kAccumulatorLimit) {
+            return reject(
+                PolicyCompileStatus::invalidPack,
+                "actionTransform",
+                "tanh action transform can overflow before clipping"
+            );
+        }
     }
 
-    const std::size_t layerTableBytes =
-        staged->layers.size() *
-        sizeof(MRPolicyDenseLayerGPU);
-    const std::uint32_t layerTableOffset = appendArena(
-        staged->arena,
-        nullptr,
-        layerTableBytes
-    );
-    if (layerTableOffset == MR_INVALID_INDEX) {
+    const auto appendNetwork = [&](
+        const std::span<const PolicyDenseLayer> authored,
+        std::vector<MRPolicyDenseLayerGPU>& compiled,
+        std::uint32_t& tableOffset
+    ) -> bool {
+        if (authored.empty()) {
+            tableOffset = 0u;
+            return true;
+        }
+        compiled.resize(authored.size());
+        const std::size_t tableBytes =
+            compiled.size() *
+            sizeof(MRPolicyDenseLayerGPU);
+        tableOffset = appendArena(
+            staged->arena,
+            nullptr,
+            tableBytes
+        );
+        if (tableOffset == MR_INVALID_INDEX) {
+            return false;
+        }
+        for (std::size_t index = 0u;
+             index < authored.size();
+             ++index) {
+            const PolicyDenseLayer& layer = authored[index];
+            const std::uint32_t weights = appendArena(
+                staged->arena,
+                std::span<const float>{layer.weights}
+            );
+            const std::uint32_t bias = appendArena(
+                staged->arena,
+                std::span<const float>{layer.bias}
+            );
+            if (weights == MR_INVALID_INDEX ||
+                bias == MR_INVALID_INDEX) {
+                return false;
+            }
+            compiled[index] = {
+                {
+                    layer.inputCount,
+                    layer.outputCount,
+                    static_cast<std::uint32_t>(
+                        layer.activation
+                    ),
+                    index == 0u
+                        ? MR_POLICY_DENSE_NORMALIZE_INPUT
+                        : 0u,
+                },
+                {weights, bias, 0u, 0u},
+            };
+        }
+        std::memcpy(
+            staged->arena.data() + tableOffset,
+            compiled.data(),
+            tableBytes
+        );
+        return true;
+    };
+    std::uint32_t actorLayerTableOffset = 0u;
+    std::uint32_t criticLayerTableOffset = 0u;
+    if (!appendNetwork(
+            pack.layers,
+            staged->actorLayers,
+            actorLayerTableOffset
+        ) ||
+        !appendNetwork(
+            pack.criticLayers,
+            staged->criticLayers,
+            criticLayerTableOffset
+        )) {
         return reject(
             PolicyCompileStatus::arithmeticOverflow,
             "arena",
-            "policy layer table exceeds the 32-bit byte-offset ABI"
+            "policy layer tables or weights exceed the 32-bit byte-offset ABI"
         );
     }
-    for (std::size_t index = 0u;
-         index < pack.layers.size();
-         ++index) {
-        const PolicyDenseLayer& authored = pack.layers[index];
-        const std::uint32_t weights = appendArena(
-            staged->arena,
-            std::span<const float>{authored.weights}
-        );
-        const std::uint32_t bias = appendArena(
-            staged->arena,
-            std::span<const float>{authored.bias}
-        );
-        if (weights == MR_INVALID_INDEX ||
-            bias == MR_INVALID_INDEX) {
-            return reject(
-                PolicyCompileStatus::arithmeticOverflow,
-                "arena",
-                "policy weights exceed the 32-bit byte-offset ABI"
-            );
-        }
-        std::uint32_t flags = 0u;
-        if (index == 0u) {
-            flags |= MR_POLICY_DENSE_NORMALIZE_INPUT;
-        }
-        if (index + 1u == pack.layers.size()) {
-            flags |=
-                MR_POLICY_DENSE_TRANSFORM_OUTPUT |
-                MR_POLICY_DENSE_CLAMP_OUTPUT;
-        }
-        staged->layers[index] = {
-            {
-                authored.inputCount,
-                authored.outputCount,
-                static_cast<std::uint32_t>(
-                    authored.activation
-                ),
-                flags,
-            },
-            {weights, bias, 0u, 0u},
-        };
-    }
-    std::memcpy(
-        staged->arena.data() + layerTableOffset,
-        staged->layers.data(),
-        layerTableBytes
-    );
     const std::uint32_t meanOffset = appendArena(
         staged->arena,
         std::span<const float>{observationMean}
@@ -483,6 +640,20 @@ PolicyCompileDiagnostics compilePolicyProgram(
         staged->arena,
         std::span<const float>{observationInverseStd}
     );
+    std::uint32_t criticMeanOffset = 0u;
+    std::uint32_t criticInverseStdOffset = 0u;
+    if (hasCritic) {
+        criticMeanOffset = appendArena(
+            staged->arena,
+            std::span<const float>{criticObservationMean}
+        );
+        criticInverseStdOffset = appendArena(
+            staged->arena,
+            std::span<const float>{
+                criticObservationInverseStd
+            }
+        );
+    }
     const std::uint32_t actionBiasOffset = appendArena(
         staged->arena,
         std::span<const float>{actionBias}
@@ -491,10 +662,22 @@ PolicyCompileDiagnostics compilePolicyProgram(
         staged->arena,
         std::span<const float>{actionScale}
     );
+    std::uint32_t actionLogStdOffset = 0u;
+    if (stochastic) {
+        actionLogStdOffset = appendArena(
+            staged->arena,
+            std::span<const float>{
+                pack.actionLogStandardDeviation
+            }
+        );
+    }
     if (meanOffset == MR_INVALID_INDEX ||
         inverseStdOffset == MR_INVALID_INDEX ||
+        criticMeanOffset == MR_INVALID_INDEX ||
+        criticInverseStdOffset == MR_INVALID_INDEX ||
         actionBiasOffset == MR_INVALID_INDEX ||
-        actionScaleOffset == MR_INVALID_INDEX) {
+        actionScaleOffset == MR_INVALID_INDEX ||
+        actionLogStdOffset == MR_INVALID_INDEX) {
         return reject(
             PolicyCompileStatus::arithmeticOverflow,
             "arena",
@@ -502,20 +685,37 @@ PolicyCompileDiagnostics compilePolicyProgram(
         );
     }
 
-    staged->header.counts = {
-        staged->layout.layerCount,
-        staged->layout.observationCount,
+    staged->header.counts0 = {
+        staged->layout.actorLayerCount,
+        staged->layout.criticLayerCount,
+        staged->layout.actorObservationCount,
+        staged->layout.criticObservationCount,
+    };
+    staged->header.counts1 = {
         staged->layout.actionCount,
         staged->layout.maximumHiddenCount,
+        (hasCritic
+             ? MR_POLICY_PROGRAM_HAS_CRITIC
+             : 0u) |
+            (stochastic
+                 ? MR_POLICY_PROGRAM_STOCHASTIC
+                 : 0u),
+        0u,
     };
     staged->header.offsets0 = {
-        layerTableOffset,
+        actorLayerTableOffset,
+        criticLayerTableOffset,
         meanOffset,
         inverseStdOffset,
-        actionBiasOffset,
     };
     staged->header.offsets1 = {
+        criticMeanOffset,
+        criticInverseStdOffset,
+        actionBiasOffset,
         actionScaleOffset,
+    };
+    staged->header.offsets2 = {
+        actionLogStdOffset,
         0u,
         0u,
         0u,

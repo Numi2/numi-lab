@@ -9277,6 +9277,7 @@ kernel void mr_world_collide_compile(
             contact.pointAndSeparation =
                 float4(pointWorld, effectiveSeparation);
             contact.normal = float4(normalWorld, 0.0f);
+            contact.tangent = float4(tangentWorld, 0.0f);
             contact.friction = float4(
                 geometricMean(
                     materialA.friction.x,
@@ -10401,6 +10402,7 @@ kernel void mr_world_scatter_manifold_ir(
     contact.pointAndSeparation =
         float4(pointWorld, effectiveSeparation);
     contact.normal = float4(normalWorld, 0.0f);
+    contact.tangent = float4(tangentWorld, 0.0f);
     contact.friction = float4(
         geometricMean(
             materialA.friction.x,
@@ -11355,6 +11357,7 @@ kernel void mr_world_scatter_rod_contact_ir(
         witness.toolPointAndSeparation.w
     );
     contact.normal = float4(normal, 0.0f);
+    contact.tangent = float4(tangentU, 0.0f);
     contact.friction = float4(
         geometricMean(
             rodMaterial.friction.x,

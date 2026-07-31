@@ -3,6 +3,7 @@
 #include "metalrobo/EpisodeTwinCompiler.hpp"
 #include "metalrobo/Franka.hpp"
 #include "metalrobo/FrankaWorld.hpp"
+#include "metalrobo/G1.hpp"
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
@@ -22,11 +23,13 @@
 #include <cmath>
 #include <exception>
 #include <filesystem>
+#include <iomanip>
 #include <initializer_list>
 #include <limits>
 #include <memory>
 #include <numeric>
 #include <span>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -118,6 +121,131 @@ namespace {
 
 thread_local std::string gLastError;
 
+std::string unitreeG1DeploymentContractJSON() {
+    const metalrobo::G1ModelMetadata& metadata =
+        metalrobo::unitreeG1Metadata();
+    const metalrobo::EngineModel model =
+        metalrobo::makeUnitreeG1EngineModel();
+    const MRArticulationGPU& articulation =
+        model.articulations.front();
+    std::ostringstream output;
+    output << std::setprecision(9);
+    output
+        << "{\"format\":\"metalrobo.unitree-g1-deployment\","
+        << "\"schema\":1,"
+        << "\"model_name\":" << std::quoted(
+            std::string{metadata.modelName}
+        ) << ","
+        << "\"source_repository\":" << std::quoted(
+            std::string{metadata.sourceRepository}
+        ) << ","
+        << "\"source_commit\":" << std::quoted(
+            std::string{metadata.sourceCommit}
+        ) << ","
+        << "\"source_model_path\":" << std::quoted(
+            std::string{metadata.sourceModelPath}
+        ) << ","
+        << "\"simulator_repository\":" << std::quoted(
+            std::string{metadata.simulatorRepository}
+        ) << ","
+        << "\"simulator_commit\":" << std::quoted(
+            std::string{metadata.simulatorCommit}
+        ) << ","
+        << "\"simulator_model_path\":" << std::quoted(
+            std::string{metadata.simulatorModelPath}
+        ) << ","
+        << "\"rl_preset_repository\":" << std::quoted(
+            std::string{metadata.rlPresetRepository}
+        ) << ","
+        << "\"rl_preset_commit\":" << std::quoted(
+            std::string{metadata.rlPresetCommit}
+        ) << ","
+        << "\"physics_timestep_seconds\":0.005,"
+        << "\"policy_timestep_seconds\":0.02,"
+        << "\"drive_prediction_seconds\":0.005,"
+        << "\"action_scale_radians\":0.25,"
+        << "\"actor_frame_size\":96,"
+        << "\"actor_history_length\":5,";
+
+    const auto writeScalarArray =
+        [&output](const char* key, const auto& values) {
+            output << std::quoted(key) << ":[";
+            for (std::size_t index = 0u;
+                 index < values.size();
+                 ++index) {
+                if (index != 0u) {
+                    output << ',';
+                }
+                output << values[index];
+            }
+            output << ']';
+        };
+    output << "\"joint_order\":[";
+    for (std::size_t index = 0u;
+         index < metadata.jointLimits.size();
+         ++index) {
+        if (index != 0u) {
+            output << ',';
+        }
+        output << std::quoted(
+            std::string{metadata.jointLimits[index].name}
+        );
+    }
+    output << "],";
+
+    std::array<float, metalrobo::kUnitreeG1JointCount>
+        defaultPose{};
+    std::array<float, metalrobo::kUnitreeG1JointCount>
+        stiffness{};
+    std::array<float, metalrobo::kUnitreeG1JointCount>
+        damping{};
+    std::array<float, metalrobo::kUnitreeG1JointCount>
+        velocityLimits{};
+    std::array<float, metalrobo::kUnitreeG1JointCount>
+        effortLimits{};
+    for (std::size_t index = 0u;
+         index < metadata.jointLimits.size();
+         ++index) {
+        defaultPose[index] =
+            model.defaultQ[
+                articulation.qOffset + 7u + index
+            ];
+        stiffness[index] =
+            metadata.rlLabDrives[index].stiffness;
+        damping[index] =
+            metadata.rlLabDrives[index].damping;
+        velocityLimits[index] =
+            metadata.jointLimits[index].maximumVelocity;
+        effortLimits[index] =
+            metadata.jointLimits[index].maximumEffort;
+    }
+    writeScalarArray("default_pose", defaultPose);
+    output << ',';
+    writeScalarArray("stiffness", stiffness);
+    output << ',';
+    writeScalarArray("damping", damping);
+    output << ',';
+    writeScalarArray("velocity_limits", velocityLimits);
+    output << ',';
+    writeScalarArray("effort_limits", effortLimits);
+    output << ",\"position_limits\":[";
+    for (std::size_t index = 0u;
+         index < metadata.jointLimits.size();
+         ++index) {
+        if (index != 0u) {
+            output << ',';
+        }
+        output
+            << '['
+            << metadata.jointLimits[index].lowerPosition
+            << ','
+            << metadata.jointLimits[index].upperPosition
+            << ']';
+    }
+    output << "]}";
+    return output.str();
+}
+
 template <typename Function>
 int translateErrors(Function&& function) noexcept {
     try {
@@ -176,6 +304,69 @@ bool requireTaskRolloutHandle(
     return false;
 }
 
+void accumulateTaskStageHighWater(
+    MRTaskRolloutStageHighWaterC& target,
+    const metalrobo::MetalWorldStageCounts& source
+) {
+    const auto maximum = [](uint32_t& value, const uint32_t sample) {
+        value = std::max(value, sample);
+    };
+    maximum(target.candidate_pairs, source.candidatePairs);
+    maximum(target.raw_contacts, source.rawContacts);
+    maximum(target.manifolds, source.manifolds);
+    maximum(target.constraint_blocks, source.constraintBlocks);
+    maximum(target.constraint_rows, source.constraintRows);
+    maximum(target.islands, source.islands);
+    maximum(target.hard_convex_pairs, source.hardConvexPairs);
+    maximum(
+        target.mesh_triangle_candidates,
+        source.meshTriangleCandidates
+    );
+    maximum(target.solver_tiles, source.solverTiles);
+    maximum(target.spill_rows, source.spillRows);
+    maximum(target.ccd_candidates, source.ccdCandidates);
+    maximum(target.ccd_events, source.ccdEvents);
+    maximum(
+        target.endpoint_runtime_records,
+        source.endpointRuntimeRecords
+    );
+    maximum(
+        target.articulation_point_queries,
+        source.articulationPointQueries
+    );
+    maximum(target.rod_candidate_pairs, source.rodCandidatePairs);
+    maximum(target.rod_raw_contacts, source.rodRawContacts);
+    maximum(target.rod_manifolds, source.rodManifolds);
+    maximum(target.rod_ccd_events, source.rodCCDEvents);
+    maximum(
+        target.quality_generalized_velocities,
+        source.qualityGeneralizedVelocities
+    );
+    maximum(target.quality_rows, source.qualityRows);
+    maximum(
+        target.quality_krylov_vectors,
+        source.qualityKrylovVectors
+    );
+    maximum(
+        target.quality_direct_tiles,
+        source.qualityDirectTiles
+    );
+    maximum(target.dynamic_nodes, source.dynamicNodes);
+    maximum(
+        target.island_node_references,
+        source.islandNodeReferences
+    );
+    maximum(
+        target.island_constraint_references,
+        source.islandConstraintReferences
+    );
+    maximum(target.rod_factor_blocks, source.rodFactorBlocks);
+    maximum(
+        target.operator_velocity_elements,
+        source.operatorVelocityElements
+    );
+}
+
 std::size_t checkedProduct(
     const std::initializer_list<std::size_t> values,
     const char* label
@@ -202,6 +393,10 @@ void resetTaskRolloutState(
         handle.environmentCount;
     const std::size_t nq = handle.world.nq();
     const std::size_t nv = handle.world.nv();
+    const MRArticulationGPU& articulation =
+        handle.model.articulations[
+            handle.world.articulationIndex()
+        ];
     handle.resetQ.resize(environmentCount * nq);
     handle.resetV.resize(environmentCount * nv);
     for (std::size_t environment = 0u;
@@ -210,16 +405,18 @@ void resetTaskRolloutState(
         const std::size_t qBase = environment * nq;
         const std::size_t vBase = environment * nv;
         std::copy_n(
-            handle.model.defaultQ.begin(),
+            handle.model.defaultQ.begin() +
+                articulation.qOffset,
             nq,
             handle.resetQ.begin() +
                 static_cast<std::ptrdiff_t>(qBase)
         );
-        std::fill_n(
-            handle.resetV.begin() +
-                static_cast<std::ptrdiff_t>(vBase),
+        std::copy_n(
+            handle.model.defaultV.begin() +
+                articulation.vOffset,
             nv,
-            0.0f
+            handle.resetV.begin() +
+                static_cast<std::ptrdiff_t>(vBase)
         );
     }
 
@@ -309,7 +506,7 @@ createCompiledTaskRollout(
     const metalrobo::LocomotionWorldCompileDiagnostics
         compiledStatus = metalrobo::compileLocomotionWorld(
             authored,
-            0u,
+            authored.articulationIndex,
             compiled
         );
     if (!compiledStatus.world.succeeded()) {
@@ -397,7 +594,11 @@ metalrobo::PolicyPack policyPackFromC(
         policy.layers == nullptr ||
         policy.layer_count == 0u ||
         policy.layer_count >
-            std::numeric_limits<std::uint32_t>::max()) {
+            std::numeric_limits<std::uint32_t>::max() ||
+        policy.critic_layer_count >
+            std::numeric_limits<std::uint32_t>::max() ||
+        (policy.critic_layer_count != 0u &&
+         policy.critic_layers == nullptr)) {
         throw std::invalid_argument(
             "policy identity and dense layers are required"
         );
@@ -417,6 +618,23 @@ metalrobo::PolicyPack policyPackFromC(
             policy.observation_inverse_standard_deviation_count,
             "policy observation inverse standard deviation"
         );
+    authored.criticObservationMean = copyPolicyFloats(
+        policy.critic_observation_mean,
+        policy.critic_observation_mean_count,
+        "policy critic observation mean"
+    );
+    authored.criticObservationInverseStandardDeviation =
+        copyPolicyFloats(
+            policy.critic_observation_inverse_standard_deviation,
+            policy.critic_observation_inverse_standard_deviation_count,
+            "policy critic observation inverse standard deviation"
+        );
+    authored.actionLogStandardDeviation =
+        copyPolicyFloats(
+            policy.action_log_standard_deviation,
+            policy.action_log_standard_deviation_count,
+            "policy action log standard deviation"
+        );
     authored.actionBias = copyPolicyFloats(
         policy.action_bias,
         policy.action_bias_count,
@@ -429,43 +647,63 @@ metalrobo::PolicyPack policyPackFromC(
     );
     authored.observationClip = policy.observation_clip;
     authored.actionClip = policy.action_clip;
-    authored.layers.reserve(policy.layer_count);
-    for (std::size_t index = 0u;
-         index < policy.layer_count;
-         ++index) {
-        const MRPolicyDenseLayerC& source =
-            policy.layers[index];
-        const std::uint64_t expectedWeights =
-            static_cast<std::uint64_t>(
-                source.input_count
-            ) * source.output_count;
-        if (source.activation >
-                MR_POLICY_ACTIVATION_C_SILU ||
-            expectedWeights != source.weight_count ||
-            source.bias_count != source.output_count) {
-            throw std::invalid_argument(
-                "policy dense layer shape or activation is invalid"
-            );
-        }
-        authored.layers.push_back({
-            .inputCount = source.input_count,
-            .outputCount = source.output_count,
-            .activation =
-                static_cast<metalrobo::PolicyActivation>(
-                    source.activation
+    const auto appendLayers = [](
+        const MRPolicyDenseLayerC* sources,
+        const std::size_t count,
+        std::vector<metalrobo::PolicyDenseLayer>& destination,
+        const char* label
+    ) {
+        destination.reserve(count);
+        for (std::size_t index = 0u;
+             index < count;
+             ++index) {
+            const MRPolicyDenseLayerC& source =
+                sources[index];
+            const std::uint64_t expectedWeights =
+                static_cast<std::uint64_t>(
+                    source.input_count
+                ) * source.output_count;
+            if (source.activation >
+                    MR_POLICY_ACTIVATION_C_SILU ||
+                expectedWeights != source.weight_count ||
+                source.bias_count != source.output_count) {
+                throw std::invalid_argument(
+                    std::string{label} +
+                    " dense layer shape or activation is invalid"
+                );
+            }
+            destination.push_back({
+                .inputCount = source.input_count,
+                .outputCount = source.output_count,
+                .activation =
+                    static_cast<
+                        metalrobo::PolicyActivation
+                    >(source.activation),
+                .weights = copyPolicyFloats(
+                    source.weights,
+                    source.weight_count,
+                    "policy dense weights"
                 ),
-            .weights = copyPolicyFloats(
-                source.weights,
-                source.weight_count,
-                "policy dense weights"
-            ),
-            .bias = copyPolicyFloats(
-                source.bias,
-                source.bias_count,
-                "policy dense bias"
-            ),
-        });
-    }
+                .bias = copyPolicyFloats(
+                    source.bias,
+                    source.bias_count,
+                    "policy dense bias"
+                ),
+            });
+        }
+    };
+    appendLayers(
+        policy.layers,
+        policy.layer_count,
+        authored.layers,
+        "actor"
+    );
+    appendLayers(
+        policy.critic_layers,
+        policy.critic_layer_count,
+        authored.criticLayers,
+        "critic"
+    );
     return authored;
 }
 
@@ -519,6 +757,21 @@ const char* mr_last_error(void) {
     return gLastError.c_str();
 }
 
+const char* mr_unitree_g1_deployment_contract_json(void) {
+    try {
+        static const std::string contract =
+            unitreeG1DeploymentContractJSON();
+        gLastError.clear();
+        return contract.c_str();
+    } catch (const std::exception& error) {
+        gLastError = error.what();
+    } catch (...) {
+        gLastError =
+            "failed to construct the Unitree G1 deployment contract";
+    }
+    return nullptr;
+}
+
 int mr_write_policy_pack(
     const MRPolicyPackC* policy,
     const char* policy_pack_path
@@ -546,6 +799,21 @@ int mr_write_policy_pack(
             );
         }
     });
+}
+
+uint64_t mr_learning_pack_content_hash(
+    const void* payload,
+    const size_t byte_count
+) {
+    if (payload == nullptr && byte_count != 0u) {
+        return 0u;
+    }
+    return metalrobo::learningPackContentHash(
+        {
+            static_cast<const std::byte*>(payload),
+            byte_count,
+        }
+    );
 }
 
 int mr_compile_episode_manifest(
@@ -865,6 +1133,63 @@ MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
     return status == 0 ? result : nullptr;
 }
 
+MRTaskRolloutHandle* mr_create_world_pack_locomotion_rollout(
+    const char* world_pack_path,
+    const char* task_pack_path,
+    const MRTaskRolloutConfigC* config,
+    const char* metallib_path
+) {
+    if (config == nullptr ||
+        world_pack_path == nullptr ||
+        world_pack_path[0] == '\0' ||
+        task_pack_path == nullptr ||
+        task_pack_path[0] == '\0') {
+        gLastError =
+            "MRWorldPack, TaskPack, and task-rollout config are required.";
+        return nullptr;
+    }
+
+    MRTaskRolloutHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        metalrobo::TaskPack task;
+        const metalrobo::LearningPackResult taskLoaded =
+            metalrobo::readTaskPack(task_pack_path, task);
+        if (!taskLoaded.succeeded()) {
+            throw std::invalid_argument(
+                std::string{"TaskPack load failed ["} +
+                metalrobo::learningPackStatusName(
+                    taskLoaded.status
+                ) + "]: " + taskLoaded.message
+            );
+        }
+        metalrobo::MRWorldPack worldPack;
+        const metalrobo::WorldPackResult worldLoaded =
+            metalrobo::readWorldPack(
+                world_pack_path,
+                worldPack
+            );
+        if (!worldLoaded.succeeded()) {
+            throw std::invalid_argument(
+                std::string{"MRWorldPack load failed ["} +
+                metalrobo::worldPackStatusName(
+                    worldLoaded.status
+                ) + "]: " + worldLoaded.message
+            );
+        }
+        auto handle = createCompiledTaskRollout(
+            metalrobo::makeWorldPackLocomotionWorld(
+                worldPack,
+                std::move(task)
+            ),
+            *config,
+            metallib_path,
+            "MRWorldPack"
+        );
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
 void mr_task_rollout_destroy(MRTaskRolloutHandle* handle) {
     delete handle;
 }
@@ -950,6 +1275,7 @@ int mr_task_rollout_advance(
     const size_t reset_mask_count,
     const uint32_t control_step_count,
     const uint64_t policy_revision,
+    const uint32_t evaluate_final_policy,
     MRTaskRolloutAdvanceC* advance
 ) {
     if (!requireTaskRolloutHandle(handle)) {
@@ -969,6 +1295,8 @@ int mr_task_rollout_advance(
     }
 
     return translateErrors([&] {
+        handle->stepConfig.evaluateFinalPolicy =
+            evaluate_final_policy != 0u;
         const std::size_t actionCount =
             handle->taskProgram.layout().actionCount;
         const std::size_t environmentCount =
@@ -1018,7 +1346,7 @@ int mr_task_rollout_advance(
                 handle->resetMasks.begin()
             );
         }
-        advance->scheduled_resets =
+        advance->host_requested_resets =
             static_cast<std::uint32_t>(
                 std::count_if(
                     handle->resetMasks.begin(),
@@ -1125,6 +1453,13 @@ int mr_task_rollout_advance(
                     contact.requiredManifolds
                 );
             }
+        }
+        for (const metalrobo::MetalWorldStatus& status :
+             published.environmentStatuses) {
+            accumulateTaskStageHighWater(
+                advance->high_water,
+                status.highWater
+            );
         }
 
         if (!diagnostics.published ||
@@ -1257,6 +1592,169 @@ const MRTaskTransitionC* mr_task_rollout_transitions(
               handle->result.transitions.data()
           )
         : nullptr;
+}
+
+const float* mr_task_rollout_policy_latents(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.policyLatents.empty()
+        ? handle->result.policyLatents.data()
+        : nullptr;
+}
+
+const float* mr_task_rollout_policy_log_probabilities(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.policyLogProbabilities.empty()
+        ? handle->result.policyLogProbabilities.data()
+        : nullptr;
+}
+
+const float* mr_task_rollout_policy_values(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.policyValues.empty()
+        ? handle->result.policyValues.data()
+        : nullptr;
+}
+
+const float* mr_task_rollout_bootstrap_policy_values(
+    const MRTaskRolloutHandle* handle
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return nullptr;
+    }
+    const std::size_t offset =
+        handle->result.transitions.size();
+    const std::size_t required =
+        offset + handle->environmentCount;
+    return handle->result.policyValues.size() >= required
+        ? handle->result.policyValues.data() + offset
+        : nullptr;
+}
+
+int mr_task_rollout_write_policy_rollout_pack(
+    const MRTaskRolloutHandle* handle,
+    const MRPolicyRolloutBatchC* batch,
+    const char* batch_id,
+    const char* output_path
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    if (batch == nullptr ||
+        batch_id == nullptr || batch_id[0] == '\0' ||
+        output_path == nullptr || output_path[0] == '\0') {
+        gLastError =
+            "policy rollout batch, identity, and output path are required.";
+        return -1;
+    }
+    return translateErrors([&] {
+        if (!handle->stepConfig.policyProgram.valid()) {
+            throw std::invalid_argument(
+                "a compiled policy must be installed before publishing a rollout pack"
+            );
+        }
+        const auto floats = [](
+            const float* values,
+            const std::size_t count,
+            const char* label
+        ) {
+            if (values == nullptr && count != 0u) {
+                throw std::invalid_argument(
+                    std::string{label} + " pointer is null"
+                );
+            }
+            return std::span<const float>{values, count};
+        };
+        if (batch->transition_count != 0u &&
+            batch->transitions == nullptr) {
+            throw std::invalid_argument(
+                "rollout transition pointer is null"
+            );
+        }
+        std::vector<MRTaskTransitionGPU> transitions(
+            batch->transition_count
+        );
+        if (!transitions.empty()) {
+            std::memcpy(
+                transitions.data(),
+                batch->transitions,
+                transitions.size() *
+                    sizeof(MRTaskTransitionGPU)
+            );
+        }
+        const metalrobo::PolicyRolloutPackView authored{
+            .id = batch_id,
+            .taskFingerprint =
+                handle->taskProgram.fingerprint(),
+            .policyFingerprint =
+                handle->stepConfig.policyProgram.fingerprint(),
+            .policyRevision =
+                handle->stepConfig.policyProgram.revision(),
+            .environmentCount =
+                handle->environmentCount,
+            .controlStepCount =
+                batch->control_step_count,
+            .actorObservationCount =
+                handle->taskProgram.layout()
+                    .actorObservationSize,
+            .criticObservationCount =
+                handle->taskProgram.layout()
+                    .criticObservationSize,
+            .actionCount =
+                handle->taskProgram.layout().actionCount,
+            .actorObservations = floats(
+                batch->actor_observations,
+                batch->actor_observation_count,
+                "rollout actor observations"
+            ),
+            .criticObservations = floats(
+                batch->critic_observations,
+                batch->critic_observation_count,
+                "rollout critic observations"
+            ),
+            .latents = floats(
+                batch->latents,
+                batch->latent_count,
+                "rollout latents"
+            ),
+            .logProbabilities = floats(
+                batch->log_probabilities,
+                batch->log_probability_count,
+                "rollout log probabilities"
+            ),
+            .values = floats(
+                batch->values,
+                batch->value_count,
+                "rollout values"
+            ),
+            .bootstrapValues = floats(
+                batch->bootstrap_values,
+                batch->bootstrap_value_count,
+                "rollout bootstrap values"
+            ),
+            .transitions = transitions,
+        };
+        const metalrobo::LearningPackResult written =
+            metalrobo::writePolicyRolloutPack(
+                authored,
+                output_path
+            );
+        if (!written.succeeded()) {
+            throw std::runtime_error(
+                std::string{
+                    "PolicyRolloutPack write failed ["
+                } +
+                metalrobo::learningPackStatusName(
+                    written.status
+                ) + "]: " + written.message
+            );
+        }
+    });
 }
 
 MRWorldFamilyHandle* mr_create_franka_pick_place_world_family(

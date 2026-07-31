@@ -444,8 +444,7 @@ std::vector<MRBodyStateGPU> authoredSceneStates(
 
 metalrobo::TactileSolverContactBatch packFinalContacts(
     const metalrobo::EngineModel& model,
-    const metalrobo::MetalWorldResult& result,
-    const std::span<const MRBodyStateGPU> bodies
+    const metalrobo::MetalWorldResult& result
 ) {
     require(
         !result.contactStatuses.empty(),
@@ -456,18 +455,11 @@ metalrobo::TactileSolverContactBatch packFinalContacts(
     };
     metalrobo::TactileSolverContactFrame frame;
     frame.environmentCount = 1u;
-    frame.bodyCount =
-        static_cast<std::uint32_t>(model.bodies.size());
     frame.contactCapacityPerEnvironment =
         result.layout.contactDispatch.constraintCapacity;
-    frame.manifoldCapacityPerEnvironment =
-        result.layout.contactDispatch.manifoldCapacity;
     frame.shapes = model.shapes;
-    frame.bodies = bodies;
     frame.constraints = result.contactEvidence.contacts;
     frame.metadata = result.contactEvidence.contactMetadata;
-    frame.manifoldHeaders =
-        result.contactEvidence.manifoldHeaders;
     frame.activeContactCounts = activeContactCounts;
     metalrobo::TactileSolverContactBatch contacts;
     require(
@@ -641,7 +633,7 @@ int runCompoundScenario(
         result.finalSceneBodies
     );
     const auto solverContacts =
-        packFinalContacts(model, result, finalBodies);
+        packFinalContacts(model, result);
     const auto observation = tactileObservation(
         worldTemplate,
         finalBodies,
@@ -1094,20 +1086,13 @@ int main(const int argc, const char* const* argv) {
         };
         metalrobo::TactileSolverContactFrame contactFrame;
         contactFrame.environmentCount = 1u;
-        contactFrame.bodyCount =
-            static_cast<std::uint32_t>(model.bodies.size());
         contactFrame.contactCapacityPerEnvironment =
             first.layout.contactDispatch.constraintCapacity;
-        contactFrame.manifoldCapacityPerEnvironment =
-            first.layout.contactDispatch.manifoldCapacity;
         contactFrame.shapes = model.shapes;
-        contactFrame.bodies = finalBodies;
         contactFrame.constraints =
             first.contactEvidence.contacts;
         contactFrame.metadata =
             first.contactEvidence.contactMetadata;
-        contactFrame.manifoldHeaders =
-            first.contactEvidence.manifoldHeaders;
         contactFrame.activeContactCounts =
             activeContactCounts;
         metalrobo::TactileSolverContactBatch solverContacts;

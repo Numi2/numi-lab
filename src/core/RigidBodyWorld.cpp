@@ -235,6 +235,17 @@ std::pair<Vec3, Vec3> contactBasis(const Vec3 unitNormal) {
     return {tangentU, cross(unitNormal, tangentU)};
 }
 
+std::pair<Vec3, Vec3> contactBasis(
+    const Vec3 unitNormal,
+    const Vec3 authoredTangent
+) {
+    const Vec3 tangent =
+        authoredTangent -
+        unitNormal * dot(unitNormal, authoredTangent);
+    const Vec3 tangentU = tangent / norm(tangent);
+    return {tangentU, cross(unitNormal, tangentU)};
+}
+
 double normalTargetVelocity(
     const MRContactConstraintGPU& contact,
     const ContactSolverConfig& config
@@ -336,7 +347,8 @@ QualityMaximalProblem buildQualityMaximalProblem(
     for (const MRContactConstraintGPU& contact : contacts) {
         const Vec3 normal =
             xyz(contact.normal) / norm(xyz(contact.normal));
-        const auto [tangentU, tangentV] = contactBasis(normal);
+        const auto [tangentU, tangentV] =
+            contactBasis(normal, xyz(contact.tangent));
         const std::array<Vec3, 3u> directions{
             normal,
             tangentU,
@@ -656,6 +668,16 @@ ContactAssemblyResult assembleContactConstraints(
             return result;
         }
         const Vec3 unitNormal = normal / normalLength;
+        Vec3 tangent =
+            rotationA * xyz(header.tangentAndMetric);
+        tangent = tangent -
+            unitNormal * dot(unitNormal, tangent);
+        const double tangentLength = norm(tangent);
+        tangent =
+            tangentLength > kTiny &&
+                    std::isfinite(tangentLength)
+            ? tangent / tangentLength
+            : contactBasis(unitNormal).first;
         for (std::uint32_t pointIndex = 0u;
              pointIndex < header.pairAndCount[3];
              ++pointIndex) {
@@ -694,6 +716,7 @@ ContactAssemblyResult assembleContactConstraints(
             constraint.pointAndSeparation =
                 f4(point, static_cast<float>(effectiveSeparation));
             constraint.normal = f4(unitNormal);
+            constraint.tangent = f4(tangent);
             constraint.friction = {
                 static_cast<float>(geometricMean(
                     materialA.friction.x,

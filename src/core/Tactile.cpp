@@ -1620,20 +1620,11 @@ TactileObserveResult packTactileSolverContacts(
     const std::size_t contactArena =
         static_cast<std::size_t>(frame.environmentCount) *
         frame.contactCapacityPerEnvironment;
-    const std::size_t manifoldArena =
-        static_cast<std::size_t>(frame.environmentCount) *
-        frame.manifoldCapacityPerEnvironment;
     if (frame.environmentCount == 0u ||
-        frame.bodyCount == 0u ||
         frame.contactCapacityPerEnvironment == 0u ||
-        frame.manifoldCapacityPerEnvironment == 0u ||
         frame.shapes.empty() ||
-        frame.bodies.size() !=
-            static_cast<std::size_t>(frame.environmentCount) *
-                frame.bodyCount ||
         frame.constraints.size() != contactArena ||
         frame.metadata.size() != contactArena ||
-        frame.manifoldHeaders.size() != manifoldArena ||
         frame.activeContactCounts.size() !=
             frame.environmentCount) {
         return observeFailure(
@@ -1654,23 +1645,6 @@ TactileObserveResult packTactileSolverContacts(
             "host allocation failed for tactile solver contacts"
         );
     }
-    const auto stableTangent = [](const Vec3 normal) {
-        const Vec3 absolute{
-            std::abs(normal.x),
-            std::abs(normal.y),
-            std::abs(normal.z),
-        };
-        Vec3 reference;
-        if (absolute.x <= absolute.y &&
-            absolute.x <= absolute.z) {
-            reference = {1.0, 0.0, 0.0};
-        } else if (absolute.y <= absolute.z) {
-            reference = {0.0, 1.0, 0.0};
-        } else {
-            reference = {0.0, 0.0, 1.0};
-        }
-        return normalized(cross(reference, normal));
-    };
     for (std::uint32_t environment = 0u;
          environment < frame.environmentCount;
          ++environment) {
@@ -1685,9 +1659,6 @@ TactileObserveResult packTactileSolverContacts(
         const std::size_t contactBase =
             static_cast<std::size_t>(environment) *
             frame.contactCapacityPerEnvironment;
-        const std::size_t bodyBase =
-            static_cast<std::size_t>(environment) *
-            frame.bodyCount;
         std::uint32_t packedCount = 0u;
         for (std::uint32_t slot = 0u;
              slot < frame.contactCapacityPerEnvironment &&
@@ -1696,60 +1667,35 @@ TactileObserveResult packTactileSolverContacts(
             const MRContactPointMetaGPU& metadata =
                 frame.metadata[contactBase + slot];
             if (metadata.colliderA >= frame.shapes.size() ||
-                metadata.colliderB >= frame.shapes.size() ||
-                metadata.manifoldIndex >=
-                    frame.manifoldCapacityPerEnvironment) {
+                metadata.colliderB >= frame.shapes.size()) {
                 continue;
-            }
-            const MRShapeGPU& shapeA =
-                frame.shapes[metadata.colliderA];
-            const MRShapeGPU& shapeB =
-                frame.shapes[metadata.colliderB];
-            if (shapeA.bodyIndex >= frame.bodyCount ||
-                shapeB.bodyIndex >= frame.bodyCount) {
-                return observeFailure(
-                    MR_TACTILE_INVALID_CONFIGURATION,
-                    "solver contact references an unknown body"
-                );
-            }
-            const MRBodyStateGPU& bodyA =
-                frame.bodies[bodyBase + shapeA.bodyIndex];
-            if (!unitQuaternion(bodyA.orientation)) {
-                return observeFailure(
-                    MR_TACTILE_NONFINITE_INPUT,
-                    "solver contact body orientation is invalid"
-                );
             }
             const MRContactConstraintGPU& contact =
                 frame.constraints[contactBase + slot];
-            const MRManifoldHeaderGPU& manifold =
-                frame.manifoldHeaders[
-                    static_cast<std::size_t>(environment) *
-                        frame.manifoldCapacityPerEnvironment +
-                    metadata.manifoldIndex
-                ];
             if (!finite(contact.normal) ||
+                !finite(contact.tangent) ||
                 !finite(contact.pointAndSeparation) ||
                 !finite(contact.impulses) ||
                 !finite(contact.friction) ||
                 contact.friction.x < 0.0f ||
                 contact.friction.y < 0.0f ||
-                !finite(manifold.tangentAndMetric) ||
-                lengthSquared(vector(contact.normal)) <= kTiny) {
+                lengthSquared(vector(contact.normal)) <= kTiny ||
+                lengthSquared(vector(contact.tangent)) <= kTiny) {
                 return observeFailure(
                     MR_TACTILE_NONFINITE_INPUT,
                     "solver contact evidence is non-finite or degenerate"
                 );
             }
             Vec3 normal = normalized(vector(contact.normal));
-            Vec3 tangent = rotate(
-                quaternion(bodyA.orientation),
-                vector(manifold.tangentAndMetric)
-            );
+            Vec3 tangent = vector(contact.tangent);
             tangent = tangent - normal * dot(tangent, normal);
-            tangent = lengthSquared(tangent) > 1.0e-12
-                ? normalized(tangent)
-                : stableTangent(normal);
+            if (lengthSquared(tangent) <= 1.0e-12) {
+                return observeFailure(
+                    MR_TACTILE_NONFINITE_INPUT,
+                    "solver contact tangent is degenerate"
+                );
+            }
+            tangent = normalized(tangent);
             const Vec3 bitangent = cross(normal, tangent);
             // Solver rows encode relative B-A velocity along (n,u,v), so a
             // positive cone impulse applies the opposite world impulse to A.

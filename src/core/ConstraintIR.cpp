@@ -181,21 +181,17 @@ bool rangeFits(
     return end <= size;
 }
 
-std::pair<Vec3, Vec3> contactBasis(const Vec3 unitNormal) {
-    const Vec3 absolute{
-        std::abs(unitNormal.x),
-        std::abs(unitNormal.y),
-        std::abs(unitNormal.z),
+std::pair<Vec3, Vec3> contactBasis(
+    const Vec3 unitNormal,
+    const Vec3 authoredTangent
+) {
+    const double projection =
+        dot(unitNormal, authoredTangent);
+    const Vec3 tangent{
+        authoredTangent.x - unitNormal.x * projection,
+        authoredTangent.y - unitNormal.y * projection,
+        authoredTangent.z - unitNormal.z * projection,
     };
-    Vec3 reference{};
-    if (absolute.x <= absolute.y && absolute.x <= absolute.z) {
-        reference = {1.0, 0.0, 0.0};
-    } else if (absolute.y <= absolute.z) {
-        reference = {0.0, 1.0, 0.0};
-    } else {
-        reference = {0.0, 0.0, 1.0};
-    }
-    const Vec3 tangent = cross(reference, unitNormal);
     const double tangentNorm = norm(tangent);
     return {
         tangent / tangentNorm,
@@ -496,6 +492,7 @@ ConstraintIRDiagnostics validateV1Contact(
     }
     if (!finite(contact.pointAndSeparation) ||
         !finite(contact.normal) ||
+        !finite(contact.tangent) ||
         !finite(contact.friction) ||
         !finite(contact.response) ||
         !finite(contact.targetVelocityAndPreSolveNormal) ||
@@ -507,10 +504,22 @@ ConstraintIRDiagnostics validateV1Contact(
         );
     }
     const double normalNorm = norm(xyz(contact.normal));
+    const double tangentNorm = norm(xyz(contact.tangent));
     if (std::abs(normalNorm - 1.0) > kDirectionTolerance) {
         return failure(
             ConstraintIRStatus::invalidRow,
             "v1 contact normal is not unit length",
+            index
+        );
+    }
+    if (std::abs(tangentNorm - 1.0) > kDirectionTolerance ||
+        std::abs(dot(
+            xyz(contact.normal),
+            xyz(contact.tangent)
+        )) > kDirectionTolerance) {
+        return failure(
+            ConstraintIRStatus::invalidRow,
+            "v1 contact tangent is not unit and orthogonal",
             index
         );
     }
@@ -2550,7 +2559,8 @@ ConstraintIRV1AdapterResult adaptV1ContactsToConstraintIR(
         const MRContactConstraintGPU& contact =
             contacts[sourceIndex];
         const Vec3 normal = xyz(contact.normal);
-        const auto [tangentU, tangentV] = contactBasis(normal);
+        const auto [tangentU, tangentV] =
+            contactBasis(normal, xyz(contact.tangent));
         const bool hasTorsion =
             contact.friction.w > 0.0F ||
             contact.impulses.w != 0.0F;

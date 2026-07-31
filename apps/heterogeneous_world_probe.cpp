@@ -571,6 +571,67 @@ int main() {
                     psmNeedleProblem.nv,
             "dual PSM/needle Metal contact graph failed: " +
                 metalContactDiagnostics.message +
+                " gpu_status=" +
+                std::to_string(
+                    metalContactDiagnostics.firstGPUStatusCode
+                ) +
+                (
+                    metalContact.statuses.empty()
+                    ? std::string{}
+                    : " failing_work=" +
+                          std::to_string(
+                              metalContact.statuses[0]
+                                  .failingWork
+                          ) +
+                          " point_status=" +
+                          std::to_string(
+                              metalContact.statuses[0]
+                                  .pointStatusCode
+                          )
+                ) +
+                (
+                    metalContact.pointStatuses.empty()
+                    ? std::string{}
+                    : " point_failure=" +
+                          std::to_string(
+                              metalContact.pointStatuses[0]
+                                  .failingIndex
+                          ) +
+                          " point_shape=" +
+                          std::to_string(
+                              metalContact.pointStatuses[0]
+                                  .bodyCount
+                          ) +
+                          "/" +
+                          std::to_string(
+                              metalContact.pointStatuses[0]
+                                  .nq
+                          ) +
+                          "/" +
+                          std::to_string(
+                              metalContact.pointStatuses[0]
+                                  .nv
+                          )
+                ) +
+                (
+                    metalContact.equalityStatuses.empty()
+                    ? std::string{}
+                    : " equality=" +
+                          std::to_string(
+                              metalContact.equalityStatuses[0]
+                                  .code
+                          ) +
+                          ":" +
+                          std::to_string(
+                              metalContact.equalityStatuses[0]
+                                  .diagnostics.x
+                          ) +
+                          "/" +
+                          std::to_string(
+                              metalContact.equalityStatuses[0]
+                                  .diagnostics.w
+                          )
+                ) +
                 (
                     metalContact.qualityStatuses.empty()
                     ? std::string{}

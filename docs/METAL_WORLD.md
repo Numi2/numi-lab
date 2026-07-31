@@ -69,12 +69,35 @@ articulation state, scene state, manifolds, warm starts, actuator history,
 sensor history, episode state, and RNG state private across submissions.
 Reset is one native transaction. Only actor/critic observations, transition
 records, and explicit diagnostics cross the learning boundary.
+The final rollout chunk appends a value-only policy evaluation for the
+accepted post-step state to the same command buffer. Bootstrap values
+therefore do not require a discarded physics step or another submission.
 
 `TaskPack` and `PolicyPack` have deterministic, fingerprinted, transactional
 binary artifacts. MLX is a batch learning backend in
 `python/metalrobo/mlx_policy_learning.py`; it has no simulator or rollout
 scheduler dependency and publishes actors through the canonical PolicyPack
-writer.
+writer. Its PPO minibatch compiles forward evaluation, backward evaluation,
+global gradient clipping, and Adam into one graph with explicit model and
+optimizer state capture. Swift reuses one preallocated rollout arena, lends
+its arrays directly to the synchronous native artifact writer, and applies a
+configurable timeout to the long-lived learner protocol. No per-chunk batch
+list, flattened duplicate, or second full tensor allocation remains; the
+writer reserves one exact-size serialized payload. Python memory-maps that
+payload and asks the native library to verify its canonical content hash.
+It neither copies the complete file into a Python `bytes` object nor hashes
+each byte in the interpreter.
+
+Dynamics retain body state at each centre of mass, but task semantics are link
+semantics. Compilation bakes the COM-to-link reference for the root and every
+contact-group reference body into the immutable task tables. Root height,
+local velocity, yaw tracking, support slip, foot clearance, and terrain
+sampling therefore agree with URDF link frames without a runtime name lookup.
+The mechanical-power reward consumes the actual effort after actuator
+limiting and the torque-speed envelope; it does not reconstruct a nominal
+controller torque from post-step state. Unitree's x/y command curriculum is
+gated by episode-mean linear tracking alone; yaw tracking remains a reward and
+reported rollout metric but cannot incorrectly block linear range expansion.
 
 ## Encoded graphs
 
@@ -155,11 +178,23 @@ The production-shaped contact graph now includes:
 - private immutable, persistent-state, and transient placement heaps in the
   standalone three-slot submission ring;
 - exact capacity reporting and per-environment transactional rollback;
-- persistent MLX Wave32 workers that pull compact packets from an
-  invocation-local cursor while standalone Metal consumes the same queue
-  through indirect dispatch. The MLX resource bundle selects its fixed worker
-  grid from a registry-ID/Apple-GPU-family tuning profile before lazy
-  execution; Apple9/10 devices currently use 64 worker groups.
+- native Wave32 workers that pull compact packets from an invocation-local
+  cursor through indirect dispatch. Their fixed worker grid comes from the
+  compiled Apple-device profile rather than a per-step scheduling decision.
+
+The bundled G1 TaskPack uses a measured operational profile rather than the
+all-self-pair topology envelope: 128 candidate/raw pairs, 32 manifolds, 64
+constraint blocks, 192 rows, 1,024 mesh candidates, and corresponding
+fixed-capacity endpoint/query/island tables. Endpoint-runtime and articulation
+point-query counts are canonical, not independent tuning knobs: each must be
+exactly twice the constraint-block capacity, and the host rejects a mismatched
+pack before allocating or dispatching. A 1,024-environment,
+204,800-step randomized run reached 88 candidate pairs, 28 raw contacts, 11
+manifolds, 25 blocks, 75 rows, and 248 mesh candidates. Training has so far
+raised the candidate and mesh high-water marks to 100 and 272. Physical
+outputs were identical to the previous oversized profile, retained device
+storage fell to 2,314,985,006 bytes, and any future overrun remains a typed
+transactional failure. This is not an arbitrary one-gigabyte cap.
 
 Analytic/SAT paths cover the inexpensive primitive pairs. Exact cylinder
 support, robust GJK with MPR/EPA fallback, cooked convex patches, static or
@@ -174,66 +209,27 @@ time, and first failing event keys. The current step clusters certified events
 and uses speculative TGS to consume the complete microstep; literal repeated
 TOI advance/solve/continue publication remains the next collision milestone.
 
-## MLX research adapters
+## Native sensors and specialized physics
 
-The product rollout architecture above does not place physics state or rollout
-scheduling in MLX. The Python package still builds a nanobind active-encoder
-adapter for focused reference, perception, and legacy manipulation work. It is
-not the production locomotion executor and must not be copied when adding a
-robot. Its primitive:
+Physics, rendering, tactile, and geometric-sensor stages execute on native
+Metal command queues. Their state and scratch buffers remain private to their
+owning contexts. A stage may lend a compact output buffer to a downstream
+native stage, but it does not borrow MLX's command encoder or allocate
+simulator state as learning tensors. Artifact fingerprints are checked when a
+WorldPack, TaskPack, PolicyPack, or sensor program is installed.
 
-- allocates outputs and temporaries through MLX;
-- encodes ABA and transactional publication into MLX's active Metal command
-  encoder;
-- can append `sensor_fast` authored-mesh visibility and all synchronized visual
-  modalities through `visual_observation`, writing directly into MLX-owned
-  arrays on that same encoder;
-- creates, commits, and waits on no command buffer;
-- has no CPU fallback;
-- rejects JVP, VJP, and `vmap` explicitly;
-- carries environment batching as the leading array dimension.
-
-The visual primitive receives current and previous environment-major
-`MRBodyStateGPU` records from a physics stage. Tactile authored worlds publish
-the final body arena already materialized for tactile sampling as
-`StepOutput.body_states`; this adds neither a second kinematics pass nor a
-second body-state allocation. The visual primitive accepts only an explicit
-`PackedWorldFamily`, and its MRWorldPack hash must exactly match the
-`MLXCompiledWorld` hash before graph construction. Matching tensor dimensions
-cannot hide a mismatched authored world.
-
-MLX renderers are compiled with `graph_only=True`. They retain visual scratch
-needed by rasterization but no capacity-sized RGB, depth, identity, normal,
-motion, or validity planes. `visual_observation` always publishes RGB, metric
-depth, and validity. Segmentation, identities, normals, and motion are a
-static named selection; omitted fields have zero spatial extent and allocate
-no dense MLX storage. This selection is fixed when the graph is built and
-does not add a per-frame solver flag.
-The primitive retains the native renderer and sampled world-family resources
-through lazy evaluation and Metal command completion, registers both body
-arrays as MLX inputs, and publishes the arrays without routing through
-renderer-owned images. Metal resources referenced indirectly by the scene
-argument buffer live in a one-heap residency set committed once with the
-renderer and attached to the current MLX command buffer. The compute-only tile
-path is deliberate: MLX owns an active compute encoder, whereas Apple hardware
-rasterization and mesh shaders require a render pass and therefore cannot be
-inserted by ending or replacing MLX's encoder.
-
-High-poly authored geometry remains compute-native on this path. MetalRobo
-builds tight fixed-size cluster bounds once from streamed geometry, culls
-clusters in parallel per environment and active shutter band, and lets the
-flat triangle kernel reject from compact triangle-to-cluster and cached
-visibility tables before vertex fetch. Visible microtriangles use packed
-atomic depth/identity; larger triangles enter the cooperative tile resolver.
-This retains one active MLX compute encoder while avoiding all-triangle
-transform work for off-camera links, objects, and scanlines.
+High-poly authored geometry remains compute-native. MetalRobo builds tight
+fixed-size cluster bounds once from streamed geometry, culls clusters in
+parallel per environment and active shutter band, and lets the flat triangle
+kernel reject from compact triangle-to-cluster and cached visibility tables
+before vertex fetch. Visible microtriangles use packed atomic depth/identity;
+larger triangles enter the cooperative tile resolver.
 
 ### GPU-native geometric sensors
 
-`materialize_body_states` derives one environment-major geometric body arena
-from articulated `q`/`v` and standalone scene-body state on MLX's active
-encoder. When a world step already publishes `StepOutput.body_states`, sensor
-graphs reuse that array and skip materialization.
+The native body-state stage derives one environment-major geometric body arena
+from articulated `q`/`v` and standalone scene-body state. Sensor graphs reuse
+the accepted world arena and skip duplicate materialization.
 Articulated twists use forward tree recursion and are then published across
 one fixed SIMD body cohort. This does not expand a body-by-DoF Jacobian merely
 to recover rigid-body velocity.
@@ -265,40 +261,31 @@ per-frame sensor or solver flag.
 This is the common geometry primitive for range cameras, LiDAR, terrain
 height scanners, visibility tests, occupancy observations, and planning
 queries. It stays on the existing compute timeline and reuses the immutable
-world buffers; it does not build a per-step acceleration structure or cross
-an MLX command-encoder boundary. Standalone `sensor_reference` presentation
+world buffers; it does not build a per-step acceleration structure.
+Standalone `sensor_reference` presentation
 uses compacted Metal BLASes and grouped motion-instance TLASes when authored
 high-poly visibility warrants their build and encoder-transition cost.
 
-The adapter's explicit `WorldState`, `SolverCache`, and `StepOutput` PyTrees
-remain useful for numerical comparison and existing non-locomotion research
-graphs. They are not an alternative owner for production simulator state,
-reset, reward, termination, or rollout evaluation boundaries. New task
-training consumes compact native rollout batches through the policy-learning
-boundary instead.
-
-An authored `MRWorldPack` can be compiled directly into the same primitive.
+An authored `MRWorldPack` can be compiled directly into the native executor.
 Its `EngineModel` and `CookedTactileSystem` are the only physics/tactile
 sources; there is no collision-derived authored scene or alternate pack path.
-For tactile packs, the primitive packs final solver contacts and publishes
-metric depth, tangent motion, named summaries, and object-local labels on the
-active encoder. All temporal tactile state is explicit. Packs without authored
+For tactile packs, native kernels pack final solver contacts and publish
+metric depth, tangent motion, named summaries, and object-local labels. All
+temporal tactile state is persistent simulator state. Packs without authored
 tactile sensors allocate and dispatch no tactile work.
 
 Optional per-DoF actuator profiles carry joint-side torque constant, current
 limit, no-load speed, efficiency, backlash, and delay. Cooking derives stall
-torque. Standalone Metal consumes immutable authored profiles; MLX carries
-fixed per-environment profile values, backlash target, and delay history only
-inside legacy reference graphs. Production task reset owns them natively. One
+torque. Metal consumes immutable authored profiles, while native task reset
+owns per-environment profile values, backlash target, and delay history. One
 correlated profile may be selected at reset, but no per-frame calibration
 branch exists in the solver loop. Missing measured profiles use neutral
 execution records and do not imply calibration.
 
-The active-encoder reference primitive exposes free-motion and contact-capable
-Franka and PSM scenes. A separate fixed-capacity generalized-constraint
-primitive consumes the cooked multi-articulation program on the same active
-encoder; dual PSM and heterogeneous dual-PSM-plus-G1 graphs are executable
-without a secondary command buffer or CPU fallback. Its inverse-ABA path
+Focused native operators expose free-motion and contact-capable Franka and PSM
+scenes. A fixed-capacity generalized-constraint operator consumes the cooked
+multi-articulation program; dual PSM and heterogeneous dual-PSM-plus-G1 graphs
+are executable without a CPU fallback. Its inverse-ABA path
 executes forward/reverse body frontiers across SIMD32 and uses deterministic
 parent-owned sibling reductions, sharing one factorization across each RHS
 packet. The same primitive can select a GPU semismooth-Newton quality path
@@ -321,8 +308,8 @@ rod and rigid output together. Non-adjacent edges are now radius-correct
 capsules: closest witnesses, coincident normals, four-node inverse-mass
 response, and contact refresh run inside every DER sweep on FP64 and Metal.
 The versioned heterogeneous rod program owns and fingerprints this policy.
-Promotion into the MLX `WorldStepPrimitive`, thread-tool witness generation,
-and strong coupled rod/rigid iterations remain open.
+Promotion into persistent `MetalWorld`, thread-tool witness generation, and
+strong coupled rod/rigid iterations remain open.
 
 `HeterogeneousWorld` is the owned compilation boundary above those executors.
 It composes `EngineModel` instances transactionally, records the exact global
@@ -331,7 +318,7 @@ DER reset/binding sidecars, validates anchor agreement at the reset pose, and
 fingerprints every topology, state and sidecar byte. The canonical surgical
 factory produces two PSM articulations plus one dynamic compound needle and
 one swage-bound rod. Static generalized rows can already run through the
-multi-articulation Metal/MLX primitive and the rod/needle graph consumes the
+multi-articulation Metal operator and the rod/needle graph consumes the
 same bundle. Dynamic contact rows spanning more than one articulation are not
 yet admitted into the shared `MetalWorld` contact graph. The CPU FP64
 `MultiArticulatedContactProblem` now closes the reference semantics first:
@@ -369,7 +356,7 @@ physical-operator stages separately. This first host boundary intentionally
 uses owned shared buffers and one terminal wait for evidence extraction; it
 is not yet the persistent private-buffer runtime. The remaining shared-world
 work is manifold-endpoint scatter plus promotion of this encoder sequence
-into the persistent `MetalWorld` and MLX active-encoder contexts.
+into persistent `MetalWorld`.
 
 Three-axis translational loop/fixture blocks now enter this graph dynamically.
 Each authored body-local point reuses the articulation point-Jacobian stream;
@@ -420,8 +407,9 @@ needle scene, the Metal result matches the FP64 state, contact and reconstructed
 equality impulse payload within `6.9e-8`; all fourteen base-lock and jaw-gear
 rows close at `7.5e-9`.
 
-The older NumPy/ctypes and MLX-owned Franka task frontends remain compatibility
-and oracle tools. They are not the current compiled-task rollout architecture.
+The former Python/MLX physics extension and MLX-owned task frontends have been
+removed. Simulator state, reset, reward, termination, observation construction,
+and rollout scheduling have one owner: the native compiled-task executor.
 
 ## Decisive probes
 
@@ -431,6 +419,17 @@ and oracle tools. They are not the current compiled-task rollout architecture.
   --metallib build/shaders/MetalRobo.metallib \
   --envs 32 --steps 48 --repeats 20 --chunk 8 \
   --scene terrain --native-policy
+./build/bin/metalrobo_task_train \
+  --metallib build/shaders/MetalRobo.metallib \
+  --native-library build/lib/libmetalrobo.dylib \
+  --mlx-python python/.venv/bin/python --python-root python \
+  --initialize-policy unitree_g1_native_locomotion \
+  --policy-pack /tmp/g1-initial.policypack \
+  --updated-policy-pack /tmp/g1-policy.policypack \
+  --deployment-policy-pack /tmp/g1-deployment.policypack \
+  --rollout-pack /tmp/g1.rolloutpack \
+  --learner-state /tmp/g1-learner.safetensors \
+  --envs 1024 --steps 24 --chunk 8 --updates 100
 ./build/bin/metalrobo_metal_world_contact_probe
 ./build/bin/metalrobo_metal_world_probe
 

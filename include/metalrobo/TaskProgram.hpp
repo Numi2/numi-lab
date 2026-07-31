@@ -30,6 +30,8 @@ enum class TaskObservationSource : std::uint32_t {
     bodyParameterMean = MR_TASK_OBSERVE_BODY_PARAMETER_MEAN,
     bodyParameter = MR_TASK_OBSERVE_BODY_PARAMETER,
     controllerParameter = MR_TASK_OBSERVE_CONTROLLER_PARAMETER,
+    contactWrenchLocal =
+        MR_TASK_OBSERVE_CONTACT_WRENCH_LOCAL,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -57,6 +59,13 @@ enum class TaskRewardOperator : std::uint32_t {
     swingClearance = MR_TASK_REWARD_SWING_CLEARANCE,
     supportSlip = MR_TASK_REWARD_SUPPORT_SLIP,
     forbiddenContact = MR_TASK_REWARD_FORBIDDEN_CONTACT,
+    jointGroupPostureAbsolute =
+        MR_TASK_REWARD_JOINT_GROUP_POSTURE_ABSOLUTE,
+    projectedGravityHorizontalSquared =
+        MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED,
+    footClearance = MR_TASK_REWARD_FOOT_CLEARANCE,
+    jointLimitViolationAbsolute =
+        MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -76,6 +85,7 @@ enum class TaskRandomizationOperator : std::uint32_t {
         MR_TASK_RANDOMIZE_CONTROLLER_PARAMETER,
     actionDelay = MR_TASK_RANDOMIZE_ACTION_DELAY,
     observationDelay = MR_TASK_RANDOMIZE_OBSERVATION_DELAY,
+    actionVelocity = MR_TASK_RANDOMIZE_ACTION_VELOCITY,
 };
 
 struct TaskActionBinding {
@@ -119,6 +129,9 @@ struct TaskRewardOperatorSpec {
     TaskRewardOperator operation =
         TaskRewardOperator::constant;
     std::string sourceGroup;
+    // Reward rate in units per second. The native task integrates every
+    // weighted term over the control interval, keeping TaskPacks invariant
+    // when the control frequency changes.
     float weight = 0.0f;
     mr_float4 parameters{};
 };
@@ -141,8 +154,12 @@ struct TaskRandomizationOperatorSpec {
 };
 
 struct TaskCommandProgram {
+    // Initial range, hard range limits, and per-curriculum-level expansion.
     mr_float4 lower{};
     mr_float4 upper{};
+    mr_float4 limitLower{};
+    mr_float4 limitUpper{};
+    mr_float4 curriculumStep{};
     float standingProbability = 0.0f;
     float minimumDurationSeconds = 5.0f;
     float maximumDurationSeconds = 10.0f;
@@ -171,6 +188,7 @@ struct TaskPack {
     std::vector<TaskObservationOperatorSpec> actorFrame;
     std::uint32_t actorHistoryLength = 1u;
     std::vector<TaskObservationOperatorSpec> critic;
+    std::uint32_t criticHistoryLength = 1u;
     bool criticIncludesCleanHistory = true;
     std::vector<TaskContactGroup> contactGroups;
     std::vector<TaskJointGroup> jointGroups;
@@ -187,6 +205,8 @@ struct TaskPack {
     float baseHeightTarget = 0.0f;
     float gaitPeriodSeconds = 0.8f;
     float clearanceTarget = 0.1f;
+    // Episode-mean linear-velocity tracking required to advance the command
+    // curriculum. Angular tracking is an independent reward/metric.
     float successTrackingThreshold = 0.8f;
     float supportForceThreshold = 1.0f;
 };
@@ -218,6 +238,8 @@ struct TaskProgramLayout {
     std::uint32_t actorFrameSize = 0u;
     std::uint32_t actorHistoryLength = 0u;
     std::uint32_t actorObservationSize = 0u;
+    std::uint32_t criticFrameSize = 0u;
+    std::uint32_t criticHistoryLength = 0u;
     std::uint32_t criticObservationSize = 0u;
     std::uint32_t contactMetricCount = 0u;
     std::uint32_t biasCount = 0u;

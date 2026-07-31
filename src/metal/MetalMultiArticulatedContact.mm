@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/MetalMultiArticulatedContact.hpp"
+#include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/ParallelABASchedule.hpp"
 
 #include <dlfcn.h>
@@ -1953,6 +1954,24 @@ solveMetalMultiArticulatedContactsImpl(
                 "multi-articulation contact requires unified memory"
             );
         }
+        for (const MRArticulationGPU& articulation :
+             model.articulations) {
+            const std::size_t threadgroupBytes =
+                detail::articulatedOperatorThreadgroupBytes(
+                    articulation.bodyCount,
+                    articulation.nv
+                );
+            if (threadgroupBytes >
+                device.maxThreadgroupMemoryLength) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalMultiArticulatedContactStatus::
+                        metalDeviceUnsupported,
+                    "articulated point-Jacobian scratch exceeds "
+                    "Metal threadgroup memory"
+                );
+            }
+        }
         if (diagnostics.layout.totalAllocatedBytes >
             device.recommendedMaxWorkingSetSize &&
             device.recommendedMaxWorkingSetSize != 0u) {
@@ -2511,6 +2530,17 @@ solveMetalMultiArticulatedContactsImpl(
                                  MRArticulatedOperatorStatusGPU
                              )
                         atIndex:14u];
+            [encoder
+                setThreadgroupMemoryLength:
+                    detail::articulatedOperatorThreadgroupBytes(
+                        model.articulations[
+                            articulationIndex
+                        ].bodyCount,
+                        model.articulations[
+                            articulationIndex
+                        ].nv
+                    )
+                                  atIndex:0u];
             [encoder
                 dispatchThreadgroups:MTLSizeMake(
                     input.environmentCount,

@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/policy_program_types.h"
+#include "metalrobo/task_program_types.h"
 
 using namespace metal;
 
@@ -34,6 +35,40 @@ inline float policyActivation(
     default:
         return 0.0f;
     }
+}
+
+inline ulong policyMix64(ulong value) {
+    value += 0x9e3779b97f4a7c15ul;
+    value =
+        (value ^ (value >> 30u)) *
+        0xbf58476d1ce4e5b9ul;
+    value =
+        (value ^ (value >> 27u)) *
+        0x94d049bb133111ebul;
+    return value ^ (value >> 31u);
+}
+
+inline float policyUniform01(const ulong key) {
+    const uint sample =
+        uint(policyMix64(key) >> 40u);
+    return (float(sample) + 0.5f) *
+        (1.0f / 16777216.0f);
+}
+
+inline float policyNormal(
+    const ulong key,
+    const uint action
+) {
+    const ulong channel =
+        key ^ policyMix64(
+            ulong(action) * 2ul
+        );
+    const float first = policyUniform01(channel);
+    const float second = policyUniform01(
+        channel ^ 0xd2b74407b1ce6e93ul
+    );
+    return sqrt(-2.0f * log(first)) *
+        cos(6.2831853071795864769f * second);
 }
 
 } // namespace
@@ -112,33 +147,127 @@ kernel void mr_policy_dense_layer(
         dispatch.counts.w,
         value
     );
-    if ((dispatch.offsets1.z &
-         MR_POLICY_DENSE_TRANSFORM_OUTPUT) != 0u) {
-        device const float* actionBias =
-            policyTable<float>(
-                arena,
-                dispatch.offsets1.x
-            );
-        device const float* actionScale =
-            policyTable<float>(
-                arena,
-                dispatch.offsets1.y
-            );
-        value =
-            actionBias[neuron] +
-            actionScale[neuron] * value;
-    }
-    if ((dispatch.offsets1.z &
-         MR_POLICY_DENSE_CLAMP_OUTPUT) != 0u) {
-        value = clamp(
-            value,
-            -dispatch.limits.y,
-            dispatch.limits.y
-        );
-    }
     output[
         dispatch.strides.w +
         environment * dispatch.strides.y +
         neuron
     ] = value;
+}
+
+kernel void mr_policy_sample_and_score(
+    device const MRPolicyProgramHeaderGPU& program
+        [[buffer(0)]],
+    device const uchar* arena [[buffer(1)]],
+    constant MRPolicySampleDispatchGPU& dispatch
+        [[buffer(2)]],
+    device const MRTaskDispatchGPU& task [[buffer(3)]],
+    device const MRTaskStateGPU* taskStates [[buffer(4)]],
+    device const float* actorMean [[buffer(5)]],
+    device float* actions [[buffer(6)]],
+    device float* latents [[buffer(7)]],
+    device float* logProbabilities [[buffer(8)]],
+    device float* values [[buffer(9)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        program.abi.x != MR_POLICY_PROGRAM_ABI_VERSION ||
+        dispatch.policyFingerprint !=
+            program.policyFingerprint ||
+        dispatch.taskFingerprint !=
+            program.taskFingerprint ||
+        task.taskFingerprint != program.taskFingerprint ||
+        dispatch.counts.y != program.counts1.x ||
+        dispatch.counts.w != program.counts1.z) {
+        return;
+    }
+
+    const uint actionBase =
+        dispatch.counts.z * dispatch.strides.x +
+        environment * dispatch.counts.y;
+    const uint scalarIndex =
+        dispatch.counts.z * dispatch.strides.y +
+        environment;
+    const uint meanBase =
+        environment * dispatch.strides.z;
+    device const float* actionBias =
+        policyTable<float>(
+            arena,
+            program.offsets1.z
+        );
+    device const float* actionScale =
+        policyTable<float>(
+            arena,
+            program.offsets1.w
+        );
+    const bool stochastic =
+        (dispatch.counts.w &
+         MR_POLICY_PROGRAM_STOCHASTIC) != 0u;
+    device const float* logStandardDeviation =
+        stochastic
+        ? policyTable<float>(
+              arena,
+              program.offsets2.x
+          )
+        : nullptr;
+    const MRTaskStateGPU state =
+        taskStates[environment];
+    ulong randomKey = task.seed;
+    randomKey ^= policyMix64(
+        (ulong(environment) << 32u) |
+        ulong(state.episode.y)
+    );
+    randomKey ^= policyMix64(
+        (ulong(state.episode.x) << 32u) |
+        ulong(dispatch.counts.z)
+    );
+    randomKey ^= policyMix64(program.revision);
+
+    constexpr float kHalfLogTwoPi =
+        0.91893853320467274178f;
+    float logProbability = 0.0f;
+    for (uint action = 0u;
+         action < dispatch.counts.y;
+         ++action) {
+        const float mean = actorMean[meanBase + action];
+        float latent = mean;
+        if (stochastic) {
+            const float logStd =
+                logStandardDeviation[action];
+            const float normal =
+                policyNormal(randomKey, action);
+            latent = fma(exp(logStd), normal, mean);
+            const float magnitude = abs(latent);
+            const float logJacobian =
+                2.0f *
+                (
+                    log(2.0f) -
+                    magnitude -
+                    log(
+                        1.0f +
+                        exp(-2.0f * magnitude)
+                    )
+                );
+            logProbability +=
+                -0.5f * normal * normal -
+                logStd -
+                kHalfLogTwoPi -
+                logJacobian;
+        }
+        const float squashed = tanh(latent);
+        latents[actionBase + action] = latent;
+        actions[actionBase + action] = clamp(
+            fma(
+                actionScale[action],
+                squashed,
+                actionBias[action]
+            ),
+            -program.limits.y,
+            program.limits.y
+        );
+    }
+    logProbabilities[scalarIndex] = logProbability;
+    if ((dispatch.counts.w &
+         MR_POLICY_PROGRAM_HAS_CRITIC) == 0u) {
+        values[scalarIndex] = 0.0f;
+    }
 }

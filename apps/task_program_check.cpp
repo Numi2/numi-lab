@@ -1,10 +1,14 @@
+#include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/RobotDescriptionCooker.hpp"
 #include "metalrobo/TaskProgram.hpp"
+#include "metalrobo/WorldPack.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <filesystem>
 #include <iostream>
@@ -31,16 +35,26 @@ public:
         policy = directory /
             ("metalrobo_task_program_check_" + suffix +
              ".policypack");
+        rollout = directory /
+            ("metalrobo_task_program_check_" + suffix +
+             ".rolloutpack");
+        borrowedRollout = directory /
+            ("metalrobo_task_program_check_" + suffix +
+             ".borrowed.rolloutpack");
     }
 
     ~TemporaryPackFiles() {
         std::error_code ignored;
         std::filesystem::remove(task, ignored);
         std::filesystem::remove(policy, ignored);
+        std::filesystem::remove(rollout, ignored);
+        std::filesystem::remove(borrowedRollout, ignored);
     }
 
     std::filesystem::path task;
     std::filesystem::path policy;
+    std::filesystem::path rollout;
+    std::filesystem::path borrowedRollout;
 };
 
 [[noreturn]] void fail(const std::string& message) {
@@ -52,6 +66,7 @@ std::uint64_t compileImportedRobotFixture() {
 <robot name="generic_locomotion_fixture">
   <link name="base">
     <inertial>
+      <origin xyz="0 0 -0.05"/>
       <mass value="5"/>
       <inertia ixx="0.2" ixy="0" ixz="0"
                iyy="0.25" iyz="0" izz="0.15"/>
@@ -62,6 +77,7 @@ std::uint64_t compileImportedRobotFixture() {
   </link>
   <link name="foot">
     <inertial>
+      <origin xyz="0.01 0 -0.02"/>
       <mass value="1"/>
       <inertia ixx="0.02" ixy="0" ixz="0"
                iyy="0.02" iyz="0" izz="0.01"/>
@@ -122,6 +138,14 @@ std::uint64_t compileImportedRobotFixture() {
                     jointPositionError,
             .target = "hip",
         },
+        {
+            .source =
+                metalrobo::TaskObservationSource::
+                    contactWrenchLocal,
+            .target = "foot_contact",
+            .component = 2u,
+            .scale = 0.01f,
+        },
     };
     authored.task.critic = {{
         .source =
@@ -172,17 +196,92 @@ std::uint64_t compileImportedRobotFixture() {
     const metalrobo::TaskProgramLayout& layout =
         compiled.task.layout();
     if (layout.actionCount != 1u ||
-        layout.actorFrameSize != 2u ||
-        layout.actorObservationSize != 4u ||
-        layout.criticObservationSize != 5u ||
-        layout.contactMetricCount != 6u ||
+        layout.actorFrameSize != 3u ||
+        layout.actorObservationSize != 6u ||
+        layout.criticFrameSize != 1u ||
+        layout.criticHistoryLength != 1u ||
+        layout.criticObservationSize != 7u ||
+        layout.contactMetricCount != 12u ||
         compiled.task.actionBindings().front().indices.x != 0u ||
+        std::abs(
+            compiled.task.header().rootReference.z - 0.05f
+        ) > 1.0e-6f ||
+        compiled.task.contactGroups().size() != 1u ||
+        compiled.task.contactGroups()
+                .front()
+                .reference.y != 6u ||
+        std::abs(
+            compiled.task.contactGroups()
+                    .front()
+                    .kinematicReference.x +
+                0.01f
+        ) > 1.0e-6f ||
+        std::abs(
+            compiled.task.contactGroups()
+                    .front()
+                    .kinematicReference.z -
+                0.02f
+        ) > 1.0e-6f ||
         compiled.task.terrainResetTranslations().size() != 1u) {
         fail(
             "generic imported robot did not compile the authored task contract"
         );
     }
     return compiled.task.fingerprint();
+}
+
+std::uint64_t checkWorldPackLocomotionImport() {
+    metalrobo::WorldTemplate worldTemplate;
+    const metalrobo::WorldCompileResult templateStatus =
+        metalrobo::compileEpisodeTwin(
+            metalrobo::makeFrankaPickPlaceEpisodeTwin(),
+            metalrobo::makeFrankaPickPlaceEngineModel(),
+            worldTemplate
+        );
+    metalrobo::WorldFamily family;
+    const metalrobo::WorldCompileResult familyStatus =
+        metalrobo::compileWorldFamily(
+            worldTemplate,
+            metalrobo::makeFrankaPickPlaceWorldProgram(),
+            family
+        );
+    metalrobo::MRWorldPack pack;
+    const metalrobo::WorldPackResult packStatus =
+        metalrobo::compileWorldPack(family, pack);
+    if (!templateStatus.succeeded() ||
+        !familyStatus.succeeded() ||
+        !packStatus.succeeded()) {
+        fail("WorldPack locomotion fixture did not compile");
+    }
+    metalrobo::TaskPack task;
+    task.id = "world_pack_import_fixture";
+    const metalrobo::LocomotionWorld imported =
+        metalrobo::makeWorldPackLocomotionWorld(
+            pack,
+            std::move(task)
+        );
+    const auto expectedScene =
+        metalrobo::makeFrankaPickPlaceSceneState();
+    const bool hasDynamicMass = std::any_of(
+        imported.sceneBodies.begin(),
+        imported.sceneBodies.end(),
+        [](const MRBodyStateGPU& state) {
+            return state.flagsAndIndices[0] ==
+                    MR_MOTION_DYNAMIC &&
+                state.linearVelocityAndInverseMass.w > 0.0f &&
+                state.inverseInertiaWorldRow0.x > 0.0f;
+        }
+    );
+    if (imported.articulationIndex != 0u ||
+        imported.model.bodies.size() !=
+            family.worldTemplate.engineModel.bodies.size() ||
+        imported.sceneBodies.size() != expectedScene.size() ||
+        !hasDynamicMass) {
+        fail(
+            "WorldPack did not materialize executable mechanics and scene state"
+        );
+    }
+    return pack.contentHash;
 }
 
 } // namespace
@@ -228,26 +327,66 @@ int main() {
             layout.actorFrameSize != 96u ||
             layout.actorHistoryLength != 5u ||
             layout.actorObservationSize != 480u ||
-            layout.criticObservationSize != 696u ||
-            layout.contactMetricCount != 16u ||
-            layout.delayStateCount != 3u) {
+            layout.criticFrameSize != 99u ||
+            layout.criticHistoryLength != 5u ||
+            layout.criticObservationSize != 495u ||
+            layout.contactMetricCount != 37u ||
+            layout.delayStateCount != 2u) {
             fail("compiled G1 task layout changed");
         }
         if (program.worldFingerprint() != world.fingerprint() ||
-            world.capacities().candidatePairs != 256u ||
-            world.capacities().rawContacts != 2048u ||
-            world.capacities().manifolds != 256u ||
-            world.capacities().constraintBlocks != 1024u ||
-            world.capacities().constraintRows != 3072u ||
-            world.capacities().endpointRuntimeRecords != 2048u ||
-            world.capacities().articulationPointQueries != 2048u ||
+            world.capacities().candidatePairs != 128u ||
+            world.capacities().rawContacts != 128u ||
+            world.capacities().manifolds != 32u ||
+            world.capacities().constraintBlocks != 64u ||
+            world.capacities().constraintRows != 192u ||
+            world.capacities().endpointRuntimeRecords != 128u ||
+            world.capacities().articulationPointQueries != 128u ||
             program.header().root.y != 0u ||
-            program.header().counts0.w != 7u ||
+            std::abs(
+                program.header().rootReference.z -
+                0.076030060304f
+            ) > 1.0e-6f ||
+            program.header().counts0.w != 4u ||
             program.header().counts1.w != 19u ||
-            program.header().counts2.x != 4u ||
+            program.header().counts2.x != 2u ||
+            program.header().articulation.w != 5u ||
             program.terrainSampleOffsets().size() != 187u ||
             program.terrainResetTranslations().size() != 11u) {
             fail("compiled G1 task tables are incomplete");
+        }
+        metalrobo::LocomotionWorld invalidEndpointCapacity =
+            authored;
+        invalidEndpointCapacity.task.capacities
+            .endpointRuntimeRecords -= 1u;
+        metalrobo::CompiledLocomotionWorld invalidCompiledWorld;
+        const auto invalidEndpointStatus =
+            metalrobo::compileLocomotionWorld(
+                invalidEndpointCapacity,
+                0u,
+                invalidCompiledWorld
+            );
+        if (invalidEndpointStatus.world.status !=
+            metalrobo::MetalWorldHostStatus::capacityOverflow) {
+            fail(
+                "noncanonical endpoint-runtime capacity was not rejected"
+            );
+        }
+        metalrobo::LocomotionWorld invalidQueryCapacity =
+            authored;
+        invalidQueryCapacity.task.capacities
+            .articulationPointQueries += 1u;
+        const auto invalidQueryStatus =
+            metalrobo::compileLocomotionWorld(
+                invalidQueryCapacity,
+                0u,
+                invalidCompiledWorld
+            );
+        if (invalidQueryStatus.world.status !=
+            metalrobo::MetalWorldHostStatus::capacityOverflow) {
+            fail(
+                "noncanonical articulation-query capacity was not rejected"
+            );
         }
         for (std::uint32_t action = 0u;
              action < program.actionBindings().size();
@@ -328,7 +467,7 @@ int main() {
                 .inputCount = 32u,
                 .outputCount = layout.actionCount,
                 .activation =
-                    metalrobo::PolicyActivation::tanh,
+                    metalrobo::PolicyActivation::identity,
                 .weights = std::vector<float>(
                     32u * layout.actionCount,
                     0.0f
@@ -339,6 +478,32 @@ int main() {
                 ),
             },
         };
+        policy.criticLayers = {
+            {
+                .inputCount =
+                    layout.criticObservationSize,
+                .outputCount = 16u,
+                .activation =
+                    metalrobo::PolicyActivation::elu,
+                .weights = std::vector<float>(
+                    layout.criticObservationSize * 16u,
+                    0.0f
+                ),
+                .bias = std::vector<float>(16u, 0.0f),
+            },
+            {
+                .inputCount = 16u,
+                .outputCount = 1u,
+                .activation =
+                    metalrobo::PolicyActivation::identity,
+                .weights = std::vector<float>(16u, 0.0f),
+                .bias = std::vector<float>(1u, 0.0f),
+            },
+        };
+        policy.actionLogStandardDeviation.assign(
+            layout.actionCount,
+            -0.5f
+        );
         metalrobo::CompiledPolicyProgram compiledPolicy;
         const metalrobo::PolicyCompileDiagnostics
             policyStatus = metalrobo::compilePolicyProgram(
@@ -351,12 +516,17 @@ int main() {
             compiledPolicy.taskFingerprint() !=
                 program.fingerprint() ||
             compiledPolicy.revision() != 7u ||
-            compiledPolicy.layout().observationCount !=
+            compiledPolicy.layout().actorObservationCount !=
                 layout.actorObservationSize ||
+            compiledPolicy.layout().criticObservationCount !=
+                layout.criticObservationSize ||
             compiledPolicy.layout().actionCount !=
                 layout.actionCount ||
             compiledPolicy.layout().maximumHiddenCount !=
-                32u) {
+                32u ||
+            !compiledPolicy.layout().stochastic ||
+            compiledPolicy.actorLayers().size() != 2u ||
+            compiledPolicy.criticLayers().size() != 2u) {
             fail("generic PolicyPack compilation failed");
         }
         metalrobo::PolicyPack badPolicy = policy;
@@ -437,8 +607,116 @@ int main() {
                 "TaskPack or PolicyPack round trip changed its compiled program"
             );
         }
+        metalrobo::PolicyRolloutPack rollout;
+        rollout.id = "task_program_check_rollout";
+        rollout.taskFingerprint = program.fingerprint();
+        rollout.policyFingerprint = preservedPolicy;
+        rollout.policyRevision = policy.revision;
+        rollout.environmentCount = 2u;
+        rollout.controlStepCount = 3u;
+        rollout.actorObservationCount =
+            layout.actorObservationSize;
+        rollout.criticObservationCount =
+            layout.criticObservationSize;
+        rollout.actionCount = layout.actionCount;
+        constexpr std::size_t sampleCount = 6u;
+        rollout.actorObservations.assign(
+            sampleCount * layout.actorObservationSize,
+            0.25f
+        );
+        rollout.criticObservations.assign(
+            sampleCount * layout.criticObservationSize,
+            -0.5f
+        );
+        rollout.latents.assign(
+            sampleCount * layout.actionCount,
+            0.125f
+        );
+        rollout.logProbabilities.assign(
+            sampleCount,
+            -3.0f
+        );
+        rollout.values.assign(sampleCount, 0.75f);
+        rollout.bootstrapValues.assign(2u, 0.5f);
+        rollout.transitions.resize(sampleCount);
+        for (std::size_t index = 0u;
+             index < sampleCount;
+             ++index) {
+            rollout.transitions[index].rewardAndState.x =
+                static_cast<float>(index) * 0.1f;
+            rollout.transitions[index].termination.x =
+                index + 1u == sampleCount ? 1u : 0u;
+            rollout.transitions[index].policyRevision =
+                policy.revision;
+        }
+        const metalrobo::LearningPackResult rolloutWrite =
+            metalrobo::writePolicyRolloutPack(
+                rollout,
+                packFiles.rollout
+            );
+        const metalrobo::LearningPackResult borrowedWrite =
+            metalrobo::writePolicyRolloutPack(
+                metalrobo::PolicyRolloutPackView{
+                    .id = rollout.id,
+                    .taskFingerprint =
+                        rollout.taskFingerprint,
+                    .policyFingerprint =
+                        rollout.policyFingerprint,
+                    .policyRevision =
+                        rollout.policyRevision,
+                    .environmentCount =
+                        rollout.environmentCount,
+                    .controlStepCount =
+                        rollout.controlStepCount,
+                    .actorObservationCount =
+                        rollout.actorObservationCount,
+                    .criticObservationCount =
+                        rollout.criticObservationCount,
+                    .actionCount = rollout.actionCount,
+                    .actorObservations =
+                        rollout.actorObservations,
+                    .criticObservations =
+                        rollout.criticObservations,
+                    .latents = rollout.latents,
+                    .logProbabilities =
+                        rollout.logProbabilities,
+                    .values = rollout.values,
+                    .bootstrapValues =
+                        rollout.bootstrapValues,
+                    .transitions = rollout.transitions,
+                },
+                packFiles.borrowedRollout
+            );
+        metalrobo::PolicyRolloutPack loadedRollout;
+        const metalrobo::LearningPackResult rolloutRead =
+            metalrobo::readPolicyRolloutPack(
+                packFiles.rollout,
+                loadedRollout
+            );
+        if (!rolloutWrite.succeeded() ||
+            !borrowedWrite.succeeded() ||
+            borrowedWrite.contentHash !=
+                rolloutWrite.contentHash ||
+            !rolloutRead.succeeded() ||
+            loadedRollout.id != rollout.id ||
+            loadedRollout.taskFingerprint !=
+                rollout.taskFingerprint ||
+            loadedRollout.policyFingerprint !=
+                rollout.policyFingerprint ||
+            loadedRollout.actorObservations !=
+                rollout.actorObservations ||
+            loadedRollout.transitions.size() !=
+                rollout.transitions.size() ||
+            loadedRollout.transitions.back()
+                    .termination.x != 1u) {
+            fail(
+                "PolicyRolloutPack round trip changed its learning records"
+            );
+        }
         const std::uint64_t importedFingerprint =
             compileImportedRobotFixture();
+        const std::uint64_t worldPackFingerprint =
+            checkWorldPackLocomotionImport();
 
         std::cout
             << "task_program_check passed"
@@ -450,7 +728,10 @@ int main() {
             << " policy=" << preservedPolicy
             << " task_artifact=" << taskWrite.contentHash
             << " policy_artifact=" << policyWrite.contentHash
+            << " rollout_artifact="
+            << rolloutWrite.contentHash
             << " imported=" << importedFingerprint
+            << " world_pack=" << worldPackFingerprint
             << '\n';
         return 0;
     } catch (const std::exception& error) {
