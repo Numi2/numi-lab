@@ -28,8 +28,8 @@ STATUS_WORKER_EMPTY_PULLS = 41
 STATUS_CCD_ADVANCES = 36
 STATUS_CLUSTERED_IMPACTS = 37
 STATUS_CCD_ZERO_TIME_REPLAYS = 38
-STATUS_EVENT_CONSUMED_TIME = 56
-STATUS_EVENT_REMAINING_TIME = 57
+STATUS_EVENT_CONSUMED_TIME = 60
+STATUS_EVENT_REMAINING_TIME = 61
 STATUS_MESH_CANDIDATES = 27
 PERSISTENT_WORKER_FLAG = 1 << 27
 
@@ -343,11 +343,26 @@ def main() -> None:
         actuation_mode="implicit_position",
         solver_mode="throughput_tgs",
         ccd_mode="speculative",
-        physics_substeps=2,
-        velocity_iterations=2,
-        final_velocity_iterations=1,
+        physics_substeps=4,
+        velocity_iterations=4,
+        final_velocity_iterations=2,
     )
     terrain_state = initial_state(terrain_world, 1)
+    terrain_state = terrain_state._replace(
+        scene_bodies=SceneBodyState(
+            position=mx.array(
+                [[[3.0, 0.0, 0.0, 1.0]]],
+                dtype=mx.float32,
+            ),
+            orientation=terrain_state.scene_bodies.orientation,
+            linear_velocity=(
+                terrain_state.scene_bodies.linear_velocity
+            ),
+            angular_velocity=(
+                terrain_state.scene_bodies.angular_velocity
+            ),
+        )
+    )
     terrain_target = mx.concatenate(
         (
             mx.zeros((6,), dtype=mx.float32),
@@ -365,7 +380,7 @@ def main() -> None:
         )
     )
     terrain_result = None
-    for _ in range(20):
+    for _ in range(5):
         terrain_result = compiled_terrain_step(terrain_state)
         terrain_state = terrain_result.next_state
     assert terrain_result is not None
@@ -542,9 +557,6 @@ def main() -> None:
                 ),
                 "literal_ccd_advances":
                     ccd_status[STATUS_CCD_ADVANCES],
-                "g1_contact_rollout_shape": list(
-                    g1_rollout.observations.shape
-                ),
                 "terrain_mesh_candidates": int(
                     terrain_result.status[
                         0,

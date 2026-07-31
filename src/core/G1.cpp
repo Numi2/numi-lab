@@ -818,6 +818,27 @@ EngineModel makeUnitreeG1EngineModel() {
     EngineModel model;
     const G1ModelMetadata& metadata = unitreeG1Metadata();
     model.name = std::string{metadata.modelName};
+    model.bodyNames.reserve(metadata.bodyNames.size());
+    for (const std::string_view name : metadata.bodyNames) {
+        model.bodyNames.emplace_back(name);
+    }
+    model.jointNames.reserve(metadata.jointLimits.size());
+    for (const G1JointLimit& joint : metadata.jointLimits) {
+        model.jointNames.emplace_back(joint.name);
+    }
+    model.dofNames = {
+        "root_linear_x",
+        "root_linear_y",
+        "root_linear_z",
+        "root_angular_x",
+        "root_angular_y",
+        "root_angular_z",
+    };
+    model.dofNames.insert(
+        model.dofNames.end(),
+        model.jointNames.begin(),
+        model.jointNames.end()
+    );
     model.world.abiVersion = MR_ENGINE_ABI_VERSION;
     model.world.bodyCount = static_cast<mr_u32>(kUnitreeG1BodyCount);
     model.world.articulationCount = 1u;
@@ -1013,6 +1034,17 @@ EngineModel makeUnitreeG1EngineModel() {
         kUnitreeG1ExecutableShapeCount) {
         throw std::logic_error(
             "pinned G1 compound collision topology changed"
+        );
+    }
+    model.shapeNames.reserve(model.shapes.size());
+    for (std::size_t shapeIndex = 0u;
+         shapeIndex < model.shapes.size();
+         ++shapeIndex) {
+        const std::uint32_t bodyIndex =
+            model.shapes[shapeIndex].bodyIndex;
+        model.shapeNames.push_back(
+            model.bodyNames[bodyIndex] +
+            "/collision_" + std::to_string(shapeIndex)
         );
     }
 

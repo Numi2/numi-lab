@@ -663,6 +663,9 @@ enum MRMetalWorldFlags : mr_u32 {
     // unactuated coordinates are ignored; driven scalar joints use the
     // model's stiffness/damping in an implicit acceleration solve.
     MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES = 1u << 5u,
+    // Native task kernels own reset, control, randomization, observation,
+    // reward, and termination around the physics graph.
+    MR_METAL_WORLD_NATIVE_TASK = 1u << 6u,
 };
 
 // Immutable strides and dimensions for one environment-major rollout.

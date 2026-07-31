@@ -3,6 +3,7 @@
 
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/G1.hpp"
+#include "metalrobo/MetalArticulatedOperator.hpp"
 
 #include <algorithm>
 #include <array>
@@ -248,8 +249,13 @@ MetalResult runMetal(
         );
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         require(device != nil, "no Metal-capable device is available");
+        const std::size_t threadgroupBytes =
+            metalrobo::detail::articulatedOperatorThreadgroupBytes(
+                articulation.bodyCount,
+                articulation.nv
+            );
         require(
-            device.maxThreadgroupMemoryLength >= 24u * 1024u,
+            threadgroupBytes <= device.maxThreadgroupMemoryLength,
             "Metal device has insufficient threadgroup memory"
         );
         id<MTLCommandQueue> queue = [device newCommandQueue];
@@ -396,6 +402,9 @@ MetalResult runMetal(
         [encoder setBuffer:generalizedBuffer offset:0 atIndex:12];
         [encoder setBuffer:deltaBuffer offset:0 atIndex:13];
         [encoder setBuffer:statusBuffer offset:0 atIndex:14];
+        [encoder
+            setThreadgroupMemoryLength:threadgroupBytes
+                              atIndex:0u];
         [encoder
             dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];

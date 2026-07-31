@@ -86,6 +86,14 @@ public:
         bytes_.insert(bytes_.end(), begin, begin + value.size());
     }
 
+    void stringVector(const std::vector<std::string>& values) {
+        const std::uint64_t count = values.size();
+        pod(count);
+        for (const std::string& value : values) {
+            string(value);
+        }
+    }
+
     template <typename T>
     void podVector(const std::vector<T>& values) {
         static_assert(std::is_trivially_copyable_v<T>);
@@ -140,6 +148,24 @@ public:
             static_cast<std::size_t>(size)
         );
         offset_ += static_cast<std::size_t>(size);
+        return true;
+    }
+
+    bool stringVector(std::vector<std::string>& values) {
+        std::uint64_t count = 0u;
+        if (!pod(count) ||
+            count > std::numeric_limits<std::size_t>::max()) {
+            return false;
+        }
+        std::vector<std::string> staged(
+            static_cast<std::size_t>(count)
+        );
+        for (std::string& value : staged) {
+            if (!string(value)) {
+                return false;
+            }
+        }
+        values = std::move(staged);
         return true;
     }
 
@@ -435,6 +461,10 @@ void writeEngineModel(
     writer.podVector(model.constraintProgram.warmImpulses);
     writer.podVector(model.defaultQ);
     writer.podVector(model.defaultV);
+    writer.stringVector(model.bodyNames);
+    writer.stringVector(model.jointNames);
+    writer.stringVector(model.dofNames);
+    writer.stringVector(model.shapeNames);
     writer.string(model.name);
 }
 
@@ -466,6 +496,10 @@ bool readEngineModel(
         reader.podVector(model.constraintProgram.warmImpulses) &&
         reader.podVector(model.defaultQ) &&
         reader.podVector(model.defaultV) &&
+        reader.stringVector(model.bodyNames) &&
+        reader.stringVector(model.jointNames) &&
+        reader.stringVector(model.dofNames) &&
+        reader.stringVector(model.shapeNames) &&
         reader.string(model.name);
 }
 

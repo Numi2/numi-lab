@@ -1,0 +1,2225 @@
+#include <metal_stdlib>
+
+#include "metalrobo/engine_types.h"
+#include "metalrobo/task_program_types.h"
+
+using namespace metal;
+
+namespace {
+
+constant float kPi = 3.14159265358979323846f;
+constant float kTwoPi = 2.0f * kPi;
+template <typename T>
+inline device const T* taskTable(
+    device const uchar* arena,
+    const uint byteOffset
+) {
+    return reinterpret_cast<device const T*>(
+        arena + byteOffset
+    );
+}
+
+inline ulong mix64(ulong value) {
+    value += 0x9e3779b97f4a7c15ul;
+    value =
+        (value ^ (value >> 30u)) *
+        0xbf58476d1ce4e5b9ul;
+    value =
+        (value ^ (value >> 27u)) *
+        0x94d049bb133111ebul;
+    return value ^ (value >> 31u);
+}
+
+inline float randomUnit(
+    device const MRTaskDispatchGPU& dispatch,
+    const uint environment,
+    const uint episode,
+    const uint controlStep,
+    const uint channel
+) {
+    ulong key = dispatch.seed;
+    key ^= ulong(environment + 1u) *
+        0xd2b74407b1ce6e93ul;
+    key ^= ulong(episode + 1u) *
+        0xca5a826395121157ul;
+    key ^= ulong(controlStep + 1u) *
+        0x9e3779b185ebca87ul;
+    key ^= ulong(channel + 1u) *
+        0x94d049bb133111ebul;
+    return
+        float(uint(mix64(key) >> 40u)) *
+        (1.0f / 16777216.0f);
+}
+
+inline float randomSigned(
+    device const MRTaskDispatchGPU& dispatch,
+    const uint environment,
+    const uint episode,
+    const uint controlStep,
+    const uint channel
+) {
+    return
+        2.0f *
+        randomUnit(
+            dispatch,
+            environment,
+            episode,
+            controlStep,
+            channel
+        ) -
+        1.0f;
+}
+
+inline float randomRange(
+    device const MRTaskDispatchGPU& dispatch,
+    const uint environment,
+    const uint episode,
+    const uint controlStep,
+    const uint channel,
+    const float lower,
+    const float upper
+) {
+    return lower +
+        (upper - lower) *
+        randomUnit(
+            dispatch,
+            environment,
+            episode,
+            controlStep,
+            channel
+        );
+}
+
+inline float3 rotate(
+    const float4 quaternion,
+    const float3 value
+) {
+    const float3 tangent =
+        2.0f * cross(quaternion.xyz, value);
+    return
+        value +
+        quaternion.w * tangent +
+        cross(quaternion.xyz, tangent);
+}
+
+inline float3 rotateInverse(
+    const float4 quaternion,
+    const float3 value
+) {
+    const float3 tangent =
+        2.0f * cross(quaternion.xyz, value);
+    return
+        value -
+        quaternion.w * tangent +
+        cross(quaternion.xyz, tangent);
+}
+
+inline float4 quaternionProduct(
+    const float4 a,
+    const float4 b
+) {
+    return float4(
+        a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+        a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+        a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+        a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z
+    );
+}
+
+inline float3 normalizedOr(
+    const float3 value,
+    const float3 fallback
+) {
+    const float lengthSquared = dot(value, value);
+    return lengthSquared > 1.0e-12f &&
+            isfinite(lengthSquared)
+        ? value * rsqrt(lengthSquared)
+        : fallback;
+}
+
+inline bool bodyMember(
+    const uint body,
+    device const MRTaskContactGroupGPU& group,
+    device const uint* members
+) {
+    for (uint local = 0u;
+         local < group.members.y;
+         ++local) {
+        if (members[group.members.x + local] == body) {
+            return true;
+        }
+    }
+    return false;
+}
+
+inline float surfaceHeight(
+    device const MRTaskProgramHeaderGPU& program,
+    device const MRShapeGPU* shapes,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    device const MRBodyStateGPU* sceneBodies,
+    const float2 worldPosition
+) {
+    if (program.terrain.x == MR_INVALID_INDEX ||
+        program.terrain.y == MR_INVALID_INDEX) {
+        return 0.0f;
+    }
+    const MRBodyStateGPU scene =
+        sceneBodies[program.terrain.x];
+    const MRShapeGPU shape = shapes[program.terrain.y];
+    if (shape.shapeType != MR_SHAPE_HEIGHTFIELD ||
+        program.terrain.z == MR_INVALID_INDEX) {
+        return
+            scene.position.z +
+            shape.localPosition.z;
+    }
+    const MRGeometryHeaderGPU geometry =
+        geometryHeaders[program.terrain.z];
+    if (geometry.kind != MR_GEOMETRY_HEIGHTFIELD ||
+        geometry.vertexCount == 0u ||
+        !(geometry.localLower.w > 0.0f)) {
+        return scene.position.z;
+    }
+
+    const float3 sceneLocal = rotateInverse(
+        scene.orientation,
+        float3(worldPosition, scene.position.z) -
+            scene.position.xyz
+    );
+    const float3 shapeLocal = rotateInverse(
+        shape.localRotation,
+        sceneLocal - shape.localPosition.xyz
+    );
+    const float spacing = geometry.localLower.w;
+    const uint width = max(
+        1u,
+        uint(round(
+            (geometry.localUpper.x -
+             geometry.localLower.x) /
+                spacing
+        )) + 1u
+    );
+    const uint height = max(
+        1u,
+        uint(round(
+            (geometry.localUpper.y -
+             geometry.localLower.y) /
+                spacing
+        )) + 1u
+    );
+    if (width * height > geometry.vertexCount) {
+        return scene.position.z;
+    }
+    const float gridX = clamp(
+        (shapeLocal.x - geometry.localLower.x) /
+            spacing,
+        0.0f,
+        float(width - 1u)
+    );
+    const float gridY = clamp(
+        (shapeLocal.y - geometry.localLower.y) /
+            spacing,
+        0.0f,
+        float(height - 1u)
+    );
+    const uint x0 = min(uint(floor(gridX)), width - 1u);
+    const uint y0 = min(uint(floor(gridY)), height - 1u);
+    const uint x1 = min(x0 + 1u, width - 1u);
+    const uint y1 = min(y0 + 1u, height - 1u);
+    const float tx = gridX - float(x0);
+    const float ty = gridY - float(y0);
+    const uint base = geometry.vertexOffset;
+    const float h00 =
+        geometryVertices[base + y0 * width + x0].z;
+    const float h10 =
+        geometryVertices[base + y0 * width + x1].z;
+    const float h01 =
+        geometryVertices[base + y1 * width + x0].z;
+    const float h11 =
+        geometryVertices[base + y1 * width + x1].z;
+    const float localHeight = mix(
+        mix(h00, h10, tx),
+        mix(h01, h11, tx),
+        ty
+    );
+    return
+        scene.position.z +
+        shape.localPosition.z +
+        shape.dimensions.z * localHeight;
+}
+
+inline float rootHeight(
+    device const MRTaskProgramHeaderGPU& program,
+    device const float* q,
+    device const float* defaultQ
+) {
+    return
+        program.locomotion.x +
+        q[program.root.z + 2u] -
+        defaultQ[program.root.z + 2u];
+}
+
+inline float cleanObservation(
+    device const MRTaskProgramHeaderGPU& program,
+    const MRTaskObservationOperatorGPU operation,
+    device const MRTaskActionBindingGPU* actions,
+    device const MRTaskContactGroupGPU* contactGroups,
+    device const float4* terrainSamples,
+    device const float* q,
+    device const float* v,
+    device const float* defaultQ,
+    thread const MRTaskStateGPU& state,
+    device const float* previousAction,
+    device const float* compactContact,
+    device const float4* bodyParameters,
+    device const float4* controllerParameters,
+    device const MRBodyStateGPU* sceneBodies,
+    device const MRShapeGPU* shapes,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices
+) {
+    const float4 orientation = float4(
+        q[program.root.z + 3u],
+        q[program.root.z + 4u],
+        q[program.root.z + 5u],
+        q[program.root.z + 6u]
+    );
+    float value = 0.0f;
+    switch (operation.source.x) {
+    case MR_TASK_OBSERVE_ROOT_ANGULAR_VELOCITY_LOCAL:
+        value = rotateInverse(
+            orientation,
+            float3(
+                v[program.root.w + 3u],
+                v[program.root.w + 4u],
+                v[program.root.w + 5u]
+            )
+        )[operation.source.z];
+        break;
+    case MR_TASK_OBSERVE_PROJECTED_GRAVITY:
+        value = normalizedOr(
+            rotateInverse(
+                orientation,
+                float3(0.0f, 0.0f, -1.0f)
+            ),
+            float3(0.0f, 0.0f, -1.0f)
+        )[operation.source.z];
+        break;
+    case MR_TASK_OBSERVE_COMMAND:
+        value = state.commandAndPhase[operation.source.z];
+        break;
+    case MR_TASK_OBSERVE_JOINT_POSITION_ERROR: {
+        const MRTaskActionBindingGPU binding =
+            actions[operation.source.y];
+        value =
+            q[binding.indices.z] -
+            defaultQ[binding.indices.z];
+        break;
+    }
+    case MR_TASK_OBSERVE_JOINT_VELOCITY:
+        value = v[
+            actions[operation.source.y].indices.w
+        ];
+        break;
+    case MR_TASK_OBSERVE_PREVIOUS_ACTION:
+        value = previousAction[operation.source.y];
+        break;
+    case MR_TASK_OBSERVE_ROOT_LINEAR_VELOCITY_LOCAL:
+        value = rotateInverse(
+            orientation,
+            float3(
+                v[program.root.w + 0u],
+                v[program.root.w + 1u],
+                v[program.root.w + 2u]
+            )
+        )[operation.source.z];
+        break;
+    case MR_TASK_OBSERVE_ROOT_HEIGHT:
+        value = rootHeight(program, q, defaultQ);
+        break;
+    case MR_TASK_OBSERVE_CONTACT_METRIC: {
+        const MRTaskContactGroupGPU group =
+            contactGroups[operation.source.y];
+        value = compactContact[
+            group.members.w + operation.source.z
+        ];
+        break;
+    }
+    case MR_TASK_OBSERVE_TERRAIN_HEIGHT: {
+        if ((program.schedule.w &
+             MR_TASK_PROGRAM_TERRAIN) == 0u) {
+            value = 0.0f;
+            break;
+        }
+        const float3 offset = rotate(
+            orientation,
+            terrainSamples[operation.source.y].xyz
+        );
+        value =
+            surfaceHeight(
+                program,
+                shapes,
+                geometryHeaders,
+                geometryVertices,
+                sceneBodies,
+                q[program.root.z + 0u] + offset.xy
+            ) -
+            q[program.root.z + 2u];
+        break;
+    }
+    case MR_TASK_OBSERVE_BODY_PARAMETER_MEAN: {
+        float total = 0.0f;
+        for (uint body = 0u;
+             body < program.articulation.y;
+             ++body) {
+            total += bodyParameters[
+                program.articulation.x + body
+            ][operation.source.z];
+        }
+        value = total /
+            max(float(program.articulation.y), 1.0f);
+        break;
+    }
+    case MR_TASK_OBSERVE_BODY_PARAMETER:
+        value = bodyParameters[
+            operation.source.y
+        ][operation.source.z];
+        break;
+    case MR_TASK_OBSERVE_CONTROLLER_PARAMETER:
+        value =
+            controllerParameters[0][operation.source.z];
+        break;
+    default:
+        value = 0.0f;
+        break;
+    }
+    return
+        operation.transform.x * value +
+        operation.transform.y;
+}
+
+inline void writeFrame(
+    device const MRTaskDispatchGPU& dispatch,
+    device const MRTaskProgramHeaderGPU& program,
+    device const MRTaskObservationOperatorGPU* actorOperators,
+    device const MRTaskActionBindingGPU* actions,
+    device const MRTaskContactGroupGPU* contactGroups,
+    device const float4* terrainSamples,
+    const uint environment,
+    const uint episode,
+    const uint episodeStep,
+    device const float* q,
+    device const float* v,
+    device const float* defaultQ,
+    thread const MRTaskStateGPU& state,
+    device const float* previousAction,
+    device const float* sensorBias,
+    device const float* compactContact,
+    device const float4* bodyParameters,
+    device const float4* controllerParameters,
+    device const MRBodyStateGPU* sceneBodies,
+    device const MRShapeGPU* shapes,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    device float* actor,
+    device float* clean
+) {
+    float3 normalizedGravity =
+        float3(0.0f, 0.0f, -1.0f);
+    bool haveNormalizedGravity = false;
+    for (uint index = 0u;
+         index < program.counts0.y;
+         ++index) {
+        const MRTaskObservationOperatorGPU operation =
+            actorOperators[index];
+        if (operation.source.x !=
+                MR_TASK_OBSERVE_PROJECTED_GRAVITY ||
+            (operation.source.w &
+             MR_TASK_OBSERVATION_NORMALIZE_VECTOR3) == 0u) {
+            continue;
+        }
+        const uint component = operation.source.z;
+        float value = cleanObservation(
+            program,
+            operation,
+            actions,
+            contactGroups,
+            terrainSamples,
+            q,
+            v,
+            defaultQ,
+            state,
+            previousAction,
+            compactContact,
+            bodyParameters,
+            controllerParameters,
+            sceneBodies,
+            shapes,
+            geometryHeaders,
+            geometryVertices
+        );
+        value +=
+            operation.transform.z *
+            randomSigned(
+                dispatch,
+                environment,
+                episode,
+                episodeStep,
+                operation.auxiliary.y
+            );
+        if (operation.auxiliary.x != MR_INVALID_INDEX) {
+            value += sensorBias[operation.auxiliary.x];
+        }
+        normalizedGravity[component] = value;
+        haveNormalizedGravity = true;
+    }
+    if (haveNormalizedGravity) {
+        normalizedGravity = normalizedOr(
+            normalizedGravity,
+            float3(0.0f, 0.0f, -1.0f)
+        );
+    }
+
+    for (uint index = 0u;
+         index < program.counts0.y;
+         ++index) {
+        const MRTaskObservationOperatorGPU operation =
+            actorOperators[index];
+        const float value = cleanObservation(
+            program,
+            operation,
+            actions,
+            contactGroups,
+            terrainSamples,
+            q,
+            v,
+            defaultQ,
+            state,
+            previousAction,
+            compactContact,
+            bodyParameters,
+            controllerParameters,
+            sceneBodies,
+            shapes,
+            geometryHeaders,
+            geometryVertices
+        );
+        clean[index] = value;
+        if (operation.source.x ==
+                MR_TASK_OBSERVE_PROJECTED_GRAVITY &&
+            (operation.source.w &
+             MR_TASK_OBSERVATION_NORMALIZE_VECTOR3) != 0u) {
+            actor[index] =
+                normalizedGravity[operation.source.z];
+            continue;
+        }
+        float corrupted =
+            value +
+            operation.transform.z *
+                randomSigned(
+                    dispatch,
+                    environment,
+                    episode,
+                    episodeStep,
+                    operation.auxiliary.y
+                );
+        if (operation.auxiliary.x != MR_INVALID_INDEX) {
+            corrupted += sensorBias[operation.auxiliary.x];
+        }
+        actor[index] = corrupted;
+    }
+}
+
+inline void publishCritic(
+    device const MRTaskProgramHeaderGPU& program,
+    device const MRTaskObservationOperatorGPU* criticOperators,
+    device const MRTaskActionBindingGPU* actions,
+    device const MRTaskContactGroupGPU* contactGroups,
+    device const float4* terrainSamples,
+    device const float* q,
+    device const float* v,
+    device const float* defaultQ,
+    device const float* cleanHistory,
+    thread const MRTaskStateGPU& state,
+    device const float* previousAction,
+    device const float* compactContact,
+    device const float4* bodyParameters,
+    device const float4* controllerParameters,
+    device const MRBodyStateGPU* sceneBodies,
+    device const MRShapeGPU* shapes,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    device float* output
+) {
+    uint outputIndex = 0u;
+    if ((program.schedule.w &
+         MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY) != 0u) {
+        const uint historyElements =
+            program.layout.x * program.layout.y;
+        for (uint index = 0u;
+             index < historyElements;
+             ++index) {
+            output[outputIndex++] = cleanHistory[index];
+        }
+    }
+    for (uint index = 0u;
+         index < program.counts0.z;
+         ++index) {
+        const MRTaskObservationOperatorGPU operation =
+            criticOperators[index];
+        output[outputIndex++] = cleanObservation(
+            program,
+            operation,
+            actions,
+            contactGroups,
+            terrainSamples,
+            q,
+            v,
+            defaultQ,
+            state,
+            previousAction,
+            compactContact,
+            bodyParameters,
+            controllerParameters,
+            sceneBodies,
+            shapes,
+            geometryHeaders,
+            geometryVertices
+        );
+    }
+}
+
+inline uint durationSteps(
+    device const MRTaskDispatchGPU& dispatch,
+    const uint environment,
+    const uint episode,
+    const uint episodeStep,
+    const uint channel,
+    const float lowerSeconds,
+    const float upperSeconds
+) {
+    return max(
+        1u,
+        uint(floor(
+            randomRange(
+                dispatch,
+                environment,
+                episode,
+                episodeStep,
+                channel,
+                lowerSeconds,
+                upperSeconds
+            ) /
+            dispatch.timing.x
+        ))
+    );
+}
+
+inline float3 sampledCommand(
+    device const MRTaskDispatchGPU& dispatch,
+    device const MRTaskProgramHeaderGPU& program,
+    const uint environment,
+    const uint episode,
+    const uint episodeStep,
+    const uint curriculum
+) {
+    const float denominator =
+        max(float(program.schedule.z - 1u), 1.0f);
+    const float progress = clamp(
+        float(curriculum + 1u) / denominator,
+        0.0f,
+        1.0f
+    );
+    float3 command;
+    for (uint component = 0u;
+         component < 3u;
+         ++component) {
+        command[component] = randomRange(
+            dispatch,
+            environment,
+            episode,
+            episodeStep,
+            16u + component,
+            program.commandLower[component] * progress,
+            program.commandUpper[component] * progress
+        );
+    }
+    if (randomUnit(
+            dispatch,
+            environment,
+            episode,
+            episodeStep,
+            19u
+        ) < program.commandLower.w) {
+        command = float3(0.0f);
+    }
+    return command;
+}
+
+inline bool desiredSupportContact(
+    const MRTaskContactGroupGPU group,
+    const float phase
+) {
+    float normalized =
+        fmod(phase + group.gait.x, kTwoPi);
+    if (normalized < 0.0f) {
+        normalized += kTwoPi;
+    }
+    normalized /= kTwoPi;
+    return normalized < group.gait.y;
+}
+
+} // namespace
+
+kernel void mr_locomotion_task_observe(
+    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
+    device const uchar* arena [[buffer(2)]],
+    device const MRMetalWorldDispatchGPU& worldDispatch
+        [[buffer(3)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
+    device uint* resetMasks [[buffer(6)]],
+    device float* resetQ [[buffer(7)]],
+    device float* resetV [[buffer(8)]],
+    device MRBodyStateGPU* resetScene [[buffer(9)]],
+    device float* sourceQ [[buffer(10)]],
+    device float* sourceV [[buffer(11)]],
+    device const MRBodyStateGPU* initialScene [[buffer(12)]],
+    device const MRBodyStateGPU* sourceScene [[buffer(15)]],
+    device const float* defaultQ [[buffer(16)]],
+    device MRTaskStateGPU* taskStates [[buffer(17)]],
+    device float* actionHistory [[buffer(18)]],
+    device float* actorHistory [[buffer(19)]],
+    device float* cleanHistory [[buffer(20)]],
+    device float* previousJointVelocity [[buffer(21)]],
+    device float* sensorBias [[buffer(22)]],
+    device float4* bodyParameters [[buffer(23)]],
+    device float4* controllerParameters [[buffer(24)]],
+    device float* actorObservations [[buffer(25)]],
+    device float* criticObservations [[buffer(26)]],
+    device float* compactContact [[buffer(27)]],
+    device const MRShapeGPU* shapes [[buffer(28)]],
+    device const MRGeometryHeaderGPU* geometryHeaders
+        [[buffer(29)]],
+    device const float4* geometryVertices [[buffer(30)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.counts.x !=
+            worldDispatch.environmentCount ||
+        dispatch.counts.z != worldDispatch.nq ||
+        dispatch.counts.w != worldDispatch.nv ||
+        dispatch.taskFingerprint !=
+            program.taskFingerprint ||
+        dispatch.worldFingerprint !=
+            program.worldFingerprint ||
+        program.articulation.z !=
+            MR_TASK_PROGRAM_ABI_VERSION ||
+        program.counts0.x == 0u ||
+        program.counts0.y == 0u ||
+        program.layout.y == 0u ||
+        program.layout.w < 2u) {
+        return;
+    }
+
+    device const MRTaskActionBindingGPU* actions =
+        taskTable<MRTaskActionBindingGPU>(
+            arena,
+            program.offsets0.x
+        );
+    device const MRTaskObservationOperatorGPU*
+        actorOperators =
+            taskTable<MRTaskObservationOperatorGPU>(
+                arena,
+                program.offsets0.y
+            );
+    device const MRTaskObservationOperatorGPU*
+        criticOperators =
+            taskTable<MRTaskObservationOperatorGPU>(
+                arena,
+                program.offsets0.z
+            );
+    device const MRTaskContactGroupGPU* contactGroups =
+        taskTable<MRTaskContactGroupGPU>(
+            arena,
+            program.offsets0.w
+        );
+    device const uint* contactMembers =
+        taskTable<uint>(arena, program.offsets1.x);
+    device const MRTaskRandomizationOperatorGPU*
+        randomization =
+            taskTable<MRTaskRandomizationOperatorGPU>(
+                arena,
+                program.offsets2.y
+            );
+    device const MRTaskBiasSpecGPU* biasSpecs =
+        taskTable<MRTaskBiasSpecGPU>(
+            arena,
+            program.offsets2.z
+        );
+    device const float4* terrainSamples =
+        taskTable<float4>(arena, program.offsets2.w);
+    device const float4* terrainProfiles =
+        taskTable<float4>(arena, program.offsets3.x);
+
+    const uint maskIndex =
+        pass.controlStep * dispatch.counts.x + environment;
+    const uint qBase = environment * dispatch.counts.z;
+    const uint vBase = environment * dispatch.counts.w;
+    const uint delayBase =
+        environment *
+        program.layout.w *
+        program.counts0.x;
+    const uint historyElements =
+        program.layout.x * program.layout.y;
+    const uint historyBase =
+        environment * historyElements;
+    const uint previousVelocityBase =
+        environment * program.counts0.x;
+    const uint biasBase =
+        environment * program.counts2.z;
+    const uint bodyParameterBase =
+        environment * dispatch.strides.y;
+    const uint contactBase =
+        environment * program.layout.z;
+    const uint sceneBase =
+        environment * dispatch.strides.w;
+    MRTaskStateGPU state = taskStates[environment];
+    const bool reset =
+        state.status.x == 0u ||
+        state.status.y != 0u ||
+        resetMasks[maskIndex] != 0u;
+    resetMasks[maskIndex] = reset ? 1u : 0u;
+
+    if (reset) {
+        const uint episode = state.episode.y + 1u;
+        const uint curriculum = min(
+            state.episode.z,
+            program.schedule.z - 1u
+        );
+        const uint terrainLevel =
+            program.terrain.w == 0u
+            ? 0u
+            : min(
+                  state.episode.w,
+                  program.terrain.w - 1u
+              );
+        for (uint coordinate = 0u;
+             coordinate < dispatch.counts.z;
+             ++coordinate) {
+            resetQ[qBase + coordinate] =
+                defaultQ[coordinate];
+        }
+        for (uint coordinate = 0u;
+             coordinate < dispatch.counts.w;
+             ++coordinate) {
+            resetV[vBase + coordinate] = 0.0f;
+        }
+        for (uint localScene = 0u;
+             localScene < dispatch.strides.w;
+             ++localScene) {
+            MRBodyStateGPU scene =
+                initialScene[sceneBase + localScene];
+            scene.linearVelocityAndInverseMass.xyz =
+                float3(0.0f);
+            scene.angularVelocity = float4(0.0f);
+            resetScene[sceneBase + localScene] = scene;
+        }
+        if (program.terrain.x != MR_INVALID_INDEX &&
+            program.terrain.w != 0u) {
+            resetScene[
+                sceneBase + program.terrain.x
+            ].position.xyz =
+                terrainProfiles[terrainLevel].xyz;
+        }
+        for (uint body = 0u;
+             body < dispatch.strides.y;
+             ++body) {
+            bodyParameters[
+                bodyParameterBase + body
+            ] = float4(1.0f);
+        }
+        controllerParameters[environment] =
+            float4(1.0f, 1.0f, 0.0f, 1.0f);
+        for (uint bias = 0u;
+             bias < program.counts2.z;
+             ++bias) {
+            const MRTaskBiasSpecGPU spec =
+                biasSpecs[bias];
+            sensorBias[biasBase + bias] = randomRange(
+                dispatch,
+                environment,
+                episode,
+                0u,
+                spec.metadata.x,
+                spec.range.x,
+                spec.range.y
+            );
+        }
+        for (uint action = 0u;
+             action < program.counts0.x;
+             ++action) {
+            previousJointVelocity[
+                previousVelocityBase + action
+            ] = 0.0f;
+            for (uint delay = 0u;
+                 delay < program.layout.w;
+                 ++delay) {
+                actionHistory[
+                    delayBase +
+                    delay * program.counts0.x +
+                    action
+                ] = 0.0f;
+            }
+        }
+        for (uint index = 0u;
+             index < program.layout.z;
+             ++index) {
+            compactContact[contactBase + index] = 0.0f;
+        }
+
+        uint actionDelay = 0u;
+        uint observationDelay = 0u;
+        for (uint index = 0u;
+             index < program.counts2.y;
+             ++index) {
+            const MRTaskRandomizationOperatorGPU operation =
+                randomization[index];
+            const uint channel = operation.target.w;
+            switch (operation.target.x) {
+            case MR_TASK_RANDOMIZE_ROOT_POSITION:
+                for (uint component = 0u;
+                     component < 3u;
+                     ++component) {
+                    resetQ[
+                        qBase + program.root.z + component
+                    ] +=
+                        operation.parameters[component] *
+                        randomSigned(
+                            dispatch,
+                            environment,
+                            episode,
+                            0u,
+                            channel + component
+                        );
+                }
+                break;
+            case MR_TASK_RANDOMIZE_ROOT_YAW: {
+                const float yaw = randomRange(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    channel,
+                    operation.parameters.x,
+                    operation.parameters.y
+                );
+                const float halfYaw = 0.5f * yaw;
+                const float4 authored = float4(
+                    defaultQ[program.root.z + 3u],
+                    defaultQ[program.root.z + 4u],
+                    defaultQ[program.root.z + 5u],
+                    defaultQ[program.root.z + 6u]
+                );
+                const float4 randomized =
+                    quaternionProduct(
+                        float4(
+                            0.0f,
+                            0.0f,
+                            sin(halfYaw),
+                            cos(halfYaw)
+                        ),
+                        authored
+                    );
+                resetQ[qBase + program.root.z + 3u] =
+                    randomized.x;
+                resetQ[qBase + program.root.z + 4u] =
+                    randomized.y;
+                resetQ[qBase + program.root.z + 5u] =
+                    randomized.z;
+                resetQ[qBase + program.root.z + 6u] =
+                    randomized.w;
+                break;
+            }
+            case MR_TASK_RANDOMIZE_ACTION_POSITION:
+                for (uint action = 0u;
+                     action < program.counts0.x;
+                     ++action) {
+                    const MRTaskActionBindingGPU binding =
+                        actions[action];
+                    resetQ[qBase + binding.indices.z] =
+                        clamp(
+                            defaultQ[binding.indices.z] +
+                                randomRange(
+                                    dispatch,
+                                    environment,
+                                    episode,
+                                    0u,
+                                    channel + action,
+                                    operation.parameters.x,
+                                    operation.parameters.y
+                                ),
+                            binding.parameters.y,
+                            binding.parameters.z
+                        );
+                }
+                break;
+            case MR_TASK_RANDOMIZE_VELOCITY:
+                for (uint coordinate = 0u;
+                     coordinate < dispatch.counts.w;
+                     ++coordinate) {
+                    resetV[vBase + coordinate] =
+                        randomRange(
+                            dispatch,
+                            environment,
+                            episode,
+                            0u,
+                            channel + coordinate,
+                            operation.parameters.x,
+                            operation.parameters.y
+                        );
+                }
+                break;
+            case MR_TASK_RANDOMIZE_BODY_PARAMETER: {
+                const MRTaskContactGroupGPU group =
+                    contactGroups[operation.target.y];
+                const float sampled = randomRange(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    channel,
+                    operation.parameters.x,
+                    operation.parameters.y
+                );
+                for (uint local = 0u;
+                     local < group.members.y;
+                     ++local) {
+                    const uint body =
+                        contactMembers[
+                            group.members.x + local
+                        ];
+                    bodyParameters[
+                        bodyParameterBase + body
+                    ][operation.target.z] = sampled;
+                }
+                break;
+            }
+            case MR_TASK_RANDOMIZE_BODY_PAYLOAD: {
+                const uint body = operation.target.y;
+                const float payload = randomRange(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    channel,
+                    operation.parameters.x,
+                    operation.parameters.y
+                );
+                bodyParameters[
+                    bodyParameterBase + body
+                ].x +=
+                    payload * operation.parameters.z;
+                bodyParameters[
+                    bodyParameterBase + body
+                ].x = max(
+                    bodyParameters[
+                        bodyParameterBase + body
+                    ].x,
+                    0.05f
+                );
+                break;
+            }
+            case MR_TASK_RANDOMIZE_CONTROLLER_PARAMETER:
+                controllerParameters[environment][
+                    operation.target.z
+                ] = randomRange(
+                    dispatch,
+                    environment,
+                    episode,
+                    0u,
+                    channel,
+                    operation.parameters.x,
+                    operation.parameters.y
+                );
+                break;
+            case MR_TASK_RANDOMIZE_ACTION_DELAY: {
+                const uint lower =
+                    uint(max(operation.parameters.x, 0.0f));
+                const uint upper =
+                    uint(max(
+                        operation.parameters.y,
+                        operation.parameters.x
+                    ));
+                actionDelay = min(
+                    lower +
+                        uint(floor(
+                            float(upper - lower + 1u) *
+                            randomUnit(
+                                dispatch,
+                                environment,
+                                episode,
+                                0u,
+                                channel
+                            )
+                        )),
+                    program.layout.w - 1u
+                );
+                break;
+            }
+            case MR_TASK_RANDOMIZE_OBSERVATION_DELAY: {
+                const uint lower =
+                    uint(max(operation.parameters.x, 0.0f));
+                const uint upper =
+                    uint(max(
+                        operation.parameters.y,
+                        operation.parameters.x
+                    ));
+                observationDelay = min(
+                    lower +
+                        uint(floor(
+                            float(upper - lower + 1u) *
+                            randomUnit(
+                                dispatch,
+                                environment,
+                                episode,
+                                0u,
+                                channel
+                            )
+                        )),
+                    program.schedule.y
+                );
+                break;
+            }
+            default:
+                break;
+            }
+        }
+        controllerParameters[environment].z =
+            float(actionDelay) * dispatch.timing.x;
+
+        state.episode = uint4(
+            0u,
+            episode,
+            curriculum,
+            terrainLevel
+        );
+        state.schedule = uint4(
+            durationSteps(
+                dispatch,
+                environment,
+                episode,
+                0u,
+                32u,
+                program.scheduleSeconds.x,
+                program.scheduleSeconds.y
+            ),
+            durationSteps(
+                dispatch,
+                environment,
+                episode,
+                0u,
+                33u,
+                program.scheduleSeconds.z,
+                program.scheduleSeconds.w
+            ),
+            actionDelay,
+            observationDelay
+        );
+        state.status = uint4(
+            1u,
+            0u,
+            MR_TASK_TERMINATION_CONTINUING,
+            0u
+        );
+        state.commandAndPhase = float4(
+            sampledCommand(
+                dispatch,
+                program,
+                environment,
+                episode,
+                0u,
+                curriculum
+            ),
+            0.0f
+        );
+        state.airReturnTracking = float4(0.0f);
+
+        device float* firstActor =
+            actorHistory + historyBase;
+        device float* firstClean =
+            cleanHistory + historyBase;
+        writeFrame(
+            dispatch,
+            program,
+            actorOperators,
+            actions,
+            contactGroups,
+            terrainSamples,
+            environment,
+            episode,
+            0u,
+            resetQ + qBase,
+            resetV + vBase,
+            defaultQ,
+            state,
+            actionHistory + delayBase,
+            sensorBias + biasBase,
+            compactContact + contactBase,
+            bodyParameters + bodyParameterBase,
+            controllerParameters + environment,
+            resetScene + sceneBase,
+            shapes,
+            geometryHeaders,
+            geometryVertices,
+            firstActor,
+            firstClean
+        );
+        for (uint history = 1u;
+             history < program.layout.y;
+             ++history) {
+            for (uint index = 0u;
+                 index < program.layout.x;
+                 ++index) {
+                actorHistory[
+                    historyBase +
+                    history * program.layout.x +
+                    index
+                ] = firstActor[index];
+                cleanHistory[
+                    historyBase +
+                    history * program.layout.x +
+                    index
+                ] = firstClean[index];
+            }
+        }
+    }
+
+    taskStates[environment] = state;
+    const uint actorOutputBase =
+        pass.controlStep * dispatch.outputs.x +
+        environment *
+            program.layout.x * program.layout.y;
+    const uint criticObservationSize =
+        (
+            (program.schedule.w &
+             MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY) != 0u
+            ? program.layout.x * program.layout.y
+            : 0u
+        ) +
+        program.counts0.z;
+    const uint criticOutputBase =
+        pass.controlStep * dispatch.outputs.y +
+        environment * criticObservationSize;
+    for (uint index = 0u;
+         index < historyElements;
+         ++index) {
+        actorObservations[actorOutputBase + index] =
+            actorHistory[historyBase + index];
+    }
+    const uint currentActionSlot =
+        program.layout.w - 1u;
+    publishCritic(
+        program,
+        criticOperators,
+        actions,
+        contactGroups,
+        terrainSamples,
+        reset ? resetQ + qBase : sourceQ + qBase,
+        reset ? resetV + vBase : sourceV + vBase,
+        defaultQ,
+        cleanHistory + historyBase,
+        state,
+        actionHistory +
+            delayBase +
+            currentActionSlot * program.counts0.x,
+        compactContact + contactBase,
+        bodyParameters + bodyParameterBase,
+        controllerParameters + environment,
+        reset ? resetScene + sceneBase
+              : sourceScene + sceneBase,
+        shapes,
+        geometryHeaders,
+        geometryVertices,
+        criticObservations + criticOutputBase
+    );
+
+    if (!reset && state.schedule.y == 0u &&
+        program.dynamics.x > 0.0f) {
+        const float progress = clamp(
+            float(state.episode.z) /
+                max(float(program.schedule.z - 1u), 1.0f),
+            0.0f,
+            1.0f
+        );
+        sourceV[vBase + program.root.w + 0u] +=
+            progress * program.dynamics.x *
+            randomSigned(
+                dispatch,
+                environment,
+                state.episode.y,
+                state.episode.x,
+                48u
+            );
+        sourceV[vBase + program.root.w + 1u] +=
+            progress * program.dynamics.x *
+            randomSigned(
+                dispatch,
+                environment,
+                state.episode.y,
+                state.episode.x,
+                49u
+            );
+    }
+
+}
+
+kernel void mr_locomotion_task_apply_actions(
+    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
+    device const uchar* arena [[buffer(2)]],
+    device const MRMetalWorldDispatchGPU& worldDispatch
+        [[buffer(3)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
+    device const float* actionStream [[buffer(5)]],
+    device float* effortTrajectory [[buffer(6)]],
+    device const float* defaultQ [[buffer(7)]],
+    device const MRTaskStateGPU* taskStates [[buffer(8)]],
+    device float* actionHistory [[buffer(9)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.counts.x !=
+            worldDispatch.environmentCount ||
+        dispatch.counts.z != worldDispatch.nq ||
+        dispatch.counts.w != worldDispatch.nv ||
+        dispatch.taskFingerprint !=
+            program.taskFingerprint ||
+        dispatch.worldFingerprint !=
+            program.worldFingerprint ||
+        program.articulation.z !=
+            MR_TASK_PROGRAM_ABI_VERSION ||
+        program.counts0.x == 0u ||
+        program.layout.w < 2u) {
+        return;
+    }
+
+    device const MRTaskActionBindingGPU* actions =
+        taskTable<MRTaskActionBindingGPU>(
+            arena,
+            program.offsets0.x
+        );
+    const uint actionBase =
+        pass.controlStep * dispatch.strides.x +
+        environment * program.counts0.x;
+    const uint delayBase =
+        environment *
+        program.layout.w *
+        program.counts0.x;
+    const MRTaskStateGPU state = taskStates[environment];
+
+    for (uint coordinate = 0u;
+         coordinate < dispatch.counts.w;
+         ++coordinate) {
+        effortTrajectory[
+            pass.controlStep *
+                worldDispatch.effortStepStride +
+            environment *
+                worldDispatch.effortEnvironmentStride +
+            coordinate
+        ] = 0.0f;
+    }
+    const uint lastSlot = program.layout.w - 1u;
+    for (uint action = 0u;
+         action < program.counts0.x;
+         ++action) {
+        for (uint delay = 0u;
+             delay + 1u < program.layout.w;
+             ++delay) {
+            actionHistory[
+                delayBase +
+                delay * program.counts0.x +
+                action
+            ] = actionHistory[
+                delayBase +
+                (delay + 1u) * program.counts0.x +
+                action
+            ];
+        }
+        actionHistory[
+            delayBase +
+            lastSlot * program.counts0.x +
+            action
+        ] = clamp(
+            actionStream[actionBase + action],
+            -1.0f,
+            1.0f
+        );
+        const uint selected =
+            lastSlot - min(state.schedule.z, lastSlot);
+        const float delayed = actionHistory[
+            delayBase +
+            selected * program.counts0.x +
+            action
+        ];
+        const MRTaskActionBindingGPU binding =
+            actions[action];
+        effortTrajectory[
+            pass.controlStep *
+                worldDispatch.effortStepStride +
+            environment *
+                worldDispatch.effortEnvironmentStride +
+            binding.indices.w
+        ] = clamp(
+            defaultQ[binding.indices.z] +
+                binding.parameters.x * delayed,
+            binding.parameters.y,
+            binding.parameters.z
+        );
+    }
+}
+
+kernel void mr_locomotion_task_complete(
+    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
+    device const uchar* arena [[buffer(2)]],
+    device const MRMetalWorldDispatchGPU& worldDispatch
+        [[buffer(3)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(4)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(5)]],
+    device const float* qState [[buffer(6)]],
+    device const float* vState [[buffer(7)]],
+    device const MRBodyStateGPU* bodyStates [[buffer(8)]],
+    device const MRContactConstraintGPU* contacts [[buffer(9)]],
+    device const MRMetalWorldContactStatusGPU* contactStatuses
+        [[buffer(10)]],
+    device const MRMetalWorldStatusGPU* worldStatuses
+        [[buffer(11)]],
+    device const MRBodyStateGPU* sceneState [[buffer(12)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(13)]],
+    device const float* defaultQ [[buffer(14)]],
+    device MRTaskStateGPU* taskStates [[buffer(15)]],
+    device float* actionHistory [[buffer(16)]],
+    device float* actorHistory [[buffer(17)]],
+    device float* cleanHistory [[buffer(18)]],
+    device float* previousJointVelocity [[buffer(19)]],
+    device const float* sensorBias [[buffer(20)]],
+    device const float4* bodyParameters [[buffer(21)]],
+    device const float4* controllerParameters [[buffer(22)]],
+    device float* compactContact [[buffer(23)]],
+    device MRTaskTransitionGPU* transitions [[buffer(24)]],
+    device const MRShapeGPU* shapes [[buffer(25)]],
+    device const MRGeometryHeaderGPU* geometryHeaders
+        [[buffer(26)]],
+    device const float4* geometryVertices [[buffer(27)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.taskFingerprint !=
+            program.taskFingerprint ||
+        dispatch.worldFingerprint !=
+            program.worldFingerprint ||
+        program.articulation.z !=
+            MR_TASK_PROGRAM_ABI_VERSION) {
+        return;
+    }
+
+    device const MRTaskActionBindingGPU* actions =
+        taskTable<MRTaskActionBindingGPU>(
+            arena,
+            program.offsets0.x
+        );
+    device const MRTaskObservationOperatorGPU*
+        actorOperators =
+            taskTable<MRTaskObservationOperatorGPU>(
+                arena,
+                program.offsets0.y
+            );
+    device const MRTaskContactGroupGPU* contactGroups =
+        taskTable<MRTaskContactGroupGPU>(
+            arena,
+            program.offsets0.w
+        );
+    device const uint* contactMembers =
+        taskTable<uint>(arena, program.offsets1.x);
+    device const MRTaskIndexGroupGPU* jointGroups =
+        taskTable<MRTaskIndexGroupGPU>(
+            arena,
+            program.offsets1.y
+        );
+    device const uint* jointMembers =
+        taskTable<uint>(arena, program.offsets1.z);
+    device const MRTaskRewardOperatorGPU* rewards =
+        taskTable<MRTaskRewardOperatorGPU>(
+            arena,
+            program.offsets1.w
+        );
+    device const MRTaskTerminationOperatorGPU*
+        terminations =
+            taskTable<MRTaskTerminationOperatorGPU>(
+                arena,
+                program.offsets2.x
+            );
+    device const float4* terrainSamples =
+        taskTable<float4>(arena, program.offsets2.w);
+
+    const uint qBase = environment * dispatch.counts.z;
+    const uint vBase = environment * dispatch.counts.w;
+    const uint bodyBase =
+        environment * dispatch.strides.y;
+    const uint sceneBase =
+        environment * dispatch.strides.w;
+    const uint delayBase =
+        environment *
+        program.layout.w *
+        program.counts0.x;
+    const uint historyElements =
+        program.layout.x * program.layout.y;
+    const uint historyBase =
+        environment * historyElements;
+    const uint previousVelocityBase =
+        environment * program.counts0.x;
+    const uint biasBase =
+        environment * program.counts2.z;
+    const uint bodyParameterBase =
+        environment * dispatch.strides.y;
+    const uint compactBase =
+        environment * program.layout.z;
+    const uint contactBase =
+        environment * contactDispatch.constraintStride;
+    MRTaskStateGPU state = taskStates[environment];
+    const MRMetalWorldStatusGPU worldStatus =
+        worldStatuses[environment];
+    const MRMetalWorldContactStatusGPU contactStatus =
+        contactStatuses[environment];
+    const bool physicsError =
+        worldStatus.code != MR_STEP_SUCCESS ||
+        contactStatus.code != MR_STEP_SUCCESS;
+    const uint activeContacts = physicsError
+        ? 0u
+        : min(
+              contactStatus.activeContacts,
+              contactDispatch.constraintCapacity
+          );
+
+    for (uint groupIndex = 0u;
+         groupIndex < program.counts0.w;
+         ++groupIndex) {
+        const MRTaskContactGroupGPU group =
+            contactGroups[groupIndex];
+        const uint metric = compactBase + group.members.w;
+        if ((group.members.z &
+             MR_TASK_CONTACT_SUPPORT) != 0u) {
+            // Preserve previous air time in slot 2. Other slots become
+            // impulse/COP accumulators until the reduction is finalized.
+            compactContact[metric + 0u] = 0.0f;
+            compactContact[metric + 1u] = 0.0f;
+            compactContact[metric + 3u] = 0.0f;
+            compactContact[metric + 4u] = 0.0f;
+            compactContact[metric + 5u] = 0.0f;
+        } else if ((group.members.z &
+                    MR_TASK_CONTACT_FORBIDDEN) != 0u) {
+            compactContact[metric] = 0.0f;
+        }
+    }
+
+    const uint robotFirst = program.articulation.x;
+    const uint robotEnd =
+        robotFirst + program.articulation.y;
+    for (uint contact = 0u;
+         contact < activeContacts;
+         ++contact) {
+        const MRContactConstraintGPU constraint =
+            contacts[contactBase + contact];
+        const bool robotA =
+            constraint.bodyA >= robotFirst &&
+            constraint.bodyA < robotEnd;
+        const bool robotB =
+            constraint.bodyB >= robotFirst &&
+            constraint.bodyB < robotEnd;
+        if (robotA == robotB) {
+            continue;
+        }
+        const uint robotBody =
+            robotA ? constraint.bodyA : constraint.bodyB;
+        const float impulse = abs(constraint.impulses.x);
+        for (uint groupIndex = 0u;
+             groupIndex < program.counts0.w;
+             ++groupIndex) {
+            device const MRTaskContactGroupGPU& group =
+                contactGroups[groupIndex];
+            if (!bodyMember(
+                    robotBody,
+                    group,
+                    contactMembers
+                )) {
+                continue;
+            }
+            const uint metric =
+                compactBase + group.members.w;
+            if ((group.members.z &
+                 MR_TASK_CONTACT_SUPPORT) != 0u) {
+                compactContact[metric + 0u] += impulse;
+                compactContact[metric + 4u] +=
+                    impulse *
+                    constraint.pointAndSeparation.x;
+                compactContact[metric + 5u] +=
+                    impulse *
+                    constraint.pointAndSeparation.y;
+            }
+            if ((group.members.z &
+                 MR_TASK_CONTACT_FORBIDDEN) != 0u) {
+                compactContact[metric] = 1.0f;
+            }
+        }
+    }
+
+    for (uint groupIndex = 0u;
+         groupIndex < program.counts0.w;
+         ++groupIndex) {
+        const MRTaskContactGroupGPU group =
+            contactGroups[groupIndex];
+        if ((group.members.z &
+             MR_TASK_CONTACT_SUPPORT) == 0u) {
+            continue;
+        }
+        const uint metric =
+            compactBase + group.members.w;
+        const float impulse =
+            compactContact[metric + 0u];
+        const float previousAir =
+            compactContact[metric + 2u];
+        const MRBodyStateGPU body =
+            bodyStates[
+                bodyBase + group.reference.x
+            ];
+        const float3 offset = rotate(
+            body.orientation,
+            group.localReference.xyz
+        );
+        const float3 position =
+            body.position.xyz + offset;
+        const float3 velocity =
+            body.linearVelocityAndInverseMass.xyz +
+            cross(body.angularVelocity.xyz, offset);
+        const float force =
+            impulse / dispatch.timing.y;
+        const bool contact =
+            force > program.dynamics.y;
+        const float slip =
+            contact ? length(velocity.xy) : 0.0f;
+        const float airTime =
+            contact
+            ? 0.0f
+            : previousAir + dispatch.timing.x;
+        const float clearance =
+            position.z -
+            group.localReference.w -
+            surfaceHeight(
+                program,
+                shapes,
+                geometryHeaders,
+                geometryVertices,
+                sceneState + sceneBase,
+                position.xy
+            );
+        const float2 cop =
+            impulse > 1.0e-6f
+            ? float2(
+                  compactContact[metric + 4u],
+                  compactContact[metric + 5u]
+              ) /
+                  impulse -
+                  position.xy
+            : float2(0.0f);
+        compactContact[metric + 0u] = force;
+        compactContact[metric + 1u] = slip;
+        compactContact[metric + 2u] = airTime;
+        compactContact[metric + 3u] = clearance;
+        compactContact[metric + 4u] = cop.x;
+        compactContact[metric + 5u] = cop.y;
+    }
+
+    const float4 orientation = float4(
+        qState[qBase + program.root.z + 3u],
+        qState[qBase + program.root.z + 4u],
+        qState[qBase + program.root.z + 5u],
+        qState[qBase + program.root.z + 6u]
+    );
+    const float3 baseLinear = rotateInverse(
+        orientation,
+        float3(
+            vState[vBase + program.root.w + 0u],
+            vState[vBase + program.root.w + 1u],
+            vState[vBase + program.root.w + 2u]
+        )
+    );
+    const float3 baseAngular = rotateInverse(
+        orientation,
+        float3(
+            vState[vBase + program.root.w + 3u],
+            vState[vBase + program.root.w + 4u],
+            vState[vBase + program.root.w + 5u]
+        )
+    );
+    const float3 gravity = normalizedOr(
+        rotateInverse(
+            orientation,
+            float3(0.0f, 0.0f, -1.0f)
+        ),
+        float3(0.0f, 0.0f, -1.0f)
+    );
+    const float height = rootHeight(
+        program,
+        qState + qBase,
+        defaultQ
+    );
+    const float tilt = atan2(
+        length(gravity.xy),
+        max(-gravity.z, 1.0e-6f)
+    );
+    const float2 trackingDelta =
+        baseLinear.xy - state.commandAndPhase.xy;
+    const float trackingError =
+        dot(trackingDelta, trackingDelta);
+    const float yawDelta =
+        baseAngular.z - state.commandAndPhase.z;
+    const float yawError = yawDelta * yawDelta;
+
+    float velocitySquared = 0.0f;
+    float accelerationSquared = 0.0f;
+    float actionRateSquared = 0.0f;
+    float limitViolationSquared = 0.0f;
+    float mechanicalPower = 0.0f;
+    const uint lastSlot = program.layout.w - 1u;
+    const uint previousSlot = lastSlot - 1u;
+    const uint delayedSlot =
+        lastSlot - min(state.schedule.z, lastSlot);
+    const float4 controller =
+        controllerParameters[environment];
+    for (uint action = 0u;
+         action < program.counts0.x;
+         ++action) {
+        const MRTaskActionBindingGPU binding =
+            actions[action];
+        const MRDofPropertiesGPU dof =
+            dofs[binding.indices.y];
+        const float position =
+            qState[qBase + binding.indices.z];
+        const float velocity =
+            vState[vBase + binding.indices.w];
+        const float acceleration =
+            (
+                velocity -
+                previousJointVelocity[
+                    previousVelocityBase + action
+                ]
+            ) /
+            dispatch.timing.x;
+        const float currentAction = actionHistory[
+            delayBase +
+            lastSlot * program.counts0.x +
+            action
+        ];
+        const float previousAction = actionHistory[
+            delayBase +
+            previousSlot * program.counts0.x +
+            action
+        ];
+        const float actionDelta =
+            currentAction - previousAction;
+        const float lower =
+            max(dof.limits.x - position, 0.0f);
+        const float upper =
+            max(position - dof.limits.y, 0.0f);
+        const float delayed = actionHistory[
+            delayBase +
+            delayedSlot * program.counts0.x +
+            action
+        ];
+        const float target = clamp(
+            defaultQ[binding.indices.z] +
+                binding.parameters.x * delayed,
+            binding.parameters.y,
+            binding.parameters.z
+        );
+        float torque =
+            controller.x * dof.drive.x *
+                (
+                    target -
+                    position -
+                    dispatch.timing.y * velocity
+                ) -
+            controller.y * dof.drive.y * velocity;
+        torque = clamp(
+            torque,
+            -dof.limits.w,
+            dof.limits.w
+        ) * controller.w;
+        velocitySquared += velocity * velocity;
+        accelerationSquared +=
+            acceleration * acceleration;
+        actionRateSquared +=
+            actionDelta * actionDelta;
+        limitViolationSquared +=
+            lower * lower + upper * upper;
+        mechanicalPower += abs(torque * velocity);
+    }
+
+    const float commandMagnitude = length(
+        state.commandAndPhase.xyz
+    );
+    const bool moving = commandMagnitude > 0.05f;
+    float phase =
+        state.commandAndPhase.w +
+        kTwoPi * dispatch.timing.x /
+            program.locomotion.y;
+    phase = fmod(phase, kTwoPi);
+    float reward = 0.0f;
+    for (uint rewardIndex = 0u;
+         rewardIndex < program.counts1.w;
+         ++rewardIndex) {
+        const MRTaskRewardOperatorGPU operation =
+            rewards[rewardIndex];
+        float value = 0.0f;
+        switch (operation.source.x) {
+        case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
+            value = exp(
+                -trackingError /
+                max(operation.parameters.y, 1.0e-8f)
+            );
+            break;
+        case MR_TASK_REWARD_YAW_VELOCITY_TRACKING:
+            value = exp(
+                -yawError /
+                max(operation.parameters.y, 1.0e-8f)
+            );
+            break;
+        case MR_TASK_REWARD_CONSTANT:
+            value = 1.0f;
+            break;
+        case MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED:
+            value = baseLinear.z * baseLinear.z;
+            break;
+        case MR_TASK_REWARD_ROOT_ROLL_PITCH_VELOCITY_SQUARED:
+            value = dot(baseAngular.xy, baseAngular.xy);
+            break;
+        case MR_TASK_REWARD_TILT_SQUARED:
+            value = tilt * tilt;
+            break;
+        case MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED: {
+            const float error =
+                height - program.locomotion.x;
+            value = error * error;
+            break;
+        }
+        case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
+            value = velocitySquared;
+            break;
+        case MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED:
+            value = accelerationSquared;
+            break;
+        case MR_TASK_REWARD_ACTION_RATE_SQUARED:
+            value = actionRateSquared;
+            break;
+        case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED:
+            value = limitViolationSquared;
+            break;
+        case MR_TASK_REWARD_MECHANICAL_POWER:
+            value = mechanicalPower;
+            break;
+        case MR_TASK_REWARD_JOINT_GROUP_POSTURE_SQUARED: {
+            const MRTaskIndexGroupGPU group =
+                jointGroups[operation.source.y];
+            float sum = 0.0f;
+            for (uint local = 0u;
+                 local < group.members.y;
+                 ++local) {
+                const uint action =
+                    jointMembers[
+                        group.members.x + local
+                    ];
+                const MRTaskActionBindingGPU binding =
+                    actions[action];
+                const float error =
+                    qState[qBase + binding.indices.z] -
+                    defaultQ[binding.indices.z];
+                sum += error * error;
+            }
+            value = sum /
+                max(float(group.members.y), 1.0f);
+            break;
+        }
+        case MR_TASK_REWARD_GAIT_CONTACT_MATCH: {
+            if (!moving) {
+                value = 0.0f;
+                break;
+            }
+            float matched = 0.0f;
+            float count = 0.0f;
+            for (uint groupIndex = 0u;
+                 groupIndex < program.counts0.w;
+                 ++groupIndex) {
+                const MRTaskContactGroupGPU group =
+                    contactGroups[groupIndex];
+                if ((group.members.z &
+                     MR_TASK_CONTACT_SUPPORT) == 0u ||
+                    (operation.source.y != MR_INVALID_INDEX &&
+                     operation.source.y != groupIndex)) {
+                    continue;
+                }
+                const bool desired =
+                    desiredSupportContact(group, phase);
+                const bool actual =
+                    compactContact[
+                        compactBase + group.members.w
+                    ] > program.dynamics.y;
+                matched += float(desired == actual);
+                count += 1.0f;
+            }
+            value = matched / max(count, 1.0f);
+            break;
+        }
+        case MR_TASK_REWARD_SWING_CLEARANCE: {
+            if (!moving) {
+                value = 0.0f;
+                break;
+            }
+            float clearanceReward = 0.0f;
+            float count = 0.0f;
+            for (uint groupIndex = 0u;
+                 groupIndex < program.counts0.w;
+                 ++groupIndex) {
+                const MRTaskContactGroupGPU group =
+                    contactGroups[groupIndex];
+                if ((group.members.z &
+                     MR_TASK_CONTACT_SUPPORT) == 0u ||
+                    desiredSupportContact(group, phase) ||
+                    (operation.source.y != MR_INVALID_INDEX &&
+                     operation.source.y != groupIndex)) {
+                    continue;
+                }
+                const float error =
+                    compactContact[
+                        compactBase +
+                        group.members.w + 3u
+                    ] -
+                    program.locomotion.z;
+                clearanceReward += exp(
+                    -(error * error) /
+                    max(
+                        operation.parameters.y,
+                        1.0e-8f
+                    )
+                );
+                count += 1.0f;
+            }
+            value =
+                clearanceReward / max(count, 1.0f);
+            break;
+        }
+        case MR_TASK_REWARD_SUPPORT_SLIP:
+            for (uint groupIndex = 0u;
+                 groupIndex < program.counts0.w;
+                 ++groupIndex) {
+                const MRTaskContactGroupGPU group =
+                    contactGroups[groupIndex];
+                if ((group.members.z &
+                     MR_TASK_CONTACT_SUPPORT) != 0u &&
+                    (operation.source.y == MR_INVALID_INDEX ||
+                     operation.source.y == groupIndex)) {
+                    value += compactContact[
+                        compactBase +
+                        group.members.w + 1u
+                    ];
+                }
+            }
+            break;
+        case MR_TASK_REWARD_FORBIDDEN_CONTACT:
+            for (uint groupIndex = 0u;
+                 groupIndex < program.counts0.w;
+                 ++groupIndex) {
+                const MRTaskContactGroupGPU group =
+                    contactGroups[groupIndex];
+                if ((group.members.z &
+                     MR_TASK_CONTACT_FORBIDDEN) != 0u &&
+                    (operation.source.y == MR_INVALID_INDEX ||
+                     operation.source.y == groupIndex)) {
+                    value = max(
+                        value,
+                        compactContact[
+                            compactBase +
+                            group.members.w
+                        ]
+                    );
+                }
+            }
+            break;
+        default:
+            value = 0.0f;
+            break;
+        }
+        reward += operation.parameters.x * value;
+    }
+
+    const float tracking = exp(-trackingError / 0.25f);
+    const float yawTracking = exp(-yawError / 0.25f);
+    const uint episodeSteps = state.episode.x + 1u;
+    const bool timeout =
+        episodeSteps >= program.schedule.x;
+    bool done = false;
+    uint reason = MR_TASK_TERMINATION_CONTINUING;
+    uint selectedPriority = 0u;
+    for (uint index = 0u;
+         index < program.counts2.x;
+         ++index) {
+        const MRTaskTerminationOperatorGPU operation =
+            terminations[index];
+        bool triggered = false;
+        switch (operation.source.x) {
+        case MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT:
+            triggered =
+                height < operation.parameters.x;
+            break;
+        case MR_TASK_TERMINATE_MAXIMUM_TILT:
+            triggered =
+                tilt > operation.parameters.x;
+            break;
+        case MR_TASK_TERMINATE_CONTACT_GROUP: {
+            const MRTaskContactGroupGPU group =
+                contactGroups[operation.source.y];
+            triggered =
+                compactContact[
+                    compactBase + group.members.w
+                ] > operation.parameters.x;
+            break;
+        }
+        default:
+            break;
+        }
+        if (triggered &&
+            (!done ||
+             operation.source.w >= selectedPriority)) {
+            done = true;
+            reason = operation.source.z;
+            selectedPriority = operation.source.w;
+        }
+    }
+    if (timeout) {
+        done = true;
+        reason = MR_TASK_TERMINATION_TIMEOUT;
+    }
+    if (physicsError) {
+        done = true;
+        reason = MR_TASK_TERMINATION_PHYSICS_ERROR;
+    }
+
+    const float episodeReturn =
+        state.airReturnTracking.z + reward;
+    const float episodeTracking =
+        state.airReturnTracking.w +
+        0.5f * (tracking + yawTracking);
+    const float trackingScore =
+        episodeTracking /
+        max(float(episodeSteps), 1.0f);
+    const bool successful =
+        timeout &&
+        !physicsError &&
+        trackingScore >= program.locomotion.w;
+    uint curriculum = state.episode.z;
+    uint terrainLevel = state.episode.w;
+    if (done) {
+        if (successful) {
+            curriculum = min(
+                curriculum + 1u,
+                program.schedule.z - 1u
+            );
+            if (program.terrain.w != 0u &&
+                curriculum >= min(3u, program.schedule.z - 1u)) {
+                terrainLevel = min(
+                    terrainLevel + 1u,
+                    program.terrain.w - 1u
+                );
+            }
+        } else {
+            curriculum =
+                curriculum == 0u
+                ? 0u
+                : curriculum - 1u;
+            terrainLevel =
+                terrainLevel == 0u
+                ? 0u
+                : terrainLevel - 1u;
+        }
+    }
+
+    if (!done && state.schedule.x <= 1u) {
+        state.commandAndPhase.xyz = sampledCommand(
+            dispatch,
+            program,
+            environment,
+            state.episode.y,
+            episodeSteps,
+            curriculum
+        );
+        state.schedule.x = durationSteps(
+            dispatch,
+            environment,
+            state.episode.y,
+            episodeSteps,
+            64u,
+            program.scheduleSeconds.x,
+            program.scheduleSeconds.y
+        );
+    } else if (!done) {
+        --state.schedule.x;
+    }
+    if (state.schedule.y == 0u || done) {
+        state.schedule.y = durationSteps(
+            dispatch,
+            environment,
+            state.episode.y,
+            episodeSteps,
+            65u,
+            program.scheduleSeconds.z,
+            program.scheduleSeconds.w
+        );
+    } else {
+        --state.schedule.y;
+    }
+
+    state.episode = uint4(
+        episodeSteps,
+        state.episode.y,
+        curriculum,
+        terrainLevel
+    );
+    state.status.y = done ? 1u : 0u;
+    state.status.z = reason;
+    state.commandAndPhase.w = phase;
+    state.airReturnTracking = float4(
+        0.0f,
+        0.0f,
+        done ? 0.0f : episodeReturn,
+        done ? 0.0f : episodeTracking
+    );
+
+    if (!done) {
+        for (uint history = 0u;
+             history + 1u < program.layout.y;
+             ++history) {
+            for (uint index = 0u;
+                 index < program.layout.x;
+                 ++index) {
+                actorHistory[
+                    historyBase +
+                    history * program.layout.x +
+                    index
+                ] = actorHistory[
+                    historyBase +
+                    (history + 1u) *
+                        program.layout.x +
+                    index
+                ];
+                cleanHistory[
+                    historyBase +
+                    history * program.layout.x +
+                    index
+                ] = cleanHistory[
+                    historyBase +
+                    (history + 1u) *
+                        program.layout.x +
+                    index
+                ];
+            }
+        }
+        device float* actorTail =
+            actorHistory +
+            historyBase +
+            (program.layout.y - 1u) *
+                program.layout.x;
+        device float* cleanTail =
+            cleanHistory +
+            historyBase +
+            (program.layout.y - 1u) *
+                program.layout.x;
+        device const float* currentAction =
+            actionHistory +
+            delayBase +
+            lastSlot * program.counts0.x;
+        writeFrame(
+            dispatch,
+            program,
+            actorOperators,
+            actions,
+            contactGroups,
+            terrainSamples,
+            environment,
+            state.episode.y,
+            episodeSteps,
+            qState + qBase,
+            vState + vBase,
+            defaultQ,
+            state,
+            currentAction,
+            sensorBias + biasBase,
+            compactContact + compactBase,
+            bodyParameters + bodyParameterBase,
+            controllerParameters + environment,
+            sceneState + sceneBase,
+            shapes,
+            geometryHeaders,
+            geometryVertices,
+            actorTail,
+            cleanTail
+        );
+        if (state.schedule.w != 0u &&
+            program.layout.y > 1u) {
+            const uint delay = min(
+                state.schedule.w,
+                program.layout.y - 1u
+            );
+            const uint sourceHistory =
+                program.layout.y - 1u - delay;
+            for (uint index = 0u;
+                 index < program.layout.x;
+                 ++index) {
+                actorTail[index] = actorHistory[
+                    historyBase +
+                    sourceHistory * program.layout.x +
+                    index
+                ];
+            }
+        }
+        for (uint action = 0u;
+             action < program.counts0.x;
+             ++action) {
+            previousJointVelocity[
+                previousVelocityBase + action
+            ] = vState[
+                vBase + actions[action].indices.w
+            ];
+        }
+    }
+    taskStates[environment] = state;
+
+    const uint transitionIndex =
+        pass.controlStep * dispatch.outputs.z + environment;
+    MRTaskTransitionGPU transition{};
+    transition.rewardAndState =
+        float4(reward, trackingScore, height, tilt);
+    transition.termination = uint4(
+        done ? 1u : 0u,
+        timeout ? 1u : 0u,
+        physicsError ? 1u : 0u,
+        reason
+    );
+    transition.policyRevision =
+        dispatch.policyRevision;
+    transitions[transitionIndex] = transition;
+    (void)worldDispatch;
+}

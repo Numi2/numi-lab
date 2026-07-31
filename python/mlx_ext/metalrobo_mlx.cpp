@@ -7,6 +7,7 @@
 #include "metalrobo/G1.hpp"
 #include "metalrobo/GeometryCooker.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
+#include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/SurgicalAssets.hpp"
 #include "metalrobo/SurgicalPSM.hpp"
@@ -2330,169 +2331,18 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         defaultSceneBodies.push_back(cubeState);
     }
     if (addGround) {
-        MRBodyPropertiesGPU ground{};
-        ground.articulationIndex = MR_INVALID_INDEX;
-        ground.parentBody = MR_INVALID_INDEX;
-        ground.inboundJoint = MR_INVALID_INDEX;
-        ground.motionType = MR_MOTION_STATIC;
-        ground.dampingAndSpeedLimits =
-            {0.0f, 0.0f, 1.0e6f, 1.0e6f};
-        const std::uint32_t groundBody =
-            static_cast<std::uint32_t>(model.bodies.size());
-        model.bodies.push_back(ground);
-
-        MRShapeGPU plane{};
-        plane.bodyIndex = groundBody;
-        plane.shapeType = MR_SHAPE_PLANE;
-        plane.materialIndex = 0u;
-        plane.collisionGroup = 1u;
-        plane.collisionMask = ~0u;
-        plane.slotGeneration = 1u;
-        plane.localPosition.w = 1.0f;
-        // The collision plane's authored normal is +Y. Robotics models are
-        // Z-up, so rotate +Y onto +Z.
-        constexpr float kSqrtHalf = 0.7071067811865476f;
-        plane.localRotation = {
-            kSqrtHalf,
-            0.0f,
-            0.0f,
-            kSqrtHalf,
-        };
-        model.shapes.push_back(plane);
-        model.world.bodyCount =
-            static_cast<std::uint32_t>(model.bodies.size());
-        model.world.shapeCount =
-            static_cast<std::uint32_t>(model.shapes.size());
-
-        MRBodyStateGPU groundState{};
-        groundState.position.w = 1.0f;
-        groundState.orientation.w = 1.0f;
-        groundState.flagsAndIndices[0] = MR_MOTION_STATIC;
-        groundState.flagsAndIndices[1] = MR_INVALID_INDEX;
-        groundState.flagsAndIndices[2] = groundBody;
-        defaultSceneBodies.push_back(groundState);
+        appendLocomotionSurface(
+            model,
+            defaultSceneBodies,
+            LocomotionSurface::ground
+        );
     }
     if (addTerrain) {
-        constexpr std::uint32_t side = 161u;
-        constexpr float spacing = 0.05f;
-        constexpr float halfWidth =
-            0.5f * spacing * static_cast<float>(side - 1u);
-        const auto terrainHeight = [](
-            const float x,
-            const float y
-        ) {
-            if (x < -2.0f) {
-                return 0.0f;
-            }
-            if (x < 0.0f) {
-                return 0.08f * (x + 2.0f);
-            }
-            if (x < 2.0f) {
-                return 0.16f +
-                    0.03f * std::floor(x / 0.25f);
-            }
-            return
-                0.37f +
-                0.035f *
-                    (
-                        std::sin(1.7f * x) -
-                        std::sin(3.4f)
-                    ) *
-                    std::sin(1.3f * y) +
-                0.015f *
-                    (
-                        std::sin(3.1f * x) -
-                        std::sin(6.2f)
-                    ) *
-                    std::sin(2.3f * y);
-        };
-        std::vector<mr_float4> vertices;
-        vertices.reserve(side * side);
-        float minimumHeight =
-            std::numeric_limits<float>::infinity();
-        float maximumHeight =
-            -std::numeric_limits<float>::infinity();
-        for (std::uint32_t y = 0u; y < side; ++y) {
-            for (std::uint32_t x = 0u; x < side; ++x) {
-                const float px =
-                    -halfWidth + spacing * static_cast<float>(x);
-                const float py =
-                    -halfWidth + spacing * static_cast<float>(y);
-                const float height = terrainHeight(px, py);
-                minimumHeight = std::min(minimumHeight, height);
-                maximumHeight = std::max(maximumHeight, height);
-                vertices.push_back({px, py, height, 1.0f});
-            }
-        }
-        const std::uint32_t geometryIndex =
-            static_cast<std::uint32_t>(
-                model.geometryHeaders.size()
-            );
-        MRGeometryHeaderGPU geometry{};
-        geometry.kind = MR_GEOMETRY_HEIGHTFIELD;
-        geometry.vertexOffset =
-            static_cast<std::uint32_t>(
-                model.geometryVertices.size()
-            );
-        geometry.vertexCount =
-            static_cast<std::uint32_t>(vertices.size());
-        geometry.localLower = {
-            -halfWidth,
-            -halfWidth,
-            minimumHeight,
-            spacing,
-        };
-        geometry.localUpper = {
-            halfWidth,
-            halfWidth,
-            maximumHeight,
-            1.0f / spacing,
-        };
-        model.geometryHeaders.push_back(geometry);
-        model.geometryVertices.insert(
-            model.geometryVertices.end(),
-            vertices.begin(),
-            vertices.end()
+        appendLocomotionSurface(
+            model,
+            defaultSceneBodies,
+            LocomotionSurface::terrain
         );
-
-        MRBodyPropertiesGPU terrain{};
-        terrain.articulationIndex = MR_INVALID_INDEX;
-        terrain.parentBody = MR_INVALID_INDEX;
-        terrain.inboundJoint = MR_INVALID_INDEX;
-        terrain.motionType = MR_MOTION_STATIC;
-        terrain.dampingAndSpeedLimits =
-            {0.0f, 0.0f, 1.0e6f, 1.0e6f};
-        const std::uint32_t terrainBody =
-            static_cast<std::uint32_t>(model.bodies.size());
-        model.bodies.push_back(terrain);
-
-        MRShapeGPU heightfield{};
-        heightfield.bodyIndex = terrainBody;
-        heightfield.shapeType = MR_SHAPE_HEIGHTFIELD;
-        heightfield.materialIndex = 0u;
-        heightfield.collisionGroup = 1u;
-        heightfield.collisionMask = ~0u;
-        heightfield.slotGeneration = 1u;
-        heightfield.localPosition.w = 1.0f;
-        heightfield.localRotation.w = 1.0f;
-        heightfield.dimensions = {1.0f, 1.0f, 1.0f, 0.0f};
-        heightfield.contactRestAndBoundingRadius =
-            {0.002f, 0.0f, 5.8f, 0.0f};
-        heightfield.geometryOffset = geometryIndex;
-        heightfield.geometryCount = 1u;
-        model.shapes.push_back(heightfield);
-        model.world.bodyCount =
-            static_cast<std::uint32_t>(model.bodies.size());
-        model.world.shapeCount =
-            static_cast<std::uint32_t>(model.shapes.size());
-
-        MRBodyStateGPU terrainState{};
-        terrainState.position.w = 1.0f;
-        terrainState.orientation.w = 1.0f;
-        terrainState.flagsAndIndices[0] = MR_MOTION_STATIC;
-        terrainState.flagsAndIndices[1] = MR_INVALID_INDEX;
-        terrainState.flagsAndIndices[2] = terrainBody;
-        defaultSceneBodies.push_back(terrainState);
     }
     if (addNeedle) {
         const std::uint32_t needleBody =
@@ -2620,13 +2470,21 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         (addGround || addTerrain) &&
         actuationMode ==
             MetalWorldActuationMode::implicitPositionDrive;
+    const MetalWorldCapacityProfile g1TaskCapacities =
+        g1Locomotion
+        ? makeUnitreeG1LocomotionTaskPack(
+              addTerrain
+              ? LocomotionSurface::terrain
+              : LocomotionSurface::ground
+          ).capacities
+        : MetalWorldCapacityProfile{};
     if (!defaultSceneBodies.empty() &&
         !useHeterogeneousWorld) {
         const std::uint32_t contactCapacity =
             addPickPlace
             ? 128u
             : g1Locomotion
-            ? 128u
+            ? g1TaskCapacities.manifolds
             : modelName == "franka"
             ? 32u
             : 64u;
@@ -2634,7 +2492,7 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
             addPickPlace
             ? 256u
             : g1Locomotion
-            ? 192u
+            ? g1TaskCapacities.candidatePairs
             : modelName == "franka"
             ? 64u
             : modelName == "psm"
@@ -2651,17 +2509,16 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         fill(capacityProfile.candidatePairs, pairCapacity);
         fill(
             capacityProfile.rawContacts,
-            (g1Locomotion ? 4u : 2u) * contactCapacity
+            g1Locomotion
+            ? g1TaskCapacities.rawContacts
+            : 2u * contactCapacity
         );
         fill(capacityProfile.manifolds, contactCapacity);
         fill(
             capacityProfile.constraintBlocks,
-            (g1Locomotion ? 2u : 1u) * contactCapacity +
-                (g1Locomotion
-                     ? static_cast<std::uint32_t>(
-                           model.joints.size()
-                       )
-                     : 0u)
+            g1Locomotion
+            ? g1TaskCapacities.constraintBlocks
+            : contactCapacity
         );
         fill(
             capacityProfile.constraintRows,
@@ -2674,7 +2531,9 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         fill(capacityProfile.hardConvexPairs, pairCapacity);
         fill(
             capacityProfile.meshTriangleCandidates,
-            4u * contactCapacity
+            g1Locomotion
+            ? g1TaskCapacities.meshTriangleCandidates
+            : 4u * contactCapacity
         );
         // Solver-tile and spill capacities remain zero here so the
         // authoritative CompiledWorld graph derives them from the actual
@@ -2742,7 +2601,10 @@ std::shared_ptr<MLXCompiledWorld> compileWorld(
         if (requestedCapacityProfile.candidatePairs == 0u) {
             capacityProfile.candidatePairs =
                 g1Locomotion
-                ? std::min(eligiblePairs, 192u)
+                ? std::min(
+                      eligiblePairs,
+                      g1TaskCapacities.candidatePairs
+                  )
                 : eligiblePairs;
         }
         if (requestedCapacityProfile.manifolds == 0u) {
@@ -8241,17 +8103,16 @@ void WorldStepPrimitive::eval_gpu(
         );
         encoder.set_bytes(contactDispatch, 0);
         immutable(kImmutableEligiblePairs, 1);
-        inputArray(pairRawCounts, 2);
-        inputArray(pairRawStaging, 3);
-        inputArray(pairManifoldHeaders, 4);
-        inputArray(pairManifoldPoints, 5);
-        inputArray(manifoldScatter, 6);
-        inputArray(outputs[16], 7);
-        outputArray(candidatePairs, 8);
-        outputArray(rawContacts, 9);
-        outputArray(rawPairIndices, 10);
-        outputArray(candidateManifoldHeaders, 11);
-        outputArray(candidateManifoldPoints, 12);
+        inputArray(pairRawStaging, 2);
+        inputArray(pairManifoldHeaders, 3);
+        inputArray(pairManifoldPoints, 4);
+        inputArray(manifoldScatter, 5);
+        inputArray(outputs[16], 6);
+        outputArray(candidatePairs, 7);
+        outputArray(rawContacts, 8);
+        outputArray(rawPairIndices, 9);
+        outputArray(candidateManifoldHeaders, 10);
+        outputArray(candidateManifoldPoints, 11);
         dispatchThreads(
             pairFlagCount,
             resources.kernel(

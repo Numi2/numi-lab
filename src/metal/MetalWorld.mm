@@ -33,7 +33,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 193u;
+constexpr std::size_t kRawBufferCount = 214u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -248,6 +248,27 @@ enum BufferIndex : std::size_t {
     kProjectedRodColliders = 190u,
     kFutureProjectedRodColliders = 191u,
     kActuatorProfiles = 192u,
+    kTaskDispatch = 193u,
+    kTaskActions = 194u,
+    kTaskState = 195u,
+    kTaskActionHistory = 196u,
+    kTaskActorHistory = 197u,
+    kTaskCleanHistory = 198u,
+    kTaskPreviousJointVelocity = 199u,
+    kTaskEncoderBias = 200u,
+    kTaskBodyParameters = 201u,
+    kTaskControllerParameters = 202u,
+    kTaskActorObservations = 203u,
+    kTaskCriticObservations = 204u,
+    kTaskTransitions = 205u,
+    kTaskContactCompact = 206u,
+    kTaskDefaultQ = 207u,
+    kTaskProgramHeader = 208u,
+    kTaskProgramArena = 209u,
+    kPolicyProgramHeader = 210u,
+    kPolicyProgramArena = 211u,
+    kPolicyScratchA = 212u,
+    kPolicyScratchB = 213u,
 };
 
 struct BufferRequirement {
@@ -263,6 +284,7 @@ struct RequiredBuffers {
 
 bool privateTransientBuffer(std::size_t index);
 bool privatePersistentBuffer(std::size_t index);
+bool privatePersistentInputBuffer(std::size_t index);
 bool privateImmutableBuffer(std::size_t index);
 
 } // namespace
@@ -281,12 +303,19 @@ struct MetalWorldContextState {
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> abaPipeline = nil;
+    __strong id<MTLComputePipelineState> parameterizedABAPipeline = nil;
     __strong id<MTLComputePipelineState> smallABAPipeline = nil;
     __strong id<MTLComputePipelineState> multiABAPipeline = nil;
     __strong id<MTLComputePipelineState> preparePipeline = nil;
     __strong id<MTLComputePipelineState> commitPipeline = nil;
     __strong id<MTLComputePipelineState> capturePipeline = nil;
     __strong id<MTLComputePipelineState> operatorPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        parameterizedOperatorPipeline = nil;
+    __strong id<MTLComputePipelineState> taskObservePipeline = nil;
+    __strong id<MTLComputePipelineState> taskApplyPipeline = nil;
+    __strong id<MTLComputePipelineState> taskCompletePipeline = nil;
+    __strong id<MTLComputePipelineState> policyDensePipeline = nil;
     __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
     __strong id<MTLComputePipelineState> bodyProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> scenePredictionPipeline = nil;
@@ -383,14 +412,22 @@ struct MetalWorldContextState {
     __strong id<MTLHeap> transientHeap = nil;
     __strong id<MTLBuffer> buffers[kRawBufferCount] = {};
     __strong id<MTLBuffer> uploadBuffers[kRawBufferCount] = {};
+    __strong id<MTLBuffer> readbackBuffers[kRawBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
     std::array<std::size_t, kRawBufferCount> uploadCapacities{};
+    std::array<std::size_t, kRawBufferCount> readbackCapacities{};
+    std::size_t readbackBytes = 0u;
     // Immutable host metadata used only while encoding the command graph.
     // Dynamic work counts and physical state remain entirely device-resident.
     std::vector<MRArticulationGPU> boundArticulations;
     std::vector<MRArticulatedOperatorDispatchGPU>
         boundFactorDispatches;
+    bool useTaskBodyParameters = false;
     std::uint64_t boundModelFingerprint = 0u;
+    std::uint64_t boundTaskFingerprint = 0u;
+    std::uint64_t boundPolicyFingerprint = 0u;
+    std::uint64_t stateArenaGeneration = 0u;
+    std::weak_ptr<MetalWorldResidentStateData> residentOwner;
     MetalWorldContextStats stats{};
 };
 
@@ -426,7 +463,87 @@ struct MetalWorldSlotReservation {
     bool armed = true;
 };
 
+struct MetalWorldResidentStateData {
+    mutable std::mutex mutex;
+    std::weak_ptr<MetalWorldContextPool> ownerPool;
+    std::shared_ptr<MetalWorldContextState> context;
+    std::uint64_t worldFingerprint = 0u;
+    std::uint64_t taskFingerprint = 0u;
+    std::uint64_t taskSeed = 0u;
+    std::uint64_t stateArenaGeneration = 0u;
+    std::size_t environmentCount = 0u;
+    std::size_t qBuffer = kStateQA;
+    std::size_t vBuffer = kStateVA;
+    std::size_t sceneBuffer = kSceneBodiesA;
+    std::size_t manifoldHeaderBuffer = kManifoldHeadersA;
+    std::size_t manifoldPointBuffer = kManifoldPointsA;
+    std::size_t manifoldCountBuffer = kManifoldCountsA;
+    std::size_t rodNodeBuffer = kRodNodesA;
+    std::size_t rodEdgeBuffer = kRodEdgesA;
+    std::size_t rodWitnessBuffer = kRodWitnessesA;
+    bool supportsReset = false;
+    bool initialized = false;
+    bool pending = false;
+};
+
+struct MetalWorldResidentReservation {
+    explicit MetalWorldResidentReservation(
+        std::shared_ptr<MetalWorldResidentStateData> selected
+    )
+        : state(std::move(selected)) {}
+
+    ~MetalWorldResidentReservation() {
+        if (!armed || state == nullptr) {
+            return;
+        }
+        try {
+            const std::lock_guard lock(state->mutex);
+            state->pending = false;
+        } catch (...) {
+        }
+    }
+
+    void handoff() noexcept {
+        armed = false;
+    }
+
+    std::shared_ptr<MetalWorldResidentStateData> state;
+    bool armed = true;
+};
+
 struct MetalWorldSubmissionState {
+    void finishResident(const bool commandCompleted) noexcept {
+        if (resident == nullptr) {
+            return;
+        }
+        try {
+            const std::lock_guard lock(resident->mutex);
+            resident->pending = false;
+            if (!commandCompleted || context == nullptr ||
+                resident->context != context ||
+                resident->stateArenaGeneration !=
+                    context->stateArenaGeneration) {
+                resident->initialized = false;
+                return;
+            }
+            resident->qBuffer = finalQBuffer;
+            resident->vBuffer = finalVBuffer;
+            resident->sceneBuffer = finalSceneBuffer;
+            resident->manifoldHeaderBuffer =
+                finalManifoldHeaderBuffer;
+            resident->manifoldPointBuffer =
+                finalManifoldPointBuffer;
+            resident->manifoldCountBuffer =
+                finalManifoldCountBuffer;
+            resident->rodNodeBuffer = finalRodNodeBuffer;
+            resident->rodEdgeBuffer = finalRodEdgeBuffer;
+            resident->rodWitnessBuffer =
+                finalRodWitnessBuffer;
+            resident->initialized = true;
+        } catch (...) {
+        }
+    }
+
     ~MetalWorldSubmissionState() {
         if (!ownsInFlight || context == nullptr) {
             return;
@@ -434,6 +551,10 @@ struct MetalWorldSubmissionState {
         @autoreleasepool {
             [commandBuffer waitUntilCompleted];
         }
+        finishResident(
+            commandBuffer.status ==
+                MTLCommandBufferStatusCompleted
+        );
         try {
             const std::lock_guard lock(context->mutex);
             context->inFlight = false;
@@ -459,9 +580,14 @@ struct MetalWorldSubmissionState {
     std::size_t finalManifoldCountBuffer = kManifoldCountsA;
     std::size_t finalRodNodeBuffer = kRodNodesA;
     std::size_t finalRodEdgeBuffer = kRodEdgesA;
+    std::size_t finalRodWitnessBuffer = kRodWitnessesA;
+    std::shared_ptr<MetalWorldResidentStateData> resident;
+    std::uint64_t policyRevision = 0u;
     bool hasRods = false;
     bool contactMode = false;
     bool captureContactEvidence = false;
+    bool publishFinalState = true;
+    bool publishStateTrajectory = true;
     bool ownsInFlight = false;
 };
 
@@ -1115,6 +1241,17 @@ void hashVector(
     }
 }
 
+void hashStrings(
+    std::uint64_t& hash,
+    const std::vector<std::string>& values
+) {
+    hashValue(hash, values.size());
+    for (const std::string& value : values) {
+        hashValue(hash, value.size());
+        hashBytes(hash, value.data(), value.size());
+    }
+}
+
 std::uint64_t fingerprint(const EngineModel& model) {
     std::uint64_t hash = kFNVOffset;
     hashValue(hash, MR_ENGINE_ABI_VERSION);
@@ -1142,6 +1279,10 @@ std::uint64_t fingerprint(const EngineModel& model) {
     hashVector(hash, model.constraintProgram.warmImpulses);
     hashVector(hash, model.defaultQ);
     hashVector(hash, model.defaultV);
+    hashStrings(hash, model.bodyNames);
+    hashStrings(hash, model.jointNames);
+    hashStrings(hash, model.dofNames);
+    hashStrings(hash, model.shapeNames);
     hashValue(hash, model.name.size());
     hashBytes(hash, model.name.data(), model.name.size());
     return hash == 0u ? 1u : hash;
@@ -1294,6 +1435,8 @@ std::uint64_t compiledFingerprint(
 bool buildRequirements(
     const CompiledWorld& world,
     const MetalWorldLayout& layout,
+    const CompiledTaskProgram& taskProgram,
+    const CompiledPolicyProgram& policyProgram,
     RequiredBuffers& requirements,
     std::size_t& totalRequiredBytes
 ) {
@@ -1310,6 +1453,50 @@ bool buildRequirements(
         (layout.dispatch.flags & MR_METAL_WORLD_CONTACTS) != 0u
         ? environments
         : 0u;
+    const bool nativeTask = taskProgram.valid();
+    const bool nativePolicy = policyProgram.valid();
+    const std::size_t taskEnvironments =
+        nativeTask ? environments : 0u;
+    const TaskProgramLayout& taskLayout =
+        taskProgram.layout();
+    std::size_t taskActionHistoryStride = 0u;
+    std::size_t taskActionHistoryElements = 0u;
+    std::size_t taskHistoryElements = 0u;
+    std::size_t taskBodyParameterElements = 0u;
+    std::size_t taskContactElements = 0u;
+    std::size_t policyScratchElements = 0u;
+    if (!checkedMultiply(
+            taskLayout.delayStateCount,
+            taskLayout.actionCount,
+            taskActionHistoryStride
+        ) ||
+        !checkedMultiply(
+            taskEnvironments,
+            taskActionHistoryStride,
+            taskActionHistoryElements
+        ) ||
+        !checkedMultiply(
+            taskEnvironments,
+            taskLayout.actorObservationSize,
+            taskHistoryElements
+        ) ||
+        !checkedMultiply(
+            taskEnvironments,
+            model.bodies.size(),
+            taskBodyParameterElements
+        ) ||
+        !checkedMultiply(
+            taskEnvironments,
+            taskLayout.contactMetricCount,
+            taskContactElements
+        ) ||
+        !checkedMultiply(
+            nativePolicy ? taskEnvironments : 0u,
+            policyProgram.layout().maximumHiddenCount,
+            policyScratchElements
+        )) {
+        return false;
+    }
     if (!makeRequirement<MRWorldGPU>(
             "runtime world",
             1u,
@@ -2483,6 +2670,111 @@ bool buildRequirements(
             "immutable authored ConstraintIR warm impulses",
             model.constraintProgram.warmImpulses.size(),
             requirements.entries[kAuthoredIRWarmImpulses]
+        ) ||
+        !makeRequirement<MRTaskDispatchGPU>(
+            "native task dispatch",
+            nativeTask ? 1u : 0u,
+            requirements.entries[kTaskDispatch]
+        ) ||
+        !makeRequirement<float>(
+            "native task normalized actions",
+            layout.actionElements,
+            requirements.entries[kTaskActions]
+        ) ||
+        !makeRequirement<MRTaskStateGPU>(
+            "native resident task state",
+            taskEnvironments,
+            requirements.entries[kTaskState]
+        ) ||
+        !makeRequirement<float>(
+            "native delayed action history",
+            taskActionHistoryElements,
+            requirements.entries[kTaskActionHistory]
+        ) ||
+        !makeRequirement<float>(
+            "native actor history",
+            taskHistoryElements,
+            requirements.entries[kTaskActorHistory]
+        ) ||
+        !makeRequirement<float>(
+            "native clean observation history",
+            taskHistoryElements,
+            requirements.entries[kTaskCleanHistory]
+        ) ||
+        !makeRequirement<float>(
+            "native previous action velocity",
+            taskEnvironments * taskLayout.actionCount,
+            requirements.entries[kTaskPreviousJointVelocity]
+        ) ||
+        !makeRequirement<float>(
+            "native task sensor bias",
+            taskEnvironments * taskLayout.biasCount,
+            requirements.entries[kTaskEncoderBias]
+        ) ||
+        !makeRequirement<mr_float4>(
+            "native body domain parameters",
+            taskBodyParameterElements,
+            requirements.entries[kTaskBodyParameters]
+        ) ||
+        !makeRequirement<mr_float4>(
+            "native controller domain parameters",
+            taskEnvironments,
+            requirements.entries[kTaskControllerParameters]
+        ) ||
+        !makeRequirement<float>(
+            "native actor observations",
+            layout.actorObservationElements,
+            requirements.entries[kTaskActorObservations]
+        ) ||
+        !makeRequirement<float>(
+            "native critic observations",
+            layout.criticObservationElements,
+            requirements.entries[kTaskCriticObservations]
+        ) ||
+        !makeRequirement<MRTaskTransitionGPU>(
+            "native task transitions",
+            layout.transitionElements,
+            requirements.entries[kTaskTransitions]
+        ) ||
+        !makeRequirement<float>(
+            "native compact contact metrics",
+            taskContactElements,
+            requirements.entries[kTaskContactCompact]
+        ) ||
+        !makeRequirement<float>(
+            "native task default configuration",
+            nativeTask ? model.defaultQ.size() : 0u,
+            requirements.entries[kTaskDefaultQ]
+        ) ||
+        !makeRequirement<MRTaskProgramHeaderGPU>(
+            "compiled task header",
+            nativeTask ? 1u : 0u,
+            requirements.entries[kTaskProgramHeader]
+        ) ||
+        !makeRequirement<std::uint8_t>(
+            "compiled task arena",
+            taskProgram.arena().size(),
+            requirements.entries[kTaskProgramArena]
+        ) ||
+        !makeRequirement<MRPolicyProgramHeaderGPU>(
+            "compiled policy header",
+            nativePolicy ? 1u : 0u,
+            requirements.entries[kPolicyProgramHeader]
+        ) ||
+        !makeRequirement<std::uint8_t>(
+            "compiled policy arena",
+            policyProgram.arena().size(),
+            requirements.entries[kPolicyProgramArena]
+        ) ||
+        !makeRequirement<float>(
+            "native policy scratch A",
+            policyScratchElements,
+            requirements.entries[kPolicyScratchA]
+        ) ||
+        !makeRequirement<float>(
+            "native policy scratch B",
+            policyScratchElements,
+            requirements.entries[kPolicyScratchB]
         )) {
         return false;
     }
@@ -2505,6 +2797,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const CompiledWorld& world,
     const MetalWorldBatch& batch,
     const MetalWorldStepConfig& config,
+    const bool residentContinuation,
     RequiredBuffers& requirements
 ) {
     MetalWorldDiagnostics diagnostics{};
@@ -2539,6 +2832,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "unknown MetalWorld actuation mode"
         );
     }
+    const bool nativeTask = config.taskProgram.valid();
+    const bool nativePolicy = config.policyProgram.valid();
     const bool contactMode =
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
     const bool qualityMode =
@@ -2623,6 +2918,43 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "thresholds are outside the supported range"
         );
     }
+    if (nativeTask &&
+        (
+            !contactMode ||
+            config.actuationMode !=
+                MetalWorldActuationMode::
+                    implicitPositionDrive ||
+            world.rodCount() != 0u ||
+            config.taskProgram.worldFingerprint() !=
+                world.fingerprint()
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::unsupportedTopology,
+            "native locomotion requires an implicit-drive contact world "
+            "matching the compiled task fingerprint"
+        );
+    }
+    if (nativePolicy &&
+        (
+            !nativeTask ||
+            config.policyProgram.taskFingerprint() !=
+                config.taskProgram.fingerprint() ||
+            config.policyProgram.layout().observationCount !=
+                config.taskProgram.layout()
+                    .actorObservationSize ||
+            config.policyProgram.layout().actionCount !=
+                config.taskProgram.layout().actionCount ||
+            (batch.policyRevision != 0u &&
+             batch.policyRevision !=
+                 config.policyProgram.revision())
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "compiled policy does not match the task observation/action contract or revision"
+        );
+    }
     if (qualityMode &&
         config.ccdMode == MetalWorldCCDMode::hybrid) {
         return reject(
@@ -2680,8 +3012,6 @@ MetalWorldDiagnostics validateAndBuildLayout(
         );
     }
 
-    const MRArticulationGPU& articulation =
-        world.model().articulations[world.articulationIndex()];
     MetalWorldLayout layout{};
     MRMetalWorldDispatchGPU& dispatch = layout.dispatch;
     dispatch.abiVersion = MR_METAL_WORLD_ABI_VERSION;
@@ -2718,6 +3048,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
                      implicitPositionDrive
              ? static_cast<mr_u32>(
                    MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES
+               )
+             : 0u) |
+        (nativeTask
+             ? static_cast<mr_u32>(
+                   MR_METAL_WORLD_NATIVE_TASK
                )
              : 0u);
     dispatch.nq = world.model().world.nq;
@@ -2984,6 +3319,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
             world.model().constraintProgram.cones.size()
         );
     contact.flags |= MR_METAL_WORLD_CONTACT_WAVE32;
+    if (nativeTask) {
+        contact.flags |=
+            MR_METAL_WORLD_CONTACT_BODY_PARAMETERS;
+    }
     if (config.ccdMode != MetalWorldCCDMode::disabled) {
         contact.flags |= MR_METAL_WORLD_CONTACT_CCD;
     }
@@ -3172,6 +3511,55 @@ MetalWorldDiagnostics validateAndBuildLayout(
             MetalWorldHostStatus::arithmeticOverflow,
             "derived Metal world element-count overflow"
         );
+    }
+    if (nativeTask) {
+        const TaskProgramLayout& taskLayout =
+            config.taskProgram.layout();
+        std::size_t transitionCount = 0u;
+        std::size_t policyScratchElements = 0u;
+        if (!checkedMultiply(
+                batch.controlStepCount,
+                batch.environmentCount,
+                transitionCount
+            ) ||
+            !checkedMultiply(
+                transitionCount,
+                taskLayout.actionCount,
+                layout.actionElements
+            ) ||
+            !checkedMultiply(
+                transitionCount,
+                taskLayout.actorObservationSize,
+                layout.actorObservationElements
+            ) ||
+            !checkedMultiply(
+                transitionCount,
+                taskLayout.criticObservationSize,
+                layout.criticObservationElements
+            ) ||
+            !checkedMultiply(
+                nativePolicy
+                    ? batch.environmentCount
+                    : 0u,
+                config.policyProgram.layout()
+                    .maximumHiddenCount,
+                policyScratchElements
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::arithmeticOverflow,
+                "native task rollout element-count overflow"
+            );
+        }
+        if (policyScratchElements >
+            kShaderAddressableElements) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::arithmeticOverflow,
+                "native policy scratch exceeds the shader's 32-bit addressing contract"
+            );
+        }
+        layout.transitionElements = transitionCount;
     }
     layout.resetQElements = batch.resetMasks.empty()
         ? 0u
@@ -3362,10 +3750,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.initialQElements,
         layout.initialVElements,
         layout.effortElements,
+        layout.actionElements,
         layout.resetMaskElements,
         layout.resetQElements,
         layout.resetVElements,
         layout.observationElements,
+        layout.actorObservationElements,
+        layout.criticObservationElements,
+        layout.transitionElements,
         layout.accelerationElements,
         layout.statusElements,
         layout.initialSceneBodyElements,
@@ -3419,6 +3811,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
     if (!buildRequirements(
             world,
             layout,
+            config.taskProgram,
+            config.policyProgram,
             requirements,
             totalRequiredBytes
         )) {
@@ -3450,11 +3844,31 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     diagnostics.layout = layout;
 
-    if (batch.initialQ.size() != layout.initialQElements ||
-        batch.initialV.size() != layout.initialVElements ||
-        batch.efforts.size() != layout.effortElements ||
+    const std::size_t initialQElements =
+        residentContinuation ? 0u : layout.initialQElements;
+    const std::size_t initialVElements =
+        residentContinuation ? 0u : layout.initialVElements;
+    const std::size_t initialSceneBodyElements =
+        residentContinuation
+        ? 0u
+        : layout.initialSceneBodyElements;
+    const std::size_t expectedEffortElements =
+        nativeTask ? 0u : layout.effortElements;
+    const std::size_t expectedActionElements =
+        nativeTask && !nativePolicy
+        ? layout.actionElements
+        : 0u;
+    if (batch.initialQ.size() != initialQElements ||
+        batch.initialV.size() != initialVElements ||
+        batch.efforts.size() != expectedEffortElements ||
+        batch.actions.size() != expectedActionElements ||
         batch.initialSceneBodies.size() !=
-            layout.initialSceneBodyElements ||
+            initialSceneBodyElements ||
+        (residentContinuation &&
+         (!batch.initialRodNodes.empty() ||
+          !batch.initialRodEdges.empty() ||
+          !batch.resetRodNodes.empty() ||
+          !batch.resetRodEdges.empty())) ||
         batch.kinematicTargets.size() !=
             layout.kinematicTargetElements) {
         return reject(
@@ -3474,6 +3888,13 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "scene-body inputs require a contact solver mode"
         );
     }
+    if (nativeTask && batch.resetMasks.empty()) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidReset,
+            "native task requires a writable reset-mask stream"
+        );
+    }
     if (batch.resetMasks.empty()) {
         if (!batch.resetQ.empty() ||
             !batch.resetV.empty() ||
@@ -3486,18 +3907,32 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 "reset states require a control-step reset mask"
             );
         }
-    } else if (
-        batch.resetMasks.size() != layout.resetMaskElements ||
-        batch.resetQ.size() != layout.resetQElements ||
-        batch.resetV.size() != layout.resetVElements ||
-        batch.resetSceneBodies.size() !=
-            layout.resetSceneBodyElements) {
+    } else {
+        const std::size_t resetQElements =
+            residentContinuation || nativeTask
+            ? 0u
+            : layout.resetQElements;
+        const std::size_t resetVElements =
+            residentContinuation || nativeTask
+            ? 0u
+            : layout.resetVElements;
+        const std::size_t resetSceneBodyElements =
+            residentContinuation || nativeTask
+            ? 0u
+            : layout.resetSceneBodyElements;
+        if (batch.resetMasks.size() !=
+                layout.resetMaskElements ||
+            batch.resetQ.size() != resetQElements ||
+            batch.resetV.size() != resetVElements ||
+            batch.resetSceneBodies.size() !=
+                resetSceneBodyElements) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidReset,
             "reset mask or environment reset state has the "
             "wrong packed element count"
         );
+        }
     }
     if (!std::all_of(
             batch.resetMasks.begin(),
@@ -3512,13 +3947,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "reset masks must contain only zero or one"
         );
     }
-    if (!validQ(
-            world.model(),
-            batch.environmentCount,
-            batch.initialQ
-        ) ||
-        !finiteFloats(batch.initialV) ||
-        !finiteFloats(batch.efforts)) {
+    if ((!residentContinuation &&
+         !validQ(
+             world.model(),
+             batch.environmentCount,
+             batch.initialQ
+         )) ||
+        (!residentContinuation &&
+         !finiteFloats(batch.initialV)) ||
+        !finiteFloats(batch.efforts) ||
+        !finiteFloats(batch.actions)) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::nonfiniteInput,
@@ -3526,7 +3964,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "or invalid floating-root quaternion"
         );
     }
-    if (!batch.resetMasks.empty() &&
+    if (!residentContinuation &&
+        !nativeTask &&
+        !batch.resetMasks.empty() &&
         (!validQ(
              world.model(),
              batch.environmentCount,
@@ -3540,7 +3980,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "floating-root quaternion"
         );
     }
-    if (!validRodStates(
+    if (!residentContinuation &&
+        !validRodStates(
             world,
             batch.environmentCount,
             batch.initialRodNodes,
@@ -3554,7 +3995,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "environment-major packing"
         );
     }
-    if (!batch.resetMasks.empty() &&
+    if (!residentContinuation &&
+        !batch.resetMasks.empty() &&
         !validRodStates(
             world,
             batch.environmentCount,
@@ -3569,13 +4011,15 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "environment-major packing"
         );
     }
-    if (contactMode &&
+    if (!residentContinuation &&
+        contactMode &&
         (!validSceneStates(
              world,
              batch.environmentCount,
              batch.initialSceneBodies
          ) ||
-         (!batch.resetMasks.empty() &&
+         (!nativeTask &&
+          !batch.resetMasks.empty() &&
           !validSceneStates(
               world,
               batch.environmentCount,
@@ -3671,6 +4115,48 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld checkpoint q";
     case kCheckpointV:
         return @"MetalWorld checkpoint v";
+    case kTaskDispatch:
+        return @"MetalWorld task dispatch";
+    case kTaskActions:
+        return @"MetalWorld normalized task actions";
+    case kTaskState:
+        return @"MetalWorld resident task state";
+    case kTaskActionHistory:
+        return @"MetalWorld resident action history";
+    case kTaskActorHistory:
+        return @"MetalWorld resident actor history";
+    case kTaskCleanHistory:
+        return @"MetalWorld resident clean history";
+    case kTaskPreviousJointVelocity:
+        return @"MetalWorld resident previous action velocity";
+    case kTaskEncoderBias:
+        return @"MetalWorld resident task sensor bias";
+    case kTaskBodyParameters:
+        return @"MetalWorld resident body parameters";
+    case kTaskControllerParameters:
+        return @"MetalWorld resident controller parameters";
+    case kTaskActorObservations:
+        return @"MetalWorld actor observations";
+    case kTaskCriticObservations:
+        return @"MetalWorld critic observations";
+    case kTaskTransitions:
+        return @"MetalWorld task transitions";
+    case kTaskContactCompact:
+        return @"MetalWorld resident compact contact metrics";
+    case kTaskDefaultQ:
+        return @"MetalWorld task default configuration";
+    case kTaskProgramHeader:
+        return @"MetalWorld compiled task header";
+    case kTaskProgramArena:
+        return @"MetalWorld compiled task arena";
+    case kPolicyProgramHeader:
+        return @"MetalWorld compiled policy header";
+    case kPolicyProgramArena:
+        return @"MetalWorld compiled policy arena";
+    case kPolicyScratchA:
+        return @"MetalWorld policy scratch A";
+    case kPolicyScratchB:
+        return @"MetalWorld policy scratch B";
     default:
         return @"MetalWorld buffer";
     }
@@ -3796,6 +4282,21 @@ MetalWorldDiagnostics initializeContext(
         );
     }
     error = nil;
+    id<MTLComputePipelineState> parameterizedABA = makePipeline(
+        device,
+        library,
+        @"mr_parameterized_articulated_aba_step",
+        &error
+    );
+    if (parameterizedABA == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create parameterized ABA pipeline: " +
+                describeError(error)
+        );
+    }
+    error = nil;
     id<MTLComputePipelineState> smallABA = makePipeline(
         device,
         library,
@@ -3872,6 +4373,12 @@ MetalWorldDiagnostics initializeContext(
     }
 
     __strong id<MTLComputePipelineState> operatorPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        parameterizedOperatorPipeline = nil;
+    __strong id<MTLComputePipelineState> taskObserve = nil;
+    __strong id<MTLComputePipelineState> taskApply = nil;
+    __strong id<MTLComputePipelineState> taskComplete = nil;
+    __strong id<MTLComputePipelineState> policyDense = nil;
     __strong id<MTLComputePipelineState> contactPrepare = nil;
     __strong id<MTLComputePipelineState> bodyProjection = nil;
     __strong id<MTLComputePipelineState> scenePrediction = nil;
@@ -3969,6 +4476,17 @@ MetalWorldDiagnostics initializeContext(
     };
     operatorPipeline =
         createContactPipeline(@"mr_articulated_operator");
+    parameterizedOperatorPipeline = createContactPipeline(
+        @"mr_parameterized_articulated_operator"
+    );
+    taskObserve =
+        createContactPipeline(@"mr_locomotion_task_observe");
+    taskApply =
+        createContactPipeline(@"mr_locomotion_task_apply_actions");
+    taskComplete =
+        createContactPipeline(@"mr_locomotion_task_complete");
+    policyDense =
+        createContactPipeline(@"mr_policy_dense_layer");
     contactPrepare =
         createContactPipeline(@"mr_world_prepare_contact_step");
     bodyProjection =
@@ -4188,6 +4706,11 @@ MetalWorldDiagnostics initializeContext(
         @"mr_world_solve_generalized_constraints"
     );
     if (operatorPipeline == nil ||
+        parameterizedOperatorPipeline == nil ||
+        taskObserve == nil ||
+        taskApply == nil ||
+        taskComplete == nil ||
+        policyDense == nil ||
         contactPrepare == nil ||
         bodyProjection == nil ||
         scenePrediction == nil ||
@@ -4297,6 +4820,10 @@ MetalWorldDiagnostics initializeContext(
         prepare.maxTotalThreadsPerThreadgroup == 0u ||
         commit.maxTotalThreadsPerThreadgroup == 0u ||
         capture.maxTotalThreadsPerThreadgroup == 0u ||
+        taskObserve.maxTotalThreadsPerThreadgroup == 0u ||
+        taskApply.maxTotalThreadsPerThreadgroup == 0u ||
+        taskComplete.maxTotalThreadsPerThreadgroup == 0u ||
+        policyDense.maxTotalThreadsPerThreadgroup == 0u ||
         contactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
         bodyProjection.maxTotalThreadsPerThreadgroup == 0u ||
         scenePrediction.maxTotalThreadsPerThreadgroup == 0u ||
@@ -4461,12 +4988,19 @@ MetalWorldDiagnostics initializeContext(
     context.queue = queue;
     context.library = library;
     context.abaPipeline = aba;
+    context.parameterizedABAPipeline = parameterizedABA;
     context.smallABAPipeline = smallABA;
     context.multiABAPipeline = multiABA;
     context.preparePipeline = prepare;
     context.commitPipeline = commit;
     context.capturePipeline = capture;
     context.operatorPipeline = operatorPipeline;
+    context.parameterizedOperatorPipeline =
+        parameterizedOperatorPipeline;
+    context.taskObservePipeline = taskObserve;
+    context.taskApplyPipeline = taskApply;
+    context.taskCompletePipeline = taskComplete;
+    context.policyDensePipeline = policyDense;
     context.contactPreparePipeline = contactPrepare;
     context.bodyProjectionPipeline = bodyProjection;
     context.scenePredictionPipeline = scenePrediction;
@@ -4568,7 +5102,7 @@ MetalWorldDiagnostics initializeContext(
             pairNarrowphase.threadExecutionWidth
         );
     context.initialized = true;
-    context.stats.pipelineCreationCount += 76u;
+    context.stats.pipelineCreationCount += 82u;
     return diagnostics;
 }
 
@@ -4615,9 +5149,19 @@ bool privateTransientBuffer(const std::size_t index) {
     case kCandidatePairs:
     case kRawContacts:
     case kRawPairIndices:
+    case kContacts:
+    case kContactMetadata:
+    case kIRBlocks:
+    case kIREndpoints:
+    case kIRRows:
+    case kIRCones:
     case kPointQueries:
+    case kEvaluatedRows:
+    case kEvaluatedCones:
     case kFactorCaches:
+    case kIslands:
     case kResponseColumns:
+    case kContactStatuses:
     case kActiveIndirectDispatch:
     case kProjectedColliders:
     case kFutureProjectedColliders:
@@ -4643,6 +5187,7 @@ bool privateTransientBuffer(const std::size_t index) {
     case kPairManifoldHeaders:
     case kPairManifoldPoints:
     case kManifoldIRScatter:
+    case kEndpointRuntime:
     case kWave32Preconditioners:
     case kIslandWorkDense:
     case kQualityBlocks:
@@ -4660,6 +5205,8 @@ bool privateTransientBuffer(const std::size_t index) {
     case kQualityWorkPackets:
     case kRodFactorCaches:
     case kOperatorVelocityArena:
+    case kIslandNodeReferences:
+    case kIslandConstraintReferences:
     case kCheckpointRodNodes:
     case kCheckpointRodEdges:
     case kRodInputPositions:
@@ -4688,6 +5235,8 @@ bool privateTransientBuffer(const std::size_t index) {
     case kCCDEventRodWitnessesB:
     case kProjectedRodColliders:
     case kFutureProjectedRodColliders:
+    case kPolicyScratchA:
+    case kPolicyScratchB:
         return true;
     default:
         return false;
@@ -4695,16 +5244,73 @@ bool privateTransientBuffer(const std::size_t index) {
 }
 
 bool privatePersistentBuffer(const std::size_t index) {
-    return
-        index == kConvexCaches ||
-        index == kRodWitnessesA ||
-        index == kRodWitnessesB;
+    switch (index) {
+    case kStateQA:
+    case kStateVA:
+    case kStateQB:
+    case kStateVB:
+    case kResetQ:
+    case kResetV:
+    case kResetSceneBodies:
+    case kSceneBodiesA:
+    case kSceneBodiesB:
+    case kManifoldHeadersA:
+    case kManifoldPointsA:
+    case kManifoldCountsA:
+    case kManifoldHeadersB:
+    case kManifoldPointsB:
+    case kManifoldCountsB:
+    case kConvexCaches:
+    case kResetRodNodes:
+    case kResetRodEdges:
+    case kRodNodesA:
+    case kRodEdgesA:
+    case kRodNodesB:
+    case kRodEdgesB:
+    case kRodWitnessesA:
+    case kRodWitnessesB:
+    case kTaskState:
+    case kTaskActionHistory:
+    case kTaskActorHistory:
+    case kTaskCleanHistory:
+    case kTaskPreviousJointVelocity:
+    case kTaskEncoderBias:
+    case kTaskBodyParameters:
+    case kTaskControllerParameters:
+    case kTaskContactCompact:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool privatePersistentInputBuffer(const std::size_t index) {
+    switch (index) {
+    case kStateQA:
+    case kStateVA:
+    case kResetQ:
+    case kResetV:
+    case kResetSceneBodies:
+    case kSceneBodiesA:
+    case kResetRodNodes:
+    case kResetRodEdges:
+    case kRodNodesA:
+    case kRodEdgesA:
+        return true;
+    default:
+        return false;
+    }
 }
 
 bool privateImmutableBuffer(const std::size_t index) {
     return
         (index >= kArticulations && index <= kBodies) ||
         index == kActuatorProfiles ||
+        index == kTaskDefaultQ ||
+        (index >= kTaskProgramHeader &&
+         index <= kTaskProgramArena) ||
+        (index >= kPolicyProgramHeader &&
+         index <= kPolicyProgramArena) ||
         index == kShapes ||
         index == kMaterials ||
         index == kSceneBodyIndices ||
@@ -4960,11 +5566,18 @@ MetalWorldDiagnostics ensureBufferArena(
             std::move(privateHeapFailure)
         );
     }
-    if (rebuildImmutableHeap) {
+    if (rebuildImmutableHeap || rebuildPersistentHeap) {
         for (std::size_t index = 0u;
              index < kRawBufferCount;
              ++index) {
-            if (!privateImmutableBuffer(index)) {
+            const bool needsImmutableUpload =
+                rebuildImmutableHeap &&
+                privateImmutableBuffer(index);
+            const bool needsPersistentUpload =
+                rebuildPersistentHeap &&
+                privatePersistentInputBuffer(index);
+            if (!needsImmutableUpload &&
+                !needsPersistentUpload) {
                 continue;
             }
             uploadReplacements[index] = [context.device
@@ -5028,6 +5641,7 @@ MetalWorldDiagnostics ensureBufferArena(
         context.transientHeap = replacementTransientHeap;
     }
     bool immutableBufferReplaced = false;
+    bool persistentStateBufferReplaced = false;
     for (std::size_t index = 0u;
          index < kRawBufferCount;
          ++index) {
@@ -5057,8 +5671,22 @@ MetalWorldDiagnostics ensureBufferArena(
             index == kCandidateConvexCaches ||
             (index >= kGeometryHeaders &&
              index <= kMeshTriangles);
+        persistentStateBufferReplaced =
+            persistentStateBufferReplaced ||
+            privatePersistentBuffer(index);
     }
-    std::size_t retainedBytes = projectedBytes;
+    std::size_t retainedBytes = 0u;
+    if (!checkedAdd(
+            projectedBytes,
+            context.readbackBytes,
+            retainedBytes
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::arithmeticOverflow,
+            "MetalWorld arena plus readback byte-count overflow"
+        );
+    }
     if (usePrivateHeap) {
         for (std::size_t index = 0u;
              index < kRawBufferCount;
@@ -5073,7 +5701,8 @@ MetalWorldDiagnostics ensureBufferArena(
                 context.uploadCapacities[index] =
                     proposed[index];
             }
-            if (privateImmutableBuffer(index) &&
+            if ((privateImmutableBuffer(index) ||
+                 privatePersistentInputBuffer(index)) &&
                 !checkedAdd(
                     retainedBytes,
                     proposed[index],
@@ -5089,6 +5718,11 @@ MetalWorldDiagnostics ensureBufferArena(
     }
     if (immutableBufferReplaced) {
         context.boundModelFingerprint = 0u;
+        context.boundTaskFingerprint = 0u;
+        context.boundPolicyFingerprint = 0u;
+    }
+    if (persistentStateBufferReplaced) {
+        ++context.stateArenaGeneration;
     }
     if (recommendedWorkingSet != 0u &&
         static_cast<std::uint64_t>(retainedBytes) >
@@ -5106,6 +5740,149 @@ MetalWorldDiagnostics ensureBufferArena(
         context.immutableHeap != nil &&
         context.persistentHeap != nil &&
         context.transientHeap != nil;
+    return diagnostics;
+}
+
+MetalWorldDiagnostics ensureReadbackBuffer(
+    detail::MetalWorldContextState& context,
+    const std::size_t index,
+    const BufferRequirement& requirement,
+    MetalWorldDiagnostics diagnostics
+) {
+    if (context.buffers[index].storageMode !=
+            MTLStorageModePrivate ||
+        requirement.logicalBytes == 0u ||
+        context.readbackCapacities[index] >=
+            requirement.logicalBytes) {
+        return diagnostics;
+    }
+    const std::size_t maximumBufferLength =
+        static_cast<std::size_t>(
+            context.device.maxBufferLength
+        );
+    const std::size_t proposed = growthCapacity(
+        context.readbackCapacities[index],
+        requirement.logicalBytes,
+        maximumBufferLength
+    );
+    if (proposed > maximumBufferLength) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalBufferFailure,
+            std::string(requirement.label) +
+                " readback exceeds device.maxBufferLength"
+        );
+    }
+    const std::size_t oldCapacity =
+        context.readbackCapacities[index];
+    const std::size_t additional = proposed - oldCapacity;
+    if (context.stats.retainedBufferBytes >
+            std::numeric_limits<std::size_t>::max() -
+                additional) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::arithmeticOverflow,
+            "MetalWorld readback arena byte-count overflow"
+        );
+    }
+    const std::size_t retained =
+        context.stats.retainedBufferBytes + additional;
+    const std::uint64_t recommendedWorkingSet =
+        context.device.recommendedMaxWorkingSetSize;
+    if (recommendedWorkingSet != 0u &&
+        static_cast<std::uint64_t>(retained) >
+            recommendedWorkingSet) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalBufferFailure,
+            "MetalWorld arena plus requested readback exceeds "
+            "device.recommendedMaxWorkingSetSize"
+        );
+    }
+    id<MTLBuffer> replacement = [context.device
+        newBufferWithLength:static_cast<NSUInteger>(proposed)
+                   options:MTLResourceStorageModeShared];
+    if (replacement == nil ||
+        replacement.contents == nullptr ||
+        replacement.length < proposed) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalBufferFailure,
+            std::string(requirement.label) +
+                " readback allocation failed"
+        );
+    }
+    replacement.label = [
+        bufferLabel(index)
+        stringByAppendingString:@" readback"
+    ];
+    if (oldCapacity != 0u) {
+        ++context.stats.bufferGrowthCount;
+    }
+    ++context.stats.bufferAllocationCount;
+    context.readbackBuffers[index] = replacement;
+    context.readbackCapacities[index] = proposed;
+    context.readbackBytes =
+        context.readbackBytes - oldCapacity + proposed;
+    context.stats.retainedBufferBytes = retained;
+    return diagnostics;
+}
+
+MetalWorldDiagnostics encodeReadbacks(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const RequiredBuffers& requirements,
+    const std::span<const std::size_t> indices,
+    MetalWorldDiagnostics diagnostics
+) {
+    bool needsReadback = false;
+    for (const std::size_t index : indices) {
+        if (context.buffers[index].storageMode !=
+            MTLStorageModePrivate) {
+            continue;
+        }
+        diagnostics = ensureReadbackBuffer(
+            context,
+            index,
+            requirements.entries[index],
+            std::move(diagnostics)
+        );
+        if (!diagnostics.succeeded()) {
+            return diagnostics;
+        }
+        needsReadback =
+            needsReadback ||
+            requirements.entries[index].logicalBytes != 0u;
+    }
+    if (!needsReadback) {
+        return diagnostics;
+    }
+    id<MTLBlitCommandEncoder> encoder =
+        [commandBuffer blitCommandEncoder];
+    if (encoder == nil) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalCommandFailure,
+            "failed to create MetalWorld readback encoder"
+        );
+    }
+    encoder.label = @"MetalWorld explicit state readback";
+    for (const std::size_t index : indices) {
+        const std::size_t bytes =
+            requirements.entries[index].logicalBytes;
+        if (bytes == 0u ||
+            context.buffers[index].storageMode !=
+                MTLStorageModePrivate) {
+            continue;
+        }
+        [encoder
+            copyFromBuffer:context.buffers[index]
+              sourceOffset:0u
+                  toBuffer:context.readbackBuffers[index]
+         destinationOffset:0u
+                      size:static_cast<NSUInteger>(bytes)];
+    }
+    [encoder endEncoding];
     return diagnostics;
 }
 
@@ -5136,7 +5913,7 @@ void copyToBuffer(
     );
 }
 
-void stageImmutableBuffer(
+void stagePrivateBuffer(
     detail::MetalWorldContextState& context,
     const std::size_t index,
     const void* source,
@@ -5155,7 +5932,7 @@ void stageImmutableBuffer(
         blit == nil) {
         throw std::runtime_error(
             std::string(
-                "immutable private upload is not prepared for "
+                "private upload staging is not prepared for "
             ) + requirement.label
         );
     }
@@ -5201,7 +5978,8 @@ void uploadBatch(
     const MetalWorldBatch& batch,
     const MetalWorldStepConfig& config,
     const MetalWorldLayout& layout,
-    const RequiredBuffers& requirements
+    const RequiredBuffers& requirements,
+    const bool uploadInitialState
 ) {
     const EngineModel& model = world.model();
     MRWorldGPU runtimeWorld = model.world;
@@ -5244,7 +6022,7 @@ void uploadBatch(
              ++offset) {
             const std::size_t index =
                 kArticulations + offset;
-            stageImmutableBuffer(
+            stagePrivateBuffer(
                 context,
                 index,
                 sources[offset],
@@ -5255,11 +6033,18 @@ void uploadBatch(
         const std::vector<MRActuatorProfileGPU>
             actuatorProfiles =
                 executionActuatorProfiles(model);
-        stageImmutableBuffer(
+        stagePrivateBuffer(
             context,
             kActuatorProfiles,
             actuatorProfiles.data(),
             requirements.entries[kActuatorProfiles],
+            immutableUpload
+        );
+        stagePrivateBuffer(
+            context,
+            kTaskDefaultQ,
+            model.defaultQ.data(),
+            requirements.entries[kTaskDefaultQ],
             immutableUpload
         );
         MRShapeGPU emptyShape{};
@@ -5476,7 +6261,7 @@ void uploadBatch(
                 },
             }};
         for (const auto& [index, source] : contactSources) {
-            stageImmutableBuffer(
+            stagePrivateBuffer(
                 context,
                 index,
                 source,
@@ -5638,7 +6423,7 @@ void uploadBatch(
             },
         }};
         for (const auto& [index, source] : rodSources) {
-            stageImmutableBuffer(
+            stagePrivateBuffer(
                 context,
                 index,
                 source,
@@ -5655,6 +6440,85 @@ void uploadBatch(
             model.articulations.end()
         );
         ++context.stats.modelUploadCount;
+    }
+
+    const bool nativeTask = config.taskProgram.valid();
+    const bool nativePolicy = config.policyProgram.valid();
+    if (nativeTask &&
+        context.boundTaskFingerprint !=
+            config.taskProgram.fingerprint()) {
+        id<MTLBlitCommandEncoder> taskUpload = nil;
+        if (context.config.preferPrivateHeaps) {
+            taskUpload = [commandBuffer blitCommandEncoder];
+            if (taskUpload == nil) {
+                throw std::runtime_error(
+                    "failed to create compiled-task upload encoder"
+                );
+            }
+            taskUpload.label =
+                @"MetalWorld immutable compiled task upload";
+        }
+        const auto stageTask =
+            [&](const std::size_t index, const void* source) {
+                stagePrivateBuffer(
+                    context,
+                    index,
+                    source,
+                    requirements.entries[index],
+                    taskUpload
+                );
+            };
+        stageTask(
+            kTaskProgramHeader,
+            &config.taskProgram.header()
+        );
+        stageTask(
+            kTaskProgramArena,
+            config.taskProgram.arena().data()
+        );
+        if (taskUpload != nil) {
+            [taskUpload endEncoding];
+        }
+        context.boundTaskFingerprint =
+            config.taskProgram.fingerprint();
+    }
+    if (nativePolicy &&
+        context.boundPolicyFingerprint !=
+            config.policyProgram.fingerprint()) {
+        id<MTLBlitCommandEncoder> policyUpload = nil;
+        if (context.config.preferPrivateHeaps) {
+            policyUpload = [commandBuffer blitCommandEncoder];
+            if (policyUpload == nil) {
+                throw std::runtime_error(
+                    "failed to create compiled-policy upload encoder"
+                );
+            }
+            policyUpload.label =
+                @"MetalWorld immutable compiled policy upload";
+        }
+        const auto stagePolicy =
+            [&](const std::size_t index, const void* source) {
+                stagePrivateBuffer(
+                    context,
+                    index,
+                    source,
+                    requirements.entries[index],
+                    policyUpload
+                );
+            };
+        stagePolicy(
+            kPolicyProgramHeader,
+            &config.policyProgram.header()
+        );
+        stagePolicy(
+            kPolicyProgramArena,
+            config.policyProgram.arena().data()
+        );
+        if (policyUpload != nil) {
+            [policyUpload endEncoding];
+        }
+        context.boundPolicyFingerprint =
+            config.policyProgram.fingerprint();
     }
 
     copyToBuffer(
@@ -5835,36 +6699,62 @@ void uploadBatch(
               ),
         requirements.entries[kRodCollisionDispatches]
     );
-    copyToBuffer(
-        context.buffers[kStateQA],
-        batch.initialQ.data(),
-        requirements.entries[kStateQA]
-    );
-    copyToBuffer(
-        context.buffers[kStateVA],
-        batch.initialV.data(),
-        requirements.entries[kStateVA]
-    );
-    copyToBuffer(
-        context.buffers[kEffortTrajectory],
-        batch.efforts.data(),
-        requirements.entries[kEffortTrajectory]
-    );
+    id<MTLBlitCommandEncoder> stateUpload = nil;
+    if (uploadInitialState &&
+        context.config.preferPrivateHeaps) {
+        stateUpload = [commandBuffer blitCommandEncoder];
+        if (stateUpload == nil) {
+            throw std::runtime_error(
+                "failed to create resident-state upload encoder"
+            );
+        }
+        stateUpload.label =
+            @"MetalWorld initialize resident state";
+    }
+    if (uploadInitialState) {
+        stagePrivateBuffer(
+            context,
+            kStateQA,
+            batch.initialQ.data(),
+            requirements.entries[kStateQA],
+            stateUpload
+        );
+        stagePrivateBuffer(
+            context,
+            kStateVA,
+            batch.initialV.data(),
+            requirements.entries[kStateVA],
+            stateUpload
+        );
+    }
+    if (!nativeTask) {
+        copyToBuffer(
+            context.buffers[kEffortTrajectory],
+            batch.efforts.data(),
+            requirements.entries[kEffortTrajectory]
+        );
+    }
     copyToBuffer(
         context.buffers[kResetMasks],
         batch.resetMasks.data(),
         requirements.entries[kResetMasks]
     );
-    copyToBuffer(
-        context.buffers[kResetQ],
-        batch.resetQ.data(),
-        requirements.entries[kResetQ]
-    );
-    copyToBuffer(
-        context.buffers[kResetV],
-        batch.resetV.data(),
-        requirements.entries[kResetV]
-    );
+    if (uploadInitialState && !nativeTask) {
+        stagePrivateBuffer(
+            context,
+            kResetQ,
+            batch.resetQ.data(),
+            requirements.entries[kResetQ],
+            stateUpload
+        );
+        stagePrivateBuffer(
+            context,
+            kResetV,
+            batch.resetV.data(),
+            requirements.entries[kResetV],
+            stateUpload
+        );
+    }
     copyToBuffer(
         context.buffers[kWorldDispatch],
         &layout.dispatch,
@@ -5894,26 +6784,92 @@ void uploadBatch(
         requirements.entries[kOperatorFactorDispatch]
     );
     context.boundFactorDispatches = layout.factorDispatches;
-    copyToBuffer(
-        context.buffers[kInitialSceneBodies],
-        batch.initialSceneBodies.data(),
-        requirements.entries[kInitialSceneBodies]
-    );
-    copyToBuffer(
-        context.buffers[kSceneBodiesA],
-        batch.initialSceneBodies.data(),
-        requirements.entries[kSceneBodiesA]
-    );
-    copyToBuffer(
-        context.buffers[kResetSceneBodies],
-        batch.resetSceneBodies.data(),
-        requirements.entries[kResetSceneBodies]
-    );
+    if (uploadInitialState) {
+        copyToBuffer(
+            context.buffers[kInitialSceneBodies],
+            batch.initialSceneBodies.data(),
+            requirements.entries[kInitialSceneBodies]
+        );
+        stagePrivateBuffer(
+            context,
+            kSceneBodiesA,
+            batch.initialSceneBodies.data(),
+            requirements.entries[kSceneBodiesA],
+            stateUpload
+        );
+        if (!nativeTask) {
+            stagePrivateBuffer(
+                context,
+                kResetSceneBodies,
+                batch.resetSceneBodies.data(),
+                requirements.entries[kResetSceneBodies],
+                stateUpload
+            );
+        }
+    }
     copyToBuffer(
         context.buffers[kKinematicTargets],
         batch.kinematicTargets.data(),
         requirements.entries[kKinematicTargets]
     );
+    if (nativeTask) {
+        const TaskProgramLayout& taskLayout =
+            config.taskProgram.layout();
+        const std::size_t actionStepStride =
+            batch.environmentCount * taskLayout.actionCount;
+        MRTaskDispatchGPU task{};
+        task.counts = {
+            static_cast<mr_u32>(batch.environmentCount),
+            static_cast<mr_u32>(batch.controlStepCount),
+            layout.dispatch.nq,
+            layout.dispatch.nv,
+        };
+        task.strides = {
+            static_cast<mr_u32>(actionStepStride),
+            layout.contactDispatch.bodyStateStride,
+            layout.contactDispatch.shapeCount,
+            layout.contactDispatch.sceneBodyStride,
+        };
+        task.outputs = {
+            static_cast<mr_u32>(
+                batch.environmentCount *
+                taskLayout.actorObservationSize
+            ),
+            static_cast<mr_u32>(
+                batch.environmentCount *
+                taskLayout.criticObservationSize
+            ),
+            static_cast<mr_u32>(batch.environmentCount),
+            static_cast<mr_u32>(batch.environmentCount),
+        };
+        task.timing = {
+            config.timestepSeconds,
+            config.timestepSeconds /
+                static_cast<float>(config.physicsSubsteps),
+            0.0f,
+            0.0f,
+        };
+        task.seed = config.taskSeed;
+        task.policyRevision =
+            nativePolicy
+            ? config.policyProgram.revision()
+            : batch.policyRevision;
+        task.taskFingerprint =
+            config.taskProgram.fingerprint();
+        task.worldFingerprint = world.fingerprint();
+        copyToBuffer(
+            context.buffers[kTaskDispatch],
+            &task,
+            requirements.entries[kTaskDispatch]
+        );
+        if (!nativePolicy) {
+            copyToBuffer(
+                context.buffers[kTaskActions],
+                batch.actions.data(),
+                requirements.entries[kTaskActions]
+            );
+        }
+    }
 
     const auto expandRodNodes =
         [&](const std::span<const MRRodNodeStateGPU> authored) {
@@ -5960,73 +6916,90 @@ void uploadBatch(
             return expanded;
         };
     const std::vector<MRRodNodeStateGPU> initialRodNodes =
-        expandRodNodes(batch.initialRodNodes);
+        uploadInitialState
+        ? expandRodNodes(batch.initialRodNodes)
+        : std::vector<MRRodNodeStateGPU>{};
     const std::vector<MRRodEdgeStateGPU> initialRodEdges =
-        expandRodEdges(batch.initialRodEdges);
+        uploadInitialState
+        ? expandRodEdges(batch.initialRodEdges)
+        : std::vector<MRRodEdgeStateGPU>{};
     const std::vector<MRRodNodeStateGPU> resetRodNodes =
-        batch.resetMasks.empty()
-        ? std::vector<MRRodNodeStateGPU>{}
-        : expandRodNodes(batch.resetRodNodes);
+        uploadInitialState && !batch.resetMasks.empty()
+        ? expandRodNodes(batch.resetRodNodes)
+        : std::vector<MRRodNodeStateGPU>{};
     const std::vector<MRRodEdgeStateGPU> resetRodEdges =
-        batch.resetMasks.empty()
-        ? std::vector<MRRodEdgeStateGPU>{}
-        : expandRodEdges(batch.resetRodEdges);
+        uploadInitialState && !batch.resetMasks.empty()
+        ? expandRodEdges(batch.resetRodEdges)
+        : std::vector<MRRodEdgeStateGPU>{};
     MRRodNodeStateGPU emptyRodNode{};
     MRRodEdgeStateGPU emptyRodEdge{};
-    copyToBuffer(
-        context.buffers[kInitialRodNodes],
-        initialRodNodes.empty()
-            ? static_cast<const void*>(&emptyRodNode)
-            : static_cast<const void*>(
-                  initialRodNodes.data()
-              ),
-        requirements.entries[kInitialRodNodes]
-    );
-    copyToBuffer(
-        context.buffers[kInitialRodEdges],
-        initialRodEdges.empty()
-            ? static_cast<const void*>(&emptyRodEdge)
-            : static_cast<const void*>(
-                  initialRodEdges.data()
-              ),
-        requirements.entries[kInitialRodEdges]
-    );
-    copyToBuffer(
-        context.buffers[kRodNodesA],
-        initialRodNodes.empty()
-            ? static_cast<const void*>(&emptyRodNode)
-            : static_cast<const void*>(
-                  initialRodNodes.data()
-              ),
-        requirements.entries[kRodNodesA]
-    );
-    copyToBuffer(
-        context.buffers[kRodEdgesA],
-        initialRodEdges.empty()
-            ? static_cast<const void*>(&emptyRodEdge)
-            : static_cast<const void*>(
-                  initialRodEdges.data()
-              ),
-        requirements.entries[kRodEdgesA]
-    );
-    copyToBuffer(
-        context.buffers[kResetRodNodes],
-        resetRodNodes.empty()
-            ? static_cast<const void*>(&emptyRodNode)
-            : static_cast<const void*>(
-                  resetRodNodes.data()
-              ),
-        requirements.entries[kResetRodNodes]
-    );
-    copyToBuffer(
-        context.buffers[kResetRodEdges],
-        resetRodEdges.empty()
-            ? static_cast<const void*>(&emptyRodEdge)
-            : static_cast<const void*>(
-                  resetRodEdges.data()
-              ),
-        requirements.entries[kResetRodEdges]
-    );
+    if (uploadInitialState) {
+        copyToBuffer(
+            context.buffers[kInitialRodNodes],
+            initialRodNodes.empty()
+                ? static_cast<const void*>(&emptyRodNode)
+                : static_cast<const void*>(
+                      initialRodNodes.data()
+                  ),
+            requirements.entries[kInitialRodNodes]
+        );
+        copyToBuffer(
+            context.buffers[kInitialRodEdges],
+            initialRodEdges.empty()
+                ? static_cast<const void*>(&emptyRodEdge)
+                : static_cast<const void*>(
+                      initialRodEdges.data()
+                  ),
+            requirements.entries[kInitialRodEdges]
+        );
+        stagePrivateBuffer(
+            context,
+            kRodNodesA,
+            initialRodNodes.empty()
+                ? static_cast<const void*>(&emptyRodNode)
+                : static_cast<const void*>(
+                      initialRodNodes.data()
+                  ),
+            requirements.entries[kRodNodesA],
+            stateUpload
+        );
+        stagePrivateBuffer(
+            context,
+            kRodEdgesA,
+            initialRodEdges.empty()
+                ? static_cast<const void*>(&emptyRodEdge)
+                : static_cast<const void*>(
+                      initialRodEdges.data()
+                  ),
+            requirements.entries[kRodEdgesA],
+            stateUpload
+        );
+        stagePrivateBuffer(
+            context,
+            kResetRodNodes,
+            resetRodNodes.empty()
+                ? static_cast<const void*>(&emptyRodNode)
+                : static_cast<const void*>(
+                      resetRodNodes.data()
+                  ),
+            requirements.entries[kResetRodNodes],
+            stateUpload
+        );
+        stagePrivateBuffer(
+            context,
+            kResetRodEdges,
+            resetRodEdges.empty()
+                ? static_cast<const void*>(&emptyRodEdge)
+                : static_cast<const void*>(
+                      resetRodEdges.data()
+                  ),
+            requirements.entries[kResetRodEdges],
+            stateUpload
+        );
+    }
+    if (stateUpload != nil) {
+        [stateUpload endEncoding];
+    }
 
     const std::array scratch{
         kWorkingEffort,
@@ -6132,6 +7105,66 @@ void uploadBatch(
         context.buffers[kCheckpointV],
         requirements.entries[kCheckpointV]
     );
+}
+
+bool encodeResidentStateInitialization(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const RequiredBuffers& requirements,
+    const bool contactMode,
+    const bool hasRods,
+    const bool nativeTask
+) {
+    id<MTLBlitCommandEncoder> encoder =
+        [commandBuffer blitCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = @"MetalWorld initialize resident caches";
+    const auto clear = [&](const std::size_t index) {
+        [encoder
+            fillBuffer:context.buffers[index]
+                 range:NSMakeRange(
+                     0u,
+                     requirements.entries[index].allocationBytes
+                 )
+                 value:0u];
+    };
+    clear(kStateQB);
+    clear(kStateVB);
+    if (contactMode) {
+        clear(kSceneBodiesB);
+        clear(kManifoldHeadersA);
+        clear(kManifoldPointsA);
+        clear(kManifoldCountsA);
+        clear(kManifoldHeadersB);
+        clear(kManifoldPointsB);
+        clear(kManifoldCountsB);
+        clear(kConvexCaches);
+        clear(kCandidateConvexCaches);
+    }
+    if (hasRods) {
+        clear(kRodNodesB);
+        clear(kRodEdgesB);
+        clear(kRodWitnessesA);
+        clear(kRodWitnessesB);
+        clear(kCandidateRodWitnesses);
+        clear(kCheckpointRodWitnesses);
+        clear(kRodWitnessCounts);
+    }
+    if (nativeTask) {
+        clear(kTaskState);
+        clear(kTaskActionHistory);
+        clear(kTaskActorHistory);
+        clear(kTaskCleanHistory);
+        clear(kTaskPreviousJointVelocity);
+        clear(kTaskEncoderBias);
+        clear(kTaskBodyParameters);
+        clear(kTaskControllerParameters);
+        clear(kTaskContactCompact);
+    }
+    [encoder endEncoding];
+    return true;
 }
 
 NSUInteger worldThreadWidth(
@@ -6871,7 +7904,11 @@ bool encodeArticulatedOperator(
         return false;
     }
     encoder.label = label;
-    [encoder setComputePipelineState:context.operatorPipeline];
+    id<MTLComputePipelineState> pipeline =
+        context.useTaskBodyParameters
+        ? context.parameterizedOperatorPipeline
+        : context.operatorPipeline;
+    [encoder setComputePipelineState:pipeline];
     const std::array<std::size_t, 15u> buffers{{
         kWorld,
         kArticulations,
@@ -6894,6 +7931,15 @@ bool encodeArticulatedOperator(
         1u,
         1u
     );
+    if (context.useTaskBodyParameters) {
+        [encoder setBuffer:context.buffers[kTaskBodyParameters]
+                     offset:0u
+                    atIndex:15u];
+        [encoder setBuffer:
+                     context.buffers[kTaskControllerParameters]
+                     offset:0u
+                    atIndex:16u];
+    }
 
     // Kinematics is a composed world operation: encode one dispatch for every
     // cooked articulation, writing into disjoint slices of a world-global
@@ -7193,6 +8239,9 @@ bool encodePrepare(
     [encoder setBuffer:context.buffers[kActuatorProfiles]
                  offset:0u
                 atIndex:15u];
+    [encoder setBuffer:context.buffers[kTaskControllerParameters]
+                 offset:0u
+                atIndex:16u];
     dispatchWorldThreads(
         encoder,
         context.preparePipeline,
@@ -7200,6 +8249,228 @@ bool encodePrepare(
     );
     [encoder endEncoding];
     return true;
+}
+
+bool encodeTaskObserve(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t sourceQ,
+    const std::size_t sourceV,
+    const std::size_t sourceScene,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskObservePipeline,
+        @"compiled task reset/observation",
+        {
+            {0u, kTaskDispatch},
+            {1u, kTaskProgramHeader},
+            {2u, kTaskProgramArena},
+            {3u, kWorldDispatch},
+            {6u, kResetMasks},
+            {7u, kResetQ},
+            {8u, kResetV},
+            {9u, kResetSceneBodies},
+            {10u, sourceQ},
+            {11u, sourceV},
+            {12u, kInitialSceneBodies},
+            {15u, sourceScene},
+            {16u, kTaskDefaultQ},
+            {17u, kTaskState},
+            {18u, kTaskActionHistory},
+            {19u, kTaskActorHistory},
+            {20u, kTaskCleanHistory},
+            {21u, kTaskPreviousJointVelocity},
+            {22u, kTaskEncoderBias},
+            {23u, kTaskBodyParameters},
+            {24u, kTaskControllerParameters},
+            {25u, kTaskActorObservations},
+            {26u, kTaskCriticObservations},
+            {27u, kTaskContactCompact},
+            {28u, kShapes},
+            {29u, kGeometryHeaders},
+            {30u, kGeometryVertices},
+        },
+        &pass,
+        4u,
+        environmentCount
+    );
+}
+
+bool encodePolicyInference(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const CompiledPolicyProgram& program,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount
+) {
+    const auto& header = program.header();
+    const auto layers = program.layers();
+    for (std::size_t layerIndex = 0u;
+         layerIndex < layers.size();
+         ++layerIndex) {
+        const MRPolicyDenseLayerGPU& layer =
+            layers[layerIndex];
+        const bool first = layerIndex == 0u;
+        const bool final = layerIndex + 1u == layers.size();
+        const std::size_t source =
+            first
+            ? kTaskActorObservations
+            : ((layerIndex - 1u) & 1u) == 0u
+            ? kPolicyScratchA
+            : kPolicyScratchB;
+        const std::size_t destination =
+            final
+            ? kTaskActions
+            : (layerIndex & 1u) == 0u
+            ? kPolicyScratchA
+            : kPolicyScratchB;
+        MRPolicyDenseDispatchGPU dispatch{};
+        dispatch.counts = {
+            static_cast<mr_u32>(environmentCount),
+            layer.counts.x,
+            layer.counts.y,
+            layer.counts.z,
+        };
+        dispatch.strides = {
+            layer.counts.x,
+            layer.counts.y,
+            first
+                ? static_cast<mr_u32>(
+                      pass.controlStep *
+                      environmentCount *
+                      header.counts.y
+                  )
+                : 0u,
+            final
+                ? static_cast<mr_u32>(
+                      pass.controlStep *
+                      environmentCount *
+                      header.counts.z
+                  )
+                : 0u,
+        };
+        dispatch.offsets0 = {
+            layer.offsets.x,
+            layer.offsets.y,
+            header.offsets0.y,
+            header.offsets0.z,
+        };
+        dispatch.offsets1 = {
+            header.offsets0.w,
+            header.offsets1.x,
+            layer.counts.w,
+            0u,
+        };
+        dispatch.limits = header.limits;
+        dispatch.policyFingerprint =
+            program.fingerprint();
+        dispatch.taskFingerprint =
+            program.taskFingerprint();
+        if (!encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.policyDensePipeline,
+                @"compiled policy dense inference",
+                {
+                    {0u, kPolicyProgramHeader},
+                    {1u, kPolicyProgramArena},
+                    {3u, source},
+                    {4u, destination},
+                },
+                nullptr,
+                0u,
+                environmentCount * layer.counts.y,
+                false,
+                0u,
+                &dispatch,
+                sizeof(dispatch),
+                2u
+            )) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool encodeTaskApplyActions(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskApplyPipeline,
+        @"compiled task action application",
+        {
+            {0u, kTaskDispatch},
+            {1u, kTaskProgramHeader},
+            {2u, kTaskProgramArena},
+            {3u, kWorldDispatch},
+            {5u, kTaskActions},
+            {6u, kEffortTrajectory},
+            {7u, kTaskDefaultQ},
+            {8u, kTaskState},
+            {9u, kTaskActionHistory},
+        },
+        &pass,
+        4u,
+        environmentCount
+    );
+}
+
+bool encodeTaskComplete(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t qState,
+    const std::size_t vState,
+    const std::size_t sceneState,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskCompletePipeline,
+        @"compiled task contacts/reward/termination",
+        {
+            {0u, kTaskDispatch},
+            {1u, kTaskProgramHeader},
+            {2u, kTaskProgramArena},
+            {3u, kWorldDispatch},
+            {4u, kContactDispatch},
+            {6u, qState},
+            {7u, vState},
+            {8u, kCandidateBodies},
+            {9u, kContacts},
+            {10u, kContactStatuses},
+            {11u, kEnvironmentStatuses},
+            {12u, sceneState},
+            {13u, kDofs},
+            {14u, kTaskDefaultQ},
+            {15u, kTaskState},
+            {16u, kTaskActionHistory},
+            {17u, kTaskActorHistory},
+            {18u, kTaskCleanHistory},
+            {19u, kTaskPreviousJointVelocity},
+            {20u, kTaskEncoderBias},
+            {21u, kTaskBodyParameters},
+            {22u, kTaskControllerParameters},
+            {23u, kTaskContactCompact},
+            {24u, kTaskTransitions},
+            {25u, kShapes},
+            {26u, kGeometryHeaders},
+            {27u, kGeometryVertices},
+        },
+        &pass,
+        5u,
+        environmentCount
+    );
 }
 
 bool encodeRodControlPrepare(
@@ -7731,6 +9002,15 @@ bool encodeABA(
     [encoder setBuffer:context.buffers[kABAStatuses]
                  offset:0u
                 atIndex:13u];
+    if (context.useTaskBodyParameters) {
+        [encoder setBuffer:context.buffers[kTaskBodyParameters]
+                     offset:0u
+                    atIndex:14u];
+        [encoder setBuffer:
+                     context.buffers[kTaskControllerParameters]
+                     offset:0u
+                    atIndex:15u];
+    }
     [encoder
         dispatchThreadgroups:MTLSizeMake(
             static_cast<NSUInteger>(environmentCount),
@@ -7919,7 +9199,6 @@ bool encodeWave32ContactSolve(
                 {6u, kTileConstraintIndices},
                 {7u, kContactStatuses},
                 {8u, kCompactionFlags},
-                {9u, kWave32IslandStatuses},
             },
             nullptr,
             0u,
@@ -8645,17 +9924,16 @@ bool encodeParallelManifoldCompile(
             {
                 {0u, kContactDispatch},
                 {1u, kEligiblePairs},
-                {2u, kPairRawCounts},
-                {3u, kPairRawContactStaging},
-                {4u, kPairManifoldHeaders},
-                {5u, kPairManifoldPoints},
-                {6u, kManifoldIRScatter},
-                {7u, kContactStatuses},
-                {8u, kCandidatePairs},
-                {9u, kRawContacts},
-                {10u, kRawPairIndices},
-                {11u, kCandidateManifoldHeaders},
-                {12u, kCandidateManifoldPoints},
+                {2u, kPairRawContactStaging},
+                {3u, kPairManifoldHeaders},
+                {4u, kPairManifoldPoints},
+                {5u, kManifoldIRScatter},
+                {6u, kContactStatuses},
+                {7u, kCandidatePairs},
+                {8u, kRawContacts},
+                {9u, kRawPairIndices},
+                {10u, kCandidateManifoldHeaders},
+                {11u, kCandidateManifoldPoints},
             },
             nullptr,
             0u,
@@ -8686,10 +9964,10 @@ bool encodeParallelManifoldCompile(
                 {16u, kIRCones},
                 {17u, kPointQueries},
                 {18u, kBodyDynamicNodes},
-                // Standalone worlds use canonical material friction. The
-                // body-parameter flag is unset, so this bound immutable
-                // buffer is never indexed as an environment-major table.
-                {19u, kMaterials},
+                {19u,
+                 context.useTaskBodyParameters
+                     ? kTaskBodyParameters
+                     : kMaterials},
             },
             nullptr,
             0u,
@@ -10630,6 +11908,9 @@ bool zeroRange(
 MetalWorldDiagnostics validateAndPublish(
     MetalWorldResult&& staged,
     MetalWorldDiagnostics diagnostics,
+    const bool publishFinalState,
+    const bool publishStateTrajectory,
+    const std::uint64_t expectedPolicyRevision,
     MetalWorldResult& result
 ) {
     const MRMetalWorldDispatchGPU& dispatch =
@@ -10984,7 +12265,8 @@ MetalWorldDiagnostics validateAndPublish(
             const std::size_t accelerationBase =
                 controlStep * dispatch.accelerationStepStride +
                 environment * dispatch.nv;
-            if (!finiteRange(
+            if (publishStateTrajectory &&
+                !finiteRange(
                     staged.observations,
                     observationBase,
                     observationWidth
@@ -11018,11 +12300,12 @@ MetalWorldDiagnostics validateAndPublish(
                      )) ||
                     status.failingSubstep != MR_INVALID_INDEX ||
                     status.failingIndex != MR_INVALID_INDEX ||
-                    !finiteRange(
+                    (publishStateTrajectory &&
+                     !finiteRange(
                         staged.accelerations,
                         accelerationBase,
                         dispatch.nv
-                    )) {
+                    ))) {
                     return reject(
                         std::move(diagnostics),
                         MetalWorldHostStatus::internalFailure,
@@ -11040,11 +12323,12 @@ MetalWorldDiagnostics validateAndPublish(
                      contactStatus->code == MR_STEP_SUCCESS) ||
                     status.failingSubstep >=
                         dispatch.physicsSubsteps ||
-                    !zeroRange(
+                    (publishStateTrajectory &&
+                     !zeroRange(
                         staged.accelerations,
                         accelerationBase,
                         dispatch.nv
-                    )) {
+                    ))) {
                     return reject(
                         std::move(diagnostics),
                         MetalWorldHostStatus::internalFailure,
@@ -11091,15 +12375,17 @@ MetalWorldDiagnostics validateAndPublish(
                 );
     }
 
-    if (!finiteFloats(staged.finalQ) ||
-        !finiteFloats(staged.finalV)) {
+    if (publishFinalState &&
+        (!finiteFloats(staged.finalQ) ||
+         !finiteFloats(staged.finalV))) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::internalFailure,
             "GPU published a non-finite final MetalWorld state"
         );
     }
-    if (contactMode &&
+    if (publishFinalState &&
+        contactMode &&
         !std::all_of(
             staged.finalSceneBodies.begin(),
             staged.finalSceneBodies.end(),
@@ -11121,31 +12407,72 @@ MetalWorldDiagnostics validateAndPublish(
             "GPU published a non-finite final scene-body state"
         );
     }
-    const std::size_t lastStep =
-        static_cast<std::size_t>(dispatch.controlStepCount) - 1u;
-    for (std::size_t environment = 0u;
-         environment < dispatch.environmentCount;
-         ++environment) {
-        const std::size_t observationBase =
-            lastStep * dispatch.observationStepStride +
-            environment * dispatch.observationEnvironmentStride;
-        const std::size_t qBase = environment * dispatch.qStride;
-        const std::size_t vBase = environment * dispatch.vStride;
-        if (std::memcmp(
-                staged.finalQ.data() + qBase,
-                staged.observations.data() + observationBase,
-                dispatch.nq * sizeof(float)
-            ) != 0 ||
-            std::memcmp(
-                staged.finalV.data() + vBase,
-                staged.observations.data() +
-                    observationBase + dispatch.nq,
-                dispatch.nv * sizeof(float)
-            ) != 0) {
+    if (publishFinalState && publishStateTrajectory) {
+        const std::size_t lastStep =
+            static_cast<std::size_t>(
+                dispatch.controlStepCount
+            ) - 1u;
+        for (std::size_t environment = 0u;
+             environment < dispatch.environmentCount;
+             ++environment) {
+            const std::size_t observationBase =
+                lastStep * dispatch.observationStepStride +
+                environment *
+                    dispatch.observationEnvironmentStride;
+            const std::size_t qBase =
+                environment * dispatch.qStride;
+            const std::size_t vBase =
+                environment * dispatch.vStride;
+            if (std::memcmp(
+                    staged.finalQ.data() + qBase,
+                    staged.observations.data() +
+                        observationBase,
+                    dispatch.nq * sizeof(float)
+                ) != 0 ||
+                std::memcmp(
+                    staged.finalV.data() + vBase,
+                    staged.observations.data() +
+                        observationBase + dispatch.nq,
+                    dispatch.nv * sizeof(float)
+                ) != 0) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::internalFailure,
+                    "final state does not match the last captured "
+                    "observation"
+                );
+            }
+        }
+    }
+    if (diagnostics.layout.actionElements != 0u) {
+        if (!finiteFloats(staged.actorObservations) ||
+            !finiteFloats(staged.criticObservations) ||
+            !std::all_of(
+                staged.transitions.begin(),
+                staged.transitions.end(),
+                [expectedPolicyRevision](
+                    const MRTaskTransitionGPU& transition
+                ) {
+                    return
+                        finite(transition.rewardAndState) &&
+                        transition.policyRevision ==
+                            expectedPolicyRevision &&
+                        transition.termination.x <= 1u &&
+                        transition.termination.y <= 1u &&
+                        transition.termination.z <= 1u &&
+                        transition.termination.w <=
+                            MR_TASK_TERMINATION_PHYSICS_ERROR &&
+                        (
+                            transition.termination.x != 0u ||
+                            transition.termination.w ==
+                                MR_TASK_TERMINATION_CONTINUING
+                        );
+                }
+            )) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldHostStatus::internalFailure,
-                "final state does not match the last captured observation"
+                "GPU published a malformed native task transition"
             );
         }
     }
@@ -11439,8 +12766,6 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         CompiledWorld staged;
         staged.model_ = model;
         staged.articulationIndex_ = articulationIndex;
-        const MRArticulationGPU& articulation =
-            staged.model_.articulations[articulationIndex];
         staged.capacityClass_ =
             std::all_of(
                 staged.model_.articulations.begin(),
@@ -11880,9 +13205,10 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             )
         );
         const std::uint32_t endpointRecords =
-            defaultConstraints > 0x7fffffffu
+            staged.capacities_.constraintBlocks >
+                    0x7fffffffu
             ? 0xffffffffu
-            : 2u * defaultConstraints;
+            : 2u * staged.capacities_.constraintBlocks;
         std::uint32_t dynamicSceneBodies = 0u;
         for (const std::uint32_t body :
              staged.sceneBodyIndices_) {
@@ -11955,7 +13281,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
         );
         staged.capacities_.islandConstraintReferences = inferred(
             requestedCapacities.islandConstraintReferences,
-            defaultConstraints
+            staged.capacities_.constraintBlocks
         );
         staged.capacities_.rodFactorBlocks =
             requestedCapacities.rodFactorBlocks;
@@ -12029,7 +13355,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
             staged.capacities_.islandNodeReferences <
                 dynamicNodeCount ||
             staged.capacities_.islandConstraintReferences <
-                defaultConstraints ||
+                staged.capacities_.constraintBlocks ||
             staged.capacities_.operatorVelocityElements <
                 qualityVelocities ||
             staged.dynamicNodes_.size() >
@@ -12976,6 +14302,34 @@ MetalWorldCompileDiagnostics compileMetalWorld(
     }
 }
 
+MetalWorldResidentState::MetalWorldResidentState() noexcept = default;
+
+MetalWorldResidentState::~MetalWorldResidentState() = default;
+
+MetalWorldResidentState::MetalWorldResidentState(
+    MetalWorldResidentState&& other
+) noexcept = default;
+
+MetalWorldResidentState& MetalWorldResidentState::operator=(
+    MetalWorldResidentState&& other
+) noexcept = default;
+
+bool MetalWorldResidentState::valid() const noexcept {
+    if (state_ == nullptr) {
+        return false;
+    }
+    try {
+        const std::lock_guard lock(state_->mutex);
+        return state_->initialized &&
+            !state_->pending &&
+            state_->context != nullptr &&
+            state_->stateArenaGeneration ==
+                state_->context->stateArenaGeneration;
+    } catch (...) {
+        return false;
+    }
+}
+
 MetalWorldSubmission::MetalWorldSubmission() noexcept = default;
 
 MetalWorldSubmission::~MetalWorldSubmission() = default;
@@ -13041,29 +14395,52 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             }
 
             staged.layout = diagnostics.layout;
-            staged.finalQ.resize(staged.layout.initialQElements);
-            staged.finalV.resize(staged.layout.initialVElements);
-            staged.observations.resize(
-                staged.layout.observationElements
-            );
-            staged.accelerations.resize(
-                staged.layout.accelerationElements
-            );
+            if (pending->publishFinalState) {
+                staged.finalQ.resize(
+                    staged.layout.initialQElements
+                );
+                staged.finalV.resize(
+                    staged.layout.initialVElements
+                );
+            }
+            if (pending->publishStateTrajectory) {
+                staged.observations.resize(
+                    staged.layout.observationElements
+                );
+                staged.accelerations.resize(
+                    staged.layout.accelerationElements
+                );
+            }
             staged.statuses.resize(
                 staged.layout.statusElements
             );
-            if (pending->hasRods) {
-                staged.finalRodNodes.resize(
-                    staged.layout.rodNodeStateElements
+            if (staged.layout.actionElements != 0u) {
+                staged.actorObservations.resize(
+                    staged.layout.actorObservationElements
                 );
-                staged.finalRodEdges.resize(
-                    staged.layout.rodEdgeStateElements
+                staged.criticObservations.resize(
+                    staged.layout.criticObservationElements
+                );
+                staged.transitions.resize(
+                    staged.layout.transitionElements
                 );
             }
+            if (pending->hasRods) {
+                if (pending->publishFinalState) {
+                    staged.finalRodNodes.resize(
+                        staged.layout.rodNodeStateElements
+                    );
+                    staged.finalRodEdges.resize(
+                        staged.layout.rodEdgeStateElements
+                    );
+                }
+            }
             if (pending->contactMode) {
-                staged.finalSceneBodies.resize(
-                    staged.layout.initialSceneBodyElements
-                );
+                if (pending->publishFinalState) {
+                    staged.finalSceneBodies.resize(
+                        staged.layout.initialSceneBodyElements
+                    );
+                }
                 staged.contactStatuses.resize(
                     staged.layout.contactStatusElements
                 );
@@ -13127,41 +14504,76 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 }
             }
             const auto& buffers = pending->context->buffers;
-            copyOutput(
-                staged.finalQ,
-                buffers[pending->finalQBuffer]
-            );
-            copyOutput(
-                staged.finalV,
-                buffers[pending->finalVBuffer]
-            );
-            copyOutput(
-                staged.observations,
-                buffers[kObservations]
-            );
-            copyOutput(
-                staged.accelerations,
-                buffers[kAccelerationTrajectory]
-            );
+            const auto stateOutputBuffer =
+                [&](const std::size_t index) -> id<MTLBuffer> {
+                    return buffers[index].storageMode ==
+                            MTLStorageModePrivate
+                        ? pending->context
+                              ->readbackBuffers[index]
+                        : buffers[index];
+                };
+            if (pending->publishFinalState) {
+                copyOutput(
+                    staged.finalQ,
+                    stateOutputBuffer(pending->finalQBuffer)
+                );
+                copyOutput(
+                    staged.finalV,
+                    stateOutputBuffer(pending->finalVBuffer)
+                );
+            }
+            if (pending->publishStateTrajectory) {
+                copyOutput(
+                    staged.observations,
+                    buffers[kObservations]
+                );
+                copyOutput(
+                    staged.accelerations,
+                    buffers[kAccelerationTrajectory]
+                );
+            }
             copyOutput(
                 staged.statuses,
                 buffers[kPublicStatuses]
             );
-            if (pending->hasRods) {
+            if (staged.layout.actionElements != 0u) {
+                copyOutput(
+                    staged.actorObservations,
+                    buffers[kTaskActorObservations]
+                );
+                copyOutput(
+                    staged.criticObservations,
+                    buffers[kTaskCriticObservations]
+                );
+                copyOutput(
+                    staged.transitions,
+                    buffers[kTaskTransitions]
+                );
+            }
+            if (pending->hasRods &&
+                pending->publishFinalState) {
                 copyOutput(
                     staged.finalRodNodes,
-                    buffers[pending->finalRodNodeBuffer]
+                    stateOutputBuffer(
+                        pending->finalRodNodeBuffer
+                    )
                 );
                 copyOutput(
                     staged.finalRodEdges,
-                    buffers[pending->finalRodEdgeBuffer]
+                    stateOutputBuffer(
+                        pending->finalRodEdgeBuffer
+                    )
                 );
             }
             if (pending->contactMode) {
-                copyOutput(
-                    staged.finalSceneBodies,
-                    buffers[pending->finalSceneBuffer]
-                );
+                if (pending->publishFinalState) {
+                    copyOutput(
+                        staged.finalSceneBodies,
+                        stateOutputBuffer(
+                            pending->finalSceneBuffer
+                        )
+                    );
+                }
                 copyOutput(
                     staged.contactStatuses,
                     buffers[kPublicContactStatuses]
@@ -13174,69 +14586,73 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                     auto& evidence = staged.contactEvidence;
                     copyOutput(
                         evidence.manifoldHeaders,
-                        buffers[
+                        stateOutputBuffer(
                             pending->finalManifoldHeaderBuffer
-                        ]
+                        )
                     );
                     copyOutput(
                         evidence.manifoldPoints,
-                        buffers[
+                        stateOutputBuffer(
                             pending->finalManifoldPointBuffer
-                        ]
+                        )
                     );
                     copyOutput(
                         evidence.manifoldCounts,
-                        buffers[
+                        stateOutputBuffer(
                             pending->finalManifoldCountBuffer
-                        ]
+                        )
                     );
                     copyOutput(
                         evidence.contacts,
-                        buffers[kContacts]
+                        stateOutputBuffer(kContacts)
                     );
                     copyOutput(
                         evidence.contactMetadata,
-                        buffers[kContactMetadata]
+                        stateOutputBuffer(kContactMetadata)
                     );
                     copyOutput(
                         evidence.blocks,
-                        buffers[kIRBlocks]
+                        stateOutputBuffer(kIRBlocks)
                     );
                     copyOutput(
                         evidence.endpoints,
-                        buffers[kIREndpoints]
+                        stateOutputBuffer(kIREndpoints)
                     );
                     copyOutput(
                         evidence.endpointRuntime,
-                        buffers[kEndpointRuntime]
+                        stateOutputBuffer(kEndpointRuntime)
                     );
                     copyOutput(
                         evidence.rows,
-                        buffers[kIRRows]
+                        stateOutputBuffer(kIRRows)
                     );
                     copyOutput(
                         evidence.cones,
-                        buffers[kIRCones]
+                        stateOutputBuffer(kIRCones)
                     );
                     copyOutput(
                         evidence.evaluatedRows,
-                        buffers[kEvaluatedRows]
+                        stateOutputBuffer(kEvaluatedRows)
                     );
                     copyOutput(
                         evidence.evaluatedCones,
-                        buffers[kEvaluatedCones]
+                        stateOutputBuffer(kEvaluatedCones)
                     );
                     copyOutput(
                         evidence.islands,
-                        buffers[kIslands]
+                        stateOutputBuffer(kIslands)
                     );
                     copyOutput(
                         evidence.islandNodes,
-                        buffers[kIslandNodeReferences]
+                        stateOutputBuffer(
+                            kIslandNodeReferences
+                        )
                     );
                     copyOutput(
                         evidence.islandConstraints,
-                        buffers[kIslandConstraintReferences]
+                        stateOutputBuffer(
+                            kIslandConstraintReferences
+                        )
                     );
                 }
             }
@@ -13245,6 +14661,9 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
         return validateAndPublish(
             std::move(staged),
             std::move(diagnostics),
+            pending->publishFinalState,
+            pending->publishStateTrajectory,
+            pending->policyRevision,
             result
         );
     } catch (const std::bad_alloc&) {
@@ -13295,6 +14714,58 @@ MetalWorldDiagnostics MetalWorldContext::submit(
     const MetalWorldStepConfig& config,
     MetalWorldSubmission& submission
 ) {
+    return submitImpl(
+        world,
+        batch,
+        config,
+        nullptr,
+        false,
+        submission
+    );
+}
+
+MetalWorldDiagnostics MetalWorldContext::initializeResidentState(
+    const CompiledWorld& world,
+    const MetalWorldBatch& batch,
+    const MetalWorldStepConfig& config,
+    MetalWorldResidentState& state,
+    MetalWorldSubmission& submission
+) {
+    return submitImpl(
+        world,
+        batch,
+        config,
+        &state,
+        true,
+        submission
+    );
+}
+
+MetalWorldDiagnostics MetalWorldContext::submitResident(
+    const CompiledWorld& world,
+    const MetalWorldBatch& batch,
+    const MetalWorldStepConfig& config,
+    MetalWorldResidentState& state,
+    MetalWorldSubmission& submission
+) {
+    return submitImpl(
+        world,
+        batch,
+        config,
+        &state,
+        false,
+        submission
+    );
+}
+
+MetalWorldDiagnostics MetalWorldContext::submitImpl(
+    const CompiledWorld& world,
+    const MetalWorldBatch& batch,
+    const MetalWorldStepConfig& config,
+    MetalWorldResidentState* residentState,
+    const bool initializeResidentState,
+    MetalWorldSubmission& submission
+) {
     MetalWorldDiagnostics diagnostics{};
     if (pool_ == nullptr) {
         return reject(
@@ -13310,21 +14781,145 @@ MetalWorldDiagnostics MetalWorldContext::submit(
             "submission output already owns a live MetalWorld batch"
         );
     }
+    if ((residentState == nullptr) &&
+        initializeResidentState) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::internalFailure,
+            "resident initialization is missing its ownership token"
+        );
+    }
 
     RequiredBuffers requirements{};
     try {
+        const bool residentContinuation =
+            residentState != nullptr &&
+            !initializeResidentState;
+        std::shared_ptr<detail::MetalWorldResidentStateData>
+            residentData;
+        std::shared_ptr<detail::MetalWorldContextState>
+            selectedState;
+        std::size_t residentQ = kStateQA;
+        std::size_t residentV = kStateVA;
+        std::size_t residentScene = kSceneBodiesA;
+        std::size_t residentManifoldHeaders =
+            kManifoldHeadersA;
+        std::size_t residentManifoldPoints =
+            kManifoldPointsA;
+        std::size_t residentManifoldCounts =
+            kManifoldCountsA;
+        std::size_t residentRodNodes = kRodNodesA;
+        std::size_t residentRodEdges = kRodEdgesA;
+        std::size_t residentRodWitnesses =
+            kRodWitnessesA;
+        if (initializeResidentState &&
+            residentState->state_ != nullptr) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::contextBusy,
+                "resident state token is already initialized or pending"
+            );
+        }
+        if (residentContinuation) {
+            residentData = residentState->state_;
+            if (residentData == nullptr) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::invalidDimensions,
+                    "resident state token is empty"
+                );
+            }
+            const std::lock_guard residentLock(
+                residentData->mutex
+            );
+            if (residentData->ownerPool.lock() != pool_) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::invalidDimensions,
+                    "resident state belongs to another MetalWorld "
+                    "context"
+                );
+            }
+            if (!residentData->initialized ||
+                residentData->pending ||
+                residentData->context == nullptr) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::contextBusy,
+                    "resident state is not ready for continuation"
+                );
+            }
+            if (residentData->worldFingerprint !=
+                    world.fingerprint() ||
+                residentData->taskFingerprint !=
+                    config.taskProgram.fingerprint() ||
+                residentData->taskSeed != config.taskSeed ||
+                residentData->environmentCount !=
+                    batch.environmentCount) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::invalidDimensions,
+                    "resident world, task, seed, or environment count "
+                    "changed"
+                );
+            }
+            if (!batch.resetMasks.empty() &&
+                !residentData->supportsReset) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::invalidReset,
+                    "resident state was initialized without a reset "
+                    "contract"
+                );
+            }
+            selectedState = residentData->context;
+            residentQ = residentData->qBuffer;
+            residentV = residentData->vBuffer;
+            residentScene = residentData->sceneBuffer;
+            residentManifoldHeaders =
+                residentData->manifoldHeaderBuffer;
+            residentManifoldPoints =
+                residentData->manifoldPointBuffer;
+            residentManifoldCounts =
+                residentData->manifoldCountBuffer;
+            residentRodNodes =
+                residentData->rodNodeBuffer;
+            residentRodEdges =
+                residentData->rodEdgeBuffer;
+            residentRodWitnesses =
+                residentData->rodWitnessBuffer;
+            residentData->pending = true;
+        }
+        auto residentReservation =
+            residentContinuation
+            ? std::make_unique<
+                  detail::MetalWorldResidentReservation
+              >(residentData)
+            : nullptr;
         diagnostics = validateAndBuildLayout(
             world,
             batch,
             config,
+            residentContinuation,
             requirements
         );
         if (!diagnostics.succeeded()) {
             return diagnostics;
         }
-        std::shared_ptr<detail::MetalWorldContextState>
-            selectedState;
-        {
+        if (residentContinuation) {
+            const std::lock_guard slotLock(
+                selectedState->mutex
+            );
+            if (selectedState->inFlight) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::contextBusy,
+                    "resident MetalWorld arena is in flight"
+                );
+            }
+            selectedState->inFlight = true;
+            selectedState->stats.hasInFlightSubmission = true;
+        } else {
             const std::lock_guard poolLock(pool_->mutex);
             const std::size_t slotCount = pool_->slots.size();
             for (std::size_t offset = 0u;
@@ -13336,7 +14931,8 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                 const std::lock_guard slotLock(
                     candidate->mutex
                 );
-                if (candidate->inFlight) {
+                if (candidate->inFlight ||
+                    !candidate->residentOwner.expired()) {
                     continue;
                 }
                 candidate->inFlight = true;
@@ -13347,6 +14943,34 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                 // the remaining ring slots without waiting.
                 pool_->nextSlot = slot;
                 break;
+            }
+            if (selectedState != nullptr &&
+                initializeResidentState) {
+                residentData = std::make_shared<
+                    detail::MetalWorldResidentStateData
+                >();
+                residentData->ownerPool = pool_;
+                residentData->context = selectedState;
+                residentData->worldFingerprint =
+                    world.fingerprint();
+                residentData->taskFingerprint =
+                    config.taskProgram.fingerprint();
+                residentData->taskSeed = config.taskSeed;
+                residentData->environmentCount =
+                    batch.environmentCount;
+                residentData->supportsReset =
+                    !batch.resetMasks.empty();
+                residentData->pending = true;
+                {
+                    const std::lock_guard slotLock(
+                        selectedState->mutex
+                    );
+                    selectedState->residentOwner =
+                        residentData;
+                }
+                residentReservation = std::make_unique<
+                    detail::MetalWorldResidentReservation
+                >(residentData);
             }
         }
         if (selectedState == nullptr) {
@@ -13377,18 +15001,26 @@ MetalWorldDiagnostics MetalWorldContext::submit(
             if (!diagnostics.succeeded()) {
                 return diagnostics;
             }
+            if (residentContinuation &&
+                (
+                    residentData->stateArenaGeneration !=
+                        selectedState->stateArenaGeneration ||
+                    selectedState->boundModelFingerprint !=
+                        world.fingerprint()
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::invalidDimensions,
+                    "resident state arena or compiled world changed"
+                );
+            }
             const bool contactMode =
                 config.solverMode !=
                     MetalWorldSolverMode::freeMotionABA;
-            const bool initializeConvexCaches =
-                contactMode &&
-                selectedState->boundModelFingerprint !=
-                    world.fingerprint();
-            const bool initializeRodContactCaches =
-                contactMode &&
-                world.rodToolPairs().size() != 0u &&
-                selectedState->boundModelFingerprint !=
-                    world.fingerprint();
+            const bool uploadInitialState =
+                !residentContinuation;
+            const bool nativeTask = config.taskProgram.valid();
+            selectedState->useTaskBodyParameters = nativeTask;
             selectedState->stats.memoryPlan =
                 diagnostics.layout.memoryPlan;
             id<MTLCommandBuffer> commandBuffer =
@@ -13409,81 +15041,42 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                 batch,
                 config,
                 diagnostics.layout,
-                requirements
+                requirements,
+                uploadInitialState
             );
-            if (initializeConvexCaches ||
-                initializeRodContactCaches) {
-                id<MTLBlitCommandEncoder> cacheClear =
-                    [commandBuffer blitCommandEncoder];
-                if (cacheClear == nil) {
-                    return reject(
-                        std::move(diagnostics),
-                        MetalWorldHostStatus::metalCommandFailure,
-                        "failed to encode convex-cache initialization"
-                    );
-                }
-                cacheClear.label =
-                    @"MetalWorld initialize persistent contact caches";
-                if (initializeConvexCaches) {
-                    [cacheClear
-                        fillBuffer:
-                            selectedState->buffers[kConvexCaches]
-                        range:NSMakeRange(
-                            0u,
-                            requirements
-                                .entries[kConvexCaches]
-                                .allocationBytes
-                        )
-                        value:0u];
-                    [cacheClear
-                        fillBuffer:
-                            selectedState
-                                ->buffers[kCandidateConvexCaches]
-                        range:NSMakeRange(
-                            0u,
-                            requirements
-                                .entries[kCandidateConvexCaches]
-                                .allocationBytes
-                        )
-                        value:0u];
-                }
-                if (initializeRodContactCaches) {
-                    const std::array<std::size_t, 5u>
-                        rodCacheBuffers{
-                            kRodWitnessesA,
-                            kRodWitnessesB,
-                            kCandidateRodWitnesses,
-                            kCheckpointRodWitnesses,
-                            kRodWitnessCounts,
-                        };
-                    for (const std::size_t bufferIndex :
-                         rodCacheBuffers) {
-                        [cacheClear
-                            fillBuffer:selectedState
-                                           ->buffers[bufferIndex]
-                                 range:NSMakeRange(
-                                     0u,
-                                     requirements
-                                         .entries[bufferIndex]
-                                         .allocationBytes
-                                 )
-                                 value:0u];
-                    }
-                }
-                [cacheClear endEncoding];
+            if (uploadInitialState &&
+                !encodeResidentStateInitialization(
+                    *selectedState,
+                    commandBuffer,
+                    requirements,
+                    contactMode,
+                    world.rodCount() != 0u,
+                    nativeTask
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::metalCommandFailure,
+                    "failed to initialize resident MetalWorld state"
+                );
             }
 
             id<MTLComputePipelineState> selectedABAPipeline =
-                world.articulationCount() > 1u
+                nativeTask
+                ? selectedState->parameterizedABAPipeline
+                : world.articulationCount() > 1u
                 ? selectedState->multiABAPipeline
                 : world.capacityClass() ==
                     MetalWorldCapacityClass::compactABA12
                 ? selectedState->smallABAPipeline
                 : selectedState->abaPipeline;
-            std::size_t sourceQ = kStateQA;
-            std::size_t sourceV = kStateVA;
-            std::size_t destinationQ = kStateQB;
-            std::size_t destinationV = kStateVB;
+            std::size_t sourceQ =
+                residentContinuation ? residentQ : kStateQA;
+            std::size_t sourceV =
+                residentContinuation ? residentV : kStateVA;
+            std::size_t destinationQ =
+                sourceQ == kStateQA ? kStateQB : kStateQA;
+            std::size_t destinationV =
+                sourceV == kStateVA ? kStateVB : kStateVA;
             mr_u32 activePairClassMask = 0u;
             for (const MRCompiledCollisionPairGPU& pair :
                  world.eligiblePairs()) {
@@ -13509,27 +15102,62 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                 }
                 activePairClassMask |= 1u << workClass;
             }
-            std::size_t sourceScene = kSceneBodiesA;
-            std::size_t destinationScene = kSceneBodiesB;
+            std::size_t sourceScene =
+                residentContinuation
+                ? residentScene
+                : kSceneBodiesA;
+            std::size_t destinationScene =
+                sourceScene == kSceneBodiesA
+                ? kSceneBodiesB
+                : kSceneBodiesA;
             std::size_t sourceManifoldHeaders =
-                kManifoldHeadersA;
+                residentContinuation
+                ? residentManifoldHeaders
+                : kManifoldHeadersA;
             std::size_t sourceManifoldPoints =
-                kManifoldPointsA;
+                residentContinuation
+                ? residentManifoldPoints
+                : kManifoldPointsA;
             std::size_t sourceManifoldCounts =
-                kManifoldCountsA;
+                residentContinuation
+                ? residentManifoldCounts
+                : kManifoldCountsA;
             std::size_t destinationManifoldHeaders =
-                kManifoldHeadersB;
+                sourceManifoldHeaders == kManifoldHeadersA
+                ? kManifoldHeadersB
+                : kManifoldHeadersA;
             std::size_t destinationManifoldPoints =
-                kManifoldPointsB;
+                sourceManifoldPoints == kManifoldPointsA
+                ? kManifoldPointsB
+                : kManifoldPointsA;
             std::size_t destinationManifoldCounts =
-                kManifoldCountsB;
-            std::size_t sourceRodNodes = kRodNodesA;
-            std::size_t sourceRodEdges = kRodEdgesA;
-            std::size_t destinationRodNodes = kRodNodesB;
-            std::size_t destinationRodEdges = kRodEdgesB;
-            std::size_t sourceRodWitnesses = kRodWitnessesA;
+                sourceManifoldCounts == kManifoldCountsA
+                ? kManifoldCountsB
+                : kManifoldCountsA;
+            std::size_t sourceRodNodes =
+                residentContinuation
+                ? residentRodNodes
+                : kRodNodesA;
+            std::size_t sourceRodEdges =
+                residentContinuation
+                ? residentRodEdges
+                : kRodEdgesA;
+            std::size_t destinationRodNodes =
+                sourceRodNodes == kRodNodesA
+                ? kRodNodesB
+                : kRodNodesA;
+            std::size_t destinationRodEdges =
+                sourceRodEdges == kRodEdgesA
+                ? kRodEdgesB
+                : kRodEdgesA;
+            std::size_t sourceRodWitnesses =
+                residentContinuation
+                ? residentRodWitnesses
+                : kRodWitnessesA;
             std::size_t destinationRodWitnesses =
-                kRodWitnessesB;
+                sourceRodWitnesses == kRodWitnessesA
+                ? kRodWitnessesB
+                : kRodWitnessesA;
             const std::size_t rodWitnessCount =
                 requirements.entries[kRodWitnessesA]
                     .logicalElements;
@@ -13540,6 +15168,40 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                 MRMetalWorldPassGPU pass{};
                 pass.controlStep = controlStep;
                 pass.physicsSubstep = MR_INVALID_INDEX;
+                if (nativeTask &&
+                    (
+                        !encodeTaskObserve(
+                            *selectedState,
+                            commandBuffer,
+                            pass,
+                            sourceQ,
+                            sourceV,
+                            sourceScene,
+                            batch.environmentCount
+                        ) ||
+                        (
+                            config.policyProgram.valid() &&
+                            !encodePolicyInference(
+                                *selectedState,
+                                commandBuffer,
+                                config.policyProgram,
+                                pass,
+                                batch.environmentCount
+                            )
+                        ) ||
+                        !encodeTaskApplyActions(
+                            *selectedState,
+                            commandBuffer,
+                            pass,
+                            batch.environmentCount
+                        )
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode native observation, policy, or action pass"
+                    );
+                }
                 if (!encodePrepare(
                         *selectedState,
                         commandBuffer,
@@ -13547,7 +15209,7 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                         sourceQ,
                         sourceV,
                         batch.environmentCount
-                    )) {
+                     )) {
                     return reject(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalCommandFailure,
@@ -13820,7 +15482,17 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                 }
 
                 pass.physicsSubstep = MR_INVALID_INDEX;
-                if (!encodeCapture(
+                if ((nativeTask &&
+                     !encodeTaskComplete(
+                         *selectedState,
+                         commandBuffer,
+                         pass,
+                         sourceQ,
+                         sourceV,
+                         sourceScene,
+                         batch.environmentCount
+                     )) ||
+                    !encodeCapture(
                         *selectedState,
                         commandBuffer,
                         pass,
@@ -13835,13 +15507,64 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                          pass,
                          sourceScene,
                          batch.environmentCount
-                     ))) {
+                    ))) {
                     return reject(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalCommandFailure,
-                        "failed to encode MetalWorld capture pass"
+                        "failed to encode native task or MetalWorld "
+                        "capture pass"
                     );
                 }
+            }
+
+            std::vector<std::size_t> readbackIndices;
+            if (config.publishFinalState) {
+                readbackIndices.push_back(sourceQ);
+                readbackIndices.push_back(sourceV);
+                if (contactMode) {
+                    readbackIndices.push_back(sourceScene);
+                }
+                if (world.rodCount() != 0u) {
+                    readbackIndices.push_back(sourceRodNodes);
+                    readbackIndices.push_back(sourceRodEdges);
+                }
+            }
+            if (config.captureContactEvidence) {
+                readbackIndices.push_back(
+                    sourceManifoldHeaders
+                );
+                readbackIndices.push_back(
+                    sourceManifoldPoints
+                );
+                readbackIndices.push_back(
+                    sourceManifoldCounts
+                );
+                readbackIndices.push_back(kContacts);
+                readbackIndices.push_back(kContactMetadata);
+                readbackIndices.push_back(kIRBlocks);
+                readbackIndices.push_back(kIREndpoints);
+                readbackIndices.push_back(kEndpointRuntime);
+                readbackIndices.push_back(kIRRows);
+                readbackIndices.push_back(kIRCones);
+                readbackIndices.push_back(kEvaluatedRows);
+                readbackIndices.push_back(kEvaluatedCones);
+                readbackIndices.push_back(kIslands);
+                readbackIndices.push_back(
+                    kIslandNodeReferences
+                );
+                readbackIndices.push_back(
+                    kIslandConstraintReferences
+                );
+            }
+            diagnostics = encodeReadbacks(
+                *selectedState,
+                commandBuffer,
+                requirements,
+                readbackIndices,
+                std::move(diagnostics)
+            );
+            if (!diagnostics.succeeded()) {
+                return diagnostics;
             }
 
             auto pending =
@@ -13867,17 +15590,41 @@ MetalWorldDiagnostics MetalWorldContext::submit(
                 sourceManifoldCounts;
             pending->finalRodNodeBuffer = sourceRodNodes;
             pending->finalRodEdgeBuffer = sourceRodEdges;
+            pending->finalRodWitnessBuffer =
+                sourceRodWitnesses;
+            pending->resident = residentData;
+            pending->policyRevision =
+                config.policyProgram.valid()
+                ? config.policyProgram.revision()
+                : batch.policyRevision;
             pending->hasRods = world.rodCount() != 0u;
             pending->contactMode = contactMode;
             pending->captureContactEvidence =
                 config.captureContactEvidence;
+            pending->publishFinalState =
+                config.publishFinalState;
+            pending->publishStateTrajectory =
+                config.publishStateTrajectory;
             pending->start = std::chrono::steady_clock::now();
             pending->ownsInFlight = true;
 
+            if (initializeResidentState) {
+                const std::lock_guard residentLock(
+                    residentData->mutex
+                );
+                residentData->stateArenaGeneration =
+                    selectedState->stateArenaGeneration;
+            }
             ++selectedState->stats.submissionCount;
             [commandBuffer commit];
             submission.state_ = std::move(pending);
+            if (initializeResidentState) {
+                residentState->state_ = residentData;
+            }
             reservation.handoff();
+            if (residentReservation != nullptr) {
+                residentReservation->handoff();
+            }
         }
         return diagnostics;
     } catch (const std::bad_alloc&) {

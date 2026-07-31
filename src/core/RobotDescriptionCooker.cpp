@@ -2700,6 +2700,28 @@ RobotDescriptionDiagnostics cookRobotDescription(
                 "semantic index maps do not match cooked runtime arrays"
             );
         }
+        staged.bodyNames = diagnostics.bodyNames;
+        staged.jointNames = diagnostics.jointNames;
+        staged.dofNames = diagnostics.dofNames;
+        staged.shapeNames.reserve(
+            diagnostics.shapeLinkNames.size()
+        );
+        for (std::size_t shapeIndex = 0u;
+             shapeIndex < diagnostics.shapeLinkNames.size();
+             ++shapeIndex) {
+            staged.shapeNames.push_back(
+                diagnostics.shapeLinkNames[shapeIndex] +
+                "/collision_" + std::to_string(shapeIndex)
+            );
+        }
+        reason.clear();
+        if (!staged.valid(&reason)) {
+            return fail(
+                std::move(diagnostics),
+                RobotDescriptionStatus::invalidEngineModel,
+                "cooked semantic maps are invalid: " + reason
+            );
+        }
         output = std::move(staged);
         return diagnostics;
     } catch (const std::bad_alloc&) {

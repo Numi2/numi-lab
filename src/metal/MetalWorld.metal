@@ -18,7 +18,8 @@ inline bool validWorldDispatch(
         MR_METAL_WORLD_HAS_RESETS |
         MR_METAL_WORLD_FREE_MOTION_ONLY |
         MR_METAL_WORLD_CONTACTS |
-        MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES;
+        MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES |
+        MR_METAL_WORLD_NATIVE_TASK;
     const uint modeFlags =
         dispatch.flags &
         (MR_METAL_WORLD_FREE_MOTION_ONLY |
@@ -126,6 +127,8 @@ kernel void mr_metal_world_prepare(
     device const MRDofPropertiesGPU* dofs [[buffer(14)]],
     device const MRActuatorProfileGPU* actuatorProfiles
         [[buffer(15)]],
+    device const float4* taskControllerParameters
+        [[buffer(16)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -184,6 +187,12 @@ kernel void mr_metal_world_prepare(
         ];
         if ((dispatch.flags &
              MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u) {
+            const bool nativeTask =
+                (dispatch.flags &
+                 MR_METAL_WORLD_NATIVE_TASK) != 0u;
+            const float4 controller = nativeTask
+                ? taskControllerParameters[environment]
+                : float4(1.0f);
             device const MRDofPropertiesGPU& dof =
                 dofs[coordinate];
             command = 0.0f;
@@ -207,13 +216,13 @@ kernel void mr_metal_world_prepare(
                 const float timestep =
                     world.gravityAndTimestep.w;
                 command =
-                    dof.drive.x *
+                    controller.x * dof.drive.x *
                         (
                             target -
                             stateQ[qBase + dof.qIndex] -
                             timestep * value
                         ) -
-                    dof.drive.y * value;
+                    controller.y * dof.drive.y * value;
                 const float dryFriction = dof.drive.w;
                 if (dryFriction > 0.0f) {
                     if (abs(value) > 1.0e-4f) {
@@ -236,6 +245,7 @@ kernel void mr_metal_world_prepare(
                         dof.limits.w
                     );
                 }
+                command *= controller.w;
             }
         }
         device const MRActuatorProfileGPU& actuator =

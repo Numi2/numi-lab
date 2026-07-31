@@ -21,6 +21,31 @@ bool fail(std::string* reason, std::string message) {
     return false;
 }
 
+bool validSemanticNames(
+    const std::vector<std::string>& names,
+    const std::size_t expectedCount
+) {
+    if (names.empty()) {
+        return true;
+    }
+    if (names.size() != expectedCount) {
+        return false;
+    }
+    for (std::size_t index = 0u; index < names.size(); ++index) {
+        if (names[index].empty() ||
+            std::find(
+                names.begin(),
+                names.begin() + static_cast<std::ptrdiff_t>(index),
+                names[index]
+            ) !=
+                names.begin() +
+                    static_cast<std::ptrdiff_t>(index)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool finite(const float value) {
     return std::isfinite(value);
 }
@@ -325,6 +350,16 @@ bool EngineModel::valid(std::string* reason) const {
         world.materialCount != materials.size() ||
         world.nq != defaultQ.size() || world.nv != defaultV.size()) {
         return fail(reason, "world counts disagree with compiled arrays");
+    }
+    if (!validSemanticNames(bodyNames, bodies.size()) ||
+        !validSemanticNames(jointNames, joints.size()) ||
+        !validSemanticNames(dofNames, dofs.size()) ||
+        !validSemanticNames(shapeNames, shapes.size())) {
+        return fail(
+            reason,
+            "semantic names must be absent or unique, non-empty, and "
+            "topology-sized"
+        );
     }
     if (world.solverType > MR_SOLVER_THROUGHPUT_PGS ||
         world.frictionConeType > MR_FRICTION_CONE_PYRAMID_8) {

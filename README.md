@@ -32,7 +32,9 @@ concept art and no screenshot from another simulator.
 | System | Current capability |
 | --- | --- |
 | **Dynamics and contact** | Rigid and articulated dynamics, fixed and floating roots, revolute and prismatic joints, deterministic broadphase/manifolds, Coulomb contact, joint limits, and transactional state publication. |
-| **Persistent Metal execution** | Batched worlds, fixed-capacity device graphs, private GPU resources, deterministic resets, and direct physics plus statically selected visual MLX planes on the active Metal command encoder. |
+| **Persistent Metal execution** | Batched worlds, fixed-capacity device graphs, private GPU resources, transactional resets, and Swift-scheduled native task/policy rollouts. |
+| **Robot-independent tasks** | Authored TaskPacks resolve semantic joint/body names into immutable action, observation, contact, reward, termination, randomization, and terrain tables consumed by generic Metal kernels. |
+| **Native policy execution** | Fingerprinted PolicyPacks carry normalization and dense actor weights into generic Metal inference; MLX owns PPO updates and publishes the next policy revision. |
 | **GPU-native scene queries** | Vectorized world or body-mounted grid/LiDAR rays against dynamic analytic, convex, and authored mesh geometry, with metric hits and stable identities returned directly as MLX arrays. |
 | **Visual Presentation V3** | Direct USD/USDZ/GLB cooking, native textures, glTF metallic-roughness PBR, visible HDR environments, shadows, global or rolling shutter, and fast/reference sensor profiles. |
 | **Policy-ready sensing** | Scene-linear RGB, metric depth, normals, semantic/instance/link identities, motion, validity, calibration, tactile depth, solver wrench, and center of pressure. |
@@ -70,22 +72,24 @@ there is no collision-derived presentation path.
 
 ```mermaid
 flowchart LR
-    A["Robot, world, and sensor descriptions"] --> B["Deterministic cookers"]
-    B --> C["Immutable world, visual, and HDR packs"]
-    C --> D["Persistent Metal runtime"]
-    D --> E["Physics and contact"]
-    D --> F["Visual and tactile sensors"]
-    E --> G["Synchronized observations"]
-    F --> G
-    F --> H["Supervisory truth"]
-    G --> I["MLX · Core ML · Swift · C++ · Python"]
+    A["URDF/SRDF or authored EngineModel"] --> B["World compiler"]
+    C["TaskPack"] --> B
+    D["PolicyPack"] --> B
+    B --> E["Stable indices, tables, capacities, fingerprints"]
+    E --> F["Persistent Metal runtime"]
+    F --> G["Physics, contact, task operators, inference"]
+    F --> H["Visual and tactile sensors"]
+    G --> I["Compact rollout batches"]
     H --> I
+    I --> J["MLX policy learner"]
+    J --> D
 ```
 
 C++ owns model compilation and public contracts. Metal owns batched execution
-and sensor generation. MLX consumes the same device-resident buffers for
-policy work without inserting a CPU fallback or a second command-buffer
-timeline.
+and sensor generation. Swift owns rollout length, submission chunking,
+completion, reset requests, and policy revisions. MLX receives compact
+learning batches and returns PolicyPacks; it does not own production physics
+state or rollout scheduling.
 
 ## Robots and research worlds
 
@@ -121,6 +125,10 @@ cmake --build build --parallel
 Run focused product probes:
 
 ```sh
+./build/bin/metalrobo_task_program_check
+./build/bin/metalrobo_task_rollout \
+  --metallib build/shaders/MetalRobo.metallib \
+  --envs 32 --steps 48 --chunk 8 --scene terrain --native-policy
 ./build/bin/metalrobo_visual_platform_probe
 ./build/bin/metalrobo_tactile_check
 ./build/bin/metalrobo_g1_model_probe
@@ -137,21 +145,20 @@ Cook authored presentation resources:
   --face-size 512 --source-color-space auto
 ```
 
-Build the MLX extension after the native engine:
+Validate the policy-learning boundary after the native engine:
 
 ```sh
 cd python
 python3 -m pip install -e .
-python3 probes/mlx_world_probe.py
+python3 probes/mlx_policy_learning_check.py \
+  --library ../build/lib/libmetalrobo.dylib \
+  --output /tmp/metalrobo-policy.policypack
 ```
 
-The Python package pins `mlx>=0.32,<0.33`. Its physics and
-`visual_observation` primitives allocate through MLX and encode into MLX's
-active Metal command encoder; the visual primitive returns RGB, depth,
-and validity by default. Segmentation, identities, normals, and motion are
-explicit optional truth planes. Graph-only renderers retain no duplicate
-final images, and no selection uses renderer readback or a second
-command-buffer timeline.
+The Python package pins `mlx>=0.32,<0.33`. Its production learning surface
+owns actor/critic parameters, optimizer state, and PPO updates. The focused
+check performs a real update and writes the same deterministic PolicyPack
+consumed by the Swift/Metal rollout.
 
 ## Repository map
 
@@ -161,7 +168,7 @@ command-buffer timeline.
 | [`src/core`](src/core) | Models, compilers, world families, contact, observation, and episode logic. |
 | [`src/metal`](src/metal) | Physics, collision, solvers, rendering, IBL, tactile, and sensor kernels. |
 | [`src/apple`](src/apple) | Model I/O, Core Image, Metal I/O, and Apple-native asset/environment cooking. |
-| [`python`](python) | Nanobind extension, MLX execution, perception adapters, episode streams, and training interfaces. |
+| [`python`](python) | MLX learning, tactile-dataset ingestion, perception/data adapters, policy export, and explicitly isolated research oracles. |
 | [`schemas`](schemas) | Persisted world, visual, sensor, perception, and episode contracts. |
 | [`apps`](apps) | Focused probes, cookers, examples, and benchmarks. |
 

@@ -14,7 +14,6 @@ from typing import Sequence
 import numpy as np
 
 from .env import FrankaEnv
-from .mlx_locomotion import MLXG1PPOTrainer
 from .g1_policy import (
     UnitreeG1MuJoCoRunner,
     export_g1_coreml,
@@ -309,49 +308,6 @@ def _g1_locomotion_parser(
         dest="g1_operation",
         required=True,
     )
-    train = operations.add_parser(
-        "train",
-        help="train the universal proprioceptive G1 policy",
-    )
-    _train_parser(train)
-    train.add_argument(
-        "--seed-count",
-        type=int,
-        default=3,
-        help="train consecutive deterministic seeds and retain a best manifest",
-    )
-    train.set_defaults(
-        task="g1-locomotion",
-        backend="mlx",
-        envs=2048,
-        rollout_steps=24,
-        update_epochs=5,
-        minibatch_size=12_288,
-        hidden_sizes=[512, 256, 128],
-        learning_rate=1.0e-3,
-        value_coefficient=1.0,
-        entropy_coefficient=0.01,
-        target_kl=0.01,
-        initial_log_std=0.0,
-        checkpoint_dir="runs/g1-locomotion",
-        rollout_chunk_size=8,
-        maximum_episode_steps=1_000,
-        physics_substeps=4,
-    )
-
-    evaluate = operations.add_parser(
-        "evaluate",
-        help="evaluate a G1 checkpoint in MetalRobo",
-    )
-    _runtime_arguments(evaluate)
-    evaluate.set_defaults(envs=256)
-    evaluate.add_argument(
-        "--checkpoint",
-        type=Path,
-        required=True,
-    )
-    evaluate.add_argument("--steps", type=int, default=1_000)
-
     export = operations.add_parser(
         "export",
         help="export a G1 checkpoint for Apple and ONNX inference",
@@ -421,7 +377,7 @@ def build_parser() -> argparse.ArgumentParser:
     _g1_locomotion_parser(
         subparsers.add_parser(
             "g1-locomotion",
-            help="train, evaluate, export, or sim2sim the G1 policy",
+            help="export or run independent sim2sim for a G1 policy",
         )
     )
     _align_parser(
@@ -463,10 +419,9 @@ def run_train(args: argparse.Namespace) -> int:
         and args.task != "franka-stabilization"
     ):
         raise ValueError(
-            "G1 and PSM tasks require --backend mlx; the ctypes "
+            "PSM tasks require --backend mlx; the ctypes "
             "adapter is Franka-only"
         )
-    g1_task = args.task == "g1-locomotion"
     psm_task = args.task == "psm-needle"
     franka_tactile_task = args.task == "franka-grasp"
     family_task = args.task == "franka-family-pick-place"
@@ -480,12 +435,10 @@ def run_train(args: argparse.Namespace) -> int:
     maximum_episode_steps = (
         args.maximum_episode_steps
         if args.maximum_episode_steps is not None
-        else (1_000 if g1_task else 400 if psm_task else 256)
+        else (400 if psm_task else 256)
     )
     checkpoint_directory = args.checkpoint_dir or (
-        "runs/g1-locomotion"
-        if g1_task
-        else "runs/psm-needle"
+        "runs/psm-needle"
         if psm_task
         else "runs/franka-grasp"
         if franka_tactile_task
@@ -554,14 +507,6 @@ def run_train(args: argparse.Namespace) -> int:
                 maximum_episode_steps=maximum_episode_steps,
                 physics_substeps=args.physics_substeps,
                 sampling_mode=args.sampling_mode,
-            )
-        elif g1_task:
-            trainer = MLXG1PPOTrainer(
-                config,
-                metallib_path=args.metallib,
-                maximum_episode_steps=maximum_episode_steps,
-                physics_substeps=args.physics_substeps,
-                terrain=True,
             )
         elif psm_task:
             trainer = MLXPSMNeedlePPOTrainer(
@@ -1314,123 +1259,6 @@ def run_evaluate(args: argparse.Namespace) -> int:
 
 
 def run_g1_locomotion(args: argparse.Namespace) -> int:
-    if args.g1_operation == "train":
-        if args.seed_count <= 0:
-            raise ValueError("G1 seed-count must be positive")
-        if args.resume is not None and args.seed_count != 1:
-            raise ValueError(
-                "resume one G1 seed with --seed-count 1"
-            )
-        if args.seed_count == 1:
-            args.task = "g1-locomotion"
-            args.backend = "mlx"
-            return run_train(args)
-
-        root = Path(
-            args.checkpoint_dir or "runs/g1-locomotion"
-        ).expanduser().resolve()
-        candidates: list[dict[str, object]] = []
-        for offset in range(args.seed_count):
-            seed = args.seed + offset
-            seed_args = argparse.Namespace(**vars(args))
-            seed_args.seed = seed
-            seed_args.seed_count = 1
-            seed_args.task = "g1-locomotion"
-            seed_args.backend = "mlx"
-            seed_args.checkpoint_dir = str(root / f"seed-{seed}")
-            result = run_train(seed_args)
-            if result != 0:
-                return result
-            checkpoint = (
-                Path(seed_args.checkpoint_dir)
-                / f"checkpoint-{args.iterations:06d}"
-            )
-            record = json.loads(
-                (checkpoint / "policy.json").read_text(
-                    encoding="utf-8"
-                )
-            )
-            evaluation = record.get("evaluation_summary", {})
-            selection = (
-                float(
-                    evaluation.get(
-                        "mixed_full_episode_survival",
-                        0.0,
-                    )
-                ),
-                float(
-                    evaluation.get(
-                        "flat_full_episode_survival",
-                        0.0,
-                    )
-                ),
-                float(
-                    evaluation.get(
-                        "push_recovery_fraction",
-                        0.0,
-                    )
-                ),
-                -float(
-                    evaluation.get(
-                        "planar_velocity_rmse",
-                        float("inf"),
-                    )
-                ),
-                -float(
-                    evaluation.get(
-                        "yaw_velocity_rmse",
-                        float("inf"),
-                    )
-                ),
-            )
-            candidates.append(
-                {
-                    "seed": seed,
-                    "checkpoint": str(checkpoint),
-                    "policy_fingerprint": record["fingerprint"],
-                    "evaluation": evaluation,
-                    "_selection": selection,
-                }
-            )
-        best = max(
-            candidates,
-            key=lambda candidate: candidate["_selection"],
-        )
-        for candidate in candidates:
-            candidate.pop("_selection")
-        manifest = {
-            "format": "metalrobo.g1-best-policy",
-            "selection_order": (
-                "mixed survival, flat survival, push recovery, "
-                "planar RMSE, yaw RMSE"
-            ),
-            "best_checkpoint": best["checkpoint"],
-            "best_policy_fingerprint": best["policy_fingerprint"],
-            "candidates": candidates,
-        }
-        root.mkdir(parents=True, exist_ok=True)
-        best_path = root / "best.json"
-        best_path.write_text(
-            json.dumps(
-                manifest,
-                indent=2,
-                sort_keys=True,
-                allow_nan=False,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
-        print(
-            json.dumps(
-                {
-                    "operation": "g1-locomotion-train",
-                    "best_manifest": str(best_path),
-                    "best_checkpoint": best["checkpoint"],
-                },
-                indent=2,
-            )
-        )
-        return 0
     if args.g1_operation == "export":
         output = args.output_dir.expanduser().resolve()
         results: dict[str, str] = {}
@@ -1482,53 +1310,6 @@ def run_g1_locomotion(args: argparse.Namespace) -> int:
                 allow_nan=False,
             )
         )
-        return 0
-    if args.g1_operation == "evaluate":
-        if args.steps <= 0 or args.steps % 8:
-            raise ValueError(
-                "G1 evaluation steps must be a positive multiple of 8"
-            )
-        policy = json.loads(
-            (
-                args.checkpoint.expanduser().resolve()
-                / "policy.json"
-            ).read_text(encoding="utf-8")
-        )
-        ppo = policy["ppo"]
-        config = PPOConfig(
-            environment_count=args.envs,
-            rollout_steps=24,
-            iterations=1,
-            update_epochs=5,
-            minibatch_size=max(args.envs * args.steps // 4, 1),
-            hidden_sizes=tuple(ppo["hidden_sizes"]),
-            learning_rate=float(ppo["learning_rate"]),
-            gamma=0.99,
-            gae_lambda=0.95,
-            clip_ratio=0.2,
-            value_coefficient=1.0,
-            entropy_coefficient=0.01,
-            max_gradient_norm=1.0,
-            target_kl=0.01,
-            initial_log_std=float(ppo["initial_log_std"]),
-            seed=args.seed,
-            checkpoint_directory=str(
-                args.checkpoint.expanduser().resolve().parent
-            ),
-        )
-        trainer = MLXG1PPOTrainer(
-            config,
-            metallib_path=args.metallib,
-            terrain=True,
-        )
-        trainer.load_checkpoint(args.checkpoint)
-        report = {
-            "operation": "g1-locomotion-evaluate",
-            "environments": args.envs,
-            "steps": args.steps,
-            **trainer.evaluate(args.steps),
-        }
-        print(json.dumps(report, indent=2, allow_nan=False))
         return 0
     raise AssertionError(
         f"unhandled G1 operation: {args.g1_operation}"

@@ -3,12 +3,16 @@
 #include "metalrobo/EpisodeTwinCompiler.hpp"
 #include "metalrobo/Franka.hpp"
 #include "metalrobo/FrankaWorld.hpp"
+#include "metalrobo/LearningPacks.hpp"
+#include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/MetalTactile.hpp"
+#include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
 #include "metalrobo/Model.hpp"
 #include "metalrobo/Runtime.hpp"
 #include "metalrobo/RuntimeAbi.hpp"
+#include "metalrobo/RobotDescriptionCooker.hpp"
 #include "metalrobo/WorldPack.hpp"
 
 #include <cstring>
@@ -18,12 +22,15 @@
 #include <cmath>
 #include <exception>
 #include <filesystem>
+#include <initializer_list>
 #include <limits>
 #include <memory>
 #include <numeric>
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
 
 struct MRRuntimeHandle {
@@ -60,6 +67,34 @@ struct MRTactileHandle {
     double lastObserveMilliseconds = 0.0;
 };
 
+struct MRTaskRolloutHandle {
+    explicit MRTaskRolloutHandle(
+        metalrobo::MetalWorldConfig config
+    ) : context(std::move(config)) {}
+
+    metalrobo::EngineModel model;
+    metalrobo::CompiledWorld world;
+    metalrobo::CompiledTaskProgram taskProgram;
+    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldResidentState residentState;
+    metalrobo::MetalWorldStepConfig stepConfig;
+    std::vector<MRBodyStateGPU> defaultSceneBodies;
+    std::vector<float> resetQ;
+    std::vector<float> resetV;
+    std::vector<MRBodyStateGPU> resetSceneBodies;
+    std::vector<std::uint32_t> resetMasks;
+    metalrobo::MetalWorldResult result;
+    std::vector<std::uint32_t> statusCodes;
+    std::vector<std::uint32_t> activeContacts;
+    std::string deviceName;
+    std::uint32_t environmentCount = 0u;
+    std::uint64_t submittedControlSteps = 0u;
+    std::uint64_t completedEnvironmentSteps = 0u;
+    std::uint64_t submissionCount = 0u;
+    double totalGPUMilliseconds = 0.0;
+    double totalSubmissionMilliseconds = 0.0;
+};
+
 static_assert(sizeof(MRHybridGaussianC) == 80u);
 static_assert(sizeof(MRHybridGaussianGPU) == 80u);
 static_assert(
@@ -69,6 +104,14 @@ static_assert(
 static_assert(
     sizeof(MRTactileSummaryC) ==
     sizeof(MRTactileSummaryGPU)
+);
+static_assert(
+    sizeof(MRTaskTransitionC) ==
+    sizeof(MRTaskTransitionGPU)
+);
+static_assert(
+    offsetof(MRTaskTransitionC, policy_revision) ==
+    offsetof(MRTaskTransitionGPU, policyRevision)
 );
 
 namespace {
@@ -123,6 +166,332 @@ bool requireTactileHandle(const MRTactileHandle* handle) {
     return false;
 }
 
+bool requireTaskRolloutHandle(
+    const MRTaskRolloutHandle* handle
+) {
+    if (handle != nullptr) {
+        return true;
+    }
+    gLastError = "MetalRobo task-rollout handle is null.";
+    return false;
+}
+
+std::size_t checkedProduct(
+    const std::initializer_list<std::size_t> values,
+    const char* label
+) {
+    std::size_t product = 1u;
+    for (const std::size_t value : values) {
+        if (value != 0u &&
+            product >
+                std::numeric_limits<std::size_t>::max() / value) {
+            throw std::overflow_error(
+                std::string{label} + " size overflows size_t"
+            );
+        }
+        product *= value;
+    }
+    return product;
+}
+
+void resetTaskRolloutState(
+    MRTaskRolloutHandle& handle,
+    const std::uint64_t seed
+) {
+    const std::size_t environmentCount =
+        handle.environmentCount;
+    const std::size_t nq = handle.world.nq();
+    const std::size_t nv = handle.world.nv();
+    handle.resetQ.resize(environmentCount * nq);
+    handle.resetV.resize(environmentCount * nv);
+    for (std::size_t environment = 0u;
+         environment < environmentCount;
+         ++environment) {
+        const std::size_t qBase = environment * nq;
+        const std::size_t vBase = environment * nv;
+        std::copy_n(
+            handle.model.defaultQ.begin(),
+            nq,
+            handle.resetQ.begin() +
+                static_cast<std::ptrdiff_t>(qBase)
+        );
+        std::fill_n(
+            handle.resetV.begin() +
+                static_cast<std::ptrdiff_t>(vBase),
+            nv,
+            0.0f
+        );
+    }
+
+    const std::size_t sceneBodyCount =
+        handle.defaultSceneBodies.size();
+    handle.resetSceneBodies.resize(
+        environmentCount * sceneBodyCount
+    );
+    for (std::size_t environment = 0u;
+         environment < environmentCount;
+         ++environment) {
+        std::copy(
+            handle.defaultSceneBodies.begin(),
+            handle.defaultSceneBodies.end(),
+            handle.resetSceneBodies.begin() +
+                static_cast<std::ptrdiff_t>(
+                    environment * sceneBodyCount
+                )
+        );
+    }
+
+    handle.stepConfig.taskSeed = seed;
+    handle.residentState =
+        metalrobo::MetalWorldResidentState{};
+    handle.resetMasks.clear();
+    handle.result = {};
+    handle.statusCodes.clear();
+    handle.activeContacts.clear();
+}
+
+void validateTaskRolloutConfiguration(
+    const MRTaskRolloutConfigC& config
+) {
+    if (config.environment_count == 0u ||
+        config.physics_substeps == 0u ||
+        config.velocity_iterations == 0u ||
+        !std::isfinite(config.control_timestep_seconds) ||
+        !(config.control_timestep_seconds > 0.0f)) {
+        throw std::invalid_argument(
+            "task-rollout counts and timing must be finite and positive"
+        );
+    }
+    if (config.solver != MR_TASK_ROLLOUT_SOLVER_PGS &&
+        config.solver != MR_TASK_ROLLOUT_SOLVER_TGS) {
+        throw std::invalid_argument(
+            "task-rollout solver is invalid"
+        );
+    }
+}
+
+metalrobo::LocomotionSurface locomotionSurface(
+    const std::uint32_t value
+) {
+    switch (value) {
+    case MR_LOCOMOTION_SURFACE_GROUND:
+        return metalrobo::LocomotionSurface::ground;
+    case MR_LOCOMOTION_SURFACE_TERRAIN:
+        return metalrobo::LocomotionSurface::terrain;
+    default:
+        throw std::invalid_argument(
+            "locomotion surface is invalid"
+        );
+    }
+}
+
+std::unique_ptr<MRTaskRolloutHandle>
+createCompiledTaskRollout(
+    metalrobo::LocomotionWorld authored,
+    const MRTaskRolloutConfigC& config,
+    const char* metallibPath,
+    const std::string_view source
+) {
+    validateTaskRolloutConfiguration(config);
+
+    metalrobo::MetalWorldConfig worldConfig;
+    if (metallibPath != nullptr &&
+        metallibPath[0] != '\0') {
+        worldConfig.metallibPath = metallibPath;
+    }
+    worldConfig.maximumInFlightSubmissions = 1u;
+    auto handle =
+        std::make_unique<MRTaskRolloutHandle>(
+            std::move(worldConfig)
+        );
+
+    metalrobo::CompiledLocomotionWorld compiled;
+    const metalrobo::LocomotionWorldCompileDiagnostics
+        compiledStatus = metalrobo::compileLocomotionWorld(
+            authored,
+            0u,
+            compiled
+        );
+    if (!compiledStatus.world.succeeded()) {
+        throw std::runtime_error(
+            std::string{source} +
+            " Metal world compile failed [" +
+            metalrobo::metalWorldHostStatusName(
+                compiledStatus.world.status
+            ) + "]: " + compiledStatus.world.message
+        );
+    }
+    if (!compiledStatus.task.succeeded()) {
+        throw std::runtime_error(
+            std::string{source} +
+            " TaskPack compile failed [" +
+            metalrobo::taskCompileStatusName(
+                compiledStatus.task.status
+            ) + "]: " + compiledStatus.task.element +
+            ": " + compiledStatus.task.message
+        );
+    }
+
+    handle->model = std::move(authored.model);
+    handle->defaultSceneBodies =
+        std::move(authored.sceneBodies);
+    handle->world = std::move(compiled.world);
+    handle->taskProgram = std::move(compiled.task);
+    if (handle->world.sceneBodyCount() !=
+            handle->defaultSceneBodies.size()) {
+        throw std::runtime_error(
+            std::string{source} +
+            " scene-state count does not match compiled topology"
+        );
+    }
+
+    handle->environmentCount = config.environment_count;
+    handle->stepConfig.timestepSeconds =
+        config.control_timestep_seconds;
+    handle->stepConfig.physicsSubsteps =
+        config.physics_substeps;
+    handle->stepConfig.solverMode =
+        config.solver == MR_TASK_ROLLOUT_SOLVER_TGS
+        ? metalrobo::MetalWorldSolverMode::throughputTGS
+        : metalrobo::MetalWorldSolverMode::throughputPGS;
+    handle->stepConfig.actuationMode =
+        metalrobo::MetalWorldActuationMode::
+            implicitPositionDrive;
+    handle->stepConfig.velocityIterations =
+        config.velocity_iterations;
+    handle->stepConfig.finalVelocityIterations =
+        config.final_velocity_iterations;
+    handle->stepConfig.ccdMode =
+        metalrobo::MetalWorldCCDMode::disabled;
+    handle->stepConfig.applyBodyDamping = true;
+    handle->stepConfig.deterministic = true;
+    handle->stepConfig.warmStart = true;
+    handle->stepConfig.captureContactEvidence = false;
+    handle->stepConfig.publishFinalState = false;
+    handle->stepConfig.publishStateTrajectory = false;
+    handle->stepConfig.taskProgram = handle->taskProgram;
+    resetTaskRolloutState(*handle, config.seed);
+    return handle;
+}
+
+std::vector<float> copyPolicyFloats(
+    const float* values,
+    const std::size_t count,
+    const char* label
+) {
+    if (count != 0u && values == nullptr) {
+        throw std::invalid_argument(
+            std::string{label} + " pointer is null"
+        );
+    }
+    return count == 0u
+        ? std::vector<float>{}
+        : std::vector<float>{values, values + count};
+}
+
+metalrobo::PolicyPack policyPackFromC(
+    const MRPolicyPackC& policy
+) {
+    if (policy.id == nullptr ||
+        policy.id[0] == '\0' ||
+        policy.layers == nullptr ||
+        policy.layer_count == 0u ||
+        policy.layer_count >
+            std::numeric_limits<std::uint32_t>::max()) {
+        throw std::invalid_argument(
+            "policy identity and dense layers are required"
+        );
+    }
+
+    metalrobo::PolicyPack authored;
+    authored.id = policy.id;
+    authored.revision = policy.revision;
+    authored.observationMean = copyPolicyFloats(
+        policy.observation_mean,
+        policy.observation_mean_count,
+        "policy observation mean"
+    );
+    authored.observationInverseStandardDeviation =
+        copyPolicyFloats(
+            policy.observation_inverse_standard_deviation,
+            policy.observation_inverse_standard_deviation_count,
+            "policy observation inverse standard deviation"
+        );
+    authored.actionBias = copyPolicyFloats(
+        policy.action_bias,
+        policy.action_bias_count,
+        "policy action bias"
+    );
+    authored.actionScale = copyPolicyFloats(
+        policy.action_scale,
+        policy.action_scale_count,
+        "policy action scale"
+    );
+    authored.observationClip = policy.observation_clip;
+    authored.actionClip = policy.action_clip;
+    authored.layers.reserve(policy.layer_count);
+    for (std::size_t index = 0u;
+         index < policy.layer_count;
+         ++index) {
+        const MRPolicyDenseLayerC& source =
+            policy.layers[index];
+        const std::uint64_t expectedWeights =
+            static_cast<std::uint64_t>(
+                source.input_count
+            ) * source.output_count;
+        if (source.activation >
+                MR_POLICY_ACTIVATION_C_SILU ||
+            expectedWeights != source.weight_count ||
+            source.bias_count != source.output_count) {
+            throw std::invalid_argument(
+                "policy dense layer shape or activation is invalid"
+            );
+        }
+        authored.layers.push_back({
+            .inputCount = source.input_count,
+            .outputCount = source.output_count,
+            .activation =
+                static_cast<metalrobo::PolicyActivation>(
+                    source.activation
+                ),
+            .weights = copyPolicyFloats(
+                source.weights,
+                source.weight_count,
+                "policy dense weights"
+            ),
+            .bias = copyPolicyFloats(
+                source.bias,
+                source.bias_count,
+                "policy dense bias"
+            ),
+        });
+    }
+    return authored;
+}
+
+void installPolicyPack(
+    MRTaskRolloutHandle& handle,
+    const metalrobo::PolicyPack& authored
+) {
+    metalrobo::CompiledPolicyProgram compiled;
+    const metalrobo::PolicyCompileDiagnostics status =
+        metalrobo::compilePolicyProgram(
+            authored,
+            handle.taskProgram,
+            compiled
+        );
+    if (!status.succeeded()) {
+        throw std::invalid_argument(
+            std::string{"PolicyPack compile failed ["} +
+            metalrobo::policyCompileStatusName(
+                status.status
+            ) + "]: " + status.element + ": " +
+            status.message
+        );
+    }
+    handle.stepConfig.policyProgram = std::move(compiled);
+}
+
 std::runtime_error worldFamilyError(
     const char* operation,
     const metalrobo::MetalWorldFamilyDiagnostics& diagnostics
@@ -148,6 +517,35 @@ uint64_t mr_runtime_abi_fingerprint(void) {
 
 const char* mr_last_error(void) {
     return gLastError.c_str();
+}
+
+int mr_write_policy_pack(
+    const MRPolicyPackC* policy,
+    const char* policy_pack_path
+) {
+    if (policy == nullptr ||
+        policy_pack_path == nullptr ||
+        policy_pack_path[0] == '\0') {
+        gLastError = "PolicyPack and output path are required.";
+        return -1;
+    }
+    return translateErrors([&] {
+        const metalrobo::PolicyPack authored =
+            policyPackFromC(*policy);
+        const metalrobo::LearningPackResult written =
+            metalrobo::writePolicyPack(
+                authored,
+                policy_pack_path
+            );
+        if (!written.succeeded()) {
+            throw std::invalid_argument(
+                std::string{"PolicyPack write failed ["} +
+                metalrobo::learningPackStatusName(
+                    written.status
+                ) + "]: " + written.message
+            );
+        }
+    });
 }
 
 int mr_compile_episode_manifest(
@@ -363,6 +761,502 @@ const char* mr_device_name(const MRRuntimeHandle* handle) {
         return "";
     }
     return handle->deviceName.c_str();
+}
+
+MRTaskRolloutHandle* mr_create_unitree_g1_locomotion_rollout(
+    const MRTaskRolloutConfigC* config,
+    const uint32_t surface_value,
+    const char* metallib_path
+) {
+    if (config == nullptr) {
+        gLastError = "task-rollout config is null.";
+        return nullptr;
+    }
+
+    MRTaskRolloutHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        const metalrobo::LocomotionSurface surface =
+            locomotionSurface(surface_value);
+        auto handle =
+            createCompiledTaskRollout(
+                metalrobo::makeUnitreeG1LocomotionWorld(
+                    surface
+                ),
+                *config,
+                metallib_path,
+                "bundled G1"
+            );
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
+MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
+    const char* urdf_path,
+    const char* srdf_path,
+    const char* task_pack_path,
+    const MRTaskRolloutConfigC* config,
+    const uint32_t surface_value,
+    const char* metallib_path
+) {
+    if (config == nullptr ||
+        urdf_path == nullptr || urdf_path[0] == '\0' ||
+        task_pack_path == nullptr ||
+        task_pack_path[0] == '\0') {
+        gLastError =
+            "URDF, TaskPack, and task-rollout config are required.";
+        return nullptr;
+    }
+
+    MRTaskRolloutHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        const metalrobo::LocomotionSurface surface =
+            locomotionSurface(surface_value);
+        metalrobo::TaskPack task;
+        const metalrobo::LearningPackResult loaded =
+            metalrobo::readTaskPack(task_pack_path, task);
+        if (!loaded.succeeded()) {
+            throw std::invalid_argument(
+                std::string{"TaskPack load failed ["} +
+                metalrobo::learningPackStatusName(
+                    loaded.status
+                ) + "]: " + loaded.message
+            );
+        }
+
+        metalrobo::RobotDescriptionCookOptions options;
+        options.rootMode =
+            metalrobo::RobotDescriptionRootMode::floating;
+        options.meshMode =
+            metalrobo::RobotDescriptionMeshMode::convexHull;
+        metalrobo::LocomotionWorld authored;
+        const metalrobo::RobotDescriptionDiagnostics cooked =
+            metalrobo::cookRobotDescriptionFiles(
+                urdf_path,
+                srdf_path != nullptr && srdf_path[0] != '\0'
+                    ? std::filesystem::path{srdf_path}
+                    : std::filesystem::path{},
+                authored.model,
+                options
+            );
+        if (!cooked.succeeded()) {
+            throw std::invalid_argument(
+                std::string{"URDF/SRDF cook failed ["} +
+                metalrobo::robotDescriptionStatusName(
+                    cooked.status
+                ) + "]: " + cooked.element + ": " +
+                cooked.message
+            );
+        }
+        authored.task = std::move(task);
+        metalrobo::appendLocomotionSurface(
+            authored.model,
+            authored.sceneBodies,
+            surface
+        );
+        auto handle = createCompiledTaskRollout(
+            std::move(authored),
+            *config,
+            metallib_path,
+            "imported URDF"
+        );
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
+void mr_task_rollout_destroy(MRTaskRolloutHandle* handle) {
+    delete handle;
+}
+
+int mr_task_rollout_reset(
+    MRTaskRolloutHandle* handle,
+    const uint64_t seed
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    return translateErrors(
+        [&] { resetTaskRolloutState(*handle, seed); }
+    );
+}
+
+int mr_task_rollout_set_policy(
+    MRTaskRolloutHandle* handle,
+    const MRPolicyPackC* policy
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    if (policy == nullptr) {
+        gLastError = "task-rollout policy is null.";
+        return -1;
+    }
+    return translateErrors([&] {
+        installPolicyPack(
+            *handle,
+            policyPackFromC(*policy)
+        );
+    });
+}
+
+int mr_task_rollout_load_policy_pack(
+    MRTaskRolloutHandle* handle,
+    const char* policy_pack_path
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    if (policy_pack_path == nullptr ||
+        policy_pack_path[0] == '\0') {
+        gLastError = "PolicyPack path is empty.";
+        return -1;
+    }
+    return translateErrors([&] {
+        metalrobo::PolicyPack authored;
+        const metalrobo::LearningPackResult loaded =
+            metalrobo::readPolicyPack(
+                policy_pack_path,
+                authored
+            );
+        if (!loaded.succeeded()) {
+            throw std::invalid_argument(
+                std::string{"PolicyPack load failed ["} +
+                metalrobo::learningPackStatusName(
+                    loaded.status
+                ) + "]: " + loaded.message
+            );
+        }
+        installPolicyPack(*handle, authored);
+    });
+}
+
+int mr_task_rollout_clear_policy(
+    MRTaskRolloutHandle* handle
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    handle->stepConfig.policyProgram = {};
+    gLastError.clear();
+    return 0;
+}
+
+int mr_task_rollout_advance(
+    MRTaskRolloutHandle* handle,
+    const float* normalized_actions,
+    const size_t normalized_action_count,
+    const uint32_t* reset_masks,
+    const size_t reset_mask_count,
+    const uint32_t control_step_count,
+    const uint64_t policy_revision,
+    MRTaskRolloutAdvanceC* advance
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    if (advance == nullptr) {
+        gLastError = "task-rollout advance result is null.";
+        return -1;
+    }
+    *advance = {};
+    advance->first_failing_environment = UINT32_MAX;
+    advance->first_failing_control_step = UINT32_MAX;
+    if (control_step_count == 0u) {
+        gLastError =
+            "task-rollout control_step_count must be positive.";
+        return -1;
+    }
+
+    return translateErrors([&] {
+        const std::size_t actionCount =
+            handle->taskProgram.layout().actionCount;
+        const std::size_t environmentCount =
+            handle->environmentCount;
+        const bool nativePolicy =
+            handle->stepConfig.policyProgram.valid();
+        const std::size_t requiredActions =
+            nativePolicy
+            ? 0u
+            : checkedProduct(
+                  {
+                      control_step_count,
+                      environmentCount,
+                      actionCount,
+                  },
+                  "task-rollout action"
+              );
+        const std::size_t requiredMasks = checkedProduct(
+            {control_step_count, environmentCount},
+            "task-rollout reset mask"
+        );
+        if ((!nativePolicy &&
+             normalized_actions == nullptr) ||
+            normalized_action_count != requiredActions ||
+            (nativePolicy &&
+             normalized_actions != nullptr)) {
+            throw std::invalid_argument(
+                nativePolicy
+                ? "native-policy rollout does not accept a host action stream"
+                : "normalized task action count must equal step_count * environment_count * compiled action_count"
+            );
+        }
+        if ((reset_masks == nullptr && reset_mask_count != 0u) ||
+            (reset_masks != nullptr &&
+             reset_mask_count != requiredMasks)) {
+            throw std::invalid_argument(
+                "task reset mask count must be zero or "
+                "step_count * environment_count"
+            );
+        }
+
+        handle->resetMasks.assign(requiredMasks, 0u);
+        if (reset_masks != nullptr) {
+            std::copy(
+                reset_masks,
+                reset_masks + reset_mask_count,
+                handle->resetMasks.begin()
+            );
+        }
+        advance->scheduled_resets =
+            static_cast<std::uint32_t>(
+                std::count_if(
+                    handle->resetMasks.begin(),
+                    handle->resetMasks.end(),
+                    [](const std::uint32_t value) {
+                        return value != 0u;
+                    }
+                )
+            );
+
+        const bool initializeResidentState =
+            !handle->residentState.valid();
+        const metalrobo::MetalWorldBatch batch{
+            .environmentCount = environmentCount,
+            .controlStepCount = control_step_count,
+            .initialQ =
+                initializeResidentState
+                ? std::span<const float>{handle->resetQ}
+                : std::span<const float>{},
+            .initialV =
+                initializeResidentState
+                ? std::span<const float>{handle->resetV}
+                : std::span<const float>{},
+            .actions =
+                nativePolicy
+                ? std::span<const float>{}
+                : std::span<const float>{
+                      normalized_actions,
+                      normalized_action_count
+                  },
+            .policyRevision = policy_revision,
+            .resetMasks = handle->resetMasks,
+            .initialSceneBodies =
+                initializeResidentState
+                ? std::span<const MRBodyStateGPU>{
+                      handle->resetSceneBodies
+                  }
+                : std::span<const MRBodyStateGPU>{},
+        };
+        metalrobo::MetalWorldSubmission submission;
+        metalrobo::MetalWorldResult published;
+        metalrobo::MetalWorldDiagnostics diagnostics =
+            initializeResidentState
+            ? handle->context.initializeResidentState(
+                handle->world,
+                batch,
+                handle->stepConfig,
+                handle->residentState,
+                submission
+            )
+            : handle->context.submitResident(
+                handle->world,
+                batch,
+                handle->stepConfig,
+                handle->residentState,
+                submission
+            );
+        if (diagnostics.succeeded()) {
+            diagnostics = submission.wait(published);
+        }
+        advance->control_step_count = control_step_count;
+        advance->successful_environment_steps =
+            diagnostics.successfulStepCount;
+        advance->failed_environment_steps =
+            diagnostics.failedStepCount;
+        advance->first_failing_environment =
+            diagnostics.firstFailingEnvironment;
+        advance->first_failing_control_step =
+            diagnostics.firstFailingControlStep;
+        advance->first_gpu_status_code =
+            diagnostics.firstGPUStatusCode;
+        advance->gpu_milliseconds =
+            diagnostics.gpuElapsedMilliseconds;
+        advance->submission_milliseconds =
+            diagnostics.submissionElapsedMilliseconds;
+
+        handle->statusCodes.assign(
+            requiredMasks,
+            MR_STEP_SUCCESS
+        );
+        handle->activeContacts.assign(requiredMasks, 0u);
+        for (std::size_t index = 0u;
+             index < requiredMasks;
+             ++index) {
+            if (index < published.statuses.size()) {
+                handle->statusCodes[index] =
+                    published.statuses[index].code;
+            }
+            if (index < published.contactStatuses.size()) {
+                const auto& contact =
+                    published.contactStatuses[index];
+                if (handle->statusCodes[index] ==
+                    MR_STEP_SUCCESS) {
+                    handle->statusCodes[index] = contact.code;
+                }
+                handle->activeContacts[index] =
+                    contact.activeContacts;
+                advance->maximum_active_contacts = std::max(
+                    advance->maximum_active_contacts,
+                    contact.activeContacts
+                );
+                advance->maximum_manifolds = std::max(
+                    advance->maximum_manifolds,
+                    contact.requiredManifolds
+                );
+            }
+        }
+
+        if (!diagnostics.published ||
+            published.statuses.size() != requiredMasks ||
+            published.contactStatuses.size() !=
+                requiredMasks) {
+            throw std::runtime_error(
+                std::string{"task-rollout publication failed ["} +
+                metalrobo::metalWorldHostStatusName(
+                    diagnostics.status
+                ) + "]: " + diagnostics.message
+            );
+        }
+        handle->result = std::move(published);
+        handle->deviceName = diagnostics.deviceName;
+        handle->submittedControlSteps += control_step_count;
+        handle->completedEnvironmentSteps +=
+            diagnostics.successfulStepCount;
+        ++handle->submissionCount;
+        handle->totalGPUMilliseconds +=
+            diagnostics.gpuElapsedMilliseconds;
+        handle->totalSubmissionMilliseconds +=
+            diagnostics.submissionElapsedMilliseconds;
+        if (!diagnostics.succeeded()) {
+            throw std::runtime_error(
+                std::string{"task-rollout GPU step failed ["} +
+                metalrobo::metalWorldHostStatusName(
+                    diagnostics.status
+                ) + "]: " + diagnostics.message
+            );
+        }
+    });
+}
+
+MRTaskRolloutLayoutC mr_task_rollout_layout(
+    const MRTaskRolloutHandle* handle
+) {
+    MRTaskRolloutLayoutC result{};
+    if (!requireTaskRolloutHandle(handle)) {
+        return result;
+    }
+    const metalrobo::MetalWorldContextStats stats =
+        handle->context.stats();
+    result.environment_count = handle->environmentCount;
+    result.nq = static_cast<std::uint32_t>(handle->world.nq());
+    result.nv = static_cast<std::uint32_t>(handle->world.nv());
+    result.action_count =
+        handle->taskProgram.layout().actionCount;
+    result.actor_observation_count =
+        handle->taskProgram.layout().actorObservationSize;
+    result.critic_observation_count =
+        handle->taskProgram.layout().criticObservationSize;
+    result.scene_body_count =
+        static_cast<std::uint32_t>(
+            handle->defaultSceneBodies.size()
+        );
+    result.submitted_control_steps =
+        handle->submittedControlSteps;
+    result.completed_environment_steps =
+        handle->completedEnvironmentSteps;
+    result.submission_count = handle->submissionCount;
+    result.retained_buffer_bytes = stats.retainedBufferBytes;
+    result.immutable_private_bytes =
+        stats.memoryPlan.immutablePrivateBytes;
+    result.persistent_state_private_bytes =
+        stats.memoryPlan.persistentStatePrivateBytes;
+    result.transient_private_bytes =
+        stats.memoryPlan.transientPrivateBytes;
+    result.shared_boundary_bytes =
+        stats.memoryPlan.sharedBoundaryBytes;
+    result.peak_aliased_bytes =
+        stats.memoryPlan.peakAliasedBytes;
+    result.total_gpu_milliseconds =
+        handle->totalGPUMilliseconds;
+    result.total_submission_milliseconds =
+        handle->totalSubmissionMilliseconds;
+    return result;
+}
+
+const char* mr_task_rollout_device_name(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle)
+        ? handle->deviceName.c_str()
+        : "";
+}
+
+const uint32_t* mr_task_rollout_status_codes(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->statusCodes.empty()
+        ? handle->statusCodes.data()
+        : nullptr;
+}
+
+const uint32_t* mr_task_rollout_active_contacts(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->activeContacts.empty()
+        ? handle->activeContacts.data()
+        : nullptr;
+}
+
+const float* mr_task_rollout_actor_observations(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.actorObservations.empty()
+        ? handle->result.actorObservations.data()
+        : nullptr;
+}
+
+const float* mr_task_rollout_critic_observations(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.criticObservations.empty()
+        ? handle->result.criticObservations.data()
+        : nullptr;
+}
+
+const MRTaskTransitionC* mr_task_rollout_transitions(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        !handle->result.transitions.empty()
+        ? reinterpret_cast<const MRTaskTransitionC*>(
+              handle->result.transitions.data()
+          )
+        : nullptr;
 }
 
 MRWorldFamilyHandle* mr_create_franka_pick_place_world_family(

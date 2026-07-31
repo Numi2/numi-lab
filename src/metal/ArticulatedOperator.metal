@@ -418,7 +418,9 @@ inline float massElement(
             localBody
         ];
         const float massScale = max(physical.x, 1.0e-4f);
-        const float inertiaScale = max(physical.z, 1.0e-4f);
+        // Preserve the mass/friction/restitution/damping ABI. Uniform mass
+        // scaling also scales the articulated inertia tensor.
+        const float inertiaScale = massScale;
 #else
         constexpr float massScale = 1.0f;
         constexpr float inertiaScale = 1.0f;
@@ -973,6 +975,7 @@ inline bool buildKinematics(
     return true;
 }
 
+#if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
 inline bool buildBodyVelocities(
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
@@ -1092,6 +1095,7 @@ inline bool buildBodyVelocities(
     }
     return true;
 }
+#endif
 
 inline bool validatePoints(
     const uint environment,
@@ -1150,6 +1154,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     device MRArticulatedOperatorStatusGPU* statuses [[buffer(14)]],
 #if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
     device const float4* bodyParameters [[buffer(15)]],
+    device const float4* controllerParameters [[buffer(16)]],
 #endif
     threadgroup uchar* scratch [[threadgroup(0)]],
     uint environment [[threadgroup_position_in_grid]],
@@ -1496,9 +1501,19 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             (properties.flags & MR_DOF_FLAG_DRIVE) != 0u) {
             const float timestep =
                 world.gravityAndTimestep.w;
+#if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+            const float4 controller =
+                controllerParameters[environment];
+            const float gainScale = max(controller.x, 0.0f);
+            const float dampingScale = max(controller.y, 0.0f);
+#else
+            constexpr float gainScale = 1.0f;
+            constexpr float dampingScale = 1.0f;
+#endif
             armature +=
-                timestep * properties.drive.y +
-                timestep * timestep * properties.drive.x;
+                timestep * dampingScale * properties.drive.y +
+                timestep * timestep * gainScale *
+                    properties.drive.x;
         }
         const uint diagonal =
             dof * factorStride + dof;

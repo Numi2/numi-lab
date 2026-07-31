@@ -49,6 +49,15 @@ struct EngineModel {
     ConstraintIR constraintProgram;
     std::vector<float> defaultQ;
     std::vector<float> defaultV;
+    // Semantic identities are canonical compiler input, not runtime lookup
+    // data. Importers preserve authored names here so TaskPack compilation can
+    // resolve them once into stable body, joint, DoF, and collider indices.
+    // Empty vectors are permitted for legacy programmatic models that are
+    // never bound to a task; non-empty vectors must exactly match topology.
+    std::vector<std::string> bodyNames;
+    std::vector<std::string> jointNames;
+    std::vector<std::string> dofNames;
+    std::vector<std::string> shapeNames;
     std::string name;
 
     [[nodiscard]] bool valid(std::string* reason = nullptr) const;

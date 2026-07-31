@@ -292,6 +292,17 @@ void appendEngineModel(HashBuilder& hash, const EngineModel& model) {
     );
     hash.appendSpan<float>(model.defaultQ);
     hash.appendSpan<float>(model.defaultV);
+    const auto appendNames =
+        [&hash](const std::vector<std::string>& names) {
+            hash.appendScalar<std::uint64_t>(names.size());
+            for (const std::string& name : names) {
+                hash.appendString(name);
+            }
+        };
+    appendNames(model.bodyNames);
+    appendNames(model.jointNames);
+    appendNames(model.dofNames);
+    appendNames(model.shapeNames);
 }
 
 std::uint32_t computeCapabilities(

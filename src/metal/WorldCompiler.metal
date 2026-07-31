@@ -180,20 +180,6 @@ SampledValue sampleValueAtQuantile(
     }
 }
 
-SampledValue sampleValue(
-    const MRWorldVariationGPU descriptor,
-    const device uint* categoricalValues,
-    const uint categoricalCount,
-    const uint4 random
-) {
-    return sampleValueAtQuantile(
-        descriptor,
-        categoricalValues,
-        categoricalCount,
-        uniform01(random.x)
-    );
-}
-
 ulong join64(const uint2 words) {
     return (ulong(words.y) << 32u) | ulong(words.x);
 }

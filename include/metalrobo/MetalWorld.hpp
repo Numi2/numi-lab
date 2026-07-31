@@ -2,6 +2,9 @@
 
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
+#include "metalrobo/MetalWorldCapacity.hpp"
+#include "metalrobo/PolicyProgram.hpp"
+#include "metalrobo/TaskProgram.hpp"
 #include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/rod_gpu_shared.h"
 #include "metalrobo/unified_quality_shared.h"
@@ -20,6 +23,7 @@ namespace metalrobo {
 namespace detail {
 struct MetalWorldContextState;
 struct MetalWorldContextPool;
+struct MetalWorldResidentStateData;
 struct MetalWorldSubmissionState;
 } // namespace detail
 
@@ -62,40 +66,6 @@ enum class MetalWorldCapacityClass : std::uint32_t {
     uncompiled = 0u,
     compactABA12 = 1u,
     fullABA32 = 2u,
-};
-
-// Fixed per-environment capacities used by the device-resident contact graph.
-// Zero fields use the compiled recommendation. Explicit stage capacities may
-// be smaller to exercise exact transactional overflow; structural capacities
-// that cannot address the compiled graph are rejected.
-struct MetalWorldCapacityProfile {
-    std::uint32_t candidatePairs = 0u;
-    std::uint32_t rawContacts = 0u;
-    std::uint32_t manifolds = 0u;
-    std::uint32_t constraintBlocks = 0u;
-    std::uint32_t constraintRows = 0u;
-    std::uint32_t islands = 0u;
-    std::uint32_t hardConvexPairs = 0u;
-    std::uint32_t meshTriangleCandidates = 0u;
-    std::uint32_t solverTiles = 0u;
-    std::uint32_t spillRows = 0u;
-    std::uint32_t ccdCandidates = 0u;
-    std::uint32_t ccdEvents = 0u;
-    std::uint32_t endpointRuntimeRecords = 0u;
-    std::uint32_t articulationPointQueries = 0u;
-    std::uint32_t rodCandidatePairs = 0u;
-    std::uint32_t rodRawContacts = 0u;
-    std::uint32_t rodManifolds = 0u;
-    std::uint32_t rodCCDEvents = 0u;
-    std::uint32_t qualityGeneralizedVelocities = 0u;
-    std::uint32_t qualityRows = 0u;
-    std::uint32_t qualityKrylovVectors = 0u;
-    std::uint32_t qualityDirectTiles = 0u;
-    std::uint32_t dynamicNodes = 0u;
-    std::uint32_t islandNodeReferences = 0u;
-    std::uint32_t islandConstraintReferences = 0u;
-    std::uint32_t rodFactorBlocks = 0u;
-    std::uint32_t operatorVelocityElements = 0u;
 };
 
 enum class MetalWorldHostStatus : std::uint32_t {
@@ -270,6 +240,11 @@ struct MetalWorldBatch {
     std::span<const float> initialQ{};
     std::span<const float> initialV{};
     std::span<const float> efforts{};
+    // A compiled task program consumes packed
+    // [control step][environment][task action] normalized actions and leaves
+    // efforts empty; its native control operators produce nv-wide targets.
+    std::span<const float> actions{};
+    std::uint64_t policyRevision = 0u;
     std::span<const std::uint32_t> resetMasks{};
     std::span<const float> resetQ{};
     std::span<const float> resetV{};
@@ -305,6 +280,14 @@ struct MetalWorldStepConfig {
     // driven DoF; floating-root and unactuated entries are ignored.
     MetalWorldActuationMode actuationMode =
         MetalWorldActuationMode::effort;
+    // Empty means a policy-independent physics submission. A valid compiled
+    // program owns reset, control, observation, reward, and termination
+    // semantics without selecting a robot-specific shader path.
+    CompiledTaskProgram taskProgram{};
+    // Optional generic native inference program. With no policy program,
+    // normalized actions remain an explicit learner/deployment input.
+    CompiledPolicyProgram policyProgram{};
+    std::uint64_t taskSeed = 0u;
     std::uint32_t velocityIterations = 1u;
     std::uint32_t finalVelocityIterations = 1u;
     MetalWorldCCDMode ccdMode = MetalWorldCCDMode::speculative;
@@ -318,6 +301,11 @@ struct MetalWorldStepConfig {
     bool deterministic = true;
     bool warmStart = true;
     bool captureContactEvidence = false;
+    // Full state/trajectory publication is an explicit inspection boundary.
+    // Native rollout sessions disable both and retain simulator state on the
+    // device while still publishing checked status records.
+    bool publishFinalState = true;
+    bool publishStateTrajectory = true;
     float manifoldBreakingSeparation = 0.02f;
     float manifoldBreakingTangential = 0.02f;
     float manifoldMergeDistance = 0.002f;
@@ -361,12 +349,16 @@ struct MetalWorldLayout {
     std::size_t initialVElements = 0u;
     std::size_t initialSceneBodyElements = 0u;
     std::size_t effortElements = 0u;
+    std::size_t actionElements = 0u;
     std::size_t resetMaskElements = 0u;
     std::size_t resetQElements = 0u;
     std::size_t resetVElements = 0u;
     std::size_t resetSceneBodyElements = 0u;
     std::size_t kinematicTargetElements = 0u;
     std::size_t observationElements = 0u;
+    std::size_t actorObservationElements = 0u;
+    std::size_t criticObservationElements = 0u;
+    std::size_t transitionElements = 0u;
     std::size_t accelerationElements = 0u;
     std::size_t statusElements = 0u;
     std::size_t articulationStatusElements = 0u;
@@ -497,6 +489,10 @@ struct MetalWorldResult {
     std::vector<MRRodEdgeStateGPU> finalRodEdges;
     // Packed [control step][environment][q then v].
     std::vector<float> observations;
+    // Compact learning boundary produced only by a native task graph.
+    std::vector<float> actorObservations;
+    std::vector<float> criticObservations;
+    std::vector<MRTaskTransitionGPU> transitions;
     // Packed [control step][environment][local v]. Failed steps publish zero
     // acceleration and preserve their pre-step accepted state.
     std::vector<float> accelerations;
@@ -548,6 +544,35 @@ struct MetalWorldContextStats {
 
 class MetalWorldContext;
 
+// Move-only ownership token for one device-resident world state. The token
+// pins one context arena between submissions so q/v, scene, contact caches,
+// rods, and warm starts can continue without a host round-trip.
+class MetalWorldResidentState {
+public:
+    MetalWorldResidentState() noexcept;
+    ~MetalWorldResidentState();
+
+    MetalWorldResidentState(
+        MetalWorldResidentState&& other
+    ) noexcept;
+    MetalWorldResidentState& operator=(
+        MetalWorldResidentState&& other
+    ) noexcept;
+
+    MetalWorldResidentState(
+        const MetalWorldResidentState&
+    ) = delete;
+    MetalWorldResidentState& operator=(
+        const MetalWorldResidentState&
+    ) = delete;
+
+    [[nodiscard]] bool valid() const noexcept;
+
+private:
+    friend class MetalWorldContext;
+    std::shared_ptr<detail::MetalWorldResidentStateData> state_;
+};
+
 // A committed multi-step world graph. submit() snapshots all caller-owned
 // spans before returning. wait() consumes the ticket and publishes one result.
 // Destroying a live ticket waits and discards safely.
@@ -598,6 +623,27 @@ public:
         MetalWorldSubmission& submission
     );
 
+    // Seeds a new resident state from the full host-authored batch. The batch
+    // also establishes the reset-state contract retained by the session.
+    [[nodiscard]] MetalWorldDiagnostics initializeResidentState(
+        const CompiledWorld& world,
+        const MetalWorldBatch& batch,
+        const MetalWorldStepConfig& config,
+        MetalWorldResidentState& state,
+        MetalWorldSubmission& submission
+    );
+
+    // Continues an initialized resident state. initialQ/initialV, initial
+    // scene/rod state, and reset state spans must be empty; only compact
+    // control/reset-mask/kinematic streams cross the host boundary.
+    [[nodiscard]] MetalWorldDiagnostics submitResident(
+        const CompiledWorld& world,
+        const MetalWorldBatch& batch,
+        const MetalWorldStepConfig& config,
+        MetalWorldResidentState& state,
+        MetalWorldSubmission& submission
+    );
+
     [[nodiscard]] MetalWorldDiagnostics run(
         const CompiledWorld& world,
         const MetalWorldBatch& batch,
@@ -608,6 +654,15 @@ public:
     [[nodiscard]] MetalWorldContextStats stats() const noexcept;
 
 private:
+    [[nodiscard]] MetalWorldDiagnostics submitImpl(
+        const CompiledWorld& world,
+        const MetalWorldBatch& batch,
+        const MetalWorldStepConfig& config,
+        MetalWorldResidentState* residentState,
+        bool initializeResidentState,
+        MetalWorldSubmission& submission
+    );
+
     std::shared_ptr<detail::MetalWorldContextPool> pool_;
 };
 

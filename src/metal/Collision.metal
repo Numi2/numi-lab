@@ -10097,17 +10097,16 @@ kernel void mr_world_scan_manifold_ir(
 kernel void mr_world_scatter_manifold_records(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(1)]],
-    device const uint* pairRawCounts [[buffer(2)]],
-    device const MRRawContactGPU* pairRawContactStaging [[buffer(3)]],
-    device const MRManifoldHeaderGPU* pairManifoldHeaders [[buffer(4)]],
-    device const MRManifoldPointGPU* pairManifoldPoints [[buffer(5)]],
-    device const MRManifoldIRScatterGPU* scatterRecords [[buffer(6)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(7)]],
-    device MRCandidatePairGPU* outputPairs [[buffer(8)]],
-    device MRRawContactGPU* outputRawContacts [[buffer(9)]],
-    device uint* outputRawPairIndices [[buffer(10)]],
-    device MRManifoldHeaderGPU* candidateManifoldHeaders [[buffer(11)]],
-    device MRManifoldPointGPU* candidateManifoldPoints [[buffer(12)]],
+    device const MRRawContactGPU* pairRawContactStaging [[buffer(2)]],
+    device const MRManifoldHeaderGPU* pairManifoldHeaders [[buffer(3)]],
+    device const MRManifoldPointGPU* pairManifoldPoints [[buffer(4)]],
+    device const MRManifoldIRScatterGPU* scatterRecords [[buffer(5)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(6)]],
+    device MRCandidatePairGPU* outputPairs [[buffer(7)]],
+    device MRRawContactGPU* outputRawContacts [[buffer(8)]],
+    device uint* outputRawPairIndices [[buffer(9)]],
+    device MRManifoldHeaderGPU* candidateManifoldHeaders [[buffer(10)]],
+    device MRManifoldPointGPU* candidateManifoldPoints [[buffer(11)]],
     const uint flatPair [[thread_position_in_grid]]
 ) {
     const uint pairDomain =

@@ -13,7 +13,7 @@ selected articulation per environment.
 - `MetalWorldBatch` contains environment-major articulation and scene state,
   control-step-major efforts, optional reset state, and optional kinematic
   targets. `submit()` snapshots every caller-owned span before returning.
-- `MetalWorldContext` owns the device, queue, twenty-one cached compute
+- `MetalWorldContext` owns the device, queue, cached compute
   pipelines, immutable uploads, and a typed grow-only arena.
 - `MetalWorldSubmission` is a move-only asynchronous ticket. `submit()` commits
   without waiting; `wait()` is the explicit host publication boundary.
@@ -25,6 +25,56 @@ The aggregate status records exact capacity requirements, resident high-water
 counts, manifold retention, maximum residuals, solver iterations, and the
 first failing stable pair/constraint index. One failed environment rolls back
 without preventing healthy environments in the same dispatch from publishing.
+
+## Compiled task and policy execution
+
+A robot model does not select a Metal shader. The production locomotion path is
+compiled from three independent artifacts:
+
+```text
+URDF/SRDF or authored EngineModel
+        + TaskPack
+        + PolicyPack
+        |
+        v
+stable semantic indices, tables, capacities, fingerprints
+        |
+        v
+MetalWorld + LocomotionTask.metal + PolicyInference.metal
+```
+
+`TaskPack` owns action-to-joint bindings, observation/history operators,
+semantic contact and joint groups, rewards, termination, reset/randomization,
+command/push programs, terrain samples, and its operational contact-graph
+capacity contract. `compileTaskProgram` resolves every authored body and joint
+name once against the compiled world. GPU execution consumes only fixed tables,
+counts, offsets, and fingerprints.
+
+`PolicyPack` owns dense actor weights, normalization, output transforms, clips,
+and a monotonically increasing revision. `compilePolicyProgram` verifies its
+observation/action contract against the compiled task and proves finite
+accumulator bounds before publishing immutable GPU tables. The generic dense
+kernel has no robot, joint, or network-width branches.
+
+The bundled Unitree G1 factory is mechanics plus one bundled TaskPack. Imported
+floating-base URDF/SRDF models use the same `compileLocomotionWorld` path and
+the Swift `MetalRoboTaskRolloutContext` initializer accepts a persisted
+TaskPack directly. Other importers can construct the same `EngineModel` C++
+boundary; a new `.metal` extension is appropriate only for a new physics
+primitive, sensor modality, or task operator.
+
+Swift owns rollout length, chunking, submission/wait boundaries, resets,
+policy revision, and error reporting. `MetalWorldResidentState` keeps
+articulation state, scene state, manifolds, warm starts, actuator history,
+sensor history, episode state, and RNG state private across submissions.
+Reset is one native transaction. Only actor/critic observations, transition
+records, and explicit diagnostics cross the learning boundary.
+
+`TaskPack` and `PolicyPack` have deterministic, fingerprinted, transactional
+binary artifacts. MLX is a batch learning backend in
+`python/metalrobo/mlx_policy_learning.py`; it has no simulator or rollout
+scheduler dependency and publishes actors through the canonical PolicyPack
+writer.
 
 ## Encoded graphs
 
@@ -124,10 +174,13 @@ time, and first failing event keys. The current step clusters certified events
 and uses speculative TGS to consume the complete microstep; literal repeated
 TOI advance/solve/continue publication remains the next collision milestone.
 
-## MLX active-encoder adapter
+## MLX research adapters
 
-The Python package pins `mlx>=0.32,<0.33` and builds a nanobind custom
-extension. The primitive:
+The product rollout architecture above does not place physics state or rollout
+scheduling in MLX. The Python package still builds a nanobind active-encoder
+adapter for focused reference, perception, and legacy manipulation work. It is
+not the production locomotion executor and must not be copied when adding a
+robot. Its primitive:
 
 - allocates outputs and temporaries through MLX;
 - encodes ABA and transactional publication into MLX's active Metal command
@@ -217,12 +270,12 @@ an MLX command-encoder boundary. Standalone `sensor_reference` presentation
 uses compacted Metal BLASes and grouped motion-instance TLASes when authored
 high-poly visibility warrants their build and encoder-transition cost.
 
-`WorldState`, `SolverCache`, and `StepOutput` are explicit MLX PyTrees. The
-pure `step()` API supports explicit MLX reset masks/state. `MLXRolloutCollector`
-compiles policy inference, effort mapping, physics, reward, termination, and
-reset into one lazy graph; rollout storage and GAE are MLX arrays.
-`mx.async_eval` bounds rollout chunks, while blocking evaluation is restricted
-to declared rollout/logging and optimizer/checkpoint boundaries.
+The adapter's explicit `WorldState`, `SolverCache`, and `StepOutput` PyTrees
+remain useful for numerical comparison and existing non-locomotion research
+graphs. They are not an alternative owner for production simulator state,
+reset, reward, termination, or rollout evaluation boundaries. New task
+training consumes compact native rollout batches through the policy-learning
+boundary instead.
 
 An authored `MRWorldPack` can be compiled directly into the same primitive.
 Its `EngineModel` and `CookedTactileSystem` are the only physics/tactile
@@ -235,14 +288,14 @@ tactile sensors allocate and dispatch no tactile work.
 Optional per-DoF actuator profiles carry joint-side torque constant, current
 limit, no-load speed, efficiency, backlash, and delay. Cooking derives stall
 torque. Standalone Metal consumes immutable authored profiles; MLX carries
-fixed per-environment profile values, backlash target, and delay history as
-explicit state. One correlated profile may be selected at reset, but no
-per-frame calibration branch exists in the solver loop. Missing measured
-profiles use neutral execution records and do not imply calibration.
+fixed per-environment profile values, backlash target, and delay history only
+inside legacy reference graphs. Production task reset owns them natively. One
+correlated profile may be selected at reset, but no per-frame calibration
+branch exists in the solver loop. Missing measured profiles use neutral
+execution records and do not imply calibration.
 
-The active-encoder world primitive exposes free-motion and contact-capable
-Franka, G1, and PSM scenes, including persistent Wave32 work pulling and
-literal event-time CCD. A separate fixed-capacity generalized-constraint
+The active-encoder reference primitive exposes free-motion and contact-capable
+Franka and PSM scenes. A separate fixed-capacity generalized-constraint
 primitive consumes the cooked multi-articulation program on the same active
 encoder; dual PSM and heterogeneous dual-PSM-plus-G1 graphs are executable
 without a secondary command buffer or CPU fallback. Its inverse-ABA path
@@ -367,21 +420,31 @@ needle scene, the Metal result matches the FP64 state, contact and reconstructed
 equality impulse payload within `6.9e-8`; all fourteen base-lock and jaw-gear
 rows close at `7.5e-9`.
 
-The NumPy/ctypes Franka task remains available only as
-`--backend ctypes-debug` for compatibility and oracle work. The CLI training
-default is the MLX-native Franka joint-stabilization task.
+The older NumPy/ctypes and MLX-owned Franka task frontends remain compatibility
+and oracle tools. They are not the current compiled-task rollout architecture.
 
 ## Decisive probes
 
 ```sh
+./build/bin/metalrobo_task_program_check
+./build/bin/metalrobo_task_rollout \
+  --metallib build/shaders/MetalRobo.metallib \
+  --envs 32 --steps 48 --repeats 20 --chunk 8 \
+  --scene terrain --native-policy
 ./build/bin/metalrobo_metal_world_contact_probe
 ./build/bin/metalrobo_metal_world_probe
 
 cd python
-python3 setup.py build_ext --inplace
-python3 probes/mlx_world_probe.py
-python3 probes/mlx_multi_articulated_probe.py
+python3 probes/mlx_policy_learning_check.py \
+  --library ../build/lib/libmetalrobo.dylib
 ```
+
+The task-program check covers deterministic semantic compilation, imported
+URDF mechanics, capacity contracts, transactionality, PolicyPack compatibility,
+and TaskPack/PolicyPack artifact round trips. The Swift rollout executable
+covers resident state, bounded native submissions, randomized actions,
+compiled policy inference, scheduled resets, compact publication, memory
+accounting, and both throughput solvers.
 
 The contact probe covers a resting sphere/plane cache, greater than 99 percent
 unchanged-frame retention, deterministic replay, a mixed Franka/1 kg cube
@@ -390,7 +453,6 @@ beyond the former scan ceiling. The free-world probe covers
 Franka/G1 FP64 parity, asynchronous ownership, bitwise replay, failure
 rollback, grow-only reuse, and the 4,096-environment throughput gate.
 
-The MLX probe covers `mx.compile` for Franka and G1, 100 exact replays,
-FP64 parity, single-environment NaN failure isolation, explicit autodiff
-rejection, a bounded native rollout, and a real PPO optimizer update with zero
-NumPy conversions in the step loop.
+The MLX learner check performs a real PPO update without importing simulator
+state or scheduling a transition, then publishes a PolicyPack accepted by the
+Swift/Metal executor.

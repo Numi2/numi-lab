@@ -253,14 +253,16 @@ inline void setFailure(
 inline float effectiveArmature(
     device const MRDofPropertiesGPU& dof,
     const uint dispatchFlags,
-    const float timestep
+    const float timestep,
+    const float gainScale,
+    const float dampingScale
 ) {
     float value = dof.drive.z;
     if ((dispatchFlags & MR_ABA_IMPLICIT_DRIVES) != 0u &&
         (dof.flags & MR_DOF_FLAG_DRIVE) != 0u) {
         value +=
-            timestep * dof.drive.y +
-            timestep * timestep * dof.drive.x;
+            timestep * dampingScale * dof.drive.y +
+            timestep * timestep * gainScale * dof.drive.x;
     }
     return value;
 }
@@ -320,6 +322,7 @@ kernel void MR_ABA_KERNEL_NAME(
     device MRABAStatusGPU* statusOutput [[buffer(13)]],
 #if MR_ABA_BODY_PARAMETERS
     device const float4* bodyParameters [[buffer(14)]],
+    device const float4* controllerParameters [[buffer(15)]],
 #endif
 #ifdef MR_ABA_MULTI_ARTICULATION
     uint2 workPosition [[threadgroup_position_in_grid]],
@@ -641,6 +644,14 @@ kernel void MR_ABA_KERNEL_NAME(
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
     const uint effortBase = environment * dispatch.effortStride;
+#if MR_ABA_BODY_PARAMETERS
+    const float4 controller = controllerParameters[environment];
+    const float gainScale = max(controller.x, 0.0f);
+    const float driveDampingScale = max(controller.y, 0.0f);
+#else
+    constexpr float gainScale = 1.0f;
+    constexpr float driveDampingScale = 1.0f;
+#endif
     device const float* environmentQ = q + qBase;
     device const float* environmentV = v + vBase;
     device const float* environmentEffort = effort + effortBase;
@@ -902,7 +913,10 @@ kernel void MR_ABA_KERNEL_NAME(
             environment * world.bodyCount + globalBody
         ];
         const float massScale = max(physical.x, 1.0e-4f);
-        const float inertiaScale = max(physical.z, 1.0e-4f);
+        // The body-parameter ABI is mass, friction, restitution, damping.
+        // Inertia scales with mass, matching free-body materialization;
+        // physical.z remains contact-only.
+        const float inertiaScale = massScale;
         const float dampingScale = max(physical.w, 0.0f);
 #else
         constexpr float massScale = 1.0f;
@@ -1012,14 +1026,18 @@ kernel void MR_ABA_KERNEL_NAME(
             ] += effectiveArmature(
                 dofs[articulation.vOffset + axis],
                 dispatch.flags,
-                world.gravityAndTimestep.w
+                world.gravityAndTimestep.w,
+                gainScale,
+                driveDampingScale
             );
             articulatedInertia[
                 rootMatrixBase + axis * 6u + axis
             ] += effectiveArmature(
                 dofs[articulation.vOffset + 3u + axis],
                 dispatch.flags,
-                world.gravityAndTimestep.w
+                world.gravityAndTimestep.w,
+                gainScale,
+                driveDampingScale
             );
             articulatedBias[rootLocal * 6u + axis] -=
                 environmentEffort[3u + axis];
@@ -1118,7 +1136,9 @@ kernel void MR_ABA_KERNEL_NAME(
                 effectiveArmature(
                     dofs[articulation.vOffset + localV],
                     dispatch.flags,
-                    world.gravityAndTimestep.w
+                    world.gravityAndTimestep.w,
+                    gainScale,
+                    driveDampingScale
                 );
             float maximumInertia = 0.0f;
             for (uint entry = 0u; entry < 36u; ++entry) {

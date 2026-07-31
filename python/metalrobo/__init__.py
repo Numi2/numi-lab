@@ -1,4 +1,4 @@
-"""MetalRobo's native Python and MLX reinforcement-learning interface."""
+"""MetalRobo's MLX learning, data, and research-adapter interface."""
 
 from .env import FrankaEnv
 from .episode import compile_episode_manifest
@@ -176,24 +176,17 @@ from .mlx_family_ppo import (
     MLXWorldFamilyPPOTrainer,
     MLXWorldFamilyRolloutCollector,
 )
-from .mlx_locomotion import (
+from .mlx_policy_learning import (
+    MLXActorCritic,
+    MLXPPOConfiguration,
+    MLXPolicyBatch,
+    MLXPolicyLearner,
+)
+from .g1_policy import (
     G1_ACTOR_FRAME_SIZE,
     G1_ACTOR_HISTORY,
     G1_ACTOR_OBSERVATION_SIZE,
-    G1_BODY_ORDER,
-    G1_CRITIC_OBSERVATION_SIZE,
     G1_JOINT_ORDER,
-    G1ActorCritic,
-    G1LocomotionRolloutBatch,
-    G1LocomotionState,
-    G1LocomotionStepOutput,
-    G1LocomotionTaskSpec,
-    G1PolicyPack,
-    G1Termination,
-    MLXG1PPOTrainer,
-    MLXG1RolloutCollector,
-)
-from .g1_policy import (
     G1DeployableSensors,
     G1NumpyPolicy,
     G1ObservationHistory,
@@ -330,19 +323,10 @@ __all__ = [
     "G1_ACTOR_FRAME_SIZE",
     "G1_ACTOR_HISTORY",
     "G1_ACTOR_OBSERVATION_SIZE",
-    "G1_BODY_ORDER",
-    "G1_CRITIC_OBSERVATION_SIZE",
     "G1_JOINT_ORDER",
-    "G1ActorCritic",
     "G1DeployableSensors",
-    "G1LocomotionRolloutBatch",
-    "G1LocomotionState",
-    "G1LocomotionStepOutput",
-    "G1LocomotionTaskSpec",
     "G1NumpyPolicy",
     "G1ObservationHistory",
-    "G1PolicyPack",
-    "G1Termination",
     "MetalRoboError",
     "MetricDepthTranslator",
     "MLXCompiledMultiArticulatedProgram",
@@ -351,8 +335,10 @@ __all__ = [
     "MLXFamilyRolloutState",
     "MLXFrankaTactilePPOTrainer",
     "MLXFrankaTactileRolloutCollector",
-    "MLXG1PPOTrainer",
-    "MLXG1RolloutCollector",
+    "MLXActorCritic",
+    "MLXPPOConfiguration",
+    "MLXPolicyBatch",
+    "MLXPolicyLearner",
     "MLXPSMNeedlePPOTrainer",
     "MLXPSMNeedleRolloutCollector",
     "MLXPhysicalReplayEvaluator",

@@ -180,6 +180,48 @@ int main() {
         metalrobo::MetalWorldResult first;
         const auto firstDiagnostics =
             context.run(world, batch, config, first);
+        if (!firstDiagnostics.succeeded()) {
+            std::cerr
+                << "initial_contact_failure"
+                << " environment="
+                << firstDiagnostics.firstFailingEnvironment
+                << " control_step="
+                << firstDiagnostics.firstFailingControlStep
+                << " code="
+                << firstDiagnostics.firstGPUStatusCode;
+            const std::size_t statusIndex =
+                static_cast<std::size_t>(
+                    firstDiagnostics.firstFailingControlStep
+                ) *
+                    environmentCount +
+                firstDiagnostics.firstFailingEnvironment;
+            if (statusIndex < first.contactStatuses.size()) {
+                const auto& status =
+                    first.contactStatuses[statusIndex];
+                std::cerr
+                    << " contact_code=" << status.code
+                    << " substep=" << status.physicsSubstep
+                    << " constraint="
+                    << status.firstFailingConstraint
+                    << " iterations=" << status.solverIterations
+                    << " residuals=("
+                    << status.residuals.x << ','
+                    << status.residuals.y << ','
+                    << status.residuals.z << ','
+                    << status.residuals.w << ')';
+            }
+            if (statusIndex < first.statuses.size()) {
+                const auto& status = first.statuses[statusIndex];
+                std::cerr
+                    << " aba_code=" << status.abaCode
+                    << " failing_substep="
+                    << status.failingSubstep
+                    << " failing_index=" << status.failingIndex
+                    << " successful_substeps="
+                    << status.successfulSubsteps;
+            }
+            std::cerr << '\n';
+        }
         require(
             firstDiagnostics.succeeded(),
             firstDiagnostics.message.c_str()

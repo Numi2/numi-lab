@@ -7,7 +7,7 @@ import ctypes.util
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final
+from typing import Final, Sequence
 
 import numpy as np
 import numpy.typing as npt
@@ -71,6 +71,52 @@ class _ScenarioFeatureC(ct.Structure):
         ("ordinal", ct.c_uint32),
         ("parameters", ct.c_float * 4),
     ]
+
+
+class _PolicyDenseLayerC(ct.Structure):
+    _fields_ = [
+        ("input_count", ct.c_uint32),
+        ("output_count", ct.c_uint32),
+        ("activation", ct.c_uint32),
+        ("weights", ct.POINTER(ct.c_float)),
+        ("weight_count", ct.c_size_t),
+        ("bias", ct.POINTER(ct.c_float)),
+        ("bias_count", ct.c_size_t),
+    ]
+
+
+class _PolicyPackC(ct.Structure):
+    _fields_ = [
+        ("id", ct.c_char_p),
+        ("revision", ct.c_uint64),
+        ("observation_mean", ct.POINTER(ct.c_float)),
+        ("observation_mean_count", ct.c_size_t),
+        (
+            "observation_inverse_standard_deviation",
+            ct.POINTER(ct.c_float),
+        ),
+        (
+            "observation_inverse_standard_deviation_count",
+            ct.c_size_t,
+        ),
+        ("layers", ct.POINTER(_PolicyDenseLayerC)),
+        ("layer_count", ct.c_size_t),
+        ("action_bias", ct.POINTER(ct.c_float)),
+        ("action_bias_count", ct.c_size_t),
+        ("action_scale", ct.POINTER(ct.c_float)),
+        ("action_scale_count", ct.c_size_t),
+        ("observation_clip", ct.c_float),
+        ("action_clip", ct.c_float),
+    ]
+
+
+@dataclass(frozen=True, slots=True)
+class PolicyDenseLayerArtifact:
+    """One output-major dense layer for the generic native PolicyPack."""
+
+    weights: npt.ArrayLike
+    bias: npt.ArrayLike
+    activation: int
 
 
 class _HybridRendererLayoutC(ct.Structure):
@@ -270,6 +316,11 @@ class _Bindings:
         self.lib.mr_version.restype = ct.c_char_p
         self.lib.mr_last_error.argtypes = []
         self.lib.mr_last_error.restype = ct.c_char_p
+        self.lib.mr_write_policy_pack.argtypes = [
+            ct.POINTER(_PolicyPackC),
+            ct.c_char_p,
+        ]
+        self.lib.mr_write_policy_pack.restype = ct.c_int
 
         self.lib.mr_compile_episode_manifest.argtypes = [
             ct.c_char_p,
@@ -590,6 +641,110 @@ def library_version(path: str | os.PathLike[str] | None = None) -> str:
     """Return the loaded native library version string."""
 
     return _decode(_load_bindings(path).lib.mr_version())
+
+
+def write_policy_pack(
+    output: str | os.PathLike[str],
+    *,
+    policy_id: str,
+    revision: int,
+    layers: Sequence[PolicyDenseLayerArtifact],
+    observation_mean: npt.ArrayLike = (),
+    observation_inverse_standard_deviation: npt.ArrayLike = (),
+    action_bias: npt.ArrayLike = (),
+    action_scale: npt.ArrayLike = (),
+    observation_clip: float = 100.0,
+    action_clip: float = 1.0,
+    library_path: str | os.PathLike[str] | None = None,
+) -> Path:
+    """Publish a learner-produced actor through the canonical native writer."""
+
+    if not policy_id or not 0 < int(revision) <= np.iinfo(np.uint64).max:
+        raise ValueError("policy_id and a nonzero uint64 revision are required")
+    if not layers:
+        raise ValueError("at least one policy dense layer is required")
+
+    retained: list[np.ndarray] = []
+
+    def values(source: npt.ArrayLike, label: str) -> np.ndarray:
+        array = np.ascontiguousarray(source, dtype=np.float32).reshape(-1)
+        if not np.isfinite(array).all():
+            raise ValueError(f"{label} must contain only finite values")
+        retained.append(array)
+        return array
+
+    mean = values(observation_mean, "observation_mean")
+    inverse_std = values(
+        observation_inverse_standard_deviation,
+        "observation_inverse_standard_deviation",
+    )
+    bias = values(action_bias, "action_bias")
+    scale = values(action_scale, "action_scale")
+    native_layers = (_PolicyDenseLayerC * len(layers))()
+    for index, layer in enumerate(layers):
+        weights = np.ascontiguousarray(
+            layer.weights,
+            dtype=np.float32,
+        )
+        layer_bias = values(layer.bias, f"layers[{index}].bias")
+        if weights.ndim != 2 or weights.shape[0] != layer_bias.size:
+            raise ValueError(
+                f"layers[{index}] weights must be [output, input] "
+                "with one bias per output"
+            )
+        if not np.isfinite(weights).all():
+            raise ValueError(
+                f"layers[{index}].weights must contain only finite values"
+            )
+        retained.append(weights)
+        if not 0 <= int(layer.activation) <= 4:
+            raise ValueError(f"layers[{index}] activation is unsupported")
+        native_layers[index] = _PolicyDenseLayerC(
+            input_count=weights.shape[1],
+            output_count=weights.shape[0],
+            activation=int(layer.activation),
+            weights=weights.ctypes.data_as(ct.POINTER(ct.c_float)),
+            weight_count=weights.size,
+            bias=layer_bias.ctypes.data_as(ct.POINTER(ct.c_float)),
+            bias_count=layer_bias.size,
+        )
+
+    def pointer(array: np.ndarray) -> ct.POINTER(ct.c_float) | None:
+        return (
+            array.ctypes.data_as(ct.POINTER(ct.c_float))
+            if array.size
+            else None
+        )
+
+    encoded_id = policy_id.encode("utf-8")
+    native = _PolicyPackC(
+        id=encoded_id,
+        revision=int(revision),
+        observation_mean=pointer(mean),
+        observation_mean_count=mean.size,
+        observation_inverse_standard_deviation=pointer(inverse_std),
+        observation_inverse_standard_deviation_count=inverse_std.size,
+        layers=native_layers,
+        layer_count=len(layers),
+        action_bias=pointer(bias),
+        action_bias_count=bias.size,
+        action_scale=pointer(scale),
+        action_scale_count=scale.size,
+        observation_clip=float(observation_clip),
+        action_clip=float(action_clip),
+    )
+    target = Path(output).expanduser().resolve()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    bindings = _load_bindings(library_path)
+    status = bindings.lib.mr_write_policy_pack(
+        ct.byref(native),
+        os.fsencode(target),
+    )
+    if status != 0:
+        raise MetalRoboError(
+            f"PolicyPack write failed: {bindings.last_error()}"
+        )
+    return target
 
 
 def _readonly_view(

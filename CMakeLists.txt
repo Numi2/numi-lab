@@ -11,6 +11,16 @@ if(NOT APPLE)
     message(FATAL_ERROR "MetalRobo 0.4 targets Apple Silicon macOS.")
 endif()
 
+set(METALROBO_HAS_SWIFT FALSE)
+if(CMAKE_GENERATOR MATCHES "Ninja|Xcode")
+    include(CheckLanguage)
+    check_language(Swift)
+    if(CMAKE_Swift_COMPILER)
+        enable_language(Swift)
+        set(METALROBO_HAS_SWIFT TRUE)
+    endif()
+endif()
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -68,6 +78,12 @@ set(METALROBO_WORLD_CONTACT_SOURCE
 )
 set(METALROBO_WORLD_COMPILER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/WorldCompiler.metal"
+)
+set(METALROBO_LOCOMOTION_TASK_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/LocomotionTask.metal"
+)
+set(METALROBO_POLICY_INFERENCE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PolicyInference.metal"
 )
 set(METALROBO_HYBRID_RENDERER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/HybridRenderer.metal"
@@ -155,6 +171,12 @@ set(METALROBO_WORLD_CONTACT_AIR
 )
 set(METALROBO_WORLD_COMPILER_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboWorldCompiler.air"
+)
+set(METALROBO_LOCOMOTION_TASK_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboLocomotionTask.air"
+)
+set(METALROBO_POLICY_INFERENCE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboPolicyInference.air"
 )
 set(METALROBO_HYBRID_RENDERER_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboHybridRenderer.air"
@@ -324,6 +346,18 @@ add_custom_command(
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_LOCOMOTION_TASK_SOURCE}"
+            -o "${METALROBO_LOCOMOTION_TASK_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_POLICY_INFERENCE_SOURCE}"
+            -o "${METALROBO_POLICY_INFERENCE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
             -c "${METALROBO_HYBRID_RENDERER_SOURCE}"
             -o "${METALROBO_HYBRID_RENDERER_AIR}"
@@ -377,6 +411,8 @@ add_custom_command(
             "${METALROBO_WORLD_AIR}"
             "${METALROBO_WORLD_CONTACT_AIR}"
             "${METALROBO_WORLD_COMPILER_AIR}"
+            "${METALROBO_LOCOMOTION_TASK_AIR}"
+            "${METALROBO_POLICY_INFERENCE_AIR}"
             "${METALROBO_HYBRID_RENDERER_AIR}"
             "${METALROBO_ENVIRONMENT_PREFILTER_AIR}"
             "${METALROBO_VISUAL_ASSET_COOK_AIR}"
@@ -400,6 +436,8 @@ add_custom_command(
         "${METALROBO_WORLD_SOURCE}"
         "${METALROBO_WORLD_CONTACT_SOURCE}"
         "${METALROBO_WORLD_COMPILER_SOURCE}"
+        "${METALROBO_LOCOMOTION_TASK_SOURCE}"
+        "${METALROBO_POLICY_INFERENCE_SOURCE}"
         "${METALROBO_HYBRID_RENDERER_SOURCE}"
         "${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/VisualPBR.metal"
@@ -408,6 +446,8 @@ add_custom_command(
         "${METALROBO_SCENE_QUERY_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/quality_solver_shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/unified_quality_shared.h"
@@ -479,6 +519,10 @@ add_library(
     src/core/RobotDescriptionCooker.cpp
     src/core/GeometryCooker.cpp
     src/core/G1.cpp
+    src/core/LocomotionWorld.cpp
+    src/core/TaskProgram.cpp
+    src/core/PolicyProgram.cpp
+    src/core/LearningPacks.cpp
     src/core/SurgicalPSM.cpp
     src/core/EmbodiedTactile.cpp
     src/core/Wave.cpp
@@ -680,6 +724,48 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+add_executable(
+    metalrobo_task_program_check
+    apps/task_program_check.cpp
+)
+target_link_libraries(
+    metalrobo_task_program_check
+    PRIVATE metalrobo
+)
+set_target_properties(
+    metalrobo_task_program_check
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
+)
+
+if(METALROBO_HAS_SWIFT)
+    add_executable(
+        metalrobo_task_rollout
+        apps/task_rollout.swift
+        bindings/swift/MetalRoboTaskRollout.swift
+    )
+    target_include_directories(
+        metalrobo_task_rollout
+        PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo"
+    )
+    target_link_libraries(
+        metalrobo_task_rollout
+        PRIVATE
+            metalrobo
+    )
+    set_target_properties(
+        metalrobo_task_rollout
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+            INSTALL_RPATH "@loader_path/../lib"
+    )
+endif()
 
 add_executable(
     metalrobo_franka_engine_model_probe
