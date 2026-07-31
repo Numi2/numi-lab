@@ -107,7 +107,7 @@ C++23 consumer compiled against only the installed headers and dylib, then ran
 the checked G1 Metal host probe successfully. This verifies that the public
 operator discovers the co-installed `lib/metalrobo/MetalRobo.metallib`
 instead of depending on its build-tree path. The installed
-`metalrobo_bench` also launched through its relative install RPATH.
+`metalrobo_simulation` also launched through its relative install RPATH.
 
 ### Sanitizer gate
 
@@ -1010,7 +1010,7 @@ integration. It does not prove policy convergence.
 Hybrid CCD currently performs deterministic conservative advancement, orders
 the event prefix, clusters simultaneous impacts, and reports explicit
 speculative-remainder use through ABI-v3 event cursors. It still solves that
-certified remainder as one speculative TGS interval. Literal repeated
+certified remainder as one speculative-contact interval. Literal repeated
 TOI advance/impact-solve/continue splitting is therefore not yet release
 evidence.
 
@@ -1037,7 +1037,7 @@ evidence.
   plus two-way impulse transfer, not knot tying
 - Production segmented LBVH and heightfield collision
 - Matrix-free Newton-PCG for large exact-cone quality islands
-- Quality/throughput task-level closure for the landed temporal TGS
+- Quality/throughput task-level closure for production PGS
 - Qualified derivatives through impact, friction-regime, and active-set
   changes
 - Cross-machine performance/reproducibility and any superiority claim over

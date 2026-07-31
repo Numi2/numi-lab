@@ -5,13 +5,11 @@
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/G1.hpp"
 #include "metalrobo/LearningPacks.hpp"
-#include "metalrobo/LocomotionWorld.hpp"
+#include "metalrobo/Simulation.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/MetalTactile.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
-#include "metalrobo/Model.hpp"
-#include "metalrobo/Runtime.hpp"
 #include "metalrobo/RuntimeAbi.hpp"
 #include "metalrobo/RobotDescriptionCooker.hpp"
 #include "metalrobo/WorldPack.hpp"
@@ -35,11 +33,6 @@
 #include <string_view>
 #include <utility>
 #include <vector>
-
-struct MRRuntimeHandle {
-    std::unique_ptr<metalrobo::Runtime> runtime;
-    std::string deviceName;
-};
 
 struct MRWorldFamilyHandle {
     std::atomic_uint32_t references{1u};
@@ -70,8 +63,8 @@ struct MRTactileHandle {
     double lastObserveMilliseconds = 0.0;
 };
 
-struct MRTaskRolloutHandle {
-    explicit MRTaskRolloutHandle(
+struct MRSimulationHandle {
+    explicit MRSimulationHandle(
         metalrobo::MetalWorldConfig config
     ) : context(std::move(config)) {}
 
@@ -272,14 +265,6 @@ int translateErrors(Function&& function) noexcept {
     return -1;
 }
 
-bool requireHandle(const MRRuntimeHandle* handle) {
-    if (handle != nullptr && handle->runtime != nullptr) {
-        return true;
-    }
-    gLastError = "MetalRobo runtime handle is null.";
-    return false;
-}
-
 bool requireWorldFamilyHandle(const MRWorldFamilyHandle* handle) {
     if (handle != nullptr) {
         return true;
@@ -306,18 +291,18 @@ bool requireTactileHandle(const MRTactileHandle* handle) {
     return false;
 }
 
-bool requireTaskRolloutHandle(
-    const MRTaskRolloutHandle* handle
+bool requireSimulationHandle(
+    const MRSimulationHandle* handle
 ) {
     if (handle != nullptr) {
         return true;
     }
-    gLastError = "MetalRobo task-rollout handle is null.";
+    gLastError = "MetalRobo simulation handle is null.";
     return false;
 }
 
-void accumulateTaskStageHighWater(
-    MRTaskRolloutStageHighWaterC& target,
+void accumulateSimulationStageHighWater(
+    MRSimulationStageHighWaterC& target,
     const metalrobo::MetalWorldStageCounts& source
 ) {
     const auto maximum = [](uint32_t& value, const uint32_t sample) {
@@ -397,8 +382,8 @@ std::size_t checkedProduct(
     return product;
 }
 
-void resetTaskRolloutState(
-    MRTaskRolloutHandle& handle,
+void resetSimulationState(
+    MRSimulationHandle& handle,
     const std::uint64_t seed
 ) {
     const std::size_t environmentCount =
@@ -459,8 +444,8 @@ void resetTaskRolloutState(
     handle.activeContacts.clear();
 }
 
-void validateTaskRolloutConfiguration(
-    const MRTaskRolloutConfigC& config
+void validateSimulationConfiguration(
+    const MRSimulationConfigC& config
 ) {
     if (config.environment_count == 0u ||
         config.physics_substeps == 0u ||
@@ -468,40 +453,42 @@ void validateTaskRolloutConfiguration(
         !std::isfinite(config.control_timestep_seconds) ||
         !(config.control_timestep_seconds > 0.0f)) {
         throw std::invalid_argument(
-            "task-rollout counts and timing must be finite and positive"
+            "simulation counts and timing must be finite and positive"
         );
     }
-    if (config.solver != MR_TASK_ROLLOUT_SOLVER_PGS &&
-        config.solver != MR_TASK_ROLLOUT_SOLVER_TGS) {
+    if (config.solver !=
+            MR_SIMULATION_SOLVER_THROUGHPUT_PGS &&
+        config.solver !=
+            MR_SIMULATION_SOLVER_QUALITY_NEWTON) {
         throw std::invalid_argument(
-            "task-rollout solver is invalid"
+            "simulation solver is invalid"
         );
     }
 }
 
-metalrobo::LocomotionSurface locomotionSurface(
+metalrobo::BuiltinSurface builtinSurface(
     const std::uint32_t value
 ) {
     switch (value) {
-    case MR_LOCOMOTION_SURFACE_GROUND:
-        return metalrobo::LocomotionSurface::ground;
-    case MR_LOCOMOTION_SURFACE_TERRAIN:
-        return metalrobo::LocomotionSurface::terrain;
+    case MR_BUILTIN_SURFACE_GROUND:
+        return metalrobo::BuiltinSurface::ground;
+    case MR_BUILTIN_SURFACE_TERRAIN:
+        return metalrobo::BuiltinSurface::terrain;
     default:
         throw std::invalid_argument(
-            "locomotion surface is invalid"
+            "builtin surface is invalid"
         );
     }
 }
 
-std::unique_ptr<MRTaskRolloutHandle>
-createCompiledTaskRollout(
-    metalrobo::LocomotionWorld authored,
-    const MRTaskRolloutConfigC& config,
+std::unique_ptr<MRSimulationHandle>
+createCompiledSimulation(
+    metalrobo::SimulationDescription authored,
+    const MRSimulationConfigC& config,
     const char* metallibPath,
     const std::string_view source
 ) {
-    validateTaskRolloutConfiguration(config);
+    validateSimulationConfiguration(config);
 
     metalrobo::MetalWorldConfig worldConfig;
     if (metallibPath != nullptr &&
@@ -510,13 +497,13 @@ createCompiledTaskRollout(
     }
     worldConfig.maximumInFlightSubmissions = 1u;
     auto handle =
-        std::make_unique<MRTaskRolloutHandle>(
+        std::make_unique<MRSimulationHandle>(
             std::move(worldConfig)
         );
 
-    metalrobo::CompiledLocomotionWorld compiled;
-    const metalrobo::LocomotionWorldCompileDiagnostics
-        compiledStatus = metalrobo::compileLocomotionWorld(
+    metalrobo::CompiledSimulation compiled;
+    const metalrobo::SimulationCompileDiagnostics
+        compiledStatus = metalrobo::compileSimulation(
             authored,
             authored.articulationIndex,
             compiled
@@ -560,8 +547,8 @@ createCompiledTaskRollout(
     handle->stepConfig.physicsSubsteps =
         config.physics_substeps;
     handle->stepConfig.solverMode =
-        config.solver == MR_TASK_ROLLOUT_SOLVER_TGS
-        ? metalrobo::MetalWorldSolverMode::throughputTGS
+        config.solver == MR_SIMULATION_SOLVER_QUALITY_NEWTON
+        ? metalrobo::MetalWorldSolverMode::qualityNewton
         : metalrobo::MetalWorldSolverMode::throughputPGS;
     handle->stepConfig.actuationMode =
         metalrobo::MetalWorldActuationMode::
@@ -579,7 +566,7 @@ createCompiledTaskRollout(
     handle->stepConfig.publishFinalState = false;
     handle->stepConfig.publishStateTrajectory = false;
     handle->stepConfig.taskProgram = handle->taskProgram;
-    resetTaskRolloutState(*handle, config.seed);
+    resetSimulationState(*handle, config.seed);
     return handle;
 }
 
@@ -720,7 +707,7 @@ metalrobo::PolicyPack policyPackFromC(
 }
 
 void installPolicyPack(
-    MRTaskRolloutHandle& handle,
+    MRSimulationHandle& handle,
     const metalrobo::PolicyPack& authored
 ) {
     metalrobo::CompiledPolicyProgram compiled;
@@ -900,166 +887,23 @@ int mr_compile_episode_manifest(
     });
 }
 
-MRRuntimeHandle* mr_create_franka(
-    const uint32_t environment_count,
-    const uint64_t seed,
-    const char* metallib_path
-) {
-    if (environment_count == 0) {
-        gLastError = "environment_count must be greater than zero.";
-        return nullptr;
-    }
-
-    MRRuntimeHandle* result = nullptr;
-    const int status = translateErrors([&] {
-        metalrobo::RuntimeDescriptor descriptor;
-        descriptor.environmentCount = environment_count;
-        descriptor.seed = seed;
-        descriptor.autoReset = true;
-        descriptor.captureBodyPoses = true;
-        if (metallib_path != nullptr) {
-            descriptor.metallibPath = metallib_path;
-        }
-
-        auto handle = std::make_unique<MRRuntimeHandle>();
-        handle->runtime = metalrobo::makeMetalRuntime(
-            metalrobo::makeFrankaPandaModel(),
-            descriptor
-        );
-        handle->deviceName = handle->runtime->deviceName();
-        result = handle.release();
-    });
-    return status == 0 ? result : nullptr;
-}
-
-void mr_destroy(MRRuntimeHandle* handle) {
-    delete handle;
-}
-
-int mr_reset(MRRuntimeHandle* handle, const uint64_t seed) {
-    if (!requireHandle(handle)) {
-        return -1;
-    }
-    return translateErrors([&] { handle->runtime->reset(seed); });
-}
-
-int mr_step(
-    MRRuntimeHandle* handle,
-    const float* normalized_actions,
-    const size_t action_count
-) {
-    if (!requireHandle(handle)) {
-        return -1;
-    }
-    const std::size_t required =
-        static_cast<std::size_t>(handle->runtime->environmentCount()) *
-        handle->runtime->model().gpu.actionCount;
-    if (normalized_actions == nullptr) {
-        gLastError = "normalized_actions is null.";
-        return -1;
-    }
-    if (action_count != required) {
-        gLastError =
-            "action_count does not match environment_count * action_count.";
-        return -1;
-    }
-    return translateErrors([&] {
-        handle->runtime->step(
-            std::span<const float>(normalized_actions, action_count)
-        );
-    });
-}
-
-uint32_t mr_environment_count(const MRRuntimeHandle* handle) {
-    return requireHandle(handle) ? handle->runtime->environmentCount() : 0;
-}
-
-uint32_t mr_action_count(const MRRuntimeHandle* handle) {
-    return requireHandle(handle) ? handle->runtime->model().gpu.actionCount : 0;
-}
-
-uint32_t mr_observation_count(const MRRuntimeHandle* handle) {
-    return requireHandle(handle)
-        ? handle->runtime->model().gpu.observationCount
-        : 0;
-}
-
-uint32_t mr_link_count(const MRRuntimeHandle* handle) {
-    return requireHandle(handle) ? handle->runtime->model().gpu.linkCount : 0;
-}
-
-const float* mr_observations(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return nullptr;
-    }
-    return handle->runtime->observations().data();
-}
-
-const float* mr_rewards(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return nullptr;
-    }
-    return handle->runtime->rewards().data();
-}
-
-const uint8_t* mr_terminated(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return nullptr;
-    }
-    return handle->runtime->terminated().data();
-}
-
-const float* mr_body_positions(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return nullptr;
-    }
-    return handle->runtime->bodyPositions().data();
-}
-
-const float* mr_body_rotations(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return nullptr;
-    }
-    return handle->runtime->bodyRotations().data();
-}
-
-MRRuntimeStatsC mr_stats(const MRRuntimeHandle* handle) {
-    MRRuntimeStatsC result{};
-    if (!requireHandle(handle)) {
-        return result;
-    }
-    const metalrobo::RuntimeStats stats = handle->runtime->stats();
-    result.last_gpu_milliseconds = stats.lastGpuMilliseconds;
-    result.total_gpu_milliseconds = stats.totalGpuMilliseconds;
-    result.control_steps = stats.controlSteps;
-    result.physics_steps = stats.physicsSteps;
-    return result;
-}
-
-const char* mr_device_name(const MRRuntimeHandle* handle) {
-    if (!requireHandle(handle)) {
-        return "";
-    }
-    return handle->deviceName.c_str();
-}
-
-MRTaskRolloutHandle* mr_create_unitree_g1_locomotion_rollout(
-    const MRTaskRolloutConfigC* config,
+MRSimulationHandle* mr_create_unitree_g1_simulation(
+    const MRSimulationConfigC* config,
     const uint32_t surface_value,
     const char* metallib_path
 ) {
     if (config == nullptr) {
-        gLastError = "task-rollout config is null.";
+        gLastError = "simulation config is null.";
         return nullptr;
     }
 
-    MRTaskRolloutHandle* result = nullptr;
+    MRSimulationHandle* result = nullptr;
     const int status = translateErrors([&] {
-        const metalrobo::LocomotionSurface surface =
-            locomotionSurface(surface_value);
+        const metalrobo::BuiltinSurface surface =
+            builtinSurface(surface_value);
         auto handle =
-            createCompiledTaskRollout(
-                metalrobo::makeUnitreeG1LocomotionWorld(
+            createCompiledSimulation(
+                metalrobo::makeUnitreeG1Simulation(
                     surface
                 ),
                 *config,
@@ -1071,11 +915,11 @@ MRTaskRolloutHandle* mr_create_unitree_g1_locomotion_rollout(
     return status == 0 ? result : nullptr;
 }
 
-MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
+MRSimulationHandle* mr_create_urdf_simulation(
     const char* urdf_path,
     const char* srdf_path,
     const char* task_pack_path,
-    const MRTaskRolloutConfigC* config,
+    const MRSimulationConfigC* config,
     const uint32_t surface_value,
     const char* metallib_path
 ) {
@@ -1084,14 +928,14 @@ MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
         task_pack_path == nullptr ||
         task_pack_path[0] == '\0') {
         gLastError =
-            "URDF, TaskPack, and task-rollout config are required.";
+            "URDF, TaskPack, and simulation config are required.";
         return nullptr;
     }
 
-    MRTaskRolloutHandle* result = nullptr;
+    MRSimulationHandle* result = nullptr;
     const int status = translateErrors([&] {
-        const metalrobo::LocomotionSurface surface =
-            locomotionSurface(surface_value);
+        const metalrobo::BuiltinSurface surface =
+            builtinSurface(surface_value);
         metalrobo::TaskPack task;
         const metalrobo::LearningPackResult loaded =
             metalrobo::readTaskPack(task_pack_path, task);
@@ -1109,7 +953,7 @@ MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
             metalrobo::RobotDescriptionRootMode::floating;
         options.meshMode =
             metalrobo::RobotDescriptionMeshMode::convexHull;
-        metalrobo::LocomotionWorld authored;
+        metalrobo::SimulationDescription authored;
         const metalrobo::RobotDescriptionDiagnostics cooked =
             metalrobo::cookRobotDescriptionFiles(
                 urdf_path,
@@ -1129,12 +973,12 @@ MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
             );
         }
         authored.task = std::move(task);
-        metalrobo::appendLocomotionSurface(
+        metalrobo::appendBuiltinSurface(
             authored.model,
             authored.sceneBodies,
             surface
         );
-        auto handle = createCompiledTaskRollout(
+        auto handle = createCompiledSimulation(
             std::move(authored),
             *config,
             metallib_path,
@@ -1145,10 +989,10 @@ MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
     return status == 0 ? result : nullptr;
 }
 
-MRTaskRolloutHandle* mr_create_world_pack_locomotion_rollout(
+MRSimulationHandle* mr_create_world_pack_simulation(
     const char* world_pack_path,
     const char* task_pack_path,
-    const MRTaskRolloutConfigC* config,
+    const MRSimulationConfigC* config,
     const char* metallib_path
 ) {
     if (config == nullptr ||
@@ -1157,11 +1001,11 @@ MRTaskRolloutHandle* mr_create_world_pack_locomotion_rollout(
         task_pack_path == nullptr ||
         task_pack_path[0] == '\0') {
         gLastError =
-            "MRWorldPack, TaskPack, and task-rollout config are required.";
+            "MRWorldPack, TaskPack, and simulation config are required.";
         return nullptr;
     }
 
-    MRTaskRolloutHandle* result = nullptr;
+    MRSimulationHandle* result = nullptr;
     const int status = translateErrors([&] {
         metalrobo::TaskPack task;
         const metalrobo::LearningPackResult taskLoaded =
@@ -1188,8 +1032,8 @@ MRTaskRolloutHandle* mr_create_world_pack_locomotion_rollout(
                 ) + "]: " + worldLoaded.message
             );
         }
-        auto handle = createCompiledTaskRollout(
-            metalrobo::makeWorldPackLocomotionWorld(
+        auto handle = createCompiledSimulation(
+            metalrobo::makeWorldPackSimulation(
                 worldPack,
                 std::move(task)
             ),
@@ -1202,27 +1046,27 @@ MRTaskRolloutHandle* mr_create_world_pack_locomotion_rollout(
     return status == 0 ? result : nullptr;
 }
 
-void mr_task_rollout_destroy(MRTaskRolloutHandle* handle) {
+void mr_simulation_destroy(MRSimulationHandle* handle) {
     delete handle;
 }
 
-int mr_task_rollout_reset(
-    MRTaskRolloutHandle* handle,
+int mr_simulation_reset(
+    MRSimulationHandle* handle,
     const uint64_t seed
 ) {
-    if (!requireTaskRolloutHandle(handle)) {
+    if (!requireSimulationHandle(handle)) {
         return -1;
     }
     return translateErrors(
-        [&] { resetTaskRolloutState(*handle, seed); }
+        [&] { resetSimulationState(*handle, seed); }
     );
 }
 
-int mr_task_rollout_set_curriculum_level(
-    MRTaskRolloutHandle* handle,
+int mr_simulation_set_curriculum_level(
+    MRSimulationHandle* handle,
     const uint32_t level
 ) {
-    if (!requireTaskRolloutHandle(handle)) {
+    if (!requireSimulationHandle(handle)) {
         return -1;
     }
     return translateErrors([&] {
@@ -1240,15 +1084,15 @@ int mr_task_rollout_set_curriculum_level(
     });
 }
 
-int mr_task_rollout_set_policy(
-    MRTaskRolloutHandle* handle,
+int mr_simulation_set_policy(
+    MRSimulationHandle* handle,
     const MRPolicyPackC* policy
 ) {
-    if (!requireTaskRolloutHandle(handle)) {
+    if (!requireSimulationHandle(handle)) {
         return -1;
     }
     if (policy == nullptr) {
-        gLastError = "task-rollout policy is null.";
+        gLastError = "simulation policy is null.";
         return -1;
     }
     return translateErrors([&] {
@@ -1259,11 +1103,11 @@ int mr_task_rollout_set_policy(
     });
 }
 
-int mr_task_rollout_load_policy_pack(
-    MRTaskRolloutHandle* handle,
+int mr_simulation_load_policy_pack(
+    MRSimulationHandle* handle,
     const char* policy_pack_path
 ) {
-    if (!requireTaskRolloutHandle(handle)) {
+    if (!requireSimulationHandle(handle)) {
         return -1;
     }
     if (policy_pack_path == nullptr ||
@@ -1290,10 +1134,10 @@ int mr_task_rollout_load_policy_pack(
     });
 }
 
-int mr_task_rollout_clear_policy(
-    MRTaskRolloutHandle* handle
+int mr_simulation_clear_policy(
+    MRSimulationHandle* handle
 ) {
-    if (!requireTaskRolloutHandle(handle)) {
+    if (!requireSimulationHandle(handle)) {
         return -1;
     }
     handle->stepConfig.policyProgram = {};
@@ -1301,8 +1145,8 @@ int mr_task_rollout_clear_policy(
     return 0;
 }
 
-int mr_task_rollout_advance(
-    MRTaskRolloutHandle* handle,
+int mr_simulation_advance(
+    MRSimulationHandle* handle,
     const float* normalized_actions,
     const size_t normalized_action_count,
     const uint32_t* reset_masks,
@@ -1310,13 +1154,13 @@ int mr_task_rollout_advance(
     const uint32_t control_step_count,
     const uint64_t policy_revision,
     const uint32_t evaluate_final_policy,
-    MRTaskRolloutAdvanceC* advance
+    MRSimulationAdvanceC* advance
 ) {
-    if (!requireTaskRolloutHandle(handle)) {
+    if (!requireSimulationHandle(handle)) {
         return -1;
     }
     if (advance == nullptr) {
-        gLastError = "task-rollout advance result is null.";
+        gLastError = "simulation advance result is null.";
         return -1;
     }
     *advance = {};
@@ -1324,7 +1168,7 @@ int mr_task_rollout_advance(
     advance->first_failing_control_step = UINT32_MAX;
     if (control_step_count == 0u) {
         gLastError =
-            "task-rollout control_step_count must be positive.";
+            "simulation control_step_count must be positive.";
         return -1;
     }
 
@@ -1346,11 +1190,11 @@ int mr_task_rollout_advance(
                       environmentCount,
                       actionCount,
                   },
-                  "task-rollout action"
+                  "simulation action"
               );
         const std::size_t requiredMasks = checkedProduct(
             {control_step_count, environmentCount},
-            "task-rollout reset mask"
+            "simulation reset mask"
         );
         if ((!nativePolicy &&
              normalized_actions == nullptr) ||
@@ -1490,7 +1334,7 @@ int mr_task_rollout_advance(
         }
         for (const metalrobo::MetalWorldStatus& status :
              published.environmentStatuses) {
-            accumulateTaskStageHighWater(
+            accumulateSimulationStageHighWater(
                 advance->high_water,
                 status.highWater
             );
@@ -1501,7 +1345,7 @@ int mr_task_rollout_advance(
             published.contactStatuses.size() !=
                 requiredMasks) {
             throw std::runtime_error(
-                std::string{"task-rollout publication failed ["} +
+                std::string{"simulation publication failed ["} +
                 metalrobo::metalWorldHostStatusName(
                     diagnostics.status
                 ) + "]: " + diagnostics.message
@@ -1519,7 +1363,7 @@ int mr_task_rollout_advance(
             diagnostics.submissionElapsedMilliseconds;
         if (!diagnostics.succeeded()) {
             throw std::runtime_error(
-                std::string{"task-rollout GPU step failed ["} +
+                std::string{"simulation GPU step failed ["} +
                 metalrobo::metalWorldHostStatusName(
                     diagnostics.status
                 ) + "]: " + diagnostics.message
@@ -1528,11 +1372,11 @@ int mr_task_rollout_advance(
     });
 }
 
-MRTaskRolloutLayoutC mr_task_rollout_layout(
-    const MRTaskRolloutHandle* handle
+MRSimulationLayoutC mr_simulation_layout(
+    const MRSimulationHandle* handle
 ) {
-    MRTaskRolloutLayoutC result{};
-    if (!requireTaskRolloutHandle(handle)) {
+    MRSimulationLayoutC result{};
+    if (!requireSimulationHandle(handle)) {
         return result;
     }
     const metalrobo::MetalWorldContextStats stats =
@@ -1573,62 +1417,62 @@ MRTaskRolloutLayoutC mr_task_rollout_layout(
     return result;
 }
 
-uint64_t mr_task_rollout_task_fingerprint(
-    const MRTaskRolloutHandle* handle
+uint64_t mr_simulation_task_fingerprint(
+    const MRSimulationHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle)
+    return requireSimulationHandle(handle)
         ? handle->taskProgram.fingerprint()
         : 0u;
 }
 
-const char* mr_task_rollout_device_name(
-    const MRTaskRolloutHandle* handle
+const char* mr_simulation_device_name(
+    const MRSimulationHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle)
+    return requireSimulationHandle(handle)
         ? handle->deviceName.c_str()
         : "";
 }
 
-const uint32_t* mr_task_rollout_status_codes(
-    const MRTaskRolloutHandle* handle
+const uint32_t* mr_simulation_status_codes(
+    const MRSimulationHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle) &&
+    return requireSimulationHandle(handle) &&
         !handle->statusCodes.empty()
         ? handle->statusCodes.data()
         : nullptr;
 }
 
-const uint32_t* mr_task_rollout_active_contacts(
-    const MRTaskRolloutHandle* handle
+const uint32_t* mr_simulation_active_contacts(
+    const MRSimulationHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle) &&
+    return requireSimulationHandle(handle) &&
         !handle->activeContacts.empty()
         ? handle->activeContacts.data()
         : nullptr;
 }
 
-const float* mr_task_rollout_actor_observations(
-    const MRTaskRolloutHandle* handle
+const float* mr_simulation_actor_observations(
+    const MRSimulationHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle) &&
+    return requireSimulationHandle(handle) &&
         !handle->result.actorObservations.empty()
         ? handle->result.actorObservations.data()
         : nullptr;
 }
 
-const float* mr_task_rollout_critic_observations(
-    const MRTaskRolloutHandle* handle
+const float* mr_simulation_critic_observations(
+    const MRSimulationHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle) &&
+    return requireSimulationHandle(handle) &&
         !handle->result.criticObservations.empty()
         ? handle->result.criticObservations.data()
         : nullptr;
 }
 
-const MRTaskTransitionC* mr_task_rollout_transitions(
-    const MRTaskRolloutHandle* handle
+const MRTaskTransitionC* mr_simulation_transitions(
+    const MRSimulationHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle) &&
+    return requireSimulationHandle(handle) &&
         !handle->result.transitions.empty()
         ? reinterpret_cast<const MRTaskTransitionC*>(
               handle->result.transitions.data()
@@ -1636,37 +1480,37 @@ const MRTaskTransitionC* mr_task_rollout_transitions(
         : nullptr;
 }
 
-const float* mr_task_rollout_policy_latents(
-    const MRTaskRolloutHandle* handle
+const float* mr_simulation_policy_latents(
+    const MRSimulationHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle) &&
+    return requireSimulationHandle(handle) &&
         !handle->result.policyLatents.empty()
         ? handle->result.policyLatents.data()
         : nullptr;
 }
 
-const float* mr_task_rollout_policy_log_probabilities(
-    const MRTaskRolloutHandle* handle
+const float* mr_simulation_policy_log_probabilities(
+    const MRSimulationHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle) &&
+    return requireSimulationHandle(handle) &&
         !handle->result.policyLogProbabilities.empty()
         ? handle->result.policyLogProbabilities.data()
         : nullptr;
 }
 
-const float* mr_task_rollout_policy_values(
-    const MRTaskRolloutHandle* handle
+const float* mr_simulation_policy_values(
+    const MRSimulationHandle* handle
 ) {
-    return requireTaskRolloutHandle(handle) &&
+    return requireSimulationHandle(handle) &&
         !handle->result.policyValues.empty()
         ? handle->result.policyValues.data()
         : nullptr;
 }
 
-const float* mr_task_rollout_bootstrap_policy_values(
-    const MRTaskRolloutHandle* handle
+const float* mr_simulation_bootstrap_policy_values(
+    const MRSimulationHandle* handle
 ) {
-    if (!requireTaskRolloutHandle(handle)) {
+    if (!requireSimulationHandle(handle)) {
         return nullptr;
     }
     const std::size_t offset =
@@ -1678,13 +1522,13 @@ const float* mr_task_rollout_bootstrap_policy_values(
         : nullptr;
 }
 
-int mr_task_rollout_write_policy_rollout_pack(
-    const MRTaskRolloutHandle* handle,
+int mr_simulation_write_policy_rollout_pack(
+    const MRSimulationHandle* handle,
     const MRPolicyRolloutBatchC* batch,
     const char* batch_id,
     const char* output_path
 ) {
-    if (!requireTaskRolloutHandle(handle)) {
+    if (!requireSimulationHandle(handle)) {
         return -1;
     }
     if (batch == nullptr ||

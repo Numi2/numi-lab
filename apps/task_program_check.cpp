@@ -1,6 +1,6 @@
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/LearningPacks.hpp"
-#include "metalrobo/LocomotionWorld.hpp"
+#include "metalrobo/Simulation.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/RobotDescriptionCooker.hpp"
@@ -95,7 +95,7 @@ std::uint64_t compileImportedRobotFixture() {
   </joint>
 </robot>
 )";
-    metalrobo::LocomotionWorld authored;
+    metalrobo::SimulationDescription authored;
     metalrobo::RobotDescriptionCookOptions options;
     options.rootMode =
         metalrobo::RobotDescriptionRootMode::floating;
@@ -113,10 +113,10 @@ std::uint64_t compileImportedRobotFixture() {
             cooked.element + ": " + cooked.message
         );
     }
-    metalrobo::appendLocomotionSurface(
+    metalrobo::appendBuiltinSurface(
         authored.model,
         authored.sceneBodies,
-        metalrobo::LocomotionSurface::ground
+        metalrobo::BuiltinSurface::ground
     );
 
     authored.task.id = "generic_locomotion_fixture";
@@ -177,9 +177,9 @@ std::uint64_t compileImportedRobotFixture() {
         0.0f, 0.0f, 0.0f, 0.0f,
     }};
 
-    metalrobo::CompiledLocomotionWorld compiled;
-    const metalrobo::LocomotionWorldCompileDiagnostics status =
-        metalrobo::compileLocomotionWorld(
+    metalrobo::CompiledSimulation compiled;
+    const metalrobo::SimulationCompileDiagnostics status =
+        metalrobo::compileSimulation(
             authored,
             0u,
             compiled
@@ -255,8 +255,8 @@ std::uint64_t checkWorldPackLocomotionImport() {
     }
     metalrobo::TaskPack task;
     task.id = "world_pack_import_fixture";
-    const metalrobo::LocomotionWorld imported =
-        metalrobo::makeWorldPackLocomotionWorld(
+    const metalrobo::SimulationDescription imported =
+        metalrobo::makeWorldPackSimulation(
             pack,
             std::move(task)
         );
@@ -288,13 +288,13 @@ std::uint64_t checkWorldPackLocomotionImport() {
 
 int main() {
     try {
-        metalrobo::LocomotionWorld authored =
-            metalrobo::makeUnitreeG1LocomotionWorld(
-                metalrobo::LocomotionSurface::terrain
+        metalrobo::SimulationDescription authored =
+            metalrobo::makeUnitreeG1Simulation(
+                metalrobo::BuiltinSurface::terrain
             );
-        metalrobo::CompiledLocomotionWorld compiledWorld;
-        const metalrobo::LocomotionWorldCompileDiagnostics
-            compileStatus = metalrobo::compileLocomotionWorld(
+        metalrobo::CompiledSimulation compiledWorld;
+        const metalrobo::SimulationCompileDiagnostics
+            compileStatus = metalrobo::compileSimulation(
                 authored,
                 0u,
                 compiledWorld
@@ -374,13 +374,13 @@ int main() {
             program.terrainResetTranslations().size() != 11u) {
             fail("compiled G1 task tables are incomplete");
         }
-        metalrobo::LocomotionWorld invalidEndpointCapacity =
+        metalrobo::SimulationDescription invalidEndpointCapacity =
             authored;
         invalidEndpointCapacity.task.capacities
             .endpointRuntimeRecords -= 1u;
-        metalrobo::CompiledLocomotionWorld invalidCompiledWorld;
+        metalrobo::CompiledSimulation invalidCompiledWorld;
         const auto invalidEndpointStatus =
-            metalrobo::compileLocomotionWorld(
+            metalrobo::compileSimulation(
                 invalidEndpointCapacity,
                 0u,
                 invalidCompiledWorld
@@ -391,12 +391,12 @@ int main() {
                 "noncanonical endpoint-runtime capacity was not rejected"
             );
         }
-        metalrobo::LocomotionWorld invalidQueryCapacity =
+        metalrobo::SimulationDescription invalidQueryCapacity =
             authored;
         invalidQueryCapacity.task.capacities
             .articulationPointQueries += 1u;
         const auto invalidQueryStatus =
-            metalrobo::compileLocomotionWorld(
+            metalrobo::compileSimulation(
                 invalidQueryCapacity,
                 0u,
                 invalidCompiledWorld

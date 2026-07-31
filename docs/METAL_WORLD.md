@@ -40,7 +40,7 @@ URDF/SRDF or authored EngineModel
 stable semantic indices, tables, capacities, fingerprints
         |
         v
-MetalWorld + LocomotionTask.metal + PolicyInference.metal
+MetalWorld + TaskRuntime.metal + PolicyInference.metal
 ```
 
 `TaskPack` owns action-to-joint bindings, observation/history operators,
@@ -57,8 +57,8 @@ accumulator bounds before publishing immutable GPU tables. The generic dense
 kernel has no robot, joint, or network-width branches.
 
 The bundled Unitree G1 factory is mechanics plus one bundled TaskPack. Imported
-floating-base URDF/SRDF models use the same `compileLocomotionWorld` path and
-the Swift `MetalRoboTaskRolloutContext` initializer accepts a persisted
+floating-base URDF/SRDF models use the same `compileSimulation` path and
+the Swift `MetalSimulationSession` initializer accepts a persisted
 TaskPack directly. Other importers can construct the same `EngineModel` C++
 boundary; a new `.metal` extension is appropriate only for a new physics
 primitive, sensor modality, or task operator.
@@ -77,7 +77,7 @@ terminal state, evaluated before the next native reset, so GAE never
 bootstraps from the following episode.
 
 `TaskPack` and `PolicyPack` have deterministic, fingerprinted, transactional
-binary artifacts. MLX Swift is linked only into `metalrobo_task_train` as the
+binary artifacts. MLX Swift is linked only into `metalrobo_train` as the
 batch tensor/autodiff backend. Swift owns GAE, deterministic minibatch order,
 bias-corrected Adam state, learning-rate adaptation, checkpointing, and direct
 resident-policy installation. There is no learner process, pipe protocol, or
@@ -105,7 +105,7 @@ evaluation window because its environment episodes are also new.
 
 ## Encoded graphs
 
-Free motion remains available as a compatibility and dynamics oracle:
+Free motion remains available as a focused dynamics/reference graph:
 
 ```text
 prepare/reset/checkpoint
@@ -113,7 +113,7 @@ prepare/reset/checkpoint
   -> observation/status capture
 ```
 
-`throughputTGS` and `throughputPGS` execute the contact graph:
+`throughputPGS` and `qualityNewton` execute the contact graph:
 
 ```text
 actions/reset
@@ -144,12 +144,12 @@ only overlap in the final pair slot. Accepted pairs are consumed in compiled
 order, so manifold identity and capacity-failure precedence remain
 deterministic without global append atomics.
 
-Temporal TGS rebuilds body transforms, contacts, manifolds, point Jacobians,
-and factor-backed response columns on every microstep. Normal and both
-tangential directions are solved as one 3D block, with the tangential pair
-projected onto the exact circular or elliptical Coulomb cone. PGS consumes the
-same manifold, ConstraintIR, material, restitution, compliance, sign, and
-response records.
+PGS solves normal and both tangential directions as one 3D block, with the
+tangential pair projected onto the circular or elliptical Coulomb cone.
+Quality Newton consumes the same manifold, ConstraintIR, material,
+restitution, compliance, sign, and response records. The internal Wave32
+block-Jacobi experiment is not temporal Gauss-Seidel, is not a public solver,
+and is never selected by a task or model default.
 
 ## Persistence and transactionality
 
@@ -210,7 +210,7 @@ Hybrid CCD computes deterministic, capacity-bounded event intervals for
 analytic, support-mapped, and convex-mesh paths. ABI v4 carries event cursors,
 simultaneous-impact clusters, split budgets, zero-time replay limits, consumed
 time, and first failing event keys. The current step clusters certified events
-and uses speculative TGS to consume the complete microstep; literal repeated
+and uses speculative contact to consume the complete microstep; literal repeated
 TOI advance/solve/continue publication remains the next collision milestone.
 
 ## Native sensors and specialized physics
@@ -419,11 +419,11 @@ and rollout scheduling have one owner: the native compiled-task executor.
 
 ```sh
 ./build/bin/metalrobo_task_program_check
-./build/bin/metalrobo_task_rollout \
+./build/bin/metalrobo_simulation \
   --metallib build/shaders/MetalRobo.metallib \
   --envs 32 --steps 48 --repeats 20 --chunk 8 \
   --scene terrain --native-policy
-./build/bin/metalrobo_task_train \
+./build/bin/metalrobo_train \
   --metallib build/shaders/MetalRobo.metallib \
   --initialize-policy unitree_g1_native_locomotion \
   --policy-pack /tmp/g1-initial.policypack \

@@ -3,6 +3,7 @@
 
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
+#include "metalrobo/contact_scatter_abi.h"
 #include "metalrobo/unified_quality_shared.h"
 
 #include <dlfcn.h>
@@ -2866,7 +2867,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.solverMode !=
             MetalWorldSolverMode::throughputPGS &&
         config.solverMode !=
-            MetalWorldSolverMode::throughputTGS &&
+            MetalWorldSolverMode::waveJacobiExperimental &&
         config.solverMode !=
             MetalWorldSolverMode::qualityNewton) {
         return reject(
@@ -3022,7 +3023,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             MetalWorldHostStatus::unsupportedSolverMode,
             "qualityNewton currently requires disabled or speculative "
             "CCD; event-time quality re-solves are not silently routed "
-            "through TGS"
+            "through the experimental Wave-Jacobi solver"
         );
     }
     const std::size_t qualityNv =
@@ -3261,7 +3262,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         ? MR_SOLVER_THROUGHPUT_PGS
         : config.solverMode == MetalWorldSolverMode::qualityNewton
         ? MR_SOLVER_QUALITY_NEWTON
-        : MR_SOLVER_THROUGHPUT_TGS;
+        : MR_SOLVER_WAVE_JACOBI_EXPERIMENTAL;
     contact.bodyCount =
         static_cast<mr_u32>(world.model().bodies.size());
     contact.sceneBodyCount = world.sceneBodyCount();
@@ -3632,7 +3633,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             return reject(
                 std::move(diagnostics),
                 MetalWorldHostStatus::arithmeticOverflow,
-                "native task rollout element-count overflow"
+                "native simulation element-count overflow"
             );
         }
         if (policyScratchElements >
@@ -9948,7 +9949,7 @@ bool encodeWave32ContactSolve(
     if (wave == nil) {
         return false;
     }
-    wave.label = @"MetalWorld Wave32 matrix-free cone TGS";
+    wave.label = @"MetalWorld Wave32 matrix-free cone Jacobi";
     [wave setComputePipelineState:context.wave32SolvePipeline];
     const std::array<std::size_t, 19u> buffers{{
         kContactDispatch,
@@ -10246,18 +10247,18 @@ bool encodeParallelManifoldCompile(
             context.manifoldRecordScatterPipeline,
             @"MetalWorld stable manifold record scatter",
             {
-                {0u, kContactDispatch},
-                {1u, kEligiblePairs},
-                {2u, kPairRawContactStaging},
-                {3u, kPairManifoldHeaders},
-                {4u, kPairManifoldPoints},
-                {5u, kManifoldIRScatter},
-                {6u, kContactStatuses},
-                {7u, kCandidatePairs},
-                {8u, kRawContacts},
-                {9u, kRawPairIndices},
-                {10u, kCandidateManifoldHeaders},
-                {11u, kCandidateManifoldPoints},
+                {MR_RECORD_SCATTER_DISPATCH, kContactDispatch},
+                {MR_RECORD_SCATTER_ELIGIBLE_PAIRS, kEligiblePairs},
+                {MR_RECORD_SCATTER_RAW_STAGING, kPairRawContactStaging},
+                {MR_RECORD_SCATTER_MANIFOLD_HEADERS, kPairManifoldHeaders},
+                {MR_RECORD_SCATTER_MANIFOLD_POINTS, kPairManifoldPoints},
+                {MR_RECORD_SCATTER_RECORDS, kManifoldIRScatter},
+                {MR_RECORD_SCATTER_STATUSES, kContactStatuses},
+                {MR_RECORD_SCATTER_OUTPUT_PAIRS, kCandidatePairs},
+                {MR_RECORD_SCATTER_OUTPUT_RAW_CONTACTS, kRawContacts},
+                {MR_RECORD_SCATTER_OUTPUT_RAW_PAIR_INDICES, kRawPairIndices},
+                {MR_RECORD_SCATTER_OUTPUT_MANIFOLD_HEADERS, kCandidateManifoldHeaders},
+                {MR_RECORD_SCATTER_OUTPUT_MANIFOLD_POINTS, kCandidateManifoldPoints},
             },
             nullptr,
             0u,
@@ -10269,26 +10270,26 @@ bool encodeParallelManifoldCompile(
             context.manifoldIRScatterPipeline,
             @"MetalWorld manifold-to-ConstraintIR scatter",
             {
-                {0u, kContactDispatch},
-                {1u, kShapes},
-                {2u, kMaterials},
-                {3u, kCurrentBodies},
-                {4u, kArticulations},
-                {5u, kEligiblePairs},
-                {6u, kPairManifoldHeaders},
-                {7u, kPairManifoldPoints},
-                {8u, kManifoldIRScatter},
-                {9u, kContactStatuses},
-                {10u, kContacts},
-                {11u, kContactMetadata},
-                {12u, kIRBlocks},
-                {13u, kIREndpoints},
-                {14u, kEndpointRuntime},
-                {15u, kIRRows},
-                {16u, kIRCones},
-                {17u, kPointQueries},
-                {18u, kBodyDynamicNodes},
-                {19u,
+                {MR_IR_SCATTER_DISPATCH, kContactDispatch},
+                {MR_IR_SCATTER_SHAPES, kShapes},
+                {MR_IR_SCATTER_MATERIALS, kMaterials},
+                {MR_IR_SCATTER_BODIES, kCurrentBodies},
+                {MR_IR_SCATTER_ARTICULATIONS, kArticulations},
+                {MR_IR_SCATTER_ELIGIBLE_PAIRS, kEligiblePairs},
+                {MR_IR_SCATTER_MANIFOLD_HEADERS, kPairManifoldHeaders},
+                {MR_IR_SCATTER_MANIFOLD_POINTS, kPairManifoldPoints},
+                {MR_IR_SCATTER_RECORDS, kManifoldIRScatter},
+                {MR_IR_SCATTER_STATUSES, kContactStatuses},
+                {MR_IR_SCATTER_CONTACTS, kContacts},
+                {MR_IR_SCATTER_CONTACT_METADATA, kContactMetadata},
+                {MR_IR_SCATTER_BLOCKS, kIRBlocks},
+                {MR_IR_SCATTER_ENDPOINTS, kIREndpoints},
+                {MR_IR_SCATTER_ENDPOINT_RUNTIME, kEndpointRuntime},
+                {MR_IR_SCATTER_ROWS, kIRRows},
+                {MR_IR_SCATTER_CONES, kIRCones},
+                {MR_IR_SCATTER_POINT_QUERIES, kPointQueries},
+                {MR_IR_SCATTER_BODY_DYNAMIC_NODES, kBodyDynamicNodes},
+                {MR_IR_SCATTER_BODY_PARAMETERS,
                  context.useTaskBodyParameters
                      ? kTaskBodyParameters
                      : kMaterials},
@@ -15708,7 +15709,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
 	                              rodWitnessCount,
                               config.solverMode ==
                                   MetalWorldSolverMode::
-                                      throughputTGS,
+                                      waveJacobiExperimental,
                               activePairClassMask,
                               config.velocityIterations +
                                   (
@@ -15763,7 +15764,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                               destinationManifoldCounts,
                               config.solverMode ==
                                   MetalWorldSolverMode::
-                                      throughputTGS,
+                                      waveJacobiExperimental,
                               config.solverMode ==
                                   MetalWorldSolverMode::
                                       qualityNewton,

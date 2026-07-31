@@ -104,7 +104,7 @@ linked or called at runtime.
   body/collider projection, precompiled-pair broadphase, compacted
   analytic/SAT/GJK/mesh narrowphase, deterministic manifold finalization,
   segmented manifold-to-ConstraintIR count/scan/scatter, mixed islands,
-  coupled exact-cone PGS/TGS or unified quality Newton, constrained
+  coupled exact-cone PGS or unified quality Newton, constrained
   integration, observations, and transactional publication in one
   asynchronous command buffer. A failed environment restores q/v, scene
   bodies, and manifolds while unrelated environments continue
@@ -234,41 +234,15 @@ The dated requirements and claim rules are in
 
 ```sh
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-./build/bin/metalrobo_cpu_probe
-./build/bin/metalrobo_parity_probe
-./build/bin/metalrobo_articulated_dynamics_probe
-./build/bin/metalrobo_articulated_actuation_probe
-./build/bin/metalrobo_articulated_contact_probe
-./build/bin/metalrobo_articulated_world_probe
-./build/bin/metalrobo_multi_articulated_contact_probe
-./build/bin/metalrobo_articulated_operator_gpu_probe
-./build/bin/metalrobo_articulated_operator_host_probe
-./build/bin/metalrobo_metal_world_probe
+cmake --build build --target \
+  metalrobo_task_program_check \
+  metalrobo_metal_world_contact_probe \
+  metalrobo_tactile_check \
+  metalrobo_simulation
+./build/bin/metalrobo_task_program_check
 ./build/bin/metalrobo_metal_world_contact_probe
-./build/bin/metalrobo_surgical_psm_probe
-./build/bin/metalrobo_surgical_assets_probe
-./build/bin/metalrobo_surgical_metal_operator_probe
-./build/bin/metalrobo_dual_psm_world_probe
-./build/bin/metalrobo_discrete_elastic_rod_probe
-./build/bin/metalrobo_metal_discrete_elastic_rod_probe
-./build/bin/metalrobo_heterogeneous_world_probe
-./build/bin/metalrobo_coupled_articulated_rigid_contact_probe
-./build/bin/metalrobo_articulated_rigid_collision_probe
-./build/bin/metalrobo_articulated_rigid_world_probe
-./build/bin/metalrobo_supported_needle_pickup_probe
-./build/bin/metalrobo_world_compiler_probe
-./build/bin/metalrobo_metal_world_family_probe
-./build/bin/metalrobo_r2s2r_loop_probe
-./build/bin/metalrobo_g1_collision_contact_probe
-./build/bin/metalrobo_free_body_gpu_probe
-./build/bin/metalrobo_collision_gpu_probe
-./build/bin/metalrobo_deterministic_broadphase_probe
-./build/bin/metalrobo_constraint_ir_probe
-./build/bin/metalrobo_quality_contact_probe
-./build/bin/metalrobo_metal_unified_quality_probe
-./build/bin/metalrobo_rigid_body_world_probe
-./build/bin/metalrobo_bench --envs 1024 --steps 1000
+./build/bin/metalrobo_tactile_check
+./build/bin/metalrobo_simulation --envs 32 --steps 48 --repeats 20
 ```
 
 Python support under `python/` is restricted to learning, data, artifact
@@ -276,8 +250,8 @@ inspection, export, and external sim2sim comparison. Swift owns native rollout
 scheduling.
 
 ```sh
-cmake --build build --target metalrobo_task_train
-./build/bin/metalrobo_task_train \
+cmake --build build --target metalrobo_train
+./build/bin/metalrobo_train \
   --metallib build/shaders/MetalRobo.metallib \
   --initialize-policy unitree_g1_native_locomotion \
   --policy-pack runs/g1/initial.policypack \
@@ -298,7 +272,7 @@ physics substeps per control step. Its three-substep FP64/Metal parity case
 had maximum q error `5.753e-7`, v error `4.745e-8`, and scaled acceleration
 error `1.982e-6`; same-build replay was bitwise. These are free-motion
 composition numbers, not external-engine results. The 1,024-environment
-Franka-plus-dynamic-cube TGS probe most recently measured 32,178 GPU and
+Franka-plus-dynamic-cube contact probe most recently measured 32,178 GPU and
 31,346 wall
 control-steps/s with two active contacts, a 32-contact capacity class, and a
 246.1 MB retained arena. That is below the 40,000 release gate; the gate

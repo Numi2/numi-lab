@@ -112,12 +112,12 @@ The bundled G1 task is one preset expressed through this same format. Imported
 URDF robots and WorldPacks use the same compiler and executor:
 
 ```text
-makeUnitreeG1LocomotionWorld
+makeUnitreeG1Simulation
 mr_create_urdf_locomotion_rollout
 mr_create_world_pack_locomotion_rollout
               |
               v
-      compileLocomotionWorld
+      compileSimulation
               |
               v
       generic Metal task executor
@@ -213,7 +213,7 @@ training alone does not claim that runtime integration.
 
 ## Learning and rollout boundary
 
-`metalrobo_task_rollout` and `metalrobo_task_train` are Swift executables.
+`metalrobo_simulation` and `metalrobo_train` are Swift executables.
 Swift retains one native world, preallocates one rollout arena, submits bounded
 chunks, handles completion/error reporting, and attaches a policy revision to
 every batch.
@@ -255,12 +255,12 @@ Use the smallest owner for a change:
 cmake --build build --target metalrobo_task_program_check
 ./build/bin/metalrobo_task_program_check
 
-./build/bin/metalrobo_task_rollout \
+./build/bin/metalrobo_simulation \
   --metallib build/shaders/MetalRobo.metallib \
   --envs 32 --steps 48 --repeats 20 --chunk 8 \
   --scene terrain --native-policy
 
-cmake --build build --target metalrobo_task_train
+cmake --build build --target metalrobo_train
 ```
 
 The task-program check owns semantic resolution, capacity invariants, artifact
@@ -271,20 +271,20 @@ importing or scheduling simulator state.
 
 ## Main implementation files
 
-- `include/metalrobo/LocomotionWorld.hpp`
+- `include/metalrobo/Simulation.hpp`
 - `include/metalrobo/TaskProgram.hpp`
 - `include/metalrobo/PolicyProgram.hpp`
 - `include/metalrobo/MetalWorld.hpp`
 - `include/metalrobo/MetalWorldFamily.hpp`
 - `include/metalrobo/WorldPack.hpp`
-- `src/core/LocomotionWorld.cpp`
+- `src/core/Simulation.cpp`
 - `src/core/TaskProgram.cpp`
 - `src/core/PolicyProgram.cpp`
 - `src/core/WorldPack.cpp`
 - `src/metal/MetalWorld.mm`
-- `src/metal/LocomotionTask.metal`
+- `src/metal/TaskRuntime.metal`
 - `src/metal/PolicyInference.metal`
-- `bindings/swift/MetalRoboTaskRollout.swift`
-- `apps/task_rollout.swift`
-- `apps/task_train.swift`
+- `bindings/swift/MetalRoboSimulation.swift`
+- `apps/simulation.swift`
+- `apps/train.swift`
 - `bindings/swift/MetalRoboMLXLearner.swift`

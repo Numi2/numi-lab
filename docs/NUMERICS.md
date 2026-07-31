@@ -161,9 +161,10 @@ The contact portfolio has three distinct numerical contracts:
 - a fixed-budget CPU/Metal PGS throughput block with normal, coupled
   two-tangent radial projection, torsional friction, and warm starts.
 
-The throughput block is PGS, not temporal Gauss-Seidel: it does not advance
-and relinearize contacts through internal TGS substeps. Rolling resistance is
-explicitly unsupported. One throughput dispatch holds at most 128 contacts.
+The production throughput block is PGS, not temporal Gauss-Seidel. The
+internal Wave32 path is block-Jacobi and remains experimental. Rolling
+resistance is explicitly unsupported. One throughput dispatch holds at most
+128 contacts.
 The composed CPU world partitions independent connected islands, so any one
 connected island above 128 contacts returns capacity overflow. It does not
 drop the excess contacts.

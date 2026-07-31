@@ -17,11 +17,10 @@
 extern "C" {
 #endif
 
-typedef struct MRRuntimeHandle MRRuntimeHandle;
 typedef struct MRWorldFamilyHandle MRWorldFamilyHandle;
 typedef struct MRHybridRendererHandle MRHybridRendererHandle;
 typedef struct MRTactileHandle MRTactileHandle;
-typedef struct MRTaskRolloutHandle MRTaskRolloutHandle;
+typedef struct MRSimulationHandle MRSimulationHandle;
 typedef struct MRWorldInstanceHeaderGPU MRWorldInstanceHeaderGPU;
 typedef struct MRWorldAssetInstanceGPU MRWorldAssetInstanceGPU;
 typedef struct MRWorldSensorInstanceGPU MRWorldSensorInstanceGPU;
@@ -30,24 +29,19 @@ typedef struct MRWorldAppearanceInstanceGPU
 typedef struct MRWorldScenarioHeaderGPU MRWorldScenarioHeaderGPU;
 typedef struct MRWorldScenarioValueGPU MRWorldScenarioValueGPU;
 
-typedef struct MRRuntimeStatsC {
-    double last_gpu_milliseconds;
-    double total_gpu_milliseconds;
-    uint64_t control_steps;
-    uint64_t physics_steps;
-} MRRuntimeStatsC;
+// Convenience environment used only by bundled/imported robot constructors.
+// WorldPack simulations author their complete scene instead.
+typedef enum MRBuiltinSurfaceC {
+    MR_BUILTIN_SURFACE_GROUND = 0,
+    MR_BUILTIN_SURFACE_TERRAIN = 1,
+} MRBuiltinSurfaceC;
 
-typedef enum MRLocomotionSurfaceC {
-    MR_LOCOMOTION_SURFACE_GROUND = 0,
-    MR_LOCOMOTION_SURFACE_TERRAIN = 1,
-} MRLocomotionSurfaceC;
+typedef enum MRSimulationSolverC {
+    MR_SIMULATION_SOLVER_THROUGHPUT_PGS = 0,
+    MR_SIMULATION_SOLVER_QUALITY_NEWTON = 1,
+} MRSimulationSolverC;
 
-typedef enum MRTaskRolloutSolverC {
-    MR_TASK_ROLLOUT_SOLVER_PGS = 0,
-    MR_TASK_ROLLOUT_SOLVER_TGS = 1,
-} MRTaskRolloutSolverC;
-
-typedef struct MRTaskRolloutConfigC {
+typedef struct MRSimulationConfigC {
     uint32_t environment_count;
     uint32_t solver;
     uint32_t physics_substeps;
@@ -55,9 +49,9 @@ typedef struct MRTaskRolloutConfigC {
     uint32_t final_velocity_iterations;
     float control_timestep_seconds;
     uint64_t seed;
-} MRTaskRolloutConfigC;
+} MRSimulationConfigC;
 
-typedef struct MRTaskRolloutLayoutC {
+typedef struct MRSimulationLayoutC {
     uint32_t environment_count;
     uint32_t nq;
     uint32_t nv;
@@ -76,9 +70,9 @@ typedef struct MRTaskRolloutLayoutC {
     size_t peak_aliased_bytes;
     double total_gpu_milliseconds;
     double total_submission_milliseconds;
-} MRTaskRolloutLayoutC;
+} MRSimulationLayoutC;
 
-typedef struct MRTaskRolloutStageHighWaterC {
+typedef struct MRSimulationStageHighWaterC {
     uint32_t candidate_pairs;
     uint32_t raw_contacts;
     uint32_t manifolds;
@@ -106,9 +100,9 @@ typedef struct MRTaskRolloutStageHighWaterC {
     uint32_t island_constraint_references;
     uint32_t rod_factor_blocks;
     uint32_t operator_velocity_elements;
-} MRTaskRolloutStageHighWaterC;
+} MRSimulationStageHighWaterC;
 
-typedef struct MRTaskRolloutAdvanceC {
+typedef struct MRSimulationAdvanceC {
     uint32_t control_step_count;
     uint32_t successful_environment_steps;
     uint32_t failed_environment_steps;
@@ -118,10 +112,10 @@ typedef struct MRTaskRolloutAdvanceC {
     uint32_t host_requested_resets;
     uint32_t maximum_active_contacts;
     uint32_t maximum_manifolds;
-    MRTaskRolloutStageHighWaterC high_water;
+    MRSimulationStageHighWaterC high_water;
     double gpu_milliseconds;
     double submission_milliseconds;
-} MRTaskRolloutAdvanceC;
+} MRSimulationAdvanceC;
 
 typedef struct MRTaskTransitionC {
     float reward;
@@ -396,96 +390,67 @@ MR_API int mr_compile_episode_manifest(
     const char* artifact_store_path
 );
 
-MR_API MRRuntimeHandle* mr_create_franka(
-    uint32_t environment_count,
-    uint64_t seed,
-    const char* metallib_path
-);
-MR_API void mr_destroy(MRRuntimeHandle* handle);
-
-MR_API int mr_reset(MRRuntimeHandle* handle, uint64_t seed);
-MR_API int mr_step(
-    MRRuntimeHandle* handle,
-    const float* normalized_actions,
-    size_t action_count
-);
-
-MR_API uint32_t mr_environment_count(const MRRuntimeHandle* handle);
-MR_API uint32_t mr_action_count(const MRRuntimeHandle* handle);
-MR_API uint32_t mr_observation_count(const MRRuntimeHandle* handle);
-MR_API uint32_t mr_link_count(const MRRuntimeHandle* handle);
-
-// Returned spans alias shared simulator memory and remain valid until destroy.
-MR_API const float* mr_observations(const MRRuntimeHandle* handle);
-MR_API const float* mr_rewards(const MRRuntimeHandle* handle);
-MR_API const uint8_t* mr_terminated(const MRRuntimeHandle* handle);
-MR_API const float* mr_body_positions(const MRRuntimeHandle* handle);
-MR_API const float* mr_body_rotations(const MRRuntimeHandle* handle);
-
-MR_API MRRuntimeStatsC mr_stats(const MRRuntimeHandle* handle);
-MR_API const char* mr_device_name(const MRRuntimeHandle* handle);
-
 // Creates the bundled G1 mechanics and locomotion TaskPack through the same
 // compiled task-program route used by imported robots. The returned executor
 // is robot-independent: the caller owns rollout chunking and supplies packed
 // normalized [step][environment][compiled action] values plus an optional
 // [step][environment] reset mask. One advance call submits and waits for
 // exactly one native Metal command buffer.
-MR_API MRTaskRolloutHandle*
-mr_create_unitree_g1_locomotion_rollout(
-    const MRTaskRolloutConfigC* config,
+MR_API MRSimulationHandle*
+mr_create_unitree_g1_simulation(
+    const MRSimulationConfigC* config,
     uint32_t surface,
     const char* metallib_path
 );
 // Cooks a floating-base URDF/SRDF, loads its authored TaskPack, resolves every
 // semantic binding, and creates the same generic native executor used by G1.
 // srdf_path and metallib_path may be null; all other pointers are required.
-MR_API MRTaskRolloutHandle* mr_create_urdf_locomotion_rollout(
+MR_API MRSimulationHandle* mr_create_urdf_simulation(
     const char* urdf_path,
     const char* srdf_path,
     const char* task_pack_path,
-    const MRTaskRolloutConfigC* config,
+    const MRSimulationConfigC* config,
     uint32_t surface,
     const char* metallib_path
 );
 // Loads complete mechanics/scene composition from MRWorldPack and resolves a
 // separate TaskPack against it. The authored pack, not a runtime preset,
 // owns terrain and other scene bodies.
-MR_API MRTaskRolloutHandle* mr_create_world_pack_locomotion_rollout(
+MR_API MRSimulationHandle* mr_create_world_pack_simulation(
     const char* world_pack_path,
     const char* task_pack_path,
-    const MRTaskRolloutConfigC* config,
+    const MRSimulationConfigC* config,
     const char* metallib_path
 );
-MR_API void mr_task_rollout_destroy(MRTaskRolloutHandle* handle);
-MR_API int mr_task_rollout_reset(
-    MRTaskRolloutHandle* handle,
+MR_API void mr_simulation_destroy(MRSimulationHandle* handle);
+MR_API int mr_simulation_reset(
+    MRSimulationHandle* handle,
     uint64_t seed
 );
 // Restores the compact task-wide curriculum checkpoint before the first
 // resident submission. Per-environment simulator state remains native.
-MR_API int mr_task_rollout_set_curriculum_level(
-    MRTaskRolloutHandle* handle,
+MR_API int mr_simulation_set_curriculum_level(
+    MRSimulationHandle* handle,
     uint32_t level
 );
 // Installs one immutable compiled policy artifact. The call copies all
 // caller-owned spans; subsequent advances take no action stream and run
 // inference between native observation construction and action application.
-MR_API int mr_task_rollout_set_policy(
-    MRTaskRolloutHandle* handle,
+MR_API int mr_simulation_set_policy(
+    MRSimulationHandle* handle,
     const MRPolicyPackC* policy
 );
 // Loads, validates, compiles, and atomically installs a persisted PolicyPack.
 // A failed load leaves the currently installed policy unchanged.
-MR_API int mr_task_rollout_load_policy_pack(
-    MRTaskRolloutHandle* handle,
+MR_API int mr_simulation_load_policy_pack(
+    MRSimulationHandle* handle,
     const char* policy_pack_path
 );
-MR_API int mr_task_rollout_clear_policy(
-    MRTaskRolloutHandle* handle
+MR_API int mr_simulation_clear_policy(
+    MRSimulationHandle* handle
 );
-MR_API int mr_task_rollout_advance(
-    MRTaskRolloutHandle* handle,
+MR_API int mr_simulation_advance(
+    MRSimulationHandle* handle,
     const float* normalized_actions,
     size_t normalized_action_count,
     const uint32_t* reset_masks,
@@ -493,55 +458,55 @@ MR_API int mr_task_rollout_advance(
     uint32_t control_step_count,
     uint64_t policy_revision,
     uint32_t evaluate_final_policy,
-    MRTaskRolloutAdvanceC* advance
+    MRSimulationAdvanceC* advance
 );
-MR_API MRTaskRolloutLayoutC mr_task_rollout_layout(
-    const MRTaskRolloutHandle* handle
+MR_API MRSimulationLayoutC mr_simulation_layout(
+    const MRSimulationHandle* handle
 );
 // Stable compiled TaskPack fingerprint used by learner checkpoints to reject
 // semantically incompatible resume attempts.
-MR_API uint64_t mr_task_rollout_task_fingerprint(
-    const MRTaskRolloutHandle* handle
+MR_API uint64_t mr_simulation_task_fingerprint(
+    const MRSimulationHandle* handle
 );
-MR_API const char* mr_task_rollout_device_name(
-    const MRTaskRolloutHandle* handle
+MR_API const char* mr_simulation_device_name(
+    const MRSimulationHandle* handle
 );
 // Diagnostic status spans alias handle-owned publication memory until the
 // next advance, reset, or destroy. Simulator state is never exposed here.
-MR_API const uint32_t* mr_task_rollout_status_codes(
-    const MRTaskRolloutHandle* handle
+MR_API const uint32_t* mr_simulation_status_codes(
+    const MRSimulationHandle* handle
 );
-MR_API const uint32_t* mr_task_rollout_active_contacts(
-    const MRTaskRolloutHandle* handle
+MR_API const uint32_t* mr_simulation_active_contacts(
+    const MRSimulationHandle* handle
 );
-MR_API const float* mr_task_rollout_actor_observations(
-    const MRTaskRolloutHandle* handle
+MR_API const float* mr_simulation_actor_observations(
+    const MRSimulationHandle* handle
 );
-MR_API const float* mr_task_rollout_critic_observations(
-    const MRTaskRolloutHandle* handle
+MR_API const float* mr_simulation_critic_observations(
+    const MRSimulationHandle* handle
 );
-MR_API const MRTaskTransitionC* mr_task_rollout_transitions(
-    const MRTaskRolloutHandle* handle
+MR_API const MRTaskTransitionC* mr_simulation_transitions(
+    const MRSimulationHandle* handle
 );
-MR_API const float* mr_task_rollout_policy_latents(
-    const MRTaskRolloutHandle* handle
+MR_API const float* mr_simulation_policy_latents(
+    const MRSimulationHandle* handle
 );
-MR_API const float* mr_task_rollout_policy_log_probabilities(
-    const MRTaskRolloutHandle* handle
+MR_API const float* mr_simulation_policy_log_probabilities(
+    const MRSimulationHandle* handle
 );
-MR_API const float* mr_task_rollout_policy_values(
-    const MRTaskRolloutHandle* handle
+MR_API const float* mr_simulation_policy_values(
+    const MRSimulationHandle* handle
 );
 // Value estimates for the accepted post-rollout state. Native policy
 // evaluation is encoded in the same submission without advancing physics.
-MR_API const float* mr_task_rollout_bootstrap_policy_values(
-    const MRTaskRolloutHandle* handle
+MR_API const float* mr_simulation_bootstrap_policy_values(
+    const MRSimulationHandle* handle
 );
 // Transactionally publishes an aggregated Swift-owned collection boundary.
 // Dimensions and fingerprints are derived from the installed task/policy;
 // caller spans are copied before return.
-MR_API int mr_task_rollout_write_policy_rollout_pack(
-    const MRTaskRolloutHandle* handle,
+MR_API int mr_simulation_write_policy_rollout_pack(
+    const MRSimulationHandle* handle,
     const MRPolicyRolloutBatchC* batch,
     const char* batch_id,
     const char* output_path

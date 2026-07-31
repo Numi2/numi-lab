@@ -35,8 +35,8 @@ Build the native library and Metal shaders first:
 cmake -S .. -B ../build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build ../build --target \
   metalrobo_task_program_check \
-  metalrobo_task_rollout \
-  metalrobo_task_train
+  metalrobo_simulation \
+  metalrobo_train
 python3 -m pip install -e .
 ```
 
@@ -56,7 +56,7 @@ artifact transactionally. The Swift rollout executable loads the deterministic
 deployment artifact without translating weights:
 
 ```sh
-../build/bin/metalrobo_task_rollout \
+../build/bin/metalrobo_simulation \
   --metallib ../build/shaders/MetalRobo.metallib \
   --policy-pack runs/policy.policypack \
   --envs 32 --steps 48 --chunk 8 --scene terrain
@@ -67,7 +67,7 @@ TaskPack dimensions:
 
 ```sh
 mkdir -p runs/g1
-../build/bin/metalrobo_task_train \
+../build/bin/metalrobo_train \
   --metallib ../build/shaders/MetalRobo.metallib \
   --initialize-policy unitree_g1_native_locomotion \
   --policy-pack runs/g1/initial.policypack \

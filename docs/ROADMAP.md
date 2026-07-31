@@ -57,7 +57,7 @@ prototype.
   multi-step asynchronous submission, free-body prediction, collider
   projection, precompiled-pair broadphase, ten primitive pair classes,
   persistent four-point manifolds, shared ConstraintIR v2, factor-backed
-  mixed islands, exact-cone PGS/TGS, transactional q/v/body/cache publication,
+  mixed islands, exact-cone PGS, transactional q/v/body/cache publication,
   aggregated high-water evidence, and bitwise replay
 - **Landed MLX tranche:** MLX 0.32 active-encoder ABA primitive for Franka/G1,
   explicit PyTree state, compiled reset/rollback, no CPU fallback, and a

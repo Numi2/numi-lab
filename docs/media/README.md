@@ -15,8 +15,8 @@ repository.
 `numi-lab-g1-native-rollout.gif` and
 `numi-lab-g1-sensor-rollout.gif` are native numi-lab captures, not generated
 images. The source was a 96-control-step, one-environment G1 terrain rollout
-executed on Apple M4 through `metalrobo_task_rollout` with the compiled native
-policy path, TGS, eight-step submissions, and seed `20260731`.
+executed on Apple M4 through `metalrobo_simulation` with the compiled native
+policy path, PGS, eight-step submissions, and seed `20260731`.
 
 The animation uses all 48 consecutive rollout steps from 7 through 54. Each
 displayed joint configuration is reconstructed from the rollout's clean

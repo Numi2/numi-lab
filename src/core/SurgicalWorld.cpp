@@ -552,7 +552,7 @@ DualPsmWorld makeDualDvrkPsmWorld(
         std::max(constraintCapacity, 8u);
     world.islandCapacity =
         std::max(world.bodyCount, 2u);
-    world.solverType = MR_SOLVER_THROUGHPUT_TGS;
+    world.solverType = MR_SOLVER_THROUGHPUT_PGS;
     world.frictionConeType = MR_FRICTION_CONE_ELLIPTIC;
     world.gravityAndTimestep = f4(
         config.gravity[0],

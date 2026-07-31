@@ -1,5 +1,6 @@
 #include <metal_stdlib>
 
+#include "metalrobo/contact_scatter_abi.h"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/rod_gpu_shared.h"
 
@@ -5634,7 +5635,7 @@ inline bool finiteContactDispatch(
                 MR_SOLVER_QUALITY_NEWTON ||
             (
                 dispatch.solverType >=
-                    MR_SOLVER_THROUGHPUT_TGS &&
+                    MR_SOLVER_WAVE_JACOBI_EXPERIMENTAL &&
                 dispatch.solverType <=
                     MR_SOLVER_THROUGHPUT_PGS
             )
@@ -9863,8 +9864,46 @@ kernel void mr_world_scan_manifold_ir(
         if (valid) {
             record = scatterRecords[pairBase + pair];
         }
-        const uint4 count0 = valid ? record.counts0 : uint4(0u);
-        const uint4 count1 = valid ? record.counts1 : uint4(0u);
+        // A finalized pair owns one canonical point count. Every derived IR
+        // stream must be an exact function of that count before any prefix is
+        // published: three rows, two endpoints, two point queries, and one
+        // evidence record per constraint point. Scatter is deliberately
+        // branch-light and trusts this scan certificate.
+        const bool recordInvariant =
+            !valid ||
+            (
+                record.counts0.x <= 1u &&
+                record.counts0.y <=
+                    MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR &&
+                record.counts0.z <= 1u &&
+                record.counts0.w <=
+                    MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY &&
+                (record.counts0.y == 0u ||
+                 record.counts0.x == 1u) &&
+                record.counts0.z ==
+                    (record.counts0.y != 0u ? 1u : 0u) &&
+                ((record.counts0.w == 0u &&
+                  record.counts0.z == 0u) ||
+                 (record.counts0.w != 0u &&
+                  record.counts0.z == 1u)) &&
+                record.counts1.x == 3u * record.counts0.w &&
+                record.counts1.y == 2u * record.counts0.w &&
+                record.counts1.z == 2u * record.counts0.w &&
+                record.counts1.w == record.counts0.w
+            );
+        if (valid && !recordInvariant) {
+            record.diagnostics0.x =
+                MR_STEP_IR_INVARIANT_VIOLATION;
+            record.diagnostics1.w = pair;
+        }
+        const uint4 count0 =
+            valid && recordInvariant
+            ? record.counts0
+            : uint4(0u);
+        const uint4 count1 =
+            valid && recordInvariant
+            ? record.counts1
+            : uint4(0u);
         const uint4 prefix0 = uint4(
             simd_prefix_exclusive_sum(count0.x),
             simd_prefix_exclusive_sum(count0.y),
@@ -9921,7 +9960,11 @@ kernel void mr_world_scan_manifold_ir(
                 record.offsets0.w + count0.w >
                     dispatch.constraintCapacity ||
                 record.offsets1.x + count1.x >
-                    dispatch.rowCapacity
+                    dispatch.rowCapacity ||
+                record.offsets1.y + count1.y >
+                    2u * dispatch.constraintCapacity ||
+                record.offsets1.z + count1.z >
+                    dispatch.pointQueryStride
             )
             ? pair
             : MR_INVALID_INDEX;
@@ -10096,18 +10139,30 @@ kernel void mr_world_scan_manifold_ir(
 }
 
 kernel void mr_world_scatter_manifold_records(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(1)]],
-    device const MRRawContactGPU* pairRawContactStaging [[buffer(2)]],
-    device const MRManifoldHeaderGPU* pairManifoldHeaders [[buffer(3)]],
-    device const MRManifoldPointGPU* pairManifoldPoints [[buffer(4)]],
-    device const MRManifoldIRScatterGPU* scatterRecords [[buffer(5)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(6)]],
-    device MRCandidatePairGPU* outputPairs [[buffer(7)]],
-    device MRRawContactGPU* outputRawContacts [[buffer(8)]],
-    device uint* outputRawPairIndices [[buffer(9)]],
-    device MRManifoldHeaderGPU* candidateManifoldHeaders [[buffer(10)]],
-    device MRManifoldPointGPU* candidateManifoldPoints [[buffer(11)]],
+    device const MRMetalWorldContactDispatchGPU& dispatch
+        [[buffer(MR_RECORD_SCATTER_DISPATCH)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs
+        [[buffer(MR_RECORD_SCATTER_ELIGIBLE_PAIRS)]],
+    device const MRRawContactGPU* pairRawContactStaging
+        [[buffer(MR_RECORD_SCATTER_RAW_STAGING)]],
+    device const MRManifoldHeaderGPU* pairManifoldHeaders
+        [[buffer(MR_RECORD_SCATTER_MANIFOLD_HEADERS)]],
+    device const MRManifoldPointGPU* pairManifoldPoints
+        [[buffer(MR_RECORD_SCATTER_MANIFOLD_POINTS)]],
+    device const MRManifoldIRScatterGPU* scatterRecords
+        [[buffer(MR_RECORD_SCATTER_RECORDS)]],
+    device const MRMetalWorldContactStatusGPU* statuses
+        [[buffer(MR_RECORD_SCATTER_STATUSES)]],
+    device MRCandidatePairGPU* outputPairs
+        [[buffer(MR_RECORD_SCATTER_OUTPUT_PAIRS)]],
+    device MRRawContactGPU* outputRawContacts
+        [[buffer(MR_RECORD_SCATTER_OUTPUT_RAW_CONTACTS)]],
+    device uint* outputRawPairIndices
+        [[buffer(MR_RECORD_SCATTER_OUTPUT_RAW_PAIR_INDICES)]],
+    device MRManifoldHeaderGPU* candidateManifoldHeaders
+        [[buffer(MR_RECORD_SCATTER_OUTPUT_MANIFOLD_HEADERS)]],
+    device MRManifoldPointGPU* candidateManifoldPoints
+        [[buffer(MR_RECORD_SCATTER_OUTPUT_MANIFOLD_POINTS)]],
     const uint flatPair [[thread_position_in_grid]]
 ) {
     const uint pairDomain =
@@ -10224,26 +10279,46 @@ worldEndpointRuntime(
 }
 
 kernel void mr_world_scatter_manifold_ir(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const MRShapeGPU* shapes [[buffer(1)]],
-    device const MRMaterialGPU* materials [[buffer(2)]],
-    device const MRBodyStateGPU* bodies [[buffer(3)]],
-    device const MRArticulationGPU* articulations [[buffer(4)]],
-    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(5)]],
-    device const MRManifoldHeaderGPU* pairManifoldHeaders [[buffer(6)]],
-    device const MRManifoldPointGPU* pairManifoldPoints [[buffer(7)]],
-    device const MRManifoldIRScatterGPU* scatterRecords [[buffer(8)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(9)]],
-    device MRContactConstraintGPU* contacts [[buffer(10)]],
-    device MRContactPointMetaGPU* contactMetadata [[buffer(11)]],
-    device MRConstraintIRBlockGPU* blocks [[buffer(12)]],
-    device MRConstraintIREndpointGPU* endpoints [[buffer(13)]],
-    device MRConstraintEndpointRuntimeGPU* endpointRuntime [[buffer(14)]],
-    device MRConstraintIRRowGPU* rows [[buffer(15)]],
-    device MRConstraintIRConeGPU* cones [[buffer(16)]],
-    device MRArticulatedPointImpulseGPU* pointQueries [[buffer(17)]],
-    device const uint* bodyDynamicNodes [[buffer(18)]],
-    device const float4* bodyParameters [[buffer(19)]],
+    device const MRMetalWorldContactDispatchGPU& dispatch
+        [[buffer(MR_IR_SCATTER_DISPATCH)]],
+    device const MRShapeGPU* shapes
+        [[buffer(MR_IR_SCATTER_SHAPES)]],
+    device const MRMaterialGPU* materials
+        [[buffer(MR_IR_SCATTER_MATERIALS)]],
+    device const MRBodyStateGPU* bodies
+        [[buffer(MR_IR_SCATTER_BODIES)]],
+    device const MRArticulationGPU* articulations
+        [[buffer(MR_IR_SCATTER_ARTICULATIONS)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs
+        [[buffer(MR_IR_SCATTER_ELIGIBLE_PAIRS)]],
+    device const MRManifoldHeaderGPU* pairManifoldHeaders
+        [[buffer(MR_IR_SCATTER_MANIFOLD_HEADERS)]],
+    device const MRManifoldPointGPU* pairManifoldPoints
+        [[buffer(MR_IR_SCATTER_MANIFOLD_POINTS)]],
+    device const MRManifoldIRScatterGPU* scatterRecords
+        [[buffer(MR_IR_SCATTER_RECORDS)]],
+    device const MRMetalWorldContactStatusGPU* statuses
+        [[buffer(MR_IR_SCATTER_STATUSES)]],
+    device MRContactConstraintGPU* contacts
+        [[buffer(MR_IR_SCATTER_CONTACTS)]],
+    device MRContactPointMetaGPU* contactMetadata
+        [[buffer(MR_IR_SCATTER_CONTACT_METADATA)]],
+    device MRConstraintIRBlockGPU* blocks
+        [[buffer(MR_IR_SCATTER_BLOCKS)]],
+    device MRConstraintIREndpointGPU* endpoints
+        [[buffer(MR_IR_SCATTER_ENDPOINTS)]],
+    device MRConstraintEndpointRuntimeGPU* endpointRuntime
+        [[buffer(MR_IR_SCATTER_ENDPOINT_RUNTIME)]],
+    device MRConstraintIRRowGPU* rows
+        [[buffer(MR_IR_SCATTER_ROWS)]],
+    device MRConstraintIRConeGPU* cones
+        [[buffer(MR_IR_SCATTER_CONES)]],
+    device MRArticulatedPointImpulseGPU* pointQueries
+        [[buffer(MR_IR_SCATTER_POINT_QUERIES)]],
+    device const uint* bodyDynamicNodes
+        [[buffer(MR_IR_SCATTER_BODY_DYNAMIC_NODES)]],
+    device const float4* bodyParameters
+        [[buffer(MR_IR_SCATTER_BODY_PARAMETERS)]],
     const uint flatPoint [[thread_position_in_grid]]
 ) {
     const uint pointsPerEnvironment =

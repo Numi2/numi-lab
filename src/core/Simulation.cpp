@@ -1,4 +1,4 @@
-#include "metalrobo/LocomotionWorld.hpp"
+#include "metalrobo/Simulation.hpp"
 
 #include "metalrobo/G1.hpp"
 #include "metalrobo/WorldPack.hpp"
@@ -12,6 +12,21 @@
 
 namespace metalrobo {
 namespace {
+
+constexpr std::uint64_t kFingerprintOffset =
+    1469598103934665603ull;
+constexpr std::uint64_t kFingerprintPrime =
+    1099511628211ull;
+
+void appendFingerprint(
+    std::uint64_t& hash,
+    const std::uint64_t value
+) {
+    for (std::uint32_t byte = 0u; byte < 8u; ++byte) {
+        hash ^= (value >> (byte * 8u)) & 0xffu;
+        hash *= kFingerprintPrime;
+    }
+}
 
 MRBodyPropertiesGPU staticBody() {
     MRBodyPropertiesGPU body{};
@@ -304,13 +319,33 @@ void appendTerrain(
 
 } // namespace
 
-LocomotionWorldCompileDiagnostics compileLocomotionWorld(
-    const LocomotionWorld& authored,
+bool CompiledSimulation::valid() const noexcept {
+    return world.valid() && task.valid() &&
+        (!policy.valid() ||
+         policy.taskFingerprint() == task.fingerprint());
+}
+
+std::uint64_t CompiledSimulation::fingerprint() const noexcept {
+    if (!valid()) {
+        return 0u;
+    }
+    std::uint64_t hash = kFingerprintOffset;
+    appendFingerprint(hash, world.fingerprint());
+    appendFingerprint(hash, task.fingerprint());
+    appendFingerprint(
+        hash,
+        policy.valid() ? policy.fingerprint() : 0u
+    );
+    return hash;
+}
+
+SimulationCompileDiagnostics compileSimulation(
+    const SimulationDescription& authored,
     const std::uint32_t articulationIndex,
-    CompiledLocomotionWorld& compiled
+    CompiledSimulation& compiled
 ) {
-    LocomotionWorldCompileDiagnostics diagnostics;
-    CompiledLocomotionWorld staged;
+    SimulationCompileDiagnostics diagnostics;
+    CompiledSimulation staged;
     diagnostics.world = compileMetalWorld(
         authored.model,
         articulationIndex,
@@ -328,14 +363,25 @@ LocomotionWorldCompileDiagnostics compileLocomotionWorld(
     if (!diagnostics.task.succeeded()) {
         return diagnostics;
     }
+    diagnostics.policyRequested = authored.policy.has_value();
+    if (authored.policy.has_value()) {
+        diagnostics.policy = compilePolicyProgram(
+            *authored.policy,
+            staged.task,
+            staged.policy
+        );
+        if (!diagnostics.policy.succeeded()) {
+            return diagnostics;
+        }
+    }
     compiled = std::move(staged);
     return diagnostics;
 }
 
-void appendLocomotionSurface(
+void appendBuiltinSurface(
     EngineModel& model,
     std::vector<MRBodyStateGPU>& sceneBodies,
-    const LocomotionSurface surface
+    const BuiltinSurface surface
 ) {
     if (model.materials.empty()) {
         throw std::invalid_argument(
@@ -343,10 +389,10 @@ void appendLocomotionSurface(
         );
     }
     switch (surface) {
-    case LocomotionSurface::ground:
+    case BuiltinSurface::ground:
         appendGround(model, sceneBodies);
         break;
-    case LocomotionSurface::terrain:
+    case BuiltinSurface::terrain:
         appendTerrain(model, sceneBodies);
         break;
     default:
@@ -360,7 +406,7 @@ void appendLocomotionSurface(
         static_cast<std::uint32_t>(model.shapes.size());
 }
 
-LocomotionWorld makeWorldPackLocomotionWorld(
+SimulationDescription makeWorldPackSimulation(
     const MRWorldPack& worldPack,
     TaskPack task
 ) {
@@ -389,7 +435,7 @@ LocomotionWorld makeWorldPackLocomotionWorld(
         );
     }
 
-    LocomotionWorld result;
+    SimulationDescription result;
     result.model = authored.engineModel;
     result.task = std::move(task);
     result.articulationIndex = robot.articulationIndex;
@@ -474,8 +520,8 @@ LocomotionWorld makeWorldPackLocomotionWorld(
     return result;
 }
 
-TaskPack makeUnitreeG1LocomotionTaskPack(
-    const LocomotionSurface surface
+TaskPack makeUnitreeG1TaskPack(
+    const BuiltinSurface surface
 ) {
     const G1ModelMetadata& metadata = unitreeG1Metadata();
     TaskPack task;
@@ -789,7 +835,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     }
 
     task.terrain.body =
-        surface == LocomotionSurface::terrain
+        surface == BuiltinSurface::terrain
         ? "locomotion_terrain"
         : "locomotion_ground";
     task.terrain.sampleOffsets.reserve(17u * 11u);
@@ -803,7 +849,7 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
             });
         }
     }
-    if (surface == LocomotionSurface::terrain) {
+    if (surface == BuiltinSurface::terrain) {
         task.terrain.resetTranslations = {
             {3.0f, 0.0f, 0.0f, 0.0f},
             {3.0f, 0.0f, 0.0f, 0.0f},
@@ -992,14 +1038,14 @@ TaskPack makeUnitreeG1LocomotionTaskPack(
     return task;
 }
 
-LocomotionWorld makeUnitreeG1LocomotionWorld(
-    const LocomotionSurface surface
+SimulationDescription makeUnitreeG1Simulation(
+    const BuiltinSurface surface
 ) {
-    LocomotionWorld world{
+    SimulationDescription world{
         .model = makeUnitreeG1EngineModel(),
-        .task = makeUnitreeG1LocomotionTaskPack(surface),
+        .task = makeUnitreeG1TaskPack(surface),
     };
-    appendLocomotionSurface(
+    appendBuiltinSurface(
         world.model,
         world.sceneBodies,
         surface

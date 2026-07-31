@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/contact_scatter_abi.h"
 #include "metalrobo/generalized_constraint_shared.h"
 #include "metalrobo/multi_contact_shared.h"
 #include "metalrobo/parallel_aba_shared.h"
@@ -41,9 +42,8 @@ constexpr std::uint64_t appendRuntimeAbiType(
 
 } // namespace detail
 
-// Fingerprints the host/Metal records crossing the native-library and MLX
-// extension boundary. The exported native value must match the extension's
-// compile-time value before any custom primitive may submit GPU work.
+// Fingerprints the host/Metal records and generated binding schemas crossing
+// the native-library boundary. Consumers reject mismatches before GPU work.
 constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     std::uint64_t hash = 14695981039346656037ull;
     hash = detail::appendRuntimeAbiWord(
@@ -57,6 +57,10 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     hash = detail::appendRuntimeAbiWord(
         hash,
         MR_METAL_WORLD_CONTACT_ABI_VERSION
+    );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_CONTACT_SCATTER_ABI_VERSION
     );
     hash = detail::appendRuntimeAbiWord(
         hash,

@@ -55,7 +55,7 @@ such as `left_ankle_pitch` or `foot_contact` once. The GPU consumes fixed
 indices, ranges, and counts; it performs no string lookup and has no
 per-robot shader branch.
 
-`LocomotionTask.metal` is the generic locomotion task kernel. The bundled G1
+`TaskRuntime.metal` executes compiled task operators. The bundled G1
 task is data compiled through the same TaskProgram as an imported robot. A new
 robot therefore requires mechanics and task data, not a new `.metal` file.
 Custom Metal is reserved for a new physics primitive, sensor modality, or
@@ -99,7 +99,7 @@ the native context and its private state remain resident. An empty reset stream 
 passed as a null pointer and zero count; an authored reset stream must contain
 exactly `control_steps * environments` entries.
 
-`metalrobo_task_train` keeps one simulator context and one in-process MLX Swift
+`metalrobo_train` keeps one simulator context and one in-process MLX Swift
 learner. It appends native chunks directly into a preallocated rollout arena,
 writes one fingerprinted rollout artifact, performs PPO at the declared batch
 boundary, and installs the resulting weights directly into the resident Metal

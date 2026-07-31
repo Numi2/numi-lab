@@ -1,8 +1,8 @@
 """Deployment and independent-engine verification tools.
 
 Simulation, rollout scheduling, and PPO orchestration are intentionally absent
-from this Python CLI. Use ``metalrobo_task_rollout`` and
-``metalrobo_task_train`` for the native Swift/Metal execution path.
+from this Python CLI. Use ``metalrobo_simulation`` and
+``metalrobo_train`` for the native Swift/Metal execution path.
 """
 
 from __future__ import annotations

@@ -131,8 +131,8 @@ private struct Options {
     var steps = 48
     var repeats = 20
     var chunk = 8
-    var surface = MetalRoboLocomotionSurface.terrain
-    var solver = MetalRoboTaskSolver.tgs
+    var surface = MetalRoboBuiltinSurface.terrain
+    var solver = MetalRoboSimulationSolver.throughputPGS
     var seed: UInt64 = 20_260_731
     var curriculumLevel: UInt32 = 0
     var metallib = "build/shaders/MetalRobo.metallib"
@@ -153,7 +153,7 @@ private struct Options {
             let option = arguments[index]
             func value() throws -> String {
                 guard index + 1 < arguments.count else {
-                    throw MetalRoboTaskRolloutError.invalidShape(
+                    throw MetalRoboSimulationError.invalidShape(
                         "\(option) requires a value."
                     )
                 }
@@ -174,7 +174,7 @@ private struct Options {
                 index += 1
             case "--seed":
                 guard let parsed = UInt64(try value()) else {
-                    throw MetalRoboTaskRolloutError.invalidShape(
+                    throw MetalRoboSimulationError.invalidShape(
                         "--seed requires an unsigned integer."
                     )
                 }
@@ -182,7 +182,7 @@ private struct Options {
                 index += 1
             case "--curriculum-level":
                 guard let parsed = UInt32(try value()) else {
-                    throw MetalRoboTaskRolloutError.invalidShape(
+                    throw MetalRoboSimulationError.invalidShape(
                         "--curriculum-level requires an unsigned 32-bit integer."
                     )
                 }
@@ -198,7 +198,7 @@ private struct Options {
                 case "terrain":
                     surface = .terrain
                 default:
-                    throw MetalRoboTaskRolloutError.invalidShape(
+                    throw MetalRoboSimulationError.invalidShape(
                         "--scene must be ground or terrain."
                     )
                 }
@@ -206,12 +206,12 @@ private struct Options {
             case "--solver-mode":
                 switch try value() {
                 case "pgs", "throughput_pgs":
-                    solver = .pgs
-                case "tgs", "throughput_tgs":
-                    solver = .tgs
+                    solver = .throughputPGS
+                case "quality", "quality_newton":
+                    solver = .qualityNewton
                 default:
-                    throw MetalRoboTaskRolloutError.invalidShape(
-                        "--solver-mode must be pgs or tgs."
+                    throw MetalRoboSimulationError.invalidShape(
+                        "--solver-mode must be pgs or quality."
                     )
                 }
                 index += 1
@@ -242,7 +242,7 @@ private struct Options {
                 srdf = try value()
                 index += 1
             default:
-                throw MetalRoboTaskRolloutError.invalidShape(
+                throw MetalRoboSimulationError.invalidShape(
                     "Unknown option \(option)."
                 )
             }
@@ -253,39 +253,39 @@ private struct Options {
               repeats > 0,
               chunk > 0
         else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "envs, steps, repeats, and chunk must be positive."
             )
         }
         if nativePolicy && policyPack != nil {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "--native-policy and --policy-pack are mutually exclusive."
             )
         }
         if zeroActions && (nativePolicy || policyPack != nil) {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "--zero-actions cannot be combined with a compiled policy."
             )
         }
         if rolloutPack != nil &&
             !nativePolicy && policyPack == nil
         {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "--rollout-pack requires --native-policy or --policy-pack."
             )
         }
         if worldPack != nil && urdf != nil {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "--world-pack and --urdf are mutually exclusive."
             )
         }
         if (worldPack != nil || urdf != nil) != (taskPack != nil) {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Imported mechanics require exactly one --task-pack."
             )
         }
         if srdf != nil && urdf == nil {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "--srdf requires --urdf."
             )
         }
@@ -296,7 +296,7 @@ private struct Options {
         _ option: String
     ) throws -> Int {
         guard let parsed = Int(value) else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "\(option) requires an integer."
             )
         }
@@ -306,10 +306,9 @@ private struct Options {
 
 private func makeContext(
     options: Options
-) throws -> (MetalRoboTaskRolloutContext, String) {
-    let configuration = MetalRoboTaskRolloutConfiguration(
+) throws -> (MetalSimulationSession, String) {
+    let configuration = MetalRoboSimulationConfiguration(
         environmentCount: UInt32(options.environments),
-        surface: options.surface,
         solver: options.solver,
         seed: options.seed
     )
@@ -317,7 +316,7 @@ private func makeContext(
        let taskPack = options.taskPack
     {
         return (
-            try MetalRoboTaskRolloutContext(
+            try MetalSimulationSession(
                 worldPack: URL(fileURLWithPath: worldPack),
                 taskPack: URL(fileURLWithPath: taskPack),
                 configuration: configuration,
@@ -330,21 +329,23 @@ private func makeContext(
        let taskPack = options.taskPack
     {
         return (
-            try MetalRoboTaskRolloutContext(
+            try MetalSimulationSession(
                 importedURDF: URL(fileURLWithPath: urdf),
                 srdf: options.srdf.map {
                     URL(fileURLWithPath: $0)
                 },
                 taskPack: URL(fileURLWithPath: taskPack),
                 configuration: configuration,
+                surface: options.surface,
                 metallibPath: options.metallib
             ),
             "urdf"
         )
     }
     return (
-        try MetalRoboTaskRolloutContext(
+        try MetalSimulationSession(
             unitreeG1: configuration,
+            surface: options.surface,
             metallibPath: options.metallib
         ),
         "bundled_g1"
@@ -412,7 +413,7 @@ private func masks(
 }
 
 @main
-private enum TaskRolloutMain {
+private enum SimulationMain {
     static func main() {
         do {
             let options = try Options(
@@ -520,7 +521,7 @@ private enum TaskRolloutMain {
                       revision != 0,
                       revisions.allSatisfy({ $0 == revision })
                 else {
-                    throw MetalRoboTaskRolloutError.native(
+                    throw MetalRoboSimulationError.native(
                         "Native policy revision was not attached to transitions."
                     )
                 }
@@ -543,7 +544,7 @@ private enum TaskRolloutMain {
                     policyValues.allSatisfy(\.isFinite),
                     policyLatents.allSatisfy(\.isFinite)
                 else {
-                    throw MetalRoboTaskRolloutError.native(
+                    throw MetalRoboSimulationError.native(
                         "Native policy produced non-finite PPO records."
                     )
                 }
@@ -584,7 +585,7 @@ private enum TaskRolloutMain {
                               abs(policyValues[environment]) <
                                   1.0e-6
                         else {
-                            throw MetalRoboTaskRolloutError.native(
+                            throw MetalRoboSimulationError.native(
                                 "Native stochastic-policy record disagrees with the reference distribution."
                             )
                         }
@@ -659,7 +660,7 @@ private enum TaskRolloutMain {
                             pending: &pending
                         )
                         : []
-                    let advance: MetalRoboTaskRolloutAdvance
+                    let advance: MetalRoboSimulationAdvance
                     if usesCompiledPolicy {
                         advance = try context.advanceWithPolicy(
                             resetMasks: resetBatch,
@@ -705,7 +706,7 @@ private enum TaskRolloutMain {
                         controlStepCount: stepCount
                     )
                     guard statuses.allSatisfy({ $0 == 0 }) else {
-                        throw MetalRoboTaskRolloutError.native(
+                        throw MetalRoboSimulationError.native(
                             "Task rollout returned a nonzero GPU status."
                         )
                     }
@@ -722,7 +723,7 @@ private enum TaskRolloutMain {
                                     installedPolicyRevision
                             })
                         else {
-                            throw MetalRoboTaskRolloutError.native(
+                            throw MetalRoboSimulationError.native(
                                 "Policy revision changed inside a collected rollout batch."
                             )
                         }
@@ -754,7 +755,7 @@ private enum TaskRolloutMain {
                         guard transition.curriculumLevel >=
                                 finalCurriculumLevel
                         else {
-                            throw MetalRoboTaskRolloutError.native(
+                            throw MetalRoboSimulationError.native(
                                 "Native task curriculum regressed."
                             )
                         }
@@ -845,7 +846,7 @@ private enum TaskRolloutMain {
                 try context.writePolicyRolloutPack(
                     batch,
                     bootstrapValues: bootstrapValues,
-                    id: "swift_native_task_rollout",
+                    id: "swift_native_simulation",
                     to: outputURL
                 )
                 let attributes =
@@ -867,7 +868,7 @@ private enum TaskRolloutMain {
                 options.steps *
                 options.repeats
             let output: [String: Any] = [
-                "benchmark": "swift_native_task_rollout",
+                "benchmark": "swift_native_simulation",
                 "world_source": worldSource,
                 "action_source":
                     options.policyPack != nil
@@ -879,8 +880,8 @@ private enum TaskRolloutMain {
                     : "host_stream",
                 "device": context.deviceName,
                 "solver_mode":
-                    options.solver == .tgs
-                    ? "throughput_tgs"
+                    options.solver == .qualityNewton
+                    ? "quality_newton"
                     : "throughput_pgs",
                 "scene":
                     options.surface == .terrain
@@ -981,7 +982,7 @@ private enum TaskRolloutMain {
             print(String(decoding: data, as: UTF8.self))
         } catch {
             FileHandle.standardError.write(
-                Data("task_rollout failed: \(error)\n".utf8)
+                Data("simulation failed: \(error)\n".utf8)
             )
             Darwin.exit(1)
         }

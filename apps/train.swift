@@ -6,8 +6,8 @@ private struct Options {
     var steps = 24
     var updates = 100
     var chunk = 8
-    var surface = MetalRoboLocomotionSurface.terrain
-    var solver = MetalRoboTaskSolver.tgs
+    var surface = MetalRoboBuiltinSurface.terrain
+    var solver = MetalRoboSimulationSolver.throughputPGS
     var seed: UInt64 = 20_260_731
     var metallib = "build/shaders/MetalRobo.metallib"
     var policyPack: String?
@@ -45,7 +45,7 @@ private struct Options {
             let option = arguments[index]
             func value() throws -> String {
                 guard index + 1 < arguments.count else {
-                    throw MetalRoboTaskRolloutError.invalidShape(
+                    throw MetalRoboSimulationError.invalidShape(
                         "\(option) requires a value."
                     )
                 }
@@ -66,7 +66,7 @@ private struct Options {
                 index += 1
             case "--seed":
                 guard let parsed = UInt64(try value()) else {
-                    throw MetalRoboTaskRolloutError.invalidShape(
+                    throw MetalRoboSimulationError.invalidShape(
                         "--seed requires an unsigned integer."
                     )
                 }
@@ -112,7 +112,7 @@ private struct Options {
                 case "terrain":
                     surface = .terrain
                 default:
-                    throw MetalRoboTaskRolloutError.invalidShape(
+                    throw MetalRoboSimulationError.invalidShape(
                         "--scene must be ground or terrain."
                     )
                 }
@@ -120,12 +120,12 @@ private struct Options {
             case "--solver-mode":
                 switch try value() {
                 case "pgs", "throughput_pgs":
-                    solver = .pgs
-                case "tgs", "throughput_tgs":
-                    solver = .tgs
+                    solver = .throughputPGS
+                case "quality", "quality_newton":
+                    solver = .qualityNewton
                 default:
-                    throw MetalRoboTaskRolloutError.invalidShape(
-                        "--solver-mode must be pgs or tgs."
+                    throw MetalRoboSimulationError.invalidShape(
+                        "--solver-mode must be pgs or quality."
                     )
                 }
                 index += 1
@@ -170,7 +170,7 @@ private struct Options {
             case "--verbose":
                 verbose = true
             default:
-                throw MetalRoboTaskRolloutError.invalidShape(
+                throw MetalRoboSimulationError.invalidShape(
                     "Unknown option \(option)."
                 )
             }
@@ -190,7 +190,7 @@ private struct Options {
               let rolloutPack,
               !rolloutPack.isEmpty
         else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Positive rollout sizes and all native learning artifact paths are required."
             )
         }
@@ -199,7 +199,7 @@ private struct Options {
                 by: steps
             )
         guard !sampleOverflow else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Rollout sample count overflows Int."
             )
         }
@@ -243,22 +243,22 @@ private struct Options {
               gaeLambda >= 0,
               gaeLambda <= 1
         else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "PPO scalar options are invalid."
             )
         }
         if worldPack != nil && urdf != nil {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "--world-pack and --urdf are mutually exclusive."
             )
         }
         if (worldPack != nil || urdf != nil) != (taskPack != nil) {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Imported mechanics require exactly one --task-pack."
             )
         }
         if srdf != nil && urdf == nil {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "--srdf requires --urdf."
             )
         }
@@ -269,7 +269,7 @@ private struct Options {
         _ option: String
     ) throws -> Int {
         guard let parsed = Int(value) else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "\(option) requires an integer."
             )
         }
@@ -281,7 +281,7 @@ private struct Options {
         _ option: String
     ) throws -> Double {
         guard let parsed = Double(value) else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "\(option) requires a number."
             )
         }
@@ -291,10 +291,9 @@ private struct Options {
 
 private func makeContext(
     options: Options
-) throws -> (MetalRoboTaskRolloutContext, String) {
-    let configuration = MetalRoboTaskRolloutConfiguration(
+) throws -> (MetalSimulationSession, String) {
+    let configuration = MetalRoboSimulationConfiguration(
         environmentCount: UInt32(options.environments),
-        surface: options.surface,
         solver: options.solver,
         seed: options.seed
     )
@@ -302,7 +301,7 @@ private func makeContext(
        let taskPack = options.taskPack
     {
         return (
-            try MetalRoboTaskRolloutContext(
+            try MetalSimulationSession(
                 worldPack: URL(fileURLWithPath: worldPack),
                 taskPack: URL(fileURLWithPath: taskPack),
                 configuration: configuration,
@@ -315,21 +314,23 @@ private func makeContext(
        let taskPack = options.taskPack
     {
         return (
-            try MetalRoboTaskRolloutContext(
+            try MetalSimulationSession(
                 importedURDF: URL(fileURLWithPath: urdf),
                 srdf: options.srdf.map {
                     URL(fileURLWithPath: $0)
                 },
                 taskPack: URL(fileURLWithPath: taskPack),
                 configuration: configuration,
+                surface: options.surface,
                 metallibPath: options.metallib
             ),
             "urdf"
         )
     }
     return (
-        try MetalRoboTaskRolloutContext(
+        try MetalSimulationSession(
             unitreeG1: configuration,
+            surface: options.surface,
             metallibPath: options.metallib
         ),
         "bundled_g1"
@@ -337,7 +338,7 @@ private func makeContext(
 }
 
 @main
-private enum TaskTrainMain {
+private enum TrainMain {
     static func main() {
         do {
             let options = try Options(
@@ -353,7 +354,7 @@ private enum TaskTrainMain {
                   let rolloutPack = options.rolloutPack,
                   let learnerState = options.learnerState
             else {
-                throw MetalRoboTaskRolloutError.invalidShape(
+                throw MetalRoboSimulationError.invalidShape(
                     "Training artifact paths are incomplete."
                 )
             }
@@ -375,7 +376,7 @@ private enum TaskTrainMain {
                 !FileManager.default.fileExists(
                     atPath: learnerStateURL.path
                 ) else {
-                    throw MetalRoboTaskRolloutError.invalidShape(
+                    throw MetalRoboSimulationError.invalidShape(
                         "--initialize-policy refuses to overwrite an existing policy or learner state."
                     )
                 }
@@ -383,7 +384,7 @@ private enum TaskTrainMain {
                 guard FileManager.default.fileExists(
                     atPath: learnerStateURL.path
                 ) else {
-                    throw MetalRoboTaskRolloutError.invalidShape(
+                    throw MetalRoboSimulationError.invalidShape(
                         "Native training requires --initialize-policy for a fresh run or an existing --learner-state to resume."
                     )
                 }
@@ -449,7 +450,7 @@ private enum TaskTrainMain {
                       $0.policyRevision == installedRevision
                   })
             else {
-                throw MetalRoboTaskRolloutError.native(
+                throw MetalRoboSimulationError.native(
                     "Initial PolicyPack failed native warmup."
                 )
             }
@@ -511,7 +512,7 @@ private enum TaskTrainMain {
                             completed + stepCount == options.steps
                     )
                     guard advance.failedEnvironmentSteps == 0 else {
-                        throw MetalRoboTaskRolloutError.native(
+                        throw MetalRoboSimulationError.native(
                             "Native rollout returned a GPU failure."
                         )
                     }
@@ -534,7 +535,7 @@ private enum TaskTrainMain {
                     ].allSatisfy({
                         $0.policyRevision == installedRevision
                     }) else {
-                        throw MetalRoboTaskRolloutError.native(
+                        throw MetalRoboSimulationError.native(
                             "Policy revision changed inside a rollout."
                         )
                     }
@@ -586,7 +587,7 @@ private enum TaskTrainMain {
                       rolloutCurriculumLevel >=
                           learner.taskCurriculumLevel
                 else {
-                    throw MetalRoboTaskRolloutError.native(
+                    throw MetalRoboSimulationError.native(
                         "Native rollout did not publish a monotonic task curriculum."
                     )
                 }
@@ -598,7 +599,7 @@ private enum TaskTrainMain {
                 guard learner.taskCurriculumLevel ==
                           rolloutCurriculumLevel
                 else {
-                    throw MetalRoboTaskRolloutError.native(
+                    throw MetalRoboSimulationError.native(
                         "Learner checkpoint disagrees with the native rollout curriculum."
                     )
                 }
@@ -728,7 +729,7 @@ private enum TaskTrainMain {
             print(String(decoding: data, as: UTF8.self))
         } catch {
             FileHandle.standardError.write(
-                Data("task_train failed: \(error)\n".utf8)
+                Data("training failed: \(error)\n".utf8)
             )
             Darwin.exit(1)
         }

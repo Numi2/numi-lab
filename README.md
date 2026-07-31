@@ -145,7 +145,7 @@ Run focused product probes:
 
 ```sh
 ./build/bin/metalrobo_task_program_check
-./build/bin/metalrobo_task_rollout \
+./build/bin/metalrobo_simulation \
   --metallib build/shaders/MetalRobo.metallib \
   --envs 32 --steps 48 --chunk 8 --scene terrain --native-policy
 ./build/bin/metalrobo_visual_platform_probe
@@ -167,10 +167,10 @@ Cook authored presentation resources:
 Build the Apple-native policy-learning boundary with the engine:
 
 ```sh
-cmake --build build --target metalrobo_task_train
+cmake --build build --target metalrobo_train
 ```
 
-`metalrobo_task_train` is the production scheduler: it keeps one native
+`metalrobo_train` is the production scheduler: it keeps one native
 resident world and one in-process MLX Swift PPO learner, collects compact
 rollouts, evaluates terminal critic values without advancing physics, and
 installs each new PolicyPack revision directly. There is no subprocess or

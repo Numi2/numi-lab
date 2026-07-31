@@ -28,13 +28,11 @@ struct MetalWorldSubmissionState;
 } // namespace detail
 
 enum class MetalWorldSolverMode : std::uint32_t {
-    // The first production graph composes generic articulated free motion,
-    // resets, transactional substep commits, and state observations. Contact
-    // modes are reserved now so callers cannot confuse this with a completed
-    // collision/contact world.
     freeMotionABA = 0u,
     throughputPGS = 1u,
-    throughputTGS = 2u,
+    // Internal comparison mode. This is block-Jacobi over Wave32 cohorts,
+    // not temporal Gauss-Seidel and therefore is never the public default.
+    waveJacobiExperimental = 2u,
     qualityNewton = 3u,
 };
 
@@ -274,7 +272,7 @@ struct MetalWorldStepConfig {
     float timestepSeconds = 1.0f / 60.0f;
     std::uint32_t physicsSubsteps = 1u;
     MetalWorldSolverMode solverMode =
-        MetalWorldSolverMode::throughputTGS;
+        MetalWorldSolverMode::throughputPGS;
     // In effort mode, MetalWorldBatch::efforts is generalized effort. In
     // implicitPositionDrive mode it is the desired position per scalar
     // driven DoF; floating-root and unactuated entries are ignored.

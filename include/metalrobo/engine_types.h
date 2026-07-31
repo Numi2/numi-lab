@@ -150,7 +150,7 @@ enum MRFrictionConeType : mr_u32 {
 enum MRSolverType : mr_u32 {
     MR_SOLVER_REFERENCE_FP64 = 0u,
     MR_SOLVER_QUALITY_NEWTON = 1u,
-    MR_SOLVER_THROUGHPUT_TGS = 2u,
+    MR_SOLVER_WAVE_JACOBI_EXPERIMENTAL = 2u,
     MR_SOLVER_THROUGHPUT_PGS = 3u,
 };
 
@@ -174,7 +174,8 @@ enum MRStepStatusCode : mr_u32 {
     MR_STEP_DID_NOT_CONVERGE = 11u,
     MR_STEP_UNSUPPORTED = 12u,
     MR_STEP_CCD_CAPACITY_OVERFLOW = 13u,
-    MR_STEP_STATUS_COUNT = 14u,
+    MR_STEP_IR_INVARIANT_VIOLATION = 14u,
+    MR_STEP_STATUS_COUNT = 15u,
 };
 
 enum MRConstraintFlags : mr_u32 {

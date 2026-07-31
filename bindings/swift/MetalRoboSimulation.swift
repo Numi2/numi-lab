@@ -32,7 +32,7 @@ private func withUnsafeFloatBuffers<Result>(
     return visit(0)
 }
 
-public enum MetalRoboTaskRolloutError:
+public enum MetalRoboSimulationError:
     Error, CustomStringConvertible
 {
     case native(String)
@@ -48,14 +48,14 @@ public enum MetalRoboTaskRolloutError:
     }
 }
 
-public enum MetalRoboLocomotionSurface: UInt32, Sendable {
+public enum MetalRoboBuiltinSurface: UInt32, Sendable {
     case ground = 0
     case terrain = 1
 }
 
-public enum MetalRoboTaskSolver: UInt32, Sendable {
-    case pgs = 0
-    case tgs = 1
+public enum MetalRoboSimulationSolver: UInt32, Sendable {
+    case throughputPGS = 0
+    case qualityNewton = 1
 }
 
 public enum MetalRoboPolicyActivation: UInt32, Sendable {
@@ -145,7 +145,7 @@ public struct MetalRoboPolicyPack: Sendable {
             }
         }
         guard status == 0 else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 String(cString: mr_last_error())
             )
         }
@@ -176,7 +176,7 @@ private func withNativePolicyPack<Result>(
           policy.actionLogStandardDeviation.isEmpty ||
               !policy.criticLayers.isEmpty
     else {
-        throw MetalRoboTaskRolloutError.invalidShape(
+        throw MetalRoboSimulationError.invalidShape(
             "Policy identity, revision, or dense layer shape is invalid."
         )
     }
@@ -275,10 +275,9 @@ private func withNativePolicyPack<Result>(
     }
 }
 
-public struct MetalRoboTaskRolloutConfiguration: Sendable {
+public struct MetalRoboSimulationConfiguration: Sendable {
     public var environmentCount: UInt32
-    public var surface: MetalRoboLocomotionSurface
-    public var solver: MetalRoboTaskSolver
+    public var solver: MetalRoboSimulationSolver
     public var physicsSubsteps: UInt32
     public var velocityIterations: UInt32
     public var finalVelocityIterations: UInt32
@@ -287,8 +286,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
 
     public init(
         environmentCount: UInt32,
-        surface: MetalRoboLocomotionSurface = .terrain,
-        solver: MetalRoboTaskSolver = .tgs,
+        solver: MetalRoboSimulationSolver = .throughputPGS,
         physicsSubsteps: UInt32 = 4,
         velocityIterations: UInt32 = 4,
         finalVelocityIterations: UInt32 = 2,
@@ -296,7 +294,6 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         seed: UInt64 = 0
     ) {
         self.environmentCount = environmentCount
-        self.surface = surface
         self.solver = solver
         self.physicsSubsteps = physicsSubsteps
         self.velocityIterations = velocityIterations
@@ -306,7 +303,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     }
 }
 
-public struct MetalRoboTaskRolloutLayout: Sendable {
+public struct MetalRoboSimulationLayout: Sendable {
     public let environmentCount: Int
     public let configurationCount: Int
     public let velocityCount: Int
@@ -326,7 +323,7 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
     public let totalGPUMilliseconds: Double
     public let totalSubmissionMilliseconds: Double
 
-    init(_ native: MRTaskRolloutLayoutC) {
+    init(_ native: MRSimulationLayoutC) {
         environmentCount = Int(native.environment_count)
         configurationCount = Int(native.nq)
         velocityCount = Int(native.nv)
@@ -353,7 +350,7 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
     }
 }
 
-public struct MetalRoboTaskRolloutAdvance: Sendable {
+public struct MetalRoboSimulationAdvance: Sendable {
     public let controlStepCount: Int
     public let successfulEnvironmentSteps: Int
     public let failedEnvironmentSteps: Int
@@ -367,7 +364,7 @@ public struct MetalRoboTaskRolloutAdvance: Sendable {
     public let gpuMilliseconds: Double
     public let submissionMilliseconds: Double
 
-    init(_ native: MRTaskRolloutAdvanceC) {
+    init(_ native: MRSimulationAdvanceC) {
         controlStepCount = Int(native.control_step_count)
         successfulEnvironmentSteps =
             Int(native.successful_environment_steps)
@@ -504,7 +501,7 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
         _ batches: [Self]
     ) throws -> Self {
         guard let first = batches.first else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "At least one policy rollout batch is required."
             )
         }
@@ -516,7 +513,7 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
                     first.criticObservationCount &&
                 $0.actionCount == first.actionCount
         }) else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Policy rollout batches have incompatible dimensions."
             )
         }
@@ -529,7 +526,7 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
                   !sum.overflow,
                   sum.partialValue <= Int(UInt32.max)
             else {
-                throw MetalRoboTaskRolloutError.invalidShape(
+                throw MetalRoboSimulationError.invalidShape(
                     "Policy rollout control-step count exceeds the artifact boundary."
                 )
             }
@@ -559,13 +556,14 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
 /// Swift owns rollout chunking and policy revisions. Native code owns the
 /// compiled world and task program, persistent private Metal state, reset
 /// transaction, and compact learning publication.
-public final class MetalRoboTaskRolloutContext {
+public final class MetalSimulationSession {
     private var handle: OpaquePointer?
 
     /// Bundled G1 is a mechanics + TaskPack preset; execution uses the same
     /// generic compiled task path as imported robots.
     public init(
-        unitreeG1 configuration: MetalRoboTaskRolloutConfiguration,
+        unitreeG1 configuration: MetalRoboSimulationConfiguration,
+        surface: MetalRoboBuiltinSurface = .terrain,
         metallibPath: String? = nil
     ) throws {
         var native = Self.nativeConfiguration(configuration)
@@ -574,15 +572,15 @@ public final class MetalRoboTaskRolloutContext {
             config in
             withOptionalCString(metallibPath) {
                 metallib in
-                mr_create_unitree_g1_locomotion_rollout(
+                mr_create_unitree_g1_simulation(
                     config,
-                    configuration.surface.rawValue,
+                    surface.rawValue,
                     metallib
                 )
             }
         }
         guard let created else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
@@ -595,7 +593,8 @@ public final class MetalRoboTaskRolloutContext {
         importedURDF urdfURL: URL,
         srdf srdfURL: URL? = nil,
         taskPack taskPackURL: URL,
-        configuration: MetalRoboTaskRolloutConfiguration,
+        configuration: MetalRoboSimulationConfiguration,
+        surface: MetalRoboBuiltinSurface = .terrain,
         metallibPath: String? = nil
     ) throws {
         var native = Self.nativeConfiguration(configuration)
@@ -608,12 +607,12 @@ public final class MetalRoboTaskRolloutContext {
                             metallib in
                             withUnsafePointer(to: &native) {
                                 config in
-                                mr_create_urdf_locomotion_rollout(
+                                mr_create_urdf_simulation(
                                     urdf,
                                     srdf,
                                     taskPack,
                                     config,
-                                    configuration.surface.rawValue,
+                                    surface.rawValue,
                                     metallib
                                 )
                             }
@@ -622,7 +621,7 @@ public final class MetalRoboTaskRolloutContext {
                 }
             }
         guard let created else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
@@ -634,7 +633,7 @@ public final class MetalRoboTaskRolloutContext {
     public init(
         worldPack worldPackURL: URL,
         taskPack taskPackURL: URL,
-        configuration: MetalRoboTaskRolloutConfiguration,
+        configuration: MetalRoboSimulationConfiguration,
         metallibPath: String? = nil
     ) throws {
         var native = Self.nativeConfiguration(configuration)
@@ -645,7 +644,7 @@ public final class MetalRoboTaskRolloutContext {
                         metallib in
                         withUnsafePointer(to: &native) {
                             config in
-                            mr_create_world_pack_locomotion_rollout(
+                            mr_create_world_pack_simulation(
                                 worldPack,
                                 taskPack,
                                 config,
@@ -656,7 +655,7 @@ public final class MetalRoboTaskRolloutContext {
                 }
             }
         guard let created else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
@@ -664,9 +663,9 @@ public final class MetalRoboTaskRolloutContext {
     }
 
     private static func nativeConfiguration(
-        _ configuration: MetalRoboTaskRolloutConfiguration
-    ) -> MRTaskRolloutConfigC {
-        var native = MRTaskRolloutConfigC()
+        _ configuration: MetalRoboSimulationConfiguration
+    ) -> MRSimulationConfigC {
+        var native = MRSimulationConfigC()
         native.environment_count = configuration.environmentCount
         native.solver = configuration.solver.rawValue
         native.physics_substeps = configuration.physicsSubsteps
@@ -682,38 +681,38 @@ public final class MetalRoboTaskRolloutContext {
 
     deinit {
         if let handle {
-            mr_task_rollout_destroy(handle)
+            mr_simulation_destroy(handle)
         }
     }
 
-    public var layout: MetalRoboTaskRolloutLayout {
-        MetalRoboTaskRolloutLayout(
-            mr_task_rollout_layout(handle)
+    public var layout: MetalRoboSimulationLayout {
+        MetalRoboSimulationLayout(
+            mr_simulation_layout(handle)
         )
     }
 
     public var deviceName: String {
-        String(cString: mr_task_rollout_device_name(handle))
+        String(cString: mr_simulation_device_name(handle))
     }
 
     public var taskFingerprint: UInt64 {
-        mr_task_rollout_task_fingerprint(handle)
+        mr_simulation_task_fingerprint(handle)
     }
 
     public func reset(seed: UInt64) throws {
-        guard mr_task_rollout_reset(handle, seed) == 0 else {
-            throw MetalRoboTaskRolloutError.native(
+        guard mr_simulation_reset(handle, seed) == 0 else {
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
     }
 
     public func setCurriculumLevel(_ level: UInt32) throws {
-        guard mr_task_rollout_set_curriculum_level(
+        guard mr_simulation_set_curriculum_level(
             handle,
             level
         ) == 0 else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
@@ -723,10 +722,10 @@ public final class MetalRoboTaskRolloutContext {
         _ policy: MetalRoboPolicyPack
     ) throws {
         let status = try withNativePolicyPack(policy) { native in
-            mr_task_rollout_set_policy(handle, native)
+            mr_simulation_set_policy(handle, native)
         }
         guard status == 0 else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
@@ -734,18 +733,18 @@ public final class MetalRoboTaskRolloutContext {
 
     public func loadPolicy(at url: URL) throws {
         let status = url.path.withCString {
-            mr_task_rollout_load_policy_pack(handle, $0)
+            mr_simulation_load_policy_pack(handle, $0)
         }
         guard status == 0 else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
     }
 
     public func clearPolicy() throws {
-        guard mr_task_rollout_clear_policy(handle) == 0 else {
-            throw MetalRoboTaskRolloutError.native(
+        guard mr_simulation_clear_policy(handle) == 0 else {
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
@@ -756,10 +755,10 @@ public final class MetalRoboTaskRolloutContext {
         resetMasks: [UInt32] = [],
         controlStepCount: Int,
         policyRevision: UInt64 = 0
-    ) throws -> MetalRoboTaskRolloutAdvance {
+    ) throws -> MetalRoboSimulationAdvance {
         let current = layout
         guard controlStepCount > 0 else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "controlStepCount must be positive."
             )
         }
@@ -768,7 +767,7 @@ public final class MetalRoboTaskRolloutContext {
             current.environmentCount *
             current.actionCount
         guard normalizedActions.count == actionElements else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Actions must contain \(actionElements) values."
             )
         }
@@ -777,17 +776,17 @@ public final class MetalRoboTaskRolloutContext {
         guard resetMasks.isEmpty ||
                 resetMasks.count == maskElements
         else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Reset masks must be empty or contain " +
                     "\(maskElements) values."
             )
         }
 
-        var native = MRTaskRolloutAdvanceC()
+        var native = MRSimulationAdvanceC()
         let status = normalizedActions.withUnsafeBufferPointer {
             actions in
             if resetMasks.isEmpty {
-                return mr_task_rollout_advance(
+                return mr_simulation_advance(
                     handle,
                     actions.baseAddress,
                     actions.count,
@@ -800,7 +799,7 @@ public final class MetalRoboTaskRolloutContext {
                 )
             }
             return resetMasks.withUnsafeBufferPointer { masks in
-                mr_task_rollout_advance(
+                mr_simulation_advance(
                     handle,
                     actions.baseAddress,
                     actions.count,
@@ -814,11 +813,11 @@ public final class MetalRoboTaskRolloutContext {
             }
         }
         guard status == 0 else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
-        return MetalRoboTaskRolloutAdvance(native)
+        return MetalRoboSimulationAdvance(native)
     }
 
     public func advanceWithPolicy(
@@ -826,10 +825,10 @@ public final class MetalRoboTaskRolloutContext {
         controlStepCount: Int,
         policyRevision: UInt64 = 0,
         evaluateFinalPolicy: Bool = false
-    ) throws -> MetalRoboTaskRolloutAdvance {
+    ) throws -> MetalRoboSimulationAdvance {
         let current = layout
         guard controlStepCount > 0 else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "controlStepCount must be positive."
             )
         }
@@ -838,14 +837,14 @@ public final class MetalRoboTaskRolloutContext {
         guard resetMasks.isEmpty ||
                 resetMasks.count == maskElements
         else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Reset masks must be empty or contain " +
                     "\(maskElements) values."
             )
         }
-        var native = MRTaskRolloutAdvanceC()
+        var native = MRSimulationAdvanceC()
         if resetMasks.isEmpty {
-            let status = mr_task_rollout_advance(
+            let status = mr_simulation_advance(
                 handle,
                 nil,
                 0,
@@ -857,15 +856,15 @@ public final class MetalRoboTaskRolloutContext {
                 &native
             )
             guard status == 0 else {
-                throw MetalRoboTaskRolloutError.native(
+                throw MetalRoboSimulationError.native(
                     Self.lastError()
                 )
             }
-            return MetalRoboTaskRolloutAdvance(native)
+            return MetalRoboSimulationAdvance(native)
         }
         let status = resetMasks.withUnsafeBufferPointer {
             masks in
-            mr_task_rollout_advance(
+            mr_simulation_advance(
                 handle,
                 nil,
                 0,
@@ -878,11 +877,11 @@ public final class MetalRoboTaskRolloutContext {
             )
         }
         guard status == 0 else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
-        return MetalRoboTaskRolloutAdvance(native)
+        return MetalRoboSimulationAdvance(native)
     }
 
     public func statusCodes(
@@ -890,9 +889,9 @@ public final class MetalRoboTaskRolloutContext {
     ) throws -> [UInt32] {
         let count = controlStepCount * layout.environmentCount
         guard let values =
-                mr_task_rollout_status_codes(handle)
+                mr_simulation_status_codes(handle)
         else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Task status stream is unavailable."
             )
         }
@@ -906,9 +905,9 @@ public final class MetalRoboTaskRolloutContext {
     ) throws -> [UInt32] {
         let count = controlStepCount * layout.environmentCount
         guard let values =
-                mr_task_rollout_active_contacts(handle)
+                mr_simulation_active_contacts(handle)
         else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Task contact stream is unavailable."
             )
         }
@@ -926,9 +925,9 @@ public final class MetalRoboTaskRolloutContext {
             current.environmentCount *
             current.actorObservationCount
         guard let values =
-                mr_task_rollout_actor_observations(handle)
+                mr_simulation_actor_observations(handle)
         else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Actor observation stream is unavailable."
             )
         }
@@ -946,9 +945,9 @@ public final class MetalRoboTaskRolloutContext {
             current.environmentCount *
             current.criticObservationCount
         guard let values =
-                mr_task_rollout_critic_observations(handle)
+                mr_simulation_critic_observations(handle)
         else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Critic observation stream is unavailable."
             )
         }
@@ -962,9 +961,9 @@ public final class MetalRoboTaskRolloutContext {
     ) throws -> [MetalRoboTaskTransition] {
         let count = controlStepCount * layout.environmentCount
         guard let values =
-                mr_task_rollout_transitions(handle)
+                mr_simulation_transitions(handle)
         else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Task transition stream is unavailable."
             )
         }
@@ -981,9 +980,9 @@ public final class MetalRoboTaskRolloutContext {
             current.environmentCount *
             current.actionCount
         guard let values =
-                mr_task_rollout_policy_latents(handle)
+                mr_simulation_policy_latents(handle)
         else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Policy latent stream is unavailable."
             )
         }
@@ -998,9 +997,9 @@ public final class MetalRoboTaskRolloutContext {
         let count =
             controlStepCount * layout.environmentCount
         guard let values =
-                mr_task_rollout_policy_log_probabilities(handle)
+                mr_simulation_policy_log_probabilities(handle)
         else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Policy log-probability stream is unavailable."
             )
         }
@@ -1015,9 +1014,9 @@ public final class MetalRoboTaskRolloutContext {
         let count =
             controlStepCount * layout.environmentCount
         guard let values =
-                mr_task_rollout_policy_values(handle)
+                mr_simulation_policy_values(handle)
         else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Policy value stream is unavailable."
             )
         }
@@ -1029,9 +1028,9 @@ public final class MetalRoboTaskRolloutContext {
     public func bootstrapPolicyValues() throws -> [Float] {
         let count = layout.environmentCount
         guard let values =
-                mr_task_rollout_bootstrap_policy_values(handle)
+                mr_simulation_bootstrap_policy_values(handle)
         else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Post-rollout policy values are unavailable."
             )
         }
@@ -1045,7 +1044,7 @@ public final class MetalRoboTaskRolloutContext {
     ) throws -> MetalRoboPolicyRolloutBatch {
         let current = layout
         guard controlStepCount > 0 else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Policy rollout batch must contain at least one control step."
             )
         }
@@ -1093,7 +1092,7 @@ public final class MetalRoboTaskRolloutContext {
     ) throws {
         let current = layout
         guard controlStepCount > 0 else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Policy rollout append must contain at least one control step."
             )
         }
@@ -1105,19 +1104,19 @@ public final class MetalRoboTaskRolloutContext {
             samples * current.criticObservationCount
         let latentCount = samples * current.actionCount
         guard let actor =
-                  mr_task_rollout_actor_observations(handle),
+                  mr_simulation_actor_observations(handle),
               let critic =
-                  mr_task_rollout_critic_observations(handle),
+                  mr_simulation_critic_observations(handle),
               let latent =
-                  mr_task_rollout_policy_latents(handle),
+                  mr_simulation_policy_latents(handle),
               let logProbability =
-                  mr_task_rollout_policy_log_probabilities(handle),
+                  mr_simulation_policy_log_probabilities(handle),
               let value =
-                  mr_task_rollout_policy_values(handle),
+                  mr_simulation_policy_values(handle),
               let transition =
-                  mr_task_rollout_transitions(handle)
+                  mr_simulation_transitions(handle)
         else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Native policy rollout streams are unavailable."
             )
         }
@@ -1193,7 +1192,7 @@ public final class MetalRoboTaskRolloutContext {
               batch.values.count == batch.sampleCount,
               batch.transitions.count == batch.sampleCount
         else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Policy rollout pack dimensions do not match the installed task."
             )
         }
@@ -1267,7 +1266,7 @@ public final class MetalRoboTaskRolloutContext {
                 native.transition_count = transitions.count
                 return id.withCString { identifier in
                     url.path.withCString { path in
-                        mr_task_rollout_write_policy_rollout_pack(
+                        mr_simulation_write_policy_rollout_pack(
                             handle,
                             &native,
                             identifier,
@@ -1278,7 +1277,7 @@ public final class MetalRoboTaskRolloutContext {
             }
         }
         guard status == 0 else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 Self.lastError()
             )
         }
@@ -1286,7 +1285,7 @@ public final class MetalRoboTaskRolloutContext {
 
     private static func lastError() -> String {
         guard let pointer = mr_last_error() else {
-            return "MetalRobo task-rollout operation failed."
+            return "MetalRobo simulation operation failed."
         }
         return String(cString: pointer)
     }

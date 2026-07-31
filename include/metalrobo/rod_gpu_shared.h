@@ -104,7 +104,8 @@ typedef struct MR_ALIGN16 MRRodEdgeStateGPU {
 
 // Reusable implicit free-motion factor owned by one connected rod component.
 // Numerical blocks live in stream-local private arenas; this record is the
-// stable descriptor and diagnostic sidecar consumed by both TGS and quality.
+// stable descriptor and diagnostic sidecar consumed by both throughput and
+// quality solvers.
 typedef struct MR_ALIGN16 MRRodFactorCacheGPU {
     mr_u32 environment;
     mr_u32 rodIndex;

@@ -65,7 +65,7 @@ retaining one coherent set of semantics.
 | System | What the current primary source establishes | What MetalRobo should take, and not copy blindly |
 | --- | --- | --- |
 | **MuJoCo 3.10** | MuJoCo defines soft equality, limit, dry-friction, and contact forces through a convex optimization problem. Newton and nonlinear CG solve the reduced primal; PGS solves the dual. Newton uses analytical second derivatives, Cholesky and exact line search; both pyramidal and elliptic cones are supported. It warm-starts constraint forces and independently solves constraint islands. Version 3.10 improved FP32 primal convergence and changed CG to Hager-Zhang; 3.9 added an exact Delassus diagonal option. ([constraint computation](https://mujoco.readthedocs.io/en/stable/computation/index.html#constraint-solver), [3.10 changelog](https://mujoco.readthedocs.io/en/stable/changelog.html#version-3-10-0-june-22-2026)) | Adopt a documented convex model, exact-cone quality mode, cost-aware warm starting, residual certificates, islanding, and separate direct/iterative linear algebra. Do not assume MuJoCo’s continuous-time acceleration formulation or optional NoSlip correction is uniquely correct; its own documentation calls NoSlip an ad-hoc cascade that can destabilize complex multi-contact scenes. |
-| **NVIDIA PhysX 5.9** | The current SDK release is 5.9. PhysX has reduced-coordinate articulations and free rigid bodies. Its PGS and TGS solvers run on CPU and CUDA GPU; TGS advances and relinearizes through internal substeps, improving mass-ratio, drive, and high-frequency behavior. It uses persistent contact manifolds and friction patches. PhysX supplies sweep-based conservative-advancement CCD plus speculative CCD, but GPU mode has fixed capacities and some operations still take CPU paths; D6 is the only joint with a fully GPU-resident preparation path. ([5.9 release](https://github.com/NVIDIA-Omniverse/PhysX/releases/tag/110.1-omni-and-physx-5.9.0), [5.8 simulation and TGS reference](https://nvidia-omniverse.github.io/PhysX/physx/5.8.0/docs/Simulation.html#constraint-solver), [articulations](https://nvidia-omniverse.github.io/PhysX/physx/5.8.0/docs/Articulations.html), [GPU simulation](https://nvidia-omniverse.github.io/PhysX/physx/5.8.0/docs/GPURigidBodies.html), [CCD and PCM](https://nvidia-omniverse.github.io/PhysX/physx/5.8.0/docs/AdvancedCollisionDetection.html)) | Adopt reduced joints, persistent manifolds, a TGS throughput mode, hybrid sweep/speculative CCD, explicit capacity planning, and per-island work. Do not accept CPU fallbacks, dropped GPU contacts, per-axis friction asymmetry, or solver-order artifacts as MetalRobo’s final semantics. |
+| **NVIDIA PhysX 5.9** | The current SDK release is 5.9. PhysX has reduced-coordinate articulations and free rigid bodies. Its PGS and TGS solvers run on CPU and CUDA GPU; TGS advances and relinearizes through internal substeps, improving mass-ratio, drive, and high-frequency behavior. It uses persistent contact manifolds and friction patches. PhysX supplies sweep-based conservative-advancement CCD plus speculative CCD, but GPU mode has fixed capacities and some operations still take CPU paths; D6 is the only joint with a fully GPU-resident preparation path. ([5.9 release](https://github.com/NVIDIA-Omniverse/PhysX/releases/tag/110.1-omni-and-physx-5.9.0), [5.8 simulation and TGS reference](https://nvidia-omniverse.github.io/PhysX/physx/5.8.0/docs/Simulation.html#constraint-solver), [articulations](https://nvidia-omniverse.github.io/PhysX/physx/5.8.0/docs/Articulations.html), [GPU simulation](https://nvidia-omniverse.github.io/PhysX/physx/5.8.0/docs/GPURigidBodies.html), [CCD and PCM](https://nvidia-omniverse.github.io/PhysX/physx/5.8.0/docs/AdvancedCollisionDetection.html)) | Adopt reduced joints, persistent manifolds, hybrid sweep/speculative CCD, explicit capacity planning, and per-island work. Retain PGS until a real temporal TGS implementation relinearizes every microstep and wins measured quality/throughput comparisons. Do not accept CPU fallbacks, dropped GPU contacts, per-axis friction asymmetry, or solver-order artifacts as MetalRobo’s final semantics. |
 | **Drake SAP** | Drake treats compliance as part of the physical model rather than a hidden numerical patch. SAP eliminates the contact constraints analytically to obtain a strongly convex, unconstrained velocity problem, uses exact friction-cone projections and a semi-analytic Newton method, has global convergence guarantees, warm-starts effectively, and supports a midpoint scheme that is second-order accurate in the authors’ tests. Drake also supports point and hydroelastic contact. ([contact-model rationale](https://drake.mit.edu/doxygen_cxx/group__drake__contacts.html), [SAP paper](https://arxiv.org/abs/2110.10107), [current contact defaults](https://drake.mit.edu/doxygen_cxx/group__contact__defaults.html)) | Make a SAP-like convex velocity formulation the quality reference, use real stiffness/dissipation parameters, retain the exact circular cone, and use implicit differentiation of a converged solve. Do not copy Drake’s CPU-only implementation constraints or claim its current `AutoDiffXd` restrictions are inherent to SAP; Drake’s own API says SAP contact currently throws under `AutoDiffXd`. |
 | **Genesis World** | Genesis uses reduced-coordinate dynamics and follows MuJoCo’s soft-constraint model. It offers Newton-Cholesky and preconditioned CG, warm starts across steps, uses a dense tiled GPU factorization, and represents each contact with a four-edge friction pyramid. Its collision pipeline includes Sweep-and-Prune, analytical pairs, GJK/MPR/SDF paths, and differentiable GJK selection. Metal is a documented FP32 backend. ([rigid constraint model](https://genesis-world.readthedocs.io/en/latest/user_guide/theory/rigid_collision/rigid_constraint_model.html), [collision pipeline](https://genesis-world.readthedocs.io/en/latest/user_guide/theory/rigid_collision/collision_contacts_forces.html), [backend and precision](https://genesis-world.readthedocs.io/en/latest/user_guide/configuration/initialization.html)) | Treat Genesis Metal as the immediate same-hardware throughput competitor. Reuse the successful pattern of compiled, batched scene fields and direct-vs-iterative solvers, but make exact isotropic friction and solver/capacity diagnostics first-class rather than leaving a four-sided cone as the only path. |
 | **Newton Physics / MuJoCo Warp** | Newton exposes a solver portfolio rather than pretending that XPBD, maximal-coordinate semi-implicit dynamics, reduced Featherstone dynamics, and MuJoCo-style constraints are interchangeable. Its feature tables disclose which joint and material properties each solver actually supports. MuJoCo Warp is its primary large-scale rigid backend, while the official MJX documentation explicitly says the Warp implementation does not support autodiff. ([Newton solver matrix](https://newton-physics.github.io/newton/stable/solvers/index.html), [MJX implementations](https://mujoco.readthedocs.io/en/stable/mjx.html#mjx-implementations)) | Adopt an explicit capability matrix and one common state/model ABI. Do not market “differentiable” at the framework level when the chosen production rigid solver or collision path is not differentiable. |
@@ -244,18 +244,17 @@ line-search, or convergence fails, the per-environment status records the
 failure and optional regularization retry. The runtime does not silently return
 the last iterate as a successful physics step.
 
-### `throughput_tgs`
+### `throughput_pgs`
 
-This is the fixed-budget RL solver. A frame is divided into temporal
-microsteps. At each microstep it refreshes poses, contact arms, errors, and
-Jacobians; applies one block projected Gauss-Seidel sweep; then advances the
-state. Contact tangents update as a coupled 2D cone block, avoiding per-axis
-friction bias. Independent blocks are graph-colored for parallel execution,
-while accumulated impulses make every sweep warm-started.
+This is the fixed-budget RL solver. Each physics substep refreshes poses,
+contact arms, errors, and Jacobians, applies block projected Gauss-Seidel
+sweeps, and then advances the state. Contact tangents update as a coupled 2D
+cone block, avoiding per-axis friction bias, while accumulated impulses make
+every sweep warm-started.
 
-TGS exposes:
+PGS exposes:
 
-- microstep count;
+- physics-substep and iteration counts;
 - optional final unbiased velocity sweep;
 - compliance, bias and maximum depenetration speed;
 - cone approximation;
@@ -263,7 +262,9 @@ TGS exposes:
 
 It is not allowed to use different contact signs, material mixing, restitution,
 or limit semantics from `quality_newton`. The quality solver is the reference
-that quantifies TGS approximation error.
+that quantifies PGS approximation error. The internal Wave32 block-Jacobi
+experiment is not a production solver. True temporal TGS remains deferred
+until it relinearizes every temporal microstep and outperforms PGS.
 
 ### `reference_fp64`
 
@@ -342,15 +343,15 @@ links are filtered unless explicitly enabled.
 
 ## Integration and stabilization
 
-Three named modes share force and constraint semantics:
+Two production modes share force and constraint semantics:
 
 - symplectic Euler for the cheapest RL path;
-- TGS temporal microstepping for contact-heavy fixed-budget RL;
+- block PGS for contact-heavy fixed-budget RL;
 - implicit midpoint/velocity integration for quality and convergence studies.
 
 Constraint error is stabilized through the physical time constant and damping
 in the discrete objective. Bias and depenetration velocity are capped.
-TGS relinearizes after each microstep. Optional post-integration projection is
+PGS rebuilds at each authored physics substep. Optional post-integration projection is
 mass weighted and restricted to hard bilateral loop drift; it is never used to
 teleport penetrating contact bodies apart.
 
@@ -383,7 +384,7 @@ Every world produces a compact step status:
 - non-finite input or result;
 - broadphase, contact, constraint, or CCD capacity overflow;
 - factorization failure or ill-conditioning;
-- Newton/PCG/TGS iteration and residual summary;
+- Newton/PCG/PGS iteration and residual summary;
 - CCD event-budget exhaustion;
 - unsupported differentiability event.
 
@@ -439,13 +440,13 @@ The engine is compiled around immutable model topology and capacity classes:
   reward, reset, and diagnostic buffers;
 - static BVHs and model constants shared across cloned environments;
 - per-environment dynamic ranges produced by prefix sums, never host loops;
-- size-bucketed kernels for small direct solves, large PCG islands, and TGS;
+- size-bucketed kernels for small direct solves, large PCG islands, and PGS;
 - one SIMD-group per small articulation traversal and one or more threadgroups
   per constraint island, rather than permanently binding an entire world to
   one serial thread;
 - indirect dispatch for active worlds/islands and sleeping compaction;
 - no command-buffer completion or CPU-visible read in a normal rollout step;
-- an MLX array/primitive boundary rather than a NumPy synchronization boundary.
+- a Swift-owned rollout boundary that publishes compact batches to MLX.
 
 All memory is preflighted against the Metal device’s maximum buffer length and
 recommended working-set size. Runtime telemetry reports current and peak pair,
@@ -490,11 +491,11 @@ silent overflow in the canonical corpus.
 first point where MetalRobo can credibly claim a serious robotics contact
 solver, but not yet a complete locomotion engine.
 
-### S3 — G1 and throughput TGS
+### S3 — G1 and throughput PGS
 
 - Floating-base Unitree G1, 29 actuated joints, self-collision filters,
   actuator/armature semantics, foot patches, IMU quantities, and terrain.
-- `throughput_tgs`, graph coloring, island bucketing, sleeping, and fixed-budget
+- `throughput_pgs`, island bucketing, sleeping, and fixed-budget
   diagnostics.
 - Flat standing, commanded velocity, impacts/falls, stairs, and rough terrain.
 
@@ -592,8 +593,8 @@ the worst block ID per island.
 | --- | --- |
 | Quality solve | `reference_fp64`: \(r_\mathrm{opt}<10^{-10}\); Metal: \(r_\mathrm{opt}<10^{-5}\), \(r_\mathrm{cone}<2\times10^{-5}\), and \(r_\mathrm{eq}<2\times10^{-5}\). No successful status above tolerance. |
 | Direct versus PCG | Impulses and `v` agree within \(2\times10^{-5}\) normalized on all islands both solve. |
-| TGS approximation | \(r_\mathrm{opt}<10^{-3}\) in the standard budget and task return within 2% of quality mode; exceptions are reported scene-by-scene. |
-| Bilateral drift | In the 60 s loop/weld suite: \(<20\,\mu\mathrm{m}\) translation and \(<20\,\mu\mathrm{rad}\) rotation in quality mode; \(<0.5\) mm and \(<0.5\) mrad in TGS. |
+| PGS approximation | \(r_\mathrm{opt}<10^{-3}\) in the standard budget and task return within 2% of quality mode; exceptions are reported scene-by-scene. |
+| Bilateral drift | In the 60 s loop/weld suite: \(<20\,\mu\mathrm{m}\) translation and \(<20\,\mu\mathrm{rad}\) rotation in quality mode; \(<0.5\) mm and \(<0.5\) mrad in PGS. |
 | Friction | Incline breakaway coefficient within 2%; exact-cone response varies by \(<1\%\) as the tangent basis rotates; resting slip \(<0.1\) mm/s under sub-cone load. |
 | Impact | Linear/angular momentum error \(<10^{-4}\) scaled for closed islands; measured restitution within 2% above its activation threshold and no bounce below it. |
 | Mass ratio | Stable finite 60 s stacks and articulated contacts from \(10^{-4}\) to \(10^4\) mass ratio at the published timestep, with no constraint divergence and deformation within the configured compliance plus 0.25 mm. |

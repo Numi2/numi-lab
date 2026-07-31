@@ -63,7 +63,7 @@ struct MetalRoboMLXPPOConfiguration: Sendable {
               initialLogStandardDeviation <= 2,
               observationClip > 0
         else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Native MLX PPO configuration is invalid."
             )
         }
@@ -286,7 +286,7 @@ final class MetalRoboMLXPPOTrainer {
               !resolvedPolicyID.isEmpty,
               taskFingerprint != 0
         else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Native MLX learner identity or compiled dimensions are invalid."
             )
         }
@@ -352,7 +352,7 @@ final class MetalRoboMLXPPOTrainer {
             bootstrapValues: bootstrapValues
         )
         guard curriculumLevel >= taskCurriculumLevel else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Task curriculum cannot move backwards."
             )
         }
@@ -458,7 +458,7 @@ final class MetalRoboMLXPPOTrainer {
                     guard numeric.allSatisfy(\.isFinite),
                           gradient.isFinite
                     else {
-                        throw MetalRoboTaskRolloutError.native(
+                        throw MetalRoboSimulationError.native(
                             "Native MLX PPO produced non-finite minibatch metrics."
                         )
                     }
@@ -743,7 +743,7 @@ final class MetalRoboMLXPPOTrainer {
                       $0.timeoutBootstrapValue.isFinite
               })
         else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Native rollout batch shape or values are invalid for PPO."
             )
         }
@@ -804,7 +804,7 @@ final class MetalRoboMLXPPOTrainer {
     ) throws -> [MetalRoboPolicyDenseLayer] {
         let linears = network.layers.compactMap { $0 as? Linear }
         guard !linears.isEmpty else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Native MLX policy network contains no dense layers."
             )
         }
@@ -835,7 +835,7 @@ final class MetalRoboMLXPPOTrainer {
             $0.1.item(Bool.self) ? nil : $0.0
         }
         guard invalid.isEmpty else {
-            throw MetalRoboTaskRolloutError.native(
+            throw MetalRoboSimulationError.native(
                 "Native MLX PPO contains non-finite state in " +
                     invalid.joined(separator: ", ")
             )
@@ -873,7 +873,7 @@ final class MetalRoboMLXPPOTrainer {
                 temporaryURL.path,
                 learnerStateURL.path
             ) == 0 else {
-                throw MetalRoboTaskRolloutError.native(
+                throw MetalRoboSimulationError.native(
                     "Atomic learner checkpoint rename failed: " +
                         String(cString: strerror(errno))
                 )
@@ -907,7 +907,7 @@ final class MetalRoboMLXPPOTrainer {
     ) throws {
         func require(_ key: String, _ expected: String) throws {
             guard metadata[key] == expected else {
-                throw MetalRoboTaskRolloutError.invalidShape(
+                throw MetalRoboSimulationError.invalidShape(
                     "Native MLX checkpoint \(key) does not match this task."
                 )
             }
@@ -939,7 +939,7 @@ final class MetalRoboMLXPPOTrainer {
               restoredLearningRate >= configuration.minimumLearningRate,
               restoredLearningRate <= configuration.maximumLearningRate
         else {
-            throw MetalRoboTaskRolloutError.invalidShape(
+            throw MetalRoboSimulationError.invalidShape(
                 "Native MLX checkpoint counters are invalid."
             )
         }
@@ -955,7 +955,7 @@ final class MetalRoboMLXPPOTrainer {
                   let parameter = arrays["model.\(key)"],
                   parameter.shape == expected.shape
             else {
-                throw MetalRoboTaskRolloutError.invalidShape(
+                throw MetalRoboSimulationError.invalidShape(
                     "Native MLX checkpoint parameter \(key) is missing or has the wrong shape."
                 )
             }
@@ -966,7 +966,7 @@ final class MetalRoboMLXPPOTrainer {
                       first.shape == expected.shape,
                       second.shape == expected.shape
                 else {
-                    throw MetalRoboTaskRolloutError.invalidShape(
+                    throw MetalRoboSimulationError.invalidShape(
                         "Native MLX checkpoint Adam state for \(key) is incomplete."
                     )
                 }
