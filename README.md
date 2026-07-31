@@ -42,6 +42,24 @@ concept art and no screenshot from another simulator.
 | **Tactile imitation** | Pinned LeRobot 3 season-safe ingestion, synchronized multi-view/wrench training, dual-time action-tube diffusion, reactive tactile replanning, and provenance-gated MLX checkpoints for Apple GPUs. |
 | **Reference robots** | Franka manipulation, the pinned 29-DoF Unitree G1, and a dVRK-style PSM research model with physical insertion and independent jaws. |
 
+## Native training rollout in motion
+
+![Official Unitree G1 geometry moving through a native numi-lab policy rollout](docs/media/numi-lab-g1-native-rollout.gif)
+
+This is a real Apple M4 rollout and a real numi-lab `sensor_reference`
+rerender—not generated imagery or motion interpolation. The animation follows
+recorded actor observations from the generic G1 locomotion task while the
+robot remains rooted for a stable presentation camera. It demonstrates the
+compiled TaskPack → native Metal policy/physics → rollout-pack path; it is not
+a claim of learned locomotion quality or real-robot transfer.
+
+![Synchronized RGB, metric depth, normals, and authored identities during the same native rollout](docs/media/numi-lab-g1-sensor-rollout.gif)
+
+Every panel advances through the same captured poses. The forward frames are
+shown in reverse after the final pose to form a clean loop; no intermediate
+frames are synthesized. Full capture provenance is recorded in
+[`docs/media/README.md`](docs/media/README.md).
+
 ## The renderer is a sensor
 
 ![RGB, metric depth, surface normals, and authored identities from the same numi-lab frame](docs/media/metalrobo-sensor-gallery.webp)

@@ -10,6 +10,44 @@ The raw frame and cooked robot/environment packs are transient build
 artifacts. Only the compact documentation images are retained in this
 repository.
 
+## Native G1 policy-rollout animations
+
+`numi-lab-g1-native-rollout.gif` and
+`numi-lab-g1-sensor-rollout.gif` are native numi-lab captures, not generated
+images. The source was a 96-control-step, one-environment G1 terrain rollout
+executed on Apple M4 through `metalrobo_task_rollout` with the compiled native
+policy path, TGS, eight-step submissions, and seed `20260731`.
+
+The animation selects recorded actor-observation steps 0 through 44 at a
+four-step interval. Each displayed joint configuration is reconstructed from
+the rollout's policy-facing joint-position-error observation plus the pinned
+G1 reset pose. The robot root is held fixed for the presentation camera. The
+12 captured poses play forward and then backward without interpolated frames,
+giving each 640x360 GIF 21 frames and a 2.42-second loop.
+
+Each pose was assembled from the official G1 visual geometry, cooked through
+`metalrobo_visual_cook`, and rendered through numi-lab
+`sensor_reference` against the same Studio Small 03 environment used by the
+static README captures. The sensor animation reads scene-linear RGB, metric
+depth, camera-space normals, and packed authored identities from each native
+frame. ACES preview conversion, panel layout, labels, and GIF encoding are
+presentation-only.
+
+The retained provenance is:
+
+```text
+rollout pack fingerprint=8243761031265860489
+policy fingerprint=7205423632253474391
+task fingerprint=15986245760138582396
+maximum active contacts=13
+failed environment steps=0
+numi-lab-g1-native-rollout.gif=sha256:dfa9ba80f8b65edd4b456b2a38131db9ea693937b5a97b3c0a5fdc1bb6f5bcf5
+numi-lab-g1-sensor-rollout.gif=sha256:f6d016cc20f75f30f11fb596fecab862c9e3d3bb85215e3fff3418c100f4293b
+```
+
+This capture validates presentation and rollout integration only. It does not
+establish policy quality, locomotion success, or sim-to-real transfer.
+
 ## Shared HDR environment
 
 Both robot scenes use Greg Zaal's
