@@ -1,16 +1,16 @@
 <div align="center">
 
-# MetalRobo
+# numi-lab
 
 **Native robot simulation and learning infrastructure for Apple Silicon.**
 
 `C++23` · `Metal` · `Objective-C++` · `Swift` · `MLX`
 
-<img src="docs/media/metalrobo-unitree-g1.webp" alt="Unitree G1 rendered by MetalRobo" width="100%" />
+<img src="docs/media/metalrobo-unitree-g1.webp" alt="Unitree G1 rendered by numi-lab" width="100%" />
 
 </div>
 
-MetalRobo keeps robot physics, contact, task execution, policy inference, and
+numi-lab keeps robot physics, contact, task execution, policy inference, and
 sensor generation in native Apple GPU memory. Swift schedules rollouts. MLX
 updates policies. Python is an optional learning and data boundary; it does
 not step the production simulator.
@@ -39,7 +39,7 @@ The production contact solver is named `temporalCone`. `numisolver` is the
 development branch carrying the current G1 recovery work.
 
 Each 20 ms G1 control interval is normally divided into four physics
-microsteps. On every microstep MetalRobo:
+microsteps. On every microstep numi-lab:
 
 1. refreshes implicit drive effort from the current joint state;
 2. predicts articulated motion with ABA;
@@ -60,10 +60,9 @@ throughput rollout path.
 
 ## Native G1 evidence
 
-The official Unitree MuJoCo-Lab actor was converted once to `PolicyPack` and
-runs through MetalRobo's native Metal inference engine with a zero velocity
-command. On Apple M4, the retained 20-second run completed all 1,000 control
-steps with:
+The actor was converted once to `PolicyPack` and runs through numi-lab's
+native Metal inference engine with a zero velocity command. On Apple M4, the
+retained 20-second run completed all 1,000 control steps with:
 
 - mean pelvis height: `0.785 m`;
 - mean tilt: `0.009 rad`;
@@ -75,9 +74,9 @@ steps with:
 
 [Full H.264 capture](docs/media/g1-standing-native-20s.mp4)
 
-The animation is rendered by MetalRobo's native `sensor_reference` path from
-the accepted state trace. MuJoCo supplies neither pixels nor intermediate
-motion.
+The animation is rendered by numi-lab's native `sensor_reference` path from
+the accepted state trace. No external simulator supplies pixels or
+intermediate motion.
 
 ### Physical disturbance and recovery
 
@@ -134,17 +133,17 @@ transition.
 
 ## Native sensors and presentation
 
-![RGB, depth, normals, and authored identities from one MetalRobo frame](docs/media/metalrobo-sensor-gallery.webp)
+![RGB, depth, normals, and authored identities from one numi-lab frame](docs/media/metalrobo-sensor-gallery.webp)
 
 The panels above share one camera, timestamp, physics state, and authored
 scene. RGB is tone-mapped only for presentation; policy RGB remains
 scene-linear. Depth is metric and identity outputs remain integer typed.
 
-Presentation comes from cooked USD, USDZ, GLB, or glTF assets. MetalRobo does
+Presentation comes from cooked USD, USDZ, GLB, or glTF assets. numi-lab does
 not synthesize a visible robot from collision geometry. The G1 and Franka
 images use their official upstream visual meshes.
 
-![Franka FR3v2 rendered by MetalRobo](docs/media/metalrobo-franka-fr3v2.webp)
+![Franka FR3v2 rendered by numi-lab](docs/media/metalrobo-franka-fr3v2.webp)
 
 ## Architecture
 
@@ -229,11 +228,11 @@ Only current subsystem contracts remain under `docs`:
 ## Provenance and boundaries
 
 - G1 mechanics and visual assets are pinned to official Unitree sources; the
-  retained standing actor came from the official Unitree MuJoCo-Lab release.
+  retained standing actor is a fingerprinted third-party artifact.
 - Franka imagery uses official FR3v2 visual assets.
-- The retained robot images and animations are native MetalRobo renderer
+- The retained robot images and animations are native numi-lab renderer
   outputs captured on Apple M4. They are not generated concept art and do not
-  come from MuJoCo's renderer.
+  come from an external simulator's renderer.
 - Internal agreement, stable simulation, and simulator policy performance are
   not proof of real-world fidelity, safety, or transfer.
 - The PSM world is robotics research infrastructure, not a clinical or
