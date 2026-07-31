@@ -88,7 +88,7 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Root capability is explicit and fixed-base execution is qualified, but body/site/goal operators and three complete task families are not yet qualified."
+      "scope": "Compiled selected-articulation body frames, static SE(3) goals, pose observations, pose rewards, pose terminations, and reset-correct pre-policy kinematics are implemented. Scene-object/site semantics, twists, accelerations, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified."
     },
     {
       "id": "sensors.native_tactile",

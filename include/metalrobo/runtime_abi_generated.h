@@ -5,7 +5,7 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 1u
+#define MR_RUNTIME_ABI_VERSION 2u
 
 enum MRWorldManifoldRecordScatterBuffer : mr_u32 {
     MR_RECORD_SCATTER_DISPATCH = 0u,
@@ -76,6 +76,23 @@ enum MRWorldNumiPreparationBuffer : mr_u32 {
     MR_NUMI_PREPARE_ROD_FACTOR_CACHES = 25u,
     MR_NUMI_PREPARE_ROD_OPERATOR_ARENA = 26u,
     MR_NUMI_PREPARE_BUFFER_COUNT = 27u,
+};
+
+enum MRTaskFrameRefreshBuffer : mr_u32 {
+    MR_TASK_FRAME_REFRESH_DISPATCH = 0u,
+    MR_TASK_FRAME_REFRESH_PROGRAM = 1u,
+    MR_TASK_FRAME_REFRESH_ARENA = 2u,
+    MR_TASK_FRAME_REFRESH_PASS = 3u,
+    MR_TASK_FRAME_REFRESH_RESET_MASKS = 4u,
+    MR_TASK_FRAME_REFRESH_BODY_POSES = 5u,
+    MR_TASK_FRAME_REFRESH_TASK_STATES = 6u,
+    MR_TASK_FRAME_REFRESH_SENSOR_BIAS = 7u,
+    MR_TASK_FRAME_REFRESH_ACTOR_HISTORY = 8u,
+    MR_TASK_FRAME_REFRESH_CLEAN_HISTORY = 9u,
+    MR_TASK_FRAME_REFRESH_CRITIC_HISTORY = 10u,
+    MR_TASK_FRAME_REFRESH_ACTOR_OBSERVATIONS = 11u,
+    MR_TASK_FRAME_REFRESH_CRITIC_OBSERVATIONS = 12u,
+    MR_TASK_FRAME_REFRESH_BUFFER_COUNT = 13u,
 };
 
 #if defined(__cplusplus) && !defined(__METAL_VERSION__)
@@ -1027,6 +1044,7 @@ static_assert(kBufferDebugNames.size() == kRawBufferCount);
 static_assert(MR_RECORD_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_IR_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_NUMI_PREPARE_BUFFER_COUNT <= 31u);
+static_assert(MR_TASK_FRAME_REFRESH_BUFFER_COUNT <= 31u);
 
 } // namespace metalrobo::runtime_abi
 #endif

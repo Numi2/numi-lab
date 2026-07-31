@@ -32,6 +32,13 @@ enum class TaskObservationSource : std::uint32_t {
     controllerParameter = MR_TASK_OBSERVE_CONTROLLER_PARAMETER,
     contactWrenchLocal =
         MR_TASK_OBSERVE_CONTACT_WRENCH_LOCAL,
+    framePositionWorld = MR_TASK_OBSERVE_FRAME_POSITION_WORLD,
+    frameOrientationWorld =
+        MR_TASK_OBSERVE_FRAME_ORIENTATION_WORLD,
+    frameGoalPositionError =
+        MR_TASK_OBSERVE_FRAME_GOAL_POSITION_ERROR,
+    frameGoalOrientationError =
+        MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -66,12 +73,24 @@ enum class TaskRewardOperator : std::uint32_t {
     footClearance = MR_TASK_REWARD_FOOT_CLEARANCE,
     jointLimitViolationAbsolute =
         MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE,
+    framePositionErrorSquared =
+        MR_TASK_REWARD_FRAME_POSITION_ERROR_SQUARED,
+    frameOrientationErrorSquared =
+        MR_TASK_REWARD_FRAME_ORIENTATION_ERROR_SQUARED,
+    framePositionTracking =
+        MR_TASK_REWARD_FRAME_POSITION_TRACKING,
+    frameOrientationTracking =
+        MR_TASK_REWARD_FRAME_ORIENTATION_TRACKING,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
     minimumRootHeight = MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT,
     maximumTilt = MR_TASK_TERMINATE_MAXIMUM_TILT,
     contactGroup = MR_TASK_TERMINATE_CONTACT_GROUP,
+    maximumFramePositionError =
+        MR_TASK_TERMINATE_MAXIMUM_FRAME_POSITION_ERROR,
+    maximumFrameOrientationError =
+        MR_TASK_TERMINATE_MAXIMUM_FRAME_ORIENTATION_ERROR,
 };
 
 enum class TaskRandomizationOperator : std::uint32_t {
@@ -98,6 +117,8 @@ struct TaskObservationOperatorSpec {
         TaskObservationSource::rootAngularVelocityLocal;
     // Joint, contact-group, or body identity when the source requires one.
     std::string target;
+    // Required only by frame-to-goal operators.
+    std::string goal;
     std::uint32_t component = 0u;
     float scale = 1.0f;
     float offset = 0.0f;
@@ -105,6 +126,22 @@ struct TaskObservationOperatorSpec {
     float biasLower = 0.0f;
     float biasUpper = 0.0f;
     bool normalizeVector3 = false;
+};
+
+// A named task frame is authored in a body link frame. Compilation converts
+// its translation to the body's centre-of-mass frame and resolves the body
+// identity once; the runtime receives only MRTaskFrameGPU records.
+struct TaskFrameSpec {
+    std::string id;
+    std::string body;
+    mr_float4 localPosition{};
+    mr_float4 localOrientation{0.0f, 0.0f, 0.0f, 1.0f};
+};
+
+struct TaskGoalSpec {
+    std::string id;
+    mr_float4 position{};
+    mr_float4 orientation{0.0f, 0.0f, 0.0f, 1.0f};
 };
 
 struct TaskContactGroup {
@@ -129,6 +166,8 @@ struct TaskRewardOperatorSpec {
     TaskRewardOperator operation =
         TaskRewardOperator::constant;
     std::string sourceGroup;
+    // Required by frame tracking/error operators.
+    std::string goal;
     // Reward rate in units per second. The native task integrates every
     // weighted term over the control interval, keeping TaskPacks invariant
     // when the control frequency changes.
@@ -140,6 +179,8 @@ struct TaskTerminationOperatorSpec {
     TaskTerminationOperator operation =
         TaskTerminationOperator::minimumRootHeight;
     std::string sourceGroup;
+    // Required by frame error terminations.
+    std::string goal;
     std::uint32_t reason = MR_TASK_TERMINATION_HEIGHT;
     std::uint32_t priority = 0u;
     float threshold = 0.0f;
@@ -201,6 +242,8 @@ struct TaskPack {
     bool criticIncludesCleanHistory = true;
     std::vector<TaskContactGroup> contactGroups;
     std::vector<TaskJointGroup> jointGroups;
+    std::vector<TaskFrameSpec> frames;
+    std::vector<TaskGoalSpec> goals;
     std::vector<TaskRewardOperatorSpec> rewards;
     std::vector<TaskTerminationOperatorSpec> terminations;
     std::vector<TaskRandomizationOperatorSpec> randomization;
@@ -278,6 +321,10 @@ public:
     jointGroups() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t>
     jointMembers() const noexcept;
+    [[nodiscard]] std::span<const MRTaskFrameGPU>
+    frames() const noexcept;
+    [[nodiscard]] std::span<const MRTaskGoalGPU>
+    goals() const noexcept;
     [[nodiscard]] std::span<const MRTaskRewardOperatorGPU>
     rewardOperators() const noexcept;
     [[nodiscard]] std::span<const MRTaskTerminationOperatorGPU>

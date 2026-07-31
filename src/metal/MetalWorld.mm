@@ -93,6 +93,8 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState>
         parameterizedOperatorPipeline = nil;
     __strong id<MTLComputePipelineState> taskObservePipeline = nil;
+    __strong id<MTLComputePipelineState>
+        taskFrameRefreshPipeline = nil;
     __strong id<MTLComputePipelineState> taskApplyPipeline = nil;
     __strong id<MTLComputePipelineState> taskEffortPipeline = nil;
     __strong id<MTLComputePipelineState> taskCompletePipeline = nil;
@@ -4156,6 +4158,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState>
         parameterizedOperatorPipeline = nil;
     __strong id<MTLComputePipelineState> taskObserve = nil;
+    __strong id<MTLComputePipelineState> taskFrameRefresh = nil;
     __strong id<MTLComputePipelineState> taskApply = nil;
     __strong id<MTLComputePipelineState> taskEffort = nil;
     __strong id<MTLComputePipelineState> taskComplete = nil;
@@ -4250,6 +4253,9 @@ MetalWorldDiagnostics initializeContext(
     );
     taskObserve =
         createContactPipeline(@"mr_task_observe");
+    taskFrameRefresh = createContactPipeline(
+        @"mr_task_refresh_frame_observations"
+    );
     taskApply =
         createContactPipeline(@"mr_task_apply_actions");
     taskEffort =
@@ -4451,6 +4457,7 @@ MetalWorldDiagnostics initializeContext(
     if (operatorPipeline == nil ||
         parameterizedOperatorPipeline == nil ||
         taskObserve == nil ||
+        taskFrameRefresh == nil ||
         taskApply == nil ||
         taskEffort == nil ||
         taskComplete == nil ||
@@ -4698,6 +4705,7 @@ MetalWorldDiagnostics initializeContext(
     context.parameterizedOperatorPipeline =
         parameterizedOperatorPipeline;
     context.taskObservePipeline = taskObserve;
+    context.taskFrameRefreshPipeline = taskFrameRefresh;
     context.taskApplyPipeline = taskApply;
     context.taskEffortPipeline = taskEffort;
     context.taskCompletePipeline = taskComplete;
@@ -7822,6 +7830,7 @@ bool encodeTaskObserve(
             {11u, sourceV},
             {12u, kInitialSceneBodies},
             {13u, kTaskCriticHistory},
+            {14u, kCurrentBodies},
             {15u, sourceScene},
             {16u, kTaskDefaultQ},
             {17u, kTaskState},
@@ -7842,6 +7851,43 @@ bool encodeTaskObserve(
         },
         &pass,
         4u,
+        environmentCount
+    );
+}
+
+bool encodeTaskFrameRefresh(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskFrameRefreshPipeline,
+        @"compiled task reset-frame refresh",
+        {
+            {MR_TASK_FRAME_REFRESH_DISPATCH, kTaskDispatch},
+            {MR_TASK_FRAME_REFRESH_PROGRAM, kTaskProgramHeader},
+            {MR_TASK_FRAME_REFRESH_ARENA, kTaskProgramArena},
+            {MR_TASK_FRAME_REFRESH_RESET_MASKS, kResetMasks},
+            {MR_TASK_FRAME_REFRESH_BODY_POSES, kBodyPoses},
+            {MR_TASK_FRAME_REFRESH_TASK_STATES, kTaskState},
+            {MR_TASK_FRAME_REFRESH_SENSOR_BIAS, kTaskEncoderBias},
+            {MR_TASK_FRAME_REFRESH_ACTOR_HISTORY, kTaskActorHistory},
+            {MR_TASK_FRAME_REFRESH_CLEAN_HISTORY, kTaskCleanHistory},
+            {MR_TASK_FRAME_REFRESH_CRITIC_HISTORY, kTaskCriticHistory},
+            {
+                MR_TASK_FRAME_REFRESH_ACTOR_OBSERVATIONS,
+                kTaskActorObservations,
+            },
+            {
+                MR_TASK_FRAME_REFRESH_CRITIC_OBSERVATIONS,
+                kTaskCriticObservations,
+            },
+        },
+        &pass,
+        MR_TASK_FRAME_REFRESH_PASS,
         environmentCount
     );
 }
@@ -14402,6 +14448,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 MRMetalWorldPassGPU pass{};
                 pass.controlStep = controlStep;
                 pass.physicsSubstep = MR_INVALID_INDEX;
+                const bool taskUsesFrames =
+                    nativeTask &&
+                    config.taskProgram.header().typedCounts.x != 0u;
                 if (nativeTask &&
                     (
                         !encodeTaskObserve(
@@ -14412,6 +14461,28 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             sourceV,
                             sourceScene,
                             batch.environmentCount
+                        ) ||
+                        (
+                            taskUsesFrames &&
+                            (
+                                !encodeArticulatedOperator(
+                                    *selectedState,
+                                    commandBuffer,
+                                    kOperatorKinematicsDispatch,
+                                    sourceQ,
+                                    kPointQueries,
+                                    kBodyPoses,
+                                    batch.environmentCount,
+                                    @"compiled task reset kinematics",
+                                    false
+                                ) ||
+                                !encodeTaskFrameRefresh(
+                                    *selectedState,
+                                    commandBuffer,
+                                    pass,
+                                    batch.environmentCount
+                                )
+                            )
                         ) ||
                         (
                             config.policyProgram.valid() &&
@@ -14433,7 +14504,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     return reject(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalCommandFailure,
-                        "failed to encode native observation, policy, or action pass"
+                        "failed to encode native observation, frame, policy, or action pass"
                     );
                 }
                 if (!encodePrepare(

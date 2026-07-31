@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 6u
+#define MR_TASK_PROGRAM_ABI_VERSION 7u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -27,6 +27,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     // Six-axis resultant contact wrench in the contact group's reference-body
     // frame: force xyz in newtons, torque xyz in newton-metres.
     MR_TASK_OBSERVE_CONTACT_WRENCH_LOCAL = 13u,
+    MR_TASK_OBSERVE_FRAME_POSITION_WORLD = 14u,
+    MR_TASK_OBSERVE_FRAME_ORIENTATION_WORLD = 15u,
+    MR_TASK_OBSERVE_FRAME_GOAL_POSITION_ERROR = 16u,
+    MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR = 17u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -60,12 +64,18 @@ enum MRTaskRewardOpcode : mr_u32 {
     MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED = 18u,
     MR_TASK_REWARD_FOOT_CLEARANCE = 19u,
     MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE = 20u,
+    MR_TASK_REWARD_FRAME_POSITION_ERROR_SQUARED = 21u,
+    MR_TASK_REWARD_FRAME_ORIENTATION_ERROR_SQUARED = 22u,
+    MR_TASK_REWARD_FRAME_POSITION_TRACKING = 23u,
+    MR_TASK_REWARD_FRAME_ORIENTATION_TRACKING = 24u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
     MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT = 0u,
     MR_TASK_TERMINATE_MAXIMUM_TILT = 1u,
     MR_TASK_TERMINATE_CONTACT_GROUP = 2u,
+    MR_TASK_TERMINATE_MAXIMUM_FRAME_POSITION_ERROR = 3u,
+    MR_TASK_TERMINATE_MAXIMUM_FRAME_ORIENTATION_ERROR = 4u,
 };
 
 enum MRTaskTerminationReason : mr_u32 {
@@ -75,6 +85,7 @@ enum MRTaskTerminationReason : mr_u32 {
     MR_TASK_TERMINATION_CONTACT = 3u,
     MR_TASK_TERMINATION_TIMEOUT = 4u,
     MR_TASK_TERMINATION_PHYSICS_ERROR = 5u,
+    MR_TASK_TERMINATION_GOAL_ERROR = 6u,
 };
 
 enum MRTaskRandomizationOpcode : mr_u32 {
@@ -152,6 +163,8 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 articulation;
     // Root link-frame origin relative to the root COM, in root body axes.
     mr_float4 rootReference;
+    // named frames, static SE(3) goals, reserved, reserved.
+    mr_uint4 typedCounts;
 } MRTaskProgramHeaderGPU;
 
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
@@ -188,6 +201,23 @@ typedef struct MR_ALIGN16 MRTaskIndexGroupGPU {
     mr_uint4 members;
 } MRTaskIndexGroupGPU;
 
+typedef struct MR_ALIGN16 MRTaskFrameGPU {
+    // Global body index and reserved values.
+    mr_uint4 indices;
+    // Authored frame origin relative to the body COM, in body axes.
+    mr_float4 localPosition;
+    // Authored frame-to-body quaternion xyzw.
+    mr_float4 localOrientation;
+} MRTaskFrameGPU;
+
+typedef struct MR_ALIGN16 MRTaskGoalGPU {
+    // Static goal mode and reserved values. Later sampled/trajectory modes
+    // extend this persisted ABI deliberately rather than adding task shaders.
+    mr_uint4 metadata;
+    mr_float4 position;
+    mr_float4 orientation;
+} MRTaskGoalGPU;
+
 typedef struct MR_ALIGN16 MRTaskRewardOperatorGPU {
     // opcode, resolved group/index, auxiliary index, flags.
     mr_uint4 source;
@@ -200,6 +230,8 @@ typedef struct MR_ALIGN16 MRTaskTerminationOperatorGPU {
     mr_uint4 source;
     // threshold, one-shot failure penalty, and reserved values.
     mr_float4 parameters;
+    // Resolved goal index and reserved values.
+    mr_uint4 auxiliary;
 } MRTaskTerminationOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskRandomizationOperatorGPU {
@@ -263,13 +295,15 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 304u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 320u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);
+static_assert(sizeof(MRTaskFrameGPU) == 48u);
+static_assert(sizeof(MRTaskGoalGPU) == 48u);
 static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);
-static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
+static_assert(sizeof(MRTaskTerminationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 80u);

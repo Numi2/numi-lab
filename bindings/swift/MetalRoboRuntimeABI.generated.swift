@@ -2,7 +2,7 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 1
+    static let version: UInt32 = 2
     static let worldBufferCount = 222
     static let worldBufferDebugNames: [String] = [
         "world",

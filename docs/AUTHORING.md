@@ -73,25 +73,34 @@ companion MJCF used by a bundled robot is not evidence of a general importer.
 
 ## TaskPack
 
-TaskPack compiles into fixed-shape phase tables:
+TaskPack is being generalized in place; there is no second task format. The
+currently implemented native surface resolves actions, joints, bodies, contact
+groups, named body-local frames, and static SE(3) goals at compilation. It
+supports:
 
-1. action and actuator binding;
-2. command and event generation;
-3. observation construction;
-4. reward calculation;
-5. termination and truncation;
-6. recording and metrics;
-7. transactional reset and curriculum update.
+- joint, root, command, terrain, parameter, contact-metric, and contact-wrench
+  observations;
+- world frame position/orientation and frame-to-goal position/orientation
+  errors for bodies in the selected articulation;
+- frame position/orientation squared-error and exponential-tracking rewards;
+- maximum frame position/orientation error termination;
+- fixed-shape actor/critic histories, deterministic corruption, curriculum,
+  randomization, and transactional reset.
 
-Supported source families include joint/actuator state, arbitrary body or site
-pose/twist/acceleration, projected axes, point velocity, Jacobian-derived
-quantities, contact groups and wrenches, sensor outputs, and SE(3) goals.
-Operators perform transforms, differences, norms, bounds, tolerances, gates,
-histories, and weighted reductions.
+Reset frame observations are evaluated from the randomized reset
+configuration through the generic articulated-kinematics operator before
+policy inference. They never reuse body poses retained by the preceding
+episode.
 
-All names resolve at compilation. The GPU receives only typed indices, ranges,
-counts, and fixed output layouts. Actor observations, privileged critic inputs,
-and truth-only metrics are distinct bindings.
+The remaining TaskIR target is a phase-separated graph covering action,
+command/event, observation, reward, termination, recorder, reset, and
+curriculum phases. Site semantics, scene-object frames, frame twist and
+acceleration, point/Jacobian quantities, sampled and trajectory goals, generic
+gates/reductions, and sensor references are not yet production operators.
+
+All implemented names resolve at compilation. The GPU receives only typed
+indices, counts, and fixed output layouts. Adding another body layout or static
+pose goal does not add a robot-specific shader.
 
 ## Sensor authoring
 

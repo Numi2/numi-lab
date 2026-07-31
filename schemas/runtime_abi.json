@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 1,
+  "abi_version": 2,
   "world_buffers": {
     "count": 222,
     "entries": [
@@ -497,6 +497,25 @@
         "ROD_WITNESS_INDICES",
         "ROD_FACTOR_CACHES",
         "ROD_OPERATOR_ARENA"
+      ]
+    },
+    {
+      "enum": "MRTaskFrameRefreshBuffer",
+      "prefix": "MR_TASK_FRAME_REFRESH_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "ARENA",
+        "PASS",
+        "RESET_MASKS",
+        "BODY_POSES",
+        "TASK_STATES",
+        "SENSOR_BIAS",
+        "ACTOR_HISTORY",
+        "CLEAN_HISTORY",
+        "CRITIC_HISTORY",
+        "ACTOR_OBSERVATIONS",
+        "CRITIC_OBSERVATIONS"
       ]
     }
   ]

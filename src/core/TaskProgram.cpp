@@ -30,6 +30,8 @@ struct CompiledTaskProgram::Storage {
     std::vector<std::uint32_t> contactMembers;
     std::vector<MRTaskIndexGroupGPU> jointGroups;
     std::vector<std::uint32_t> jointMembers;
+    std::vector<MRTaskFrameGPU> frames;
+    std::vector<MRTaskGoalGPU> goals;
     std::vector<MRTaskRewardOperatorGPU> rewardOperators;
     std::vector<MRTaskTerminationOperatorGPU> terminationOperators;
     std::vector<MRTaskRandomizationOperatorGPU>
@@ -102,6 +104,34 @@ bool finite(const float value) {
 bool finite(const mr_float4 value) {
     return finite(value.x) && finite(value.y) &&
         finite(value.z) && finite(value.w);
+}
+
+bool normalizeQuaternion(
+    const mr_float4 value,
+    mr_float4& normalized
+) {
+    if (!finite(value)) {
+        return false;
+    }
+    const double normSquared =
+        static_cast<double>(value.x) * value.x +
+        static_cast<double>(value.y) * value.y +
+        static_cast<double>(value.z) * value.z +
+        static_cast<double>(value.w) * value.w;
+    if (!(normSquared > 1.0e-12) ||
+        !std::isfinite(normSquared)) {
+        return false;
+    }
+    const float inverseNorm = static_cast<float>(
+        1.0 / std::sqrt(normSquared)
+    );
+    normalized = {
+        value.x * inverseNorm,
+        value.y * inverseNorm,
+        value.z * inverseNorm,
+        value.w * inverseNorm,
+    };
+    return finite(normalized);
 }
 
 template <typename T>
@@ -407,6 +437,20 @@ CompiledTaskProgram::jointMembers() const noexcept {
         : std::span<const std::uint32_t>{};
 }
 
+std::span<const MRTaskFrameGPU>
+CompiledTaskProgram::frames() const noexcept {
+    return valid()
+        ? std::span<const MRTaskFrameGPU>{storage_->frames}
+        : std::span<const MRTaskFrameGPU>{};
+}
+
+std::span<const MRTaskGoalGPU>
+CompiledTaskProgram::goals() const noexcept {
+    return valid()
+        ? std::span<const MRTaskGoalGPU>{storage_->goals}
+        : std::span<const MRTaskGoalGPU>{};
+}
+
 std::span<const MRTaskRewardOperatorGPU>
 CompiledTaskProgram::rewardOperators() const noexcept {
     return valid()
@@ -613,6 +657,8 @@ TaskCompileDiagnostics compileTaskProgram(
         !countFits(pack.critic.size()) ||
         !countFits(pack.contactGroups.size()) ||
         !countFits(pack.jointGroups.size()) ||
+        !countFits(pack.frames.size()) ||
+        !countFits(pack.goals.size()) ||
         !countFits(pack.rewards.size()) ||
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
@@ -845,6 +891,117 @@ TaskCompileDiagnostics compileTaskProgram(
                 0.0f,
             },
         });
+    }
+
+    std::vector<std::string> frameIds;
+    frameIds.reserve(pack.frames.size());
+    staged->frames.reserve(pack.frames.size());
+    for (const TaskFrameSpec& frame : pack.frames) {
+        if (frame.id.empty() || frame.body.empty() ||
+            !finite(frame.localPosition) ||
+            std::find(
+                frameIds.begin(),
+                frameIds.end(),
+                frame.id
+            ) != frameIds.end()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                frame.id,
+                "task frame identity or local transform is invalid"
+            );
+        }
+        bool ambiguous = false;
+        const std::uint32_t body = uniqueIndex(
+            model.bodyNames,
+            frame.body,
+            ambiguous
+        );
+        if (ambiguous) {
+            return reject(
+                TaskCompileStatus::ambiguousSemantic,
+                frame.body,
+                "task frame body identity is ambiguous"
+            );
+        }
+        if (body == MR_INVALID_INDEX) {
+            return reject(
+                TaskCompileStatus::unresolvedSemantic,
+                frame.body,
+                "task frame body does not exist"
+            );
+        }
+        if (!inRange(
+                body,
+                articulation.firstBody,
+                articulation.bodyCount
+            )) {
+            return reject(
+                TaskCompileStatus::unsupportedOperator,
+                frame.id,
+                "task frames currently require a selected-articulation body"
+            );
+        }
+        mr_float4 orientation{};
+        if (!normalizeQuaternion(
+                frame.localOrientation,
+                orientation
+            )) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                frame.id,
+                "task frame orientation is not a finite quaternion"
+            );
+        }
+        const mr_float4 centerOfMass =
+            model.bodies[body].centerOfMass;
+        staged->frames.push_back({
+            {body, 0u, 0u, 0u},
+            {
+                frame.localPosition.x - centerOfMass.x,
+                frame.localPosition.y - centerOfMass.y,
+                frame.localPosition.z - centerOfMass.z,
+                0.0f,
+            },
+            orientation,
+        });
+        frameIds.push_back(frame.id);
+    }
+
+    std::vector<std::string> goalIds;
+    goalIds.reserve(pack.goals.size());
+    staged->goals.reserve(pack.goals.size());
+    for (const TaskGoalSpec& goal : pack.goals) {
+        if (goal.id.empty() || !finite(goal.position) ||
+            std::find(
+                goalIds.begin(),
+                goalIds.end(),
+                goal.id
+            ) != goalIds.end()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                goal.id,
+                "task goal identity or position is invalid"
+            );
+        }
+        mr_float4 orientation{};
+        if (!normalizeQuaternion(goal.orientation, orientation)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                goal.id,
+                "task goal orientation is not a finite quaternion"
+            );
+        }
+        staged->goals.push_back({
+            {0u, 0u, 0u, 0u},
+            {
+                goal.position.x,
+                goal.position.y,
+                goal.position.z,
+                1.0f,
+            },
+            orientation,
+        });
+        goalIds.push_back(goal.id);
     }
 
     std::vector<std::string> contactGroupIds;
@@ -1120,6 +1277,7 @@ TaskCompileDiagnostics compileTaskProgram(
             const std::uint32_t opcode =
                 static_cast<std::uint32_t>(spec.source);
             std::uint32_t sourceIndex = MR_INVALID_INDEX;
+            std::uint32_t goalIndex = MR_INVALID_INDEX;
             std::uint32_t componentLimit = 1u;
             switch (spec.source) {
             case TaskObservationSource::rootAngularVelocityLocal:
@@ -1236,6 +1394,43 @@ TaskCompileDiagnostics compileTaskProgram(
                 componentLimit = 4u;
                 break;
             }
+            case TaskObservationSource::framePositionWorld:
+            case TaskObservationSource::frameOrientationWorld:
+            case TaskObservationSource::frameGoalPositionError:
+            case TaskObservationSource::frameGoalOrientationError:
+                sourceIndex = namedGroup(frameIds, spec.target);
+                if (sourceIndex == MR_INVALID_INDEX) {
+                    return reject(
+                        TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "observation task frame does not exist"
+                    );
+                }
+                componentLimit =
+                    spec.source ==
+                        TaskObservationSource::frameOrientationWorld
+                    ? 4u
+                    : 3u;
+                if (spec.source ==
+                        TaskObservationSource::frameGoalPositionError ||
+                    spec.source ==
+                        TaskObservationSource::frameGoalOrientationError) {
+                    goalIndex = namedGroup(goalIds, spec.goal);
+                    if (goalIndex == MR_INVALID_INDEX) {
+                        return reject(
+                            TaskCompileStatus::unresolvedSemantic,
+                            spec.goal,
+                            "observation task goal does not exist"
+                        );
+                    }
+                } else if (!spec.goal.empty()) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        spec.goal,
+                        "a direct frame observation cannot bind a goal"
+                    );
+                }
+                break;
             default:
                 return reject(
                     TaskCompileStatus::unsupportedOperator,
@@ -1289,7 +1484,7 @@ TaskCompileDiagnostics compileTaskProgram(
                         static_cast<std::uint32_t>(
                             operatorIndex
                         ),
-                    0u,
+                    goalIndex,
                     0u,
                 },
             });
@@ -1324,6 +1519,7 @@ TaskCompileDiagnostics compileTaskProgram(
             );
         }
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
+        std::uint32_t goalIndex = MR_INVALID_INDEX;
         switch (reward.operation) {
         case TaskRewardOperator::jointGroupPostureSquared:
         case TaskRewardOperator::jointGroupPostureAbsolute:
@@ -1367,6 +1563,26 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::jointLimitViolationAbsolute:
         case TaskRewardOperator::mechanicalPower:
             break;
+        case TaskRewardOperator::framePositionErrorSquared:
+        case TaskRewardOperator::frameOrientationErrorSquared:
+        case TaskRewardOperator::framePositionTracking:
+        case TaskRewardOperator::frameOrientationTracking:
+            sourceIndex = namedGroup(
+                frameIds,
+                reward.sourceGroup
+            );
+            goalIndex = namedGroup(goalIds, reward.goal);
+            if (sourceIndex == MR_INVALID_INDEX ||
+                goalIndex == MR_INVALID_INDEX) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    sourceIndex == MR_INVALID_INDEX
+                        ? reward.sourceGroup
+                        : reward.goal,
+                    "frame reward requires an existing frame and goal"
+                );
+            }
+            break;
         default:
             return reject(
                 TaskCompileStatus::unsupportedOperator,
@@ -1381,7 +1597,11 @@ TaskCompileDiagnostics compileTaskProgram(
              reward.operation ==
                  TaskRewardOperator::swingClearance ||
              reward.operation ==
-                 TaskRewardOperator::footClearance) &&
+                 TaskRewardOperator::footClearance ||
+             reward.operation ==
+                 TaskRewardOperator::framePositionTracking ||
+             reward.operation ==
+                 TaskRewardOperator::frameOrientationTracking) &&
             !(reward.parameters.x > 0.0f)) {
             return reject(
                 TaskCompileStatus::invalidPack,
@@ -1407,11 +1627,27 @@ TaskCompileDiagnostics compileTaskProgram(
                 "reward source group does not exist"
             );
         }
+        const bool frameReward =
+            reward.operation ==
+                TaskRewardOperator::framePositionErrorSquared ||
+            reward.operation ==
+                TaskRewardOperator::frameOrientationErrorSquared ||
+            reward.operation ==
+                TaskRewardOperator::framePositionTracking ||
+            reward.operation ==
+                TaskRewardOperator::frameOrientationTracking;
+        if (!frameReward && !reward.goal.empty()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.goal,
+                "only frame rewards may bind a goal"
+            );
+        }
         staged->rewardOperators.push_back({
             {
                 static_cast<std::uint32_t>(reward.operation),
                 sourceIndex,
-                0u,
+                goalIndex,
                 0u,
             },
             {
@@ -1434,7 +1670,7 @@ TaskCompileDiagnostics compileTaskProgram(
             termination.reason ==
                 MR_TASK_TERMINATION_CONTINUING ||
             termination.reason >
-                MR_TASK_TERMINATION_PHYSICS_ERROR) {
+                MR_TASK_TERMINATION_GOAL_ERROR) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 termination.sourceGroup,
@@ -1442,6 +1678,7 @@ TaskCompileDiagnostics compileTaskProgram(
             );
         }
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
+        std::uint32_t goalIndex = MR_INVALID_INDEX;
         switch (termination.operation) {
         case TaskTerminationOperator::contactGroup:
             sourceIndex = namedGroup(
@@ -1459,11 +1696,51 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskTerminationOperator::minimumRootHeight:
         case TaskTerminationOperator::maximumTilt:
             break;
+        case TaskTerminationOperator::maximumFramePositionError:
+        case TaskTerminationOperator::maximumFrameOrientationError:
+            sourceIndex = namedGroup(
+                frameIds,
+                termination.sourceGroup
+            );
+            goalIndex = namedGroup(
+                goalIds,
+                termination.goal
+            );
+            if (sourceIndex == MR_INVALID_INDEX ||
+                goalIndex == MR_INVALID_INDEX) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    sourceIndex == MR_INVALID_INDEX
+                        ? termination.sourceGroup
+                        : termination.goal,
+                    "frame termination requires an existing frame and goal"
+                );
+            }
+            if (!(termination.threshold >= 0.0f)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    termination.sourceGroup,
+                    "frame termination threshold must be nonnegative"
+                );
+            }
+            break;
         default:
             return reject(
                 TaskCompileStatus::unsupportedOperator,
                 termination.sourceGroup,
                 "termination opcode is unsupported"
+            );
+        }
+        const bool frameTermination =
+            termination.operation ==
+                TaskTerminationOperator::maximumFramePositionError ||
+            termination.operation ==
+                TaskTerminationOperator::maximumFrameOrientationError;
+        if (!frameTermination && !termination.goal.empty()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                termination.goal,
+                "only frame terminations may bind a goal"
             );
         }
         staged->terminationOperators.push_back({
@@ -1481,6 +1758,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 0.0f,
                 0.0f,
             },
+            {goalIndex, 0u, 0u, 0u},
         });
     }
 
@@ -1931,6 +2209,12 @@ TaskCompileDiagnostics compileTaskProgram(
         -rootCenterOfMass.z,
         0.0f,
     };
+    staged->header.typedCounts = {
+        static_cast<std::uint32_t>(staged->frames.size()),
+        static_cast<std::uint32_t>(staged->goals.size()),
+        0u,
+        0u,
+    };
 
     const auto appendArena =
         [&staged]<typename T>(
@@ -2037,8 +2321,12 @@ TaskCompileDiagnostics compileTaskProgram(
                 staged->commandCurriculum
             }
         ),
-        0u,
-        0u,
+        appendArena(
+            std::span<const MRTaskFrameGPU>{staged->frames}
+        ),
+        appendArena(
+            std::span<const MRTaskGoalGPU>{staged->goals}
+        ),
     };
     const std::array offsets{
         staged->header.offsets0,
@@ -2079,6 +2367,28 @@ TaskCompileDiagnostics compileTaskProgram(
         for (const std::string& joint : group.joints) {
             hash.string(joint);
         }
+    }
+    for (const TaskFrameSpec& frame : pack.frames) {
+        hash.string(frame.id);
+        hash.string(frame.body);
+    }
+    for (const TaskGoalSpec& goal : pack.goals) {
+        hash.string(goal.id);
+    }
+    for (const TaskObservationOperatorSpec& observation :
+         pack.actorFrame) {
+        hash.string(observation.goal);
+    }
+    for (const TaskObservationOperatorSpec& observation :
+         pack.critic) {
+        hash.string(observation.goal);
+    }
+    for (const TaskRewardOperatorSpec& reward : pack.rewards) {
+        hash.string(reward.goal);
+    }
+    for (const TaskTerminationOperatorSpec& termination :
+         pack.terminations) {
+        hash.string(termination.goal);
     }
     staged->fingerprint = hash.finish();
     staged->header.taskFingerprint = staged->fingerprint;

@@ -292,11 +292,83 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .source = metalrobo::TaskObservationSource::previousAction,
             .target = "axis",
         },
+        {
+            .source =
+                metalrobo::TaskObservationSource::framePositionWorld,
+            .target = "tool_tip",
+            .component = 0u,
+        },
+        {
+            .source =
+                metalrobo::TaskObservationSource::framePositionWorld,
+            .target = "tool_tip",
+            .component = 1u,
+        },
+        {
+            .source =
+                metalrobo::TaskObservationSource::framePositionWorld,
+            .target = "tool_tip",
+            .component = 2u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameGoalPositionError,
+            .target = "tool_tip",
+            .goal = "home",
+            .component = 0u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameGoalPositionError,
+            .target = "tool_tip",
+            .goal = "home",
+            .component = 1u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameGoalPositionError,
+            .target = "tool_tip",
+            .goal = "home",
+            .component = 2u,
+        },
     };
     authored.task.criticIncludesCleanHistory = false;
-    authored.task.critic = {{
-        .source = metalrobo::TaskObservationSource::jointPositionError,
-        .target = "axis",
+    authored.task.critic = {
+        {
+            .source =
+                metalrobo::TaskObservationSource::jointPositionError,
+            .target = "axis",
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameGoalOrientationError,
+            .target = "tool_tip",
+            .goal = "home",
+            .component = 0u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameGoalOrientationError,
+            .target = "tool_tip",
+            .goal = "home",
+            .component = 1u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameGoalOrientationError,
+            .target = "tool_tip",
+            .goal = "home",
+            .component = 2u,
+        },
+    };
+    authored.task.frames = {{
+        .id = "tool_tip",
+        .body = "tool",
+        .localPosition = {0.0f, 0.0f, 0.2f, 0.0f},
+    }};
+    authored.task.goals = {{
+        .id = "home",
+        .position = {0.0f, 0.0f, 0.3f, 1.0f},
     }};
     authored.task.rewards = {
         {
@@ -308,17 +380,35 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 metalrobo::TaskRewardOperator::jointVelocitySquared,
             .weight = -0.01f,
         },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                framePositionTracking,
+            .sourceGroup = "tool_tip",
+            .goal = "home",
+            .weight = 0.5f,
+            .parameters = {0.01f, 0.0f, 0.0f, 0.0f},
+        },
     };
+    authored.task.terminations = {{
+        .operation = metalrobo::TaskTerminationOperator::
+            maximumFramePositionError,
+        .sourceGroup = "tool_tip",
+        .goal = "home",
+        .reason = MR_TASK_TERMINATION_GOAL_ERROR,
+        .priority = 1u,
+        .threshold = 1.0f,
+        .failurePenalty = -1.0f,
+    }};
     authored.task.randomization = {
         {
             .operation =
                 metalrobo::TaskRandomizationOperator::actionPosition,
-            .parameters = {-0.05f, 0.05f, 0.0f, 0.0f},
+            .parameters = {0.0f, 0.0f, 0.0f, 0.0f},
         },
         {
             .operation =
                 metalrobo::TaskRandomizationOperator::actionVelocity,
-            .parameters = {-0.1f, 0.1f, 0.0f, 0.0f},
+            .parameters = {0.0f, 0.0f, 0.0f, 0.0f},
         },
     };
     authored.task.maximumEpisodeSteps = 64u;
@@ -332,8 +422,16 @@ std::uint64_t compileFixedBaseTaskFixture() {
     if (!status.succeeded() ||
         !compiled.valid() ||
         compiled.task.layout().actionCount != 1u ||
-        compiled.task.layout().actorObservationSize != 3u ||
-        compiled.task.layout().criticObservationSize != 1u ||
+        compiled.task.layout().actorObservationSize != 9u ||
+        compiled.task.layout().criticObservationSize != 4u ||
+        compiled.task.header().typedCounts.x != 1u ||
+        compiled.task.header().typedCounts.y != 1u ||
+        compiled.task.frames().size() != 1u ||
+        compiled.task.goals().size() != 1u ||
+        std::abs(
+            compiled.task.frames().front().localPosition.z -
+            0.1f
+        ) > 1.0e-6f ||
         (compiled.task.header().schedule.w &
          MR_TASK_PROGRAM_FLOATING_ROOT) != 0u) {
         fail(
@@ -367,10 +465,11 @@ std::uint64_t compileFixedBaseTaskFixture() {
         environments * controlSteps,
         0.0f
     );
-    const std::vector<std::uint32_t> resetMasks(
+    std::vector<std::uint32_t> resetMasks(
         environments * controlSteps,
         0u
     );
+    resetMasks[2u * environments] = 1u;
     metalrobo::MetalWorldStepConfig step;
     step.timestepSeconds = 0.02f;
     step.physicsSubsteps = 2u;
@@ -399,7 +498,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
         result.transitions.size() !=
             environments * controlSteps ||
         result.actorObservations.size() !=
-            environments * controlSteps * 3u ||
+            environments * controlSteps * 9u ||
         std::any_of(
             result.environmentStatuses.begin(),
             result.environmentStatuses.end(),
@@ -411,6 +510,56 @@ std::uint64_t compileFixedBaseTaskFixture() {
             "fixed-base task did not execute through the generic Metal task graph: " +
             executed.message
         );
+    }
+    for (const std::size_t sample : {
+             std::size_t{0u},
+             std::size_t{2u * environments},
+         }) {
+        const std::size_t base = sample * 9u;
+        if (std::abs(result.actorObservations[base + 5u] - 0.3f) >
+                2.0e-4f ||
+            std::abs(result.actorObservations[base + 6u]) > 2.0e-4f ||
+            std::abs(result.actorObservations[base + 7u]) > 2.0e-4f ||
+            std::abs(result.actorObservations[base + 8u]) > 2.0e-4f) {
+            fail(
+                "reset frame observations were not refreshed from reset kinematics"
+            );
+        }
+    }
+    if (std::any_of(
+            result.transitions.begin(),
+            result.transitions.end(),
+            [](const MRTaskTransitionGPU& transition) {
+                return !std::isfinite(
+                           transition.rewardAndState.x
+                       ) ||
+                    transition.termination.x != 0u;
+            }
+        )) {
+        fail("frame reward or termination execution is invalid");
+    }
+
+    TemporaryPackFiles packFiles;
+    const auto taskWrite = metalrobo::writeTaskPack(
+        authored.task,
+        packFiles.task
+    );
+    metalrobo::TaskPack restored;
+    const auto taskRead = metalrobo::readTaskPack(
+        packFiles.task,
+        restored
+    );
+    metalrobo::CompiledTaskProgram roundTrip;
+    const auto roundTripStatus = metalrobo::compileTaskProgram(
+        restored,
+        compiled.world,
+        roundTrip
+    );
+    if (!taskWrite.succeeded() ||
+        !taskRead.succeeded() ||
+        !roundTripStatus.succeeded() ||
+        roundTrip.fingerprint() != compiled.task.fingerprint()) {
+        fail("typed TaskPack round trip changed frame or goal semantics");
     }
 
     metalrobo::TaskPack invalid = authored.task;

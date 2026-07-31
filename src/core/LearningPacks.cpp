@@ -89,6 +89,8 @@ LearningPackResult validateTaskArtifact(
         !countFits(pack.critic.size()) ||
         !countFits(pack.contactGroups.size()) ||
         !countFits(pack.jointGroups.size()) ||
+        !countFits(pack.frames.size()) ||
+        !countFits(pack.goals.size()) ||
         !countFits(pack.rewards.size()) ||
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
@@ -100,7 +102,8 @@ LearningPackResult validateTaskArtifact(
         );
     }
     const auto validObservation = [](const auto& value) {
-        return stringFits(value.target);
+        return stringFits(value.target) &&
+            stringFits(value.goal);
     };
     if (!std::all_of(
             pack.actorFrame.begin(),
@@ -154,8 +157,25 @@ LearningPackResult validateTaskArtifact(
             );
         }
     }
+    for (const TaskFrameSpec& value : pack.frames) {
+        if (!stringFits(value.id) || !stringFits(value.body)) {
+            return fail(
+                LearningPackStatus::capacityOverflow,
+                "TaskPack frame semantic exceeds the 32-bit artifact boundary"
+            );
+        }
+    }
+    for (const TaskGoalSpec& value : pack.goals) {
+        if (!stringFits(value.id)) {
+            return fail(
+                LearningPackStatus::capacityOverflow,
+                "TaskPack goal semantic exceeds the 32-bit artifact boundary"
+            );
+        }
+    }
     const auto semanticFits = [](const auto& value) {
-        return stringFits(value.sourceGroup);
+        return stringFits(value.sourceGroup) &&
+            stringFits(value.goal);
     };
     if (!std::all_of(
             pack.rewards.begin(),
@@ -659,6 +679,7 @@ void writeObservation(
 ) {
     writeEnum(writer, value.source);
     writer.string(value.target);
+    writer.string(value.goal);
     writer.pod(value.component);
     writer.pod(value.scale);
     writer.pod(value.offset);
@@ -679,6 +700,7 @@ bool readObservation(
     std::uint8_t normalize = 0u;
     if (!readEnum(reader, value.source) ||
         !reader.string(value.target) ||
+        !reader.string(value.goal) ||
         !reader.pod(value.component) ||
         !reader.pod(value.scale) ||
         !reader.pod(value.offset) ||
@@ -774,10 +796,30 @@ std::vector<std::byte> serializeTask(
     );
     writeRichVector(
         writer,
+        pack.frames,
+        [](Writer& target, const TaskFrameSpec& value) {
+            target.string(value.id);
+            target.string(value.body);
+            target.pod(value.localPosition);
+            target.pod(value.localOrientation);
+        }
+    );
+    writeRichVector(
+        writer,
+        pack.goals,
+        [](Writer& target, const TaskGoalSpec& value) {
+            target.string(value.id);
+            target.pod(value.position);
+            target.pod(value.orientation);
+        }
+    );
+    writeRichVector(
+        writer,
         pack.rewards,
         [](Writer& target, const TaskRewardOperatorSpec& value) {
             writeEnum(target, value.operation);
             target.string(value.sourceGroup);
+            target.string(value.goal);
             target.pod(value.weight);
             target.pod(value.parameters);
         }
@@ -789,6 +831,7 @@ std::vector<std::byte> serializeTask(
            const TaskTerminationOperatorSpec& value) {
             writeEnum(target, value.operation);
             target.string(value.sourceGroup);
+            target.string(value.goal);
             target.pod(value.reason);
             target.pod(value.priority);
             target.pod(value.threshold);
@@ -894,11 +937,31 @@ bool deserializeTask(
         ) ||
         !readRichVector(
             reader,
+            pack.frames,
+            [](Reader& source, TaskFrameSpec& value) {
+                return source.string(value.id) &&
+                    source.string(value.body) &&
+                    source.pod(value.localPosition) &&
+                    source.pod(value.localOrientation);
+            }
+        ) ||
+        !readRichVector(
+            reader,
+            pack.goals,
+            [](Reader& source, TaskGoalSpec& value) {
+                return source.string(value.id) &&
+                    source.pod(value.position) &&
+                    source.pod(value.orientation);
+            }
+        ) ||
+        !readRichVector(
+            reader,
             pack.rewards,
             [](Reader& source,
                TaskRewardOperatorSpec& value) {
                 return readEnum(source, value.operation) &&
                     source.string(value.sourceGroup) &&
+                    source.string(value.goal) &&
                     source.pod(value.weight) &&
                     source.pod(value.parameters);
             }
@@ -910,6 +973,7 @@ bool deserializeTask(
                TaskTerminationOperatorSpec& value) {
                 return readEnum(source, value.operation) &&
                     source.string(value.sourceGroup) &&
+                    source.string(value.goal) &&
                     source.pod(value.reason) &&
                     source.pod(value.priority) &&
                     source.pod(value.threshold) &&
