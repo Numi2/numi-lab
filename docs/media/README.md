@@ -10,40 +10,38 @@ The raw frame and cooked robot/environment packs are transient build
 artifacts. Only the compact documentation images are retained in this
 repository.
 
-## G1 standing-policy transfer animations
+## G1 standing-policy transfer animation
 
-`g1-standing-best.gif` and `g1-standing-full-attempt.gif` show state from an
-actual one-environment, zero-command MetalRobo rollout driven by the official
-Unitree MuJoCo-Lab actor. The source checkout is pinned at revision
+`g1-standing-native-20s.gif` and `g1-standing-native-20s.mp4` show an actual
+one-environment, zero-command MetalRobo rollout driven by the official Unitree
+MuJoCo-Lab actor. The source checkout is pinned at revision
 `1425b15f73bd4095f0df53709d7c389c3eb9e790`; its ONNX policy SHA-256 is
 `2a66ca6336eadb3c0b34b557763f3e06d01ff8fcf6260dd4cedbd69d6093fc28`.
 The actor was converted once into the generic native PolicyPack format and ran
 through MetalRobo's Metal inference engine.
 
-The rollout used PGS contact, flat ground, a 20 ms control interval, four
-physics substeps, four velocity iterations plus two final iterations, seed
-`20260731`, and a zero velocity command. The best animation contains the first
-114 control steps; the full animation contains all 180 steps and therefore
-shows the instability, tilt termination, and reset. States were sampled every
-two control steps and encoded at 25 frames per second.
+The rollout used the production `temporalCone` contact path, flat ground, a
+20 ms control interval, four physics microsteps, seed `20260731`, and a zero
+velocity command. All 1,000 control steps completed: mean tilt was `0.009 rad`,
+mean pelvis height was `0.785 m`, tracking was `0.9998`, no physics step failed,
+and the only termination was the expected 20-second episode timeout.
 
-Every frame is a native MetalRobo `sensor_reference` capture on Apple M4. The
-official G1 mesh geometry was posed from MetalRobo's final-q state, cooked
-through `metalrobo_visual_cook`, and rendered against the same Studio Small 03
-environment used by the static README captures. MuJoCo is not used for these
-pixels. ACES preview conversion, fixed labels, and GIF encoding are the only
-presentation-only stages; motion is not interpolated or generated. The
-retained hashes are:
+Every displayed frame is a native MetalRobo `sensor_reference` capture on
+Apple M4. The official G1 mesh geometry was posed from MetalRobo's final-q
+state, cooked through `metalrobo_visual_cook`, and rendered against the same
+Studio Small 03 environment used by the static README captures. The 100 poses
+sample every tenth control step and are displayed at 5 Hz for exactly 20
+seconds. The H.264 stream repeats each displayed pose to produce a broadly
+compatible 25 fps stream; it does not interpolate simulator state. MuJoCo is
+not used for these pixels. ACES preview conversion and encoding are the only
+presentation-only stages. The retained hashes are:
 
 ```text
-g1-standing-best.gif=sha256:99d40c12cb9f7910b7d1ea64b460a8dd2735dd784f64dec4f91ea855b95c18b2
-g1-standing-full-attempt.gif=sha256:897e70fc3e80b478f76f53fe511f438f5d9a0eda5761ce9ef553f39f26c4faa9
+g1-standing-native-20s.gif=sha256:5b06ae06b9f39f429ee0794ac75dc0f69de0c76244546e4f2b4f7a17ccce3a28
+g1-standing-native-20s.mp4=sha256:05b47c635024a25864b63e806fa23105ae8ae5ad014e72275903aa54cfb1b514
 ```
 
-These two retained animations are historical transfer evidence and do not
-pass the 20-second standing gate. The current temporal-cone implementation
-does pass that native simulation gate after per-microstep drive refresh; the
-historical pixels are not relabeled as a later run. Neither result establishes
+This validates the native 20-second simulation gate. It does not establish
 real-robot transfer.
 
 ## Native G1 policy-rollout animations

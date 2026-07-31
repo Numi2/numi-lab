@@ -57,20 +57,14 @@ the effort computed at the beginning of a 20 ms control step caused the visible
 shaking and falls. The policy, observation construction, contact, articulated
 physics, and rollout scheduler remain native Metal execution.
 
-![Best upright segment from the official Unitree G1 policy running in native MetalRobo](docs/media/g1-standing-best.gif)
+![Full 20-second official Unitree G1 standing policy running in native MetalRobo](docs/media/g1-standing-native-20s.gif)
 
-This native `sensor_reference` animation is the best upright prefix retained
-from the earlier transfer-debugging rollout. It predates the microstep drive
-fix and stops before that old run's first large tilt.
-
-![Full untrimmed official Unitree G1 standing attempt in MetalRobo](docs/media/g1-standing-full-attempt.gif)
-
-The full 3.6-second historical capture includes the former lateral
-instability, tilt termination, and reset. It is retained as before/after
-debugging evidence, not as the current standing result. Every displayed frame
-uses official G1 visual geometry cooked by numi-lab and rendered by its native
-`sensor_reference` pipeline; no intermediate frames are synthesized. Full
-capture provenance is recorded in
+[Play or download the 20-second H.264 capture](docs/media/g1-standing-native-20s.mp4).
+This is the complete successful zero-command gate, not a trimmed upright
+prefix. Its 100 displayed poses sample the real 1,000-step trajectory at even
+intervals and are rendered through numi-lab's native `sensor_reference`
+pipeline. MuJoCo supplies no pixels and no intermediate motion is synthesized.
+Full capture provenance is recorded in
 [`docs/media/README.md`](docs/media/README.md).
 
 ## The renderer is a sensor
