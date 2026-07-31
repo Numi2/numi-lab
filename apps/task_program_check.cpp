@@ -844,14 +844,134 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 );
             }
         }
-        auto recycled = rolloutRing.acquire(3u);
-        if (!recycled.valid() ||
-            recycled.policyRevision() != 3u ||
-            recycled.writtenControlSteps() != 0u) {
+        {
+            auto recycled = rolloutRing.acquire(3u);
+            if (!recycled.valid() ||
+                recycled.policyRevision() != 3u ||
+                recycled.writtenControlSteps() != 0u) {
+                fail(
+                    "native rollout slot was not reusable after lease release"
+                );
+            }
+        }
+
+        metalrobo::MetalRolloutRing leasedOnlyRing({
+            .environmentCount =
+                static_cast<std::uint32_t>(environments),
+            .controlStepCapacity =
+                static_cast<std::uint32_t>(controlSteps),
+            .actorObservationCount = 12u,
+            .criticObservationCount = 6u,
+            .actionCount = 1u,
+            .slotCount = 1u,
+        });
+        auto leasedOnly = leasedOnlyRing.acquire(
+            compiled.policy.revision()
+        );
+        const metalrobo::MetalRolloutAppendTarget leasedTarget =
+            leasedOnly.beginAppend(
+                static_cast<std::uint32_t>(controlSteps),
+                true
+            );
+        step.evaluateFinalPolicy = true;
+        step.publishLearningOutputs = false;
+        metalrobo::MetalWorldContext leasedOnlyContext(
+            contextConfiguration
+        );
+        metalrobo::MetalWorldResult leasedOnlyResult;
+        const auto leasedOnlyExecution = leasedOnlyContext.run(
+            compiled.world,
+            {
+                .environmentCount = environments,
+                .controlStepCount = controlSteps,
+                .initialQ = initialQ,
+                .initialV = initialV,
+                .resetMasks = resetMasks,
+                .rolloutTarget = leasedTarget,
+            },
+            step,
+            leasedOnlyResult
+        );
+        if (!leasedOnlyExecution.succeeded() ||
+            leasedOnly.writtenControlSteps() != controlSteps ||
+            !leasedOnlyResult.actorObservations.empty() ||
+            !leasedOnlyResult.criticObservations.empty() ||
+            !leasedOnlyResult.policyLatents.empty() ||
+            !leasedOnlyResult.policyLogProbabilities.empty() ||
+            !leasedOnlyResult.policyValues.empty() ||
+            !leasedOnlyResult.transitions.empty() ||
+            leasedOnlyResult.statuses.size() !=
+                environments * controlSteps) {
             fail(
-                "native rollout slot was not reusable after lease release"
+                "leased-only rollout publication duplicated compact host vectors: " +
+                leasedOnlyExecution.message
             );
         }
+        leasedOnly.seal();
+        const std::size_t leasedSamples =
+            environments * controlSteps;
+        const auto equalPrefix = [](
+            const std::vector<float>& expected,
+            const float* actual,
+            const std::size_t count
+        ) {
+            return actual != nullptr && expected.size() >= count &&
+                std::equal(
+                    expected.begin(),
+                    expected.begin() +
+                        static_cast<std::ptrdiff_t>(count),
+                    actual
+                );
+        };
+        if (!leasedOnly.sealed() ||
+            !equalPrefix(
+                result.actorObservations,
+                leasedOnly.actorObservations(),
+                leasedSamples * 12u
+            ) ||
+            !equalPrefix(
+                result.criticObservations,
+                leasedOnly.criticObservations(),
+                leasedSamples * 6u
+            ) ||
+            !equalPrefix(
+                result.policyLatents,
+                leasedOnly.latents(),
+                leasedSamples
+            ) ||
+            !equalPrefix(
+                result.policyLogProbabilities,
+                leasedOnly.logProbabilities(),
+                leasedSamples
+            ) ||
+            !equalPrefix(
+                result.policyValues,
+                leasedOnly.values(),
+                leasedSamples
+            ) ||
+            result.policyValues.size() <
+                leasedSamples + environments ||
+            leasedOnly.bootstrapValues() == nullptr ||
+            !std::equal(
+                result.policyValues.begin() +
+                    static_cast<std::ptrdiff_t>(leasedSamples),
+                result.policyValues.begin() +
+                    static_cast<std::ptrdiff_t>(
+                        leasedSamples + environments
+                    ),
+                leasedOnly.bootstrapValues()
+            ) ||
+            leasedOnly.transitions() == nullptr ||
+            std::memcmp(
+                result.transitions.data(),
+                leasedOnly.transitions(),
+                leasedSamples * sizeof(MRTaskTransitionGPU)
+            ) != 0) {
+            fail(
+                "leased-only rollout publication changed the compact learning payload"
+            );
+        }
+        step.publishLearningOutputs = true;
         step.evaluateFinalPolicy = true;
     }
     metalrobo::PolicyPack revisedPolicy = *authored.policy;

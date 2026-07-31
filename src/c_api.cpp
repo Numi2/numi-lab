@@ -1531,6 +1531,11 @@ int mr_simulation_advance(
     return translateErrors([&] {
         handle->stepConfig.evaluateFinalPolicy =
             evaluate_final_policy != 0u;
+        // A direct rollout lease is the learning publication boundary. Keep
+        // status diagnostics in the C session, but do not allocate and copy a
+        // duplicate set of host vectors that Swift never consumes.
+        handle->stepConfig.publishLearningOutputs =
+            !handle->pendingRolloutTarget.valid();
         const std::size_t actionCount =
             handle->taskProgram.layout().actionCount;
         const std::size_t environmentCount =

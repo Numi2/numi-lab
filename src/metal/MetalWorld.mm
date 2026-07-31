@@ -455,6 +455,7 @@ struct MetalWorldSubmissionState {
     bool captureContactEvidence = false;
     bool publishFinalState = true;
     bool publishStateTrajectory = true;
+    bool publishLearningOutputs = true;
     bool publishSensorOutputs = false;
     bool rolloutFinished = false;
     bool ownsInFlight = false;
@@ -2834,6 +2835,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
             "sensor output publication requires a compiled SensorIR program"
+        );
+    }
+    if (!config.publishLearningOutputs &&
+        (!nativeTask || !nativePolicy ||
+         !batch.rolloutTarget.valid())) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "in-place learning publication requires a compiled native "
+            "policy and a leased rollout destination"
         );
     }
     const double controlPeriodNanosecondsWide =
@@ -11830,11 +11841,192 @@ bool zeroRange(
     );
 }
 
+bool validLearningPayload(
+    const std::span<const float> actorObservations,
+    const std::span<const float> criticObservations,
+    const std::span<const float> policyLatents,
+    const std::span<const float> policyLogProbabilities,
+    const std::span<const float> policyValues,
+    const std::span<const float> bootstrapValues,
+    const std::span<const MRTaskTransitionGPU> transitions,
+    const std::uint64_t expectedPolicyRevision
+) {
+    const auto finiteSpan = [](const std::span<const float> values) {
+        return std::all_of(
+            values.begin(),
+            values.end(),
+            [](const float value) {
+                return std::isfinite(value);
+            }
+        );
+    };
+    return finiteSpan(actorObservations) &&
+        finiteSpan(criticObservations) &&
+        finiteSpan(policyLatents) &&
+        finiteSpan(policyLogProbabilities) &&
+        finiteSpan(policyValues) &&
+        finiteSpan(bootstrapValues) &&
+        std::all_of(
+            transitions.begin(),
+            transitions.end(),
+            [expectedPolicyRevision](
+                const MRTaskTransitionGPU& transition
+            ) {
+                return
+                    finite(transition.rewardAndState) &&
+                    finite(transition.rewardBreakdown0) &&
+                    finite(transition.rewardBreakdown1) &&
+                    transition.policyRevision ==
+                        expectedPolicyRevision &&
+                    transition.termination.x <= 1u &&
+                    transition.termination.y <= 1u &&
+                    transition.termination.z <= 1u &&
+                    transition.termination.w <=
+                        MR_TASK_TERMINATION_PHYSICS_ERROR &&
+                    (
+                        transition.termination.x != 0u ||
+                        transition.termination.w ==
+                            MR_TASK_TERMINATION_CONTINUING
+                    );
+            }
+        );
+}
+
+bool validLeasedLearningPayload(
+    const std::shared_ptr<detail::MetalRolloutAppendData>& append,
+    const MetalWorldLayout& layout,
+    const std::uint64_t expectedPolicyRevision
+) {
+    if (append == nullptr || append->ring == nullptr) {
+        return false;
+    }
+    const std::lock_guard lock(append->ring->mutex);
+    if (append->slotIndex >= append->ring->slots.size()) {
+        return false;
+    }
+    const detail::MetalRolloutSlotData& slot =
+        append->ring->slots[append->slotIndex];
+    if (slot.generation != append->generation ||
+        slot.state != detail::MetalRolloutSlotState::collecting ||
+        !slot.appendPending || slot.failed ||
+        slot.policyRevision != expectedPolicyRevision ||
+        slot.writtenControlSteps !=
+            append->destinationControlStep) {
+        return false;
+    }
+
+    const MetalRolloutRingLayout& ring = append->ring->layout;
+    std::size_t sampleCount = 0u;
+    std::size_t destinationSample = 0u;
+    if (!checkedMultiply(
+            append->controlStepCount,
+            ring.environmentCount,
+            sampleCount
+        ) ||
+        !checkedMultiply(
+            append->destinationControlStep,
+            ring.environmentCount,
+            destinationSample
+        ) ||
+        sampleCount != layout.transitionElements) {
+        return false;
+    }
+    const auto floatSpan = [destinationSample, sampleCount](
+        id<MTLBuffer> buffer,
+        const std::size_t width
+    ) -> std::span<const float> {
+        std::size_t offset = 0u;
+        std::size_t count = 0u;
+        std::size_t end = 0u;
+        if (buffer == nil || buffer.contents == nullptr ||
+            !checkedMultiply(destinationSample, width, offset) ||
+            !checkedMultiply(sampleCount, width, count) ||
+            !checkedAdd(offset, count, end) ||
+            end > buffer.length / sizeof(float)) {
+            return {};
+        }
+        return {
+            static_cast<const float*>(buffer.contents) + offset,
+            count,
+        };
+    };
+    const auto actor = floatSpan(
+        slot.actorObservations,
+        ring.actorObservationCount
+    );
+    const auto critic = floatSpan(
+        slot.criticObservations,
+        ring.criticObservationCount
+    );
+    const auto latents = floatSpan(slot.latents, ring.actionCount);
+    const auto logProbabilities = floatSpan(
+        slot.logProbabilities,
+        1u
+    );
+    const auto values = floatSpan(slot.values, 1u);
+    if ((ring.actorObservationCount != 0u && actor.empty()) ||
+        (ring.criticObservationCount != 0u && critic.empty()) ||
+        (ring.actionCount != 0u && latents.empty()) ||
+        logProbabilities.size() != sampleCount ||
+        values.size() != sampleCount) {
+        return false;
+    }
+
+    std::span<const float> bootstrap;
+    if (append->includeBootstrapValues) {
+        if (slot.bootstrapValues == nil ||
+            slot.bootstrapValues.contents == nullptr ||
+            slot.bootstrapValues.length /
+                    sizeof(float) <
+                ring.environmentCount) {
+            return false;
+        }
+        bootstrap = {
+            static_cast<const float*>(
+                slot.bootstrapValues.contents
+            ),
+            ring.environmentCount,
+        };
+    }
+
+    std::size_t transitionEnd = 0u;
+    if (slot.transitions == nil ||
+        slot.transitions.contents == nullptr ||
+        !checkedAdd(
+            destinationSample,
+            sampleCount,
+            transitionEnd
+        ) ||
+        transitionEnd >
+            slot.transitions.length /
+                sizeof(MRTaskTransitionGPU)) {
+        return false;
+    }
+    const std::span<const MRTaskTransitionGPU> transitions{
+        static_cast<const MRTaskTransitionGPU*>(
+            slot.transitions.contents
+        ) + destinationSample,
+        sampleCount,
+    };
+    return validLearningPayload(
+        actor,
+        critic,
+        latents,
+        logProbabilities,
+        values,
+        bootstrap,
+        transitions,
+        expectedPolicyRevision
+    );
+}
+
 MetalWorldDiagnostics validateAndPublish(
     MetalWorldResult&& staged,
     MetalWorldDiagnostics diagnostics,
     const bool publishFinalState,
     const bool publishStateTrajectory,
+    const bool publishLearningOutputs,
+    const std::shared_ptr<detail::MetalRolloutAppendData>& rollout,
     const std::uint64_t expectedPolicyRevision,
     MetalWorldResult& result
 ) {
@@ -12351,37 +12543,23 @@ MetalWorldDiagnostics validateAndPublish(
         }
     }
     if (diagnostics.layout.actionElements != 0u) {
-        if (!finiteFloats(staged.actorObservations) ||
-            !finiteFloats(staged.criticObservations) ||
-            !finiteFloats(staged.policyLatents) ||
-            !finiteFloats(
-                staged.policyLogProbabilities
-            ) ||
-            !finiteFloats(staged.policyValues) ||
-            !std::all_of(
-                staged.transitions.begin(),
-                staged.transitions.end(),
-                [expectedPolicyRevision](
-                    const MRTaskTransitionGPU& transition
-                ) {
-                    return
-                        finite(transition.rewardAndState) &&
-                        finite(transition.rewardBreakdown0) &&
-                        finite(transition.rewardBreakdown1) &&
-                        transition.policyRevision ==
-                            expectedPolicyRevision &&
-                        transition.termination.x <= 1u &&
-                        transition.termination.y <= 1u &&
-                        transition.termination.z <= 1u &&
-                        transition.termination.w <=
-                            MR_TASK_TERMINATION_PHYSICS_ERROR &&
-                        (
-                            transition.termination.x != 0u ||
-                            transition.termination.w ==
-                                MR_TASK_TERMINATION_CONTINUING
-                        );
-                }
-            )) {
+        const bool validLearning = publishLearningOutputs
+            ? validLearningPayload(
+                  staged.actorObservations,
+                  staged.criticObservations,
+                  staged.policyLatents,
+                  staged.policyLogProbabilities,
+                  staged.policyValues,
+                  {},
+                  staged.transitions,
+                  expectedPolicyRevision
+              )
+            : validLeasedLearningPayload(
+                  rollout,
+                  diagnostics.layout,
+                  expectedPolicyRevision
+              );
+        if (!validLearning) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldHostStatus::internalFailure,
@@ -15020,7 +15198,8 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             staged.statuses.resize(
                 staged.layout.statusElements
             );
-            if (staged.layout.actionElements != 0u) {
+            if (staged.layout.actionElements != 0u &&
+                pending->publishLearningOutputs) {
                 staged.actorObservations.resize(
                     staged.layout.actorObservationElements
                 );
@@ -15162,7 +15341,8 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 staged.statuses,
                 buffers[kPublicStatuses]
             );
-            if (staged.layout.actionElements != 0u) {
+            if (staged.layout.actionElements != 0u &&
+                pending->publishLearningOutputs) {
                 copyOutput(
                     staged.actorObservations,
                     buffers[kTaskActorObservations]
@@ -15303,6 +15483,8 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             std::move(diagnostics),
             pending->publishFinalState,
             pending->publishStateTrajectory,
+            pending->publishLearningOutputs,
+            pending->rollout,
             pending->policyRevision,
             result
         );
@@ -16411,6 +16593,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 config.publishFinalState;
             pending->publishStateTrajectory =
                 config.publishStateTrajectory;
+            pending->publishLearningOutputs =
+                config.publishLearningOutputs;
             pending->publishSensorOutputs =
                 config.publishSensorOutputs;
             pending->start = std::chrono::steady_clock::now();
