@@ -3356,7 +3356,17 @@ MetalWorldDiagnostics validateAndBuildLayout(
             contact.solverTileCapacity
         )
     );
-    contact.convexCacheStride = contact.eligiblePairCount;
+    contact.convexCacheStride = static_cast<mr_u32>(
+        std::count_if(
+            world.eligiblePairs().begin(),
+            world.eligiblePairs().end(),
+            [](const MRCompiledCollisionPairGPU& pair) {
+                return
+                    pair.pairClass == MR_COLLISION_PAIR_CONVEX ||
+                    pair.pairClass == MR_COLLISION_PAIR_MESH;
+            }
+        )
+    );
     contact.maxCCDAdvanceSolvePasses =
         config.maxCCDAdvanceSolvePasses;
     contact.maxCCDZeroTimeReplays =
@@ -13703,6 +13713,7 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 found->colliderA == colliderA &&
                 found->colliderB == colliderB;
         };
+        std::uint32_t convexCacheSlot = 0u;
         for (std::uint32_t colliderA = 0u;
              colliderA < staged.model_.shapes.size();
              ++colliderA) {
@@ -13767,7 +13778,11 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                     .colliderA = colliderA,
                     .colliderB = colliderB,
                     .pairClass = pairClass,
-                    .flags = 0u,
+                    .convexCacheSlot =
+                        pairClass == MR_COLLISION_PAIR_CONVEX ||
+                            pairClass == MR_COLLISION_PAIR_MESH
+                        ? convexCacheSlot++
+                        : MR_INVALID_INDEX,
                 });
             }
         }

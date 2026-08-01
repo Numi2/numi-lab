@@ -8160,8 +8160,13 @@ kernel void mr_world_scatter_pair_queue(
     MRPairWorkGPU work = {};
     work.environment = environment;
     work.compiledPair = compiledPair;
-    work.cacheSlot =
-        environment * dispatch.convexCacheStride + compiledPair;
+    const uint localCacheSlot =
+        eligiblePairs[compiledPair].convexCacheSlot;
+    work.cacheSlot = localCacheSlot == MR_INVALID_INDEX
+        ? MR_INVALID_INDEX
+        :
+        environment * dispatch.convexCacheStride +
+            localCacheSlot;
     work.workClass = workClass;
     work.stableKeyLow = compiledPair;
     work.stableKeyHigh = environment;
@@ -8964,7 +8969,7 @@ kernel void mr_world_collide_compile(
             const MRConvexQueryCacheGPU queryCache =
                 convexCaches[
                     environment * dispatch.convexCacheStride +
-                    eligibleIndex
+                    compiled.convexCacheSlot
                 ];
             const uint fallback = queryCache.supportA.w;
             if (workClass == MR_WORLD_WORK_MESH) {
@@ -9653,7 +9658,7 @@ kernel void mr_world_finalize_pair_manifold(
         const MRConvexQueryCacheGPU cache =
             convexCaches[
                 environment * dispatch.convexCacheStride +
-                eligibleIndex
+                compiled.convexCacheSlot
             ];
         if (workClass == MR_WORLD_WORK_MESH) {
             record.diagnostics1.y = cache.supportA.z;

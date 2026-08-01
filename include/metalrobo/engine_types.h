@@ -743,12 +743,14 @@ enum MRMetalWorldContactFlags : mr_u32 {
 
 // One stable, cooker-produced pair. The pair stream is canonical collider
 // order and already applies static exclusions and collision masks. pairClass
-// is the narrowphase class; zero is an explicit unsupported class.
+// is the narrowphase class; zero is an explicit unsupported class. Convex and
+// mesh pairs own a compact persistent query-cache slot; other pairs carry the
+// invalid index.
 typedef struct MR_ALIGN16 MRCompiledCollisionPairGPU {
     mr_u32 colliderA;
     mr_u32 colliderB;
     mr_u32 pairClass;
-    mr_u32 flags;
+    mr_u32 convexCacheSlot;
 } MRCompiledCollisionPairGPU;
 
 // Fixed capacities and strides for the contact graph. Every stride is in

@@ -2326,7 +2326,7 @@ kernel void mr_world_prepare_contact_step(
         const uint cacheBase =
             environment * dispatch.convexCacheStride;
         for (uint pair = 0u;
-             pair < dispatch.eligiblePairCount;
+             pair < dispatch.convexCacheStride;
              ++pair) {
             convexCaches[cacheBase + pair] = {};
         }
@@ -9344,8 +9344,11 @@ kernel void mr_world_publish_convex_cache(
         overlapFlags[globalIndex] == 1u &&
         (pairClass == MR_COLLISION_PAIR_CONVEX ||
          pairClass == MR_COLLISION_PAIR_MESH)) {
-        publishedCaches[globalIndex] =
-            candidateCaches[globalIndex];
+        const uint cacheIndex =
+            environment * dispatch.convexCacheStride +
+            eligiblePairs[compiledPair].convexCacheSlot;
+        publishedCaches[cacheIndex] =
+            candidateCaches[cacheIndex];
     }
 }
 
