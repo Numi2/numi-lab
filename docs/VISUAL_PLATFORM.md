@@ -151,6 +151,13 @@ overwrites compiled TaskPack observation slots before policy inference. Live
 camera and root poses come from device buffers rather than a static camera
 approximation. One cooperative threadgroup reduces each environment/object
 track and temporal track state remains on the GPU.
+`MetalRoboTaskRolloutContext.attachVisualObservation` compiles authored pack
+references, a body-bound camera, the matching `WorldFamily`, and this tracker
+before resident initialization. Explicit rigid-body pack bindings keep moving
+scene objects on the accepted physics timeline; articulated bindings keep
+robot presentation on link states. Reset clears temporal tracks atomically
+with simulator reset, and rollout chunk size does not alter the published
+observation artifact.
 `encodeGraph` additionally accepts an active-compute callback surface and a
 complete set of caller-owned observation buffers. The Python
 `visual_observation` custom primitive uses that surface to write linear RGB,

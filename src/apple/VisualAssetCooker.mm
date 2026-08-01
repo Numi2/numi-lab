@@ -73,6 +73,35 @@ struct ImportedMesh {
     std::vector<PrimitiveTemplate> primitives;
 };
 
+struct AuthoredVisualBodyBinding {
+    std::uint32_t body = MR_INVALID_INDEX;
+    std::uint32_t kind = MR_VISUAL_BINDING_ASSET;
+};
+
+bool resolveVisualBodyBinding(
+    const VisualAssetCookOptions& options,
+    const std::string& node,
+    AuthoredVisualBodyBinding& output,
+    std::string& message
+) {
+    const auto articulated = options.linkBodyIndices.find(node);
+    const auto rigid = options.rigidBodyIndices.find(node);
+    if (articulated != options.linkBodyIndices.end() &&
+        rigid != options.rigidBodyIndices.end()) {
+        message = "visual node has both rigid and articulated bindings";
+        return false;
+    }
+    if (articulated != options.linkBodyIndices.end()) {
+        output = {
+            articulated->second,
+            MR_VISUAL_BINDING_ARTICULATED_LINK,
+        };
+    } else if (rigid != options.rigidBodyIndices.end()) {
+        output = {rigid->second, MR_VISUAL_BINDING_RIGID_BODY};
+    }
+    return true;
+}
+
 VisualAssetCookDiagnostics reject(
     VisualAssetCookDiagnostics diagnostics,
     const VisualAssetCookStatus status,
@@ -2182,15 +2211,19 @@ bool appendNode(
         }
         const std::string nodeName =
             utf8(stringValue(node, @"name"));
-        const auto body = options.linkBodyIndices.find(nodeName);
+        AuthoredVisualBodyBinding body;
+        if (!resolveVisualBodyBinding(
+                options,
+                nodeName,
+                body,
+                message
+            )) {
+            return false;
+        }
         instance.binding = {
             0u,
-            body == options.linkBodyIndices.end()
-                ? MR_INVALID_INDEX
-                : body->second,
-            body == options.linkBodyIndices.end()
-                ? MR_VISUAL_BINDING_ASSET
-                : MR_VISUAL_BINDING_ARTICULATED_LINK,
+            body.body,
+            body.kind,
             MR_VISUAL_INSTANCE_CASTS_SHADOW |
                 MR_VISUAL_INSTANCE_RECEIVES_SHADOW |
                 MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR,
@@ -2198,9 +2231,7 @@ bool appendNode(
         instance.identity = {
             0u,
             0u,
-            body == options.linkBodyIndices.end()
-                ? MR_INVALID_INDEX
-                : body->second,
+            body.body,
             static_cast<std::uint32_t>(pack.instances.size() + 1u),
         };
         instance.geometry = {
@@ -2240,11 +2271,11 @@ bool appendNode(
             ? "node_" + std::to_string(nodeIndex)
             : nodeName;
         binding.instanceIndex = instanceIndex;
-        if (body != options.linkBodyIndices.end()) {
+        if (body.kind != MR_VISUAL_BINDING_ASSET) {
             binding.link = nodeName;
-            binding.bodyIndex = body->second;
+            binding.bodyIndex = body.body;
             binding.binding =
-                MR_VISUAL_BINDING_ARTICULATED_LINK;
+                static_cast<MRVisualBindingKind>(body.kind);
         }
         pack.symbolicBindings.push_back(std::move(binding));
     }
@@ -2484,6 +2515,106 @@ std::vector<xmlNode*> xmlChildren(
             result.push_back(child);
         }
     }
+    return result;
+}
+
+bool parseUrdfVector3(
+    const std::optional<std::string>& text,
+    const std::array<double, 3u>& fallback,
+    std::array<double, 3u>& output
+) {
+    if (!text.has_value()) {
+        output = fallback;
+        return true;
+    }
+    std::istringstream stream{*text};
+    return bool(stream >> output[0] >> output[1] >> output[2]) &&
+        (stream >> std::ws).eof() &&
+        std::ranges::all_of(output, [](const double value) {
+            return std::isfinite(value);
+        });
+}
+
+bool urdfVisualTransform(
+    xmlNode* visual,
+    xmlNode* mesh,
+    Matrix4& output
+) {
+    std::array<double, 3u> xyz{};
+    std::array<double, 3u> rpy{};
+    std::array<double, 3u> scale{};
+    xmlNode* origin = xmlChild(visual, "origin");
+    if (!parseUrdfVector3(
+            origin == nullptr
+                ? std::nullopt
+                : xmlProperty(origin, "xyz"),
+            {0.0, 0.0, 0.0},
+            xyz
+        ) ||
+        !parseUrdfVector3(
+            origin == nullptr
+                ? std::nullopt
+                : xmlProperty(origin, "rpy"),
+            {0.0, 0.0, 0.0},
+            rpy
+        ) ||
+        !parseUrdfVector3(
+            xmlProperty(mesh, "scale"),
+            {1.0, 1.0, 1.0},
+            scale
+        )) {
+        return false;
+    }
+    const double cr = std::cos(rpy[0]);
+    const double sr = std::sin(rpy[0]);
+    const double cp = std::cos(rpy[1]);
+    const double sp = std::sin(rpy[1]);
+    const double cy = std::cos(rpy[2]);
+    const double sy = std::sin(rpy[2]);
+    output = {};
+    output.value[0][0] = cy * cp * scale[0];
+    output.value[0][1] =
+        (cy * sp * sr - sy * cr) * scale[1];
+    output.value[0][2] =
+        (cy * sp * cr + sy * sr) * scale[2];
+    output.value[1][0] = sy * cp * scale[0];
+    output.value[1][1] =
+        (sy * sp * sr + cy * cr) * scale[1];
+    output.value[1][2] =
+        (sy * sp * cr - cy * sr) * scale[2];
+    output.value[2][0] = -sp * scale[0];
+    output.value[2][1] = cp * sr * scale[1];
+    output.value[2][2] = cp * cr * scale[2];
+    output.value[0][3] = xyz[0];
+    output.value[1][3] = xyz[1];
+    output.value[2][3] = xyz[2];
+    return true;
+}
+
+Matrix4 visualInstanceTransform(
+    const MRVisualInstanceGPUV2& instance
+) {
+    const double x = instance.orientation.x;
+    const double y = instance.orientation.y;
+    const double z = instance.orientation.z;
+    const double w = instance.orientation.w;
+    const double scale = instance.translationAndScale.w;
+    Matrix4 result{};
+    result.value[0][0] =
+        scale * (1.0 - 2.0 * (y * y + z * z));
+    result.value[0][1] = scale * 2.0 * (x * y - z * w);
+    result.value[0][2] = scale * 2.0 * (x * z + y * w);
+    result.value[1][0] = scale * 2.0 * (x * y + z * w);
+    result.value[1][1] =
+        scale * (1.0 - 2.0 * (x * x + z * z));
+    result.value[1][2] = scale * 2.0 * (y * z - x * w);
+    result.value[2][0] = scale * 2.0 * (x * z - y * w);
+    result.value[2][1] = scale * 2.0 * (y * z + x * w);
+    result.value[2][2] =
+        scale * (1.0 - 2.0 * (x * x + y * y));
+    result.value[0][3] = instance.translationAndScale.x;
+    result.value[1][3] = instance.translationAndScale.y;
+    result.value[2][3] = instance.translationAndScale.z;
     return result;
 }
 
@@ -3730,15 +3861,19 @@ bool appendModelMesh(
     const std::string nodeName = utf8(objectMesh.name);
     const std::string nodePath =
         stableModelObjectPath(objectMesh, objectOrdinal);
-    const auto body = options.linkBodyIndices.find(nodeName);
+    AuthoredVisualBodyBinding body;
+    if (!resolveVisualBodyBinding(
+            options,
+            nodeName,
+            body,
+            message
+        )) {
+        return false;
+    }
     instance.binding = {
         0u,
-        body == options.linkBodyIndices.end()
-            ? MR_INVALID_INDEX
-            : body->second,
-        body == options.linkBodyIndices.end()
-            ? MR_VISUAL_BINDING_ASSET
-            : MR_VISUAL_BINDING_ARTICULATED_LINK,
+        body.body,
+        body.kind,
         MR_VISUAL_INSTANCE_CASTS_SHADOW |
             MR_VISUAL_INSTANCE_RECEIVES_SHADOW |
             MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR,
@@ -3746,9 +3881,7 @@ bool appendModelMesh(
     instance.identity = {
         0u,
         0u,
-        body == options.linkBodyIndices.end()
-            ? MR_INVALID_INDEX
-            : body->second,
+        body.body,
         static_cast<std::uint32_t>(pack.instances.size() + 1u),
     };
     instance.geometry.x =
@@ -3959,10 +4092,11 @@ bool appendModelMesh(
             : nodeName
         : nodePath;
     binding.instanceIndex = instanceIndex;
-    if (body != options.linkBodyIndices.end()) {
+    if (body.kind != MR_VISUAL_BINDING_ASSET) {
         binding.link = nodeName;
-        binding.bodyIndex = body->second;
-        binding.binding = MR_VISUAL_BINDING_ARTICULATED_LINK;
+        binding.bodyIndex = body.body;
+        binding.binding =
+            static_cast<MRVisualBindingKind>(body.kind);
     }
     pack.symbolicBindings.push_back(std::move(binding));
     return true;
@@ -4308,6 +4442,10 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
     for (xmlNode* link : xmlChildren(robot, "link")) {
         const std::string linkName =
             xmlProperty(link, "name").value_or("");
+        if (!options.linkBodyIndices.empty() &&
+            !options.linkBodyIndices.contains(linkName)) {
+            continue;
+        }
         for (xmlNode* visual : xmlChildren(link, "visual")) {
             xmlNode* geometry = xmlChild(visual, "geometry");
             xmlNode* mesh = xmlChild(geometry, "mesh");
@@ -4357,11 +4495,40 @@ VisualAssetCookDiagnostics cookUrdfVisualDescription(
             }
             const auto body =
                 options.linkBodyIndices.find(linkName);
+            Matrix4 authoredTransform;
+            if (!urdfVisualTransform(
+                    visual,
+                    mesh,
+                    authoredTransform
+                )) {
+                xmlFreeDoc(document);
+                return reject(
+                    std::move(diagnostics),
+                    VisualAssetCookStatus::invalidBinding,
+                    "URDF visual origin or mesh scale is invalid"
+                );
+            }
             for (std::uint32_t instanceIndex = 0u;
                  instanceIndex < pack.instances.size();
                  ++instanceIndex) {
                 MRVisualInstanceGPUV2& instance =
                     pack.instances[instanceIndex];
+                const Matrix4 transformed = multiply(
+                    authoredTransform,
+                    visualInstanceTransform(instance)
+                );
+                if (!decomposeUniform(
+                        transformed,
+                        instance.translationAndScale,
+                        instance.orientation
+                    )) {
+                    xmlFreeDoc(document);
+                    return reject(
+                        std::move(diagnostics),
+                        VisualAssetCookStatus::invalidBinding,
+                        "URDF visual transform has non-uniform scale"
+                    );
+                }
                 if (body != options.linkBodyIndices.end()) {
                     instance.binding.y = body->second;
                     instance.binding.z =

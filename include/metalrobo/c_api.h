@@ -69,6 +69,28 @@ typedef struct MRTaskRolloutConfigC {
     uint32_t disable_task_terminations;
 } MRTaskRolloutConfigC;
 
+typedef struct MRTaskVisualPackC {
+    const char* path;
+    // Authored WorldTemplate asset identity. Multiple packs may bind the
+    // same asset (for example, one pack per articulated robot link).
+    const char* asset_id;
+    uint32_t semantic_id;
+    uint32_t instance_id;
+} MRTaskVisualPackC;
+
+typedef struct MRTaskVisualObservationConfigC {
+    const MRTaskVisualPackC* packs;
+    uint32_t pack_count;
+    const char* environment_pack_path;
+    const char* renderer_profile;
+    const char* camera_parent_body;
+    float camera_position[3];
+    float camera_orientation[4];
+    uint32_t width;
+    uint32_t height;
+    uint32_t minimum_visible_pixels;
+} MRTaskVisualObservationConfigC;
+
 typedef struct MRTaskRolloutLayoutC {
     uint32_t environment_count;
     uint32_t nq;
@@ -503,6 +525,14 @@ MR_API int mr_task_rollout_load_policy_pack(
 );
 MR_API int mr_task_rollout_clear_policy(
     MRTaskRolloutHandle* handle
+);
+// Compiles one authored Visual Presentation scene, head camera, and compact
+// object tracker into the native rollout. Object-track observation slots are
+// resolved from the TaskPack and matching asset ids; rendered depth and
+// identity remain device-resident through policy inference.
+MR_API int mr_task_rollout_attach_visual_observation(
+    MRTaskRolloutHandle* handle,
+    const MRTaskVisualObservationConfigC* config
 );
 // Opt-in inspection/export readback. Disabled by default so training keeps
 // simulator state device-resident. When enabled, final_q aliases the last

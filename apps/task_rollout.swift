@@ -41,23 +41,33 @@ private func fingerprint(
     _ batch: MetalRoboPolicyRolloutBatch,
     into hash: inout UInt64
 ) {
-    let floatTables = [
-        batch.actorObservations,
-        batch.criticObservations,
-        batch.latents,
-        batch.logProbabilities,
-        batch.values,
-    ]
-    for table in floatTables {
-        for value in table {
-            fingerprintWord(
-                UInt64(value.bitPattern),
-                byteCount: 4,
-                into: &hash
-            )
+    for sample in 0..<batch.sampleCount {
+        let slices: [(values: [Float], width: Int)] = [
+            (
+                batch.actorObservations,
+                batch.actorObservationCount
+            ),
+            (
+                batch.criticObservations,
+                batch.criticObservationCount
+            ),
+            (batch.latents, batch.actionCount),
+            (batch.logProbabilities, 1),
+            (batch.values, 1),
+        ]
+        for slice in slices {
+            let lower = sample * slice.width
+            for value in slice.values[
+                lower..<(lower + slice.width)
+            ] {
+                fingerprintWord(
+                    UInt64(value.bitPattern),
+                    byteCount: 4,
+                    into: &hash
+                )
+            }
         }
-    }
-    for transition in batch.transitions {
+        let transition = batch.transitions[sample]
         for value in [
             transition.reward,
             transition.trackingScore,
@@ -152,6 +162,9 @@ private struct Options {
     var dynamicSpheres: [MetalRoboDynamicSphere] = []
     var disableTaskTerminations = false
     var stateTrace: String?
+    var g1VisualPackDirectory: String?
+    var ballVisualPackDirectory: String?
+    var visualEnvironmentPack: String?
 
     init(arguments: [String]) throws {
         var index = 1
@@ -300,6 +313,15 @@ private struct Options {
             case "--state-trace":
                 stateTrace = try value()
                 index += 1
+            case "--g1-visual-pack-dir":
+                g1VisualPackDirectory = try value()
+                index += 1
+            case "--ball-visual-pack-dir":
+                ballVisualPackDirectory = try value()
+                index += 1
+            case "--visual-environment-pack":
+                visualEnvironmentPack = try value()
+                index += 1
             default:
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Unknown option \(option)."
@@ -357,6 +379,21 @@ private struct Options {
                 "--state-trace requires --envs 1 --repeats 1 --chunk 1."
             )
         }
+        if (g1VisualPackDirectory == nil) !=
+            (ballVisualPackDirectory == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Visual rollout requires both --g1-visual-pack-dir and --ball-visual-pack-dir."
+            )
+        }
+        if g1VisualPackDirectory != nil &&
+            (unitreeG1Task != .ballDisturbanceRecovery ||
+             worldPack != nil || urdf != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "The bundled visual preset currently requires --task ball-recovery."
+            )
+        }
     }
 
     private static func integer(
@@ -370,6 +407,73 @@ private struct Options {
         }
         return parsed
     }
+}
+
+private func makeG1VisualObservation(
+    options: Options
+) throws -> MetalRoboTaskVisualObservationConfiguration? {
+    guard let directory = options.g1VisualPackDirectory,
+          let ballDirectory = options.ballVisualPackDirectory
+    else {
+        return nil
+    }
+    let directoryURL = URL(fileURLWithPath: directory)
+    let robotPacks = try FileManager.default
+        .contentsOfDirectory(
+            at: directoryURL,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )
+        .filter { $0.pathExtension == "mrvpack" }
+        .sorted { $0.lastPathComponent < $1.lastPathComponent }
+    guard !robotPacks.isEmpty else {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "The G1 visual-pack directory contains no .mrvpack files."
+        )
+    }
+    var packs = robotPacks.map {
+        MetalRoboTaskVisualPack(
+            url: $0,
+            assetID: "robot",
+            semanticID: 1,
+            instanceID: 1
+        )
+    }
+    let ballPacks = try FileManager.default
+        .contentsOfDirectory(
+            at: URL(fileURLWithPath: ballDirectory),
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )
+        .filter { $0.pathExtension == "mrvpack" }
+        .sorted { $0.lastPathComponent < $1.lastPathComponent }
+    guard ballPacks.count == 6 else {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "The ball visual-pack directory must contain six body-bound .mrvpack files."
+        )
+    }
+    for index in 0..<6 {
+        packs.append(MetalRoboTaskVisualPack(
+            url: ballPacks[index],
+            assetID: "locomotion_dynamic_sphere_\(index)",
+            semanticID: 2,
+            instanceID: UInt32(100 + index)
+        ))
+    }
+    let rootHalf = Float(0.7071067811865476)
+    return MetalRoboTaskVisualObservationConfiguration(
+        packs: packs,
+        environmentPackURL: options.visualEnvironmentPack.map {
+            URL(fileURLWithPath: $0)
+        },
+        cameraParentBody: "torso_link",
+        cameraPosition: SIMD3(0.0, 0.0, 0.28),
+        // Visual camera +z looks along the torso's local +x axis.
+        cameraOrientation: SIMD4(0.0, rootHalf, 0.0, rootHalf),
+        width: 160,
+        height: 120,
+        minimumVisiblePixels: 4
+    )
 }
 
 private func makeContext(
@@ -499,6 +603,13 @@ private enum TaskRolloutMain {
             )
             let (context, worldSource) =
                 try makeContext(options: options)
+            let visualObservation =
+                try makeG1VisualObservation(options: options)
+            if let visualObservation {
+                try context.attachVisualObservation(
+                    visualObservation
+                )
+            }
             if options.stateTrace != nil {
                 try context.setStateReadback(true)
             }
@@ -1014,6 +1125,8 @@ private enum TaskRolloutMain {
                     options.dynamicSpheres.isEmpty
                     ? MetalRoboDynamicSphere.g1BallRecoveryDefaults.count
                     : options.dynamicSpheres.count,
+                "visual_observation":
+                    visualObservation != nil,
                 "state_trace": options.stateTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,

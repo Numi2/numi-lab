@@ -32,6 +32,26 @@ private func withUnsafeFloatBuffers<Result>(
     return visit(0)
 }
 
+private func withUnsafeCStringBuffers<Result>(
+    _ strings: [String],
+    _ body: ([UnsafePointer<CChar>]) -> Result
+) -> Result {
+    let storage = strings.map { Array($0.utf8CString) }
+    var pointers: [UnsafePointer<CChar>] = []
+    pointers.reserveCapacity(storage.count)
+    func visit(_ index: Int) -> Result {
+        guard index < storage.count else {
+            return body(pointers)
+        }
+        return storage[index].withUnsafeBufferPointer { buffer in
+            pointers.append(buffer.baseAddress!)
+            defer { pointers.removeLast() }
+            return visit(index + 1)
+        }
+    }
+    return visit(0)
+}
+
 public enum MetalRoboTaskRolloutError:
     Error, CustomStringConvertible
 {
@@ -125,6 +145,58 @@ public struct MetalRoboDynamicSphere: Sendable {
             launchStep: 600
         ),
     ]
+}
+
+public struct MetalRoboTaskVisualPack: Sendable {
+    public var url: URL
+    public var assetID: String
+    public var semanticID: UInt32
+    public var instanceID: UInt32
+
+    public init(
+        url: URL,
+        assetID: String,
+        semanticID: UInt32,
+        instanceID: UInt32
+    ) {
+        self.url = url
+        self.assetID = assetID
+        self.semanticID = semanticID
+        self.instanceID = instanceID
+    }
+}
+
+public struct MetalRoboTaskVisualObservationConfiguration:
+    Sendable
+{
+    public var packs: [MetalRoboTaskVisualPack]
+    public var environmentPackURL: URL?
+    public var cameraParentBody: String
+    public var cameraPosition: SIMD3<Float>
+    public var cameraOrientation: SIMD4<Float>
+    public var width: UInt32
+    public var height: UInt32
+    public var minimumVisiblePixels: UInt32
+
+    public init(
+        packs: [MetalRoboTaskVisualPack],
+        environmentPackURL: URL? = nil,
+        cameraParentBody: String,
+        cameraPosition: SIMD3<Float>,
+        cameraOrientation: SIMD4<Float>,
+        width: UInt32 = 160,
+        height: UInt32 = 120,
+        minimumVisiblePixels: UInt32 = 4
+    ) {
+        self.packs = packs
+        self.environmentPackURL = environmentPackURL
+        self.cameraParentBody = cameraParentBody
+        self.cameraPosition = cameraPosition
+        self.cameraOrientation = cameraOrientation
+        self.width = width
+        self.height = height
+        self.minimumVisiblePixels = minimumVisiblePixels
+    }
 }
 
 public enum MetalRoboPolicyActivation: UInt32, Sendable {
@@ -851,6 +923,84 @@ public final class MetalRoboTaskRolloutContext {
 
     public func clearPolicy() throws {
         guard mr_task_rollout_clear_policy(handle) == 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                Self.lastError()
+            )
+        }
+    }
+
+    public func attachVisualObservation(
+        _ configuration:
+            MetalRoboTaskVisualObservationConfiguration
+    ) throws {
+        guard !configuration.packs.isEmpty,
+              configuration.width > 0,
+              configuration.height > 0,
+              configuration.minimumVisiblePixels > 0
+        else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Visual observation requires packs and nonzero dimensions."
+            )
+        }
+        var strings: [String] = []
+        strings.reserveCapacity(
+            2 * configuration.packs.count + 1
+        )
+        for pack in configuration.packs {
+            strings.append(pack.url.path)
+            strings.append(pack.assetID)
+        }
+        strings.append(configuration.cameraParentBody)
+        let status = withUnsafeCStringBuffers(strings) {
+            pointers in
+            var nativePacks: [MRTaskVisualPackC] = []
+            nativePacks.reserveCapacity(configuration.packs.count)
+            for index in configuration.packs.indices {
+                var pack = MRTaskVisualPackC()
+                pack.path = pointers[2 * index]
+                pack.asset_id = pointers[2 * index + 1]
+                pack.semantic_id =
+                    configuration.packs[index].semanticID
+                pack.instance_id =
+                    configuration.packs[index].instanceID
+                nativePacks.append(pack)
+            }
+            return nativePacks.withUnsafeBufferPointer { packs in
+                withOptionalCString(
+                    configuration.environmentPackURL?.path
+                ) { environment in
+                    "sensor_fast".withCString { profile in
+                        var native =
+                            MRTaskVisualObservationConfigC()
+                        native.packs = packs.baseAddress
+                        native.pack_count = UInt32(packs.count)
+                        native.environment_pack_path = environment
+                        native.renderer_profile = profile
+                        native.camera_parent_body = pointers.last!
+                        native.camera_position = (
+                            configuration.cameraPosition.x,
+                            configuration.cameraPosition.y,
+                            configuration.cameraPosition.z
+                        )
+                        native.camera_orientation = (
+                            configuration.cameraOrientation.x,
+                            configuration.cameraOrientation.y,
+                            configuration.cameraOrientation.z,
+                            configuration.cameraOrientation.w
+                        )
+                        native.width = configuration.width
+                        native.height = configuration.height
+                        native.minimum_visible_pixels =
+                            configuration.minimumVisiblePixels
+                        return mr_task_rollout_attach_visual_observation(
+                            handle,
+                            &native
+                        )
+                    }
+                }
+            }
+        }
+        guard status == 0 else {
             throw MetalRoboTaskRolloutError.native(
                 Self.lastError()
             )

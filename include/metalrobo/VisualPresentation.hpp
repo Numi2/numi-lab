@@ -284,6 +284,7 @@ struct VisualAssetCookOptions {
     bool generateMipmaps = true;
     bool preserveVertexColors = true;
     std::map<std::string, std::uint32_t> linkBodyIndices;
+    std::map<std::string, std::uint32_t> rigidBodyIndices;
 };
 
 struct VisualAssetCookDiagnostics {

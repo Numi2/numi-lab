@@ -7076,6 +7076,62 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
     }
 }
 
+MetalHybridRendererDiagnostics MetalHybridObjectTracker::reset() {
+    MetalHybridRendererDiagnostics diagnostics{};
+    try {
+        if (state_ == nullptr || !state_->compiled ||
+            state_->renderer == nullptr || state_->device == nil ||
+            state_->history == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::notCompiled,
+                "object tracker is not compiled"
+            );
+        }
+        id<MTLCommandQueue> queue =
+            state_->renderer->state_->queue;
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLBlitCommandEncoder> clear =
+            [command blitCommandEncoder];
+        if (queue == nil || command == nil || clear == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalCommandFailure,
+                "could not begin object-track reset"
+            );
+        }
+        [clear fillBuffer:state_->history
+                    range:NSMakeRange(0u, state_->history.length)
+                    value:0u];
+        [clear endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        if (command.status != MTLCommandBufferStatusCompleted) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalCommandFailure,
+                "object-track reset command failed"
+            );
+        }
+        diagnostics.layout = state_->rendererLayout;
+        diagnostics.deviceName =
+            state_->renderer->state_->deviceName;
+        return diagnostics;
+    } catch (const std::exception& error) {
+        return reject(
+            std::move(diagnostics),
+            MetalHybridRendererStatus::internalFailure,
+            error.what()
+        );
+    } catch (...) {
+        return reject(
+            std::move(diagnostics),
+            MetalHybridRendererStatus::internalFailure,
+            "unknown object-track reset failure"
+        );
+    }
+}
+
 bool MetalHybridObjectTracker::encodeObservation(
     void* context,
     const MetalWorldDeviceObservationPass& pass

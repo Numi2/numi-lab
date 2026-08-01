@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -11,7 +12,9 @@ namespace {
 void usage() {
     std::cerr
         << "usage: metalrobo_visual_cook [--urdf] INPUT OUTPUT "
-           "[--id ID] [--license SPDX] [--provenance TEXT]\n";
+           "[--id ID] [--license SPDX] [--provenance TEXT] "
+           "[--link NAME=BODY_INDEX ...] "
+           "[--rigid NAME=BODY_INDEX ...]\n";
 }
 
 } // namespace
@@ -28,6 +31,36 @@ int main(int argc, char** argv) {
         const std::string_view argument{argv[index]};
         if (argument == "--urdf") {
             urdf = true;
+        } else if (argument == "--link" || argument == "--rigid") {
+            if (index + 1 >= argc) {
+                usage();
+                return 2;
+            }
+            const std::string binding{argv[++index]};
+            const std::size_t separator = binding.find('=');
+            if (separator == std::string::npos || separator == 0u ||
+                separator + 1u == binding.size()) {
+                usage();
+                return 2;
+            }
+            try {
+                const unsigned long body = std::stoul(
+                    binding.substr(separator + 1u)
+                );
+                if (body > std::numeric_limits<std::uint32_t>::max()) {
+                    throw std::out_of_range{"body index"};
+                }
+                auto& bindings = argument == "--link"
+                    ? options.linkBodyIndices
+                    : options.rigidBodyIndices;
+                bindings.emplace(
+                    binding.substr(0u, separator),
+                    static_cast<std::uint32_t>(body)
+                );
+            } catch (...) {
+                usage();
+                return 2;
+            }
         } else if (
             argument == "--id" ||
             argument == "--license" ||

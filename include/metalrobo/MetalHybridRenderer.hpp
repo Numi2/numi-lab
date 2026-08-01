@@ -357,6 +357,10 @@ public:
     [[nodiscard]] MetalWorldDeviceObservationProgram
     observationProgram() noexcept;
 
+    // Clears device-resident temporal tracks at an explicit simulator reset
+    // boundary. No observation plane is read back or reallocated.
+    [[nodiscard]] MetalHybridRendererDiagnostics reset();
+
 private:
     struct State;
     static bool encodeObservation(

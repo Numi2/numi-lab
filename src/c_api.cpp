@@ -14,6 +14,7 @@
 #include "metalrobo/Runtime.hpp"
 #include "metalrobo/RuntimeAbi.hpp"
 #include "metalrobo/RobotDescriptionCooker.hpp"
+#include "metalrobo/VisualPlatform.hpp"
 #include "metalrobo/WorldPack.hpp"
 
 #include <cstring>
@@ -28,11 +29,14 @@
 #include <limits>
 #include <memory>
 #include <numeric>
+#include <ranges>
 #include <span>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -70,6 +74,15 @@ struct MRTactileHandle {
     double lastObserveMilliseconds = 0.0;
 };
 
+struct MRTaskVisualRuntime {
+    metalrobo::WorldTemplate worldTemplate;
+    metalrobo::WorldFamily family;
+    metalrobo::MetalWorldFamilyContext worlds;
+    metalrobo::MetalHybridRenderer renderer;
+    metalrobo::MetalHybridObjectTracker tracker;
+    std::uint64_t sceneFingerprint = 0u;
+};
+
 struct MRTaskRolloutHandle {
     explicit MRTaskRolloutHandle(
         metalrobo::MetalWorldConfig config
@@ -89,7 +102,9 @@ struct MRTaskRolloutHandle {
     metalrobo::MetalWorldResult result;
     std::vector<std::uint32_t> statusCodes;
     std::vector<std::uint32_t> activeContacts;
+    std::unique_ptr<MRTaskVisualRuntime> visualRuntime;
     std::string deviceName;
+    std::string metallibPath;
     std::uint32_t environmentCount = 0u;
     std::uint64_t submittedControlSteps = 0u;
     std::uint64_t completedEnvironmentSteps = 0u;
@@ -453,6 +468,27 @@ void resetTaskRolloutState(
     handle.stepConfig.taskSeed = seed;
     handle.residentState =
         metalrobo::MetalWorldResidentState{};
+    if (handle.visualRuntime != nullptr) {
+        const auto sampled = handle.visualRuntime->worlds.sample(
+            handle.environmentCount,
+            seed
+        );
+        if (!sampled.succeeded()) {
+            throw std::runtime_error(
+                std::string{"visual WorldFamily reset failed ["} +
+                metalrobo::metalWorldFamilyStatusName(sampled.status) +
+                "]: " + sampled.message
+            );
+        }
+        const auto tracker = handle.visualRuntime->tracker.reset();
+        if (!tracker.succeeded()) {
+            throw std::runtime_error(
+                std::string{"visual tracker reset failed ["} +
+                metalrobo::metalHybridRendererStatusName(tracker.status) +
+                "]: " + tracker.message
+            );
+        }
+    }
     handle.resetMasks.clear();
     handle.result = {};
     handle.statusCodes.clear();
@@ -563,6 +599,9 @@ createCompiledTaskRollout(
         std::make_unique<MRTaskRolloutHandle>(
             std::move(worldConfig)
         );
+    if (metallibPath != nullptr && metallibPath[0] != '\0') {
+        handle->metallibPath = metallibPath;
+    }
 
     metalrobo::CompiledLocomotionWorld compiled;
     const metalrobo::LocomotionWorldCompileDiagnostics
@@ -788,6 +827,490 @@ void installPolicyPack(
         );
     }
     handle.stepConfig.policyProgram = std::move(compiled);
+}
+
+std::runtime_error worldFamilyError(
+    const char* operation,
+    const metalrobo::MetalWorldFamilyDiagnostics& diagnostics
+);
+
+metalrobo::WorldAsset makeRolloutVisualAsset(
+    const MRTaskRolloutHandle& handle,
+    const std::string& id,
+    const std::vector<std::uint32_t>& bodies,
+    const std::uint32_t role,
+    const std::uint32_t render,
+    const std::uint32_t dynamics,
+    const std::uint32_t articulationIndex = MR_INVALID_INDEX
+) {
+    metalrobo::WorldAsset asset;
+    asset.id = id;
+    asset.semanticClass = id;
+    asset.role = static_cast<MRWorldAssetRole>(role);
+    asset.render = static_cast<MRWorldRenderRepresentation>(render);
+    asset.collision = MR_WORLD_COLLISION_PRIMITIVES;
+    asset.dynamics =
+        static_cast<MRWorldDynamicsRepresentation>(dynamics);
+    asset.articulationIndex = articulationIndex;
+    asset.bodyIndices = bodies;
+    std::unordered_set<std::uint32_t> materials;
+    for (std::uint32_t shape = 0u;
+         shape < handle.model.shapes.size();
+         ++shape) {
+        if (std::ranges::find(
+                bodies,
+                handle.model.shapes[shape].bodyIndex
+            ) == bodies.end()) {
+            continue;
+        }
+        asset.shapeIndices.push_back(shape);
+        materials.insert(handle.model.shapes[shape].materialIndex);
+    }
+    asset.materialIndices.assign(materials.begin(), materials.end());
+    std::ranges::sort(asset.materialIndices);
+    return asset;
+}
+
+std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
+    MRTaskRolloutHandle& handle,
+    const MRTaskVisualObservationConfigC& config
+) {
+    if (config.packs == nullptr || config.pack_count == 0u ||
+        config.camera_parent_body == nullptr ||
+        config.camera_parent_body[0] == '\0' ||
+        config.width == 0u || config.height == 0u ||
+        config.minimum_visible_pixels == 0u) {
+        throw std::invalid_argument(
+            "visual observation packs, head camera, and dimensions are required"
+        );
+    }
+    const std::string selectedProfile =
+        config.renderer_profile == nullptr ||
+            config.renderer_profile[0] == '\0'
+        ? "sensor_fast"
+        : config.renderer_profile;
+    if (selectedProfile != "sensor_fast") {
+        throw std::invalid_argument(
+            "closed-loop visual observation currently requires sensor_fast"
+        );
+    }
+
+    const auto parentBody = std::ranges::find(
+        handle.model.bodyNames,
+        config.camera_parent_body
+    );
+    if (parentBody == handle.model.bodyNames.end()) {
+        throw std::invalid_argument(
+            "head-camera parent body is not present in the compiled world"
+        );
+    }
+    const std::uint32_t parentBodyIndex =
+        static_cast<std::uint32_t>(
+            parentBody - handle.model.bodyNames.begin()
+        );
+    if (handle.model.bodies[parentBodyIndex].articulationIndex ==
+        MR_INVALID_INDEX) {
+        throw std::invalid_argument(
+            "head camera must be attached to an articulated link"
+        );
+    }
+
+    const auto sceneIndices = handle.world.sceneBodyIndices();
+    std::map<std::uint32_t, std::uint32_t> trackedOffsets;
+    std::map<std::uint32_t, float> positionScales;
+    std::map<std::uint32_t, float> velocityScales;
+    const auto actorOperators = handle.taskProgram.actorOperators();
+    for (std::uint32_t offset = 0u;
+         offset < actorOperators.size();
+         ++offset) {
+        const MRTaskObservationOperatorGPU& operation =
+            actorOperators[offset];
+        if (operation.source.x != MR_TASK_OBSERVE_OBJECT_TRACK) {
+            continue;
+        }
+        if (operation.source.y >= sceneIndices.size()) {
+            throw std::logic_error(
+                "compiled object-track scene index is invalid"
+            );
+        }
+        if (operation.source.z == 0u) {
+            trackedOffsets.emplace(operation.source.y, offset);
+        } else if (operation.source.z == 1u) {
+            positionScales.emplace(
+                operation.source.y,
+                operation.transform.x
+            );
+        } else if (operation.source.z == 4u) {
+            velocityScales.emplace(
+                operation.source.y,
+                operation.transform.x
+            );
+        }
+    }
+    if (trackedOffsets.empty()) {
+        throw std::invalid_argument(
+            "TaskPack has no object-track actor observations"
+        );
+    }
+
+    metalrobo::EpisodeTwin episode;
+    episode.id = handle.model.name + ".visual_rollout";
+    std::vector<std::uint32_t> articulatedBodies;
+    for (std::uint32_t body = 0u;
+         body < handle.model.bodies.size();
+         ++body) {
+        if (handle.model.bodies[body].articulationIndex !=
+            MR_INVALID_INDEX) {
+            articulatedBodies.push_back(body);
+        }
+    }
+    episode.assets.push_back(makeRolloutVisualAsset(
+        handle,
+        "robot",
+        articulatedBodies,
+        MR_WORLD_ASSET_ROBOT,
+        MR_WORLD_RENDER_MESH_PBR,
+        MR_WORLD_DYNAMICS_ARTICULATED,
+        handle.model.bodies[parentBodyIndex].articulationIndex
+    ));
+
+    std::string manipulatedAsset;
+    std::string targetAsset;
+    for (std::uint32_t local = 0u;
+         local < sceneIndices.size();
+         ++local) {
+        const std::uint32_t body = sceneIndices[local];
+        const std::string& id = handle.model.bodyNames[body];
+        const std::uint32_t motion = handle.model.bodies[body].motionType;
+        const bool tracked = trackedOffsets.contains(local);
+        const std::uint32_t role = tracked && manipulatedAsset.empty()
+            ? MR_WORLD_ASSET_MANIPULATED
+            : motion == MR_MOTION_STATIC
+                ? MR_WORLD_ASSET_FIXTURE
+                : MR_WORLD_ASSET_CLUTTER;
+        const std::uint32_t dynamics = motion == MR_MOTION_STATIC
+            ? MR_WORLD_DYNAMICS_STATIC
+            : motion == MR_MOTION_KINEMATIC
+                ? MR_WORLD_DYNAMICS_KINEMATIC
+                : MR_WORLD_DYNAMICS_RIGID;
+        metalrobo::WorldAsset asset = makeRolloutVisualAsset(
+            handle,
+            id,
+            {body},
+            role,
+            tracked ? MR_WORLD_RENDER_MESH_PBR : MR_WORLD_RENDER_NONE,
+            dynamics
+        );
+        if (tracked) {
+            const auto sphereShape = std::ranges::find_if(
+                asset.shapeIndices,
+                [&](const std::uint32_t shape) {
+                    return handle.model.shapes[shape].shapeType ==
+                        MR_SHAPE_SPHERE;
+                }
+            );
+            if (sphereShape != asset.shapeIndices.end()) {
+                // The bundled visual sphere is unit radius; imported tracked
+                // assets retain their authored presentation scale.
+                asset.uniformScale =
+                    handle.model.shapes[*sphereShape].dimensions.x;
+            }
+        }
+        if (local < handle.defaultSceneBodies.size()) {
+            const MRBodyStateGPU& state =
+                handle.defaultSceneBodies[local];
+            asset.initialPose.position = {
+                state.position.x,
+                state.position.y,
+                state.position.z,
+                0.0f,
+            };
+            asset.initialPose.orientation = state.orientation;
+        }
+        if (role == MR_WORLD_ASSET_MANIPULATED) {
+            manipulatedAsset = id;
+        }
+        if (motion == MR_MOTION_STATIC && targetAsset.empty()) {
+            targetAsset = id;
+            asset.anchors.push_back({
+                "visual_rollout_target",
+                {},
+                0.0f,
+                0u,
+            });
+        }
+        episode.assets.push_back(std::move(asset));
+    }
+    if (manipulatedAsset.empty() || targetAsset.empty()) {
+        throw std::invalid_argument(
+            "visual object tracking requires a tracked rigid object and static scene asset"
+        );
+    }
+
+    metalrobo::SensorSpec camera;
+    camera.id = "head_rgbd";
+    camera.parentAssetId = "robot";
+    camera.parentKind = MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
+    camera.parentBodyIndex = parentBodyIndex;
+    camera.kind = MR_WORLD_SENSOR_RGBD;
+    camera.localPose.position = {
+        config.camera_position[0],
+        config.camera_position[1],
+        config.camera_position[2],
+        0.0f,
+    };
+    camera.localPose.orientation = {
+        config.camera_orientation[0],
+        config.camera_orientation[1],
+        config.camera_orientation[2],
+        config.camera_orientation[3],
+    };
+    camera.width = config.width;
+    camera.height = config.height;
+    camera.intrinsics = {
+        0.875f * static_cast<float>(config.width),
+        0.875f * static_cast<float>(config.width),
+        0.5f * static_cast<float>(config.width),
+        0.5f * static_cast<float>(config.height),
+    };
+    camera.nominalRateHz = 50.0f;
+    camera.exposureSeconds = 1.0f / 240.0f;
+    camera.minimumDepthMeters = 0.05f;
+    camera.maximumDepthMeters = 8.0f;
+    episode.sensors.push_back(std::move(camera));
+    episode.task = {
+        "visual_ball_stability",
+        "robot",
+        manipulatedAsset,
+        targetAsset,
+        "visual_rollout_target",
+        handle.stepConfig.timestepSeconds,
+        20.0,
+    };
+
+    auto runtime = std::make_unique<MRTaskVisualRuntime>();
+    const metalrobo::WorldCompileResult worldStatus =
+        metalrobo::compileEpisodeTwin(
+            episode,
+            handle.model,
+            runtime->worldTemplate
+        );
+    if (!worldStatus.succeeded()) {
+        throw std::runtime_error(
+            "visual WorldTemplate compile failed: " +
+            worldStatus.message
+        );
+    }
+    metalrobo::WorldProgram program;
+    program.id = episode.id + ".program";
+    const metalrobo::WorldCompileResult familyStatus =
+        metalrobo::compileWorldFamily(
+            runtime->worldTemplate,
+            program,
+            runtime->family
+        );
+    if (!familyStatus.succeeded()) {
+        throw std::runtime_error(
+            "visual WorldFamily compile failed: " +
+            familyStatus.message
+        );
+    }
+
+    std::vector<metalrobo::VisualAssetReferenceV3> references;
+    references.reserve(config.pack_count);
+    std::unordered_map<std::string, std::uint32_t> trackedInstances;
+    for (std::uint32_t index = 0u;
+         index < config.pack_count;
+         ++index) {
+        const MRTaskVisualPackC& source = config.packs[index];
+        if (source.path == nullptr || source.path[0] == '\0' ||
+            source.asset_id == nullptr || source.asset_id[0] == '\0' ||
+            source.semantic_id == 0u ||
+            source.semantic_id == MR_INVALID_INDEX ||
+            source.instance_id == 0u ||
+            source.instance_id == MR_INVALID_INDEX) {
+            throw std::invalid_argument(
+                "visual pack binding is incomplete"
+            );
+        }
+        const std::uint32_t assetIndex =
+            runtime->worldTemplate.assetIndex(source.asset_id);
+        if (assetIndex == MR_INVALID_INDEX) {
+            throw std::invalid_argument(
+                std::string{"visual pack references unknown asset: "} +
+                source.asset_id
+            );
+        }
+        metalrobo::VisualAssetPackV2 pack;
+        std::string reason;
+        if (!metalrobo::readVisualAssetPackIndex(
+                source.path,
+                pack,
+                &reason
+            )) {
+            throw std::runtime_error(
+                "visual pack load failed: " + reason
+            );
+        }
+        references.push_back({
+            source.path,
+            pack.contentHash,
+            assetIndex,
+            source.semantic_id,
+            source.instance_id,
+        });
+        const auto sceneName = std::ranges::find(
+            handle.model.bodyNames,
+            source.asset_id
+        );
+        if (sceneName != handle.model.bodyNames.end()) {
+            const std::uint32_t body =
+                static_cast<std::uint32_t>(
+                    sceneName - handle.model.bodyNames.begin()
+                );
+            const auto local = std::ranges::find(sceneIndices, body);
+            if (local != sceneIndices.end() &&
+                trackedOffsets.contains(
+                    static_cast<std::uint32_t>(
+                        local - sceneIndices.begin()
+                    )
+                )) {
+                const bool rigidBound = std::ranges::any_of(
+                    pack.symbolicBindings,
+                    [&](const metalrobo::VisualSymbolicBindingV2& binding) {
+                        return binding.bodyIndex == body &&
+                            binding.binding ==
+                                MR_VISUAL_BINDING_RIGID_BODY;
+                    }
+                );
+                if (!rigidBound) {
+                    throw std::invalid_argument(
+                        std::string{
+                            "tracked visual pack is not bound to physics body: "
+                        } + source.asset_id
+                    );
+                }
+                trackedInstances[source.asset_id] = source.instance_id;
+            }
+        }
+    }
+
+    metalrobo::VisualEnvironmentReferenceV2 environment =
+        metalrobo::makeNeutralStudioEnvironmentV2();
+    if (config.environment_pack_path != nullptr &&
+        config.environment_pack_path[0] != '\0') {
+        metalrobo::VisualEnvironmentPackV2 pack;
+        std::string reason;
+        if (!metalrobo::readVisualEnvironmentPackIndex(
+                config.environment_pack_path,
+                pack,
+                &reason
+            )) {
+            throw std::runtime_error(
+                "visual environment pack load failed: " + reason
+            );
+        }
+        environment.id = pack.id;
+        environment.packPath = config.environment_pack_path;
+        environment.contentHash = pack.contentHash;
+    }
+    metalrobo::VisualSceneManifestV3 manifest;
+    std::string reason;
+    if (!metalrobo::compileVisualSceneManifestV3(
+            runtime->worldTemplate,
+            references,
+            environment,
+            metalrobo::makeIndoorAreaLightRigV1(),
+            manifest,
+            &reason
+        )) {
+        throw std::runtime_error(
+            "visual scene compile failed: " + reason
+        );
+    }
+
+    metalrobo::MetalWorldFamilyConfig familyConfig;
+    familyConfig.metallibPath = handle.metallibPath;
+    runtime->worlds = metalrobo::MetalWorldFamilyContext{
+        std::move(familyConfig)
+    };
+    const auto metalFamily = runtime->worlds.compile(
+        runtime->family,
+        handle.environmentCount
+    );
+    if (!metalFamily.succeeded()) {
+        throw worldFamilyError("visual WorldFamily Metal compile", metalFamily);
+    }
+    const auto sampled = runtime->worlds.sample(
+        handle.environmentCount,
+        handle.stepConfig.taskSeed
+    );
+    if (!sampled.succeeded()) {
+        throw worldFamilyError("visual WorldFamily sample", sampled);
+    }
+
+    metalrobo::MetalHybridRendererConfig rendererConfig;
+    rendererConfig.metallibPath = handle.metallibPath;
+    rendererConfig.width = config.width;
+    rendererConfig.height = config.height;
+    rendererConfig.retainObservationBuffers = true;
+    runtime->renderer = metalrobo::MetalHybridRenderer{
+        std::move(rendererConfig)
+    };
+    const auto rendered = runtime->renderer.compile(
+        std::move(manifest.renderScene),
+        metalrobo::VisualRendererProfileV1::sensorFast(),
+        handle.environmentCount
+    );
+    if (!rendered.succeeded()) {
+        throw std::runtime_error(
+            std::string{"visual renderer compile failed ["} +
+            metalrobo::metalHybridRendererStatusName(rendered.status) +
+            "]: " + rendered.message
+        );
+    }
+
+    metalrobo::MetalHybridObjectTrackerConfig trackerConfig;
+    trackerConfig.capacity = handle.environmentCount;
+    trackerConfig.cameraIndex = 0u;
+    trackerConfig.rootBodyIndex =
+        handle.model.articulations[handle.world.articulationIndex()].rootBody;
+    trackerConfig.maximumActorHistoryLength =
+        handle.taskProgram.layout().actorHistoryLength;
+    trackerConfig.timestepSeconds = handle.stepConfig.timestepSeconds;
+    for (const auto& [sceneIndex, offset] : trackedOffsets) {
+        const std::string& assetId =
+            handle.model.bodyNames[sceneIndices[sceneIndex]];
+        const auto instance = trackedInstances.find(assetId);
+        if (instance == trackedInstances.end() ||
+            !positionScales.contains(sceneIndex) ||
+            !velocityScales.contains(sceneIndex)) {
+            throw std::invalid_argument(
+                "every TaskPack object track requires one authored visual pack binding"
+            );
+        }
+        trackerConfig.bindings.push_back({
+            .instanceId = instance->second,
+            .actorFrameOffset = offset,
+            .positionScale = positionScales[sceneIndex],
+            .velocityScale = velocityScales[sceneIndex],
+            .minimumVisiblePixels = config.minimum_visible_pixels,
+        });
+    }
+    const auto trackerStatus = runtime->tracker.compile(
+        runtime->renderer,
+        runtime->worlds,
+        std::move(trackerConfig)
+    );
+    if (!trackerStatus.succeeded()) {
+        throw std::runtime_error(
+            std::string{"visual tracker compile failed ["} +
+            metalrobo::metalHybridRendererStatusName(trackerStatus.status) +
+            "]: " + trackerStatus.message
+        );
+    }
+    runtime->sceneFingerprint = manifest.fingerprint;
+    return runtime;
 }
 
 std::runtime_error worldFamilyError(
@@ -1362,6 +1885,37 @@ int mr_task_rollout_clear_policy(
     handle->stepConfig.policyProgram = {};
     gLastError.clear();
     return 0;
+}
+
+int mr_task_rollout_attach_visual_observation(
+    MRTaskRolloutHandle* handle,
+    const MRTaskVisualObservationConfigC* config
+) {
+    if (!requireTaskRolloutHandle(handle)) {
+        return -1;
+    }
+    if (config == nullptr) {
+        gLastError = "visual observation configuration is null.";
+        return -1;
+    }
+    return translateErrors([&] {
+        if (handle->residentState.valid()) {
+            throw std::logic_error(
+                "visual observation must be attached before resident initialization"
+            );
+        }
+        std::unique_ptr<MRTaskVisualRuntime> candidate =
+            compileTaskVisualRuntime(*handle, *config);
+        const metalrobo::MetalWorldDeviceObservationProgram program =
+            candidate->tracker.observationProgram();
+        if (!program.valid()) {
+            throw std::runtime_error(
+                "compiled visual observation program is invalid"
+            );
+        }
+        handle->visualRuntime = std::move(candidate);
+        handle->stepConfig.deviceObservationProgram = program;
+    });
 }
 
 int mr_task_rollout_set_state_readback(
