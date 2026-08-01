@@ -1342,6 +1342,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     rendererConfig.width = config.width;
     rendererConfig.height = config.height;
     rendererConfig.retainObservationBuffers = true;
+    rendererConfig.geometricObservationsOnly = true;
     if (config.maximum_retained_bytes != 0u) {
         if (config.maximum_retained_bytes >
             std::numeric_limits<std::size_t>::max()) {

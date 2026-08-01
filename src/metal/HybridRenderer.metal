@@ -4477,6 +4477,74 @@ kernel void mr_hybrid_composite_mesh(
     );
 }
 
+// Closed-loop geometric observations already have the exact raster winner.
+// Scenes with alpha-masked materials retain the general compositor; every
+// other scene can publish depth and identity without reconstructing surface
+// shading, normals, motion, or material texture samples.
+kernel void mr_hybrid_composite_geometric_observations(
+    const device MRVisualTriangleGPUV2* triangles [[buffer(0)]],
+    const device MRVisualPrimitiveGPUV2* primitives [[buffer(1)]],
+    const device MRVisualInstanceGPUV2* visualInstances [[buffer(2)]],
+    const device MRWorldInstanceHeaderGPU* instances [[buffer(3)]],
+    const device MRWorldSensorInstanceGPU* sensors [[buffer(4)]],
+    const device ulong* winners [[buffer(5)]],
+    device float4* rgb [[buffer(6)]],
+    device float* depth [[buffer(7)]],
+    device uint4* identities [[buffer(8)]],
+    device uint* validity [[buffer(9)]],
+    constant MRHybridRenderUniformsGPU& uniforms [[buffer(10)]],
+    const uint batchPixel [[thread_position_in_grid]]
+) {
+    const uint batchPixelCount =
+        uniforms.shadowBatch.y *
+        bandPixelCountPerEnvironment(uniforms);
+    if (batchPixel >= batchPixelCount) {
+        return;
+    }
+    const uint pixel = globalPixelFromBandIndex(
+        batchPixel,
+        uniforms.shadowBatch.x,
+        uniforms
+    );
+    const ulong winner = winners[pixel];
+    const uint triangleIndex = uint(winner);
+    if (triangleIndex != 0xffffffffu &&
+        triangleIndex < uniforms.live.w) {
+        const float meshDepth = as_type<float>(uint(winner >> 32u));
+        if (meshDepth < depth[pixel]) {
+            const MRVisualTriangleGPUV2 triangle = triangles[triangleIndex];
+            const MRVisualPrimitiveGPUV2 primitive =
+                primitives[triangle.verticesAndPrimitive.w];
+            const MRVisualInstanceGPUV2 visualInstance =
+                visualInstances[primitive.geometry.w];
+            uint4 identity = primitive.identity;
+            if (visualInstance.identity.x != 0u) {
+                identity.x = visualInstance.identity.x;
+            }
+            if (visualInstance.identity.y != 0u) {
+                identity.y = visualInstance.identity.y;
+            }
+            if (visualInstance.identity.z != MR_INVALID_INDEX) {
+                identity.z = visualInstance.identity.z;
+            }
+            depth[pixel] = meshDepth;
+            identities[pixel] = identity;
+            validity[pixel] =
+                MR_VISUAL_VALIDITY_FRAME |
+                MR_VISUAL_VALIDITY_GEOMETRY;
+        }
+    }
+    applySensorMeasurementIfRequested(
+        instances,
+        sensors,
+        rgb,
+        depth,
+        validity,
+        uniforms,
+        pixel
+    );
+}
+
 kernel void mr_hybrid_prepare_ray_instances(
     const device MRVisualInstanceGPUV2* visualInstances [[buffer(0)]],
     const device uint* visibleInstances [[buffer(1)]],

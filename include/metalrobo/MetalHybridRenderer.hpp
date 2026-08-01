@@ -38,6 +38,11 @@ struct MetalHybridRendererConfig {
     // planes avoids keeping a second capacity-sized copy of every image in
     // unified memory. Standalone render/readback is unavailable in that mode.
     bool retainObservationBuffers = true;
+    // Closed-loop geometry consumers require calibrated visibility, depth,
+    // identity, and sensor response but do not consume shaded color. Omit
+    // shadow-atlas and PBR work without changing authored presentation
+    // geometry.
+    bool geometricObservationsOnly = false;
     // Hard bounds on unified-memory retention. Compilation rejects an
     // oversized profile before asking Metal for any large allocation.
     std::size_t maximumRetainedBytes = 2ull * 1024ull * 1024ull * 1024ull;

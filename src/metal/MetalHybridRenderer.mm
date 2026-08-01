@@ -879,6 +879,7 @@ struct MetalHybridRendererState {
     bool initialized = false;
     bool compiled = false;
     bool requiresLiveState = false;
+    bool geometricCompositeEligible = false;
     __strong id<MTLDevice> device = nil;
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
@@ -898,6 +899,7 @@ struct MetalHybridRendererState {
     __strong id<MTLComputePipelineState> binMeshPipeline = nil;
     __strong id<MTLComputePipelineState> resolveMeshTilesPipeline = nil;
     __strong id<MTLComputePipelineState> compositeMeshPipeline = nil;
+    __strong id<MTLComputePipelineState> geometricCompositePipeline = nil;
     __strong id<MTLComputePipelineState> clearShadowPipeline = nil;
     __strong id<MTLComputePipelineState> rasterShadowPipeline = nil;
     __strong id<MTLComputePipelineState> clearAccumulationPipeline = nil;
@@ -1030,6 +1032,8 @@ MetalHybridRendererDiagnostics initialize(
         pipeline(@"mr_hybrid_resolve_mesh_tiles");
     state.compositeMeshPipeline =
         pipeline(@"mr_hybrid_composite_mesh");
+    state.geometricCompositePipeline =
+        pipeline(@"mr_hybrid_composite_geometric_observations");
     state.clearShadowPipeline =
         pipeline(@"mr_hybrid_clear_shadow_atlas");
     state.rasterShadowPipeline =
@@ -1065,6 +1069,7 @@ MetalHybridRendererDiagnostics initialize(
         state.binMeshPipeline == nil ||
         state.resolveMeshTilesPipeline == nil ||
         state.compositeMeshPipeline == nil ||
+        state.geometricCompositePipeline == nil ||
         state.clearShadowPipeline == nil ||
         state.rasterShadowPipeline == nil ||
         state.clearAccumulationPipeline == nil ||
@@ -3707,48 +3712,73 @@ MetalHybridRendererDiagnostics encodeLocked(
                 );
             }
 
-            encoder.setPipeline(state.compositeMeshPipeline);
-            id<MTLBuffer> __unsafe_unretained compositeBuffers[] = {
-                state.buffers.meshVertices,
-                state.buffers.meshTriangles,
-                state.buffers.meshPrimitives,
-                state.buffers.meshInstances,
-                state.buffers.materials,
-                instances,
-                nil,
-                sensors,
-                appearances,
-                state.buffers.cameraStates,
-                nil,
-                nil,
-                state.buffers.meshWinners,
-                rgbOutput,
-                depthOutput,
-                segmentationOutput,
-                identitiesOutput,
-                normalsOutput,
-                motionOutput,
-                validityOutput,
-                state.buffers.textureBindings,
-                state.buffers.resourceArgumentBuffer,
-                state.buffers.lights,
-                state.buffers.environmentData,
-                state.buffers.shadowAtlas,
-            };
-            const NSUInteger compositeOffsets[
-                std::size(compositeBuffers)
-            ] = {};
-            encoder.setBuffers(
-                compositeBuffers,
-                compositeOffsets,
-                0u
-            );
-            encoder.setBytes(&uniforms, sizeof(uniforms), 25u);
-            encoder.setBuffer(
-                state.buffers.visualInstanceStates,
-                0u,
-                26u
-            );
+            if (state.geometricCompositeEligible) {
+                encoder.setPipeline(state.geometricCompositePipeline);
+                id<MTLBuffer> __unsafe_unretained geometricBuffers[] = {
+                    state.buffers.meshTriangles,
+                    state.buffers.meshPrimitives,
+                    state.buffers.meshInstances,
+                    instances,
+                    sensors,
+                    state.buffers.meshWinners,
+                    rgbOutput,
+                    depthOutput,
+                    identitiesOutput,
+                    validityOutput,
+                };
+                const NSUInteger geometricOffsets[
+                    std::size(geometricBuffers)
+                ] = {};
+                encoder.setBuffers(
+                    geometricBuffers,
+                    geometricOffsets,
+                    0u
+                );
+                encoder.setBytes(&uniforms, sizeof(uniforms), 10u);
+            } else {
+                encoder.setPipeline(state.compositeMeshPipeline);
+                id<MTLBuffer> __unsafe_unretained compositeBuffers[] = {
+                    state.buffers.meshVertices,
+                    state.buffers.meshTriangles,
+                    state.buffers.meshPrimitives,
+                    state.buffers.meshInstances,
+                    state.buffers.materials,
+                    instances,
+                    nil,
+                    sensors,
+                    appearances,
+                    state.buffers.cameraStates,
+                    nil,
+                    nil,
+                    state.buffers.meshWinners,
+                    rgbOutput,
+                    depthOutput,
+                    segmentationOutput,
+                    identitiesOutput,
+                    normalsOutput,
+                    motionOutput,
+                    validityOutput,
+                    state.buffers.textureBindings,
+                    state.buffers.resourceArgumentBuffer,
+                    state.buffers.lights,
+                    state.buffers.environmentData,
+                    state.buffers.shadowAtlas,
+                };
+                const NSUInteger compositeOffsets[
+                    std::size(compositeBuffers)
+                ] = {};
+                encoder.setBuffers(
+                    compositeBuffers,
+                    compositeOffsets,
+                    0u
+                );
+                encoder.setBytes(&uniforms, sizeof(uniforms), 25u);
+                encoder.setBuffer(
+                    state.buffers.visualInstanceStates,
+                    0u,
+                    26u
+                );
+            }
             encoder.dispatchThreads(
                 static_cast<NSUInteger>(batchCount) *
                     bandPixelsPerEnvironment,
@@ -3830,15 +3860,23 @@ MetalHybridRendererDiagnostics encodeLocked(
         profile.timing.y,
         profile.timing.z,
     };
-    state.activeMetadata.contract = {
-        MR_VISUAL_MODALITY_RGB |
+    const std::uint32_t modalities =
+        state.config.geometricObservationsOnly
+        ? MR_VISUAL_MODALITY_DEPTH |
+            MR_VISUAL_MODALITY_DEPTH_VALIDITY |
+            MR_VISUAL_MODALITY_SEMANTIC |
+            MR_VISUAL_MODALITY_INSTANCE |
+            MR_VISUAL_MODALITY_LINK
+        : MR_VISUAL_MODALITY_RGB |
             MR_VISUAL_MODALITY_DEPTH |
             MR_VISUAL_MODALITY_DEPTH_VALIDITY |
             MR_VISUAL_MODALITY_NORMAL |
             MR_VISUAL_MODALITY_MOTION |
             MR_VISUAL_MODALITY_SEMANTIC |
             MR_VISUAL_MODALITY_INSTANCE |
-            MR_VISUAL_MODALITY_LINK,
+            MR_VISUAL_MODALITY_LINK;
+    state.activeMetadata.contract = {
+        modalities,
         MR_VISUAL_FRAME_CAMERA,
         MR_VISUAL_PLATFORM_ABI_VERSION,
         0u,
@@ -4445,6 +4483,14 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
                 std::move(reason)
             );
         }
+        state_->geometricCompositeEligible =
+            state_->config.geometricObservationsOnly &&
+            std::ranges::none_of(
+                runtime.materials,
+                [](const MRVisualMaterialGPUV2& material) {
+                    return material.flags.x == MR_VISUAL_ALPHA_MASK;
+                }
+            );
         std::uint32_t shadowLightIndex = MR_INVALID_INDEX;
         std::uint32_t shadowLightPriority = 0u;
         for (std::uint32_t lightIndex = 0u;
@@ -4767,6 +4813,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
         }
         const bool usesShadowAtlas =
             !profile.rayQueryVisibility &&
+            !state_->config.geometricObservationsOnly &&
             runtime.indexCount != 0u &&
             shadowLightIndex != MR_INVALID_INDEX &&
             profile.shadowMapResolution != 0u;
@@ -6013,6 +6060,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encode(
         EncodePassOptions options;
         options.currentBodyOffset = liveState.currentBodyOffset;
         options.previousBodyOffset = liveState.previousBodyOffset;
+        options.truthOnly = state_->config.geometricObservationsOnly;
         return encodeLocked(
             *state_,
             worlds,
@@ -7363,21 +7411,21 @@ bool MetalHybridObjectTracker::encodeObservation(
             double(pass.controlStep) * state->config.timestepSeconds,
         .frameAgeSeconds = 0.0,
     };
+    id<MTLComputeCommandEncoder> observationEncoder =
+        [command computeCommandEncoder];
+    if (observationEncoder == nil) {
+        return false;
+    }
     if (sampleSensor) {
-        id<MTLComputeCommandEncoder> renderEncoder =
-            [command computeCommandEncoder];
-        if (renderEncoder == nil) {
-            return false;
-        }
         const MetalHybridRendererDiagnostics rendered =
             state->renderer->encode(
                 *state->worlds,
                 liveState,
                 state->config.cameraIndex,
-                (__bridge void*)renderEncoder
+                (__bridge void*)observationEncoder
             );
-        [renderEncoder endEncoding];
         if (!rendered.succeeded()) {
+            [observationEncoder endEncoding];
             return false;
         }
         state->lastSensorSequence = sensorSequence;
@@ -7409,6 +7457,7 @@ bool MetalHybridObjectTracker::encodeObservation(
     if (depth == nil || identities == nil || validity == nil ||
         cameraStates == nil || instanceHeaders == nil ||
         sensorInstances == nil) {
+        [observationEncoder endEncoding];
         return false;
     }
     const std::uint64_t outputOffset =
@@ -7446,13 +7495,9 @@ bool MetalHybridObjectTracker::encodeObservation(
         },
     };
     if (!state->config.bindings.empty()) {
-        id<MTLComputeCommandEncoder> reduce =
-            [command computeCommandEncoder];
-        if (reduce == nil) {
-            return false;
-        }
-        reduce.label = @"MetalRobo RGB-D object track reduction";
-        [reduce setComputePipelineState:state->pipeline];
+        observationEncoder.label =
+            @"MetalRobo RGB-D object track reduction";
+        [observationEncoder setComputePipelineState:state->pipeline];
         const std::array<id<MTLBuffer>, 12u> buffers{{
             depth,
             identities,
@@ -7468,18 +7513,24 @@ bool MetalHybridObjectTracker::encodeObservation(
             sensorInstances,
         }};
         for (NSUInteger index = 0u; index < buffers.size(); ++index) {
-            [reduce setBuffer:buffers[index] offset:0u atIndex:index];
+            [observationEncoder
+                setBuffer:buffers[index]
+                   offset:0u
+                  atIndex:index];
         }
-        [reduce setBytes:&uniforms length:sizeof(uniforms) atIndex:12u];
+        [observationEncoder
+            setBytes:&uniforms
+              length:sizeof(uniforms)
+             atIndex:12u];
         const NSUInteger threads =
             pass.environmentCount * state->config.bindings.size();
         const NSUInteger width = std::min<NSUInteger>(
             state->pipeline.maxTotalThreadsPerThreadgroup,
             256u
         );
-        [reduce dispatchThreadgroups:MTLSizeMake(threads, 1u, 1u)
+        [observationEncoder
+            dispatchThreadgroups:MTLSizeMake(threads, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
-        [reduce endEncoding];
     }
     if (maskedDepth) {
         const auto& offsets =
@@ -7539,13 +7590,9 @@ bool MetalHybridObjectTracker::encodeObservation(
                 0.0f,
             },
         };
-        id<MTLComputeCommandEncoder> mask =
-            [command computeCommandEncoder];
-        if (mask == nil) {
-            return false;
-        }
-        mask.label = @"MetalRobo masked depth history";
-        [mask setComputePipelineState:state->maskedDepthPipeline];
+        observationEncoder.label = @"MetalRobo masked depth history";
+        [observationEncoder
+            setComputePipelineState:state->maskedDepthPipeline];
         const std::array<id<MTLBuffer>, 9u> buffers{{
             depth,
             identities,
@@ -7558,20 +7605,28 @@ bool MetalHybridObjectTracker::encodeObservation(
             (__bridge id<MTLBuffer>)pass.taskStates,
         }};
         for (NSUInteger index = 0u; index < buffers.size(); ++index) {
-            [mask setBuffer:buffers[index] offset:0u atIndex:index];
+            [observationEncoder
+                setBuffer:buffers[index]
+                   offset:0u
+                  atIndex:index];
         }
-        [mask setBytes:&depthUniforms
-                length:sizeof(depthUniforms)
-               atIndex:9u];
+        [observationEncoder
+            setBytes:&depthUniforms
+              length:sizeof(depthUniforms)
+             atIndex:9u];
         const NSUInteger width = std::min<NSUInteger>(
             state->maskedDepthPipeline.maxTotalThreadsPerThreadgroup,
             256u
         );
-        [mask dispatchThreadgroups:
-                MTLSizeMake(pass.environmentCount, 1u, 1u)
+        [observationEncoder
+            dispatchThreadgroups:MTLSizeMake(
+                                     pass.environmentCount,
+                                     1u,
+                                     1u
+                                 )
             threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
-        [mask endEncoding];
     }
+    [observationEncoder endEncoding];
     return true;
 }
 
