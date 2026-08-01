@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T02:44:02+02:00",
+  "source_revision": "68ce9cc05e2bc1d4edcaea6113ed9f0eb5795ae0",
+  "metallib_sha256": "47a51a1546e633ae7f7e0a6629f32ddeb9d1546432915d3ca1d7d22ce0a38cf9",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 4.83,
+    "runtime_abi_version": 9,
+    "task_program_abi_version": 11,
+    "task_pack_format_version": 6,
+    "frame_twist_reset_checked": true,
+    "reset_joint_velocity_radians_per_second": 0.5,
+    "tool_tip_linear_velocity_expected_metres_per_second": 0.1,
+    "tool_tip_linear_velocity_tolerance_metres_per_second": 0.0002,
+    "accepted_angular_velocity_matches_generalized_velocity": true,
+    "contact_owner_environment_count": 1024,
+    "contact_owner_wall_control_steps_per_second": 43337.7,
+    "contact_owner_release_floor_control_steps_per_second": 40000,
+    "substep_body_twist_materialization_dispatches": 0,
+    "accepted_state_body_twist_materialization_dispatches_per_control_step": 1
+  },
+  "known_release_blockers": [
+    "TaskIR still lacks named sites, frame acceleration and relative twist, point/Jacobian quantities, sampled and trajectory goals, generic gates and reductions, and three qualified task families.",
+    "SensorIR still lacks integrated camera, tactile, force-torque, contact, ray, LiDAR, and IMU execution under the session schedule.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators, and direct no-copy MLX-to-private-bank transfer remains incomplete.",
+    "The canonical executor has not completed its Metal 4 command-allocator and residency-set migration.",
+    "No general MJCF importer is present.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
