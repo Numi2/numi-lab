@@ -27,6 +27,14 @@ whole-sample latency, mid-rollout reset, actor/critic consumer permissions, and
 accepted-state ordering for final-policy observations. This is scheduling and
 contract evidence; it does not qualify unimplemented sensor modalities.
 
+The same owner places an articulated tool against a compliant static obstacle,
+samples a six-axis force/torque sensor at the tool COM, and compares all six
+native channels with TaskIR's independent reduction of the same committed
+NumiSolver constraints. It requires a nonzero finite wrench and verifies that
+a mid-rollout reset clears the sensor view. This qualifies resultant contact
+wrench sensing; it is not yet joint-transmission load-cell or full tactile-
+schedule evidence.
+
 The native integration owner runs five PPO updates through a three-slot shared
 rollout ring. It therefore covers slot reuse, managed MLX payload release,
 monotonic policy revisions, native rollout serialization, learner checkpoints,

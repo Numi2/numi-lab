@@ -50,6 +50,9 @@ enum MRWorldSensorKind : mr_u32 {
     MR_WORLD_SENSOR_RGBD = 2u,
     MR_WORLD_SENSOR_SEGMENTATION = 3u,
     MR_WORLD_SENSOR_STATE = 4u,
+    // Resultant solved non-generalized contact wrench from the final accepted
+    // physics microstep, expressed in sensor-local axes about the authored
+    // sensor origin. Force is impulse divided by that microstep duration.
     MR_WORLD_SENSOR_FORCE_TORQUE = 5u,
     // Dense metric normal-penetration atlas. This is not camera depth and
     // does not use camera intrinsics.

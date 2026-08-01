@@ -2824,7 +2824,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 std::move(diagnostics),
                 MetalWorldHostStatus::unsupportedTopology,
                 "native SensorIR execution currently requires only pre-control "
-                "frame-state sensors attached to a compiled native task"
+                "native-state sensors attached to a compiled native task"
             );
         }
         const std::uint64_t controlPeriodTicks =
@@ -2843,7 +2843,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
             const bool twistSensor =
                 descriptor.identity.x ==
                     MR_WORLD_SENSOR_FRAME_TWIST_WORLD;
-            if ((!poseSensor && !twistSensor) ||
+            const bool forceTorqueSensor =
+                descriptor.identity.x ==
+                    MR_WORLD_SENSOR_FORCE_TORQUE;
+            if ((!poseSensor && !twistSensor &&
+                 !forceTorqueSensor) ||
                 descriptor.schedule.z !=
                     MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
                 descriptor.source.w !=
@@ -2856,8 +2860,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 return reject(
                     std::move(diagnostics),
                     MetalWorldHostStatus::unsupportedTopology,
-                    "native SensorIR frame sampling requires pre-control pose "
-                    "or world-twist descriptors at no more than the control rate"
+                    "native SensorIR sampling requires pre-control pose, "
+                    "world-twist, or force-torque descriptors at no more "
+                    "than the control rate"
                 );
             }
         }
@@ -8014,6 +8019,9 @@ bool encodeSensorSample(
             {MR_SENSOR_SAMPLE_BODY_POSES, kBodyPoses},
             {MR_SENSOR_SAMPLE_BODY_STATES, bodyStates},
             {MR_SENSOR_SAMPLE_SCENE_BODIES, sourceScene},
+            {MR_SENSOR_SAMPLE_CONTACT_DISPATCH, kContactDispatch},
+            {MR_SENSOR_SAMPLE_CONTACTS, kContacts},
+            {MR_SENSOR_SAMPLE_CONTACT_STATUSES, kContactStatuses},
             {MR_SENSOR_SAMPLE_STATES, kSensorRuntimeStates},
             {MR_SENSOR_SAMPLE_HISTORY, kSensorHistory},
             {MR_SENSOR_SAMPLE_OUTPUTS, kSensorOutputs},

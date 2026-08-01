@@ -234,6 +234,8 @@ std::uint64_t compileFloatingBaseTaskFixture() {
 struct FixedBaseTaskEvidence {
     std::uint64_t fingerprint = 0u;
     std::uint64_t pipelineCount = 0u;
+    float forceNormNewtons = 0.0f;
+    float torqueNormNewtonMetres = 0.0f;
 };
 
 FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
@@ -1695,9 +1697,321 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             "published SensorIR twist disagrees with the final TaskIR view"
         );
     }
+
+    // A six-axis SensorIR force/torque sample must consume the exact solved
+    // contact impulses, not infer a wrench from acceleration or a second
+    // collision query. The independent TaskIR contact-group reduction is the
+    // parity oracle for the same body, reference point, and local axes.
+    metalrobo::SimulationDescription wrenchAuthored = authored;
+    wrenchAuthored.model.defaultQ[0u] = 0.3f;
+    wrenchAuthored.model.shapes[0u].collisionMask = 0u;
+    const std::uint32_t obstacleBodyIndex =
+        static_cast<std::uint32_t>(
+            wrenchAuthored.model.bodies.size()
+        );
+    MRBodyPropertiesGPU obstacleBody{};
+    obstacleBody.articulationIndex = MR_INVALID_INDEX;
+    obstacleBody.parentBody = MR_INVALID_INDEX;
+    obstacleBody.inboundJoint = MR_INVALID_INDEX;
+    obstacleBody.motionType = MR_MOTION_STATIC;
+    obstacleBody.dampingAndSpeedLimits = {
+        0.0f, 0.0f, 1.0e6f, 1.0e6f,
+    };
+    wrenchAuthored.model.bodies.push_back(obstacleBody);
+    wrenchAuthored.model.bodyNames.emplace_back("wrench_obstacle");
+    MRMaterialGPU obstacleMaterial =
+        wrenchAuthored.model.materials.front();
+    obstacleMaterial.response.z = 1.0e-4f;
+    const std::uint32_t obstacleMaterialIndex =
+        static_cast<std::uint32_t>(
+            wrenchAuthored.model.materials.size()
+        );
+    wrenchAuthored.model.materials.push_back(obstacleMaterial);
+    MRShapeGPU obstacleShape{};
+    obstacleShape.bodyIndex = obstacleBodyIndex;
+    obstacleShape.shapeType = MR_SHAPE_SPHERE;
+    obstacleShape.materialIndex = obstacleMaterialIndex;
+    obstacleShape.collisionGroup = 1u;
+    obstacleShape.collisionMask = ~0u;
+    obstacleShape.slotGeneration = 1u;
+    obstacleShape.localRotation.w = 1.0f;
+    obstacleShape.dimensions.x = 0.06f;
+    obstacleShape.contactRestAndBoundingRadius = {
+        0.002f, 0.0f, 0.06f, 0.0f,
+    };
+    wrenchAuthored.model.shapes.push_back(obstacleShape);
+    wrenchAuthored.model.shapeNames.emplace_back("wrench_obstacle");
+    wrenchAuthored.model.world.bodyCount =
+        static_cast<std::uint32_t>(wrenchAuthored.model.bodies.size());
+    wrenchAuthored.model.world.shapeCount =
+        static_cast<std::uint32_t>(wrenchAuthored.model.shapes.size());
+    wrenchAuthored.model.world.materialCount =
+        static_cast<std::uint32_t>(
+            wrenchAuthored.model.materials.size()
+        );
+    MRBodyStateGPU obstacleState{};
+    obstacleState.position = {0.06f, 0.0f, 0.026f, 1.0f};
+    obstacleState.orientation.w = 1.0f;
+    obstacleState.flagsAndIndices[0] = MR_MOTION_STATIC;
+    obstacleState.flagsAndIndices[1] = MR_INVALID_INDEX;
+    obstacleState.flagsAndIndices[2] = obstacleBodyIndex;
+    wrenchAuthored.sceneBodies.push_back(obstacleState);
+    wrenchAuthored.task.id = "fixed_base_force_torque";
+    wrenchAuthored.task.actorFrame = {{
+        .source = metalrobo::TaskObservationSource::jointVelocity,
+        .target = "axis",
+    }};
+    wrenchAuthored.task.actorHistoryLength = 1u;
+    wrenchAuthored.task.critic.clear();
+    for (std::uint32_t component = 0u; component < 6u; ++component) {
+        wrenchAuthored.task.critic.push_back({
+            .source = metalrobo::TaskObservationSource::contactWrenchLocal,
+            .target = "tool_contact",
+            .component = component,
+        });
+    }
+    for (std::uint32_t component = 0u; component < 6u; ++component) {
+        wrenchAuthored.task.critic.push_back({
+            .source = metalrobo::TaskObservationSource::sensorValue,
+            .target = "tool_force_torque",
+            .component = component,
+        });
+    }
+    wrenchAuthored.task.criticIncludesCleanHistory = false;
+    wrenchAuthored.task.contactGroups = {{
+        .id = "tool_contact",
+        .bodies = {"tool"},
+        .referenceBody = "tool",
+    }};
+    wrenchAuthored.task.rewards = {{
+        .operation = metalrobo::TaskRewardOperator::constant,
+        .weight = 1.0f,
+    }};
+    wrenchAuthored.task.terminations.clear();
+    wrenchAuthored.sensors = {{
+        .id = "tool_force_torque",
+        .parentKind = MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+        .parentBodyIndex = toolBodyIndex,
+        .kind = MR_WORLD_SENSOR_FORCE_TORQUE,
+        // The URDF link-frame value 0.1 m is this body's COM. TaskIR's
+        // contact-group reference therefore remains zero in COM coordinates.
+        .localPose = {
+            .position = {0.0f, 0.0f, 0.1f, 0.0f},
+        },
+        .nominalRateHz = 50.0f,
+        .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+        .historyLength = 1u,
+        .consumerFlags =
+            MR_WORLD_SENSOR_CONSUMER_CRITIC |
+            MR_WORLD_SENSOR_CONSUMER_RECORDER,
+    }};
+    metalrobo::PolicyPack wrenchPolicy;
+    wrenchPolicy.id = "fixed_base_force_torque_policy";
+    wrenchPolicy.layers = {{
+        .inputCount = 1u,
+        .outputCount = 1u,
+        .activation = metalrobo::PolicyActivation::identity,
+        .weights = std::vector<float>(1u, 0.0f),
+        .bias = std::vector<float>(1u, 0.0f),
+    }};
+    wrenchPolicy.criticLayers = {{
+        .inputCount = 12u,
+        .outputCount = 1u,
+        .activation = metalrobo::PolicyActivation::identity,
+        .weights = std::vector<float>(12u, 0.0f),
+        .bias = std::vector<float>(1u, 0.0f),
+    }};
+    wrenchAuthored.policy = std::move(wrenchPolicy);
+
+    metalrobo::CompiledSimulation wrenchCompiled;
+    const auto wrenchCompile = metalrobo::compileSimulation(
+        wrenchAuthored,
+        0u,
+        wrenchCompiled
+    );
+    if (!wrenchCompile.succeeded() ||
+        wrenchCompiled.sensors.layout().sensorCount != 1u ||
+        wrenchCompiled.sensors.layout().outputElementCount != 6u) {
+        fail(
+            "force-torque SensorIR compile failed: " +
+            wrenchCompile.world.message + " " +
+            wrenchCompile.sensors.message + " " +
+            wrenchCompile.task.message + " " +
+            wrenchCompile.policy.message
+        );
+    }
+    constexpr std::size_t wrenchSteps = 4u;
+    metalrobo::MetalWorldStepConfig wrenchStep = step;
+    wrenchStep.taskProgram = wrenchCompiled.task;
+    wrenchStep.sensorProgram = wrenchCompiled.sensors;
+    wrenchStep.policyProgram = wrenchCompiled.policy;
+    wrenchStep.publishSensorOutputs = true;
+    wrenchStep.evaluateFinalPolicy = true;
+    wrenchStep.captureContactEvidence = true;
+    std::vector<std::uint32_t> wrenchResetMasks(
+        wrenchSteps,
+        0u
+    );
+    wrenchResetMasks[2u] = 1u;
+    metalrobo::MetalWorldContext wrenchContext(contextConfiguration);
+    metalrobo::MetalWorldResult wrenchResult;
+    const auto wrenchExecution = wrenchContext.run(
+        wrenchCompiled.world,
+        {
+            .environmentCount = 1u,
+            .controlStepCount = wrenchSteps,
+            .initialQ = std::span{
+                wrenchAuthored.model.defaultQ.data(),
+                wrenchAuthored.model.defaultQ.size(),
+            },
+            .initialV = std::span{
+                initialV.data(),
+                wrenchCompiled.world.nv(),
+            },
+            .resetMasks = wrenchResetMasks,
+            .initialSceneBodies = wrenchAuthored.sceneBodies,
+        },
+        wrenchStep,
+        wrenchResult
+    );
+    const std::size_t finalWrenchBase = 12u * wrenchSteps;
+    double forceNormSquared = 0.0;
+    double torqueNormSquared = 0.0;
+    bool wrenchParity =
+        wrenchExecution.succeeded() &&
+        wrenchResult.sensorOutputs.size() == 6u &&
+        wrenchResult.criticObservations.size() ==
+            12u * (wrenchSteps + 1u);
+    if (wrenchParity) {
+        const std::size_t resetObservationBase = 12u * 2u;
+        for (std::size_t component = 0u;
+             component < 6u;
+             ++component) {
+            wrenchParity = wrenchParity &&
+                std::abs(
+                    wrenchResult.criticObservations[
+                        resetObservationBase + 6u + component
+                    ]
+                ) <= 1.0e-6f;
+        }
+    }
+    if (wrenchParity) {
+        for (std::size_t component = 0u;
+             component < 6u;
+             ++component) {
+            const float taskWrench =
+                wrenchResult.criticObservations[
+                    finalWrenchBase + component
+                ];
+            const float sensorWrench =
+                wrenchResult.sensorOutputs[component];
+            double& normSquared = component < 3u
+                ? forceNormSquared
+                : torqueNormSquared;
+            normSquared = std::fma(
+                static_cast<double>(sensorWrench),
+                static_cast<double>(sensorWrench),
+                normSquared
+            );
+            wrenchParity = wrenchParity &&
+                std::isfinite(sensorWrench) &&
+                std::abs(sensorWrench - taskWrench) <=
+                    3.0e-4f *
+                    (1.0f + std::abs(taskWrench));
+        }
+    }
+    const float forceNormNewtons =
+        static_cast<float>(std::sqrt(forceNormSquared));
+    const float torqueNormNewtonMetres =
+        static_cast<float>(std::sqrt(torqueNormSquared));
+    if (!wrenchParity || !(forceNormNewtons > 0.1f) ||
+        !(torqueNormNewtonMetres > 1.0e-4f)) {
+        fail(
+            "native force-torque SensorIR did not preserve the solved contact wrench: " +
+            wrenchExecution.message +
+            " force_n=" + std::to_string(forceNormNewtons) +
+            " torque_nm=" +
+            std::to_string(torqueNormNewtonMetres) +
+            " host=" + std::to_string(
+                static_cast<std::uint32_t>(wrenchExecution.status)
+            ) +
+            " gpu=" + std::to_string(
+                wrenchExecution.firstGPUStatusCode
+            ) +
+            " contact=" +
+            (wrenchResult.contactStatuses.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       wrenchResult.contactStatuses.back().code
+                   )) +
+            " required=" +
+            (wrenchResult.contactStatuses.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       wrenchResult.contactStatuses.back()
+                           .requiredConstraints
+                   )) +
+            " active=" +
+            (wrenchResult.contactStatuses.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       wrenchResult.contactStatuses.back()
+                           .activeContacts
+                   )) +
+            " q=" +
+            (wrenchResult.finalQ.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(wrenchResult.finalQ.back())) +
+            " contacts=" + std::to_string(
+                wrenchResult.contactEvidence.contacts.size()
+            ) +
+            " impulse=" +
+            (wrenchResult.contactEvidence.contacts.size() <=
+                     wrenchResult.layout.contactDispatch
+                         .authoredConstraintCount
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       wrenchResult.contactEvidence.contacts[
+                           wrenchResult.layout.contactDispatch
+                               .authoredConstraintCount
+                       ]
+                           .impulses.x
+                   )) +
+            " bodies=" +
+            (wrenchResult.contactEvidence.contacts.size() <=
+                     wrenchResult.layout.contactDispatch
+                         .authoredConstraintCount
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       wrenchResult.contactEvidence.contacts[
+                           wrenchResult.layout.contactDispatch
+                               .authoredConstraintCount
+                       ]
+                           .bodyA
+                   ) + "," +
+                       std::to_string(
+                           wrenchResult.contactEvidence.contacts[
+                               wrenchResult.layout.contactDispatch
+                                   .authoredConstraintCount
+                           ]
+                               .bodyB
+                       )) +
+            " task_f=" +
+            (wrenchResult.criticObservations.size() <=
+                     finalWrenchBase
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       wrenchResult.criticObservations[
+                           finalWrenchBase
+                       ]
+                   ))
+        );
+    }
     return {
         .fingerprint = compiled.task.fingerprint(),
         .pipelineCount = taskPipelineCount,
+        .forceNormNewtons = forceNormNewtons,
+        .torqueNormNewtonMetres = torqueNormNewtonMetres,
     };
 }
 
@@ -2301,6 +2615,8 @@ int main() {
             << " fixed_base=" << fixedBase.fingerprint
             << " plan_pipelines=" << fixedBase.pipelineCount
             << "/" << MR_RUNTIME_PIPELINE_COUNT
+            << " force_n=" << fixedBase.forceNormNewtons
+            << " torque_nm=" << fixedBase.torqueNormNewtonMetres
             << " world_pack=" << worldPackFingerprint
             << '\n';
         return 0;

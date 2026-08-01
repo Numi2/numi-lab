@@ -50,6 +50,42 @@ inline float3 quaternionRotate(
         cross(quaternion.xyz, doubledCross);
 }
 
+inline float3 quaternionRotateInverse(
+    const float4 quaternion,
+    const float3 value
+) {
+    return quaternionRotate(
+        float4(-quaternion.xyz, quaternion.w),
+        value
+    );
+}
+
+inline float3 normalizedOr(
+    const float3 value,
+    const float3 fallback
+) {
+    const float lengthSquared = dot(value, value);
+    return lengthSquared > 1.0e-12f &&
+            isfinite(lengthSquared)
+        ? value * rsqrt(lengthSquared)
+        : fallback;
+}
+
+inline float3 stableContactTangent(const float3 normal) {
+    const float3 absoluteNormal = abs(normal);
+    const float3 reference =
+        absoluteNormal.x <= absoluteNormal.y &&
+        absoluteNormal.x <= absoluteNormal.z
+        ? float3(1.0f, 0.0f, 0.0f)
+        : absoluteNormal.y <= absoluteNormal.z
+        ? float3(0.0f, 1.0f, 0.0f)
+        : float3(0.0f, 0.0f, 1.0f);
+    return normalizedOr(
+        cross(reference, normal),
+        float3(1.0f, 0.0f, 0.0f)
+    );
+}
+
 inline bool normalizedQuaternion(
     const float4 input,
     thread float4& result
@@ -67,14 +103,16 @@ inline bool normalizedQuaternion(
 
 } // namespace
 
-// Canonical control-boundary SensorIR executor for parent-frame pose and
-// world-twist modalities. Reset-only execution seeds a new episode before its
-// first action; advance execution samples the accepted post-physics state for
-// the next action. One thread owns one environment/sensor history ring, so
-// reset and publication are transactional without atomics. Presentation and
-// tactile domains remain separate until their existing native kernels are
-// folded into this schedule; descriptors for those domains are rejected by
-// the host execution gate rather than silently skipped in production.
+// Canonical control-boundary SensorIR executor for parent-frame pose,
+// world-twist, and solver-authoritative contact-wrench modalities. Reset-only
+// execution seeds a new episode before its first action; advance execution
+// samples the accepted post-physics state for the next action. One thread owns
+// one environment/sensor history ring, so publication is deterministic and
+// requires no atomics. Candidate/committed buffering across reset-followed
+// failures remains a host execution gate. Presentation and tactile domains
+// remain separate until their existing native kernels are folded into this
+// schedule; descriptors for those domains are rejected by the host execution
+// gate rather than silently skipped in production.
 kernel void mr_sensor_sample_control_boundary(
     constant MRSensorDispatchGPU& dispatch
         [[buffer(MR_SENSOR_SAMPLE_DISPATCH)]],
@@ -92,6 +130,12 @@ kernel void mr_sensor_sample_control_boundary(
         [[buffer(MR_SENSOR_SAMPLE_BODY_STATES)]],
     device const MRBodyStateGPU* sceneBodies
         [[buffer(MR_SENSOR_SAMPLE_SCENE_BODIES)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(MR_SENSOR_SAMPLE_CONTACT_DISPATCH)]],
+    device const MRContactConstraintGPU* contacts
+        [[buffer(MR_SENSOR_SAMPLE_CONTACTS)]],
+    device const MRMetalWorldContactStatusGPU* contactStatuses
+        [[buffer(MR_SENSOR_SAMPLE_CONTACT_STATUSES)]],
     device MRSensorRuntimeStateGPU* states
         [[buffer(MR_SENSOR_SAMPLE_STATES)]],
     device float* history
@@ -122,7 +166,9 @@ kernel void mr_sensor_sample_control_boundary(
     const bool twistSensor =
         descriptor.identity.x ==
             MR_WORLD_SENSOR_FRAME_TWIST_WORLD;
-    if ((!poseSensor && !twistSensor) ||
+    const bool forceTorqueSensor =
+        descriptor.identity.x == MR_WORLD_SENSOR_FORCE_TORQUE;
+    if ((!poseSensor && !twistSensor && !forceTorqueSensor) ||
         descriptor.schedule.z !=
             MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
         descriptor.source.w != 0u ||
@@ -141,6 +187,13 @@ kernel void mr_sensor_sample_control_boundary(
         ] != 0u;
     if (dispatch.counts.z == MR_SENSOR_EXECUTION_RESET_ONLY &&
         !reset) {
+        return;
+    }
+    // Failed contact transactions do not advance or poison the persistent
+    // wrench history. The last committed sample remains authoritative.
+    if (forceTorqueSensor &&
+        dispatch.counts.z == MR_SENSOR_EXECUTION_ADVANCE &&
+        contactStatuses[environment].code != MR_STEP_SUCCESS) {
         return;
     }
     const uint outputEnvironmentBase =
@@ -314,7 +367,7 @@ kernel void mr_sensor_sample_control_boundary(
         history[writeBase + 4u] = sensorOrientation.y;
         history[writeBase + 5u] = sensorOrientation.z;
         history[writeBase + 6u] = sensorOrientation.w;
-    } else {
+    } else if (twistSensor) {
         const float3 sensorOffset = quaternionRotate(
             parentUnit,
             descriptor.localPosition.xyz
@@ -328,6 +381,109 @@ kernel void mr_sensor_sample_control_boundary(
         history[writeBase + 3u] = parentAngularVelocity.x;
         history[writeBase + 4u] = parentAngularVelocity.y;
         history[writeBase + 5u] = parentAngularVelocity.z;
+    } else {
+        float3 forceWorld = float3(0.0f);
+        float3 torqueWorld = float3(0.0f);
+        bool wrenchValid = reset;
+        if (!reset &&
+            contactDispatch.abiVersion ==
+                MR_METAL_WORLD_CONTACT_ABI_VERSION &&
+            contactDispatch.environmentCount == environmentCount &&
+            contactDispatch.timestepAndBias.x > 0.0f &&
+            isfinite(contactDispatch.timestepAndBias.x)) {
+            const MRMetalWorldContactStatusGPU contactStatus =
+                contactStatuses[environment];
+            wrenchValid = contactStatus.code == MR_STEP_SUCCESS;
+            const uint publishedConstraints = wrenchValid
+                ? min(
+                      contactStatus.requiredConstraints,
+                      contactDispatch.constraintCapacity
+                  )
+                : 0u;
+            const uint contactBase =
+                environment * contactDispatch.constraintStride;
+            const uint parentBody = descriptor.identity.z;
+            const float inverseTimestep =
+                1.0f / contactDispatch.timestepAndBias.x;
+            for (uint constraintIndex = min(
+                     contactDispatch.authoredConstraintCount,
+                     publishedConstraints
+                 );
+                 constraintIndex < publishedConstraints;
+                 ++constraintIndex) {
+                const MRContactConstraintGPU constraint =
+                    contacts[contactBase + constraintIndex];
+                if ((constraint.flags &
+                     (MR_CONSTRAINT_FLAG_DISABLED |
+                      MR_CONSTRAINT_FLAG_GENERALIZED)) != 0u) {
+                    continue;
+                }
+                const bool parentA =
+                    constraint.bodyA == parentBody;
+                const bool parentB =
+                    constraint.bodyB == parentBody;
+                if (parentA == parentB) {
+                    continue;
+                }
+                const float3 normal = normalizedOr(
+                    constraint.normal.xyz,
+                    float3(0.0f, 0.0f, 1.0f)
+                );
+                const float3 authoredTangent =
+                    constraint.tangent.xyz -
+                    normal * dot(normal, constraint.tangent.xyz);
+                const float3 tangent = normalizedOr(
+                    authoredTangent,
+                    stableContactTangent(normal)
+                );
+                const float3 bitangent = cross(normal, tangent);
+                const float3 impulseOnA = -(
+                    normal * constraint.impulses.x +
+                    tangent * constraint.impulses.y +
+                    bitangent * constraint.impulses.z
+                );
+                const float3 impulseOnParent =
+                    parentA ? impulseOnA : -impulseOnA;
+                const float3 contactForce =
+                    impulseOnParent * inverseTimestep;
+                forceWorld += contactForce;
+                torqueWorld += cross(
+                    constraint.pointAndSeparation.xyz -
+                        sensorPosition,
+                    contactForce
+                );
+                torqueWorld +=
+                    (parentA ? -1.0f : 1.0f) *
+                    normal * constraint.impulses.w *
+                    inverseTimestep;
+            }
+        }
+        const float3 forceLocal = quaternionRotateInverse(
+            sensorOrientation,
+            forceWorld
+        );
+        const float3 torqueLocal = quaternionRotateInverse(
+            sensorOrientation,
+            torqueWorld
+        );
+        if (!wrenchValid ||
+            !all(isfinite(forceLocal)) ||
+            !all(isfinite(torqueLocal))) {
+            state.timestampAgeValidity.w =
+                MR_SENSOR_SAMPLE_NONFINITE;
+            states[stateIndex] = state;
+            MRSensorSampleMetadataGPU failed = metadata[stateIndex];
+            failed.ageValidityAndLayout.y =
+                MR_SENSOR_SAMPLE_NONFINITE;
+            metadata[stateIndex] = failed;
+            return;
+        }
+        history[writeBase + 0u] = forceLocal.x;
+        history[writeBase + 1u] = forceLocal.y;
+        history[writeBase + 2u] = forceLocal.z;
+        history[writeBase + 3u] = torqueLocal.x;
+        history[writeBase + 4u] = torqueLocal.y;
+        history[writeBase + 5u] = torqueLocal.z;
     }
     ++sequence;
 

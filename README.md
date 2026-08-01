@@ -57,9 +57,10 @@ release blockers remain:
   goals, world and relative frame twist, and fingerprint-bound SensorIR
   values/validity. Named sites, acceleration and Jacobian quantities, sampled
   goals, and generic reductions remain incomplete.
-- State sensors execute on the session timeline and bind directly into TaskIR.
-  Presentation and tactile sensing remain native but have not yet been folded
-  into that same schedule.
+- Parent-frame pose, world-twist, and solver-authoritative six-axis contact-
+  wrench sensors execute on the session timeline and bind directly into
+  TaskIR. Presentation and tactile sensing remain native but have not yet been
+  folded into that same schedule.
 - Swift PPO now collects into a three-slot shared Metal rollout ring and MLX
   consumes those buffers without Swift array concatenation or an MLX input
   copy. Native inference keeps two private policy banks, locks their compiled

@@ -134,17 +134,24 @@ The compiler converts translation once to the COM-centred runtime origin;
 tactile descriptors instead use the cooked tactile surface transform as their
 spatial authority.
 
-The common SensorIR executor samples parent-frame pose and world-space frame
-twist sensors on two explicit control boundaries. Frame-twist linear velocity
-is evaluated at the authored sensor origin, including the angular
-`omega x r` term. A reset-only pass seeds the accepted randomized state before
-the first action; a post-physics pass advances the schedule from the newly
-accepted state for the next action and terminal value bootstrap. It owns
-per-environment nanosecond phase accumulators, latency history, latest compact
-output, timestamp/age/validity metadata, and reset state in persistent private
-buffers. It supports the control rate or any slower rate, including
-non-divisor schedules, and never publishes retained history as ordinary
-learner tensors.
+The common SensorIR executor samples parent-frame pose, world-space frame
+twist, and six-axis contact-wrench sensors on two explicit control boundaries.
+Frame-twist linear velocity is evaluated at the authored sensor origin,
+including the angular `omega x r` term. Force/torque consumes the committed
+NumiSolver contact impulses from the final accepted physics microstep, divides
+by that microstep duration, sums the resultant force and moment about the
+authored sensor origin, and expresses both in sensor-local axes. It excludes
+authored generalized rows; it does not infer force from acceleration or run a
+second collision query.
+
+A reset-only pass seeds the randomized state before the first action; a post-
+physics pass advances the schedule from the newly accepted state for the next
+action and terminal value bootstrap. The executor owns per-environment
+nanosecond phase accumulators, latency history, latest compact output,
+timestamp/age/validity metadata, and reset state in persistent private
+buffers. It supports the control rate or any slower rate, including non-
+divisor schedules, and never publishes retained history as ordinary learner
+tensors.
 
 Task observations reference a sensor by authored ID. Compilation resolves that
 ID to a descriptor and output offset, enforces actor or critic permission, and
@@ -155,10 +162,11 @@ latency selection.
 
 Presentation sensors still execute in the native renderer and tactile sensors
 still execute in the native tactile context. Folding those passes into the
-session schedule, force-torque/contact/ray/LiDAR/IMU operators, recorder
-routing, sensor-native counter-based corruption, and compiler dead-code
-elimination remain incomplete. Random corruption will be keyed by environment,
-episode, sensor, sample, and channel.
+session schedule, dedicated contact-state/ray/LiDAR/IMU operators, recorder
+routing, sensor-native counter-based corruption, failure-transaction double
+buffering for every sensor history, and compiler dead-code elimination remain
+incomplete. Random corruption will be keyed by environment, episode, sensor,
+sample, and channel.
 
 RGB, depth, identities, normals, and motion consume only authored Visual
 Presentation V3 packs. Tactile deformation consumes authored undeformed and

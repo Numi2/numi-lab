@@ -85,12 +85,19 @@ consumers release it.
 ## Current SensorIR execution boundary
 
 The canonical MetalWorld session owns persistent schedule, history, output, and
-metadata buffers for parent-frame pose sensors. One thread owns one
-environment/sensor history ring, so a reset clears and seeds it without atomics
-or host reconstruction. A second boundary advances the schedule after physics
-accepts the next state; rollout-chunk boundaries therefore do not duplicate a
-sample. Rates use integer nanosecond phase accumulators and whole-sample latency
-is selected from the retained ring.
+metadata buffers for parent-frame pose, world-twist, and six-axis contact-
+wrench sensors. One thread owns one environment/sensor history ring, so a reset
+clears and seeds it without atomics or host reconstruction. A second boundary
+advances the schedule after physics accepts the next state; rollout-chunk
+boundaries therefore do not duplicate a sample. Rates use integer nanosecond
+phase accumulators and whole-sample latency is selected from the retained ring.
+
+Force/torque reads the same final-microstep solved contact constraints used by
+TaskIR and the tactile force authority. It sums the force and moment applied to
+the parent body about the authored sensor origin and rotates the result into
+sensor-local axes. Failed contact transactions do not advance wrench history.
+Candidate/committed double buffering for pose and twist histories across a step
+that resets and subsequently fails remains an explicit transaction gate.
 
 Compiled TaskIR operators consume named SensorIR values and validity bits
 directly on-device. Reset refresh fills every actor/critic history slot before

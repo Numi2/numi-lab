@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 10,
+  "abi_version": 11,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -752,6 +752,9 @@
         "BODY_POSES",
         "BODY_STATES",
         "SCENE_BODIES",
+        "CONTACT_DISPATCH",
+        "CONTACTS",
+        "CONTACT_STATUSES",
         "STATES",
         "HISTORY",
         "OUTPUTS",

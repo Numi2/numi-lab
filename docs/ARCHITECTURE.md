@@ -85,9 +85,12 @@ Every accepted control transition follows one transaction:
 8. Validate status, atomically publish state, and blit compact learning
    outputs into the pending native rollout lease before command-buffer commit.
 
-Overflow, invalid dispatch, factorization failure, or nonfinite output keeps the
-last committed state. Partially scattered constraints or half-reset sensor
-histories are never observable.
+Overflow, invalid dispatch, factorization failure, or nonfinite output must keep
+the last committed state. Contact and physical-state publication satisfy that
+boundary. SensorIR still needs candidate/committed history buffers to preserve
+the prior pose/twist history when a transition resets and then fails; until
+that gate lands, the generated capability matrix must not claim fully atomic
+whole-session reset.
 
 ## Generated ABI
 
