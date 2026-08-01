@@ -630,6 +630,19 @@ TaskCompileDiagnostics compileTaskProgram(
         !finite(pack.pushes.projectileStandingProbability) ||
         pack.pushes.projectileStandingProbability < 0.0f ||
         pack.pushes.projectileStandingProbability > 1.0f ||
+        !finite(pack.pushes.projectileTargetHorizontalRadius) ||
+        pack.pushes.projectileTargetHorizontalRadius < 0.0f ||
+        !finite(pack.pushes.projectileHorizontalSpeedLower) ||
+        !finite(pack.pushes.projectileHorizontalSpeedUpper) ||
+        !finite(pack.pushes.projectileTargetHeightLower) ||
+        !finite(pack.pushes.projectileTargetHeightUpper) ||
+        pack.pushes.projectileHorizontalSpeedLower < 0.0f ||
+        pack.pushes.projectileHorizontalSpeedUpper <
+            pack.pushes.projectileHorizontalSpeedLower ||
+        (pack.pushes.projectileHorizontalSpeedUpper > 0.0f &&
+         !(pack.pushes.projectileHorizontalSpeedLower > 0.0f)) ||
+        pack.pushes.projectileTargetHeightUpper <
+            pack.pushes.projectileTargetHeightLower ||
         !(pack.pushes.minimumIntervalSeconds > 0.0f) ||
         pack.pushes.maximumIntervalSeconds <
             pack.pushes.minimumIntervalSeconds ||
@@ -2448,7 +2461,19 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.pushes.maximumVelocity,
         pack.supportForceThreshold,
         pack.pushes.projectileStandingProbability,
-        0.0f,
+        pack.pushes.projectileTargetHorizontalRadius,
+    };
+    staged->header.projectile = {
+        pack.pushes.projectileHorizontalSpeedLower,
+        pack.pushes.projectileHorizontalSpeedUpper,
+        pack.pushes.projectileTargetHeightLower,
+        pack.pushes.projectileTargetHeightUpper,
+    };
+    staged->header.projectileGravity = {
+        model.world.gravityAndTimestep.x,
+        model.world.gravityAndTimestep.y,
+        model.world.gravityAndTimestep.z,
+        pack.pushes.projectileTargetHorizontalRadius,
     };
     staged->header.counts3.x = static_cast<std::uint32_t>(
         staged->impactEvents.size()

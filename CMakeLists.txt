@@ -767,6 +767,21 @@ if(METALROBO_HAS_SWIFT)
     )
 
     add_executable(
+        metalrobo_dodge_promotion
+        apps/dodge_promotion.swift
+    )
+    target_compile_options(
+        metalrobo_dodge_promotion
+        PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-parse-as-library>"
+    )
+    set_target_properties(
+        metalrobo_dodge_promotion
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+
+    add_executable(
         metalrobo_task_train
         apps/task_train.swift
         bindings/swift/MetalRoboTaskRollout.swift

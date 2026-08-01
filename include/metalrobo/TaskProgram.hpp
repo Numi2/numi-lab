@@ -219,6 +219,14 @@ struct TaskPushProgram {
     float maximumIntervalSeconds = 5.0f;
     // Fraction of episodes that hold every projectile as a standing anchor.
     float projectileStandingProbability = 0.0f;
+    // Optional event-projectile ballistics. A positive speed range retargets
+    // each launch at a sampled point around the live root while preserving
+    // ordinary rigid-body flight under the compiled world's gravity.
+    float projectileTargetHorizontalRadius = 0.0f;
+    float projectileHorizontalSpeedLower = 0.0f;
+    float projectileHorizontalSpeedUpper = 0.0f;
+    float projectileTargetHeightLower = 0.0f;
+    float projectileTargetHeightUpper = 0.0f;
 };
 
 struct TaskTerrainProgram {

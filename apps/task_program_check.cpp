@@ -586,6 +586,12 @@ int main() {
             compiledDodge.task.header().visualCorruption.y != 0.10f ||
             compiledDodge.task.header().visualCorruption.z != 0.15f ||
             compiledDodge.task.header().visualCorruption.w != 0.03f ||
+            compiledDodge.task.header().projectile.x != 2.5f ||
+            compiledDodge.task.header().projectile.y != 5.5f ||
+            compiledDodge.task.header().projectile.z != 0.45f ||
+            compiledDodge.task.header().projectile.w != 1.35f ||
+            compiledDodge.task.header().projectileGravity.w != 0.40f ||
+            compiledDodge.task.header().projectileGravity.z != -9.81f ||
             compiledDodge.task.header().counts3.y !=
                 compiledDodge.task.contactMembers().size() ||
             compiledDodge.task.contactMemberRadii().size() !=

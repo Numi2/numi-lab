@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 15u
+#define MR_TASK_PROGRAM_ABI_VERSION 16u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -196,6 +196,10 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_float4 scheduleSeconds;
     // Push velocity, contact threshold, reserved, reserved.
     mr_float4 dynamics;
+    // Projectile horizontal speed lower/upper and target height lower/upper.
+    mr_float4 projectile;
+    // Compiled world gravity xyz and horizontal target radius.
+    mr_float4 projectileGravity;
     // Byte offsets in the immutable packed task arena:
     // action bindings, actor operators, critic operators, contact groups.
     mr_uint4 offsets0;
@@ -343,7 +347,7 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 384u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 416u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);

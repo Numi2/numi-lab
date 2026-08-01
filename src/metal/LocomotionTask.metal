@@ -1671,6 +1671,57 @@ kernel void mr_locomotion_task_observe(
                         operation.parameters.y
                     );
                 }
+                if (program.projectile.y > 0.0f) {
+                    const float targetRadius =
+                        program.projectileGravity.w;
+                    const float3 target = float3(
+                        sourceQ[qBase + program.root.z] + randomRange(
+                            dispatch,
+                            environment,
+                            state.episode.y,
+                            0u,
+                            4096u + impact * 4u,
+                            -targetRadius,
+                            targetRadius
+                        ),
+                        sourceQ[qBase + program.root.z + 1u] + randomRange(
+                            dispatch,
+                            environment,
+                            state.episode.y,
+                            0u,
+                            4097u + impact * 4u,
+                            -targetRadius,
+                            targetRadius
+                        ),
+                        randomRange(
+                            dispatch,
+                            environment,
+                            state.episode.y,
+                            0u,
+                            4098u + impact * 4u,
+                            program.projectile.z,
+                            program.projectile.w
+                        )
+                    );
+                    const float horizontalSpeed = randomRange(
+                        dispatch,
+                        environment,
+                        state.episode.y,
+                        0u,
+                        4099u + impact * 4u,
+                        program.projectile.x,
+                        program.projectile.y
+                    );
+                    const float3 delta = target - scheduled.position.xyz;
+                    const float flightSeconds = max(
+                        length(delta.xy) / horizontalSpeed,
+                        dispatch.timing.x
+                    );
+                    scheduled.linearVelocityAndInverseMass.xyz =
+                        delta / flightSeconds -
+                        0.5f * program.projectileGravity.xyz *
+                            flightSeconds;
+                }
             }
             sourceScene[
                 sceneBase + event.binding.x
@@ -2546,13 +2597,35 @@ kernel void mr_locomotion_task_complete(
         impactTransitionFlags |= MR_TASK_IMPACT_MISSED;
     }
     bool projectileThreat = false;
-    if (eventSequenceAvailable && activeImpactScene != 0u) {
+    if (eventSequenceAvailable &&
+        activeImpactScene != 0u &&
+        activeImpactEvent != MR_INVALID_INDEX) {
         const MRBodyStateGPU projectile = sceneState[
             sceneBase + activeImpactScene - 1u
         ];
+        const float3 rootPosition = float3(
+            qState[qBase + program.root.z],
+            qState[qBase + program.root.z + 1u],
+            qState[qBase + program.root.z + 2u]
+        );
+        const float3 relativePosition =
+            projectile.position.xyz - rootPosition;
+        const float distance = max(
+            length(relativePosition),
+            1.0e-4f
+        );
+        const float3 relativeVelocity =
+            projectile.linearVelocityAndInverseMass.xyz -
+            rootLinearVelocity;
+        const float closingSpeed =
+            -dot(relativePosition, relativeVelocity) / distance;
+        const float timeToClosestApproach =
+            distance / max(closingSpeed, 1.0e-4f);
         projectileThreat =
-            length(projectile.linearVelocityAndInverseMass.xyz) > 0.5f &&
-            projectile.position.z > 0.25f;
+            closingSpeed > 0.25f &&
+            timeToClosestApproach <=
+                impactEvents[activeImpactEvent].gate.z &&
+            projectile.position.z > 0.10f;
     }
     float reward = 0.0f;
     float4 rewardBreakdown0 = float4(0.0f);

@@ -124,7 +124,7 @@ void appendLocomotionDynamicSpheres(
 );
 
 // Perception-conditioned, contact-free projectile avoidance. The actor uses
-// deployable object tracks while native privileged link-clearance operators
+// ball-only masked depth while native privileged link-clearance operators
 // shape the critic and task reward before physical contact.
 [[nodiscard]] TaskPack makeUnitreeG1BallDodgeTaskPack(
     LocomotionSurface surface

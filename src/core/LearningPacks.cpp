@@ -99,6 +99,28 @@ LearningPackResult validateTaskArtifact(
             "TaskPack visual corruption is invalid"
         );
     }
+    const bool projectileBallistics =
+        pack.pushes.projectileHorizontalSpeedUpper > 0.0f;
+    if (!std::isfinite(
+            pack.pushes.projectileTargetHorizontalRadius
+        ) ||
+        pack.pushes.projectileTargetHorizontalRadius < 0.0f ||
+        !std::isfinite(pack.pushes.projectileHorizontalSpeedLower) ||
+        !std::isfinite(pack.pushes.projectileHorizontalSpeedUpper) ||
+        !std::isfinite(pack.pushes.projectileTargetHeightLower) ||
+        !std::isfinite(pack.pushes.projectileTargetHeightUpper) ||
+        pack.pushes.projectileHorizontalSpeedLower < 0.0f ||
+        pack.pushes.projectileHorizontalSpeedUpper <
+            pack.pushes.projectileHorizontalSpeedLower ||
+        (projectileBallistics &&
+         !(pack.pushes.projectileHorizontalSpeedLower > 0.0f)) ||
+        pack.pushes.projectileTargetHeightUpper <
+            pack.pushes.projectileTargetHeightLower) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "TaskPack projectile ballistics are invalid"
+        );
+    }
     if (!countFits(pack.actions.size()) ||
         !countFits(pack.actorFrame.size()) ||
         !countFits(pack.critic.size()) ||
@@ -842,6 +864,11 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.pushes.minimumIntervalSeconds);
     writer.pod(pack.pushes.maximumIntervalSeconds);
     writer.pod(pack.pushes.projectileStandingProbability);
+    writer.pod(pack.pushes.projectileTargetHorizontalRadius);
+    writer.pod(pack.pushes.projectileHorizontalSpeedLower);
+    writer.pod(pack.pushes.projectileHorizontalSpeedUpper);
+    writer.pod(pack.pushes.projectileTargetHeightLower);
+    writer.pod(pack.pushes.projectileTargetHeightUpper);
     writer.string(pack.terrain.body);
     writer.vector(pack.terrain.sampleOffsets);
     writer.vector(pack.terrain.resetTranslations);
@@ -978,6 +1005,11 @@ bool deserializeTask(
         !reader.pod(pack.pushes.minimumIntervalSeconds) ||
         !reader.pod(pack.pushes.maximumIntervalSeconds) ||
         !reader.pod(pack.pushes.projectileStandingProbability) ||
+        !reader.pod(pack.pushes.projectileTargetHorizontalRadius) ||
+        !reader.pod(pack.pushes.projectileHorizontalSpeedLower) ||
+        !reader.pod(pack.pushes.projectileHorizontalSpeedUpper) ||
+        !reader.pod(pack.pushes.projectileTargetHeightLower) ||
+        !reader.pod(pack.pushes.projectileTargetHeightUpper) ||
         !reader.string(pack.terrain.body) ||
         !reader.vector(pack.terrain.sampleOffsets) ||
         !reader.vector(pack.terrain.resetTranslations) ||

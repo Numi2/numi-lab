@@ -1520,6 +1520,11 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         makeUnitreeG1BallDisturbanceRecoveryTaskPack(surface);
     task.id = "unitree_g1_ball_dodge";
     task.pushes.projectileStandingProbability = 0.20f;
+    task.pushes.projectileTargetHorizontalRadius = 0.40f;
+    task.pushes.projectileHorizontalSpeedLower = 2.5f;
+    task.pushes.projectileHorizontalSpeedUpper = 5.5f;
+    task.pushes.projectileTargetHeightLower = 0.45f;
+    task.pushes.projectileTargetHeightUpper = 1.35f;
 
     // Deployment sees only ball-segmentation-masked depth. Preserve exact
     // object tracks in the critic for asymmetric PPO, but remove them from
