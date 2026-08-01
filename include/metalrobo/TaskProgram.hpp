@@ -64,7 +64,6 @@ enum class TaskRewardOperator : std::uint32_t {
     linearVelocityTracking =
         MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING,
     yawVelocityTracking = MR_TASK_REWARD_YAW_VELOCITY_TRACKING,
-    constant = MR_TASK_REWARD_CONSTANT,
     rootVerticalVelocitySquared =
         MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED,
     rootRollPitchVelocitySquared =
@@ -92,14 +91,6 @@ enum class TaskRewardOperator : std::uint32_t {
     footClearance = MR_TASK_REWARD_FOOT_CLEARANCE,
     jointLimitViolationAbsolute =
         MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE,
-    framePositionErrorSquared =
-        MR_TASK_REWARD_FRAME_POSITION_ERROR_SQUARED,
-    frameOrientationErrorSquared =
-        MR_TASK_REWARD_FRAME_ORIENTATION_ERROR_SQUARED,
-    framePositionTracking =
-        MR_TASK_REWARD_FRAME_POSITION_TRACKING,
-    frameOrientationTracking =
-        MR_TASK_REWARD_FRAME_ORIENTATION_TRACKING,
     signal = MR_TASK_REWARD_SIGNAL,
 };
 
@@ -107,10 +98,6 @@ enum class TaskTerminationOperator : std::uint32_t {
     minimumRootHeight = MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT,
     maximumTilt = MR_TASK_TERMINATE_MAXIMUM_TILT,
     contactGroup = MR_TASK_TERMINATE_CONTACT_GROUP,
-    maximumFramePositionError =
-        MR_TASK_TERMINATE_MAXIMUM_FRAME_POSITION_ERROR,
-    maximumFrameOrientationError =
-        MR_TASK_TERMINATE_MAXIMUM_FRAME_ORIENTATION_ERROR,
     signalBelow = MR_TASK_TERMINATE_SIGNAL_BELOW,
     signalAbove = MR_TASK_TERMINATE_SIGNAL_ABOVE,
     signalOutside = MR_TASK_TERMINATE_SIGNAL_OUTSIDE,
@@ -131,6 +118,7 @@ enum class TaskSignalOperator : std::uint32_t {
     clamp = MR_TASK_SIGNAL_CLAMP,
     exponentialTracking = MR_TASK_SIGNAL_EXPONENTIAL_TRACKING,
     insideBounds = MR_TASK_SIGNAL_INSIDE_BOUNDS,
+    exponentialDecay = MR_TASK_SIGNAL_EXPONENTIAL_DECAY,
 };
 
 enum class TaskRandomizationOperator : std::uint32_t {
@@ -250,10 +238,8 @@ struct TaskSignalSpec {
 
 struct TaskRewardOperatorSpec {
     TaskRewardOperator operation =
-        TaskRewardOperator::constant;
+        TaskRewardOperator::signal;
     std::string sourceGroup;
-    // Required by frame tracking/error operators.
-    std::string goal;
     // Required only by the generic SignalIR reward operator.
     std::string signal;
     // Reward rate in units per second. The native task integrates every
@@ -267,8 +253,6 @@ struct TaskTerminationOperatorSpec {
     TaskTerminationOperator operation =
         TaskTerminationOperator::minimumRootHeight;
     std::string sourceGroup;
-    // Required by frame error terminations.
-    std::string goal;
     // Required only by SignalIR threshold operators.
     std::string signal;
     std::uint32_t reason = MR_TASK_TERMINATION_HEIGHT;

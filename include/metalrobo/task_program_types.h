@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 15u
+#define MR_TASK_PROGRAM_ABI_VERSION 16u
 
 #define MR_TASK_GOAL_FIXED 0u
 #define MR_TASK_GOAL_SAMPLED_EPISODE 1u
@@ -85,42 +85,35 @@ enum MRTaskFrameSourceKind : mr_u32 {
 enum MRTaskRewardOpcode : mr_u32 {
     MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING = 0u,
     MR_TASK_REWARD_YAW_VELOCITY_TRACKING = 1u,
-    MR_TASK_REWARD_CONSTANT = 2u,
-    MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED = 3u,
-    MR_TASK_REWARD_ROOT_ROLL_PITCH_VELOCITY_SQUARED = 4u,
-    MR_TASK_REWARD_TILT_SQUARED = 5u,
-    MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED = 6u,
-    MR_TASK_REWARD_JOINT_VELOCITY_SQUARED = 7u,
-    MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED = 8u,
-    MR_TASK_REWARD_ACTION_RATE_SQUARED = 9u,
-    MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED = 10u,
-    MR_TASK_REWARD_MECHANICAL_POWER = 11u,
-    MR_TASK_REWARD_JOINT_GROUP_POSTURE_SQUARED = 12u,
-    MR_TASK_REWARD_GAIT_CONTACT_MATCH = 13u,
-    MR_TASK_REWARD_SWING_CLEARANCE = 14u,
-    MR_TASK_REWARD_SUPPORT_SLIP = 15u,
-    MR_TASK_REWARD_FORBIDDEN_CONTACT = 16u,
-    MR_TASK_REWARD_JOINT_GROUP_POSTURE_ABSOLUTE = 17u,
-    MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED = 18u,
-    MR_TASK_REWARD_FOOT_CLEARANCE = 19u,
-    MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE = 20u,
-    MR_TASK_REWARD_FRAME_POSITION_ERROR_SQUARED = 21u,
-    MR_TASK_REWARD_FRAME_ORIENTATION_ERROR_SQUARED = 22u,
-    MR_TASK_REWARD_FRAME_POSITION_TRACKING = 23u,
-    MR_TASK_REWARD_FRAME_ORIENTATION_TRACKING = 24u,
+    MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED = 2u,
+    MR_TASK_REWARD_ROOT_ROLL_PITCH_VELOCITY_SQUARED = 3u,
+    MR_TASK_REWARD_TILT_SQUARED = 4u,
+    MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED = 5u,
+    MR_TASK_REWARD_JOINT_VELOCITY_SQUARED = 6u,
+    MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED = 7u,
+    MR_TASK_REWARD_ACTION_RATE_SQUARED = 8u,
+    MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED = 9u,
+    MR_TASK_REWARD_MECHANICAL_POWER = 10u,
+    MR_TASK_REWARD_JOINT_GROUP_POSTURE_SQUARED = 11u,
+    MR_TASK_REWARD_GAIT_CONTACT_MATCH = 12u,
+    MR_TASK_REWARD_SWING_CLEARANCE = 13u,
+    MR_TASK_REWARD_SUPPORT_SLIP = 14u,
+    MR_TASK_REWARD_FORBIDDEN_CONTACT = 15u,
+    MR_TASK_REWARD_JOINT_GROUP_POSTURE_ABSOLUTE = 16u,
+    MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED = 17u,
+    MR_TASK_REWARD_FOOT_CLEARANCE = 18u,
+    MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE = 19u,
     // A scalar produced by the compiled, topologically ordered SignalIR.
-    MR_TASK_REWARD_SIGNAL = 25u,
+    MR_TASK_REWARD_SIGNAL = 20u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
     MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT = 0u,
     MR_TASK_TERMINATE_MAXIMUM_TILT = 1u,
     MR_TASK_TERMINATE_CONTACT_GROUP = 2u,
-    MR_TASK_TERMINATE_MAXIMUM_FRAME_POSITION_ERROR = 3u,
-    MR_TASK_TERMINATE_MAXIMUM_FRAME_ORIENTATION_ERROR = 4u,
-    MR_TASK_TERMINATE_SIGNAL_BELOW = 5u,
-    MR_TASK_TERMINATE_SIGNAL_ABOVE = 6u,
-    MR_TASK_TERMINATE_SIGNAL_OUTSIDE = 7u,
+    MR_TASK_TERMINATE_SIGNAL_BELOW = 3u,
+    MR_TASK_TERMINATE_SIGNAL_ABOVE = 4u,
+    MR_TASK_TERMINATE_SIGNAL_OUTSIDE = 5u,
 };
 
 // Statically shaped scalar TaskIR. Source leaves reuse the semantic
@@ -140,6 +133,7 @@ enum MRTaskSignalOpcode : mr_u32 {
     MR_TASK_SIGNAL_CLAMP = 11u,
     MR_TASK_SIGNAL_EXPONENTIAL_TRACKING = 12u,
     MR_TASK_SIGNAL_INSIDE_BOUNDS = 13u,
+    MR_TASK_SIGNAL_EXPONENTIAL_DECAY = 14u,
 };
 
 enum MRTaskTerminationReason : mr_u32 {
@@ -325,19 +319,17 @@ typedef struct MR_ALIGN16 MRTaskGoalGPU {
 } MRTaskGoalGPU;
 
 typedef struct MR_ALIGN16 MRTaskRewardOperatorGPU {
-    // opcode, resolved group/index, auxiliary index, flags.
+    // opcode, resolved group/signal index, reserved, flags.
     mr_uint4 source;
     // weight and three operator parameters.
     mr_float4 parameters;
 } MRTaskRewardOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskTerminationOperatorGPU {
-    // opcode, resolved group/index, reason, priority.
+    // opcode, resolved group/signal index, reason, priority.
     mr_uint4 source;
     // threshold, one-shot failure penalty, and reserved values.
     mr_float4 parameters;
-    // Resolved goal index and reserved values.
-    mr_uint4 auxiliary;
 } MRTaskTerminationOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskRandomizationOperatorGPU {
@@ -410,7 +402,7 @@ static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);
 static_assert(sizeof(MRTaskGoalGPU) == 160u);
 static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);
-static_assert(sizeof(MRTaskTerminationOperatorGPU) == 48u);
+static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 80u);

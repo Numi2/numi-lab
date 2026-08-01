@@ -1006,7 +1006,16 @@ TaskPack makeUnitreeG1TaskPack(
         {},
         {0.25f, 0.0f, 0.0f, 0.0f}
     );
-    reward(TaskRewardOperator::constant, 0.15f);
+    task.signals.push_back({
+        .id = "alive",
+        .operation = TaskSignalOperator::constant,
+        .parameters = {1.0f, 0.0f, 0.0f, 0.0f},
+    });
+    task.rewards.push_back({
+        .operation = TaskRewardOperator::signal,
+        .signal = "alive",
+        .weight = 0.15f,
+    });
     reward(
         TaskRewardOperator::rootVerticalVelocitySquared,
         -2.0f

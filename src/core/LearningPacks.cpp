@@ -190,7 +190,6 @@ LearningPackResult validateTaskArtifact(
     }
     const auto semanticFits = [](const auto& value) {
         return stringFits(value.sourceGroup) &&
-            stringFits(value.goal) &&
             stringFits(value.signal);
     };
     if (!std::all_of(
@@ -862,7 +861,6 @@ std::vector<std::byte> serializeTask(
         [](Writer& target, const TaskRewardOperatorSpec& value) {
             writeEnum(target, value.operation);
             target.string(value.sourceGroup);
-            target.string(value.goal);
             target.string(value.signal);
             target.pod(value.weight);
             target.pod(value.parameters);
@@ -875,7 +873,6 @@ std::vector<std::byte> serializeTask(
            const TaskTerminationOperatorSpec& value) {
             writeEnum(target, value.operation);
             target.string(value.sourceGroup);
-            target.string(value.goal);
             target.string(value.signal);
             target.pod(value.reason);
             target.pod(value.priority);
@@ -1030,7 +1027,6 @@ bool deserializeTask(
                TaskRewardOperatorSpec& value) {
                 return readEnum(source, value.operation) &&
                     source.string(value.sourceGroup) &&
-                    source.string(value.goal) &&
                     source.string(value.signal) &&
                     source.pod(value.weight) &&
                     source.pod(value.parameters);
@@ -1043,7 +1039,6 @@ bool deserializeTask(
                TaskTerminationOperatorSpec& value) {
                 return readEnum(source, value.operation) &&
                     source.string(value.sourceGroup) &&
-                    source.string(value.goal) &&
                     source.string(value.signal) &&
                     source.pod(value.reason) &&
                     source.pod(value.priority) &&

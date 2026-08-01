@@ -2197,6 +2197,10 @@ TaskCompileDiagnostics compileTaskProgram(
             validShape = requireUnary() &&
                 signal.parameters.y > 0.0f;
             break;
+        case TaskSignalOperator::exponentialDecay:
+            validShape = requireUnary() &&
+                signal.parameters.x > 0.0f;
+            break;
         default:
             return reject(
                 TaskCompileStatus::unsupportedOperator,
@@ -2358,7 +2362,6 @@ TaskCompileDiagnostics compileTaskProgram(
             );
         }
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
-        std::uint32_t goalIndex = MR_INVALID_INDEX;
         switch (reward.operation) {
         case TaskRewardOperator::jointGroupPostureSquared:
         case TaskRewardOperator::jointGroupPostureAbsolute:
@@ -2388,7 +2391,6 @@ TaskCompileDiagnostics compileTaskProgram(
             break;
         case TaskRewardOperator::linearVelocityTracking:
         case TaskRewardOperator::yawVelocityTracking:
-        case TaskRewardOperator::constant:
         case TaskRewardOperator::rootVerticalVelocitySquared:
         case TaskRewardOperator::rootRollPitchVelocitySquared:
         case TaskRewardOperator::tiltSquared:
@@ -2412,26 +2414,6 @@ TaskCompileDiagnostics compileTaskProgram(
                 );
             }
             break;
-        case TaskRewardOperator::framePositionErrorSquared:
-        case TaskRewardOperator::frameOrientationErrorSquared:
-        case TaskRewardOperator::framePositionTracking:
-        case TaskRewardOperator::frameOrientationTracking:
-            sourceIndex = namedGroup(
-                frameIds,
-                reward.sourceGroup
-            );
-            goalIndex = namedGroup(goalIds, reward.goal);
-            if (sourceIndex == MR_INVALID_INDEX ||
-                goalIndex == MR_INVALID_INDEX) {
-                return reject(
-                    TaskCompileStatus::unresolvedSemantic,
-                    sourceIndex == MR_INVALID_INDEX
-                        ? reward.sourceGroup
-                        : reward.goal,
-                    "frame reward requires an existing frame and goal"
-                );
-            }
-            break;
         default:
             return reject(
                 TaskCompileStatus::unsupportedOperator,
@@ -2446,11 +2428,7 @@ TaskCompileDiagnostics compileTaskProgram(
              reward.operation ==
                  TaskRewardOperator::swingClearance ||
              reward.operation ==
-                 TaskRewardOperator::footClearance ||
-             reward.operation ==
-                 TaskRewardOperator::framePositionTracking ||
-             reward.operation ==
-                 TaskRewardOperator::frameOrientationTracking) &&
+                 TaskRewardOperator::footClearance) &&
             !(reward.parameters.x > 0.0f)) {
             return reject(
                 TaskCompileStatus::invalidPack,
@@ -2476,30 +2454,14 @@ TaskCompileDiagnostics compileTaskProgram(
                 "reward source group does not exist"
             );
         }
-        const bool frameReward =
-            reward.operation ==
-                TaskRewardOperator::framePositionErrorSquared ||
-            reward.operation ==
-                TaskRewardOperator::frameOrientationErrorSquared ||
-            reward.operation ==
-                TaskRewardOperator::framePositionTracking ||
-            reward.operation ==
-                TaskRewardOperator::frameOrientationTracking;
         const bool signalReward =
             reward.operation == TaskRewardOperator::signal;
-        if (!frameReward && !reward.goal.empty()) {
-            return reject(
-                TaskCompileStatus::invalidPack,
-                reward.goal,
-                "only frame rewards may bind a goal"
-            );
-        }
         if (signalReward &&
-            (!reward.sourceGroup.empty() || !reward.goal.empty())) {
+            !reward.sourceGroup.empty()) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 reward.signal,
-                "SignalIR rewards cannot also bind a group or goal"
+                "SignalIR rewards cannot also bind a group"
             );
         }
         if (!signalReward && !reward.signal.empty()) {
@@ -2513,7 +2475,7 @@ TaskCompileDiagnostics compileTaskProgram(
             {
                 static_cast<std::uint32_t>(reward.operation),
                 sourceIndex,
-                goalIndex,
+                MR_INVALID_INDEX,
                 0u,
             },
             {
@@ -2545,7 +2507,6 @@ TaskCompileDiagnostics compileTaskProgram(
             );
         }
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
-        std::uint32_t goalIndex = MR_INVALID_INDEX;
         switch (termination.operation) {
         case TaskTerminationOperator::contactGroup:
             sourceIndex = namedGroup(
@@ -2562,34 +2523,6 @@ TaskCompileDiagnostics compileTaskProgram(
             break;
         case TaskTerminationOperator::minimumRootHeight:
         case TaskTerminationOperator::maximumTilt:
-            break;
-        case TaskTerminationOperator::maximumFramePositionError:
-        case TaskTerminationOperator::maximumFrameOrientationError:
-            sourceIndex = namedGroup(
-                frameIds,
-                termination.sourceGroup
-            );
-            goalIndex = namedGroup(
-                goalIds,
-                termination.goal
-            );
-            if (sourceIndex == MR_INVALID_INDEX ||
-                goalIndex == MR_INVALID_INDEX) {
-                return reject(
-                    TaskCompileStatus::unresolvedSemantic,
-                    sourceIndex == MR_INVALID_INDEX
-                        ? termination.sourceGroup
-                        : termination.goal,
-                    "frame termination requires an existing frame and goal"
-                );
-            }
-            if (!(termination.threshold >= 0.0f)) {
-                return reject(
-                    TaskCompileStatus::invalidPack,
-                    termination.sourceGroup,
-                    "frame termination threshold must be nonnegative"
-                );
-            }
             break;
         case TaskTerminationOperator::signalBelow:
         case TaskTerminationOperator::signalAbove:
@@ -2623,11 +2556,6 @@ TaskCompileDiagnostics compileTaskProgram(
                 "termination opcode is unsupported"
             );
         }
-        const bool frameTermination =
-            termination.operation ==
-                TaskTerminationOperator::maximumFramePositionError ||
-            termination.operation ==
-                TaskTerminationOperator::maximumFrameOrientationError;
         const bool signalTermination =
             termination.operation ==
                 TaskTerminationOperator::signalBelow ||
@@ -2635,20 +2563,12 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskTerminationOperator::signalAbove ||
             termination.operation ==
                 TaskTerminationOperator::signalOutside;
-        if (!frameTermination && !termination.goal.empty()) {
-            return reject(
-                TaskCompileStatus::invalidPack,
-                termination.goal,
-                "only frame terminations may bind a goal"
-            );
-        }
         if (signalTermination &&
-            (!termination.sourceGroup.empty() ||
-             !termination.goal.empty())) {
+            !termination.sourceGroup.empty()) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 termination.signal,
-                "SignalIR terminations cannot also bind a group or goal"
+                "SignalIR terminations cannot also bind a group"
             );
         }
         if (!signalTermination && !termination.signal.empty()) {
@@ -2673,7 +2593,6 @@ TaskCompileDiagnostics compileTaskProgram(
                 termination.upperThreshold,
                 0.0f,
             },
-            {goalIndex, 0u, 0u, 0u},
         });
     }
 
@@ -3376,12 +3295,10 @@ TaskCompileDiagnostics compileTaskProgram(
         hash.string(observation.coordinate);
     }
     for (const TaskRewardOperatorSpec& reward : pack.rewards) {
-        hash.string(reward.goal);
         hash.string(reward.signal);
     }
     for (const TaskTerminationOperatorSpec& termination :
          pack.terminations) {
-        hash.string(termination.goal);
         hash.string(termination.signal);
     }
     staged->fingerprint = hash.finish();

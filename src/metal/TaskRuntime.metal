@@ -3756,6 +3756,9 @@ kernel void mr_task_complete(
                 left <= operation.parameters.y
             );
             break;
+        case MR_TASK_SIGNAL_EXPONENTIAL_DECAY:
+            value = exp(-left / operation.parameters.x);
+            break;
         default:
             value = 0.0f;
             break;
@@ -3790,9 +3793,6 @@ kernel void mr_task_complete(
                 max(operation.parameters.y, 1.0e-8f)
             );
             break;
-        case MR_TASK_REWARD_CONSTANT:
-            value = 1.0f;
-            break;
         case MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED:
             value = baseLinear.z * baseLinear.z;
             break;
@@ -3809,58 +3809,6 @@ kernel void mr_task_complete(
             const float error =
                 height - program.taskScalars.x;
             value = error * error;
-            break;
-        }
-        case MR_TASK_REWARD_FRAME_POSITION_ERROR_SQUARED:
-        case MR_TASK_REWARD_FRAME_POSITION_TRACKING:
-        case MR_TASK_REWARD_FRAME_ORIENTATION_ERROR_SQUARED:
-        case MR_TASK_REWARD_FRAME_ORIENTATION_TRACKING: {
-            device const MRTaskFrameGPU& frame =
-                frames[operation.source.y];
-            device const MRTaskGoalGPU& goal =
-                goals[operation.source.z];
-            const TaskGoalPose goalPose = taskGoalPose(
-                dispatch,
-                goal,
-                environment,
-                state.episode.y,
-                episodeSteps
-            );
-            const MRBodyStateGPU body = taskFrameBodyState(
-                frame,
-                bodyStates + bodyBase,
-                sceneState + sceneBase
-            );
-            const TaskFramePose pose = taskFramePose(
-                frame,
-                body.position,
-                body.orientation
-            );
-            float errorSquared = 0.0f;
-            if (operation.source.x ==
-                    MR_TASK_REWARD_FRAME_POSITION_ERROR_SQUARED ||
-                operation.source.x ==
-                    MR_TASK_REWARD_FRAME_POSITION_TRACKING) {
-                const float3 error =
-                    goalPose.position - pose.position;
-                errorSquared = dot(error, error);
-            } else {
-                const float3 error = taskOrientationError(
-                    pose.orientation,
-                    goalPose.orientation
-                );
-                errorSquared = dot(error, error);
-            }
-            value =
-                operation.source.x ==
-                        MR_TASK_REWARD_FRAME_POSITION_TRACKING ||
-                    operation.source.x ==
-                        MR_TASK_REWARD_FRAME_ORIENTATION_TRACKING
-                ? exp(
-                      -errorSquared /
-                      max(operation.parameters.y, 1.0e-8f)
-                  )
-                : errorSquared;
             break;
         }
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
@@ -4110,12 +4058,9 @@ kernel void mr_task_complete(
         switch (operation.source.x) {
         case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
         case MR_TASK_REWARD_YAW_VELOCITY_TRACKING:
-        case MR_TASK_REWARD_CONSTANT:
         case MR_TASK_REWARD_GAIT_CONTACT_MATCH:
         case MR_TASK_REWARD_SWING_CLEARANCE:
         case MR_TASK_REWARD_FOOT_CLEARANCE:
-        case MR_TASK_REWARD_FRAME_POSITION_TRACKING:
-        case MR_TASK_REWARD_FRAME_ORIENTATION_TRACKING:
         case MR_TASK_REWARD_SIGNAL:
             rewardBreakdown0.x += contribution;
             break;
@@ -4124,8 +4069,6 @@ kernel void mr_task_complete(
         case MR_TASK_REWARD_TILT_SQUARED:
         case MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED:
         case MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED:
-        case MR_TASK_REWARD_FRAME_POSITION_ERROR_SQUARED:
-        case MR_TASK_REWARD_FRAME_ORIENTATION_ERROR_SQUARED:
             rewardBreakdown0.y += contribution;
             break;
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
@@ -4190,40 +4133,6 @@ kernel void mr_task_complete(
                 compactContact[
                     compactBase + group.members.w
                 ] > operation.parameters.x;
-            break;
-        }
-        case MR_TASK_TERMINATE_MAXIMUM_FRAME_POSITION_ERROR:
-        case MR_TASK_TERMINATE_MAXIMUM_FRAME_ORIENTATION_ERROR: {
-            device const MRTaskFrameGPU& frame =
-                frames[operation.source.y];
-            device const MRTaskGoalGPU& goal =
-                goals[operation.auxiliary.x];
-            const TaskGoalPose goalPose = taskGoalPose(
-                dispatch,
-                goal,
-                environment,
-                state.episode.y,
-                episodeSteps
-            );
-            const MRBodyStateGPU body = taskFrameBodyState(
-                frame,
-                bodyStates + bodyBase,
-                sceneState + sceneBase
-            );
-            const TaskFramePose pose = taskFramePose(
-                frame,
-                body.position,
-                body.orientation
-            );
-            const float error =
-                operation.source.x ==
-                    MR_TASK_TERMINATE_MAXIMUM_FRAME_POSITION_ERROR
-                ? length(goalPose.position - pose.position)
-                : length(taskOrientationError(
-                      pose.orientation,
-                      goalPose.orientation
-                  ));
-            triggered = error > operation.parameters.x;
             break;
         }
         case MR_TASK_TERMINATE_SIGNAL_BELOW:

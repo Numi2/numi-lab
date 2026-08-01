@@ -69,6 +69,86 @@ public:
     throw std::runtime_error(message);
 }
 
+void addConstantSignalReward(
+    metalrobo::TaskPack& task,
+    const std::string& id,
+    const float weight
+) {
+    task.signals.push_back({
+        .id = id,
+        .operation = metalrobo::TaskSignalOperator::constant,
+        .parameters = {1.0f, 0.0f, 0.0f, 0.0f},
+    });
+    task.rewards.push_back({
+        .operation = metalrobo::TaskRewardOperator::signal,
+        .signal = id,
+        .weight = weight,
+    });
+}
+
+std::string addFrameErrorSquaredSignal(
+    metalrobo::TaskPack& task,
+    const std::string& prefix,
+    const metalrobo::TaskObservationSource source,
+    const std::string& frame,
+    const std::string& goal
+) {
+    constexpr std::array<std::string_view, 3u> suffixes{
+        "x", "y", "z",
+    };
+    std::array<std::string, 3u> squares;
+    for (std::uint32_t component = 0u;
+         component < suffixes.size();
+         ++component) {
+        const std::string leaf =
+            prefix + "_" + std::string{suffixes[component]};
+        squares[component] = leaf + "_squared";
+        task.signals.push_back({
+            .id = leaf,
+            .operation = metalrobo::TaskSignalOperator::source,
+            .source = {
+                .source = source,
+                .target = frame,
+                .goal = goal,
+                .component = component,
+            },
+        });
+        task.signals.push_back({
+            .id = squares[component],
+            .operation = metalrobo::TaskSignalOperator::square,
+            .left = leaf,
+        });
+    }
+    const std::string sumXY = prefix + "_squared_xy";
+    const std::string sumXYZ = prefix + "_squared_norm";
+    task.signals.push_back({
+        .id = sumXY,
+        .operation = metalrobo::TaskSignalOperator::add,
+        .left = squares[0u],
+        .right = squares[1u],
+    });
+    task.signals.push_back({
+        .id = sumXYZ,
+        .operation = metalrobo::TaskSignalOperator::add,
+        .left = sumXY,
+        .right = squares[2u],
+    });
+    return sumXYZ;
+}
+
+std::string addSquareRootSignal(
+    metalrobo::TaskPack& task,
+    const std::string& id,
+    const std::string& source
+) {
+    task.signals.push_back({
+        .id = id,
+        .operation = metalrobo::TaskSignalOperator::squareRoot,
+        .left = source,
+    });
+    return id;
+}
+
 float sensorGaussianReference(
     const std::uint64_t seed,
     const std::uint32_t environment,
@@ -199,11 +279,11 @@ std::uint64_t compileFloatingBaseTaskFixture() {
         .support = true,
         .referenceBody = "foot",
     }};
-    authored.task.rewards = {{
-        .operation =
-            metalrobo::TaskRewardOperator::constant,
-        .weight = 1.0f,
-    }};
+    addConstantSignalReward(
+        authored.task,
+        "alive",
+        1.0f
+    );
     authored.task.terminations = {{
         .operation =
             metalrobo::TaskTerminationOperator::
@@ -482,30 +562,45 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .id = "home",
         .position = {0.0f, 0.0f, 0.3f, 1.0f},
     }};
-    authored.task.rewards = {
-        {
-            .operation = metalrobo::TaskRewardOperator::constant,
-            .weight = 1.0f,
-        },
-        {
-            .operation =
-                metalrobo::TaskRewardOperator::jointVelocitySquared,
-            .weight = -0.01f,
-        },
-        {
-            .operation = metalrobo::TaskRewardOperator::
-                framePositionTracking,
-            .sourceGroup = "tool_tip",
-            .goal = "home",
-            .weight = 0.5f,
-            .parameters = {0.01f, 0.0f, 0.0f, 0.0f},
-        },
-    };
+    addConstantSignalReward(
+        authored.task,
+        "alive",
+        1.0f
+    );
+    authored.task.rewards.push_back({
+        .operation =
+            metalrobo::TaskRewardOperator::jointVelocitySquared,
+        .weight = -0.01f,
+    });
+    const std::string homePositionSquared =
+        addFrameErrorSquaredSignal(
+            authored.task,
+            "home_position_error",
+            metalrobo::TaskObservationSource::
+                frameGoalPositionError,
+            "tool_tip",
+            "home"
+        );
+    authored.task.signals.push_back({
+        .id = "home_position_tracking",
+        .operation =
+            metalrobo::TaskSignalOperator::exponentialDecay,
+        .left = homePositionSquared,
+        .parameters = {0.01f, 0.0f, 0.0f, 0.0f},
+    });
+    authored.task.rewards.push_back({
+        .operation = metalrobo::TaskRewardOperator::signal,
+        .signal = "home_position_tracking",
+        .weight = 0.5f,
+    });
+    const std::string homePositionNorm = addSquareRootSignal(
+        authored.task,
+        "home_position_error_norm",
+        homePositionSquared
+    );
     authored.task.terminations = {{
-        .operation = metalrobo::TaskTerminationOperator::
-            maximumFramePositionError,
-        .sourceGroup = "tool_tip",
-        .goal = "home",
+        .operation = metalrobo::TaskTerminationOperator::signalAbove,
+        .signal = homePositionNorm,
         .reason = MR_TASK_TERMINATION_GOAL_ERROR,
         .priority = 1u,
         .threshold = 1.0f,
@@ -797,41 +892,62 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     };
     dynamicGoalTask.critic = dynamicGoalTask.actorFrame;
     dynamicGoalTask.criticIncludesCleanHistory = false;
-    dynamicGoalTask.rewards = {
-        {
-            .operation = metalrobo::TaskRewardOperator::constant,
-            .weight = 1.0f,
-        },
-        {
-            .operation = metalrobo::TaskRewardOperator::
-                framePositionErrorSquared,
-            .sourceGroup = "anchor",
-            .goal = "ping_pong_trajectory",
-            .weight = 0.5f,
-        },
-        {
-            .operation = metalrobo::TaskRewardOperator::
-                frameOrientationErrorSquared,
-            .sourceGroup = "anchor",
-            .goal = "ping_pong_trajectory",
-            .weight = 0.25f,
-        },
-    };
+    addConstantSignalReward(
+        dynamicGoalTask,
+        "alive",
+        1.0f
+    );
+    const std::string trajectoryPositionSquared =
+        addFrameErrorSquaredSignal(
+            dynamicGoalTask,
+            "trajectory_position_error",
+            metalrobo::TaskObservationSource::
+                frameGoalPositionError,
+            "anchor",
+            "ping_pong_trajectory"
+        );
+    const std::string trajectoryOrientationSquared =
+        addFrameErrorSquaredSignal(
+            dynamicGoalTask,
+            "trajectory_orientation_error",
+            metalrobo::TaskObservationSource::
+                frameGoalOrientationError,
+            "anchor",
+            "ping_pong_trajectory"
+        );
+    dynamicGoalTask.rewards.push_back({
+        .operation = metalrobo::TaskRewardOperator::signal,
+        .signal = trajectoryPositionSquared,
+        .weight = 0.5f,
+    });
+    dynamicGoalTask.rewards.push_back({
+        .operation = metalrobo::TaskRewardOperator::signal,
+        .signal = trajectoryOrientationSquared,
+        .weight = 0.25f,
+    });
+    const std::string trajectoryPositionNorm = addSquareRootSignal(
+        dynamicGoalTask,
+        "trajectory_position_error_norm",
+        trajectoryPositionSquared
+    );
+    const std::string trajectoryOrientationNorm = addSquareRootSignal(
+        dynamicGoalTask,
+        "trajectory_orientation_error_norm",
+        trajectoryOrientationSquared
+    );
     dynamicGoalTask.terminations = {
         {
-            .operation = metalrobo::TaskTerminationOperator::
-                maximumFramePositionError,
-            .sourceGroup = "anchor",
-            .goal = "ping_pong_trajectory",
+            .operation =
+                metalrobo::TaskTerminationOperator::signalAbove,
+            .signal = trajectoryPositionNorm,
             .reason = MR_TASK_TERMINATION_GOAL_ERROR,
             .priority = 1u,
             .threshold = 0.09f,
         },
         {
-            .operation = metalrobo::TaskTerminationOperator::
-                maximumFrameOrientationError,
-            .sourceGroup = "anchor",
-            .goal = "ping_pong_trajectory",
+            .operation =
+                metalrobo::TaskTerminationOperator::signalAbove,
+            .signal = trajectoryOrientationNorm,
             .reason = MR_TASK_TERMINATION_GOAL_ERROR,
             .priority = 1u,
             .threshold = 1.6f,
@@ -1814,10 +1930,11 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     };
     jointSensorTask.criticIncludesCleanHistory = false;
     jointSensorTask.critic = jointSensorTask.actorFrame;
-    jointSensorTask.rewards = {{
-        .operation = metalrobo::TaskRewardOperator::constant,
-        .weight = 1.0f,
-    }};
+    addConstantSignalReward(
+        jointSensorTask,
+        "alive",
+        1.0f
+    );
     jointSensorTask.maximumEpisodeSteps = 32u;
     metalrobo::CompiledTaskProgram compiledJointSensorTask;
     const auto jointSensorTaskCompile =
@@ -3148,10 +3265,12 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     // kinematic rigid body is an independent exact oracle for that contract.
     metalrobo::SimulationDescription imuAuthored = twistAuthored;
     imuAuthored.task.signals.clear();
-    imuAuthored.task.rewards = {{
-        .operation = metalrobo::TaskRewardOperator::constant,
-        .weight = 1.0f,
-    }};
+    imuAuthored.task.rewards.clear();
+    addConstantSignalReward(
+        imuAuthored.task,
+        "alive",
+        1.0f
+    );
     imuAuthored.task.terminations.clear();
     imuAuthored.task.id = "fixed_base_native_imu";
     imuAuthored.sceneBodies[0u]
@@ -3483,10 +3602,13 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .bodies = {"tool"},
         .referenceBody = "tool",
     }};
-    wrenchAuthored.task.rewards = {{
-        .operation = metalrobo::TaskRewardOperator::constant,
-        .weight = 1.0f,
-    }};
+    wrenchAuthored.task.signals.clear();
+    wrenchAuthored.task.rewards.clear();
+    addConstantSignalReward(
+        wrenchAuthored.task,
+        "alive",
+        1.0f
+    );
     wrenchAuthored.task.terminations.clear();
     wrenchAuthored.sensors = {
         {
