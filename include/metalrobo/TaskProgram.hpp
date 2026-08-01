@@ -145,12 +145,14 @@ struct TaskObservationOperatorSpec {
     bool normalizeVector3 = false;
 };
 
-// A named task frame is authored in a body link frame. Compilation converts
-// its translation to the body's centre-of-mass frame and resolves the body
-// identity once; the runtime receives only MRTaskFrameGPU records.
+// A named task frame is authored either in one body link frame or relative to
+// one imported/authored model site. Exactly one source is required. Site
+// transforms are composed at compilation, then translation is converted to
+// the body's centre-of-mass frame; Metal receives only MRTaskFrameGPU records.
 struct TaskFrameSpec {
     std::string id;
     std::string body;
+    std::string site;
     mr_float4 localPosition{};
     mr_float4 localOrientation{0.0f, 0.0f, 0.0f, 1.0f};
 };

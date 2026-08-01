@@ -3,6 +3,8 @@
 #include "metalrobo/G1.hpp"
 #include "metalrobo/WorldPack.hpp"
 
+#include "SemanticTransform.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -101,61 +103,24 @@ std::array<std::array<float, 3u>, 3u> rotationMatrix(
     }};
 }
 
-mr_float4 quaternionProduct(
-    const mr_float4 left,
-    const mr_float4 right
-) {
-    return normalizedQuaternion({
-        left.w * right.x + left.x * right.w +
-            left.y * right.z - left.z * right.y,
-        left.w * right.y - left.x * right.z +
-            left.y * right.w + left.z * right.x,
-        left.w * right.z + left.x * right.y -
-            left.y * right.x + left.z * right.w,
-        left.w * right.w - left.x * right.x -
-            left.y * right.y - left.z * right.z,
-    });
-}
-
-mr_float4 rotateVector(
-    const mr_float4 orientation,
-    const mr_float4 value
-) {
-    const auto rotation = rotationMatrix(orientation);
-    return {
-        rotation[0u][0u] * value.x +
-            rotation[0u][1u] * value.y +
-            rotation[0u][2u] * value.z,
-        rotation[1u][0u] * value.x +
-            rotation[1u][1u] * value.y +
-            rotation[1u][2u] * value.z,
-        rotation[2u][0u] * value.x +
-            rotation[2u][1u] * value.y +
-            rotation[2u][2u] * value.z,
-        value.w,
-    };
-}
-
 WorldPose composePose(
     const WorldPose& parent,
     const WorldPose& local
 ) {
-    const mr_float4 translated = rotateVector(
-        parent.orientation,
-        local.position
-    );
-    return {
-        {
-            parent.position.x + translated.x,
-            parent.position.y + translated.y,
-            parent.position.z + translated.z,
-            0.0f,
-        },
-        quaternionProduct(
+    WorldPose result{};
+    if (!semantic_transform::compose(
+            parent.position,
             parent.orientation,
-            local.orientation
-        ),
-    };
+            local.position,
+            local.orientation,
+            result.position,
+            result.orientation
+        )) {
+        throw std::invalid_argument(
+            "WorldPack pose composition is invalid"
+        );
+    }
+    return result;
 }
 
 void writeWorldInverseInertia(
@@ -591,6 +556,42 @@ SimulationDescription makeWorldPackSimulation(
     for (SensorSpec& sensor : result.sensors) {
         if (sensor.parentKind !=
             MR_WORLD_SENSOR_PARENT_ASSET) {
+            continue;
+        }
+        if (!sensor.parentSite.empty()) {
+            const auto site = std::ranges::find_if(
+                result.model.sites,
+                [&](const EngineSite& candidate) {
+                    return candidate.id == sensor.parentSite;
+                }
+            );
+            const std::uint32_t parentIndex =
+                authored.assetIndex(sensor.parentAssetId);
+            if (site == result.model.sites.end() ||
+                parentIndex == MR_INVALID_INDEX ||
+                std::ranges::find(
+                    authored.assets[parentIndex].bodyIndices,
+                    site->bodyIndex
+                ) == authored.assets[parentIndex]
+                        .bodyIndices.end()) {
+                throw std::invalid_argument(
+                    "MRWorldPack sensor parent site is unresolved or outside its asset"
+                );
+            }
+            sensor.localPose = composePose(
+                {
+                    site->localPosition,
+                    site->localOrientation,
+                },
+                sensor.localPose
+            );
+            sensor.parentBodyIndex = site->bodyIndex;
+            sensor.parentKind =
+                result.model.bodies[site->bodyIndex]
+                        .articulationIndex == MR_INVALID_INDEX
+                ? MR_WORLD_SENSOR_PARENT_RIGID_BODY
+                : MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
+            sensor.parentSite.clear();
             continue;
         }
         // Joint/actuator SensorIR is asset-owned but not spatially attached.

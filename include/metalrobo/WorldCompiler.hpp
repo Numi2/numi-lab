@@ -90,6 +90,10 @@ struct WorldAsset {
 struct SensorSpec {
     std::string id;
     std::string parentAssetId;
+    // Optional named EngineSite within parentAssetId. When present the
+    // authored local pose is site-relative and the compiler resolves/composes
+    // the site's body and transform before SensorIR publication.
+    std::string parentSite;
     MRWorldSensorParentKind parentKind =
         MR_WORLD_SENSOR_PARENT_ASSET;
     // Global EngineModel body index for rigid-body or articulated-link

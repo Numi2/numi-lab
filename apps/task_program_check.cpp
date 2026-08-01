@@ -457,8 +457,14 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     authored.task.frames = {
         {
             .id = "tool_tip",
-            .body = "tool",
-            .localPosition = {0.0f, 0.0f, 0.2f, 0.0f},
+            .site = "tool_control_site",
+            .localPosition = {0.0f, 0.0f, 0.05f, 0.0f},
+            .localOrientation = {
+                0.0f,
+                0.0f,
+                -0.7071067811865476f,
+                0.7071067811865476f,
+            },
         },
         {
             .id = "world_anchor",
@@ -531,15 +537,31 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         static_cast<std::uint32_t>(
             toolBody - authored.model.bodyNames.begin()
         );
+    authored.model.sites.push_back({
+        .id = "tool_control_site",
+        .bodyIndex = toolBodyIndex,
+        .localPosition = {0.0f, 0.0f, 0.15f, 0.0f},
+        .localOrientation = {
+            0.0f,
+            0.0f,
+            0.7071067811865476f,
+            0.7071067811865476f,
+        },
+    });
     authored.sensors = {
         {
             .id = "tool_pose_delayed",
-            .parentKind =
-                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
-            .parentBodyIndex = toolBodyIndex,
+            .parentSite = "tool_control_site",
+            .parentKind = MR_WORLD_SENSOR_PARENT_ASSET,
             .kind = MR_WORLD_SENSOR_STATE,
             .localPose = {
-                .position = {0.0f, 0.0f, 0.2f, 0.0f},
+                .position = {0.0f, 0.0f, 0.05f, 0.0f},
+                .orientation = {
+                    0.0f,
+                    0.0f,
+                    -0.7071067811865476f,
+                    0.7071067811865476f,
+                },
             },
             .latencySeconds = 0.02f,
             .nominalRateHz = 50.0f,
@@ -623,6 +645,19 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             compiled.task.frames().front().localPosition.z -
             0.1f
         ) > 1.0e-6f ||
+        std::abs(
+            compiled.task.frames().front().localOrientation.x
+        ) > 1.0e-6f ||
+        std::abs(
+            compiled.task.frames().front().localOrientation.y
+        ) > 1.0e-6f ||
+        std::abs(
+            compiled.task.frames().front().localOrientation.z
+        ) > 1.0e-6f ||
+        std::abs(
+            compiled.task.frames().front().localOrientation.w -
+            1.0f
+        ) > 1.0e-6f ||
         compiled.task.frames()[1].indices.y !=
             MR_TASK_FRAME_SOURCE_SCENE_BODY ||
         compiled.task.frames()[1].indices.z != 0u ||
@@ -632,6 +667,48 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         fail(
             "fixed-base task did not compile through the generic task route: " +
             status.task.message
+        );
+    }
+    metalrobo::TaskPack unresolvedSite = authored.task;
+    unresolvedSite.frames.front().site = "missing_site";
+    metalrobo::CompiledTaskProgram preservedTask = compiled.task;
+    const std::uint64_t preservedTaskFingerprint =
+        preservedTask.fingerprint();
+    const auto unresolvedSiteStatus =
+        metalrobo::compileTaskProgram(
+            unresolvedSite,
+            compiled.world,
+            compiled.sensors,
+            preservedTask
+        );
+    if (unresolvedSiteStatus.status !=
+            metalrobo::TaskCompileStatus::unresolvedSemantic ||
+        preservedTask.fingerprint() !=
+            preservedTaskFingerprint) {
+        fail(
+            "unresolved task site did not fail transactionally"
+        );
+    }
+    std::vector<metalrobo::SensorSpec> unresolvedSiteSensors =
+        authored.sensors;
+    unresolvedSiteSensors.front().parentSite = "missing_site";
+    metalrobo::CompiledSensorProgram preservedSensors =
+        compiled.sensors;
+    const std::uint64_t preservedSensorFingerprint =
+        preservedSensors.fingerprint();
+    const auto unresolvedSensorSiteStatus =
+        metalrobo::compileSensorProgram(
+            unresolvedSiteSensors,
+            authored.tactileSystem,
+            compiled.world,
+            preservedSensors
+        );
+    if (unresolvedSensorSiteStatus.status !=
+            metalrobo::SensorCompileStatus::unresolvedSemantic ||
+        preservedSensors.fingerprint() !=
+            preservedSensorFingerprint) {
+        fail(
+            "unresolved sensor site did not fail transactionally"
         );
     }
 
@@ -3872,12 +3949,24 @@ std::uint64_t checkWorldPackSimulationImport(
         wristSensor->parentBodyIndex == MR_INVALID_INDEX) {
         fail("WorldPack IMU fixture has no resolved robot link");
     }
+    const std::uint32_t wristBodyIndex =
+        wristSensor->parentBodyIndex;
+    frankaModel.sites.push_back({
+        .id = "worldpack_wrist_site",
+        .bodyIndex = wristBodyIndex,
+        .localPosition = {0.01f, -0.02f, 0.03f, 0.0f},
+        .localOrientation = {
+            0.0f,
+            0.0f,
+            0.7071067811865476f,
+            0.7071067811865476f,
+        },
+    });
     episode.sensors.push_back({
         .id = "franka_worldpack_imu",
         .parentAssetId = episode.task.robotAssetId,
-        .parentKind =
-            MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
-        .parentBodyIndex = wristSensor->parentBodyIndex,
+        .parentSite = "worldpack_wrist_site",
+        .parentKind = MR_WORLD_SENSOR_PARENT_ASSET,
         .kind = MR_WORLD_SENSOR_IMU,
         .nominalRateHz = 50.0f,
         .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
@@ -3907,7 +3996,7 @@ std::uint64_t checkWorldPackSimulationImport(
         .parentAssetId = episode.task.robotAssetId,
         .parentKind =
             MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
-        .parentBodyIndex = wristSensor->parentBodyIndex,
+        .parentBodyIndex = wristBodyIndex,
         .kind = MR_WORLD_SENSOR_CONTACT_STATE,
         .filterBodies = {frankaModel.bodyNames[objectBody]},
         .nominalRateHz = 50.0f,
@@ -4026,6 +4115,8 @@ std::uint64_t checkWorldPackSimulationImport(
         compiledSensors.sensorIndex("franka_worldpack_contact");
     const std::uint32_t compiledJoint =
         compiledSensors.sensorIndex("franka_worldpack_joint");
+    const auto& loadedSites =
+        loaded.family.worldTemplate.engineModel.sites;
     if (imported.articulationIndex != 0u ||
         imported.model.bodies.size() !=
             family.worldTemplate.engineModel.bodies.size() ||
@@ -4034,7 +4125,15 @@ std::uint64_t checkWorldPackSimulationImport(
         importedImu == imported.sensors.end() ||
         importedImu->parentKind !=
             MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK ||
-        importedImu->parentBodyIndex == MR_INVALID_INDEX ||
+        importedImu->parentBodyIndex != wristBodyIndex ||
+        !importedImu->parentSite.empty() ||
+        importedImu->localPose.position.x != 0.01f ||
+        importedImu->localPose.position.y != -0.02f ||
+        importedImu->localPose.position.z != 0.03f ||
+        importedImu->localPose.orientation.z !=
+            0.7071067811865476f ||
+        importedImu->localPose.orientation.w !=
+            0.7071067811865476f ||
         importedImu->valueNoiseSigma != 0.02f ||
         importedImu->biasNoiseSigma != 0.01f ||
         importedImu->dropoutProbability != 0.05f ||
@@ -4071,6 +4170,17 @@ std::uint64_t checkWorldPackSimulationImport(
             frankaModel.joints[0u].qOffset ||
         compiledSensors.descriptors()[compiledJoint].source.y !=
             frankaModel.joints[0u].vOffset ||
+        loadedSites.size() != 1u ||
+        loadedSites.front().id != "worldpack_wrist_site" ||
+        loadedSites.front().bodyIndex !=
+            wristBodyIndex ||
+        loadedSites.front().localPosition.x != 0.01f ||
+        loadedSites.front().localPosition.y != -0.02f ||
+        loadedSites.front().localPosition.z != 0.03f ||
+        loadedSites.front().localOrientation.z !=
+            0.7071067811865476f ||
+        loadedSites.front().localOrientation.w !=
+            0.7071067811865476f ||
         loaded.contentHash != pack.contentHash) {
         fail(
             "WorldPack did not round-trip executable mechanics, scene state, and IMU SensorIR"

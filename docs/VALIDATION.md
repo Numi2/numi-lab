@@ -147,6 +147,11 @@ product flow. One benchmark executable owns performance and long soaks. The
 remaining historical probes are temporary migration diagnostics and must be
 folded or deleted with their replacement owner.
 
+The compiler/model and TaskIR owners preserve semantic site identity through
+the current WorldPack and TaskPack formats, reject unresolved sites
+transactionally, and compare compiler-composed task and sensor site frames
+against their equivalent authored body-local transforms.
+
 ## Numerical corpus
 
 Paired FP64, Metal, and MuJoCo cases cover:

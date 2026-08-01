@@ -159,7 +159,8 @@ LearningPackResult validateTaskArtifact(
         }
     }
     for (const TaskFrameSpec& value : pack.frames) {
-        if (!stringFits(value.id) || !stringFits(value.body)) {
+        if (!stringFits(value.id) || !stringFits(value.body) ||
+            !stringFits(value.site)) {
             return fail(
                 LearningPackStatus::capacityOverflow,
                 "TaskPack frame semantic exceeds the 32-bit artifact boundary"
@@ -803,6 +804,7 @@ std::vector<std::byte> serializeTask(
         [](Writer& target, const TaskFrameSpec& value) {
             target.string(value.id);
             target.string(value.body);
+            target.string(value.site);
             target.pod(value.localPosition);
             target.pod(value.localOrientation);
         }
@@ -944,6 +946,7 @@ bool deserializeTask(
             [](Reader& source, TaskFrameSpec& value) {
                 return source.string(value.id) &&
                     source.string(value.body) &&
+                    source.string(value.site) &&
                     source.pod(value.localPosition) &&
                     source.pod(value.localOrientation);
             }

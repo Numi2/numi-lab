@@ -298,6 +298,7 @@ bool readAsset(PayloadReader& reader, WorldAsset& asset) {
 void writeSensor(PayloadWriter& writer, const SensorSpec& sensor) {
     writer.string(sensor.id);
     writer.string(sensor.parentAssetId);
+    writer.string(sensor.parentSite);
     writer.pod(sensor.parentKind);
     writer.pod(sensor.parentBodyIndex);
     writer.pod(sensor.kind);
@@ -334,6 +335,7 @@ void writeSensor(PayloadWriter& writer, const SensorSpec& sensor) {
 bool readSensor(PayloadReader& reader, SensorSpec& sensor) {
     return reader.string(sensor.id) &&
         reader.string(sensor.parentAssetId) &&
+        reader.string(sensor.parentSite) &&
         reader.pod(sensor.parentKind) &&
         reader.pod(sensor.parentBodyIndex) &&
         reader.pod(sensor.kind) &&
@@ -481,6 +483,14 @@ void writeEngineModel(
     writer.stringVector(model.jointNames);
     writer.stringVector(model.dofNames);
     writer.stringVector(model.shapeNames);
+    const std::uint64_t siteCount = model.sites.size();
+    writer.pod(siteCount);
+    for (const EngineSite& site : model.sites) {
+        writer.string(site.id);
+        writer.pod(site.bodyIndex);
+        writer.pod(site.localPosition);
+        writer.pod(site.localOrientation);
+    }
     writer.string(model.name);
 }
 
@@ -516,6 +526,27 @@ bool readEngineModel(
         reader.stringVector(model.jointNames) &&
         reader.stringVector(model.dofNames) &&
         reader.stringVector(model.shapeNames) &&
+        [&]() {
+            std::uint64_t siteCount = 0u;
+            if (!reader.pod(siteCount) ||
+                siteCount >
+                    std::numeric_limits<std::size_t>::max()) {
+                return false;
+            }
+            std::vector<EngineSite> sites(
+                static_cast<std::size_t>(siteCount)
+            );
+            for (EngineSite& site : sites) {
+                if (!reader.string(site.id) ||
+                    !reader.pod(site.bodyIndex) ||
+                    !reader.pod(site.localPosition) ||
+                    !reader.pod(site.localOrientation)) {
+                    return false;
+                }
+            }
+            model.sites = std::move(sites);
+            return true;
+        }() &&
         reader.string(model.name);
 }
 

@@ -49,6 +49,9 @@ partially usable program.
   ranges fail compilation.
 - Every actuator/controller preset has a stable fingerprint. A policy cannot
   mix fields from different presets.
+- Named sites are unique link-local frames in the semantic model. They are
+  persisted and fingerprinted, but resolve to a body plus composed local
+  transform before execution; Metal never performs a site-name lookup.
 
 Bundled robots are generated from pinned upstream assets. Their manifest
 records source revision, hashes, licenses, conversions, geometry substitutions,
@@ -75,8 +78,8 @@ companion MJCF used by a bundled robot is not evidence of a general importer.
 
 TaskPack is being generalized in place; there is no second task format. The
 currently implemented native surface resolves actions, joints, bodies, contact
-groups, named body-local frames, and static SE(3) goals at compilation. It
-supports:
+groups, named body-local or site-relative frames, and static SE(3) goals at
+compilation. It supports:
 
 - joint, root, command, terrain, parameter, contact-metric, and contact-wrench
   observations;
@@ -102,11 +105,14 @@ transactional scene-state layout before policy inference. They never reuse
 body or scene poses retained by the preceding episode.
 
 Frame-to-frame operators use an explicit named `reference`; they do not
-overload static goal identities. The remaining TaskIR target is a
-phase-separated graph covering action, command/event, observation, reward,
-termination, recorder, reset, and curriculum phases. Site semantics, frame
-acceleration, point/Jacobian quantities, sampled and trajectory goals, and
-generic gates/reductions are not yet production operators.
+overload static goal identities. A task frame authors exactly one body or site
+source. A site-relative transform is composed with the model site's link-local
+pose during compilation and then converted once to the body's COM-centred
+runtime origin. The remaining TaskIR target is a phase-separated graph covering
+action, command/event, observation, reward, termination, recorder, reset, and
+curriculum phases. Frame acceleration, point/Jacobian quantities, sampled and
+trajectory goals, and generic gates/reductions are not yet production
+operators.
 
 All implemented names resolve at compilation. The GPU receives only typed
 indices, counts, and fixed output layouts. Adding another body layout or static
@@ -135,6 +141,13 @@ Body-attached sensor transforms are authored in the imported link/body frame.
 The compiler converts translation once to the COM-centred runtime origin;
 tactile descriptors instead use the cooked tactile surface transform as their
 spatial authority.
+
+A spatial sensor may instead name one model site owned by its parent asset.
+Its authored local pose is site-relative. The compiler validates site
+ownership, composes the site and sensor transforms, resolves the actual rigid
+or articulated body, and emits the ordinary body-frame SensorIR descriptor.
+Tactile sensors retain their cooked tactile-surface authority and therefore do
+not use this shortcut.
 
 The common SensorIR executor samples scalar-joint state, parent-frame pose,
 world-space frame twist, six-axis IMU, six-axis contact-wrench, and

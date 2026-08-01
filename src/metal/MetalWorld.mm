@@ -1038,6 +1038,16 @@ std::uint64_t fingerprint(const EngineModel& model) {
     hashStrings(hash, model.jointNames);
     hashStrings(hash, model.dofNames);
     hashStrings(hash, model.shapeNames);
+    const std::uint64_t siteCount = model.sites.size();
+    hashValue(hash, siteCount);
+    for (const EngineSite& site : model.sites) {
+        const std::uint64_t idSize = site.id.size();
+        hashValue(hash, idSize);
+        hashBytes(hash, site.id.data(), site.id.size());
+        hashValue(hash, site.bodyIndex);
+        hashValue(hash, site.localPosition);
+        hashValue(hash, site.localOrientation);
+    }
     hashValue(hash, model.name.size());
     hashBytes(hash, model.name.data(), model.name.size());
     return hash == 0u ? 1u : hash;

@@ -8,7 +8,7 @@
 
 namespace metalrobo {
 
-inline constexpr std::uint32_t kWorldPackFormatVersion = 8u;
+inline constexpr std::uint32_t kWorldPackFormatVersion = 9u;
 
 enum class WorldPackStatus : std::uint32_t {
     success = 0u,
@@ -30,9 +30,9 @@ struct WorldPackResult {
     }
 };
 
-// Persistent compiler artifact. The first format stores the complete rich
-// WorldFamily rather than only reset tensors so later render/capture stages
-// can resolve semantic identities and artifact provenance after loading.
+// Persistent compiler artifact. The current format stores the complete
+// WorldFamily rather than only reset tensors so later native stages retain
+// semantic identities, sites, sensor contracts, and artifact provenance.
 struct MRWorldPack {
     std::uint32_t formatVersion = kWorldPackFormatVersion;
     std::uint64_t contentHash = 0u;

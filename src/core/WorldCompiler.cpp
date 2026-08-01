@@ -170,6 +170,7 @@ void appendAsset(HashBuilder& hash, const WorldAsset& asset) {
 void appendSensor(HashBuilder& hash, const SensorSpec& sensor) {
     hash.appendString(sensor.id);
     hash.appendString(sensor.parentAssetId);
+    hash.appendString(sensor.parentSite);
     hash.appendScalar(sensor.parentKind);
     hash.appendScalar(sensor.parentBodyIndex);
     hash.appendScalar(sensor.kind);
@@ -316,6 +317,13 @@ void appendEngineModel(HashBuilder& hash, const EngineModel& model) {
     appendNames(model.jointNames);
     appendNames(model.dofNames);
     appendNames(model.shapeNames);
+    hash.appendScalar<std::uint64_t>(model.sites.size());
+    for (const EngineSite& site : model.sites) {
+        hash.appendString(site.id);
+        hash.appendScalar(site.bodyIndex);
+        hash.appendScalar(site.localPosition);
+        hash.appendScalar(site.localOrientation);
+    }
 }
 
 std::uint32_t computeCapabilities(
@@ -879,10 +887,20 @@ bool validSensor(const SensorSpec& sensor, std::string* reason) {
     }
     if (targetedStateSensor &&
         (sensor.parentKind != MR_WORLD_SENSOR_PARENT_ASSET ||
-         sensor.parentBodyIndex != MR_INVALID_INDEX)) {
+         sensor.parentBodyIndex != MR_INVALID_INDEX ||
+         !sensor.parentSite.empty())) {
         return fail(
             reason,
             "joint/actuator-state sensor must be owned by an asset, not a body frame"
+        );
+    }
+    if (!sensor.parentSite.empty() &&
+        (sensor.parentKind != MR_WORLD_SENSOR_PARENT_ASSET ||
+         sensor.parentBodyIndex != MR_INVALID_INDEX ||
+         sensor.kind == MR_WORLD_SENSOR_TACTILE_DEPTH)) {
+        return fail(
+            reason,
+            "site-relative sensor must be asset-owned, non-tactile, and have no pre-resolved body"
         );
     }
     std::unordered_set<std::string> filterBodies;
@@ -1181,6 +1199,28 @@ bool WorldTemplate::valid(std::string* reason) const {
         }
         if (assetIndex(sensor.parentAssetId) == MR_INVALID_INDEX) {
             return fail(reason, "sensor parent asset does not exist");
+        }
+        if (!sensor.parentSite.empty()) {
+            const auto site = std::ranges::find_if(
+                engineModel.sites,
+                [&](const EngineSite& candidate) {
+                    return candidate.id == sensor.parentSite;
+                }
+            );
+            const WorldAsset& parent =
+                assets[assetIndex(sensor.parentAssetId)];
+            if (site == engineModel.sites.end()) {
+                return fail(reason, "sensor parent site does not exist");
+            }
+            if (std::ranges::find(
+                    parent.bodyIndices,
+                    site->bodyIndex
+                ) == parent.bodyIndices.end()) {
+                return fail(
+                    reason,
+                    "sensor parent site is not owned by its parent asset"
+                );
+            }
         }
         if (sensor.parentBodyIndex != MR_INVALID_INDEX &&
             sensor.parentBodyIndex >= engineModel.bodies.size()) {

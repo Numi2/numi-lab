@@ -229,6 +229,27 @@ std::uint64_t hashModel(
     hash = hashVector(hash, model.constraintProgram.warmImpulses);
     hash = hashVector(hash, model.defaultQ);
     hash = hashVector(hash, model.defaultV);
+    const auto hashNames = [&hash](
+        const std::vector<std::string>& names
+    ) {
+        const std::uint64_t count = names.size();
+        hash = hashPod(hash, count);
+        for (const std::string& name : names) {
+            hash = hashString(hash, name);
+        }
+    };
+    hashNames(model.bodyNames);
+    hashNames(model.jointNames);
+    hashNames(model.dofNames);
+    hashNames(model.shapeNames);
+    const std::uint64_t siteCount = model.sites.size();
+    hash = hashPod(hash, siteCount);
+    for (const EngineSite& site : model.sites) {
+        hash = hashString(hash, site.id);
+        hash = hashPod(hash, site.bodyIndex);
+        hash = hashPod(hash, site.localPosition);
+        hash = hashPod(hash, site.localOrientation);
+    }
     return hashString(hash, model.name);
 }
 

@@ -361,6 +361,26 @@ bool EngineModel::valid(std::string* reason) const {
             "topology-sized"
         );
     }
+    for (std::size_t index = 0u; index < sites.size(); ++index) {
+        const EngineSite& site = sites[index];
+        if (site.id.empty() || site.bodyIndex >= bodies.size() ||
+            !finite(site.localPosition) ||
+            site.localPosition.w != 0.0f ||
+            !unitQuaternion(site.localOrientation) ||
+            std::find_if(
+                sites.begin(),
+                sites.begin() + static_cast<std::ptrdiff_t>(index),
+                [&](const EngineSite& previous) {
+                    return previous.id == site.id;
+                }
+            ) != sites.begin() +
+                    static_cast<std::ptrdiff_t>(index)) {
+            return fail(
+                reason,
+                "sites must have unique non-empty identities, valid bodies, finite positions, and unit orientations"
+            );
+        }
+    }
     if (world.solverType > MR_SOLVER_LEGACY_PROJECTED ||
         world.frictionConeType > MR_FRICTION_CONE_PYRAMID_8) {
         return fail(reason, "unknown solver or friction-cone type");

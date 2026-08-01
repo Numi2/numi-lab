@@ -736,6 +736,24 @@ EngineModelComposeDiagnostics composeEngineModels(
                 }
                 staged.bodies.push_back(body);
             }
+            for (const EngineSite& sourceSite : source.sites) {
+                EngineSite site = sourceSite;
+                if (!checkedOffset(
+                        site.bodyIndex,
+                        offsets.body,
+                        site.bodyIndex
+                    )) {
+                    return fail(
+                        std::move(diagnostics),
+                        EngineModelComposeStatus::capacityOverflow,
+                        "site body rebase overflow",
+                        componentIndex
+                    );
+                }
+                site.id = std::string{component.instanceId} +
+                    "/" + site.id;
+                staged.sites.push_back(std::move(site));
+            }
             staged.materials.insert(
                 staged.materials.end(),
                 source.materials.begin(),

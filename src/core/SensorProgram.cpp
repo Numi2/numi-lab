@@ -2,6 +2,8 @@
 
 #include "metalrobo/MetalWorld.hpp"
 
+#include "SemanticTransform.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -332,7 +334,7 @@ SensorCompileDiagnostics compileSensorProgram(
     std::unordered_set<std::uint32_t> usedTactile;
 
     for (std::uint32_t index = 0u; index < sensors.size(); ++index) {
-        const SensorSpec& sensor = sensors[index];
+        SensorSpec sensor = sensors[index];
         const std::string element =
             "sensors[" + std::to_string(index) + "]";
         if (sensor.id.empty() ||
@@ -377,6 +379,62 @@ SensorCompileDiagnostics compileSensorProgram(
                 element,
                 "sensor schedule, pose, corruption, or permissions are invalid"
             );
+        }
+        if (!sensor.parentSite.empty()) {
+            if (sensor.parentKind !=
+                    MR_WORLD_SENSOR_PARENT_ASSET ||
+                sensor.parentBodyIndex != MR_INVALID_INDEX ||
+                sensor.kind == MR_WORLD_SENSOR_JOINT_STATE ||
+                sensor.kind == MR_WORLD_SENSOR_ACTUATOR_STATE ||
+                sensor.kind == MR_WORLD_SENSOR_TACTILE_DEPTH) {
+                return reject(
+                    SensorCompileStatus::invalidSpec,
+                    element + ".parentSite",
+                    "site-relative sensor must be asset-owned, spatial, non-tactile, and have no pre-resolved body"
+                );
+            }
+            const auto found = std::find_if(
+                world.model().sites.begin(),
+                world.model().sites.end(),
+                [&](const EngineSite& site) {
+                    return site.id == sensor.parentSite;
+                }
+            );
+            if (found == world.model().sites.end()) {
+                return reject(
+                    SensorCompileStatus::unresolvedSemantic,
+                    element + ".parentSite",
+                    "sensor parent site is unresolved: " +
+                        sensor.parentSite
+                );
+            }
+            mr_float4 composedPosition{};
+            mr_float4 composedOrientation{};
+            if (!semantic_transform::compose(
+                    found->localPosition,
+                    found->localOrientation,
+                    sensor.localPose.position,
+                    sensor.localPose.orientation,
+                    composedPosition,
+                    composedOrientation
+                )) {
+                return reject(
+                    SensorCompileStatus::invalidSpec,
+                    element + ".parentSite",
+                    "sensor parent-site transform composition is invalid"
+                );
+            }
+            sensor.localPose = {
+                composedPosition,
+                composedOrientation,
+            };
+            sensor.parentBodyIndex = found->bodyIndex;
+            sensor.parentKind =
+                world.model().bodies[found->bodyIndex]
+                        .articulationIndex == MR_INVALID_INDEX
+                ? MR_WORLD_SENSOR_PARENT_RIGID_BODY
+                : MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
+            sensor.parentSite.clear();
         }
         if (sensor.parentKind == MR_WORLD_SENSOR_PARENT_ASSET) {
             if (sensor.kind != MR_WORLD_SENSOR_JOINT_STATE &&

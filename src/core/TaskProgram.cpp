@@ -3,6 +3,8 @@
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/SensorProgram.hpp"
 
+#include "SemanticTransform.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -108,33 +110,7 @@ bool finite(const mr_float4 value) {
         finite(value.z) && finite(value.w);
 }
 
-bool normalizeQuaternion(
-    const mr_float4 value,
-    mr_float4& normalized
-) {
-    if (!finite(value)) {
-        return false;
-    }
-    const double normSquared =
-        static_cast<double>(value.x) * value.x +
-        static_cast<double>(value.y) * value.y +
-        static_cast<double>(value.z) * value.z +
-        static_cast<double>(value.w) * value.w;
-    if (!(normSquared > 1.0e-12) ||
-        !std::isfinite(normSquared)) {
-        return false;
-    }
-    const float inverseNorm = static_cast<float>(
-        1.0 / std::sqrt(normSquared)
-    );
-    normalized = {
-        value.x * inverseNorm,
-        value.y * inverseNorm,
-        value.z * inverseNorm,
-        value.w * inverseNorm,
-    };
-    return finite(normalized);
-}
+using semantic_transform::normalizeQuaternion;
 
 template <typename T>
 bool narrowCount(const std::size_t value, T& output) {
@@ -923,7 +899,9 @@ TaskCompileDiagnostics compileTaskProgram(
     frameIds.reserve(pack.frames.size());
     staged->frames.reserve(pack.frames.size());
     for (const TaskFrameSpec& frame : pack.frames) {
-        if (frame.id.empty() || frame.body.empty() ||
+        const bool bodyAuthored = !frame.body.empty();
+        const bool siteAuthored = !frame.site.empty();
+        if (frame.id.empty() || bodyAuthored == siteAuthored ||
             !finite(frame.localPosition) ||
             std::find(
                 frameIds.begin(),
@@ -933,27 +911,82 @@ TaskCompileDiagnostics compileTaskProgram(
             return reject(
                 TaskCompileStatus::invalidPack,
                 frame.id,
-                "task frame identity or local transform is invalid"
+                "task frame requires a unique identity, finite local transform, and exactly one body or site source"
             );
         }
-        bool ambiguous = false;
-        const std::uint32_t body = uniqueIndex(
-            model.bodyNames,
-            frame.body,
-            ambiguous
-        );
-        if (ambiguous) {
+        std::uint32_t body = MR_INVALID_INDEX;
+        mr_float4 localPosition = frame.localPosition;
+        mr_float4 localOrientation{};
+        if (!normalizeQuaternion(
+                frame.localOrientation,
+                localOrientation
+            )) {
             return reject(
-                TaskCompileStatus::ambiguousSemantic,
-                frame.body,
-                "task frame body identity is ambiguous"
+                TaskCompileStatus::invalidPack,
+                frame.id,
+                "task frame orientation is not a finite quaternion"
             );
         }
-        if (body == MR_INVALID_INDEX) {
-            return reject(
-                TaskCompileStatus::unresolvedSemantic,
+        const std::string& sourceIdentity = siteAuthored
+            ? frame.site
+            : frame.body;
+        if (siteAuthored) {
+            const auto found = std::find_if(
+                model.sites.begin(),
+                model.sites.end(),
+                [&](const EngineSite& site) {
+                    return site.id == frame.site;
+                }
+            );
+            if (found == model.sites.end()) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    frame.site,
+                    "task frame site does not exist"
+                );
+            }
+            body = found->bodyIndex;
+            if (!semantic_transform::compose(
+                    found->localPosition,
+                    found->localOrientation,
+                    frame.localPosition,
+                    localOrientation,
+                    localPosition,
+                    localOrientation
+                )) {
+                return reject(
+                    TaskCompileStatus::invalidWorld,
+                    frame.site,
+                    "task frame site composition is non-finite"
+                );
+            }
+        } else {
+            bool ambiguous = false;
+            body = uniqueIndex(
+                model.bodyNames,
                 frame.body,
-                "task frame body does not exist"
+                ambiguous
+            );
+            if (ambiguous) {
+                return reject(
+                    TaskCompileStatus::ambiguousSemantic,
+                    frame.body,
+                    "task frame body identity is ambiguous"
+                );
+            }
+            if (body == MR_INVALID_INDEX) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    frame.body,
+                    "task frame body does not exist"
+                );
+            }
+        }
+        if (body >= model.bodies.size()) {
+            return reject(
+                TaskCompileStatus::invalidWorld,
+                sourceIdentity,
+                "task frame source has an invalid body index"
             );
         }
         const std::uint32_t articulationOwner =
@@ -970,7 +1003,7 @@ TaskCompileDiagnostics compileTaskProgram(
             if (sceneBody == world.sceneBodyIndices().end()) {
                 return reject(
                     TaskCompileStatus::invalidWorld,
-                    frame.body,
+                    sourceIdentity,
                     "non-articulated task frame body is absent from the compiled scene-state layout"
                 );
             }
@@ -982,19 +1015,8 @@ TaskCompileDiagnostics compileTaskProgram(
                    model.articulations.size()) {
             return reject(
                 TaskCompileStatus::invalidWorld,
-                frame.body,
+                sourceIdentity,
                 "task frame body has an invalid articulation owner"
-            );
-        }
-        mr_float4 orientation{};
-        if (!normalizeQuaternion(
-                frame.localOrientation,
-                orientation
-            )) {
-            return reject(
-                TaskCompileStatus::invalidPack,
-                frame.id,
-                "task frame orientation is not a finite quaternion"
             );
         }
         const mr_float4 centerOfMass =
@@ -1007,12 +1029,12 @@ TaskCompileDiagnostics compileTaskProgram(
                 articulationOwner,
             },
             {
-                frame.localPosition.x - centerOfMass.x,
-                frame.localPosition.y - centerOfMass.y,
-                frame.localPosition.z - centerOfMass.z,
+                localPosition.x - centerOfMass.x,
+                localPosition.y - centerOfMass.y,
+                localPosition.z - centerOfMass.z,
                 0.0f,
             },
-            orientation,
+            localOrientation,
         });
         frameIds.push_back(frame.id);
     }
@@ -2548,6 +2570,7 @@ TaskCompileDiagnostics compileTaskProgram(
     for (const TaskFrameSpec& frame : pack.frames) {
         hash.string(frame.id);
         hash.string(frame.body);
+        hash.string(frame.site);
     }
     for (const TaskGoalSpec& goal : pack.goals) {
         hash.string(goal.id);

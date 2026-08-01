@@ -45,6 +45,13 @@
       "scope": "No production MJCF parser. A pinned G1 companion-MJCF preset is data, not general MJCF support."
     },
     {
+      "id": "compiler.semantic_sites",
+      "status": "implemented",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "Canonical models and WorldPack carry unique named link-local sites. TaskPack and SensorIR resolve a site plus an optional site-local offset into their existing body-frame records, including composed orientation and COM translation, with no runtime lookup or site-specific Metal branch. General MJCF site parsing is still blocked on the MJCF importer."
+    },
+    {
       "id": "physics.numi_solver",
       "status": "qualified",
       "owner": "physics.metal_contact",
@@ -154,7 +161,7 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled frames can target links in any articulation or static, kinematic, and dynamic scene bodies. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading static goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Static SE(3) goals, pose rewards and terminations, SensorIR scalar/validity sources, and reset-correct pre-policy state are implemented. Site semantics, acceleration, point/Jacobian quantities, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified."
+      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading static goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Static SE(3) goals, pose rewards and terminations, SensorIR scalar/validity sources, and reset-correct pre-policy state are implemented. Acceleration, point/Jacobian quantities, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified."
     },
     {
       "id": "tasks.sensor_ir_observations",
@@ -231,7 +238,7 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "WorldPack joint-state, actuator-state, frame-state, frame-twist, IMU, force-torque, contact-state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. Scalar-joint and actuator state, frame pose/twist, IMU, force-torque, and semantically filtered contact-state sensors execute in the session-owned scheduler with reset-failure journals, native counter-based corruption, and TaskIR bindings; presentation and tactile still use their existing native owners, while recorder routing, ray, and LiDAR operators remain incomplete."
+      "scope": "WorldPack joint-state, actuator-state, frame-state, frame-twist, IMU, force-torque, contact-state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. Spatial sensors may bind named model sites, which compile into the same body-frame records. Scalar-joint and actuator state, frame pose/twist, IMU, force-torque, and semantically filtered contact-state sensors execute in the session-owned scheduler with reset-failure journals, native counter-based corruption, and TaskIR bindings; presentation and tactile still use their existing native owners, while recorder routing, ray, and LiDAR operators remain incomplete."
     },
     {
       "id": "policy.dense_native_inference",

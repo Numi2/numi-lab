@@ -10,6 +10,17 @@
 
 namespace metalrobo {
 
+// Source-level named frame attached to one body link. Sites participate in
+// authoring, task compilation, sensing, and persisted model fingerprints, but
+// never enter a runtime lookup table: consumers resolve them to a body index
+// and composed body-local transform before Metal execution.
+struct EngineSite {
+    std::string id;
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    mr_float4 localPosition{};
+    mr_float4 localOrientation{0.0f, 0.0f, 0.0f, 1.0f};
+};
+
 // Canonical, compiled engine model. Unlike the v0 Franka Model, generalized
 // configuration and velocity storage are explicitly different (nq != nv).
 // Runtime buffers are separate; this object contains immutable topology and a
@@ -58,6 +69,9 @@ struct EngineModel {
     std::vector<std::string> jointNames;
     std::vector<std::string> dofNames;
     std::vector<std::string> shapeNames;
+    // Named link-local frames imported from source assets (for example MJCF
+    // sites) or deliberately authored by a bundled WorldPack.
+    std::vector<EngineSite> sites;
     std::string name;
 
     [[nodiscard]] bool valid(std::string* reason = nullptr) const;
