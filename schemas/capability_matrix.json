@@ -11,7 +11,8 @@
     "evidence/baselines/2026-08-01-b1c311f.json",
     "evidence/baselines/2026-08-01-c4966e4.json",
     "evidence/baselines/2026-08-01-73872ac.json",
-    "evidence/baselines/2026-08-01-e250919.json"
+    "evidence/baselines/2026-08-01-e250919.json",
+    "evidence/baselines/2026-08-01-cdbaaf0.json"
   ],
   "capabilities": [
     {
@@ -117,7 +118,7 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled selected-articulation body frames, static SE(3) goals, pose observations, pose rewards, pose terminations, SensorIR scalar/validity sources, and reset-correct pre-policy kinematics are implemented. Scene-object/site semantics, twists, accelerations, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified."
+      "scope": "Compiled frames can target links in any articulation or static, kinematic, and dynamic scene bodies. Static SE(3) goals, pose observations, pose rewards, pose terminations, SensorIR scalar/validity sources, and reset-correct pre-policy articulation and scene state are implemented. Site semantics, twists, accelerations, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified."
     },
     {
       "id": "tasks.sensor_ir_observations",
