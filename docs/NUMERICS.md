@@ -19,10 +19,20 @@ must satisfy. Unsupported behavior is recorded in
   linear velocity is `R_R^T (v_T - v_R - omega_R x (p_T - p_R))` and relative
   angular velocity is `R_R^T (omega_T - omega_R)`. Subtracting world vectors
   without the transport term is not a valid moving-frame derivative.
-- Temporal microsteps re-evaluate geometry, limit activation, actuator state,
-  and response factors before integration.
+- Temporal microsteps re-evaluate geometry, limit activation, and response
+  factors before integration. The command-delay/backlash timeline advances
+  once at the control boundary; re-evaluating motor envelope and passive
+  friction at every physics microstep remains an open mechanics gate.
 - Velocity or effort safety caps are explicit actuator/safety-envelope stages;
   they are not positional constraints.
+
+Native actuator delay uses `ceil(delay / control_period)` whole control steps.
+Backlash is a deterministic play operator around the delayed command. Raw motor
+effort is limited by the minimum of the authored generalized effort limit and
+the torque-speed envelope; passive dry friction is then applied separately so
+the sensor contract can distinguish commanded, motor, passive, and generalized
+effort. Reset seeds the command timeline from the neutral joint target for
+position control, or zero for effort control.
 
 ## NumiSolver
 

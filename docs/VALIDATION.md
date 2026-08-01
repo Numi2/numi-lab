@@ -155,7 +155,9 @@ Paired FP64, Metal, and MuJoCo cases cover:
 - lower/upper limits and mixed limit-contact islands;
 - impacts, stacks, friction cones, rolling/torsional friction, and CCD;
 - equality constraints, tendons, gears, and attachments;
-- actuator delay, damping, armature, saturation, backlash, and presets;
+- actuator delay quantized to the control period, deterministic backlash play,
+  damping, armature, saturation, dry friction, torque-speed envelopes, reset,
+  rejected-step rollback, and fingerprinted presets;
 - multiple articulations and dynamic bodies in one island;
 - rod stretch, bend, twist, buckling, attachments, tool contact, self-contact,
   friction, and energy behavior.

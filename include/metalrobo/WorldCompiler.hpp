@@ -97,8 +97,9 @@ struct SensorSpec {
     std::uint32_t parentBodyIndex = MR_INVALID_INDEX;
     MRWorldSensorKind kind = MR_WORLD_SENSOR_STATE;
     // Modality-specific semantic source resolved by SensorCompiler. Joint
-    // state sensors name one scalar joint here; spatial sensors derive their
-    // source exclusively from the parent frame and leave this empty.
+    // state names one scalar joint; actuator state names one generalized-
+    // velocity coordinate. Spatial sensors derive their source exclusively
+    // from the parent frame and leave this empty.
     std::string target;
     // Optional semantic counterpart filter for contact-derived modalities.
     // Names are resolved, deduplicated, and canonicalized by SensorCompiler;

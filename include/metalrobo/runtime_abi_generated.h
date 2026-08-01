@@ -5,10 +5,10 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 18u
+#define MR_RUNTIME_ABI_VERSION 19u
 #define MR_RUNTIME_PIPELINE_COUNT 92u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
-#define MR_SENSOR_PROGRAM_ABI_VERSION 8u
+#define MR_SENSOR_PROGRAM_ABI_VERSION 9u
 #define MR_SENSOR_DISPATCH_HAS_RESETS 1u
 #define MR_SENSOR_DISPATCH_HAS_CONTACTS 2u
 
@@ -57,6 +57,13 @@ typedef struct MR_ALIGN16 MRSensorSampleMetadataGPU {
     mr_uint4 sequenceAndTimestamp;
     mr_uint4 ageValidityAndLayout;
 } MRSensorSampleMetadataGPU;
+
+typedef struct MR_ALIGN16 MRActuatorRuntimeStateGPU {
+    mr_float4 command;
+    mr_float4 effort;
+    mr_float4 envelope;
+    mr_uint4 status;
+} MRActuatorRuntimeStateGPU;
 
 typedef struct MR_ALIGN16 MRLearningPublicationDispatchGPU {
     mr_uint4 floatCounts;
@@ -191,7 +198,8 @@ enum MRSensorSampleBuffer : mr_u32 {
     MR_SENSOR_SAMPLE_CHECKPOINT_HISTORY = 21u,
     MR_SENSOR_SAMPLE_CHECKPOINT_OUTPUTS = 22u,
     MR_SENSOR_SAMPLE_CHECKPOINT_METADATA = 23u,
-    MR_SENSOR_SAMPLE_BUFFER_COUNT = 24u,
+    MR_SENSOR_SAMPLE_ACTUATOR_STATES = 24u,
+    MR_SENSOR_SAMPLE_BUFFER_COUNT = 25u,
 };
 
 enum MRTaskSensorRefreshBuffer : mr_u32 {
@@ -243,7 +251,31 @@ enum MRWorldPrepareBuffer : mr_u32 {
     MR_WORLD_PREPARE_DOFS = 14u,
     MR_WORLD_PREPARE_ACTUATOR_PROFILES = 15u,
     MR_WORLD_PREPARE_TASK_CONTROLLER_PARAMETERS = 16u,
-    MR_WORLD_PREPARE_BUFFER_COUNT = 17u,
+    MR_WORLD_PREPARE_ACTUATOR_STATES = 17u,
+    MR_WORLD_PREPARE_ACTUATOR_COMMAND_HISTORY = 18u,
+    MR_WORLD_PREPARE_CHECKPOINT_ACTUATOR_STATES = 19u,
+    MR_WORLD_PREPARE_CHECKPOINT_ACTUATOR_COMMAND_HISTORY = 20u,
+    MR_WORLD_PREPARE_BUFFER_COUNT = 21u,
+};
+
+enum MRWorldCommitBuffer : mr_u32 {
+    MR_WORLD_COMMIT_DISPATCH = 0u,
+    MR_WORLD_COMMIT_PASS = 1u,
+    MR_WORLD_COMMIT_ABA_STATUSES = 2u,
+    MR_WORLD_COMMIT_CANDIDATE_Q = 3u,
+    MR_WORLD_COMMIT_CANDIDATE_V = 4u,
+    MR_WORLD_COMMIT_DESTINATION_Q = 5u,
+    MR_WORLD_COMMIT_DESTINATION_V = 6u,
+    MR_WORLD_COMMIT_STATUSES = 7u,
+    MR_WORLD_COMMIT_CHECKPOINT_Q = 8u,
+    MR_WORLD_COMMIT_CHECKPOINT_V = 9u,
+    MR_WORLD_COMMIT_WORLD = 10u,
+    MR_WORLD_COMMIT_ACTUATOR_STATES = 11u,
+    MR_WORLD_COMMIT_ACTUATOR_COMMAND_HISTORY = 12u,
+    MR_WORLD_COMMIT_CHECKPOINT_ACTUATOR_STATES = 13u,
+    MR_WORLD_COMMIT_CHECKPOINT_ACTUATOR_COMMAND_HISTORY = 14u,
+    MR_WORLD_COMMIT_ACTUATOR_PROFILES = 15u,
+    MR_WORLD_COMMIT_BUFFER_COUNT = 16u,
 };
 
 enum MRContactPrepareBuffer : mr_u32 {
@@ -576,7 +608,11 @@ enum BufferIndex : std::size_t {
     kTaskCheckpointControllerParameters = 244u,
     kTaskCheckpointContactCompact = 245u,
     kSensorFilterBodies = 246u,
-    kRawBufferCount = 247u,
+    kActuatorRuntimeStates = 247u,
+    kActuatorCommandHistory = 248u,
+    kCheckpointActuatorRuntimeStates = 249u,
+    kCheckpointActuatorCommandHistory = 250u,
+    kRawBufferCount = 251u,
 };
 
 enum class BufferLifetime : std::uint8_t {
@@ -836,6 +872,10 @@ inline constexpr std::array<BufferLifetime, kRawBufferCount>
         BufferLifetime::transient,
         BufferLifetime::transient,
         BufferLifetime::immutable,
+        BufferLifetime::persistent,
+        BufferLifetime::persistent,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
     }};
 inline constexpr std::array<bool, kRawBufferCount>
     kPersistentInputs{{
@@ -1067,6 +1107,10 @@ inline constexpr std::array<bool, kRawBufferCount>
         true,
         true,
         true,
+        false,
+        false,
+        false,
+        false,
         false,
         false,
         false,
@@ -1336,6 +1380,10 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "task checkpoint controller parameters",
         "task checkpoint contact compact",
         "sensor filter bodies",
+        "actuator runtime states",
+        "actuator command history",
+        "checkpoint actuator runtime states",
+        "checkpoint actuator command history",
     }};
 
 [[nodiscard]] constexpr bool validBufferIndex(
@@ -1416,6 +1464,12 @@ static_assert(sizeof(MRSensorSampleMetadataGPU) == 32u);
 static_assert(alignof(MRSensorSampleMetadataGPU) == 16u);
 static_assert(offsetof(MRSensorSampleMetadataGPU, sequenceAndTimestamp) == 0u);
 static_assert(offsetof(MRSensorSampleMetadataGPU, ageValidityAndLayout) == 16u);
+static_assert(sizeof(MRActuatorRuntimeStateGPU) == 64u);
+static_assert(alignof(MRActuatorRuntimeStateGPU) == 16u);
+static_assert(offsetof(MRActuatorRuntimeStateGPU, command) == 0u);
+static_assert(offsetof(MRActuatorRuntimeStateGPU, effort) == 16u);
+static_assert(offsetof(MRActuatorRuntimeStateGPU, envelope) == 32u);
+static_assert(offsetof(MRActuatorRuntimeStateGPU, status) == 48u);
 static_assert(sizeof(MRLearningPublicationDispatchGPU) == 64u);
 static_assert(alignof(MRLearningPublicationDispatchGPU) == 16u);
 static_assert(offsetof(MRLearningPublicationDispatchGPU, floatCounts) == 0u);
@@ -1440,6 +1494,7 @@ static_assert(MR_SENSOR_SAMPLE_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_SENSOR_REFRESH_BUFFER_COUNT <= 31u);
 static_assert(MR_LEARNING_VALIDATE_BUFFER_COUNT <= 31u);
 static_assert(MR_WORLD_PREPARE_BUFFER_COUNT <= 31u);
+static_assert(MR_WORLD_COMMIT_BUFFER_COUNT <= 31u);
 static_assert(MR_CONTACT_PREPARE_BUFFER_COUNT <= 31u);
 static_assert(MR_CONVEX_CACHE_PUBLISH_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_TRANSACTION_BUFFER_COUNT <= 31u);

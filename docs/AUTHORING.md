@@ -201,12 +201,22 @@ pose orientation uses a local tangent rotation in radians and is renormalized.
 Contact-state active/count channels remain discrete, while corrupted force and
 penetration channels remain nonnegative.
 
+An asset-owned actuator-state sensor targets one canonical generalized-
+velocity coordinate by name. Its eight scalar channels are, in order: raw
+command, delay-selected command, backlash-effective command, unclamped motor
+effort, envelope-limited motor effort, passive friction, applied generalized
+effort, and active motor envelope. Command delay is rounded upward to a whole
+control period. The delay ring and backlash play are persistent native state;
+reset seeds a neutral command and a rejected physics transition restores the
+pre-step state. Fixed and multi-coordinate transmission observations remain
+outside this scalar contract.
+
 Presentation sensors still execute in the native renderer and tactile sensors
 still execute in the native tactile context. Folding those passes into the
-session schedule, actuator-state, dedicated ray/LiDAR operators, recorder
-routing, and compiler dead-code elimination remain incomplete. Native joint,
-pose, twist, IMU, force/torque, contact-state, corruption episode identity, and
-histories already journal reset environments and restore on a rejected physics
+session schedule, dedicated ray/LiDAR operators, recorder routing, and compiler
+dead-code elimination remain incomplete. Native joint, actuator, pose, twist,
+IMU, force/torque, contact-state, corruption episode identity, and histories
+already journal reset environments and restore on a rejected physics
 transaction.
 Presentation- and tactile-domain corruption remain with their current native
 owners until those passes join the common schedule.

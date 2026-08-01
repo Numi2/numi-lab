@@ -73,9 +73,15 @@ enum MRWorldSensorKind : mr_u32 {
     // name is resolved to q/v indices at compilation; fixed and multi-DOF
     // joints are rejected until their tangent-coordinate contract is public.
     MR_WORLD_SENSOR_JOINT_STATE = 10u,
+    // Commanded, delayed, and transmission-effective command followed by
+    // unclamped motor effort, envelope-limited motor effort, passive friction,
+    // applied generalized effort, and the active motor envelope. The target
+    // is one named generalized-velocity coordinate, not a robot-specific
+    // actuator ordinal.
+    MR_WORLD_SENSOR_ACTUATOR_STATE = 11u,
 };
 
-#define MR_WORLD_SENSOR_KIND_COUNT 11u
+#define MR_WORLD_SENSOR_KIND_COUNT 12u
 
 enum MRWorldSensorParentKind : mr_u32 {
     MR_WORLD_SENSOR_PARENT_ASSET = 0u,

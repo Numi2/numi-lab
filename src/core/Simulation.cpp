@@ -593,10 +593,11 @@ SimulationDescription makeWorldPackSimulation(
             MR_WORLD_SENSOR_PARENT_ASSET) {
             continue;
         }
-        // Joint-state SensorIR is asset-owned but not spatially attached.
+        // Joint/actuator SensorIR is asset-owned but not spatially attached.
         // Preserve that semantic parent so SensorCompiler can resolve its
         // target directly into generalized-coordinate indices.
-        if (sensor.kind == MR_WORLD_SENSOR_JOINT_STATE) {
+        if (sensor.kind == MR_WORLD_SENSOR_JOINT_STATE ||
+            sensor.kind == MR_WORLD_SENSOR_ACTUATOR_STATE) {
             continue;
         }
         const std::uint32_t parentIndex =

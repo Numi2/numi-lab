@@ -177,6 +177,7 @@ struct MetalWorldContextState {
         boundFactorDispatches;
     bool useTaskBodyParameters = false;
     std::uint64_t boundModelFingerprint = 0u;
+    std::uint64_t boundActuatorControlPeriodNanoseconds = 0u;
     std::uint64_t boundTaskFingerprint = 0u;
     std::uint64_t boundSensorFingerprint = 0u;
     std::array<std::uint64_t, 2u> boundPolicyFingerprints{};
@@ -228,6 +229,7 @@ struct MetalWorldResidentStateData {
     std::uint64_t taskFingerprint = 0u;
     std::uint64_t sensorFingerprint = 0u;
     std::uint64_t taskSeed = 0u;
+    std::uint64_t controlPeriodNanoseconds = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     std::size_t environmentCount = 0u;
     std::size_t qBuffer = kStateQA;
@@ -1041,8 +1043,49 @@ std::uint64_t fingerprint(const EngineModel& model) {
     return hash == 0u ? 1u : hash;
 }
 
+bool actuatorDelayLayout(
+    const EngineModel& model,
+    const float controlPeriodSeconds,
+    std::uint32_t& historySlots
+) {
+    if (!std::isfinite(controlPeriodSeconds) ||
+        !(controlPeriodSeconds > 0.0f)) {
+        return false;
+    }
+    std::uint64_t maximumDelaySteps = 0u;
+    for (const MRActuatorProfileGPU& profile :
+         model.actuatorProfiles) {
+        if ((profile.identity.y & MR_ACTUATOR_PROFILE_ACTIVE) == 0u ||
+            profile.transmissionAndEnvelope.y == 0.0f) {
+            continue;
+        }
+        const double stepsWide = std::ceil(
+            static_cast<double>(
+                profile.transmissionAndEnvelope.y
+            ) /
+            static_cast<double>(controlPeriodSeconds)
+        );
+        if (!std::isfinite(stepsWide) || stepsWide < 0.0 ||
+            stepsWide > static_cast<double>(
+                std::numeric_limits<std::uint32_t>::max() - 1u
+            )) {
+            return false;
+        }
+        maximumDelaySteps = std::max(
+            maximumDelaySteps,
+            static_cast<std::uint64_t>(stepsWide)
+        );
+    }
+    historySlots = static_cast<std::uint32_t>(
+        maximumDelaySteps + 1u
+    );
+    return historySlots != 0u;
+}
+
 std::vector<MRActuatorProfileGPU> executionActuatorProfiles(
-    const EngineModel& model
+    const EngineModel& model,
+    const float controlPeriodSeconds,
+    const std::uint32_t historySlots
 ) {
     std::vector<MRActuatorProfileGPU> profiles =
         model.actuatorProfiles.empty()
@@ -1053,28 +1096,37 @@ std::vector<MRActuatorProfileGPU> executionActuatorProfiles(
          ++index) {
         const MRDofPropertiesGPU& dof = model.dofs[index];
         MRActuatorProfileGPU& profile = profiles[index];
-        if ((profile.identity.y &
-             MR_ACTUATOR_PROFILE_ACTIVE) != 0u) {
+        const bool active =
+            (profile.identity.y & MR_ACTUATOR_PROFILE_ACTIVE) != 0u;
+        if (!active) {
+            profile.motorAndSpeed = {
+                0.0f,
+                0.0f,
+                std::numeric_limits<float>::max(),
+                1.0f,
+            };
+            profile.transmissionAndEnvelope = {};
+            profile.transmissionAndEnvelope.z =
+                (dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
+                    dof.limits.w > 0.0f
+                ? dof.limits.w
+                : std::numeric_limits<float>::max();
+            profile.identity = {
+                static_cast<mr_u32>(index),
+                0u,
+                0u,
+                historySlots,
+            };
             continue;
         }
-        profile.motorAndSpeed = {
-            0.0f,
-            0.0f,
-            std::numeric_limits<float>::max(),
-            1.0f,
-        };
-        profile.transmissionAndEnvelope = {};
-        profile.transmissionAndEnvelope.z =
-            (dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
-                dof.limits.w > 0.0f
-            ? dof.limits.w
-            : std::numeric_limits<float>::max();
-        profile.identity = {
-            static_cast<mr_u32>(index),
-            0u,
-            0u,
-            0u,
-        };
+        const double stepsWide = std::ceil(
+            static_cast<double>(
+                profile.transmissionAndEnvelope.y
+            ) /
+            static_cast<double>(controlPeriodSeconds)
+        );
+        profile.identity.z = static_cast<mr_u32>(stepsWide);
+        profile.identity.w = historySlots;
     }
     return profiles;
 }
@@ -1327,6 +1379,26 @@ bool buildRequirements(
             "working effort",
             layout.initialVElements,
             requirements.entries[kWorkingEffort]
+        ) ||
+        !makeRequirement<MRActuatorRuntimeStateGPU>(
+            "resident actuator state",
+            layout.actuatorStateElements,
+            requirements.entries[kActuatorRuntimeStates]
+        ) ||
+        !makeRequirement<float>(
+            "resident actuator command history",
+            layout.actuatorCommandHistoryElements,
+            requirements.entries[kActuatorCommandHistory]
+        ) ||
+        !makeRequirement<MRActuatorRuntimeStateGPU>(
+            "checkpoint actuator state",
+            layout.actuatorStateElements,
+            requirements.entries[kCheckpointActuatorRuntimeStates]
+        ) ||
+        !makeRequirement<float>(
+            "checkpoint actuator command history",
+            layout.actuatorCommandHistoryElements,
+            requirements.entries[kCheckpointActuatorCommandHistory]
         ) ||
         !makeRequirement<MRABABodyWrenchGPU>(
             "body-wrench placeholder",
@@ -2888,6 +2960,30 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     const double controlPeriodNanosecondsWide =
         static_cast<double>(config.timestepSeconds) * 1.0e9;
+    if (!std::isfinite(controlPeriodNanosecondsWide) ||
+        controlPeriodNanosecondsWide < 0.5 ||
+        controlPeriodNanosecondsWide >
+            static_cast<double>(
+                std::numeric_limits<std::int64_t>::max()
+            )) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "control period is outside the deterministic nanosecond timeline"
+        );
+    }
+    std::uint32_t actuatorCommandHistorySlots = 0u;
+    if (!actuatorDelayLayout(
+            world.model(),
+            config.timestepSeconds,
+            actuatorCommandHistorySlots
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::arithmeticOverflow,
+            "actuator command delay cannot be represented by the submitted control period"
+        );
+    }
     if (nativeSensors) {
         if (config.sensorProgram.worldFingerprint() !=
                 world.fingerprint() ||
@@ -2898,13 +2994,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             config.sensorProgram.layout().tactileSensorCount != 0u ||
             config.sensorProgram.layout()
                     .nativeStateSensorCount !=
-                config.sensorProgram.layout().sensorCount ||
-            !std::isfinite(controlPeriodNanosecondsWide) ||
-            controlPeriodNanosecondsWide < 0.5 ||
-            controlPeriodNanosecondsWide >
-                static_cast<double>(
-                    std::numeric_limits<std::int64_t>::max()
-                )) {
+                config.sensorProgram.layout().sensorCount) {
             return reject(
                 std::move(diagnostics),
                 MetalWorldHostStatus::unsupportedTopology,
@@ -2939,10 +3029,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
             const bool jointStateSensor =
                 descriptor.identity.x ==
                     MR_WORLD_SENSOR_JOINT_STATE;
+            const bool actuatorStateSensor =
+                descriptor.identity.x ==
+                    MR_WORLD_SENSOR_ACTUATOR_STATE;
             const std::uint32_t expectedOutputCount = poseSensor
                 ? 7u
                 : contactStateSensor ? 5u
-                : jointStateSensor ? 2u : 6u;
+                : jointStateSensor ? 2u
+                : actuatorStateSensor ? 8u : 6u;
             const bool jointSourceValid = !jointStateSensor ||
                 (descriptor.identity.y ==
                      MR_WORLD_SENSOR_PARENT_ASSET &&
@@ -2956,12 +3050,26 @@ MetalWorldDiagnostics validateAndBuildLayout(
                      descriptor.source.x &&
                  world.model().joints[descriptor.source.z].vOffset ==
                      descriptor.source.y);
+            const bool actuatorSourceValid = !actuatorStateSensor ||
+                (descriptor.identity.y ==
+                     MR_WORLD_SENSOR_PARENT_ASSET &&
+                 descriptor.identity.z == MR_INVALID_INDEX &&
+                 descriptor.source.x < world.nv() &&
+                 descriptor.source.z == descriptor.source.x &&
+                 descriptor.source.x < world.model().dofs.size() &&
+                 descriptor.source.y ==
+                     world.model().dofs[descriptor.source.x]
+                         .articulationIndex &&
+                 (world.model().dofs[descriptor.source.x].flags &
+                  MR_DOF_FLAG_ACTUATED) != 0u);
             if ((!poseSensor && !twistSensor &&
                  !forceTorqueSensor && !imuSensor &&
-                 !contactStateSensor && !jointStateSensor) ||
+                 !contactStateSensor && !jointStateSensor &&
+                 !actuatorStateSensor) ||
                 ((forceTorqueSensor || contactStateSensor) &&
                  !contactMode) ||
                 !jointSourceValid ||
+                !actuatorSourceValid ||
                 descriptor.schedule.z !=
                     MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
                 descriptor.source.w !=
@@ -2980,7 +3088,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
                     std::move(diagnostics),
                     MetalWorldHostStatus::unsupportedTopology,
                     "native SensorIR sampling requires pre-control pose, "
-                    "world-twist, IMU, joint-state, contact-state, or contact-mode force-torque descriptors "
+                    "world-twist, IMU, joint-state, actuator-state, contact-state, or contact-mode force-torque descriptors "
                     "at no more than the control rate"
                 );
             }
@@ -3115,6 +3223,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
         (nativeSensors
              ? static_cast<mr_u32>(
                    MR_METAL_WORLD_NATIVE_SENSORS
+               )
+             : 0u) |
+        (!residentContinuation
+             ? static_cast<mr_u32>(
+                   MR_METAL_WORLD_INITIALIZE_ACTUATORS
                )
              : 0u);
     dispatch.nq = world.model().world.nq;
@@ -3574,6 +3687,20 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "derived Metal world element-count overflow"
         );
     }
+    layout.actuatorStateElements = layout.initialVElements;
+    layout.actuatorCommandHistorySlots =
+        actuatorCommandHistorySlots;
+    if (!checkedMultiply(
+            layout.initialVElements,
+            actuatorCommandHistorySlots,
+            layout.actuatorCommandHistoryElements
+        )) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::arithmeticOverflow,
+            "actuator command-history element-count overflow"
+        );
+    }
     if (nativeTask) {
         const TaskProgramLayout& taskLayout =
             config.taskProgram.layout();
@@ -3864,6 +3991,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
         layout.sensorHistoryElements,
         layout.sensorOutputElements,
         layout.sensorMetadataElements,
+        layout.actuatorStateElements,
+        layout.actuatorCommandHistoryElements,
         layout.policyLatentElements,
         layout.policyLogProbabilityElements,
         layout.policyValueElements,
@@ -4334,8 +4463,16 @@ std::uint32_t requiredPipelineGroups(
             config.sensorProgram.descriptors().begin(),
             config.sensorProgram.descriptors().end(),
             [](const MRSensorDescriptorGPU& descriptor) {
-                return descriptor.identity.x !=
-                    MR_WORLD_SENSOR_JOINT_STATE;
+                return descriptor.identity.x ==
+                        MR_WORLD_SENSOR_STATE ||
+                    descriptor.identity.x ==
+                        MR_WORLD_SENSOR_FRAME_TWIST_WORLD ||
+                    descriptor.identity.x ==
+                        MR_WORLD_SENSOR_FORCE_TORQUE ||
+                    descriptor.identity.x ==
+                        MR_WORLD_SENSOR_IMU ||
+                    descriptor.identity.x ==
+                        MR_WORLD_SENSOR_CONTACT_STATE;
             }
         );
     if (contactMode || nativeTask || spatialSensors) {
@@ -4916,6 +5053,8 @@ MetalWorldDiagnostics ensureBufferArena(
         immutableBufferReplaced =
             immutableBufferReplaced ||
             (index >= kArticulations && index <= kBodies) ||
+            index == kActuatorProfiles ||
+            index == kTaskDefaultQ ||
             index == kShapes ||
             index == kMaterials ||
             index == kSceneBodyIndices ||
@@ -4977,6 +5116,7 @@ MetalWorldDiagnostics ensureBufferArena(
     }
     if (immutableBufferReplaced) {
         context.boundModelFingerprint = 0u;
+        context.boundActuatorControlPeriodNanoseconds = 0u;
         context.boundTaskFingerprint = 0u;
         context.boundSensorFingerprint = 0u;
         context.boundPolicyFingerprints = {};
@@ -5516,8 +5656,13 @@ void uploadBatch(
         requirements.entries[kWorld]
     );
 
-    if (context.boundModelFingerprint !=
-        world.fingerprint()) {
+    const std::uint64_t actuatorControlPeriodNanoseconds =
+        static_cast<std::uint64_t>(std::llround(
+            static_cast<double>(config.timestepSeconds) * 1.0e9
+        ));
+    if (context.boundModelFingerprint != world.fingerprint() ||
+        context.boundActuatorControlPeriodNanoseconds !=
+            actuatorControlPeriodNanoseconds) {
         id<MTLBlitCommandEncoder> immutableUpload = nil;
         if (context.config.preferPrivateHeaps) {
             immutableUpload =
@@ -5556,7 +5701,11 @@ void uploadBatch(
         }
         const std::vector<MRActuatorProfileGPU>
             actuatorProfiles =
-                executionActuatorProfiles(model);
+                executionActuatorProfiles(
+                    model,
+                    config.timestepSeconds,
+                    layout.actuatorCommandHistorySlots
+                );
         stagePrivateBuffer(
             context,
             kActuatorProfiles,
@@ -5959,6 +6108,8 @@ void uploadBatch(
             [immutableUpload endEncoding];
         }
         context.boundModelFingerprint = world.fingerprint();
+        context.boundActuatorControlPeriodNanoseconds =
+            actuatorControlPeriodNanoseconds;
         context.boundArticulations.assign(
             model.articulations.begin(),
             model.articulations.end()
@@ -6648,6 +6799,8 @@ void uploadBatch(
 
     const std::array scratch{
         kWorkingEffort,
+        kCheckpointActuatorRuntimeStates,
+        kCheckpointActuatorCommandHistory,
         kBodyWrenchPlaceholder,
         kCandidateAcceleration,
         kCandidateV,
@@ -6789,6 +6942,10 @@ bool encodeResidentStateInitialization(
     };
     clear(kStateQB);
     clear(kStateVB);
+    clear(kActuatorRuntimeStates);
+    clear(kActuatorCommandHistory);
+    clear(kCheckpointActuatorRuntimeStates);
+    clear(kCheckpointActuatorCommandHistory);
     if (nativeSensors) {
         clear(kSensorRuntimeStates);
         clear(kSensorHistory);
@@ -7997,6 +8154,21 @@ bool encodePrepare(
     [encoder setBuffer:context.buffers[kTaskControllerParameters]
                  offset:0u
                 atIndex:MR_WORLD_PREPARE_TASK_CONTROLLER_PARAMETERS];
+    [encoder setBuffer:context.buffers[kActuatorRuntimeStates]
+                 offset:0u
+                atIndex:MR_WORLD_PREPARE_ACTUATOR_STATES];
+    [encoder setBuffer:context.buffers[kActuatorCommandHistory]
+                 offset:0u
+                atIndex:MR_WORLD_PREPARE_ACTUATOR_COMMAND_HISTORY];
+    [encoder setBuffer:
+                 context.buffers[kCheckpointActuatorRuntimeStates]
+                 offset:0u
+                atIndex:MR_WORLD_PREPARE_CHECKPOINT_ACTUATOR_STATES];
+    [encoder setBuffer:
+                 context.buffers[kCheckpointActuatorCommandHistory]
+                 offset:0u
+                atIndex:
+                    MR_WORLD_PREPARE_CHECKPOINT_ACTUATOR_COMMAND_HISTORY];
     dispatchWorldThreads(
         encoder,
         context.preparePipeline,
@@ -8338,6 +8510,10 @@ bool encodeSensorSample(
             {
                 MR_SENSOR_SAMPLE_CHECKPOINT_METADATA,
                 kSensorCheckpointMetadata,
+            },
+            {
+                MR_SENSOR_SAMPLE_ACTUATOR_STATES,
+                kActuatorRuntimeStates,
             },
         },
         &pass,
@@ -9485,35 +9661,55 @@ bool encodeCommit(
     [encoder setComputePipelineState:context.commitPipeline];
     [encoder setBuffer:context.buffers[kWorldDispatch]
                  offset:0u
-                atIndex:0u];
-    [encoder setBytes:&pass length:sizeof(pass) atIndex:1u];
+                atIndex:MR_WORLD_COMMIT_DISPATCH];
+    [encoder setBytes:&pass
+                length:sizeof(pass)
+               atIndex:MR_WORLD_COMMIT_PASS];
     [encoder setBuffer:context.buffers[kABAStatuses]
                  offset:0u
-                atIndex:2u];
+                atIndex:MR_WORLD_COMMIT_ABA_STATUSES];
     [encoder setBuffer:context.buffers[kCandidateQ]
                  offset:0u
-                atIndex:3u];
+                atIndex:MR_WORLD_COMMIT_CANDIDATE_Q];
     [encoder setBuffer:context.buffers[kCandidateV]
                  offset:0u
-                atIndex:4u];
+                atIndex:MR_WORLD_COMMIT_CANDIDATE_V];
     [encoder setBuffer:context.buffers[destinationQ]
                  offset:0u
-                atIndex:5u];
+                atIndex:MR_WORLD_COMMIT_DESTINATION_Q];
     [encoder setBuffer:context.buffers[destinationV]
                  offset:0u
-                atIndex:6u];
+                atIndex:MR_WORLD_COMMIT_DESTINATION_V];
     [encoder setBuffer:context.buffers[kEnvironmentStatuses]
                  offset:0u
-                atIndex:7u];
+                atIndex:MR_WORLD_COMMIT_STATUSES];
     [encoder setBuffer:context.buffers[kCheckpointQ]
                  offset:0u
-                atIndex:8u];
+                atIndex:MR_WORLD_COMMIT_CHECKPOINT_Q];
     [encoder setBuffer:context.buffers[kCheckpointV]
                  offset:0u
-                atIndex:9u];
+                atIndex:MR_WORLD_COMMIT_CHECKPOINT_V];
     [encoder setBuffer:context.buffers[kWorld]
                  offset:0u
-                atIndex:10u];
+                atIndex:MR_WORLD_COMMIT_WORLD];
+    [encoder setBuffer:context.buffers[kActuatorRuntimeStates]
+                 offset:0u
+                atIndex:MR_WORLD_COMMIT_ACTUATOR_STATES];
+    [encoder setBuffer:context.buffers[kActuatorCommandHistory]
+                 offset:0u
+                atIndex:MR_WORLD_COMMIT_ACTUATOR_COMMAND_HISTORY];
+    [encoder setBuffer:
+                 context.buffers[kCheckpointActuatorRuntimeStates]
+                 offset:0u
+                atIndex:MR_WORLD_COMMIT_CHECKPOINT_ACTUATOR_STATES];
+    [encoder setBuffer:
+                 context.buffers[kCheckpointActuatorCommandHistory]
+                 offset:0u
+                atIndex:
+                    MR_WORLD_COMMIT_CHECKPOINT_ACTUATOR_COMMAND_HISTORY];
+    [encoder setBuffer:context.buffers[kActuatorProfiles]
+                 offset:0u
+                atIndex:MR_WORLD_COMMIT_ACTUATOR_PROFILES];
     dispatchWorldThreads(
         encoder,
         context.commitPipeline,
@@ -15671,6 +15867,19 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
         if (!diagnostics.succeeded()) {
             return diagnostics;
         }
+        const std::uint64_t controlPeriodNanoseconds =
+            static_cast<std::uint64_t>(std::llround(
+                static_cast<double>(config.timestepSeconds) * 1.0e9
+            ));
+        if (residentContinuation &&
+            residentData->controlPeriodNanoseconds !=
+                controlPeriodNanoseconds) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::invalidDimensions,
+                "resident actuator timeline cannot change its control period"
+            );
+        }
         const std::shared_ptr<detail::MetalRolloutAppendData>
             rolloutAppend = batch.rolloutTarget.state_;
         diagnostics = validateRolloutAppend(
@@ -15735,6 +15944,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 residentData->sensorFingerprint =
                     config.sensorProgram.fingerprint();
                 residentData->taskSeed = config.taskSeed;
+                residentData->controlPeriodNanoseconds =
+                    controlPeriodNanoseconds;
                 residentData->environmentCount =
                     batch.environmentCount;
                 residentData->supportsReset =
@@ -15808,8 +16019,16 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     config.sensorProgram.descriptors().begin(),
                     config.sensorProgram.descriptors().end(),
                     [](const MRSensorDescriptorGPU& descriptor) {
-                        return descriptor.identity.x !=
-                            MR_WORLD_SENSOR_JOINT_STATE;
+                        return descriptor.identity.x ==
+                                MR_WORLD_SENSOR_STATE ||
+                            descriptor.identity.x ==
+                                MR_WORLD_SENSOR_FRAME_TWIST_WORLD ||
+                            descriptor.identity.x ==
+                                MR_WORLD_SENSOR_FORCE_TORQUE ||
+                            descriptor.identity.x ==
+                                MR_WORLD_SENSOR_IMU ||
+                            descriptor.identity.x ==
+                                MR_WORLD_SENSOR_CONTACT_STATE;
                     }
                 );
             const bool sensorUsesBodyTwists =

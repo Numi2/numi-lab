@@ -2,6 +2,7 @@
 #include "metalrobo/EngineModelComposer.hpp"
 #include "metalrobo/G1.hpp"
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/SensorProgram.hpp"
 
 #include <algorithm>
 #include <array>
@@ -266,7 +267,7 @@ int main() {
                     .noLoadSpeed = 4.0,
                     .efficiency = 0.8,
                     .backlash = 0.2,
-                    .commandDelaySeconds = 0.015,
+                    .commandDelaySeconds = 0.0,
                 },
                 effortDof,
                 profile,
@@ -472,6 +473,182 @@ int main() {
             metalNeutralDriven.finalV != metalNeutralZero.finalV,
             "an unidentified actuator profile suppressed the authored "
             "effort envelope"
+        );
+
+        metalrobo::EngineModel temporalModel = profiledModel;
+        MRActuatorProfileGPU& temporalProfile =
+            temporalModel.actuatorProfiles[modelPdDof];
+        require(
+            metalrobo::cookActuatorProfile(
+                {
+                    .jointTorqueConstant = 10.0,
+                    .currentLimit = 10.0,
+                    .noLoadSpeed = 100.0,
+                    .efficiency = 1.0,
+                    .backlash = 0.02,
+                    .commandDelaySeconds = 0.015,
+                },
+                modelPdDof,
+                temporalProfile,
+                &reason
+            ) &&
+            temporalModel.valid(&reason),
+            "temporal actuator profile is invalid: " + reason
+        );
+        metalrobo::CompiledWorld temporalWorld;
+        require(
+            metalrobo::compileMetalWorld(
+                temporalModel,
+                0u,
+                temporalWorld
+            ).succeeded(),
+            "compile temporal actuator world"
+        );
+        require(
+            temporalModel.dofNames.size() ==
+                temporalModel.dofs.size(),
+            "temporal actuator fixture has no canonical DoF names"
+        );
+        const metalrobo::SensorSpec actuatorSensor{
+            .id = "profiled_actuator_state",
+            .parentAssetId = "g1",
+            .parentKind = MR_WORLD_SENSOR_PARENT_ASSET,
+            .kind = MR_WORLD_SENSOR_ACTUATOR_STATE,
+            .target = temporalModel.dofNames[modelPdDof],
+            .nominalRateHz = 100.0f,
+            .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 1u,
+            .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        };
+        metalrobo::CompiledSensorProgram actuatorSensors;
+        require(
+            metalrobo::compileSensorProgram(
+                std::span<const metalrobo::SensorSpec>(
+                    &actuatorSensor,
+                    1u
+                ),
+                {},
+                temporalWorld,
+                actuatorSensors
+            ).succeeded(),
+            "compile native actuator-state SensorIR"
+        );
+
+        std::vector<float> positionTargets(
+            temporalWorld.nv(),
+            0.0f
+        );
+        for (std::size_t coordinate = 0u;
+             coordinate < temporalModel.dofs.size();
+             ++coordinate) {
+            const MRDofPropertiesGPU& dof =
+                temporalModel.dofs[coordinate];
+            if (dof.qIndex != MR_INVALID_INDEX &&
+                dof.qIndex < temporalModel.defaultQ.size()) {
+                positionTargets[coordinate] =
+                    temporalModel.defaultQ[dof.qIndex];
+            }
+        }
+        const MRDofPropertiesGPU& temporalDof =
+            temporalModel.dofs[modelPdDof];
+        const float neutralTarget =
+            temporalModel.defaultQ[temporalDof.qIndex];
+        const float targetDelta = std::min(
+            0.2f,
+            temporalDof.limits.y - neutralTarget - 0.05f
+        );
+        require(
+            targetDelta > 0.02f,
+            "temporal actuator fixture has no target range"
+        );
+        const float commandedTarget =
+            neutralTarget + targetDelta;
+        positionTargets[modelPdDof] = commandedTarget;
+
+        metalrobo::MetalWorldStepConfig temporalConfig;
+        temporalConfig.timestepSeconds = 0.01f;
+        temporalConfig.physicsSubsteps = 1u;
+        temporalConfig.executionMode =
+            metalrobo::MetalWorldExecutionMode::freeMotionABA;
+        temporalConfig.actuationMode =
+            metalrobo::MetalWorldActuationMode::
+                implicitPositionDrive;
+        temporalConfig.applyBodyDamping = false;
+        temporalConfig.deterministic = true;
+        temporalConfig.sensorProgram = actuatorSensors;
+        temporalConfig.publishStateTrajectory = false;
+        temporalConfig.publishSensorOutputs = true;
+
+        metalrobo::MetalWorldContext temporalContext;
+        metalrobo::MetalWorldResidentState temporalState;
+        const auto submitTemporalStep = [&] (
+            const bool initialize
+        ) {
+            const metalrobo::MetalWorldBatch batch{
+                .environmentCount = 1u,
+                .controlStepCount = 1u,
+                .initialQ = initialize
+                    ? std::span<const float>(
+                          temporalModel.defaultQ
+                      )
+                    : std::span<const float>{},
+                .initialV = initialize
+                    ? std::span<const float>(
+                          temporalModel.defaultV
+                      )
+                    : std::span<const float>{},
+                .efforts = positionTargets,
+            };
+            metalrobo::MetalWorldSubmission submission;
+            const auto submitted = initialize
+                ? temporalContext.initializeResidentState(
+                      temporalWorld,
+                      batch,
+                      temporalConfig,
+                      temporalState,
+                      submission
+                  )
+                : temporalContext.submitResident(
+                      temporalWorld,
+                      batch,
+                      temporalConfig,
+                      temporalState,
+                      submission
+                  );
+            require(
+                submitted.succeeded(),
+                "submit temporal actuator step: " +
+                    submitted.message
+            );
+            metalrobo::MetalWorldResult step;
+            const auto completed = submission.wait(step);
+            require(
+                completed.succeeded() &&
+                    step.sensorOutputs.size() == 8u,
+                "complete temporal actuator step: " +
+                    completed.message
+            );
+            return step.sensorOutputs;
+        };
+        const std::vector<float> temporalStep0 =
+            submitTemporalStep(true);
+        const std::vector<float> temporalStep1 =
+            submitTemporalStep(false);
+        const std::vector<float> temporalStep2 =
+            submitTemporalStep(false);
+        require(
+            close(temporalStep0[0], commandedTarget, 1.0e-6) &&
+            close(temporalStep0[1], neutralTarget, 1.0e-6) &&
+            close(temporalStep0[2], neutralTarget, 1.0e-6) &&
+            close(temporalStep1[1], neutralTarget, 1.0e-6) &&
+            close(temporalStep1[2], neutralTarget, 1.0e-6) &&
+            close(temporalStep2[1], commandedTarget, 1.0e-6) &&
+            close(
+                temporalStep2[2],
+                commandedTarget - 0.01f,
+                1.0e-6
+            ),
+            "native actuator delay/backlash timeline is not deterministic"
         );
 
         metalrobo::EngineModel continuousModel = model;
@@ -759,6 +936,7 @@ int main() {
             << offsetModel.articulations[1].vOffset
             << " replay=bitwise"
             << " transaction=pass"
+            << " temporal_actuator=pass"
             << " status=ok\n";
         return 0;
     } catch (const std::exception& exception) {

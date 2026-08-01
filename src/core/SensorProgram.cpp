@@ -160,6 +160,7 @@ SensorExecutionDomain executionDomain(const MRWorldSensorKind kind) {
     case MR_WORLD_SENSOR_IMU:
     case MR_WORLD_SENSOR_CONTACT_STATE:
     case MR_WORLD_SENSOR_JOINT_STATE:
+    case MR_WORLD_SENSOR_ACTUATOR_STATE:
         return SensorExecutionDomain::nativeState;
     }
     return SensorExecutionDomain::nativeState;
@@ -188,6 +189,8 @@ std::uint32_t channelCount(const MRWorldSensorKind kind) {
         return 5u;
     case MR_WORLD_SENSOR_JOINT_STATE:
         return 2u;
+    case MR_WORLD_SENSOR_ACTUATOR_STATE:
+        return 8u;
     case MR_WORLD_SENSOR_FORCE_TORQUE:
     case MR_WORLD_SENSOR_FRAME_TWIST_WORLD:
     case MR_WORLD_SENSOR_IMU:
@@ -376,7 +379,8 @@ SensorCompileDiagnostics compileSensorProgram(
             );
         }
         if (sensor.parentKind == MR_WORLD_SENSOR_PARENT_ASSET) {
-            if (sensor.kind != MR_WORLD_SENSOR_JOINT_STATE) {
+            if (sensor.kind != MR_WORLD_SENSOR_JOINT_STATE &&
+                sensor.kind != MR_WORLD_SENSOR_ACTUATOR_STATE) {
                 return reject(
                     SensorCompileStatus::unresolvedSemantic,
                     element + ".parent",
@@ -386,13 +390,17 @@ SensorCompileDiagnostics compileSensorProgram(
         }
         const bool jointStateSensor =
             sensor.kind == MR_WORLD_SENSOR_JOINT_STATE;
-        if (jointStateSensor != !sensor.target.empty()) {
+        const bool actuatorStateSensor =
+            sensor.kind == MR_WORLD_SENSOR_ACTUATOR_STATE;
+        const bool targetedStateSensor =
+            jointStateSensor || actuatorStateSensor;
+        if (targetedStateSensor != !sensor.target.empty()) {
             return reject(
                 SensorCompileStatus::invalidSpec,
                 element + ".target",
-                jointStateSensor
-                    ? "joint-state sensor target is empty"
-                    : "only joint-state sensors may author a target"
+                targetedStateSensor
+                    ? "joint/actuator-state sensor target is empty"
+                    : "only joint/actuator-state sensors may author a target"
             );
         }
         const bool bodyParent =
@@ -498,6 +506,45 @@ SensorCompileDiagnostics compileSensorProgram(
             }
             sourceIndex = joint.qOffset;
             sourceOwner = joint.vOffset;
+        }
+        if (actuatorStateSensor) {
+            if (sensor.parentKind !=
+                    MR_WORLD_SENSOR_PARENT_ASSET ||
+                sensor.parentBodyIndex != MR_INVALID_INDEX) {
+                return reject(
+                    SensorCompileStatus::invalidSpec,
+                    element + ".parent",
+                    "actuator-state sensor must be asset-owned and not body-attached"
+                );
+            }
+            const auto found = std::find(
+                world.model().dofNames.begin(),
+                world.model().dofNames.end(),
+                sensor.target
+            );
+            if (found == world.model().dofNames.end()) {
+                return reject(
+                    SensorCompileStatus::unresolvedSemantic,
+                    element + ".target",
+                    "actuator-state target is unresolved: " +
+                        sensor.target
+                );
+            }
+            semanticSource = static_cast<std::uint32_t>(
+                found - world.model().dofNames.begin()
+            );
+            if (semanticSource >= world.model().dofs.size() ||
+                (world.model().dofs[semanticSource].flags &
+                 MR_DOF_FLAG_ACTUATED) == 0u) {
+                return reject(
+                    SensorCompileStatus::invalidSpec,
+                    element + ".target",
+                    "actuator-state target must resolve to an actuated generalized coordinate"
+                );
+            }
+            sourceIndex = semanticSource;
+            sourceOwner = world.model().dofs[semanticSource]
+                .articulationIndex;
         }
         if ((sensor.kind == MR_WORLD_SENSOR_STATE ||
              sensor.kind == MR_WORLD_SENSOR_FRAME_TWIST_WORLD ||

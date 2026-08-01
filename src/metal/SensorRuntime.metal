@@ -385,6 +385,8 @@ kernel void mr_sensor_sample_control_boundary(
         [[buffer(MR_SENSOR_SAMPLE_CHECKPOINT_OUTPUTS)]],
     device MRSensorSampleMetadataGPU* checkpointMetadata
         [[buffer(MR_SENSOR_SAMPLE_CHECKPOINT_METADATA)]],
+    device const MRActuatorRuntimeStateGPU* actuatorStates
+        [[buffer(MR_SENSOR_SAMPLE_ACTUATOR_STATES)]],
     const uint threadIndex [[thread_position_in_grid]]
 ) {
     const uint environmentCount = dispatch.counts.x;
@@ -415,19 +417,29 @@ kernel void mr_sensor_sample_control_boundary(
         descriptor.identity.x == MR_WORLD_SENSOR_CONTACT_STATE;
     const bool jointStateSensor =
         descriptor.identity.x == MR_WORLD_SENSOR_JOINT_STATE;
+    const bool actuatorStateSensor =
+        descriptor.identity.x == MR_WORLD_SENSOR_ACTUATOR_STATE;
     const uint expectedOutputCount = poseSensor
         ? 7u
         : contactStateSensor ? 5u
-        : jointStateSensor ? 2u : 6u;
+        : jointStateSensor ? 2u
+        : actuatorStateSensor ? 8u : 6u;
     const bool jointSourceValid = !jointStateSensor ||
         (descriptor.identity.y == MR_WORLD_SENSOR_PARENT_ASSET &&
          descriptor.identity.z == MR_INVALID_INDEX &&
          descriptor.source.x < world.nq &&
          descriptor.source.y < world.nv &&
          descriptor.source.z < world.jointCount);
+    const bool actuatorSourceValid = !actuatorStateSensor ||
+        (descriptor.identity.y == MR_WORLD_SENSOR_PARENT_ASSET &&
+         descriptor.identity.z == MR_INVALID_INDEX &&
+         descriptor.source.x < world.nv &&
+         descriptor.source.z == descriptor.source.x);
     if ((!poseSensor && !twistSensor && !forceTorqueSensor &&
-         !imuSensor && !contactStateSensor && !jointStateSensor) ||
+         !imuSensor && !contactStateSensor && !jointStateSensor &&
+         !actuatorStateSensor) ||
         !jointSourceValid ||
+        !actuatorSourceValid ||
         descriptor.schedule.z !=
             MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
         descriptor.source.w != 0u ||
@@ -592,7 +604,44 @@ kernel void mr_sensor_sample_control_boundary(
         return;
     }
 
-    if (jointStateSensor) {
+    if (actuatorStateSensor) {
+        const uint writeSlot =
+            static_cast<uint>(sequence % historyLength);
+        const uint writeBase =
+            historyBase + writeSlot * outputCount;
+        if (reset) {
+            for (uint channel = 0u; channel < 8u; ++channel) {
+                history[writeBase + channel] = 0.0f;
+            }
+        } else {
+            const MRActuatorRuntimeStateGPU actuator =
+                actuatorStates[
+                    environment * world.nv + descriptor.source.x
+                ];
+            if (actuator.status.x != 1u ||
+                !finite4(actuator.command) ||
+                !finite4(actuator.effort) ||
+                !finite4(actuator.envelope)) {
+                state.timestampAgeValidity.w =
+                    MR_SENSOR_SAMPLE_NONFINITE;
+                states[stateIndex] = state;
+                MRSensorSampleMetadataGPU failed =
+                    metadata[stateIndex];
+                failed.ageValidityAndLayout.y =
+                    MR_SENSOR_SAMPLE_NONFINITE;
+                metadata[stateIndex] = failed;
+                return;
+            }
+            history[writeBase + 0u] = actuator.command.x;
+            history[writeBase + 1u] = actuator.command.y;
+            history[writeBase + 2u] = actuator.command.z;
+            history[writeBase + 3u] = actuator.effort.x;
+            history[writeBase + 4u] = actuator.effort.y;
+            history[writeBase + 5u] = actuator.effort.z;
+            history[writeBase + 6u] = actuator.effort.w;
+            history[writeBase + 7u] = actuator.envelope.x;
+        }
+    } else if (jointStateSensor) {
         const uint writeSlot =
             static_cast<uint>(sequence % historyLength);
         const uint writeBase =

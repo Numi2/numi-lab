@@ -21,7 +21,8 @@ inline bool validWorldDispatch(
         MR_METAL_WORLD_CONTACTS |
         MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES |
         MR_METAL_WORLD_NATIVE_TASK |
-        MR_METAL_WORLD_NATIVE_SENSORS;
+        MR_METAL_WORLD_NATIVE_SENSORS |
+        MR_METAL_WORLD_INITIALIZE_ACTUATORS;
     const uint modeFlags =
         dispatch.flags &
         (MR_METAL_WORLD_FREE_MOTION_ONLY |
@@ -199,6 +200,14 @@ kernel void mr_metal_world_prepare(
         [[buffer(MR_WORLD_PREPARE_ACTUATOR_PROFILES)]],
     device const float4* taskControllerParameters
         [[buffer(MR_WORLD_PREPARE_TASK_CONTROLLER_PARAMETERS)]],
+    device MRActuatorRuntimeStateGPU* actuatorStates
+        [[buffer(MR_WORLD_PREPARE_ACTUATOR_STATES)]],
+    device float* actuatorCommandHistory
+        [[buffer(MR_WORLD_PREPARE_ACTUATOR_COMMAND_HISTORY)]],
+    device MRActuatorRuntimeStateGPU* checkpointActuatorStates
+        [[buffer(MR_WORLD_PREPARE_CHECKPOINT_ACTUATOR_STATES)]],
+    device float* checkpointActuatorCommandHistory
+        [[buffer(MR_WORLD_PREPARE_CHECKPOINT_ACTUATOR_COMMAND_HISTORY)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -235,6 +244,13 @@ kernel void mr_metal_world_prepare(
     const uint vBase = environment * dispatch.vStride;
     const bool nativeTask =
         (dispatch.flags & MR_METAL_WORLD_NATIVE_TASK) != 0u;
+    const bool implicitPositionDrive =
+        (dispatch.flags &
+         MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u;
+    const bool initializeActuators =
+        pass.controlStep == 0u &&
+        (dispatch.flags &
+         MR_METAL_WORLD_INITIALIZE_ACTUATORS) != 0u;
     for (uint coordinate = 0u;
          coordinate < dispatch.nq;
          ++coordinate) {
@@ -258,73 +274,130 @@ kernel void mr_metal_world_prepare(
             ? resetV[vBase + coordinate]
             : committed;
         stateV[vBase + coordinate] = value;
-        float command = effortTrajectory[
+        float rawCommand = effortTrajectory[
             pass.controlStep * dispatch.effortStepStride +
             environment * dispatch.effortEnvironmentStride +
             coordinate
         ];
-        if ((dispatch.flags &
-             MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u) {
-            const float4 controller = nativeTask
-                ? taskControllerParameters[environment]
-                : float4(1.0f);
-            device const MRDofPropertiesGPU& dof =
-                dofs[coordinate];
-            command = 0.0f;
-            if ((dof.flags & MR_DOF_FLAG_DRIVE) != 0u &&
-                dof.qIndex != MR_INVALID_INDEX &&
-                dof.qIndex < dispatch.nq) {
-                float target = effortTrajectory[
-                    pass.controlStep * dispatch.effortStepStride +
-                    environment *
-                        dispatch.effortEnvironmentStride +
-                    coordinate
-                ];
-                if ((dof.flags &
-                     MR_DOF_FLAG_POSITION_LIMIT) != 0u) {
-                    target = clamp(
-                        target,
-                        dof.limits.x,
-                        dof.limits.y
-                    );
-                }
-                const float timestep =
-                    world.gravityAndTimestep.w;
-                command =
-                    controller.x * dof.drive.x *
-                        (
-                            target -
-                            stateQ[qBase + dof.qIndex] -
-                            timestep * value
-                        ) -
-                    controller.y * dof.drive.y * value;
-                const float dryFriction = dof.drive.w;
-                if (dryFriction > 0.0f) {
-                    if (abs(value) > 1.0e-4f) {
-                        command -=
-                            copysign(dryFriction, value);
-                    } else {
-                        command -= clamp(
-                            command,
-                            -dryFriction,
-                            dryFriction
-                        );
-                    }
-                }
-                if ((dof.flags &
-                     MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
-                    dof.limits.w > 0.0f) {
-                    command = clamp(
-                        command,
-                        -dof.limits.w,
-                        dof.limits.w
-                    );
-                }
-                command *= controller.w;
-            }
-        }
         device const MRActuatorProfileGPU& actuator =
             actuatorProfiles[coordinate];
+        device const MRDofPropertiesGPU& dof = dofs[coordinate];
+        const uint historySlots = actuator.identity.w;
+        const uint delaySteps = actuator.identity.z;
+        if (actuator.identity.x != coordinate ||
+            historySlots == 0u || delaySteps >= historySlots) {
+            status.code = MR_STEP_UNSUPPORTED;
+            status.abaCode = MR_ABA_INVALID_MODEL;
+            status.failingIndex = coordinate;
+            workingEffort[
+                environment * dispatch.effortEnvironmentStride +
+                coordinate
+            ] = 0.0f;
+            continue;
+        }
+        const bool driven =
+            (dof.flags & MR_DOF_FLAG_DRIVE) != 0u &&
+            dof.qIndex != MR_INVALID_INDEX &&
+            dof.qIndex < dispatch.nq;
+        const bool actuated =
+            (dof.flags & MR_DOF_FLAG_ACTUATED) != 0u;
+        float neutralCommand = 0.0f;
+        if (implicitPositionDrive && driven) {
+            neutralCommand = stateQ[qBase + dof.qIndex];
+            if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u) {
+                rawCommand = clamp(
+                    rawCommand,
+                    dof.limits.x,
+                    dof.limits.y
+                );
+            }
+        } else if (!actuated) {
+            rawCommand = 0.0f;
+        }
+
+        const uint actuatorStateIndex =
+            environment * dispatch.nv + coordinate;
+        MRActuatorRuntimeStateGPU actuatorState =
+            actuatorStates[actuatorStateIndex];
+        MRActuatorRuntimeStateGPU neutralState{};
+        neutralState.command = float4(
+            neutralCommand,
+            neutralCommand,
+            neutralCommand,
+            neutralCommand
+        );
+        neutralState.status = uint4(
+            1u,
+            0u,
+            0u,
+            implicitPositionDrive ? 1u : 0u
+        );
+        checkpointActuatorStates[actuatorStateIndex] =
+            initializeActuators ? neutralState : actuatorState;
+        const bool resetActuator = initializeActuators || applyReset;
+        if (resetActuator || actuatorState.status.x != 1u) {
+            actuatorState = neutralState;
+        }
+        for (uint slot = 0u; slot < historySlots; ++slot) {
+            const ulong historyIndex =
+                (static_cast<ulong>(environment) * historySlots +
+                 slot) * dispatch.nv + coordinate;
+            const float previous = initializeActuators
+                ? neutralCommand
+                : actuatorCommandHistory[historyIndex];
+            checkpointActuatorCommandHistory[historyIndex] =
+                previous;
+            if (resetActuator) {
+                actuatorCommandHistory[historyIndex] =
+                    neutralCommand;
+            }
+        }
+        const uint writeSlot = actuatorState.status.y < historySlots
+            ? actuatorState.status.y
+            : 0u;
+        const ulong writeIndex =
+            (static_cast<ulong>(environment) * historySlots +
+             writeSlot) * dispatch.nv + coordinate;
+        actuatorCommandHistory[writeIndex] = rawCommand;
+        const uint delayedSlot =
+            (writeSlot + historySlots - delaySteps) % historySlots;
+        const ulong delayedIndex =
+            (static_cast<ulong>(environment) * historySlots +
+             delayedSlot) * dispatch.nv + coordinate;
+        const float delayedCommand =
+            actuatorCommandHistory[delayedIndex];
+        float effectiveCommand = delayedCommand;
+        if (implicitPositionDrive && driven) {
+            const float halfPlay =
+                0.5f * max(
+                    actuator.transmissionAndEnvelope.x,
+                    0.0f
+                );
+            effectiveCommand = clamp(
+                actuatorState.command.z,
+                delayedCommand - halfPlay,
+                delayedCommand + halfPlay
+            );
+        }
+
+        const float4 controller = nativeTask
+            ? taskControllerParameters[environment]
+            : float4(1.0f);
+        float unclampedMotorEffort = 0.0f;
+        if (implicitPositionDrive && driven && actuated) {
+            const float timestep = world.gravityAndTimestep.w;
+            unclampedMotorEffort = controller.w * (
+                controller.x * dof.drive.x *
+                    (
+                        effectiveCommand -
+                        stateQ[qBase + dof.qIndex] -
+                        timestep * value
+                    ) -
+                controller.y * dof.drive.y * value
+            );
+        } else if (!implicitPositionDrive && actuated) {
+            unclampedMotorEffort = effectiveCommand;
+        }
         const float speedFraction = clamp(
             abs(value) /
                 max(
@@ -335,16 +408,60 @@ kernel void mr_metal_world_prepare(
             1.0f
         );
         const float envelope = min(
-            dofs[coordinate].limits.w,
+            (dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u &&
+                    dof.limits.w > 0.0f
+                ? dof.limits.w
+                : 0.0f,
             actuator.transmissionAndEnvelope.z *
                 actuator.motorAndSpeed.w *
                 (1.0f - speedFraction)
         );
-        command = clamp(command, -envelope, envelope);
+        const float motorEffort = clamp(
+            unclampedMotorEffort,
+            -envelope,
+            envelope
+        );
+        float passiveFriction = 0.0f;
+        if (actuated && dof.drive.w > 0.0f) {
+            passiveFriction = abs(value) > 1.0e-4f
+                ? -copysign(dof.drive.w, value)
+                : -clamp(
+                      motorEffort,
+                      -dof.drive.w,
+                      dof.drive.w
+                  );
+        }
+        const float generalizedEffort =
+            motorEffort + passiveFriction;
         workingEffort[
             environment * dispatch.effortEnvironmentStride +
             coordinate
-        ] = command;
+        ] = generalizedEffort;
+        actuatorState.command = float4(
+            rawCommand,
+            delayedCommand,
+            effectiveCommand,
+            neutralCommand
+        );
+        actuatorState.effort = float4(
+            unclampedMotorEffort,
+            motorEffort,
+            passiveFriction,
+            generalizedEffort
+        );
+        actuatorState.envelope = float4(
+            envelope,
+            max(abs(unclampedMotorEffort) - envelope, 0.0f),
+            speedFraction,
+            controller.w
+        );
+        actuatorState.status = uint4(
+            1u,
+            (writeSlot + 1u) % historySlots,
+            abs(unclampedMotorEffort) > envelope ? 1u : 0u,
+            implicitPositionDrive ? 1u : 0u
+        );
+        actuatorStates[actuatorStateIndex] = actuatorState;
     }
     statuses[environment] = status;
 }
@@ -353,17 +470,38 @@ kernel void mr_metal_world_prepare(
 // substep latches a typed status and every later pass restores the immutable
 // checkpoint, making the entire control step transactional per environment.
 kernel void mr_metal_world_commit(
-    device const MRMetalWorldDispatchGPU& dispatch [[buffer(0)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(1)]],
-    device const MRABAStatusGPU* abaStatuses [[buffer(2)]],
-    device const float* candidateQ [[buffer(3)]],
-    device const float* candidateV [[buffer(4)]],
-    device float* destinationQ [[buffer(5)]],
-    device float* destinationV [[buffer(6)]],
-    device MRMetalWorldStatusGPU* statuses [[buffer(7)]],
-    device const float* checkpointQ [[buffer(8)]],
-    device const float* checkpointV [[buffer(9)]],
-    device const MRWorldGPU& world [[buffer(10)]],
+    device const MRMetalWorldDispatchGPU& dispatch
+        [[buffer(MR_WORLD_COMMIT_DISPATCH)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_WORLD_COMMIT_PASS)]],
+    device const MRABAStatusGPU* abaStatuses
+        [[buffer(MR_WORLD_COMMIT_ABA_STATUSES)]],
+    device const float* candidateQ
+        [[buffer(MR_WORLD_COMMIT_CANDIDATE_Q)]],
+    device const float* candidateV
+        [[buffer(MR_WORLD_COMMIT_CANDIDATE_V)]],
+    device float* destinationQ
+        [[buffer(MR_WORLD_COMMIT_DESTINATION_Q)]],
+    device float* destinationV
+        [[buffer(MR_WORLD_COMMIT_DESTINATION_V)]],
+    device MRMetalWorldStatusGPU* statuses
+        [[buffer(MR_WORLD_COMMIT_STATUSES)]],
+    device const float* checkpointQ
+        [[buffer(MR_WORLD_COMMIT_CHECKPOINT_Q)]],
+    device const float* checkpointV
+        [[buffer(MR_WORLD_COMMIT_CHECKPOINT_V)]],
+    device const MRWorldGPU& world
+        [[buffer(MR_WORLD_COMMIT_WORLD)]],
+    device MRActuatorRuntimeStateGPU* actuatorStates
+        [[buffer(MR_WORLD_COMMIT_ACTUATOR_STATES)]],
+    device float* actuatorCommandHistory
+        [[buffer(MR_WORLD_COMMIT_ACTUATOR_COMMAND_HISTORY)]],
+    device const MRActuatorRuntimeStateGPU* checkpointActuatorStates
+        [[buffer(MR_WORLD_COMMIT_CHECKPOINT_ACTUATOR_STATES)]],
+    device const float* checkpointActuatorCommandHistory
+        [[buffer(MR_WORLD_COMMIT_CHECKPOINT_ACTUATOR_COMMAND_HISTORY)]],
+    device const MRActuatorProfileGPU* actuatorProfiles
+        [[buffer(MR_WORLD_COMMIT_ACTUATOR_PROFILES)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -463,6 +601,24 @@ kernel void mr_metal_world_commit(
         destinationV[vBase + coordinate] = commitCandidate
             ? candidateV[vBase + coordinate]
             : checkpointV[vBase + coordinate];
+    }
+    if (!commitCandidate) {
+        const uint historySlots = actuatorProfiles[0].identity.w;
+        for (uint coordinate = 0u;
+             coordinate < dispatch.nv;
+             ++coordinate) {
+            const uint actuatorStateIndex =
+                environment * dispatch.nv + coordinate;
+            actuatorStates[actuatorStateIndex] =
+                checkpointActuatorStates[actuatorStateIndex];
+            for (uint slot = 0u; slot < historySlots; ++slot) {
+                const ulong historyIndex =
+                    (static_cast<ulong>(environment) * historySlots +
+                     slot) * dispatch.nv + coordinate;
+                actuatorCommandHistory[historyIndex] =
+                    checkpointActuatorCommandHistory[historyIndex];
+            }
+        }
     }
 
     if (commitCandidate) {

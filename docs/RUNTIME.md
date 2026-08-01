@@ -204,10 +204,11 @@ TaskIR now checkpoints per-environment episode/RNG identity, delay state,
 contact metrics, histories, bias, randomization, and controller parameters.
 The owner proves that a branch containing a rejected reset produces a
 byte-identical next accepted transition to a branch that never attempted the
-failure. Independent actuator/backlash state, tactile history, presentation
-history, global curriculum scheduling, and future recurrent-policy state are
-not yet one atomic publication. Whole-session reset therefore remains
-unqualified.
+failure. Native actuator command history, backlash play, effort decomposition,
+and sensor-visible state are checkpointed at the control boundary and restored
+when any physics microstep fails. Tactile history, presentation history, global
+curriculum scheduling, and future recurrent-policy state are not yet one
+atomic publication. Whole-session reset therefore remains unqualified.
 
 If any generated count, offset, capacity, factor, finite check, or extension
 status fails, the environment retains its previous committed state and emits a

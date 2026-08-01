@@ -493,6 +493,9 @@ struct MetalWorldLayout {
     std::size_t sensorHistoryElements = 0u;
     std::size_t sensorOutputElements = 0u;
     std::size_t sensorMetadataElements = 0u;
+    std::size_t actuatorStateElements = 0u;
+    std::size_t actuatorCommandHistoryElements = 0u;
+    std::uint32_t actuatorCommandHistorySlots = 0u;
     std::size_t policyLatentElements = 0u;
     std::size_t policyLogProbabilityElements = 0u;
     std::size_t policyValueElements = 0u;

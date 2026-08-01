@@ -86,11 +86,18 @@
       "scope": "Distinct fingerprinted URDF, companion-MJCF, and RL Lab actuator contracts; no silent 25/35/50 N m mixing."
     },
     {
+      "id": "mechanics.native_actuator_state",
+      "status": "implemented",
+      "owner": "mechanics.actuation",
+      "artifact": "metalrobo_articulated_actuation_probe",
+      "scope": "The native session owns a topology-derived command-delay ring, deterministic backlash play, motor-envelope and dry-friction decomposition, and an eight-channel actuator-state SensorIR view. Delay is quantized upward to whole control periods, reset is neutral, and rejected physics submissions restore the pre-step timeline. Motor-envelope and passive-friction evaluation still occur at the control boundary rather than being re-evaluated at every physics microstep."
+    },
+    {
       "id": "runtime.swift_metal_session",
       "status": "qualified",
       "owner": "integration.native_simulation",
       "artifact": "metalrobo_simulation",
-      "scope": "Swift schedules bounded native submissions; Metal owns persistent simulator state, asynchronous tickets, and per-environment physical publication. Whole-session atomic reset across TaskIR, actuators, tactile, presentation, and future recurrent policy state remains incomplete."
+      "scope": "Swift schedules bounded native submissions; Metal owns persistent simulator state, asynchronous tickets, and per-environment physical publication. Physics, TaskIR, SensorIR, and actuator delay/backlash now participate in the native transaction; whole-session atomic reset across tactile, presentation, global curriculum, and future recurrent policy state remains incomplete."
     },
     {
       "id": "runtime.transactional_reset_physics",
@@ -223,7 +230,7 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "WorldPack joint-state, frame-state, frame-twist, IMU, force-torque, contact-state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. Scalar-joint state, frame pose/twist, IMU, force-torque, and semantically filtered contact-state sensors execute in the session-owned scheduler with reset-failure journals, native counter-based corruption, and TaskIR bindings; presentation and tactile still use their existing native owners, while actuator state, recorder routing, ray, and LiDAR operators remain incomplete."
+      "scope": "WorldPack joint-state, actuator-state, frame-state, frame-twist, IMU, force-torque, contact-state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. Scalar-joint and actuator state, frame pose/twist, IMU, force-torque, and semantically filtered contact-state sensors execute in the session-owned scheduler with reset-failure journals, native counter-based corruption, and TaskIR bindings; presentation and tactile still use their existing native owners, while recorder routing, ray, and LiDAR operators remain incomplete."
     },
     {
       "id": "policy.dense_native_inference",

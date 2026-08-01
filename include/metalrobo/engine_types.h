@@ -373,9 +373,11 @@ typedef struct MR_ALIGN16 MRActuatorProfileGPU {
     // no-load speed rad/s (or m/s), efficiency [0,1].
     mr_float4 motorAndSpeed;
     // backlash play in joint units, command delay seconds,
-    // cooked stall torque N*m (or N), reserved.
+    // cooked stall torque N*m (or N), reserved in authored models.
     mr_float4 transmissionAndEnvelope;
-    // global v index, MRActuatorProfileFlags, reserved, reserved.
+    // Authored model: global v index, MRActuatorProfileFlags, zero, zero.
+    // The private runtime copy replaces zw with the delay in control steps
+    // and the topology-derived shared history-slot count.
     mr_uint4 identity;
 } MRActuatorProfileGPU;
 
@@ -662,6 +664,10 @@ enum MRMetalWorldFlags : mr_u32 {
     MR_METAL_WORLD_NATIVE_TASK = 1u << 6u,
     // A compiled SensorIR program owns persistent schedule/history state.
     MR_METAL_WORLD_NATIVE_SENSORS = 1u << 7u,
+    // This submission starts a new resident actuator timeline. The first
+    // prepare pass initializes every command-history slot from neutral state;
+    // resident continuation leaves the timeline untouched.
+    MR_METAL_WORLD_INITIALIZE_ACTUATORS = 1u << 8u,
 };
 
 // Immutable strides and dimensions for one environment-major rollout.

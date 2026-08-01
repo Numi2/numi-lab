@@ -97,9 +97,11 @@ bandwidth beyond the core state already required for rollback. TaskIR journals
 state, action delay, and compact contact metrics on every step; reset steps
 also journal observation histories, bias, body/controller randomization, and
 previous velocity. A typed failure transition remains inspectable while the
-persistent TaskIR state is restored. Whole-session atomicity for independent
-actuator/backlash state, tactile, presentation, global curriculum, and future
-recurrent-policy state is still incomplete.
+persistent TaskIR state is restored. Actuator command-delay and backlash state
+are checkpointed before the control-boundary mutation and restored whenever
+the physics transaction is rejected. Whole-session atomicity for tactile,
+presentation, global curriculum, and future recurrent-policy state is still
+incomplete.
 
 ## Generated ABI
 

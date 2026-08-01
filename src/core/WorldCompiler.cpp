@@ -377,6 +377,7 @@ std::uint32_t computeCapabilities(
         case MR_WORLD_SENSOR_IMU:
         case MR_WORLD_SENSOR_CONTACT_STATE:
         case MR_WORLD_SENSOR_JOINT_STATE:
+        case MR_WORLD_SENSOR_ACTUATOR_STATE:
             break;
         case MR_WORLD_SENSOR_TACTILE_DEPTH:
             result |= MR_WORLD_CAP_TACTILE_DEPTH;
@@ -864,20 +865,24 @@ bool validSensor(const SensorSpec& sensor, std::string* reason) {
     }
     const bool jointStateSensor =
         sensor.kind == MR_WORLD_SENSOR_JOINT_STATE;
-    if (jointStateSensor != !sensor.target.empty()) {
+    const bool actuatorStateSensor =
+        sensor.kind == MR_WORLD_SENSOR_ACTUATOR_STATE;
+    const bool targetedStateSensor =
+        jointStateSensor || actuatorStateSensor;
+    if (targetedStateSensor != !sensor.target.empty()) {
         return fail(
             reason,
-            jointStateSensor
-                ? "joint-state sensor target is empty"
-                : "only joint-state sensors may author a target"
+            targetedStateSensor
+                ? "joint/actuator-state sensor target is empty"
+                : "only joint/actuator-state sensors may author a target"
         );
     }
-    if (jointStateSensor &&
+    if (targetedStateSensor &&
         (sensor.parentKind != MR_WORLD_SENSOR_PARENT_ASSET ||
          sensor.parentBodyIndex != MR_INVALID_INDEX)) {
         return fail(
             reason,
-            "joint-state sensor must be owned by an asset, not a body frame"
+            "joint/actuator-state sensor must be owned by an asset, not a body frame"
         );
     }
     std::unordered_set<std::string> filterBodies;
@@ -1241,6 +1246,44 @@ bool WorldTemplate::valid(std::string* reason) const {
                 return fail(
                     reason,
                     "sensor target joint is not owned by its parent asset"
+                );
+            }
+        }
+        if (sensor.kind == MR_WORLD_SENSOR_ACTUATOR_STATE) {
+            const auto dof = std::ranges::find(
+                engineModel.dofNames,
+                sensor.target
+            );
+            if (dof == engineModel.dofNames.end()) {
+                return fail(
+                    reason,
+                    "sensor target actuator does not exist"
+                );
+            }
+            const std::uint32_t dofIndex =
+                static_cast<std::uint32_t>(
+                    dof - engineModel.dofNames.begin()
+                );
+            if (dofIndex >= engineModel.dofs.size() ||
+                (engineModel.dofs[dofIndex].flags &
+                 MR_DOF_FLAG_ACTUATED) == 0u) {
+                return fail(
+                    reason,
+                    "sensor target is not an actuated coordinate"
+                );
+            }
+            const std::uint32_t jointIndex =
+                engineModel.dofs[dofIndex].jointIndex;
+            const WorldAsset& parent =
+                assets[assetIndex(sensor.parentAssetId)];
+            if (jointIndex >= engineModel.joints.size() ||
+                std::ranges::find(
+                    parent.bodyIndices,
+                    engineModel.joints[jointIndex].childBody
+                ) == parent.bodyIndices.end()) {
+                return fail(
+                    reason,
+                    "sensor target actuator is not owned by its parent asset"
                 );
             }
         }

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 18,
+  "abi_version": 19,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -119,7 +119,7 @@
     ["rod_ccd", "rodCCDWitnessTagPipeline", "mr_world_tag_rod_ccd_witnesses", "one", 0]
   ],
   "abi_constants": {
-    "MR_SENSOR_PROGRAM_ABI_VERSION": 8,
+    "MR_SENSOR_PROGRAM_ABI_VERSION": 9,
     "MR_SENSOR_DISPATCH_HAS_RESETS": 1,
     "MR_SENSOR_DISPATCH_HAS_CONTACTS": 2
   },
@@ -186,6 +186,16 @@
       ]
     },
     {
+      "name": "MRActuatorRuntimeStateGPU",
+      "alignment": 16,
+      "fields": [
+        ["mr_float4", "command"],
+        ["mr_float4", "effort"],
+        ["mr_float4", "envelope"],
+        ["mr_uint4", "status"]
+      ]
+    },
+    {
       "name": "MRLearningPublicationDispatchGPU",
       "alignment": 16,
       "fields": [
@@ -211,7 +221,7 @@
     }
   ],
   "world_buffers": {
-    "count": 247,
+    "count": 251,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -451,7 +461,11 @@
       ["kTaskCheckpointBodyParameters", 243],
       ["kTaskCheckpointControllerParameters", 244],
       ["kTaskCheckpointContactCompact", 245],
-      ["kSensorFilterBodies", 246]
+      ["kSensorFilterBodies", 246],
+      ["kActuatorRuntimeStates", 247],
+      ["kActuatorCommandHistory", 248],
+      ["kCheckpointActuatorRuntimeStates", 249],
+      ["kCheckpointActuatorCommandHistory", 250]
     ],
     "classifications": {
       "immutable": [
@@ -540,7 +554,9 @@
         "kSensorRuntimeStates",
         "kSensorHistory",
         "kSensorOutputs",
-        "kSensorMetadata"
+        "kSensorMetadata",
+        "kActuatorRuntimeStates",
+        "kActuatorCommandHistory"
       ],
       "transient": [
         "kWorkingEffort",
@@ -661,7 +677,9 @@
         "kTaskCheckpointEncoderBias",
         "kTaskCheckpointBodyParameters",
         "kTaskCheckpointControllerParameters",
-        "kTaskCheckpointContactCompact"
+        "kTaskCheckpointContactCompact",
+        "kCheckpointActuatorRuntimeStates",
+        "kCheckpointActuatorCommandHistory"
       ]
     },
     "persistent_inputs": [
@@ -809,7 +827,8 @@
         "CHECKPOINT_STATES",
         "CHECKPOINT_HISTORY",
         "CHECKPOINT_OUTPUTS",
-        "CHECKPOINT_METADATA"
+        "CHECKPOINT_METADATA",
+        "ACTUATOR_STATES"
       ]
     },
     {
@@ -867,7 +886,33 @@
         "ARTICULATIONS",
         "DOFS",
         "ACTUATOR_PROFILES",
-        "TASK_CONTROLLER_PARAMETERS"
+        "TASK_CONTROLLER_PARAMETERS",
+        "ACTUATOR_STATES",
+        "ACTUATOR_COMMAND_HISTORY",
+        "CHECKPOINT_ACTUATOR_STATES",
+        "CHECKPOINT_ACTUATOR_COMMAND_HISTORY"
+      ]
+    },
+    {
+      "enum": "MRWorldCommitBuffer",
+      "prefix": "MR_WORLD_COMMIT_",
+      "bindings": [
+        "DISPATCH",
+        "PASS",
+        "ABA_STATUSES",
+        "CANDIDATE_Q",
+        "CANDIDATE_V",
+        "DESTINATION_Q",
+        "DESTINATION_V",
+        "STATUSES",
+        "CHECKPOINT_Q",
+        "CHECKPOINT_V",
+        "WORLD",
+        "ACTUATOR_STATES",
+        "ACTUATOR_COMMAND_HISTORY",
+        "CHECKPOINT_ACTUATOR_STATES",
+        "CHECKPOINT_ACTUATOR_COMMAND_HISTORY",
+        "ACTUATOR_PROFILES"
       ]
     },
     {
