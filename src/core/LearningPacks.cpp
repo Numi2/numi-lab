@@ -937,10 +937,10 @@ std::vector<std::byte> serializeTask(
             target.pod(value.initialUpper);
             target.pod(value.finalLower);
             target.pod(value.finalUpper);
+            target.pod(value.minimumIntervalSeconds);
+            target.pod(value.maximumIntervalSeconds);
         }
     );
-    writer.pod(pack.events.minimumIntervalSeconds);
-    writer.pod(pack.events.maximumIntervalSeconds);
     writer.pod(pack.phase.periodSeconds);
     writer.pod(pack.curriculum.levelCount);
     writer.pod(pack.curriculum.evaluationWindowSteps);
@@ -1126,11 +1126,11 @@ bool deserializeTask(
                     source.pod(value.initialLower) &&
                     source.pod(value.initialUpper) &&
                     source.pod(value.finalLower) &&
-                    source.pod(value.finalUpper);
+                    source.pod(value.finalUpper) &&
+                    source.pod(value.minimumIntervalSeconds) &&
+                    source.pod(value.maximumIntervalSeconds);
             }
         ) ||
-        !reader.pod(pack.events.minimumIntervalSeconds) ||
-        !reader.pod(pack.events.maximumIntervalSeconds) ||
         !reader.pod(pack.phase.periodSeconds) ||
         !reader.pod(pack.curriculum.levelCount) ||
         !reader.pod(pack.curriculum.evaluationWindowSteps) ||

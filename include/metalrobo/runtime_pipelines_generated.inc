@@ -30,6 +30,7 @@ MR_RUNTIME_PIPELINE(Kinematics, parameterizedOperatorPipeline, @"mr_parameterize
 MR_RUNTIME_PIPELINE(Kinematics, bodyProjectionPipeline, @"mr_world_build_body_states", 1u, 0u)
 MR_RUNTIME_PIPELINE(Kinematics, bodyVelocityPipeline, @"mr_articulated_materialize_body_velocities", kOperatorThreadsPerThreadgroup, 0u)
 MR_RUNTIME_PIPELINE(Task, taskObservePipeline, @"mr_task_observe", 1u, 0u)
+MR_RUNTIME_PIPELINE(Task, taskEventPipeline, @"mr_task_apply_events", 1u, 0u)
 MR_RUNTIME_PIPELINE(Task, taskPhysicalCheckpointPipeline, @"mr_world_checkpoint_task_state", 1u, 0u)
 MR_RUNTIME_PIPELINE(Task, taskCheckpointPipeline, @"mr_task_checkpoint_state", 1u, 0u)
 MR_RUNTIME_PIPELINE(Task, taskFrameRefreshPipeline, @"mr_task_refresh_frame_observations", 1u, 0u)

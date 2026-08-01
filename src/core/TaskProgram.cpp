@@ -1034,11 +1034,6 @@ TaskCompileDiagnostics compileTaskProgram(
         !(pack.commands.minimumDurationSeconds > 0.0f) ||
         pack.commands.maximumDurationSeconds <
             pack.commands.minimumDurationSeconds ||
-        !finite(pack.events.minimumIntervalSeconds) ||
-        !finite(pack.events.maximumIntervalSeconds) ||
-        !(pack.events.minimumIntervalSeconds > 0.0f) ||
-        pack.events.maximumIntervalSeconds <
-            pack.events.minimumIntervalSeconds ||
         pack.maximumObservationDelaySteps >=
             pack.actorHistoryLength) {
         return reject(
@@ -1120,8 +1115,13 @@ TaskCompileDiagnostics compileTaskProgram(
             !finite(event.initialUpper) ||
             !finite(event.finalLower) ||
             !finite(event.finalUpper) ||
+            !finite(event.minimumIntervalSeconds) ||
+            !finite(event.maximumIntervalSeconds) ||
             event.initialLower > event.initialUpper ||
             event.finalLower > event.finalUpper ||
+            !(event.minimumIntervalSeconds > 0.0f) ||
+            event.maximumIntervalSeconds <
+                event.minimumIntervalSeconds ||
             std::find(
                 staged->eventIds.begin(),
                 staged->eventIds.end(),
@@ -1202,6 +1202,12 @@ TaskCompileDiagnostics compileTaskProgram(
             {
                 event.finalLower,
                 event.finalUpper,
+                0.0f,
+                0.0f,
+            },
+            {
+                event.minimumIntervalSeconds,
+                event.maximumIntervalSeconds,
                 0.0f,
                 0.0f,
             },
@@ -3305,12 +3311,6 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.commands.zeroProbability,
         pack.commands.minimumDurationSeconds,
         pack.commands.maximumDurationSeconds,
-        0.0f,
-    };
-    staged->header.eventSchedule = {
-        0.0f,
-        pack.events.minimumIntervalSeconds,
-        pack.events.maximumIntervalSeconds,
         0.0f,
     };
     staged->header.articulation = {

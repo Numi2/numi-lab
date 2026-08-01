@@ -1590,6 +1590,8 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             .initialUpper = 0.2f,
             .finalLower = 0.2f,
             .finalUpper = 0.2f,
+            .minimumIntervalSeconds = 0.02f,
+            .maximumIntervalSeconds = 0.02f,
         },
         {
             .id = "negative_axis_delta",
@@ -1601,10 +1603,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             .initialUpper = 0.0f,
             .finalLower = -0.1f,
             .finalUpper = 0.0f,
+            .minimumIntervalSeconds = 0.04f,
+            .maximumIntervalSeconds = 0.04f,
         },
     };
-    fixedEventTask.events.minimumIntervalSeconds = 0.02f;
-    fixedEventTask.events.maximumIntervalSeconds = 0.02f;
     metalrobo::CompiledTaskProgram fixedEventProgram;
     const auto fixedEventCompile = metalrobo::compileTaskProgram(
         fixedEventTask,
@@ -1633,12 +1635,16 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         fixedEventProgram.eventOperators()[1u].initialRange.x !=
             -0.1f ||
         fixedEventProgram.eventOperators()[1u].initialRange.y !=
-            0.0f) {
+            0.0f ||
+        fixedEventProgram.eventOperators()[0u].schedule.x != 0.02f ||
+        fixedEventProgram.eventOperators()[0u].schedule.y != 0.02f ||
+        fixedEventProgram.eventOperators()[1u].schedule.x != 0.04f ||
+        fixedEventProgram.eventOperators()[1u].schedule.y != 0.04f) {
         fail(
             "fixed-base semantic velocity event cohort did not compile"
         );
     }
-    constexpr std::size_t eventSteps = 3u;
+    constexpr std::size_t eventSteps = 4u;
     constexpr std::uint64_t eventSeed =
         0x51c43a9d7e2b608full;
     const std::vector<float> eventActions(eventSteps, 0.0f);
@@ -1715,20 +1721,16 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     const std::uint64_t sampledEventIdentity =
         static_cast<std::uint64_t>(sampledEvent.target.z) |
         (static_cast<std::uint64_t>(sampledEvent.target.w) << 32u);
-    float expectedEventDelta = 0.0f;
-    for (std::uint32_t episodeStep : {1u, 2u}) {
-        expectedEventDelta += 0.2f;
-        expectedEventDelta += -0.1f + 0.1f *
-            mr_semantic_counter_uniform(
-                eventSeed,
-                0u,
-                1u,
-                sampledEventIdentity,
-                episodeStep,
-                0u,
-                MR_COUNTER_PURPOSE_TASK_EVENT
-            );
-    }
+    const float expectedEventDelta = 0.6f - 0.1f + 0.1f *
+        mr_semantic_counter_uniform(
+            eventSeed,
+            0u,
+            1u,
+            sampledEventIdentity,
+            0u,
+            0u,
+            MR_COUNTER_PURPOSE_TASK_EVENT
+        );
     const float measuredEventDelta =
         fixedEventResult.finalV.empty() ||
             noEventResult.finalV.empty()
@@ -1747,9 +1749,9 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         fixedEventResult.transitions.size() != eventSteps ||
         fixedEventResult.finalV.size() != compiled.world.nv() ||
         noEventResult.finalV.size() != compiled.world.nv() ||
-        measuredEventDelta <= 0.2f ||
-        !(expectedEventDelta > 0.2f &&
-          expectedEventDelta < 0.4f)) {
+        measuredEventDelta <= 0.45f ||
+        !(expectedEventDelta > 0.5f &&
+          expectedEventDelta < 0.6f)) {
         fail(
             "compiled fixed-base event cohort did not execute deterministically: " +
             fixedEventExecuted.message + " / " +
@@ -4615,6 +4617,18 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     transactionAuthored.task.commands.values[4u].upper = 0.4f;
     transactionAuthored.task.commands.values[4u].limitLower = -0.4f;
     transactionAuthored.task.commands.values[4u].limitUpper = 0.4f;
+    transactionAuthored.task.events.values = {{
+        .id = "axis_velocity_transaction_canary",
+        .operation = metalrobo::TaskEventOperator::
+            generalizedVelocityDelta,
+        .target = "axis",
+        .initialLower = 0.04f,
+        .initialUpper = 0.06f,
+        .finalLower = 0.04f,
+        .finalUpper = 0.06f,
+        .minimumIntervalSeconds = 0.02f,
+        .maximumIntervalSeconds = 0.02f,
+    }};
     transactionAuthored.task.capacities.candidatePairs = 1u;
     transactionAuthored.model.bodies[obstacleBodyIndex]
         .motionType = MR_MOTION_KINEMATIC;
@@ -5037,6 +5051,38 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         );
     }
 
+    // Advance both branches once so the event fire counter is nonzero before
+    // the candidate reset mutates it. The rejected reset must restore that
+    // counter, not merely reconstruct the same initial countdown.
+    metalrobo::MetalWorldResult taskReferenceCommitted;
+    metalrobo::MetalWorldResult taskCandidateCommitted;
+    const auto taskReferenceCommit = continueTaskBranch(
+        taskReferenceContext,
+        taskReferenceState,
+        noReset,
+        transactionAuthored.sceneBodies,
+        taskReferenceCommitted
+    );
+    const auto taskCandidateCommit = continueTaskBranch(
+        taskCandidateContext,
+        taskCandidateState,
+        noReset,
+        transactionAuthored.sceneBodies,
+        taskCandidateCommitted
+    );
+    if (!taskReferenceCommit.succeeded() ||
+        !taskCandidateCommit.succeeded() ||
+        taskReferenceCommitted.finalQ != taskCandidateCommitted.finalQ ||
+        taskReferenceCommitted.finalV != taskCandidateCommitted.finalV ||
+        !samePodVector(
+            taskReferenceCommitted.transitions,
+            taskCandidateCommitted.transitions
+        )) {
+        fail(
+            "native TaskIR event rollback branches did not establish an identical committed fire count"
+        );
+    }
+
     metalrobo::MetalWorldResult taskRejectedResult;
     const auto taskRejected = continueTaskBranch(
         taskCandidateContext,
@@ -5046,11 +5092,11 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         taskRejectedResult
     );
     const bool taskFailurePhysicsRestored =
-        taskRejectedResult.finalQ == taskCandidateInitial.finalQ &&
-        taskRejectedResult.finalV == taskCandidateInitial.finalV &&
+        taskRejectedResult.finalQ == taskCandidateCommitted.finalQ &&
+        taskRejectedResult.finalV == taskCandidateCommitted.finalV &&
         samePodVector(
             taskRejectedResult.finalSceneBodies,
-            taskCandidateInitial.finalSceneBodies
+            taskCandidateCommitted.finalSceneBodies
         );
     if (taskRejected.succeeded() ||
         !taskRejected.published ||
@@ -5555,10 +5601,10 @@ int main() {
             program.header().commandSchedule.y != 10.0f ||
             program.header().commandSchedule.z != 10.0f ||
             program.header().commandSchedule.w != 0.0f ||
-            program.header().eventSchedule.x != 0.0f ||
-            program.header().eventSchedule.y != 5.0f ||
-            program.header().eventSchedule.z != 5.0f ||
-            program.header().eventSchedule.w != 0.0f ||
+            program.eventOperators()[0u].schedule.x != 5.0f ||
+            program.eventOperators()[0u].schedule.y != 5.0f ||
+            program.eventOperators()[1u].schedule.x != 5.0f ||
+            program.eventOperators()[1u].schedule.y != 5.0f ||
             !std::ranges::equal(
                 program.recorderIds(),
                 std::array<std::string, 3u>{
@@ -6004,6 +6050,25 @@ int main() {
             repeated.fingerprint() != preserved) {
             fail(
                 "invalid event range was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack invalidEventSchedule = authored.task;
+        invalidEventSchedule.events.values[0u]
+            .minimumIntervalSeconds = 2.0f;
+        invalidEventSchedule.events.values[0u]
+            .maximumIntervalSeconds = 1.0f;
+        const auto invalidEventScheduleRejected =
+            metalrobo::compileTaskProgram(
+                invalidEventSchedule,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (invalidEventScheduleRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "invalid per-event schedule was not transactionally rejected"
             );
         }
         metalrobo::TaskPack unsupportedEvent = authored.task;

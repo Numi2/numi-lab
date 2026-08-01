@@ -2,9 +2,9 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 31
-    static let worldBufferCount = 254
-    static let pipelineCount = 93
+    static let version: UInt32 = 32
+    static let worldBufferCount = 256
+    static let pipelineCount = 94
     static let pipelineGroupCount = 11
     static let mrSensorProgramAbiVersion: UInt32 = 9
     static let mrSensorDispatchHasResets: UInt32 = 1
@@ -273,5 +273,7 @@ enum MetalRoboRuntimeABI {
         "task kinematic dispatches",
         "task kinematic queries",
         "task kinematic point world",
+        "task event states",
+        "task checkpoint event states",
     ]
 }

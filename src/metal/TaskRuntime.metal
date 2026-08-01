@@ -1486,13 +1486,44 @@ inline void sampleCommands(
     }
 }
 
-inline void applyEventCohort(
+inline ulong taskEventIdentity(
+    const MRTaskEventOperatorGPU operation
+) {
+    return ulong(operation.target.z) |
+        (ulong(operation.target.w) << 32u);
+}
+
+inline uint eventDurationSteps(
     device const MRTaskDispatchGPU& dispatch,
-    device const MRTaskProgramHeaderGPU& program,
-    device const MRTaskEventOperatorGPU* events,
+    const MRTaskEventOperatorGPU operation,
     const uint environment,
     const uint episode,
-    const uint episodeStep,
+    const uint fireCount
+) {
+    const float unit = mr_semantic_counter_uniform(
+        dispatch.seed,
+        environment,
+        episode,
+        taskEventIdentity(operation),
+        fireCount,
+        1u,
+        MR_COUNTER_PURPOSE_TASK_EVENT
+    );
+    const float seconds = mix(
+        operation.schedule.x,
+        operation.schedule.y,
+        unit
+    );
+    return max(1u, uint(floor(seconds / dispatch.timing.x)));
+}
+
+inline void applyEvent(
+    device const MRTaskDispatchGPU& dispatch,
+    device const MRTaskProgramHeaderGPU& program,
+    const MRTaskEventOperatorGPU operation,
+    const uint environment,
+    const uint episode,
+    const uint fireCount,
     const uint curriculum,
     device float* v
 ) {
@@ -1502,41 +1533,32 @@ inline void applyEventCohort(
         0.0f,
         1.0f
     );
-    for (uint eventIndex = 0u;
-         eventIndex < program.counts1.z;
-         ++eventIndex) {
-        const MRTaskEventOperatorGPU operation =
-            events[eventIndex];
-        const float lower = mix(
-            operation.initialRange.x,
-            operation.finalRange.x,
-            progress
-        );
-        const float upper = mix(
-            operation.initialRange.y,
-            operation.finalRange.y,
-            progress
-        );
-        const ulong identity =
-            ulong(operation.target.z) |
-            (ulong(operation.target.w) << 32u);
-        const float unit = mr_semantic_counter_uniform(
-            dispatch.seed,
-            environment,
-            episode,
-            identity,
-            episodeStep,
-            0u,
-            MR_COUNTER_PURPOSE_TASK_EVENT
-        );
-        const float value = lower + (upper - lower) * unit;
-        switch (operation.target.x) {
-        case MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA:
-            v[operation.target.y] += value;
-            break;
-        default:
-            break;
-        }
+    const float lower = mix(
+        operation.initialRange.x,
+        operation.finalRange.x,
+        progress
+    );
+    const float upper = mix(
+        operation.initialRange.y,
+        operation.finalRange.y,
+        progress
+    );
+    const float unit = mr_semantic_counter_uniform(
+        dispatch.seed,
+        environment,
+        episode,
+        taskEventIdentity(operation),
+        fireCount,
+        0u,
+        MR_COUNTER_PURPOSE_TASK_EVENT
+    );
+    const float value = lower + (upper - lower) * unit;
+    switch (operation.target.x) {
+    case MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA:
+        v[operation.target.y] += value;
+        break;
+    default:
+        break;
     }
 }
 
@@ -1575,6 +1597,8 @@ kernel void mr_task_checkpoint_state(
         [[buffer(MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS)]],
     device const float* scalarState
         [[buffer(MR_TASK_TRANSACTION_SCALAR_STATE)]],
+    device const MRTaskEventStateGPU* eventStates
+        [[buffer(MR_TASK_TRANSACTION_EVENT_STATES)]],
     device MRTaskStateGPU* checkpointStates
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_STATE)]],
     device float* checkpointActionHistory
@@ -1595,6 +1619,8 @@ kernel void mr_task_checkpoint_state(
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS)]],
     device float* checkpointScalarState
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE)]],
+    device MRTaskEventStateGPU* checkpointEventStates
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_EVENT_STATES)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -1632,6 +1658,13 @@ kernel void mr_task_checkpoint_state(
          ++index) {
         checkpointScalarState[scalarBase + index] =
             scalarState[scalarBase + index];
+    }
+    const uint eventBase = environment * program.counts1.z;
+    for (uint index = 0u;
+         index < program.counts1.z;
+         ++index) {
+        checkpointEventStates[eventBase + index] =
+            eventStates[eventBase + index];
     }
     if (!reset) {
         return;
@@ -1719,6 +1752,8 @@ kernel void mr_task_restore_failed_state(
         [[buffer(MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS)]],
     device float* scalarState
         [[buffer(MR_TASK_TRANSACTION_SCALAR_STATE)]],
+    device MRTaskEventStateGPU* eventStates
+        [[buffer(MR_TASK_TRANSACTION_EVENT_STATES)]],
     device const MRTaskStateGPU* checkpointStates
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_STATE)]],
     device const float* checkpointActionHistory
@@ -1739,6 +1774,8 @@ kernel void mr_task_restore_failed_state(
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS)]],
     device const float* checkpointScalarState
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE)]],
+    device const MRTaskEventStateGPU* checkpointEventStates
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_EVENT_STATES)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -1770,6 +1807,13 @@ kernel void mr_task_restore_failed_state(
          ++index) {
         scalarState[scalarBase + index] =
             checkpointScalarState[scalarBase + index];
+    }
+    const uint eventBase = environment * program.counts1.z;
+    for (uint index = 0u;
+         index < program.counts1.z;
+         ++index) {
+        eventStates[eventBase + index] =
+            checkpointEventStates[eventBase + index];
     }
     const uint maskIndex =
         pass.controlStep * dispatch.counts.x + environment;
@@ -1948,11 +1992,6 @@ kernel void mr_task_observe(
         taskTable<MRTaskCommandOperatorGPU>(
             arena,
             program.offsets3.y
-        );
-    device const MRTaskEventOperatorGPU* eventOperators =
-        taskTable<MRTaskEventOperatorGPU>(
-            arena,
-            program.offsets1.z
         );
     device const MRTaskFrameGPU* frames =
         taskTable<MRTaskFrameGPU>(
@@ -2356,17 +2395,7 @@ kernel void mr_task_observe(
                 program.commandSchedule.y,
                 program.commandSchedule.z
             ),
-            program.counts1.z == 0u
-                ? 0u
-                : durationSteps(
-                      dispatch,
-                      environment,
-                      episode,
-                      0u,
-                      33u,
-                      program.eventSchedule.y,
-                      program.eventSchedule.z
-                  ),
+            0u,
             actionDelay,
             observationDelay
         );
@@ -2544,33 +2573,101 @@ kernel void mr_task_observe(
         criticObservations + criticOutputBase
     );
 
-    if (!reset && program.counts1.z != 0u) {
-        if (state.schedule.y <= 1u) {
-            applyEventCohort(
-                dispatch,
-                program,
-                eventOperators,
-                environment,
-                state.episode.y,
-                state.episode.x,
-                state.episode.z,
-                sourceV + vBase
-            );
-            state.schedule.y = durationSteps(
-                dispatch,
-                environment,
-                state.episode.y,
-                state.episode.x,
-                65u,
-                program.eventSchedule.y,
-                program.eventSchedule.z
-            );
-        } else {
-            --state.schedule.y;
-        }
-    }
     taskStates[environment] = state;
 
+}
+
+// Executes compiled control-boundary events after observation/reset and before
+// policy action application. Each event owns an independent persistent timer
+// and fire counter; semantic identities make scheduling and values invariant
+// to insertion or reordering of unrelated events.
+kernel void mr_task_apply_events(
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_EVENT_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_EVENT_PROGRAM)]],
+    device const uchar* arena
+        [[buffer(MR_TASK_EVENT_ARENA)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_EVENT_PASS)]],
+    device const uint* resetMasks
+        [[buffer(MR_TASK_EVENT_RESET_MASKS)]],
+    device const MRTaskStateGPU* taskStates
+        [[buffer(MR_TASK_EVENT_TASK_STATES)]],
+    device MRTaskEventStateGPU* eventStates
+        [[buffer(MR_TASK_EVENT_EVENT_STATES)]],
+    device float* sourceV
+        [[buffer(MR_TASK_EVENT_SOURCE_V)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.counts1.z == 0u) {
+        return;
+    }
+
+    device const MRTaskEventOperatorGPU* events =
+        taskTable<MRTaskEventOperatorGPU>(
+            arena,
+            program.offsets1.z
+        );
+    const uint maskIndex =
+        pass.controlStep * dispatch.counts.x + environment;
+    const bool reset = resetMasks[maskIndex] != 0u;
+    const MRTaskStateGPU taskState = taskStates[environment];
+    const uint eventBase = environment * program.counts1.z;
+    const uint vBase = environment * dispatch.counts.w;
+
+    for (uint eventIndex = 0u;
+         eventIndex < program.counts1.z;
+         ++eventIndex) {
+        const MRTaskEventOperatorGPU operation = events[eventIndex];
+        MRTaskEventStateGPU state = eventStates[eventBase + eventIndex];
+        if (reset) {
+            state.schedule = uint4(
+                eventDurationSteps(
+                    dispatch,
+                    operation,
+                    environment,
+                    taskState.episode.y,
+                    0u
+                ),
+                0u,
+                0u,
+                0u
+            );
+        } else if (state.schedule.x <= 1u) {
+            applyEvent(
+                dispatch,
+                program,
+                operation,
+                environment,
+                taskState.episode.y,
+                state.schedule.y,
+                taskState.episode.z,
+                sourceV + vBase
+            );
+            const uint nextFireCount = state.schedule.y + 1u;
+            state.schedule = uint4(
+                eventDurationSteps(
+                    dispatch,
+                    operation,
+                    environment,
+                    taskState.episode.y,
+                    nextFireCount
+                ),
+                nextFireCount,
+                0u,
+                0u
+            );
+        } else {
+            --state.schedule.x;
+        }
+        eventStates[eventBase + eventIndex] = state;
+    }
 }
 
 // Reset observations must be generated from reset q, not from the body cache

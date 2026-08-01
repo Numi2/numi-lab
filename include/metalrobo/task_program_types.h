@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 24u
+#define MR_TASK_PROGRAM_ABI_VERSION 25u
 #define MR_TASK_TRANSITION_METRIC_COUNT 3u
 
 #define MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA 0u
@@ -236,8 +236,6 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_float4 taskScalars;
     // Cohort-zero probability and command duration min/max, seconds.
     mr_float4 commandSchedule;
-    // Reserved and shared event interval min/max, seconds.
-    mr_float4 eventSchedule;
     // Byte offsets in the immutable packed task arena:
     // action bindings, actor operators, critic operators, contact groups.
     mr_uint4 offsets0;
@@ -307,6 +305,8 @@ typedef struct MR_ALIGN16 MRTaskEventOperatorGPU {
     mr_float4 initialRange;
     // Lower/upper value at curriculum progress one; reserved values.
     mr_float4 finalRange;
+    // Minimum/maximum interval in seconds; reserved values.
+    mr_float4 schedule;
 } MRTaskEventOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskContactGroupGPU {
@@ -391,7 +391,7 @@ typedef struct MR_ALIGN16 MRTaskBiasSpecGPU {
 typedef struct MR_ALIGN16 MRTaskStateGPU {
     // episode step, episode index, curriculum level, terrain level.
     mr_uint4 episode;
-    // command steps, shared event steps, actuator delay, observation delay.
+    // command steps, reserved, actuator delay, observation delay.
     mr_uint4 schedule;
     // initialized, pending reset, last termination, reserved.
     mr_uint4 status;
@@ -399,6 +399,11 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     // curriculum metric. Commands live in the topology-sized scalar arena.
     mr_float4 powerPhaseReturnMetric;
 } MRTaskStateGPU;
+
+typedef struct MR_ALIGN16 MRTaskEventStateGPU {
+    // Countdown steps, fire count, reserved, reserved.
+    mr_uint4 schedule;
+} MRTaskEventStateGPU;
 
 // One compact task-wide curriculum controller remains device-resident across
 // submissions. Its success metric is a compiler-bound SignalIR node; terrain
@@ -434,12 +439,12 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 336u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 320u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 64u);
 static_assert(sizeof(MRTaskSignalOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskCommandOperatorGPU) == 48u);
-static_assert(sizeof(MRTaskEventOperatorGPU) == 48u);
+static_assert(sizeof(MRTaskEventOperatorGPU) == 64u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);
 static_assert(sizeof(MRTaskGoalGPU) == 160u);
@@ -449,6 +454,7 @@ static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 64u);
+static_assert(sizeof(MRTaskEventStateGPU) == 16u);
 static_assert(sizeof(MRTaskCurriculumStateGPU) == 48u);
 static_assert(sizeof(MRTaskTransitionGPU) == 96u);
 #endif

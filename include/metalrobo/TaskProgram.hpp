@@ -325,15 +325,14 @@ struct TaskEventSpec {
     float initialUpper = 0.0f;
     float finalLower = 0.0f;
     float finalUpper = 0.0f;
+    float minimumIntervalSeconds = 2.0f;
+    float maximumIntervalSeconds = 5.0f;
 };
 
 struct TaskEventProgram {
-    // The first production event operator applies a sampled additive delta to
-    // a named generalized velocity. All records in this cohort share one
-    // compiled schedule; per-event schedules remain a later typed extension.
+    // Each typed event owns its schedule and persistent native state. Event
+    // insertion or reordering does not perturb another event's RNG stream.
     std::vector<TaskEventSpec> values;
-    float minimumIntervalSeconds = 2.0f;
-    float maximumIntervalSeconds = 5.0f;
 };
 
 struct TaskPhaseProgram {

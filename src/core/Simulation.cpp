@@ -720,6 +720,8 @@ TaskPack makeUnitreeG1TaskPack(
             .initialUpper = 0.0f,
             .finalLower = -0.5f,
             .finalUpper = 0.5f,
+            .minimumIntervalSeconds = 5.0f,
+            .maximumIntervalSeconds = 5.0f,
         },
         {
             .id = "root_velocity_delta_y",
@@ -730,10 +732,10 @@ TaskPack makeUnitreeG1TaskPack(
             .initialUpper = 0.0f,
             .finalLower = -0.5f,
             .finalUpper = 0.5f,
+            .minimumIntervalSeconds = 5.0f,
+            .maximumIntervalSeconds = 5.0f,
         },
     };
-    task.events.minimumIntervalSeconds = 5.0f;
-    task.events.maximumIntervalSeconds = 5.0f;
 
     task.actions.reserve(metadata.jointLimits.size());
     for (const G1JointLimit& joint : metadata.jointLimits) {

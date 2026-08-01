@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 31,
+  "abi_version": 32,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -29,6 +29,7 @@
     ["kinematics", "bodyVelocityPipeline", "mr_articulated_materialize_body_velocities", "operator", 0],
 
     ["task", "taskObservePipeline", "mr_task_observe", "one", 0],
+    ["task", "taskEventPipeline", "mr_task_apply_events", "one", 0],
     ["task", "taskPhysicalCheckpointPipeline", "mr_world_checkpoint_task_state", "one", 0],
     ["task", "taskCheckpointPipeline", "mr_task_checkpoint_state", "one", 0],
     ["task", "taskFrameRefreshPipeline", "mr_task_refresh_frame_observations", "one", 0],
@@ -230,7 +231,7 @@
     }
   ],
   "world_buffers": {
-    "count": 254,
+    "count": 256,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -477,7 +478,9 @@
       ["kCheckpointActuatorCommandHistory", 250],
       ["kTaskKinematicDispatches", 251],
       ["kTaskKinematicQueries", 252],
-      ["kTaskKinematicPointWorld", 253]
+      ["kTaskKinematicPointWorld", 253],
+      ["kTaskEventStates", 254],
+      ["kTaskCheckpointEventStates", 255]
     ],
     "classifications": {
       "immutable": [
@@ -562,6 +565,7 @@
         "kTaskBodyParameters",
         "kTaskControllerParameters",
         "kTaskScalarState",
+        "kTaskEventStates",
         "kTaskCurriculumState",
         "kGeneralizedWarmState",
         "kSensorRuntimeStates",
@@ -691,6 +695,7 @@
         "kTaskCheckpointBodyParameters",
         "kTaskCheckpointControllerParameters",
         "kTaskCheckpointScalarState",
+        "kTaskCheckpointEventStates",
         "kCheckpointActuatorRuntimeStates",
         "kCheckpointActuatorCommandHistory",
         "kTaskKinematicPointWorld"
@@ -844,6 +849,20 @@
         "DEFAULT_Q",
         "TASK_STATES",
         "ACTION_HISTORY"
+      ]
+    },
+    {
+      "enum": "MRTaskEventBuffer",
+      "prefix": "MR_TASK_EVENT_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "ARENA",
+        "PASS",
+        "RESET_MASKS",
+        "TASK_STATES",
+        "EVENT_STATES",
+        "SOURCE_V"
       ]
     },
     {
@@ -1119,6 +1138,7 @@
         "BODY_PARAMETERS",
         "CONTROLLER_PARAMETERS",
         "SCALAR_STATE",
+        "EVENT_STATES",
         "CHECKPOINT_STATE",
         "CHECKPOINT_ACTION_HISTORY",
         "CHECKPOINT_ACTOR_HISTORY",
@@ -1128,7 +1148,8 @@
         "CHECKPOINT_ENCODER_BIAS",
         "CHECKPOINT_BODY_PARAMETERS",
         "CHECKPOINT_CONTROLLER_PARAMETERS",
-        "CHECKPOINT_SCALAR_STATE"
+        "CHECKPOINT_SCALAR_STATE",
+        "CHECKPOINT_EVENT_STATES"
       ]
     },
     {
