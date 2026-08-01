@@ -850,6 +850,20 @@ TaskPack makeUnitreeG1TaskPack(
         .id = "robot",
         .bodies = std::move(robotBodies),
     });
+    task.frames = {
+        {
+            .id = "root_heading",
+            .body = std::string{metadata.bodyNames[0]},
+        },
+        {
+            .id = "left_foot_origin",
+            .body = std::string{metadata.feet[0].bodyName},
+        },
+        {
+            .id = "right_foot_origin",
+            .body = std::string{metadata.feet[1].bodyName},
+        },
+    };
 
     const auto jointNames =
         [&metadata](
@@ -976,12 +990,14 @@ TaskPack makeUnitreeG1TaskPack(
         [](
             const TaskObservationSource source,
             const std::string_view target,
-            const std::uint32_t component
+            const std::uint32_t component,
+            const mr_float4 parameters = {}
         ) {
             return TaskObservationOperatorSpec{
                 .source = source,
                 .target = std::string{target},
                 .component = component,
+                .parameters = parameters,
             };
         };
     const auto sourceSignal =
@@ -989,12 +1005,18 @@ TaskPack makeUnitreeG1TaskPack(
             const std::string& id,
             const TaskObservationSource source,
             const std::string_view target,
-            const std::uint32_t component
+            const std::uint32_t component,
+            const mr_float4 parameters = {}
         ) {
             task.signals.push_back({
                 .id = id,
                 .operation = TaskSignalOperator::source,
-                .source = semanticSource(source, target, component),
+                .source = semanticSource(
+                    source,
+                    target,
+                    component,
+                    parameters
+                ),
             });
             return id;
         };
@@ -1011,12 +1033,14 @@ TaskPack makeUnitreeG1TaskPack(
         [&task](
             const std::string& id,
             const TaskSignalOperator operation,
-            const std::string& operand
+            const std::string& operand,
+            const mr_float4 parameters = {}
         ) {
             task.signals.push_back({
                 .id = id,
                 .operation = operation,
                 .left = operand,
+                .parameters = parameters,
             });
             return id;
         };
@@ -1059,42 +1083,108 @@ TaskPack makeUnitreeG1TaskPack(
             const TaskRewardChannel channel
         ) {
             task.rewards.push_back({
-                .operation = TaskRewardOperator::signal,
                 .signal = signal,
                 .channel = channel,
                 .weight = weight,
             });
         };
-    const auto specializedReward =
-        [&task](
-            const TaskRewardOperator operation,
-            const float weight,
-            const TaskRewardChannel channel,
-            const std::string_view group = {},
-            const mr_float4 parameters = {}
-        ) {
-            task.rewards.push_back({
-                .operation = operation,
-                .sourceGroup = std::string{group},
-                .channel = channel,
-                .weight = weight,
-                .parameters = parameters,
-            });
-        };
 
-    specializedReward(
-        TaskRewardOperator::linearVelocityTracking,
-        1.0f,
-        TaskRewardChannel::primary,
+    const std::string headingVelocityX = sourceSignal(
+        "heading_velocity_x",
+        TaskObservationSource::frameLinearVelocityHeading,
+        "root_heading",
+        0u
+    );
+    const std::string headingVelocityY = sourceSignal(
+        "heading_velocity_y",
+        TaskObservationSource::frameLinearVelocityHeading,
+        "root_heading",
+        1u
+    );
+    const std::string commandX = sourceSignal(
+        "command_x",
+        TaskObservationSource::command,
         {},
+        0u
+    );
+    const std::string commandY = sourceSignal(
+        "command_y",
+        TaskObservationSource::command,
+        {},
+        1u
+    );
+    const std::string linearTrackingXError = binarySignal(
+        "linear_tracking_x_error",
+        TaskSignalOperator::subtract,
+        headingVelocityX,
+        commandX
+    );
+    const std::string linearTrackingYError = binarySignal(
+        "linear_tracking_y_error",
+        TaskSignalOperator::subtract,
+        headingVelocityY,
+        commandY
+    );
+    const std::string linearTrackingXErrorSquared = unarySignal(
+        "linear_tracking_x_error_squared",
+        TaskSignalOperator::square,
+        linearTrackingXError
+    );
+    const std::string linearTrackingYErrorSquared = unarySignal(
+        "linear_tracking_y_error_squared",
+        TaskSignalOperator::square,
+        linearTrackingYError
+    );
+    const std::string linearTrackingError = binarySignal(
+        "linear_tracking_error",
+        TaskSignalOperator::add,
+        linearTrackingXErrorSquared,
+        linearTrackingYErrorSquared
+    );
+    const std::string linearTracking = unarySignal(
+        "linear_velocity_tracking",
+        TaskSignalOperator::exponentialDecay,
+        linearTrackingError,
         {0.25f, 0.0f, 0.0f, 0.0f}
     );
-    specializedReward(
-        TaskRewardOperator::yawVelocityTracking,
-        0.5f,
-        TaskRewardChannel::primary,
+    signalReward(
+        linearTracking,
+        1.0f,
+        TaskRewardChannel::primary
+    );
+    const std::string rootYawVelocity = sourceSignal(
+        "root_yaw_velocity",
+        TaskObservationSource::rootAngularVelocityLocal,
         {},
+        2u
+    );
+    const std::string commandYawVelocity = sourceSignal(
+        "command_yaw_velocity",
+        TaskObservationSource::command,
+        {},
+        2u
+    );
+    const std::string yawTrackingDelta = binarySignal(
+        "yaw_tracking_error",
+        TaskSignalOperator::subtract,
+        rootYawVelocity,
+        commandYawVelocity
+    );
+    const std::string yawTrackingError = unarySignal(
+        "yaw_tracking_error_squared",
+        TaskSignalOperator::square,
+        yawTrackingDelta
+    );
+    const std::string yawTracking = unarySignal(
+        "yaw_velocity_tracking",
+        TaskSignalOperator::exponentialDecay,
+        yawTrackingError,
         {0.25f, 0.0f, 0.0f, 0.0f}
+    );
+    signalReward(
+        yawTracking,
+        0.5f,
+        TaskRewardChannel::primary
     );
     signalReward(
         constantSignal("alive", 1.0f),
@@ -1215,25 +1305,64 @@ TaskPack makeUnitreeG1TaskPack(
         TaskRewardChannel::velocity
     );
 
-    specializedReward(
-        TaskRewardOperator::jointAccelerationSquared,
+    std::vector<TaskObservationOperatorSpec> accelerationSources;
+    std::vector<TaskObservationOperatorSpec> actionDeltaSources;
+    std::vector<TaskObservationOperatorSpec> softLimitSources;
+    accelerationSources.reserve(metadata.jointLimits.size());
+    actionDeltaSources.reserve(metadata.jointLimits.size());
+    softLimitSources.reserve(metadata.jointLimits.size());
+    for (const G1JointLimit& joint : metadata.jointLimits) {
+        accelerationSources.push_back(semanticSource(
+            TaskObservationSource::jointAcceleration,
+            joint.name,
+            0u
+        ));
+        actionDeltaSources.push_back(semanticSource(
+            TaskObservationSource::actionDelta,
+            joint.name,
+            0u
+        ));
+        softLimitSources.push_back(semanticSource(
+            TaskObservationSource::jointSoftLimitViolation,
+            joint.name,
+            0u,
+            {0.9f, 0.0f, 0.0f, 0.0f}
+        ));
+    }
+    signalReward(
+        reductionSignal(
+            "joint_acceleration_squared",
+            std::move(accelerationSources),
+            TaskSignalTransform::square
+        ),
         -2.5e-7f,
         TaskRewardChannel::acceleration
     );
-    specializedReward(
-        TaskRewardOperator::actionRateSquared,
+    signalReward(
+        reductionSignal(
+            "action_rate_squared",
+            std::move(actionDeltaSources),
+            TaskSignalTransform::square
+        ),
         -0.05f,
         TaskRewardChannel::control
     );
-    specializedReward(
-        TaskRewardOperator::jointLimitViolationAbsolute,
+    signalReward(
+        reductionSignal(
+            "joint_soft_limit_violation",
+            std::move(softLimitSources),
+            TaskSignalTransform::identity
+        ),
         -5.0f,
-        TaskRewardChannel::configuration,
-        {},
-        {0.9f, 0.0f, 0.0f, 0.0f}
+        TaskRewardChannel::configuration
     );
-    specializedReward(
-        TaskRewardOperator::mechanicalPower,
+    signalReward(
+        sourceSignal(
+            "mechanical_power",
+            TaskObservationSource::mechanicalPower,
+            {},
+            0u
+        ),
         -2.0e-5f,
         TaskRewardChannel::energy
     );
@@ -1274,17 +1403,215 @@ TaskPack makeUnitreeG1TaskPack(
         TaskRewardChannel::configuration
     );
 
-    specializedReward(
-        TaskRewardOperator::gaitContactMatch,
+    const std::string commandMagnitudeSquared = reductionSignal(
+        "command_magnitude_squared",
+        {
+            semanticSource(
+                TaskObservationSource::command,
+                {},
+                0u
+            ),
+            semanticSource(
+                TaskObservationSource::command,
+                {},
+                1u
+            ),
+            semanticSource(
+                TaskObservationSource::command,
+                {},
+                2u
+            ),
+        },
+        TaskSignalTransform::square
+    );
+    const std::string commandMagnitude = unarySignal(
+        "command_magnitude",
+        TaskSignalOperator::squareRoot,
+        commandMagnitudeSquared
+    );
+    const std::string moving = unarySignal(
+        "moving_command",
+        TaskSignalOperator::greaterThan,
+        commandMagnitude,
+        {0.1f, 0.0f, 0.0f, 0.0f}
+    );
+    const std::string one = constantSignal("one", 1.0f);
+    const auto contactMatchSignal =
+        [&](
+            const std::string& id,
+            const std::string_view group
+        ) {
+            const std::string desired = sourceSignal(
+                id + "_desired",
+                TaskObservationSource::desiredSupportContact,
+                group,
+                0u
+            );
+            const std::string force = sourceSignal(
+                id + "_force",
+                TaskObservationSource::contactMetric,
+                group,
+                0u
+            );
+            const std::string actual = unarySignal(
+                id + "_actual",
+                TaskSignalOperator::greaterThan,
+                force,
+                {
+                    task.supportForceThreshold,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                }
+            );
+            const std::string delta = binarySignal(
+                id + "_contact_delta",
+                TaskSignalOperator::subtract,
+                desired,
+                actual
+            );
+            const std::string mismatch = unarySignal(
+                id + "_mismatch",
+                TaskSignalOperator::absolute,
+                delta
+            );
+            return binarySignal(
+                id + "_match",
+                TaskSignalOperator::subtract,
+                one,
+                mismatch
+            );
+        };
+    const std::string leftContactMatch = contactMatchSignal(
+        "left_foot",
+        "left_foot_contact"
+    );
+    const std::string rightContactMatch = contactMatchSignal(
+        "right_foot",
+        "right_foot_contact"
+    );
+    const std::string supportContactMatch = binarySignal(
+        "support_contact_match",
+        TaskSignalOperator::add,
+        leftContactMatch,
+        rightContactMatch
+    );
+    const std::string movingContactMatch = binarySignal(
+        "moving_contact_match",
+        TaskSignalOperator::multiply,
+        moving,
+        supportContactMatch
+    );
+    signalReward(
+        movingContactMatch,
         0.5f,
         TaskRewardChannel::primary
     );
-    specializedReward(
-        TaskRewardOperator::footClearance,
+    const auto footClearanceTerm =
+        [&](
+            const std::string& id,
+            const std::string_view frame
+        ) {
+            const std::string height = sourceSignal(
+                id + "_height",
+                TaskObservationSource::framePositionWorld,
+                frame,
+                2u
+            );
+            const std::string clearanceTarget = constantSignal(
+                id + "_clearance_target",
+                task.clearanceTarget
+            );
+            const std::string heightError = binarySignal(
+                id + "_height_error",
+                TaskSignalOperator::subtract,
+                height,
+                clearanceTarget
+            );
+            const std::string velocityX = sourceSignal(
+                id + "_velocity_x",
+                TaskObservationSource::frameLinearVelocityWorld,
+                frame,
+                0u
+            );
+            const std::string velocityY = sourceSignal(
+                id + "_velocity_y",
+                TaskObservationSource::frameLinearVelocityWorld,
+                frame,
+                1u
+            );
+            const std::string velocityXSquared = unarySignal(
+                id + "_velocity_x_squared",
+                TaskSignalOperator::square,
+                velocityX
+            );
+            const std::string velocityYSquared = unarySignal(
+                id + "_velocity_y_squared",
+                TaskSignalOperator::square,
+                velocityY
+            );
+            const std::string speedSquared = binarySignal(
+                id + "_speed_squared",
+                TaskSignalOperator::add,
+                velocityXSquared,
+                velocityYSquared
+            );
+            const std::string speed = unarySignal(
+                id + "_speed",
+                TaskSignalOperator::squareRoot,
+                speedSquared
+            );
+            const std::string heightErrorSquared = unarySignal(
+                id + "_height_error_squared",
+                TaskSignalOperator::square,
+                heightError
+            );
+            const std::string speedScale = constantSignal(
+                id + "_speed_scale",
+                2.0f
+            );
+            const std::string scaledSpeed = binarySignal(
+                id + "_scaled_speed",
+                TaskSignalOperator::multiply,
+                speedScale,
+                speed
+            );
+            const std::string velocityWeight = unarySignal(
+                id + "_velocity_weight",
+                TaskSignalOperator::hyperbolicTangent,
+                scaledSpeed
+            );
+            return binarySignal(
+                id + "_clearance_term",
+                TaskSignalOperator::multiply,
+                heightErrorSquared,
+                velocityWeight
+            );
+        };
+    const std::string leftFootClearance = footClearanceTerm(
+        "left_foot_clearance",
+        "left_foot_origin"
+    );
+    const std::string rightFootClearance = footClearanceTerm(
+        "right_foot_clearance",
+        "right_foot_origin"
+    );
+    const std::string footClearanceError = binarySignal(
+        "foot_clearance_error",
+        TaskSignalOperator::add,
+        leftFootClearance,
+        rightFootClearance
+    );
+    const std::string footClearance = unarySignal(
+        "foot_clearance",
+        TaskSignalOperator::exponentialDecay,
+        footClearanceError,
+        {0.05f, 0.0f, 0.0f, 0.0f}
+    );
+    signalReward(
+        footClearance,
         1.0f,
-        TaskRewardChannel::primary,
-        {},
-        {0.05f, 2.0f, 0.0f, 0.0f}
+        TaskRewardChannel::primary
     );
     signalReward(
         reductionSignal(

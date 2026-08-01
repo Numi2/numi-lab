@@ -746,15 +746,6 @@ TaskCompileDiagnostics compileTaskProgram(
                 return false;
             }
         };
-        const auto rootReward = [](const TaskRewardOperator operation) {
-            switch (operation) {
-            case TaskRewardOperator::linearVelocityTracking:
-            case TaskRewardOperator::yawVelocityTracking:
-                return true;
-            default:
-                return false;
-            }
-        };
         const bool requiresFloatingRoot =
             std::any_of(
                 pack.actorFrame.begin(),
@@ -786,13 +777,6 @@ TaskCompileDiagnostics compileTaskProgram(
                                 return rootObservation(source.source);
                             }
                         );
-                }
-            ) ||
-            std::any_of(
-                pack.rewards.begin(),
-                pack.rewards.end(),
-                [&](const TaskRewardOperatorSpec& operation) {
-                    return rootReward(operation.operation);
                 }
             ) ||
             std::any_of(
@@ -1582,6 +1566,7 @@ TaskCompileDiagnostics compileTaskProgram(
                 specs[operatorIndex];
             if (!finite(spec.scale) ||
                 !finite(spec.offset) ||
+                !finite(spec.parameters) ||
                 !finite(spec.noiseAmplitude) ||
                 spec.noiseAmplitude < 0.0f ||
                 !finite(spec.biasLower) ||
@@ -1602,11 +1587,21 @@ TaskCompileDiagnostics compileTaskProgram(
                     "vector normalization is supported only for projected gravity"
                 );
             }
+            if (spec.source !=
+                    TaskObservationSource::jointSoftLimitViolation &&
+                !zeroVector4(spec.parameters)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    spec.target,
+                    "observation source contains unsupported parameters"
+                );
+            }
             const std::uint32_t opcode =
                 static_cast<std::uint32_t>(spec.source);
             std::uint32_t sourceIndex = MR_INVALID_INDEX;
             std::uint32_t goalIndex = MR_INVALID_INDEX;
             std::uint32_t componentLimit = 1u;
+            mr_float4 compiledParameters = spec.parameters;
             switch (spec.source) {
             case TaskObservationSource::rootAngularVelocityLocal:
             case TaskObservationSource::projectedGravity:
@@ -1616,7 +1611,10 @@ TaskCompileDiagnostics compileTaskProgram(
                 break;
             case TaskObservationSource::jointPositionError:
             case TaskObservationSource::jointVelocity:
-            case TaskObservationSource::previousAction: {
+            case TaskObservationSource::previousAction:
+            case TaskObservationSource::jointAcceleration:
+            case TaskObservationSource::actionDelta:
+            case TaskObservationSource::jointSoftLimitViolation: {
                 bool ambiguous = false;
                 const std::uint32_t joint = uniqueIndex(
                     model.jointNames,
@@ -1641,9 +1639,45 @@ TaskCompileDiagnostics compileTaskProgram(
                         "observation joint has no action binding"
                     );
                 }
+                if (spec.source ==
+                        TaskObservationSource::jointSoftLimitViolation) {
+                    const float softFactor = spec.parameters.x;
+                    if (!(softFactor > 0.0f) || softFactor > 1.0f ||
+                        spec.parameters.y != 0.0f ||
+                        spec.parameters.z != 0.0f ||
+                        spec.parameters.w != 0.0f) {
+                        return reject(
+                            TaskCompileStatus::invalidPack,
+                            spec.target,
+                            "joint soft-limit source requires one factor in (0, 1]"
+                        );
+                    }
+                    const std::uint32_t dofIndex =
+                        staged->actionBindings[sourceIndex].indices.y;
+                    if (dofIndex >= model.dofs.size()) {
+                        return reject(
+                            TaskCompileStatus::invalidWorld,
+                            spec.target,
+                            "joint soft-limit source resolved an invalid DoF"
+                        );
+                    }
+                    const MRDofPropertiesGPU& dof = model.dofs[dofIndex];
+                    const float center =
+                        0.5f * (dof.limits.x + dof.limits.y);
+                    const float halfRange =
+                        0.5f * (dof.limits.y - dof.limits.x) *
+                        softFactor;
+                    compiledParameters = {
+                        center - halfRange,
+                        center + halfRange,
+                        0.0f,
+                        0.0f,
+                    };
+                }
                 break;
             }
             case TaskObservationSource::rootHeight:
+            case TaskObservationSource::mechanicalPower:
                 break;
             case TaskObservationSource::contactMetric: {
                 sourceIndex = namedGroup(
@@ -1666,6 +1700,22 @@ TaskCompileDiagnostics compileTaskProgram(
                     : (flags & MR_TASK_CONTACT_FORBIDDEN) != 0u
                     ? 1u
                     : 0u;
+                break;
+            }
+            case TaskObservationSource::desiredSupportContact: {
+                sourceIndex = namedGroup(
+                    contactGroupIds,
+                    spec.target
+                );
+                if (sourceIndex == MR_INVALID_INDEX ||
+                    (staged->contactGroups[sourceIndex].members.z &
+                     MR_TASK_CONTACT_SUPPORT) == 0u) {
+                    return reject(
+                        TaskCompileStatus::unresolvedSemantic,
+                        spec.target,
+                        "desired-contact source requires a semantic support group"
+                    );
+                }
                 break;
             }
             case TaskObservationSource::contactWrenchLocal:
@@ -1729,6 +1779,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::frameRelativePosition:
             case TaskObservationSource::frameRelativeOrientation:
             case TaskObservationSource::frameLinearVelocityWorld:
+            case TaskObservationSource::frameLinearVelocityHeading:
             case TaskObservationSource::frameAngularVelocityWorld:
             case TaskObservationSource::frameRelativeLinearVelocity:
             case TaskObservationSource::frameRelativeAngularVelocity:
@@ -1740,10 +1791,12 @@ TaskCompileDiagnostics compileTaskProgram(
                         "observation task frame does not exist"
                     );
                 }
-                componentLimit =
-                    spec.source ==
+                componentLimit = spec.source ==
                         TaskObservationSource::frameOrientationWorld
                     ? 4u
+                    : spec.source ==
+                          TaskObservationSource::frameLinearVelocityHeading
+                    ? 2u
                     : 3u;
                 if (spec.source ==
                         TaskObservationSource::frameGoalPositionError ||
@@ -1995,6 +2048,7 @@ TaskCompileDiagnostics compileTaskProgram(
                     goalIndex,
                     0u,
                 },
+                compiledParameters,
             });
         }
         return {};
@@ -2163,6 +2217,9 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskSignalOperator::absolute:
         case TaskSignalOperator::square:
         case TaskSignalOperator::squareRoot:
+        case TaskSignalOperator::hyperbolicTangent:
+        case TaskSignalOperator::lessThan:
+        case TaskSignalOperator::greaterThan:
             validShape = requireUnary();
             break;
         case TaskSignalOperator::clamp:
@@ -2330,12 +2387,11 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     staged->rewardOperators.reserve(pack.rewards.size());
     for (const TaskRewardOperatorSpec& reward : pack.rewards) {
-        if (!finite(reward.weight) ||
-            !finite(reward.parameters)) {
+        if (!finite(reward.weight)) {
             return reject(
                 TaskCompileStatus::invalidPack,
-                reward.sourceGroup,
-                "reward weight or parameters are non-finite"
+                reward.signal,
+                "reward weight is non-finite"
             );
         }
         if (static_cast<std::uint32_t>(reward.channel) >=
@@ -2346,101 +2402,29 @@ TaskCompileDiagnostics compileTaskProgram(
                 "reward channel exceeds the compact transition layout"
             );
         }
-        std::uint32_t sourceIndex = MR_INVALID_INDEX;
-        switch (reward.operation) {
-        case TaskRewardOperator::gaitContactMatch:
-        case TaskRewardOperator::footClearance:
-            if (!reward.sourceGroup.empty()) {
-                sourceIndex = namedGroup(
-                    contactGroupIds,
-                    reward.sourceGroup
-                );
-            }
-            break;
-        case TaskRewardOperator::linearVelocityTracking:
-        case TaskRewardOperator::yawVelocityTracking:
-        case TaskRewardOperator::jointAccelerationSquared:
-        case TaskRewardOperator::actionRateSquared:
-        case TaskRewardOperator::jointLimitViolationAbsolute:
-        case TaskRewardOperator::mechanicalPower:
-            break;
-        case TaskRewardOperator::signal:
-            sourceIndex = namedGroup(signalIds, reward.signal);
-            if (sourceIndex == MR_INVALID_INDEX) {
-                return reject(
-                    TaskCompileStatus::unresolvedSemantic,
-                    reward.signal,
-                    "SignalIR reward source does not exist"
-                );
-            }
-            break;
-        default:
-            return reject(
-                TaskCompileStatus::unsupportedOperator,
-                reward.sourceGroup,
-                "reward opcode is unsupported"
-            );
-        }
-        if ((reward.operation ==
-                 TaskRewardOperator::linearVelocityTracking ||
-             reward.operation ==
-                 TaskRewardOperator::yawVelocityTracking ||
-             reward.operation ==
-                 TaskRewardOperator::footClearance) &&
-            !(reward.parameters.x > 0.0f)) {
-            return reject(
-                TaskCompileStatus::invalidPack,
-                reward.sourceGroup,
-                "tracking and clearance reward widths must be positive"
-            );
-        }
-        if (reward.operation ==
-                TaskRewardOperator::jointLimitViolationAbsolute &&
-            (!(reward.parameters.x > 0.0f) ||
-             reward.parameters.x > 1.0f)) {
-            return reject(
-                TaskCompileStatus::invalidPack,
-                reward.sourceGroup,
-                "soft joint-limit factor must be in (0, 1]"
-            );
-        }
-        if (!reward.sourceGroup.empty() &&
-            sourceIndex == MR_INVALID_INDEX) {
+        const std::uint32_t sourceIndex = namedGroup(
+            signalIds,
+            reward.signal
+        );
+        if (sourceIndex == MR_INVALID_INDEX) {
             return reject(
                 TaskCompileStatus::unresolvedSemantic,
-                reward.sourceGroup,
-                "reward source group does not exist"
-            );
-        }
-        const bool signalReward =
-            reward.operation == TaskRewardOperator::signal;
-        if (signalReward &&
-            !reward.sourceGroup.empty()) {
-            return reject(
-                TaskCompileStatus::invalidPack,
                 reward.signal,
-                "SignalIR rewards cannot also bind a group"
-            );
-        }
-        if (!signalReward && !reward.signal.empty()) {
-            return reject(
-                TaskCompileStatus::invalidPack,
-                reward.signal,
-                "only the SignalIR reward operator may bind a signal"
+                "SignalIR reward source does not exist"
             );
         }
         staged->rewardOperators.push_back({
             {
-                static_cast<std::uint32_t>(reward.operation),
                 sourceIndex,
                 static_cast<std::uint32_t>(reward.channel),
+                0u,
                 0u,
             },
             {
                 reward.weight,
-                reward.parameters.x,
-                reward.parameters.y,
-                reward.parameters.z,
+                0.0f,
+                0.0f,
+                0.0f,
             },
         });
     }

@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 18u
+#define MR_TASK_PROGRAM_ABI_VERSION 19u
 
 #define MR_TASK_GOAL_FIXED 0u
 #define MR_TASK_GOAL_SAMPLED_EPISODE 1u
@@ -66,6 +66,20 @@ enum MRTaskObservationOpcode : mr_u32 {
     // One world-axis row of the angular Jacobian at a named frame origin,
     // with respect to one compiled generalized-velocity coordinate.
     MR_TASK_OBSERVE_FRAME_ANGULAR_JACOBIAN_WORLD = 27u,
+    // Linear velocity at a named frame origin expressed in the horizontal
+    // heading frame derived from that frame's authored orientation. Only x/y
+    // are defined; roll and pitch never leak into locomotion commands.
+    MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_HEADING = 28u,
+    // Accepted joint velocity finite difference over one control interval.
+    MR_TASK_OBSERVE_JOINT_ACCELERATION = 29u,
+    // Difference between the newest and immediately preceding action samples.
+    MR_TASK_OBSERVE_ACTION_DELTA = 30u,
+    // Absolute violation outside compiler-resolved soft lower/upper bounds.
+    MR_TASK_OBSERVE_JOINT_SOFT_LIMIT_VIOLATION = 31u,
+    // Sum of absolute applied-effort times generalized velocity, in watts.
+    MR_TASK_OBSERVE_MECHANICAL_POWER = 32u,
+    // Desired contact bit for a semantic support group at the accepted phase.
+    MR_TASK_OBSERVE_DESIRED_SUPPORT_CONTACT = 33u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -80,19 +94,6 @@ enum MRTaskContactGroupFlags : mr_u32 {
 enum MRTaskFrameSourceKind : mr_u32 {
     MR_TASK_FRAME_SOURCE_ARTICULATED_BODY = 0u,
     MR_TASK_FRAME_SOURCE_SCENE_BODY = 1u,
-};
-
-enum MRTaskRewardOpcode : mr_u32 {
-    MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING = 0u,
-    MR_TASK_REWARD_YAW_VELOCITY_TRACKING = 1u,
-    MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED = 2u,
-    MR_TASK_REWARD_ACTION_RATE_SQUARED = 3u,
-    MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE = 4u,
-    MR_TASK_REWARD_MECHANICAL_POWER = 5u,
-    MR_TASK_REWARD_GAIT_CONTACT_MATCH = 6u,
-    MR_TASK_REWARD_FOOT_CLEARANCE = 7u,
-    // A scalar produced by the compiled, topologically ordered SignalIR.
-    MR_TASK_REWARD_SIGNAL = 8u,
 };
 
 enum MRTaskRewardChannel : mr_u32 {
@@ -134,6 +135,9 @@ enum MRTaskSignalOpcode : mr_u32 {
     MR_TASK_SIGNAL_ATAN2 = 15u,
     // Contiguous semantic-source cohort transformed and reduced in one node.
     MR_TASK_SIGNAL_REDUCTION = 16u,
+    MR_TASK_SIGNAL_TANH = 17u,
+    MR_TASK_SIGNAL_LESS_THAN = 18u,
+    MR_TASK_SIGNAL_GREATER_THAN = 19u,
 };
 
 enum MRTaskSignalTransform : mr_u32 {
@@ -272,6 +276,9 @@ typedef struct MR_ALIGN16 MRTaskObservationOperatorGPU {
     mr_float4 transform;
     // bias index, deterministic noise channel, reserved, reserved.
     mr_uint4 auxiliary;
+    // Compiler-resolved source parameters. Their meaning is opcode-specific;
+    // ordinary affine transforms and actor corruption remain above.
+    mr_float4 parameters;
 } MRTaskObservationOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskSignalOperatorGPU {
@@ -328,9 +335,9 @@ typedef struct MR_ALIGN16 MRTaskGoalGPU {
 } MRTaskGoalGPU;
 
 typedef struct MR_ALIGN16 MRTaskRewardOperatorGPU {
-    // opcode, resolved group/signal index, reward channel, flags.
+    // Resolved SignalIR index, reward channel, reserved, reserved.
     mr_uint4 source;
-    // weight and three operator parameters.
+    // weight and reserved values.
     mr_float4 parameters;
 } MRTaskRewardOperatorGPU;
 
@@ -404,7 +411,7 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
 static_assert(sizeof(MRTaskProgramHeaderGPU) == 352u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
-static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
+static_assert(sizeof(MRTaskObservationOperatorGPU) == 64u);
 static_assert(sizeof(MRTaskSignalOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);

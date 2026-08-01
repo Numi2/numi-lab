@@ -9399,7 +9399,6 @@ bool encodeTaskComplete(
             {10u, kContactStatuses},
             {11u, kEnvironmentStatuses},
             {12u, sceneState},
-            {13u, kDofs},
             {14u, kTaskDefaultQ},
             {15u, kTaskState},
             {16u, kTaskActionHistory},

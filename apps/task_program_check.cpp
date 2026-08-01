@@ -80,7 +80,6 @@ void addConstantSignalReward(
         .parameters = {1.0f, 0.0f, 0.0f, 0.0f},
     });
     task.rewards.push_back({
-        .operation = metalrobo::TaskRewardOperator::signal,
         .signal = id,
         .weight = weight,
     });
@@ -587,7 +586,6 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .left = "axis_velocity",
     });
     authored.task.rewards.push_back({
-        .operation = metalrobo::TaskRewardOperator::signal,
         .signal = "axis_velocity_squared",
         .channel = metalrobo::TaskRewardChannel::velocity,
         .weight = -0.01f,
@@ -609,7 +607,6 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .parameters = {0.01f, 0.0f, 0.0f, 0.0f},
     });
     authored.task.rewards.push_back({
-        .operation = metalrobo::TaskRewardOperator::signal,
         .signal = "home_position_tracking",
         .weight = 0.5f,
     });
@@ -785,7 +782,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             compiled.task.rewardOperators().begin(),
             compiled.task.rewardOperators().end(),
             [](const MRTaskRewardOperatorGPU& reward) {
-                return reward.source.z ==
+                return reward.source.y ==
                     MR_TASK_REWARD_CHANNEL_VELOCITY;
             }
         ) != 1 ||
@@ -1011,12 +1008,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             "ping_pong_trajectory"
         );
     dynamicGoalTask.rewards.push_back({
-        .operation = metalrobo::TaskRewardOperator::signal,
         .signal = trajectoryPositionSquared,
         .weight = 0.5f,
     });
     dynamicGoalTask.rewards.push_back({
-        .operation = metalrobo::TaskRewardOperator::signal,
         .signal = trajectoryOrientationSquared,
         .weight = 0.25f,
     });
@@ -3015,7 +3010,6 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         },
     };
     twistAuthored.task.rewards = {{
-        .operation = metalrobo::TaskRewardOperator::signal,
         .signal = "reward_value",
         .weight = 1.0f,
     }};
@@ -5141,8 +5135,9 @@ int main() {
             program.header().counts1.w != 19u ||
             program.header().counts2.x != 2u ||
             program.header().counts2.y != 5u ||
-            program.header().graphCounts.x != 22u ||
-            program.header().graphCounts.y != 60u ||
+            program.header().typedCounts.x != 3u ||
+            program.header().graphCounts.x != 89u ||
+            program.header().graphCounts.y != 167u ||
             std::count_if(
                 program.signalOperators().begin(),
                 program.signalOperators().end(),
@@ -5150,7 +5145,7 @@ int main() {
                     return signal.inputs.x ==
                         MR_TASK_SIGNAL_REDUCTION;
                 }
-            ) != 7 ||
+            ) != 11 ||
             program.header().articulation.w != 5u ||
             program.header().commandLower.x != 0.1f ||
             program.header().commandLower.y != 0.0f ||
@@ -5173,6 +5168,70 @@ int main() {
             program.terrainSampleOffsets().size() != 187u ||
             program.terrainResetTranslations().size() != 11u) {
             fail("compiled G1 task tables are incomplete");
+        }
+        const auto sourceCount = [&](const std::uint32_t opcode) {
+            return std::count_if(
+                program.signalSources().begin(),
+                program.signalSources().end(),
+                [&](const MRTaskObservationOperatorGPU& source) {
+                    return source.source.x == opcode;
+                }
+            );
+        };
+        if (sourceCount(
+                MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_HEADING
+            ) != 2 ||
+            sourceCount(MR_TASK_OBSERVE_JOINT_ACCELERATION) != 29 ||
+            sourceCount(MR_TASK_OBSERVE_ACTION_DELTA) != 29 ||
+            sourceCount(
+                MR_TASK_OBSERVE_JOINT_SOFT_LIMIT_VIOLATION
+            ) != 29 ||
+            sourceCount(MR_TASK_OBSERVE_MECHANICAL_POWER) != 1 ||
+            sourceCount(
+                MR_TASK_OBSERVE_DESIRED_SUPPORT_CONTACT
+            ) != 2 ||
+            std::count_if(
+                program.signalOperators().begin(),
+                program.signalOperators().end(),
+                [](const MRTaskSignalOperatorGPU& signal) {
+                    return signal.inputs.x == MR_TASK_SIGNAL_TANH;
+                }
+            ) != 2 ||
+            std::count_if(
+                program.signalOperators().begin(),
+                program.signalOperators().end(),
+                [](const MRTaskSignalOperatorGPU& signal) {
+                    return signal.inputs.x ==
+                        MR_TASK_SIGNAL_GREATER_THAN;
+                }
+            ) != 3 ||
+            !std::all_of(
+                program.rewardOperators().begin(),
+                program.rewardOperators().end(),
+                [&](const MRTaskRewardOperatorGPU& reward) {
+                    return reward.source.x <
+                            program.header().graphCounts.x &&
+                        reward.source.y <
+                            MR_TASK_REWARD_CHANNEL_COUNT &&
+                        reward.source.z == 0u &&
+                        reward.source.w == 0u &&
+                        reward.parameters.y == 0.0f &&
+                        reward.parameters.z == 0.0f &&
+                        reward.parameters.w == 0.0f;
+                }
+            ) ||
+            !std::all_of(
+                program.signalSources().begin(),
+                program.signalSources().end(),
+                [](const MRTaskObservationOperatorGPU& source) {
+                    return source.source.x !=
+                            MR_TASK_OBSERVE_JOINT_SOFT_LIMIT_VIOLATION ||
+                        source.parameters.x < source.parameters.y;
+                }
+            )) {
+            fail(
+                "G1 rewards did not lower exclusively into generic SignalIR"
+            );
         }
         metalrobo::SimulationDescription invalidEndpointCapacity =
             authored;
@@ -5269,6 +5328,39 @@ int main() {
             repeated.fingerprint() != preserved) {
             fail(
                 "mismatched task capacity contract was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack invalidSoftLimit = authored.task;
+        bool corruptedSoftLimit = false;
+        for (metalrobo::TaskSignalSpec& signal :
+             invalidSoftLimit.signals) {
+            for (metalrobo::TaskObservationOperatorSpec& source :
+                 signal.reductionSources) {
+                if (source.source != metalrobo::TaskObservationSource::
+                        jointSoftLimitViolation) {
+                    continue;
+                }
+                source.parameters.x = 0.0f;
+                corruptedSoftLimit = true;
+                break;
+            }
+            if (corruptedSoftLimit) {
+                break;
+            }
+        }
+        const auto softLimitRejected =
+            metalrobo::compileTaskProgram(
+                invalidSoftLimit,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (!corruptedSoftLimit ||
+            softLimitRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "invalid generic soft-limit source was not transactionally rejected"
             );
         }
 

@@ -2,7 +2,7 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 25
+    static let version: UInt32 = 26
     static let worldBufferCount = 254
     static let pipelineCount = 93
     static let pipelineGroupCount = 11

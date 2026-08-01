@@ -179,19 +179,20 @@ LearningPackResult validateTaskArtifact(
             );
         }
     }
-    const auto semanticFits = [](const auto& value) {
-        return stringFits(value.sourceGroup) &&
-            stringFits(value.signal);
-    };
     if (!std::all_of(
             pack.rewards.begin(),
             pack.rewards.end(),
-            semanticFits
+            [](const auto& value) {
+                return stringFits(value.signal);
+            }
         ) ||
         !std::all_of(
             pack.terminations.begin(),
             pack.terminations.end(),
-            semanticFits
+            [](const auto& value) {
+                return stringFits(value.sourceGroup) &&
+                    stringFits(value.signal);
+            }
         ) ||
         !std::all_of(
             pack.randomization.begin(),
@@ -689,6 +690,7 @@ void writeObservation(
     writer.string(value.reference);
     writer.string(value.coordinate);
     writer.pod(value.component);
+    writer.pod(value.parameters);
     writer.pod(value.scale);
     writer.pod(value.offset);
     writer.pod(value.noiseAmplitude);
@@ -712,6 +714,7 @@ bool readObservation(
         !reader.string(value.reference) ||
         !reader.string(value.coordinate) ||
         !reader.pod(value.component) ||
+        !reader.pod(value.parameters) ||
         !reader.pod(value.scale) ||
         !reader.pod(value.offset) ||
         !reader.pod(value.noiseAmplitude) ||
@@ -849,12 +852,9 @@ std::vector<std::byte> serializeTask(
         writer,
         pack.rewards,
         [](Writer& target, const TaskRewardOperatorSpec& value) {
-            writeEnum(target, value.operation);
-            target.string(value.sourceGroup);
             target.string(value.signal);
             writeEnum(target, value.channel);
             target.pod(value.weight);
-            target.pod(value.parameters);
         }
     );
     writeRichVector(
@@ -1015,12 +1015,9 @@ bool deserializeTask(
             pack.rewards,
             [](Reader& source,
                TaskRewardOperatorSpec& value) {
-                return readEnum(source, value.operation) &&
-                    source.string(value.sourceGroup) &&
-                    source.string(value.signal) &&
+                return source.string(value.signal) &&
                     readEnum(source, value.channel) &&
-                    source.pod(value.weight) &&
-                    source.pod(value.parameters);
+                    source.pod(value.weight);
             }
         ) ||
         !readRichVector(

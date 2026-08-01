@@ -58,21 +58,15 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_FRAME_LINEAR_JACOBIAN_WORLD,
     frameAngularJacobianWorld =
         MR_TASK_OBSERVE_FRAME_ANGULAR_JACOBIAN_WORLD,
-};
-
-enum class TaskRewardOperator : std::uint32_t {
-    linearVelocityTracking =
-        MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING,
-    yawVelocityTracking = MR_TASK_REWARD_YAW_VELOCITY_TRACKING,
-    jointAccelerationSquared =
-        MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED,
-    actionRateSquared = MR_TASK_REWARD_ACTION_RATE_SQUARED,
-    mechanicalPower = MR_TASK_REWARD_MECHANICAL_POWER,
-    gaitContactMatch = MR_TASK_REWARD_GAIT_CONTACT_MATCH,
-    footClearance = MR_TASK_REWARD_FOOT_CLEARANCE,
-    jointLimitViolationAbsolute =
-        MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE,
-    signal = MR_TASK_REWARD_SIGNAL,
+    frameLinearVelocityHeading =
+        MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_HEADING,
+    jointAcceleration = MR_TASK_OBSERVE_JOINT_ACCELERATION,
+    actionDelta = MR_TASK_OBSERVE_ACTION_DELTA,
+    jointSoftLimitViolation =
+        MR_TASK_OBSERVE_JOINT_SOFT_LIMIT_VIOLATION,
+    mechanicalPower = MR_TASK_OBSERVE_MECHANICAL_POWER,
+    desiredSupportContact =
+        MR_TASK_OBSERVE_DESIRED_SUPPORT_CONTACT,
 };
 
 enum class TaskRewardChannel : std::uint32_t {
@@ -110,6 +104,9 @@ enum class TaskSignalOperator : std::uint32_t {
     exponentialDecay = MR_TASK_SIGNAL_EXPONENTIAL_DECAY,
     atan2 = MR_TASK_SIGNAL_ATAN2,
     reduction = MR_TASK_SIGNAL_REDUCTION,
+    hyperbolicTangent = MR_TASK_SIGNAL_TANH,
+    lessThan = MR_TASK_SIGNAL_LESS_THAN,
+    greaterThan = MR_TASK_SIGNAL_GREATER_THAN,
 };
 
 enum class TaskSignalTransform : std::uint32_t {
@@ -157,6 +154,10 @@ struct TaskObservationOperatorSpec {
     // identity, resolved to one global generalized-velocity coordinate.
     std::string coordinate;
     std::uint32_t component = 0u;
+    // Source-specific authored parameters. The compiler validates and lowers
+    // them into explicit GPU source parameters (for example, a soft-limit
+    // factor becomes concrete lower/upper bounds).
+    mr_float4 parameters{};
     float scale = 1.0f;
     float offset = 0.0f;
     float noiseAmplitude = 0.0f;
@@ -242,10 +243,8 @@ struct TaskSignalSpec {
 };
 
 struct TaskRewardOperatorSpec {
-    TaskRewardOperator operation =
-        TaskRewardOperator::signal;
-    std::string sourceGroup;
-    // Required only by the generic SignalIR reward operator.
+    // Every reward consumes one compiled SignalIR node. Robot- and
+    // task-shaped reward opcodes are intentionally not part of the ABI.
     std::string signal;
     TaskRewardChannel channel = TaskRewardChannel::primary;
     // Reward rate in units per second. The native task integrates every

@@ -397,6 +397,7 @@ inline bool frameObservationOpcode(const uint opcode) {
          opcode <= MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR) ||
         relativeFrameObservationOpcode(opcode) ||
         opcode == MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD ||
+        opcode == MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_HEADING ||
         opcode == MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD ||
         opcode == MR_TASK_OBSERVE_FRAME_LINEAR_JACOBIAN_WORLD ||
         opcode == MR_TASK_OBSERVE_FRAME_ANGULAR_JACOBIAN_WORLD;
@@ -633,6 +634,26 @@ inline float taskFrameObservationValue(
         )[operation.source.z];
         break;
     }
+    case MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_HEADING: {
+        const float3 offset = rotate(
+            bodyOrientation,
+            frame.localPosition.xyz
+        );
+        const float3 worldVelocity =
+            bodyLinearVelocity +
+            cross(bodyAngularVelocity, offset);
+        float2 heading = rotate(
+            pose.orientation,
+            float3(1.0f, 0.0f, 0.0f)
+        ).xy;
+        heading *= rsqrt(max(dot(heading, heading), 1.0e-12f));
+        const float2 headingVelocity = float2(
+            dot(heading, worldVelocity.xy),
+            dot(float2(-heading.y, heading.x), worldVelocity.xy)
+        );
+        value = headingVelocity[operation.source.z];
+        break;
+    }
     case MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD:
         value = bodyAngularVelocity[operation.source.z];
         break;
@@ -857,6 +878,19 @@ inline float rootHeight(
     return rootWorldPosition(program, q).z;
 }
 
+inline bool desiredSupportContact(
+    const MRTaskContactGroupGPU group,
+    const float phase
+) {
+    float normalized =
+        fmod(phase + group.gait.x, kTwoPi);
+    if (normalized < 0.0f) {
+        normalized += kTwoPi;
+    }
+    normalized /= kTwoPi;
+    return normalized < group.gait.y;
+}
+
 inline float cleanObservation(
     device const MRTaskDispatchGPU& dispatch,
     device const MRTaskProgramHeaderGPU& program,
@@ -877,6 +911,8 @@ inline float cleanObservation(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* earlierAction,
+    device const float* previousJointVelocity,
     device const float* compactContact,
     device const float4* bodyParameters,
     device const float4* controllerParameters,
@@ -930,6 +966,42 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_PREVIOUS_ACTION:
         value = previousAction[operation.source.y];
         break;
+    case MR_TASK_OBSERVE_JOINT_ACCELERATION: {
+        const uint action = operation.source.y;
+        value = (
+            v[actions[action].indices.w] -
+            previousJointVelocity[action]
+        ) / dispatch.timing.x;
+        break;
+    }
+    case MR_TASK_OBSERVE_ACTION_DELTA:
+        value = previousAction[operation.source.y] -
+            earlierAction[operation.source.y];
+        break;
+    case MR_TASK_OBSERVE_JOINT_SOFT_LIMIT_VIOLATION: {
+        const float position =
+            q[actions[operation.source.y].indices.z];
+        value =
+            max(operation.parameters.x - position, 0.0f) +
+            max(position - operation.parameters.y, 0.0f);
+        break;
+    }
+    case MR_TASK_OBSERVE_MECHANICAL_POWER:
+        value = state.airReturnTracking.x;
+        break;
+    case MR_TASK_OBSERVE_DESIRED_SUPPORT_CONTACT: {
+        const float phase = fmod(
+            state.commandAndPhase.w +
+                kTwoPi * dispatch.timing.x /
+                    program.taskScalars.y,
+            kTwoPi
+        );
+        value = float(desiredSupportContact(
+            contactGroups[operation.source.y],
+            phase
+        ));
+        break;
+    }
     case MR_TASK_OBSERVE_ROOT_LINEAR_VELOCITY_LOCAL:
         value = rotateInverse(
             orientation,
@@ -1008,6 +1080,7 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION:
     case MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION:
     case MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD:
+    case MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_HEADING:
     case MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD:
     case MR_TASK_OBSERVE_FRAME_RELATIVE_LINEAR_VELOCITY:
     case MR_TASK_OBSERVE_FRAME_RELATIVE_ANGULAR_VELOCITY:
@@ -1081,6 +1154,8 @@ inline void writeFrame(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* earlierAction,
+    device const float* previousJointVelocity,
     device const float* sensorBias,
     device const float* compactContact,
     device const float4* bodyParameters,
@@ -1127,6 +1202,8 @@ inline void writeFrame(
             defaultQ,
             state,
             previousAction,
+            earlierAction,
+            previousJointVelocity,
             compactContact,
             bodyParameters,
             controllerParameters,
@@ -1187,6 +1264,8 @@ inline void writeFrame(
             defaultQ,
             state,
             previousAction,
+            earlierAction,
+            previousJointVelocity,
             compactContact,
             bodyParameters,
             controllerParameters,
@@ -1241,6 +1320,8 @@ inline void writeCriticFrame(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* earlierAction,
+    device const float* previousJointVelocity,
     device const float* compactContact,
     device const float4* bodyParameters,
     device const float4* controllerParameters,
@@ -1278,6 +1359,8 @@ inline void writeCriticFrame(
             defaultQ,
             state,
             previousAction,
+            earlierAction,
+            previousJointVelocity,
             compactContact,
             bodyParameters,
             controllerParameters,
@@ -1386,19 +1469,6 @@ inline float3 sampledCommand(
         command = float3(0.0f);
     }
     return command;
-}
-
-inline bool desiredSupportContact(
-    const MRTaskContactGroupGPU group,
-    const float phase
-) {
-    float normalized =
-        fmod(phase + group.gait.x, kTwoPi);
-    if (normalized < 0.0f) {
-        normalized += kTwoPi;
-    }
-    normalized /= kTwoPi;
-    return normalized < group.gait.y;
 }
 
 } // namespace
@@ -2256,6 +2326,8 @@ kernel void mr_task_observe(
             defaultQ,
             state,
             actionHistory + delayBase,
+            actionHistory + delayBase,
+            previousJointVelocity + previousVelocityBase,
             sensorBias + biasBase,
             compactContact + contactBase,
             bodyParameters + bodyParameterBase,
@@ -2307,6 +2379,8 @@ kernel void mr_task_observe(
             defaultQ,
             state,
             actionHistory + delayBase,
+            actionHistory + delayBase,
+            previousJointVelocity + previousVelocityBase,
             compactContact + contactBase,
             bodyParameters + bodyParameterBase,
             controllerParameters + environment,
@@ -3128,7 +3202,6 @@ kernel void mr_task_complete(
     device const MRMetalWorldStatusGPU* worldStatuses
         [[buffer(11)]],
     device const MRBodyStateGPU* sceneState [[buffer(12)]],
-    device const MRDofPropertiesGPU* dofs [[buffer(13)]],
     device const float* defaultQ [[buffer(14)]],
     device MRTaskStateGPU* taskStates [[buffer(15)]],
     device float* actionHistory [[buffer(16)]],
@@ -3576,53 +3649,17 @@ kernel void mr_task_complete(
         baseAngular.z - state.commandAndPhase.z;
     const float yawError = yawDelta * yawDelta;
 
-    float accelerationSquared = 0.0f;
-    float actionRateSquared = 0.0f;
-    const float mechanicalPower =
-        state.airReturnTracking.x;
     const uint lastSlot = program.layout.w - 1u;
     const uint previousSlot = lastSlot - 1u;
-    for (uint action = 0u;
-         action < program.counts0.x;
-         ++action) {
-        const MRTaskActionBindingGPU binding =
-            actions[action];
-        const float velocity =
-            vState[vBase + binding.indices.w];
-        const float acceleration =
-            (
-                velocity -
-                previousJointVelocity[
-                    previousVelocityBase + action
-                ]
-            ) /
-            dispatch.timing.x;
-        const float currentAction = actionHistory[
-            delayBase +
-            lastSlot * program.counts0.x +
-            action
-        ];
-        const float previousAction = actionHistory[
-            delayBase +
-            previousSlot * program.counts0.x +
-            action
-        ];
-        const float actionDelta =
-            currentAction - previousAction;
-        accelerationSquared +=
-            acceleration * acceleration;
-        actionRateSquared +=
-            actionDelta * actionDelta;
-    }
-
-    const float commandMagnitude = length(
-        state.commandAndPhase.xyz
-    );
     const uint episodeSteps = state.episode.x + 1u;
     device const float* signalAction =
         actionHistory +
         delayBase +
         (program.layout.w - 1u) * program.counts0.x;
+    device const float* earlierSignalAction =
+        actionHistory +
+        delayBase +
+        (program.layout.w - 2u) * program.counts0.x;
     for (uint signalIndex = 0u;
          signalIndex < program.graphCounts.x;
          ++signalIndex) {
@@ -3670,6 +3707,8 @@ kernel void mr_task_complete(
                     defaultQ,
                     state,
                     signalAction,
+                    earlierSignalAction,
+                    previousJointVelocity + previousVelocityBase,
                     compactContact + compactBase,
                     bodyParameters + bodyParameterBase,
                     controllerParameters + environment,
@@ -3706,6 +3745,8 @@ kernel void mr_task_complete(
                     defaultQ,
                     state,
                     signalAction,
+                    earlierSignalAction,
+                    previousJointVelocity + previousVelocityBase,
                     compactContact + compactBase,
                     bodyParameters + bodyParameterBase,
                     controllerParameters + environment,
@@ -3804,13 +3845,21 @@ kernel void mr_task_complete(
         case MR_TASK_SIGNAL_ATAN2:
             value = atan2(left, right);
             break;
+        case MR_TASK_SIGNAL_TANH:
+            value = tanh(left);
+            break;
+        case MR_TASK_SIGNAL_LESS_THAN:
+            value = float(left < operation.parameters.x);
+            break;
+        case MR_TASK_SIGNAL_GREATER_THAN:
+            value = float(left > operation.parameters.x);
+            break;
         default:
             value = 0.0f;
             break;
         }
         signalValues[signalIndex] = value;
     }
-    const bool moving = commandMagnitude > 0.1f;
     float phase =
         state.commandAndPhase.w +
         kTwoPi * dispatch.timing.x /
@@ -3824,141 +3873,11 @@ kernel void mr_task_complete(
          ++rewardIndex) {
         const MRTaskRewardOperatorGPU operation =
             rewards[rewardIndex];
-        float value = 0.0f;
-        switch (operation.source.x) {
-        case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
-            value = exp(
-                -trackingError /
-                max(operation.parameters.y, 1.0e-8f)
-            );
-            break;
-        case MR_TASK_REWARD_YAW_VELOCITY_TRACKING:
-            value = exp(
-                -yawError /
-                max(operation.parameters.y, 1.0e-8f)
-            );
-            break;
-        case MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED:
-            value = accelerationSquared;
-            break;
-        case MR_TASK_REWARD_ACTION_RATE_SQUARED:
-            value = actionRateSquared;
-            break;
-        case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE: {
-            const float softFactor = clamp(
-                operation.parameters.y,
-                1.0e-6f,
-                1.0f
-            );
-            for (uint action = 0u;
-                 action < program.counts0.x;
-                 ++action) {
-                const MRTaskActionBindingGPU binding =
-                    actions[action];
-                const MRDofPropertiesGPU dof =
-                    dofs[binding.indices.y];
-                const float center =
-                    0.5f * (dof.limits.x + dof.limits.y);
-                const float halfRange =
-                    0.5f *
-                    (dof.limits.y - dof.limits.x) *
-                    softFactor;
-                const float position =
-                    qState[qBase + binding.indices.z];
-                value +=
-                    max(center - halfRange - position, 0.0f) +
-                    max(position - center - halfRange, 0.0f);
-            }
-            break;
-        }
-        case MR_TASK_REWARD_MECHANICAL_POWER:
-            value = mechanicalPower;
-            break;
-        case MR_TASK_REWARD_GAIT_CONTACT_MATCH: {
-            if (!moving) {
-                value = 0.0f;
-                break;
-            }
-            float matched = 0.0f;
-            for (uint groupIndex = 0u;
-                 groupIndex < program.counts0.w;
-                 ++groupIndex) {
-                const MRTaskContactGroupGPU group =
-                    contactGroups[groupIndex];
-                if ((group.members.z &
-                     MR_TASK_CONTACT_SUPPORT) == 0u ||
-                    (operation.source.y != MR_INVALID_INDEX &&
-                     operation.source.y != groupIndex)) {
-                    continue;
-                }
-                const bool desired =
-                    desiredSupportContact(group, phase);
-                const bool actual =
-                    compactContact[
-                        compactBase + group.members.w
-                    ] > program.dynamics.y;
-                matched += float(desired == actual);
-            }
-            value = matched;
-            break;
-        }
-        case MR_TASK_REWARD_FOOT_CLEARANCE: {
-            float errorVelocity = 0.0f;
-            for (uint groupIndex = 0u;
-                 groupIndex < program.counts0.w;
-                 ++groupIndex) {
-                const MRTaskContactGroupGPU group =
-                    contactGroups[groupIndex];
-                if ((group.members.z &
-                     MR_TASK_CONTACT_SUPPORT) == 0u ||
-                    (operation.source.y != MR_INVALID_INDEX &&
-                     operation.source.y != groupIndex)) {
-                    continue;
-                }
-                const MRBodyStateGPU foot =
-                    bodyStates[
-                        bodyBase + group.reference.x
-                    ];
-                const float3 offset = rotate(
-                    foot.orientation,
-                    group.kinematicReference.xyz
-                );
-                const float3 position =
-                    foot.position.xyz + offset;
-                const float3 velocity =
-                    foot.linearVelocityAndInverseMass.xyz +
-                    cross(
-                        foot.angularVelocity.xyz,
-                        offset
-                    );
-                const float heightError =
-                    position.z -
-                    program.taskScalars.z;
-                const float velocityWeight = tanh(
-                    operation.parameters.z *
-                    length(velocity.xy)
-                );
-                errorVelocity +=
-                    heightError * heightError *
-                    velocityWeight;
-            }
-            value = exp(
-                -errorVelocity /
-                max(operation.parameters.y, 1.0e-8f)
-            );
-            break;
-        }
-        case MR_TASK_REWARD_SIGNAL:
-            value = signalValues[operation.source.y];
-            break;
-        default:
-            value = 0.0f;
-            break;
-        }
+        const float value = signalValues[operation.source.x];
         const float contribution =
             operation.parameters.x * value;
         reward += contribution;
-        const uint channel = operation.source.z;
+        const uint channel = operation.source.y;
         if (channel < 4u) {
             rewardBreakdown0[channel] += contribution;
         } else if (channel < MR_TASK_REWARD_CHANNEL_COUNT) {
@@ -4180,6 +4099,10 @@ kernel void mr_task_complete(
             defaultQ,
             state,
             currentAction,
+            actionHistory +
+                delayBase +
+                previousSlot * program.counts0.x,
+            previousJointVelocity + previousVelocityBase,
             sensorBias + biasBase,
             compactContact + compactBase,
             bodyParameters + bodyParameterBase,
@@ -4252,6 +4175,10 @@ kernel void mr_task_complete(
             defaultQ,
             state,
             currentAction,
+            actionHistory +
+                delayBase +
+                previousSlot * program.counts0.x,
+            previousJointVelocity + previousVelocityBase,
             compactContact + compactBase,
             bodyParameters + bodyParameterBase,
             controllerParameters + environment,
