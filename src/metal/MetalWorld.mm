@@ -380,14 +380,18 @@ struct MetalWorldSubmissionState {
         rollout.reset();
     }
 
-    void finishResident(const bool commandCompleted) noexcept {
+    void finishResident(const bool acceptResidentState) noexcept {
+        if (residentFinished) {
+            return;
+        }
+        residentFinished = true;
         if (resident == nullptr) {
             return;
         }
         try {
             const std::lock_guard lock(resident->mutex);
             resident->pending = false;
-            if (!commandCompleted || context == nullptr ||
+            if (!acceptResidentState || context == nullptr ||
                 resident->context != context ||
                 resident->stateArenaGeneration !=
                     context->stateArenaGeneration) {
@@ -410,6 +414,7 @@ struct MetalWorldSubmissionState {
             resident->initialized = true;
         } catch (...) {
         }
+        resident.reset();
     }
 
     ~MetalWorldSubmissionState() {
@@ -420,6 +425,7 @@ struct MetalWorldSubmissionState {
             [commandBuffer waitUntilCompleted];
         }
         finishResident(
+            !waitRequested &&
             commandBuffer.status ==
                 MTLCommandBufferStatusCompleted
         );
@@ -463,6 +469,8 @@ struct MetalWorldSubmissionState {
     bool publishLearningOutputs = true;
     bool publishSensorOutputs = false;
     bool rolloutFinished = false;
+    bool residentFinished = false;
+    bool waitRequested = false;
     bool ownsInFlight = false;
 };
 
@@ -15192,6 +15200,7 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
 
     std::unique_ptr<detail::MetalWorldSubmissionState> pending =
         std::move(state_);
+    pending->waitRequested = true;
     MetalWorldDiagnostics diagnostics = pending->diagnostics;
     try {
         MetalWorldResult staged{};
@@ -15569,6 +15578,7 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             pending->learningValidationToken,
             result
         );
+        pending->finishResident(published.published);
         pending->finishRollout(published.succeeded());
         return published;
     } catch (const std::bad_alloc&) {
