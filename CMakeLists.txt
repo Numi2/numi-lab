@@ -163,6 +163,9 @@ set(METALROBO_ARTICULATED_INVERSE_MASS_AIR
 set(METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMultiArticulatedInverseMass.air"
 )
+set(METALROBO_PARAMETERIZED_MULTI_ARTICULATED_INVERSE_MASS_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboParameterizedMultiArticulatedInverseMass.air"
+)
 set(METALROBO_WORLD_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboWorld.air"
 )
@@ -328,6 +331,16 @@ add_custom_command(
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_INVERSE_MASS_KERNEL_NAME=mr_parameterized_multi_articulated_inverse_mass
+            -DMR_PARALLEL_INVERSE_MASS_KERNEL_NAME=mr_parameterized_parallel_multi_articulated_inverse_mass
+            -DMR_INVERSE_MASS_MULTI_ARTICULATION=1
+            -DMR_INVERSE_MASS_BODY_PARAMETERS=1
+            -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
+            -o "${METALROBO_PARAMETERIZED_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_WORLD_SOURCE}"
             -o "${METALROBO_WORLD_AIR}"
     COMMAND xcrun -sdk macosx metal
@@ -408,6 +421,7 @@ add_custom_command(
             "${METALROBO_MULTI_ARTICULATED_CONTACT_AIR}"
             "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
+            "${METALROBO_PARAMETERIZED_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_WORLD_AIR}"
             "${METALROBO_WORLD_CONTACT_AIR}"
             "${METALROBO_WORLD_COMPILER_AIR}"

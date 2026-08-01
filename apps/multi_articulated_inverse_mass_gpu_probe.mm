@@ -211,6 +211,167 @@ int main() {
             "2-D inverse-mass grid diverged from reference kernels"
         );
 
+        std::vector<mr_float4> bodyParameters(
+            environmentCount * model.world.bodyCount,
+            mr_float4{1.0f, 1.0f, 1.0f, 1.0f}
+        );
+        std::vector<mr_float4> controllerParameters(
+            environmentCount,
+            mr_float4{1.0f, 1.0f, 0.0f, 0.0f}
+        );
+        auto parameterizedInput = input;
+        parameterizedInput.bodyParameters = bodyParameters;
+        parameterizedInput.controllerParameters =
+            controllerParameters;
+        metalrobo::MetalMultiArticulatedInverseMassResult
+            parameterizedIdentity;
+        const auto parameterizedIdentityDiagnostics =
+            metalrobo::runMetalMultiArticulatedInverseMass(
+                model,
+                parameterizedInput,
+                parameterizedIdentity
+            );
+        require(
+            parameterizedIdentityDiagnostics.succeeded() &&
+                parameterizedIdentity.output == result.output,
+            "identity physical parameters changed inverse mass"
+        );
+
+        for (std::size_t environment = 0u;
+             environment < environmentCount;
+             ++environment) {
+            const float massScale =
+                0.75f + 0.25f * float(environment);
+            for (std::size_t body = 0u;
+                 body < model.world.bodyCount;
+                 ++body) {
+                bodyParameters[
+                    environment * model.world.bodyCount + body
+                ].x = massScale;
+            }
+            controllerParameters[environment].x =
+                0.8f + 0.1f * float(environment);
+            controllerParameters[environment].y =
+                0.9f + 0.05f * float(environment);
+        }
+        parameterizedInput.bodyParameters = bodyParameters;
+        parameterizedInput.controllerParameters =
+            controllerParameters;
+        parameterizedInput.implicitDrives = true;
+        metalrobo::MetalMultiArticulatedInverseMassResult
+            effectiveResponse;
+        const auto effectiveDiagnostics =
+            metalrobo::runMetalMultiArticulatedInverseMass(
+                model,
+                parameterizedInput,
+                effectiveResponse
+            );
+        require(
+            effectiveDiagnostics.succeeded() &&
+                effectiveResponse.output != result.output,
+            "effective randomized operator was not applied"
+        );
+        float effectiveReferenceError = 0.0f;
+        for (std::size_t environment = 0u;
+             environment < environmentCount;
+             ++environment) {
+            metalrobo::EngineModel effectiveModel = model;
+            const float massScale =
+                bodyParameters[
+                    environment * model.world.bodyCount
+                ].x;
+            for (MRBodyPropertiesGPU& body : effectiveModel.bodies) {
+                body.massAndInverseMass.x *= massScale;
+                body.massAndInverseMass.y /= massScale;
+                body.inertiaRow0.x *= massScale;
+                body.inertiaRow0.y *= massScale;
+                body.inertiaRow0.z *= massScale;
+                body.inertiaRow1.x *= massScale;
+                body.inertiaRow1.y *= massScale;
+                body.inertiaRow1.z *= massScale;
+                body.inertiaRow2.x *= massScale;
+                body.inertiaRow2.y *= massScale;
+                body.inertiaRow2.z *= massScale;
+                body.inverseInertiaRow0.x /= massScale;
+                body.inverseInertiaRow0.y /= massScale;
+                body.inverseInertiaRow0.z /= massScale;
+                body.inverseInertiaRow1.x /= massScale;
+                body.inverseInertiaRow1.y /= massScale;
+                body.inverseInertiaRow1.z /= massScale;
+                body.inverseInertiaRow2.x /= massScale;
+                body.inverseInertiaRow2.y /= massScale;
+                body.inverseInertiaRow2.z /= massScale;
+            }
+            const float timestep =
+                effectiveModel.world.gravityAndTimestep.w;
+            for (MRDofPropertiesGPU& dof : effectiveModel.dofs) {
+                if ((dof.flags & MR_DOF_FLAG_DRIVE) != 0u) {
+                    dof.drive.z +=
+                        timestep *
+                            controllerParameters[environment].y *
+                            dof.drive.y +
+                        timestep * timestep *
+                            controllerParameters[environment].x *
+                            dof.drive.x;
+                }
+            }
+            const metalrobo::MetalMultiArticulatedInverseMassInput
+                effectiveReferenceInput{
+                    .environmentCount = 1u,
+                    .rhsCount = rhsCount,
+                    .q = std::span{
+                        q.data() + environment * model.world.nq,
+                        model.world.nq,
+                    },
+                    .rightHandSides = std::span{
+                        rhs.data() + environment * rhsCount *
+                            model.world.nv,
+                        rhsCount * model.world.nv,
+                    },
+                };
+            metalrobo::MetalMultiArticulatedInverseMassResult
+                effectiveReference;
+            const auto effectiveReferenceDiagnostics =
+                metalrobo::runMetalMultiArticulatedInverseMass(
+                    effectiveModel,
+                    effectiveReferenceInput,
+                    effectiveReference
+                );
+            require(
+                effectiveReferenceDiagnostics.succeeded(),
+                "materialized effective-operator reference failed"
+            );
+            effectiveReferenceError = std::max(
+                effectiveReferenceError,
+                maximumDifference(
+                    std::span{
+                        effectiveResponse.output.data() +
+                            environment * rhsCount * model.world.nv,
+                        rhsCount * model.world.nv,
+                    },
+                    effectiveReference.output
+                )
+            );
+        }
+        require(
+            effectiveReferenceError <= 2.0e-5f,
+            "parameterized inverse mass diverged from materialized "
+            "effective operator"
+        );
+        metalrobo::MetalMultiArticulatedInverseMassResult
+            effectiveReplay;
+        const auto effectiveReplayDiagnostics =
+            metalrobo::runMetalMultiArticulatedInverseMass(
+                model,
+                parameterizedInput,
+                effectiveReplay
+            );
+        require(
+            effectiveReplayDiagnostics.succeeded() &&
+                effectiveReplay.output == effectiveResponse.output,
+            "effective randomized operator is not deterministic"
+        );
+
         metalrobo::MetalMultiArticulatedInverseMassResult replay;
         const auto replayDiagnostics =
             metalrobo::runMetalMultiArticulatedInverseMass(
@@ -256,6 +417,10 @@ int main() {
             << " grid_packets="
             << model.articulations.size() * environmentCount
             << " maximum_error=" << maximumError
+            << " parameterized_identity=yes"
+            << " implicit_drives=yes"
+            << " effective_reference_error="
+            << effectiveReferenceError
             << " elapsed_ms=" << diagnostics.elapsedMilliseconds
             << " deterministic=yes transactional=yes\n";
         return 0;

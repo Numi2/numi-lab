@@ -13,6 +13,15 @@ using namespace metal;
 #define MR_INVERSE_MASS_MULTI_ARTICULATION 0
 #endif
 
+#ifndef MR_INVERSE_MASS_BODY_PARAMETERS
+#define MR_INVERSE_MASS_BODY_PARAMETERS 0
+#endif
+
+#ifndef MR_PARALLEL_INVERSE_MASS_KERNEL_NAME
+#define MR_PARALLEL_INVERSE_MASS_KERNEL_NAME \
+    mr_parallel_multi_articulated_inverse_mass
+#endif
+
 namespace {
 
 constant float kQuaternionTolerance = 2.0e-5f;
@@ -31,6 +40,26 @@ inline bool finite3(const float3 value) {
 inline bool finite4(const float4 value) {
     return all(isfinite(value));
 }
+
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+inline float effectiveArmature(
+    device const MRDofPropertiesGPU& dof,
+    device const MRWorldGPU& world,
+    const uint flags,
+    const float4 controller
+) {
+    float value = dof.drive.z;
+    if ((flags & MR_INVERSE_MASS_IMPLICIT_DRIVES) != 0u &&
+        (dof.flags & MR_DOF_FLAG_DRIVE) != 0u) {
+        const float timestep = world.gravityAndTimestep.w;
+        value +=
+            timestep * max(controller.y, 0.0f) * dof.drive.y +
+            timestep * timestep * max(controller.x, 0.0f) *
+                dof.drive.x;
+    }
+    return value;
+}
+#endif
 
 inline float4 quaternionConjugate(const float4 value) {
     return float4(-value.xyz, value.w);
@@ -258,6 +287,10 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
     device const float* rightHandSides [[buffer(7)]],
     device float* output [[buffer(8)]],
     device MRInverseMassStatusGPU* statuses [[buffer(9)]],
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+    device const float4* bodyParameters [[buffer(10)]],
+    device const float4* controllerParameters [[buffer(11)]],
+#endif
     uint2 packet [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
@@ -321,7 +354,11 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
         dispatch.environmentCount == 0u ||
         dispatch.rhsCount == 0u ||
         dispatch.rhsCount > kMaxRhs ||
-        dispatch.reserved0 != 0u ||
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+        (dispatch.flags & ~MR_INVERSE_MASS_IMPLICIT_DRIVES) != 0u ||
+#else
+        dispatch.flags != 0u ||
+#endif
         dispatch.reserved1 != 0u ||
         dispatch.reserved2 != 0u ||
         dispatch.reserved3 != 0u) {
@@ -798,6 +835,14 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
             articulation.firstBody + localBody;
         device const MRBodyPropertiesGPU& body =
             bodies[globalBody];
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+        const float4 physical = bodyParameters[
+            environment * world.bodyCount + globalBody
+        ];
+        const float massScale = max(physical.x, 1.0e-4f);
+#else
+        constexpr float massScale = 1.0f;
+#endif
         const uint expectedParent =
             localBody == rootLocal
                 ? MR_INVALID_INDEX
@@ -853,13 +898,13 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
                     rotationColumn2,
                     row,
                     column
-                );
+                ) * massScale;
             }
             articulatedInertia[
                 matrixBase +
                 (3u + row) * 6u +
                 (3u + row)
-            ] = body.massAndInverseMass.x;
+            ] = massScale * body.massAndInverseMass.x;
         }
     }
 
@@ -870,12 +915,30 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
                 rootMatrixBase +
                 (3u + axis) * 6u +
                 (3u + axis)
-            ] += dofs[articulation.vOffset + axis].drive.z;
+            ] +=
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+                effectiveArmature(
+                    dofs[articulation.vOffset + axis],
+                    world,
+                    dispatch.flags,
+                    controllerParameters[environment]
+                );
+#else
+                dofs[articulation.vOffset + axis].drive.z;
+#endif
             articulatedInertia[
                 rootMatrixBase + axis * 6u + axis
-            ] += dofs[
-                articulation.vOffset + 3u + axis
-            ].drive.z;
+            ] +=
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+                effectiveArmature(
+                    dofs[articulation.vOffset + 3u + axis],
+                    world,
+                    dispatch.flags,
+                    controllerParameters[environment]
+                );
+#else
+                dofs[articulation.vOffset + 3u + axis].drive.z;
+#endif
         }
     }
 
@@ -930,9 +993,17 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
                     motionLinear[localBody],
                     projectedLinear
                 ) +
-                dofs[
-                    articulation.vOffset + localV
-                ].drive.z;
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+                effectiveArmature(
+                    dofs[articulation.vOffset + localV],
+                    world,
+                    dispatch.flags,
+                    controllerParameters[environment]
+                )
+#else
+                dofs[articulation.vOffset + localV].drive.z
+#endif
+                ;
             float maximumInertia = 0.0f;
             for (uint entry = 0u; entry < 36u; ++entry) {
                 maximumInertia = max(
@@ -1391,7 +1462,7 @@ inline void clearParallelInverseMassFailure(
 // in each frontier; reverse frontiers emit disjoint child contributions and
 // parent-owned stable reductions combine siblings without floating atomics.
 // RHS vectors share the factorization and run through the same level graph.
-kernel void mr_parallel_multi_articulated_inverse_mass(
+kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
     device const MRJointDescriptorGPU* joints [[buffer(2)]],
@@ -1412,6 +1483,10 @@ kernel void mr_parallel_multi_articulated_inverse_mass(
     device const uint* scheduleInboundJoint [[buffer(15)]],
     device const uint* childOffsets [[buffer(16)]],
     device const uint* childIndices [[buffer(17)]],
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+    device const float4* bodyParameters [[buffer(18)]],
+    device const float4* controllerParameters [[buffer(19)]],
+#endif
     uint2 packet [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
@@ -1471,7 +1546,11 @@ kernel void mr_parallel_multi_articulated_inverse_mass(
             dispatch.environmentCount == 0u ||
             dispatch.rhsCount == 0u ||
             dispatch.rhsCount > kMaxRhs ||
-            dispatch.reserved0 != 0u ||
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+            (dispatch.flags & ~MR_INVERSE_MASS_IMPLICIT_DRIVES) != 0u ||
+#else
+            dispatch.flags != 0u ||
+#endif
             dispatch.reserved1 != 0u ||
             dispatch.reserved2 != 0u ||
             dispatch.reserved3 != 0u) {
@@ -1883,6 +1962,14 @@ kernel void mr_parallel_multi_articulated_inverse_mass(
             articulation.firstBody + localBody;
         device const MRBodyPropertiesGPU& body =
             bodies[globalBody];
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+        const float4 physical = bodyParameters[
+            environment * world.bodyCount + globalBody
+        ];
+        const float massScale = max(physical.x, 1.0e-4f);
+#else
+        constexpr float massScale = 1.0f;
+#endif
         const uint expectedParent =
             localBody == rootLocal
             ? MR_INVALID_INDEX
@@ -1939,13 +2026,13 @@ kernel void mr_parallel_multi_articulated_inverse_mass(
                         rotationColumn2,
                         row,
                         column
-                    );
+                    ) * massScale;
                 }
                 articulatedInertia[
                     matrixBase +
                     (3u + row) * 6u +
                     (3u + row)
-                ] = body.massAndInverseMass.x;
+                ] = massScale * body.massAndInverseMass.x;
             }
             jointDenominator[localBody] = 0.0f;
         }
@@ -1972,12 +2059,30 @@ kernel void mr_parallel_multi_articulated_inverse_mass(
                 rootMatrixBase +
                 (3u + axis) * 6u +
                 (3u + axis)
-            ] += dofs[articulation.vOffset + axis].drive.z;
+            ] +=
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+                effectiveArmature(
+                    dofs[articulation.vOffset + axis],
+                    worlds[0],
+                    dispatch.flags,
+                    controllerParameters[environment]
+                );
+#else
+                dofs[articulation.vOffset + axis].drive.z;
+#endif
             articulatedInertia[
                 rootMatrixBase + axis * 6u + axis
-            ] += dofs[
-                articulation.vOffset + 3u + axis
-            ].drive.z;
+            ] +=
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+                effectiveArmature(
+                    dofs[articulation.vOffset + 3u + axis],
+                    worlds[0],
+                    dispatch.flags,
+                    controllerParameters[environment]
+                );
+#else
+                dofs[articulation.vOffset + 3u + axis].drive.z;
+#endif
         }
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -2041,9 +2146,17 @@ kernel void mr_parallel_multi_articulated_inverse_mass(
                         motionLinear[localBody],
                         projectedLinear
                     ) +
-                    dofs[
-                        articulation.vOffset + localV
-                    ].drive.z;
+#if MR_INVERSE_MASS_BODY_PARAMETERS
+                    effectiveArmature(
+                        dofs[articulation.vOffset + localV],
+                        worlds[0],
+                        dispatch.flags,
+                        controllerParameters[environment]
+                    )
+#else
+                    dofs[articulation.vOffset + localV].drive.z
+#endif
+                    ;
                 float maximumInertia = 0.0f;
                 for (uint entry = 0u; entry < 36u; ++entry) {
                     maximumInertia = max(

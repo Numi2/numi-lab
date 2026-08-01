@@ -19,6 +19,12 @@ struct MetalMultiArticulatedInverseMassInput {
     std::size_t rhsCount = 0u;
     std::span<const float> q{};
     std::span<const float> rightHandSides{};
+    // Optional environment-major physical parameter streams matching the
+    // native TaskPack ABI. When present, bodyParameters is
+    // [environment][world body] and controllerParameters is [environment].
+    std::span<const mr_float4> bodyParameters{};
+    std::span<const mr_float4> controllerParameters{};
+    bool implicitDrives = false;
 };
 
 struct MetalMultiArticulatedInverseMassConfig {

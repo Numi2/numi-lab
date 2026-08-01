@@ -1305,7 +1305,9 @@ typedef struct MR_ALIGN16 MRInverseMassDispatchGPU {
     mr_u32 articulationIndex;
     mr_u32 environmentCount;
     mr_u32 rhsCount;
-    mr_u32 reserved0;
+    // MRInverseMassDispatchFlags. Parameterized kernels always consume body
+    // mass scales; this flag additionally selects M + hD + h^2K.
+    mr_u32 flags;
 
     mr_u32 qStride;
     mr_u32 rhsEnvironmentStride;
@@ -1317,6 +1319,10 @@ typedef struct MR_ALIGN16 MRInverseMassDispatchGPU {
     mr_u32 reserved2;
     mr_u32 reserved3;
 } MRInverseMassDispatchGPU;
+
+enum MRInverseMassDispatchFlags : mr_u32 {
+    MR_INVERSE_MASS_IMPLICIT_DRIVES = 1u << 0u,
+};
 
 typedef struct MR_ALIGN16 MRInverseMassStatusGPU {
     mr_u32 code;

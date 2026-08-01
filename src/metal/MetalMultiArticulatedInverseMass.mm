@@ -279,13 +279,35 @@ runMetalMultiArticulatedInverseMass(
             );
         }
         layout.outputElements = layout.rhsElements;
+        const bool parameterized =
+            !input.bodyParameters.empty() ||
+            !input.controllerParameters.empty();
+        std::size_t bodyParameterElements = 0u;
+        if (!checkedMultiply(
+                input.environmentCount,
+                model.world.bodyCount,
+                bodyParameterElements
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalMultiArticulatedInverseMassStatus::
+                    arithmeticOverflow,
+                "body-parameter element overflow"
+            );
+        }
         if (input.q.size() != layout.qElements ||
-            input.rightHandSides.size() != layout.rhsElements) {
+            input.rightHandSides.size() != layout.rhsElements ||
+            (parameterized &&
+             (input.bodyParameters.size() != bodyParameterElements ||
+              input.controllerParameters.size() !=
+                  input.environmentCount)) ||
+            (!parameterized && input.implicitDrives)) {
             return reject(
                 std::move(diagnostics),
                 MetalMultiArticulatedInverseMassStatus::
                     invalidDimensions,
-                "global q or RHS span has the wrong dimensions"
+                "global state, parameter stream, or effective-operator "
+                "selection has the wrong dimensions"
             );
         }
         const std::size_t rhsEnvironmentStride =
@@ -331,6 +353,34 @@ runMetalMultiArticulatedInverseMass(
                 MetalMultiArticulatedInverseMassStatus::
                     nonfiniteInput,
                 "q or generalized RHS contains a non-finite value"
+            );
+        }
+        if (parameterized &&
+            (!std::ranges::all_of(
+                 input.bodyParameters,
+                 [](const mr_float4& value) {
+                     return std::isfinite(value.x) &&
+                         std::isfinite(value.y) &&
+                         std::isfinite(value.z) &&
+                         std::isfinite(value.w) &&
+                         value.x > 0.0f;
+                 }
+             ) ||
+             !std::ranges::all_of(
+                 input.controllerParameters,
+                 [](const mr_float4& value) {
+                     return std::isfinite(value.x) &&
+                         std::isfinite(value.y) &&
+                         std::isfinite(value.z) &&
+                         std::isfinite(value.w) &&
+                         value.x >= 0.0f && value.y >= 0.0f;
+                 }
+             ))) {
+            return reject(
+                std::move(diagnostics),
+                MetalMultiArticulatedInverseMassStatus::
+                    nonfiniteInput,
+                "physical or controller parameters are invalid"
             );
         }
         for (std::size_t environment = 0u;
@@ -381,6 +431,10 @@ runMetalMultiArticulatedInverseMass(
                 static_cast<std::uint32_t>(input.environmentCount);
             work.dispatch.rhsCount =
                 static_cast<std::uint32_t>(input.rhsCount);
+            work.dispatch.flags =
+                input.implicitDrives
+                ? MR_INVERSE_MASS_IMPLICIT_DRIVES
+                : 0u;
             work.dispatch.qStride = model.world.nq;
             work.dispatch.rhsEnvironmentStride =
                 static_cast<std::uint32_t>(rhsEnvironmentStride);
@@ -434,7 +488,16 @@ runMetalMultiArticulatedInverseMass(
             !addBytes<MRInverseMassStatusGPU>(
                 layout.statusElements,
                 allocatedBytes
-            )) {
+            ) ||
+            (parameterized &&
+             (!addBytes<mr_float4>(
+                  bodyParameterElements,
+                  allocatedBytes
+              ) ||
+              !addBytes<mr_float4>(
+                  input.environmentCount,
+                  allocatedBytes
+              )))) {
             return reject(
                 std::move(diagnostics),
                 MetalMultiArticulatedInverseMassStatus::
@@ -491,7 +554,9 @@ runMetalMultiArticulatedInverseMass(
         }
         id<MTLFunction> function = [library
             newFunctionWithName:
-                @"mr_multi_articulated_inverse_mass"];
+                parameterized
+                ? @"mr_parameterized_multi_articulated_inverse_mass"
+                : @"mr_multi_articulated_inverse_mass"];
         if (function == nil) {
             return reject(
                 std::move(diagnostics),
@@ -537,7 +602,7 @@ runMetalMultiArticulatedInverseMass(
                 "failed to create Metal queue or command buffer"
             );
         }
-        id<MTLBuffer> buffers[10] = {};
+        id<MTLBuffer> buffers[12] = {};
         buffers[0] = inputBuffer(device, &model.world, 1u);
         buffers[1] = inputBuffer(
             device,
@@ -582,7 +647,21 @@ runMetalMultiArticulatedInverseMass(
             device,
             layout.statusElements
         );
-        for (id<MTLBuffer> buffer : buffers) {
+        if (parameterized) {
+            buffers[10] = inputBuffer(
+                device,
+                input.bodyParameters.data(),
+                bodyParameterElements
+            );
+            buffers[11] = inputBuffer(
+                device,
+                input.controllerParameters.data(),
+                input.environmentCount
+            );
+        }
+        const NSUInteger bufferCount = parameterized ? 12u : 10u;
+        for (NSUInteger index = 0u; index < bufferCount; ++index) {
+            id<MTLBuffer> buffer = buffers[index];
             if (buffer == nil) {
                 return reject(
                     std::move(diagnostics),
@@ -604,7 +683,7 @@ runMetalMultiArticulatedInverseMass(
             );
         }
         [encoder setComputePipelineState:pipeline];
-        for (NSUInteger index = 0u; index < 10u; ++index) {
+        for (NSUInteger index = 0u; index < bufferCount; ++index) {
             [encoder setBuffer:buffers[index]
                         offset:0u
                        atIndex:index];

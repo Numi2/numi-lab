@@ -404,6 +404,18 @@ is not yet the persistent private-buffer runtime. The remaining shared-world
 work is manifold-endpoint scatter plus promotion of this encoder sequence
 into persistent `MetalWorld`.
 
+The inverse-ABA primitive also accepts the compiled task's environment-major
+body and controller parameter streams. It scales each body's mass and inertia
+by the same randomized physical parameter used by ABA and can factor the
+implicit-drive operator `M + hD + h^2K` selected by the world pass. Identity
+parameters preserve the original response bitwise; the focused GPU probe also
+compares randomized effective responses against a materialized model and
+requires deterministic agreement. This closes the physical-operator contract
+needed before the matrix-free response path replaces production dense factors;
+the production TemporalCone kernels still consume their existing Cholesky
+factor until response construction and every contact/rod/typed-row consumer
+are promoted together.
+
 Three-axis translational loop/fixture blocks now enter this graph dynamically.
 Each authored body-local point reuses the articulation point-Jacobian stream;
 the three arbitrary world-space frame axes are dotted with those analytic
