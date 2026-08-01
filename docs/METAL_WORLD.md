@@ -527,7 +527,11 @@ The fully compacted path qualified 9,408 environments at 12.77 GB retained and
 it completed revision 119 to 120 with zero failed environment-steps, no swap
 growth, no throttling, and no GPU restart. A single-update qualification is a
 capacity and execution gate, not proof of sustained memory stability, so long
-campaigns still require checkpointed multi-update monitoring.
+campaigns still require checkpointed multi-update monitoring. The 11,264
+profile crossed that boundary when the second update raised swap use from
+0.37 GB to 2.14 GB. The run was stopped after preserving revision 121; 9,408
+is the current sustained-training profile and 11,264 remains a qualified
+single-update capacity ceiling rather than a production claim.
 
 ### Balance recovery and get-up training
 
