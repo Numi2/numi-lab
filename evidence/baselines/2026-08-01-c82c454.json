@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T03:04:43+02:00",
+  "source_revision": "c82c454ff13bc038942a7db77e5c2e7d056aee33",
+  "metallib_sha256": "eab8278136005c31a96bfe5048306c624ebbe52463faae2d8b0dab9e11d3222b",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 4.25,
+    "runtime_abi_version": 10,
+    "sensor_program_abi_version": 4,
+    "native_frame_twist_sensor_channels": 6,
+    "articulated_sensor_checked": true,
+    "rigid_kinematic_sensor_checked": true,
+    "reset_linear_velocity_metres_per_second": 0.0,
+    "articulated_point_velocity_metres_per_second": 0.1,
+    "articulated_angular_velocity_radians_per_second": 0.5,
+    "kinematic_reference_velocity_metres_per_second": 0.02,
+    "task_sensor_and_publication_tolerance": 0.0002,
+    "full_build_target_count": 79,
+    "cold_metallib_eager_pipeline_regeneration_observed": true,
+    "cold_pipeline_compiler_rss_at_least_bytes": 3059302400
+  },
+  "known_release_blockers": [
+    "MetalWorldContext still eagerly creates the complete monolithic pipeline inventory; a changed metallib caused an unrelated cold pipeline compile to exceed 3.0 GB RSS before cache warm-up.",
+    "TaskIR still lacks named sites, frame acceleration, point/Jacobian quantities, sampled and trajectory goals, generic gates and reductions, and three qualified task families.",
+    "SensorIR still lacks integrated camera, tactile, force-torque, contact, ray, LiDAR, and IMU execution under the session schedule.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators, and direct no-copy MLX-to-private-bank transfer remains incomplete.",
+    "The canonical executor has not completed its Metal 4 command-allocator and residency-set migration.",
+    "No general MJCF importer is present.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

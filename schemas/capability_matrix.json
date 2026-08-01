@@ -15,7 +15,8 @@
     "evidence/baselines/2026-08-01-cdbaaf0.json",
     "evidence/baselines/2026-08-01-2630cc7.json",
     "evidence/baselines/2026-08-01-68ce9cc.json",
-    "evidence/baselines/2026-08-01-0a06e71.json"
+    "evidence/baselines/2026-08-01-0a06e71.json",
+    "evidence/baselines/2026-08-01-c82c454.json"
   ],
   "capabilities": [
     {
@@ -142,14 +143,14 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Native parent-frame pose sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. The owner covers exact 50 Hz and non-divisor 30 Hz schedules over a 20 ms control period."
+      "scope": "Native parent-frame pose and world-space frame-twist sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. Twist linear velocity is evaluated at the authored sensor origin from accepted body state. The owner covers articulated and rigid kinematic parents, exact 50 Hz and non-divisor 30 Hz schedules over a 20 ms control period."
     },
     {
       "id": "sensors.unified_sensor_ir",
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "WorldPack state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose sensors execute in the session-owned scheduler and bind into TaskIR; presentation and tactile still use their existing native owners, while sensor-native corruption, recorder routing, contact, ray, LiDAR, force-torque, and IMU operators remain incomplete."
+      "scope": "WorldPack state, frame-twist, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose and frame-twist sensors execute in the session-owned scheduler and bind into TaskIR; presentation and tactile still use their existing native owners, while sensor-native corruption, recorder routing, contact, ray, LiDAR, force-torque, and IMU operators remain incomplete."
     },
     {
       "id": "policy.dense_native_inference",
