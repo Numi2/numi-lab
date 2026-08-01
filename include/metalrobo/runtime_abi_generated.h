@@ -5,10 +5,12 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 11u
+#define MR_RUNTIME_ABI_VERSION 12u
 #define MR_RUNTIME_PIPELINE_COUNT 89u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
 #define MR_SENSOR_PROGRAM_ABI_VERSION 4u
+#define MR_SENSOR_DISPATCH_HAS_RESETS 1u
+#define MR_SENSOR_DISPATCH_HAS_CONTACTS 2u
 
 typedef struct MR_ALIGN16 MRSensorProgramHeaderGPU {
     mr_u64 sensorFingerprint;
@@ -171,11 +173,16 @@ enum MRSensorSampleBuffer : mr_u32 {
     MR_SENSOR_SAMPLE_CONTACT_DISPATCH = 8u,
     MR_SENSOR_SAMPLE_CONTACTS = 9u,
     MR_SENSOR_SAMPLE_CONTACT_STATUSES = 10u,
-    MR_SENSOR_SAMPLE_STATES = 11u,
-    MR_SENSOR_SAMPLE_HISTORY = 12u,
-    MR_SENSOR_SAMPLE_OUTPUTS = 13u,
-    MR_SENSOR_SAMPLE_METADATA = 14u,
-    MR_SENSOR_SAMPLE_BUFFER_COUNT = 15u,
+    MR_SENSOR_SAMPLE_WORLD_STATUSES = 11u,
+    MR_SENSOR_SAMPLE_STATES = 12u,
+    MR_SENSOR_SAMPLE_HISTORY = 13u,
+    MR_SENSOR_SAMPLE_OUTPUTS = 14u,
+    MR_SENSOR_SAMPLE_METADATA = 15u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_STATES = 16u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_HISTORY = 17u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_OUTPUTS = 18u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_METADATA = 19u,
+    MR_SENSOR_SAMPLE_BUFFER_COUNT = 20u,
 };
 
 enum MRTaskSensorRefreshBuffer : mr_u32 {
@@ -440,7 +447,11 @@ enum BufferIndex : std::size_t {
     kPolicyProgramHeaderB = 228u,
     kPolicyProgramArenaB = 229u,
     kLearningPublicationStatus = 230u,
-    kRawBufferCount = 231u,
+    kSensorCheckpointStates = 231u,
+    kSensorCheckpointHistory = 232u,
+    kSensorCheckpointOutputs = 233u,
+    kSensorCheckpointMetadata = 234u,
+    kRawBufferCount = 235u,
 };
 
 enum class BufferLifetime : std::uint8_t {
@@ -684,6 +695,10 @@ inline constexpr std::array<BufferLifetime, kRawBufferCount>
         BufferLifetime::immutable,
         BufferLifetime::immutable,
         BufferLifetime::boundary,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
     }};
 inline constexpr std::array<bool, kRawBufferCount>
     kPersistentInputs{{
@@ -915,6 +930,10 @@ inline constexpr std::array<bool, kRawBufferCount>
         true,
         true,
         true,
+        false,
+        false,
+        false,
+        false,
         false,
         false,
         false,
@@ -1152,6 +1171,10 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "policy program header b",
         "policy program arena b",
         "learning publication status",
+        "sensor checkpoint states",
+        "sensor checkpoint history",
+        "sensor checkpoint outputs",
+        "sensor checkpoint metadata",
     }};
 
 [[nodiscard]] constexpr bool validBufferIndex(

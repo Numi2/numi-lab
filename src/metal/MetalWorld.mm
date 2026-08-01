@@ -2600,6 +2600,26 @@ bool buildRequirements(
             "native compact sensor metadata",
             layout.sensorMetadataElements,
             requirements.entries[kSensorMetadata]
+        ) ||
+        !makeRequirement<MRSensorRuntimeStateGPU>(
+            "native sensor reset checkpoint state",
+            layout.sensorStateElements,
+            requirements.entries[kSensorCheckpointStates]
+        ) ||
+        !makeRequirement<float>(
+            "native sensor reset checkpoint history",
+            layout.sensorHistoryElements,
+            requirements.entries[kSensorCheckpointHistory]
+        ) ||
+        !makeRequirement<float>(
+            "native sensor reset checkpoint outputs",
+            layout.sensorOutputElements,
+            requirements.entries[kSensorCheckpointOutputs]
+        ) ||
+        !makeRequirement<MRSensorSampleMetadataGPU>(
+            "native sensor reset checkpoint metadata",
+            layout.sensorMetadataElements,
+            requirements.entries[kSensorCheckpointMetadata]
         )) {
         return false;
     }
@@ -2803,8 +2823,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const double controlPeriodNanosecondsWide =
         static_cast<double>(config.timestepSeconds) * 1.0e9;
     if (nativeSensors) {
-        if (!nativeTask ||
-            config.sensorProgram.worldFingerprint() !=
+        if (config.sensorProgram.worldFingerprint() !=
                 world.fingerprint() ||
             config.sensorProgram.header().reserved.x !=
                 MR_SENSOR_PROGRAM_ABI_VERSION ||
@@ -2824,7 +2843,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 std::move(diagnostics),
                 MetalWorldHostStatus::unsupportedTopology,
                 "native SensorIR execution currently requires only pre-control "
-                "native-state sensors attached to a compiled native task"
+                "native-state sensors compiled against the submitted world"
             );
         }
         const std::uint64_t controlPeriodTicks =
@@ -2848,6 +2867,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
                     MR_WORLD_SENSOR_FORCE_TORQUE;
             if ((!poseSensor && !twistSensor &&
                  !forceTorqueSensor) ||
+                (forceTorqueSensor && !contactMode) ||
                 descriptor.schedule.z !=
                     MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
                 descriptor.source.w !=
@@ -2861,8 +2881,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
                     std::move(diagnostics),
                     MetalWorldHostStatus::unsupportedTopology,
                     "native SensorIR sampling requires pre-control pose, "
-                    "world-twist, or force-torque descriptors at no more "
-                    "than the control rate"
+                    "world-twist, or contact-mode force-torque descriptors "
+                    "at no more than the control rate"
                 );
             }
         }
@@ -7976,6 +7996,7 @@ bool encodeSensorSample(
     const float controlPeriodSeconds,
     const std::uint64_t seed,
     const bool hasResets,
+    const bool contactMode,
     const std::uint32_t executionMode
 ) {
     const auto controlPeriodTicks =
@@ -7987,7 +8008,10 @@ bool encodeSensorSample(
         static_cast<std::uint32_t>(environmentCount),
         program.layout().sensorCount,
         executionMode,
-        hasResets ? 1u : 0u,
+        (hasResets ? MR_SENSOR_DISPATCH_HAS_RESETS : 0u) |
+            (contactMode
+                 ? MR_SENSOR_DISPATCH_HAS_CONTACTS
+                 : 0u),
     };
     dispatch.controlPeriodAndStrides = {
         static_cast<std::uint32_t>(controlPeriodTicks),
@@ -8022,10 +8046,27 @@ bool encodeSensorSample(
             {MR_SENSOR_SAMPLE_CONTACT_DISPATCH, kContactDispatch},
             {MR_SENSOR_SAMPLE_CONTACTS, kContacts},
             {MR_SENSOR_SAMPLE_CONTACT_STATUSES, kContactStatuses},
+            {MR_SENSOR_SAMPLE_WORLD_STATUSES, kEnvironmentStatuses},
             {MR_SENSOR_SAMPLE_STATES, kSensorRuntimeStates},
             {MR_SENSOR_SAMPLE_HISTORY, kSensorHistory},
             {MR_SENSOR_SAMPLE_OUTPUTS, kSensorOutputs},
             {MR_SENSOR_SAMPLE_METADATA, kSensorMetadata},
+            {
+                MR_SENSOR_SAMPLE_CHECKPOINT_STATES,
+                kSensorCheckpointStates,
+            },
+            {
+                MR_SENSOR_SAMPLE_CHECKPOINT_HISTORY,
+                kSensorCheckpointHistory,
+            },
+            {
+                MR_SENSOR_SAMPLE_CHECKPOINT_OUTPUTS,
+                kSensorCheckpointOutputs,
+            },
+            {
+                MR_SENSOR_SAMPLE_CHECKPOINT_METADATA,
+                kSensorCheckpointMetadata,
+            },
         },
         &pass,
         MR_SENSOR_SAMPLE_PASS,
@@ -15544,6 +15585,24 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 const bool taskUsesSensors =
                     nativeTask &&
                     config.taskProgram.sensorFingerprint() != 0u;
+                const std::size_t resetMaskBase =
+                    static_cast<std::size_t>(controlStep) *
+                    batch.environmentCount;
+                const bool sensorOnlyReset =
+                    nativeSensors && !nativeTask &&
+                    !batch.resetMasks.empty() &&
+                    std::any_of(
+                        batch.resetMasks.begin() +
+                            static_cast<std::ptrdiff_t>(resetMaskBase),
+                        batch.resetMasks.begin() +
+                            static_cast<std::ptrdiff_t>(
+                                resetMaskBase +
+                                batch.environmentCount
+                            ),
+                        [](const std::uint32_t value) {
+                            return value != 0u;
+                        }
+                    );
                 if (nativeTask &&
                     (
                         !encodeTaskObserve(
@@ -15608,7 +15667,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 world.sceneBodyCount(),
                                 config.timestepSeconds,
                                 config.taskSeed,
-                                true,
+                                !batch.resetMasks.empty(),
+                                contactMode,
                                 MR_SENSOR_EXECUTION_RESET_ONLY
                             )
                         ) ||
@@ -15690,6 +15750,52 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalCommandFailure,
                         "failed to encode rod checkpoint/reset pass"
+                    );
+                }
+                if (sensorOnlyReset &&
+                    (
+                        !encodeArticulatedOperator(
+                            *selectedState,
+                            commandBuffer,
+                            kOperatorKinematicsDispatch,
+                            sourceQ,
+                            kPointQueries,
+                            kBodyPoses,
+                            batch.environmentCount,
+                            @"compiled SensorIR reset kinematics",
+                            false
+                        ) ||
+                        (sensorUsesBodyTwists &&
+                         !encodeArticulatedBodyVelocities(
+                             *selectedState,
+                             commandBuffer,
+                             sourceQ,
+                             sourceV,
+                             kCurrentBodies,
+                             batch.environmentCount,
+                             @"compiled SensorIR reset body velocities"
+                         )) ||
+                        !encodeSensorSample(
+                            *selectedState,
+                            commandBuffer,
+                            config.sensorProgram,
+                            pass,
+                            kCurrentBodies,
+                            sourceScene,
+                            batch.environmentCount,
+                            world.bodyCount(),
+                            world.sceneBodyCount(),
+                            config.timestepSeconds,
+                            config.taskSeed,
+                            true,
+                            contactMode,
+                            MR_SENSOR_EXECUTION_RESET_ONLY
+                        )
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode task-independent SensorIR reset boundary"
                     );
                 }
 
@@ -15986,7 +16092,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                          world.sceneBodyCount(),
                          config.timestepSeconds,
                          config.taskSeed,
-                         true,
+                         !batch.resetMasks.empty(),
+                         contactMode,
                          MR_SENSOR_EXECUTION_ADVANCE
                      ) ||
                      (taskUsesSensors &&

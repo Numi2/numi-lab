@@ -108,11 +108,13 @@ inline bool normalizedQuaternion(
 // execution seeds a new episode before its first action; advance execution
 // samples the accepted post-physics state for the next action. One thread owns
 // one environment/sensor history ring, so publication is deterministic and
-// requires no atomics. Candidate/committed buffering across reset-followed
-// failures remains a host execution gate. Presentation and tactile domains
-// remain separate until their existing native kernels are folded into this
-// schedule; descriptors for those domains are rejected by the host execution
-// gate rather than silently skipped in production.
+// requires no atomics. A reset-only pass journals only reset environments;
+// the accepted-state pass restores that journal if physics rejects the step.
+// Successful steps and ordinary failed steps therefore perform no history
+// copy. Presentation and tactile domains remain separate until their existing
+// native kernels are folded into this schedule; descriptors for those domains
+// are rejected by the host execution gate rather than silently skipped in
+// production.
 kernel void mr_sensor_sample_control_boundary(
     constant MRSensorDispatchGPU& dispatch
         [[buffer(MR_SENSOR_SAMPLE_DISPATCH)]],
@@ -136,6 +138,8 @@ kernel void mr_sensor_sample_control_boundary(
         [[buffer(MR_SENSOR_SAMPLE_CONTACTS)]],
     device const MRMetalWorldContactStatusGPU* contactStatuses
         [[buffer(MR_SENSOR_SAMPLE_CONTACT_STATUSES)]],
+    device const MRMetalWorldStatusGPU* worldStatuses
+        [[buffer(MR_SENSOR_SAMPLE_WORLD_STATUSES)]],
     device MRSensorRuntimeStateGPU* states
         [[buffer(MR_SENSOR_SAMPLE_STATES)]],
     device float* history
@@ -144,6 +148,14 @@ kernel void mr_sensor_sample_control_boundary(
         [[buffer(MR_SENSOR_SAMPLE_OUTPUTS)]],
     device MRSensorSampleMetadataGPU* metadata
         [[buffer(MR_SENSOR_SAMPLE_METADATA)]],
+    device MRSensorRuntimeStateGPU* checkpointStates
+        [[buffer(MR_SENSOR_SAMPLE_CHECKPOINT_STATES)]],
+    device float* checkpointHistory
+        [[buffer(MR_SENSOR_SAMPLE_CHECKPOINT_HISTORY)]],
+    device float* checkpointOutputs
+        [[buffer(MR_SENSOR_SAMPLE_CHECKPOINT_OUTPUTS)]],
+    device MRSensorSampleMetadataGPU* checkpointMetadata
+        [[buffer(MR_SENSOR_SAMPLE_CHECKPOINT_METADATA)]],
     const uint threadIndex [[thread_position_in_grid]]
 ) {
     const uint environmentCount = dispatch.counts.x;
@@ -179,21 +191,16 @@ kernel void mr_sensor_sample_control_boundary(
 
     const uint stateIndex = environment * sensorCount + sensorIndex;
     MRSensorRuntimeStateGPU state = states[stateIndex];
-    const bool reset =
-        dispatch.counts.z == MR_SENSOR_EXECUTION_RESET_ONLY &&
-        (dispatch.counts.w & 1u) != 0u &&
+    const bool resetRequested =
+        (dispatch.counts.w & MR_SENSOR_DISPATCH_HAS_RESETS) != 0u &&
         resetMasks[
             pass.controlStep * environmentCount + environment
         ] != 0u;
+    const bool reset =
+        dispatch.counts.z == MR_SENSOR_EXECUTION_RESET_ONLY &&
+        resetRequested;
     if (dispatch.counts.z == MR_SENSOR_EXECUTION_RESET_ONLY &&
         !reset) {
-        return;
-    }
-    // Failed contact transactions do not advance or poison the persistent
-    // wrench history. The last committed sample remains authoritative.
-    if (forceTorqueSensor &&
-        dispatch.counts.z == MR_SENSOR_EXECUTION_ADVANCE &&
-        contactStatuses[environment].code != MR_STEP_SUCCESS) {
         return;
     }
     const uint outputEnvironmentBase =
@@ -208,6 +215,20 @@ kernel void mr_sensor_sample_control_boundary(
     const uint historyLength = descriptor.output.w;
 
     if (reset) {
+        checkpointStates[stateIndex] = state;
+        checkpointMetadata[stateIndex] = metadata[stateIndex];
+        for (uint value = 0u;
+             value < outputCount;
+             ++value) {
+            checkpointOutputs[outputBase + value] =
+                outputs[outputBase + value];
+        }
+        for (uint value = 0u;
+             value < outputCount * historyLength;
+             ++value) {
+            checkpointHistory[historyBase + value] =
+                history[historyBase + value];
+        }
         state = {};
         for (uint value = 0u;
              value < outputCount;
@@ -220,6 +241,34 @@ kernel void mr_sensor_sample_control_boundary(
             history[historyBase + value] = 0.0f;
         }
         metadata[stateIndex] = {};
+    }
+
+    if (dispatch.counts.z == MR_SENSOR_EXECUTION_ADVANCE) {
+        const bool contactSucceeded =
+            (dispatch.counts.w &
+             MR_SENSOR_DISPATCH_HAS_CONTACTS) == 0u ||
+            contactStatuses[environment].code == MR_STEP_SUCCESS;
+        if (worldStatuses[environment].code != MR_STEP_SUCCESS ||
+            !contactSucceeded) {
+            if (resetRequested) {
+                states[stateIndex] = checkpointStates[stateIndex];
+                metadata[stateIndex] =
+                    checkpointMetadata[stateIndex];
+                for (uint value = 0u;
+                     value < outputCount;
+                     ++value) {
+                    outputs[outputBase + value] =
+                        checkpointOutputs[outputBase + value];
+                }
+                for (uint value = 0u;
+                     value < outputCount * historyLength;
+                     ++value) {
+                    history[historyBase + value] =
+                        checkpointHistory[historyBase + value];
+                }
+            }
+            return;
+        }
     }
 
     ulong phase = unpack64(

@@ -95,9 +95,12 @@ phase accumulators and whole-sample latency is selected from the retained ring.
 Force/torque reads the same final-microstep solved contact constraints used by
 TaskIR and the tactile force authority. It sums the force and moment applied to
 the parent body about the authored sensor origin and rotates the result into
-sensor-local axes. Failed contact transactions do not advance wrench history.
-Candidate/committed double buffering for pose and twist histories across a step
-that resets and subsequently fails remains an explicit transaction gate.
+sensor-local axes. Before a requested reset, the SensorIR pass copies that
+environment's schedule state, complete latency ring, compact output, and
+metadata into topology-sized private checkpoint buffers. A rejected world or
+contact transaction restores the journal byte-for-byte; successful and
+ordinary non-reset transitions perform no checkpoint copy. The same schedule
+also runs directly against a compiled world when no TaskIR program is present.
 
 Compiled TaskIR operators consume named SensorIR values and validity bits
 directly on-device. Reset refresh fills every actor/critic history slot before

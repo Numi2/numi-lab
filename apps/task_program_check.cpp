@@ -8,6 +8,7 @@
 #include "metalrobo/WorldPack.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -2007,6 +2008,272 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
                    ))
         );
     }
+
+    // A reset is visible to the policy before physics executes. If that
+    // physics transaction subsequently overflows, every SensorIR schedule,
+    // history slot, compact output, and metadata record must return to the
+    // last committed boundary. Two coincident static obstacles make the reset
+    // produce two broadphase pairs against a one-pair operational capacity;
+    // the preceding resident step remains contact-free and establishes a
+    // nonzero pose-history canary.
+    metalrobo::SimulationDescription transactionAuthored =
+        wrenchAuthored;
+    transactionAuthored.task.id =
+        "sensor_reset_failure_transaction";
+    transactionAuthored.task.capacities.candidatePairs = 1u;
+    transactionAuthored.model.bodies[obstacleBodyIndex]
+        .motionType = MR_MOTION_KINEMATIC;
+    transactionAuthored.sceneBodies.back().flagsAndIndices[0] =
+        MR_MOTION_KINEMATIC;
+    const std::uint32_t secondObstacleBodyIndex =
+        static_cast<std::uint32_t>(
+            transactionAuthored.model.bodies.size()
+        );
+    transactionAuthored.model.bodies.push_back(
+        transactionAuthored.model.bodies[obstacleBodyIndex]
+    );
+    transactionAuthored.model.bodyNames.emplace_back(
+        "wrench_obstacle_second"
+    );
+    MRShapeGPU secondObstacleShape = obstacleShape;
+    secondObstacleShape.bodyIndex = secondObstacleBodyIndex;
+    transactionAuthored.model.shapes.push_back(secondObstacleShape);
+    transactionAuthored.model.shapeNames.emplace_back(
+        "wrench_obstacle_second"
+    );
+    transactionAuthored.model.world.bodyCount =
+        static_cast<std::uint32_t>(
+            transactionAuthored.model.bodies.size()
+        );
+    transactionAuthored.model.world.shapeCount =
+        static_cast<std::uint32_t>(
+            transactionAuthored.model.shapes.size()
+        );
+    MRBodyStateGPU secondObstacleState =
+        transactionAuthored.sceneBodies.back();
+    secondObstacleState.flagsAndIndices[2] =
+        secondObstacleBodyIndex;
+    transactionAuthored.sceneBodies.push_back(secondObstacleState);
+    const std::vector<MRBodyStateGPU> transactionResetScene =
+        transactionAuthored.sceneBodies;
+    transactionAuthored.sceneBodies[
+        transactionAuthored.sceneBodies.size() - 2u
+    ].position.z += 2.0f;
+    transactionAuthored.sceneBodies.back().position.z += 2.0f;
+    transactionAuthored.sensors.push_back({
+        .id = "tool_pose_transaction_canary",
+        .parentKind = MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+        .parentBodyIndex = toolBodyIndex,
+        .kind = MR_WORLD_SENSOR_STATE,
+        .localPose = {
+            .position = {0.0f, 0.0f, 0.2f, 0.0f},
+        },
+        .nominalRateHz = 50.0f,
+        .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+        .historyLength = 2u,
+        .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
+    });
+
+    metalrobo::CompiledSimulation transactionCompiled;
+    const auto transactionCompile = metalrobo::compileSimulation(
+        transactionAuthored,
+        0u,
+        transactionCompiled
+    );
+    if (!transactionCompile.succeeded() ||
+        transactionCompiled.world.capacities().candidatePairs != 1u ||
+        transactionCompiled.world.eligiblePairCount() < 2u) {
+        fail(
+            "sensor rollback fixture did not compile its one-pair operational capacity: " +
+            transactionCompile.world.message
+        );
+    }
+
+    std::vector<float> transactionInitialQ =
+        transactionAuthored.model.defaultQ;
+    transactionInitialQ[0u] = -0.8f;
+    const std::vector<float> transactionInitialV(
+        transactionCompiled.world.nv(),
+        0.0f
+    );
+    const std::vector<float> transactionEffort(
+        transactionCompiled.world.nv(),
+        0.0f
+    );
+    metalrobo::MetalWorldStepConfig transactionStep = wrenchStep;
+    transactionStep.taskProgram = {};
+    transactionStep.sensorProgram = transactionCompiled.sensors;
+    transactionStep.policyProgram = {};
+    transactionStep.evaluateFinalPolicy = false;
+    transactionStep.actuationMode =
+        metalrobo::MetalWorldActuationMode::effort;
+    transactionStep.captureContactEvidence = false;
+    metalrobo::MetalWorldContext transactionContext(
+        contextConfiguration
+    );
+    metalrobo::MetalWorldResidentState transactionState;
+    metalrobo::MetalWorldSubmission initialSubmission;
+    const std::array<std::uint32_t, 1u> noReset{0u};
+    const auto initialSubmit =
+        transactionContext.initializeResidentState(
+            transactionCompiled.world,
+            {
+                .environmentCount = 1u,
+                .controlStepCount = 1u,
+                .initialQ = transactionInitialQ,
+                .initialV = transactionInitialV,
+                .efforts = transactionEffort,
+                .resetMasks = noReset,
+                .resetQ = transactionAuthored.model.defaultQ,
+                .resetV = transactionInitialV,
+                .initialSceneBodies =
+                    transactionAuthored.sceneBodies,
+                .resetSceneBodies = transactionResetScene,
+                .kinematicTargets =
+                    transactionAuthored.sceneBodies,
+            },
+            transactionStep,
+            transactionState,
+            initialSubmission
+        );
+    metalrobo::MetalWorldResult initialTransactionResult;
+    const auto initialTransaction = initialSubmit.succeeded()
+        ? initialSubmission.wait(initialTransactionResult)
+        : initialSubmit;
+    const std::vector<float> committedSensorOutputs =
+        initialTransactionResult.sensorOutputs;
+    const std::vector<MRSensorSampleMetadataGPU>
+        committedSensorMetadata =
+            initialTransactionResult.sensorMetadata;
+    if (!initialTransaction.succeeded() ||
+        !transactionState.valid() ||
+        committedSensorOutputs.size() != 13u ||
+        committedSensorMetadata.size() != 2u ||
+        std::abs(committedSensorOutputs[8u]) < 1.0e-3f) {
+        fail(
+            "sensor rollback fixture did not establish a committed resident canary: " +
+            initialTransaction.message
+        );
+    }
+
+    metalrobo::MetalWorldSubmission rejectedSubmission;
+    const std::array<std::uint32_t, 1u> requestReset{1u};
+    const auto rejectedSubmit = transactionContext.submitResident(
+        transactionCompiled.world,
+        {
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .efforts = transactionEffort,
+            .resetMasks = requestReset,
+            .kinematicTargets = transactionResetScene,
+        },
+        transactionStep,
+        transactionState,
+        rejectedSubmission
+    );
+    metalrobo::MetalWorldResult rejectedTransactionResult;
+    const auto rejectedTransaction = rejectedSubmit.succeeded()
+        ? rejectedSubmission.wait(rejectedTransactionResult)
+        : rejectedSubmit;
+    const bool sensorOutputsRestored =
+        rejectedTransactionResult.sensorOutputs ==
+        committedSensorOutputs;
+    const bool sensorMetadataRestored =
+        rejectedTransactionResult.sensorMetadata.size() ==
+            committedSensorMetadata.size() &&
+        std::memcmp(
+            rejectedTransactionResult.sensorMetadata.data(),
+            committedSensorMetadata.data(),
+            committedSensorMetadata.size() *
+                sizeof(MRSensorSampleMetadataGPU)
+        ) == 0;
+    const bool sensorTransactionRestored =
+        !rejectedTransaction.succeeded() &&
+        rejectedTransaction.published &&
+        rejectedTransaction.failedStepCount == 1u &&
+        transactionState.valid() &&
+        rejectedTransactionResult.contactStatuses.size() == 1u &&
+        rejectedTransactionResult.contactStatuses[0u].code ==
+            MR_STEP_PAIR_CAPACITY_OVERFLOW &&
+        rejectedTransactionResult.contactStatuses[0u]
+                .requiredPairs > 1u &&
+        sensorOutputsRestored && sensorMetadataRestored;
+    if (!sensorTransactionRestored) {
+        fail(
+            "reset-followed physics failure did not restore the committed SensorIR history: " +
+            rejectedTransaction.message +
+            " contact=" +
+            (rejectedTransactionResult.contactStatuses.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       rejectedTransactionResult.contactStatuses[0u]
+                           .code
+                   )) +
+            " required_pairs=" +
+            (rejectedTransactionResult.contactStatuses.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       rejectedTransactionResult.contactStatuses[0u]
+                           .requiredPairs
+                   )) +
+            " q=" +
+            (rejectedTransactionResult.finalQ.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       rejectedTransactionResult.finalQ[0u]
+                   )) +
+            " published=" +
+            std::to_string(rejectedTransaction.published) +
+            " failed_steps=" +
+            std::to_string(rejectedTransaction.failedStepCount) +
+            " resident=" +
+            std::to_string(transactionState.valid()) +
+            " outputs=" + std::to_string(sensorOutputsRestored) +
+            " metadata=" + std::to_string(sensorMetadataRestored) +
+            " committed_pose=" +
+            std::to_string(committedSensorOutputs[6u]) + "," +
+            std::to_string(committedSensorOutputs[7u]) + "," +
+            std::to_string(committedSensorOutputs[8u]) +
+            " rejected_pose=" +
+            (rejectedTransactionResult.sensorOutputs.size() < 9u
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       rejectedTransactionResult.sensorOutputs[6u]
+                   ) + "," +
+                       std::to_string(
+                           rejectedTransactionResult.sensorOutputs[7u]
+                       ) + "," +
+                       std::to_string(
+                           rejectedTransactionResult.sensorOutputs[8u]
+                       ))
+        );
+    }
+
+    metalrobo::MetalWorldSubmission recoveredSubmission;
+    const auto recoveredSubmit = transactionContext.submitResident(
+        transactionCompiled.world,
+        {
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .efforts = transactionEffort,
+            .resetMasks = noReset,
+            .kinematicTargets = transactionAuthored.sceneBodies,
+        },
+        transactionStep,
+        transactionState,
+        recoveredSubmission
+    );
+    metalrobo::MetalWorldResult recoveredTransactionResult;
+    const auto recoveredTransaction = recoveredSubmit.succeeded()
+        ? recoveredSubmission.wait(recoveredTransactionResult)
+        : recoveredSubmit;
+    if (!recoveredTransaction.succeeded() ||
+        !transactionState.valid()) {
+        fail(
+            "resident execution did not recover after a transactionally rejected reset: " +
+            recoveredTransaction.message
+        );
+    }
     return {
         .fingerprint = compiled.task.fingerprint(),
         .pipelineCount = taskPipelineCount,
@@ -2617,6 +2884,7 @@ int main() {
             << "/" << MR_RUNTIME_PIPELINE_COUNT
             << " force_n=" << fixedBase.forceNormNewtons
             << " torque_nm=" << fixedBase.torqueNormNewtonMetres
+            << " sensor_transaction=pass"
             << " world_pack=" << worldPackFingerprint
             << '\n';
         return 0;

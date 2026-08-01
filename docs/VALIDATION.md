@@ -35,6 +35,14 @@ a mid-rollout reset clears the sensor view. This qualifies resultant contact
 wrench sensing; it is not yet joint-transmission load-cell or full tactile-
 schedule evidence.
 
+The SensorIR transaction case first commits a nonzero articulated pose history
+in a resident session, then requests a reset that moves two kinematic obstacles
+into contact against a one-pair operational capacity. It requires the exact
+pair-overflow status, byte-identical restoration of schedule metadata and
+compact outputs, a still-valid resident token, and a successful following
+submission after the obstacles move clear. The sensor schedule is installed
+without TaskIR to prove that runtime ownership is independent.
+
 The native integration owner runs five PPO updates through a three-slot shared
 rollout ring. It therefore covers slot reuse, managed MLX payload release,
 monotonic policy revisions, native rollout serialization, learner checkpoints,

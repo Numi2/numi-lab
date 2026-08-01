@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 11,
+  "abi_version": 12,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -116,7 +116,9 @@
     ["rod_ccd", "rodCCDWitnessTagPipeline", "mr_world_tag_rod_ccd_witnesses", "one", 0]
   ],
   "abi_constants": {
-    "MR_SENSOR_PROGRAM_ABI_VERSION": 4
+    "MR_SENSOR_PROGRAM_ABI_VERSION": 4,
+    "MR_SENSOR_DISPATCH_HAS_RESETS": 1,
+    "MR_SENSOR_DISPATCH_HAS_CONTACTS": 2
   },
   "records": [
     {
@@ -201,7 +203,7 @@
     }
   ],
   "world_buffers": {
-    "count": 231,
+    "count": 235,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -425,7 +427,11 @@
       ["kSensorMetadata", 227],
       ["kPolicyProgramHeaderB", 228],
       ["kPolicyProgramArenaB", 229],
-      ["kLearningPublicationStatus", 230]
+      ["kLearningPublicationStatus", 230],
+      ["kSensorCheckpointStates", 231],
+      ["kSensorCheckpointHistory", 232],
+      ["kSensorCheckpointOutputs", 233],
+      ["kSensorCheckpointMetadata", 234]
     ],
     "classifications": {
       "immutable": [
@@ -619,7 +625,11 @@
         "kPolicyScratchA",
         "kPolicyScratchB",
         "kPolicyActorMean",
-        "kCheckpointGeneralizedWarmState"
+        "kCheckpointGeneralizedWarmState",
+        "kSensorCheckpointStates",
+        "kSensorCheckpointHistory",
+        "kSensorCheckpointOutputs",
+        "kSensorCheckpointMetadata"
       ]
     },
     "persistent_inputs": [
@@ -755,10 +765,15 @@
         "CONTACT_DISPATCH",
         "CONTACTS",
         "CONTACT_STATUSES",
+        "WORLD_STATUSES",
         "STATES",
         "HISTORY",
         "OUTPUTS",
-        "METADATA"
+        "METADATA",
+        "CHECKPOINT_STATES",
+        "CHECKPOINT_HISTORY",
+        "CHECKPOINT_OUTPUTS",
+        "CHECKPOINT_METADATA"
       ]
     },
     {

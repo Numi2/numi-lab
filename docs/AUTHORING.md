@@ -163,9 +163,10 @@ latency selection.
 Presentation sensors still execute in the native renderer and tactile sensors
 still execute in the native tactile context. Folding those passes into the
 session schedule, dedicated contact-state/ray/LiDAR/IMU operators, recorder
-routing, sensor-native counter-based corruption, failure-transaction double
-buffering for every sensor history, and compiler dead-code elimination remain
-incomplete. Random corruption will be keyed by environment, episode, sensor,
+routing, sensor-native counter-based corruption, and compiler dead-code
+elimination remain incomplete. Native pose, twist, and force/torque histories
+already journal reset environments and restore on a rejected physics
+transaction. Random corruption will be keyed by environment, episode, sensor,
 sample, and channel.
 
 RGB, depth, identities, normals, and motion consume only authored Visual

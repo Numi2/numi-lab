@@ -87,10 +87,12 @@ Every accepted control transition follows one transaction:
 
 Overflow, invalid dispatch, factorization failure, or nonfinite output must keep
 the last committed state. Contact and physical-state publication satisfy that
-boundary. SensorIR still needs candidate/committed history buffers to preserve
-the prior pose/twist history when a transition resets and then fails; until
-that gate lands, the generated capability matrix must not claim fully atomic
-whole-session reset.
+boundary. SensorIR journals schedule state, history, compact output, and
+metadata only for environments requesting reset, then restores those bytes if
+the physics transaction rejects. Successful and ordinary non-reset steps pay
+no history-copy bandwidth. This closes the current pose, twist, and force/
+torque history boundary; it does not by itself qualify whole-session reset for
+TaskIR, actuators, tactile, or presentation state.
 
 ## Generated ABI
 

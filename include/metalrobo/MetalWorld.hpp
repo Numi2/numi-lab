@@ -390,10 +390,11 @@ struct MetalWorldStepConfig {
     // program owns reset, control, observation, reward, and termination
     // semantics without selecting a robot-specific shader path.
     CompiledTaskProgram taskProgram{};
-    // Optional canonical native sensor schedule. Parent-frame pose, world
-    // twist, and solver-authoritative contact-wrench sensors execute on the
-    // control timeline; unsupported domains fail validation instead of
-    // falling back to a parallel runtime.
+    // Optional canonical native sensor schedule, independent of whether a
+    // TaskIR program is installed. Parent-frame pose, world twist, and solver-
+    // authoritative contact-wrench sensors execute on the control timeline;
+    // unsupported domains fail validation instead of falling back to a
+    // parallel runtime.
     CompiledSensorProgram sensorProgram{};
     // Optional generic native inference program. With no policy program,
     // normalized actions remain an explicit learner/deployment input.
