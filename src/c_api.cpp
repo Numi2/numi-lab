@@ -2222,6 +2222,16 @@ uint64_t mr_task_rollout_visual_scene_fingerprint(
         : 0u;
 }
 
+uint32_t mr_task_rollout_impact_event_count(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle)
+        ? static_cast<uint32_t>(
+              handle->taskProgram.impactEvents().size()
+          )
+        : 0u;
+}
+
 const uint32_t* mr_task_rollout_status_codes(
     const MRTaskRolloutHandle* handle
 ) {

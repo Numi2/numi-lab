@@ -524,6 +524,8 @@ public struct MetalRoboTaskTransition: Sendable {
     public let episodeTrackingScore: Float
     public let curriculumLevel: UInt32
     public let terrainLevel: UInt32
+    public let impactSequenceIndex: UInt32
+    public let impactEventFlags: UInt32
 
     init(_ native: MRTaskTransitionC) {
         reward = native.reward
@@ -550,6 +552,8 @@ public struct MetalRoboTaskTransition: Sendable {
             native.episode_tracking_score
         curriculumLevel = native.curriculum_level
         terrainLevel = native.terrain_level
+        impactSequenceIndex = native.impact_sequence_index
+        impactEventFlags = native.impact_event_flags
     }
 }
 
@@ -793,6 +797,10 @@ public final class MetalRoboTaskRolloutContext {
 
     public var visualSceneFingerprint: UInt64 {
         mr_task_rollout_visual_scene_fingerprint(handle)
+    }
+
+    public var impactEventCount: UInt32 {
+        mr_task_rollout_impact_event_count(handle)
     }
 
     public func reset(seed: UInt64) throws {
@@ -1594,6 +1602,10 @@ public final class MetalRoboTaskRolloutContext {
             value.curriculum_level =
                 transition.curriculumLevel
             value.terrain_level = transition.terrainLevel
+            value.impact_sequence_index =
+                transition.impactSequenceIndex
+            value.impact_event_flags =
+                transition.impactEventFlags
             return value
         }
         let status = withUnsafeFloatBuffers(

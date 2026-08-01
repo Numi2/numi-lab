@@ -55,8 +55,8 @@ _TRANSITION_DTYPE = np.dtype(
         ("episode_tracking_score", "<f4"),
         ("curriculum_level", "<u4"),
         ("terrain_level", "<u4"),
-        ("reserved_0", "<u4"),
-        ("reserved_1", "<u4"),
+        ("impact_sequence_index", "<u4"),
+        ("impact_event_flags", "<u4"),
     ],
     align=False,
 )

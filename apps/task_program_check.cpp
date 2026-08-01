@@ -481,7 +481,7 @@ int main() {
                 ballRecoveryStatus.task.message
             );
         }
-        if (compiledBallRecovery.task.header().counts2.y != 73u ||
+        if (compiledBallRecovery.task.header().counts2.y != 67u ||
             compiledBallRecovery.task.layout().actorObservationSize != 140u ||
             compiledBallRecovery.task.layout().criticObservationSize != 148u ||
             compiledBallRecovery.task.layout().contactMetricCount != 43u ||
@@ -510,7 +510,6 @@ int main() {
         }
         std::uint32_t stagedImpactVelocities = 0u;
         std::uint32_t baseLaunchSchedules = 0u;
-        std::uint32_t heavyLaunchSchedules = 0u;
         for (const MRTaskRandomizationOperatorGPU& operation :
              compiledBallRecovery.task.randomizationOperators()) {
             if (operation.target.x ==
@@ -523,15 +522,31 @@ int main() {
                     MR_TASK_RANDOMIZE_SCENE_BODY_LAUNCH_STEP) {
                 if (operation.target.w == 0u) {
                     ++baseLaunchSchedules;
-                } else if (operation.target.w == 1u) {
-                    ++heavyLaunchSchedules;
                 }
             }
         }
         if (stagedImpactVelocities != 18u ||
-            baseLaunchSchedules != 6u ||
-            heavyLaunchSchedules != 6u) {
+            baseLaunchSchedules != 6u) {
             fail("G1 physical-ball curriculum is incomplete");
+        }
+        const auto impactEvents =
+            compiledBallRecovery.task.impactEvents();
+        if (impactEvents.size() != 6u ||
+            compiledBallRecovery.task.header().counts3.x != 6u) {
+            fail("G1 event-driven impact sequence is incomplete");
+        }
+        for (std::uint32_t impact = 0u;
+             impact < impactEvents.size();
+             ++impact) {
+            const MRTaskImpactEventGPU& event = impactEvents[impact];
+            if (event.binding.y != impact ||
+                event.binding.z != 1u ||
+                event.gate.x != 0.05f ||
+                event.gate.y != 0.50f ||
+                event.gate.z != 2.0f ||
+                event.gate.w != 0.70f) {
+                fail("G1 event-driven impact gates changed");
+            }
         }
         metalrobo::LocomotionWorld disturbed = authored;
         const std::array disturbanceSpheres{

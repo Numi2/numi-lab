@@ -133,6 +133,16 @@ private func fingerprint(
             byteCount: 4,
             into: &hash
         )
+        fingerprintWord(
+            UInt64(transition.impactSequenceIndex),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.impactEventFlags),
+            byteCount: 4,
+            into: &hash
+        )
     }
 }
 
@@ -782,6 +792,27 @@ private enum TaskRolloutMain {
             var energyRewardSum = 0.0
             var contactRewardSum = 0.0
             var terminationReasonCounts: [String: Int] = [:]
+            let impactSpheres =
+                options.unitreeG1Task == .ballDisturbanceRecovery &&
+                options.dynamicSpheres.isEmpty
+                ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
+                : options.dynamicSpheres
+            var impactTouches = [Int](
+                repeating: 0,
+                count: impactSpheres.count
+            )
+            var impactRecoveries = impactTouches
+            var impactMisses = impactTouches
+            var impactActiveSteps = impactTouches
+            var impactPeakTilt = [Double](
+                repeating: 0.0,
+                count: impactSpheres.count
+            )
+            var impactMinimumHeight = [Double](
+                repeating: .infinity,
+                count: impactSpheres.count
+            )
+            var impactSequenceEnabledSteps = 0
             var policyRolloutFingerprint:
                 UInt64 = 1_469_598_103_934_665_603
             var collectedPolicyBatches:
@@ -950,6 +981,34 @@ private enum TaskRolloutMain {
                             Double(transition.energyReward)
                         contactRewardSum +=
                             Double(transition.contactReward)
+                        if transition.impactSequenceIndex > 0 {
+                            let impact = Int(
+                                transition.impactSequenceIndex - 1
+                            )
+                            if impact < impactSpheres.count {
+                                impactActiveSteps[impact] += 1
+                                impactPeakTilt[impact] = max(
+                                    impactPeakTilt[impact],
+                                    Double(transition.tilt)
+                                )
+                                impactMinimumHeight[impact] = min(
+                                    impactMinimumHeight[impact],
+                                    Double(transition.rootHeight)
+                                )
+                                if transition.impactEventFlags & 1 != 0 {
+                                    impactTouches[impact] += 1
+                                }
+                                if transition.impactEventFlags & 2 != 0 {
+                                    impactRecoveries[impact] += 1
+                                }
+                                if transition.impactEventFlags & 4 != 0 {
+                                    impactMisses[impact] += 1
+                                }
+                            }
+                        }
+                        if transition.impactEventFlags & 8 != 0 {
+                            impactSequenceEnabledSteps += 1
+                        }
                         if transition.done {
                             terminationCount += 1
                             let reason = String(
@@ -1053,6 +1112,22 @@ private enum TaskRolloutMain {
                 options.environments *
                 options.steps *
                 options.repeats
+            let impactMetrics: [[String: Any]] =
+                impactSpheres.indices.map { impact in
+                    [
+                        "sequence_index": impact + 1,
+                        "mass_kg": impactSpheres[impact].mass,
+                        "touch_count": impactTouches[impact],
+                        "recovery_count": impactRecoveries[impact],
+                        "miss_count": impactMisses[impact],
+                        "active_steps": impactActiveSteps[impact],
+                        "peak_tilt": impactPeakTilt[impact],
+                        "minimum_root_height":
+                            impactMinimumHeight[impact].isFinite
+                            ? impactMinimumHeight[impact]
+                            : 0.0,
+                    ]
+                }
             let output: [String: Any] = [
                 "benchmark": "swift_native_task_rollout",
                 "world_source": worldSource,
@@ -1075,6 +1150,11 @@ private enum TaskRolloutMain {
                     options.dynamicSpheres.isEmpty
                     ? MetalRoboDynamicSphere.g1BallRecoveryDefaults.count
                     : options.dynamicSpheres.count,
+                "impact_sequence_metrics": impactMetrics,
+                "impact_sequence_enabled_steps":
+                    impactSequenceEnabledSteps,
+                "compiled_impact_event_count":
+                    context.impactEventCount,
                 "visual_observation":
                     visualObservation != nil,
                 "visual_scene_fingerprint":

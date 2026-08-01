@@ -9,6 +9,34 @@ namespace {
 
 constant float kPi = 3.14159265358979323846f;
 constant float kTwoPi = 2.0f * kPi;
+constant uint kImpactOrderMask = 0xffu;
+constant uint kImpactSceneShift = 8u;
+constant uint kImpactSceneMask = 0xffu << kImpactSceneShift;
+constant uint kImpactEnabled = 1u << 16u;
+constant uint kImpactOffsetShift = 17u;
+constant uint kImpactOffsetMask = 0xffu << kImpactOffsetShift;
+
+inline uint impactOrder(thread const MRTaskStateGPU& state) {
+    return state.recoveryStats.w & kImpactOrderMask;
+}
+
+inline uint impactScene(thread const MRTaskStateGPU& state) {
+    return
+        (state.recoveryStats.w & kImpactSceneMask) >>
+        kImpactSceneShift;
+}
+
+inline bool impactSequenceEnabled(
+    thread const MRTaskStateGPU& state
+) {
+    return (state.recoveryStats.w & kImpactEnabled) != 0u;
+}
+
+inline uint impactOffset(thread const MRTaskStateGPU& state) {
+    return
+        (state.recoveryStats.w & kImpactOffsetMask) >>
+        kImpactOffsetShift;
+}
 template <typename T>
 inline device const T* taskTable(
     device const uchar* arena,
@@ -489,8 +517,9 @@ inline float cleanObservation(
             (object.flagsAndIndices[3] &
              MR_BODY_STATE_LAUNCH_STEP_MASK) >>
             MR_BODY_STATE_LAUNCH_STEP_SHIFT;
-        const bool visible =
-            launchStep == 0u || state.episode.x >= launchStep;
+        const bool visible = impactSequenceEnabled(state)
+            ? impactScene(state) == operation.source.y + 1u
+            : launchStep == 0u || state.episode.x >= launchStep;
         if (operation.source.z == 0u) {
             value = visible ? 1.0f : 0.0f;
             break;
@@ -914,6 +943,11 @@ kernel void mr_locomotion_task_observe(
         taskTable<float4>(arena, program.offsets3.x);
     device const float4* commandCurriculum =
         taskTable<float4>(arena, program.offsets3.y);
+    device const MRTaskImpactEventGPU* impactEvents =
+        taskTable<MRTaskImpactEventGPU>(
+            arena,
+            program.offsets3.z
+        );
 
     const uint maskIndex =
         pass.controlStep * dispatch.counts.x + environment;
@@ -947,6 +981,12 @@ kernel void mr_locomotion_task_observe(
         program.schedule.z - 1u
     );
     state.episode.z = globalCurriculum;
+    const bool eventSequenceAvailable =
+        program.counts3.x > 0u &&
+        globalCurriculum >= impactEvents[0].binding.z;
+    state.recoveryStats.w = eventSequenceAvailable
+        ? state.recoveryStats.w | kImpactEnabled
+        : state.recoveryStats.w & ~kImpactEnabled;
     const bool reset =
         state.status.x == 0u ||
         state.status.y != 0u ||
@@ -1417,6 +1457,39 @@ kernel void mr_locomotion_task_observe(
         );
         state.recovery = float4(0.0f);
         state.recoveryStats = uint4(0u);
+        for (uint impact = 0u;
+             impact < program.counts3.x;
+             ++impact) {
+            const MRTaskImpactEventGPU event =
+                impactEvents[impact];
+            if (curriculum < event.binding.z) {
+                continue;
+            }
+            state.recoveryStats.w |= kImpactEnabled;
+            device MRBodyStateGPU& held = resetScene[
+                sceneBase + event.binding.x
+            ];
+            held.linearVelocityAndInverseMass.xyz =
+                float3(0.0f);
+            held.angularVelocity = float4(0.0f);
+        }
+        if (impactSequenceEnabled(state)) {
+            const uint count = program.counts3.x;
+            const uint offset = min(
+                uint(floor(
+                    float(count) * randomUnit(
+                        dispatch,
+                        environment,
+                        episode,
+                        0u,
+                        3072u
+                    )
+                )),
+                count - 1u
+            );
+            state.recoveryStats.w |=
+                offset << kImpactOffsetShift;
+        }
 
         device float* firstActor =
             actorHistory + historyBase;
@@ -1503,7 +1576,97 @@ kernel void mr_locomotion_task_observe(
         }
     }
 
-    if (!reset) {
+    if (!reset && eventSequenceAvailable) {
+        const uint order = impactOrder(state);
+        uint activeScene = impactScene(state);
+        bool newlyLaunched = false;
+        if (order < program.counts3.x) {
+            const uint eventIndex =
+                (order + impactOffset(state)) %
+                program.counts3.x;
+            const MRTaskImpactEventGPU event =
+                impactEvents[eventIndex];
+            if (activeScene == 0u) {
+                const bool stable =
+                    state.recovery.w <= 0.5f &&
+                    state.recovery.x <= event.gate.x &&
+                    rootHeight(program, sourceQ + qBase) >=
+                        event.gate.w;
+                state.status.w = stable
+                    ? state.status.w + 1u
+                    : 0u;
+                if (float(state.status.w) * dispatch.timing.x >=
+                    event.gate.y) {
+                    activeScene = event.binding.x + 1u;
+                    state.recoveryStats.w =
+                        (state.recoveryStats.w &
+                         ~(kImpactSceneMask)) |
+                        (activeScene << kImpactSceneShift);
+                    state.status.w = 0u;
+                    newlyLaunched = true;
+                }
+            } else {
+                state.status.w += 1u;
+            }
+        }
+        for (uint impact = 0u;
+             impact < program.counts3.x;
+             ++impact) {
+            const MRTaskImpactEventGPU event =
+                impactEvents[impact];
+            const uint currentEvent =
+                order < program.counts3.x
+                ? (order + impactOffset(state)) %
+                    program.counts3.x
+                : MR_INVALID_INDEX;
+            if (state.episode.z < event.binding.z ||
+                (impact == currentEvent &&
+                 activeScene != 0u &&
+                 !newlyLaunched)) {
+                continue;
+            }
+            MRBodyStateGPU scheduled = resetScene[
+                sceneBase + event.binding.x
+            ];
+            scheduled.linearVelocityAndInverseMass.xyz =
+                float3(0.0f);
+            scheduled.angularVelocity = float4(0.0f);
+            if (impact == currentEvent && newlyLaunched) {
+                const MRBodyStateGPU initial = initialScene[
+                    sceneBase + event.binding.x
+                ];
+                scheduled.linearVelocityAndInverseMass.xyz =
+                    initial.linearVelocityAndInverseMass.xyz;
+                scheduled.angularVelocity = initial.angularVelocity;
+                for (uint index = 0u;
+                     index < program.counts2.y;
+                     ++index) {
+                    const MRTaskRandomizationOperatorGPU operation =
+                        randomization[index];
+                    if (operation.target.x !=
+                            MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY ||
+                        operation.target.y != event.binding.x ||
+                        state.episode.z < operation.target.w) {
+                        continue;
+                    }
+                    scheduled.linearVelocityAndInverseMass[
+                        operation.target.z
+                    ] = randomRange(
+                        dispatch,
+                        environment,
+                        state.episode.y,
+                        0u,
+                        2048u + index,
+                        operation.parameters.x,
+                        operation.parameters.y
+                    );
+                }
+            }
+            sourceScene[
+                sceneBase + event.binding.x
+            ] = scheduled;
+        }
+    } else if (!reset) {
         for (uint localScene = 0u;
              localScene < dispatch.strides.w;
              ++localScene) {
@@ -1864,6 +2027,11 @@ kernel void mr_locomotion_task_complete(
         taskTable<float4>(arena, program.offsets2.w);
     device const float4* commandCurriculum =
         taskTable<float4>(arena, program.offsets3.y);
+    device const MRTaskImpactEventGPU* impactEvents =
+        taskTable<MRTaskImpactEventGPU>(
+            arena,
+            program.offsets3.z
+        );
 
     const uint qBase = environment * dispatch.counts.z;
     const uint vBase = environment * dispatch.counts.w;
@@ -2295,12 +2463,18 @@ kernel void mr_locomotion_task_complete(
     }
     const bool recoveryActiveBefore = state.recovery.w > 0.5f;
     const bool recoveryTouchBefore = state.recoveryStats.z != 0u;
+    const bool eventSequenceAvailable =
+        program.counts3.x > 0u &&
+        curriculum >= impactEvents[0].binding.z;
     const bool recoveryActivated =
         recoveryConfigured &&
         !recoveryActiveBefore &&
-        ((recoveryTouch && !recoveryTouchBefore) ||
-         (state.recovery.x < recoveryActivationTilt &&
-          tilt >= recoveryActivationTilt));
+        (eventSequenceAvailable
+            ? impactScene(state) != 0u &&
+                recoveryTouch && !recoveryTouchBefore
+            : (recoveryTouch && !recoveryTouchBefore) ||
+                (state.recovery.x < recoveryActivationTilt &&
+                 tilt >= recoveryActivationTilt));
     const bool recoveryActive =
         recoveryActiveBefore || recoveryActivated;
     const float recoveryPeakTilt = recoveryActive
@@ -2322,6 +2496,41 @@ kernel void mr_locomotion_task_complete(
         state.recoveryStats.x + uint(recoveryActivated);
     const uint recoveryCompletionCount =
         state.recoveryStats.y + uint(recoveryCompleted);
+    const uint activeImpactScene = impactScene(state);
+    const uint activeImpactOrder = impactOrder(state);
+    uint activeImpactEvent = MR_INVALID_INDEX;
+    if (activeImpactScene != 0u &&
+        activeImpactOrder < program.counts3.x) {
+        activeImpactEvent =
+            (activeImpactOrder + impactOffset(state)) %
+            program.counts3.x;
+    }
+    uint impactTransitionFlags =
+        eventSequenceAvailable
+        ? MR_TASK_IMPACT_SEQUENCE_ENABLED
+        : 0u;
+    impactTransitionFlags |=
+        activeImpactScene != 0u &&
+        recoveryActivated
+        ? MR_TASK_IMPACT_TOUCH
+        : 0u;
+    bool missedImpact = false;
+    if (eventSequenceAvailable &&
+        activeImpactScene != 0u &&
+        impactOrder(state) < program.counts3.x) {
+        const MRTaskImpactEventGPU event =
+            impactEvents[activeImpactEvent];
+        missedImpact =
+            !recoveryActive &&
+            float(state.status.w) * dispatch.timing.x >=
+                event.gate.z;
+    }
+    if (recoveryCompleted) {
+        impactTransitionFlags |= MR_TASK_IMPACT_RECOVERED;
+    }
+    if (missedImpact) {
+        impactTransitionFlags |= MR_TASK_IMPACT_MISSED;
+    }
     float reward = 0.0f;
     float4 rewardBreakdown0 = float4(0.0f);
     float4 rewardBreakdown1 = float4(0.0f);
@@ -2969,13 +3178,25 @@ kernel void mr_locomotion_task_complete(
               recoveryCompleted ? 0.0f : recoveryStableTime,
               recoveryActive && !recoveryCompleted ? 1.0f : 0.0f
           );
+    uint impactState = state.recoveryStats.w;
+    if (recoveryCompleted || missedImpact) {
+        const uint nextOrder = min(
+            impactOrder(state) + 1u,
+            kImpactOrderMask
+        );
+        impactState =
+            (impactState & kImpactOffsetMask) |
+            kImpactEnabled |
+            nextOrder;
+        state.status.w = 0u;
+    }
     state.recoveryStats = done
         ? uint4(0u)
         : uint4(
               recoveryEventCount,
               recoveryCompletionCount,
               recoveryTouch ? 1u : 0u,
-              0u
+              impactState
           );
 
     if (!done || (timeout && !physicsError)) {
@@ -3176,8 +3397,10 @@ kernel void mr_locomotion_task_complete(
     transition.taskProgress = uint4(
         curriculum,
         terrainLevel,
-        0u,
-        0u
+        activeImpactEvent == MR_INVALID_INDEX
+            ? 0u
+            : activeImpactEvent + 1u,
+        impactTransitionFlags
     );
     transitions[transitionIndex] = transition;
 }
@@ -3257,8 +3480,8 @@ kernel void mr_locomotion_task_update_curriculum(
         transition.taskProgress = uint4(
             level,
             transition.taskProgress.y,
-            0u,
-            0u
+            transition.taskProgress.z,
+            transition.taskProgress.w
         );
     }
 }

@@ -179,7 +179,10 @@ typedef struct MRTaskTransitionC {
     float episode_tracking_score;
     uint32_t curriculum_level;
     uint32_t terrain_level;
-    uint32_t reserved[2];
+    // One-based authored impact-sequence index, or zero outside an event.
+    uint32_t impact_sequence_index;
+    // MR_TASK_IMPACT_* transition flags.
+    uint32_t impact_event_flags;
 } MRTaskTransitionC;
 
 typedef enum MRPolicyActivationC {
@@ -560,6 +563,9 @@ MR_API const char* mr_task_rollout_device_name(
 );
 // Returns zero when no Visual Presentation scene is attached.
 MR_API uint64_t mr_task_rollout_visual_scene_fingerprint(
+    const MRTaskRolloutHandle* handle
+);
+MR_API uint32_t mr_task_rollout_impact_event_count(
     const MRTaskRolloutHandle* handle
 );
 // Diagnostic status spans alias handle-owned publication memory until the

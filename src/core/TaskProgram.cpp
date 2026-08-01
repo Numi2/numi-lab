@@ -34,6 +34,7 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskTerminationOperatorGPU> terminationOperators;
     std::vector<MRTaskRandomizationOperatorGPU>
         randomizationOperators;
+    std::vector<MRTaskImpactEventGPU> impactEvents;
     std::vector<MRTaskBiasSpecGPU> biasSpecs;
     std::vector<mr_float4> terrainSampleOffsets;
     std::vector<mr_float4> terrainResetTranslations;
@@ -440,6 +441,15 @@ CompiledTaskProgram::randomizationOperators() const noexcept {
               storage_->randomizationOperators
           }
         : std::span<const MRTaskRandomizationOperatorGPU>{};
+}
+
+std::span<const MRTaskImpactEventGPU>
+CompiledTaskProgram::impactEvents() const noexcept {
+    return valid()
+        ? std::span<const MRTaskImpactEventGPU>{
+              storage_->impactEvents
+          }
+        : std::span<const MRTaskImpactEventGPU>{};
 }
 
 std::span<const MRTaskBiasSpecGPU>
@@ -1545,6 +1555,7 @@ TaskCompileDiagnostics compileTaskProgram(
         }
         std::uint32_t targetIndex = MR_INVALID_INDEX;
         mr_float4 compiledParameters = random.parameters;
+        bool impactEvent = false;
         switch (random.operation) {
         case TaskRandomizationOperator::bodyParameter:
             targetIndex = namedGroup(
@@ -1711,7 +1722,8 @@ TaskCompileDiagnostics compileTaskProgram(
         }
         case TaskRandomizationOperator::sceneBodyPosition:
         case TaskRandomizationOperator::sceneBodyVelocity:
-        case TaskRandomizationOperator::sceneBodyLaunchStep: {
+        case TaskRandomizationOperator::sceneBodyLaunchStep:
+        case TaskRandomizationOperator::sceneBodyEventImpact: {
             bool ambiguous = false;
             const std::uint32_t body = uniqueIndex(
                 model.bodyNames,
@@ -1757,6 +1769,20 @@ TaskCompileDiagnostics compileTaskProgram(
                         "scene launch-step range exceeds its packed capacity"
                     );
                 }
+            } else if (random.operation ==
+                       TaskRandomizationOperator::sceneBodyEventImpact) {
+                if (random.component >= 256u ||
+                    random.parameters.x < 0.0f ||
+                    !(random.parameters.y > 0.0f) ||
+                    !(random.parameters.z > 0.0f) ||
+                    !(random.parameters.w > 0.0f)) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        random.target,
+                        "event impact requires a byte-sized order, nonnegative stable tilt, and positive stable, flight, and height gates"
+                    );
+                }
+                impactEvent = true;
             } else if (random.component >= 3u ||
                        !orderedRange(random.parameters)) {
                 return reject(
@@ -1798,15 +1824,70 @@ TaskCompileDiagnostics compileTaskProgram(
                 "randomization opcode is unsupported"
             );
         }
-        staged->randomizationOperators.push_back({
-            {
-                static_cast<std::uint32_t>(random.operation),
-                targetIndex,
-                random.component,
-                random.minimumCurriculumLevel,
-            },
-            compiledParameters,
-        });
+        if (impactEvent) {
+            const auto duplicate = std::find_if(
+                staged->impactEvents.begin(),
+                staged->impactEvents.end(),
+                [&random](const MRTaskImpactEventGPU& event) {
+                    return event.binding.y == random.component;
+                }
+            );
+            if (duplicate != staged->impactEvents.end()) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    random.target,
+                    "event impact sequence order is duplicated"
+                );
+            }
+            staged->impactEvents.push_back({
+                {
+                    targetIndex,
+                    random.component,
+                    random.minimumCurriculumLevel,
+                    0u,
+                },
+                compiledParameters,
+            });
+        } else {
+            staged->randomizationOperators.push_back({
+                {
+                    static_cast<std::uint32_t>(random.operation),
+                    targetIndex,
+                    random.component,
+                    random.minimumCurriculumLevel,
+                },
+                compiledParameters,
+            });
+        }
+    }
+
+    std::sort(
+        staged->impactEvents.begin(),
+        staged->impactEvents.end(),
+        [](const MRTaskImpactEventGPU& lhs,
+           const MRTaskImpactEventGPU& rhs) {
+            return lhs.binding.y < rhs.binding.y;
+        }
+    );
+    for (std::size_t index = 0u;
+         index < staged->impactEvents.size();
+         ++index) {
+        if (staged->impactEvents[index].binding.y != index) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "event_impacts",
+                "event impact sequence orders must be contiguous from zero"
+            );
+        }
+        if (index != 0u &&
+            staged->impactEvents[index].binding.z !=
+                staged->impactEvents[0].binding.z) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "event_impacts",
+                "one event impact sequence must share one minimum curriculum level"
+            );
+        }
     }
 
     std::uint32_t terrainSceneBody = MR_INVALID_INDEX;
@@ -2081,6 +2162,9 @@ TaskCompileDiagnostics compileTaskProgram(
         0.0f,
         0.0f,
     };
+    staged->header.counts3.x = static_cast<std::uint32_t>(
+        staged->impactEvents.size()
+    );
     staged->header.articulation = {
         articulation.firstBody,
         articulation.bodyCount,
@@ -2201,7 +2285,11 @@ TaskCompileDiagnostics compileTaskProgram(
                 staged->commandCurriculum
             }
         ),
-        0u,
+        appendArena(
+            std::span<const MRTaskImpactEventGPU>{
+                staged->impactEvents
+            }
+        ),
         0u,
     };
     const std::array offsets{

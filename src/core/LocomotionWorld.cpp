@@ -1444,18 +1444,6 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
         {{475.0f, 525.0f}},
         {{575.0f, 625.0f}},
     }};
-    // At the first curriculum level, overlapping stratified windows prevent
-    // early light-impact failures from starving the learner of heavy-impact
-    // experience. Level zero retains the staged deployment sequence.
-    constexpr std::array<std::array<float, 2>, 6>
-        heavyExposureLaunchSteps{{
-            {{ 75.0f, 325.0f}},
-            {{100.0f, 350.0f}},
-            {{125.0f, 375.0f}},
-            {{150.0f, 400.0f}},
-            {{175.0f, 425.0f}},
-            {{200.0f, 450.0f}},
-    }};
     for (std::uint32_t sphere = 0u; sphere < 6u; ++sphere) {
         const std::string name =
             "locomotion_dynamic_sphere_" + std::to_string(sphere);
@@ -1512,13 +1500,13 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
             },
         });
         task.randomization.push_back({
-            .operation = TaskRandomizationOperator::sceneBodyLaunchStep,
+            .operation =
+                TaskRandomizationOperator::sceneBodyEventImpact,
             .target = name,
+            .component = sphere,
             .minimumCurriculumLevel = 1u,
             .parameters = {
-                heavyExposureLaunchSteps[sphere][0],
-                heavyExposureLaunchSteps[sphere][1],
-                0.0f, 0.0f,
+                0.05f, 0.50f, 2.0f, 0.70f,
             },
         });
     }

@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 11u
+#define MR_TASK_PROGRAM_ABI_VERSION 12u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -115,6 +115,16 @@ enum MRTaskRandomizationOpcode : mr_u32 {
     MR_TASK_RANDOMIZE_SCENE_BODY_POSITION = 13u,
     MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY = 14u,
     MR_TASK_RANDOMIZE_SCENE_BODY_LAUNCH_STEP = 15u,
+    // Event-driven physical impact sequence. The compiler resolves these into
+    // a dedicated immutable table; reset randomization never executes them.
+    MR_TASK_RANDOMIZE_SCENE_BODY_EVENT_IMPACT = 16u,
+};
+
+enum MRTaskImpactTransitionFlags : mr_u32 {
+    MR_TASK_IMPACT_TOUCH = 1u << 0u,
+    MR_TASK_IMPACT_RECOVERED = 1u << 1u,
+    MR_TASK_IMPACT_MISSED = 1u << 2u,
+    MR_TASK_IMPACT_SEQUENCE_ENABLED = 1u << 3u,
 };
 
 // Per-submission dimensions and attribution. Every stride is in elements.
@@ -142,6 +152,8 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // termination operators, randomization operators, bias slots,
     // terrain-sample offsets.
     mr_uint4 counts2;
+    // Impact events and reserved compiled-table counts.
+    mr_uint4 counts3;
     // actor frame, history length, contact metric count, delay-state count.
     mr_uint4 layout;
     // articulation, root body, root q offset, root v offset.
@@ -158,7 +170,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_float4 commandUpper;
     // command duration min/max and push interval min/max, seconds.
     mr_float4 scheduleSeconds;
-    // push velocity magnitude, contact force threshold, reserved, reserved.
+    // Push velocity, contact threshold, reserved, reserved.
     mr_float4 dynamics;
     // Byte offsets in the immutable packed task arena:
     // action bindings, actor operators, critic operators, contact groups.
@@ -168,7 +180,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // termination operators, randomization operators, bias specs, terrain
     // samples.
     mr_uint4 offsets2;
-    // terrain reset profiles and reserved offsets.
+    // Terrain reset profiles, command curriculum, impact events, reserved.
     mr_uint4 offsets3;
     mr_u64 taskFingerprint;
     mr_u64 worldFingerprint;
@@ -233,6 +245,13 @@ typedef struct MR_ALIGN16 MRTaskRandomizationOperatorGPU {
     mr_float4 parameters;
 } MRTaskRandomizationOperatorGPU;
 
+typedef struct MR_ALIGN16 MRTaskImpactEventGPU {
+    // Scene-body local index, sequence order, minimum curriculum, reserved.
+    mr_uint4 binding;
+    // Stable tilt, stable seconds, maximum flight seconds, minimum height.
+    mr_float4 gate;
+} MRTaskImpactEventGPU;
+
 typedef struct MR_ALIGN16 MRTaskBiasSpecGPU {
     // lower, upper, reserved, reserved.
     mr_float4 range;
@@ -291,7 +310,7 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 304u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 320u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
@@ -299,6 +318,7 @@ static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);
 static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
+static_assert(sizeof(MRTaskImpactEventGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 112u);
 static_assert(sizeof(MRTaskCurriculumStateGPU) == 48u);

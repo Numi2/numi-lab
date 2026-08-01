@@ -107,6 +107,8 @@ enum class TaskRandomizationOperator : std::uint32_t {
     sceneBodyPosition = MR_TASK_RANDOMIZE_SCENE_BODY_POSITION,
     sceneBodyVelocity = MR_TASK_RANDOMIZE_SCENE_BODY_VELOCITY,
     sceneBodyLaunchStep = MR_TASK_RANDOMIZE_SCENE_BODY_LAUNCH_STEP,
+    sceneBodyEventImpact =
+        MR_TASK_RANDOMIZE_SCENE_BODY_EVENT_IMPACT,
 };
 
 struct TaskActionBinding {
@@ -313,6 +315,8 @@ public:
     terminationOperators() const noexcept;
     [[nodiscard]] std::span<const MRTaskRandomizationOperatorGPU>
     randomizationOperators() const noexcept;
+    [[nodiscard]] std::span<const MRTaskImpactEventGPU>
+    impactEvents() const noexcept;
     [[nodiscard]] std::span<const MRTaskBiasSpecGPU>
     biasSpecs() const noexcept;
     [[nodiscard]] std::span<const mr_float4>

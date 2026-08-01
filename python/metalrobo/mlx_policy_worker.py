@@ -317,6 +317,30 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
         ],
         return_counts=True,
     )
+    impact_metrics: list[dict[str, Any]] = []
+    maximum_impact = int(
+        np.max(transitions["impact_sequence_index"], initial=0)
+    )
+    for sequence_index in range(1, maximum_impact + 1):
+        selected = (
+            transitions["impact_sequence_index"] == sequence_index
+        )
+        flags = transitions["impact_event_flags"][selected]
+        impact_metrics.append(
+            {
+                "sequence_index": sequence_index,
+                "active_steps": int(np.sum(selected)),
+                "touch_count": int(np.sum((flags & 1) != 0)),
+                "recovery_count": int(np.sum((flags & 2) != 0)),
+                "miss_count": int(np.sum((flags & 4) != 0)),
+                "peak_tilt": float(
+                    np.max(transitions["tilt"][selected])
+                ),
+                "minimum_root_height": float(
+                    np.min(transitions["root_height"][selected])
+                ),
+            }
+        )
     return {
         "mean_reward": float(np.mean(rewards)),
         "reward_standard_deviation": float(np.std(rewards)),
@@ -359,6 +383,7 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
             str(int(reason)): int(count)
             for reason, count in zip(reasons, counts, strict=True)
         },
+        "impact_sequence_metrics": impact_metrics,
     }
 
 
