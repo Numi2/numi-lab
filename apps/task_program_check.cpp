@@ -43,6 +43,9 @@ public:
         borrowedRollout = directory /
             ("metalrobo_task_program_check_" + suffix +
              ".borrowed.rolloutpack");
+        world = directory /
+            ("metalrobo_task_program_check_" + suffix +
+             ".worldpack");
     }
 
     ~TemporaryPackFiles() {
@@ -51,12 +54,14 @@ public:
         std::filesystem::remove(policy, ignored);
         std::filesystem::remove(rollout, ignored);
         std::filesystem::remove(borrowedRollout, ignored);
+        std::filesystem::remove(world, ignored);
     }
 
     std::filesystem::path task;
     std::filesystem::path policy;
     std::filesystem::path rollout;
     std::filesystem::path borrowedRollout;
+    std::filesystem::path world;
 };
 
 [[noreturn]] void fail(const std::string& message) {
@@ -2808,11 +2813,38 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     };
 }
 
-std::uint64_t checkWorldPackSimulationImport() {
+std::uint64_t checkWorldPackSimulationImport(
+    const std::filesystem::path& path
+) {
+    metalrobo::EpisodeTwin episode =
+        metalrobo::makeFrankaPickPlaceEpisodeTwin();
+    const auto wristSensor = std::find_if(
+        episode.sensors.begin(),
+        episode.sensors.end(),
+        [](const metalrobo::SensorSpec& sensor) {
+            return sensor.id == "wrist_rgbd";
+        }
+    );
+    if (wristSensor == episode.sensors.end() ||
+        wristSensor->parentBodyIndex == MR_INVALID_INDEX) {
+        fail("WorldPack IMU fixture has no resolved robot link");
+    }
+    episode.sensors.push_back({
+        .id = "franka_worldpack_imu",
+        .parentAssetId = episode.task.robotAssetId,
+        .parentKind =
+            MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+        .parentBodyIndex = wristSensor->parentBodyIndex,
+        .kind = MR_WORLD_SENSOR_IMU,
+        .nominalRateHz = 50.0f,
+        .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+        .historyLength = 2u,
+        .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
+    });
     metalrobo::WorldTemplate worldTemplate;
     const metalrobo::WorldCompileResult templateStatus =
         metalrobo::compileEpisodeTwin(
-            metalrobo::makeFrankaPickPlaceEpisodeTwin(),
+            episode,
             metalrobo::makeFrankaPickPlaceEngineModel(),
             worldTemplate
         );
@@ -2826,16 +2858,27 @@ std::uint64_t checkWorldPackSimulationImport() {
     metalrobo::MRWorldPack pack;
     const metalrobo::WorldPackResult packStatus =
         metalrobo::compileWorldPack(family, pack);
+    const metalrobo::WorldPackResult writeStatus =
+        packStatus.succeeded()
+        ? metalrobo::writeWorldPack(pack, path)
+        : packStatus;
+    metalrobo::MRWorldPack loaded;
+    const metalrobo::WorldPackResult readStatus =
+        writeStatus.succeeded()
+        ? metalrobo::readWorldPack(path, loaded)
+        : writeStatus;
     if (!templateStatus.succeeded() ||
         !familyStatus.succeeded() ||
-        !packStatus.succeeded()) {
+        !packStatus.succeeded() ||
+        !writeStatus.succeeded() ||
+        !readStatus.succeeded()) {
         fail("WorldPack simulation fixture did not compile");
     }
     metalrobo::TaskPack task;
     task.id = "world_pack_import_fixture";
     const metalrobo::SimulationDescription imported =
         metalrobo::makeWorldPackSimulation(
-            pack,
+            loaded,
             std::move(task)
         );
     const auto expectedScene =
@@ -2850,16 +2893,53 @@ std::uint64_t checkWorldPackSimulationImport() {
                 state.inverseInertiaWorldRow0.x > 0.0f;
         }
     );
+    const auto importedImu = std::find_if(
+        imported.sensors.begin(),
+        imported.sensors.end(),
+        [](const metalrobo::SensorSpec& sensor) {
+            return sensor.id == "franka_worldpack_imu";
+        }
+    );
+    metalrobo::CompiledWorld compiledWorld;
+    const auto worldStatus = metalrobo::compileMetalWorld(
+        imported.model,
+        imported.articulationIndex,
+        compiledWorld
+    );
+    metalrobo::CompiledSensorProgram compiledSensors;
+    const auto sensorStatus = worldStatus.succeeded()
+        ? metalrobo::compileSensorProgram(
+              imported.sensors,
+              imported.tactileSystem,
+              compiledWorld,
+              compiledSensors
+          )
+        : metalrobo::SensorCompileDiagnostics{
+              .status =
+                  metalrobo::SensorCompileStatus::invalidWorld,
+          };
+    const std::uint32_t compiledImu =
+        compiledSensors.sensorIndex("franka_worldpack_imu");
     if (imported.articulationIndex != 0u ||
         imported.model.bodies.size() !=
             family.worldTemplate.engineModel.bodies.size() ||
         imported.sceneBodies.size() != expectedScene.size() ||
-        !hasDynamicMass) {
+        !hasDynamicMass ||
+        importedImu == imported.sensors.end() ||
+        importedImu->parentKind !=
+            MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK ||
+        importedImu->parentBodyIndex == MR_INVALID_INDEX ||
+        !worldStatus.succeeded() ||
+        !sensorStatus.succeeded() ||
+        compiledImu == MR_INVALID_INDEX ||
+        compiledSensors.descriptors()[compiledImu].identity.x !=
+            MR_WORLD_SENSOR_IMU ||
+        loaded.contentHash != pack.contentHash) {
         fail(
-            "WorldPack did not materialize executable mechanics and scene state"
+            "WorldPack did not round-trip executable mechanics, scene state, and IMU SensorIR"
         );
     }
-    return pack.contentHash;
+    return loaded.contentHash;
 }
 
 } // namespace
@@ -3390,7 +3470,7 @@ int main() {
         const FixedBaseTaskEvidence fixedBase =
             compileFixedBaseTaskFixture();
         const std::uint64_t worldPackFingerprint =
-            checkWorldPackSimulationImport();
+            checkWorldPackSimulationImport(packFiles.world);
 
         std::cout
             << "task_program_check passed"

@@ -792,7 +792,7 @@ bool validAsset(const WorldAsset& asset, std::string* reason) {
 bool validSensor(const SensorSpec& sensor, std::string* reason) {
     if (sensor.id.empty() || sensor.parentAssetId.empty() ||
         sensor.parentKind > MR_WORLD_SENSOR_PARENT_WORLD ||
-        sensor.kind > MR_WORLD_SENSOR_FRAME_TWIST_WORLD ||
+        sensor.kind > MR_WORLD_SENSOR_IMU ||
         !finite(sensor.localPose.position) ||
         !unitQuaternion(sensor.localPose.orientation) ||
         !finite(sensor.intrinsics) || !finite(sensor.distortion) ||
@@ -1378,7 +1378,7 @@ bool WorldInstanceBatch::valid(std::string* reason) const {
             sensor.noiseAndLatency.z > 1.0f ||
             sensor.noiseAndLatency.w < 0.0f ||
             sensor.identity.y >
-                MR_WORLD_SENSOR_FRAME_TWIST_WORLD) {
+                MR_WORLD_SENSOR_IMU) {
             return fail(reason, "sampled sensor instance is invalid");
         }
     }
