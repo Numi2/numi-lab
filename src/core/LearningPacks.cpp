@@ -166,7 +166,13 @@ LearningPackResult validateTaskArtifact(
         if (!stringFits(value.id) ||
             !stringFits(value.left) ||
             !stringFits(value.right) ||
-            !validObservation(value.source)) {
+            !validObservation(value.source) ||
+            !countFits(value.reductionSources.size()) ||
+            !std::all_of(
+                value.reductionSources.begin(),
+                value.reductionSources.end(),
+                validObservation
+            )) {
             return fail(
                 LearningPackStatus::capacityOverflow,
                 "TaskPack SignalIR semantic exceeds the 32-bit artifact boundary"
@@ -827,6 +833,13 @@ std::vector<std::byte> serializeTask(
             target.string(value.id);
             writeEnum(target, value.operation);
             writeObservation(target, value.source);
+            writeRichVector(
+                target,
+                value.reductionSources,
+                writeObservation
+            );
+            writeEnum(target, value.transform);
+            writeEnum(target, value.reduction);
             target.string(value.left);
             target.string(value.right);
             target.pod(value.parameters);
@@ -985,6 +998,13 @@ bool deserializeTask(
                 return source.string(value.id) &&
                     readEnum(source, value.operation) &&
                     readObservation(source, value.source) &&
+                    readRichVector(
+                        source,
+                        value.reductionSources,
+                        readObservation
+                    ) &&
+                    readEnum(source, value.transform) &&
+                    readEnum(source, value.reduction) &&
                     source.string(value.left) &&
                     source.string(value.right) &&
                     source.pod(value.parameters);

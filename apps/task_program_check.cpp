@@ -836,6 +836,49 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             "invalid reward channel did not fail transactionally"
         );
     }
+    metalrobo::TaskPack emptyReduction = authored.task;
+    emptyReduction.signals.push_back({
+        .id = "empty_reduction",
+        .operation = metalrobo::TaskSignalOperator::reduction,
+    });
+    const auto emptyReductionStatus =
+        metalrobo::compileTaskProgram(
+            emptyReduction,
+            compiled.world,
+            compiled.sensors,
+            preservedTask
+        );
+    if (emptyReductionStatus.status !=
+            metalrobo::TaskCompileStatus::invalidPack ||
+        preservedTask.fingerprint() !=
+            preservedTaskFingerprint) {
+        fail("empty SignalIR reduction did not fail transactionally");
+    }
+    metalrobo::TaskPack sensorReduction = authored.task;
+    sensorReduction.signals.push_back({
+        .id = "sensor_reduction",
+        .operation = metalrobo::TaskSignalOperator::reduction,
+        .reductionSources = {{
+            .source = metalrobo::TaskObservationSource::sensorValue,
+            .target = "tool_pose_delayed",
+            .component = 0u,
+        }},
+    });
+    const auto sensorReductionStatus =
+        metalrobo::compileTaskProgram(
+            sensorReduction,
+            compiled.world,
+            compiled.sensors,
+            preservedTask
+        );
+    if (sensorReductionStatus.status !=
+            metalrobo::TaskCompileStatus::unsupportedOperator ||
+        preservedTask.fingerprint() !=
+            preservedTaskFingerprint) {
+        fail(
+            "unsupported SensorIR reduction did not fail transactionally"
+        );
+    }
     std::vector<metalrobo::SensorSpec> unresolvedSiteSensors =
         authored.sensors;
     unresolvedSiteSensors.front().parentSite = "missing_site";
@@ -5098,6 +5141,16 @@ int main() {
             program.header().counts1.w != 19u ||
             program.header().counts2.x != 2u ||
             program.header().counts2.y != 5u ||
+            program.header().graphCounts.x != 22u ||
+            program.header().graphCounts.y != 60u ||
+            std::count_if(
+                program.signalOperators().begin(),
+                program.signalOperators().end(),
+                [](const MRTaskSignalOperatorGPU& signal) {
+                    return signal.inputs.x ==
+                        MR_TASK_SIGNAL_REDUCTION;
+                }
+            ) != 7 ||
             program.header().articulation.w != 5u ||
             program.header().commandLower.x != 0.1f ||
             program.header().commandLower.y != 0.0f ||

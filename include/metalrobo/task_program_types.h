@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 17u
+#define MR_TASK_PROGRAM_ABI_VERSION 18u
 
 #define MR_TASK_GOAL_FIXED 0u
 #define MR_TASK_GOAL_SAMPLED_EPISODE 1u
@@ -132,6 +132,21 @@ enum MRTaskSignalOpcode : mr_u32 {
     MR_TASK_SIGNAL_INSIDE_BOUNDS = 13u,
     MR_TASK_SIGNAL_EXPONENTIAL_DECAY = 14u,
     MR_TASK_SIGNAL_ATAN2 = 15u,
+    // Contiguous semantic-source cohort transformed and reduced in one node.
+    MR_TASK_SIGNAL_REDUCTION = 16u,
+};
+
+enum MRTaskSignalTransform : mr_u32 {
+    MR_TASK_SIGNAL_TRANSFORM_IDENTITY = 0u,
+    MR_TASK_SIGNAL_TRANSFORM_ABSOLUTE = 1u,
+    MR_TASK_SIGNAL_TRANSFORM_SQUARE = 2u,
+};
+
+enum MRTaskSignalReduction : mr_u32 {
+    MR_TASK_SIGNAL_REDUCE_SUM = 0u,
+    MR_TASK_SIGNAL_REDUCE_MEAN = 1u,
+    MR_TASK_SIGNAL_REDUCE_MINIMUM = 2u,
+    MR_TASK_SIGNAL_REDUCE_MAXIMUM = 3u,
 };
 
 enum MRTaskTerminationReason : mr_u32 {
@@ -260,7 +275,8 @@ typedef struct MR_ALIGN16 MRTaskObservationOperatorGPU {
 } MRTaskObservationOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskSignalOperatorGPU {
-    // opcode, semantic-source index, left node, right node.
+    // Ordinary node: opcode, semantic-source index, left node, right node.
+    // Reduction node: opcode, source offset/count, packed transform/reduction.
     mr_uint4 inputs;
     // Operator parameters. Their meaning is opcode-specific.
     mr_float4 parameters;

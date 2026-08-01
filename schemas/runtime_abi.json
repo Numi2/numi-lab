@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 24,
+  "abi_version": 25,
   "pipeline_groups": [
     "core",
     "kinematics",

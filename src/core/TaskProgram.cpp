@@ -774,9 +774,18 @@ TaskCompileDiagnostics compileTaskProgram(
                 pack.signals.begin(),
                 pack.signals.end(),
                 [&](const TaskSignalSpec& signal) {
-                    return signal.operation ==
+                    return (
+                        signal.operation ==
                             TaskSignalOperator::source &&
-                        rootObservation(signal.source.source);
+                        rootObservation(signal.source.source)
+                    ) ||
+                        std::any_of(
+                            signal.reductionSources.begin(),
+                            signal.reductionSources.end(),
+                            [&](const TaskObservationOperatorSpec& source) {
+                                return rootObservation(source.source);
+                            }
+                        );
                 }
             ) ||
             std::any_of(
@@ -831,9 +840,26 @@ TaskCompileDiagnostics compileTaskProgram(
     for (const TaskContactGroup& group : pack.contactGroups) {
         contactMemberCount += group.bodies.size();
     }
+    std::uint64_t signalSourceCount = 0u;
+    for (const TaskSignalSpec& signal : pack.signals) {
+        const std::uint64_t added =
+            signal.operation == TaskSignalOperator::source
+            ? 1u
+            : signal.reductionSources.size();
+        if (added >= std::numeric_limits<std::uint32_t>::max() ||
+            signalSourceCount >=
+                std::numeric_limits<std::uint32_t>::max() - added) {
+            return reject(
+                TaskCompileStatus::arithmeticOverflow,
+                signal.id,
+                "SignalIR source cohort exceeds the 32-bit GPU ABI"
+            );
+        }
+        signalSourceCount += added;
+    }
     const std::uint64_t observationOperatorCount =
         static_cast<std::uint64_t>(pack.actorFrame.size()) +
-        pack.critic.size() + pack.signals.size();
+        pack.critic.size() + signalSourceCount;
     if (contactMemberCount >=
             std::numeric_limits<std::uint32_t>::max() ||
         observationOperatorCount >=
@@ -1995,7 +2021,9 @@ TaskCompileDiagnostics compileTaskProgram(
     std::vector<std::string> signalIds;
     std::vector<TaskObservationOperatorSpec> signalSourceSpecs;
     signalIds.reserve(pack.signals.size());
-    signalSourceSpecs.reserve(pack.signals.size());
+    signalSourceSpecs.reserve(
+        static_cast<std::size_t>(signalSourceCount)
+    );
     staged->signalOperators.reserve(pack.signals.size());
     for (const TaskSignalSpec& signal : pack.signals) {
         if (signal.id.empty() ||
@@ -2040,15 +2068,36 @@ TaskCompileDiagnostics compileTaskProgram(
             return leftIndex != MR_INVALID_INDEX &&
                 rightIndex != MR_INVALID_INDEX;
         };
+        const auto truthOnly = [](
+            const TaskObservationOperatorSpec& source
+        ) {
+            return source.noiseAmplitude == 0.0f &&
+                source.biasLower == 0.0f &&
+                source.biasUpper == 0.0f &&
+                !source.normalizeVector3;
+        };
+        const auto sensorSource = [](
+            const TaskObservationOperatorSpec& source
+        ) {
+            return source.source ==
+                    TaskObservationSource::sensorValue ||
+                source.source ==
+                    TaskObservationSource::sensorValidity;
+        };
 
         bool validShape = true;
+        if (signal.operation != TaskSignalOperator::reduction &&
+            !signal.reductionSources.empty()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                signal.id,
+                "only SignalIR reduction nodes may carry a source cohort"
+            );
+        }
         switch (signal.operation) {
         case TaskSignalOperator::source:
             validShape = requireNoOperands();
-            if (signal.source.noiseAmplitude != 0.0f ||
-                signal.source.biasLower != 0.0f ||
-                signal.source.biasUpper != 0.0f ||
-                signal.source.normalizeVector3) {
+            if (!truthOnly(signal.source)) {
                 return reject(
                     TaskCompileStatus::invalidPack,
                     signal.id,
@@ -2060,6 +2109,42 @@ TaskCompileDiagnostics compileTaskProgram(
             );
             signalSourceSpecs.push_back(signal.source);
             break;
+        case TaskSignalOperator::reduction: {
+            validShape = requireNoOperands() &&
+                !signal.reductionSources.empty() &&
+                static_cast<std::uint32_t>(signal.transform) <=
+                    MR_TASK_SIGNAL_TRANSFORM_SQUARE &&
+                static_cast<std::uint32_t>(signal.reduction) <=
+                    MR_TASK_SIGNAL_REDUCE_MAXIMUM;
+            sourceIndex = static_cast<std::uint32_t>(
+                signalSourceSpecs.size()
+            );
+            leftIndex = static_cast<std::uint32_t>(
+                signal.reductionSources.size()
+            );
+            rightIndex =
+                static_cast<std::uint32_t>(signal.transform) |
+                (static_cast<std::uint32_t>(signal.reduction) << 8u);
+            for (const TaskObservationOperatorSpec& source :
+                 signal.reductionSources) {
+                if (!truthOnly(source)) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        signal.id,
+                        "SignalIR reduction sources are truth-only"
+                    );
+                }
+                if (sensorSource(source)) {
+                    return reject(
+                        TaskCompileStatus::unsupportedOperator,
+                        signal.id,
+                        "SensorIR reductions require generalized per-source sensor scratch"
+                    );
+                }
+                signalSourceSpecs.push_back(source);
+            }
+            break;
+        }
         case TaskSignalOperator::constant:
             validShape = requireNoOperands();
             break;
@@ -3118,6 +3203,13 @@ TaskCompileDiagnostics compileTaskProgram(
         hash.string(signal.source.goal);
         hash.string(signal.source.reference);
         hash.string(signal.source.coordinate);
+        for (const TaskObservationOperatorSpec& source :
+             signal.reductionSources) {
+            hash.string(source.target);
+            hash.string(source.goal);
+            hash.string(source.reference);
+            hash.string(source.coordinate);
+        }
     }
     for (const TaskObservationOperatorSpec& observation :
          pack.actorFrame) {

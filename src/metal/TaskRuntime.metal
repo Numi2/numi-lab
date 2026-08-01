@@ -3628,11 +3628,15 @@ kernel void mr_task_complete(
          ++signalIndex) {
         const MRTaskSignalOperatorGPU operation =
             signalOperators[signalIndex];
+        const bool reductionNode =
+            operation.inputs.x == MR_TASK_SIGNAL_REDUCTION;
         const float left =
+            !reductionNode &&
             operation.inputs.z != MR_INVALID_INDEX
             ? signalValues[operation.inputs.z]
             : 0.0f;
         const float right =
+            !reductionNode &&
             operation.inputs.w != MR_INVALID_INDEX
             ? signalValues[operation.inputs.w]
             : 0.0f;
@@ -3676,6 +3680,68 @@ kernel void mr_task_complete(
                 );
             }
             break;
+        case MR_TASK_SIGNAL_REDUCTION: {
+            const uint transform = operation.inputs.w & 0xffu;
+            const uint reduction = operation.inputs.w >> 8u;
+            for (uint local = 0u;
+                 local < operation.inputs.z;
+                 ++local) {
+                float element = cleanObservation(
+                    dispatch,
+                    program,
+                    signalSources[operation.inputs.y + local],
+                    actions,
+                    contactGroups,
+                    frames,
+                    kinematicFrames,
+                    goals,
+                    spatialJacobians,
+                    environment,
+                    state.episode.y,
+                    episodeSteps,
+                    bodyStates + bodyBase,
+                    terrainSamples,
+                    q,
+                    v,
+                    defaultQ,
+                    state,
+                    signalAction,
+                    compactContact + compactBase,
+                    bodyParameters + bodyParameterBase,
+                    controllerParameters + environment,
+                    sceneState + sceneBase,
+                    shapes,
+                    geometryHeaders,
+                    geometryVertices
+                );
+                if (transform ==
+                        MR_TASK_SIGNAL_TRANSFORM_ABSOLUTE) {
+                    element = abs(element);
+                } else if (transform ==
+                               MR_TASK_SIGNAL_TRANSFORM_SQUARE) {
+                    element *= element;
+                }
+                if (local == 0u &&
+                    (reduction ==
+                         MR_TASK_SIGNAL_REDUCE_MINIMUM ||
+                     reduction ==
+                         MR_TASK_SIGNAL_REDUCE_MAXIMUM)) {
+                    value = element;
+                } else if (reduction ==
+                               MR_TASK_SIGNAL_REDUCE_MINIMUM) {
+                    value = min(value, element);
+                } else if (reduction ==
+                               MR_TASK_SIGNAL_REDUCE_MAXIMUM) {
+                    value = max(value, element);
+                } else {
+                    value += element;
+                }
+            }
+            if (reduction == MR_TASK_SIGNAL_REDUCE_MEAN) {
+                value /= float(operation.inputs.z);
+            }
+            break;
+        }
         case MR_TASK_SIGNAL_CONSTANT:
             value = operation.parameters.x;
             break;

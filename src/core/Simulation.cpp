@@ -972,8 +972,20 @@ TaskPack makeUnitreeG1TaskPack(
             {0.0f, 0.0f, 0.0f, 0.0f},
         };
     }
+    const auto semanticSource =
+        [](
+            const TaskObservationSource source,
+            const std::string_view target,
+            const std::uint32_t component
+        ) {
+            return TaskObservationOperatorSpec{
+                .source = source,
+                .target = std::string{target},
+                .component = component,
+            };
+        };
     const auto sourceSignal =
-        [&task](
+        [&task, &semanticSource](
             const std::string& id,
             const TaskObservationSource source,
             const std::string_view target,
@@ -982,11 +994,7 @@ TaskPack makeUnitreeG1TaskPack(
             task.signals.push_back({
                 .id = id,
                 .operation = TaskSignalOperator::source,
-                .source = {
-                    .source = source,
-                    .target = std::string{target},
-                    .component = component,
-                },
+                .source = semanticSource(source, target, component),
             });
             return id;
         };
@@ -1027,28 +1035,22 @@ TaskPack makeUnitreeG1TaskPack(
             });
             return id;
         };
-    const auto sumSignals =
-        [&binarySignal](
+    const auto reductionSignal =
+        [&task](
             const std::string& id,
-            const std::vector<std::string>& terms
+            std::vector<TaskObservationOperatorSpec> sources,
+            const TaskSignalTransform transform,
+            const TaskSignalReduction reduction =
+                TaskSignalReduction::sum
         ) {
-            if (terms.empty()) {
-                throw std::logic_error(
-                    "TaskIR reduction requires at least one term"
-                );
-            }
-            std::string sum = terms.front();
-            for (std::size_t index = 1u;
-                 index < terms.size();
-                 ++index) {
-                sum = binarySignal(
-                    id + "_" + std::to_string(index),
-                    TaskSignalOperator::add,
-                    sum,
-                    terms[index]
-                );
-            }
-            return sum;
+            task.signals.push_back({
+                .id = id,
+                .operation = TaskSignalOperator::reduction,
+                .reductionSources = std::move(sources),
+                .transform = transform,
+                .reduction = reduction,
+            });
+            return id;
         };
     const auto signalReward =
         [&task](
@@ -1117,54 +1119,48 @@ TaskPack makeUnitreeG1TaskPack(
         TaskRewardChannel::stability
     );
 
-    std::vector<std::string> rootRollPitchTerms;
+    std::vector<TaskObservationOperatorSpec>
+        rootRollPitchSources;
     for (std::uint32_t component = 0u;
          component < 2u;
          ++component) {
-        const std::string leaf = sourceSignal(
-            "root_roll_pitch_velocity_" +
-                std::to_string(component),
+        rootRollPitchSources.push_back(semanticSource(
             TaskObservationSource::rootAngularVelocityLocal,
             {},
             component
-        );
-        rootRollPitchTerms.push_back(unarySignal(
-            leaf + "_squared",
-            TaskSignalOperator::square,
-            leaf
         ));
     }
     signalReward(
-        sumSignals(
+        reductionSignal(
             "root_roll_pitch_velocity_squared",
-            rootRollPitchTerms
+            std::move(rootRollPitchSources),
+            TaskSignalTransform::square
         ),
         -0.05f,
         TaskRewardChannel::stability
     );
 
-    std::vector<std::string> gravityHorizontalTerms;
-    std::array<std::string, 3u> gravitySignals;
+    std::vector<TaskObservationOperatorSpec>
+        gravityHorizontalSources;
     for (std::uint32_t component = 0u;
-         component < gravitySignals.size();
+         component < 2u;
          ++component) {
-        gravitySignals[component] = sourceSignal(
-            "projected_gravity_" + std::to_string(component),
+        gravityHorizontalSources.push_back(semanticSource(
             TaskObservationSource::projectedGravity,
             {},
             component
-        );
-        if (component < 2u) {
-            gravityHorizontalTerms.push_back(unarySignal(
-                gravitySignals[component] + "_squared",
-                TaskSignalOperator::square,
-                gravitySignals[component]
-            ));
-        }
+        ));
     }
-    const std::string gravityHorizontalSquared = sumSignals(
+    const std::string gravityHorizontalSquared = reductionSignal(
         "projected_gravity_horizontal_squared",
-        gravityHorizontalTerms
+        std::move(gravityHorizontalSources),
+        TaskSignalTransform::square
+    );
+    const std::string gravityZ = sourceSignal(
+        "projected_gravity_z",
+        TaskObservationSource::projectedGravity,
+        {},
+        2u
     );
     signalReward(
         gravityHorizontalSquared,
@@ -1198,25 +1194,23 @@ TaskPack makeUnitreeG1TaskPack(
         TaskRewardChannel::stability
     );
 
-    std::vector<std::string> jointVelocityTerms;
-    jointVelocityTerms.reserve(metadata.jointLimits.size());
+    std::vector<TaskObservationOperatorSpec> jointVelocitySources;
+    jointVelocitySources.reserve(metadata.jointLimits.size());
     for (std::size_t joint = 0u;
          joint < metadata.jointLimits.size();
          ++joint) {
-        const std::string leaf = sourceSignal(
-            "joint_velocity_" + std::to_string(joint),
+        jointVelocitySources.push_back(semanticSource(
             TaskObservationSource::jointVelocity,
             metadata.jointLimits[joint].name,
             0u
-        );
-        jointVelocityTerms.push_back(unarySignal(
-            leaf + "_squared",
-            TaskSignalOperator::square,
-            leaf
         ));
     }
     signalReward(
-        sumSignals("joint_velocity_squared", jointVelocityTerms),
+        reductionSignal(
+            "joint_velocity_squared",
+            std::move(jointVelocitySources),
+            TaskSignalTransform::square
+        ),
         -0.001f,
         TaskRewardChannel::velocity
     );
@@ -1249,27 +1243,19 @@ TaskPack makeUnitreeG1TaskPack(
             const std::string& id,
             const std::vector<std::string>& joints
         ) {
-            std::vector<std::string> terms;
-            terms.reserve(joints.size());
-            for (std::size_t joint = 0u;
-                 joint < joints.size();
-                 ++joint) {
-                const std::string leaf = sourceSignal(
-                    id + "_posture_" +
-                        std::to_string(joint),
+            std::vector<TaskObservationOperatorSpec> sources;
+            sources.reserve(joints.size());
+            for (const std::string& joint : joints) {
+                sources.push_back(semanticSource(
                     TaskObservationSource::jointPositionError,
-                    joints[joint],
+                    joint,
                     0u
-                );
-                terms.push_back(unarySignal(
-                    leaf + "_absolute",
-                    TaskSignalOperator::absolute,
-                    leaf
                 ));
             }
-            return sumSignals(
+            return reductionSignal(
                 id + "_posture_sum",
-                terms
+                std::move(sources),
+                TaskSignalTransform::absolute
             );
         };
     signalReward(
@@ -1300,24 +1286,22 @@ TaskPack makeUnitreeG1TaskPack(
         {},
         {0.05f, 2.0f, 0.0f, 0.0f}
     );
-    const std::string leftSlip = sourceSignal(
-        "left_support_slip",
-        TaskObservationSource::contactMetric,
-        "left_foot_contact",
-        1u
-    );
-    const std::string rightSlip = sourceSignal(
-        "right_support_slip",
-        TaskObservationSource::contactMetric,
-        "right_foot_contact",
-        1u
-    );
     signalReward(
-        binarySignal(
+        reductionSignal(
             "support_slip",
-            TaskSignalOperator::add,
-            leftSlip,
-            rightSlip
+            {
+                semanticSource(
+                    TaskObservationSource::contactMetric,
+                    "left_foot_contact",
+                    1u
+                ),
+                semanticSource(
+                    TaskObservationSource::contactMetric,
+                    "right_foot_contact",
+                    1u
+                ),
+            },
+            TaskSignalTransform::identity
         ),
         -0.2f,
         TaskRewardChannel::contact
@@ -1345,7 +1329,7 @@ TaskPack makeUnitreeG1TaskPack(
     const std::string negativeGravityZ = binarySignal(
         "negative_projected_gravity_z",
         TaskSignalOperator::multiply,
-        gravitySignals[2u],
+        gravityZ,
         negativeOne
     );
     const std::string tiltDenominator = binarySignal(

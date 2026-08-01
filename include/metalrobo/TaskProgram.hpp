@@ -109,6 +109,20 @@ enum class TaskSignalOperator : std::uint32_t {
     insideBounds = MR_TASK_SIGNAL_INSIDE_BOUNDS,
     exponentialDecay = MR_TASK_SIGNAL_EXPONENTIAL_DECAY,
     atan2 = MR_TASK_SIGNAL_ATAN2,
+    reduction = MR_TASK_SIGNAL_REDUCTION,
+};
+
+enum class TaskSignalTransform : std::uint32_t {
+    identity = MR_TASK_SIGNAL_TRANSFORM_IDENTITY,
+    absolute = MR_TASK_SIGNAL_TRANSFORM_ABSOLUTE,
+    square = MR_TASK_SIGNAL_TRANSFORM_SQUARE,
+};
+
+enum class TaskSignalReduction : std::uint32_t {
+    sum = MR_TASK_SIGNAL_REDUCE_SUM,
+    mean = MR_TASK_SIGNAL_REDUCE_MEAN,
+    minimum = MR_TASK_SIGNAL_REDUCE_MINIMUM,
+    maximum = MR_TASK_SIGNAL_REDUCE_MAXIMUM,
 };
 
 enum class TaskRandomizationOperator : std::uint32_t {
@@ -216,6 +230,12 @@ struct TaskSignalSpec {
     std::string id;
     TaskSignalOperator operation = TaskSignalOperator::constant;
     TaskObservationOperatorSpec source;
+    // Used only by reduction nodes. The compiler resolves this contiguous
+    // cohort once; SensorIR sources remain scalar until their source scratch
+    // is generalized.
+    std::vector<TaskObservationOperatorSpec> reductionSources;
+    TaskSignalTransform transform = TaskSignalTransform::identity;
+    TaskSignalReduction reduction = TaskSignalReduction::sum;
     std::string left;
     std::string right;
     mr_float4 parameters{};
