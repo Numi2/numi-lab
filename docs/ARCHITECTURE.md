@@ -79,7 +79,8 @@ IR types are private. Public authoring uses importers and validated packs.
 Every accepted control transition follows one transaction:
 
 1. Snapshot or identify the last committed environment state.
-2. Apply scheduled reset, command, randomization, and episode state.
+2. Apply scheduled reset, compiled command/event tables, randomization, and
+   episode state.
 3. Seed reset-only kinematics and SensorIR history, refresh TaskIR actor/critic
    views, then execute policy and actions.
 4. Generate collision and constraint candidates.
@@ -98,9 +99,10 @@ environments. SensorIR likewise journals schedule state, history, compact
 output, and metadata only for reset environments. Rejected transitions restore
 those bytes; successful and ordinary non-reset steps pay no checkpoint-copy
 bandwidth beyond the core state already required for rollback. TaskIR journals
-state, action delay, and its topology-sized scalar arena on every step. That
-arena contains compact contact reductions followed by compiled named scalar
-commands, so a rejected command resample is restored with the same transaction.
+state, including the shared event countdown, action delay, and its
+topology-sized scalar arena on every step. That arena contains compact contact
+reductions followed by compiled named scalar commands, so rejected command
+resamples and scheduled events are restored with the same transaction.
 Reset steps also journal observation histories, bias, body/controller
 randomization, and previous velocity. A typed failure transition remains
 inspectable while the persistent TaskIR state is restored. Actuator
@@ -130,6 +132,12 @@ switches are forbidden. The TaskRuntime observe, apply, effort, complete, and
 curriculum passes consume schema-generated binding enums on both host and
 shader sides. Persisted ABI changes increment the ABI version; ordinary
 internal refactors do not create version-suffixed types.
+
+Task action, command, and event behavior is compiled data. The current event
+operator resolves a named generalized-velocity coordinate once and applies a
+curriculum-scaled delta using a stable semantic RNG identity. G1 perturbations
+are ordinary event records; the runtime contains no floating-root push branch
+or robot identity switch.
 
 ## Extension boundary
 

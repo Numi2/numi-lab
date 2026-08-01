@@ -111,6 +111,9 @@ compilation. It supports:
 - a topology-derived count of named scalar commands with compiled initial
   ranges, hard limits, curriculum expansion, cohort-zero probability, and a
   shared resample duration;
+- named generalized-velocity-delta events with compiled target coordinates,
+  curriculum-interpolated ranges, stable counter-RNG identities, and a shared
+  event schedule;
 - named compact recorders that bind directly to SignalIR nodes and publish
   three generic metric values without robot-shaped transition fields;
 - fixed goals, episode-sampled poses, and two-pose trajectories with clamped,
@@ -173,9 +176,24 @@ scalar-state arena. The compiler derives both resident and checkpoint
 capacities, and every physics transaction journals the complete per-environment
 stride. The task-state record therefore contains no fixed command vector. A
 rejected reset restores even an episode-resampled command before the next
-accepted transition. Vector-valued or correlated distributions, per-command
-schedules, and general event operator tables remain incomplete; they must use
-typed operator tables rather than reintroducing an anonymous fixed vector.
+accepted transition. Vector-valued or correlated distributions and
+per-command schedules remain incomplete; they must use typed operator tables
+rather than reintroducing an anonymous fixed vector.
+
+Each event also has a unique authored identity. The
+`generalizedVelocityDelta` operator names one generalized-velocity coordinate;
+the compiler resolves it to a stable native index and assigns an independent
+64-bit semantic RNG key. Its lower and upper endpoints interpolate from the
+initial range to the final range as curriculum advances. Metal applies the
+sampled delta at the control boundary before physics. This is a task event,
+not a modeled force or solver impulse. The bundled G1 x/y perturbations and a
+fixed-base scalar-joint fixture use this same table, with no floating-root or
+robot-identity branch. TaskPack 17 persists the exact event contract.
+
+The current event cohort shares one minimum/maximum interval schedule.
+Per-event schedules, scene-body wrench/state events, and richer typed event
+operators remain incomplete. They must extend the compiled event table and
+topology-sized transactional state rather than add another task mode.
 
 Each compact recorder resolves an authored identity and one SignalIR node at
 compilation. Recorder identities remain immutable host metadata; Metal carries
@@ -206,11 +224,12 @@ tensor or carrying a per-robot branch.
 The remaining TaskIR target is a phase-separated graph covering action,
 command/event, observation, reward, termination, reset, curriculum, and
 arbitrary recorder-stream phases. Frame acceleration, arbitrary point queries,
-full Jacobian tensors, multi-knot trajectory splines, general event operators,
-vector and scheduled command operators, scheduled recorder streams, and richer
-curriculum operators are not yet production operators. The topology-sized
-named scalar command path, three-slot compact recorder, and scalar
-SignalIR-driven curriculum are production paths.
+full Jacobian tensors, multi-knot trajectory splines, independently scheduled
+or richer event operators, vector and scheduled command operators, scheduled
+recorder streams, and richer curriculum operators are not yet production
+operators. The topology-sized named scalar command path, generalized-velocity
+event path, three-slot compact recorder, and scalar SignalIR-driven curriculum
+are production paths.
 
 Frame-Jacobian observations are analytic operator outputs, not finite
 differences of poses. The point is the compiled frame origin and the three

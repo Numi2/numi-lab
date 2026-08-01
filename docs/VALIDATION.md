@@ -181,7 +181,7 @@ without replacing the last valid compiled program.
 
 The same fixture expresses fixed, episode-sampled, and trajectory frame
 objectives without constant or frame-specific reward/termination opcodes.
-TaskPack 16 round-trips those graphs, preserves their numerical outcomes, and
+TaskPack 17 round-trips those graphs, preserves their numerical outcomes, and
 proves that deleting the duplicated goal fields and shrinking the termination
 record does not change dynamic-goal replay.
 
@@ -228,6 +228,22 @@ TaskRuntime's observe, apply, effort, complete, and curriculum bindings now
 come from the generated ABI schema; no raw numeric Metal buffer bindings remain
 in that shader. G1 retained memory increases by 32 bytes overall while both
 persistent and transient state decrease by 32 bytes.
+
+The generic-event hard cut is compared independently against `3262d20` with
+the same eight-environment, sixteen-step, fixed-eight-step-chunk contract and
+seed `20260801`. Zero and deterministic host actions preserve every physical,
+contact, failure, termination, reward, recorder, and reporting value exactly.
+G1 now compiles `root_velocity_delta_x` and `root_velocity_delta_y` as ordinary
+generalized-velocity-delta records; `TaskPushProgram` and the floating-root
+push branch are absent.
+
+A separate fixed-base fixture compiles two events against one scalar joint.
+Metal produces a measured event velocity delta of `0.267137`, exact same-seed
+replay, and changed-seed separation. TaskPack 17 round-trips the event program
+exactly, while duplicate identities, unresolved targets, invalid ranges, and
+unsupported operations reject transactionally. The two G1 records add 192
+retained bytes relative to `3262d20`: 96 immutable private and 96 shared ABI
+bytes, with no transient or persistent-state increase.
 
 An independent fixed-base fixture records `axis_velocity_squared` and compares
 the Metal recorder value with the generic reward-channel contribution. The

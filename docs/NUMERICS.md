@@ -38,6 +38,10 @@ must satisfy. Unsupported behavior is recorded in
   friction at every physics microstep remains an open mechanics gate.
 - Velocity or effort safety caps are explicit actuator/safety-envelope stages;
   they are not positional constraints.
+- A `generalizedVelocityDelta` task event directly changes one resolved
+  generalized velocity at a control boundary. It is explicit discrete task
+  logic, not a physical force, contact impulse, or solver row. Adjoint results
+  crossing such an event must carry a discrete-event invalidity bit.
 
 Native actuator delay uses `ceil(delay / control_period)` whole control steps.
 Backlash is a deterministic play operator around the delayed command. Raw motor
