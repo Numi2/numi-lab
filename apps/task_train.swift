@@ -35,6 +35,8 @@ private struct Options {
     // contract independently of environment and horizon counts.
     var minibatchSize = 0
     var learningRate = 1.0e-3
+    var minimumLearningRate = 1.0e-5
+    var maximumLearningRate = 1.0e-2
     var fixedLearningRate = false
     var clipRatio = 0.2
     var valueCoefficient = 1.0
@@ -189,6 +191,12 @@ private struct Options {
             case "--learning-rate":
                 learningRate = try Self.double(value(), option)
                 index += 1
+            case "--minimum-learning-rate":
+                minimumLearningRate = try Self.double(value(), option)
+                index += 1
+            case "--maximum-learning-rate":
+                maximumLearningRate = try Self.double(value(), option)
+                index += 1
             case "--fixed-learning-rate":
                 fixedLearningRate = true
             case "--clip-ratio":
@@ -307,6 +315,8 @@ private struct Options {
         }
         let ppoValues = [
             learningRate,
+            minimumLearningRate,
+            maximumLearningRate,
             clipRatio,
             valueCoefficient,
             entropyCoefficient,
@@ -319,6 +329,10 @@ private struct Options {
         ]
         guard ppoValues.allSatisfy(\.isFinite),
               learningRate > 0,
+              minimumLearningRate > 0,
+              maximumLearningRate >= minimumLearningRate,
+              learningRate >= minimumLearningRate,
+              learningRate <= maximumLearningRate,
               clipRatio > 0,
               valueCoefficient >= 0,
               entropyCoefficient >= 0,
@@ -536,6 +550,10 @@ private final class MLXLearnerWorker {
             String(options.minibatchSize),
             "--learning-rate",
             String(options.learningRate),
+            "--minimum-learning-rate",
+            String(options.minimumLearningRate),
+            "--maximum-learning-rate",
+            String(options.maximumLearningRate),
             "--clip-ratio",
             String(options.clipRatio),
             "--value-coefficient",
