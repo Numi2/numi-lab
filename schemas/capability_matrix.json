@@ -16,7 +16,8 @@
     "evidence/baselines/2026-08-01-2630cc7.json",
     "evidence/baselines/2026-08-01-68ce9cc.json",
     "evidence/baselines/2026-08-01-0a06e71.json",
-    "evidence/baselines/2026-08-01-c82c454.json"
+    "evidence/baselines/2026-08-01-c82c454.json",
+    "evidence/baselines/2026-08-01-12912fc.json"
   ],
   "capabilities": [
     {
@@ -81,6 +82,13 @@
       "owner": "integration.native_simulation",
       "artifact": "metalrobo_simulation",
       "scope": "Swift schedules bounded native submissions; Metal owns persistent simulator state and transactions."
+    },
+    {
+      "id": "runtime.compiled_execution_pipelines",
+      "status": "qualified",
+      "owner": "physics.metal_contact",
+      "artifact": "metalrobo_metal_world_contact_probe",
+      "scope": "The generated runtime schema owns every reachable pipeline, feature group, Metal entry point, host member, and threadgroup contract. Compiled feature selection creates only the required groups, later upgrades are additive, and three mutable state arenas share one immutable device/library/queue/pipeline cache. Metal 4 command allocators, generated argument tables, residency sets, and the final barrier graph remain incomplete."
     },
     {
       "id": "learning.swift_mlx_ppo",
