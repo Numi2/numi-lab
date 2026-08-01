@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 33,
+  "abi_version": 34,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -882,7 +882,8 @@
         "RESET_MASKS",
         "TASK_STATES",
         "EVENT_STATES",
-        "SOURCE_V"
+        "SOURCE_V",
+        "SOURCE_SCENE"
       ]
     },
     {

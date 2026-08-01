@@ -2,10 +2,12 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 26u
+#define MR_TASK_PROGRAM_ABI_VERSION 27u
 #define MR_TASK_TRANSITION_METRIC_COUNT 3u
 
 #define MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA 0u
+#define MR_TASK_EVENT_SCENE_LINEAR_VELOCITY_DELTA 1u
+#define MR_TASK_EVENT_SCENE_ANGULAR_VELOCITY_DELTA 2u
 
 #define MR_TASK_GOAL_FIXED 0u
 #define MR_TASK_GOAL_SAMPLED_EPISODE 1u
@@ -304,8 +306,11 @@ typedef struct MR_ALIGN16 MRTaskCommandGroupGPU {
 } MRTaskCommandGroupGPU;
 
 typedef struct MR_ALIGN16 MRTaskEventOperatorGPU {
-    // Opcode, resolved generalized-velocity index, stable identity low/high.
+    // Opcode, resolved generalized-velocity or scene-body index, component,
+    // reserved.
     mr_uint4 target;
+    // Stable counter-RNG identity low/high and reserved values.
+    mr_uint4 identity;
     // Lower/upper value at curriculum progress zero; reserved values.
     mr_float4 initialRange;
     // Lower/upper value at curriculum progress one; reserved values.
@@ -455,7 +460,7 @@ static_assert(sizeof(MRTaskObservationOperatorGPU) == 64u);
 static_assert(sizeof(MRTaskSignalOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskCommandOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskCommandGroupGPU) == 32u);
-static_assert(sizeof(MRTaskEventOperatorGPU) == 64u);
+static_assert(sizeof(MRTaskEventOperatorGPU) == 80u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);
 static_assert(sizeof(MRTaskGoalGPU) == 160u);

@@ -962,6 +962,7 @@ std::vector<std::byte> serializeTask(
             target.string(value.id);
             writeEnum(target, value.operation);
             target.string(value.target);
+            target.pod(value.component);
             target.pod(value.initialLower);
             target.pod(value.initialUpper);
             target.pod(value.finalLower);
@@ -1160,6 +1161,7 @@ bool deserializeTask(
                 return source.string(value.id) &&
                     readEnum(source, value.operation) &&
                     source.string(value.target) &&
+                    source.pod(value.component) &&
                     source.pod(value.initialLower) &&
                     source.pod(value.initialUpper) &&
                     source.pod(value.finalLower) &&

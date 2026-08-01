@@ -8656,6 +8656,7 @@ bool encodeTaskEvents(
     id<MTLCommandBuffer> commandBuffer,
     const MRMetalWorldPassGPU& pass,
     const std::size_t sourceV,
+    const std::size_t sourceScene,
     const std::size_t environmentCount
 ) {
     return encodeContactThreadKernel(
@@ -8671,6 +8672,7 @@ bool encodeTaskEvents(
             {MR_TASK_EVENT_TASK_STATES, kTaskState},
             {MR_TASK_EVENT_EVENT_STATES, kTaskEventStates},
             {MR_TASK_EVENT_SOURCE_V, sourceV},
+            {MR_TASK_EVENT_SOURCE_SCENE, sourceScene},
         },
         &pass,
         MR_TASK_EVENT_PASS,
@@ -16872,6 +16874,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 commandBuffer,
                                 pass,
                                 sourceV,
+                                sourceScene,
                                 batch.environmentCount
                             )
                         ) ||

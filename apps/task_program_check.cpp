@@ -1920,8 +1920,8 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     const MRTaskEventOperatorGPU& sampledEvent =
         fixedEventProgram.eventOperators()[1u];
     const std::uint64_t sampledEventIdentity =
-        static_cast<std::uint64_t>(sampledEvent.target.z) |
-        (static_cast<std::uint64_t>(sampledEvent.target.w) << 32u);
+        static_cast<std::uint64_t>(sampledEvent.identity.x) |
+        (static_cast<std::uint64_t>(sampledEvent.identity.y) << 32u);
     const float expectedEventDelta = 0.6f - 0.1f + 0.1f *
         mr_semantic_counter_uniform(
             eventSeed,
@@ -1981,6 +1981,363 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             " expected=" + std::to_string(expectedEventDelta)
         );
     }
+
+    // Scene-body events use the same compiled schedule and counter-RNG path,
+    // but resolve a semantic free-body name to the compact scene-state layout.
+    // The operation names are deliberately state deltas: they must not imply
+    // an impulse or wrench without the corresponding mass-domain response.
+    metalrobo::SimulationDescription sceneEventAuthored = authored;
+    const std::uint32_t sceneEventBodyIndex =
+        static_cast<std::uint32_t>(
+            sceneEventAuthored.model.bodies.size()
+        );
+    MRBodyPropertiesGPU sceneEventBody{};
+    sceneEventBody.articulationIndex = MR_INVALID_INDEX;
+    sceneEventBody.parentBody = MR_INVALID_INDEX;
+    sceneEventBody.inboundJoint = MR_INVALID_INDEX;
+    sceneEventBody.motionType = MR_MOTION_DYNAMIC;
+    sceneEventBody.massAndInverseMass = {2.0f, 0.5f, 0.0f, 0.0f};
+    sceneEventBody.inertiaRow0 = {0.2f, 0.0f, 0.0f, 0.0f};
+    sceneEventBody.inertiaRow1 = {0.0f, 0.2f, 0.0f, 0.0f};
+    sceneEventBody.inertiaRow2 = {0.0f, 0.0f, 0.2f, 0.0f};
+    sceneEventBody.inverseInertiaRow0 = {5.0f, 0.0f, 0.0f, 0.0f};
+    sceneEventBody.inverseInertiaRow1 = {0.0f, 5.0f, 0.0f, 0.0f};
+    sceneEventBody.inverseInertiaRow2 = {0.0f, 0.0f, 5.0f, 0.0f};
+    sceneEventBody.dampingAndSpeedLimits = {
+        0.0f, 0.0f, 1.0e6f, 1.0e6f,
+    };
+    sceneEventAuthored.model.bodies.push_back(sceneEventBody);
+    sceneEventAuthored.model.bodyNames.emplace_back("event_body");
+    sceneEventAuthored.model.world.bodyCount =
+        static_cast<std::uint32_t>(
+            sceneEventAuthored.model.bodies.size()
+        );
+    MRBodyStateGPU sceneEventState{};
+    sceneEventState.position = {0.0f, 0.0f, 5.0f, 1.0f};
+    sceneEventState.orientation.w = 1.0f;
+    sceneEventState.linearVelocityAndInverseMass.w = 0.5f;
+    sceneEventState.inverseInertiaWorldRow0.x = 5.0f;
+    sceneEventState.inverseInertiaWorldRow1.y = 5.0f;
+    sceneEventState.inverseInertiaWorldRow2.z = 5.0f;
+    sceneEventState.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+    sceneEventState.flagsAndIndices[1] = MR_INVALID_INDEX;
+    sceneEventState.flagsAndIndices[2] = sceneEventBodyIndex;
+    sceneEventAuthored.sceneBodies.push_back(sceneEventState);
+    sceneEventAuthored.task.id = "scene_body_velocity_events";
+    sceneEventAuthored.task.events.values = {
+        {
+            .id = "event_body_linear_x",
+            .operation = metalrobo::TaskEventOperator::
+                sceneLinearVelocityDelta,
+            .target = "event_body",
+            .component = 0u,
+            .initialLower = 0.25f,
+            .initialUpper = 0.25f,
+            .finalLower = 0.25f,
+            .finalUpper = 0.25f,
+            .minimumIntervalSeconds = 0.02f,
+            .maximumIntervalSeconds = 0.02f,
+        },
+        {
+            .id = "event_body_angular_z",
+            .operation = metalrobo::TaskEventOperator::
+                sceneAngularVelocityDelta,
+            .target = "event_body",
+            .component = 2u,
+            .initialLower = -0.125f,
+            .initialUpper = -0.125f,
+            .finalLower = -0.125f,
+            .finalUpper = -0.125f,
+            .minimumIntervalSeconds = 0.04f,
+            .maximumIntervalSeconds = 0.04f,
+        },
+    };
+    metalrobo::CompiledSimulation sceneEventCompiled;
+    const auto sceneEventCompile = metalrobo::compileSimulation(
+        sceneEventAuthored,
+        0u,
+        sceneEventCompiled
+    );
+    metalrobo::TaskPack noSceneEventTask = sceneEventAuthored.task;
+    noSceneEventTask.id = "scene_body_event_baseline";
+    noSceneEventTask.events.values.clear();
+    metalrobo::CompiledTaskProgram noSceneEventProgram;
+    const auto noSceneEventCompile = metalrobo::compileTaskProgram(
+        noSceneEventTask,
+        sceneEventCompiled.world,
+        sceneEventCompiled.sensors,
+        noSceneEventProgram
+    );
+    metalrobo::TaskPack reorderedSceneEventTask =
+        sceneEventAuthored.task;
+    std::swap(
+        reorderedSceneEventTask.events.values[0u],
+        reorderedSceneEventTask.events.values[1u]
+    );
+    metalrobo::CompiledTaskProgram reorderedSceneEventProgram;
+    const auto reorderedSceneEventCompile =
+        metalrobo::compileTaskProgram(
+            reorderedSceneEventTask,
+            sceneEventCompiled.world,
+            sceneEventCompiled.sensors,
+            reorderedSceneEventProgram
+        );
+    const auto sceneEventMapping = std::find(
+        sceneEventCompiled.world.sceneBodyIndices().begin(),
+        sceneEventCompiled.world.sceneBodyIndices().end(),
+        sceneEventBodyIndex
+    );
+    const std::uint32_t sceneEventLocalIndex =
+        sceneEventMapping ==
+                sceneEventCompiled.world.sceneBodyIndices().end()
+        ? MR_INVALID_INDEX
+        : static_cast<std::uint32_t>(
+              sceneEventMapping -
+              sceneEventCompiled.world.sceneBodyIndices().begin()
+          );
+    if (!sceneEventCompile.succeeded() ||
+        !noSceneEventCompile.succeeded() ||
+        !reorderedSceneEventCompile.succeeded() ||
+        sceneEventCompiled.task.eventOperators().size() != 2u ||
+        sceneEventCompiled.task.eventOperators()[0u].target.x !=
+            MR_TASK_EVENT_SCENE_LINEAR_VELOCITY_DELTA ||
+        sceneEventCompiled.task.eventOperators()[0u].target.y !=
+            sceneEventLocalIndex ||
+        sceneEventCompiled.task.eventOperators()[0u].target.z != 0u ||
+        sceneEventCompiled.task.eventOperators()[1u].target.x !=
+            MR_TASK_EVENT_SCENE_ANGULAR_VELOCITY_DELTA ||
+        sceneEventCompiled.task.eventOperators()[1u].target.y !=
+            sceneEventLocalIndex ||
+        sceneEventCompiled.task.eventOperators()[1u].target.z != 2u) {
+        fail(
+            "semantic scene-body velocity events did not compile: " +
+            sceneEventCompile.task.message
+        );
+    }
+    const auto runSceneEventFixture = [&] (
+        const metalrobo::CompiledTaskProgram& task,
+        metalrobo::MetalWorldResult& output
+    ) {
+        metalrobo::MetalWorldStepConfig sceneEventStep = step;
+        sceneEventStep.taskProgram = task;
+        sceneEventStep.sensorProgram = sceneEventCompiled.sensors;
+        sceneEventStep.policyProgram = {};
+        sceneEventStep.evaluateFinalPolicy = false;
+        sceneEventStep.taskSeed = eventSeed;
+        metalrobo::MetalWorldContext sceneEventContext(
+            contextConfiguration
+        );
+        return sceneEventContext.run(
+            sceneEventCompiled.world,
+            {
+                .environmentCount = 1u,
+                .controlStepCount = eventSteps,
+                .initialQ = eventInitialQ,
+                .initialV = eventInitialV,
+                .actions = eventActions,
+                .resetMasks = eventResetMasks,
+                .initialSceneBodies = sceneEventAuthored.sceneBodies,
+            },
+            sceneEventStep,
+            output
+        );
+    };
+    metalrobo::MetalWorldResult sceneEventResult;
+    metalrobo::MetalWorldResult sceneEventReplay;
+    metalrobo::MetalWorldResult reorderedSceneEventResult;
+    metalrobo::MetalWorldResult noSceneEventResult;
+    const auto sceneEventExecuted = runSceneEventFixture(
+        sceneEventCompiled.task,
+        sceneEventResult
+    );
+    const auto sceneEventReplayed = runSceneEventFixture(
+        sceneEventCompiled.task,
+        sceneEventReplay
+    );
+    const auto reorderedSceneEventExecuted = runSceneEventFixture(
+        reorderedSceneEventProgram,
+        reorderedSceneEventResult
+    );
+    const auto noSceneEventExecuted = runSceneEventFixture(
+        noSceneEventProgram,
+        noSceneEventResult
+    );
+    const auto sceneBodyAt = [&] (
+        const metalrobo::MetalWorldResult& result
+    ) -> const MRBodyStateGPU* {
+        return result.finalSceneBodies.size() ==
+                sceneEventAuthored.sceneBodies.size()
+            ? &result.finalSceneBodies[sceneEventLocalIndex]
+            : nullptr;
+    };
+    const MRBodyStateGPU* eventBodyResult = sceneBodyAt(sceneEventResult);
+    const MRBodyStateGPU* eventBodyReplay = sceneBodyAt(sceneEventReplay);
+    const MRBodyStateGPU* reorderedEventBody =
+        sceneBodyAt(reorderedSceneEventResult);
+    const MRBodyStateGPU* baselineEventBody =
+        sceneBodyAt(noSceneEventResult);
+    if (!sceneEventExecuted.succeeded() ||
+        !sceneEventReplayed.succeeded() ||
+        !reorderedSceneEventExecuted.succeeded() ||
+        !noSceneEventExecuted.succeeded() ||
+        eventBodyResult == nullptr ||
+        eventBodyReplay == nullptr ||
+        reorderedEventBody == nullptr ||
+        baselineEventBody == nullptr ||
+        std::memcmp(
+            eventBodyResult,
+            eventBodyReplay,
+            sizeof(MRBodyStateGPU)
+        ) != 0 ||
+        std::memcmp(
+            eventBodyResult,
+            reorderedEventBody,
+            sizeof(MRBodyStateGPU)
+        ) != 0 ||
+        std::abs(
+            eventBodyResult->linearVelocityAndInverseMass.x -
+            baselineEventBody->linearVelocityAndInverseMass.x - 0.75f
+        ) > 2.0e-5f ||
+        std::abs(
+            eventBodyResult->angularVelocity.z -
+            baselineEventBody->angularVelocity.z + 0.125f
+        ) > 2.0e-5f ||
+        !(eventBodyResult->position.x >
+          baselineEventBody->position.x)) {
+        fail(
+            "scene-body events did not execute deterministically before physics: " +
+            sceneEventExecuted.message + " / " +
+            sceneEventReplayed.message + " / " +
+            reorderedSceneEventExecuted.message + " / " +
+            noSceneEventExecuted.message +
+            " linear=" +
+            (eventBodyResult == nullptr
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       eventBodyResult->linearVelocityAndInverseMass.x
+                   )) +
+            " baseline_linear=" +
+            (baselineEventBody == nullptr
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       baselineEventBody->linearVelocityAndInverseMass.x
+                   )) +
+            " angular=" +
+            (eventBodyResult == nullptr
+                 ? std::string{"missing"}
+                 : std::to_string(eventBodyResult->angularVelocity.z)) +
+            " baseline_angular=" +
+            (baselineEventBody == nullptr
+                 ? std::string{"missing"}
+                 : std::to_string(baselineEventBody->angularVelocity.z)) +
+            " position=" +
+            (eventBodyResult == nullptr
+                 ? std::string{"missing"}
+                 : std::to_string(eventBodyResult->position.x)) +
+            " baseline_position=" +
+            (baselineEventBody == nullptr
+                 ? std::string{"missing"}
+                 : std::to_string(baselineEventBody->position.x))
+        );
+    }
+    {
+        TemporaryPackFiles sceneEventPackFiles;
+        const auto sceneEventWrite = metalrobo::writeTaskPack(
+            sceneEventAuthored.task,
+            sceneEventPackFiles.task
+        );
+        metalrobo::TaskPack restoredSceneEventTask;
+        const auto sceneEventRead = metalrobo::readTaskPack(
+            sceneEventPackFiles.task,
+            restoredSceneEventTask
+        );
+        metalrobo::CompiledTaskProgram restoredSceneEventProgram;
+        const auto restoredSceneEventCompile =
+            metalrobo::compileTaskProgram(
+                restoredSceneEventTask,
+                sceneEventCompiled.world,
+                sceneEventCompiled.sensors,
+                restoredSceneEventProgram
+            );
+        if (!sceneEventWrite.succeeded() ||
+            !sceneEventRead.succeeded() ||
+            !restoredSceneEventCompile.succeeded() ||
+            restoredSceneEventTask.events.values.size() != 2u ||
+            restoredSceneEventTask.events.values[1u].component != 2u ||
+            restoredSceneEventProgram.fingerprint() !=
+                sceneEventCompiled.task.fingerprint()) {
+            fail(
+                "TaskPack did not round-trip scene-body event semantics"
+            );
+        }
+    }
+    metalrobo::CompiledTaskProgram preservedSceneEventProgram =
+        sceneEventCompiled.task;
+    const std::uint64_t preservedSceneEventFingerprint =
+        preservedSceneEventProgram.fingerprint();
+    const auto sceneEventRejects = [&] (
+        const metalrobo::TaskPack& candidate,
+        const metalrobo::TaskCompileStatus expected,
+        const std::string_view message
+    ) {
+        const auto rejected = metalrobo::compileTaskProgram(
+            candidate,
+            sceneEventCompiled.world,
+            sceneEventCompiled.sensors,
+            preservedSceneEventProgram
+        );
+        if (rejected.status != expected ||
+            preservedSceneEventProgram.fingerprint() !=
+                preservedSceneEventFingerprint) {
+            fail(std::string{message});
+        }
+    };
+    metalrobo::TaskPack invalidSceneComponent =
+        sceneEventAuthored.task;
+    invalidSceneComponent.events.values[0u].component = 3u;
+    sceneEventRejects(
+        invalidSceneComponent,
+        metalrobo::TaskCompileStatus::invalidPack,
+        "invalid scene-event component was not transactionally rejected"
+    );
+    metalrobo::TaskPack invalidScalarComponent =
+        sceneEventAuthored.task;
+    invalidScalarComponent.events.values[0u].operation =
+        metalrobo::TaskEventOperator::generalizedVelocityDelta;
+    invalidScalarComponent.events.values[0u].target = "axis";
+    invalidScalarComponent.events.values[0u].component = 1u;
+    sceneEventRejects(
+        invalidScalarComponent,
+        metalrobo::TaskCompileStatus::invalidPack,
+        "scalar event component was not transactionally rejected"
+    );
+    metalrobo::TaskPack articulatedSceneTarget =
+        sceneEventAuthored.task;
+    articulatedSceneTarget.events.values[0u].target = "tool";
+    sceneEventRejects(
+        articulatedSceneTarget,
+        metalrobo::TaskCompileStatus::invalidPack,
+        "articulated scene-event target was not transactionally rejected"
+    );
+    const std::uint32_t staticSceneBody =
+        sceneEventCompiled.world.sceneBodyIndices().front();
+    metalrobo::TaskPack staticSceneTarget = sceneEventAuthored.task;
+    staticSceneTarget.events.values[0u].target =
+        sceneEventAuthored.model.bodyNames[staticSceneBody];
+    sceneEventRejects(
+        staticSceneTarget,
+        metalrobo::TaskCompileStatus::invalidPack,
+        "static scene-event target was not transactionally rejected"
+    );
+    metalrobo::TaskPack unresolvedSceneTarget =
+        sceneEventAuthored.task;
+    unresolvedSceneTarget.events.values[0u].target =
+        "missing_scene_body";
+    sceneEventRejects(
+        unresolvedSceneTarget,
+        metalrobo::TaskCompileStatus::unresolvedSemantic,
+        "unresolved scene-event target was not transactionally rejected"
+    );
     constexpr std::uint64_t corruptionSeed =
         0x5319a7c2d84e6b01ull;
     std::vector<metalrobo::SensorSpec> cleanCorruptionSensors{
@@ -5912,14 +6269,18 @@ int main() {
             program.eventOperators()[1].initialRange.y != 0.0f ||
             program.eventOperators()[1].finalRange.x != -0.5f ||
             program.eventOperators()[1].finalRange.y != 0.5f ||
-            (program.eventOperators()[0].target.z == 0u &&
-             program.eventOperators()[0].target.w == 0u) ||
-            (program.eventOperators()[1].target.z == 0u &&
-             program.eventOperators()[1].target.w == 0u) ||
-            (program.eventOperators()[0].target.z ==
-                 program.eventOperators()[1].target.z &&
-             program.eventOperators()[0].target.w ==
-                 program.eventOperators()[1].target.w) ||
+            program.eventOperators()[0].target.z != 0u ||
+            program.eventOperators()[0].target.w != 0u ||
+            program.eventOperators()[1].target.z != 0u ||
+            program.eventOperators()[1].target.w != 0u ||
+            (program.eventOperators()[0].identity.x == 0u &&
+             program.eventOperators()[0].identity.y == 0u) ||
+            (program.eventOperators()[1].identity.x == 0u &&
+             program.eventOperators()[1].identity.y == 0u) ||
+            (program.eventOperators()[0].identity.x ==
+                 program.eventOperators()[1].identity.x &&
+             program.eventOperators()[0].identity.y ==
+                 program.eventOperators()[1].identity.y) ||
             program.terminationOperators()[0].parameters.y !=
                 -2.0f ||
             program.terminationOperators()[1].parameters.y !=
@@ -6355,7 +6716,7 @@ int main() {
         metalrobo::TaskPack unsupportedEvent = authored.task;
         unsupportedEvent.events.values[0u].operation =
             static_cast<metalrobo::TaskEventOperator>(
-                MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA + 1u
+                MR_TASK_EVENT_SCENE_ANGULAR_VELOCITY_DELTA + 1u
             );
         const auto unsupportedEventRejected =
             metalrobo::compileTaskProgram(
@@ -6771,6 +7132,7 @@ int main() {
             << " force_n=" << fixedBase.forceNormNewtons
             << " torque_nm=" << fixedBase.torqueNormNewtonMetres
             << " command_groups=pass"
+            << " scene_events=pass"
             << " event_dv=" << fixedBase.eventVelocityDelta
             << " sensor_transaction=pass"
             << " physical_transaction=pass"

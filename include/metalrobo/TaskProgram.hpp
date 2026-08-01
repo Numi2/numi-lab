@@ -139,6 +139,10 @@ enum class TaskRandomizationOperator : std::uint32_t {
 enum class TaskEventOperator : std::uint32_t {
     generalizedVelocityDelta =
         MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA,
+    sceneLinearVelocityDelta =
+        MR_TASK_EVENT_SCENE_LINEAR_VELOCITY_DELTA,
+    sceneAngularVelocityDelta =
+        MR_TASK_EVENT_SCENE_ANGULAR_VELOCITY_DELTA,
 };
 
 struct TaskActionBinding {
@@ -323,8 +327,11 @@ struct TaskEventSpec {
     std::string id;
     TaskEventOperator operation =
         TaskEventOperator::generalizedVelocityDelta;
-    // Semantic generalized-velocity coordinate resolved by the compiler.
+    // Semantic generalized-velocity coordinate or dynamic scene-body name,
+    // depending on the typed operation. Scene vector operations use a world-
+    // axis component in [0, 2].
     std::string target;
+    std::uint32_t component = 0u;
     float initialLower = 0.0f;
     float initialUpper = 0.0f;
     float finalLower = 0.0f;

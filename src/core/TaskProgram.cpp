@@ -1255,47 +1255,127 @@ TaskCompileDiagnostics compileTaskProgram(
                 "task event identity or range is invalid"
             );
         }
-        if (event.operation !=
-            TaskEventOperator::generalizedVelocityDelta) {
+        std::uint32_t opcode = MR_INVALID_INDEX;
+        std::uint32_t targetIndex = MR_INVALID_INDEX;
+        const std::uint32_t component = event.component;
+        bool ambiguous = false;
+        switch (event.operation) {
+        case TaskEventOperator::generalizedVelocityDelta: {
+            if (component != 0u) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    event.id,
+                    "a scalar generalized-velocity event cannot select a vector component"
+                );
+            }
+            const std::uint32_t dofIndex = uniqueIndex(
+                model.dofNames,
+                event.target,
+                ambiguous
+            );
+            if (ambiguous) {
+                return reject(
+                    TaskCompileStatus::ambiguousSemantic,
+                    event.target,
+                    "task event generalized-velocity identity is ambiguous"
+                );
+            }
+            if (dofIndex == MR_INVALID_INDEX ||
+                dofIndex >= model.dofs.size()) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    event.target,
+                    "task event generalized-velocity coordinate does not exist"
+                );
+            }
+            const MRDofPropertiesGPU& dof = model.dofs[dofIndex];
+            if (dof.articulationIndex != world.articulationIndex() ||
+                dof.vIndex == MR_INVALID_INDEX ||
+                !inRange(
+                    dof.vIndex,
+                    articulation.vOffset,
+                    articulation.nv
+                )) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    event.target,
+                    "task event coordinate must belong to the selected articulation"
+                );
+            }
+            opcode = MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA;
+            targetIndex = dof.vIndex;
+            break;
+        }
+        case TaskEventOperator::sceneLinearVelocityDelta:
+        case TaskEventOperator::sceneAngularVelocityDelta: {
+            if (component >= 3u) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    event.id,
+                    "a scene-body velocity event component must be in [0, 2]"
+                );
+            }
+            const std::uint32_t bodyIndex = uniqueIndex(
+                model.bodyNames,
+                event.target,
+                ambiguous
+            );
+            if (ambiguous) {
+                return reject(
+                    TaskCompileStatus::ambiguousSemantic,
+                    event.target,
+                    "task event scene-body identity is ambiguous"
+                );
+            }
+            if (bodyIndex == MR_INVALID_INDEX ||
+                bodyIndex >= model.bodies.size()) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    event.target,
+                    "task event scene body does not exist"
+                );
+            }
+            const MRBodyPropertiesGPU& body = model.bodies[bodyIndex];
+            if (body.articulationIndex != MR_INVALID_INDEX) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    event.target,
+                    "a scene-body velocity event cannot target an articulated body"
+                );
+            }
+            if (body.motionType != MR_MOTION_DYNAMIC) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    event.target,
+                    "a scene-body velocity event requires a dynamic body"
+                );
+            }
+            const auto sceneBody = std::find(
+                world.sceneBodyIndices().begin(),
+                world.sceneBodyIndices().end(),
+                bodyIndex
+            );
+            if (sceneBody == world.sceneBodyIndices().end()) {
+                return reject(
+                    TaskCompileStatus::invalidWorld,
+                    event.target,
+                    "task event body is absent from the compiled scene-state layout"
+                );
+            }
+            opcode = event.operation ==
+                    TaskEventOperator::sceneLinearVelocityDelta
+                ? MR_TASK_EVENT_SCENE_LINEAR_VELOCITY_DELTA
+                : MR_TASK_EVENT_SCENE_ANGULAR_VELOCITY_DELTA;
+            targetIndex = static_cast<std::uint32_t>(
+                sceneBody - world.sceneBodyIndices().begin()
+            );
+            break;
+        }
+        default:
             return reject(
                 TaskCompileStatus::unsupportedOperator,
                 event.id,
                 "task event operator is not supported"
-            );
-        }
-        bool ambiguous = false;
-        const std::uint32_t dofIndex = uniqueIndex(
-            model.dofNames,
-            event.target,
-            ambiguous
-        );
-        if (ambiguous) {
-            return reject(
-                TaskCompileStatus::ambiguousSemantic,
-                event.target,
-                "task event generalized-velocity identity is ambiguous"
-            );
-        }
-        if (dofIndex == MR_INVALID_INDEX ||
-            dofIndex >= model.dofs.size()) {
-            return reject(
-                TaskCompileStatus::unresolvedSemantic,
-                event.target,
-                "task event generalized-velocity coordinate does not exist"
-            );
-        }
-        const MRDofPropertiesGPU& dof = model.dofs[dofIndex];
-        if (dof.articulationIndex != world.articulationIndex() ||
-            dof.vIndex == MR_INVALID_INDEX ||
-            !inRange(
-                dof.vIndex,
-                articulation.vOffset,
-                articulation.nv
-            )) {
-            return reject(
-                TaskCompileStatus::invalidPack,
-                event.target,
-                "task event coordinate must belong to the selected articulation"
             );
         }
         const std::uint64_t randomIdentity =
@@ -1310,10 +1390,16 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->eventIds.push_back(event.id);
         staged->eventOperators.push_back({
             {
-                MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA,
-                dof.vIndex,
+                opcode,
+                targetIndex,
+                component,
+                0u,
+            },
+            {
                 static_cast<std::uint32_t>(randomIdentity),
                 static_cast<std::uint32_t>(randomIdentity >> 32u),
+                0u,
+                0u,
             },
             {
                 event.initialLower,

@@ -5,7 +5,7 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 33u
+#define MR_RUNTIME_ABI_VERSION 34u
 #define MR_RUNTIME_PIPELINE_COUNT 95u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
 #define MR_SENSOR_PROGRAM_ABI_VERSION 9u
@@ -230,7 +230,8 @@ enum MRTaskEventBuffer : mr_u32 {
     MR_TASK_EVENT_TASK_STATES = 5u,
     MR_TASK_EVENT_EVENT_STATES = 6u,
     MR_TASK_EVENT_SOURCE_V = 7u,
-    MR_TASK_EVENT_BUFFER_COUNT = 8u,
+    MR_TASK_EVENT_SOURCE_SCENE = 8u,
+    MR_TASK_EVENT_BUFFER_COUNT = 9u,
 };
 
 enum MRTaskEffortBuffer : mr_u32 {

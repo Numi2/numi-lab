@@ -1496,8 +1496,8 @@ inline void sampleCommandGroup(
 inline ulong taskEventIdentity(
     const MRTaskEventOperatorGPU operation
 ) {
-    return ulong(operation.target.z) |
-        (ulong(operation.target.w) << 32u);
+    return ulong(operation.identity.x) |
+        (ulong(operation.identity.y) << 32u);
 }
 
 inline uint eventDurationSteps(
@@ -1532,7 +1532,8 @@ inline void applyEvent(
     const uint episode,
     const uint fireCount,
     const uint curriculum,
-    device float* v
+    device float* v,
+    device MRBodyStateGPU* sceneBodies
 ) {
     const float progress = clamp(
         float(curriculum) /
@@ -1563,6 +1564,14 @@ inline void applyEvent(
     switch (operation.target.x) {
     case MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA:
         v[operation.target.y] += value;
+        break;
+    case MR_TASK_EVENT_SCENE_LINEAR_VELOCITY_DELTA:
+        sceneBodies[operation.target.y]
+            .linearVelocityAndInverseMass[operation.target.z] += value;
+        break;
+    case MR_TASK_EVENT_SCENE_ANGULAR_VELOCITY_DELTA:
+        sceneBodies[operation.target.y]
+            .angularVelocity[operation.target.z] += value;
         break;
     default:
         break;
@@ -2705,6 +2714,8 @@ kernel void mr_task_apply_events(
         [[buffer(MR_TASK_EVENT_EVENT_STATES)]],
     device float* sourceV
         [[buffer(MR_TASK_EVENT_SOURCE_V)]],
+    device MRBodyStateGPU* sourceScene
+        [[buffer(MR_TASK_EVENT_SOURCE_SCENE)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -2727,6 +2738,7 @@ kernel void mr_task_apply_events(
     const MRTaskStateGPU taskState = taskStates[environment];
     const uint eventBase = environment * program.counts1.z;
     const uint vBase = environment * dispatch.counts.w;
+    const uint sceneBase = environment * dispatch.strides.w;
 
     for (uint eventIndex = 0u;
          eventIndex < program.counts1.z;
@@ -2755,7 +2767,8 @@ kernel void mr_task_apply_events(
                 taskState.episode.y,
                 state.schedule.y,
                 taskState.episode.z,
-                sourceV + vBase
+                sourceV + vBase,
+                sourceScene + sceneBase
             );
             const uint nextFireCount = state.schedule.y + 1u;
             state.schedule = uint4(
