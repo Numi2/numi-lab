@@ -2663,6 +2663,78 @@ kernel void mr_task_refresh_frame_observations(
     }
 }
 
+// Materialize current accepted SensorIR truth into SignalIR scratch before
+// reward and termination evaluation. The later history-refresh pass remains
+// separate because it consumes TaskIR's updated episode/termination state.
+kernel void mr_task_prepare_sensor_signals(
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_SIGNAL_SENSOR_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_SIGNAL_SENSOR_TASK_PROGRAM)]],
+    device const uchar* arena
+        [[buffer(MR_TASK_SIGNAL_SENSOR_TASK_ARENA)]],
+    device const MRSensorProgramHeaderGPU& sensorProgram
+        [[buffer(MR_TASK_SIGNAL_SENSOR_SENSOR_PROGRAM)]],
+    device const float* sensorOutputs
+        [[buffer(MR_TASK_SIGNAL_SENSOR_SENSOR_OUTPUTS)]],
+    device const MRSensorSampleMetadataGPU* sensorMetadata
+        [[buffer(MR_TASK_SIGNAL_SENSOR_SENSOR_METADATA)]],
+    device MRBodyStateGPU* bodyStates
+        [[buffer(MR_TASK_SIGNAL_SENSOR_BODY_STATES)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        sensorProgram.reserved.x != MR_SENSOR_PROGRAM_ABI_VERSION ||
+        taskSensorFingerprint(program) == 0u ||
+        taskSensorFingerprint(program) !=
+            sensorProgram.sensorFingerprint ||
+        sensorProgram.worldFingerprint != program.worldFingerprint) {
+        return;
+    }
+    device const MRTaskObservationOperatorGPU* sources =
+        taskTable<MRTaskObservationOperatorGPU>(
+            arena,
+            program.offsets4.x
+        );
+    device const MRTaskSignalOperatorGPU* operators =
+        taskTable<MRTaskSignalOperatorGPU>(
+            arena,
+            program.offsets4.y
+        );
+    device float* signalValues =
+        reinterpret_cast<device float*>(
+            bodyStates +
+            dispatch.counts.x * dispatch.strides.y
+        ) +
+        dispatch.counts.x * program.graphCounts.z +
+        environment * program.graphCounts.x;
+    for (uint signalIndex = 0u;
+         signalIndex < program.graphCounts.x;
+         ++signalIndex) {
+        const MRTaskSignalOperatorGPU operation =
+            operators[signalIndex];
+        if (operation.inputs.x != MR_TASK_SIGNAL_SOURCE ||
+            operation.inputs.y >= program.graphCounts.y) {
+            continue;
+        }
+        const MRTaskObservationOperatorGPU source =
+            sources[operation.inputs.y];
+        if (!sensorObservationOpcode(source.source.x)) {
+            continue;
+        }
+        signalValues[signalIndex] = taskSensorObservationValue(
+            sensorProgram,
+            source,
+            sensorOutputs,
+            sensorMetadata,
+            environment
+        );
+    }
+}
+
 // Bind compiled SensorIR outputs into TaskIR histories without exposing
 // simulator state to the learner. Reset-only mode seeds every history slot
 // before the first action of an episode. Advance mode writes the tail that
@@ -3591,34 +3663,42 @@ kernel void mr_task_complete(
         float value = 0.0f;
         switch (operation.inputs.x) {
         case MR_TASK_SIGNAL_SOURCE:
-            value = cleanObservation(
-                dispatch,
-                program,
-                signalSources[operation.inputs.y],
-                actions,
-                contactGroups,
-                frames,
-                kinematicFrames,
-                goals,
-                spatialJacobians,
-                environment,
-                state.episode.y,
-                episodeSteps,
-                bodyStates + bodyBase,
-                terrainSamples,
-                q,
-                v,
-                defaultQ,
-                state,
-                signalAction,
-                compactContact + compactBase,
-                bodyParameters + bodyParameterBase,
-                controllerParameters + environment,
-                sceneState + sceneBase,
-                shapes,
-                geometryHeaders,
-                geometryVertices
-            );
+            if (sensorObservationOpcode(
+                    signalSources[operation.inputs.y].source.x
+                )) {
+                // Prepared from the accepted SensorIR sample immediately
+                // before this pass.
+                value = signalValues[signalIndex];
+            } else {
+                value = cleanObservation(
+                    dispatch,
+                    program,
+                    signalSources[operation.inputs.y],
+                    actions,
+                    contactGroups,
+                    frames,
+                    kinematicFrames,
+                    goals,
+                    spatialJacobians,
+                    environment,
+                    state.episode.y,
+                    episodeSteps,
+                    bodyStates + bodyBase,
+                    terrainSamples,
+                    q,
+                    v,
+                    defaultQ,
+                    state,
+                    signalAction,
+                    compactContact + compactBase,
+                    bodyParameters + bodyParameterBase,
+                    controllerParameters + environment,
+                    sceneState + sceneBase,
+                    shapes,
+                    geometryHeaders,
+                    geometryVertices
+                );
+            }
             break;
         case MR_TASK_SIGNAL_CONSTANT:
             value = operation.parameters.x;

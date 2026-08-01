@@ -36,6 +36,7 @@ MR_RUNTIME_PIPELINE(Task, taskFrameRefreshPipeline, @"mr_task_refresh_frame_obse
 MR_RUNTIME_PIPELINE(Task, taskApplyPipeline, @"mr_task_apply_actions", 1u, 0u)
 MR_RUNTIME_PIPELINE(Task, taskEffortPipeline, @"mr_task_measure_effort", 1u, 0u)
 MR_RUNTIME_PIPELINE(Task, taskCompletePipeline, @"mr_task_complete", 1u, 0u)
+MR_RUNTIME_PIPELINE(Task, taskSignalSensorPipeline, @"mr_task_prepare_sensor_signals", 1u, 0u)
 MR_RUNTIME_PIPELINE(Task, taskRestorePipeline, @"mr_task_restore_failed_state", 1u, 0u)
 MR_RUNTIME_PIPELINE(Task, taskCurriculumPipeline, @"mr_task_update_curriculum", 1u, 0u)
 MR_RUNTIME_PIPELINE(Sensor, sensorSamplePipeline, @"mr_sensor_sample_control_boundary", 1u, 0u)

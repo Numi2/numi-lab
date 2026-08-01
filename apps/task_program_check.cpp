@@ -2776,14 +2776,13 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             },
         },
         {
-            .id = "zero",
-            .operation = metalrobo::TaskSignalOperator::constant,
-        },
-        {
-            .id = "discard_semantic",
-            .operation = metalrobo::TaskSignalOperator::multiply,
-            .left = "semantic_jacobian",
-            .right = "zero",
+            .id = "sensor_velocity",
+            .operation = metalrobo::TaskSignalOperator::source,
+            .source = {
+                .source = metalrobo::TaskObservationSource::sensorValue,
+                .target = "tool_twist",
+                .component = 0u,
+            },
         },
         {
             .id = "reward_rate",
@@ -2793,7 +2792,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         {
             .id = "reward_value",
             .operation = metalrobo::TaskSignalOperator::add,
-            .left = "discard_semantic",
+            .left = "sensor_velocity",
             .right = "reward_rate",
         },
         {
@@ -2835,6 +2834,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             .historyLength = 1u,
             .consumerFlags =
                 MR_WORLD_SENSOR_CONSUMER_CRITIC |
+                MR_WORLD_SENSOR_CONSUMER_TRUTH |
                 MR_WORLD_SENSOR_CONSUMER_RECORDER,
         },
         {
@@ -2888,9 +2888,9 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         twistCompiled.task.kinematicPointQueries().size() != 1u ||
         twistCompiled.task.kinematicCohorts().size() != 1u ||
         twistCompiled.task.kinematicCohorts().front().queryCount != 1u ||
-        twistCompiled.task.layout().signalCount != 6u ||
-        twistCompiled.task.signalSources().size() != 1u ||
-        twistCompiled.task.signalOperators().size() != 6u ||
+        twistCompiled.task.layout().signalCount != 5u ||
+        twistCompiled.task.signalSources().size() != 2u ||
+        twistCompiled.task.signalOperators().size() != 5u ||
         twistCompiled.task.header().graphCounts.z != 6u) {
         fail(
             "frame Jacobian did not compile into one stable semantic query: queries=" +
@@ -2931,7 +2931,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         twistTaskRoundTrip.fingerprint() !=
             twistCompiled.task.fingerprint() ||
         twistPackRoundTrip.critic.back().coordinate != "axis" ||
-        twistPackRoundTrip.signals.size() != 6u ||
+        twistPackRoundTrip.signals.size() != 5u ||
         twistPackRoundTrip.rewards.front().signal !=
             "reward_value" ||
         twistPackRoundTrip.terminations.front().signal !=
@@ -2939,7 +2939,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         fail("TaskPack round trip changed semantic Jacobian identity");
     }
     metalrobo::TaskPack invalidSignal = twistAuthored.task;
-    invalidSignal.signals[2u].left = "reward_value";
+    invalidSignal.signals[3u].left = "reward_value";
     metalrobo::CompiledTaskProgram preservedSignalTask =
         twistCompiled.task;
     const auto invalidSignalStatus =
@@ -3019,7 +3019,13 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         twistResult.transitions.size() != twistSteps ||
         std::abs(
             twistResult.transitions[0u].rewardAndState.x -
-            0.04f
+            0.02f *
+                (2.0f + twistResult.criticObservations[14u])
+        ) > 2.0e-4f ||
+        std::abs(
+            twistResult.transitions[1u].rewardAndState.x -
+            0.02f *
+                (2.0f + twistResult.criticObservations[24u])
         ) > 2.0e-4f ||
         twistResult.transitions[0u].termination.x != 0u ||
         std::abs(twistResult.actorObservations[0u] - 0.5f) >
@@ -3141,6 +3147,12 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     // and angular velocity into the authored sensor frame. A moving
     // kinematic rigid body is an independent exact oracle for that contract.
     metalrobo::SimulationDescription imuAuthored = twistAuthored;
+    imuAuthored.task.signals.clear();
+    imuAuthored.task.rewards = {{
+        .operation = metalrobo::TaskRewardOperator::constant,
+        .weight = 1.0f,
+    }};
+    imuAuthored.task.terminations.clear();
     imuAuthored.task.id = "fixed_base_native_imu";
     imuAuthored.sceneBodies[0u]
         .linearVelocityAndInverseMass.x = 0.0f;

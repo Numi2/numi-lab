@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 21,
+  "abi_version": 22,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -35,6 +35,7 @@
     ["task", "taskApplyPipeline", "mr_task_apply_actions", "one", 0],
     ["task", "taskEffortPipeline", "mr_task_measure_effort", "one", 0],
     ["task", "taskCompletePipeline", "mr_task_complete", "one", 0],
+    ["task", "taskSignalSensorPipeline", "mr_task_prepare_sensor_signals", "one", 0],
     ["task", "taskRestorePipeline", "mr_task_restore_failed_state", "one", 0],
     ["task", "taskCurriculumPipeline", "mr_task_update_curriculum", "one", 0],
 
@@ -863,6 +864,19 @@
         "CRITIC_HISTORY",
         "ACTOR_OBSERVATIONS",
         "CRITIC_OBSERVATIONS"
+      ]
+    },
+    {
+      "enum": "MRTaskSignalSensorBuffer",
+      "prefix": "MR_TASK_SIGNAL_SENSOR_",
+      "bindings": [
+        "DISPATCH",
+        "TASK_PROGRAM",
+        "TASK_ARENA",
+        "SENSOR_PROGRAM",
+        "SENSOR_OUTPUTS",
+        "SENSOR_METADATA",
+        "BODY_STATES"
       ]
     },
     {

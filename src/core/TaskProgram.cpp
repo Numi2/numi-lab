@@ -2164,16 +2164,6 @@ TaskCompileDiagnostics compileTaskProgram(
                     "SignalIR source leaves are truth-only and cannot request actor corruption"
                 );
             }
-            if (signal.source.source ==
-                    TaskObservationSource::sensorValue ||
-                signal.source.source ==
-                    TaskObservationSource::sensorValidity) {
-                return reject(
-                    TaskCompileStatus::unsupportedOperator,
-                    signal.id,
-                    "SensorIR signal leaves require the pending pre-reward sensor phase"
-                );
-            }
             sourceIndex = static_cast<std::uint32_t>(
                 signalSourceSpecs.size()
             );

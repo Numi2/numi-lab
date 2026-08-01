@@ -8891,6 +8891,46 @@ bool encodeTaskSensorRefresh(
     );
 }
 
+bool encodeTaskSignalSensors(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskSignalSensorPipeline,
+        @"compiled TaskIR pre-reward SensorIR signals",
+        {
+            {MR_TASK_SIGNAL_SENSOR_DISPATCH, kTaskDispatch},
+            {
+                MR_TASK_SIGNAL_SENSOR_TASK_PROGRAM,
+                kTaskProgramHeader,
+            },
+            {MR_TASK_SIGNAL_SENSOR_TASK_ARENA, kTaskProgramArena},
+            {
+                MR_TASK_SIGNAL_SENSOR_SENSOR_PROGRAM,
+                kSensorProgramHeader,
+            },
+            {
+                MR_TASK_SIGNAL_SENSOR_SENSOR_OUTPUTS,
+                kSensorOutputs,
+            },
+            {
+                MR_TASK_SIGNAL_SENSOR_SENSOR_METADATA,
+                kSensorMetadata,
+            },
+            {
+                MR_TASK_SIGNAL_SENSOR_BODY_STATES,
+                kCandidateBodies,
+            },
+        },
+        nullptr,
+        0u,
+        environmentCount
+    );
+}
+
 bool encodePolicyInference(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -17114,32 +17154,23 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     );
                 }
                 if (nativeTask &&
-                    (!encodeTaskEffort(
-                         *selectedState,
-                         commandBuffer,
-                         pass,
-                         sourceV,
-                         batch.environmentCount
-                     ) ||
-                     !encodeTaskComplete(
-                         *selectedState,
-                         commandBuffer,
-                         pass,
-                         sourceQ,
-                         sourceV,
-                         sourceScene,
-                         batch.environmentCount
-                     ))) {
+                    !encodeTaskEffort(
+                        *selectedState,
+                        commandBuffer,
+                        pass,
+                        sourceV,
+                        batch.environmentCount
+                    )) {
                     return reject(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalCommandFailure,
-                        "failed to encode native task completion"
+                        "failed to encode native task effort measurement"
                     );
                 }
                 MRMetalWorldPassGPU sensorPass = pass;
                 sensorPass.reserved0 = MR_SENSOR_EXECUTION_ADVANCE;
                 if (nativeSensors &&
-                    (!encodeSensorSample(
+                    !encodeSensorSample(
                          *selectedState,
                          commandBuffer,
                          config.sensorProgram,
@@ -17156,18 +17187,53 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                          !batch.resetMasks.empty(),
                          contactMode,
                          MR_SENSOR_EXECUTION_ADVANCE
-                     ) ||
-                     (taskUsesSensors &&
-                      !encodeTaskSensorRefresh(
-                          *selectedState,
-                          commandBuffer,
-                          sensorPass,
-                          batch.environmentCount
-                      )))) {
+                     )) {
                     return reject(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalCommandFailure,
-                        "failed to encode accepted-state sensor boundary"
+                        "failed to encode accepted-state sensor sample"
+                    );
+                }
+                if (taskUsesSensors &&
+                    config.taskProgram.header().graphCounts.y != 0u &&
+                    !encodeTaskSignalSensors(
+                        *selectedState,
+                        commandBuffer,
+                        batch.environmentCount
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode pre-reward SensorIR signals"
+                    );
+                }
+                if (nativeTask &&
+                    !encodeTaskComplete(
+                        *selectedState,
+                        commandBuffer,
+                        pass,
+                        sourceQ,
+                        sourceV,
+                        sourceScene,
+                        batch.environmentCount
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode native task completion"
+                    );
+                }
+                if (taskUsesSensors &&
+                    !encodeTaskSensorRefresh(
+                        *selectedState,
+                        commandBuffer,
+                        sensorPass,
+                        batch.environmentCount
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode accepted-state SensorIR task views"
                     );
                 }
                 if (nativeTask &&
