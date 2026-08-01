@@ -31,6 +31,35 @@ constant float kAbsolutePivotFloor = 1.0e-12f;
 constant uint kABAMaxBodies = MR_ABA_COMPILED_MAX_BODIES;
 constant uint kABAMaxDofs = MR_ABA_COMPILED_MAX_DOFS;
 constant uint kABAMaxQ = MR_ABA_COMPILED_MAX_Q;
+constant uint kABASymmetricInertiaEntries = 21u;
+
+struct MRABAScratch {
+    float3 bodyPosition[MR_ABA_COMPILED_MAX_BODIES];
+    float4 bodyRotation[MR_ABA_COMPILED_MAX_BODIES];
+    float3 angularVelocity[MR_ABA_COMPILED_MAX_BODIES];
+    float3 linearVelocity[MR_ABA_COMPILED_MAX_BODIES];
+    float3 motionAngular[MR_ABA_COMPILED_MAX_BODIES];
+    float3 motionLinear[MR_ABA_COMPILED_MAX_BODIES];
+    float3 biasAngular[MR_ABA_COMPILED_MAX_BODIES];
+    float3 biasLinear[MR_ABA_COMPILED_MAX_BODIES];
+    float3 parentToBody[MR_ABA_COMPILED_MAX_BODIES];
+    float articulatedInertia[
+        MR_ABA_COMPILED_MAX_BODIES * kABASymmetricInertiaEntries
+    ];
+    float articulatedBias[MR_ABA_COMPILED_MAX_BODIES * 6u];
+    float projectedInertia[MR_ABA_COMPILED_MAX_BODIES * 6u];
+    float jointDenominator[MR_ABA_COMPILED_MAX_BODIES];
+    float jointResidual[MR_ABA_COMPILED_MAX_BODIES];
+    uint inboundJoint[MR_ABA_COMPILED_MAX_BODIES];
+    uint parentLocal[MR_ABA_COMPILED_MAX_BODIES];
+    uint traversal[MR_ABA_COMPILED_MAX_BODIES];
+    uchar known[MR_ABA_COMPILED_MAX_BODIES];
+    float candidateAcceleration[MR_ABA_COMPILED_MAX_DOFS];
+    float candidateNextV[MR_ABA_COMPILED_MAX_DOFS];
+    float candidateNextQ[MR_ABA_COMPILED_MAX_Q];
+    float rootFactor[36u];
+    float rootIntermediate[6u];
+};
 
 } // namespace
 
@@ -161,6 +190,23 @@ inline float motionTransformElement(
         return -parentToChild.x;
     }
     return 0.0f;
+}
+
+inline uint symmetric6Index(const uint row, const uint column) {
+    const uint major = max(row, column);
+    const uint minor = min(row, column);
+    return major * (major + 1u) / 2u + minor;
+}
+
+inline float symmetric6Value(
+    threadgroup const float* matrix,
+    const uint matrixBase,
+    const uint row,
+    const uint column
+) {
+    return matrix[
+        matrixBase + symmetric6Index(row, column)
+    ];
 }
 
 inline float inertiaBodyElement(
@@ -368,77 +414,42 @@ kernel void MR_ABA_KERNEL_NAME(
         return;
     }
 
-    threadgroup float3 bodyPosition[
-        kABAMaxBodies
-    ];
-    threadgroup float4 bodyRotation[
-        kABAMaxBodies
-    ];
-    threadgroup float3 angularVelocity[
-        kABAMaxBodies
-    ];
-    threadgroup float3 linearVelocity[
-        kABAMaxBodies
-    ];
-    threadgroup float3 motionAngular[
-        kABAMaxBodies
-    ];
-    threadgroup float3 motionLinear[
-        kABAMaxBodies
-    ];
-    threadgroup float3 biasAngular[
-        kABAMaxBodies
-    ];
-    threadgroup float3 biasLinear[
-        kABAMaxBodies
-    ];
-    threadgroup float3 parentToBody[
-        kABAMaxBodies
-    ];
-    threadgroup float articulatedInertia[
-        kABAMaxBodies * 36u
-    ];
-    threadgroup float articulatedBias[
-        kABAMaxBodies * 6u
-    ];
-    threadgroup float projectedInertia[
-        kABAMaxBodies * 6u
-    ];
-    threadgroup float jointDenominator[
-        kABAMaxBodies
-    ];
-    threadgroup float jointResidual[
-        kABAMaxBodies
-    ];
-    threadgroup float3 bodyAccelerationAngular[
-        kABAMaxBodies
-    ];
-    threadgroup float3 bodyAccelerationLinear[
-        kABAMaxBodies
-    ];
-    threadgroup uint inboundJoint[
-        kABAMaxBodies
-    ];
-    threadgroup uint parentLocal[
-        kABAMaxBodies
-    ];
-    threadgroup uint traversal[
-        kABAMaxBodies
-    ];
-    threadgroup uchar known[
-        kABAMaxBodies
-    ];
-    threadgroup float candidateAcceleration[
-        kABAMaxDofs
-    ];
-    threadgroup float candidateNextV[
-        kABAMaxDofs
-    ];
-    threadgroup float candidateNextQ[
-        kABAMaxQ
-    ];
-    threadgroup float rootFactor[36u];
-    threadgroup float rootIntermediate[6u];
+    threadgroup MRABAScratch scratch;
+    threadgroup MRABAScratch& localScratch = scratch;
+    threadgroup float3* bodyPosition = localScratch.bodyPosition;
+    threadgroup float4* bodyRotation = localScratch.bodyRotation;
+    threadgroup float3* angularVelocity =
+        localScratch.angularVelocity;
+    threadgroup float3* linearVelocity = localScratch.linearVelocity;
+    threadgroup float3* motionAngular = localScratch.motionAngular;
+    threadgroup float3* motionLinear = localScratch.motionLinear;
+    threadgroup float3* biasAngular = localScratch.biasAngular;
+    threadgroup float3* biasLinear = localScratch.biasLinear;
+    threadgroup float3* parentToBody = localScratch.parentToBody;
+    threadgroup float* articulatedInertia =
+        localScratch.articulatedInertia;
+    threadgroup float* articulatedBias = localScratch.articulatedBias;
+    threadgroup float* projectedInertia =
+        localScratch.projectedInertia;
+    threadgroup float* jointDenominator =
+        localScratch.jointDenominator;
+    threadgroup float* jointResidual = localScratch.jointResidual;
+    // Position and angular-velocity storage is dead after body inertia and
+    // bias initialization. Reuse it for the later acceleration sweep so the
+    // full-capacity kernel remains below the next Apple GPU residency tier.
+    threadgroup float3* bodyAccelerationAngular = bodyPosition;
+    threadgroup float3* bodyAccelerationLinear = angularVelocity;
+    threadgroup uint* inboundJoint = localScratch.inboundJoint;
+    threadgroup uint* parentLocal = localScratch.parentLocal;
+    threadgroup uint* traversal = localScratch.traversal;
+    threadgroup uchar* known = localScratch.known;
+    threadgroup float* candidateAcceleration =
+        localScratch.candidateAcceleration;
+    threadgroup float* candidateNextV = localScratch.candidateNextV;
+    threadgroup float* candidateNextQ = localScratch.candidateNextQ;
+    threadgroup float* rootFactor = localScratch.rootFactor;
+    threadgroup float* rootIntermediate =
+        localScratch.rootIntermediate;
 
     MRABAStatusGPU status = {};
     status.code = MR_ABA_SUCCESS;
@@ -936,8 +947,11 @@ kernel void MR_ABA_KERNEL_NAME(
             statuses[environment] = status;
             return;
         }
-        const uint matrixBase = localBody * 36u;
-        for (uint entry = 0u; entry < 36u; ++entry) {
+        const uint matrixBase =
+            localBody * kABASymmetricInertiaEntries;
+        for (uint entry = 0u;
+             entry < kABASymmetricInertiaEntries;
+             ++entry) {
             articulatedInertia[matrixBase + entry] = 0.0f;
         }
         const float3 rotationColumn0 = quaternionRotate(
@@ -953,9 +967,9 @@ kernel void MR_ABA_KERNEL_NAME(
             float3(0.0f, 0.0f, 1.0f)
         );
         for (uint row = 0u; row < 3u; ++row) {
-            for (uint column = 0u; column < 3u; ++column) {
+            for (uint column = 0u; column <= row; ++column) {
                 articulatedInertia[
-                    matrixBase + row * 6u + column
+                    matrixBase + symmetric6Index(row, column)
                 ] = inertiaScale * worldInertiaElement(
                     body,
                     rotationColumn0,
@@ -966,9 +980,10 @@ kernel void MR_ABA_KERNEL_NAME(
                 );
             }
             articulatedInertia[
-                matrixBase +
-                (3u + row) * 6u +
-                (3u + row)
+                matrixBase + symmetric6Index(
+                    3u + row,
+                    3u + row
+                )
             ] = massScale * body.massAndInverseMass.x;
         }
         float3 externalForce =
@@ -1017,12 +1032,14 @@ kernel void MR_ABA_KERNEL_NAME(
     }
 
     if (articulation.rootType == MR_ROOT_FLOATING) {
-        const uint rootMatrixBase = rootLocal * 36u;
+        const uint rootMatrixBase =
+            rootLocal * kABASymmetricInertiaEntries;
         for (uint axis = 0u; axis < 3u; ++axis) {
             articulatedInertia[
-                rootMatrixBase +
-                (3u + axis) * 6u +
-                (3u + axis)
+                rootMatrixBase + symmetric6Index(
+                    3u + axis,
+                    3u + axis
+                )
             ] += effectiveArmature(
                 dofs[articulation.vOffset + axis],
                 dispatch.flags,
@@ -1031,7 +1048,7 @@ kernel void MR_ABA_KERNEL_NAME(
                 driveDampingScale
             );
             articulatedInertia[
-                rootMatrixBase + axis * 6u + axis
+                rootMatrixBase + symmetric6Index(axis, axis)
             ] += effectiveArmature(
                 dofs[articulation.vOffset + 3u + axis],
                 dispatch.flags,
@@ -1059,7 +1076,8 @@ kernel void MR_ABA_KERNEL_NAME(
         const uint globalJoint = inboundJoint[localBody];
         device const MRJointDescriptorGPU& joint =
             joints[globalJoint];
-        const uint matrixBase = localBody * 36u;
+        const uint matrixBase =
+            localBody * kABASymmetricInertiaEntries;
 
         float3 inertiaTimesBiasAngular = float3(0.0f);
         float3 inertiaTimesBiasLinear = float3(0.0f);
@@ -1067,9 +1085,12 @@ kernel void MR_ABA_KERNEL_NAME(
             float value = 0.0f;
             for (uint column = 0u; column < 6u; ++column) {
                 value +=
-                    articulatedInertia[
-                        matrixBase + row * 6u + column
-                    ] *
+                    symmetric6Value(
+                        articulatedInertia,
+                        matrixBase,
+                        row,
+                        column
+                    ) *
                     spatialComponent(
                         biasAngular[localBody],
                         biasLinear[localBody],
@@ -1105,9 +1126,12 @@ kernel void MR_ABA_KERNEL_NAME(
                      column < 6u;
                      ++column) {
                     value +=
-                        articulatedInertia[
-                            matrixBase + row * 6u + column
-                        ] *
+                        symmetric6Value(
+                            articulatedInertia,
+                            matrixBase,
+                            row,
+                            column
+                        ) *
                         spatialComponent(
                             motionAngular[localBody],
                             motionLinear[localBody],
@@ -1141,7 +1165,9 @@ kernel void MR_ABA_KERNEL_NAME(
                     driveDampingScale
                 );
             float maximumInertia = 0.0f;
-            for (uint entry = 0u; entry < 36u; ++entry) {
+            for (uint entry = 0u;
+                 entry < kABASymmetricInertiaEntries;
+                 ++entry) {
                 maximumInertia = max(
                     maximumInertia,
                     abs(articulatedInertia[matrixBase + entry])
@@ -1182,10 +1208,10 @@ kernel void MR_ABA_KERNEL_NAME(
                 projectedLinear * (residual / denominator);
             for (uint row = 0u; row < 6u; ++row) {
                 for (uint column = 0u;
-                     column < 6u;
+                     column <= row;
                      ++column) {
                     articulatedInertia[
-                        matrixBase + row * 6u + column
+                        matrixBase + symmetric6Index(row, column)
                     ] -=
                         projectedInertia[
                             localBody * 6u + row
@@ -1199,9 +1225,10 @@ kernel void MR_ABA_KERNEL_NAME(
         }
 
         const float3 offset = parentToBody[localBody];
-        const uint parentMatrixBase = localParent * 36u;
+        const uint parentMatrixBase =
+            localParent * kABASymmetricInertiaEntries;
         for (uint row = 0u; row < 6u; ++row) {
-            for (uint column = 0u; column < 6u; ++column) {
+            for (uint column = 0u; column <= row; ++column) {
                 float transformed = 0.0f;
                 for (uint left = 0u; left < 6u; ++left) {
                     const float leftTransform =
@@ -1214,11 +1241,12 @@ kernel void MR_ABA_KERNEL_NAME(
                          ++right) {
                         transformed +=
                             leftTransform *
-                            articulatedInertia[
-                                matrixBase +
-                                left * 6u +
+                            symmetric6Value(
+                                articulatedInertia,
+                                matrixBase,
+                                left,
                                 right
-                            ] *
+                            ) *
                             motionTransformElement(
                                 offset,
                                 right,
@@ -1227,7 +1255,8 @@ kernel void MR_ABA_KERNEL_NAME(
                     }
                 }
                 articulatedInertia[
-                    parentMatrixBase + row * 6u + column
+                    parentMatrixBase +
+                    symmetric6Index(row, column)
                 ] += transformed;
             }
         }
@@ -1244,13 +1273,18 @@ kernel void MR_ABA_KERNEL_NAME(
     }
 
     if (articulation.rootType == MR_ROOT_FLOATING) {
-        const uint rootMatrixBase = rootLocal * 36u;
+        const uint rootMatrixBase =
+            rootLocal * kABASymmetricInertiaEntries;
         float maximumRootInertia = 0.0f;
-        for (uint entry = 0u; entry < 36u; ++entry) {
+        for (uint entry = 0u;
+             entry < kABASymmetricInertiaEntries;
+             ++entry) {
             maximumRootInertia = max(
                 maximumRootInertia,
                 abs(articulatedInertia[rootMatrixBase + entry])
             );
+        }
+        for (uint entry = 0u; entry < 36u; ++entry) {
             rootFactor[entry] = 0.0f;
         }
         const float pivotFloor = max(
@@ -1259,9 +1293,12 @@ kernel void MR_ABA_KERNEL_NAME(
         );
         for (uint row = 0u; row < 6u; ++row) {
             for (uint column = 0u; column <= row; ++column) {
-                float value = articulatedInertia[
-                    rootMatrixBase + row * 6u + column
-                ];
+                float value = symmetric6Value(
+                    articulatedInertia,
+                    rootMatrixBase,
+                    row,
+                    column
+                );
                 for (uint inner = 0u;
                      inner < column;
                      ++inner) {

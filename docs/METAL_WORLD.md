@@ -266,6 +266,20 @@ time by 1.96%, with identical physical outcomes and zero GPU failures. A
 1,200-step qualification produced finite critic values for all eight actual
 timeouts and left all 9,592 non-timeout bootstrap fields zero.
 
+The full-capacity ABA kernel stores each symmetric 6 x 6 articulated inertia
+as its canonical 21-value lower triangle and reuses dead kinematic position
+and angular-velocity scratch for the later acceleration sweep. This reduces
+static threadgroup memory from 13,120 to 10,160 bytes on M4 Pro, crossing the
+three-group 32 KiB residency boundary without reducing topology capacity or
+precision. In a same-binary, metallib-only 12,288 x 24 visual ball-dodge A/B,
+end-to-end throughput rose from 5,546 to 5,865 environment control-steps/s
+(5.74 percent) and GPU time fell from 153,316 to 144,805 ms (5.55 percent),
+with zero failed environment steps. The focused FP64 parity, deterministic
+replay, transactional failure, body-wrench, damping, armature, and contact
+checks all pass. Selecting one canonical FP32 triangle intentionally removes
+the separately rounded upper-triangle evaluation, so long chaotic rollout
+fingerprints are not claimed bit-identical to the prior redundant storage.
+
 Analytic/SAT paths cover the inexpensive primitive pairs. Exact cylinder
 support, robust GJK with MPR/EPA fallback, cooked convex patches, static or
 kinematic mesh BVH4 traversal, and direct cell-indexed static heightfields
