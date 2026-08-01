@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T05:49:47+02:00",
+  "source_revision": "135d4f13e830fb1da87e866be07e0d01119a7700",
+  "metallib_sha256": "a4f78286d1a21de741495d4fe16b109c2b362c7797ecc80ea57de9405f333da1",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "qualification_build_actions": 3,
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 3.30,
+    "runtime_abi_version": 17,
+    "sensor_program_abi_version": 7,
+    "world_buffer_count": 247,
+    "sensor_descriptor_bytes": 224,
+    "sensor_runtime_state_bytes": 80,
+    "worldpack_format_version": 7,
+    "counter_rng_host_mirror": "passed",
+    "twist_gaussian_value_and_bias": "passed",
+    "pose_tangent_gaussian_value_and_bias": "passed",
+    "same_seed_bitwise_replay": "passed",
+    "changed_seed_stream_separation": "passed",
+    "reset_episode_stream_separation": "passed",
+    "coherent_whole_sensor_dropout": "passed",
+    "dropped_validity_task_binding": "passed",
+    "corruption_reset_rollback": "passed",
+    "worldpack_corruption_binary_roundtrip": "passed"
+  },
+  "known_release_blockers": [
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; ray and LiDAR operators remain incomplete.",
+    "Recorder routing and compiler sensor dead-code elimination remain incomplete.",
+    "No general MJCF importer is present.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

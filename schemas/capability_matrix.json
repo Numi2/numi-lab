@@ -24,7 +24,8 @@
     "evidence/baselines/2026-08-01-b57c399.json",
     "evidence/baselines/2026-08-01-e61fd21.json",
     "evidence/baselines/2026-08-01-b0bb0e2.json",
-    "evidence/baselines/2026-08-01-10209f1.json"
+    "evidence/baselines/2026-08-01-10209f1.json",
+    "evidence/baselines/2026-08-01-135d4f1.json"
   ],
   "capabilities": [
     {
@@ -151,7 +152,7 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "TaskIR resolves named SensorIR scalar values and validity bits, enforces actor/critic permissions, fingerprints the exact sensor program, seeds histories transactionally on reset, advances them from accepted post-physics state, and republishes terminal policy/value views before inference."
+      "scope": "TaskIR resolves named SensorIR scalar values and validity bits, including fresh-but-invalid coherent dropout, enforces actor/critic permissions, fingerprints the exact sensor program, seeds histories transactionally on reset, advances them from accepted post-physics state, and republishes terminal policy/value views before inference."
     },
     {
       "id": "tasks.transactional_state",
@@ -186,7 +187,7 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Only environments requesting reset journal their SensorIR schedule state, complete latency ring, compact output, and metadata in private topology-sized buffers. A rejected world or contact transaction restores the journal byte-for-byte, keeps the resident token valid, and permits a following submission; successful and ordinary non-reset steps perform no checkpoint copy."
+      "scope": "Only environments requesting reset journal their SensorIR schedule state, corruption episode identity, complete latency ring, compact output, and metadata in private topology-sized buffers. A rejected world or contact transaction restores the journal byte-for-byte, keeps the resident token valid, and permits a following submission; successful and ordinary non-reset steps perform no checkpoint copy."
     },
     {
       "id": "sensors.solver_force_torque",
@@ -204,7 +205,7 @@
     },
     {
       "id": "sensors.native_corruption",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "Native scalar SensorIR publication applies episode-static Gaussian bias, per-acquired-sample Gaussian value noise, and coherent whole-sensor dropout from a stateless counter key containing session seed, environment, episode, stable sensor ID, sample, channel, and purpose. Pose orientation noise is a normalized tangent-space rotation; contact-state discrete channels remain exact. The owner checks host-mirrored twist and pose values, exact replay, seed separation, episode reset, explicit dropped validity through TaskIR, WorldPack persistence, and rejected-reset rollback. Presentation and tactile corruption remain in their current native owners until schedule unification."
