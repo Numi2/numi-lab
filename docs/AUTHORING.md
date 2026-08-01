@@ -109,9 +109,10 @@ compilation. It supports:
   transforms and sum, mean, minimum, or maximum reductions;
 - generic signal rewards and below/above/outside termination thresholds;
 - a topology-derived count of named scalar commands with compiled initial
-  ranges, hard limits, curriculum expansion, cohort-zero probability, and a
-  shared resample duration;
-- named generalized-velocity-delta events with compiled target coordinates,
+  ranges, hard limits, curriculum expansion, correlated groups, group-zero
+  probability, and independent group schedules;
+- named generalized-coordinate and dynamic scene-body linear/angular velocity
+  deltas with compiled target coordinates, explicit world-axis components,
   curriculum-interpolated ranges, stable counter-RNG identities, and
   independent schedules;
 - named compact recorders that bind directly to SignalIR nodes and publish
@@ -188,24 +189,29 @@ members and nonzero sample ordinals before the next accepted transition.
 External and trajectory command sources remain incomplete and must extend the
 typed command table rather than reintroducing an anonymous fixed vector.
 
-Each event also has a unique authored identity. The
-`generalizedVelocityDelta` operator names one generalized-velocity coordinate;
-the compiler resolves it to a stable native index and assigns an independent
-64-bit semantic RNG key. Its lower and upper endpoints interpolate from the
-initial range to the final range as curriculum advances. Metal applies the
-sampled delta at the control boundary before physics. This is a task event,
-not a modeled force or solver impulse. The bundled G1 x/y perturbations and a
-fixed-base scalar-joint fixture use this same table, with no floating-root or
-robot-identity branch. TaskPack 19 persists the exact event contract.
+Each event also has a unique authored identity. `generalizedVelocityDelta`
+names one generalized-velocity coordinate. `sceneLinearVelocityDelta` and
+`sceneAngularVelocityDelta` name one dynamic, non-articulated body plus a
+world-axis component. The compiler resolves either semantic target to its
+stable compact index and assigns an independent 64-bit RNG key. Static,
+kinematic, articulated, unresolved, and invalid-component scene targets fail
+compilation instead of becoming silent no-ops. Lower and upper endpoints
+interpolate from the initial range to the final range as curriculum advances.
+Metal applies the sampled delta at the control boundary before physics. These
+are explicitly state deltas, not modeled forces, wrenches, or solver impulses.
+The bundled G1 x/y perturbations, a fixed-base scalar-joint fixture, and a free
+dynamic-body fixture use one table with no robot-identity branch. TaskPack 20
+persists the exact event contract.
 
 Each event owns its minimum/maximum interval and a 16-byte native state record
 containing countdown and fire count. The dedicated event pass keys both the
 interval and sampled value by stable identity and fire count, so inserting or
 reordering an unrelated event cannot perturb its stream. State and checkpoint
 capacity are exactly `event_count * environment_count`; rejected transitions
-restore both fields. Scene-body wrench/state events and richer typed event
-operators remain incomplete. They must extend the compiled event table rather
-than add another task mode.
+restore both fields. Physical impulse/wrench events, pose/trajectory events,
+and richer typed event operators remain incomplete. They must extend this
+compiled event table and domain-response interface rather than add another task
+mode.
 
 Each compact recorder resolves an authored identity and one SignalIR node at
 compilation. Recorder identities remain immutable host metadata; Metal carries
@@ -239,9 +245,9 @@ arbitrary recorder-stream phases. Frame acceleration, arbitrary point queries,
 full Jacobian tensors, multi-knot trajectory splines, richer event operators,
 vector and scheduled command operators, scheduled recorder streams, and richer
 curriculum operators are not yet production operators. The topology-sized
-named scalar command path, independently scheduled generalized-velocity event
-path, three-slot compact recorder, and scalar SignalIR-driven curriculum are
-production paths.
+named scalar command path, independently scheduled generalized-coordinate and
+scene-body velocity event path, three-slot compact recorder, and scalar
+SignalIR-driven curriculum are production paths.
 
 Frame-Jacobian observations are analytic operator outputs, not finite
 differences of poses. The point is the compiled frame origin and the three

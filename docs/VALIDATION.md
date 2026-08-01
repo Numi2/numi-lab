@@ -286,6 +286,26 @@ and 16 shared ABI bytes. The owner additionally rejects duplicate group/member
 identities, empty groups, invalid schedules/ranges, and unresolved bindings
 transactionally.
 
+The scene-body event cut is compared independently against `b7ff68b` with the
+same eight-environment, sixteen-step, fixed-eight-step-chunk G1 contract and
+seed `20260801`. Zero and deterministic host actions preserve every physical,
+contact, failure, termination, reward, recorder, and reporting value exactly.
+The ABI-only expansion adds 64 retained bytes: 32 immutable bytes for G1's two
+expanded event records and 32 shared boundary bytes for the generated scene
+binding, with no persistent or transient-state increase.
+
+TaskPack 20 compiles `sceneLinearVelocityDelta` and
+`sceneAngularVelocityDelta` against semantic dynamic scene-body names and
+explicit world-axis components. A free-body Metal fixture receives three
+scheduled `+0.25 m/s` x updates and one `-0.125 rad/s` z update after its
+initial reset boundary. Its accepted velocity and integrated pose differ from
+the no-event branch exactly as expected; replay and event-table reordering are
+byte-exact. The nonzero component survives TaskPack round-trip. Components
+outside `[0, 2]` and static, articulated, or unresolved body targets reject
+without replacing the last valid program. Runtime ABI 34 binds scene state to
+the existing event pass, while the pre-mutation physical checkpoint keeps the
+new state operation inside the existing transaction.
+
 An independent fixed-base fixture records `axis_velocity_squared` and compares
 the Metal recorder value with the generic reward-channel contribution. The
 compiler also rejects duplicate recorder identities, unresolved recorder
