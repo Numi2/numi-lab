@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T04:55:09+02:00",
+  "source_revision": "b57c39975915aa00d1e00be013cf1c0044aeccc1",
+  "metallib_sha256": "aab0be85388201d7a5dadb45e25298b724234c4332c9c4b1162543a7e26be220",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 5.67,
+    "full_build_succeeded": true,
+    "full_build_incremental_actions": 72,
+    "runtime_abi_version": 14,
+    "generated_world_buffer_count": 246,
+    "generated_reachable_pipeline_count": 92,
+    "task_execution_pipeline_count": 55,
+    "task_checkpoint_always_categories": 3,
+    "task_checkpoint_reset_only_categories": 7,
+    "task_failure_transition_retained": true,
+    "task_reference_branch_comparison": "byte_exact",
+    "task_reference_branch_physics_equal": true,
+    "task_reference_branch_contacts_equal": true,
+    "task_reference_branch_actor_critic_equal": true,
+    "task_reference_branch_policy_equal": true,
+    "task_reference_branch_sensors_equal": true,
+    "resident_token_survived_rejected_step": true
+  },
+  "known_release_blockers": [
+    "Whole-session reset publication is not yet atomic for global curriculum scheduling, independent actuator and backlash state, tactile and presentation history, and future recurrent-policy state.",
+    "Generalized warm starts, rod nodes and edges, rod witnesses, and convex query caches use pre-reset checkpoints but still need focused reset-followed-failure owner evidence.",
+    "Force-torque currently reports the final accepted physics-microstep resultant; configurable control-window integration and joint-transmission load-cell semantics are not implemented.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; dedicated contact-state, ray, LiDAR, and IMU operators remain incomplete.",
+    "Sensor-native counter-based corruption, recorder routing, and compiler dead-code elimination remain incomplete.",
+    "The canonical world executor still uses classic MTLCommandBuffer encoding outside generated binding islands; Metal 4 command allocators, complete generated argument tables, residency sets, and the final explicit-barrier graph are incomplete.",
+    "No general MJCF importer is present.",
+    "TaskIR still lacks named sites, frame acceleration, point and Jacobian quantities, sampled and trajectory goals, generic gates and reductions, and three qualified task families.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators, and direct no-copy MLX-to-private-bank transfer remains incomplete.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

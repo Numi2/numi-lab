@@ -20,7 +20,8 @@
     "evidence/baselines/2026-08-01-12912fc.json",
     "evidence/baselines/2026-08-01-09575df.json",
     "evidence/baselines/2026-08-01-ba48f35.json",
-    "evidence/baselines/2026-08-01-74155de.json"
+    "evidence/baselines/2026-08-01-74155de.json",
+    "evidence/baselines/2026-08-01-b57c399.json"
   ],
   "capabilities": [
     {
@@ -151,7 +152,7 @@
     },
     {
       "id": "tasks.transactional_state",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "Every native task step journals per-environment task state, action delay, and compact contact metrics; reset steps additionally journal actor/critic/clean histories, previous velocity, sensor bias, and body/controller randomization. A rejected reset keeps its typed failure transition but restores hidden state, and the next accepted physics, task, policy, sensor, and contact outputs match a no-failure reference branch byte-for-byte. Global curriculum scheduling is not included."
