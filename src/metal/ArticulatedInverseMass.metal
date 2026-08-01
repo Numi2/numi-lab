@@ -21,6 +21,10 @@ using namespace metal;
 #define MR_INVERSE_MASS_STREAMING_RHS 0
 #endif
 
+#ifndef MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+#define MR_PARALLEL_INVERSE_MASS_STREAMING_RHS 0
+#endif
+
 #ifndef MR_PARALLEL_INVERSE_MASS_KERNEL_NAME
 #define MR_PARALLEL_INVERSE_MASS_KERNEL_NAME \
     mr_parallel_multi_articulated_inverse_mass
@@ -1491,7 +1495,8 @@ kernel void MR_INVERSE_MASS_KERNEL_NAME(
     statuses[statusIndex] = status;
 }
 
-#if MR_INVERSE_MASS_MULTI_ARTICULATION
+#if MR_INVERSE_MASS_MULTI_ARTICULATION || \
+    MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
 
 namespace {
 
@@ -1544,7 +1549,12 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
     device const MRJointDescriptorGPU* joints [[buffer(2)]],
     device const MRDofPropertiesGPU* dofs [[buffer(3)]],
     device const MRBodyPropertiesGPU* bodies [[buffer(4)]],
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+    constant const MRInverseMassDispatchGPU& streamingDispatch
+        [[buffer(5)]],
+#else
     device const MRMultiInverseMassDispatchGPU* dispatches [[buffer(5)]],
+#endif
     device const float* q [[buffer(6)]],
     device const float* rightHandSides [[buffer(7)]],
     device float* output [[buffer(8)]],
@@ -1563,14 +1573,39 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
     device const float4* bodyParameters [[buffer(18)]],
     device const float4* controllerParameters [[buffer(19)]],
 #endif
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+    device const MRMetalWorldContactStatusGPU* contactStatuses
+        [[buffer(20)]],
+#endif
     uint2 packet [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
     const uint environment = packet.x;
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+    const MRInverseMassDispatchGPU dispatch = streamingDispatch;
+    const uint qStreamBase = 0u;
+    const uint rhsStreamBase = 0u;
+    const uint outputStreamBase = 0u;
+    const uint statusIndex = environment;
+    const MRMetalWorldContactStatusGPU contactStatus =
+        contactStatuses[environment];
+    const uint activeRhsCount =
+        contactStatus.code == MR_STEP_SUCCESS
+        ? min(
+              dispatch.rhsCount,
+              3u * contactStatus.requiredConstraints
+          )
+        : 0u;
+#else
     const MRMultiInverseMassDispatchGPU work =
         dispatches[packet.y];
     const MRInverseMassDispatchGPU dispatch = work.dispatch;
     const uint statusIndex = work.statusBase + environment;
+    const uint qStreamBase = work.qBase;
+    const uint rhsStreamBase = work.rhsBase;
+    const uint outputStreamBase = work.outputBase;
+    const uint activeRhsCount = dispatch.rhsCount;
+#endif
 
     threadgroup float3 bodyPosition[kMaxBodies];
     threadgroup float4 bodyRotation[kMaxBodies];
@@ -1578,18 +1613,22 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
     threadgroup float3 motionLinear[kMaxBodies];
     threadgroup float3 parentToBody[kMaxBodies];
     threadgroup float articulatedInertia[kMaxBodies * 36u];
-    threadgroup float childInertia[kMaxBodies * 36u];
     threadgroup float projectedInertia[kMaxBodies * 6u];
     threadgroup float jointDenominator[kMaxBodies];
-    threadgroup float articulatedBias[kMaxBodies * 6u];
-    threadgroup float childBias[kMaxBodies * 6u];
+    // RHS bias is dead before the forward acceleration sweep. The same
+    // two spatial-vector slabs carry both lifetimes.
+    threadgroup float3 bodyVectorAngular[kMaxBodies];
+    threadgroup float3 bodyVectorLinear[kMaxBodies];
     threadgroup float jointResidual[kMaxBodies];
-    threadgroup float3 accelerationAngular[kMaxBodies];
-    threadgroup float3 accelerationLinear[kMaxBodies];
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+    threadgroup float candidateOutput[kMaxDofs];
+#else
     threadgroup float candidateOutput[kMaxRhs * kMaxDofs];
+#endif
     threadgroup float rootFactor[36u];
     threadgroup float rootIntermediate[6u];
     threadgroup float maximumInputShared;
+    threadgroup float maximumOutputShared;
     threadgroup float minimumPivotShared;
     threadgroup float maximumPivotShared;
     threadgroup uint laneFailureCodes[32u];
@@ -1602,7 +1641,7 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
     status.environment = environment;
     status.articulationIndex = dispatch.articulationIndex;
     status.failingIndex = MR_INVALID_INDEX;
-    status.rhsCount = dispatch.rhsCount;
+    status.rhsCount = activeRhsCount;
 
     clearParallelInverseMassFailure(
         laneFailureCodes,
@@ -1612,16 +1651,20 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
     if (lane == 0u) {
         const MRWorldGPU world = worlds[0];
         if (environment >= dispatch.environmentCount ||
+#if !MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
             work.reserved0 != 0u ||
             work.reserved1 != 0u ||
             work.reserved2 != 0u ||
             work.reserved3 != 0u ||
+#endif
             world.abiVersion != MR_ENGINE_ABI_VERSION ||
             dispatch.articulationIndex >=
                 world.articulationCount ||
             dispatch.environmentCount == 0u ||
             dispatch.rhsCount == 0u ||
+#if !MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
             dispatch.rhsCount > kMaxRhs ||
+#endif
 #if MR_INVERSE_MASS_BODY_PARAMETERS
             (dispatch.flags & ~MR_INVERSE_MASS_IMPLICIT_DRIVES) != 0u ||
 #else
@@ -1648,6 +1691,15 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
         }
         return;
     }
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+    if (activeRhsCount == 0u) {
+        if (lane == 0u) {
+            status.diagnostics = float4(0.0f);
+            statuses[statusIndex] = status;
+        }
+        return;
+    }
+#endif
 
     const MRWorldGPU world = worlds[0];
     const MRArticulationGPU articulation =
@@ -1688,13 +1740,13 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
          !validVectorStrides(
              dispatch.rhsVectorStride,
              dispatch.rhsEnvironmentStride,
-             dispatch.rhsCount,
+             activeRhsCount,
              articulation.nv
          ) ||
          !validVectorStrides(
              dispatch.outputVectorStride,
              dispatch.outputEnvironmentStride,
-             dispatch.rhsCount,
+             activeRhsCount,
              articulation.nv
          ) ||
          schedule.abiVersion !=
@@ -1735,10 +1787,10 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
 
     const uint rootLocal = schedule.rootLocalBody;
     const uint qBase =
-        work.qBase + environment * dispatch.qStride;
+        qStreamBase + environment * dispatch.qStride;
     device const float* environmentQ = q + qBase;
     const uint rhsEnvironmentBase =
-        work.rhsBase +
+        rhsStreamBase +
         environment * dispatch.rhsEnvironmentStride;
 
     clearParallelInverseMassFailure(
@@ -1759,7 +1811,7 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
         }
     }
     for (uint flat = lane;
-         flat < dispatch.rhsCount * articulation.nv;
+         flat < activeRhsCount * articulation.nv;
          flat += 32u) {
         const uint rhsIndex = flat / articulation.nv;
         const uint localV = flat - rhsIndex * articulation.nv;
@@ -2075,7 +2127,6 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
             const uint matrixBase = localBody * 36u;
             for (uint entry = 0u; entry < 36u; ++entry) {
                 articulatedInertia[matrixBase + entry] = 0.0f;
-                childInertia[matrixBase + entry] = 0.0f;
             }
             const float3 rotationColumn0 = quaternionRotate(
                 bodyRotation[localBody],
@@ -2319,7 +2370,10 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                                     );
                             }
                         }
-                        childInertia[
+                        // The body-local factor is dead after projection.
+                        // Reuse its slab for the transformed contribution
+                        // consumed by the parent-owned reduction below.
+                        articulatedInertia[
                             matrixBase +
                             row * 6u + column
                         ] = transformed;
@@ -2359,7 +2413,7 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                         reduction.firstChildIndex +
                             childOrdinal
                     ];
-                    contribution += childInertia[
+                    contribution += articulatedInertia[
                         localChild * 36u + entry
                     ];
                 }
@@ -2461,32 +2515,29 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
         return;
     }
 
+    if (lane == 0u) {
+        maximumOutputShared = 0.0f;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
     for (uint rhsIndex = 0u;
-         rhsIndex < dispatch.rhsCount;
+         rhsIndex < activeRhsCount;
          ++rhsIndex) {
         const uint rhsBase =
             rhsEnvironmentBase +
             rhsIndex * dispatch.rhsVectorStride;
         if (lane < articulation.bodyCount) {
-            const uint biasBase = lane * 6u;
-            for (uint component = 0u;
-                 component < 6u;
-                 ++component) {
-                articulatedBias[biasBase + component] = 0.0f;
-                childBias[biasBase + component] = 0.0f;
-            }
+            bodyVectorAngular[lane] = float3(0.0f);
+            bodyVectorLinear[lane] = float3(0.0f);
             jointResidual[lane] = 0.0f;
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
         if (lane == 0u &&
             articulation.rootType == MR_ROOT_FLOATING) {
             for (uint axis = 0u; axis < 3u; ++axis) {
-                articulatedBias[
-                    rootLocal * 6u + axis
-                ] = -rightHandSides[rhsBase + 3u + axis];
-                articulatedBias[
-                    rootLocal * 6u + 3u + axis
-                ] = -rightHandSides[rhsBase + axis];
+                bodyVectorAngular[rootLocal][axis] =
+                    -rightHandSides[rhsBase + 3u + axis];
+                bodyVectorLinear[rootLocal][axis] =
+                    -rightHandSides[rhsBase + axis];
             }
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -2505,28 +2556,10 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                 ];
                 const MRJointDescriptorGPU joint =
                     joints[globalJoint];
-                float3 propagatedTorque = float3(
-                    articulatedBias[
-                        localBody * 6u + 0u
-                    ],
-                    articulatedBias[
-                        localBody * 6u + 1u
-                    ],
-                    articulatedBias[
-                        localBody * 6u + 2u
-                    ]
-                );
-                float3 propagatedForce = float3(
-                    articulatedBias[
-                        localBody * 6u + 3u
-                    ],
-                    articulatedBias[
-                        localBody * 6u + 4u
-                    ],
-                    articulatedBias[
-                        localBody * 6u + 5u
-                    ]
-                );
+                float3 propagatedTorque =
+                    bodyVectorAngular[localBody];
+                float3 propagatedForce =
+                    bodyVectorLinear[localBody];
                 if (joint.nv == 1u) {
                     const uint localV =
                         joint.vOffset - articulation.vOffset;
@@ -2563,17 +2596,8 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                     parentToBody[localBody],
                     propagatedForce
                 );
-                for (uint component = 0u;
-                     component < 6u;
-                     ++component) {
-                    childBias[
-                        localBody * 6u + component
-                    ] = spatialComponent(
-                        propagatedTorque,
-                        propagatedForce,
-                        component
-                    );
-                }
+                bodyVectorAngular[localBody] = propagatedTorque;
+                bodyVectorLinear[localBody] = propagatedForce;
             }
             threadgroup_barrier(mem_flags::mem_threadgroup);
             if (lane < level.parentReductionCount) {
@@ -2581,26 +2605,23 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                     parentReductions[
                         level.parentReductionOffset + lane
                     ];
-                for (uint component = 0u;
-                     component < 6u;
-                     ++component) {
-                    float contribution = 0.0f;
-                    for (uint childOrdinal = 0u;
-                         childOrdinal < reduction.childCount;
-                         ++childOrdinal) {
-                        const uint localChild = childIndices[
-                            reduction.firstChildIndex +
-                                childOrdinal
-                        ];
-                        contribution += childBias[
-                            localChild * 6u + component
-                        ];
-                    }
-                    articulatedBias[
-                        reduction.parentLocalBody * 6u +
-                        component
-                    ] += contribution;
+                float3 angularContribution = float3(0.0f);
+                float3 linearContribution = float3(0.0f);
+                for (uint childOrdinal = 0u;
+                     childOrdinal < reduction.childCount;
+                     ++childOrdinal) {
+                    const uint localChild = childIndices[
+                        reduction.firstChildIndex + childOrdinal
+                    ];
+                    angularContribution +=
+                        bodyVectorAngular[localChild];
+                    linearContribution +=
+                        bodyVectorLinear[localChild];
                 }
+                bodyVectorAngular[reduction.parentLocalBody] +=
+                    angularContribution;
+                bodyVectorLinear[reduction.parentLocalBody] +=
+                    linearContribution;
             }
             threadgroup_barrier(mem_flags::mem_threadgroup);
         }
@@ -2608,9 +2629,11 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
         if (lane == 0u) {
             if (articulation.rootType == MR_ROOT_FLOATING) {
                 for (uint row = 0u; row < 6u; ++row) {
-                    float value = -articulatedBias[
-                        rootLocal * 6u + row
-                    ];
+                    float value = -spatialComponent(
+                        bodyVectorAngular[rootLocal],
+                        bodyVectorLinear[rootLocal],
+                        row
+                    );
                     for (uint column = 0u;
                          column < row;
                          ++column) {
@@ -2650,31 +2673,23 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                             rootFactor[row * 6u + row]
                     );
                 }
-                accelerationAngular[rootLocal] = rootAngular;
-                accelerationLinear[rootLocal] = rootLinear;
-                candidateOutput[
-                    rhsIndex * kMaxDofs + 0u
-                ] = rootLinear.x;
-                candidateOutput[
-                    rhsIndex * kMaxDofs + 1u
-                ] = rootLinear.y;
-                candidateOutput[
-                    rhsIndex * kMaxDofs + 2u
-                ] = rootLinear.z;
-                candidateOutput[
-                    rhsIndex * kMaxDofs + 3u
-                ] = rootAngular.x;
-                candidateOutput[
-                    rhsIndex * kMaxDofs + 4u
-                ] = rootAngular.y;
-                candidateOutput[
-                    rhsIndex * kMaxDofs + 5u
-                ] = rootAngular.z;
+                bodyVectorAngular[rootLocal] = rootAngular;
+                bodyVectorLinear[rootLocal] = rootLinear;
+                const uint candidateBase =
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+                    0u;
+#else
+                    rhsIndex * kMaxDofs;
+#endif
+                candidateOutput[candidateBase + 0u] = rootLinear.x;
+                candidateOutput[candidateBase + 1u] = rootLinear.y;
+                candidateOutput[candidateBase + 2u] = rootLinear.z;
+                candidateOutput[candidateBase + 3u] = rootAngular.x;
+                candidateOutput[candidateBase + 4u] = rootAngular.y;
+                candidateOutput[candidateBase + 5u] = rootAngular.z;
             } else {
-                accelerationAngular[rootLocal] =
-                    float3(0.0f);
-                accelerationLinear[rootLocal] =
-                    float3(0.0f);
+                bodyVectorAngular[rootLocal] = float3(0.0f);
+                bodyVectorLinear[rootLocal] = float3(0.0f);
             }
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -2697,11 +2712,11 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                 const MRJointDescriptorGPU joint =
                     joints[globalJoint];
                 const float3 parentAngular =
-                    accelerationAngular[localParent];
+                    bodyVectorAngular[localParent];
                 const float3 parentLinear =
-                    accelerationLinear[localParent] +
+                    bodyVectorLinear[localParent] +
                     cross(
-                        accelerationAngular[localParent],
+                        bodyVectorAngular[localParent],
                         parentToBody[localBody]
                     );
                 float3 angular = parentAngular;
@@ -2726,20 +2741,81 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
                     const uint localV =
                         joint.vOffset - articulation.vOffset;
                     candidateOutput[
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+                        localV
+#else
                         rhsIndex * kMaxDofs + localV
+#endif
                     ] = jointAcceleration;
                     angular += motionAngular[localBody] *
                         jointAcceleration;
                     linear += motionLinear[localBody] *
                         jointAcceleration;
                 }
-                accelerationAngular[localBody] = angular;
-                accelerationLinear[localBody] = linear;
+                bodyVectorAngular[localBody] = angular;
+                bodyVectorLinear[localBody] = linear;
             }
             threadgroup_barrier(mem_flags::mem_threadgroup);
         }
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+        clearParallelInverseMassFailure(
+            laneFailureCodes,
+            laneFailureIndices,
+            lane
+        );
+        float laneRhsMaximumOutput = 0.0f;
+        for (uint localV = lane;
+             localV < articulation.nv;
+             localV += 32u) {
+            const float value = candidateOutput[localV];
+            if (!isfinite(value)) {
+                laneFailureCodes[lane] =
+                    MR_INVERSE_MASS_NONFINITE_RESULT;
+                laneFailureIndices[lane] =
+                    rhsIndex * articulation.nv + localV;
+            }
+            laneRhsMaximumOutput = max(
+                laneRhsMaximumOutput,
+                abs(value)
+            );
+        }
+        const float rhsMaximumOutput =
+            simd_max(laneRhsMaximumOutput);
+        if (collectParallelInverseMassFailure(
+                laneFailureCodes,
+                laneFailureIndices,
+                &selectedFailureCode,
+                &selectedFailureIndex,
+                lane
+            )) {
+            if (lane == 0u) {
+                status.code = selectedFailureCode;
+                status.failingIndex = selectedFailureIndex;
+                statuses[statusIndex] = status;
+            }
+            return;
+        }
+        const uint outputBase =
+            outputStreamBase +
+            environment * dispatch.outputEnvironmentStride +
+            rhsIndex * dispatch.outputVectorStride;
+        for (uint localV = lane;
+             localV < articulation.nv;
+             localV += 32u) {
+            output[outputBase + localV] =
+                candidateOutput[localV];
+        }
+        if (lane == 0u) {
+            maximumOutputShared = max(
+                maximumOutputShared,
+                rhsMaximumOutput
+            );
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+#endif
     }
 
+#if !MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
     clearParallelInverseMassFailure(
         laneFailureCodes,
         laneFailureIndices,
@@ -2747,7 +2823,7 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
     );
     float laneMaximumOutput = 0.0f;
     for (uint flat = lane;
-         flat < dispatch.rhsCount * articulation.nv;
+         flat < activeRhsCount * articulation.nv;
          flat += 32u) {
         const uint rhsIndex = flat / articulation.nv;
         const uint localV = flat - rhsIndex * articulation.nv;
@@ -2781,10 +2857,10 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
     }
 
     const uint outputEnvironmentBase =
-        work.outputBase +
+        outputStreamBase +
         environment * dispatch.outputEnvironmentStride;
     for (uint flat = lane;
-         flat < dispatch.rhsCount * articulation.nv;
+         flat < activeRhsCount * articulation.nv;
          flat += 32u) {
         const uint rhsIndex = flat / articulation.nv;
         const uint localV = flat - rhsIndex * articulation.nv;
@@ -2796,11 +2872,16 @@ kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(
             rhsIndex * kMaxDofs + localV
         ];
     }
+#endif
     if (lane == 0u) {
         status.diagnostics = float4(
             minimumPivotShared,
             maximumPivotShared,
+#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS
+            maximumOutputShared,
+#else
             maximumOutput,
+#endif
             maximumInputShared
         );
         statuses[statusIndex] = status;

@@ -3,6 +3,7 @@
 
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
+#include "metalrobo/ParallelABASchedule.hpp"
 #include "metalrobo/unified_quality_shared.h"
 
 #include <dlfcn.h>
@@ -34,7 +35,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 223u;
+constexpr std::size_t kRawBufferCount = 231u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -279,6 +280,14 @@ enum BufferIndex : std::size_t {
     kTaskMotionFeatures = 220u,
     kInverseMassStatuses = 221u,
     kInverseMassDispatch = 222u,
+    kParallelScheduleArticulations = 223u,
+    kParallelScheduleLevels = 224u,
+    kParallelScheduleParentReductions = 225u,
+    kParallelScheduleLevelBodies = 226u,
+    kParallelScheduleParentLocal = 227u,
+    kParallelScheduleInboundJoint = 228u,
+    kParallelScheduleChildOffsets = 229u,
+    kParallelScheduleChildIndices = 230u,
 };
 
 struct BufferRequirement {
@@ -1465,6 +1474,17 @@ bool buildRequirements(
     std::size_t& totalRequiredBytes
 ) {
     const EngineModel& model = world.model();
+    ParallelABASchedule parallelSchedule;
+    const bool streamedResponses =
+        (layout.contactDispatch.flags &
+         MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) != 0u;
+    if (streamedResponses &&
+        !compileParallelABASchedule(
+             model,
+             parallelSchedule
+         ).succeeded()) {
+        return false;
+    }
     const std::size_t jointElements =
         std::max<std::size_t>(model.joints.size(), 1u);
     const std::size_t resetMaskElements =
@@ -1886,6 +1906,60 @@ bool buildRequirements(
             "streamed inverse-mass dispatch",
             1u,
             requirements.entries[kInverseMassDispatch]
+        ) ||
+        !makeRequirement<MRParallelABAArticulationGPU>(
+            "parallel ABA schedule articulations",
+            streamedResponses
+                ? parallelSchedule.articulations.size()
+                : 0u,
+            requirements.entries[kParallelScheduleArticulations]
+        ) ||
+        !makeRequirement<MRParallelABALevelGPU>(
+            "parallel ABA schedule levels",
+            streamedResponses ? parallelSchedule.levels.size() : 0u,
+            requirements.entries[kParallelScheduleLevels]
+        ) ||
+        !makeRequirement<MRParallelABAParentReductionGPU>(
+            "parallel ABA schedule parent reductions",
+            streamedResponses
+                ? parallelSchedule.parentReductions.size()
+                : 0u,
+            requirements.entries[kParallelScheduleParentReductions]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "parallel ABA schedule level bodies",
+            streamedResponses
+                ? parallelSchedule.levelBodies.size()
+                : 0u,
+            requirements.entries[kParallelScheduleLevelBodies]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "parallel ABA schedule parent indices",
+            streamedResponses
+                ? parallelSchedule.parentLocal.size()
+                : 0u,
+            requirements.entries[kParallelScheduleParentLocal]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "parallel ABA schedule inbound joints",
+            streamedResponses
+                ? parallelSchedule.inboundJoint.size()
+                : 0u,
+            requirements.entries[kParallelScheduleInboundJoint]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "parallel ABA schedule child offsets",
+            streamedResponses
+                ? parallelSchedule.childOffsets.size()
+                : 0u,
+            requirements.entries[kParallelScheduleChildOffsets]
+        ) ||
+        !makeRequirement<mr_u32>(
+            "parallel ABA schedule child indices",
+            streamedResponses
+                ? parallelSchedule.childIndices.size()
+                : 0u,
+            requirements.entries[kParallelScheduleChildIndices]
         ) ||
         !makeRequirement<MRArticulatedOperatorDispatchGPU>(
             "multi-articulation kinematics dispatches",
@@ -4242,6 +4316,22 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld actuator profiles";
     case kBodies:
         return @"MetalWorld body properties";
+    case kParallelScheduleArticulations:
+        return @"MetalWorld parallel ABA schedule articulations";
+    case kParallelScheduleLevels:
+        return @"MetalWorld parallel ABA schedule levels";
+    case kParallelScheduleParentReductions:
+        return @"MetalWorld parallel ABA parent reductions";
+    case kParallelScheduleLevelBodies:
+        return @"MetalWorld parallel ABA level bodies";
+    case kParallelScheduleParentLocal:
+        return @"MetalWorld parallel ABA parent indices";
+    case kParallelScheduleInboundJoint:
+        return @"MetalWorld parallel ABA inbound joints";
+    case kParallelScheduleChildOffsets:
+        return @"MetalWorld parallel ABA child offsets";
+    case kParallelScheduleChildIndices:
+        return @"MetalWorld parallel ABA child indices";
     case kABADispatch:
         return @"MetalWorld ABA dispatch";
     case kStateQA:
@@ -4830,7 +4920,7 @@ MetalWorldDiagnostics initializeContext(
         @"mr_world_assemble_streamed_response_rhs"
     );
     streamedInverse = createContactPipeline(
-        @"mr_world_streaming_articulated_inverse_mass"
+        @"mr_world_parallel_streaming_articulated_inverse_mass"
     );
     streamedValidate = createContactPipeline(
         @"mr_world_validate_streamed_response"
@@ -5126,6 +5216,10 @@ MetalWorldDiagnostics initializeContext(
         factorDispatch.maxTotalThreadsPerThreadgroup == 0u ||
         pointQueryTail.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
+        streamedInverse.maxTotalThreadsPerThreadgroup <
+            kABAThreadsPerThreadgroup ||
+        streamedInverse.staticThreadgroupMemoryLength >
+            device.maxThreadgroupMemoryLength ||
         evaluateIR.maxTotalThreadsPerThreadgroup <
             kWorldThreadsPerThreadgroup ||
         islands.maxTotalThreadsPerThreadgroup <
@@ -5227,6 +5321,8 @@ MetalWorldDiagnostics initializeContext(
         qualityQueue.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
         qualitySolve.threadExecutionWidth !=
+            MR_WAVE32_CONTACTS_PER_TILE ||
+        streamedInverse.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
         rodToolNarrowphase.threadExecutionWidth !=
             MR_WAVE32_CONTACTS_PER_TILE ||
@@ -5586,6 +5682,8 @@ bool privateImmutableBuffer(const std::size_t index) {
          index <= kTaskProgramArena) ||
         (index >= kPolicyProgramHeader &&
          index <= kPolicyProgramArena) ||
+        (index >= kParallelScheduleArticulations &&
+         index <= kParallelScheduleChildIndices) ||
         index == kShapes ||
         index == kMaterials ||
         index == kSceneBodyIndices ||
@@ -6335,6 +6433,62 @@ void uploadBatch(
                 context,
                 index,
                 sources[offset],
+                requirements.entries[index],
+                immutableUpload
+            );
+        }
+        ParallelABASchedule parallelSchedule;
+        if ((layout.contactDispatch.flags &
+             MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) != 0u) {
+            const ParallelABAScheduleDiagnostics scheduleDiagnostics =
+                compileParallelABASchedule(model, parallelSchedule);
+            if (!scheduleDiagnostics.succeeded()) {
+                throw std::runtime_error(
+                    "failed to compile parallel ABA schedule: " +
+                    scheduleDiagnostics.message
+                );
+            }
+        }
+        const std::array<std::pair<std::size_t, const void*>, 8u>
+            scheduleSources{{
+                {
+                    kParallelScheduleArticulations,
+                    parallelSchedule.articulations.data(),
+                },
+                {
+                    kParallelScheduleLevels,
+                    parallelSchedule.levels.data(),
+                },
+                {
+                    kParallelScheduleParentReductions,
+                    parallelSchedule.parentReductions.data(),
+                },
+                {
+                    kParallelScheduleLevelBodies,
+                    parallelSchedule.levelBodies.data(),
+                },
+                {
+                    kParallelScheduleParentLocal,
+                    parallelSchedule.parentLocal.data(),
+                },
+                {
+                    kParallelScheduleInboundJoint,
+                    parallelSchedule.inboundJoint.data(),
+                },
+                {
+                    kParallelScheduleChildOffsets,
+                    parallelSchedule.childOffsets.data(),
+                },
+                {
+                    kParallelScheduleChildIndices,
+                    parallelSchedule.childIndices.data(),
+                },
+            }};
+        for (const auto& [index, source] : scheduleSources) {
+            stagePrivateBuffer(
+                context,
+                index,
+                source,
                 requirements.entries[index],
                 immutableUpload
             );
@@ -8542,13 +8696,13 @@ bool encodeStreamedArticulatedResponses(
         !context.useTaskBodyParameters) {
         return false;
     }
-    id<MTLComputeCommandEncoder> assembly =
+    id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
-    if (assembly == nil) {
+    if (encoder == nil) {
         return false;
     }
-    assembly.label = @"MetalWorld assemble streamed contact RHS";
-    [assembly setComputePipelineState:context.streamedRhsPipeline];
+    encoder.label = @"MetalWorld streamed articulated responses";
+    [encoder setComputePipelineState:context.streamedRhsPipeline];
     const std::array<std::size_t, 9u> assemblyBuffers{{
         kContactDispatch,
         kPointJacobians,
@@ -8563,23 +8717,15 @@ bool encodeStreamedArticulatedResponses(
     for (NSUInteger argument = 0u;
          argument < assemblyBuffers.size();
          ++argument) {
-        [assembly setBuffer:context.buffers[assemblyBuffers[argument]]
-                     offset:0u
-                    atIndex:argument];
+        [encoder setBuffer:context.buffers[assemblyBuffers[argument]]
+                    offset:0u
+                   atIndex:argument];
     }
-    [assembly
+    [encoder
         dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
         threadsPerThreadgroup:MTLSizeMake(MR_SIMD_WIDTH, 1u, 1u)];
-    [assembly endEncoding];
-
-    id<MTLComputeCommandEncoder> inverse =
-        [commandBuffer computeCommandEncoder];
-    if (inverse == nil) {
-        return false;
-    }
-    inverse.label = @"MetalWorld streamed inverse ABA";
-    [inverse setComputePipelineState:context.streamedInversePipeline];
-    const std::array<std::size_t, 13u> buffers{{
+    [encoder setComputePipelineState:context.streamedInversePipeline];
+    const std::array<std::size_t, 21u> buffers{{
         kWorld,
         kArticulations,
         kJoints,
@@ -8590,6 +8736,14 @@ bool encodeStreamedArticulatedResponses(
         kResponseColumns,
         kResponseColumns,
         kInverseMassStatuses,
+        kParallelScheduleArticulations,
+        kParallelScheduleLevels,
+        kParallelScheduleParentReductions,
+        kParallelScheduleLevelBodies,
+        kParallelScheduleParentLocal,
+        kParallelScheduleInboundJoint,
+        kParallelScheduleChildOffsets,
+        kParallelScheduleChildIndices,
         kTaskBodyParameters,
         kTaskControllerParameters,
         kContactStatuses,
@@ -8602,29 +8756,30 @@ bool encodeStreamedArticulatedResponses(
             offset = context.boundArticulations.front().qOffset *
                 sizeof(float);
         }
-        [inverse setBuffer:context.buffers[buffers[argument]]
+        [encoder setBuffer:context.buffers[buffers[argument]]
                     offset:offset
                    atIndex:argument];
     }
-    [inverse
+    [encoder
         dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
         threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
-    [inverse endEncoding];
-
-    return encodeContactThreadKernel(
-        context,
-        commandBuffer,
+    [encoder setComputePipelineState:context.streamedValidatePipeline];
+    [encoder setBuffer:context.buffers[kContactDispatch]
+                 offset:0u
+                atIndex:0u];
+    [encoder setBuffer:context.buffers[kInverseMassStatuses]
+                 offset:0u
+                atIndex:1u];
+    [encoder setBuffer:context.buffers[kContactStatuses]
+                 offset:0u
+                atIndex:2u];
+    dispatchWorldThreads(
+        encoder,
         context.streamedValidatePipeline,
-        @"MetalWorld validate streamed inverse ABA",
-        {
-            {0u, kContactDispatch},
-            {1u, kInverseMassStatuses},
-            {2u, kContactStatuses},
-        },
-        nullptr,
-        0u,
         environmentCount
     );
+    [encoder endEncoding];
+    return true;
 }
 
 bool encodePrepare(

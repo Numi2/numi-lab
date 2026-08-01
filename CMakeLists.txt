@@ -345,8 +345,10 @@ add_custom_command(
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -DMR_INVERSE_MASS_KERNEL_NAME=mr_world_streaming_articulated_inverse_mass
+            -DMR_PARALLEL_INVERSE_MASS_KERNEL_NAME=mr_world_parallel_streaming_articulated_inverse_mass
             -DMR_INVERSE_MASS_BODY_PARAMETERS=1
             -DMR_INVERSE_MASS_STREAMING_RHS=1
+            -DMR_PARALLEL_INVERSE_MASS_STREAMING_RHS=1
             -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
             -o "${METALROBO_STREAMING_ARTICULATED_INVERSE_MASS_AIR}"
     COMMAND xcrun -sdk macosx metal
