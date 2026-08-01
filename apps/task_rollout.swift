@@ -417,62 +417,12 @@ private func makeG1VisualObservation(
     else {
         return nil
     }
-    let directoryURL = URL(fileURLWithPath: directory)
-    let robotPacks = try FileManager.default
-        .contentsOfDirectory(
-            at: directoryURL,
-            includingPropertiesForKeys: nil,
-            options: [.skipsHiddenFiles]
-        )
-        .filter { $0.pathExtension == "mrvpack" }
-        .sorted { $0.lastPathComponent < $1.lastPathComponent }
-    guard !robotPacks.isEmpty else {
-        throw MetalRoboTaskRolloutError.invalidShape(
-            "The G1 visual-pack directory contains no .mrvpack files."
-        )
-    }
-    var packs = robotPacks.map {
-        MetalRoboTaskVisualPack(
-            url: $0,
-            assetID: "robot",
-            semanticID: 1,
-            instanceID: 1
-        )
-    }
-    let ballPacks = try FileManager.default
-        .contentsOfDirectory(
-            at: URL(fileURLWithPath: ballDirectory),
-            includingPropertiesForKeys: nil,
-            options: [.skipsHiddenFiles]
-        )
-        .filter { $0.pathExtension == "mrvpack" }
-        .sorted { $0.lastPathComponent < $1.lastPathComponent }
-    guard ballPacks.count == 6 else {
-        throw MetalRoboTaskRolloutError.invalidShape(
-            "The ball visual-pack directory must contain six body-bound .mrvpack files."
-        )
-    }
-    for index in 0..<6 {
-        packs.append(MetalRoboTaskVisualPack(
-            url: ballPacks[index],
-            assetID: "locomotion_dynamic_sphere_\(index)",
-            semanticID: 2,
-            instanceID: UInt32(100 + index)
-        ))
-    }
-    let rootHalf = Float(0.7071067811865476)
-    return MetalRoboTaskVisualObservationConfiguration(
-        packs: packs,
+    return try .unitreeG1BallRecovery(
+        robotPackDirectory: URL(fileURLWithPath: directory),
+        ballPackDirectory: URL(fileURLWithPath: ballDirectory),
         environmentPackURL: options.visualEnvironmentPack.map {
             URL(fileURLWithPath: $0)
-        },
-        cameraParentBody: "torso_link",
-        cameraPosition: SIMD3(0.0, 0.0, 0.28),
-        // Visual camera +z looks along the torso's local +x axis.
-        cameraOrientation: SIMD4(0.0, rootHalf, 0.0, rootHalf),
-        width: 160,
-        height: 120,
-        minimumVisiblePixels: 4
+        }
     )
 }
 
@@ -1127,6 +1077,8 @@ private enum TaskRolloutMain {
                     : options.dynamicSpheres.count,
                 "visual_observation":
                     visualObservation != nil,
+                "visual_scene_fingerprint":
+                    context.visualSceneFingerprint,
                 "state_trace": options.stateTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,

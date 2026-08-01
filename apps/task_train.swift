@@ -25,6 +25,9 @@ private struct Options {
     var taskPack: String?
     var urdf: String?
     var srdf: String?
+    var g1VisualPackDirectory: String?
+    var ballVisualPackDirectory: String?
+    var visualEnvironmentPack: String?
     var updateEpochs = 5
     // Zero selects four minibatches per update, matching the bundled PPO
     // contract independently of environment and horizon counts.
@@ -130,6 +133,15 @@ private struct Options {
                 index += 1
             case "--srdf":
                 srdf = try value()
+                index += 1
+            case "--g1-visual-pack-dir":
+                g1VisualPackDirectory = try value()
+                index += 1
+            case "--ball-visual-pack-dir":
+                ballVisualPackDirectory = try value()
+                index += 1
+            case "--visual-environment-pack":
+                visualEnvironmentPack = try value()
                 index += 1
             case "--scene":
                 switch try value() {
@@ -253,6 +265,21 @@ private struct Options {
         if deploymentPolicyPack == nil {
             deploymentPolicyPack =
                 updatedPolicyPack + ".deployment.policypack"
+        }
+        if (g1VisualPackDirectory == nil) !=
+            (ballVisualPackDirectory == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Visual training requires both --g1-visual-pack-dir and --ball-visual-pack-dir."
+            )
+        }
+        if g1VisualPackDirectory != nil &&
+            (unitreeG1Task != .ballDisturbanceRecovery ||
+             worldPack != nil || urdf != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "The bundled visual preset currently requires --task ball-recovery."
+            )
         }
         let ppoValues = [
             learningRate,
@@ -752,6 +779,26 @@ private enum TaskTrainMain {
             )
             let (context, worldSource) =
                 try makeContext(options: options)
+            if let robotDirectory =
+                    options.g1VisualPackDirectory,
+               let ballDirectory =
+                    options.ballVisualPackDirectory
+            {
+                try context.attachVisualObservation(
+                    .unitreeG1BallRecovery(
+                        robotPackDirectory: URL(
+                            fileURLWithPath: robotDirectory
+                        ),
+                        ballPackDirectory: URL(
+                            fileURLWithPath: ballDirectory
+                        ),
+                        environmentPackURL:
+                            options.visualEnvironmentPack.map {
+                                URL(fileURLWithPath: $0)
+                            }
+                    )
+                )
+            }
             try initializePolicyIfRequested(
                 options: options,
                 layout: context.layout
@@ -1030,6 +1077,10 @@ private enum TaskTrainMain {
                 "learner": "mlx",
                 "world_source": worldSource,
                 "device": context.deviceName,
+                "visual_observation":
+                    context.visualSceneFingerprint != 0,
+                "visual_scene_fingerprint":
+                    context.visualSceneFingerprint,
                 "environments": options.environments,
                 "steps_per_update": options.steps,
                 "updates": options.updates,

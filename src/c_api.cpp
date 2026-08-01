@@ -2213,6 +2213,15 @@ const char* mr_task_rollout_device_name(
         : "";
 }
 
+uint64_t mr_task_rollout_visual_scene_fingerprint(
+    const MRTaskRolloutHandle* handle
+) {
+    return requireTaskRolloutHandle(handle) &&
+        handle->visualRuntime
+        ? handle->visualRuntime->sceneFingerprint
+        : 0u;
+}
+
 const uint32_t* mr_task_rollout_status_codes(
     const MRTaskRolloutHandle* handle
 ) {

@@ -197,6 +197,67 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         self.height = height
         self.minimumVisiblePixels = minimumVisiblePixels
     }
+
+    public static func unitreeG1BallRecovery(
+        robotPackDirectory: URL,
+        ballPackDirectory: URL,
+        environmentPackURL: URL? = nil
+    ) throws -> Self {
+        let robotPacks = try FileManager.default
+            .contentsOfDirectory(
+                at: robotPackDirectory,
+                includingPropertiesForKeys: nil,
+                options: [.skipsHiddenFiles]
+            )
+            .filter { $0.pathExtension == "mrvpack" }
+            .sorted { $0.lastPathComponent < $1.lastPathComponent }
+        guard !robotPacks.isEmpty else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "The G1 visual-pack directory contains no .mrvpack files."
+            )
+        }
+        var packs = robotPacks.map {
+            MetalRoboTaskVisualPack(
+                url: $0,
+                assetID: "robot",
+                semanticID: 1,
+                instanceID: 1
+            )
+        }
+        let ballPacks = try FileManager.default
+            .contentsOfDirectory(
+                at: ballPackDirectory,
+                includingPropertiesForKeys: nil,
+                options: [.skipsHiddenFiles]
+            )
+            .filter { $0.pathExtension == "mrvpack" }
+            .sorted { $0.lastPathComponent < $1.lastPathComponent }
+        guard ballPacks.count == 6 else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "The ball visual-pack directory must contain six body-bound .mrvpack files."
+            )
+        }
+        for index in ballPacks.indices {
+            packs.append(MetalRoboTaskVisualPack(
+                url: ballPacks[index],
+                assetID: "locomotion_dynamic_sphere_\(index)",
+                semanticID: 2,
+                instanceID: UInt32(100 + index)
+            ))
+        }
+        let rootHalf = Float(0.7071067811865476)
+        return Self(
+            packs: packs,
+            environmentPackURL: environmentPackURL,
+            cameraParentBody: "torso_link",
+            cameraPosition: SIMD3(0.0, 0.0, 0.28),
+            // Visual camera +z looks along the torso's local +x axis.
+            cameraOrientation: SIMD4(0.0, rootHalf, 0.0, rootHalf),
+            width: 160,
+            height: 120,
+            minimumVisiblePixels: 4
+        )
+    }
 }
 
 public enum MetalRoboPolicyActivation: UInt32, Sendable {
@@ -728,6 +789,10 @@ public final class MetalRoboTaskRolloutContext {
 
     public var deviceName: String {
         String(cString: mr_task_rollout_device_name(handle))
+    }
+
+    public var visualSceneFingerprint: UInt64 {
+        mr_task_rollout_visual_scene_fingerprint(handle)
     }
 
     public func reset(seed: UInt64) throws {

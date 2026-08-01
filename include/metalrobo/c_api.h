@@ -558,6 +558,10 @@ MR_API MRTaskRolloutLayoutC mr_task_rollout_layout(
 MR_API const char* mr_task_rollout_device_name(
     const MRTaskRolloutHandle* handle
 );
+// Returns zero when no Visual Presentation scene is attached.
+MR_API uint64_t mr_task_rollout_visual_scene_fingerprint(
+    const MRTaskRolloutHandle* handle
+);
 // Diagnostic status spans alias handle-owned publication memory until the
 // next advance, reset, or destroy. Simulator state is never exposed here.
 MR_API const uint32_t* mr_task_rollout_status_codes(
