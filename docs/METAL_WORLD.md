@@ -674,3 +674,15 @@ rollback, grow-only reuse, and the 4,096-environment throughput gate.
 The MLX learner check performs a real PPO update without importing simulator
 state or scheduling a transition, then publishes a PolicyPack accepted by the
 Swift/Metal executor.
+
+The persistent learner releases each completed rollout batch and clears MLX's
+inactive allocation cache at the update boundary after policy, optimizer, and
+motion-prior state are evaluated and published. Active learner arrays remain
+resident. This prevents capacity-sized cached Metal allocations from competing
+with MetalWorld's private heaps in unified memory: on the M4 Pro, five resumed
+8,192 x 24 visual ball-dodge updates held used swap at 529--561 MB, whereas the
+uncleared worker grew from 0.50 GB to 6.69 GB over five updates. Update records
+publish active, cached, released-cache, and peak MLX byte counts. Revision
+checkpoints retain the stochastic PolicyPack and matching learner state for
+resume, plus a separately named deterministic deployment PolicyPack for
+promotion evaluation.

@@ -1153,9 +1153,15 @@ private enum TaskTrainMain {
                     )
                     let artifacts = [
                         (
-                            deploymentPolicyPack,
+                            updatedPolicyPack,
                             directory.appendingPathComponent(
                                 "revision-\(revision).policypack"
+                            )
+                        ),
+                        (
+                            deploymentPolicyPack,
+                            directory.appendingPathComponent(
+                                "revision-\(revision).deployment.policypack"
                             )
                         ),
                         (

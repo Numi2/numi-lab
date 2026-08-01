@@ -9,6 +9,7 @@ simulator.
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import os
 import sys
@@ -704,13 +705,12 @@ def _serve(arguments: argparse.Namespace) -> int:
                 learning_rewards, motion_metrics = (
                     motion_prior.blend_rewards(rollout)
                 )
-            metrics = learner.update(
-                rollout.policy_batch(
-                    discount=learner.configuration.discount,
-                    gae_lambda=learner.configuration.gae_lambda,
-                    rewards=learning_rewards,
-                )
+            policy_batch = rollout.policy_batch(
+                discount=learner.configuration.discount,
+                gae_lambda=learner.configuration.gae_lambda,
+                rewards=learning_rewards,
             )
+            metrics = learner.update(policy_batch)
             metrics.update(motion_metrics)
             artifact = learner.write_policy_pack(
                 arguments.output_policy_pack,
@@ -728,26 +728,49 @@ def _serve(arguments: argparse.Namespace) -> int:
                 motion_prior,
             )
             task_curriculum_level = rollout_curriculum_level
-            _emit(
-                sys.stdout,
+            response = {
+                "status": "updated",
+                "policy_revision_before": revision_before,
+                "policy_revision_after": learner.revision,
+                "task_fingerprint": rollout.task_fingerprint,
+                "behavior_policy_fingerprint":
+                    rollout.policy_fingerprint,
+                "samples": rollout.sample_count,
+                "policy_pack": str(artifact),
+                "deployment_policy_pack": str(deployment_artifact),
+                "learner_state": str(learner_state),
+                "task_curriculum_level": task_curriculum_level,
+                **_rollout_metrics(rollout),
+                **metrics,
+            }
+
+            # MLX intentionally caches released Metal allocations for reuse.
+            # A persistent learner sees one capacity-sized rollout per update,
+            # so retaining that cache competes directly with MetalWorld's
+            # private heaps in unified memory and eventually forces macOS to
+            # page. Policy, optimizer, and motion-prior state remain active;
+            # only the completed batch and allocator cache are released at
+            # this explicit Swift/learner synchronization boundary.
+            del policy_batch
+            del learning_rewards
+            del rollout
+            gc.collect()
+            cache_before_clear = int(mx.get_cache_memory())
+            active_after_update = int(mx.get_active_memory())
+            peak_after_update = int(mx.get_peak_memory())
+            mx.clear_cache()
+            response.update(
                 {
-                    "status": "updated",
-                    "policy_revision_before": revision_before,
-                    "policy_revision_after": learner.revision,
-                    "task_fingerprint":
-                        rollout.task_fingerprint,
-                    "behavior_policy_fingerprint":
-                        rollout.policy_fingerprint,
-                    "samples": rollout.sample_count,
-                    "policy_pack": str(artifact),
-                    "deployment_policy_pack":
-                        str(deployment_artifact),
-                    "learner_state": str(learner_state),
-                    "task_curriculum_level": task_curriculum_level,
-                    **_rollout_metrics(rollout),
-                    **metrics,
-                },
+                    "mlx_active_memory_bytes": active_after_update,
+                    "mlx_cache_memory_bytes": int(
+                        mx.get_cache_memory()
+                    ),
+                    "mlx_cache_released_bytes": cache_before_clear,
+                    "mlx_peak_memory_bytes": peak_after_update,
+                }
             )
+            mx.reset_peak_memory()
+            _emit(sys.stdout, response)
         except Exception as error:
             _emit(
                 sys.stdout,
