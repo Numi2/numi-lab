@@ -147,6 +147,8 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> taskCurriculumPipeline = nil;
     __strong id<MTLComputePipelineState> policyDensePipeline = nil;
     __strong id<MTLComputePipelineState> policySamplePipeline = nil;
+    __strong id<MTLComputePipelineState>
+        learningPublicationValidationPipeline = nil;
     __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
     __strong id<MTLComputePipelineState> bodyProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> scenePredictionPipeline = nil;
@@ -245,6 +247,7 @@ struct MetalWorldContextState {
     std::uint64_t boundSensorFingerprint = 0u;
     std::array<std::uint64_t, 2u> boundPolicyFingerprints{};
     std::uint32_t activePolicyBank = 0u;
+    std::uint64_t nextLearningValidationToken = 1u;
     std::uint64_t stateArenaGeneration = 0u;
     std::weak_ptr<MetalWorldResidentStateData> residentOwner;
     MetalWorldContextStats stats{};
@@ -450,6 +453,8 @@ struct MetalWorldSubmissionState {
     std::shared_ptr<MetalWorldResidentStateData> resident;
     std::shared_ptr<MetalRolloutAppendData> rollout;
     std::uint64_t policyRevision = 0u;
+    std::uint64_t taskFingerprint = 0u;
+    std::uint64_t learningValidationToken = 0u;
     bool hasRods = false;
     bool contactMode = false;
     bool captureContactEvidence = false;
@@ -2616,6 +2621,11 @@ bool buildRequirements(
             layout.policyValueElements,
             requirements.entries[kPolicyValues]
         ) ||
+        !makeRequirement<MRLearningPublicationStatusGPU>(
+            "native learning publication status",
+            nativePolicy ? 1u : 0u,
+            requirements.entries[kLearningPublicationStatus]
+        ) ||
         !makeRequirement<MRSensorProgramHeaderGPU>(
             "compiled sensor header",
             nativeSensors ? 1u : 0u,
@@ -4202,6 +4212,8 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld policy log probabilities";
     case kPolicyValues:
         return @"MetalWorld policy values";
+    case kLearningPublicationStatus:
+        return @"MetalWorld learning publication status";
     default:
         return @"MetalWorld buffer";
     }
@@ -4430,6 +4442,8 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> taskCurriculum = nil;
     __strong id<MTLComputePipelineState> policyDense = nil;
     __strong id<MTLComputePipelineState> policySample = nil;
+    __strong id<MTLComputePipelineState>
+        learningPublicationValidation = nil;
     __strong id<MTLComputePipelineState> contactPrepare = nil;
     __strong id<MTLComputePipelineState> bodyProjection = nil;
     __strong id<MTLComputePipelineState> scenePrediction = nil;
@@ -4540,6 +4554,9 @@ MetalWorldDiagnostics initializeContext(
         createContactPipeline(@"mr_policy_dense_layer");
     policySample = createContactPipeline(
         @"mr_policy_sample_and_score"
+    );
+    learningPublicationValidation = createContactPipeline(
+        @"mr_task_validate_learning_publication"
     );
     contactPrepare =
         createContactPipeline(@"mr_world_prepare_contact_step");
@@ -4737,6 +4754,7 @@ MetalWorldDiagnostics initializeContext(
         taskCurriculum == nil ||
         policyDense == nil ||
         policySample == nil ||
+        learningPublicationValidation == nil ||
         contactPrepare == nil ||
         bodyProjection == nil ||
         scenePrediction == nil ||
@@ -4843,6 +4861,8 @@ MetalWorldDiagnostics initializeContext(
         taskCurriculum.maxTotalThreadsPerThreadgroup == 0u ||
         policyDense.maxTotalThreadsPerThreadgroup == 0u ||
         policySample.maxTotalThreadsPerThreadgroup == 0u ||
+        learningPublicationValidation
+                .maxTotalThreadsPerThreadgroup == 0u ||
         contactPrepare.maxTotalThreadsPerThreadgroup == 0u ||
         bodyProjection.maxTotalThreadsPerThreadgroup == 0u ||
         scenePrediction.maxTotalThreadsPerThreadgroup == 0u ||
@@ -4990,6 +5010,8 @@ MetalWorldDiagnostics initializeContext(
     context.taskCurriculumPipeline = taskCurriculum;
     context.policyDensePipeline = policyDense;
     context.policySamplePipeline = policySample;
+    context.learningPublicationValidationPipeline =
+        learningPublicationValidation;
     context.contactPreparePipeline = contactPrepare;
     context.bodyProjectionPipeline = bodyProjection;
     context.scenePredictionPipeline = scenePrediction;
@@ -8902,6 +8924,125 @@ bool encodePolicyInference(
     );
 }
 
+bool encodeLearningPublicationValidation(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MetalWorldLayout& layout,
+    const std::uint64_t policyRevision,
+    const std::uint64_t taskFingerprint,
+    const std::uint64_t validationToken
+) {
+    const std::array<std::size_t, 5u> floatCounts{{
+        layout.actorObservationElements,
+        layout.criticObservationElements,
+        layout.policyLatentElements,
+        layout.policyLogProbabilityElements,
+        layout.policyValueElements,
+    }};
+    std::size_t totalFloatCount = 0u;
+    for (const std::size_t count : floatCounts) {
+        if (count > std::numeric_limits<mr_u32>::max() ||
+            !checkedAdd(
+                totalFloatCount,
+                count,
+                totalFloatCount
+            )) {
+            return false;
+        }
+    }
+    std::size_t totalOrdinalCount = 0u;
+    if (layout.transitionElements >
+            std::numeric_limits<mr_u32>::max() ||
+        totalFloatCount >
+            std::numeric_limits<mr_u32>::max() ||
+        !checkedAdd(
+            totalFloatCount,
+            layout.transitionElements,
+            totalOrdinalCount
+        ) ||
+        totalOrdinalCount >
+            std::numeric_limits<mr_u32>::max() ||
+        policyRevision == 0u || taskFingerprint == 0u ||
+        validationToken == 0u) {
+        return false;
+    }
+
+    MRLearningPublicationDispatchGPU dispatch{};
+    dispatch.floatCounts = {
+        static_cast<mr_u32>(floatCounts[0]),
+        static_cast<mr_u32>(floatCounts[1]),
+        static_cast<mr_u32>(floatCounts[2]),
+        static_cast<mr_u32>(floatCounts[3]),
+    };
+    dispatch.recordCounts = {
+        static_cast<mr_u32>(floatCounts[4]),
+        static_cast<mr_u32>(layout.transitionElements),
+        static_cast<mr_u32>(totalFloatCount),
+        0u,
+    };
+    dispatch.policyRevision = policyRevision;
+    dispatch.taskFingerprint = taskFingerprint;
+    dispatch.validationToken = validationToken;
+
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        return false;
+    }
+    encoder.label = @"compiled learning publication validation";
+    [encoder setComputePipelineState:
+        context.learningPublicationValidationPipeline];
+    [encoder setBytes:&dispatch
+               length:sizeof(dispatch)
+              atIndex:MR_LEARNING_VALIDATE_DISPATCH];
+    const std::array<std::pair<NSUInteger, std::size_t>, 7u>
+        bindings{{
+            {
+                MR_LEARNING_VALIDATE_ACTOR_OBSERVATIONS,
+                kTaskActorObservations,
+            },
+            {
+                MR_LEARNING_VALIDATE_CRITIC_OBSERVATIONS,
+                kTaskCriticObservations,
+            },
+            {MR_LEARNING_VALIDATE_LATENTS, kPolicyLatents},
+            {
+                MR_LEARNING_VALIDATE_LOG_PROBABILITIES,
+                kPolicyLogProbabilities,
+            },
+            {MR_LEARNING_VALIDATE_VALUES, kPolicyValues},
+            {MR_LEARNING_VALIDATE_TRANSITIONS, kTaskTransitions},
+            {
+                MR_LEARNING_VALIDATE_STATUS,
+                kLearningPublicationStatus,
+            },
+        }};
+    for (const auto& [argument, resource] : bindings) {
+        [encoder setBuffer:context.buffers[resource]
+                     offset:0u
+                    atIndex:argument];
+    }
+    const NSUInteger maximum =
+        context.learningPublicationValidationPipeline
+            .maxTotalThreadsPerThreadgroup;
+    const NSUInteger simdWidth = std::max<NSUInteger>(
+        1u,
+        context.learningPublicationValidationPipeline
+            .threadExecutionWidth
+    );
+    NSUInteger threads = std::min<NSUInteger>(256u, maximum);
+    threads = (threads / simdWidth) * simdWidth;
+    if (threads == 0u) {
+        [encoder endEncoding];
+        return false;
+    }
+    [encoder
+        dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(threads, 1u, 1u)];
+    [encoder endEncoding];
+    return true;
+}
+
 bool encodeTaskApplyActions(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -11876,13 +12017,19 @@ bool validLearningPayload(
                     finite(transition.rewardAndState) &&
                     finite(transition.rewardBreakdown0) &&
                     finite(transition.rewardBreakdown1) &&
+                    std::isfinite(
+                        transition.timeoutBootstrapValue
+                    ) &&
+                    std::isfinite(
+                        transition.episodeTrackingScore
+                    ) &&
                     transition.policyRevision ==
                         expectedPolicyRevision &&
                     transition.termination.x <= 1u &&
                     transition.termination.y <= 1u &&
                     transition.termination.z <= 1u &&
                     transition.termination.w <=
-                        MR_TASK_TERMINATION_PHYSICS_ERROR &&
+                        MR_TASK_TERMINATION_GOAL_ERROR &&
                     (
                         transition.termination.x != 0u ||
                         transition.termination.w ==
@@ -11892,142 +12039,16 @@ bool validLearningPayload(
         );
 }
 
-bool validLeasedLearningPayload(
-    const std::shared_ptr<detail::MetalRolloutAppendData>& append,
-    const MetalWorldLayout& layout,
-    const std::uint64_t expectedPolicyRevision
-) {
-    if (append == nullptr || append->ring == nullptr) {
-        return false;
-    }
-    const std::lock_guard lock(append->ring->mutex);
-    if (append->slotIndex >= append->ring->slots.size()) {
-        return false;
-    }
-    const detail::MetalRolloutSlotData& slot =
-        append->ring->slots[append->slotIndex];
-    if (slot.generation != append->generation ||
-        slot.state != detail::MetalRolloutSlotState::collecting ||
-        !slot.appendPending || slot.failed ||
-        slot.policyRevision != expectedPolicyRevision ||
-        slot.writtenControlSteps !=
-            append->destinationControlStep) {
-        return false;
-    }
-
-    const MetalRolloutRingLayout& ring = append->ring->layout;
-    std::size_t sampleCount = 0u;
-    std::size_t destinationSample = 0u;
-    if (!checkedMultiply(
-            append->controlStepCount,
-            ring.environmentCount,
-            sampleCount
-        ) ||
-        !checkedMultiply(
-            append->destinationControlStep,
-            ring.environmentCount,
-            destinationSample
-        ) ||
-        sampleCount != layout.transitionElements) {
-        return false;
-    }
-    const auto floatSpan = [destinationSample, sampleCount](
-        id<MTLBuffer> buffer,
-        const std::size_t width
-    ) -> std::span<const float> {
-        std::size_t offset = 0u;
-        std::size_t count = 0u;
-        std::size_t end = 0u;
-        if (buffer == nil || buffer.contents == nullptr ||
-            !checkedMultiply(destinationSample, width, offset) ||
-            !checkedMultiply(sampleCount, width, count) ||
-            !checkedAdd(offset, count, end) ||
-            end > buffer.length / sizeof(float)) {
-            return {};
-        }
-        return {
-            static_cast<const float*>(buffer.contents) + offset,
-            count,
-        };
-    };
-    const auto actor = floatSpan(
-        slot.actorObservations,
-        ring.actorObservationCount
-    );
-    const auto critic = floatSpan(
-        slot.criticObservations,
-        ring.criticObservationCount
-    );
-    const auto latents = floatSpan(slot.latents, ring.actionCount);
-    const auto logProbabilities = floatSpan(
-        slot.logProbabilities,
-        1u
-    );
-    const auto values = floatSpan(slot.values, 1u);
-    if ((ring.actorObservationCount != 0u && actor.empty()) ||
-        (ring.criticObservationCount != 0u && critic.empty()) ||
-        (ring.actionCount != 0u && latents.empty()) ||
-        logProbabilities.size() != sampleCount ||
-        values.size() != sampleCount) {
-        return false;
-    }
-
-    std::span<const float> bootstrap;
-    if (append->includeBootstrapValues) {
-        if (slot.bootstrapValues == nil ||
-            slot.bootstrapValues.contents == nullptr ||
-            slot.bootstrapValues.length /
-                    sizeof(float) <
-                ring.environmentCount) {
-            return false;
-        }
-        bootstrap = {
-            static_cast<const float*>(
-                slot.bootstrapValues.contents
-            ),
-            ring.environmentCount,
-        };
-    }
-
-    std::size_t transitionEnd = 0u;
-    if (slot.transitions == nil ||
-        slot.transitions.contents == nullptr ||
-        !checkedAdd(
-            destinationSample,
-            sampleCount,
-            transitionEnd
-        ) ||
-        transitionEnd >
-            slot.transitions.length /
-                sizeof(MRTaskTransitionGPU)) {
-        return false;
-    }
-    const std::span<const MRTaskTransitionGPU> transitions{
-        static_cast<const MRTaskTransitionGPU*>(
-            slot.transitions.contents
-        ) + destinationSample,
-        sampleCount,
-    };
-    return validLearningPayload(
-        actor,
-        critic,
-        latents,
-        logProbabilities,
-        values,
-        bootstrap,
-        transitions,
-        expectedPolicyRevision
-    );
-}
-
 MetalWorldDiagnostics validateAndPublish(
     MetalWorldResult&& staged,
     MetalWorldDiagnostics diagnostics,
     const bool publishFinalState,
     const bool publishStateTrajectory,
     const bool publishLearningOutputs,
-    const std::shared_ptr<detail::MetalRolloutAppendData>& rollout,
+    const MRLearningPublicationStatusGPU* learningStatus,
     const std::uint64_t expectedPolicyRevision,
+    const std::uint64_t expectedTaskFingerprint,
+    const std::uint64_t expectedValidationToken,
     MetalWorldResult& result
 ) {
     const MRMetalWorldDispatchGPU& dispatch =
@@ -12543,6 +12564,34 @@ MetalWorldDiagnostics validateAndPublish(
         }
     }
     if (diagnostics.layout.actionElements != 0u) {
+        const std::uint64_t expectedFloatCount =
+            static_cast<std::uint64_t>(
+                diagnostics.layout.actorObservationElements
+            ) + diagnostics.layout.criticObservationElements +
+            diagnostics.layout.policyLatentElements +
+            diagnostics.layout.policyLogProbabilityElements +
+            diagnostics.layout.policyValueElements;
+        const bool validGPUStatus =
+            learningStatus != nullptr &&
+            learningStatus->result.x ==
+                MR_LEARNING_PUBLICATION_SUCCESS &&
+            learningStatus->result.y == 0u &&
+            learningStatus->result.z ==
+                MR_LEARNING_STREAM_NONE &&
+            learningStatus->result.w == MR_INVALID_INDEX &&
+            learningStatus->checkedCounts.x ==
+                expectedFloatCount &&
+            learningStatus->checkedCounts.y ==
+                diagnostics.layout.transitionElements &&
+            learningStatus->checkedCounts.z != 0u &&
+            learningStatus->checkedCounts.w ==
+                MR_RUNTIME_ABI_VERSION &&
+            learningStatus->policyRevision ==
+                expectedPolicyRevision &&
+            learningStatus->taskFingerprint ==
+                expectedTaskFingerprint &&
+            learningStatus->validationToken ==
+                expectedValidationToken;
         const bool validLearning = publishLearningOutputs
             ? validLearningPayload(
                   staged.actorObservations,
@@ -12554,16 +12603,24 @@ MetalWorldDiagnostics validateAndPublish(
                   staged.transitions,
                   expectedPolicyRevision
               )
-            : validLeasedLearningPayload(
-                  rollout,
-                  diagnostics.layout,
-                  expectedPolicyRevision
-              );
+            : validGPUStatus;
         if (!validLearning) {
+            const std::string detail =
+                !publishLearningOutputs && learningStatus != nullptr
+                ? " code=" +
+                      std::to_string(learningStatus->result.x) +
+                      " invalid_count=" +
+                      std::to_string(learningStatus->result.y) +
+                      " stream=" +
+                      std::to_string(learningStatus->result.z) +
+                      " index=" +
+                      std::to_string(learningStatus->result.w)
+                : std::string{};
             return reject(
                 std::move(diagnostics),
                 MetalWorldHostStatus::internalFailure,
-                "GPU published a malformed native task transition"
+                "GPU published a malformed native learning payload" +
+                    detail
             );
         }
     }
@@ -15138,6 +15195,9 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
     MetalWorldDiagnostics diagnostics = pending->diagnostics;
     try {
         MetalWorldResult staged{};
+        MRLearningPublicationStatusGPU learningStatus{};
+        const MRLearningPublicationStatusGPU*
+            learningStatusPointer = nullptr;
         @autoreleasepool {
             [pending->commandBuffer waitUntilCompleted];
             const auto end = std::chrono::steady_clock::now();
@@ -15476,6 +15536,25 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                     );
                 }
             }
+            if (!pending->publishLearningOutputs) {
+                id<MTLBuffer> statusBuffer =
+                    buffers[kLearningPublicationStatus];
+                if (statusBuffer == nil ||
+                    statusBuffer.contents == nullptr ||
+                    statusBuffer.length < sizeof(learningStatus)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::internalFailure,
+                        "GPU learning publication status is unavailable"
+                    );
+                }
+                std::memcpy(
+                    &learningStatus,
+                    statusBuffer.contents,
+                    sizeof(learningStatus)
+                );
+                learningStatusPointer = &learningStatus;
+            }
         }
 
         MetalWorldDiagnostics published = validateAndPublish(
@@ -15484,8 +15563,10 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             pending->publishFinalState,
             pending->publishStateTrajectory,
             pending->publishLearningOutputs,
-            pending->rollout,
+            learningStatusPointer,
             pending->policyRevision,
+            pending->taskFingerprint,
+            pending->learningValidationToken,
             result
         );
         pending->finishRollout(published.succeeded());
@@ -16487,6 +16568,30 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 }
             }
 
+            std::uint64_t learningValidationToken = 0u;
+            if (!config.publishLearningOutputs) {
+                learningValidationToken =
+                    selectedState->nextLearningValidationToken++;
+                if (learningValidationToken == 0u) {
+                    learningValidationToken = 1u;
+                    selectedState->nextLearningValidationToken = 2u;
+                }
+                if (!encodeLearningPublicationValidation(
+                        *selectedState,
+                        commandBuffer,
+                        diagnostics.layout,
+                        config.policyProgram.revision(),
+                        config.taskProgram.fingerprint(),
+                        learningValidationToken
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode GPU learning publication validation"
+                    );
+                }
+            }
+
             if (!encodeRolloutAppend(
                     *selectedState,
                     commandBuffer,
@@ -16585,6 +16690,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 config.policyProgram.valid()
                 ? config.policyProgram.revision()
                 : batch.policyRevision;
+            pending->taskFingerprint =
+                config.taskProgram.fingerprint();
+            pending->learningValidationToken =
+                learningValidationToken;
             pending->hasRods = world.rodCount() != 0u;
             pending->contactMode = contactMode;
             pending->captureContactEvidence =

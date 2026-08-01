@@ -5,7 +5,7 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 6u
+#define MR_RUNTIME_ABI_VERSION 7u
 #define MR_SENSOR_PROGRAM_ABI_VERSION 3u
 
 typedef struct MR_ALIGN16 MRSensorProgramHeaderGPU {
@@ -48,6 +48,24 @@ typedef struct MR_ALIGN16 MRSensorSampleMetadataGPU {
     mr_uint4 sequenceAndTimestamp;
     mr_uint4 ageValidityAndLayout;
 } MRSensorSampleMetadataGPU;
+
+typedef struct MR_ALIGN16 MRLearningPublicationDispatchGPU {
+    mr_uint4 floatCounts;
+    mr_uint4 recordCounts;
+    mr_u64 policyRevision;
+    mr_u64 taskFingerprint;
+    mr_u64 validationToken;
+    mr_u64 reserved;
+} MRLearningPublicationDispatchGPU;
+
+typedef struct MR_ALIGN16 MRLearningPublicationStatusGPU {
+    mr_uint4 result;
+    mr_uint4 checkedCounts;
+    mr_u64 policyRevision;
+    mr_u64 taskFingerprint;
+    mr_u64 validationToken;
+    mr_u64 reserved;
+} MRLearningPublicationStatusGPU;
 
 enum MRWorldManifoldRecordScatterBuffer : mr_u32 {
     MR_RECORD_SCATTER_DISPATCH = 0u,
@@ -169,6 +187,18 @@ enum MRTaskSensorRefreshBuffer : mr_u32 {
     MR_TASK_SENSOR_REFRESH_ACTOR_OBSERVATIONS = 13u,
     MR_TASK_SENSOR_REFRESH_CRITIC_OBSERVATIONS = 14u,
     MR_TASK_SENSOR_REFRESH_BUFFER_COUNT = 15u,
+};
+
+enum MRLearningPublicationValidationBuffer : mr_u32 {
+    MR_LEARNING_VALIDATE_DISPATCH = 0u,
+    MR_LEARNING_VALIDATE_ACTOR_OBSERVATIONS = 1u,
+    MR_LEARNING_VALIDATE_CRITIC_OBSERVATIONS = 2u,
+    MR_LEARNING_VALIDATE_LATENTS = 3u,
+    MR_LEARNING_VALIDATE_LOG_PROBABILITIES = 4u,
+    MR_LEARNING_VALIDATE_VALUES = 5u,
+    MR_LEARNING_VALIDATE_TRANSITIONS = 6u,
+    MR_LEARNING_VALIDATE_STATUS = 7u,
+    MR_LEARNING_VALIDATE_BUFFER_COUNT = 8u,
 };
 
 #if defined(__cplusplus) && !defined(__METAL_VERSION__)
@@ -401,7 +431,8 @@ enum BufferIndex : std::size_t {
     kSensorMetadata = 227u,
     kPolicyProgramHeaderB = 228u,
     kPolicyProgramArenaB = 229u,
-    kRawBufferCount = 230u,
+    kLearningPublicationStatus = 230u,
+    kRawBufferCount = 231u,
 };
 
 enum class BufferLifetime : std::uint8_t {
@@ -644,6 +675,7 @@ inline constexpr std::array<BufferLifetime, kRawBufferCount>
         BufferLifetime::persistent,
         BufferLifetime::immutable,
         BufferLifetime::immutable,
+        BufferLifetime::boundary,
     }};
 inline constexpr std::array<bool, kRawBufferCount>
     kPersistentInputs{{
@@ -875,6 +907,7 @@ inline constexpr std::array<bool, kRawBufferCount>
         true,
         true,
         true,
+        false,
         false,
         false,
     }};
@@ -1110,6 +1143,7 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "sensor metadata",
         "policy program header b",
         "policy program arena b",
+        "learning publication status",
     }};
 
 [[nodiscard]] constexpr bool validBufferIndex(
@@ -1185,12 +1219,29 @@ static_assert(sizeof(MRSensorSampleMetadataGPU) == 32u);
 static_assert(alignof(MRSensorSampleMetadataGPU) == 16u);
 static_assert(offsetof(MRSensorSampleMetadataGPU, sequenceAndTimestamp) == 0u);
 static_assert(offsetof(MRSensorSampleMetadataGPU, ageValidityAndLayout) == 16u);
+static_assert(sizeof(MRLearningPublicationDispatchGPU) == 64u);
+static_assert(alignof(MRLearningPublicationDispatchGPU) == 16u);
+static_assert(offsetof(MRLearningPublicationDispatchGPU, floatCounts) == 0u);
+static_assert(offsetof(MRLearningPublicationDispatchGPU, recordCounts) == 16u);
+static_assert(offsetof(MRLearningPublicationDispatchGPU, policyRevision) == 32u);
+static_assert(offsetof(MRLearningPublicationDispatchGPU, taskFingerprint) == 40u);
+static_assert(offsetof(MRLearningPublicationDispatchGPU, validationToken) == 48u);
+static_assert(offsetof(MRLearningPublicationDispatchGPU, reserved) == 56u);
+static_assert(sizeof(MRLearningPublicationStatusGPU) == 64u);
+static_assert(alignof(MRLearningPublicationStatusGPU) == 16u);
+static_assert(offsetof(MRLearningPublicationStatusGPU, result) == 0u);
+static_assert(offsetof(MRLearningPublicationStatusGPU, checkedCounts) == 16u);
+static_assert(offsetof(MRLearningPublicationStatusGPU, policyRevision) == 32u);
+static_assert(offsetof(MRLearningPublicationStatusGPU, taskFingerprint) == 40u);
+static_assert(offsetof(MRLearningPublicationStatusGPU, validationToken) == 48u);
+static_assert(offsetof(MRLearningPublicationStatusGPU, reserved) == 56u);
 static_assert(MR_RECORD_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_IR_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_NUMI_PREPARE_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_FRAME_REFRESH_BUFFER_COUNT <= 31u);
 static_assert(MR_SENSOR_SAMPLE_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_SENSOR_REFRESH_BUFFER_COUNT <= 31u);
+static_assert(MR_LEARNING_VALIDATE_BUFFER_COUNT <= 31u);
 
 } // namespace metalrobo::runtime_abi
 #endif

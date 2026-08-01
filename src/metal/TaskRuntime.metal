@@ -3578,3 +3578,210 @@ kernel void mr_task_update_curriculum(
         );
     }
 }
+
+inline void recordLearningPublicationFailure(
+    threadgroup atomic_uint& invalidCount,
+    threadgroup atomic_uint& firstInvalidOrdinal,
+    const uint ordinal
+) {
+    atomic_fetch_add_explicit(
+        &invalidCount,
+        1u,
+        memory_order_relaxed
+    );
+    atomic_fetch_min_explicit(
+        &firstInvalidOrdinal,
+        ordinal,
+        memory_order_relaxed
+    );
+}
+
+// One cooperative threadgroup validates the complete compact learning
+// publication. The host waits for this fixed-size status record rather than
+// rescanning the shared rollout payload. The command-buffer completion is the
+// visibility boundary for both the status and the subsequent lease blit.
+kernel void mr_task_validate_learning_publication(
+    constant MRLearningPublicationDispatchGPU& dispatch
+        [[buffer(MR_LEARNING_VALIDATE_DISPATCH)]],
+    device const float* actorObservations
+        [[buffer(MR_LEARNING_VALIDATE_ACTOR_OBSERVATIONS)]],
+    device const float* criticObservations
+        [[buffer(MR_LEARNING_VALIDATE_CRITIC_OBSERVATIONS)]],
+    device const float* latents
+        [[buffer(MR_LEARNING_VALIDATE_LATENTS)]],
+    device const float* logProbabilities
+        [[buffer(MR_LEARNING_VALIDATE_LOG_PROBABILITIES)]],
+    device const float* values
+        [[buffer(MR_LEARNING_VALIDATE_VALUES)]],
+    device const MRTaskTransitionGPU* transitions
+        [[buffer(MR_LEARNING_VALIDATE_TRANSITIONS)]],
+    device MRLearningPublicationStatusGPU* status
+        [[buffer(MR_LEARNING_VALIDATE_STATUS)]],
+    const uint lane [[thread_index_in_threadgroup]],
+    const uint3 threadgroupSize [[threads_per_threadgroup]]
+) {
+    threadgroup atomic_uint invalidCount;
+    threadgroup atomic_uint firstInvalidOrdinal;
+    if (lane == 0u) {
+        atomic_store_explicit(
+            &invalidCount,
+            0u,
+            memory_order_relaxed
+        );
+        atomic_store_explicit(
+            &firstInvalidOrdinal,
+            MR_INVALID_INDEX,
+            memory_order_relaxed
+        );
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const uint actorCount = dispatch.floatCounts.x;
+    const uint criticCount = dispatch.floatCounts.y;
+    const uint latentCount = dispatch.floatCounts.z;
+    const uint logProbabilityCount = dispatch.floatCounts.w;
+    const uint valueCount = dispatch.recordCounts.x;
+    const uint transitionCount = dispatch.recordCounts.y;
+    const uint totalFloatCount = dispatch.recordCounts.z;
+    const uint threads = max(threadgroupSize.x, 1u);
+
+    uint streamBase = 0u;
+    for (uint index = lane; index < actorCount; index += threads) {
+        if (!isfinite(actorObservations[index])) {
+            recordLearningPublicationFailure(
+                invalidCount,
+                firstInvalidOrdinal,
+                streamBase + index
+            );
+        }
+    }
+    streamBase += actorCount;
+    for (uint index = lane; index < criticCount; index += threads) {
+        if (!isfinite(criticObservations[index])) {
+            recordLearningPublicationFailure(
+                invalidCount,
+                firstInvalidOrdinal,
+                streamBase + index
+            );
+        }
+    }
+    streamBase += criticCount;
+    for (uint index = lane; index < latentCount; index += threads) {
+        if (!isfinite(latents[index])) {
+            recordLearningPublicationFailure(
+                invalidCount,
+                firstInvalidOrdinal,
+                streamBase + index
+            );
+        }
+    }
+    streamBase += latentCount;
+    for (uint index = lane;
+         index < logProbabilityCount;
+         index += threads) {
+        if (!isfinite(logProbabilities[index])) {
+            recordLearningPublicationFailure(
+                invalidCount,
+                firstInvalidOrdinal,
+                streamBase + index
+            );
+        }
+    }
+    streamBase += logProbabilityCount;
+    for (uint index = lane; index < valueCount; index += threads) {
+        if (!isfinite(values[index])) {
+            recordLearningPublicationFailure(
+                invalidCount,
+                firstInvalidOrdinal,
+                streamBase + index
+            );
+        }
+    }
+
+    for (uint index = lane;
+         index < transitionCount;
+         index += threads) {
+        const MRTaskTransitionGPU transition = transitions[index];
+        const bool validTermination =
+            transition.termination.x <= 1u &&
+            transition.termination.y <= 1u &&
+            transition.termination.z <= 1u &&
+            transition.termination.w <=
+                MR_TASK_TERMINATION_GOAL_ERROR &&
+            (
+                transition.termination.x != 0u ||
+                transition.termination.w ==
+                    MR_TASK_TERMINATION_CONTINUING
+            );
+        if (!all(isfinite(transition.rewardAndState)) ||
+            !all(isfinite(transition.rewardBreakdown0)) ||
+            !all(isfinite(transition.rewardBreakdown1)) ||
+            !isfinite(transition.timeoutBootstrapValue) ||
+            !isfinite(transition.episodeTrackingScore) ||
+            transition.policyRevision != dispatch.policyRevision ||
+            !validTermination) {
+            recordLearningPublicationFailure(
+                invalidCount,
+                firstInvalidOrdinal,
+                totalFloatCount + index
+            );
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    if (lane != 0u) {
+        return;
+    }
+    const uint failures = atomic_load_explicit(
+        &invalidCount,
+        memory_order_relaxed
+    );
+    const uint first = atomic_load_explicit(
+        &firstInvalidOrdinal,
+        memory_order_relaxed
+    );
+    uint stream = MR_LEARNING_STREAM_NONE;
+    uint streamIndex = MR_INVALID_INDEX;
+    uint remaining = first;
+    if (first != MR_INVALID_INDEX) {
+        const uint counts[6] = {
+            actorCount,
+            criticCount,
+            latentCount,
+            logProbabilityCount,
+            valueCount,
+            transitionCount,
+        };
+        for (uint candidate = 0u; candidate < 6u; ++candidate) {
+            if (remaining < counts[candidate]) {
+                stream = candidate;
+                streamIndex = remaining;
+                break;
+            }
+            remaining -= counts[candidate];
+        }
+    }
+
+    MRLearningPublicationStatusGPU publication{};
+    publication.result = uint4(
+        failures == 0u
+            ? MR_LEARNING_PUBLICATION_SUCCESS
+            : stream == MR_LEARNING_STREAM_TRANSITIONS
+            ? MR_LEARNING_PUBLICATION_INVALID_TRANSITION
+            : MR_LEARNING_PUBLICATION_INVALID_FLOAT,
+        failures,
+        stream,
+        streamIndex
+    );
+    publication.checkedCounts = uint4(
+        totalFloatCount,
+        transitionCount,
+        threadgroupSize.x,
+        MR_RUNTIME_ABI_VERSION
+    );
+    publication.policyRevision = dispatch.policyRevision;
+    publication.taskFingerprint = dispatch.taskFingerprint;
+    publication.validationToken = dispatch.validationToken;
+    publication.reserved = 0ul;
+    status[0] = publication;
+}

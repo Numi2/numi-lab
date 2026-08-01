@@ -429,8 +429,8 @@ struct MetalWorldStepConfig {
     bool publishStateTrajectory = true;
     // Compact task/policy streams are ordinarily copied into
     // MetalWorldResult for inspection. A leased rollout destination may
-    // disable this copy: validation then reads the completed shared lease in
-    // place and MetalWorldResult contains status/diagnostic records only.
+    // disable this copy: a GPU reduction validates the complete payload and
+    // MetalWorldResult contains status/diagnostic records only.
     bool publishLearningOutputs = true;
     // Explicit inspection boundary for compact latest sensor values and
     // metadata. Persistent histories remain device-owned.

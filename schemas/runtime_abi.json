@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 6,
+  "abi_version": 7,
   "abi_constants": {
     "MR_SENSOR_PROGRAM_ABI_VERSION": 3
   },
@@ -60,10 +60,34 @@
         ["mr_uint4", "sequenceAndTimestamp"],
         ["mr_uint4", "ageValidityAndLayout"]
       ]
+    },
+    {
+      "name": "MRLearningPublicationDispatchGPU",
+      "alignment": 16,
+      "fields": [
+        ["mr_uint4", "floatCounts"],
+        ["mr_uint4", "recordCounts"],
+        ["mr_u64", "policyRevision"],
+        ["mr_u64", "taskFingerprint"],
+        ["mr_u64", "validationToken"],
+        ["mr_u64", "reserved"]
+      ]
+    },
+    {
+      "name": "MRLearningPublicationStatusGPU",
+      "alignment": 16,
+      "fields": [
+        ["mr_uint4", "result"],
+        ["mr_uint4", "checkedCounts"],
+        ["mr_u64", "policyRevision"],
+        ["mr_u64", "taskFingerprint"],
+        ["mr_u64", "validationToken"],
+        ["mr_u64", "reserved"]
+      ]
     }
   ],
   "world_buffers": {
-    "count": 230,
+    "count": 231,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -286,7 +310,8 @@
       ["kSensorOutputs", 226],
       ["kSensorMetadata", 227],
       ["kPolicyProgramHeaderB", 228],
-      ["kPolicyProgramArenaB", 229]
+      ["kPolicyProgramArenaB", 229],
+      ["kLearningPublicationStatus", 230]
     ],
     "classifications": {
       "immutable": [
@@ -635,6 +660,20 @@
         "CRITIC_HISTORY",
         "ACTOR_OBSERVATIONS",
         "CRITIC_OBSERVATIONS"
+      ]
+    },
+    {
+      "enum": "MRLearningPublicationValidationBuffer",
+      "prefix": "MR_LEARNING_VALIDATE_",
+      "bindings": [
+        "DISPATCH",
+        "ACTOR_OBSERVATIONS",
+        "CRITIC_OBSERVATIONS",
+        "LATENTS",
+        "LOG_PROBABILITIES",
+        "VALUES",
+        "TRANSITIONS",
+        "STATUS"
       ]
     }
   ]
