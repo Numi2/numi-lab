@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T05:11:32+02:00",
+  "source_revision": "b0bb0e297a100b67435bbe6e9ca67e1cf3914ee8",
+  "metallib_sha256": "d313e78c31dd90062ce318bbbaf0d8b1b8755fb744fecefef540687ce71e30b3",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 2,
+    "owner_suite_elapsed_seconds": 0.44,
+    "worldpack_imu_binary_roundtrip": "passed",
+    "worldpack_imu_parent_resolution": "passed",
+    "worldpack_imu_sensor_program_compile": "passed",
+    "worldpack_content_hash_preserved": true
+  },
+  "known_release_blockers": [
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; dedicated contact-state, ray, and LiDAR operators remain incomplete.",
+    "Sensor-native counter-based corruption, recorder routing, and compiler dead-code elimination remain incomplete.",
+    "No general MJCF importer is present.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
