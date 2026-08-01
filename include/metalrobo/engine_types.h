@@ -514,8 +514,14 @@ typedef struct MR_ALIGN16 MRArticulatedOperatorDispatchGPU {
     mr_u32 reserved0;
 } MRArticulatedOperatorDispatchGPU;
 
+enum MRArticulatedPointFlags : mr_u32 {
+    // Fixed-capacity placeholder with no articulated endpoint. Its canonical
+    // query slot remains addressable, but its Jacobian is identically zero.
+    MR_ARTICULATED_POINT_INACTIVE = 1u << 0u,
+};
+
 // A world impulse applied at a COM-relative body point. bodyIndex is global
-// in MRWorldGPU. Query flags and reserved words must currently be zero.
+// in MRWorldGPU. Reserved words must be zero.
 typedef struct MR_ALIGN16 MRArticulatedPointImpulseGPU {
     mr_u32 bodyIndex;
     mr_u32 flags;

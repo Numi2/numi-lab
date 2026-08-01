@@ -3051,6 +3051,7 @@ kernel void mr_world_fill_point_query_tail(
     MRArticulatedPointImpulseGPU dummy = {};
     dummy.bodyIndex =
         articulations[contactDispatch.articulationIndex].rootBody;
+    dummy.flags = MR_ARTICULATED_POINT_INACTIVE;
     const uint base =
         environment * contactDispatch.pointQueryStride;
     for (uint point = activePoints;
@@ -3081,6 +3082,7 @@ kernel void mr_world_initialize_multi_articulation_queries(
          ++owner) {
         MRArticulatedPointImpulseGPU dummy = {};
         dummy.bodyIndex = articulations[owner].rootBody;
+        dummy.flags = MR_ARTICULATED_POINT_INACTIVE;
         const uint base =
             (owner * dispatch.environmentCount + environment) *
             dispatch.pointQueryStride;

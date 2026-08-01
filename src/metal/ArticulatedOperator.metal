@@ -1111,7 +1111,7 @@ inline bool validatePoints(
         if (query.bodyIndex < articulation.firstBody ||
             query.bodyIndex >=
                 articulation.firstBody + articulation.bodyCount ||
-            query.flags != 0u ||
+            (query.flags & ~MR_ARTICULATED_POINT_INACTIVE) != 0u ||
             query.reserved0 != 0u ||
             query.reserved1 != 0u ||
             !finite4(query.localPoint) ||
@@ -1357,14 +1357,17 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     point * articulation.nv;
                 device const MRArticulatedPointImpulseGPU& query =
                     points[pointBase + point];
+                const bool inactive =
+                    (query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u;
                 const uint localBody =
                     query.bodyIndex - articulation.firstBody;
                 const float3 pointOffset = quaternionRotate(
                     bodyRotation[localBody],
                     query.localPoint.xyz
                 );
-                const MotionColumn bodyMotion =
-                    bodyMotionForDof(
+                const MotionColumn bodyMotion = inactive
+                    ? MotionColumn{float3(0.0f), float3(0.0f)}
+                    : bodyMotionForDof(
                         localBody,
                         dof,
                         articulation,
@@ -1612,6 +1615,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
          ++point) {
         device const MRArticulatedPointImpulseGPU& query =
             points[pointBase + point];
+        if ((query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u) {
+            continue;
+        }
         const uint localBody =
             query.bodyIndex - articulation.firstBody;
         const float3 pointOffset = quaternionRotate(
@@ -1777,6 +1783,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
          ++point) {
         device const MRArticulatedPointImpulseGPU& query =
             points[pointBase + point];
+        if ((query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u) {
+            continue;
+        }
         const uint localBody =
             query.bodyIndex - articulation.firstBody;
         const float3 pointOffset = quaternionRotate(
@@ -1902,6 +1911,23 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             1.0f
         );
         pointWorld[pointWorldBase + point] = worldPoint;
+        if ((query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u) {
+            for (uint dof = 0u; dof < articulation.nv; ++dof) {
+                pointJacobians[
+                    jacobianBase +
+                    (point * 3u + 0u) * articulation.nv + dof
+                ] = 0.0f;
+                pointJacobians[
+                    jacobianBase +
+                    (point * 3u + 1u) * articulation.nv + dof
+                ] = 0.0f;
+                pointJacobians[
+                    jacobianBase +
+                    (point * 3u + 2u) * articulation.nv + dof
+                ] = 0.0f;
+            }
+            continue;
+        }
         for (uint dof = 0u; dof < articulation.nv; ++dof) {
             const MotionColumn bodyMotion = bodyMotionForDof(
                 localBody,

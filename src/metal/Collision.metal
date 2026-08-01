@@ -8887,6 +8887,7 @@ kernel void mr_world_collide_compile(
 
     MRArticulatedPointImpulseGPU dummyQuery = {};
     dummyQuery.bodyIndex = rootBody;
+    dummyQuery.flags = MR_ARTICULATED_POINT_INACTIVE;
 
     const uint oldCount = min(
         oldManifoldCounts[environment],
@@ -9454,11 +9455,13 @@ kernel void mr_world_collide_compile(
             if (bodyA.flagsAndIndices[1] ==
                 dispatch.articulationIndex) {
                 queryA.bodyIndex = sourceA.bodyIndex;
+                queryA.flags = 0u;
                 queryA.localPoint = manifoldPoint.localAnchorA;
             }
             if (bodyB.flagsAndIndices[1] ==
                 dispatch.articulationIndex) {
                 queryB.bodyIndex = sourceB.bodyIndex;
+                queryB.flags = 0u;
                 queryB.localPoint = manifoldPoint.localAnchorB;
             }
             pointQueries[

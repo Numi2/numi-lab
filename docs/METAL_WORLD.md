@@ -543,6 +543,14 @@ with zero failed steps. This is a 49 percent end-to-end throughput increase,
 not a physics-rate reduction, and cadence remains independent of submission
 chunk size through a persistent observation sequence.
 
+Canonical contact indexing still reserves two articulated point-query slots
+per constraint, but fixed-scene endpoints and per-environment batch tails are
+now marked inactive instead of masquerading as root-body queries. The generic
+articulated operator zero-publishes those Jacobians without traversing the
+joint tree. At 11,264 environments this raised the matched four-step rollout
+from 4,551 to 4,634 environment-steps/s (1.8 percent); the rollout fingerprint
+and reward stream were bit-identical.
+
 ### Balance recovery and get-up training
 
 Bundled G1 recovery uses the generic compiled TaskPack path. Select
