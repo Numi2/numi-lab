@@ -97,8 +97,8 @@ compilation. It supports:
   index;
 - relative linear and angular velocity in the named reference frame, including
   reference translation and rotating-frame transport;
-- frame position/orientation squared-error and exponential-tracking rewards;
-- maximum frame position/orientation error termination;
+- frame position/orientation squared error, exponential tracking, and maximum
+  error termination composed from semantic leaves and scalar SignalIR;
 - topologically ordered scalar signals with semantic observation leaves,
   constants, arithmetic, min/max, absolute, square/root, safe division,
   clamp, exponential tracking, and bounds gates;
@@ -127,6 +127,12 @@ pass per environment. Signal leaves are truth-only: actor noise, mutable bias,
 and vector normalization are not accepted. A SensorIR leaf requires truth
 consumer permission and reads the current accepted sample after native sensor
 advancement but before reward and termination evaluation.
+
+There are no constant or frame-specific reward or termination opcodes. Goal
+identity belongs only on semantic source leaves; reward and termination records
+consume scalar signal indices. This keeps fixed, sampled, and trajectory goals
+on one execution path and prevents every new frame objective from adding a
+native branch.
 
 The remaining TaskIR target is a phase-separated graph covering action,
 command/event, observation, reward, termination, recorder, reset, and

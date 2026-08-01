@@ -179,6 +179,12 @@ one-step-stale ordering cannot pass. The bounds termination remains inactive,
 TaskPack round-trip preserves the graph, and a forward reference is rejected
 without replacing the last valid compiled program.
 
+The same fixture expresses fixed, episode-sampled, and trajectory frame
+objectives without constant or frame-specific reward/termination opcodes.
+TaskPack 11 round-trips those graphs, preserves their numerical outcomes, and
+proves that deleting the duplicated goal fields and shrinking the termination
+record does not change dynamic-goal replay.
+
 ## Numerical corpus
 
 Paired FP64, Metal, and MuJoCo cases cover:

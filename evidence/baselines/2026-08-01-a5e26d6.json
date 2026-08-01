@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T09:07:09+02:00",
+  "source_revision": "a5e26d6667bd202924f08c331f8f33fd881b2f0b",
+  "metallib_sha256": "08f02f689dd56f6b5be813349c86cdd141ed13102a13a56f0047df152965d89f",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "qualification_build_actions": 19,
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 5.07,
+    "runtime_abi_version": 23,
+    "task_program_abi_version": 16,
+    "task_pack_format_version": 11,
+    "world_buffer_count": 254,
+    "deleted_reward_opcode_count": 5,
+    "deleted_termination_opcode_count": 2,
+    "termination_record_bytes_before": 48,
+    "termination_record_bytes_after": 32,
+    "deleted_operator_goal_string_fields": 2,
+    "milestone_net_line_delta": -66,
+    "frame_reward_signal_parity": "passed",
+    "frame_termination_signal_parity": "passed",
+    "dynamic_goal_signal_replay": "passed"
+  },
+  "known_release_blockers": [
+    "Bundled G1 acceleration, action-rate, soft-limit, gait, and foot-clearance reductions remain explicit until exact generic sources and operators replace them.",
+    "No general MJCF importer is present.",
+    "TaskIR still lacks acceleration and arbitrary-point sources, full Jacobian tensor publication, phase-complete events and recorders, and three qualified task families.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; recorder routing, ray, and LiDAR operators remain incomplete.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

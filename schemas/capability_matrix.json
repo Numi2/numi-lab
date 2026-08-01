@@ -33,7 +33,8 @@
     "evidence/baselines/2026-08-01-dcf797c.json",
     "evidence/baselines/2026-08-01-e8513df.json",
     "evidence/baselines/2026-08-01-20baf55.json",
-    "evidence/baselines/2026-08-01-c6bcfd0.json"
+    "evidence/baselines/2026-08-01-c6bcfd0.json",
+    "evidence/baselines/2026-08-01-a5e26d6.json"
   ],
   "capabilities": [
     {
@@ -181,7 +182,14 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "TaskPack 10 compiles a topologically ordered scalar graph with semantic state/frame/SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, Gaussian tracking, and bounds gates. The native order is accepted mechanics, SensorIR sample, sensor-signal materialization, generic reward/termination, then actor/critic sensor-history publication. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. The owner compares every sensor-backed transition reward with that step's post-physics SensorIR value, proves semantic Jacobian execution, termination, artifact round trip, consumer permissions, and transactional forward-reference rejection. Vector reductions, phase gates, and migration of bundled task-specific opcodes remain incomplete."
+      "scope": "TaskPack 11 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, and bounds gates. The native order is accepted mechanics, SensorIR sample, sensor-signal materialization, generic reward/termination, then actor/critic sensor-history publication. Constant and frame-specific reward/termination runtime opcodes and duplicated operator goal-name fields have been deleted; fixed, sampled, and trajectory goals now use the same graph, and the termination record shrank from 48 to 32 bytes. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. Vector reductions, phase gates, and migration of the remaining G1-only reductions remain incomplete."
+    },
+    {
+      "id": "tasks.specialized_branch_pruning",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "Task execution has no constant or frame-specific reward/termination opcode. Fixed, episode-sampled, and trajectory frame objectives compose semantic leaves through SignalIR, TaskPack 11 removed reward/termination goal strings, and the generated termination record shrank from 48 to 32 bytes. G1-only acceleration, action-rate, soft-limit, gait, and clearance reductions remain temporarily explicit until exact generic sources replace them."
     },
     {
       "id": "tasks.semantic_frame_jacobians",
