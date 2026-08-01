@@ -170,6 +170,13 @@ column. The common articulated operator owns both the ordinary contact
 Jacobian path and the six-row semantic path; a distinct task-only kinematics
 implementation is not allowed.
 
+The TaskIR owner also compiles a six-node scalar SignalIR graph whose truth
+leaf is that semantic Jacobian. Metal evaluates the leaf, arithmetic, and a
+bounds gate inside the accepted-state task pass, publishes an exact `0.04`
+time-integrated generic reward, and leaves the generic threshold termination
+inactive. TaskPack round-trip preserves the graph and a forward reference is
+rejected without replacing the last valid compiled program.
+
 ## Numerical corpus
 
 Paired FP64, Metal, and MuJoCo cases cover:

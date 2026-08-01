@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T08:47:31+02:00",
+  "source_revision": "20baf55888c9e9411c8dd6000a71d5c85eb50927",
+  "metallib_sha256": "81c512372ce3888d80b146ed47373be4845c450caac83c90f6e7f59fb0de587c",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "qualification_build_actions": 19,
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 4.87,
+    "runtime_abi_version": 21,
+    "task_program_abi_version": 15,
+    "sensor_program_abi_version": 9,
+    "task_pack_format_version": 10,
+    "world_pack_format_version": 9,
+    "world_buffer_count": 254,
+    "signal_node_count": 6,
+    "signal_semantic_source_count": 1,
+    "signal_spatial_jacobian_stride": 6,
+    "signal_integrated_reward_reference": 0.04,
+    "signal_termination_reference": "passed",
+    "signal_taskpack_roundtrip": "passed",
+    "signal_forward_reference_transaction": "passed",
+    "additional_task_runtime_kernel_bindings": 0
+  },
+  "known_release_blockers": [
+    "SignalIR SensorIR leaves require a pre-reward sensor phase; the compiler currently rejects them rather than reading stale or unavailable samples.",
+    "Legacy locomotion-shaped reward and termination opcodes remain until the bundled G1, Franka, and Wave packs migrate to SignalIR.",
+    "No general MJCF importer is present.",
+    "TaskIR still lacks frame acceleration, arbitrary point queries, full Jacobian tensor publication, phase-complete events and recorders, and three qualified task families.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; recorder routing, ray, and LiDAR operators remain incomplete.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

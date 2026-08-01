@@ -99,6 +99,10 @@ compilation. It supports:
   reference translation and rotating-frame transport;
 - frame position/orientation squared-error and exponential-tracking rewards;
 - maximum frame position/orientation error termination;
+- topologically ordered scalar signals with semantic observation leaves,
+  constants, arithmetic, min/max, absolute, square/root, safe division,
+  clamp, exponential tracking, and bounds gates;
+- generic signal rewards and below/above/outside termination thresholds;
 - fixed goals, episode-sampled poses, and two-pose trajectories with clamped,
   looped, or ping-pong playback;
 - fixed-shape actor/critic histories, deterministic corruption, curriculum,
@@ -115,11 +119,20 @@ Frame-to-frame operators use an explicit named `reference`; they do not
 overload static goal identities. A task frame authors exactly one body or site
 source. A site-relative transform is composed with the model site's link-local
 pose during compilation and then converted once to the body's COM-centred
-runtime origin. The remaining TaskIR target is a phase-separated graph covering
-action, command/event, observation, reward, termination, recorder, reset, and
+runtime origin.
+
+Signal operands may reference only earlier named nodes. This rejects forward
+references and cycles during compilation and gives the GPU one deterministic
+pass per environment. Signal leaves are truth-only: actor noise, mutable bias,
+and vector normalization are not accepted. SensorIR leaves are also rejected
+until the sensor schedule has a pre-reward phase; silently consuming the prior
+sample would violate the authored timing contract.
+
+The remaining TaskIR target is a phase-separated graph covering action,
+command/event, observation, reward, termination, recorder, reset, and
 curriculum phases. Frame acceleration, arbitrary point queries, full Jacobian
-tensors and reductions, multi-knot trajectory splines, and generic
-gates/reductions are not yet production operators.
+tensors and vector reductions, multi-knot trajectory splines, sensor-backed
+reward signals, events, and recorders are not yet production operators.
 
 Frame-Jacobian observations are analytic operator outputs, not finite
 differences of poses. The point is the compiled frame origin and the three

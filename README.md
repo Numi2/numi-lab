@@ -53,10 +53,13 @@ release blockers remain:
   the residual-converged profile and the full rod mechanics corpus are not yet
   qualified.
 - General MJCF import is not implemented.
-- TaskIR supports cross-articulation and scene-body frames, static SE(3)
-  goals, world and relative frame twist, and fingerprint-bound SensorIR
-  values/validity. Named sites, acceleration and Jacobian quantities, sampled
-  goals, and generic reductions remain incomplete.
+- TaskIR supports cross-articulation and scene-body frames, named sites,
+  fixed/sampled/trajectory SE(3) goals, world and relative frame twist,
+  analytic scalar frame-Jacobian columns, fingerprint-bound SensorIR
+  values/validity, and a compiled scalar signal graph for generic rewards,
+  gates, and termination thresholds. Frame acceleration, full Jacobian tensor
+  publication, pre-reward SensorIR signal leaves, and phase-complete event and
+  recorder operators remain incomplete.
 - Parent-frame pose, world-twist, and solver-authoritative six-axis contact-
   wrench sensors execute on the session timeline and bind directly into
   TaskIR. Presentation and tactile sensing remain native but have not yet been

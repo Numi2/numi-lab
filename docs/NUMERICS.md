@@ -27,6 +27,11 @@ must satisfy. Unsupported behavior is recorded in
   from the same accepted `q` used by dynamics. It does not finite-difference
   poses. A coordinate owned by another disconnected articulation contributes
   exactly zero.
+- SignalIR exponential tracking is `exp(-((x - target) / width)^2)` with a
+  strictly positive compiled width. Safe division clamps only the denominator
+  magnitude to an authored positive epsilon while preserving its sign. Bounds
+  gates are inclusive. Signal evaluation is a fixed topological sweep per
+  environment; there is no data-dependent graph traversal or early exit.
 - Temporal microsteps re-evaluate geometry, limit activation, and response
   factors before integration. The command-delay/backlash timeline advances
   once at the control boundary; re-evaluating motor envelope and passive

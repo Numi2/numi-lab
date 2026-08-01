@@ -31,7 +31,8 @@
     "evidence/baselines/2026-08-01-35abef7.json",
     "evidence/baselines/2026-08-01-9adf396.json",
     "evidence/baselines/2026-08-01-dcf797c.json",
-    "evidence/baselines/2026-08-01-e8513df.json"
+    "evidence/baselines/2026-08-01-e8513df.json",
+    "evidence/baselines/2026-08-01-20baf55.json"
   ],
   "capabilities": [
     {
@@ -172,7 +173,14 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, pose rewards and terminations, SensorIR scalar/validity sources, and reset-correct pre-policy state are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, generic reductions, and three complete task families are not yet qualified."
+      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, pose rewards and terminations, a generic scalar SignalIR, SensorIR actor/critic values, and reset-correct pre-policy state are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, pre-reward SensorIR sources, phase-complete events/recorders, and three complete task families are not yet qualified."
+    },
+    {
+      "id": "tasks.scalar_signal_ir",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "TaskPack 10 compiles a topologically ordered scalar graph with semantic state/frame leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, Gaussian tracking, and bounds gates. Generic reward and below/above/outside termination operators consume graph outputs in the existing accepted-state Metal pass. Scratch is topology-sized in the candidate-body arena, adds no kernel binding or persistent simulator tensor, and evaluates deterministically per environment. The owner proves semantic Jacobian execution, exact integrated reward, termination, artifact round trip, and transactional forward-reference rejection. SensorIR leaves, vector reductions, phase gates, and migration of bundled task-specific opcodes remain incomplete."
     },
     {
       "id": "tasks.semantic_frame_jacobians",
