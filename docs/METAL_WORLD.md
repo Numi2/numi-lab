@@ -482,7 +482,8 @@ The measured qualification ladder on the 24 GiB M4 Pro is:
 | 1,024 | 256 | 262,144 | 3,596 env-steps/s | pass |
 | 2,048 | 64 | 131,072 | 3,685 env-steps/s | pass |
 | 4,096 | 64 | 262,144 | 3,756 env-steps/s | pass |
-| 8,192 | 32 | 262,144 | n/a | rejected before dispatch: persistent arena exceeds `recommendedMaxWorkingSetSize` |
+| 6,144 | 43 | 264,192 | 3,610 env-steps/s | pass |
+| 8,192 | 32 | 262,144 | 3,618 env-steps/s | pass after active-pair staging compaction |
 
 The 4,096 qualification reported zero failed environment-steps, 10.43 GB of
 retained buffer capacity, and 9.49 GB of transient private capacity. Those
@@ -492,12 +493,24 @@ publication artifact creates materially more memory pressure than the 64-step
 qualification. Long campaigns therefore use measured horizon and swap behavior
 as promotion evidence in addition to raw environment count.
 
-This establishes 4,096 as the validated production scale for the current G1
-world. Raising the renderer budget cannot make 8,192 valid: after removing the
-visual preflight ceiling, MetalWorld reaches the device working-set guard. The
-route beyond that boundary is reducing persistent bytes per environment and
-aliasing transient stages more tightly, then repeating the same qualification;
-bypassing the device guard is not a scaling strategy.
+Before contact staging compaction, the 8,192 profile required 20.79 GB against
+the device's 19.07 GB recommended working set. Diagnostics identified 7.06 GB
+of pair raw-contact staging as the largest allocation. Narrowphase already
+consumes a stable compact work queue bounded by the TaskPack's operational
+pair capacity, but it wrote each result back into a scratch span sized for all
+1,684 eligible G1 pairs. The compact path now stores one raw-contact span per
+accepted work slot and retains the original compiled-pair index in the work
+and count records. Canonical manifold and ConstraintIR ordering remains owned
+by the later eligible-pair segmented scan.
+
+For the bundled G1 profile this changes raw-contact scratch from 1,684 to 128
+pair slots per environment. The 8,192 qualification then retained 14.91 GB,
+reported 13.05 GB of transient private capacity, completed revision 111 to
+112, and published zero failed environment-steps without swap growth,
+throttling, or a GPU restart. This establishes 8,192 as the validated scale on
+the 24 GiB M4 Pro for a 32-step learning segment. Longer horizons remain a
+separate memory-pressure qualification; environment count alone does not prove
+that a larger publication artifact is efficient.
 
 ### Balance recovery and get-up training
 
