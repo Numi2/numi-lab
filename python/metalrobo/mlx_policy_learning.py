@@ -963,13 +963,35 @@ class MLXPPOConfiguration:
 
 @dataclass(frozen=True, slots=True)
 class MLXPolicyBatch:
-    actor_observations: mx.array
-    critic_observations: mx.array
-    latents: mx.array
-    old_log_probabilities: mx.array
-    old_values: mx.array
-    advantages: mx.array
-    returns: mx.array
+    # Keep rollout-sized tables as NumPy views over the memory-mapped native
+    # artifact. Only the active minibatch is transferred to MLX. Materializing
+    # the full visual observation tensor on the unified heap needlessly doubles
+    # multi-gigabyte rollouts before the first optimizer step.
+    actor_observations: np.ndarray
+    critic_observations: np.ndarray
+    latents: np.ndarray
+    old_log_probabilities: np.ndarray
+    old_values: np.ndarray
+    advantages: np.ndarray
+    returns: np.ndarray
+
+    def __post_init__(self) -> None:
+        # Preserve the public direct-construction path while normalizing legacy
+        # MLX-array callers to the bounded-memory NumPy representation.
+        for name in (
+            "actor_observations",
+            "critic_observations",
+            "latents",
+            "old_log_probabilities",
+            "old_values",
+            "advantages",
+            "returns",
+        ):
+            object.__setattr__(
+                self,
+                name,
+                np.asarray(getattr(self, name), dtype=np.float32),
+            )
 
     @classmethod
     def from_numpy(
@@ -984,22 +1006,22 @@ class MLXPolicyBatch:
         returns: np.ndarray,
     ) -> "MLXPolicyBatch":
         return cls(
-            actor_observations=mx.array(
+            actor_observations=np.asarray(
                 actor_observations,
-                dtype=mx.float32,
+                dtype=np.float32,
             ),
-            critic_observations=mx.array(
+            critic_observations=np.asarray(
                 critic_observations,
-                dtype=mx.float32,
+                dtype=np.float32,
             ),
-            latents=mx.array(latents, dtype=mx.float32),
-            old_log_probabilities=mx.array(
+            latents=np.asarray(latents, dtype=np.float32),
+            old_log_probabilities=np.asarray(
                 old_log_probabilities,
-                dtype=mx.float32,
+                dtype=np.float32,
             ),
-            old_values=mx.array(old_values, dtype=mx.float32),
-            advantages=mx.array(advantages, dtype=mx.float32),
-            returns=mx.array(returns, dtype=mx.float32),
+            old_values=np.asarray(old_values, dtype=np.float32),
+            advantages=np.asarray(advantages, dtype=np.float32),
+            returns=np.asarray(returns, dtype=np.float32),
         )
 
     def validate(
@@ -1042,16 +1064,20 @@ class MLXPolicyBatch:
                 for label, (value, _) in expected.items()
             },
         }
-        finite = [
-            (label, mx.all(mx.isfinite(value)))
-            for label, value in tables.items()
-        ]
-        mx.eval(*[value for _, value in finite])
-        invalid = [
-            label
-            for label, value in finite
-            if not bool(value.item())
-        ]
+        # Bound validation scratch memory as rollout width grows. The canonical
+        # reader already validates its mapped tables, while this also covers
+        # derived advantage and return arrays and direct callers.
+        rows_per_chunk = 16_384
+        invalid = []
+        for label, value in tables.items():
+            flat = value.reshape(-1)
+            if any(
+                not np.isfinite(
+                    flat[offset : offset + rows_per_chunk]
+                ).all()
+                for offset in range(0, flat.size, rows_per_chunk)
+            ):
+                invalid.append(label)
         if invalid:
             raise ValueError(
                 "policy batch contains non-finite values in "
@@ -2198,30 +2224,47 @@ class MLXPolicyLearner:
             self.action_count,
         )
         advantages = (
-            batch.advantages - mx.mean(batch.advantages)
-        ) / (mx.std(batch.advantages) + 1.0e-8)
-        old_means = self.model.actor_mean(
-            batch.actor_observations
-        )
+            batch.advantages - np.mean(batch.advantages)
+        ) / (np.std(batch.advantages) + 1.0e-8)
+        # Old-policy means must remain fixed across every minibatch. Compute
+        # them once in bounded chunks instead of promoting the complete visual
+        # rollout to a second device-resident tensor.
+        old_mean_chunks: list[np.ndarray] = []
+        for offset in range(
+            0,
+            sample_count,
+            self.configuration.minibatch_size,
+        ):
+            actor_chunk = mx.array(
+                batch.actor_observations[
+                    offset : offset + self.configuration.minibatch_size
+                ],
+                dtype=mx.float32,
+            )
+            means = self.model.actor_mean(actor_chunk)
+            mx.eval(means)
+            old_mean_chunks.append(
+                np.asarray(means, dtype=np.float32)
+            )
+        old_means = np.concatenate(old_mean_chunks, axis=0)
         old_log_standard_deviation = mx.clip(
             self.model.log_standard_deviation,
             -5.0,
             2.0,
         )
-        mx.eval(old_means, old_log_standard_deviation)
+        mx.eval(old_log_standard_deviation)
         totals: dict[str, float] = {}
         update_count = 0
         start = time.perf_counter()
         for epoch in range(self.configuration.update_epochs):
-            permutation = mx.random.permutation(
-                sample_count,
-                key=mx.random.key(
-                    self._permutation_seed(
-                        self.configuration.seed,
-                        self.revision,
-                        epoch,
-                    )
-                ),
+            permutation = np.random.default_rng(
+                self._permutation_seed(
+                    self.configuration.seed,
+                    self.revision,
+                    epoch,
+                )
+            ).permutation(
+                sample_count
             )
             for offset in range(
                 0,
@@ -2233,15 +2276,27 @@ class MLXPolicyLearner:
                     + self.configuration.minibatch_size
                 ]
                 loss, metrics = self._compiled_training_step(
-                    batch.actor_observations[indices],
-                    batch.critic_observations[indices],
-                    batch.latents[indices],
-                    batch.old_log_probabilities[indices],
-                    old_means[indices],
+                    mx.array(
+                        batch.actor_observations[indices],
+                        dtype=mx.float32,
+                    ),
+                    mx.array(
+                        batch.critic_observations[indices],
+                        dtype=mx.float32,
+                    ),
+                    mx.array(batch.latents[indices], dtype=mx.float32),
+                    mx.array(
+                        batch.old_log_probabilities[indices],
+                        dtype=mx.float32,
+                    ),
+                    mx.array(old_means[indices], dtype=mx.float32),
                     old_log_standard_deviation,
-                    batch.old_values[indices],
-                    advantages[indices],
-                    batch.returns[indices],
+                    mx.array(
+                        batch.old_values[indices],
+                        dtype=mx.float32,
+                    ),
+                    mx.array(advantages[indices], dtype=mx.float32),
+                    mx.array(batch.returns[indices], dtype=mx.float32),
                 )
                 mx.eval(
                     loss,
