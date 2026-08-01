@@ -135,9 +135,16 @@ kernel void mr_hybrid_reduce_object_tracks(
     const uint lastTrack = trackBase +
         (historyCount - 1u) * uniforms.counts.y * 2u;
     const float4 previous = trackHistory[lastTrack];
-    const float3 velocity =
+    const float3 measuredVelocity =
         visible && previous.w > 0.5f && !reset
         ? (rootPosition - previous.xyz) / uniforms.timing.x
+        : float3(0.0f);
+    const bool velocityAccepted =
+        all(isfinite(measuredVelocity)) &&
+        length_squared(measuredVelocity) <=
+            uniforms.timing.y * uniforms.timing.y;
+    const float3 velocity = velocityAccepted
+        ? measuredVelocity
         : float3(0.0f);
     if (!reset) {
         for (uint history = 0u; history + 1u < historyCount; ++history) {

@@ -1278,6 +1278,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     trackerConfig.maximumActorHistoryLength =
         handle.taskProgram.layout().actorHistoryLength;
     trackerConfig.timestepSeconds = handle.stepConfig.timestepSeconds;
+    trackerConfig.maximumTrackSpeedMetersPerSecond = 10.0f;
     for (const auto& [sceneIndex, offset] : trackedOffsets) {
         const std::string& assetId =
             handle.model.bodyNames[sceneIndices[sceneIndex]];

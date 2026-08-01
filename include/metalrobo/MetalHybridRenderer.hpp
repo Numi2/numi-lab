@@ -326,6 +326,9 @@ struct MetalHybridObjectTrackerConfig {
     std::uint32_t rootBodyIndex = MR_INVALID_INDEX;
     std::uint32_t maximumActorHistoryLength = 1u;
     float timestepSeconds = 1.0f / 50.0f;
+    // Reject temporal centroid discontinuities without suppressing the
+    // current position/confidence measurement.
+    float maximumTrackSpeedMetersPerSecond = 1.0e30f;
     std::vector<MetalHybridObjectTrackBinding> bindings;
 };
 

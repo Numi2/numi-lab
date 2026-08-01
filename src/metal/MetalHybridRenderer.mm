@@ -6952,7 +6952,11 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
             config.rootBodyIndex >= layout.bodyCount ||
             config.bindings.empty() ||
             !std::isfinite(config.timestepSeconds) ||
-            !(config.timestepSeconds > 0.0f)) {
+            !(config.timestepSeconds > 0.0f) ||
+            !std::isfinite(
+                config.maximumTrackSpeedMetersPerSecond
+            ) ||
+            !(config.maximumTrackSpeedMetersPerSecond > 0.0f)) {
             return reject(
                 std::move(diagnostics),
                 MetalHybridRendererStatus::invalidConfiguration,
@@ -7241,7 +7245,12 @@ bool MetalHybridObjectTracker::encodeObservation(
             0u,
             0u,
         },
-        {state->config.timestepSeconds, 0.0f, 0.0f, 0.0f},
+        {
+            state->config.timestepSeconds,
+            state->config.maximumTrackSpeedMetersPerSecond,
+            0.0f,
+            0.0f,
+        },
     };
     id<MTLComputeCommandEncoder> reduce =
         [command computeCommandEncoder];
