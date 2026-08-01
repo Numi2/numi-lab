@@ -1894,6 +1894,10 @@ add_executable(
     metalrobo_visual_platform_probe
     apps/visual_platform_probe.cpp
 )
+set_source_files_properties(
+    apps/visual_platform_probe.cpp
+    PROPERTIES LANGUAGE OBJCXX
+)
 
 add_executable(
     metalrobo_visual_cook
@@ -1947,10 +1951,13 @@ target_link_libraries(
     metalrobo_visual_platform_probe
     PRIVATE
         metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
 )
 target_compile_options(
     metalrobo_visual_platform_probe
     PRIVATE
+        -fobjc-arc
         -Wall
         -Wextra
         -Wpedantic

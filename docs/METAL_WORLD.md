@@ -85,6 +85,13 @@ articulation state, scene state, manifolds, warm starts, actuator history,
 sensor history, episode state, and RNG state private across submissions.
 Reset is one native transaction. Only actor/critic observations, transition
 records, and explicit diagnostics cross the learning boundary.
+An optional device-observation program composes rendering or perception into
+the same command buffer after TaskPack proprioception and before generic policy
+inference. MetalWorld selects the exact accepted-or-reset q and scene state
+into its unused ping-pong destination, refreshes articulated kinematics, and
+publishes one global body arena. The callback may encode work against borrowed
+buffers but cannot commit, wait, or retain them. Visual state therefore stays
+synchronized on reset without another capacity-sized simulator copy.
 The final rollout chunk appends a value-only policy evaluation for the
 accepted post-step state to the same command buffer. Bootstrap values
 therefore do not require a discarded physics step or another submission.

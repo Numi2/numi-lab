@@ -266,6 +266,49 @@ struct MetalWorldBatch {
     std::span<const MRRodEdgeStateGPU> resetRodEdges{};
 };
 
+// Device-resident observation extension encoded after the generic TaskPack
+// has built proprioception and immediately before policy inference. Buffers
+// are borrowed id<MTLBuffer> values and commandBuffer is a borrowed
+// id<MTLCommandBuffer>; the callback may encode work but must not commit,
+// wait, or retain them. This is the renderer/perception composition boundary.
+struct MetalWorldDeviceObservationPass {
+    void* commandBuffer = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* sceneBodies = nullptr;
+    void* currentBodies = nullptr;
+    void* resetMasks = nullptr;
+    void* actorHistory = nullptr;
+    void* actorObservations = nullptr;
+    std::size_t actorObservationOffsetElements = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t bodyCount = 0u;
+    std::uint32_t sceneBodyCount = 0u;
+    std::uint32_t nq = 0u;
+    std::uint32_t nv = 0u;
+    std::uint32_t actorFrameSize = 0u;
+    std::uint32_t actorHistoryLength = 0u;
+};
+
+using MetalWorldDeviceObservationEncode = bool (*)(
+    void* context,
+    const MetalWorldDeviceObservationPass& pass
+);
+
+struct MetalWorldDeviceObservationProgram {
+    void* context = nullptr;
+    MetalWorldDeviceObservationEncode encode = nullptr;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr && encode != nullptr;
+    }
+
+    [[nodiscard]] bool configured() const noexcept {
+        return context != nullptr || encode != nullptr;
+    }
+};
+
 struct MetalWorldStepConfig {
     // Control-period duration. The immutable model gravity is retained and
     // its authored integration timestep is replaced by
@@ -286,6 +329,9 @@ struct MetalWorldStepConfig {
     // Optional generic native inference program. With no policy program,
     // normalized actions remain an explicit learner/deployment input.
     CompiledPolicyProgram policyProgram{};
+    // Optional renderer/perception pass. It receives only borrowed device
+    // resources and executes inside the native rollout command buffer.
+    MetalWorldDeviceObservationProgram deviceObservationProgram{};
     // Publish V(s_T) from the accepted post-rollout state in the same command
     // buffer. This does not apply the sampled action or advance physics.
     bool evaluateFinalPolicy = false;

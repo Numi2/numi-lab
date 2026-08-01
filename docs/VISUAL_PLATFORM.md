@@ -144,6 +144,13 @@ exposure samples.
 compute encoder. It commits no command buffer and performs no readback. RGB,
 depth, identity, normal, motion, and validity buffers stay device-resident and
 are exposed through `nativeBuffer` for MLX, Core ML, or another Metal stage.
+`MetalHybridObjectTracker` is the native closed-loop adapter: it renders on a
+borrowed `MetalWorld` command buffer, reduces metric depth and instance
+identity into compact root-local object position and velocity tracks, and
+overwrites compiled TaskPack observation slots before policy inference. Live
+camera and root poses come from device buffers rather than a static camera
+approximation. One cooperative threadgroup reduces each environment/object
+track and temporal track state remains on the GPU.
 `encodeGraph` additionally accepts an active-compute callback surface and a
 complete set of caller-owned observation buffers. The Python
 `visual_observation` custom primitive uses that surface to write linear RGB,

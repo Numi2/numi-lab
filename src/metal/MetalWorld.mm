@@ -327,6 +327,8 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> policyDensePipeline = nil;
     __strong id<MTLComputePipelineState> policySamplePipeline = nil;
     __strong id<MTLComputePipelineState> contactPreparePipeline = nil;
+    __strong id<MTLComputePipelineState>
+        observationStateSelectPipeline = nil;
     __strong id<MTLComputePipelineState> bodyProjectionPipeline = nil;
     __strong id<MTLComputePipelineState> scenePredictionPipeline = nil;
     __strong id<MTLComputePipelineState> colliderProjectionPipeline = nil;
@@ -2890,6 +2892,15 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
     const bool qualityMode =
         config.solverMode == MetalWorldSolverMode::qualityNewton;
+    if (config.deviceObservationProgram.configured() &&
+        (!config.deviceObservationProgram.valid() ||
+         !nativeTask || !nativePolicy)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "device observation program requires a complete callback, native task, and native policy"
+        );
+    }
     if (!std::isfinite(config.timestepSeconds) ||
         !(config.timestepSeconds > 0.0f) ||
         config.physicsSubsteps == 0u ||
@@ -4498,6 +4509,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> policyDense = nil;
     __strong id<MTLComputePipelineState> policySample = nil;
     __strong id<MTLComputePipelineState> contactPrepare = nil;
+    __strong id<MTLComputePipelineState> observationStateSelect = nil;
     __strong id<MTLComputePipelineState> bodyProjection = nil;
     __strong id<MTLComputePipelineState> scenePrediction = nil;
     __strong id<MTLComputePipelineState> colliderProjection = nil;
@@ -4615,6 +4627,9 @@ MetalWorldDiagnostics initializeContext(
     );
     contactPrepare =
         createContactPipeline(@"mr_world_prepare_contact_step");
+    observationStateSelect = createContactPipeline(
+        @"mr_world_select_observation_state"
+    );
     bodyProjection =
         createContactPipeline(@"mr_world_build_body_states");
     scenePrediction =
@@ -4841,6 +4856,7 @@ MetalWorldDiagnostics initializeContext(
         policyDense == nil ||
         policySample == nil ||
         contactPrepare == nil ||
+        observationStateSelect == nil ||
         bodyProjection == nil ||
         scenePrediction == nil ||
         colliderProjection == nil ||
@@ -5138,6 +5154,8 @@ MetalWorldDiagnostics initializeContext(
     context.policyDensePipeline = policyDense;
     context.policySamplePipeline = policySample;
     context.contactPreparePipeline = contactPrepare;
+    context.observationStateSelectPipeline =
+        observationStateSelect;
     context.bodyProjectionPipeline = bodyProjection;
     context.scenePredictionPipeline = scenePrediction;
     context.colliderProjectionPipeline = colliderProjection;
@@ -8524,6 +8542,70 @@ bool encodeTaskObserve(
         4u,
         environmentCount
     );
+}
+
+bool encodeDeviceObservationBodies(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t sourceQ,
+    const std::size_t observationQ,
+    const std::size_t sourceScene,
+    const std::size_t observationScene,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+               context,
+               commandBuffer,
+               context.observationStateSelectPipeline,
+               @"MetalWorld observation-time state selection",
+               {
+                   {0u, kWorldDispatch},
+                   {1u, kContactDispatch},
+                   {3u, kResetMasks},
+                   {4u, kResetQ},
+                   {5u, kResetSceneBodies},
+                   {6u, sourceQ},
+                   {7u, sourceScene},
+                   {8u, observationQ},
+                   {9u, observationScene},
+                   {10u, kContactStatuses},
+               },
+               &pass,
+               2u,
+               environmentCount
+           ) &&
+        encodeArticulatedOperator(
+            context,
+            commandBuffer,
+            kOperatorKinematicsDispatch,
+            observationQ,
+            kPointQueries,
+            kBodyPoses,
+            environmentCount,
+            @"MetalWorld observation-time articulation kinematics",
+            false
+        ) &&
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.bodyProjectionPipeline,
+            @"MetalWorld observation-time global body projection",
+            {
+                {0u, kContactDispatch},
+                {1u, kArticulations},
+                {2u, kBodies},
+                {3u, kSceneBodyIndices},
+                {4u, kBodyPoses},
+                {5u, kOperatorStatuses},
+                {6u, observationScene},
+                {7u, kCurrentBodies},
+                {8u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount
+        );
 }
 
 bool encodePolicyInference(
@@ -15619,9 +15701,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 MRMetalWorldPassGPU pass{};
                 pass.controlStep = controlStep;
                 pass.physicsSubstep = MR_INVALID_INDEX;
-                if (nativeTask &&
-                    (
-                        !encodeTaskObserve(
+                if (nativeTask) {
+                    if (!encodeTaskObserve(
                             *selectedState,
                             commandBuffer,
                             pass,
@@ -15629,29 +15710,91 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             sourceV,
                             sourceScene,
                             batch.environmentCount
-                        ) ||
-                        (
-                            config.policyProgram.valid() &&
-                            !encodePolicyInference(
+                        )) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::metalCommandFailure,
+                            "failed to encode native observation pass"
+                        );
+                    }
+                    if (config.deviceObservationProgram.valid()) {
+                        if (!encodeDeviceObservationBodies(
+                                *selectedState,
+                                commandBuffer,
+                                pass,
+                                sourceQ,
+                                destinationQ,
+                                sourceScene,
+                                destinationScene,
+                                batch.environmentCount
+                            )) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalWorldHostStatus::metalCommandFailure,
+                                "failed to encode observation-time body projection"
+                            );
+                        }
+                        const TaskProgramLayout& taskLayout =
+                            config.taskProgram.layout();
+                        const MetalWorldDeviceObservationPass observation{
+                            .commandBuffer = (__bridge void*)commandBuffer,
+                            .q = (__bridge void*)selectedState->buffers[sourceQ],
+                            .v = (__bridge void*)selectedState->buffers[sourceV],
+                            .sceneBodies = (__bridge void*)selectedState->buffers[sourceScene],
+                            .currentBodies = (__bridge void*)selectedState->buffers[kCurrentBodies],
+                            .resetMasks = (__bridge void*)selectedState->buffers[kResetMasks],
+                            .actorHistory = (__bridge void*)selectedState->buffers[kTaskActorHistory],
+                            .actorObservations = (__bridge void*)selectedState->buffers[kTaskActorObservations],
+                            .actorObservationOffsetElements =
+                                static_cast<std::size_t>(controlStep) *
+                                batch.environmentCount *
+                                taskLayout.actorObservationSize,
+                            .controlStep = controlStep,
+                            .environmentCount = static_cast<std::uint32_t>(batch.environmentCount),
+                            .bodyCount = static_cast<std::uint32_t>(world.model().bodies.size()),
+                            .sceneBodyCount = static_cast<std::uint32_t>(world.sceneBodyCount()),
+                            .nq = diagnostics.layout.dispatch.nq,
+                            .nv = diagnostics.layout.dispatch.nv,
+                            .actorFrameSize = taskLayout.actorFrameSize,
+                            .actorHistoryLength = taskLayout.actorHistoryLength,
+                        };
+                        if (!config.deviceObservationProgram.encode(
+                                config.deviceObservationProgram.context,
+                                observation
+                            )) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalWorldHostStatus::metalCommandFailure,
+                                "device observation program rejected the rollout pass"
+                            );
+                        }
+                    }
+                    if (config.policyProgram.valid() &&
+                        !encodePolicyInference(
                                 *selectedState,
                                 commandBuffer,
                                 config.policyProgram,
                                 pass,
                                 batch.environmentCount
-                            )
-                        ) ||
-                        !encodeTaskApplyActions(
+                            )) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::metalCommandFailure,
+                            "failed to encode native policy inference pass"
+                        );
+                    }
+                    if (!encodeTaskApplyActions(
                             *selectedState,
                             commandBuffer,
                             pass,
                             batch.environmentCount
-                        )
-                    )) {
-                    return reject(
-                        std::move(diagnostics),
-                        MetalWorldHostStatus::metalCommandFailure,
-                        "failed to encode native observation, policy, or action pass"
-                    );
+                        )) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::metalCommandFailure,
+                            "failed to encode native action pass"
+                        );
+                    }
                 }
                 if (!encodePrepare(
                         *selectedState,

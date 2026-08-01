@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/MetalWorldFamily.hpp"
+#include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/VisualPresentation.hpp"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/hybrid_renderer_types.h"
@@ -222,6 +223,7 @@ enum class MetalHybridRendererBuffer : std::uint32_t {
     shadowAtlas = 10u,
     temporalAccumulation = 11u,
     meshTileOverflowCounts = 12u,
+    cameraStates = 13u,
 };
 
 struct MetalHybridFrameCommandContext {
@@ -306,7 +308,62 @@ public:
     nativeBuffer(MetalHybridRendererBuffer buffer) const noexcept;
 
 private:
+    friend class MetalHybridObjectTracker;
     std::shared_ptr<detail::MetalHybridRendererState> state_;
+};
+
+struct MetalHybridObjectTrackBinding {
+    std::uint32_t instanceId = MR_INVALID_INDEX;
+    std::uint32_t actorFrameOffset = 0u;
+    float positionScale = 1.0f;
+    float velocityScale = 1.0f;
+    std::uint32_t minimumVisiblePixels = 4u;
+};
+
+struct MetalHybridObjectTrackerConfig {
+    std::uint32_t capacity = 0u;
+    std::uint32_t cameraIndex = 0u;
+    std::uint32_t rootBodyIndex = MR_INVALID_INDEX;
+    std::uint32_t maximumActorHistoryLength = 1u;
+    float timestepSeconds = 1.0f / 50.0f;
+    std::vector<MetalHybridObjectTrackBinding> bindings;
+};
+
+// Reduces rendered metric depth and instance identity directly into the
+// compact object-track slots consumed by a TaskPack. The returned device
+// observation program executes renderer, reduction, and policy inference in
+// one MetalWorld command buffer with no host readback.
+class MetalHybridObjectTracker {
+public:
+    MetalHybridObjectTracker();
+    ~MetalHybridObjectTracker();
+
+    MetalHybridObjectTracker(MetalHybridObjectTracker&&) noexcept;
+    MetalHybridObjectTracker& operator=(
+        MetalHybridObjectTracker&&
+    ) noexcept;
+
+    MetalHybridObjectTracker(const MetalHybridObjectTracker&) = delete;
+    MetalHybridObjectTracker& operator=(
+        const MetalHybridObjectTracker&
+    ) = delete;
+
+    [[nodiscard]] MetalHybridRendererDiagnostics compile(
+        MetalHybridRenderer& renderer,
+        const MetalWorldFamilyContext& worlds,
+        MetalHybridObjectTrackerConfig config
+    );
+
+    [[nodiscard]] MetalWorldDeviceObservationProgram
+    observationProgram() noexcept;
+
+private:
+    struct State;
+    static bool encodeObservation(
+        void* context,
+        const MetalWorldDeviceObservationPass& pass
+    );
+    std::unique_ptr<State> state_;
 };
 
 [[nodiscard]] const char*

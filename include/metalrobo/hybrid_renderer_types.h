@@ -3,7 +3,7 @@
 #include "metalrobo/gpu_types.h"
 #include "metalrobo/visual_platform_types.h"
 
-#define MR_HYBRID_RENDERER_ABI_VERSION 10u
+#define MR_HYBRID_RENDERER_ABI_VERSION 11u
 #define MR_HYBRID_TILE_SIZE 16u
 #define MR_HYBRID_MAX_GAUSSIANS_PER_TILE 256u
 #define MR_HYBRID_MAX_MESH_TRIANGLES_PER_TILE 512u
@@ -146,6 +146,26 @@ typedef struct MR_ALIGN16 MRHybridRenderUniformsGPU {
     mr_float4 rayTiming;
 } MRHybridRenderUniformsGPU;
 
+typedef struct MR_ALIGN16 MRHybridObjectTrackBindingGPU {
+    // Rendered instance identity, first actor-frame slot, reserved, reserved.
+    mr_uint4 identity;
+    // Position scale, velocity scale, minimum visible pixels, reserved.
+    mr_float4 transform;
+} MRHybridObjectTrackBindingGPU;
+
+typedef struct MR_ALIGN16 MRHybridObjectTrackUniformsGPU {
+    // environments, tracks, width, height.
+    mr_uint4 counts;
+    // actor frame, actor history, control step, reset-mask stride.
+    mr_uint4 layout;
+    // global body count, root body index, active camera index, reserved.
+    mr_uint4 roots;
+    // actor observation element offset low/high, reserved, reserved.
+    mr_uint4 output;
+    // control dt and reserved lanes.
+    mr_float4 timing;
+} MRHybridObjectTrackUniformsGPU;
+
 #ifndef __METAL_VERSION__
 #include <cstddef>
 #include <type_traits>
@@ -172,4 +192,6 @@ static_assert(sizeof(MRHybridNearClippedTriangleGPU) == 64u);
 static_assert(sizeof(MRHybridMeshTileRecordGPU) == 48u);
 static_assert(sizeof(MRHybridMeshClusterGPU) == 48u);
 static_assert(sizeof(MRHybridRenderUniformsGPU) == 288u);
+static_assert(sizeof(MRHybridObjectTrackBindingGPU) == 32u);
+static_assert(sizeof(MRHybridObjectTrackUniformsGPU) == 80u);
 #endif

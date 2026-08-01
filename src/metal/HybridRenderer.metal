@@ -7,6 +7,195 @@
 #include "VisualPBR.metal"
 
 using namespace metal;
+
+kernel void mr_hybrid_reduce_object_tracks(
+    device const float* depth [[buffer(0)]],
+    device const uint4* identities [[buffer(1)]],
+    device const uint* validity [[buffer(2)]],
+    device const MRHybridObjectTrackBindingGPU* bindings [[buffer(3)]],
+    device float4* trackHistory [[buffer(4)]],
+    device const uint* resetMasks [[buffer(5)]],
+    device float* actorHistory [[buffer(6)]],
+    device float* actorObservations [[buffer(7)]],
+    device const MRBodyStateGPU* bodyStates [[buffer(8)]],
+    device const MRHybridCameraStateGPU* cameraStates [[buffer(9)]],
+    device const MRWorldInstanceHeaderGPU* instances [[buffer(10)]],
+    device const MRWorldSensorInstanceGPU* sensors [[buffer(11)]],
+    constant MRHybridObjectTrackUniformsGPU& uniforms [[buffer(12)]],
+    const uint group [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_threadgroup]],
+    const uint lanes [[threads_per_threadgroup]]
+) {
+    const uint total = uniforms.counts.x * uniforms.counts.y;
+    if (group >= total || uniforms.counts.z == 0u ||
+        uniforms.counts.w == 0u || uniforms.layout.x == 0u ||
+        uniforms.layout.y == 0u || !(uniforms.timing.x > 0.0f)) {
+        return;
+    }
+    const uint environment = group / uniforms.counts.y;
+    const uint track = group - environment * uniforms.counts.y;
+    const MRHybridObjectTrackBindingGPU binding = bindings[track];
+    const uint pixelCount = uniforms.counts.z * uniforms.counts.w;
+    const uint pixelBase = environment * pixelCount;
+    float sumX = 0.0f;
+    float sumY = 0.0f;
+    float sumDepth = 0.0f;
+    uint visiblePixels = 0u;
+    for (uint pixel = lane; pixel < pixelCount; pixel += lanes) {
+        const uint source = pixelBase + pixel;
+        const float z = depth[source];
+        if (validity[source] == 0u ||
+            identities[source].y != binding.identity.x ||
+            !(z > 0.0f) || !isfinite(z)) {
+            continue;
+        }
+        sumX += float(pixel % uniforms.counts.z) + 0.5f;
+        sumY += float(pixel / uniforms.counts.z) + 0.5f;
+        sumDepth += z;
+        ++visiblePixels;
+    }
+    threadgroup float partialX[256];
+    threadgroup float partialY[256];
+    threadgroup float partialDepth[256];
+    threadgroup uint partialCount[256];
+    partialX[lane] = sumX;
+    partialY[lane] = sumY;
+    partialDepth[lane] = sumDepth;
+    partialCount[lane] = visiblePixels;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = lanes >> 1u; stride != 0u; stride >>= 1u) {
+        if (lane < stride) {
+            partialX[lane] += partialX[lane + stride];
+            partialY[lane] += partialY[lane + stride];
+            partialDepth[lane] += partialDepth[lane + stride];
+            partialCount[lane] += partialCount[lane + stride];
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane != 0u) {
+        return;
+    }
+    sumX = partialX[0];
+    sumY = partialY[0];
+    sumDepth = partialDepth[0];
+    visiblePixels = partialCount[0];
+    const MRWorldInstanceHeaderGPU instance = instances[environment];
+    const MRWorldSensorInstanceGPU sensor =
+        sensors[instance.ranges.z + uniforms.roots.z];
+    const MRHybridCameraStateGPU camera = cameraStates[environment];
+    const MRBodyStateGPU root = bodyStates[
+        environment * uniforms.roots.x + uniforms.roots.y
+    ];
+    const float2 focal =
+        sensor.intrinsics.xy * sensor.positionAndFocalScale.w;
+    const bool validFrames =
+        camera.currentPositionAndValidity.w > 0.5f &&
+        all(isfinite(camera.currentOrientation)) &&
+        all(isfinite(root.position.xyz)) &&
+        all(isfinite(root.orientation));
+    const bool visible =
+        visiblePixels >= uint(binding.transform.z) &&
+        all(focal > 0.0f) && validFrames;
+    float3 rootPosition = float3(0.0f);
+    if (visible) {
+        const float inverseCount = 1.0f / float(visiblePixels);
+        const float z = sumDepth * inverseCount;
+        const float3 cameraPosition = float3(
+            (sumX * inverseCount - sensor.intrinsics.z) * z /
+                max(focal.x, 1.0e-6f),
+            (sumY * inverseCount - sensor.intrinsics.w) * z /
+                max(focal.y, 1.0e-6f),
+            z
+        );
+        const float4 cameraQ = camera.currentOrientation;
+        const float3 cameraTangent =
+            2.0f * cross(cameraQ.xyz, cameraPosition);
+        const float3 worldPosition =
+            cameraPosition + cameraQ.w * cameraTangent +
+            cross(cameraQ.xyz, cameraTangent) +
+            camera.currentPositionAndValidity.xyz;
+        const float3 rootDelta = worldPosition - root.position.xyz;
+        const float4 inverseRootQ = float4(
+            -root.orientation.xyz,
+            root.orientation.w
+        );
+        const float3 rootTangent =
+            2.0f * cross(inverseRootQ.xyz, rootDelta);
+        rootPosition =
+            rootDelta + inverseRootQ.w * rootTangent +
+            cross(inverseRootQ.xyz, rootTangent);
+    }
+
+    const uint resetIndex =
+        uniforms.layout.z * uniforms.layout.w + environment;
+    const bool reset = resetMasks[resetIndex] != 0u;
+    const uint historyCount = uniforms.layout.y;
+    const uint trackBase =
+        (environment * historyCount * uniforms.counts.y + track) * 2u;
+    const uint lastTrack = trackBase +
+        (historyCount - 1u) * uniforms.counts.y * 2u;
+    const float4 previous = trackHistory[lastTrack];
+    const float3 velocity =
+        visible && previous.w > 0.5f && !reset
+        ? (rootPosition - previous.xyz) / uniforms.timing.x
+        : float3(0.0f);
+    if (!reset) {
+        for (uint history = 0u; history + 1u < historyCount; ++history) {
+            const uint destination = trackBase +
+                history * uniforms.counts.y * 2u;
+            const uint source = destination + uniforms.counts.y * 2u;
+            trackHistory[destination] = trackHistory[source];
+            trackHistory[destination + 1u] = trackHistory[source + 1u];
+        }
+    }
+    const float4 positionConfidence = float4(
+        visible ? rootPosition : float3(0.0f),
+        visible ? 1.0f : 0.0f
+    );
+    const float4 velocityRecord = float4(
+        visible ? velocity : float3(0.0f),
+        0.0f
+    );
+    if (reset) {
+        for (uint history = 0u; history < historyCount; ++history) {
+            const uint destination = trackBase +
+                history * uniforms.counts.y * 2u;
+            trackHistory[destination] = positionConfidence;
+            trackHistory[destination + 1u] = velocityRecord;
+        }
+    } else {
+        trackHistory[lastTrack] = positionConfidence;
+        trackHistory[lastTrack + 1u] = velocityRecord;
+    }
+
+    const ulong actorOutputOffset =
+        (ulong(uniforms.output.y) << 32u) | ulong(uniforms.output.x);
+    const uint environmentHistoryBase =
+        environment * uniforms.layout.x * historyCount;
+    for (uint history = 0u; history < historyCount; ++history) {
+        const uint source = trackBase +
+            history * uniforms.counts.y * 2u;
+        const float4 measuredPosition = trackHistory[source];
+        const float4 measuredVelocity = trackHistory[source + 1u];
+        const uint destination = environmentHistoryBase +
+            history * uniforms.layout.x + binding.identity.y;
+        const float values[7] = {
+            measuredPosition.w,
+            measuredPosition.x * binding.transform.x,
+            measuredPosition.y * binding.transform.x,
+            measuredPosition.z * binding.transform.x,
+            measuredVelocity.x * binding.transform.y,
+            measuredVelocity.y * binding.transform.y,
+            measuredVelocity.z * binding.transform.y,
+        };
+        for (uint component = 0u; component < 7u; ++component) {
+            actorHistory[destination + component] = values[component];
+            actorObservations[
+                actorOutputOffset + destination + component
+            ] = values[component];
+        }
+    }
+}
 using namespace raytracing;
 
 constant uint kLiveCurrent = 1u << 0u;

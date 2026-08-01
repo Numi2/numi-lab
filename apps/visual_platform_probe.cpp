@@ -2,9 +2,12 @@
 #include "metalrobo/MetalWorldFamily.hpp"
 #include "metalrobo/VisualPlatform.hpp"
 
+#import <Metal/Metal.h>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <span>
@@ -430,6 +433,132 @@ int main() {
                     observations[0].normals[visibleIndex].x
                 ),
             "dense semantic, instance, link, or normal truth is missing"
+        );
+
+        metalrobo::MetalHybridObjectTracker tracker;
+        const std::uint32_t trackedBody =
+            observations[0].identities[visibleIndex].z;
+        metalrobo::MetalHybridObjectTrackerConfig trackerConfig;
+        trackerConfig.capacity = kEnvironmentCount;
+        trackerConfig.cameraIndex = 0u;
+        trackerConfig.rootBodyIndex =
+            worldTemplate.engineModel.articulations.front().firstBody;
+        trackerConfig.maximumActorHistoryLength = 1u;
+        trackerConfig.timestepSeconds = 0.02f;
+        trackerConfig.bindings.push_back({
+            .instanceId = observations[0].identities[visibleIndex].y,
+            .actorFrameOffset = 0u,
+            .positionScale = 1.0f,
+            .velocityScale = 1.0f,
+            .minimumVisiblePixels = 1u,
+        });
+        require(
+            tracker.compile(renderer, worlds, std::move(trackerConfig)),
+            "device object tracker compile"
+        );
+        const metalrobo::MetalWorldDeviceObservationProgram
+            trackerProgram = tracker.observationProgram();
+        require(trackerProgram.valid(), "device object tracker program");
+
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        const std::size_t bodyBytes =
+            bodyStates.size() * sizeof(MRBodyStateGPU);
+        id<MTLBuffer> bodyBuffer = [device
+            newBufferWithBytes:bodyStates.data()
+                         length:bodyBytes
+                        options:MTLResourceStorageModeShared];
+        constexpr std::uint32_t kTrackWidth = 7u;
+        const std::size_t trackElements =
+            kEnvironmentCount * kTrackWidth;
+        id<MTLBuffer> resetBuffer = [device
+            newBufferWithLength:2u * kEnvironmentCount *
+                sizeof(std::uint32_t)
+                         options:MTLResourceStorageModeShared];
+        id<MTLBuffer> historyBuffer = [device
+            newBufferWithLength:trackElements * sizeof(float)
+                         options:MTLResourceStorageModeShared];
+        id<MTLBuffer> observationBuffer = [device
+            newBufferWithLength:trackElements * sizeof(float)
+                         options:MTLResourceStorageModeShared];
+        require(
+            device != nil && queue != nil && command != nil &&
+                bodyBuffer != nil && resetBuffer != nil &&
+                historyBuffer != nil && observationBuffer != nil,
+            "device object tracker probe allocation"
+        );
+        std::memset(resetBuffer.contents, 0, resetBuffer.length);
+        std::memset(historyBuffer.contents, 0, historyBuffer.length);
+        std::memset(
+            observationBuffer.contents,
+            0,
+            observationBuffer.length
+        );
+        metalrobo::MetalWorldDeviceObservationPass trackerPass{
+            .commandBuffer = (__bridge void*)command,
+            .currentBodies = (__bridge void*)bodyBuffer,
+            .resetMasks = (__bridge void*)resetBuffer,
+            .actorHistory = (__bridge void*)historyBuffer,
+            .actorObservations = (__bridge void*)observationBuffer,
+            .actorObservationOffsetElements = 0u,
+            .controlStep = 0u,
+            .environmentCount = kEnvironmentCount,
+            .bodyCount = static_cast<std::uint32_t>(
+                worldTemplate.engineModel.bodies.size()
+            ),
+            .actorFrameSize = kTrackWidth,
+            .actorHistoryLength = 1u,
+        };
+        require(
+            trackerProgram.encode(trackerProgram.context, trackerPass),
+            "device object tracker encode"
+        );
+        [command commit];
+        [command waitUntilCompleted];
+        require(
+            command.status == MTLCommandBufferStatusCompleted,
+            "device object tracker command completion"
+        );
+        const auto* tracked = static_cast<const float*>(
+            observationBuffer.contents
+        );
+        require(
+            tracked[0] > 0.5f &&
+                std::all_of(
+                    tracked,
+                    tracked + trackElements,
+                    [](const float value) {
+                        return std::isfinite(value);
+                    }
+                ),
+            "device object tracker did not publish a finite visible track"
+        );
+        auto* deviceBodies = static_cast<MRBodyStateGPU*>(
+            bodyBuffer.contents
+        );
+        for (std::uint32_t environment = 0u;
+             environment < kEnvironmentCount;
+             ++environment) {
+            deviceBodies[
+                static_cast<std::size_t>(environment) *
+                    worldTemplate.engineModel.bodies.size() +
+                trackedBody
+            ].position.x += 0.02f;
+        }
+        id<MTLCommandBuffer> secondCommand = [queue commandBuffer];
+        trackerPass.commandBuffer = (__bridge void*)secondCommand;
+        trackerPass.controlStep = 1u;
+        require(
+            trackerProgram.encode(trackerProgram.context, trackerPass),
+            "device object tracker temporal encode"
+        );
+        [secondCommand commit];
+        [secondCommand waitUntilCompleted];
+        require(
+            secondCommand.status == MTLCommandBufferStatusCompleted &&
+                tracked[0] > 0.5f && std::abs(tracked[4]) > 0.1f,
+            "device object tracker did not retain visible temporal motion"
         );
 
         metalrobo::VisualSensorProfileV2 sensorProfile;

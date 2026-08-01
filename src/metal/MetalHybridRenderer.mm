@@ -6898,11 +6898,340 @@ void* MetalHybridRenderer::nativeBuffer(
         case MetalHybridRendererBuffer::meshTileOverflowCounts:
             selected = state_->buffers.meshTileOverflowCounts;
             break;
+        case MetalHybridRendererBuffer::cameraStates:
+            selected = state_->buffers.cameraStates;
+            break;
     }
         return (__bridge void*)selected;
     } catch (...) {
         return nullptr;
     }
+}
+
+struct MetalHybridObjectTracker::State {
+    MetalHybridRenderer* renderer = nullptr;
+    const MetalWorldFamilyContext* worlds = nullptr;
+    MetalHybridObjectTrackerConfig config;
+    __strong id<MTLDevice> device = nil;
+    __strong id<MTLComputePipelineState> pipeline = nil;
+    __strong id<MTLBuffer> bindings = nil;
+    __strong id<MTLBuffer> history = nil;
+    MetalHybridRendererLayout rendererLayout{};
+    bool compiled = false;
+};
+
+MetalHybridObjectTracker::MetalHybridObjectTracker()
+    : state_(std::make_unique<State>()) {}
+
+MetalHybridObjectTracker::~MetalHybridObjectTracker() = default;
+
+MetalHybridObjectTracker::MetalHybridObjectTracker(
+    MetalHybridObjectTracker&&
+) noexcept = default;
+
+MetalHybridObjectTracker& MetalHybridObjectTracker::operator=(
+    MetalHybridObjectTracker&&
+) noexcept = default;
+
+MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
+    MetalHybridRenderer& renderer,
+    const MetalWorldFamilyContext& worlds,
+    MetalHybridObjectTrackerConfig config
+) {
+    MetalHybridRendererDiagnostics diagnostics{};
+    try {
+        if (state_ == nullptr) {
+            state_ = std::make_unique<State>();
+        }
+        const MetalHybridRendererLayout layout = renderer.layout();
+        if (renderer.state_ == nullptr ||
+            !renderer.state_->initialized || layout.capacity == 0u ||
+            config.capacity == 0u || config.capacity > layout.capacity ||
+            config.maximumActorHistoryLength == 0u ||
+            config.cameraIndex >= layout.sensorBindingCount ||
+            config.rootBodyIndex >= layout.bodyCount ||
+            config.bindings.empty() ||
+            !std::isfinite(config.timestepSeconds) ||
+            !(config.timestepSeconds > 0.0f)) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::invalidConfiguration,
+                "object tracker configuration or compiled renderer is invalid"
+            );
+        }
+        std::vector<MRHybridObjectTrackBindingGPU> bindings;
+        bindings.reserve(config.bindings.size());
+        for (const MetalHybridObjectTrackBinding& binding :
+             config.bindings) {
+            if (binding.instanceId == MR_INVALID_INDEX ||
+                binding.minimumVisiblePixels == 0u ||
+                !std::isfinite(binding.positionScale) ||
+                !std::isfinite(binding.velocityScale)) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalHybridRendererStatus::invalidConfiguration,
+                    "object track binding is invalid"
+                );
+            }
+            bindings.push_back({
+                {
+                    binding.instanceId,
+                    binding.actorFrameOffset,
+                    0u,
+                    0u,
+                },
+                {
+                    binding.positionScale,
+                    binding.velocityScale,
+                    static_cast<float>(binding.minimumVisiblePixels),
+                    0.0f,
+                },
+            });
+        }
+        id<MTLDevice> device = renderer.state_->device;
+        id<MTLFunction> function = [renderer.state_->library
+            newFunctionWithName:@"mr_hybrid_reduce_object_tracks"];
+        NSError* error = nil;
+        id<MTLComputePipelineState> pipeline =
+            function == nil
+            ? nil
+            : [device newComputePipelineStateWithFunction:function
+                                                    error:&error];
+        if (pipeline == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalPipelineFailure,
+                "could not create object-track reduction pipeline: " +
+                    describeError(error)
+            );
+        }
+        id<MTLBuffer> bindingBuffer = [device
+            newBufferWithBytes:bindings.data()
+                       length:bindings.size() * sizeof(bindings.front())
+                      options:MTLResourceStorageModeShared];
+        const std::size_t historyRecords =
+            static_cast<std::size_t>(config.capacity) *
+            config.maximumActorHistoryLength * bindings.size() * 2u;
+        id<MTLBuffer> history = [device
+            newBufferWithLength:std::max<std::size_t>(
+                                    historyRecords * sizeof(mr_float4),
+                                    kMinimumAllocationBytes
+                                )
+                         options:MTLResourceStorageModePrivate];
+        if (bindingBuffer == nil || history == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalBufferFailure,
+                "could not allocate object-track tables or history"
+            );
+        }
+        id<MTLCommandBuffer> command =
+            [renderer.state_->queue commandBuffer];
+        id<MTLBlitCommandEncoder> clear =
+            [command blitCommandEncoder];
+        if (command == nil || clear == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalCommandFailure,
+                "could not clear object-track history"
+            );
+        }
+        [clear fillBuffer:history
+                    range:NSMakeRange(0u, history.length)
+                    value:0u];
+        [clear endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        if (command.status != MTLCommandBufferStatusCompleted) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalCommandFailure,
+                "object-track history initialization failed"
+            );
+        }
+        state_->renderer = &renderer;
+        state_->worlds = &worlds;
+        state_->config = std::move(config);
+        state_->device = device;
+        state_->pipeline = pipeline;
+        state_->bindings = bindingBuffer;
+        state_->history = history;
+        state_->rendererLayout = layout;
+        state_->compiled = true;
+        diagnostics.layout = layout;
+        diagnostics.deviceName = renderer.state_->deviceName;
+        return diagnostics;
+    } catch (const std::exception& error) {
+        return reject(
+            std::move(diagnostics),
+            MetalHybridRendererStatus::internalFailure,
+            error.what()
+        );
+    } catch (...) {
+        return reject(
+            std::move(diagnostics),
+            MetalHybridRendererStatus::internalFailure,
+            "unknown object tracker compilation failure"
+        );
+    }
+}
+
+bool MetalHybridObjectTracker::encodeObservation(
+    void* context,
+    const MetalWorldDeviceObservationPass& pass
+) {
+    auto* state = static_cast<State*>(context);
+    if (state == nullptr || !state->compiled ||
+        state->renderer == nullptr || state->worlds == nullptr ||
+        pass.commandBuffer == nullptr || pass.currentBodies == nullptr ||
+        pass.resetMasks == nullptr || pass.actorHistory == nullptr ||
+        pass.actorObservations == nullptr ||
+        pass.environmentCount == 0u ||
+        pass.environmentCount > state->config.capacity ||
+        pass.actorHistoryLength == 0u ||
+        pass.actorHistoryLength >
+            state->config.maximumActorHistoryLength) {
+        return false;
+    }
+    for (const MetalHybridObjectTrackBinding& binding :
+         state->config.bindings) {
+        if (binding.actorFrameOffset + 7u > pass.actorFrameSize) {
+            return false;
+        }
+    }
+    id<MTLCommandBuffer> command =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLComputeCommandEncoder> renderEncoder =
+        [command computeCommandEncoder];
+    if (renderEncoder == nil) {
+        return false;
+    }
+    HybridDeviceStateBatch liveState{
+        .currentBodyStates = pass.currentBodies,
+        .previousBodyStates = pass.currentBodies,
+        .environmentCount = pass.environmentCount,
+        .bodyCount = pass.bodyCount,
+        .frameIndex = pass.controlStep,
+        .sensorSequence = pass.controlStep,
+        .source = MR_VISUAL_SOURCE_SIMULATION,
+        .captureTimestampSeconds =
+            double(pass.controlStep) * state->config.timestepSeconds,
+        .frameAgeSeconds = 0.0,
+    };
+    const MetalHybridRendererDiagnostics rendered =
+        state->renderer->encode(
+            *state->worlds,
+            liveState,
+            state->config.cameraIndex,
+            (__bridge void*)renderEncoder
+        );
+    [renderEncoder endEncoding];
+    if (!rendered.succeeded()) {
+        return false;
+    }
+    id<MTLBuffer> depth =
+        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
+            MetalHybridRendererBuffer::depth
+        );
+    id<MTLBuffer> identities =
+        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
+            MetalHybridRendererBuffer::identities
+        );
+    id<MTLBuffer> validity =
+        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
+            MetalHybridRendererBuffer::validity
+        );
+    id<MTLBuffer> cameraStates =
+        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
+            MetalHybridRendererBuffer::cameraStates
+        );
+    id<MTLBuffer> instanceHeaders =
+        (__bridge id<MTLBuffer>)state->worlds->nativeBuffer(
+            MetalWorldFamilyBuffer::instanceHeaders
+        );
+    id<MTLBuffer> sensorInstances =
+        (__bridge id<MTLBuffer>)state->worlds->nativeBuffer(
+            MetalWorldFamilyBuffer::sensorInstances
+        );
+    if (depth == nil || identities == nil || validity == nil ||
+        cameraStates == nil || instanceHeaders == nil ||
+        sensorInstances == nil) {
+        return false;
+    }
+    const std::uint64_t outputOffset =
+        pass.actorObservationOffsetElements;
+    const MRHybridObjectTrackUniformsGPU uniforms{
+        {
+            pass.environmentCount,
+            static_cast<std::uint32_t>(state->config.bindings.size()),
+            state->rendererLayout.width,
+            state->rendererLayout.height,
+        },
+        {
+            pass.actorFrameSize,
+            pass.actorHistoryLength,
+            pass.controlStep,
+            pass.environmentCount,
+        },
+        {
+            pass.bodyCount,
+            state->config.rootBodyIndex,
+            state->config.cameraIndex,
+            0u,
+        },
+        {
+            static_cast<std::uint32_t>(outputOffset),
+            static_cast<std::uint32_t>(outputOffset >> 32u),
+            0u,
+            0u,
+        },
+        {state->config.timestepSeconds, 0.0f, 0.0f, 0.0f},
+    };
+    id<MTLComputeCommandEncoder> reduce =
+        [command computeCommandEncoder];
+    if (reduce == nil) {
+        return false;
+    }
+    reduce.label = @"MetalRobo RGB-D object track reduction";
+    [reduce setComputePipelineState:state->pipeline];
+    const std::array<id<MTLBuffer>, 12u> buffers{{
+        depth,
+        identities,
+        validity,
+        state->bindings,
+        state->history,
+        (__bridge id<MTLBuffer>)pass.resetMasks,
+        (__bridge id<MTLBuffer>)pass.actorHistory,
+        (__bridge id<MTLBuffer>)pass.actorObservations,
+        (__bridge id<MTLBuffer>)pass.currentBodies,
+        cameraStates,
+        instanceHeaders,
+        sensorInstances,
+    }};
+    for (NSUInteger index = 0u; index < buffers.size(); ++index) {
+        [reduce setBuffer:buffers[index] offset:0u atIndex:index];
+    }
+    [reduce setBytes:&uniforms length:sizeof(uniforms) atIndex:12u];
+    const NSUInteger threads =
+        pass.environmentCount * state->config.bindings.size();
+    const NSUInteger width = std::min<NSUInteger>(
+        state->pipeline.maxTotalThreadsPerThreadgroup,
+        256u
+    );
+    [reduce dispatchThreadgroups:MTLSizeMake(threads, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+    [reduce endEncoding];
+    return true;
+}
+
+MetalWorldDeviceObservationProgram
+MetalHybridObjectTracker::observationProgram() noexcept {
+    return state_ != nullptr && state_->compiled
+        ? MetalWorldDeviceObservationProgram{
+              .context = state_.get(),
+              .encode = &MetalHybridObjectTracker::encodeObservation,
+          }
+        : MetalWorldDeviceObservationProgram{};
 }
 
 const char* metalHybridRendererStatusName(

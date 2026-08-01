@@ -2182,6 +2182,62 @@ inline void unionRoots(
 
 } // namespace
 
+// Selects the exact state observed by a native policy. Task reset and launch
+// scheduling run before this pass, while the transactional physics prepare
+// runs after policy inference. The unused ping-pong destination is therefore
+// the observation-time staging arena and requires no retained buffer.
+kernel void mr_world_select_observation_state(
+    device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(0)]],
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(1)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(2)]],
+    device const uint* resetMasks [[buffer(3)]],
+    device const float* resetQ [[buffer(4)]],
+    device const MRBodyStateGPU* resetScene [[buffer(5)]],
+    device const float* sourceQ [[buffer(6)]],
+    device const MRBodyStateGPU* sourceScene [[buffer(7)]],
+    device float* observationQ [[buffer(8)]],
+    device MRBodyStateGPU* observationScene [[buffer(9)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(10)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= worldDispatch.environmentCount ||
+        environment >= dispatch.environmentCount ||
+        pass.controlStep >= worldDispatch.controlStepCount ||
+        pass.physicsSubstep != MR_INVALID_INDEX) {
+        return;
+    }
+    const bool reset =
+        (worldDispatch.flags & MR_METAL_WORLD_HAS_RESETS) != 0u &&
+        resetMasks[
+            pass.controlStep * worldDispatch.resetMaskStepStride +
+            environment
+        ] != 0u;
+    const uint qBase = environment * worldDispatch.qStride;
+    for (uint coordinate = 0u;
+         coordinate < worldDispatch.nq;
+         ++coordinate) {
+        observationQ[qBase + coordinate] = reset
+            ? resetQ[qBase + coordinate]
+            : sourceQ[qBase + coordinate];
+    }
+    const uint sceneBase = environment * dispatch.sceneBodyStride;
+    for (uint body = 0u; body < dispatch.sceneBodyCount; ++body) {
+        observationScene[sceneBase + body] = reset
+            ? resetScene[sceneBase + body]
+            : sourceScene[sceneBase + body];
+    }
+    MRMetalWorldContactStatusGPU status = {};
+    status.code = MR_STEP_SUCCESS;
+    status.environment = environment;
+    status.controlStep = pass.controlStep;
+    status.physicsSubstep = MR_INVALID_INDEX;
+    status.firstFailingPair = MR_INVALID_INDEX;
+    status.firstFailingConstraint = MR_INVALID_INDEX;
+    status.firstFailingEventKeyLow = MR_INVALID_INDEX;
+    status.firstFailingEventKeyHigh = MR_INVALID_INDEX;
+    statuses[environment] = status;
+}
+
 // Applies resets/kinematic targets and checkpoints the complete contact state
 // at the start of one control step.
 kernel void mr_world_prepare_contact_step(
