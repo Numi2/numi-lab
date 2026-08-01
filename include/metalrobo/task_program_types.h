@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 16u
+#define MR_TASK_PROGRAM_ABI_VERSION 17u
 
 #define MR_TASK_GOAL_FIXED 0u
 #define MR_TASK_GOAL_SAMPLED_EPISODE 1u
@@ -85,35 +85,32 @@ enum MRTaskFrameSourceKind : mr_u32 {
 enum MRTaskRewardOpcode : mr_u32 {
     MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING = 0u,
     MR_TASK_REWARD_YAW_VELOCITY_TRACKING = 1u,
-    MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED = 2u,
-    MR_TASK_REWARD_ROOT_ROLL_PITCH_VELOCITY_SQUARED = 3u,
-    MR_TASK_REWARD_TILT_SQUARED = 4u,
-    MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED = 5u,
-    MR_TASK_REWARD_JOINT_VELOCITY_SQUARED = 6u,
-    MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED = 7u,
-    MR_TASK_REWARD_ACTION_RATE_SQUARED = 8u,
-    MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED = 9u,
-    MR_TASK_REWARD_MECHANICAL_POWER = 10u,
-    MR_TASK_REWARD_JOINT_GROUP_POSTURE_SQUARED = 11u,
-    MR_TASK_REWARD_GAIT_CONTACT_MATCH = 12u,
-    MR_TASK_REWARD_SWING_CLEARANCE = 13u,
-    MR_TASK_REWARD_SUPPORT_SLIP = 14u,
-    MR_TASK_REWARD_FORBIDDEN_CONTACT = 15u,
-    MR_TASK_REWARD_JOINT_GROUP_POSTURE_ABSOLUTE = 16u,
-    MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED = 17u,
-    MR_TASK_REWARD_FOOT_CLEARANCE = 18u,
-    MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE = 19u,
+    MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED = 2u,
+    MR_TASK_REWARD_ACTION_RATE_SQUARED = 3u,
+    MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE = 4u,
+    MR_TASK_REWARD_MECHANICAL_POWER = 5u,
+    MR_TASK_REWARD_GAIT_CONTACT_MATCH = 6u,
+    MR_TASK_REWARD_FOOT_CLEARANCE = 7u,
     // A scalar produced by the compiled, topologically ordered SignalIR.
-    MR_TASK_REWARD_SIGNAL = 20u,
+    MR_TASK_REWARD_SIGNAL = 8u,
+};
+
+enum MRTaskRewardChannel : mr_u32 {
+    MR_TASK_REWARD_CHANNEL_PRIMARY = 0u,
+    MR_TASK_REWARD_CHANNEL_STABILITY = 1u,
+    MR_TASK_REWARD_CHANNEL_VELOCITY = 2u,
+    MR_TASK_REWARD_CHANNEL_ACCELERATION = 3u,
+    MR_TASK_REWARD_CHANNEL_CONTROL = 4u,
+    MR_TASK_REWARD_CHANNEL_CONFIGURATION = 5u,
+    MR_TASK_REWARD_CHANNEL_ENERGY = 6u,
+    MR_TASK_REWARD_CHANNEL_CONTACT = 7u,
+    MR_TASK_REWARD_CHANNEL_COUNT = 8u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
-    MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT = 0u,
-    MR_TASK_TERMINATE_MAXIMUM_TILT = 1u,
-    MR_TASK_TERMINATE_CONTACT_GROUP = 2u,
-    MR_TASK_TERMINATE_SIGNAL_BELOW = 3u,
-    MR_TASK_TERMINATE_SIGNAL_ABOVE = 4u,
-    MR_TASK_TERMINATE_SIGNAL_OUTSIDE = 5u,
+    MR_TASK_TERMINATE_SIGNAL_BELOW = 0u,
+    MR_TASK_TERMINATE_SIGNAL_ABOVE = 1u,
+    MR_TASK_TERMINATE_SIGNAL_OUTSIDE = 2u,
 };
 
 // Statically shaped scalar TaskIR. Source leaves reuse the semantic
@@ -134,6 +131,7 @@ enum MRTaskSignalOpcode : mr_u32 {
     MR_TASK_SIGNAL_EXPONENTIAL_TRACKING = 12u,
     MR_TASK_SIGNAL_INSIDE_BOUNDS = 13u,
     MR_TASK_SIGNAL_EXPONENTIAL_DECAY = 14u,
+    MR_TASK_SIGNAL_ATAN2 = 15u,
 };
 
 enum MRTaskTerminationReason : mr_u32 {
@@ -195,7 +193,7 @@ typedef struct MR_ALIGN16 MRTaskDispatchGPU {
 typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // actions, actor-frame operators, critic operators, contact groups.
     mr_uint4 counts0;
-    // contact members, joint groups, joint members, reward operators.
+    // contact members, reserved, reserved, reward operators.
     mr_uint4 counts1;
     // termination operators, randomization operators, bias slots,
     // terrain-sample offsets.
@@ -224,7 +222,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // Byte offsets in the immutable packed task arena:
     // action bindings, actor operators, critic operators, contact groups.
     mr_uint4 offsets0;
-    // contact members, joint groups, joint members, reward operators.
+    // contact members, reserved, reserved, reward operators.
     mr_uint4 offsets1;
     // termination operators, randomization operators, bias specs, terrain
     // samples.
@@ -281,11 +279,6 @@ typedef struct MR_ALIGN16 MRTaskContactGroupGPU {
     mr_float4 gait;
 } MRTaskContactGroupGPU;
 
-typedef struct MR_ALIGN16 MRTaskIndexGroupGPU {
-    // member offset/count, reserved, reserved.
-    mr_uint4 members;
-} MRTaskIndexGroupGPU;
-
 typedef struct MR_ALIGN16 MRTaskFrameGPU {
     // x = global body index, y = MRTaskFrameSourceKind,
     // z = source-layout index (global body-pose index for articulated bodies,
@@ -319,7 +312,7 @@ typedef struct MR_ALIGN16 MRTaskGoalGPU {
 } MRTaskGoalGPU;
 
 typedef struct MR_ALIGN16 MRTaskRewardOperatorGPU {
-    // opcode, resolved group/signal index, reserved, flags.
+    // opcode, resolved group/signal index, reward channel, flags.
     mr_uint4 source;
     // weight and three operator parameters.
     mr_float4 parameters;
@@ -398,7 +391,6 @@ static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskSignalOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
-static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);
 static_assert(sizeof(MRTaskGoalGPU) == 160u);
 static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);

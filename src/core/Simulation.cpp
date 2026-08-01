@@ -864,24 +864,16 @@ TaskPack makeUnitreeG1TaskPack(
             }
             return names;
         };
-    task.jointGroups.push_back({
-        .id = "waist",
-        .joints = jointNames({12u, 13u, 14u}),
-    });
-    task.jointGroups.push_back({
-        .id = "hips",
-        .joints = jointNames({1u, 2u, 7u, 8u}),
-    });
+    const std::vector<std::string> waistJoints =
+        jointNames({12u, 13u, 14u});
+    const std::vector<std::string> hipJoints =
+        jointNames({1u, 2u, 7u, 8u});
     std::vector<std::string> armJoints;
     for (std::uint32_t joint = 15u; joint < 29u; ++joint) {
         armJoints.emplace_back(
             metadata.jointLimits[joint].name
         );
     }
-    task.jointGroups.push_back({
-        .id = "arms",
-        .joints = std::move(armJoints),
-    });
 
     // Unitree's critic is a separate clean 99-value frame with five-frame
     // history. Keep this authored as ordinary observation operators so every
@@ -980,123 +972,406 @@ TaskPack makeUnitreeG1TaskPack(
             {0.0f, 0.0f, 0.0f, 0.0f},
         };
     }
-    const auto reward =
+    const auto sourceSignal =
+        [&task](
+            const std::string& id,
+            const TaskObservationSource source,
+            const std::string_view target,
+            const std::uint32_t component
+        ) {
+            task.signals.push_back({
+                .id = id,
+                .operation = TaskSignalOperator::source,
+                .source = {
+                    .source = source,
+                    .target = std::string{target},
+                    .component = component,
+                },
+            });
+            return id;
+        };
+    const auto constantSignal =
+        [&task](const std::string& id, const float value) {
+            task.signals.push_back({
+                .id = id,
+                .operation = TaskSignalOperator::constant,
+                .parameters = {value, 0.0f, 0.0f, 0.0f},
+            });
+            return id;
+        };
+    const auto unarySignal =
+        [&task](
+            const std::string& id,
+            const TaskSignalOperator operation,
+            const std::string& operand
+        ) {
+            task.signals.push_back({
+                .id = id,
+                .operation = operation,
+                .left = operand,
+            });
+            return id;
+        };
+    const auto binarySignal =
+        [&task](
+            const std::string& id,
+            const TaskSignalOperator operation,
+            const std::string& left,
+            const std::string& right
+        ) {
+            task.signals.push_back({
+                .id = id,
+                .operation = operation,
+                .left = left,
+                .right = right,
+            });
+            return id;
+        };
+    const auto sumSignals =
+        [&binarySignal](
+            const std::string& id,
+            const std::vector<std::string>& terms
+        ) {
+            if (terms.empty()) {
+                throw std::logic_error(
+                    "TaskIR reduction requires at least one term"
+                );
+            }
+            std::string sum = terms.front();
+            for (std::size_t index = 1u;
+                 index < terms.size();
+                 ++index) {
+                sum = binarySignal(
+                    id + "_" + std::to_string(index),
+                    TaskSignalOperator::add,
+                    sum,
+                    terms[index]
+                );
+            }
+            return sum;
+        };
+    const auto signalReward =
+        [&task](
+            const std::string& signal,
+            const float weight,
+            const TaskRewardChannel channel
+        ) {
+            task.rewards.push_back({
+                .operation = TaskRewardOperator::signal,
+                .signal = signal,
+                .channel = channel,
+                .weight = weight,
+            });
+        };
+    const auto specializedReward =
         [&task](
             const TaskRewardOperator operation,
             const float weight,
+            const TaskRewardChannel channel,
             const std::string_view group = {},
             const mr_float4 parameters = {}
         ) {
             task.rewards.push_back({
                 .operation = operation,
                 .sourceGroup = std::string{group},
+                .channel = channel,
                 .weight = weight,
                 .parameters = parameters,
             });
         };
-    reward(
+
+    specializedReward(
         TaskRewardOperator::linearVelocityTracking,
         1.0f,
+        TaskRewardChannel::primary,
         {},
         {0.25f, 0.0f, 0.0f, 0.0f}
     );
-    reward(
+    specializedReward(
         TaskRewardOperator::yawVelocityTracking,
         0.5f,
+        TaskRewardChannel::primary,
         {},
         {0.25f, 0.0f, 0.0f, 0.0f}
     );
-    task.signals.push_back({
-        .id = "alive",
-        .operation = TaskSignalOperator::constant,
-        .parameters = {1.0f, 0.0f, 0.0f, 0.0f},
-    });
-    task.rewards.push_back({
-        .operation = TaskRewardOperator::signal,
-        .signal = "alive",
-        .weight = 0.15f,
-    });
-    reward(
-        TaskRewardOperator::rootVerticalVelocitySquared,
-        -2.0f
+    signalReward(
+        constantSignal("alive", 1.0f),
+        0.15f,
+        TaskRewardChannel::primary
     );
-    reward(
-        TaskRewardOperator::rootRollPitchVelocitySquared,
-        -0.05f
+
+    const std::string rootVerticalVelocity = sourceSignal(
+        "root_vertical_velocity",
+        TaskObservationSource::rootLinearVelocityLocal,
+        {},
+        2u
     );
-    reward(
-        TaskRewardOperator::projectedGravityHorizontalSquared,
-        -5.0f
+    const std::string rootVerticalVelocitySquared = unarySignal(
+        "root_vertical_velocity_squared",
+        TaskSignalOperator::square,
+        rootVerticalVelocity
     );
-    reward(
-        TaskRewardOperator::rootHeightErrorSquared,
-        -10.0f
+    signalReward(
+        rootVerticalVelocitySquared,
+        -2.0f,
+        TaskRewardChannel::stability
     );
-    reward(
-        TaskRewardOperator::jointVelocitySquared,
-        -0.001f
+
+    std::vector<std::string> rootRollPitchTerms;
+    for (std::uint32_t component = 0u;
+         component < 2u;
+         ++component) {
+        const std::string leaf = sourceSignal(
+            "root_roll_pitch_velocity_" +
+                std::to_string(component),
+            TaskObservationSource::rootAngularVelocityLocal,
+            {},
+            component
+        );
+        rootRollPitchTerms.push_back(unarySignal(
+            leaf + "_squared",
+            TaskSignalOperator::square,
+            leaf
+        ));
+    }
+    signalReward(
+        sumSignals(
+            "root_roll_pitch_velocity_squared",
+            rootRollPitchTerms
+        ),
+        -0.05f,
+        TaskRewardChannel::stability
     );
-    reward(
+
+    std::vector<std::string> gravityHorizontalTerms;
+    std::array<std::string, 3u> gravitySignals;
+    for (std::uint32_t component = 0u;
+         component < gravitySignals.size();
+         ++component) {
+        gravitySignals[component] = sourceSignal(
+            "projected_gravity_" + std::to_string(component),
+            TaskObservationSource::projectedGravity,
+            {},
+            component
+        );
+        if (component < 2u) {
+            gravityHorizontalTerms.push_back(unarySignal(
+                gravitySignals[component] + "_squared",
+                TaskSignalOperator::square,
+                gravitySignals[component]
+            ));
+        }
+    }
+    const std::string gravityHorizontalSquared = sumSignals(
+        "projected_gravity_horizontal_squared",
+        gravityHorizontalTerms
+    );
+    signalReward(
+        gravityHorizontalSquared,
+        -5.0f,
+        TaskRewardChannel::stability
+    );
+
+    const std::string rootHeight = sourceSignal(
+        "root_height",
+        TaskObservationSource::rootHeight,
+        {},
+        0u
+    );
+    const std::string heightTarget = constantSignal(
+        "root_height_target",
+        task.baseHeightTarget
+    );
+    const std::string heightError = binarySignal(
+        "root_height_error",
+        TaskSignalOperator::subtract,
+        rootHeight,
+        heightTarget
+    );
+    signalReward(
+        unarySignal(
+            "root_height_error_squared",
+            TaskSignalOperator::square,
+            heightError
+        ),
+        -10.0f,
+        TaskRewardChannel::stability
+    );
+
+    std::vector<std::string> jointVelocityTerms;
+    jointVelocityTerms.reserve(metadata.jointLimits.size());
+    for (std::size_t joint = 0u;
+         joint < metadata.jointLimits.size();
+         ++joint) {
+        const std::string leaf = sourceSignal(
+            "joint_velocity_" + std::to_string(joint),
+            TaskObservationSource::jointVelocity,
+            metadata.jointLimits[joint].name,
+            0u
+        );
+        jointVelocityTerms.push_back(unarySignal(
+            leaf + "_squared",
+            TaskSignalOperator::square,
+            leaf
+        ));
+    }
+    signalReward(
+        sumSignals("joint_velocity_squared", jointVelocityTerms),
+        -0.001f,
+        TaskRewardChannel::velocity
+    );
+
+    specializedReward(
         TaskRewardOperator::jointAccelerationSquared,
-        -2.5e-7f
+        -2.5e-7f,
+        TaskRewardChannel::acceleration
     );
-    reward(
+    specializedReward(
         TaskRewardOperator::actionRateSquared,
-        -0.05f
+        -0.05f,
+        TaskRewardChannel::control
     );
-    reward(
+    specializedReward(
         TaskRewardOperator::jointLimitViolationAbsolute,
         -5.0f,
+        TaskRewardChannel::configuration,
         {},
         {0.9f, 0.0f, 0.0f, 0.0f}
     );
-    reward(
+    specializedReward(
         TaskRewardOperator::mechanicalPower,
-        -2.0e-5f
+        -2.0e-5f,
+        TaskRewardChannel::energy
     );
-    reward(
-        TaskRewardOperator::jointGroupPostureAbsolute,
+
+    const auto postureSignal =
+        [&](
+            const std::string& id,
+            const std::vector<std::string>& joints
+        ) {
+            std::vector<std::string> terms;
+            terms.reserve(joints.size());
+            for (std::size_t joint = 0u;
+                 joint < joints.size();
+                 ++joint) {
+                const std::string leaf = sourceSignal(
+                    id + "_posture_" +
+                        std::to_string(joint),
+                    TaskObservationSource::jointPositionError,
+                    joints[joint],
+                    0u
+                );
+                terms.push_back(unarySignal(
+                    leaf + "_absolute",
+                    TaskSignalOperator::absolute,
+                    leaf
+                ));
+            }
+            return sumSignals(
+                id + "_posture_sum",
+                terms
+            );
+        };
+    signalReward(
+        postureSignal("waist", waistJoints),
         -1.0f,
-        "waist"
+        TaskRewardChannel::configuration
     );
-    reward(
-        TaskRewardOperator::jointGroupPostureAbsolute,
+    signalReward(
+        postureSignal("hips", hipJoints),
         -1.0f,
-        "hips"
+        TaskRewardChannel::configuration
     );
-    reward(
-        TaskRewardOperator::jointGroupPostureAbsolute,
+    signalReward(
+        postureSignal("arms", armJoints),
         -0.1f,
-        "arms"
+        TaskRewardChannel::configuration
     );
-    reward(
+
+    specializedReward(
         TaskRewardOperator::gaitContactMatch,
-        0.5f
+        0.5f,
+        TaskRewardChannel::primary
     );
-    reward(
+    specializedReward(
         TaskRewardOperator::footClearance,
         1.0f,
+        TaskRewardChannel::primary,
         {},
         {0.05f, 2.0f, 0.0f, 0.0f}
     );
-    reward(TaskRewardOperator::supportSlip, -0.2f);
-    reward(
-        TaskRewardOperator::forbiddenContact,
+    const std::string leftSlip = sourceSignal(
+        "left_support_slip",
+        TaskObservationSource::contactMetric,
+        "left_foot_contact",
+        1u
+    );
+    const std::string rightSlip = sourceSignal(
+        "right_support_slip",
+        TaskObservationSource::contactMetric,
+        "right_foot_contact",
+        1u
+    );
+    signalReward(
+        binarySignal(
+            "support_slip",
+            TaskSignalOperator::add,
+            leftSlip,
+            rightSlip
+        ),
+        -0.2f,
+        TaskRewardChannel::contact
+    );
+    signalReward(
+        sourceSignal(
+            "forbidden_contact",
+            TaskObservationSource::contactMetric,
+            "undesired_contact",
+            0u
+        ),
         -1.0f,
-        "undesired_contact"
+        TaskRewardChannel::contact
     );
 
+    const std::string gravityHorizontal = unarySignal(
+        "projected_gravity_horizontal",
+        TaskSignalOperator::squareRoot,
+        gravityHorizontalSquared
+    );
+    const std::string negativeOne = constantSignal(
+        "negative_one",
+        -1.0f
+    );
+    const std::string negativeGravityZ = binarySignal(
+        "negative_projected_gravity_z",
+        TaskSignalOperator::multiply,
+        gravitySignals[2u],
+        negativeOne
+    );
+    const std::string tiltDenominator = binarySignal(
+        "tilt_denominator",
+        TaskSignalOperator::maximum,
+        negativeGravityZ,
+        constantSignal("tilt_epsilon", 1.0e-6f)
+    );
+    const std::string tiltAngle = binarySignal(
+        "tilt_angle",
+        TaskSignalOperator::atan2,
+        gravityHorizontal,
+        tiltDenominator
+    );
     task.terminations = {
         {
-            .operation =
-                TaskTerminationOperator::minimumRootHeight,
+            .operation = TaskTerminationOperator::signalBelow,
+            .signal = rootHeight,
             .reason = MR_TASK_TERMINATION_HEIGHT,
             .priority = 1u,
             .threshold = 0.2f,
             .failurePenalty = -2.0f,
         },
         {
-            .operation = TaskTerminationOperator::maximumTilt,
+            .operation = TaskTerminationOperator::signalAbove,
+            .signal = tiltAngle,
             .reason = MR_TASK_TERMINATION_TILT,
             .priority = 2u,
             .threshold = 0.8f,

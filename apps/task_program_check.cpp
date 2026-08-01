@@ -284,10 +284,16 @@ std::uint64_t compileFloatingBaseTaskFixture() {
         "alive",
         1.0f
     );
+    authored.task.signals.push_back({
+        .id = "root_height",
+        .operation = metalrobo::TaskSignalOperator::source,
+        .source = {
+            .source = metalrobo::TaskObservationSource::rootHeight,
+        },
+    });
     authored.task.terminations = {{
-        .operation =
-            metalrobo::TaskTerminationOperator::
-                minimumRootHeight,
+        .operation = metalrobo::TaskTerminationOperator::signalBelow,
+        .signal = "root_height",
         .reason = MR_TASK_TERMINATION_HEIGHT,
         .threshold = 0.1f,
     }};
@@ -567,9 +573,23 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         "alive",
         1.0f
     );
+    authored.task.signals.push_back({
+        .id = "axis_velocity",
+        .operation = metalrobo::TaskSignalOperator::source,
+        .source = {
+            .source = metalrobo::TaskObservationSource::jointVelocity,
+            .target = "axis",
+        },
+    });
+    authored.task.signals.push_back({
+        .id = "axis_velocity_squared",
+        .operation = metalrobo::TaskSignalOperator::square,
+        .left = "axis_velocity",
+    });
     authored.task.rewards.push_back({
-        .operation =
-            metalrobo::TaskRewardOperator::jointVelocitySquared,
+        .operation = metalrobo::TaskRewardOperator::signal,
+        .signal = "axis_velocity_squared",
+        .channel = metalrobo::TaskRewardChannel::velocity,
         .weight = -0.01f,
     });
     const std::string homePositionSquared =
@@ -757,6 +777,18 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             MR_TASK_FRAME_SOURCE_SCENE_BODY ||
         compiled.task.frames()[1].indices.z != 0u ||
         compiled.task.frames()[1].indices.w != MR_INVALID_INDEX ||
+        compiled.task.header().counts1.y != 0u ||
+        compiled.task.header().counts1.z != 0u ||
+        compiled.task.header().offsets1.y != 0u ||
+        compiled.task.header().offsets1.z != 0u ||
+        std::count_if(
+            compiled.task.rewardOperators().begin(),
+            compiled.task.rewardOperators().end(),
+            [](const MRTaskRewardOperatorGPU& reward) {
+                return reward.source.z ==
+                    MR_TASK_REWARD_CHANNEL_VELOCITY;
+            }
+        ) != 1 ||
         (compiled.task.header().schedule.w &
          MR_TASK_PROGRAM_FLOATING_ROOT) != 0u) {
         fail(
@@ -782,6 +814,26 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             preservedTaskFingerprint) {
         fail(
             "unresolved task site did not fail transactionally"
+        );
+    }
+    metalrobo::TaskPack invalidRewardChannel = authored.task;
+    invalidRewardChannel.rewards.front().channel =
+        static_cast<metalrobo::TaskRewardChannel>(
+            MR_TASK_REWARD_CHANNEL_COUNT
+        );
+    const auto invalidRewardChannelStatus =
+        metalrobo::compileTaskProgram(
+            invalidRewardChannel,
+            compiled.world,
+            compiled.sensors,
+            preservedTask
+        );
+    if (invalidRewardChannelStatus.status !=
+            metalrobo::TaskCompileStatus::invalidPack ||
+        preservedTask.fingerprint() !=
+            preservedTaskFingerprint) {
+        fail(
+            "invalid reward channel did not fail transactionally"
         );
     }
     std::vector<metalrobo::SensorSpec> unresolvedSiteSensors =

@@ -36,8 +36,6 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskSignalOperatorGPU> signalOperators;
     std::vector<MRTaskContactGroupGPU> contactGroups;
     std::vector<std::uint32_t> contactMembers;
-    std::vector<MRTaskIndexGroupGPU> jointGroups;
-    std::vector<std::uint32_t> jointMembers;
     std::vector<MRTaskFrameGPU> frames;
     std::vector<MRTaskKinematicFrameGPU> kinematicFrames;
     std::vector<MRTaskGoalGPU> goals;
@@ -573,24 +571,6 @@ CompiledTaskProgram::contactMembers() const noexcept {
         : std::span<const std::uint32_t>{};
 }
 
-std::span<const MRTaskIndexGroupGPU>
-CompiledTaskProgram::jointGroups() const noexcept {
-    return valid()
-        ? std::span<const MRTaskIndexGroupGPU>{
-              storage_->jointGroups
-          }
-        : std::span<const MRTaskIndexGroupGPU>{};
-}
-
-std::span<const std::uint32_t>
-CompiledTaskProgram::jointMembers() const noexcept {
-    return valid()
-        ? std::span<const std::uint32_t>{
-              storage_->jointMembers
-          }
-        : std::span<const std::uint32_t>{};
-}
-
 std::span<const MRTaskFrameGPU>
 CompiledTaskProgram::frames() const noexcept {
     return valid()
@@ -770,11 +750,6 @@ TaskCompileDiagnostics compileTaskProgram(
             switch (operation) {
             case TaskRewardOperator::linearVelocityTracking:
             case TaskRewardOperator::yawVelocityTracking:
-            case TaskRewardOperator::rootVerticalVelocitySquared:
-            case TaskRewardOperator::rootRollPitchVelocitySquared:
-            case TaskRewardOperator::tiltSquared:
-            case TaskRewardOperator::rootHeightErrorSquared:
-            case TaskRewardOperator::projectedGravityHorizontalSquared:
                 return true;
             default:
                 return false;
@@ -812,16 +787,6 @@ TaskCompileDiagnostics compileTaskProgram(
                 }
             ) ||
             std::any_of(
-                pack.terminations.begin(),
-                pack.terminations.end(),
-                [](const TaskTerminationOperatorSpec& operation) {
-                    return operation.operation ==
-                            TaskTerminationOperator::minimumRootHeight ||
-                        operation.operation ==
-                            TaskTerminationOperator::maximumTilt;
-                }
-            ) ||
-            std::any_of(
                 pack.randomization.begin(),
                 pack.randomization.end(),
                 [](const TaskRandomizationOperatorSpec& operation) {
@@ -848,7 +813,6 @@ TaskCompileDiagnostics compileTaskProgram(
         !countFits(pack.actorFrame.size()) ||
         !countFits(pack.critic.size()) ||
         !countFits(pack.contactGroups.size()) ||
-        !countFits(pack.jointGroups.size()) ||
         !countFits(pack.frames.size()) ||
         !countFits(pack.goals.size()) ||
         !countFits(pack.signals.size()) ||
@@ -867,16 +831,10 @@ TaskCompileDiagnostics compileTaskProgram(
     for (const TaskContactGroup& group : pack.contactGroups) {
         contactMemberCount += group.bodies.size();
     }
-    std::uint64_t jointMemberCount = 0u;
-    for (const TaskJointGroup& group : pack.jointGroups) {
-        jointMemberCount += group.joints.size();
-    }
     const std::uint64_t observationOperatorCount =
         static_cast<std::uint64_t>(pack.actorFrame.size()) +
         pack.critic.size() + pack.signals.size();
     if (contactMemberCount >=
-            std::numeric_limits<std::uint32_t>::max() ||
-        jointMemberCount >=
             std::numeric_limits<std::uint32_t>::max() ||
         observationOperatorCount >=
             std::numeric_limits<std::uint32_t>::max()) {
@@ -1580,73 +1538,6 @@ TaskCompileDiagnostics compileTaskProgram(
         contactGroupIds.push_back(group.id);
     }
 
-    std::vector<std::string> jointGroupIds;
-    jointGroupIds.reserve(pack.jointGroups.size());
-    staged->jointGroups.reserve(pack.jointGroups.size());
-    for (const TaskJointGroup& group : pack.jointGroups) {
-        if (group.id.empty() || group.joints.empty() ||
-            std::find(
-                jointGroupIds.begin(),
-                jointGroupIds.end(),
-                group.id
-            ) != jointGroupIds.end()) {
-            return reject(
-                TaskCompileStatus::invalidPack,
-                group.id,
-                "joint group identity or members are invalid"
-            );
-        }
-        const std::uint32_t offset =
-            static_cast<std::uint32_t>(
-                staged->jointMembers.size()
-            );
-        for (const std::string& jointName : group.joints) {
-            bool ambiguous = false;
-            const std::uint32_t joint = uniqueIndex(
-                model.jointNames,
-                jointName,
-                ambiguous
-            );
-            const std::uint32_t action =
-                joint == MR_INVALID_INDEX
-                ? MR_INVALID_INDEX
-                : actionIndexForJoint(actionJoints, joint);
-            if (ambiguous) {
-                return reject(
-                    TaskCompileStatus::ambiguousSemantic,
-                    jointName,
-                    "joint-group identity is ambiguous"
-                );
-            }
-            if (action == MR_INVALID_INDEX) {
-                return reject(
-                    TaskCompileStatus::unresolvedSemantic,
-                    jointName,
-                    "joint group member has no action binding"
-                );
-            }
-            if (std::find(
-                    staged->jointMembers.begin() + offset,
-                    staged->jointMembers.end(),
-                    action
-                ) ==
-                staged->jointMembers.end()) {
-                staged->jointMembers.push_back(action);
-            }
-        }
-        staged->jointGroups.push_back({
-            {
-                offset,
-                static_cast<std::uint32_t>(
-                    staged->jointMembers.size() - offset
-                ),
-                0u,
-                0u,
-            },
-        });
-        jointGroupIds.push_back(group.id);
-    }
-
     bool usesSensors = false;
     std::vector<bool> jacobianFrames(
         staged->frames.size(),
@@ -2177,6 +2068,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskSignalOperator::multiply:
         case TaskSignalOperator::minimum:
         case TaskSignalOperator::maximum:
+        case TaskSignalOperator::atan2:
             validShape = requireBinary();
             break;
         case TaskSignalOperator::safeDivide:
@@ -2361,27 +2253,18 @@ TaskCompileDiagnostics compileTaskProgram(
                 "reward weight or parameters are non-finite"
             );
         }
+        if (static_cast<std::uint32_t>(reward.channel) >=
+            MR_TASK_REWARD_CHANNEL_COUNT) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.signal,
+                "reward channel exceeds the compact transition layout"
+            );
+        }
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
         switch (reward.operation) {
-        case TaskRewardOperator::jointGroupPostureSquared:
-        case TaskRewardOperator::jointGroupPostureAbsolute:
-            if (reward.sourceGroup.empty()) {
-                return reject(
-                    TaskCompileStatus::invalidPack,
-                    "reward",
-                    "joint-posture reward requires a joint group"
-                );
-            }
-            sourceIndex = namedGroup(
-                jointGroupIds,
-                reward.sourceGroup
-            );
-            break;
         case TaskRewardOperator::gaitContactMatch:
-        case TaskRewardOperator::swingClearance:
         case TaskRewardOperator::footClearance:
-        case TaskRewardOperator::supportSlip:
-        case TaskRewardOperator::forbiddenContact:
             if (!reward.sourceGroup.empty()) {
                 sourceIndex = namedGroup(
                     contactGroupIds,
@@ -2391,16 +2274,8 @@ TaskCompileDiagnostics compileTaskProgram(
             break;
         case TaskRewardOperator::linearVelocityTracking:
         case TaskRewardOperator::yawVelocityTracking:
-        case TaskRewardOperator::rootVerticalVelocitySquared:
-        case TaskRewardOperator::rootRollPitchVelocitySquared:
-        case TaskRewardOperator::tiltSquared:
-        case TaskRewardOperator::
-            projectedGravityHorizontalSquared:
-        case TaskRewardOperator::rootHeightErrorSquared:
-        case TaskRewardOperator::jointVelocitySquared:
         case TaskRewardOperator::jointAccelerationSquared:
         case TaskRewardOperator::actionRateSquared:
-        case TaskRewardOperator::jointLimitViolationSquared:
         case TaskRewardOperator::jointLimitViolationAbsolute:
         case TaskRewardOperator::mechanicalPower:
             break;
@@ -2425,8 +2300,6 @@ TaskCompileDiagnostics compileTaskProgram(
                  TaskRewardOperator::linearVelocityTracking ||
              reward.operation ==
                  TaskRewardOperator::yawVelocityTracking ||
-             reward.operation ==
-                 TaskRewardOperator::swingClearance ||
              reward.operation ==
                  TaskRewardOperator::footClearance) &&
             !(reward.parameters.x > 0.0f)) {
@@ -2475,7 +2348,7 @@ TaskCompileDiagnostics compileTaskProgram(
             {
                 static_cast<std::uint32_t>(reward.operation),
                 sourceIndex,
-                MR_INVALID_INDEX,
+                static_cast<std::uint32_t>(reward.channel),
                 0u,
             },
             {
@@ -2508,22 +2381,6 @@ TaskCompileDiagnostics compileTaskProgram(
         }
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
         switch (termination.operation) {
-        case TaskTerminationOperator::contactGroup:
-            sourceIndex = namedGroup(
-                contactGroupIds,
-                termination.sourceGroup
-            );
-            if (sourceIndex == MR_INVALID_INDEX) {
-                return reject(
-                    TaskCompileStatus::unresolvedSemantic,
-                    termination.sourceGroup,
-                    "termination contact group does not exist"
-                );
-            }
-            break;
-        case TaskTerminationOperator::minimumRootHeight:
-        case TaskTerminationOperator::maximumTilt:
-            break;
         case TaskTerminationOperator::signalBelow:
         case TaskTerminationOperator::signalAbove:
         case TaskTerminationOperator::signalOutside:
@@ -2947,12 +2804,8 @@ TaskCompileDiagnostics compileTaskProgram(
         static_cast<std::uint32_t>(
             staged->contactMembers.size()
         ),
-        static_cast<std::uint32_t>(
-            staged->jointGroups.size()
-        ),
-        static_cast<std::uint32_t>(
-            staged->jointMembers.size()
-        ),
+        0u,
+        0u,
         static_cast<std::uint32_t>(
             staged->rewardOperators.size()
         ),
@@ -3132,16 +2985,8 @@ TaskCompileDiagnostics compileTaskProgram(
                 staged->contactMembers
             }
         ),
-        appendArena(
-            std::span<const MRTaskIndexGroupGPU>{
-                staged->jointGroups
-            }
-        ),
-        appendArena(
-            std::span<const std::uint32_t>{
-                staged->jointMembers
-            }
-        ),
+        0u,
+        0u,
         appendArena(
             std::span<const MRTaskRewardOperatorGPU>{
                 staged->rewardOperators
@@ -3255,12 +3100,6 @@ TaskCompileDiagnostics compileTaskProgram(
         hash.string(group.referenceBody);
         for (const std::string& body : group.bodies) {
             hash.string(body);
-        }
-    }
-    for (const TaskJointGroup& group : pack.jointGroups) {
-        hash.string(group.id);
-        for (const std::string& joint : group.joints) {
-            hash.string(joint);
         }
     }
     for (const TaskFrameSpec& frame : pack.frames) {

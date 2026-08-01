@@ -3194,13 +3194,6 @@ kernel void mr_task_complete(
         );
     device const uint* contactMembers =
         taskTable<uint>(arena, program.offsets1.x);
-    device const MRTaskIndexGroupGPU* jointGroups =
-        taskTable<MRTaskIndexGroupGPU>(
-            arena,
-            program.offsets1.y
-        );
-    device const uint* jointMembers =
-        taskTable<uint>(arena, program.offsets1.z);
     device const MRTaskRewardOperatorGPU* rewards =
         taskTable<MRTaskRewardOperatorGPU>(
             arena,
@@ -3522,10 +3515,6 @@ kernel void mr_task_complete(
     const float4 orientation = rootOrientation(program, q);
     const float3 rootLinearVelocity =
         rootWorldLinearVelocity(program, q, v);
-    const float3 baseLinear = rotateInverse(
-        orientation,
-        rootLinearVelocity
-    );
     const float3 baseAngular =
         (program.schedule.w &
          MR_TASK_PROGRAM_FLOATING_ROOT) != 0u
@@ -3587,10 +3576,8 @@ kernel void mr_task_complete(
         baseAngular.z - state.commandAndPhase.z;
     const float yawError = yawDelta * yawDelta;
 
-    float velocitySquared = 0.0f;
     float accelerationSquared = 0.0f;
     float actionRateSquared = 0.0f;
-    float limitViolationSquared = 0.0f;
     const float mechanicalPower =
         state.airReturnTracking.x;
     const uint lastSlot = program.layout.w - 1u;
@@ -3600,10 +3587,6 @@ kernel void mr_task_complete(
          ++action) {
         const MRTaskActionBindingGPU binding =
             actions[action];
-        const MRDofPropertiesGPU dof =
-            dofs[binding.indices.y];
-        const float position =
-            qState[qBase + binding.indices.z];
         const float velocity =
             vState[vBase + binding.indices.w];
         const float acceleration =
@@ -3626,17 +3609,10 @@ kernel void mr_task_complete(
         ];
         const float actionDelta =
             currentAction - previousAction;
-        const float lower =
-            max(dof.limits.x - position, 0.0f);
-        const float upper =
-            max(position - dof.limits.y, 0.0f);
-        velocitySquared += velocity * velocity;
         accelerationSquared +=
             acceleration * acceleration;
         actionRateSquared +=
             actionDelta * actionDelta;
-        limitViolationSquared +=
-            lower * lower + upper * upper;
     }
 
     const float commandMagnitude = length(
@@ -3759,6 +3735,9 @@ kernel void mr_task_complete(
         case MR_TASK_SIGNAL_EXPONENTIAL_DECAY:
             value = exp(-left / operation.parameters.x);
             break;
+        case MR_TASK_SIGNAL_ATAN2:
+            value = atan2(left, right);
+            break;
         default:
             value = 0.0f;
             break;
@@ -3793,35 +3772,11 @@ kernel void mr_task_complete(
                 max(operation.parameters.y, 1.0e-8f)
             );
             break;
-        case MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED:
-            value = baseLinear.z * baseLinear.z;
-            break;
-        case MR_TASK_REWARD_ROOT_ROLL_PITCH_VELOCITY_SQUARED:
-            value = dot(baseAngular.xy, baseAngular.xy);
-            break;
-        case MR_TASK_REWARD_TILT_SQUARED:
-            value = tilt * tilt;
-            break;
-        case MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED:
-            value = dot(gravity.xy, gravity.xy);
-            break;
-        case MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED: {
-            const float error =
-                height - program.taskScalars.x;
-            value = error * error;
-            break;
-        }
-        case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
-            value = velocitySquared;
-            break;
         case MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED:
             value = accelerationSquared;
             break;
         case MR_TASK_REWARD_ACTION_RATE_SQUARED:
             value = actionRateSquared;
-            break;
-        case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED:
-            value = limitViolationSquared;
             break;
         case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE: {
             const float softFactor = clamp(
@@ -3853,49 +3808,6 @@ kernel void mr_task_complete(
         case MR_TASK_REWARD_MECHANICAL_POWER:
             value = mechanicalPower;
             break;
-        case MR_TASK_REWARD_JOINT_GROUP_POSTURE_SQUARED: {
-            const MRTaskIndexGroupGPU group =
-                jointGroups[operation.source.y];
-            float sum = 0.0f;
-            for (uint local = 0u;
-                 local < group.members.y;
-                 ++local) {
-                const uint action =
-                    jointMembers[
-                        group.members.x + local
-                    ];
-                const MRTaskActionBindingGPU binding =
-                    actions[action];
-                const float error =
-                    qState[qBase + binding.indices.z] -
-                    defaultQ[binding.indices.z];
-                sum += error * error;
-            }
-            value = sum /
-                max(float(group.members.y), 1.0f);
-            break;
-        }
-        case MR_TASK_REWARD_JOINT_GROUP_POSTURE_ABSOLUTE: {
-            const MRTaskIndexGroupGPU group =
-                jointGroups[operation.source.y];
-            float sum = 0.0f;
-            for (uint local = 0u;
-                 local < group.members.y;
-                 ++local) {
-                const uint action =
-                    jointMembers[
-                        group.members.x + local
-                    ];
-                const MRTaskActionBindingGPU binding =
-                    actions[action];
-                sum += abs(
-                    qState[qBase + binding.indices.z] -
-                    defaultQ[binding.indices.z]
-                );
-            }
-            value = sum;
-            break;
-        }
         case MR_TASK_REWARD_GAIT_CONTACT_MATCH: {
             if (!moving) {
                 value = 0.0f;
@@ -3922,44 +3834,6 @@ kernel void mr_task_complete(
                 matched += float(desired == actual);
             }
             value = matched;
-            break;
-        }
-        case MR_TASK_REWARD_SWING_CLEARANCE: {
-            if (!moving) {
-                value = 0.0f;
-                break;
-            }
-            float clearanceReward = 0.0f;
-            float count = 0.0f;
-            for (uint groupIndex = 0u;
-                 groupIndex < program.counts0.w;
-                 ++groupIndex) {
-                const MRTaskContactGroupGPU group =
-                    contactGroups[groupIndex];
-                if ((group.members.z &
-                     MR_TASK_CONTACT_SUPPORT) == 0u ||
-                    desiredSupportContact(group, phase) ||
-                    (operation.source.y != MR_INVALID_INDEX &&
-                     operation.source.y != groupIndex)) {
-                    continue;
-                }
-                const float error =
-                    compactContact[
-                        compactBase +
-                        group.members.w + 3u
-                    ] -
-                    program.taskScalars.z;
-                clearanceReward += exp(
-                    -(error * error) /
-                    max(
-                        operation.parameters.y,
-                        1.0e-8f
-                    )
-                );
-                count += 1.0f;
-            }
-            value =
-                clearanceReward / max(count, 1.0f);
             break;
         }
         case MR_TASK_REWARD_FOOT_CLEARANCE: {
@@ -4008,43 +3882,6 @@ kernel void mr_task_complete(
             );
             break;
         }
-        case MR_TASK_REWARD_SUPPORT_SLIP:
-            for (uint groupIndex = 0u;
-                 groupIndex < program.counts0.w;
-                 ++groupIndex) {
-                const MRTaskContactGroupGPU group =
-                    contactGroups[groupIndex];
-                if ((group.members.z &
-                     MR_TASK_CONTACT_SUPPORT) != 0u &&
-                    (operation.source.y == MR_INVALID_INDEX ||
-                     operation.source.y == groupIndex)) {
-                    value += compactContact[
-                        compactBase +
-                        group.members.w + 1u
-                    ];
-                }
-            }
-            break;
-        case MR_TASK_REWARD_FORBIDDEN_CONTACT:
-            for (uint groupIndex = 0u;
-                 groupIndex < program.counts0.w;
-                 ++groupIndex) {
-                const MRTaskContactGroupGPU group =
-                    contactGroups[groupIndex];
-                if ((group.members.z &
-                     MR_TASK_CONTACT_FORBIDDEN) != 0u &&
-                    (operation.source.y == MR_INVALID_INDEX ||
-                     operation.source.y == groupIndex)) {
-                    value = max(
-                        value,
-                        compactContact[
-                            compactBase +
-                            group.members.w
-                        ]
-                    );
-                }
-            }
-            break;
         case MR_TASK_REWARD_SIGNAL:
             value = signalValues[operation.source.y];
             break;
@@ -4055,46 +3892,11 @@ kernel void mr_task_complete(
         const float contribution =
             operation.parameters.x * value;
         reward += contribution;
-        switch (operation.source.x) {
-        case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
-        case MR_TASK_REWARD_YAW_VELOCITY_TRACKING:
-        case MR_TASK_REWARD_GAIT_CONTACT_MATCH:
-        case MR_TASK_REWARD_SWING_CLEARANCE:
-        case MR_TASK_REWARD_FOOT_CLEARANCE:
-        case MR_TASK_REWARD_SIGNAL:
-            rewardBreakdown0.x += contribution;
-            break;
-        case MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED:
-        case MR_TASK_REWARD_ROOT_ROLL_PITCH_VELOCITY_SQUARED:
-        case MR_TASK_REWARD_TILT_SQUARED:
-        case MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED:
-        case MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED:
-            rewardBreakdown0.y += contribution;
-            break;
-        case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
-            rewardBreakdown0.z += contribution;
-            break;
-        case MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED:
-            rewardBreakdown0.w += contribution;
-            break;
-        case MR_TASK_REWARD_ACTION_RATE_SQUARED:
-            rewardBreakdown1.x += contribution;
-            break;
-        case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED:
-        case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE:
-        case MR_TASK_REWARD_JOINT_GROUP_POSTURE_SQUARED:
-        case MR_TASK_REWARD_JOINT_GROUP_POSTURE_ABSOLUTE:
-            rewardBreakdown1.y += contribution;
-            break;
-        case MR_TASK_REWARD_MECHANICAL_POWER:
-            rewardBreakdown1.z += contribution;
-            break;
-        case MR_TASK_REWARD_SUPPORT_SLIP:
-        case MR_TASK_REWARD_FORBIDDEN_CONTACT:
-            rewardBreakdown1.w += contribution;
-            break;
-        default:
-            break;
+        const uint channel = operation.source.z;
+        if (channel < 4u) {
+            rewardBreakdown0[channel] += contribution;
+        } else if (channel < MR_TASK_REWARD_CHANNEL_COUNT) {
+            rewardBreakdown1[channel - 4u] += contribution;
         }
     }
     // TaskPack weights are rates. Integrating at the control boundary keeps
@@ -4118,23 +3920,6 @@ kernel void mr_task_complete(
             terminations[index];
         bool triggered = false;
         switch (operation.source.x) {
-        case MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT:
-            triggered =
-                height < operation.parameters.x;
-            break;
-        case MR_TASK_TERMINATE_MAXIMUM_TILT:
-            triggered =
-                tilt > operation.parameters.x;
-            break;
-        case MR_TASK_TERMINATE_CONTACT_GROUP: {
-            const MRTaskContactGroupGPU group =
-                contactGroups[operation.source.y];
-            triggered =
-                compactContact[
-                    compactBase + group.members.w
-                ] > operation.parameters.x;
-            break;
-        }
         case MR_TASK_TERMINATE_SIGNAL_BELOW:
             triggered =
                 signalValues[operation.source.y] <

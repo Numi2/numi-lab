@@ -64,40 +64,29 @@ enum class TaskRewardOperator : std::uint32_t {
     linearVelocityTracking =
         MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING,
     yawVelocityTracking = MR_TASK_REWARD_YAW_VELOCITY_TRACKING,
-    rootVerticalVelocitySquared =
-        MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED,
-    rootRollPitchVelocitySquared =
-        MR_TASK_REWARD_ROOT_ROLL_PITCH_VELOCITY_SQUARED,
-    tiltSquared = MR_TASK_REWARD_TILT_SQUARED,
-    rootHeightErrorSquared =
-        MR_TASK_REWARD_ROOT_HEIGHT_ERROR_SQUARED,
-    jointVelocitySquared = MR_TASK_REWARD_JOINT_VELOCITY_SQUARED,
     jointAccelerationSquared =
         MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED,
     actionRateSquared = MR_TASK_REWARD_ACTION_RATE_SQUARED,
-    jointLimitViolationSquared =
-        MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED,
     mechanicalPower = MR_TASK_REWARD_MECHANICAL_POWER,
-    jointGroupPostureSquared =
-        MR_TASK_REWARD_JOINT_GROUP_POSTURE_SQUARED,
     gaitContactMatch = MR_TASK_REWARD_GAIT_CONTACT_MATCH,
-    swingClearance = MR_TASK_REWARD_SWING_CLEARANCE,
-    supportSlip = MR_TASK_REWARD_SUPPORT_SLIP,
-    forbiddenContact = MR_TASK_REWARD_FORBIDDEN_CONTACT,
-    jointGroupPostureAbsolute =
-        MR_TASK_REWARD_JOINT_GROUP_POSTURE_ABSOLUTE,
-    projectedGravityHorizontalSquared =
-        MR_TASK_REWARD_PROJECTED_GRAVITY_HORIZONTAL_SQUARED,
     footClearance = MR_TASK_REWARD_FOOT_CLEARANCE,
     jointLimitViolationAbsolute =
         MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_ABSOLUTE,
     signal = MR_TASK_REWARD_SIGNAL,
 };
 
+enum class TaskRewardChannel : std::uint32_t {
+    primary = MR_TASK_REWARD_CHANNEL_PRIMARY,
+    stability = MR_TASK_REWARD_CHANNEL_STABILITY,
+    velocity = MR_TASK_REWARD_CHANNEL_VELOCITY,
+    acceleration = MR_TASK_REWARD_CHANNEL_ACCELERATION,
+    control = MR_TASK_REWARD_CHANNEL_CONTROL,
+    configuration = MR_TASK_REWARD_CHANNEL_CONFIGURATION,
+    energy = MR_TASK_REWARD_CHANNEL_ENERGY,
+    contact = MR_TASK_REWARD_CHANNEL_CONTACT,
+};
+
 enum class TaskTerminationOperator : std::uint32_t {
-    minimumRootHeight = MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT,
-    maximumTilt = MR_TASK_TERMINATE_MAXIMUM_TILT,
-    contactGroup = MR_TASK_TERMINATE_CONTACT_GROUP,
     signalBelow = MR_TASK_TERMINATE_SIGNAL_BELOW,
     signalAbove = MR_TASK_TERMINATE_SIGNAL_ABOVE,
     signalOutside = MR_TASK_TERMINATE_SIGNAL_OUTSIDE,
@@ -119,6 +108,7 @@ enum class TaskSignalOperator : std::uint32_t {
     exponentialTracking = MR_TASK_SIGNAL_EXPONENTIAL_TRACKING,
     insideBounds = MR_TASK_SIGNAL_INSIDE_BOUNDS,
     exponentialDecay = MR_TASK_SIGNAL_EXPONENTIAL_DECAY,
+    atan2 = MR_TASK_SIGNAL_ATAN2,
 };
 
 enum class TaskRandomizationOperator : std::uint32_t {
@@ -219,11 +209,6 @@ struct TaskContactGroup {
     float stanceFraction = 0.5f;
 };
 
-struct TaskJointGroup {
-    std::string id;
-    std::vector<std::string> joints;
-};
-
 // One node in a topologically ordered scalar TaskIR graph. Operand names may
 // reference only earlier nodes. Source nodes compile one truth-only semantic
 // observation; other nodes must leave source at its default value.
@@ -242,6 +227,7 @@ struct TaskRewardOperatorSpec {
     std::string sourceGroup;
     // Required only by the generic SignalIR reward operator.
     std::string signal;
+    TaskRewardChannel channel = TaskRewardChannel::primary;
     // Reward rate in units per second. The native task integrates every
     // weighted term over the control interval, keeping TaskPacks invariant
     // when the control frequency changes.
@@ -251,7 +237,7 @@ struct TaskRewardOperatorSpec {
 
 struct TaskTerminationOperatorSpec {
     TaskTerminationOperator operation =
-        TaskTerminationOperator::minimumRootHeight;
+        TaskTerminationOperator::signalBelow;
     std::string sourceGroup;
     // Required only by SignalIR threshold operators.
     std::string signal;
@@ -317,7 +303,6 @@ struct TaskPack {
     std::uint32_t criticHistoryLength = 1u;
     bool criticIncludesCleanHistory = true;
     std::vector<TaskContactGroup> contactGroups;
-    std::vector<TaskJointGroup> jointGroups;
     std::vector<TaskFrameSpec> frames;
     std::vector<TaskGoalSpec> goals;
     std::vector<TaskSignalSpec> signals;
@@ -414,10 +399,6 @@ public:
     contactGroups() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t>
     contactMembers() const noexcept;
-    [[nodiscard]] std::span<const MRTaskIndexGroupGPU>
-    jointGroups() const noexcept;
-    [[nodiscard]] std::span<const std::uint32_t>
-    jointMembers() const noexcept;
     [[nodiscard]] std::span<const MRTaskFrameGPU>
     frames() const noexcept;
     [[nodiscard]] std::span<const MRTaskGoalGPU>

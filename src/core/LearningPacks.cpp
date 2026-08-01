@@ -88,7 +88,6 @@ LearningPackResult validateTaskArtifact(
         !countFits(pack.actorFrame.size()) ||
         !countFits(pack.critic.size()) ||
         !countFits(pack.contactGroups.size()) ||
-        !countFits(pack.jointGroups.size()) ||
         !countFits(pack.frames.size()) ||
         !countFits(pack.goals.size()) ||
         !countFits(pack.signals.size()) ||
@@ -143,20 +142,6 @@ LearningPackResult validateTaskArtifact(
             return fail(
                 LearningPackStatus::capacityOverflow,
                 "TaskPack contact-group table exceeds the 32-bit artifact boundary"
-            );
-        }
-    }
-    for (const TaskJointGroup& value : pack.jointGroups) {
-        if (!stringFits(value.id) ||
-            !countFits(value.joints.size()) ||
-            !std::all_of(
-                value.joints.begin(),
-                value.joints.end(),
-                stringFits
-            )) {
-            return fail(
-                LearningPackStatus::capacityOverflow,
-                "TaskPack joint-group table exceeds the 32-bit artifact boundary"
             );
         }
     }
@@ -807,14 +792,6 @@ std::vector<std::byte> serializeTask(
     );
     writeRichVector(
         writer,
-        pack.jointGroups,
-        [](Writer& target, const TaskJointGroup& value) {
-            target.string(value.id);
-            target.strings(value.joints);
-        }
-    );
-    writeRichVector(
-        writer,
         pack.frames,
         [](Writer& target, const TaskFrameSpec& value) {
             target.string(value.id);
@@ -862,6 +839,7 @@ std::vector<std::byte> serializeTask(
             writeEnum(target, value.operation);
             target.string(value.sourceGroup);
             target.string(value.signal);
+            writeEnum(target, value.channel);
             target.pod(value.weight);
             target.pod(value.parameters);
         }
@@ -972,14 +950,6 @@ bool deserializeTask(
         ) ||
         !readRichVector(
             reader,
-            pack.jointGroups,
-            [](Reader& source, TaskJointGroup& value) {
-                return source.string(value.id) &&
-                    source.strings(value.joints);
-            }
-        ) ||
-        !readRichVector(
-            reader,
             pack.frames,
             [](Reader& source, TaskFrameSpec& value) {
                 return source.string(value.id) &&
@@ -1028,6 +998,7 @@ bool deserializeTask(
                 return readEnum(source, value.operation) &&
                     source.string(value.sourceGroup) &&
                     source.string(value.signal) &&
+                    readEnum(source, value.channel) &&
                     source.pod(value.weight) &&
                     source.pod(value.parameters);
             }
