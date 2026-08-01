@@ -1816,29 +1816,53 @@ inline void unionRoots(
 
 } // namespace
 
-// Applies resets/kinematic targets and checkpoints the complete contact state
-// at the start of one control step.
+// Checkpoints the last committed contact state, then applies reset and
+// kinematic inputs only to the working source. A rejected transition can
+// therefore restore the exact pre-reset scene, manifolds, warm state, and
+// performance-semantic convex cache.
 kernel void mr_world_prepare_contact_step(
-    device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(0)]],
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(1)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(2)]],
-    device const uint* resetMasks [[buffer(3)]],
-    device const MRBodyStateGPU* resetSceneBodies [[buffer(4)]],
-    device const MRBodyStateGPU* kinematicTargets [[buffer(5)]],
-    device const MRBodyPropertiesGPU* bodyProperties [[buffer(6)]],
-    device const uint* sceneBodyIndices [[buffer(7)]],
-    device MRBodyStateGPU* sceneState [[buffer(8)]],
-    device MRBodyStateGPU* checkpointSceneState [[buffer(9)]],
-    device MRManifoldHeaderGPU* manifoldHeaders [[buffer(10)]],
-    device MRManifoldPointGPU* manifoldPoints [[buffer(11)]],
-    device uint* manifoldCounts [[buffer(12)]],
-    device MRManifoldHeaderGPU* checkpointHeaders [[buffer(13)]],
-    device MRManifoldPointGPU* checkpointPoints [[buffer(14)]],
-    device uint* checkpointCounts [[buffer(15)]],
-    device MRMetalWorldContactStatusGPU* statuses [[buffer(16)]],
-    device MRConvexQueryCacheGPU* convexCaches [[buffer(17)]],
-    device float* generalizedWarmState [[buffer(18)]],
-    device float* checkpointGeneralizedWarmState [[buffer(19)]],
+    device const MRMetalWorldDispatchGPU& worldDispatch
+        [[buffer(MR_CONTACT_PREPARE_WORLD_DISPATCH)]],
+    device const MRMetalWorldContactDispatchGPU& dispatch
+        [[buffer(MR_CONTACT_PREPARE_CONTACT_DISPATCH)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_CONTACT_PREPARE_PASS)]],
+    device const uint* resetMasks
+        [[buffer(MR_CONTACT_PREPARE_RESET_MASKS)]],
+    device const MRBodyStateGPU* resetSceneBodies
+        [[buffer(MR_CONTACT_PREPARE_RESET_SCENE_BODIES)]],
+    device const MRBodyStateGPU* kinematicTargets
+        [[buffer(MR_CONTACT_PREPARE_KINEMATIC_TARGETS)]],
+    device const MRBodyPropertiesGPU* bodyProperties
+        [[buffer(MR_CONTACT_PREPARE_BODY_PROPERTIES)]],
+    device const uint* sceneBodyIndices
+        [[buffer(MR_CONTACT_PREPARE_SCENE_BODY_INDICES)]],
+    device MRBodyStateGPU* sceneState
+        [[buffer(MR_CONTACT_PREPARE_SCENE_STATE)]],
+    device MRBodyStateGPU* checkpointSceneState
+        [[buffer(MR_CONTACT_PREPARE_CHECKPOINT_SCENE_STATE)]],
+    device MRManifoldHeaderGPU* manifoldHeaders
+        [[buffer(MR_CONTACT_PREPARE_MANIFOLD_HEADERS)]],
+    device MRManifoldPointGPU* manifoldPoints
+        [[buffer(MR_CONTACT_PREPARE_MANIFOLD_POINTS)]],
+    device uint* manifoldCounts
+        [[buffer(MR_CONTACT_PREPARE_MANIFOLD_COUNTS)]],
+    device MRManifoldHeaderGPU* checkpointHeaders
+        [[buffer(MR_CONTACT_PREPARE_CHECKPOINT_HEADERS)]],
+    device MRManifoldPointGPU* checkpointPoints
+        [[buffer(MR_CONTACT_PREPARE_CHECKPOINT_POINTS)]],
+    device uint* checkpointCounts
+        [[buffer(MR_CONTACT_PREPARE_CHECKPOINT_COUNTS)]],
+    device MRMetalWorldContactStatusGPU* statuses
+        [[buffer(MR_CONTACT_PREPARE_STATUSES)]],
+    device MRConvexQueryCacheGPU* convexCaches
+        [[buffer(MR_CONTACT_PREPARE_CONVEX_CACHES)]],
+    device float* generalizedWarmState
+        [[buffer(MR_CONTACT_PREPARE_GENERALIZED_WARM_STATE)]],
+    device float* checkpointGeneralizedWarmState
+        [[buffer(MR_CONTACT_PREPARE_CHECKPOINT_GENERALIZED_WARM_STATE)]],
+    device MRConvexQueryCacheGPU* checkpointConvexCaches
+        [[buffer(MR_CONTACT_PREPARE_CHECKPOINT_CONVEX_CACHES)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -1877,16 +1901,19 @@ kernel void mr_world_prepare_contact_step(
          localScene < dispatch.sceneBodyCount;
          ++localScene) {
         const uint globalBody = sceneBodyIndices[localScene];
+        const MRBodyStateGPU committed =
+            sceneState[sceneBase + localScene];
+        checkpointSceneState[sceneBase + localScene] =
+            committed;
         MRBodyStateGPU value = applyReset
             ? resetSceneBodies[sceneBase + localScene]
-            : sceneState[sceneBase + localScene];
+            : committed;
         if (hasTargets &&
             bodyProperties[globalBody].motionType ==
                 MR_MOTION_KINEMATIC) {
             value = kinematicTargets[targetBase + localScene];
         }
         sceneState[sceneBase + localScene] = value;
-        checkpointSceneState[sceneBase + localScene] = value;
     }
 
     const uint manifoldBase =
@@ -1894,21 +1921,24 @@ kernel void mr_world_prepare_contact_step(
     const uint pointBase =
         manifoldBase *
         MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
-    const uint oldCount = applyReset
+    const uint committedCount = min(
+        manifoldCounts[environment],
+        dispatch.manifoldCapacity
+    );
+    checkpointCounts[environment] = committedCount;
+    manifoldCounts[environment] = applyReset
         ? 0u
-        : min(
-              manifoldCounts[environment],
-              dispatch.manifoldCapacity
-          );
-    checkpointCounts[environment] = oldCount;
-    manifoldCounts[environment] = oldCount;
+        : committedCount;
     if (applyReset) {
         const uint cacheBase =
             environment * dispatch.convexCacheStride;
         for (uint pair = 0u;
              pair < dispatch.eligiblePairCount;
              ++pair) {
-            convexCaches[cacheBase + pair] = {};
+            const uint cacheIndex = cacheBase + pair;
+            checkpointConvexCaches[cacheIndex] =
+                convexCaches[cacheIndex];
+            convexCaches[cacheIndex] = {};
         }
     }
     const uint generalizedWarmStride =
@@ -1918,21 +1948,19 @@ kernel void mr_world_prepare_contact_step(
     for (uint row = 0u;
          row < generalizedWarmStride;
          ++row) {
-        const float value = applyReset
-            ? 0.0f
-            : generalizedWarmState[
-                  generalizedWarmBase + row
-              ];
-        generalizedWarmState[generalizedWarmBase + row] =
-            value;
+        const float committed = generalizedWarmState[
+            generalizedWarmBase + row
+        ];
         checkpointGeneralizedWarmState[
             generalizedWarmBase + row
-        ] = value;
+        ] = committed;
+        generalizedWarmState[generalizedWarmBase + row] =
+            applyReset ? 0.0f : committed;
     }
     for (uint manifold = 0u;
          manifold < dispatch.manifoldCapacity;
          ++manifold) {
-        if (manifold < oldCount) {
+        if (manifold < committedCount) {
             checkpointHeaders[manifoldBase + manifold] =
                 manifoldHeaders[manifoldBase + manifold];
             for (uint point = 0u;
@@ -6489,12 +6517,28 @@ kernel void mr_world_commit_contact_state(
 // iteration order and therefore must obey the same transaction as physics.
 // Only the final successful microstep publishes active convex/mesh entries.
 kernel void mr_world_publish_convex_cache(
-    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
-    device const MRCompiledCollisionPairGPU* eligiblePairs [[buffer(1)]],
-    device const uint* overlapFlags [[buffer(2)]],
-    device const MRMetalWorldContactStatusGPU* statuses [[buffer(3)]],
-    device const MRConvexQueryCacheGPU* candidateCaches [[buffer(4)]],
-    device MRConvexQueryCacheGPU* publishedCaches [[buffer(5)]],
+    device const MRMetalWorldContactDispatchGPU& dispatch
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_DISPATCH)]],
+    device const MRCompiledCollisionPairGPU* eligiblePairs
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_ELIGIBLE_PAIRS)]],
+    device const uint* overlapFlags
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_OVERLAP_FLAGS)]],
+    device const MRMetalWorldContactStatusGPU* statuses
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_STATUSES)]],
+    device const MRConvexQueryCacheGPU* candidateCaches
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_CANDIDATE_CACHES)]],
+    device MRConvexQueryCacheGPU* publishedCaches
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_PUBLISHED_CACHES)]],
+    device const MRMetalWorldDispatchGPU& worldDispatch
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_WORLD_DISPATCH)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_PASS)]],
+    device const uint* resetMasks
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_RESET_MASKS)]],
+    device const MRConvexQueryCacheGPU* checkpointCaches
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_CHECKPOINT_CACHES)]],
+    device const MRMetalWorldStatusGPU* worldStatuses
+        [[buffer(MR_CONVEX_CACHE_PUBLISH_WORLD_STATUSES)]],
     const uint globalIndex [[thread_position_in_grid]]
 ) {
     const uint total =
@@ -6509,12 +6553,25 @@ kernel void mr_world_publish_convex_cache(
         environment * dispatch.eligiblePairCount;
     const uint pairClass =
         eligiblePairs[compiledPair].pairClass;
-    if (statuses[environment].code == MR_STEP_SUCCESS &&
+    const bool resetRequested =
+        (worldDispatch.flags & MR_METAL_WORLD_HAS_RESETS) != 0u &&
+        resetMasks[
+            pass.controlStep *
+                worldDispatch.resetMaskStepStride +
+            environment
+        ] != 0u;
+    const bool transactionSucceeded =
+        statuses[environment].code == MR_STEP_SUCCESS &&
+        worldStatuses[environment].code == MR_STEP_SUCCESS;
+    if (transactionSucceeded &&
         overlapFlags[globalIndex] == 1u &&
         (pairClass == MR_COLLISION_PAIR_CONVEX ||
          pairClass == MR_COLLISION_PAIR_MESH)) {
         publishedCaches[globalIndex] =
             candidateCaches[globalIndex];
+    } else if (!transactionSucceeded && resetRequested) {
+        publishedCaches[globalIndex] =
+            checkpointCaches[globalIndex];
     }
 }
 

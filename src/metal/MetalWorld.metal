@@ -2,6 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/rod_gpu_shared.h"
+#include "metalrobo/runtime_abi_generated.h"
 
 using namespace metal;
 
@@ -107,29 +108,44 @@ inline void initializeStatus(
 
 } // namespace
 
-// Starts one transactional control step. Reset, when requested, is part of
-// the step-start state and therefore survives a later substep rollback.
-// The checkpoint remains immutable until capture completes.
+// Starts one transactional control step. The checkpoint is always the last
+// committed resident state. Reset is applied only to the working source, so a
+// rejected transition restores the pre-reset state byte-for-byte.
 kernel void mr_metal_world_prepare(
-    device const MRMetalWorldDispatchGPU& dispatch [[buffer(0)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(1)]],
-    device const float* effortTrajectory [[buffer(2)]],
-    device const uint* resetMasks [[buffer(3)]],
-    device const float* resetQ [[buffer(4)]],
-    device const float* resetV [[buffer(5)]],
-    device float* stateQ [[buffer(6)]],
-    device float* stateV [[buffer(7)]],
-    device float* checkpointQ [[buffer(8)]],
-    device float* checkpointV [[buffer(9)]],
-    device float* workingEffort [[buffer(10)]],
-    device MRMetalWorldStatusGPU* statuses [[buffer(11)]],
-    device const MRWorldGPU& world [[buffer(12)]],
-    device const MRArticulationGPU* articulations [[buffer(13)]],
-    device const MRDofPropertiesGPU* dofs [[buffer(14)]],
+    device const MRMetalWorldDispatchGPU& dispatch
+        [[buffer(MR_WORLD_PREPARE_DISPATCH)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_WORLD_PREPARE_PASS)]],
+    device const float* effortTrajectory
+        [[buffer(MR_WORLD_PREPARE_EFFORT_TRAJECTORY)]],
+    device const uint* resetMasks
+        [[buffer(MR_WORLD_PREPARE_RESET_MASKS)]],
+    device const float* resetQ
+        [[buffer(MR_WORLD_PREPARE_RESET_Q)]],
+    device const float* resetV
+        [[buffer(MR_WORLD_PREPARE_RESET_V)]],
+    device float* stateQ
+        [[buffer(MR_WORLD_PREPARE_STATE_Q)]],
+    device float* stateV
+        [[buffer(MR_WORLD_PREPARE_STATE_V)]],
+    device float* checkpointQ
+        [[buffer(MR_WORLD_PREPARE_CHECKPOINT_Q)]],
+    device float* checkpointV
+        [[buffer(MR_WORLD_PREPARE_CHECKPOINT_V)]],
+    device float* workingEffort
+        [[buffer(MR_WORLD_PREPARE_WORKING_EFFORT)]],
+    device MRMetalWorldStatusGPU* statuses
+        [[buffer(MR_WORLD_PREPARE_STATUSES)]],
+    device const MRWorldGPU& world
+        [[buffer(MR_WORLD_PREPARE_WORLD)]],
+    device const MRArticulationGPU* articulations
+        [[buffer(MR_WORLD_PREPARE_ARTICULATIONS)]],
+    device const MRDofPropertiesGPU* dofs
+        [[buffer(MR_WORLD_PREPARE_DOFS)]],
     device const MRActuatorProfileGPU* actuatorProfiles
-        [[buffer(15)]],
+        [[buffer(MR_WORLD_PREPARE_ACTUATOR_PROFILES)]],
     device const float4* taskControllerParameters
-        [[buffer(16)]],
+        [[buffer(MR_WORLD_PREPARE_TASK_CONTROLLER_PARAMETERS)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -167,20 +183,22 @@ kernel void mr_metal_world_prepare(
     for (uint coordinate = 0u;
          coordinate < dispatch.nq;
          ++coordinate) {
+        const float committed = stateQ[qBase + coordinate];
+        checkpointQ[qBase + coordinate] = committed;
         const float value = applyReset
             ? resetQ[qBase + coordinate]
-            : stateQ[qBase + coordinate];
+            : committed;
         stateQ[qBase + coordinate] = value;
-        checkpointQ[qBase + coordinate] = value;
     }
     for (uint coordinate = 0u;
          coordinate < dispatch.nv;
          ++coordinate) {
+        const float committed = stateV[vBase + coordinate];
+        checkpointV[vBase + coordinate] = committed;
         const float value = applyReset
             ? resetV[vBase + coordinate]
-            : stateV[vBase + coordinate];
+            : committed;
         stateV[vBase + coordinate] = value;
-        checkpointV[vBase + coordinate] = value;
         float command = effortTrajectory[
             pass.controlStep * dispatch.effortStepStride +
             environment * dispatch.effortEnvironmentStride +
@@ -521,22 +539,26 @@ kernel void mr_world_prepare_rod_state(
     for (uint node = 0u;
          node < contactDispatch.rodNodeCount;
          ++node) {
+        const MRRodNodeStateGPU committed =
+            stateNodes[nodeBase + node];
+        checkpointNodes[nodeBase + node] = committed;
         const MRRodNodeStateGPU value = applyReset
             ? resetNodes[nodeBase + node]
-            : stateNodes[nodeBase + node];
+            : committed;
         stateNodes[nodeBase + node] = value;
-        checkpointNodes[nodeBase + node] = value;
     }
     const uint edgeBase =
         environment * contactDispatch.rodEdgeCount;
     for (uint edge = 0u;
          edge < contactDispatch.rodEdgeCount;
          ++edge) {
+        const MRRodEdgeStateGPU committed =
+            stateEdges[edgeBase + edge];
+        checkpointEdges[edgeBase + edge] = committed;
         const MRRodEdgeStateGPU value = applyReset
             ? resetEdges[edgeBase + edge]
-            : stateEdges[edgeBase + edge];
+            : committed;
         stateEdges[edgeBase + edge] = value;
-        checkpointEdges[edgeBase + edge] = value;
     }
 }
 
@@ -572,12 +594,14 @@ kernel void mr_world_prepare_rod_contact_cache(
                 worldDispatch.resetMaskStepStride +
             environment
         ] != 0u;
-    MRRodToolWitnessGPU value = {};
+    const MRRodToolWitnessGPU committed =
+        published[flatWitness];
+    checkpoint[flatWitness] = committed;
+    MRRodToolWitnessGPU working = {};
     if (!applyReset) {
-        value = published[flatWitness];
+        working = committed;
     }
-    checkpoint[flatWitness] = value;
-    candidate[flatWitness] = value;
+    candidate[flatWitness] = working;
 }
 
 // Rod nodes, twist state, and persistent tool witnesses participate in the

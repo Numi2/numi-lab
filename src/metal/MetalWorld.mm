@@ -1953,6 +1953,11 @@ bool buildRequirements(
             layout.convexCacheElements,
             requirements.entries[kCandidateConvexCaches]
         ) ||
+        !makeRequirement<MRConvexQueryCacheGPU>(
+            "reset checkpoint convex query cache",
+            layout.convexCacheElements,
+            requirements.entries[kCheckpointConvexCaches]
+        ) ||
         !makeRequirement<MRCCDPairGPU>(
             "CCD candidates",
             layout.ccdPairElements,
@@ -7835,53 +7840,55 @@ bool encodePrepare(
     [encoder setComputePipelineState:context.preparePipeline];
     [encoder setBuffer:context.buffers[kWorldDispatch]
                  offset:0u
-                atIndex:0u];
-    [encoder setBytes:&pass length:sizeof(pass) atIndex:1u];
+                atIndex:MR_WORLD_PREPARE_DISPATCH];
+    [encoder setBytes:&pass
+                length:sizeof(pass)
+               atIndex:MR_WORLD_PREPARE_PASS];
     [encoder setBuffer:context.buffers[kEffortTrajectory]
                  offset:0u
-                atIndex:2u];
+                atIndex:MR_WORLD_PREPARE_EFFORT_TRAJECTORY];
     [encoder setBuffer:context.buffers[kResetMasks]
                  offset:0u
-                atIndex:3u];
+                atIndex:MR_WORLD_PREPARE_RESET_MASKS];
     [encoder setBuffer:context.buffers[kResetQ]
                  offset:0u
-                atIndex:4u];
+                atIndex:MR_WORLD_PREPARE_RESET_Q];
     [encoder setBuffer:context.buffers[kResetV]
                  offset:0u
-                atIndex:5u];
+                atIndex:MR_WORLD_PREPARE_RESET_V];
     [encoder setBuffer:context.buffers[sourceQ]
                  offset:0u
-                atIndex:6u];
+                atIndex:MR_WORLD_PREPARE_STATE_Q];
     [encoder setBuffer:context.buffers[sourceV]
                  offset:0u
-                atIndex:7u];
+                atIndex:MR_WORLD_PREPARE_STATE_V];
     [encoder setBuffer:context.buffers[kCheckpointQ]
                  offset:0u
-                atIndex:8u];
+                atIndex:MR_WORLD_PREPARE_CHECKPOINT_Q];
     [encoder setBuffer:context.buffers[kCheckpointV]
                  offset:0u
-                atIndex:9u];
+                atIndex:MR_WORLD_PREPARE_CHECKPOINT_V];
     [encoder setBuffer:context.buffers[kWorkingEffort]
                  offset:0u
-                atIndex:10u];
+                atIndex:MR_WORLD_PREPARE_WORKING_EFFORT];
     [encoder setBuffer:context.buffers[kEnvironmentStatuses]
                  offset:0u
-                atIndex:11u];
+                atIndex:MR_WORLD_PREPARE_STATUSES];
     [encoder setBuffer:context.buffers[kWorld]
                  offset:0u
-                atIndex:12u];
+                atIndex:MR_WORLD_PREPARE_WORLD];
     [encoder setBuffer:context.buffers[kArticulations]
                  offset:0u
-                atIndex:13u];
+                atIndex:MR_WORLD_PREPARE_ARTICULATIONS];
     [encoder setBuffer:context.buffers[kDofs]
                  offset:0u
-                atIndex:14u];
+                atIndex:MR_WORLD_PREPARE_DOFS];
     [encoder setBuffer:context.buffers[kActuatorProfiles]
                  offset:0u
-                atIndex:15u];
+                atIndex:MR_WORLD_PREPARE_ACTUATOR_PROFILES];
     [encoder setBuffer:context.buffers[kTaskControllerParameters]
                  offset:0u
-                atIndex:16u];
+                atIndex:MR_WORLD_PREPARE_TASK_CONTROLLER_PARAMETERS];
     dispatchWorldThreads(
         encoder,
         context.preparePipeline,
@@ -9316,28 +9323,71 @@ bool encodeContactControlPrepare(
         context.contactPreparePipeline,
         @"MetalWorld contact checkpoint/reset",
         {
-            {0u, kWorldDispatch},
-            {1u, kContactDispatch},
-            {3u, kResetMasks},
-            {4u, kResetSceneBodies},
-            {5u, kKinematicTargets},
-            {6u, kBodies},
-            {7u, kSceneBodyIndices},
-            {8u, sourceScene},
-            {9u, kCheckpointSceneBodies},
-            {10u, sourceManifoldHeaders},
-            {11u, sourceManifoldPoints},
-            {12u, sourceManifoldCounts},
-            {13u, kCheckpointManifoldHeaders},
-            {14u, kCheckpointManifoldPoints},
-            {15u, kCheckpointManifoldCounts},
-            {16u, kContactStatuses},
-            {17u, kConvexCaches},
-            {18u, kGeneralizedWarmState},
-            {19u, kCheckpointGeneralizedWarmState},
+            {MR_CONTACT_PREPARE_WORLD_DISPATCH, kWorldDispatch},
+            {
+                MR_CONTACT_PREPARE_CONTACT_DISPATCH,
+                kContactDispatch,
+            },
+            {MR_CONTACT_PREPARE_RESET_MASKS, kResetMasks},
+            {
+                MR_CONTACT_PREPARE_RESET_SCENE_BODIES,
+                kResetSceneBodies,
+            },
+            {
+                MR_CONTACT_PREPARE_KINEMATIC_TARGETS,
+                kKinematicTargets,
+            },
+            {MR_CONTACT_PREPARE_BODY_PROPERTIES, kBodies},
+            {
+                MR_CONTACT_PREPARE_SCENE_BODY_INDICES,
+                kSceneBodyIndices,
+            },
+            {MR_CONTACT_PREPARE_SCENE_STATE, sourceScene},
+            {
+                MR_CONTACT_PREPARE_CHECKPOINT_SCENE_STATE,
+                kCheckpointSceneBodies,
+            },
+            {
+                MR_CONTACT_PREPARE_MANIFOLD_HEADERS,
+                sourceManifoldHeaders,
+            },
+            {
+                MR_CONTACT_PREPARE_MANIFOLD_POINTS,
+                sourceManifoldPoints,
+            },
+            {
+                MR_CONTACT_PREPARE_MANIFOLD_COUNTS,
+                sourceManifoldCounts,
+            },
+            {
+                MR_CONTACT_PREPARE_CHECKPOINT_HEADERS,
+                kCheckpointManifoldHeaders,
+            },
+            {
+                MR_CONTACT_PREPARE_CHECKPOINT_POINTS,
+                kCheckpointManifoldPoints,
+            },
+            {
+                MR_CONTACT_PREPARE_CHECKPOINT_COUNTS,
+                kCheckpointManifoldCounts,
+            },
+            {MR_CONTACT_PREPARE_STATUSES, kContactStatuses},
+            {MR_CONTACT_PREPARE_CONVEX_CACHES, kConvexCaches},
+            {
+                MR_CONTACT_PREPARE_GENERALIZED_WARM_STATE,
+                kGeneralizedWarmState,
+            },
+            {
+                MR_CONTACT_PREPARE_CHECKPOINT_GENERALIZED_WARM_STATE,
+                kCheckpointGeneralizedWarmState,
+            },
+            {
+                MR_CONTACT_PREPARE_CHECKPOINT_CONVEX_CACHES,
+                kCheckpointConvexCaches,
+            },
         },
         &pass,
-        2u,
+        MR_CONTACT_PREPARE_PASS,
         environmentCount
     );
 }
@@ -10592,15 +10642,49 @@ bool encodeHybridContactSubstep(
             context.convexCachePublishPipeline,
             @"MetalWorld transactional convex-cache publication",
             {
-                {0u, kContactDispatch},
-                {1u, kEligiblePairs},
-                {2u, kPairOverlapFlags},
-                {3u, kContactStatuses},
-                {4u, kCandidateConvexCaches},
-                {5u, kConvexCaches},
+                {
+                    MR_CONVEX_CACHE_PUBLISH_DISPATCH,
+                    kContactDispatch,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_ELIGIBLE_PAIRS,
+                    kEligiblePairs,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_OVERLAP_FLAGS,
+                    kPairOverlapFlags,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_STATUSES,
+                    kContactStatuses,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_CANDIDATE_CACHES,
+                    kCandidateConvexCaches,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_PUBLISHED_CACHES,
+                    kConvexCaches,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_WORLD_DISPATCH,
+                    kWorldDispatch,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_RESET_MASKS,
+                    kResetMasks,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_CHECKPOINT_CACHES,
+                    kCheckpointConvexCaches,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_WORLD_STATUSES,
+                    kEnvironmentStatuses,
+                },
             },
-            nullptr,
-            0u,
+            &pass,
+            MR_CONVEX_CACHE_PUBLISH_PASS,
             pairFlagThreadCount
         );
 }
@@ -11366,15 +11450,49 @@ bool encodeContactSubstep(
             context.convexCachePublishPipeline,
             @"MetalWorld transactional convex-cache publication",
             {
-                {0u, kContactDispatch},
-                {1u, kEligiblePairs},
-                {2u, kPairOverlapFlags},
-                {3u, kContactStatuses},
-                {4u, kCandidateConvexCaches},
-                {5u, kConvexCaches},
+                {
+                    MR_CONVEX_CACHE_PUBLISH_DISPATCH,
+                    kContactDispatch,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_ELIGIBLE_PAIRS,
+                    kEligiblePairs,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_OVERLAP_FLAGS,
+                    kPairOverlapFlags,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_STATUSES,
+                    kContactStatuses,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_CANDIDATE_CACHES,
+                    kCandidateConvexCaches,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_PUBLISHED_CACHES,
+                    kConvexCaches,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_WORLD_DISPATCH,
+                    kWorldDispatch,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_RESET_MASKS,
+                    kResetMasks,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_CHECKPOINT_CACHES,
+                    kCheckpointConvexCaches,
+                },
+                {
+                    MR_CONVEX_CACHE_PUBLISH_WORLD_STATUSES,
+                    kEnvironmentStatuses,
+                },
             },
-            nullptr,
-            0u,
+            &pass,
+            MR_CONVEX_CACHE_PUBLISH_PASS,
             pairFlagThreadCount
         )) {
         return false;

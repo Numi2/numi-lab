@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 12,
+  "abi_version": 13,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -203,7 +203,7 @@
     }
   ],
   "world_buffers": {
-    "count": 235,
+    "count": 236,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -431,7 +431,8 @@
       ["kSensorCheckpointStates", 231],
       ["kSensorCheckpointHistory", 232],
       ["kSensorCheckpointOutputs", 233],
-      ["kSensorCheckpointMetadata", 234]
+      ["kSensorCheckpointMetadata", 234],
+      ["kCheckpointConvexCaches", 235]
     ],
     "classifications": {
       "immutable": [
@@ -629,7 +630,8 @@
         "kSensorCheckpointStates",
         "kSensorCheckpointHistory",
         "kSensorCheckpointOutputs",
-        "kSensorCheckpointMetadata"
+        "kSensorCheckpointMetadata",
+        "kCheckpointConvexCaches"
       ]
     },
     "persistent_inputs": [
@@ -809,6 +811,73 @@
         "VALUES",
         "TRANSITIONS",
         "STATUS"
+      ]
+    },
+    {
+      "enum": "MRWorldPrepareBuffer",
+      "prefix": "MR_WORLD_PREPARE_",
+      "bindings": [
+        "DISPATCH",
+        "PASS",
+        "EFFORT_TRAJECTORY",
+        "RESET_MASKS",
+        "RESET_Q",
+        "RESET_V",
+        "STATE_Q",
+        "STATE_V",
+        "CHECKPOINT_Q",
+        "CHECKPOINT_V",
+        "WORKING_EFFORT",
+        "STATUSES",
+        "WORLD",
+        "ARTICULATIONS",
+        "DOFS",
+        "ACTUATOR_PROFILES",
+        "TASK_CONTROLLER_PARAMETERS"
+      ]
+    },
+    {
+      "enum": "MRContactPrepareBuffer",
+      "prefix": "MR_CONTACT_PREPARE_",
+      "bindings": [
+        "WORLD_DISPATCH",
+        "CONTACT_DISPATCH",
+        "PASS",
+        "RESET_MASKS",
+        "RESET_SCENE_BODIES",
+        "KINEMATIC_TARGETS",
+        "BODY_PROPERTIES",
+        "SCENE_BODY_INDICES",
+        "SCENE_STATE",
+        "CHECKPOINT_SCENE_STATE",
+        "MANIFOLD_HEADERS",
+        "MANIFOLD_POINTS",
+        "MANIFOLD_COUNTS",
+        "CHECKPOINT_HEADERS",
+        "CHECKPOINT_POINTS",
+        "CHECKPOINT_COUNTS",
+        "STATUSES",
+        "CONVEX_CACHES",
+        "GENERALIZED_WARM_STATE",
+        "CHECKPOINT_GENERALIZED_WARM_STATE",
+        "CHECKPOINT_CONVEX_CACHES"
+      ]
+    },
+    {
+      "enum": "MRConvexCachePublishBuffer",
+      "prefix": "MR_CONVEX_CACHE_PUBLISH_",
+      "bindings": [
+        "DISPATCH",
+        "ELIGIBLE_PAIRS",
+        "OVERLAP_FLAGS",
+        "STATUSES",
+        "CANDIDATE_CACHES",
+        "PUBLISHED_CACHES",
+        "WORLD_DISPATCH",
+        "PASS",
+        "RESET_MASKS",
+        "CHECKPOINT_CACHES",
+        "WORLD_STATUSES"
       ]
     }
   ]

@@ -2,8 +2,8 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 12
-    static let worldBufferCount = 235
+    static let version: UInt32 = 13
+    static let worldBufferCount = 236
     static let pipelineCount = 89
     static let pipelineGroupCount = 11
     static let mrSensorProgramAbiVersion: UInt32 = 4
@@ -252,5 +252,6 @@ enum MetalRoboRuntimeABI {
         "sensor checkpoint history",
         "sensor checkpoint outputs",
         "sensor checkpoint metadata",
+        "checkpoint convex caches",
     ]
 }

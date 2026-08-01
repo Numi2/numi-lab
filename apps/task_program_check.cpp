@@ -2009,13 +2009,12 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         );
     }
 
-    // A reset is visible to the policy before physics executes. If that
-    // physics transaction subsequently overflows, every SensorIR schedule,
-    // history slot, compact output, and metadata record must return to the
-    // last committed boundary. Two coincident static obstacles make the reset
-    // produce two broadphase pairs against a one-pair operational capacity;
-    // the preceding resident step remains contact-free and establishes a
-    // nonzero pose-history canary.
+    // A reset is visible before physics executes. If that transaction then
+    // overflows, q/v, scene state, manifolds, and every SensorIR schedule,
+    // history, output, and metadata record must return to the last committed
+    // boundary. The preceding resident step commits one obstacle contact;
+    // reset brings a second obstacle into contact and exceeds a one-pair
+    // operational capacity.
     metalrobo::SimulationDescription transactionAuthored =
         wrenchAuthored;
     transactionAuthored.task.id =
@@ -2056,9 +2055,6 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     transactionAuthored.sceneBodies.push_back(secondObstacleState);
     const std::vector<MRBodyStateGPU> transactionResetScene =
         transactionAuthored.sceneBodies;
-    transactionAuthored.sceneBodies[
-        transactionAuthored.sceneBodies.size() - 2u
-    ].position.z += 2.0f;
     transactionAuthored.sceneBodies.back().position.z += 2.0f;
     transactionAuthored.sensors.push_back({
         .id = "tool_pose_transaction_canary",
@@ -2107,7 +2103,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     transactionStep.evaluateFinalPolicy = false;
     transactionStep.actuationMode =
         metalrobo::MetalWorldActuationMode::effort;
-    transactionStep.captureContactEvidence = false;
+    transactionStep.captureContactEvidence = true;
     metalrobo::MetalWorldContext transactionContext(
         contextConfiguration
     );
@@ -2145,10 +2141,24 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     const std::vector<MRSensorSampleMetadataGPU>
         committedSensorMetadata =
             initialTransactionResult.sensorMetadata;
+    const std::vector<float> committedQ =
+        initialTransactionResult.finalQ;
+    const std::vector<float> committedV =
+        initialTransactionResult.finalV;
+    const std::vector<MRBodyStateGPU> committedScene =
+        initialTransactionResult.finalSceneBodies;
+    const std::vector<std::uint32_t> committedManifoldCounts =
+        initialTransactionResult.contactEvidence.manifoldCounts;
+    const std::vector<MRManifoldHeaderGPU> committedManifoldHeaders =
+        initialTransactionResult.contactEvidence.manifoldHeaders;
+    const std::vector<MRManifoldPointGPU> committedManifoldPoints =
+        initialTransactionResult.contactEvidence.manifoldPoints;
     if (!initialTransaction.succeeded() ||
         !transactionState.valid() ||
         committedSensorOutputs.size() != 13u ||
         committedSensorMetadata.size() != 2u ||
+        committedManifoldCounts.size() != 1u ||
+        committedManifoldCounts[0u] == 0u ||
         std::abs(committedSensorOutputs[8u]) < 1.0e-3f) {
         fail(
             "sensor rollback fixture did not establish a committed resident canary: " +
@@ -2198,7 +2208,38 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         rejectedTransactionResult.contactStatuses[0u]
                 .requiredPairs > 1u &&
         sensorOutputsRestored && sensorMetadataRestored;
-    if (!sensorTransactionRestored) {
+    const bool physicalTransactionRestored =
+        rejectedTransactionResult.finalQ == committedQ &&
+        rejectedTransactionResult.finalV == committedV &&
+        rejectedTransactionResult.finalSceneBodies.size() ==
+            committedScene.size() &&
+        std::memcmp(
+            rejectedTransactionResult.finalSceneBodies.data(),
+            committedScene.data(),
+            committedScene.size() * sizeof(MRBodyStateGPU)
+        ) == 0;
+    const bool contactTransactionRestored =
+        rejectedTransactionResult.contactEvidence.manifoldCounts ==
+            committedManifoldCounts &&
+        rejectedTransactionResult.contactEvidence.manifoldHeaders.size() ==
+            committedManifoldHeaders.size() &&
+        rejectedTransactionResult.contactEvidence.manifoldPoints.size() ==
+            committedManifoldPoints.size() &&
+        std::memcmp(
+            rejectedTransactionResult.contactEvidence.manifoldHeaders.data(),
+            committedManifoldHeaders.data(),
+            committedManifoldHeaders.size() *
+                sizeof(MRManifoldHeaderGPU)
+        ) == 0 &&
+        std::memcmp(
+            rejectedTransactionResult.contactEvidence.manifoldPoints.data(),
+            committedManifoldPoints.data(),
+            committedManifoldPoints.size() *
+                sizeof(MRManifoldPointGPU)
+        ) == 0;
+    if (!sensorTransactionRestored ||
+        !physicalTransactionRestored ||
+        !contactTransactionRestored) {
         fail(
             "reset-followed physics failure did not restore the committed SensorIR history: " +
             rejectedTransaction.message +
@@ -2230,6 +2271,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             std::to_string(transactionState.valid()) +
             " outputs=" + std::to_string(sensorOutputsRestored) +
             " metadata=" + std::to_string(sensorMetadataRestored) +
+            " physical=" +
+            std::to_string(physicalTransactionRestored) +
+            " contact_state=" +
+            std::to_string(contactTransactionRestored) +
             " committed_pose=" +
             std::to_string(committedSensorOutputs[6u]) + "," +
             std::to_string(committedSensorOutputs[7u]) + "," +
@@ -2885,6 +2930,7 @@ int main() {
             << " force_n=" << fixedBase.forceNormNewtons
             << " torque_nm=" << fixedBase.torqueNormNewtonMetres
             << " sensor_transaction=pass"
+            << " physical_transaction=pass"
             << " world_pack=" << worldPackFingerprint
             << '\n';
         return 0;

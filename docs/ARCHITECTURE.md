@@ -86,13 +86,16 @@ Every accepted control transition follows one transaction:
    outputs into the pending native rollout lease before command-buffer commit.
 
 Overflow, invalid dispatch, factorization failure, or nonfinite output must keep
-the last committed state. Contact and physical-state publication satisfy that
-boundary. SensorIR journals schedule state, history, compact output, and
-metadata only for environments requesting reset, then restores those bytes if
-the physics transaction rejects. Successful and ordinary non-reset steps pay
-no history-copy bandwidth. This closes the current pose, twist, and force/
-torque history boundary; it does not by itself qualify whole-session reset for
-TaskIR, actuators, tactile, or presentation state.
+the last committed state. Core prepare passes checkpoint q/v, scene bodies,
+manifolds, generalized warm starts, rod state and witnesses before applying a
+reset to working state. Convex-query caches are journaled only for reset
+environments. SensorIR likewise journals schedule state, history, compact
+output, and metadata only for reset environments. Rejected transitions restore
+those bytes; successful and ordinary non-reset steps pay no checkpoint-copy
+bandwidth beyond the core state already required for rollback. Whole-session
+atomicity for TaskIR, actuator/backlash, tactile, presentation, curriculum, and
+future recurrent-policy state is still incomplete and must not be inferred
+from the qualified physics/SensorIR boundary.
 
 ## Generated ABI
 

@@ -83,7 +83,14 @@
       "status": "qualified",
       "owner": "integration.native_simulation",
       "artifact": "metalrobo_simulation",
-      "scope": "Swift schedules bounded native submissions; Metal owns persistent simulator state and transactions."
+      "scope": "Swift schedules bounded native submissions; Metal owns persistent simulator state, asynchronous tickets, and per-environment physical publication. Whole-session atomic reset across TaskIR, actuators, tactile, presentation, and future recurrent policy state remains incomplete."
+    },
+    {
+      "id": "runtime.transactional_reset_physics",
+      "status": "implemented",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "A reset is applied to working state only. A later pair-capacity failure restores the exact previously committed q/v, scene bodies, manifold headers/points/counts, SensorIR output and metadata, retains the resident token, and permits a following submission. Generalized warm starts, rods, and convex caches use the same pre-reset checkpoint ordering in code but still need focused reset-failure evidence."
     },
     {
       "id": "runtime.compiled_execution_pipelines",

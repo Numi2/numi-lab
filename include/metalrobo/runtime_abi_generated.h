@@ -5,7 +5,7 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 12u
+#define MR_RUNTIME_ABI_VERSION 13u
 #define MR_RUNTIME_PIPELINE_COUNT 89u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
 #define MR_SENSOR_PROGRAM_ABI_VERSION 4u
@@ -214,6 +214,67 @@ enum MRLearningPublicationValidationBuffer : mr_u32 {
     MR_LEARNING_VALIDATE_TRANSITIONS = 6u,
     MR_LEARNING_VALIDATE_STATUS = 7u,
     MR_LEARNING_VALIDATE_BUFFER_COUNT = 8u,
+};
+
+enum MRWorldPrepareBuffer : mr_u32 {
+    MR_WORLD_PREPARE_DISPATCH = 0u,
+    MR_WORLD_PREPARE_PASS = 1u,
+    MR_WORLD_PREPARE_EFFORT_TRAJECTORY = 2u,
+    MR_WORLD_PREPARE_RESET_MASKS = 3u,
+    MR_WORLD_PREPARE_RESET_Q = 4u,
+    MR_WORLD_PREPARE_RESET_V = 5u,
+    MR_WORLD_PREPARE_STATE_Q = 6u,
+    MR_WORLD_PREPARE_STATE_V = 7u,
+    MR_WORLD_PREPARE_CHECKPOINT_Q = 8u,
+    MR_WORLD_PREPARE_CHECKPOINT_V = 9u,
+    MR_WORLD_PREPARE_WORKING_EFFORT = 10u,
+    MR_WORLD_PREPARE_STATUSES = 11u,
+    MR_WORLD_PREPARE_WORLD = 12u,
+    MR_WORLD_PREPARE_ARTICULATIONS = 13u,
+    MR_WORLD_PREPARE_DOFS = 14u,
+    MR_WORLD_PREPARE_ACTUATOR_PROFILES = 15u,
+    MR_WORLD_PREPARE_TASK_CONTROLLER_PARAMETERS = 16u,
+    MR_WORLD_PREPARE_BUFFER_COUNT = 17u,
+};
+
+enum MRContactPrepareBuffer : mr_u32 {
+    MR_CONTACT_PREPARE_WORLD_DISPATCH = 0u,
+    MR_CONTACT_PREPARE_CONTACT_DISPATCH = 1u,
+    MR_CONTACT_PREPARE_PASS = 2u,
+    MR_CONTACT_PREPARE_RESET_MASKS = 3u,
+    MR_CONTACT_PREPARE_RESET_SCENE_BODIES = 4u,
+    MR_CONTACT_PREPARE_KINEMATIC_TARGETS = 5u,
+    MR_CONTACT_PREPARE_BODY_PROPERTIES = 6u,
+    MR_CONTACT_PREPARE_SCENE_BODY_INDICES = 7u,
+    MR_CONTACT_PREPARE_SCENE_STATE = 8u,
+    MR_CONTACT_PREPARE_CHECKPOINT_SCENE_STATE = 9u,
+    MR_CONTACT_PREPARE_MANIFOLD_HEADERS = 10u,
+    MR_CONTACT_PREPARE_MANIFOLD_POINTS = 11u,
+    MR_CONTACT_PREPARE_MANIFOLD_COUNTS = 12u,
+    MR_CONTACT_PREPARE_CHECKPOINT_HEADERS = 13u,
+    MR_CONTACT_PREPARE_CHECKPOINT_POINTS = 14u,
+    MR_CONTACT_PREPARE_CHECKPOINT_COUNTS = 15u,
+    MR_CONTACT_PREPARE_STATUSES = 16u,
+    MR_CONTACT_PREPARE_CONVEX_CACHES = 17u,
+    MR_CONTACT_PREPARE_GENERALIZED_WARM_STATE = 18u,
+    MR_CONTACT_PREPARE_CHECKPOINT_GENERALIZED_WARM_STATE = 19u,
+    MR_CONTACT_PREPARE_CHECKPOINT_CONVEX_CACHES = 20u,
+    MR_CONTACT_PREPARE_BUFFER_COUNT = 21u,
+};
+
+enum MRConvexCachePublishBuffer : mr_u32 {
+    MR_CONVEX_CACHE_PUBLISH_DISPATCH = 0u,
+    MR_CONVEX_CACHE_PUBLISH_ELIGIBLE_PAIRS = 1u,
+    MR_CONVEX_CACHE_PUBLISH_OVERLAP_FLAGS = 2u,
+    MR_CONVEX_CACHE_PUBLISH_STATUSES = 3u,
+    MR_CONVEX_CACHE_PUBLISH_CANDIDATE_CACHES = 4u,
+    MR_CONVEX_CACHE_PUBLISH_PUBLISHED_CACHES = 5u,
+    MR_CONVEX_CACHE_PUBLISH_WORLD_DISPATCH = 6u,
+    MR_CONVEX_CACHE_PUBLISH_PASS = 7u,
+    MR_CONVEX_CACHE_PUBLISH_RESET_MASKS = 8u,
+    MR_CONVEX_CACHE_PUBLISH_CHECKPOINT_CACHES = 9u,
+    MR_CONVEX_CACHE_PUBLISH_WORLD_STATUSES = 10u,
+    MR_CONVEX_CACHE_PUBLISH_BUFFER_COUNT = 11u,
 };
 
 #if defined(__cplusplus) && !defined(__METAL_VERSION__)
@@ -451,7 +512,8 @@ enum BufferIndex : std::size_t {
     kSensorCheckpointHistory = 232u,
     kSensorCheckpointOutputs = 233u,
     kSensorCheckpointMetadata = 234u,
-    kRawBufferCount = 235u,
+    kCheckpointConvexCaches = 235u,
+    kRawBufferCount = 236u,
 };
 
 enum class BufferLifetime : std::uint8_t {
@@ -699,6 +761,7 @@ inline constexpr std::array<BufferLifetime, kRawBufferCount>
         BufferLifetime::transient,
         BufferLifetime::transient,
         BufferLifetime::transient,
+        BufferLifetime::transient,
     }};
 inline constexpr std::array<bool, kRawBufferCount>
     kPersistentInputs{{
@@ -930,6 +993,7 @@ inline constexpr std::array<bool, kRawBufferCount>
         true,
         true,
         true,
+        false,
         false,
         false,
         false,
@@ -1175,6 +1239,7 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "sensor checkpoint history",
         "sensor checkpoint outputs",
         "sensor checkpoint metadata",
+        "checkpoint convex caches",
     }};
 
 [[nodiscard]] constexpr bool validBufferIndex(
@@ -1273,6 +1338,9 @@ static_assert(MR_TASK_FRAME_REFRESH_BUFFER_COUNT <= 31u);
 static_assert(MR_SENSOR_SAMPLE_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_SENSOR_REFRESH_BUFFER_COUNT <= 31u);
 static_assert(MR_LEARNING_VALIDATE_BUFFER_COUNT <= 31u);
+static_assert(MR_WORLD_PREPARE_BUFFER_COUNT <= 31u);
+static_assert(MR_CONTACT_PREPARE_BUFFER_COUNT <= 31u);
+static_assert(MR_CONVEX_CACHE_PUBLISH_BUFFER_COUNT <= 31u);
 
 } // namespace metalrobo::runtime_abi
 #endif
