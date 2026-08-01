@@ -483,7 +483,9 @@ The measured qualification ladder on the 24 GiB M4 Pro is:
 | 2,048 | 64 | 131,072 | 3,685 env-steps/s | pass |
 | 4,096 | 64 | 262,144 | 3,756 env-steps/s | pass |
 | 6,144 | 43 | 264,192 | 3,610 env-steps/s | pass |
-| 8,192 | 32 | 262,144 | 3,618 env-steps/s | pass after active-pair staging compaction |
+| 8,192 | 32 | 262,144 | 3,784 env-steps/s | pass after active-pair staging compaction |
+| 9,408 | 28 | 263,424 | 3,759 env-steps/s | pass after topology cache compaction |
+| 11,264 | 23 | 259,072 | 3,683 env-steps/s | pass |
 
 The 4,096 qualification reported zero failed environment-steps, 10.43 GB of
 retained buffer capacity, and 9.49 GB of transient private capacity. Those
@@ -504,13 +506,28 @@ and count records. Canonical manifold and ConstraintIR ordering remains owned
 by the later eligible-pair segmented scan.
 
 For the bundled G1 profile this changes raw-contact scratch from 1,684 to 128
-pair slots per environment. The 8,192 qualification then retained 14.91 GB,
-reported 13.05 GB of transient private capacity, completed revision 111 to
-112, and published zero failed environment-steps without swap growth,
-throttling, or a GPU restart. This establishes 8,192 as the validated scale on
-the 24 GiB M4 Pro for a 32-step learning segment. Longer horizons remain a
-separate memory-pressure qualification; environment count alone does not prove
-that a larger publication artifact is efficient.
+pair slots per environment. Finalized manifold header and point scratch use
+the same compact active-pair slot while the eligible-pair scan continues to
+own canonical output order. At 8,192 environments this second compaction
+reduced retained capacity from 14.91 GB to 11.17 GB and transient private
+capacity from 13.05 GB to 9.30 GB. The revision 116 to 117 qualification
+published zero failed environment-steps without swap growth, throttling, or a
+GPU restart.
+
+Convex query caches are persistent semantic state, so they are not compacted
+by transient overlap activity. The cooker instead assigns one stable cache
+slot only to topology pairs that can execute convex or mesh queries. Analytic
+pairs carry the invalid slot. Reset, narrowphase diagnostics, and transactional
+publication consume that same compiled mapping. This removes unused cache
+entries without changing warm-start identity or adding a hot-loop lookup.
+
+The fully compacted path qualified 9,408 environments at 12.77 GB retained and
+10.65 GB transient private capacity, then 11,264 environments at 15.28 GB and
+12.76 GB respectively. The latter is a 19.7% environment increase over 9,408;
+it completed revision 119 to 120 with zero failed environment-steps, no swap
+growth, no throttling, and no GPU restart. A single-update qualification is a
+capacity and execution gate, not proof of sustained memory stability, so long
+campaigns still require checkpointed multi-update monitoring.
 
 ### Balance recovery and get-up training
 
