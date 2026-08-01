@@ -29,7 +29,8 @@
     "evidence/baselines/2026-08-01-66e47ae.json",
     "evidence/baselines/2026-08-01-9091c6e.json",
     "evidence/baselines/2026-08-01-35abef7.json",
-    "evidence/baselines/2026-08-01-9adf396.json"
+    "evidence/baselines/2026-08-01-9adf396.json",
+    "evidence/baselines/2026-08-01-dcf797c.json"
   ],
   "capabilities": [
     {
@@ -163,7 +164,14 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, pose rewards and terminations, SensorIR scalar/validity sources, and reset-correct pre-policy state are implemented. Acceleration, point/Jacobian quantities, multi-knot splines, generic reductions, and three complete task families are not yet qualified."
+      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, pose rewards and terminations, SensorIR scalar/validity sources, and reset-correct pre-policy state are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, generic reductions, and three complete task families are not yet qualified."
+    },
+    {
+      "id": "tasks.semantic_frame_jacobians",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "TaskIR resolves a named articulated frame and generalized-velocity coordinate into a compiler-owned immutable point-query cohort. The existing analytic articulated operator publishes six world-axis spatial-Jacobian rows into a topology-sized native arena; TaskIR selects one linear or angular component without finite differences, string lookup, or another task kernel binding. Disconnected articulation coordinates evaluate to exact zero. The focused owner qualifies a scalar fixed-base column, TaskPack round trip, unresolved-coordinate rollback, accepted-state Jv parity, and the shared operator status contract. Arbitrary point authoring, scene-body generalized Jacobians, full tensor publication, and multi-DOF tangent-coordinate naming remain incomplete."
     },
     {
       "id": "tasks.dynamic_se3_goals",

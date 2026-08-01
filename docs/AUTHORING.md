@@ -90,6 +90,11 @@ compilation. It supports:
   error across articulated and scene-body domains;
 - world linear velocity at a named frame origin and world angular velocity,
   materialized from the same generalized state consumed by physics;
+- one world-axis component of the linear or angular frame Jacobian with
+  respect to one named generalized-velocity coordinate. The compiler emits
+  one immutable point query per distinct articulated frame, cohorts queries
+  by articulation, and resolves the coordinate to a stable global velocity
+  index;
 - relative linear and angular velocity in the named reference frame, including
   reference translation and rotating-frame transport;
 - frame position/orientation squared-error and exponential-tracking rewards;
@@ -112,9 +117,16 @@ source. A site-relative transform is composed with the model site's link-local
 pose during compilation and then converted once to the body's COM-centred
 runtime origin. The remaining TaskIR target is a phase-separated graph covering
 action, command/event, observation, reward, termination, recorder, reset, and
-curriculum phases. Frame acceleration, point/Jacobian quantities, multi-knot
-trajectory splines, and generic gates/reductions are not yet production
-operators.
+curriculum phases. Frame acceleration, arbitrary point queries, full Jacobian
+tensors and reductions, multi-knot trajectory splines, and generic
+gates/reductions are not yet production operators.
+
+Frame-Jacobian observations are analytic operator outputs, not finite
+differences of poses. The point is the compiled frame origin and the three
+selectable rows are expressed in world axes. A coordinate belonging to a
+different disconnected articulation has an exact zero entry. Scene-body
+frames do not currently expose generalized-coordinate Jacobians and fail
+compilation rather than returning an invented value.
 
 An episode-sampled goal adds independent world-axis translation offsets and a
 local tangent rotation-vector perturbation to its base pose. Its counter key is

@@ -160,6 +160,16 @@ replays the complete run byte-for-byte. Invalid trajectory timing is rejected
 without replacing the last compiled program, and the current TaskPack
 round-trips the complete goal contract.
 
+The same owner compiles world-linear and world-angular Jacobian components for
+a named articulated frame and generalized-velocity coordinate. It requires
+one immutable compiler-owned point-query packet, round-trips the semantic
+coordinate through TaskPack, rejects an unresolved coordinate without
+replacing the compiled program, and checks `J_linear * v` against the native
+frame-origin linear velocity while independently checking the analytic angular
+column. The common articulated operator owns both the ordinary contact
+Jacobian path and the six-row semantic path; a distinct task-only kinematics
+implementation is not allowed.
+
 ## Numerical corpus
 
 Paired FP64, Metal, and MuJoCo cases cover:

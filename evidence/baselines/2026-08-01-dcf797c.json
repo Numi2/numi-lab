@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T08:16:25+02:00",
+  "source_revision": "dcf797c29256b94a06ae8d9389282a8ff6e94114",
+  "metallib_sha256": "79258a1fdeddb1b83c975c5bfb6df184262fd069a51605a0f7c2af5a84e0c176",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "qualification_build_actions": 126,
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 5.27,
+    "runtime_abi_version": 20,
+    "task_program_abi_version": 14,
+    "sensor_program_abi_version": 9,
+    "task_pack_format_version": 9,
+    "world_pack_format_version": 9,
+    "world_buffer_count": 254,
+    "semantic_frame_query_count": 1,
+    "semantic_spatial_jacobian_rows": 6,
+    "semantic_spatial_jacobian_environment_stride": 6,
+    "semantic_frame_jv_reference": "passed",
+    "semantic_angular_column_reference": "passed",
+    "semantic_coordinate_taskpack_roundtrip": "passed",
+    "unresolved_semantic_coordinate_transaction": "passed",
+    "shared_operator_status_contract": "passed",
+    "additional_task_runtime_kernel_bindings": 0
+  },
+  "known_release_blockers": [
+    "TaskIR still lacks frame acceleration, arbitrary point authoring, full Jacobian tensor publication and reduction, generic gates and reductions, and three qualified task families.",
+    "No general MJCF importer is present.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; recorder routing, ray, and LiDAR operators remain incomplete.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

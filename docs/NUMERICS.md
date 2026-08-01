@@ -19,6 +19,14 @@ must satisfy. Unsupported behavior is recorded in
   linear velocity is `R_R^T (v_T - v_R - omega_R x (p_T - p_R))` and relative
   angular velocity is `R_R^T (omega_T - omega_R)`. Subtracting world vectors
   without the transport term is not a valid moving-frame derivative.
+- For one generalized-velocity coordinate `j`, the world-axis Jacobian at a
+  compiled frame origin is
+  `J_linear(:,j) = v_j + omega_j x (p_frame - p_body)` and
+  `J_angular(:,j) = omega_j`, where `(v_j, omega_j)` is the analytic body
+  motion column produced by the articulated operator. TaskIR evaluates this
+  from the same accepted `q` used by dynamics. It does not finite-difference
+  poses. A coordinate owned by another disconnected articulation contributes
+  exactly zero.
 - Temporal microsteps re-evaluate geometry, limit activation, and response
   factors before integration. The command-delay/backlash timeline advances
   once at the control boundary; re-evaluating motor envelope and passive
