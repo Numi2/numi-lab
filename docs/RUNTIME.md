@@ -75,12 +75,21 @@ Compact output is exposed through lifetime-scoped borrowed views:
 - actions and behavior-policy metadata;
 - rewards, termination, and truncation;
 - reset masks and recurrent initial state;
-- policy revision, validity, and selected metrics;
+- policy revision, validity, three generic compact metrics, and eight generic
+  reward-reporting channels;
 - requested sensor/recorder streams;
 - selected gradient buffers for differentiable sessions.
 
 A view retains its ring slot. The slot cannot be reused until all Swift and MLX
 consumers release it.
+
+Compact metric identity is part of the compiled task, not the transition
+layout. `MetalSimulationSession.recorderIDs` exposes the ordered recorder names
+once, while every transition carries only `metrics`, `rewardChannels0`,
+`rewardChannels1`, and the scalar episode curriculum metric. The C and Swift
+runtime ABIs contain no locomotion- or G1-named metric fields. A bundled app may
+label a known TaskPack's slots in presentation output, but that interpretation
+does not enter the executor.
 
 ## Current SensorIR execution boundary
 

@@ -108,10 +108,14 @@ compilation. It supports:
 - contiguous semantic-source reductions with identity, absolute, or square
   transforms and sum, mean, minimum, or maximum reductions;
 - generic signal rewards and below/above/outside termination thresholds;
+- named compact recorders that bind directly to SignalIR nodes and publish
+  three generic metric values without robot-shaped transition fields;
 - fixed goals, episode-sampled poses, and two-pose trajectories with clamped,
   looped, or ping-pong playback;
-- fixed-shape actor/critic histories, deterministic corruption, curriculum,
-  randomization, and transactional reset;
+- a generic accepted-step phase oscillator and SignalIR-driven scalar
+  curriculum success metric;
+- fixed-shape actor/critic histories, deterministic corruption, randomization,
+  and transactional reset;
 - named SensorIR scalar values and validity bits, with actor/critic permission
   checks and an exact SensorIR fingerprint in the compiled TaskIR contract.
 
@@ -152,6 +156,21 @@ stability, velocity, acceleration, control, configuration, energy, or contact.
 The channel changes only compact metrics; it does not alter reward evaluation.
 There is no opcode-to-reporting switch.
 
+Each compact recorder resolves an authored identity and one SignalIR node at
+compilation. Recorder identities remain immutable host metadata; Metal carries
+only resolved indices and values. The public C and Swift transition ABI exposes
+three generic metric slots, while a session exposes their ordered identities.
+The eight reward-reporting channels are separate generic aggregates. Neither
+surface contains G1-named fields. Larger or scheduled recorder streams must use
+the future unified recorder/SensorIR schedule rather than extending the compact
+transition with another task-specific layout.
+
+The current curriculum program consumes the episode mean of an authored
+SignalIR node, plus an evaluation window, success threshold, and minimum
+survival fraction. A multi-level program without a resolvable success signal
+fails compilation transactionally. The accepted-step phase oscillator is also
+ordinary TaskPack data; gait frequency is not a robot runtime mode.
+
 A reduction cohort is compiled to one SignalIR node plus contiguous resolved
 semantic sources. The GPU applies its transform and reduction directly; it
 does not publish one intermediate signal per joint or contact group. Empty
@@ -159,10 +178,12 @@ cohorts fail compilation. SensorIR values currently remain scalar leaves
 because current-sample scratch is indexed per SignalIR node.
 
 The remaining TaskIR target is a phase-separated graph covering action,
-command/event, observation, reward, termination, recorder, reset, and
-curriculum phases. Frame acceleration, arbitrary point queries, full Jacobian
-tensors, multi-knot trajectory splines, events, and recorders are not yet
-production operators.
+command/event, observation, reward, termination, reset, curriculum, and
+arbitrary recorder-stream phases. Frame acceleration, arbitrary point queries,
+full Jacobian tensors, multi-knot trajectory splines, events, general command
+operators, scheduled recorder streams, and richer curriculum operators are not
+yet production operators. The three-slot compact recorder and scalar
+SignalIR-driven curriculum are production paths.
 
 Frame-Jacobian observations are analytic operator outputs, not finite
 differences of poses. The point is the compiled frame origin and the three
@@ -292,11 +313,11 @@ outside this scalar contract.
 
 Presentation sensors still execute in the native renderer and tactile sensors
 still execute in the native tactile context. Folding those passes into the
-session schedule, dedicated ray/LiDAR operators, recorder routing, and compiler
-dead-code elimination remain incomplete. Native joint, actuator, pose, twist,
-IMU, force/torque, contact-state, corruption episode identity, and histories
-already journal reset environments and restore on a rejected physics
-transaction.
+session schedule, dedicated ray/LiDAR operators, scheduled recorder-stream
+routing, and compiler dead-code elimination remain incomplete. Native joint,
+actuator, pose, twist, IMU, force/torque, contact-state, corruption episode
+identity, and histories already journal reset environments and restore on a
+rejected physics transaction.
 Presentation- and tactile-domain corruption remain with their current native
 owners until those passes join the common schedule.
 

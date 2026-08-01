@@ -181,7 +181,7 @@ without replacing the last valid compiled program.
 
 The same fixture expresses fixed, episode-sampled, and trajectory frame
 objectives without constant or frame-specific reward/termination opcodes.
-TaskPack 14 round-trips those graphs, preserves their numerical outcomes, and
+TaskPack 15 round-trips those graphs, preserves their numerical outcomes, and
 proves that deleting the duplicated goal fields and shrinking the termination
 record does not change dynamic-goal replay.
 
@@ -190,22 +190,29 @@ including heading-frame command tracking, yaw tracking, joint acceleration,
 action delta, compiler-resolved soft limits, mechanical power, phase/contact
 matching, slip, forbidden contact, and frame-based foot clearance. The native
 reward loop has no opcode switch: its record is a signal channel, reporting
-channel, and weight. The compiled task contains 89 nodes, 167 semantic sources,
-eleven reductions, and three frames.
+channel, and weight. Three recorder bindings and the curriculum success metric
+also consume authored SignalIR nodes. The compiled task contains 92 nodes, 167
+semantic sources, eleven reductions, three frames, and three compact recorders.
 
 Paired eight-environment, sixteen-step native rollouts against the preceding
-specialized implementation cover zero and deterministic nonzero host actions.
-Physical, contact, failure, termination, root-height, tilt, tracking, and task
-reward outcomes are exact. The largest aggregate mean difference is below
-`2e-10`; action and acceleration reporting differences are below `8e-12`.
-The explicit generic graph adds 30,912 retained bytes while persistent physical
-state remains exactly unchanged. That topology-derived cost replaces hidden
-robot-shaped control flow and is reported rather than disguised as a memory
-regression.
+revision cover zero and deterministic nonzero host actions. Physical, contact,
+failure, termination, reward, and all eight reporting channels are exact. All
+zero-action recorder values are exact. With nonzero actions, tracking and root
+height are exact and the graph-composed tilt differs by less than `6e-11` from
+the removed duplicate inline expression. The compact transition remains 96
+bytes. The recorder/curriculum program adds 512 retained bytes: 160 immutable
+private, 192 transient private, and 160 shared boundary bytes; persistent
+physical state remains byte-for-byte unchanged.
 
-The owner also rejects an invalid reward channel, invalid soft-limit factor,
-ignored source parameters, an empty reduction, and a SensorIR reduction that
-lacks generalized per-source sensor scratch, while preserving the last
+An independent fixed-base fixture records `axis_velocity_squared` and compares
+the Metal recorder value with the generic reward-channel contribution. The
+compiler also rejects duplicate recorder identities, unresolved recorder
+signals, more than three compact recorders, and a multi-level curriculum with
+no success SignalIR binding without replacing the last valid task.
+
+The owner additionally rejects an invalid reward channel, invalid soft-limit
+factor, ignored source parameters, an empty reduction, and a SensorIR reduction
+that lacks generalized per-source sensor scratch, while preserving the last
 compiled task transactionally.
 
 ## Numerical corpus

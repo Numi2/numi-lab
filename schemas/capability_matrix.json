@@ -36,7 +36,8 @@
     "evidence/baselines/2026-08-01-c6bcfd0.json",
     "evidence/baselines/2026-08-01-a5e26d6.json",
     "evidence/baselines/2026-08-01-7182ce5.json",
-    "evidence/baselines/2026-08-01-ac58af4.json"
+    "evidence/baselines/2026-08-01-ac58af4.json",
+    "evidence/baselines/2026-08-01-959544a.json"
   ],
   "capabilities": [
     {
@@ -177,28 +178,28 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, generic scalar and cohort-reduction SignalIR, current SensorIR truth leaves, SensorIR actor/critic values, reset-correct pre-policy state, and generic reward reporting channels are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, phase-complete events/recorders, and three complete task families are not yet qualified."
+      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, generic scalar and cohort-reduction SignalIR, current SensorIR truth leaves, SensorIR actor/critic values, reset-correct pre-policy state, generic reward reporting channels, three compact named recorders, and a SignalIR-driven scalar curriculum are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, phase-complete commands/events, arbitrary recorder streams, richer curriculum operators, and three complete task families are not yet qualified."
     },
     {
       "id": "tasks.scalar_signal_ir",
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "TaskPack 14 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, atan2, comparisons, bounds gates, and contiguous source-cohort reductions. Resolved leaves include heading-frame velocity, joint acceleration, action delta, compiled soft-limit violation, mechanical power, and desired support contact. The native order is accepted mechanics, SensorIR sample, sensor-signal materialization, generic reward/termination, then actor/critic sensor-history publication. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. SensorIR cohort reductions and generic phase operators remain incomplete."
+      "scope": "TaskPack 15 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, atan2, comparisons, bounds gates, and contiguous source-cohort reductions. Resolved leaves include heading-frame velocity, joint acceleration, action delta, compiled soft-limit violation, mechanical power, and desired support contact. The native order is accepted mechanics, SensorIR sample, sensor-signal materialization, SignalIR, reward/termination/recorders, then actor/critic sensor-history publication. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. SensorIR cohort reductions and general phase operator tables remain incomplete."
     },
     {
       "id": "tasks.specialized_branch_pruning",
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Every robot-shaped reward and termination opcode has been deleted. All nineteen bundled G1 reward terms compose generic SignalIR leaves, reductions, arithmetic, comparisons, and frame operators; each reward record contains only a resolved signal, channel, and weight. TaskPack 14 also removes the joint-group wire section, duplicated compiled tables, task-complete DoF binding, reward opcode enum, and specialized shader switch. The paired zero- and nonzero-action rollouts preserve physical outcomes and task reward exactly, with aggregate reporting deltas below 2e-10."
+      "scope": "Every robot-shaped reward and termination opcode has been deleted. All nineteen bundled G1 reward terms compose generic SignalIR leaves, reductions, arithmetic, comparisons, and frame operators; each reward record contains only a resolved signal, channel, and weight. TaskPack 15 also removes the joint-group wire section, duplicated compiled tables, task-complete DoF binding, reward opcode enum, specialized shader switch, and duplicate G1 metric/curriculum math. Paired zero- and nonzero-action rollouts preserve physical outcomes, reward, and reporting channels exactly; the only recorder delta is below 6e-11 from graph composition order."
     },
     {
       "id": "tasks.signal_reductions",
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "A SignalIR reduction owns one contiguous truth-source cohort and compiles identity, absolute, or square transforms with sum, mean, minimum, or maximum. The bundled G1 task now uses eleven reductions inside an 89-node, 167-source fully generic reward graph. Empty cohorts and currently unsupported SensorIR cohorts fail transactionally."
+      "scope": "A SignalIR reduction owns one contiguous truth-source cohort and compiles identity, absolute, or square transforms with sum, mean, minimum, or maximum. The bundled G1 task uses eleven reductions inside a 92-node, 167-source generic reward, recorder, and curriculum graph. Empty cohorts and currently unsupported SensorIR cohorts fail transactionally."
     },
     {
       "id": "tasks.generic_rewards",
@@ -206,6 +207,20 @@
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "Reward evaluation is a branchless lookup of a resolved SignalIR channel followed by an authored weight and generic reporting-channel accumulation. The bundled G1 task expresses command tracking, posture, acceleration, action rate, soft limits, power, contact gait intent, slip, forbidden contact, and foot clearance without a task-shaped native opcode, joint-group table, robot identity branch, or runtime mechanics-bound lookup. Compiler-resolved source parameters reject invalid soft factors, support groups, and ignored fields transactionally."
+    },
+    {
+      "id": "tasks.compiled_recorders",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "TaskPack compiles up to three unique named compact recorder bindings from SignalIR. The immutable session exposes ordered recorder identities while the 96-byte native transition carries only three generic values. A fixed-base runtime fixture proves recorder-to-reward-channel parity; G1 A/B rollouts preserve physical outcomes and metrics, and invalid identity, signal, or capacity changes fail transactionally. Arbitrary scheduled recorder streams remain incomplete."
+    },
+    {
+      "id": "tasks.compiled_curriculum",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "A multi-level TaskPack binds its episode success metric to one resolved SignalIR node and compiles its evaluation window, threshold, survival fraction, and generic accepted-step phase period. The native global curriculum consumes only compact transition evidence. Missing success bindings reject transactionally. General command/event/curriculum operator tables and whole-session curriculum rollback remain incomplete."
     },
     {
       "id": "tasks.semantic_frame_jacobians",
@@ -296,7 +311,7 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "WorldPack joint-state, actuator-state, frame-state, frame-twist, IMU, force-torque, contact-state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. Spatial sensors may bind named model sites, which compile into the same body-frame records. Scalar-joint and actuator state, frame pose/twist, IMU, force-torque, and semantically filtered contact-state sensors execute in the session-owned scheduler with reset-failure journals, native counter-based corruption, and TaskIR bindings; presentation and tactile still use their existing native owners, while recorder routing, ray, and LiDAR operators remain incomplete."
+      "scope": "WorldPack joint-state, actuator-state, frame-state, frame-twist, IMU, force-torque, contact-state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. Spatial sensors may bind named model sites, which compile into the same body-frame records. Scalar-joint and actuator state, frame pose/twist, IMU, force-torque, and semantically filtered contact-state sensors execute in the session-owned scheduler with reset-failure journals, native counter-based corruption, and TaskIR bindings; presentation and tactile still use their existing native owners, while scheduled recorder-stream routing, ray, and LiDAR operators remain incomplete."
     },
     {
       "id": "policy.dense_native_inference",
