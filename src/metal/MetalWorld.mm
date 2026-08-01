@@ -25,6 +25,7 @@
 #include <string>
 #include <system_error>
 #include <utility>
+#include <vector>
 
 #ifndef METALROBO_DEFAULT_METALLIB
 #define METALROBO_DEFAULT_METALLIB ""
@@ -5613,11 +5614,45 @@ MetalWorldDiagnostics ensureBufferArena(
     if (recommendedWorkingSet != 0u &&
         static_cast<std::uint64_t>(projectedBytes) >
             recommendedWorkingSet) {
+        std::vector<std::size_t> ranked;
+        ranked.reserve(kRawBufferCount);
+        for (std::size_t index = 0u;
+             index < kRawBufferCount;
+             ++index) {
+            if (proposed[index] != 0u) {
+                ranked.push_back(index);
+            }
+        }
+        std::ranges::sort(
+            ranked,
+            [&](const std::size_t a, const std::size_t b) {
+                return proposed[a] > proposed[b];
+            }
+        );
+        std::string message =
+            "persistent MetalWorld arena exceeds "
+            "device.recommendedMaxWorkingSetSize: required=" +
+            std::to_string(projectedBytes) +
+            " recommended=" +
+            std::to_string(recommendedWorkingSet) +
+            " largest=";
+        const std::size_t reported = std::min<std::size_t>(
+            ranked.size(),
+            6u
+        );
+        for (std::size_t rank = 0u; rank < reported; ++rank) {
+            if (rank != 0u) {
+                message += ",";
+            }
+            const std::size_t index = ranked[rank];
+            message += requirements.entries[index].label;
+            message += ":";
+            message += std::to_string(proposed[index]);
+        }
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::metalBufferFailure,
-            "persistent MetalWorld arena exceeds "
-            "device.recommendedMaxWorkingSetSize"
+            std::move(message)
         );
     }
 
