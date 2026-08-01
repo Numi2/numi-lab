@@ -1572,6 +1572,7 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         .depthJitterMeters = 0.15f,
         .depthNoiseSigmaMeters = 0.03f,
         .edgeFlickerProbability = 0.15f,
+        .curriculumCorruptionGain = 1.0f,
     };
     const std::uint32_t visualPixels =
         task.visual.width * task.visual.height;
@@ -1693,9 +1694,14 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     // gate and one-control-step dwell prevent the hopping exploit caused by
     // waiting for both feet or a settled pose before every launch.
     for (TaskRandomizationOperatorSpec& random : task.randomization) {
+        // The promoted visual actor was trained with the complete balance
+        // domain distribution. Preserve that distribution at level zero;
+        // progressive difficulty is owned by visual corruption and outcome
+        // promotion, not by removing actuator/state variability the parent
+        // policy relies on.
+        random.minimumCurriculumLevel = 0u;
         if (random.operation ==
                 TaskRandomizationOperator::sceneBodyEventImpact) {
-            random.minimumCurriculumLevel = 0u;
             random.parameters = {
                 3.14159265f, 0.02f, 2.0f, 0.10f,
             };

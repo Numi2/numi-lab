@@ -693,7 +693,9 @@ TaskCompileDiagnostics compileTaskProgram(
          pack.visual.depthNoiseSigmaMeters < 0.0f ||
          !finite(pack.visual.edgeFlickerProbability) ||
          pack.visual.edgeFlickerProbability < 0.0f ||
-         pack.visual.edgeFlickerProbability > 1.0f)) {
+         pack.visual.edgeFlickerProbability > 1.0f ||
+         !finite(pack.visual.curriculumCorruptionGain) ||
+         pack.visual.curriculumCorruptionGain < 0.0f)) {
         return reject(
             TaskCompileStatus::invalidPack,
             "visual",
@@ -2689,7 +2691,7 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.visual.nearDepthMeters,
         pack.visual.farDepthMeters,
         pack.visual.edgeFlickerProbability,
-        0.0f,
+        pack.visual.curriculumCorruptionGain,
     };
     staged->header.visualCorruption = {
         pack.visual.fullDropoutProbability,

@@ -182,6 +182,8 @@ typedef struct MR_ALIGN16 MRHybridMaskedDepthUniformsGPU {
     mr_float4 range;
     // Full/pixel dropout, coherent depth jitter, per-pixel noise sigma.
     mr_float4 corruption;
+    // Additional corruption gain at the final curriculum level.
+    mr_float4 curriculum;
 } MRHybridMaskedDepthUniformsGPU;
 
 #ifndef __METAL_VERSION__
@@ -212,5 +214,5 @@ static_assert(sizeof(MRHybridMeshClusterGPU) == 48u);
 static_assert(sizeof(MRHybridRenderUniformsGPU) == 288u);
 static_assert(sizeof(MRHybridObjectTrackBindingGPU) == 32u);
 static_assert(sizeof(MRHybridObjectTrackUniformsGPU) == 80u);
-static_assert(sizeof(MRHybridMaskedDepthUniformsGPU) == 112u);
+static_assert(sizeof(MRHybridMaskedDepthUniformsGPU) == 128u);
 #endif

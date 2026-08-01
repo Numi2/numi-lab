@@ -276,6 +276,8 @@ kernel void mr_hybrid_masked_depth_history(
               0.0f,
               1.0f
           );
+    const float corruptionScale =
+        1.0f + uniforms.curriculum.x * curriculumFraction;
     const uint ringSlot = episodeStep % uniforms.history.x;
     const uint historyBase =
         environment * uniforms.history.x * pixelCount;
@@ -290,7 +292,7 @@ kernel void mr_hybrid_masked_depth_history(
         episodeStep,
         0u,
         episodeIndex * 8u
-    ) < uniforms.corruption.x * curriculumFraction;
+    ) < min(uniforms.corruption.x * corruptionScale, 1.0f);
     const float coherentJitter =
         (2.0f * maskedDepthRandom(
             randomSeed,
@@ -298,7 +300,7 @@ kernel void mr_hybrid_masked_depth_history(
             episodeStep,
             0u,
             episodeIndex * 8u + 1u
-        ) - 1.0f) * uniforms.corruption.z * curriculumFraction;
+        ) - 1.0f) * uniforms.corruption.z * corruptionScale;
     for (uint pixel = lane; pixel < pixelCount; pixel += lanes) {
         const uint source = environment * pixelCount + pixel;
         const bool segmented = validity[source] != 0u &&
@@ -314,7 +316,7 @@ kernel void mr_hybrid_masked_depth_history(
                 episodeStep,
                 pixel,
                 episodeIndex * 8u + 2u
-            ) >= uniforms.corruption.y * curriculumFraction;
+            ) >= min(uniforms.corruption.y * corruptionScale, 1.0f);
         const float measured = depth[source];
         float metric = uniforms.range.y;
         if (accepted && measured > 0.0f && isfinite(measured)) {
@@ -340,7 +342,7 @@ kernel void mr_hybrid_masked_depth_history(
                 cos(6.283185307179586f * second);
             metric = clamp(
                 measured + coherentJitter +
-                    uniforms.corruption.w * curriculumFraction * gaussian,
+                    uniforms.corruption.w * corruptionScale * gaussian,
                 uniforms.range.x,
                 uniforms.range.y
             );
@@ -384,7 +386,7 @@ kernel void mr_hybrid_masked_depth_history(
                     episodeStep,
                     pixel,
                     episodeIndex * 8u + 5u
-                ) < uniforms.range.w * curriculumFraction) {
+                ) < min(uniforms.range.w * corruptionScale, 1.0f)) {
                 metric = clamp(
                     neighborDepth + coherentJitter,
                     uniforms.range.x,
@@ -417,11 +419,8 @@ kernel void mr_hybrid_masked_depth_history(
     };
     for (uint pixel = lane; pixel < pixelCount; pixel += lanes) {
         for (uint frame = 0u; frame < uniforms.history.y; ++frame) {
-            const uint progressiveOffset = uint(round(
-                float(sparseOffsets[frame]) * curriculumFraction
-            ));
             const uint offset = min(
-                progressiveOffset,
+                sparseOffsets[frame],
                 episodeStep
             );
             const uint sourceSlot =

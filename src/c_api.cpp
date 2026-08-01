@@ -1424,6 +1424,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         trackerConfig.maskedDepthFarMeters = taskHeader.visualRange.y;
         trackerConfig.maskedDepthEdgeFlickerProbability =
             taskHeader.visualRange.z;
+        trackerConfig.maskedDepthCurriculumCorruptionGain =
+            taskHeader.visualRange.w;
         trackerConfig.maskedDepthFullDropoutProbability =
             taskHeader.visualCorruption.x;
         trackerConfig.maskedDepthPixelDropoutProbability =

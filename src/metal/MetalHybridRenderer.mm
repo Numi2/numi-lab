@@ -7508,6 +7508,12 @@ bool MetalHybridObjectTracker::encodeObservation(
                 state->config.maskedDepthJitterMeters,
                 state->config.maskedDepthNoiseSigmaMeters,
             },
+            {
+                state->config.maskedDepthCurriculumCorruptionGain,
+                0.0f,
+                0.0f,
+                0.0f,
+            },
         };
         id<MTLComputeCommandEncoder> mask =
             [command computeCommandEncoder];

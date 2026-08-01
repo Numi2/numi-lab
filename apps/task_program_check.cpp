@@ -587,6 +587,7 @@ int main() {
             compiledDodge.task.header().visualRange.x != 0.1f ||
             compiledDodge.task.header().visualRange.y != 5.0f ||
             compiledDodge.task.header().visualRange.z != 0.15f ||
+            compiledDodge.task.header().visualRange.w != 1.0f ||
             compiledDodge.task.header().visualCorruption.x != 0.02f ||
             compiledDodge.task.header().visualCorruption.y != 0.10f ||
             compiledDodge.task.header().visualCorruption.z != 0.15f ||

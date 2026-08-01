@@ -248,6 +248,10 @@ struct TaskVisualProgram {
     float depthJitterMeters = 0.0f;
     float depthNoiseSigmaMeters = 0.0f;
     float edgeFlickerProbability = 0.0f;
+    // Additional corruption applied at the final curriculum level. Zero
+    // preserves the authored observation distribution at every level; one
+    // doubles dropout, jitter, noise, and edge flicker at the final level.
+    float curriculumCorruptionGain = 0.0f;
 };
 
 // Privileged training-time threat analysis. The compiler resolves the

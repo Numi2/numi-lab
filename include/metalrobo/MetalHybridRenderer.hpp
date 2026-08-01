@@ -351,6 +351,7 @@ struct MetalHybridObjectTrackerConfig {
     float maskedDepthJitterMeters = 0.0f;
     float maskedDepthNoiseSigmaMeters = 0.0f;
     float maskedDepthEdgeFlickerProbability = 0.0f;
+    float maskedDepthCurriculumCorruptionGain = 0.0f;
 };
 
 // Reduces rendered metric depth and instance identity directly into the

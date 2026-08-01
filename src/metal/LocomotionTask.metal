@@ -2153,25 +2153,8 @@ kernel void mr_locomotion_task_observe(
                     );
                 }
                 if (program.projectile.y > 0.0f) {
-                    const bool progressiveProjectile =
-                        (program.schedule.w &
-                         MR_TASK_PROGRAM_PROJECTILE_OUTCOME_CURRICULUM) != 0u;
-                    const float difficulty = progressiveProjectile &&
-                            program.schedule.z > 1u
-                        ? clamp(
-                              float(state.episode.z) /
-                                  float(program.schedule.z - 1u),
-                              0.0f,
-                              1.0f
-                          )
-                        : 1.0f;
                     const float targetRadius =
-                        program.projectileGravity.w * difficulty;
-                    const float targetHeightCenter = 0.5f *
-                        (program.projectile.z + program.projectile.w);
-                    const float targetHeightHalfRange = 0.5f *
-                        (program.projectile.w - program.projectile.z) *
-                        difficulty;
+                        program.projectileGravity.w;
                     const float3 target = float3(
                         sourceQ[qBase + program.root.z] + randomRange(
                             dispatch,
@@ -2197,8 +2180,8 @@ kernel void mr_locomotion_task_observe(
                             state.episode.y,
                             0u,
                             4098u + impact * 4u,
-                            targetHeightCenter - targetHeightHalfRange,
-                            targetHeightCenter + targetHeightHalfRange
+                            program.projectile.z,
+                            program.projectile.w
                         )
                     );
                     const float horizontalSpeed = randomRange(
@@ -2208,11 +2191,7 @@ kernel void mr_locomotion_task_observe(
                         0u,
                         4099u + impact * 4u,
                         program.projectile.x,
-                        mix(
-                            program.projectile.x,
-                            program.projectile.y,
-                            difficulty
-                        )
+                        program.projectile.y
                     );
                     const float3 delta = target - scheduled.position.xyz;
                     const float flightSeconds = max(
