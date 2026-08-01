@@ -203,6 +203,95 @@ kernel void mr_hybrid_reduce_object_tracks(
         }
     }
 }
+
+kernel void mr_hybrid_masked_depth_history(
+    device const float* depth [[buffer(0)]],
+    device const uint4* identities [[buffer(1)]],
+    device const uint* validity [[buffer(2)]],
+    device const uint* acceptedInstances [[buffer(3)]],
+    device float* depthHistory [[buffer(4)]],
+    device const uint* resetMasks [[buffer(5)]],
+    device float* actorHistory [[buffer(6)]],
+    device float* actorObservations [[buffer(7)]],
+    constant MRHybridMaskedDepthUniformsGPU& uniforms [[buffer(8)]],
+    const uint environment [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_threadgroup]],
+    const uint lanes [[threads_per_threadgroup]]
+) {
+    const uint pixelCount = uniforms.counts.y * uniforms.counts.z;
+    if (environment >= uniforms.counts.x || pixelCount == 0u ||
+        uniforms.history.x == 0u || uniforms.history.y == 0u ||
+        uniforms.layout.x == 0u || uniforms.layout.y == 0u ||
+        !(uniforms.range.y > uniforms.range.x)) {
+        return;
+    }
+    const uint ringSlot = uniforms.layout.z % uniforms.history.x;
+    const uint historyBase =
+        environment * uniforms.history.x * pixelCount;
+    const uint resetIndex =
+        uniforms.layout.z * uniforms.layout.w + environment;
+    const bool reset = resetMasks[resetIndex] != 0u;
+    for (uint pixel = lane; pixel < pixelCount; pixel += lanes) {
+        const uint source = environment * pixelCount + pixel;
+        bool accepted = false;
+        if (validity[source] != 0u) {
+            const uint instance = identities[source].y;
+            for (uint index = 0u; index < uniforms.counts.w; ++index) {
+                accepted = accepted || acceptedInstances[index] == instance;
+            }
+        }
+        const float measured = depth[source];
+        const float metric = accepted && measured > 0.0f && isfinite(measured)
+            ? clamp(measured, uniforms.range.x, uniforms.range.y)
+            : uniforms.range.y;
+        const float normalized =
+            (metric - uniforms.range.x) * uniforms.range.z;
+        if (reset) {
+            for (uint slot = 0u; slot < uniforms.history.x; ++slot) {
+                depthHistory[historyBase + slot * pixelCount + pixel] =
+                    normalized;
+            }
+        } else {
+            depthHistory[
+                historyBase + ringSlot * pixelCount + pixel
+            ] = normalized;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+
+    const ulong actorOutputOffset =
+        (ulong(uniforms.output.y) << 32u) | ulong(uniforms.output.x);
+    const uint sparseOffsets[4] = {
+        uniforms.frameOffsets.x,
+        uniforms.frameOffsets.y,
+        uniforms.frameOffsets.z,
+        uniforms.frameOffsets.w,
+    };
+    for (uint pixel = lane; pixel < pixelCount; pixel += lanes) {
+        for (uint frame = 0u; frame < uniforms.history.y; ++frame) {
+            const uint offset = min(
+                sparseOffsets[frame],
+                uniforms.layout.z
+            );
+            const uint sourceSlot =
+                (ringSlot + uniforms.history.x -
+                 (offset % uniforms.history.x)) % uniforms.history.x;
+            const float value = depthHistory[
+                historyBase + sourceSlot * pixelCount + pixel
+            ];
+            for (uint actorFrame = 0u;
+                 actorFrame < uniforms.layout.y;
+                 ++actorFrame) {
+                const uint destination =
+                    environment * uniforms.layout.x * uniforms.layout.y +
+                    actorFrame * uniforms.layout.x + uniforms.history.z +
+                    frame * pixelCount + pixel;
+                actorHistory[destination] = value;
+                actorObservations[actorOutputOffset + destination] = value;
+            }
+        }
+    }
+}
 using namespace raytracing;
 
 constant uint kLiveCurrent = 1u << 0u;

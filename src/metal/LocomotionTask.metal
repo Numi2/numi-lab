@@ -544,6 +544,11 @@ inline float cleanObservation(
         value = relativeVelocity[operation.source.z - 4u];
         break;
     }
+    case MR_TASK_OBSERVE_MASKED_DEPTH:
+        // Filled by the attached Visual Presentation device program after
+        // the physics-authored observation pass and before policy inference.
+        value = 0.0f;
+        break;
     default:
         value = 0.0f;
         break;
@@ -2010,6 +2015,8 @@ kernel void mr_locomotion_task_complete(
         );
     device const uint* contactMembers =
         taskTable<uint>(arena, program.offsets1.x);
+    device const float* contactMemberRadii =
+        taskTable<float>(arena, program.offsets3.w);
     device const MRTaskIndexGroupGPU* jointGroups =
         taskTable<MRTaskIndexGroupGPU>(
             arena,
@@ -2748,6 +2755,12 @@ kernel void mr_locomotion_task_complete(
                 const uint bodyIndex = contactMembers[
                     protectedGroup.members.x + local
                 ];
+                const float linkRadius = contactMemberRadii[
+                    protectedGroup.members.x + local
+                ];
+                if (!(linkRadius > 0.0f)) {
+                    continue;
+                }
                 const MRBodyStateGPU link = bodyStates[
                     bodyBase + bodyIndex
                 ];
@@ -2755,7 +2768,8 @@ kernel void mr_locomotion_task_complete(
                     projectile.position.xyz - link.position.xyz;
                 const float distance = max(length(relative), 1.0e-6f);
                 const float clearance =
-                    distance - operation.parameters.z;
+                    distance -
+                    (linkRadius + operation.parameters.z);
                 const float closingRate = dot(
                     relative,
                     projectileVelocity -

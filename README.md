@@ -99,6 +99,19 @@ velocity, and launch time. In an identical 8-environment, 500-step evaluation:
 These are simulator results. The trained experimental policy artifact is not
 currently bundled in the repository.
 
+### Perceptive dodge path
+
+The G1 dodge TaskPack now exposes only deployable proprioception plus four
+ball-only 16x9 masked-depth frames at sparse offsets `0, 3, 8, 18`. Authored
+Visual Presentation instance IDs perform the mask on Metal; depth history,
+normalization, reset, physics, reward, and inference stay device-resident.
+Exact ball tracks are critic-only. Link-CBF shaping uses compiled collision
+envelopes for every collidable robot link and each authored projectile radius.
+
+The native task and visual kernels are qualified on Apple M4. No trained dodge
+policy or G1/ball visual packs are bundled yet, so this is an implemented
+training path—not a claimed dodge result.
+
 ### Deliberately destructive test
 
 ![G1 struck by light balls followed by 1 through 8 kg spheres](docs/media/g1-twelve-ball-escalation.gif)

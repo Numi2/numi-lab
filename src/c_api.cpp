@@ -921,12 +921,27 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     std::map<std::uint32_t, std::uint32_t> trackedOffsets;
     std::map<std::uint32_t, float> positionScales;
     std::map<std::uint32_t, float> velocityScales;
+    std::unordered_set<std::uint32_t> trackedSceneBodies;
+    std::uint32_t maskedDepthOffset = MR_INVALID_INDEX;
+    std::uint32_t maskedDepthCount = 0u;
     const auto actorOperators = handle.taskProgram.actorOperators();
     for (std::uint32_t offset = 0u;
          offset < actorOperators.size();
          ++offset) {
         const MRTaskObservationOperatorGPU& operation =
             actorOperators[offset];
+        if (operation.source.x == MR_TASK_OBSERVE_MASKED_DEPTH) {
+            if (maskedDepthOffset == MR_INVALID_INDEX) {
+                maskedDepthOffset = offset;
+            }
+            if (offset != maskedDepthOffset + operation.source.z) {
+                throw std::logic_error(
+                    "compiled masked-depth actor slots are not contiguous"
+                );
+            }
+            ++maskedDepthCount;
+            continue;
+        }
         if (operation.source.x != MR_TASK_OBSERVE_OBJECT_TRACK) {
             continue;
         }
@@ -937,6 +952,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         }
         if (operation.source.z == 0u) {
             trackedOffsets.emplace(operation.source.y, offset);
+            trackedSceneBodies.insert(operation.source.y);
         } else if (operation.source.z == 1u) {
             positionScales.emplace(
                 operation.source.y,
@@ -949,9 +965,32 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             );
         }
     }
-    if (trackedOffsets.empty()) {
+    for (const MRTaskObservationOperatorGPU& operation :
+         handle.taskProgram.criticOperators()) {
+        if (operation.source.x == MR_TASK_OBSERVE_OBJECT_TRACK) {
+            if (operation.source.y >= sceneIndices.size()) {
+                throw std::logic_error(
+                    "compiled critic object-track scene index is invalid"
+                );
+            }
+            trackedSceneBodies.insert(operation.source.y);
+        }
+    }
+    const MRTaskProgramHeaderGPU& taskHeader =
+        handle.taskProgram.header();
+    const std::uint64_t expectedMaskedDepth =
+        static_cast<std::uint64_t>(taskHeader.visualLayout.x) *
+        taskHeader.visualLayout.y * taskHeader.visualLayout.z;
+    if ((maskedDepthCount != 0u || expectedMaskedDepth != 0u) &&
+        (maskedDepthCount != expectedMaskedDepth ||
+         maskedDepthOffset == MR_INVALID_INDEX)) {
         throw std::invalid_argument(
-            "TaskPack has no object-track actor observations"
+            "TaskPack masked-depth actor layout is incomplete"
+        );
+    }
+    if (trackedOffsets.empty() && maskedDepthCount == 0u) {
+        throw std::invalid_argument(
+            "TaskPack has no device visual actor observations"
         );
     }
 
@@ -984,7 +1023,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         const std::uint32_t body = sceneIndices[local];
         const std::string& id = handle.model.bodyNames[body];
         const std::uint32_t motion = handle.model.bodies[body].motionType;
-        const bool tracked = trackedOffsets.contains(local);
+        const bool tracked = trackedSceneBodies.contains(local);
         const std::uint32_t role = tracked && manipulatedAsset.empty()
             ? MR_WORLD_ASSET_MANIPULATED
             : motion == MR_MOTION_STATIC
@@ -1172,7 +1211,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 );
             const auto local = std::ranges::find(sceneIndices, body);
             if (local != sceneIndices.end() &&
-                trackedOffsets.contains(
+                trackedSceneBodies.contains(
                     static_cast<std::uint32_t>(
                         local - sceneIndices.begin()
                     )
@@ -1299,6 +1338,36 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             .velocityScale = velocityScales[sceneIndex],
             .minimumVisiblePixels = config.minimum_visible_pixels,
         });
+    }
+    if (maskedDepthCount != 0u) {
+        trackerConfig.maskedDepthWidth = taskHeader.visualLayout.x;
+        trackerConfig.maskedDepthHeight = taskHeader.visualLayout.y;
+        trackerConfig.maskedDepthActorFrameOffset = maskedDepthOffset;
+        trackerConfig.maskedDepthNearMeters = taskHeader.visualRange.x;
+        trackerConfig.maskedDepthFarMeters = taskHeader.visualRange.y;
+        const std::array offsets{
+            taskHeader.visualHistory.x,
+            taskHeader.visualHistory.y,
+            taskHeader.visualHistory.z,
+            taskHeader.visualHistory.w,
+        };
+        trackerConfig.maskedDepthFrameOffsets.assign(
+            offsets.begin(),
+            offsets.begin() + taskHeader.visualLayout.z
+        );
+        for (const std::uint32_t sceneIndex : trackedSceneBodies) {
+            const std::string& assetId =
+                handle.model.bodyNames[sceneIndices[sceneIndex]];
+            const auto instance = trackedInstances.find(assetId);
+            if (instance == trackedInstances.end()) {
+                throw std::invalid_argument(
+                    "every masked-depth object requires an authored visual binding"
+                );
+            }
+            trackerConfig.maskedDepthInstanceIds.push_back(
+                instance->second
+            );
+        }
     }
     const auto trackerStatus = runtime->tracker.compile(
         runtime->renderer,

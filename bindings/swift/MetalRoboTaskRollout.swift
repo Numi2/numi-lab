@@ -289,9 +289,9 @@ public struct MetalRoboTaskVisualObservationConfiguration:
             cameraPosition: SIMD3(0.0, 0.0, 0.28),
             // Visual camera +z looks along the torso's local +x axis.
             cameraOrientation: SIMD4(0.0, rootHalf, 0.0, rootHalf),
-            width: 160,
-            height: 120,
-            minimumVisiblePixels: 4
+            width: 16,
+            height: 9,
+            minimumVisiblePixels: 1
         )
     }
 }

@@ -93,7 +93,8 @@ LearningPackResult validateTaskArtifact(
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
-        !countFits(pack.terrain.resetTranslations.size())) {
+        !countFits(pack.terrain.resetTranslations.size()) ||
+        !countFits(pack.visual.frameOffsets.size())) {
         return fail(
             LearningPackStatus::capacityOverflow,
             "TaskPack table count exceeds the 32-bit artifact boundary"
@@ -829,6 +830,11 @@ std::vector<std::byte> serializeTask(
     writer.string(pack.terrain.body);
     writer.vector(pack.terrain.sampleOffsets);
     writer.vector(pack.terrain.resetTranslations);
+    writer.pod(pack.visual.width);
+    writer.pod(pack.visual.height);
+    writer.vector(pack.visual.frameOffsets);
+    writer.pod(pack.visual.nearDepthMeters);
+    writer.pod(pack.visual.farDepthMeters);
     writer.pod(pack.maximumEpisodeSteps);
     writer.pod(pack.maximumActionDelaySteps);
     writer.pod(pack.maximumObservationDelaySteps);
@@ -955,6 +961,11 @@ bool deserializeTask(
         !reader.string(pack.terrain.body) ||
         !reader.vector(pack.terrain.sampleOffsets) ||
         !reader.vector(pack.terrain.resetTranslations) ||
+        !reader.pod(pack.visual.width) ||
+        !reader.pod(pack.visual.height) ||
+        !reader.vector(pack.visual.frameOffsets) ||
+        !reader.pod(pack.visual.nearDepthMeters) ||
+        !reader.pod(pack.visual.farDepthMeters) ||
         !reader.pod(pack.maximumEpisodeSteps) ||
         !reader.pod(pack.maximumActionDelaySteps) ||
         !reader.pod(pack.maximumObservationDelaySteps) ||

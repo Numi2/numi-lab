@@ -110,10 +110,12 @@ POSSIBILITY OF SUCH DAMAGE.
 The native projectile-dodge TaskPack design was informed by
 `lzyang2000/perceptive_cbf_rl` (PAC-MAN), including its perception-conditioned
 actor, privileged per-link clearance shaping, intermittent throws, and
-ball-free standing anchors. MetalRobo implements these ideas independently in
-its generic TaskIR and Metal runtime; no MuJoCo Warp, PyTorch, policy weights,
-or motion assets are redistributed. The upstream repository is available
-under the MIT License at
+ball-free standing anchors. Its public deployment contract also informed the
+16x9 ball-only masked-depth input, 0.1--5.0 m normalization, and sparse frame
+offsets 0, 3, 8, and 18. MetalRobo implements these ideas independently in its
+generic TaskIR and Metal runtime; no MuJoCo Warp, PyTorch, policy weights, or
+motion assets are redistributed. The upstream repository is available under
+the MIT License at
 <https://github.com/lzyang2000/perceptive_cbf_rl>.
 
 ## Studio Small 03 HDR environment

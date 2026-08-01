@@ -151,6 +151,14 @@ overwrites compiled TaskPack observation slots before policy inference. Live
 camera and root poses come from device buffers rather than a static camera
 approximation. One cooperative threadgroup reduces each environment/object
 track and temporal track state remains on the GPU.
+The same adapter can publish a TaskPack-authored ball-only masked-depth
+contract. Exact authored instance identities select pixels, invalid and
+non-selected pixels become calibrated far depth, and a device-resident ring
+publishes sparse temporal offsets directly into actor slots. The bundled G1
+dodge task uses a 16x9 plane normalized over 0.1--5.0 m at offsets 0, 3, 8,
+and 18 control steps. Object tracks remain critic-only for this task. Reset
+fills the complete depth ring from the first accepted post-reset frame, so no
+visual belief crosses episode boundaries.
 `MetalRoboTaskRolloutContext.attachVisualObservation` compiles authored pack
 references, a body-bound camera, the matching `WorldFamily`, and this tracker
 before resident initialization. Explicit rigid-body pack bindings keep moving

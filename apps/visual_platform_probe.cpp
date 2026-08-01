@@ -452,6 +452,19 @@ int main() {
             .velocityScale = 1.0f,
             .minimumVisiblePixels = 1u,
         });
+        const metalrobo::MetalHybridRendererLayout rendererLayout =
+            renderer.layout();
+        const std::uint32_t visualPixels =
+            rendererLayout.width * rendererLayout.height;
+        trackerConfig.maskedDepthInstanceIds = {
+            observations[0].identities[visibleIndex].y,
+        };
+        trackerConfig.maskedDepthWidth = rendererLayout.width;
+        trackerConfig.maskedDepthHeight = rendererLayout.height;
+        trackerConfig.maskedDepthActorFrameOffset = 7u;
+        trackerConfig.maskedDepthFrameOffsets = {0u, 1u};
+        trackerConfig.maskedDepthNearMeters = 0.1f;
+        trackerConfig.maskedDepthFarMeters = 5.0f;
         require(
             tracker.compile(renderer, worlds, std::move(trackerConfig)),
             "device object tracker compile"
@@ -469,7 +482,7 @@ int main() {
             newBufferWithBytes:bodyStates.data()
                          length:bodyBytes
                         options:MTLResourceStorageModeShared];
-        constexpr std::uint32_t kTrackWidth = 7u;
+        const std::uint32_t kTrackWidth = 7u + 2u * visualPixels;
         const std::size_t trackElements =
             kEnvironmentCount * kTrackWidth;
         id<MTLBuffer> resetBuffer = [device
@@ -533,6 +546,29 @@ int main() {
                     }
                 ),
             "device object tracker did not publish a finite visible track"
+        );
+        const float* currentDepth = tracked + 7u;
+        const float* previousDepth = currentDepth + visualPixels;
+        require(
+            std::all_of(
+                currentDepth,
+                previousDepth + visualPixels,
+                [](const float value) {
+                    return std::isfinite(value) &&
+                        value >= 0.0f && value <= 1.0f;
+                }
+            ) &&
+            std::any_of(
+                currentDepth,
+                currentDepth + visualPixels,
+                [](const float value) { return value < 1.0f; }
+            ) &&
+            std::equal(
+                currentDepth,
+                currentDepth + visualPixels,
+                previousDepth
+            ),
+            "device masked-depth reset history is invalid"
         );
         auto* deviceBodies = static_cast<MRBodyStateGPU*>(
             bodyBuffer.contents

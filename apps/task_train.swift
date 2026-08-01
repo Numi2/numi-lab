@@ -291,6 +291,13 @@ private struct Options {
                 "The bundled visual preset requires --task ball-recovery or ball-dodge."
             )
         }
+        if unitreeG1Task == .ballDodge &&
+            g1VisualPackDirectory == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Ball-dodge training requires authored G1 and ball Visual Presentation packs."
+            )
+        }
         let ppoValues = [
             learningRate,
             clipRatio,

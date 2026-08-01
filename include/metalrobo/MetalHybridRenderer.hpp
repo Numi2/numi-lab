@@ -330,6 +330,13 @@ struct MetalHybridObjectTrackerConfig {
     // current position/confidence measurement.
     float maximumTrackSpeedMetersPerSecond = 1.0e30f;
     std::vector<MetalHybridObjectTrackBinding> bindings;
+    std::vector<std::uint32_t> maskedDepthInstanceIds;
+    std::uint32_t maskedDepthWidth = 0u;
+    std::uint32_t maskedDepthHeight = 0u;
+    std::uint32_t maskedDepthActorFrameOffset = 0u;
+    std::vector<std::uint32_t> maskedDepthFrameOffsets;
+    float maskedDepthNearMeters = 0.1f;
+    float maskedDepthFarMeters = 5.0f;
 };
 
 // Reduces rendered metric depth and instance identity directly into the

@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 13u
+#define MR_TASK_PROGRAM_ABI_VERSION 14u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -38,6 +38,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     // velocity xyz. Simulation supplies the contract natively; deployment
     // may populate the same slots from an RGB-D perception provider.
     MR_TASK_OBSERVE_OBJECT_TRACK = 16u,
+    // Deployable ball-only metric depth. Each scalar component addresses one
+    // row-major pixel in one sparse temporal frame declared by TaskPack.
+    // The native visual stage overwrites these zero-valued physics slots.
+    MR_TASK_OBSERVE_MASKED_DEPTH = 17u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -164,7 +168,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // termination operators, randomization operators, bias slots,
     // terrain-sample offsets.
     mr_uint4 counts2;
-    // Impact events and reserved compiled-table counts.
+    // Impact events, contact-member radii, and reserved table counts.
     mr_uint4 counts3;
     // actor frame, history length, contact metric count, delay-state count.
     mr_uint4 layout;
@@ -192,7 +196,8 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // termination operators, randomization operators, bias specs, terrain
     // samples.
     mr_uint4 offsets2;
-    // Terrain reset profiles, command curriculum, impact events, reserved.
+    // Terrain reset profiles, command curriculum, impact events, and
+    // contact-member radii.
     mr_uint4 offsets3;
     mr_u64 taskFingerprint;
     mr_u64 worldFingerprint;
@@ -200,6 +205,12 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 articulation;
     // Root link-frame origin relative to the root COM, in root body axes.
     mr_float4 rootReference;
+    // Masked-depth width, height, sparse frame count, maximum frame offset.
+    mr_uint4 visualLayout;
+    // Sparse control-step offsets, newest first. Unused lanes are zero.
+    mr_uint4 visualHistory;
+    // Near depth, far depth, and reserved visual scalars.
+    mr_float4 visualRange;
 } MRTaskProgramHeaderGPU;
 
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
@@ -322,7 +333,7 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 320u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 368u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);

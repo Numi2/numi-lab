@@ -167,6 +167,21 @@ typedef struct MR_ALIGN16 MRHybridObjectTrackUniformsGPU {
     mr_float4 timing;
 } MRHybridObjectTrackUniformsGPU;
 
+typedef struct MR_ALIGN16 MRHybridMaskedDepthUniformsGPU {
+    // environments, width, height, accepted instance count.
+    mr_uint4 counts;
+    // actor frame, actor history, control step, reset-mask stride.
+    mr_uint4 layout;
+    // actor observation element offset low/high, reserved, reserved.
+    mr_uint4 output;
+    // ring capacity, sparse frame count, first actor slot, reserved.
+    mr_uint4 history;
+    // Sparse control-step offsets, newest first.
+    mr_uint4 frameOffsets;
+    // Near depth, far depth, inverse range, reserved.
+    mr_float4 range;
+} MRHybridMaskedDepthUniformsGPU;
+
 #ifndef __METAL_VERSION__
 #include <cstddef>
 #include <type_traits>
@@ -195,4 +210,5 @@ static_assert(sizeof(MRHybridMeshClusterGPU) == 48u);
 static_assert(sizeof(MRHybridRenderUniformsGPU) == 288u);
 static_assert(sizeof(MRHybridObjectTrackBindingGPU) == 32u);
 static_assert(sizeof(MRHybridObjectTrackUniformsGPU) == 80u);
+static_assert(sizeof(MRHybridMaskedDepthUniformsGPU) == 96u);
 #endif

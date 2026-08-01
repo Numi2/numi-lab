@@ -35,6 +35,7 @@ enum class TaskObservationSource : std::uint32_t {
     gaitPhase = MR_TASK_OBSERVE_GAIT_PHASE,
     recoveryEvent = MR_TASK_OBSERVE_RECOVERY_EVENT,
     objectTrack = MR_TASK_OBSERVE_OBJECT_TRACK,
+    maskedDepth = MR_TASK_OBSERVE_MASKED_DEPTH,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -221,6 +222,14 @@ struct TaskTerrainProgram {
     std::vector<mr_float4> resetTranslations;
 };
 
+struct TaskVisualProgram {
+    std::uint32_t width = 0u;
+    std::uint32_t height = 0u;
+    std::vector<std::uint32_t> frameOffsets;
+    float nearDepthMeters = 0.1f;
+    float farDepthMeters = 5.0f;
+};
+
 // Authored, robot-independent task artifact. Names are resolved only by
 // compileTaskProgram; the runtime consumes no strings.
 struct TaskPack {
@@ -246,6 +255,7 @@ struct TaskPack {
     TaskCommandProgram commands;
     TaskPushProgram pushes;
     TaskTerrainProgram terrain;
+    TaskVisualProgram visual;
     std::uint32_t maximumEpisodeSteps = 1000u;
     std::uint32_t maximumActionDelaySteps = 0u;
     std::uint32_t maximumObservationDelaySteps = 0u;
@@ -313,6 +323,8 @@ public:
     contactGroups() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t>
     contactMembers() const noexcept;
+    [[nodiscard]] std::span<const float>
+    contactMemberRadii() const noexcept;
     [[nodiscard]] std::span<const MRTaskIndexGroupGPU>
     jointGroups() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t>

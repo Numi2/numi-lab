@@ -6914,8 +6914,11 @@ struct MetalHybridObjectTracker::State {
     MetalHybridObjectTrackerConfig config;
     __strong id<MTLDevice> device = nil;
     __strong id<MTLComputePipelineState> pipeline = nil;
+    __strong id<MTLComputePipelineState> maskedDepthPipeline = nil;
     __strong id<MTLBuffer> bindings = nil;
     __strong id<MTLBuffer> history = nil;
+    __strong id<MTLBuffer> maskedDepthInstances = nil;
+    __strong id<MTLBuffer> maskedDepthHistory = nil;
     MetalHybridRendererLayout rendererLayout{};
     bool compiled = false;
 };
@@ -6950,7 +6953,8 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
             config.maximumActorHistoryLength == 0u ||
             config.cameraIndex >= layout.sensorBindingCount ||
             config.rootBodyIndex >= layout.bodyCount ||
-            config.bindings.empty() ||
+            (config.bindings.empty() &&
+             config.maskedDepthInstanceIds.empty()) ||
             !std::isfinite(config.timestepSeconds) ||
             !(config.timestepSeconds > 0.0f) ||
             !std::isfinite(
@@ -6961,6 +6965,32 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
                 std::move(diagnostics),
                 MetalHybridRendererStatus::invalidConfiguration,
                 "object tracker configuration or compiled renderer is invalid"
+            );
+        }
+        const bool maskedDepth =
+            !config.maskedDepthInstanceIds.empty();
+        if (maskedDepth &&
+            (config.maskedDepthWidth != layout.width ||
+             config.maskedDepthHeight != layout.height ||
+             config.maskedDepthFrameOffsets.empty() ||
+             config.maskedDepthFrameOffsets.size() > 4u ||
+             config.maskedDepthFrameOffsets.front() != 0u ||
+             !std::ranges::is_sorted(
+                 config.maskedDepthFrameOffsets
+             ) ||
+             std::adjacent_find(
+                 config.maskedDepthFrameOffsets.begin(),
+                 config.maskedDepthFrameOffsets.end()
+             ) != config.maskedDepthFrameOffsets.end() ||
+             !std::isfinite(config.maskedDepthNearMeters) ||
+             !std::isfinite(config.maskedDepthFarMeters) ||
+             !(config.maskedDepthNearMeters > 0.0f) ||
+             !(config.maskedDepthFarMeters >
+               config.maskedDepthNearMeters))) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::invalidConfiguration,
+                "masked-depth dimensions, sparse offsets, or range are invalid"
             );
         }
         std::vector<MRHybridObjectTrackBindingGPU> bindings;
@@ -7009,10 +7039,37 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
                     describeError(error)
             );
         }
+        id<MTLFunction> maskedDepthFunction =
+            [renderer.state_->library
+                newFunctionWithName:@"mr_hybrid_masked_depth_history"];
+        id<MTLComputePipelineState> maskedDepthPipeline =
+            !maskedDepth
+            ? nil
+            : maskedDepthFunction == nil
+                ? nil
+                : [device
+                    newComputePipelineStateWithFunction:maskedDepthFunction
+                                                  error:&error];
+        if (maskedDepth && maskedDepthPipeline == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalPipelineFailure,
+                "could not create masked-depth history pipeline: " +
+                    describeError(error)
+            );
+        }
         id<MTLBuffer> bindingBuffer = [device
-            newBufferWithBytes:bindings.data()
-                       length:bindings.size() * sizeof(bindings.front())
-                      options:MTLResourceStorageModeShared];
+            newBufferWithLength:std::max<std::size_t>(
+                bindings.size() * sizeof(MRHybridObjectTrackBindingGPU),
+                kMinimumAllocationBytes
+            ) options:MTLResourceStorageModeShared];
+        if (!bindings.empty() && bindingBuffer != nil) {
+            std::memcpy(
+                bindingBuffer.contents,
+                bindings.data(),
+                bindings.size() * sizeof(bindings.front())
+            );
+        }
         const std::size_t historyRecords =
             static_cast<std::size_t>(config.capacity) *
             config.maximumActorHistoryLength * bindings.size() * 2u;
@@ -7022,7 +7079,30 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
                                     kMinimumAllocationBytes
                                 )
                          options:MTLResourceStorageModePrivate];
-        if (bindingBuffer == nil || history == nil) {
+        id<MTLBuffer> maskedDepthInstances = [device
+            newBufferWithLength:std::max<std::size_t>(
+                config.maskedDepthInstanceIds.size() * sizeof(std::uint32_t),
+                kMinimumAllocationBytes
+            ) options:MTLResourceStorageModeShared];
+        if (maskedDepth && maskedDepthInstances != nil) {
+            std::memcpy(
+                maskedDepthInstances.contents,
+                config.maskedDepthInstanceIds.data(),
+                config.maskedDepthInstanceIds.size() * sizeof(std::uint32_t)
+            );
+        }
+        const std::size_t maskedDepthValues = maskedDepth
+            ? static_cast<std::size_t>(config.capacity) *
+                config.maskedDepthWidth * config.maskedDepthHeight *
+                (config.maskedDepthFrameOffsets.back() + 1u)
+            : 0u;
+        id<MTLBuffer> maskedDepthHistory = [device
+            newBufferWithLength:std::max<std::size_t>(
+                maskedDepthValues * sizeof(float),
+                kMinimumAllocationBytes
+            ) options:MTLResourceStorageModePrivate];
+        if (bindingBuffer == nil || history == nil ||
+            maskedDepthInstances == nil || maskedDepthHistory == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalHybridRendererStatus::metalBufferFailure,
@@ -7043,6 +7123,9 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
         [clear fillBuffer:history
                     range:NSMakeRange(0u, history.length)
                     value:0u];
+        [clear fillBuffer:maskedDepthHistory
+                    range:NSMakeRange(0u, maskedDepthHistory.length)
+                    value:0u];
         [clear endEncoding];
         [command commit];
         [command waitUntilCompleted];
@@ -7058,8 +7141,11 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
         state_->config = std::move(config);
         state_->device = device;
         state_->pipeline = pipeline;
+        state_->maskedDepthPipeline = maskedDepthPipeline;
         state_->bindings = bindingBuffer;
         state_->history = history;
+        state_->maskedDepthInstances = maskedDepthInstances;
+        state_->maskedDepthHistory = maskedDepthHistory;
         state_->rendererLayout = layout;
         state_->compiled = true;
         diagnostics.layout = layout;
@@ -7085,7 +7171,8 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::reset() {
     try {
         if (state_ == nullptr || !state_->compiled ||
             state_->renderer == nullptr || state_->device == nil ||
-            state_->history == nil) {
+            state_->history == nil ||
+            state_->maskedDepthHistory == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalHybridRendererStatus::notCompiled,
@@ -7106,6 +7193,12 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::reset() {
         }
         [clear fillBuffer:state_->history
                     range:NSMakeRange(0u, state_->history.length)
+                    value:0u];
+        [clear fillBuffer:state_->maskedDepthHistory
+                    range:NSMakeRange(
+                        0u,
+                        state_->maskedDepthHistory.length
+                    )
                     value:0u];
         [clear endEncoding];
         [command commit];
@@ -7158,6 +7251,21 @@ bool MetalHybridObjectTracker::encodeObservation(
         if (binding.actorFrameOffset + 7u > pass.actorFrameSize) {
             return false;
         }
+    }
+    const bool maskedDepth =
+        !state->config.maskedDepthInstanceIds.empty();
+    const std::uint64_t maskedDepthValues =
+        static_cast<std::uint64_t>(
+            state->config.maskedDepthWidth
+        ) * state->config.maskedDepthHeight *
+        state->config.maskedDepthFrameOffsets.size();
+    if (maskedDepth &&
+        (state->config.maskedDepthActorFrameOffset +
+             maskedDepthValues > pass.actorFrameSize ||
+         state->maskedDepthPipeline == nil ||
+         state->maskedDepthInstances == nil ||
+         state->maskedDepthHistory == nil)) {
+        return false;
     }
     id<MTLCommandBuffer> command =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
@@ -7252,40 +7360,120 @@ bool MetalHybridObjectTracker::encodeObservation(
             0.0f,
         },
     };
-    id<MTLComputeCommandEncoder> reduce =
-        [command computeCommandEncoder];
-    if (reduce == nil) {
-        return false;
+    if (!state->config.bindings.empty()) {
+        id<MTLComputeCommandEncoder> reduce =
+            [command computeCommandEncoder];
+        if (reduce == nil) {
+            return false;
+        }
+        reduce.label = @"MetalRobo RGB-D object track reduction";
+        [reduce setComputePipelineState:state->pipeline];
+        const std::array<id<MTLBuffer>, 12u> buffers{{
+            depth,
+            identities,
+            validity,
+            state->bindings,
+            state->history,
+            (__bridge id<MTLBuffer>)pass.resetMasks,
+            (__bridge id<MTLBuffer>)pass.actorHistory,
+            (__bridge id<MTLBuffer>)pass.actorObservations,
+            (__bridge id<MTLBuffer>)pass.currentBodies,
+            cameraStates,
+            instanceHeaders,
+            sensorInstances,
+        }};
+        for (NSUInteger index = 0u; index < buffers.size(); ++index) {
+            [reduce setBuffer:buffers[index] offset:0u atIndex:index];
+        }
+        [reduce setBytes:&uniforms length:sizeof(uniforms) atIndex:12u];
+        const NSUInteger threads =
+            pass.environmentCount * state->config.bindings.size();
+        const NSUInteger width = std::min<NSUInteger>(
+            state->pipeline.maxTotalThreadsPerThreadgroup,
+            256u
+        );
+        [reduce dispatchThreadgroups:MTLSizeMake(threads, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+        [reduce endEncoding];
     }
-    reduce.label = @"MetalRobo RGB-D object track reduction";
-    [reduce setComputePipelineState:state->pipeline];
-    const std::array<id<MTLBuffer>, 12u> buffers{{
-        depth,
-        identities,
-        validity,
-        state->bindings,
-        state->history,
-        (__bridge id<MTLBuffer>)pass.resetMasks,
-        (__bridge id<MTLBuffer>)pass.actorHistory,
-        (__bridge id<MTLBuffer>)pass.actorObservations,
-        (__bridge id<MTLBuffer>)pass.currentBodies,
-        cameraStates,
-        instanceHeaders,
-        sensorInstances,
-    }};
-    for (NSUInteger index = 0u; index < buffers.size(); ++index) {
-        [reduce setBuffer:buffers[index] offset:0u atIndex:index];
+    if (maskedDepth) {
+        const auto& offsets =
+            state->config.maskedDepthFrameOffsets;
+        const std::uint32_t ringCapacity = offsets.back() + 1u;
+        const MRHybridMaskedDepthUniformsGPU depthUniforms{
+            {
+                pass.environmentCount,
+                state->config.maskedDepthWidth,
+                state->config.maskedDepthHeight,
+                static_cast<std::uint32_t>(
+                    state->config.maskedDepthInstanceIds.size()
+                ),
+            },
+            {
+                pass.actorFrameSize,
+                pass.actorHistoryLength,
+                pass.controlStep,
+                pass.environmentCount,
+            },
+            {
+                static_cast<std::uint32_t>(outputOffset),
+                static_cast<std::uint32_t>(outputOffset >> 32u),
+                0u,
+                0u,
+            },
+            {
+                ringCapacity,
+                static_cast<std::uint32_t>(offsets.size()),
+                state->config.maskedDepthActorFrameOffset,
+                0u,
+            },
+            {
+                offsets.size() > 0u ? offsets[0u] : 0u,
+                offsets.size() > 1u ? offsets[1u] : 0u,
+                offsets.size() > 2u ? offsets[2u] : 0u,
+                offsets.size() > 3u ? offsets[3u] : 0u,
+            },
+            {
+                state->config.maskedDepthNearMeters,
+                state->config.maskedDepthFarMeters,
+                1.0f /
+                    (state->config.maskedDepthFarMeters -
+                     state->config.maskedDepthNearMeters),
+                0.0f,
+            },
+        };
+        id<MTLComputeCommandEncoder> mask =
+            [command computeCommandEncoder];
+        if (mask == nil) {
+            return false;
+        }
+        mask.label = @"MetalRobo masked depth history";
+        [mask setComputePipelineState:state->maskedDepthPipeline];
+        const std::array<id<MTLBuffer>, 8u> buffers{{
+            depth,
+            identities,
+            validity,
+            state->maskedDepthInstances,
+            state->maskedDepthHistory,
+            (__bridge id<MTLBuffer>)pass.resetMasks,
+            (__bridge id<MTLBuffer>)pass.actorHistory,
+            (__bridge id<MTLBuffer>)pass.actorObservations,
+        }};
+        for (NSUInteger index = 0u; index < buffers.size(); ++index) {
+            [mask setBuffer:buffers[index] offset:0u atIndex:index];
+        }
+        [mask setBytes:&depthUniforms
+                length:sizeof(depthUniforms)
+               atIndex:8u];
+        const NSUInteger width = std::min<NSUInteger>(
+            state->maskedDepthPipeline.maxTotalThreadsPerThreadgroup,
+            256u
+        );
+        [mask dispatchThreadgroups:
+                MTLSizeMake(pass.environmentCount, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+        [mask endEncoding];
     }
-    [reduce setBytes:&uniforms length:sizeof(uniforms) atIndex:12u];
-    const NSUInteger threads =
-        pass.environmentCount * state->config.bindings.size();
-    const NSUInteger width = std::min<NSUInteger>(
-        state->pipeline.maxTotalThreadsPerThreadgroup,
-        256u
-    );
-    [reduce dispatchThreadgroups:MTLSizeMake(threads, 1u, 1u)
-        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
-    [reduce endEncoding];
     return true;
 }
 

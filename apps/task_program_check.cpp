@@ -566,25 +566,67 @@ int main() {
         if (!dodgeStatus.succeeded() ||
             compiledDodge.task.header().counts1.w != 25u ||
             compiledDodge.task.header().counts2.x != 3u ||
-            compiledDodge.task.layout().actorObservationSize != 140u ||
+            compiledDodge.task.layout().actorObservationSize != 674u ||
             compiledDodge.task.layout().criticObservationSize != 148u ||
-            compiledDodge.task.header().dynamics.z != 0.20f) {
+            compiledDodge.task.header().dynamics.z != 0.20f ||
+            compiledDodge.task.header().visualLayout.x != 16u ||
+            compiledDodge.task.header().visualLayout.y != 9u ||
+            compiledDodge.task.header().visualLayout.z != 4u ||
+            compiledDodge.task.header().visualLayout.w != 18u ||
+            compiledDodge.task.header().visualHistory.x != 0u ||
+            compiledDodge.task.header().visualHistory.y != 3u ||
+            compiledDodge.task.header().visualHistory.z != 8u ||
+            compiledDodge.task.header().visualHistory.w != 18u ||
+            compiledDodge.task.header().visualRange.x != 0.1f ||
+            compiledDodge.task.header().visualRange.y != 5.0f ||
+            compiledDodge.task.header().counts3.y !=
+                compiledDodge.task.contactMembers().size() ||
+            compiledDodge.task.contactMemberRadii().size() !=
+                compiledDodge.task.contactMembers().size()) {
             fail("G1 native projectile-dodge task is incomplete");
+        }
+        std::uint32_t collidableMembers = 0u;
+        for (const float radius :
+             compiledDodge.task.contactMemberRadii()) {
+            if (radius < 0.0f || !std::isfinite(radius)) {
+                fail("compiled contact-member envelope is invalid");
+            }
+            collidableMembers += radius > 0.0f ? 1u : 0u;
+        }
+        if (collidableMembers == 0u) {
+            fail("G1 dodge group has no collidable members");
         }
         std::uint32_t barriers = 0u;
         std::uint32_t misses = 0u;
+        std::uint32_t maskedDepth = 0u;
+        for (const MRTaskObservationOperatorGPU& operation :
+             compiledDodge.task.actorOperators()) {
+            maskedDepth += operation.source.x ==
+                MR_TASK_OBSERVE_MASKED_DEPTH ? 1u : 0u;
+            if (operation.source.x == MR_TASK_OBSERVE_OBJECT_TRACK) {
+                fail("G1 dodge actor contains privileged object tracks");
+            }
+        }
+        if (maskedDepth != 4u * 16u * 9u) {
+            fail("G1 dodge masked-depth stack is incomplete");
+        }
         for (const MRTaskRewardOperatorGPU& operation :
              compiledDodge.task.rewardOperators()) {
             if (operation.source.x ==
                     MR_TASK_REWARD_LINK_CLEARANCE_BARRIER) {
-                ++barriers;
+                const float expectedEnvelope =
+                    recoverySpheres[barriers].radius + 0.05f;
                 if (operation.source.y == MR_INVALID_INDEX ||
                     operation.source.z == MR_INVALID_INDEX ||
                     operation.parameters.y != 1.0f ||
-                    operation.parameters.z != 0.28f ||
+                    std::abs(
+                        operation.parameters.z - expectedEnvelope
+                    ) >
+                        1.0e-6f ||
                     operation.parameters.w != 2.0f) {
                     fail("compiled projectile link barrier changed");
                 }
+                ++barriers;
             } else if (operation.source.x ==
                        MR_TASK_REWARD_PROJECTILE_MISS) {
                 ++misses;

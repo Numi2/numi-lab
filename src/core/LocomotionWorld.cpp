@@ -1521,9 +1521,41 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
     task.id = "unitree_g1_ball_dodge";
     task.pushes.projectileStandingProbability = 0.20f;
 
+    // Deployment sees only ball-segmentation-masked depth. Preserve exact
+    // object tracks in the critic for asymmetric PPO, but remove them from
+    // the actor so privileged state cannot leak into the deployed policy.
+    std::erase_if(
+        task.actorFrame,
+        [](const TaskObservationOperatorSpec& observation) {
+            return observation.source ==
+                TaskObservationSource::objectTrack;
+        }
+    );
+    task.visual = {
+        .width = 16u,
+        .height = 9u,
+        .frameOffsets = {0u, 3u, 8u, 18u},
+        .nearDepthMeters = 0.1f,
+        .farDepthMeters = 5.0f,
+    };
+    const std::uint32_t visualPixels =
+        task.visual.width * task.visual.height;
+    for (std::uint32_t frame = 0u;
+         frame < task.visual.frameOffsets.size();
+         ++frame) {
+        for (std::uint32_t pixel = 0u;
+             pixel < visualPixels;
+             ++pixel) {
+            task.actorFrame.push_back({
+                .source = TaskObservationSource::maskedDepth,
+                .component = frame * visualPixels + pixel,
+            });
+        }
+    }
+
     // Dodge learning terminates on contact instead of asking the same actor
-    // to absorb the impact. Retain the identical deployable visual/proprio
-    // contract so a stable visual actor can initialize this skill exactly.
+    // to absorb the impact. The proprioceptive prefix stays compatible with
+    // the stable actor while masked depth extends its first layer.
     std::erase_if(
         task.rewards,
         [](const TaskRewardOperatorSpec& reward) {
@@ -1540,8 +1572,8 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
             .target = "locomotion_dynamic_sphere_" +
                 std::to_string(sphere),
             .weight = 0.27f,
-            // alpha, combined link/projectile safety radius, clip.
-            .parameters = {1.0f, 0.28f, 2.0f, 0.0f},
+            // alpha, margin beyond compiled collision envelopes, clip.
+            .parameters = {1.0f, 0.05f, 2.0f, 0.0f},
         });
     }
     task.rewards.push_back({

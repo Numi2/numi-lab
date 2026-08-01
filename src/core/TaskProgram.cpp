@@ -28,6 +28,7 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskObservationOperatorGPU> criticOperators;
     std::vector<MRTaskContactGroupGPU> contactGroups;
     std::vector<std::uint32_t> contactMembers;
+    std::vector<float> contactMemberRadii;
     std::vector<MRTaskIndexGroupGPU> jointGroups;
     std::vector<std::uint32_t> jointMembers;
     std::vector<MRTaskRewardOperatorGPU> rewardOperators;
@@ -398,6 +399,13 @@ CompiledTaskProgram::contactMembers() const noexcept {
         : std::span<const std::uint32_t>{};
 }
 
+std::span<const float>
+CompiledTaskProgram::contactMemberRadii() const noexcept {
+    return valid()
+        ? std::span<const float>{storage_->contactMemberRadii}
+        : std::span<const float>{};
+}
+
 std::span<const MRTaskIndexGroupGPU>
 CompiledTaskProgram::jointGroups() const noexcept {
     return valid()
@@ -631,6 +639,42 @@ TaskCompileDiagnostics compileTaskProgram(
             TaskCompileStatus::invalidPack,
             "task",
             "task identity, dimensions, timing, or scalar parameters are invalid"
+        );
+    }
+    const bool hasVisualProgram = pack.visual.width != 0u ||
+        pack.visual.height != 0u ||
+        !pack.visual.frameOffsets.empty();
+    if (hasVisualProgram &&
+        (pack.visual.width == 0u || pack.visual.height == 0u ||
+         pack.visual.frameOffsets.empty() ||
+         pack.visual.frameOffsets.size() > 4u ||
+         pack.visual.frameOffsets.front() != 0u ||
+         !std::ranges::is_sorted(pack.visual.frameOffsets) ||
+         std::adjacent_find(
+             pack.visual.frameOffsets.begin(),
+             pack.visual.frameOffsets.end()
+         ) !=
+             pack.visual.frameOffsets.end() ||
+         !finite(pack.visual.nearDepthMeters) ||
+         !finite(pack.visual.farDepthMeters) ||
+         !(pack.visual.nearDepthMeters > 0.0f) ||
+         !(pack.visual.farDepthMeters >
+           pack.visual.nearDepthMeters))) {
+        return reject(
+            TaskCompileStatus::invalidPack,
+            "visual",
+            "visual depth requires dimensions, one to four unique sorted offsets beginning at zero, and a finite positive range"
+        );
+    }
+    const std::uint64_t visualComponentCount =
+        static_cast<std::uint64_t>(pack.visual.width) *
+        pack.visual.height * pack.visual.frameOffsets.size();
+    if (visualComponentCount >
+        std::numeric_limits<std::uint32_t>::max()) {
+        return reject(
+            TaskCompileStatus::arithmeticOverflow,
+            "visual",
+            "visual observation layout exceeds the 32-bit task ABI"
         );
     }
     const std::array commandLower{
@@ -868,6 +912,32 @@ TaskCompileDiagnostics compileTaskProgram(
             resolvedMembers.begin(),
             resolvedMembers.end()
         );
+        for (const std::uint32_t body : resolvedMembers) {
+            float radius = 0.0f;
+            for (const MRShapeGPU& shape : model.shapes) {
+                if (shape.bodyIndex != body ||
+                    (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) != 0u) {
+                    continue;
+                }
+                const float offset = std::sqrt(
+                    shape.localPosition.x * shape.localPosition.x +
+                    shape.localPosition.y * shape.localPosition.y +
+                    shape.localPosition.z * shape.localPosition.z
+                );
+                radius = std::max(
+                    radius,
+                    offset + shape.contactRestAndBoundingRadius.z
+                );
+            }
+            if (radius < 0.0f || !finite(radius)) {
+                return reject(
+                    TaskCompileStatus::invalidWorld,
+                    model.bodyNames[body],
+                    "contact-group body has an invalid collision envelope"
+                );
+            }
+            staged->contactMemberRadii.push_back(radius);
+        }
         std::uint32_t referenceBody = resolvedMembers.front();
         if (!group.referenceBody.empty()) {
             bool ambiguous = false;
@@ -1141,6 +1211,19 @@ TaskCompileDiagnostics compileTaskProgram(
                 componentLimit = 7u;
                 break;
             }
+            case TaskObservationSource::maskedDepth:
+                if (!hasVisualProgram) {
+                    return reject(
+                        TaskCompileStatus::invalidPack,
+                        "visual",
+                        "masked-depth observation requires a TaskPack visual program"
+                    );
+                }
+                sourceIndex = 0u;
+                componentLimit = static_cast<std::uint32_t>(
+                    visualComponentCount
+                );
+                break;
             case TaskObservationSource::contactMetric: {
                 sourceIndex = namedGroup(
                     contactGroupIds,
@@ -1287,6 +1370,46 @@ TaskCompileDiagnostics compileTaskProgram(
     if (!observationStatus.succeeded()) {
         return observationStatus;
     }
+    if (hasVisualProgram) {
+        if (pack.actorHistoryLength != 1u ||
+            staged->actorOperators.size() < visualComponentCount) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "visual",
+                "sparse masked-depth history requires one task actor frame and a complete visual plane"
+            );
+        }
+        const std::size_t first =
+            staged->actorOperators.size() -
+            static_cast<std::size_t>(visualComponentCount);
+        for (std::uint32_t component = 0u;
+             component < visualComponentCount;
+             ++component) {
+            const MRTaskObservationOperatorGPU& operation =
+                staged->actorOperators[first + component];
+            if (operation.source.x != MR_TASK_OBSERVE_MASKED_DEPTH ||
+                operation.source.z != component) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    "visual",
+                    "masked-depth components must be the complete contiguous suffix of the actor frame"
+                );
+            }
+        }
+    }
+    if (std::ranges::any_of(
+            pack.critic,
+            [](const TaskObservationOperatorSpec& observation) {
+                return observation.source ==
+                    TaskObservationSource::maskedDepth;
+            }
+        )) {
+        return reject(
+            TaskCompileStatus::invalidPack,
+            "visual",
+            "masked depth is a deployable actor source; critics use explicit supervisory operators"
+        );
+    }
     observationStatus = compileObservations(
         pack.critic,
         staged->criticOperators
@@ -1309,6 +1432,7 @@ TaskCompileDiagnostics compileTaskProgram(
         }
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
         std::uint32_t targetIndex = MR_INVALID_INDEX;
+        mr_float4 compiledParameters = reward.parameters;
         switch (reward.operation) {
         case TaskRewardOperator::jointGroupPostureSquared:
         case TaskRewardOperator::jointGroupPostureAbsolute:
@@ -1371,9 +1495,30 @@ TaskCompileDiagnostics compileTaskProgram(
                     "link-clearance barrier requires a protected body group and a dynamic scene projectile"
                 );
             }
+            float projectileRadius = 0.0f;
+            for (const MRShapeGPU& shape : model.shapes) {
+                if (shape.bodyIndex == body &&
+                    (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED) == 0u) {
+                    projectileRadius = std::max(
+                        projectileRadius,
+                        shape.contactRestAndBoundingRadius.z
+                    );
+                }
+            }
+            if (!(projectileRadius > 0.0f) ||
+                !finite(projectileRadius)) {
+                return reject(
+                    TaskCompileStatus::invalidWorld,
+                    reward.target,
+                    "projectile has no finite collision envelope"
+                );
+            }
             targetIndex = static_cast<std::uint32_t>(
                 sceneBody - world.sceneBodyIndices().begin()
             );
+            // The GPU consumes the exact authored projectile envelope plus
+            // the task margin. Per-link envelopes live in a parallel table.
+            compiledParameters.y += projectileRadius;
             break;
         }
         case TaskRewardOperator::projectileMiss:
@@ -1521,9 +1666,9 @@ TaskCompileDiagnostics compileTaskProgram(
             },
             {
                 reward.weight,
-                reward.parameters.x,
-                reward.parameters.y,
-                reward.parameters.z,
+                compiledParameters.x,
+                compiledParameters.y,
+                compiledParameters.z,
             },
         });
     }
@@ -2230,6 +2375,9 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.counts3.x = static_cast<std::uint32_t>(
         staged->impactEvents.size()
     );
+    staged->header.counts3.y = static_cast<std::uint32_t>(
+        staged->contactMemberRadii.size()
+    );
     staged->header.articulation = {
         articulation.firstBody,
         articulation.bodyCount,
@@ -2242,6 +2390,30 @@ TaskCompileDiagnostics compileTaskProgram(
         -rootCenterOfMass.x,
         -rootCenterOfMass.y,
         -rootCenterOfMass.z,
+        0.0f,
+    };
+    staged->header.visualLayout = {
+        pack.visual.width,
+        pack.visual.height,
+        static_cast<std::uint32_t>(pack.visual.frameOffsets.size()),
+        pack.visual.frameOffsets.empty()
+            ? 0u
+            : pack.visual.frameOffsets.back(),
+    };
+    staged->header.visualHistory = {
+        pack.visual.frameOffsets.size() > 0u
+            ? pack.visual.frameOffsets[0u] : 0u,
+        pack.visual.frameOffsets.size() > 1u
+            ? pack.visual.frameOffsets[1u] : 0u,
+        pack.visual.frameOffsets.size() > 2u
+            ? pack.visual.frameOffsets[2u] : 0u,
+        pack.visual.frameOffsets.size() > 3u
+            ? pack.visual.frameOffsets[3u] : 0u,
+    };
+    staged->header.visualRange = {
+        pack.visual.nearDepthMeters,
+        pack.visual.farDepthMeters,
+        0.0f,
         0.0f,
     };
 
@@ -2355,7 +2527,9 @@ TaskCompileDiagnostics compileTaskProgram(
                 staged->impactEvents
             }
         ),
-        0u,
+        appendArena(
+            std::span<const float>{staged->contactMemberRadii}
+        ),
     };
     const std::array offsets{
         staged->header.offsets0,
