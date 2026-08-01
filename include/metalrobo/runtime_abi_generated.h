@@ -5,8 +5,8 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 32u
-#define MR_RUNTIME_PIPELINE_COUNT 94u
+#define MR_RUNTIME_ABI_VERSION 33u
+#define MR_RUNTIME_PIPELINE_COUNT 95u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
 #define MR_SENSOR_PROGRAM_ABI_VERSION 9u
 #define MR_SENSOR_DISPATCH_HAS_RESETS 1u
@@ -194,6 +194,19 @@ enum MRTaskObserveBuffer : mr_u32 {
     MR_TASK_OBSERVE_BUFFER_COUNT = 31u,
 };
 
+enum MRTaskCommandBuffer : mr_u32 {
+    MR_TASK_COMMAND_DISPATCH = 0u,
+    MR_TASK_COMMAND_PROGRAM = 1u,
+    MR_TASK_COMMAND_ARENA = 2u,
+    MR_TASK_COMMAND_PASS = 3u,
+    MR_TASK_COMMAND_RESET_MASKS = 4u,
+    MR_TASK_COMMAND_TASK_STATES = 5u,
+    MR_TASK_COMMAND_CURRICULUM_STATE = 6u,
+    MR_TASK_COMMAND_GROUP_STATES = 7u,
+    MR_TASK_COMMAND_SCALAR_STATE = 8u,
+    MR_TASK_COMMAND_BUFFER_COUNT = 9u,
+};
+
 enum MRTaskApplyBuffer : mr_u32 {
     MR_TASK_APPLY_DISPATCH = 0u,
     MR_TASK_APPLY_PROGRAM = 1u,
@@ -255,14 +268,15 @@ enum MRTaskCompleteBuffer : mr_u32 {
     MR_TASK_COMPLETE_BODY_PARAMETERS = 20u,
     MR_TASK_COMPLETE_CONTROLLER_PARAMETERS = 21u,
     MR_TASK_COMPLETE_SCALAR_STATE = 22u,
-    MR_TASK_COMPLETE_TRANSITIONS = 23u,
-    MR_TASK_COMPLETE_SHAPES = 24u,
-    MR_TASK_COMPLETE_GEOMETRY_HEADERS = 25u,
-    MR_TASK_COMPLETE_GEOMETRY_VERTICES = 26u,
-    MR_TASK_COMPLETE_ACTOR_OBSERVATIONS = 27u,
-    MR_TASK_COMPLETE_CRITIC_OBSERVATIONS = 28u,
-    MR_TASK_COMPLETE_CRITIC_HISTORY = 29u,
-    MR_TASK_COMPLETE_BUFFER_COUNT = 30u,
+    MR_TASK_COMPLETE_COMMAND_GROUP_STATES = 23u,
+    MR_TASK_COMPLETE_TRANSITIONS = 24u,
+    MR_TASK_COMPLETE_SHAPES = 25u,
+    MR_TASK_COMPLETE_GEOMETRY_HEADERS = 26u,
+    MR_TASK_COMPLETE_GEOMETRY_VERTICES = 27u,
+    MR_TASK_COMPLETE_ACTOR_OBSERVATIONS = 28u,
+    MR_TASK_COMPLETE_CRITIC_OBSERVATIONS = 29u,
+    MR_TASK_COMPLETE_CRITIC_HISTORY = 30u,
+    MR_TASK_COMPLETE_BUFFER_COUNT = 31u,
 };
 
 enum MRTaskCurriculumBuffer : mr_u32 {
@@ -466,19 +480,21 @@ enum MRTaskTransactionBuffer : mr_u32 {
     MR_TASK_TRANSACTION_BODY_PARAMETERS = 13u,
     MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS = 14u,
     MR_TASK_TRANSACTION_SCALAR_STATE = 15u,
-    MR_TASK_TRANSACTION_EVENT_STATES = 16u,
-    MR_TASK_TRANSACTION_CHECKPOINT_STATE = 17u,
-    MR_TASK_TRANSACTION_CHECKPOINT_ACTION_HISTORY = 18u,
-    MR_TASK_TRANSACTION_CHECKPOINT_ACTOR_HISTORY = 19u,
-    MR_TASK_TRANSACTION_CHECKPOINT_CLEAN_HISTORY = 20u,
-    MR_TASK_TRANSACTION_CHECKPOINT_CRITIC_HISTORY = 21u,
-    MR_TASK_TRANSACTION_CHECKPOINT_PREVIOUS_JOINT_VELOCITY = 22u,
-    MR_TASK_TRANSACTION_CHECKPOINT_ENCODER_BIAS = 23u,
-    MR_TASK_TRANSACTION_CHECKPOINT_BODY_PARAMETERS = 24u,
-    MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS = 25u,
-    MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE = 26u,
-    MR_TASK_TRANSACTION_CHECKPOINT_EVENT_STATES = 27u,
-    MR_TASK_TRANSACTION_BUFFER_COUNT = 28u,
+    MR_TASK_TRANSACTION_COMMAND_GROUP_STATES = 16u,
+    MR_TASK_TRANSACTION_EVENT_STATES = 17u,
+    MR_TASK_TRANSACTION_CHECKPOINT_STATE = 18u,
+    MR_TASK_TRANSACTION_CHECKPOINT_ACTION_HISTORY = 19u,
+    MR_TASK_TRANSACTION_CHECKPOINT_ACTOR_HISTORY = 20u,
+    MR_TASK_TRANSACTION_CHECKPOINT_CLEAN_HISTORY = 21u,
+    MR_TASK_TRANSACTION_CHECKPOINT_CRITIC_HISTORY = 22u,
+    MR_TASK_TRANSACTION_CHECKPOINT_PREVIOUS_JOINT_VELOCITY = 23u,
+    MR_TASK_TRANSACTION_CHECKPOINT_ENCODER_BIAS = 24u,
+    MR_TASK_TRANSACTION_CHECKPOINT_BODY_PARAMETERS = 25u,
+    MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS = 26u,
+    MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE = 27u,
+    MR_TASK_TRANSACTION_CHECKPOINT_COMMAND_GROUP_STATES = 28u,
+    MR_TASK_TRANSACTION_CHECKPOINT_EVENT_STATES = 29u,
+    MR_TASK_TRANSACTION_BUFFER_COUNT = 30u,
 };
 
 enum MRTaskPhysicalCheckpointBuffer : mr_u32 {
@@ -750,7 +766,9 @@ enum BufferIndex : std::size_t {
     kTaskKinematicPointWorld = 253u,
     kTaskEventStates = 254u,
     kTaskCheckpointEventStates = 255u,
-    kRawBufferCount = 256u,
+    kTaskCommandGroupStates = 256u,
+    kTaskCheckpointCommandGroupStates = 257u,
+    kRawBufferCount = 258u,
 };
 
 enum class BufferLifetime : std::uint8_t {
@@ -1019,6 +1037,8 @@ inline constexpr std::array<BufferLifetime, kRawBufferCount>
         BufferLifetime::transient,
         BufferLifetime::persistent,
         BufferLifetime::transient,
+        BufferLifetime::persistent,
+        BufferLifetime::transient,
     }};
 inline constexpr std::array<bool, kRawBufferCount>
     kPersistentInputs{{
@@ -1250,6 +1270,8 @@ inline constexpr std::array<bool, kRawBufferCount>
         true,
         true,
         true,
+        false,
+        false,
         false,
         false,
         false,
@@ -1537,6 +1559,8 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "task kinematic point world",
         "task event states",
         "task checkpoint event states",
+        "task command group states",
+        "task checkpoint command group states",
     }};
 
 [[nodiscard]] constexpr bool validBufferIndex(
@@ -1647,6 +1671,7 @@ static_assert(MR_RECORD_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_IR_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_NUMI_PREPARE_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_OBSERVE_BUFFER_COUNT <= 31u);
+static_assert(MR_TASK_COMMAND_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_APPLY_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_EVENT_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_EFFORT_BUFFER_COUNT <= 31u);

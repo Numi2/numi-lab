@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 32,
+  "abi_version": 33,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -28,6 +28,7 @@
     ["kinematics", "bodyProjectionPipeline", "mr_world_build_body_states", "one", 0],
     ["kinematics", "bodyVelocityPipeline", "mr_articulated_materialize_body_velocities", "operator", 0],
 
+    ["task", "taskCommandPipeline", "mr_task_prepare_commands", "one", 0],
     ["task", "taskObservePipeline", "mr_task_observe", "one", 0],
     ["task", "taskEventPipeline", "mr_task_apply_events", "one", 0],
     ["task", "taskPhysicalCheckpointPipeline", "mr_world_checkpoint_task_state", "one", 0],
@@ -231,7 +232,7 @@
     }
   ],
   "world_buffers": {
-    "count": 256,
+    "count": 258,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -480,7 +481,9 @@
       ["kTaskKinematicQueries", 252],
       ["kTaskKinematicPointWorld", 253],
       ["kTaskEventStates", 254],
-      ["kTaskCheckpointEventStates", 255]
+      ["kTaskCheckpointEventStates", 255],
+      ["kTaskCommandGroupStates", 256],
+      ["kTaskCheckpointCommandGroupStates", 257]
     ],
     "classifications": {
       "immutable": [
@@ -565,6 +568,7 @@
         "kTaskBodyParameters",
         "kTaskControllerParameters",
         "kTaskScalarState",
+        "kTaskCommandGroupStates",
         "kTaskEventStates",
         "kTaskCurriculumState",
         "kGeneralizedWarmState",
@@ -695,6 +699,7 @@
         "kTaskCheckpointBodyParameters",
         "kTaskCheckpointControllerParameters",
         "kTaskCheckpointScalarState",
+        "kTaskCheckpointCommandGroupStates",
         "kTaskCheckpointEventStates",
         "kCheckpointActuatorRuntimeStates",
         "kCheckpointActuatorCommandHistory",
@@ -836,6 +841,21 @@
       ]
     },
     {
+      "enum": "MRTaskCommandBuffer",
+      "prefix": "MR_TASK_COMMAND_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "ARENA",
+        "PASS",
+        "RESET_MASKS",
+        "TASK_STATES",
+        "CURRICULUM_STATE",
+        "GROUP_STATES",
+        "SCALAR_STATE"
+      ]
+    },
+    {
       "enum": "MRTaskApplyBuffer",
       "prefix": "MR_TASK_APPLY_",
       "bindings": [
@@ -905,6 +925,7 @@
         "BODY_PARAMETERS",
         "CONTROLLER_PARAMETERS",
         "SCALAR_STATE",
+        "COMMAND_GROUP_STATES",
         "TRANSITIONS",
         "SHAPES",
         "GEOMETRY_HEADERS",
@@ -1138,6 +1159,7 @@
         "BODY_PARAMETERS",
         "CONTROLLER_PARAMETERS",
         "SCALAR_STATE",
+        "COMMAND_GROUP_STATES",
         "EVENT_STATES",
         "CHECKPOINT_STATE",
         "CHECKPOINT_ACTION_HISTORY",
@@ -1149,6 +1171,7 @@
         "CHECKPOINT_BODY_PARAMETERS",
         "CHECKPOINT_CONTROLLER_PARAMETERS",
         "CHECKPOINT_SCALAR_STATE",
+        "CHECKPOINT_COMMAND_GROUP_STATES",
         "CHECKPOINT_EVENT_STATES"
       ]
     },

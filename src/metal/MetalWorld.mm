@@ -1286,6 +1286,7 @@ bool buildRequirements(
     std::size_t taskCriticHistoryElements = 0u;
     std::size_t taskBodyParameterElements = 0u;
     std::size_t taskScalarStateElements = 0u;
+    std::size_t taskCommandGroupStateElements = 0u;
     std::size_t taskEventStateElements = 0u;
     std::size_t taskPointWorldElements = 0u;
     std::size_t taskSpatialJacobianElements = 0u;
@@ -1326,6 +1327,11 @@ bool buildRequirements(
             taskEnvironments,
             taskLayout.scalarStateCount,
             taskScalarStateElements
+        ) ||
+        !checkedMultiply(
+            taskEnvironments,
+            taskLayout.commandGroupCount,
+            taskCommandGroupStateElements
         ) ||
         !checkedMultiply(
             taskEnvironments,
@@ -2665,6 +2671,11 @@ bool buildRequirements(
             taskScalarStateElements,
             requirements.entries[kTaskScalarState]
         ) ||
+        !makeRequirement<MRTaskCommandGroupStateGPU>(
+            "native task command-group state",
+            taskCommandGroupStateElements,
+            requirements.entries[kTaskCommandGroupStates]
+        ) ||
         !makeRequirement<MRTaskEventStateGPU>(
             "native task event state",
             taskEventStateElements,
@@ -2723,6 +2734,11 @@ bool buildRequirements(
             "native task transaction checkpoint scalar state",
             taskScalarStateElements,
             requirements.entries[kTaskCheckpointScalarState]
+        ) ||
+        !makeRequirement<MRTaskCommandGroupStateGPU>(
+            "native task transaction checkpoint command-group state",
+            taskCommandGroupStateElements,
+            requirements.entries[kTaskCheckpointCommandGroupStates]
         ) ||
         !makeRequirement<MRTaskEventStateGPU>(
             "native task transaction checkpoint event state",
@@ -4593,10 +4609,14 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld task transitions";
     case kTaskScalarState:
         return @"MetalWorld resident task scalar state";
+    case kTaskCommandGroupStates:
+        return @"MetalWorld resident task command-group state";
     case kTaskEventStates:
         return @"MetalWorld resident task event state";
     case kTaskCheckpointScalarState:
         return @"MetalWorld checkpoint task scalar state";
+    case kTaskCheckpointCommandGroupStates:
+        return @"MetalWorld checkpoint task command-group state";
     case kTaskCheckpointEventStates:
         return @"MetalWorld checkpoint task event state";
     case kTaskDefaultQ:
@@ -7205,8 +7225,10 @@ bool encodeResidentStateInitialization(
         clear(kTaskBodyParameters);
         clear(kTaskControllerParameters);
         clear(kTaskScalarState);
+        clear(kTaskCommandGroupStates);
         clear(kTaskEventStates);
         clear(kTaskCheckpointScalarState);
+        clear(kTaskCheckpointCommandGroupStates);
         clear(kTaskCheckpointEventStates);
         [encoder
             copyFromBuffer:
@@ -8596,6 +8618,39 @@ bool encodeTaskObserve(
     );
 }
 
+bool encodeTaskCommands(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskCommandPipeline,
+        @"compiled task command groups",
+        {
+            {MR_TASK_COMMAND_DISPATCH, kTaskDispatch},
+            {MR_TASK_COMMAND_PROGRAM, kTaskProgramHeader},
+            {MR_TASK_COMMAND_ARENA, kTaskProgramArena},
+            {MR_TASK_COMMAND_RESET_MASKS, kResetMasks},
+            {MR_TASK_COMMAND_TASK_STATES, kTaskState},
+            {
+                MR_TASK_COMMAND_CURRICULUM_STATE,
+                kTaskCurriculumState,
+            },
+            {
+                MR_TASK_COMMAND_GROUP_STATES,
+                kTaskCommandGroupStates,
+            },
+            {MR_TASK_COMMAND_SCALAR_STATE, kTaskScalarState},
+        },
+        &pass,
+        MR_TASK_COMMAND_PASS,
+        environmentCount
+    );
+}
+
 bool encodeTaskEvents(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -8725,6 +8780,10 @@ bool encodeTaskTransaction(
                 kTaskScalarState,
             },
             {
+                MR_TASK_TRANSACTION_COMMAND_GROUP_STATES,
+                kTaskCommandGroupStates,
+            },
+            {
                 MR_TASK_TRANSACTION_EVENT_STATES,
                 kTaskEventStates,
             },
@@ -8767,6 +8826,10 @@ bool encodeTaskTransaction(
             {
                 MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE,
                 kTaskCheckpointScalarState,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_COMMAND_GROUP_STATES,
+                kTaskCheckpointCommandGroupStates,
             },
             {
                 MR_TASK_TRANSACTION_CHECKPOINT_EVENT_STATES,
@@ -9508,6 +9571,10 @@ bool encodeTaskComplete(
                 kTaskControllerParameters,
             },
             {MR_TASK_COMPLETE_SCALAR_STATE, kTaskScalarState},
+            {
+                MR_TASK_COMPLETE_COMMAND_GROUP_STATES,
+                kTaskCommandGroupStates,
+            },
             {MR_TASK_COMPLETE_TRANSITIONS, kTaskTransitions},
             {MR_TASK_COMPLETE_SHAPES, kShapes},
             {
@@ -16780,6 +16847,12 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             commandBuffer,
                             selectedState->taskCheckpointPipeline,
                             @"compiled task transaction checkpoint",
+                            pass,
+                            batch.environmentCount
+                        ) ||
+                        !encodeTaskCommands(
+                            *selectedState,
+                            commandBuffer,
                             pass,
                             batch.environmentCount
                         ) ||

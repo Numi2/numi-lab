@@ -304,15 +304,19 @@ struct TaskCommandSpec {
     float curriculumStep = 0.0f;
 };
 
-struct TaskCommandProgram {
-    // The compiler resolves each identity to a stable slot in the
-    // topology-sized native scalar-state arena; observations and signals
-    // never address anonymous locomotion-vector components.
+struct TaskCommandGroupSpec {
+    std::string id;
+    // Members resample atomically and may be zeroed as one correlated cohort.
     std::vector<TaskCommandSpec> values;
-    // Probability that the complete command cohort is set to zero.
     float zeroProbability = 0.0f;
     float minimumDurationSeconds = 5.0f;
     float maximumDurationSeconds = 10.0f;
+};
+
+struct TaskCommandProgram {
+    // Each group owns an independent schedule. Individual member identities
+    // remain the observation/SignalIR contract and resolve to stable slots.
+    std::vector<TaskCommandGroupSpec> groups;
 };
 
 struct TaskEventSpec {
@@ -431,6 +435,7 @@ struct TaskProgramLayout {
     // Ordinary mechanics sources remain direct and allocate no extra value.
     std::uint32_t signalSensorScratchCount = 0u;
     std::uint32_t commandCount = 0u;
+    std::uint32_t commandGroupCount = 0u;
     std::uint32_t eventCount = 0u;
     // Contact reductions followed by named scalar commands.
     std::uint32_t scalarStateCount = 0u;
@@ -471,8 +476,12 @@ public:
     signalOperators() const noexcept;
     [[nodiscard]] std::span<const MRTaskCommandOperatorGPU>
     commandOperators() const noexcept;
+    [[nodiscard]] std::span<const MRTaskCommandGroupGPU>
+    commandGroups() const noexcept;
     [[nodiscard]] std::span<const std::string>
     commandIds() const noexcept;
+    [[nodiscard]] std::span<const std::string>
+    commandGroupIds() const noexcept;
     [[nodiscard]] std::span<const MRTaskEventOperatorGPU>
     eventOperators() const noexcept;
     [[nodiscard]] std::span<const std::string>

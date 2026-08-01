@@ -36,6 +36,8 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskSignalOperatorGPU> signalOperators;
     std::vector<MRTaskCommandOperatorGPU> commandOperators;
     std::vector<std::string> commandIds;
+    std::vector<MRTaskCommandGroupGPU> commandGroups;
+    std::vector<std::string> commandGroupIds;
     std::vector<MRTaskEventOperatorGPU> eventOperators;
     std::vector<std::string> eventIds;
     std::vector<MRTaskContactGroupGPU> contactGroups;
@@ -148,6 +150,13 @@ std::uint64_t goalRandomIdentity(const std::string_view id) {
 std::uint64_t commandRandomIdentity(const std::string_view id) {
     Hash hash;
     hash.string("MetalRobo.TaskIR.command-counter-key");
+    hash.string(id);
+    return hash.finish();
+}
+
+std::uint64_t commandGroupRandomIdentity(const std::string_view id) {
+    Hash hash;
+    hash.string("MetalRobo.TaskIR.command-group-counter-key");
     hash.string(id);
     return hash.finish();
 }
@@ -405,6 +414,12 @@ bool CompiledTaskProgram::valid() const noexcept {
             storage_->commandIds.size() ||
         storage_->header.curriculum.w !=
             storage_->commandOperators.size() ||
+        storage_->layout.commandGroupCount !=
+            storage_->commandGroups.size() ||
+        storage_->commandGroups.size() !=
+            storage_->commandGroupIds.size() ||
+        storage_->header.schedule.z !=
+            storage_->commandGroups.size() ||
         storage_->layout.eventCount !=
             storage_->eventOperators.size() ||
         storage_->eventOperators.size() !=
@@ -434,6 +449,22 @@ bool CompiledTaskProgram::valid() const noexcept {
          storage_->sensorFingerprint == 0u) ||
         storage_->kinematicFrames.size() !=
             storage_->frames.size()) {
+        return false;
+    }
+
+    std::uint64_t expectedCommandMember = 0u;
+    for (const MRTaskCommandGroupGPU& group :
+         storage_->commandGroups) {
+        if (group.members.x != expectedCommandMember ||
+            group.members.y == 0u ||
+            group.members.x +
+                    static_cast<std::uint64_t>(group.members.y) >
+                storage_->commandOperators.size()) {
+            return false;
+        }
+        expectedCommandMember += group.members.y;
+    }
+    if (expectedCommandMember != storage_->commandOperators.size()) {
         return false;
     }
 
@@ -569,6 +600,12 @@ bool CompiledTaskProgram::valid() const noexcept {
         signalOperatorOffset +
         storage_->signalOperators.size() *
             sizeof(MRTaskSignalOperatorGPU);
+    const std::uint64_t commandGroupOffset =
+        storage_->header.offsets4.z;
+    const std::uint64_t commandGroupEnd =
+        commandGroupOffset +
+        storage_->commandGroups.size() *
+            sizeof(MRTaskCommandGroupGPU);
     return recorderEnd <= storage_->arena.size() &&
         eventEnd <= storage_->arena.size() &&
         (storage_->eventOperators.empty() ||
@@ -585,7 +622,9 @@ bool CompiledTaskProgram::valid() const noexcept {
         signalSourceOffset >= goalEnd &&
         signalSourceEnd <= storage_->arena.size() &&
         signalOperatorOffset >= signalSourceEnd &&
-        signalOperatorEnd <= storage_->arena.size();
+        signalOperatorEnd <= storage_->arena.size() &&
+        commandGroupOffset >= signalOperatorEnd &&
+        commandGroupEnd <= storage_->arena.size();
 }
 
 std::uint64_t CompiledTaskProgram::fingerprint() const noexcept {
@@ -665,10 +704,26 @@ CompiledTaskProgram::commandOperators() const noexcept {
         : std::span<const MRTaskCommandOperatorGPU>{};
 }
 
+std::span<const MRTaskCommandGroupGPU>
+CompiledTaskProgram::commandGroups() const noexcept {
+    return valid()
+        ? std::span<const MRTaskCommandGroupGPU>{
+              storage_->commandGroups
+          }
+        : std::span<const MRTaskCommandGroupGPU>{};
+}
+
 std::span<const std::string>
 CompiledTaskProgram::commandIds() const noexcept {
     return valid()
         ? std::span<const std::string>{storage_->commandIds}
+        : std::span<const std::string>{};
+}
+
+std::span<const std::string>
+CompiledTaskProgram::commandGroupIds() const noexcept {
+    return valid()
+        ? std::span<const std::string>{storage_->commandGroupIds}
         : std::span<const std::string>{};
 }
 
@@ -952,6 +1007,21 @@ TaskCompileDiagnostics compileTaskProgram(
         return count <
             std::numeric_limits<std::uint32_t>::max();
     };
+    std::uint64_t commandCount = 0u;
+    for (const TaskCommandGroupSpec& group : pack.commands.groups) {
+        if (group.values.size() >=
+                std::numeric_limits<std::uint32_t>::max() ||
+            commandCount >=
+                std::numeric_limits<std::uint32_t>::max() -
+                    group.values.size()) {
+            return reject(
+                TaskCompileStatus::arithmeticOverflow,
+                group.id,
+                "task command group exceeds the 32-bit GPU ABI"
+            );
+        }
+        commandCount += group.values.size();
+    }
     if (!countFits(pack.actions.size()) ||
         !countFits(pack.actorFrame.size()) ||
         !countFits(pack.critic.size()) ||
@@ -963,7 +1033,8 @@ TaskCompileDiagnostics compileTaskProgram(
         !countFits(pack.recorders.size()) ||
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
-        !countFits(pack.commands.values.size()) ||
+        !countFits(pack.commands.groups.size()) ||
+        commandCount >= std::numeric_limits<std::uint32_t>::max() ||
         !countFits(pack.events.values.size()) ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
         !countFits(pack.terrain.resetTranslations.size())) {
@@ -1026,14 +1097,6 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.curriculum.minimumEpisodeSurvivalFraction > 1.0f ||
         !finite(pack.supportForceThreshold) ||
         !(pack.supportForceThreshold >= 0.0f) ||
-        !finite(pack.commands.zeroProbability) ||
-        pack.commands.zeroProbability < 0.0f ||
-        pack.commands.zeroProbability > 1.0f ||
-        !finite(pack.commands.minimumDurationSeconds) ||
-        !finite(pack.commands.maximumDurationSeconds) ||
-        !(pack.commands.minimumDurationSeconds > 0.0f) ||
-        pack.commands.maximumDurationSeconds <
-            pack.commands.minimumDurationSeconds ||
         pack.maximumObservationDelaySteps >=
             pack.actorHistoryLength) {
         return reject(
@@ -1043,65 +1106,124 @@ TaskCompileDiagnostics compileTaskProgram(
         );
     }
     std::vector<std::string> commandIds;
-    commandIds.reserve(pack.commands.values.size());
-    for (const TaskCommandSpec& command : pack.commands.values) {
-        if (command.id.empty() ||
+    commandIds.reserve(commandCount);
+    std::vector<std::string> commandGroupIds;
+    commandGroupIds.reserve(pack.commands.groups.size());
+    for (const TaskCommandGroupSpec& group : pack.commands.groups) {
+        if (group.id.empty() || group.values.empty() ||
             std::find(
-                commandIds.begin(),
-                commandIds.end(),
-                command.id
-            ) != commandIds.end() ||
-            !finite(command.lower) ||
-            !finite(command.upper) ||
-            !finite(command.limitLower) ||
-            !finite(command.limitUpper) ||
-            !finite(command.curriculumStep) ||
-            command.lower > command.upper ||
-            command.limitLower > command.lower ||
-            command.upper > command.limitUpper ||
-            command.curriculumStep < 0.0f) {
+                commandGroupIds.begin(),
+                commandGroupIds.end(),
+                group.id
+            ) != commandGroupIds.end() ||
+            !finite(group.zeroProbability) ||
+            group.zeroProbability < 0.0f ||
+            group.zeroProbability > 1.0f ||
+            !finite(group.minimumDurationSeconds) ||
+            !finite(group.maximumDurationSeconds) ||
+            !(group.minimumDurationSeconds > 0.0f) ||
+            group.maximumDurationSeconds <
+                group.minimumDurationSeconds) {
             return reject(
                 TaskCompileStatus::invalidPack,
-                command.id,
-                "command identity, range, limits, or curriculum step are invalid"
+                group.id,
+                "command group identity, members, probability, or schedule is invalid"
             );
         }
-        commandIds.push_back(command.id);
+        commandGroupIds.push_back(group.id);
+        for (const TaskCommandSpec& command : group.values) {
+            if (command.id.empty() ||
+                std::find(
+                    commandIds.begin(),
+                    commandIds.end(),
+                    command.id
+                ) != commandIds.end() ||
+                !finite(command.lower) ||
+                !finite(command.upper) ||
+                !finite(command.limitLower) ||
+                !finite(command.limitUpper) ||
+                !finite(command.curriculumStep) ||
+                command.lower > command.upper ||
+                command.limitLower > command.lower ||
+                command.upper > command.limitUpper ||
+                command.curriculumStep < 0.0f) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    command.id,
+                    "command identity, range, limits, or curriculum step are invalid"
+                );
+            }
+            commandIds.push_back(command.id);
+        }
     }
 
     auto staged = std::make_shared<CompiledTaskProgram::Storage>();
     staged->worldFingerprint = world.fingerprint();
     staged->commandIds = commandIds;
-    staged->commandOperators.reserve(pack.commands.values.size());
+    staged->commandGroupIds = commandGroupIds;
+    staged->commandOperators.reserve(commandCount);
+    staged->commandGroups.reserve(pack.commands.groups.size());
     std::unordered_set<std::uint64_t> commandRandomIdentities;
-    for (const TaskCommandSpec& command : pack.commands.values) {
-        const std::uint64_t randomIdentity =
-            commandRandomIdentity(command.id);
-        if (!commandRandomIdentities.insert(randomIdentity).second) {
+    std::unordered_set<std::uint64_t> groupRandomIdentities;
+    for (const TaskCommandGroupSpec& group : pack.commands.groups) {
+        const std::uint64_t groupIdentity =
+            commandGroupRandomIdentity(group.id);
+        if (!groupRandomIdentities.insert(groupIdentity).second) {
             return reject(
                 TaskCompileStatus::invalidPack,
-                command.id,
-                "task command ids collide in the 64-bit counter-RNG identity"
+                group.id,
+                "task command-group ids collide in the 64-bit counter-RNG identity"
             );
         }
-        staged->commandOperators.push_back({
+        const std::uint32_t memberOffset =
+            static_cast<std::uint32_t>(
+                staged->commandOperators.size()
+            );
+        for (const TaskCommandSpec& command : group.values) {
+            const std::uint64_t randomIdentity =
+                commandRandomIdentity(command.id);
+            if (!commandRandomIdentities.insert(randomIdentity).second) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    command.id,
+                    "task command ids collide in the 64-bit counter-RNG identity"
+                );
+            }
+            staged->commandOperators.push_back({
+                {
+                    command.lower,
+                    command.upper,
+                    command.limitLower,
+                    command.limitUpper,
+                },
+                {
+                    command.curriculumStep,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                },
+                {
+                    static_cast<std::uint32_t>(randomIdentity),
+                    static_cast<std::uint32_t>(
+                        randomIdentity >> 32u
+                    ),
+                    0u,
+                    0u,
+                },
+            });
+        }
+        staged->commandGroups.push_back({
             {
-                command.lower,
-                command.upper,
-                command.limitLower,
-                command.limitUpper,
+                memberOffset,
+                static_cast<std::uint32_t>(group.values.size()),
+                static_cast<std::uint32_t>(groupIdentity),
+                static_cast<std::uint32_t>(groupIdentity >> 32u),
             },
             {
-                command.curriculumStep,
+                group.zeroProbability,
+                group.minimumDurationSeconds,
+                group.maximumDurationSeconds,
                 0.0f,
-                0.0f,
-                0.0f,
-            },
-            {
-                static_cast<std::uint32_t>(randomIdentity),
-                static_cast<std::uint32_t>(randomIdentity >> 32u),
-                0u,
-                0u,
             },
         });
     }
@@ -3209,6 +3331,9 @@ TaskCompileDiagnostics compileTaskProgram(
         .commandCount = static_cast<std::uint32_t>(
             staged->commandOperators.size()
         ),
+        .commandGroupCount = static_cast<std::uint32_t>(
+            staged->commandGroups.size()
+        ),
         .eventCount = static_cast<std::uint32_t>(
             staged->eventOperators.size()
         ),
@@ -3280,7 +3405,9 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.schedule = {
         pack.maximumEpisodeSteps,
         pack.maximumObservationDelaySteps,
-        0u,
+        static_cast<std::uint32_t>(
+            staged->commandGroups.size()
+        ),
         heightfieldTerrain
             ? MR_TASK_PROGRAM_TERRAIN
             : 0u,
@@ -3306,12 +3433,6 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.curriculum.successThreshold,
         pack.curriculum.minimumEpisodeSurvivalFraction,
         pack.supportForceThreshold,
-    };
-    staged->header.commandSchedule = {
-        pack.commands.zeroProbability,
-        pack.commands.minimumDurationSeconds,
-        pack.commands.maximumDurationSeconds,
-        0.0f,
     };
     staged->header.articulation = {
         articulation.firstBody,
@@ -3498,7 +3619,11 @@ TaskCompileDiagnostics compileTaskProgram(
                 staged->signalOperators
             }
         ),
-        0u,
+        appendArena(
+            std::span<const MRTaskCommandGroupGPU>{
+                staged->commandGroups
+            }
+        ),
         0u,
     };
     const std::array offsets{
@@ -3529,8 +3654,11 @@ TaskCompileDiagnostics compileTaskProgram(
     for (const TaskActionBinding& action : pack.actions) {
         hash.string(action.joint);
     }
-    for (const TaskCommandSpec& command : pack.commands.values) {
-        hash.string(command.id);
+    for (const TaskCommandGroupSpec& group : pack.commands.groups) {
+        hash.string(group.id);
+        for (const TaskCommandSpec& command : group.values) {
+            hash.string(command.id);
+        }
     }
     for (const TaskEventSpec& event : pack.events.values) {
         hash.string(event.id);

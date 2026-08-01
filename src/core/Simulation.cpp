@@ -680,36 +680,39 @@ TaskPack makeUnitreeG1TaskPack(
     // command. This avoids an unnecessarily brittle inverted-pendulum optimum
     // while remaining below the gait-reward threshold; lateral and yaw motion
     // stay disabled until full-episode survival has been demonstrated.
-    task.commands.values = {
-        {
-            .id = std::string{commandIds[0u]},
-            .lower = 0.1f,
-            .upper = 0.1f,
-            .limitLower = -0.5f,
-            .limitUpper = 1.0f,
-            .curriculumStep = 0.1f,
+    task.commands.groups = {{
+        .id = "base_velocity",
+        .values = {
+            {
+                .id = std::string{commandIds[0u]},
+                .lower = 0.1f,
+                .upper = 0.1f,
+                .limitLower = -0.5f,
+                .limitUpper = 1.0f,
+                .curriculumStep = 0.1f,
+            },
+            {
+                .id = std::string{commandIds[1u]},
+                .lower = 0.0f,
+                .upper = 0.0f,
+                .limitLower = -0.3f,
+                .limitUpper = 0.3f,
+                .curriculumStep = 0.1f,
+            },
+            {
+                .id = std::string{commandIds[2u]},
+                .lower = 0.0f,
+                .upper = 0.0f,
+                .limitLower = -0.2f,
+                .limitUpper = 0.2f,
+                .curriculumStep = 0.1f,
+            },
         },
-        {
-            .id = std::string{commandIds[1u]},
-            .lower = 0.0f,
-            .upper = 0.0f,
-            .limitLower = -0.3f,
-            .limitUpper = 0.3f,
-            .curriculumStep = 0.1f,
-        },
-        {
-            .id = std::string{commandIds[2u]},
-            .lower = 0.0f,
-            .upper = 0.0f,
-            .limitLower = -0.2f,
-            .limitUpper = 0.2f,
-            .curriculumStep = 0.1f,
-        },
-    };
-    task.commands.zeroProbability = 0.02f;
+        .zeroProbability = 0.02f,
+        .minimumDurationSeconds = 10.0f,
+        .maximumDurationSeconds = 10.0f,
+    }};
     task.curriculum.minimumEpisodeSurvivalFraction = 0.8f;
-    task.commands.minimumDurationSeconds = 10.0f;
-    task.commands.maximumDurationSeconds = 10.0f;
     task.events.values = {
         {
             .id = "root_velocity_delta_x",

@@ -420,44 +420,47 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .joint = "axis",
         .scale = 0.15f,
     }};
-    authored.task.commands.values = {
-        {
-            .id = "fixture_command_0",
-            .lower = 0.125f,
-            .upper = 0.125f,
-            .limitLower = 0.125f,
-            .limitUpper = 0.125f,
+    authored.task.commands.groups = {{
+        .id = "fixture_commands",
+        .values = {
+            {
+                .id = "fixture_command_0",
+                .lower = 0.125f,
+                .upper = 0.125f,
+                .limitLower = 0.125f,
+                .limitUpper = 0.125f,
+            },
+            {
+                .id = "fixture_command_1",
+                .lower = 0.25f,
+                .upper = 0.25f,
+                .limitLower = 0.25f,
+                .limitUpper = 0.25f,
+            },
+            {
+                .id = "fixture_command_2",
+                .lower = 0.375f,
+                .upper = 0.375f,
+                .limitLower = 0.375f,
+                .limitUpper = 0.375f,
+            },
+            {
+                .id = "fixture_command_3",
+                .lower = 0.5f,
+                .upper = 0.5f,
+                .limitLower = 0.5f,
+                .limitUpper = 0.5f,
+            },
+            {
+                .id = "fixture_command_4",
+                .lower = 0.625f,
+                .upper = 0.625f,
+                .limitLower = 0.625f,
+                .limitUpper = 0.625f,
+            },
         },
-        {
-            .id = "fixture_command_1",
-            .lower = 0.25f,
-            .upper = 0.25f,
-            .limitLower = 0.25f,
-            .limitUpper = 0.25f,
-        },
-        {
-            .id = "fixture_command_2",
-            .lower = 0.375f,
-            .upper = 0.375f,
-            .limitLower = 0.375f,
-            .limitUpper = 0.375f,
-        },
-        {
-            .id = "fixture_command_3",
-            .lower = 0.5f,
-            .upper = 0.5f,
-            .limitLower = 0.5f,
-            .limitUpper = 0.5f,
-        },
-        {
-            .id = "fixture_command_4",
-            .lower = 0.625f,
-            .upper = 0.625f,
-            .limitLower = 0.625f,
-            .limitUpper = 0.625f,
-        },
-    };
-    authored.task.commands.zeroProbability = 0.0f;
+        .zeroProbability = 0.0f,
+    }};
     authored.task.actorFrame = {
         {
             .source =
@@ -1573,6 +1576,85 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         );
     }
 
+    // Commands are named scalar contracts grouped only for correlated reset
+    // and scheduling. Prove that two groups advance independently and that
+    // stable identities make their streams invariant to authored group order.
+    metalrobo::TaskPack fixedCommandTask = authored.task;
+    fixedCommandTask.id = "fixed_base_command_group_fixture";
+    std::vector<metalrobo::TaskCommandSpec> fastCommands =
+        fixedCommandTask.commands.groups.front().values;
+    const metalrobo::TaskCommandSpec slowCommand = fastCommands.back();
+    fastCommands.pop_back();
+    fastCommands.front().lower = -0.4f;
+    fastCommands.front().upper = 0.4f;
+    fastCommands.front().limitLower = -0.4f;
+    fastCommands.front().limitUpper = 0.4f;
+    metalrobo::TaskCommandSpec variableSlowCommand = slowCommand;
+    variableSlowCommand.lower = -0.8f;
+    variableSlowCommand.upper = 0.8f;
+    variableSlowCommand.limitLower = -0.8f;
+    variableSlowCommand.limitUpper = 0.8f;
+    fixedCommandTask.commands.groups = {
+        {
+            .id = "fast_command_group",
+            .values = fastCommands,
+            .minimumDurationSeconds = 0.02f,
+            .maximumDurationSeconds = 0.02f,
+        },
+        {
+            .id = "slow_command_group",
+            .values = {variableSlowCommand},
+            .minimumDurationSeconds = 0.04f,
+            .maximumDurationSeconds = 0.04f,
+        },
+    };
+    fixedCommandTask.actorFrame = {
+        {
+            .source = metalrobo::TaskObservationSource::command,
+            .target = "fixture_command_0",
+        },
+        {
+            .source = metalrobo::TaskObservationSource::command,
+            .target = "fixture_command_4",
+        },
+    };
+    fixedCommandTask.actorHistoryLength = 1u;
+    fixedCommandTask.critic = fixedCommandTask.actorFrame;
+    fixedCommandTask.criticHistoryLength = 1u;
+    fixedCommandTask.criticIncludesCleanHistory = false;
+    metalrobo::CompiledTaskProgram fixedCommandProgram;
+    const auto fixedCommandCompile = metalrobo::compileTaskProgram(
+        fixedCommandTask,
+        compiled.world,
+        compiled.sensors,
+        fixedCommandProgram
+    );
+    metalrobo::TaskPack reorderedCommandTask = fixedCommandTask;
+    std::swap(
+        reorderedCommandTask.commands.groups[0u],
+        reorderedCommandTask.commands.groups[1u]
+    );
+    metalrobo::CompiledTaskProgram reorderedCommandProgram;
+    const auto reorderedCommandCompile = metalrobo::compileTaskProgram(
+        reorderedCommandTask,
+        compiled.world,
+        compiled.sensors,
+        reorderedCommandProgram
+    );
+    if (!fixedCommandCompile.succeeded() ||
+        !reorderedCommandCompile.succeeded() ||
+        fixedCommandProgram.layout().commandGroupCount != 2u ||
+        fixedCommandProgram.header().schedule.z != 2u ||
+        fixedCommandProgram.header().offsets4.z == 0u ||
+        fixedCommandProgram.commandGroups()[0u].members.x != 0u ||
+        fixedCommandProgram.commandGroups()[0u].members.y != 4u ||
+        fixedCommandProgram.commandGroups()[1u].members.x != 4u ||
+        fixedCommandProgram.commandGroups()[1u].members.y != 1u ||
+        fixedCommandProgram.commandGroups()[0u].schedule.y != 0.02f ||
+        fixedCommandProgram.commandGroups()[1u].schedule.y != 0.04f) {
+        fail("independently scheduled command groups did not compile");
+    }
+
     // Compile and execute a fixed-base event cohort to prove that events are
     // semantic generalized-velocity operators, not a floating-root/G1 push
     // branch. Two records deliberately target the same coordinate so Metal
@@ -1692,6 +1774,125 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             output
         );
     };
+    metalrobo::MetalWorldResult fixedCommandResult;
+    metalrobo::MetalWorldResult fixedCommandReplay;
+    metalrobo::MetalWorldResult fixedCommandAlternateSeed;
+    metalrobo::MetalWorldResult reorderedCommandResult;
+    const auto fixedCommandExecuted = runEventFixture(
+        fixedCommandProgram,
+        eventSeed,
+        fixedCommandResult
+    );
+    const auto fixedCommandReplayed = runEventFixture(
+        fixedCommandProgram,
+        eventSeed,
+        fixedCommandReplay
+    );
+    const auto fixedCommandAlternateExecuted = runEventFixture(
+        fixedCommandProgram,
+        eventSeed + 1u,
+        fixedCommandAlternateSeed
+    );
+    const auto reorderedCommandExecuted = runEventFixture(
+        reorderedCommandProgram,
+        eventSeed,
+        reorderedCommandResult
+    );
+    const auto commandIdentity = [] (
+        const MRTaskCommandOperatorGPU& operation
+    ) {
+        return static_cast<std::uint64_t>(operation.identity.x) |
+            (static_cast<std::uint64_t>(operation.identity.y) << 32u);
+    };
+    const auto expectedCommand = [&] (
+        const MRTaskCommandOperatorGPU& operation,
+        const std::uint32_t sampleOrdinal
+    ) {
+        return operation.range.x +
+            (operation.range.y - operation.range.x) *
+            mr_semantic_counter_uniform(
+                eventSeed,
+                0u,
+                1u,
+                commandIdentity(operation),
+                sampleOrdinal,
+                0u,
+                MR_COUNTER_PURPOSE_TASK_COMMAND
+            );
+    };
+    const std::array<std::uint32_t, eventSteps> fastOrdinals{
+        0u,
+        1u,
+        2u,
+        3u,
+    };
+    const std::array<std::uint32_t, eventSteps> slowOrdinals{
+        0u,
+        0u,
+        1u,
+        1u,
+    };
+    bool commandScheduleMatches =
+        fixedCommandResult.actorObservations.size() >=
+            eventSteps * 2u;
+    for (std::size_t stepIndex = 0u;
+         commandScheduleMatches && stepIndex < eventSteps;
+         ++stepIndex) {
+        commandScheduleMatches =
+            std::abs(
+                fixedCommandResult.actorObservations[
+                    stepIndex * 2u
+                ] -
+                expectedCommand(
+                    fixedCommandProgram.commandOperators()[0u],
+                    fastOrdinals[stepIndex]
+                )
+            ) < 2.0e-6f &&
+            std::abs(
+                fixedCommandResult.actorObservations[
+                    stepIndex * 2u + 1u
+                ] -
+                expectedCommand(
+                    fixedCommandProgram.commandOperators()[4u],
+                    slowOrdinals[stepIndex]
+                )
+            ) < 2.0e-6f;
+    }
+    const auto sameTransitions = [] (
+        const std::vector<MRTaskTransitionGPU>& left,
+        const std::vector<MRTaskTransitionGPU>& right
+    ) {
+        return left.size() == right.size() &&
+            (left.empty() ||
+             std::memcmp(
+                 left.data(),
+                 right.data(),
+                 left.size() * sizeof(MRTaskTransitionGPU)
+             ) == 0);
+    };
+    if (!fixedCommandExecuted.succeeded() ||
+        !fixedCommandReplayed.succeeded() ||
+        !fixedCommandAlternateExecuted.succeeded() ||
+        !reorderedCommandExecuted.succeeded() ||
+        !commandScheduleMatches ||
+        fixedCommandResult.actorObservations !=
+            fixedCommandReplay.actorObservations ||
+        !sameTransitions(
+            fixedCommandResult.transitions,
+            fixedCommandReplay.transitions
+        ) ||
+        fixedCommandResult.actorObservations ==
+            fixedCommandAlternateSeed.actorObservations ||
+        fixedCommandResult.actorObservations !=
+            reorderedCommandResult.actorObservations ||
+        !sameTransitions(
+            fixedCommandResult.transitions,
+            reorderedCommandResult.transitions
+        )) {
+        fail(
+            "independent native command-group schedules are not deterministic or identity-stable"
+        );
+    }
     metalrobo::MetalWorldResult fixedEventResult;
     metalrobo::MetalWorldResult fixedEventReplay;
     metalrobo::MetalWorldResult fixedEventAlternateSeed;
@@ -4613,10 +4814,18 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
     // Make the fifth command episode-dependent so the branch comparison
     // proves that the topology-sized command arena is restored as part of
     // the failed reset transaction, not merely that fixed commands match.
-    transactionAuthored.task.commands.values[4u].lower = -0.4f;
-    transactionAuthored.task.commands.values[4u].upper = 0.4f;
-    transactionAuthored.task.commands.values[4u].limitLower = -0.4f;
-    transactionAuthored.task.commands.values[4u].limitUpper = 0.4f;
+    transactionAuthored.task.commands.groups[0u].values[4u].lower =
+        -0.4f;
+    transactionAuthored.task.commands.groups[0u].values[4u].upper =
+        0.4f;
+    transactionAuthored.task.commands.groups[0u].values[4u]
+        .limitLower = -0.4f;
+    transactionAuthored.task.commands.groups[0u].values[4u]
+        .limitUpper = 0.4f;
+    transactionAuthored.task.commands.groups[0u]
+        .minimumDurationSeconds = 0.02f;
+    transactionAuthored.task.commands.groups[0u]
+        .maximumDurationSeconds = 0.02f;
     transactionAuthored.task.events.values = {{
         .id = "axis_velocity_transaction_canary",
         .operation = metalrobo::TaskEventOperator::
@@ -5051,9 +5260,9 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         );
     }
 
-    // Advance both branches once so the event fire counter is nonzero before
-    // the candidate reset mutates it. The rejected reset must restore that
-    // counter, not merely reconstruct the same initial countdown.
+    // Advance both branches once so the event fire count and command-group
+    // sample ordinal are nonzero before the candidate reset mutates them. The
+    // rejected reset must restore both, not reconstruct initial countdowns.
     metalrobo::MetalWorldResult taskReferenceCommitted;
     metalrobo::MetalWorldResult taskCandidateCommitted;
     const auto taskReferenceCommit = continueTaskBranch(
@@ -5079,7 +5288,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             taskCandidateCommitted.transitions
         )) {
         fail(
-            "native TaskIR event rollback branches did not establish an identical committed fire count"
+            "native TaskIR rollback branches did not establish identical command/event counters"
         );
     }
 
@@ -5554,6 +5763,7 @@ int main() {
             layout.scalarStateCount != 40u ||
             layout.delayStateCount != 2u ||
             layout.commandCount != 3u ||
+            layout.commandGroupCount != 1u ||
             layout.eventCount != 2u ||
             layout.recorderCount != 3u) {
             fail("compiled G1 task layout changed");
@@ -5588,6 +5798,7 @@ int main() {
             program.header().curriculum.y != 1000u ||
             program.header().curriculum.z == MR_INVALID_INDEX ||
             program.header().curriculum.w != 3u ||
+            program.header().schedule.z != 1u ||
             std::abs(program.header().taskScalars.x - 0.8f) >
                 1.0e-6f ||
             std::abs(program.header().taskScalars.y - 0.8f) >
@@ -5596,11 +5807,20 @@ int main() {
                 1.0e-6f ||
             std::abs(program.header().taskScalars.w - 1.0f) >
                 1.0e-6f ||
-            std::abs(program.header().commandSchedule.x - 0.02f) >
+            !std::ranges::equal(
+                program.commandGroupIds(),
+                std::array<std::string, 1u>{"base_velocity"}
+            ) ||
+            program.commandGroups().size() != 1u ||
+            program.commandGroups()[0u].members.x != 0u ||
+            program.commandGroups()[0u].members.y != 3u ||
+            (program.commandGroups()[0u].members.z == 0u &&
+             program.commandGroups()[0u].members.w == 0u) ||
+            std::abs(program.commandGroups()[0u].schedule.x - 0.02f) >
                 1.0e-6f ||
-            program.header().commandSchedule.y != 10.0f ||
-            program.header().commandSchedule.z != 10.0f ||
-            program.header().commandSchedule.w != 0.0f ||
+            program.commandGroups()[0u].schedule.y != 10.0f ||
+            program.commandGroups()[0u].schedule.z != 10.0f ||
+            program.commandGroups()[0u].schedule.w != 0.0f ||
             program.eventOperators()[0u].schedule.x != 5.0f ||
             program.eventOperators()[0u].schedule.y != 5.0f ||
             program.eventOperators()[1u].schedule.x != 5.0f ||
@@ -5920,8 +6140,8 @@ int main() {
             );
         }
         metalrobo::TaskPack duplicateCommand = authored.task;
-        duplicateCommand.commands.values[1u].id =
-            duplicateCommand.commands.values[0u].id;
+        duplicateCommand.commands.groups[0u].values[1u].id =
+            duplicateCommand.commands.groups[0u].values[0u].id;
         const auto duplicateCommandRejected =
             metalrobo::compileTaskProgram(
                 duplicateCommand,
@@ -5934,6 +6154,59 @@ int main() {
             repeated.fingerprint() != preserved) {
             fail(
                 "duplicate command identity was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack duplicateCommandGroup = authored.task;
+        duplicateCommandGroup.commands.groups.push_back(
+            duplicateCommandGroup.commands.groups.front()
+        );
+        duplicateCommandGroup.commands.groups.back().values.front().id =
+            "unique_command_in_duplicate_group";
+        const auto duplicateCommandGroupRejected =
+            metalrobo::compileTaskProgram(
+                duplicateCommandGroup,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (duplicateCommandGroupRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "duplicate command-group identity was not transactionally rejected"
+            );
+        }
+        metalrobo::TaskPack emptyCommandGroup = authored.task;
+        emptyCommandGroup.commands.groups.front().values.clear();
+        const auto emptyCommandGroupRejected =
+            metalrobo::compileTaskProgram(
+                emptyCommandGroup,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (emptyCommandGroupRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail("empty command group was not transactionally rejected");
+        }
+        metalrobo::TaskPack invalidCommandSchedule = authored.task;
+        invalidCommandSchedule.commands.groups.front()
+            .minimumDurationSeconds = 2.0f;
+        invalidCommandSchedule.commands.groups.front()
+            .maximumDurationSeconds = 1.0f;
+        const auto invalidCommandScheduleRejected =
+            metalrobo::compileTaskProgram(
+                invalidCommandSchedule,
+                world,
+                compiledWorld.sensors,
+                repeated
+            );
+        if (invalidCommandScheduleRejected.status !=
+                metalrobo::TaskCompileStatus::invalidPack ||
+            repeated.fingerprint() != preserved) {
+            fail(
+                "invalid command-group schedule was not transactionally rejected"
             );
         }
         metalrobo::TaskPack unresolvedCommand = authored.task;
@@ -5963,8 +6236,13 @@ int main() {
             );
         }
         metalrobo::TaskPack expandedCommands = authored.task;
-        expandedCommands.commands.values.push_back({
-            .id = "fourth_scalar_command",
+        expandedCommands.commands.groups.push_back({
+            .id = "independent_command_group",
+            .values = {{
+                .id = "fourth_scalar_command",
+            }},
+            .minimumDurationSeconds = 0.04f,
+            .maximumDurationSeconds = 0.04f,
         });
         metalrobo::CompiledTaskProgram expandedCommandProgram;
         const auto expandedCommandStatus =
@@ -5977,6 +6255,7 @@ int main() {
         if (!expandedCommandStatus.succeeded() ||
             !expandedCommandProgram.valid() ||
             expandedCommandProgram.layout().commandCount != 4u ||
+            expandedCommandProgram.layout().commandGroupCount != 2u ||
             expandedCommandProgram.layout().scalarStateCount != 41u ||
             expandedCommandProgram.commandIds().back() !=
                 "fourth_scalar_command") {
@@ -5985,8 +6264,10 @@ int main() {
             );
         }
         metalrobo::TaskPack invalidCommandRange = authored.task;
-        invalidCommandRange.commands.values.front().lower = 1.0f;
-        invalidCommandRange.commands.values.front().upper = -1.0f;
+        invalidCommandRange.commands.groups.front().values.front().lower =
+            1.0f;
+        invalidCommandRange.commands.groups.front().values.front().upper =
+            -1.0f;
         const auto invalidCommandRangeRejected =
             metalrobo::compileTaskProgram(
                 invalidCommandRange,
@@ -6489,6 +6770,7 @@ int main() {
             << "/" << MR_RUNTIME_PIPELINE_COUNT
             << " force_n=" << fixedBase.forceNormNewtons
             << " torque_nm=" << fixedBase.torqueNormNewtonMetres
+            << " command_groups=pass"
             << " event_dv=" << fixedBase.eventVelocityDelta
             << " sensor_transaction=pass"
             << " physical_transaction=pass"

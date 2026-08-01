@@ -85,6 +85,19 @@ LearningPackResult validateTaskArtifact(
             "TaskPack identity, dimensions, or episode limits are invalid"
         );
     }
+    std::uint64_t commandCount = 0u;
+    for (const TaskCommandGroupSpec& group : pack.commands.groups) {
+        if (!countFits(group.values.size()) ||
+            commandCount >=
+                std::numeric_limits<std::uint32_t>::max() -
+                    group.values.size()) {
+            return fail(
+                LearningPackStatus::capacityOverflow,
+                "TaskPack command-group table exceeds the 32-bit artifact boundary"
+            );
+        }
+        commandCount += group.values.size();
+    }
     if (!countFits(pack.actions.size()) ||
         !countFits(pack.actorFrame.size()) ||
         !countFits(pack.critic.size()) ||
@@ -96,7 +109,8 @@ LearningPackResult validateTaskArtifact(
         !countFits(pack.recorders.size()) ||
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
-        !countFits(pack.commands.values.size()) ||
+        !countFits(pack.commands.groups.size()) ||
+        commandCount >= std::numeric_limits<std::uint32_t>::max() ||
         !countFits(pack.terrain.sampleOffsets.size()) ||
         !countFits(pack.terrain.resetTranslations.size())) {
         return fail(
@@ -213,10 +227,17 @@ LearningPackResult validateTaskArtifact(
             }
         ) ||
         !std::all_of(
-            pack.commands.values.begin(),
-            pack.commands.values.end(),
-            [](const auto& value) {
-                return stringFits(value.id);
+            pack.commands.groups.begin(),
+            pack.commands.groups.end(),
+            [](const TaskCommandGroupSpec& group) {
+                return stringFits(group.id) &&
+                    std::all_of(
+                        group.values.begin(),
+                        group.values.end(),
+                        [](const TaskCommandSpec& value) {
+                            return stringFits(value.id);
+                        }
+                    );
             }
         ) ||
         !stringFits(pack.curriculum.successSignal) ||
@@ -913,19 +934,27 @@ std::vector<std::byte> serializeTask(
     );
     writeRichVector(
         writer,
-        pack.commands.values,
-        [](Writer& target, const TaskCommandSpec& value) {
-            target.string(value.id);
-            target.pod(value.lower);
-            target.pod(value.upper);
-            target.pod(value.limitLower);
-            target.pod(value.limitUpper);
-            target.pod(value.curriculumStep);
+        pack.commands.groups,
+        [](Writer& target, const TaskCommandGroupSpec& group) {
+            target.string(group.id);
+            writeRichVector(
+                target,
+                group.values,
+                [](Writer& memberTarget,
+                   const TaskCommandSpec& value) {
+                    memberTarget.string(value.id);
+                    memberTarget.pod(value.lower);
+                    memberTarget.pod(value.upper);
+                    memberTarget.pod(value.limitLower);
+                    memberTarget.pod(value.limitUpper);
+                    memberTarget.pod(value.curriculumStep);
+                }
+            );
+            target.pod(group.zeroProbability);
+            target.pod(group.minimumDurationSeconds);
+            target.pod(group.maximumDurationSeconds);
         }
     );
-    writer.pod(pack.commands.zeroProbability);
-    writer.pod(pack.commands.minimumDurationSeconds);
-    writer.pod(pack.commands.maximumDurationSeconds);
     writeRichVector(
         writer,
         pack.events.values,
@@ -1103,19 +1132,27 @@ bool deserializeTask(
         ) ||
         !readRichVector(
             reader,
-            pack.commands.values,
-            [](Reader& source, TaskCommandSpec& value) {
-                return source.string(value.id) &&
-                    source.pod(value.lower) &&
-                    source.pod(value.upper) &&
-                    source.pod(value.limitLower) &&
-                    source.pod(value.limitUpper) &&
-                    source.pod(value.curriculumStep);
+            pack.commands.groups,
+            [](Reader& source, TaskCommandGroupSpec& group) {
+                return source.string(group.id) &&
+                    readRichVector(
+                        source,
+                        group.values,
+                        [](Reader& memberSource,
+                           TaskCommandSpec& value) {
+                            return memberSource.string(value.id) &&
+                                memberSource.pod(value.lower) &&
+                                memberSource.pod(value.upper) &&
+                                memberSource.pod(value.limitLower) &&
+                                memberSource.pod(value.limitUpper) &&
+                                memberSource.pod(value.curriculumStep);
+                        }
+                    ) &&
+                    source.pod(group.zeroProbability) &&
+                    source.pod(group.minimumDurationSeconds) &&
+                    source.pod(group.maximumDurationSeconds);
             }
         ) ||
-        !reader.pod(pack.commands.zeroProbability) ||
-        !reader.pod(pack.commands.minimumDurationSeconds) ||
-        !reader.pod(pack.commands.maximumDurationSeconds) ||
         !readRichVector(
             reader,
             pack.events.values,

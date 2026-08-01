@@ -1404,45 +1404,68 @@ inline void publishCritic(
     }
 }
 
-inline uint durationSteps(
-    device const MRTaskDispatchGPU& dispatch,
-    const uint environment,
-    const uint episode,
-    const uint episodeStep,
-    const uint channel,
-    const float lowerSeconds,
-    const float upperSeconds
+inline ulong taskCommandIdentity(
+    const MRTaskCommandOperatorGPU operation
 ) {
-    return max(
-        1u,
-        uint(floor(
-            randomRange(
-                dispatch,
-                environment,
-                episode,
-                episodeStep,
-                channel,
-                lowerSeconds,
-                upperSeconds
-            ) /
-            dispatch.timing.x
-        ))
-    );
+    return ulong(operation.identity.x) |
+        (ulong(operation.identity.y) << 32u);
 }
 
-inline void sampleCommands(
+inline ulong taskCommandGroupIdentity(
+    const MRTaskCommandGroupGPU group
+) {
+    return ulong(group.members.z) |
+        (ulong(group.members.w) << 32u);
+}
+
+inline uint commandGroupDurationSteps(
     device const MRTaskDispatchGPU& dispatch,
-    device const MRTaskProgramHeaderGPU& program,
+    const MRTaskCommandGroupGPU group,
+    const uint environment,
+    const uint episode,
+    const uint sampleOrdinal
+) {
+    const float unit = mr_semantic_counter_uniform(
+        dispatch.seed,
+        environment,
+        episode,
+        taskCommandGroupIdentity(group),
+        sampleOrdinal,
+        1u,
+        MR_COUNTER_PURPOSE_TASK_COMMAND
+    );
+    const float seconds = mix(
+        group.schedule.y,
+        group.schedule.z,
+        unit
+    );
+    return max(1u, uint(floor(seconds / dispatch.timing.x)));
+}
+
+inline void sampleCommandGroup(
+    device const MRTaskDispatchGPU& dispatch,
+    const MRTaskCommandGroupGPU group,
     device const MRTaskCommandOperatorGPU* commands,
     const uint environment,
     const uint episode,
-    const uint episodeStep,
+    const uint sampleOrdinal,
     const uint curriculum,
     device float* output
 ) {
-    for (uint commandIndex = 0u;
-         commandIndex < program.curriculum.w;
-         ++commandIndex) {
+    const float zeroUnit = mr_semantic_counter_uniform(
+        dispatch.seed,
+        environment,
+        episode,
+        taskCommandGroupIdentity(group),
+        sampleOrdinal,
+        0u,
+        MR_COUNTER_PURPOSE_TASK_COMMAND
+    );
+    const bool zeroGroup = zeroUnit < group.schedule.x;
+    for (uint localIndex = 0u;
+         localIndex < group.members.y;
+         ++localIndex) {
+        const uint commandIndex = group.members.x + localIndex;
         const MRTaskCommandOperatorGPU operation =
             commands[commandIndex];
         const float expansion =
@@ -1455,34 +1478,18 @@ inline void sampleCommands(
             operation.range.y + expansion,
             operation.range.w
         );
-        const ulong identity =
-            ulong(operation.identity.x) |
-            (ulong(operation.identity.y) << 32u);
         const float unit = mr_semantic_counter_uniform(
             dispatch.seed,
             environment,
             episode,
-            identity,
-            episodeStep,
+            taskCommandIdentity(operation),
+            sampleOrdinal,
             0u,
             MR_COUNTER_PURPOSE_TASK_COMMAND
         );
-        output[commandIndex] =
-            lower + (upper - lower) * unit;
-    }
-    const bool zeroCohort = randomUnit(
-            dispatch,
-            environment,
-            episode,
-            episodeStep,
-            19u
-        ) < program.commandSchedule.x;
-    if (zeroCohort) {
-        for (uint commandIndex = 0u;
-             commandIndex < program.curriculum.w;
-             ++commandIndex) {
-            output[commandIndex] = 0.0f;
-        }
+        output[commandIndex] = zeroGroup
+            ? 0.0f
+            : lower + (upper - lower) * unit;
     }
 }
 
@@ -1597,6 +1604,8 @@ kernel void mr_task_checkpoint_state(
         [[buffer(MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS)]],
     device const float* scalarState
         [[buffer(MR_TASK_TRANSACTION_SCALAR_STATE)]],
+    device const MRTaskCommandGroupStateGPU* commandGroupStates
+        [[buffer(MR_TASK_TRANSACTION_COMMAND_GROUP_STATES)]],
     device const MRTaskEventStateGPU* eventStates
         [[buffer(MR_TASK_TRANSACTION_EVENT_STATES)]],
     device MRTaskStateGPU* checkpointStates
@@ -1619,6 +1628,8 @@ kernel void mr_task_checkpoint_state(
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS)]],
     device float* checkpointScalarState
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE)]],
+    device MRTaskCommandGroupStateGPU* checkpointCommandGroupStates
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_COMMAND_GROUP_STATES)]],
     device MRTaskEventStateGPU* checkpointEventStates
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_EVENT_STATES)]],
     const uint environment [[thread_position_in_grid]]
@@ -1658,6 +1669,14 @@ kernel void mr_task_checkpoint_state(
          ++index) {
         checkpointScalarState[scalarBase + index] =
             scalarState[scalarBase + index];
+    }
+    const uint commandGroupBase =
+        environment * program.schedule.z;
+    for (uint index = 0u;
+         index < program.schedule.z;
+         ++index) {
+        checkpointCommandGroupStates[commandGroupBase + index] =
+            commandGroupStates[commandGroupBase + index];
     }
     const uint eventBase = environment * program.counts1.z;
     for (uint index = 0u;
@@ -1752,6 +1771,8 @@ kernel void mr_task_restore_failed_state(
         [[buffer(MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS)]],
     device float* scalarState
         [[buffer(MR_TASK_TRANSACTION_SCALAR_STATE)]],
+    device MRTaskCommandGroupStateGPU* commandGroupStates
+        [[buffer(MR_TASK_TRANSACTION_COMMAND_GROUP_STATES)]],
     device MRTaskEventStateGPU* eventStates
         [[buffer(MR_TASK_TRANSACTION_EVENT_STATES)]],
     device const MRTaskStateGPU* checkpointStates
@@ -1774,6 +1795,8 @@ kernel void mr_task_restore_failed_state(
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS)]],
     device const float* checkpointScalarState
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE)]],
+    device const MRTaskCommandGroupStateGPU* checkpointCommandGroupStates
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_COMMAND_GROUP_STATES)]],
     device const MRTaskEventStateGPU* checkpointEventStates
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_EVENT_STATES)]],
     const uint environment [[thread_position_in_grid]]
@@ -1807,6 +1830,14 @@ kernel void mr_task_restore_failed_state(
          ++index) {
         scalarState[scalarBase + index] =
             checkpointScalarState[scalarBase + index];
+    }
+    const uint commandGroupBase =
+        environment * program.schedule.z;
+    for (uint index = 0u;
+         index < program.schedule.z;
+         ++index) {
+        commandGroupStates[commandGroupBase + index] =
+            checkpointCommandGroupStates[commandGroupBase + index];
     }
     const uint eventBase = environment * program.counts1.z;
     for (uint index = 0u;
@@ -1866,6 +1897,105 @@ kernel void mr_task_restore_failed_state(
     }
     controllerParameters[environment] =
         checkpointControllerParameters[environment];
+}
+
+// Resolves reset intent and initializes every independently scheduled command
+// group before the reset observation. Ordinary boundary resampling occurs in
+// mr_task_complete after reward evaluation and before next-state observation
+// construction, so one transition never mixes two command contracts.
+kernel void mr_task_prepare_commands(
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_COMMAND_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_COMMAND_PROGRAM)]],
+    device const uchar* arena
+        [[buffer(MR_TASK_COMMAND_ARENA)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_COMMAND_PASS)]],
+    device uint* resetMasks
+        [[buffer(MR_TASK_COMMAND_RESET_MASKS)]],
+    device const MRTaskStateGPU* taskStates
+        [[buffer(MR_TASK_COMMAND_TASK_STATES)]],
+    device const MRTaskCurriculumStateGPU* curriculumState
+        [[buffer(MR_TASK_COMMAND_CURRICULUM_STATE)]],
+    device MRTaskCommandGroupStateGPU* groupStates
+        [[buffer(MR_TASK_COMMAND_GROUP_STATES)]],
+    device float* scalarState
+        [[buffer(MR_TASK_COMMAND_SCALAR_STATE)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        program.curriculum.x == 0u) {
+        return;
+    }
+
+    const uint maskIndex =
+        pass.controlStep * dispatch.counts.x + environment;
+    const MRTaskStateGPU taskState = taskStates[environment];
+    const bool reset =
+        taskState.status.x == 0u ||
+        taskState.status.y != 0u ||
+        resetMasks[maskIndex] != 0u;
+    resetMasks[maskIndex] = reset ? 1u : 0u;
+    if (!reset || program.schedule.z == 0u) {
+        return;
+    }
+
+    device const MRTaskCommandOperatorGPU* commands =
+        taskTable<MRTaskCommandOperatorGPU>(
+            arena,
+            program.offsets3.y
+        );
+    device const MRTaskCommandGroupGPU* groups =
+        taskTable<MRTaskCommandGroupGPU>(
+            arena,
+            program.offsets4.z
+        );
+    const uint curriculum = min(
+        curriculumState[0].commandLevel,
+        program.curriculum.x - 1u
+    );
+    const uint episode = taskState.episode.y + 1u;
+    const uint scalarStride =
+        program.layout.z + program.curriculum.w;
+    device float* commandValues =
+        scalarState + environment * scalarStride + program.layout.z;
+    const uint groupBase = environment * program.schedule.z;
+
+    for (uint groupIndex = 0u;
+         groupIndex < program.schedule.z;
+         ++groupIndex) {
+        const MRTaskCommandGroupGPU group = groups[groupIndex];
+        MRTaskCommandGroupStateGPU state =
+            groupStates[groupBase + groupIndex];
+        sampleCommandGroup(
+            dispatch,
+            group,
+            commands,
+            environment,
+            episode,
+            0u,
+            curriculum,
+            commandValues
+        );
+        state.schedule = uint4(
+            commandGroupDurationSteps(
+                dispatch,
+                group,
+                environment,
+                episode,
+                0u
+            ),
+            1u,
+            0u,
+            0u
+        );
+        groupStates[groupBase + groupIndex] = state;
+    }
 }
 
 kernel void mr_task_observe(
@@ -1988,11 +2118,6 @@ kernel void mr_task_observe(
         taskTable<float4>(arena, program.offsets2.w);
     device const float4* terrainProfiles =
         taskTable<float4>(arena, program.offsets3.x);
-    device const MRTaskCommandOperatorGPU* commandOperators =
-        taskTable<MRTaskCommandOperatorGPU>(
-            arena,
-            program.offsets3.y
-        );
     device const MRTaskFrameGPU* frames =
         taskTable<MRTaskFrameGPU>(
             arena,
@@ -2386,15 +2511,7 @@ kernel void mr_task_observe(
             terrainLevel
         );
         state.schedule = uint4(
-            durationSteps(
-                dispatch,
-                environment,
-                episode,
-                0u,
-                32u,
-                program.commandSchedule.y,
-                program.commandSchedule.z
-            ),
+            0u,
             0u,
             actionDelay,
             observationDelay
@@ -2404,16 +2521,6 @@ kernel void mr_task_observe(
             0u,
             MR_TASK_TERMINATION_CONTINUING,
             0u
-        );
-        sampleCommands(
-            dispatch,
-            program,
-            commandOperators,
-            environment,
-            episode,
-            0u,
-            curriculum,
-            commandValues
         );
         state.powerPhaseReturnMetric = float4(0.0f);
 
@@ -3439,6 +3546,8 @@ kernel void mr_task_complete(
         [[buffer(MR_TASK_COMPLETE_CONTROLLER_PARAMETERS)]],
     device float* scalarState
         [[buffer(MR_TASK_COMPLETE_SCALAR_STATE)]],
+    device MRTaskCommandGroupStateGPU* commandGroupStates
+        [[buffer(MR_TASK_COMPLETE_COMMAND_GROUP_STATES)]],
     device MRTaskTransitionGPU* transitions
         [[buffer(MR_TASK_COMPLETE_TRANSITIONS)]],
     device const MRShapeGPU* shapes
@@ -3522,6 +3631,11 @@ kernel void mr_task_complete(
         taskTable<MRTaskCommandOperatorGPU>(
             arena,
             program.offsets3.y
+        );
+    device const MRTaskCommandGroupGPU* commandGroups =
+        taskTable<MRTaskCommandGroupGPU>(
+            arena,
+            program.offsets4.z
         );
     device const MRTaskFrameGPU* frames =
         taskTable<MRTaskFrameGPU>(
@@ -4188,28 +4302,53 @@ kernel void mr_task_complete(
         }
     }
 
-    if (!done && state.schedule.x <= 1u) {
-        sampleCommands(
-            dispatch,
-            program,
-            commandOperators,
-            environment,
-            state.episode.y,
-            episodeSteps,
-            curriculum,
-            commandValues
-        );
-        state.schedule.x = durationSteps(
-            dispatch,
-            environment,
-            state.episode.y,
-            episodeSteps,
-            64u,
-            program.commandSchedule.y,
-            program.commandSchedule.z
-        );
-    } else if (!done) {
-        --state.schedule.x;
+    // Reward and termination above consume the command that drove this
+    // transition. Advance groups only now, before constructing the next
+    // observation, so actions and rewards never see different contracts.
+    if (!done) {
+        const uint commandGroupBase =
+            environment * program.schedule.z;
+        for (uint groupIndex = 0u;
+             groupIndex < program.schedule.z;
+             ++groupIndex) {
+            const MRTaskCommandGroupGPU group =
+                commandGroups[groupIndex];
+            MRTaskCommandGroupStateGPU groupState =
+                commandGroupStates[
+                    commandGroupBase + groupIndex
+                ];
+            if (groupState.schedule.x <= 1u) {
+                const uint sampleOrdinal =
+                    groupState.schedule.y;
+                sampleCommandGroup(
+                    dispatch,
+                    group,
+                    commandOperators,
+                    environment,
+                    state.episode.y,
+                    sampleOrdinal,
+                    curriculum,
+                    commandValues
+                );
+                groupState.schedule = uint4(
+                    commandGroupDurationSteps(
+                        dispatch,
+                        group,
+                        environment,
+                        state.episode.y,
+                        sampleOrdinal
+                    ),
+                    sampleOrdinal + 1u,
+                    0u,
+                    0u
+                );
+            } else {
+                --groupState.schedule.x;
+            }
+            commandGroupStates[
+                commandGroupBase + groupIndex
+            ] = groupState;
+        }
     }
     state.episode = uint4(
         episodeSteps,

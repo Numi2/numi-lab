@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 25u
+#define MR_TASK_PROGRAM_ABI_VERSION 26u
 #define MR_TASK_TRANSITION_METRIC_COUNT 3u
 
 #define MR_TASK_EVENT_GENERALIZED_VELOCITY_DELTA 0u
@@ -226,7 +226,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 root;
     // terrain scene-body local index, shape index, geometry index, profiles.
     mr_uint4 terrain;
-    // max episode steps, max observation delay, reserved, flags.
+    // max episode steps, max observation delay, command groups, flags.
     mr_uint4 schedule;
     // Curriculum levels, evaluation-window steps, success signal, and compact
     // command count. The signal is MR_INVALID_INDEX without promotion.
@@ -234,8 +234,6 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // Phase period, curriculum success threshold, minimum episode-survival
     // fraction, and support-force threshold.
     mr_float4 taskScalars;
-    // Cohort-zero probability and command duration min/max, seconds.
-    mr_float4 commandSchedule;
     // Byte offsets in the immutable packed task arena:
     // action bindings, actor operators, critic operators, contact groups.
     mr_uint4 offsets0;
@@ -257,7 +255,7 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // SignalIR nodes, semantic source leaves, spatial-Jacobian stride, and
     // dense current-SensorIR semantic-source scratch count.
     mr_uint4 graphCounts;
-    // SignalIR source operators and nodes; remaining offsets are reserved.
+    // SignalIR source operators/nodes, command groups; final offset reserved.
     mr_uint4 offsets4;
 } MRTaskProgramHeaderGPU;
 
@@ -297,6 +295,13 @@ typedef struct MR_ALIGN16 MRTaskCommandOperatorGPU {
     // Stable counter-RNG identity low/high and reserved values.
     mr_uint4 identity;
 } MRTaskCommandOperatorGPU;
+
+typedef struct MR_ALIGN16 MRTaskCommandGroupGPU {
+    // Contiguous member offset/count and stable identity low/high.
+    mr_uint4 members;
+    // Cohort-zero probability, minimum/maximum duration seconds, reserved.
+    mr_float4 schedule;
+} MRTaskCommandGroupGPU;
 
 typedef struct MR_ALIGN16 MRTaskEventOperatorGPU {
     // Opcode, resolved generalized-velocity index, stable identity low/high.
@@ -391,7 +396,7 @@ typedef struct MR_ALIGN16 MRTaskBiasSpecGPU {
 typedef struct MR_ALIGN16 MRTaskStateGPU {
     // episode step, episode index, curriculum level, terrain level.
     mr_uint4 episode;
-    // command steps, reserved, actuator delay, observation delay.
+    // reserved, reserved, actuator delay, observation delay.
     mr_uint4 schedule;
     // initialized, pending reset, last termination, reserved.
     mr_uint4 status;
@@ -399,6 +404,11 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     // curriculum metric. Commands live in the topology-sized scalar arena.
     mr_float4 powerPhaseReturnMetric;
 } MRTaskStateGPU;
+
+typedef struct MR_ALIGN16 MRTaskCommandGroupStateGPU {
+    // Countdown steps, next sample ordinal, reserved, reserved.
+    mr_uint4 schedule;
+} MRTaskCommandGroupStateGPU;
 
 typedef struct MR_ALIGN16 MRTaskEventStateGPU {
     // Countdown steps, fire count, reserved, reserved.
@@ -439,11 +449,12 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 320u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 304u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 64u);
 static_assert(sizeof(MRTaskSignalOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskCommandOperatorGPU) == 48u);
+static_assert(sizeof(MRTaskCommandGroupGPU) == 32u);
 static_assert(sizeof(MRTaskEventOperatorGPU) == 64u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);
@@ -454,6 +465,7 @@ static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
 static_assert(sizeof(MRTaskStateGPU) == 64u);
+static_assert(sizeof(MRTaskCommandGroupStateGPU) == 16u);
 static_assert(sizeof(MRTaskEventStateGPU) == 16u);
 static_assert(sizeof(MRTaskCurriculumStateGPU) == 48u);
 static_assert(sizeof(MRTaskTransitionGPU) == 96u);
