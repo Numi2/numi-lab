@@ -1558,6 +1558,11 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         .frameOffsets = {0u, 3u, 8u, 18u},
         .nearDepthMeters = 0.1f,
         .farDepthMeters = 5.0f,
+        .fullDropoutProbability = 0.02f,
+        .pixelDropoutProbability = 0.10f,
+        .depthJitterMeters = 0.15f,
+        .depthNoiseSigmaMeters = 0.03f,
+        .edgeFlickerProbability = 0.15f,
     };
     const std::uint32_t visualPixels =
         task.visual.width * task.visual.height;
@@ -1583,9 +1588,27 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
             return reward.operation ==
                     TaskRewardOperator::recoveryTiltProgress ||
                 reward.operation ==
-                    TaskRewardOperator::recoveryCompletion;
+                    TaskRewardOperator::recoveryCompletion ||
+                reward.operation ==
+                    TaskRewardOperator::linearVelocityTracking ||
+                reward.operation ==
+                    TaskRewardOperator::yawVelocityTracking;
         }
     );
+    for (TaskRewardOperatorSpec& reward : task.rewards) {
+        if (reward.operation == TaskRewardOperator::actionRateSquared) {
+            reward.weight = -0.005f;
+        }
+    }
+    task.rewards.push_back({
+        .operation = TaskRewardOperator::projectileSafeStillness,
+        .weight = 0.5f,
+        .parameters = {2.0f, 0.0f, 0.0f, 0.0f},
+    });
+    task.rewards.push_back({
+        .operation = TaskRewardOperator::projectileSafeActionRate,
+        .weight = -0.05f,
+    });
     for (std::uint32_t sphere = 0u; sphere < 6u; ++sphere) {
         const std::string projectile =
             "locomotion_dynamic_sphere_" + std::to_string(sphere);

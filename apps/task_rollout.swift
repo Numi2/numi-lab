@@ -1136,8 +1136,26 @@ private enum TaskRolloutMain {
                             : 0.0,
                     ]
                 }
+            let anyLinkProjectileHitCount =
+                terminationReasonCounts[
+                    String(
+                        MetalRoboTaskTerminationReason
+                            .projectileContact.rawValue
+                    )
+                ] ?? 0
+            let cleanProjectileMissCount = impactMisses.reduce(0, +)
+            let completedProjectileTrialCount =
+                anyLinkProjectileHitCount + cleanProjectileMissCount
+            let balanceFailureCount =
+                (terminationReasonCounts[
+                    String(MetalRoboTaskTerminationReason.height.rawValue)
+                ] ?? 0) +
+                (terminationReasonCounts[
+                    String(MetalRoboTaskTerminationReason.tilt.rawValue)
+                ] ?? 0)
             let output: [String: Any] = [
                 "benchmark": "swift_native_task_rollout",
+                "benchmark_seed": NSNumber(value: options.seed),
                 "world_source": worldSource,
                 "action_source":
                     options.policyPack != nil
@@ -1221,6 +1239,20 @@ private enum TaskRolloutMain {
                 "termination_count": terminationCount,
                 "termination_reason_counts":
                     terminationReasonCounts,
+                "any_link_projectile_hit_count":
+                    anyLinkProjectileHitCount,
+                "clean_projectile_miss_count":
+                    cleanProjectileMissCount,
+                "completed_projectile_trial_count":
+                    completedProjectileTrialCount,
+                "any_link_dodge_rate":
+                    Double(cleanProjectileMissCount) /
+                    Double(max(completedProjectileTrialCount, 1)),
+                "any_link_projectile_hit_rate":
+                    Double(anyLinkProjectileHitCount) /
+                    Double(max(completedProjectileTrialCount, 1)),
+                "height_or_tilt_termination_count":
+                    balanceFailureCount,
                 "mean_reward":
                     rewardSum / Double(max(transitionCount, 1)),
                 "mean_tracking_score":

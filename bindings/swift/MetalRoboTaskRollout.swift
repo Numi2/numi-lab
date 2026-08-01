@@ -1,6 +1,16 @@
 import Foundation
 import MetalRoboC
 
+public enum MetalRoboTaskTerminationReason: UInt32, Sendable {
+    case continuing = 0
+    case height = 1
+    case tilt = 2
+    case contact = 3
+    case timeout = 4
+    case physicsError = 5
+    case projectileContact = 6
+}
+
 private func withOptionalCString<Result>(
     _ value: String?,
     _ body: (UnsafePointer<CChar>?) -> Result

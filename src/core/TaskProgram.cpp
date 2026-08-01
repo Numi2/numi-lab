@@ -659,7 +659,20 @@ TaskCompileDiagnostics compileTaskProgram(
          !finite(pack.visual.farDepthMeters) ||
          !(pack.visual.nearDepthMeters > 0.0f) ||
          !(pack.visual.farDepthMeters >
-           pack.visual.nearDepthMeters))) {
+           pack.visual.nearDepthMeters) ||
+         !finite(pack.visual.fullDropoutProbability) ||
+         pack.visual.fullDropoutProbability < 0.0f ||
+         pack.visual.fullDropoutProbability > 1.0f ||
+         !finite(pack.visual.pixelDropoutProbability) ||
+         pack.visual.pixelDropoutProbability < 0.0f ||
+         pack.visual.pixelDropoutProbability > 1.0f ||
+         !finite(pack.visual.depthJitterMeters) ||
+         pack.visual.depthJitterMeters < 0.0f ||
+         !finite(pack.visual.depthNoiseSigmaMeters) ||
+         pack.visual.depthNoiseSigmaMeters < 0.0f ||
+         !finite(pack.visual.edgeFlickerProbability) ||
+         pack.visual.edgeFlickerProbability < 0.0f ||
+         pack.visual.edgeFlickerProbability > 1.0f)) {
         return reject(
             TaskCompileStatus::invalidPack,
             "visual",
@@ -1521,6 +1534,8 @@ TaskCompileDiagnostics compileTaskProgram(
             break;
         }
         case TaskRewardOperator::projectileMiss:
+        case TaskRewardOperator::projectileSafeStillness:
+        case TaskRewardOperator::projectileSafeActionRate:
             break;
         case TaskRewardOperator::projectileEvasion: {
             bool ambiguous = false;
@@ -1626,6 +1641,15 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 reward.target,
                 "projectile evasion requires positive distance and velocity scales plus a position blend in [0, 1]"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::projectileSafeStillness &&
+            !(reward.parameters.x > 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                "projectile_safe_stillness",
+                "projectile-safe stillness requires a positive velocity scale"
             );
         }
         if (reward.operation ==
@@ -2467,8 +2491,14 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.visualRange = {
         pack.visual.nearDepthMeters,
         pack.visual.farDepthMeters,
+        pack.visual.edgeFlickerProbability,
         0.0f,
-        0.0f,
+    };
+    staged->header.visualCorruption = {
+        pack.visual.fullDropoutProbability,
+        pack.visual.pixelDropoutProbability,
+        pack.visual.depthJitterMeters,
+        pack.visual.depthNoiseSigmaMeters,
     };
 
     const auto appendArena =

@@ -468,6 +468,10 @@ int main() {
         trackerConfig.maskedDepthFrameOffsets = {0u, 1u};
         trackerConfig.maskedDepthNearMeters = 0.1f;
         trackerConfig.maskedDepthFarMeters = 5.0f;
+        trackerConfig.maskedDepthPixelDropoutProbability = 0.1f;
+        trackerConfig.maskedDepthJitterMeters = 0.15f;
+        trackerConfig.maskedDepthNoiseSigmaMeters = 0.03f;
+        trackerConfig.maskedDepthEdgeFlickerProbability = 0.15f;
         require(
             tracker.compile(renderer, worlds, std::move(trackerConfig)),
             "device object tracker compile"
@@ -500,10 +504,15 @@ int main() {
         id<MTLBuffer> observationBuffer = [device
             newBufferWithLength:trackElements * sizeof(float)
                          options:MTLResourceStorageModeShared];
+        id<MTLBuffer> taskStateBuffer = [device
+            newBufferWithLength:
+                kEnvironmentCount * sizeof(MRTaskStateGPU)
+                         options:MTLResourceStorageModeShared];
         require(
             device != nil && queue != nil && command != nil &&
                 bodyBuffer != nil && resetBuffer != nil &&
-                historyBuffer != nil && observationBuffer != nil,
+                historyBuffer != nil && observationBuffer != nil &&
+                taskStateBuffer != nil,
             "device object tracker probe allocation"
         );
         std::memset(resetBuffer.contents, 0, resetBuffer.length);
@@ -518,13 +527,20 @@ int main() {
             0,
             observationBuffer.length
         );
+        std::memset(
+            taskStateBuffer.contents,
+            0,
+            taskStateBuffer.length
+        );
         metalrobo::MetalWorldDeviceObservationPass trackerPass{
             .commandBuffer = (__bridge void*)command,
             .currentBodies = (__bridge void*)bodyBuffer,
             .resetMasks = (__bridge void*)resetBuffer,
+            .taskStates = (__bridge void*)taskStateBuffer,
             .actorHistory = (__bridge void*)historyBuffer,
             .actorObservations = (__bridge void*)observationBuffer,
             .actorObservationOffsetElements = 0u,
+            .seed = 0x8d19c4a57b236ef0ull,
             .controlStep = 0u,
             .environmentCount = kEnvironmentCount,
             .bodyCount = static_cast<std::uint32_t>(
@@ -582,6 +598,10 @@ int main() {
             ),
             "device masked-depth reset history is invalid"
         );
+        const std::vector<float> firstDepth(
+            currentDepth,
+            currentDepth + visualPixels
+        );
         auto* deviceBodies = static_cast<MRBodyStateGPU*>(
             bodyBuffer.contents
         );
@@ -595,8 +615,23 @@ int main() {
             ].position.x += 0.02f;
         }
         id<MTLCommandBuffer> secondCommand = [queue commandBuffer];
+        std::fill_n(
+            static_cast<std::uint32_t*>(resetBuffer.contents),
+            kEnvironmentCount,
+            0u
+        );
+        auto* taskStates = static_cast<MRTaskStateGPU*>(
+            taskStateBuffer.contents
+        );
+        for (std::uint32_t environment = 0u;
+             environment < kEnvironmentCount;
+             ++environment) {
+            taskStates[environment].episode.x = 1u;
+        }
         trackerPass.commandBuffer = (__bridge void*)secondCommand;
-        trackerPass.controlStep = 1u;
+        // A one-step Swift submission begins again at local slot zero. The
+        // resident episode step must still advance visual temporal history.
+        trackerPass.controlStep = 0u;
         require(
             trackerProgram.encode(trackerProgram.context, trackerPass),
             "device object tracker temporal encode"
@@ -608,7 +643,12 @@ int main() {
         require(
             secondCommand.status == MTLCommandBufferStatusCompleted &&
                 tracked[newestTrack] > 0.5f &&
-                std::abs(tracked[newestTrack + 4u]) > 0.1f,
+                std::abs(tracked[newestTrack + 4u]) > 0.1f &&
+                std::equal(
+                    previousDepth,
+                    previousDepth + visualPixels,
+                    firstDepth.begin()
+                ),
             "device object tracker did not retain visible temporal motion"
         );
 

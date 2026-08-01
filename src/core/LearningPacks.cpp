@@ -84,6 +84,21 @@ LearningPackResult validateTaskArtifact(
             "TaskPack identity, dimensions, or episode limits are invalid"
         );
     }
+    const auto probability = [](const float value) {
+        return std::isfinite(value) && value >= 0.0f && value <= 1.0f;
+    };
+    if (!probability(pack.visual.fullDropoutProbability) ||
+        !probability(pack.visual.pixelDropoutProbability) ||
+        !probability(pack.visual.edgeFlickerProbability) ||
+        !std::isfinite(pack.visual.depthJitterMeters) ||
+        pack.visual.depthJitterMeters < 0.0f ||
+        !std::isfinite(pack.visual.depthNoiseSigmaMeters) ||
+        pack.visual.depthNoiseSigmaMeters < 0.0f) {
+        return fail(
+            LearningPackStatus::invalidPack,
+            "TaskPack visual corruption is invalid"
+        );
+    }
     if (!countFits(pack.actions.size()) ||
         !countFits(pack.actorFrame.size()) ||
         !countFits(pack.critic.size()) ||
@@ -835,6 +850,11 @@ std::vector<std::byte> serializeTask(
     writer.vector(pack.visual.frameOffsets);
     writer.pod(pack.visual.nearDepthMeters);
     writer.pod(pack.visual.farDepthMeters);
+    writer.pod(pack.visual.fullDropoutProbability);
+    writer.pod(pack.visual.pixelDropoutProbability);
+    writer.pod(pack.visual.depthJitterMeters);
+    writer.pod(pack.visual.depthNoiseSigmaMeters);
+    writer.pod(pack.visual.edgeFlickerProbability);
     writer.pod(pack.maximumEpisodeSteps);
     writer.pod(pack.maximumActionDelaySteps);
     writer.pod(pack.maximumObservationDelaySteps);
@@ -966,6 +986,11 @@ bool deserializeTask(
         !reader.vector(pack.visual.frameOffsets) ||
         !reader.pod(pack.visual.nearDepthMeters) ||
         !reader.pod(pack.visual.farDepthMeters) ||
+        !reader.pod(pack.visual.fullDropoutProbability) ||
+        !reader.pod(pack.visual.pixelDropoutProbability) ||
+        !reader.pod(pack.visual.depthJitterMeters) ||
+        !reader.pod(pack.visual.depthNoiseSigmaMeters) ||
+        !reader.pod(pack.visual.edgeFlickerProbability) ||
         !reader.pod(pack.maximumEpisodeSteps) ||
         !reader.pod(pack.maximumActionDelaySteps) ||
         !reader.pod(pack.maximumObservationDelaySteps) ||

@@ -581,6 +581,11 @@ int main() {
             compiledDodge.task.header().visualHistory.w != 18u ||
             compiledDodge.task.header().visualRange.x != 0.1f ||
             compiledDodge.task.header().visualRange.y != 5.0f ||
+            compiledDodge.task.header().visualRange.z != 0.15f ||
+            compiledDodge.task.header().visualCorruption.x != 0.02f ||
+            compiledDodge.task.header().visualCorruption.y != 0.10f ||
+            compiledDodge.task.header().visualCorruption.z != 0.15f ||
+            compiledDodge.task.header().visualCorruption.w != 0.03f ||
             compiledDodge.task.header().counts3.y !=
                 compiledDodge.task.contactMembers().size() ||
             compiledDodge.task.contactMemberRadii().size() !=
@@ -601,6 +606,9 @@ int main() {
         std::uint32_t barriers = 0u;
         std::uint32_t evasions = 0u;
         std::uint32_t misses = 0u;
+        std::uint32_t safeStillness = 0u;
+        std::uint32_t safeActionRate = 0u;
+        std::uint32_t ungatedVelocityTracking = 0u;
         std::uint32_t maskedDepth = 0u;
         std::uint32_t scaledAngularVelocity = 0u;
         std::uint32_t scaledJointVelocity = 0u;
@@ -664,11 +672,31 @@ int main() {
                 }
                 ++evasions;
             } else if (operation.source.x ==
+                       MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS) {
+                if (operation.parameters.x != 0.5f ||
+                    operation.parameters.y != 2.0f) {
+                    fail("compiled safe stillness changed");
+                }
+                ++safeStillness;
+            } else if (operation.source.x ==
+                       MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE) {
+                if (operation.parameters.x != -0.05f) {
+                    fail("compiled safe action-rate shaping changed");
+                }
+                ++safeActionRate;
+            } else if (operation.source.x ==
+                           MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING ||
+                       operation.source.x ==
+                           MR_TASK_REWARD_YAW_VELOCITY_TRACKING) {
+                ++ungatedVelocityTracking;
+            } else if (operation.source.x ==
                        MR_TASK_REWARD_PROJECTILE_MISS) {
                 ++misses;
             }
         }
-        if (barriers != 6u || evasions != 6u || misses != 1u) {
+        if (barriers != 6u || evasions != 6u || misses != 1u ||
+            safeStillness != 1u || safeActionRate != 1u ||
+            ungatedVelocityTracking != 0u) {
             fail("G1 dodge shaping operators are incomplete");
         }
         const auto dodgeTerminations =

@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 14u
+#define MR_TASK_PROGRAM_ABI_VERSION 15u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -97,6 +97,10 @@ enum MRTaskRewardOpcode : mr_u32 {
     // reward combines saturated root-to-projectile distance with root
     // horizontal stillness; per-link CBF remains the fine safety signal.
     MR_TASK_REWARD_PROJECTILE_EVASION = 33u,
+    // Safe-only regularizers. They are zero while an authored projectile is
+    // live, so standing discipline never suppresses a genuine dodge.
+    MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS = 34u,
+    MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE = 35u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -213,8 +217,10 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 visualLayout;
     // Sparse control-step offsets, newest first. Unused lanes are zero.
     mr_uint4 visualHistory;
-    // Near depth, far depth, and reserved visual scalars.
+    // Near depth, far depth, edge-flicker probability, reserved.
     mr_float4 visualRange;
+    // Full/pixel dropout probabilities, depth jitter, noise sigma.
+    mr_float4 visualCorruption;
 } MRTaskProgramHeaderGPU;
 
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
@@ -337,7 +343,7 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 368u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 384u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);

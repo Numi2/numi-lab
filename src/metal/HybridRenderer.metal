@@ -3,6 +3,7 @@
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/hybrid_renderer_types.h"
+#include "metalrobo/task_program_types.h"
 #include "metalrobo/world_compiler_types.h"
 #include "VisualPBR.metal"
 
@@ -204,6 +205,45 @@ kernel void mr_hybrid_reduce_object_tracks(
     }
 }
 
+inline ulong maskedDepthMix64(ulong value) {
+    value ^= value >> 30u;
+    value *= 0xbf58476d1ce4e5b9ul;
+    value ^= value >> 27u;
+    value *= 0x94d049bb133111ebul;
+    return value ^ (value >> 31u);
+}
+
+inline float maskedDepthRandom(
+    const ulong seed,
+    const uint environment,
+    const uint controlStep,
+    const uint sample,
+    const uint channel
+) {
+    ulong key = seed;
+    key ^= maskedDepthMix64(
+        (ulong(environment) << 32u) | ulong(controlStep)
+    );
+    key ^= maskedDepthMix64(
+        (ulong(channel) << 32u) | ulong(sample)
+    );
+    return (float(maskedDepthMix64(key) >> 40u) + 0.5f) *
+        (1.0f / 16777216.0f);
+}
+
+inline bool maskedDepthAcceptedInstance(
+    const uint instance,
+    device const uint* acceptedInstances,
+    const uint acceptedCount
+) {
+    for (uint index = 0u; index < acceptedCount; ++index) {
+        if (acceptedInstances[index] == instance) {
+            return true;
+        }
+    }
+    return false;
+}
+
 kernel void mr_hybrid_masked_depth_history(
     device const float* depth [[buffer(0)]],
     device const uint4* identities [[buffer(1)]],
@@ -213,7 +253,8 @@ kernel void mr_hybrid_masked_depth_history(
     device const uint* resetMasks [[buffer(5)]],
     device float* actorHistory [[buffer(6)]],
     device float* actorObservations [[buffer(7)]],
-    constant MRHybridMaskedDepthUniformsGPU& uniforms [[buffer(8)]],
+    device const MRTaskStateGPU* taskStates [[buffer(8)]],
+    constant MRHybridMaskedDepthUniformsGPU& uniforms [[buffer(9)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_threadgroup]],
     const uint lanes [[threads_per_threadgroup]]
@@ -225,25 +266,124 @@ kernel void mr_hybrid_masked_depth_history(
         !(uniforms.range.y > uniforms.range.x)) {
         return;
     }
-    const uint ringSlot = uniforms.layout.z % uniforms.history.x;
+    const uint episodeStep = taskStates[environment].episode.x;
+    const uint episodeIndex = taskStates[environment].episode.y;
+    const uint ringSlot = episodeStep % uniforms.history.x;
     const uint historyBase =
         environment * uniforms.history.x * pixelCount;
     const uint resetIndex =
         uniforms.layout.z * uniforms.layout.w + environment;
     const bool reset = resetMasks[resetIndex] != 0u;
+    const ulong randomSeed =
+        (ulong(uniforms.output.w) << 32u) | ulong(uniforms.output.z);
+    const bool fullDropout = maskedDepthRandom(
+        randomSeed,
+        environment,
+        episodeStep,
+        0u,
+        episodeIndex * 8u
+    ) < uniforms.corruption.x;
+    const float coherentJitter =
+        (2.0f * maskedDepthRandom(
+            randomSeed,
+            environment,
+            episodeStep,
+            0u,
+            episodeIndex * 8u + 1u
+        ) - 1.0f) * uniforms.corruption.z;
     for (uint pixel = lane; pixel < pixelCount; pixel += lanes) {
         const uint source = environment * pixelCount + pixel;
-        bool accepted = false;
-        if (validity[source] != 0u) {
-            const uint instance = identities[source].y;
-            for (uint index = 0u; index < uniforms.counts.w; ++index) {
-                accepted = accepted || acceptedInstances[index] == instance;
+        const bool segmented = validity[source] != 0u &&
+            maskedDepthAcceptedInstance(
+                identities[source].y,
+                acceptedInstances,
+                uniforms.counts.w
+            );
+        const bool accepted = segmented && !fullDropout &&
+            maskedDepthRandom(
+                randomSeed,
+                environment,
+                episodeStep,
+                pixel,
+                episodeIndex * 8u + 2u
+            ) >= uniforms.corruption.y;
+        const float measured = depth[source];
+        float metric = uniforms.range.y;
+        if (accepted && measured > 0.0f && isfinite(measured)) {
+            const float first = max(
+                maskedDepthRandom(
+                    randomSeed,
+                    environment,
+                    episodeStep,
+                    pixel,
+                    episodeIndex * 8u + 3u
+                ),
+                1.0e-7f
+            );
+            const float second = maskedDepthRandom(
+                randomSeed,
+                environment,
+                episodeStep,
+                pixel,
+                episodeIndex * 8u + 4u
+            );
+            const float gaussian =
+                sqrt(-2.0f * log(first)) *
+                cos(6.283185307179586f * second);
+            metric = clamp(
+                measured + coherentJitter +
+                    uniforms.corruption.w * gaussian,
+                uniforms.range.x,
+                uniforms.range.y
+            );
+        } else if (!fullDropout && !segmented &&
+                   uniforms.range.w > 0.0f) {
+            const int x = int(pixel % uniforms.counts.z);
+            const int y = int(pixel / uniforms.counts.z);
+            float neighborDepth = uniforms.range.y;
+            bool ring = false;
+            for (int offsetY = -1; offsetY <= 1; ++offsetY) {
+                for (int offsetX = -1; offsetX <= 1; ++offsetX) {
+                    const int neighborX = x + offsetX;
+                    const int neighborY = y + offsetY;
+                    if ((offsetX == 0 && offsetY == 0) ||
+                        neighborX < 0 || neighborY < 0 ||
+                        neighborX >= int(uniforms.counts.z) ||
+                        neighborY >= int(uniforms.counts.y)) {
+                        continue;
+                    }
+                    const uint neighbor =
+                        environment * pixelCount +
+                        uint(neighborY) * uniforms.counts.z +
+                        uint(neighborX);
+                    const bool neighborAccepted =
+                        validity[neighbor] != 0u &&
+                        maskedDepthAcceptedInstance(
+                            identities[neighbor].y,
+                            acceptedInstances,
+                            uniforms.counts.w
+                        );
+                    if (neighborAccepted && depth[neighbor] > 0.0f &&
+                        isfinite(depth[neighbor])) {
+                        ring = true;
+                        neighborDepth = min(neighborDepth, depth[neighbor]);
+                    }
+                }
+            }
+            if (ring && maskedDepthRandom(
+                    randomSeed,
+                    environment,
+                    episodeStep,
+                    pixel,
+                    episodeIndex * 8u + 5u
+                ) < uniforms.range.w) {
+                metric = clamp(
+                    neighborDepth + coherentJitter,
+                    uniforms.range.x,
+                    uniforms.range.y
+                );
             }
         }
-        const float measured = depth[source];
-        const float metric = accepted && measured > 0.0f && isfinite(measured)
-            ? clamp(measured, uniforms.range.x, uniforms.range.y)
-            : uniforms.range.y;
         const float normalized =
             (metric - uniforms.range.x) * uniforms.range.z;
         if (reset) {
@@ -271,7 +411,7 @@ kernel void mr_hybrid_masked_depth_history(
         for (uint frame = 0u; frame < uniforms.history.y; ++frame) {
             const uint offset = min(
                 sparseOffsets[frame],
-                uniforms.layout.z
+                episodeStep
             );
             const uint sourceSlot =
                 (ringSlot + uniforms.history.x -

@@ -86,6 +86,10 @@ enum class TaskRewardOperator : std::uint32_t {
         MR_TASK_REWARD_LINK_CLEARANCE_BARRIER,
     projectileMiss = MR_TASK_REWARD_PROJECTILE_MISS,
     projectileEvasion = MR_TASK_REWARD_PROJECTILE_EVASION,
+    projectileSafeStillness =
+        MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS,
+    projectileSafeActionRate =
+        MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -229,6 +233,11 @@ struct TaskVisualProgram {
     std::vector<std::uint32_t> frameOffsets;
     float nearDepthMeters = 0.1f;
     float farDepthMeters = 5.0f;
+    float fullDropoutProbability = 0.0f;
+    float pixelDropoutProbability = 0.0f;
+    float depthJitterMeters = 0.0f;
+    float depthNoiseSigmaMeters = 0.0f;
+    float edgeFlickerProbability = 0.0f;
 };
 
 // Authored, robot-independent task artifact. Names are resolved only by

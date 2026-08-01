@@ -15743,12 +15743,14 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             .sceneBodies = (__bridge void*)selectedState->buffers[sourceScene],
                             .currentBodies = (__bridge void*)selectedState->buffers[kCurrentBodies],
                             .resetMasks = (__bridge void*)selectedState->buffers[kResetMasks],
+                            .taskStates = (__bridge void*)selectedState->buffers[kTaskState],
                             .actorHistory = (__bridge void*)selectedState->buffers[kTaskActorHistory],
                             .actorObservations = (__bridge void*)selectedState->buffers[kTaskActorObservations],
                             .actorObservationOffsetElements =
                                 static_cast<std::size_t>(controlStep) *
                                 batch.environmentCount *
                                 taskLayout.actorObservationSize,
+                            .seed = config.taskSeed,
                             .controlStep = controlStep,
                             .environmentCount = static_cast<std::uint32_t>(batch.environmentCount),
                             .bodyCount = static_cast<std::uint32_t>(world.model().bodies.size()),

@@ -2545,6 +2545,15 @@ kernel void mr_locomotion_task_complete(
     if (missedImpact) {
         impactTransitionFlags |= MR_TASK_IMPACT_MISSED;
     }
+    bool projectileThreat = false;
+    if (eventSequenceAvailable && activeImpactScene != 0u) {
+        const MRBodyStateGPU projectile = sceneState[
+            sceneBase + activeImpactScene - 1u
+        ];
+        projectileThreat =
+            length(projectile.linearVelocityAndInverseMass.xyz) > 0.5f &&
+            projectile.position.z > 0.25f;
+    }
     float reward = 0.0f;
     float4 rewardBreakdown0 = float4(0.0f);
     float4 rewardBreakdown1 = float4(0.0f);
@@ -2832,6 +2841,17 @@ kernel void mr_locomotion_task_complete(
                     );
             break;
         }
+        case MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS:
+            value = !projectileThreat
+                ? exp(
+                      -operation.parameters.y *
+                          dot(baseLinear.xy, baseLinear.xy)
+                  )
+                : 0.0f;
+            break;
+        case MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE:
+            value = !projectileThreat ? actionRateSquared : 0.0f;
+            break;
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
             value = velocitySquared;
             break;
@@ -3099,6 +3119,8 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_RECOVERY_COMPLETION:
         case MR_TASK_REWARD_LINK_CLEARANCE_BARRIER:
         case MR_TASK_REWARD_PROJECTILE_MISS:
+        case MR_TASK_REWARD_PROJECTILE_EVASION:
+        case MR_TASK_REWARD_PROJECTILE_SAFE_STILLNESS:
             rewardBreakdown0.y += contribution;
             break;
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
@@ -3108,6 +3130,7 @@ kernel void mr_locomotion_task_complete(
             rewardBreakdown0.w += contribution;
             break;
         case MR_TASK_REWARD_ACTION_RATE_SQUARED:
+        case MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE:
             rewardBreakdown1.x += contribution;
             break;
         case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED:

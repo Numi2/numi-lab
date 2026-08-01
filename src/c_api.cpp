@@ -1347,6 +1347,16 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             handle.taskProgram.layout().actorHistoryLength;
         trackerConfig.maskedDepthNearMeters = taskHeader.visualRange.x;
         trackerConfig.maskedDepthFarMeters = taskHeader.visualRange.y;
+        trackerConfig.maskedDepthEdgeFlickerProbability =
+            taskHeader.visualRange.z;
+        trackerConfig.maskedDepthFullDropoutProbability =
+            taskHeader.visualCorruption.x;
+        trackerConfig.maskedDepthPixelDropoutProbability =
+            taskHeader.visualCorruption.y;
+        trackerConfig.maskedDepthJitterMeters =
+            taskHeader.visualCorruption.z;
+        trackerConfig.maskedDepthNoiseSigmaMeters =
+            taskHeader.visualCorruption.w;
         const std::array offsets{
             taskHeader.visualHistory.x,
             taskHeader.visualHistory.y,

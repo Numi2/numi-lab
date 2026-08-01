@@ -6969,6 +6969,10 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
         }
         const bool maskedDepth =
             !config.maskedDepthInstanceIds.empty();
+        const auto probability = [](const float value) {
+            return std::isfinite(value) &&
+                value >= 0.0f && value <= 1.0f;
+        };
         if (maskedDepth &&
             (config.maskedDepthWidth != layout.width ||
              config.maskedDepthHeight != layout.height ||
@@ -6986,7 +6990,20 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
              !std::isfinite(config.maskedDepthFarMeters) ||
              !(config.maskedDepthNearMeters > 0.0f) ||
              !(config.maskedDepthFarMeters >
-               config.maskedDepthNearMeters))) {
+               config.maskedDepthNearMeters) ||
+             !probability(
+                 config.maskedDepthFullDropoutProbability
+             ) ||
+             !probability(
+                 config.maskedDepthPixelDropoutProbability
+             ) ||
+             !probability(
+                 config.maskedDepthEdgeFlickerProbability
+             ) ||
+             !std::isfinite(config.maskedDepthJitterMeters) ||
+             config.maskedDepthJitterMeters < 0.0f ||
+             !std::isfinite(config.maskedDepthNoiseSigmaMeters) ||
+             config.maskedDepthNoiseSigmaMeters < 0.0f)) {
             return reject(
                 std::move(diagnostics),
                 MetalHybridRendererStatus::invalidConfiguration,
@@ -7262,6 +7279,7 @@ bool MetalHybridObjectTracker::encodeObservation(
     if (maskedDepth &&
         (state->config.maskedDepthActorFrameOffset +
              maskedDepthValues > pass.actorObservationSize ||
+         pass.taskStates == nullptr ||
          state->maskedDepthPipeline == nil ||
          state->maskedDepthInstances == nil ||
          state->maskedDepthHistory == nil)) {
@@ -7418,8 +7436,8 @@ bool MetalHybridObjectTracker::encodeObservation(
             {
                 static_cast<std::uint32_t>(outputOffset),
                 static_cast<std::uint32_t>(outputOffset >> 32u),
-                0u,
-                0u,
+                static_cast<std::uint32_t>(pass.seed),
+                static_cast<std::uint32_t>(pass.seed >> 32u),
             },
             {
                 ringCapacity,
@@ -7439,7 +7457,13 @@ bool MetalHybridObjectTracker::encodeObservation(
                 1.0f /
                     (state->config.maskedDepthFarMeters -
                      state->config.maskedDepthNearMeters),
-                0.0f,
+                state->config.maskedDepthEdgeFlickerProbability,
+            },
+            {
+                state->config.maskedDepthFullDropoutProbability,
+                state->config.maskedDepthPixelDropoutProbability,
+                state->config.maskedDepthJitterMeters,
+                state->config.maskedDepthNoiseSigmaMeters,
             },
         };
         id<MTLComputeCommandEncoder> mask =
@@ -7449,7 +7473,7 @@ bool MetalHybridObjectTracker::encodeObservation(
         }
         mask.label = @"MetalRobo masked depth history";
         [mask setComputePipelineState:state->maskedDepthPipeline];
-        const std::array<id<MTLBuffer>, 8u> buffers{{
+        const std::array<id<MTLBuffer>, 9u> buffers{{
             depth,
             identities,
             validity,
@@ -7458,13 +7482,14 @@ bool MetalHybridObjectTracker::encodeObservation(
             (__bridge id<MTLBuffer>)pass.resetMasks,
             (__bridge id<MTLBuffer>)pass.actorHistory,
             (__bridge id<MTLBuffer>)pass.actorObservations,
+            (__bridge id<MTLBuffer>)pass.taskStates,
         }};
         for (NSUInteger index = 0u; index < buffers.size(); ++index) {
             [mask setBuffer:buffers[index] offset:0u atIndex:index];
         }
         [mask setBytes:&depthUniforms
                 length:sizeof(depthUniforms)
-               atIndex:8u];
+               atIndex:9u];
         const NSUInteger width = std::min<NSUInteger>(
             state->maskedDepthPipeline.maxTotalThreadsPerThreadgroup,
             256u

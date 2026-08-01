@@ -337,6 +337,11 @@ struct MetalHybridObjectTrackerConfig {
     std::vector<std::uint32_t> maskedDepthFrameOffsets;
     float maskedDepthNearMeters = 0.1f;
     float maskedDepthFarMeters = 5.0f;
+    float maskedDepthFullDropoutProbability = 0.0f;
+    float maskedDepthPixelDropoutProbability = 0.0f;
+    float maskedDepthJitterMeters = 0.0f;
+    float maskedDepthNoiseSigmaMeters = 0.0f;
+    float maskedDepthEdgeFlickerProbability = 0.0f;
 };
 
 // Reduces rendered metric depth and instance identity directly into the

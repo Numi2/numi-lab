@@ -278,9 +278,11 @@ struct MetalWorldDeviceObservationPass {
     void* sceneBodies = nullptr;
     void* currentBodies = nullptr;
     void* resetMasks = nullptr;
+    void* taskStates = nullptr;
     void* actorHistory = nullptr;
     void* actorObservations = nullptr;
     std::size_t actorObservationOffsetElements = 0u;
+    std::uint64_t seed = 0u;
     std::uint32_t controlStep = 0u;
     std::uint32_t environmentCount = 0u;
     std::uint32_t bodyCount = 0u;
