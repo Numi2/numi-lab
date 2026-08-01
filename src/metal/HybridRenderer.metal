@@ -259,6 +259,9 @@ kernel void mr_hybrid_masked_depth_history(
     const uint lane [[thread_index_in_threadgroup]],
     const uint lanes [[threads_per_threadgroup]]
 ) {
+    constexpr uint kCachedPixelCapacity = 256u;
+    threadgroup float measuredDepths[kCachedPixelCapacity];
+    threadgroup uchar segmentedPixels[kCachedPixelCapacity];
     const uint pixelCount = uniforms.counts.y * uniforms.counts.z;
     if (environment >= uniforms.counts.x || pixelCount == 0u ||
         uniforms.history.x == 0u || uniforms.history.y == 0u ||
@@ -301,14 +304,38 @@ kernel void mr_hybrid_masked_depth_history(
             0u,
             episodeIndex * 8u + 1u
         ) - 1.0f) * uniforms.corruption.z * corruptionScale;
+    // Identity acceptance is invariant across corruption samples and edge
+    // neighbors. Materialize the tiny sensor plane once in threadgroup
+    // memory instead of rescanning the accepted-instance table and rereading
+    // three global planes for every neighboring pixel.
+    const bool cacheSensorPlane =
+        pixelCount <= kCachedPixelCapacity;
+    if (cacheSensorPlane) {
+        for (uint pixel = lane; pixel < pixelCount; pixel += lanes) {
+            const uint source = environment * pixelCount + pixel;
+            measuredDepths[pixel] = depth[source];
+            segmentedPixels[pixel] =
+                validity[source] != 0u &&
+                maskedDepthAcceptedInstance(
+                    identities[source].y,
+                    acceptedInstances,
+                    uniforms.counts.w
+                )
+                ? uchar(1u)
+                : uchar(0u);
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
     for (uint pixel = lane; pixel < pixelCount; pixel += lanes) {
         const uint source = environment * pixelCount + pixel;
-        const bool segmented = validity[source] != 0u &&
-            maskedDepthAcceptedInstance(
-                identities[source].y,
-                acceptedInstances,
-                uniforms.counts.w
-            );
+        const bool segmented = cacheSensorPlane
+            ? segmentedPixels[pixel] != 0u
+            : validity[source] != 0u &&
+                maskedDepthAcceptedInstance(
+                    identities[source].y,
+                    acceptedInstances,
+                    uniforms.counts.w
+                );
         const bool accepted = segmented && !fullDropout &&
             maskedDepthRandom(
                 randomSeed,
@@ -317,7 +344,9 @@ kernel void mr_hybrid_masked_depth_history(
                 pixel,
                 episodeIndex * 8u + 2u
             ) >= min(uniforms.corruption.y * corruptionScale, 1.0f);
-        const float measured = depth[source];
+        const float measured = cacheSensorPlane
+            ? measuredDepths[pixel]
+            : depth[source];
         float metric = uniforms.range.y;
         if (accepted && measured > 0.0f && isfinite(measured)) {
             const float first = max(
@@ -363,20 +392,29 @@ kernel void mr_hybrid_masked_depth_history(
                         continue;
                     }
                     const uint neighbor =
-                        environment * pixelCount +
                         uint(neighborY) * uniforms.counts.z +
                         uint(neighborX);
-                    const bool neighborAccepted =
-                        validity[neighbor] != 0u &&
-                        maskedDepthAcceptedInstance(
-                            identities[neighbor].y,
-                            acceptedInstances,
-                            uniforms.counts.w
-                        );
-                    if (neighborAccepted && depth[neighbor] > 0.0f &&
-                        isfinite(depth[neighbor])) {
+                    const uint neighborSource =
+                        environment * pixelCount + neighbor;
+                    const float neighborMeasured = cacheSensorPlane
+                        ? measuredDepths[neighbor]
+                        : depth[neighborSource];
+                    const bool neighborAccepted = cacheSensorPlane
+                        ? segmentedPixels[neighbor] != 0u
+                        : validity[neighborSource] != 0u &&
+                            maskedDepthAcceptedInstance(
+                                identities[neighborSource].y,
+                                acceptedInstances,
+                                uniforms.counts.w
+                            );
+                    if (neighborAccepted &&
+                        neighborMeasured > 0.0f &&
+                        isfinite(neighborMeasured)) {
                         ring = true;
-                        neighborDepth = min(neighborDepth, depth[neighbor]);
+                        neighborDepth = min(
+                            neighborDepth,
+                            neighborMeasured
+                        );
                     }
                 }
             }
