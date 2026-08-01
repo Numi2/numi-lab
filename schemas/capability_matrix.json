@@ -14,7 +14,8 @@
     "evidence/baselines/2026-08-01-e250919.json",
     "evidence/baselines/2026-08-01-cdbaaf0.json",
     "evidence/baselines/2026-08-01-2630cc7.json",
-    "evidence/baselines/2026-08-01-68ce9cc.json"
+    "evidence/baselines/2026-08-01-68ce9cc.json",
+    "evidence/baselines/2026-08-01-0a06e71.json"
   ],
   "capabilities": [
     {
@@ -120,7 +121,7 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled frames can target links in any articulation or static, kinematic, and dynamic scene bodies. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading static goals. World linear velocity at a named frame origin and world angular velocity are materialized from accepted generalized state once per control step; the same path supplies physically consistent support-slip and clearance metrics. Static SE(3) goals, pose rewards and terminations, SensorIR scalar/validity sources, and reset-correct pre-policy state are implemented. Site semantics, acceleration and relative twist, point/Jacobian quantities, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified."
+      "scope": "Compiled frames can target links in any articulation or static, kinematic, and dynamic scene bodies. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading static goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Static SE(3) goals, pose rewards and terminations, SensorIR scalar/validity sources, and reset-correct pre-policy state are implemented. Site semantics, acceleration, point/Jacobian quantities, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified."
     },
     {
       "id": "tasks.sensor_ir_observations",

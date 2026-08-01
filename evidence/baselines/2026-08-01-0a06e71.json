@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T02:52:02+02:00",
+  "source_revision": "0a06e71ed28c46b78838adeb4429a8b132539c79",
+  "metallib_sha256": "00d1cfd066cdceb261076af2ae540def5dcab9141d95d99b4fb792368945fc17",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 5.21,
+    "task_program_abi_version": 12,
+    "task_pack_format_version": 6,
+    "relative_linear_twist_checked": true,
+    "relative_angular_twist_checked": true,
+    "reference_frame_rotation_radians": 1.5707963267948966,
+    "kinematic_reference_linear_velocity_metres_per_second": 0.02,
+    "reset_target_frame_linear_velocity_metres_per_second": 0.1,
+    "reset_relative_linear_velocity_metres_per_second": -0.1,
+    "accepted_relative_twist_tolerance": 0.0002,
+    "full_build_target_count": 70
+  },
+  "known_release_blockers": [
+    "TaskIR still lacks named sites, frame acceleration, point/Jacobian quantities, sampled and trajectory goals, generic gates and reductions, and three qualified task families.",
+    "SensorIR still lacks integrated camera, tactile, force-torque, contact, ray, LiDAR, and IMU execution under the session schedule.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators, and direct no-copy MLX-to-private-bank transfer remains incomplete.",
+    "The canonical executor has not completed its Metal 4 command-allocator and residency-set migration.",
+    "No general MJCF importer is present.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
