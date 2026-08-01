@@ -226,7 +226,9 @@ inline float3 taskOrientationError(
 
 inline bool relativeFrameObservationOpcode(const uint opcode) {
     return opcode == MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION ||
-        opcode == MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION;
+        opcode == MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION ||
+        opcode == MR_TASK_OBSERVE_FRAME_RELATIVE_LINEAR_VELOCITY ||
+        opcode == MR_TASK_OBSERVE_FRAME_RELATIVE_ANGULAR_VELOCITY;
 }
 
 inline bool frameObservationOpcode(const uint opcode) {
@@ -285,7 +287,9 @@ inline float taskFrameObservationValue(
     const float3 bodyLinearVelocity,
     const float3 bodyAngularVelocity,
     const float4 referenceBodyPosition,
-    const float4 referenceBodyOrientation
+    const float4 referenceBodyOrientation,
+    const float3 referenceBodyLinearVelocity,
+    const float3 referenceBodyAngularVelocity
 ) {
     device const MRTaskFrameGPU& frame =
         frames[operation.source.y];
@@ -302,21 +306,60 @@ inline float taskFrameObservationValue(
             referenceBodyPosition,
             referenceBodyOrientation
         );
-        const float value =
+        float3 relative = float3(0.0f);
+        if (operation.source.x ==
+                MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION) {
+            relative = rotateInverse(
+                referencePose.orientation,
+                pose.position - referencePose.position
+            );
+        } else if (
             operation.source.x ==
-                    MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION
-            ? rotateInverse(
-                  referencePose.orientation,
-                  pose.position - referencePose.position
-              )[operation.source.z]
-            : taskRotationVector(
-                  quaternionProduct(
-                      quaternionConjugate(
-                          referencePose.orientation
-                      ),
-                      pose.orientation
-                  )
-              )[operation.source.z];
+                MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION
+        ) {
+            relative = taskRotationVector(
+                quaternionProduct(
+                    quaternionConjugate(referencePose.orientation),
+                    pose.orientation
+                )
+            );
+        } else if (
+            operation.source.x ==
+                MR_TASK_OBSERVE_FRAME_RELATIVE_LINEAR_VELOCITY
+        ) {
+            const float3 targetOffset = rotate(
+                bodyOrientation,
+                frame.localPosition.xyz
+            );
+            const float3 referenceOffset = rotate(
+                referenceBodyOrientation,
+                referenceFrame.localPosition.xyz
+            );
+            const float3 targetVelocity =
+                bodyLinearVelocity +
+                cross(bodyAngularVelocity, targetOffset);
+            const float3 referenceVelocity =
+                referenceBodyLinearVelocity +
+                cross(
+                    referenceBodyAngularVelocity,
+                    referenceOffset
+                );
+            relative = rotateInverse(
+                referencePose.orientation,
+                targetVelocity - referenceVelocity -
+                    cross(
+                        referenceBodyAngularVelocity,
+                        pose.position - referencePose.position
+                    )
+            );
+        } else {
+            relative = rotateInverse(
+                referencePose.orientation,
+                bodyAngularVelocity -
+                    referenceBodyAngularVelocity
+            );
+        }
+        const float value = relative[operation.source.z];
         return operation.transform.x * value +
             operation.transform.y;
     }
@@ -726,7 +769,9 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION:
     case MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION:
     case MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD:
-    case MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD: {
+    case MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD:
+    case MR_TASK_OBSERVE_FRAME_RELATIVE_LINEAR_VELOCITY:
+    case MR_TASK_OBSERVE_FRAME_RELATIVE_ANGULAR_VELOCITY: {
         device const MRTaskFrameGPU& frame =
             frames[operation.source.y];
         const MRBodyStateGPU body = taskFrameBodyState(
@@ -755,7 +800,9 @@ inline float cleanObservation(
             body.linearVelocityAndInverseMass.xyz,
             body.angularVelocity.xyz,
             referenceBody.position,
-            referenceBody.orientation
+            referenceBody.orientation,
+            referenceBody.linearVelocityAndInverseMass.xyz,
+            referenceBody.angularVelocity.xyz
         );
     }
     default:
@@ -1896,6 +1943,7 @@ kernel void mr_task_refresh_frame_observations(
             bodyStates + bodyBase,
             sceneBodies + sceneBase
         );
+        MRBodyStateGPU referenceVelocityBody = velocityBody;
         TaskFramePose referencePose = pose;
         if (relativeFrameObservationOpcode(
                 operation.source.x
@@ -1905,6 +1953,11 @@ kernel void mr_task_refresh_frame_observations(
             referencePose = taskResetBodyPose(
                 referenceFrame,
                 bodyPoses + bodyBase,
+                sceneBodies + sceneBase
+            );
+            referenceVelocityBody = taskFrameBodyState(
+                referenceFrame,
+                bodyStates + bodyBase,
                 sceneBodies + sceneBase
             );
         }
@@ -1917,7 +1970,9 @@ kernel void mr_task_refresh_frame_observations(
             velocityBody.linearVelocityAndInverseMass.xyz,
             velocityBody.angularVelocity.xyz,
             float4(referencePose.position, 1.0f),
-            referencePose.orientation
+            referencePose.orientation,
+            referenceVelocityBody.linearVelocityAndInverseMass.xyz,
+            referenceVelocityBody.angularVelocity.xyz
         );
         float corrupted =
             clean +
@@ -1977,6 +2032,7 @@ kernel void mr_task_refresh_frame_observations(
             bodyStates + bodyBase,
             sceneBodies + sceneBase
         );
+        MRBodyStateGPU referenceVelocityBody = velocityBody;
         TaskFramePose referencePose = pose;
         if (relativeFrameObservationOpcode(
                 operation.source.x
@@ -1986,6 +2042,11 @@ kernel void mr_task_refresh_frame_observations(
             referencePose = taskResetBodyPose(
                 referenceFrame,
                 bodyPoses + bodyBase,
+                sceneBodies + sceneBase
+            );
+            referenceVelocityBody = taskFrameBodyState(
+                referenceFrame,
+                bodyStates + bodyBase,
                 sceneBodies + sceneBase
             );
         }
@@ -1998,7 +2059,9 @@ kernel void mr_task_refresh_frame_observations(
             velocityBody.linearVelocityAndInverseMass.xyz,
             velocityBody.angularVelocity.xyz,
             float4(referencePose.position, 1.0f),
-            referencePose.orientation
+            referencePose.orientation,
+            referenceVelocityBody.linearVelocityAndInverseMass.xyz,
+            referenceVelocityBody.angularVelocity.xyz
         );
         for (uint history = 0u;
              history < program.articulation.w;

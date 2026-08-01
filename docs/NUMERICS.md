@@ -15,6 +15,10 @@ must satisfy. Unsupported behavior is recorded in
   the same accepted `q, v` state used by dynamics. Point velocity is
   `v_com + omega x r`; task and sensor code must not infer it by finite
   differencing poses or silently substitute zero body velocity.
+- For target frame `T` observed from moving reference frame `R`, relative
+  linear velocity is `R_R^T (v_T - v_R - omega_R x (p_T - p_R))` and relative
+  angular velocity is `R_R^T (omega_T - omega_R)`. Subtracting world vectors
+  without the transport term is not a valid moving-frame derivative.
 - Temporal microsteps re-evaluate geometry, limit activation, actuator state,
   and response factors before integration.
 - Velocity or effort safety caps are explicit actuator/safety-envelope stages;

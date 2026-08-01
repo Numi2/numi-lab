@@ -1391,6 +1391,27 @@ std::uint64_t compileFixedBaseTaskFixture() {
 
     metalrobo::SimulationDescription twistAuthored = authored;
     twistAuthored.task.id = "fixed_base_frame_twist";
+    const auto twistReferenceBody = std::find(
+        twistAuthored.model.bodyNames.begin(),
+        twistAuthored.model.bodyNames.end(),
+        "locomotion_ground"
+    );
+    if (twistReferenceBody ==
+            twistAuthored.model.bodyNames.end() ||
+        twistAuthored.sceneBodies.size() != 1u) {
+        fail("frame-twist moving reference body did not resolve");
+    }
+    const auto twistReferenceBodyIndex =
+        static_cast<std::size_t>(
+            twistReferenceBody -
+            twistAuthored.model.bodyNames.begin()
+        );
+    twistAuthored.model.bodies[twistReferenceBodyIndex]
+        .motionType = MR_MOTION_KINEMATIC;
+    twistAuthored.sceneBodies[0u].flagsAndIndices[0] =
+        MR_MOTION_KINEMATIC;
+    twistAuthored.sceneBodies[0u]
+        .linearVelocityAndInverseMass.x = 0.02f;
     twistAuthored.task.actorFrame = {{
         .source = metalrobo::TaskObservationSource::jointVelocity,
         .target = "axis",
@@ -1407,6 +1428,20 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 frameAngularVelocityWorld,
             .target = "tool_tip",
             .component = 1u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameRelativeLinearVelocity,
+            .target = "tool_tip",
+            .reference = "world_anchor",
+            .component = 1u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameRelativeAngularVelocity,
+            .target = "tool_tip",
+            .reference = "world_anchor",
+            .component = 0u,
         },
     };
     twistAuthored.task.criticIncludesCleanHistory = false;
@@ -1431,10 +1466,10 @@ std::uint64_t compileFixedBaseTaskFixture() {
         .bias = std::vector<float>(1u, 0.0f),
     }};
     twistPolicy.criticLayers = {{
-        .inputCount = 2u,
+        .inputCount = 4u,
         .outputCount = 1u,
         .activation = metalrobo::PolicyActivation::identity,
-        .weights = std::vector<float>(2u, 0.0f),
+        .weights = std::vector<float>(4u, 0.0f),
         .bias = std::vector<float>(1u, 0.0f),
     }};
     twistAuthored.policy = std::move(twistPolicy);
@@ -1455,6 +1490,10 @@ std::uint64_t compileFixedBaseTaskFixture() {
     const std::vector<std::uint32_t> twistResetMasks(
         twistSteps,
         0u
+    );
+    const std::vector<MRBodyStateGPU> twistKinematicTargets(
+        twistSteps,
+        twistAuthored.sceneBodies[0u]
     );
     metalrobo::MetalWorldStepConfig twistStep = step;
     twistStep.taskProgram = twistCompiled.task;
@@ -1480,7 +1519,8 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 compiled.world.nv(),
             },
             .resetMasks = twistResetMasks,
-            .initialSceneBodies = authored.sceneBodies,
+            .initialSceneBodies = twistAuthored.sceneBodies,
+            .kinematicTargets = twistKinematicTargets,
         },
         twistStep,
         twistResult
@@ -1488,16 +1528,40 @@ std::uint64_t compileFixedBaseTaskFixture() {
     if (!twistExecution.succeeded() ||
         twistResult.actorObservations.size() != twistSteps + 1u ||
         twistResult.criticObservations.size() !=
-            (twistSteps + 1u) * 2u ||
+            (twistSteps + 1u) * 4u ||
         std::abs(twistResult.actorObservations[0u] - 0.5f) >
             2.0e-4f ||
         std::abs(twistResult.criticObservations[0u] - 0.1f) >
             2.0e-4f ||
         std::abs(twistResult.criticObservations[1u] - 0.5f) >
+            2.0e-4f ||
+        std::abs(twistResult.criticObservations[2u] + 0.1f) >
+            2.0e-4f ||
+        std::abs(twistResult.criticObservations[3u] - 0.5f) >
             2.0e-4f) {
         fail(
             "frame twist did not materialize from the randomized reset state: " +
-            twistExecution.message
+            twistExecution.message +
+            " actor=" +
+            (twistResult.actorObservations.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(twistResult.actorObservations[0u])) +
+            " critic0=" +
+            (twistResult.criticObservations.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(twistResult.criticObservations[0u])) +
+            " critic1=" +
+            (twistResult.criticObservations.size() < 2u
+                 ? std::string{"missing"}
+                 : std::to_string(twistResult.criticObservations[1u])) +
+            " critic2=" +
+            (twistResult.criticObservations.size() < 3u
+                 ? std::string{"missing"}
+                 : std::to_string(twistResult.criticObservations[2u])) +
+            " critic3=" +
+            (twistResult.criticObservations.size() < 4u
+                 ? std::string{"missing"}
+                 : std::to_string(twistResult.criticObservations[3u]))
         );
     }
     for (std::size_t sample = 0u;
@@ -1506,13 +1570,24 @@ std::uint64_t compileFixedBaseTaskFixture() {
         const float jointVelocity =
             twistResult.actorObservations[sample];
         const float frameLinear =
-            twistResult.criticObservations[2u * sample];
+            twistResult.criticObservations[4u * sample];
         const float frameAngular =
-            twistResult.criticObservations[2u * sample + 1u];
+            twistResult.criticObservations[4u * sample + 1u];
+        const float relativeLinear =
+            twistResult.criticObservations[4u * sample + 2u];
+        const float relativeAngular =
+            twistResult.criticObservations[4u * sample + 3u];
+        const float referenceLinear =
+            sample == 0u ? 0.0f : 0.02f;
         if (!std::isfinite(frameLinear) ||
-            std::abs(frameAngular - jointVelocity) > 2.0e-4f) {
+            std::abs(frameAngular - jointVelocity) > 2.0e-4f ||
+            std::abs(
+                relativeLinear + frameLinear - referenceLinear
+            ) >
+                2.0e-4f ||
+            std::abs(relativeAngular - frameAngular) > 2.0e-4f) {
             fail(
-                "accepted frame twist disagrees with generalized velocity"
+                "accepted world/relative frame twist disagrees with generalized velocity"
             );
         }
     }

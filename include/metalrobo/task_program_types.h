@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 11u
+#define MR_TASK_PROGRAM_ABI_VERSION 12u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -48,6 +48,10 @@ enum MRTaskObservationOpcode : mr_u32 {
     MR_TASK_OBSERVE_FRAME_LINEAR_VELOCITY_WORLD = 22u,
     // Angular velocity of the named frame in world axes.
     MR_TASK_OBSERVE_FRAME_ANGULAR_VELOCITY_WORLD = 23u,
+    // Time derivative of target-frame position in reference-frame axes.
+    MR_TASK_OBSERVE_FRAME_RELATIVE_LINEAR_VELOCITY = 24u,
+    // Target angular velocity relative to the reference, in reference axes.
+    MR_TASK_OBSERVE_FRAME_RELATIVE_ANGULAR_VELOCITY = 25u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {

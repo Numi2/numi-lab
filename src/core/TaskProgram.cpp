@@ -1454,6 +1454,8 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::frameRelativeOrientation:
             case TaskObservationSource::frameLinearVelocityWorld:
             case TaskObservationSource::frameAngularVelocityWorld:
+            case TaskObservationSource::frameRelativeLinearVelocity:
+            case TaskObservationSource::frameRelativeAngularVelocity:
                 sourceIndex = namedGroup(frameIds, spec.target);
                 if (sourceIndex == MR_INVALID_INDEX) {
                     return reject(
@@ -1483,7 +1485,11 @@ TaskCompileDiagnostics compileTaskProgram(
                     spec.source ==
                         TaskObservationSource::frameRelativePosition ||
                     spec.source ==
-                        TaskObservationSource::frameRelativeOrientation
+                        TaskObservationSource::frameRelativeOrientation ||
+                    spec.source ==
+                        TaskObservationSource::frameRelativeLinearVelocity ||
+                    spec.source ==
+                        TaskObservationSource::frameRelativeAngularVelocity
                 ) {
                     goalIndex = namedGroup(
                         frameIds,
@@ -1581,7 +1587,11 @@ TaskCompileDiagnostics compileTaskProgram(
                 spec.source ==
                     TaskObservationSource::frameRelativePosition ||
                 spec.source ==
-                    TaskObservationSource::frameRelativeOrientation;
+                    TaskObservationSource::frameRelativeOrientation ||
+                spec.source ==
+                    TaskObservationSource::frameRelativeLinearVelocity ||
+                spec.source ==
+                    TaskObservationSource::frameRelativeAngularVelocity;
             if (!goalObservation && !spec.goal.empty()) {
                 return reject(
                     TaskCompileStatus::invalidPack,

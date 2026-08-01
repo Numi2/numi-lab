@@ -87,6 +87,8 @@ supports:
   error across articulated and scene-body domains;
 - world linear velocity at a named frame origin and world angular velocity,
   materialized from the same generalized state consumed by physics;
+- relative linear and angular velocity in the named reference frame, including
+  reference translation and rotating-frame transport;
 - frame position/orientation squared-error and exponential-tracking rewards;
 - maximum frame position/orientation error termination;
 - fixed-shape actor/critic histories, deterministic corruption, curriculum,
@@ -103,9 +105,8 @@ Frame-to-frame operators use an explicit named `reference`; they do not
 overload static goal identities. The remaining TaskIR target is a
 phase-separated graph covering action, command/event, observation, reward,
 termination, recorder, reset, and curriculum phases. Site semantics, frame
-acceleration and relative twist, point/Jacobian quantities, sampled and
-trajectory goals, and generic gates/reductions are not yet production
-operators.
+acceleration, point/Jacobian quantities, sampled and trajectory goals, and
+generic gates/reductions are not yet production operators.
 
 All implemented names resolve at compilation. The GPU receives only typed
 indices, counts, and fixed output layouts. Adding another body layout or static
