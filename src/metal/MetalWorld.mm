@@ -1288,6 +1288,7 @@ bool buildRequirements(
     std::size_t taskContactElements = 0u;
     std::size_t taskPointWorldElements = 0u;
     std::size_t taskSpatialJacobianElements = 0u;
+    std::size_t taskSignalElements = 0u;
     std::size_t policyScratchElements = 0u;
     std::size_t policyActorMeanElements = 0u;
     std::size_t authoredRuntimeRows = 0u;
@@ -1333,6 +1334,11 @@ bool buildRequirements(
             taskEnvironments,
             taskLayout.spatialJacobianEnvironmentStride,
             taskSpatialJacobianElements
+        ) ||
+        !checkedMultiply(
+            taskEnvironments,
+            taskLayout.signalCount,
+            taskSignalElements
         ) ||
         !checkedMultiply(
             nativePolicy ? taskEnvironments : 0u,
@@ -1689,6 +1695,7 @@ bool buildRequirements(
     );
     std::size_t bodyStateBytes = 0u;
     std::size_t taskSpatialJacobianBytes = 0u;
+    std::size_t taskSignalBytes = 0u;
     std::size_t bodyKinematicsArenaBytes = 0u;
     if (!checkedMultiply(
             bodyStateElements,
@@ -1700,9 +1707,19 @@ bool buildRequirements(
             sizeof(float),
             taskSpatialJacobianBytes
         ) ||
+        !checkedMultiply(
+            taskSignalElements,
+            sizeof(float),
+            taskSignalBytes
+        ) ||
         !checkedAdd(
             bodyStateBytes,
             taskSpatialJacobianBytes,
+            bodyKinematicsArenaBytes
+        ) ||
+        !checkedAdd(
+            bodyKinematicsArenaBytes,
+            taskSignalBytes,
             bodyKinematicsArenaBytes
         )) {
         return false;

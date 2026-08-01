@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 14u
+#define MR_TASK_PROGRAM_ABI_VERSION 15u
 
 #define MR_TASK_GOAL_FIXED 0u
 #define MR_TASK_GOAL_SAMPLED_EPISODE 1u
@@ -108,6 +108,8 @@ enum MRTaskRewardOpcode : mr_u32 {
     MR_TASK_REWARD_FRAME_ORIENTATION_ERROR_SQUARED = 22u,
     MR_TASK_REWARD_FRAME_POSITION_TRACKING = 23u,
     MR_TASK_REWARD_FRAME_ORIENTATION_TRACKING = 24u,
+    // A scalar produced by the compiled, topologically ordered SignalIR.
+    MR_TASK_REWARD_SIGNAL = 25u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -116,6 +118,28 @@ enum MRTaskTerminationOpcode : mr_u32 {
     MR_TASK_TERMINATE_CONTACT_GROUP = 2u,
     MR_TASK_TERMINATE_MAXIMUM_FRAME_POSITION_ERROR = 3u,
     MR_TASK_TERMINATE_MAXIMUM_FRAME_ORIENTATION_ERROR = 4u,
+    MR_TASK_TERMINATE_SIGNAL_BELOW = 5u,
+    MR_TASK_TERMINATE_SIGNAL_ABOVE = 6u,
+    MR_TASK_TERMINATE_SIGNAL_OUTSIDE = 7u,
+};
+
+// Statically shaped scalar TaskIR. Source leaves reuse the semantic
+// observation compiler, but execute without actor noise or mutable bias.
+enum MRTaskSignalOpcode : mr_u32 {
+    MR_TASK_SIGNAL_SOURCE = 0u,
+    MR_TASK_SIGNAL_CONSTANT = 1u,
+    MR_TASK_SIGNAL_ADD = 2u,
+    MR_TASK_SIGNAL_SUBTRACT = 3u,
+    MR_TASK_SIGNAL_MULTIPLY = 4u,
+    MR_TASK_SIGNAL_MINIMUM = 5u,
+    MR_TASK_SIGNAL_MAXIMUM = 6u,
+    MR_TASK_SIGNAL_ABSOLUTE = 7u,
+    MR_TASK_SIGNAL_SQUARE = 8u,
+    MR_TASK_SIGNAL_SQUARE_ROOT = 9u,
+    MR_TASK_SIGNAL_SAFE_DIVIDE = 10u,
+    MR_TASK_SIGNAL_CLAMP = 11u,
+    MR_TASK_SIGNAL_EXPONENTIAL_TRACKING = 12u,
+    MR_TASK_SIGNAL_INSIDE_BOUNDS = 13u,
 };
 
 enum MRTaskTerminationReason : mr_u32 {
@@ -221,6 +245,10 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_float4 rootReference;
     // named frames, static SE(3) goals, SensorIR fingerprint low/high.
     mr_uint4 typedCounts;
+    // SignalIR nodes, semantic source leaves, spatial-Jacobian stride, reserved.
+    mr_uint4 graphCounts;
+    // SignalIR source operators and nodes; remaining offsets are reserved.
+    mr_uint4 offsets4;
 } MRTaskProgramHeaderGPU;
 
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
@@ -238,6 +266,13 @@ typedef struct MR_ALIGN16 MRTaskObservationOperatorGPU {
     // bias index, deterministic noise channel, reserved, reserved.
     mr_uint4 auxiliary;
 } MRTaskObservationOperatorGPU;
+
+typedef struct MR_ALIGN16 MRTaskSignalOperatorGPU {
+    // opcode, semantic-source index, left node, right node.
+    mr_uint4 inputs;
+    // Operator parameters. Their meaning is opcode-specific.
+    mr_float4 parameters;
+} MRTaskSignalOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskContactGroupGPU {
     // member offset/count, flags, compact metric offset.
@@ -366,9 +401,10 @@ typedef struct MR_ALIGN16 MRTaskTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 96u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 320u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 352u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
+static_assert(sizeof(MRTaskSignalOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);

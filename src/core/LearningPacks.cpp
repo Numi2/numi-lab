@@ -91,6 +91,7 @@ LearningPackResult validateTaskArtifact(
         !countFits(pack.jointGroups.size()) ||
         !countFits(pack.frames.size()) ||
         !countFits(pack.goals.size()) ||
+        !countFits(pack.signals.size()) ||
         !countFits(pack.rewards.size()) ||
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
@@ -176,9 +177,21 @@ LearningPackResult validateTaskArtifact(
             );
         }
     }
+    for (const TaskSignalSpec& value : pack.signals) {
+        if (!stringFits(value.id) ||
+            !stringFits(value.left) ||
+            !stringFits(value.right) ||
+            !validObservation(value.source)) {
+            return fail(
+                LearningPackStatus::capacityOverflow,
+                "TaskPack SignalIR semantic exceeds the 32-bit artifact boundary"
+            );
+        }
+    }
     const auto semanticFits = [](const auto& value) {
         return stringFits(value.sourceGroup) &&
-            stringFits(value.goal);
+            stringFits(value.goal) &&
+            stringFits(value.signal);
     };
     if (!std::all_of(
             pack.rewards.begin(),
@@ -833,11 +846,24 @@ std::vector<std::byte> serializeTask(
     );
     writeRichVector(
         writer,
+        pack.signals,
+        [](Writer& target, const TaskSignalSpec& value) {
+            target.string(value.id);
+            writeEnum(target, value.operation);
+            writeObservation(target, value.source);
+            target.string(value.left);
+            target.string(value.right);
+            target.pod(value.parameters);
+        }
+    );
+    writeRichVector(
+        writer,
         pack.rewards,
         [](Writer& target, const TaskRewardOperatorSpec& value) {
             writeEnum(target, value.operation);
             target.string(value.sourceGroup);
             target.string(value.goal);
+            target.string(value.signal);
             target.pod(value.weight);
             target.pod(value.parameters);
         }
@@ -850,9 +876,11 @@ std::vector<std::byte> serializeTask(
             writeEnum(target, value.operation);
             target.string(value.sourceGroup);
             target.string(value.goal);
+            target.string(value.signal);
             target.pod(value.reason);
             target.pod(value.priority);
             target.pod(value.threshold);
+            target.pod(value.upperThreshold);
             target.pod(value.failurePenalty);
         }
     );
@@ -985,12 +1013,25 @@ bool deserializeTask(
         ) ||
         !readRichVector(
             reader,
+            pack.signals,
+            [](Reader& source, TaskSignalSpec& value) {
+                return source.string(value.id) &&
+                    readEnum(source, value.operation) &&
+                    readObservation(source, value.source) &&
+                    source.string(value.left) &&
+                    source.string(value.right) &&
+                    source.pod(value.parameters);
+            }
+        ) ||
+        !readRichVector(
+            reader,
             pack.rewards,
             [](Reader& source,
                TaskRewardOperatorSpec& value) {
                 return readEnum(source, value.operation) &&
                     source.string(value.sourceGroup) &&
                     source.string(value.goal) &&
+                    source.string(value.signal) &&
                     source.pod(value.weight) &&
                     source.pod(value.parameters);
             }
@@ -1003,9 +1044,11 @@ bool deserializeTask(
                 return readEnum(source, value.operation) &&
                     source.string(value.sourceGroup) &&
                     source.string(value.goal) &&
+                    source.string(value.signal) &&
                     source.pod(value.reason) &&
                     source.pod(value.priority) &&
                     source.pod(value.threshold) &&
+                    source.pod(value.upperThreshold) &&
                     source.pod(value.failurePenalty);
             }
         ) ||

@@ -32,6 +32,8 @@ struct CompiledTaskProgram::Storage {
     std::vector<MRTaskActionBindingGPU> actionBindings;
     std::vector<MRTaskObservationOperatorGPU> actorOperators;
     std::vector<MRTaskObservationOperatorGPU> criticOperators;
+    std::vector<MRTaskObservationOperatorGPU> signalSources;
+    std::vector<MRTaskSignalOperatorGPU> signalOperators;
     std::vector<MRTaskContactGroupGPU> contactGroups;
     std::vector<std::uint32_t> contactMembers;
     std::vector<MRTaskIndexGroupGPU> jointGroups;
@@ -372,6 +374,14 @@ bool CompiledTaskProgram::valid() const noexcept {
         storage_->layout.actorHistoryLength == 0u ||
         storage_->layout.kinematicPointQueryCount !=
             storage_->kinematicPointQueries.size() ||
+        storage_->layout.signalCount !=
+            storage_->signalOperators.size() ||
+        storage_->header.graphCounts.x !=
+            storage_->signalOperators.size() ||
+        storage_->header.graphCounts.y !=
+            storage_->signalSources.size() ||
+        storage_->header.graphCounts.z !=
+            storage_->layout.spatialJacobianEnvironmentStride ||
         storage_->kinematicFrames.size() !=
             storage_->frames.size()) {
         return false;
@@ -457,8 +467,24 @@ bool CompiledTaskProgram::valid() const noexcept {
     const std::uint64_t goalEnd =
         goalOffset +
         storage_->goals.size() * sizeof(MRTaskGoalGPU);
+    const std::uint64_t signalSourceOffset =
+        storage_->header.offsets4.x;
+    const std::uint64_t signalSourceEnd =
+        signalSourceOffset +
+        storage_->signalSources.size() *
+            sizeof(MRTaskObservationOperatorGPU);
+    const std::uint64_t signalOperatorOffset =
+        storage_->header.offsets4.y;
+    const std::uint64_t signalOperatorEnd =
+        signalOperatorOffset +
+        storage_->signalOperators.size() *
+            sizeof(MRTaskSignalOperatorGPU);
     return storage_->header.offsets3.w == goalOffset &&
-        goalEnd <= storage_->arena.size();
+        goalEnd <= storage_->arena.size() &&
+        signalSourceOffset >= goalEnd &&
+        signalSourceEnd <= storage_->arena.size() &&
+        signalOperatorOffset >= signalSourceEnd &&
+        signalOperatorEnd <= storage_->arena.size();
 }
 
 std::uint64_t CompiledTaskProgram::fingerprint() const noexcept {
@@ -509,6 +535,24 @@ CompiledTaskProgram::criticOperators() const noexcept {
               storage_->criticOperators
           }
         : std::span<const MRTaskObservationOperatorGPU>{};
+}
+
+std::span<const MRTaskObservationOperatorGPU>
+CompiledTaskProgram::signalSources() const noexcept {
+    return valid()
+        ? std::span<const MRTaskObservationOperatorGPU>{
+              storage_->signalSources
+          }
+        : std::span<const MRTaskObservationOperatorGPU>{};
+}
+
+std::span<const MRTaskSignalOperatorGPU>
+CompiledTaskProgram::signalOperators() const noexcept {
+    return valid()
+        ? std::span<const MRTaskSignalOperatorGPU>{
+              storage_->signalOperators
+          }
+        : std::span<const MRTaskSignalOperatorGPU>{};
 }
 
 std::span<const MRTaskContactGroupGPU>
@@ -752,6 +796,15 @@ TaskCompileDiagnostics compileTaskProgram(
                 }
             ) ||
             std::any_of(
+                pack.signals.begin(),
+                pack.signals.end(),
+                [&](const TaskSignalSpec& signal) {
+                    return signal.operation ==
+                            TaskSignalOperator::source &&
+                        rootObservation(signal.source.source);
+                }
+            ) ||
+            std::any_of(
                 pack.rewards.begin(),
                 pack.rewards.end(),
                 [&](const TaskRewardOperatorSpec& operation) {
@@ -798,6 +851,7 @@ TaskCompileDiagnostics compileTaskProgram(
         !countFits(pack.jointGroups.size()) ||
         !countFits(pack.frames.size()) ||
         !countFits(pack.goals.size()) ||
+        !countFits(pack.signals.size()) ||
         !countFits(pack.rewards.size()) ||
         !countFits(pack.terminations.size()) ||
         !countFits(pack.randomization.size()) ||
@@ -819,7 +873,7 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     const std::uint64_t observationOperatorCount =
         static_cast<std::uint64_t>(pack.actorFrame.size()) +
-        pack.critic.size();
+        pack.critic.size() + pack.signals.size();
     if (contactMemberCount >=
             std::numeric_limits<std::uint32_t>::max() ||
         jointMemberCount >=
@@ -2047,6 +2101,146 @@ TaskCompileDiagnostics compileTaskProgram(
         return observationStatus;
     }
 
+    std::vector<std::string> signalIds;
+    std::vector<TaskObservationOperatorSpec> signalSourceSpecs;
+    signalIds.reserve(pack.signals.size());
+    signalSourceSpecs.reserve(pack.signals.size());
+    staged->signalOperators.reserve(pack.signals.size());
+    for (const TaskSignalSpec& signal : pack.signals) {
+        if (signal.id.empty() ||
+            std::find(
+                signalIds.begin(),
+                signalIds.end(),
+                signal.id
+            ) != signalIds.end()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                signal.id,
+                "SignalIR node identities must be non-empty and unique"
+            );
+        }
+        if (!finite(signal.parameters)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                signal.id,
+                "SignalIR parameters must be finite"
+            );
+        }
+
+        std::uint32_t sourceIndex = MR_INVALID_INDEX;
+        std::uint32_t leftIndex = MR_INVALID_INDEX;
+        std::uint32_t rightIndex = MR_INVALID_INDEX;
+        const auto resolveEarlier = [&](
+            const std::string& operand
+        ) -> std::uint32_t {
+            return namedGroup(signalIds, operand);
+        };
+        const auto requireNoOperands = [&]() -> bool {
+            return signal.left.empty() && signal.right.empty();
+        };
+        const auto requireUnary = [&]() -> bool {
+            leftIndex = resolveEarlier(signal.left);
+            return leftIndex != MR_INVALID_INDEX &&
+                signal.right.empty();
+        };
+        const auto requireBinary = [&]() -> bool {
+            leftIndex = resolveEarlier(signal.left);
+            rightIndex = resolveEarlier(signal.right);
+            return leftIndex != MR_INVALID_INDEX &&
+                rightIndex != MR_INVALID_INDEX;
+        };
+
+        bool validShape = true;
+        switch (signal.operation) {
+        case TaskSignalOperator::source:
+            validShape = requireNoOperands();
+            if (signal.source.noiseAmplitude != 0.0f ||
+                signal.source.biasLower != 0.0f ||
+                signal.source.biasUpper != 0.0f ||
+                signal.source.normalizeVector3) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    signal.id,
+                    "SignalIR source leaves are truth-only and cannot request actor corruption"
+                );
+            }
+            if (signal.source.source ==
+                    TaskObservationSource::sensorValue ||
+                signal.source.source ==
+                    TaskObservationSource::sensorValidity) {
+                return reject(
+                    TaskCompileStatus::unsupportedOperator,
+                    signal.id,
+                    "SensorIR signal leaves require the pending pre-reward sensor phase"
+                );
+            }
+            sourceIndex = static_cast<std::uint32_t>(
+                signalSourceSpecs.size()
+            );
+            signalSourceSpecs.push_back(signal.source);
+            break;
+        case TaskSignalOperator::constant:
+            validShape = requireNoOperands();
+            break;
+        case TaskSignalOperator::add:
+        case TaskSignalOperator::subtract:
+        case TaskSignalOperator::multiply:
+        case TaskSignalOperator::minimum:
+        case TaskSignalOperator::maximum:
+            validShape = requireBinary();
+            break;
+        case TaskSignalOperator::safeDivide:
+            validShape = requireBinary() &&
+                signal.parameters.x > 0.0f;
+            break;
+        case TaskSignalOperator::absolute:
+        case TaskSignalOperator::square:
+        case TaskSignalOperator::squareRoot:
+            validShape = requireUnary();
+            break;
+        case TaskSignalOperator::clamp:
+        case TaskSignalOperator::insideBounds:
+            validShape = requireUnary() &&
+                signal.parameters.x <= signal.parameters.y;
+            break;
+        case TaskSignalOperator::exponentialTracking:
+            validShape = requireUnary() &&
+                signal.parameters.y > 0.0f;
+            break;
+        default:
+            return reject(
+                TaskCompileStatus::unsupportedOperator,
+                signal.id,
+                "SignalIR opcode is unsupported"
+            );
+        }
+        if (!validShape) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                signal.id,
+                "SignalIR operands must reference earlier nodes and match the operator arity"
+            );
+        }
+        staged->signalOperators.push_back({
+            {
+                static_cast<std::uint32_t>(signal.operation),
+                sourceIndex,
+                leftIndex,
+                rightIndex,
+            },
+            signal.parameters,
+        });
+        signalIds.push_back(signal.id);
+    }
+    observationStatus = compileObservations(
+        signalSourceSpecs,
+        staged->signalSources,
+        MR_WORLD_SENSOR_CONSUMER_TRUTH
+    );
+    if (!observationStatus.succeeded()) {
+        return observationStatus;
+    }
+
     staged->kinematicFrames.assign(
         staged->frames.size(),
         MRTaskKinematicFrameGPU{
@@ -2218,6 +2412,16 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::jointLimitViolationAbsolute:
         case TaskRewardOperator::mechanicalPower:
             break;
+        case TaskRewardOperator::signal:
+            sourceIndex = namedGroup(signalIds, reward.signal);
+            if (sourceIndex == MR_INVALID_INDEX) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    reward.signal,
+                    "SignalIR reward source does not exist"
+                );
+            }
+            break;
         case TaskRewardOperator::framePositionErrorSquared:
         case TaskRewardOperator::frameOrientationErrorSquared:
         case TaskRewardOperator::framePositionTracking:
@@ -2291,11 +2495,28 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskRewardOperator::framePositionTracking ||
             reward.operation ==
                 TaskRewardOperator::frameOrientationTracking;
+        const bool signalReward =
+            reward.operation == TaskRewardOperator::signal;
         if (!frameReward && !reward.goal.empty()) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 reward.goal,
                 "only frame rewards may bind a goal"
+            );
+        }
+        if (signalReward &&
+            (!reward.sourceGroup.empty() || !reward.goal.empty())) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.signal,
+                "SignalIR rewards cannot also bind a group or goal"
+            );
+        }
+        if (!signalReward && !reward.signal.empty()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.signal,
+                "only the SignalIR reward operator may bind a signal"
             );
         }
         staged->rewardOperators.push_back({
@@ -2320,6 +2541,7 @@ TaskCompileDiagnostics compileTaskProgram(
     for (const TaskTerminationOperatorSpec& termination :
          pack.terminations) {
         if (!finite(termination.threshold) ||
+            !finite(termination.upperThreshold) ||
             !finite(termination.failurePenalty) ||
             termination.failurePenalty > 0.0f ||
             termination.reason ==
@@ -2379,6 +2601,31 @@ TaskCompileDiagnostics compileTaskProgram(
                 );
             }
             break;
+        case TaskTerminationOperator::signalBelow:
+        case TaskTerminationOperator::signalAbove:
+        case TaskTerminationOperator::signalOutside:
+            sourceIndex = namedGroup(
+                signalIds,
+                termination.signal
+            );
+            if (sourceIndex == MR_INVALID_INDEX) {
+                return reject(
+                    TaskCompileStatus::unresolvedSemantic,
+                    termination.signal,
+                    "SignalIR termination source does not exist"
+                );
+            }
+            if (termination.operation ==
+                    TaskTerminationOperator::signalOutside &&
+                termination.threshold >
+                    termination.upperThreshold) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    termination.signal,
+                    "SignalIR outside bounds are inverted"
+                );
+            }
+            break;
         default:
             return reject(
                 TaskCompileStatus::unsupportedOperator,
@@ -2391,11 +2638,34 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskTerminationOperator::maximumFramePositionError ||
             termination.operation ==
                 TaskTerminationOperator::maximumFrameOrientationError;
+        const bool signalTermination =
+            termination.operation ==
+                TaskTerminationOperator::signalBelow ||
+            termination.operation ==
+                TaskTerminationOperator::signalAbove ||
+            termination.operation ==
+                TaskTerminationOperator::signalOutside;
         if (!frameTermination && !termination.goal.empty()) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 termination.goal,
                 "only frame terminations may bind a goal"
+            );
+        }
+        if (signalTermination &&
+            (!termination.sourceGroup.empty() ||
+             !termination.goal.empty())) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                termination.signal,
+                "SignalIR terminations cannot also bind a group or goal"
+            );
+        }
+        if (!signalTermination && !termination.signal.empty()) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                termination.signal,
+                "only SignalIR termination operators may bind a signal"
             );
         }
         staged->terminationOperators.push_back({
@@ -2410,7 +2680,7 @@ TaskCompileDiagnostics compileTaskProgram(
             {
                 termination.threshold,
                 termination.failurePenalty,
-                0.0f,
+                termination.upperThreshold,
                 0.0f,
             },
             {goalIndex, 0u, 0u, 0u},
@@ -2751,6 +3021,9 @@ TaskCompileDiagnostics compileTaskProgram(
             ),
         .spatialJacobianEnvironmentStride =
             static_cast<std::uint32_t>(jacobianPrefix),
+        .signalCount = static_cast<std::uint32_t>(
+            staged->signalOperators.size()
+        ),
     };
 
     staged->header.counts0 = {
@@ -2882,6 +3155,16 @@ TaskCompileDiagnostics compileTaskProgram(
         static_cast<std::uint32_t>(
             staged->sensorFingerprint >> 32u
         ),
+    };
+    staged->header.graphCounts = {
+        static_cast<std::uint32_t>(
+            staged->signalOperators.size()
+        ),
+        static_cast<std::uint32_t>(
+            staged->signalSources.size()
+        ),
+        staged->layout.spatialJacobianEnvironmentStride,
+        0u,
     };
 
     const auto appendArena =
@@ -3016,11 +3299,26 @@ TaskCompileDiagnostics compileTaskProgram(
         frameOffset,
         goalOffset,
     };
+    staged->header.offsets4 = {
+        appendArena(
+            std::span<const MRTaskObservationOperatorGPU>{
+                staged->signalSources
+            }
+        ),
+        appendArena(
+            std::span<const MRTaskSignalOperatorGPU>{
+                staged->signalOperators
+            }
+        ),
+        0u,
+        0u,
+    };
     const std::array offsets{
         staged->header.offsets0,
         staged->header.offsets1,
         staged->header.offsets2,
         staged->header.offsets3,
+        staged->header.offsets4,
     };
     for (const mr_uint4 value : offsets) {
         if (value.x == MR_INVALID_INDEX ||
@@ -3064,6 +3362,15 @@ TaskCompileDiagnostics compileTaskProgram(
     for (const TaskGoalSpec& goal : pack.goals) {
         hash.string(goal.id);
     }
+    for (const TaskSignalSpec& signal : pack.signals) {
+        hash.string(signal.id);
+        hash.string(signal.left);
+        hash.string(signal.right);
+        hash.string(signal.source.target);
+        hash.string(signal.source.goal);
+        hash.string(signal.source.reference);
+        hash.string(signal.source.coordinate);
+    }
     for (const TaskObservationOperatorSpec& observation :
          pack.actorFrame) {
         hash.string(observation.target);
@@ -3080,10 +3387,12 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     for (const TaskRewardOperatorSpec& reward : pack.rewards) {
         hash.string(reward.goal);
+        hash.string(reward.signal);
     }
     for (const TaskTerminationOperatorSpec& termination :
          pack.terminations) {
         hash.string(termination.goal);
+        hash.string(termination.signal);
     }
     staged->fingerprint = hash.finish();
     staged->header.taskFingerprint = staged->fingerprint;

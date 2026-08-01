@@ -100,6 +100,7 @@ enum class TaskRewardOperator : std::uint32_t {
         MR_TASK_REWARD_FRAME_POSITION_TRACKING,
     frameOrientationTracking =
         MR_TASK_REWARD_FRAME_ORIENTATION_TRACKING,
+    signal = MR_TASK_REWARD_SIGNAL,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -110,6 +111,26 @@ enum class TaskTerminationOperator : std::uint32_t {
         MR_TASK_TERMINATE_MAXIMUM_FRAME_POSITION_ERROR,
     maximumFrameOrientationError =
         MR_TASK_TERMINATE_MAXIMUM_FRAME_ORIENTATION_ERROR,
+    signalBelow = MR_TASK_TERMINATE_SIGNAL_BELOW,
+    signalAbove = MR_TASK_TERMINATE_SIGNAL_ABOVE,
+    signalOutside = MR_TASK_TERMINATE_SIGNAL_OUTSIDE,
+};
+
+enum class TaskSignalOperator : std::uint32_t {
+    source = MR_TASK_SIGNAL_SOURCE,
+    constant = MR_TASK_SIGNAL_CONSTANT,
+    add = MR_TASK_SIGNAL_ADD,
+    subtract = MR_TASK_SIGNAL_SUBTRACT,
+    multiply = MR_TASK_SIGNAL_MULTIPLY,
+    minimum = MR_TASK_SIGNAL_MINIMUM,
+    maximum = MR_TASK_SIGNAL_MAXIMUM,
+    absolute = MR_TASK_SIGNAL_ABSOLUTE,
+    square = MR_TASK_SIGNAL_SQUARE,
+    squareRoot = MR_TASK_SIGNAL_SQUARE_ROOT,
+    safeDivide = MR_TASK_SIGNAL_SAFE_DIVIDE,
+    clamp = MR_TASK_SIGNAL_CLAMP,
+    exponentialTracking = MR_TASK_SIGNAL_EXPONENTIAL_TRACKING,
+    insideBounds = MR_TASK_SIGNAL_INSIDE_BOUNDS,
 };
 
 enum class TaskRandomizationOperator : std::uint32_t {
@@ -215,12 +236,26 @@ struct TaskJointGroup {
     std::vector<std::string> joints;
 };
 
+// One node in a topologically ordered scalar TaskIR graph. Operand names may
+// reference only earlier nodes. Source nodes compile one truth-only semantic
+// observation; other nodes must leave source at its default value.
+struct TaskSignalSpec {
+    std::string id;
+    TaskSignalOperator operation = TaskSignalOperator::constant;
+    TaskObservationOperatorSpec source;
+    std::string left;
+    std::string right;
+    mr_float4 parameters{};
+};
+
 struct TaskRewardOperatorSpec {
     TaskRewardOperator operation =
         TaskRewardOperator::constant;
     std::string sourceGroup;
     // Required by frame tracking/error operators.
     std::string goal;
+    // Required only by the generic SignalIR reward operator.
+    std::string signal;
     // Reward rate in units per second. The native task integrates every
     // weighted term over the control interval, keeping TaskPacks invariant
     // when the control frequency changes.
@@ -234,9 +269,13 @@ struct TaskTerminationOperatorSpec {
     std::string sourceGroup;
     // Required by frame error terminations.
     std::string goal;
+    // Required only by SignalIR threshold operators.
+    std::string signal;
     std::uint32_t reason = MR_TASK_TERMINATION_HEIGHT;
     std::uint32_t priority = 0u;
     float threshold = 0.0f;
+    // Upper bound used only by signalOutside.
+    float upperThreshold = 0.0f;
     // One-shot reward applied when this non-timeout termination wins the
     // priority reduction. This closes the early-termination loophole when
     // the task also contains per-step penalties.
@@ -297,6 +336,7 @@ struct TaskPack {
     std::vector<TaskJointGroup> jointGroups;
     std::vector<TaskFrameSpec> frames;
     std::vector<TaskGoalSpec> goals;
+    std::vector<TaskSignalSpec> signals;
     std::vector<TaskRewardOperatorSpec> rewards;
     std::vector<TaskTerminationOperatorSpec> terminations;
     std::vector<TaskRandomizationOperatorSpec> randomization;
@@ -351,6 +391,7 @@ struct TaskProgramLayout {
     std::uint32_t delayStateCount = 0u;
     std::uint32_t kinematicPointQueryCount = 0u;
     std::uint32_t spatialJacobianEnvironmentStride = 0u;
+    std::uint32_t signalCount = 0u;
 };
 
 // Private execution metadata for one articulation cohort of semantic point
@@ -381,6 +422,10 @@ public:
     actorOperators() const noexcept;
     [[nodiscard]] std::span<const MRTaskObservationOperatorGPU>
     criticOperators() const noexcept;
+    [[nodiscard]] std::span<const MRTaskObservationOperatorGPU>
+    signalSources() const noexcept;
+    [[nodiscard]] std::span<const MRTaskSignalOperatorGPU>
+    signalOperators() const noexcept;
     [[nodiscard]] std::span<const MRTaskContactGroupGPU>
     contactGroups() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t>

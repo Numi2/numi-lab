@@ -3049,7 +3049,7 @@ kernel void mr_task_complete(
     constant MRMetalWorldPassGPU& pass [[buffer(5)]],
     device const float* qState [[buffer(6)]],
     device const float* vState [[buffer(7)]],
-    device const MRBodyStateGPU* bodyStates [[buffer(8)]],
+    device MRBodyStateGPU* bodyStates [[buffer(8)]],
     device const MRContactConstraintGPU* contacts [[buffer(9)]],
     device const MRMetalWorldContactStatusGPU* contactStatuses
         [[buffer(10)]],
@@ -3105,6 +3105,16 @@ kernel void mr_task_complete(
                 arena,
                 program.offsets0.z
             );
+    device const MRTaskObservationOperatorGPU* signalSources =
+        taskTable<MRTaskObservationOperatorGPU>(
+            arena,
+            program.offsets4.x
+        );
+    device const MRTaskSignalOperatorGPU* signalOperators =
+        taskTable<MRTaskSignalOperatorGPU>(
+            arena,
+            program.offsets4.y
+        );
     device const MRTaskContactGroupGPU* contactGroups =
         taskTable<MRTaskContactGroupGPU>(
             arena,
@@ -3156,6 +3166,13 @@ kernel void mr_task_complete(
             bodyStates +
             dispatch.counts.x * dispatch.strides.y
         );
+    device float* signalValues =
+        reinterpret_cast<device float*>(
+            bodyStates +
+            dispatch.counts.x * dispatch.strides.y
+        ) +
+        dispatch.counts.x * program.graphCounts.z +
+        environment * program.graphCounts.x;
     const uint sceneBase =
         environment * dispatch.strides.w;
     const uint delayBase =
@@ -3554,6 +3571,117 @@ kernel void mr_task_complete(
         state.commandAndPhase.xyz
     );
     const uint episodeSteps = state.episode.x + 1u;
+    device const float* signalAction =
+        actionHistory +
+        delayBase +
+        (program.layout.w - 1u) * program.counts0.x;
+    for (uint signalIndex = 0u;
+         signalIndex < program.graphCounts.x;
+         ++signalIndex) {
+        const MRTaskSignalOperatorGPU operation =
+            signalOperators[signalIndex];
+        const float left =
+            operation.inputs.z != MR_INVALID_INDEX
+            ? signalValues[operation.inputs.z]
+            : 0.0f;
+        const float right =
+            operation.inputs.w != MR_INVALID_INDEX
+            ? signalValues[operation.inputs.w]
+            : 0.0f;
+        float value = 0.0f;
+        switch (operation.inputs.x) {
+        case MR_TASK_SIGNAL_SOURCE:
+            value = cleanObservation(
+                dispatch,
+                program,
+                signalSources[operation.inputs.y],
+                actions,
+                contactGroups,
+                frames,
+                kinematicFrames,
+                goals,
+                spatialJacobians,
+                environment,
+                state.episode.y,
+                episodeSteps,
+                bodyStates + bodyBase,
+                terrainSamples,
+                q,
+                v,
+                defaultQ,
+                state,
+                signalAction,
+                compactContact + compactBase,
+                bodyParameters + bodyParameterBase,
+                controllerParameters + environment,
+                sceneState + sceneBase,
+                shapes,
+                geometryHeaders,
+                geometryVertices
+            );
+            break;
+        case MR_TASK_SIGNAL_CONSTANT:
+            value = operation.parameters.x;
+            break;
+        case MR_TASK_SIGNAL_ADD:
+            value = left + right;
+            break;
+        case MR_TASK_SIGNAL_SUBTRACT:
+            value = left - right;
+            break;
+        case MR_TASK_SIGNAL_MULTIPLY:
+            value = left * right;
+            break;
+        case MR_TASK_SIGNAL_MINIMUM:
+            value = min(left, right);
+            break;
+        case MR_TASK_SIGNAL_MAXIMUM:
+            value = max(left, right);
+            break;
+        case MR_TASK_SIGNAL_ABSOLUTE:
+            value = abs(left);
+            break;
+        case MR_TASK_SIGNAL_SQUARE:
+            value = left * left;
+            break;
+        case MR_TASK_SIGNAL_SQUARE_ROOT:
+            value = sqrt(max(left, 0.0f));
+            break;
+        case MR_TASK_SIGNAL_SAFE_DIVIDE: {
+            const float epsilon = operation.parameters.x;
+            const float denominator =
+                abs(right) >= epsilon
+                ? right
+                : copysign(epsilon, right == 0.0f ? 1.0f : right);
+            value = left / denominator;
+            break;
+        }
+        case MR_TASK_SIGNAL_CLAMP:
+            value = clamp(
+                left,
+                operation.parameters.x,
+                operation.parameters.y
+            );
+            break;
+        case MR_TASK_SIGNAL_EXPONENTIAL_TRACKING: {
+            const float normalized =
+                (left - operation.parameters.x) /
+                operation.parameters.y;
+            value = exp(-(normalized * normalized));
+            break;
+        }
+        case MR_TASK_SIGNAL_INSIDE_BOUNDS:
+            value = float(
+                left >= operation.parameters.x &&
+                left <= operation.parameters.y
+            );
+            break;
+        default:
+            value = 0.0f;
+            break;
+        }
+        signalValues[signalIndex] = value;
+    }
     const bool moving = commandMagnitude > 0.1f;
     float phase =
         state.commandAndPhase.w +
@@ -3889,6 +4017,9 @@ kernel void mr_task_complete(
                 }
             }
             break;
+        case MR_TASK_REWARD_SIGNAL:
+            value = signalValues[operation.source.y];
+            break;
         default:
             value = 0.0f;
             break;
@@ -3905,6 +4036,7 @@ kernel void mr_task_complete(
         case MR_TASK_REWARD_FOOT_CLEARANCE:
         case MR_TASK_REWARD_FRAME_POSITION_TRACKING:
         case MR_TASK_REWARD_FRAME_ORIENTATION_TRACKING:
+        case MR_TASK_REWARD_SIGNAL:
             rewardBreakdown0.x += contribution;
             break;
         case MR_TASK_REWARD_ROOT_VERTICAL_VELOCITY_SQUARED:
@@ -4012,6 +4144,23 @@ kernel void mr_task_complete(
                       goalPose.orientation
                   ));
             triggered = error > operation.parameters.x;
+            break;
+        }
+        case MR_TASK_TERMINATE_SIGNAL_BELOW:
+            triggered =
+                signalValues[operation.source.y] <
+                operation.parameters.x;
+            break;
+        case MR_TASK_TERMINATE_SIGNAL_ABOVE:
+            triggered =
+                signalValues[operation.source.y] >
+                operation.parameters.x;
+            break;
+        case MR_TASK_TERMINATE_SIGNAL_OUTSIDE: {
+            const float signal =
+                signalValues[operation.source.y];
+            triggered = signal < operation.parameters.x ||
+                signal > operation.parameters.z;
             break;
         }
         default:

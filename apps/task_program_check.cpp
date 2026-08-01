@@ -2763,11 +2763,58 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         },
     };
     twistAuthored.task.criticIncludesCleanHistory = false;
+    twistAuthored.task.signals = {
+        {
+            .id = "semantic_jacobian",
+            .operation = metalrobo::TaskSignalOperator::source,
+            .source = {
+                .source = metalrobo::TaskObservationSource::
+                    frameLinearJacobianWorld,
+                .target = "tool_tip",
+                .coordinate = "axis",
+                .component = 0u,
+            },
+        },
+        {
+            .id = "zero",
+            .operation = metalrobo::TaskSignalOperator::constant,
+        },
+        {
+            .id = "discard_semantic",
+            .operation = metalrobo::TaskSignalOperator::multiply,
+            .left = "semantic_jacobian",
+            .right = "zero",
+        },
+        {
+            .id = "reward_rate",
+            .operation = metalrobo::TaskSignalOperator::constant,
+            .parameters = {2.0f, 0.0f, 0.0f, 0.0f},
+        },
+        {
+            .id = "reward_value",
+            .operation = metalrobo::TaskSignalOperator::add,
+            .left = "discard_semantic",
+            .right = "reward_rate",
+        },
+        {
+            .id = "inside_safety",
+            .operation = metalrobo::TaskSignalOperator::insideBounds,
+            .left = "semantic_jacobian",
+            .parameters = {-1.0f, 1.0f, 0.0f, 0.0f},
+        },
+    };
     twistAuthored.task.rewards = {{
-        .operation = metalrobo::TaskRewardOperator::constant,
+        .operation = metalrobo::TaskRewardOperator::signal,
+        .signal = "reward_value",
         .weight = 1.0f,
     }};
-    twistAuthored.task.terminations.clear();
+    twistAuthored.task.terminations = {{
+        .operation = metalrobo::TaskTerminationOperator::signalBelow,
+        .signal = "inside_safety",
+        .reason = MR_TASK_TERMINATION_GOAL_ERROR,
+        .priority = 1u,
+        .threshold = 0.5f,
+    }};
     twistAuthored.task.randomization = {{
         .operation =
             metalrobo::TaskRandomizationOperator::actionVelocity,
@@ -2840,7 +2887,11 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
                 .spatialJacobianEnvironmentStride != 6u ||
         twistCompiled.task.kinematicPointQueries().size() != 1u ||
         twistCompiled.task.kinematicCohorts().size() != 1u ||
-        twistCompiled.task.kinematicCohorts().front().queryCount != 1u) {
+        twistCompiled.task.kinematicCohorts().front().queryCount != 1u ||
+        twistCompiled.task.layout().signalCount != 6u ||
+        twistCompiled.task.signalSources().size() != 1u ||
+        twistCompiled.task.signalOperators().size() != 6u ||
+        twistCompiled.task.header().graphCounts.z != 6u) {
         fail(
             "frame Jacobian did not compile into one stable semantic query: queries=" +
             std::to_string(
@@ -2879,8 +2930,30 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         !twistTaskRoundTripStatus.succeeded() ||
         twistTaskRoundTrip.fingerprint() !=
             twistCompiled.task.fingerprint() ||
-        twistPackRoundTrip.critic.back().coordinate != "axis") {
+        twistPackRoundTrip.critic.back().coordinate != "axis" ||
+        twistPackRoundTrip.signals.size() != 6u ||
+        twistPackRoundTrip.rewards.front().signal !=
+            "reward_value" ||
+        twistPackRoundTrip.terminations.front().signal !=
+            "inside_safety") {
         fail("TaskPack round trip changed semantic Jacobian identity");
+    }
+    metalrobo::TaskPack invalidSignal = twistAuthored.task;
+    invalidSignal.signals[2u].left = "reward_value";
+    metalrobo::CompiledTaskProgram preservedSignalTask =
+        twistCompiled.task;
+    const auto invalidSignalStatus =
+        metalrobo::compileTaskProgram(
+            invalidSignal,
+            twistCompiled.world,
+            twistCompiled.sensors,
+            preservedSignalTask
+        );
+    if (invalidSignalStatus.status !=
+            metalrobo::TaskCompileStatus::invalidPack ||
+        preservedSignalTask.fingerprint() !=
+            twistCompiled.task.fingerprint()) {
+        fail("forward SignalIR reference was not transactionally rejected");
     }
     metalrobo::TaskPack invalidJacobian = twistAuthored.task;
     invalidJacobian.critic.back().coordinate = "missing_coordinate";
@@ -2943,6 +3016,12 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         twistResult.criticObservations.size() !=
             (twistSteps + 1u) * 10u ||
         twistResult.sensorOutputs.size() != 12u ||
+        twistResult.transitions.size() != twistSteps ||
+        std::abs(
+            twistResult.transitions[0u].rewardAndState.x -
+            0.04f
+        ) > 2.0e-4f ||
+        twistResult.transitions[0u].termination.x != 0u ||
         std::abs(twistResult.actorObservations[0u] - 0.5f) >
             2.0e-4f ||
         std::abs(twistResult.criticObservations[0u] - 0.1f) >
