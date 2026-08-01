@@ -19,7 +19,8 @@
     "evidence/baselines/2026-08-01-c82c454.json",
     "evidence/baselines/2026-08-01-12912fc.json",
     "evidence/baselines/2026-08-01-09575df.json",
-    "evidence/baselines/2026-08-01-ba48f35.json"
+    "evidence/baselines/2026-08-01-ba48f35.json",
+    "evidence/baselines/2026-08-01-74155de.json"
   ],
   "capabilities": [
     {
@@ -87,7 +88,7 @@
     },
     {
       "id": "runtime.transactional_reset_physics",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "A reset is applied to working state only. A later pair-capacity failure restores the exact previously committed q/v, scene bodies, manifold headers/points/counts, SensorIR output and metadata, retains the resident token, and permits a following submission. Generalized warm starts, rods, and convex caches use the same pre-reset checkpoint ordering in code but still need focused reset-failure evidence."
