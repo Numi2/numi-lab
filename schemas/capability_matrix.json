@@ -34,7 +34,8 @@
     "evidence/baselines/2026-08-01-e8513df.json",
     "evidence/baselines/2026-08-01-20baf55.json",
     "evidence/baselines/2026-08-01-c6bcfd0.json",
-    "evidence/baselines/2026-08-01-a5e26d6.json"
+    "evidence/baselines/2026-08-01-a5e26d6.json",
+    "evidence/baselines/2026-08-01-7182ce5.json"
   ],
   "capabilities": [
     {
@@ -175,21 +176,28 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, pose rewards and terminations, a generic scalar SignalIR with current SensorIR truth leaves, SensorIR actor/critic values, and reset-correct pre-policy state are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, phase-complete events/recorders, and three complete task families are not yet qualified."
+      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, generic scalar and cohort-reduction SignalIR, current SensorIR truth leaves, SensorIR actor/critic values, reset-correct pre-policy state, and generic reward reporting channels are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, phase-complete events/recorders, and three complete task families are not yet qualified."
     },
     {
       "id": "tasks.scalar_signal_ir",
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "TaskPack 11 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, and bounds gates. The native order is accepted mechanics, SensorIR sample, sensor-signal materialization, generic reward/termination, then actor/critic sensor-history publication. Constant and frame-specific reward/termination runtime opcodes and duplicated operator goal-name fields have been deleted; fixed, sampled, and trajectory goals now use the same graph, and the termination record shrank from 48 to 32 bytes. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. Vector reductions, phase gates, and migration of the remaining G1-only reductions remain incomplete."
+      "scope": "TaskPack 13 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, atan2, bounds gates, and contiguous source-cohort reductions. Reductions apply identity, absolute, or square transforms followed by sum, mean, minimum, or maximum without materializing one scratch node per member. The native order is accepted mechanics, SensorIR sample, sensor-signal materialization, generic reward/termination, then actor/critic sensor-history publication. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. SensorIR cohort reductions and generic phase operators remain incomplete."
     },
     {
       "id": "tasks.specialized_branch_pruning",
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Task execution has no constant or frame-specific reward/termination opcode. Fixed, episode-sampled, and trajectory frame objectives compose semantic leaves through SignalIR, TaskPack 11 removed reward/termination goal strings, and the generated termination record shrank from 48 to 32 bytes. G1-only acceleration, action-rate, soft-limit, gait, and clearance reductions remain temporarily explicit until exact generic sources replace them."
+      "scope": "Twelve robot-shaped reward opcodes and every specialized termination opcode have been deleted. G1 stability, joint velocity, posture, support slip, forbidden contact, height termination, and tilt termination compose generic SignalIR nodes; reward reporting uses an authored eight-channel index rather than an opcode switch. TaskPack 13 also deletes the joint-group wire section, two compiled tables, their GPU record, and two public accessors. Command tracking, acceleration, action rate, soft limits, mechanical power, gait matching, and foot clearance remain explicit until exact generic sources replace them."
+    },
+    {
+      "id": "tasks.signal_reductions",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "A SignalIR reduction owns one contiguous truth-source cohort and compiles identity, absolute, or square transforms with sum, mean, minimum, or maximum. The bundled G1 task uses seven reductions and 22 graph nodes; compared with scalar expansion, an eight-environment native rollout saves 19,456 retained bytes with exact physics, contacts, rewards, terminations, and reward-channel results. Empty cohorts and currently unsupported SensorIR cohorts fail transactionally."
     },
     {
       "id": "tasks.semantic_frame_jacobians",

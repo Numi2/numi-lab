@@ -101,12 +101,14 @@ compilation. It supports:
   error termination composed from semantic leaves and scalar SignalIR;
 - topologically ordered scalar signals with semantic observation leaves,
   constants, arithmetic, min/max, absolute, square/root, safe division,
-  clamp, exponential tracking, and bounds gates;
+  clamp, exponential tracking/decay, `atan2`, and bounds gates;
+- contiguous semantic-source reductions with identity, absolute, or square
+  transforms and sum, mean, minimum, or maximum reductions;
 - generic signal rewards and below/above/outside termination thresholds;
 - fixed goals, episode-sampled poses, and two-pose trajectories with clamped,
   looped, or ping-pong playback;
 - fixed-shape actor/critic histories, deterministic corruption, curriculum,
-  randomization, and transactional reset.
+  randomization, and transactional reset;
 - named SensorIR scalar values and validity bits, with actor/critic permission
   checks and an exact SensorIR fingerprint in the compiled TaskIR contract.
 
@@ -134,11 +136,22 @@ consume scalar signal indices. This keeps fixed, sampled, and trajectory goals
 on one execution path and prevents every new frame objective from adding a
 native branch.
 
+Every reward also selects one of eight generic reporting channels: primary,
+stability, velocity, acceleration, control, configuration, energy, or contact.
+The channel changes only compact metrics; it does not alter reward evaluation.
+There is no opcode-to-reporting switch.
+
+A reduction cohort is compiled to one SignalIR node plus contiguous resolved
+semantic sources. The GPU applies its transform and reduction directly; it
+does not publish one intermediate signal per joint or contact group. Empty
+cohorts fail compilation. SensorIR values currently remain scalar leaves
+because current-sample scratch is indexed per SignalIR node.
+
 The remaining TaskIR target is a phase-separated graph covering action,
 command/event, observation, reward, termination, recorder, reset, and
 curriculum phases. Frame acceleration, arbitrary point queries, full Jacobian
-tensors and vector reductions, multi-knot trajectory splines, events, and
-recorders are not yet production operators.
+tensors, multi-knot trajectory splines, events, and recorders are not yet
+production operators.
 
 Frame-Jacobian observations are analytic operator outputs, not finite
 differences of poses. The point is the compiled frame origin and the three

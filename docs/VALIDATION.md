@@ -181,9 +181,20 @@ without replacing the last valid compiled program.
 
 The same fixture expresses fixed, episode-sampled, and trajectory frame
 objectives without constant or frame-specific reward/termination opcodes.
-TaskPack 11 round-trips those graphs, preserves their numerical outcomes, and
+TaskPack 13 round-trips those graphs, preserves their numerical outcomes, and
 proves that deleting the duplicated goal fields and shrinking the termination
 record does not change dynamic-goal replay.
+
+The G1 branch-pruning fixture lowers stability, joint-velocity, posture,
+support-slip, forbidden-contact, height, and tilt terms into SignalIR. A paired
+eight-environment, sixteen-step native rollout against the pre-cut revision
+matches task reward, physics, contacts, terminations, and channel metrics; the
+largest aggregate reporting difference is below `5e-10`. Seven compiled
+source-cohort reductions reduce the graph to 22 nodes and recover 19,456
+retained bytes relative to scalar expansion without changing persistent state.
+The owner also rejects an invalid reward channel, an empty reduction, and a
+SensorIR reduction that lacks generalized per-source sensor scratch, while
+preserving the last compiled task transactionally.
 
 ## Numerical corpus
 
