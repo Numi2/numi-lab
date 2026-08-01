@@ -39,7 +39,8 @@
     "evidence/baselines/2026-08-01-ac58af4.json",
     "evidence/baselines/2026-08-01-959544a.json",
     "evidence/baselines/2026-08-01-cd534c9.json",
-    "evidence/baselines/2026-08-01-b7f0188.json"
+    "evidence/baselines/2026-08-01-b7f0188.json",
+    "evidence/baselines/2026-08-01-3262d20.json"
   ],
   "capabilities": [
     {
@@ -180,14 +181,14 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "TaskPack 16 compiles up to three unique named scalar commands into immutable range and curriculum records. Actor, critic, and SignalIR sources resolve command identity to a stable slot once; the Metal sampler consumes only the compiled count and table, preserves deterministic counter channels, and checkpoints command state with the task transaction. Duplicate, unresolved, invalid-range, and oversized compact command programs reject without replacing the last valid program. Arbitrary command counts, vector-valued distributions, per-command schedules, and general event operator tables remain incomplete."
+      "scope": "TaskPack 16 compiles a topology-derived count of unique named scalar commands into immutable range, curriculum, and stable counter-RNG identity records. Actor, critic, and SignalIR sources resolve command identity to a stable slot once. Commands follow compact contact reductions in one native scalar-state arena whose resident and checkpoint capacities are compiler-derived. A five-command Metal fixture consumes its fifth command through SignalIR and recorder output; a variable fifth command is restored exactly after a rejected reset. Duplicate, unresolved, and invalid-range programs reject without replacing the last valid program. Vector-valued or correlated distributions, per-command schedules, and general command/event operator tables remain incomplete."
     },
     {
       "id": "tasks.generic_typed_operators",
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, generic scalar and cohort-reduction SignalIR, current SensorIR truth leaves, SensorIR actor/critic values, reset-correct pre-policy state, three named compact scalar commands, generic reward reporting channels, three compact named recorders, and a SignalIR-driven scalar curriculum are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, arbitrary command buffers, phase-complete event tables, arbitrary recorder streams, richer curriculum operators, and three complete task families are not yet qualified."
+      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, generic scalar and cohort-reduction SignalIR, current SensorIR truth leaves, SensorIR actor/critic values, reset-correct pre-policy state, topology-sized named scalar commands, generic reward reporting channels, three compact named recorders, and a SignalIR-driven scalar curriculum are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, vector or scheduled command operators, phase-complete event tables, arbitrary recorder streams, richer curriculum operators, and three complete task families are not yet qualified."
     },
     {
       "id": "tasks.scalar_signal_ir",
@@ -257,7 +258,7 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Every native task step journals per-environment task state, action delay, and compact contact metrics; reset steps additionally journal actor/critic/clean histories, previous velocity, sensor bias, and body/controller randomization. A rejected reset keeps its typed failure transition but restores hidden state, and the next accepted physics, task, policy, sensor, and contact outputs match a no-failure reference branch byte-for-byte. Global curriculum scheduling is not included."
+      "scope": "Every native task step journals per-environment task state, action delay, and the complete compiler-sized scalar arena containing contact reductions and named commands; reset steps additionally journal actor/critic/clean histories, previous velocity, sensor bias, and body/controller randomization. A rejected reset keeps its typed failure transition but restores hidden state, including an episode-resampled fifth command, and the next accepted physics, task, policy, sensor, and contact outputs match a no-failure reference branch byte-for-byte. Global curriculum scheduling is not included."
     },
     {
       "id": "sensors.native_tactile",

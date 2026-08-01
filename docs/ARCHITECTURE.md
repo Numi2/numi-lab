@@ -98,14 +98,16 @@ environments. SensorIR likewise journals schedule state, history, compact
 output, and metadata only for reset environments. Rejected transitions restore
 those bytes; successful and ordinary non-reset steps pay no checkpoint-copy
 bandwidth beyond the core state already required for rollback. TaskIR journals
-state, action delay, and compact contact metrics on every step; reset steps
-also journal observation histories, bias, body/controller randomization, and
-previous velocity. A typed failure transition remains inspectable while the
-persistent TaskIR state is restored. Actuator command-delay and backlash state
-are checkpointed before the control-boundary mutation and restored whenever
-the physics transaction is rejected. Whole-session atomicity for tactile,
-presentation, global curriculum, and future recurrent-policy state is still
-incomplete.
+state, action delay, and its topology-sized scalar arena on every step. That
+arena contains compact contact reductions followed by compiled named scalar
+commands, so a rejected command resample is restored with the same transaction.
+Reset steps also journal observation histories, bias, body/controller
+randomization, and previous velocity. A typed failure transition remains
+inspectable while the persistent TaskIR state is restored. Actuator
+command-delay and backlash state are checkpointed before the control-boundary
+mutation and restored whenever the physics transaction is rejected.
+Whole-session atomicity for tactile, presentation, global curriculum, and
+future recurrent-policy state is still incomplete.
 
 ## Generated ABI
 
@@ -124,8 +126,10 @@ not compile an entry point absent from the generated table. All mutable arena
 slots share the resulting device, library, command queue, and pipeline objects.
 
 Numeric buffer slots, duplicated host/shader enums, and handwritten lifetime
-switches are forbidden. Persisted ABI changes increment the ABI version;
-ordinary internal refactors do not create version-suffixed types.
+switches are forbidden. The TaskRuntime observe, apply, effort, complete, and
+curriculum passes consume schema-generated binding enums on both host and
+shader sides. Persisted ABI changes increment the ABI version; ordinary
+internal refactors do not create version-suffixed types.
 
 ## Extension boundary
 

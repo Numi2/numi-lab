@@ -211,10 +211,23 @@ the deterministic host action stream preserve every physical, contact,
 failure, termination, reward, recorder, and reporting metric exactly. The G1
 TaskPack now resolves `forward_velocity`, `lateral_velocity`, and
 `yaw_velocity` to three immutable scalar command records; the owner rejects
-duplicate identities, unresolved observation bindings, invalid ranges, and a
-fourth compact command transactionally. The richer command table adds 32
-retained bytes—16 immutable-private and 16 shared-boundary—with no transient or
-persistent-state increase.
+duplicate identities, unresolved observation bindings, and invalid ranges
+transactionally.
+
+The subsequent topology-sized command cut is compared against `b7f0188` with
+the same paired rollout contract. Zero and deterministic host actions again
+preserve every physical, contact, failure, termination, reward, recorder, and
+reporting metric exactly. The runtime state no longer embeds a three-element
+command vector: compiler-sized scalar state stores contact reductions followed
+by all named commands, and the complete stride is journaled transactionally.
+A five-command fixed-base Metal fixture consumes command five through SignalIR
+and recorder output; its rollback variant makes that command episode-random,
+forces a reset followed by pair-capacity failure, and requires the next
+accepted transition to match an untouched reference branch byte-for-byte.
+TaskRuntime's observe, apply, effort, complete, and curriculum bindings now
+come from the generated ABI schema; no raw numeric Metal buffer bindings remain
+in that shader. G1 retained memory increases by 32 bytes overall while both
+persistent and transient state decrease by 32 bytes.
 
 An independent fixed-base fixture records `axis_velocity_squared` and compares
 the Metal recorder value with the generic reward-channel contribution. The

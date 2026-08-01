@@ -108,8 +108,9 @@ compilation. It supports:
 - contiguous semantic-source reductions with identity, absolute, or square
   transforms and sum, mean, minimum, or maximum reductions;
 - generic signal rewards and below/above/outside termination thresholds;
-- up to three named scalar commands with compiled initial ranges, hard limits,
-  curriculum expansion, cohort-zero probability, and resample duration;
+- a topology-derived count of named scalar commands with compiled initial
+  ranges, hard limits, curriculum expansion, cohort-zero probability, and a
+  shared resample duration;
 - named compact recorders that bind directly to SignalIR nodes and publish
   three generic metric values without robot-shaped transition fields;
 - fixed goals, episode-sampled poses, and two-pose trajectories with clamped,
@@ -158,21 +159,23 @@ stability, velocity, acceleration, control, configuration, energy, or contact.
 The channel changes only compact metrics; it does not alter reward evaluation.
 There is no opcode-to-reporting switch.
 
-Each compact command has a unique authored identity. Actor, critic, and
+Each scalar command has a unique authored identity. Actor, critic, and
 SignalIR observations name that identity; the compiler resolves it to one
 stable native slot and rejects unresolved or duplicate identities before any
 session state is replaced. The immutable command record owns its initial
 lower/upper range, hard lower/upper limits, and symmetric per-curriculum-level
-expansion. Metal samples those records with the existing counter-keyed random
-channels and journals the resulting command state with the task transaction,
-so a rejected physics step cannot advance or resample it.
+expansion. The compiler also assigns a stable 64-bit semantic counter-RNG key,
+so inserting or reordering unrelated commands does not perturb its stream.
+Metal samples only the immutable table and compiled count.
 
-The current state record deliberately exposes only three scalar command slots
-plus phase. This qualifies the bundled G1 contract without pretending it is
-the final general command phase. Arbitrary command counts, vector-valued or
-correlated distributions, per-command schedules, and general event operator
-tables require a topology-sized native command/event state arena; they must not
-be added as another anonymous fixed vector.
+Commands follow compact contact reductions in one topology-sized native
+scalar-state arena. The compiler derives both resident and checkpoint
+capacities, and every physics transaction journals the complete per-environment
+stride. The task-state record therefore contains no fixed command vector. A
+rejected reset restores even an episode-resampled command before the next
+accepted transition. Vector-valued or correlated distributions, per-command
+schedules, and general event operator tables remain incomplete; they must use
+typed operator tables rather than reintroducing an anonymous fixed vector.
 
 Each compact recorder resolves an authored identity and one SignalIR node at
 compilation. Recorder identities remain immutable host metadata; Metal carries
@@ -204,10 +207,10 @@ The remaining TaskIR target is a phase-separated graph covering action,
 command/event, observation, reward, termination, reset, curriculum, and
 arbitrary recorder-stream phases. Frame acceleration, arbitrary point queries,
 full Jacobian tensors, multi-knot trajectory splines, general event operators,
-arbitrary command buffers, scheduled recorder streams, and richer curriculum
-operators are not yet production operators. The three-slot named scalar
-command path, three-slot compact recorder, and scalar SignalIR-driven
-curriculum are production paths.
+vector and scheduled command operators, scheduled recorder streams, and richer
+curriculum operators are not yet production operators. The topology-sized
+named scalar command path, three-slot compact recorder, and scalar
+SignalIR-driven curriculum are production paths.
 
 Frame-Jacobian observations are analytic operator outputs, not finite
 differences of poses. The point is the compiled frame origin and the three
