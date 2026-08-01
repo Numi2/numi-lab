@@ -28,7 +28,8 @@
     "evidence/baselines/2026-08-01-135d4f1.json",
     "evidence/baselines/2026-08-01-66e47ae.json",
     "evidence/baselines/2026-08-01-9091c6e.json",
-    "evidence/baselines/2026-08-01-35abef7.json"
+    "evidence/baselines/2026-08-01-35abef7.json",
+    "evidence/baselines/2026-08-01-9adf396.json"
   ],
   "capabilities": [
     {
@@ -166,7 +167,7 @@
     },
     {
       "id": "tasks.dynamic_se3_goals",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "TaskPack compiles fixed, episode-sampled, and two-pose trajectory goals into one immutable table. Sampled world translation and local tangent orientation use stable per-goal counter keys; trajectories use accepted-step linear position and shortest-arc quaternion interpolation with clamp, loop, or ping-pong playback. Reset changes the episode key and failed transitions cannot advance derived goal time. Multi-knot path splines remain incomplete."

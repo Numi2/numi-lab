@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T07:34:23+02:00",
+  "source_revision": "9adf3967739e545d2ad5f685306d4a84a9f200fe",
+  "metallib_sha256": "11bd636e6f8b86dbf26916ea32221e50e128d2be729ceff097306d82ed077273",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "qualification_build_actions": 3,
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 3.20,
+    "runtime_abi_version": 19,
+    "task_program_abi_version": 13,
+    "sensor_program_abi_version": 9,
+    "task_pack_format_version": 8,
+    "world_pack_format_version": 9,
+    "world_buffer_count": 251,
+    "task_goal_record_bytes": 160,
+    "task_goal_mutable_state_bytes": 0,
+    "task_goal_added_runtime_bindings": 0,
+    "dynamic_goal_environments": 2,
+    "dynamic_goal_control_steps": 6,
+    "episode_sample_counter_reference": "passed",
+    "episode_reset_rekey": "passed",
+    "trajectory_position_reference": "passed",
+    "trajectory_shortest_arc_slerp_reference": "passed",
+    "dynamic_goal_reward_reference": "passed",
+    "dynamic_goal_termination_reference": "passed",
+    "dynamic_goal_taskpack_roundtrip": "passed",
+    "invalid_goal_transaction": "passed",
+    "same_hardware_replay": "bitwise"
+  },
+  "known_release_blockers": [
+    "TaskIR goal trajectories currently interpolate two poses; multi-knot paths and splines are not implemented.",
+    "TaskIR still lacks frame acceleration, point and Jacobian quantities, and generic gates and reductions.",
+    "No general MJCF importer is present.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; recorder routing, ray, and LiDAR operators remain incomplete.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
