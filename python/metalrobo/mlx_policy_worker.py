@@ -30,6 +30,14 @@ from .mlx_policy_learning import (
 )
 
 
+_PPO_RESUMABLE_SCHEDULE_FIELDS = frozenset(
+    {"minibatch_size", "seed"}
+)
+_MOTION_RESUMABLE_SCHEDULE_FIELDS = frozenset(
+    {"minibatch_size", "seed"}
+)
+
+
 def _emit(stream: TextIO, value: dict[str, Any]) -> None:
     stream.write(
         json.dumps(
@@ -88,6 +96,45 @@ def _motion_configuration_record(
         sort_keys=True,
         separators=(",", ":"),
         allow_nan=False,
+    )
+
+
+def _configuration_contract(
+    record: str,
+    resumable_schedule_fields: frozenset[str],
+) -> dict[str, Any]:
+    """Return checkpoint semantics independent of execution geometry."""
+
+    try:
+        configuration = json.loads(record)
+    except (TypeError, json.JSONDecodeError) as error:
+        raise ValueError(
+            "MLX learner state configuration metadata is invalid"
+        ) from error
+    if not isinstance(configuration, dict):
+        raise ValueError(
+            "MLX learner state configuration metadata is invalid"
+        )
+    return {
+        key: value
+        for key, value in configuration.items()
+        if key not in resumable_schedule_fields
+    }
+
+
+def _configuration_matches(
+    saved: Any,
+    current: str,
+    resumable_schedule_fields: frozenset[str],
+) -> bool:
+    if not isinstance(saved, str):
+        return False
+    return _configuration_contract(
+        saved,
+        resumable_schedule_fields,
+    ) == _configuration_contract(
+        current,
+        resumable_schedule_fields,
     )
 
 
@@ -232,7 +279,6 @@ def _restore_learner_state(
             learner.critic_observation_count
         ),
         "action_count": str(learner.action_count),
-        "configuration": _configuration_record(learner),
     }
     if motion_prior is not None:
         expected_metadata.update(
@@ -243,14 +289,22 @@ def _restore_learner_state(
                 "motion_feature_count": str(
                     motion_prior.motion_pack.feature_count
                 ),
-                "motion_configuration": (
-                    _motion_configuration_record(motion_prior)
-                ),
             }
         )
     if any(
         metadata.get(key) != value
         for key, value in expected_metadata.items()
+    ) or not _configuration_matches(
+        metadata.get("configuration"),
+        _configuration_record(learner),
+        _PPO_RESUMABLE_SCHEDULE_FIELDS,
+    ) or (
+        motion_prior is not None
+        and not _configuration_matches(
+            metadata.get("motion_configuration"),
+            _motion_configuration_record(motion_prior),
+            _MOTION_RESUMABLE_SCHEDULE_FIELDS,
+        )
     ):
         raise ValueError(
             "MLX learner state contract differs from the PolicyPack or PPO configuration"

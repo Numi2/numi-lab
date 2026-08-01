@@ -21,6 +21,11 @@ from metalrobo.mlx_policy_learning import (
     read_policy_pack,
     read_policy_rollout_pack,
 )
+from metalrobo.mlx_policy_worker import (
+    _MOTION_RESUMABLE_SCHEDULE_FIELDS,
+    _PPO_RESUMABLE_SCHEDULE_FIELDS,
+    _configuration_matches,
+)
 
 
 def make_learner() -> MLXPolicyLearner:
@@ -83,6 +88,56 @@ def check_gae_boundaries() -> None:
         raise RuntimeError(
             "GAE crossed an episode boundary or bootstrapped a timeout "
             f"from the wrong state: {advantages}"
+        )
+
+
+def check_resumable_schedule_contracts() -> None:
+    ppo = {
+        "hidden_sizes": [32],
+        "clip_ratio": 0.2,
+        "minibatch_size": 32,
+        "seed": 17,
+    }
+    scaled_ppo = {
+        **ppo,
+        "minibatch_size": 256,
+        "seed": 18,
+    }
+    if not _configuration_matches(
+        json.dumps(ppo),
+        json.dumps(scaled_ppo),
+        _PPO_RESUMABLE_SCHEDULE_FIELDS,
+    ):
+        raise RuntimeError(
+            "PPO execution geometry incorrectly blocks learner resume"
+        )
+    incompatible_ppo = {**scaled_ppo, "clip_ratio": 0.3}
+    if _configuration_matches(
+        json.dumps(ppo),
+        json.dumps(incompatible_ppo),
+        _PPO_RESUMABLE_SCHEDULE_FIELDS,
+    ):
+        raise RuntimeError(
+            "PPO algorithm changes incorrectly pass learner resume"
+        )
+    motion = {
+        "hidden_sizes": [32],
+        "reward_coefficient": 0.3,
+        "minibatch_size": 64,
+        "seed": 17,
+    }
+    scaled_motion = {
+        **motion,
+        "minibatch_size": 512,
+        "seed": 18,
+    }
+    if not _configuration_matches(
+        json.dumps(motion),
+        json.dumps(scaled_motion),
+        _MOTION_RESUMABLE_SCHEDULE_FIELDS,
+    ):
+        raise RuntimeError(
+            "motion execution geometry incorrectly blocks learner resume"
         )
 
 
@@ -311,6 +366,7 @@ def main() -> int:
     parser.add_argument("--chunk", type=int, default=4)
     arguments = parser.parse_args()
     check_gae_boundaries()
+    check_resumable_schedule_contracts()
 
     if arguments.collector is not None:
         if arguments.metallib is None or arguments.library is None:
