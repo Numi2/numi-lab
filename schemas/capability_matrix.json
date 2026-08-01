@@ -38,7 +38,8 @@
     "evidence/baselines/2026-08-01-7182ce5.json",
     "evidence/baselines/2026-08-01-ac58af4.json",
     "evidence/baselines/2026-08-01-959544a.json",
-    "evidence/baselines/2026-08-01-cd534c9.json"
+    "evidence/baselines/2026-08-01-cd534c9.json",
+    "evidence/baselines/2026-08-01-b7f0188.json"
   ],
   "capabilities": [
     {
@@ -175,25 +176,32 @@
       "scope": "Fixed- and floating-base tasks share compiled semantic bindings, native joint/contact observations, reward, termination, reset, curriculum, and randomization."
     },
     {
+      "id": "tasks.named_scalar_commands",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "TaskPack 16 compiles up to three unique named scalar commands into immutable range and curriculum records. Actor, critic, and SignalIR sources resolve command identity to a stable slot once; the Metal sampler consumes only the compiled count and table, preserves deterministic counter channels, and checkpoints command state with the task transaction. Duplicate, unresolved, invalid-range, and oversized compact command programs reject without replacing the last valid program. Arbitrary command counts, vector-valued distributions, per-command schedules, and general event operator tables remain incomplete."
+    },
+    {
       "id": "tasks.generic_typed_operators",
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, generic scalar and cohort-reduction SignalIR, current SensorIR truth leaves, SensorIR actor/critic values, reset-correct pre-policy state, generic reward reporting channels, three compact named recorders, and a SignalIR-driven scalar curriculum are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, phase-complete commands/events, arbitrary recorder streams, richer curriculum operators, and three complete task families are not yet qualified."
+      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Analytic world-axis linear/angular Jacobian components are available for articulated frame origins and named generalized-velocity coordinates. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, generic scalar and cohort-reduction SignalIR, current SensorIR truth leaves, SensorIR actor/critic values, reset-correct pre-policy state, three named compact scalar commands, generic reward reporting channels, three compact named recorders, and a SignalIR-driven scalar curriculum are implemented. Acceleration, arbitrary point queries, full Jacobian tensor outputs, multi-knot splines, arbitrary command buffers, phase-complete event tables, arbitrary recorder streams, richer curriculum operators, and three complete task families are not yet qualified."
     },
     {
       "id": "tasks.scalar_signal_ir",
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "TaskPack 15 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, atan2, comparisons, bounds gates, and contiguous source-cohort reductions. Resolved leaves include heading-frame velocity, joint acceleration, action delta, compiled soft-limit violation, mechanical power, and desired support contact. The native order is accepted mechanics, SensorIR sample, dense sensor-source materialization, SignalIR, reward/termination/recorders, then actor/critic sensor-history publication. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. General phase operator tables remain incomplete."
+      "scope": "TaskPack 16 compiles a topologically ordered scalar graph with semantic state/frame/current-SensorIR truth leaves, constants, arithmetic, min/max, absolute, square/root, safe division, clamp, exponential tracking/decay, atan2, comparisons, bounds gates, and contiguous source-cohort reductions. Resolved leaves include named scalar commands, heading-frame velocity, joint acceleration, action delta, compiled soft-limit violation, mechanical power, and desired support contact. The native order is accepted mechanics, SensorIR sample, dense sensor-source materialization, SignalIR, reward/termination/recorders, then actor/critic sensor-history publication. Scratch is topology-sized in the candidate-body arena and adds no persistent simulator tensor. General phase operator tables remain incomplete."
     },
     {
       "id": "tasks.specialized_branch_pruning",
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Every robot-shaped reward and termination opcode has been deleted. All nineteen bundled G1 reward terms compose generic SignalIR leaves, reductions, arithmetic, comparisons, and frame operators; each reward record contains only a resolved signal, channel, and weight. TaskPack 15 also removes the joint-group wire section, duplicated compiled tables, task-complete DoF binding, reward opcode enum, specialized shader switch, and duplicate G1 metric/curriculum math. Paired zero- and nonzero-action rollouts preserve physical outcomes, reward, and reporting channels exactly; the only recorder delta is below 6e-11 from graph composition order."
+      "scope": "Every robot-shaped reward and termination opcode has been deleted. All nineteen bundled G1 reward terms compose generic SignalIR leaves, reductions, arithmetic, comparisons, and frame operators; each reward record contains only a resolved signal, channel, and weight. TaskPack 16 removes the joint-group wire section, duplicated compiled tables, task-complete DoF binding, anonymous locomotion command components, reward opcode enum, specialized shader switch, and duplicate G1 metric/curriculum math. Paired zero- and nonzero-action rollouts preserve physical outcomes, reward, recorder values, and reporting channels exactly across the named-command hard cut."
     },
     {
       "id": "tasks.signal_reductions",

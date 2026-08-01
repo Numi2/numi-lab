@@ -181,7 +181,7 @@ without replacing the last valid compiled program.
 
 The same fixture expresses fixed, episode-sampled, and trajectory frame
 objectives without constant or frame-specific reward/termination opcodes.
-TaskPack 15 round-trips those graphs, preserves their numerical outcomes, and
+TaskPack 16 round-trips those graphs, preserves their numerical outcomes, and
 proves that deleting the duplicated goal fields and shrinking the termination
 record does not change dynamic-goal replay.
 
@@ -203,6 +203,18 @@ the removed duplicate inline expression. The compact transition remains 96
 bytes. The recorder/curriculum program adds 512 retained bytes: 160 immutable
 private, 192 transient private, and 160 shared boundary bytes; persistent
 physical state remains byte-for-byte unchanged.
+
+The named-command hard cut is compared independently against `d889456` with
+the same eight environments, sixteen control steps, ground scene, seed, fixed
+eight-step Swift chunks, and disabled scheduled resets. Both zero actions and
+the deterministic host action stream preserve every physical, contact,
+failure, termination, reward, recorder, and reporting metric exactly. The G1
+TaskPack now resolves `forward_velocity`, `lateral_velocity`, and
+`yaw_velocity` to three immutable scalar command records; the owner rejects
+duplicate identities, unresolved observation bindings, invalid ranges, and a
+fourth compact command transactionally. The richer command table adds 32
+retained bytes—16 immutable-private and 16 shared-boundary—with no transient or
+persistent-state increase.
 
 An independent fixed-base fixture records `axis_velocity_squared` and compares
 the Metal recorder value with the generic reward-channel contribution. The
