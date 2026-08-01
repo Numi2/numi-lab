@@ -979,6 +979,15 @@ private enum TaskTrainMain {
             var lastLearning: [String: Any] = [:]
             let samplesPerUpdate =
                 options.environments * options.steps
+            let (trainingSamples, trainingSamplesOverflow) =
+                samplesPerUpdate.multipliedReportingOverflow(
+                    by: options.updates
+                )
+            guard !trainingSamplesOverflow else {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "Total training sample count overflows Int."
+                )
+            }
             var actorObservations: [Float] = []
             var criticObservations: [Float] = []
             var motionFeatures: [Float] = []
@@ -1226,10 +1235,6 @@ private enum TaskTrainMain {
                 Double(elapsed.components.seconds) +
                 Double(elapsed.components.attoseconds) / 1e18
             let finalLayout = context.layout
-            let sampleCount =
-                options.environments *
-                options.steps *
-                options.updates
             let output: [String: Any] = [
                 "operation": "swift_native_policy_training",
                 "scheduler": "swift",
@@ -1256,7 +1261,8 @@ private enum TaskTrainMain {
                 "checkpoint_directory":
                     options.checkpointDirectory ?? "",
                 "checkpoint_interval": options.checkpointInterval,
-                "training_samples": sampleCount,
+                "samples_per_update": samplesPerUpdate,
+                "training_samples": trainingSamples,
                 "initial_policy_revision": initialRevision,
                 "final_policy_revision": installedRevision,
                 "initial_task_curriculum_level":
@@ -1271,7 +1277,7 @@ private enum TaskTrainMain {
                         baseline.submissionCount
                 ),
                 "end_to_end_environment_steps_per_second":
-                    Double(sampleCount) / seconds,
+                    Double(trainingSamples) / seconds,
                 "elapsed_seconds": seconds,
                 "gpu_milliseconds":
                     finalLayout.totalGPUMilliseconds -
