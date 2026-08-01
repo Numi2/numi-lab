@@ -31,9 +31,13 @@ private struct Options {
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
     var updateEpochs = 5
-    // Zero selects four minibatches per update, matching the bundled PPO
-    // contract independently of environment and horizon counts.
+    // Zero derives the batch size from minibatchesPerEpoch so environment
+    // scaling increases Apple-GPU matrix width instead of optimizer launches.
     var minibatchSize = 0
+    var minibatchesPerEpoch = 0
+    var motionMinibatchesPerEpoch = 8
+    var motionUpdateEpochs = 1
+    var motionMinibatchSize = 0
     var learningRate = 1.0e-3
     var minimumLearningRate = 1.0e-5
     var maximumLearningRate = 1.0e-2
@@ -188,6 +192,16 @@ private struct Options {
             case "--minibatch-size":
                 minibatchSize = try Self.integer(value(), option)
                 index += 1
+            case "--minibatches-per-epoch":
+                minibatchesPerEpoch = try Self.integer(value(), option)
+                index += 1
+            case "--motion-minibatches-per-epoch":
+                motionMinibatchesPerEpoch =
+                    try Self.integer(value(), option)
+                index += 1
+            case "--motion-update-epochs":
+                motionUpdateEpochs = try Self.integer(value(), option)
+                index += 1
             case "--learning-rate":
                 learningRate = try Self.double(value(), option)
                 index += 1
@@ -252,6 +266,9 @@ private struct Options {
               chunk > 0,
               updateEpochs > 0,
               minibatchSize >= 0,
+              minibatchesPerEpoch >= 0,
+              motionMinibatchesPerEpoch > 0,
+              motionUpdateEpochs > 0,
               learnerSeed >= 0,
               let mlxPython,
               !mlxPython.isEmpty,
@@ -276,9 +293,20 @@ private struct Options {
             )
         }
         if minibatchSize == 0 {
+            let targetBatchCount = minibatchesPerEpoch > 0
+                ? minibatchesPerEpoch
+                : unitreeG1Task == .ballDodge ? 32 : 4
             minibatchSize = max(
-                sampleCount / 4 +
-                    (sampleCount % 4 == 0 ? 0 : 1),
+                sampleCount / targetBatchCount +
+                    (sampleCount % targetBatchCount == 0 ? 0 : 1),
+                1
+            )
+        }
+        if motionPack != nil {
+            motionMinibatchSize = max(
+                sampleCount / motionMinibatchesPerEpoch +
+                    (sampleCount % motionMinibatchesPerEpoch == 0
+                        ? 0 : 1),
                 1
             )
         }
@@ -577,7 +605,13 @@ private final class MLXLearnerWorker {
             arguments.append("--fixed-learning-rate")
         }
         if let motionPack = options.motionPack {
-            arguments.append(contentsOf: ["--motion-pack", motionPack])
+            arguments.append(contentsOf: [
+                "--motion-pack", motionPack,
+                "--motion-minibatch-size",
+                String(options.motionMinibatchSize),
+                "--motion-update-epochs",
+                String(options.motionUpdateEpochs),
+            ])
         }
         process.arguments = arguments
         process.environment = mlxEnvironment(options: options)
@@ -1160,6 +1194,14 @@ private enum TaskTrainMain {
                 "steps_per_update": options.steps,
                 "updates": options.updates,
                 "control_steps_per_submission": options.chunk,
+                "minibatch_size": options.minibatchSize,
+                "minibatches_per_epoch":
+                    (options.environments * options.steps) /
+                        options.minibatchSize +
+                    ((options.environments * options.steps) %
+                        options.minibatchSize == 0 ? 0 : 1),
+                "motion_minibatch_size":
+                    options.motionMinibatchSize,
                 "training_samples": sampleCount,
                 "initial_policy_revision": initialRevision,
                 "final_policy_revision": installedRevision,
