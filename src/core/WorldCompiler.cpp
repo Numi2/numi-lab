@@ -173,6 +173,7 @@ void appendSensor(HashBuilder& hash, const SensorSpec& sensor) {
     hash.appendScalar(sensor.parentKind);
     hash.appendScalar(sensor.parentBodyIndex);
     hash.appendScalar(sensor.kind);
+    hash.appendString(sensor.target);
     const std::uint64_t filterBodyCount =
         sensor.filterBodies.size();
     hash.appendScalar(filterBodyCount);
@@ -375,6 +376,7 @@ std::uint32_t computeCapabilities(
         case MR_WORLD_SENSOR_FORCE_TORQUE:
         case MR_WORLD_SENSOR_IMU:
         case MR_WORLD_SENSOR_CONTACT_STATE:
+        case MR_WORLD_SENSOR_JOINT_STATE:
             break;
         case MR_WORLD_SENSOR_TACTILE_DEPTH:
             result |= MR_WORLD_CAP_TACTILE_DEPTH;
@@ -860,6 +862,24 @@ bool validSensor(const SensorSpec& sensor, std::string* reason) {
             "only contact-state sensors may author body filters"
         );
     }
+    const bool jointStateSensor =
+        sensor.kind == MR_WORLD_SENSOR_JOINT_STATE;
+    if (jointStateSensor != !sensor.target.empty()) {
+        return fail(
+            reason,
+            jointStateSensor
+                ? "joint-state sensor target is empty"
+                : "only joint-state sensors may author a target"
+        );
+    }
+    if (jointStateSensor &&
+        (sensor.parentKind != MR_WORLD_SENSOR_PARENT_ASSET ||
+         sensor.parentBodyIndex != MR_INVALID_INDEX)) {
+        return fail(
+            reason,
+            "joint-state sensor must be owned by an asset, not a body frame"
+        );
+    }
     std::unordered_set<std::string> filterBodies;
     for (const std::string& body : sensor.filterBodies) {
         if (body.empty() || !filterBodies.insert(body).second) {
@@ -1193,6 +1213,34 @@ bool WorldTemplate::valid(std::string* reason) const {
                 return fail(
                     reason,
                     "sensor contact filter body does not exist"
+                );
+            }
+        }
+        if (sensor.kind == MR_WORLD_SENSOR_JOINT_STATE) {
+            const auto joint = std::ranges::find(
+                engineModel.jointNames,
+                sensor.target
+            );
+            if (joint == engineModel.jointNames.end()) {
+                return fail(
+                    reason,
+                    "sensor target joint does not exist"
+                );
+            }
+            const std::uint32_t jointIndex =
+                static_cast<std::uint32_t>(
+                    joint - engineModel.jointNames.begin()
+                );
+            const WorldAsset& parent =
+                assets[assetIndex(sensor.parentAssetId)];
+            if (jointIndex >= engineModel.joints.size() ||
+                std::ranges::find(
+                    parent.bodyIndices,
+                    engineModel.joints[jointIndex].childBody
+                ) == parent.bodyIndices.end()) {
+                return fail(
+                    reason,
+                    "sensor target joint is not owned by its parent asset"
                 );
             }
         }

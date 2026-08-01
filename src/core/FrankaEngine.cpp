@@ -295,6 +295,26 @@ EngineModel makeFrankaPandaEngineModel() {
 
     model.defaultQ = source.homePosition;
     model.defaultV.assign(kFrankaPandaJointCount, 0.0f);
+    model.bodyNames = {
+        "panda_link0",
+        "panda_link1",
+        "panda_link2",
+        "panda_link3",
+        "panda_link4",
+        "panda_link5",
+        "panda_link6",
+        "panda_link7",
+    };
+    model.jointNames = {
+        "panda_joint1",
+        "panda_joint2",
+        "panda_joint3",
+        "panda_joint4",
+        "panda_joint5",
+        "panda_joint6",
+        "panda_joint7",
+    };
+    model.dofNames = model.jointNames;
 
     std::string reason;
     if (!model.valid(&reason)) {

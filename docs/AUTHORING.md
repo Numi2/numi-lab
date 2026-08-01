@@ -116,7 +116,8 @@ pose goal does not add a robot-specific shader.
 
 The current WorldPack sensor declaration persists:
 
-- modality and parent frame;
+- modality and parent frame, or an asset-owned semantic target for a
+  non-spatial sensor;
 - semantic counterpart-body filters for contact-state sensors;
 - image/tactile dimensions and calibration;
 - sample phase/rate, exposure, latency, and history length;
@@ -135,9 +136,16 @@ The compiler converts translation once to the COM-centred runtime origin;
 tactile descriptors instead use the cooked tactile surface transform as their
 spatial authority.
 
-The common SensorIR executor samples parent-frame pose, world-space frame
-twist, six-axis IMU, six-axis contact-wrench, and five-channel contact-state
-sensors on two explicit control boundaries.
+The common SensorIR executor samples scalar-joint state, parent-frame pose,
+world-space frame twist, six-axis IMU, six-axis contact-wrench, and
+five-channel contact-state sensors on two explicit control boundaries.
+An asset-owned joint-state declaration names one joint and publishes
+`(position, velocity)` directly from the accepted generalized state. The
+compiler currently accepts only revolute, prismatic, and continuous joints
+with `nq=nv=1`; fixed and multi-DOF targets fail with a precise diagnostic
+until their public tangent-coordinate observation contract is implemented.
+The compiled descriptor carries only its joint and q/v indices, and a
+joint-only execution plan does not materialize body poses or velocities.
 Frame-twist linear velocity is evaluated at the authored sensor origin,
 including the angular `omega x r` term. Force/torque consumes the committed
 NumiSolver contact impulses from the final accepted physics microstep, divides
@@ -195,10 +203,11 @@ penetration channels remain nonnegative.
 
 Presentation sensors still execute in the native renderer and tactile sensors
 still execute in the native tactile context. Folding those passes into the
-session schedule, dedicated ray/LiDAR operators, recorder routing,
-and compiler dead-code elimination remain incomplete. Native pose, twist, IMU,
-force/torque, contact-state, corruption episode identity, and histories already
-journal reset environments and restore on a rejected physics transaction.
+session schedule, actuator-state, dedicated ray/LiDAR operators, recorder
+routing, and compiler dead-code elimination remain incomplete. Native joint,
+pose, twist, IMU, force/torque, contact-state, corruption episode identity, and
+histories already journal reset environments and restore on a rejected physics
+transaction.
 Presentation- and tactile-domain corruption remain with their current native
 owners until those passes join the common schedule.
 

@@ -183,6 +183,13 @@
       "scope": "A generic body-attached IMU publishes sensor-local specific force followed by sensor-local angular velocity. Specific force differentiates accepted sensor-origin world velocity over the exact scheduled interval and subtracts world gravity; previous point velocity and timestamp are persistent transactionally journaled SensorIR state. The owner checks a rotated kinematic parent against an analytic acceleration/gravity/gyro result and includes IMU state in rejected-reset branch equivalence."
     },
     {
+      "id": "sensors.native_joint_state",
+      "status": "implemented",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "An asset-owned joint-state sensor resolves one authored scalar revolute, prismatic, or continuous joint into stable joint and q/v indices and publishes accepted position and velocity through the common native schedule. Joint-only free-motion execution omits kinematics pipelines. The owner checks exact q/v publication, TaskIR binding, transactional unresolved-name rejection, and WorldPack semantic-target persistence. Fixed and multi-DOF targets are explicitly rejected until their tangent-coordinate observation contract lands."
+    },
+    {
       "id": "sensors.transactional_history",
       "status": "qualified",
       "owner": "task.program",
@@ -215,7 +222,7 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "WorldPack state, frame-twist, IMU, force-torque, contact-state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose, frame-twist, IMU, force-torque, and semantically filtered contact-state sensors execute in the session-owned scheduler with reset-failure journals, native counter-based corruption, and TaskIR bindings; presentation and tactile still use their existing native owners, while recorder routing, ray, and LiDAR operators remain incomplete."
+      "scope": "WorldPack joint-state, frame-state, frame-twist, IMU, force-torque, contact-state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. Scalar-joint state, frame pose/twist, IMU, force-torque, and semantically filtered contact-state sensors execute in the session-owned scheduler with reset-failure journals, native counter-based corruption, and TaskIR bindings; presentation and tactile still use their existing native owners, while actuator state, recorder routing, ray, and LiDAR operators remain incomplete."
     },
     {
       "id": "policy.dense_native_inference",

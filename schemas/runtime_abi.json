@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 17,
+  "abi_version": 18,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -119,7 +119,7 @@
     ["rod_ccd", "rodCCDWitnessTagPipeline", "mr_world_tag_rod_ccd_witnesses", "one", 0]
   ],
   "abi_constants": {
-    "MR_SENSOR_PROGRAM_ABI_VERSION": 7,
+    "MR_SENSOR_PROGRAM_ABI_VERSION": 8,
     "MR_SENSOR_DISPATCH_HAS_RESETS": 1,
     "MR_SENSOR_DISPATCH_HAS_CONTACTS": 2
   },
@@ -792,6 +792,8 @@
         "FILTER_BODIES",
         "PASS",
         "RESET_MASKS",
+        "GENERALIZED_Q",
+        "GENERALIZED_V",
         "BODY_POSES",
         "BODY_STATES",
         "SCENE_BODIES",

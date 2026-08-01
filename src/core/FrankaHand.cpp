@@ -411,6 +411,21 @@ EngineModel makeFrankaPandaHandEngineModel() {
         "panda_leftfinger",
         "panda_rightfinger",
     };
+    model.jointNames.insert(
+        model.jointNames.end(),
+        {
+            "panda_joint8",
+            "panda_finger_joint1",
+            "panda_finger_joint2",
+        }
+    );
+    model.dofNames.insert(
+        model.dofNames.end(),
+        {
+            "panda_finger_joint1",
+            "panda_finger_joint2",
+        }
+    );
     model.defaultQ.push_back(0.035f);
     model.defaultQ.push_back(0.035f);
     model.defaultV.push_back(0.0f);

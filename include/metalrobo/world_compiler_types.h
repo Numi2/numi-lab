@@ -69,9 +69,13 @@ enum MRWorldSensorKind : mr_u32 {
     // force, and maximum penetration for the parent body. Optional authored
     // body filters are resolved into immutable SensorIR index tables.
     MR_WORLD_SENSOR_CONTACT_STATE = 9u,
+    // Position and velocity of one compiled scalar joint. The authored target
+    // name is resolved to q/v indices at compilation; fixed and multi-DOF
+    // joints are rejected until their tangent-coordinate contract is public.
+    MR_WORLD_SENSOR_JOINT_STATE = 10u,
 };
 
-#define MR_WORLD_SENSOR_KIND_COUNT 10u
+#define MR_WORLD_SENSOR_KIND_COUNT 11u
 
 enum MRWorldSensorParentKind : mr_u32 {
     MR_WORLD_SENSOR_PARENT_ASSET = 0u,

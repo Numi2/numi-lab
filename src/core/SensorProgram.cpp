@@ -159,6 +159,7 @@ SensorExecutionDomain executionDomain(const MRWorldSensorKind kind) {
     case MR_WORLD_SENSOR_FORCE_TORQUE:
     case MR_WORLD_SENSOR_IMU:
     case MR_WORLD_SENSOR_CONTACT_STATE:
+    case MR_WORLD_SENSOR_JOINT_STATE:
         return SensorExecutionDomain::nativeState;
     }
     return SensorExecutionDomain::nativeState;
@@ -185,6 +186,8 @@ std::uint32_t channelCount(const MRWorldSensorKind kind) {
         return 7u;
     case MR_WORLD_SENSOR_CONTACT_STATE:
         return 5u;
+    case MR_WORLD_SENSOR_JOINT_STATE:
+        return 2u;
     case MR_WORLD_SENSOR_FORCE_TORQUE:
     case MR_WORLD_SENSOR_FRAME_TWIST_WORLD:
     case MR_WORLD_SENSOR_IMU:
@@ -373,10 +376,23 @@ SensorCompileDiagnostics compileSensorProgram(
             );
         }
         if (sensor.parentKind == MR_WORLD_SENSOR_PARENT_ASSET) {
+            if (sensor.kind != MR_WORLD_SENSOR_JOINT_STATE) {
+                return reject(
+                    SensorCompileStatus::unresolvedSemantic,
+                    element + ".parent",
+                    "asset-relative spatial sensor parent was not resolved by the world compiler"
+                );
+            }
+        }
+        const bool jointStateSensor =
+            sensor.kind == MR_WORLD_SENSOR_JOINT_STATE;
+        if (jointStateSensor != !sensor.target.empty()) {
             return reject(
-                SensorCompileStatus::unresolvedSemantic,
-                element + ".parent",
-                "asset-relative sensor parent was not resolved by the world compiler"
+                SensorCompileStatus::invalidSpec,
+                element + ".target",
+                jointStateSensor
+                    ? "joint-state sensor target is empty"
+                    : "only joint-state sensors may author a target"
             );
         }
         const bool bodyParent =
@@ -409,6 +425,7 @@ SensorCompileDiagnostics compileSensorProgram(
         }
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
         std::uint32_t sourceOwner = MR_INVALID_INDEX;
+        std::uint32_t semanticSource = MR_INVALID_INDEX;
         if (bodyParent) {
             if (sensor.parentKind ==
                 MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK) {
@@ -433,6 +450,54 @@ SensorCompileDiagnostics compileSensorProgram(
                     found - world.sceneBodyIndices().begin()
                 );
             }
+        }
+        if (jointStateSensor) {
+            if (sensor.parentKind !=
+                    MR_WORLD_SENSOR_PARENT_ASSET ||
+                sensor.parentBodyIndex != MR_INVALID_INDEX) {
+                return reject(
+                    SensorCompileStatus::invalidSpec,
+                    element + ".parent",
+                    "joint-state sensor must be asset-owned and not body-attached"
+                );
+            }
+            const auto found = std::find(
+                world.model().jointNames.begin(),
+                world.model().jointNames.end(),
+                sensor.target
+            );
+            if (found == world.model().jointNames.end()) {
+                return reject(
+                    SensorCompileStatus::unresolvedSemantic,
+                    element + ".target",
+                    "joint-state target is unresolved: " +
+                        sensor.target
+                );
+            }
+            semanticSource = static_cast<std::uint32_t>(
+                found - world.model().jointNames.begin()
+            );
+            if (semanticSource >= world.model().joints.size()) {
+                return reject(
+                    SensorCompileStatus::unresolvedSemantic,
+                    element + ".target",
+                    "joint-state target has no compiled joint descriptor"
+                );
+            }
+            const MRJointDescriptorGPU& joint =
+                world.model().joints[semanticSource];
+            if (joint.nq != 1u || joint.nv != 1u ||
+                (joint.jointType != MR_JOINT_REVOLUTE &&
+                 joint.jointType != MR_JOINT_PRISMATIC &&
+                 joint.jointType != MR_JOINT_CONTINUOUS)) {
+                return reject(
+                    SensorCompileStatus::invalidSpec,
+                    element + ".target",
+                    "joint-state target must be a scalar revolute, prismatic, or continuous joint"
+                );
+            }
+            sourceIndex = joint.qOffset;
+            sourceOwner = joint.vOffset;
         }
         if ((sensor.kind == MR_WORLD_SENSOR_STATE ||
              sensor.kind == MR_WORLD_SENSOR_FRAME_TWIST_WORLD ||
@@ -662,7 +727,9 @@ SensorCompileDiagnostics compileSensorProgram(
         descriptor.source = {
             sourceIndex,
             sourceOwner,
-            tactileOrdinal,
+            tactileOrdinal != MR_INVALID_INDEX
+                ? tactileOrdinal
+                : semanticSource,
             static_cast<std::uint32_t>(domain),
         };
         descriptor.filter = {

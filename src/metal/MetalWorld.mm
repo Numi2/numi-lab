@@ -2936,14 +2936,32 @@ MetalWorldDiagnostics validateAndBuildLayout(
             const bool contactStateSensor =
                 descriptor.identity.x ==
                     MR_WORLD_SENSOR_CONTACT_STATE;
+            const bool jointStateSensor =
+                descriptor.identity.x ==
+                    MR_WORLD_SENSOR_JOINT_STATE;
             const std::uint32_t expectedOutputCount = poseSensor
                 ? 7u
-                : contactStateSensor ? 5u : 6u;
+                : contactStateSensor ? 5u
+                : jointStateSensor ? 2u : 6u;
+            const bool jointSourceValid = !jointStateSensor ||
+                (descriptor.identity.y ==
+                     MR_WORLD_SENSOR_PARENT_ASSET &&
+                 descriptor.identity.z == MR_INVALID_INDEX &&
+                 descriptor.source.z < world.model().joints.size() &&
+                 descriptor.source.x < world.nq() &&
+                 descriptor.source.y < world.nv() &&
+                 world.model().joints[descriptor.source.z].nq == 1u &&
+                 world.model().joints[descriptor.source.z].nv == 1u &&
+                 world.model().joints[descriptor.source.z].qOffset ==
+                     descriptor.source.x &&
+                 world.model().joints[descriptor.source.z].vOffset ==
+                     descriptor.source.y);
             if ((!poseSensor && !twistSensor &&
                  !forceTorqueSensor && !imuSensor &&
-                 !contactStateSensor) ||
+                 !contactStateSensor && !jointStateSensor) ||
                 ((forceTorqueSensor || contactStateSensor) &&
                  !contactMode) ||
+                !jointSourceValid ||
                 descriptor.schedule.z !=
                     MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
                 descriptor.source.w !=
@@ -2962,7 +2980,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
                     std::move(diagnostics),
                     MetalWorldHostStatus::unsupportedTopology,
                     "native SensorIR sampling requires pre-control pose, "
-                    "world-twist, IMU, contact-state, or contact-mode force-torque descriptors "
+                    "world-twist, IMU, joint-state, contact-state, or contact-mode force-torque descriptors "
                     "at no more than the control rate"
                 );
             }
@@ -4310,7 +4328,17 @@ std::uint32_t requiredPipelineGroups(
         config.executionMode != MetalWorldExecutionMode::freeMotionABA;
     const bool nativeTask = config.taskProgram.valid();
     const bool nativeSensors = config.sensorProgram.valid();
-    if (contactMode || nativeTask || nativeSensors) {
+    const bool spatialSensors =
+        nativeSensors &&
+        std::any_of(
+            config.sensorProgram.descriptors().begin(),
+            config.sensorProgram.descriptors().end(),
+            [](const MRSensorDescriptorGPU& descriptor) {
+                return descriptor.identity.x !=
+                    MR_WORLD_SENSOR_JOINT_STATE;
+            }
+        );
+    if (contactMode || nativeTask || spatialSensors) {
         groups |= kPipelineGroupKinematics;
     }
     if (nativeTask) {
@@ -8223,6 +8251,8 @@ bool encodeSensorSample(
     id<MTLCommandBuffer> commandBuffer,
     const CompiledSensorProgram& program,
     const MRMetalWorldPassGPU& pass,
+    const std::size_t generalizedQ,
+    const std::size_t generalizedV,
     const std::size_t bodyStates,
     const std::size_t sourceScene,
     const std::size_t environmentCount,
@@ -8279,6 +8309,8 @@ bool encodeSensorSample(
                 kSensorFilterBodies,
             },
             {MR_SENSOR_SAMPLE_RESET_MASKS, kResetMasks},
+            {MR_SENSOR_SAMPLE_GENERALIZED_Q, generalizedQ},
+            {MR_SENSOR_SAMPLE_GENERALIZED_V, generalizedV},
             {MR_SENSOR_SAMPLE_BODY_POSES, kBodyPoses},
             {MR_SENSOR_SAMPLE_BODY_STATES, bodyStates},
             {MR_SENSOR_SAMPLE_SCENE_BODIES, sourceScene},
@@ -15770,6 +15802,16 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 !residentContinuation;
             const bool nativeTask = config.taskProgram.valid();
             const bool nativeSensors = config.sensorProgram.valid();
+            const bool sensorUsesBodyPoses =
+                nativeSensors &&
+                std::any_of(
+                    config.sensorProgram.descriptors().begin(),
+                    config.sensorProgram.descriptors().end(),
+                    [](const MRSensorDescriptorGPU& descriptor) {
+                        return descriptor.identity.x !=
+                            MR_WORLD_SENSOR_JOINT_STATE;
+                    }
+                );
             const bool sensorUsesBodyTwists =
                 nativeSensors &&
                 std::any_of(
@@ -15985,7 +16027,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             batch.environmentCount
                         ) ||
                         (
-                            (taskUsesFrames || nativeSensors) &&
+                            (taskUsesFrames || sensorUsesBodyPoses) &&
                             (
                                 !encodeArticulatedOperator(
                                     *selectedState,
@@ -16030,6 +16072,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 commandBuffer,
                                 config.sensorProgram,
                                 pass,
+                                sourceQ,
+                                sourceV,
                                 kCurrentBodies,
                                 sourceScene,
                                 batch.environmentCount,
@@ -16124,17 +16168,18 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 }
                 if (sensorOnlyReset &&
                     (
-                        !encodeArticulatedOperator(
-                            *selectedState,
-                            commandBuffer,
-                            kOperatorKinematicsDispatch,
-                            sourceQ,
-                            kPointQueries,
-                            kBodyPoses,
-                            batch.environmentCount,
-                            @"compiled SensorIR reset kinematics",
-                            false
-                        ) ||
+                        (sensorUsesBodyPoses &&
+                         !encodeArticulatedOperator(
+                             *selectedState,
+                             commandBuffer,
+                             kOperatorKinematicsDispatch,
+                             sourceQ,
+                             kPointQueries,
+                             kBodyPoses,
+                             batch.environmentCount,
+                             @"compiled SensorIR reset kinematics",
+                             false
+                         )) ||
                         (sensorUsesBodyTwists &&
                          !encodeArticulatedBodyVelocities(
                              *selectedState,
@@ -16150,6 +16195,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             commandBuffer,
                             config.sensorProgram,
                             pass,
+                            sourceQ,
+                            sourceV,
                             kCurrentBodies,
                             sourceScene,
                             batch.environmentCount,
@@ -16370,7 +16417,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 }
 
                 pass.physicsSubstep = MR_INVALID_INDEX;
-                if ((nativeTask || nativeSensors) &&
+                if ((nativeTask || sensorUsesBodyPoses) &&
                     !encodeArticulatedOperator(
                         *selectedState,
                         commandBuffer,
@@ -16455,6 +16502,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                          commandBuffer,
                          config.sensorProgram,
                          sensorPass,
+                         sourceQ,
+                         sourceV,
                          kCandidateBodies,
                          sourceScene,
                          batch.environmentCount,

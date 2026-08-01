@@ -55,6 +55,16 @@ A 100% dropout sensor publishes an all-zero coherent sample with `fresh` and
 `dropped` set, `valid` clear, and the dropped bit observable through TaskIR.
 WorldPack round-trip evidence preserves all three authored corruption fields.
 
+The scalar-joint SensorIR case resolves an authored joint name to immutable
+joint and q/v indices, runs three contact-free control steps through a
+joint-only native graph, and requires its two output channels to equal the
+final accepted generalized state exactly. It binds both channels and validity
+into TaskIR, rejects an unresolved name without replacing the previously
+compiled program, verifies that the execution plan omits kinematics pipelines,
+and round-trips the semantic target through the current WorldPack format.
+Fixed and multi-DOF joint observations remain rejected rather than being
+silently flattened.
+
 The physical/SensorIR transaction case first commits one articulated-tool
 contact, its manifold, and a nonzero pose history in a resident session. Reset
 then moves a second kinematic obstacle into contact against a one-pair

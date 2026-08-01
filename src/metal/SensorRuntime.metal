@@ -324,8 +324,8 @@ inline bool corruptSensorSample(
 
 } // namespace
 
-// Canonical control-boundary SensorIR executor for parent-frame pose,
-// world-twist, IMU, and solver-authoritative contact modalities. Reset-only
+// Canonical control-boundary SensorIR executor for joint state, parent-frame
+// pose, world-twist, IMU, and solver-authoritative contact modalities. Reset-only
 // execution seeds a new episode before its first action; advance execution
 // samples the accepted post-physics state for the next action. One thread owns
 // one environment/sensor history ring, so publication is deterministic and
@@ -349,6 +349,10 @@ kernel void mr_sensor_sample_control_boundary(
         [[buffer(MR_SENSOR_SAMPLE_PASS)]],
     device const uint* resetMasks
         [[buffer(MR_SENSOR_SAMPLE_RESET_MASKS)]],
+    device const float* generalizedQ
+        [[buffer(MR_SENSOR_SAMPLE_GENERALIZED_Q)]],
+    device const float* generalizedV
+        [[buffer(MR_SENSOR_SAMPLE_GENERALIZED_V)]],
     device const MRArticulatedBodyPoseGPU* bodyPoses
         [[buffer(MR_SENSOR_SAMPLE_BODY_POSES)]],
     device const MRBodyStateGPU* bodyStates
@@ -409,11 +413,21 @@ kernel void mr_sensor_sample_control_boundary(
         descriptor.identity.x == MR_WORLD_SENSOR_IMU;
     const bool contactStateSensor =
         descriptor.identity.x == MR_WORLD_SENSOR_CONTACT_STATE;
+    const bool jointStateSensor =
+        descriptor.identity.x == MR_WORLD_SENSOR_JOINT_STATE;
     const uint expectedOutputCount = poseSensor
         ? 7u
-        : contactStateSensor ? 5u : 6u;
+        : contactStateSensor ? 5u
+        : jointStateSensor ? 2u : 6u;
+    const bool jointSourceValid = !jointStateSensor ||
+        (descriptor.identity.y == MR_WORLD_SENSOR_PARENT_ASSET &&
+         descriptor.identity.z == MR_INVALID_INDEX &&
+         descriptor.source.x < world.nq &&
+         descriptor.source.y < world.nv &&
+         descriptor.source.z < world.jointCount);
     if ((!poseSensor && !twistSensor && !forceTorqueSensor &&
-         !imuSensor && !contactStateSensor) ||
+         !imuSensor && !contactStateSensor && !jointStateSensor) ||
+        !jointSourceValid ||
         descriptor.schedule.z !=
             MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
         descriptor.source.w != 0u ||
@@ -578,12 +592,36 @@ kernel void mr_sensor_sample_control_boundary(
         return;
     }
 
-    float3 parentPosition;
-    float4 parentOrientation;
-    float3 parentLinearVelocity = float3(0.0f);
-    float3 parentAngularVelocity = float3(0.0f);
-    if (descriptor.identity.y ==
-        MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK) {
+    if (jointStateSensor) {
+        const uint writeSlot =
+            static_cast<uint>(sequence % historyLength);
+        const uint writeBase =
+            historyBase + writeSlot * outputCount;
+        const float position = generalizedQ[
+            environment * world.nq + descriptor.source.x
+        ];
+        const float velocity = generalizedV[
+            environment * world.nv + descriptor.source.y
+        ];
+        if (!isfinite(position) || !isfinite(velocity)) {
+            state.timestampAgeValidity.w =
+                MR_SENSOR_SAMPLE_NONFINITE;
+            states[stateIndex] = state;
+            MRSensorSampleMetadataGPU failed = metadata[stateIndex];
+            failed.ageValidityAndLayout.y =
+                MR_SENSOR_SAMPLE_NONFINITE;
+            metadata[stateIndex] = failed;
+            return;
+        }
+        history[writeBase + 0u] = position;
+        history[writeBase + 1u] = velocity;
+    } else {
+        float3 parentPosition;
+        float4 parentOrientation;
+        float3 parentLinearVelocity = float3(0.0f);
+        float3 parentAngularVelocity = float3(0.0f);
+        if (descriptor.identity.y ==
+            MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK) {
         const uint bodyStride =
             dispatch.controlPeriodAndStrides.w;
         const MRArticulatedBodyPoseGPU pose =
@@ -600,8 +638,8 @@ kernel void mr_sensor_sample_control_boundary(
                 body.linearVelocityAndInverseMass.xyz;
             parentAngularVelocity = body.angularVelocity.xyz;
         }
-    } else if (descriptor.identity.y ==
-               MR_WORLD_SENSOR_PARENT_RIGID_BODY) {
+        } else if (descriptor.identity.y ==
+                   MR_WORLD_SENSOR_PARENT_RIGID_BODY) {
         const uint sceneStride =
             dispatch.controlPeriodAndStrides.z;
         const MRBodyStateGPU body = sceneBodies[
@@ -612,16 +650,16 @@ kernel void mr_sensor_sample_control_boundary(
         parentLinearVelocity =
             body.linearVelocityAndInverseMass.xyz;
         parentAngularVelocity = body.angularVelocity.xyz;
-    } else {
-        state.timestampAgeValidity.w =
-            MR_SENSOR_SAMPLE_NONFINITE;
-        states[stateIndex] = state;
-        return;
-    }
+        } else {
+            state.timestampAgeValidity.w =
+                MR_SENSOR_SAMPLE_NONFINITE;
+            states[stateIndex] = state;
+            return;
+        }
 
-    float4 parentUnit = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    float4 sensorOrientation = parentUnit;
-    const bool poseValid =
+        float4 parentUnit = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        float4 sensorOrientation = parentUnit;
+        const bool poseValid =
         all(isfinite(parentPosition)) &&
         normalizedQuaternion(parentOrientation, parentUnit) &&
         normalizedQuaternion(
@@ -631,9 +669,9 @@ kernel void mr_sensor_sample_control_boundary(
             ),
             sensorOrientation
         );
-    const float3 sensorPosition = parentPosition +
+        const float3 sensorPosition = parentPosition +
         quaternionRotate(parentUnit, descriptor.localPosition.xyz);
-    if (!poseValid || !all(isfinite(sensorPosition)) ||
+        if (!poseValid || !all(isfinite(sensorPosition)) ||
         ((twistSensor || imuSensor) &&
          (!all(isfinite(parentLinearVelocity)) ||
           !all(isfinite(parentAngularVelocity))))) {
@@ -644,14 +682,14 @@ kernel void mr_sensor_sample_control_boundary(
         failed.ageValidityAndLayout.y =
             MR_SENSOR_SAMPLE_NONFINITE;
         metadata[stateIndex] = failed;
-        return;
-    }
+            return;
+        }
 
-    const uint writeSlot =
+        const uint writeSlot =
         static_cast<uint>(sequence % historyLength);
-    const uint writeBase =
+        const uint writeBase =
         historyBase + writeSlot * outputCount;
-    if (poseSensor) {
+        if (poseSensor) {
         history[writeBase + 0u] = sensorPosition.x;
         history[writeBase + 1u] = sensorPosition.y;
         history[writeBase + 2u] = sensorPosition.z;
@@ -659,7 +697,7 @@ kernel void mr_sensor_sample_control_boundary(
         history[writeBase + 4u] = sensorOrientation.y;
         history[writeBase + 5u] = sensorOrientation.z;
         history[writeBase + 6u] = sensorOrientation.w;
-    } else if (twistSensor) {
+        } else if (twistSensor) {
         const float3 sensorOffset = quaternionRotate(
             parentUnit,
             descriptor.localPosition.xyz
@@ -673,7 +711,7 @@ kernel void mr_sensor_sample_control_boundary(
         history[writeBase + 3u] = parentAngularVelocity.x;
         history[writeBase + 4u] = parentAngularVelocity.y;
         history[writeBase + 5u] = parentAngularVelocity.z;
-    } else if (imuSensor) {
+        } else if (imuSensor) {
         const float3 sensorOffset = quaternionRotate(
             parentUnit,
             descriptor.localPosition.xyz
@@ -748,7 +786,7 @@ kernel void mr_sensor_sample_control_boundary(
             pointVelocity,
             0.0f
         );
-    } else {
+        } else {
         float3 forceWorld = float3(0.0f);
         float3 torqueWorld = float3(0.0f);
         float3 tangentialImpulseWorld = float3(0.0f);
@@ -917,6 +955,7 @@ kernel void mr_sensor_sample_control_boundary(
             history[writeBase + 3u] = torqueLocal.x;
             history[writeBase + 4u] = torqueLocal.y;
             history[writeBase + 5u] = torqueLocal.z;
+        }
         }
     }
     ++sequence;

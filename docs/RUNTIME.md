@@ -84,14 +84,21 @@ consumers release it.
 
 ## Current SensorIR execution boundary
 
-The canonical MetalWorld session owns persistent schedule, history, output, and
-metadata buffers for parent-frame pose, world-twist, six-axis IMU, six-axis
-contact-wrench, and five-channel contact-state sensors. One thread owns one
-environment/sensor history ring, so a reset clears and seeds it without
-atomics or host reconstruction. A second boundary advances the schedule after
-physics accepts the next state; rollout-chunk boundaries therefore do not
-duplicate a sample. Rates use integer nanosecond phase accumulators and whole-
-sample latency is selected from the retained ring.
+The canonical MetalWorld session owns persistent schedule, history, output,
+and metadata buffers for scalar-joint state, parent-frame pose, world-twist,
+six-axis IMU, six-axis contact-wrench, and five-channel contact-state sensors.
+One thread owns one environment/sensor history ring, so a reset clears and
+seeds it without atomics or host reconstruction. A second boundary advances
+the schedule after physics accepts the next state; rollout-chunk boundaries
+therefore do not duplicate a sample. Rates use integer nanosecond phase
+accumulators and whole-sample latency is selected from the retained ring.
+
+Joint-state descriptors read accepted `q/v` buffers at compiler-resolved
+indices. A joint-only free-motion session creates the core and sensor pipeline
+groups but no kinematics group, and dispatches no body-pose or body-velocity
+materialization. This makes the deployment observation contract independent
+of TaskIR's direct generalized-state operators without paying for a spatial
+sensor graph.
 
 Force/torque reads the same final-microstep solved contact constraints used by
 TaskIR and the tactile force authority. It sums the force and moment applied to

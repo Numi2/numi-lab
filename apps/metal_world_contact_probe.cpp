@@ -1074,6 +1074,7 @@ int main(const int argc, char** argv) {
         const std::uint32_t cubeBody =
             static_cast<std::uint32_t>(franka.bodies.size());
         franka.bodies.push_back(cubeProperties());
+        franka.bodyNames.push_back("contact_cube");
         franka.shapes.push_back(cubeShape(cubeBody));
         franka.world.bodyCount =
             static_cast<std::uint32_t>(franka.bodies.size());

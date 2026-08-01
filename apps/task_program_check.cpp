@@ -1196,6 +1196,227 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             "native SensorIR corruption did not preserve deterministic replay and seed separation"
         );
     }
+
+    std::vector<metalrobo::SensorSpec> jointStateSensors{{
+        .id = "axis_joint_state",
+        .parentAssetId = "fixed_base_task_fixture",
+        .parentKind = MR_WORLD_SENSOR_PARENT_ASSET,
+        .kind = MR_WORLD_SENSOR_JOINT_STATE,
+        .target = "axis",
+        .nominalRateHz = 50.0f,
+        .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+        .historyLength = 1u,
+        .consumerFlags =
+            MR_WORLD_SENSOR_CONSUMER_ACTOR |
+            MR_WORLD_SENSOR_CONSUMER_CRITIC |
+            MR_WORLD_SENSOR_CONSUMER_RECORDER,
+    }};
+    metalrobo::CompiledSensorProgram jointStateProgram;
+    const auto jointStateCompile =
+        metalrobo::compileSensorProgram(
+            jointStateSensors,
+            noTactile,
+            compiled.world,
+            jointStateProgram
+        );
+    if (!jointStateCompile.succeeded() ||
+        !jointStateProgram.valid() ||
+        jointStateProgram.layout().outputElementCount != 2u ||
+        jointStateProgram.layout().historyElementCount != 2u ||
+        jointStateProgram.descriptors().size() != 1u ||
+        jointStateProgram.descriptors()[0u].identity.x !=
+            MR_WORLD_SENSOR_JOINT_STATE ||
+        jointStateProgram.descriptors()[0u].source.x !=
+            authored.model.joints[0u].qOffset ||
+        jointStateProgram.descriptors()[0u].source.y !=
+            authored.model.joints[0u].vOffset ||
+        jointStateProgram.descriptors()[0u].source.z != 0u) {
+        fail(
+            "scalar joint-state SensorIR did not compile to stable q/v indices"
+        );
+    }
+    const std::uint64_t preservedJointFingerprint =
+        jointStateProgram.fingerprint();
+    std::vector<metalrobo::SensorSpec> unresolvedJointSensors =
+        jointStateSensors;
+    unresolvedJointSensors[0u].target = "missing_axis";
+    const auto unresolvedJointCompile =
+        metalrobo::compileSensorProgram(
+            unresolvedJointSensors,
+            noTactile,
+            compiled.world,
+            jointStateProgram
+        );
+    if (unresolvedJointCompile.status !=
+            metalrobo::SensorCompileStatus::unresolvedSemantic ||
+        jointStateProgram.fingerprint() !=
+            preservedJointFingerprint) {
+        fail(
+            "unresolved joint-state SensorIR did not fail transactionally"
+        );
+    }
+
+    metalrobo::TaskPack jointSensorTask;
+    jointSensorTask.id = "joint_sensor_task";
+    jointSensorTask.actions = {{
+        .joint = "axis",
+        .scale = 0.1f,
+    }};
+    jointSensorTask.actorFrame = {
+        {
+            .source = metalrobo::TaskObservationSource::sensorValue,
+            .target = "axis_joint_state",
+            .component = 0u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValue,
+            .target = "axis_joint_state",
+            .component = 1u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::sensorValidity,
+            .target = "axis_joint_state",
+            .component = 0u,
+        },
+    };
+    jointSensorTask.criticIncludesCleanHistory = false;
+    jointSensorTask.critic = jointSensorTask.actorFrame;
+    jointSensorTask.rewards = {{
+        .operation = metalrobo::TaskRewardOperator::constant,
+        .weight = 1.0f,
+    }};
+    jointSensorTask.maximumEpisodeSteps = 32u;
+    metalrobo::CompiledTaskProgram compiledJointSensorTask;
+    const auto jointSensorTaskCompile =
+        metalrobo::compileTaskProgram(
+            jointSensorTask,
+            compiled.world,
+            jointStateProgram,
+            compiledJointSensorTask
+        );
+    if (!jointSensorTaskCompile.succeeded() ||
+        compiledJointSensorTask.sensorFingerprint() !=
+            jointStateProgram.fingerprint() ||
+        compiledJointSensorTask.layout().actorObservationSize != 3u ||
+        compiledJointSensorTask.layout().criticObservationSize != 3u) {
+        fail(
+            "TaskIR did not bind the compiled joint-state sensor contract: " +
+            std::string{metalrobo::taskCompileStatusName(
+                jointSensorTaskCompile.status
+            )} + " " + jointSensorTaskCompile.element + " " +
+            jointSensorTaskCompile.message + " actor=" +
+            std::to_string(
+                compiledJointSensorTask.layout()
+                    .actorObservationSize
+            ) + " critic=" +
+            std::to_string(
+                compiledJointSensorTask.layout()
+                    .criticObservationSize
+            )
+        );
+    }
+
+    constexpr std::size_t jointSensorSteps = 3u;
+    std::vector<float> jointInitialQ = initialQ;
+    std::vector<float> jointInitialV = initialV;
+    for (std::size_t environment = 0u;
+         environment < environments;
+         ++environment) {
+        jointInitialQ[
+            environment * compiled.world.nq() +
+            authored.model.joints[0u].qOffset
+        ] = 0.2f + 0.1f * static_cast<float>(environment);
+        jointInitialV[
+            environment * compiled.world.nv() +
+            authored.model.joints[0u].vOffset
+        ] = 0.45f - 0.15f * static_cast<float>(environment);
+    }
+    std::vector<float> jointEfforts(
+        environments * jointSensorSteps * compiled.world.nv(),
+        0.0f
+    );
+    metalrobo::MetalWorldStepConfig jointSensorStep;
+    jointSensorStep.timestepSeconds = 0.02f;
+    jointSensorStep.physicsSubsteps = 1u;
+    jointSensorStep.executionMode =
+        metalrobo::MetalWorldExecutionMode::freeMotionABA;
+    jointSensorStep.actuationMode =
+        metalrobo::MetalWorldActuationMode::effort;
+    jointSensorStep.sensorProgram = jointStateProgram;
+    jointSensorStep.publishSensorOutputs = true;
+    metalrobo::MetalWorldContext jointSensorContext(
+        contextConfiguration
+    );
+    metalrobo::MetalWorldResult jointSensorResult;
+    const auto jointSensorExecution = jointSensorContext.run(
+        compiled.world,
+        {
+            .environmentCount = environments,
+            .controlStepCount = jointSensorSteps,
+            .initialQ = jointInitialQ,
+            .initialV = jointInitialV,
+            .efforts = jointEfforts,
+        },
+        jointSensorStep,
+        jointSensorResult
+    );
+    if (!jointSensorExecution.succeeded() ||
+        jointSensorResult.sensorOutputs.size() !=
+            environments * 2u ||
+        jointSensorResult.sensorMetadata.size() != environments ||
+        jointSensorContext.stats().pipelineCreationCount != 9u) {
+        fail(
+            "joint-state SensorIR did not execute on the q/v-only native graph: " +
+            jointSensorExecution.message + " q=" +
+            std::to_string(jointInitialQ.size()) + "/" +
+            std::to_string(
+                jointSensorExecution.layout.initialQElements
+            ) + " v=" +
+            std::to_string(jointInitialV.size()) + "/" +
+            std::to_string(
+                jointSensorExecution.layout.initialVElements
+            ) + " effort=" +
+            std::to_string(jointEfforts.size()) + "/" +
+            std::to_string(
+                jointSensorExecution.layout.effortElements
+            ) + " scene=" +
+            std::to_string(0u) + "/" +
+            std::to_string(
+                jointSensorExecution.layout.initialSceneBodyElements
+            ) + " kinematic=" +
+            std::to_string(
+                jointSensorExecution.layout.kinematicTargetElements
+            )
+        );
+    }
+    for (std::size_t environment = 0u;
+         environment < environments;
+         ++environment) {
+        const std::size_t outputBase = environment * 2u;
+        const float acceptedQ = jointSensorResult.finalQ[
+            environment * compiled.world.nq() +
+            authored.model.joints[0u].qOffset
+        ];
+        const float acceptedV = jointSensorResult.finalV[
+            environment * compiled.world.nv() +
+            authored.model.joints[0u].vOffset
+        ];
+        const std::uint32_t validity =
+            jointSensorResult.sensorMetadata[environment]
+                .ageValidityAndLayout.y;
+        if (jointSensorResult.sensorOutputs[outputBase] != acceptedQ ||
+            jointSensorResult.sensorOutputs[outputBase + 1u] !=
+                acceptedV ||
+            (validity &
+             (MR_SENSOR_SAMPLE_VALID |
+              MR_SENSOR_SAMPLE_FRESH)) !=
+                (MR_SENSOR_SAMPLE_VALID |
+                 MR_SENSOR_SAMPLE_FRESH)) {
+            fail(
+                "joint-state SensorIR did not publish the accepted generalized state"
+            );
+        }
+    }
     const std::uint64_t taskPipelineCount =
         context.stats().pipelineCreationCount;
     if (taskPipelineCount == 0u ||
@@ -3694,6 +3915,20 @@ std::uint64_t checkWorldPackSimulationImport(
         .historyLength = 2u,
         .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
     });
+    if (frankaModel.jointNames.empty()) {
+        fail("WorldPack joint-state fixture has no semantic joint");
+    }
+    episode.sensors.push_back({
+        .id = "franka_worldpack_joint",
+        .parentAssetId = episode.task.robotAssetId,
+        .parentKind = MR_WORLD_SENSOR_PARENT_ASSET,
+        .kind = MR_WORLD_SENSOR_JOINT_STATE,
+        .target = frankaModel.jointNames.front(),
+        .nominalRateHz = 50.0f,
+        .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+        .historyLength = 2u,
+        .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
+    });
     metalrobo::WorldTemplate worldTemplate;
     const metalrobo::WorldCompileResult templateStatus =
         metalrobo::compileEpisodeTwin(
@@ -3760,6 +3995,13 @@ std::uint64_t checkWorldPackSimulationImport(
             return sensor.id == "franka_worldpack_contact";
         }
     );
+    const auto importedJoint = std::find_if(
+        imported.sensors.begin(),
+        imported.sensors.end(),
+        [](const metalrobo::SensorSpec& sensor) {
+            return sensor.id == "franka_worldpack_joint";
+        }
+    );
     metalrobo::CompiledWorld compiledWorld;
     const auto worldStatus = metalrobo::compileMetalWorld(
         imported.model,
@@ -3782,6 +4024,8 @@ std::uint64_t checkWorldPackSimulationImport(
         compiledSensors.sensorIndex("franka_worldpack_imu");
     const std::uint32_t compiledContact =
         compiledSensors.sensorIndex("franka_worldpack_contact");
+    const std::uint32_t compiledJoint =
+        compiledSensors.sensorIndex("franka_worldpack_joint");
     if (imported.articulationIndex != 0u ||
         imported.model.bodies.size() !=
             family.worldTemplate.engineModel.bodies.size() ||
@@ -3798,6 +4042,12 @@ std::uint64_t checkWorldPackSimulationImport(
         importedContact->filterBodies.size() != 1u ||
         importedContact->filterBodies.front() !=
             frankaModel.bodyNames[objectBody] ||
+        importedJoint == imported.sensors.end() ||
+        importedJoint->parentKind !=
+            MR_WORLD_SENSOR_PARENT_ASSET ||
+        importedJoint->parentBodyIndex != MR_INVALID_INDEX ||
+        importedJoint->target !=
+            frankaModel.jointNames.front() ||
         !worldStatus.succeeded() ||
         !sensorStatus.succeeded() ||
         compiledImu == MR_INVALID_INDEX ||
@@ -3813,6 +4063,14 @@ std::uint64_t checkWorldPackSimulationImport(
         compiledSensors.filterBodies()[
             compiledSensors.descriptors()[compiledContact].filter.x
         ] != objectBody ||
+        compiledJoint == MR_INVALID_INDEX ||
+        compiledSensors.descriptors()[compiledJoint].identity.x !=
+            MR_WORLD_SENSOR_JOINT_STATE ||
+        compiledSensors.descriptors()[compiledJoint].source.z != 0u ||
+        compiledSensors.descriptors()[compiledJoint].source.x !=
+            frankaModel.joints[0u].qOffset ||
+        compiledSensors.descriptors()[compiledJoint].source.y !=
+            frankaModel.joints[0u].vOffset ||
         loaded.contentHash != pack.contentHash) {
         fail(
             "WorldPack did not round-trip executable mechanics, scene state, and IMU SensorIR"
@@ -4373,6 +4631,7 @@ int main() {
             << " physical_transaction=pass"
             << " task_transaction=pass"
             << " imu=pass"
+            << " joint_state=pass"
             << " contact_state=pass"
             << " sensor_corruption=pass"
             << " world_pack=" << worldPackFingerprint

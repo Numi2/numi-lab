@@ -301,6 +301,7 @@ void writeSensor(PayloadWriter& writer, const SensorSpec& sensor) {
     writer.pod(sensor.parentKind);
     writer.pod(sensor.parentBodyIndex);
     writer.pod(sensor.kind);
+    writer.string(sensor.target);
     writer.stringVector(sensor.filterBodies);
     writePose(writer, sensor.localPose);
     writer.pod(sensor.width);
@@ -336,6 +337,7 @@ bool readSensor(PayloadReader& reader, SensorSpec& sensor) {
         reader.pod(sensor.parentKind) &&
         reader.pod(sensor.parentBodyIndex) &&
         reader.pod(sensor.kind) &&
+        reader.string(sensor.target) &&
         reader.stringVector(sensor.filterBodies) &&
         readPose(reader, sensor.localPose) &&
         reader.pod(sensor.width) &&
