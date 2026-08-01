@@ -59,8 +59,8 @@ release blockers remain:
   values/validity, and a compiled scalar signal graph for generic rewards,
   gates, termination thresholds, named scalar commands, generalized-velocity
   events, three named compact recorders, and a scalar curriculum metric. Frame
-  acceleration, full Jacobian tensor publication, independently scheduled or
-  richer events, and arbitrary recorder streams remain incomplete.
+  acceleration, full Jacobian tensor publication, richer event kinds, and
+  arbitrary recorder streams remain incomplete.
 - Parent-frame pose, world-twist, and solver-authoritative six-axis contact-
   wrench sensors execute on the session timeline and bind directly into
   TaskIR. Presentation and tactile sensing remain native but have not yet been

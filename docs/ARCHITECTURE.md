@@ -99,7 +99,7 @@ environments. SensorIR likewise journals schedule state, history, compact
 output, and metadata only for reset environments. Rejected transitions restore
 those bytes; successful and ordinary non-reset steps pay no checkpoint-copy
 bandwidth beyond the core state already required for rollback. TaskIR journals
-state, including the shared event countdown, action delay, and its
+state, every compiler-sized event timer/fire counter, action delay, and its
 topology-sized scalar arena on every step. That arena contains compact contact
 reductions followed by compiled named scalar commands, so rejected command
 resamples and scheduled events are restored with the same transaction.
@@ -135,9 +135,10 @@ internal refactors do not create version-suffixed types.
 
 Task action, command, and event behavior is compiled data. The current event
 operator resolves a named generalized-velocity coordinate once and applies a
-curriculum-scaled delta using a stable semantic RNG identity. G1 perturbations
-are ordinary event records; the runtime contains no floating-root push branch
-or robot identity switch.
+curriculum-scaled delta using a stable semantic RNG identity. A dedicated
+native pass advances independently scheduled persistent event state before
+physics. G1 perturbations are ordinary event records; the runtime contains no
+floating-root push branch or robot identity switch.
 
 ## Extension boundary
 

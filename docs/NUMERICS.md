@@ -42,6 +42,9 @@ must satisfy. Unsupported behavior is recorded in
   generalized velocity at a control boundary. It is explicit discrete task
   logic, not a physical force, contact impulse, or solver row. Adjoint results
   crossing such an event must carry a discrete-event invalidity bit.
+- Event interval and value streams are keyed by semantic identity and fire
+  count. Per-event countdown/fire-count state is transactionally committed;
+  rejected physics cannot consume an event or advance either stream.
 
 Native actuator delay uses `ceil(delay / control_period)` whole control steps.
 Backlash is a deterministic play operator around the delayed command. Raw motor

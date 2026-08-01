@@ -181,7 +181,7 @@ without replacing the last valid compiled program.
 
 The same fixture expresses fixed, episode-sampled, and trajectory frame
 objectives without constant or frame-specific reward/termination opcodes.
-TaskPack 17 round-trips those graphs, preserves their numerical outcomes, and
+TaskPack 18 round-trips those graphs, preserves their numerical outcomes, and
 proves that deleting the duplicated goal fields and shrinking the termination
 record does not change dynamic-goal replay.
 
@@ -239,11 +239,26 @@ push branch are absent.
 
 A separate fixed-base fixture compiles two events against one scalar joint.
 Metal produces a measured event velocity delta of `0.267137`, exact same-seed
-replay, and changed-seed separation. TaskPack 17 round-trips the event program
+replay, and changed-seed separation. TaskPack 18 round-trips the event program
 exactly, while duplicate identities, unresolved targets, invalid ranges, and
 unsupported operations reject transactionally. The two G1 records add 192
 retained bytes relative to `3262d20`: 96 immutable private and 96 shared ABI
 bytes, with no transient or persistent-state increase.
+
+The independent-schedule cut is compared against `1c0e6c8` with the same G1
+A/B contract. Zero and deterministic host actions again preserve every
+physical, contact, failure, termination, reward, recorder, and reporting value
+exactly. The fixed-base owner schedules one event every 20 ms and another every
+40 ms; their net measured velocity effect is `0.518522`, same-seed replay is
+exact, and a changed seed separates. A second branch first advances an event to
+a nonzero fire count, rejects a reset through pair-capacity overflow, and then
+requires the following transition to match an untouched branch byte-for-byte.
+
+TaskPack 18 moves interval bounds into each 64-byte immutable event record and
+the native runtime owns one 16-byte timer/fire-count state plus one transactional
+checkpoint per event and environment. For G1's two events across eight
+environments, retained memory rises by 544 bytes: 16 immutable, 256 persistent,
+256 transient checkpoint, and 16 shared ABI bytes.
 
 An independent fixed-base fixture records `axis_velocity_squared` and compares
 the Metal recorder value with the generic reward-channel contribution. The
