@@ -8165,12 +8165,14 @@ kernel void mr_world_scatter_pair_queue(
     work.workClass = workClass;
     work.stableKeyLow = compiledPair;
     work.stableKeyHigh = environment;
+    work.reserved = destination;
     queue[destination] = work;
 }
 
 // SIMD-dense narrowphase. One lane consumes one compact work item and writes
-// a deterministic per-compiled-pair staging span, so queue scheduling cannot
-// change manifold or ConstraintIR order.
+// a deterministic compact-queue staging span. The eligible-pair count record
+// retains that slot, while the later segmented scan continues to own canonical
+// compiled-pair ordering for manifolds and ConstraintIR.
 kernel void mr_world_narrowphase_pair_queue(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device const MRShapeGPU* shapes [[buffer(1)]],
@@ -8179,7 +8181,7 @@ kernel void mr_world_narrowphase_pair_queue(
     device const MRPairWorkGPU* queue [[buffer(4)]],
     device MRWorkQueueHeaderGPU* headers [[buffer(5)]],
     device MRRawContactGPU* pairRawContacts [[buffer(6)]],
-    device uint* pairRawCounts [[buffer(7)]],
+    device uint2* pairRawCounts [[buffer(7)]],
     constant uint4& classConfig [[buffer(8)]],
     const uint workerIndex [[thread_position_in_grid]],
     const uint workerCount [[threads_per_grid]],
@@ -8259,7 +8261,10 @@ kernel void mr_world_narrowphase_pair_queue(
                 work.environment *
                     dispatch.eligiblePairCount +
                 work.compiledPair
-            ] = 0x80000000u | failureCode;
+            ] = uint2(
+                0x80000000u | failureCode,
+                work.reserved
+            );
             continue;
         }
         const ContactBatch contacts = generateContacts(
@@ -8270,11 +8275,7 @@ kernel void mr_world_narrowphase_pair_queue(
             shapeB
         );
         const uint stagingBase =
-            (
-                work.environment *
-                    dispatch.eligiblePairCount +
-                work.compiledPair
-            ) * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+            work.reserved * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
         uint count = contacts.count;
         for (uint index = 0u;
              index < contacts.count;
@@ -8290,7 +8291,7 @@ kernel void mr_world_narrowphase_pair_queue(
         pairRawCounts[
             work.environment * dispatch.eligiblePairCount +
             work.compiledPair
-        ] = count;
+        ] = uint2(count, work.reserved);
     }
 }
 
@@ -8304,7 +8305,7 @@ kernel void mr_world_narrowphase_convex_queue(
     device const MRGeometryHeaderGPU* geometryHeaders [[buffer(6)]],
     device const float4* geometryVertices [[buffer(7)]],
     device MRRawContactGPU* pairRawContacts [[buffer(8)]],
-    device uint* pairRawCounts [[buffer(9)]],
+    device uint2* pairRawCounts [[buffer(9)]],
     device const MRConvexQueryCacheGPU* previousCaches
         [[buffer(10)]],
     device MRConvexQueryCacheGPU* candidateCaches
@@ -8388,7 +8389,10 @@ kernel void mr_world_narrowphase_convex_queue(
                 work.environment *
                     dispatch.eligiblePairCount +
                 work.compiledPair
-            ] = 0x80000000u | failureCode;
+            ] = uint2(
+                0x80000000u | failureCode,
+                work.reserved
+            );
             continue;
         }
 
@@ -8435,11 +8439,14 @@ kernel void mr_world_narrowphase_convex_queue(
             work.compiledPair;
         if (query.status != MR_STEP_SUCCESS) {
             pairRawCounts[countIndex] =
-                0x80000000u | query.status;
+                uint2(
+                    0x80000000u | query.status,
+                    work.reserved
+                );
             continue;
         }
         const uint stagingBase =
-            countIndex *
+            work.reserved *
             MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
         uint count = contacts.count;
         for (uint index = 0u;
@@ -8454,7 +8461,7 @@ kernel void mr_world_narrowphase_convex_queue(
             pairRawContacts[stagingBase + index] =
                 contacts.contacts[index];
         }
-        pairRawCounts[countIndex] = count;
+        pairRawCounts[countIndex] = uint2(count, work.reserved);
     }
 }
 
@@ -8471,7 +8478,7 @@ kernel void mr_world_narrowphase_hull_queue(
     device const MRGeometryHeaderGPU* geometryHeaders [[buffer(6)]],
     device const float4* geometryVertices [[buffer(7)]],
     device MRRawContactGPU* pairRawContacts [[buffer(8)]],
-    device uint* pairRawCounts [[buffer(9)]],
+    device uint2* pairRawCounts [[buffer(9)]],
     device const MRConvexQueryCacheGPU* previousCaches
         [[buffer(10)]],
     device MRConvexQueryCacheGPU* candidateCaches
@@ -8554,7 +8561,10 @@ kernel void mr_world_narrowphase_hull_queue(
                 work.environment *
                     dispatch.eligiblePairCount +
                 work.compiledPair
-            ] = 0x80000000u | failureCode;
+            ] = uint2(
+                0x80000000u | failureCode,
+                work.reserved
+            );
             continue;
         }
 
@@ -8601,11 +8611,14 @@ kernel void mr_world_narrowphase_hull_queue(
             work.compiledPair;
         if (query.status != MR_STEP_SUCCESS) {
             pairRawCounts[countIndex] =
-                0x80000000u | query.status;
+                uint2(
+                    0x80000000u | query.status,
+                    work.reserved
+                );
             continue;
         }
         const uint stagingBase =
-            countIndex *
+            work.reserved *
             MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
         uint count = contacts.count;
         for (uint index = 0u;
@@ -8620,7 +8633,7 @@ kernel void mr_world_narrowphase_hull_queue(
             pairRawContacts[stagingBase + index] =
                 contacts.contacts[index];
         }
-        pairRawCounts[countIndex] = count;
+        pairRawCounts[countIndex] = uint2(count, work.reserved);
     }
 }
 
@@ -8636,7 +8649,7 @@ kernel void mr_world_narrowphase_mesh_queue(
     device const MRMeshBVHNodeGPU* meshNodes [[buffer(8)]],
     device const MRMeshTriangleGPU* meshTriangles [[buffer(9)]],
     device MRRawContactGPU* pairRawContacts [[buffer(10)]],
-    device uint* pairRawCounts [[buffer(11)]],
+    device uint2* pairRawCounts [[buffer(11)]],
     device MRConvexQueryCacheGPU* caches [[buffer(12)]],
     constant uint4& classConfig [[buffer(13)]],
     const uint workerIndex [[thread_position_in_grid]],
@@ -8716,7 +8729,10 @@ kernel void mr_world_narrowphase_mesh_queue(
                 work.environment *
                     dispatch.eligiblePairCount +
                 work.compiledPair
-            ] = 0x80000000u | failureCode;
+            ] = uint2(
+                0x80000000u | failureCode,
+                work.reserved
+            );
             continue;
         }
         uint triangleCandidates = 0u;
@@ -8749,7 +8765,7 @@ kernel void mr_world_narrowphase_mesh_queue(
             work.environment * dispatch.eligiblePairCount +
             work.compiledPair;
         const uint stagingBase =
-            countIndex *
+            work.reserved *
             MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
         uint count = contacts.count;
         for (uint index = 0u;
@@ -8764,7 +8780,7 @@ kernel void mr_world_narrowphase_mesh_queue(
             pairRawContacts[stagingBase + index] =
                 contacts.contacts[index];
         }
-        pairRawCounts[countIndex] = count;
+        pairRawCounts[countIndex] = uint2(count, work.reserved);
     }
 }
 
@@ -8800,7 +8816,7 @@ kernel void mr_world_collide_compile(
     device const MRProjectedColliderGPU* projectedColliders
         [[buffer(24)]],
     device const uint* pairOverlapFlags [[buffer(25)]],
-    device const uint* pairRawCounts [[buffer(26)]],
+    device const uint2* pairRawCounts [[buffer(26)]],
     device const MRRawContactGPU* pairRawContactStaging
         [[buffer(27)]],
     device const MRConvexQueryCacheGPU* convexCaches
@@ -9033,11 +9049,12 @@ kernel void mr_world_collide_compile(
         }
 
         ContactBatch raw = {};
-        const uint stagedCount =
+        const uint2 stagedRecord =
             pairRawCounts[
                 environment * dispatch.eligiblePairCount +
                 eligibleIndex
             ];
+        const uint stagedCount = stagedRecord.x;
         if ((stagedCount & 0x80000000u) != 0u) {
             status.code = stagedCount & 0x7fffffffu;
             status.firstFailingPair = eligibleIndex;
@@ -9051,10 +9068,7 @@ kernel void mr_world_collide_compile(
         }
         raw.count = stagedCount;
         const uint stagedBase =
-            (
-                environment * dispatch.eligiblePairCount +
-                eligibleIndex
-            ) * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+            stagedRecord.y * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
         for (uint stagedIndex = 0u;
              stagedIndex < stagedCount;
              ++stagedIndex) {
@@ -9540,7 +9554,7 @@ kernel void mr_world_finalize_pair_manifold(
     device const MRManifoldHeaderGPU* oldManifoldHeaders [[buffer(5)]],
     device const MRManifoldPointGPU* oldManifoldPoints [[buffer(6)]],
     device const uint* pairOverlapFlags [[buffer(7)]],
-    device const uint* pairRawCounts [[buffer(8)]],
+    device const uint2* pairRawCounts [[buffer(8)]],
     device const MRRawContactGPU* pairRawContactStaging [[buffer(9)]],
     device const MRConvexQueryCacheGPU* convexCaches [[buffer(10)]],
     device const MRCCDPairGPU* ccdPairs [[buffer(11)]],
@@ -9653,7 +9667,8 @@ kernel void mr_world_finalize_pair_manifold(
         }
     }
 
-    const uint stagedCount = pairRawCounts[flatPair];
+    const uint2 stagedRecord = pairRawCounts[flatPair];
+    const uint stagedCount = stagedRecord.x;
     if ((stagedCount & 0x80000000u) != 0u) {
         record.diagnostics0.x =
             stagedCount & 0x7fffffffu;
@@ -9669,6 +9684,7 @@ kernel void mr_world_finalize_pair_manifold(
         return;
     }
     record.counts0.y = stagedCount;
+    record.reserved.x = stagedRecord.y;
     if (stagedCount == 0u) {
         scatterRecords[flatPair] = record;
         return;
@@ -9677,7 +9693,7 @@ kernel void mr_world_finalize_pair_manifold(
     ContactBatch raw = {};
     raw.count = stagedCount;
     const uint stagedBase =
-        flatPair * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+        stagedRecord.y * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
     const MRShapeGPU sourceA = shapes[compiled.colliderA];
     const MRShapeGPU sourceB = shapes[compiled.colliderB];
     const float restSeparation =
@@ -10139,7 +10155,7 @@ kernel void mr_world_scatter_manifold_records(
         ] = pair;
     }
     const uint stagedBase =
-        flatPair * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
+        record.reserved.x * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR;
     const uint rawBase =
         environment * dispatch.rawContactStride;
     // Finalization bounds this count and the segmented scan certifies its

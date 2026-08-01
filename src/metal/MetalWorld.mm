@@ -2161,8 +2161,8 @@ bool buildRequirements(
             layout.pairWorkElements,
             requirements.entries[kPairWorkQueue]
         ) ||
-        !makeRequirement<mr_u32>(
-            "per-pair raw contact counts",
+        !makeRequirement<std::uint64_t>(
+            "per-pair raw contact count and compact slot",
             eligiblePairFlagElements,
             requirements.entries[kPairRawCounts]
         ) ||
@@ -3782,7 +3782,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             !checkedMultiply(
                 batch.environmentCount,
                 static_cast<std::size_t>(
-                    contact.eligiblePairCount
+                    contact.pairCapacity
                 ) * MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR,
                 layout.pairRawStagingElements
             ) ||
