@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T06:12:03+02:00",
+  "source_revision": "66e47ae0e201a606e42bd7e6416ac26ccceea906",
+  "metallib_sha256": "89f3facfe9568cfcc2cf305360681593e9198fcc45ecef332cfcfff20017fe6f",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "qualification_build_actions": 3,
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 3.00,
+    "runtime_abi_version": 18,
+    "sensor_program_abi_version": 8,
+    "world_buffer_count": 247,
+    "sensor_sample_binding_count": 24,
+    "worldpack_format_version": 8,
+    "joint_state_channels": 2,
+    "joint_only_pipeline_count": 9,
+    "joint_only_kinematics_group_omitted": "passed",
+    "accepted_q_v_exact_publication": "passed",
+    "compiled_joint_q_v_indices": "passed",
+    "task_ir_joint_sensor_binding": "passed",
+    "unresolved_joint_transaction": "passed",
+    "worldpack_joint_target_roundtrip": "passed",
+    "franka_canonical_joint_names": "passed"
+  },
+  "known_release_blockers": [
+    "Joint SensorIR currently accepts only scalar revolute, prismatic, and continuous joints; fixed and multi-DOF tangent-coordinate observations are not implemented.",
+    "Actuator-state SensorIR and actuator/load-cell semantics are incomplete.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; ray and LiDAR operators remain incomplete.",
+    "Recorder routing and compiler sensor dead-code elimination remain incomplete.",
+    "No general MJCF importer is present.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

@@ -25,7 +25,8 @@
     "evidence/baselines/2026-08-01-e61fd21.json",
     "evidence/baselines/2026-08-01-b0bb0e2.json",
     "evidence/baselines/2026-08-01-10209f1.json",
-    "evidence/baselines/2026-08-01-135d4f1.json"
+    "evidence/baselines/2026-08-01-135d4f1.json",
+    "evidence/baselines/2026-08-01-66e47ae.json"
   ],
   "capabilities": [
     {
@@ -173,7 +174,7 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Native parent-frame pose, world-space frame-twist, six-axis IMU, six-axis contact-wrench, and five-channel contact-state sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. Twist linear velocity is evaluated at the authored sensor origin. Force-torque and contact-state consume final-microstep NumiSolver impulses; semantic contact filters are immutable compiled tables. The owner covers articulated and rigid kinematic parents, exact 50 Hz and non-divisor 30 Hz schedules, reset-cleared contact signals, and task-independent execution."
+      "scope": "Native scalar-joint state, parent-frame pose, world-space frame-twist, six-axis IMU, six-axis contact-wrench, and five-channel contact-state sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. Joint state reads accepted q/v directly and a joint-only plan omits kinematics. Twist linear velocity is evaluated at the authored sensor origin. Force-torque and contact-state consume final-microstep NumiSolver impulses; semantic contact filters are immutable compiled tables. The owner covers articulated and rigid kinematic parents, exact 50 Hz and non-divisor 30 Hz schedules, reset-cleared contact signals, and task-independent execution."
     },
     {
       "id": "sensors.native_imu",
@@ -184,7 +185,7 @@
     },
     {
       "id": "sensors.native_joint_state",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "An asset-owned joint-state sensor resolves one authored scalar revolute, prismatic, or continuous joint into stable joint and q/v indices and publishes accepted position and velocity through the common native schedule. Joint-only free-motion execution omits kinematics pipelines. The owner checks exact q/v publication, TaskIR binding, transactional unresolved-name rejection, and WorldPack semantic-target persistence. Fixed and multi-DOF targets are explicitly rejected until their tangent-coordinate observation contract lands."
