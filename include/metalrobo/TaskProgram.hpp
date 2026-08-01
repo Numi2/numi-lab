@@ -157,10 +157,37 @@ struct TaskFrameSpec {
     mr_float4 localOrientation{0.0f, 0.0f, 0.0f, 1.0f};
 };
 
+enum class TaskGoalMode : std::uint32_t {
+    fixed = MR_TASK_GOAL_FIXED,
+    sampledEpisode = MR_TASK_GOAL_SAMPLED_EPISODE,
+    trajectory = MR_TASK_GOAL_TRAJECTORY,
+};
+
+enum class TaskGoalPlayback : std::uint32_t {
+    clamp = MR_TASK_GOAL_PLAYBACK_CLAMP,
+    loop = MR_TASK_GOAL_PLAYBACK_LOOP,
+    pingPong = MR_TASK_GOAL_PLAYBACK_PING_PONG,
+};
+
 struct TaskGoalSpec {
     std::string id;
+    TaskGoalMode mode = TaskGoalMode::fixed;
+    TaskGoalPlayback playback = TaskGoalPlayback::clamp;
+    // Fixed pose, sampled-pose centre, or trajectory start pose.
     mr_float4 position{};
     mr_float4 orientation{0.0f, 0.0f, 0.0f, 1.0f};
+    // Used only by trajectory mode.
+    mr_float4 targetPosition{};
+    mr_float4 targetOrientation{0.0f, 0.0f, 0.0f, 1.0f};
+    // Used only by sampledEpisode. Position offsets are world-aligned;
+    // rotation vectors are applied in the base goal's local frame.
+    mr_float4 positionOffsetLower{};
+    mr_float4 positionOffsetUpper{};
+    mr_float4 rotationVectorLower{};
+    mr_float4 rotationVectorUpper{};
+    // Trajectory time is accepted episodeStep * controlPeriod + phase.
+    float durationSeconds = 0.0f;
+    float phaseSeconds = 0.0f;
 };
 
 struct TaskContactGroup {

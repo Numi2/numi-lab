@@ -162,7 +162,14 @@
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading static goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Static SE(3) goals, pose rewards and terminations, SensorIR scalar/validity sources, and reset-correct pre-policy state are implemented. Acceleration, point/Jacobian quantities, sampled or trajectory goals, generic reductions, and three complete task families are not yet qualified."
+      "scope": "Compiled frames can target links in any articulation, static, kinematic, and dynamic scene bodies, or named model sites with compiler-composed site-local offsets. Explicit frame-to-frame operators publish reference-local position and tangent orientation across domains without overloading goals. World and moving-reference linear/angular velocity operators are materialized from accepted generalized and scene state once per control step, including the rotating-frame transport term; the same path supplies physically consistent support-slip and clearance metrics. Fixed, episode-sampled, and two-pose trajectory SE(3) goals, pose rewards and terminations, SensorIR scalar/validity sources, and reset-correct pre-policy state are implemented. Acceleration, point/Jacobian quantities, multi-knot splines, generic reductions, and three complete task families are not yet qualified."
+    },
+    {
+      "id": "tasks.dynamic_se3_goals",
+      "status": "implemented",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "TaskPack compiles fixed, episode-sampled, and two-pose trajectory goals into one immutable table. Sampled world translation and local tangent orientation use stable per-goal counter keys; trajectories use accepted-step linear position and shortest-arc quaternion interpolation with clamp, loop, or ping-pong playback. Reset changes the episode key and failed transitions cannot advance derived goal time. Multi-knot path splines remain incomplete."
     },
     {
       "id": "tasks.sensor_ir_observations",

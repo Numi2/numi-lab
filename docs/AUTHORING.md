@@ -78,7 +78,7 @@ companion MJCF used by a bundled robot is not evidence of a general importer.
 
 TaskPack is being generalized in place; there is no second task format. The
 currently implemented native surface resolves actions, joints, bodies, contact
-groups, named body-local or site-relative frames, and static SE(3) goals at
+groups, named body-local or site-relative frames, and typed SE(3) goals at
 compilation. It supports:
 
 - joint, root, command, terrain, parameter, contact-metric, and contact-wrench
@@ -94,6 +94,8 @@ compilation. It supports:
   reference translation and rotating-frame transport;
 - frame position/orientation squared-error and exponential-tracking rewards;
 - maximum frame position/orientation error termination;
+- fixed goals, episode-sampled poses, and two-pose trajectories with clamped,
+  looped, or ping-pong playback;
 - fixed-shape actor/critic histories, deterministic corruption, curriculum,
   randomization, and transactional reset.
 - named SensorIR scalar values and validity bits, with actor/critic permission
@@ -110,13 +112,22 @@ source. A site-relative transform is composed with the model site's link-local
 pose during compilation and then converted once to the body's COM-centred
 runtime origin. The remaining TaskIR target is a phase-separated graph covering
 action, command/event, observation, reward, termination, recorder, reset, and
-curriculum phases. Frame acceleration, point/Jacobian quantities, sampled and
-trajectory goals, and generic gates/reductions are not yet production
+curriculum phases. Frame acceleration, point/Jacobian quantities, multi-knot
+trajectory splines, and generic gates/reductions are not yet production
 operators.
 
+An episode-sampled goal adds independent world-axis translation offsets and a
+local tangent rotation-vector perturbation to its base pose. Its counter key is
+the session seed, environment, episode, stable goal identity, channel, and goal
+purpose. A trajectory linearly interpolates position and shortest-arc slerps
+orientation from its start to end pose using accepted episode time. These goal
+poses are derived values, not mutable simulator buffers: a rejected transition
+cannot advance or partially publish one, and a reset selects a new episode
+sample without adding another reset owner.
+
 All implemented names resolve at compilation. The GPU receives only typed
-indices, counts, and fixed output layouts. Adding another body layout or static
-pose goal does not add a robot-specific shader.
+indices, counts, and fixed output layouts. Adding another body layout or goal
+does not add a robot-specific shader.
 
 ## Sensor authoring
 

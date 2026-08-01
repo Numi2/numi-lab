@@ -34,6 +34,23 @@ the sensor contract can distinguish commanded, motor, passive, and generalized
 effort. Reset seeds the command timeline from the neutral joint target for
 position control, or zero for effort control.
 
+## Task goal time and orientation
+
+Task goals are immutable compiled records. Fixed goals read their authored
+pose directly. Episode-sampled goals derive six independent uniform values
+from a counter key containing the session seed, environment, episode, stable
+goal identity, channel, and goal-purpose domain. Translation offsets are in
+world axes. Rotation offsets are principal rotation vectors with norm no larger
+than pi and are applied in the base goal's local frame.
+
+Two-pose trajectories use accepted task time
+`episode_step * control_period + phase`. Position interpolation is linear;
+orientation interpolation is normalized shortest-arc quaternion slerp. Clamp,
+loop, and ping-pong playback share these equations. Physics rejection does not
+advance accepted episode time, and reset increments the episode key, so no
+parallel mutable goal state or rollback copy is allowed. Multi-knot splines are
+not yet part of the production goal operator.
+
 ## NumiSolver
 
 `NumiSolver` is the only public constrained-solver identity. Internal topology

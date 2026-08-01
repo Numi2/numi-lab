@@ -209,6 +209,169 @@ inline float3 taskOrientationError(
     );
 }
 
+struct TaskGoalPose {
+    float3 position;
+    float4 orientation;
+};
+
+inline ulong taskGoalRandomIdentity(
+    device const MRTaskGoalGPU& goal
+) {
+    return static_cast<ulong>(goal.metadata.z) |
+        (static_cast<ulong>(goal.metadata.w) << 32u);
+}
+
+inline float taskGoalRandomUnit(
+    device const MRTaskDispatchGPU& dispatch,
+    device const MRTaskGoalGPU& goal,
+    const uint environment,
+    const uint episode,
+    const uint channel
+) {
+    return mr_semantic_counter_uniform(
+        dispatch.seed,
+        environment,
+        episode,
+        taskGoalRandomIdentity(goal),
+        0u,
+        channel,
+        MR_COUNTER_PURPOSE_TASK_GOAL
+    );
+}
+
+inline float4 taskQuaternionExponential(
+    const float3 rotationVector
+) {
+    const float angle = length(rotationVector);
+    if (angle < 1.0e-7f) {
+        return normalizedQuaternionOrIdentity(
+            float4(0.5f * rotationVector, 1.0f)
+        );
+    }
+    const float halfAngle = 0.5f * angle;
+    return float4(
+        rotationVector * (sin(halfAngle) / angle),
+        cos(halfAngle)
+    );
+}
+
+inline float4 taskQuaternionSlerp(
+    const float4 startValue,
+    const float4 endValue,
+    const float progress
+) {
+    const float4 start = normalizedQuaternionOrIdentity(
+        startValue
+    );
+    float4 end = normalizedQuaternionOrIdentity(endValue);
+    float cosine = dot(start, end);
+    if (cosine < 0.0f) {
+        end = -end;
+        cosine = -cosine;
+    }
+    cosine = clamp(cosine, 0.0f, 1.0f);
+    if (cosine > 0.9995f) {
+        return normalizedQuaternionOrIdentity(
+            mix(start, end, progress)
+        );
+    }
+    const float angle = acos(cosine);
+    const float inverseSine = 1.0f / sin(angle);
+    return normalizedQuaternionOrIdentity(
+        sin((1.0f - progress) * angle) * inverseSine * start +
+        sin(progress * angle) * inverseSine * end
+    );
+}
+
+inline float taskGoalTrajectoryProgress(
+    device const MRTaskDispatchGPU& dispatch,
+    device const MRTaskGoalGPU& goal,
+    const uint episodeStep
+) {
+    const float unbounded =
+        (
+            float(episodeStep) * dispatch.timing.x +
+            goal.timing.y
+        ) /
+        goal.timing.x;
+    switch (goal.metadata.y) {
+    case MR_TASK_GOAL_PLAYBACK_LOOP:
+        return unbounded - floor(unbounded);
+    case MR_TASK_GOAL_PLAYBACK_PING_PONG: {
+        const float cycle = fmod(unbounded, 2.0f);
+        return cycle <= 1.0f ? cycle : 2.0f - cycle;
+    }
+    case MR_TASK_GOAL_PLAYBACK_CLAMP:
+    default:
+        return clamp(unbounded, 0.0f, 1.0f);
+    }
+}
+
+inline TaskGoalPose taskGoalPose(
+    device const MRTaskDispatchGPU& dispatch,
+    device const MRTaskGoalGPU& goal,
+    const uint environment,
+    const uint episode,
+    const uint episodeStep
+) {
+    TaskGoalPose result{
+        goal.position.xyz,
+        goal.orientation,
+    };
+    if (goal.metadata.x == MR_TASK_GOAL_SAMPLED_EPISODE) {
+        float3 rotationVector;
+        for (uint component = 0u; component < 3u; ++component) {
+            const float positionUnit = taskGoalRandomUnit(
+                dispatch,
+                goal,
+                environment,
+                episode,
+                component
+            );
+            const float rotationUnit = taskGoalRandomUnit(
+                dispatch,
+                goal,
+                environment,
+                episode,
+                3u + component
+            );
+            result.position[component] += mix(
+                goal.positionOffsetLower[component],
+                goal.positionOffsetUpper[component],
+                positionUnit
+            );
+            rotationVector[component] = mix(
+                goal.rotationVectorLower[component],
+                goal.rotationVectorUpper[component],
+                rotationUnit
+            );
+        }
+        result.orientation = normalizedQuaternionOrIdentity(
+            quaternionProduct(
+                goal.orientation,
+                taskQuaternionExponential(rotationVector)
+            )
+        );
+    } else if (goal.metadata.x == MR_TASK_GOAL_TRAJECTORY) {
+        const float progress = taskGoalTrajectoryProgress(
+            dispatch,
+            goal,
+            episodeStep
+        );
+        result.position = mix(
+            goal.position.xyz,
+            goal.targetPosition.xyz,
+            progress
+        );
+        result.orientation = taskQuaternionSlerp(
+            goal.orientation,
+            goal.targetOrientation,
+            progress
+        );
+    }
+    return result;
+}
+
 inline bool relativeFrameObservationOpcode(const uint opcode) {
     return opcode == MR_TASK_OBSERVE_FRAME_RELATIVE_POSITION ||
         opcode == MR_TASK_OBSERVE_FRAME_RELATIVE_ORIENTATION ||
@@ -264,9 +427,13 @@ inline float taskSensorObservationValue(
 }
 
 inline float taskFrameObservationValue(
+    device const MRTaskDispatchGPU& dispatch,
     const MRTaskObservationOperatorGPU operation,
     device const MRTaskFrameGPU* frames,
     device const MRTaskGoalGPU* goals,
+    const uint environment,
+    const uint episode,
+    const uint episodeStep,
     const float4 bodyPosition,
     const float4 bodyOrientation,
     const float3 bodyLinearVelocity,
@@ -359,8 +526,15 @@ inline float taskFrameObservationValue(
     case MR_TASK_OBSERVE_FRAME_GOAL_POSITION_ERROR: {
         device const MRTaskGoalGPU& goal =
             goals[operation.auxiliary.z];
+        const TaskGoalPose goalPose = taskGoalPose(
+            dispatch,
+            goal,
+            environment,
+            episode,
+            episodeStep
+        );
         value =
-            (goal.position.xyz - pose.position)[
+            (goalPose.position - pose.position)[
                 operation.source.z
             ];
         break;
@@ -368,9 +542,16 @@ inline float taskFrameObservationValue(
     case MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR: {
         device const MRTaskGoalGPU& goal =
             goals[operation.auxiliary.z];
+        const TaskGoalPose goalPose = taskGoalPose(
+            dispatch,
+            goal,
+            environment,
+            episode,
+            episodeStep
+        );
         value = taskOrientationError(
             pose.orientation,
-            goal.orientation
+            goalPose.orientation
         )[operation.source.z];
         break;
     }
@@ -610,12 +791,16 @@ inline float rootHeight(
 }
 
 inline float cleanObservation(
+    device const MRTaskDispatchGPU& dispatch,
     device const MRTaskProgramHeaderGPU& program,
     const MRTaskObservationOperatorGPU operation,
     device const MRTaskActionBindingGPU* actions,
     device const MRTaskContactGroupGPU* contactGroups,
     device const MRTaskFrameGPU* frames,
     device const MRTaskGoalGPU* goals,
+    const uint environment,
+    const uint episode,
+    const uint episodeStep,
     device const MRBodyStateGPU* bodyStates,
     device const float4* terrainSamples,
     device const float* q,
@@ -777,9 +962,13 @@ inline float cleanObservation(
             );
         }
         return taskFrameObservationValue(
+            dispatch,
             operation,
             frames,
             goals,
+            environment,
+            episode,
+            episodeStep,
             body.position,
             body.orientation,
             body.linearVelocityAndInverseMass.xyz,
@@ -844,12 +1033,16 @@ inline void writeFrame(
         }
         const uint component = operation.source.z;
         float value = cleanObservation(
+            dispatch,
             program,
             operation,
             actions,
             contactGroups,
             frames,
             goals,
+            environment,
+            episode,
+            episodeStep,
             bodyStates,
             terrainSamples,
             q,
@@ -898,12 +1091,16 @@ inline void writeFrame(
             continue;
         }
         const float value = cleanObservation(
+            dispatch,
             program,
             operation,
             actions,
             contactGroups,
             frames,
             goals,
+            environment,
+            episode,
+            episodeStep,
             bodyStates,
             terrainSamples,
             q,
@@ -946,12 +1143,16 @@ inline void writeFrame(
 }
 
 inline void writeCriticFrame(
+    device const MRTaskDispatchGPU& dispatch,
     device const MRTaskProgramHeaderGPU& program,
     device const MRTaskObservationOperatorGPU* criticOperators,
     device const MRTaskActionBindingGPU* actions,
     device const MRTaskContactGroupGPU* contactGroups,
     device const MRTaskFrameGPU* frames,
     device const MRTaskGoalGPU* goals,
+    const uint environment,
+    const uint episode,
+    const uint episodeStep,
     device const MRBodyStateGPU* bodyStates,
     device const float4* terrainSamples,
     device const float* q,
@@ -977,12 +1178,16 @@ inline void writeCriticFrame(
             continue;
         }
         output[index] = cleanObservation(
+            dispatch,
             program,
             operation,
             actions,
             contactGroups,
             frames,
             goals,
+            environment,
+            episode,
+            episodeStep,
             bodyStates,
             terrainSamples,
             q,
@@ -1991,12 +2196,16 @@ kernel void mr_task_observe(
         device float* firstCritic =
             criticHistory + criticHistoryBase;
         writeCriticFrame(
+            dispatch,
             program,
             criticOperators,
             actions,
             contactGroups,
             frames,
             goals,
+            environment,
+            episode,
+            0u,
             bodyStates + bodyBase,
             terrainSamples,
             resetQ + qBase,
@@ -2225,9 +2434,13 @@ kernel void mr_task_refresh_frame_observations(
             );
         }
         const float clean = taskFrameObservationValue(
+            dispatch,
             operation,
             frames,
             goals,
+            environment,
+            state.episode.y,
+            0u,
             float4(pose.position, 1.0f),
             pose.orientation,
             velocityBody.linearVelocityAndInverseMass.xyz,
@@ -2314,9 +2527,13 @@ kernel void mr_task_refresh_frame_observations(
             );
         }
         const float clean = taskFrameObservationValue(
+            dispatch,
             operation,
             frames,
             goals,
+            environment,
+            state.episode.y,
+            0u,
             float4(pose.position, 1.0f),
             pose.orientation,
             velocityBody.linearVelocityAndInverseMass.xyz,
@@ -3224,6 +3441,7 @@ kernel void mr_task_complete(
     const float commandMagnitude = length(
         state.commandAndPhase.xyz
     );
+    const uint episodeSteps = state.episode.x + 1u;
     const bool moving = commandMagnitude > 0.1f;
     float phase =
         state.commandAndPhase.w +
@@ -3281,6 +3499,13 @@ kernel void mr_task_complete(
                 frames[operation.source.y];
             device const MRTaskGoalGPU& goal =
                 goals[operation.source.z];
+            const TaskGoalPose goalPose = taskGoalPose(
+                dispatch,
+                goal,
+                environment,
+                state.episode.y,
+                episodeSteps
+            );
             const MRBodyStateGPU body = taskFrameBodyState(
                 frame,
                 bodyStates + bodyBase,
@@ -3297,12 +3522,12 @@ kernel void mr_task_complete(
                 operation.source.x ==
                     MR_TASK_REWARD_FRAME_POSITION_TRACKING) {
                 const float3 error =
-                    goal.position.xyz - pose.position;
+                    goalPose.position - pose.position;
                 errorSquared = dot(error, error);
             } else {
                 const float3 error = taskOrientationError(
                     pose.orientation,
-                    goal.orientation
+                    goalPose.orientation
                 );
                 errorSquared = dot(error, error);
             }
@@ -3613,7 +3838,6 @@ kernel void mr_task_complete(
 
     const float tracking = exp(-trackingError / 0.25f);
     const float yawTracking = exp(-yawError / 0.25f);
-    const uint episodeSteps = state.episode.x + 1u;
     const bool timeout =
         episodeSteps >= program.schedule.x;
     bool done = false;
@@ -3650,6 +3874,13 @@ kernel void mr_task_complete(
                 frames[operation.source.y];
             device const MRTaskGoalGPU& goal =
                 goals[operation.auxiliary.x];
+            const TaskGoalPose goalPose = taskGoalPose(
+                dispatch,
+                goal,
+                environment,
+                state.episode.y,
+                episodeSteps
+            );
             const MRBodyStateGPU body = taskFrameBodyState(
                 frame,
                 bodyStates + bodyBase,
@@ -3663,10 +3894,10 @@ kernel void mr_task_complete(
             const float error =
                 operation.source.x ==
                     MR_TASK_TERMINATE_MAXIMUM_FRAME_POSITION_ERROR
-                ? length(goal.position.xyz - pose.position)
+                ? length(goalPose.position - pose.position)
                 : length(taskOrientationError(
                       pose.orientation,
-                      goal.orientation
+                      goalPose.orientation
                   ));
             triggered = error > operation.parameters.x;
             break;
@@ -3899,12 +4130,16 @@ kernel void mr_task_complete(
             (program.articulation.w - 1u) *
                 program.counts0.z;
         writeCriticFrame(
+            dispatch,
             program,
             criticOperators,
             actions,
             contactGroups,
             frames,
             goals,
+            environment,
+            state.episode.y,
+            episodeSteps,
             bodyStates + bodyBase,
             terrainSamples,
             qState + qBase,

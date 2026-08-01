@@ -16,6 +16,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -111,6 +112,28 @@ bool finite(const mr_float4 value) {
 }
 
 using semantic_transform::normalizeQuaternion;
+
+constexpr float kPi = 3.14159265358979323846f;
+
+bool zeroVector4(const mr_float4 value) {
+    return value.x == 0.0f && value.y == 0.0f &&
+        value.z == 0.0f && value.w == 0.0f;
+}
+
+bool identityQuaternion(const mr_float4 value) {
+    mr_float4 normalized{};
+    return normalizeQuaternion(value, normalized) &&
+        normalized.x == 0.0f && normalized.y == 0.0f &&
+        normalized.z == 0.0f &&
+        std::abs(normalized.w) == 1.0f;
+}
+
+std::uint64_t goalRandomIdentity(const std::string_view id) {
+    Hash hash;
+    hash.string("MetalRobo.TaskIR.goal-counter-key");
+    hash.string(id);
+    return hash.finish();
+}
 
 template <typename T>
 bool narrowCount(const std::size_t value, T& output) {
@@ -1040,10 +1063,26 @@ TaskCompileDiagnostics compileTaskProgram(
     }
 
     std::vector<std::string> goalIds;
+    std::unordered_set<std::uint64_t> goalRandomIdentities;
     goalIds.reserve(pack.goals.size());
+    goalRandomIdentities.reserve(pack.goals.size());
     staged->goals.reserve(pack.goals.size());
     for (const TaskGoalSpec& goal : pack.goals) {
-        if (goal.id.empty() || !finite(goal.position) ||
+        const std::uint32_t mode =
+            static_cast<std::uint32_t>(goal.mode);
+        const std::uint32_t playback =
+            static_cast<std::uint32_t>(goal.playback);
+        if (goal.id.empty() ||
+            mode > MR_TASK_GOAL_TRAJECTORY ||
+            playback > MR_TASK_GOAL_PLAYBACK_PING_PONG ||
+            !finite(goal.position) ||
+            !finite(goal.targetPosition) ||
+            !finite(goal.positionOffsetLower) ||
+            !finite(goal.positionOffsetUpper) ||
+            !finite(goal.rotationVectorLower) ||
+            !finite(goal.rotationVectorUpper) ||
+            !finite(goal.durationSeconds) ||
+            !finite(goal.phaseSeconds) ||
             std::find(
                 goalIds.begin(),
                 goalIds.end(),
@@ -1052,19 +1091,126 @@ TaskCompileDiagnostics compileTaskProgram(
             return reject(
                 TaskCompileStatus::invalidPack,
                 goal.id,
-                "task goal identity or position is invalid"
+                "task goal identity, mode, pose, range, or timing is invalid"
             );
         }
         mr_float4 orientation{};
-        if (!normalizeQuaternion(goal.orientation, orientation)) {
+        mr_float4 targetOrientation{};
+        if (!normalizeQuaternion(goal.orientation, orientation) ||
+            !normalizeQuaternion(
+                goal.targetOrientation,
+                targetOrientation
+            )) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 goal.id,
-                "task goal orientation is not a finite quaternion"
+                "task goal orientations are not finite quaternions"
             );
         }
+        const bool orderedPositionRange =
+            goal.positionOffsetLower.x <=
+                goal.positionOffsetUpper.x &&
+            goal.positionOffsetLower.y <=
+                goal.positionOffsetUpper.y &&
+            goal.positionOffsetLower.z <=
+                goal.positionOffsetUpper.z &&
+            goal.positionOffsetLower.w == 0.0f &&
+            goal.positionOffsetUpper.w == 0.0f;
+        const bool orderedRotationRange =
+            goal.rotationVectorLower.x <=
+                goal.rotationVectorUpper.x &&
+            goal.rotationVectorLower.y <=
+                goal.rotationVectorUpper.y &&
+            goal.rotationVectorLower.z <=
+                goal.rotationVectorUpper.z &&
+            goal.rotationVectorLower.w == 0.0f &&
+            goal.rotationVectorUpper.w == 0.0f;
+        const double maximumRotationX = std::max(
+            std::abs(goal.rotationVectorLower.x),
+            std::abs(goal.rotationVectorUpper.x)
+        );
+        const double maximumRotationY = std::max(
+            std::abs(goal.rotationVectorLower.y),
+            std::abs(goal.rotationVectorUpper.y)
+        );
+        const double maximumRotationZ = std::max(
+            std::abs(goal.rotationVectorLower.z),
+            std::abs(goal.rotationVectorUpper.z)
+        );
+        const double maximumRotationNorm = std::sqrt(
+            maximumRotationX * maximumRotationX +
+            maximumRotationY * maximumRotationY +
+            maximumRotationZ * maximumRotationZ
+        );
+        if (!orderedPositionRange || !orderedRotationRange ||
+            maximumRotationNorm > kPi + 1.0e-6) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                goal.id,
+                "sampled goal ranges must be ordered, have zero w, and remain within the principal rotation-vector ball"
+            );
+        }
+        const bool canonicalTarget =
+            zeroVector4(goal.targetPosition) &&
+            identityQuaternion(goal.targetOrientation);
+        const bool canonicalPositionRange =
+            zeroVector4(goal.positionOffsetLower) &&
+            zeroVector4(goal.positionOffsetUpper);
+        const bool canonicalRotationRange =
+            zeroVector4(goal.rotationVectorLower) &&
+            zeroVector4(goal.rotationVectorUpper);
+        if (mode == MR_TASK_GOAL_FIXED &&
+            (playback != MR_TASK_GOAL_PLAYBACK_CLAMP ||
+             !canonicalTarget || !canonicalPositionRange ||
+             !canonicalRotationRange ||
+             goal.durationSeconds != 0.0f ||
+             goal.phaseSeconds != 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                goal.id,
+                "fixed goal contains sampled or trajectory fields"
+            );
+        }
+        if (mode == MR_TASK_GOAL_SAMPLED_EPISODE &&
+            (playback != MR_TASK_GOAL_PLAYBACK_CLAMP ||
+             !canonicalTarget ||
+             goal.durationSeconds != 0.0f ||
+             goal.phaseSeconds != 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                goal.id,
+                "episode-sampled goal contains trajectory fields"
+            );
+        }
+        if (mode == MR_TASK_GOAL_TRAJECTORY &&
+            (!canonicalPositionRange ||
+             !canonicalRotationRange ||
+             !(goal.durationSeconds > 0.0f) ||
+             goal.phaseSeconds < 0.0f)) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                goal.id,
+                "trajectory goal requires positive duration, non-negative phase, and no sampled ranges"
+            );
+        }
+        const std::uint64_t randomIdentity =
+            goalRandomIdentity(goal.id);
+        if (!goalRandomIdentities.insert(randomIdentity).second) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                goal.id,
+                "task goal ids collide in the 64-bit counter-RNG identity"
+            );
+        }
+        const bool trajectoryMode =
+            mode == MR_TASK_GOAL_TRAJECTORY;
         staged->goals.push_back({
-            {0u, 0u, 0u, 0u},
+            {
+                mode,
+                playback,
+                static_cast<std::uint32_t>(randomIdentity),
+                static_cast<std::uint32_t>(randomIdentity >> 32u),
+            },
             {
                 goal.position.x,
                 goal.position.y,
@@ -1072,6 +1218,25 @@ TaskCompileDiagnostics compileTaskProgram(
                 1.0f,
             },
             orientation,
+            {
+                trajectoryMode ? goal.targetPosition.x : 0.0f,
+                trajectoryMode ? goal.targetPosition.y : 0.0f,
+                trajectoryMode ? goal.targetPosition.z : 0.0f,
+                1.0f,
+            },
+            trajectoryMode
+                ? targetOrientation
+                : mr_float4{0.0f, 0.0f, 0.0f, 1.0f},
+            goal.positionOffsetLower,
+            goal.positionOffsetUpper,
+            goal.rotationVectorLower,
+            goal.rotationVectorUpper,
+            {
+                goal.durationSeconds,
+                goal.phaseSeconds,
+                0.0f,
+                0.0f,
+            },
         });
         goalIds.push_back(goal.id);
     }

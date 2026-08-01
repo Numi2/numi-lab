@@ -152,6 +152,14 @@ the current WorldPack and TaskPack formats, reject unresolved sites
 transactionally, and compare compiler-composed task and sensor site frames
 against their equivalent authored body-local transforms.
 
+The TaskIR owner also executes episode-sampled translation and tangent
+orientation goals plus a ping-pong SE(3) trajectory. It mirrors the stable
+counter key and analytic interpolation on the host at every accepted step,
+forces one environment into a new episode, checks actor and critic values, and
+replays the complete run byte-for-byte. Invalid trajectory timing is rejected
+without replacing the last compiled program, and the current TaskPack
+round-trips the complete goal contract.
+
 ## Numerical corpus
 
 Paired FP64, Metal, and MuJoCo cases cover:

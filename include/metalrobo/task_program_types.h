@@ -2,7 +2,15 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 12u
+#define MR_TASK_PROGRAM_ABI_VERSION 13u
+
+#define MR_TASK_GOAL_FIXED 0u
+#define MR_TASK_GOAL_SAMPLED_EPISODE 1u
+#define MR_TASK_GOAL_TRAJECTORY 2u
+
+#define MR_TASK_GOAL_PLAYBACK_CLAMP 0u
+#define MR_TASK_GOAL_PLAYBACK_LOOP 1u
+#define MR_TASK_GOAL_PLAYBACK_PING_PONG 2u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -256,11 +264,23 @@ typedef struct MR_ALIGN16 MRTaskFrameGPU {
 } MRTaskFrameGPU;
 
 typedef struct MR_ALIGN16 MRTaskGoalGPU {
-    // Static goal mode and reserved values. Later sampled/trajectory modes
-    // extend this persisted ABI deliberately rather than adding task shaders.
+    // Goal mode, playback mode, stable random identity low/high.
     mr_uint4 metadata;
+    // Base pose. Sampled goals perturb it once per episode; trajectories use
+    // it as the start pose.
     mr_float4 position;
     mr_float4 orientation;
+    // Trajectory end pose. Canonical zero/identity for other modes.
+    mr_float4 targetPosition;
+    mr_float4 targetOrientation;
+    // Episode-sampled world-position offset bounds.
+    mr_float4 positionOffsetLower;
+    mr_float4 positionOffsetUpper;
+    // Episode-sampled local tangent rotation-vector bounds, radians.
+    mr_float4 rotationVectorLower;
+    mr_float4 rotationVectorUpper;
+    // Trajectory duration and non-negative phase offset, seconds.
+    mr_float4 timing;
 } MRTaskGoalGPU;
 
 typedef struct MR_ALIGN16 MRTaskRewardOperatorGPU {
@@ -346,7 +366,7 @@ static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskIndexGroupGPU) == 16u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);
-static_assert(sizeof(MRTaskGoalGPU) == 48u);
+static_assert(sizeof(MRTaskGoalGPU) == 160u);
 static_assert(sizeof(MRTaskRewardOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskTerminationOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);

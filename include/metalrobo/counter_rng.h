@@ -2,6 +2,8 @@
 
 #include "metalrobo/gpu_types.h"
 
+#define MR_COUNTER_PURPOSE_TASK_GOAL 0x676f616cu
+
 // Stateless counter-derived random streams shared by native task and sensor
 // execution. The complete key is explicit: callers never retain or advance a
 // mutable RNG object. These functions intentionally use only integer
@@ -42,17 +44,20 @@ static inline float mr_task_counter_uniform(
         (1.0f / 16777216.0f);
 }
 
-static inline float mr_sensor_counter_uniform(
+// Counter stream for a stable semantic entity. `sample` may be a sensor
+// acquisition index, accepted task step, or zero for an episode-static
+// sample. Callers domain-separate identities and purposes explicitly.
+static inline float mr_semantic_counter_uniform(
     const mr_u64 seed,
     const mr_u32 environment,
     const mr_u32 episode,
-    const mr_u64 sensorIdentity,
+    const mr_u64 semanticIdentity,
     const mr_u64 sample,
     const mr_u32 channel,
     const mr_u32 purpose
 ) {
     mr_u64 key = seed ^
-        mr_counter_mix64(sensorIdentity ^
+        mr_counter_mix64(semanticIdentity ^
             0x6a09e667f3bcc909ull);
     key ^= static_cast<mr_u64>(environment + 1u) *
         0xbb67ae8584caa73bull;
@@ -70,4 +75,24 @@ static inline float mr_sensor_counter_uniform(
             static_cast<mr_u32>(mr_counter_mix64(key) >> 40u)
         ) *
         (1.0f / 16777216.0f);
+}
+
+static inline float mr_sensor_counter_uniform(
+    const mr_u64 seed,
+    const mr_u32 environment,
+    const mr_u32 episode,
+    const mr_u64 sensorIdentity,
+    const mr_u64 sample,
+    const mr_u32 channel,
+    const mr_u32 purpose
+) {
+    return mr_semantic_counter_uniform(
+        seed,
+        environment,
+        episode,
+        sensorIdentity,
+        sample,
+        channel,
+        purpose
+    );
 }

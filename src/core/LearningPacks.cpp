@@ -814,8 +814,18 @@ std::vector<std::byte> serializeTask(
         pack.goals,
         [](Writer& target, const TaskGoalSpec& value) {
             target.string(value.id);
+            writeEnum(target, value.mode);
+            writeEnum(target, value.playback);
             target.pod(value.position);
             target.pod(value.orientation);
+            target.pod(value.targetPosition);
+            target.pod(value.targetOrientation);
+            target.pod(value.positionOffsetLower);
+            target.pod(value.positionOffsetUpper);
+            target.pod(value.rotationVectorLower);
+            target.pod(value.rotationVectorUpper);
+            target.pod(value.durationSeconds);
+            target.pod(value.phaseSeconds);
         }
     );
     writeRichVector(
@@ -956,8 +966,18 @@ bool deserializeTask(
             pack.goals,
             [](Reader& source, TaskGoalSpec& value) {
                 return source.string(value.id) &&
+                    readEnum(source, value.mode) &&
+                    readEnum(source, value.playback) &&
                     source.pod(value.position) &&
-                    source.pod(value.orientation);
+                    source.pod(value.orientation) &&
+                    source.pod(value.targetPosition) &&
+                    source.pod(value.targetOrientation) &&
+                    source.pod(value.positionOffsetLower) &&
+                    source.pod(value.positionOffsetUpper) &&
+                    source.pod(value.rotationVectorLower) &&
+                    source.pod(value.rotationVectorUpper) &&
+                    source.pod(value.durationSeconds) &&
+                    source.pod(value.phaseSeconds);
             }
         ) ||
         !readRichVector(

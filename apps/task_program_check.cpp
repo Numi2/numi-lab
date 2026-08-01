@@ -712,6 +712,462 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         );
     }
 
+    // Sampled and trajectory goals remain immutable program records. Their
+    // runtime pose is a pure function of the stable goal identity and the
+    // accepted TaskState episode/step, so reset and rollback need no parallel
+    // mutable goal buffer.
+    metalrobo::TaskPack dynamicGoalTask;
+    dynamicGoalTask.id = "generic_dynamic_goal_fixture";
+    dynamicGoalTask.actions = {{
+        .joint = "axis",
+        .scale = 0.1f,
+    }};
+    dynamicGoalTask.frames = {{
+        .id = "anchor",
+        .body = "locomotion_ground",
+        .localPosition = {0.125f, -0.25f, 1.4f, 0.0f},
+        .localOrientation = {
+            0.0f,
+            0.0f,
+            0.7071067811865476f,
+            0.7071067811865476f,
+        },
+    }};
+    dynamicGoalTask.goals = {
+        {
+            .id = "episode_sample",
+            .mode = metalrobo::TaskGoalMode::sampledEpisode,
+            .position = {0.125f, -0.25f, 0.4f, 1.0f},
+            .orientation = {
+                0.0f,
+                0.0f,
+                0.7071067811865476f,
+                0.7071067811865476f,
+            },
+            .positionOffsetLower = {-0.1f, 0.0f, 0.0f, 0.0f},
+            .positionOffsetUpper = {0.1f, 0.0f, 0.0f, 0.0f},
+            .rotationVectorLower = {0.0f, 0.0f, -0.4f, 0.0f},
+            .rotationVectorUpper = {0.0f, 0.0f, 0.4f, 0.0f},
+        },
+        {
+            .id = "ping_pong_trajectory",
+            .mode = metalrobo::TaskGoalMode::trajectory,
+            .playback = metalrobo::TaskGoalPlayback::pingPong,
+            .position = {0.125f, -0.25f, 0.4f, 1.0f},
+            .orientation = {
+                0.0f,
+                0.0f,
+                0.7071067811865476f,
+                0.7071067811865476f,
+            },
+            .targetPosition = {0.205f, -0.25f, 0.4f, 1.0f},
+            .targetOrientation = {0.0f, 0.0f, 1.0f, 0.0f},
+            .durationSeconds = 0.04f,
+        },
+    };
+    dynamicGoalTask.actorFrame = {
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameGoalPositionError,
+            .target = "anchor",
+            .goal = "episode_sample",
+            .component = 0u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameGoalOrientationError,
+            .target = "anchor",
+            .goal = "episode_sample",
+            .component = 2u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameGoalPositionError,
+            .target = "anchor",
+            .goal = "ping_pong_trajectory",
+            .component = 0u,
+        },
+        {
+            .source = metalrobo::TaskObservationSource::
+                frameGoalOrientationError,
+            .target = "anchor",
+            .goal = "ping_pong_trajectory",
+            .component = 2u,
+        },
+    };
+    dynamicGoalTask.critic = dynamicGoalTask.actorFrame;
+    dynamicGoalTask.criticIncludesCleanHistory = false;
+    dynamicGoalTask.rewards = {
+        {
+            .operation = metalrobo::TaskRewardOperator::constant,
+            .weight = 1.0f,
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                framePositionErrorSquared,
+            .sourceGroup = "anchor",
+            .goal = "ping_pong_trajectory",
+            .weight = 0.5f,
+        },
+        {
+            .operation = metalrobo::TaskRewardOperator::
+                frameOrientationErrorSquared,
+            .sourceGroup = "anchor",
+            .goal = "ping_pong_trajectory",
+            .weight = 0.25f,
+        },
+    };
+    dynamicGoalTask.terminations = {
+        {
+            .operation = metalrobo::TaskTerminationOperator::
+                maximumFramePositionError,
+            .sourceGroup = "anchor",
+            .goal = "ping_pong_trajectory",
+            .reason = MR_TASK_TERMINATION_GOAL_ERROR,
+            .priority = 1u,
+            .threshold = 0.09f,
+        },
+        {
+            .operation = metalrobo::TaskTerminationOperator::
+                maximumFrameOrientationError,
+            .sourceGroup = "anchor",
+            .goal = "ping_pong_trajectory",
+            .reason = MR_TASK_TERMINATION_GOAL_ERROR,
+            .priority = 1u,
+            .threshold = 1.6f,
+        },
+    };
+    dynamicGoalTask.maximumEpisodeSteps = 64u;
+
+    metalrobo::CompiledSensorProgram noGoalSensors;
+    metalrobo::CompiledTaskProgram dynamicGoalProgram;
+    const auto dynamicGoalCompile =
+        metalrobo::compileTaskProgram(
+            dynamicGoalTask,
+            compiled.world,
+            noGoalSensors,
+            dynamicGoalProgram
+        );
+    if (!dynamicGoalCompile.succeeded() ||
+        dynamicGoalProgram.goals().size() != 2u ||
+        dynamicGoalProgram.goals()[0u].metadata.x !=
+            MR_TASK_GOAL_SAMPLED_EPISODE ||
+        dynamicGoalProgram.goals()[1u].metadata.x !=
+            MR_TASK_GOAL_TRAJECTORY ||
+        dynamicGoalProgram.goals()[1u].metadata.y !=
+            MR_TASK_GOAL_PLAYBACK_PING_PONG) {
+        fail(
+            "sampled/trajectory TaskIR goals did not compile: " +
+            dynamicGoalCompile.message
+        );
+    }
+    metalrobo::TaskPack invalidDynamicGoal = dynamicGoalTask;
+    invalidDynamicGoal.goals[1u].durationSeconds = 0.0f;
+    metalrobo::CompiledTaskProgram preservedDynamicGoal =
+        dynamicGoalProgram;
+    const std::uint64_t preservedDynamicGoalFingerprint =
+        preservedDynamicGoal.fingerprint();
+    const auto invalidDynamicGoalStatus =
+        metalrobo::compileTaskProgram(
+            invalidDynamicGoal,
+            compiled.world,
+            noGoalSensors,
+            preservedDynamicGoal
+        );
+    if (invalidDynamicGoalStatus.status !=
+            metalrobo::TaskCompileStatus::invalidPack ||
+        preservedDynamicGoal.fingerprint() !=
+            preservedDynamicGoalFingerprint) {
+        fail(
+            "invalid trajectory goal did not fail transactionally"
+        );
+    }
+    {
+        TemporaryPackFiles dynamicPackFiles;
+        const auto dynamicWrite = metalrobo::writeTaskPack(
+            dynamicGoalTask,
+            dynamicPackFiles.task
+        );
+        metalrobo::TaskPack restoredDynamicGoalTask;
+        const auto dynamicRead = metalrobo::readTaskPack(
+            dynamicPackFiles.task,
+            restoredDynamicGoalTask
+        );
+        metalrobo::CompiledTaskProgram restoredDynamicGoalProgram;
+        const auto restoredDynamicCompile =
+            metalrobo::compileTaskProgram(
+                restoredDynamicGoalTask,
+                compiled.world,
+                noGoalSensors,
+                restoredDynamicGoalProgram
+            );
+        if (!dynamicWrite.succeeded() ||
+            !dynamicRead.succeeded() ||
+            !restoredDynamicCompile.succeeded() ||
+            restoredDynamicGoalProgram.fingerprint() !=
+                dynamicGoalProgram.fingerprint()) {
+            fail(
+                "TaskPack did not round-trip dynamic goal semantics"
+            );
+        }
+    }
+
+    metalrobo::PolicyPack dynamicGoalPolicy;
+    dynamicGoalPolicy.id = "generic_dynamic_goal_policy";
+    dynamicGoalPolicy.revision = 1u;
+    dynamicGoalPolicy.layers = {{
+        .inputCount = 4u,
+        .outputCount = 1u,
+        .activation = metalrobo::PolicyActivation::identity,
+        .weights = std::vector<float>(4u, 0.0f),
+        .bias = std::vector<float>(1u, 0.0f),
+    }};
+    dynamicGoalPolicy.criticLayers = {{
+        .inputCount = 4u,
+        .outputCount = 1u,
+        .activation = metalrobo::PolicyActivation::identity,
+        .weights = std::vector<float>(4u, 0.0f),
+        .bias = std::vector<float>(1u, 0.0f),
+    }};
+    metalrobo::CompiledPolicyProgram dynamicGoalPolicyProgram;
+    const auto dynamicPolicyCompile =
+        metalrobo::compilePolicyProgram(
+            dynamicGoalPolicy,
+            dynamicGoalProgram,
+            dynamicGoalPolicyProgram
+        );
+    if (!dynamicPolicyCompile.succeeded()) {
+        fail(
+            "dynamic-goal policy did not compile: " +
+            dynamicPolicyCompile.message
+        );
+    }
+
+    constexpr std::size_t dynamicEnvironments = 2u;
+    constexpr std::size_t dynamicSteps = 6u;
+    constexpr std::uint64_t dynamicSeed =
+        0x9ad7341bc0865ef2ull;
+    std::vector<float> dynamicQ(
+        dynamicEnvironments * compiled.world.nq()
+    );
+    std::vector<float> dynamicV(
+        dynamicEnvironments * compiled.world.nv(),
+        0.0f
+    );
+    std::vector<MRBodyStateGPU> dynamicScene(
+        dynamicEnvironments * authored.sceneBodies.size()
+    );
+    for (std::size_t environment = 0u;
+         environment < dynamicEnvironments;
+         ++environment) {
+        std::copy(
+            authored.model.defaultQ.begin(),
+            authored.model.defaultQ.end(),
+            dynamicQ.begin() +
+                static_cast<std::ptrdiff_t>(
+                    environment * compiled.world.nq()
+                )
+        );
+        std::copy(
+            authored.sceneBodies.begin(),
+            authored.sceneBodies.end(),
+            dynamicScene.begin() +
+                static_cast<std::ptrdiff_t>(
+                    environment * authored.sceneBodies.size()
+                )
+        );
+    }
+    std::vector<std::uint32_t> dynamicResets(
+        dynamicEnvironments * dynamicSteps,
+        0u
+    );
+    dynamicResets[3u * dynamicEnvironments] = 1u;
+    const auto executeDynamicGoals = [&] (
+        metalrobo::MetalWorldResult& output
+    ) {
+        metalrobo::MetalWorldStepConfig dynamicStep;
+        dynamicStep.timestepSeconds = 0.02f;
+        dynamicStep.physicsSubsteps = 2u;
+        dynamicStep.executionMode =
+            metalrobo::MetalWorldExecutionMode::numiSolver;
+        dynamicStep.actuationMode =
+            metalrobo::MetalWorldActuationMode::implicitPositionDrive;
+        dynamicStep.taskProgram = dynamicGoalProgram;
+        dynamicStep.policyProgram = dynamicGoalPolicyProgram;
+        dynamicStep.evaluateFinalPolicy = true;
+        dynamicStep.taskSeed = dynamicSeed;
+        dynamicStep.ccdMode =
+            metalrobo::MetalWorldCCDMode::disabled;
+        metalrobo::MetalWorldConfig dynamicConfiguration;
+        dynamicConfiguration.maximumInFlightSubmissions = 1u;
+        metalrobo::MetalWorldContext dynamicContext(
+            dynamicConfiguration
+        );
+        const auto executedDynamic = dynamicContext.run(
+            compiled.world,
+            {
+                .environmentCount = dynamicEnvironments,
+                .controlStepCount = dynamicSteps,
+                .initialQ = dynamicQ,
+                .initialV = dynamicV,
+                .resetMasks = dynamicResets,
+                .initialSceneBodies = dynamicScene,
+            },
+            dynamicStep,
+            output
+        );
+        if (!executedDynamic.succeeded()) {
+            fail(
+                "dynamic TaskIR goal execution failed: " +
+                executedDynamic.message
+            );
+        }
+    };
+    metalrobo::MetalWorldResult dynamicGoalResult;
+    metalrobo::MetalWorldResult dynamicGoalReplay;
+    executeDynamicGoals(dynamicGoalResult);
+    executeDynamicGoals(dynamicGoalReplay);
+    const bool dynamicTransitionsReplay =
+        dynamicGoalResult.transitions.size() ==
+            dynamicGoalReplay.transitions.size() &&
+        (
+            dynamicGoalResult.transitions.empty() ||
+            std::memcmp(
+                dynamicGoalResult.transitions.data(),
+                dynamicGoalReplay.transitions.data(),
+                dynamicGoalResult.transitions.size() *
+                    sizeof(MRTaskTransitionGPU)
+            ) == 0
+        );
+    if (dynamicGoalResult.actorObservations !=
+            dynamicGoalReplay.actorObservations ||
+        dynamicGoalResult.criticObservations !=
+            dynamicGoalReplay.criticObservations ||
+        !dynamicTransitionsReplay ||
+        dynamicGoalResult.actorObservations.size() !=
+            dynamicEnvironments * (dynamicSteps + 1u) * 4u ||
+        dynamicGoalResult.criticObservations.size() !=
+            dynamicEnvironments * (dynamicSteps + 1u) * 4u ||
+        dynamicGoalResult.transitions.size() !=
+            dynamicEnvironments * dynamicSteps) {
+        fail(
+            "dynamic TaskIR goals did not replay bitwise or publish the compiled layout"
+        );
+    }
+    const MRTaskGoalGPU& sampledGoal =
+        dynamicGoalProgram.goals()[0u];
+    const std::uint64_t sampledIdentity =
+        static_cast<std::uint64_t>(sampledGoal.metadata.z) |
+        (static_cast<std::uint64_t>(sampledGoal.metadata.w) << 32u);
+    constexpr float halfPi =
+        1.57079632679489661923f;
+    for (std::size_t sampleStep = 0u;
+         sampleStep <= dynamicSteps;
+         ++sampleStep) {
+        for (std::size_t environment = 0u;
+             environment < dynamicEnvironments;
+             ++environment) {
+            const bool resetEpisode =
+                environment == 0u && sampleStep >= 3u;
+            const std::uint32_t episode =
+                resetEpisode ? 2u : 1u;
+            const std::uint32_t episodeStep =
+                resetEpisode
+                ? static_cast<std::uint32_t>(sampleStep - 3u)
+                : static_cast<std::uint32_t>(sampleStep);
+            const float sampledPosition = -0.1f + 0.2f *
+                mr_semantic_counter_uniform(
+                    dynamicSeed,
+                    static_cast<std::uint32_t>(environment),
+                    episode,
+                    sampledIdentity,
+                    0u,
+                    0u,
+                    MR_COUNTER_PURPOSE_TASK_GOAL
+                );
+            const float sampledRotation = -0.4f + 0.8f *
+                mr_semantic_counter_uniform(
+                    dynamicSeed,
+                    static_cast<std::uint32_t>(environment),
+                    episode,
+                    sampledIdentity,
+                    0u,
+                    5u,
+                    MR_COUNTER_PURPOSE_TASK_GOAL
+                );
+            const float unbounded =
+                static_cast<float>(episodeStep) * 0.5f;
+            const float cycle = std::fmod(unbounded, 2.0f);
+            const float progress = cycle <= 1.0f
+                ? cycle
+                : 2.0f - cycle;
+            const std::size_t base =
+                (sampleStep * dynamicEnvironments + environment) *
+                4u;
+            const std::array<float, 4u> expected{
+                sampledPosition,
+                sampledRotation,
+                0.08f * progress,
+                halfPi * progress,
+            };
+            for (std::size_t component = 0u;
+                 component < expected.size();
+                 ++component) {
+                if (std::abs(
+                        dynamicGoalResult.actorObservations[
+                            base + component
+                        ] - expected[component]
+                    ) > 3.0e-5f ||
+                    std::abs(
+                        dynamicGoalResult.criticObservations[
+                            base + component
+                        ] - expected[component]
+                    ) > 3.0e-5f) {
+                    fail(
+                        "dynamic TaskIR goal pose disagrees with the host counter/slerp reference"
+                    );
+                }
+            }
+        }
+    }
+    for (std::size_t controlStep = 0u;
+         controlStep < dynamicSteps;
+         ++controlStep) {
+        for (std::size_t environment = 0u;
+             environment < dynamicEnvironments;
+             ++environment) {
+            const std::uint32_t postStep =
+                environment == 0u && controlStep >= 3u
+                ? static_cast<std::uint32_t>(controlStep - 2u)
+                : static_cast<std::uint32_t>(controlStep + 1u);
+            const float unbounded =
+                static_cast<float>(postStep) * 0.5f;
+            const float cycle = std::fmod(unbounded, 2.0f);
+            const float progress = cycle <= 1.0f
+                ? cycle
+                : 2.0f - cycle;
+            const float positionError = 0.08f * progress;
+            const float orientationError = halfPi * progress;
+            const float expectedReward = 0.02f * (
+                1.0f +
+                0.5f * positionError * positionError +
+                0.25f * orientationError * orientationError
+            );
+            const MRTaskTransitionGPU& transition =
+                dynamicGoalResult.transitions[
+                    controlStep * dynamicEnvironments + environment
+                ];
+            if (transition.termination.x != 0u ||
+                std::abs(
+                    transition.rewardAndState.x - expectedReward
+                ) > 3.0e-5f) {
+                fail(
+                    "dynamic TaskIR reward/termination used a stale goal pose"
+                );
+            }
+        }
+    }
+
     constexpr std::size_t environments = 2u;
     constexpr std::size_t controlSteps = 4u;
     std::vector<float> initialQ(
