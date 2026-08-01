@@ -2,7 +2,7 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 29
+    static let version: UInt32 = 30
     static let worldBufferCount = 254
     static let pipelineCount = 93
     static let pipelineGroupCount = 11
@@ -226,7 +226,7 @@ enum MetalRoboRuntimeABI {
         "task actor observations",
         "task critic observations",
         "task transitions",
-        "task contact compact",
+        "task scalar state",
         "task default q",
         "task program header",
         "task program arena",
@@ -264,7 +264,7 @@ enum MetalRoboRuntimeABI {
         "task checkpoint encoder bias",
         "task checkpoint body parameters",
         "task checkpoint controller parameters",
-        "task checkpoint contact compact",
+        "task checkpoint scalar state",
         "sensor filter bodies",
         "actuator runtime states",
         "actuator command history",

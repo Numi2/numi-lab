@@ -329,6 +329,7 @@ std::uint64_t compileFloatingBaseTaskFixture() {
         layout.criticHistoryLength != 1u ||
         layout.criticObservationSize != 7u ||
         layout.contactMetricCount != 12u ||
+        layout.scalarStateCount != 12u ||
         compiled.task.actionBindings().front().indices.x != 0u ||
         std::abs(
             compiled.task.header().rootReference.z - 0.05f
@@ -418,6 +419,44 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .joint = "axis",
         .scale = 0.15f,
     }};
+    authored.task.commands.values = {
+        {
+            .id = "fixture_command_0",
+            .lower = 0.125f,
+            .upper = 0.125f,
+            .limitLower = 0.125f,
+            .limitUpper = 0.125f,
+        },
+        {
+            .id = "fixture_command_1",
+            .lower = 0.25f,
+            .upper = 0.25f,
+            .limitLower = 0.25f,
+            .limitUpper = 0.25f,
+        },
+        {
+            .id = "fixture_command_2",
+            .lower = 0.375f,
+            .upper = 0.375f,
+            .limitLower = 0.375f,
+            .limitUpper = 0.375f,
+        },
+        {
+            .id = "fixture_command_3",
+            .lower = 0.5f,
+            .upper = 0.5f,
+            .limitLower = 0.5f,
+            .limitUpper = 0.5f,
+        },
+        {
+            .id = "fixture_command_4",
+            .lower = 0.625f,
+            .upper = 0.625f,
+            .limitLower = 0.625f,
+            .limitUpper = 0.625f,
+        },
+    };
+    authored.task.commands.zeroProbability = 0.0f;
     authored.task.actorFrame = {
         {
             .source =
@@ -585,6 +624,14 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .operation = metalrobo::TaskSignalOperator::square,
         .left = "axis_velocity",
     });
+    authored.task.signals.push_back({
+        .id = "fifth_command",
+        .operation = metalrobo::TaskSignalOperator::source,
+        .source = {
+            .source = metalrobo::TaskObservationSource::command,
+            .target = "fixture_command_4",
+        },
+    });
     authored.task.rewards.push_back({
         .signal = "axis_velocity_squared",
         .channel = metalrobo::TaskRewardChannel::velocity,
@@ -618,6 +665,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         {
             .id = "sensor_pose_quality",
             .signal = "sensor_pose_quality",
+        },
+        {
+            .id = "fifth_command",
+            .signal = "fifth_command",
         },
     };
     const std::string homePositionSquared =
@@ -778,6 +829,8 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         compiled.task.layout().actionCount != 1u ||
         compiled.task.layout().actorObservationSize != 12u ||
         compiled.task.layout().criticObservationSize != 8u ||
+        compiled.task.layout().commandCount != 5u ||
+        compiled.task.layout().scalarStateCount != 5u ||
         compiled.task.sensorFingerprint() !=
             compiled.sensors.fingerprint() ||
         compiled.task.header().typedCounts.x != 2u ||
@@ -807,18 +860,32 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         compiled.task.frames()[1].indices.w != MR_INVALID_INDEX ||
         compiled.task.layout().signalSensorScratchCount != 2u ||
         compiled.task.header().graphCounts.w != 2u ||
-        compiled.task.layout().recorderCount != 2u ||
-        compiled.task.header().counts1.y != 2u ||
+        compiled.task.layout().recorderCount != 3u ||
+        compiled.task.header().counts1.y != 3u ||
         compiled.task.header().counts1.z != 0u ||
         compiled.task.header().offsets1.y == 0u ||
         compiled.task.header().offsets1.z != 0u ||
         !std::ranges::equal(
             compiled.task.recorderIds(),
-            std::array<std::string, 2u>{
+            std::array<std::string, 3u>{
                 "axis_velocity_squared",
                 "sensor_pose_quality",
+                "fifth_command",
             }
         ) ||
+        !std::ranges::equal(
+            compiled.task.commandIds(),
+            std::array<std::string, 5u>{
+                "fixture_command_0",
+                "fixture_command_1",
+                "fixture_command_2",
+                "fixture_command_3",
+                "fixture_command_4",
+            }
+        ) ||
+        compiled.task.commandOperators()[4u].range.x != 0.625f ||
+        compiled.task.commandOperators()[4u].identity.z != 0u ||
+        compiled.task.commandOperators()[4u].identity.w != 0u ||
         std::count_if(
             compiled.task.rewardOperators().begin(),
             compiled.task.rewardOperators().end(),
@@ -2864,6 +2931,7 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
                         transition.rewardAndMetrics.y *
                             -0.01f * 0.02f
                     ) > 2.0e-5f ||
+                    transition.rewardAndMetrics.w != 0.625f ||
                     transition.termination.x != 0u;
             }
         )) {
@@ -4308,6 +4376,13 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         wrenchAuthored;
     transactionAuthored.task.id =
         "sensor_reset_failure_transaction";
+    // Make the fifth command episode-dependent so the branch comparison
+    // proves that the topology-sized command arena is restored as part of
+    // the failed reset transaction, not merely that fixed commands match.
+    transactionAuthored.task.commands.values[4u].lower = -0.4f;
+    transactionAuthored.task.commands.values[4u].upper = 0.4f;
+    transactionAuthored.task.commands.values[4u].limitLower = -0.4f;
+    transactionAuthored.task.commands.values[4u].limitUpper = 0.4f;
     transactionAuthored.task.capacities.candidatePairs = 1u;
     transactionAuthored.model.bodies[obstacleBodyIndex]
         .motionType = MR_MOTION_KINEMATIC;
@@ -5197,6 +5272,7 @@ int main() {
             layout.criticHistoryLength != 5u ||
             layout.criticObservationSize != 495u ||
             layout.contactMetricCount != 37u ||
+            layout.scalarStateCount != 40u ||
             layout.delayStateCount != 2u ||
             layout.commandCount != 3u ||
             layout.recorderCount != 3u) {
@@ -5289,6 +5365,30 @@ int main() {
             program.commandOperators()[2].range.z != -0.2f ||
             program.commandOperators()[2].range.w != 0.2f ||
             program.commandOperators()[2].curriculum.x != 0.1f ||
+            (program.commandOperators()[0].identity.x == 0u &&
+             program.commandOperators()[0].identity.y == 0u) ||
+            (program.commandOperators()[1].identity.x == 0u &&
+             program.commandOperators()[1].identity.y == 0u) ||
+            (program.commandOperators()[2].identity.x == 0u &&
+             program.commandOperators()[2].identity.y == 0u) ||
+            (program.commandOperators()[0].identity.x ==
+                 program.commandOperators()[1].identity.x &&
+             program.commandOperators()[0].identity.y ==
+                 program.commandOperators()[1].identity.y) ||
+            (program.commandOperators()[0].identity.x ==
+                 program.commandOperators()[2].identity.x &&
+             program.commandOperators()[0].identity.y ==
+                 program.commandOperators()[2].identity.y) ||
+            (program.commandOperators()[1].identity.x ==
+                 program.commandOperators()[2].identity.x &&
+             program.commandOperators()[1].identity.y ==
+                 program.commandOperators()[2].identity.y) ||
+            program.commandOperators()[0].identity.z != 0u ||
+            program.commandOperators()[0].identity.w != 0u ||
+            program.commandOperators()[1].identity.z != 0u ||
+            program.commandOperators()[1].identity.w != 0u ||
+            program.commandOperators()[2].identity.z != 0u ||
+            program.commandOperators()[2].identity.w != 0u ||
             program.terminationOperators()[0].parameters.y !=
                 -2.0f ||
             program.terminationOperators()[1].parameters.y !=
@@ -5551,22 +5651,43 @@ int main() {
                 "unresolved command identity was not transactionally rejected"
             );
         }
-        metalrobo::TaskPack excessCommands = authored.task;
-        excessCommands.commands.values.push_back({
-            .id = "unsupported_compact_command",
+        metalrobo::TaskPack expandedCommands = authored.task;
+        expandedCommands.commands.values.push_back({
+            .id = "fourth_scalar_command",
         });
-        const auto excessCommandsRejected =
+        metalrobo::CompiledTaskProgram expandedCommandProgram;
+        const auto expandedCommandStatus =
             metalrobo::compileTaskProgram(
-                excessCommands,
+                expandedCommands,
+                world,
+                compiledWorld.sensors,
+                expandedCommandProgram
+            );
+        if (!expandedCommandStatus.succeeded() ||
+            !expandedCommandProgram.valid() ||
+            expandedCommandProgram.layout().commandCount != 4u ||
+            expandedCommandProgram.layout().scalarStateCount != 41u ||
+            expandedCommandProgram.commandIds().back() !=
+                "fourth_scalar_command") {
+            fail(
+                "topology-sized scalar command layout did not compile"
+            );
+        }
+        metalrobo::TaskPack invalidCommandRange = authored.task;
+        invalidCommandRange.commands.values.front().lower = 1.0f;
+        invalidCommandRange.commands.values.front().upper = -1.0f;
+        const auto invalidCommandRangeRejected =
+            metalrobo::compileTaskProgram(
+                invalidCommandRange,
                 world,
                 compiledWorld.sensors,
                 repeated
             );
-        if (excessCommandsRejected.status !=
+        if (invalidCommandRangeRejected.status !=
                 metalrobo::TaskCompileStatus::invalidPack ||
             repeated.fingerprint() != preserved) {
             fail(
-                "oversized compact command layout was not transactionally rejected"
+                "invalid scalar command range was not transactionally rejected"
             );
         }
         metalrobo::TaskPack duplicateRecorder = authored.task;

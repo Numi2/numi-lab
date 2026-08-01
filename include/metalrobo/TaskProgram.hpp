@@ -300,9 +300,9 @@ struct TaskCommandSpec {
 };
 
 struct TaskCommandProgram {
-    // The current compact native state owns at most three named scalar
-    // commands. The compiler resolves identity to a stable slot; observations
-    // and signals never address anonymous locomotion-vector components.
+    // The compiler resolves each identity to a stable slot in the
+    // topology-sized native scalar-state arena; observations and signals
+    // never address anonymous locomotion-vector components.
     std::vector<TaskCommandSpec> values;
     // Probability that the complete command cohort is set to zero.
     float zeroProbability = 0.0f;
@@ -412,6 +412,8 @@ struct TaskProgramLayout {
     // Ordinary mechanics sources remain direct and allocate no extra value.
     std::uint32_t signalSensorScratchCount = 0u;
     std::uint32_t commandCount = 0u;
+    // Contact reductions followed by named scalar commands.
+    std::uint32_t scalarStateCount = 0u;
     std::uint32_t recorderCount = 0u;
 };
 

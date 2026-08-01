@@ -3,6 +3,7 @@
 #include "metalrobo/gpu_types.h"
 
 #define MR_COUNTER_PURPOSE_TASK_GOAL 0x676f616cu
+#define MR_COUNTER_PURPOSE_TASK_COMMAND 0x636d6e64u
 
 // Stateless counter-derived random streams shared by native task and sensor
 // execution. The complete key is explicit: callers never retain or advance a

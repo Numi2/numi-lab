@@ -143,6 +143,13 @@ std::uint64_t goalRandomIdentity(const std::string_view id) {
     return hash.finish();
 }
 
+std::uint64_t commandRandomIdentity(const std::string_view id) {
+    Hash hash;
+    hash.string("MetalRobo.TaskIR.command-counter-key");
+    hash.string(id);
+    return hash.finish();
+}
+
 template <typename T>
 bool narrowCount(const std::size_t value, T& output) {
     if (value > std::numeric_limits<T>::max()) {
@@ -379,6 +386,12 @@ bool CompiledTaskProgram::valid() const noexcept {
             storage_->signalOperators.size() ||
         storage_->layout.commandCount !=
             storage_->commandOperators.size() ||
+        static_cast<std::uint64_t>(
+            storage_->layout.scalarStateCount
+        ) !=
+            static_cast<std::uint64_t>(
+                storage_->layout.contactMetricCount
+            ) + storage_->layout.commandCount ||
         storage_->commandOperators.size() !=
             storage_->commandIds.size() ||
         storage_->header.curriculum.w !=
@@ -952,7 +965,6 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.maximumEpisodeSteps == 0u ||
         pack.recorders.size() >
             MR_TASK_TRANSITION_METRIC_COUNT ||
-        pack.commands.values.size() > 3u ||
         pack.curriculum.levelCount == 0u ||
         pack.curriculum.evaluationWindowSteps == 0u ||
         !finite(pack.phase.periodSeconds) ||
@@ -1019,7 +1031,17 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->worldFingerprint = world.fingerprint();
     staged->commandIds = commandIds;
     staged->commandOperators.reserve(pack.commands.values.size());
+    std::unordered_set<std::uint64_t> commandRandomIdentities;
     for (const TaskCommandSpec& command : pack.commands.values) {
+        const std::uint64_t randomIdentity =
+            commandRandomIdentity(command.id);
+        if (!commandRandomIdentities.insert(randomIdentity).second) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                command.id,
+                "task command ids collide in the 64-bit counter-RNG identity"
+            );
+        }
         staged->commandOperators.push_back({
             {
                 command.lower,
@@ -1032,6 +1054,12 @@ TaskCompileDiagnostics compileTaskProgram(
                 0.0f,
                 0.0f,
                 0.0f,
+            },
+            {
+                static_cast<std::uint32_t>(randomIdentity),
+                static_cast<std::uint32_t>(randomIdentity >> 32u),
+                0u,
+                0u,
             },
         });
     }
@@ -2990,6 +3018,17 @@ TaskCompileDiagnostics compileTaskProgram(
             "task observation or delay layout overflows"
         );
     }
+    const std::uint64_t scalarStateCount =
+        static_cast<std::uint64_t>(contactMetricCount) +
+        staged->commandOperators.size();
+    if (scalarStateCount >
+        std::numeric_limits<std::uint32_t>::max()) {
+        return reject(
+            TaskCompileStatus::arithmeticOverflow,
+            "task.scalar_state",
+            "task scalar-state stride exceeds the 32-bit GPU ABI"
+        );
+    }
     staged->layout = {
         .actionCount = actionCount,
         .actorFrameSize = actorFrameSize,
@@ -3020,6 +3059,8 @@ TaskCompileDiagnostics compileTaskProgram(
         .commandCount = static_cast<std::uint32_t>(
             staged->commandOperators.size()
         ),
+        .scalarStateCount =
+            static_cast<std::uint32_t>(scalarStateCount),
         .recorderCount = static_cast<std::uint32_t>(
             staged->recorderOperators.size()
         ),

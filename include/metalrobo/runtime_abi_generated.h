@@ -5,7 +5,7 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 29u
+#define MR_RUNTIME_ABI_VERSION 30u
 #define MR_RUNTIME_PIPELINE_COUNT 93u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
 #define MR_SENSOR_PROGRAM_ABI_VERSION 9u
@@ -157,6 +157,109 @@ enum MRWorldNumiPreparationBuffer : mr_u32 {
     MR_NUMI_PREPARE_ROD_FACTOR_CACHES = 25u,
     MR_NUMI_PREPARE_ROD_OPERATOR_ARENA = 26u,
     MR_NUMI_PREPARE_BUFFER_COUNT = 27u,
+};
+
+enum MRTaskObserveBuffer : mr_u32 {
+    MR_TASK_OBSERVE_DISPATCH = 0u,
+    MR_TASK_OBSERVE_PROGRAM = 1u,
+    MR_TASK_OBSERVE_ARENA = 2u,
+    MR_TASK_OBSERVE_WORLD_DISPATCH = 3u,
+    MR_TASK_OBSERVE_PASS = 4u,
+    MR_TASK_OBSERVE_CURRICULUM_STATE = 5u,
+    MR_TASK_OBSERVE_RESET_MASKS = 6u,
+    MR_TASK_OBSERVE_RESET_Q = 7u,
+    MR_TASK_OBSERVE_RESET_V = 8u,
+    MR_TASK_OBSERVE_RESET_SCENE = 9u,
+    MR_TASK_OBSERVE_SOURCE_Q = 10u,
+    MR_TASK_OBSERVE_SOURCE_V = 11u,
+    MR_TASK_OBSERVE_INITIAL_SCENE = 12u,
+    MR_TASK_OBSERVE_CRITIC_HISTORY = 13u,
+    MR_TASK_OBSERVE_BODY_STATES = 14u,
+    MR_TASK_OBSERVE_SOURCE_SCENE = 15u,
+    MR_TASK_OBSERVE_DEFAULT_Q = 16u,
+    MR_TASK_OBSERVE_TASK_STATES = 17u,
+    MR_TASK_OBSERVE_ACTION_HISTORY = 18u,
+    MR_TASK_OBSERVE_ACTOR_HISTORY = 19u,
+    MR_TASK_OBSERVE_CLEAN_HISTORY = 20u,
+    MR_TASK_OBSERVE_PREVIOUS_JOINT_VELOCITY = 21u,
+    MR_TASK_OBSERVE_SENSOR_BIAS = 22u,
+    MR_TASK_OBSERVE_BODY_PARAMETERS = 23u,
+    MR_TASK_OBSERVE_CONTROLLER_PARAMETERS = 24u,
+    MR_TASK_OBSERVE_ACTOR_OBSERVATIONS = 25u,
+    MR_TASK_OBSERVE_CRITIC_OBSERVATIONS = 26u,
+    MR_TASK_OBSERVE_SCALAR_STATE = 27u,
+    MR_TASK_OBSERVE_SHAPES = 28u,
+    MR_TASK_OBSERVE_GEOMETRY_HEADERS = 29u,
+    MR_TASK_OBSERVE_GEOMETRY_VERTICES = 30u,
+    MR_TASK_OBSERVE_BUFFER_COUNT = 31u,
+};
+
+enum MRTaskApplyBuffer : mr_u32 {
+    MR_TASK_APPLY_DISPATCH = 0u,
+    MR_TASK_APPLY_PROGRAM = 1u,
+    MR_TASK_APPLY_ARENA = 2u,
+    MR_TASK_APPLY_WORLD_DISPATCH = 3u,
+    MR_TASK_APPLY_PASS = 4u,
+    MR_TASK_APPLY_ACTION_STREAM = 5u,
+    MR_TASK_APPLY_EFFORT_TRAJECTORY = 6u,
+    MR_TASK_APPLY_DEFAULT_Q = 7u,
+    MR_TASK_APPLY_TASK_STATES = 8u,
+    MR_TASK_APPLY_ACTION_HISTORY = 9u,
+    MR_TASK_APPLY_BUFFER_COUNT = 10u,
+};
+
+enum MRTaskEffortBuffer : mr_u32 {
+    MR_TASK_EFFORT_DISPATCH = 0u,
+    MR_TASK_EFFORT_PROGRAM = 1u,
+    MR_TASK_EFFORT_ARENA = 2u,
+    MR_TASK_EFFORT_PASS = 3u,
+    MR_TASK_EFFORT_V_STATE = 4u,
+    MR_TASK_EFFORT_WORKING_EFFORT = 5u,
+    MR_TASK_EFFORT_TASK_STATES = 6u,
+    MR_TASK_EFFORT_BUFFER_COUNT = 7u,
+};
+
+enum MRTaskCompleteBuffer : mr_u32 {
+    MR_TASK_COMPLETE_DISPATCH = 0u,
+    MR_TASK_COMPLETE_PROGRAM = 1u,
+    MR_TASK_COMPLETE_ARENA = 2u,
+    MR_TASK_COMPLETE_CURRICULUM_STATE = 3u,
+    MR_TASK_COMPLETE_CONTACT_DISPATCH = 4u,
+    MR_TASK_COMPLETE_PASS = 5u,
+    MR_TASK_COMPLETE_Q_STATE = 6u,
+    MR_TASK_COMPLETE_V_STATE = 7u,
+    MR_TASK_COMPLETE_BODY_STATES = 8u,
+    MR_TASK_COMPLETE_CONTACTS = 9u,
+    MR_TASK_COMPLETE_CONTACT_STATUSES = 10u,
+    MR_TASK_COMPLETE_WORLD_STATUSES = 11u,
+    MR_TASK_COMPLETE_SCENE_STATE = 12u,
+    MR_TASK_COMPLETE_DEFAULT_Q = 13u,
+    MR_TASK_COMPLETE_TASK_STATES = 14u,
+    MR_TASK_COMPLETE_ACTION_HISTORY = 15u,
+    MR_TASK_COMPLETE_ACTOR_HISTORY = 16u,
+    MR_TASK_COMPLETE_CLEAN_HISTORY = 17u,
+    MR_TASK_COMPLETE_PREVIOUS_JOINT_VELOCITY = 18u,
+    MR_TASK_COMPLETE_SENSOR_BIAS = 19u,
+    MR_TASK_COMPLETE_BODY_PARAMETERS = 20u,
+    MR_TASK_COMPLETE_CONTROLLER_PARAMETERS = 21u,
+    MR_TASK_COMPLETE_SCALAR_STATE = 22u,
+    MR_TASK_COMPLETE_TRANSITIONS = 23u,
+    MR_TASK_COMPLETE_SHAPES = 24u,
+    MR_TASK_COMPLETE_GEOMETRY_HEADERS = 25u,
+    MR_TASK_COMPLETE_GEOMETRY_VERTICES = 26u,
+    MR_TASK_COMPLETE_ACTOR_OBSERVATIONS = 27u,
+    MR_TASK_COMPLETE_CRITIC_OBSERVATIONS = 28u,
+    MR_TASK_COMPLETE_CRITIC_HISTORY = 29u,
+    MR_TASK_COMPLETE_BUFFER_COUNT = 30u,
+};
+
+enum MRTaskCurriculumBuffer : mr_u32 {
+    MR_TASK_CURRICULUM_DISPATCH = 0u,
+    MR_TASK_CURRICULUM_PROGRAM = 1u,
+    MR_TASK_CURRICULUM_STATE = 2u,
+    MR_TASK_CURRICULUM_TRANSITIONS = 3u,
+    MR_TASK_CURRICULUM_PASS = 4u,
+    MR_TASK_CURRICULUM_BUFFER_COUNT = 5u,
 };
 
 enum MRTaskFrameRefreshBuffer : mr_u32 {
@@ -350,7 +453,7 @@ enum MRTaskTransactionBuffer : mr_u32 {
     MR_TASK_TRANSACTION_ENCODER_BIAS = 12u,
     MR_TASK_TRANSACTION_BODY_PARAMETERS = 13u,
     MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS = 14u,
-    MR_TASK_TRANSACTION_CONTACT_COMPACT = 15u,
+    MR_TASK_TRANSACTION_SCALAR_STATE = 15u,
     MR_TASK_TRANSACTION_CHECKPOINT_STATE = 16u,
     MR_TASK_TRANSACTION_CHECKPOINT_ACTION_HISTORY = 17u,
     MR_TASK_TRANSACTION_CHECKPOINT_ACTOR_HISTORY = 18u,
@@ -360,7 +463,7 @@ enum MRTaskTransactionBuffer : mr_u32 {
     MR_TASK_TRANSACTION_CHECKPOINT_ENCODER_BIAS = 22u,
     MR_TASK_TRANSACTION_CHECKPOINT_BODY_PARAMETERS = 23u,
     MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS = 24u,
-    MR_TASK_TRANSACTION_CHECKPOINT_CONTACT_COMPACT = 25u,
+    MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE = 25u,
     MR_TASK_TRANSACTION_BUFFER_COUNT = 26u,
 };
 
@@ -584,7 +687,7 @@ enum BufferIndex : std::size_t {
     kTaskActorObservations = 204u,
     kTaskCriticObservations = 205u,
     kTaskTransitions = 206u,
-    kTaskContactCompact = 207u,
+    kTaskScalarState = 207u,
     kTaskDefaultQ = 208u,
     kTaskProgramHeader = 209u,
     kTaskProgramArena = 210u,
@@ -622,7 +725,7 @@ enum BufferIndex : std::size_t {
     kTaskCheckpointEncoderBias = 242u,
     kTaskCheckpointBodyParameters = 243u,
     kTaskCheckpointControllerParameters = 244u,
-    kTaskCheckpointContactCompact = 245u,
+    kTaskCheckpointScalarState = 245u,
     kSensorFilterBodies = 246u,
     kActuatorRuntimeStates = 247u,
     kActuatorCommandHistory = 248u,
@@ -1365,7 +1468,7 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "task actor observations",
         "task critic observations",
         "task transitions",
-        "task contact compact",
+        "task scalar state",
         "task default q",
         "task program header",
         "task program arena",
@@ -1403,7 +1506,7 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "task checkpoint encoder bias",
         "task checkpoint body parameters",
         "task checkpoint controller parameters",
-        "task checkpoint contact compact",
+        "task checkpoint scalar state",
         "sensor filter bodies",
         "actuator runtime states",
         "actuator command history",
@@ -1521,6 +1624,11 @@ static_assert(offsetof(MRLearningPublicationStatusGPU, reserved) == 56u);
 static_assert(MR_RECORD_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_IR_SCATTER_BUFFER_COUNT <= 31u);
 static_assert(MR_NUMI_PREPARE_BUFFER_COUNT <= 31u);
+static_assert(MR_TASK_OBSERVE_BUFFER_COUNT <= 31u);
+static_assert(MR_TASK_APPLY_BUFFER_COUNT <= 31u);
+static_assert(MR_TASK_EFFORT_BUFFER_COUNT <= 31u);
+static_assert(MR_TASK_COMPLETE_BUFFER_COUNT <= 31u);
+static_assert(MR_TASK_CURRICULUM_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_FRAME_REFRESH_BUFFER_COUNT <= 31u);
 static_assert(MR_SENSOR_SAMPLE_BUFFER_COUNT <= 31u);
 static_assert(MR_TASK_SENSOR_REFRESH_BUFFER_COUNT <= 31u);

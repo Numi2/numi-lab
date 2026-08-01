@@ -910,6 +910,7 @@ inline float cleanObservation(
     device const float* v,
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
+    device const float* commandValues,
     device const float* previousAction,
     device const float* earlierAction,
     device const float* previousJointVelocity,
@@ -948,7 +949,7 @@ inline float cleanObservation(
         )[operation.source.z];
         break;
     case MR_TASK_OBSERVE_COMMAND:
-        value = state.commandAndPhase[operation.source.y];
+        value = commandValues[operation.source.y];
         break;
     case MR_TASK_OBSERVE_JOINT_POSITION_ERROR: {
         const MRTaskActionBindingGPU binding =
@@ -987,11 +988,11 @@ inline float cleanObservation(
         break;
     }
     case MR_TASK_OBSERVE_MECHANICAL_POWER:
-        value = state.powerReturnMetric.x;
+        value = state.powerPhaseReturnMetric.x;
         break;
     case MR_TASK_OBSERVE_DESIRED_SUPPORT_CONTACT: {
         const float phase = fmod(
-            state.commandAndPhase.w +
+            state.powerPhaseReturnMetric.y +
                 kTwoPi * dispatch.timing.x /
                     program.taskScalars.x,
             kTwoPi
@@ -1153,6 +1154,7 @@ inline void writeFrame(
     device const float* v,
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
+    device const float* commandValues,
     device const float* previousAction,
     device const float* earlierAction,
     device const float* previousJointVelocity,
@@ -1201,6 +1203,7 @@ inline void writeFrame(
             v,
             defaultQ,
             state,
+            commandValues,
             previousAction,
             earlierAction,
             previousJointVelocity,
@@ -1263,6 +1266,7 @@ inline void writeFrame(
             v,
             defaultQ,
             state,
+            commandValues,
             previousAction,
             earlierAction,
             previousJointVelocity,
@@ -1319,6 +1323,7 @@ inline void writeCriticFrame(
     device const float* v,
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
+    device const float* commandValues,
     device const float* previousAction,
     device const float* earlierAction,
     device const float* previousJointVelocity,
@@ -1358,6 +1363,7 @@ inline void writeCriticFrame(
             v,
             defaultQ,
             state,
+            commandValues,
             previousAction,
             earlierAction,
             previousJointVelocity,
@@ -1424,16 +1430,16 @@ inline uint durationSteps(
     );
 }
 
-inline float3 sampledCommand(
+inline void sampleCommands(
     device const MRTaskDispatchGPU& dispatch,
     device const MRTaskProgramHeaderGPU& program,
     device const MRTaskCommandOperatorGPU* commands,
     const uint environment,
     const uint episode,
     const uint episodeStep,
-    const uint curriculum
+    const uint curriculum,
+    device float* output
 ) {
-    float3 command = float3(0.0f);
     for (uint commandIndex = 0u;
          commandIndex < program.curriculum.w;
          ++commandIndex) {
@@ -1449,26 +1455,35 @@ inline float3 sampledCommand(
             operation.range.y + expansion,
             operation.range.w
         );
-        command[commandIndex] = randomRange(
-            dispatch,
+        const ulong identity =
+            ulong(operation.identity.x) |
+            (ulong(operation.identity.y) << 32u);
+        const float unit = mr_semantic_counter_uniform(
+            dispatch.seed,
             environment,
             episode,
+            identity,
             episodeStep,
-            16u + commandIndex,
-            lower,
-            upper
+            0u,
+            MR_COUNTER_PURPOSE_TASK_COMMAND
         );
+        output[commandIndex] =
+            lower + (upper - lower) * unit;
     }
-    if (randomUnit(
+    const bool zeroCohort = randomUnit(
             dispatch,
             environment,
             episode,
             episodeStep,
             19u
-        ) < program.commandSchedule.x) {
-        command = float3(0.0f);
+        ) < program.commandSchedule.x;
+    if (zeroCohort) {
+        for (uint commandIndex = 0u;
+             commandIndex < program.curriculum.w;
+             ++commandIndex) {
+            output[commandIndex] = 0.0f;
+        }
     }
-    return command;
 }
 
 } // namespace
@@ -1504,8 +1519,8 @@ kernel void mr_task_checkpoint_state(
         [[buffer(MR_TASK_TRANSACTION_BODY_PARAMETERS)]],
     device const float4* controllerParameters
         [[buffer(MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS)]],
-    device const float* contactCompact
-        [[buffer(MR_TASK_TRANSACTION_CONTACT_COMPACT)]],
+    device const float* scalarState
+        [[buffer(MR_TASK_TRANSACTION_SCALAR_STATE)]],
     device MRTaskStateGPU* checkpointStates
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_STATE)]],
     device float* checkpointActionHistory
@@ -1524,8 +1539,8 @@ kernel void mr_task_checkpoint_state(
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_BODY_PARAMETERS)]],
     device float4* checkpointControllerParameters
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS)]],
-    device float* checkpointContactCompact
-        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTACT_COMPACT)]],
+    device float* checkpointScalarState
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -1555,12 +1570,14 @@ kernel void mr_task_checkpoint_state(
         checkpointActionHistory[actionHistoryBase + index] =
             actionHistory[actionHistoryBase + index];
     }
-    const uint contactBase = environment * program.layout.z;
+    const uint scalarStride =
+        program.layout.z + program.curriculum.w;
+    const uint scalarBase = environment * scalarStride;
     for (uint index = 0u;
-         index < program.layout.z;
+         index < scalarStride;
          ++index) {
-        checkpointContactCompact[contactBase + index] =
-            contactCompact[contactBase + index];
+        checkpointScalarState[scalarBase + index] =
+            scalarState[scalarBase + index];
     }
     if (!reset) {
         return;
@@ -1646,8 +1663,8 @@ kernel void mr_task_restore_failed_state(
         [[buffer(MR_TASK_TRANSACTION_BODY_PARAMETERS)]],
     device float4* controllerParameters
         [[buffer(MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS)]],
-    device float* contactCompact
-        [[buffer(MR_TASK_TRANSACTION_CONTACT_COMPACT)]],
+    device float* scalarState
+        [[buffer(MR_TASK_TRANSACTION_SCALAR_STATE)]],
     device const MRTaskStateGPU* checkpointStates
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_STATE)]],
     device const float* checkpointActionHistory
@@ -1666,8 +1683,8 @@ kernel void mr_task_restore_failed_state(
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_BODY_PARAMETERS)]],
     device const float4* checkpointControllerParameters
         [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS)]],
-    device const float* checkpointContactCompact
-        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTACT_COMPACT)]],
+    device const float* checkpointScalarState
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -1691,12 +1708,14 @@ kernel void mr_task_restore_failed_state(
         actionHistory[actionHistoryBase + index] =
             checkpointActionHistory[actionHistoryBase + index];
     }
-    const uint contactBase = environment * program.layout.z;
+    const uint scalarStride =
+        program.layout.z + program.curriculum.w;
+    const uint scalarBase = environment * scalarStride;
     for (uint index = 0u;
-         index < program.layout.z;
+         index < scalarStride;
          ++index) {
-        contactCompact[contactBase + index] =
-            checkpointContactCompact[contactBase + index];
+        scalarState[scalarBase + index] =
+            checkpointScalarState[scalarBase + index];
     }
     const uint maskIndex =
         pass.controlStep * dispatch.counts.x + environment;
@@ -1752,40 +1771,64 @@ kernel void mr_task_restore_failed_state(
 }
 
 kernel void mr_task_observe(
-    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
-    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
-    device const uchar* arena [[buffer(2)]],
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_OBSERVE_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_OBSERVE_PROGRAM)]],
+    device const uchar* arena
+        [[buffer(MR_TASK_OBSERVE_ARENA)]],
     device const MRMetalWorldDispatchGPU& worldDispatch
-        [[buffer(3)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
-    device uint* resetMasks [[buffer(6)]],
-    device float* resetQ [[buffer(7)]],
-    device float* resetV [[buffer(8)]],
-    device MRBodyStateGPU* resetScene [[buffer(9)]],
-    device float* sourceQ [[buffer(10)]],
-    device float* sourceV [[buffer(11)]],
-    device const MRBodyStateGPU* initialScene [[buffer(12)]],
-    device const MRBodyStateGPU* bodyStates [[buffer(14)]],
-    device MRBodyStateGPU* sourceScene [[buffer(15)]],
-    device const float* defaultQ [[buffer(16)]],
-    device MRTaskStateGPU* taskStates [[buffer(17)]],
-    device float* actionHistory [[buffer(18)]],
-    device float* actorHistory [[buffer(19)]],
-    device float* cleanHistory [[buffer(20)]],
-    device float* previousJointVelocity [[buffer(21)]],
-    device float* sensorBias [[buffer(22)]],
-    device float4* bodyParameters [[buffer(23)]],
-    device float4* controllerParameters [[buffer(24)]],
-    device float* actorObservations [[buffer(25)]],
-    device float* criticObservations [[buffer(26)]],
-    device float* compactContact [[buffer(27)]],
-    device const MRShapeGPU* shapes [[buffer(28)]],
+        [[buffer(MR_TASK_OBSERVE_WORLD_DISPATCH)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_OBSERVE_PASS)]],
+    device uint* resetMasks
+        [[buffer(MR_TASK_OBSERVE_RESET_MASKS)]],
+    device float* resetQ [[buffer(MR_TASK_OBSERVE_RESET_Q)]],
+    device float* resetV [[buffer(MR_TASK_OBSERVE_RESET_V)]],
+    device MRBodyStateGPU* resetScene
+        [[buffer(MR_TASK_OBSERVE_RESET_SCENE)]],
+    device float* sourceQ [[buffer(MR_TASK_OBSERVE_SOURCE_Q)]],
+    device float* sourceV [[buffer(MR_TASK_OBSERVE_SOURCE_V)]],
+    device const MRBodyStateGPU* initialScene
+        [[buffer(MR_TASK_OBSERVE_INITIAL_SCENE)]],
+    device const MRBodyStateGPU* bodyStates
+        [[buffer(MR_TASK_OBSERVE_BODY_STATES)]],
+    device MRBodyStateGPU* sourceScene
+        [[buffer(MR_TASK_OBSERVE_SOURCE_SCENE)]],
+    device const float* defaultQ
+        [[buffer(MR_TASK_OBSERVE_DEFAULT_Q)]],
+    device MRTaskStateGPU* taskStates
+        [[buffer(MR_TASK_OBSERVE_TASK_STATES)]],
+    device float* actionHistory
+        [[buffer(MR_TASK_OBSERVE_ACTION_HISTORY)]],
+    device float* actorHistory
+        [[buffer(MR_TASK_OBSERVE_ACTOR_HISTORY)]],
+    device float* cleanHistory
+        [[buffer(MR_TASK_OBSERVE_CLEAN_HISTORY)]],
+    device float* previousJointVelocity
+        [[buffer(MR_TASK_OBSERVE_PREVIOUS_JOINT_VELOCITY)]],
+    device float* sensorBias
+        [[buffer(MR_TASK_OBSERVE_SENSOR_BIAS)]],
+    device float4* bodyParameters
+        [[buffer(MR_TASK_OBSERVE_BODY_PARAMETERS)]],
+    device float4* controllerParameters
+        [[buffer(MR_TASK_OBSERVE_CONTROLLER_PARAMETERS)]],
+    device float* actorObservations
+        [[buffer(MR_TASK_OBSERVE_ACTOR_OBSERVATIONS)]],
+    device float* criticObservations
+        [[buffer(MR_TASK_OBSERVE_CRITIC_OBSERVATIONS)]],
+    device float* scalarState
+        [[buffer(MR_TASK_OBSERVE_SCALAR_STATE)]],
+    device const MRShapeGPU* shapes
+        [[buffer(MR_TASK_OBSERVE_SHAPES)]],
     device const MRGeometryHeaderGPU* geometryHeaders
-        [[buffer(29)]],
-    device const float4* geometryVertices [[buffer(30)]],
+        [[buffer(MR_TASK_OBSERVE_GEOMETRY_HEADERS)]],
+    device const float4* geometryVertices
+        [[buffer(MR_TASK_OBSERVE_GEOMETRY_VERTICES)]],
     device const MRTaskCurriculumStateGPU* curriculumState
-        [[buffer(5)]],
-    device float* criticHistory [[buffer(13)]],
+        [[buffer(MR_TASK_OBSERVE_CURRICULUM_STATE)]],
+    device float* criticHistory
+        [[buffer(MR_TASK_OBSERVE_CRITIC_HISTORY)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -1894,8 +1937,12 @@ kernel void mr_task_observe(
             bodyStates +
             dispatch.counts.x * dispatch.strides.y
         );
-    const uint contactBase =
-        environment * program.layout.z;
+    const uint scalarStride =
+        program.layout.z + program.curriculum.w;
+    const uint scalarBase = environment * scalarStride;
+    device float* compactContact = scalarState + scalarBase;
+    device float* commandValues =
+        compactContact + program.layout.z;
     const uint sceneBase =
         environment * dispatch.strides.w;
     MRTaskStateGPU state = taskStates[environment];
@@ -1991,7 +2038,7 @@ kernel void mr_task_observe(
         for (uint index = 0u;
              index < program.layout.z;
              ++index) {
-            compactContact[contactBase + index] = 0.0f;
+            compactContact[index] = 0.0f;
         }
 
         uint actionDelay = 0u;
@@ -2268,19 +2315,17 @@ kernel void mr_task_observe(
             MR_TASK_TERMINATION_CONTINUING,
             0u
         );
-        state.commandAndPhase = float4(
-            sampledCommand(
-                dispatch,
-                program,
-                commandOperators,
-                environment,
-                episode,
-                0u,
-                curriculum
-            ),
-            0.0f
+        sampleCommands(
+            dispatch,
+            program,
+            commandOperators,
+            environment,
+            episode,
+            0u,
+            curriculum,
+            commandValues
         );
-        state.powerReturnMetric = float4(0.0f);
+        state.powerPhaseReturnMetric = float4(0.0f);
 
         // Reset is a transaction, not a side-band suggestion. Publish the
         // randomized state before the pre-policy kinematics pass so frame
@@ -2328,11 +2373,12 @@ kernel void mr_task_observe(
             resetV + vBase,
             defaultQ,
             state,
+            commandValues,
             actionHistory + delayBase,
             actionHistory + delayBase,
             previousJointVelocity + previousVelocityBase,
             sensorBias + biasBase,
-            compactContact + contactBase,
+            compactContact,
             bodyParameters + bodyParameterBase,
             controllerParameters + environment,
             resetScene + sceneBase,
@@ -2381,10 +2427,11 @@ kernel void mr_task_observe(
             resetV + vBase,
             defaultQ,
             state,
+            commandValues,
             actionHistory + delayBase,
             actionHistory + delayBase,
             previousJointVelocity + previousVelocityBase,
-            compactContact + contactBase,
+            compactContact,
             bodyParameters + bodyParameterBase,
             controllerParameters + environment,
             resetScene + sceneBase,
@@ -3030,17 +3077,25 @@ kernel void mr_task_refresh_sensor_observations(
 }
 
 kernel void mr_task_apply_actions(
-    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
-    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
-    device const uchar* arena [[buffer(2)]],
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_APPLY_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_APPLY_PROGRAM)]],
+    device const uchar* arena [[buffer(MR_TASK_APPLY_ARENA)]],
     device const MRMetalWorldDispatchGPU& worldDispatch
-        [[buffer(3)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
-    device const float* actionStream [[buffer(5)]],
-    device float* effortTrajectory [[buffer(6)]],
-    device const float* defaultQ [[buffer(7)]],
-    device const MRTaskStateGPU* taskStates [[buffer(8)]],
-    device float* actionHistory [[buffer(9)]],
+        [[buffer(MR_TASK_APPLY_WORLD_DISPATCH)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_APPLY_PASS)]],
+    device const float* actionStream
+        [[buffer(MR_TASK_APPLY_ACTION_STREAM)]],
+    device float* effortTrajectory
+        [[buffer(MR_TASK_APPLY_EFFORT_TRAJECTORY)]],
+    device const float* defaultQ
+        [[buffer(MR_TASK_APPLY_DEFAULT_Q)]],
+    device const MRTaskStateGPU* taskStates
+        [[buffer(MR_TASK_APPLY_TASK_STATES)]],
+    device float* actionHistory
+        [[buffer(MR_TASK_APPLY_ACTION_HISTORY)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -3136,13 +3191,19 @@ kernel void mr_task_apply_actions(
 }
 
 kernel void mr_task_measure_effort(
-    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
-    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
-    device const uchar* arena [[buffer(2)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(3)]],
-    device const float* vState [[buffer(4)]],
-    device const float* workingEffort [[buffer(5)]],
-    device MRTaskStateGPU* taskStates [[buffer(6)]],
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_EFFORT_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_EFFORT_PROGRAM)]],
+    device const uchar* arena [[buffer(MR_TASK_EFFORT_ARENA)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_EFFORT_PASS)]],
+    device const float* vState
+        [[buffer(MR_TASK_EFFORT_V_STATE)]],
+    device const float* workingEffort
+        [[buffer(MR_TASK_EFFORT_WORKING_EFFORT)]],
+    device MRTaskStateGPU* taskStates
+        [[buffer(MR_TASK_EFFORT_TASK_STATES)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -3173,46 +3234,71 @@ kernel void mr_task_measure_effort(
         );
     }
     MRTaskStateGPU state = taskStates[environment];
-    state.powerReturnMetric.x = mechanicalPower;
+    state.powerPhaseReturnMetric.x = mechanicalPower;
     taskStates[environment] = state;
 }
 
 kernel void mr_task_complete(
-    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
-    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
-    device const uchar* arena [[buffer(2)]],
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_COMPLETE_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_COMPLETE_PROGRAM)]],
+    device const uchar* arena
+        [[buffer(MR_TASK_COMPLETE_ARENA)]],
     device const MRTaskCurriculumStateGPU* curriculumState
-        [[buffer(3)]],
+        [[buffer(MR_TASK_COMPLETE_CURRICULUM_STATE)]],
     device const MRMetalWorldContactDispatchGPU& contactDispatch
-        [[buffer(4)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(5)]],
-    device const float* qState [[buffer(6)]],
-    device const float* vState [[buffer(7)]],
-    device MRBodyStateGPU* bodyStates [[buffer(8)]],
-    device const MRContactConstraintGPU* contacts [[buffer(9)]],
+        [[buffer(MR_TASK_COMPLETE_CONTACT_DISPATCH)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_COMPLETE_PASS)]],
+    device const float* qState
+        [[buffer(MR_TASK_COMPLETE_Q_STATE)]],
+    device const float* vState
+        [[buffer(MR_TASK_COMPLETE_V_STATE)]],
+    device MRBodyStateGPU* bodyStates
+        [[buffer(MR_TASK_COMPLETE_BODY_STATES)]],
+    device const MRContactConstraintGPU* contacts
+        [[buffer(MR_TASK_COMPLETE_CONTACTS)]],
     device const MRMetalWorldContactStatusGPU* contactStatuses
-        [[buffer(10)]],
+        [[buffer(MR_TASK_COMPLETE_CONTACT_STATUSES)]],
     device const MRMetalWorldStatusGPU* worldStatuses
-        [[buffer(11)]],
-    device const MRBodyStateGPU* sceneState [[buffer(12)]],
-    device const float* defaultQ [[buffer(14)]],
-    device MRTaskStateGPU* taskStates [[buffer(15)]],
-    device float* actionHistory [[buffer(16)]],
-    device float* actorHistory [[buffer(17)]],
-    device float* cleanHistory [[buffer(18)]],
-    device float* previousJointVelocity [[buffer(19)]],
-    device const float* sensorBias [[buffer(20)]],
-    device const float4* bodyParameters [[buffer(21)]],
-    device const float4* controllerParameters [[buffer(22)]],
-    device float* compactContact [[buffer(23)]],
-    device MRTaskTransitionGPU* transitions [[buffer(24)]],
-    device const MRShapeGPU* shapes [[buffer(25)]],
+        [[buffer(MR_TASK_COMPLETE_WORLD_STATUSES)]],
+    device const MRBodyStateGPU* sceneState
+        [[buffer(MR_TASK_COMPLETE_SCENE_STATE)]],
+    device const float* defaultQ
+        [[buffer(MR_TASK_COMPLETE_DEFAULT_Q)]],
+    device MRTaskStateGPU* taskStates
+        [[buffer(MR_TASK_COMPLETE_TASK_STATES)]],
+    device float* actionHistory
+        [[buffer(MR_TASK_COMPLETE_ACTION_HISTORY)]],
+    device float* actorHistory
+        [[buffer(MR_TASK_COMPLETE_ACTOR_HISTORY)]],
+    device float* cleanHistory
+        [[buffer(MR_TASK_COMPLETE_CLEAN_HISTORY)]],
+    device float* previousJointVelocity
+        [[buffer(MR_TASK_COMPLETE_PREVIOUS_JOINT_VELOCITY)]],
+    device const float* sensorBias
+        [[buffer(MR_TASK_COMPLETE_SENSOR_BIAS)]],
+    device const float4* bodyParameters
+        [[buffer(MR_TASK_COMPLETE_BODY_PARAMETERS)]],
+    device const float4* controllerParameters
+        [[buffer(MR_TASK_COMPLETE_CONTROLLER_PARAMETERS)]],
+    device float* scalarState
+        [[buffer(MR_TASK_COMPLETE_SCALAR_STATE)]],
+    device MRTaskTransitionGPU* transitions
+        [[buffer(MR_TASK_COMPLETE_TRANSITIONS)]],
+    device const MRShapeGPU* shapes
+        [[buffer(MR_TASK_COMPLETE_SHAPES)]],
     device const MRGeometryHeaderGPU* geometryHeaders
-        [[buffer(26)]],
-    device const float4* geometryVertices [[buffer(27)]],
-    device float* actorObservations [[buffer(28)]],
-    device float* criticObservations [[buffer(29)]],
-    device float* criticHistory [[buffer(30)]],
+        [[buffer(MR_TASK_COMPLETE_GEOMETRY_HEADERS)]],
+    device const float4* geometryVertices
+        [[buffer(MR_TASK_COMPLETE_GEOMETRY_VERTICES)]],
+    device float* actorObservations
+        [[buffer(MR_TASK_COMPLETE_ACTOR_OBSERVATIONS)]],
+    device float* criticObservations
+        [[buffer(MR_TASK_COMPLETE_CRITIC_OBSERVATIONS)]],
+    device float* criticHistory
+        [[buffer(MR_TASK_COMPLETE_CRITIC_HISTORY)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -3336,8 +3422,12 @@ kernel void mr_task_complete(
         environment * program.counts2.z;
     const uint bodyParameterBase =
         environment * dispatch.strides.y;
-    const uint compactBase =
-        environment * program.layout.z;
+    const uint scalarStride =
+        program.layout.z + program.curriculum.w;
+    const uint compactBase = environment * scalarStride;
+    device float* compactContact = scalarState;
+    device float* commandValues =
+        scalarState + compactBase + program.layout.z;
     const uint contactBase =
         environment * contactDispatch.constraintStride;
     MRTaskStateGPU state = taskStates[environment];
@@ -3648,6 +3738,7 @@ kernel void mr_task_complete(
                     v,
                     defaultQ,
                     state,
+                    commandValues,
                     signalAction,
                     earlierSignalAction,
                     previousJointVelocity + previousVelocityBase,
@@ -3691,6 +3782,7 @@ kernel void mr_task_complete(
                           v,
                           defaultQ,
                           state,
+                          commandValues,
                           signalAction,
                           earlierSignalAction,
                           previousJointVelocity + previousVelocityBase,
@@ -3824,7 +3916,7 @@ kernel void mr_task_complete(
         ? signalValues[program.curriculum.z]
         : 0.0f;
     float phase =
-        state.commandAndPhase.w +
+        state.powerPhaseReturnMetric.y +
         kTwoPi * dispatch.timing.x /
             program.taskScalars.x;
     phase = fmod(phase, kTwoPi);
@@ -3911,9 +4003,9 @@ kernel void mr_task_complete(
     }
 
     const float episodeReturn =
-        state.powerReturnMetric.z + reward;
+        state.powerPhaseReturnMetric.z + reward;
     const float episodeMetric =
-        state.powerReturnMetric.w + curriculumMetric;
+        state.powerPhaseReturnMetric.w + curriculumMetric;
     const float episodeMetricMean =
         episodeMetric /
         max(float(episodeSteps), 1.0f);
@@ -3943,14 +4035,15 @@ kernel void mr_task_complete(
     }
 
     if (!done && state.schedule.x <= 1u) {
-        state.commandAndPhase.xyz = sampledCommand(
+        sampleCommands(
             dispatch,
             program,
             commandOperators,
             environment,
             state.episode.y,
             episodeSteps,
-            curriculum
+            curriculum,
+            commandValues
         );
         state.schedule.x = durationSteps(
             dispatch,
@@ -3986,10 +4079,9 @@ kernel void mr_task_complete(
     );
     state.status.y = done ? 1u : 0u;
     state.status.z = reason;
-    state.commandAndPhase.w = phase;
-    state.powerReturnMetric = float4(
+    state.powerPhaseReturnMetric = float4(
         0.0f,
-        0.0f,
+        phase,
         done ? 0.0f : episodeReturn,
         done ? 0.0f : episodeMetric
     );
@@ -4056,6 +4148,7 @@ kernel void mr_task_complete(
             vState + vBase,
             defaultQ,
             state,
+            commandValues,
             currentAction,
             actionHistory +
                 delayBase +
@@ -4132,6 +4225,7 @@ kernel void mr_task_complete(
             vState + vBase,
             defaultQ,
             state,
+            commandValues,
             currentAction,
             actionHistory +
                 delayBase +
@@ -4224,12 +4318,16 @@ kernel void mr_task_complete(
 // accumulated across the whole evaluation window, so early-reset environments
 // rejoin the promotion evidence instead of becoming permanently phase-shifted.
 kernel void mr_task_update_curriculum(
-    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
-    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_CURRICULUM_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_CURRICULUM_PROGRAM)]],
     device MRTaskCurriculumStateGPU* curriculumState
-        [[buffer(2)]],
-    device MRTaskTransitionGPU* transitions [[buffer(3)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(4)]],
+        [[buffer(MR_TASK_CURRICULUM_STATE)]],
+    device MRTaskTransitionGPU* transitions
+        [[buffer(MR_TASK_CURRICULUM_TRANSITIONS)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_CURRICULUM_PASS)]],
     const uint gridIndex [[thread_position_in_grid]]
 ) {
     if (gridIndex != 0u ||

@@ -1285,7 +1285,7 @@ bool buildRequirements(
     std::size_t taskHistoryElements = 0u;
     std::size_t taskCriticHistoryElements = 0u;
     std::size_t taskBodyParameterElements = 0u;
-    std::size_t taskContactElements = 0u;
+    std::size_t taskScalarStateElements = 0u;
     std::size_t taskPointWorldElements = 0u;
     std::size_t taskSpatialJacobianElements = 0u;
     std::size_t taskSignalEnvironmentStride = 0u;
@@ -1323,8 +1323,8 @@ bool buildRequirements(
         ) ||
         !checkedMultiply(
             taskEnvironments,
-            taskLayout.contactMetricCount,
-            taskContactElements
+            taskLayout.scalarStateCount,
+            taskScalarStateElements
         ) ||
         !checkedMultiply(
             taskEnvironments,
@@ -2655,9 +2655,9 @@ bool buildRequirements(
             requirements.entries[kTaskTransitions]
         ) ||
         !makeRequirement<float>(
-            "native compact contact metrics",
-            taskContactElements,
-            requirements.entries[kTaskContactCompact]
+            "native task scalar state",
+            taskScalarStateElements,
+            requirements.entries[kTaskScalarState]
         ) ||
         !makeRequirement<MRTaskStateGPU>(
             "native task transaction checkpoint state",
@@ -2709,9 +2709,9 @@ bool buildRequirements(
             ]
         ) ||
         !makeRequirement<float>(
-            "native task transaction checkpoint contact metrics",
-            taskContactElements,
-            requirements.entries[kTaskCheckpointContactCompact]
+            "native task transaction checkpoint scalar state",
+            taskScalarStateElements,
+            requirements.entries[kTaskCheckpointScalarState]
         ) ||
         !makeRequirement<float>(
             "native task default configuration",
@@ -4575,8 +4575,10 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld critic observations";
     case kTaskTransitions:
         return @"MetalWorld task transitions";
-    case kTaskContactCompact:
-        return @"MetalWorld resident compact contact metrics";
+    case kTaskScalarState:
+        return @"MetalWorld resident task scalar state";
+    case kTaskCheckpointScalarState:
+        return @"MetalWorld checkpoint task scalar state";
     case kTaskDefaultQ:
         return @"MetalWorld task default configuration";
     case kTaskProgramHeader:
@@ -7182,7 +7184,8 @@ bool encodeResidentStateInitialization(
         clear(kTaskEncoderBias);
         clear(kTaskBodyParameters);
         clear(kTaskControllerParameters);
-        clear(kTaskContactCompact);
+        clear(kTaskScalarState);
+        clear(kTaskCheckpointScalarState);
         [encoder
             copyFromBuffer:
                 context.uploadBuffers[kTaskCurriculumState]
@@ -8516,39 +8519,57 @@ bool encodeTaskObserve(
         context.taskObservePipeline,
         @"compiled task reset/observation",
         {
-            {0u, kTaskDispatch},
-            {1u, kTaskProgramHeader},
-            {2u, kTaskProgramArena},
-            {3u, kWorldDispatch},
-            {6u, kResetMasks},
-            {7u, kResetQ},
-            {8u, kResetV},
-            {9u, kResetSceneBodies},
-            {10u, sourceQ},
-            {11u, sourceV},
-            {12u, kInitialSceneBodies},
-            {13u, kTaskCriticHistory},
-            {14u, kCurrentBodies},
-            {15u, sourceScene},
-            {16u, kTaskDefaultQ},
-            {17u, kTaskState},
-            {18u, kTaskActionHistory},
-            {19u, kTaskActorHistory},
-            {20u, kTaskCleanHistory},
-            {21u, kTaskPreviousJointVelocity},
-            {22u, kTaskEncoderBias},
-            {23u, kTaskBodyParameters},
-            {24u, kTaskControllerParameters},
-            {25u, kTaskActorObservations},
-            {26u, kTaskCriticObservations},
-            {27u, kTaskContactCompact},
-            {28u, kShapes},
-            {29u, kGeometryHeaders},
-            {30u, kGeometryVertices},
-            {5u, kTaskCurriculumState},
+            {MR_TASK_OBSERVE_DISPATCH, kTaskDispatch},
+            {MR_TASK_OBSERVE_PROGRAM, kTaskProgramHeader},
+            {MR_TASK_OBSERVE_ARENA, kTaskProgramArena},
+            {MR_TASK_OBSERVE_WORLD_DISPATCH, kWorldDispatch},
+            {MR_TASK_OBSERVE_RESET_MASKS, kResetMasks},
+            {MR_TASK_OBSERVE_RESET_Q, kResetQ},
+            {MR_TASK_OBSERVE_RESET_V, kResetV},
+            {MR_TASK_OBSERVE_RESET_SCENE, kResetSceneBodies},
+            {MR_TASK_OBSERVE_SOURCE_Q, sourceQ},
+            {MR_TASK_OBSERVE_SOURCE_V, sourceV},
+            {MR_TASK_OBSERVE_INITIAL_SCENE, kInitialSceneBodies},
+            {MR_TASK_OBSERVE_CRITIC_HISTORY, kTaskCriticHistory},
+            {MR_TASK_OBSERVE_BODY_STATES, kCurrentBodies},
+            {MR_TASK_OBSERVE_SOURCE_SCENE, sourceScene},
+            {MR_TASK_OBSERVE_DEFAULT_Q, kTaskDefaultQ},
+            {MR_TASK_OBSERVE_TASK_STATES, kTaskState},
+            {MR_TASK_OBSERVE_ACTION_HISTORY, kTaskActionHistory},
+            {MR_TASK_OBSERVE_ACTOR_HISTORY, kTaskActorHistory},
+            {MR_TASK_OBSERVE_CLEAN_HISTORY, kTaskCleanHistory},
+            {
+                MR_TASK_OBSERVE_PREVIOUS_JOINT_VELOCITY,
+                kTaskPreviousJointVelocity,
+            },
+            {MR_TASK_OBSERVE_SENSOR_BIAS, kTaskEncoderBias},
+            {MR_TASK_OBSERVE_BODY_PARAMETERS, kTaskBodyParameters},
+            {
+                MR_TASK_OBSERVE_CONTROLLER_PARAMETERS,
+                kTaskControllerParameters,
+            },
+            {
+                MR_TASK_OBSERVE_ACTOR_OBSERVATIONS,
+                kTaskActorObservations,
+            },
+            {
+                MR_TASK_OBSERVE_CRITIC_OBSERVATIONS,
+                kTaskCriticObservations,
+            },
+            {MR_TASK_OBSERVE_SCALAR_STATE, kTaskScalarState},
+            {MR_TASK_OBSERVE_SHAPES, kShapes},
+            {MR_TASK_OBSERVE_GEOMETRY_HEADERS, kGeometryHeaders},
+            {
+                MR_TASK_OBSERVE_GEOMETRY_VERTICES,
+                kGeometryVertices,
+            },
+            {
+                MR_TASK_OBSERVE_CURRICULUM_STATE,
+                kTaskCurriculumState,
+            },
         },
         &pass,
-        4u,
+        MR_TASK_OBSERVE_PASS,
         environmentCount
     );
 }
@@ -8651,8 +8672,8 @@ bool encodeTaskTransaction(
                 kTaskControllerParameters,
             },
             {
-                MR_TASK_TRANSACTION_CONTACT_COMPACT,
-                kTaskContactCompact,
+                MR_TASK_TRANSACTION_SCALAR_STATE,
+                kTaskScalarState,
             },
             {
                 MR_TASK_TRANSACTION_CHECKPOINT_STATE,
@@ -8691,8 +8712,8 @@ bool encodeTaskTransaction(
                 kTaskCheckpointControllerParameters,
             },
             {
-                MR_TASK_TRANSACTION_CHECKPOINT_CONTACT_COMPACT,
-                kTaskCheckpointContactCompact,
+                MR_TASK_TRANSACTION_CHECKPOINT_SCALAR_STATE,
+                kTaskCheckpointScalarState,
             },
         },
         &pass,
@@ -9336,18 +9357,18 @@ bool encodeTaskApplyActions(
         context.taskApplyPipeline,
         @"compiled task action application",
         {
-            {0u, kTaskDispatch},
-            {1u, kTaskProgramHeader},
-            {2u, kTaskProgramArena},
-            {3u, kWorldDispatch},
-            {5u, kTaskActions},
-            {6u, kEffortTrajectory},
-            {7u, kTaskDefaultQ},
-            {8u, kTaskState},
-            {9u, kTaskActionHistory},
+            {MR_TASK_APPLY_DISPATCH, kTaskDispatch},
+            {MR_TASK_APPLY_PROGRAM, kTaskProgramHeader},
+            {MR_TASK_APPLY_ARENA, kTaskProgramArena},
+            {MR_TASK_APPLY_WORLD_DISPATCH, kWorldDispatch},
+            {MR_TASK_APPLY_ACTION_STREAM, kTaskActions},
+            {MR_TASK_APPLY_EFFORT_TRAJECTORY, kEffortTrajectory},
+            {MR_TASK_APPLY_DEFAULT_Q, kTaskDefaultQ},
+            {MR_TASK_APPLY_TASK_STATES, kTaskState},
+            {MR_TASK_APPLY_ACTION_HISTORY, kTaskActionHistory},
         },
         &pass,
-        4u,
+        MR_TASK_APPLY_PASS,
         environmentCount
     );
 }
@@ -9365,15 +9386,15 @@ bool encodeTaskEffort(
         context.taskEffortPipeline,
         @"compiled task applied-effort measurement",
         {
-            {0u, kTaskDispatch},
-            {1u, kTaskProgramHeader},
-            {2u, kTaskProgramArena},
-            {4u, vState},
-            {5u, kWorkingEffort},
-            {6u, kTaskState},
+            {MR_TASK_EFFORT_DISPATCH, kTaskDispatch},
+            {MR_TASK_EFFORT_PROGRAM, kTaskProgramHeader},
+            {MR_TASK_EFFORT_ARENA, kTaskProgramArena},
+            {MR_TASK_EFFORT_V_STATE, vState},
+            {MR_TASK_EFFORT_WORKING_EFFORT, kWorkingEffort},
+            {MR_TASK_EFFORT_TASK_STATES, kTaskState},
         },
         &pass,
-        3u,
+        MR_TASK_EFFORT_PASS,
         environmentCount
     );
 }
@@ -9393,38 +9414,65 @@ bool encodeTaskComplete(
         context.taskCompletePipeline,
         @"compiled task contacts/reward/termination",
         {
-            {0u, kTaskDispatch},
-            {1u, kTaskProgramHeader},
-            {2u, kTaskProgramArena},
-            {3u, kTaskCurriculumState},
-            {4u, kContactDispatch},
-            {6u, qState},
-            {7u, vState},
-            {8u, kCandidateBodies},
-            {9u, kContacts},
-            {10u, kContactStatuses},
-            {11u, kEnvironmentStatuses},
-            {12u, sceneState},
-            {14u, kTaskDefaultQ},
-            {15u, kTaskState},
-            {16u, kTaskActionHistory},
-            {17u, kTaskActorHistory},
-            {18u, kTaskCleanHistory},
-            {19u, kTaskPreviousJointVelocity},
-            {20u, kTaskEncoderBias},
-            {21u, kTaskBodyParameters},
-            {22u, kTaskControllerParameters},
-            {23u, kTaskContactCompact},
-            {24u, kTaskTransitions},
-            {25u, kShapes},
-            {26u, kGeometryHeaders},
-            {27u, kGeometryVertices},
-            {28u, kTaskActorObservations},
-            {29u, kTaskCriticObservations},
-            {30u, kTaskCriticHistory},
+            {MR_TASK_COMPLETE_DISPATCH, kTaskDispatch},
+            {MR_TASK_COMPLETE_PROGRAM, kTaskProgramHeader},
+            {MR_TASK_COMPLETE_ARENA, kTaskProgramArena},
+            {
+                MR_TASK_COMPLETE_CURRICULUM_STATE,
+                kTaskCurriculumState,
+            },
+            {MR_TASK_COMPLETE_CONTACT_DISPATCH, kContactDispatch},
+            {MR_TASK_COMPLETE_Q_STATE, qState},
+            {MR_TASK_COMPLETE_V_STATE, vState},
+            {MR_TASK_COMPLETE_BODY_STATES, kCandidateBodies},
+            {MR_TASK_COMPLETE_CONTACTS, kContacts},
+            {MR_TASK_COMPLETE_CONTACT_STATUSES, kContactStatuses},
+            {
+                MR_TASK_COMPLETE_WORLD_STATUSES,
+                kEnvironmentStatuses,
+            },
+            {MR_TASK_COMPLETE_SCENE_STATE, sceneState},
+            {MR_TASK_COMPLETE_DEFAULT_Q, kTaskDefaultQ},
+            {MR_TASK_COMPLETE_TASK_STATES, kTaskState},
+            {MR_TASK_COMPLETE_ACTION_HISTORY, kTaskActionHistory},
+            {MR_TASK_COMPLETE_ACTOR_HISTORY, kTaskActorHistory},
+            {MR_TASK_COMPLETE_CLEAN_HISTORY, kTaskCleanHistory},
+            {
+                MR_TASK_COMPLETE_PREVIOUS_JOINT_VELOCITY,
+                kTaskPreviousJointVelocity,
+            },
+            {MR_TASK_COMPLETE_SENSOR_BIAS, kTaskEncoderBias},
+            {
+                MR_TASK_COMPLETE_BODY_PARAMETERS,
+                kTaskBodyParameters,
+            },
+            {
+                MR_TASK_COMPLETE_CONTROLLER_PARAMETERS,
+                kTaskControllerParameters,
+            },
+            {MR_TASK_COMPLETE_SCALAR_STATE, kTaskScalarState},
+            {MR_TASK_COMPLETE_TRANSITIONS, kTaskTransitions},
+            {MR_TASK_COMPLETE_SHAPES, kShapes},
+            {
+                MR_TASK_COMPLETE_GEOMETRY_HEADERS,
+                kGeometryHeaders,
+            },
+            {
+                MR_TASK_COMPLETE_GEOMETRY_VERTICES,
+                kGeometryVertices,
+            },
+            {
+                MR_TASK_COMPLETE_ACTOR_OBSERVATIONS,
+                kTaskActorObservations,
+            },
+            {
+                MR_TASK_COMPLETE_CRITIC_OBSERVATIONS,
+                kTaskCriticObservations,
+            },
+            {MR_TASK_COMPLETE_CRITIC_HISTORY, kTaskCriticHistory},
         },
         &pass,
-        5u,
+        MR_TASK_COMPLETE_PASS,
         environmentCount
     );
 }
@@ -9440,13 +9488,13 @@ bool encodeTaskCurriculum(
         context.taskCurriculumPipeline,
         @"compiled task curriculum reduction",
         {
-            {0u, kTaskDispatch},
-            {1u, kTaskProgramHeader},
-            {2u, kTaskCurriculumState},
-            {3u, kTaskTransitions},
+            {MR_TASK_CURRICULUM_DISPATCH, kTaskDispatch},
+            {MR_TASK_CURRICULUM_PROGRAM, kTaskProgramHeader},
+            {MR_TASK_CURRICULUM_STATE, kTaskCurriculumState},
+            {MR_TASK_CURRICULUM_TRANSITIONS, kTaskTransitions},
         },
         &pass,
-        4u,
+        MR_TASK_CURRICULUM_PASS,
         1u
     );
 }

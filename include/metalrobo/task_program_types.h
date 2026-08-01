@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 22u
+#define MR_TASK_PROGRAM_ABI_VERSION 23u
 #define MR_TASK_TRANSITION_METRIC_COUNT 3u
 
 #define MR_TASK_GOAL_FIXED 0u
@@ -294,6 +294,8 @@ typedef struct MR_ALIGN16 MRTaskCommandOperatorGPU {
     mr_float4 range;
     // Per-curriculum-level symmetric expansion and reserved values.
     mr_float4 curriculum;
+    // Stable counter-RNG identity low/high and reserved values.
+    mr_uint4 identity;
 } MRTaskCommandOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskContactGroupGPU {
@@ -382,10 +384,9 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     mr_uint4 schedule;
     // initialized, pending reset, last termination, reserved.
     mr_uint4 status;
-    // commanded x/y/yaw velocity and gait phase.
-    mr_float4 commandAndPhase;
-    // current mechanical power, reserved, episode return, curriculum metric.
-    mr_float4 powerReturnMetric;
+    // Current mechanical power, accepted phase, episode return, and
+    // curriculum metric. Commands live in the topology-sized scalar arena.
+    mr_float4 powerPhaseReturnMetric;
 } MRTaskStateGPU;
 
 // One compact task-wide curriculum controller remains device-resident across
@@ -426,7 +427,7 @@ static_assert(sizeof(MRTaskProgramHeaderGPU) == 336u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 64u);
 static_assert(sizeof(MRTaskSignalOperatorGPU) == 32u);
-static_assert(sizeof(MRTaskCommandOperatorGPU) == 32u);
+static_assert(sizeof(MRTaskCommandOperatorGPU) == 48u);
 static_assert(sizeof(MRTaskContactGroupGPU) == 80u);
 static_assert(sizeof(MRTaskFrameGPU) == 48u);
 static_assert(sizeof(MRTaskGoalGPU) == 160u);
@@ -435,7 +436,7 @@ static_assert(sizeof(MRTaskRecorderOperatorGPU) == 16u);
 static_assert(sizeof(MRTaskTerminationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskRandomizationOperatorGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
-static_assert(sizeof(MRTaskStateGPU) == 80u);
+static_assert(sizeof(MRTaskStateGPU) == 64u);
 static_assert(sizeof(MRTaskCurriculumStateGPU) == 48u);
 static_assert(sizeof(MRTaskTransitionGPU) == 96u);
 #endif

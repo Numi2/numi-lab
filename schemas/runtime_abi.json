@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 29,
+  "abi_version": 30,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -431,7 +431,7 @@
       ["kTaskActorObservations", 204],
       ["kTaskCriticObservations", 205],
       ["kTaskTransitions", 206],
-      ["kTaskContactCompact", 207],
+      ["kTaskScalarState", 207],
       ["kTaskDefaultQ", 208],
       ["kTaskProgramHeader", 209],
       ["kTaskProgramArena", 210],
@@ -469,7 +469,7 @@
       ["kTaskCheckpointEncoderBias", 242],
       ["kTaskCheckpointBodyParameters", 243],
       ["kTaskCheckpointControllerParameters", 244],
-      ["kTaskCheckpointContactCompact", 245],
+      ["kTaskCheckpointScalarState", 245],
       ["kSensorFilterBodies", 246],
       ["kActuatorRuntimeStates", 247],
       ["kActuatorCommandHistory", 248],
@@ -561,7 +561,7 @@
         "kTaskEncoderBias",
         "kTaskBodyParameters",
         "kTaskControllerParameters",
-        "kTaskContactCompact",
+        "kTaskScalarState",
         "kTaskCurriculumState",
         "kGeneralizedWarmState",
         "kSensorRuntimeStates",
@@ -690,7 +690,7 @@
         "kTaskCheckpointEncoderBias",
         "kTaskCheckpointBodyParameters",
         "kTaskCheckpointControllerParameters",
-        "kTaskCheckpointContactCompact",
+        "kTaskCheckpointScalarState",
         "kCheckpointActuatorRuntimeStates",
         "kCheckpointActuatorCommandHistory",
         "kTaskKinematicPointWorld"
@@ -791,6 +791,119 @@
         "ROD_WITNESS_INDICES",
         "ROD_FACTOR_CACHES",
         "ROD_OPERATOR_ARENA"
+      ]
+    },
+    {
+      "enum": "MRTaskObserveBuffer",
+      "prefix": "MR_TASK_OBSERVE_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "ARENA",
+        "WORLD_DISPATCH",
+        "PASS",
+        "CURRICULUM_STATE",
+        "RESET_MASKS",
+        "RESET_Q",
+        "RESET_V",
+        "RESET_SCENE",
+        "SOURCE_Q",
+        "SOURCE_V",
+        "INITIAL_SCENE",
+        "CRITIC_HISTORY",
+        "BODY_STATES",
+        "SOURCE_SCENE",
+        "DEFAULT_Q",
+        "TASK_STATES",
+        "ACTION_HISTORY",
+        "ACTOR_HISTORY",
+        "CLEAN_HISTORY",
+        "PREVIOUS_JOINT_VELOCITY",
+        "SENSOR_BIAS",
+        "BODY_PARAMETERS",
+        "CONTROLLER_PARAMETERS",
+        "ACTOR_OBSERVATIONS",
+        "CRITIC_OBSERVATIONS",
+        "SCALAR_STATE",
+        "SHAPES",
+        "GEOMETRY_HEADERS",
+        "GEOMETRY_VERTICES"
+      ]
+    },
+    {
+      "enum": "MRTaskApplyBuffer",
+      "prefix": "MR_TASK_APPLY_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "ARENA",
+        "WORLD_DISPATCH",
+        "PASS",
+        "ACTION_STREAM",
+        "EFFORT_TRAJECTORY",
+        "DEFAULT_Q",
+        "TASK_STATES",
+        "ACTION_HISTORY"
+      ]
+    },
+    {
+      "enum": "MRTaskEffortBuffer",
+      "prefix": "MR_TASK_EFFORT_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "ARENA",
+        "PASS",
+        "V_STATE",
+        "WORKING_EFFORT",
+        "TASK_STATES"
+      ]
+    },
+    {
+      "enum": "MRTaskCompleteBuffer",
+      "prefix": "MR_TASK_COMPLETE_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "ARENA",
+        "CURRICULUM_STATE",
+        "CONTACT_DISPATCH",
+        "PASS",
+        "Q_STATE",
+        "V_STATE",
+        "BODY_STATES",
+        "CONTACTS",
+        "CONTACT_STATUSES",
+        "WORLD_STATUSES",
+        "SCENE_STATE",
+        "DEFAULT_Q",
+        "TASK_STATES",
+        "ACTION_HISTORY",
+        "ACTOR_HISTORY",
+        "CLEAN_HISTORY",
+        "PREVIOUS_JOINT_VELOCITY",
+        "SENSOR_BIAS",
+        "BODY_PARAMETERS",
+        "CONTROLLER_PARAMETERS",
+        "SCALAR_STATE",
+        "TRANSITIONS",
+        "SHAPES",
+        "GEOMETRY_HEADERS",
+        "GEOMETRY_VERTICES",
+        "ACTOR_OBSERVATIONS",
+        "CRITIC_OBSERVATIONS",
+        "CRITIC_HISTORY"
+      ]
+    },
+    {
+      "enum": "MRTaskCurriculumBuffer",
+      "prefix": "MR_TASK_CURRICULUM_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "STATE",
+        "TRANSITIONS",
+        "PASS"
       ]
     },
     {
@@ -1005,7 +1118,7 @@
         "ENCODER_BIAS",
         "BODY_PARAMETERS",
         "CONTROLLER_PARAMETERS",
-        "CONTACT_COMPACT",
+        "SCALAR_STATE",
         "CHECKPOINT_STATE",
         "CHECKPOINT_ACTION_HISTORY",
         "CHECKPOINT_ACTOR_HISTORY",
@@ -1015,7 +1128,7 @@
         "CHECKPOINT_ENCODER_BIAS",
         "CHECKPOINT_BODY_PARAMETERS",
         "CHECKPOINT_CONTROLLER_PARAMETERS",
-        "CHECKPOINT_CONTACT_COMPACT"
+        "CHECKPOINT_SCALAR_STATE"
       ]
     },
     {
