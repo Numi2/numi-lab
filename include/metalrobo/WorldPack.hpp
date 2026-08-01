@@ -8,7 +8,7 @@
 
 namespace metalrobo {
 
-inline constexpr std::uint32_t kWorldPackFormatVersion = 6u;
+inline constexpr std::uint32_t kWorldPackFormatVersion = 7u;
 
 enum class WorldPackStatus : std::uint32_t {
     success = 0u,

@@ -195,11 +195,18 @@
       "scope": "Six-axis SensorIR force-torque sums committed non-generalized contact impulses on the parent body, divides by the final accepted physics-microstep duration, shifts the moment to the authored sensor origin, and expresses force and torque in sensor-local axes. All six channels match TaskIR's independent contact-group reduction and reset clears the view. Control-window integration and joint-transmission load-cell semantics remain incomplete."
     },
     {
+      "id": "sensors.native_contact_state",
+      "status": "implemented",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "A generic body-attached contact-state sensor publishes active state, accepted contact-block count, summed normal force, resultant tangential force, and maximum penetration from committed NumiSolver constraints. Optional semantic counterpart-body filters compile into a canonical immutable index table. The focused owner mirrors all five reductions analytically, proves a negative filter remains zero, rejects an unresolved filter transactionally, round-trips the semantic filter through WorldPack, binds the result into TaskIR, and includes its state in reset rollback."
+    },
+    {
       "id": "sensors.unified_sensor_ir",
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "WorldPack state, frame-twist, IMU, force-torque, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose, frame-twist, IMU, and force-torque sensors execute in the session-owned scheduler with reset-failure journals and may bind into TaskIR; presentation and tactile still use their existing native owners, while sensor-native corruption, recorder routing, and dedicated contact-state, ray, and LiDAR operators remain incomplete."
+      "scope": "WorldPack state, frame-twist, IMU, force-torque, contact-state, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose, frame-twist, IMU, force-torque, and semantically filtered contact-state sensors execute in the session-owned scheduler with reset-failure journals and may bind into TaskIR; presentation and tactile still use their existing native owners, while sensor-native corruption, recorder routing, ray, and LiDAR operators remain incomplete."
     },
     {
       "id": "policy.dense_native_inference",

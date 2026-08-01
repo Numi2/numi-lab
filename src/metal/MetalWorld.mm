@@ -2640,6 +2640,13 @@ bool buildRequirements(
                 : 0u,
             requirements.entries[kSensorDescriptors]
         ) ||
+        !makeRequirement<std::uint32_t>(
+            "compiled sensor contact-filter bodies",
+            nativeSensors
+                ? sensorProgram.filterBodies().size()
+                : 0u,
+            requirements.entries[kSensorFilterBodies]
+        ) ||
         !makeRequirement<MRSensorRuntimeStateGPU>(
             "native resident sensor schedule state",
             layout.sensorStateElements,
@@ -2926,23 +2933,36 @@ MetalWorldDiagnostics validateAndBuildLayout(
                     MR_WORLD_SENSOR_FORCE_TORQUE;
             const bool imuSensor =
                 descriptor.identity.x == MR_WORLD_SENSOR_IMU;
+            const bool contactStateSensor =
+                descriptor.identity.x ==
+                    MR_WORLD_SENSOR_CONTACT_STATE;
+            const std::uint32_t expectedOutputCount = poseSensor
+                ? 7u
+                : contactStateSensor ? 5u : 6u;
             if ((!poseSensor && !twistSensor &&
-                 !forceTorqueSensor && !imuSensor) ||
-                (forceTorqueSensor && !contactMode) ||
+                 !forceTorqueSensor && !imuSensor &&
+                 !contactStateSensor) ||
+                ((forceTorqueSensor || contactStateSensor) &&
+                 !contactMode) ||
                 descriptor.schedule.z !=
                     MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
                 descriptor.source.w !=
                     static_cast<std::uint32_t>(
                         SensorExecutionDomain::nativeState
                     ) ||
-                descriptor.output.y !=
-                    (poseSensor ? 7u : 6u) ||
+                descriptor.output.y != expectedOutputCount ||
+                descriptor.filter.x >
+                    config.sensorProgram.filterBodies().size() ||
+                descriptor.filter.y >
+                    config.sensorProgram.filterBodies().size() -
+                        descriptor.filter.x ||
+                (!contactStateSensor && descriptor.filter.y != 0u) ||
                 samplePeriod < controlPeriodTicks) {
                 return reject(
                     std::move(diagnostics),
                     MetalWorldHostStatus::unsupportedTopology,
                     "native SensorIR sampling requires pre-control pose, "
-                    "world-twist, IMU, or contact-mode force-torque descriptors "
+                    "world-twist, IMU, contact-state, or contact-mode force-torque descriptors "
                     "at no more than the control rate"
                 );
             }
@@ -5991,6 +6011,10 @@ void uploadBatch(
             kSensorDescriptors,
             config.sensorProgram.descriptors().data()
         );
+        stageSensor(
+            kSensorFilterBodies,
+            config.sensorProgram.filterBodies().data()
+        );
         if (sensorUpload != nil) {
             [sensorUpload endEncoding];
         }
@@ -8250,6 +8274,10 @@ bool encodeSensorSample(
         {
             {MR_SENSOR_SAMPLE_PROGRAM, kSensorProgramHeader},
             {MR_SENSOR_SAMPLE_DESCRIPTORS, kSensorDescriptors},
+            {
+                MR_SENSOR_SAMPLE_FILTER_BODIES,
+                kSensorFilterBodies,
+            },
             {MR_SENSOR_SAMPLE_RESET_MASKS, kResetMasks},
             {MR_SENSOR_SAMPLE_BODY_POSES, kBodyPoses},
             {MR_SENSOR_SAMPLE_BODY_STATES, bodyStates},

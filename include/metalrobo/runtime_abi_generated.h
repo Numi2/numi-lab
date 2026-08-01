@@ -5,10 +5,10 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 15u
+#define MR_RUNTIME_ABI_VERSION 16u
 #define MR_RUNTIME_PIPELINE_COUNT 92u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
-#define MR_SENSOR_PROGRAM_ABI_VERSION 5u
+#define MR_SENSOR_PROGRAM_ABI_VERSION 6u
 #define MR_SENSOR_DISPATCH_HAS_RESETS 1u
 #define MR_SENSOR_DISPATCH_HAS_CONTACTS 2u
 
@@ -27,6 +27,7 @@ typedef struct MR_ALIGN16 MRSensorDescriptorGPU {
     mr_uint4 schedule;
     mr_uint4 dimensions;
     mr_uint4 source;
+    mr_uint4 filter;
     mr_float4 localPosition;
     mr_float4 localOrientation;
     mr_float4 timing;
@@ -167,25 +168,26 @@ enum MRSensorSampleBuffer : mr_u32 {
     MR_SENSOR_SAMPLE_DISPATCH = 0u,
     MR_SENSOR_SAMPLE_PROGRAM = 1u,
     MR_SENSOR_SAMPLE_DESCRIPTORS = 2u,
-    MR_SENSOR_SAMPLE_PASS = 3u,
-    MR_SENSOR_SAMPLE_RESET_MASKS = 4u,
-    MR_SENSOR_SAMPLE_BODY_POSES = 5u,
-    MR_SENSOR_SAMPLE_BODY_STATES = 6u,
-    MR_SENSOR_SAMPLE_SCENE_BODIES = 7u,
-    MR_SENSOR_SAMPLE_CONTACT_DISPATCH = 8u,
-    MR_SENSOR_SAMPLE_CONTACTS = 9u,
-    MR_SENSOR_SAMPLE_CONTACT_STATUSES = 10u,
-    MR_SENSOR_SAMPLE_WORLD_STATUSES = 11u,
-    MR_SENSOR_SAMPLE_WORLD = 12u,
-    MR_SENSOR_SAMPLE_STATES = 13u,
-    MR_SENSOR_SAMPLE_HISTORY = 14u,
-    MR_SENSOR_SAMPLE_OUTPUTS = 15u,
-    MR_SENSOR_SAMPLE_METADATA = 16u,
-    MR_SENSOR_SAMPLE_CHECKPOINT_STATES = 17u,
-    MR_SENSOR_SAMPLE_CHECKPOINT_HISTORY = 18u,
-    MR_SENSOR_SAMPLE_CHECKPOINT_OUTPUTS = 19u,
-    MR_SENSOR_SAMPLE_CHECKPOINT_METADATA = 20u,
-    MR_SENSOR_SAMPLE_BUFFER_COUNT = 21u,
+    MR_SENSOR_SAMPLE_FILTER_BODIES = 3u,
+    MR_SENSOR_SAMPLE_PASS = 4u,
+    MR_SENSOR_SAMPLE_RESET_MASKS = 5u,
+    MR_SENSOR_SAMPLE_BODY_POSES = 6u,
+    MR_SENSOR_SAMPLE_BODY_STATES = 7u,
+    MR_SENSOR_SAMPLE_SCENE_BODIES = 8u,
+    MR_SENSOR_SAMPLE_CONTACT_DISPATCH = 9u,
+    MR_SENSOR_SAMPLE_CONTACTS = 10u,
+    MR_SENSOR_SAMPLE_CONTACT_STATUSES = 11u,
+    MR_SENSOR_SAMPLE_WORLD_STATUSES = 12u,
+    MR_SENSOR_SAMPLE_WORLD = 13u,
+    MR_SENSOR_SAMPLE_STATES = 14u,
+    MR_SENSOR_SAMPLE_HISTORY = 15u,
+    MR_SENSOR_SAMPLE_OUTPUTS = 16u,
+    MR_SENSOR_SAMPLE_METADATA = 17u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_STATES = 18u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_HISTORY = 19u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_OUTPUTS = 20u,
+    MR_SENSOR_SAMPLE_CHECKPOINT_METADATA = 21u,
+    MR_SENSOR_SAMPLE_BUFFER_COUNT = 22u,
 };
 
 enum MRTaskSensorRefreshBuffer : mr_u32 {
@@ -569,7 +571,8 @@ enum BufferIndex : std::size_t {
     kTaskCheckpointBodyParameters = 243u,
     kTaskCheckpointControllerParameters = 244u,
     kTaskCheckpointContactCompact = 245u,
-    kRawBufferCount = 246u,
+    kSensorFilterBodies = 246u,
+    kRawBufferCount = 247u,
 };
 
 enum class BufferLifetime : std::uint8_t {
@@ -828,6 +831,7 @@ inline constexpr std::array<BufferLifetime, kRawBufferCount>
         BufferLifetime::transient,
         BufferLifetime::transient,
         BufferLifetime::transient,
+        BufferLifetime::immutable,
     }};
 inline constexpr std::array<bool, kRawBufferCount>
     kPersistentInputs{{
@@ -1059,6 +1063,7 @@ inline constexpr std::array<bool, kRawBufferCount>
         true,
         true,
         true,
+        false,
         false,
         false,
         false,
@@ -1326,6 +1331,7 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "task checkpoint body parameters",
         "task checkpoint controller parameters",
         "task checkpoint contact compact",
+        "sensor filter bodies",
     }};
 
 [[nodiscard]] constexpr bool validBufferIndex(
@@ -1373,20 +1379,21 @@ static_assert(offsetof(MRSensorProgramHeaderGPU, counts) == 16u);
 static_assert(offsetof(MRSensorProgramHeaderGPU, executionCounts) == 32u);
 static_assert(offsetof(MRSensorProgramHeaderGPU, layout) == 48u);
 static_assert(offsetof(MRSensorProgramHeaderGPU, reserved) == 64u);
-static_assert(sizeof(MRSensorDescriptorGPU) == 192u);
+static_assert(sizeof(MRSensorDescriptorGPU) == 208u);
 static_assert(alignof(MRSensorDescriptorGPU) == 16u);
 static_assert(offsetof(MRSensorDescriptorGPU, identity) == 0u);
 static_assert(offsetof(MRSensorDescriptorGPU, output) == 16u);
 static_assert(offsetof(MRSensorDescriptorGPU, schedule) == 32u);
 static_assert(offsetof(MRSensorDescriptorGPU, dimensions) == 48u);
 static_assert(offsetof(MRSensorDescriptorGPU, source) == 64u);
-static_assert(offsetof(MRSensorDescriptorGPU, localPosition) == 80u);
-static_assert(offsetof(MRSensorDescriptorGPU, localOrientation) == 96u);
-static_assert(offsetof(MRSensorDescriptorGPU, timing) == 112u);
-static_assert(offsetof(MRSensorDescriptorGPU, noise) == 128u);
-static_assert(offsetof(MRSensorDescriptorGPU, range) == 144u);
-static_assert(offsetof(MRSensorDescriptorGPU, intrinsics) == 160u);
-static_assert(offsetof(MRSensorDescriptorGPU, distortion) == 176u);
+static_assert(offsetof(MRSensorDescriptorGPU, filter) == 80u);
+static_assert(offsetof(MRSensorDescriptorGPU, localPosition) == 96u);
+static_assert(offsetof(MRSensorDescriptorGPU, localOrientation) == 112u);
+static_assert(offsetof(MRSensorDescriptorGPU, timing) == 128u);
+static_assert(offsetof(MRSensorDescriptorGPU, noise) == 144u);
+static_assert(offsetof(MRSensorDescriptorGPU, range) == 160u);
+static_assert(offsetof(MRSensorDescriptorGPU, intrinsics) == 176u);
+static_assert(offsetof(MRSensorDescriptorGPU, distortion) == 192u);
 static_assert(sizeof(MRSensorDispatchGPU) == 48u);
 static_assert(alignof(MRSensorDispatchGPU) == 16u);
 static_assert(offsetof(MRSensorDispatchGPU, counts) == 0u);

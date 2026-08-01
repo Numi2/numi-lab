@@ -564,6 +564,15 @@ EngineModel makeFrankaPickPlaceEngineModel() {
         0.08f,
         {0.03f, 0.03f, 0.03f, 0.0f}
     ));
+    model.bodyNames.insert(
+        model.bodyNames.end(),
+        {
+            "pick_object",
+            "workspace",
+            "target_fixture",
+            "clutter",
+        }
+    );
 
     model.shapes.push_back(sceneBox(
         11u,

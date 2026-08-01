@@ -38,6 +38,14 @@ a mid-rollout reset clears the sensor view. This qualifies resultant contact
 wrench sensing; it is not yet joint-transmission load-cell or full tactile-
 schedule evidence.
 
+Its contact-state case independently mirrors the accepted Metal constraint
+stream on the host and checks active state, block count, summed normal force,
+resultant tangential force, and maximum penetration. A semantic obstacle-body
+filter must include that contact while a ground-only filter stays exactly
+zero. An unresolved filter must reject compilation without replacing the
+previous program, and the current WorldPack binary round trip must preserve
+and re-resolve the semantic filter rather than persisting a packed body index.
+
 The physical/SensorIR transaction case first commits one articulated-tool
 contact, its manifold, and a nonzero pose history in a resident session. Reset
 then moves a second kinematic obstacle into contact against a one-pair
@@ -54,9 +62,10 @@ its typed physics-error transition. The following accepted transition must be
 byte-identical between branches across q/v, scene/manifolds, actor and critic
 observations, policy samples/log probabilities/values, task transitions,
 SensorIR output/metadata, and contact evidence. This qualifies persistent
-per-environment TaskIR rollback. The sensor set includes an IMU canary, so its
-previous point velocity and timestamp must also return to the reference branch;
-global curriculum scheduling remains outside that claim.
+per-environment TaskIR rollback. The sensor set includes IMU and filtered
+contact-state canaries, so their kinematic state, histories, and compact
+publications must also return to the reference branch; global curriculum
+scheduling remains outside that claim.
 
 The native integration owner runs five PPO updates through a three-slot shared
 rollout ring. It therefore covers slot reuse, managed MLX payload release,

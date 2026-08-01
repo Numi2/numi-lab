@@ -117,6 +117,7 @@ pose goal does not add a robot-specific shader.
 The current WorldPack sensor declaration persists:
 
 - modality and parent frame;
+- semantic counterpart-body filters for contact-state sensors;
 - image/tactile dimensions and calibration;
 - sample phase/rate, exposure, latency, and history length;
 - modality-independent noise, bias, and dropout;
@@ -135,8 +136,8 @@ tactile descriptors instead use the cooked tactile surface transform as their
 spatial authority.
 
 The common SensorIR executor samples parent-frame pose, world-space frame
-twist, six-axis IMU, and six-axis contact-wrench sensors on two explicit
-control boundaries.
+twist, six-axis IMU, six-axis contact-wrench, and five-channel contact-state
+sensors on two explicit control boundaries.
 Frame-twist linear velocity is evaluated at the authored sensor origin,
 including the angular `omega x r` term. Force/torque consumes the committed
 NumiSolver contact impulses from the final accepted physics microstep, divides
@@ -144,6 +145,16 @@ by that microstep duration, sums the resultant force and moment about the
 authored sensor origin, and expresses both in sensor-local axes. It excludes
 authored generalized rows; it does not infer force from acceleration or run a
 second collision query.
+
+A contact-state sensor publishes `(active, count, normal_force,
+tangential_force, max_penetration)`. `count` is the number of accepted contact
+blocks involving the parent body, `normal_force` is the sum of nonnegative
+normal impulses divided by the final physics-microstep duration,
+`tangential_force` is the magnitude of the resultant tangential impulse over
+that duration, and `max_penetration` is the deepest negative signed
+separation. Optional counterpart body names compile into a sorted immutable
+index table. An empty filter accepts every counterpart. No name lookup or
+robot-specific branch occurs while sampling.
 
 An IMU publishes sensor-local specific force `(ax, ay, az)` followed by
 sensor-local angular velocity `(wx, wy, wz)`. Specific force is the accepted
@@ -171,12 +182,12 @@ latency selection.
 
 Presentation sensors still execute in the native renderer and tactile sensors
 still execute in the native tactile context. Folding those passes into the
-session schedule, dedicated contact-state/ray/LiDAR operators, recorder
-routing, sensor-native counter-based corruption, and compiler dead-code
-elimination remain incomplete. Native pose, twist, and force/torque histories
-and IMU kinematic state already journal reset environments and restore on a
-rejected physics transaction. Random corruption will be keyed by environment,
-episode, sensor, sample, and channel.
+session schedule, dedicated ray/LiDAR operators, recorder routing,
+sensor-native counter-based corruption, and compiler dead-code elimination
+remain incomplete. Native pose, twist, IMU, force/torque, and contact-state
+histories already journal reset environments and restore on a rejected
+physics transaction. Random corruption will be keyed by environment, episode,
+sensor, sample, and channel.
 
 RGB, depth, identities, normals, and motion consume only authored Visual
 Presentation V3 packs. Tactile deformation consumes authored undeformed and

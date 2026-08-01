@@ -398,6 +398,19 @@ EngineModel makeFrankaPandaHandEngineModel() {
         static_cast<std::uint32_t>(model.materials.size());
     model.world.nq = 9u;
     model.world.nv = 9u;
+    model.bodyNames = {
+        "panda_link0",
+        "panda_link1",
+        "panda_link2",
+        "panda_link3",
+        "panda_link4",
+        "panda_link5",
+        "panda_link6",
+        "panda_link7",
+        "panda_hand",
+        "panda_leftfinger",
+        "panda_rightfinger",
+    };
     model.defaultQ.push_back(0.035f);
     model.defaultQ.push_back(0.035f);
     model.defaultV.push_back(0.0f);

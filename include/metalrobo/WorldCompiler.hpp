@@ -96,6 +96,10 @@ struct SensorSpec {
     // parents. Asset/world parents require MR_INVALID_INDEX.
     std::uint32_t parentBodyIndex = MR_INVALID_INDEX;
     MRWorldSensorKind kind = MR_WORLD_SENSOR_STATE;
+    // Optional semantic counterpart filter for contact-derived modalities.
+    // Names are resolved, deduplicated, and canonicalized by SensorCompiler;
+    // the GPU never sees strings. Empty means every counterpart body.
+    std::vector<std::string> filterBodies;
     // Asset/body-frame authored transform. For body parents the sensor
     // compiler converts this once to the COM-centred runtime origin used by
     // articulated and rigid-body state. Tactile geometry retains the cooked

@@ -86,6 +86,23 @@ inline float3 stableContactTangent(const float3 normal) {
     );
 }
 
+inline bool contactFilterAllows(
+    device const uint* filterBodies,
+    const uint offset,
+    const uint count,
+    const uint body
+) {
+    if (count == 0u) {
+        return true;
+    }
+    for (uint index = 0u; index < count; ++index) {
+        if (filterBodies[offset + index] == body) {
+            return true;
+        }
+    }
+    return false;
+}
+
 inline bool normalizedQuaternion(
     const float4 input,
     thread float4& result
@@ -104,7 +121,7 @@ inline bool normalizedQuaternion(
 } // namespace
 
 // Canonical control-boundary SensorIR executor for parent-frame pose,
-// world-twist, and solver-authoritative contact-wrench modalities. Reset-only
+// world-twist, IMU, and solver-authoritative contact modalities. Reset-only
 // execution seeds a new episode before its first action; advance execution
 // samples the accepted post-physics state for the next action. One thread owns
 // one environment/sensor history ring, so publication is deterministic and
@@ -122,6 +139,8 @@ kernel void mr_sensor_sample_control_boundary(
         [[buffer(MR_SENSOR_SAMPLE_PROGRAM)]],
     device const MRSensorDescriptorGPU* descriptors
         [[buffer(MR_SENSOR_SAMPLE_DESCRIPTORS)]],
+    device const uint* filterBodies
+        [[buffer(MR_SENSOR_SAMPLE_FILTER_BODIES)]],
     constant MRMetalWorldPassGPU& pass
         [[buffer(MR_SENSOR_SAMPLE_PASS)]],
     device const uint* resetMasks
@@ -184,12 +203,21 @@ kernel void mr_sensor_sample_control_boundary(
         descriptor.identity.x == MR_WORLD_SENSOR_FORCE_TORQUE;
     const bool imuSensor =
         descriptor.identity.x == MR_WORLD_SENSOR_IMU;
+    const bool contactStateSensor =
+        descriptor.identity.x == MR_WORLD_SENSOR_CONTACT_STATE;
+    const uint expectedOutputCount = poseSensor
+        ? 7u
+        : contactStateSensor ? 5u : 6u;
     if ((!poseSensor && !twistSensor && !forceTorqueSensor &&
-         !imuSensor) ||
+         !imuSensor && !contactStateSensor) ||
         descriptor.schedule.z !=
             MR_WORLD_SENSOR_PHASE_PRE_CONTROL ||
         descriptor.source.w != 0u ||
-        descriptor.output.y != (poseSensor ? 7u : 6u) ||
+        descriptor.output.y != expectedOutputCount ||
+        descriptor.filter.x > program.reserved.y ||
+        descriptor.filter.y >
+            program.reserved.y - descriptor.filter.x ||
+        (!contactStateSensor && descriptor.filter.y != 0u) ||
         descriptor.output.w == 0u) {
         return;
     }
@@ -513,7 +541,12 @@ kernel void mr_sensor_sample_control_boundary(
     } else {
         float3 forceWorld = float3(0.0f);
         float3 torqueWorld = float3(0.0f);
-        bool wrenchValid = reset;
+        float3 tangentialImpulseWorld = float3(0.0f);
+        float normalImpulse = 0.0f;
+        float maximumPenetration = 0.0f;
+        uint contactCount = 0u;
+        float inverseTimestep = 0.0f;
+        bool contactsValid = reset;
         if (!reset &&
             contactDispatch.abiVersion ==
                 MR_METAL_WORLD_CONTACT_ABI_VERSION &&
@@ -522,8 +555,8 @@ kernel void mr_sensor_sample_control_boundary(
             isfinite(contactDispatch.timestepAndBias.x)) {
             const MRMetalWorldContactStatusGPU contactStatus =
                 contactStatuses[environment];
-            wrenchValid = contactStatus.code == MR_STEP_SUCCESS;
-            const uint publishedConstraints = wrenchValid
+            contactsValid = contactStatus.code == MR_STEP_SUCCESS;
+            const uint publishedConstraints = contactsValid
                 ? min(
                       contactStatus.requiredConstraints,
                       contactDispatch.constraintCapacity
@@ -532,7 +565,7 @@ kernel void mr_sensor_sample_control_boundary(
             const uint contactBase =
                 environment * contactDispatch.constraintStride;
             const uint parentBody = descriptor.identity.z;
-            const float inverseTimestep =
+            inverseTimestep =
                 1.0f / contactDispatch.timestepAndBias.x;
             for (uint constraintIndex = min(
                      contactDispatch.authoredConstraintCount,
@@ -554,6 +587,18 @@ kernel void mr_sensor_sample_control_boundary(
                 if (parentA == parentB) {
                     continue;
                 }
+                const uint counterpart = parentA
+                    ? constraint.bodyB
+                    : constraint.bodyA;
+                if (contactStateSensor &&
+                    !contactFilterAllows(
+                        filterBodies,
+                        descriptor.filter.x,
+                        descriptor.filter.y,
+                        counterpart
+                    )) {
+                    continue;
+                }
                 const float3 normal = normalizedOr(
                     constraint.normal.xyz,
                     float3(0.0f, 0.0f, 1.0f)
@@ -566,13 +611,20 @@ kernel void mr_sensor_sample_control_boundary(
                     stableContactTangent(normal)
                 );
                 const float3 bitangent = cross(normal, tangent);
-                const float3 impulseOnA = -(
-                    normal * constraint.impulses.x +
+                const float3 normalImpulseOnA =
+                    -normal * constraint.impulses.x;
+                const float3 tangentImpulseOnA = -(
                     tangent * constraint.impulses.y +
                     bitangent * constraint.impulses.z
                 );
+                const float3 impulseOnA =
+                    normalImpulseOnA + tangentImpulseOnA;
                 const float3 impulseOnParent =
                     parentA ? impulseOnA : -impulseOnA;
+                const float3 tangentImpulseOnParent =
+                    parentA
+                    ? tangentImpulseOnA
+                    : -tangentImpulseOnA;
                 const float3 contactForce =
                     impulseOnParent * inverseTimestep;
                 forceWorld += contactForce;
@@ -585,34 +637,77 @@ kernel void mr_sensor_sample_control_boundary(
                     (parentA ? -1.0f : 1.0f) *
                     normal * constraint.impulses.w *
                     inverseTimestep;
+                normalImpulse += max(
+                    constraint.impulses.x,
+                    0.0f
+                );
+                tangentialImpulseWorld +=
+                    tangentImpulseOnParent;
+                maximumPenetration = max(
+                    maximumPenetration,
+                    max(
+                        -constraint.pointAndSeparation.w,
+                        0.0f
+                    )
+                );
+                ++contactCount;
             }
         }
-        const float3 forceLocal = quaternionRotateInverse(
-            sensorOrientation,
-            forceWorld
-        );
-        const float3 torqueLocal = quaternionRotateInverse(
-            sensorOrientation,
-            torqueWorld
-        );
-        if (!wrenchValid ||
-            !all(isfinite(forceLocal)) ||
-            !all(isfinite(torqueLocal))) {
-            state.timestampAgeValidity.w =
-                MR_SENSOR_SAMPLE_NONFINITE;
-            states[stateIndex] = state;
-            MRSensorSampleMetadataGPU failed = metadata[stateIndex];
-            failed.ageValidityAndLayout.y =
-                MR_SENSOR_SAMPLE_NONFINITE;
-            metadata[stateIndex] = failed;
-            return;
+        if (contactStateSensor) {
+            const float normalForce =
+                normalImpulse * inverseTimestep;
+            const float tangentialForce =
+                length(tangentialImpulseWorld) * inverseTimestep;
+            if (!contactsValid ||
+                !isfinite(normalForce) ||
+                !isfinite(tangentialForce) ||
+                !isfinite(maximumPenetration)) {
+                state.timestampAgeValidity.w =
+                    MR_SENSOR_SAMPLE_NONFINITE;
+                states[stateIndex] = state;
+                MRSensorSampleMetadataGPU failed =
+                    metadata[stateIndex];
+                failed.ageValidityAndLayout.y =
+                    MR_SENSOR_SAMPLE_NONFINITE;
+                metadata[stateIndex] = failed;
+                return;
+            }
+            history[writeBase + 0u] =
+                contactCount != 0u ? 1.0f : 0.0f;
+            history[writeBase + 1u] =
+                static_cast<float>(contactCount);
+            history[writeBase + 2u] = normalForce;
+            history[writeBase + 3u] = tangentialForce;
+            history[writeBase + 4u] = maximumPenetration;
+        } else {
+            const float3 forceLocal = quaternionRotateInverse(
+                sensorOrientation,
+                forceWorld
+            );
+            const float3 torqueLocal = quaternionRotateInverse(
+                sensorOrientation,
+                torqueWorld
+            );
+            if (!contactsValid ||
+                !all(isfinite(forceLocal)) ||
+                !all(isfinite(torqueLocal))) {
+                state.timestampAgeValidity.w =
+                    MR_SENSOR_SAMPLE_NONFINITE;
+                states[stateIndex] = state;
+                MRSensorSampleMetadataGPU failed =
+                    metadata[stateIndex];
+                failed.ageValidityAndLayout.y =
+                    MR_SENSOR_SAMPLE_NONFINITE;
+                metadata[stateIndex] = failed;
+                return;
+            }
+            history[writeBase + 0u] = forceLocal.x;
+            history[writeBase + 1u] = forceLocal.y;
+            history[writeBase + 2u] = forceLocal.z;
+            history[writeBase + 3u] = torqueLocal.x;
+            history[writeBase + 4u] = torqueLocal.y;
+            history[writeBase + 5u] = torqueLocal.z;
         }
-        history[writeBase + 0u] = forceLocal.x;
-        history[writeBase + 1u] = forceLocal.y;
-        history[writeBase + 2u] = forceLocal.z;
-        history[writeBase + 3u] = torqueLocal.x;
-        history[writeBase + 4u] = torqueLocal.y;
-        history[writeBase + 5u] = torqueLocal.z;
     }
     ++sequence;
 

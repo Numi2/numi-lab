@@ -22,6 +22,7 @@ struct CompiledSensorProgram::Storage {
     MRSensorProgramHeaderGPU header{};
     std::vector<std::string> sensorIds;
     std::vector<MRSensorDescriptorGPU> descriptors;
+    std::vector<std::uint32_t> filterBodies;
     CookedTactileSystem tactile;
 };
 
@@ -150,6 +151,7 @@ SensorExecutionDomain executionDomain(const MRWorldSensorKind kind) {
     case MR_WORLD_SENSOR_FRAME_TWIST_WORLD:
     case MR_WORLD_SENSOR_FORCE_TORQUE:
     case MR_WORLD_SENSOR_IMU:
+    case MR_WORLD_SENSOR_CONTACT_STATE:
         return SensorExecutionDomain::nativeState;
     }
     return SensorExecutionDomain::nativeState;
@@ -174,6 +176,8 @@ std::uint32_t channelCount(const MRWorldSensorKind kind) {
         // separate explicit modalities rather than silently zero-filled
         // channels in this persisted perception-contract kind.
         return 7u;
+    case MR_WORLD_SENSOR_CONTACT_STATE:
+        return 5u;
     case MR_WORLD_SENSOR_FORCE_TORQUE:
     case MR_WORLD_SENSOR_FRAME_TWIST_WORLD:
     case MR_WORLD_SENSOR_IMU:
@@ -210,7 +214,11 @@ bool CompiledSensorProgram::valid() const noexcept {
             MR_SENSOR_PROGRAM_ABI_VERSION &&
         storage_->descriptors.size() ==
             storage_->layout.sensorCount &&
-        storage_->sensorIds.size() == storage_->layout.sensorCount;
+        storage_->sensorIds.size() == storage_->layout.sensorCount &&
+        storage_->filterBodies.size() ==
+            storage_->layout.filterBodyCount &&
+        storage_->header.reserved.y ==
+            storage_->layout.filterBodyCount;
 }
 
 std::uint64_t CompiledSensorProgram::fingerprint() const noexcept {
@@ -244,6 +252,13 @@ CompiledSensorProgram::descriptors() const noexcept {
     return valid()
         ? std::span<const MRSensorDescriptorGPU>{storage_->descriptors}
         : std::span<const MRSensorDescriptorGPU>{};
+}
+
+std::span<const std::uint32_t>
+CompiledSensorProgram::filterBodies() const noexcept {
+    return valid()
+        ? std::span<const std::uint32_t>{storage_->filterBodies}
+        : std::span<const std::uint32_t>{};
 }
 
 const CookedTactileSystem&
@@ -318,7 +333,7 @@ SensorCompileDiagnostics compileSensorProgram(
                     : "sensor id is duplicated"
             );
         }
-        if (sensor.kind > MR_WORLD_SENSOR_IMU ||
+        if (sensor.kind >= MR_WORLD_SENSOR_KIND_COUNT ||
             sensor.parentKind > MR_WORLD_SENSOR_PARENT_WORLD ||
             sensor.schedulePhase >
                 MR_WORLD_SENSOR_PHASE_PRESENTATION ||
@@ -415,6 +430,7 @@ SensorCompileDiagnostics compileSensorProgram(
              sensor.kind == MR_WORLD_SENSOR_FRAME_TWIST_WORLD ||
              sensor.kind == MR_WORLD_SENSOR_FORCE_TORQUE ||
              sensor.kind == MR_WORLD_SENSOR_IMU ||
+             sensor.kind == MR_WORLD_SENSOR_CONTACT_STATE ||
              sensor.kind == MR_WORLD_SENSOR_TACTILE_DEPTH) &&
             !bodyParent) {
             return reject(
@@ -537,6 +553,70 @@ SensorCompileDiagnostics compileSensorProgram(
         }
 
         const SensorExecutionDomain domain = executionDomain(sensor.kind);
+        if (sensor.kind != MR_WORLD_SENSOR_CONTACT_STATE &&
+            !sensor.filterBodies.empty()) {
+            return reject(
+                SensorCompileStatus::invalidSpec,
+                element + ".filterBodies",
+                "body filters are only valid for contact-state sensors"
+            );
+        }
+        std::vector<std::uint32_t> resolvedFilters;
+        resolvedFilters.reserve(sensor.filterBodies.size());
+        for (const std::string& name : sensor.filterBodies) {
+            const auto found = std::find(
+                world.model().bodyNames.begin(),
+                world.model().bodyNames.end(),
+                name
+            );
+            if (name.empty() ||
+                found == world.model().bodyNames.end()) {
+                return reject(
+                    SensorCompileStatus::unresolvedSemantic,
+                    element + ".filterBodies",
+                    "contact-state filter body is empty or unresolved: " +
+                        name
+                );
+            }
+            resolvedFilters.push_back(
+                static_cast<std::uint32_t>(
+                    found - world.model().bodyNames.begin()
+                )
+            );
+        }
+        std::sort(resolvedFilters.begin(), resolvedFilters.end());
+        if (std::adjacent_find(
+                resolvedFilters.begin(),
+                resolvedFilters.end()
+            ) != resolvedFilters.end()) {
+            return reject(
+                SensorCompileStatus::duplicateSemantic,
+                element + ".filterBodies",
+                "contact-state filter body is duplicated"
+            );
+        }
+        if (staged->filterBodies.size() >
+                std::numeric_limits<std::uint32_t>::max() ||
+            resolvedFilters.size() >
+                std::numeric_limits<std::uint32_t>::max() ||
+            resolvedFilters.size() >
+                std::numeric_limits<std::uint32_t>::max() -
+                    staged->filterBodies.size()) {
+            return reject(
+                SensorCompileStatus::arithmeticOverflow,
+                element + ".filterBodies",
+                "contact-state filter table exceeds 32-bit indexing"
+            );
+        }
+        const std::uint32_t filterOffset =
+            static_cast<std::uint32_t>(staged->filterBodies.size());
+        const std::uint32_t filterCount =
+            static_cast<std::uint32_t>(resolvedFilters.size());
+        staged->filterBodies.insert(
+            staged->filterBodies.end(),
+            resolvedFilters.begin(),
+            resolvedFilters.end()
+        );
         MRSensorDescriptorGPU descriptor{};
         descriptor.identity = {
             sensor.kind,
@@ -567,6 +647,12 @@ SensorCompileDiagnostics compileSensorProgram(
             sourceOwner,
             tactileOrdinal,
             static_cast<std::uint32_t>(domain),
+        };
+        descriptor.filter = {
+            filterOffset,
+            filterCount,
+            0u,
+            0u,
         };
         descriptor.localPosition = sensor.localPose.position;
         descriptor.localOrientation = sensor.localPose.orientation;
@@ -618,6 +704,8 @@ SensorCompileDiagnostics compileSensorProgram(
         staged->descriptors.push_back(descriptor);
         staged->layout.outputElementCount = nextOutput;
         staged->layout.historyElementCount = nextHistory;
+        staged->layout.filterBodyCount =
+            static_cast<std::uint32_t>(staged->filterBodies.size());
         staged->layout.maximumHistoryLength = std::max(
             staged->layout.maximumHistoryLength,
             sensor.historyLength
@@ -665,6 +753,7 @@ SensorCompileDiagnostics compileSensorProgram(
         hash.scalar(staged->descriptors[index]);
     }
     hash.scalar(tactile.fingerprint);
+    hash.span<std::uint32_t>(staged->filterBodies);
     staged->fingerprint = hash.finish();
     staged->header.sensorFingerprint = staged->fingerprint;
     staged->header.worldFingerprint = staged->worldFingerprint;
@@ -689,6 +778,7 @@ SensorCompileDiagnostics compileSensorProgram(
         ),
     };
     staged->header.reserved.x = MR_SENSOR_PROGRAM_ABI_VERSION;
+    staged->header.reserved.y = staged->layout.filterBodyCount;
 
     SensorCompileDiagnostics diagnostics;
     diagnostics.fingerprint = staged->fingerprint;

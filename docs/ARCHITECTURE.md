@@ -60,8 +60,9 @@ may construct packed GPU offsets or mutate compiled topology.
 - `RodOperatorIR` contains topology, tangent coordinates, block bandwidth,
   factor storage, and material parameters for a connected rod component.
 - `TaskIR` is a typed, phase-separated, fixed-shape operator graph.
-- `SensorIR` defines native scheduling, latency, history, noise, reset, and
-  observation/recorder bindings for every sensor.
+- `SensorIR` defines native scheduling, latency, history, noise, reset,
+  observation/recorder bindings, and canonical semantic filter tables for
+  every sensor.
 - `PolicyIR` defines inference topology, normalization, action transforms,
   recurrent state, and weight layouts. Its topology fingerprint is immutable
   for a session; learned revisions alternate between two private Metal banks.

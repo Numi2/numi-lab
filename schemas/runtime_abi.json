@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 15,
+  "abi_version": 16,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -119,7 +119,7 @@
     ["rod_ccd", "rodCCDWitnessTagPipeline", "mr_world_tag_rod_ccd_witnesses", "one", 0]
   ],
   "abi_constants": {
-    "MR_SENSOR_PROGRAM_ABI_VERSION": 5,
+    "MR_SENSOR_PROGRAM_ABI_VERSION": 6,
     "MR_SENSOR_DISPATCH_HAS_RESETS": 1,
     "MR_SENSOR_DISPATCH_HAS_CONTACTS": 2
   },
@@ -145,6 +145,7 @@
         ["mr_uint4", "schedule"],
         ["mr_uint4", "dimensions"],
         ["mr_uint4", "source"],
+        ["mr_uint4", "filter"],
         ["mr_float4", "localPosition"],
         ["mr_float4", "localOrientation"],
         ["mr_float4", "timing"],
@@ -208,7 +209,7 @@
     }
   ],
   "world_buffers": {
-    "count": 246,
+    "count": 247,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -447,7 +448,8 @@
       ["kTaskCheckpointEncoderBias", 242],
       ["kTaskCheckpointBodyParameters", 243],
       ["kTaskCheckpointControllerParameters", 244],
-      ["kTaskCheckpointContactCompact", 245]
+      ["kTaskCheckpointContactCompact", 245],
+      ["kSensorFilterBodies", 246]
     ],
     "classifications": {
       "immutable": [
@@ -493,7 +495,8 @@
         "kPolicyProgramHeaderB",
         "kPolicyProgramArenaB",
         "kSensorProgramHeader",
-        "kSensorDescriptors"
+        "kSensorDescriptors",
+        "kSensorFilterBodies"
       ],
       "persistent": [
         "kStateQA",
@@ -784,6 +787,7 @@
         "DISPATCH",
         "PROGRAM",
         "DESCRIPTORS",
+        "FILTER_BODIES",
         "PASS",
         "RESET_MASKS",
         "BODY_POSES",

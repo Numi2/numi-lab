@@ -2017,6 +2017,18 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             .component = component,
         });
     }
+    for (std::uint32_t component = 0u; component < 5u; ++component) {
+        wrenchAuthored.task.critic.push_back({
+            .source = metalrobo::TaskObservationSource::sensorValue,
+            .target = "tool_contact_state",
+            .component = component,
+        });
+    }
+    wrenchAuthored.task.critic.push_back({
+        .source = metalrobo::TaskObservationSource::sensorValidity,
+        .target = "tool_contact_state",
+        .component = 0u,
+    });
     wrenchAuthored.task.criticIncludesCleanHistory = false;
     wrenchAuthored.task.contactGroups = {{
         .id = "tool_contact",
@@ -2028,23 +2040,52 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .weight = 1.0f,
     }};
     wrenchAuthored.task.terminations.clear();
-    wrenchAuthored.sensors = {{
-        .id = "tool_force_torque",
-        .parentKind = MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
-        .parentBodyIndex = toolBodyIndex,
-        .kind = MR_WORLD_SENSOR_FORCE_TORQUE,
-        // The URDF link-frame value 0.1 m is this body's COM. TaskIR's
-        // contact-group reference therefore remains zero in COM coordinates.
-        .localPose = {
-            .position = {0.0f, 0.0f, 0.1f, 0.0f},
+    wrenchAuthored.sensors = {
+        {
+            .id = "tool_force_torque",
+            .parentKind =
+                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+            .parentBodyIndex = toolBodyIndex,
+            .kind = MR_WORLD_SENSOR_FORCE_TORQUE,
+            // The URDF link-frame value 0.1 m is this body's COM. TaskIR's
+            // contact-group reference therefore remains zero in COM coordinates.
+            .localPose = {
+                .position = {0.0f, 0.0f, 0.1f, 0.0f},
+            },
+            .nominalRateHz = 50.0f,
+            .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 1u,
+            .consumerFlags =
+                MR_WORLD_SENSOR_CONSUMER_CRITIC |
+                MR_WORLD_SENSOR_CONSUMER_RECORDER,
         },
-        .nominalRateHz = 50.0f,
-        .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
-        .historyLength = 1u,
-        .consumerFlags =
-            MR_WORLD_SENSOR_CONSUMER_CRITIC |
-            MR_WORLD_SENSOR_CONSUMER_RECORDER,
-    }};
+        {
+            .id = "tool_contact_state",
+            .parentKind =
+                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+            .parentBodyIndex = toolBodyIndex,
+            .kind = MR_WORLD_SENSOR_CONTACT_STATE,
+            .filterBodies = {"wrench_obstacle"},
+            .nominalRateHz = 50.0f,
+            .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 1u,
+            .consumerFlags =
+                MR_WORLD_SENSOR_CONSUMER_CRITIC |
+                MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        },
+        {
+            .id = "tool_ground_contact_state",
+            .parentKind =
+                MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+            .parentBodyIndex = toolBodyIndex,
+            .kind = MR_WORLD_SENSOR_CONTACT_STATE,
+            .filterBodies = {"locomotion_ground"},
+            .nominalRateHz = 50.0f,
+            .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+            .historyLength = 1u,
+            .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
+        },
+    };
     metalrobo::PolicyPack wrenchPolicy;
     wrenchPolicy.id = "fixed_base_force_torque_policy";
     wrenchPolicy.layers = {{
@@ -2055,10 +2096,10 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         .bias = std::vector<float>(1u, 0.0f),
     }};
     wrenchPolicy.criticLayers = {{
-        .inputCount = 12u,
+        .inputCount = 18u,
         .outputCount = 1u,
         .activation = metalrobo::PolicyActivation::identity,
-        .weights = std::vector<float>(12u, 0.0f),
+        .weights = std::vector<float>(18u, 0.0f),
         .bias = std::vector<float>(1u, 0.0f),
     }};
     wrenchAuthored.policy = std::move(wrenchPolicy);
@@ -2070,14 +2111,47 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         wrenchCompiled
     );
     if (!wrenchCompile.succeeded() ||
-        wrenchCompiled.sensors.layout().sensorCount != 1u ||
-        wrenchCompiled.sensors.layout().outputElementCount != 6u) {
+        wrenchCompiled.sensors.layout().sensorCount != 3u ||
+        wrenchCompiled.sensors.layout().outputElementCount != 16u ||
+        wrenchCompiled.sensors.layout().filterBodyCount != 2u ||
+        wrenchCompiled.sensors.filterBodies().size() != 2u ||
+        wrenchCompiled.sensors.filterBodies()[0u] !=
+            obstacleBodyIndex ||
+        wrenchCompiled.sensors.filterBodies()[1u] !=
+            twistReferenceBodyIndex ||
+        wrenchCompiled.sensors.descriptors()[1u].filter.x != 0u ||
+        wrenchCompiled.sensors.descriptors()[1u].filter.y != 1u ||
+        wrenchCompiled.sensors.descriptors()[2u].filter.x != 1u ||
+        wrenchCompiled.sensors.descriptors()[2u].filter.y != 1u) {
         fail(
             "force-torque SensorIR compile failed: " +
             wrenchCompile.world.message + " " +
             wrenchCompile.sensors.message + " " +
             wrenchCompile.task.message + " " +
             wrenchCompile.policy.message
+        );
+    }
+    std::vector<metalrobo::SensorSpec> unresolvedFilterSensors =
+        wrenchAuthored.sensors;
+    unresolvedFilterSensors[1u].filterBodies = {
+        "missing_contact_filter_body",
+    };
+    metalrobo::CompiledSensorProgram preservedContactSensors =
+        wrenchCompiled.sensors;
+    const std::uint64_t preservedContactFingerprint =
+        preservedContactSensors.fingerprint();
+    const auto unresolvedFilter = metalrobo::compileSensorProgram(
+        unresolvedFilterSensors,
+        wrenchAuthored.tactileSystem,
+        wrenchCompiled.world,
+        preservedContactSensors
+    );
+    if (unresolvedFilter.status !=
+            metalrobo::SensorCompileStatus::unresolvedSemantic ||
+        preservedContactSensors.fingerprint() !=
+            preservedContactFingerprint) {
+        fail(
+            "unresolved contact-state body filter was not rejected transactionally"
         );
     }
     constexpr std::size_t wrenchSteps = 4u;
@@ -2114,16 +2188,16 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         wrenchStep,
         wrenchResult
     );
-    const std::size_t finalWrenchBase = 12u * wrenchSteps;
+    const std::size_t finalWrenchBase = 18u * wrenchSteps;
     double forceNormSquared = 0.0;
     double torqueNormSquared = 0.0;
     bool wrenchParity =
         wrenchExecution.succeeded() &&
-        wrenchResult.sensorOutputs.size() == 6u &&
+        wrenchResult.sensorOutputs.size() == 16u &&
         wrenchResult.criticObservations.size() ==
-            12u * (wrenchSteps + 1u);
+            18u * (wrenchSteps + 1u);
     if (wrenchParity) {
-        const std::size_t resetObservationBase = 12u * 2u;
+        const std::size_t resetObservationBase = 18u * 2u;
         for (std::size_t component = 0u;
              component < 6u;
              ++component) {
@@ -2134,6 +2208,20 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
                     ]
                 ) <= 1.0e-6f;
         }
+        for (std::size_t component = 0u;
+             component < 5u;
+             ++component) {
+            wrenchParity = wrenchParity &&
+                std::abs(
+                    wrenchResult.criticObservations[
+                        resetObservationBase + 12u + component
+                    ]
+                ) <= 1.0e-6f;
+        }
+        wrenchParity = wrenchParity &&
+            wrenchResult.criticObservations[
+                resetObservationBase + 17u
+            ] == 1.0f;
     }
     if (wrenchParity) {
         for (std::size_t component = 0u;
@@ -2164,7 +2252,168 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         static_cast<float>(std::sqrt(forceNormSquared));
     const float torqueNormNewtonMetres =
         static_cast<float>(std::sqrt(torqueNormSquared));
-    if (!wrenchParity || !(forceNormNewtons > 0.1f) ||
+    std::uint32_t expectedContactCount = 0u;
+    double expectedNormalImpulse = 0.0;
+    std::array<double, 3u> expectedTangentImpulse{};
+    double expectedMaximumPenetration = 0.0;
+    if (wrenchExecution.succeeded() &&
+        !wrenchResult.contactStatuses.empty()) {
+        const std::size_t published = std::min<std::size_t>(
+            wrenchResult.contactStatuses.back().requiredConstraints,
+            wrenchResult.layout.contactDispatch.constraintCapacity
+        );
+        const std::size_t begin = std::min<std::size_t>(
+            wrenchResult.layout.contactDispatch.authoredConstraintCount,
+            published
+        );
+        for (std::size_t index = begin; index < published; ++index) {
+            const MRContactConstraintGPU& constraint =
+                wrenchResult.contactEvidence.contacts[index];
+            if ((constraint.flags &
+                 (MR_CONSTRAINT_FLAG_DISABLED |
+                  MR_CONSTRAINT_FLAG_GENERALIZED)) != 0u) {
+                continue;
+            }
+            const bool parentA = constraint.bodyA == toolBodyIndex;
+            const bool parentB = constraint.bodyB == toolBodyIndex;
+            if (parentA == parentB ||
+                (parentA ? constraint.bodyB : constraint.bodyA) !=
+                    obstacleBodyIndex) {
+                continue;
+            }
+            auto normalized = [](
+                const std::array<double, 3u>& value,
+                const std::array<double, 3u>& fallback
+            ) {
+                const double squared =
+                    value[0u] * value[0u] +
+                    value[1u] * value[1u] +
+                    value[2u] * value[2u];
+                if (!(squared > 1.0e-12) ||
+                    !std::isfinite(squared)) {
+                    return fallback;
+                }
+                const double inverse = 1.0 / std::sqrt(squared);
+                return std::array<double, 3u>{
+                    value[0u] * inverse,
+                    value[1u] * inverse,
+                    value[2u] * inverse,
+                };
+            };
+            const std::array<double, 3u> normal = normalized(
+                {
+                    constraint.normal.x,
+                    constraint.normal.y,
+                    constraint.normal.z,
+                },
+                {0.0, 0.0, 1.0}
+            );
+            const double tangentAlongNormal =
+                constraint.tangent.x * normal[0u] +
+                constraint.tangent.y * normal[1u] +
+                constraint.tangent.z * normal[2u];
+            std::array<double, 3u> tangent = normalized(
+                {
+                    constraint.tangent.x -
+                        tangentAlongNormal * normal[0u],
+                    constraint.tangent.y -
+                        tangentAlongNormal * normal[1u],
+                    constraint.tangent.z -
+                        tangentAlongNormal * normal[2u],
+                },
+                {1.0, 0.0, 0.0}
+            );
+            const std::array<double, 3u> bitangent{
+                normal[1u] * tangent[2u] -
+                    normal[2u] * tangent[1u],
+                normal[2u] * tangent[0u] -
+                    normal[0u] * tangent[2u],
+                normal[0u] * tangent[1u] -
+                    normal[1u] * tangent[0u],
+            };
+            const double parentSign = parentA ? -1.0 : 1.0;
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                expectedTangentImpulse[axis] += parentSign * (
+                    tangent[axis] * constraint.impulses.y +
+                    bitangent[axis] * constraint.impulses.z
+                );
+            }
+            expectedNormalImpulse += std::max(
+                static_cast<double>(constraint.impulses.x),
+                0.0
+            );
+            expectedMaximumPenetration = std::max(
+                expectedMaximumPenetration,
+                std::max(
+                    -static_cast<double>(
+                        constraint.pointAndSeparation.w
+                    ),
+                    0.0
+                )
+            );
+            ++expectedContactCount;
+        }
+    }
+    const double inverseContactTimestep =
+        1.0 /
+        wrenchResult.layout.contactDispatch.timestepAndBias.x;
+    const float expectedNormalForce = static_cast<float>(
+        expectedNormalImpulse * inverseContactTimestep
+    );
+    const float expectedTangentialForce = static_cast<float>(
+        std::sqrt(
+            expectedTangentImpulse[0u] *
+                expectedTangentImpulse[0u] +
+            expectedTangentImpulse[1u] *
+                expectedTangentImpulse[1u] +
+            expectedTangentImpulse[2u] *
+                expectedTangentImpulse[2u]
+        ) * inverseContactTimestep
+    );
+    bool contactStateParity = expectedContactCount != 0u &&
+        wrenchResult.sensorOutputs.size() == 16u &&
+        wrenchResult.criticObservations.size() ==
+            18u * (wrenchSteps + 1u);
+    if (contactStateParity) {
+        contactStateParity =
+        wrenchResult.sensorOutputs[6u] == 1.0f &&
+        std::abs(
+            wrenchResult.sensorOutputs[7u] -
+            static_cast<float>(expectedContactCount)
+        ) <= 1.0e-6f &&
+        std::abs(
+            wrenchResult.sensorOutputs[8u] -
+            expectedNormalForce
+        ) <= 3.0e-4f * (1.0f + expectedNormalForce) &&
+        std::abs(
+            wrenchResult.sensorOutputs[9u] -
+            expectedTangentialForce
+        ) <= 3.0e-4f * (1.0f + expectedTangentialForce) &&
+        std::abs(
+            wrenchResult.sensorOutputs[10u] -
+            static_cast<float>(expectedMaximumPenetration)
+        ) <= 2.0e-5f;
+        for (std::size_t channel = 0u;
+             channel < 5u;
+             ++channel) {
+            contactStateParity = contactStateParity &&
+                std::abs(
+                    wrenchResult.sensorOutputs[6u + channel] -
+                    wrenchResult.criticObservations[
+                        finalWrenchBase + 12u + channel
+                    ]
+                ) <= 2.0e-5f &&
+                std::abs(
+                    wrenchResult.sensorOutputs[11u + channel]
+                ) <= 1.0e-6f;
+        }
+        contactStateParity = contactStateParity &&
+            wrenchResult.criticObservations[
+                finalWrenchBase + 17u
+            ] == 1.0f;
+    }
+    if (!wrenchParity || !contactStateParity ||
+        !(forceNormNewtons > 0.1f) ||
         !(torqueNormNewtonMetres > 1.0e-4f)) {
         fail(
             "native force-torque SensorIR did not preserve the solved contact wrench: " +
@@ -2172,6 +2421,22 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             " force_n=" + std::to_string(forceNormNewtons) +
             " torque_nm=" +
             std::to_string(torqueNormNewtonMetres) +
+            " contact_state=" +
+            std::to_string(contactStateParity) +
+            " count=" +
+            std::to_string(expectedContactCount) + "/" +
+            (wrenchResult.sensorOutputs.size() <= 8u
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       wrenchResult.sensorOutputs[7u]
+                   )) +
+            " normal_n=" +
+            std::to_string(expectedNormalForce) + "/" +
+            (wrenchResult.sensorOutputs.size() <= 9u
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       wrenchResult.sensorOutputs[8u]
+                   )) +
             " host=" + std::to_string(
                 static_cast<std::uint32_t>(wrenchExecution.status)
             ) +
@@ -2244,6 +2509,27 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
                        wrenchResult.criticObservations[
                            finalWrenchBase
                        ]
+                   )) +
+            " sensor_ft=" +
+            (wrenchResult.sensorOutputs.size() < 6u
+                 ? std::string{"missing"}
+                 : std::to_string(wrenchResult.sensorOutputs[0u]) +
+                       "," +
+                       std::to_string(wrenchResult.sensorOutputs[1u]) +
+                       "," +
+                       std::to_string(wrenchResult.sensorOutputs[2u]) +
+                       "," +
+                       std::to_string(wrenchResult.sensorOutputs[3u]) +
+                       "," +
+                       std::to_string(wrenchResult.sensorOutputs[4u]) +
+                       "," +
+                       std::to_string(wrenchResult.sensorOutputs[5u])) +
+            " validity=" +
+            (wrenchResult.sensorMetadata.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       wrenchResult.sensorMetadata[0u]
+                           .ageValidityAndLayout.y
                    ))
         );
     }
@@ -2407,11 +2693,11 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
         initialTransactionResult.contactEvidence.manifoldPoints;
     if (!initialTransaction.succeeded() ||
         !transactionState.valid() ||
-        committedSensorOutputs.size() != 19u ||
-        committedSensorMetadata.size() != 3u ||
+        committedSensorOutputs.size() != 29u ||
+        committedSensorMetadata.size() != 5u ||
         committedManifoldCounts.size() != 1u ||
         committedManifoldCounts[0u] == 0u ||
-        std::abs(committedSensorOutputs[8u]) < 1.0e-3f) {
+        std::abs(committedSensorOutputs[18u]) < 1.0e-3f) {
         fail(
             "sensor rollback fixture did not establish a committed resident canary: " +
             initialTransaction.message
@@ -2528,20 +2814,20 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             " contact_state=" +
             std::to_string(contactTransactionRestored) +
             " committed_pose=" +
-            std::to_string(committedSensorOutputs[6u]) + "," +
-            std::to_string(committedSensorOutputs[7u]) + "," +
-            std::to_string(committedSensorOutputs[8u]) +
+            std::to_string(committedSensorOutputs[16u]) + "," +
+            std::to_string(committedSensorOutputs[17u]) + "," +
+            std::to_string(committedSensorOutputs[18u]) +
             " rejected_pose=" +
-            (rejectedTransactionResult.sensorOutputs.size() < 9u
+            (rejectedTransactionResult.sensorOutputs.size() < 19u
                  ? std::string{"missing"}
                  : std::to_string(
-                       rejectedTransactionResult.sensorOutputs[6u]
+                       rejectedTransactionResult.sensorOutputs[16u]
                    ) + "," +
                        std::to_string(
-                           rejectedTransactionResult.sensorOutputs[7u]
+                           rejectedTransactionResult.sensorOutputs[17u]
                        ) + "," +
                        std::to_string(
-                           rejectedTransactionResult.sensorOutputs[8u]
+                           rejectedTransactionResult.sensorOutputs[18u]
                        ))
         );
     }
@@ -2818,6 +3104,8 @@ std::uint64_t checkWorldPackSimulationImport(
 ) {
     metalrobo::EpisodeTwin episode =
         metalrobo::makeFrankaPickPlaceEpisodeTwin();
+    metalrobo::EngineModel frankaModel =
+        metalrobo::makeFrankaPickPlaceEngineModel();
     const auto wristSensor = std::find_if(
         episode.sensors.begin(),
         episode.sensors.end(),
@@ -2841,11 +3129,39 @@ std::uint64_t checkWorldPackSimulationImport(
         .historyLength = 2u,
         .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
     });
+    const auto objectAsset = std::find_if(
+        episode.assets.begin(),
+        episode.assets.end(),
+        [](const metalrobo::WorldAsset& asset) {
+            return asset.role == MR_WORLD_ASSET_MANIPULATED;
+        }
+    );
+    if (objectAsset == episode.assets.end() ||
+        objectAsset->bodyIndices.size() != 1u ||
+        objectAsset->bodyIndices.front() >=
+            frankaModel.bodyNames.size()) {
+        fail("WorldPack contact-filter fixture has no object body");
+    }
+    const std::uint32_t objectBody =
+        objectAsset->bodyIndices.front();
+    episode.sensors.push_back({
+        .id = "franka_worldpack_contact",
+        .parentAssetId = episode.task.robotAssetId,
+        .parentKind =
+            MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK,
+        .parentBodyIndex = wristSensor->parentBodyIndex,
+        .kind = MR_WORLD_SENSOR_CONTACT_STATE,
+        .filterBodies = {frankaModel.bodyNames[objectBody]},
+        .nominalRateHz = 50.0f,
+        .schedulePhase = MR_WORLD_SENSOR_PHASE_PRE_CONTROL,
+        .historyLength = 2u,
+        .consumerFlags = MR_WORLD_SENSOR_CONSUMER_RECORDER,
+    });
     metalrobo::WorldTemplate worldTemplate;
     const metalrobo::WorldCompileResult templateStatus =
         metalrobo::compileEpisodeTwin(
             episode,
-            metalrobo::makeFrankaPickPlaceEngineModel(),
+            frankaModel,
             worldTemplate
         );
     metalrobo::WorldFamily family;
@@ -2900,6 +3216,13 @@ std::uint64_t checkWorldPackSimulationImport(
             return sensor.id == "franka_worldpack_imu";
         }
     );
+    const auto importedContact = std::find_if(
+        imported.sensors.begin(),
+        imported.sensors.end(),
+        [](const metalrobo::SensorSpec& sensor) {
+            return sensor.id == "franka_worldpack_contact";
+        }
+    );
     metalrobo::CompiledWorld compiledWorld;
     const auto worldStatus = metalrobo::compileMetalWorld(
         imported.model,
@@ -2920,6 +3243,8 @@ std::uint64_t checkWorldPackSimulationImport(
           };
     const std::uint32_t compiledImu =
         compiledSensors.sensorIndex("franka_worldpack_imu");
+    const std::uint32_t compiledContact =
+        compiledSensors.sensorIndex("franka_worldpack_contact");
     if (imported.articulationIndex != 0u ||
         imported.model.bodies.size() !=
             family.worldTemplate.engineModel.bodies.size() ||
@@ -2929,11 +3254,22 @@ std::uint64_t checkWorldPackSimulationImport(
         importedImu->parentKind !=
             MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK ||
         importedImu->parentBodyIndex == MR_INVALID_INDEX ||
+        importedContact == imported.sensors.end() ||
+        importedContact->filterBodies.size() != 1u ||
+        importedContact->filterBodies.front() !=
+            frankaModel.bodyNames[objectBody] ||
         !worldStatus.succeeded() ||
         !sensorStatus.succeeded() ||
         compiledImu == MR_INVALID_INDEX ||
         compiledSensors.descriptors()[compiledImu].identity.x !=
             MR_WORLD_SENSOR_IMU ||
+        compiledContact == MR_INVALID_INDEX ||
+        compiledSensors.descriptors()[compiledContact].identity.x !=
+            MR_WORLD_SENSOR_CONTACT_STATE ||
+        compiledSensors.descriptors()[compiledContact].filter.y != 1u ||
+        compiledSensors.filterBodies()[
+            compiledSensors.descriptors()[compiledContact].filter.x
+        ] != objectBody ||
         loaded.contentHash != pack.contentHash) {
         fail(
             "WorldPack did not round-trip executable mechanics, scene state, and IMU SensorIR"
@@ -3494,6 +3830,7 @@ int main() {
             << " physical_transaction=pass"
             << " task_transaction=pass"
             << " imu=pass"
+            << " contact_state=pass"
             << " world_pack=" << worldPackFingerprint
             << '\n';
         return 0;

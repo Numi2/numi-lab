@@ -85,12 +85,13 @@ consumers release it.
 ## Current SensorIR execution boundary
 
 The canonical MetalWorld session owns persistent schedule, history, output, and
-metadata buffers for parent-frame pose, world-twist, six-axis IMU, and six-axis
-contact-wrench sensors. One thread owns one environment/sensor history ring, so a reset
-clears and seeds it without atomics or host reconstruction. A second boundary
-advances the schedule after physics accepts the next state; rollout-chunk
-boundaries therefore do not duplicate a sample. Rates use integer nanosecond
-phase accumulators and whole-sample latency is selected from the retained ring.
+metadata buffers for parent-frame pose, world-twist, six-axis IMU, six-axis
+contact-wrench, and five-channel contact-state sensors. One thread owns one
+environment/sensor history ring, so a reset clears and seeds it without
+atomics or host reconstruction. A second boundary advances the schedule after
+physics accepts the next state; rollout-chunk boundaries therefore do not
+duplicate a sample. Rates use integer nanosecond phase accumulators and whole-
+sample latency is selected from the retained ring.
 
 Force/torque reads the same final-microstep solved contact constraints used by
 TaskIR and the tactile force authority. It sums the force and moment applied to
@@ -101,6 +102,13 @@ metadata into topology-sized private checkpoint buffers. A rejected world or
 contact transaction restores the journal byte-for-byte; successful and
 ordinary non-reset transitions perform no checkpoint copy. The same schedule
 also runs directly against a compiled world when no TaskIR program is present.
+
+Contact-state sampling reduces the same accepted contact stream into active
+state, block count, summed normal force, resultant tangential force, and
+maximum penetration. Authored counterpart body names are resolved once and
+uploaded as a generated immutable index table. Descriptors carry validated
+offset/count ranges; the Metal hot loop performs only bounded integer matching
+and never receives semantic strings.
 
 IMU samples retain only the previous accepted point velocity and exact integer
 sample timestamp. The Metal kernel differentiates that world velocity over the

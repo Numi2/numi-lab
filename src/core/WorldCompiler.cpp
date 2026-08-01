@@ -173,6 +173,12 @@ void appendSensor(HashBuilder& hash, const SensorSpec& sensor) {
     hash.appendScalar(sensor.parentKind);
     hash.appendScalar(sensor.parentBodyIndex);
     hash.appendScalar(sensor.kind);
+    const std::uint64_t filterBodyCount =
+        sensor.filterBodies.size();
+    hash.appendScalar(filterBodyCount);
+    for (const std::string& body : sensor.filterBodies) {
+        hash.appendString(body);
+    }
     appendPose(hash, sensor.localPose);
     hash.appendScalar(sensor.width);
     hash.appendScalar(sensor.height);
@@ -368,6 +374,7 @@ std::uint32_t computeCapabilities(
         case MR_WORLD_SENSOR_FRAME_TWIST_WORLD:
         case MR_WORLD_SENSOR_FORCE_TORQUE:
         case MR_WORLD_SENSOR_IMU:
+        case MR_WORLD_SENSOR_CONTACT_STATE:
             break;
         case MR_WORLD_SENSOR_TACTILE_DEPTH:
             result |= MR_WORLD_CAP_TACTILE_DEPTH;
@@ -792,7 +799,7 @@ bool validAsset(const WorldAsset& asset, std::string* reason) {
 bool validSensor(const SensorSpec& sensor, std::string* reason) {
     if (sensor.id.empty() || sensor.parentAssetId.empty() ||
         sensor.parentKind > MR_WORLD_SENSOR_PARENT_WORLD ||
-        sensor.kind > MR_WORLD_SENSOR_IMU ||
+        sensor.kind >= MR_WORLD_SENSOR_KIND_COUNT ||
         !finite(sensor.localPose.position) ||
         !unitQuaternion(sensor.localPose.orientation) ||
         !finite(sensor.intrinsics) || !finite(sensor.distortion) ||
@@ -845,6 +852,22 @@ bool validSensor(const SensorSpec& sensor, std::string* reason) {
         !finite(sensor.motionBlurScale) ||
         !(sensor.motionBlurScale >= 0.0f)) {
         return fail(reason, "sensor has invalid authored parameters");
+    }
+    if (sensor.kind != MR_WORLD_SENSOR_CONTACT_STATE &&
+        !sensor.filterBodies.empty()) {
+        return fail(
+            reason,
+            "only contact-state sensors may author body filters"
+        );
+    }
+    std::unordered_set<std::string> filterBodies;
+    for (const std::string& body : sensor.filterBodies) {
+        if (body.empty() || !filterBodies.insert(body).second) {
+            return fail(
+                reason,
+                "sensor contact filter contains an empty or duplicate body"
+            );
+        }
     }
     const bool bodyParent =
         sensor.parentKind == MR_WORLD_SENSOR_PARENT_RIGID_BODY ||
@@ -1162,6 +1185,17 @@ bool WorldTemplate::valid(std::string* reason) const {
                 );
             }
         }
+        for (const std::string& filterBody : sensor.filterBodies) {
+            if (std::ranges::find(
+                    engineModel.bodyNames,
+                    filterBody
+                ) == engineModel.bodyNames.end()) {
+                return fail(
+                    reason,
+                    "sensor contact filter body does not exist"
+                );
+            }
+        }
     }
     const std::size_t genericTactileCount =
         static_cast<std::size_t>(std::count_if(
@@ -1377,8 +1411,8 @@ bool WorldInstanceBatch::valid(std::string* reason) const {
             sensor.noiseAndLatency.z < 0.0f ||
             sensor.noiseAndLatency.z > 1.0f ||
             sensor.noiseAndLatency.w < 0.0f ||
-            sensor.identity.y >
-                MR_WORLD_SENSOR_IMU) {
+            sensor.identity.y >=
+                MR_WORLD_SENSOR_KIND_COUNT) {
             return fail(reason, "sampled sensor instance is invalid");
         }
     }

@@ -65,7 +65,13 @@ enum MRWorldSensorKind : mr_u32 {
     // actual sensor sample interval minus world gravity. The point velocity
     // includes the authored sensor offset from the parent centre of mass.
     MR_WORLD_SENSOR_IMU = 8u,
+    // active flag, contact count, summed normal force, resultant tangential
+    // force, and maximum penetration for the parent body. Optional authored
+    // body filters are resolved into immutable SensorIR index tables.
+    MR_WORLD_SENSOR_CONTACT_STATE = 9u,
 };
+
+#define MR_WORLD_SENSOR_KIND_COUNT 10u
 
 enum MRWorldSensorParentKind : mr_u32 {
     MR_WORLD_SENSOR_PARENT_ASSET = 0u,

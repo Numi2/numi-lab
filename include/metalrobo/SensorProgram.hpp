@@ -47,6 +47,7 @@ struct SensorProgramLayout {
     std::uint32_t outputElementCount = 0u;
     std::uint32_t historyElementCount = 0u;
     std::uint32_t tactileSampleCount = 0u;
+    std::uint32_t filterBodyCount = 0u;
     std::uint32_t nativeStateSensorCount = 0u;
     std::uint32_t presentationSensorCount = 0u;
     std::uint32_t tactileSensorCount = 0u;
@@ -68,6 +69,8 @@ public:
     [[nodiscard]] std::span<const std::string> sensorIds() const noexcept;
     [[nodiscard]] std::span<const MRSensorDescriptorGPU>
     descriptors() const noexcept;
+    [[nodiscard]] std::span<const std::uint32_t>
+    filterBodies() const noexcept;
     [[nodiscard]] const CookedTactileSystem& tactileSystem() const noexcept;
     [[nodiscard]] std::uint32_t sensorIndex(
         std::string_view id
