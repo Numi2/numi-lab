@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T04:27:59+02:00",
+  "source_revision": "ba48f35bc13188a824eb1cf1fcf3aeb745eece2c",
+  "metallib_sha256": "4fcc6aade34b9003c7cab762b9eb7a24bb6f022cbdfcc9c9c80a744614e60334",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 5.37,
+    "full_build_succeeded": true,
+    "full_build_incremental_actions": 79,
+    "runtime_abi_version": 12,
+    "generated_world_buffer_count": 235,
+    "sensor_checkpoint_buffer_count": 4,
+    "sensor_checkpoint_scope": "reset_environments_only",
+    "sensor_checkpoint_restore": "byte_exact_outputs_and_metadata",
+    "sensor_schedule_without_task_ir": true,
+    "resident_token_survived_rejected_step": true,
+    "recovery_submission_succeeded": true,
+    "rejected_step_status": "MR_STEP_PAIR_CAPACITY_OVERFLOW",
+    "operational_candidate_pair_capacity": 1,
+    "eligible_pair_count_minimum": 2,
+    "force_torque_sensor_count": 1,
+    "force_torque_channel_count": 6,
+    "measured_force_norm_newtons": 6.00195,
+    "measured_torque_norm_newton_metres": 0.142403,
+    "task_execution_pipeline_count": 52,
+    "generated_reachable_pipeline_count": 89
+  },
+  "known_release_blockers": [
+    "Whole-session reset publication is not yet qualified for TaskIR, actuator, tactile, presentation, and all physical reset state together.",
+    "Force-torque currently reports the final accepted physics-microstep resultant; configurable control-window integration and joint-transmission load-cell semantics are not implemented.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; dedicated contact-state, ray, LiDAR, and IMU operators remain incomplete.",
+    "Sensor-native counter-based corruption, recorder routing, and compiler dead-code elimination remain incomplete.",
+    "The canonical world executor still uses classic MTLCommandBuffer encoding and individually bound pass arguments; Metal 4 command allocators, generated argument tables, residency sets, and the final explicit-barrier graph are incomplete.",
+    "No general MJCF importer is present.",
+    "TaskIR still lacks named sites, frame acceleration, point and Jacobian quantities, sampled and trajectory goals, generic gates and reductions, and three qualified task families.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators, and direct no-copy MLX-to-private-bank transfer remains incomplete.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

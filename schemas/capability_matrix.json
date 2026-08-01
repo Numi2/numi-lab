@@ -18,7 +18,8 @@
     "evidence/baselines/2026-08-01-0a06e71.json",
     "evidence/baselines/2026-08-01-c82c454.json",
     "evidence/baselines/2026-08-01-12912fc.json",
-    "evidence/baselines/2026-08-01-09575df.json"
+    "evidence/baselines/2026-08-01-09575df.json",
+    "evidence/baselines/2026-08-01-ba48f35.json"
   ],
   "capabilities": [
     {
@@ -156,7 +157,7 @@
     },
     {
       "id": "sensors.transactional_history",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "Only environments requesting reset journal their SensorIR schedule state, complete latency ring, compact output, and metadata in private topology-sized buffers. A rejected world or contact transaction restores the journal byte-for-byte, keeps the resident token valid, and permits a following submission; successful and ordinary non-reset steps perform no checkpoint copy."
