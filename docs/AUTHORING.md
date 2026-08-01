@@ -162,23 +162,31 @@ stability, velocity, acceleration, control, configuration, energy, or contact.
 The channel changes only compact metrics; it does not alter reward evaluation.
 There is no opcode-to-reporting switch.
 
-Each scalar command has a unique authored identity. Actor, critic, and
-SignalIR observations name that identity; the compiler resolves it to one
-stable native slot and rejects unresolved or duplicate identities before any
-session state is replaced. The immutable command record owns its initial
-lower/upper range, hard lower/upper limits, and symmetric per-curriculum-level
-expansion. The compiler also assigns a stable 64-bit semantic counter-RNG key,
-so inserting or reordering unrelated commands does not perturb its stream.
-Metal samples only the immutable table and compiled count.
+Each scalar command has a unique authored identity and belongs to exactly one
+named command group. Actor, critic, and SignalIR observations name the member,
+not its group or a vector component; the compiler resolves it to one stable
+native slot and rejects unresolved or duplicate identities before replacing
+session state. The immutable member record owns its initial lower/upper range,
+hard lower/upper limits, symmetric per-curriculum-level expansion, and stable
+64-bit counter-RNG key.
+
+A command group defines one correlated zero decision and one independent
+minimum/maximum duration schedule for a contiguous set of members. Group and
+member random identities are distinct. Members therefore resample atomically,
+while inserting or reordering an unrelated group changes neither values nor
+schedule. Metal initializes groups before a reset observation, evaluates each
+transition against the command that drove its action, and resamples only after
+reward/termination are fixed and before constructing the next observation.
 
 Commands follow compact contact reductions in one topology-sized native
 scalar-state arena. The compiler derives both resident and checkpoint
 capacities, and every physics transaction journals the complete per-environment
-stride. The task-state record therefore contains no fixed command vector. A
-rejected reset restores even an episode-resampled command before the next
-accepted transition. Vector-valued or correlated distributions and
-per-command schedules remain incomplete; they must use typed operator tables
-rather than reintroducing an anonymous fixed vector.
+stride. Each group owns one 16-byte countdown/next-sample record and one
+transactional checkpoint record per environment; the task-state record has no
+fixed command vector or shared timer. A rejected reset restores both sampled
+members and nonzero sample ordinals before the next accepted transition.
+External and trajectory command sources remain incomplete and must extend the
+typed command table rather than reintroducing an anonymous fixed vector.
 
 Each event also has a unique authored identity. The
 `generalizedVelocityDelta` operator names one generalized-velocity coordinate;
@@ -188,7 +196,7 @@ initial range to the final range as curriculum advances. Metal applies the
 sampled delta at the control boundary before physics. This is a task event,
 not a modeled force or solver impulse. The bundled G1 x/y perturbations and a
 fixed-base scalar-joint fixture use this same table, with no floating-root or
-robot-identity branch. TaskPack 18 persists the exact event contract.
+robot-identity branch. TaskPack 19 persists the exact event contract.
 
 Each event owns its minimum/maximum interval and a 16-byte native state record
 containing countdown and fire count. The dedicated event pass keys both the

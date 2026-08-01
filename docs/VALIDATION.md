@@ -181,7 +181,7 @@ without replacing the last valid compiled program.
 
 The same fixture expresses fixed, episode-sampled, and trajectory frame
 objectives without constant or frame-specific reward/termination opcodes.
-TaskPack 18 round-trips those graphs, preserves their numerical outcomes, and
+TaskPack 19 round-trips those graphs, preserves their numerical outcomes, and
 proves that deleting the duplicated goal fields and shrinking the termination
 record does not change dynamic-goal replay.
 
@@ -239,7 +239,7 @@ push branch are absent.
 
 A separate fixed-base fixture compiles two events against one scalar joint.
 Metal produces a measured event velocity delta of `0.267137`, exact same-seed
-replay, and changed-seed separation. TaskPack 18 round-trips the event program
+replay, and changed-seed separation. TaskPack 19 round-trips the event program
 exactly, while duplicate identities, unresolved targets, invalid ranges, and
 unsupported operations reject transactionally. The two G1 records add 192
 retained bytes relative to `3262d20`: 96 immutable private and 96 shared ABI
@@ -254,11 +254,37 @@ exact, and a changed seed separates. A second branch first advances an event to
 a nonzero fire count, rejects a reset through pair-capacity overflow, and then
 requires the following transition to match an untouched branch byte-for-byte.
 
-TaskPack 18 moves interval bounds into each 64-byte immutable event record and
+TaskPack 19 stores interval bounds in each 64-byte immutable event record and
 the native runtime owns one 16-byte timer/fire-count state plus one transactional
 checkpoint per event and environment. For G1's two events across eight
 environments, retained memory rises by 544 bytes: 16 immutable, 256 persistent,
 256 transient checkpoint, and 16 shared ABI bytes.
+
+The command-group cut is compared independently against `46075a8` with the
+same eight-environment, sixteen-step, fixed-eight-step-chunk G1 contract and
+seed `20260801`. Zero and deterministic host actions preserve every physical,
+contact, failure, termination, reward, recorder, and reporting value exactly.
+TaskPack 19 replaces the single hidden command timer with named groups whose
+members resample atomically and whose zero probability and duration bounds are
+independent.
+
+A fixed-base Metal fixture places four commands in a 20 ms group and one in a
+40 ms group. It checks the exact sampled value at each control boundary,
+same-seed replay, changed-seed separation, and byte-exact streams after the two
+groups are reordered. Reward is evaluated before boundary resampling and the
+new sample is installed before next-observation construction, so one
+transition cannot mix the command used for its action with a different reward
+command. The reset-failure branch advances both a command sample ordinal and
+an event fire count, rejects reset through pair-capacity overflow, and requires
+the following transition to match an untouched branch byte-for-byte.
+
+The compiled header shrinks from 320 to 304 bytes; each immutable command group
+costs 32 bytes and each resident/checkpoint state costs 16 bytes per
+environment. For one G1 group across eight environments the complete retained
+increase is 288 bytes: 16 immutable, 128 persistent, 128 transient checkpoint,
+and 16 shared ABI bytes. The owner additionally rejects duplicate group/member
+identities, empty groups, invalid schedules/ranges, and unresolved bindings
+transactionally.
 
 An independent fixed-base fixture records `axis_velocity_squared` and compares
 the Metal recorder value with the generic reward-channel contribution. The
