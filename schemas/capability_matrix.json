@@ -30,7 +30,8 @@
     "evidence/baselines/2026-08-01-9091c6e.json",
     "evidence/baselines/2026-08-01-35abef7.json",
     "evidence/baselines/2026-08-01-9adf396.json",
-    "evidence/baselines/2026-08-01-dcf797c.json"
+    "evidence/baselines/2026-08-01-dcf797c.json",
+    "evidence/baselines/2026-08-01-e8513df.json"
   ],
   "capabilities": [
     {
@@ -109,6 +110,13 @@
       "owner": "integration.native_simulation",
       "artifact": "metalrobo_simulation",
       "scope": "Swift schedules bounded native submissions; Metal owns persistent simulator state, asynchronous tickets, and per-environment physical publication. Physics, TaskIR, SensorIR, and actuator delay/backlash now participate in the native transaction; whole-session atomic reset across tactile, presentation, global curriculum, and future recurrent policy state remains incomplete."
+    },
+    {
+      "id": "repository.consolidated_executables",
+      "status": "implemented",
+      "owner": "none",
+      "artifact": "CMakeLists.txt",
+      "scope": "The historical standalone probe forest has been deleted. The build now exposes seven native subsystem checks plus the Swift integration owner, one subcommand-based benchmark binary, one product example, two Swift products, and four installed offline compilers. Fifty unowned diagnostic source files and every probe-named target were removed; Git history is the recovery path. Physics, rollout, memory, and long-soak benchmark profiles still need to join the retained benchmark binary."
     },
     {
       "id": "runtime.transactional_reset_physics",

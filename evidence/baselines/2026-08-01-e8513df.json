@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T08:33:07+02:00",
+  "source_revision": "e8513df7f2b5e51f8e60793bf2cda05644e5d0c5",
+  "metallib_sha256": "79258a1fdeddb1b83c975c5bfb6df184262fd069a51605a0f7c2af5a84e0c176",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "qualification_build_actions": 21,
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 3.05,
+    "application_source_count": 14,
+    "example_executable_count": 1,
+    "native_owner_executable_count": 7,
+    "swift_integration_owner_count": 1,
+    "standalone_probe_target_count": 0,
+    "standalone_probe_source_count": 0,
+    "deleted_diagnostic_source_count": 50,
+    "renamed_owner_source_count": 6,
+    "benchmark_executable_count": 1,
+    "benchmark_tactile_smoke": "passed",
+    "benchmark_smoke_environments": 1,
+    "benchmark_smoke_sensor_count": 1,
+    "benchmark_smoke_samples_per_sensor": 64,
+    "runtime_abi_version": 20,
+    "task_program_abi_version": 14,
+    "sensor_program_abi_version": 9,
+    "task_pack_format_version": 9,
+    "world_pack_format_version": 9,
+    "world_buffer_count": 254
+  },
+  "known_release_blockers": [
+    "The single benchmark binary currently has only the tactile profile; physics throughput, rollout latency, memory, randomized stress, and long-soak profiles remain incomplete.",
+    "No general MJCF importer is present.",
+    "TaskIR still lacks frame acceleration, full Jacobian tensor publication, generic gates and reductions, and three qualified task families.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; recorder routing, ray, and LiDAR operators remain incomplete.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
