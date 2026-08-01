@@ -108,6 +108,13 @@ world and emits stable indices, compact tables, exact counts, validated
 capacities, and a fingerprint. The GPU loop consumes no strings and has no
 per-robot branch.
 
+Projectile avoidance is authored through the same operators. A clearance
+barrier resolves one dynamic scene body and one semantic protected-body group,
+then evaluates the most-binding per-link constraint before contact. Event-
+scoped contact termination, clean-miss reward, ball-free standing anchors,
+launch timing, and speed curriculum are TaskPack data rather than a robot-
+specific runtime path.
+
 The bundled G1 task is one preset expressed through this same format. Imported
 URDF robots and WorldPacks use the same compiler and executor:
 

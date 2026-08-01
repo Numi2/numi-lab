@@ -619,6 +619,9 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.pushes.maximumVelocity < 0.0f ||
         !finite(pack.pushes.minimumIntervalSeconds) ||
         !finite(pack.pushes.maximumIntervalSeconds) ||
+        !finite(pack.pushes.projectileStandingProbability) ||
+        pack.pushes.projectileStandingProbability < 0.0f ||
+        pack.pushes.projectileStandingProbability > 1.0f ||
         !(pack.pushes.minimumIntervalSeconds > 0.0f) ||
         pack.pushes.maximumIntervalSeconds <
             pack.pushes.minimumIntervalSeconds ||
@@ -1305,6 +1308,7 @@ TaskCompileDiagnostics compileTaskProgram(
             );
         }
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
+        std::uint32_t targetIndex = MR_INVALID_INDEX;
         switch (reward.operation) {
         case TaskRewardOperator::jointGroupPostureSquared:
         case TaskRewardOperator::jointGroupPostureAbsolute:
@@ -1335,6 +1339,44 @@ TaskCompileDiagnostics compileTaskProgram(
                     reward.sourceGroup
                 );
             }
+            break;
+        case TaskRewardOperator::linkClearanceBarrier: {
+            sourceIndex = namedGroup(
+                contactGroupIds,
+                reward.sourceGroup
+            );
+            bool ambiguous = false;
+            const std::uint32_t body = uniqueIndex(
+                model.bodyNames,
+                reward.target,
+                ambiguous
+            );
+            const auto sceneBody = body == MR_INVALID_INDEX
+                ? world.sceneBodyIndices().end()
+                : std::find(
+                      world.sceneBodyIndices().begin(),
+                      world.sceneBodyIndices().end(),
+                      body
+                  );
+            if (sourceIndex == MR_INVALID_INDEX ||
+                ambiguous ||
+                sceneBody == world.sceneBodyIndices().end()) {
+                return reject(
+                    ambiguous
+                        ? TaskCompileStatus::ambiguousSemantic
+                        : TaskCompileStatus::unresolvedSemantic,
+                    sourceIndex == MR_INVALID_INDEX
+                        ? reward.sourceGroup
+                        : reward.target,
+                    "link-clearance barrier requires a protected body group and a dynamic scene projectile"
+                );
+            }
+            targetIndex = static_cast<std::uint32_t>(
+                sceneBody - world.sceneBodyIndices().begin()
+            );
+            break;
+        }
+        case TaskRewardOperator::projectileMiss:
             break;
         case TaskRewardOperator::linearVelocityTracking:
         case TaskRewardOperator::yawVelocityTracking:
@@ -1388,6 +1430,17 @@ TaskCompileDiagnostics compileTaskProgram(
                 TaskCompileStatus::invalidPack,
                 reward.sourceGroup,
                 "soft joint-limit factor must be in (0, 1]"
+            );
+        }
+        if (reward.operation ==
+                TaskRewardOperator::linkClearanceBarrier &&
+            (!(reward.parameters.x > 0.0f) ||
+             !(reward.parameters.y > 0.0f) ||
+             !(reward.parameters.z > 0.0f))) {
+            return reject(
+                TaskCompileStatus::invalidPack,
+                reward.target,
+                "link-clearance barrier requires positive alpha, safety radius, and constraint clip"
             );
         }
         if (reward.operation ==
@@ -1463,7 +1516,7 @@ TaskCompileDiagnostics compileTaskProgram(
             {
                 static_cast<std::uint32_t>(reward.operation),
                 sourceIndex,
-                0u,
+                targetIndex,
                 0u,
             },
             {
@@ -1486,7 +1539,7 @@ TaskCompileDiagnostics compileTaskProgram(
             termination.reason ==
                 MR_TASK_TERMINATION_CONTINUING ||
             termination.reason >
-                MR_TASK_TERMINATION_PHYSICS_ERROR) {
+                MR_TASK_TERMINATION_PROJECTILE_CONTACT) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 termination.sourceGroup,
@@ -1496,6 +1549,7 @@ TaskCompileDiagnostics compileTaskProgram(
         std::uint32_t sourceIndex = MR_INVALID_INDEX;
         switch (termination.operation) {
         case TaskTerminationOperator::contactGroup:
+        case TaskTerminationOperator::projectileContact:
             sourceIndex = namedGroup(
                 contactGroupIds,
                 termination.sourceGroup
@@ -1505,6 +1559,15 @@ TaskCompileDiagnostics compileTaskProgram(
                     TaskCompileStatus::unresolvedSemantic,
                     termination.sourceGroup,
                     "termination contact group does not exist"
+                );
+            }
+            if (termination.operation ==
+                    TaskTerminationOperator::projectileContact &&
+                !(termination.threshold > 0.0f)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    termination.sourceGroup,
+                    "projectile-contact termination requires a positive force threshold"
                 );
             }
             break;
@@ -1554,6 +1617,7 @@ TaskCompileDiagnostics compileTaskProgram(
             );
         }
         std::uint32_t targetIndex = MR_INVALID_INDEX;
+        std::uint32_t targetBodyIndex = MR_INVALID_INDEX;
         mr_float4 compiledParameters = random.parameters;
         bool impactEvent = false;
         switch (random.operation) {
@@ -1754,6 +1818,7 @@ TaskCompileDiagnostics compileTaskProgram(
             targetIndex = static_cast<std::uint32_t>(
                 sceneBody - world.sceneBodyIndices().begin()
             );
+            targetBodyIndex = body;
             if (random.operation ==
                     TaskRandomizationOperator::sceneBodyLaunchStep) {
                 constexpr std::uint32_t maximumLaunchStep =
@@ -1844,7 +1909,7 @@ TaskCompileDiagnostics compileTaskProgram(
                     targetIndex,
                     random.component,
                     random.minimumCurriculumLevel,
-                    0u,
+                    targetBodyIndex,
                 },
                 compiledParameters,
             });
@@ -2159,7 +2224,7 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.dynamics = {
         pack.pushes.maximumVelocity,
         pack.supportForceThreshold,
-        0.0f,
+        pack.pushes.projectileStandingProbability,
         0.0f,
     };
     staged->header.counts3.x = static_cast<std::uint32_t>(

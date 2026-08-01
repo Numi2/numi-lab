@@ -72,6 +72,12 @@ configuration and packed scene-body state are optional
 explicit readbacks for inspection and native presentation capture; training
 keeps them disabled.
 
+An event-driven projectile sequence may bind a semantic protected-body group.
+Native task completion evaluates per-link clearance barriers from accepted
+body and scene velocity, recognizes a clean miss, and terminates only when the
+active projectile's solved contact pair contains a protected member. Ordinary
+support contact therefore cannot become a false dodge failure.
+
 The bundled Unitree G1 factory is mechanics plus one bundled TaskPack. Imported
 floating-base URDF/SRDF models use the same `compileLocomotionWorld` path and
 the Swift `MetalRoboTaskRolloutContext` initializer accepts a persisted

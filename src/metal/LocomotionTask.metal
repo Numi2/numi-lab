@@ -981,12 +981,6 @@ kernel void mr_locomotion_task_observe(
         program.schedule.z - 1u
     );
     state.episode.z = globalCurriculum;
-    const bool eventSequenceAvailable =
-        program.counts3.x > 0u &&
-        globalCurriculum >= impactEvents[0].binding.z;
-    state.recoveryStats.w = eventSequenceAvailable
-        ? state.recoveryStats.w | kImpactEnabled
-        : state.recoveryStats.w & ~kImpactEnabled;
     const bool reset =
         state.status.x == 0u ||
         state.status.y != 0u ||
@@ -1457,12 +1451,20 @@ kernel void mr_locomotion_task_observe(
         );
         state.recovery = float4(0.0f);
         state.recoveryStats = uint4(0u);
+        const bool projectileEpisode = randomUnit(
+            dispatch,
+            environment,
+            episode,
+            0u,
+            3069u
+        ) >= program.dynamics.z;
         for (uint impact = 0u;
              impact < program.counts3.x;
              ++impact) {
             const MRTaskImpactEventGPU event =
                 impactEvents[impact];
-            if (curriculum < event.binding.z) {
+            if (curriculum < event.binding.z ||
+                !projectileEpisode) {
                 continue;
             }
             state.recoveryStats.w |= kImpactEnabled;
@@ -1576,7 +1578,10 @@ kernel void mr_locomotion_task_observe(
         }
     }
 
-    if (!reset && eventSequenceAvailable) {
+    if (!reset &&
+        impactSequenceEnabled(state) &&
+        program.counts3.x > 0u &&
+        globalCurriculum >= impactEvents[0].binding.z) {
         const uint order = impactOrder(state);
         uint activeScene = impactScene(state);
         bool newlyLaunched = false;
@@ -2464,6 +2469,7 @@ kernel void mr_locomotion_task_complete(
     const bool recoveryActiveBefore = state.recovery.w > 0.5f;
     const bool recoveryTouchBefore = state.recoveryStats.z != 0u;
     const bool eventSequenceAvailable =
+        impactSequenceEnabled(state) &&
         program.counts3.x > 0u &&
         curriculum >= impactEvents[0].binding.z;
     const bool recoveryActivated =
@@ -2711,6 +2717,65 @@ kernel void mr_locomotion_task_complete(
             // Reward weights are rates. Dividing the one-shot event by dt
             // makes its authored weight the integrated completion bonus.
             value = recoveryCompleted
+                ? 1.0f / dispatch.timing.x
+                : 0.0f;
+            break;
+        case MR_TASK_REWARD_LINK_CLEARANCE_BARRIER: {
+            const uint projectileScene = operation.source.z;
+            const bool selected = !impactSequenceEnabled(state) ||
+                impactScene(state) == projectileScene + 1u;
+            if (!selected) {
+                value = 0.0f;
+                break;
+            }
+            const MRBodyStateGPU projectile = sceneState[
+                sceneBase + projectileScene
+            ];
+            const float3 projectileVelocity =
+                projectile.linearVelocityAndInverseMass.xyz;
+            const bool live = length(projectileVelocity) > 0.5f &&
+                projectile.position.z > operation.parameters.z;
+            if (!live) {
+                value = 0.0f;
+                break;
+            }
+            const MRTaskContactGroupGPU protectedGroup =
+                contactGroups[operation.source.y];
+            float mostBinding = 0.0f;
+            for (uint local = 0u;
+                 local < protectedGroup.members.y;
+                 ++local) {
+                const uint bodyIndex = contactMembers[
+                    protectedGroup.members.x + local
+                ];
+                const MRBodyStateGPU link = bodyStates[
+                    bodyBase + bodyIndex
+                ];
+                const float3 relative =
+                    projectile.position.xyz - link.position.xyz;
+                const float distance = max(length(relative), 1.0e-6f);
+                const float clearance =
+                    distance - operation.parameters.z;
+                const float closingRate = dot(
+                    relative,
+                    projectileVelocity -
+                        link.linearVelocityAndInverseMass.xyz
+                ) / distance;
+                const float constraint = clamp(
+                    closingRate +
+                        operation.parameters.y * clearance,
+                    -operation.parameters.w,
+                    0.0f
+                );
+                mostBinding = min(mostBinding, constraint);
+            }
+            value = mostBinding;
+            break;
+        }
+        case MR_TASK_REWARD_PROJECTILE_MISS:
+            // Convert the event into a one-shot integrated bonus despite the
+            // continuous-time TaskPack reward convention.
+            value = missedImpact
                 ? 1.0f / dispatch.timing.x
                 : 0.0f;
             break;
@@ -2979,6 +3044,8 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_STANDING_COMPLETION:
         case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
         case MR_TASK_REWARD_RECOVERY_COMPLETION:
+        case MR_TASK_REWARD_LINK_CLEARANCE_BARRIER:
+        case MR_TASK_REWARD_PROJECTILE_MISS:
             rewardBreakdown0.y += contribution;
             break;
         case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
@@ -3044,6 +3111,40 @@ kernel void mr_locomotion_task_complete(
                 compactContact[
                     compactBase + group.members.w
                 ] > operation.parameters.x;
+            break;
+        }
+        case MR_TASK_TERMINATE_PROJECTILE_CONTACT: {
+            device const MRTaskContactGroupGPU& group =
+                contactGroups[operation.source.y];
+            if (!eventSequenceAvailable ||
+                activeImpactEvent == MR_INVALID_INDEX ||
+                state.status.w == 0u) {
+                break;
+            }
+            const uint projectileBody =
+                impactEvents[activeImpactEvent].binding.w;
+            for (uint contact = 0u;
+                 contact < activeContacts && !triggered;
+                 ++contact) {
+                const MRContactConstraintGPU constraint =
+                    contacts[contactBase + contact];
+                const bool projectileA =
+                    constraint.bodyA == projectileBody;
+                const bool projectileB =
+                    constraint.bodyB == projectileBody;
+                if (projectileA == projectileB) {
+                    continue;
+                }
+                const uint other = projectileA
+                    ? constraint.bodyB
+                    : constraint.bodyA;
+                triggered = bodyMember(
+                    other,
+                    group,
+                    contactMembers
+                ) && abs(constraint.impulses.x) /
+                    dispatch.timing.y > operation.parameters.x;
+            }
             break;
         }
         default:

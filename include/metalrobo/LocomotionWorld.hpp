@@ -23,6 +23,7 @@ enum class UnitreeG1Task : std::uint32_t {
     disturbanceRecovery = 1u,
     supineGetUpDiscovery = 2u,
     ballDisturbanceRecovery = 3u,
+    ballDodge = 4u,
 };
 
 struct LocomotionWorld {
@@ -119,6 +120,13 @@ void appendLocomotionDynamicSpheres(
 // mechanics are supplied by the world while this TaskPack only authors their
 // per-episode launch envelopes through generic scene-body operators.
 [[nodiscard]] TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
+    LocomotionSurface surface
+);
+
+// Perception-conditioned, contact-free projectile avoidance. The actor uses
+// deployable object tracks while native privileged link-clearance operators
+// shape the critic and task reward before physical contact.
+[[nodiscard]] TaskPack makeUnitreeG1BallDodgeTaskPack(
     LocomotionSurface surface
 );
 

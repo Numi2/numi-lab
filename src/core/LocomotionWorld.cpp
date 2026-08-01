@@ -1513,6 +1513,65 @@ TaskPack makeUnitreeG1BallDisturbanceRecoveryTaskPack(
     return task;
 }
 
+TaskPack makeUnitreeG1BallDodgeTaskPack(
+    const LocomotionSurface surface
+) {
+    TaskPack task =
+        makeUnitreeG1BallDisturbanceRecoveryTaskPack(surface);
+    task.id = "unitree_g1_ball_dodge";
+    task.pushes.projectileStandingProbability = 0.20f;
+
+    // Dodge learning terminates on contact instead of asking the same actor
+    // to absorb the impact. Retain the identical deployable visual/proprio
+    // contract so a stable visual actor can initialize this skill exactly.
+    std::erase_if(
+        task.rewards,
+        [](const TaskRewardOperatorSpec& reward) {
+            return reward.operation ==
+                    TaskRewardOperator::recoveryTiltProgress ||
+                reward.operation ==
+                    TaskRewardOperator::recoveryCompletion;
+        }
+    );
+    for (std::uint32_t sphere = 0u; sphere < 6u; ++sphere) {
+        task.rewards.push_back({
+            .operation = TaskRewardOperator::linkClearanceBarrier,
+            .sourceGroup = "robot",
+            .target = "locomotion_dynamic_sphere_" +
+                std::to_string(sphere),
+            .weight = 0.27f,
+            // alpha, combined link/projectile safety radius, clip.
+            .parameters = {1.0f, 0.28f, 2.0f, 0.0f},
+        });
+    }
+    task.rewards.push_back({
+        .operation = TaskRewardOperator::projectileMiss,
+        .weight = 1.0f,
+    });
+    task.terminations.push_back({
+        .operation = TaskTerminationOperator::projectileContact,
+        .sourceGroup = "robot",
+        .reason = MR_TASK_TERMINATION_PROJECTILE_CONTACT,
+        .priority = 3u,
+        .threshold = 5.0f,
+        .failurePenalty = -2.0f,
+    });
+
+    // A dodge throw is timed, not recovery-gated. A permissive tilt/height
+    // gate and one-control-step dwell prevent the hopping exploit caused by
+    // waiting for both feet or a settled pose before every launch.
+    for (TaskRandomizationOperatorSpec& random : task.randomization) {
+        if (random.operation ==
+                TaskRandomizationOperator::sceneBodyEventImpact) {
+            random.minimumCurriculumLevel = 0u;
+            random.parameters = {
+                3.14159265f, 0.02f, 2.0f, 0.10f,
+            };
+        }
+    }
+    return task;
+}
+
 LocomotionWorld makeUnitreeG1LocomotionWorld(
     const LocomotionSurface surface,
     const UnitreeG1Task task
@@ -1521,6 +1580,8 @@ LocomotionWorld makeUnitreeG1LocomotionWorld(
         .model = makeUnitreeG1EngineModel(),
         .task = task == UnitreeG1Task::disturbanceRecovery
             ? makeUnitreeG1DisturbanceRecoveryTaskPack(surface)
+            : task == UnitreeG1Task::ballDodge
+                ? makeUnitreeG1BallDodgeTaskPack(surface)
             : task == UnitreeG1Task::ballDisturbanceRecovery
                 ? makeUnitreeG1BallDisturbanceRecoveryTaskPack(surface)
             : task == UnitreeG1Task::supineGetUpDiscovery

@@ -155,6 +155,10 @@ LearningPackResult validateTaskArtifact(
         }
     }
     const auto semanticFits = [](const auto& value) {
+        if constexpr (requires { value.target; }) {
+            return stringFits(value.sourceGroup) &&
+                stringFits(value.target);
+        }
         return stringFits(value.sourceGroup);
     };
     if (!std::all_of(
@@ -779,6 +783,7 @@ std::vector<std::byte> serializeTask(
         [](Writer& target, const TaskRewardOperatorSpec& value) {
             writeEnum(target, value.operation);
             target.string(value.sourceGroup);
+            target.string(value.target);
             target.pod(value.weight);
             target.pod(value.parameters);
         }
@@ -820,6 +825,7 @@ std::vector<std::byte> serializeTask(
     writer.pod(pack.pushes.maximumVelocity);
     writer.pod(pack.pushes.minimumIntervalSeconds);
     writer.pod(pack.pushes.maximumIntervalSeconds);
+    writer.pod(pack.pushes.projectileStandingProbability);
     writer.string(pack.terrain.body);
     writer.vector(pack.terrain.sampleOffsets);
     writer.vector(pack.terrain.resetTranslations);
@@ -901,6 +907,7 @@ bool deserializeTask(
                TaskRewardOperatorSpec& value) {
                 return readEnum(source, value.operation) &&
                     source.string(value.sourceGroup) &&
+                    source.string(value.target) &&
                     source.pod(value.weight) &&
                     source.pod(value.parameters);
             }
@@ -944,6 +951,7 @@ bool deserializeTask(
         !reader.pod(pack.pushes.maximumVelocity) ||
         !reader.pod(pack.pushes.minimumIntervalSeconds) ||
         !reader.pod(pack.pushes.maximumIntervalSeconds) ||
+        !reader.pod(pack.pushes.projectileStandingProbability) ||
         !reader.string(pack.terrain.body) ||
         !reader.vector(pack.terrain.sampleOffsets) ||
         !reader.vector(pack.terrain.resetTranslations) ||

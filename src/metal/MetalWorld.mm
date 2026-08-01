@@ -12939,7 +12939,7 @@ MetalWorldDiagnostics validateAndPublish(
                         transition.termination.y <= 1u &&
                         transition.termination.z <= 1u &&
                         transition.termination.w <=
-                            MR_TASK_TERMINATION_PHYSICS_ERROR &&
+                            MR_TASK_TERMINATION_PROJECTILE_CONTACT &&
                         (
                             transition.termination.x != 0u ||
                             transition.termination.w ==

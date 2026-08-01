@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 12u
+#define MR_TASK_PROGRAM_ABI_VERSION 13u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -81,12 +81,23 @@ enum MRTaskRewardOpcode : mr_u32 {
     MR_TASK_REWARD_STANDING_COMPLETION = 28u,
     MR_TASK_REWARD_RECOVERY_TILT_PROGRESS = 29u,
     MR_TASK_REWARD_RECOVERY_COMPLETION = 30u,
+    // Training-only whole-body safety signal. source.y selects a semantic
+    // protected-body group and source.z selects one dynamic scene projectile.
+    // The value is the most negative per-link CBF constraint and is zero when
+    // every protected link is clearing the projectile safely.
+    MR_TASK_REWARD_LINK_CLEARANCE_BARRIER = 31u,
+    // One-shot reward when an authored projectile event completes without a
+    // protected-body contact.
+    MR_TASK_REWARD_PROJECTILE_MISS = 32u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
     MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT = 0u,
     MR_TASK_TERMINATE_MAXIMUM_TILT = 1u,
     MR_TASK_TERMINATE_CONTACT_GROUP = 2u,
+    // Contact-group termination scoped to the active projectile flight. This
+    // avoids treating ordinary support contact as a dodge failure.
+    MR_TASK_TERMINATE_PROJECTILE_CONTACT = 3u,
 };
 
 enum MRTaskTerminationReason : mr_u32 {
@@ -96,6 +107,7 @@ enum MRTaskTerminationReason : mr_u32 {
     MR_TASK_TERMINATION_CONTACT = 3u,
     MR_TASK_TERMINATION_TIMEOUT = 4u,
     MR_TASK_TERMINATION_PHYSICS_ERROR = 5u,
+    MR_TASK_TERMINATION_PROJECTILE_CONTACT = 6u,
 };
 
 enum MRTaskRandomizationOpcode : mr_u32 {
@@ -246,7 +258,7 @@ typedef struct MR_ALIGN16 MRTaskRandomizationOperatorGPU {
 } MRTaskRandomizationOperatorGPU;
 
 typedef struct MR_ALIGN16 MRTaskImpactEventGPU {
-    // Scene-body local index, sequence order, minimum curriculum, reserved.
+    // Scene-body local index, sequence order, minimum curriculum, global body.
     mr_uint4 binding;
     // Stable tilt, stable seconds, maximum flight seconds, minimum height.
     mr_float4 gate;

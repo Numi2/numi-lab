@@ -105,6 +105,17 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
+## PAC-MAN perceptive dodge training method
+
+The native projectile-dodge TaskPack design was informed by
+`lzyang2000/perceptive_cbf_rl` (PAC-MAN), including its perception-conditioned
+actor, privileged per-link clearance shaping, intermittent throws, and
+ball-free standing anchors. MetalRobo implements these ideas independently in
+its generic TaskIR and Metal runtime; no MuJoCo Warp, PyTorch, policy weights,
+or motion assets are redistributed. The upstream repository is available
+under the MIT License at
+<https://github.com/lzyang2000/perceptive_cbf_rl>.
+
 ## Studio Small 03 HDR environment
 
 The README renders use Greg Zaal's

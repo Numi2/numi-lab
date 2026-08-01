@@ -4,6 +4,7 @@ import Darwin
 private struct Options {
     var environments = 32
     var steps = 24
+    var stepsWereSpecified = false
     var updates = 100
     var chunk = 8
     var surface = MetalRoboLocomotionSurface.terrain
@@ -66,6 +67,7 @@ private struct Options {
                 index += 1
             case "--steps":
                 steps = try Self.integer(value(), option)
+                stepsWereSpecified = true
                 index += 1
             case "--updates":
                 updates = try Self.integer(value(), option)
@@ -165,9 +167,11 @@ private struct Options {
                     unitreeG1Task = .supineGetUpDiscovery
                 case "ball-recovery":
                     unitreeG1Task = .ballDisturbanceRecovery
+                case "ball-dodge":
+                    unitreeG1Task = .ballDodge
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be velocity, disturbance-recovery, supine-get-up, or ball-recovery."
+                        "--task must be velocity, disturbance-recovery, supine-get-up, ball-recovery, or ball-dodge."
                     )
                 }
                 index += 1
@@ -222,6 +226,11 @@ private struct Options {
             }
             index += 1
         }
+        if unitreeG1Task == .ballDodge && !stepsWereSpecified {
+            // 256 x 20 ms = 5.12 s: long enough for launch, interception,
+            // avoidance, and settling instead of truncating the event.
+            steps = 256
+        }
         guard environments > 0,
               steps > 0,
               updates > 0,
@@ -274,11 +283,12 @@ private struct Options {
             )
         }
         if g1VisualPackDirectory != nil &&
-            (unitreeG1Task != .ballDisturbanceRecovery ||
+            ((unitreeG1Task != .ballDisturbanceRecovery &&
+              unitreeG1Task != .ballDodge) ||
              worldPack != nil || urdf != nil)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "The bundled visual preset currently requires --task ball-recovery."
+                "The bundled visual preset requires --task ball-recovery or ball-dodge."
             )
         }
         let ppoValues = [
@@ -721,10 +731,12 @@ private final class MLXLearnerWorker {
 private func makeContext(
     options: Options
 ) throws -> (MetalRoboTaskRolloutContext, String) {
-    let dynamicSpheres =
-        options.unitreeG1Task == .ballDisturbanceRecovery
-        ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
-        : []
+    let dynamicSpheres: [MetalRoboDynamicSphere] =
+        options.unitreeG1Task == .ballDodge
+        ? MetalRoboDynamicSphere.g1BallDodgeDefaults
+        : options.unitreeG1Task == .ballDisturbanceRecovery
+            ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
+            : []
     let configuration = MetalRoboTaskRolloutConfiguration(
         environmentCount: UInt32(options.environments),
         surface: options.surface,

@@ -78,6 +78,7 @@ public enum MetalRoboUnitreeG1Task: UInt32, Sendable {
     case disturbanceRecovery = 1
     case supineGetUpDiscovery = 2
     case ballDisturbanceRecovery = 3
+    case ballDodge = 4
 }
 
 public struct MetalRoboDynamicSphere: Sendable {
@@ -143,6 +144,41 @@ public struct MetalRoboDynamicSphere: Sendable {
             radius: 0.20,
             mass: 6.00,
             launchStep: 600
+        ),
+    ]
+
+    // Dodge training is geometric: all projectiles remain light so contact
+    // avoidance is learned before impact-bracing dynamics are mixed in.
+    public static let g1BallDodgeDefaults: [Self] = [
+        .init(
+            position: SIMD3(-1.5, 0.0, 1.0),
+            linearVelocity: SIMD3(5.0, 0.0, 2.5),
+            radius: 0.10, mass: 0.136, launchStep: 100
+        ),
+        .init(
+            position: SIMD3(1.5, 0.0, 1.0),
+            linearVelocity: SIMD3(-5.0, 0.0, 2.5),
+            radius: 0.10, mass: 0.136, launchStep: 200
+        ),
+        .init(
+            position: SIMD3(0.0, -1.5, 1.0),
+            linearVelocity: SIMD3(0.0, 5.0, 2.5),
+            radius: 0.10, mass: 0.136, launchStep: 300
+        ),
+        .init(
+            position: SIMD3(0.0, 1.5, 1.0),
+            linearVelocity: SIMD3(0.0, -5.0, 2.5),
+            radius: 0.10, mass: 0.136, launchStep: 400
+        ),
+        .init(
+            position: SIMD3(-1.5, 0.25, 1.0),
+            linearVelocity: SIMD3(5.0, 0.0, 2.5),
+            radius: 0.10, mass: 0.136, launchStep: 500
+        ),
+        .init(
+            position: SIMD3(1.5, -0.25, 1.0),
+            linearVelocity: SIMD3(-5.0, 0.0, 2.5),
+            radius: 0.10, mass: 0.136, launchStep: 600
         ),
     ]
 }

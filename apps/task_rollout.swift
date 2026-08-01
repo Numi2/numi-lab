@@ -251,9 +251,11 @@ private struct Options {
                     unitreeG1Task = .supineGetUpDiscovery
                 case "ball-recovery":
                     unitreeG1Task = .ballDisturbanceRecovery
+                case "ball-dodge":
+                    unitreeG1Task = .ballDodge
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be velocity, disturbance-recovery, supine-get-up, or ball-recovery."
+                        "--task must be velocity, disturbance-recovery, supine-get-up, ball-recovery, or ball-dodge."
                     )
                 }
                 index += 1
@@ -397,11 +399,12 @@ private struct Options {
             )
         }
         if g1VisualPackDirectory != nil &&
-            (unitreeG1Task != .ballDisturbanceRecovery ||
+            ((unitreeG1Task != .ballDisturbanceRecovery &&
+              unitreeG1Task != .ballDodge) ||
              worldPack != nil || urdf != nil)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "The bundled visual preset currently requires --task ball-recovery."
+                "The bundled visual preset requires --task ball-recovery or ball-dodge."
             )
         }
     }
@@ -439,11 +442,13 @@ private func makeG1VisualObservation(
 private func makeContext(
     options: Options
 ) throws -> (MetalRoboTaskRolloutContext, String) {
-    let dynamicSpheres =
-        options.unitreeG1Task == .ballDisturbanceRecovery &&
-        options.dynamicSpheres.isEmpty
-        ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
-        : options.dynamicSpheres
+    let dynamicSpheres = options.dynamicSpheres.isEmpty &&
+        options.unitreeG1Task == .ballDodge
+        ? MetalRoboDynamicSphere.g1BallDodgeDefaults
+        : options.unitreeG1Task == .ballDisturbanceRecovery &&
+            options.dynamicSpheres.isEmpty
+            ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
+            : options.dynamicSpheres
     let configuration = MetalRoboTaskRolloutConfiguration(
         environmentCount: UInt32(options.environments),
         surface: options.surface,
@@ -793,7 +798,10 @@ private enum TaskRolloutMain {
             var contactRewardSum = 0.0
             var terminationReasonCounts: [String: Int] = [:]
             let impactSpheres =
-                options.unitreeG1Task == .ballDisturbanceRecovery &&
+                options.unitreeG1Task == .ballDodge &&
+                options.dynamicSpheres.isEmpty
+                ? MetalRoboDynamicSphere.g1BallDodgeDefaults
+                : options.unitreeG1Task == .ballDisturbanceRecovery &&
                 options.dynamicSpheres.isEmpty
                 ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
                 : options.dynamicSpheres
@@ -1146,7 +1154,10 @@ private enum TaskRolloutMain {
                     ? "terrain"
                     : "ground",
                 "dynamic_sphere_count":
-                    options.unitreeG1Task == .ballDisturbanceRecovery &&
+                    options.unitreeG1Task == .ballDodge &&
+                    options.dynamicSpheres.isEmpty
+                    ? MetalRoboDynamicSphere.g1BallDodgeDefaults.count
+                    : options.unitreeG1Task == .ballDisturbanceRecovery &&
                     options.dynamicSpheres.isEmpty
                     ? MetalRoboDynamicSphere.g1BallRecoveryDefaults.count
                     : options.dynamicSpheres.count,

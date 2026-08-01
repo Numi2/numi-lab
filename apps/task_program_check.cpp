@@ -548,6 +548,71 @@ int main() {
                 fail("G1 event-driven impact gates changed");
             }
         }
+        metalrobo::LocomotionWorld dodge =
+            metalrobo::makeUnitreeG1LocomotionWorld(
+                metalrobo::LocomotionSurface::ground,
+                metalrobo::UnitreeG1Task::ballDodge
+            );
+        metalrobo::appendLocomotionDynamicSpheres(
+            dodge,
+            recoverySpheres
+        );
+        metalrobo::CompiledLocomotionWorld compiledDodge;
+        const auto dodgeStatus = metalrobo::compileLocomotionWorld(
+            dodge,
+            0u,
+            compiledDodge
+        );
+        if (!dodgeStatus.succeeded() ||
+            compiledDodge.task.header().counts1.w != 25u ||
+            compiledDodge.task.header().counts2.x != 3u ||
+            compiledDodge.task.layout().actorObservationSize != 140u ||
+            compiledDodge.task.layout().criticObservationSize != 148u ||
+            compiledDodge.task.header().dynamics.z != 0.20f) {
+            fail("G1 native projectile-dodge task is incomplete");
+        }
+        std::uint32_t barriers = 0u;
+        std::uint32_t misses = 0u;
+        for (const MRTaskRewardOperatorGPU& operation :
+             compiledDodge.task.rewardOperators()) {
+            if (operation.source.x ==
+                    MR_TASK_REWARD_LINK_CLEARANCE_BARRIER) {
+                ++barriers;
+                if (operation.source.y == MR_INVALID_INDEX ||
+                    operation.source.z == MR_INVALID_INDEX ||
+                    operation.parameters.y != 1.0f ||
+                    operation.parameters.z != 0.28f ||
+                    operation.parameters.w != 2.0f) {
+                    fail("compiled projectile link barrier changed");
+                }
+            } else if (operation.source.x ==
+                       MR_TASK_REWARD_PROJECTILE_MISS) {
+                ++misses;
+            }
+        }
+        if (barriers != 6u || misses != 1u) {
+            fail("G1 dodge shaping operators are incomplete");
+        }
+        const auto dodgeTerminations =
+            compiledDodge.task.terminationOperators();
+        if (dodgeTerminations.back().source.x !=
+                MR_TASK_TERMINATE_PROJECTILE_CONTACT ||
+            dodgeTerminations.back().source.z !=
+                MR_TASK_TERMINATION_PROJECTILE_CONTACT ||
+            dodgeTerminations.back().parameters.x != 5.0f) {
+            fail("G1 projectile-contact termination changed");
+        }
+        for (const MRTaskImpactEventGPU& event :
+             compiledDodge.task.impactEvents()) {
+            if (event.binding.w == MR_INVALID_INDEX ||
+                event.binding.z != 0u ||
+                event.gate.x != 3.14159265f ||
+                event.gate.y != 0.02f ||
+                event.gate.z != 2.0f ||
+                event.gate.w != 0.10f) {
+                fail("G1 dodge event schedule is recovery-gated");
+            }
+        }
         metalrobo::LocomotionWorld disturbed = authored;
         const std::array disturbanceSpheres{
             metalrobo::LocomotionDynamicSphere{

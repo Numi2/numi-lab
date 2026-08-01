@@ -545,6 +545,8 @@ metalrobo::UnitreeG1Task unitreeG1Task(const std::uint32_t value) {
         return metalrobo::UnitreeG1Task::supineGetUpDiscovery;
     case MR_UNITREE_G1_TASK_BALL_DISTURBANCE_RECOVERY:
         return metalrobo::UnitreeG1Task::ballDisturbanceRecovery;
+    case MR_UNITREE_G1_TASK_BALL_DODGE:
+        return metalrobo::UnitreeG1Task::ballDodge;
     default:
         throw std::invalid_argument("Unitree G1 task is invalid");
     }

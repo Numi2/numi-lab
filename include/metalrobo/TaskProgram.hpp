@@ -81,12 +81,16 @@ enum class TaskRewardOperator : std::uint32_t {
     recoveryTiltProgress =
         MR_TASK_REWARD_RECOVERY_TILT_PROGRESS,
     recoveryCompletion = MR_TASK_REWARD_RECOVERY_COMPLETION,
+    linkClearanceBarrier =
+        MR_TASK_REWARD_LINK_CLEARANCE_BARRIER,
+    projectileMiss = MR_TASK_REWARD_PROJECTILE_MISS,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
     minimumRootHeight = MR_TASK_TERMINATE_MINIMUM_ROOT_HEIGHT,
     maximumTilt = MR_TASK_TERMINATE_MAXIMUM_TILT,
     contactGroup = MR_TASK_TERMINATE_CONTACT_GROUP,
+    projectileContact = MR_TASK_TERMINATE_PROJECTILE_CONTACT,
 };
 
 enum class TaskRandomizationOperator : std::uint32_t {
@@ -156,6 +160,8 @@ struct TaskRewardOperatorSpec {
     TaskRewardOperator operation =
         TaskRewardOperator::constant;
     std::string sourceGroup;
+    // Dynamic scene-body identity for projectile-relative operators.
+    std::string target;
     // Reward rate in units per second. The native task integrates every
     // weighted term over the control interval, keeping TaskPacks invariant
     // when the control frequency changes.
@@ -205,6 +211,8 @@ struct TaskPushProgram {
     float maximumVelocity = 0.0f;
     float minimumIntervalSeconds = 2.0f;
     float maximumIntervalSeconds = 5.0f;
+    // Fraction of episodes that hold every projectile as a standing anchor.
+    float projectileStandingProbability = 0.0f;
 };
 
 struct TaskTerrainProgram {
