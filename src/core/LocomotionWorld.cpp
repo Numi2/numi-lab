@@ -1528,9 +1528,30 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         task.actorFrame,
         [](const TaskObservationOperatorSpec& observation) {
             return observation.source ==
-                TaskObservationSource::objectTrack;
+                    TaskObservationSource::objectTrack ||
+                observation.source ==
+                    TaskObservationSource::gaitPhase;
         }
     );
+    // Preserve the official G1 actor's exact five-frame, 96-value
+    // proprioceptive prefix. Masked depth is appended below as a direct
+    // device-observation suffix with its own sparse temporal offsets.
+    task.actorHistoryLength = 5u;
+    for (TaskObservationOperatorSpec& observation : task.actorFrame) {
+        switch (observation.source) {
+        case TaskObservationSource::rootAngularVelocityLocal:
+            observation.scale = 0.2f;
+            break;
+        case TaskObservationSource::jointVelocity:
+            observation.scale = 0.05f;
+            break;
+        case TaskObservationSource::projectedGravity:
+            observation.normalizeVector3 = true;
+            break;
+        default:
+            break;
+        }
+    }
     task.visual = {
         .width = 16u,
         .height = 9u,

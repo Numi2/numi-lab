@@ -289,6 +289,7 @@ struct MetalWorldDeviceObservationPass {
     std::uint32_t nv = 0u;
     std::uint32_t actorFrameSize = 0u;
     std::uint32_t actorHistoryLength = 0u;
+    std::uint32_t actorObservationSize = 0u;
 };
 
 using MetalWorldDeviceObservationEncode = bool (*)(

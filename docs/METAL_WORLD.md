@@ -98,6 +98,9 @@ into its unused ping-pong destination, refreshes articulated kinematics, and
 publishes one global body arena. The callback may encode work against borrowed
 buffers but cannot commit, wait, or retain them. Visual state therefore stays
 synchronized on reset without another capacity-sized simulator copy.
+Temporal proprioception and direct device observations have independent
+layouts: TaskPack history multiplies only the temporal frame, while a rendered
+depth or tactile suffix is appended once with its own native history program.
 The final rollout chunk appends a value-only policy evaluation for the
 accepted post-step state to the same command buffer. Bootstrap values
 therefore do not require a discarded physics step or another submission.

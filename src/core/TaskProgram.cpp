@@ -1371,12 +1371,11 @@ TaskCompileDiagnostics compileTaskProgram(
         return observationStatus;
     }
     if (hasVisualProgram) {
-        if (pack.actorHistoryLength != 1u ||
-            staged->actorOperators.size() < visualComponentCount) {
+        if (staged->actorOperators.size() <= visualComponentCount) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 "visual",
-                "sparse masked-depth history requires one task actor frame and a complete visual plane"
+                "sparse masked-depth history requires temporal actor observations and a complete visual plane"
             );
         }
         const std::size_t first =
@@ -2204,13 +2203,13 @@ TaskCompileDiagnostics compileTaskProgram(
     }
 
     std::uint32_t actionCount = 0u;
-    std::uint32_t actorFrameSize = 0u;
+    std::uint32_t actorOperatorCount = 0u;
     std::uint32_t criticOperatorCount = 0u;
     std::uint32_t biasCount = 0u;
     if (!narrowCount(staged->actionBindings.size(), actionCount) ||
         !narrowCount(
             staged->actorOperators.size(),
-            actorFrameSize
+            actorOperatorCount
         ) ||
         !narrowCount(
             staged->criticOperators.size(),
@@ -2223,12 +2222,26 @@ TaskCompileDiagnostics compileTaskProgram(
             "task operator count exceeds the 32-bit GPU ABI"
         );
     }
-    const std::uint64_t actorObservationSize =
+    const std::uint32_t directActorObservationCount =
+        static_cast<std::uint32_t>(visualComponentCount);
+    if (directActorObservationCount > actorOperatorCount) {
+        return reject(
+            TaskCompileStatus::internalFailure,
+            "layout",
+            "direct actor observation count exceeds compiled operators"
+        );
+    }
+    const std::uint32_t actorFrameSize =
+        actorOperatorCount - directActorObservationCount;
+    const std::uint64_t temporalActorObservationSize =
         static_cast<std::uint64_t>(actorFrameSize) *
         pack.actorHistoryLength;
+    const std::uint64_t actorObservationSize =
+        temporalActorObservationSize +
+        directActorObservationCount;
     const std::uint64_t criticObservationSize =
         (pack.criticIncludesCleanHistory
-             ? actorObservationSize
+             ? temporalActorObservationSize
              : 0u) +
         static_cast<std::uint64_t>(criticOperatorCount) *
             pack.criticHistoryLength;

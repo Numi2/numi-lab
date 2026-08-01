@@ -318,10 +318,13 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
         return_counts=True,
     )
     impact_metrics: list[dict[str, Any]] = []
-    maximum_impact = int(
-        np.max(transitions["impact_sequence_index"], initial=0)
+    sequence_indices = np.unique(
+        transitions["impact_sequence_index"]
     )
-    for sequence_index in range(1, maximum_impact + 1):
+    for raw_sequence_index in sequence_indices:
+        sequence_index = int(raw_sequence_index)
+        if sequence_index == 0:
+            continue
         selected = (
             transitions["impact_sequence_index"] == sequence_index
         )
@@ -529,6 +532,9 @@ def _initialize(arguments: argparse.Namespace) -> int:
             arguments.critic_observations,
             _configuration(arguments),
             actor_observation_count=arguments.actor_observations,
+            actor_observation_extension_mean=(
+                arguments.actor_observation_extension_mean
+            ),
             library_path=arguments.native_library,
         )
         if (
@@ -647,6 +653,15 @@ def main() -> int:
         "--actor-policy-pack",
         type=Path,
         help="initialize the actor from a deterministic PolicyPack",
+    )
+    initialize.add_argument(
+        "--actor-observation-extension-mean",
+        type=float,
+        default=0.0,
+        help=(
+            "normalization mean for observations appended beyond the source "
+            "PolicyPack contract"
+        ),
     )
     initialize.add_argument(
         "--native-library",

@@ -7261,7 +7261,7 @@ bool MetalHybridObjectTracker::encodeObservation(
         state->config.maskedDepthFrameOffsets.size();
     if (maskedDepth &&
         (state->config.maskedDepthActorFrameOffset +
-             maskedDepthValues > pass.actorFrameSize ||
+             maskedDepthValues > pass.actorObservationSize ||
          state->maskedDepthPipeline == nil ||
          state->maskedDepthInstances == nil ||
          state->maskedDepthHistory == nil)) {
@@ -7410,8 +7410,8 @@ bool MetalHybridObjectTracker::encodeObservation(
                 ),
             },
             {
-                pass.actorFrameSize,
-                pass.actorHistoryLength,
+                pass.actorObservationSize,
+                1u,
                 pass.controlStep,
                 pass.environmentCount,
             },

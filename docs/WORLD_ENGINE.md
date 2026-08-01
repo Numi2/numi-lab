@@ -94,7 +94,8 @@ pack = compile_episode_manifest(
 `TaskPack` is the robot-independent closed-loop task description. It contains:
 
 - action-to-joint bindings and action scales;
-- actor and asymmetric-critic observation operators and history;
+- temporal actor and asymmetric-critic observation operators plus direct
+  device-observation suffixes, each with its own history contract;
 - named semantic contact and joint groups;
 - reward operators and continuous-time weights;
 - termination priorities and reasons;

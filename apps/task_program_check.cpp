@@ -566,7 +566,9 @@ int main() {
         if (!dodgeStatus.succeeded() ||
             compiledDodge.task.header().counts1.w != 25u ||
             compiledDodge.task.header().counts2.x != 3u ||
-            compiledDodge.task.layout().actorObservationSize != 674u ||
+            compiledDodge.task.layout().actorFrameSize != 96u ||
+            compiledDodge.task.layout().actorHistoryLength != 5u ||
+            compiledDodge.task.layout().actorObservationSize != 1056u ||
             compiledDodge.task.layout().criticObservationSize != 148u ||
             compiledDodge.task.header().dynamics.z != 0.20f ||
             compiledDodge.task.header().visualLayout.x != 16u ||
@@ -599,16 +601,39 @@ int main() {
         std::uint32_t barriers = 0u;
         std::uint32_t misses = 0u;
         std::uint32_t maskedDepth = 0u;
+        std::uint32_t scaledAngularVelocity = 0u;
+        std::uint32_t scaledJointVelocity = 0u;
+        std::uint32_t normalizedGravity = 0u;
         for (const MRTaskObservationOperatorGPU& operation :
              compiledDodge.task.actorOperators()) {
             maskedDepth += operation.source.x ==
                 MR_TASK_OBSERVE_MASKED_DEPTH ? 1u : 0u;
+            scaledAngularVelocity +=
+                operation.source.x ==
+                        MR_TASK_OBSERVE_ROOT_ANGULAR_VELOCITY_LOCAL &&
+                    operation.transform.x == 0.2f
+                ? 1u
+                : 0u;
+            scaledJointVelocity +=
+                operation.source.x == MR_TASK_OBSERVE_JOINT_VELOCITY &&
+                    operation.transform.x == 0.05f
+                ? 1u
+                : 0u;
+            normalizedGravity +=
+                operation.source.x == MR_TASK_OBSERVE_PROJECTED_GRAVITY &&
+                    (operation.source.w &
+                     MR_TASK_OBSERVATION_NORMALIZE_VECTOR3) != 0u
+                ? 1u
+                : 0u;
             if (operation.source.x == MR_TASK_OBSERVE_OBJECT_TRACK) {
                 fail("G1 dodge actor contains privileged object tracks");
             }
         }
-        if (maskedDepth != 4u * 16u * 9u) {
-            fail("G1 dodge masked-depth stack is incomplete");
+        if (maskedDepth != 4u * 16u * 9u ||
+            scaledAngularVelocity != 3u ||
+            scaledJointVelocity != 29u ||
+            normalizedGravity != 3u) {
+            fail("G1 dodge deployment observation contract changed");
         }
         for (const MRTaskRewardOperatorGPU& operation :
              compiledDodge.task.rewardOperators()) {

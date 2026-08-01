@@ -279,16 +279,10 @@ kernel void mr_hybrid_masked_depth_history(
             const float value = depthHistory[
                 historyBase + sourceSlot * pixelCount + pixel
             ];
-            for (uint actorFrame = 0u;
-                 actorFrame < uniforms.layout.y;
-                 ++actorFrame) {
-                const uint destination =
-                    environment * uniforms.layout.x * uniforms.layout.y +
-                    actorFrame * uniforms.layout.x + uniforms.history.z +
-                    frame * pixelCount + pixel;
-                actorHistory[destination] = value;
-                actorObservations[actorOutputOffset + destination] = value;
-            }
+            const uint destination =
+                environment * uniforms.layout.x + uniforms.history.z +
+                frame * pixelCount + pixel;
+            actorObservations[actorOutputOffset + destination] = value;
         }
     }
 }

@@ -1701,10 +1701,11 @@ kernel void mr_locomotion_task_observe(
     }
 
     taskStates[environment] = state;
+    const uint actorObservationSize =
+        dispatch.outputs.x / dispatch.counts.x;
     const uint actorOutputBase =
         pass.controlStep * dispatch.outputs.x +
-        environment *
-            program.layout.x * program.layout.y;
+        environment * actorObservationSize;
     const uint criticObservationSize =
         (
             (program.schedule.w &
@@ -3459,9 +3460,11 @@ kernel void mr_locomotion_task_complete(
         dispatch.timing.z != 0.0f &&
         pass.controlStep + 1u == dispatch.counts.y;
     if (finalPolicyObservation) {
+        const uint actorObservationSize =
+            dispatch.outputs.x / dispatch.counts.x;
         const uint actorOutputBase =
             dispatch.counts.y * dispatch.outputs.x +
-            environment * historyElements;
+            environment * actorObservationSize;
         for (uint index = 0u;
              index < historyElements;
              ++index) {

@@ -443,7 +443,9 @@ int main() {
         trackerConfig.cameraIndex = 0u;
         trackerConfig.rootBodyIndex =
             worldTemplate.engineModel.articulations.front().firstBody;
-        trackerConfig.maximumActorHistoryLength = 1u;
+        constexpr std::uint32_t kActorFrameSize = 7u;
+        constexpr std::uint32_t kActorHistoryLength = 5u;
+        trackerConfig.maximumActorHistoryLength = kActorHistoryLength;
         trackerConfig.timestepSeconds = 0.02f;
         trackerConfig.bindings.push_back({
             .instanceId = observations[0].identities[visibleIndex].y,
@@ -461,7 +463,8 @@ int main() {
         };
         trackerConfig.maskedDepthWidth = rendererLayout.width;
         trackerConfig.maskedDepthHeight = rendererLayout.height;
-        trackerConfig.maskedDepthActorFrameOffset = 7u;
+        trackerConfig.maskedDepthActorFrameOffset =
+            kActorFrameSize * kActorHistoryLength;
         trackerConfig.maskedDepthFrameOffsets = {0u, 1u};
         trackerConfig.maskedDepthNearMeters = 0.1f;
         trackerConfig.maskedDepthFarMeters = 5.0f;
@@ -482,7 +485,9 @@ int main() {
             newBufferWithBytes:bodyStates.data()
                          length:bodyBytes
                         options:MTLResourceStorageModeShared];
-        const std::uint32_t kTrackWidth = 7u + 2u * visualPixels;
+        const std::uint32_t kTrackWidth =
+            kActorFrameSize * kActorHistoryLength +
+            2u * visualPixels;
         const std::size_t trackElements =
             kEnvironmentCount * kTrackWidth;
         id<MTLBuffer> resetBuffer = [device
@@ -502,6 +507,11 @@ int main() {
             "device object tracker probe allocation"
         );
         std::memset(resetBuffer.contents, 0, resetBuffer.length);
+        std::fill_n(
+            static_cast<std::uint32_t*>(resetBuffer.contents),
+            kEnvironmentCount,
+            1u
+        );
         std::memset(historyBuffer.contents, 0, historyBuffer.length);
         std::memset(
             observationBuffer.contents,
@@ -520,8 +530,9 @@ int main() {
             .bodyCount = static_cast<std::uint32_t>(
                 worldTemplate.engineModel.bodies.size()
             ),
-            .actorFrameSize = kTrackWidth,
-            .actorHistoryLength = 1u,
+            .actorFrameSize = kActorFrameSize,
+            .actorHistoryLength = kActorHistoryLength,
+            .actorObservationSize = kTrackWidth,
         };
         require(
             trackerProgram.encode(trackerProgram.context, trackerPass),
@@ -547,7 +558,8 @@ int main() {
                 ),
             "device object tracker did not publish a finite visible track"
         );
-        const float* currentDepth = tracked + 7u;
+        const float* currentDepth =
+            tracked + kActorFrameSize * kActorHistoryLength;
         const float* previousDepth = currentDepth + visualPixels;
         require(
             std::all_of(
@@ -591,9 +603,12 @@ int main() {
         );
         [secondCommand commit];
         [secondCommand waitUntilCompleted];
+        const std::uint32_t newestTrack =
+            (kActorHistoryLength - 1u) * kActorFrameSize;
         require(
             secondCommand.status == MTLCommandBufferStatusCompleted &&
-                tracked[0] > 0.5f && std::abs(tracked[4]) > 0.1f,
+                tracked[newestTrack] > 0.5f &&
+                std::abs(tracked[newestTrack + 4u]) > 0.1f,
             "device object tracker did not retain visible temporal motion"
         );
 

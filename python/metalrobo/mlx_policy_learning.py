@@ -1375,6 +1375,7 @@ class MLXPolicyLearner:
         configuration: MLXPPOConfiguration = MLXPPOConfiguration(),
         *,
         actor_observation_count: int | None = None,
+        actor_observation_extension_mean: float = 0.0,
         library_path: str | Path | None = None,
     ) -> "MLXPolicyLearner":
         """Start PPO from a deterministic deployment actor.
@@ -1410,6 +1411,10 @@ class MLXPolicyLearner:
         if target_actor_observations < pack.actor_observation_count:
             raise ValueError(
                 "actor initialization cannot discard PolicyPack observations"
+            )
+        if not math.isfinite(actor_observation_extension_mean):
+            raise ValueError(
+                "actor observation extension mean must be finite"
             )
         learner = cls(
             target_actor_observations,
@@ -1449,6 +1454,7 @@ class MLXPolicyLearner:
         actor_mean = np.pad(
             pack.effective_observation_mean,
             (0, target_actor_observations - pack.actor_observation_count),
+            constant_values=actor_observation_extension_mean,
         )
         actor_inverse_standard_deviation = np.pad(
             pack.effective_observation_inverse_standard_deviation,

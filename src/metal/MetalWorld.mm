@@ -15757,6 +15757,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             .nv = diagnostics.layout.dispatch.nv,
                             .actorFrameSize = taskLayout.actorFrameSize,
                             .actorHistoryLength = taskLayout.actorHistoryLength,
+                            .actorObservationSize = taskLayout.actorObservationSize,
                         };
                         if (!config.deviceObservationProgram.encode(
                                 config.deviceObservationProgram.context,

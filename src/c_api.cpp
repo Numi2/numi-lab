@@ -1342,7 +1342,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     if (maskedDepthCount != 0u) {
         trackerConfig.maskedDepthWidth = taskHeader.visualLayout.x;
         trackerConfig.maskedDepthHeight = taskHeader.visualLayout.y;
-        trackerConfig.maskedDepthActorFrameOffset = maskedDepthOffset;
+        trackerConfig.maskedDepthActorFrameOffset =
+            handle.taskProgram.layout().actorFrameSize *
+            handle.taskProgram.layout().actorHistoryLength;
         trackerConfig.maskedDepthNearMeters = taskHeader.visualRange.x;
         trackerConfig.maskedDepthFarMeters = taskHeader.visualRange.y;
         const std::array offsets{

@@ -441,15 +441,19 @@ def main() -> int:
                 critic_count + 7,
                 learner.configuration,
                 actor_observation_count=actor_count + 7,
+                actor_observation_extension_mean=1.0,
                 library_path=arguments.library,
             )
             expanded_actor = expanded.model.actor_mean(
                 mx.concatenate(
-                    (actor, mx.zeros((sample_count, 7))),
+                    (actor, mx.ones((sample_count, 7))),
                     axis=1,
                 )
             )
             mx.eval(expanded_actor)
+            expanded_mean = np.asarray(
+                expanded.model.actor_observation_mean
+            )
             actor_expansion_error = float(
                 np.max(
                     np.abs(
@@ -461,6 +465,10 @@ def main() -> int:
             if actor_expansion_error != 0.0:
                 raise RuntimeError(
                     "zero-connected observation expansion changed policy output"
+                )
+            if not np.array_equal(expanded_mean[-7:], np.ones(7)):
+                raise RuntimeError(
+                    "observation expansion mean was not published"
                 )
         print(
             json.dumps(

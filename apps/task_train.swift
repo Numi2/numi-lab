@@ -392,7 +392,8 @@ private func mlxEnvironment(options: Options) -> [String: String] {
 
 private func initializePolicyIfRequested(
     options: Options,
-    layout: MetalRoboTaskRolloutLayout
+    layout: MetalRoboTaskRolloutLayout,
+    actorObservationExtensionMean: Double
 ) throws {
     guard let identifier = options.initializePolicyID else {
         return
@@ -442,6 +443,8 @@ private func initializePolicyIfRequested(
     if let actor = options.initializeActorPolicyPack {
         arguments.append(contentsOf: [
             "--actor-policy-pack", actor,
+            "--actor-observation-extension-mean",
+            String(actorObservationExtensionMean),
         ])
     }
     process.arguments = arguments
@@ -820,7 +823,12 @@ private enum TaskTrainMain {
             }
             try initializePolicyIfRequested(
                 options: options,
-                layout: context.layout
+                layout: context.layout,
+                // Masked-depth device observations encode far/empty as 1.
+                // Centering an appended visual suffix there preserves the
+                // source actor on ball-free standing anchors.
+                actorObservationExtensionMean:
+                    context.visualSceneFingerprint == 0 ? 0.0 : 1.0
             )
             guard let updatedPolicyPack =
                       options.updatedPolicyPack,
