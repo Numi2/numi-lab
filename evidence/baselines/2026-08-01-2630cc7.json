@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T02:29:45+02:00",
+  "source_revision": "2630cc79bafd29dd8e005d37d2df95751fbf34d7",
+  "metallib_sha256": "a45edbc67b505ecd2491b8eb39fb94cdda1d75f2b773382ce941d0168e62e879",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 5.74,
+    "runtime_abi_version": 8,
+    "task_program_abi_version": 10,
+    "task_pack_format_version": 6,
+    "relative_frame_cross_domain_checked": true,
+    "relative_frame_reference_rotation_radians": 1.5707963267948966,
+    "relative_frame_x_expected_metres": 0.25,
+    "relative_frame_x_tolerance_metres": 0.0002,
+    "relative_frame_reset_checked": true,
+    "unresolved_reference_transactionally_rejected": true,
+    "fixed_base_task_fingerprint": "9494990548338292404",
+    "full_build_target_count": 70
+  },
+  "known_release_blockers": [
+    "TaskIR still lacks named sites, frame twist and acceleration, point/Jacobian quantities, sampled and trajectory goals, generic gates and reductions, and three qualified task families.",
+    "SensorIR still lacks integrated camera, tactile, force-torque, contact, ray, LiDAR, and IMU execution under the session schedule.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators, and direct no-copy MLX-to-private-bank transfer remains incomplete.",
+    "The canonical executor has not completed its Metal 4 command-allocator and residency-set migration.",
+    "No general MJCF importer is present.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
