@@ -149,6 +149,9 @@ enum MRTaskImpactTransitionFlags : mr_u32 {
     MR_TASK_IMPACT_RECOVERED = 1u << 1u,
     MR_TASK_IMPACT_MISSED = 1u << 2u,
     MR_TASK_IMPACT_SEQUENCE_ENABLED = 1u << 3u,
+    // First solver contact between the active projectile and any link in the
+    // compiled articulation. This is evidence, not a termination decision.
+    MR_TASK_IMPACT_CONTACT = 1u << 4u,
 };
 
 // Per-submission dimensions and attribution. Every stride is in elements.
@@ -309,7 +312,8 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     mr_float4 airReturnTracking;
     // previous tilt, peak event tilt, stable time, event active flag.
     mr_float4 recovery;
-    // detected events, completed recoveries, previous touch, reserved.
+    // detected events, completed recoveries, previous touch, packed impact
+    // sequence state (including the per-throw contact latch).
     mr_uint4 recoveryStats;
 } MRTaskStateGPU;
 

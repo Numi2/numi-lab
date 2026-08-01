@@ -15,6 +15,8 @@ constant uint kImpactSceneMask = 0xffu << kImpactSceneShift;
 constant uint kImpactEnabled = 1u << 16u;
 constant uint kImpactOffsetShift = 17u;
 constant uint kImpactOffsetMask = 0xffu << kImpactOffsetShift;
+constant uint kImpactContactLatched = 1u << 25u;
+constant uint kImpactContactPublished = 1u << 26u;
 
 inline uint impactOrder(thread const MRTaskStateGPU& state) {
     return state.recoveryStats.w & kImpactOrderMask;
@@ -37,6 +39,7 @@ inline uint impactOffset(thread const MRTaskStateGPU& state) {
         (state.recoveryStats.w & kImpactOffsetMask) >>
         kImpactOffsetShift;
 }
+
 template <typename T>
 inline device const T* taskTable(
     device const uchar* arena,
@@ -850,6 +853,77 @@ inline bool desiredSupportContact(
 }
 
 } // namespace
+
+kernel void mr_locomotion_task_latch_impact_contact(
+    device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
+    device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
+    device const uchar* arena [[buffer(2)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(3)]],
+    device const MRContactConstraintGPU* contacts [[buffer(4)]],
+    device const MRMetalWorldContactStatusGPU* contactStatuses
+        [[buffer(5)]],
+    device MRTaskStateGPU* taskStates [[buffer(6)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(7)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION) {
+        return;
+    }
+    MRTaskStateGPU state = taskStates[environment];
+    if (!impactSequenceEnabled(state) ||
+        impactScene(state) == 0u ||
+        impactOrder(state) >= program.counts3.x) {
+        return;
+    }
+    const MRMetalWorldContactStatusGPU contactStatus =
+        contactStatuses[environment];
+    if (contactStatus.code != MR_STEP_SUCCESS) {
+        return;
+    }
+    device const MRTaskImpactEventGPU* impactEvents =
+        reinterpret_cast<device const MRTaskImpactEventGPU*>(
+            arena + program.offsets3.z
+        );
+    const uint activeImpactEvent =
+        (impactOrder(state) + impactOffset(state)) %
+        program.counts3.x;
+    const uint projectileBody =
+        impactEvents[activeImpactEvent].binding.w;
+    const uint articulationBodyBegin = program.articulation.x;
+    const uint articulationBodyEnd =
+        articulationBodyBegin + program.articulation.y;
+    const uint activeContacts = min(
+        contactStatus.activeContacts,
+        contactDispatch.constraintCapacity
+    );
+    const uint contactBase =
+        environment * contactDispatch.constraintStride;
+    for (uint contact = 0u; contact < activeContacts; ++contact) {
+        const MRContactConstraintGPU constraint =
+            contacts[contactBase + contact];
+        const bool projectileA =
+            constraint.bodyA == projectileBody;
+        const bool projectileB =
+            constraint.bodyB == projectileBody;
+        if (projectileA == projectileB) {
+            continue;
+        }
+        const uint other = projectileA
+            ? constraint.bodyB
+            : constraint.bodyA;
+        if (other >= articulationBodyBegin &&
+            other < articulationBodyEnd) {
+            state.recoveryStats.w |= kImpactContactLatched;
+            taskStates[environment] = state;
+            return;
+        }
+    }
+}
 
 kernel void mr_locomotion_task_observe(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
@@ -2570,6 +2644,43 @@ kernel void mr_locomotion_task_complete(
             (activeImpactOrder + impactOffset(state)) %
             program.counts3.x;
     }
+    const bool impactContactLatchedBefore =
+        (state.recoveryStats.w & kImpactContactLatched) != 0u;
+    const bool impactContactPublishedBefore =
+        (state.recoveryStats.w & kImpactContactPublished) != 0u;
+    bool projectileContact = false;
+    if (eventSequenceAvailable &&
+        activeImpactScene != 0u &&
+        activeImpactEvent != MR_INVALID_INDEX) {
+        const uint projectileBody =
+            impactEvents[activeImpactEvent].binding.w;
+        const uint articulationBodyBegin = program.articulation.x;
+        const uint articulationBodyEnd =
+            articulationBodyBegin + program.articulation.y;
+        for (uint contact = 0u;
+             contact < activeContacts && !projectileContact;
+             ++contact) {
+            const MRContactConstraintGPU constraint =
+                contacts[contactBase + contact];
+            const bool projectileA =
+                constraint.bodyA == projectileBody;
+            const bool projectileB =
+                constraint.bodyB == projectileBody;
+            if (projectileA == projectileB) {
+                continue;
+            }
+            const uint other = projectileA
+                ? constraint.bodyB
+                : constraint.bodyA;
+            projectileContact =
+                other >= articulationBodyBegin &&
+                other < articulationBodyEnd;
+        }
+    }
+    const bool impactContactLatched =
+        impactContactLatchedBefore || projectileContact;
+    const bool newProjectileContact =
+        impactContactLatched && !impactContactPublishedBefore;
     uint impactTransitionFlags =
         eventSequenceAvailable
         ? MR_TASK_IMPACT_SEQUENCE_ENABLED
@@ -2579,16 +2690,23 @@ kernel void mr_locomotion_task_complete(
         recoveryActivated
         ? MR_TASK_IMPACT_TOUCH
         : 0u;
+    impactTransitionFlags |= newProjectileContact
+        ? MR_TASK_IMPACT_CONTACT
+        : 0u;
+    bool impactWindowElapsed = false;
     bool missedImpact = false;
     if (eventSequenceAvailable &&
         activeImpactScene != 0u &&
         impactOrder(state) < program.counts3.x) {
         const MRTaskImpactEventGPU event =
             impactEvents[activeImpactEvent];
+        impactWindowElapsed =
+            float(state.status.w) * dispatch.timing.x >=
+            event.gate.z;
         missedImpact =
             !recoveryActive &&
-            float(state.status.w) * dispatch.timing.x >=
-                event.gate.z;
+            impactWindowElapsed &&
+            !impactContactLatched;
     }
     if (recoveryCompleted) {
         impactTransitionFlags |= MR_TASK_IMPACT_RECOVERED;
@@ -3429,7 +3547,16 @@ kernel void mr_locomotion_task_complete(
               recoveryActive && !recoveryCompleted ? 1.0f : 0.0f
           );
     uint impactState = state.recoveryStats.w;
-    if (recoveryCompleted || missedImpact) {
+    if (impactContactLatched) {
+        impactState |= kImpactContactLatched;
+    }
+    if (newProjectileContact) {
+        impactState |= kImpactContactPublished;
+    }
+    const bool completedImpactWindow =
+        recoveryCompleted ||
+        (!recoveryActive && impactWindowElapsed);
+    if (completedImpactWindow) {
         const uint nextOrder = min(
             impactOrder(state) + 1u,
             kImpactOrderMask

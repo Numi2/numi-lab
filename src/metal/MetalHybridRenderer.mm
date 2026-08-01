@@ -5948,6 +5948,49 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::renderLive(
     }
 }
 
+MetalHybridRendererDiagnostics MetalHybridRenderer::renderFrame(
+    const MetalWorldFamilyContext& worlds,
+    const VisualMotionSampleBatchV1& motion,
+    const std::uint32_t cameraIndex
+) {
+    if (state_ == nullptr) {
+        return reject(
+            {},
+            MetalHybridRendererStatus::internalFailure,
+            "visual sensor runtime has no state"
+        );
+    }
+    id<MTLCommandBuffer> command = [state_->queue commandBuffer];
+    if (command == nil) {
+        return reject(
+            {},
+            MetalHybridRendererStatus::metalCommandFailure,
+            "could not create presentation command buffer"
+        );
+    }
+    MetalHybridFrameCommandContext context;
+    context.commandBuffer = (__bridge void*)command;
+    auto diagnostics = encodeFrame(
+        worlds,
+        motion,
+        cameraIndex,
+        context
+    );
+    if (!diagnostics.succeeded()) {
+        return diagnostics;
+    }
+    [command commit];
+    [command waitUntilCompleted];
+    if (command.status != MTLCommandBufferStatusCompleted) {
+        return reject(
+            std::move(diagnostics),
+            MetalHybridRendererStatus::metalCommandFailure,
+            "presentation render failed: " + describeError(command.error)
+        );
+    }
+    return diagnostics;
+}
+
 MetalHybridRendererDiagnostics MetalHybridRenderer::encode(
     const MetalWorldFamilyContext& worlds,
     const HybridDeviceStateBatch& liveState,

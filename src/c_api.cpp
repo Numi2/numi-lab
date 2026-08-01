@@ -79,7 +79,11 @@ struct MRTaskVisualRuntime {
     metalrobo::WorldFamily family;
     metalrobo::MetalWorldFamilyContext worlds;
     metalrobo::MetalHybridRenderer renderer;
+    metalrobo::MetalHybridRenderer captureRenderer;
     metalrobo::MetalHybridObjectTracker tracker;
+    std::vector<MRBodyStateGPU> previousCaptureBodies;
+    std::uint64_t captureFrameIndex = 0u;
+    bool captureEnabled = false;
     std::uint64_t sceneFingerprint = 0u;
 };
 
@@ -1119,6 +1123,37 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     camera.minimumDepthMeters = 0.05f;
     camera.maximumDepthMeters = 8.0f;
     episode.sensors.push_back(std::move(camera));
+    if (config.capture_width != 0u && config.capture_height != 0u) {
+        metalrobo::SensorSpec presentation;
+        presentation.id = "presentation_camera";
+        presentation.parentAssetId = "robot";
+        presentation.parentKind = MR_WORLD_SENSOR_PARENT_WORLD;
+        presentation.kind = MR_WORLD_SENSOR_RGBD;
+        presentation.localPose.position = {
+            1.05f, -1.30f, 1.05f, 0.0f,
+        };
+        // Reuse the qualified Studio Small 03 presentation camera, aimed at
+        // the nominal standing pelvis height with local +z as optical axis.
+        presentation.localPose.orientation = {
+            -0.73858354f,
+            -0.26102070f,
+            0.20711737f,
+            0.58605883f,
+        };
+        presentation.width = config.capture_width;
+        presentation.height = config.capture_height;
+        presentation.intrinsics = {
+            0.90f * static_cast<float>(config.capture_height),
+            0.90f * static_cast<float>(config.capture_height),
+            0.5f * static_cast<float>(config.capture_width),
+            0.5f * static_cast<float>(config.capture_height),
+        };
+        presentation.nominalRateHz = 50.0f;
+        presentation.exposureSeconds = 1.0f / 240.0f;
+        presentation.minimumDepthMeters = 0.05f;
+        presentation.maximumDepthMeters = 12.0f;
+        episode.sensors.push_back(std::move(presentation));
+    }
     episode.task = {
         "visual_ball_stability",
         "robot",
@@ -1193,12 +1228,20 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 "visual pack load failed: " + reason
             );
         }
+        const bool robotPresentationPack =
+            config.capture_width != 0u &&
+            source.instance_id == 1u &&
+            source.asset_id == std::string_view{"robot"};
+        const std::uint32_t instanceId =
+            robotPresentationPack && index != 0u
+            ? 1'000u + index
+            : source.instance_id;
         references.push_back({
             source.path,
             pack.contentHash,
             assetIndex,
             source.semantic_id,
-            source.instance_id,
+            instanceId,
         });
         const auto sceneName = std::ranges::find(
             handle.model.bodyNames,
@@ -1254,6 +1297,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         environment.id = pack.id;
         environment.packPath = config.environment_pack_path;
         environment.contentHash = pack.contentHash;
+        environment.intensity = 0.12f;
     }
     metalrobo::VisualSceneManifestV3 manifest;
     std::string reason;
@@ -1269,6 +1313,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             "visual scene compile failed: " + reason
         );
     }
+    auto captureScene = manifest.renderScene;
 
     metalrobo::MetalWorldFamilyConfig familyConfig;
     familyConfig.metallibPath = handle.metallibPath;
@@ -1309,6 +1354,36 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             metalrobo::metalHybridRendererStatusName(rendered.status) +
             "]: " + rendered.message
         );
+    }
+    if ((config.capture_width == 0u) !=
+        (config.capture_height == 0u)) {
+        throw std::invalid_argument(
+            "visual capture width and height must both be zero or nonzero"
+        );
+    }
+    if (config.capture_width != 0u) {
+        metalrobo::MetalHybridRendererConfig captureConfig;
+        captureConfig.metallibPath = handle.metallibPath;
+        captureConfig.width = config.capture_width;
+        captureConfig.height = config.capture_height;
+        captureConfig.retainObservationBuffers = true;
+        runtime->captureRenderer = metalrobo::MetalHybridRenderer{
+            std::move(captureConfig)
+        };
+        const auto captureCompiled = runtime->captureRenderer.compile(
+            std::move(captureScene),
+            metalrobo::VisualRendererProfileV1::sensorReference(),
+            handle.environmentCount
+        );
+        if (!captureCompiled.succeeded()) {
+            throw std::runtime_error(
+                std::string{"visual capture renderer compile failed ["} +
+                metalrobo::metalHybridRendererStatusName(
+                    captureCompiled.status
+                ) + "]: " + captureCompiled.message
+            );
+        }
+        runtime->captureEnabled = true;
     }
 
     metalrobo::MetalHybridObjectTrackerConfig trackerConfig;
@@ -2000,6 +2075,159 @@ int mr_task_rollout_attach_visual_observation(
         handle->visualRuntime = std::move(candidate);
         handle->stepConfig.deviceObservationProgram = program;
     });
+}
+
+size_t mr_task_rollout_copy_visual_rgba(
+    MRTaskRolloutHandle* handle,
+    float* destination,
+    const size_t destination_count,
+    uint32_t* width,
+    uint32_t* height
+) {
+    if (!requireTaskRolloutHandle(handle) ||
+        handle->visualRuntime == nullptr ||
+        !handle->visualRuntime->captureEnabled) {
+        gLastError = "task rollout has no native presentation capture.";
+        return 0u;
+    }
+    const std::uint32_t environments = handle->environmentCount;
+    const std::size_t bodyCount = handle->model.bodies.size();
+    const std::size_t nq = handle->world.nq();
+    const std::size_t nv = handle->world.nv();
+    if (handle->result.finalQ.size() != environments * nq ||
+        handle->result.finalV.size() != environments * nv) {
+        gLastError = "task visual capture requires final-state readback.";
+        return 0u;
+    }
+    std::vector<MRBodyStateGPU> bodies;
+    std::string compositionReason;
+    if (!metalrobo::composeVisualBodyStates(
+            handle->model,
+            environments,
+            handle->result.finalQ,
+            handle->result.finalV,
+            handle->result.finalSceneBodies,
+            bodies,
+            &compositionReason
+        )) {
+        gLastError =
+            "task visual body composition failed: " +
+            compositionReason;
+        return 0u;
+    }
+    for (std::uint32_t environment = 0u;
+         environment < environments;
+         ++environment) {
+        for (std::size_t body = 0u; body < bodyCount; ++body) {
+            if (!std::string_view{handle->model.bodyNames[body]}
+                    .starts_with("locomotion_dynamic_sphere_")) {
+                continue;
+            }
+            MRBodyStateGPU& projectile =
+                bodies[environment * bodyCount + body];
+            const float speedSquared =
+                projectile.linearVelocityAndInverseMass.x *
+                    projectile.linearVelocityAndInverseMass.x +
+                projectile.linearVelocityAndInverseMass.y *
+                    projectile.linearVelocityAndInverseMass.y +
+                projectile.linearVelocityAndInverseMass.z *
+                    projectile.linearVelocityAndInverseMass.z;
+            if (speedSquared <= 0.25f) {
+                // Staged and expired projectiles remain real simulator state,
+                // but are not active presentation subjects. The onboard
+                // sensor path above continues to consume untouched states.
+                projectile.position.z = -100.0f;
+            }
+        }
+    }
+    auto& runtime = *handle->visualRuntime;
+    metalrobo::VisualMotionSampleBatchV1 motion;
+    motion.environmentCount = environments;
+    motion.bodyCount = static_cast<std::uint32_t>(bodyCount);
+    motion.sampleCount = 2u;
+    motion.exposureOpenSeconds = 0.0;
+    motion.exposureCloseSeconds = 1.0 / 120.0;
+    motion.timestampsSeconds = {
+        motion.exposureOpenSeconds,
+        motion.exposureCloseSeconds,
+    };
+    const auto& previous = runtime.previousCaptureBodies.empty()
+        ? bodies
+        : runtime.previousCaptureBodies;
+    motion.bodyStates.reserve(2u * bodies.size());
+    motion.bodyStates.insert(
+        motion.bodyStates.end(),
+        previous.begin(),
+        previous.end()
+    );
+    motion.bodyStates.insert(
+        motion.bodyStates.end(),
+        bodies.begin(),
+        bodies.end()
+    );
+    motion.frameIndex = ++runtime.captureFrameIndex;
+    motion.sensorSequence =
+        static_cast<std::uint32_t>(runtime.captureFrameIndex);
+    motion.source = MR_VISUAL_SOURCE_SIMULATION;
+    const auto render = runtime.captureRenderer.renderFrame(
+        runtime.worlds,
+        motion,
+        1u
+    );
+    if (!render.succeeded()) {
+        gLastError = std::string{"task visual capture render failed: "} +
+            render.message;
+        return 0u;
+    }
+    runtime.previousCaptureBodies = bodies;
+    metalrobo::HybridObservationBatch frame;
+    const auto diagnostics =
+        runtime.captureRenderer.readback(frame);
+    if (!diagnostics.succeeded()) {
+        gLastError =
+            std::string{"task visual readback failed ["} +
+            metalrobo::metalHybridRendererStatusName(
+                diagnostics.status
+            ) + "]: " + diagnostics.message;
+        return 0u;
+    }
+    if (width != nullptr) {
+        *width = frame.width;
+    }
+    if (height != nullptr) {
+        *height = frame.height;
+    }
+    const size_t required = frame.rgb.size() * 4u;
+    const bool anyColor = std::ranges::any_of(
+        frame.rgb,
+        [](const mr_float4 value) {
+            return value.x != 0.0f || value.y != 0.0f || value.z != 0.0f;
+        }
+    );
+    if (!anyColor) {
+        const std::size_t visible = std::ranges::count_if(
+            frame.segmentation,
+            [](const std::uint32_t value) { return value != 0u; }
+        );
+        gLastError = "native presentation capture is empty; visible pixels=" +
+            std::to_string(visible) + ", root=" +
+            std::to_string(bodies.front().position.x) + "," +
+            std::to_string(bodies.front().position.y) + "," +
+            std::to_string(bodies.front().position.z);
+        return 0u;
+    }
+    if (destination == nullptr) {
+        gLastError.clear();
+        return required;
+    }
+    if (destination_count < required) {
+        gLastError = "task visual RGBA destination is too small.";
+        return 0u;
+    }
+    static_assert(sizeof(mr_float4) == 4u * sizeof(float));
+    std::memcpy(destination, frame.rgb.data(), required * sizeof(float));
+    gLastError.clear();
+    return required;
 }
 
 int mr_task_rollout_set_state_readback(

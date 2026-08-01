@@ -322,6 +322,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> taskObservePipeline = nil;
     __strong id<MTLComputePipelineState> taskApplyPipeline = nil;
     __strong id<MTLComputePipelineState> taskEffortPipeline = nil;
+    __strong id<MTLComputePipelineState> taskImpactContactPipeline = nil;
     __strong id<MTLComputePipelineState> taskCompletePipeline = nil;
     __strong id<MTLComputePipelineState> taskCurriculumPipeline = nil;
     __strong id<MTLComputePipelineState> policyDensePipeline = nil;
@@ -4504,6 +4505,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> taskObserve = nil;
     __strong id<MTLComputePipelineState> taskApply = nil;
     __strong id<MTLComputePipelineState> taskEffort = nil;
+    __strong id<MTLComputePipelineState> taskImpactContact = nil;
     __strong id<MTLComputePipelineState> taskComplete = nil;
     __strong id<MTLComputePipelineState> taskCurriculum = nil;
     __strong id<MTLComputePipelineState> policyDense = nil;
@@ -4615,6 +4617,9 @@ MetalWorldDiagnostics initializeContext(
         createContactPipeline(@"mr_locomotion_task_apply_actions");
     taskEffort =
         createContactPipeline(@"mr_locomotion_task_measure_effort");
+    taskImpactContact = createContactPipeline(
+        @"mr_locomotion_task_latch_impact_contact"
+    );
     taskComplete =
         createContactPipeline(@"mr_locomotion_task_complete");
     taskCurriculum = createContactPipeline(
@@ -4851,6 +4856,7 @@ MetalWorldDiagnostics initializeContext(
         taskObserve == nil ||
         taskApply == nil ||
         taskEffort == nil ||
+        taskImpactContact == nil ||
         taskComplete == nil ||
         taskCurriculum == nil ||
         policyDense == nil ||
@@ -5149,6 +5155,7 @@ MetalWorldDiagnostics initializeContext(
     context.taskObservePipeline = taskObserve;
     context.taskApplyPipeline = taskApply;
     context.taskEffortPipeline = taskEffort;
+    context.taskImpactContactPipeline = taskImpactContact;
     context.taskCompletePipeline = taskComplete;
     context.taskCurriculumPipeline = taskCurriculum;
     context.policyDensePipeline = policyDense;
@@ -8866,6 +8873,32 @@ bool encodeTaskEffort(
         },
         &pass,
         3u,
+        environmentCount
+    );
+}
+
+bool encodeTaskImpactContact(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskImpactContactPipeline,
+        @"compiled task projectile-contact latch",
+        {
+            {0u, kTaskDispatch},
+            {1u, kTaskProgramHeader},
+            {2u, kTaskProgramArena},
+            {3u, kContactDispatch},
+            {4u, kContacts},
+            {5u, kContactStatuses},
+            {6u, kTaskState},
+        },
+        &pass,
+        7u,
         environmentCount
     );
 }
@@ -15552,6 +15585,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             const bool uploadInitialState =
                 !residentContinuation;
             const bool nativeTask = config.taskProgram.valid();
+            const bool taskTracksImpactContacts =
+                nativeTask &&
+                !config.taskProgram.impactEvents().empty();
             selectedState->useTaskBodyParameters = nativeTask;
             selectedState->stats.memoryPlan =
                 diagnostics.layout.memoryPlan;
@@ -16050,10 +16086,23 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 batch.environmentCount
                             )
                         );
+                    const bool encodedTaskImpactContact =
+                        encodedRodPublication &&
+                        (
+                            !taskTracksImpactContacts ||
+                            !contactMode ||
+                            encodeTaskImpactContact(
+                                *selectedState,
+                                commandBuffer,
+                                pass,
+                                batch.environmentCount
+                            )
+                        );
                     if (!encodedABA ||
                         !encodedRod ||
                         !encodedPublication ||
-                        !encodedRodPublication) {
+                        !encodedRodPublication ||
+                        !encodedTaskImpactContact) {
                         return reject(
                             std::move(diagnostics),
                             MetalWorldHostStatus::metalCommandFailure,

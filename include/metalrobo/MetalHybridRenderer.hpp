@@ -266,6 +266,14 @@ public:
         std::uint32_t cameraIndex = 0u
     );
 
+    // Synchronous native presentation capture using the physical-exposure
+    // path. Intended for replay/media boundaries, not training hot loops.
+    [[nodiscard]] MetalHybridRendererDiagnostics renderFrame(
+        const MetalWorldFamilyContext& worlds,
+        const VisualMotionSampleBatchV1& motion,
+        std::uint32_t cameraIndex = 0u
+    );
+
     // Encodes into a caller-owned id<MTLComputeCommandEncoder> without
     // committing, waiting, or reading back. This is the MLX/Core ML/native
     // graph composition boundary. Output buffers remain owned by the

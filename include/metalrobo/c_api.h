@@ -90,6 +90,10 @@ typedef struct MRTaskVisualObservationConfigC {
     uint32_t width;
     uint32_t height;
     uint32_t minimum_visible_pixels;
+    // Optional presentation capture. Zero keeps the training-only sensor
+    // path and allocates no second renderer.
+    uint32_t capture_width;
+    uint32_t capture_height;
 } MRTaskVisualObservationConfigC;
 
 typedef struct MRTaskRolloutLayoutC {
@@ -537,6 +541,16 @@ MR_API int mr_task_rollout_clear_policy(
 MR_API int mr_task_rollout_attach_visual_observation(
     MRTaskRolloutHandle* handle,
     const MRTaskVisualObservationConfigC* config
+);
+// Copies the most recently completed native visual-observation frame as
+// environment-major linear RGBA floats. Returns the required float count;
+// pass a null destination to query it without copying.
+MR_API size_t mr_task_rollout_copy_visual_rgba(
+    MRTaskRolloutHandle* handle,
+    float* destination,
+    size_t destination_count,
+    uint32_t* width,
+    uint32_t* height
 );
 // Opt-in inspection/export readback. Disabled by default so training keeps
 // simulator state device-resident. When enabled, final_q aliases the last

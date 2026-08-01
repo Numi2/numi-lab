@@ -751,14 +751,25 @@ BoundPose resolvePose(
     case MR_VISUAL_BINDING_ASSET:
         return assetPose(assets, instance, asset);
     case MR_VISUAL_BINDING_RIGID_BODY:
-    case MR_VISUAL_BINDING_ARTICULATED_LINK:
-        return bodyPose(
+    case MR_VISUAL_BINDING_ARTICULATED_LINK: {
+        BoundPose result = bodyPose(
             bodies,
             environment,
             bindingIndex,
             uniforms,
             previous
         );
+        const BoundPose authored = assetPose(
+            assets,
+            instance,
+            asset
+        );
+        result.scale *= authored.scale;
+        result.valid = result.valid &&
+            isfinite(result.scale) &&
+            result.scale > 0.0f;
+        return result;
+    }
     default: {
         BoundPose result = worldPose();
         result.valid = false;
@@ -4684,13 +4695,23 @@ BoundPose referenceResolvePose(
     }
     if (bindingKind == MR_VISUAL_BINDING_RIGID_BODY ||
         bindingKind == MR_VISUAL_BINDING_ARTICULATED_LINK) {
-        return referenceBodyPose(
+        BoundPose result = referenceBodyPose(
             motionBodies,
             environment,
             bindingIndex,
             time,
             uniforms
         );
+        const BoundPose authored = assetPose(
+            assets,
+            instance,
+            asset
+        );
+        result.scale *= authored.scale;
+        result.valid = result.valid &&
+            isfinite(result.scale) &&
+            result.scale > 0.0f;
+        return result;
     }
     BoundPose invalid = worldPose();
     invalid.valid = false;

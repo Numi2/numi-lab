@@ -223,6 +223,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
     public var width: UInt32
     public var height: UInt32
     public var minimumVisiblePixels: UInt32
+    public var captureWidth: UInt32
+    public var captureHeight: UInt32
 
     public init(
         packs: [MetalRoboTaskVisualPack],
@@ -232,7 +234,9 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         cameraOrientation: SIMD4<Float>,
         width: UInt32 = 160,
         height: UInt32 = 120,
-        minimumVisiblePixels: UInt32 = 4
+        minimumVisiblePixels: UInt32 = 4,
+        captureWidth: UInt32 = 0,
+        captureHeight: UInt32 = 0
     ) {
         self.packs = packs
         self.environmentPackURL = environmentPackURL
@@ -242,6 +246,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         self.width = width
         self.height = height
         self.minimumVisiblePixels = minimumVisiblePixels
+        self.captureWidth = captureWidth
+        self.captureHeight = captureHeight
     }
 
     public static func unitreeG1BallRecovery(
@@ -1111,6 +1117,8 @@ public final class MetalRoboTaskRolloutContext {
                         native.height = configuration.height
                         native.minimum_visible_pixels =
                             configuration.minimumVisiblePixels
+                        native.capture_width = configuration.captureWidth
+                        native.capture_height = configuration.captureHeight
                         return mr_task_rollout_attach_visual_observation(
                             handle,
                             &native
@@ -1124,6 +1132,43 @@ public final class MetalRoboTaskRolloutContext {
                 Self.lastError()
             )
         }
+    }
+
+    public func visualRGBA() throws -> (
+        width: Int,
+        height: Int,
+        values: [Float]
+    ) {
+        var width: UInt32 = 0
+        var height: UInt32 = 0
+        let count = mr_task_rollout_copy_visual_rgba(
+            handle,
+            nil,
+            0,
+            &width,
+            &height
+        )
+        guard count > 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                Self.lastError()
+            )
+        }
+        var values = [Float](repeating: 0, count: count)
+        let copied = values.withUnsafeMutableBufferPointer {
+            mr_task_rollout_copy_visual_rgba(
+                handle,
+                $0.baseAddress,
+                $0.count,
+                &width,
+                &height
+            )
+        }
+        guard copied == count else {
+            throw MetalRoboTaskRolloutError.native(
+                Self.lastError()
+            )
+        }
+        return (Int(width), Int(height), values)
     }
 
     public func advance(

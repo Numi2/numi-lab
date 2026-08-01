@@ -175,6 +175,10 @@ private struct Options {
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
+    var captureDirectory: String?
+    var captureWidth = 480
+    var captureHeight = 270
+    var captureStride = 1
 
     init(arguments: [String]) throws {
         var index = 1
@@ -334,6 +338,18 @@ private struct Options {
             case "--visual-environment-pack":
                 visualEnvironmentPack = try value()
                 index += 1
+            case "--capture-dir":
+                captureDirectory = try value()
+                index += 1
+            case "--capture-width":
+                captureWidth = try Self.integer(value(), option)
+                index += 1
+            case "--capture-height":
+                captureHeight = try Self.integer(value(), option)
+                index += 1
+            case "--capture-stride":
+                captureStride = try Self.integer(value(), option)
+                index += 1
             default:
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Unknown option \(option)."
@@ -407,6 +423,16 @@ private struct Options {
                 "The bundled visual preset requires --task ball-recovery or ball-dodge."
             )
         }
+        if captureDirectory != nil &&
+            (environments != 1 || chunk != 1 ||
+             g1VisualPackDirectory == nil ||
+             captureWidth <= 0 || captureHeight <= 0 ||
+             captureStride <= 0)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Native capture requires one environment, chunk 1, visual packs, positive dimensions, and a positive stride."
+            )
+        }
     }
 
     private static func integer(
@@ -430,13 +456,54 @@ private func makeG1VisualObservation(
     else {
         return nil
     }
-    return try .unitreeG1BallRecovery(
+    var observation = try MetalRoboTaskVisualObservationConfiguration
+        .unitreeG1BallRecovery(
         robotPackDirectory: URL(fileURLWithPath: directory),
         ballPackDirectory: URL(fileURLWithPath: ballDirectory),
         environmentPackURL: options.visualEnvironmentPack.map {
             URL(fileURLWithPath: $0)
         }
     )
+    if options.captureDirectory != nil {
+        observation.captureWidth = UInt32(options.captureWidth)
+        observation.captureHeight = UInt32(options.captureHeight)
+    }
+    return observation
+}
+
+private func writeCaptureFrame(
+    _ frame: (width: Int, height: Int, values: [Float]),
+    index: Int,
+    directory: URL
+) throws {
+    var data = Data("P6\n\(frame.width) \(frame.height)\n255\n".utf8)
+    var pixels = [UInt8](
+        repeating: 0,
+        count: frame.width * frame.height * 3
+    )
+    for pixel in 0..<(frame.width * frame.height) {
+        for channel in 0..<3 {
+            let linear = max(
+                0,
+                0.62 * frame.values[pixel * 4 + channel]
+            )
+            let mapped = min(
+                1,
+                max(
+                    0,
+                    linear * (2.51 * linear + 0.03) /
+                        (linear * (2.43 * linear + 0.59) + 0.14)
+                )
+            )
+            let display = Foundation.pow(Double(mapped), 1.0 / 2.2)
+            pixels[pixel * 3 + channel] = UInt8(
+                min(255, max(0, Int(display * 255 + 0.5)))
+            )
+        }
+    }
+    data.append(contentsOf: pixels)
+    let name = String(format: "frame-%06d.ppm", index)
+    try data.write(to: directory.appendingPathComponent(name))
 }
 
 private func makeContext(
@@ -575,7 +642,7 @@ private enum TaskRolloutMain {
                     visualObservation
                 )
             }
-            if options.stateTrace != nil {
+            if options.stateTrace != nil || options.captureDirectory != nil {
                 try context.setStateReadback(true)
             }
             try context.setCurriculumLevel(
@@ -809,6 +876,7 @@ private enum TaskRolloutMain {
                 repeating: 0,
                 count: impactSpheres.count
             )
+            var impactContacts = impactTouches
             var impactRecoveries = impactTouches
             var impactMisses = impactTouches
             var impactActiveSteps = impactTouches
@@ -832,6 +900,15 @@ private enum TaskRolloutMain {
                     "# step nq=\(traceLayout.configurationCount) " +
                     "scene_bodies=\(traceLayout.sceneBodyCount) " +
                     "scene_stride=13 timestep=0.02"
+                )
+            }
+            let captureDirectory = options.captureDirectory.map {
+                URL(fileURLWithPath: $0, isDirectory: true)
+            }
+            if let captureDirectory {
+                try FileManager.default.createDirectory(
+                    at: captureDirectory,
+                    withIntermediateDirectories: true
                 )
             }
             let clock = ContinuousClock()
@@ -901,6 +978,14 @@ private enum TaskRolloutMain {
                     guard statuses.allSatisfy({ $0 == 0 }) else {
                         throw MetalRoboTaskRolloutError.native(
                             "Task rollout returned a nonzero GPU status."
+                        )
+                    }
+                    if let captureDirectory,
+                       globalStep % options.captureStride == 0 {
+                        try writeCaptureFrame(
+                            context.visualRGBA(),
+                            index: globalStep,
+                            directory: captureDirectory
                         )
                     }
                     let observedTransitions:
@@ -1005,6 +1090,9 @@ private enum TaskRolloutMain {
                                 )
                                 if transition.impactEventFlags & 1 != 0 {
                                     impactTouches[impact] += 1
+                                }
+                                if transition.impactEventFlags & 16 != 0 {
+                                    impactContacts[impact] += 1
                                 }
                                 if transition.impactEventFlags & 2 != 0 {
                                     impactRecoveries[impact] += 1
@@ -1126,6 +1214,7 @@ private enum TaskRolloutMain {
                         "sequence_index": impact + 1,
                         "mass_kg": impactSpheres[impact].mass,
                         "touch_count": impactTouches[impact],
+                        "contact_count": impactContacts[impact],
                         "recovery_count": impactRecoveries[impact],
                         "miss_count": impactMisses[impact],
                         "active_steps": impactActiveSteps[impact],
@@ -1137,12 +1226,7 @@ private enum TaskRolloutMain {
                     ]
                 }
             let anyLinkProjectileHitCount =
-                terminationReasonCounts[
-                    String(
-                        MetalRoboTaskTerminationReason
-                            .projectileContact.rawValue
-                    )
-                ] ?? 0
+                impactContacts.reduce(0, +)
             let cleanProjectileMissCount = impactMisses.reduce(0, +)
             let completedProjectileTrialCount =
                 anyLinkProjectileHitCount + cleanProjectileMissCount
