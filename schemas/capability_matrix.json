@@ -10,7 +10,8 @@
     "evidence/baselines/2026-08-01-b20fa57.json",
     "evidence/baselines/2026-08-01-b1c311f.json",
     "evidence/baselines/2026-08-01-c4966e4.json",
-    "evidence/baselines/2026-08-01-73872ac.json"
+    "evidence/baselines/2026-08-01-73872ac.json",
+    "evidence/baselines/2026-08-01-e250919.json"
   ],
   "capabilities": [
     {
@@ -81,7 +82,7 @@
       "status": "qualified",
       "owner": "integration.native_simulation",
       "artifact": "metalrobo_train",
-      "scope": "In-process Swift/MLX PPO consumes lifetime-scoped native shared Metal rollout slots without Swift array concatenation, a Swift-side stream copy, an MLX input copy, or duplicate compact MetalWorldResult vectors. The integration owner advances beyond the three-slot ring and validates release, policy revision, checkpoints, and artifacts. Leased payload validation remains a CPU in-place scan pending GPU status reduction."
+      "scope": "In-process Swift/MLX PPO consumes lifetime-scoped native shared Metal rollout slots without Swift array concatenation, a Swift-side stream copy, an MLX input copy, duplicate compact MetalWorldResult vectors, or a CPU payload scan. The integration owner advances beyond the three-slot ring and validates release, policy revision, checkpoints, and artifacts."
     },
     {
       "id": "learning.leased_rollout_ring",
@@ -96,6 +97,13 @@
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "The world command buffer blits every compact learning stream directly into the pending native rollout lease. The lease cursor advances only with accepted world publication; the owner checks two-chunk offsets, bootstrap placement, byte-exact content, premature visibility rejection, exclusivity, reuse, and a leased-only result with zero duplicate host learning elements."
+    },
+    {
+      "id": "learning.gpu_publication_validation",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "One cooperative Metal threadgroup validates every compact float and transition, then emits a 64-byte generated-ABI status containing failure attribution, checked counts, runtime ABI, policy revision, task fingerprint, and a unique submission token. The CPU reads only this status before advancing a lease."
     },
     {
       "id": "tasks.compiled_native_runtime",

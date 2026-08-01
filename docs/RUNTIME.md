@@ -102,10 +102,13 @@ inspection calls retain those vectors explicitly. MLX arrays are constructed
 with the underlying managed C API, retain the slot lease through an owning
 finalizer payload, and consume those shared buffers without an input copy.
 
-After command completion, the runtime currently validates the leased bytes in
-place on the CPU before advancing the lease cursor. Replacing that scan with a
-GPU-reduced publication status remains an executor optimization and transaction
-gate; it is not required to copy or materialize the payload.
+Before the lease blit, one cooperative Metal threadgroup validates every
+compact float and transition. It emits a 64-byte generated-ABI status with the
+first invalid stream/index, checked counts, runtime ABI, policy revision, task
+fingerprint, and a unique submission token. After command completion the CPU
+reads only this status before advancing the lease cursor; it does not scan or
+materialize the payload. A malformed whole-session publication invalidates the
+resident token rather than silently continuing from an unreported step.
 
 Policy installation has two private native banks. The first installed policy
 locks a topology fingerprint containing its identity, task contract, operator
