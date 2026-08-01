@@ -22,6 +22,8 @@ private struct Options {
     var deploymentPolicyPack: String?
     var rolloutPack: String?
     var learnerState: String?
+    var checkpointDirectory: String?
+    var checkpointInterval = 0
     var motionPack: String?
     var worldPack: String?
     var taskPack: String?
@@ -131,6 +133,12 @@ private struct Options {
                 index += 1
             case "--learner-state":
                 learnerState = try value()
+                index += 1
+            case "--checkpoint-directory":
+                checkpointDirectory = try value()
+                index += 1
+            case "--checkpoint-interval":
+                checkpointInterval = try Self.integer(value(), option)
                 index += 1
             case "--motion-pack":
                 motionPack = try value()
@@ -269,6 +277,7 @@ private struct Options {
               minibatchesPerEpoch >= 0,
               motionMinibatchesPerEpoch > 0,
               motionUpdateEpochs > 0,
+              checkpointInterval >= 0,
               learnerSeed >= 0,
               let mlxPython,
               !mlxPython.isEmpty,
@@ -281,6 +290,11 @@ private struct Options {
         else {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Positive rollout sizes and all policy, rollout, and MLX paths are required."
+            )
+        }
+        if (checkpointDirectory == nil) != (checkpointInterval == 0) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Checkpoint snapshots require both --checkpoint-directory and a positive --checkpoint-interval."
             )
         }
         let (sampleCount, sampleOverflow) =
@@ -1112,6 +1126,43 @@ private enum TaskTrainMain {
                     at: URL(fileURLWithPath: updatedPolicyPack)
                 )
                 installedRevision = learner.revision
+                if let checkpointDirectory =
+                        options.checkpointDirectory,
+                   (updateIndex + 1) % options.checkpointInterval == 0
+                {
+                    let directory = URL(
+                        fileURLWithPath: checkpointDirectory,
+                        isDirectory: true
+                    )
+                    try FileManager.default.createDirectory(
+                        at: directory,
+                        withIntermediateDirectories: true
+                    )
+                    let revision = String(
+                        format: "%08llu",
+                        learner.revision
+                    )
+                    let artifacts = [
+                        (
+                            deploymentPolicyPack,
+                            directory.appendingPathComponent(
+                                "revision-\(revision).policypack"
+                            )
+                        ),
+                        (
+                            learnerState,
+                            directory.appendingPathComponent(
+                                "revision-\(revision).safetensors"
+                            )
+                        ),
+                    ]
+                    for (source, destination) in artifacts {
+                        try FileManager.default.copyItem(
+                            at: URL(fileURLWithPath: source),
+                            to: destination
+                        )
+                    }
+                }
                 if options.verbose {
                     let reward =
                         (lastLearning["mean_reward"] as? NSNumber)?
@@ -1202,6 +1253,9 @@ private enum TaskTrainMain {
                         options.minibatchSize == 0 ? 0 : 1),
                 "motion_minibatch_size":
                     options.motionMinibatchSize,
+                "checkpoint_directory":
+                    options.checkpointDirectory ?? "",
+                "checkpoint_interval": options.checkpointInterval,
                 "training_samples": sampleCount,
                 "initial_policy_revision": initialRevision,
                 "final_policy_revision": installedRevision,
