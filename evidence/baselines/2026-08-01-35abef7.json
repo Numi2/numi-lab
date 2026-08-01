@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T07:12:25+02:00",
+  "source_revision": "35abef755331a9f5318aaf65c64ba900cff54a2a",
+  "metallib_sha256": "2b4fe9baec2505f00da4a11732954fc858c1a725803785f9a7c945ffc8a862b4",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "qualification_build_actions": 3,
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 2.99,
+    "runtime_abi_version": 19,
+    "sensor_program_abi_version": 9,
+    "world_buffer_count": 251,
+    "sensor_sample_binding_count": 25,
+    "world_pack_format_version": 9,
+    "task_pack_format_version": 7,
+    "semantic_site_task_compose": "passed",
+    "semantic_site_sensor_compose": "passed",
+    "semantic_site_worldpack_roundtrip": "passed",
+    "unresolved_task_site_transaction": "passed",
+    "unresolved_sensor_site_transaction": "passed",
+    "site_specific_runtime_records": 0,
+    "site_specific_metal_branches": 0,
+    "same_hardware_replay": "bitwise"
+  },
+  "known_release_blockers": [
+    "No general MJCF importer is present, so MJCF site elements are not yet parsed into the canonical semantic model.",
+    "Semantic sites are currently authored programmatically or loaded from the current WorldPack; URDF extension-frame import remains incomplete.",
+    "TaskIR still lacks frame acceleration, point and Jacobian quantities, sampled and trajectory goals, and generic gates and reductions.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; recorder routing, ray, and LiDAR operators remain incomplete.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}

@@ -27,7 +27,8 @@
     "evidence/baselines/2026-08-01-10209f1.json",
     "evidence/baselines/2026-08-01-135d4f1.json",
     "evidence/baselines/2026-08-01-66e47ae.json",
-    "evidence/baselines/2026-08-01-9091c6e.json"
+    "evidence/baselines/2026-08-01-9091c6e.json",
+    "evidence/baselines/2026-08-01-35abef7.json"
   ],
   "capabilities": [
     {
@@ -46,7 +47,7 @@
     },
     {
       "id": "compiler.semantic_sites",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "Canonical models and WorldPack carry unique named link-local sites. TaskPack and SensorIR resolve a site plus an optional site-local offset into their existing body-frame records, including composed orientation and COM translation, with no runtime lookup or site-specific Metal branch. General MJCF site parsing is still blocked on the MJCF importer."
