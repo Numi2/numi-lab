@@ -8514,6 +8514,7 @@ bool encodeTaskFrameRefresh(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
     const MRMetalWorldPassGPU& pass,
+    const std::size_t sourceScene,
     const std::size_t environmentCount
 ) {
     return encodeContactThreadKernel(
@@ -8527,6 +8528,7 @@ bool encodeTaskFrameRefresh(
             {MR_TASK_FRAME_REFRESH_ARENA, kTaskProgramArena},
             {MR_TASK_FRAME_REFRESH_RESET_MASKS, kResetMasks},
             {MR_TASK_FRAME_REFRESH_BODY_POSES, kBodyPoses},
+            {MR_TASK_FRAME_REFRESH_SCENE_BODIES, sourceScene},
             {MR_TASK_FRAME_REFRESH_TASK_STATES, kTaskState},
             {MR_TASK_FRAME_REFRESH_SENSOR_BIAS, kTaskEncoderBias},
             {MR_TASK_FRAME_REFRESH_ACTOR_HISTORY, kTaskActorHistory},
@@ -16139,6 +16141,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                         *selectedState,
                                         commandBuffer,
                                         pass,
+                                        sourceScene,
                                         batch.environmentCount
                                     )
                                 )

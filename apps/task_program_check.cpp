@@ -274,6 +274,12 @@ std::uint64_t compileFixedBaseTaskFixture() {
     if (!cooked.succeeded()) {
         fail("fixed-base URDF cook failed: " + cooked.message);
     }
+    metalrobo::appendBuiltinSurface(
+        authored.model,
+        authored.sceneBodies,
+        metalrobo::BuiltinSurface::ground
+    );
+    authored.sceneBodies.back().position.z = -1.0f;
     authored.task.id = "fixed_base_joint_control";
     authored.task.actions = {{
         .joint = "axis",
@@ -386,12 +392,25 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .target = "tool_pose_30hz",
             .component = 3u,
         },
+        {
+            .source =
+                metalrobo::TaskObservationSource::framePositionWorld,
+            .target = "world_anchor",
+            .component = 2u,
+        },
     };
-    authored.task.frames = {{
-        .id = "tool_tip",
-        .body = "tool",
-        .localPosition = {0.0f, 0.0f, 0.2f, 0.0f},
-    }};
+    authored.task.frames = {
+        {
+            .id = "tool_tip",
+            .body = "tool",
+            .localPosition = {0.0f, 0.0f, 0.2f, 0.0f},
+        },
+        {
+            .id = "world_anchor",
+            .body = "locomotion_ground",
+            .localPosition = {0.125f, -0.25f, 1.4f, 0.0f},
+        },
+    };
     authored.task.goals = {{
         .id = "home",
         .position = {0.0f, 0.0f, 0.3f, 1.0f},
@@ -510,10 +529,10 @@ std::uint64_t compileFixedBaseTaskFixture() {
         .bias = std::vector<float>(1u, 0.05f),
     }};
     policy.criticLayers = {{
-        .inputCount = 6u,
+        .inputCount = 7u,
         .outputCount = 1u,
         .activation = metalrobo::PolicyActivation::identity,
-        .weights = std::vector<float>(6u, 0.02f),
+        .weights = std::vector<float>(7u, 0.02f),
         .bias = std::vector<float>(1u, 0.1f),
     }};
     authored.policy = std::move(policy);
@@ -532,17 +551,21 @@ std::uint64_t compileFixedBaseTaskFixture() {
         compiled.sensors.layout().historyElementCount != 28u ||
         compiled.task.layout().actionCount != 1u ||
         compiled.task.layout().actorObservationSize != 12u ||
-        compiled.task.layout().criticObservationSize != 6u ||
+        compiled.task.layout().criticObservationSize != 7u ||
         compiled.task.sensorFingerprint() !=
             compiled.sensors.fingerprint() ||
-        compiled.task.header().typedCounts.x != 1u ||
+        compiled.task.header().typedCounts.x != 2u ||
         compiled.task.header().typedCounts.y != 1u ||
-        compiled.task.frames().size() != 1u ||
+        compiled.task.frames().size() != 2u ||
         compiled.task.goals().size() != 1u ||
         std::abs(
             compiled.task.frames().front().localPosition.z -
             0.1f
         ) > 1.0e-6f ||
+        compiled.task.frames()[1].indices.y !=
+            MR_TASK_FRAME_SOURCE_SCENE_BODY ||
+        compiled.task.frames()[1].indices.z != 0u ||
+        compiled.task.frames()[1].indices.w != MR_INVALID_INDEX ||
         (compiled.task.header().schedule.w &
          MR_TASK_PROGRAM_FLOATING_ROOT) != 0u) {
         fail(
@@ -560,6 +583,9 @@ std::uint64_t compileFixedBaseTaskFixture() {
         environments * compiled.world.nv(),
         0.0f
     );
+    std::vector<MRBodyStateGPU> initialSceneBodies(
+        environments * authored.sceneBodies.size()
+    );
     for (std::size_t environment = 0u;
          environment < environments;
          ++environment) {
@@ -569,6 +595,14 @@ std::uint64_t compileFixedBaseTaskFixture() {
             initialQ.begin() +
                 static_cast<std::ptrdiff_t>(
                     environment * compiled.world.nq()
+                )
+        );
+        std::copy(
+            authored.sceneBodies.begin(),
+            authored.sceneBodies.end(),
+            initialSceneBodies.begin() +
+                static_cast<std::ptrdiff_t>(
+                    environment * authored.sceneBodies.size()
                 )
         );
     }
@@ -602,6 +636,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .initialQ = initialQ,
             .initialV = initialV,
             .resetMasks = resetMasks,
+            .initialSceneBodies = initialSceneBodies,
         },
         step,
         result
@@ -667,7 +702,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .controlStepCapacity =
                 static_cast<std::uint32_t>(controlSteps),
             .actorObservationCount = 12u,
-            .criticObservationCount = 6u,
+            .criticObservationCount = 7u,
             .actionCount = 1u,
             .slotCount = 1u,
         });
@@ -722,6 +757,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
                         .initialQ = initialQ,
                         .initialV = initialV,
                         .resetMasks = rolloutResetMasks,
+                        .initialSceneBodies = initialSceneBodies,
                         .rolloutTarget = target,
                     },
                     step,
@@ -763,7 +799,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 appendPrefix(
                     expectedCritic,
                     chunkResult.criticObservations,
-                    6u
+                    7u
                 );
                 appendPrefix(
                     expectedLatents,
@@ -861,7 +897,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .controlStepCapacity =
                 static_cast<std::uint32_t>(controlSteps),
             .actorObservationCount = 12u,
-            .criticObservationCount = 6u,
+            .criticObservationCount = 7u,
             .actionCount = 1u,
             .slotCount = 1u,
         });
@@ -887,6 +923,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 .initialQ = initialQ,
                 .initialV = initialV,
                 .resetMasks = resetMasks,
+                .initialSceneBodies = initialSceneBodies,
                 .rolloutTarget = leasedTarget,
             },
             step,
@@ -932,7 +969,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
             !equalPrefix(
                 result.criticObservations,
                 leasedOnly.criticObservations(),
-                leasedSamples * 6u
+                leasedSamples * 7u
             ) ||
             !equalPrefix(
                 result.policyLatents,
@@ -1007,6 +1044,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .initialQ = initialQ,
             .initialV = initialV,
             .resetMasks = resetMasks,
+            .initialSceneBodies = initialSceneBodies,
         },
         step,
         revisedResult
@@ -1035,6 +1073,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
             .initialQ = initialQ,
             .initialV = initialV,
             .resetMasks = resetMasks,
+            .initialSceneBodies = initialSceneBodies,
         },
         step,
         reusedResult
@@ -1198,7 +1237,7 @@ std::uint64_t compileFixedBaseTaskFixture() {
                     "TaskIR actor observations did not consume the scheduled SensorIR boundary"
                 );
             }
-            const std::size_t criticBase = sample * 6u;
+            const std::size_t criticBase = sample * 7u;
             if (std::abs(
                     result.criticObservations[criticBase + 4u] -
                     0.3f
@@ -1206,9 +1245,13 @@ std::uint64_t compileFixedBaseTaskFixture() {
                 std::abs(
                     result.criticObservations[criticBase + 5u] -
                     (thirtyHertzFresh ? 0.0f : 1.0f)
+                ) > 2.0e-4f ||
+                std::abs(
+                    result.criticObservations[criticBase + 6u] -
+                    0.4f
                 ) > 2.0e-4f) {
                 fail(
-                    "TaskIR critic observations did not consume SensorIR value and validity"
+                    "TaskIR critic observations did not consume SensorIR or scene-frame state"
                 );
             }
         }

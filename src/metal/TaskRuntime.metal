@@ -164,6 +164,36 @@ inline TaskFramePose taskFramePose(
     return result;
 }
 
+inline MRBodyStateGPU taskFrameBodyState(
+    device const MRTaskFrameGPU& frame,
+    device const MRBodyStateGPU* bodyStates,
+    device const MRBodyStateGPU* sceneBodies
+) {
+    return frame.indices.y == MR_TASK_FRAME_SOURCE_SCENE_BODY
+        ? sceneBodies[frame.indices.z]
+        : bodyStates[frame.indices.x];
+}
+
+inline TaskFramePose taskResetBodyPose(
+    device const MRTaskFrameGPU& frame,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device const MRBodyStateGPU* sceneBodies
+) {
+    TaskFramePose result;
+    if (frame.indices.y == MR_TASK_FRAME_SOURCE_SCENE_BODY) {
+        device const MRBodyStateGPU& body =
+            sceneBodies[frame.indices.z];
+        result.position = body.position.xyz;
+        result.orientation = body.orientation;
+        return result;
+    }
+    device const MRArticulatedBodyPoseGPU& body =
+        bodyPoses[frame.indices.z];
+    result.position = body.position.xyz;
+    result.orientation = body.orientation;
+    return result;
+}
+
 inline float3 taskOrientationError(
     const float4 frameOrientation,
     const float4 goalOrientation
@@ -636,8 +666,11 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_FRAME_GOAL_ORIENTATION_ERROR: {
         device const MRTaskFrameGPU& frame =
             frames[operation.source.y];
-        device const MRBodyStateGPU& body =
-            bodyStates[frame.indices.x];
+        const MRBodyStateGPU body = taskFrameBodyState(
+            frame,
+            bodyStates,
+            sceneBodies
+        );
         return taskFrameObservationValue(
             operation,
             frames,
@@ -1685,6 +1718,8 @@ kernel void mr_task_refresh_frame_observations(
         [[buffer(MR_TASK_FRAME_REFRESH_RESET_MASKS)]],
     device const MRArticulatedBodyPoseGPU* bodyPoses
         [[buffer(MR_TASK_FRAME_REFRESH_BODY_POSES)]],
+    device const MRBodyStateGPU* sceneBodies
+        [[buffer(MR_TASK_FRAME_REFRESH_SCENE_BODIES)]],
     device const MRTaskStateGPU* taskStates
         [[buffer(MR_TASK_FRAME_REFRESH_TASK_STATES)]],
     device const float* sensorBias
@@ -1741,6 +1776,7 @@ kernel void mr_task_refresh_frame_observations(
         environment * criticHistoryElements;
     const uint biasBase = environment * program.counts2.z;
     const uint bodyBase = environment * dispatch.strides.y;
+    const uint sceneBase = environment * dispatch.strides.w;
     const uint actorOutputBase =
         pass.controlStep * dispatch.outputs.x +
         environment * historyElements;
@@ -1769,14 +1805,17 @@ kernel void mr_task_refresh_frame_observations(
         }
         device const MRTaskFrameGPU& frame =
             frames[operation.source.y];
-        device const MRArticulatedBodyPoseGPU& body =
-            bodyPoses[bodyBase + frame.indices.x];
+        const TaskFramePose pose = taskResetBodyPose(
+            frame,
+            bodyPoses + bodyBase,
+            sceneBodies + sceneBase
+        );
         const float clean = taskFrameObservationValue(
             operation,
             frames,
             goals,
-            body.position,
-            body.orientation
+            float4(pose.position, 1.0f),
+            pose.orientation
         );
         float corrupted =
             clean +
@@ -1826,14 +1865,17 @@ kernel void mr_task_refresh_frame_observations(
         }
         device const MRTaskFrameGPU& frame =
             frames[operation.source.y];
-        device const MRArticulatedBodyPoseGPU& body =
-            bodyPoses[bodyBase + frame.indices.x];
+        const TaskFramePose pose = taskResetBodyPose(
+            frame,
+            bodyPoses + bodyBase,
+            sceneBodies + sceneBase
+        );
         const float clean = taskFrameObservationValue(
             operation,
             frames,
             goals,
-            body.position,
-            body.orientation
+            float4(pose.position, 1.0f),
+            pose.orientation
         );
         for (uint history = 0u;
              history < program.articulation.w;
@@ -2790,8 +2832,11 @@ kernel void mr_task_complete(
                 frames[operation.source.y];
             device const MRTaskGoalGPU& goal =
                 goals[operation.source.z];
-            const MRBodyStateGPU body =
-                bodyStates[bodyBase + frame.indices.x];
+            const MRBodyStateGPU body = taskFrameBodyState(
+                frame,
+                bodyStates + bodyBase,
+                sceneState + sceneBase
+            );
             const TaskFramePose pose = taskFramePose(
                 frame,
                 body.position,
@@ -3156,8 +3201,11 @@ kernel void mr_task_complete(
                 frames[operation.source.y];
             device const MRTaskGoalGPU& goal =
                 goals[operation.auxiliary.x];
-            const MRBodyStateGPU body =
-                bodyStates[bodyBase + frame.indices.x];
+            const MRBodyStateGPU body = taskFrameBodyState(
+                frame,
+                bodyStates + bodyBase,
+                sceneState + sceneBase
+            );
             const TaskFramePose pose = taskFramePose(
                 frame,
                 body.position,

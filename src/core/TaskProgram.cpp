@@ -956,15 +956,34 @@ TaskCompileDiagnostics compileTaskProgram(
                 "task frame body does not exist"
             );
         }
-        if (!inRange(
-                body,
-                articulation.firstBody,
-                articulation.bodyCount
-            )) {
+        const std::uint32_t articulationOwner =
+            model.bodies[body].articulationIndex;
+        std::uint32_t sourceKind =
+            MR_TASK_FRAME_SOURCE_ARTICULATED_BODY;
+        std::uint32_t sourceIndex = body;
+        if (articulationOwner == MR_INVALID_INDEX) {
+            const auto sceneBody = std::find(
+                world.sceneBodyIndices().begin(),
+                world.sceneBodyIndices().end(),
+                body
+            );
+            if (sceneBody == world.sceneBodyIndices().end()) {
+                return reject(
+                    TaskCompileStatus::invalidWorld,
+                    frame.body,
+                    "non-articulated task frame body is absent from the compiled scene-state layout"
+                );
+            }
+            sourceKind = MR_TASK_FRAME_SOURCE_SCENE_BODY;
+            sourceIndex = static_cast<std::uint32_t>(
+                sceneBody - world.sceneBodyIndices().begin()
+            );
+        } else if (articulationOwner >=
+                   model.articulations.size()) {
             return reject(
-                TaskCompileStatus::unsupportedOperator,
-                frame.id,
-                "task frames currently require a selected-articulation body"
+                TaskCompileStatus::invalidWorld,
+                frame.body,
+                "task frame body has an invalid articulation owner"
             );
         }
         mr_float4 orientation{};
@@ -981,7 +1000,12 @@ TaskCompileDiagnostics compileTaskProgram(
         const mr_float4 centerOfMass =
             model.bodies[body].centerOfMass;
         staged->frames.push_back({
-            {body, 0u, 0u, 0u},
+            {
+                body,
+                sourceKind,
+                sourceIndex,
+                articulationOwner,
+            },
             {
                 frame.localPosition.x - centerOfMass.x,
                 frame.localPosition.y - centerOfMass.y,

@@ -81,7 +81,8 @@ supports:
 - joint, root, command, terrain, parameter, contact-metric, and contact-wrench
   observations;
 - world frame position/orientation and frame-to-goal position/orientation
-  errors for bodies in the selected articulation;
+  errors for links in any compiled articulation and for static, kinematic, or
+  dynamic scene bodies;
 - frame position/orientation squared-error and exponential-tracking rewards;
 - maximum frame position/orientation error termination;
 - fixed-shape actor/critic histories, deterministic corruption, curriculum,
@@ -90,14 +91,14 @@ supports:
   checks and an exact SensorIR fingerprint in the compiled TaskIR contract.
 
 Reset frame observations are evaluated from the randomized reset
-configuration through the generic articulated-kinematics operator before
-policy inference. They never reuse body poses retained by the preceding
-episode.
+configuration through the generic articulated-kinematics operator and the
+transactional scene-state layout before policy inference. They never reuse
+body or scene poses retained by the preceding episode.
 
 The remaining TaskIR target is a phase-separated graph covering action,
 command/event, observation, reward, termination, recorder, reset, and
-curriculum phases. Site semantics, scene-object frames, frame twist and
-acceleration, point/Jacobian quantities, sampled and trajectory goals, generic
+curriculum phases. Site semantics, frame twist and acceleration,
+point/Jacobian quantities, sampled and trajectory goals, and generic
 gates/reductions are not yet production operators.
 
 All implemented names resolve at compilation. The GPU receives only typed

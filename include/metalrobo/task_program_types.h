@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 8u
+#define MR_TASK_PROGRAM_ABI_VERSION 9u
 
 enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_TERRAIN = 1u << 0u,
@@ -47,6 +47,11 @@ enum MRTaskObservationFlags : mr_u32 {
 enum MRTaskContactGroupFlags : mr_u32 {
     MR_TASK_CONTACT_SUPPORT = 1u << 0u,
     MR_TASK_CONTACT_FORBIDDEN = 1u << 1u,
+};
+
+enum MRTaskFrameSourceKind : mr_u32 {
+    MR_TASK_FRAME_SOURCE_ARTICULATED_BODY = 0u,
+    MR_TASK_FRAME_SOURCE_SCENE_BODY = 1u,
 };
 
 enum MRTaskRewardOpcode : mr_u32 {
@@ -225,7 +230,10 @@ typedef struct MR_ALIGN16 MRTaskIndexGroupGPU {
 } MRTaskIndexGroupGPU;
 
 typedef struct MR_ALIGN16 MRTaskFrameGPU {
-    // Global body index and reserved values.
+    // x = global body index, y = MRTaskFrameSourceKind,
+    // z = source-layout index (global body-pose index for articulated bodies,
+    // scene-local state index for scene bodies), w = articulation owner or
+    // MR_INVALID_INDEX for scene bodies.
     mr_uint4 indices;
     // Authored frame origin relative to the body COM, in body axes.
     mr_float4 localPosition;
