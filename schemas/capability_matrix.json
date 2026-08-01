@@ -21,7 +21,8 @@
     "evidence/baselines/2026-08-01-09575df.json",
     "evidence/baselines/2026-08-01-ba48f35.json",
     "evidence/baselines/2026-08-01-74155de.json",
-    "evidence/baselines/2026-08-01-b57c399.json"
+    "evidence/baselines/2026-08-01-b57c399.json",
+    "evidence/baselines/2026-08-01-e61fd21.json"
   ],
   "capabilities": [
     {
@@ -173,7 +174,7 @@
     },
     {
       "id": "sensors.native_imu",
-      "status": "implemented",
+      "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
       "scope": "A generic body-attached IMU publishes sensor-local specific force followed by sensor-local angular velocity. Specific force differentiates accepted sensor-origin world velocity over the exact scheduled interval and subtracts world gravity; previous point velocity and timestamp are persistent transactionally journaled SensorIR state. The owner checks a rotated kinematic parent against an analytic acceleration/gravity/gyro result and includes IMU state in rejected-reset branch equivalence."
