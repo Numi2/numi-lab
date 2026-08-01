@@ -2167,13 +2167,13 @@ bool buildRequirements(
             requirements.entries[kPairRawCounts]
         ) ||
         !makeRequirement<MRManifoldHeaderGPU>(
-            "pair-owned manifold headers",
-            eligiblePairFlagElements,
+            "active-pair manifold headers",
+            layout.pairWorkElements,
             requirements.entries[kPairManifoldHeaders]
         ) ||
         !makeRequirement<MRManifoldPointGPU>(
-            "pair-owned manifold points",
-            eligiblePairFlagElements *
+            "active-pair manifold points",
+            layout.pairWorkElements *
                 MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY,
             requirements.entries[kPairManifoldPoints]
         ) ||

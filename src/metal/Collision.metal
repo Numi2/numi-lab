@@ -9785,9 +9785,10 @@ kernel void mr_world_finalize_pair_manifold(
         return;
     }
 
-    pairManifoldHeaders[flatPair] = manifoldHeader;
+    const uint stagingSlot = stagedRecord.y;
+    pairManifoldHeaders[stagingSlot] = manifoldHeader;
     const uint pairPointBase =
-        flatPair * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+        stagingSlot * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
     for (uint point = 0u;
          point < MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
          ++point) {
@@ -10176,10 +10177,11 @@ kernel void mr_world_scatter_manifold_records(
     const uint manifoldOutput =
         environment * dispatch.manifoldStride +
         record.offsets0.z;
+    const uint stagingSlot = record.reserved.x;
     candidateManifoldHeaders[manifoldOutput] =
-        pairManifoldHeaders[flatPair];
+        pairManifoldHeaders[stagingSlot];
     const uint sourcePointBase =
-        flatPair * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+        stagingSlot * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
     const uint outputPointBase =
         manifoldOutput * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
     for (uint point = 0u;
@@ -10292,13 +10294,14 @@ kernel void mr_world_scatter_manifold_ir(
         return;
     }
     const MRManifoldHeaderGPU manifoldHeader =
-        pairManifoldHeaders[flatPair];
+        pairManifoldHeaders[record.reserved.x];
     if (pointIndex >= manifoldHeader.pairAndCount[3]) {
         return;
     }
     const MRManifoldPointGPU manifoldPoint =
         pairManifoldPoints[
-            flatPair * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
+            record.reserved.x *
+                MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
             pointIndex
         ];
     const MRCompiledCollisionPairGPU compiled =
