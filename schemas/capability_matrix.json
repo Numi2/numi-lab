@@ -17,7 +17,8 @@
     "evidence/baselines/2026-08-01-68ce9cc.json",
     "evidence/baselines/2026-08-01-0a06e71.json",
     "evidence/baselines/2026-08-01-c82c454.json",
-    "evidence/baselines/2026-08-01-12912fc.json"
+    "evidence/baselines/2026-08-01-12912fc.json",
+    "evidence/baselines/2026-08-01-09575df.json"
   ],
   "capabilities": [
     {
@@ -151,14 +152,21 @@
       "status": "qualified",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "Native parent-frame pose and world-space frame-twist sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. Twist linear velocity is evaluated at the authored sensor origin from accepted body state. The owner covers articulated and rigid kinematic parents, exact 50 Hz and non-divisor 30 Hz schedules over a 20 ms control period."
+      "scope": "Native parent-frame pose, world-space frame-twist, and six-axis contact-wrench sensors use topology-derived persistent buffers, reset-only seeding, accepted-state advancement, deterministic nanosecond phase accumulation, whole-sample latency history, and compact value/age/validity publication. Twist linear velocity is evaluated at the authored sensor origin. Force-torque consumes final-microstep NumiSolver impulses and reports the resultant in sensor-local axes. The owner covers articulated and rigid kinematic parents, exact 50 Hz and non-divisor 30 Hz schedules, and a reset-cleared nonzero wrench."
+    },
+    {
+      "id": "sensors.solver_force_torque",
+      "status": "qualified",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "Six-axis SensorIR force-torque sums committed non-generalized contact impulses on the parent body, divides by the final accepted physics-microstep duration, shifts the moment to the authored sensor origin, and expresses force and torque in sensor-local axes. All six channels match TaskIR's independent contact-group reduction and reset clears the view. Control-window integration and joint-transmission load-cell semantics remain incomplete."
     },
     {
       "id": "sensors.unified_sensor_ir",
       "status": "experimental",
       "owner": "task.program",
       "artifact": "metalrobo_task_program_check",
-      "scope": "WorldPack state, frame-twist, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose and frame-twist sensors execute in the session-owned scheduler and bind into TaskIR; presentation and tactile still use their existing native owners, while sensor-native corruption, recorder routing, contact, ray, LiDAR, force-torque, and IMU operators remain incomplete."
+      "scope": "WorldPack state, frame-twist, force-torque, image, and tactile declarations compile transactionally into one generated-ABI descriptor table. State-pose, frame-twist, and force-torque sensors execute in the session-owned scheduler and bind into TaskIR; presentation and tactile still use their existing native owners, while failure-transaction history buffering, sensor-native corruption, recorder routing, dedicated contact-state, ray, LiDAR, and IMU operators remain incomplete."
     },
     {
       "id": "policy.dense_native_inference",
