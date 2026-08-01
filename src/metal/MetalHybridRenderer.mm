@@ -6963,6 +6963,9 @@ struct MetalHybridObjectTracker::State {
     __strong id<MTLBuffer> maskedDepthInstances = nil;
     __strong id<MTLBuffer> maskedDepthHistory = nil;
     MetalHybridRendererLayout rendererLayout{};
+    std::uint64_t observationSequence = 0u;
+    std::uint64_t lastSensorSequence =
+        std::numeric_limits<std::uint64_t>::max();
     bool compiled = false;
 };
 
@@ -7000,6 +7003,8 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
              config.maskedDepthInstanceIds.empty()) ||
             !std::isfinite(config.timestepSeconds) ||
             !(config.timestepSeconds > 0.0f) ||
+            !std::isfinite(config.nominalSensorRateHz) ||
+            !(config.nominalSensorRateHz > 0.0f) ||
             !std::isfinite(
                 config.maximumTrackSpeedMetersPerSecond
             ) ||
@@ -7207,6 +7212,9 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
         state_->maskedDepthInstances = maskedDepthInstances;
         state_->maskedDepthHistory = maskedDepthHistory;
         state_->rendererLayout = layout;
+        state_->observationSequence = 0u;
+        state_->lastSensorSequence =
+            std::numeric_limits<std::uint64_t>::max();
         state_->compiled = true;
         diagnostics.layout = layout;
         diagnostics.deviceName = renderer.state_->deviceName;
@@ -7271,6 +7279,9 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::reset() {
             );
         }
         diagnostics.layout = state_->rendererLayout;
+        state_->observationSequence = 0u;
+        state_->lastSensorSequence =
+            std::numeric_limits<std::uint64_t>::max();
         diagnostics.deviceName =
             state_->renderer->state_->deviceName;
         return diagnostics;
@@ -7330,33 +7341,46 @@ bool MetalHybridObjectTracker::encodeObservation(
     }
     id<MTLCommandBuffer> command =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
-    id<MTLComputeCommandEncoder> renderEncoder =
-        [command computeCommandEncoder];
-    if (renderEncoder == nil) {
-        return false;
-    }
+    const std::uint64_t observationSequence =
+        state->observationSequence++;
+    const double sensorTime =
+        static_cast<double>(observationSequence) *
+        static_cast<double>(state->config.timestepSeconds) *
+        static_cast<double>(state->config.nominalSensorRateHz);
+    const std::uint64_t sensorSequence =
+        static_cast<std::uint64_t>(std::floor(sensorTime + 1.0e-6));
+    const bool sampleSensor =
+        sensorSequence != state->lastSensorSequence;
     HybridDeviceStateBatch liveState{
         .currentBodyStates = pass.currentBodies,
         .previousBodyStates = pass.currentBodies,
         .environmentCount = pass.environmentCount,
         .bodyCount = pass.bodyCount,
         .frameIndex = pass.controlStep,
-        .sensorSequence = pass.controlStep,
+        .sensorSequence = static_cast<std::uint32_t>(sensorSequence),
         .source = MR_VISUAL_SOURCE_SIMULATION,
         .captureTimestampSeconds =
             double(pass.controlStep) * state->config.timestepSeconds,
         .frameAgeSeconds = 0.0,
     };
-    const MetalHybridRendererDiagnostics rendered =
-        state->renderer->encode(
-            *state->worlds,
-            liveState,
-            state->config.cameraIndex,
-            (__bridge void*)renderEncoder
-        );
-    [renderEncoder endEncoding];
-    if (!rendered.succeeded()) {
-        return false;
+    if (sampleSensor) {
+        id<MTLComputeCommandEncoder> renderEncoder =
+            [command computeCommandEncoder];
+        if (renderEncoder == nil) {
+            return false;
+        }
+        const MetalHybridRendererDiagnostics rendered =
+            state->renderer->encode(
+                *state->worlds,
+                liveState,
+                state->config.cameraIndex,
+                (__bridge void*)renderEncoder
+            );
+        [renderEncoder endEncoding];
+        if (!rendered.succeeded()) {
+            return false;
+        }
+        state->lastSensorSequence = sensorSequence;
     }
     id<MTLBuffer> depth =
         (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(

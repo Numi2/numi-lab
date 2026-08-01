@@ -90,6 +90,9 @@ typedef struct MRTaskVisualObservationConfigC {
     uint32_t width;
     uint32_t height;
     uint32_t minimum_visible_pixels;
+    // Authored sensor cadence. Physics and inference retain their independent
+    // control rate and hold the latest private observation between samples.
+    float nominal_rate_hz;
     // Zero selects the renderer default. Large batched training callers may
     // raise this explicit preflight bound after accounting for their device.
     uint64_t maximum_retained_bytes;

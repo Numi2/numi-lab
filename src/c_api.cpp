@@ -885,7 +885,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         config.camera_parent_body == nullptr ||
         config.camera_parent_body[0] == '\0' ||
         config.width == 0u || config.height == 0u ||
-        config.minimum_visible_pixels == 0u) {
+        config.minimum_visible_pixels == 0u ||
+        !std::isfinite(config.nominal_rate_hz) ||
+        !(config.nominal_rate_hz > 0.0f)) {
         throw std::invalid_argument(
             "visual observation packs, head camera, and dimensions are required"
         );
@@ -1118,7 +1120,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         0.5f * static_cast<float>(config.width),
         0.5f * static_cast<float>(config.height),
     };
-    camera.nominalRateHz = 50.0f;
+    camera.nominalRateHz = config.nominal_rate_hz;
     camera.exposureSeconds = 1.0f / 240.0f;
     camera.minimumDepthMeters = 0.05f;
     camera.maximumDepthMeters = 8.0f;
@@ -1406,6 +1408,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     trackerConfig.maximumActorHistoryLength =
         handle.taskProgram.layout().actorHistoryLength;
     trackerConfig.timestepSeconds = handle.stepConfig.timestepSeconds;
+    trackerConfig.nominalSensorRateHz = config.nominal_rate_hz;
     trackerConfig.maximumTrackSpeedMetersPerSecond = 10.0f;
     for (const auto& [sceneIndex, offset] : trackedOffsets) {
         const std::string& assetId =

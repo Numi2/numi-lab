@@ -223,6 +223,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
     public var width: UInt32
     public var height: UInt32
     public var minimumVisiblePixels: UInt32
+    public var nominalRateHz: Float
     public var maximumRetainedBytes: UInt64
     public var captureWidth: UInt32
     public var captureHeight: UInt32
@@ -236,6 +237,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         width: UInt32 = 160,
         height: UInt32 = 120,
         minimumVisiblePixels: UInt32 = 4,
+        nominalRateHz: Float = 15,
         maximumRetainedBytes: UInt64 = 0,
         captureWidth: UInt32 = 0,
         captureHeight: UInt32 = 0
@@ -248,6 +250,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         self.width = width
         self.height = height
         self.minimumVisiblePixels = minimumVisiblePixels
+        self.nominalRateHz = nominalRateHz
         self.maximumRetainedBytes = maximumRetainedBytes
         self.captureWidth = captureWidth
         self.captureHeight = captureHeight
@@ -1129,6 +1132,8 @@ public final class MetalRoboTaskRolloutContext {
                         native.height = configuration.height
                         native.minimum_visible_pixels =
                             configuration.minimumVisiblePixels
+                        native.nominal_rate_hz =
+                            configuration.nominalRateHz
                         native.maximum_retained_bytes =
                             configuration.maximumRetainedBytes
                         native.capture_width = configuration.captureWidth

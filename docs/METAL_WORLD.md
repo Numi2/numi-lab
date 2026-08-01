@@ -533,6 +533,16 @@ profile crossed that boundary when the second update raised swap use from
 is the current sustained-training profile and 11,264 remains a qualified
 single-update capacity ceiling rather than a production claim.
 
+Visual policy rollouts keep physics and inference at the authored control
+rate, but sample the camera at its independent sensor cadence. The generic
+device tracker retains depth, identity, and validity in private buffers and
+reuses them between exposures; no readback or copy is introduced. On the M4
+Pro qualification host, a 4,096-environment, 16-step ball-dodge rollout rose
+from 2,685 environment-steps/s at 50 Hz camera sampling to 4,005 at 15 Hz
+with zero failed steps. This is a 49 percent end-to-end throughput increase,
+not a physics-rate reduction, and cadence remains independent of submission
+chunk size through a persistent observation sequence.
+
 ### Balance recovery and get-up training
 
 Bundled G1 recovery uses the generic compiled TaskPack path. Select
