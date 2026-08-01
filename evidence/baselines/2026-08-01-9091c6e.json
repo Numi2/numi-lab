@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "captured_at": "2026-08-01T06:45:41+02:00",
+  "source_revision": "9091c6e086c16ba9edc205b87d381d26dc295656",
+  "metallib_sha256": "2b4fe9baec2505f00da4a11732954fc858c1a725803785f9a7c945ffc8a862b4",
+  "platform": {
+    "model": "MacBook Air Mac16,12",
+    "chip": "Apple M4",
+    "memory_bytes": 25769803776,
+    "os": "macOS 26.6 (25G5028f)",
+    "thermal_state": "no warnings reported"
+  },
+  "checks": {
+    "compiler.robot_description": "passed",
+    "task.program": "passed",
+    "physics.constraint_ir": "passed",
+    "physics.metal_contact": "passed",
+    "mechanics.actuation": "passed",
+    "sensors.tactile": "passed",
+    "presentation.visual_platform": "passed",
+    "integration.native_simulation": "passed"
+  },
+  "measurements": {
+    "qualification_build_actions": 3,
+    "owner_suite_test_count": 8,
+    "owner_suite_elapsed_seconds": 3.20,
+    "runtime_abi_version": 19,
+    "sensor_program_abi_version": 9,
+    "world_buffer_count": 251,
+    "sensor_sample_binding_count": 25,
+    "actuator_runtime_record_bytes": 64,
+    "actuator_state_channels": 8,
+    "actuator_control_period_seconds": 0.01,
+    "authored_command_delay_seconds": 0.015,
+    "quantized_command_delay_steps": 2,
+    "topology_derived_command_history_slots": 3,
+    "authored_backlash_joint_units": 0.02,
+    "observed_half_play_joint_units": 0.01,
+    "native_delay_timeline": "passed",
+    "native_backlash_play": "passed",
+    "actuator_sensor_publication": "passed",
+    "same_hardware_replay": "bitwise"
+  },
+  "known_release_blockers": [
+    "The focused actuator owner does not yet inject a post-prepare physics failure to prove the actuator delay/backlash checkpoint restore byte-for-byte.",
+    "Motor torque-speed envelope and passive friction are evaluated at the control boundary rather than at every physics microstep.",
+    "Actuator-state SensorIR currently targets one actuated generalized coordinate; coupled transmissions and load-cell semantics are incomplete.",
+    "Presentation and tactile execution have not been folded into the common SensorIR schedule; ray and LiDAR operators remain incomplete.",
+    "Recorder routing and compiler sensor dead-code elimination remain incomplete.",
+    "No general MJCF importer is present.",
+    "PolicyIR has no convolutional, residual, normalization, recurrent, or attention operators.",
+    "No production native adjoint or discontinuity-validity API exists.",
+    "The G1 policy is not standing or walking qualification evidence.",
+    "The ten-million-transition release soak has not run."
+  ]
+}
