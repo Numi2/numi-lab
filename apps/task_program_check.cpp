@@ -481,7 +481,7 @@ int main() {
                 ballRecoveryStatus.task.message
             );
         }
-        if (compiledBallRecovery.task.header().counts2.y != 67u ||
+        if (compiledBallRecovery.task.header().counts2.y != 73u ||
             compiledBallRecovery.task.layout().actorObservationSize != 140u ||
             compiledBallRecovery.task.layout().criticObservationSize != 148u ||
             compiledBallRecovery.task.layout().contactMetricCount != 43u ||
@@ -509,6 +509,8 @@ int main() {
             fail("G1 physical-ball perception contract is incomplete");
         }
         std::uint32_t stagedImpactVelocities = 0u;
+        std::uint32_t baseLaunchSchedules = 0u;
+        std::uint32_t heavyLaunchSchedules = 0u;
         for (const MRTaskRandomizationOperatorGPU& operation :
              compiledBallRecovery.task.randomizationOperators()) {
             if (operation.target.x ==
@@ -517,9 +519,19 @@ int main() {
                 operation.target.w <= 3u) {
                 ++stagedImpactVelocities;
             }
+            if (operation.target.x ==
+                    MR_TASK_RANDOMIZE_SCENE_BODY_LAUNCH_STEP) {
+                if (operation.target.w == 0u) {
+                    ++baseLaunchSchedules;
+                } else if (operation.target.w == 1u) {
+                    ++heavyLaunchSchedules;
+                }
+            }
         }
-        if (stagedImpactVelocities != 18u) {
-            fail("G1 physical-ball velocity curriculum is incomplete");
+        if (stagedImpactVelocities != 18u ||
+            baseLaunchSchedules != 6u ||
+            heavyLaunchSchedules != 6u) {
+            fail("G1 physical-ball curriculum is incomplete");
         }
         metalrobo::LocomotionWorld disturbed = authored;
         const std::array disturbanceSpheres{
