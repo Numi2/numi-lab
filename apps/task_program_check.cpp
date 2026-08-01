@@ -2319,6 +2319,240 @@ FixedBaseTaskEvidence compileFixedBaseTaskFixture() {
             recoveredTransaction.message
         );
     }
+
+    // Prove the same rollback for native task state without publishing that
+    // internal state through the API. Two deterministic resident sessions
+    // start identically. Only the candidate branch attempts the rejected
+    // reset; its following accepted transition must be byte-identical to the
+    // reference branch that never observed the failure.
+    metalrobo::MetalWorldStepConfig taskTransactionStep =
+        transactionStep;
+    taskTransactionStep.taskProgram = transactionCompiled.task;
+    taskTransactionStep.policyProgram = transactionCompiled.policy;
+    taskTransactionStep.evaluateFinalPolicy = true;
+    taskTransactionStep.actuationMode =
+        metalrobo::MetalWorldActuationMode::implicitPositionDrive;
+    auto initializeTaskBranch = [&] (
+        metalrobo::MetalWorldContext& branchContext,
+        metalrobo::MetalWorldResidentState& branchState,
+        metalrobo::MetalWorldResult& branchResult
+    ) {
+        metalrobo::MetalWorldSubmission submission;
+        const auto submitted = branchContext.initializeResidentState(
+            transactionCompiled.world,
+            {
+                .environmentCount = 1u,
+                .controlStepCount = 1u,
+                .initialQ = transactionInitialQ,
+                .initialV = transactionInitialV,
+                .resetMasks = noReset,
+                .initialSceneBodies =
+                    transactionAuthored.sceneBodies,
+                .kinematicTargets =
+                    transactionAuthored.sceneBodies,
+            },
+            taskTransactionStep,
+            branchState,
+            submission
+        );
+        return submitted.succeeded()
+            ? submission.wait(branchResult)
+            : submitted;
+    };
+    auto continueTaskBranch = [&] (
+        metalrobo::MetalWorldContext& branchContext,
+        metalrobo::MetalWorldResidentState& branchState,
+        const std::span<const std::uint32_t> reset,
+        const std::span<const MRBodyStateGPU> targets,
+        metalrobo::MetalWorldResult& branchResult
+    ) {
+        metalrobo::MetalWorldSubmission submission;
+        const auto submitted = branchContext.submitResident(
+            transactionCompiled.world,
+            {
+                .environmentCount = 1u,
+                .controlStepCount = 1u,
+                .resetMasks = reset,
+                .kinematicTargets = targets,
+            },
+            taskTransactionStep,
+            branchState,
+            submission
+        );
+        return submitted.succeeded()
+            ? submission.wait(branchResult)
+            : submitted;
+    };
+    const auto samePodVector = []<typename Value>(
+        const std::vector<Value>& left,
+        const std::vector<Value>& right
+    ) {
+        return left.size() == right.size() &&
+            std::memcmp(
+                left.data(),
+                right.data(),
+                left.size() * sizeof(Value)
+            ) == 0;
+    };
+
+    metalrobo::MetalWorldContext taskReferenceContext(
+        contextConfiguration
+    );
+    metalrobo::MetalWorldContext taskCandidateContext(
+        contextConfiguration
+    );
+    metalrobo::MetalWorldResidentState taskReferenceState;
+    metalrobo::MetalWorldResidentState taskCandidateState;
+    metalrobo::MetalWorldResult taskReferenceInitial;
+    metalrobo::MetalWorldResult taskCandidateInitial;
+    const auto taskReferenceInitialization = initializeTaskBranch(
+        taskReferenceContext,
+        taskReferenceState,
+        taskReferenceInitial
+    );
+    const auto taskCandidateInitialization = initializeTaskBranch(
+        taskCandidateContext,
+        taskCandidateState,
+        taskCandidateInitial
+    );
+    if (!taskReferenceInitialization.succeeded() ||
+        !taskCandidateInitialization.succeeded() ||
+        !taskReferenceState.valid() ||
+        !taskCandidateState.valid()) {
+        fail(
+            "native TaskIR rollback branches did not initialize: " +
+            taskReferenceInitialization.message + " / " +
+            taskCandidateInitialization.message
+        );
+    }
+
+    metalrobo::MetalWorldResult taskRejectedResult;
+    const auto taskRejected = continueTaskBranch(
+        taskCandidateContext,
+        taskCandidateState,
+        requestReset,
+        transactionResetScene,
+        taskRejectedResult
+    );
+    const bool taskFailurePhysicsRestored =
+        taskRejectedResult.finalQ == taskCandidateInitial.finalQ &&
+        taskRejectedResult.finalV == taskCandidateInitial.finalV &&
+        samePodVector(
+            taskRejectedResult.finalSceneBodies,
+            taskCandidateInitial.finalSceneBodies
+        );
+    if (taskRejected.succeeded() ||
+        !taskRejected.published ||
+        !taskCandidateState.valid() ||
+        taskRejectedResult.contactStatuses.size() != 1u ||
+        taskRejectedResult.contactStatuses[0u].code !=
+            MR_STEP_PAIR_CAPACITY_OVERFLOW ||
+        taskRejectedResult.transitions.size() != 1u ||
+        taskRejectedResult.transitions[0u].termination.z == 0u ||
+        taskRejectedResult.transitions[0u].termination.w !=
+            MR_TASK_TERMINATION_PHYSICS_ERROR) {
+        fail(
+            "native TaskIR branch did not produce the expected rejected reset: " +
+            taskRejected.message
+        );
+    }
+
+    metalrobo::MetalWorldResult taskReferenceNext;
+    metalrobo::MetalWorldResult taskCandidateNext;
+    const auto taskReferenceContinuation = continueTaskBranch(
+        taskReferenceContext,
+        taskReferenceState,
+        noReset,
+        transactionAuthored.sceneBodies,
+        taskReferenceNext
+    );
+    const auto taskCandidateContinuation = continueTaskBranch(
+        taskCandidateContext,
+        taskCandidateState,
+        noReset,
+        transactionAuthored.sceneBodies,
+        taskCandidateNext
+    );
+    const bool samePhysics =
+        taskReferenceNext.finalQ == taskCandidateNext.finalQ &&
+        taskReferenceNext.finalV == taskCandidateNext.finalV &&
+        samePodVector(
+            taskReferenceNext.finalSceneBodies,
+            taskCandidateNext.finalSceneBodies
+        );
+    const bool sameTask =
+        taskReferenceNext.actorObservations ==
+            taskCandidateNext.actorObservations &&
+        taskReferenceNext.criticObservations ==
+            taskCandidateNext.criticObservations &&
+        samePodVector(
+            taskReferenceNext.transitions,
+            taskCandidateNext.transitions
+        );
+    const bool sameSensors =
+        taskReferenceNext.sensorOutputs ==
+            taskCandidateNext.sensorOutputs &&
+        samePodVector(
+            taskReferenceNext.sensorMetadata,
+            taskCandidateNext.sensorMetadata
+        );
+    const bool samePolicy =
+        taskReferenceNext.policyLatents ==
+            taskCandidateNext.policyLatents &&
+        taskReferenceNext.policyLogProbabilities ==
+            taskCandidateNext.policyLogProbabilities &&
+        taskReferenceNext.policyValues ==
+            taskCandidateNext.policyValues;
+    const bool sameContacts =
+        samePodVector(
+            taskReferenceNext.contactEvidence.manifoldHeaders,
+            taskCandidateNext.contactEvidence.manifoldHeaders
+        ) &&
+        samePodVector(
+            taskReferenceNext.contactEvidence.manifoldPoints,
+            taskCandidateNext.contactEvidence.manifoldPoints
+        ) &&
+        taskReferenceNext.contactEvidence.manifoldCounts ==
+            taskCandidateNext.contactEvidence.manifoldCounts;
+    const bool taskBranchesMatch =
+        taskReferenceContinuation.succeeded() &&
+        taskCandidateContinuation.succeeded() &&
+        samePhysics && sameTask && sameSensors && samePolicy &&
+        sameContacts;
+    if (!taskBranchesMatch) {
+        fail(
+            "native TaskIR state diverged after a rejected reset: " +
+            taskReferenceContinuation.message + " / " +
+            taskCandidateContinuation.message +
+            " physics=" + std::to_string(samePhysics) +
+            " task=" + std::to_string(sameTask) +
+            " sensors=" + std::to_string(sameSensors) +
+            " policy=" + std::to_string(samePolicy) +
+            " contacts=" + std::to_string(sameContacts) +
+            " failure_physics=" +
+            std::to_string(taskFailurePhysicsRestored) +
+            " q_ref=" +
+            (taskReferenceNext.finalQ.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(taskReferenceNext.finalQ[0u])) +
+            " q_candidate=" +
+            (taskCandidateNext.finalQ.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(taskCandidateNext.finalQ[0u])) +
+            " actor_ref=" +
+            (taskReferenceNext.actorObservations.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       taskReferenceNext.actorObservations[0u]
+                   )) +
+            " actor_candidate=" +
+            (taskCandidateNext.actorObservations.empty()
+                 ? std::string{"missing"}
+                 : std::to_string(
+                       taskCandidateNext.actorObservations[0u]
+                   ))
+        );
+    }
     return {
         .fingerprint = compiled.task.fingerprint(),
         .pipelineCount = taskPipelineCount,
@@ -2931,6 +3165,7 @@ int main() {
             << " torque_nm=" << fixedBase.torqueNormNewtonMetres
             << " sensor_transaction=pass"
             << " physical_transaction=pass"
+            << " task_transaction=pass"
             << " world_pack=" << worldPackFingerprint
             << '\n';
         return 0;

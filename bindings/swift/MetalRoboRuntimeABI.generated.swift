@@ -2,9 +2,9 @@
 import Foundation
 
 enum MetalRoboRuntimeABI {
-    static let version: UInt32 = 13
-    static let worldBufferCount = 236
-    static let pipelineCount = 89
+    static let version: UInt32 = 14
+    static let worldBufferCount = 246
+    static let pipelineCount = 92
     static let pipelineGroupCount = 11
     static let mrSensorProgramAbiVersion: UInt32 = 4
     static let mrSensorDispatchHasResets: UInt32 = 1
@@ -253,5 +253,15 @@ enum MetalRoboRuntimeABI {
         "sensor checkpoint outputs",
         "sensor checkpoint metadata",
         "checkpoint convex caches",
+        "task checkpoint state",
+        "task checkpoint action history",
+        "task checkpoint actor history",
+        "task checkpoint clean history",
+        "task checkpoint critic history",
+        "task checkpoint previous joint velocity",
+        "task checkpoint encoder bias",
+        "task checkpoint body parameters",
+        "task checkpoint controller parameters",
+        "task checkpoint contact compact",
     ]
 }

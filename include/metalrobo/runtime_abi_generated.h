@@ -5,8 +5,8 @@
 
 // One schema owns the native resource table and shared kernel
 // bindings. Any persisted layout change increments this version.
-#define MR_RUNTIME_ABI_VERSION 13u
-#define MR_RUNTIME_PIPELINE_COUNT 89u
+#define MR_RUNTIME_ABI_VERSION 14u
+#define MR_RUNTIME_PIPELINE_COUNT 92u
 #define MR_RUNTIME_PIPELINE_GROUP_COUNT 11u
 #define MR_SENSOR_PROGRAM_ABI_VERSION 4u
 #define MR_SENSOR_DISPATCH_HAS_RESETS 1u
@@ -277,6 +277,49 @@ enum MRConvexCachePublishBuffer : mr_u32 {
     MR_CONVEX_CACHE_PUBLISH_BUFFER_COUNT = 11u,
 };
 
+enum MRTaskTransactionBuffer : mr_u32 {
+    MR_TASK_TRANSACTION_DISPATCH = 0u,
+    MR_TASK_TRANSACTION_PROGRAM = 1u,
+    MR_TASK_TRANSACTION_PASS = 2u,
+    MR_TASK_TRANSACTION_RESET_MASKS = 3u,
+    MR_TASK_TRANSACTION_WORLD_STATUSES = 4u,
+    MR_TASK_TRANSACTION_CONTACT_STATUSES = 5u,
+    MR_TASK_TRANSACTION_STATE = 6u,
+    MR_TASK_TRANSACTION_ACTION_HISTORY = 7u,
+    MR_TASK_TRANSACTION_ACTOR_HISTORY = 8u,
+    MR_TASK_TRANSACTION_CLEAN_HISTORY = 9u,
+    MR_TASK_TRANSACTION_CRITIC_HISTORY = 10u,
+    MR_TASK_TRANSACTION_PREVIOUS_JOINT_VELOCITY = 11u,
+    MR_TASK_TRANSACTION_ENCODER_BIAS = 12u,
+    MR_TASK_TRANSACTION_BODY_PARAMETERS = 13u,
+    MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS = 14u,
+    MR_TASK_TRANSACTION_CONTACT_COMPACT = 15u,
+    MR_TASK_TRANSACTION_CHECKPOINT_STATE = 16u,
+    MR_TASK_TRANSACTION_CHECKPOINT_ACTION_HISTORY = 17u,
+    MR_TASK_TRANSACTION_CHECKPOINT_ACTOR_HISTORY = 18u,
+    MR_TASK_TRANSACTION_CHECKPOINT_CLEAN_HISTORY = 19u,
+    MR_TASK_TRANSACTION_CHECKPOINT_CRITIC_HISTORY = 20u,
+    MR_TASK_TRANSACTION_CHECKPOINT_PREVIOUS_JOINT_VELOCITY = 21u,
+    MR_TASK_TRANSACTION_CHECKPOINT_ENCODER_BIAS = 22u,
+    MR_TASK_TRANSACTION_CHECKPOINT_BODY_PARAMETERS = 23u,
+    MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS = 24u,
+    MR_TASK_TRANSACTION_CHECKPOINT_CONTACT_COMPACT = 25u,
+    MR_TASK_TRANSACTION_BUFFER_COUNT = 26u,
+};
+
+enum MRTaskPhysicalCheckpointBuffer : mr_u32 {
+    MR_TASK_PHYSICAL_CHECKPOINT_WORLD_DISPATCH = 0u,
+    MR_TASK_PHYSICAL_CHECKPOINT_CONTACT_DISPATCH = 1u,
+    MR_TASK_PHYSICAL_CHECKPOINT_PASS = 2u,
+    MR_TASK_PHYSICAL_CHECKPOINT_STATE_Q = 3u,
+    MR_TASK_PHYSICAL_CHECKPOINT_STATE_V = 4u,
+    MR_TASK_PHYSICAL_CHECKPOINT_SCENE_STATE = 5u,
+    MR_TASK_PHYSICAL_CHECKPOINT_CHECKPOINT_Q = 6u,
+    MR_TASK_PHYSICAL_CHECKPOINT_CHECKPOINT_V = 7u,
+    MR_TASK_PHYSICAL_CHECKPOINT_CHECKPOINT_SCENE_STATE = 8u,
+    MR_TASK_PHYSICAL_CHECKPOINT_BUFFER_COUNT = 9u,
+};
+
 #if defined(__cplusplus) && !defined(__METAL_VERSION__)
 #include <array>
 #include <cstddef>
@@ -513,7 +556,17 @@ enum BufferIndex : std::size_t {
     kSensorCheckpointOutputs = 233u,
     kSensorCheckpointMetadata = 234u,
     kCheckpointConvexCaches = 235u,
-    kRawBufferCount = 236u,
+    kTaskCheckpointState = 236u,
+    kTaskCheckpointActionHistory = 237u,
+    kTaskCheckpointActorHistory = 238u,
+    kTaskCheckpointCleanHistory = 239u,
+    kTaskCheckpointCriticHistory = 240u,
+    kTaskCheckpointPreviousJointVelocity = 241u,
+    kTaskCheckpointEncoderBias = 242u,
+    kTaskCheckpointBodyParameters = 243u,
+    kTaskCheckpointControllerParameters = 244u,
+    kTaskCheckpointContactCompact = 245u,
+    kRawBufferCount = 246u,
 };
 
 enum class BufferLifetime : std::uint8_t {
@@ -762,6 +815,16 @@ inline constexpr std::array<BufferLifetime, kRawBufferCount>
         BufferLifetime::transient,
         BufferLifetime::transient,
         BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
+        BufferLifetime::transient,
     }};
 inline constexpr std::array<bool, kRawBufferCount>
     kPersistentInputs{{
@@ -993,6 +1056,16 @@ inline constexpr std::array<bool, kRawBufferCount>
         true,
         true,
         true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
         false,
         false,
         false,
@@ -1240,6 +1313,16 @@ inline constexpr std::array<const char*, kRawBufferCount>
         "sensor checkpoint outputs",
         "sensor checkpoint metadata",
         "checkpoint convex caches",
+        "task checkpoint state",
+        "task checkpoint action history",
+        "task checkpoint actor history",
+        "task checkpoint clean history",
+        "task checkpoint critic history",
+        "task checkpoint previous joint velocity",
+        "task checkpoint encoder bias",
+        "task checkpoint body parameters",
+        "task checkpoint controller parameters",
+        "task checkpoint contact compact",
     }};
 
 [[nodiscard]] constexpr bool validBufferIndex(
@@ -1341,6 +1424,8 @@ static_assert(MR_LEARNING_VALIDATE_BUFFER_COUNT <= 31u);
 static_assert(MR_WORLD_PREPARE_BUFFER_COUNT <= 31u);
 static_assert(MR_CONTACT_PREPARE_BUFFER_COUNT <= 31u);
 static_assert(MR_CONVEX_CACHE_PUBLISH_BUFFER_COUNT <= 31u);
+static_assert(MR_TASK_TRANSACTION_BUFFER_COUNT <= 31u);
+static_assert(MR_TASK_PHYSICAL_CHECKPOINT_BUFFER_COUNT <= 31u);
 
 } // namespace metalrobo::runtime_abi
 #endif

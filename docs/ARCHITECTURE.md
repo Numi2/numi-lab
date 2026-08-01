@@ -92,10 +92,13 @@ reset to working state. Convex-query caches are journaled only for reset
 environments. SensorIR likewise journals schedule state, history, compact
 output, and metadata only for reset environments. Rejected transitions restore
 those bytes; successful and ordinary non-reset steps pay no checkpoint-copy
-bandwidth beyond the core state already required for rollback. Whole-session
-atomicity for TaskIR, actuator/backlash, tactile, presentation, curriculum, and
-future recurrent-policy state is still incomplete and must not be inferred
-from the qualified physics/SensorIR boundary.
+bandwidth beyond the core state already required for rollback. TaskIR journals
+state, action delay, and compact contact metrics on every step; reset steps
+also journal observation histories, bias, body/controller randomization, and
+previous velocity. A typed failure transition remains inspectable while the
+persistent TaskIR state is restored. Whole-session atomicity for independent
+actuator/backlash state, tactile, presentation, global curriculum, and future
+recurrent-policy state is still incomplete.
 
 ## Generated ABI
 

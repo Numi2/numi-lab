@@ -2504,6 +2504,60 @@ bool buildRequirements(
             taskContactElements,
             requirements.entries[kTaskContactCompact]
         ) ||
+        !makeRequirement<MRTaskStateGPU>(
+            "native task transaction checkpoint state",
+            taskEnvironments,
+            requirements.entries[kTaskCheckpointState]
+        ) ||
+        !makeRequirement<float>(
+            "native task transaction checkpoint action history",
+            taskActionHistoryElements,
+            requirements.entries[kTaskCheckpointActionHistory]
+        ) ||
+        !makeRequirement<float>(
+            "native task transaction checkpoint actor history",
+            taskHistoryElements,
+            requirements.entries[kTaskCheckpointActorHistory]
+        ) ||
+        !makeRequirement<float>(
+            "native task transaction checkpoint clean history",
+            taskHistoryElements,
+            requirements.entries[kTaskCheckpointCleanHistory]
+        ) ||
+        !makeRequirement<float>(
+            "native task transaction checkpoint critic history",
+            taskCriticHistoryElements,
+            requirements.entries[kTaskCheckpointCriticHistory]
+        ) ||
+        !makeRequirement<float>(
+            "native task transaction checkpoint previous velocity",
+            taskEnvironments * taskLayout.actionCount,
+            requirements.entries[
+                kTaskCheckpointPreviousJointVelocity
+            ]
+        ) ||
+        !makeRequirement<float>(
+            "native task transaction checkpoint encoder bias",
+            taskEnvironments * taskLayout.biasCount,
+            requirements.entries[kTaskCheckpointEncoderBias]
+        ) ||
+        !makeRequirement<mr_float4>(
+            "native task transaction checkpoint body parameters",
+            taskBodyParameterElements,
+            requirements.entries[kTaskCheckpointBodyParameters]
+        ) ||
+        !makeRequirement<mr_float4>(
+            "native task transaction checkpoint controller parameters",
+            taskEnvironments,
+            requirements.entries[
+                kTaskCheckpointControllerParameters
+            ]
+        ) ||
+        !makeRequirement<float>(
+            "native task transaction checkpoint contact metrics",
+            taskContactElements,
+            requirements.entries[kTaskCheckpointContactCompact]
+        ) ||
         !makeRequirement<float>(
             "native task default configuration",
             nativeTask ? model.defaultQ.size() : 0u,
@@ -7946,6 +8000,154 @@ bool encodeTaskObserve(
         },
         &pass,
         4u,
+        environmentCount
+    );
+}
+
+bool encodeTaskPhysicalCheckpoint(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t sourceQ,
+    const std::size_t sourceV,
+    const std::size_t sourceScene,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        context.taskPhysicalCheckpointPipeline,
+        @"compiled task pre-mutation physical checkpoint",
+        {
+            {
+                MR_TASK_PHYSICAL_CHECKPOINT_WORLD_DISPATCH,
+                kWorldDispatch,
+            },
+            {
+                MR_TASK_PHYSICAL_CHECKPOINT_CONTACT_DISPATCH,
+                kContactDispatch,
+            },
+            {MR_TASK_PHYSICAL_CHECKPOINT_STATE_Q, sourceQ},
+            {MR_TASK_PHYSICAL_CHECKPOINT_STATE_V, sourceV},
+            {MR_TASK_PHYSICAL_CHECKPOINT_SCENE_STATE, sourceScene},
+            {MR_TASK_PHYSICAL_CHECKPOINT_CHECKPOINT_Q, kCheckpointQ},
+            {MR_TASK_PHYSICAL_CHECKPOINT_CHECKPOINT_V, kCheckpointV},
+            {
+                MR_TASK_PHYSICAL_CHECKPOINT_CHECKPOINT_SCENE_STATE,
+                kCheckpointSceneBodies,
+            },
+        },
+        &pass,
+        MR_TASK_PHYSICAL_CHECKPOINT_PASS,
+        environmentCount
+    );
+}
+
+bool encodeTaskTransaction(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    id<MTLComputePipelineState> pipeline,
+    NSString* label,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t environmentCount
+) {
+    return encodeContactThreadKernel(
+        context,
+        commandBuffer,
+        pipeline,
+        label,
+        {
+            {MR_TASK_TRANSACTION_DISPATCH, kTaskDispatch},
+            {MR_TASK_TRANSACTION_PROGRAM, kTaskProgramHeader},
+            {MR_TASK_TRANSACTION_RESET_MASKS, kResetMasks},
+            {
+                MR_TASK_TRANSACTION_WORLD_STATUSES,
+                kEnvironmentStatuses,
+            },
+            {
+                MR_TASK_TRANSACTION_CONTACT_STATUSES,
+                kContactStatuses,
+            },
+            {MR_TASK_TRANSACTION_STATE, kTaskState},
+            {
+                MR_TASK_TRANSACTION_ACTION_HISTORY,
+                kTaskActionHistory,
+            },
+            {
+                MR_TASK_TRANSACTION_ACTOR_HISTORY,
+                kTaskActorHistory,
+            },
+            {
+                MR_TASK_TRANSACTION_CLEAN_HISTORY,
+                kTaskCleanHistory,
+            },
+            {
+                MR_TASK_TRANSACTION_CRITIC_HISTORY,
+                kTaskCriticHistory,
+            },
+            {
+                MR_TASK_TRANSACTION_PREVIOUS_JOINT_VELOCITY,
+                kTaskPreviousJointVelocity,
+            },
+            {
+                MR_TASK_TRANSACTION_ENCODER_BIAS,
+                kTaskEncoderBias,
+            },
+            {
+                MR_TASK_TRANSACTION_BODY_PARAMETERS,
+                kTaskBodyParameters,
+            },
+            {
+                MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS,
+                kTaskControllerParameters,
+            },
+            {
+                MR_TASK_TRANSACTION_CONTACT_COMPACT,
+                kTaskContactCompact,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_STATE,
+                kTaskCheckpointState,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_ACTION_HISTORY,
+                kTaskCheckpointActionHistory,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_ACTOR_HISTORY,
+                kTaskCheckpointActorHistory,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_CLEAN_HISTORY,
+                kTaskCheckpointCleanHistory,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_CRITIC_HISTORY,
+                kTaskCheckpointCriticHistory,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_PREVIOUS_JOINT_VELOCITY,
+                kTaskCheckpointPreviousJointVelocity,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_ENCODER_BIAS,
+                kTaskCheckpointEncoderBias,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_BODY_PARAMETERS,
+                kTaskCheckpointBodyParameters,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS,
+                kTaskCheckpointControllerParameters,
+            },
+            {
+                MR_TASK_TRANSACTION_CHECKPOINT_CONTACT_COMPACT,
+                kTaskCheckpointContactCompact,
+            },
+        },
+        &pass,
+        MR_TASK_TRANSACTION_PASS,
         environmentCount
     );
 }
@@ -15723,6 +15925,23 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     );
                 if (nativeTask &&
                     (
+                        !encodeTaskPhysicalCheckpoint(
+                            *selectedState,
+                            commandBuffer,
+                            pass,
+                            sourceQ,
+                            sourceV,
+                            sourceScene,
+                            batch.environmentCount
+                        ) ||
+                        !encodeTaskTransaction(
+                            *selectedState,
+                            commandBuffer,
+                            selectedState->taskCheckpointPipeline,
+                            @"compiled task transaction checkpoint",
+                            pass,
+                            batch.environmentCount
+                        ) ||
                         !encodeTaskObserve(
                             *selectedState,
                             commandBuffer,
@@ -16225,6 +16444,21 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         std::move(diagnostics),
                         MetalWorldHostStatus::metalCommandFailure,
                         "failed to encode accepted-state sensor boundary"
+                    );
+                }
+                if (nativeTask &&
+                    !encodeTaskTransaction(
+                        *selectedState,
+                        commandBuffer,
+                        selectedState->taskRestorePipeline,
+                        @"compiled task failed-state restoration",
+                        pass,
+                        batch.environmentCount
+                    )) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode native task transaction restoration"
                     );
                 }
                 if ((nativeTask &&

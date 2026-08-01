@@ -150,6 +150,13 @@
       "scope": "TaskIR resolves named SensorIR scalar values and validity bits, enforces actor/critic permissions, fingerprints the exact sensor program, seeds histories transactionally on reset, advances them from accepted post-physics state, and republishes terminal policy/value views before inference."
     },
     {
+      "id": "tasks.transactional_state",
+      "status": "implemented",
+      "owner": "task.program",
+      "artifact": "metalrobo_task_program_check",
+      "scope": "Every native task step journals per-environment task state, action delay, and compact contact metrics; reset steps additionally journal actor/critic/clean histories, previous velocity, sensor bias, and body/controller randomization. A rejected reset keeps its typed failure transition but restores hidden state, and the next accepted physics, task, policy, sensor, and contact outputs match a no-failure reference branch byte-for-byte. Global curriculum scheduling is not included."
+    },
+    {
       "id": "sensors.native_tactile",
       "status": "qualified",
       "owner": "sensors.tactile",

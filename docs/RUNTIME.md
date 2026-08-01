@@ -169,10 +169,14 @@ The qualified native boundary currently checkpoints pre-reset articulation
 q/v, scene bodies, manifolds, and SensorIR state. The same core ordering is
 implemented for generalized warm starts, rod nodes/edges/witnesses, and convex
 query caches, but those reset-failure cases still need focused owner evidence.
-TaskIR histories and episode/curriculum state, actuator/backlash state, tactile
-history, presentation history, and future recurrent-policy state are not yet
-one atomic publication. Until those candidate banks land, whole-session reset
-remains unqualified.
+TaskIR now checkpoints per-environment episode/RNG identity, delay state,
+contact metrics, histories, bias, randomization, and controller parameters.
+The owner proves that a branch containing a rejected reset produces a
+byte-identical next accepted transition to a branch that never attempted the
+failure. Independent actuator/backlash state, tactile history, presentation
+history, global curriculum scheduling, and future recurrent-policy state are
+not yet one atomic publication. Whole-session reset therefore remains
+unqualified.
 
 If any generated count, offset, capacity, factor, finite check, or extension
 status fails, the environment retains its previous committed state and emits a

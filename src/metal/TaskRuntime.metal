@@ -1130,6 +1130,284 @@ inline bool desiredSupportContact(
 
 } // namespace
 
+// Journals only task state that can be mutated before a physics transaction
+// is known to have committed. Task state, action delay, and compact contact
+// metrics change on every step. The larger observation/randomization state is
+// copied only when this environment will reset.
+kernel void mr_task_checkpoint_state(
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_TRANSACTION_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_TRANSACTION_PROGRAM)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_TRANSACTION_PASS)]],
+    device const uint* resetMasks
+        [[buffer(MR_TASK_TRANSACTION_RESET_MASKS)]],
+    device const MRTaskStateGPU* states
+        [[buffer(MR_TASK_TRANSACTION_STATE)]],
+    device const float* actionHistory
+        [[buffer(MR_TASK_TRANSACTION_ACTION_HISTORY)]],
+    device const float* actorHistory
+        [[buffer(MR_TASK_TRANSACTION_ACTOR_HISTORY)]],
+    device const float* cleanHistory
+        [[buffer(MR_TASK_TRANSACTION_CLEAN_HISTORY)]],
+    device const float* criticHistory
+        [[buffer(MR_TASK_TRANSACTION_CRITIC_HISTORY)]],
+    device const float* previousJointVelocity
+        [[buffer(MR_TASK_TRANSACTION_PREVIOUS_JOINT_VELOCITY)]],
+    device const float* encoderBias
+        [[buffer(MR_TASK_TRANSACTION_ENCODER_BIAS)]],
+    device const float4* bodyParameters
+        [[buffer(MR_TASK_TRANSACTION_BODY_PARAMETERS)]],
+    device const float4* controllerParameters
+        [[buffer(MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS)]],
+    device const float* contactCompact
+        [[buffer(MR_TASK_TRANSACTION_CONTACT_COMPACT)]],
+    device MRTaskStateGPU* checkpointStates
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_STATE)]],
+    device float* checkpointActionHistory
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_ACTION_HISTORY)]],
+    device float* checkpointActorHistory
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_ACTOR_HISTORY)]],
+    device float* checkpointCleanHistory
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CLEAN_HISTORY)]],
+    device float* checkpointCriticHistory
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CRITIC_HISTORY)]],
+    device float* checkpointPreviousJointVelocity
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_PREVIOUS_JOINT_VELOCITY)]],
+    device float* checkpointEncoderBias
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_ENCODER_BIAS)]],
+    device float4* checkpointBodyParameters
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_BODY_PARAMETERS)]],
+    device float4* checkpointControllerParameters
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS)]],
+    device float* checkpointContactCompact
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTACT_COMPACT)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION) {
+        return;
+    }
+
+    const uint maskIndex =
+        pass.controlStep * dispatch.counts.x + environment;
+    const MRTaskStateGPU state = states[environment];
+    const bool reset =
+        state.status.x == 0u ||
+        state.status.y != 0u ||
+        resetMasks[maskIndex] != 0u;
+    checkpointStates[environment] = state;
+
+    const uint actionHistoryStride =
+        program.layout.w * program.counts0.x;
+    const uint actionHistoryBase =
+        environment * actionHistoryStride;
+    for (uint index = 0u;
+         index < actionHistoryStride;
+         ++index) {
+        checkpointActionHistory[actionHistoryBase + index] =
+            actionHistory[actionHistoryBase + index];
+    }
+    const uint contactBase = environment * program.layout.z;
+    for (uint index = 0u;
+         index < program.layout.z;
+         ++index) {
+        checkpointContactCompact[contactBase + index] =
+            contactCompact[contactBase + index];
+    }
+    if (!reset) {
+        return;
+    }
+
+    const uint historyStride =
+        program.layout.x * program.layout.y;
+    const uint historyBase = environment * historyStride;
+    for (uint index = 0u; index < historyStride; ++index) {
+        checkpointActorHistory[historyBase + index] =
+            actorHistory[historyBase + index];
+        checkpointCleanHistory[historyBase + index] =
+            cleanHistory[historyBase + index];
+    }
+    const uint criticHistoryStride =
+        program.counts0.z * program.articulation.w;
+    const uint criticHistoryBase =
+        environment * criticHistoryStride;
+    for (uint index = 0u;
+         index < criticHistoryStride;
+         ++index) {
+        checkpointCriticHistory[criticHistoryBase + index] =
+            criticHistory[criticHistoryBase + index];
+    }
+    const uint previousVelocityBase =
+        environment * program.counts0.x;
+    for (uint index = 0u;
+         index < program.counts0.x;
+         ++index) {
+        checkpointPreviousJointVelocity[
+            previousVelocityBase + index
+        ] = previousJointVelocity[previousVelocityBase + index];
+    }
+    const uint biasBase = environment * program.counts2.z;
+    for (uint index = 0u;
+         index < program.counts2.z;
+         ++index) {
+        checkpointEncoderBias[biasBase + index] =
+            encoderBias[biasBase + index];
+    }
+    const uint bodyBase = environment * dispatch.strides.y;
+    for (uint index = 0u;
+         index < dispatch.strides.y;
+         ++index) {
+        checkpointBodyParameters[bodyBase + index] =
+            bodyParameters[bodyBase + index];
+    }
+    checkpointControllerParameters[environment] =
+        controllerParameters[environment];
+}
+
+// Restores a failed environment after TaskIR completion and SensorIR binding
+// have produced the typed failure outputs. Those outputs remain inspectable;
+// persistent task state returns to the prior committed control boundary.
+kernel void mr_task_restore_failed_state(
+    device const MRTaskDispatchGPU& dispatch
+        [[buffer(MR_TASK_TRANSACTION_DISPATCH)]],
+    device const MRTaskProgramHeaderGPU& program
+        [[buffer(MR_TASK_TRANSACTION_PROGRAM)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_TRANSACTION_PASS)]],
+    device const uint* resetMasks
+        [[buffer(MR_TASK_TRANSACTION_RESET_MASKS)]],
+    device const MRMetalWorldStatusGPU* worldStatuses
+        [[buffer(MR_TASK_TRANSACTION_WORLD_STATUSES)]],
+    device const MRMetalWorldContactStatusGPU* contactStatuses
+        [[buffer(MR_TASK_TRANSACTION_CONTACT_STATUSES)]],
+    device MRTaskStateGPU* states
+        [[buffer(MR_TASK_TRANSACTION_STATE)]],
+    device float* actionHistory
+        [[buffer(MR_TASK_TRANSACTION_ACTION_HISTORY)]],
+    device float* actorHistory
+        [[buffer(MR_TASK_TRANSACTION_ACTOR_HISTORY)]],
+    device float* cleanHistory
+        [[buffer(MR_TASK_TRANSACTION_CLEAN_HISTORY)]],
+    device float* criticHistory
+        [[buffer(MR_TASK_TRANSACTION_CRITIC_HISTORY)]],
+    device float* previousJointVelocity
+        [[buffer(MR_TASK_TRANSACTION_PREVIOUS_JOINT_VELOCITY)]],
+    device float* encoderBias
+        [[buffer(MR_TASK_TRANSACTION_ENCODER_BIAS)]],
+    device float4* bodyParameters
+        [[buffer(MR_TASK_TRANSACTION_BODY_PARAMETERS)]],
+    device float4* controllerParameters
+        [[buffer(MR_TASK_TRANSACTION_CONTROLLER_PARAMETERS)]],
+    device float* contactCompact
+        [[buffer(MR_TASK_TRANSACTION_CONTACT_COMPACT)]],
+    device const MRTaskStateGPU* checkpointStates
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_STATE)]],
+    device const float* checkpointActionHistory
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_ACTION_HISTORY)]],
+    device const float* checkpointActorHistory
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_ACTOR_HISTORY)]],
+    device const float* checkpointCleanHistory
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CLEAN_HISTORY)]],
+    device const float* checkpointCriticHistory
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CRITIC_HISTORY)]],
+    device const float* checkpointPreviousJointVelocity
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_PREVIOUS_JOINT_VELOCITY)]],
+    device const float* checkpointEncoderBias
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_ENCODER_BIAS)]],
+    device const float4* checkpointBodyParameters
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_BODY_PARAMETERS)]],
+    device const float4* checkpointControllerParameters
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTROLLER_PARAMETERS)]],
+    device const float* checkpointContactCompact
+        [[buffer(MR_TASK_TRANSACTION_CHECKPOINT_CONTACT_COMPACT)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.counts.x ||
+        pass.controlStep >= dispatch.counts.y ||
+        dispatch.taskFingerprint != program.taskFingerprint ||
+        dispatch.worldFingerprint != program.worldFingerprint ||
+        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        (worldStatuses[environment].code == MR_STEP_SUCCESS &&
+         contactStatuses[environment].code == MR_STEP_SUCCESS)) {
+        return;
+    }
+
+    states[environment] = checkpointStates[environment];
+    const uint actionHistoryStride =
+        program.layout.w * program.counts0.x;
+    const uint actionHistoryBase =
+        environment * actionHistoryStride;
+    for (uint index = 0u;
+         index < actionHistoryStride;
+         ++index) {
+        actionHistory[actionHistoryBase + index] =
+            checkpointActionHistory[actionHistoryBase + index];
+    }
+    const uint contactBase = environment * program.layout.z;
+    for (uint index = 0u;
+         index < program.layout.z;
+         ++index) {
+        contactCompact[contactBase + index] =
+            checkpointContactCompact[contactBase + index];
+    }
+    const uint maskIndex =
+        pass.controlStep * dispatch.counts.x + environment;
+    if (resetMasks[maskIndex] == 0u) {
+        return;
+    }
+
+    const uint historyStride =
+        program.layout.x * program.layout.y;
+    const uint historyBase = environment * historyStride;
+    for (uint index = 0u; index < historyStride; ++index) {
+        actorHistory[historyBase + index] =
+            checkpointActorHistory[historyBase + index];
+        cleanHistory[historyBase + index] =
+            checkpointCleanHistory[historyBase + index];
+    }
+    const uint criticHistoryStride =
+        program.counts0.z * program.articulation.w;
+    const uint criticHistoryBase =
+        environment * criticHistoryStride;
+    for (uint index = 0u;
+         index < criticHistoryStride;
+         ++index) {
+        criticHistory[criticHistoryBase + index] =
+            checkpointCriticHistory[criticHistoryBase + index];
+    }
+    const uint previousVelocityBase =
+        environment * program.counts0.x;
+    for (uint index = 0u;
+         index < program.counts0.x;
+         ++index) {
+        previousJointVelocity[previousVelocityBase + index] =
+            checkpointPreviousJointVelocity[
+                previousVelocityBase + index
+            ];
+    }
+    const uint biasBase = environment * program.counts2.z;
+    for (uint index = 0u;
+         index < program.counts2.z;
+         ++index) {
+        encoderBias[biasBase + index] =
+            checkpointEncoderBias[biasBase + index];
+    }
+    const uint bodyBase = environment * dispatch.strides.y;
+    for (uint index = 0u;
+         index < dispatch.strides.y;
+         ++index) {
+        bodyParameters[bodyBase + index] =
+            checkpointBodyParameters[bodyBase + index];
+    }
+    controllerParameters[environment] =
+        checkpointControllerParameters[environment];
+}
+
 kernel void mr_task_observe(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],

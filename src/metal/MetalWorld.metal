@@ -108,6 +108,59 @@ inline void initializeStatus(
 
 } // namespace
 
+// TaskIR must expose reset state to pre-policy kinematics, but that state is
+// not committed until physics succeeds. Snapshot the resident physical state
+// before any task reset, push, or scene randomization mutates its working slot.
+kernel void mr_world_checkpoint_task_state(
+    device const MRMetalWorldDispatchGPU& dispatch
+        [[buffer(MR_TASK_PHYSICAL_CHECKPOINT_WORLD_DISPATCH)]],
+    device const MRMetalWorldContactDispatchGPU& contactDispatch
+        [[buffer(MR_TASK_PHYSICAL_CHECKPOINT_CONTACT_DISPATCH)]],
+    constant MRMetalWorldPassGPU& pass
+        [[buffer(MR_TASK_PHYSICAL_CHECKPOINT_PASS)]],
+    device const float* stateQ
+        [[buffer(MR_TASK_PHYSICAL_CHECKPOINT_STATE_Q)]],
+    device const float* stateV
+        [[buffer(MR_TASK_PHYSICAL_CHECKPOINT_STATE_V)]],
+    device const MRBodyStateGPU* sceneState
+        [[buffer(MR_TASK_PHYSICAL_CHECKPOINT_SCENE_STATE)]],
+    device float* checkpointQ
+        [[buffer(MR_TASK_PHYSICAL_CHECKPOINT_CHECKPOINT_Q)]],
+    device float* checkpointV
+        [[buffer(MR_TASK_PHYSICAL_CHECKPOINT_CHECKPOINT_V)]],
+    device MRBodyStateGPU* checkpointSceneState
+        [[buffer(MR_TASK_PHYSICAL_CHECKPOINT_CHECKPOINT_SCENE_STATE)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        pass.controlStep >= dispatch.controlStepCount ||
+        pass.physicsSubstep != MR_INVALID_INDEX) {
+        return;
+    }
+    const uint qBase = environment * dispatch.qStride;
+    for (uint coordinate = 0u;
+         coordinate < dispatch.nq;
+         ++coordinate) {
+        checkpointQ[qBase + coordinate] =
+            stateQ[qBase + coordinate];
+    }
+    const uint vBase = environment * dispatch.vStride;
+    for (uint coordinate = 0u;
+         coordinate < dispatch.nv;
+         ++coordinate) {
+        checkpointV[vBase + coordinate] =
+            stateV[vBase + coordinate];
+    }
+    const uint sceneBase =
+        environment * contactDispatch.sceneBodyStride;
+    for (uint body = 0u;
+         body < contactDispatch.sceneBodyCount;
+         ++body) {
+        checkpointSceneState[sceneBase + body] =
+            sceneState[sceneBase + body];
+    }
+}
+
 // Starts one transactional control step. The checkpoint is always the last
 // committed resident state. Reset is applied only to the working source, so a
 // rejected transition restores the pre-reset state byte-for-byte.
@@ -180,11 +233,15 @@ kernel void mr_metal_world_prepare(
         ] != 0u;
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
+    const bool nativeTask =
+        (dispatch.flags & MR_METAL_WORLD_NATIVE_TASK) != 0u;
     for (uint coordinate = 0u;
          coordinate < dispatch.nq;
          ++coordinate) {
         const float committed = stateQ[qBase + coordinate];
-        checkpointQ[qBase + coordinate] = committed;
+        if (!nativeTask) {
+            checkpointQ[qBase + coordinate] = committed;
+        }
         const float value = applyReset
             ? resetQ[qBase + coordinate]
             : committed;
@@ -194,7 +251,9 @@ kernel void mr_metal_world_prepare(
          coordinate < dispatch.nv;
          ++coordinate) {
         const float committed = stateV[vBase + coordinate];
-        checkpointV[vBase + coordinate] = committed;
+        if (!nativeTask) {
+            checkpointV[vBase + coordinate] = committed;
+        }
         const float value = applyReset
             ? resetV[vBase + coordinate]
             : committed;
@@ -206,9 +265,6 @@ kernel void mr_metal_world_prepare(
         ];
         if ((dispatch.flags &
              MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u) {
-            const bool nativeTask =
-                (dispatch.flags &
-                 MR_METAL_WORLD_NATIVE_TASK) != 0u;
             const float4 controller = nativeTask
                 ? taskControllerParameters[environment]
                 : float4(1.0f);

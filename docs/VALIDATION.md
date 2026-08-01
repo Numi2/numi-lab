@@ -44,6 +44,16 @@ metadata and compact outputs, a still-valid resident token, and a successful
 following submission after the second obstacle moves clear. SensorIR is
 installed without TaskIR to prove that its runtime ownership is independent.
 
+The TaskIR transaction case repeats the same failure with native TaskIR and
+PolicyIR installed. A reference resident session advances normally while a
+candidate session attempts the rejected reset. The rejected result must retain
+its typed physics-error transition. The following accepted transition must be
+byte-identical between branches across q/v, scene/manifolds, actor and critic
+observations, policy samples/log probabilities/values, task transitions,
+SensorIR output/metadata, and contact evidence. This qualifies persistent
+per-environment TaskIR rollback; global curriculum scheduling remains outside
+that claim.
+
 The native integration owner runs five PPO updates through a three-slot shared
 rollout ring. It therefore covers slot reuse, managed MLX payload release,
 monotonic policy revisions, native rollout serialization, learner checkpoints,

@@ -1890,6 +1890,8 @@ kernel void mr_world_prepare_contact_step(
     const bool hasTargets =
         (dispatch.flags &
          MR_METAL_WORLD_CONTACT_HAS_KINEMATIC_TARGETS) != 0u;
+    const bool nativeTask =
+        (worldDispatch.flags & MR_METAL_WORLD_NATIVE_TASK) != 0u;
     const uint sceneBase =
         environment * dispatch.sceneBodyStride;
     const uint targetBase =
@@ -1901,13 +1903,15 @@ kernel void mr_world_prepare_contact_step(
          localScene < dispatch.sceneBodyCount;
          ++localScene) {
         const uint globalBody = sceneBodyIndices[localScene];
-        const MRBodyStateGPU committed =
+        const MRBodyStateGPU working =
             sceneState[sceneBase + localScene];
-        checkpointSceneState[sceneBase + localScene] =
-            committed;
+        if (!nativeTask) {
+            checkpointSceneState[sceneBase + localScene] =
+                working;
+        }
         MRBodyStateGPU value = applyReset
             ? resetSceneBodies[sceneBase + localScene]
-            : committed;
+            : working;
         if (hasTargets &&
             bodyProperties[globalBody].motionType ==
                 MR_MOTION_KINEMATIC) {

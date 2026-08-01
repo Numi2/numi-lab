@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "abi_version": 13,
+  "abi_version": 14,
   "pipeline_groups": [
     "core",
     "kinematics",
@@ -29,10 +29,13 @@
     ["kinematics", "bodyVelocityPipeline", "mr_articulated_materialize_body_velocities", "operator", 0],
 
     ["task", "taskObservePipeline", "mr_task_observe", "one", 0],
+    ["task", "taskPhysicalCheckpointPipeline", "mr_world_checkpoint_task_state", "one", 0],
+    ["task", "taskCheckpointPipeline", "mr_task_checkpoint_state", "one", 0],
     ["task", "taskFrameRefreshPipeline", "mr_task_refresh_frame_observations", "one", 0],
     ["task", "taskApplyPipeline", "mr_task_apply_actions", "one", 0],
     ["task", "taskEffortPipeline", "mr_task_measure_effort", "one", 0],
     ["task", "taskCompletePipeline", "mr_task_complete", "one", 0],
+    ["task", "taskRestorePipeline", "mr_task_restore_failed_state", "one", 0],
     ["task", "taskCurriculumPipeline", "mr_task_update_curriculum", "one", 0],
 
     ["sensor", "sensorSamplePipeline", "mr_sensor_sample_control_boundary", "one", 0],
@@ -203,7 +206,7 @@
     }
   ],
   "world_buffers": {
-    "count": 236,
+    "count": 246,
     "entries": [
       ["kWorld", 0],
       ["kArticulations", 1],
@@ -432,7 +435,17 @@
       ["kSensorCheckpointHistory", 232],
       ["kSensorCheckpointOutputs", 233],
       ["kSensorCheckpointMetadata", 234],
-      ["kCheckpointConvexCaches", 235]
+      ["kCheckpointConvexCaches", 235],
+      ["kTaskCheckpointState", 236],
+      ["kTaskCheckpointActionHistory", 237],
+      ["kTaskCheckpointActorHistory", 238],
+      ["kTaskCheckpointCleanHistory", 239],
+      ["kTaskCheckpointCriticHistory", 240],
+      ["kTaskCheckpointPreviousJointVelocity", 241],
+      ["kTaskCheckpointEncoderBias", 242],
+      ["kTaskCheckpointBodyParameters", 243],
+      ["kTaskCheckpointControllerParameters", 244],
+      ["kTaskCheckpointContactCompact", 245]
     ],
     "classifications": {
       "immutable": [
@@ -631,7 +644,17 @@
         "kSensorCheckpointHistory",
         "kSensorCheckpointOutputs",
         "kSensorCheckpointMetadata",
-        "kCheckpointConvexCaches"
+        "kCheckpointConvexCaches",
+        "kTaskCheckpointState",
+        "kTaskCheckpointActionHistory",
+        "kTaskCheckpointActorHistory",
+        "kTaskCheckpointCleanHistory",
+        "kTaskCheckpointCriticHistory",
+        "kTaskCheckpointPreviousJointVelocity",
+        "kTaskCheckpointEncoderBias",
+        "kTaskCheckpointBodyParameters",
+        "kTaskCheckpointControllerParameters",
+        "kTaskCheckpointContactCompact"
       ]
     },
     "persistent_inputs": [
@@ -878,6 +901,53 @@
         "RESET_MASKS",
         "CHECKPOINT_CACHES",
         "WORLD_STATUSES"
+      ]
+    },
+    {
+      "enum": "MRTaskTransactionBuffer",
+      "prefix": "MR_TASK_TRANSACTION_",
+      "bindings": [
+        "DISPATCH",
+        "PROGRAM",
+        "PASS",
+        "RESET_MASKS",
+        "WORLD_STATUSES",
+        "CONTACT_STATUSES",
+        "STATE",
+        "ACTION_HISTORY",
+        "ACTOR_HISTORY",
+        "CLEAN_HISTORY",
+        "CRITIC_HISTORY",
+        "PREVIOUS_JOINT_VELOCITY",
+        "ENCODER_BIAS",
+        "BODY_PARAMETERS",
+        "CONTROLLER_PARAMETERS",
+        "CONTACT_COMPACT",
+        "CHECKPOINT_STATE",
+        "CHECKPOINT_ACTION_HISTORY",
+        "CHECKPOINT_ACTOR_HISTORY",
+        "CHECKPOINT_CLEAN_HISTORY",
+        "CHECKPOINT_CRITIC_HISTORY",
+        "CHECKPOINT_PREVIOUS_JOINT_VELOCITY",
+        "CHECKPOINT_ENCODER_BIAS",
+        "CHECKPOINT_BODY_PARAMETERS",
+        "CHECKPOINT_CONTROLLER_PARAMETERS",
+        "CHECKPOINT_CONTACT_COMPACT"
+      ]
+    },
+    {
+      "enum": "MRTaskPhysicalCheckpointBuffer",
+      "prefix": "MR_TASK_PHYSICAL_CHECKPOINT_",
+      "bindings": [
+        "WORLD_DISPATCH",
+        "CONTACT_DISPATCH",
+        "PASS",
+        "STATE_Q",
+        "STATE_V",
+        "SCENE_STATE",
+        "CHECKPOINT_Q",
+        "CHECKPOINT_V",
+        "CHECKPOINT_SCENE_STATE"
       ]
     }
   ]
