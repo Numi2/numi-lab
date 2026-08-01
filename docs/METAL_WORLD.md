@@ -457,6 +457,48 @@ The former Python/MLX physics extension and MLX-owned task frontends have been
 removed. Simulator state, reset, reward, termination, observation construction,
 and rollout scheduling have one owner: the native compiled-task executor.
 
+### Apple-silicon training scale
+
+The production G1 visual-dodge path has been qualified on an Apple M4 Pro with
+Swift scheduling, native Metal physics/rendering/inference, and MLX used only
+for batch learning. Environment count is not inferred from a fixed product
+preset. Compilation accounts for the selected world, task, visual profile, and
+the Metal device's recommended working set.
+
+The canonical rollout artifact retains its 32-bit payload boundary. Darwin
+file transfers are issued in bounded chunks, so a valid payload larger than
+2 GiB is not passed to one oversized `write(2)` call. The learner memory-maps
+the artifact and retains rollout-sized tables as NumPy views. Only the active
+PPO minibatch is transferred into MLX; a 16,384-sample visual minibatch is about
+69 MiB instead of a second device-resident copy of the complete actor table.
+The masked-depth presentation preset also carries an explicit 4 GiB renderer
+preflight budget rather than inheriting the conservative standalone-renderer
+default.
+
+The measured qualification ladder on the 24 GiB M4 Pro is:
+
+| Environments | Steps | Samples | End-to-end rate | Result |
+| ---: | ---: | ---: | ---: | --- |
+| 1,024 | 256 | 262,144 | 3,596 env-steps/s | pass |
+| 2,048 | 64 | 131,072 | 3,685 env-steps/s | pass |
+| 4,096 | 64 | 262,144 | 3,756 env-steps/s | pass |
+| 8,192 | 32 | 262,144 | n/a | rejected before dispatch: persistent arena exceeds `recommendedMaxWorkingSetSize` |
+
+The 4,096 qualification reported zero failed environment-steps, 10.43 GB of
+retained buffer capacity, and 9.49 GB of transient private capacity. Those
+figures describe allocator classes and must not be added as if every byte were
+simultaneously resident. A longer 96-step rollout also passes, but its larger
+publication artifact creates materially more memory pressure than the 64-step
+qualification. Long campaigns therefore use measured horizon and swap behavior
+as promotion evidence in addition to raw environment count.
+
+This establishes 4,096 as the validated production scale for the current G1
+world. Raising the renderer budget cannot make 8,192 valid: after removing the
+visual preflight ceiling, MetalWorld reaches the device working-set guard. The
+route beyond that boundary is reducing persistent bytes per environment and
+aliasing transient stages more tightly, then repeating the same qualification;
+bypassing the device guard is not a scaling strategy.
+
 ### Balance recovery and get-up training
 
 Bundled G1 recovery uses the generic compiled TaskPack path. Select
